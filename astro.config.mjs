@@ -3,7 +3,6 @@ import { defineConfig } from 'astro/config';
 import tailwind from '@astrojs/tailwind';
 import react from "@astrojs/react";
 import cloudflare from "@astrojs/cloudflare";
-import { viewTransitions } from 'astro:transitions';
 
 // https://astro.build/config
 export default defineConfig({
@@ -12,7 +11,6 @@ export default defineConfig({
   adapter: cloudflare(),
   tsconfig: './tsconfig.json',
   integrations: [
-    viewTransitions(),
     react(),
     tailwind({
       configFile: './tailwind.config.js',
