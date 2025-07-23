@@ -1,0 +1,444 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+// Icons als SVG-Strings, um Abhängigkeiten zu vermeiden
+const ChevronDown = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 text-gray-500 transition-transform duration-200"><path d="m6 9 6 6 6-6"/></svg>';
+const SearchIcon = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 text-gray-400"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>';
+
+// Kategorie-Icons als SVG
+interface CategoryIcons {
+  [key: string]: string;
+}
+
+const categoryIcons: CategoryIcons = {
+  allgemein: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 mr-2"><path d="M3 3h18v18H3z"/><path d="M8 12h8"/><path d="M12 8v8"/></svg>',
+  konto: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 mr-2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
+  technik: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 mr-2"><rect width="20" height="14" x="2" y="5" rx="2"/><path d="M2 10h20"/></svg>'
+};
+
+// FAQ-Daten
+const faqCategories = [
+  {
+    id: 'allgemein',
+    title: 'Allgemeine Fragen',
+    icon: 'info',
+    items: [
+      {
+        question: 'Was ist EvolutionHub?',
+        answer: 'EvolutionHub ist eine Plattform für moderne Webentwicklung mit Fokus auf Performance, Benutzerfreundlichkeit und moderne Technologien.'
+      },
+      {
+        question: 'Welche Technologien werden verwendet?',
+        answer: 'Wir verwenden Astro für das Frontend, TypeScript für typsichere Entwicklung, und Tailwind CSS für das Styling. Unser Backend basiert auf modernen JavaScript/TypeScript-Technologien.'
+      },
+      {
+        question: 'Ist ein Konto erforderlich?',
+        answer: 'Für die meisten Funktionen benötigen Sie ein Konto. Einige Bereiche wie die Dokumentation und Blogbeiträge sind auch ohne Konto einsehbar.'
+      },
+      {
+        question: 'Wie wird der Datenschutz gewährleistet?',
+        answer: 'Wir legen großen Wert auf Datenschutz und Sicherheit. Alle Daten werden verschlüsselt übertragen und gemäß der DSGVO verarbeitet.'
+      },
+      {
+        question: 'Wann ist der Support erreichbar?',
+        answer: 'Unser Support-Team ist von Montag bis Freitag, 9 bis 18 Uhr, für Sie erreichbar.'
+      },
+      {
+        question: 'Ist EvolutionHub auch mobil nutzbar?',
+        answer: 'Ja, unsere Plattform ist für mobile Geräte optimiert und kann auf Smartphones und Tablets genutzt werden.'
+      },
+      {
+        question: 'Ist die Plattform barrierefrei?',
+        answer: 'Wir arbeiten kontinuierlich daran, die Barrierefreiheit unserer Plattform zu verbessern, um sie für alle Nutzer zugänglich zu machen.'
+      }
+    ]
+  },
+  {
+    id: 'konto',
+    title: 'Konto & Abonnement',
+    icon: 'konto',
+    items: [
+      {
+        question: 'Wie erstelle ich ein Konto?',
+        answer: 'Klicken Sie auf "Registrieren" in der oberen Navigation und folgen Sie den Anweisungen. Sie benötigen eine gültige E-Mail-Adresse.'
+      },
+      {
+        question: 'Wie kann ich mein Passwort zurücksetzen?',
+        answer: 'Auf der Anmeldeseite finden Sie einen Link "Passwort vergessen". Geben Sie Ihre E-Mail-Adresse ein und folgen Sie den Anweisungen in der erhaltenen E-Mail.'
+      },
+      {
+        question: 'Wie kündige ich mein Abonnement?',
+        answer: 'Gehen Sie zu Ihren Kontoeinstellungen und wählen Sie "Abonnement verwalten". Dort können Sie Ihr Abonnement kündigen.'
+      },
+      {
+        question: 'Welche Abonnement-Pläne gibt es?',
+        answer: 'Wir bieten verschiedene Pläne an, die auf unterschiedliche Bedürfnisse zugeschnitten sind. Details finden Sie auf unserer Pricing-Seite.'
+      },
+      {
+        question: 'Welche Zahlungsmethoden werden akzeptiert?',
+        answer: 'Wir akzeptieren Kreditkarten, PayPal und SEPA-Lastschriftverfahren.'
+      },
+      {
+        question: 'Wie kann ich mein Konto wiederherstellen, wenn ich den Zugang verliere?',
+        answer: 'Nutzen Sie die Passwort-zurücksetzen-Funktion oder kontaktieren Sie unseren Support für weitere Hilfe.'
+      },
+      {
+        question: 'Wie verwalte ich meine Benachrichtigungseinstellungen?',
+        answer: 'In Ihren Kontoeinstellungen können Sie festlegen, welche Benachrichtigungen Sie erhalten möchten.'
+      }
+    ]
+  },
+  {
+    id: 'technik',
+    title: 'Technische Fragen',
+    icon: 'technik',
+    items: [
+      {
+        question: 'Welche Browser werden unterstützt?',
+        answer: 'Wir unterstützen die aktuellen Versionen von Chrome, Firefox, Safari, und Edge. Ältere Browser werden möglicherweise nicht vollständig unterstützt.'
+      },
+      {
+        question: 'Wie kann ich die API nutzen?',
+        answer: 'Unsere API-Dokumentation finden Sie unter /api-docs. Sie benötigen einen API-Schlüssel, den Sie in Ihren Kontoeinstellungen generieren können.'
+      },
+      {
+        question: 'Wie melde ich einen Fehler?',
+        answer: 'Bitte nutzen Sie unser Fehlerformular unter /kontakt oder erstellen Sie ein Issue in unserem GitHub-Repository.'
+      },
+      {
+        question: 'Gibt es Nutzungslimits für die API?',
+        answer: 'Ja, unsere API hat Nutzungslimits, um eine faire Verteilung der Ressourcen sicherzustellen. Details finden Sie in der API-Dokumentation.'
+      },
+      {
+        question: 'Kann ich EvolutionHub mit Drittanbieter-Tools integrieren?',
+        answer: 'Ja, wir bieten Integrationen und Webhooks für verschiedene Drittanbieter-Services an.'
+      },
+      {
+        question: 'Welche Systemanforderungen gibt es?',
+        answer: 'Für die Nutzung empfehlen wir aktuelle Browser und eine stabile Internetverbindung.'
+      },
+      {
+        question: 'Gibt es Backup- und Wiederherstellungsoptionen?',
+        answer: 'Ja, Ihre Daten werden regelmäßig gesichert und können bei Bedarf wiederhergestellt werden.'
+      }
+    ]
+  }
+];
+---
+
+<BaseLayout title="Häufig gestellte Fragen">
+  <!-- Hero Section -->
+  <section class="py-16 md:py-24 bg-gradient-to-br from-primary/5 to-purple-500/5 dark:from-gray-800 dark:to-gray-900">
+    <div class="container mx-auto px-4">
+      <div class="max-w-4xl mx-auto text-center">
+        <h1 class="text-4xl md:text-5xl font-bold mb-6 text-gray-900 dark:text-white">
+          Häufig gestellte Fragen
+        </h1>
+        <p class="text-xl text-gray-600 dark:text-gray-300">
+          Finden Sie Antworten auf die am häufigsten gestellten Fragen
+        </p>
+        
+        <!-- Suchleiste -->
+        <div class="mt-10 max-w-2xl mx-auto relative">
+          <div class="relative">
+            <input
+              type="text"
+              id="faq-search"
+              placeholder="Suchen Sie nach einer Frage oder einem Stichwort..."
+              class="w-full px-5 py-4 pr-12 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200"
+            />
+            <span class="absolute right-4 top-1/2 transform -translate-y-1/2" set:html={SearchIcon} />
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ Content -->
+  <section class="py-16 md:py-20 bg-white dark:bg-gray-900 min-h-[50vh]">
+    <div class="container mx-auto px-4">
+      <div class="max-w-4xl mx-auto">
+        <!-- Kategorien-Navigation -->
+        <div class="flex flex-wrap gap-3 mb-10 justify-center" id="faq-categories">
+          <button 
+            class="px-4 py-2 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400 font-medium text-sm transition-colors duration-200"
+            data-category="all"
+          >
+            Alle anzeigen
+          </button>
+          {faqCategories.map(category => {
+            const iconHtml = categoryIcons[category.id];
+            return (
+              <div key={category.id}>
+                <button 
+                  class="px-4 py-2 rounded-full bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 font-medium text-sm hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200 flex items-center gap-2"
+                  data-category={category.id}
+                >
+                  <span class="w-5 h-5 flex items-center justify-center" set:html={iconHtml}></span>
+                  <span>{category.title}</span>
+                </button>
+              </div>
+            );
+          })}
+        </div>
+
+        <!-- FAQ-Liste -->
+        <div class="space-y-4" id="faq-container">
+          {faqCategories.map(category => (
+            <div class="space-y-4" data-category={category.id}>
+              <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                <span class="w-5 h-5 mr-2" set:html={categoryIcons[category.id] || categoryIcons.allgemein}></span>
+                <span>{category.title}</span>
+              </h2>
+              
+              <div class="space-y-4">
+                {category.items.map((item, index) => {
+                  const itemId = `faq-${category.id}-${index}`;
+                  return (
+                    <div class="faq-item bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden transition-all duration-200 hover:shadow-md dark:hover:shadow-lg dark:hover:shadow-gray-900/10">
+                      <button 
+                        class="w-full px-6 py-5 text-left flex items-center justify-between focus:outline-none group hover:bg-gray-50/80 dark:hover:bg-gray-700/80 transition-colors duration-200"
+                        aria-expanded="false"
+                        aria-controls={itemId}
+                        id={`${itemId}-button`}
+                      >
+                        <span class="font-medium text-gray-900 dark:text-white">{item.question}</span>
+                        <span class="text-gray-400 dark:text-gray-400 transition-transform duration-200 group-aria-expanded:rotate-180" set:html={ChevronDown}></span>
+                      </button>
+                      <div 
+                        id={itemId}
+                        class="px-6 py-4 hidden text-gray-600 dark:text-gray-300"
+                        aria-labelledby={`${itemId}-button`}
+                      >
+                        <div class="flex items-center">
+                          <div class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-3 flex-shrink-0"></div>
+                          <p class="leading-relaxed text-gray-700 dark:text-gray-300">{item.answer}</p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <!-- No Results -->
+        <div id="no-results" class="hidden text-center py-10">
+          <div class="text-6xl mb-4">🔍</div>
+          <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Keine Ergebnisse gefunden</h3>
+          <p class="text-gray-600 dark:text-gray-400">Versuchen Sie es mit einem anderen Suchbegriff oder durchsuchen Sie unsere <a href="/kontakt" class="text-emerald-600 hover:text-emerald-500 dark:text-emerald-400 dark:hover:text-emerald-300 font-medium">Kontaktseite</a>.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section class="py-16 bg-gradient-to-br from-emerald-50 to-cyan-50 dark:from-gray-800 dark:to-gray-900">
+    <div class="container mx-auto px-4">
+      <div class="max-w-4xl mx-auto bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden">
+        <div class="grid md:grid-cols-2">
+          <!-- Contact Form -->
+          <div class="p-8 md:p-10">
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Frage nicht gefunden?</h2>
+            <p class="text-gray-600 dark:text-gray-300 mb-6">Kein Problem! Senden Sie uns einfach eine Nachricht und wir melden uns schnellstmöglich bei Ihnen zurück.</p>
+            
+            <form class="space-y-4">
+              <div>
+                <label for="faq-email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Ihre E-Mail</label>
+                <input 
+                  type="email" 
+                  id="faq-email" 
+                  name="email" 
+                  required
+                  class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition duration-200"
+                >
+              </div>
+
+              <div>
+                <label for="faq-message" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Ihre Frage</label>
+                <textarea 
+                  id="faq-message" 
+                  name="message" 
+                  rows="4" 
+                  required
+                  class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition duration-200"
+                  placeholder="Beschreiben Sie Ihr Anliegen..."
+                ></textarea>
+              </div>
+
+              <div class="flex items-start">
+                <input 
+                  id="faq-privacy" 
+                  name="privacy" 
+                  type="checkbox" 
+                  required
+                  class="h-4 w-4 mt-1 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded"
+                >
+                <label for="faq-privacy" class="ml-2 block text-sm text-gray-700 dark:text-gray-300">
+                  Ich stimme der <a href="/datenschutz" class="text-emerald-600 hover:text-emerald-500 dark:text-emerald-400 dark:hover:text-emerald-300">Datenschutzerklärung</a> zu.
+                </label>
+              </div>
+
+              <div class="pt-2">
+                <button 
+                  type="submit" 
+                  class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition duration-200"
+                >
+                  Nachricht senden
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Contact Info -->
+          <div class="bg-gradient-to-br from-emerald-100 to-cyan-100 dark:from-gray-800 dark:to-gray-900 p-8 md:p-10 flex flex-col justify-center">
+            <div class="space-y-6">
+              <div>
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Kontaktinformationen</h3>
+                <p class="text-gray-600 dark:text-gray-300 text-sm">
+                  Unser Support-Team ist für Sie da. Schreiben Sie uns oder rufen Sie uns an.
+                </p>
+              </div>
+
+              <div class="space-y-4">
+                <div class="flex items-start">
+                  <div class="flex-shrink-0 h-10 w-10 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
+                    <svg class="h-5 w-5 text-emerald-600 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-900 dark:text-white">E-Mail</p>
+                    <a href="mailto:support@evolutionhub.de" class="text-sm text-emerald-600 hover:text-emerald-500 dark:text-emerald-400 dark:hover:text-emerald-300">support@evolutionhub.de</a>
+                  </div>
+                </div>
+
+                <div class="flex items-start">
+                  <div class="flex-shrink-0 h-10 w-10 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
+                    <svg class="h-5 w-5 text-emerald-600 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                    </svg>
+                  </div>
+                  <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-900 dark:text-white">Support-Hotline</p>
+                    <p class="text-sm text-gray-600 dark:text-gray-300">Mo-Fr, 9-18 Uhr</p>
+                    <a href="tel:+4980012345678" class="text-sm text-emerald-600 hover:text-emerald-500 dark:text-emerald-400 dark:hover:text-emerald-300">0800 12345678</a>
+                  </div>
+                </div>
+              </div>
+
+              <div class="pt-4">
+                <p class="text-xs text-gray-500 dark:text-gray-400">
+                  Durchschnittliche Antwortzeit: <span class="font-medium">innerhalb von 24h</span> an Werktagen.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Toggle FAQ items
+      document.querySelectorAll('.faq-item button').forEach(button => {
+        if (!(button instanceof HTMLElement)) return;
+        
+        button.addEventListener('click', () => {
+          const isExpanded = button.getAttribute('aria-expanded') === 'true';
+          const contentId = button.getAttribute('aria-controls');
+          if (!contentId) return;
+          
+          const content = document.getElementById(contentId);
+          const icon = button.querySelector('span');
+          
+          // Toggle content
+          content?.classList.toggle('hidden', isExpanded);
+          content?.classList.toggle('block', !isExpanded);
+          
+          // Update aria-expanded
+          button.setAttribute('aria-expanded', String(!isExpanded));
+        });
+      });
+
+      // Filter by category
+      const categoryButtons = document.querySelectorAll<HTMLButtonElement>('#faq-categories button');
+      
+      categoryButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          const category = button.getAttribute('data-category');
+          if (!category) return;
+          
+          // Update active button
+          categoryButtons.forEach(btn => {
+            if (!(btn instanceof HTMLElement)) return;
+            
+            const isActive = btn === button;
+            btn.classList.toggle('bg-emerald-100', isActive);
+            btn.classList.toggle('dark:bg-emerald-900/30', isActive);
+            btn.classList.toggle('text-emerald-800', isActive);
+            btn.classList.toggle('dark:text-emerald-400', isActive);
+            
+            if (btn !== button) {
+              btn.classList.add('bg-gray-100', 'dark:bg-gray-800', 'text-gray-700', 'dark:text-gray-300');
+              btn.classList.remove('hover:bg-gray-200', 'dark:hover:bg-gray-700');
+            }
+          });
+          
+          // Show/hide categories
+          document.querySelectorAll<HTMLElement>('[data-category]').forEach(el => {
+            if (!el.id || el.id === 'faq-container') return;
+            
+            if (category === 'all') {
+              el.style.display = 'block';
+            } else {
+              el.style.display = el.getAttribute('data-category') === category ? 'block' : 'none';
+            }
+          });
+        });
+      });
+
+      // Search functionality
+      const searchInput = document.getElementById('faq-search');
+      const noResults = document.getElementById('no-results');
+      
+      searchInput?.addEventListener('input', (e) => {
+        const target = e.target as HTMLInputElement;
+        const searchTerm = target.value.toLowerCase().trim();
+        let hasResults = false;
+        
+        if (searchTerm.length < 2) {
+          // Show all if search term is too short
+          document.querySelectorAll<HTMLElement>('.faq-item').forEach(item => {
+            item.style.display = 'block';
+          });
+          noResults?.classList.add('hidden');
+          return;
+        }
+        
+        // Search in questions and answers
+        document.querySelectorAll<HTMLElement>('.faq-item').forEach(item => {
+          const question = item.querySelector('button')?.textContent?.toLowerCase() || '';
+          const answer = item.querySelector('div[aria-labelledby]')?.textContent?.toLowerCase() || '';
+          
+          if (question.includes(searchTerm) || answer.includes(searchTerm)) {
+            item.style.display = 'block';
+            hasResults = true;
+            
+            // Show parent category
+            const category = item.closest<HTMLElement>('[data-category]');
+            if (category?.dataset?.category && category.dataset.category !== 'all') {
+              category.style.display = 'block';
+            }
+          } else {
+            item.style.display = 'none';
+          }
+        });
+        
+        // Show no results message if no matches found
+        noResults?.classList.toggle('hidden', hasResults);
+      });
+    });
+  </script>
+</BaseLayout>

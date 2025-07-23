@@ -1,0 +1,102 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const features = [
+  {
+    title: 'AI-Powered',
+    description: 'Leverage cutting-edge AI to automate your workflows and boost productivity.',
+    icon: '🤖',
+  },
+  {
+    title: 'Fully Responsive',
+    description: 'Works seamlessly on all devices, from mobile to desktop.',
+    icon: '📱',
+  },
+  {
+    title: 'Secure by Design',
+    description: 'Enterprise-grade security to keep your data safe and private.',
+    icon: '🔒',
+  },
+  {
+    title: 'Lightning Fast',
+    description: 'Built with performance in mind for the best user experience.',
+    icon: '⚡',
+  },
+];
+---
+
+<BaseLayout title="Welcome">
+  <!-- Hero Section -->
+  <section class="py-20 md:py-32 bg-gradient-to-br from-primary/5 to-purple-500/5 dark:from-gray-800 dark:to-gray-900">
+    <div class="container mx-auto px-4 text-center">
+      <h1 class="text-4xl md:text-6xl font-bold mb-6 text-gray-900 dark:text-white">
+        Build the Future with <span class="bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">AI-Powered Tools</span>
+      </h1>
+      <p class="text-xl md:text-2xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-10">
+        Streamline your workflow with our powerful suite of AI tools designed for developers and creators.
+      </p>
+      
+      <div class="flex flex-col sm:flex-row justify-center gap-4">
+        <a href="/dashboard" class="btn btn-primary text-lg px-8 py-3 dark:text-white">
+          Get Started
+        </a>
+        <a href="/docs" class="btn btn-outline text-lg px-8 py-3 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700">
+          Dokumentation
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section id="features" class="py-20 bg-white dark:bg-gray-900">
+    <div class="container mx-auto px-4">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl md:text-4xl font-bold mb-4 text-gray-900 dark:text-white">Powerful Features</h2>
+        <p class="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+          Everything you need to build amazing applications with AI assistance.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        {features.map((feature, index) => (
+          <div 
+            class="glass p-6 rounded-xl hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
+            data-aos="fade-up"
+            data-aos-delay={`${index * 100}`}
+          >
+            <div class="text-4xl mb-4">{feature.icon}</div>
+            <h3 class="text-xl font-bold mb-2 text-gray-900 dark:text-white">{feature.title}</h3>
+            <p class="text-gray-600 dark:text-gray-400">{feature.description}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="py-20 bg-gradient-to-r from-primary to-purple-600 text-white">
+    <div class="container mx-auto px-4 text-center">
+      <h2 class="text-3xl md:text-4xl font-bold mb-6">Ready to get started?</h2>
+      <p class="text-xl mb-8 max-w-2xl mx-auto opacity-90">
+        Join thousands of developers already using Evolution Hub to build amazing applications.
+      </p>
+      <a href="/signup" class="inline-block bg-white text-primary text-lg font-semibold px-8 py-3 rounded-lg hover:bg-gray-100 transition-colors">
+        Create Free Account
+      </a>
+    </div>
+  </section>
+</BaseLayout>
+
+<!-- Custom Scripts -->
+<script is:inline>
+  // Add transition classes to feature items on page load
+  document.addEventListener('DOMContentLoaded', () => {
+    const featureItems = document.querySelectorAll('[data-aos]');
+    featureItems.forEach(item => {
+      item.classList.add('opacity-0', 'translate-y-4', 'transition-all', 'duration-500', 'ease-out');
+    });
+  });
+</script>
+
+<!-- Load main script as module -->
+<script type="module" src="../scripts/main.ts" is:inline></script>

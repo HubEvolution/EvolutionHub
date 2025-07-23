@@ -1,0 +1,216 @@
+---
+import type { ProcessedBlogPost } from '../content/types';
+import BlogCard from './BlogCard.astro';
+
+interface Props {
+  post: ProcessedBlogPost;
+  relatedPosts?: ProcessedBlogPost[];
+  className?: string;
+}
+
+const { post, relatedPosts = [], className = '' } = Astro.props;
+
+const {
+  title,
+  description,
+  image,
+  imageAlt,
+  category,
+  tags = [],
+  author,
+} = post.data;
+
+const {
+  url,
+  formattedPubDate,
+  formattedUpdatedDate,
+  readingTime,
+} = post;
+
+// Helper to get author details safely
+const authorName = author ? (typeof author === 'string' ? author : author.name) : 'Anonymous';
+const authorInitial = authorName !== 'Anonymous' && authorName.length > 0 ? authorName.charAt(0) : '?';
+
+// Bereite die URL für das Teilen des Artikels vor
+const shareUrl = new URL(Astro.url);
+const shareTitle = encodeURIComponent(title);
+const shareText = encodeURIComponent(`${title} - EvolutionHub`);
+const twitterShareUrl = `https://twitter.com/intent/tweet?text=${shareTitle}&url=${shareUrl}`;
+const linkedinShareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${shareUrl}`;
+const facebookShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`;
+---
+
+<article
+  class:list={['prose prose-lg max-w-none dark:prose-invert', className]}
+  itemscope
+  itemtype="http://schema.org/BlogPosting"
+  itemid={post.url}
+>
+  <header class="mb-12">
+    {category && (
+      <div class="mb-4">
+        <a
+          href={`/blog/kategorie/${category.toLowerCase()}/`}
+          class="inline-flex items-center px-3 py-1 text-sm font-medium rounded-full bg-primary-100 text-primary-800 dark:bg-primary-900 dark:text-primary-100 hover:bg-primary-200 dark:hover:bg-primary-800 transition-colors"
+        >
+          {category}
+        </a>
+      </div>
+    )}
+
+    <h1 class="text-4xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-5xl mb-4">
+      {title}
+    </h1>
+
+    <p class="mt-3 text-xl text-gray-500 dark:text-gray-400">
+      {description}
+    </p>
+
+    <div class="mt-6 flex items-center">
+      <div class="flex-shrink-0">
+        {author && typeof author === 'object' && author.avatar ? (
+          <img
+            class="h-10 w-10 rounded-full"
+            src={author.avatar}
+            alt={author.name}
+          />
+        ) : (
+          <span class="inline-flex items-center justify-center h-10 w-10 rounded-full bg-gray-200 dark:bg-gray-700">
+            <span class="text-lg font-medium text-gray-600 dark:text-gray-300">
+              {authorInitial}
+            </span>
+          </span>
+        )}
+      </div>
+
+      <div class="ml-3">
+        <p class="text-sm font-medium text-gray-900 dark:text-white">
+          {authorName}
+        </p>
+        <div class="flex space-x-1 text-sm text-gray-500 dark:text-gray-400">
+          <time datetime={new Date(post.data.pubDate).toISOString()}>
+            {formattedPubDate}
+          </time>
+
+          {readingTime && (
+            <>
+              <span aria-hidden="true">·</span>
+              <span>{readingTime.text}</span>
+            </>
+          )}
+
+          {formattedUpdatedDate && (
+            <>
+              <span aria-hidden="true">·</span>
+              <span class="flex items-center">
+                <svg class="mr-1.5 h-4 w-4 flex-shrink-0 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Aktualisiert am {formattedUpdatedDate}
+              </span>
+            </>
+          )}
+        </div>
+      </div>
+
+      <div class="ml-auto flex space-x-3">
+        <a
+          href={twitterShareUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center justify-center p-2 text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
+          aria-label="Auf Twitter teilen"
+        >
+          <span class="sr-only">Auf Twitter teilen</span>
+          <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84"></path>
+          </svg>
+        </a>
+
+        <a
+          href={facebookShareUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center justify-center p-2 text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
+          aria-label="Auf Facebook teilen"
+        >
+          <span class="sr-only">Auf Facebook teilen</span>
+          <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+            <path fill-rule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" clip-rule="evenodd"></path>
+          </svg>
+        </a>
+
+        <a
+          href={linkedinShareUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center justify-center p-2 text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
+          aria-label="Auf LinkedIn teilen"
+        >
+          <span class="sr-only">Auf LinkedIn teilen</span>
+          <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+
+    {image && (
+      <div class="mt-8">
+        <div class="aspect-w-16 aspect-h-9 overflow-hidden rounded-lg">
+          <img
+            src={image.src}
+            alt={imageAlt || title}
+            class="h-full w-full object-cover object-center"
+            loading="lazy"
+          />
+        </div>
+        {imageAlt && (
+          <p class="mt-2 text-center text-sm text-gray-500 dark:text-gray-400">
+            {imageAlt}
+          </p>
+        )}
+      </div>
+    )}
+  </header>
+
+  <div class="prose-lg max-w-none" itemprop="articleBody">
+    <slot />
+  </div>
+
+  {(tags.length > 0 || relatedPosts.length > 0) && (
+    <footer class="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700">
+      {tags.length > 0 && (
+        <div class="mb-8">
+          <h2 class="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider mb-4">
+            Tags
+          </h2>
+          <div class="flex flex-wrap gap-2">
+            {tags.map(tag => (
+              <a
+                href={`/blog/tag/${tag.toLowerCase()}`}
+                class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 transition-colors"
+              >
+                {tag}
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {relatedPosts && relatedPosts.length > 0 && (
+        <div class="mt-16">
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Ähnliche Artikel</h2>
+          <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {relatedPosts.map((relatedPost) => (
+              <BlogCard
+                post={relatedPost}
+                className="h-full"
+              />
+            ))}
+          </div>
+        </div>
+      )}
+    </footer>
+  )}
+</article>

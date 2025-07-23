@@ -1,0 +1,80 @@
+---
+// src/components/dashboard/UserProfile.astro
+---
+<div class="p-6 bg-white rounded-lg shadow-md dark:bg-gray-800">
+  <div class="flex items-center space-x-4">
+    <div class="flex-shrink-0">
+      <img 
+        class="w-16 h-16 rounded-full border-4 border-emerald-400" 
+        id="user-avatar"
+        src="/assets/svg/logo.svg" 
+        alt="Benutzer-Avatar"
+      />
+    </div>
+    <div>
+      <h3 class="text-xl font-bold text-gray-900 dark:text-white" id="user-name">Lädt...</h3>
+      <p class="text-sm text-gray-500 dark:text-gray-400" id="user-email"></p>
+    </div>
+  </div>
+  <div class="mt-6">
+    <h4 class="text-lg font-medium text-gray-900 dark:text-white">Konto-Aktionen</h4>
+    <div class="mt-4 space-y-3" id="account-actions">
+      <p class="text-red-500 hidden" id="error-message">Fehler beim Laden der Benutzerdaten.</p>
+      <button id="logout-button" class="w-full px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+        Abmelden
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', async () => {
+    const avatarEl = document.getElementById('user-avatar') as HTMLImageElement;
+    const nameEl = document.getElementById('user-name');
+    const emailEl = document.getElementById('user-email');
+    const errorMessageEl = document.getElementById('error-message');
+    const logoutButton = document.getElementById('logout-button');
+
+    try {
+      const response = await fetch('/api/user/me');
+      if (!response.ok) {
+        throw new Error('Failed to fetch user data');
+      }
+      const user = await response.json();
+
+      if (avatarEl && user.image) {
+        avatarEl.src = user.image;
+      }
+      if (nameEl) {
+        nameEl.textContent = user.name || 'Unbekannter Benutzer';
+      }
+      if (emailEl) {
+        emailEl.textContent = user.email || '';
+      }
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+      if (errorMessageEl) {
+        errorMessageEl.classList.remove('hidden');
+      }
+      if (nameEl) {
+        nameEl.textContent = 'Fehler';
+      }
+    }
+
+    logoutButton?.addEventListener('click', async () => {
+      try {
+        // We need a logout endpoint for this to work
+        // const response = await fetch('/api/logout', { method: 'POST' });
+        // if (response.ok) {
+        //   window.location.href = '/login';
+        // } else {
+        //   alert('Abmeldung fehlgeschlagen.');
+        // }
+        alert('Logout-Funktionalität noch nicht implementiert.');
+      } catch (error) {
+        console.error('Logout failed:', error);
+        alert('Abmeldung fehlgeschlagen.');
+      }
+    });
+  });
+</script>

@@ -1,0 +1,208 @@
+---
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const blogEntries = await getCollection('blog');
+  return blogEntries.map(entry => ({
+    params: { slug: entry.slug }, props: { entry },
+  }));
+}
+export const prerender = true;
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { blogService } from '../../lib/blog';
+import BlogPostComponent from '../../components/BlogPost.astro';
+import type { ProcessedBlogPost } from '../../content/types';
+import CommentSection from '../../components/comments/CommentSection.astro';
+
+// Get slug from URL
+const { slug } = Astro.params;
+
+if (!slug) {
+  return Astro.redirect('/404');
+}
+
+// Try to load the blog post
+let post: ProcessedBlogPost | null = null;
+try {
+  const result = await blogService.getPostBySlug(slug);
+  if (result) {
+    post = result;
+  }
+} catch (error) {
+  console.error('Error loading blog post:', error);
+  return Astro.redirect('/404');
+}
+
+// If no post found, redirect to 404
+if (!post) {
+  return Astro.redirect('/404');
+}
+
+const { Content } = await post.render();
+
+// Load related posts (based on tags and category)
+let relatedPosts: ProcessedBlogPost[] = [];
+
+if (post) {
+  try {
+    const related = await blogService.getRelatedPosts(post, { 
+      limit: 3,
+      includeDrafts: import.meta.env.DEV 
+    });
+    
+    // Ensure we have an array and filter out any invalid posts
+    if (Array.isArray(related)) {
+      relatedPosts = related.filter((p): p is ProcessedBlogPost => 
+        p && typeof p === 'object' && 'id' in p && 'data' in p
+      );
+    }
+  } catch (error) {
+    console.error('Fehler beim Laden verwandter Beiträge:', error);
+    relatedPosts = [];
+  }
+}
+
+// SEO Metadaten
+const title = post.data.title;
+const description = post.data.description || '';
+const canonicalUrl = new URL(Astro.url.pathname, Astro.site);
+const imageUrl = post.data.image 
+  ? new URL(post.data.image.src, Astro.site).toString()
+  : new URL('/images/blog/default-og.jpg', Astro.site).toString();
+
+// Refactored logic for dateModified
+const dateModified = post.data.updatedDate 
+  ? new Date(post.data.updatedDate).toISOString() 
+  : new Date(post.data.pubDate).toISOString();
+
+// Strukturierte Daten für SEO (Schema.org)
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'BlogPosting',
+  headline: title,
+  description: description,
+  image: imageUrl,
+  author: {
+    '@type': 'Person',
+    name: post.data.author.name || 'EvolutionHub Team',
+    url: 'https://evolution-hub.de/team'
+  },
+  publisher: {
+    '@type': 'Organization',
+    name: 'EvolutionHub',
+    logo: {
+      '@type': 'ImageObject',
+      url: new URL('/images/logo.png', Astro.site).toString()
+    }
+  },
+  datePublished: new Date(post.data.pubDate).toISOString(),
+  dateModified: dateModified,
+  mainEntityOfPage: {
+    '@type': 'WebPage',
+    '@id': canonicalUrl.toString()
+  }
+};
+---
+
+<BaseLayout 
+  title={title}
+  description={description}
+  canonical={canonicalUrl.toString()}
+  structuredData={structuredData}
+  image={imageUrl}
+  type="article"
+  publishedTime={new Date(post.data.pubDate).toISOString()}
+  modifiedTime={post.data.updatedDate ? new Date(post.data.updatedDate).toISOString() : undefined}
+  author={post.data.author.name || 'EvolutionHub Team'}
+  section={post.data.category}
+  tags={post.data.tags}
+>
+  <article class="bg-white dark:bg-gray-900 py-12 sm:py-16">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+      <div class="mx-auto max-w-3xl">
+        {/* Blog-Post-Komponente rendern */}
+        <BlogPostComponent post={post} relatedPosts={relatedPosts}>
+          <Content />
+        </BlogPostComponent>
+
+        {/* Kommentarbereich */}
+        <CommentSection postId={post.slug} />
+      </div>
+    </div>
+  </article>
+
+  {/* Newsletter-Anmeldung */}
+  <div class="bg-gray-50 dark:bg-gray-800 py-16">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+      <div class="mx-auto max-w-2xl text-center">
+        <h2 class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-3xl">
+          Bleiben Sie auf dem Laufenden
+        </h2>
+        <p class="mx-auto mt-4 max-w-xl text-gray-600 dark:text-gray-300">
+          Abonnieren Sie unseren Newsletter, um über neue Artikel, Tipps und Neuigkeiten informiert zu werden.
+        </p>
+        <form class="mt-8 sm:mx-auto sm:flex sm:max-w-lg">
+          <div class="min-w-0 flex-1">
+            <label for="email" class="sr-only">E-Mail-Adresse</label>
+            <input
+              id="email"
+              type="email"
+              placeholder="Ihre E-Mail-Adresse"
+              class="block w-full rounded-md border-0 px-4 py-3 text-base text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+              required
+            />
+          </div>
+          <div class="mt-4 sm:mt-0 sm:ml-3">
+            <button
+              type="submit"
+              class="block w-full rounded-md bg-emerald-600 px-6 py-3 text-base font-medium text-white hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+            >
+              Jetzt anmelden
+            </button>
+          </div>
+        </form>
+        <p class="mt-3 text-sm text-gray-500 dark:text-gray-400">
+          Wir geben Ihre Daten nicht weiter. Sie können sich jederzeit wieder abmelden.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script is:inline>
+    // Verbessere die Lesbarkeit für lange Artikel
+    document.addEventListener('DOMContentLoaded', () => {
+      // Füge Lazy Loading für Bilder im Beitrag hinzu
+      const images = document.querySelectorAll('article img:not([loading])');
+      images.forEach(img => {
+        img.loading = 'lazy';
+      });
+
+      // Füge Smooth Scrolling für interne Links hinzu
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+          e.preventDefault();
+          const targetId = this.getAttribute('href');
+          if (targetId === '#') return;
+          
+          const targetElement = document.querySelector(targetId);
+          if (targetElement) {
+            targetElement.scrollIntoView({
+              behavior: 'smooth',
+              block: 'start'
+            });
+            
+            // Füge den Hash zur URL hinzu, ohne die Seite neu zu laden
+            history.pushState(null, '', targetId);
+          }
+        });
+      });
+
+      // Aktiviere Tooltips für Fußnoten
+      const footnotes = document.querySelectorAll('a[href^="#fn"], a[href^="#ref"]');
+      footnotes.forEach(fn => {
+        fn.setAttribute('data-tooltip', 'Zum entsprechenden Absatz springen');
+        fn.classList.add('underline', 'decoration-dotted', 'decoration-gray-400', 'underline-offset-4');
+      });
+    });
+  </script>
+</BaseLayout>

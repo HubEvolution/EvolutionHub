@@ -1,0 +1,304 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Cookie-Einstellungen">
+  <!-- Hero Section -->
+  <section class="py-16 md:py-24 bg-gradient-to-br from-primary/5 to-purple-500/5 dark:from-gray-800 dark:to-gray-900">
+    <div class="container mx-auto px-4">
+      <div class="max-w-4xl mx-auto text-center">
+        <h1 class="text-4xl md:text-5xl font-bold mb-6 text-gray-900 dark:text-white">
+          Cookie-Einstellungen
+        </h1>
+        <p class="text-xl text-gray-600 dark:text-gray-300">
+          Verwalten Sie Ihre Cookie-Einstellungen für diese Website
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Cookie Settings Section -->
+  <section class="py-16 md:py-20 bg-gray-50 dark:bg-gray-900">
+    <div class="container mx-auto px-4">
+      <div class="max-w-4xl mx-auto">
+        <div class="bg-transparent dark:bg-transparent rounded-2xl shadow-xl overflow-hidden">
+          <!-- Introduction -->
+          <div class="p-8 md:p-10 bg-white dark:bg-gray-800 rounded-t-2xl border-b border-gray-200 dark:border-gray-700">
+            <p class="text-gray-600 dark:text-gray-300 mb-6">
+              Wir verwenden Cookies und ähnliche Technologien, um Ihnen das beste Erlebnis auf unserer Website zu bieten. 
+              Sie können Ihre Einstellungen jederzeit anpassen.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4">
+              <button 
+                id="accept-all" 
+                class="px-6 py-3 bg-gradient-to-r from-emerald-500 to-cyan-500 text-white font-medium rounded-lg hover:opacity-90 transition-opacity"
+              >
+                Alle akzeptieren
+              </button>
+              <button 
+                id="save-settings" 
+                class="px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              >
+                Auswahl speichern
+              </button>
+              <button 
+                id="reject-all" 
+                class="px-6 py-3 text-gray-700 dark:text-gray-300 font-medium hover:text-gray-900 dark:hover:text-white transition-colors"
+              >
+                Nur notwendige Cookies
+              </button>
+            </div>
+          </div>
+
+          <!-- Cookie Categories -->
+          <div class="divide-y divide-gray-200 dark:divide-gray-700">
+            <!-- Necessary Cookies -->
+            <div class="p-6 md:p-8">
+              <div class="flex items-start justify-between">
+                <div class="flex-1">
+                  <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                    Notwendige Cookies
+                    <span class="ml-2 px-2 py-0.5 text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400 rounded-full">
+                      Immer aktiv
+                    </span>
+                  </h3>
+                  <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                    Diese Cookies sind für den Betrieb der Website unbedingt erforderlich und können nicht deaktiviert werden.
+                  </p>
+                </div>
+                <div class="ml-4 flex items-center">
+                  <span class="relative inline-flex h-6 items-center rounded-full w-12 bg-emerald-600 cursor-not-allowed">
+                    <span class="sr-only">Notwendige Cookies sind immer aktiv</span>
+                    <span class="absolute right-1 w-5 h-5 bg-white rounded-full"></span>
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Preferences Cookies -->
+            <div class="p-6 md:p-8">
+              <div class="flex items-start justify-between">
+                <div class="flex-1">
+                  <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Präferenzen</h3>
+                  <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                    Diese Cookies ermöglichen es der Website, sich an von Ihnen getroffene Auswahlmöglichkeiten zu erinnern.
+                  </p>
+                </div>
+                <div class="ml-4 flex items-center">
+                  <button type="button" class="toggle-preference relative inline-flex h-6 items-center rounded-full w-12 bg-gray-200 dark:bg-gray-600 transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2" role="switch" aria-checked="false">
+                    <span class="sr-only">Präferenzen aktivieren</span>
+                    <span class="absolute left-1 w-5 h-5 bg-white rounded-full transition-transform duration-200 ease-in-out transform translate-x-0"></span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Statistics Cookies -->
+            <div class="p-6 md:p-8">
+              <div class="flex items-start justify-between">
+                <div class="flex-1">
+                  <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Statistiken</h3>
+                  <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                    Diese Cookies helfen uns zu verstehen, wie Besucher mit der Website interagieren, indem Informationen anonym gesammelt werden.
+                  </p>
+                </div>
+                <div class="ml-4 flex items-center">
+                  <button type="button" class="toggle-statistics relative inline-flex h-6 items-center rounded-full w-12 bg-gray-200 dark:bg-gray-600 transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2" role="switch" aria-checked="false">
+                    <span class="sr-only">Statistiken aktivieren</span>
+                    <span class="absolute left-1 w-5 h-5 bg-white rounded-full transition-transform duration-200 ease-in-out transform translate-x-0"></span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Marketing Cookies -->
+            <div class="p-6 md:p-8">
+              <div class="flex items-start justify-between">
+                <div class="flex-1">
+                  <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Marketing</h3>
+                  <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                    Diese Cookies werden verwendet, um Besuchern auf sie zugeschnittene Werbung anzuzeigen.
+                  </p>
+                </div>
+                <div class="ml-4 flex items-center">
+                  <button type="button" class="toggle-marketing relative inline-flex h-6 items-center rounded-full w-12 bg-gray-200 dark:bg-gray-600 transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2" role="switch" aria-checked="false">
+                    <span class="sr-only">Marketing-Cookies aktivieren</span>
+                    <span class="absolute left-1 w-5 h-5 bg-white rounded-full transition-transform duration-200 ease-in-out transform translate-x-0"></span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Additional Information -->
+          <div class="p-8 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 rounded-b-2xl">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Weitere Informationen</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-300 mb-4">
+              Weitere Informationen darüber, wie wir Cookies und Ihre Daten verarbeiten, finden Sie in unserer 
+              <a href="/datenschutz" class="text-emerald-600 hover:text-emerald-500 dark:text-emerald-400 dark:hover:text-emerald-300 font-medium">Datenschutzerklärung</a>.
+            </p>
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+              Sie können Ihre Einstellungen jederzeit auf dieser Seite anpassen.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- JavaScript for Cookie Settings -->
+    <script is:inline>
+      // Cookie Management Functions
+      function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+      }
+
+      function setCookie(name, value, days = 365) {
+        let expires = '';
+        if (days) {
+          const date = new Date();
+          date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+          expires = '; expires=' + date.toUTCString();
+        }
+        document.cookie = `${name}=${value || ''}${expires}; path=/; samesite=lax`;
+      }
+
+      // Toggle Switch Handler
+      function handleToggle(button, type) {
+        const isActive = button.getAttribute('aria-checked') === 'true';
+        const newState = !isActive;
+        button.setAttribute('aria-checked', newState);
+        
+        // Update UI
+        const toggleCircle = button.querySelector('span:last-child');
+        if (newState) {
+          button.classList.remove('bg-gray-200', 'dark:bg-gray-600');
+          button.classList.add('bg-emerald-600');
+          toggleCircle.style.transform = 'translateX(1.4rem)';
+        } else {
+          button.classList.remove('bg-emerald-600');
+          button.classList.add('bg-gray-200', 'dark:bg-gray-600');
+          toggleCircle.style.transform = 'translateX(0.2rem)';
+        }
+        
+        // Save preferences
+        const prefs = {
+          preferences: document.querySelector('.toggle-preference').getAttribute('aria-checked') === 'true',
+          statistics: document.querySelector('.toggle-statistics').getAttribute('aria-checked') === 'true',
+          marketing: document.querySelector('.toggle-marketing').getAttribute('aria-checked') === 'true'
+        };
+        
+        // Save to cookies
+        setCookie('cookie_preferences', prefs.preferences);
+        setCookie('cookie_statistics', prefs.statistics);
+        setCookie('cookie_marketing', prefs.marketing);
+        
+        showConfirmation();
+      }
+
+      // Show confirmation message
+      function showConfirmation() {
+        const existing = document.querySelector('.cookie-confirmation');
+        if (existing) return;
+        
+        const confirmation = document.createElement('div');
+        confirmation.className = 'cookie-confirmation fixed bottom-4 right-4 bg-emerald-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center animate-fade-in-up';
+        confirmation.innerHTML = `
+          <svg class="h-5 w-5 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+          </svg>
+          <span>Einstellungen gespeichert</span>
+        `;
+        
+        document.body.appendChild(confirmation);
+        
+        // Remove after 3 seconds
+        setTimeout(() => {
+          confirmation.classList.remove('animate-fade-in-up');
+          confirmation.classList.add('animate-fade-out');
+          setTimeout(() => confirmation.remove(), 300);
+        }, 3000);
+      }
+
+      // Initialize toggles
+      document.addEventListener('DOMContentLoaded', function() {
+        // Set initial states from cookies or defaults
+        const prefs = {
+          preferences: getCookie('cookie_preferences') === 'true',
+          statistics: getCookie('cookie_statistics') === 'true',
+          marketing: getCookie('cookie_marketing') === 'true'
+        };
+
+        // Initialize each toggle
+        ['preference', 'statistics', 'marketing'].forEach(type => {
+          const button = document.querySelector(`.toggle-${type}`);
+          if (!button) return;
+          
+          const isActive = prefs[`${type}s`]; // preferences, statistics, marketing
+          button.setAttribute('aria-checked', isActive);
+          const toggleCircle = button.querySelector('span:last-child');
+          
+          if (isActive) {
+            button.classList.remove('bg-gray-200', 'dark:bg-gray-600');
+            button.classList.add('bg-emerald-600');
+            toggleCircle.style.transform = 'translateX(1.4rem)';
+          } else {
+            button.classList.remove('bg-emerald-600');
+            button.classList.add('bg-gray-200', 'dark:bg-gray-600');
+            toggleCircle.style.transform = 'translateX(0.2rem)';
+          }
+          
+          // Add click event
+          button.addEventListener('click', (e) => {
+            e.preventDefault();
+            handleToggle(button, type);
+          });
+        });
+
+        // Button actions
+        document.getElementById('accept-all')?.addEventListener('click', () => {
+          document.querySelectorAll('[class^=toggle-]').forEach(toggle => {
+            if (!toggle.classList.contains('toggle-necessary')) {
+              toggle.setAttribute('aria-checked', 'true');
+              toggle.classList.remove('bg-gray-200', 'dark:bg-gray-600');
+              toggle.classList.add('bg-emerald-600');
+              const circle = toggle.querySelector('span:last-child');
+              if (circle) circle.style.transform = 'translateX(1.4rem)';
+            }
+          });
+          showConfirmation();
+        });
+
+        document.getElementById('reject-all')?.addEventListener('click', () => {
+          document.querySelectorAll('[class^=toggle-]').forEach(toggle => {
+            if (!toggle.classList.contains('toggle-necessary')) {
+              toggle.setAttribute('aria-checked', 'false');
+              toggle.classList.add('bg-gray-200', 'dark:bg-gray-600');
+              toggle.classList.remove('bg-emerald-600');
+              toggle.querySelector('span:last-child').classList.remove('translate-x-5');
+            }
+          });
+          showConfirmation();
+        });
+      });
+    </script>
+    
+    <style>
+      @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      @keyframes fadeOut {
+        from { opacity: 1; transform: translateY(0); }
+        to { opacity: 0; transform: translateY(-10px); }
+      }
+      .animate-fade-in-up {
+        animation: fadeInUp 0.3s ease-out forwards;
+      }
+      .animate-fade-out {
+        animation: fadeOut 0.3s ease-in forwards;
+      }
+    </style>
+</BaseLayout>

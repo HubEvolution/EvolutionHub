@@ -1,0 +1,77 @@
+---
+// src/components/dashboard/ActivityFeed.astro
+import Card from '../ui/Card.astro';
+import Skeleton from '../ui/Skeleton.astro';
+import type { ActivityItem } from '../../types/dashboard';
+
+interface Props {
+  activities: ActivityItem[];
+  title?: string;
+  maxItems?: number;
+}
+
+const { 
+  activities,
+  title = 'Recent Activity',
+  maxItems = 5 
+} = Astro.props;
+
+const loading = !activities;
+
+const formatDate = (dateString: string): string => {
+  const date = new Date(dateString);
+  return new Intl.DateTimeFormat('de-DE', {
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  }).format(date);
+};
+---
+
+<Card title={title} className="h-full">
+  <div class="space-y-4">
+    {loading ? (
+      // Skeleton loader
+      Array(3).fill(0).map((_, i) => (
+        <div class="flex items-start space-x-3">
+          <Skeleton width="32px" height="32px" className="rounded-full" />
+          <div class="flex-1">
+            <Skeleton width="80%" height="1rem" className="mb-1" />
+            <Skeleton width="60%" height="0.875rem" />
+          </div>
+        </div>
+      ))
+    ) : activities.length === 0 ? (
+      <div class="text-center py-8 text-gray-400">
+        <p>Keine aktuellen Aktivitäten</p>
+      </div>
+    ) : (
+      activities.slice(0, maxItems).map((activity) => (
+        <div class="flex items-start space-x-3 group">
+          <div class={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${activity.color} bg-opacity-20 mt-1`}>
+            <span class="text-sm">{activity.icon}</span>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex justify-between items-baseline">
+              <p class="text-sm font-medium text-white truncate">
+                {activity.user} <span class="text-gray-400 font-normal">{activity.action}</span>
+              </p>
+              <span class="text-xs text-gray-500 whitespace-nowrap ml-2">
+                {formatDate(activity.timestamp)}
+              </span>
+            </div>
+          </div>
+        </div>
+      ))
+    )}
+    
+    {!loading && activities.length > maxItems && (
+      <div class="pt-2 text-center">
+        <button class="text-sm text-primary hover:text-primary-light transition-colors">
+          Alle Aktivitäten anzeigen
+        </button>
+      </div>
+    )}
+  </div>
+</Card>

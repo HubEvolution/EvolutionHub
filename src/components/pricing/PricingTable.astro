@@ -1,0 +1,102 @@
+---
+interface Plan {
+  name: string;
+  price: string;
+  description: string;
+  features: string[];
+  cta: string;
+  featured?: boolean;
+}
+
+const plans: Plan[] = [
+  {
+    name: 'Starter',
+    price: 'Kostenlos',
+    description: 'Perfekt zum Ausprobieren',
+    features: [
+      'Bis zu 3 Projekte',
+      'Basis-Tools',
+      'Community-Support',
+      '100 API-Anfragen/Tag'
+    ],
+    cta: 'Jetzt starten',
+  },
+  {
+    name: 'Pro',
+    price: '19€',
+    description: 'Für professionelle Nutzer',
+    features: [
+      'Unbegrenzte Projekte',
+      'Alle Tools',
+      'Priorisierter Support',
+      '10.000 API-Anfragen/Tag',
+      'Team-Funktionen',
+      'Erweiterte Analysen'
+    ],
+    cta: 'Kostenlos testen',
+    featured: true
+  },
+  {
+    name: 'Enterprise',
+    price: 'Individuell',
+    description: 'Für Unternehmen',
+    features: [
+      'Maßgeschneiderte Lösung',
+      'Dedizierter Support',
+      'Unbegrenzte API-Anfragen',
+      'SLA 99,9%',
+      'Individuelle Integrationen',
+      'Schulungen & Onboarding'
+    ],
+    cta: 'Kontakt aufnehmen'
+  }
+];
+---
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
+  {plans.map((plan) => (
+    <div
+      class={`relative flex flex-col p-8 rounded-2xl bg-white dark:bg-gray-800 shadow-lg ${
+        plan.featured ? 'ring-2 ring-blue-500 transform md:-translate-y-4' : ''
+      }`}
+    >
+      {plan.featured && (
+        <div class="absolute top-0 right-0 -mt-3 -mr-3 px-3 py-1 bg-blue-500 text-white text-sm font-semibold rounded-full">
+          Beliebt
+        </div>
+      )}
+      
+      <h3 class="text-2xl font-bold">{plan.name}</h3>
+      <p class="mt-2 text-gray-600 dark:text-gray-300">{plan.description}</p>
+      
+      <div class="mt-6">
+        <span class="text-4xl font-extrabold">{plan.price}</span>
+        {plan.price !== 'Kostenlos' && plan.price !== 'Individuell' && (
+          <span class="text-gray-500 dark:text-gray-400">/Monat</span>
+        )}
+      </div>
+      
+      <ul class="mt-8 space-y-3">
+        {plan.features.map((feature) => (
+          <li class="flex items-center">
+            <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            {feature}
+          </li>
+        ))}
+      </ul>
+      
+      <a
+        href={plan.name === 'Enterprise' ? '/kontakt' : '/signup'}
+        class={`mt-8 px-6 py-3 text-center font-medium rounded-lg ${
+          plan.featured
+            ? 'bg-blue-600 text-white hover:bg-blue-700'
+            : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600'
+        } transition-colors`}
+      >
+        {plan.cta}
+      </a>
+    </div>
+  ))}
+</div>

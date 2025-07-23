@@ -1,0 +1,273 @@
+---
+import AuthLayout from '@/layouts/AuthLayout.astro';
+// Cloudflare Turnstile Test-Sitekey. In Produktion sollte dieser durch einen echten Schlüssel ersetzt werden.
+// Siehe: https://developers.cloudflare.com/turnstile/get-started/
+const turnstileSiteKey = '0x4AAAAAABl5-rHdzrMMYIVQ';
+---
+
+<AuthLayout title="Registrieren">
+  <div class="w-full max-w-md">
+    <div class="glass p-8 space-y-6 border border-blue-500/20 shadow-blue-500/10">
+      <div class="text-center">
+        <img src="/favicon.svg" alt="Logo" class="w-16 h-16 mx-auto mb-4" />
+        <h1 class="text-2xl font-bold text-white">Konto erstellen</h1>
+        <p class="text-gray-400">Füllen Sie die folgenden Felder aus, um sich zu registrieren.</p>
+      </div>
+
+      <form id="register-form" class="space-y-4">
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-400" viewBox="0 0 24 24"><path fill="currentColor" d="M22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6zm-2 0l-8 5l-8-5h16zm0 12H4V8l8 5l8-5v10z"></path></svg>
+          </div>
+          <input type="email" id="email" name="email" class="pl-10 bg-gray-700 border border-gray-600 placeholder-gray-400 text-white sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5" placeholder="E-Mail" required />
+        </div>
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-400" viewBox="0 0 24 24"><path fill="currentColor" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4s1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path></svg>
+          </div>
+          <input type="text" id="username" name="username" class="pl-10 bg-gray-700 border border-gray-600 placeholder-gray-400 text-white sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5" placeholder="Benutzername" required />
+        </div>
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-400" viewBox="0 0 24 24"><path fill="currentColor" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4s1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path></svg>
+          </div>
+          <input type="text" id="fullName" name="fullName" class="pl-10 bg-gray-700 border border-gray-600 placeholder-gray-400 text-white sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5" placeholder="Vollständiger Name" required />
+        </div>
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-400" viewBox="0 0 24 24"><path fill="currentColor" d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2s2 .9 2 2s-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1s3.1 1.39 3.1 3.1v2z"></path></svg>
+          </div>
+          <input type="password" id="password" name="password" class="font-mono pl-10 pr-10 bg-gray-700 border border-gray-600 placeholder-gray-400 text-white sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5" placeholder="Passwort" required />
+          <button type="button" class="absolute inset-y-0 right-0 flex items-center pr-3" data-toggle-password="password">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-400 hover:text-white" viewBox="0 0 24 24"><path fill="currentColor" d="M12 9a3 3 0 0 0-3 3a3 3 0 0 0 3 3a3 3 0 0 0 3-3a3 3 0 0 0-3-3m0 8a5 5 0 0 1-5-5a5 5 0 0 1 5-5a5 5 0 0 1 5 5a5 5 0 0 1-5 5m0-12.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5Z"></path></svg>
+          </button>
+        </div>
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-400" viewBox="0 0 24 24"><path fill="currentColor" d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2s2 .9 2 2s-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1s3.1 1.39 3.1 3.1v2z"></path></svg>
+          </div>
+          <input type="password" id="confirmPassword" name="confirmPassword" class="font-mono pl-10 pr-10 bg-gray-700 border border-gray-600 placeholder-gray-400 text-white sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5" placeholder="Passwort bestätigen" required />
+          <button type="button" class="absolute inset-y-0 right-0 flex items-center pr-3" data-toggle-password="confirmPassword">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-400 hover:text-white" viewBox="0 0 24 24"><path fill="currentColor" d="M12 9a3 3 0 0 0-3 3a3 3 0 0 0 3 3a3 3 0 0 0 3-3a3 3 0 0 0-3-3m0 8a5 5 0 0 1-5-5a5 5 0 0 1 5-5a5 5 0 0 1 5 5a5 5 0 0 1-5 5m0-12.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5Z"></path></svg>
+          </button>
+        </div>
+
+        <div id="password-strength" class="space-y-1">
+          <div class="text-xs text-gray-400">Passwortstärke:</div>
+          <div class="w-full bg-gray-600 rounded-full h-2">
+            <div id="password-strength-bar" class="h-2 rounded-full transition-all duration-300" style="width: 0%;"></div>
+          </div>
+        </div>
+        
+        <div id="password-requirements" class="text-xs text-gray-400 space-y-1">
+          <p>Das Passwort muss enthalten:</p>
+          <ul class="list-disc list-inside pl-2">
+            <li id="req-length">Mindestens 8 Zeichen</li>
+            <li id="req-lowercase">Einen Kleinbuchstaben</li>
+            <li id="req-uppercase">Einen Großbuchstaben</li>
+            <li id="req-number">Eine Zahl</li>
+            <li id="req-special">Ein Sonderzeichen (@$!%*?&)</li>
+          </ul>
+        </div>
+
+        <div class="flex items-start">
+          <div class="flex items-center h-5">
+            <input id="terms" aria-describedby="terms" type="checkbox" class="w-4 h-4 border border-gray-600 rounded bg-gray-700 focus:ring-3 focus:ring-primary-300" required>
+          </div>
+          <div class="ml-3 text-sm">
+            <label for="terms" class="text-gray-400">Ich akzeptiere die <a class="font-medium text-primary-500 hover:underline" href="/terms">AGB</a> und die <a class="font-medium text-primary-500 hover:underline" href="/privacy">Datenschutzrichtlinie</a></label>
+          </div>
+        </div>
+
+        <!-- Cloudflare Turnstile Widget -->
+        <div class="flex justify-center">
+          <div class="cf-turnstile" data-sitekey={turnstileSiteKey} data-theme="dark"></div>
+        </div>
+
+        <button type="submit" class="inline-flex items-center justify-center w-full px-6 py-2.5 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500/50">Registrieren</button>
+        <p id="error-message" class="text-sm font-medium text-red-500 text-center"></p>
+        <p id="success-message" class="text-sm font-medium text-green-500 text-center"></p>
+      </form>
+      <div class="text-sm text-center text-gray-400">
+        Bereits ein Konto? <a href="/login" class="font-medium text-primary-500 hover:underline">Anmelden</a>
+      </div>
+    </div>
+  </div>
+</AuthLayout>
+
+<!-- Cloudflare Turnstile Skript -->
+<script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+
+<script>
+  const form = document.getElementById('register-form');
+  const passwordInput = document.getElementById('password') as HTMLInputElement;
+  const confirmPasswordInput = document.getElementById('confirmPassword') as HTMLInputElement;
+  const errorMessage = document.getElementById('error-message');
+  const successMessage = document.getElementById('success-message');
+  const strengthBar = document.getElementById('password-strength-bar');
+
+  // --- Hilfsfunktion für Passwort-Anzeige ---
+  const setupPasswordDisplay = (input: HTMLInputElement) => {
+    let realPassword = '';
+    let hideTimeout: number;
+
+    const handleInput = (e: InputEvent) => {
+      if (input.type === 'text') {
+        realPassword = input.value;
+        return;
+      }
+      
+      realPassword = input.value;
+      input.type = 'text';
+      input.value = '●'.repeat(realPassword.length - 1) + realPassword.slice(-1);
+      input.setSelectionRange(realPassword.length, realPassword.length);
+
+      clearTimeout(hideTimeout);
+      hideTimeout = window.setTimeout(() => {
+        if (document.activeElement === input) {
+          input.type = 'password';
+          input.value = realPassword;
+          input.setSelectionRange(realPassword.length, realPassword.length);
+        }
+      }, 500);
+    };
+
+    const handleBlur = () => {
+      clearTimeout(hideTimeout);
+      input.type = 'password';
+      input.value = realPassword;
+    };
+
+    input.addEventListener('input', handleInput as EventListener);
+    input.addEventListener('blur', handleBlur);
+
+    return {
+      getRealPassword: () => realPassword,
+      cleanup: () => {
+        input.removeEventListener('input', handleInput as EventListener);
+        input.removeEventListener('blur', handleBlur);
+      }
+    };
+  };
+
+  const passwordManager = setupPasswordDisplay(passwordInput);
+  const confirmPasswordManager = setupPasswordDisplay(confirmPasswordInput);
+
+  // --- Passwortstärke-Anzeige und Anforderungs-Check ---
+  function checkPasswordStrength(password: string) {
+    const requirements = {
+      length: password.length >= 8,
+      lowercase: /[a-z]/.test(password),
+      uppercase: /[A-Z]/.test(password),
+      number: /\d/.test(password),
+      special: /[@$!%*?&]/.test(password),
+    };
+
+    let strength = Object.values(requirements).filter(Boolean).length;
+    
+    // Update UI for requirements
+    for (const key in requirements) {
+      const el = document.getElementById(`req-${key}`);
+      if (el) {
+        el.style.color = requirements[key as keyof typeof requirements] ? '#22c55e' : '#ef4444';
+      }
+    }
+
+    return strength;
+  }
+
+  if (passwordInput && strengthBar) {
+    passwordInput.addEventListener('input', () => {
+      const password = passwordManager.getRealPassword();
+      const strength = checkPasswordStrength(password);
+      const width = (strength / 5) * 100;
+      strengthBar.style.width = `${width}%`;
+      if (strength <= 2) {
+        strengthBar.style.backgroundColor = '#ef4444'; // red-500
+      } else if (strength <= 4) {
+        strengthBar.style.backgroundColor = '#f59e0b'; // amber-500
+      } else {
+        strengthBar.style.backgroundColor = '#22c55e'; // green-500
+      }
+    });
+  }
+
+  // --- Passwort-Sichtbarkeit (Umschalten) ---
+  const eyeOpenIcon = `<svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-400 hover:text-white" viewBox="0 0 24 24"><path fill="currentColor" d="M12 9a3 3 0 0 0-3 3a3 3 0 0 0 3 3a3 3 0 0 0 3-3a3 3 0 0 0-3-3m0 8a5 5 0 0 1-5-5a5 5 0 0 1 5-5a5 5 0 0 1 5 5a5 5 0 0 1-5 5m0-12.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5Z"></path></svg>`;
+  const eyeClosedIcon = `<svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-400 hover:text-white" viewBox="0 0 24 24"><path fill="currentColor" d="M12 17.5c-2.05 0-3.81-1-5-2.5c-1.19-1.5-2.14-3.22-2.66-4.5H3.21c.52 1.28 1.47 3 2.66 4.5c1.19 1.5 2.95 2.5 5 2.5s3.81-1 5-2.5c1.19-1.5 2.14-3.22 2.66-4.5h-1.13c-.52 1.28-1.47 3-2.66 4.5c-1.19 1.5-2.95 2.5-5 2.5zm-9-5c1.73-4.39 6-7.5 11-7.5s9.27 3.11 11 7.5c-1.73 4.39-6 7.5-11 7.5S4.73 16.89 3 12.5zm9-5a3 3 0 0 0-3 3a3 3 0 0 0 3 3a3 3 0 0 0 3-3a3 3 0 0 0-3-3Z"></path></svg>`;
+  
+  document.querySelectorAll('[data-toggle-password]').forEach(button => {
+    button.addEventListener('click', () => {
+      const targetId = button.getAttribute('data-toggle-password');
+      if (targetId) {
+        const passwordField = document.getElementById(targetId) as HTMLInputElement;
+        if (passwordField) {
+          const isPassword = passwordField.type === 'password';
+          passwordField.type = isPassword ? 'text' : 'password';
+          button.innerHTML = isPassword ? eyeClosedIcon : eyeOpenIcon;
+          
+          // Wähle den richtigen Manager basierend auf der ID
+          const manager = targetId === 'password' ? passwordManager : confirmPasswordManager;
+          passwordField.value = manager.getRealPassword();
+        }
+      }
+    });
+  });
+
+  // --- Formular-Submit ---
+  if (form && errorMessage && successMessage && passwordInput && confirmPasswordInput) {
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      errorMessage.textContent = '';
+      successMessage.textContent = '';
+
+      const email = (document.getElementById('email') as HTMLInputElement).value;
+      const username = (document.getElementById('username') as HTMLInputElement).value;
+      const fullName = (document.getElementById('fullName') as HTMLInputElement).value;
+      const password = passwordManager.getRealPassword();
+      const confirmPassword = confirmPasswordManager.getRealPassword();
+      const terms = (document.getElementById('terms') as HTMLInputElement).checked;
+
+      if (!terms) {
+        errorMessage.textContent = 'Sie müssen den AGB und der Datenschutzrichtlinie zustimmen.';
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        errorMessage.textContent = 'Die Passwörter stimmen nicht überein.';
+        return;
+      }
+      
+      const formData = new FormData(form as HTMLFormElement);
+      const turnstileToken = formData.get('cf-turnstile-response');
+
+      if (!turnstileToken) {
+        errorMessage.textContent = 'Bitte schließen Sie die CAPTCHA-Überprüfung ab.';
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email, username, fullName, password, confirmPassword, turnstileToken }),
+        });
+
+        if (response.ok) {
+          successMessage.textContent = 'Registrierung erfolgreich! Sie werden zum Login weitergeleitet...';
+          setTimeout(() => {
+            window.location.href = '/login';
+          }, 2000);
+        } else {
+          const data = await response.json();
+          errorMessage.textContent = data.error || 'Registrierung fehlgeschlagen. Bitte versuchen Sie es erneut.';
+        }
+      } catch (error) {
+        console.error('Registrierungs-Fehler:', error);
+        errorMessage.textContent = 'Netzwerkfehler. Bitte überprüfen Sie Ihre Verbindung.';
+      }
+    });
+  }
+</script>

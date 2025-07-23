@@ -1,0 +1,118 @@
+---
+// src/layouts/BaseLayout.astro
+import Header from '../components/Header.astro';
+import SkipLink from '../components/SkipLink.astro';
+import Footer from '../components/Footer.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+  ogImage?: string;
+  canonical?: string;
+  structuredData?: any;
+  image?: string;
+  type?: string;
+  publishedTime?: string;
+  modifiedTime?: string;
+  author?: string;
+  section?: string;
+  tags?: string[];
+}
+
+const { 
+  title, 
+  description = 'Evolution Hub - Your AI-Powered SaaS Platform',
+  ogImage 
+} = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang={Astro.url.pathname.startsWith('/de/') ? 'de' : 'en'} class="h-full">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={Astro.url.href} />
+    <meta property="og:title" content={`${title} | Evolution Hub`} />
+    <meta property="og:description" content={description} />
+    {ogImage && <meta property="og:image" content={ogImage} />}
+     {Astro.props.canonical && <link rel="canonical" href={Astro.props.canonical} />}
+    
+    <title>{title} | Evolution Hub</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Global CSS -->
+    <style is:global>
+      @import '../styles/global.css';
+      
+      /* Smooth transitions for theme changes */
+      html {
+        @apply transition-colors duration-200;
+      }
+      
+      /* Default light theme */
+      :root {
+        --bg-primary: #ffffff;
+        --bg-secondary: #f9fafb;
+        --text-primary: #111827;
+        --text-secondary: #4b5563;
+      }
+      
+      /* Dark theme overrides */
+      .dark {
+        --bg-primary: #111827;
+        --bg-secondary: #1f2937;
+        --text-primary: #f9fafb;
+        --text-secondary: #9ca3af;
+      }
+    </style>
+  </head>
+  
+  <body class="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-white flex flex-col">
+      <SkipLink />
+      <Header />
+      <main id="main-content" class="flex-grow focus:outline-none" tabindex="-1">
+        <slot />
+      </main>
+    
+      <Footer />
+    
+    <!-- Add smooth scrolling for anchor links -->
+    <script is:inline>
+      document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+        anchor.addEventListener('click', (e) => {
+          e.preventDefault();
+          const targetId = anchor.getAttribute('href');
+          if (targetId) {
+            const target = document.querySelector(targetId);
+            if (target) {
+              target.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+              });
+            }
+          }
+        });
+      });
+    </script>
+    
+    <script is:inline>
+      document.querySelectorAll('.theme-toggle').forEach(button => {
+        button.addEventListener('click', () => {
+          document.documentElement.classList.toggle('dark');
+        });
+      });
+    </script>
+    
+  </body>
+</html>

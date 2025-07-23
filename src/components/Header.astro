@@ -1,0 +1,217 @@
+---
+// src/components/Header.astro
+import { ViewTransitions } from 'astro:transitions';
+import ThemeToggle from './ThemeToggle.astro';
+
+// Navigation items with ARIA labels
+const navItems = [
+  { name: 'Dashboard', href: '/dashboard', 'aria-label': 'Go to Dashboard' },
+  { name: 'Tools', href: '/tools', 'aria-label': 'View available tools' },
+  { name: 'Pricing', href: '/pricing', 'aria-label': 'View pricing plans' },
+  { name: 'Documentation', href: '/docs', 'aria-label': 'View documentation' },
+];
+
+// Get current URL and path for active link highlighting
+const url = Astro.url;
+const currentPath = url.pathname;
+
+// Function to check if a nav item is active
+const isActive = (path: string): boolean => {
+  // Check direct path match
+  if (currentPath === path) return true;
+  
+  // Check for sub-routes
+  if (path === '/dashboard') {
+    return currentPath.startsWith('/dashboard');
+  }
+  
+  return false;
+};
+---
+
+<header class="sticky top-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border-b border-gray-100 dark:border-gray-800 shadow-sm transition-all duration-300 hover:shadow-md">
+  <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" aria-label="Main navigation">
+    <div class="flex items-center justify-between h-20">
+      <!-- Logo -->
+      <div class="flex-shrink-0 flex items-center group">
+        <a href="/" class="flex items-center space-x-3 group-hover:scale-105 transition-transform duration-300">
+          <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-cyan-500 flex items-center justify-center">
+            <span class="text-white font-bold text-lg">E</span>
+          </div>
+          <span class="text-xl font-bold bg-gradient-to-r from-emerald-600 to-cyan-500 bg-clip-text text-transparent">
+            Evolution Hub
+          </span>
+        </a>
+      </div>
+
+      <!-- Desktop Navigation -->
+      <div class="hidden md:ml-10 md:flex md:items-center md:space-x-1">
+        {navItems.map((item) => (
+          <a
+            href={item.href}
+            class={`relative px-4 py-2.5 text-sm font-medium transition-all duration-300 rounded-lg group ${
+              isActive(item.href)
+                ? 'text-emerald-600 dark:text-emerald-400'
+                : 'text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white'
+            }`}
+            aria-current={isActive(item.href) ? 'page' : undefined}
+            aria-label={item['aria-label']}
+          >
+            {item.name}
+            {isActive(item.href) && (
+              <span class="absolute inset-x-1 -bottom-1 h-0.5 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-full" />
+            )}
+            <span class="absolute inset-x-1 -bottom-1 h-0.5 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-full transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300" />
+            {isActive(item.href) && <span class="sr-only">(current page)</span>}
+          </a>
+        ))}
+      </div>
+
+      <div class="flex items-center space-x-3">
+        <!-- Theme Toggle -->
+        <div class="hidden md:block">
+          <ThemeToggle />
+        </div>
+        
+        <!-- Language Switcher -->
+        <div class="hidden md:block" role="region" aria-label="Language selector">
+          <button
+            type="button"
+            class="flex items-center px-3 py-2 text-sm font-medium text-gray-600 transition-all duration-200 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 hover:shadow-md"
+            aria-label="Change language"
+            aria-expanded="false"
+            aria-haspopup="true"
+            id="language-selector"
+          >
+            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9V3m0 18a9 9 0 009-9m-9 9a9 9 0 00-9-9"></path></svg>
+            <span class="text-sm font-medium">EN</span>
+            <svg class="w-4 h-4 ml-1.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+          </button>
+        </div>
+        
+        <!-- Blog Button -->
+        <a
+          href="/blog"
+          class="hidden md:inline-flex items-center px-4 py-2.5 text-sm font-medium text-white transition-all duration-300 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-lg hover:from-emerald-600 hover:to-cyan-600 hover:shadow-lg hover:-translate-y-0.5 focus:ring-2 focus:ring-offset-2 focus:ring-emerald-400 focus:outline-none"
+        >
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L15.232 5.232z"></path>
+          </svg>
+          Blog
+        </a>
+
+        <!-- Mobile menu button and theme toggle -->
+        <div class="flex items-center space-x-2 md:hidden">
+          <div class="md:hidden">
+            <ThemeToggle />
+          </div>
+          <button
+            type="button"
+            class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
+            id="mobile-menu-button"
+            aria-controls="mobile-menu"
+            aria-expanded="false"
+            aria-label="Toggle navigation menu"
+          >
+            <span class="sr-only">Open main menu</span>
+            <svg
+              class="block h-6 w-6"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              aria-hidden="true"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 6h16M4 12h16M4 18h16"
+              />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div 
+    class="md:hidden hidden bg-gray-800" 
+    id="mobile-menu" 
+    role="menu" 
+    aria-labelledby="mobile-menu-button"
+    aria-orientation="vertical"
+  >
+    <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+      {navItems.map((item) => (
+        <a
+          href={item.href}
+          class={`block px-3 py-2 rounded-md text-base font-medium ${
+            isActive(item.href)
+              ? 'text-white bg-gray-900 dark:bg-gray-700 font-semibold'
+              : 'text-gray-300 hover:bg-gray-700 hover:text-white dark:text-gray-300 dark:hover:bg-gray-600'
+          }`}
+          role="menuitem"
+          tabindex="-1"
+          aria-label={item['aria-label']}
+        >
+          {item.name}
+          {isActive(item.href) && <span class="sr-only">(current page)</span>}
+        </a>
+      ))}
+      
+      <!-- Dashboard Link im mobilen Menü -->
+      <a
+        href="/dashboard"
+        role="menuitem"
+        class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white dark:text-gray-300 dark:hover:bg-gray-600"
+        tabindex="-1"
+        aria-label="Go to Dashboard"
+      >
+        Dashboard
+      </a>
+    </div>
+  </div>
+</header>
+
+<script src="/scripts/mobileMenu.js"></script>
+
+<style>
+  /* Add smooth transitions for the header */
+  header {
+    transition: all 0.3s ease-in-out;
+  }
+  
+  /* Glassmorphism effect */
+  .backdrop-blur-md {
+    backdrop-filter: blur(12px);
+  }
+  
+  /* Gradient text */
+  .gradient-text {
+    background: linear-gradient(135deg, #00d4aa 0%, #40e0d0 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  
+  /* Focus styles for better keyboard navigation */
+  a:focus-visible,
+  button:focus-visible,
+  [role="menuitem"]:focus-visible {
+    outline: 2px solid #40e0d0;
+    outline-offset: 2px;
+    border-radius: 0.25rem;
+  }
+  
+  /* Ensure focus indicators are visible in high contrast mode */
+  @media (forced-colors: active) {
+    a:focus-visible,
+    button:focus-visible,
+    [role="menuitem"]:focus-visible {
+      outline: 2px solid Highlight !important;
+      outline-offset: 2px;
+    }
+  }
+</style>

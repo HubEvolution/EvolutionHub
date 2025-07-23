@@ -1,0 +1,74 @@
+---
+// @ts-nocheck
+import BaseLayout from '../layouts/BaseLayout.astro';
+import StatsCard from '../components/dashboard/StatsCard.astro';
+import ActivityFeed from '../components/dashboard/ActivityFeed.astro';
+import ProjectsPanel from '../components/dashboard/ProjectsPanel.astro';
+import QuickActions from '../components/dashboard/QuickActions.astro';
+import UserProfile from '../components/dashboard/UserProfile.astro';
+import type { QuickAction, ActivityItem, ProjectCard } from '../types/dashboard';
+
+// Session check
+const { locals } = Astro;
+const { user, runtime } = locals;
+
+if (!user) {
+  return Astro.redirect('/login');
+}
+
+const fetchOptions = {
+  headers: {
+    Cookie: Astro.request.headers.get('Cookie') || '',
+  },
+};
+
+async function fetchData(url: string) {
+    const response = await fetch(`${Astro.url.origin}${url}`, fetchOptions);
+    if (!response.ok) {
+        console.error(`Failed to fetch ${url}: ${response.status} ${response.statusText}`);
+        return [];
+    }
+    return response.json();
+}
+
+const [stats, projects, activities, quickActions] = await Promise.all([
+    fetchData('/api/dashboard/stats'),
+    fetchData('/api/dashboard/projects'),
+    fetchData('/api/dashboard/activity'),
+    fetchData('/api/dashboard/quick-actions')
+]);
+---
+
+<BaseLayout>
+  <div class="py-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Willkommen zurück!</h1>
+      <p class="mt-2 text-gray-600 dark:text-gray-300">Hier ist eine Übersicht Ihrer Aktivitäten.</p>
+      
+      <div class="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        {/* Main Content - Left Column */}
+        <div class="lg:col-span-2 space-y-8">
+          {/* Stats */}
+          <StatsCard stats={stats} />
+          
+          {/* Projects Panel */}
+          <ProjectsPanel projects={projects} />
+        </div>
+        
+        {/* Sidebar - Right Column */}
+        <div class="space-y-8">
+          {/* User Profile */}
+          <UserProfile />
+          
+          {/* Recent Activity */}
+          <ActivityFeed activities={activities} />
+          
+          {/* Quick Actions */}
+          <QuickActions actions={quickActions} /> 
+        </div>
+        
+      </div>
+    </div>
+  </div>
+</BaseLayout>

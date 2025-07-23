@@ -1,0 +1,65 @@
+---
+// src/components/dashboard/StatsCard.astro
+import Card from '../ui/Card.astro';
+import Skeleton from '../ui/Skeleton.astro';
+
+interface StatItem {
+  label: string;
+  value: string | number;
+  icon: string;
+  change?: number;
+}
+
+const { stats } = Astro.props;
+
+const getChangeClasses = (change: number | undefined) => {
+  if (change === undefined || change === 0) return '';
+  const baseClasses = 'ml-2 text-xs px-2 py-0.5 rounded-full';
+  if (change > 0) {
+    return `${baseClasses} bg-green-900/30 text-green-400`;
+  }
+  return `${baseClasses} bg-red-900/30 text-red-400`;
+};
+
+const defaultStats: StatItem[] = [
+  { label: 'Total Users', value: '0', icon: '👥', change: 0 },
+  { label: 'Active Now', value: '0', icon: '🟢', change: 0 },
+  { label: 'API Calls', value: '0', icon: '📊', change: 0 },
+  { label: 'Storage Used', value: '0 GB', icon: '💾', change: 0 },
+];
+
+const statsToRender = stats && stats.length > 0 ? stats : defaultStats;
+const loading = !stats;
+---
+
+<Card className="p-0 overflow-hidden">
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 p-6">
+    {statsToRender.map((stat: StatItem) => (
+      <div class="flex items-start">
+        <div class="p-3 rounded-lg bg-white/5 mr-4">
+          <span class="text-2xl">{stat.icon}</span>
+        </div>
+        <div>
+          {loading ? (
+            <>
+              <Skeleton width="80px" height="1.5rem" className="mb-2" />
+              <Skeleton width="40px" height="1rem" />
+            </>
+          ) : (
+            <>
+              <p class="text-gray-400 text-sm">{stat.label}</p>
+              <div class="flex items-center">
+                <span class="text-xl font-semibold text-white">{stat.value}</span>
+                {stat.change !== undefined && stat.change !== 0 && (
+                  <span class={getChangeClasses(stat.change)}>
+                    {stat.change > 0 ? '↑' : '↓'} {Math.abs(stat.change)}%
+                  </span>
+                )}
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    ))}
+  </div>
+</Card>

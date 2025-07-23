@@ -1,0 +1,106 @@
+---
+// src/components/dashboard/QuickActions.astro
+import Card from '../ui/Card.astro';
+import type { QuickAction } from '../../types/dashboard';
+
+interface Props {
+  actions: QuickAction[];
+  title?: string;
+}
+
+const { 
+  actions = [], 
+  title = 'Quick Actions' 
+} = Astro.props as Props;
+
+const getVariantClasses = (variant: string = 'primary'): string => {
+  const base = 'p-3 rounded-lg flex items-center justify-center text-xl transition-all';
+  const variants: Record<string, string> = {
+    primary: 'bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 hover:text-blue-300',
+    secondary: 'bg-gray-500/10 text-gray-400 hover:bg-gray-500/20 hover:text-gray-300',
+    success: 'bg-green-500/10 text-green-400 hover:bg-green-500/20 hover:text-green-300',
+    danger: 'bg-red-500/10 text-red-400 hover:bg-red-500/20 hover:text-red-300',
+  };
+  return `${base} ${variants[variant] || variants.primary}`;
+};
+
+// Generate a unique ID for the actions container
+const containerId = `quick-actions-${Math.random().toString(36).substr(2, 9)}`;
+---
+
+<Card title={title}>
+  <div id={containerId} class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-2 gap-3">
+    {actions.length === 0 ? (
+      <div class="col-span-full text-center py-4 text-gray-400">
+        <p>No quick actions available</p>
+      </div>
+    ) : (
+      actions.map((action) => (
+        <button
+          data-action-name={action.action}
+          class="group w-full h-full p-4 rounded-xl transition-all hover:bg-white/5 hover:shadow-lg flex items-start space-x-3 text-left"
+          aria-label={action.title}
+        >
+          <div 
+            class={getVariantClasses(action.variant)}
+            aria-hidden="true"
+          >
+            {action.icon}
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-medium text-white group-hover:text-indigo-400 transition-colors">
+              {action.title}
+            </p>
+            <p class="text-xs text-gray-400">
+              {action.description}
+            </p>
+          </div>
+        </button>
+      ))
+    )}
+  </div>
+</Card>
+
+<script is:inline>
+  document.addEventListener('DOMContentLoaded', () => {
+    const container = document.getElementById('${containerId}');
+    if (!container) return;
+
+    container.addEventListener('click', async (event) => {
+      const button = event.target.closest('button[data-action-name]');
+      if (!button) return;
+
+      const actionName = button.getAttribute('data-action-name');
+      if (!actionName) return;
+
+      event.preventDefault();
+
+      try {
+        const response = await fetch('/api/dashboard/perform-action', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ action: actionName }),
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          console.log(`Action '${actionName}' executed successfully`, result);
+          // Optionally, provide user feedback, e.g., a toast notification
+          // alert(result.message || 'Action successful!');
+          if (result.redirect) {
+            window.location.href = result.redirect;
+          }
+        } else {
+          console.error(`Action '${actionName}' failed`, result);
+          // alert(`Error: ${result.message || 'An unknown error occurred.'}`);
+        }
+      } catch (error) {
+        console.error('Failed to perform action:', error);
+        // alert('An error occurred while communicating with the server.');
+      }
+    });
+  });
+</script>

@@ -1,0 +1,57 @@
+---
+// evolution-hub/frontend/src/components/comments/CommentSection.astro
+import CommentList from './CommentList.astro';
+import CommentForm from './CommentForm.astro';
+
+interface Props {
+  postId: string;
+}
+
+const { postId } = Astro.props;
+
+// Definiere das Interface direkt hier, da es für den Fetch benötigt wird
+interface Comment {
+  id: string;
+  postId: string;
+  author: string;
+  content: string;
+  createdAt: string;
+}
+
+// Die Kommentare werden jetzt clientseitig geladen
+---
+
+<section id="comments" class="mt-12">
+  <h2 class="text-2xl font-bold mb-6">Kommentare</h2>
+  <CommentList comments={[]} />
+  <CommentForm postId={postId} />
+</section>
+
+<script is:inline define:vars={{ postId }}>
+  async function loadComments() {
+    try {
+      const response = await fetch(`/api/comments?postId=${postId}`);
+      if (response.ok) {
+        const comments = await response.json();
+        const commentList = document.querySelector('comment-list'); // Annahme: CommentList hat eine identifizierbare Klasse oder Tag
+        if (commentList) {
+          // Hier würde die Logik zum Rendern der Kommentare stehen.
+          // Fürs Erste loggen wir sie nur.
+          console.log('Comments loaded:', comments);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load comments:', error);
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    loadComments();
+  });
+
+  document.addEventListener('comment_submitted', () => {
+    setTimeout(() => {
+        loadComments();
+    }, 2000);
+  });
+</script>

@@ -1,0 +1,126 @@
+/*! @import */
+@import 'tailwindcss/base' layer(base);
+@import 'tailwindcss/components' layer(components);
+@import 'tailwindcss/utilities' layer(utilities);
+
+/* Custom base styles */
+@layer base {
+  body {
+    @apply antialiased text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-900;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-bold tracking-tight;
+  }
+  
+  h1 { @apply text-4xl md:text-5xl lg:text-6xl; }
+  h2 { @apply text-3xl md:text-4xl; }
+  h3 { @apply text-2xl md:text-3xl; }
+  h4 { @apply text-xl md:text-2xl; }
+  
+  a {
+    @apply text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 transition-colors;
+  }
+  
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    @apply w-2 h-2;
+  }
+  
+  ::-webkit-scrollbar-track {
+    @apply bg-gray-100 dark:bg-gray-800;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    @apply bg-gray-300 dark:bg-gray-600 rounded-full hover:bg-gray-400 dark:hover:bg-gray-500;
+  }
+}
+
+/* Custom components */
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center px-6 py-2.5 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  
+  .btn-primary {
+    @apply bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500/50;
+  }
+  
+  .btn-secondary {
+    @apply bg-secondary-600 text-white hover:bg-secondary-700 focus:ring-secondary-500/50;
+  }
+  
+  .btn-outline {
+    @apply border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 focus:ring-gray-500/50;
+  }
+  
+  .container {
+    @apply px-4 mx-auto w-full max-w-7xl;
+  }
+  
+  /* Glassmorphism effect */
+  .glass {
+    @apply bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg;
+  }
+  
+  /* Card component */
+  .card {
+    @apply bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden border border-gray-200 dark:border-gray-700;
+  }
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+/* Dark mode transition */
+* {
+  @apply transition-colors duration-200;
+}
+
+@layer base {
+  .prose {
+    /* Light mode styles */
+    --tw-prose-body: theme('colors.gray.700');
+    --tw-prose-headings: theme('colors.gray.900');
+    --tw-prose-lead: theme('colors.gray.600');
+    --tw-prose-links: theme('colors.primary.600');
+    --tw-prose-bold: theme('colors.gray.900');
+    --tw-prose-counters: theme('colors.gray.500');
+    --tw-prose-bullets: theme('colors.gray.300');
+    --tw-prose-hr: theme('colors.gray.200');
+    --tw-prose-quotes: theme('colors.gray.900');
+    --tw-prose-quote-borders: theme('colors.gray.200');
+    --tw-prose-captions: theme('colors.gray.500');
+    --tw-prose-code: theme('colors.gray.900');
+    --tw-prose-pre-code: theme('colors.gray.200');
+    --tw-prose-pre-bg: theme('colors.gray.800');
+    --tw-prose-th-borders: theme('colors.gray.300');
+    --tw-prose-td-borders: theme('colors.gray.200');
+
+    /* Dark mode styles */
+    --tw-prose-invert-body: theme('colors.gray.300');
+    --tw-prose-invert-headings: theme('colors.white');
+    --tw-prose-invert-lead: theme('colors.gray.400');
+    --tw-prose-invert-links: theme('colors.primary.400');
+    --tw-prose-invert-bold: theme('colors.white');
+    --tw-prose-invert-counters: theme('colors.gray.400');
+    --tw-prose-invert-bullets: theme('colors.gray.600');
+    --tw-prose-invert-hr: theme('colors.gray.700');
+    --tw-prose-invert-quotes: theme('colors.gray.100');
+    --tw-prose-invert-quote-borders: theme('colors.gray.700');
+    --tw-prose-invert-captions: theme('colors.gray.400');
+    --tw-prose-invert-code: theme('colors.white');
+    --tw-prose-invert-pre-code: theme('colors.gray.300');
+    --tw-prose-invert-pre-bg: theme('colors.gray.800');
+    --tw-prose-invert-th-borders: theme('colors.gray.600');
+    --tw-prose-invert-td-borders: theme('colors.gray.700');
+  }
+}

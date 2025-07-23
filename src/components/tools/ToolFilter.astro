@@ -1,0 +1,79 @@
+---
+interface Category {
+  id: string;
+  name: string;
+}
+
+interface Props {
+  categories: Category[];
+  activeCategory: string;
+  searchQuery: string;
+  resultCount: number;
+}
+
+const { categories, activeCategory, searchQuery, resultCount } = Astro.props;
+
+// Function to update URL with new search parameters
+const updateSearchParams = (params: Record<string, string>) => {
+  const url = new URL(Astro.url);
+  Object.entries(params).forEach(([key, value]) => {
+    if (value) {
+      url.searchParams.set(key, value);
+    } else {
+      url.searchParams.delete(key);
+    }
+  });
+  return url.pathname + url.search;
+};
+---
+
+<div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-8">
+  <form method="GET" class="space-y-4">
+    {/* Search Input */}
+    <div class="relative">
+      <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+        <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+        </svg>
+      </div>
+      <input
+        type="text"
+        name="q"
+        value={searchQuery}
+        placeholder="Tools durchsuchen..."
+        class="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md leading-5 bg-white dark:bg-gray-700 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+        hx-get="/tools"
+        hx-trigger="keyup changed delay:500ms, search"
+        hx-target="#tools-container"
+        hx-push-url="true"
+        hx-params="q, category"
+      />
+    </div>
+
+    {/* Category Filter */}
+    <div class="flex flex-wrap gap-2">
+      {categories.map((category) => (
+        <a
+          href={updateSearchParams({ category: category.id, q: searchQuery })}
+          class={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+            activeCategory === category.id
+              ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100'
+              : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'
+          }`}
+          data-category={category.id}
+          hx-get="/tools"
+          hx-target="#tools-container"
+          hx-push-url="true"
+          hx-params="q, category"
+        >
+          {category.name}
+        </a>
+      ))}
+    </div>
+  </form>
+
+  {/* Results Count */}
+  <div class="mt-4 text-sm text-gray-500 dark:text-gray-400">
+    {resultCount} {resultCount === 1 ? 'Ergebnis' : 'Ergebnisse'} gefunden
+  </div>
+</div>

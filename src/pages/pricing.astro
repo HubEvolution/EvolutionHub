@@ -1,0 +1,61 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PricingTable from '../components/pricing/PricingTable.astro';
+import FeatureComparison from '../components/pricing/FeatureComparison.astro';
+
+// Set page metadata
+const title = 'Preise – Evolution Hub';
+const description = 'Wähle den passenden Plan für deine Bedürfnisse. Kostenlose Testversion verfügbar.';
+---
+
+<BaseLayout title={title} description={description}>
+  <main class="min-h-screen bg-gray-50 dark:bg-gray-900 py-16 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto">
+      <div class="text-center">
+        <h1 class="text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white sm:text-5xl md:text-6xl">
+          Einfache, transparente Preise
+        </h1>
+        <p class="mt-4 max-w-3xl mx-auto text-xl text-gray-500 dark:text-gray-300">
+          Wähle den Plan, der am besten zu dir passt. Jeder Plan enthält eine 14-tägige
+          kostenlose Testversion.
+        </p>
+      </div>
+
+      <PricingTable />
+      <FeatureComparison />
+
+      <div class="mt-16 bg-white dark:bg-gray-800 shadow rounded-lg p-8">
+        <h2 class="text-2xl font-bold mb-4 text-gray-900 dark:text-white">Häufig gestellte Fragen</h2>
+        
+        <div class="space-y-6 mt-8">
+          <div>
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white">Kann ich meinen Plan später wechseln?</h3>
+            <p class="mt-2 text-gray-600 dark:text-gray-300">
+              Ja, du kannst jederzeit zwischen den Plänen wechseln. Die Änderung wird mit deinem nächsten Abrechnungszyklus wirksam.
+            </p>
+          </div>
+          
+          <div>
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white">Gibt es eine Mindestvertragslaufzeit?</h3>
+            <p class="mt-2 text-gray-600 dark:text-gray-300">
+              Nein, alle Pläne sind monatlich kündbar. Es gibt keine vertragliche Bindung.
+            </p>
+          </div>
+          
+          <div>
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white">Kann ich die Enterprise-Version testen?</h3>
+            <p class="mt-2 text-gray-600 dark:text-gray-300">
+              Ja, kontaktiere uns für eine individuelle Demo und Testphase der Enterprise-Features.
+            </p>
+          </div>
+        </div>
+        
+        <div class="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
+          <p class="text-center">
+            Noch Fragen? <a href="/kontakt" class="text-blue-600 dark:text-blue-400 hover:underline">Kontaktiere unser Team</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </main>
+</BaseLayout>

@@ -1,0 +1,267 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { blogService } from '../../lib/blog';
+import type { ProcessedBlogPost } from '../../content/types';
+import type { CategoryWithCount, TagWithCount } from '../../types/blog';
+import BlogList from '../../components/BlogList.astro';
+import Pagination from '../../components/Pagination.astro';
+import CategoryFilter from '../../components/CategoryFilter.astro';
+import ErrorBoundary from '../../components/ErrorBoundary.astro';
+
+// Pagination und Filter-Parameter aus der URL auslesen
+const url = Astro.url;
+const searchParams = url.searchParams;
+const page = Math.max(1, parseInt(searchParams.get('page') || '1'));
+const category = searchParams.get('kategorie') || undefined;
+const tag = searchParams.get('tag') || undefined;
+const searchQuery = searchParams.get('suche') || undefined;
+const postsPerPage = 9;
+
+// Blog-Beiträge basierend auf den Filtern abruchen
+let posts: ProcessedBlogPost[] = [];
+let total = 0;
+let currentPage = 1;
+let totalPages = 1;
+
+try {
+  const result = await blogService.getPaginatedPosts(
+    page,
+    postsPerPage,
+    { 
+      category,
+      tag,
+      search: searchQuery,
+      includeDrafts: import.meta.env.DEV
+    }
+  );
+  
+  posts = result.items;
+  total = result.total;
+  currentPage = result.page;
+  totalPages = result.totalPages;
+} catch (error) {
+  console.error('Fehler beim Laden der Blog-Beiträge:', error);
+  // Wir fahren mit leeren Werten fort, die UI zeigt dann eine Fehlermeldung an
+}
+
+// Kategorien für den Filter laden
+let categories: string[] = [];
+let categoriesWithCounts: CategoryWithCount[] = [];
+
+try {
+  categories = await blogService.getAllCategories();
+  categoriesWithCounts = await Promise.all(
+    categories.map(async (cat) => ({
+      name: cat,
+      count: await blogService.getTotalCount({ category: cat })
+    }))
+  );
+} catch (error) {
+  console.error('Fehler beim Laden der Kategorien:', error);
+  // Wir fahren mit leeren Werten fort, die UI zeigt dann eine Fehlermeldung an
+}
+
+// Tags für die Anzeige laden (optional)
+let popularTags: TagWithCount[] = [];
+try {
+  popularTags = (await blogService.getAllTags()).slice(0, 10);
+} catch (error) {
+  console.error('Fehler beim Laden der Tags:', error);
+  // Wir fahren mit leeren Werten fort
+}
+
+// Metadaten für SEO
+const title = category 
+  ? `Blog - ${category}` 
+  : tag 
+    ? `Beiträge mit dem Tag "${tag}"` 
+    : 'Blog';
+const description = category 
+  ? `Alle Blog-Beiträge in der Kategorie ${category}` 
+  : tag
+    ? `Alle Blog-Beiträge mit dem Tag "${tag}"`
+    : 'Aktuelle Artikel, Tutorials und Neuigkeiten aus der Welt der Webentwicklung';
+
+// Kanonische URL für SEO
+const canonicalUrl = new URL('/blog/', Astro.site);
+if (category) canonicalUrl.searchParams.set('kategorie', category);
+if (tag) canonicalUrl.searchParams.set('tag', tag);
+if (searchQuery) canonicalUrl.searchParams.set('suche', searchQuery);
+if (page > 1) canonicalUrl.searchParams.set('page', page.toString());
+const baseUrlForPagination = new URL(url);
+baseUrlForPagination.searchParams.delete('page');
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  canonical={canonicalUrl.toString()}
+>
+  <div class="bg-white dark:bg-gray-900 py-12 sm:py-16">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+      <div class="mx-auto max-w-2xl lg:mx-0">
+        <h1 class="text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-4xl">
+          {title}
+        </h1>
+        <p class="mt-2 text-lg leading-8 text-gray-600 dark:text-gray-300">
+          {description}
+        </p>
+      </div>
+
+      <div class="mt-12 grid grid-cols-1 gap-8 lg:grid-cols-4">
+        <!-- Sidebar mit Filtern -->
+        <aside class="lg:col-span-1 space-y-8">
+          <!-- Suchleiste -->
+          <div class="rounded-lg bg-gray-50 dark:bg-gray-800 p-4">
+            <h2 class="text-sm font-medium text-gray-900 dark:text-white mb-3">
+              Blog durchsuchen
+            </h2>
+            <form 
+              method="get" 
+              action="/blog/"
+              class="relative"
+            >
+              <input
+                type="text"
+                name="suche"
+                placeholder="Suchen..."
+                value={searchQuery || ''}
+                class="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500 dark:bg-gray-700 dark:text-white dark:ring-gray-600 dark:placeholder-gray-400 sm:text-sm sm:leading-6"
+              />
+              <button 
+                type="submit"
+                class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-500 dark:text-gray-400 dark:hover:text-gray-300"
+                aria-label="Suchen"
+              >
+                <span class="sr-only">Suchen</span>
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </button>
+              
+              {/* Versteckte Felder, um andere Filter beizubehalten */}
+              {category && <input type="hidden" name="kategorie" value={category} />}
+              {tag && <input type="hidden" name="tag" value={tag} />}
+            </form>
+          </div>
+
+          {/* Kategorien-Filter mit Error Boundary */}
+          <ErrorBoundary>
+            <CategoryFilter 
+              categories={categoriesWithCounts}
+              selectedCategory={category}
+              baseUrl="/blog"
+              className="sticky top-4"
+            />
+          </ErrorBoundary>
+
+          {/* Beliebte Tags mit Error Boundary */}
+          <ErrorBoundary>
+            <div class="rounded-lg bg-gray-50 dark:bg-gray-800 p-4">
+              <h2 class="text-sm font-medium text-gray-900 dark:text-white mb-3">
+                Beliebte Tags
+              </h2>
+              {popularTags.length > 0 ? (
+                <div class="flex flex-wrap gap-2">
+                  {popularTags.map(({ name, count }) => (
+                    <a 
+                      href={`/blog/tag/${name.toLowerCase()}`}
+                      class={[
+                        'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
+                        tag === name
+                          ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400'
+                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
+                      ].join(' ')}
+                    >
+                      {name}
+                      <span class="ml-1 text-xs text-gray-500 dark:text-gray-400">
+                        {count}
+                      </span>
+                    </a>
+                  ))}
+                </div>
+              ) : (
+                <p class="text-sm text-gray-500 dark:text-gray-400">Keine Tags verfügbar</p>
+              )}
+            </div>
+          </ErrorBoundary>
+        </aside>
+
+        <!-- Hauptinhalt -->
+        <div class="lg:col-span-3">
+          {/* Filter-Info anzeigen, wenn Filter aktiv sind */}
+          {(category || tag || searchQuery) && (
+            <div class="mb-6 rounded-lg bg-emerald-50 p-4 dark:bg-emerald-900/20">
+              <div class="flex items-center justify-between">
+                <p class="text-sm text-emerald-800 dark:text-emerald-200">
+                  {category && `Gefiltert nach Kategorie: ${category}`}
+                  {tag && `Gefiltert nach Tag: ${tag}`}
+                  {searchQuery && `Suchergebnisse für: "${searchQuery}"`}
+                </p>
+                <a 
+                  href="/blog/" 
+                  class="text-sm font-medium text-emerald-700 hover:text-emerald-600 dark:text-emerald-400 dark:hover:text-emerald-300"
+                >
+                  Filter zurücksetzen
+                </a>
+              </div>
+            </div>
+          )}
+
+          {/* Blog-Liste mit Error Boundary */}
+          <ErrorBoundary>
+            {posts.length > 0 ? (
+              <BlogList 
+                posts={posts} 
+                showFeatured={!category && !tag && !searchQuery && page === 1}
+              />
+            ) : (
+              <div class="rounded-lg bg-gray-50 dark:bg-gray-800 p-12 text-center">
+                <svg
+                  class="mx-auto h-12 w-12 text-gray-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="1"
+                    d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">
+                  Keine Beiträge gefunden
+                </h3>
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-300">
+                  Es wurden keine Blog-Beiträge gefunden, die Ihren Suchkriterien entsprechen.
+                </p>
+                <div class="mt-6">
+                  <a
+                    href="/blog/"
+                    class="inline-flex items-center rounded-md bg-emerald-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600"
+                  >
+                    <span>Alle Beiträge anzeigen</span>
+                  </a>
+                </div>
+              </div>
+            )}
+          </ErrorBoundary>
+
+          {/* Pagination mit Error Boundary */}
+          {totalPages > 1 && (
+            <ErrorBoundary>
+              <div class="mt-12">
+                <Pagination 
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  baseUrl={baseUrlForPagination.pathname + baseUrlForPagination.search}
+                />
+              </div>
+            </ErrorBoundary>
+          )}
+        </div>
+      </div>
+    </div>
+  </div>
+</BaseLayout>

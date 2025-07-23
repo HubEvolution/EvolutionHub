@@ -1,0 +1,77 @@
+---
+const features = [
+  {
+    name: 'Projekte',
+    starter: 'Bis zu 3',
+    pro: 'Unbegrenzt',
+    enterprise: 'Unbegrenzt'
+  },
+  {
+    name: 'API-Anfragen/Tag',
+    starter: '100',
+    pro: '10.000',
+    enterprise: 'Unbegrenzt'
+  },
+  {
+    name: 'Speicherplatz',
+    starter: '1 GB',
+    pro: '50 GB',
+    enterprise: 'Unbegrenzt'
+  },
+  {
+    name: 'Team-Mitglieder',
+    starter: '1',
+    pro: 'Bis zu 10',
+    enterprise: 'Unbegrenzt'
+  },
+  {
+    name: 'Priorisierter Support',
+    starter: '❌',
+    pro: '✅',
+    enterprise: '✅ 24/7'
+  },
+  {
+    name: 'SLA',
+    starter: 'Kein SLA',
+    pro: '99,5%',
+    enterprise: '99,9%'
+  },
+  {
+    name: 'Benutzerdefinierte Integrationen',
+    starter: '❌',
+    pro: '❌',
+    enterprise: '✅'
+  }
+];
+---
+
+<div class="mt-16">
+  <h2 class="text-2xl font-bold text-center mb-8">Detaillierter Vergleich</h2>
+  
+  <div class="overflow-x-auto">
+    <table class="w-full border-collapse">
+      <thead>
+        <tr class="border-b border-gray-200 dark:border-gray-700">
+          <th class="text-left py-4 px-6 font-medium text-gray-500 dark:text-gray-400">Feature</th>
+          <th class="text-center py-4 px-6 font-medium text-gray-500 dark:text-gray-400">Starter</th>
+          <th class="text-center py-4 px-6 font-medium text-blue-600 dark:text-blue-400">Pro</th>
+          <th class="text-center py-4 px-6 font-medium text-gray-500 dark:text-gray-400">Enterprise</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+        {features.map((feature) => (
+          <tr class="hover:bg-gray-50 dark:hover:bg-gray-800">
+            <td class="py-4 px-6 font-medium">{feature.name}</td>
+            <td class="py-4 px-6 text-center">{feature.starter}</td>
+            <td class="py-4 px-6 text-center bg-blue-50 dark:bg-blue-900/30">{feature.pro}</td>
+            <td class="py-4 px-6 text-center">{feature.enterprise}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+  
+  <div class="mt-8 text-center text-sm text-gray-500 dark:text-gray-400">
+    <p>Fragen zu den Plänen? <a href="/contact" class="text-blue-600 dark:text-blue-400 hover:underline">Kontaktiere uns</a></p>
+  </div>
+</div>
