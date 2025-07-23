@@ -63,14 +63,12 @@
 
     logoutButton?.addEventListener('click', async () => {
       try {
-        // We need a logout endpoint for this to work
-        // const response = await fetch('/api/logout', { method: 'POST' });
-        // if (response.ok) {
-        //   window.location.href = '/login';
-        // } else {
-        //   alert('Abmeldung fehlgeschlagen.');
-        // }
-        alert('Logout-Funktionalität noch nicht implementiert.');
+        const response = await fetch('/api/user/logout', { method: 'POST' });
+        if (response.ok) {
+          window.location.href = '/';
+        } else {
+          alert('Abmeldung fehlgeschlagen.');
+        }
       } catch (error) {
         console.error('Logout failed:', error);
         alert('Abmeldung fehlgeschlagen.');
