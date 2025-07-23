@@ -1,6 +1,6 @@
 import type { APIContext } from 'astro';
 import { createSession } from '../../../lib/auth-v2';
-import { Argon2id } from 'oslo/password';
+import { compare } from 'bcrypt-ts';
 
 export async function POST(context: APIContext): Promise<Response> {
   const formData = await context.request.formData();
@@ -28,7 +28,7 @@ export async function POST(context: APIContext): Promise<Response> {
         return new Response('Incorrect email or password', { status: 400 });
     }
 
-    const validPassword = await new Argon2id().verify(existingUser.password_hash, password);
+    const validPassword = await compare(password, existingUser.password_hash);
     if (!validPassword) {
       return new Response('Incorrect email or password', { status: 400 });
     }

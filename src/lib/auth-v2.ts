@@ -1,7 +1,3 @@
-import { TimeSpan, createDate } from 'oslo';
-import { Argon2id } from 'oslo/password';
-import { encodeHex } from 'oslo/encoding';
-import { generateId } from 'oslo/crypto';
 import type { D1Database } from '@cloudflare/workers-types';
 
 // NOTE: This is a simplified implementation based on the Lucia v3 migration guide.
@@ -16,11 +12,12 @@ export interface Session {
 }
 
 export async function createSession(db: D1Database, userId: string): Promise<Session> {
-	const sessionId = generateId(40);
+	const sessionId = crypto.randomUUID();
+	const expiresAt = new Date(Date.now() + sessionExpiresInSeconds * 1000);
 	const session = {
 		id: sessionId,
 		userId,
-		expiresAt: createDate(new TimeSpan(sessionExpiresInSeconds, 's'))
+		expiresAt
 	};
 	await db.prepare(
 		"INSERT INTO sessions (id, user_id, expires_at) VALUES (?, ?, ?)"

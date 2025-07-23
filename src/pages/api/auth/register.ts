@@ -1,7 +1,6 @@
 import type { APIContext } from 'astro';
 import { createSession } from '../../../lib/auth-v2';
-import { Argon2id } from 'oslo/password';
-import { generateId } from 'oslo/crypto';
+import { hash } from 'bcrypt-ts';
 
 export async function POST(context: APIContext): Promise<Response> {
   const formData = await context.request.formData();
@@ -23,8 +22,8 @@ export async function POST(context: APIContext): Promise<Response> {
     return new Response('Invalid input', { status: 400 });
   }
 
-  const hashedPassword = await new Argon2id().hash(password);
-  const userId = generateId(15);
+  const hashedPassword = await hash(password, 10);
+  const userId = crypto.randomUUID();
 
   try {
     await context.locals.runtime.env.DB.prepare(
