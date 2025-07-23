@@ -1,14 +1,13 @@
 // Mobile menu functionality
 document.addEventListener('DOMContentLoaded', () => {
-  // TypeScript type assertions
-  const mobileMenuButton = document.getElementById('mobile-menu-button') as HTMLButtonElement | null;
-  const mobileMenu = document.getElementById('mobile-menu') as HTMLElement | null;
-  const menuItems = mobileMenu?.querySelectorAll<HTMLElement>('[role="menuitem"]');
+  const mobileMenuButton = document.getElementById('mobile-menu-button');
+  const mobileMenu = document.getElementById('mobile-menu');
+  const menuItems = mobileMenu?.querySelectorAll('[role="menuitem"]');
   
   if (!mobileMenuButton || !mobileMenu) return;
   
   // Toggle mobile menu
-  const toggleMenu = (expanded?: boolean) => {
+  const toggleMenu = (expanded) => {
     const isExpanded = expanded !== undefined ? expanded : mobileMenuButton.getAttribute('aria-expanded') === 'true';
     mobileMenuButton.setAttribute('aria-expanded', (!isExpanded).toString());
     mobileMenu.classList.toggle('hidden');
@@ -34,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   
   // Close menu on Escape key
-  const handleKeyDown = (e: KeyboardEvent) => {
+  const handleKeyDown = (e) => {
     if (e.key === 'Escape' && mobileMenuButton.getAttribute('aria-expanded') === 'true') {
       e.preventDefault();
       toggleMenu(true);
@@ -47,8 +46,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const firstItem = menuItems[0];
     const lastItem = menuItems[menuItems.length - 1];
     
-    const handleMenuItemKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Tab' && document.activeElement instanceof HTMLElement) {
+    const handleMenuItemKeyDown = (e) => {
+      if (e.key === 'Tab' && document.activeElement) {
         if (e.shiftKey && document.activeElement === firstItem) {
           e.preventDefault();
           lastItem.focus();
@@ -62,15 +61,15 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     
     menuItems.forEach((item) => {
-      item.addEventListener('keydown', handleMenuItemKeyDown as EventListener);
+      item.addEventListener('keydown', handleMenuItemKeyDown);
     });
   }
   
   // Close menu when clicking outside
-  const handleClickOutside = (e: MouseEvent) => {
+  const handleClickOutside = (e) => {
     if (!e.target) return;
     
-    const target = e.target as Node;
+    const target = e.target;
     const isClickInside = mobileMenuButton.contains(target) || 
                          (mobileMenu && mobileMenu.contains(target));
     
@@ -88,7 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     if (menuItems) {
       menuItems.forEach(item => {
-        item.removeEventListener('keydown', handleMenuItemKeyDown as EventListener);
+        item.removeEventListener('keydown', handleMenuItemKeyDown);
       });
     }
   };
