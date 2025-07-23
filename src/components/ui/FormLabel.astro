@@ -1,0 +1,11 @@
+---
+interface Props {
+  for: string;
+  className?: string;
+}
+
+const { for: forId, className } = Astro.props;
+---
+<label for={forId} class:list={["block text-sm font-medium text-gray-700 dark:text-gray-300", className]}>
+  <slot />
+</label>

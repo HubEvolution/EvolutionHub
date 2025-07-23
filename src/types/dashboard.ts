@@ -29,7 +29,7 @@ export interface QuickAction {
   title: string;
   description: string;
   icon: string;
-  action: () => void;
+  action: string;
   variant?: 'primary' | 'secondary' | 'success' | 'danger';
 }
 

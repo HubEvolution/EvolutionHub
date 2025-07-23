@@ -1,73 +1,49 @@
 ---
-// @ts-nocheck
 import BaseLayout from '../layouts/BaseLayout.astro';
-import StatsCard from '../components/dashboard/StatsCard.astro';
-import ActivityFeed from '../components/dashboard/ActivityFeed.astro';
-import ProjectsPanel from '../components/dashboard/ProjectsPanel.astro';
-import QuickActions from '../components/dashboard/QuickActions.astro';
 import UserProfile from '../components/dashboard/UserProfile.astro';
-import type { QuickAction, ActivityItem, ProjectCard } from '../types/dashboard';
+import StatsCard from '../components/dashboard/StatsCard.astro';
+import QuickActions from '../components/dashboard/QuickActions.astro';
+import ProjectsPanel from '../components/dashboard/ProjectsPanel.astro';
+import ActivityFeed from '../components/dashboard/ActivityFeed.astro';
+import type { QuickAction } from '../types/dashboard';
 
-// Session check
-const { locals } = Astro;
-const { user, runtime } = locals;
-
-if (!user) {
+if (!Astro.locals.user) {
   return Astro.redirect('/login');
 }
 
-const fetchOptions = {
-  headers: {
-    Cookie: Astro.request.headers.get('Cookie') || '',
-  },
-};
+const user = Astro.locals.user;
 
-async function fetchData(url: string) {
-    const response = await fetch(`${Astro.url.origin}${url}`, fetchOptions);
-    if (!response.ok) {
-        console.error(`Failed to fetch ${url}: ${response.status} ${response.statusText}`);
-        return [];
-    }
-    return response.json();
-}
+// Fetch data for the dashboard components
+const db = Astro.locals.runtime.env.DB;
+const projectsResponse = await db.prepare("SELECT * FROM projects WHERE user_id = ?").bind(user.id).all();
+const activitiesResponse = await db.prepare("SELECT * FROM activities WHERE user_id = ? ORDER BY created_at DESC LIMIT 10").bind(user.id).all();
 
-const [stats, projects, activities, quickActions] = await Promise.all([
-    fetchData('/api/dashboard/stats'),
-    fetchData('/api/dashboard/projects'),
-    fetchData('/api/dashboard/activity'),
-    fetchData('/api/dashboard/quick-actions')
-]);
+const projects = projectsResponse.results || [];
+const activities = activitiesResponse.results || [];
+
+const quickActions: QuickAction[] = [
+    { id: 'new-project', title: 'New Project', description: 'Start a new project', icon: '🚀', action: 'create_project', variant: 'primary' },
+    { id: 'new-task', title: 'New Task', description: 'Create a new task', icon: '✅', action: 'create_task', variant: 'success' },
+    { id: 'invite-team', title: 'Invite Team', description: 'Invite a new team member', icon: '👥', action: 'invite_member', variant: 'secondary' },
+    { id: 'view-docs', title: 'View Docs', description: 'Read the documentation', icon: '📚', action: 'view_docs', variant: 'secondary' }
+];
 ---
 
-<BaseLayout>
-  <div class="py-10">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Willkommen zurück!</h1>
-      <p class="mt-2 text-gray-600 dark:text-gray-300">Hier ist eine Übersicht Ihrer Aktivitäten.</p>
-      
-      <div class="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
-        {/* Main Content - Left Column */}
-        <div class="lg:col-span-2 space-y-8">
-          {/* Stats */}
-          <StatsCard stats={stats} />
-          
-          {/* Projects Panel */}
-          <ProjectsPanel projects={projects} />
+<BaseLayout title="Dashboard">
+  <div class="container mx-auto p-4 sm:p-6 lg:p-8">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div class="lg:col-span-1 space-y-8">
+        <UserProfile user={user} />
+        <QuickActions actions={quickActions} />
+      </div>
+      <div class="lg:col-span-2 space-y-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <StatsCard title="Projects" value={projects.length} change="+5%" />
+          <StatsCard title="Tasks" value="8" change="-2%" />
+          <StatsCard title="Team Members" value="4" />
         </div>
-        
-        {/* Sidebar - Right Column */}
-        <div class="space-y-8">
-          {/* User Profile */}
-          <UserProfile />
-          
-          {/* Recent Activity */}
-          <ActivityFeed activities={activities} />
-          
-          {/* Quick Actions */}
-          <QuickActions actions={quickActions} /> 
-        </div>
-        
+        <ProjectsPanel projects={projects} />
+        <ActivityFeed activities={activities} />
       </div>
     </div>
   </div>
