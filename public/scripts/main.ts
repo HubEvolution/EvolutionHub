@@ -37,7 +37,8 @@ const initSmoothScrolling = (): void => {
 
 // Dark mode functionality
 const initDarkMode = () => {
-  const darkModeToggle = document.getElementById('theme-toggle');
+  const darkModeToggle = document.querySelector('.theme-toggle');
+  console.log('Theme toggle button:', darkModeToggle);
   const html = document.documentElement;
   const darkModeIcon = document.getElementById('theme-toggle-moon');
   const lightModeIcon = document.getElementById('theme-toggle-sun');
