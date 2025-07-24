@@ -6,7 +6,10 @@ export async function POST(context: APIContext): Promise<Response> {
   const email = formData.get('email');
 
   if (typeof email !== 'string' || email.length < 3) {
-    return new Response('Invalid email', { status: 400 });
+    return new Response(null, {
+      status: 302,
+      headers: { Location: '/forgot-password?error=InvalidEmail' }
+    });
   }
 
   try {
@@ -39,6 +42,9 @@ export async function POST(context: APIContext): Promise<Response> {
     return context.redirect('/auth/password-reset-sent', 302);
   } catch (e) {
     console.error(e);
-    return new Response('An unknown error occurred', { status: 500 });
+    return new Response(null, {
+      status: 302,
+      headers: { Location: '/forgot-password?error=UnknownError' }
+    });
   }
 }

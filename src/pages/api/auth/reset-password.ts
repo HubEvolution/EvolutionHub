@@ -7,7 +7,11 @@ export async function POST(context: APIContext): Promise<Response> {
   const password = formData.get('password');
 
   if (typeof token !== 'string' || typeof password !== 'string' || password.length < 6) {
-    return new Response('Invalid token or password', { status: 400 });
+    const location = token ? `/reset-password?token=${token}&error=InvalidInput` : '/login?error=InvalidToken';
+    return new Response(null, {
+      status: 302,
+      headers: { Location: location }
+    });
   }
 
   try {
@@ -15,13 +19,19 @@ export async function POST(context: APIContext): Promise<Response> {
     const tokenResult = await db.prepare('SELECT * FROM password_reset_tokens WHERE id = ?').bind(token).first();
 
     if (!tokenResult) {
-      return new Response('Invalid or expired token', { status: 400 });
+      return new Response(null, {
+        status: 302,
+        headers: { Location: `/reset-password?token=${token}&error=InvalidToken` }
+      });
     }
 
     const expiresAt = new Date(Number(tokenResult.expires_at) * 1000);
     if (expiresAt.getTime() < Date.now()) {
       await db.prepare('DELETE FROM password_reset_tokens WHERE id = ?').bind(token).run();
-      return new Response('Invalid or expired token', { status: 400 });
+      return new Response(null, {
+        status: 302,
+        headers: { Location: `/reset-password?token=${token}&error=ExpiredToken` }
+      });
     }
 
     const hashedPassword = await hash(password, 10);
@@ -31,6 +41,9 @@ export async function POST(context: APIContext): Promise<Response> {
     return context.redirect('/auth/password-reset-success', 302);
   } catch (e) {
     console.error(e);
-    return new Response('An unknown error occurred', { status: 500 });
+    return new Response(null, {
+      status: 302,
+      headers: { Location: `/reset-password?token=${token}&error=UnknownError` }
+    });
   }
 }

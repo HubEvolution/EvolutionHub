@@ -10,19 +10,24 @@ export async function POST(context: APIContext): Promise<Response> {
   const name = formData.get('name');
   const username = formData.get('username');
 
-const token = formData.get('cf-turnstile-response');
+  const token = formData.get('cf-turnstile-response');
 
   if (!token) {
-    return new Response('Please complete the CAPTCHA.', { status: 400 });
+    return new Response(null, {
+      status: 302,
+      headers: { Location: '/register?error=CaptchaRequired' }
+    });
   }
 
-  
   const turnstileVerified = await validateTurnstile(
     token as string,
     context.locals.runtime.env.CLOUDFLARE_TURNSTILE_SECRET_KEY
   );
   if (!turnstileVerified) {
-    return new Response('CAPTCHA verification failed.', { status: 400 });
+    return new Response(null, {
+      status: 302,
+      headers: { Location: '/register?error=CaptchaFailed' }
+    });
   }
   if (
     typeof email !== 'string' ||
@@ -34,7 +39,10 @@ const token = formData.get('cf-turnstile-response');
     typeof username !== 'string' ||
     username.length < 3
   ) {
-    return new Response('Invalid input', { status: 400 });
+    return new Response(null, {
+      status: 302,
+      headers: { Location: '/register?error=InvalidInput' }
+    });
   }
 
   const hashedPassword = await hash(password, 10);
@@ -64,13 +72,15 @@ const token = formData.get('cf-turnstile-response');
     });
   } catch (e: any) {
     if (e.message?.includes('UNIQUE constraint failed')) {
-      return new Response('Email or username already used', {
-        status: 400
+      return new Response(null, {
+        status: 302,
+        headers: { Location: '/register?error=UserExists' }
       });
     }
     console.error(e);
-    return new Response('An internal error occurred', {
-      status: 500
+    return new Response(null, {
+      status: 302,
+      headers: { Location: '/register?error=UnknownError' }
     });
   }
 }

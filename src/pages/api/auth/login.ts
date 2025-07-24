@@ -8,19 +8,24 @@ export async function POST(context: APIContext): Promise<Response> {
   const email = formData.get('email');
   const password = formData.get('password');
 
-const token = formData.get('cf-turnstile-response');
+  const token = formData.get('cf-turnstile-response');
 
   if (!token) {
-    return new Response('Please complete the CAPTCHA.', { status: 400 });
+    return new Response(null, {
+      status: 302,
+      headers: { Location: '/login?error=CaptchaRequired' }
+    });
   }
 
-  
   const turnstileVerified = await validateTurnstile(
     token as string,
     context.locals.runtime.env.CLOUDFLARE_TURNSTILE_SECRET_KEY
   );
   if (!turnstileVerified) {
-    return new Response('CAPTCHA verification failed.', { status: 400 });
+    return new Response(null, {
+      status: 302,
+      headers: { Location: '/login?error=CaptchaFailed' }
+    });
   }
   if (
     typeof email !== 'string' ||
@@ -28,7 +33,10 @@ const token = formData.get('cf-turnstile-response');
     typeof password !== 'string' ||
     password.length < 6
   ) {
-    return new Response('Invalid email or password', { status: 400 });
+    return new Response(null, {
+      status: 302,
+      headers: { Location: '/login?error=InvalidInput' }
+    });
   }
   
   try {
@@ -36,16 +44,25 @@ const token = formData.get('cf-turnstile-response');
     const existingUser = await db.prepare('SELECT * FROM users WHERE email = ?').bind(email).first();
 
     if (!existingUser) {
-      return new Response('Incorrect email or password', { status: 400 });
+      return new Response(null, {
+        status: 302,
+        headers: { Location: '/login?error=InvalidCredentials' }
+      });
     }
 
     if (!existingUser.password_hash) {
-        return new Response('Incorrect email or password', { status: 400 });
+        return new Response(null, {
+            status: 302,
+            headers: { Location: '/login?error=InvalidCredentials' }
+        });
     }
 
     const validPassword = await compare(password, existingUser.password_hash);
     if (!validPassword) {
-      return new Response('Incorrect email or password', { status: 400 });
+      return new Response(null, {
+        status: 302,
+        headers: { Location: '/login?error=InvalidCredentials' }
+      });
     }
 
     const session = await createSession(db, existingUser.id);
@@ -64,8 +81,10 @@ const token = formData.get('cf-turnstile-response');
       }
     });
   } catch (e) {
-    return new Response('An unknown error occurred', {
-      status: 500
+    console.error(e);
+    return new Response(null, {
+      status: 302,
+      headers: { Location: '/login?error=UnknownError' }
     });
   }
 }
