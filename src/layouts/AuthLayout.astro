@@ -3,10 +3,13 @@ import BaseLayout from './BaseLayout.astro';
 const { title } = Astro.props;
 ---
 <BaseLayout {title}>
-  <head>
-    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-  </head>
-  <div class="flex items-center justify-center min-h-[calc(100vh-189px)]">
+  {/* Astro wird dieses Skript korrekt in den HTML-Head der finalen Seite einfügen */}
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+  
+  {/* Dieses Div befindet sich innerhalb des <main>-Elements von BaseLayout.
+       'h-full' sorgt dafür, dass es die volle Höhe des <main>-Containers (der durch flex-grow wächst)
+       einnimmt und seinen Inhalt korrekt vertikal zentriert. */}
+  <div class="flex items-center justify-center h-full">
     <div class="w-full max-w-md px-8 py-6">
       <slot />
     </div>
