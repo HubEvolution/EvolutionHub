@@ -87,12 +87,18 @@ const initLibraries = () => {
   };
 };
 
-// Initialize everything when the DOM is fully loaded
-document.addEventListener('DOMContentLoaded', () => {
+// Encapsulate all initialization logic into a single function
+const initApp = () => {
   initSmoothScrolling();
   initDarkMode();
   initLibraries();
-});
+};
+
+// Run initialization on initial page load
+initApp();
+
+// Re-run initialization on page load for Astro's View Transitions
+document.addEventListener('astro:page-load', initApp);
 
 // Handle HMR for development
 if (import.meta.hot) {

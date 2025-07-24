@@ -75,8 +75,20 @@ const user = locals.user;
             <!-- New Password -->
             <div class="mb-4">
               <label for="new-password" class="block text-sm font-medium mb-1">New Password</label>
-              <input type="password" id="new-password" name="new-password" class="w-full p-2 border rounded-lg dark:bg-slate-700 dark:border-slate-600">
+              <input type="password" id="new-password" name="new-password" class="w-full p-2 border rounded-lg dark:bg-slate-700 dark:border-slate-600" required>
             </div>
+
+            <!-- Confirm New Password -->
+            <div class="mb-4">
+              <label for="confirm-password" class="block text-sm font-medium mb-1">Confirm New Password</label>
+              <input type="password" id="confirm-password" name="confirm-password" class="w-full p-2 border rounded-lg dark:bg-slate-700 dark:border-slate-600" required>
+            </div>
+
+            <!-- Password Strength Indicator -->
+            <div id="password-strength" class="mb-4 text-sm"></div>
+
+            <!-- Validation Messages -->
+            <div id="password-errors" class="mb-4 text-sm text-red-500"></div>
 
             <button type="submit" class="px-6 py-2 text-white bg-primary rounded-lg hover:bg-primary-dark">
               Update Password
@@ -88,65 +100,4 @@ const user = locals.user;
   </div>
 </BaseLayout>
 
-<script>
-  document.getElementById('profile-form')?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const form = e.target as HTMLFormElement;
-    const formData = new FormData(form);
-    
-    const response = await fetch('/api/user/profile', {
-      method: 'POST',
-      body: formData,
-    });
-
-    if (response.ok) {
-      toastr.success('Profile updated successfully!');
-    } else {
-      const errorText = await response.text();
-      toastr.error(`Error: ${errorText}`);
-    }
-  });
-
-  document.getElementById('password-form')?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const form = e.target as HTMLFormElement;
-    const formData = new FormData(form);
-    
-    const response = await fetch('/api/user/password', {
-      method: 'POST',
-      body: formData,
-    });
-
-    if (response.ok) {
-      toastr.success('Password updated successfully!');
-      form.reset();
-    } else {
-      const errorText = await response.text();
-      toastr.error(`Error: ${errorText}`);
-    }
-  });
-
-  document.getElementById('avatar-upload')?.addEventListener('change', async (e) => {
-    const input = e.target as HTMLInputElement;
-    if (!input.files || input.files.length === 0) {
-      return;
-    }
-    const file = input.files[0];
-    const formData = new FormData();
-    formData.append('avatar', file);
-
-    const response = await fetch('/api/user/avatar', {
-      method: 'POST',
-      body: formData,
-    });
-
-    if (response.ok) {
-      const data = await response.json();
-      (document.getElementById('avatar-preview') as HTMLImageElement).src = data.imageUrl;
-      toastr.success('Avatar updated successfully!');
-    } else {
-      const errorText = await response.text();
-      toastr.error(`Error: ${errorText}`);
-    }
-  });
-</script>
+<script src="/scripts/settings.ts"></script>
