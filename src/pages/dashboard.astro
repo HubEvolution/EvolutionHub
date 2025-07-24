@@ -39,9 +39,7 @@ const quickActions: QuickAction[] = [
       </div>
       <div class="lg:col-span-2 space-y-8">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <StatsCard title="Projects" value={projects.length} change="+5%" />
-          <StatsCard title="Tasks" value="8" change="-2%" />
-          <StatsCard title="Team Members" value="4" />
+          <StatsCard />
         </div>
         <ProjectsPanel projects={projects} />
         <ActivityFeed activities={activities} />
