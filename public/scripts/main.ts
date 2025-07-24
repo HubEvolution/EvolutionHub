@@ -38,25 +38,20 @@ const initSmoothScrolling = (): void => {
 // Dark mode functionality
 const initDarkMode = () => {
   const darkModeToggle = document.querySelector('.theme-toggle');
-  console.log('Theme toggle button:', darkModeToggle);
   const html = document.documentElement;
-  const darkModeIcon = document.getElementById('theme-toggle-moon');
-  const lightModeIcon = document.getElementById('theme-toggle-sun');
 
-  // Check for saved user preference, default to dark mode
+  // Check for saved user preference, or default to system preference
   const savedMode = localStorage.getItem('darkMode');
-  const isDarkMode = savedMode === null ? true : savedMode === 'true';
+  const isDarkMode = savedMode 
+    ? savedMode === 'true' 
+    : window.matchMedia('(prefers-color-scheme: dark)').matches;
 
   // Apply theme based on preference
   const applyTheme = (isDark: boolean) => {
     if (isDark) {
       html.classList.add('dark');
-      darkModeIcon?.classList.add('hidden');
-      lightModeIcon?.classList.remove('hidden');
     } else {
       html.classList.remove('dark');
-      darkModeIcon?.classList.remove('hidden');
-      lightModeIcon?.classList.add('hidden');
     }
     localStorage.setItem('darkMode', String(isDark));
   };
