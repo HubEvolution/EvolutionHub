@@ -43,18 +43,18 @@ const formatDate = (dateString: string): string => {
         </div>
       ))
     ) : activities.length === 0 ? (
-      <div class="text-center py-8 text-gray-400">
+      <div class="text-center py-8 text-gray-500 dark:text-gray-400">
         <p>Keine aktuellen Aktivitäten</p>
       </div>
     ) : (
       activities.slice(0, maxItems).map((activity) => (
-        <div class="flex items-start space-x-3 group">
+        <div class="flex items-start space-x-3 group border-b border-gray-100 dark:border-white/5 pb-3 last:border-b-0 last:pb-0">
           <div class="flex-1 min-w-0">
             <div class="flex justify-between items-baseline">
-              <p class="text-sm font-medium text-white truncate">
-                {activity.user} <span class="text-gray-400 font-normal">{activity.action}</span>
+              <p class="text-sm font-medium text-gray-800 dark:text-white truncate">
+                {activity.user} <span class="text-gray-500 dark:text-gray-400 font-normal">{activity.action}</span>
               </p>
-              <span class="text-xs text-gray-500 whitespace-nowrap ml-2">
+              <span class="text-xs text-gray-500 dark:text-gray-500 whitespace-nowrap ml-2">
                 {formatDate(activity.timestamp)}
               </span>
             </div>

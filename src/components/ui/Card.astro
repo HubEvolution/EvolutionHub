@@ -10,13 +10,19 @@ interface Props {
 const { title, className = '', children } = Astro.props;
 ---
 
-<div class={`relative p-6 rounded-2xl overflow-hidden ${className}`}>
-  <!-- Glassmorphism background -->
-  <div class="absolute inset-0 bg-white/10 backdrop-blur-lg border border-white/10 rounded-2xl -z-10"></div>
+<div class:list={[
+  "relative p-6 rounded-2xl overflow-hidden",
+  // Solid background with border for light/dark mode
+  "bg-white dark:bg-gray-800/50",
+  "border border-gray-200 dark:border-white/10",
+  // Subtle shadow for depth
+  "shadow-sm",
+  className
+]}>
   
   <!-- Optional title -->
   {title && (
-    <h3 class="text-lg font-semibold text-white mb-4">
+    <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">
       {title}
     </h3>
   )}
@@ -28,15 +34,3 @@ const { title, className = '', children } = Astro.props;
     </slot>
   </div>
 </div>
-
-<style>
-  /* Add subtle glow effect on hover */
-  .card {
-    transition: box-shadow 0.3s ease, transform 0.2s ease;
-  }
-  
-  .card:hover {
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-    transform: translateY(-2px);
-  }
-</style>
