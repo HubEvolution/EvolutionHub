@@ -17,7 +17,7 @@ Eine Full-Stack-Webanwendung, die eine Sammlung von Entwickler-Tools bereitstell
 - <img src="public/assets/svg/features.svg" alt="Frontend Icon" height="15"> **Modernes Frontend:** Gebaut mit [Astro](https://astro.build/) für maximale Performance.
 - <img src="public/assets/svg/style.svg" alt="Styling Icon" height="15"> **Styling:** [Tailwind CSS](https://tailwindcss.com/) für ein schnelles und konsistentes Design.
 - <img src="public/assets/svg/deployment.svg" alt="Serverless Icon" height="15"> **Serverless-Backend:** Läuft auf [Cloudflare Pages](https://pages.cloudflare.com/) mit Cloudflare D1 als Datenbank.
-- <img src="public/assets/svg/features.svg" alt="Auth Icon" height="15"> **Authentifizierung:** Sicherer Login mit E-Mail und Social-Media-Anbietern.
+- <img src="public/assets/svg/features.svg" alt="Auth Icon" height="15"> **Authentifizierung:** Sichere Authentifizierung mit E-Mail und Passwort, einschließlich Registrierung, Login und einer "Passwort vergessen"-Funktion. Social-Media-Logins sind für die Zukunft geplant.
 
 ---
 
