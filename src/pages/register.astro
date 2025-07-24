@@ -12,7 +12,7 @@ if (Astro.locals.user) {
 <AuthLayout title="Create an Account">
   <Card>
     <h1 class="text-2xl font-bold text-center mb-6">Create your Account</h1>
-    <form method="POST" action="/api/auth/register">
+    <form id="register-form">
       <div class="mb-4">
         <FormLabel for="name">Name</FormLabel>
         <Input type="text" id="name" name="name" required />
@@ -29,6 +29,7 @@ if (Astro.locals.user) {
         <FormLabel for="password">Password</FormLabel>
         <Input type="password" id="password" name="password" required />
       </div>
+      <div id="error-message" class="text-red-500 text-center mb-4 hidden"></div>
       <Button type="submit" className="w-full">Create Account</Button>
     </form>
     <p class="text-center mt-4 text-sm">
@@ -36,3 +37,37 @@ if (Astro.locals.user) {
     </p>
   </Card>
 </AuthLayout>
+
+<script>
+  const form = document.getElementById('register-form') as HTMLFormElement;
+  const errorMessageDiv = document.getElementById('error-message');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    if (!errorMessageDiv) return;
+
+    errorMessageDiv.classList.add('hidden');
+    errorMessageDiv.textContent = '';
+
+    const formData = new FormData(form);
+
+    try {
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok) {
+        window.location.href = '/dashboard';
+      } else {
+        const errorText = await response.text();
+        errorMessageDiv.textContent = errorText;
+        errorMessageDiv.classList.remove('hidden');
+      }
+    } catch (error) {
+      errorMessageDiv.textContent = 'An unexpected error occurred.';
+      errorMessageDiv.classList.remove('hidden');
+    }
+  });
+</script>
