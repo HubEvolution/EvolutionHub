@@ -1,0 +1,6 @@
+name = "evolution-hub"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "evolution-hub-main"
+database_id = "cadc96d1-712a-4873-8f3d-da87a936f3be"
