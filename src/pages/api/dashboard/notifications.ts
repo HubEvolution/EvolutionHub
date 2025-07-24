@@ -7,18 +7,19 @@ export async function GET(context: APIContext): Promise<Response> {
     return new Response(null, { status: 401 });
   }
 
-  // This is mock data. In a real application, you would fetch this from your database.
-  const mockNotifications: Notification[] = [
-    { id: '1', message: 'You have a new comment on your project "Website Redesign".', type: 'comment', timestamp: new Date().toISOString(), read: false },
-    { id: '2', message: '@jane mentioned you in the task "Update Documentation".', type: 'mention', timestamp: new Date(Date.now() - 1000 * 60 * 5).toISOString(), read: false },
-    { id: '3', message: 'Task "Deploy to Staging" was completed.', type: 'task_completed', timestamp: new Date(Date.now() - 1000 * 60 * 30).toISOString(), read: true },
-    { id: '4', message: 'System update scheduled for tonight at 2 AM.', type: 'system', timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(), read: true },
-  ];
+  try {
+    const db = locals.runtime.env.DB;
+    const stmt = db.prepare('SELECT * FROM notifications WHERE user_id = ? ORDER BY created_at DESC LIMIT 10').bind(locals.user.id);
+    const { results } = await stmt.all();
 
-  return new Response(JSON.stringify(mockNotifications), {
-    status: 200,
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  });
+    return new Response(JSON.stringify(results), {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+  } catch (e) {
+    console.error(e);
+    return new Response('An unknown error occurred', { status: 500 });
+  }
 }

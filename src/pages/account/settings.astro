@@ -31,6 +31,15 @@ const user = locals.user;
       <div class="lg:col-span-2 space-y-8">
         <Card title="Public Profile" id="profile">
           <form id="profile-form">
+            <!-- Profile Picture -->
+            <div class="flex items-center space-x-4 mb-6">
+              <img id="avatar-preview" src={user.image || '/assets/svg/logo.svg'} alt="Avatar" class="w-20 h-20 rounded-full">
+              <input type="file" id="avatar-upload" name="avatar" class="hidden" accept="image/*">
+              <button type="button" onclick="document.getElementById('avatar-upload').click()" class="px-4 py-2 text-sm font-medium border rounded-lg">
+                Change Picture
+              </button>
+            </div>
+
             <!-- Name -->
             <div class="mb-4">
               <label for="name" class="block text-sm font-medium mb-1">Name</label>
@@ -111,6 +120,30 @@ const user = locals.user;
     if (response.ok) {
       toastr.success('Password updated successfully!');
       form.reset();
+    } else {
+      const errorText = await response.text();
+      toastr.error(`Error: ${errorText}`);
+    }
+  });
+
+  document.getElementById('avatar-upload')?.addEventListener('change', async (e) => {
+    const input = e.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) {
+      return;
+    }
+    const file = input.files[0];
+    const formData = new FormData();
+    formData.append('avatar', file);
+
+    const response = await fetch('/api/user/avatar', {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      (document.getElementById('avatar-preview') as HTMLImageElement).src = data.imageUrl;
+      toastr.success('Avatar updated successfully!');
     } else {
       const errorText = await response.text();
       toastr.error(`Error: ${errorText}`);

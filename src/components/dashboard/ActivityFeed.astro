@@ -1,7 +1,6 @@
 ---
 // src/components/dashboard/ActivityFeed.astro
 import Card from '../ui/Card.astro';
-import Skeleton from '../ui/Skeleton.astro';
 import type { ActivityItem } from '../../types/dashboard';
 
 interface Props {
@@ -32,16 +31,9 @@ const formatDate = (dateString: string): string => {
 <Card title={title} className="">
   <div class="space-y-4">
     {loading ? (
-      // Skeleton loader
-      Array(3).fill(0).map((_, i) => (
-        <div class="flex items-start space-x-3">
-          <Skeleton width="32px" height="32px" className="rounded-full" />
-          <div class="flex-1">
-            <Skeleton width="80%" height="1rem" className="mb-1" />
-            <Skeleton width="60%" height="0.875rem" />
-          </div>
-        </div>
-      ))
+      <div class="flex justify-center items-center h-48">
+        <div class="lottie-loader w-24 h-24"></div>
+      </div>
     ) : activities.length === 0 ? (
       <div class="text-center py-8 text-gray-500 dark:text-gray-400">
         <p>Keine aktuellen Aktivitäten</p>
@@ -72,3 +64,21 @@ const formatDate = (dateString: string): string => {
     )}
   </div>
 </Card>
+
+<script>
+  import lottie from 'lottie-web';
+
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.lottie-loader').forEach(container => {
+      if (container) {
+        lottie.loadAnimation({
+          container: container,
+          renderer: 'svg',
+          loop: true,
+          autoplay: true,
+          path: 'https://assets3.lottiefiles.com/packages/lf20_UJNc2t.json'
+        });
+      }
+    });
+  });
+</script>
