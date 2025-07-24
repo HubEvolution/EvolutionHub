@@ -17,12 +17,14 @@ interface Props {
   author?: string;
   section?: string;
   tags?: string[];
+  hideNewsletter?: boolean;
 }
 
 const { 
   title, 
   description = 'Evolution Hub - Your AI-Powered SaaS Platform',
-  ogImage 
+  ogImage,
+  hideNewsletter
 } = Astro.props;
 ---
 
@@ -85,7 +87,7 @@ const {
         <slot />
       </main>
     
-      <Footer />
+      <Footer hideNewsletter={hideNewsletter} />
     
     <!-- Add smooth scrolling for anchor links -->
     <script is:inline>
