@@ -6,9 +6,9 @@ const { title } = Astro.props;
   <head>
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
   </head>
-  <main class="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900">
+  <div class="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900 h-full">
     <div class="w-full max-w-md px-8 py-6">
       <slot />
     </div>
-  </main>
+  </div>
 </BaseLayout>
