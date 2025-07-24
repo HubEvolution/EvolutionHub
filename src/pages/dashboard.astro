@@ -49,25 +49,30 @@ const stats = {
 const quickActions: QuickAction[] = [
     { id: 'new-project', title: 'New Project', description: 'Start a new project', icon: '/icons/project.svg', action: 'create_project', variant: 'primary' },
     { id: 'new-task', title: 'New Task', description: 'Create a new task', icon: '/icons/task.svg', action: 'create_task', variant: 'success' },
-    { id: 'invite-team', title: 'Invite Team', description: 'Invite a new team member', icon: '/icons/team.svg', action: 'invite_member', variant: 'secondary' },
+    { id: 'invite-team', title: 'Invite Team', description: 'Invite a new team member', icon: '/icons/team.svg', action: 'secondary' },
     { id: 'view-docs', title: 'View Docs', description: 'Read the documentation', icon: '/icons/docs.svg', action: 'view_docs', variant: 'secondary' }
 ];
 ---
 
 <BaseLayout title="Dashboard">
   <div class="container mx-auto p-4 sm:p-6 lg:p-8">
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      <div class="lg:col-span-1 space-y-8">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      
+      <!-- Left Column -->
+      <div class="lg:col-span-1 flex flex-col gap-6">
         <UserProfile user={user} />
         <QuickActions actions={quickActions} />
       </div>
-      <div class="lg:col-span-2 space-y-8">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <StatsCard stats={stats} />
+
+      <!-- Right Column -->
+      <div class="lg:col-span-2 flex flex-col gap-6">
+        <StatsCard stats={stats} />
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+          <ProjectsPanel projects={projects} />
+          <ActivityFeed activities={activities} />
         </div>
-        <ProjectsPanel projects={projects} />
-        <ActivityFeed activities={activities} />
       </div>
+
     </div>
   </div>
 </BaseLayout>
