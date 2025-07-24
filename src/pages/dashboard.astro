@@ -16,11 +16,35 @@ const user = locals.user;
 
 // Fetch data for the dashboard components
 const db = locals.runtime.env.DB;
-const projectsResponse = await db.prepare("SELECT * FROM projects WHERE user_id = ?").bind(user.id).all();
-const activitiesResponse = await db.prepare("SELECT * FROM activities WHERE user_id = ? ORDER BY created_at DESC LIMIT 10").bind(user.id).all();
+
+// Fetch projects, activities, and stats in parallel
+const projectsStmt = db.prepare("SELECT * FROM projects WHERE user_id = ?").bind(user.id);
+const activitiesStmt = db.prepare("SELECT * FROM activities WHERE user_id = ? ORDER BY created_at DESC LIMIT 10").bind(user.id);
+const projectsCountStmt = db.prepare('SELECT count(*) as count FROM projects WHERE user_id = ?').bind(user.id);
+const tasksCountStmt = db.prepare('SELECT count(*) as count FROM tasks WHERE user_id = ?').bind(user.id);
+const teamMembersCountStmt = db.prepare('SELECT count(*) as count FROM users').bind(); // As per original logic
+
+const [
+    projectsResponse,
+    activitiesResponse,
+    projectsCountResult,
+    tasksCountResult,
+    teamMembersCountResult
+] = await Promise.all([
+    projectsStmt.all(),
+    activitiesStmt.all(),
+    projectsCountStmt.first(),
+    tasksCountStmt.first(),
+    teamMembersCountStmt.first()
+]);
 
 const projects = projectsResponse.results || [];
 const activities = activitiesResponse.results || [];
+const stats = {
+  projects: projectsCountResult?.count || 0,
+  tasks: tasksCountResult?.count || 0,
+  teamMembers: teamMembersCountResult?.count || 0,
+};
 
 const quickActions: QuickAction[] = [
     { id: 'new-project', title: 'New Project', description: 'Start a new project', icon: '/icons/project.svg', action: 'create_project', variant: 'primary' },
@@ -39,7 +63,7 @@ const quickActions: QuickAction[] = [
       </div>
       <div class="lg:col-span-2 space-y-8">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <StatsCard />
+          <StatsCard stats={stats} />
         </div>
         <ProjectsPanel projects={projects} />
         <ActivityFeed activities={activities} />

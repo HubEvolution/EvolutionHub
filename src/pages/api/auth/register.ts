@@ -72,10 +72,15 @@ const token = formData.get('cf-turnstile-response');
         Location: '/dashboard'
       }
     });
-  } catch (e) {
-    // db error, email/username taken
-    return new Response('Email or username already used', {
-      status: 400
+  } catch (e: any) {
+    if (e.message?.includes('UNIQUE constraint failed')) {
+      return new Response('Email or username already used', {
+        status: 400
+      });
+    }
+    console.error(e);
+    return new Response('An internal error occurred', {
+      status: 500
     });
   }
 }

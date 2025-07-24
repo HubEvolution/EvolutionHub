@@ -1,4 +1,5 @@
 import type { APIContext } from 'astro';
+import { Resend } from 'resend';
 
 export async function POST(context: APIContext): Promise<Response> {
   const formData = await context.request.formData();
@@ -26,8 +27,14 @@ export async function POST(context: APIContext): Promise<Response> {
 
     const resetLink = `${context.url.origin}/reset-password?token=${token}`;
     
-    // In a real app, you'd send an email here. For this example, we'll log it.
-    console.log(`Password reset link for ${email}: ${resetLink}`);
+    const resend = new Resend(context.locals.runtime.env.RESEND_API_KEY);
+
+    await resend.emails.send({
+        from: 'onboarding@resend.dev',
+        to: email,
+        subject: 'Reset Your Password',
+        html: `<p>Click <a href="${resetLink}">here</a> to reset your password.</p>`
+    });
 
     return new Response('If a user with this email exists, a password reset link has been sent.', { status: 200 });
   } catch (e) {

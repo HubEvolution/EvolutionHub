@@ -1,61 +1,37 @@
 ---
 // src/components/dashboard/StatsCard.astro
 import Card from '../ui/Card.astro';
-import Skeleton from '../ui/Skeleton.astro';
+
+interface Stats {
+  projects: number;
+  tasks: number;
+  teamMembers: number;
+}
+
+interface Props {
+  stats: Stats;
+}
+
+const { stats } = Astro.props;
+
+const statsMap = [
+  { label: 'Projects', value: stats.projects },
+  { label: 'Tasks', value: stats.tasks },
+  { label: 'Team Members', value: stats.teamMembers },
+];
 ---
 
 <Card className="p-0 overflow-hidden">
-  <div id="stats-container" class="grid grid-cols-1 md:grid-cols-3 gap-6 p-6">
-    <!-- Skeleton Loader -->
-    {Array(3).fill(0).map(() => (
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 p-6">
+    {statsMap.map(stat => (
       <div class="flex items-start">
         <div>
-          <Skeleton width="80px" height="1.5rem" className="mb-2" />
-          <Skeleton width="40px" height="1rem" />
+          <p class="text-gray-400 text-sm">{stat.label}</p>
+          <div class="flex items-center">
+            <span class="text-xl font-semibold text-white">{stat.value}</span>
+          </div>
         </div>
       </div>
     ))}
   </div>
 </Card>
-
-<script>
-  document.addEventListener('DOMContentLoaded', async () => {
-    const container = document.getElementById('stats-container');
-    if (!container) return;
-
-    try {
-      const response = await fetch('/api/dashboard/stats');
-      if (!response.ok) {
-        throw new Error('Failed to fetch stats');
-      }
-      const stats = await response.json();
-
-      const statsMap = [
-        { label: 'Projects', value: stats.projects },
-        { label: 'Tasks', value: stats.tasks },
-        { label: 'Team Members', value: stats.teamMembers },
-      ];
-
-      container.innerHTML = ''; // Clear skeleton
-      statsMap.forEach(stat => {
-        const statElement = document.createElement('div');
-        statElement.className = 'flex items-start';
-        statElement.innerHTML = `
-          <div>
-            <p class="text-gray-400 text-sm">${stat.label}</p>
-            <div class="flex items-center">
-              <span class="text-xl font-semibold text-white">${stat.value}</span>
-            </div>
-          </div>
-        `;
-        container.appendChild(statElement);
-      });
-
-    } catch (error) {
-      console.error('Error loading dashboard stats:', error);
-      if (container) {
-        container.innerHTML = '<p class="text-red-500 col-span-full text-center">Could not load stats.</p>';
-      }
-    }
-  });
-</script>

@@ -13,6 +13,6 @@ export const onRequest = defineMiddleware(async (context, next) => {
   const { session, user } = await validateSession(context.locals.runtime.env.DB, sessionId);
 
   context.locals.session = session;
-  context.locals.user = user as any; // Explicitly cast to 'any' to resolve type mismatch
+  context.locals.user = user;
   return next();
 });
