@@ -5,7 +5,8 @@ import Button from '../components/ui/Button.astro';
 import FormLabel from '../components/ui/FormLabel.astro';
 import Input from '../components/ui/Input.astro';
 
-if (Astro.locals.user) {
+const locals = Astro.locals as any;
+if (locals.user) {
   return Astro.redirect('/dashboard');
 }
 ---

@@ -13,6 +13,7 @@ declare namespace App {
         runtime: {
             env: {
                 DB: import('@cloudflare/workers-types').D1Database;
+                TURNSTILE_SECRET_KEY: string;
             };
         };
     }

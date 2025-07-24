@@ -5,7 +5,8 @@ import Button from '../components/ui/Button.astro';
 import FormLabel from '../components/ui/FormLabel.astro';
 import Input from '../components/ui/Input.astro';
 
-if (Astro.locals.user) {
+const locals = Astro.locals as any;
+if (locals.user) {
   return Astro.redirect('/dashboard');
 }
 ---
@@ -17,9 +18,12 @@ if (Astro.locals.user) {
         <FormLabel for="email">Email</FormLabel>
         <Input type="email" id="email" name="email" required />
       </div>
-      <div class="mb-6">
+      <div class="mb-4">
         <FormLabel for="password">Password</FormLabel>
         <Input type="password" id="password" name="password" required />
+      </div>
+      <div class="text-right mb-4">
+        <a href="/forgot-password" class="text-sm text-emerald-600 hover:underline">Forgot Password?</a>
       </div>
 <div class="cf-turnstile" data-sitekey={import.meta.env.PUBLIC_TURNSTILE_SITE_KEY}></div>
       <Button type="submit" className="w-full">Login</Button>
