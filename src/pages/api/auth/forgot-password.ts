@@ -15,7 +15,7 @@ export async function POST(context: APIContext): Promise<Response> {
 
     if (!existingUser) {
       // We don't want to reveal if a user exists or not
-      return new Response('If a user with this email exists, a password reset link has been sent.', { status: 200 });
+      return context.redirect('/auth/password-reset-sent', 302);
     }
 
     const token = crypto.randomUUID();
@@ -36,7 +36,7 @@ export async function POST(context: APIContext): Promise<Response> {
         html: `<p>Click <a href="${resetLink}">here</a> to reset your password.</p>`
     });
 
-    return new Response('If a user with this email exists, a password reset link has been sent.', { status: 200 });
+    return context.redirect('/auth/password-reset-sent', 302);
   } catch (e) {
     console.error(e);
     return new Response('An unknown error occurred', { status: 500 });

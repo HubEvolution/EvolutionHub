@@ -28,7 +28,7 @@ export async function POST(context: APIContext): Promise<Response> {
     await db.prepare('UPDATE users SET password_hash = ? WHERE id = ?').bind(hashedPassword, tokenResult.user_id).run();
     await db.prepare('DELETE FROM password_reset_tokens WHERE id = ?').bind(token).run();
 
-    return new Response('Password has been reset successfully.', { status: 200 });
+    return context.redirect('/auth/password-reset-success', 302);
   } catch (e) {
     console.error(e);
     return new Response('An unknown error occurred', { status: 500 });
