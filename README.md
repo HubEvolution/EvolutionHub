@@ -17,7 +17,9 @@ Eine Full-Stack-Webanwendung, die eine Sammlung von Entwickler-Tools bereitstell
 - <img src="public/assets/svg/features.svg" alt="Frontend Icon" height="15"> **Modernes Frontend:** Gebaut mit [Astro](https://astro.build/) für maximale Performance.
 - <img src="public/assets/svg/style.svg" alt="Styling Icon" height="15"> **Styling:** [Tailwind CSS](https://tailwindcss.com/) für ein schnelles und konsistentes Design.
 - <img src="public/assets/svg/deployment.svg" alt="Serverless Icon" height="15"> **Serverless-Backend:** Läuft auf [Cloudflare Pages](https://pages.cloudflare.com/) mit Cloudflare D1 als Datenbank.
-- <img src="public/assets/svg/features.svg" alt="Auth Icon" height="15"> **Authentifizierung:** Sichere Authentifizierung mit E-Mail und Passwort, einschließlich Registrierung, Login und einer "Passwort vergessen"-Funktion. Social-Media-Logins sind für die Zukunft geplant.
+- <img src="public/assets/svg/features.svg" alt="Auth Icon" height="15"> **Authentifizierung:** Sichere Authentifizierung mit E-Mail und Passwort, einschließlich Registrierung, Login und einer "Passwort vergessen"-Funktion.
+- <img src="public/assets/svg/features.svg" alt="Profile Icon" height="15"> **Profilverwaltung:** Benutzer können ihr Profil bearbeiten, einschließlich Name, Passwort und Avatar-Upload.
+- <img src="public/assets/svg/features.svg" alt="UI/UX Icon" height="15"> **UI/UX-Verbesserungen:** Ein modernes Benutzererlebnis durch ein Benachrichtigungssystem (Toasts), Lottie-Animationen und sanfte Scroll-Effekte.
 
 ---
 
@@ -28,6 +30,9 @@ Eine Full-Stack-Webanwendung, die eine Sammlung von Entwickler-Tools bereitstell
 - **UI-Komponenten:** [React](https://react.dev/) (innerhalb von Astro)
 - **Hosting & Deployment:** [Cloudflare Pages](https://pages.cloudflare.com/)
 - **Datenbank:** [Cloudflare D1](https://developers.cloudflare.com/d1/)
+- **Bild-Speicher:** [Cloudflare R2](https://developers.cloudflare.com/r2/)
+- **Animationen:** [Lottie-web](https://airbnb.io/lottie/), [AOS (Animate On Scroll)](https://michalsnik.github.io/aos/)
+- **Benachrichtigungen:** [Toastr](https://github.com/CodeSeven/toastr)
 - **Testing:** [Playwright](https://playwright.dev/) für E2E-Tests, [Vitest](https://vitest.dev/) für Unit-Tests
 
 ---
@@ -71,6 +76,30 @@ Das Projekt ist nun unter `http://localhost:4321` erreichbar.
 ## <img src="public/assets/svg/deployment.svg" alt="Deployment Icon" height="20"> Deployment
 
 Das Deployment erfolgt automatisch bei jedem `git push` auf den `main`-Branch über **Cloudflare Pages**. Der Build-Prozess und die Bereitstellung werden vollständig von Cloudflare verwaltet.
+
+---
+
+## <img src="public/assets/svg/deployment.svg" alt="Cloudflare Management Icon" height="20"> Cloudflare Management (CLI)
+
+Da dieses Projekt ohne `wrangler.toml` konfiguriert ist, werden einige Cloudflare-spezifische Aktionen über die Wrangler CLI ausgeführt.
+
+### R2 Bucket erstellen
+
+Um einen neuen R2-Bucket für den Bild-Upload zu erstellen, verwende den folgenden Befehl:
+
+```bash
+npx wrangler r2 bucket create <BUCKET_NAME>
+```
+
+> **Hinweis:** Nach dem Erstellen des Buckets muss dieser manuell im Cloudflare Dashboard an das Pages-Projekt gebunden werden, da keine `wrangler.toml` verwendet wird.
+
+### D1 Datenbankmigration
+
+Um Migrationen auf der **remote** D1-Datenbank auszuführen, verwende diesen Befehl:
+
+```bash
+npx wrangler d1 migrations apply <DATABASE_NAME> --remote
+```
 
 ---
 
