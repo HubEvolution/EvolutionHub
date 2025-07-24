@@ -1,5 +1,5 @@
 import type { APIContext } from 'astro';
-import { createSession, validateTurnstile } from '../../../lib/auth-v2';
+import { createSession } from '../../../lib/auth-v2';
 
 import { compare } from 'bcrypt-ts';
 
@@ -8,25 +8,7 @@ export async function POST(context: APIContext): Promise<Response> {
   const email = formData.get('email');
   const password = formData.get('password');
 
-  const token = formData.get('cf-turnstile-response');
-
-  if (!token) {
-    return new Response(null, {
-      status: 302,
-      headers: { Location: '/login?error=CaptchaRequired' }
-    });
-  }
-
-  const turnstileVerified = await validateTurnstile(
-    token as string,
-    context.locals.runtime.env.CLOUDFLARE_TURNSTILE_SECRET_KEY
-  );
-  if (!turnstileVerified) {
-    return new Response(null, {
-      status: 302,
-      headers: { Location: '/login?error=CaptchaFailed' }
-    });
-  }
+  
   if (
     typeof email !== 'string' ||
     email.length < 3 ||
