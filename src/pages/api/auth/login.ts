@@ -7,6 +7,31 @@ export async function POST(context: APIContext): Promise<Response> {
   const email = formData.get('email');
   const password = formData.get('password');
 
+const token = formData.get('cf-turnstile-response');
+
+  if (!token) {
+    return new Response('Please complete the CAPTCHA.', { status: 400 });
+  }
+
+  const turnstileResponse = await fetch(
+    'https://challenges.cloudflare.com/turnstile/v0/siteverify',
+    {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({
+        secret: context.locals.runtime.env.TURNSTILE_SECRET_KEY,
+        response: token,
+      }),
+    }
+  );
+
+  const turnstileData = await turnstileResponse.json();
+
+  if (!turnstileData.success) {
+    return new Response('CAPTCHA verification failed.', { status: 400 });
+  }
   if (
     typeof email !== 'string' ||
     email.length < 3 ||

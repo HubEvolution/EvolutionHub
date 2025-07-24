@@ -21,6 +21,7 @@ if (Astro.locals.user) {
         <FormLabel for="password">Password</FormLabel>
         <Input type="password" id="password" name="password" required />
       </div>
+<div class="cf-turnstile" data-sitekey={import.meta.env.PUBLIC_TURNSTILE_SITE_KEY}></div>
       <Button type="submit" className="w-full">Login</Button>
     </form>
     <p class="text-center mt-4 text-sm">

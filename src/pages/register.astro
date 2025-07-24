@@ -30,6 +30,7 @@ if (Astro.locals.user) {
         <Input type="password" id="password" name="password" required />
       </div>
       <div id="error-message" class="text-red-500 text-center mb-4 hidden"></div>
+<div class="cf-turnstile" data-sitekey={import.meta.env.PUBLIC_TURNSTILE_SITE_KEY}></div>
       <Button type="submit" className="w-full">Create Account</Button>
     </form>
     <p class="text-center mt-4 text-sm">
