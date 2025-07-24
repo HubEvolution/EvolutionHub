@@ -1,6 +1,6 @@
 import type { APIContext } from 'astro';
 import { createSession, validateTurnstile } from '../../../lib/auth-v2';
-import { createSession } from '../../../lib/auth-v2';
+
 import { hash } from 'bcrypt-ts';
 
 export async function POST(context: APIContext): Promise<Response> {

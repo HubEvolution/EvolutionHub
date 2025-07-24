@@ -60,7 +60,7 @@ export async function validateSession(db: D1Database, sessionId: string): Promis
 export async function invalidateSession(db: D1Database, sessionId: string): Promise<void> {
 	await db.prepare("DELETE FROM sessions WHERE id = ?").bind(sessionId).run();
 }
-export async function validateTurnstile(token: string, secret: string): Promise&lt;boolean&gt; {
+export async function validateTurnstile(token: string, secret: string): Promise<boolean> {
   const response = await fetch(
     'https://challenges.cloudflare.com/turnstile/v0/siteverify',
     {
@@ -74,6 +74,6 @@ export async function validateTurnstile(token: string, secret: string): Promise&
       }),
     }
   );
-  const data = await response.json();
+  const data: { success: boolean } = await response.json();
   return data.success;
 }
