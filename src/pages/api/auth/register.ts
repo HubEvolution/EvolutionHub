@@ -1,4 +1,5 @@
 import type { APIContext } from 'astro';
+import { createSession, validateTurnstile } from '../../../lib/auth-v2';
 import { createSession } from '../../../lib/auth-v2';
 import { hash } from 'bcrypt-ts';
 
@@ -15,26 +16,12 @@ const token = formData.get('cf-turnstile-response');
     return new Response('Please complete the CAPTCHA.', { status: 400 });
   }
 
-  console.log('Attempting CAPTCHA verification...');
-  console.log('Using TURNSTILE_SECRET_KEY:', context.locals.runtime.env.TURNSTILE_SECRET_KEY);
-  console.log('Checking for CLOUDFLARE_TURNSTILE_SECRET_KEY:', context.locals.runtime.env.CLOUDFLARE_TURNSTILE_SECRET_KEY);
-  const turnstileResponse = await fetch(
-    'https://challenges.cloudflare.com/turnstile/v0/siteverify',
-    {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-      },
-      body: JSON.stringify({
-        secret: context.locals.runtime.env.TURNSTILE_SECRET_KEY,
-        response: token,
-      }),
-    }
+  
+  const turnstileVerified = await validateTurnstile(
+    token as string,
+    context.locals.runtime.env.CLOUDFLARE_TURNSTILE_SECRET_KEY
   );
-
-  const turnstileData = await turnstileResponse.json();
-
-  if (!turnstileData.success) {
+  if (!turnstileVerified) {
     return new Response('CAPTCHA verification failed.', { status: 400 });
   }
   if (
