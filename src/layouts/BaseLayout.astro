@@ -53,6 +53,12 @@ const {
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
+    <!-- AOS Animation Library CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+    <!-- Toastr Notification Library CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
+
     <!-- Global CSS -->
     <style is:global>
       @import '../styles/global.css';
@@ -61,26 +67,10 @@ const {
       html {
         @apply transition-colors duration-200;
       }
-      
-      /* Default light theme */
-      :root {
-        --bg-primary: #ffffff;
-        --bg-secondary: #f9fafb;
-        --text-primary: #111827;
-        --text-secondary: #4b5563;
-      }
-      
-      /* Dark theme overrides */
-      .dark {
-        --bg-primary: #111827;
-        --bg-secondary: #1f2937;
-        --text-primary: #f9fafb;
-        --text-secondary: #9ca3af;
-      }
     </style>
   </head>
   
-  <body class="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-white flex flex-col">
+  <body class="min-h-screen bg-sky-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 flex flex-col">
       <SkipLink />
       <Header />
       <main id="main-content" class="flex-grow focus:outline-none" tabindex="-1">
@@ -89,32 +79,6 @@ const {
     
       <Footer hideNewsletter={hideNewsletter} />
     
-    <!-- Add smooth scrolling for anchor links -->
-    <script is:inline>
-      document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
-        anchor.addEventListener('click', (e) => {
-          e.preventDefault();
-          const targetId = anchor.getAttribute('href');
-          if (targetId) {
-            const target = document.querySelector(targetId);
-            if (target) {
-              target.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
-              });
-            }
-          }
-        });
-      });
-    </script>
-    
-    <script is:inline>
-      document.querySelectorAll('.theme-toggle').forEach(button => {
-        button.addEventListener('click', () => {
-          document.documentElement.classList.toggle('dark');
-        });
-      });
-    </script>
-    
+    <script src="/scripts/main.ts"></script>
   </body>
 </html>

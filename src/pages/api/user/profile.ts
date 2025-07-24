@@ -1,25 +1,28 @@
-import type { APIRoute } from 'astro';
+import type { APIContext } from 'astro';
 
-export const GET: APIRoute = async ({ locals }) => {
-  const { env, user } = locals.runtime;
-
-  if (!user) {
-    return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
+export async function POST(context: APIContext): Promise<Response> {
+  const locals = context.locals as any;
+  if (!locals.user) {
+    return new Response(null, { status: 401 });
   }
-  
-  const userId = user.sub;
+
+  const formData = await context.request.formData();
+  const name = formData.get('name');
+  const username = formData.get('username');
+
+  if (typeof name !== 'string' || name.length < 2 || typeof username !== 'string' || username.length < 3) {
+    return new Response('Invalid input', { status: 400 });
+  }
 
   try {
-    const userResult = await env.DB_AUTH.prepare('SELECT id, name, email, image FROM users WHERE id = ?1')
-      .bind(userId)
-      .first();
+    const db = locals.runtime.env.DB;
+    await db.prepare('UPDATE users SET name = ?, username = ? WHERE id = ?')
+      .bind(name, username, locals.user.id)
+      .run();
 
-    if (!userResult) {
-      return new Response(JSON.stringify({ error: 'User not found' }), { status: 404 });
-    }
-    return new Response(JSON.stringify(userResult), { status: 200 });
+    return new Response(JSON.stringify({ message: 'Profile updated successfully' }), { status: 200 });
   } catch (e) {
     console.error(e);
-    return new Response(JSON.stringify({ error: 'Internal Server Error' }), { status: 500 });
+    return new Response('An unknown error occurred', { status: 500 });
   }
-};
+}

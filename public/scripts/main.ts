@@ -1,3 +1,6 @@
+import AOS from 'aos';
+import toastr from 'toastr';
+
 /**
  * Main application scripts
  * Handles smooth scrolling, animations, and dark mode
@@ -29,27 +32,6 @@ const initSmoothScrolling = (): void => {
         location.hash = targetId;
       }
     });
-  });
-};
-
-// Intersection Observer for fade-in animations
-const initAnimations = (): void => {
-  const observerOptions: IntersectionObserverInit = {
-    threshold: 0.1,
-    rootMargin: '0px 0px -50px 0px'
-  };
-
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('animate-fade-in');
-        observer.unobserve(entry.target);
-      }
-    });
-  }, observerOptions);
-
-  document.querySelectorAll('.fade-in').forEach(element => {
-    observer.observe(element);
   });
 };
 
@@ -93,11 +75,27 @@ const initDarkMode = () => {
   }
 };
 
+// Initialize libraries
+const initLibraries = () => {
+  // Initialize AOS
+  AOS.init({
+    once: true,
+    duration: 700,
+  });
+
+  // Configure Toastr
+  toastr.options = {
+    "closeButton": true,
+    "progressBar": true,
+    "positionClass": "toast-bottom-right",
+  };
+};
+
 // Initialize everything when the DOM is fully loaded
 document.addEventListener('DOMContentLoaded', () => {
   initSmoothScrolling();
-  initAnimations();
   initDarkMode();
+  initLibraries();
 });
 
 // Handle HMR for development

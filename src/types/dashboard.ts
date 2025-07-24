@@ -33,9 +33,18 @@ export interface QuickAction {
   variant?: 'primary' | 'secondary' | 'success' | 'danger';
 }
 
+export interface Notification {
+  id: string;
+  message: string;
+  type: 'comment' | 'mention' | 'task_completed' | 'system';
+  timestamp: string;
+  read: boolean;
+}
+
 export interface DashboardData {
   stats: DashboardStats;
   recentActivities: ActivityItem[];
   projects: ProjectCard[];
   quickActions: QuickAction[];
+  notifications: Notification[];
 }

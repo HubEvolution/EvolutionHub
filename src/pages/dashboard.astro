@@ -5,7 +5,8 @@ import StatsCard from '../components/dashboard/StatsCard.astro';
 import QuickActions from '../components/dashboard/QuickActions.astro';
 import ProjectsPanel from '../components/dashboard/ProjectsPanel.astro';
 import ActivityFeed from '../components/dashboard/ActivityFeed.astro';
-import type { QuickAction } from '../types/dashboard';
+import Notifications from '../components/dashboard/Notifications.astro';
+import type { QuickAction, Notification } from '../types/dashboard';
 
 const locals = Astro.locals as any;
 if (!locals.user) {
@@ -23,6 +24,13 @@ const activitiesStmt = db.prepare("SELECT * FROM activities WHERE user_id = ? OR
 const projectsCountStmt = db.prepare('SELECT count(*) as count FROM projects WHERE user_id = ?').bind(user.id);
 const tasksCountStmt = db.prepare('SELECT count(*) as count FROM tasks WHERE user_id = ?').bind(user.id);
 const teamMembersCountStmt = db.prepare('SELECT count(*) as count FROM users').bind(); // As per original logic
+
+// Mock notifications fetch
+const notifications: Notification[] = [
+    { id: '1', message: 'You have a new comment on your project "Website Redesign".', type: 'comment', timestamp: new Date().toISOString(), read: false },
+    { id: '2', message: '@jane mentioned you in the task "Update Documentation".', type: 'mention', timestamp: new Date(Date.now() - 1000 * 60 * 5).toISOString(), read: false },
+    { id: '3', message: 'Task "Deploy to Staging" was completed.', type: 'task_completed', timestamp: new Date(Date.now() - 1000 * 60 * 30).toISOString(), read: true },
+];
 
 const [
     projectsResponse,
@@ -62,6 +70,7 @@ const quickActions: QuickAction[] = [
       <div class="lg:col-span-4 xl:col-span-3 flex flex-col gap-6">
         <UserProfile user={user} />
         <QuickActions actions={quickActions} />
+        <Notifications notifications={notifications} />
       </div>
 
       <!-- Right Column -->

@@ -5,12 +5,13 @@ interface Props {
   title?: string;
   className?: string;
   children?: any;
+  id?: string;
 }
 
-const { title, className = '', children } = Astro.props;
+const { title, className = '', children, id } = Astro.props;
 ---
 
-<div class:list={[
+<div id={id} class:list={[
   "relative p-6 rounded-2xl overflow-hidden",
   // Solid background with border for light/dark mode
   "bg-white dark:bg-gray-800/50",
