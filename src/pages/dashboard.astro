@@ -7,14 +7,15 @@ import ProjectsPanel from '../components/dashboard/ProjectsPanel.astro';
 import ActivityFeed from '../components/dashboard/ActivityFeed.astro';
 import type { QuickAction } from '../types/dashboard';
 
-if (!Astro.locals.user) {
+const locals = Astro.locals as any;
+if (!locals.user) {
   return Astro.redirect('/login');
 }
 
-const user = Astro.locals.user;
+const user = locals.user;
 
 // Fetch data for the dashboard components
-const db = Astro.locals.runtime.env.DB;
+const db = locals.runtime.env.DB;
 const projectsResponse = await db.prepare("SELECT * FROM projects WHERE user_id = ?").bind(user.id).all();
 const activitiesResponse = await db.prepare("SELECT * FROM activities WHERE user_id = ? ORDER BY created_at DESC LIMIT 10").bind(user.id).all();
 
@@ -22,10 +23,10 @@ const projects = projectsResponse.results || [];
 const activities = activitiesResponse.results || [];
 
 const quickActions: QuickAction[] = [
-    { id: 'new-project', title: 'New Project', description: 'Start a new project', icon: '🚀', action: 'create_project', variant: 'primary' },
-    { id: 'new-task', title: 'New Task', description: 'Create a new task', icon: '✅', action: 'create_task', variant: 'success' },
-    { id: 'invite-team', title: 'Invite Team', description: 'Invite a new team member', icon: '👥', action: 'invite_member', variant: 'secondary' },
-    { id: 'view-docs', title: 'View Docs', description: 'Read the documentation', icon: '📚', action: 'view_docs', variant: 'secondary' }
+    { id: 'new-project', title: 'New Project', description: 'Start a new project', icon: '/icons/project.svg', action: 'create_project', variant: 'primary' },
+    { id: 'new-task', title: 'New Task', description: 'Create a new task', icon: '/icons/task.svg', action: 'create_task', variant: 'success' },
+    { id: 'invite-team', title: 'Invite Team', description: 'Invite a new team member', icon: '/icons/team.svg', action: 'invite_member', variant: 'secondary' },
+    { id: 'view-docs', title: 'View Docs', description: 'Read the documentation', icon: '/icons/docs.svg', action: 'view_docs', variant: 'secondary' }
 ];
 ---
 

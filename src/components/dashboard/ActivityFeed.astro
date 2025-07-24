@@ -49,9 +49,6 @@ const formatDate = (dateString: string): string => {
     ) : (
       activities.slice(0, maxItems).map((activity) => (
         <div class="flex items-start space-x-3 group">
-          <div class={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${activity.color} bg-opacity-20 mt-1`}>
-            <span class="text-sm">{activity.icon}</span>
-          </div>
           <div class="flex-1 min-w-0">
             <div class="flex justify-between items-baseline">
               <p class="text-sm font-medium text-white truncate">

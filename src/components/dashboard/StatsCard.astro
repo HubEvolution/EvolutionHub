@@ -6,7 +6,6 @@ import Skeleton from '../ui/Skeleton.astro';
 interface StatItem {
   label: string;
   value: string | number;
-  icon: string;
   change?: number;
 }
 
@@ -22,10 +21,10 @@ const getChangeClasses = (change: number | undefined) => {
 };
 
 const defaultStats: StatItem[] = [
-  { label: 'Total Users', value: '0', icon: '👥', change: 0 },
-  { label: 'Active Now', value: '0', icon: '🟢', change: 0 },
-  { label: 'API Calls', value: '0', icon: '📊', change: 0 },
-  { label: 'Storage Used', value: '0 GB', icon: '💾', change: 0 },
+  { label: 'Total Users', value: '0', change: 0 },
+  { label: 'Active Now', value: '0', change: 0 },
+  { label: 'API Calls', value: '0', change: 0 },
+  { label: 'Storage Used', value: '0 GB', change: 0 },
 ];
 
 const statsToRender = stats && stats.length > 0 ? stats : defaultStats;
@@ -36,9 +35,6 @@ const loading = !stats;
   <div class="grid grid-cols-2 md:grid-cols-4 gap-4 p-6">
     {statsToRender.map((stat: StatItem) => (
       <div class="flex items-start">
-        <div class="p-3 rounded-lg bg-white/5 mr-4">
-          <span class="text-2xl">{stat.icon}</span>
-        </div>
         <div>
           {loading ? (
             <>
