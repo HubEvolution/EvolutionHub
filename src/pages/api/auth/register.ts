@@ -1,16 +1,23 @@
 import type { APIContext } from 'astro';
-import { createSession } from '../../../lib/auth-v2';
-
+import { createSession } from '@/lib/auth-v2';
 import { hash } from 'bcrypt-ts';
+import { authLimiter } from '@/lib/rate-limiter';
+import { secureJsonResponse, applySecurityHeaders } from '@/lib/security-headers';
+import { logAuthSuccess, logAuthFailure } from '@/lib/security-logger';
 
 export async function POST(context: APIContext): Promise<Response> {
+  // Rate-Limiting anwenden
+  const rateLimitResponse = await authLimiter(context);
+  if (rateLimitResponse) {
+    return rateLimitResponse;
+  }
   const formData = await context.request.formData();
   const email = formData.get('email');
   const password = formData.get('password');
   const name = formData.get('name');
   const username = formData.get('username');
 
-  
+  // Validate form data
   if (
     typeof email !== 'string' ||
     email.length < 3 ||
@@ -21,10 +28,17 @@ export async function POST(context: APIContext): Promise<Response> {
     typeof username !== 'string' ||
     username.length < 3
   ) {
-    return new Response(null, {
+    // Fehlgeschlagene Registrierung protokollieren
+    logAuthFailure(context.clientAddress, {
+      reason: 'invalid_input',
+      email: typeof email === 'string' ? email : null
+    });
+
+    const response = new Response(null, {
       status: 302,
       headers: { Location: '/register?error=InvalidInput' }
     });
+    return applySecurityHeaders(response);
   }
 
   const hashedPassword = await hash(password, 10);
@@ -46,23 +60,48 @@ export async function POST(context: APIContext): Promise<Response> {
         sameSite: 'lax'
     });
 
-    return new Response(null, {
+    // Erfolgreiche Registrierung protokollieren
+    logAuthSuccess(userId, context.clientAddress, {
+      action: 'register',
+      email,
+      username,
+      sessionId: session.id
+    });
+
+    const response = new Response(null, {
       status: 302,
       headers: {
         Location: '/dashboard'
       }
     });
+    return applySecurityHeaders(response);
   } catch (e: any) {
     if (e.message?.includes('UNIQUE constraint failed')) {
-      return new Response(null, {
+      // Fehlgeschlagene Registrierung wegen Duplikat protokollieren
+      logAuthFailure(context.clientAddress, {
+        reason: 'duplicate_user',
+        email
+      });
+
+      const response = new Response(null, {
         status: 302,
         headers: { Location: '/register?error=UserExists' }
       });
+      return applySecurityHeaders(response);
     }
     console.error(e);
-    return new Response(null, {
+    
+    // Fehler protokollieren
+    logAuthFailure(context.clientAddress, {
+      reason: 'server_error',
+      error: e instanceof Error ? e.message : String(e),
+      email
+    });
+    
+    const response = new Response(null, {
       status: 302,
       headers: { Location: '/register?error=UnknownError' }
     });
+    return applySecurityHeaders(response);
   }
 }

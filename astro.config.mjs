@@ -18,4 +18,7 @@ export default defineConfig({
       nesting: true
     })
   ],
+vite: {
+    logLevel: 'info'
+  },
 });

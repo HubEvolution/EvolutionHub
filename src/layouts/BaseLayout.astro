@@ -3,6 +3,7 @@
 import Header from '../components/Header.astro';
 import SkipLink from '../components/SkipLink.astro';
 import Footer from '../components/Footer.astro';
+import ThemeProvider from '../components/ThemeProvider.astro';
 
 interface Props {
   title: string;
@@ -70,7 +71,8 @@ const {
     </style>
   </head>
   
-  <body class="min-h-screen bg-sky-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 flex flex-col">
+  <body class="min-h-screen bg-sky-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 flex flex-col overflow-x-hidden">
+      <ThemeProvider />
       <SkipLink />
       <Header />
       <main id="main-content" class="flex-grow focus:outline-none" tabindex="-1">
@@ -79,6 +81,60 @@ const {
     
       <Footer hideNewsletter={hideNewsletter} />
     
-    <script is:inline src="/scripts/main.ts"></script>
+    <script>
+      declare const AOS: any;
+      declare const toastr: any;
+
+      type HTMLElementWithFor = HTMLElement & { htmlFor?: string };
+
+      const initSmoothScrolling = (): void => {
+        document.querySelectorAll<HTMLAnchorElement>('a[href^="#"]').forEach((anchor) => {
+          anchor.addEventListener('click', (e: Event) => {
+            e.preventDefault();
+            
+            const targetId = anchor.getAttribute('href');
+            if (!targetId) return;
+            
+            const targetElement = document.querySelector(targetId);
+            if (!targetElement) return;
+            
+            targetElement.scrollIntoView({
+              behavior: 'smooth',
+              block: 'start'
+            });
+
+            if (history.pushState) {
+              history.pushState(null, '', targetId);
+            } else {
+              location.hash = targetId;
+            }
+          });
+        });
+      };
+
+      const initLibraries = () => {
+        AOS.init({
+          once: true,
+          duration: 700,
+        });
+
+        toastr.options = {
+          "closeButton": true,
+          "progressBar": true,
+          "positionClass": "toast-bottom-right",
+        };
+      };
+
+      const initApp = () => {
+        initSmoothScrolling();
+        initLibraries();
+      };
+
+      document.addEventListener('astro:page-load', initApp);
+
+      if (import.meta.hot) {
+        import.meta.hot.accept();
+      }
+    </script>
   </body>
 </html>

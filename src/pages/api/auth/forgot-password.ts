@@ -1,24 +1,54 @@
 import type { APIContext } from 'astro';
 import { Resend } from 'resend';
+import type { User } from '@/lib/auth-v2';
+import { sensitiveActionLimiter } from '@/lib/rate-limiter';
+import { applySecurityHeaders } from '@/lib/security-headers';
+import { logPasswordReset, logAuthFailure } from '@/lib/security-logger';
+
+interface PasswordResetToken {
+  id: string;
+  user_id: string;
+  expires_at: number;
+}
 
 export async function POST(context: APIContext): Promise<Response> {
+  // Rate-Limiting für sensible Aktionen anwenden
+  const rateLimitResponse = await sensitiveActionLimiter(context);
+  if (rateLimitResponse) {
+    return rateLimitResponse;
+  }
   const formData = await context.request.formData();
   const email = formData.get('email');
 
+  // Validate email
   if (typeof email !== 'string' || email.length < 3) {
-    return new Response(null, {
+    // Fehlgeschlagene Anfrage protokollieren
+    logAuthFailure(context.clientAddress, {
+      reason: 'invalid_email',
+      input: typeof email === 'string' ? email : null
+    });
+    
+    const response = new Response(null, {
       status: 302,
       headers: { Location: '/forgot-password?error=InvalidEmail' }
     });
+    return applySecurityHeaders(response);
   }
 
   try {
     const db = context.locals.runtime.env.DB;
-    const existingUser = await db.prepare('SELECT * FROM users WHERE email = ?').bind(email).first();
+    const existingUser = await db.prepare('SELECT * FROM users WHERE email = ?').bind(email).first<User>();
 
     if (!existingUser) {
       // We don't want to reveal if a user exists or not
-      return context.redirect('/auth/password-reset-sent', 302);
+      // Versuch trotzdem protokollieren, aber ohne zu viel Information preiszugeben
+      logAuthFailure(context.clientAddress, {
+        reason: 'password_reset_non_existent_user',
+        // Wir speichern die E-Mail absichtlich nicht, um keine User-Enumeration zu ermöglichen
+      });
+      
+      const response = await context.redirect('/auth/password-reset-sent', 302);
+      return applySecurityHeaders(response);
     }
 
     const token = crypto.randomUUID();
@@ -39,12 +69,28 @@ export async function POST(context: APIContext): Promise<Response> {
         html: `<p>Click <a href="${resetLink}">here</a> to reset your password.</p>`
     });
 
-    return context.redirect('/auth/password-reset-sent', 302);
+    // Erfolgreiche Passwort-Reset-Anfrage protokollieren
+    logPasswordReset(existingUser.id, context.clientAddress, {
+      action: 'password_reset_requested',
+      tokenId: token
+    });
+
+    const response = await context.redirect('/auth/password-reset-sent', 302);
+    return applySecurityHeaders(response);
   } catch (e) {
     console.error(e);
-    return new Response(null, {
+    
+    // Fehler protokollieren
+    logAuthFailure(context.clientAddress, {
+      reason: 'server_error',
+      error: e instanceof Error ? e.message : String(e),
+      email: typeof email === 'string' ? email : 'invalid'
+    });
+    
+    const response = new Response(null, {
       status: 302,
       headers: { Location: '/forgot-password?error=UnknownError' }
     });
+    return applySecurityHeaders(response);
   }
 }

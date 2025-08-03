@@ -11,6 +11,21 @@ export interface Session {
 	expiresAt: Date;
 }
 
+export interface User {
+	id: string;
+	email: string;
+	name: string;
+	username: string;
+	image?: string;
+	password_hash: string;
+}
+
+export interface SessionRow {
+	id: string;
+	user_id: string;
+	expires_at: number;
+}
+
 export async function createSession(db: D1Database, userId: string): Promise<Session> {
 	const sessionId = crypto.randomUUID();
 	const expiresAt = new Date(Date.now() + sessionExpiresInSeconds * 1000);
@@ -26,7 +41,7 @@ export async function createSession(db: D1Database, userId: string): Promise<Ses
 }
 
 export async function validateSession(db: D1Database, sessionId: string): Promise<{ session: Session | null, user: App.Locals['user'] }> {
-    const sessionResult = await db.prepare("SELECT * FROM sessions WHERE id = ?").bind(sessionId).first();
+    const sessionResult = await db.prepare("SELECT * FROM sessions WHERE id = ?").bind(sessionId).first<SessionRow>();
     if (!sessionResult) {
         return { session: null, user: null };
     }
@@ -42,13 +57,7 @@ export async function validateSession(db: D1Database, sessionId: string): Promis
         return { session: null, user: null };
     }
 
-    const userResult = await db.prepare("SELECT id, email, name, username, image FROM users WHERE id = ?").bind(session.userId).first<{
-        id: string;
-        email: string;
-        name: string;
-        username: string;
-        image?: string;
-    }>();
+    const userResult = await db.prepare("SELECT id, email, name, username, image FROM users WHERE id = ?").bind(session.userId).first<User>();
 
     if (!userResult) {
         return { session: null, user: null };

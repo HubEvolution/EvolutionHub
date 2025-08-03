@@ -1,7 +1,13 @@
 import { defineMiddleware } from 'astro:middleware';
-import { validateSession } from './lib/auth-v2';
+import { validateSession } from '@/lib/auth-v2';
 
 export const onRequest = defineMiddleware(async (context, next) => {
+  if (!context.locals.runtime) {
+    context.locals.user = null;
+    context.locals.session = null;
+    return next();
+  }
+  
   const sessionId = context.cookies.get('session_id')?.value ?? null;
 
   if (!sessionId) {

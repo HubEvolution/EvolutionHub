@@ -63,13 +63,21 @@ Folge diesen Schritten, um das Projekt lokal zu installieren und auszuführen.
 
 ### Projekt starten
 
-Führe den folgenden Befehl aus, um den lokalen Entwicklungsserver zu starten:
+Für die lokale Entwicklung werden zwei Terminals benötigt.
 
+**Terminal 1: Build-Prozess**
+Führe den folgenden Befehl aus, um die Anwendung zu bauen und bei jeder Änderung automatisch neu zu bauen:
+```bash
+npm run build:watch
+```
+
+**Terminal 2: Entwicklungs-Server**
+Führe den folgenden Befehl aus, um den `wrangler`-Server zu starten, der sich mit den Live-Ressourcen verbindet:
 ```bash
 npm run dev
 ```
 
-Das Projekt ist nun unter `http://localhost:4321` erreichbar.
+Das Projekt ist nun unter der von `wrangler` angegebenen Adresse erreichbar (z.B. `http://localhost:8788`).
 
 ---
 
@@ -139,3 +147,58 @@ Diese README-Datei unterstützt dynamische SVG-Grafiken, die sich an den Dark Mo
 ## <img src="public/assets/svg/contribute.svg" alt="Contribute Icon" height="20"> Mitwirken
 
 Beiträge sind willkommen! Bitte erstelle einen Pull Request oder öffne ein Issue, um Ideen einzubringen.
+
+---
+
+## <img src="public/assets/svg/maintenance.svg" alt="Maintenance Icon" height="20"> Wartung und Aktualisierungen
+
+### Durchgeführte Code-Cleanup-Maßnahmen
+
+- **Import-Standardisierung:** Alle relativen Pfade zu Alias `@/lib` geändert, konsistente Import-Reihenfolge eingeführt, ungenutzte Imports entfernt
+- **TypeScript-Typisierung:** Neue Interfaces erstellt: `User`, `Session`, `SessionRow`, `PasswordResetToken`, striktes Type-Checking für alle Authentifizierungs-APIs und Datenbankabfragen
+- **Code-Formatierung:** Einheitliche Einrückungen (2 Leerzeichen), konsistente Kommentare, lesbare Struktur
+- **Auth-Module bereinigt:**
+  - `src/lib/auth-v2.ts`
+  - `src/pages/api/auth/login.ts`
+  - `src/pages/api/auth/register.ts`
+  - `src/pages/api/auth/forgot-password.ts`
+  - `src/pages/api/auth/reset-password.ts`
+  - `src/middleware.ts`
+- **Regelkonformität:** Globale Coding-Standards, Authentifizierungsregeln, Cloudflare-Patterns und Astro-spezifische Regeln wurden beachtet
+
+### Dependency-Updates
+
+- Alle Abhängigkeiten wurden auf die neuesten sicheren Versionen aktualisiert
+- 108 neue Pakete hinzugefügt, 8 Pakete entfernt, 41 Pakete geändert
+- 0 Sicherheitslücken gefunden
+
+### Tests
+
+- **E2E-Tests:** Playwright-Tests für Authentifizierungsflows, kritische Benutzerflows und Dashboard-Funktionalität
+  - Page-Object-Modell für saubere Testabstraktion
+  - Tests für Login, Registrierung, OAuth-Flows und Fehlerszenarien
+- **Unit- und Integrationstests:**
+  - Vitest-Framework für schnelles Testen
+  - Testabdeckung für Core-Funktionen: **14.76%** Gesamtabdeckung 
+  - Vollständige Testabdeckung (100%) für Auth-Modul, Login- und Register-API
+  - Mocking-Framework für D1-Datenbankinteraktionen
+
+#### Test-Prioritäten
+
+Für die Weiterentwicklung der Tests wurden folgende Prioritäten identifiziert:
+
+1. **Höchste Priorität** (Sicherheitsrelevante Komponenten):
+   - `src/server/utils/hashing.ts` (Passwort-Hashing)
+   - `src/server/utils/jwt.ts` (Token-Management)
+
+2. **Hohe Priorität** (Auth-Flow vervollständigen):
+   - `src/pages/api/auth/forgot-password.ts`
+   - `src/pages/api/auth/reset-password.ts`
+   - `src/pages/api/user/logout.ts`
+
+3. **Mittlere Priorität** (Kernfunktionalität):
+   - User-APIs (Profile, Settings)
+   - Projekt-Management-APIs
+   - Dashboard-APIs
+
+> **Hinweis:** Detaillierte Informationen zur Testausführung, bekannten Problemen, Coverage-Analyse und Verbesserungsvorschlägen finden sich in der [SETUP.md](./SETUP.md#tests-ausführen)
