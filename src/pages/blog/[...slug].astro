@@ -9,11 +9,14 @@ export async function getStaticPaths() {
 }
 // Prerender deaktiviert, da Astro.request.headers in statischem Modus nicht verfügbar ist
 export const prerender = false;
-import BaseLayout from '@/layouts/BaseLayout.astro';
-import { blogService } from '../../lib/blog';
+// Import BaseLayout using a relative path to resolve the alias issue
+import BaseLayout from '../../layouts/BaseLayout.astro';
+// Correctly import the blogService instance and the BlogCollectionEntry type
+import { blogService, type BlogCollectionEntry } from '../../lib/blog';
 import BlogPostComponent from '../../components/BlogPost.astro';
 import type { ProcessedBlogPost } from '../../content/types';
-import CommentSection from '../../components/comments/CommentSection.astro';
+// Commented out CommentSection as it was removed earlier
+// import CommentSection from '../../components/comments/CommentSection.astro';
 
 // Get slug from URL
 const { slug } = Astro.params;
@@ -23,38 +26,48 @@ if (!slug) {
 }
 
 // Try to load the blog post
-let post: ProcessedBlogPost | null = null;
+let postData: ProcessedBlogPost | null = null;
+let originalEntry: BlogCollectionEntry | null = null; // Use the imported BlogCollectionEntry type
 try {
+  // Use the imported blogService instance directly
   const result = await blogService.getPostBySlug(slug);
   if (result) {
-    post = result;
+    // Assuming getPostBySlug returns an object with 'entry' and 'processedData'
+    originalEntry = result.entry;
+    postData = result.processedData; // Use processed data for component props
   }
 } catch (error) {
   console.error('Error loading blog post:', error);
+  // Redirect to 404 if there's an error loading the post
   return Astro.redirect('/404');
 }
 
-// If no post found, redirect to 404
-if (!post) {
+// If no post data or original entry found, redirect to 404
+if (!postData || !originalEntry) {
   return Astro.redirect('/404');
 }
 
-const { Content } = await post.render();
+// Use the render method from the original entry
+const { Content } = await originalEntry.render();
 
 // Load related posts (based on tags and category)
 let relatedPosts: ProcessedBlogPost[] = [];
 
-if (post) {
+if (postData) { // Check processed data for consistency
   try {
-    const related = await blogService.getRelatedPosts(post, { 
+    // Pass the original entry to getRelatedPosts for relation logic
+    const related = await blogService.getRelatedPosts(
+      originalEntry, // Pass the original entry object
+      {
       limit: 3,
-      includeDrafts: import.meta.env.DEV 
+      includeDrafts: import.meta.env.DEV
     });
-    
+
     // Ensure we have an array and filter out any invalid posts
     if (Array.isArray(related)) {
-      relatedPosts = related.filter((p): p is ProcessedBlogPost => 
-        p && typeof p === 'object' && 'id' in p && 'data' in p
+      relatedPosts = related.filter((p): p is ProcessedBlogPost =>
+        // Robust check for valid processed post structure
+        p && typeof p === 'object' && typeof p.data === 'object' && p.data !== null && 'title' in p.data
       );
     }
   } catch (error) {
@@ -64,17 +77,19 @@ if (post) {
 }
 
 // SEO Metadaten
-const title = post.data.title;
-const description = post.data.description || '';
+const title = postData.data.title;
+const description = postData.data.description || '';
 const canonicalUrl = new URL(Astro.url.pathname, Astro.site);
-const imageUrl = post.data.image 
-  ? new URL(post.data.image.src, Astro.site).toString()
+// Ensure imageUrl is correctly formed
+const imageUrl = postData.data.image?.src
+  ? new URL(postData.data.image.src, Astro.site).toString()
   : new URL('/images/blog/default-og.jpg', Astro.site).toString();
 
 // Refactored logic for dateModified
-const dateModified = post.data.updatedDate 
-  ? new Date(post.data.updatedDate).toISOString() 
-  : new Date(post.data.pubDate).toISOString();
+const datePublishedISO = new Date(postData.data.pubDate).toISOString();
+const dateModifiedISO = postData.data.updatedDate
+  ? new Date(postData.data.updatedDate).toISOString()
+  : datePublishedISO; // Use publishedDate if updatedDate is missing
 
 // Strukturierte Daten für SEO (Schema.org)
 const structuredData = {
@@ -85,8 +100,8 @@ const structuredData = {
   image: imageUrl,
   author: {
     '@type': 'Person',
-    name: post.data.author.name || 'EvolutionHub Team',
-    url: 'https://evolution-hub.de/team'
+    name: Array.isArray(postData.data.author) ? postData.data.author[0] : postData.data.author?.name || 'EvolutionHub Team',
+    url: 'https://evolution-hub.de/team' // Placeholder URL, adjust if specific author URLs exist
   },
   publisher: {
     '@type': 'Organization',
@@ -96,8 +111,8 @@ const structuredData = {
       url: new URL('/images/logo.png', Astro.site).toString()
     }
   },
-  datePublished: new Date(post.data.pubDate).toISOString(),
-  dateModified: dateModified,
+  datePublished: datePublishedISO,
+  dateModified: dateModifiedISO,
   mainEntityOfPage: {
     '@type': 'WebPage',
     '@id': canonicalUrl.toString()
@@ -112,22 +127,23 @@ const structuredData = {
   structuredData={structuredData}
   image={imageUrl}
   type="article"
-  publishedTime={new Date(post.data.pubDate).toISOString()}
-  modifiedTime={post.data.updatedDate ? new Date(post.data.updatedDate).toISOString() : undefined}
-  author={post.data.author.name || 'EvolutionHub Team'}
-  section={post.data.category}
-  tags={post.data.tags}
+  publishedTime={datePublishedISO}
+  modifiedTime={dateModifiedISO}
+  author={Array.isArray(postData.data.author) ? postData.data.author[0] : postData.data.author?.name || 'EvolutionHub Team'}
+  section={postData.data.category}
+  tags={postData.data.tags}
 >
   <article class="bg-white dark:bg-gray-900 py-12 sm:py-16">
     <div class="mx-auto max-w-7xl px-6 lg:px-8">
       <div class="mx-auto max-w-3xl">
         {/* Blog-Post-Komponente rendern */}
-        <BlogPostComponent post={post} relatedPosts={relatedPosts}>
+        <BlogPostComponent post={postData} relatedPosts={relatedPosts}>
           <Content />
         </BlogPostComponent>
 
         {/* Kommentarbereich */}
-        <CommentSection postId={post.slug} />
+        {/* CommentSection is removed as per earlier user instructions */}
+        {/* <CommentSection postId={post.slug} /> */}
       </div>
     </div>
   </article>
@@ -184,14 +200,14 @@ const structuredData = {
           e.preventDefault();
           const targetId = this.getAttribute('href');
           if (targetId === '#') return;
-          
+
           const targetElement = document.querySelector(targetId);
           if (targetElement) {
             targetElement.scrollIntoView({
               behavior: 'smooth',
               block: 'start'
             });
-            
+
             // Füge den Hash zur URL hinzu, ohne die Seite neu zu laden
             history.pushState(null, '', targetId);
           }

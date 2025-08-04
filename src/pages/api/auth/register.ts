@@ -1,16 +1,15 @@
 import type { APIContext } from 'astro';
 import { createSession } from '@/lib/auth-v2';
 import { hash } from 'bcrypt-ts';
-import { authLimiter } from '@/lib/rate-limiter';
-import { secureJsonResponse, applySecurityHeaders } from '@/lib/security-headers';
+import { withApiMiddleware } from '@/lib/api-middleware';
 import { logAuthSuccess, logAuthFailure } from '@/lib/security-logger';
 
-export async function POST(context: APIContext): Promise<Response> {
-  // Rate-Limiting anwenden
-  const rateLimitResponse = await authLimiter(context);
-  if (rateLimitResponse) {
-    return rateLimitResponse;
-  }
+/**
+ * POST /api/auth/register
+ * Registriert einen neuen Benutzer und erstellt eine Session
+ * Implementiert Rate-Limiting, Security-Headers und Audit-Logging
+ */
+export const POST = withApiMiddleware(async (context: APIContext) => {
   const formData = await context.request.formData();
   const email = formData.get('email');
   const password = formData.get('password');
@@ -34,11 +33,10 @@ export async function POST(context: APIContext): Promise<Response> {
       email: typeof email === 'string' ? email : null
     });
 
-    const response = new Response(null, {
+    return new Response(null, {
       status: 302,
       headers: { Location: '/register?error=InvalidInput' }
     });
-    return applySecurityHeaders(response);
   }
 
   const hashedPassword = await hash(password, 10);
@@ -53,11 +51,11 @@ export async function POST(context: APIContext): Promise<Response> {
 
     const session = await createSession(context.locals.runtime.env.DB, userId);
     context.cookies.set('session_id', session.id, {
-        path: '/',
-        httpOnly: true,
-        maxAge: 60 * 60 * 24 * 30, // 30 days
-        secure: context.url.protocol === 'https:',
-        sameSite: 'lax'
+      path: '/',
+      httpOnly: true,
+      maxAge: 60 * 60 * 24 * 30, // 30 days
+      secure: context.url.protocol === 'https:',
+      sameSite: 'lax'
     });
 
     // Erfolgreiche Registrierung protokollieren
@@ -68,13 +66,12 @@ export async function POST(context: APIContext): Promise<Response> {
       sessionId: session.id
     });
 
-    const response = new Response(null, {
+    return new Response(null, {
       status: 302,
       headers: {
         Location: '/dashboard'
       }
     });
-    return applySecurityHeaders(response);
   } catch (e: any) {
     if (e.message?.includes('UNIQUE constraint failed')) {
       // Fehlgeschlagene Registrierung wegen Duplikat protokollieren
@@ -83,13 +80,11 @@ export async function POST(context: APIContext): Promise<Response> {
         email
       });
 
-      const response = new Response(null, {
+      return new Response(null, {
         status: 302,
         headers: { Location: '/register?error=UserExists' }
       });
-      return applySecurityHeaders(response);
     }
-    console.error(e);
     
     // Fehler protokollieren
     logAuthFailure(context.clientAddress, {
@@ -98,10 +93,10 @@ export async function POST(context: APIContext): Promise<Response> {
       email
     });
     
-    const response = new Response(null, {
+    // Allgemeiner Fehler - wird von der Middleware mit Security-Headers versehen
+    return new Response(null, {
       status: 302,
       headers: { Location: '/register?error=UnknownError' }
     });
-    return applySecurityHeaders(response);
   }
-}
+});

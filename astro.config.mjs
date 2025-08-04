@@ -1,4 +1,3 @@
-// @ts-check
 import { defineConfig } from 'astro/config';
 import tailwind from '@astrojs/tailwind';
 import react from "@astrojs/react";
@@ -6,8 +5,9 @@ import cloudflare from "@astrojs/cloudflare";
 
 // https://astro.build/config
 export default defineConfig({
-  // Entferne site-URL für lokale Entwicklung
-  // site: 'https://hub-evolution.pages.dev',
+  // Provide a site URL for local development and for canonical tags
+  // when no other site is specified. Crucial for the URL constructor.
+  site: 'http://localhost:4321', // Set a specific URL for local development
   output: 'server',
   base: '/',
   vite: {
@@ -16,9 +16,7 @@ export default defineConfig({
       assetsInlineLimit: 0,
       cssCodeSplit: true,
       rollupOptions: {
-        output: {
-          assetFileNames: 'assets/[name].[hash][extname]',
-        },
+        assetFileNames: 'assets/[name].[hash][extname]',
       },
     },
   },

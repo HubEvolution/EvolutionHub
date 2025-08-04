@@ -1,6 +1,5 @@
 import type { APIRoute } from 'astro';
-import { apiRateLimiter } from '@/lib/rate-limiter';
-import { applySecurityHeaders } from '@/lib/security-headers';
+import { withApiMiddleware, createApiSuccess, createApiError } from '@/lib/api-middleware';
 import { logApiAccess, logAuthFailure } from '@/lib/security-logger';
 
 /**
@@ -12,29 +11,16 @@ import { logApiAccess, logAuthFailure } from '@/lib/security-logger';
  * - Security-Headers: Setzt wichtige Sicherheits-Header
  * - Audit-Logging: Protokolliert alle API-Zugriffe und Fehler
  */
-export const GET: APIRoute = async (context) => {
-  // Rate-Limiting anwenden
-  const rateLimitResponse = await apiRateLimiter(context);
-  if (rateLimitResponse) return rateLimitResponse;
-  
-  const { request, locals } = context;
+export const GET = withApiMiddleware(async (context) => {
+  const { request, locals, clientAddress, url } = context;
   const { env } = locals.runtime;
-  const clientAddress = context.clientAddress || '0.0.0.0';
-  const endpoint = context.url ? context.url.pathname : '/api/comments';
+  const endpoint = url ? url.pathname : '/api/comments';
   
-  const url = new URL(request.url);
-  const postId = url.searchParams.get('postId');
+  const requestUrl = new URL(request.url);
+  const postId = requestUrl.searchParams.get('postId');
 
   // Validierung der Parameter
   if (!postId) {
-    const response = new Response(JSON.stringify({ error: 'postId is required' }), { 
-      status: 400,
-      headers: { 'Content-Type': 'application/json' }
-    });
-    
-    // Security-Headers anwenden
-    const securedResponse = applySecurityHeaders(response);
-    
     // Fehler protokollieren
     logAuthFailure(clientAddress, {
       reason: 'invalid_request',
@@ -42,46 +28,37 @@ export const GET: APIRoute = async (context) => {
       details: 'Missing postId parameter'
     });
     
-    return securedResponse;
+    return createApiError('postId is required', 400);
   }
   
-  try {
-    const { results } = await env.DB.prepare(
-      'SELECT * FROM comments WHERE postId = ?1 AND approved = 1'
-    )
-      .bind(postId)
-      .all();
+  const { results } = await env.DB.prepare(
+    'SELECT * FROM comments WHERE postId = ?1 AND approved = 1'
+  )
+    .bind(postId)
+    .all();
+  
+  // API-Zugriff protokollieren
+  logApiAccess(clientAddress, clientAddress, {
+    endpoint,
+    method: 'GET',
+    action: 'get_comments',
+    postId,
+    commentCount: results.length
+  });
+  
+  return createApiSuccess(results);
+}, {
+  // Keine Authentifizierung erforderlich für öffentliche Kommentare
+  requireAuth: false,
+  
+  // Spezielle Fehlerbehandlung für diesen Endpunkt
+  onError: (context, error) => {
+    const { clientAddress, url } = context;
+    const endpoint = url ? url.pathname : '/api/comments';
+    const requestUrl = new URL(context.request.url);
+    const postId = requestUrl.searchParams.get('postId');
     
-    // Erfolgreiche Antwort erstellen
-    const response = new Response(JSON.stringify(results), { 
-      status: 200,
-      headers: { 'Content-Type': 'application/json' }
-    });
-    
-    // Security-Headers anwenden
-    const securedResponse = applySecurityHeaders(response);
-    
-    // API-Zugriff protokollieren
-    logApiAccess(clientAddress, clientAddress, {
-      endpoint,
-      method: 'GET',
-      action: 'get_comments',
-      postId,
-      commentCount: results.length
-    });
-    
-    return securedResponse;
-  } catch (error) {
     console.error(`Error fetching comments for postId ${postId}:`, error);
-    
-    // Fehlerantwort erstellen
-    const response = new Response(JSON.stringify({ error: 'Internal Server Error' }), { 
-      status: 500,
-      headers: { 'Content-Type': 'application/json' }
-    });
-    
-    // Security-Headers anwenden
-    const securedResponse = applySecurityHeaders(response);
     
     // Serverfehler protokollieren
     logAuthFailure(clientAddress, {
@@ -90,9 +67,9 @@ export const GET: APIRoute = async (context) => {
       details: error instanceof Error ? error.message : String(error)
     });
     
-    return securedResponse;
+    return createApiError('Internal Server Error', 500);
   }
-};
+});
 
 /**
  * POST /api/comments
@@ -104,114 +81,85 @@ export const GET: APIRoute = async (context) => {
  * - Audit-Logging: Protokolliert alle API-Zugriffe und Fehler
  * - Input-Validierung: Prüft und bereinigt Eingabedaten
  */
-export const POST: APIRoute = async (context) => {
-  // Rate-Limiting anwenden
-  const rateLimitResponse = await apiRateLimiter(context);
-  if (rateLimitResponse) return rateLimitResponse;
-  
-  const { request, locals } = context;
+export const POST = withApiMiddleware(async (context) => {
+  const { request, locals, clientAddress, url } = context;
   const { env } = locals.runtime;
-  const clientAddress = context.clientAddress || '0.0.0.0';
-  const endpoint = context.url ? context.url.pathname : '/api/comments';
+  const endpoint = url ? url.pathname : '/api/comments';
   
-  try {
-    const { postId, author, content } = await request.json<{
-      postId: string;
-      author: string;
-      content: string;
-    }>();
+  const { postId, author, content } = await request.json<{
+    postId: string;
+    author: string;
+    content: string;
+  }>();
 
-    // Validierung der Eingabedaten
-    if (!postId || !author || !content) {
-      const response = new Response(JSON.stringify({ error: 'Missing required fields' }), { 
-        status: 400,
-        headers: { 'Content-Type': 'application/json' }
-      });
-      
-      // Security-Headers anwenden
-      const securedResponse = applySecurityHeaders(response);
-      
-      // Fehler protokollieren
-      logAuthFailure(clientAddress, {
-        reason: 'invalid_request',
-        endpoint,
-        details: 'Missing required fields in comment creation'
-      });
-      
-      return securedResponse;
-    }
-    
-    // Zusätzliche Validierung: Länge der Eingaben begrenzen
-    if (author.length > 100 || content.length > 2000) {
-      const response = new Response(JSON.stringify({ error: 'Input exceeds maximum length' }), { 
-        status: 400,
-        headers: { 'Content-Type': 'application/json' }
-      });
-      
-      // Security-Headers anwenden
-      const securedResponse = applySecurityHeaders(response);
-      
-      // Fehler protokollieren
-      logAuthFailure(clientAddress, {
-        reason: 'invalid_request',
-        endpoint,
-        details: 'Input exceeds maximum length'
-      });
-      
-      return securedResponse;
-    }
-
-    const newComment = {
-      id: crypto.randomUUID(),
-      postId,
-      author,
-      content,
-      createdAt: new Date().toISOString(),
-      approved: false, // Default to not approved
-    };
-
-    await env.DB.prepare(
-      'INSERT INTO comments (id, postId, author, content, createdAt, approved) VALUES (?1, ?2, ?3, ?4, ?5, 0)'
-    )
-      .bind(
-        newComment.id,
-        newComment.postId,
-        newComment.author,
-        newComment.content,
-        newComment.createdAt
-      )
-      .run();
-
-    // Erfolgreiche Antwort erstellen
-    const response = new Response(JSON.stringify(newComment), { 
-      status: 201,
-      headers: { 'Content-Type': 'application/json' }
-    });
-    
-    // Security-Headers anwenden
-    const securedResponse = applySecurityHeaders(response);
-    
-    // API-Zugriff protokollieren
-    logApiAccess(clientAddress, clientAddress, {
+  // Validierung der Eingabedaten
+  if (!postId || !author || !content) {
+    // Fehler protokollieren
+    logAuthFailure(clientAddress, {
+      reason: 'invalid_request',
       endpoint,
-      method: 'POST',
-      action: 'create_comment',
-      postId,
-      commentId: newComment.id
+      details: 'Missing required fields in comment creation'
     });
     
-    return securedResponse;
-  } catch (error) {
+    return createApiError('Missing required fields', 400);
+  }
+  
+  // Zusätzliche Validierung: Länge der Eingaben begrenzen
+  if (author.length > 100 || content.length > 2000) {
+    // Fehler protokollieren
+    logAuthFailure(clientAddress, {
+      reason: 'invalid_request',
+      endpoint,
+      details: 'Input exceeds maximum length'
+    });
+    
+    return createApiError('Input exceeds maximum length', 400);
+  }
+
+  const newComment = {
+    id: crypto.randomUUID(),
+    postId,
+    author,
+    content,
+    createdAt: new Date().toISOString(),
+    approved: false, // Default to not approved
+  };
+
+  await env.DB.prepare(
+    'INSERT INTO comments (id, postId, author, content, createdAt, approved) VALUES (?1, ?2, ?3, ?4, ?5, 0)'
+  )
+    .bind(
+      newComment.id,
+      newComment.postId,
+      newComment.author,
+      newComment.content,
+      newComment.createdAt
+    )
+    .run();
+
+  // API-Zugriff protokollieren
+  logApiAccess(clientAddress, clientAddress, {
+    endpoint,
+    method: 'POST',
+    action: 'create_comment',
+    postId,
+    commentId: newComment.id
+  });
+  
+  return new Response(JSON.stringify(newComment), { 
+    status: 201,
+    headers: { 'Content-Type': 'application/json' }
+  });
+}, {
+  // Keine Authentifizierung erforderlich für öffentliche Kommentare
+  requireAuth: false,
+  
+  // Spezielle Fehlerbehandlung für diesen Endpunkt
+  onError: (context, error) => {
+    const { clientAddress, url } = context;
+    const endpoint = url ? url.pathname : '/api/comments';
+    
     console.error('Error creating comment:', error);
-    
-    // Fehlerantwort erstellen
-    const response = new Response(JSON.stringify({ error: 'Invalid request body' }), { 
-      status: 400,
-      headers: { 'Content-Type': 'application/json' }
-    });
-    
-    // Security-Headers anwenden
-    const securedResponse = applySecurityHeaders(response);
     
     // Fehler protokollieren
     logAuthFailure(clientAddress, {
@@ -220,6 +168,6 @@ export const POST: APIRoute = async (context) => {
       details: 'Invalid request body format'
     });
     
-    return securedResponse;
+    return createApiError('Invalid request body', 400);
   }
-};
+});

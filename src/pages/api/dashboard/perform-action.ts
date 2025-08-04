@@ -1,6 +1,5 @@
 import type { APIContext } from 'astro';
-import { apiRateLimiter } from '@/lib/rate-limiter';
-import { applySecurityHeaders } from '@/lib/security-headers';
+import { withApiMiddleware, createApiSuccess, createApiError } from '@/lib/api-middleware';
 import { logApiAccess, logAuthFailure } from '@/lib/security-logger';
 
 /**
@@ -12,59 +11,29 @@ import { logApiAccess, logAuthFailure } from '@/lib/security-logger';
  * - Security-Headers: Setzt wichtige Sicherheits-Header
  * - Audit-Logging: Protokolliert alle API-Zugriffe und Authentifizierungsfehler
  */
-export async function POST(context: APIContext): Promise<Response> {
-  // Rate-Limiting anwenden
-  const rateLimitResponse = await apiRateLimiter(context);
-  if (rateLimitResponse) return rateLimitResponse;
-  
-  const locals = context.locals as any;
-  const clientAddress = context.clientAddress || '0.0.0.0';
-  const endpoint = context.url ? context.url.pathname : '/api/dashboard/perform-action';
-  
-  // Wenn kein Benutzer authentifiziert ist, 401 zurückgeben und Fehler protokollieren
-  if (!locals.user) {
-    const response = new Response(JSON.stringify({ error: 'Unauthorized' }), { 
-      status: 401,
-      headers: { 'Content-Type': 'application/json' }
-    });
-    
-    // Security-Headers anwenden
-    const securedResponse = applySecurityHeaders(response);
-    
-    // Fehlgeschlagene Authentifizierung protokollieren
-    logAuthFailure(clientAddress, {
-      reason: 'unauthenticated_access',
-      endpoint
-    });
-    
-    return securedResponse;
-  }
+export const POST = withApiMiddleware(async (context) => {
+  const { request, locals, clientAddress, url } = context;
+  const { env } = locals.runtime;
+  const user = locals.user;
+  const endpoint = url ? url.pathname : '/api/dashboard/perform-action';
+  const userId = user.id;
 
   let requestData;
   try {
-    requestData = await context.request.json();
+    requestData = await request.json();
   } catch (error) {
-    const response = new Response(JSON.stringify({ error: 'Invalid JSON in request body' }), { 
-      status: 400,
-      headers: { 'Content-Type': 'application/json' }
-    });
-    
-    // Security-Headers anwenden
-    const securedResponse = applySecurityHeaders(response);
-    
     // Fehlerhafte Anfrage protokollieren
-    logAuthFailure(locals.user.id, {
+    logAuthFailure(userId, {
       reason: 'invalid_request',
       endpoint,
       details: 'Invalid JSON in request body'
     });
     
-    return securedResponse;
+    return createApiError('Invalid JSON in request body', 400);
   }
 
   const { action } = requestData;
-  const userId = locals.user.id;
-  const db = locals.runtime.env.DB;
+  const db = env.DB;
 
   try {
     let result;
@@ -142,44 +111,33 @@ export async function POST(context: APIContext): Promise<Response> {
           details: `Invalid action: ${action}`
         });
         
-        const invalidResponse = new Response(JSON.stringify({ error: 'Invalid action' }), { 
-          status: 400,
-          headers: { 'Content-Type': 'application/json' }
-        });
-        
-        // Security-Headers anwenden
-        return applySecurityHeaders(invalidResponse);
+        return createApiError('Invalid action', 400);
     }
     
     // Erfolgreiche Antwort erstellen
-    const response = new Response(JSON.stringify(result), { 
-      status: 200,
-      headers: { 'Content-Type': 'application/json' }
-    });
-    
-    // Security-Headers anwenden
-    return applySecurityHeaders(response);
-    
+    return createApiSuccess(result);
   } catch (error) {
-    console.error(`Error performing action '${action}':`, error);
+    throw error; // Fehler an die Middleware weiterleiten
+  }
+}, {
+  // Erfordert Authentifizierung
+  requireAuth: true,
+  
+  // Spezielle Fehlerbehandlung für diesen Endpunkt
+  onError: (context, error) => {
+    const { clientAddress, url, locals } = context;
+    const user = locals.user;
+    const endpoint = url ? url.pathname : '/api/dashboard/perform-action';
     
-    // Fehlerantwort erstellen
-    const response = new Response(JSON.stringify({ error: 'Internal Server Error' }), { 
-      status: 500,
-      headers: { 'Content-Type': 'application/json' }
-    });
-    
-    // Security-Headers anwenden
-    const securedResponse = applySecurityHeaders(response);
+    console.error('Error performing dashboard action:', error);
     
     // Serverfehler protokollieren
-    logAuthFailure(userId, {
+    logAuthFailure(user ? user.id : clientAddress, {
       reason: 'server_error',
       endpoint,
-      action,
       details: error instanceof Error ? error.message : String(error)
     });
     
-    return securedResponse;
+    return createApiError('Internal Server Error', 500);
   }
-}
+});

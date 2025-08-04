@@ -1,6 +1,5 @@
 import type { APIRoute } from 'astro';
-import { apiRateLimiter } from '@/lib/rate-limiter';
-import { applySecurityHeaders } from '@/lib/security-headers';
+import { withApiMiddleware, createApiSuccess } from '@/lib/api-middleware';
 import { logApiAccess, logAuthFailure } from '@/lib/security-logger';
 
 /**
@@ -13,32 +12,23 @@ import { logApiAccess, logAuthFailure } from '@/lib/security-logger';
  * - Security-Headers: Setzt wichtige Sicherheits-Header
  * - Audit-Logging: Protokolliert alle API-Zugriffe und Authentifizierungsfehler
  */
-export const GET: APIRoute = async (context) => {
-  // Rate-Limiting anwenden
-  const rateLimitResponse = await apiRateLimiter(context);
-  if (rateLimitResponse) return rateLimitResponse;
-  
+export const GET = withApiMiddleware(async (context) => {
   const { locals, clientAddress, url } = context;
   const user = locals.user;
   const endpoint = url ? url.pathname : '/api/user/me';
 
   // Wenn kein Benutzer authentifiziert ist, 401 zurückgeben und Fehler protokollieren
   if (!user) {
-    const response = new Response(JSON.stringify({ error: 'Not authenticated' }), {
-      status: 401,
-      headers: { 'Content-Type': 'application/json' },
-    });
-    
-    // Security-Headers anwenden
-    const securedResponse = applySecurityHeaders(response);
-    
     // Fehlgeschlagene Authentifizierung protokollieren
     logAuthFailure(clientAddress, {
       reason: 'unauthenticated_access',
       endpoint
     });
     
-    return securedResponse;
+    return new Response(JSON.stringify({ error: 'Not authenticated' }), {
+      status: 401,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 
   // Whitelist-Ansatz: Nur explizit erlaubte Felder zurückgeben
@@ -51,20 +41,15 @@ export const GET: APIRoute = async (context) => {
     // Weitere sichere Felder hier bei Bedarf hinzufügen
   };
 
-  // Erfolgreiche Antwort erstellen
-  const response = new Response(JSON.stringify(safeUser), {
-    status: 200,
-    headers: { 'Content-Type': 'application/json' },
-  });
-  
-  // Security-Headers anwenden
-  const securedResponse = applySecurityHeaders(response);
-  
   // API-Zugriff protokollieren
   logApiAccess(user.id, clientAddress, {
     endpoint,
     method: 'GET'
   });
   
-  return securedResponse;
-};
+  // Erfolgreiche Antwort mit standardisiertem Format erstellen
+  return createApiSuccess(safeUser);
+}, {
+  // Erfordert Authentifizierung
+  requireAuth: true
+});

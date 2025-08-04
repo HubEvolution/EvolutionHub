@@ -1,6 +1,8 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { blogService } from '../../lib/blog';
+// Ensure these types are correctly imported and available.
+// The previous errors indicated they might not be found, but we've created them.
 import type { ProcessedBlogPost } from '../../content/types';
 import type { CategoryWithCount, TagWithCount } from '../../types/blog';
 import BlogList from '../../components/BlogList.astro';
@@ -17,67 +19,54 @@ const tag = searchParams.get('tag') || undefined;
 const searchQuery = searchParams.get('suche') || undefined;
 const postsPerPage = 9;
 
-// Blog-Beiträge basierend auf den Filtern abruchen
+// Determine if the featured post should be displayed.
+// This condition is true only when no filters are applied and we are on the first page.
+const shouldShowFeatured = !category && !tag && !searchQuery && page === 1;
+
+// Blog-Daten inklusive Posts, Kategorien, Tags und Paginierungsdetails mit der optimierten Methode abrufen
 let posts: ProcessedBlogPost[] = [];
+let categoriesWithCounts: CategoryWithCount[] = [];
+let popularTags: TagWithCount[] = [];
 let total = 0;
 let currentPage = 1;
 let totalPages = 1;
 
 try {
-  const result = await blogService.getPaginatedPosts(
+  // Use the optimized method to fetch all necessary data in one go.
+  // This method handles filtering and pagination internally.
+  const blogIndexData = await blogService.getBlogIndexData(
     page,
     postsPerPage,
-    { 
+    {
       category,
       tag,
       search: searchQuery,
+      // includeDrafts is implicitly handled by BlogService's internal logic based on environment
+      // However, for explicit control, we can pass it. Let's keep consistent with previous.
       includeDrafts: import.meta.env.DEV
     }
   );
-  
-  posts = result.items;
-  total = result.total;
-  currentPage = result.page;
-  totalPages = result.totalPages;
+
+  posts = blogIndexData.posts;
+  categoriesWithCounts = blogIndexData.categories;
+  popularTags = blogIndexData.tags;
+  total = blogIndexData.total;
+  currentPage = blogIndexData.currentPage;
+  totalPages = blogIndexData.totalPages;
+
 } catch (error) {
-  console.error('Fehler beim Laden der Blog-Beiträge:', error);
+  console.error('Fehler beim Laden der Blog-Index-Daten:', error);
   // Wir fahren mit leeren Werten fort, die UI zeigt dann eine Fehlermeldung an
-}
-
-// Kategorien für den Filter laden
-let categories: string[] = [];
-let categoriesWithCounts: CategoryWithCount[] = [];
-
-try {
-  categories = await blogService.getAllCategories();
-  categoriesWithCounts = await Promise.all(
-    categories.map(async (cat) => ({
-      name: cat,
-      count: await blogService.getTotalCount({ category: cat })
-    }))
-  );
-} catch (error) {
-  console.error('Fehler beim Laden der Kategorien:', error);
-  // Wir fahren mit leeren Werten fort, die UI zeigt dann eine Fehlermeldung an
-}
-
-// Tags für die Anzeige laden (optional)
-let popularTags: TagWithCount[] = [];
-try {
-  popularTags = (await blogService.getAllTags()).slice(0, 10);
-} catch (error) {
-  console.error('Fehler beim Laden der Tags:', error);
-  // Wir fahren mit leeren Werten fort
 }
 
 // Metadaten für SEO
-const title = category 
-  ? `Blog - ${category}` 
-  : tag 
-    ? `Beiträge mit dem Tag "${tag}"` 
+const title = category
+  ? `Blog - ${category}`
+  : tag
+    ? `Beiträge mit dem Tag "${tag}"`
     : 'Blog';
-const description = category 
-  ? `Alle Blog-Beiträge in der Kategorie ${category}` 
+const description = category
+  ? `Alle Blog-Beiträge in der Kategorie ${category}`
   : tag
     ? `Alle Blog-Beiträge mit dem Tag "${tag}"`
     : 'Aktuelle Artikel, Tutorials und Neuigkeiten aus der Welt der Webentwicklung';
@@ -88,6 +77,8 @@ if (category) canonicalUrl.searchParams.set('kategorie', category);
 if (tag) canonicalUrl.searchParams.set('tag', tag);
 if (searchQuery) canonicalUrl.searchParams.set('suche', searchQuery);
 if (page > 1) canonicalUrl.searchParams.set('page', page.toString());
+
+// Base URL for pagination links, ensuring query params are preserved except for 'page'
 const baseUrlForPagination = new URL(url);
 baseUrlForPagination.searchParams.delete('page');
 ---
@@ -116,8 +107,8 @@ baseUrlForPagination.searchParams.delete('page');
             <h2 class="text-sm font-medium text-gray-900 dark:text-white mb-3">
               Blog durchsuchen
             </h2>
-            <form 
-              method="get" 
+            <form
+              method="get"
               action="/blog/"
               class="relative"
             >
@@ -128,7 +119,7 @@ baseUrlForPagination.searchParams.delete('page');
                 value={searchQuery || ''}
                 class="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500 dark:bg-gray-700 dark:text-white dark:ring-gray-600 dark:placeholder-gray-400 sm:text-sm sm:leading-6"
               />
-              <button 
+              <button
                 type="submit"
                 class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-500 dark:text-gray-400 dark:hover:text-gray-300"
                 aria-label="Suchen"
@@ -138,16 +129,16 @@ baseUrlForPagination.searchParams.delete('page');
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
               </button>
-              
+
               {/* Versteckte Felder, um andere Filter beizubehalten */}
-              {category && <input type="hidden" name="kategorie" value={category} />}
-              {tag && <input type="hidden" name="tag" value={tag} />}
+              ${category && <input type="hidden" name="kategorie" value={category} />}
+              ${tag && <input type="hidden" name="tag" value={tag} />}
             </form>
           </div>
 
-          {/* Kategorien-Filter mit Error Boundary */}
+          <!-- Kategorien-Filter mit Error Boundary -->
           <ErrorBoundary>
-            <CategoryFilter 
+            <CategoryFilter
               categories={categoriesWithCounts}
               selectedCategory={category}
               baseUrl="/blog"
@@ -155,16 +146,16 @@ baseUrlForPagination.searchParams.delete('page');
             />
           </ErrorBoundary>
 
-          {/* Beliebte Tags mit Error Boundary */}
+          <!-- Tags mit Error Boundary -->
           <ErrorBoundary>
             <div class="rounded-lg bg-gray-50 dark:bg-gray-800 p-4">
               <h2 class="text-sm font-medium text-gray-900 dark:text-white mb-3">
-                Beliebte Tags
+                Alle Tags
               </h2>
               {popularTags.length > 0 ? (
                 <div class="flex flex-wrap gap-2">
                   {popularTags.map(({ name, count }) => (
-                    <a 
+                    <a
                       href={`/blog/tag/${name.toLowerCase()}`}
                       class={[
                         'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
@@ -198,8 +189,8 @@ baseUrlForPagination.searchParams.delete('page');
                   {tag && `Gefiltert nach Tag: ${tag}`}
                   {searchQuery && `Suchergebnisse für: "${searchQuery}"`}
                 </p>
-                <a 
-                  href="/blog/" 
+                <a
+                  href="/blog/"
                   class="text-sm font-medium text-emerald-700 hover:text-emerald-600 dark:text-emerald-400 dark:hover:text-emerald-300"
                 >
                   Filter zurücksetzen
@@ -211,9 +202,9 @@ baseUrlForPagination.searchParams.delete('page');
           {/* Blog-Liste mit Error Boundary */}
           <ErrorBoundary>
             {posts.length > 0 ? (
-              <BlogList 
-                posts={posts} 
-                showFeatured={!category && !tag && !searchQuery && page === 1}
+              <BlogList
+                posts={posts}
+                showFeatured={shouldShowFeatured}
               />
             ) : (
               <div class="rounded-lg bg-gray-50 dark:bg-gray-800 p-12 text-center">
@@ -252,7 +243,7 @@ baseUrlForPagination.searchParams.delete('page');
           {totalPages > 1 && (
             <ErrorBoundary>
               <div class="mt-12">
-                <Pagination 
+                <Pagination
                   currentPage={currentPage}
                   totalPages={totalPages}
                   baseUrl={baseUrlForPagination.pathname + baseUrlForPagination.search}

@@ -104,4 +104,3 @@ export const POST = withApiMiddleware(async (context: APIContext) => {
 
 // Fehlerbehandlung wird von der API-Middleware übernommen
 // Bei einem Fehler wird die Middleware eine Umleitung zur Login-Seite mit einer Fehlermeldung durchführen
-}
