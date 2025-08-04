@@ -42,21 +42,40 @@ Bevor Sie mit der Einrichtung beginnen, stellen Sie sicher, dass folgende Softwa
 
 Das Projekt verwendet Cloudflare D1 als Datenbank. Für die lokale Entwicklung benötigen Sie ein Cloudflare-Konto und müssen die Wrangler CLI installiert haben.
 
-### D1-Datenbank erstellen
+### Datenbankkonfiguration
 
-1. Melden Sie sich bei Ihrem Cloudflare-Konto an:
+### Automatische Einrichtung (empfohlen)
+
+Verwenden Sie das Setup-Skript, um die lokale Entwicklungsumgebung automatisch einzurichten:
+
+```bash
+npm run setup:local
+```
+
+Dieses Skript führt folgende Aktionen aus:
+- Erstellt eine lokale D1-Datenbank (falls nicht vorhanden)
+- Führt alle Migrations-Dateien auf ALLE lokalen Datenbanken aus
+- Erstellt einen lokalen R2-Bucket (falls nicht vorhanden)
+- Erstellt einen lokalen KV-Namespace (falls nicht vorhanden)
+- Erstellt einen Test-Benutzer für die lokale Entwicklung
+
+### Manuelle Einrichtung
+
+1. Installieren Sie die Wrangler CLI global (falls noch nicht geschehen):
    ```bash
-   npx wrangler login
+   npm install -g wrangler
    ```
 
 2. Erstellen Sie eine neue D1-Datenbank:
    ```bash
-   npx wrangler d1 create evolution-hub-main
+   npx wrangler d1 create evolution-hub-main-local
    ```
 
 3. Führen Sie die Migrationen aus:
    ```bash
-   npx wrangler d1 migrations apply evolution-hub-main --local
+   npx wrangler d1 execute evolution-hub-main-local --local --file=./migrations/0000_initial_schema.sql
+   npx wrangler d1 execute evolution-hub-main-local --local --file=./migrations/0001_add_sessions_table.sql
+   # ... weitere Migrations-Dateien
    ```
 
 ## Umgebungsvariablen
@@ -81,23 +100,42 @@ openssl rand -hex 32
 
 ## Lokale Entwicklung
 
-Für die lokale Entwicklung werden zwei Terminals benötigt.
+Evolution Hub bietet zwei verschiedene lokale Entwicklungs-Modi:
 
-### Terminal 1: Build-Prozess
+### Option 1: Interaktives Menü (empfohlen)
 
-Führen Sie den folgenden Befehl aus, um die Anwendung zu bauen und bei jeder Änderung automatisch neu zu bauen:
+Verwenden Sie das interaktive CLI-Menü, um schnell zwischen verschiedenen Entwicklungs-Modi zu wechseln:
 
 ```bash
-npm run build:watch
+npm run menu
 ```
 
-### Terminal 2: Entwicklungs-Server
+Wählen Sie "Lokale Entwicklung" und dann eine der folgenden Optionen:
+- **UI-Entwicklung**: Startet den Astro Dev-Server (schnell, ideal für Frontend-Entwicklung)
+- **Cloudflare-Entwicklung**: Startet den Wrangler Dev-Server (vollständige Cloudflare-Integration)
+- **Datenbank zurücksetzen & Migrationen anwenden**: Setzt die lokale Datenbank zurück
 
-Führen Sie den folgenden Befehl aus, um den `wrangler`-Server zu starten, der sich mit den Live-Ressourcen verbindet:
+### Option 2: Direkte Befehle
+
+#### Astro Dev-Server (für UI-Entwicklung)
 
 ```bash
 npm run dev
 ```
+
+#### Wrangler Dev-Server (für Backend-Entwicklung)
+
+```bash
+npm run dev:wrangler
+```
+
+#### Remote-Entwicklung (mit Cloudflare-Ressourcen)
+
+```bash
+npm run dev:remote
+```
+
+**Wichtig**: Bei Verwendung des `dev:remote`-Befehls werden alle Änderungen direkt auf den Produktionsressourcen vorgenommen. Verwenden Sie diesen Modus mit Vorsicht!
 
 Das Projekt ist nun unter der von `wrangler` angegebenen Adresse erreichbar (z.B. `http://localhost:8788`).
 

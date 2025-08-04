@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, beforeAll, afterAll } from 'vitest';
-import { hashPassword, comparePasswords } from './hashing';
+import { hashPassword, comparePasswords } from '../../../src/server/utils/hashing';
 import * as bcryptjs from 'bcryptjs';
 
 // Mock bcryptjs

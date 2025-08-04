@@ -14,7 +14,7 @@ export async function POST(context: APIContext): Promise<Response> {
   }
 
   try {
-    const bucket = locals.runtime.env.AVATAR_BUCKET;
+    const bucket = locals.runtime.env.R2_AVATARS;
     const db = locals.runtime.env.DB;
     
     // Generate a unique key for the file

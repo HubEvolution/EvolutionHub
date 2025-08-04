@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
-import { POST } from './reset-password';
+import { POST } from '../../../src/pages/api/auth/reset-password';
 import * as bcryptTs from 'bcrypt-ts';
 import * as rateLimiter from '@/lib/rate-limiter';
 import * as securityHeaders from '@/lib/security-headers';

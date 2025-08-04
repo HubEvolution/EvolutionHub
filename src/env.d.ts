@@ -1,7 +1,7 @@
 /// <reference types="astro/client" />
 
 interface ImportMetaEnv {
-  readonly PUBLIC_TURNSTILE_SITE_KEY: string;
+  // Turnstile-Typen entfernt
 }
 
 interface ImportMeta {
@@ -21,7 +21,7 @@ declare namespace App {
         runtime: {
             env: {
                 DB: import('@cloudflare/workers-types').D1Database;
-                TURNSTILE_SECRET_KEY: string;
+                // Turnstile-Secret-Key entfernt
                 RESEND_API_KEY: string;
             };
         };

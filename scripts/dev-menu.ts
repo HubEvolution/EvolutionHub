@@ -47,13 +47,28 @@ const logo = `
 
 // Hauptmenü-Optionen
 const mainMenuOptions = [
-  { key: '1', label: 'Lokale Entwicklung', action: 'dev' },
+  { key: '1', label: 'Lokale Entwicklung', action: 'dev-menu' },
   { key: '2', label: 'Remote-Entwicklung (Live-Daten)', action: 'dev:remote' },
   { key: '3', label: 'Lokale Umgebung einrichten', action: 'setup:local' },
   { key: '4', label: 'Datenbank-Verwaltung', action: 'db-menu' },
   { key: '5', label: 'Build & Deployment', action: 'build-menu' },
   { key: '6', label: 'Tests ausführen', action: 'test-menu' },
   { key: '0', label: 'Beenden', action: 'exit' }
+];
+
+// Lokale Entwicklungs-Menü-Optionen
+const devMenuOptions = [
+  { key: '1', label: 'UI-Entwicklung (Astro-Server)', action: 'dev' },
+  { key: '2', label: 'Cloudflare-Entwicklung (Wrangler mit D1/R2/KV)', action: 'dev:wrangler' },
+  { key: '3', label: 'Lokale Datenbank zurücksetzen & Migrationen anwenden', action: 'reset-db-menu' },
+  { key: '0', label: 'Zurück zum Hauptmenü', action: 'main-menu' }
+];
+
+// Datenbank-Reset-Menü-Optionen
+const resetDbMenuOptions = [
+  { key: '1', label: 'Alle Migrationen neu anwenden', action: 'apply-all-migrations' },
+  { key: '2', label: 'Lokale Datenbank löschen und neu erstellen', action: 'recreate-db' },
+  { key: '0', label: 'Zurück zum Entwicklungsmenü', action: 'dev-menu' }
 ];
 
 // Datenbank-Menü-Optionen
@@ -161,6 +176,129 @@ function displayTestMenu() {
   displayMenu(testMenuOptions, 'Tests');
 }
 
+// Funktion zum Anzeigen des Entwicklungsmenüs
+function displayDevMenu() {
+  displayMenu(devMenuOptions, 'Lokale Entwicklung');
+}
+
+// Funktion zum Anzeigen des Datenbank-Reset-Menüs
+function displayResetDbMenu() {
+  displayMenu(resetDbMenuOptions, 'Datenbank zurücksetzen');
+}
+
+// Funktion zum Anwenden aller Migrationen
+async function applyAllMigrations() {
+  console.clear();
+  console.log(chalk.yellow('Wende alle Migrationen auf die lokale D1-Datenbank an...'));
+  console.log(chalk.gray('-------------------------------------'));
+  
+  try {
+    // Lese alle Migrationsdateien aus dem migrations-Verzeichnis
+    const fs = await import('fs');
+    const path = await import('path');
+    const { fileURLToPath } = await import('url');
+    
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+    const MIGRATIONS_DIR = path.join(__dirname, '..', 'migrations');
+    
+    const migrationFiles = fs.readdirSync(MIGRATIONS_DIR)
+      .filter(file => file.endsWith('.sql'))
+      .sort(); // Sortiere nach Namen (0000_..., 0001_..., usw.)
+    
+    // Wende jede Migrationsdatei an
+    for (const migrationFile of migrationFiles) {
+      const migrationPath = path.join(MIGRATIONS_DIR, migrationFile);
+      console.log(chalk.cyan(`Wende Migration an: ${migrationFile}`));
+      
+      try {
+        execSync(`npx wrangler d1 execute evolution-hub-main-local --local --file=${migrationPath}`, { stdio: 'inherit' });
+        console.log(chalk.green(`✓ Migration erfolgreich angewendet: ${migrationFile}`));
+      } catch (error) {
+        console.error(chalk.red(`✗ Fehler bei Migration ${migrationFile}: ${error}`));
+      }
+    }
+    
+    console.log(chalk.green('\n✓ Alle Migrationen wurden angewendet!'));
+  } catch (error) {
+    console.error(chalk.red(`Fehler beim Anwenden der Migrationen: ${error}`));
+  }
+  
+  console.log('');
+  console.log(chalk.gray('-------------------------------------'));
+  
+  rl.question(chalk.yellow('Drücken Sie Enter, um fortzufahren...'), () => {
+    displayResetDbMenu();
+  });
+}
+
+// Funktion zum Löschen und Neuerstellen der lokalen Datenbank
+async function recreateLocalDb() {
+  console.clear();
+  console.log(chalk.yellow('Lösche und erstelle die lokale D1-Datenbank neu...'));
+  console.log(chalk.gray('-------------------------------------'));
+  
+  try {
+    // Lösche die lokale D1-Datenbank
+    console.log(chalk.cyan('Lösche lokale D1-Datenbank...'));
+    
+    // Finde alle SQLite-Dateien, die vom Wrangler-Server verwendet werden könnten
+    const fs = await import('fs');
+    const path = await import('path');
+    const { fileURLToPath } = await import('url');
+    
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+    const ROOT_DIR = path.join(__dirname, '..');
+    
+    // Haupt-SQLite-Datei im miniflare/databases-Verzeichnis
+    const mainDbDir = path.join(ROOT_DIR, '.wrangler', 'd1', 'miniflare', 'databases');
+    if (fs.existsSync(mainDbDir)) {
+      const mainDbPath = path.join(mainDbDir, 'evolution-hub-main-local.sqlite');
+      if (fs.existsSync(mainDbPath)) {
+        fs.unlinkSync(mainDbPath);
+        console.log(chalk.green(`✓ Gelöscht: ${mainDbPath}`));
+      }
+    }
+    
+    // Suche nach weiteren SQLite-Dateien im state/v3/d1-Verzeichnis
+    const stateDbDir = path.join(ROOT_DIR, '.wrangler', 'state', 'v3', 'd1', 'miniflare-D1DatabaseObject');
+    if (fs.existsSync(stateDbDir)) {
+      const stateFiles = fs.readdirSync(stateDbDir);
+      for (const file of stateFiles) {
+        if (file.endsWith('.sqlite')) {
+          const filePath = path.join(stateDbDir, file);
+          fs.unlinkSync(filePath);
+          console.log(chalk.green(`✓ Gelöscht: ${filePath}`));
+        }
+      }
+    }
+    
+    // Erstelle die lokale D1-Datenbank neu
+    console.log(chalk.cyan('\nErstelle lokale D1-Datenbank neu...'));
+    try {
+      execSync('npx wrangler d1 create evolution-hub-main-local', { stdio: 'inherit' });
+    } catch (error) {
+      // Ignoriere Fehler, wenn die Datenbank bereits existiert
+      console.log(chalk.yellow('Hinweis: Die Datenbank existiert möglicherweise bereits.'));
+    }
+    
+    // Wende alle Migrationen an
+    console.log(chalk.cyan('\nWende alle Migrationen an...'));
+    await applyAllMigrations();
+    
+  } catch (error) {
+    console.error(chalk.red(`Fehler beim Neuerstellen der Datenbank: ${error}`));
+  }
+  
+  console.log('');
+  console.log(chalk.gray('-------------------------------------'));
+  
+  rl.question(chalk.yellow('Drücken Sie Enter, um fortzufahren...'), () => {
+    displayResetDbMenu();
+  });
+}
+
 // Funktion zum Behandeln der Menüauswahl
 function handleMenuSelection(answer: string, options: typeof mainMenuOptions) {
   const selectedOption = options.find(option => option.key === answer);
@@ -172,6 +310,8 @@ function handleMenuSelection(answer: string, options: typeof mainMenuOptions) {
       else if (options === dbMenuOptions) displayDbMenu();
       else if (options === buildMenuOptions) displayBuildMenu();
       else if (options === testMenuOptions) displayTestMenu();
+      else if (options === devMenuOptions) displayDevMenu();
+      else if (options === resetDbMenuOptions) displayResetDbMenu();
     }, 1500);
     return;
   }
@@ -192,6 +332,18 @@ function handleMenuSelection(answer: string, options: typeof mainMenuOptions) {
       break;
     case 'test-menu':
       displayTestMenu();
+      break;
+    case 'dev-menu':
+      displayDevMenu();
+      break;
+    case 'reset-db-menu':
+      displayResetDbMenu();
+      break;
+    case 'apply-all-migrations':
+      applyAllMigrations();
+      break;
+    case 'recreate-db':
+      recreateLocalDb();
       break;
     default:
       if (selectedOption.action.startsWith('wrangler') || 

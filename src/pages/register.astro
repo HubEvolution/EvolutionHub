@@ -1,6 +1,5 @@
 ---
 import AuthLayout from '../layouts/AuthLayout.astro';
-import Card from '../components/ui/Card.astro';
 import Button from '../components/ui/Button.astro';
 import FormLabel from '../components/ui/FormLabel.astro';
 import Input from '../components/ui/Input.astro';
@@ -11,7 +10,7 @@ if (locals.user) {
 }
 ---
 <AuthLayout title="Create an Account">
-  <Card>
+  <div class="relative p-6 rounded-2xl overflow-hidden bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-white/10 shadow-sm">
     <h1 class="text-2xl font-bold text-center mb-6">Create your Account</h1>
     <form id="register-form">
       <div class="mb-4">
@@ -31,13 +30,13 @@ if (locals.user) {
         <Input type="password" id="password" name="password" required />
       </div>
       <div id="error-message" class="text-red-500 text-center mb-4 hidden"></div>
-<div class="cf-turnstile" data-sitekey={import.meta.env.PUBLIC_TURNSTILE_SITE_KEY}></div>
+<!-- Turnstile entfernt -->
       <Button type="submit" className="w-full">Create Account</Button>
     </form>
     <p class="text-center mt-4 text-sm">
       Already have an account? <a href="/login" class="text-emerald-600 hover:underline">Login</a>
     </p>
-  </Card>
+  </div>
 </AuthLayout>
 
 <script>

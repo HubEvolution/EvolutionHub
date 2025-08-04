@@ -48,32 +48,114 @@ const logo = `
 ║                                                       ║
 ╚═══════════════════════════════════════════════════════╝
 `;
-
+// Funktion zum Erstellen eines Test-Benutzers
+async function createTestUser() {
+  console.log('\n👤 Erstelle Test-Benutzer für lokale Entwicklung...');
+  try {
+    // Importiere bcrypt für Passwort-Hashing
+    const bcrypt = await import('bcrypt');
+    
+    // Test-Benutzer-Daten
+    const testUser = {
+      id: 'test-user-id-123',
+      name: 'Test User',
+      username: 'testuser',
+      full_name: 'Test User',
+      email: 'test@example.com',
+      image: null,
+      created_at: new Date().toISOString(),
+      password_hash: await bcrypt.hash('password123', 10) // Einfaches Passwort für Testzwecke
+    };
+    
+    // SQL für das Einfügen oder Aktualisieren des Test-Benutzers
+    const insertUserSQL = `
+      INSERT OR REPLACE INTO users (id, name, username, full_name, email, image, created_at, password_hash)
+      VALUES ('${testUser.id}', '${testUser.name}', '${testUser.username}', '${testUser.full_name}', 
+              '${testUser.email}', ${testUser.image === null ? 'NULL' : `'${testUser.image}'`}, 
+              '${testUser.created_at}', '${testUser.password_hash}')
+    `;
+    
+    // Finde alle SQLite-Dateien
+    const sqliteFiles = [];
+    
+    // Haupt-SQLite-Datei
+    const mainDbPath = path.join(ROOT_DIR, '.wrangler', 'd1', 'miniflare', 'databases', `${DB_NAME}.sqlite`);
+    if (fs.existsSync(mainDbPath)) {
+      sqliteFiles.push(mainDbPath);
+    }
+    
+    // Suche nach weiteren SQLite-Dateien
+    const stateDbDir = path.join(ROOT_DIR, '.wrangler', 'state', 'v3', 'd1', 'miniflare-D1DatabaseObject');
+    if (fs.existsSync(stateDbDir)) {
+      try {
+        const stateFiles = fs.readdirSync(stateDbDir);
+        for (const file of stateFiles) {
+          if (file.endsWith('.sqlite')) {
+            sqliteFiles.push(path.join(stateDbDir, file));
+          }
+        }
+      } catch (error) {
+        console.warn(`Konnte Verzeichnis ${stateDbDir} nicht lesen:`, error);
+      }
+    }
+    
+    // Schreibe SQL in eine temporäre Datei
+    const tempSQLPath = path.join(os.tmpdir(), `test_user_${Date.now()}.sql`);
+    fs.writeFileSync(tempSQLPath, insertUserSQL);
+    
+    // Führe SQL für jede gefundene SQLite-Datei aus
+    let successCount = 0;
+    for (const dbPath of sqliteFiles) {
+      try {
+        execSync(`cat ${tempSQLPath} | sqlite3 ${dbPath}`, { stdio: 'inherit' });
+        console.log(`✅ Test-Benutzer in ${dbPath} erstellt/aktualisiert`);
+        successCount++;
+      } catch (error) {
+        console.error(`❌ Fehler beim Erstellen des Test-Benutzers in ${dbPath}:`, error);
+      }
+    }
+    
+    // Lösche die temporäre Datei
+    fs.unlinkSync(tempSQLPath);
+    
+    if (successCount > 0) {
+      console.log(`\n✅ Test-Benutzer erfolgreich erstellt/aktualisiert!`);
+      console.log('Login-Daten für lokale Entwicklung:');
+      console.log('  E-Mail:    test@example.com');
+      console.log('  Passwort:  password123');
+    } else {
+      console.error('❌ Konnte Test-Benutzer nicht erstellen.');
+    }
+  } catch (error) {
+    console.error('❌ Fehler beim Erstellen des Test-Benutzers:', error);
+  }
+}
 // Hauptfunktion
 async function main() {
-  console.clear();
-  console.log(chalk.cyan(logo));
-  console.log(chalk.yellow('=== Evolution Hub Onboarding ==='));
-  console.log('');
-  console.log(chalk.green('Willkommen beim Evolution Hub Onboarding-Prozess!'));
-  console.log('Dieses Skript führt Sie durch die Einrichtung Ihrer Entwicklungsumgebung.');
-  console.log('');
+  console.log('🚀 Starte Einrichtung der lokalen Entwicklungsumgebung...');
+
+  // 1. Lokale D1-Datenbank erstellen
+  await createLocalD1Database();
+
+  // 2. Datenbankmigrationen ausführen
+  await runDatabaseMigrations();
+
+  // 3. Lokalen R2-Bucket erstellen
+  await createLocalR2Bucket();
+
+  // 4. Lokalen KV-Namespace erstellen
+  await createLocalKVNamespace();
   
-  await checkDependencies();
-  await setupEnvironment();
-  await setupShellAliases();
-  await showDocumentation();
+  // 5. Test-Benutzer erstellen
+  await createTestUser();
+
+  console.log('\n✅ Lokale Entwicklungsumgebung wurde erfolgreich eingerichtet!');
   
-  console.log('');
-  console.log(chalk.green('✅ Onboarding abgeschlossen!'));
-  console.log('');
-  console.log(chalk.yellow('Nächste Schritte:'));
-  console.log('1. Starten Sie das interaktive Menü mit: ' + chalk.cyan('npm run menu'));
-  console.log('2. Oder starten Sie direkt den Entwicklungsserver mit: ' + chalk.cyan('npm run dev'));
-  console.log('3. Schauen Sie sich die Dokumentation unter ' + chalk.cyan('./docs/') + ' an');
-  console.log('');
+  console.log('\nSie können jetzt den lokalen Entwicklungsserver starten mit:')
+  console.log('  npm run dev');
   
-  rl.close();
+  console.log('\nOder mit Verbindung zu Remote-Ressourcen:')
+  console.log('  npm run dev:remote');
 }
 
 // Überprüfe, ob alle Abhängigkeiten installiert sind

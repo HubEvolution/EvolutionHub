@@ -5,6 +5,9 @@ import { sensitiveActionLimiter } from '@/lib/rate-limiter';
 import { applySecurityHeaders } from '@/lib/security-headers';
 import { logPasswordReset, logAuthFailure } from '@/lib/security-logger';
 
+// Diese API-Route sollte nicht prerendered werden, da sie Request-Header benötigt
+export const prerender = false;
+
 interface PasswordResetToken {
   id: string;
   user_id: string;

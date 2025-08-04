@@ -1,10 +1,10 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
-import { POST } from './index';
+import { GET } from '../../../src/pages/api/dashboard/activity';
 import * as rateLimiter from '@/lib/rate-limiter';
 import * as securityHeaders from '@/lib/security-headers';
 import * as securityLogger from '@/lib/security-logger';
 
-describe('Projects API Tests', () => {
+describe('Dashboard Activity API Tests', () => {
   // Mock für die Security-Module
   beforeEach(() => {
     vi.mock('@/lib/rate-limiter', () => ({
@@ -24,9 +24,6 @@ describe('Projects API Tests', () => {
       logApiAccess: vi.fn(),
       logAuthFailure: vi.fn(),
     }));
-
-    // Korrigiertes Mock für crypto.randomUUID
-    vi.spyOn(crypto, 'randomUUID').mockImplementation(() => 'mock-uuid');
   });
   
   afterEach(() => {
@@ -42,11 +39,11 @@ describe('Projects API Tests', () => {
         }
       },
       clientAddress: '192.168.1.1',
-      url: new URL('https://example.com/api/projects'),
+      url: new URL('https://example.com/api/dashboard/activity'),
     };
     
     // API-Aufruf
-    const response = await POST(context as any);
+    const response = await GET(context as any);
     
     // Überprüfungen
     expect(response.status).toBe(401);
@@ -62,120 +59,77 @@ describe('Projects API Tests', () => {
       '192.168.1.1',
       expect.objectContaining({
         reason: 'unauthenticated_access',
-        endpoint: '/api/projects'
+        endpoint: '/api/dashboard/activity'
       })
     );
   });
 
-  it('sollte 400 zurückgeben, wenn der Titel fehlt', async () => {
+  it('sollte Aktivitäten zurückgeben und 200 zurückgeben', async () => {
     // Mock-Benutzerdaten
     const mockUser = {
       sub: 'user-123',
       email: 'test@example.com',
       name: 'Test User',
-    };
-    
-    // Mock für request.json()
-    const mockRequest = {
-      json: vi.fn().mockResolvedValue({
-        description: 'Test description'
-        // Kein Titel
-      })
-    };
-    
-    // Mock-Context mit authentifiziertem Benutzer
-    const context = {
-      request: mockRequest,
-      locals: {
-        runtime: {
-          env: {},
-          user: mockUser
-        }
-      },
-      clientAddress: '192.168.1.1',
-      url: new URL('https://example.com/api/projects'),
-    };
-    
-    // API-Aufruf
-    const response = await POST(context as any);
-    
-    // Überprüfungen
-    expect(response.status).toBe(400);
-    
-    // Response-Body überprüfen
-    const responseText = await response.text();
-    const responseData = JSON.parse(responseText);
-    expect(responseData.error).toBe('Title is required');
-    
-    // Überprüfen, ob Security-Features angewendet wurden
-    expect(securityHeaders.applySecurityHeaders).toHaveBeenCalled();
-    expect(securityLogger.logAuthFailure).toHaveBeenCalledWith(
-      mockUser.sub,
-      expect.objectContaining({
-        reason: 'validation_failed',
-        endpoint: '/api/projects'
-      })
-    );
-  });
-
-  it('sollte ein neues Projekt erstellen und 201 zurückgeben', async () => {
-    // Mock-Benutzerdaten
-    const mockUser = {
-      sub: 'user-123',
-      email: 'test@example.com',
-      name: 'Test User',
-    };
-    
-    // Mock für request.json()
-    const mockRequest = {
-      json: vi.fn().mockResolvedValue({
-        title: 'Test Project',
-        description: 'Test description'
-      })
     };
     
     // Mock für die Datenbank
-    const mockPrepare = vi.fn().mockReturnValue({
-      bind: vi.fn().mockReturnThis()
-    });
+    const mockResults = [
+      {
+        id: 'activity-1',
+        action: 'created project "Test"',
+        created_at: '2023-01-01T12:00:00Z',
+        user: 'Test User',
+        user_image: 'avatar.jpg'
+      },
+      {
+        id: 'activity-2',
+        action: 'updated profile',
+        created_at: '2023-01-02T12:00:00Z',
+        user: 'Test User',
+        user_image: 'avatar.jpg'
+      }
+    ];
     
-    const mockBatch = vi.fn().mockResolvedValue(undefined);
+    const mockAll = vi.fn().mockResolvedValue({ results: mockResults });
+    const mockBind = vi.fn().mockReturnValue({ all: mockAll });
+    const mockPrepare = vi.fn().mockReturnValue({ bind: mockBind });
     
     // Mock-Context mit authentifiziertem Benutzer
     const context = {
-      request: mockRequest,
       locals: {
         runtime: {
           env: {
             DB: {
-              prepare: mockPrepare,
-              batch: mockBatch
+              prepare: mockPrepare
             }
           },
           user: mockUser
         }
       },
       clientAddress: '192.168.1.1',
-      url: new URL('https://example.com/api/projects'),
+      url: new URL('https://example.com/api/dashboard/activity'),
     };
     
     // API-Aufruf
-    const response = await POST(context as any);
+    const response = await GET(context as any);
     
     // Überprüfungen
-    expect(response.status).toBe(201);
+    expect(response.status).toBe(200);
     
     // Response-Body überprüfen
     const responseText = await response.text();
     const responseData = JSON.parse(responseText);
-    expect(responseData.id).toBe('mock-uuid');
-    expect(responseData.title).toBe('Test Project');
-    expect(responseData.description).toBe('Test description');
-    expect(responseData.user_id).toBe(mockUser.sub);
+    expect(responseData).toHaveLength(2);
+    expect(responseData[0].id).toBe('activity-1');
+    expect(responseData[0].action).toBe('created project "Test"');
+    expect(responseData[0].user).toBe('Test User');
+    expect(responseData[0].timestamp).toBe('2023-01-01T12:00:00Z');
+    expect(responseData[0].icon).toBe('✨');
     
-    // Überprüfen, ob Datenbankoperationen aufgerufen wurden
-    expect(mockPrepare).toHaveBeenCalledTimes(2);
-    expect(mockBatch).toHaveBeenCalledTimes(1);
+    // Überprüfen, ob Datenbankabfrage korrekt ausgeführt wurde
+    expect(mockPrepare).toHaveBeenCalled();
+    expect(mockBind).toHaveBeenCalledWith(mockUser.sub);
+    expect(mockAll).toHaveBeenCalled();
     
     // Überprüfen, ob Security-Features angewendet wurden
     expect(securityHeaders.applySecurityHeaders).toHaveBeenCalled();
@@ -183,9 +137,9 @@ describe('Projects API Tests', () => {
       mockUser.sub,
       '192.168.1.1',
       expect.objectContaining({
-        endpoint: '/api/projects',
-        method: 'POST',
-        action: 'project_created'
+        endpoint: '/api/dashboard/activity',
+        method: 'GET',
+        action: 'activity_feed_accessed'
       })
     );
   });
@@ -198,44 +152,32 @@ describe('Projects API Tests', () => {
       name: 'Test User',
     };
     
-    // Mock für request.json()
-    const mockRequest = {
-      json: vi.fn().mockResolvedValue({
-        title: 'Test Project',
-        description: 'Test description'
-      })
-    };
-    
     // Mock für die Datenbank mit Fehler
-    const mockPrepare = vi.fn().mockReturnValue({
-      bind: vi.fn().mockReturnThis()
-    });
-    
-    const mockBatch = vi.fn().mockRejectedValue(new Error('Database error'));
+    const mockAll = vi.fn().mockRejectedValue(new Error('Database error'));
+    const mockBind = vi.fn().mockReturnValue({ all: mockAll });
+    const mockPrepare = vi.fn().mockReturnValue({ bind: mockBind });
     
     // Mock-Context mit authentifiziertem Benutzer
     const context = {
-      request: mockRequest,
       locals: {
         runtime: {
           env: {
             DB: {
-              prepare: mockPrepare,
-              batch: mockBatch
+              prepare: mockPrepare
             }
           },
           user: mockUser
         }
       },
       clientAddress: '192.168.1.1',
-      url: new URL('https://example.com/api/projects'),
+      url: new URL('https://example.com/api/dashboard/activity'),
     };
     
     // Spy auf console.error
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     
     // API-Aufruf
-    const response = await POST(context as any);
+    const response = await GET(context as any);
     
     // Überprüfungen
     expect(response.status).toBe(500);
@@ -243,7 +185,7 @@ describe('Projects API Tests', () => {
     // Response-Body überprüfen
     const responseText = await response.text();
     const responseData = JSON.parse(responseText);
-    expect(responseData.error).toBe('Failed to create project');
+    expect(responseData.error).toBe('Internal Server Error');
     
     // Überprüfen, ob Fehler protokolliert wurde
     expect(consoleErrorSpy).toHaveBeenCalled();
@@ -254,7 +196,7 @@ describe('Projects API Tests', () => {
       mockUser.sub,
       expect.objectContaining({
         reason: 'server_error',
-        endpoint: '/api/projects'
+        endpoint: '/api/dashboard/activity'
       })
     );
     
@@ -272,33 +214,29 @@ describe('Projects API Tests', () => {
         name: 'Test User',
       };
       
+      // Mock für die Datenbank
+      const mockAll = vi.fn().mockResolvedValue({ results: [] });
+      const mockBind = vi.fn().mockReturnValue({ all: mockAll });
+      const mockPrepare = vi.fn().mockReturnValue({ bind: mockBind });
+      
       // Mock-Context mit authentifiziertem Benutzer
       const context = {
-        request: {
-          json: vi.fn().mockResolvedValue({
-            title: 'Test Project',
-            description: 'Test description'
-          })
-        },
         locals: {
           runtime: {
             env: {
               DB: {
-                prepare: vi.fn().mockReturnValue({
-                  bind: vi.fn().mockReturnThis()
-                }),
-                batch: vi.fn().mockResolvedValue(undefined)
+                prepare: mockPrepare
               }
             },
             user: mockUser
           }
         },
         clientAddress: '192.168.1.1',
-        url: new URL('https://example.com/api/projects'),
+        url: new URL('https://example.com/api/dashboard/activity'),
       };
       
       // API-Aufruf
-      await POST(context as any);
+      await GET(context as any);
       
       // Überprüfen, ob Rate-Limiting angewendet wurde
       expect(rateLimiter.apiRateLimiter).toHaveBeenCalledWith(context);
@@ -314,27 +252,16 @@ describe('Projects API Tests', () => {
       
       // Mock-Context mit authentifiziertem Benutzer
       const context = {
-        request: {
-          json: vi.fn().mockResolvedValue({
-            title: 'Test Project',
-            description: 'Test description'
-          })
-        },
         locals: {
           runtime: {
             env: {
-              DB: {
-                prepare: vi.fn().mockReturnValue({
-                  bind: vi.fn().mockReturnThis()
-                }),
-                batch: vi.fn().mockResolvedValue(undefined)
-              }
+              DB: {}
             },
             user: mockUser
           }
         },
         clientAddress: '192.168.1.1',
-        url: new URL('https://example.com/api/projects'),
+        url: new URL('https://example.com/api/dashboard/activity'),
       };
       
       // Rate-Limiting-Antwort simulieren
@@ -345,7 +272,7 @@ describe('Projects API Tests', () => {
       vi.spyOn(rateLimiter, 'apiRateLimiter').mockResolvedValueOnce(rateLimitResponse);
       
       // API-Aufruf
-      const response = await POST(context as any);
+      const response = await GET(context as any);
       
       // Überprüfen, ob die Rate-Limit-Antwort zurückgegeben wurde
       expect(response.status).toBe(429);
@@ -359,33 +286,29 @@ describe('Projects API Tests', () => {
         name: 'Test User',
       };
       
+      // Mock für die Datenbank
+      const mockAll = vi.fn().mockResolvedValue({ results: [] });
+      const mockBind = vi.fn().mockReturnValue({ all: mockAll });
+      const mockPrepare = vi.fn().mockReturnValue({ bind: mockBind });
+      
       // Mock-Context mit authentifiziertem Benutzer
       const context = {
-        request: {
-          json: vi.fn().mockResolvedValue({
-            title: 'Test Project',
-            description: 'Test description'
-          })
-        },
         locals: {
           runtime: {
             env: {
               DB: {
-                prepare: vi.fn().mockReturnValue({
-                  bind: vi.fn().mockReturnThis()
-                }),
-                batch: vi.fn().mockResolvedValue(undefined)
+                prepare: mockPrepare
               }
             },
             user: mockUser
           }
         },
         clientAddress: '192.168.1.1',
-        url: new URL('https://example.com/api/projects'),
+        url: new URL('https://example.com/api/dashboard/activity'),
       };
       
       // API-Aufruf
-      await POST(context as any);
+      await GET(context as any);
       
       // Überprüfen, ob Security-Headers angewendet wurden
       expect(securityHeaders.applySecurityHeaders).toHaveBeenCalled();

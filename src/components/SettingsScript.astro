@@ -1,0 +1,58 @@
+---
+// Minimale SettingsScript-Komponente für clientseitige Funktionalität
+---
+
+<script>
+  // Clientseitige Funktionalität für die Account Settings-Seite
+  // Avatar-Upload, Formularvalidierung, Passwort-Stärke-Anzeige, etc.
+  
+  // Avatar-Upload Funktionalität
+  const avatarUpload = document.getElementById('avatar-upload') as HTMLInputElement | null;
+  const avatarPreview = document.getElementById('avatar-preview') as HTMLImageElement | null;
+  const changeAvatarBtn = document.getElementById('change-avatar-btn') as HTMLButtonElement | null;
+  
+  if (changeAvatarBtn && avatarUpload) {
+    changeAvatarBtn.addEventListener('click', () => {
+      avatarUpload.click();
+    });
+    
+    avatarUpload.addEventListener('change', function() {
+      if (this.files && this.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          if (avatarPreview && e.target?.result) {
+            avatarPreview.src = e.target.result as string;
+          }
+        }
+        reader.readAsDataURL(this.files[0]);
+      }
+    });
+  }
+  
+  // Formularvalidierung für Passwortänderung
+  const passwordForm = document.getElementById('password-form') as HTMLFormElement | null;
+  if (passwordForm) {
+    passwordForm.addEventListener('submit', function(e) {
+      const newPassword = document.getElementById('new-password') as HTMLInputElement | null;
+      const confirmPassword = document.getElementById('confirm-password') as HTMLInputElement | null;
+      const passwordErrors = document.getElementById('password-errors') as HTMLDivElement | null;
+      
+      if (newPassword && confirmPassword && passwordErrors) {
+        if (newPassword.value !== confirmPassword.value) {
+          e.preventDefault();
+          passwordErrors.textContent = 'Passwords do not match';
+          return false;
+        }
+        
+        // Einfache Passwort-Stärke-Prüfung
+        if (newPassword.value.length < 8) {
+          e.preventDefault();
+          passwordErrors.textContent = 'Password must be at least 8 characters long';
+          return false;
+        }
+        
+        passwordErrors.textContent = '';
+      }
+    });
+  }
+</script>

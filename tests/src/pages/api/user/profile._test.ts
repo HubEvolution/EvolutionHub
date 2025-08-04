@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
-import { POST } from './profile';
+import { POST } from '../../../src/pages/api/user/profile';
 
 // Mocks für die Security-Module
 vi.mock('@/lib/rate-limiter', () => ({

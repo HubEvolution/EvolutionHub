@@ -1,10 +1,10 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
-import { GET } from './activity';
+import { GET } from '../../../src/pages/api/dashboard/projects';
 import * as rateLimiter from '@/lib/rate-limiter';
 import * as securityHeaders from '@/lib/security-headers';
 import * as securityLogger from '@/lib/security-logger';
 
-describe('Dashboard Activity API Tests', () => {
+describe('Dashboard Projects API Tests', () => {
   // Mock für die Security-Module
   beforeEach(() => {
     vi.mock('@/lib/rate-limiter', () => ({
@@ -39,7 +39,7 @@ describe('Dashboard Activity API Tests', () => {
         }
       },
       clientAddress: '192.168.1.1',
-      url: new URL('https://example.com/api/dashboard/activity'),
+      url: new URL('https://example.com/api/dashboard/projects'),
     };
     
     // API-Aufruf
@@ -59,12 +59,12 @@ describe('Dashboard Activity API Tests', () => {
       '192.168.1.1',
       expect.objectContaining({
         reason: 'unauthenticated_access',
-        endpoint: '/api/dashboard/activity'
+        endpoint: '/api/dashboard/projects'
       })
     );
   });
 
-  it('sollte Aktivitäten zurückgeben und 200 zurückgeben', async () => {
+  it('sollte Projekte zurückgeben und 200 zurückgeben', async () => {
     // Mock-Benutzerdaten
     const mockUser = {
       sub: 'user-123',
@@ -75,18 +75,20 @@ describe('Dashboard Activity API Tests', () => {
     // Mock für die Datenbank
     const mockResults = [
       {
-        id: 'activity-1',
-        action: 'created project "Test"',
-        created_at: '2023-01-01T12:00:00Z',
-        user: 'Test User',
-        user_image: 'avatar.jpg'
+        id: 'project-1',
+        title: 'Test Project 1',
+        description: 'Description 1',
+        progress: 50,
+        status: 'in_progress',
+        lastUpdated: '2023-01-01T12:00:00Z'
       },
       {
-        id: 'activity-2',
-        action: 'updated profile',
-        created_at: '2023-01-02T12:00:00Z',
-        user: 'Test User',
-        user_image: 'avatar.jpg'
+        id: 'project-2',
+        title: 'Test Project 2',
+        description: 'Description 2',
+        progress: 25,
+        status: 'planning',
+        lastUpdated: '2023-01-02T12:00:00Z'
       }
     ];
     
@@ -107,7 +109,7 @@ describe('Dashboard Activity API Tests', () => {
         }
       },
       clientAddress: '192.168.1.1',
-      url: new URL('https://example.com/api/dashboard/activity'),
+      url: new URL('https://example.com/api/dashboard/projects'),
     };
     
     // API-Aufruf
@@ -120,11 +122,10 @@ describe('Dashboard Activity API Tests', () => {
     const responseText = await response.text();
     const responseData = JSON.parse(responseText);
     expect(responseData).toHaveLength(2);
-    expect(responseData[0].id).toBe('activity-1');
-    expect(responseData[0].action).toBe('created project "Test"');
-    expect(responseData[0].user).toBe('Test User');
-    expect(responseData[0].timestamp).toBe('2023-01-01T12:00:00Z');
-    expect(responseData[0].icon).toBe('✨');
+    expect(responseData[0].id).toBe('project-1');
+    expect(responseData[0].title).toBe('Test Project 1');
+    expect(responseData[0].progress).toBe(50);
+    expect(responseData[0].members).toEqual([]);
     
     // Überprüfen, ob Datenbankabfrage korrekt ausgeführt wurde
     expect(mockPrepare).toHaveBeenCalled();
@@ -137,9 +138,10 @@ describe('Dashboard Activity API Tests', () => {
       mockUser.sub,
       '192.168.1.1',
       expect.objectContaining({
-        endpoint: '/api/dashboard/activity',
+        endpoint: '/api/dashboard/projects',
         method: 'GET',
-        action: 'activity_feed_accessed'
+        action: 'projects_accessed',
+        projectCount: 2
       })
     );
   });
@@ -170,7 +172,7 @@ describe('Dashboard Activity API Tests', () => {
         }
       },
       clientAddress: '192.168.1.1',
-      url: new URL('https://example.com/api/dashboard/activity'),
+      url: new URL('https://example.com/api/dashboard/projects'),
     };
     
     // Spy auf console.error
@@ -196,7 +198,7 @@ describe('Dashboard Activity API Tests', () => {
       mockUser.sub,
       expect.objectContaining({
         reason: 'server_error',
-        endpoint: '/api/dashboard/activity'
+        endpoint: '/api/dashboard/projects'
       })
     );
     
@@ -232,7 +234,7 @@ describe('Dashboard Activity API Tests', () => {
           }
         },
         clientAddress: '192.168.1.1',
-        url: new URL('https://example.com/api/dashboard/activity'),
+        url: new URL('https://example.com/api/dashboard/projects'),
       };
       
       // API-Aufruf
@@ -261,7 +263,7 @@ describe('Dashboard Activity API Tests', () => {
           }
         },
         clientAddress: '192.168.1.1',
-        url: new URL('https://example.com/api/dashboard/activity'),
+        url: new URL('https://example.com/api/dashboard/projects'),
       };
       
       // Rate-Limiting-Antwort simulieren
@@ -304,7 +306,7 @@ describe('Dashboard Activity API Tests', () => {
           }
         },
         clientAddress: '192.168.1.1',
-        url: new URL('https://example.com/api/dashboard/activity'),
+        url: new URL('https://example.com/api/dashboard/projects'),
       };
       
       // API-Aufruf

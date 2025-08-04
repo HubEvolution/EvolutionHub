@@ -1,6 +1,5 @@
 ---
 // src/components/dashboard/StatsCard.astro
-import Card from '../ui/Card.astro';
 
 interface Stats {
   projects: number;
@@ -22,7 +21,7 @@ const statsMap = !loading ? [
 ] : [];
 ---
 
-<Card className="p-0 overflow-hidden">
+<div class="relative p-6 rounded-2xl bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-white/10 shadow-sm">
   {loading ? (
     <div class="flex justify-center items-center h-24">
       <div class="lottie-loader w-16 h-16"></div>
@@ -42,4 +41,4 @@ const statsMap = !loading ? [
       ))}
     </div>
   )}
-</Card>
+</div>

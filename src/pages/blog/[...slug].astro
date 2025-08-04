@@ -7,7 +7,8 @@ export async function getStaticPaths() {
     params: { slug: entry.slug }, props: { entry },
   }));
 }
-export const prerender = true;
+// Prerender deaktiviert, da Astro.request.headers in statischem Modus nicht verfügbar ist
+export const prerender = false;
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { blogService } from '../../lib/blog';
 import BlogPostComponent from '../../components/BlogPost.astro';

@@ -14,7 +14,8 @@ type SecurityEventType =
   | 'PERMISSION_DENIED'    // Zugriff verweigert
   | 'RATE_LIMIT_EXCEEDED'  // Rate-Limit überschritten
   | 'SUSPICIOUS_ACTIVITY'  // Verdächtige Aktivität
-  | 'API_ERROR';           // API-Fehler
+  | 'API_ERROR'            // API-Fehler
+  | 'API_ACCESS';          // API-Zugriff
 
 interface SecurityEvent {
   type: SecurityEventType;
@@ -120,4 +121,18 @@ export function logApiError(targetResource: string, error: Error, details: Recor
     errorMessage: error.message, 
     errorStack: error.stack,
   }, { targetResource });
+}
+
+/**
+ * Hilfsfunktion für API-Zugriffe
+ */
+export function logApiAccess(ipAddress: string, userId: string, details: Record<string, any> = {}) {
+  logSecurityEvent('API_ACCESS', details, { ipAddress, userId, targetResource: details.endpoint });
+}
+
+/**
+ * Hilfsfunktion für Authentifizierungsversuche
+ */
+export function logAuthAttempt(ipAddress: string, details: Record<string, any> = {}) {
+  logSecurityEvent('AUTH_FAILURE', details, { ipAddress });
 }

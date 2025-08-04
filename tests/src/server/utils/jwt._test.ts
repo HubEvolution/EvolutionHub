@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, beforeAll, afterAll } from 'vitest';
-import { createJwt, verifyJwt } from './jwt';
+import { createJwt, verifyJwt } from '../../../src/server/utils/jwt';
 import * as honoJwt from 'hono/jwt';
 
 // Mock hono/jwt

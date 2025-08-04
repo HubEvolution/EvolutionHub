@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import Card from '../../components/ui/Card.astro';
+import SettingsScript from '../../components/SettingsScript.astro';
 
 const locals = Astro.locals as any;
 if (!locals.user) {
@@ -29,13 +29,14 @@ const user = locals.user;
 
       <!-- Right Content -->
       <div class="lg:col-span-2 space-y-8">
-        <Card title="Public Profile" id="profile">
-          <form id="profile-form">
+        <div id="profile" class="relative p-6 rounded-2xl overflow-hidden bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-white/10 shadow-sm">
+          <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">Public Profile</h3>
+          <form id="profile-form" method="post">
             <!-- Profile Picture -->
             <div class="flex items-center space-x-4 mb-6">
               <img id="avatar-preview" src={user.image || '/assets/svg/logo.svg'} alt="Avatar" class="w-20 h-20 rounded-full">
               <input type="file" id="avatar-upload" name="avatar" class="hidden" accept="image/*">
-              <button type="button" onclick="document.getElementById('avatar-upload').click()" class="px-4 py-2 text-sm font-medium border rounded-lg">
+              <button type="button" id="change-avatar-btn" class="px-4 py-2 text-sm font-medium border rounded-lg">
                 Change Picture
               </button>
             </div>
@@ -62,9 +63,10 @@ const user = locals.user;
               Save Changes
             </button>
           </form>
-        </Card>
+        </div>
 
-        <Card title="Change Password" id="password">
+        <div id="password" class="relative p-6 rounded-2xl overflow-hidden bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-white/10 shadow-sm">
+          <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">Change Password</h3>
           <form id="password-form">
             <!-- Current Password -->
             <div class="mb-4">
@@ -94,10 +96,12 @@ const user = locals.user;
               Update Password
             </button>
           </form>
-        </Card>
+        </div>
       </div>
     </div>
   </div>
-</BaseLayout>
 
-<script is:inline src="/scripts/settings.ts"></script>
+  <!-- Lade die Settings-Funktionalität über die SettingsScript-Komponente -->
+  <SettingsScript />
+  
+</BaseLayout>

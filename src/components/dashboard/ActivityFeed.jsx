@@ -1,15 +1,21 @@
 import React, { useEffect } from 'react';
 import { useActivityStore } from '../../stores';
-import Card from '../ui/Card.astro';
-import type { ActivityItem } from '../../types/dashboard';
+import CardReact from '../ui/CardReact.jsx';
+// Korrigierte Typdefinition für JSX-Datei
+/* @type {import('../../types/dashboard').ActivityItem} */
 
-interface ActivityFeedProps {
-  initialActivities?: ActivityItem[];
-  title?: string;
-  maxItems?: number;
-}
+/**
+ * @typedef {Object} ActivityFeedProps
+ * @property {import('../../types/dashboard').ActivityItem[]} [initialActivities]
+ * @property {string} [title]
+ * @property {number} [maxItems]
+ */
 
-const ActivityFeed: React.FC<ActivityFeedProps> = ({ 
+/**
+ * @param {ActivityFeedProps} props
+ * @returns {React.ReactElement}
+ */
+const ActivityFeed = ({ 
   initialActivities = [],
   title = 'Recent Activity',
   maxItems = 5
@@ -23,7 +29,11 @@ const ActivityFeed: React.FC<ActivityFeedProps> = ({
     }
   }, [initialActivities]);
 
-  const formatDate = (dateString: string): string => {
+  /**
+   * @param {string} dateString
+   * @returns {string}
+   */
+  const formatDate = (dateString) => {
     const date = new Date(dateString);
     return new Intl.DateTimeFormat('de-DE', {
       month: 'short',
@@ -34,7 +44,7 @@ const ActivityFeed: React.FC<ActivityFeedProps> = ({
   };
 
   return (
-    <Card title={title} className="">
+    <CardReact title={title} className="">
       <div className="space-y-4">
         {activities.length === 0 ? (
           <div className="text-center py-8 text-gray-500 dark:text-gray-400">
@@ -68,7 +78,7 @@ const ActivityFeed: React.FC<ActivityFeedProps> = ({
           </div>
         )}
       </div>
-    </Card>
+    </CardReact>
   );
 };
 

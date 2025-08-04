@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { createSession, validateSession, invalidateSession, type User, type SessionRow } from './auth-v2';
+import { describe, it, expect, vi, beforeEach, afterAll } from 'vitest';
+import { createSession, validateSession, invalidateSession, type User, type SessionRow } from '@/lib/auth-v2';
 
 // Mock für die D1-Datenbank
 const mockDb = {

@@ -3,7 +3,8 @@
   "type": "module",
   "version": "0.0.1",
   "scripts": {
-    "dev": "wrangler pages dev ./dist --d1=DB --r2=R2_AVATARS --kv=SESSION",
+    "dev": "astro dev",
+    "dev:wrangler": "npm run build && cp -r ./dist/_worker.js/assets ./dist/ && wrangler pages dev ./dist --d1=DB --r2=R2_AVATARS --kv=SESSION",
     "dev:remote": "wrangler pages dev ./dist --remote",
     "setup:local": "tsx ./scripts/setup-local-dev.ts",
     "menu": "tsx ./scripts/dev-menu.ts",

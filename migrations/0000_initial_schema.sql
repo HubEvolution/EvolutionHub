@@ -44,10 +44,5 @@ CREATE TABLE comments (
     createdAt TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     approved INTEGER NOT NULL DEFAULT 0 -- Using INTEGER for boolean (0 for false, 1 for true)
 );
--- Sessions Table
-CREATE TABLE sessions (
-    id TEXT PRIMARY KEY,
-    user_id TEXT NOT NULL,
-    expires_at TEXT NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-);
+-- Sessions Table wurde in eine separate Migration verschoben (0001_add_sessions_table.sql)
+-- um Konflikte zu vermeiden

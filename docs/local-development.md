@@ -5,7 +5,7 @@ Diese Dokumentation beschreibt, wie Sie die lokale Entwicklungsumgebung für Evo
 ## Übersicht
 
 Evolution Hub verwendet Cloudflare-Bindings für:
-- **D1**: SQL-Datenbank
+- **D1**: SQL-Datenbank (`.wrangler/d1/miniflare/databases/evolution-hub-main-local.sqlite`)
 - **R2**: Objektspeicher für Dateien (z.B. Avatare)
 - **KV**: Key-Value-Speicher für Sessions
 
@@ -23,6 +23,11 @@ npm run menu
 npm run onboarding
 ```
 
+Das interaktive Menü bietet jetzt ein Untermenü für lokale Entwicklung mit folgenden Optionen:
+- **UI-Entwicklung**: Startet den Astro Dev-Server
+- **Cloudflare-Entwicklung**: Startet den Wrangler Dev-Server
+- **Datenbank zurücksetzen & Migrationen anwenden**: Setzt die lokale Datenbank zurück
+
 ## Einrichtung der lokalen Entwicklungsumgebung
 
 ### 1. Automatische Einrichtung
@@ -39,9 +44,14 @@ npm run db:setup
 
 Dieses Skript führt folgende Aktionen aus:
 - Erstellt eine lokale D1-Datenbank (falls nicht vorhanden)
-- Führt alle Migrations-Dateien aus
+- Führt alle Migrations-Dateien auf ALLE lokalen Datenbanken aus (inkl. Wrangler-spezifische Datenbanken)
 - Erstellt einen lokalen R2-Bucket (falls nicht vorhanden)
 - Erstellt einen lokalen KV-Namespace (falls nicht vorhanden)
+- Erstellt einen Test-Benutzer für die lokale Entwicklung
+
+**Wichtig**: Das Setup-Skript erkennt und aktualisiert automatisch alle Wrangler-Datenbanken in den Verzeichnissen:
+- `.wrangler/d1/miniflare/databases/`
+- `.wrangler/state/v3/d1/miniflare-D1DatabaseObject/`
 
 ### 2. Manuelle Einrichtung
 
@@ -65,15 +75,33 @@ npx wrangler kv:namespace create SESSION_LOCAL
 
 ## Lokale Entwicklung
 
+### Entwicklungs-Modi
+
+Evolution Hub bietet zwei verschiedene lokale Entwicklungs-Modi:
+
+1. **Astro Dev-Server** (`npm run dev`): 
+   - Schnelle UI-Entwicklung mit Hot-Reload
+   - Keine vollständige Cloudflare-Bindings-Integration
+   - Ideal für Frontend-Entwicklung
+
+2. **Wrangler Dev-Server** (`npm run dev:wrangler`): 
+   - Vollständige Cloudflare-Integration mit lokalen Bindings
+   - Langsamer als der Astro Dev-Server
+   - Ideal für Backend-Entwicklung und API-Tests
+
 ### Mit lokalen Ressourcen
 
 Um mit lokalen Kopien der Cloudflare-Bindings zu entwickeln:
 
 ```bash
+# Astro Dev-Server (für UI-Entwicklung)
 npm run dev
+
+# ODER: Wrangler Dev-Server (für Backend-Entwicklung)
+npm run dev:wrangler
 ```
 
-Dieser Befehl startet den lokalen Entwicklungsserver mit den lokalen Ressourcen:
+Diese Befehle starten den lokalen Entwicklungsserver mit den lokalen Ressourcen:
 - Lokale D1-Datenbank
 - Lokaler R2-Bucket
 - Lokaler KV-Namespace
@@ -103,6 +131,26 @@ ehub-remote         # Remote-Entwicklungsserver starten
 ehub-setup          # Lokale Umgebung einrichten
 ehub-onboarding     # Onboarding-Prozess starten
 ```
+
+## Fehlerbehebung
+
+### Problem: "no such table: sessions"
+
+Wenn dieser Fehler auftritt:
+1. Führe `npm run setup:local` aus, um sicherzustellen, dass alle Migrationen auf ALLE Datenbanken angewendet wurden
+2. Überprüfe, ob die Tabelle existiert: `sqlite3 .wrangler/d1/miniflare/databases/evolution-hub-main-local.sqlite ".tables"`
+
+### Problem: Ungestylt/fehlerhaftes UI im Wrangler-Modus
+
+Wenn das UI im Wrangler-Modus nicht korrekt angezeigt wird:
+1. Führe `npm run build` aus, um das Projekt neu zu bauen
+2. Starte den Wrangler-Server neu: `npm run dev:wrangler`
+
+### Problem: Datenbank-Fehler
+
+Bei Problemen mit der Datenbank:
+1. Setze die Datenbank zurück: `npm run setup:local`
+2. Überprüfe die Migrationen auf Syntaxfehler
 
 ## Konfiguration
 

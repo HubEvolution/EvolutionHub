@@ -1,6 +1,13 @@
 # Datenbank-Schema - Evolution Hub
 
-Diese Dokumentation beschreibt das vollständige Datenbankschema des Evolution Hub Projekts. Sie enthält detaillierte Informationen zu allen Tabellen, Beziehungen, Indizes und Constraints sowie ein Entity-Relationship-Diagramm (ERD).
+> **WICHTIG: Diese Dokumentation ist veraltet!**
+> 
+> Die aktuelle und vollständige Dokumentation des Datenbankschemas ist unter [db_schema_update.md](../db_schema_update.md) verfügbar.
+> Bitte verwenden Sie ausschließlich die aktuelle Dokumentation für alle Entwicklungsarbeiten.
+
+## Historische Dokumentation
+
+Die folgende Dokumentation wird nur zu Referenzzwecken beibehalten und sollte nicht mehr für aktive Entwicklung verwendet werden.
 
 ## Inhaltsverzeichnis
 

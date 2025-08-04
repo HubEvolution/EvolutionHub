@@ -1,9 +1,9 @@
 import { getCollection } from 'astro:content';
 
 import { ContentService } from './content';
-import type { 
-  BlogPost, 
-  BlogListOptions, 
+import type {
+  BlogPost,
+  BlogListOptions,
   ProcessedBlogPost,
   PaginatedResult
 } from '../content/types';
@@ -20,16 +20,42 @@ export class BlogService extends ContentService<BlogCollectionEntry> {
   }
 
   /**
+   * Calculates reading time for a given text.
+   * @param text The content to calculate reading time for.
+   * @returns An object containing the reading time text, minutes, time in ms, and word count.
+   */
+  calculateReadingTime(text: string): { text: string; minutes: number; time: number; words: number } {
+    const words = text.split(/\s+/).filter(Boolean);
+    const wordCount = words.length;
+    // Assume an average reading speed of 200 words per minute
+    const minutes = Math.ceil(wordCount / 200);
+    const time = minutes * 60 * 1000; // Time in milliseconds
+
+    let timeText = '';
+    if (minutes === 0) {
+      timeText = 'Less than a minute read';
+    } else if (minutes === 1) {
+      timeText = '1 minute read';
+    } else {
+      timeText = `${minutes} minutes read`;
+    }
+
+    return { text: timeText, minutes, time, words: wordCount };
+  }
+
+
+  /**
    * Process a blog post with additional data like reading time
    */
   processPost(post: BlogCollectionEntry): ProcessedBlogPost {
-    // Calculate reading time if not already set
-    const readingTime = /* post.data.readingTime || this.calculateReadingTime(post.body) */ { text: '5 min read', minutes: 5, time: 300000, words: 1000 };
-    
+    // Calculate reading time dynamically
+    // const readingTime = /* post.data.readingTime || this.calculateReadingTime(post.body) */ { text: '5 min read', minutes: 5, time: 300000, words: 1000 };
+    const readingTime = this.calculateReadingTime(post.body);
+
     // Format dates
     const formattedPubDate = formatDate(post.data.pubDate);
-    const formattedUpdatedDate = post.data.updatedDate 
-      ? formatDate(post.data.updatedDate) 
+    const formattedUpdatedDate = post.data.updatedDate
+      ? formatDate(post.data.updatedDate)
       : undefined;
 
     return {
@@ -89,7 +115,7 @@ export class BlogService extends ContentService<BlogCollectionEntry> {
   async getAllCategories(): Promise<string[]> {
     const posts = await this.getAllPosts();
     const categories = new Set<string>();
-    
+
     posts.forEach(post => {
       if (post.data.category) {
         categories.add(post.data.category);
@@ -105,7 +131,7 @@ export class BlogService extends ContentService<BlogCollectionEntry> {
   async getAllTags(): Promise<{name: string; count: number}[]> {
     const posts = await this.getAllPosts();
     const tagMap = new Map<string, number>();
-    
+
     posts.forEach(post => {
       post.data.tags?.forEach(tag => {
         tagMap.set(tag, (tagMap.get(tag) || 0) + 1);
@@ -148,7 +174,6 @@ export class BlogService extends ContentService<BlogCollectionEntry> {
     return posts.slice(0, limit);
   }
 
-  
 
   /**
    * Generate URL for a blog post
@@ -161,7 +186,7 @@ export class BlogService extends ContentService<BlogCollectionEntry> {
 // Type guard to check if an object is a valid BlogPost
 export function isBlogPost(post: unknown): post is BlogCollectionEntry {
   return (
-    typeof post === 'object' && 
+    typeof post === 'object' &&
     post !== null &&
     'id' in post &&
     'slug' in post &&

@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, beforeEach, afterAll } from 'vitest';
-import { GET, POST } from './logout';
+import { GET, POST } from '@/pages/api/user/logout';
 import * as authModule from '@/lib/auth-v2';
 import * as rateLimiter from '@/lib/rate-limiter';
 import * as securityHeaders from '@/lib/security-headers';
@@ -12,7 +12,8 @@ vi.mock('@/lib/auth-v2', () => ({
 
 // Mocks für Security-Module
 vi.mock('@/lib/rate-limiter', () => ({
-  apiLimiter: vi.fn().mockResolvedValue(null),
+  standardApiLimiter: vi.fn().mockResolvedValue(null),
+  apiRateLimiter: vi.fn().mockResolvedValue(null),
 }));
 
 vi.mock('@/lib/security-headers', () => ({
@@ -57,7 +58,7 @@ describe('Logout API Tests', () => {
   };
 
   // Spy für die Sicherheitsfunktionen
-  let apiLimiterSpy: any;
+  let apiRateLimiterSpy: any;
   let applySecurityHeadersSpy: any;
   let logAuthAttemptSpy: any;
   let logAuthSuccessSpy: any;
@@ -67,7 +68,7 @@ describe('Logout API Tests', () => {
     vi.resetAllMocks();
     
     // Spies für die Sicherheitsfunktionen
-    apiLimiterSpy = vi.spyOn(rateLimiter, 'apiLimiter');
+    apiRateLimiterSpy = vi.spyOn(rateLimiter, 'apiRateLimiter');
     applySecurityHeadersSpy = vi.spyOn(securityHeaders, 'applySecurityHeaders');
     logAuthAttemptSpy = vi.spyOn(securityLogger, 'logAuthAttempt');
     logAuthSuccessSpy = vi.spyOn(securityLogger, 'logAuthSuccess');
@@ -148,7 +149,7 @@ describe('Logout API Tests', () => {
       
       await GET(mockContext as any);
       
-      expect(rateLimiter.apiLimiter).toHaveBeenCalledWith(mockContext);
+      expect(rateLimiter.apiRateLimiter).toHaveBeenCalledWith(mockContext);
     });
     
     it('sollte abbrechen, wenn Rate-Limiting ausgelöst wird', async () => {
@@ -160,7 +161,7 @@ describe('Logout API Tests', () => {
         status: 429, 
         statusText: 'Too Many Requests'
       });
-      apiLimiterSpy.mockResolvedValueOnce(rateLimitResponse);
+      apiRateLimiterSpy.mockResolvedValueOnce(rateLimitResponse);
       
       const response = await GET(mockContext as any);
       

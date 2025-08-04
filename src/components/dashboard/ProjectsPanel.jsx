@@ -1,14 +1,20 @@
 import React, { useEffect } from 'react';
 import { useProjectStore } from '../../stores';
-import Card from '../ui/Card.astro';
-import type { ProjectCard } from '../../types/dashboard';
+import CardReact from '../ui/CardReact.jsx';
+// Korrigierte Typdefinition für JSX-Datei
+/* @type {import('../../types/dashboard').ProjectCard} */
 
-interface ProjectsPanelProps {
-  initialProjects?: ProjectCard[];
-  title?: string;
-}
+/**
+ * @typedef {Object} ProjectsPanelProps
+ * @property {import('../../types/dashboard').ProjectCard[]} [initialProjects]
+ * @property {string} [title]
+ */
 
-const ProjectsPanel: React.FC<ProjectsPanelProps> = ({ 
+/**
+ * @param {ProjectsPanelProps} props
+ * @returns {React.ReactElement}
+ */
+const ProjectsPanel = ({ 
   initialProjects = [],
   title = 'Your Projects'
 }) => {
@@ -24,7 +30,11 @@ const ProjectsPanel: React.FC<ProjectsPanelProps> = ({
     }
   }, [initialProjects]);
 
-  const getStatusColor = (status: string) => {
+  /**
+   * @param {string} status
+   * @returns {string}
+   */
+  const getStatusColor = (status) => {
     switch (status) {
       case 'active':
         return 'bg-green-500';
@@ -39,7 +49,7 @@ const ProjectsPanel: React.FC<ProjectsPanelProps> = ({
     }
   };
 
-  const formatDate = (dateString: string): string => {
+  const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('de-DE', {
       month: 'short',
       day: 'numeric',
@@ -48,7 +58,7 @@ const ProjectsPanel: React.FC<ProjectsPanelProps> = ({
   };
 
   return (
-    <Card title={title} className="">
+    <CardReact title={title} className="">
       <div className="space-y-4">
         {loading ? (
           <div className="flex justify-center items-center h-48">
@@ -137,7 +147,7 @@ const ProjectsPanel: React.FC<ProjectsPanelProps> = ({
           </div>
         )}
       </div>
-    </Card>
+    </CardReact>
   );
 };
 

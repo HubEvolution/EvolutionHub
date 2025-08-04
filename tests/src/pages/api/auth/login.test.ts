@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { POST } from './login';
+import { POST } from '@/pages/api/auth/login';
 import * as authModule from '@/lib/auth-v2';
 import * as bcrypt from 'bcrypt-ts';
 import * as rateLimiter from '@/lib/rate-limiter';

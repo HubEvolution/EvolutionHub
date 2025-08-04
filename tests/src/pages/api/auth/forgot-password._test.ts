@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
-import { POST } from './forgot-password';
+import { POST } from '../../../src/pages/api/auth/forgot-password';
 import { Resend } from 'resend';
 import * as rateLimiter from '@/lib/rate-limiter';
 import * as securityHeaders from '@/lib/security-headers';

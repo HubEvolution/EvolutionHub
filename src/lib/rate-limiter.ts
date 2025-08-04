@@ -152,3 +152,10 @@ export const sensitiveActionLimiter = createRateLimiter({
   windowMs: 60 * 60 * 1000, // 1 Stunde
   name: 'sensitiveAction'
 });
+
+// Für allgemeine API-Endpunkte (30 Anfragen pro Minute)
+export const apiRateLimiter = createRateLimiter({
+  maxRequests: 30,
+  windowMs: 60 * 1000, // 1 Minute
+  name: 'api'
+});

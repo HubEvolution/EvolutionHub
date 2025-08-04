@@ -41,7 +41,7 @@ export default defineConfig({
     },
     
     // Test file patterns
-    include: ['src/**/*.{test,spec}.{ts,tsx}'],
+    include: ['src/**/*.{test,spec}.{ts,tsx}', 'tests/src/**/*.{test,spec,_test}.{ts,tsx}'],
     
     // Environment variables
     env: {

@@ -1,14 +1,25 @@
 import React, { useEffect } from 'react';
 import { useNotificationStore } from '../../stores';
-import Card from '../ui/Card.astro';
-import type { Notification } from '../../types/dashboard';
+import CardReact from '../ui/CardReact.jsx';
+/**
+ * @typedef {Object} Notification
+ * @property {string} id
+ * @property {string} message
+ * @property {string} type
+ * @property {string} timestamp
+ */
 
-interface NotificationsProps {
-  initialNotifications?: Notification[];
-  title?: string;
-}
+/**
+ * @typedef {Object} NotificationsProps
+ * @property {Notification[]} [initialNotifications]
+ * @property {string} [title]
+ */
 
-const Notifications: React.FC<NotificationsProps> = ({ 
+/**
+ * @param {NotificationsProps} props
+ * @returns {React.ReactElement}
+ */
+const Notifications = ({ 
   initialNotifications = [],
   title = 'Notifications'
 }) => {
@@ -21,7 +32,11 @@ const Notifications: React.FC<NotificationsProps> = ({
     }
   }, [initialNotifications]);
 
-  const getIconForType = (type: string) => {
+  /**
+   * @param {string} type
+   * @returns {string}
+   */
+  const getIconForType = (type) => {
     switch (type) {
       case 'comment': return '💬';
       case 'mention': return '@';
@@ -31,7 +46,7 @@ const Notifications: React.FC<NotificationsProps> = ({
   };
 
   return (
-    <Card title={title}>
+    <CardReact title={title}>
       <div className="space-y-4">
         {notifications.length === 0 ? (
           <div className="text-center py-8 text-gray-500 dark:text-gray-400">
@@ -51,7 +66,7 @@ const Notifications: React.FC<NotificationsProps> = ({
           ))
         )}
       </div>
-    </Card>
+    </CardReact>
   );
 };
 

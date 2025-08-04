@@ -1,14 +1,27 @@
 import React, { useEffect } from 'react';
 import { useQuickActionStore } from '../../stores';
-import Card from '../ui/Card.astro';
-import type { QuickAction } from '../../types/dashboard';
+import CardReact from '../ui/CardReact.jsx';
+/**
+ * @typedef {Object} QuickAction
+ * @property {string} id
+ * @property {string} title
+ * @property {string} description
+ * @property {string} icon
+ * @property {string} action
+ * @property {string} [variant]
+ */
 
-interface QuickActionsProps {
-  initialActions?: QuickAction[];
-  title?: string;
-}
+/**
+ * @typedef {Object} QuickActionsProps
+ * @property {QuickAction[]} [initialActions]
+ * @property {string} [title]
+ */
 
-const QuickActions: React.FC<QuickActionsProps> = ({ 
+/**
+ * @param {QuickActionsProps} props
+ * @returns {React.ReactElement}
+ */
+const QuickActions = ({ 
   initialActions = [],
   title = 'Quick Actions'
 }) => {
@@ -21,9 +34,13 @@ const QuickActions: React.FC<QuickActionsProps> = ({
     }
   }, [initialActions]);
 
-  const getVariantClasses = (variant: string = 'primary'): string => {
+  /**
+   * @param {string} [variant='primary']
+   * @returns {string}
+   */
+  const getVariantClasses = (variant = 'primary') => {
     const base = 'p-3 rounded-lg flex items-center justify-center text-xl transition-all';
-    const variants: Record<string, string> = {
+    const variants = {
       primary: 'bg-blue-500/10 text-blue-500 dark:bg-blue-500/10 dark:text-blue-400',
       secondary: 'bg-gray-500/10 text-gray-600 dark:bg-gray-500/10 dark:text-gray-400',
       success: 'bg-green-500/10 text-green-600 dark:bg-green-500/10 dark:text-green-400',
@@ -32,12 +49,15 @@ const QuickActions: React.FC<QuickActionsProps> = ({
     return `${base} ${variants[variant] || variants.primary}`;
   };
 
-  const handleActionClick = async (actionName: string) => {
+  /**
+   * @param {string} actionName
+   */
+  const handleActionClick = async (actionName) => {
     await executeAction(actionName);
   };
 
   return (
-    <Card title={title}>
+    <CardReact title={title}>
       <div className="grid grid-cols-2 gap-3">
         {actions.length === 0 ? (
           <div className="col-span-full text-center py-4 text-gray-500 dark:text-gray-400">
@@ -69,7 +89,7 @@ const QuickActions: React.FC<QuickActionsProps> = ({
           ))
         )}
       </div>
-    </Card>
+    </CardReact>
   );
 };
 

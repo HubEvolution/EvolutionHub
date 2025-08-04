@@ -1,6 +1,6 @@
 -- Migration to add the notifications table
 
-CREATE TABLE notifications (
+CREATE TABLE IF NOT EXISTS notifications (
   id TEXT PRIMARY KEY,
   user_id TEXT NOT NULL,
   message TEXT NOT NULL,

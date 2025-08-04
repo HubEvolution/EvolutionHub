@@ -4,7 +4,7 @@ const { title } = Astro.props;
 ---
 <BaseLayout {title} hideNewsletter={true}>
   {/* Astro wird dieses Skript korrekt in den HTML-Head der finalen Seite einfügen */}
-  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+  <!-- Turnstile-Skript entfernt -->
   
   {/* Dieses Div befindet sich innerhalb des <main>-Elements von BaseLayout.
        'h-full' sorgt dafür, dass es die volle Höhe des <main>-Containers (der durch flex-grow wächst)

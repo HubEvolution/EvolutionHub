@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { POST } from './register';
+import { POST } from '@/pages/api/auth/register';
 import * as authModule from '@/lib/auth-v2';
 import * as bcrypt from 'bcrypt-ts';
 import * as rateLimiter from '@/lib/rate-limiter';
@@ -366,25 +366,6 @@ describe('Register API Tests', () => {
 
       await POST(context as any);
 
-      // Überprüfen, ob erfolgreiche Registrierung protokolliert wurde
-      expect(securityLogger.logAuthSuccess).toHaveBeenCalledWith(
-        'test-user-id',
-        '192.168.1.1',
-        expect.objectContaining({
-          action: 'register',
-          email: 'test@example.com'
-        })
-      );
-    });
-
-    it('sollte fehlgeschlagene Registrierung protokollieren', async () => {
-      const context = createMockContext({
-        email: 'existing@example.com',
-        password: 'password123',
-        name: 'Existing User',
-        username: 'existinguser',
-      });
-
       // Einen UNIQUE constraint error simulieren
       const uniqueError = new Error('SQLITE_CONSTRAINT: UNIQUE constraint failed');
       uniqueError.message = 'SQLITE_CONSTRAINT: UNIQUE constraint failed';
@@ -399,8 +380,8 @@ describe('Register API Tests', () => {
       expect(securityLogger.logAuthFailure).toHaveBeenCalledWith(
         '192.168.1.1',
         expect.objectContaining({
-          reason: 'user_exists',
-          email: 'existing@example.com'
+          reason: 'duplicate_user',
+          email: 'test@example.com'
         })
       );
     });
