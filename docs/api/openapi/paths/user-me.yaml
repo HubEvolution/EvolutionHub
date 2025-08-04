@@ -1,0 +1,34 @@
+get:
+  tags:
+    - users
+  summary: Eigene Benutzerdaten abrufen
+  description: |
+    Gibt die Daten des aktuell angemeldeten Benutzers zurück.
+    Diese Route ist durch Authentifizierung geschützt und gibt nur whitelistete Felder zurück.
+  operationId: getCurrentUser
+  responses:
+    '200':
+      description: Erfolgreicher Abruf der Benutzerdaten
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              user:
+                $ref: '../schemas.yaml#/User'
+          example:
+            user:
+              id: 550e8400-e29b-41d4-a716-446655440000
+              email: user@example.com
+              name: John Doe
+              roles: ["user"]
+              created_at: "2023-01-01T00:00:00Z"
+              updated_at: "2023-01-01T00:00:00Z"
+    '401':
+      $ref: '../../openapi.yaml#/components/responses/Unauthorized'
+    '429':
+      $ref: '../../openapi.yaml#/components/responses/TooManyRequests'
+    '500':
+      $ref: '../../openapi.yaml#/components/responses/InternalServerError'
+  security:
+    - cookieAuth: []

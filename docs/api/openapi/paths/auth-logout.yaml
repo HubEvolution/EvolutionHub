@@ -1,0 +1,30 @@
+post:
+  tags:
+    - auth
+  summary: Benutzerabmeldung
+  description: |
+    Beendet die aktuelle Benutzersitzung und löscht das Auth-Cookie.
+  operationId: logoutUser
+  responses:
+    '200':
+      description: Erfolgreiche Abmeldung
+      headers:
+        Set-Cookie:
+          schema:
+            type: string
+            example: auth-token=; HttpOnly; Secure; SameSite=Strict; Max-Age=0
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas.yaml#/SuccessResponse'
+          example:
+            message: Erfolgreich abgemeldet
+    '401':
+      $ref: '../../openapi.yaml#/components/responses/Unauthorized'
+    '429':
+      $ref: '../../openapi.yaml#/components/responses/TooManyRequests'
+    '500':
+      $ref: '../../openapi.yaml#/components/responses/InternalServerError'
+  security:
+    - cookieAuth: []
+    - csrfToken: []

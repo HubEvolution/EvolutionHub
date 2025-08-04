@@ -6,6 +6,16 @@ Dieses Dokument beschreibt die API-Endpunkte für das Benutzer-Dashboard.
 
 Alle Endpunkte erfordern eine Authentifizierung über einen JWT, der im `Authorization`-Header als `Bearer <token>` übergeben wird.
 
+## Security-Features
+
+Alle Dashboard-API-Endpunkte sind mit folgenden Sicherheitsmaßnahmen ausgestattet:
+
+* **Rate-Limiting:** 50 Anfragen pro Minute (standardApiLimiter)
+* **Security-Headers:** Alle Standard-Security-Headers werden angewendet
+* **Audit-Logging:** Alle API-Zugriffe werden protokolliert
+* **Input-Validierung:** Alle Eingabeparameter werden validiert und sanitisiert
+* **Benutzer-Filterung:** Daten werden nur für den authentifizierten Benutzer zurückgegeben
+
 ---
 
 ## 1. Projekte
@@ -17,6 +27,7 @@ Ruft eine Liste aller Projekte ab, die dem authentifizierten Benutzer zugeordnet
 * **HTTP-Methode:** `GET`
 * **Pfad:** `/api/dashboard/projects`
 * **Handler-Funktion:** `getProjects` in `dashboard.handler.ts`
+* **Security:** Rate-Limiting (50/min), Security-Headers, Audit-Logging, Benutzer-Filterung
 
 #### Beispielhafte Antwort (`200 OK`)
 
@@ -56,6 +67,7 @@ Ruft eine Liste der letzten Aktivitäten des authentifizierten Benutzers ab.
 * **HTTP-Methode:** `GET`
 * **Pfad:** `/api/dashboard/activities`
 * **Handler-Funktion:** `getActivities` in `dashboard.handler.ts`
+* **Security:** Rate-Limiting (50/min), Security-Headers, Audit-Logging, Benutzer-Filterung
 
 #### Beispielhafte Antwort (`200 OK`)
 

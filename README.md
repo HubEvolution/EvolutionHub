@@ -19,7 +19,9 @@ Eine Full-Stack-Webanwendung, die eine Sammlung von Entwickler-Tools bereitstell
 - <img src="public/assets/svg/deployment.svg" alt="Serverless Icon" height="15"> **Serverless-Backend:** Läuft auf [Cloudflare Pages](https://pages.cloudflare.com/) mit Cloudflare D1 als Datenbank.
 - <img src="public/assets/svg/features.svg" alt="Auth Icon" height="15"> **Authentifizierung:** Sichere Authentifizierung mit E-Mail und Passwort, einschließlich Registrierung, Login und einer "Passwort vergessen"-Funktion.
 - <img src="public/assets/svg/features.svg" alt="Profile Icon" height="15"> **Profilverwaltung:** Benutzer können ihr Profil bearbeiten, einschließlich Name, Passwort und Avatar-Upload.
+- <img src="public/assets/svg/security.svg" alt="Security Icon" height="15"> **API-Sicherheit:** Umfassende Sicherheitsmaßnahmen für alle API-Endpunkte, einschließlich Rate-Limiting, Security-Headers und Audit-Logging.
 - <img src="public/assets/svg/features.svg" alt="UI/UX Icon" height="15"> **UI/UX-Verbesserungen:** Ein modernes Benutzererlebnis durch ein Benachrichtigungssystem (Toasts), Lottie-Animationen und sanfte Scroll-Effekte.
+- <img src="public/assets/svg/api.svg" alt="API Icon" height="15"> **API-Dokumentation:** Umfassende OpenAPI/Swagger-Spezifikation für alle API-Endpunkte.
 
 ---
 
@@ -34,6 +36,7 @@ Eine Full-Stack-Webanwendung, die eine Sammlung von Entwickler-Tools bereitstell
 - **Animationen:** [Lottie-web](https://airbnb.io/lottie/), [AOS (Animate On Scroll)](https://michalsnik.github.io/aos/)
 - **Benachrichtigungen:** [Toastr](https://github.com/CodeSeven/toastr)
 - **Testing:** [Playwright](https://playwright.dev/) für E2E-Tests, [Vitest](https://vitest.dev/) für Unit-Tests
+- **Sicherheit:** Rate-Limiting, Security-Headers, Audit-Logging, Input-Validierung
 
 ---
 
@@ -202,3 +205,29 @@ Für die Weiterentwicklung der Tests wurden folgende Prioritäten identifiziert:
    - Dashboard-APIs
 
 > **Hinweis:** Detaillierte Informationen zur Testausführung, bekannten Problemen, Coverage-Analyse und Verbesserungsvorschlägen finden sich in der [SETUP.md](./SETUP.md#tests-ausführen)
+
+---
+
+## <img src="public/assets/svg/security.svg" alt="Security Icon" height="20"> API-Sicherheit
+
+Evolution Hub implementiert umfassende Sicherheitsmaßnahmen für alle API-Endpunkte:
+
+### Implementierte Security-Features
+
+- **Rate-Limiting:** Schutz vor Brute-Force- und DoS-Angriffen mit konfigurierbaren Zeitfenstern und Limits
+- **Security-Headers:** Umfassende HTTP-Header zur Minimierung von Web-Sicherheitsrisiken
+- **Audit-Logging:** Zentrales Logging-System für sicherheitsrelevante Ereignisse
+- **Input-Validierung:** Strenge Validierung und Sanitisierung aller Benutzereingaben
+- **Datenschutz:** Whitelist-Filterung sensibler Daten und sichere Passwort-Hashing-Verfahren
+
+### Security-Features nach API-Kategorie
+
+| API-Kategorie | Rate-Limiting | Security-Headers | Audit-Logging | Input-Validierung |
+|---------------|--------------|------------------|---------------|-------------------|
+| Auth-APIs | ✅ (10/min) | ✅ | ✅ | ✅ |
+| User-APIs | ✅ (50/min) | ✅ | ✅ | ✅ |
+| Projekt-APIs | ✅ (50/min) | ✅ | ✅ | ✅ |
+| Dashboard-APIs | ✅ (50/min) | ✅ | ✅ | ✅ |
+| Öffentliche APIs | ✅ (50/min) | ✅ | ✅ | ✅ |
+
+> **Hinweis:** Eine detaillierte Dokumentation aller Sicherheitsmaßnahmen, einschließlich endpunktspezifischer Implementierungen und Best Practices, finden Sie in der [SECURITY.md](./SECURITY.md)

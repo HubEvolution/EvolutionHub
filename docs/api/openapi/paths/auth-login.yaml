@@ -1,0 +1,54 @@
+post:
+  tags:
+    - auth
+  summary: Benutzeranmeldung
+  description: |
+    Authentifiziert einen Benutzer mit E-Mail und Passwort und erstellt eine neue Sitzung.
+    Bei erfolgreicher Anmeldung wird ein HTTP-Only-Cookie mit einem JWT-Token gesetzt.
+  operationId: loginUser
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../schemas.yaml#/LoginRequest'
+  responses:
+    '200':
+      description: Erfolgreiche Anmeldung
+      headers:
+        Set-Cookie:
+          schema:
+            type: string
+            example: auth-token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...; HttpOnly; Secure; SameSite=Strict
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              user:
+                $ref: '../schemas.yaml#/User'
+          example:
+            user:
+              id: 550e8400-e29b-41d4-a716-446655440000
+              email: user@example.com
+              name: John Doe
+              roles: ["user"]
+              created_at: "2023-01-01T00:00:00Z"
+              updated_at: "2023-01-01T00:00:00Z"
+    '400':
+      $ref: '../../openapi.yaml#/components/responses/BadRequest'
+    '401':
+      description: Ungültige Anmeldedaten
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas.yaml#/Error'
+          example:
+            error: true
+            message: Ungültige E-Mail oder Passwort
+            status: 401
+    '429':
+      $ref: '../../openapi.yaml#/components/responses/TooManyRequests'
+    '500':
+      $ref: '../../openapi.yaml#/components/responses/InternalServerError'
+  security: []

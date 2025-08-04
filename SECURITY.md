@@ -1,0 +1,320 @@
+# Evolution Hub Security Documentation
+
+![Security Banner](./public/assets/svg/security.svg)
+
+[![Security Status](https://img.shields.io/badge/Security-Enhanced-brightgreen)](https://github.com/LucasBonnerue/evolution-hub)
+[![OWASP Compliant](https://img.shields.io/badge/OWASP-Compliant-blue)](https://owasp.org/www-project-top-ten/)
+
+Diese Dokumentation bietet einen umfassenden Überblick über die Sicherheitsmaßnahmen, die im Evolution Hub implementiert wurden, um die Anwendung vor gängigen Bedrohungen zu schützen.
+
+## Inhaltsverzeichnis
+
+1. [Überblick](#überblick)
+2. [Implementierte Security-Features](#implementierte-security-features)
+   - [Rate-Limiting](#1-rate-limiting)
+   - [Security-Headers](#2-security-headers)
+   - [Audit-Logging](#3-audit-logging)
+   - [Input-Validierung](#4-input-validierung)
+   - [Datenschutz](#5-datenschutz)
+3. [API-Endpunkte und Security-Features](#api-endpunkte-und-security-features)
+   - [Authentifizierungs-APIs](#authentifizierungs-apis)
+   - [Benutzer-APIs](#benutzer-apis)
+   - [Projekt-APIs](#projekt-apis)
+   - [Dashboard-APIs](#dashboard-apis)
+   - [Öffentliche APIs](#öffentliche-apis)
+4. [Sicherheitsrichtlinien](#sicherheitsrichtlinien)
+5. [Bekannte Sicherheitsprobleme](#bekannte-sicherheitsprobleme)
+6. [Empfehlungen für zukünftige Verbesserungen](#empfehlungen-für-zukünftige-verbesserungen)
+
+## Überblick
+
+Evolution Hub implementiert mehrschichtige Sicherheitsmaßnahmen, die auf bewährten Branchenstandards und Best Practices basieren. Die Sicherheitsarchitektur umfasst:
+
+- **Präventive Maßnahmen**: Rate-Limiting, Security-Headers, Input-Validierung
+- **Detektive Maßnahmen**: Umfassendes Audit-Logging, Fehlerprotokollierung
+- **Reaktive Maßnahmen**: Strukturierte Fehlerbehandlung, Benutzerbenachrichtigungen
+
+Alle API-Endpunkte wurden systematisch mit diesen Sicherheitsmaßnahmen ausgestattet und umfassend getestet.
+
+## Implementierte Security-Features
+
+### 1. Rate-Limiting
+
+Ein flexibles Rate-Limiting-System schützt die API vor Brute-Force- und DoS-Angriffen.
+
+#### Technische Details
+
+- **Implementierung**: `src/lib/rate-limiter.ts`
+- **Speicherung**: In-Memory-Store mit konfigurierbaren Zeitfenstern und Anfragelimits
+- **Konfigurierbare Limiter**:
+  - `standardApiLimiter`: 50 Anfragen/Minute für normale API-Endpunkte
+  - `authLimiter`: 10 Anfragen/Minute für Authentifizierungs-Endpunkte
+  - `sensitiveActionLimiter`: 5 Anfragen/Minute für besonders sensible Aktionen
+
+#### Verwendung im Code
+
+```typescript
+import { apiRateLimiter } from '@/lib/rate-limiter';
+
+export const POST: APIRoute = async (context) => {
+  // Rate-Limiting anwenden
+  const rateLimitResponse = await apiRateLimiter(context);
+  if (rateLimitResponse) return rateLimitResponse;
+  
+  // Normale API-Logik...
+}
+```
+
+#### Antwort bei überschrittenem Limit
+
+Wenn ein Client das Rate-Limit überschreitet, erhält er eine strukturierte JSON-Antwort mit HTTP-Status 429:
+
+```json
+{
+  "error": "Rate limit exceeded",
+  "retryAfter": 45
+}
+```
+
+Dazu werden entsprechende HTTP-Header gesetzt:
+
+```
+Status: 429 Too Many Requests
+Content-Type: application/json
+Retry-After: 45
+```
+
+### 2. Security-Headers
+
+Ein umfassendes System zur Anwendung von Sicherheits-HTTP-Headern minimiert gängige Web-Sicherheitsrisiken.
+
+#### Technische Details
+
+- **Implementierung**: `src/lib/security-headers.ts`
+- **Standardisierte Header-Sets**:
+  - `standardSecurityHeaders`: Basis-Sicherheitsheader für alle Antworten
+  - `apiSecurityHeaders`: Erweiterte Header speziell für API-Endpunkte
+- **Implementierte Header**:
+  - Content-Security-Policy
+  - X-Frame-Options
+  - X-Content-Type-Options
+  - X-XSS-Protection
+  - Referrer-Policy
+  - Strict-Transport-Security
+  - Permissions-Policy
+  - Cross-Origin-Opener-Policy
+  - Cross-Origin-Embedder-Policy
+
+#### Verwendung im Code
+
+```typescript
+import { applySecurityHeaders } from '@/lib/security-headers';
+
+export const GET: APIRoute = async (context) => {
+  // Original-Funktionalität aufrufen
+  const response = await originalFunction(context);
+  
+  // Security-Headers anwenden
+  const securedResponse = applySecurityHeaders(response);
+  
+  return securedResponse;
+}
+```
+
+### 3. Audit-Logging
+
+Ein zentrales Security-Audit-Logging-System protokolliert sicherheitsrelevante Ereignisse einheitlich.
+
+#### Technische Details
+
+- **Implementierung**: `src/lib/security-logger.ts`
+- **Event-Typen**:
+  - AUTH_SUCCESS: Erfolgreiche Authentifizierung
+  - AUTH_FAILURE: Fehlgeschlagene Authentifizierung
+  - PASSWORD_RESET: Passwort-Reset-Aktionen
+  - PROFILE_UPDATE: Profilaktualisierungen
+  - PERMISSION_DENIED: Zugriffsverweigerungen
+  - RATE_LIMIT_EXCEEDED: Überschrittene Rate-Limits
+  - SUSPICIOUS_ACTIVITY: Verdächtige Aktivitäten
+  - API_ERROR: API-Fehler mit Sicherheitsrelevanz
+
+#### Verwendung im Code
+
+```typescript
+import { logApiAccess, logAuthFailure } from '@/lib/security-logger';
+
+export const POST: APIRoute = async (context) => {
+  try {
+    // API-Logik...
+    
+    // API-Zugriff protokollieren
+    logApiAccess(userId, clientAddress, {
+      endpoint: '/api/example',
+      method: 'POST',
+      action: 'example_action'
+    });
+    
+    return response;
+  } catch (error) {
+    // Fehler protokollieren
+    logAuthFailure(clientAddress, {
+      reason: 'server_error',
+      endpoint: '/api/example',
+      details: error instanceof Error ? error.message : String(error)
+    });
+    
+    return errorResponse;
+  }
+}
+```
+
+### 4. Input-Validierung
+
+Strenge Input-Validierung schützt vor Injection-Angriffen und Datenmanipulation.
+
+#### Technische Details
+
+- **Implementierung**: Kombiniert mit API-spezifischer Validierungslogik
+- **Validierungstypen**:
+  - Typ-Validierung (TypeScript)
+  - Schema-Validierung (JSON-Schema)
+  - Sanitisierung von Benutzereingaben
+  - Whitelist-Filterung für erlaubte Felder
+
+#### Beispiel für Whitelist-Filterung
+
+```typescript
+// Nur erlaubte Felder in der Antwort zurückgeben
+const safeUserData = {
+  id: user.id,
+  name: user.name,
+  username: user.username,
+  email: user.email,
+  created_at: user.created_at
+};
+
+// Sensible Felder wie password_hash werden nicht zurückgegeben
+return secureJsonResponse({ user: safeUserData }, 200);
+```
+
+### 5. Datenschutz
+
+Maßnahmen zum Schutz sensibler Benutzerdaten.
+
+#### Technische Details
+
+- **Passwort-Hashing**: Sichere Hashing-Algorithmen (bcrypt)
+- **Datenfilterung**: Sensible Daten werden vor der Rückgabe gefiltert
+- **Vermeidung von User-Enumeration**: Konsistente Antworten unabhängig vom Benutzerexistenz-Status
+
+## API-Endpunkte und Security-Features
+
+### Authentifizierungs-APIs
+
+| Endpunkt | Rate-Limit | Security-Headers | Audit-Logging | Input-Validierung | Besondere Maßnahmen |
+|----------|------------|------------------|---------------|-------------------|---------------------|
+| `/api/auth/login` | authLimiter (10/min) | Vollständig | AUTH_SUCCESS, AUTH_FAILURE | Vollständig | Schutz vor Credential-Stuffing |
+| `/api/auth/register` | authLimiter (10/min) | Vollständig | AUTH_SUCCESS, AUTH_FAILURE | Vollständig | Passwort-Komplexitätsprüfung |
+| `/api/auth/forgot-password` | authLimiter (10/min) | Vollständig | PASSWORD_RESET | Vollständig | Anti-User-Enumeration |
+| `/api/auth/reset-password` | authLimiter (10/min) | Vollständig | PASSWORD_RESET | Vollständig | Token-Validierung |
+| `/api/user/logout` | standardApiLimiter (50/min) | Vollständig | AUTH_SUCCESS | Vollständig | Session-Invalidierung |
+
+### Benutzer-APIs
+
+| Endpunkt | Rate-Limit | Security-Headers | Audit-Logging | Input-Validierung | Besondere Maßnahmen |
+|----------|------------|------------------|---------------|-------------------|---------------------|
+| `/api/user/me` | standardApiLimiter (50/min) | Vollständig | API_ACCESS | Vollständig | Whitelist-Filterung sensibler Daten |
+| `/api/user/profile` | sensitiveActionLimiter (5/min) | Vollständig | PROFILE_UPDATE | Vollständig | Username-Kollisionsprüfung |
+
+### Projekt-APIs
+
+| Endpunkt | Rate-Limit | Security-Headers | Audit-Logging | Input-Validierung | Besondere Maßnahmen |
+|----------|------------|------------------|---------------|-------------------|---------------------|
+| `/api/projects` (GET) | standardApiLimiter (50/min) | Vollständig | API_ACCESS | Vollständig | Benutzer-spezifische Filterung |
+| `/api/projects` (POST) | sensitiveActionLimiter (5/min) | Vollständig | API_ACCESS | Vollständig | Berechtigungsprüfung |
+| `/api/projects/:id` | standardApiLimiter (50/min) | Vollständig | API_ACCESS | Vollständig | Eigentümer-Validierung |
+
+### Dashboard-APIs
+
+| Endpunkt | Rate-Limit | Security-Headers | Audit-Logging | Input-Validierung | Besondere Maßnahmen |
+|----------|------------|------------------|---------------|-------------------|---------------------|
+| `/api/dashboard/projects` | standardApiLimiter (50/min) | Vollständig | API_ACCESS | Vollständig | Benutzer-spezifische Filterung |
+| `/api/dashboard/activities` | standardApiLimiter (50/min) | Vollständig | API_ACCESS | Vollständig | Benutzer-spezifische Filterung |
+| `/api/dashboard/perform-action` | sensitiveActionLimiter (5/min) | Vollständig | API_ACCESS | Vollständig | Aktions-Validierung |
+
+### Öffentliche APIs
+
+| Endpunkt | Rate-Limit | Security-Headers | Audit-Logging | Input-Validierung | Besondere Maßnahmen |
+|----------|------------|------------------|---------------|-------------------|---------------------|
+| `/api/comments` | standardApiLimiter (50/min) | Vollständig | API_ACCESS | Vollständig | Content-Filterung |
+| `/api/tools` | standardApiLimiter (50/min) | Vollständig | API_ACCESS | Vollständig | - |
+
+## Sicherheitsrichtlinien
+
+### Passwort-Richtlinien
+
+- Mindestlänge: 8 Zeichen
+- Muss enthalten: Groß- und Kleinbuchstaben, Zahlen, Sonderzeichen
+- Passwort-Hashing: bcrypt mit angemessenem Work-Faktor
+- Keine Wiederverwendung der letzten 3 Passwörter
+
+### Session-Management
+
+- JWT-Sessions nur über HttpOnly-Cookies
+- Keine clientseitige Speicherung von Tokens im localStorage oder sessionStorage
+- Sichere Cookie-Attribute (Secure, SameSite)
+- Session-Timeout nach 24 Stunden Inaktivität
+
+### Fehlerbehandlung
+
+- Keine sensiblen Informationen in Fehlermeldungen
+- Konsistente Fehlerstruktur für alle API-Endpunkte
+- Detaillierte interne Fehlerprotokolle
+- Generische Fehlermeldungen für Benutzer
+
+### Datenschutz
+
+- Minimale Datenspeicherung (nur notwendige Daten)
+- Datenfilterung vor der Rückgabe an den Client
+- Verschlüsselte Übertragung (HTTPS)
+- Regelmäßige Datenlöschung für inaktive Konten
+
+## Bekannte Sicherheitsprobleme
+
+### 1. Unspezifische Fehlerbehandlung bei Password-Reset
+
+**Problem**: Die `forgot-password.ts`-API gibt bei Fehlern oft generische Fehlermeldungen zurück.
+
+**Verbesserung**: Spezifischere Fehlermeldungen für E-Mail-Versandfehler implementieren.
+
+### 2. User-Enumeration-Risiken
+
+**Problem**: Einige APIs könnten durch unterschiedliche Antwortzeiten oder Fehlermeldungen die Existenz von Benutzern preisgeben.
+
+**Verbesserung**: Konsistente Antwortzeiten und Fehlermeldungen unabhängig vom Benutzerexistenz-Status implementieren.
+
+### 3. In-Memory Rate-Limiting
+
+**Problem**: Das aktuelle Rate-Limiting verwendet einen In-Memory-Store, der bei Worker-Neustarts zurückgesetzt wird.
+
+**Verbesserung**: Persistente Rate-Limiting-Lösung mit Cloudflare KV oder D1 implementieren.
+
+## Empfehlungen für zukünftige Verbesserungen
+
+### Kurzfristige Verbesserungen
+
+1. **Rate-Limiting-Persistenz**: Umstellung des In-Memory-Stores auf eine persistente Lösung (D1)
+2. **Erweiterte Logging-Analyse**: Implementierung eines Dashboards zur Überwachung von Sicherheitsereignissen
+3. **Spezifischere Fehlerbehandlung**: Verbesserung der Fehlerbehandlung für kritische APIs
+
+### Mittelfristige Verbesserungen
+
+1. **Zwei-Faktor-Authentifizierung**: Implementierung von 2FA für erhöhte Kontosicherheit
+2. **Geolocation-basiertes Blocking**: Blockieren von verdächtigen IP-Ranges und Regionen
+3. **Automatisierte Security-Scans**: Integration von OWASP ZAP oder ähnlichen Tools in die CI/CD-Pipeline
+
+### Langfristige Verbesserungen
+
+1. **Security-Monitoring-System**: Echtzeit-Überwachung und Benachrichtigung bei verdächtigen Aktivitäten
+2. **Erweiterte Berechtigungsmodelle**: Feinkörnigere Zugriffskontrollen und Rollenbasierte Berechtigungen
+3. **Regelmäßige Penetrationstests**: Externe Sicherheitsüberprüfungen durch Experten

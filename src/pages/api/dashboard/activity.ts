@@ -1,11 +1,44 @@
 import type { APIRoute } from 'astro';
+import { apiRateLimiter } from '@/lib/rate-limiter';
+import { applySecurityHeaders } from '@/lib/security-headers';
+import { logApiAccess, logAuthFailure } from '@/lib/security-logger';
 
-export const GET: APIRoute = async ({ locals }) => {
-  const { env, user } = locals.runtime;
+/**
+ * GET /api/dashboard/activity
+ * Ruft die Aktivitäten des authentifizierten Benutzers ab.
+ * 
+ * Security-Features:
+ * - Rate-Limiting: Begrenzt die Anzahl der API-Aufrufe pro Zeiteinheit
+ * - Security-Headers: Setzt wichtige Sicherheits-Header
+ * - Audit-Logging: Protokolliert alle API-Zugriffe und Authentifizierungsfehler
+ */
+export const GET: APIRoute = async (context) => {
+  // Rate-Limiting anwenden
+  const rateLimitResponse = await apiRateLimiter(context);
+  if (rateLimitResponse) return rateLimitResponse;
   
+  const { locals } = context;
+  const { env, user } = locals.runtime;
+  const clientAddress = context.clientAddress || '0.0.0.0';
+  const endpoint = context.url ? context.url.pathname : '/api/dashboard/activity';
 
+  // Wenn kein Benutzer authentifiziert ist, 401 zurückgeben und Fehler protokollieren
   if (!user) {
-    return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
+    const response = new Response(JSON.stringify({ error: 'Unauthorized' }), { 
+      status: 401,
+      headers: { 'Content-Type': 'application/json' }
+    });
+    
+    // Security-Headers anwenden
+    const securedResponse = applySecurityHeaders(response);
+    
+    // Fehlgeschlagene Authentifizierung protokollieren
+    logAuthFailure(clientAddress, {
+      reason: 'unauthenticated_access',
+      endpoint
+    });
+    
+    return securedResponse;
   }
 
   const userId = user.sub;
@@ -30,9 +63,42 @@ export const GET: APIRoute = async ({ locals }) => {
         color: "text-purple-400"
     }));
 
-    return new Response(JSON.stringify(activityFeed), { status: 200 });
+    // Erfolgreiche Antwort erstellen
+    const response = new Response(JSON.stringify(activityFeed), { 
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }
+    });
+    
+    // Security-Headers anwenden
+    const securedResponse = applySecurityHeaders(response);
+    
+    // API-Zugriff protokollieren
+    logApiAccess(userId, clientAddress, {
+      endpoint,
+      method: 'GET',
+      action: 'activity_feed_accessed'
+    });
+    
+    return securedResponse;
   } catch (e) {
     console.error(e);
-    return new Response(JSON.stringify({ error: 'Internal Server Error' }), { status: 500 });
+    
+    // Fehlerantwort erstellen
+    const response = new Response(JSON.stringify({ error: 'Internal Server Error' }), { 
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
+    
+    // Security-Headers anwenden
+    const securedResponse = applySecurityHeaders(response);
+    
+    // Serverfehler protokollieren
+    logAuthFailure(user.sub, {
+      reason: 'server_error',
+      endpoint,
+      details: e instanceof Error ? e.message : String(e)
+    });
+    
+    return securedResponse;
   }
 };

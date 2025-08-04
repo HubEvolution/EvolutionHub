@@ -1,0 +1,148 @@
+openapi: 3.0.3
+info:
+  title: Evolution Hub API
+  description: |
+    API-Dokumentation für das Evolution Hub Projekt.
+    Diese API ermöglicht die Interaktion mit Benutzerkonten, Projekten, Kommentaren und Tools.
+  version: 1.0.0
+  contact:
+    name: Evolution Hub Team
+    url: https://hub-evolution.pages.dev
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://hub-evolution.pages.dev/api
+    description: Produktionsserver
+  - url: http://localhost:3000/api
+    description: Lokaler Entwicklungsserver
+
+tags:
+  - name: auth
+    description: Authentifizierung und Autorisierung
+  - name: users
+    description: Benutzerverwaltung
+  - name: projects
+    description: Projektverwaltung
+  - name: comments
+    description: Kommentare zu Projekten
+  - name: tools
+    description: Werkzeuge für Projekte
+
+paths:
+  /auth/login:
+    $ref: './openapi/paths/auth-login.yaml'
+  /auth/register:
+    $ref: './openapi/paths/auth-register.yaml'
+  /auth/logout:
+    $ref: './openapi/paths/auth-logout.yaml'
+  /auth/forgot-password:
+    $ref: './openapi/paths/auth-forgot-password.yaml'
+  /auth/reset-password:
+    $ref: './openapi/paths/auth-reset-password.yaml'
+  /user/me:
+    $ref: './openapi/paths/user-me.yaml'
+  /user/profile:
+    $ref: './openapi/paths/user-profile.yaml'
+  /projects:
+    $ref: './openapi/paths/projects.yaml'
+  /projects/{id}:
+    $ref: './openapi/paths/projects-id.yaml'
+  /projects/{id}/comments:
+    $ref: './openapi/paths/projects-id-comments.yaml'
+  /comments/{id}:
+    $ref: './openapi/paths/comments-id.yaml'
+  /tools:
+    $ref: './openapi/paths/tools.yaml'
+  /tools/{id}:
+    $ref: './openapi/paths/tools-id.yaml'
+
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: auth-token
+    csrfToken:
+      type: apiKey
+      in: header
+      name: X-CSRF-Token
+
+  schemas:
+    $ref: './openapi/schemas.yaml'
+
+  responses:
+    Unauthorized:
+      description: Nicht authentifiziert
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: true
+            message: Nicht authentifiziert
+            status: 401
+    
+    Forbidden:
+      description: Nicht autorisiert
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: true
+            message: Nicht autorisiert
+            status: 403
+    
+    NotFound:
+      description: Ressource nicht gefunden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: true
+            message: Ressource nicht gefunden
+            status: 404
+    
+    BadRequest:
+      description: Ungültige Anfrage
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: true
+            message: Ungültige Anfrage
+            status: 400
+    
+    TooManyRequests:
+      description: Zu viele Anfragen
+      headers:
+        Retry-After:
+          schema:
+            type: integer
+          description: Sekunden bis zum nächsten erlaubten Versuch
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: true
+            message: Zu viele Anfragen. Bitte versuchen Sie es später erneut.
+            status: 429
+    
+    InternalServerError:
+      description: Interner Serverfehler
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: true
+            message: Interner Serverfehler
+            status: 500
+
+security:
+  - cookieAuth: []

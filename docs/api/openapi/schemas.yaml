@@ -1,0 +1,337 @@
+User:
+  type: object
+  properties:
+    id:
+      type: string
+      format: uuid
+      description: Eindeutige Benutzer-ID
+    email:
+      type: string
+      format: email
+      description: E-Mail-Adresse des Benutzers
+    name:
+      type: string
+      description: Anzeigename des Benutzers
+    roles:
+      type: array
+      items:
+        type: string
+        enum: [user, admin]
+      description: Benutzerrollen
+    created_at:
+      type: string
+      format: date-time
+      description: Erstellungszeitpunkt
+    updated_at:
+      type: string
+      format: date-time
+      description: Letzter Aktualisierungszeitpunkt
+  required:
+    - id
+    - email
+    - name
+    - roles
+    - created_at
+    - updated_at
+
+UserPublic:
+  type: object
+  properties:
+    id:
+      type: string
+      format: uuid
+      description: Eindeutige Benutzer-ID
+    name:
+      type: string
+      description: Anzeigename des Benutzers
+  required:
+    - id
+    - name
+
+UserProfile:
+  type: object
+  properties:
+    name:
+      type: string
+      description: Anzeigename des Benutzers
+  required:
+    - name
+
+Project:
+  type: object
+  properties:
+    id:
+      type: string
+      format: uuid
+      description: Eindeutige Projekt-ID
+    name:
+      type: string
+      description: Projektname
+    description:
+      type: string
+      description: Projektbeschreibung
+    user_id:
+      type: string
+      format: uuid
+      description: ID des Projekterstellers
+    is_public:
+      type: boolean
+      description: Gibt an, ob das Projekt öffentlich ist
+    created_at:
+      type: string
+      format: date-time
+      description: Erstellungszeitpunkt
+    updated_at:
+      type: string
+      format: date-time
+      description: Letzter Aktualisierungszeitpunkt
+    user:
+      $ref: '#/UserPublic'
+  required:
+    - id
+    - name
+    - user_id
+    - is_public
+    - created_at
+    - updated_at
+
+ProjectCreate:
+  type: object
+  properties:
+    name:
+      type: string
+      description: Projektname
+    description:
+      type: string
+      description: Projektbeschreibung
+    is_public:
+      type: boolean
+      description: Gibt an, ob das Projekt öffentlich ist
+  required:
+    - name
+
+ProjectUpdate:
+  type: object
+  properties:
+    name:
+      type: string
+      description: Projektname
+    description:
+      type: string
+      description: Projektbeschreibung
+    is_public:
+      type: boolean
+      description: Gibt an, ob das Projekt öffentlich ist
+
+Comment:
+  type: object
+  properties:
+    id:
+      type: string
+      format: uuid
+      description: Eindeutige Kommentar-ID
+    content:
+      type: string
+      description: Kommentarinhalt
+    project_id:
+      type: string
+      format: uuid
+      description: ID des zugehörigen Projekts
+    user_id:
+      type: string
+      format: uuid
+      description: ID des Kommentarerstellers
+    created_at:
+      type: string
+      format: date-time
+      description: Erstellungszeitpunkt
+    updated_at:
+      type: string
+      format: date-time
+      description: Letzter Aktualisierungszeitpunkt
+    user:
+      $ref: '#/UserPublic'
+  required:
+    - id
+    - content
+    - project_id
+    - user_id
+    - created_at
+    - updated_at
+
+CommentCreate:
+  type: object
+  properties:
+    content:
+      type: string
+      description: Kommentarinhalt
+  required:
+    - content
+
+CommentUpdate:
+  type: object
+  properties:
+    content:
+      type: string
+      description: Kommentarinhalt
+  required:
+    - content
+
+Tool:
+  type: object
+  properties:
+    id:
+      type: string
+      format: uuid
+      description: Eindeutige Werkzeug-ID
+    name:
+      type: string
+      description: Werkzeugname
+    description:
+      type: string
+      description: Werkzeugbeschreibung
+    icon:
+      type: string
+      description: Icon-Pfad oder -Name
+    created_at:
+      type: string
+      format: date-time
+      description: Erstellungszeitpunkt
+    updated_at:
+      type: string
+      format: date-time
+      description: Letzter Aktualisierungszeitpunkt
+  required:
+    - id
+    - name
+    - created_at
+    - updated_at
+
+ToolCreate:
+  type: object
+  properties:
+    name:
+      type: string
+      description: Werkzeugname
+    description:
+      type: string
+      description: Werkzeugbeschreibung
+    icon:
+      type: string
+      description: Icon-Pfad oder -Name
+  required:
+    - name
+
+ToolUpdate:
+  type: object
+  properties:
+    name:
+      type: string
+      description: Werkzeugname
+    description:
+      type: string
+      description: Werkzeugbeschreibung
+    icon:
+      type: string
+      description: Icon-Pfad oder -Name
+
+LoginRequest:
+  type: object
+  properties:
+    email:
+      type: string
+      format: email
+      description: E-Mail-Adresse des Benutzers
+    password:
+      type: string
+      format: password
+      description: Passwort des Benutzers
+  required:
+    - email
+    - password
+
+RegisterRequest:
+  type: object
+  properties:
+    email:
+      type: string
+      format: email
+      description: E-Mail-Adresse des Benutzers
+    password:
+      type: string
+      format: password
+      description: Passwort des Benutzers
+    name:
+      type: string
+      description: Anzeigename des Benutzers
+  required:
+    - email
+    - password
+    - name
+
+ForgotPasswordRequest:
+  type: object
+  properties:
+    email:
+      type: string
+      format: email
+      description: E-Mail-Adresse des Benutzers
+  required:
+    - email
+
+ResetPasswordRequest:
+  type: object
+  properties:
+    token:
+      type: string
+      description: Reset-Token
+    password:
+      type: string
+      format: password
+      description: Neues Passwort
+  required:
+    - token
+    - password
+
+Error:
+  type: object
+  properties:
+    error:
+      type: boolean
+      description: Gibt an, ob ein Fehler aufgetreten ist
+    message:
+      type: string
+      description: Fehlermeldung
+    status:
+      type: integer
+      description: HTTP-Statuscode
+  required:
+    - error
+    - message
+    - status
+
+SuccessResponse:
+  type: object
+  properties:
+    message:
+      type: string
+      description: Erfolgsmeldung
+  required:
+    - message
+
+Pagination:
+  type: object
+  properties:
+    page:
+      type: integer
+      description: Aktuelle Seite
+    limit:
+      type: integer
+      description: Anzahl der Elemente pro Seite
+    total:
+      type: integer
+      description: Gesamtanzahl der Elemente
+  required:
+    - page
+    - limit
+    - total

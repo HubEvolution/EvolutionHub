@@ -1,0 +1,456 @@
+import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
+import { POST } from './perform-action';
+import * as rateLimiter from '@/lib/rate-limiter';
+import * as securityHeaders from '@/lib/security-headers';
+import * as securityLogger from '@/lib/security-logger';
+
+describe('Dashboard Perform-Action API Tests', () => {
+  // Mock für die Security-Module
+  beforeEach(() => {
+    vi.mock('@/lib/rate-limiter', () => ({
+      apiRateLimiter: vi.fn().mockResolvedValue(null),
+    }));
+    
+    vi.mock('@/lib/security-headers', () => ({
+      applySecurityHeaders: vi.fn((response) => {
+        response.headers.set('X-Content-Type-Options', 'nosniff');
+        response.headers.set('X-Frame-Options', 'DENY');
+        response.headers.set('Content-Security-Policy', "default-src 'self'");
+        return response;
+      }),
+    }));
+    
+    vi.mock('@/lib/security-logger', () => ({
+      logApiAccess: vi.fn(),
+      logAuthFailure: vi.fn(),
+    }));
+
+    // Mock für crypto.randomUUID mit spyOn statt direktem Überschreiben
+    vi.spyOn(crypto, 'randomUUID').mockReturnValue('test-uuid-123');
+  });
+  
+  afterEach(() => {
+    vi.resetAllMocks();
+  });
+
+  it('sollte 401 zurückgeben, wenn kein Benutzer authentifiziert ist', async () => {
+    // Mock-Context ohne Benutzer
+    const context = {
+      locals: {},
+      clientAddress: '192.168.1.1',
+      url: new URL('https://example.com/api/dashboard/perform-action'),
+      request: {
+        json: vi.fn().mockResolvedValue({ action: 'create_project' })
+      }
+    };
+    
+    // API-Aufruf
+    const response = await POST(context as any);
+    
+    // Überprüfungen
+    expect(response.status).toBe(401);
+    
+    // Response-Body überprüfen
+    const responseText = await response.text();
+    const responseData = JSON.parse(responseText);
+    expect(responseData.error).toBe('Unauthorized');
+    
+    // Überprüfen, ob Security-Features angewendet wurden
+    expect(securityHeaders.applySecurityHeaders).toHaveBeenCalled();
+    expect(securityLogger.logAuthFailure).toHaveBeenCalledWith(
+      '192.168.1.1',
+      expect.objectContaining({
+        reason: 'unauthenticated_access',
+        endpoint: '/api/dashboard/perform-action'
+      })
+    );
+  });
+
+  it('sollte 400 zurückgeben, wenn die JSON-Anfrage ungültig ist', async () => {
+    // Mock-Benutzerdaten
+    const mockUser = {
+      id: 'user-123',
+      email: 'test@example.com',
+      name: 'Test User',
+    };
+    
+    // Mock-Context mit authentifiziertem Benutzer, aber ungültiger JSON-Anfrage
+    const context = {
+      locals: {
+        user: mockUser,
+        runtime: {
+          env: {}
+        }
+      },
+      clientAddress: '192.168.1.1',
+      url: new URL('https://example.com/api/dashboard/perform-action'),
+      request: {
+        json: vi.fn().mockRejectedValue(new Error('Invalid JSON'))
+      }
+    };
+    
+    // API-Aufruf
+    const response = await POST(context as any);
+    
+    // Überprüfungen
+    expect(response.status).toBe(400);
+    
+    // Response-Body überprüfen
+    const responseText = await response.text();
+    const responseData = JSON.parse(responseText);
+    expect(responseData.error).toBe('Invalid JSON in request body');
+    
+    // Überprüfen, ob Security-Features angewendet wurden
+    expect(securityHeaders.applySecurityHeaders).toHaveBeenCalled();
+    expect(securityLogger.logAuthFailure).toHaveBeenCalledWith(
+      mockUser.id,
+      expect.objectContaining({
+        reason: 'invalid_request',
+        endpoint: '/api/dashboard/perform-action'
+      })
+    );
+  });
+
+  it('sollte ein Projekt erstellen und 200 zurückgeben', async () => {
+    // Mock-Benutzerdaten
+    const mockUser = {
+      id: 'user-123',
+      email: 'test@example.com',
+      name: 'Test User',
+    };
+    
+    // Mock für die Datenbank
+    const mockRun = vi.fn().mockResolvedValue({});
+    const mockBind = vi.fn().mockReturnValue({ run: mockRun });
+    const mockPrepare = vi.fn().mockReturnValue({ bind: mockBind });
+    
+    // Mock-Context mit authentifiziertem Benutzer
+    const context = {
+      locals: {
+        user: mockUser,
+        runtime: {
+          env: {
+            DB: {
+              prepare: mockPrepare
+            }
+          }
+        }
+      },
+      clientAddress: '192.168.1.1',
+      url: new URL('https://example.com/api/dashboard/perform-action'),
+      request: {
+        json: vi.fn().mockResolvedValue({ action: 'create_project' })
+      }
+    };
+    
+    // API-Aufruf
+    const response = await POST(context as any);
+    
+    // Überprüfungen
+    expect(response.status).toBe(200);
+    
+    // Response-Body überprüfen
+    const responseText = await response.text();
+    const responseData = JSON.parse(responseText);
+    expect(responseData.message).toBe('Project created successfully');
+    expect(responseData.projectId).toBe('test-uuid-123');
+    
+    // Überprüfen, ob Datenbankabfrage korrekt ausgeführt wurde
+    expect(mockPrepare).toHaveBeenCalledWith(expect.stringContaining('INSERT INTO projects'));
+    expect(mockBind).toHaveBeenCalledWith('test-uuid-123', mockUser.id, 'New Project', 'A placeholder project.', 'active', 0);
+    expect(mockRun).toHaveBeenCalled();
+    
+    // Überprüfen, ob Security-Features angewendet wurden
+    expect(securityHeaders.applySecurityHeaders).toHaveBeenCalled();
+    expect(securityLogger.logApiAccess).toHaveBeenCalledWith(
+      mockUser.id,
+      '192.168.1.1',
+      expect.objectContaining({
+        endpoint: '/api/dashboard/perform-action',
+        method: 'POST',
+        action: 'create_project',
+        projectId: 'test-uuid-123'
+      })
+    );
+  });
+
+  it('sollte einen Task erstellen und 200 zurückgeben', async () => {
+    // Mock-Benutzerdaten
+    const mockUser = {
+      id: 'user-123',
+      email: 'test@example.com',
+      name: 'Test User',
+    };
+    
+    // Mock für die Datenbank
+    const mockRun = vi.fn().mockResolvedValue({});
+    const mockBind = vi.fn().mockReturnValue({ run: mockRun });
+    const mockPrepare = vi.fn().mockReturnValue({ bind: mockBind });
+    
+    // Mock-Context mit authentifiziertem Benutzer
+    const context = {
+      locals: {
+        user: mockUser,
+        runtime: {
+          env: {
+            DB: {
+              prepare: mockPrepare
+            }
+          }
+        }
+      },
+      clientAddress: '192.168.1.1',
+      url: new URL('https://example.com/api/dashboard/perform-action'),
+      request: {
+        json: vi.fn().mockResolvedValue({ action: 'create_task' })
+      }
+    };
+    
+    // API-Aufruf
+    const response = await POST(context as any);
+    
+    // Überprüfungen
+    expect(response.status).toBe(200);
+    
+    // Response-Body überprüfen
+    const responseText = await response.text();
+    const responseData = JSON.parse(responseText);
+    expect(responseData.message).toBe('Task created successfully');
+    expect(responseData.taskId).toBe('test-uuid-123');
+    
+    // Überprüfen, ob Datenbankabfrage korrekt ausgeführt wurde
+    expect(mockPrepare).toHaveBeenCalledWith(expect.stringContaining('INSERT INTO tasks'));
+    expect(mockBind).toHaveBeenCalledWith('test-uuid-123', mockUser.id, 'New Task', 'pending');
+    expect(mockRun).toHaveBeenCalled();
+    
+    // Überprüfen, ob Security-Features angewendet wurden
+    expect(securityHeaders.applySecurityHeaders).toHaveBeenCalled();
+    expect(securityLogger.logApiAccess).toHaveBeenCalledWith(
+      mockUser.id,
+      '192.168.1.1',
+      expect.objectContaining({
+        endpoint: '/api/dashboard/perform-action',
+        method: 'POST',
+        action: 'create_task',
+        taskId: 'test-uuid-123'
+      })
+    );
+  });
+
+  it('sollte 400 zurückgeben, wenn die Aktion ungültig ist', async () => {
+    // Mock-Benutzerdaten
+    const mockUser = {
+      id: 'user-123',
+      email: 'test@example.com',
+      name: 'Test User',
+    };
+    
+    // Mock-Context mit authentifiziertem Benutzer
+    const context = {
+      locals: {
+        user: mockUser,
+        runtime: {
+          env: {
+            DB: {}
+          }
+        }
+      },
+      clientAddress: '192.168.1.1',
+      url: new URL('https://example.com/api/dashboard/perform-action'),
+      request: {
+        json: vi.fn().mockResolvedValue({ action: 'invalid_action' })
+      }
+    };
+    
+    // API-Aufruf
+    const response = await POST(context as any);
+    
+    // Überprüfungen
+    expect(response.status).toBe(400);
+    
+    // Response-Body überprüfen
+    const responseText = await response.text();
+    const responseData = JSON.parse(responseText);
+    expect(responseData.error).toBe('Invalid action');
+    
+    // Überprüfen, ob Security-Features angewendet wurden
+    expect(securityHeaders.applySecurityHeaders).toHaveBeenCalled();
+    expect(securityLogger.logAuthFailure).toHaveBeenCalledWith(
+      mockUser.id,
+      expect.objectContaining({
+        reason: 'invalid_action',
+        endpoint: '/api/dashboard/perform-action'
+      })
+    );
+  });
+
+  it('sollte 500 zurückgeben, wenn ein Datenbankfehler auftritt', async () => {
+    // Mock-Benutzerdaten
+    const mockUser = {
+      id: 'user-123',
+      email: 'test@example.com',
+      name: 'Test User',
+    };
+    
+    // Mock für die Datenbank mit Fehler
+    const mockRun = vi.fn().mockRejectedValue(new Error('Database error'));
+    const mockBind = vi.fn().mockReturnValue({ run: mockRun });
+    const mockPrepare = vi.fn().mockReturnValue({ bind: mockBind });
+    
+    // Mock-Context mit authentifiziertem Benutzer
+    const context = {
+      locals: {
+        user: mockUser,
+        runtime: {
+          env: {
+            DB: {
+              prepare: mockPrepare
+            }
+          }
+        }
+      },
+      clientAddress: '192.168.1.1',
+      url: new URL('https://example.com/api/dashboard/perform-action'),
+      request: {
+        json: vi.fn().mockResolvedValue({ action: 'create_project' })
+      }
+    };
+    
+    // Spy auf console.error
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    
+    // API-Aufruf
+    const response = await POST(context as any);
+    
+    // Überprüfungen
+    expect(response.status).toBe(500);
+    
+    // Response-Body überprüfen
+    const responseText = await response.text();
+    const responseData = JSON.parse(responseText);
+    expect(responseData.error).toBe('Internal Server Error');
+    
+    // Überprüfen, ob Fehler protokolliert wurde
+    expect(consoleErrorSpy).toHaveBeenCalled();
+    
+    // Überprüfen, ob Security-Features angewendet wurden
+    expect(securityHeaders.applySecurityHeaders).toHaveBeenCalled();
+    expect(securityLogger.logAuthFailure).toHaveBeenCalledWith(
+      mockUser.id,
+      expect.objectContaining({
+        reason: 'server_error',
+        endpoint: '/api/dashboard/perform-action',
+        action: 'create_project'
+      })
+    );
+    
+    // Spy zurücksetzen
+    consoleErrorSpy.mockRestore();
+  });
+
+  // Tests für Security-Features
+  describe('Security-Features', () => {
+    it('sollte Rate-Limiting anwenden', async () => {
+      // Mock-Benutzerdaten
+      const mockUser = {
+        id: 'user-123',
+        email: 'test@example.com',
+        name: 'Test User',
+      };
+      
+      // Mock-Context mit authentifiziertem Benutzer
+      const context = {
+        locals: {
+          user: mockUser,
+          runtime: {
+            env: {
+              DB: {}
+            }
+          }
+        },
+        clientAddress: '192.168.1.1',
+        url: new URL('https://example.com/api/dashboard/perform-action'),
+        request: {
+          json: vi.fn().mockResolvedValue({ action: 'view_docs' })
+        }
+      };
+      
+      // API-Aufruf
+      await POST(context as any);
+      
+      // Überprüfen, ob Rate-Limiting angewendet wurde
+      expect(rateLimiter.apiRateLimiter).toHaveBeenCalledWith(context);
+    });
+    
+    it('sollte abbrechen, wenn Rate-Limiting ausgelöst wird', async () => {
+      // Mock-Benutzerdaten
+      const mockUser = {
+        id: 'user-123',
+        email: 'test@example.com',
+        name: 'Test User',
+      };
+      
+      // Mock-Context mit authentifiziertem Benutzer
+      const context = {
+        locals: {
+          user: mockUser,
+          runtime: {
+            env: {
+              DB: {}
+            }
+          }
+        },
+        clientAddress: '192.168.1.1',
+        url: new URL('https://example.com/api/dashboard/perform-action'),
+        request: {
+          json: vi.fn().mockResolvedValue({ action: 'view_docs' })
+        }
+      };
+      
+      // Rate-Limiting-Antwort simulieren
+      const rateLimitResponse = new Response(null, { 
+        status: 429, 
+        statusText: 'Too Many Requests'
+      });
+      vi.spyOn(rateLimiter, 'apiRateLimiter').mockResolvedValueOnce(rateLimitResponse);
+      
+      // API-Aufruf
+      const response = await POST(context as any);
+      
+      // Überprüfen, ob die Rate-Limit-Antwort zurückgegeben wurde
+      expect(response.status).toBe(429);
+    });
+    
+    it('sollte Security-Headers auf Antworten anwenden', async () => {
+      // Mock-Benutzerdaten
+      const mockUser = {
+        id: 'user-123',
+        email: 'test@example.com',
+        name: 'Test User',
+      };
+      
+      // Mock-Context mit authentifiziertem Benutzer
+      const context = {
+        locals: {
+          user: mockUser,
+          runtime: {
+            env: {
+              DB: {}
+            }
+          }
+        },
+        clientAddress: '192.168.1.1',
+        url: new URL('https://example.com/api/dashboard/perform-action'),
+        request: {
+          json: vi.fn().mockResolvedValue({ action: 'view_docs' })
+        }
+      };
+      
+      // API-Aufruf
+      await POST(context as any);
+      
+      // Überprüfen, ob Security-Headers angewendet wurden
+      expect(securityHeaders.applySecurityHeaders).toHaveBeenCalled();
+    });
+  });
+});
