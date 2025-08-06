@@ -1,0 +1,84 @@
+{
+  "name": "BlogPost",
+  "description": "Represents a blog post entry",
+  "displayField": "title",
+  "fields": [
+    {
+      "id": "title",
+      "name": "Title",
+      "type": "Symbol",
+      "localized": false,
+      "required": true,
+      "validations": []
+    },
+    {
+      "id": "slug",
+      "name": "Slug",
+      "type": "Symbol",
+      "localized": false,
+      "required": true,
+      "validations": [
+        {
+          "unique": true
+        }
+      ]
+    },
+    {
+      "id": "content",
+      "name": "Content",
+      "type": "RichText",
+      "localized": false,
+      "required": false
+    },
+    {
+      "id": "author",
+      "name": "Author",
+      "type": "Symbol",
+      "localized": false,
+      "required": false
+    },
+    {
+      "id": "publishDate",
+      "name": "Publish Date",
+      "type": "Date",
+      "localized": false,
+      "required": false
+    },
+    {
+      "id": "tags",
+      "name": "Tags",
+      "type": "Array",
+      "localized": false,
+      "required": false,
+      "items": {
+        "type": "Symbol"
+      }
+    },
+    {
+      "id": "category",
+      "name": "Category",
+      "type": "Symbol",
+      "localized": false,
+      "required": false
+    },
+    {
+      "id": "image",
+      "name": "Image",
+      "type": "Link",
+      "localized": false,
+      "required": false,
+      "validations": [
+        {
+          "linkContentType": ["Asset"]
+        }
+      ]
+    },
+    {
+      "id": "imageAlt",
+      "name": "Image Alt Text",
+      "type": "Symbol",
+      "localized": false,
+      "required": false
+    }
+  ]
+}

@@ -1,38 +1,52 @@
 ---
-import { getCollection } from 'astro:content';
+// Import getCollection and CollectionEntry directly from 'astro:content' for accurate typing.
+import { getCollection, type CollectionEntry } from 'astro:content';
 
 export async function getStaticPaths() {
+  // Fetch blog entries. Astro's getCollection('blog') returns a typed array
+  // of CollectionEntry<'blog'>.
+  // The previously observed TypeScript error "Der Parameter 'entry' weist implizit einen Typ 'any' auf"
+  // indicated that TypeScript might have had trouble inferring the type of 'entry'
+  // within the map function.
   const blogEntries = await getCollection('blog');
-  return blogEntries.map(entry => ({
+  
+  // Explicitly type 'entry' as CollectionEntry<'blog'> in the map function
+  // to ensure type safety and resolve any potential inference issues.
+  return blogEntries.map((entry: CollectionEntry<'blog'>) => ({
     params: { slug: entry.slug }, props: { entry },
   }));
 }
-// Prerender deaktiviert, da Astro.request.headers in statischem Modus nicht verfügbar ist
+// Prerender deaktiviert, da Astro.request.headers im Code verwendet wird
 export const prerender = false;
-// Import BaseLayout using a relative path to resolve the alias issue
+// Import BaseLayout using a relative path.
 import BaseLayout from '../../layouts/BaseLayout.astro';
-// Correctly import the blogService instance and the BlogCollectionEntry type
+// Import blogService from its module. We no longer need to import BlogCollectionEntry from here
+// as we are importing CollectionEntry directly from 'astro:content'.
 import { blogService, type BlogCollectionEntry } from '../../lib/blog';
 import BlogPostComponent from '../../components/BlogPost.astro';
 import type { ProcessedBlogPost } from '../../content/types';
-// Commented out CommentSection as it was removed earlier
+// Commented out CommentSection as it was removed earlier following user instructions.
+// Commenting out the import for CommentSection as it's no longer used.
 // import CommentSection from '../../components/comments/CommentSection.astro';
 
-// Get slug from URL
+// Get slug from URL parameters
 const { slug } = Astro.params;
 
 if (!slug) {
-  return Astro.redirect('/404');
+  // It's better to return a 404 response directly if slug is missing.
+  return new Response(null, { status: 404, statusText: 'Not Found' });
 }
 
 // Try to load the blog post
 let postData: ProcessedBlogPost | null = null;
-let originalEntry: BlogCollectionEntry | null = null; // Use the imported BlogCollectionEntry type
+// To satisfy TypeScript, originalEntry should be typed as CollectionEntry<'blog'>.
+// We are importing this type from '../../lib/blog' as `BlogCollectionEntry` for this purpose.
+let originalEntry: BlogCollectionEntry | null = null; 
 try {
-  // Use the imported blogService instance directly
+  // Use the imported blogService instance directly.
+  // This call expects getPostBySlug in lib/blog.ts to return an object with 'entry' (of type BlogCollectionEntry) and 'processedData'.
   const result = await blogService.getPostBySlug(slug);
   if (result) {
-    // Assuming getPostBySlug returns an object with 'entry' and 'processedData'
     originalEntry = result.entry;
     postData = result.processedData; // Use processed data for component props
   }
@@ -44,35 +58,42 @@ try {
 
 // If no post data or original entry found, redirect to 404
 if (!postData || !originalEntry) {
+  // This check is important to ensure we have valid data before rendering.
+  // If `getPostBySlug` returns undefined, we should redirect to a 404 page.
   return Astro.redirect('/404');
 }
 
-// Use the render method from the original entry
+// Use the render method from the original entry to get the content component.
 const { Content } = await originalEntry.render();
 
 // Load related posts (based on tags and category)
+// Initialize relatedPosts to an empty array to prevent potential errors if fetching fails.
 let relatedPosts: ProcessedBlogPost[] = [];
 
-if (postData) { // Check processed data for consistency
+// Check if postData is available before attempting to load related posts.
+if (postData) { 
   try {
-    // Pass the original entry to getRelatedPosts for relation logic
+    // Fetch related posts, ensuring originalEntry is non-null.
+    // Using a non-null assertion `!` for originalEntry, as it's checked above.
     const related = await blogService.getRelatedPosts(
-      originalEntry, // Pass the original entry object
+      originalEntry!, 
       {
       limit: 3,
       includeDrafts: import.meta.env.DEV
     });
 
-    // Ensure we have an array and filter out any invalid posts
+    // Process the related posts if the fetch was successful and returned an array.
     if (Array.isArray(related)) {
+      // Filter the related posts to ensure they conform to ProcessedBlogPost structure.
       relatedPosts = related.filter((p): p is ProcessedBlogPost =>
         // Robust check for valid processed post structure
         p && typeof p === 'object' && typeof p.data === 'object' && p.data !== null && 'title' in p.data
       );
     }
   } catch (error) {
+    // Log any errors during related post fetching and default to an empty array.
     console.error('Fehler beim Laden verwandter Beiträge:', error);
-    relatedPosts = [];
+    relatedPosts = []; // Ensure relatedPosts is an empty array in case of error.
   }
 }
 
@@ -120,7 +141,7 @@ const structuredData = {
 };
 ---
 
-<BaseLayout 
+<BaseLayout
   title={title}
   description={description}
   canonical={canonicalUrl.toString()}
@@ -143,7 +164,7 @@ const structuredData = {
 
         {/* Kommentarbereich */}
         {/* CommentSection is removed as per earlier user instructions */}
-        {/* <CommentSection postId={post.slug} /> */}
+        {/* <CommentSection postId={slug} /> Is removed because the component was deleted */}
       </div>
     </div>
   </article>

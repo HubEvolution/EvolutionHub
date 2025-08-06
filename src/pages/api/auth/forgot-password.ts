@@ -1,8 +1,9 @@
 import type { APIContext } from 'astro';
 import { Resend } from 'resend';
 import type { User } from '@/lib/auth-v2';
-import { withApiMiddleware } from '@/lib/api-middleware';
+import { standardApiLimiter } from '@/lib/rate-limiter';
 import { logPasswordReset, logAuthFailure } from '@/lib/security-logger';
+import { createSecureRedirect } from '@/lib/response-helpers';
 
 // Diese API-Route sollte nicht prerendered werden, da sie Request-Header benötigt
 export const prerender = false;
@@ -17,8 +18,17 @@ interface PasswordResetToken {
  * POST /api/auth/forgot-password
  * Sendet eine E-Mail mit einem Passwort-Reset-Link
  * Implementiert Rate-Limiting, Security-Headers und Audit-Logging
+ * 
+ * WICHTIG: Dieser Endpunkt verwendet KEINE API-Middleware, da er Redirects statt JSON zurückgibt!
  */
-export const POST = withApiMiddleware(async (context: APIContext) => {
+export const POST = async (context: APIContext) => {
+  // Rate-Limiting anwenden
+  const rateLimitResponse = await standardApiLimiter(context);
+  if (rateLimitResponse) {
+    return createSecureRedirect('/forgot-password?error=TooManyRequests');
+  }
+
+  try {
   const formData = await context.request.formData();
   const email = formData.get('email');
 
@@ -30,10 +40,7 @@ export const POST = withApiMiddleware(async (context: APIContext) => {
       input: typeof email === 'string' ? email : null
     });
     
-    return new Response(null, {
-      status: 302,
-      headers: { Location: '/forgot-password?error=InvalidEmail' }
-    });
+    return createSecureRedirect('/forgot-password?error=InvalidEmail');
   }
 
   const db = context.locals.runtime.env.DB;
@@ -47,7 +54,7 @@ export const POST = withApiMiddleware(async (context: APIContext) => {
       // Wir speichern die E-Mail absichtlich nicht, um keine User-Enumeration zu ermöglichen
     });
     
-    return await context.redirect('/auth/password-reset-sent', 302);
+    return createSecureRedirect('/auth/password-reset-sent');
   }
 
   const token = crypto.randomUUID();
@@ -74,20 +81,11 @@ export const POST = withApiMiddleware(async (context: APIContext) => {
     tokenId: token
   });
 
-  return await context.redirect('/auth/password-reset-sent', 302);
-}, {
-  // Spezielle Fehlerbehandlung für diesen Endpunkt
-  onError: (context, error) => {
-    // Fehler protokollieren
-    logAuthFailure(context.clientAddress, {
-      reason: 'server_error',
-      error: error instanceof Error ? error.message : String(error),
-      email: context.request.formData ? 'form_data_error' : 'unknown'
-    });
+  return createSecureRedirect('/auth/password-reset-sent');
+  } catch (error) {
+    console.error('Forgot password error:', error);
     
-    return new Response(null, {
-      status: 302,
-      headers: { Location: '/forgot-password?error=UnknownError' }
-    });
+    // Generischer Serverfehler
+    return createSecureRedirect('/forgot-password?error=ServerError');
   }
-});
+};

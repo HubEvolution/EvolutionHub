@@ -1,7 +1,7 @@
 import type { APIContext } from 'astro';
 import type { Notification } from '../../../types/dashboard';
-import { withApiMiddleware, createApiSuccess, createApiError } from '@/lib/api-middleware';
-import { logApiAccess, logAuthFailure } from '@/lib/security-logger';
+import { withAuthApiMiddleware, createApiSuccess, createApiError } from '@/lib/api-middleware';
+import { logUserEvent } from '@/lib/security-logger';
 
 /**
  * GET /api/dashboard/notifications
@@ -12,43 +12,36 @@ import { logApiAccess, logAuthFailure } from '@/lib/security-logger';
  * - Security-Headers: Setzt wichtige Sicherheits-Header
  * - Audit-Logging: Protokolliert alle API-Zugriffe und Fehler
  */
-export const GET = withApiMiddleware(async (context) => {
-  const { locals, clientAddress, url } = context;
+export const GET = withAuthApiMiddleware(async (context) => {
+  const { locals } = context;
   const { env } = locals.runtime;
   const user = locals.user;
-  const endpoint = url ? url.pathname : '/api/dashboard/notifications';
   
   const stmt = env.DB.prepare('SELECT * FROM notifications WHERE user_id = ? ORDER BY created_at DESC LIMIT 10').bind(user.id);
   const { results } = await stmt.all();
   
-  // API-Zugriff protokollieren
-  logApiAccess(user.id, clientAddress, {
-    endpoint,
-    method: 'GET',
-    action: 'notifications_accessed',
+  // Zusätzliche Benutzeraktion protokollieren
+  logUserEvent(user.id, 'notifications_viewed', {
     notificationCount: results.length
   });
   
   return createApiSuccess(results);
 }, {
-  // Erfordert Authentifizierung
-  requireAuth: true,
+  // Zusätzliche Logging-Metadaten
+  logMetadata: { action: 'notifications_accessed' },
   
   // Spezielle Fehlerbehandlung für diesen Endpunkt
   onError: (context, error) => {
-    const { clientAddress, url, locals } = context;
+    const { clientAddress, locals } = context;
     const user = locals.user;
-    const endpoint = url ? url.pathname : '/api/dashboard/notifications';
     
-    console.error('Error fetching notifications:', error);
+    if (user) {
+      logUserEvent(user.id, 'notifications_fetch_error', {
+        error: error instanceof Error ? error.message : String(error),
+        ipAddress: clientAddress
+      });
+    }
     
-    // Serverfehler protokollieren
-    logAuthFailure(user ? user.id : clientAddress, {
-      reason: 'server_error',
-      endpoint,
-      details: error instanceof Error ? error.message : String(error)
-    });
-    
-    return createApiError('Internal Server Error', 500);
+    return createApiError('server_error', 'Error fetching notifications');
   }
 });

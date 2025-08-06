@@ -6,6 +6,8 @@ author: 'Evolution Hub'
 category: 'Mentale Gesundheit'
 tags: ['Digital Detox', 'Achtsamkeit', 'Kreativität', 'Produktivität']
 ---
+image: { src: '/src/content/blog/images/digital-detox-focus.webp', width: 1200, height: 675 }
+imageAlt: 'Person meditiert unter Baum, Smartphone wird von Vögeln davongetragen'
 
 # Digital Detox: Warum Offline-Zeiten deine Kreativität und Konzentration fördern
 

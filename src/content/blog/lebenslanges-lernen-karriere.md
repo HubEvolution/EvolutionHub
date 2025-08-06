@@ -6,6 +6,8 @@ author: 'Evolution Hub'
 category: 'Karriere'
 tags: ['Lernen', 'Karriere', 'Entwicklung', 'Future Skills']
 ---
+image: { src: '/src/content/blog/images/lifelong-learning-career.webp', width: 1200, height: 675 }
+imageAlt: 'Person mit Hut aus Büchern, der auf einer Treppe aus Fähigkeiten steht'
 
 # Lebenslanges Lernen als Superkraft: Warum Neugier deine Karriere beflügelt
 

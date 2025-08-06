@@ -9,13 +9,30 @@
 import type { APIContext } from 'astro';
 import { standardApiLimiter } from '@/lib/rate-limiter';
 import { applySecurityHeaders } from '@/lib/security-headers';
-import { logApiError } from '@/lib/security-logger';
+import { logApiError, logApiAccess } from '@/lib/security-logger';
 
 /**
  * Interface für API-Handler-Funktionen
  */
 export interface ApiHandler {
   (context: APIContext): Promise<Response>;
+}
+
+/**
+ * Optionen für API-Middleware
+ */
+export interface ApiMiddlewareOptions {
+  // Erfordert eine authentifizierte Benutzer-Session
+  requireAuth?: boolean;
+  
+  // Überschreibt die Standard-Fehlerbehandlung
+  onError?: (context: APIContext, error: Error | unknown) => Response | Promise<Response>;
+  
+  // Falls true, wird kein automatisches Logging durchgeführt (z.B. für sensible Endpunkte)
+  disableAutoLogging?: boolean;
+  
+  // Zusätzliche Metadaten für Logging
+  logMetadata?: Record<string, any>;
 }
 
 /**
@@ -110,15 +127,33 @@ export function createApiSuccess<T>(
  * - Rate-Limiting
  * - Security-Headers
  * - Einheitliche Fehlerbehandlung
- * - Logging
+ * - Zentralisiertes Logging
  */
-export function withApiMiddleware(handler: ApiHandler): ApiHandler {
+export function withApiMiddleware(handler: ApiHandler, options: ApiMiddlewareOptions = {}): ApiHandler {
   return async (context: APIContext) => {
+    const { clientAddress, request, locals } = context;
+    const user = locals.user;
+    const path = new URL(request.url).pathname;
+    const method = request.method;
+    
     try {
       // Rate-Limiting anwenden
       const rateLimitResult = await standardApiLimiter(context);
       if (!rateLimitResult.success) {
         return createApiError('rate_limit', 'Zu viele Anfragen. Bitte versuchen Sie es später erneut.');
+      }
+      
+      // API-Zugriff protokollieren (vor Ausführung)
+      if (!options.disableAutoLogging) {
+        logApiAccess(
+          user?.id || 'anonymous', 
+          clientAddress || 'unknown', 
+          {
+            endpoint: path,
+            method,
+            ...options.logMetadata
+          }
+        );
       }
       
       // Handler ausführen
@@ -128,23 +163,34 @@ export function withApiMiddleware(handler: ApiHandler): ApiHandler {
       return applySecurityHeaders(response);
     } catch (error) {
       // Fehlerbehandlung
-      console.error('[API Middleware] Error:', error);
+      console.error(`[API Middleware] Error in ${method} ${path}:`, error);
+      
+      // Benutzerdefinierte Fehlerbehandlung, falls vorhanden
+      if (options.onError) {
+        return options.onError(context, error);
+      }
+      
+      // Standard-Fehlerbehandlung
       
       // Fehler loggen
-      const clientAddress = context.clientAddress || 'unknown';
-      logApiError(clientAddress, {
-        path: new URL(context.request.url).pathname,
-        method: context.request.method,
-        error: error instanceof Error ? error.message : String(error)
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorStack = error instanceof Error ? error.stack : undefined;
+      
+      logApiError(path, {
+        method,
+        userId: user?.id || 'anonymous',
+        ipAddress: clientAddress || 'unknown',
+        error: errorMessage,
+        stack: errorStack,
+        ...options.logMetadata
       });
       
       // Fehlertyp bestimmen
       let errorType: ApiErrorType = 'server_error';
-      let errorMessage = error instanceof Error ? error.message : String(error);
       
       if (errorMessage.includes('UNIQUE constraint failed')) {
         errorType = 'validation_error';
-        errorMessage = 'Diese Ressource existiert bereits';
+        return createApiError(errorType, 'Diese Ressource existiert bereits');
       } else if (errorMessage.includes('not authorized') || errorMessage.includes('unauthorized')) {
         errorType = 'auth_error';
       } else if (errorMessage.includes('not found')) {
@@ -152,7 +198,7 @@ export function withApiMiddleware(handler: ApiHandler): ApiHandler {
       } else if (errorMessage.includes('SQLITE_CONSTRAINT') || errorMessage.includes('database')) {
         errorType = 'db_error';
         // Generische Nachricht für DB-Fehler (keine internen Details preisgeben)
-        errorMessage = 'Datenbankfehler';
+        return createApiError(errorType, 'Datenbankfehler');
       }
       
       return createApiError(errorType, errorMessage);
@@ -164,13 +210,19 @@ export function withApiMiddleware(handler: ApiHandler): ApiHandler {
  * Middleware für authentifizierte API-Endpunkte
  * Erweitert die Standard-API-Middleware um Authentifizierungsprüfung
  */
-export function withAuthApiMiddleware(handler: ApiHandler): ApiHandler {
-  return withApiMiddleware(async (context: APIContext) => {
-    // Prüfen, ob Benutzer authentifiziert ist
-    if (!context.locals.user) {
-      return createApiError('auth_error', 'Für diese Aktion ist eine Anmeldung erforderlich');
-    }
-    
-    return handler(context);
-  });
+export function withAuthApiMiddleware(
+  handler: ApiHandler, 
+  options: Omit<ApiMiddlewareOptions, 'requireAuth'> = {}
+): ApiHandler {
+  return withApiMiddleware(
+    async (context: APIContext) => {
+      // Prüfen, ob Benutzer authentifiziert ist
+      if (!context.locals.user) {
+        return createApiError('auth_error', 'Für diese Aktion ist eine Anmeldung erforderlich');
+      }
+      
+      return handler(context);
+    },
+    { ...options, requireAuth: true }
+  );
 }

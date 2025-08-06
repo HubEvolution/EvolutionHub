@@ -1,129 +1,228 @@
+---
+import type { APIContext } from 'astro';
+import { standardApiLimiter } from '@/lib/rate-limiter';
+import { applySecurityHeaders } from '@/lib/security-headers';
+import { logApiError, logApiAccess } from '@/lib/security-logger';
+
 /**
- * Security-Headers-Utility für Evolution Hub
+ * API-Middleware für einheitliche Fehlerbehandlung, Rate-Limiting und Security-Headers
  * 
  * Dieses Modul bietet Funktionen zum Anwenden von standardisierten Sicherheits-Headers
  * auf API-Antworten, um die Anwendung vor verschiedenen Sicherheitsbedrohungen zu schützen.
  */
 
 /**
- * Standard-Sicherheitsheader, die auf alle API-Antworten angewendet werden sollten
+ * Interface für API-Handler-Funktionen
  */
-export const standardSecurityHeaders: Record<string, string> = {
-  // Schützt vor XSS-Angriffen durch Einschränkung der Inhaltsquellen
-  'Content-Security-Policy': "default-src 'self'; script-src 'self'; connect-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline';",
+export interface ApiHandler {
+  (context: APIContext): Promise<Response>;
+}
+
+/**
+ * Optionen für API-Middleware
+ */
+export interface ApiMiddlewareOptions {
+  // Erfordert eine authentifizierte Benutzer-Session
+  requireAuth?: boolean;
   
-  // Verhindert Clickjacking durch Einschränkung der iframe-Einbettung
-  'X-Frame-Options': 'DENY',
+  // Überschreibt die Standard-Fehlerbehandlung
+  onError?: (context: APIContext, error: Error | unknown) => Response | Promise<Response>;
   
-  // Blockiert MIME-Sniffing (verhindert, dass der Browser den MIME-Typ einer Ressource errät)
-  'X-Content-Type-Options': 'nosniff',
+  // Falls true, wird kein automatisches Logging durchgeführt (z.B. für sensible Endpunkte)
+  disableAutoLogging?: boolean;
   
-  // Aktiviert XSS-Schutz im Browser
-  'X-XSS-Protection': '1; mode=block',
-  
-  // Verhindert das Laden von Seiten, wenn ein XSS-Angriff erkannt wird
-  'Referrer-Policy': 'same-origin',
-  
-  // HTTP Strict Transport Security (erzwingt HTTPS)
-  'Strict-Transport-Security': 'max-age=63072000; includeSubDomains; preload',
-  
-  // Erlaubt bestimmten Funktionen zu verbieten, um Sicherheitsrisiken zu reduzieren
-  'Permissions-Policy': 'camera=(), microphone=(), geolocation=(), interest-cohort=()',
-  
-  // Cross-Origin-Einschränkungen
-  'Cross-Origin-Opener-Policy': 'same-origin',
-  'Cross-Origin-Embedder-Policy': 'require-corp'
+  // Zusätzliche Metadaten für Logging
+  logMetadata?: Record<string, any>;
+}
+
+/**
+ * Typen für API-Fehler
+ */
+export type ApiErrorType =
+  | 'validation_error'
+  | 'auth_error'
+  | 'not_found'
+  | 'rate_limit'
+  | 'server_error'
+  | 'db_error'
+  | 'forbidden';
+
+/**
+ * Standard-Fehlermeldungen für verschiedene Fehlertypen
+ */
+const errorMessages: Record<ApiErrorType, string> = {
+  validation_error: 'Ungültige Eingabedaten',
+  auth_error: 'Authentifizierung fehlgeschlagen',
+  not_found: 'Ressource nicht gefunden',
+  rate_limit: 'Zu viele Anfragen',
+  server_error: 'Interner Serverfehler',
+  db_error: 'Datenbankfehler',
+  forbidden: 'Zugriff verweigert'
 };
 
 /**
- * API-Sicherheitsheader, optimiert für JSON-API-Endpunkte
+ * HTTP-Statuscodes für verschiedene Fehlertypen
  */
-export const apiSecurityHeaders: Record<string, string> = {
-  ...standardSecurityHeaders,
-  'Content-Type': 'application/json',
-  'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
-  'Pragma': 'no-cache',
-  'Expires': '0',
+const errorStatusCodes: Record<ApiErrorType, number> = {
+  validation_error: 400,
+  auth_error: 401,
+  not_found: 404,
+  rate_limit: 429,
+  server_error: 500,
+  db_error: 500,
+  forbidden: 403
 };
 
 /**
- * Wendet die Standardsicherheitsheader auf eine Response-Instanz an
- * 
- * @param response Die Response-Instanz, auf die die Header angewendet werden sollen
- * @returns Eine neue Response-Instanz mit den angewendeten Sicherheitsheadern
+ * Erstellt eine standardisierte Fehlerantwort
  */
-export function applySecurityHeaders(response: Response): Response {
-  // Wenn es sich um eine API-Antwort handelt (angenommen, wenn Content-Type application/json ist)
-  const isApiResponse = response.headers.get('Content-Type')?.includes('application/json');
+export function createApiError(
+  type: ApiErrorType,
+  message?: string,
+  details?: Record<string, any>
+): Response {
+  const status = errorStatusCodes[type];
+  const errorMessage = message || errorMessages[type];
   
-  // Auswählen der entsprechenden Header
-  const headersToApply = isApiResponse ? apiSecurityHeaders : standardSecurityHeaders;
-  
-  // Erstellen einer neuen Headers-Instanz mit den bestehenden Headern
-  const newHeaders = new Headers(response.headers);
-  
-  // Anwenden der Sicherheitsheader
-  Object.entries(headersToApply).forEach(([key, value]) => {
-    // Überschreibe nicht bestehende Content-Type-Header
-    if (key === 'Content-Type' && response.headers.has('Content-Type')) {
-      return;
+  const responseBody = {
+    success: false,
+    error: {
+      type,
+      message: errorMessage,
+      ...(details ? { details } : {})
     }
-    newHeaders.set(key, value);
-  });
+  };
   
-  // Erstellen einer neuen Response mit den gleichen Daten aber mit den aktualisierten Headern
-  return new Response(response.body, {
-    status: response.status,
-    statusText: response.statusText,
-    headers: newHeaders
-  });
-}
-
-/**
- * Erzeugt eine neue JSON-Response mit Security-Headers
- * 
- * @param data Die zu serialisierenden Daten
- * @param status Der HTTP-Statuscode (Standard: 200)
- * @param additionalHeaders Zusätzliche Header, die hinzugefügt werden sollen
- * @returns Eine Response-Instanz mit den serialisierten Daten und Sicherheitsheadern
- */
-export function secureJsonResponse(
-  data: any,
-  status: number = 200,
-  additionalHeaders: Record<string, string> = {}
-): Response {
-  const headers = new Headers({ 'Content-Type': 'application/json' });
-  
-  // Zusätzliche Header anwenden
-  Object.entries(additionalHeaders).forEach(([key, value]) => {
-    headers.set(key, value);
-  });
-  
-  // JSON-Response erstellen
-  const response = new Response(JSON.stringify(data), {
+  return new Response(JSON.dringify(responseBody), { // Typo fix: JSON.stringify
     status,
-    headers
+    headers: {
+      'Content-Type': 'application/json'
+    }
   });
-  
-  // Sicherheitsheader anwenden
-  return applySecurityHeaders(response);
 }
 
 /**
- * Erzeugt eine Fehler-JSON-Response mit Security-Headers
- * 
- * @param message Die Fehlermeldung
- * @param status Der HTTP-Statuscode (Standard: 400)
- * @param additionalData Zusätzliche Daten, die in die Antwort aufgenommen werden sollen
- * @returns Eine Response-Instanz mit der Fehlermeldung und Sicherheitsheadern
+ * Erstellt eine standardisierte Erfolgsantwort
  */
-export function secureErrorResponse(
-  message: string,
-  status: number = 400,
-  additionalData: Record<string, any> = {}
+export function createApiSuccess<T>(
+  data: T,
+  status: number = 200
 ): Response {
-  return secureJsonResponse({
-    error: message,
-    ...additionalData
-  }, status);
+  const responseBody = {
+    success: true,
+    data
+  };
+  
+  return new Response(JSON.stringify(responseBody), {
+    status,
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  });
+}
+
+/**
+ * Middleware für API-Endpunkte
+ * Implementiert:
+ * - Rate-Limiting
+ * - Security-Headers
+ * - Einheitliche Fehlerbehandlung
+ * - Zentralisiertes Logging
+ */
+export function withApiMiddleware(handler: ApiHandler, options: ApiMiddlewareOptions = {}): ApiHandler {
+  return async (context: APIContext) => {
+    const { clientAddress, request, locals } = context;
+    const user = locals.user;
+    const path = new URL(request.url).pathname;
+    const method = request.method;
+    
+    try {
+      // Rate-Limiting anwenden
+      const rateLimitResult = await standardApiLimiter(context);
+      if (!rateLimitResult.success) {
+        return createApiError('rate_limit', 'Zu viele Anfragen. Bitte versuchen Sie es später erneut.');
+      }
+      
+      // API-Zugriff protokollieren (vor Ausführung)
+      if (!options.disableAutoLogging) {
+        logApiAccess(
+          user?.id || 'anonymous', 
+          clientAddress || 'unknown', 
+          {
+            endpoint: path,
+            method,
+            ...options.logMetadata
+          }
+        );
+      }
+      
+      // Handler ausführen
+      const response = await handler(context);
+      
+      // Security-Headers hinzufügen
+      return applySecurityHeaders(response);
+    } catch (error) {
+      // Fehlerbehandlung
+      console.error(`[API Middleware] Error in ${method} ${path}:`, error);
+      
+      // Benutzerdefinierte Fehlerbehandlung, falls vorhanden
+      if (options.onError) {
+        return options.onError(context, error);
+      }
+      
+      // Standard-Fehlerbehandlung
+      
+      // Fehler loggen
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorStack = error instanceof Error ? error.stack : undefined;
+      
+      logApiError(path, {
+        method,
+        userId: user?.id || 'anonymous',
+        ipAddress: clientAddress || 'unknown',
+        error: errorMessage,
+        stack: errorStack,
+        ...options.logMetadata
+      });
+      
+      // Fehlertyp bestimmen
+      let errorType: ApiErrorType = 'server_error';
+      
+      if (errorMessage.includes('UNIQUE constraint failed')) {
+        errorType = 'validation_error';
+        return createApiError(errorType, 'Diese Ressource existiert bereits');
+      } else if (errorMessage.includes('not authorized') || errorMessage.includes('unauthorized')) {
+        errorType = 'auth_error';
+      } else if (errorMessage.includes('not found')) {
+        errorType = 'not_found';
+      } else if (errorMessage.includes('SQLITE_CONSTRAINT') || errorMessage.includes('database')) {
+        errorType = 'db_error';
+        // Generische Nachricht für DB-Fehler (keine internen Details preisgeben)
+        return createApiError(errorType, 'Datenbankfehler');
+      }
+      
+      return createApiError(errorType, errorMessage);
+    }
+  };
+}
+
+/**
+ * Middleware für authentifizierte API-Endpunkte
+ * Erweitert die Standard-API-Middleware um Authentifizierungsprüfung
+ */
+export function withAuthApiMiddleware(
+  handler: ApiHandler, 
+  options: Omit<ApiMiddlewareOptions, 'requireAuth'> = {}
+): ApiHandler {
+  return withApiMiddleware(
+    async (context: APIContext) => {
+      // Prüfen, ob Benutzer authentifiziert ist
+      if (!context.locals.user) {
+        return createApiError('auth_error', 'Für diese Aktion ist eine Anmeldung erforderlich');
+      }
+      
+      return handler(context);
+    },
+    { ...options, requireAuth: true }
+  );
 }

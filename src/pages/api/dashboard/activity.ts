@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
-import { withApiMiddleware, createApiSuccess, createApiError } from '@/lib/api-middleware';
-import { logApiAccess, logAuthFailure } from '@/lib/security-logger';
+import { withAuthApiMiddleware, createApiSuccess, createApiError } from '@/lib/api-middleware';
+import { logUserEvent } from '@/lib/security-logger';
 
 /**
  * GET /api/dashboard/activity
@@ -11,11 +11,10 @@ import { logApiAccess, logAuthFailure } from '@/lib/security-logger';
  * - Security-Headers: Setzt wichtige Sicherheits-Header
  * - Audit-Logging: Protokolliert alle API-Zugriffe und Authentifizierungsfehler
  */
-export const GET = withApiMiddleware(async (context) => {
-  const { locals, clientAddress, url } = context;
+export const GET = withAuthApiMiddleware(async (context) => {
+  const { locals } = context;
   const { env } = locals.runtime;
   const user = locals.user;
-  const endpoint = url ? url.pathname : '/api/dashboard/activity';
 
   const userId = user.id;
 
@@ -38,33 +37,25 @@ export const GET = withApiMiddleware(async (context) => {
       color: "text-purple-400"
   }));
   
-  // API-Zugriff protokollieren
-  logApiAccess(userId, clientAddress, {
-    endpoint,
-    method: 'GET',
-    action: 'activity_feed_accessed'
-  });
+  // Spezifisches Event-Logging wurde zur Middleware migriert
   
   return createApiSuccess(activityFeed);
 }, {
-  // Erfordert Authentifizierung
-  requireAuth: true,
+  // Zusätzliche Logging-Metadaten
+  logMetadata: { action: 'activity_feed_accessed' },
   
   // Spezielle Fehlerbehandlung für diesen Endpunkt
   onError: (context, error) => {
-    const { clientAddress, url, locals } = context;
+    const { clientAddress, locals } = context;
     const user = locals.user;
-    const endpoint = url ? url.pathname : '/api/dashboard/activity';
     
-    console.error('Error fetching activity feed:', error);
+    if (user) {
+      logUserEvent(user.id, 'activity_feed_error', {
+        error: error instanceof Error ? error.message : String(error),
+        ipAddress: clientAddress
+      });
+    }
     
-    // Serverfehler protokollieren
-    logAuthFailure(user ? user.id : clientAddress, {
-      reason: 'server_error',
-      endpoint,
-      details: error instanceof Error ? error.message : String(error)
-    });
-    
-    return createApiError('Internal Server Error', 500);
+    return createApiError('server_error', 'Error fetching activity feed');
   }
 });

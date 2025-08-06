@@ -1,25 +1,21 @@
 import type { APIContext } from 'astro';
-import { withApiMiddleware, createApiSuccess } from '@/lib/api-middleware';
-import { logApiAccess } from '@/lib/security-logger';
+import { withAuthApiMiddleware, createApiSuccess, createApiError } from '@/lib/api-middleware';
+import { logUserEvent } from '@/lib/security-logger';
 
 /**
  * POST /api/user/avatar
  * Lädt ein neues Profilbild hoch und speichert es in R2 Storage
  * Implementiert Rate-Limiting, Security-Headers und Audit-Logging
  */
-export const POST = withApiMiddleware(async (context: APIContext) => {
-  const { locals, clientAddress, url } = context;
+export const POST = withAuthApiMiddleware(async (context: APIContext) => {
+  const { locals, clientAddress } = context;
   const user = locals.user;
-  const endpoint = url ? url.pathname : '/api/user/avatar';
 
   const formData = await context.request.formData();
   const avatarFile = formData.get('avatar');
 
   if (!(avatarFile instanceof File)) {
-    return new Response(JSON.stringify({ error: 'No file uploaded' }), { 
-      status: 400,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    return createApiError('validation_error', 'No file uploaded');
   }
 
   const bucket = locals.runtime.env.R2_AVATARS;
@@ -42,25 +38,28 @@ export const POST = withApiMiddleware(async (context: APIContext) => {
     .bind(imageUrl, user.id)
     .run();
     
-  // API-Zugriff protokollieren
-  logApiAccess(user.id, clientAddress, {
-    endpoint,
-    method: 'POST',
-    action: 'avatar_update'
+  // Avatar-Aktualisierung protokollieren
+  logUserEvent(user.id, 'avatar_updated', {
+    ipAddress: clientAddress
   });
 
   return createApiSuccess({ message: 'Avatar updated successfully', imageUrl });
 }, {
-  // Erfordert Authentifizierung
-  requireAuth: true,
+  // Zusätzliche Logging-Metadaten
+  logMetadata: { action: 'avatar_update' },
   
   // Spezielle Fehlerbehandlung für diesen Endpunkt
   onError: (context, error) => {
-    console.error('Avatar upload error:', error);
+    const { locals, clientAddress } = context;
+    const user = locals.user;
     
-    return new Response(JSON.stringify({ error: 'An unknown error occurred during avatar upload' }), { 
-      status: 500,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    if (user) {
+      logUserEvent(user.id, 'avatar_update_error', {
+        error: error instanceof Error ? error.message : String(error),
+        ipAddress: clientAddress
+      });
+    }
+    
+    return createApiError('server_error', 'An error occurred during avatar upload');
   }
 });

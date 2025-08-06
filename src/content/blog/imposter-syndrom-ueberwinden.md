@@ -6,6 +6,8 @@ author: 'Evolution Hub'
 category: 'Mentale Gesundheit'
 tags: ['Imposter-Syndrom', 'Selbstvertrauen', 'Karriere', 'Mentale Gesundheit']
 ---
+image: { src: '/src/content/blog/images/imposter-syndrome-confidence.webp', width: 1200, height: 675 }
+imageAlt: 'Person überwindet Imposter-Syndrom und zeigt Selbstvertrauen'
 
 # Das Imposter-Syndrom überwinden: 5 Strategien für mehr Selbstvertrauen im Job
 

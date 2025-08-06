@@ -21,8 +21,8 @@ interface Props {
   hideNewsletter?: boolean;
 }
 
-const { 
-  title, 
+const {
+  title,
   description = 'Evolution Hub - Your AI-Powered SaaS Platform',
   ogImage,
   hideNewsletter
@@ -35,7 +35,7 @@ const {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
-    
+
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content={Astro.url.href} />
@@ -43,37 +43,48 @@ const {
     <meta property="og:description" content={description} />
     {ogImage && <meta property="og:image" content={ogImage} />}
      {Astro.props.canonical && <link rel="canonical" href={Astro.props.canonical} />}
-    
+
     <title>{title} | Evolution Hub</title>
-    
+
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    
+
     <!-- Scripts -->
     <script src="/scripts/mobileMenu.js" defer></script>
-    
+
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
+
     <!-- AOS Animation Library CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <!-- Defer loading of AOS CSS -->
+    <link rel="preload" href="https://unpkg.com/aos@next/dist/aos.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css"></noscript>
+
 
     <!-- Toastr Notification Library CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
+    <!-- Defer loading of Toastr CSS -->
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css"></noscript>
+
+    <!-- Cookie Consent CSS -->
+    <!-- Defer loading of Cookie Consent CSS -->
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.css"></noscript>
+
 
     <!-- Global CSS -->
     <style is:global>
       @import '../styles/global.css';
-      
+
       /* Smooth transitions for theme changes */
       html {
         @apply transition-colors duration-200;
       }
     </style>
   </head>
-  
+
   <body class="min-h-screen bg-sky-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 flex flex-col overflow-x-hidden">
       <ThemeProvider />
       <SkipLink />
@@ -81,27 +92,24 @@ const {
       <main id="main-content" class="flex-grow focus:outline-none" tabindex="-1">
         <slot />
       </main>
-    
+
       <Footer hideNewsletter={hideNewsletter} />
-    
-console.log('BaseLayout script initialized and attempting to load.');
+
     <script>
       declare const AOS: any;
       declare const toastr: any;
-
-      type HTMLElementWithFor = HTMLElement & { htmlFor?: string };
 
       const initSmoothScrolling = (): void => {
         document.querySelectorAll<HTMLAnchorElement>('a[href^="#"]').forEach((anchor) => {
           anchor.addEventListener('click', (e: Event) => {
             e.preventDefault();
-            
+
             const targetId = anchor.getAttribute('href');
             if (!targetId) return;
-            
+
             const targetElement = document.querySelector(targetId);
             if (!targetElement) return;
-            
+
             targetElement.scrollIntoView({
               behavior: 'smooth',
               block: 'start'
@@ -140,5 +148,84 @@ console.log('BaseLayout script initialized and attempting to load.');
         import.meta.hot.accept();
       }
     </script>
+    <!-- Cookie Consent JS -->
+    <script src="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.js" defer></script>
+<!-- Cookie Consent Configuration -->
+    <script type="module">
+      // Die `Astro`-Objektvariable ist in Astro-Modulskripten verfügbar.
+      const currentPathname = Astro.url.pathname;
+      // Setzt die Sprache basierend auf dem Pfad
+      const lang = currentPathname.startsWith('/de/') ? 'de' : 'en';
+
+      window.CookieConsent.run({
+        // Konfiguration für die Sprache
+        language: lang,
+
+        // Definition der Cookie-Kategorien
+        categories: {
+          necessary: {
+            label: 'Notwendig', // Text für die Kategorie
+            description: 'Diese Cookies sind für den Betrieb der Webseite essenziell.', // Beschreibung der Kategorie
+            checked: true, // Notwendige Cookies sind standardmäßig aktiviert und können nicht deaktiviert werden
+          },
+          analytics: {
+            label: 'Analyse',
+            description: 'Diese Cookies ermöglichen uns, die Seitennutzung zu analysieren, um Ihr Erlebnis zu verbessern.',
+            checked: false, // Analyse-Cookies sind standardmäßig deaktiviert
+          },
+          marketing: {
+            label: 'Marketing',
+            description: 'Diese Cookies werden verwendet, um personalisierte Werbung basierend auf Ihren Interessen anzuzeigen.',
+            checked: false, // Marketing-Cookies sind standardmäßig deaktiviert
+          },
+        },
+
+        // GUI-Optionen für das Benutzererlebnis
+        guiOptions: {
+          consentFirstInput: true, // Zeigt das Banner sofort beim ersten Laden der Seite an
+        },
+
+        // Konfiguration für das Sparformular
+        saveForm: {
+          enabled: true, // Aktiviert den "Speichern"-Button im Cookie-Banner
+        },
+
+        // Designanpassungen
+        themeColors: {
+          consentButton: '#3b82f6', // Akzeptieren-Button (z.B. Tailwind's blue-500)
+          secondaryButton: '#6b7280', // Ablehnen-Button (z.B. Tailwind's gray-500)
+          border1: '#e5e7eb', // Rahmen des Banners (z.B. Tailwind's border-gray-200)
+        },
+        // Weitere Designoptionen können hier hinzugefügt werden, falls erforderlich.
+      });
+    </script>
+<script>
+  interface CookieConsentEvent extends Event {
+    detail: {
+      analytics?: boolean;
+      marketing?: boolean;
+    };
+  }
+
+  document.addEventListener('cookieconsent:userpreferencesset', function(event: Event) {
+    const cookieEvent = event as CookieConsentEvent;
+    if (cookieEvent.detail.analytics) {
+      // Your analytics script loading logic here
+      console.log('Analytics cookies accepted - loading analytics script');
+      // Hier könnte man ein Analytics-Skript dynamisch laden
+      // const analyticsScript = document.createElement('script');
+      // analytics.src = 'https://analytics.example.com/script.js';
+      // document.head.appendChild(analyticsScript);
+    }
+    if (cookieEvent.detail.marketing) {
+      // Your marketing script loading logic here
+      console.log('Marketing cookies accepted - loading marketing script');
+      // Hier könnte man ein Marketing-Skript dynamisch laden
+      // const marketingScript = document.createElement('script');
+      // marketing.src = 'https://marketing.example.com/script.js';
+      // document.head.appendChild(marketingScript);
+    }
+  });
+</script>
   </body>
 </html>

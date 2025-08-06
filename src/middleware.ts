@@ -69,5 +69,11 @@ export const onRequest = defineMiddleware(async (context, next) => {
     console.log('[Middleware] Set Content-Type to image/svg+xml for SVG file');
   }
   
+// Sicherheits-Header hinzufügen
+  response.headers.set('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com; frame-ancestors 'self'; object-src 'none'; base-uri 'self'; report-uri /csp-report;");
+  response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+  response.headers.set('Cross-Origin-Opener-Policy', 'same-origin');
+  response.headers.set('X-Frame-Options', 'DENY');
+  console.log('[Middleware] Security headers applied.');
   return response;
 });

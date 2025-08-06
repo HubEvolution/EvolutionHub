@@ -1,15 +1,36 @@
 {
-  "extends": "astro/tsconfigs/strict",
+  // "extends": "./.astro/typescript-support.json", // Removed this line as the file does not exist
   "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    // Removed non-relevant JSX options for Astro components.
+    // "jsx": "react",
+    // "jsxImportSource": "react",
     "baseUrl": ".",
     "paths": {
-      "~/*": ["src/*"],
-      "@/*": ["src/*"]
+      "@/*": ["./src/*"],
+      "@api/*": ["./src/pages/api/*"],
+      "@components/*": ["./src/components/*"],
+      "@layouts/*": ["./src/layouts/*"],
+      "@lib/*": ["./src/lib/*"],
+      "@pages/*": ["./src/pages/*"],
+      "@scripts/*": ["./src/scripts/*"],
+      "@styles/*": ["./src/styles/*"],
+      "@types/*": ["./src/types/*"]
     },
-    "jsx": "react-jsx",
-    "jsxImportSource": "react",
+    "types": ["node", "astro/client"],
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true
-  }
-  // Force reload
+    "isolatedModules": true,
+    "noEmit": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "preserveSymlinks": true
+  },
+  "include": ["src"],
+  "exclude": ["node_modules"]
 }

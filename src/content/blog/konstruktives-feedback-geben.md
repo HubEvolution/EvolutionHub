@@ -6,6 +6,8 @@ author: 'Evolution Hub'
 category: 'Kommunikation'
 tags: ['Feedback', 'Kommunikation', 'Teamkultur', 'Wachstum']
 ---
+image: { src: '/src/content/blog/images/constructive-feedback-growth.webp', width: 1200, height: 675 }
+imageAlt: 'Zwei Personen im Gespräch, die Feedback geben und empfangen, symbolisiert Wachstum'
 
 # Feedback ist ein Geschenk: Wie du konstruktive Kritik gibst und annimmst
 

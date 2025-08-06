@@ -1,7 +1,6 @@
 import type { APIRoute } from 'astro';
-import { apiRateLimiter } from '@/lib/rate-limiter';
-import { applySecurityHeaders } from '@/lib/security-headers';
-import { logApiAccess, logAuthFailure } from '@/lib/security-logger';
+import { withApiMiddleware, createApiError } from '@/lib/api-middleware';
+import { logApiAccess } from '@/lib/security-logger';
 import { listTools } from '../../lib/handlers.ts';
 
 /**
@@ -13,48 +12,37 @@ import { listTools } from '../../lib/handlers.ts';
  * - Security-Headers: Setzt wichtige Sicherheits-Header
  * - Audit-Logging: Protokolliert alle API-Zugriffe und Fehler
  */
-export const GET: APIRoute = async (context) => {
-  // Rate-Limiting anwenden
-  const rateLimitResponse = await apiRateLimiter(context);
-  if (rateLimitResponse) return rateLimitResponse;
+export const GET = withApiMiddleware(async (context) => {
+  const { clientAddress } = context;
   
-  const clientAddress = context.clientAddress || '0.0.0.0';
-  const endpoint = context.url ? context.url.pathname : '/api/tools';
+  // Original-Funktionalität aufrufen
+  const response = await listTools(context);
   
-  try {
-    // Original-Funktionalität aufrufen
-    const response = await listTools(context);
-    
-    // Security-Headers anwenden
-    const securedResponse = applySecurityHeaders(response);
-    
-    // API-Zugriff protokollieren
-    logApiAccess(clientAddress, clientAddress, {
-      endpoint,
-      method: 'GET',
-      action: 'list_tools'
-    });
-    
-    return securedResponse;
-  } catch (error) {
-    console.error('Error listing tools:', error);
-    
-    // Fehlerantwort erstellen
-    const errorResponse = new Response(JSON.stringify({ error: 'Internal Server Error' }), { 
-      status: 500,
-      headers: { 'Content-Type': 'application/json' }
-    });
-    
-    // Security-Headers anwenden
-    const securedResponse = applySecurityHeaders(errorResponse);
+  // API-Zugriff protokollieren
+  logApiAccess('anonymous', clientAddress, {
+    endpoint: '/api/tools',
+    action: 'tools_list_accessed'
+  });
+  
+  return response;
+}, {
+  // Keine Authentifizierung erforderlich für öffentliche Tools-Liste
+  requireAuth: false,
+  
+  // Spezielle Fehlerbehandlung für diesen Endpunkt
+  onError: (context, error) => {
+    const { clientAddress } = context;
     
     // Fehler protokollieren
-    logAuthFailure(clientAddress, {
-      reason: 'server_error',
-      endpoint,
-      details: error instanceof Error ? error.message : String(error)
+    logApiAccess('anonymous', clientAddress, {
+      endpoint: '/api/tools',
+      action: 'tools_list_error',
+      error: error instanceof Error ? error.message : String(error)
     });
     
-    return securedResponse;
-  }
-};
+    return createApiError('server_error', 'Error listing tools');
+  },
+  
+  // Zusätzliche Logging-Metadaten
+  logMetadata: { action: 'list_tools' }
+});

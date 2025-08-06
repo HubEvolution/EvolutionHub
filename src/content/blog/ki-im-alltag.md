@@ -6,6 +6,8 @@ author: 'Evolution Hub'
 category: 'Technologie'
 tags: ['KI', 'Künstliche Intelligenz', 'Technologie', 'Produktivität']
 ---
+image: { src: '/src/content/blog/images/ai-everyday-life.webp', width: 1200, height: 675 }
+imageAlt: 'KI integriert in alltägliche Geräte wie Smartphone und Smart Speaker'
 
 # KI im Alltag: Wie künstliche Intelligenz schon heute dein Leben vereinfacht
 

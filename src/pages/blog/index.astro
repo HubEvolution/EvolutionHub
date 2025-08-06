@@ -25,15 +25,16 @@ const shouldShowFeatured = !category && !tag && !searchQuery && page === 1;
 
 // Blog-Daten inklusive Posts, Kategorien, Tags und Paginierungsdetails mit der optimierten Methode abrufen
 let posts: ProcessedBlogPost[] = [];
-let categoriesWithCounts: CategoryWithCount[] = [];
-let popularTags: TagWithCount[] = [];
+let categoriesWithCounts: CategoryWithCount[] = []; // Directly use data from getBlogIndexData
+let popularTags: TagWithCount[] = []; // Directly use data from getBlogIndexData
+// Kommentar: total wird von getBlogIndexData bereitgestellt und wird für die Paginierung verwendet
 let total = 0;
 let currentPage = 1;
 let totalPages = 1;
 
 try {
   // Use the optimized method to fetch all necessary data in one go.
-  // This method handles filtering and pagination internally.
+  // This method handles filtering and pagination internally, thus reducing redundant data fetching.
   const blogIndexData = await blogService.getBlogIndexData(
     page,
     postsPerPage,
@@ -41,15 +42,13 @@ try {
       category,
       tag,
       search: searchQuery,
-      // includeDrafts is implicitly handled by BlogService's internal logic based on environment
-      // However, for explicit control, we can pass it. Let's keep consistent with previous.
       includeDrafts: import.meta.env.DEV
     }
   );
 
   posts = blogIndexData.posts;
-  categoriesWithCounts = blogIndexData.categories;
-  popularTags = blogIndexData.tags;
+  categoriesWithCounts = blogIndexData.categories; // Use the categories with counts directly
+  popularTags = blogIndexData.tags; // Use the tags with counts directly
   total = blogIndexData.total;
   currentPage = blogIndexData.currentPage;
   totalPages = blogIndexData.totalPages;
@@ -121,7 +120,7 @@ baseUrlForPagination.searchParams.delete('page');
               />
               <button
                 type="submit"
-                class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-500 dark:text-gray-400 dark:hover:text-gray-300"
+                class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 min-w-6 min-h-6 p-2 hover:text-gray-500 dark:text-gray-400 dark:hover:text-gray-300"
                 aria-label="Suchen"
               >
                 <span class="sr-only">Suchen</span>
@@ -131,13 +130,14 @@ baseUrlForPagination.searchParams.delete('page');
               </button>
 
               {/* Versteckte Felder, um andere Filter beizubehalten */}
-              ${category && <input type="hidden" name="kategorie" value={category} />}
-              ${tag && <input type="hidden" name="tag" value={tag} />}
+              {category && <input type="hidden" name="kategorie" value={category} />}
+              {tag && <input type="hidden" name="tag" value={tag} />}
             </form>
           </div>
 
           <!-- Kategorien-Filter mit Error Boundary -->
           <ErrorBoundary>
+            <!-- Directly using data from getBlogIndexData -->
             <CategoryFilter
               categories={categoriesWithCounts}
               selectedCategory={category}
@@ -146,7 +146,7 @@ baseUrlForPagination.searchParams.delete('page');
             />
           </ErrorBoundary>
 
-          <!-- Tags mit Error Boundary -->
+          {/* Tags mit Error Boundary */}
           <ErrorBoundary>
             <div class="rounded-lg bg-gray-50 dark:bg-gray-800 p-4">
               <h2 class="text-sm font-medium text-gray-900 dark:text-white mb-3">
@@ -154,19 +154,19 @@ baseUrlForPagination.searchParams.delete('page');
               </h2>
               {popularTags.length > 0 ? (
                 <div class="flex flex-wrap gap-2">
-                  {popularTags.map(({ name, count }) => (
+                  {popularTags.map((tagData) => ( // Renamed 'tag' to 'tagData' for clarity
                     <a
-                      href={`/blog/tag/${name.toLowerCase()}`}
+                      href={`/blog/tag/${tagData.name.toLowerCase()}`}
                       class={[
                         'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
-                        tag === name
+                        tag === tagData.name
                           ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400'
                           : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
                       ].join(' ')}
                     >
-                      {name}
+                      {tagData.name}
                       <span class="ml-1 text-xs text-gray-500 dark:text-gray-400">
-                        {count}
+                        {tagData.count}
                       </span>
                     </a>
                   ))}
@@ -186,7 +186,7 @@ baseUrlForPagination.searchParams.delete('page');
               <div class="flex items-center justify-between">
                 <p class="text-sm text-emerald-800 dark:text-emerald-200">
                   {category && `Gefiltert nach Kategorie: ${category}`}
-                  {tag && `Gefiltert nach Tag: ${tag}`}
+                  {tag && `Gefiltered nach Tag: ${tag}`}
                   {searchQuery && `Suchergebnisse für: "${searchQuery}"`}
                 </p>
                 <a

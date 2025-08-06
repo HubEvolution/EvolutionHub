@@ -15,7 +15,8 @@ type SecurityEventType =
   | 'RATE_LIMIT_EXCEEDED'  // Rate-Limit überschritten
   | 'SUSPICIOUS_ACTIVITY'  // Verdächtige Aktivität
   | 'API_ERROR'            // API-Fehler
-  | 'API_ACCESS';          // API-Zugriff
+  | 'API_ACCESS'           // API-Zugriff
+  | 'USER_EVENT';          // Allgemeine Benutzer-Events
 
 interface SecurityEvent {
   type: SecurityEventType;
@@ -114,20 +115,36 @@ export function logSuspiciousActivity(ipAddress: string, details: Record<string,
 
 /**
  * Hilfsfunktion für API-Fehler
+ * 
+ * @param targetResource Ziel-Ressource oder Endpunkt (z.B. '/api/user/profile')
+ * @param details Fehlerdetails und zusätzliche Informationen 
+ * @param options Zusätzliche Optionen wie userId und ipAddress
  */
-export function logApiError(targetResource: string, error: Error, details: Record<string, any> = {}) {
-  logSecurityEvent('API_ERROR', { 
-    ...details,
-    errorMessage: error.message, 
-    errorStack: error.stack,
-  }, { targetResource });
+export function logApiError(
+  targetResource: string, 
+  details: Record<string, any> = {},
+  options: { userId?: string, ipAddress?: string } = {}
+) {
+  logSecurityEvent('API_ERROR', details, { 
+    targetResource,
+    userId: options.userId,
+    ipAddress: options.ipAddress
+  });
 }
 
 /**
  * Hilfsfunktion für API-Zugriffe
+ * 
+ * @param userId ID des anfragenden Benutzers ('anonymous' für nicht angemeldete Benutzer)
+ * @param ipAddress IP-Adresse des anfragenden Clients
+ * @param details Zusätzliche Details wie Endpunkt, Methode und andere relevante Daten
  */
-export function logApiAccess(ipAddress: string, userId: string, details: Record<string, any> = {}) {
-  logSecurityEvent('API_ACCESS', details, { ipAddress, userId, targetResource: details.endpoint });
+export function logApiAccess(userId: string, ipAddress: string, details: Record<string, any> = {}) {
+  logSecurityEvent('API_ACCESS', details, { 
+    userId: userId || 'anonymous', 
+    ipAddress: ipAddress || 'unknown', 
+    targetResource: details.endpoint || details.path || 'unknown' 
+  });
 }
 
 /**
@@ -135,4 +152,18 @@ export function logApiAccess(ipAddress: string, userId: string, details: Record<
  */
 export function logAuthAttempt(ipAddress: string, details: Record<string, any> = {}) {
   logSecurityEvent('AUTH_FAILURE', details, { ipAddress });
+}
+
+/**
+ * Hilfsfunktion für allgemeine Benutzer-Events
+ * 
+ * Diese Funktion protokolliert beliebige benutzerspezifische Ereignisse,
+ * die nicht in die anderen Kategorien passen, aber dennoch sicherheitsrelevant sind.
+ * 
+ * @param userId ID des betroffenen Benutzers
+ * @param eventType Typ des Ereignisses (für Details)
+ * @param details Zusätzliche Details zum Ereignis
+ */
+export function logUserEvent(userId: string, eventType: string, details: Record<string, any> = {}) {
+  logSecurityEvent('USER_EVENT', { eventType, ...details }, { userId });
 }

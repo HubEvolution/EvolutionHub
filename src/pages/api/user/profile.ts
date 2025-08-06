@@ -71,4 +71,4 @@ export const POST = withAuthApiMiddleware(async (context: APIContext) => {
       username 
     }
   });
-}
+});

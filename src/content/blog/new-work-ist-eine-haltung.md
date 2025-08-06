@@ -6,6 +6,8 @@ author: 'Evolution Hub'
 category: 'New Work'
 tags: ['New Work', 'Zukunft der Arbeit', 'Unternehmenskultur', 'Agilität']
 ---
+image: { src: '/src/content/blog/images/new-work-mindset.webp', width: 1200, height: 675 }
+imageAlt: 'Person gestaltet aktiv ihre Arbeitszukunft mit New Work Haltung'
 
 # New Work ist kein Ort, sondern eine Haltung: Gestalte deine Arbeitszukunft selbst
 

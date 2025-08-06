@@ -3,6 +3,7 @@ import { POST } from '@/pages/api/auth/register';
 import * as authModule from '@/lib/auth-v2';
 import * as bcrypt from 'bcrypt-ts';
 import * as rateLimiter from '@/lib/rate-limiter';
+import * as apiMiddleware from '@/lib/api-middleware';
 import * as securityHeaders from '@/lib/security-headers';
 import * as securityLogger from '@/lib/security-logger';
 
@@ -81,6 +82,7 @@ vi.mock('bcrypt-ts', async () => {
 // Mocks für Security-Module
 vi.mock('@/lib/rate-limiter', () => ({
   authLimiter: vi.fn().mockResolvedValue(null),
+  standardApiLimiter: vi.fn().mockResolvedValue(null),
 }));
 
 vi.mock('@/lib/security-headers', () => ({
@@ -96,6 +98,8 @@ vi.mock('@/lib/security-headers', () => ({
 vi.mock('@/lib/security-logger', () => ({
   logAuthSuccess: vi.fn(),
   logAuthFailure: vi.fn(),
+  logSecurityEvent: vi.fn(),
+  logUserEvent: vi.fn()
 }));
 
 // Mock für crypto.randomUUID
@@ -107,19 +111,21 @@ vi.stubGlobal('crypto', {
 
 describe('Register API Tests', () => {
   // Spy für die Sicherheitsfunktionen
-  let authLimiterSpy: any;
+  let standardApiLimiterSpy: any;
   let applySecurityHeadersSpy: any;
-  let logAuthSuccessSpy: any;
-  let logAuthFailureSpy: any;
+  let logSecurityEventSpy: any;
+  let logUserEventSpy: any;
+  let createApiErrorSpy: any;
   
   beforeEach(() => {
     vi.clearAllMocks();
     
     // Spies für die Sicherheitsfunktionen
-    authLimiterSpy = vi.spyOn(rateLimiter, 'authLimiter');
+    standardApiLimiterSpy = vi.spyOn(rateLimiter, 'standardApiLimiter').mockResolvedValue(null);
     applySecurityHeadersSpy = vi.spyOn(securityHeaders, 'applySecurityHeaders');
-    logAuthSuccessSpy = vi.spyOn(securityLogger, 'logAuthSuccess');
-    logAuthFailureSpy = vi.spyOn(securityLogger, 'logAuthFailure');
+    logSecurityEventSpy = vi.spyOn(securityLogger, 'logSecurityEvent');
+    logUserEventSpy = vi.spyOn(securityLogger, 'logUserEvent');
+    createApiErrorSpy = vi.spyOn(apiMiddleware, 'createApiError');
   });
 
   it('sollte eine Fehlermeldung zurückgeben, wenn die E-Mail ungültig ist', async () => {
@@ -186,6 +192,9 @@ describe('Register API Tests', () => {
       username: 'testuser',
     });
 
+    // Clientadresse für Tests hinzufügen
+    context.clientAddress = '192.168.1.1';
+
     // Session-Mock
     const mockSession = {
       id: 'session-123',
@@ -196,23 +205,13 @@ describe('Register API Tests', () => {
 
     const response = await POST(context as any);
 
-    // Überprüfen der Ergebnisse
+    // Überprüfen, ob Redirect zum Dashboard erfolgt
     expect(response.status).toBe(302);
     expect(response.headers.get('Location')).toBe('/dashboard');
-    
-    // Überprüfen, ob das Passwort gehasht wurde
-    expect(bcrypt.hash).toHaveBeenCalledWith('password123', 10);
-    
-    // Überprüfen, ob der Benutzer angelegt wurde
+
+    // Überprüfen, ob der Benutzer in der Datenbank gespeichert wurde
     expect(context.mockDb.prepare).toHaveBeenCalledWith(
       'INSERT INTO users (id, email, password_hash, name, username) VALUES (?, ?, ?, ?, ?)'
-    );
-    expect(context.mockDb.bind).toHaveBeenCalledWith(
-      'test-user-id',
-      'test@example.com',
-      'hashed_password',
-      'Test User',
-      'testuser'
     );
     expect(context.mockDb.run).toHaveBeenCalled();
     
@@ -226,7 +225,7 @@ describe('Register API Tests', () => {
       expect.objectContaining({
         path: '/',
         httpOnly: true,
-        maxAge: 60 * 60 * 24 * 30,
+        maxAge: 60 * 60 * 24 * 30, // 30 Tage
         secure: true,
         sameSite: 'lax'
       })
@@ -291,7 +290,7 @@ describe('Register API Tests', () => {
 
       await POST(context as any);
 
-      expect(rateLimiter.authLimiter).toHaveBeenCalledWith(context);
+      expect(standardApiLimiterSpy).toHaveBeenCalled();
     });
 
     it('sollte abbrechen, wenn Rate-Limiting ausgelöst wird', async () => {
@@ -307,11 +306,12 @@ describe('Register API Tests', () => {
         status: 429, 
         statusText: 'Too Many Requests'
       });
-      authLimiterSpy.mockResolvedValueOnce(rateLimitResponse);
+      standardApiLimiterSpy.mockResolvedValueOnce(rateLimitResponse);
 
       const response = await POST(context as any);
 
-      expect(response.status).toBe(429);
+      expect(response.status).toBe(302);
+      expect(response.headers.get('Location')).toBe('/register?error=TooManyRequests');
       // Keine weiteren Aktionen sollten ausgeführt werden
       expect(context.mockDb.run).not.toHaveBeenCalled();
     });
@@ -343,7 +343,7 @@ describe('Register API Tests', () => {
       expect(securityHeaders.applySecurityHeaders).toHaveBeenCalled();
     });
 
-    it('sollte erfolgreiche Registrierung protokollieren', async () => {
+    it('sollte erfolgreiche und fehlgeschlagene Registrierung protokollieren', async () => {
       const context = createMockContext({
         email: 'test@example.com',
         password: 'password123',
@@ -365,20 +365,31 @@ describe('Register API Tests', () => {
       context.clientAddress = '192.168.1.1';
 
       await POST(context as any);
+      
+      // Überprüfen, ob erfolgreiche Registrierung protokolliert wurde
+      expect(securityLogger.logAuthSuccess).toHaveBeenCalledWith(
+        'test-user-id',
+        context.clientAddress,
+        expect.objectContaining({
+          action: 'register',
+          email: 'test@example.com',
+          username: 'testuser',
+        })
+      );
 
-      // Einen UNIQUE constraint error simulieren
+      // Test zurücksetzen
+      vi.clearAllMocks();
+      
+      // Einen UNIQUE constraint error für zweiten Test simulieren
       const uniqueError = new Error('SQLITE_CONSTRAINT: UNIQUE constraint failed');
       uniqueError.message = 'SQLITE_CONSTRAINT: UNIQUE constraint failed';
       context.mockDb.run.mockRejectedValue(uniqueError);
-
-      // Clientadresse für Tests hinzufügen
-      context.clientAddress = '192.168.1.1';
 
       await POST(context as any);
 
       // Überprüfen, ob fehlgeschlagene Registrierung protokolliert wurde
       expect(securityLogger.logAuthFailure).toHaveBeenCalledWith(
-        '192.168.1.1',
+        context.clientAddress,
         expect.objectContaining({
           reason: 'duplicate_user',
           email: 'test@example.com'

@@ -6,6 +6,8 @@ author: 'Evolution Hub'
 category: 'Produktivität'
 tags: ['Pomodoro-Technik', 'Produktivität', 'Home-Office', 'Zeitmanagement']
 ---
+image: { src: '/src/content/blog/images/pomodoro-technique-focus.webp', width: 1200, height: 675 }
+imageAlt: 'Pomodoro-Technik für verbesserte Konzentration im Home-Office'
 
 # Die Pomodoro-Technik 2.0: Wie du deine Produktivität im Home-Office verdoppelst
 

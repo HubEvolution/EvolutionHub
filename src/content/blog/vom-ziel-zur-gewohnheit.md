@@ -6,6 +6,8 @@ author: 'Evolution Hub'
 category: 'Persönliche Entwicklung'
 tags: ['Gewohnheiten', 'Ziele', 'Selbstoptimierung', 'Veränderung']
 ---
+image: { src: '/src/content/blog/images/goal-to-habit-microsteps.webp', width: 1200, height: 675 }
+imageAlt: 'Berg mit kleinen Fußspuren, die zum Gipfel führen, symbolisiert Mikro-Schritte zum Ziel'
 
 # Vom Ziel zur Gewohnheit: Die Macht der Mikro-Schritte für nachhaltige Veränderung
 

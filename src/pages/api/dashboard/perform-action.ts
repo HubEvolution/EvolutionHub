@@ -1,6 +1,6 @@
 import type { APIContext } from 'astro';
-import { withApiMiddleware, createApiSuccess, createApiError } from '@/lib/api-middleware';
-import { logApiAccess, logAuthFailure } from '@/lib/security-logger';
+import { withAuthApiMiddleware, createApiSuccess, createApiError } from '@/lib/api-middleware';
+import { logUserEvent } from '@/lib/security-logger';
 
 /**
  * POST /api/dashboard/perform-action
@@ -11,11 +11,10 @@ import { logApiAccess, logAuthFailure } from '@/lib/security-logger';
  * - Security-Headers: Setzt wichtige Sicherheits-Header
  * - Audit-Logging: Protokolliert alle API-Zugriffe und Authentifizierungsfehler
  */
-export const POST = withApiMiddleware(async (context) => {
-  const { request, locals, clientAddress, url } = context;
+export const POST = withAuthApiMiddleware(async (context) => {
+  const { request, locals, clientAddress } = context;
   const { env } = locals.runtime;
   const user = locals.user;
-  const endpoint = url ? url.pathname : '/api/dashboard/perform-action';
   const userId = user.id;
 
   let requestData;
@@ -23,13 +22,12 @@ export const POST = withApiMiddleware(async (context) => {
     requestData = await request.json();
   } catch (error) {
     // Fehlerhafte Anfrage protokollieren
-    logAuthFailure(userId, {
-      reason: 'invalid_request',
-      endpoint,
-      details: 'Invalid JSON in request body'
+    logUserEvent(userId, 'invalid_dashboard_request', {
+      error: 'Invalid JSON in request body',
+      ipAddress: clientAddress
     });
     
-    return createApiError('Invalid JSON in request body', 400);
+    return createApiError('validation_error', 'Invalid JSON in request body');
   }
 
   const { action } = requestData;
@@ -48,11 +46,9 @@ export const POST = withApiMiddleware(async (context) => {
         result = { message: 'Project created successfully', projectId: newProjectId };
         
         // Erfolgreiche Aktion protokollieren
-        logApiAccess(userId, clientAddress, {
-          endpoint,
-          method: 'POST',
-          action: 'create_project',
-          projectId: newProjectId
+        logUserEvent(userId, 'project_created', {
+          projectId: newProjectId,
+          ipAddress: clientAddress
         });
         
         break;
@@ -68,11 +64,9 @@ export const POST = withApiMiddleware(async (context) => {
         result = { message: 'Task created successfully', taskId: newTaskId };
         
         // Erfolgreiche Aktion protokollieren
-        logApiAccess(userId, clientAddress, {
-          endpoint,
-          method: 'POST',
-          action: 'create_task',
-          taskId: newTaskId
+        logUserEvent(userId, 'task_created', {
+          taskId: newTaskId,
+          ipAddress: clientAddress
         });
         
         break;
@@ -83,10 +77,8 @@ export const POST = withApiMiddleware(async (context) => {
         result = { message: 'Invite functionality not yet implemented' };
         
         // Erfolgreiche Aktion protokollieren
-        logApiAccess(userId, clientAddress, {
-          endpoint,
-          method: 'POST',
-          action: 'invite_member'
+        logUserEvent(userId, 'member_invited', {
+          ipAddress: clientAddress
         });
         
         break;
@@ -95,23 +87,20 @@ export const POST = withApiMiddleware(async (context) => {
         result = { redirect: '/docs' };
         
         // Erfolgreiche Aktion protokollieren
-        logApiAccess(userId, clientAddress, {
-          endpoint,
-          method: 'POST',
-          action: 'view_docs'
+        logUserEvent(userId, 'docs_viewed', {
+          ipAddress: clientAddress
         });
         
         break;
 
       default:
         // Ungültige Aktion protokollieren
-        logAuthFailure(userId, {
-          reason: 'invalid_action',
-          endpoint,
-          details: `Invalid action: ${action}`
+        logUserEvent(userId, 'invalid_dashboard_action', {
+          action,
+          ipAddress: clientAddress
         });
         
-        return createApiError('Invalid action', 400);
+        return createApiError('validation_error', `Invalid action: ${action}`);
     }
     
     // Erfolgreiche Antwort erstellen
@@ -120,24 +109,21 @@ export const POST = withApiMiddleware(async (context) => {
     throw error; // Fehler an die Middleware weiterleiten
   }
 }, {
-  // Erfordert Authentifizierung
-  requireAuth: true,
+  // Zusätzliche Logging-Metadaten
+  logMetadata: { action: 'perform_dashboard_action' },
   
   // Spezielle Fehlerbehandlung für diesen Endpunkt
   onError: (context, error) => {
-    const { clientAddress, url, locals } = context;
+    const { clientAddress, locals } = context;
     const user = locals.user;
-    const endpoint = url ? url.pathname : '/api/dashboard/perform-action';
     
-    console.error('Error performing dashboard action:', error);
+    if (user) {
+      logUserEvent(user.id, 'dashboard_action_error', {
+        error: error instanceof Error ? error.message : String(error),
+        ipAddress: clientAddress
+      });
+    }
     
-    // Serverfehler protokollieren
-    logAuthFailure(user ? user.id : clientAddress, {
-      reason: 'server_error',
-      endpoint,
-      details: error instanceof Error ? error.message : String(error)
-    });
-    
-    return createApiError('Internal Server Error', 500);
+    return createApiError('server_error', 'Error performing dashboard action');
   }
 });

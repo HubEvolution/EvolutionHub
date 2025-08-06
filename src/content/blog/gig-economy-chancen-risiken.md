@@ -6,6 +6,8 @@ author: 'Evolution Hub'
 category: 'New Work'
 tags: ['Gig Economy', 'Freelancer', 'Selbstständigkeit', 'Zukunft der Arbeit']
 ---
+image: { src: '/src/content/blog/images/gig-economy-flexibility.webp', width: 1200, height: 675 }
+imageAlt: 'Flexibles Arbeiten in der Gig Economy'
 
 # Der Aufstieg der Gig Economy: Chancen und Risiken der projektbasierten Arbeit
 
