@@ -5,6 +5,34 @@ pubDate: '2025-07-20'
 author: 'Evolution Hub'
 category: 'New Work'
 tags: ['New Work', 'Zukunft der Arbeit', 'Unternehmenskultur', 'Agilität']
+
+ctas:
+  - type: 'leadmagnet'
+    position: 'top'
+    leadMagnet: 'new-work-guide'
+    variant: 'subtle'
+    title: 'New Work erfolgreich implementieren'
+    description: 'Holen Sie sich unseren kostenlosen Transformation Guide mit praxiserprobten Strategien.'
+  - type: 'newsletter'
+    position: 'bottom'
+    variant: 'primary'
+    title: 'Verpassen Sie keine New Work Insights'
+    description: 'Erhalten Sie wöchentlich die neuesten Trends und Best Practices direkt in Ihr Postfach.'
+
+leadMagnets: ['new-work-guide']
+
+funnel:
+  stage: 'consideration'
+  priority: 8
+  targetAudience: ['HR-Manager', 'Führungskräfte', 'Change-Manager']
+  conversionGoal: 'lead'
+
+funnelSeo:
+  intent: 'commercial'
+  competitiveness: 'medium'
+  primaryKeyword: 'New Work Definition'
+  secondaryKeywords: ['New Work Haltung', 'Unternehmenskultur wandeln', 'Zukunft der Arbeit']
+  searchVolume: 1200
 ---
 image: { src: '/src/content/blog/images/new-work-mindset.webp', width: 1200, height: 675 }
 imageAlt: 'Person gestaltet aktiv ihre Arbeitszukunft mit New Work Haltung'

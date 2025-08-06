@@ -1,5 +1,4 @@
 {
-  // "extends": "./.astro/typescript-support.json", // Removed this line as the file does not exist
   "compilerOptions": {
     "target": "ESNext",
     "module": "ESNext",

@@ -50,7 +50,7 @@ const { fallback, client = 'load' } = Astro.props;
 
 <script is:inline>
 // Client-side error boundary implementation
-document.addEventListener('astro:page-load', () => {
+const initErrorBoundary = () => {
   const errorBoundaryRoot = document.getElementById('error-boundary-root');
   const errorBoundaryFallback = document.getElementById('error-boundary-fallback');
   
@@ -97,11 +97,20 @@ document.addEventListener('astro:page-load', () => {
   if (retryButton) {
     retryButton.onclick = () => {
       resetBoundary();
-      // Re-run the component's client-side code
-      if (typeof window !== 'undefined' && window.Astro) {
-        window.Astro.init();
-      }
+      // Reload the page instead of trying to access Astro object
+      window.location.reload();
     };
   }
-});
+};
+
+// Initialize ErrorBoundary safely
+document.addEventListener('DOMContentLoaded', initErrorBoundary);
+
+// Also initialize immediately if DOM is already loaded
+if (document.readyState === 'loading') {
+  // DOM still loading, event listener will handle it
+} else {
+  // DOM already loaded, initialize immediately
+  initErrorBoundary();
+}
 </script>

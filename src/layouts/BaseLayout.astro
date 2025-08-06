@@ -1,9 +1,9 @@
 ---
 // src/layouts/BaseLayout.astro
-import Header from '../components/Header.astro';
-import SkipLink from '../components/SkipLink.astro';
-import Footer from '../components/Footer.astro';
-import ThemeProvider from '../components/ThemeProvider.astro';
+import Header from '@/components/Header.astro';
+import SkipLink from '@/components/SkipLink.astro';
+import Footer from '@/components/Footer.astro';
+import ThemeProvider from '@/components/ThemeProvider.astro';
 
 interface Props {
   title: string;
@@ -76,7 +76,7 @@ const {
 
     <!-- Global CSS -->
     <style is:global>
-      @import '../styles/global.css';
+      @import '@/styles/global.css';
 
       /* Smooth transitions for theme changes */
       html {
@@ -142,7 +142,16 @@ const {
         initLibraries();
       };
 
-      document.addEventListener('astro:page-load', initApp);
+      // Verwende DOMContentLoaded statt astro:page-load zur Vermeidung des 'Astro is not defined' Fehlers
+      document.addEventListener('DOMContentLoaded', initApp);
+      
+      // Führe initApp auch sofort aus, falls DOM bereits geladen ist
+      if (document.readyState === 'loading') {
+        // DOM ist noch am Laden, Event-Listener wird ausgeführt
+      } else {
+        // DOM ist bereits geladen, führe initApp sofort aus
+        initApp();
+      }
 
       if (import.meta.hot) {
         import.meta.hot.accept();
@@ -207,25 +216,114 @@ const {
     };
   }
 
+  // Analytics Manager initialisieren
+  import { initializeAnalytics, trackScrollDepth, trackTimeOnPage } from '@/lib/analytics';
+  
+  let analytics;
+  let timeOnPageStart = Date.now();
+  let maxScrollDepth = 0;
+  let scrollDepthTracked = new Set();
+  
+  // Analytics beim Laden der Seite initialisieren
+  analytics = initializeAnalytics();
+  
+  // Cookie Consent Integration
   document.addEventListener('cookieconsent:userpreferencesset', function(event: Event) {
     const cookieEvent = event as CookieConsentEvent;
+    
     if (cookieEvent.detail.analytics) {
-      // Your analytics script loading logic here
-      console.log('Analytics cookies accepted - loading analytics script');
-      // Hier könnte man ein Analytics-Skript dynamisch laden
-      // const analyticsScript = document.createElement('script');
-      // analytics.src = 'https://analytics.example.com/script.js';
-      // document.head.appendChild(analyticsScript);
+      console.log('✅ Analytics cookies accepted - enabling tracking');
+      
+      // Page-View-Tracking nach Consent
+      analytics?.trackPage(document.title, {
+        page_type: 'blog',
+        consent_given: true
+      });
+      
+      // Scroll-Depth-Tracking aktivieren
+      setupScrollTracking();
+      
+      // Time-on-Page-Tracking aktivieren
+      setupTimeTracking();
     }
+    
     if (cookieEvent.detail.marketing) {
-      // Your marketing script loading logic here
-      console.log('Marketing cookies accepted - loading marketing script');
-      // Hier könnte man ein Marketing-Skript dynamisch laden
-      // const marketingScript = document.createElement('script');
-      // marketing.src = 'https://marketing.example.com/script.js';
-      // document.head.appendChild(marketingScript);
+      console.log('✅ Marketing cookies accepted - enabling retargeting');
+      
+      // Facebook Pixel laden (falls konfiguriert)
+      if (typeof window !== 'undefined' && window.fbq) {
+        window.fbq('consent', 'grant');
+        window.fbq('track', 'PageView');
+      }
+      
+      // LinkedIn Insight Tag aktivieren
+      if (typeof window !== 'undefined' && window._linkedin_data_partner_ids) {
+        const linkedinScript = document.createElement('script');
+        linkedinScript.src = 'https://snap.licdn.com/li.lms-analytics/insight.min.js';
+        document.head.appendChild(linkedinScript);
+      }
     }
   });
+  
+  // Scroll-Depth-Tracking Setup
+  function setupScrollTracking() {
+    let throttleTimer = null;
+    
+    window.addEventListener('scroll', () => {
+      if (throttleTimer !== null) return;
+      
+      throttleTimer = setTimeout(() => {
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        const scrollPercent = Math.round((scrollTop / docHeight) * 100);
+        
+        // Track bei 25%, 50%, 75%, 90% Scroll-Depth
+        const milestones = [25, 50, 75, 90];
+        milestones.forEach(milestone => {
+          if (scrollPercent >= milestone && !scrollDepthTracked.has(milestone)) {
+            trackScrollDepth(milestone);
+            scrollDepthTracked.add(milestone);
+          }
+        });
+        
+        maxScrollDepth = Math.max(maxScrollDepth, scrollPercent);
+        throttleTimer = null;
+      }, 100);
+    });
+  }
+  
+  // Time-on-Page-Tracking Setup
+  function setupTimeTracking() {
+    // Track bei Seitenverlassen
+    window.addEventListener('beforeunload', () => {
+      const timeSpent = Math.round((Date.now() - timeOnPageStart) / 1000);
+      if (timeSpent > 10) { // Nur bei mindestens 10 Sekunden tracken
+        trackTimeOnPage(timeSpent);
+      }
+    });
+    
+    // Track bei Tab-Wechsel (falls User zurückkommt)
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') {
+        const timeSpent = Math.round((Date.now() - timeOnPageStart) / 1000);
+        if (timeSpent > 30) {
+          trackTimeOnPage(timeSpent);
+        }
+      } else {
+        timeOnPageStart = Date.now(); // Reset bei Rückkehr
+      }
+    });
+  }
+  
+  // Initial Page-View (falls bereits Consent vorhanden)
+  setTimeout(() => {
+    if (analytics && typeof window !== 'undefined') {
+      analytics.trackPage(document.title, {
+        page_type: window.location.pathname.startsWith('/blog') ? 'blog' : 'page',
+        initial_load: true
+      });
+    }
+  }, 1000);
 </script>
   </body>
 </html>

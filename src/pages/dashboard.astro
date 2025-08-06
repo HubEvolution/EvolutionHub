@@ -1,11 +1,11 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
-import UserProfile from '../components/dashboard/UserProfile.astro';
-import StatsCard from '../components/dashboard/StatsCard.astro';
-import ProjectsPanel from '../components/dashboard/ProjectsPanel.jsx';
-import Notifications from '../components/dashboard/Notifications.jsx';
-import ActivityFeed from '../components/dashboard/ActivityFeed.jsx';
-import QuickActions from '../components/dashboard/QuickActions.jsx';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import UserProfile from '@/components/dashboard/UserProfile.astro';
+import StatsCard from '@/components/dashboard/StatsCard.astro';
+import ProjectsPanel from '@/components/dashboard/ProjectsPanel.jsx';
+import Notifications from '@/components/dashboard/Notifications.jsx';
+import ActivityFeed from '@/components/dashboard/ActivityFeed.jsx';
+import QuickActions from '@/components/dashboard/QuickActions.jsx';
 import type { QuickAction, Notification, ActivityItem } from '../types/dashboard';
 
 const locals = Astro.locals as any;

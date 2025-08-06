@@ -1,58 +1,170 @@
 ---
-// Minimale SettingsScript-Komponente für clientseitige Funktionalität
+// Vollständige SettingsScript-Komponente mit Upload-Logik
 ---
 
 <script>
-  // Clientseitige Funktionalität für die Account Settings-Seite
-  // Avatar-Upload, Formularvalidierung, Passwort-Stärke-Anzeige, etc.
-  
-  // Avatar-Upload Funktionalität
-  const avatarUpload = document.getElementById('avatar-upload') as HTMLInputElement | null;
-  const avatarPreview = document.getElementById('avatar-preview') as HTMLImageElement | null;
-  const changeAvatarBtn = document.getElementById('change-avatar-btn') as HTMLButtonElement | null;
-  
-  if (changeAvatarBtn && avatarUpload) {
-    changeAvatarBtn.addEventListener('click', () => {
-      avatarUpload.click();
+  // Importiere Toastr für Benachrichtigungen
+  import 'toastr/build/toastr.min.css';
+  import toastr from 'toastr';
+
+  // Avatar-Upload Funktionalität mit vollständigem Upload-Flow
+  const handleAvatarUpload = () => {
+    const uploadElement = document.getElementById('avatar-upload') as HTMLInputElement;
+    const changeButton = document.getElementById('change-avatar-btn') as HTMLButtonElement;
+    
+    if (!uploadElement || !changeButton) return;
+    
+    console.log('Avatar-Upload-Handler initialisiert');
+    
+    // Trigger file input when the button is clicked
+    changeButton.addEventListener('click', () => {
+      console.log('Change Avatar Button wurde geklickt');
+      uploadElement.click();
     });
     
-    avatarUpload.addEventListener('change', function() {
-      if (this.files && this.files[0]) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          if (avatarPreview && e.target?.result) {
-            avatarPreview.src = e.target.result as string;
+    uploadElement.addEventListener('change', async (e: Event) => {
+      const input = e.target as HTMLInputElement;
+      if (!input.files || input.files.length === 0) {
+        return;
+      }
+      
+      console.log('Datei wurde ausgewählt:', input.files[0].name);
+      
+      // Show loading indicator
+      toastr.info('Uploading avatar...');
+      changeButton.textContent = 'Uploading...';
+      changeButton.setAttribute('disabled', 'true');
+      
+      const file = input.files[0];
+      const formData = new FormData();
+      formData.append('avatar', file);
+      
+      try {
+        const response = await fetch('/api/user/avatar', {
+          method: 'POST',
+          body: formData,
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          const avatarPreview = document.getElementById('avatar-preview') as HTMLImageElement;
+          if (avatarPreview) {
+            avatarPreview.src = data.imageUrl;
           }
+          toastr.success('Avatar updated successfully!');
+        } else {
+          const errorText = await response.text();
+          toastr.error(`Error: ${errorText}`);
         }
-        reader.readAsDataURL(this.files[0]);
+      } catch (error: any) {
+        console.error('Avatar upload error:', error);
+        toastr.error(`Upload failed: ${error.message || 'Network error'}`);
+      } finally {
+        // Reset button state
+        changeButton.textContent = 'Change Picture';
+        changeButton.removeAttribute('disabled');
       }
     });
-  }
+  };
   
   // Formularvalidierung für Passwortänderung
-  const passwordForm = document.getElementById('password-form') as HTMLFormElement | null;
+  const passwordForm = document.getElementById('password-form') as HTMLFormElement;
   if (passwordForm) {
-    passwordForm.addEventListener('submit', function(e) {
-      const newPassword = document.getElementById('new-password') as HTMLInputElement | null;
-      const confirmPassword = document.getElementById('confirm-password') as HTMLInputElement | null;
-      const passwordErrors = document.getElementById('password-errors') as HTMLDivElement | null;
+    passwordForm.addEventListener('submit', function(e: Event) {
+      e.preventDefault();
+      const newPassword = document.getElementById('new-password') as HTMLInputElement;
+      const confirmPassword = document.getElementById('confirm-password') as HTMLInputElement;
+      const passwordErrors = document.getElementById('password-errors') as HTMLDivElement;
       
       if (newPassword && confirmPassword && passwordErrors) {
         if (newPassword.value !== confirmPassword.value) {
-          e.preventDefault();
           passwordErrors.textContent = 'Passwords do not match';
           return false;
         }
         
         // Einfache Passwort-Stärke-Prüfung
         if (newPassword.value.length < 8) {
-          e.preventDefault();
           passwordErrors.textContent = 'Password must be at least 8 characters long';
           return false;
         }
         
         passwordErrors.textContent = '';
+        
+        // Submit form data
+        const formData = new FormData(passwordForm);
+        fetch('/api/user/password', {
+          method: 'POST',
+          body: formData,
+        })
+        .then(response => {
+          if (response.ok) {
+            toastr.success('Password updated successfully!');
+            passwordForm.reset();
+          } else {
+            return response.text().then(errorText => {
+              toastr.error(`Error: ${errorText}`);
+            });
+          }
+        })
+        .catch(error => {
+          toastr.error(`Error: ${(error as Error).message || 'Unknown error'}`);
+        });
       }
     });
   }
+  
+  // Profile form submission
+  const profileForm = document.getElementById('profile-form') as HTMLFormElement;
+  if (profileForm) {
+    profileForm.addEventListener('submit', async function(e: Event) {
+      e.preventDefault();
+      const submitButton = profileForm.querySelector('button[type="submit"]') as HTMLButtonElement;
+      const originalButtonText = submitButton?.textContent || 'Save Changes';
+      
+      try {
+        // Show loading state
+        if (submitButton) {
+          submitButton.textContent = 'Saving...';
+          submitButton.disabled = true;
+        }
+        
+        const formData = new FormData(profileForm);
+        // Remove avatar field from profile update if it exists
+        if (formData.has('avatar')) {
+          formData.delete('avatar');
+        }
+        
+        const response = await fetch('/api/user/profile', {
+          method: 'POST',
+          body: formData,
+        });
+        
+        if (response.ok) {
+          toastr.success('Profile updated successfully!');
+        } else {
+          const errorText = await response.text();
+          toastr.error(`Error: ${errorText}`);
+        }
+      } catch (error: any) {
+        console.error('Profile update error:', error);
+        toastr.error(`Error updating profile: ${error.message || 'Unknown error'}`);
+      } finally {
+        // Reset button state
+        if (submitButton) {
+          submitButton.textContent = originalButtonText;
+          submitButton.disabled = false;
+        }
+      }
+    });
+  }
+  
+  // Initialize Avatar Upload Handler
+  document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOMContentLoaded Event ausgelöst');
+    handleAvatarUpload();
+  });
+  
+  // Immediate execution when script is loaded
+  console.log('Script geladen - versuche direkte Initialisierung');
+  handleAvatarUpload();
 </script>

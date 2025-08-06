@@ -1,6 +1,8 @@
 ---
-import type { ProcessedBlogPost } from '../content/types';
+import type { ProcessedBlogPost } from '@/content/types';
 import BlogCard from './BlogCard.astro';
+import BlogCTA from './blog/BlogCTA.astro';
+import LeadMagnetCTA from './blog/LeadMagnetCTA.astro';
 // Import the Image component from Astro's built-in assets handling.
 import { Image } from 'astro:assets';
 
@@ -8,9 +10,34 @@ interface Props {
   post: ProcessedBlogPost;
   relatedPosts?: ProcessedBlogPost[];
   className?: string;
+  // CTA-Konfiguration
+  showTopCTA?: boolean;
+  showBottomCTA?: boolean;
+  topCTAConfig?: {
+    type: 'newsletter' | 'leadmagnet' | 'consultation' | 'social';
+    leadMagnet?: string;
+    variant?: 'primary' | 'secondary' | 'subtle';
+    title?: string;
+    description?: string;
+  };
+  bottomCTAConfig?: {
+    type: 'newsletter' | 'leadmagnet' | 'consultation' | 'social';
+    leadMagnet?: string;
+    variant?: 'primary' | 'secondary' | 'subtle';
+    title?: string;
+    description?: string;
+  };
 }
 
-const { post, relatedPosts = [], className = '' } = Astro.props;
+const { 
+  post, 
+  relatedPosts = [], 
+  className = '',
+  showTopCTA = true,
+  showBottomCTA = true,
+  topCTAConfig,
+  bottomCTAConfig
+} = Astro.props;
 
 const {
   title,
@@ -20,6 +47,8 @@ const {
   category,
   tags = [],
   author,
+  // CTA-Konfiguration aus dem Frontmatter
+  ctas = [],
 } = post.data;
 
 const {
@@ -47,6 +76,49 @@ const safeImage = image && typeof image.src === 'string' ? image : null;
 // Use the width and height from the image data if available, otherwise let Astro handle it.
 const imageWidth = safeImage?.width;
 const imageHeight = safeImage?.height;
+
+// CTA-Typen definieren
+interface CTAConfig {
+  type: 'newsletter' | 'leadmagnet' | 'consultation' | 'social';
+  leadMagnet?: string;
+  variant?: 'primary' | 'secondary' | 'subtle';
+  title?: string;
+  description?: string;
+  position?: 'top' | 'middle' | 'bottom';
+}
+
+// CTA-Konfiguration verarbeiten
+const topCTA = ctas?.find((cta: CTAConfig) => cta.position === 'top') || topCTAConfig;
+const bottomCTA = ctas?.find((cta: CTAConfig) => cta.position === 'bottom') || bottomCTAConfig;
+
+// Standard-CTA-Konfiguration basierend auf Artikel-Kategorie
+const getDefaultCTAForCategory = (category: string, position: 'top' | 'bottom') => {
+  const categoryMappings: Record<string, { top: CTAConfig; bottom: CTAConfig }> = {
+    'New Work': {
+      top: { type: 'leadmagnet', leadMagnet: 'new-work-guide', variant: 'subtle' },
+      bottom: { type: 'newsletter', variant: 'primary' }
+    },
+    'Technologie': {
+      top: { type: 'leadmagnet', leadMagnet: 'ki-tools-checkliste', variant: 'subtle' },
+      bottom: { type: 'newsletter', variant: 'primary' }
+    },
+    'Produktivität': {
+      top: { type: 'leadmagnet', leadMagnet: 'produktivitaets-masterclass', variant: 'subtle' },
+      bottom: { type: 'consultation', variant: 'secondary' }
+    }
+  };
+  
+  const fallbackConfig: { top: CTAConfig; bottom: CTAConfig } = {
+    top: { type: 'newsletter', variant: 'subtle' },
+    bottom: { type: 'newsletter', variant: 'primary' }
+  };
+  
+  return categoryMappings[category]?.[position] || fallbackConfig[position];
+};
+
+// Finale CTA-Konfiguration
+const finalTopCTA = topCTA || (showTopCTA ? getDefaultCTAForCategory(category, 'top') : null);
+const finalBottomCTA = bottomCTA || (showBottomCTA ? getDefaultCTAForCategory(category, 'bottom') : null);
 ---
 
 <article
@@ -187,9 +259,55 @@ const imageHeight = safeImage?.height;
     )}
   </header>
 
+  <!-- Top CTA (nach Header, vor Content) -->
+  {finalTopCTA && (
+    <div class="not-prose my-8">
+      {finalTopCTA.type === 'leadmagnet' && finalTopCTA.leadMagnet ? (
+        <LeadMagnetCTA
+          leadMagnetId={finalTopCTA.leadMagnet}
+          variant={finalTopCTA.variant || 'subtle'}
+          title={finalTopCTA.title}
+          description={finalTopCTA.description}
+        />
+      ) : (
+        <BlogCTA
+          type={finalTopCTA.type}
+          position="top"
+          variant={finalTopCTA.variant || 'subtle'}
+          title={finalTopCTA.title}
+          description={finalTopCTA.description}
+          leadMagnet={finalTopCTA.leadMagnet}
+        />
+      )}
+    </div>
+  )}
+
   <div class="prose-lg max-w-none" itemprop="articleBody">
     <slot />
   </div>
+
+  <!-- Bottom CTA (nach Content, vor Footer) -->
+  {finalBottomCTA && (
+    <div class="not-prose my-12">
+      {finalBottomCTA.type === 'leadmagnet' && finalBottomCTA.leadMagnet ? (
+        <LeadMagnetCTA
+          leadMagnetId={finalBottomCTA.leadMagnet}
+          variant={finalBottomCTA.variant || 'primary'}
+          title={finalBottomCTA.title}
+          description={finalBottomCTA.description}
+        />
+      ) : (
+        <BlogCTA
+          type={finalBottomCTA.type}
+          position="bottom"
+          variant={finalBottomCTA.variant || 'primary'}
+          title={finalBottomCTA.title}
+          description={finalBottomCTA.description}
+          leadMagnet={finalBottomCTA.leadMagnet}
+        />
+      )}
+    </div>
+  )}
 
   {(tags.length > 0 || relatedPosts.length > 0) && (
     <footer class="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700">

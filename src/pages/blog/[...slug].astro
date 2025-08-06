@@ -19,15 +19,15 @@ export async function getStaticPaths() {
 // Prerender deaktiviert, da Astro.request.headers im Code verwendet wird
 export const prerender = false;
 // Import BaseLayout using a relative path.
-import BaseLayout from '../../layouts/BaseLayout.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
 // Import blogService from its module. We no longer need to import BlogCollectionEntry from here
 // as we are importing CollectionEntry directly from 'astro:content'.
-import { blogService, type BlogCollectionEntry } from '../../lib/blog';
-import BlogPostComponent from '../../components/BlogPost.astro';
+import { blogService, type BlogCollectionEntry } from '@/lib/blog';
+import BlogPostComponent from '@/components/BlogPost.astro';
 import type { ProcessedBlogPost } from '../../content/types';
 // Commented out CommentSection as it was removed earlier following user instructions.
 // Commenting out the import for CommentSection as it's no longer used.
-// import CommentSection from '../../components/comments/CommentSection.astro';
+// import CommentSection from '@/components/comments/CommentSection.astro';
 
 // Get slug from URL parameters
 const { slug } = Astro.params;

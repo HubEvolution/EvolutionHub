@@ -1,14 +1,14 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import { blogService } from '../../lib/blog';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { blogService } from '@/lib/blog';
 // Ensure these types are correctly imported and available.
 // The previous errors indicated they might not be found, but we've created them.
-import type { ProcessedBlogPost } from '../../content/types';
-import type { CategoryWithCount, TagWithCount } from '../../types/blog';
-import BlogList from '../../components/BlogList.astro';
-import Pagination from '../../components/Pagination.astro';
-import CategoryFilter from '../../components/CategoryFilter.astro';
-import ErrorBoundary from '../../components/ErrorBoundary.astro';
+import type { ProcessedBlogPost } from '@/content/types';
+import type { CategoryWithCount, TagWithCount } from '@/types/blog';
+import BlogList from '@/components/BlogList.astro';
+import Pagination from '@/components/Pagination.astro';
+import CategoryFilter from '@/components/CategoryFilter.astro';
+import ErrorBoundary from '@/components/ErrorBoundary.astro';
 
 // Pagination und Filter-Parameter aus der URL auslesen
 const url = Astro.url;

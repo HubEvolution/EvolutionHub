@@ -9,7 +9,7 @@ import type {
   ProcessedBlogPost,
   PaginatedResult
 } from '../content/types';
-import { formatDate } from '../content/config'; // Verwende die existierende formatDate-Funktion aus content/config.ts
+import { formatDate } from '@/content/config'; // Verwende die existierende formatDate-Funktion aus content/config.ts
 import type { CategoryWithCount, TagWithCount } from '../types/blog';
 
 // Export BlogCollectionEntry type so it can be used elsewhere, assuming it's correctly defined or inferred.

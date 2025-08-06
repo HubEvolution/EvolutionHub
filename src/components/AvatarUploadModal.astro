@@ -1,0 +1,228 @@
+---
+// AvatarUploadModal.astro
+// Modal mit Drag-and-Drop für Avatar-Upload
+---
+
+<div id="avatar-modal" class="fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50 hidden" style="display: none;">
+  <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full">
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-lg font-semibold text-gray-800 dark:text-white">Profilbild ändern</h3>
+      <button id="close-avatar-modal" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+    
+    <div id="upload-zone" class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 mb-4 text-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+      <div class="flex flex-col items-center justify-center space-y-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+        <p class="text-sm text-gray-600 dark:text-gray-300">Ziehe dein Bild hierher oder</p>
+        <button id="select-file-btn" class="px-4 py-2 text-sm font-medium bg-primary text-white rounded-lg hover:bg-primary-dark">Datei auswählen</button>
+        <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">Unterstützte Formate: JPG, PNG, GIF (max. 2MB)</p>
+      </div>
+    </div>
+    
+    <div id="preview-container" class="hidden">
+      <div class="flex flex-col items-center space-y-4">
+        <img id="modal-preview" class="w-32 h-32 rounded-full object-cover border-4 border-primary" src="" alt="Avatar Vorschau">
+        <div class="flex space-x-2">
+          <button id="change-selection-btn" class="px-4 py-2 text-sm font-medium border rounded-lg dark:border-gray-600">Ändern</button>
+          <button id="upload-btn" class="px-4 py-2 text-sm font-medium bg-primary text-white rounded-lg hover:bg-primary-dark">Hochladen</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script is:inline>
+  console.log('AVATAR MODAL SCRIPT EXECUTED');
+  
+  // Sichere Initialisierung ohne problematische astro:page-load Event
+  document.addEventListener('DOMContentLoaded', initAvatarModal);
+  
+  // Sofortige Initialisierung, falls DOM bereits geladen ist
+  if (document.readyState === 'loading') {
+    // DOM noch am Laden, Event-Listener wird ausgeführt
+  } else {
+    // DOM bereits geladen, führe initAvatarModal sofort aus
+    initAvatarModal();
+  }
+  
+  function initAvatarModal() {
+    console.log('AVATAR MODAL INIT FUNCTION CALLED');
+    
+    const modal = document.getElementById('avatar-modal');
+    const openModalBtn = document.getElementById('change-avatar-btn');
+    const closeModalBtn = document.getElementById('close-avatar-modal');
+    const fileInput = document.getElementById('avatar-upload') as HTMLInputElement;
+    const uploadZone = document.getElementById('upload-zone');
+    const selectFileBtn = document.getElementById('select-file-btn');
+    const previewContainer = document.getElementById('preview-container');
+    const modalPreview = document.getElementById('modal-preview') as HTMLImageElement;
+    const changeSelectionBtn = document.getElementById('change-selection-btn');
+    const uploadBtn = document.getElementById('upload-btn');
+    
+    if (!modal || !openModalBtn || !closeModalBtn || !fileInput || !uploadZone || 
+        !selectFileBtn || !previewContainer || !modalPreview || !changeSelectionBtn || !uploadBtn) {
+      console.error('Ein oder mehrere erforderliche Elemente wurden nicht gefunden');
+      return;
+    }
+    
+    // Modal öffnen
+    openModalBtn.addEventListener('click', () => {
+      modal.classList.remove('hidden');
+      document.body.classList.add('overflow-hidden'); // Scrolling verhindern
+    });
+    
+    // Modal schließen
+    closeModalBtn.addEventListener('click', () => {
+      modal.classList.add('hidden');
+      document.body.classList.remove('overflow-hidden');
+    });
+    
+    // Außerhalb des Modals klicken, um es zu schließen
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        modal.classList.add('hidden');
+        document.body.classList.remove('overflow-hidden');
+      }
+    });
+    
+    // Klick auf die Upload-Zone
+    uploadZone.addEventListener('click', () => {
+      fileInput.click();
+    });
+    
+    // Klick auf den "Datei auswählen" Button
+    selectFileBtn.addEventListener('click', (e) => {
+      e.stopPropagation(); // Verhindert Bubbling zum uploadZone
+      fileInput.click();
+    });
+    
+    // Drag & Drop Ereignisse
+    uploadZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      uploadZone.classList.add('border-primary');
+    });
+    
+    uploadZone.addEventListener('dragleave', () => {
+      uploadZone.classList.remove('border-primary');
+    });
+    
+    uploadZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadZone.classList.remove('border-primary');
+      
+      if (e.dataTransfer && e.dataTransfer.files.length > 0) {
+        handleFileSelect(e.dataTransfer.files[0]);
+      }
+    });
+    
+    // Datei wurde ausgewählt
+    fileInput.addEventListener('change', () => {
+      if (fileInput.files && fileInput.files.length > 0) {
+        handleFileSelect(fileInput.files[0]);
+      }
+    });
+    
+    // Dateiauswahl ändern
+    changeSelectionBtn.addEventListener('click', () => {
+      showUploadZone();
+    });
+    
+    // Upload starten
+    uploadBtn.addEventListener('click', () => {
+      if (fileInput.files && fileInput.files.length > 0) {
+        uploadAvatar(fileInput.files[0]);
+      }
+    });
+    
+    function handleFileSelect(file) {
+      // Validiere Dateityp und Größe
+      const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
+      const maxSize = 2 * 1024 * 1024; // 2MB
+      
+      if (!validTypes.includes(file.type)) {
+        toastr.error('Bitte wähle ein Bild im Format JPG, PNG oder GIF');
+        return;
+      }
+      
+      if (file.size > maxSize) {
+        toastr.error('Die Datei ist zu groß. Maximale Größe ist 2MB');
+        return;
+      }
+      
+      // Lese die Datei und zeige Vorschau
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        if (e.target && e.target.result) {
+          modalPreview.src = e.target.result as string;
+          showPreview();
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+    
+    function showUploadZone() {
+      uploadZone.classList.remove('hidden');
+      previewContainer.classList.add('hidden');
+      fileInput.value = ''; // Zurücksetzen der Dateiauswahl
+    }
+    
+    function showPreview() {
+      uploadZone.classList.add('hidden');
+      previewContainer.classList.remove('hidden');
+    }
+    
+    function uploadAvatar(file) {
+      // Zeige Ladezustand
+      uploadBtn.textContent = 'Wird hochgeladen...';
+      uploadBtn.disabled = true;
+      
+      const formData = new FormData();
+      formData.append('avatar', file);
+      
+      fetch('/api/user/avatar', {
+        method: 'POST',
+        body: formData,
+      })
+      .then(response => {
+        if (!response.ok) {
+          return response.text().then(error => {
+            throw new Error(error);
+          });
+        }
+        return response.json();
+      })
+      .then(data => {
+        // Aktualisiere den Avatar im Hauptprofil
+        const avatarPreview = document.getElementById('avatar-preview') as HTMLImageElement;
+        if (avatarPreview) {
+          avatarPreview.src = data.imageUrl;
+        }
+        
+        // Schließe das Modal
+        modal.classList.add('hidden');
+        document.body.classList.remove('overflow-hidden');
+        
+        // Erfolgsmeldung anzeigen
+        toastr.success('Profilbild erfolgreich aktualisiert!');
+      })
+      .catch(error => {
+        console.error('Upload error:', error);
+        toastr.error(`Fehler beim Hochladen: ${error.message || 'Unbekannter Fehler'}`);
+      })
+      .finally(() => {
+        // Setze den Button zurück
+        uploadBtn.textContent = 'Hochladen';
+        uploadBtn.disabled = false;
+      });
+    }
+    
+    // Initial auf Upload-Zone setzen
+    showUploadZone();
+  }
+</script>

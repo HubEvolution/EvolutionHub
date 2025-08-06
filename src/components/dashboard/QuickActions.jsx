@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useQuickActionStore } from '../../stores';
-import CardReact from '../ui/CardReact.jsx';
+import CardReact from '@/components/ui/CardReact.jsx';
 /**
  * @typedef {Object} QuickAction
  * @property {string} id

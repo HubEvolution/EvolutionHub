@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
 import { withApiMiddleware, createApiError } from '@/lib/api-middleware';
 import { logApiAccess } from '@/lib/security-logger';
-import { listTools } from '../../lib/handlers.ts';
+import { listTools } from '@/lib/handlers.ts';
 
 /**
  * GET /api/tools

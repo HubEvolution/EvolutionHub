@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useNotificationStore } from '../../stores';
-import CardReact from '../ui/CardReact.jsx';
+import CardReact from '@/components/ui/CardReact.jsx';
 /**
  * @typedef {Object} Notification
  * @property {string} id

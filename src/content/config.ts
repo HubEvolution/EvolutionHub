@@ -118,6 +118,44 @@ export const blogCollection = defineCollection({
       words: z.number().min(0)
     }).optional(),
     
+    // CTA-Konfiguration für Funnel-Integration
+    ctas: z.array(
+      z.object({
+        type: z.enum(['newsletter', 'leadmagnet', 'consultation', 'social']),
+        position: z.enum(['top', 'middle', 'bottom']),
+        leadMagnet: z.string().optional(),
+        variant: z.enum(['primary', 'secondary', 'subtle']).default('primary'),
+        title: z.string().optional(),
+        description: z.string().optional(),
+        customText: z.string().optional()
+      })
+    ).max(3, 'Maximal 3 CTAs pro Artikel erlaubt').default([]),
+    
+    // Lead-Magnet-Zuordnungen
+    leadMagnets: z.array(
+      z.string().refine((id) => {
+        const validLeadMagnets = ['new-work-guide', 'ki-tools-checkliste', 'produktivitaets-masterclass'];
+        return validLeadMagnets.includes(id);
+      }, 'Ungültige Lead-Magnet-ID')
+    ).max(2, 'Maximal 2 Lead-Magneten pro Artikel').default([]),
+    
+    // Funnel-Konfiguration
+    funnel: z.object({
+      stage: z.enum(['awareness', 'consideration', 'decision']).default('awareness'),
+      priority: z.number().min(1).max(10).default(5),
+      targetAudience: z.array(z.string()).default([]),
+      conversionGoal: z.enum(['newsletter', 'lead', 'consultation', 'social']).optional()
+    }).optional(),
+    
+    // Erweiterte SEO für Funnel-Optimierung
+    funnelSeo: z.object({
+      intent: z.enum(['informational', 'commercial', 'transactional']).default('informational'),
+      competitiveness: z.enum(['low', 'medium', 'high']).default('medium'),
+      primaryKeyword: z.string().optional(),
+      secondaryKeywords: z.array(z.string()).max(5).default([]),
+      searchVolume: z.number().min(0).optional()
+    }).optional(),
+    
     // Benutzerdefinierte Felder
     custom: z.record(z.any()).optional()
   })

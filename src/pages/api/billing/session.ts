@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 import { withAuthApiMiddleware } from '@/lib/api-middleware';
-import { handleStripeCheckout } from '../../../lib/handlers.ts';
+import { handleStripeCheckout } from '@/lib/handlers.ts';
 import { logUserEvent } from '@/lib/security-logger';
 
 /**

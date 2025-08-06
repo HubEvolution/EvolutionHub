@@ -1,7 +1,5 @@
----
 import type { APIContext } from 'astro';
 import { standardApiLimiter } from '@/lib/rate-limiter';
-import { applySecurityHeaders } from '@/lib/security-headers';
 import { logApiError, logApiAccess } from '@/lib/security-logger';
 
 /**
@@ -50,6 +48,48 @@ export type ApiErrorType =
 /**
  * Standard-Fehlermeldungen für verschiedene Fehlertypen
  */
+
+/**
+ * Wendet Sicherheits-Header auf eine Response an, um die Anwendung vor
+ * verschiedenen Sicherheitsbedrohungen zu schützen.
+ * 
+ * @param response - Die Response, auf die die Sicherheitsheader angewendet werden sollen
+ * @returns Die Response mit angewendeten Sicherheitsheadern
+ */
+export function applySecurityHeaders(response: Response): Response {
+  // Erstelle eine neue Response mit den gleichen Daten und Status
+  const secureResponse = new Response(response.body, response);
+  
+  // Content-Security-Policy
+  secureResponse.headers.set('Content-Security-Policy', 
+    "default-src 'self'; " +
+    "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; " +
+    "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; " +
+    "img-src 'self' data: https://*; " +
+    "connect-src 'self' https://*.cloudflare.com; " +
+    "font-src 'self' https://cdn.jsdelivr.net;"
+  );
+  
+  // X-Content-Type-Options
+  secureResponse.headers.set('X-Content-Type-Options', 'nosniff');
+  
+  // X-Frame-Options
+  secureResponse.headers.set('X-Frame-Options', 'DENY');
+  
+  // X-XSS-Protection
+  secureResponse.headers.set('X-XSS-Protection', '1; mode=block');
+  
+  // Referrer-Policy
+  secureResponse.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  
+  // Strict-Transport-Security
+  secureResponse.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+  
+  // Permissions-Policy
+  secureResponse.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), interest-cohort=()');
+  
+  return secureResponse;
+}
 const errorMessages: Record<ApiErrorType, string> = {
   validation_error: 'Ungültige Eingabedaten',
   auth_error: 'Authentifizierung fehlgeschlagen',

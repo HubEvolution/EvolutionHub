@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useActivityStore } from '../../stores';
-import CardReact from '../ui/CardReact.jsx';
+import CardReact from '@/components/ui/CardReact.jsx';
 // Korrigierte Typdefinition für JSX-Datei
 /* @type {import('../../types/dashboard').ActivityItem} */
 

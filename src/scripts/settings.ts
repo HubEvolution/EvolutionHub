@@ -182,8 +182,13 @@ export const initSettingsPage = () => {
   handleAvatarUpload();
 };
 
-// Initial load
-initSettingsPage();
+// Sichere Initialisierung
+document.addEventListener('DOMContentLoaded', initSettingsPage);
 
-// Handle Astro's View Transitions
-document.addEventListener('astro:page-load', initSettingsPage);
+// Sofortige Initialisierung, falls DOM bereits geladen ist
+if (document.readyState === 'loading') {
+  // DOM noch am Laden, Event-Listener wird ausgeführt
+} else {
+  // DOM bereits geladen, führe initSettingsPage sofort aus
+  initSettingsPage();
+}
