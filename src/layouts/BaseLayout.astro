@@ -75,7 +75,6 @@ const ogImage = customOgImage || seoData.ogImage;
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
     <!-- Scripts -->
-    <script src="/scripts/mobileMenu.js" defer></script>
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -83,7 +82,7 @@ const ogImage = customOgImage || seoData.ogImage;
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- Preload critical CSS -->
-    <link rel="preload" href="/src/styles/global.css" as="style">
+    <!-- Global CSS wird über @import in style-Block geladen -->
     <link rel="preload" href="https://unpkg.com/aos@next/dist/aos.css" as="style">
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" as="style">
     <link rel="preload" href="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.css" as="style">
@@ -194,52 +193,60 @@ const ogImage = customOgImage || seoData.ogImage;
     <!-- Cookie Consent JS -->
     <script src="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.js" defer></script>
 <!-- Cookie Consent Configuration -->
-    <script type="module">
-      // Die `Astro`-Objektvariable ist in Astro-Modulskripten verfügbar.
-      const currentPathname = Astro.url.pathname;
-      // Setzt die Sprache basierend auf dem Pfad
-      const lang = currentPathname.startsWith('/de/') ? 'de' : 'en';
-
-      window.CookieConsent.run({
-        // Konfiguration für die Sprache
-        language: lang,
-
-        // Definition der Cookie-Kategorien
-        categories: {
-          necessary: {
-            label: 'Notwendig', // Text für die Kategorie
-            description: 'Diese Cookies sind für den Betrieb der Webseite essenziell.', // Beschreibung der Kategorie
-            checked: true, // Notwendige Cookies sind standardmäßig aktiviert und können nicht deaktiviert werden
-          },
-          analytics: {
-            label: 'Analyse',
-            description: 'Diese Cookies ermöglichen uns, die Seitennutzung zu analysieren, um Ihr Erlebnis zu verbessern.',
-            checked: false, // Analyse-Cookies sind standardmäßig deaktiviert
-          },
-          marketing: {
-            label: 'Marketing',
-            description: 'Diese Cookies werden verwendet, um personalisierte Werbung basierend auf Ihren Interessen anzuzeigen.',
-            checked: false, // Marketing-Cookies sind standardmäßig deaktiviert
-          },
-        },
-
-        // GUI-Optionen für das Benutzererlebnis
-        guiOptions: {
-          consentFirstInput: true, // Zeigt das Banner sofort beim ersten Laden der Seite an
-        },
-
-        // Konfiguration für das Sparformular
-        saveForm: {
-          enabled: true, // Aktiviert den "Speichern"-Button im Cookie-Banner
-        },
-
-        // Designanpassungen
-        themeColors: {
-          consentButton: '#3b82f6', // Akzeptieren-Button (z.B. Tailwind's blue-500)
-          secondaryButton: '#6b7280', // Ablehnen-Button (z.B. Tailwind's gray-500)
-          border1: '#e5e7eb', // Rahmen des Banners (z.B. Tailwind's border-gray-200)
-        },
-        // Weitere Designoptionen können hier hinzugefügt werden, falls erforderlich.
+    <script define:vars={{ locale }}>
+      // Saubere CookieConsent-Integration basierend auf Astro-Pattern
+      document.addEventListener('DOMContentLoaded', function() {
+        // Warten bis CookieConsent geladen ist
+        function initCookieConsent() {
+          if (window.CookieConsent) {
+            window.CookieConsent.run({
+              language: locale,
+              
+              categories: {
+                necessary: {
+                  label: 'Notwendig',
+                  description: 'Diese Cookies sind für den Betrieb der Webseite essenziell.',
+                  checked: true,
+                },
+                analytics: {
+                  label: 'Analyse', 
+                  description: 'Diese Cookies ermöglichen uns, die Seitennutzung zu analysieren, um Ihr Erlebnis zu verbessern.',
+                  checked: false,
+                },
+                marketing: {
+                  label: 'Marketing',
+                  description: 'Diese Cookies werden verwendet, um personalisierte Werbung basierend auf Ihren Interessen anzuzeigen.',
+                  checked: false,
+                },
+              },
+              
+              gui_options: {
+                consent_modal: {
+                  position: 'bottom left',
+                  delay: 500,
+                  position_scroll: false,
+                },
+              },
+              
+              theme: {
+                primary: '#10b981',
+                secondary: '#6b7280', 
+                accept: '#059669',
+                reject: '#6b7280',
+                background: '#ffffff',
+                text: '#1f2937',
+                link: '#10b981',
+                consentButton: '#3b82f6',
+                secondaryButton: '#6b7280',
+                border1: '#e5e7eb',
+              },
+            });
+          } else {
+            setTimeout(initCookieConsent, 100);
+          }
+        }
+        
+        initCookieConsent();
       });
     </script>
 <script>
