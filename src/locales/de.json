@@ -1,0 +1,63 @@
+{
+  "common": {
+    "greeting": "Hallo Welt!",
+    "description": "Dies ist die deutsche Version Ihrer Webseite.",
+    "language_switch_label": "Sprache",
+    "get_started": "Los geht's",
+    "documentation": "Dokumentation",
+    "cta": {
+      "headline": "Sind Sie bereit zu starten?",
+      "subtitle": "Schließen Sie sich Tausenden von Entwicklern an, die Evolution Hub bereits nutzen, um erstaunliche Anwendungen zu erstellen.",
+      "button_text": "Kostenloses Konto erstellen"
+    }
+  },
+  "pages": {
+    "home": {
+      "title": "Willkommen auf der deutschen Startseite!"
+    },
+    "introduction": {
+      "part1": "Evolution Hub bietet eine innovative Sammlung von KI-gestützten Tools, die speziell für Entwickler und Kreative entwickelt wurden. Mit unseren KI-gestützten Tools können Sie Ihren Workflow optimieren, repetitive Aufgaben automatisieren und Ihre Produktivität steigern. Ob Sie Code generieren, Inhalte erstellen oder komplexe Daten analysieren möchten – unsere Plattform unterstützt Sie bei jedem Schritt.",
+      "part2": "Die intelligente Kombination aus künstlicher Intelligenz und benutzerfreundlichem Design ermöglicht es Ihnen, Ihre Kreativität freizusetzen und Projekte schneller zum Leben zu erwecken. Entdecken Sie unsere leistungsstarken Funktionen und erfahren Sie, wie Sie mit Evolution Hub die Zukunft der Softwareentwicklung und Content-Erstellung gestalten können.",
+      "part3": "Evolution Hub offers an innovative collection of AI-powered tools specifically designed for developers and creatives. With our AI-powered tools, you can optimize your workflow, automate repetitive tasks, and increase your productivity. Whether you want to generate code, create content, or analyze complex data, our platform supports you at every step.",
+      "part4": "The intelligent combination of artificial intelligence and user-friendly design enables you to unleash your creativity and bring projects to life faster. Discover our powerful features and learn how you can shape the future of software development and content creation with Evolution Hub."
+    }
+  },
+  "features": {
+    "title": "Leistungsstarke Funktionen",
+    "subtitle": "Alles, was Sie brauchen, um erstaunliche Anwendungen mit KI-Unterstützung zu erstellen.",
+    "ai_powered": {
+      "title": "KI-gestützt",
+      "description": "Nutzen Sie modernste KI, um Ihre Workflows zu automatisieren und die Produktivität zu steigern."
+    },
+    "responsive": {
+      "title": "Vollständig responsiv",
+      "description": "Funktioniert nahtlos auf allen Geräten, von Mobilgeräten bis zu Desktops."
+    },
+    "secure_by_design": {
+      "title": "Sicher von Grund auf",
+      "description": "Unternehmensfähige Sicherheit, um Ihre Daten sicher und privat zu halten."
+    },
+    "lightning_fast": {
+      "title": "Blitzschnell",
+      "description": "Für beste Benutzererfahrung mit Fokus auf Leistung entwickelt."
+    }
+  },
+  "footer": {
+    "brand_description": "Die moderne Plattform für Entwickler, um Projekte zu verwalten, zu teilen und zu skalieren. Entwickelt von Entwicklern für Entwickler.",
+    "quick_links": "Schnellzugriff",
+    "links": {
+      "dashboard": "Dashboard",
+      "blog": "Blog",
+      "projects": "Projekte",
+      "documentation": "Dokumentation",
+      "contact": "Kontakt"
+    },
+    "legal": "Rechtliches",
+    "legal_links": {
+      "privacy": "Datenschutzerklärung",
+      "imprint": "Impressum",
+      "terms": "Nutzungsbedingungen"
+    },
+    "copyright": "© 2024 Evolution Hub. Alle Rechte vorbehalten."
+  }
+}

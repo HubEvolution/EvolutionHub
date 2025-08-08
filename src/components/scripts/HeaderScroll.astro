@@ -1,0 +1,113 @@
+---
+// Separate Client-Script Component für den Header Scroll-Effekt
+// Optimiert für Performance und Robustheit
+---
+
+<script>
+  /**
+   * HeaderScroll - Optimierter Header-Animation für Show/Hide beim Scrollen
+   * - Verbesserte Performance durch RequestAnimationFrame
+   * - Optimierte Scroll-Erkennung mit Schwellenwert und Verzögerung
+   * - Reduzierte DOM-Zugriffe
+   */
+  document.addEventListener('DOMContentLoaded', function() {
+    // Header-Scroll-Setup direkt nach DOM-Laden (nicht auf window.load warten)
+    setupHeaderScroll();
+    
+    function setupHeaderScroll() {
+      // Header-Element einmal abfragen und cachen
+      const header = document.getElementById('site-header');
+      
+      if (!header) return;
+      
+      // Variablen für Scroll-Logik
+      let lastScrollY = window.scrollY;
+      let ticking = false;
+      let hideTimeout: number | null = null;
+      const scrollThreshold = 60;     // Früher reagieren
+      const scrollDeltaThreshold = 5; // Mindestens 5px scrollen für Aktion
+      
+      // Header initial sichtbar machen
+      header.classList.add('header-visible');
+      header.classList.remove('header-hidden');
+      
+      function handleScroll() {
+        const currentScrollY = window.scrollY;
+        
+        // Oberhalb des Thresholds oder am Seitenanfang - Header immer sichtbar
+        if (currentScrollY <= scrollThreshold) {
+          showHeader();
+          lastScrollY = currentScrollY;
+          ticking = false;
+          return;
+        }
+        
+        // Genug gescrollt für eine Aktion?
+        if (Math.abs(currentScrollY - lastScrollY) < scrollDeltaThreshold) {
+          ticking = false;
+          return;
+        }
+        
+        // Nach unten scrollen - Header ausblenden mit Verzögerung
+        if (currentScrollY > lastScrollY) {
+          // Bestehenden Timer löschen wenn vorhanden
+          if (hideTimeout) {
+            clearTimeout(hideTimeout);
+          }
+          
+          // Kurze Verzögerung vor dem Ausblenden für bessere UX
+          hideTimeout = window.setTimeout(() => {
+            if (header) {
+              header.classList.add('header-hidden');
+              header.classList.remove('header-visible');
+            }
+            hideTimeout = null;
+          }, 150);
+        } 
+        // Nach oben scrollen - Header sofort einblenden
+        else {
+          if (hideTimeout) {
+            clearTimeout(hideTimeout);
+            hideTimeout = null;
+          }
+          showHeader();
+        }
+        
+        lastScrollY = currentScrollY;
+        ticking = false;
+      }
+      
+      function showHeader() {
+        if (header) {
+          header.classList.add('header-visible');
+          header.classList.remove('header-hidden');
+        }
+      }
+      
+      // Optimiertes Event-Handling mit requestAnimationFrame
+      window.addEventListener('scroll', function() {
+        if (!ticking) {
+          window.requestAnimationFrame(function() {
+            handleScroll();
+          });
+          ticking = true;
+        }
+      }, { passive: true });
+      
+      // Resize-Event - Header neu positionieren
+      window.addEventListener('resize', function() {
+        if (!ticking) {
+          window.requestAnimationFrame(function() {
+            // Bei Resize immer Header zeigen
+            showHeader();
+            ticking = false;
+          });
+          ticking = true;
+        }
+      }, { passive: true });
+      
+      // Initial auslösen
+      handleScroll();
+    }
+  });
+</script>

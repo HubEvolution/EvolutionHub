@@ -41,6 +41,7 @@
     "aos": "^2.3.4",
     "astro": "^5.12.2",
     "astro-heroicons": "^2.1.5-1",
+    "astro-i18n": "^2.2.4",
     "bcrypt": "^6.0.0",
     "bcrypt-ts": "^7.1.0",
     "bcryptjs": "^3.0.2",

@@ -80,6 +80,36 @@
   animation: fadeIn 0.3s ease-out forwards;
 }
 
+/* Typewriter animation */
+@keyframes typewriter {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+@keyframes blink {
+  from { border-color: transparent; }
+  to { border-color: currentColor; }
+}
+
+.typewriter {
+  display: inline-block;
+  overflow: hidden;
+  border-right: 2px solid transparent;
+  white-space: nowrap;
+  animation: 
+    typewriter 2s steps(40, end) 1s infinite alternate,
+    blink 0.75s step-end infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .typewriter {
+    animation: none;
+    border-right: none;
+    overflow: visible;
+    white-space: normal;
+  }
+}
+
 /* Dark mode transition */
 * {
   @apply transition-colors duration-200;

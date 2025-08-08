@@ -1,6 +1,8 @@
 ---
 // src/layouts/BaseLayout.astro
 import Header from '@/components/Header.astro';
+import { getLocale } from '@/lib/i18n';
+import { getSEOData } from '@/lib/seo';
 import SkipLink from '@/components/SkipLink.astro';
 import Footer from '@/components/Footer.astro';
 import ThemeProvider from '@/components/ThemeProvider.astro';
@@ -22,15 +24,26 @@ interface Props {
 }
 
 const {
-  title,
-  description = 'Evolution Hub - Your AI-Powered SaaS Platform',
-  ogImage,
+  title: customTitle,
+  description: customDescription,
+  ogImage: customOgImage,
   hideNewsletter
 } = Astro.props;
+
+// Get locale from URL
+const locale = getLocale(Astro.url.pathname);
+
+// Get SEO data for the current locale
+const seoData = getSEOData(locale);
+
+// Use custom props if provided, otherwise use SEO data
+const title = customTitle || seoData.title;
+const description = customDescription || seoData.description;
+const ogImage = customOgImage || seoData.ogImage;
 ---
 
 <!DOCTYPE html>
-<html lang={Astro.url.pathname.startsWith('/de/') ? 'de' : 'en'} class="h-full">
+<html lang={getLocale(Astro.url.pathname)} class="h-full">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -41,8 +54,20 @@ const {
     <meta property="og:url" content={Astro.url.href} />
     <meta property="og:title" content={`${title} | Evolution Hub`} />
     <meta property="og:description" content={description} />
-    {ogImage && <meta property="og:image" content={ogImage} />}
-     {Astro.props.canonical && <link rel="canonical" href={Astro.props.canonical} />}
+    <meta property="og:image" content={ogImage} />
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={`${title} | Evolution Hub`} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+    
+    {Astro.props.canonical && <link rel="canonical" href={Astro.props.canonical} />}
+    
+    <!-- hreflang links for SEO -->
+    <link rel="alternate" hreflang="de" href={`${Astro.url.origin}/de${Astro.url.pathname.replace(/^\/(de|en)/, '')}`} />
+    <link rel="alternate" hreflang="en" href={`${Astro.url.origin}/en${Astro.url.pathname.replace(/^\/(de|en)/, '')}`} />
+    <link rel="alternate" hreflang="x-default" href={`${Astro.url.origin}${Astro.url.pathname.replace(/^\/(de|en)/, '')}`} />
 
     <title>{title} | Evolution Hub</title>
 
@@ -56,23 +81,32 @@ const {
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Preload critical CSS -->
+    <link rel="preload" href="/src/styles/global.css" as="style">
+    <link rel="preload" href="https://unpkg.com/aos@next/dist/aos.css" as="style">
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" as="style">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.css" as="style">
 
     <!-- AOS Animation Library CSS -->
-    <!-- Defer loading of AOS CSS -->
-    <link rel="preload" href="https://unpkg.com/aos@next/dist/aos.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css"></noscript>
-
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css">
 
     <!-- Toastr Notification Library CSS -->
-    <!-- Defer loading of Toastr CSS -->
-    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css"></noscript>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 
     <!-- Cookie Consent CSS -->
-    <!-- Defer loading of Cookie Consent CSS -->
-    <link rel="preload" href="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.css"></noscript>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.css">
 
+    <!-- JSON-LD Schema -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": `${title} | Evolution Hub`,
+        "description": description,
+        "inLanguage": locale
+      }
+    </script>
 
     <!-- Global CSS -->
     <style is:global>
@@ -219,10 +253,10 @@ const {
   // Analytics Manager initialisieren
   import { initializeAnalytics, trackScrollDepth, trackTimeOnPage } from '@/lib/analytics';
   
-  let analytics;
+  let analytics: any;
   let timeOnPageStart = Date.now();
   let maxScrollDepth = 0;
-  let scrollDepthTracked = new Set();
+  let scrollDepthTracked = new Set<number>();
   
   // Analytics beim Laden der Seite initialisieren
   analytics = initializeAnalytics();
@@ -251,13 +285,13 @@ const {
       console.log('✅ Marketing cookies accepted - enabling retargeting');
       
       // Facebook Pixel laden (falls konfiguriert)
-      if (typeof window !== 'undefined' && window.fbq) {
-        window.fbq('consent', 'grant');
-        window.fbq('track', 'PageView');
+      if (typeof window !== 'undefined' && (window as any).fbq) {
+        (window as any).fbq('consent', 'grant');
+        (window as any).fbq('track', 'PageView');
       }
       
       // LinkedIn Insight Tag aktivieren
-      if (typeof window !== 'undefined' && window._linkedin_data_partner_ids) {
+      if (typeof window !== 'undefined' && (window as any)._linkedin_data_partner_ids) {
         const linkedinScript = document.createElement('script');
         linkedinScript.src = 'https://snap.licdn.com/li.lms-analytics/insight.min.js';
         document.head.appendChild(linkedinScript);
@@ -267,7 +301,7 @@ const {
   
   // Scroll-Depth-Tracking Setup
   function setupScrollTracking() {
-    let throttleTimer = null;
+    let throttleTimer: NodeJS.Timeout | null = null;
     
     window.addEventListener('scroll', () => {
       if (throttleTimer !== null) return;

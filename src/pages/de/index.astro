@@ -1,0 +1,159 @@
+---
+// Importiere BaseLayout und die i18n-Funktion
+import BaseLayout from '@/layouts/BaseLayout.astro';
+// Korrigierter Import für den Namen-Export von i18n
+import i18nModule, { i18n } from '@/lib/i18n.js';
+// Importiere die TypewriterComponent
+import TypewriterComponent from '@/components/scripts/TypewriterComponent.astro';
+
+// Extrahiere den Pfad in der Astro-Frontmatter, um Astro-spezifische Objekte nicht im Client-Skript zu verwenden.
+const currentPathname = Astro.url.pathname; 
+const t = i18n(currentPathname);
+
+// Definiere die Texte für die Typewriter-Animation für die deutsche Seite.
+// Diese Variable wird als JSON an das inline-Skript übergeben.
+const typewriterTextsData_de = [
+  { text: t.translate('hero.typewriter.part1_de'), delay: 100 }, // Deutscher Text für Teil 1
+  { text: t.translate('hero.typewriter.part2_de'), delay: 80 }  // Deutscher Text für Teil 2
+];
+
+// Feature-Daten mit i18n-Übersetzungen (werden im HTML-Teil verwendet).
+const features = [
+  {
+    title: t.translate('features.ai_powered.title'),
+    description: t.translate('features.ai_powered.description'),
+    icon: '🤖',
+  },
+  {
+    title: t.translate('features.responsive.title'),
+    description: t.translate('features.responsive.description'),
+    icon: '📱',
+  },
+  {
+    title: t.translate('features.secure_by_design.title'),
+    description: t.translate('features.secure_by_design.description'),
+    icon: '🔒',
+  },
+  {
+    title: t.translate('features.lightning_fast.title'),
+    description: t.translate('features.lightning_fast.description'),
+    icon: '⚡',
+  },
+];
+---
+
+<BaseLayout title={t.translate('pages.home.title')}>
+  <!-- Hero Section -->
+  <section class="py-20 md:py-32 bg-gradient-to-br from-primary/5 to-purple-500/5 dark:from-gray-800 dark:to-gray-900">
+    <div class="container mx-auto px-4 text-center">
+      <h1 class="text-4xl md:text-6xl font-bold mb-6 text-gray-900 dark:text-white">
+        <span id="typewriter" aria-live="polite"></span>
+      </h1>
+      <p class="text-xl md:text-2xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-10">
+        {t.translate('common.description')}
+      </p>
+      
+      <div class="flex flex-col sm:flex-row justify-center gap-4">
+        <a href="/dashboard" class="btn btn-primary text-lg px-8 py-3 dark:text-white" aria-label="Get Started with Evolution Hub">
+          {t.translate('common.get_started')}
+        </a>
+        <a href="/docs" class="btn btn-outline text-lg px-8 py-3 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700" aria-label="Zur Dokumentation">
+          {t.translate('common.documentation')}
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Introduction Section -->
+  <section class="py-16 bg-gray-50 dark:bg-gray-800">
+    <div class="container mx-auto px-4 max-w-4xl">
+      <p class="text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
+        {t.translate('pages.introduction.part1')}
+      </p>
+      <p class="text-lg text-gray-700 dark:text-gray-300 leading-relaxed mt-4">
+        {t.translate('pages.introduction.part2')}
+      </p>
+      <p class="text-lg text-gray-700 dark:text-gray-300 leading-relaxed mt-4">
+        {/* Hier wird der Text für den deutschen Teil beibehalten */}
+        {t.translate('pages.introduction.part3_de')}
+      </p>
+      <p class="text-lg text-gray-700 dark:text-gray-300 leading-relaxed mt-4">
+        {/* Hier könnte der englische Text stehen, aber da es die deutsche Seite ist, bleiben wir bei deutschen Texten. */}
+        {t.translate('pages.introduction.part4_de')}
+      </p>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section id="features" class="py-20 bg-white dark:bg-gray-900">
+    <div class="container mx-auto px-4">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl md:text-4xl font-bold mb-4 text-gray-900 dark:text-white">{t.translate('features.title')}</h2>
+        <p class="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+          {t.translate('features.subtitle')}
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        {features.map((feature, index) => (
+          <div 
+            class="glass p-6 rounded-xl hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
+            data-aos="fade-up"
+            data-aos-delay={`${index * 100}`}
+          >
+            <div class="text-4xl mb-4">{feature.icon}</div>
+            <h2 class="text-xl font-bold mb-2 text-gray-900 dark:text-white">{feature.title}</h2>
+            <p class="text-gray-600 dark:text-gray-400">{feature.description}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="py-20 bg-gradient-to-r from-primary to-purple-600 text-white">
+    <div class="container mx-auto px-4 text-center">
+      <h2 class="text-3xl md:text-4xl font-bold mb-6">{t.translate('cta.headline')}</h2>
+      <p class="text-xl mb-8 max-w-2xl mx-auto opacity-90">
+        {t.translate('cta.subtitle')}
+      </p>
+      <a href="/signup" class="inline-block bg-white text-primary text-lg font-semibold px-8 py-3 rounded-lg hover:bg-gray-100 transition-colors" aria-label="Create a free account">
+        {t.translate('cta.button_text')}
+      </a>
+    </div>
+  </section>
+</BaseLayout>
+
+<TypewriterComponent 
+  elementId="typewriter" 
+  texts={typewriterTextsData_de}
+  defaultDelay={100} 
+/>
+
+<script is:inline>
+  document.addEventListener('DOMContentLoaded', () => {
+
+    // --- Andere Initialisierungen (AOS, Intersection Observer) ---
+    const featureItems = document.querySelectorAll('[data-aos]');
+    featureItems.forEach(item => {
+      item.classList.add('opacity-0', 'translate-y-4', 'transition-all', 'duration-500', 'ease-out');
+    });
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.remove('opacity-0', 'translate-y-4');
+          entry.target.classList.add('opacity-100', 'translate-y-0');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, {
+      threshold: 0.1
+    });
+    
+    featureItems.forEach(item => {
+      observer.observe(item);
+    });
+    // --- Ende andere Initialisierungen ---
+  });
+</script>

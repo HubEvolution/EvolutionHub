@@ -151,7 +151,7 @@ const formId = `lead-magnet-form-${leadMagnetId}-${Math.random().toString(36).su
       data-submit-text={submitText}
     >
       <span class="submit-text">{submitText}</span>
-      <svg class="inline-block w-4 h-4 ml-2 loading-spinner hidden animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg class="w-4 h-4 ml-2 loading-spinner hidden animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4V2m0 20v-2m8-8h-2M4 12H2m15.364-7.364l-1.414 1.414M6.05 17.95l-1.414 1.414m12.728 0l-1.414-1.414M6.05 6.05L4.636 4.636"></path>
       </svg>
     </button>
@@ -221,15 +221,19 @@ const formId = `lead-magnet-form-${leadMagnetId}-${Math.random().toString(36).su
     const forms = document.querySelectorAll('.lead-magnet-form-element');
     
     forms.forEach(form => {
-      const leadMagnetId = form.dataset.leadMagnetId;
-      const container = form.closest('.lead-magnet-form');
-      const submitButton = form.querySelector('button[type="submit"]');
-      const submitText = form.querySelector('.submit-text');
-      const loadingSpinner = form.querySelector('.loading-spinner');
-      const successMessage = container.querySelector('.success-message');
-      const errorMessage = container.querySelector('.error-message');
-      const retryButton = container.querySelector('.retry-button');
-      const downloadLink = container.querySelector('.download-link');
+      const formElement = form as HTMLFormElement;
+      const leadMagnetId = formElement.dataset.leadMagnetId;
+      const container = form.closest('.lead-magnet-form') as HTMLElement;
+      if (!container) return; // Skip if container not found
+      
+      const submitButton = form.querySelector('button[type="submit"]') as HTMLButtonElement;
+      const submitText = form.querySelector('.submit-text') as HTMLElement;
+      const loadingSpinner = form.querySelector('.loading-spinner') as HTMLElement;
+      const successMessage = container.querySelector('.success-message') as HTMLElement;
+      const errorMessage = container.querySelector('.error-message') as HTMLElement;
+      const errorText = container.querySelector('.error-text') as HTMLElement;
+      const retryButton = container.querySelector('.retry-button') as HTMLButtonElement;
+      const downloadLink = container.querySelector('.download-link') as HTMLAnchorElement;
       
       // UTM Parameter aus URL extrahieren
       const urlParams = new URLSearchParams(window.location.search);
@@ -239,31 +243,38 @@ const formId = `lead-magnet-form-${leadMagnetId}-${Math.random().toString(36).su
       const source = document.referrer || 'direct';
       
       // Hidden Fields befüllen
-      form.querySelector('[name="source"]').value = source;
-      form.querySelector('[name="utmSource"]').value = utmSource;
-      form.querySelector('[name="utmMedium"]').value = utmMedium;
-      form.querySelector('[name="utmCampaign"]').value = utmCampaign;
+      const sourceField = form.querySelector('[name="source"]') as HTMLInputElement;
+      const utmSourceField = form.querySelector('[name="utmSource"]') as HTMLInputElement;
+      const utmMediumField = form.querySelector('[name="utmMedium"]') as HTMLInputElement;
+      const utmCampaignField = form.querySelector('[name="utmCampaign"]') as HTMLInputElement;
+      
+      if (sourceField) sourceField.value = source;
+      if (utmSourceField) utmSourceField.value = utmSource;
+      if (utmMediumField) utmMediumField.value = utmMedium;
+      if (utmCampaignField) utmCampaignField.value = utmCampaign;
       
       // Form Submit Handler
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
         
         // Button-State: Loading
-        submitButton.disabled = true;
-        submitText.textContent = 'Wird verarbeitet...';
-        loadingSpinner.classList.remove('hidden');
+        if (submitButton) {
+          submitButton.disabled = true;
+          if (submitText) submitText.textContent = 'Wird verarbeitet...';
+          if (loadingSpinner) loadingSpinner.classList.remove('hidden');
+        }
         
         // Error-Message verstecken
-        errorMessage.classList.add('hidden');
+        if (errorMessage) errorMessage.classList.add('hidden');
         
         try {
           // Form-Daten sammeln
-          const formData = new FormData(form);
+          const formData = new FormData(formElement);
           const data = Object.fromEntries(formData.entries());
           
           // Analytics-Event senden
-          if (typeof gtag !== 'undefined') {
-            gtag('event', 'lead_magnet_form_submit', {
+          if (typeof (window as any).gtag !== 'undefined') {
+            (window as any).gtag('event', 'lead_magnet_form_submit', {
               'lead_magnet_id': leadMagnetId,
               'form_location': window.location.href,
               'event_category': 'Lead Generation'
@@ -283,18 +294,18 @@ const formId = `lead-magnet-form-${leadMagnetId}-${Math.random().toString(36).su
           
           if (result.success) {
             // Success: Form verstecken, Success-Message zeigen
-            form.style.display = 'none';
-            successMessage.classList.remove('hidden');
+            (form as HTMLElement).style.display = 'none';
+            if (successMessage) successMessage.classList.remove('hidden');
             
             // Download-Link setzen
-            if (result.downloadUrl) {
+            if (result.downloadUrl && downloadLink) {
               downloadLink.href = result.downloadUrl;
               downloadLink.download = result.fileName || 'download.pdf';
             }
             
             // Success-Analytics
-            if (typeof gtag !== 'undefined') {
-              gtag('event', 'lead_magnet_download_success', {
+            if (typeof (window as any).gtag !== 'undefined') {
+              (window as any).gtag('event', 'lead_magnet_download_success', {
                 'lead_magnet_id': leadMagnetId,
                 'lead_id': result.leadId,
                 'event_category': 'Lead Generation'
@@ -312,40 +323,51 @@ const formId = `lead-magnet-form-${leadMagnetId}-${Math.random().toString(36).su
           console.error('❌ Lead Magnet Form Error:', error);
           
           // Error-Message anzeigen
-          errorMessage.classList.remove('hidden');
-          const errorText = errorMessage.querySelector('.error-text');
-          errorText.textContent = error.message || 'Ein unerwarteter Fehler ist aufgetreten.';
+          if (errorMessage) {
+            errorMessage.classList.remove('hidden');
+            if (errorText) {
+              const errorMsg = error instanceof Error ? error.message : 'Ein unerwarteter Fehler ist aufgetreten.';
+              errorText.textContent = errorMsg;
+            }
+          }
           
           // Error-Analytics
-          if (typeof gtag !== 'undefined') {
-            gtag('event', 'lead_magnet_form_error', {
+          if (typeof (window as any).gtag !== 'undefined') {
+            const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+            (window as any).gtag('event', 'lead_magnet_form_error', {
               'lead_magnet_id': leadMagnetId,
-              'error_message': error.message,
+              'error_message': errorMsg,
               'event_category': 'Lead Generation'
             });
           }
           
         } finally {
           // Button-State zurücksetzen
-          submitButton.disabled = false;
-          submitText.textContent = submitButton.dataset.submitText;
-          loadingSpinner.classList.add('hidden');
+          if (submitButton) {
+            submitButton.disabled = false;
+            if (submitText) {
+              submitText.textContent = submitButton.dataset.submitText || 'Herunterladen';
+            }
+            if (loadingSpinner) loadingSpinner.classList.add('hidden');
+          }
         }
       });
       
       // Retry Button Handler
-      retryButton?.addEventListener('click', () => {
-        errorMessage.classList.add('hidden');
-        form.style.display = 'block';
-        successMessage.classList.add('hidden');
-      });
+      if (retryButton) {
+        retryButton.addEventListener('click', () => {
+          if (errorMessage) errorMessage.classList.add('hidden');
+          (form as HTMLElement).style.display = 'block';
+          if (successMessage) successMessage.classList.add('hidden');
+        });
+      }
       
       // Form-Impression-Tracking
       const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
           if (entry.isIntersecting) {
-            if (typeof gtag !== 'undefined') {
-              gtag('event', 'lead_magnet_form_impression', {
+            if (typeof (window as any).gtag !== 'undefined') {
+              (window as any).gtag('event', 'lead_magnet_form_impression', {
                 'lead_magnet_id': leadMagnetId,
                 'form_location': window.location.href
               });

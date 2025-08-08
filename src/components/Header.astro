@@ -2,6 +2,34 @@
 // src/components/Header.astro
 
 import ThemeToggle from './ThemeToggle.astro';
+// Korrigierter Import für getLocale – erwartet einen benannten Export und .js Erweiterung
+import { getLocale } from '@/lib/i18n.js';
+// Import der dedizierten Scroll-Effect Komponente
+import HeaderScroll from './scripts/HeaderScroll.astro';
+
+// Get current locale for language switching
+// These variables should be defined in Markdown Frontmatter or accessible in the script.
+// Ensuring they are correctly defined and typed.
+const currentLocale = getLocale(Astro.url.pathname); 
+
+// Generate proper URLs for language switching
+function generateLanguageUrl(targetLocale: string, currentPath: string): string {
+  // Remove any existing locale prefix
+  let cleanPath = currentPath;
+  if (cleanPath.startsWith('/de/')) {
+    cleanPath = cleanPath.replace('/de/', '/');
+  } else if (cleanPath.startsWith('/en/')) {
+    cleanPath = cleanPath.replace('/en/', '/');
+  }
+
+  // Handle root path
+  if (cleanPath === '/') {
+    return targetLocale === 'de' ? '/de/' : '/en/';
+  }
+
+  // Add new locale prefix
+  return `/${targetLocale}${cleanPath}`;
+}
 
 // Navigation items with ARIA labels
 const navItems = [
@@ -19,17 +47,17 @@ const currentPath = url.pathname;
 const isActive = (path: string): boolean => {
   // Check direct path match
   if (currentPath === path) return true;
-  
+
   // Check for sub-routes
   if (path === '/dashboard') {
     return currentPath.startsWith('/dashboard');
   }
-  
+
   return false;
 };
 ---
 
-<header class="sticky top-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border-b border-gray-100 dark:border-gray-800 shadow-sm transition-all duration-300 hover:shadow-md">
+<header id="site-header" data-testid="site-header" class="sticky top-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border-b border-gray-100 dark:border-gray-800 shadow-sm transition-all duration-300 hover:shadow-md header-visible">
   <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" aria-label="Main navigation">
     <div class="flex items-center justify-between h-20">
       <!-- Logo -->
@@ -72,64 +100,89 @@ const isActive = (path: string): boolean => {
         <div class="hidden md:block">
           <ThemeToggle />
         </div>
-        
+
         <!-- Language Switcher -->
-        <div class="hidden md:block" role="region" aria-label="Language selector">
+        <div class="hidden md:block relative" role="region" aria-label="Language selector">
           <button
             type="button"
-            class="flex items-center px-3 py-2 text-sm font-medium text-gray-600 transition-all duration-200 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 hover:shadow-md"
-            aria-label="Change language"
+            class="flex items-center text-gray-700 dark:text-gray-300 hover:text-emerald-500 dark:hover:text-emerald-400 p-1.5 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
             aria-expanded="false"
-            aria-haspopup="true"
+            aria-haspopup="menu"
             id="language-selector"
           >
-            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9V3m0 18a9 9 0 009-9m-9 9a9 9 0 00-9-9"></path></svg>
-            <span class="text-sm font-medium">EN</span>
-            <svg class="w-4 h-4 ml-1.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-            </svg>
+            <span class="flex items-center">
+              <span class="mr-2 text-sm font-medium">{currentLocale === 'de' ? 'Deutsch' : 'English'}</span>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transition-transform duration-200" id="language-arrow" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+              </svg>
+            </span>
           </button>
-        </div>
-        
-        <!-- Blog Button -->
-        <a
-          href="/blog"
-          class="hidden md:inline-flex items-center px-4 py-2.5 text-sm font-medium text-white transition-all duration-300 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-lg hover:from-emerald-600 hover:to-cyan-600 hover:shadow-lg hover:-translate-y-0.5 focus:ring-2 focus:ring-offset-2 focus:ring-emerald-400 focus:outline-none"
-        >
-          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L15.232 5.232z"></path>
-          </svg>
-          Blog
-        </a>
 
-        <!-- Mobile menu button and theme toggle -->
-        <div class="flex items-center space-x-2 md:hidden">
-          <div class="md:hidden">
-            <ThemeToggle />
+          <!-- Language Dropdown Menu -->
+          <div
+            class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 py-2 z-50 opacity-0 transform scale-95 transition-all duration-200 pointer-events-none"
+            id="language-dropdown"
+            data-testid="language-dropdown"
+            role="menu"
+            aria-orientation="vertical"
+            aria-labelledby="language-selector"
+          >
+            <!-- German Option -->
+            <a
+              href={generateLanguageUrl('de', Astro.url.pathname)}
+              class={`dropdown-item flex items-center px-4 py-2 text-sm transition-colors hover:bg-gray-50 dark:hover:bg-gray-700/50 ${
+                currentLocale === 'de'
+                  ? 'text-emerald-600 dark:text-emerald-400 font-medium'
+                  : 'text-gray-700 dark:text-gray-300'
+              }`}
+              role="menuitem"
+              tabindex="-1"
+              aria-current={currentLocale === 'de' ? 'page' : undefined}
+            >
+              <span>Deutsch</span>
+              {currentLocale === 'de' && (
+                <svg class="ml-auto w-4 h-4 text-emerald-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                </svg>
+              )}
+            </a>
+
+            <!-- English Option -->
+            <a
+              href={generateLanguageUrl('en', Astro.url.pathname)}
+              class={`dropdown-item flex items-center px-4 py-2 text-sm transition-colors hover:bg-gray-50 dark:hover:bg-gray-700/50 ${
+                currentLocale === 'en'
+                  ? 'text-emerald-600 dark:text-emerald-400 font-medium'
+                  : 'text-gray-700 dark:text-gray-300'
+              }`}
+              role="menuitem"
+              tabindex="-1"
+              aria-current={currentLocale === 'en' ? 'page' : undefined}
+            >
+              <span>English</span>
+              {currentLocale === 'en' && (
+                <svg class="ml-auto w-4 h-4 text-emerald-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                </svg>
+              )}
+            </a>
           </div>
+        </div>
+
+        <!-- Mobile Menu Button -->
+        <div class="md:hidden">
           <button
             type="button"
-            class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
             id="mobile-menu-button"
-            aria-controls="mobile-menu"
+            data-testid="mobile-menu-button"
+            class="inline-flex items-center justify-center p-2 rounded-md text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
             aria-expanded="false"
-            aria-label="Toggle navigation menu"
+            aria-controls="mobile-menu"
           >
             <span class="sr-only">Open main menu</span>
-            <svg
-              class="block h-6 w-6"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              aria-hidden="true"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M4 6h16M4 12h16M4 18h16"
-              />
+            <!-- Icon when menu is closed -->
+            <svg class="h-6 w-6 transition-transform" id="menu-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
         </div>
@@ -137,75 +190,250 @@ const isActive = (path: string): boolean => {
     </div>
   </nav>
 
-  <div 
-    class="md:hidden hidden bg-gray-800" 
-    id="mobile-menu" 
-    role="menu" 
-    aria-labelledby="mobile-menu-button"
-    aria-orientation="vertical"
-  >
-    <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+  <!-- Mobile menu, show/hide based on menu state -->
+  <div class="md:hidden hidden" id="mobile-menu" data-testid="mobile-menu">
+    <div class="px-2 pt-2 pb-3 space-y-1 border-t border-gray-200 dark:border-gray-700">
       {navItems.map((item) => (
         <a
           href={item.href}
-          class={`block px-3 py-2 rounded-md text-base font-medium ${
+          class={`block px-3 py-2 text-base font-medium rounded-md ${
             isActive(item.href)
-              ? 'text-white bg-gray-900 dark:bg-gray-700 font-semibold'
-              : 'text-gray-300 hover:bg-gray-700 hover:text-white dark:text-gray-300 dark:hover:bg-gray-600'
+              ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400'
+              : 'text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800'
           }`}
-          role="menuitem"
-          tabindex="-1"
+          aria-current={isActive(item.href) ? 'page' : undefined}
           aria-label={item['aria-label']}
         >
           {item.name}
-          {isActive(item.href) && <span class="sr-only">(current page)</span>}
         </a>
       ))}
       
-      <!-- Dashboard Link im mobilen Menü -->
-      <a
-        href="/dashboard"
-        role="menuitem"
-        class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white dark:text-gray-300 dark:hover:bg-gray-600"
-        tabindex="-1"
-        aria-label="Go to Dashboard"
-      >
-        Dashboard
-      </a>
+      <div class="px-3 py-2 border-t border-gray-200 dark:border-gray-700 mt-3 pt-3">
+        <div class="flex items-center justify-between">
+          <div class="text-sm font-medium text-gray-700 dark:text-gray-300">Theme</div>
+          <ThemeToggle />
+        </div>
+      </div>
+      
+      <div class="px-3 py-2 border-t border-gray-200 dark:border-gray-700">
+        <div class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Language</div>
+        <div class="flex flex-col space-y-1">
+          <a
+            href={generateLanguageUrl('de', Astro.url.pathname)}
+            class={`block px-3 py-2 text-base rounded-md ${
+              currentLocale === 'de'
+                ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 font-medium'
+                : 'text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800'
+            }`}
+          >
+            Deutsch
+          </a>
+          <a
+            href={generateLanguageUrl('en', Astro.url.pathname)}
+            class={`block px-3 py-2 text-base rounded-md ${
+              currentLocale === 'en'
+                ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 font-medium'
+                : 'text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800'
+            }`}
+          >
+            English
+          </a>
+        </div>
+      </div>
     </div>
   </div>
 </header>
 
-<script src="/scripts/mobileMenu.js" is:inline></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Mobile Menu Toggle (robust, ohne Non-Null-Assertions)
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const menuIcon = document.getElementById('menu-icon');
+
+    if (!mobileMenuButton || !mobileMenu || !menuIcon) return;
+    const btn = mobileMenuButton;
+    const menu = mobileMenu;
+    const icon = menuIcon;
+
+    let isMenuOpen = false;
+
+    function toggleMenu() {
+      isMenuOpen = !isMenuOpen;
+
+      if (isMenuOpen) {
+        menu.classList.remove('hidden');
+        btn.setAttribute('aria-expanded', 'true');
+        // Change to X icon
+        icon.innerHTML = `
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        `;
+      } else {
+        menu.classList.add('hidden');
+        btn.setAttribute('aria-expanded', 'false');
+        // Change back to hamburger icon
+        icon.innerHTML = `
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+        `;
+      }
+    }
+
+    btn.addEventListener('click', toggleMenu);
+  });
+</script>
+
+<!-- Header-Scroll-Funktionalität über dedizierte Komponente -->
+<HeaderScroll />
+
+<script>
+  // Sprachauswahl Dropdown Funktionalität
+  document.addEventListener('DOMContentLoaded', function() {
+    const languageSelector = document.getElementById('language-selector');
+    const languageDropdown = document.getElementById('language-dropdown');
+    const languageArrow = document.getElementById('language-arrow');
+    
+    if (!languageSelector || !languageDropdown || !languageArrow) {
+      console.warn('Language selector elements not found');
+      return;
+    }
+    
+    let isOpen = false;
+
+    // Toggle dropdown
+    function toggleDropdown() {
+      isOpen = !isOpen;
+
+      if (isOpen) {
+        languageDropdown?.classList.add('opacity-100', 'scale-100');
+        languageDropdown?.classList.remove('opacity-0', 'scale-95', 'pointer-events-none');
+        languageArrow?.classList.add('rotate-180');
+        languageSelector?.setAttribute('aria-expanded', 'true');
+      } else {
+        languageDropdown?.classList.add('opacity-0', 'scale-95', 'pointer-events-none');
+        languageDropdown?.classList.remove('opacity-100', 'scale-100');
+        languageArrow?.classList.remove('rotate-180');
+        languageSelector?.setAttribute('aria-expanded', 'false');
+      }
+    }
+
+    // Close dropdown
+    function closeDropdown() {
+      if (isOpen) {
+        isOpen = false;
+        languageDropdown?.classList.add('opacity-0', 'scale-95', 'pointer-events-none');
+        languageDropdown?.classList.remove('opacity-100', 'scale-100');
+        languageArrow?.classList.remove('rotate-180');
+        languageSelector?.setAttribute('aria-expanded', 'false');
+      }
+    }
+
+    // Event listeners
+    languageSelector.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      toggleDropdown();
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+      const target = e.target as Node;
+      // Ensure the event target is not within the selector or dropdown itself
+      if (languageSelector && !languageSelector.contains(target) &&
+          languageDropdown && !languageDropdown.contains(target)) {
+        closeDropdown();
+      }
+    });
+
+    // Close dropdown on Escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && isOpen) {
+        closeDropdown();
+        languageSelector.focus();
+      }
+    });
+
+    // Handle keyboard navigation within dropdown
+    languageDropdown.addEventListener('keydown', function(e) {
+      const menuItems = Array.from(languageDropdown.querySelectorAll('a[role="menuitem"]'));
+      const currentActiveElement = document.activeElement;
+
+      let currentIndex = -1;
+      if (currentActiveElement) {
+        currentIndex = menuItems.indexOf(currentActiveElement);
+      }
+
+      switch (e.key) {
+        case 'ArrowDown':
+          e.preventDefault();
+          const nextIndex = currentIndex < menuItems.length - 1 ? currentIndex + 1 : 0;
+          const nextItem = menuItems[nextIndex] as HTMLElement;
+          if (nextItem) {
+            nextItem.focus();
+          }
+          break;
+        case 'ArrowUp':
+          e.preventDefault();
+          const prevIndex = currentIndex > 0 ? currentIndex - 1 : menuItems.length - 1;
+          const prevItem = menuItems[prevIndex] as HTMLElement;
+          if (prevItem) {
+            prevItem.focus();
+          }
+          break;
+        case 'Enter':
+        case ' ':
+          e.preventDefault();
+          const activeEl = document.activeElement as HTMLElement;
+          if (activeEl && activeEl.tagName === 'A') {
+            activeEl.click();
+          }
+          break;
+        case 'Escape':
+          e.preventDefault();
+          closeDropdown();
+          (languageSelector as HTMLElement)?.focus();
+          break;
+      }
+    });
+  });
+</script>
 
 <style>
-  /* Add smooth transitions for the header */
-  header {
-    transition: all 0.3s ease-in-out;
+  /* Styles für die Header-Animation - wichtig: Spezifischere Selektoren verwenden */
+  #site-header.header-visible {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
   }
   
+  #site-header.header-hidden {
+    transform: translateY(-100%);
+    opacity: 0;
+    pointer-events: none;
+  }
+  
+  /* Add smooth transitions for the header - wichtig: Will-change für Performance */
+  #site-header {
+    transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+    will-change: transform, opacity;
+    z-index: 50;
+  }
+
   /* Glassmorphism effect */
-  .backdrop-blur-md {
+  .backdrop-blur-lg {
     backdrop-filter: blur(12px);
   }
-  
-  /* Gradient text */
-  .gradient-text {
-    background: linear-gradient(135deg, #00d4aa 0%, #40e0d0 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-  
+
   /* Focus styles for better keyboard navigation */
   a:focus-visible,
   button:focus-visible,
   [role="menuitem"]:focus-visible {
-    outline: 2px solid #40e0d0;
+    outline: 2px solid #10b981;
     outline-offset: 2px;
     border-radius: 0.25rem;
   }
-  
-  /* Ensure focus indicators are visible in high contrast mode */
+</style>
+<style>
+  /* High contrast mode support */
   @media (forced-colors: active) {
     a:focus-visible,
     button:focus-visible,

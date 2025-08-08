@@ -1,0 +1,63 @@
+{
+  "common": {
+    "greeting": "Hello World!",
+    "description": "This is the English version of your website.",
+    "language_switch_label": "Language",
+    "get_started": "Get Started",
+    "documentation": "Documentation",
+    "cta": {
+      "headline": "Ready to get started?",
+      "subtitle": "Join thousands of developers already using Evolution Hub to build amazing applications.",
+      "button_text": "Create Free Account"
+    }
+  },
+  "pages": {
+    "home": {
+      "title": "Welcome to the English homepage!"
+    },
+    "introduction": {
+      "part1": "Evolution Hub offers an innovative collection of AI-powered tools specifically designed for developers and creatives. With our AI-powered tools, you can optimize your workflow, automate repetitive tasks, and increase your productivity. Whether you want to generate code, create content, or analyze complex data, our platform supports you at every step.",
+      "part2": "The intelligent combination of artificial intelligence and user-friendly design enables you to unleash your creativity and bring projects to life faster. Discover our powerful features and learn how you can shape the future of software development and content creation with Evolution Hub.",
+      "part3": "Evolution Hub bietet eine innovative Sammlung von KI-gestützten Tools, die speziell für Entwickler und Kreative entwickelt wurden. Mit unseren KI-gestützten Tools können Sie Ihren Workflow optimieren, repetitive Aufgaben automatisieren und Ihre Produktivität steigern. Ob Sie Code generieren, Inhalte erstellen oder komplexe Daten analysieren möchten – unsere Plattform unterstützt Sie bei jedem Schritt.",
+      "part4": "Die intelligente Kombination aus künstlicher Intelligenz und benutzerfreundlichem Design ermöglicht es Ihnen, Ihre Kreativität freizusetzen und Projekte schneller zum Leben zu erwecken. Entdecken Sie unsere leistungsstarken Funktionen und erfahren Sie, wie Sie mit Evolution Hub die Zukunft der Softwareentwicklung und Content-Erstellung gestalten können."
+    }
+  },
+  "features": {
+    "title": "Powerful Features",
+    "subtitle": "Everything you need to build amazing applications with AI assistance.",
+    "ai_powered": {
+      "title": "AI-Powered",
+      "description": "Leverage cutting-edge AI to automate your workflows and boost productivity."
+    },
+    "responsive": {
+      "title": "Fully Responsive",
+      "description": "Works seamlessly on all devices, from mobile to desktop."
+    },
+    "secure_by_design": {
+      "title": "Secure by Design",
+      "description": "Enterprise-grade security to keep your data safe and private."
+    },
+    "lightning_fast": {
+      "title": "Lightning Fast",
+      "description": "Built with performance in mind for the best user experience."
+    }
+  },
+  "footer": {
+    "brand_description": "The modern platform for developers to manage, share, and scale projects. Built by developers for developers.",
+    "quick_links": "Quick Links",
+    "links": {
+      "dashboard": "Dashboard",
+      "blog": "Blog",
+      "projects": "Projects",
+      "documentation": "Documentation",
+      "contact": "Contact"
+    },
+    "legal": "Legal",
+    "legal_links": {
+      "privacy": "Privacy Policy",
+      "imprint": "Imprint",
+      "terms": "Terms of Service"
+    },
+    "copyright": "© 2024 Evolution Hub. All rights reserved."
+  }
+}

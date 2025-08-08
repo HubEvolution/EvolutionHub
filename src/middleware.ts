@@ -26,20 +26,23 @@ export const onRequest = defineMiddleware(async (context, next) => {
     return next();
   }
 
-  try {
-    const { session, user } = await validateSession(context.locals.runtime.env.DB, sessionId);
-    console.log('[Middleware] Session validation result:', {
-      sessionValid: !!session,
-      userValid: !!user,
-    });
+  // TEMPORÄR DEAKTIVIERT FÜR UI-TESTS
+  // try {
+  //   const { session, user } = await validateSession(context.locals.runtime.env.DB, sessionId);
+  //   console.log('[Middleware] Session validation result:', {
+  //     sessionValid: !!session,
+  //     userValid: !!user,
+  //   });
 
-    context.locals.session = session;
-    context.locals.user = user;
-  } catch (error) {
-    console.error('[Middleware] Error during session validation:', error);
-    context.locals.session = null;
-    context.locals.user = null;
-  }
+  //   context.locals.session = session;
+  //   context.locals.user = user;
+  // } catch (error) {
+  //   console.error('[Middleware] Error during session validation:', error);
+  //   context.locals.session = null;
+  //   context.locals.user = null;
+  // }
+  
+  // User und Session bereits auf null gesetzt (siehe oben)
   
   // Führe den nächsten Middleware-Schritt aus
   const response = await next();

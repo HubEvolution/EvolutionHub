@@ -3,6 +3,7 @@ import type { ProcessedBlogPost } from '@/content/types';
 import BlogCard from './BlogCard.astro';
 import BlogCTA from './blog/BlogCTA.astro';
 import LeadMagnetCTA from './blog/LeadMagnetCTA.astro';
+import NewsletterCTA from './blog/NewsletterCTA.astro';
 // Import the Image component from Astro's built-in assets handling.
 import { Image } from 'astro:assets';
 
@@ -287,6 +288,10 @@ const finalBottomCTA = bottomCTA || (showBottomCTA ? getDefaultCTAForCategory(ca
   </div>
 
   <!-- Bottom CTA (nach Content, vor Footer) -->
+  <div class="not-prose my-12">
+    <NewsletterCTA variant="card" />
+  </div>
+
   {finalBottomCTA && (
     <div class="not-prose my-12">
       {finalBottomCTA.type === 'leadmagnet' && finalBottomCTA.leadMagnet ? (

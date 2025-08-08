@@ -2,6 +2,9 @@ import { defineConfig } from 'astro/config';
 import tailwind from '@astrojs/tailwind';
 import react from "@astrojs/react";
 import cloudflare from "@astrojs/cloudflare";
+// Using custom i18n implementation in src/lib/i18n.js
+// No external i18n package needed
+
 
 // https://astro.build/config
 export default defineConfig({
@@ -22,7 +25,7 @@ export default defineConfig({
   },
   adapter: cloudflare({
     mode: 'directory',
-    functionPerRoute: false,
+    functionPerRoute: true, // Nach Überprüfung, dies ist oft notwendig für i18n
     staticAssetHeaders: {
       // Target CSS files broadly to ensure correct MIME type handling.
       '**/*.css': {
@@ -70,6 +73,12 @@ export default defineConfig({
       applyBaseStyles: true,
       nesting: true
     })
+    // Custom i18n implementation via file structure:
+    // - src/pages/index.astro (default/root)
+    // - src/pages/de/index.astro (German)
+    // - src/pages/en/index.astro (English)
+    // - src/lib/i18n.js (translation function)
+    // - src/locales/*.json (translation files)
   ],
   vite: {
     logLevel: 'info',

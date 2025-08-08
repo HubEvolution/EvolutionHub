@@ -1,0 +1,91 @@
+---
+// TypewriterComponent.astro
+// Eine universelle Komponente für Typewriter-Animationen in mehreren Sprachen
+
+interface TypewriterText {
+  text: string;
+  delay?: number;
+}
+
+interface Props {
+  elementId: string; // ID des DOM-Elements, das den Typewriter-Text anzeigen soll
+  texts: TypewriterText[]; // Array von Texten und ggf. Delays
+  defaultDelay?: number; // Standard-Delay für Animationen (wenn nicht pro Text definiert)
+}
+
+// Props mit Standardwerten
+const { 
+  elementId = "typewriter", 
+  texts = [], 
+  defaultDelay = 100 
+} = Astro.props;
+---
+
+<!-- Kein direktes Markup nötig, nur das Client-Script -->
+<script define:vars={{ elementId, texts, defaultDelay }}>
+  // Typewriter-Funktion direkt hier definieren
+  const runTypewriter = (targetElementId, textArray, baseDelay = 100) => {
+    const element = document.getElementById(targetElementId);
+    if (!element) {
+      console.error(`Element with ID "${targetElementId}" not found.`);
+      return;
+    }
+
+    // Fallback für leeres Array
+    if (!textArray || textArray.length === 0) {
+      textArray = [{ text: "No text provided", delay: baseDelay }];
+    }
+
+    let currentIndex = 0;
+    let charIndex = 0;
+    let typingTimeout;
+
+    // Text-Zeichen für Zeichen anzeigen
+    const type = () => {
+      if (currentIndex < textArray.length) {
+        const currentText = textArray[currentIndex].text;
+        if (charIndex < currentText.length) {
+          element.textContent += currentText.charAt(charIndex);
+          charIndex++;
+          typingTimeout = setTimeout(type, baseDelay);
+        } else {
+          // Nach dem Tippen eines Textes eine Weile warten, bevor gelöscht wird
+          setTimeout(erase, textArray[currentIndex].delay || baseDelay * 5);
+        }
+      }
+    };
+
+    // Text-Zeichen für Zeichen löschen
+    const erase = () => {
+      if (charIndex > 0) {
+        element.textContent = element.textContent.slice(0, -1);
+        charIndex--;
+        typingTimeout = setTimeout(erase, baseDelay / 2);
+      } else {
+        // Nach dem Löschen zum nächsten Text wechseln
+        currentIndex++;
+        if (currentIndex >= textArray.length) {
+          currentIndex = 0; // Zurück zum Anfang springen
+        }
+        const nextDelay = textArray[currentIndex].delay || baseDelay;
+        typingTimeout = setTimeout(type, nextDelay);
+      }
+    };
+
+    // Animation starten
+    type();
+
+    // Aufräumen bei Komponentenentfernung
+    return () => {
+      if (typingTimeout) {
+        clearTimeout(typingTimeout);
+      }
+    };
+  };
+
+  // Animation beim Laden der Seite starten
+  document.addEventListener('DOMContentLoaded', () => {
+    // Typewriter starten
+    runTypewriter(elementId, texts, defaultDelay);
+  });
+</script>

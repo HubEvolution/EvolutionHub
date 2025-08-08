@@ -1,38 +1,226 @@
 ---
 // Newsletter Subscription Component
+interface Props {
+  source?: string; // Track subscription source (e.g., 'blog', 'footer', 'cta')
+  variant?: 'default' | 'compact' | 'inline';
+  title?: string;
+  description?: string;
+}
+
+const { 
+  source = 'website',
+  variant = 'default',
+  title = 'Bleiben Sie auf dem Laufenden',
+  description = 'Abonnieren Sie unseren Newsletter, um über Neuigkeiten und Updates informiert zu werden.'
+} = Astro.props;
+
+const compactMode = variant === 'compact';
+const inlineMode = variant === 'inline';
 ---
 
-<div class="border-t border-gray-200 dark:border-gray-700 pt-12 mt-8">
-  <div class="max-w-2xl mx-auto text-center">
-    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-3">
-      Bleiben Sie auf dem Laufenden
+<div class={`${!inlineMode ? 'border-t border-gray-200 dark:border-gray-700 pt-12 mt-8' : ''}`}>
+  <div class={`${compactMode ? 'max-w-md' : 'max-w-2xl'} mx-auto text-center`}>
+    <h3 class={`${compactMode ? 'text-base' : 'text-lg'} font-medium text-gray-900 dark:text-white mb-3`}>
+      {title}
     </h3>
-    <p class="text-gray-600 dark:text-gray-300 text-sm mb-6">
-      Abonnieren Sie unseren Newsletter, um über Neuigkeiten und Updates
-      informiert zu werden.
+    <p class={`text-gray-600 dark:text-gray-300 ${compactMode ? 'text-xs' : 'text-sm'} mb-6`}>
+      {description}
     </p>
-    <form class="sm:flex gap-3 max-w-lg mx-auto">
+    
+    <!-- Newsletter Form -->
+    <form 
+      id="newsletter-form"
+      class={`${compactMode ? 'flex flex-col gap-2' : 'sm:flex gap-3'} max-w-lg mx-auto`}
+      data-source={source}
+    >
+      <!-- Email Input -->
       <div class="flex-1">
-        <label for="email-address" class="sr-only">E-Mail-Adresse</label>
+        <label for="newsletter-email" class="sr-only">E-Mail-Adresse</label>
         <input
-          id="email-address"
+          id="newsletter-email"
           name="email"
           type="email"
           required
-          class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+          class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-colors duration-300"
           placeholder="Ihre E-Mail-Adresse"
         />
       </div>
+      
+      <!-- Submit Button -->
       <button
         type="submit"
-        class="mt-3 sm:mt-0 w-full sm:w-auto flex-shrink-0 px-6 py-2.5 bg-gradient-to-r from-emerald-500 to-cyan-500 text-white font-medium rounded-lg hover:from-emerald-600 hover:to-cyan-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all duration-300"
+        id="newsletter-submit"
+        class={`${compactMode ? 'mt-2' : 'mt-3 sm:mt-0'} w-full sm:w-auto flex-shrink-0 px-6 py-2.5 bg-gradient-to-r from-emerald-500 to-cyan-500 text-white font-medium rounded-lg hover:from-emerald-600 hover:to-cyan-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed`}
       >
-        Abonnieren
+        <span class="submit-text">Abonnieren</span>
+        <span class="loading-text hidden">Wird gesendet...</span>
       </button>
     </form>
+    
+    <!-- Status Messages -->
+    <div id="newsletter-status" class="mt-4 text-sm hidden">
+      <!-- Success Message -->
+      <div id="success-message" class="hidden p-3 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg text-emerald-700 dark:text-emerald-300">
+        <svg class="w-4 h-4 inline mr-2" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+        </svg>
+        <span id="success-text"></span>
+      </div>
+      
+      <!-- Error Message -->
+      <div id="error-message" class="hidden p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-300">
+        <svg class="w-4 h-4 inline mr-2" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+        </svg>
+        <span id="error-text"></span>
+      </div>
+    </div>
+    
+    <!-- Message -->
+    <div id="newsletter-message" class="hidden"></div>
+    
+    <!-- Privacy Notice -->
     <p class="mt-3 text-xs text-gray-500 dark:text-gray-400">
       Wir respektieren Ihre Privatsphäre. Sie können sich jederzeit
-      abmelden.
+      <a href="/newsletter/unsubscribe" class="text-emerald-500 hover:text-emerald-600 underline">abmelden</a>.
+      Mehr Details in unserer <a href="/privacy" class="text-emerald-500 hover:text-emerald-600 underline">Datenschutzerklärung</a>.
     </p>
   </div>
 </div>
+
+<script>
+  // Remove unused import
+// import { trackNewsletterSignup } from '@/lib/analytics';
+
+  // Newsletter form functionality
+  document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('newsletter-form') as HTMLFormElement;
+    const emailInput = document.getElementById('newsletter-email') as HTMLInputElement;
+    const submitButton = document.getElementById('newsletter-submit') as HTMLButtonElement;
+    const statusDiv = document.getElementById('newsletter-status');
+    const successDiv = document.getElementById('success-message');
+    const errorDiv = document.getElementById('error-message');
+    const successText = document.getElementById('success-text');
+    const errorText = document.getElementById('error-text');
+    const submitText = submitButton?.querySelector('.submit-text');
+    const loadingText = submitButton?.querySelector('.loading-text');
+
+    if (!form || !emailInput || !submitButton) return;
+
+    // Form submission handler
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const email = emailInput.value.trim();
+      const source = form.dataset.source || 'website';
+      
+      // Basic validation
+      if (!email) {
+        showError('Bitte geben Sie eine E-Mail-Adresse ein.');
+        return;
+      }
+      
+      // Set loading state
+      setLoading(true);
+      hideMessages();
+      
+      try {
+        // Track newsletter subscription attempt
+        console.log(`[Analytics] Newsletter subscription attempt: ${source}`);
+        
+        // Submit to API
+        const response = await fetch('/api/newsletter/subscribe', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: email,
+            consent: true, // Implicit consent by submitting form
+            source: source
+          })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          // Success - show confirmation message
+          if (result.next_step === 'confirmation_required') {
+            showMessage(
+              `📧 ${result.message || 'Bitte überprüfen Sie Ihre E-Mails!'}<br><small class="text-sm opacity-80">${result.info || 'Klicken Sie auf den Bestätigungslink in der E-Mail, um Ihre Anmeldung abzuschließen.'}</small>`, 
+              'info'
+            );
+          } else {
+            showMessage('Vielen Dank für Ihre Anmeldung! Sie erhalten in Kürze unseren Newsletter.', 'success');
+          }
+          form.reset();
+        } else {
+          // API returned error
+          showMessage(result.message || 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.', 'error');
+        }
+      } catch (error) {
+        console.error('Newsletter subscription error:', error);
+        showMessage('Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.', 'error');
+        // Track network error
+        console.log(`[Analytics] Newsletter network error: ${error instanceof Error ? error.message : 'unknown'}`);
+      } finally {
+        setLoading(false);
+      }
+    });
+    
+    // Helper functions
+    function setLoading(loading: boolean) {
+      submitButton.disabled = loading;
+      if (submitText && loadingText) {
+        if (loading) {
+          submitText.classList.add('hidden');
+          loadingText.classList.remove('hidden');
+        } else {
+          submitText.classList.remove('hidden');
+          loadingText.classList.add('hidden');
+        }
+      }
+    }
+    
+    // Show message function with support for different types
+    function showMessage(message: string, type: 'success' | 'error' | 'info') {
+      const messageEl = document.getElementById('newsletter-message');
+      if (!messageEl) return;
+      
+      messageEl.innerHTML = message;
+      
+      let classes = 'mt-4 p-4 rounded-lg border';
+      
+      switch(type) {
+        case 'success':
+          classes += ' bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800';
+          break;
+        case 'info':
+          classes += ' bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800';
+          break;
+        case 'error':
+        default:
+          classes += ' bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800';
+          break;
+      }
+      
+      messageEl.className = classes;
+      messageEl.style.display = 'block';
+      
+      // Hide message after different durations based on type
+      const duration = type === 'info' ? 15000 : (type === 'success' ? 8000 : 12000);
+      setTimeout(() => {
+        messageEl.style.display = 'none';
+      }, duration);
+    }
+    
+    function hideMessages() {
+      statusDiv?.classList.add('hidden');
+      successDiv?.classList.add('hidden');
+      errorDiv?.classList.add('hidden');
+    }
+    
+    // Track newsletter form view
+    console.log(`[Analytics] Newsletter form view: ${form.dataset.source || 'website'}`);
+  });
+</script>

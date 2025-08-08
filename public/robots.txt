@@ -1,4 +1,4 @@
 User-agent: *
 Disallow:
 
-Sitemap: https://evolution-hub.de/sitemap-index.xml
+Sitemap: https://evolution-hub.de/sitemap.xml
