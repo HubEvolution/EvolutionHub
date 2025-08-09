@@ -1,0 +1,178 @@
+---
+// AOSCoordinator.astro - Build-Compatible AOS Integration
+// Eliminiert ALLE ES6-Imports durch CDN-basierte Lösung
+---
+
+<script>
+  /**
+   * AOSCoordinator - Build-Compatible AOS (Animate On Scroll) Integration
+   * - Keine ES6-Imports oder dynamic imports (Ursache für leere JS-Chunks)
+   * - CDN-basierte Lösung mit NPM-Fallback
+   * - Cloudflare Pages SSR kompatibel
+   * - Basiert auf funktionierendem HeaderScroll.astro-Pattern
+   */
+  
+  // TypeScript-Typen für bessere Type-Safety
+  declare global {
+    interface Window {
+      AOS?: any;
+      aosCoordinatorCleanup?: () => void;
+      aosRefresh?: () => void;
+    }
+  }
+
+  // AOS Configuration - Optimized for Evolution Hub
+  const AOS_CONFIG = {
+    duration: 700,           // Animation duration (matches current config)
+    once: true,             // Animate only once (matches current config)
+    easing: 'ease-out',     // Smooth easing
+    delay: 0,               // No global delay
+    offset: 120,            // Start animation 120px before element enters viewport
+    anchorPlacement: 'top-bottom', // When to trigger animation
+    mirror: false,          // Don't animate elements out
+    debounceDelay: 50,      // Debounce scroll events for performance
+    throttleDelay: 99,      // Throttle scroll events for performance
+    disable: false          // Enable on all devices
+  };
+
+  // AOS Initialization Function - NO ES6 IMPORTS
+  function initializeAOS() {
+    console.log('[AOS] 🚀 Starting build-compatible AOS initialization...');
+    
+    try {
+      // Check if AOS is already loaded via CDN or previous initialization
+      if (window.AOS) {
+        console.log('[AOS] ✅ AOS already available, reinitializing...');
+        window.AOS.init(AOS_CONFIG);
+        setupAOSHandlers();
+        return Promise.resolve();
+      }
+
+      console.log('[AOS] 📦 Loading AOS library via CDN...');
+      
+      // Load AOS via CDN script injection (NO ES6 imports)
+      return new Promise<void>((resolve, reject) => {
+        // Check if script already exists
+        if (document.querySelector('script[data-aos-script]')) {
+          console.log('[AOS] Script already loaded, waiting for AOS...');
+          checkAOSAvailability(() => resolve(), reject, 0);
+          return;
+        }
+
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js';
+        script.setAttribute('data-aos-script', 'true');
+        script.onload = () => {
+          console.log('[AOS] 📦 CDN script loaded successfully');
+          checkAOSAvailability(() => resolve(), reject, 0);
+        };
+        script.onerror = () => {
+          console.error('[AOS] ❌ Failed to load AOS via CDN');
+          reject(new Error('Failed to load AOS from CDN'));
+        };
+        
+        document.head.appendChild(script);
+      });
+      
+    } catch (error) {
+      console.error('[AOS] ❌ Failed to initialize:', error);
+      return Promise.reject(error);
+    }
+  }
+
+  // Check AOS availability with timeout
+  function checkAOSAvailability(resolve: () => void, reject: (error: Error) => void, attempts: number): void {
+    if (window.AOS) {
+      console.log('[AOS] ⚙️  Initializing AOS with config:', AOS_CONFIG);
+      window.AOS.init(AOS_CONFIG);
+      setupAOSHandlers();
+      console.log('[AOS] ✅ Animation library initialized successfully');
+      resolve();
+    } else if (attempts < 50) { // 5 second timeout
+      setTimeout(() => checkAOSAvailability(resolve, reject, attempts + 1), 100);
+    } else {
+      console.error('[AOS] ❌ Timeout waiting for AOS to become available');
+      reject(new Error('AOS initialization timeout'));
+    }
+  }
+
+  // Setup AOS handlers for page transitions and cleanup
+  function setupAOSHandlers() {
+    // Refresh AOS on page transitions (Astro compatibility)
+    const refreshAOS = () => {
+      if (window.AOS && window.AOS.refresh) {
+        console.log('[AOS] 🔄 Refreshing animations for page transition...');
+        window.AOS.refresh();
+      }
+    };
+    
+    // Store refresh function for cleanup
+    window.aosRefresh = refreshAOS;
+  }
+
+  // Settings Module Logic wurde zu src/lib/settings-module.ts migriert
+  // Diese Logik gehört nicht in den AOSCoordinator (Trennung der Verantwortlichkeiten)
+  // settings-module.ts wird über den globalen script-coordinator.ts verwaltet
+
+  // Main Coordinator Function (specialized for AOS-only integration)
+  function initializeCoordinator(): void {
+    console.log('[AOSCoordinator] 🚀 Starting AOS coordinator initialization...');
+    
+    try {
+      // Initialize AOS (MEDIUM priority) - Promise-based but non-blocking
+      initializeAOS()
+        .then(() => {
+          console.log('[AOSCoordinator] ✅ AOS module initialized successfully');
+        })
+        .catch((error) => {
+          console.error('[AOSCoordinator] ❌ AOS initialization failed:', error);
+          console.warn('[AOSCoordinator] ⚠️  Continuing without animations (graceful degradation)');
+        });
+      
+      // Note: Settings handlers are now managed by src/lib/settings-module.ts via script-coordinator.ts
+      
+      console.log('[AOSCoordinator] ✅ AOS coordinator initialization completed');
+      
+    } catch (error) {
+      console.error('[AOSCoordinator] ❌ AOS coordinator initialization failed:', error);
+    }
+  }
+
+  // Cleanup Function (AOS-only)
+  window.aosCoordinatorCleanup = function() {
+    // Cleanup AOS
+    if (window.AOS && window.AOS.refresh) {
+      console.log('[AOSCoordinator] 🔄 Refreshing AOS for cleanup');
+      window.AOS.refresh();
+    }
+    
+    // Note: Settings cleanup is now handled by src/lib/settings-module.ts via script-coordinator.ts
+    
+    console.log('[AOSCoordinator] 🧹 AOS coordinator cleaned up');
+  };
+
+  // Initialize when DOM is ready (funktionierendes Pattern aus HeaderScroll.astro)
+  if (document.readyState !== 'loading') {
+    initializeCoordinator();
+  } else {
+    document.addEventListener('DOMContentLoaded', initializeCoordinator);
+  }
+
+  // Astro page transitions support
+  document.addEventListener('astro:page-load', () => {
+    console.log('[AOSCoordinator] 🔄 Astro page transition detected');
+    initializeCoordinator();
+  });
+
+  // Cleanup on page unload
+  window.addEventListener('beforeunload', () => {
+    if (window.aosCoordinatorCleanup) {
+      window.aosCoordinatorCleanup();
+    }
+  });
+
+  console.log('[AOSCoordinator] 📋 Coordinator module loaded and ready');
+</script>
+
+<!-- Dummy HTML node to force Astro script compilation/injection (HeaderScroll-Pattern) -->
+<div style="display: none;" aria-hidden="true"></div>

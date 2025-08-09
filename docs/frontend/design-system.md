@@ -399,7 +399,39 @@ export default function LoadingAnimation() {
 
 ### AOS (Animate On Scroll)
 
-Für Scroll-Animationen wird AOS verwendet:
+AOS v2.3.1 wird für Scroll-Animationen verwendet und ist als CDN-basierte Lösung implementiert, um Build-Kompatibilität mit Astro SSR und Cloudflare Pages zu gewährleisten.
+
+#### Integration & Architektur
+
+Die AOS-Integration erfolgt über eine dedizierte Koordinator-Komponente:
+
+```astro
+<!-- src/components/scripts/AOSCoordinator.astro -->
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    if (typeof AOS !== 'undefined') {
+      AOS.init({
+        duration: 800,
+        offset: 200,
+        easing: 'ease-in-out',
+        once: true
+      });
+    }
+  });
+</script>
+```
+
+#### CDN-Einbindung
+
+AOS wird über CDN geladen (keine NPM-Dependency):
+
+```astro
+<!-- In BaseLayout.astro -->
+<link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+```
+
+#### Verwendung in HTML
 
 ```html
 <!-- Element, das beim Scrollen animiert wird -->
@@ -412,3 +444,18 @@ Für Scroll-Animationen wird AOS verwendet:
   <!-- Inhalt -->
 </div>
 ```
+
+#### Verfügbare Animationen
+
+- **Fade**: `fade-up`, `fade-down`, `fade-left`, `fade-right`
+- **Slide**: `slide-up`, `slide-down`, `slide-left`, `slide-right`  
+- **Zoom**: `zoom-in`, `zoom-out`
+- **Flip**: `flip-left`, `flip-right`, `flip-up`, `flip-down`
+
+#### Build-Kompatibilität
+
+⚠️ **Wichtig**: AOS darf NICHT als NPM-Modul in Astro `<script>`-Blöcken importiert werden, da dies zu leeren JS-Chunks im Build führt. Die CDN-basierte Lösung gewährleistet Kompatibilität mit:
+
+- Astro-Standardserver (`npm run dev`)
+- Cloudflare Pages SSR (`npm run dev:wrangler`)
+- Produktions-Builds

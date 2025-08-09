@@ -6,7 +6,7 @@
 - **Astro v5.12.2**: Framework für serverseitiges Rendern mit optimiertem Output
 - **React v18.2.0**: Für interaktive UI-Komponenten (Islands Architecture)
 - **Tailwind CSS v3.4.17**: Utility-first CSS-Framework für responsive Design
-- **AOS v2.3.4**: Animate On Scroll Library für Scroll-Animationen
+- **AOS v2.3.1**: Animate On Scroll Library für Scroll-Animationen (CDN-basiert, integriert via AOSCoordinator.astro)
 - **Lottie Web v5.13.0**: Für hochwertige SVG-Animationen
 - **Heroicons v2.1.5-1**: Icon-Library für die Benutzeroberfläche
 

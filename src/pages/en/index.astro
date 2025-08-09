@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 // Importiere die i18n-Funktion aus der i18n.js-Datei (korrigierter Import)
-import i18nModule, { i18n } from '@/lib/i18n.js';
+import { i18n } from '@/lib/i18n';
 import TypewriterComponent from '@/components/scripts/TypewriterComponent.astro';
 
 const t = i18n(Astro.url.pathname);

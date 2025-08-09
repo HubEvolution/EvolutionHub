@@ -3,7 +3,7 @@
 
 import ThemeToggle from './ThemeToggle.astro';
 // Korrigierter Import für getLocale – erwartet einen benannten Export und .js Erweiterung
-import { getLocale } from '@/lib/i18n.js';
+import { getLocale } from '@/lib/i18n';
 // Import der dedizierten Scroll-Effect Komponente
 import HeaderScroll from './scripts/HeaderScroll.astro';
 
@@ -244,14 +244,13 @@ const isActive = (path: string): boolean => {
   </div>
 </header>
 
-<script>
-  import coordinator, { SCRIPT_PRIORITIES } from '@/lib/script-coordinator';
-
-  // Mobile Menu Module
-  coordinator.register({
-    id: 'header-mobile-menu',
-    priority: SCRIPT_PRIORITIES.CRITICAL,
-    init: function() {
+<script is:inline>
+  // Inline script for Cloudflare Pages build compatibility
+  function initializeHeaderScripts() {
+    console.log('[Header] 🚀 Initializing header scripts (inline version)');
+    
+    // === MOBILE MENU FUNCTIONALITY ===
+    function initMobileMenu() {
       console.log('[Header] 🔄 Initializing mobile menu functionality');
       
       const mobileMenuButton = document.getElementById('mobile-menu-button');
@@ -287,7 +286,7 @@ const isActive = (path: string): boolean => {
       }
       
       // Event listeners
-      mobileMenuButton.addEventListener('click', (e) => {
+      mobileMenuButton.addEventListener('click', function(e) {
         console.log('[MobileMenu] 🖱️ Button clicked');
         e.preventDefault();
         e.stopPropagation();
@@ -295,7 +294,7 @@ const isActive = (path: string): boolean => {
       });
 
       // Keyboard support
-      mobileMenuButton.addEventListener('keydown', (e) => {
+      mobileMenuButton.addEventListener('keydown', function(e) {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
           toggleMenu();
@@ -303,14 +302,14 @@ const isActive = (path: string): boolean => {
       });
 
       // Close on outside click
-      document.addEventListener('click', (e) => {
-        if (isOpen && !mobileMenu.contains(e.target as Node) && !mobileMenuButton.contains(e.target as Node)) {
+      document.addEventListener('click', function(e) {
+        if (isOpen && !mobileMenu.contains(e.target) && !mobileMenuButton.contains(e.target)) {
           toggleMenu();
         }
       });
       
       // Close on ESC
-      document.addEventListener('keydown', (e) => {
+      document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape' && isOpen) {
           toggleMenu();
         }
@@ -318,13 +317,9 @@ const isActive = (path: string): boolean => {
       
       console.log('[Header] ✅ Mobile menu initialized successfully');
     }
-  });
-  
-  // Language Dropdown Module
-  coordinator.register({
-    id: 'header-language-dropdown',
-    priority: SCRIPT_PRIORITIES.CRITICAL,
-    init: function() {
+    
+    // === LANGUAGE DROPDOWN FUNCTIONALITY ===
+    function initLanguageDropdown() {
       console.log('[Header] 🔄 Initializing language dropdown functionality');
       
       const languageButton = document.getElementById('language-selector');
@@ -360,7 +355,7 @@ const isActive = (path: string): boolean => {
       }
       
       // Event listeners
-      languageButton.addEventListener('click', (e) => {
+      languageButton.addEventListener('click', function(e) {
         console.log('[LanguageDropdown] 🖱️ Button clicked');
         e.preventDefault();
         e.stopPropagation();
@@ -368,7 +363,7 @@ const isActive = (path: string): boolean => {
       });
       
       // Keyboard support
-      languageButton.addEventListener('keydown', (e) => {
+      languageButton.addEventListener('keydown', function(e) {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
           toggleDropdown();
@@ -376,14 +371,14 @@ const isActive = (path: string): boolean => {
       });
       
       // Close on outside click
-      document.addEventListener('click', (e) => {
-        if (isOpen && !languageDropdown.contains(e.target as Node) && !languageButton.contains(e.target as Node)) {
+      document.addEventListener('click', function(e) {
+        if (isOpen && !languageDropdown.contains(e.target) && !languageButton.contains(e.target)) {
           toggleDropdown();
         }
       });
       
       // Close on ESC
-      document.addEventListener('keydown', (e) => {
+      document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape' && isOpen) {
           toggleDropdown();
         }
@@ -391,19 +386,14 @@ const isActive = (path: string): boolean => {
       
       console.log('[Header] ✅ Language dropdown initialized successfully');
     }
-  });
-  
-  // Header Scroll Effect Module
-  coordinator.register({
-    id: 'header-scroll-effect',
-    priority: SCRIPT_PRIORITIES.HIGH,
-    init: function() {
+    
+    // === HEADER SCROLL EFFECT FUNCTIONALITY ===
+    function initHeaderScrollEffect() {
       console.log('[Header] 🔄 Initializing scroll effect functionality');
       
       const header = document.getElementById('site-header');
-      
       if (!header) {
-        console.error('[HeaderScroll] ❌ Header element (#site-header) not found');
+        console.error('[Header] ❌ Header element (#site-header) not found');
         return;
       }
       
@@ -442,7 +432,7 @@ const isActive = (path: string): boolean => {
           return;
         }
         
-        // Hide/show header based on direction
+        // Hide on scroll down, show on scroll up
         if (scrollDirection === 'down') {
           hideHeader();
         } else {
@@ -466,9 +456,9 @@ const isActive = (path: string): boolean => {
       }
       
       // Scroll listener with throttling
-      window.addEventListener('scroll', () => {
+      window.addEventListener('scroll', function() {
         if (!ticking) {
-          requestAnimationFrame(() => {
+          requestAnimationFrame(function() {
             handleScroll();
           });
           ticking = true;
@@ -477,7 +467,24 @@ const isActive = (path: string): boolean => {
       
       console.log('[Header] ✅ Scroll effect initialized successfully');
     }
-  });
+    
+    // Initialize all modules
+    try {
+      initMobileMenu();
+      initLanguageDropdown();
+      initHeaderScrollEffect();
+      console.log('[Header] 🎉 All header functionality initialized successfully');
+    } catch (error) {
+      console.error('[Header] ❌ Failed to initialize header scripts:', error);
+    }
+  }
+  
+  // Initialize all header scripts when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeHeaderScripts);
+  } else {
+    initializeHeaderScripts();
+  }
 </script>
 
 <style>

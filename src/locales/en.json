@@ -4,12 +4,18 @@
     "description": "This is the English version of your website.",
     "language_switch_label": "Language",
     "get_started": "Get Started",
-    "documentation": "Documentation",
-    "cta": {
-      "headline": "Ready to get started?",
-      "subtitle": "Join thousands of developers already using Evolution Hub to build amazing applications.",
-      "button_text": "Create Free Account"
+    "documentation": "Documentation"
+  },
+  "hero": {
+    "typewriter": {
+      "part1_en": "Welcome to Evolution Hub",
+      "part2_en": "The Future of AI-Powered Development"
     }
+  },
+  "cta": {
+    "headline": "Ready to get started?",
+    "subtitle": "Join thousands of developers already using Evolution Hub to build amazing applications.",
+    "button_text": "Create Free Account"
   },
   "pages": {
     "home": {

@@ -6,6 +6,7 @@ import { getSEOData } from '@/lib/seo';
 import SkipLink from '@/components/SkipLink.astro';
 import Footer from '@/components/Footer.astro';
 import ThemeProvider from '@/components/ThemeProvider.astro';
+import AOSCoordinator from '@/components/scripts/AOSCoordinator.astro';
 
 interface Props {
   title: string;
@@ -83,12 +84,11 @@ const ogImage = customOgImage || seoData.ogImage;
     
     <!-- Preload critical CSS -->
     <!-- Global CSS wird über @import in style-Block geladen -->
-    <link rel="preload" href="https://unpkg.com/aos@next/dist/aos.css" as="style">
+    <!-- AOS CSS wird über NPM-Import geladen -->
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" as="style">
     <link rel="preload" href="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.css" as="style">
 
-    <!-- AOS Animation Library CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css">
+    <!-- AOS Animation Library wird über NPM und script-coordinator geladen -->
 
     <!-- Toastr Notification Library CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
@@ -106,6 +106,9 @@ const ogImage = customOgImage || seoData.ogImage;
         "inLanguage": locale
       }
     </script>
+
+    <!-- AOS CSS via CDN (build-compatible, keine NPM-Imports) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css">
 
     <!-- Global CSS -->
     <style is:global>
@@ -127,10 +130,18 @@ const ogImage = customOgImage || seoData.ogImage;
       </main>
 
       <Footer hideNewsletter={hideNewsletter} />
+      <AOSCoordinator />
 
     <script>
-      declare const AOS: any;
+      // TypeScript-Typen für Third-Party-Libraries
       declare const toastr: any;
+      
+      // Window-Interface erweitern für Third-Party-Libraries
+      declare global {
+        interface Window {
+          toastr?: any;
+        }
+      }
 
       const initSmoothScrolling = (): void => {
         document.querySelectorAll<HTMLAnchorElement>('a[href^="#"]').forEach((anchor) => {
@@ -158,16 +169,21 @@ const ogImage = customOgImage || seoData.ogImage;
       };
 
       const initLibraries = () => {
-        AOS.init({
-          once: true,
-          duration: 700,
-        });
-
-        toastr.options = {
-          "closeButton": true,
-          "progressBar": true,
-          "positionClass": "toast-bottom-right",
-        };
+        console.log('[BaseLayout] Starting initLibraries()');
+        
+        // Toastr initialization
+        console.log('[BaseLayout] Checking toastr availability...');
+        if (typeof toastr !== 'undefined' && toastr) {
+          console.log('[BaseLayout] ✅ toastr is available, initializing...');
+          toastr.options = {
+            "closeButton": true,
+            "progressBar": true,
+            "positionClass": "toast-bottom-right",
+          };
+          console.log('[BaseLayout] ✅ toastr initialized successfully');
+        } else {
+          console.error('[BaseLayout] ❌ toastr is not available!');
+        }
       };
 
       const initApp = () => {
@@ -249,9 +265,9 @@ const ogImage = customOgImage || seoData.ogImage;
         initCookieConsent();
       });
     </script>
+<!-- Analytics Module wird jetzt von AOSCoordinator gehandhabt -->
 <script>
-  import coordinator, { SCRIPT_PRIORITIES } from '@/lib/script-coordinator';
-  import '@/lib/settings-module';  // Settings-Modul für Script-Koordination registrieren
+  // Analytics Module ohne ES6-Imports (inline implementation für build compatibility)
   
   interface CookieConsentEvent extends Event {
     detail: {
@@ -260,12 +276,11 @@ const ogImage = customOgImage || seoData.ogImage;
     };
   }
 
-  // Analytics Module für Script Coordinator
-  coordinator.register({
-    id: 'analytics-tracking',
-    priority: SCRIPT_PRIORITIES.MEDIUM,
-    init: async function() {
-      // Analytics Manager initialisieren
+  async function initializeAnalyticsTracking(): Promise<void> {
+    try {
+      console.log('[Analytics] 🚀 Starting analytics initialization...');
+      
+      // Analytics Manager dynamisch laden
       const { initializeAnalytics, trackScrollDepth, trackTimeOnPage } = await import('@/lib/analytics');
       
       let analytics: any;
@@ -284,7 +299,7 @@ const ogImage = customOgImage || seoData.ogImage;
       
       // Scroll-Depth-Tracking Setup
       function setupScrollTracking() {
-        let throttleTimer: NodeJS.Timeout | null = null;
+        let throttleTimer: number | null = null;
         
         scrollHandler = () => {
           if (throttleTimer !== null) return;
@@ -341,7 +356,7 @@ const ogImage = customOgImage || seoData.ogImage;
         const cookieEvent = event as CookieConsentEvent;
         
         if (cookieEvent.detail.analytics) {
-          console.log('✅ Analytics cookies accepted - enabling tracking');
+          console.log('[Analytics] ✅ Analytics cookies accepted - enabling tracking');
           
           // Page-View-Tracking nach Consent
           analytics?.trackPage(document.title, {
@@ -357,7 +372,7 @@ const ogImage = customOgImage || seoData.ogImage;
         }
         
         if (cookieEvent.detail.marketing) {
-          console.log('✅ Marketing cookies accepted - enabling retargeting');
+          console.log('[Analytics] ✅ Marketing cookies accepted - enabling retargeting');
           
           // Facebook Pixel laden (falls konfiguriert)
           if (typeof window !== 'undefined' && (window as any).fbq) {
@@ -386,10 +401,10 @@ const ogImage = customOgImage || seoData.ogImage;
         }
       }, 1000);
       
-      console.log('[Analytics] Tracking module initialized successfully');
+      console.log('[Analytics] ✅ Tracking module initialized successfully');
       
-      // Cleanup-Funktion für Event-Listener
-      (this as any).cleanup = function() {
+      // Cleanup global verfügbar machen
+      (window as any).analyticsCleanup = function() {
         if (consentHandler) {
           document.removeEventListener('cookieconsent:userpreferencesset', consentHandler);
         }
@@ -402,14 +417,25 @@ const ogImage = customOgImage || seoData.ogImage;
         if (visibilityHandler) {
           document.removeEventListener('visibilitychange', visibilityHandler);
         }
-        console.log('[Analytics] Tracking module cleaned up');
+        console.log('[Analytics] 🧹 Tracking module cleaned up');
       };
-    },
-    cleanup: function() {
-      // Cleanup-Funktion wird durch init-Funktion gesetzt
-      if ((this as any).cleanup) {
-        (this as any).cleanup();
-      }
+      
+    } catch (error) {
+      console.error('[Analytics] ❌ Failed to initialize analytics tracking:', error);
+    }
+  }
+
+  // Initialize analytics when DOM is ready
+  if (document.readyState !== 'loading') {
+    initializeAnalyticsTracking();
+  } else {
+    document.addEventListener('DOMContentLoaded', initializeAnalyticsTracking);
+  }
+
+  // Cleanup on page unload
+  window.addEventListener('beforeunload', () => {
+    if ((window as any).analyticsCleanup) {
+      (window as any).analyticsCleanup();
     }
   });
 </script>
