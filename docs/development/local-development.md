@@ -328,21 +328,42 @@ openapi-validator docs/api/openapi.yaml
 
 ### Debugging des Backends
 
-1. **Wrangler-Logs**:
-   ```bash
-   # Zeige Logs an
-   wrangler tail
-   ```
+Evolution Hub verfügt über ein **Hybrid-Logging-System** für optimales Debugging in beiden Entwicklungsumgebungen:
 
-2. **Lokales Debugging**:
-   ```bash
-   # Starte mit Debugging-Flags
-   NODE_OPTIONS="--inspect" npm run dev
-   ```
+#### 1. **Hybrid Debug Panel** (Empfohlen)
 
-3. **Konsolen-Debugging**:
-   - Füge `console.log()` oder `console.error()` in deinen Code ein
-   - Logs erscheinen in der Terminal-Ausgabe
+Das integrierte Debug Panel bietet Live-Log-Streaming für beide Umgebungen:
+
+```bash
+# Öffne das Debug Panel im Browser
+http://localhost:4322/debug  # (Astro dev)
+http://localhost:8787/debug  # (Wrangler dev)
+```
+
+**Features:**
+- ✅ **Auto-Environment-Detection**: Automatische Verbindungsart-Erkennung
+- ✅ **WebSocket-Streaming**: Real-time Logs für `npm run dev` (Astro)
+- ✅ **SSE-Streaming**: Near real-time Logs für `npm run dev:wrangler` (Cloudflare)
+- ✅ **Security-Event-Integration**: Alle API-Aktivitäten live sichtbar
+- ✅ **Visual Connection-Status**: Connection-Mode-Badges (WEBSOCKET/SSE)
+
+#### 2. **Traditionelle Logging-Methoden**
+
+**Wrangler-Logs**:
+```bash
+# Zeige Logs an
+wrangler tail
+```
+
+**Lokales Debugging**:
+```bash
+# Starte mit Debugging-Flags
+NODE_OPTIONS="--inspect" npm run dev
+```
+
+**Konsolen-Debugging**:
+- Füge `console.log()` oder `console.error()` in deinen Code ein
+- Logs erscheinen sowohl in Terminal als auch im Debug Panel
 
 ### Debugging von Tests
 

@@ -2,6 +2,43 @@ import { defineConfig } from 'astro/config';
 import tailwind from '@astrojs/tailwind';
 import react from "@astrojs/react";
 import cloudflare from "@astrojs/cloudflare";
+
+// Centralized Logging Configuration
+const LOGGING_CONFIG = {
+  // Environment-based settings
+  isDevelopment: process.env.NODE_ENV === 'development' || process.env.MODE === 'development',
+  
+  // WebSocket Server Configuration
+  websocket: {
+    enabled: process.env.NODE_ENV === 'development',
+    port: parseInt(process.env.LOGGING_WEBSOCKET_PORT) || 8081,
+    host: process.env.LOGGING_WEBSOCKET_HOST || 'localhost',
+  },
+  
+  // Log Levels
+  levels: {
+    development: ['debug', 'info', 'warn', 'error'],
+    production: ['warn', 'error'],
+  },
+  
+  // Security Logging
+  security: {
+    enabled: true,
+    auditTrail: true,
+    sensitiveDataFiltering: true,
+  },
+  
+  // Frontend Debug Panel
+  debugPanel: {
+    enabled: process.env.NODE_ENV === 'development',
+    maxLogEntries: 500,
+    autoConnect: true,
+  }
+};
+
+// Export logging configuration for use in other modules
+export { LOGGING_CONFIG };
+
 // Using custom i18n implementation in src/lib/i18n.js
 // No external i18n package needed
 
@@ -22,10 +59,26 @@ export default defineConfig({
         assetFileNames: 'assets/[name].[hash][extname]',
       },
     },
+    resolve: {
+      // Definiere Import-Aliase für eine bessere Wartbarkeit und Refaktorisierbarkeit
+      alias: {
+        // Core-Module
+        '@/lib': '/src/lib',
+        '@/components': '/src/components',
+        '@/layouts': '/src/layouts',
+        '@/content': '/src/content',
+        '@/types': '/src/types',
+        '@/utils': '/src/utils',
+        '@/assets': '/src/assets',
+        '@/styles': '/src/styles',
+        '@/api': '/src/pages/api',
+        '@/tests': '/tests'
+      },
+    },
   },
   adapter: cloudflare({
     mode: 'directory',
-    functionPerRoute: true, // Nach Überprüfung, dies ist oft notwendig für i18n
+    // Removed: functionPerRoute: true, to simplify the output structure.
     staticAssetHeaders: {
       // Target CSS files broadly to ensure correct MIME type handling.
       '**/*.css': {
@@ -100,20 +153,7 @@ export default defineConfig({
     // Exclude test files from the build
     resolve: {
       conditions: ['workerd', 'worker', 'browser'],
-      // Definiere Import-Aliase für eine bessere Wartbarkeit und Refaktorisierbarkeit
-      alias: {
-        // Core-Module
-        '@/lib': '/src/lib',
-        '@/components': '/src/components',
-        '@/layouts': '/src/layouts',
-        '@/content': '/src/content',
-        '@/types': '/src/types',
-        '@/utils': '/src/utils',
-        '@/assets': '/src/assets',
-        '@/styles': '/src/styles',
-        '@/api': '/src/pages/api',
-        '@/tests': '/tests'
-      },
+      // Aliases were moved to the top-level vite config for clarity.
     },
     // Removed Vite server headers as they might be redundant or problematic with the adapter config.
     // Relying on adapter's staticAssetHeaders for deployment and Vite's defaults for local dev.

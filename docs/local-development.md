@@ -70,7 +70,7 @@ npx wrangler d1 execute evolution-hub-main-local --file=./migrations/0001_add_se
 npx wrangler r2 bucket create evolution-hub-avatars-local
 
 # KV-Namespace erstellen
-npx wrangler kv:namespace create SESSION_LOCAL
+npx wrangler kv namespace create SESSION_LOCAL
 ```
 
 ## Lokale Entwicklung
@@ -114,7 +114,7 @@ Um mit den in Cloudflare gehosteten Ressourcen zu entwickeln:
 npm run dev:remote
 ```
 
-**Wichtig**: Bei Verwendung des `dev:remote`-Befehls werden alle Änderungen direkt auf den Produktionsressourcen vorgenommen. Verwenden Sie diesen Modus mit Vorsicht!
+Hinweis: Aktuell spiegelt `npm run dev:remote` das Verhalten von `npm run dev:wrangler` und verwendet lokale Bindings. Die Nutzung echter Remote-Ressourcen wird in einer späteren Iteration aktiviert und hier dokumentiert.
 
 ## Shell-Aliase für schnellen Zugriff
 
@@ -248,7 +248,8 @@ export async function GET({ locals }) {
 Die Umgebungsvariablen können in der `.dev.vars`-Datei für die lokale Entwicklung definiert werden:
 
 ```
-SESSION_SECRET=lokales-entwicklungsgeheimnis
+AUTH_SECRET=lokales-entwicklungsgeheimnis
+AUTH_TRUST_HOST=false
 ```
 
 In der Produktionsumgebung werden die Umgebungsvariablen in der Cloudflare-UI oder über GitHub Actions definiert.
@@ -256,7 +257,7 @@ In der Produktionsumgebung werden die Umgebungsvariablen in der Cloudflare-UI od
 ## Weitere Dokumentation
 
 - **Cheat-Sheet**: Eine Übersicht aller wichtigen Befehle finden Sie in der [Cheat-Sheet-Dokumentation](./cheat-sheet.md).
-- **Datenbankschema**: Die Dokumentation des Datenbankschemas finden Sie in der [DB-Schema-Dokumentation](./db_schema.md).
+- **Datenbankschema**: Die Dokumentation des Datenbankschemas finden Sie in der [DB-Schema-Dokumentation](./db_schema_update.md).
 
 ## Fehlerbehebung
 

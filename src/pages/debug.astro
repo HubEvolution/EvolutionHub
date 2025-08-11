@@ -1,0 +1,12 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import DebugPanel from '@/components/ui/DebugPanel';
+
+const title = 'Debug Console';
+---
+
+<BaseLayout title={title}>
+  <main class="container mx-auto px-4 py-8 min-h-screen bg-gray-900 dark:bg-gray-800">
+    <DebugPanel client:load />
+  </main>
+</BaseLayout>
