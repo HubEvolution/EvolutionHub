@@ -11,7 +11,7 @@
     "menu": "tsx ./scripts/dev-menu.ts",
     "onboarding": "tsx ./scripts/onboarding.ts",
     "build": "astro build",
-    "build:worker": "ASTRO_DEPLOY_TARGET=worker astro build",
+    "build:worker": "ASTRO_DEPLOY_TARGET=worker astro build && node -e \"require('fs').mkdirSync('dist',{recursive:true}); require('fs').writeFileSync('dist/.assetsignore','_worker.js\\n')\"",
     "build:watch": "astro build --watch",
     "preview": "astro preview",
     "astro": "astro",
