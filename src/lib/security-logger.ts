@@ -1,4 +1,4 @@
-import { log } from '../server/utils/logger';
+import { log } from '@/server/utils/logger';
 
 /**
  * Global logging function for the application.

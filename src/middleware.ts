@@ -9,6 +9,17 @@ export const onRequest = defineMiddleware(async (context, next) => {
     headers: Object.fromEntries(context.request.headers.entries()),
   });
 
+  // WWW -> Apex Redirect (Fallback zu Cloudflare Redirect Rules)
+  try {
+    const u = new URL(context.request.url);
+    if (u.hostname === 'www.hub-evolution.com') {
+      u.hostname = 'hub-evolution.com';
+      return Response.redirect(u.toString(), 301);
+    }
+  } catch (e) {
+    console.warn('[Middleware] URL parse error for redirect check:', e);
+  }
+
   // Authentifizierung
   if (!context.locals.runtime) {
     console.log('[Middleware] No runtime context available');

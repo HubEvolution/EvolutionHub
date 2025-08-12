@@ -3,6 +3,14 @@ import tailwind from '@astrojs/tailwind';
 import react from "@astrojs/react";
 import cloudflare from "@astrojs/cloudflare";
 
+// Determine build target (Worker vs Node dev) for conditional aliasing
+const IS_WORKER_BUILD = Boolean(
+  process.env.CLOUDFLARE ||
+  process.env.WRANGLER_REMOTE ||
+  process.env.CF_PAGES ||
+  process.env.ASTRO_DEPLOY_TARGET === 'worker'
+);
+
 // Centralized Logging Configuration
 const LOGGING_CONFIG = {
   // Environment-based settings
@@ -137,7 +145,11 @@ export default defineConfig({
         '@/assets': '/src/assets',
         '@/styles': '/src/styles',
         '@/api': '/src/pages/api',
-        '@/tests': '/tests'
+        '@/tests': '/tests',
+        '@/server/utils/logger': IS_WORKER_BUILD
+          ? '/src/server/utils/logger.worker.ts'
+          : '/src/server/utils/logger.node.ts',
+        '@/server': '/src/server'
       }
     },
     // Removed Vite server headers as they might be redundant or problematic with the adapter config.
