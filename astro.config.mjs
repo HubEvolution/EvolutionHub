@@ -50,32 +50,6 @@ export default defineConfig({
   site: 'http://localhost:8788', // Set correct URL for Wrangler development (Port 8788)
   output: 'server',
   base: '/',
-  vite: {
-    build: {
-      // Verbessere Asset-Handling für Wrangler
-      assetsInlineLimit: 0,
-      cssCodeSplit: true,
-      rollupOptions: {
-        assetFileNames: 'assets/[name].[hash][extname]',
-      },
-    },
-    resolve: {
-      // Definiere Import-Aliase für eine bessere Wartbarkeit und Refaktorisierbarkeit
-      alias: {
-        // Core-Module
-        '@/lib': '/src/lib',
-        '@/components': '/src/components',
-        '@/layouts': '/src/layouts',
-        '@/content': '/src/content',
-        '@/types': '/src/types',
-        '@/utils': '/src/utils',
-        '@/assets': '/src/assets',
-        '@/styles': '/src/styles',
-        '@/api': '/src/pages/api',
-        '@/tests': '/tests'
-      },
-    },
-  },
   adapter: cloudflare({
     mode: 'directory',
     // Removed: functionPerRoute: true, to simplify the output structure.
@@ -137,6 +111,7 @@ export default defineConfig({
     logLevel: 'info',
     build: {
       assetsInlineLimit: 0,
+      cssCodeSplit: true,
       // Einheitliche Ausgabestruktur für alle Assets
       outDir: './dist', // Ensure outDir is './dist'
       rollupOptions: {
@@ -150,10 +125,20 @@ export default defineConfig({
         noExternal: [/[._]test\.js$/, /[._]test\.ts$/, /[._]test\.astro$/]
       }
     },
-    // Exclude test files from the build
     resolve: {
       conditions: ['workerd', 'worker', 'browser'],
-      // Aliases were moved to the top-level vite config for clarity.
+      alias: {
+        '@/lib': '/src/lib',
+        '@/components': '/src/components',
+        '@/layouts': '/src/layouts',
+        '@/content': '/src/content',
+        '@/types': '/src/types',
+        '@/utils': '/src/utils',
+        '@/assets': '/src/assets',
+        '@/styles': '/src/styles',
+        '@/api': '/src/pages/api',
+        '@/tests': '/tests'
+      }
     },
     // Removed Vite server headers as they might be redundant or problematic with the adapter config.
     // Relying on adapter's staticAssetHeaders for deployment and Vite's defaults for local dev.

@@ -54,12 +54,12 @@ export const DELETE = withAuthApiMiddleware(async (context) => {
     
     // 3. Alle Kommentare des Benutzers anonymisieren
     statements.push(
-      db.prepare('UPDATE comments SET content = "[Deleted comment]", author_name = "[Deleted user]" WHERE user_id = ?').bind(user.id)
+      db.prepare('UPDATE comments SET content = ?, author_name = ? WHERE user_id = ?').bind("[Deleted comment]", "[Deleted user]", user.id)
     );
     
     // 4. Alle Projekte des Benutzers markieren oder löschen
     statements.push(
-      db.prepare('UPDATE projects SET title = "[Deleted project]", description = "" WHERE user_id = ?').bind(user.id)
+      db.prepare('UPDATE projects SET title = ?, description = "" WHERE user_id = ?').bind("[Deleted project]", user.id)
     );
     
     // 5. Benutzer anonymisieren statt löschen (DSGVO-konform, ermöglicht Datenanalyse)
@@ -90,7 +90,8 @@ export const DELETE = withAuthApiMiddleware(async (context) => {
     return new Response(null, { status: 204 });
   } catch (error) {
     // Error wird von der Middleware geloggt und behandelt
-    throw error;
+    console.error(`Error deleting account for user ${user.id}:`, error);
+    throw error; // Error weitergeben, damit die Middleware ihn behandeln kann
   }
 }, {
   // Zusätzliche Logging-Metadaten
@@ -99,7 +100,7 @@ export const DELETE = withAuthApiMiddleware(async (context) => {
   // Spezielle Fehlerbehandlung für diesen Endpunkt
   onError: (context, error) => {
     const { locals, clientAddress } = context;
-    const user = locals.user;
+    const user = locals?.user; // Optional chaining for safety
     
     if (user) {
       logUserEvent(user.id, 'account_deletion_error', {

@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
-import { withApiMiddleware, createApiError } from '@/lib/api-middleware';
+import { withApiMiddleware, createApiError, createApiSuccess } from '@/lib/api-middleware';
 import { logApiAccess } from '@/lib/security-logger';
-import { listTools } from '@/lib/handlers.ts';
+import { listTools } from '@/lib/handlers.ts'; // Angenommen, listTools ist in handlers.ts definiert
 
 /**
  * GET /api/tools
@@ -15,8 +15,18 @@ import { listTools } from '@/lib/handlers.ts';
 export const GET = withApiMiddleware(async (context) => {
   const { clientAddress } = context;
   
-  // Original-Funktionalität aufrufen
-  const response = await listTools(context);
+  // Original-Funktionalität aufrufen (listTools)
+  // Annahme: listTools gibt eine Response oder ein Objekt zurück, das angepasst werden kann
+  const toolsResponse = await listTools(context); // Dies sollte eine Response oder ein Objekt sein
+  
+  // Sicherstellen, dass die Antwort ein Response-Objekt ist ODER etwas, das in ein Response-Objekt umgewandelt werden kann
+  let finalResponse: Response;
+  if (toolsResponse instanceof Response) {
+    finalResponse = toolsResponse;
+  } else {
+    // Wenn listTools nur Daten zurückgibt, verpacken wir es in eine Standard-API-Erfolgsantwort
+    finalResponse = createApiSuccess(toolsResponse);
+  }
   
   // API-Zugriff protokollieren
   logApiAccess('anonymous', clientAddress, {
@@ -24,7 +34,8 @@ export const GET = withApiMiddleware(async (context) => {
     action: 'tools_list_accessed'
   });
   
-  return response;
+  // Security-Headers über die Middleware hinzufügen lassen
+  return finalResponse;
 }, {
   // Keine Authentifizierung erforderlich für öffentliche Tools-Liste
   requireAuth: false,

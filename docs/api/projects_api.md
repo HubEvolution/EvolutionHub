@@ -4,15 +4,13 @@ Dieses Dokument beschreibt die API-Endpunkte für die Projektverwaltung im Evolu
 
 ## Authentifizierung
 
-Alle Endpunkte erfordern eine Authentifizierung über einen JWT, der im `Authorization`-Header als `Bearer <token>` übergeben wird.
+Alle Endpunkte erfordern eine Authentifizierung über eine Server-Session (HttpOnly-Cookie `session_id`). Die Prüfung erfolgt zentral über `withAuthApiMiddleware`.
 
 ## Security-Features
 
 Alle Projekt-API-Endpunkte sind mit folgenden Sicherheitsmaßnahmen ausgestattet:
 
-* **Rate-Limiting:** 
-  * Standard: 50 Anfragen pro Minute (standardApiLimiter)
-  * Projekt-Erstellung: 5 Anfragen pro Minute (sensitiveActionLimiter)
+* **Rate-Limiting:** 50 Anfragen pro Minute (`standardApiLimiter`)
 * **Security-Headers:** Alle Standard-Security-Headers werden angewendet
 * **Audit-Logging:** Alle Projekt-Aktionen werden protokolliert
 * **Input-Validierung:** Alle Eingabeparameter werden validiert und sanitisiert
@@ -25,56 +23,33 @@ Alle Projekt-API-Endpunkte sind mit folgenden Sicherheitsmaßnahmen ausgestattet
 Ruft alle Projekte ab, die dem authentifizierten Benutzer zugeordnet sind.
 
 * **HTTP-Methode:** `GET`
-* **Pfad:** `/api/projects`
-* **Handler-Funktion:** `getProjects` in `index.ts`
-* **Security:** Rate-Limiting (50/min), Security-Headers, Audit-Logging, Benutzer-spezifische Filterung
-
-#### Query-Parameter
-
-- `status` (optional): Filtert nach Projektstatus (active, paused, completed, archived)
-- `limit` (optional): Maximale Anzahl der zurückgegebenen Projekte (Standard: 20)
-- `offset` (optional): Offset für Paginierung (Standard: 0)
+* **Pfad:** `/api/dashboard/projects`
+* **Handler-Funktion:** GET-Handler in `dashboard/projects.ts`
+* **Security:** Rate-Limiting (50/min über `standardApiLimiter`), Security-Headers, Audit-Logging, Benutzer-spezifische Filterung
 
 #### Erfolgreiche Antwort (`200 OK`)
 
 ```json
 {
   "success": true,
-  "projects": [
+  "data": [
     {
       "id": "prj_a1b2c3d4",
-      "user_id": "usr_x1y2z3",
       "title": "Mein erstes Projekt",
-      "description": "Dies ist eine Beschreibung für mein erstes Projekt.",
+      "description": "Beschreibung",
       "progress": 75,
       "status": "active",
-      "created_at": "2023-10-27T10:00:00Z",
-      "updated_at": "2023-10-27T12:30:00Z"
-    },
-    {
-      "id": "prj_e5f6g7h8",
-      "user_id": "usr_x1y2z3",
-      "title": "Ein weiteres Projekt",
-      "description": "Beschreibung für ein anderes Projekt.",
-      "progress": 25,
-      "status": "paused",
-      "created_at": "2023-10-26T08:00:00Z",
-      "updated_at": "2023-10-26T09:45:00Z"
+      "lastUpdated": "2023-10-27T12:30:00Z",
+      "members": []
     }
-  ],
-  "total": 2,
-  "limit": 20,
-  "offset": 0
+  ]
 }
 ```
 
 #### Fehlerhafte Antwort (`401 Unauthorized`)
 
 ```json
-{
-  "error": "Nicht authentifiziert",
-  "success": false
-}
+{ "success": false, "error": { "type": "auth_error", "message": "Für diese Aktion ist eine Anmeldung erforderlich" } }
 ```
 
 ---
@@ -85,8 +60,8 @@ Erstellt ein neues Projekt für den authentifizierten Benutzer.
 
 * **HTTP-Methode:** `POST`
 * **Pfad:** `/api/projects`
-* **Handler-Funktion:** `createProject` in `index.ts`
-* **Security:** Rate-Limiting (5/min), Security-Headers, Audit-Logging, Input-Validierung, Berechtigungsprüfung
+* **Handler-Funktion:** POST-Handler in `index.ts`
+* **Security:** Rate-Limiting (50/min über `standardApiLimiter`), Security-Headers, Audit-Logging, Input-Validierung
 
 #### Request-Body
 
@@ -103,7 +78,7 @@ Erstellt ein neues Projekt für den authentifizierten Benutzer.
 ```json
 {
   "success": true,
-  "project": {
+  "data": {
     "id": "prj_i9j0k1l2",
     "user_id": "usr_x1y2z3",
     "title": "Mein neues Projekt",
@@ -119,24 +94,24 @@ Erstellt ein neues Projekt für den authentifizierten Benutzer.
 #### Fehlerhafte Antwort (`400 Bad Request`)
 
 ```json
-{
-  "error": "Ungültiger Projekttitel",
-  "success": false
-}
+{ "success": false, "error": { "type": "validation_error", "message": "Title is required" } }
 ```
 
 ---
 
 ## 3. Projekt abrufen
 
+Status: **Nicht implementiert.**
+Dieser Endpunkt ist derzeit nicht funktional und gibt bei Aufruf einen 404-Fehler zurück. Laut Codebasis ist kein spezifischer Handler für GET `/api/projects/:id` vorhanden.
+
 Ruft die Details eines bestimmten Projekts ab.
 
 * **HTTP-Methode:** `GET`
 * **Pfad:** `/api/projects/:id`
-* **Handler-Funktion:** `getProject` in `[id].ts`
-* **Security:** Rate-Limiting (50/min), Security-Headers, Audit-Logging, Eigentümer-Validierung
+* **Hander-Datei:** Nicht vorhanden in `src/pages/api/projects/`.
+* **Security:** Theoretisch Rate-Limiting (50/min), Security-Headers, Audit-Logging, Eigentümer-Validierung
 
-#### Erfolgreiche Antwort (`200 OK`)
+#### Theoretische Erfolgreiche Antwort (`200 OK`)
 
 ```json
 {
@@ -170,7 +145,7 @@ Ruft die Details eines bestimmten Projekts ab.
 }
 ```
 
-#### Fehlerhafte Antwort (`404 Not Found`)
+#### Theoretische Fehlerhafte Antwort (`404 Not Found` / `403 Forbidden`)
 
 ```json
 {
@@ -179,27 +154,21 @@ Ruft die Details eines bestimmten Projekts ab.
 }
 ```
 
-#### Fehlerhafte Antwort (`403 Forbidden`)
-
-```json
-{
-  "error": "Keine Berechtigung für dieses Projekt",
-  "success": false
-}
-```
-
 ---
 
 ## 4. Projekt aktualisieren
+
+Status: **Nicht implementiert.**
+Dieser Endpunkt ist derzeit nicht funktional und gibt bei Aufruf einen 404-Fehler zurück. Laut Codebasis ist kein spezifischer Handler für PUT `/api/projects/:id` vorhanden.
 
 Aktualisiert die Details eines bestimmten Projekts.
 
 * **HTTP-Methode:** `PUT`
 * **Pfad:** `/api/projects/:id`
-* **Handler-Funktion:** `updateProject` in `[id].ts`
-* **Security:** Rate-Limiting (5/min), Security-Headers, Audit-Logging, Input-Validierung, Eigentümer-Validierung
+* **Handler-Datei:** Nicht vorhanden in `src/pages/api/projects/`.
+* **Security:** Theoretisch Rate-Limiting (5/min), Security-Headers, Audit-Logging, Input-Validierung, Eigentümer-Validierung
 
-#### Request-Body
+#### Theoretischer Request-Body
 
 ```json
 {
@@ -210,7 +179,7 @@ Aktualisiert die Details eines bestimmten Projekts.
 }
 ```
 
-#### Erfolgreiche Antwort (`200 OK`)
+#### Theoretische Erfolgreiche Antwort (`200 OK`)
 
 ```json
 {
@@ -228,7 +197,7 @@ Aktualisiert die Details eines bestimmten Projekts.
 }
 ```
 
-#### Fehlerhafte Antwort (`404 Not Found`)
+#### Theoretische Fehlerhafte Antwort (`404 Not Found`)
 
 ```json
 {
@@ -241,14 +210,17 @@ Aktualisiert die Details eines bestimmten Projekts.
 
 ## 5. Projekt löschen
 
+Status: **Nicht implementiert.**
+Dieser Endpunkt ist derzeit nicht funktional und gibt bei Aufruf einen 404-Fehler zurück. Laut Codebasis ist kein spezifischer Handler für DELETE `/api/projects/:id` vorhanden.
+
 Löscht ein bestimmtes Projekt.
 
 * **HTTP-Methode:** `DELETE`
 * **Pfad:** `/api/projects/:id`
-* **Handler-Funktion:** `deleteProject` in `[id].ts`
-* **Security:** Rate-Limiting (5/min), Security-Headers, Audit-Logging, Eigentümer-Validierung
+* **Handler-Datei:** Nicht vorhanden in `src/pages/api/projects/`.
+* **Security:** Theoretisch Rate-Limiting (5/min), Security-Headers, Audit-Logging, Eigentümer-Validierung
 
-#### Erfolgreiche Antwort (`200 OK`)
+#### Theoretische Erfolgreiche Antwort (`200 OK`)
 
 ```json
 {
@@ -257,7 +229,7 @@ Löscht ein bestimmtes Projekt.
 }
 ```
 
-#### Fehlerhafte Antwort (`404 Not Found`)
+#### Theoretische Fehlerhafte Antwort (`404 Not Found`)
 
 ```json
 {
@@ -272,21 +244,21 @@ Löscht ein bestimmtes Projekt.
 
 ### Zugriffskontrolle
 
-- Projekte sind nur für den Eigentümer und explizit berechtigte Benutzer zugänglich
-- Alle Zugriffe werden protokolliert und auf Berechtigung geprüft
-- Keine Preisgabe von Projektdaten an unbefugte Benutzer
-- Konsistente Fehlerantworten ohne Informationslecks
+* Projekte sind nur für den Eigentümer und explizit berechtigte Benutzer zugänglich
+* Alle Zugriffe werden protokolliert und auf Berechtigung geprüft
+* Keine Preisgabe von Projektdaten an unbefugte Benutzer
+* Konsistente Fehlerantworten ohne Informationslecks
 
 ### Datenschutz
 
-- Verschlüsselte Übertragung aller Projektdaten (HTTPS)
-- Sichere Speicherung in der Datenbank (Cloudflare D1)
-- Regelmäßige Backups der Projektdaten
-- Löschung inaktiver Projekte nach definiertem Zeitraum (optional)
+* Verschlüsselte Übertragung aller Projektdaten (HTTPS)
+* Sichere Speicherung in der Datenbank (Cloudflare D1)
+* Regelmäßige Backups der Projektdaten
+* Löschung inaktiver Projekte nach definiertem Zeitraum (optional)
 
 ### Audit-Trail
 
-- Protokollierung aller Projektänderungen
-- Nachverfolgbarkeit von Bearbeitungen und Löschungen
-- Zeitstempel für alle Aktionen
-- Benutzer-ID für alle Änderungen
+* Protokollierung aller Projektänderungen
+* Nachverfolgbarkeit von Bearbeitungen und Löschungen
+* Zeitstempel für alle Aktionen
+* Benutzer-ID für alle Änderungen

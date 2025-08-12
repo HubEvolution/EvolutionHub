@@ -6,55 +6,84 @@ Dieses Dokument beschreibt die API-Endpunkte für die Authentifizierung und Auto
 
 Alle Auth-API-Endpunkte sind mit folgenden Sicherheitsmaßnahmen ausgestattet:
 
-* **Rate-Limiting:** 10 Anfragen pro Minute (authLimiter)
+* **Rate-Limiting:** 50 Anfragen pro Minute (`standardApiLimiter`)
 * **Security-Headers:** Alle Standard-Security-Headers werden angewendet
 * **Audit-Logging:** Alle Authentifizierungsereignisse werden protokolliert
-* **Input-Validierung:** Alle Eingabeparameter werden validiert und sanitisiert
-* **Anti-User-Enumeration:** Konsistente Antworten unabhängig vom Benutzerexistenz-Status
+* **Input-Validierung:** Alle Eingabeparameter werden validiert
+* **Anti-User-Enumeration:** Gleiches Redirect-Verhalten unabhängig vom Benutzerexistenz-Status
+
+Hinweis: Die Auth-Endpunkte sind formularbasiert und antworten mit Redirects statt JSON. Bei Erfolg wird ein HttpOnly-Cookie `session_id` gesetzt.
+V2-Hinweis: Es existieren Service-Layer-Varianten mit zentralem Error-Handling: `/api/auth/login-v2`, `/api/auth/register-v2`, `/api/auth/reset-password-v2`. Diese verhalten sich gleich bzgl. Redirects/Cookies, liefern aber teils andere Fehlercodes.
+
+## v2 Schnellreferenz
+
+* Endpunkte (v2):
+  * `POST /api/auth/login-v2`
+  * `POST /api/auth/register-v2`
+  * `POST /api/auth/reset-password-v2`
+  * `GET|POST /api/user/logout-v2`
+* Wesentliche Unterschiede:
+  * Service-Layer: `src/lib/services/auth-service-impl.ts`
+  * Zentrale Fehlerbehandlung: `src/lib/error-handler.ts`
+  * Konsistente Redirects: `src/lib/response-helpers.ts` (`createSecureRedirect`)
+  * Fehlercodes teils abweichend (z. B. `AuthFailed` statt `InvalidCredentials`)
+  * bcrypt Work-Factor: 12 (v2)
+  * Passwort-Reset-Token-TTL: 24h (v2)
+  * Bei Reset-Fehlern bleibt der `token`-Query-Parameter im Redirect erhalten (v2)
+* Verhalten:
+  * Antworten weiterhin als `302 Redirect`
+  * Gleiches Cookie-Verhalten wie v1 (`session_id`, HttpOnly, SameSite=Lax, Secure über HTTPS)
 
 ---
 
 ## 1. Login
 
-Authentifiziert einen Benutzer mit E-Mail und Passwort und gibt einen JWT-Token zurück.
+Authentifiziert einen Benutzer mit E-Mail und Passwort. Setzt eine Server-Session (HttpOnly-Cookie) und antwortet mit Redirect.
 
 * **HTTP-Methode:** `POST`
 * **Pfad:** `/api/auth/login`
-* **Handler-Funktion:** `login` in `login.ts`
-* **Security:** Rate-Limiting (10/min), Security-Headers, Audit-Logging, Credential-Stuffing-Schutz
+* **Handler-Funktion:** POST-Handler in `login.ts`
+* **Security:** Rate-Limiting (50/min über `standardApiLimiter`), Security-Headers, Audit-Logging, Eingabevalidierung
 
-#### Request-Body
+### Request-Felder (Login)
 
-```json
-{
-  "email": "benutzer@beispiel.de",
-  "password": "sicheres-passwort123"
-}
+* `email`: string (erforderlich)
+* `password`: string (erforderlich)
+* `rememberMe`: boolean (optional, z. B. `on`/`true` → aktiv)
+
+Beispiel:
+
+```bash
+curl -i -X POST \
+  -F 'email=benutzer@beispiel.de' \
+  -F 'password=sicheres-passwort123' \
+  -F 'rememberMe=on' \
+  https://<host>/api/auth/login
 ```
 
-#### Erfolgreiche Antwort (`200 OK`)
+### Erfolgreiche Antwort (Login) (`302 Redirect`)
 
-```json
-{
-  "success": true,
-  "user": {
-    "id": "usr_x1y2z3",
-    "name": "Max Mustermann",
-    "email": "benutzer@beispiel.de",
-    "username": "maxmustermann",
-    "created_at": "2023-10-27T10:00:00Z"
-  }
-}
+Beispiel-Header:
+
+```http
+HTTP/1.1 302 Found
+Location: /dashboard
+Set-Cookie: session_id=<opaque>; Path=/; HttpOnly; SameSite=Lax; Secure
 ```
 
-#### Fehlerhafte Antwort (`401 Unauthorized`)
+### Fehlerhafte Antwort (Login) (`302 Redirect`)
 
-```json
-{
-  "error": "Ungültige E-Mail oder Passwort",
-  "success": false
-}
+Beispiel-Header:
+
+```http
+HTTP/1.1 302 Found
+Location: /login?error=InvalidCredentials
 ```
+
+### Fehlercodes (Login)
+
+* v1 (`login.ts`): `InvalidCredentials`, `InvalidInput`, `ValidationFailed`, `TooManyRequests`, `ServerError`, `MissingRuntime`
+* v2 (`login-v2.ts`): `AuthFailed`, `InvalidInput`, `TooManyRequests`, `ServerError`
 
 ---
 
@@ -64,80 +93,96 @@ Registriert einen neuen Benutzer mit E-Mail, Passwort und Namen.
 
 * **HTTP-Methode:** `POST`
 * **Pfad:** `/api/auth/register`
-* **Handler-Funktion:** `register` in `register.ts`
-* **Security:** Rate-Limiting (10/min), Security-Headers, Audit-Logging, Passwort-Komplexitätsprüfung
+* **Handler-Funktion:** POST-Handler in `register.ts`
+* **Security:** Rate-Limiting (50/min über `standardApiLimiter`), Security-Headers, Audit-Logging
+* **Validierung:** Name (≥ 2), E-Mail (Gültig & <255), Username (≥ 3, nur Buchstaben/Zahlen), Passwort (≥ 6)
 
-#### Request-Body
+### Request-Felder (Registrierung)
 
-```json
-{
-  "name": "Max Mustermann",
-  "email": "benutzer@beispiel.de",
-  "username": "maxmustermann",
-  "password": "sicheres-passwort123"
-}
+* `name`: string (≥ 2 Zeichen)
+* `email`: string (erforderlich)
+* `username`: string (≥ 3 Zeichen)
+* `password`: string (≥ 6 Zeichen)
+
+Beispiel:
+
+```bash
+curl -i -X POST \
+  -F 'name=Max Mustermann' \
+  -F 'email=benutzer@beispiel.de' \
+  -F 'username=maxmustermann' \
+  -F 'password=sicheres-passwort123' \
+  https://<host>/api/auth/register
 ```
 
-#### Erfolgreiche Antwort (`201 Created`)
+### Erfolgreiche Antwort (Registrierung) (`302 Redirect`)
 
-```json
-{
-  "success": true,
-  "user": {
-    "id": "usr_x1y2z3",
-    "name": "Max Mustermann",
-    "email": "benutzer@beispiel.de",
-    "username": "maxmustermann",
-    "created_at": "2023-10-27T10:00:00Z"
-  }
-}
+Beispiel-Header:
+
+```http
+HTTP/1.1 302 Found
+Location: /dashboard
+Set-Cookie: session_id=<opaque>; Path=/; HttpOnly; SameSite=Lax; Secure
 ```
 
-#### Fehlerhafte Antwort (`400 Bad Request`)
+### Fehlerhafte Antwort (Registrierung) (`302 Redirect`)
 
-```json
-{
-  "error": "Diese E-Mail-Adresse wird bereits verwendet",
-  "success": false
-}
+Beispiel-Header:
+
+```http
+HTTP/1.1 302 Found
+Location: /register?error=UserExists
 ```
+
+### Fehlercodes (Registrierung)
+
+* v1 (`register.ts`): `InvalidInput`, `UserExists`, `TooManyRequests`, `UnknownError`, `ServerError`
+* v2 (`register-v2.ts`): `InvalidInput`, `UsernameExists`, `UserExists`, `TooManyRequests`, `ServerError`
 
 ---
 
 ## 3. Passwort vergessen
 
-Sendet eine E-Mail mit einem Token zum Zurücksetzen des Passworts.
+Sendet eine E-Mail mit einem Token zum Zurücksetzen des Passworts. Nutzt Resend API für den E-Mail-Versand.
 
 * **HTTP-Methode:** `POST`
 * **Pfad:** `/api/auth/forgot-password`
-* **Handler-Funktion:** `forgotPassword` in `forgot-password.ts`
-* **Security:** Rate-Limiting (10/min), Security-Headers, Audit-Logging, Anti-User-Enumeration
+* **Handler-Funktion:** POST-Handler in `forgot-password.ts`
+* **Security:** Rate-Limiting (50/min über `standardApiLimiter`), Security-Headers, Audit-Logging, Anti-User-Enumeration
 
-#### Request-Body
+### Anfrageparameter für Passwort vergessen
 
-```json
-{
-  "email": "benutzer@beispiel.de"
-}
+* `email`: string (erforderlich)
+
+Beispiel:
+
+```bash
+curl -i -X POST \
+  -F 'email=benutzer@beispiel.de' \
+  https://<host>/api/auth/forgot-password
 ```
 
-#### Erfolgreiche Antwort (`200 OK`)
+### Erfolgreiche Antwort (Passwort vergessen) (`302 Redirect`)
 
-```json
-{
-  "success": true,
-  "message": "Wenn ein Konto mit dieser E-Mail existiert, wurde eine E-Mail zum Zurücksetzen des Passworts gesendet."
-}
+```http
+HTTP/1.1 302 Found
+Location: /auth/password-reset-sent
 ```
 
-#### Fehlerhafte Antwort (`400 Bad Request`)
+Hinweis: Existiert die E-Mail nicht, erfolgt trotzdem derselbe Erfolg-Redirect (Anti-User-Enumeration).
 
-```json
-{
-  "error": "Ungültige E-Mail-Adresse",
-  "success": false
-}
+### Fehlerhafte Antwort (Passwort vergessen) (`302 Redirect`)
+
+```http
+HTTP/1.1 302 Found
+Location: /forgot-password?error=InvalidEmail
 ```
+
+### Fehlercodes (Passwort vergessen)
+
+* `InvalidEmail`
+* `TooManyRequests`
+* `ServerError`
 
 ---
 
@@ -147,64 +192,116 @@ Setzt das Passwort eines Benutzers mit einem gültigen Token zurück.
 
 * **HTTP-Methode:** `POST`
 * **Pfad:** `/api/auth/reset-password`
-* **Handler-Funktion:** `resetPassword` in `reset-password.ts`
-* **Security:** Rate-Limiting (10/min), Security-Headers, Audit-Logging, Token-Validierung, Passwort-Komplexitätsprüfung
+* **Handler-Funktion:** POST-Handler in `reset-password.ts`
+* **Security:** Rate-Limiting (50/min über `standardApiLimiter`), Security-Headers, Audit-Logging, Token-Validierung
 
-#### Request-Body
+### Anfrageparameter für Passwort zurücksetzen
 
-```json
-{
-  "token": "reset_token_123456",
-  "password": "neues-sicheres-passwort123"
-}
+* `token`: string (erforderlich)
+* `password`: string (≥ 6 Zeichen)
+
+Beispiel:
+
+```bash
+curl -i -X POST \
+  -F 'token=<token>' \
+  -F 'password=neues-sicheres-passwort123' \
+  https://<host>/api/auth/reset-password
 ```
 
-#### Erfolgreiche Antwort (`200 OK`)
+### Erfolgreiche Antwort (Passwort zurücksetzen) (`302 Redirect`)
 
-```json
-{
-  "success": true,
-  "message": "Passwort erfolgreich zurückgesetzt"
-}
+```http
+HTTP/1.1 302 Found
+Location: /login?success=PasswordReset
 ```
 
-#### Fehlerhafte Antwort (`400 Bad Request`)
+### Fehlerhafte Antwort (Passwort zurücksetzen) (`302 Redirect`)
 
-```json
-{
-  "error": "Ungültiger oder abgelaufener Token",
-  "success": false
-}
+```http
+HTTP/1.1 302 Found
+Location: /reset-password?token=<token>&error=InvalidToken
+```
+
+### Fehlercodes (Passwort zurücksetzen)
+
+* v1 (`reset-password.ts`): `InvalidToken`, `TokenExpired`, `InvalidInput`, `TooManyRequests`, `ServerError`
+* v2 (`reset-password-v2.ts`): `AuthFailed`, `InvalidInput`, `TooManyRequests`, `ServerError`
+
+Hinweis (v2): Bei Fehlern wird der ursprüngliche `token`-Query-Parameter im Redirect beibehalten.
+Hinweis (v1): Fehlt der `token`-Parameter vollständig, erfolgt der Redirect nach `/login?error=InvalidToken`.
+
+---
+
+## 5. Logout
+
+Beendet die aktuelle Benutzersitzung und löscht das Session-Cookie.
+
+### Abmelden
+
+* **HTTP-Methoden:** `GET`, `POST`
+* **Pfade:**
+  * `/api/user/logout`
+  * `/api/user/logout-v2`
+* **Handler-Funktion:** GET/POST-Handler in `user/logout.ts` bzw. `user/logout-v2.ts`
+* **Security:** Rate-Limiting (50/min über `standardApiLimiter`), Security-Headers, Audit-Logging
+
+### Erfolgreiche Antwort (Logout) (`302 Redirect`)
+
+```http
+HTTP/1.1 302 Found
+Location: /
+Set-Cookie: session_id=; Path=/; HttpOnly; SameSite=Lax; Secure; Max-Age=0
+```
+
+### Fehlerhafte Antwort (Logout) (`302 Redirect`)
+
+Beispiele:
+
+```http
+# v1: Rate-Limit überschritten
+HTTP/1.1 302 Found
+Location: /login?error=rate_limit
+```
+
+```http
+# v2: Rate-Limit überschritten
+HTTP/1.1 302 Found
+Location: /login?error=TooManyRequests
 ```
 
 ---
 
-## 5. Sicherheitsrichtlinien
+## 6. Sicherheitsrichtlinien
 
 ### Passwort-Richtlinien
 
-- Mindestlänge: 8 Zeichen
-- Muss enthalten: Groß- und Kleinbuchstaben, Zahlen, Sonderzeichen
-- Passwort-Hashing: bcrypt mit angemessenem Work-Faktor
-- Keine Wiederverwendung der letzten 3 Passwörter
+* Mindestlänge: 6 Zeichen (aktuell erzwungen)
+* Komplexitätsregeln: derzeit nicht erzwungen (Empfehlung: Groß-/Kleinbuchstaben, Zahlen, Sonderzeichen)
+* Passwort-Hashing: bcrypt (bcrypt-ts) mit Work-Faktor 10 (v1) bzw. 12 (Service-Layer v2)
+* Passwort-Wiederverwendungsprüfung: aktuell nicht implementiert
 
 ### Session-Management
 
-- JWT-Sessions nur über HttpOnly-Cookies
-- Keine clientseitige Speicherung von Tokens im localStorage oder sessionStorage
-- Sichere Cookie-Attribute (Secure, SameSite)
-- Session-Timeout nach 24 Stunden Inaktivität
+* Session-Management über DB-gestützte Session-ID im HttpOnly-Cookie `session_id`
+* Keine clientseitige Speicherung von Tokens im localStorage oder sessionStorage
+* Sichere Cookie-Attribute (Secure nur über HTTPS, SameSite=Lax)
+* Cookie-Lebensdauer: 1 Tag (Standard) bzw. 30 Tage mit `rememberMe` oder nach Registrierung
+
+### Passwort-Reset-Token
+
+* Gültigkeitsdauer: 1 Stunde (v1) bzw. 24 Stunden (Service-Layer v2)
+* Löschung: Token wird nach erfolgreicher Verwendung oder Ablauf entfernt
 
 ### Anti-Brute-Force-Maßnahmen
 
-- Rate-Limiting für alle Authentifizierungs-Endpunkte
-- Exponentielles Backoff bei wiederholten fehlgeschlagenen Versuchen
-- IP-basierte Blockierung nach zu vielen fehlgeschlagenen Versuchen
-- CAPTCHA-Integration bei verdächtigen Aktivitäten
+* Rate-Limiting für alle Authentifizierungs-Endpunkte
+* Exponentielles Backoff: aktuell nicht implementiert
+* IP-basierte Blockierung: aktuell nicht implementiert
+* CAPTCHA-Integration: aktuell nicht implementiert
 
 ### Datenschutz
 
-- Keine Preisgabe von Benutzerexistenz bei Passwort-Vergessen-Anfragen
-- Konsistente Antwortzeiten unabhängig vom Benutzerexistenz-Status
-- Minimale Datenspeicherung (nur notwendige Daten)
-- Verschlüsselte Übertragung (HTTPS)
+* Keine Preisgabe von Benutzerexistenz bei Passwort-Vergessen-Anfragen
+* Gleiches Redirect-Verhalten unabhängig vom Benutzerexistenz-Status (Anti-Enumeration)
+* Verschlüsselte Übertragung (HTTPS)

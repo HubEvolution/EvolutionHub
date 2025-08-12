@@ -4,15 +4,13 @@ Dieses Dokument beschreibt die API-Endpunkte für die Benutzerverwaltung im Evol
 
 ## Authentifizierung
 
-Alle Endpunkte erfordern eine Authentifizierung über einen JWT, der im `Authorization`-Header als `Bearer <token>` übergeben wird.
+Alle Endpunkte erfordern eine authentifizierte Session über ein HttpOnly-Cookie `session_id`. Es wird kein JWT im `Authorization`-Header verwendet.
 
 ## Security-Features
 
 Alle User-API-Endpunkte sind mit folgenden Sicherheitsmaßnahmen ausgestattet:
 
-* **Rate-Limiting:** 
-  * Standard: 50 Anfragen pro Minute (standardApiLimiter)
-  * Sensible Aktionen: 5 Anfragen pro Minute (sensitiveActionLimiter)
+* **Rate-Limiting:** 50 Anfragen pro Minute (`standardApiLimiter`)
 * **Security-Headers:** Alle Standard-Security-Headers werden angewendet
 * **Audit-Logging:** Alle API-Zugriffe und Profiländerungen werden protokolliert
 * **Input-Validierung:** Alle Eingabeparameter werden validiert und sanitisiert
@@ -22,36 +20,39 @@ Alle User-API-Endpunkte sind mit folgenden Sicherheitsmaßnahmen ausgestattet:
 
 ## 1. Benutzerinformationen
 
-Ruft die Informationen des aktuell authentifizierten Benutzers ab.
+Gibt die Daten des aktuell eingeloggten Benutzers zurück. Nutzt `withAuthApiMiddleware` für Authentifizierung, Rate-Limiting, Security-Headers und Audit-Logging. Sensitive Daten werden über einen Whitelist-Ansatz gefiltert.
+
+### Benutzerinformationen abrufen
 
 * **HTTP-Methode:** `GET`
 * **Pfad:** `/api/user/me`
-* **Handler-Funktion:** `getUserInfo` in `me.ts`
+* **Handler-Funktion:** GET-Handler in `me.ts`
 * **Security:** Rate-Limiting (50/min), Security-Headers, Audit-Logging, Whitelist-Filterung sensibler Daten
 
-#### Erfolgreiche Antwort (`200 OK`)
+### Erfolgreiche Antwort – /api/user/me (200 OK)
 
 ```json
 {
   "success": true,
-  "user": {
+  "data": {
     "id": "usr_x1y2z3",
-    "name": "Max Mustermann",
     "email": "benutzer@beispiel.de",
+    "name": "Max Mustermann",
     "username": "maxmustermann",
-    "avatar_url": "https://example.com/avatars/usr_x1y2z3.jpg",
-    "created_at": "2023-10-27T10:00:00Z",
-    "updated_at": "2023-10-27T12:30:00Z"
+    "created_at": "2023-10-27T10:00:00Z"
   }
 }
 ```
 
-#### Fehlerhafte Antwort (`401 Unauthorized`)
+### Fehlerhafte Antwort – /api/user/me (401 Unauthorized)
 
 ```json
 {
-  "error": "Nicht authentifiziert",
-  "success": false
+  "success": false,
+  "error": {
+    "type": "auth_error",
+    "message": "Für diese Aktion ist eine Anmeldung erforderlich"
+  }
 }
 ```
 
@@ -59,21 +60,26 @@ Ruft die Informationen des aktuell authentifizierten Benutzers ab.
 
 ## 2. Benutzerprofil aktualisieren
 
-Aktualisiert das Profil des aktuell authentifizierten Benutzers.
+Aktualisiert das Profil des aktuell authentifizierten Benutzers. Verwendet `withAuthApiMiddleware` und beinhaltet u.a. Username-Kollisionsprüfung.
 
-* **HTTP-Methode:** `PUT`
+### Benutzerprofil aktualisieren
+
+* **HTTP-Methode:** `POST`
 * **Pfad:** `/api/user/profile`
 * **Handler-Funktion:** `updateProfile` in `profile.ts`
-* **Security:** Rate-Limiting (5/min), Security-Headers, Audit-Logging, Input-Validierung, Username-Kollisionsprüfung
+* **Security:** Rate-Limiting (50/min), Security-Headers, Audit-Logging, Input-Validierung, Username-Kollisionsprüfung
 
-#### Request-Body
+### Request-Felder (FormData)
 
-```json
-{
-  "name": "Max Neuer-Name",
-  "username": "maxneuerusername",
-  "bio": "Dies ist meine neue Biografie"
-}
+* `name`: string (2–50 Zeichen)
+* `username`: string (3–30 Zeichen, nur Buchstaben/Zahlen/Underscore)
+
+Beispiel:
+```bash
+curl -i -X POST \
+  -F 'name=Max Neuer-Name' \
+  -F 'username=maxneuerusername' \
+  https://<host>/api/user/profile
 ```
 
 #### Erfolgreiche Antwort (`200 OK`)
@@ -81,24 +87,26 @@ Aktualisiert das Profil des aktuell authentifizierten Benutzers.
 ```json
 {
   "success": true,
-  "user": {
-    "id": "usr_x1y2z3",
-    "name": "Max Neuer-Name",
-    "email": "benutzer@beispiel.de",
-    "username": "maxneuerusername",
-    "bio": "Dies ist meine neue Biografie",
-    "avatar_url": "https://example.com/avatars/usr_x1y2z3.jpg",
-    "updated_at": "2023-10-27T14:30:00Z"
+  "data": {
+    "message": "Profile updated successfully",
+    "user": {
+      "id": "usr_x1y2z3",
+      "name": "Max Neuer-Name",
+      "username": "maxneuerusername"
+    }
   }
 }
 ```
 
-#### Fehlerhafte Antwort (`400 Bad Request`)
+### Fehlerhafte Antwort – /api/user/profile (500 Internal Server Error)
 
 ```json
 {
-  "error": "Dieser Benutzername wird bereits verwendet",
-  "success": false
+  "success": false,
+  "error": {
+    "type": "server_error",
+    "message": "Username already taken"
+  }
 }
 ```
 
@@ -106,43 +114,45 @@ Aktualisiert das Profil des aktuell authentifizierten Benutzers.
 
 ## 3. Abmelden
 
-Meldet den aktuell authentifizierten Benutzer ab und invalidiert die Session.
+Meldet den aktuell authentifizierten Benutzer ab und invalidiert die Session. Nutzt `handleLogout` für gemeinsame Logik und Redirects.
 
-* **HTTP-Methode:** `POST`
-* **Pfad:** `/api/user/logout`
-* **Handler-Funktion:** `logout` in `logout.ts`
+### Abmelden
+
+* **HTTP-Methoden:** `GET`, `POST`
+* **Pfad:** `/api/user/logout` (oder `/api/user/logout-v2`)
+* **Handler-Funktion:** GET/POST-Handler in `logout.ts`
 * **Security:** Rate-Limiting (50/min), Security-Headers, Audit-Logging, Session-Invalidierung
 
-#### Erfolgreiche Antwort (`200 OK`)
+### Erfolgreiche Antwort – /api/user/logout (302 Redirect)
 
-```json
-{
-  "success": true,
-  "message": "Erfolgreich abgemeldet"
-}
+```http
+HTTP/1.1 302 Found
+Location: /
+Set-Cookie: session_id=; Path=/; HttpOnly; SameSite=Lax; Secure; Max-Age=0
 ```
 
-#### Fehlerhafte Antwort (`401 Unauthorized`)
+### Fehlerhafte Antwort – /api/user/logout (302 Redirect)
 
-```json
-{
-  "error": "Nicht authentifiziert",
-  "success": false
-}
+Beispiel (Rate-Limit):
+```http
+HTTP/1.1 302 Found
+Location: /login?error=rate_limit
 ```
 
 ---
 
 ## 4. Avatar hochladen
 
-Lädt ein neues Profilbild für den aktuell authentifizierten Benutzer hoch.
+Lädt ein neues Profilbild hoch und speichert es in R2 Storage. Handhabung erfolgt direkt im `avatar.ts` ohne komplexe Middleware, inklusive Sicherheits-Header.
+
+### Avatar hochladen
 
 * **HTTP-Methode:** `POST`
 * **Pfad:** `/api/user/avatar`
 * **Handler-Funktion:** `uploadAvatar` in `avatar.ts`
-* **Security:** Rate-Limiting (5/min), Security-Headers, Audit-Logging, Datei-Validierung, Größenbeschränkung
+* **Security:** Security-Headers, Audit-Logging, Authentifizierung erforderlich; Kein zentrales Rate-Limiting aktiv.
 
-#### Request-Body
+### Request-Body
 
 Multipart/form-data mit einem Feld `avatar`, das die Bilddatei enthält.
 
@@ -151,16 +161,20 @@ Multipart/form-data mit einem Feld `avatar`, das die Bilddatei enthält.
 ```json
 {
   "success": true,
-  "avatar_url": "https://example.com/avatars/usr_x1y2z3.jpg"
+  "imageUrl": "/r2/avatar-usr_x1y2z3-1700000000000.jpg",
+  "message": "Avatar updated successfully"
 }
 ```
 
-#### Fehlerhafte Antwort (`400 Bad Request`)
+### Fehlerhafte Antwort – /api/user/avatar (401 Unauthorized)
 
 ```json
 {
-  "error": "Ungültiges Bildformat. Erlaubte Formate: JPEG, PNG, GIF",
-  "success": false
+  "success": false,
+  "error": {
+    "type": "auth_error",
+    "message": "Für diese Aktion ist eine Anmeldung erforderlich"
+  }
 }
 ```
 
@@ -168,20 +182,26 @@ Multipart/form-data mit einem Feld `avatar`, das die Bilddatei enthält.
 
 ## 5. Passwort ändern
 
-Ändert das Passwort des aktuell authentifizierten Benutzers.
+Ändert das Passwort des aktuell authentifizierten Benutzers. Nutzt `withAuthApiMiddleware`, inklusive Passwort-Validierung und Kollisionsprüfung.
 
-* **HTTP-Methode:** `PUT`
+### Passwort ändern
+
+* **HTTP-Methode:** `POST`
 * **Pfad:** `/api/user/password`
 * **Handler-Funktion:** `changePassword` in `password.ts`
-* **Security:** Rate-Limiting (5/min), Security-Headers, Audit-Logging, Passwort-Komplexitätsprüfung, Alte-Passwort-Validierung
+* **Security:** Rate-Limiting (50/min), Security-Headers, Audit-Logging, Mindestlänge 6 (neues Passwort), Alte-Passwort-Validierung
 
-#### Request-Body
+#### Request-Felder (FormData)
 
-```json
-{
-  "current_password": "altes-passwort123",
-  "new_password": "neues-sicheres-passwort456"
-}
+* `current-password`: string
+* `new-password`: string (≥ 6 Zeichen)
+
+Beispiel:
+```bash
+curl -i -X POST \
+  -F 'current-password=altes-passwort123' \
+  -F 'new-password=neues-sicheres-passwort456' \
+  https://<host>/api/user/password
 ```
 
 #### Erfolgreiche Antwort (`200 OK`)
@@ -189,16 +209,33 @@ Multipart/form-data mit einem Feld `avatar`, das die Bilddatei enthält.
 ```json
 {
   "success": true,
-  "message": "Passwort erfolgreich geändert"
+  "data": {
+    "message": "Password updated successfully"
+  }
 }
 ```
 
-#### Fehlerhafte Antwort (`400 Bad Request`)
+### Fehlerhafte Antworten – /api/user/password
 
+Beispiel falsches aktuelles Passwort (`403 Forbidden`):
 ```json
 {
-  "error": "Aktuelles Passwort ist falsch",
-  "success": false
+  "success": false,
+  "error": {
+    "type": "forbidden",
+    "message": "Incorrect current password"
+  }
+}
+```
+
+Beispiel Validierungsfehler (`400 Bad Request`):
+```json
+{
+  "success": false,
+  "error": {
+    "type": "validation_error",
+    "message": "Password must be at least 6 characters"
+  }
 }
 ```
 
@@ -206,43 +243,39 @@ Multipart/form-data mit einem Feld `avatar`, das die Bilddatei enthält.
 
 ## 6. Kontoeinstellungen
 
-Aktualisiert die Einstellungen des aktuell authentifizierten Benutzers.
+Aktualisiert die Einstellungen des aktuell authentifizierten Benutzers. Derzeit ein Stub, der eine Erfolgsmeldung zurückgibt.
+
+### Kontoeinstellungen aktualisieren
 
 * **HTTP-Methode:** `PUT`
 * **Pfad:** `/api/user/settings`
 * **Handler-Funktion:** `updateSettings` in `settings.ts`
-* **Security:** Rate-Limiting (50/min), Security-Headers, Audit-Logging, Input-Validierung
+* **Security:** Rate-Limiting (50/min), Security-Headers, Audit-Logging
 
 #### Request-Body
 
-```json
-{
-  "email_notifications": true,
-  "theme": "dark",
-  "language": "de"
-}
-```
+Beliebig (derzeit ignoriert)
 
 #### Erfolgreiche Antwort (`200 OK`)
 
 ```json
 {
   "success": true,
-  "settings": {
-    "email_notifications": true,
-    "theme": "dark",
-    "language": "de",
-    "updated_at": "2023-10-27T14:30:00Z"
+  "data": {
+    "message": "Settings updated successfully"
   }
 }
 ```
 
-#### Fehlerhafte Antwort (`400 Bad Request`)
+### Fehlerhafte Antwort – /api/user/settings (400 Bad Request)
 
 ```json
 {
-  "error": "Ungültige Einstellungen",
-  "success": false
+  "success": false,
+  "error": {
+    "type": "validation_error",
+    "message": "Ungültige Einstellungen"
+  }
 }
 ```
 
@@ -250,36 +283,28 @@ Aktualisiert die Einstellungen des aktuell authentifizierten Benutzers.
 
 ## 7. Konto löschen
 
-Löscht das Konto des aktuell authentifizierten Benutzers.
+Löscht das Benutzerkonto und alle zugehörigen Daten, inklusive Sessions, Aktivitäten und Projekte. Die Benutzerdaten werden anonymisiert, um DSGVO-Konformität zu gewährleisten.
+
+### Konto löschen
 
 * **HTTP-Methode:** `DELETE`
 * **Pfad:** `/api/user/account`
 * **Handler-Funktion:** `deleteAccount` in `account.ts`
-* **Security:** Rate-Limiting (5/min), Security-Headers, Audit-Logging, Passwort-Bestätigung
+* **Security:** Rate-Limiting (50/min), Security-Headers, Audit-Logging. Erfordert Bestätigung über Request Body (`{ "confirm": true }`).
 
-#### Request-Body
+### Erfolgreiche Antwort (`204 No Content`)
 
-```json
-{
-  "password": "passwort-zur-bestätigung"
-}
-```
+HTTP/1.1 204 No Content
 
-#### Erfolgreiche Antwort (`200 OK`)
+### Fehlerhafte Antwort (`400 Bad Request`)
 
 ```json
 {
-  "success": true,
-  "message": "Konto erfolgreich gelöscht"
-}
-```
-
-#### Fehlerhafte Antwort (`400 Bad Request`)
-
-```json
-{
-  "error": "Falsches Passwort",
-  "success": false
+  "success": false,
+  "error": {
+    "type": "validation_error",
+    "message": "Confirmation required to delete account"
+  }
 }
 ```
 
@@ -289,21 +314,20 @@ Löscht das Konto des aktuell authentifizierten Benutzers.
 
 ### Datenschutz
 
-- Whitelist-Filterung sensibler Daten vor der Rückgabe
-- Keine Rückgabe von Passwort-Hashes oder Security-Tokens
-- Minimale Datenspeicherung (nur notwendige Daten)
-- Verschlüsselte Übertragung (HTTPS)
+* Whitelist-Filterung sensibler Daten vor der Rückgabe
+* Keine Rückgabe von Passwort-Hashes oder Security-Tokens
+* Minimale Datenspeicherung (nur notwendige Daten)
+* Verschlüsselte Übertragung (HTTPS)
 
 ### Profiländerungen
 
-- Validierung aller Eingabefelder
-- Überprüfung auf Benutzernamen-Kollisionen
-- Protokollierung aller Profiländerungen
-- Benachrichtigung bei kritischen Änderungen (z.B. E-Mail-Änderung)
+* Validierung aller Eingabefelder
+* Überprüfung auf Benutzername-Kollisionen
+* Protokollierung aller Profiländerungen
+* Benachrichtigung bei kritischen Änderungen (z.B. E-Mail-Änderung)
 
 ### Avatar-Upload
 
-- Beschränkung auf sichere Bildformate (JPEG, PNG, GIF)
-- Größenbeschränkung (max. 2 MB)
-- Automatische Bildoptimierung
-- Speicherung in Cloudflare R2 mit sicheren Zugriffsrechten
+* Empfehlungen: Beschränkung auf sichere Bildformate (z. B. JPEG/PNG), Größenlimits, Bildoptimierung
+* Aktueller Stand: Keine strikten Typ-/Größenprüfungen durchgesetzt
+* Speicherung in Cloudflare R2 mit sicheren Zugriffsrechten
