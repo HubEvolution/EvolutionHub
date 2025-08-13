@@ -131,34 +131,28 @@ export async function validateSession(db: D1Database, sessionId: string): Promis
         return { session: null, user: null };
     }
 
-    // User mit E-Mail-Verifikationsstatus laden
+    // Nur sichere Benutzerfelder laden (kein password_hash o.ä.)
     const userResult = await db.prepare(
-        "SELECT id, email, name, username, image, email_verified, email_verified_at FROM users WHERE id = ?"
+        "SELECT id, email, name, username, image FROM users WHERE id = ?"
     ).bind(session.userId).first<{
         id: string;
         email: string;
         name: string;
         username: string;
         image?: string;
-        email_verified: number; // SQLite boolean als integer
-        email_verified_at?: number | null;
     }>();
 
     if (!userResult) {
         return { session: null, user: null };
     }
     
-    // SQLite boolean (integer) zu JavaScript boolean konvertieren
-    const user: User = {
+    const user = {
         id: userResult.id,
         email: userResult.email,
         name: userResult.name,
         username: userResult.username,
         image: userResult.image,
-        password_hash: '', // Wird für Session-Validierung nicht benötigt
-        email_verified: Boolean(userResult.email_verified),
-        email_verified_at: userResult.email_verified_at
-    };
+    } as unknown as App.Locals['user'];
     
     return { session, user };
 }

@@ -316,7 +316,10 @@ export const GET: APIRoute = async ({ url, locals, request }) => {
             'not_found',
             0
           ).run();
-        } catch {}
+        } catch (e) {
+          // Audit-Insert fehlgeschlagen – bewusst ignoriert, um Download-Flow nicht zu stören
+          console.warn('download_audit insert failed (not_found)', e);
+        }
 
         return new Response('Datei nicht gefunden', { status: 404 });
       }
@@ -336,7 +339,10 @@ export const GET: APIRoute = async ({ url, locals, request }) => {
           'ok',
           size ?? 0
         ).run();
-      } catch {}
+      } catch (e) {
+        // Audit-Insert fehlgeschlagen – bewusst ignoriert, um Download-Flow nicht zu stören
+        console.warn('download_audit insert failed (ok)', e);
+      }
 
       const headers = new Headers();
       headers.set('Content-Type', contentType);

@@ -35,7 +35,7 @@
 
 ### E-Mail & Benachrichtigungen
 - **Resend v4.7.0**: E-Mail-API für transaktionale E-Mails
-- **Toastr v2.1.4**: Für In-App-Benachrichtigungen
+- **Sonner**: Typisierte In-App-Benachrichtigungen über `notify`-Wrapper (`src/lib/notify.ts`) und globales `<Toaster />`-Island (`src/components/Toaster.tsx`)
 
 ### Zahlungen
 - **Stripe v18.3.0**: Payment Processing

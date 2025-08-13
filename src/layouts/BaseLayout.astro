@@ -7,6 +7,7 @@ import SkipLink from '@/components/SkipLink.astro';
 import Footer from '@/components/Footer.astro';
 import ThemeProvider from '@/components/ThemeProvider.astro';
 import AOSCoordinator from '@/components/scripts/AOSCoordinator.astro';
+import Toaster from '@/components/Toaster';
 
 interface Props {
   title: string;
@@ -85,13 +86,10 @@ const ogImage = customOgImage || seoData.ogImage;
     <!-- Preload critical CSS -->
     <!-- Global CSS wird über @import in style-Block geladen -->
     <!-- AOS CSS wird über NPM-Import geladen -->
-    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" as="style">
     <link rel="preload" href="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.css" as="style">
 
     <!-- AOS Animation Library wird über NPM und script-coordinator geladen -->
 
-    <!-- Toastr Notification Library CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 
     <!-- Cookie Consent CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.css">
@@ -131,18 +129,9 @@ const ogImage = customOgImage || seoData.ogImage;
 
       <Footer hideNewsletter={hideNewsletter} />
       <AOSCoordinator />
+      <Toaster client:idle />
 
     <script>
-      // TypeScript-Typen für Third-Party-Libraries
-      declare const toastr: any;
-      
-      // Window-Interface erweitern für Third-Party-Libraries
-      declare global {
-        interface Window {
-          toastr?: any;
-        }
-      }
-
       const initSmoothScrolling = (): void => {
         document.querySelectorAll<HTMLAnchorElement>('a[href^="#"]').forEach((anchor) => {
           anchor.addEventListener('click', (e: Event) => {
@@ -169,21 +158,7 @@ const ogImage = customOgImage || seoData.ogImage;
       };
 
       const initLibraries = () => {
-        console.log('[BaseLayout] Starting initLibraries()');
-        
-        // Toastr initialization
-        console.log('[BaseLayout] Checking toastr availability...');
-        if (typeof toastr !== 'undefined' && toastr) {
-          console.log('[BaseLayout] ✅ toastr is available, initializing...');
-          toastr.options = {
-            "closeButton": true,
-            "progressBar": true,
-            "positionClass": "toast-bottom-right",
-          };
-          console.log('[BaseLayout] ✅ toastr initialized successfully');
-        } else {
-          console.error('[BaseLayout] ❌ toastr is not available!');
-        }
+        // No third-party init here. Sonner Toaster is mounted as a React Island.
       };
 
       const initApp = () => {
@@ -299,7 +274,7 @@ const ogImage = customOgImage || seoData.ogImage;
       
       // Scroll-Depth-Tracking Setup
       function setupScrollTracking() {
-        let throttleTimer: number | null = null;
+        let throttleTimer: ReturnType<typeof setTimeout> | null = null;
         
         scrollHandler = () => {
           if (throttleTimer !== null) return;

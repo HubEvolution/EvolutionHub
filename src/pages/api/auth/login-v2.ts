@@ -11,7 +11,7 @@
 
 import type { APIContext } from 'astro';
 import { standardApiLimiter } from '@/lib/rate-limiter';
-import { createSecureRedirect, applySecurityHeaders } from '@/lib/response-helpers';
+import { createSecureRedirect, createSecureJsonResponse } from '@/lib/response-helpers';
 import { 
   createValidator,
   ValidationRules, 
@@ -153,3 +153,18 @@ export const POST = async (context: APIContext) => {
     return handleAuthError(error, '/login');
   }
 };
+
+// Explizite 405-Handler für nicht unterstützte Methoden
+const methodNotAllowed = () =>
+  createSecureJsonResponse(
+    { error: true, message: 'Method Not Allowed' },
+    405,
+    { Allow: 'POST' }
+  );
+
+export const GET = methodNotAllowed;
+export const PUT = methodNotAllowed;
+export const PATCH = methodNotAllowed;
+export const DELETE = methodNotAllowed;
+export const OPTIONS = methodNotAllowed;
+export const HEAD = methodNotAllowed;

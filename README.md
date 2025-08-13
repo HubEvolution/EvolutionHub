@@ -35,7 +35,7 @@ Eine Full-Stack-Webanwendung, die eine Sammlung von Entwickler-Tools bereitstell
 - **Datenbank:** [Cloudflare D1](https://developers.cloudflare.com/d1/)
 - **Bild-Speicher:** [Cloudflare R2](https://developers.cloudflare.com/r2/)
 - **Animationen:** [Lottie-web](https://airbnb.io/lottie/), [AOS (Animate On Scroll)](https://michalsnik.github.io/aos/)
-- **Benachrichtigungen:** [Toastr](https://github.com/CodeSeven/toastr)
+- **Benachrichtigungen:** [Sonner](https://sonner.emilkowal.ski/) via typisiertem Wrapper `notify` (`src/lib/notify.ts`) und globalem `<Toaster />`-Island (`src/components/Toaster.tsx`)
 - **Testing:** [Playwright](https://playwright.dev/) für E2E-Tests, [Vitest](https://vitest.dev/) für Unit-Tests
 - **Sicherheit:** Rate-Limiting, Security-Headers, Audit-Logging, Input-Validierung
 

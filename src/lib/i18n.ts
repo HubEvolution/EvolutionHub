@@ -68,7 +68,7 @@ export const i18n = (pathname?: string): TranslationFunction => {
       let value: any = translations;
       
       for (const k of keys) {
-        if (value && typeof value === 'object' && value.hasOwnProperty(k)) {
+        if (value && typeof value === 'object' && Object.prototype.hasOwnProperty.call(value, k)) {
           value = value[k];
         } else {
           // Return key if translation not found, or return a placeholder/error

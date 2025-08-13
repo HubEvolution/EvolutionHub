@@ -1,16 +1,14 @@
 import type { APIContext } from 'astro';
-import { createSession, type User } from '@/lib/auth-v2';
-import { compare } from 'bcrypt-ts';
 import { standardApiLimiter } from '@/lib/rate-limiter';
-import { logAuthSuccess, logAuthFailure } from '@/lib/security-logger';
-import { createSecureRedirect } from '@/lib/response-helpers';
+import { createSecureRedirect, createSecureJsonResponse } from '@/lib/response-helpers';
 import { 
-  createValidator, 
-  parseAndValidateFormData, 
-  ValidationRules, 
-  ValidationException,
+  createValidator,
+  ValidationRules,
   type ValidationSchema
 } from '@/lib/validators';
+import { createAuthService } from '@/lib/services/auth-service-impl';
+import { ServiceError } from '@/lib/services/types';
+import { handleAuthError } from '@/lib/error-handler';
 
 // Interface für Login-Daten mit strikter Typisierung
 interface LoginData {
@@ -86,108 +84,47 @@ export const POST = async (context: APIContext) => {
       const validationResult = loginValidator.validate(data);
       
       if (!validationResult.valid) {
-        // Detaillierte Fehlerprotokolle für Validierungsfehler
-        logAuthFailure(context.clientAddress, {
-          reason: 'validation_failed',
-          errors: validationResult.errors.map(e => e.message).join(', ')
-        });
-        
-        return createSecureRedirect('/login?error=InvalidInput');
+        throw ServiceError.validation(
+          'Die eingegebenen Daten sind ungültig', 
+          { validationErrors: validationResult.errors }
+        );
       }
       
       loginData = data as LoginData;
     } catch (validationError) {
       console.error('Login validation error:', validationError);
-      
-      logAuthFailure(context.clientAddress, {
-        reason: 'malformed_request',
-        error: validationError instanceof Error ? validationError.message : String(validationError)
-      });
-      
-      return createSecureRedirect('/login?error=InvalidInput');
+      throw ServiceError.validation(
+        'Die eingegebenen Daten sind ungültig',
+        { validationErrors: 'Formatierungsfehler' }
+      );
     }
     
     if (!context.locals.runtime) {
-      console.error("Runtime environment is not available. Are you running in a Cloudflare environment?");
-      const response = new Response(null, {
-        status: 302,
-        headers: { Location: '/login?error=MissingRuntime' }
-      });
-      return applySecurityHeaders(response);
+      const error = new Error("Runtime environment is not available. Are you running in a Cloudflare environment?");
+      console.error(error.message);
+      throw error;
     }
     
-    const db = context.locals.runtime.env.DB;
-    const existingUser = await db.prepare('SELECT * FROM users WHERE email = ?').bind(loginData.email).first<User>();
-
-    if (!existingUser) {
-      // Fehlgeschlagene Anmeldung protokollieren
-      logAuthFailure(context.clientAddress, {
-        reason: 'user_not_found',
-        email: loginData.email
-      });
-
-      const response = new Response(null, {
-        status: 302,
-        headers: { Location: '/login?error=InvalidCredentials' }
-      });
-      return applySecurityHeaders(response);
-    }
-
-    if (!existingUser.password_hash) {
-      // Fehlgeschlagene Anmeldung protokollieren
-      logAuthFailure(context.clientAddress, {
-        reason: 'missing_password_hash',
-        userId: existingUser.id
-      });
-
-      const response = new Response(null, {
-        status: 302,
-        headers: { Location: '/login?error=InvalidCredentials' }
-      });
-      return applySecurityHeaders(response);
-    }
-
-    const validPassword = await compare(loginData.password, existingUser.password_hash);
-    if (!validPassword) {
-      // Fehlgeschlagene Anmeldung protokollieren
-      logAuthFailure(context.clientAddress, {
-        reason: 'invalid_password',
-        userId: existingUser.id
-      });
-
-      const response = new Response(null, {
-        status: 302,
-        headers: { Location: '/login?error=InvalidCredentials' }
-      });
-      return applySecurityHeaders(response);
-    }
-
-    // E-Mail-Verifikation prüfen (Double-Opt-in-Blockade)
-    const emailVerified = Boolean(existingUser.email_verified);
-    if (!emailVerified) {
-      // Login blockiert wegen nicht verifizierter E-Mail
-      logAuthFailure(context.clientAddress, {
-        reason: 'email_not_verified',
-        userId: existingUser.id,
-        email: existingUser.email
-      });
-
-      console.log('🚫 Login blocked for unverified email:', existingUser.email);
-
-      const response = new Response(null, {
-        status: 302,
-        headers: { Location: `/verify-email?email=${encodeURIComponent(existingUser.email)}&error=EmailNotVerified` }
-      });
-      return applySecurityHeaders(response);
-    }
-
-    const session = await createSession(db, existingUser.id);
+    // AuthService erstellen
+    const authService = createAuthService({
+      db: context.locals.runtime.env.DB,
+      isDevelopment: import.meta.env.DEV
+    });
+    
+    // Login durchführen mit Service-Layer
+    const authResult = await authService.login(
+      loginData.email, 
+      loginData.password,
+      context.clientAddress
+    );
+    
     // Cookie-Lebensdauer basierend auf rememberMe-Option einstellen
     const maxAge = loginData.rememberMe === true
       ? 60 * 60 * 24 * 30 // 30 Tage bei "Remember Me"
       : 60 * 60 * 24;     // 1 Tag bei Standard-Login
       
-    context.cookies.set('session_id', session.id, {
+    // Session-Cookie setzen
+    context.cookies.set('session_id', authResult.sessionId, {
       path: '/',
       httpOnly: true,
       maxAge: maxAge,
@@ -195,33 +132,27 @@ export const POST = async (context: APIContext) => {
       sameSite: 'lax'
     });
 
-    // Erfolgreiche Anmeldung protokollieren
-    logAuthSuccess(existingUser.id, context.clientAddress, {
-      action: 'login',
-      sessionId: session.id
-    });
-
-    const redirectTo = '/dashboard';
-    return createSecureRedirect(redirectTo);
+    // Weiterleitung zum Dashboard
+    return createSecureRedirect('/dashboard');
   } catch (error) {
     console.error('Login error:', error);
     
-    // Spezifischere Fehlerbehandlung nach Fehlertyp
-    if (error instanceof ValidationException) {
-      logAuthFailure(context.clientAddress, {
-        reason: 'validation_exception',
-        errors: error.errors.map(e => e.message).join(', ')
-      });
-      return createSecureRedirect('/login?error=ValidationFailed');
-    }
-    
-    // Generischer Serverfehler mit verbessertem Logging
-    logAuthFailure(context.clientAddress, {
-      reason: 'server_error',
-      error: error instanceof Error ? error.message : String(error),
-      stack: error instanceof Error ? error.stack : undefined
-    });
-    
-    return createSecureRedirect('/login?error=ServerError');
+    // Zentralen Error-Handler verwenden
+    return handleAuthError(error, '/login');
   }
 };
+
+// Explizite 405-Handler für nicht unterstützte Methoden
+const methodNotAllowed = () =>
+  createSecureJsonResponse(
+    { error: true, message: 'Method Not Allowed' },
+    405,
+    { Allow: 'POST' }
+  );
+
+export const GET = methodNotAllowed;
+export const PUT = methodNotAllowed;
+export const PATCH = methodNotAllowed;
+export const DELETE = methodNotAllowed;
+export const OPTIONS = methodNotAllowed;
+export const HEAD = methodNotAllowed;

@@ -3,7 +3,8 @@
 ---
 
 <script>
-  // Toastr wird jetzt von AOSCoordinator gehandhabt (keine ES6-Imports für build compatibility)
+  // Notifications: Migration abgeschlossen → Sonner/notify Wrapper + globaler <Toaster /> (React Island)
+  // Diese Datei importiert keine Libraries; AOSCoordinator.astro übernimmt die Event-Handler-Initialisierung
   // Settings-Logik ist jetzt in AOSCoordinator.astro integriert
 
   
@@ -11,9 +12,9 @@
   // Diese Komponente wird jetzt nur noch für Kompatibilität bereitgestellt
   // Alle Settings-Handler sind jetzt in AOSCoordinator.astro integriert
   
-  console.log('[SettingsScript] ⚠️  DEPRECATED: This component is now handled by AOSCoordinator.astro');
-  console.log('[SettingsScript] 🔄 All settings functionality has been migrated to eliminate ES6-Import issues');
-  console.log('[SettingsScript] ✅ Settings handlers are active via AOSCoordinator on settings pages');
+  console.log('[SettingsScript] ⚠️  DEPRECATED: Handled by AOSCoordinator.astro');
+  console.log('[SettingsScript] 🔄 Notifications via Sonner/notify; no direct Toastr usage anymore');
+  console.log('[SettingsScript] ✅ Settings handlers active via AOSCoordinator on settings pages');
 </script>
 
 <!-- Legacy Settings Component - Functionality migrated to AOSCoordinator.astro -->

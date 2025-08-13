@@ -133,7 +133,7 @@ export function createApiError(
     }
   };
   
-  return new Response(JSON.dringify(responseBody), { // Typo fix: JSON.stringify
+  return new Response(JSON.stringify(responseBody), {
     status,
     headers: {
       'Content-Type': 'application/json'

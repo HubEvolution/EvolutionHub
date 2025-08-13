@@ -6,6 +6,7 @@
  */
 
 import coordinator, { SCRIPT_PRIORITIES } from '@/lib/script-coordinator';
+import notify from '@/lib/notify';
 
 // Settings-Module Registration
 coordinator.register({
@@ -17,22 +18,7 @@ coordinator.register({
   },
   init: async function() {
     console.log('[Settings] Initializing settings page handlers');
-    
-    // Toastr dynamisch laden (falls verfügbar)
-    let toastr: any = null;
-    try {
-      // @ts-ignore - Toastr könnte global verfügbar sein
-      toastr = window.toastr || null;
-    } catch (e) {
-      console.warn('[Settings] Toastr not available, using console for notifications');
-    }
-    
-    // Fallback notification function
-    const notify = {
-      success: (msg: string) => toastr ? toastr.success(msg) : console.log('SUCCESS:', msg),
-      error: (msg: string) => toastr ? toastr.error(msg) : console.error('ERROR:', msg),
-      info: (msg: string) => toastr ? toastr.info(msg) : console.info('INFO:', msg)
-    };
+    // Notifications are handled via typed Sonner wrapper (see '@/lib/notify')
     
     // Profile Form Handler
     function handleProfileForm() {
@@ -122,13 +108,13 @@ coordinator.register({
         strengthHandler = (e: Event) => {
           const target = e.target as HTMLInputElement;
           const strength = checkPasswordStrength(target.value);
-          strengthIndicator.textContent = strength;
+          (strengthIndicator as HTMLElement).textContent = strength;
           
           // Add color coding
           if (strength === 'Strong password') {
-            strengthIndicator.className = 'text-green-600';
+            (strengthIndicator as HTMLElement).className = 'text-green-600';
           } else {
-            strengthIndicator.className = 'text-yellow-600';
+            (strengthIndicator as HTMLElement).className = 'text-yellow-600';
           }
         };
         
@@ -157,7 +143,7 @@ coordinator.register({
           if (response.ok) {
             notify.success('Password updated successfully!');
             form.reset();
-            if (strengthIndicator) strengthIndicator.textContent = '';
+            if (strengthIndicator) (strengthIndicator as HTMLElement).textContent = '';
           } else {
             const errorText = await response.text();
             notify.error(`Error: ${errorText}`);

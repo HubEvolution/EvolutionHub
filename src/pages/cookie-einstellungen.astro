@@ -161,17 +161,19 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
     </div>
   </div>
 
-  <script>
+  <script type="module">
+    import notify from '@/lib/notify';
     // Globale Deklarationen zur Vermeidung von TypeScript-Fehlern
-    declare const CookieConsent: any;
-    declare const toastr: any;
+    const CookieConsent = typeof window !== 'undefined' && (window)['CookieConsent']
+      ? (window)['CookieConsent']
+      : null;
 
     document.addEventListener('DOMContentLoaded', function() {
-      const form = document.getElementById('cookie-preferences-form') as HTMLFormElement;
-      const acceptAllBtn = document.getElementById('accept-all') as HTMLButtonElement;
-      const rejectAllBtn = document.getElementById('reject-all') as HTMLButtonElement;
-      const analyticsCheckbox = document.getElementById('analytics') as HTMLInputElement;
-      const marketingCheckbox = document.getElementById('marketing') as HTMLInputElement;
+      const form = document.getElementById('cookie-preferences-form');
+      const acceptAllBtn = document.getElementById('accept-all');
+      const rejectAllBtn = document.getElementById('reject-all');
+      const analyticsCheckbox = document.getElementById('analytics');
+      const marketingCheckbox = document.getElementById('marketing');
 
       // Funktion zum Abrufen des aktuellen Cookie-Status aus dem localStorage
       const getStoredCookiePreferences = () => {
@@ -202,30 +204,11 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
         }
       };
 
-      // Toastr konfigurieren, wie in BaseLayout.astro
-      if (toastr) {
-        toastr.options = {
-          closeButton: true,
-          progressBar: true,
-          positionClass: "toast-bottom-right",
-          preventDuplicates: true,
-          onclick: null,
-          showDuration: "300",
-          hideDuration: "1000",
-          timeOut: "5000",
-          extendedTimeOut: "1000",
-          showEasing: "swing",
-          hideEasing: "linear",
-          showMethod: "fadeIn",
-          hideMethod: "fadeOut"
-        };
-      }
-
       // Setzt die Checkboxen bei Laden der Seite
       initializeCheckboxes();
 
       // Funktion zum Speichern der Cookie-Präferenzen mit der cookieconsent-API
-      const saveCookiePreferences = (prefs: { necessary: boolean, analytics: boolean, marketing: boolean }) => {
+      const saveCookiePreferences = (prefs) => {
         try {
           if (prefs.analytics && prefs.marketing) {
             CookieConsent.accept(); // Akzeptiert alle Kategorien
@@ -248,7 +231,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
       };
 
       // Fallback-Funktion zum Speichern in localStorage, falls CookieConsent API fehlschlägt
-      const saveToLocalStorageFallback = (preferences: { necessary: boolean, analytics: boolean, marketing: boolean }) => {
+      const saveToLocalStorageFallback = (preferences) => {
         try {
           localStorage.setItem('cookieconsent_preferences', JSON.stringify(preferences));
           if (preferences.analytics && preferences.marketing) {
@@ -263,19 +246,14 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
         }
       };
 
-      // Ersetzt die benutzerdefinierte showNotification durch toastr
-      const showNotification = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
-        if (toastr) {
-          toastr[type](message);
-        } else {
-          // Fallback, wenn toastr nicht geladen wurde
-          console.log(`[${type.toUpperCase()}] ${message}`);
-        }
+      // Benachrichtigungen über typisierten notify-Wrapper
+      const showNotification = (message, type = 'info') => {
+        notify[type](message);
       };
 
 
       // Formular-Submit Handler
-      form.addEventListener('submit', function(e: Event) {
+      form.addEventListener('submit', function(e) {
         e.preventDefault(); // Verhindert den Standard-Formular-Submit
 
         const preferences = {

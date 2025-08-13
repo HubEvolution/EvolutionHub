@@ -99,6 +99,22 @@ export class AuthServiceImpl extends AbstractBaseService implements AuthService 
         );
       }
 
+      // E-Mail-Verifikation prüfen (Double-Opt-in-Blockade)
+      const emailVerified = Boolean((existingUser as any).email_verified);
+      if (!emailVerified) {
+        logAuthFailure(ipAddress, {
+          reason: 'email_not_verified',
+          userId: existingUser.id,
+          email: existingUser.email
+        });
+
+        throw new ServiceError(
+          'E-Mail-Adresse nicht verifiziert',
+          ServiceErrorType.AUTHENTICATION,
+          { reason: 'email_not_verified', email: existingUser.email }
+        );
+      }
+
       // Session erstellen
       const session = await createSession(db, existingUser.id);
       
@@ -283,7 +299,7 @@ export class AuthServiceImpl extends AbstractBaseService implements AuthService 
 
       // Token in der Datenbank speichern
       await db.prepare(
-        'INSERT INTO password_reset_tokens (token, user_id, expires_at) VALUES (?, ?, ?)'
+        'INSERT INTO password_reset_tokens (id, user_id, expires_at) VALUES (?, ?, ?)'
       ).bind(
         token,
         user.id,
@@ -293,7 +309,7 @@ export class AuthServiceImpl extends AbstractBaseService implements AuthService 
       // Passwort-Reset-Event protokollieren
       logPasswordReset(user.id, ipAddress, {
         action: 'create_token',
-        token // ACHTUNG: In Produktion sollte das Token nicht geloggt werden!
+        tokenId: token.slice(0, 8)
       });
 
       return true;
@@ -310,7 +326,7 @@ export class AuthServiceImpl extends AbstractBaseService implements AuthService 
     return this.withTransaction(async (db) => {
       const result = await db.prepare(`
         SELECT user_id, expires_at FROM password_reset_tokens 
-        WHERE token = ?
+        WHERE id = ?
       `).bind(token).first<{ user_id: string, expires_at: number }>();
 
       if (!result) {
@@ -320,7 +336,7 @@ export class AuthServiceImpl extends AbstractBaseService implements AuthService 
       // Prüfen, ob das Token abgelaufen ist
       if (result.expires_at < Math.floor(Date.now() / 1000)) {
         // Abgelaufenes Token löschen
-        await db.prepare('DELETE FROM password_reset_tokens WHERE token = ?')
+        await db.prepare('DELETE FROM password_reset_tokens WHERE id = ?')
           .bind(token)
           .run();
         return null;
@@ -360,7 +376,7 @@ export class AuthServiceImpl extends AbstractBaseService implements AuthService 
         .run();
 
       // Token nach erfolgreicher Verwendung löschen
-      await db.prepare('DELETE FROM password_reset_tokens WHERE token = ?')
+      await db.prepare('DELETE FROM password_reset_tokens WHERE id = ?')
         .bind(token)
         .run();
 

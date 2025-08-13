@@ -119,6 +119,18 @@ export function handleAuthError(
   
   const errorCode = getErrorCode(error);
   
+  // Spezialfall: Unverifizierte E-Mail soll zur Verifizierungsseite weiterleiten
+  if (error instanceof ServiceError && error.details?.reason === 'email_not_verified') {
+    const emailParam = error.details?.email && typeof error.details.email === 'string'
+      ? { email: error.details.email }
+      : {};
+    const query = new URLSearchParams({
+      ...emailParam,
+      error: 'EmailNotVerified'
+    }).toString();
+    return createSecureRedirect(`/verify-email?${query}`);
+  }
+  
   // Parameter als Query-String formatieren
   const queryParams = Object.entries(contextParams)
     .filter(([_, value]) => value !== undefined && value !== null && value !== '')

@@ -1,8 +1,10 @@
 /// <reference types="astro/client" />
 
-interface ImportMetaEnv {
-  // Turnstile-Typen entfernt
-}
+type ImportMetaEnv = {
+  MODE?: string;
+  BASE_URL?: string;
+  PROD?: boolean;
+} & Record<string, string | boolean | undefined>;
 
 interface ImportMeta {
   readonly env: ImportMetaEnv;

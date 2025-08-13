@@ -1,6 +1,6 @@
 // src/scripts/settings.ts
 // ESM-kompatible Import-Syntax
-import toastr from 'toastr';
+import notify from '@/lib/notify';
 
 export const handleProfileForm = () => {
   const form = document.getElementById('profile-form') as HTMLFormElement;
@@ -32,14 +32,14 @@ export const handleProfileForm = () => {
       });
 
       if (response.ok) {
-        toastr.success('Profile updated successfully!');
+        notify.success('Profile updated successfully!');
       } else {
         const errorText = await response.text();
-        toastr.error(`Error: ${errorText}`);
+        notify.error(`Error: ${errorText}`);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Profile update error:', error);
-      toastr.error(`Update failed: ${error.message || 'Network error'}`);
+      notify.error(`Update failed: ${error.message || 'Network error'}`);
     } finally {
       // Reset button state
       submitButton.textContent = originalButtonText;
@@ -116,12 +116,12 @@ export const handlePasswordForm = () => {
     });
 
     if (response.ok) {
-      toastr.success('Password updated successfully!');
+      notify.success('Password updated successfully!');
       form.reset();
       if (strengthIndicator) strengthIndicator.textContent = '';
     } else {
       const errorText = await response.text();
-      toastr.error(`Error: ${errorText}`);
+      notify.error(`Error: ${errorText}`);
     }
   });
 };
@@ -133,19 +133,19 @@ export const handleAvatarUpload = () => {
 
   // Trigger file input when the button is clicked
   changeButton.addEventListener('click', () => {
-    uploadElement.click();
+    (uploadElement as HTMLInputElement).click();
   });
 
-  uploadElement.addEventListener('change', async (e) => {
+  (uploadElement as HTMLInputElement).addEventListener('change', async (e) => {
     const input = e.target as HTMLInputElement;
     if (!input.files || input.files.length === 0) {
       return;
     }
     
     // Show loading indicator
-    toastr.info('Uploading avatar...');
-    changeButton.textContent = 'Uploading...';
-    changeButton.setAttribute('disabled', 'true');
+    notify.info('Uploading avatar...');
+    (changeButton as HTMLButtonElement).textContent = 'Uploading...';
+    (changeButton as HTMLButtonElement).setAttribute('disabled', 'true');
     
     const file = input.files[0];
     const formData = new FormData();
@@ -160,18 +160,18 @@ export const handleAvatarUpload = () => {
       if (response.ok) {
         const data = await response.json();
         (document.getElementById('avatar-preview') as HTMLImageElement).src = data.imageUrl;
-        toastr.success('Avatar updated successfully!');
+        notify.success('Avatar updated successfully!');
       } else {
         const errorText = await response.text();
-        toastr.error(`Error: ${errorText}`);
+        notify.error(`Error: ${errorText}`);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Avatar upload error:', error);
-      toastr.error(`Upload failed: ${error.message || 'Network error'}`);
+      notify.error(`Upload failed: ${error.message || 'Network error'}`);
     } finally {
       // Reset button state
-      changeButton.textContent = 'Change Picture';
-      changeButton.removeAttribute('disabled');
+      (changeButton as HTMLButtonElement).textContent = 'Change Picture';
+      (changeButton as HTMLButtonElement).removeAttribute('disabled');
     }
   });
 };

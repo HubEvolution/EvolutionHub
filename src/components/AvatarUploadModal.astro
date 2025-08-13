@@ -40,6 +40,9 @@
 <script is:inline>
   console.log('AVATAR MODAL SCRIPT EXECUTED');
   
+  // Notification wrapper (Sonner)
+  import notify from '@/lib/notify';
+
   // Sichere Initialisierung ohne problematische astro:page-load Event
   document.addEventListener('DOMContentLoaded', initAvatarModal);
   
@@ -146,12 +149,12 @@
       const maxSize = 2 * 1024 * 1024; // 2MB
       
       if (!validTypes.includes(file.type)) {
-        toastr.error('Bitte wähle ein Bild im Format JPG, PNG oder GIF');
+        notify.error('Bitte wähle ein Bild im Format JPG, PNG oder GIF');
         return;
       }
       
       if (file.size > maxSize) {
-        toastr.error('Die Datei ist zu groß. Maximale Größe ist 2MB');
+        notify.error('Die Datei ist zu groß. Maximale Größe ist 2MB');
         return;
       }
       
@@ -209,11 +212,11 @@
         document.body.classList.remove('overflow-hidden');
         
         // Erfolgsmeldung anzeigen
-        toastr.success('Profilbild erfolgreich aktualisiert!');
+        notify.success('Profilbild erfolgreich aktualisiert!');
       })
       .catch(error => {
         console.error('Upload error:', error);
-        toastr.error(`Fehler beim Hochladen: ${error.message || 'Unbekannter Fehler'}`);
+        notify.error(`Fehler beim Hochladen: ${error.message || 'Unbekannter Fehler'}`);
       })
       .finally(() => {
         // Setze den Button zurück

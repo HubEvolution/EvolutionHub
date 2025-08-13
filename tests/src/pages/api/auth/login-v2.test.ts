@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { POST } from '@/pages/api/auth/login-v2';
+import { POST } from '@/pages/api/auth/login';
 import * as authServiceModule from '@/lib/services/auth-service-impl';
 import * as rateLimiter from '@/lib/rate-limiter';
 import * as securityHeaders from '@/lib/security-headers';
@@ -105,7 +105,7 @@ vi.mock('@/lib/response-helpers', async (importOriginal) => {
   };
 });
 
-describe('Login-V2 API Tests (Service-Layer)', () => {
+describe('Login API Tests (Service-Layer)', () => {
   // Service-Mock
   let mockAuthService: ReturnType<typeof createMockAuthService>;
   

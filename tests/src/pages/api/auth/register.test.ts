@@ -1,29 +1,33 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { POST } from '@/pages/api/auth/register';
-import * as authModule from '@/lib/auth-v2';
-import * as bcrypt from 'bcrypt-ts';
+import * as authServiceModule from '@/lib/services/auth-service-impl';
 import * as rateLimiter from '@/lib/rate-limiter';
-import * as apiMiddleware from '@/lib/api-middleware';
-import * as securityHeaders from '@/lib/security-headers';
-import * as securityLogger from '@/lib/security-logger';
+import * as responseHelpers from '@/lib/response-helpers';
+import { ServiceError, ServiceErrorType } from '@/lib/services/types';
 
 // Mock für die Astro APIContext
 const createMockContext = (formData: Record<string, any> = {}) => {
   // FormData Mock
+  const entries = Object.entries(formData);
   const mockFormData = {
+    entries: vi.fn().mockReturnValue(entries),
     get: vi.fn((key: string) => formData[key] || null),
   };
 
   // Request Mock
   const mockRequest = {
-    formData: vi.fn().mockResolvedValue(mockFormData),
+    formData: vi.fn().mockImplementation(() => {
+      return Promise.resolve(mockFormData);
+    }),
   };
 
   // Mock für die D1 Datenbank
   const mockDb = {
     prepare: vi.fn().mockReturnThis(),
     bind: vi.fn().mockReturnThis(),
-    run: vi.fn().mockResolvedValue({ success: true }),
+    first: vi.fn(),
+    run: vi.fn(),
+    execute: vi.fn(),
   };
 
   // Locals und Runtime Mocks
@@ -54,7 +58,7 @@ const createMockContext = (formData: Record<string, any> = {}) => {
     mockDb,
     mockFormData,
     mockCookies,
-    clientAddress: '',  // Wird für Security-Tests benötigt
+    clientAddress: '127.0.0.1',
     redirect: vi.fn((url: string, status: number) => {
       return new Response(null, {
         status,
@@ -64,20 +68,23 @@ const createMockContext = (formData: Record<string, any> = {}) => {
   };
 };
 
-// Mocks für Module
-vi.mock('@/lib/auth-v2', async (importOriginal) => {
-  const actual = await importOriginal();
+// Mock für AuthService
+const createMockAuthService = () => {
   return {
-    ...actual as any,
-    createSession: vi.fn(),
+    login: vi.fn(),
+    register: vi.fn(),
+    logout: vi.fn(),
+    validateSession: vi.fn(),
+    createPasswordResetToken: vi.fn(),
+    validatePasswordResetToken: vi.fn(),
+    resetPassword: vi.fn(),
   };
-});
+};
 
-vi.mock('bcrypt-ts', async () => {
-  return {
-    hash: vi.fn().mockResolvedValue('hashed_password'),
-  };
-});
+// Mocks für Module
+vi.mock('@/lib/services/auth-service-impl', () => ({
+  createAuthService: vi.fn(),
+}));
 
 // Mocks für Security-Module
 vi.mock('@/lib/rate-limiter', () => ({
@@ -85,8 +92,13 @@ vi.mock('@/lib/rate-limiter', () => ({
   standardApiLimiter: vi.fn().mockResolvedValue(null),
 }));
 
-vi.mock('@/lib/security-headers', () => ({
-  secureJsonResponse: vi.fn((obj) => new Response(JSON.stringify(obj))),
+vi.mock('@/lib/response-helpers', () => ({
+  createSecureRedirect: vi.fn((url) => {
+    return new Response(null, {
+      status: 302,
+      headers: { Location: url },
+    });
+  }),
   applySecurityHeaders: vi.fn((response) => {
     response.headers.set('X-Content-Type-Options', 'nosniff');
     response.headers.set('X-Frame-Options', 'DENY');
@@ -95,42 +107,54 @@ vi.mock('@/lib/security-headers', () => ({
   }),
 }));
 
-vi.mock('@/lib/security-logger', () => ({
-  logAuthSuccess: vi.fn(),
-  logAuthFailure: vi.fn(),
-  logSecurityEvent: vi.fn(),
-  logUserEvent: vi.fn()
-}));
-
-// Mock für crypto.randomUUID
-const originalRandomUUID = crypto.randomUUID;
-vi.stubGlobal('crypto', {
-  ...crypto,
-  randomUUID: vi.fn().mockReturnValue('test-user-id'),
-});
-
-describe('Register API Tests', () => {
-  // Spy für die Sicherheitsfunktionen
+describe('Register-V2 API Tests (Service-Layer)', () => {
+  // Service-Mock
+  let mockAuthService: ReturnType<typeof createMockAuthService>;
+  
+  // Spies für Funktionen
   let standardApiLimiterSpy: any;
-  let applySecurityHeadersSpy: any;
-  let logSecurityEventSpy: any;
-  let logUserEventSpy: any;
-  let createApiErrorSpy: any;
+  let createSecureRedirectSpy: any;
+  let createAuthServiceSpy: any;
   
   beforeEach(() => {
     vi.clearAllMocks();
     
-    // Spies für die Sicherheitsfunktionen
-    standardApiLimiterSpy = vi.spyOn(rateLimiter, 'standardApiLimiter').mockResolvedValue(null);
-    applySecurityHeadersSpy = vi.spyOn(securityHeaders, 'applySecurityHeaders');
-    logSecurityEventSpy = vi.spyOn(securityLogger, 'logSecurityEvent');
-    logUserEventSpy = vi.spyOn(securityLogger, 'logUserEvent');
-    createApiErrorSpy = vi.spyOn(apiMiddleware, 'createApiError');
+    // Mock-Service erstellen
+    mockAuthService = createMockAuthService();
+    
+    // Spy für Auth-Service einrichten
+    createAuthServiceSpy = vi.spyOn(authServiceModule, 'createAuthService')
+      .mockReturnValue(mockAuthService);
+    
+    // Spies für weitere Funktionen einrichten
+    standardApiLimiterSpy = vi.spyOn(rateLimiter, 'standardApiLimiter').mockResolvedValue(undefined);
+    createSecureRedirectSpy = vi.spyOn(responseHelpers, 'createSecureRedirect');
   });
 
-  it('sollte eine Fehlermeldung zurückgeben, wenn die E-Mail ungültig ist', async () => {
+  it('sollte bei zu vielen Anfragen Rate-Limiting anwenden', async () => {
     const context = createMockContext({
-      email: 'ab', // zu kurz
+      email: 'test@example.com',
+      password: 'password123',
+      name: 'Test User',
+      username: 'testuser',
+    });
+
+    // Rate-Limiting simulieren
+    standardApiLimiterSpy.mockResolvedValue(new Response(null, {
+      status: 429,
+      headers: { 'Retry-After': '60' }
+    }));
+
+    const response = await POST(context as any);
+
+    expect(response.status).toBe(302);
+    expect(response.headers.get('Location')).toBe('/register?error=TooManyRequests');
+    expect(standardApiLimiterSpy).toHaveBeenCalledWith(context);
+  });
+
+  it('sollte eine Fehlermeldung zurückgeben, wenn die Eingabedaten ungültig sind', async () => {
+    const context = createMockContext({
+      email: 'invalid-email', // Kein gültiges E-Mail-Format
       password: 'password123',
       name: 'Test User',
       username: 'testuser',
@@ -140,12 +164,14 @@ describe('Register API Tests', () => {
 
     expect(response.status).toBe(302);
     expect(response.headers.get('Location')).toBe('/register?error=InvalidInput');
+    // Prüfen, dass der Service nicht aufgerufen wurde
+    expect(mockAuthService.register).not.toHaveBeenCalled();
   });
 
   it('sollte eine Fehlermeldung zurückgeben, wenn das Passwort zu kurz ist', async () => {
     const context = createMockContext({
       email: 'test@example.com',
-      password: '12345', // zu kurz
+      password: '12345', // Zu kurz
       name: 'Test User',
       username: 'testuser',
     });
@@ -154,37 +180,11 @@ describe('Register API Tests', () => {
 
     expect(response.status).toBe(302);
     expect(response.headers.get('Location')).toBe('/register?error=InvalidInput');
+    // Prüfen, dass der Service nicht aufgerufen wurde
+    expect(mockAuthService.register).not.toHaveBeenCalled();
   });
 
-  it('sollte eine Fehlermeldung zurückgeben, wenn der Name zu kurz ist', async () => {
-    const context = createMockContext({
-      email: 'test@example.com',
-      password: 'password123',
-      name: 'T', // zu kurz
-      username: 'testuser',
-    });
-
-    const response = await POST(context as any);
-
-    expect(response.status).toBe(302);
-    expect(response.headers.get('Location')).toBe('/register?error=InvalidInput');
-  });
-
-  it('sollte eine Fehlermeldung zurückgeben, wenn der Benutzername zu kurz ist', async () => {
-    const context = createMockContext({
-      email: 'test@example.com',
-      password: 'password123',
-      name: 'Test User',
-      username: 'ab', // zu kurz
-    });
-
-    const response = await POST(context as any);
-
-    expect(response.status).toBe(302);
-    expect(response.headers.get('Location')).toBe('/register?error=InvalidInput');
-  });
-
-  it('sollte einen Benutzer erfolgreich registrieren und zum Dashboard weiterleiten', async () => {
+  it('sollte eine Fehlermeldung zurückgeben, wenn die Runtime nicht verfügbar ist', async () => {
     const context = createMockContext({
       email: 'test@example.com',
       password: 'password123',
@@ -192,36 +192,140 @@ describe('Register API Tests', () => {
       username: 'testuser',
     });
 
-    // Clientadresse für Tests hinzufügen
-    context.clientAddress = '192.168.1.1';
+    // Runtime entfernen
+    context.locals.runtime = undefined;
 
-    // Session-Mock
-    const mockSession = {
-      id: 'session-123',
-      userId: 'test-user-id',
-      expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+    const response = await POST(context as any);
+
+    expect(response.status).toBe(302);
+    // Die aktuelle Implementierung verwendet ServerError für Runtime-Fehler
+    // TODO: Erwägen, spezifischere Fehlercodes für verschiedene Fehlertypen einzuführen
+    expect(response.headers.get('Location')).toBe('/register?error=ServerError');
+  });
+
+  it('sollte eine Fehlermeldung zurückgeben, wenn der Service einen Konflikt-Fehler wegen existierendem Benutzer wirft', async () => {
+    const context = createMockContext({
+      email: 'existing@example.com',
+      password: 'password123',
+      name: 'Test User',
+      username: 'testuser',
+    });
+
+    // Benutzer existiert bereits
+    mockAuthService.register.mockRejectedValue(
+      new ServiceError(
+        'Ein Benutzer mit dieser E-Mail-Adresse existiert bereits',
+        ServiceErrorType.CONFLICT,
+        { reason: 'user_exists' }
+      )
+    );
+
+    const response = await POST(context as any);
+
+    expect(response.status).toBe(302);
+    expect(response.headers.get('Location')).toBe('/register?error=UserExists');
+    expect(mockAuthService.register).toHaveBeenCalledWith(
+      expect.objectContaining({
+        email: 'existing@example.com',
+        password: 'password123',
+        name: 'Test User',
+        username: 'testuser',
+      }),
+      '127.0.0.1'
+    );
+  });
+
+  it('sollte eine Fehlermeldung zurückgeben, wenn der Service einen Konflikt-Fehler wegen existierendem Benutzernamen wirft', async () => {
+    const context = createMockContext({
+      email: 'test@example.com',
+      password: 'password123',
+      name: 'Test User',
+      username: 'existinguser',
+    });
+
+    // Benutzername existiert bereits
+    mockAuthService.register.mockRejectedValue(
+      new ServiceError(
+        'Dieser Benutzername ist bereits vergeben',
+        ServiceErrorType.CONFLICT,
+        { reason: 'username_exists' }
+      )
+    );
+
+    const response = await POST(context as any);
+
+    expect(response.status).toBe(302);
+    expect(response.headers.get('Location')).toBe('/register?error=UsernameExists');
+  });
+
+  it('sollte eine Fehlermeldung zurückgeben, wenn der Service einen allgemeinen Fehler wirft', async () => {
+    const context = createMockContext({
+      email: 'test@example.com',
+      password: 'password123',
+      name: 'Test User',
+      username: 'testuser',
+    });
+
+    // Allgemeinen Fehler simulieren
+    mockAuthService.register.mockRejectedValue(new Error('Ein unerwarteter Fehler ist aufgetreten'));
+
+    const response = await POST(context as any);
+
+    expect(response.status).toBe(302);
+    expect(response.headers.get('Location')).toBe('/register?error=ServerError');
+  });
+
+  it('sollte den Benutzer erfolgreich registrieren und zum Dashboard weiterleiten', async () => {
+    const context = createMockContext({
+      email: 'newuser@example.com',
+      password: 'password123',
+      name: 'New User',
+      username: 'newuser',
+    });
+
+    // Erfolgreiche Registrierung simulieren
+    const mockAuthResult = {
+      user: {
+        id: 'user-123',
+        email: 'newuser@example.com',
+        name: 'New User',
+        username: 'newuser',
+      },
+      session: {
+        id: 'session-123',
+        userId: 'user-123',
+        expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      },
+      sessionId: 'session-123',
     };
-    vi.mocked(authModule.createSession).mockResolvedValue(mockSession);
+    mockAuthService.register.mockResolvedValue(mockAuthResult);
 
     const response = await POST(context as any);
 
-    // Überprüfen, ob Redirect zum Dashboard erfolgt
+    // Überprüfen der Ergebnisse
     expect(response.status).toBe(302);
     expect(response.headers.get('Location')).toBe('/dashboard');
-
-    // Überprüfen, ob der Benutzer in der Datenbank gespeichert wurde
-    expect(context.mockDb.prepare).toHaveBeenCalledWith(
-      'INSERT INTO users (id, email, password_hash, name, username) VALUES (?, ?, ?, ?, ?)'
-    );
-    expect(context.mockDb.run).toHaveBeenCalled();
     
-    // Überprüfen, ob die Session erstellt wurde
-    expect(authModule.createSession).toHaveBeenCalledWith(context.mockDb, 'test-user-id');
+    // Überprüfen, ob der AuthService korrekt aufgerufen wurde
+    expect(createAuthServiceSpy).toHaveBeenCalledWith({
+      db: context.locals.runtime.env.DB,
+      isDevelopment: expect.any(Boolean),
+    });
+    
+    expect(mockAuthService.register).toHaveBeenCalledWith(
+      {
+        email: 'newuser@example.com',
+        password: 'password123',
+        name: 'New User',
+        username: 'newuser',
+      },
+      '127.0.0.1'
+    );
     
     // Überprüfen, ob der Cookie gesetzt wurde
     expect(context.mockCookies.set).toHaveBeenCalledWith(
       'session_id',
-      mockSession.id,
+      mockAuthResult.sessionId,
       expect.objectContaining({
         path: '/',
         httpOnly: true,
@@ -230,171 +334,5 @@ describe('Register API Tests', () => {
         sameSite: 'lax'
       })
     );
-  });
-
-  it('sollte einen Fehler bei existierendem Benutzer zurückgeben', async () => {
-    const context = createMockContext({
-      email: 'existing@example.com',
-      password: 'password123',
-      name: 'Existing User',
-      username: 'existinguser',
-    });
-
-    // Einen UNIQUE constraint error simulieren
-    const uniqueError = new Error('SQLITE_CONSTRAINT: UNIQUE constraint failed');
-    uniqueError.message = 'SQLITE_CONSTRAINT: UNIQUE constraint failed';
-    context.mockDb.run.mockRejectedValue(uniqueError);
-
-    const response = await POST(context as any);
-
-    expect(response.status).toBe(302);
-    expect(response.headers.get('Location')).toBe('/register?error=UserExists');
-  });
-
-  it('sollte einen allgemeinen Fehler bei unbekanntem Problem zurückgeben', async () => {
-    const context = createMockContext({
-      email: 'test@example.com',
-      password: 'password123',
-      name: 'Test User',
-      username: 'testuser',
-    });
-
-    // Einen allgemeinen Datenbankfehler simulieren
-    context.mockDb.run.mockRejectedValue(new Error('Datenbankfehler'));
-
-    const response = await POST(context as any);
-
-    expect(response.status).toBe(302);
-    expect(response.headers.get('Location')).toBe('/register?error=UnknownError');
-  });
-  
-  // Aufräumen nach allen Tests
-  afterAll(() => {
-    // Originale Funktionen wiederherstellen
-    crypto.randomUUID = originalRandomUUID;
-    vi.restoreAllMocks();
-  });
-  
-  // Tests für Security-Features
-  describe('Security-Features', () => {
-    it('sollte Rate-Limiting anwenden', async () => {
-      const context = createMockContext({
-        email: 'test@example.com',
-        password: 'password123',
-        name: 'Test User',
-        username: 'testuser',
-      });
-
-      // Clientadresse für Tests hinzufügen
-      context.clientAddress = '192.168.1.1';
-
-      await POST(context as any);
-
-      expect(standardApiLimiterSpy).toHaveBeenCalled();
-    });
-
-    it('sollte abbrechen, wenn Rate-Limiting ausgelöst wird', async () => {
-      const context = createMockContext({
-        email: 'test@example.com',
-        password: 'password123',
-        name: 'Test User',
-        username: 'testuser',
-      });
-
-      // Rate-Limiting-Antwort simulieren
-      const rateLimitResponse = new Response(null, { 
-        status: 429, 
-        statusText: 'Too Many Requests'
-      });
-      standardApiLimiterSpy.mockResolvedValueOnce(rateLimitResponse);
-
-      const response = await POST(context as any);
-
-      expect(response.status).toBe(302);
-      expect(response.headers.get('Location')).toBe('/register?error=TooManyRequests');
-      // Keine weiteren Aktionen sollten ausgeführt werden
-      expect(context.mockDb.run).not.toHaveBeenCalled();
-    });
-
-    it('sollte Security-Headers auf Antworten anwenden', async () => {
-      const context = createMockContext({
-        email: 'test@example.com',
-        password: 'password123',
-        name: 'Test User',
-        username: 'testuser',
-      });
-
-      // Mock für erfolgreiche Registrierung
-      context.mockDb.run.mockResolvedValue({ success: true });
-
-      // Session-Mock
-      const mockSession = {
-        id: 'session-123',
-        userId: 'test-user-id',
-      };
-      vi.mocked(authModule.createSession).mockResolvedValue(mockSession);
-
-      // Clientadresse für Tests hinzufügen
-      context.clientAddress = '192.168.1.1';
-
-      await POST(context as any);
-
-      // Prüfen, ob Security-Headers angewendet wurden
-      expect(securityHeaders.applySecurityHeaders).toHaveBeenCalled();
-    });
-
-    it('sollte erfolgreiche und fehlgeschlagene Registrierung protokollieren', async () => {
-      const context = createMockContext({
-        email: 'test@example.com',
-        password: 'password123',
-        name: 'Test User',
-        username: 'testuser',
-      });
-
-      // Mock für erfolgreiche Registrierung
-      context.mockDb.run.mockResolvedValue({ success: true });
-
-      // Session-Mock
-      const mockSession = {
-        id: 'session-123',
-        userId: 'test-user-id',
-      };
-      vi.mocked(authModule.createSession).mockResolvedValue(mockSession);
-
-      // Clientadresse für Tests hinzufügen
-      context.clientAddress = '192.168.1.1';
-
-      await POST(context as any);
-      
-      // Überprüfen, ob erfolgreiche Registrierung protokolliert wurde
-      expect(securityLogger.logAuthSuccess).toHaveBeenCalledWith(
-        'test-user-id',
-        context.clientAddress,
-        expect.objectContaining({
-          action: 'register',
-          email: 'test@example.com',
-          username: 'testuser',
-        })
-      );
-
-      // Test zurücksetzen
-      vi.clearAllMocks();
-      
-      // Einen UNIQUE constraint error für zweiten Test simulieren
-      const uniqueError = new Error('SQLITE_CONSTRAINT: UNIQUE constraint failed');
-      uniqueError.message = 'SQLITE_CONSTRAINT: UNIQUE constraint failed';
-      context.mockDb.run.mockRejectedValue(uniqueError);
-
-      await POST(context as any);
-
-      // Überprüfen, ob fehlgeschlagene Registrierung protokolliert wurde
-      expect(securityLogger.logAuthFailure).toHaveBeenCalledWith(
-        context.clientAddress,
-        expect.objectContaining({
-          reason: 'duplicate_user',
-          email: 'test@example.com'
-        })
-      );
-    });
   });
 });

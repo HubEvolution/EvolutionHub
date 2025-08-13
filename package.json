@@ -32,13 +32,11 @@
     "db:setup": "npm run setup:local"
   },
   "dependencies": {
-    "@astrojs/image": "^0.18.0",
     "@astrojs/react": "^4.3.0",
     "@contentful/rich-text-from-markdown": "^16.1.1",
     "@contentful/rich-text-html-renderer": "^17.1.0",
     "@types/bcrypt": "^6.0.0",
     "@types/redis": "^4.0.10",
-    "@types/toastr": "^2.1.43",
     "@types/uuid": "^10.0.0",
     "astro": "^5.12.2",
     "astro-heroicons": "^2.1.5-1",
@@ -64,8 +62,8 @@
     "redis": "^5.8.0",
     "resend": "^4.7.0",
     "sqlite3": "^5.1.7",
+    "sonner": "^1.5.0",
     "stripe": "^18.3.0",
-    "toastr": "^2.1.4",
     "uuid": "^11.1.0",
     "zustand": "^5.0.7"
   },

@@ -32,11 +32,10 @@ export const POST = withAuthApiMiddleware(async (context) => {
 
   const { action } = requestData;
   const db = env.DB;
-
-  try {
-    let result;
-    
-    switch (action) {
+  
+  let result;
+  
+  switch (action) {
       case 'create_project': {
         const newProjectId = crypto.randomUUID();
         await db.prepare(
@@ -101,13 +100,10 @@ export const POST = withAuthApiMiddleware(async (context) => {
         });
         
         return createApiError('validation_error', `Invalid action: ${action}`);
-    }
-    
-    // Erfolgreiche Antwort erstellen
-    return createApiSuccess(result);
-  } catch (error) {
-    throw error; // Fehler an die Middleware weiterleiten
   }
+  
+  // Erfolgreiche Antwort erstellen
+  return createApiSuccess(result);
 }, {
   // Zusätzliche Logging-Metadaten
   logMetadata: { action: 'perform_dashboard_action' },
