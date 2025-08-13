@@ -2,10 +2,12 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import PricingTable from '@/components/pricing/PricingTable.astro';
 import FeatureComparison from '@/components/pricing/FeatureComparison.astro';
+import { getI18n } from '@/utils/i18n';
 
 // Set page metadata
-const title = 'Preise – Evolution Hub';
-const description = 'Wähle den passenden Plan für deine Bedürfnisse. Kostenlose Testversion verfügbar.';
+const { t } = getI18n('pages.pricing');
+const title = t('pages.pricing.title');
+const description = t('pages.pricing.description');
 ---
 
 <BaseLayout title={title} description={description}>
@@ -13,11 +15,10 @@ const description = 'Wähle den passenden Plan für deine Bedürfnisse. Kostenlo
     <div class="max-w-7xl mx-auto">
       <div class="text-center">
         <h1 class="text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white sm:text-5xl md:text-6xl">
-          Einfache, transparente Preise
+          {t('pages.pricing.header.title')}
         </h1>
         <p class="mt-4 max-w-3xl mx-auto text-xl text-gray-500 dark:text-gray-300">
-          Wähle den Plan, der am besten zu dir passt. Jeder Plan enthält eine 14-tägige
-          kostenlose Testversion.
+          {t('pages.pricing.header.subtitle')}
         </p>
       </div>
 
@@ -25,34 +26,34 @@ const description = 'Wähle den passenden Plan für deine Bedürfnisse. Kostenlo
       <FeatureComparison />
 
       <div class="mt-16 bg-white dark:bg-gray-800 shadow rounded-lg p-8">
-        <h2 class="text-2xl font-bold mb-4 text-gray-900 dark:text-white">Häufig gestellte Fragen</h2>
-        
+        <h2 class="text-2xl font-bold mb-4 text-gray-900 dark:text-white">{t('pages.pricing.faq.title')}</h2>
+
         <div class="space-y-6 mt-8">
           <div>
-            <h3 class="text-lg font-medium text-gray-900 dark:text-white">Kann ich meinen Plan später wechseln?</h3>
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white">{t('pages.pricing.faq.question1')}</h3>
             <p class="mt-2 text-gray-600 dark:text-gray-300">
-              Ja, du kannst jederzeit zwischen den Plänen wechseln. Die Änderung wird mit deinem nächsten Abrechnungszyklus wirksam.
+              {t('pages.pricing.faq.answer1')}
             </p>
           </div>
-          
+
           <div>
-            <h3 class="text-lg font-medium text-gray-900 dark:text-white">Gibt es eine Mindestvertragslaufzeit?</h3>
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white">{t('pages.pricing.faq.question2')}</h3>
             <p class="mt-2 text-gray-600 dark:text-gray-300">
-              Nein, alle Pläne sind monatlich kündbar. Es gibt keine vertragliche Bindung.
+              {t('pages.pricing.faq.answer2')}
             </p>
           </div>
-          
+
           <div>
-            <h3 class="text-lg font-medium text-gray-900 dark:text-white">Kann ich die Enterprise-Version testen?</h3>
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white">{t('pages.pricing.faq.question3')}</h3>
             <p class="mt-2 text-gray-600 dark:text-gray-300">
-              Ja, kontaktiere uns für eine individuelle Demo und Testphase der Enterprise-Features.
+              {t('pages.pricing.faq.answer3')}
             </p>
           </div>
         </div>
-        
+
         <div class="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
           <p class="text-center">
-            Noch Fragen? <a href="/kontakt" class="text-blue-600 dark:text-blue-400 hover:underline">Kontaktiere unser Team</a>
+            {t('pages.pricing.faq_contact_cta_text')} <a href="/kontakt" class="text-blue-600 dark:text-blue-400 hover:underline">{t('pages.pricing.faq_contact_cta_link_text')}</a>
           </p>
         </div>
       </div>

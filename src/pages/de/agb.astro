@@ -1,9 +1,7 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { getI18n } from '@/utils/i18n';
-
-// Get the translation function for the German locale
-const t = getI18n('de');
+const { t } = getI18n('pages.agb');
 ---
 
 <BaseLayout title={t('pages.agb.title')}>

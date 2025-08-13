@@ -1,17 +1,19 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import { getI18n } from '@/utils/i18n';
+const { t } = getI18n('pages.impressum');
 ---
 
-<BaseLayout title="Impressum">
+<BaseLayout title={t('pages.impressum.title')}>
   <!-- Hero Section -->
   <section class="py-16 md:py-24 bg-gradient-to-br from-primary/5 to-purple-500/5 dark:from-gray-800 dark:to-gray-900">
     <div class="container mx-auto px-4">
       <div class="max-w-4xl mx-auto text-center">
         <h1 class="text-4xl md:text-5xl font-bold mb-6 text-gray-900 dark:text-white">
-          Impressum
+          {t('pages.impressum.section_intro.heading')}
         </h1>
         <p class="text-xl text-gray-600 dark:text-gray-300">
-          Angaben gemäß § 5 TMG
+          {t('pages.impressum.title')}
         </p>
       </div>
     </div>
@@ -22,88 +24,98 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
     <div class="container mx-auto px-4">
       <div class="max-w-4xl mx-auto prose prose-lg dark:prose-invert prose-headings:text-gray-900 dark:prose-headings:text-white prose-a:text-emerald-600 dark:prose-a:text-emerald-400 hover:prose-a:text-emerald-500 dark:hover:prose-a:text-emerald-300">
         <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 md:p-10">
-          <h2>Diensteanbieter</h2>
+          {/* Provider Section */}
+          <h2>{t('pages.impressum.sections.provider.headline')}</h2>
           <address class="not-italic">
-            <strong>Evolution Hub GmbH</strong><br>
-            Musterstraße 123<br>
-            10115 Berlin<br>
-            Deutschland
+            <strong>{t('pages.impressum.sections.provider.company_name')}</strong><br>
+            {t('pages.impressum.sections.provider.street_address')}<br>
+            {t('pages.impressum.sections.provider.city_postal_code')}<br>
+            {t('pages.impressum.sections.provider.country')}
           </address>
 
-          <h3>Kontakt</h3>
+          {/* Contact Section */}
+          <h3>{t('pages.impressum.sections.contact.headline')}</h3>
           <address class="not-italic">
-            Telefon: +49 (0)30 12345678<br>
-            Telefax: +49 (0)30 12345679<br>
-            E-Mail: info@evolutionhub.de<br>
-            Web: www.evolutionhub.de
+            {t('pages.impressum.sections.contact.phone')}<br>
+            {t('pages.impressum.sections.contact.fax')}<br>
+            {t('pages.impressum.sections.contact.email')}<br>
+            {t('pages.impressum.sections.contact.website')}
           </address>
 
-          <h3>Vertreten durch</h3>
+          {/* Represented By Section */}
+          <h3>{t('pages.impressum.sections.represented_by.headline')}</h3>
           <p>
-            Geschäftsführer: Max Mustermann, Erika Musterfrau
+            {t('pages.impressum.sections.represented_by.managing_directors')}
           </p>
 
-          <h3>Registereintrag</h3>
+          {/* Registration Section */}
+          <h3>{t('pages.impressum.sections.registration.headline')}</h3>
           <p>
-            Eingetragen im Handelsregister<br>
-            Registergericht: Amtsgericht Berlin-Charlottenburg<br>
-            Registernummer: HRB 123456
+            {t('pages.impressum.sections.registration.register_entry')}<br>
+            {t('pages.impressum.sections.registration.register_court')}<br>
+            {t('pages.impressum.sections.registration.register_number')}
           </p>
 
-          <h3>Umsatzsteuer-Identifikationsnummer</h3>
+          {/* VAT Section */}
+          <h3>{t('pages.impressum.sections.vat.headline')}</h3>
           <p>
-            Umsatzsteuer-Identifikationsnummer gemäß § 27 a Umsatzsteuergesetz:<br>
-            DE 123456789
+            {t('pages.impressum.sections.vat.vat_id_label')}<br>
+            {t('pages.impressum.sections.vat.vat_id')}
           </p>
 
-          <h3>Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV</h3>
+          {/* Content Responsible Section */}
+          <h3>{t('pages.impressum.sections.content_responsible.headline')}</h3>
           <address class="not-italic">
-            Max Mustermann<br>
-            Musterstraße 123<br>
-            10115 Berlin
+            {t('pages.impressum.sections.content_responsible.name')}<br>
+            {t('pages.impressum.sections.content_responsible.street')}<br>
+            {t('pages.impressum.sections.content_responsible.city_postal_code')}
           </address>
 
-          <h3>Streitschlichtung</h3>
+          {/* Dispute Resolution Section */}
+          <h3>{t('pages.impressum.sections.dispute_resolution.headline')}</h3>
           <p>
-            Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit: <a href="https://ec.europa.eu/consumers/odr/" target="_blank" rel="noopener noreferrer">https://ec.europa.eu/consumers/odr/</a>.<br>
-            Unsere E-Mail-Adresse finden Sie oben im Impressum.
+            {t('pages.impressum.sections.dispute_resolution.os_platform_intro')}
+            <a href={t('pages.impressum.sections.dispute_resolution.os_platform_url')} target="_blank" rel="noopener noreferrer">{t('pages.impressum.sections.dispute_resolution.os_platform_url')}</a><br>
+            {t('pages.impressum.sections.dispute_resolution.email_note')}
           </p>
           <p>
-            Wir sind nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.
-          </p>
-
-          <h3>Haftungsausschluss</h3>
-          <h4>Haftung für Inhalte</h4>
-          <p>
-            Als Diensteanbieter sind wir gemäß § 7 Abs.1 TMG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 TMG sind wir als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen zu überwachen oder nach Umständen zu forschen, die auf eine rechtswidrige Tätigkeit hinweisen.
-          </p>
-          <p>
-            Verpflichtungen zur Entfernung oder Sperrung der Nutzung von Informationen nach den allgemeinen Gesetzen bleiben hiervon unberührt. Eine diesbezügliche Haftung ist jedoch erst ab dem Zeitpunkt der Kenntnis einer konkreten Rechtsverletzung möglich. Bei Bekanntwerden von entsprechenden Rechtsverletzungen werden wir diese Inhalte umgehend entfernen.
+            {t('pages.impressum.sections.dispute_resolution.participation_statement')}
           </p>
 
-          <h4>Haftung für Links</h4>
+          {/* Disclaimer Section */}
+          <h3>{t('pages.impressum.sections.disclaimer.headline')}</h3>
+          <h4>{t('pages.impressum.sections.disclaimer.content_liability.headline')}</h4>
           <p>
-            Unser Angebot enthält Links zu externen Websites Dritter, auf deren Inhalte wir keinen Einfluss haben. Deshalb können wir für diese fremden Inhalte auch keine Gewähr übernehmen. Für die Inhalte der verlinkten Seiten ist stets der jeweilige Anbieter oder Betreiber der Seiten verantwortlich. Die verlinkten Seiten wurden zum Zeitpunkt der Verlinkung auf mögliche Rechtsverstöße überprüft. Rechtswidrige Inhalte waren zum Zeitpunkt der Verlinkung nicht erkennbar.
+            {t('pages.impressum.sections.disclaimer.content_liability.paragraph1')}
           </p>
           <p>
-            Eine permanente inhaltliche Kontrolle der verlinkten Seiten ist jedoch ohne konkrete Anhaltspunkte einer Rechtsverletzung nicht zumutbar. Bei Bekanntwerden von Rechtsverletzungen werden wir derartige Links umgehend entfernen.
-          </p>
-
-          <h4>Urheberrecht</h4>
-          <p>
-            Die durch die Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten unterliegen dem deutschen Urheberrecht. Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechtes bedürfen der schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers. Downloads und Kopien dieser Seite sind nur für den privaten, nicht kommerziellen Gebrauch gestattet.
-          </p>
-          <p>
-            Soweit die Inhalte auf dieser Seite nicht vom Betreiber erstellt wurden, werden die Urheberrechte Dritter beachtet. Insbesondere werden Inhalte Dritter als solche gekennzeichnet. Sollten Sie trotzdem auf eine Urheberrechtsverletzung aufmerksam werden, bitten wir um einen entsprechenden Hinweis. Bei Bekanntwerden von Rechtsverletzungen werden wir derartige Inhalte umgehend entfernen.
+            {t('pages.impressum.sections.disclaimer.content_liability.paragraph2')}
           </p>
 
-          <h3>Bildnachweise</h3>
+          <h4>{t('pages.impressum.sections.disclaimer.link_liability.headline')}</h4>
           <p>
-            Die auf dieser Website verwendeten Bilder und Grafiken unterliegen dem Urheberrecht der Evolution Hub GmbH oder sind lizenzfreie Stockfotos von Drittanbietern.
+            {t('pages.impressum.sections.disclaimer.link_liability.paragraph1')}
+          </p>
+          <p>
+            {t('pages.impressum.sections.disclaimer.link_liability.paragraph2')}
+          </p>
+
+          <h4>{t('pages.impressum.sections.disclaimer.copyright.headline')}</h4>
+          <p>
+            {t('pages.impressum.sections.disclaimer.copyright.paragraph1')}
+          </p>
+          <p>
+            {t('pages.impressum.sections.disclaimer.copyright.paragraph2')}
+          </p>
+
+          {/* Image Credits */}
+          <h3>{t('pages.impressum.sections.image_credits.headline')}</h3>
+          <p>
+            {t('pages.impressum.sections.image_credits.description')}
           </p>
 
           <p class="text-sm text-gray-500 dark:text-gray-400 mt-8">
-            Quelle: <a href="https://www.e-recht24.de" target="_blank" rel="noopener noreferrer" class="text-emerald-600 dark:text-emerald-400 hover:underline">eRecht24</a>
+            Quelle: <a href="https://www.e-recht24.de" target="_blank" rel="noopener noreferrer" class="text-emerald-600 dark:text-emerald-400 hover:underline">{t('pages.impressum.source_attribution')}</a>
           </p>
         </div>
       </div>

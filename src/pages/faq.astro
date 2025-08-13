@@ -136,7 +136,7 @@ const faqCategories = [
         <p class="text-xl text-gray-600 dark:text-gray-300">
           Finden Sie Antworten auf die am häufigsten gestellten Fragen
         </p>
-        
+
         <!-- Suchleiste -->
         <div class="mt-10 max-w-2xl mx-auto relative">
           <div class="relative">
@@ -159,26 +159,23 @@ const faqCategories = [
       <div class="max-w-4xl mx-auto">
         <!-- Kategorien-Navigation -->
         <div class="flex flex-wrap gap-3 mb-10 justify-center" id="faq-categories">
-          <button 
+          <button
             class="px-4 py-2 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400 font-medium text-sm transition-colors duration-200"
             data-category="all"
           >
             Alle anzeigen
           </button>
-          {faqCategories.map(category => {
-            const iconHtml = categoryIcons[category.id];
-            return (
-              <div key={category.id}>
-                <button 
-                  class="px-4 py-2 rounded-full bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 font-medium text-sm hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200 flex items-center gap-2"
-                  data-category={category.id}
-                >
-                  <span class="w-5 h-5 flex items-center justify-center" set:html={iconHtml}></span>
-                  <span>{category.title}</span>
-                </button>
-              </div>
-            );
-          })}
+          {faqCategories.map(category => (
+            <div key={category.id}>
+              <button
+                class="px-4 py-2 rounded-full bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 font-medium text-sm hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200 flex items-center gap-2"
+                data-category={category.id}
+              >
+                <span class="w-5 h-5 flex items-center justify-center" set:html={categoryIcons[category.id] || categoryIcons.allgemein}></span>
+                <span>{category.title}</span>
+              </button>
+            </div>
+          ))}
         </div>
 
         <!-- FAQ-Liste -->
@@ -189,13 +186,13 @@ const faqCategories = [
                 <span class="w-5 h-5 mr-2" set:html={categoryIcons[category.id] || categoryIcons.allgemein}></span>
                 <span>{category.title}</span>
               </h2>
-              
+
               <div class="space-y-4">
                 {category.items.map((item, index) => {
                   const itemId = `faq-${category.id}-${index}`;
                   return (
                     <div class="faq-item bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden transition-all duration-200 hover:shadow-md dark:hover:shadow-lg dark:hover:shadow-gray-900/10">
-                      <button 
+                      <button
                         class="w-full px-6 py-5 text-left flex items-center justify-between focus:outline-none group hover:bg-gray-50/80 dark:hover:bg-gray-700/80 transition-colors duration-200"
                         aria-expanded="false"
                         aria-controls={itemId}
@@ -204,7 +201,7 @@ const faqCategories = [
                         <span class="font-medium text-gray-900 dark:text-white">{item.question}</span>
                         <span class="text-gray-400 dark:text-gray-400 transition-transform duration-200 group-aria-expanded:rotate-180" set:html={ChevronDown}></span>
                       </button>
-                      <div 
+                      <div
                         id={itemId}
                         class="px-6 py-4 hidden text-gray-600 dark:text-gray-300"
                         aria-labelledby={`${itemId}-button`}
@@ -233,7 +230,7 @@ const faqCategories = [
   </section>
 
   <!-- Contact Section -->
-  <section class="py-16 bg-gradient-to-br from-emerald-50 to-cyan-50 dark:from-gray-800 dark:to-gray-900">
+  <section class="py-16 bg-gradient-to-br from-emerald-100 to-cyan-100 dark:from-gray-800 dark:to-gray-900">
     <div class="container mx-auto px-4">
       <div class="max-w-4xl mx-auto bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden">
         <div class="grid md:grid-cols-2">
@@ -241,14 +238,14 @@ const faqCategories = [
           <div class="p-8 md:p-10">
             <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Frage nicht gefunden?</h2>
             <p class="text-gray-600 dark:text-gray-300 mb-6">Kein Problem! Senden Sie uns einfach eine Nachricht und wir melden uns schnellstmöglich bei Ihnen zurück.</p>
-            
+
             <form class="space-y-4">
               <div>
                 <label for="faq-email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Ihre E-Mail</label>
-                <input 
-                  type="email" 
-                  id="faq-email" 
-                  name="email" 
+                <input
+                  type="email"
+                  id="faq-email"
+                  name="email"
                   required
                   class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition duration-200"
                 >
@@ -256,10 +253,10 @@ const faqCategories = [
 
               <div>
                 <label for="faq-message" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Ihre Frage</label>
-                <textarea 
-                  id="faq-message" 
-                  name="message" 
-                  rows="4" 
+                <textarea
+                  id="faq-message"
+                  name="message"
+                  rows="4"
                   required
                   class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition duration-200"
                   placeholder="Beschreiben Sie Ihr Anliegen..."
@@ -267,10 +264,10 @@ const faqCategories = [
               </div>
 
               <div class="flex items-start">
-                <input 
-                  id="faq-privacy" 
-                  name="privacy" 
-                  type="checkbox" 
+                <input
+                  id="faq-privacy"
+                  name="privacy"
+                  type="checkbox"
                   required
                   class="h-4 w-4 mt-1 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded"
                 >
@@ -280,8 +277,8 @@ const faqCategories = [
               </div>
 
               <div class="pt-2">
-                <button 
-                  type="submit" 
+                <button
+                  type="submit"
                   class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition duration-200"
                 >
                   Nachricht senden
@@ -340,105 +337,6 @@ const faqCategories = [
   </section>
 
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      // Toggle FAQ items
-      document.querySelectorAll('.faq-item button').forEach(button => {
-        if (!(button instanceof HTMLElement)) return;
-        
-        button.addEventListener('click', () => {
-          const isExpanded = button.getAttribute('aria-expanded') === 'true';
-          const contentId = button.getAttribute('aria-controls');
-          if (!contentId) return;
-          
-          const content = document.getElementById(contentId);
-          const icon = button.querySelector('span');
-          
-          // Toggle content
-          content?.classList.toggle('hidden', isExpanded);
-          content?.classList.toggle('block', !isExpanded);
-          
-          // Update aria-expanded
-          button.setAttribute('aria-expanded', String(!isExpanded));
-        });
-      });
-
-      // Filter by category
-      const categoryButtons = document.querySelectorAll<HTMLButtonElement>('#faq-categories button');
-      
-      categoryButtons.forEach(button => {
-        button.addEventListener('click', () => {
-          const category = button.getAttribute('data-category');
-          if (!category) return;
-          
-          // Update active button
-          categoryButtons.forEach(btn => {
-            if (!(btn instanceof HTMLElement)) return;
-            
-            const isActive = btn === button;
-            btn.classList.toggle('bg-emerald-100', isActive);
-            btn.classList.toggle('dark:bg-emerald-900/30', isActive);
-            btn.classList.toggle('text-emerald-800', isActive);
-            btn.classList.toggle('dark:text-emerald-400', isActive);
-            
-            if (btn !== button) {
-              btn.classList.add('bg-gray-100', 'dark:bg-gray-800', 'text-gray-700', 'dark:text-gray-300');
-              btn.classList.remove('hover:bg-gray-200', 'dark:hover:bg-gray-700');
-            }
-          });
-          
-          // Show/hide categories
-          document.querySelectorAll<HTMLElement>('[data-category]').forEach(el => {
-            if (!el.id || el.id === 'faq-container') return;
-            
-            if (category === 'all') {
-              el.style.display = 'block';
-            } else {
-              el.style.display = el.getAttribute('data-category') === category ? 'block' : 'none';
-            }
-          });
-        });
-      });
-
-      // Search functionality
-      const searchInput = document.getElementById('faq-search');
-      const noResults = document.getElementById('no-results');
-      
-      searchInput?.addEventListener('input', (e) => {
-        const target = e.target as HTMLInputElement;
-        const searchTerm = target.value.toLowerCase().trim();
-        let hasResults = false;
-        
-        if (searchTerm.length < 2) {
-          // Show all if search term is too short
-          document.querySelectorAll<HTMLElement>('.faq-item').forEach(item => {
-            item.style.display = 'block';
-          });
-          noResults?.classList.add('hidden');
-          return;
-        }
-        
-        // Search in questions and answers
-        document.querySelectorAll<HTMLElement>('.faq-item').forEach(item => {
-          const question = item.querySelector('button')?.textContent?.toLowerCase() || '';
-          const answer = item.querySelector('div[aria-labelledby]')?.textContent?.toLowerCase() || '';
-          
-          if (question.includes(searchTerm) || answer.includes(searchTerm)) {
-            item.style.display = 'block';
-            hasResults = true;
-            
-            // Show parent category
-            const category = item.closest<HTMLElement>('[data-category]');
-            if (category?.dataset?.category && category.dataset.category !== 'all') {
-              category.style.display = 'block';
-            }
-          } else {
-            item.style.display = 'none';
-          }
-        });
-        
-        // Show no results message if no matches found
-        noResults?.classList.toggle('hidden', hasResults);
-      });
-    });
+    // TODO: Add i18n for contact page content
   </script>
 </BaseLayout>

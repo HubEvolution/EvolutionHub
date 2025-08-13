@@ -1,165 +1,126 @@
 ---
-// Importiere BaseLayout und die i18n-Funktion
 import BaseLayout from '@/layouts/BaseLayout.astro';
-// Korrigierter Import für den Namen-Export von i18n
-import { i18n } from '@/lib/i18n';
-// Importiere die TypewriterComponent
-import TypewriterComponent from '@/components/scripts/TypewriterComponent.astro';
+import { getI18n } from '@/utils/i18n';
 
-// Extrahiere den Pfad in der Astro-Frontmatter, um Astro-spezifische Objekte nicht im Client-Skript zu verwenden.
-const currentPathname = Astro.url.pathname; 
-const t = i18n(currentPathname);
-
-// Definiere die Texte für die Typewriter-Animation für die deutsche Seite.
-// Diese Variable wird als JSON an das inline-Skript übergeben.
-const typewriterTextsData_de = [
-  { text: t.translate('hero.typewriter.part1_de'), delay: 100 }, // Deutscher Text für Teil 1
-  { text: t.translate('hero.typewriter.part2_de'), delay: 80 }  // Deutscher Text für Teil 2
-];
-
-// Feature-Daten mit i18n-Übersetzungen (werden im HTML-Teil verwendet).
-const features = [
-  {
-    title: t.translate('features.ai_powered.title'),
-    description: t.translate('features.ai_powered.description'),
-    icon: '🤖',
-  },
-  {
-    title: t.translate('features.responsive.title'),
-    description: t.translate('features.responsive.description'),
-    icon: '📱',
-  },
-  {
-    title: t.translate('features.secure_by_design.title'),
-    description: t.translate('features.secure_by_design.description'),
-    icon: '🔒',
-  },
-  {
-    title: t.translate('features.lightning_fast.title'),
-    description: t.translate('features.lightning_fast.description'),
-    icon: '⚡',
-  },
-];
+const t = getI18n('de');
 ---
 
-<BaseLayout title={t.translate('pages.home.title')}>
+<BaseLayout title={t('title') ?? 'Welcome to Evolution Hub'}>
   <!-- Hero Section -->
-  <section class="py-20 md:py-32 bg-gradient-to-br from-primary/5 to-purple-500/5 dark:from-gray-800 dark:to-gray-900">
-    <div class="container mx-auto px-4 text-center">
-      <h1 class="text-4xl md:text-6xl font-bold mb-6 text-gray-900 dark:text-white">
-        <span id="typewriter" aria-live="polite"></span>
-      </h1>
-      <p class="text-xl md:text-2xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-10">
-        {t.translate('common.description')}
-      </p>
-      
-      <div class="flex flex-col sm:flex-row justify-center gap-4">
-        <a href="/dashboard" class="btn btn-primary text-lg px-8 py-3 dark:text-white" aria-label="Get Started with Evolution Hub">
-          {t.translate('common.get_started')}
-        </a>
-        <a href="/docs" class="btn btn-outline text-lg px-8 py-3 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700" aria-label="Zur Dokumentation">
-          {t.translate('common.documentation')}
-        </a>
+  <section class="relative py-20 md:py-32 bg-gradient-to-br from-primary/5 to-purple-500/5 dark:from-gray-800 dark:to-gray-900 overflow-hidden">
+    <div class="container mx-auto px-4 relative z-10">
+      <div class="max-w-5xl mx-auto text-center">
+        <h1 class="text-5xl md:text-6xl lg:text-7xl font-extrabold mb-6 text-gray-900 dark:text-white leading-tight">
+          {t('hero.title_part1')} <span class="text-transparent bg-clip-text bg-gradient-to-br from-emerald-400 to-cyan-500">{t('hero.title_part2')}</span>
+        </h1>
+        <p class="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-10 max-w-3xl mx-auto">
+          {t('hero.subtitle')}
+        </p>
+        <div class="flex justify-center space-x-4">
+          <a href="/register" class="inline-flex items-center px-8 py-4 rounded-xl font-bold text-white bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 shadow-lg hover:shadow-xl transition duration-300">
+            {t('hero.get_started_button')}
+          </a>
+          <a href="/documentation" class="inline-flex items-center px-8 py-4 rounded-xl font-bold text-gray-800 dark:text-white bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 shadow-sm transition duration-300">
+            {t('hero.documentation_link')}
+          </a>
+        </div>
       </div>
     </div>
-  </section>
-
-  <!-- Introduction Section -->
-  <section class="py-16 bg-gray-50 dark:bg-gray-800">
-    <div class="container mx-auto px-4 max-w-4xl">
-      <p class="text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
-        {t.translate('pages.introduction.part1')}
-      </p>
-      <p class="text-lg text-gray-700 dark:text-gray-300 leading-relaxed mt-4">
-        {t.translate('pages.introduction.part2')}
-      </p>
-      <p class="text-lg text-gray-700 dark:text-gray-300 leading-relaxed mt-4">
-        {/* Hier wird der Text für den deutschen Teil beibehalten */}
-        {t.translate('pages.introduction.part3_de')}
-      </p>
-      <p class="text-lg text-gray-700 dark:text-gray-300 leading-relaxed mt-4">
-        {/* Hier könnte der englische Text stehen, aber da es die deutsche Seite ist, bleiben wir bei deutschen Texten. */}
-        {t.translate('pages.introduction.part4_de')}
-      </p>
+    <!-- Background elements -->
+    <div class="absolute inset-0 opacity-30 dark:opacity-10">
+      <svg class="absolute top-0 left-0 w-1/2 h-full opacity-50" fill="url(#gradient-purple)" viewBox="0 0 1440 600">
+        <defs>
+          <linearGradient id="gradient-purple" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#7E22CD;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#9333EA;stop-opacity:0.8" />
+          </linearGradient>
+        </defs>
+        <path d="M0,300 C700,0,750,600,1440,300"/>
+      </svg>
+      <svg class="absolute bottom-0 right-0 w-1/2 h-full opacity-50" fill="url(#gradient-blue)" viewBox="0 0 1440 600">
+        <defs>
+          <linearGradient id="gradient-blue" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#2563EB;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#3B82F6;stop-opacity:0.8" />
+          </linearGradient>
+        </defs>
+        <path d="M1440,300 C740,600,690,0,0,300"/>
+      </svg>
+      <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-full h-64 bg-gradient-to-t from-white dark:from-gray-900 to-transparent"></div>
     </div>
   </section>
 
   <!-- Features Section -->
-  <section id="features" class="py-20 bg-white dark:bg-gray-900">
+  <section class="py-16 md:py-24 bg-white dark:bg-gray-900">
     <div class="container mx-auto px-4">
       <div class="text-center mb-16">
-        <h2 class="text-3xl md:text-4xl font-bold mb-4 text-gray-900 dark:text-white">{t.translate('features.title')}</h2>
-        <p class="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-          {t.translate('features.subtitle')}
+        <h2 class="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+          {t('features.heading')}
+        </h2>
+        <p class="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+          {t('features.subtitle')}
         </p>
       </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-        {features.map((feature, index) => (
-          <div 
-            class="glass p-6 rounded-xl hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
-            data-aos="fade-up"
-            data-aos-delay={`${index * 100}`}
-          >
-            <div class="text-4xl mb-4">{feature.icon}</div>
-            <h2 class="text-xl font-bold mb-2 text-gray-900 dark:text-white">{feature.title}</h2>
-            <p class="text-gray-600 dark:text-gray-400">{feature.description}</p>
-          </div>
-        ))}
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+        <div class="feature-card text-center p-6 bg-gray-50 dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md transition duration-300">
+          <div class="text-5xl mb-4 inline-block">{t('features.feature1.icon')}</div>
+          <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">{t('features.feature1.title')}</h3>
+          <p class="text-gray-600 dark:text-gray-300">{t('features.feature1.description')}</p>
+        </div>
+        <div class="feature-card text-center p-6 bg-gray-50 dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md transition duration-300">
+          <div class="text-5xl mb-4 inline-block">{t('features.feature2.icon')}</div>
+          <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">{t('features.feature2.title')}</h3>
+          <p class="text-gray-600 dark:text-gray-300">{t('features.feature2.description')}</p>
+        </div>
+        <div class="feature-card text-center p-6 bg-gray-50 dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md transition duration-300">
+          <div class="text-5xl mb-4 inline-block">{t('features.feature3.icon')}</div>
+          <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">{t('features.feature3.title')}</h3>
+          <p class="text-gray-600 dark:text-gray-300">{t('features.feature3.description')}</p>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- CTA Section -->
-  <section class="py-20 bg-gradient-to-r from-primary to-purple-600 text-white">
+  <!-- Testimonials Section -->
+  <section class="py-16 md:py-24 bg-gradient-to-br from-emerald-50 to-cyan-50 dark:from-gray-800 dark:to-gray-900">
+    <div class="container mx-auto px-4">
+      <div class="text-center mb-16">
+        <h2 class="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+          {t('testimonials.heading')}
+        </h2>
+        <p class="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+          {t('testimonials.subtitle')}
+        </p>
+      </div>
+      <!-- Testimonial Slider/Carousel would go here -->
+      <div class="max-w-4xl mx-auto flex flex-col md:flex-row items-center gap-8">
+        <div class="text-center md:text-left">
+          <p class="text-lg italic text-gray-700 dark:text-gray-200 mb-4">
+            "{t('testimonials.testimonial1.quote')}"
+          </p>
+          <p class="font-bold text-gray-900 dark:text-white">- {t('testimonials.testimonial1.author')}</p>
+          <p class="text-sm text-gray-500 dark:text-gray-400">{t('testimonials.testimonial1.role')}</p>
+        </div>
+        <div class="md:w-3/5 flex justify-center md:justify-end">
+          <img src="/images/generic-avatar.png" alt="User Avatar" class="w-32 h-32 rounded-full border-4 border-primary shadow-lg">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Call to Action Section -->
+  <!-- Using the CTA component from locales -->
+  <section class="py-16 md:py-24">
     <div class="container mx-auto px-4 text-center">
-      <h2 class="text-3xl md:text-4xl font-bold mb-6">{t.translate('cta.headline')}</h2>
-      <p class="text-xl mb-8 max-w-2xl mx-auto opacity-90">
-        {t.translate('cta.subtitle')}
+      <h2 class="text-4xl font-bold text-gray-900 dark:text-white mb-6">
+        {t('cta.headline')}
+      </h2>
+      <p class="text-lg text-gray-600 dark:text-gray-300 mb-10 max-w-3xl mx-auto">
+        {t('cta.subtitle')}
       </p>
-      <a href="/signup" class="inline-block bg-white text-primary text-lg font-semibold px-8 py-3 rounded-lg hover:bg-gray-100 transition-colors" aria-label="Create a free account">
-        {t.translate('cta.button_text')}
+      <a href="/register" class="inline-flex items-center px-10 py-5 rounded-xl font-bold text-white bg-gradient-to-r from-primary to-secondary hover:from-primary-dark hover:to-secondary-dark shadow-lg hover:shadow-xl transition duration-300 text-lg">
+        {t('cta.button_text')}
       </a>
     </div>
   </section>
 </BaseLayout>
-
-<TypewriterComponent 
-  elementId="typewriter" 
-  texts={typewriterTextsData_de}
-  defaultDelay={100} 
-/>
-
-<script is:inline>
-  document.addEventListener('DOMContentLoaded', () => {
-
-    // --- Andere Initialisierungen (AOS, Intersection Observer) ---
-    const featureItems = document.querySelectorAll('[data-aos]');
-    featureItems.forEach(item => {
-      item.classList.add('opacity-0', 'translate-y-4', 'transition-all', 'duration-500', 'ease-out');
-    });
-
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.remove('opacity-0', 'translate-y-4');
-          entry.target.classList.add('opacity-100', 'translate-y-0');
-          observer.unobserve(entry.target);
-        }
-      });
-    }, {
-      threshold: 0.1
-    });
-    
-    featureItems.forEach(item => {
-      observer.observe(item);
-    });
-    // --- Ende andere Initialisierungen ---
-    
-    // LOGGING TEST: Console-Ausgabe systematisch prüfen
-    console.log('🔥 LOGGING TEST 1: DOMContentLoaded executed');
-    console.warn('⚠️ LOGGING TEST 2: Warning level');
-    console.error('❌ LOGGING TEST 3: Error level');
-    console.info('ℹ️ LOGGING TEST 4: Info level');
-  });
-</script>

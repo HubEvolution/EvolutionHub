@@ -13,7 +13,7 @@ Alle Auth-API-Endpunkte sind mit folgenden Sicherheitsmaßnahmen ausgestattet:
 * **Anti-User-Enumeration:** Gleiches Redirect-Verhalten unabhängig vom Benutzerexistenz-Status
 
 Hinweis: Die Auth-Endpunkte sind formularbasiert und antworten mit Redirects statt JSON. Bei Erfolg wird ein HttpOnly-Cookie `session_id` gesetzt.
-Hinweis: Die früheren `-v2` Varianten wurden in die kanonischen Endpunkte integriert (Service-Layer, zentrale Fehlerbehandlung, konsistente Redirects).
+Hinweis: Die frühere Login-Variante `login-v2` wurde entfernt. Verwende ausschließlich den kanonischen Login-Endpunkt (Service-Layer, zentrale Fehlerbehandlung, konsistente Redirects).
 
 ## Endpunkte (kanonisch)
 
@@ -81,8 +81,7 @@ Location: /login?error=InvalidCredentials
 
 ### Fehlercodes (Login)
 
-* v1 (`login.ts`): `InvalidCredentials`, `InvalidInput`, `ValidationFailed`, `TooManyRequests`, `ServerError`, `MissingRuntime`
-* v2 (`login-v2.ts`): `AuthFailed`, `InvalidInput`, `TooManyRequests`, `ServerError`
+* Kanonisch (`login.ts`): `InvalidCredentials`, `InvalidInput`, `ValidationFailed`, `TooManyRequests`, `ServerError`, `MissingRuntime`
 
 ---
 
