@@ -1,16 +1,18 @@
 import type { APIContext } from 'astro';
-import { createSession } from '@/lib/auth-v2';
 import { hash } from 'bcrypt-ts';
 import { standardApiLimiter } from '@/lib/rate-limiter';
 import { logAuthSuccess, logAuthFailure } from '@/lib/security-logger';
 import { createSecureRedirect } from '@/lib/response-helpers';
+import { createEmailVerificationToken } from './verify-email';
+import { createEmailService, type EmailServiceDependencies } from '@/lib/services/email-service-impl';
 
 /**
  * POST /api/auth/register
- * Registriert einen neuen Benutzer und erstellt eine Session
+ * Registriert einen neuen Benutzer mit Double-Opt-in E-Mail-Verifikation
  * Implementiert Rate-Limiting, Security-Headers und Audit-Logging
  * 
  * WICHTIG: Dieser Endpunkt verwendet KEINE API-Middleware, da er Redirects statt JSON zurückgibt!
+ * ÄNDЕРUNG: Benutzer wird als email_verified=false erstellt und muss E-Mail bestätigen
  */
 export const POST = async (context: APIContext) => {
   // Rate-Limiting anwenden
@@ -48,32 +50,92 @@ export const POST = async (context: APIContext) => {
 
     const hashedPassword = await hash(password, 10);
     const userId = crypto.randomUUID();
+    const now = Math.floor(Date.now() / 1000);
 
     try {
+      // Benutzer mit email_verified=false erstellen (Double-Opt-in)
       await context.locals.runtime.env.DB.prepare(
-        'INSERT INTO users (id, email, password_hash, name, username) VALUES (?, ?, ?, ?, ?)'
+        'INSERT INTO users (id, email, password_hash, name, username, email_verified, created_at) VALUES (?, ?, ?, ?, ?, 0, ?)'
       )
-        .bind(userId, email, hashedPassword, name, username)
+        .bind(userId, email, hashedPassword, name, username, now)
         .run();
 
-      const session = await createSession(context.locals.runtime.env.DB, userId);
-      context.cookies.set('session_id', session.id, {
-        path: '/',
-        httpOnly: true,
-        maxAge: 60 * 60 * 24 * 30, // 30 days
-        secure: context.url.protocol === 'https:',
-        sameSite: 'lax'
-      });
+      // E-Mail-Verifikations-Token erstellen
+      const verificationToken = await createEmailVerificationToken(
+        context.locals.runtime.env.DB,
+        userId,
+        email
+      );
 
-      // Erfolgreiche Registrierung protokollieren
+      // Verifikations-URL generieren
+      const baseUrl = new URL(context.request.url).origin;
+      const verificationUrl = `${baseUrl}/api/auth/verify-email?token=${verificationToken}&email=${encodeURIComponent(email)}`;
+
+      // E-Mail-Service konfigurieren und Verifikations-E-Mail senden
+      try {
+        const emailDeps: EmailServiceDependencies = {
+          db: context.locals.runtime.env.DB,
+          isDevelopment: import.meta.env.DEV,
+          resendApiKey: context.locals.runtime.env.RESEND_API_KEY || '',
+          fromEmail: 'EvolutionHub <noreply@hub-evolution.com>',
+          baseUrl: baseUrl
+        };
+        
+        const emailService = createEmailService(emailDeps);
+        const emailResult = await emailService.sendVerificationEmail({
+          email,
+          verificationUrl,
+          userName: name
+        });
+        
+        if (!emailResult.success) {
+          console.error('Failed to send verification email:', emailResult.error);
+          // Benutzer löschen wenn E-Mail-Versand fehlschlägt
+          await context.locals.runtime.env.DB.prepare('DELETE FROM users WHERE id = ?')
+            .bind(userId)
+            .run();
+          
+          logAuthFailure(context.clientAddress, {
+            reason: 'email_send_failed',
+            email,
+            userId,
+            error: emailResult.error
+          });
+          
+          return createSecureRedirect('/register?error=EmailSendFailed');
+        }
+        
+        console.log('✅ Verification email sent to:', email);
+        
+      } catch (emailError) {
+        console.error('Email service error:', emailError);
+        // Benutzer löschen wenn E-Mail-Service nicht verfügbar
+        await context.locals.runtime.env.DB.prepare('DELETE FROM users WHERE id = ?')
+          .bind(userId)
+          .run();
+        
+        logAuthFailure(context.clientAddress, {
+          reason: 'email_service_error',
+          email,
+          userId,
+          error: emailError instanceof Error ? emailError.message : String(emailError)
+        });
+        
+        return createSecureRedirect('/register?error=EmailServiceUnavailable');
+      }
+
+      // Erfolgreiche Registrierung protokollieren (Benutzer erstellt, E-Mail gesendet)
       logAuthSuccess(userId, context.clientAddress, {
-        action: 'register',
+        action: 'register_pending_verification',
         email,
         username,
-        sessionId: session.id
+        verificationToken: verificationToken.substring(0, 8) + '...' // Nur Anfang loggen
       });
 
-      return createSecureRedirect('/dashboard');
+      console.log('✅ User registered successfully, verification email sent:', email);
+
+      // Weiterleitung zur E-Mail-Check-Seite statt Dashboard
+      return createSecureRedirect(`/verify-email?email=${encodeURIComponent(email)}`);
     } catch (e: any) {
       if (e.message?.includes('UNIQUE constraint failed')) {
         // Fehlgeschlagene Registrierung wegen Duplikat protokollieren

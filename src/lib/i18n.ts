@@ -94,14 +94,19 @@ export function navigateLocale(locale: Locale): void {
   if (typeof window === 'undefined') return; // safety for SSR
 
   const url = new URL(window.location.href);
-  const currentLocale = getLocale(url.pathname);
+  const currentPath = url.pathname;
+  const isLocalized = /^\/(de|en)(\/|$)/.test(currentPath);
 
-  // If already on the desired locale, do nothing
-  if (currentLocale === locale) return;
+  // If path is not localized (e.g., /pricing, /docs), go to locale home
+  if (!isLocalized) {
+    url.pathname = `/${locale}/`;
+    window.location.assign(url.toString());
+    return;
+  }
 
-  // Remove existing locale prefix (if any) and prepend the new one
-  const pathWithoutLocale = url.pathname.replace(/^\/(de|en)/, '');
-  const newPath = `/${locale}${pathWithoutLocale}`;
+  // Remove existing locale prefix (supports "/de", "/de/", "/en", "/en/")
+  const pathWithoutLocale = currentPath.replace(/^\/(de|en)(\/|$)/, '/');
+  const newPath = pathWithoutLocale === '/' ? `/${locale}/` : `/${locale}${pathWithoutLocale}`;
 
   // Preserve search and hash
   url.pathname = newPath;

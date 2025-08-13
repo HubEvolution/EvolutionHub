@@ -162,6 +162,25 @@ export const POST = async (context: APIContext) => {
       return applySecurityHeaders(response);
     }
 
+    // E-Mail-Verifikation prüfen (Double-Opt-in-Blockade)
+    const emailVerified = Boolean(existingUser.email_verified);
+    if (!emailVerified) {
+      // Login blockiert wegen nicht verifizierter E-Mail
+      logAuthFailure(context.clientAddress, {
+        reason: 'email_not_verified',
+        userId: existingUser.id,
+        email: existingUser.email
+      });
+
+      console.log('🚫 Login blocked for unverified email:', existingUser.email);
+
+      const response = new Response(null, {
+        status: 302,
+        headers: { Location: `/verify-email?email=${encodeURIComponent(existingUser.email)}&error=EmailNotVerified` }
+      });
+      return applySecurityHeaders(response);
+    }
+
     const session = await createSession(db, existingUser.id);
     // Cookie-Lebensdauer basierend auf rememberMe-Option einstellen
     const maxAge = loginData.rememberMe === true

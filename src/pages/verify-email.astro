@@ -1,0 +1,218 @@
+---
+import AuthLayout from '@/layouts/AuthLayout.astro';
+
+// URL-Parameter auslesen
+const url = Astro.url;
+const email = url.searchParams.get('email') || '';
+
+// Benutzer ist bereits eingeloggt -> Redirect zum Dashboard
+const locals = Astro.locals as any;
+if (locals.user && locals.user.email_verified) {
+  return Astro.redirect('/dashboard');
+}
+
+// E-Mail-Adresse für Anzeige maskieren (Datenschutz)
+function maskEmail(email: string): string {
+  if (!email || !email.includes('@')) return '';
+  
+  const [localPart, domain] = email.split('@');
+  if (localPart.length <= 2) return email; // Kurze E-Mails nicht maskieren
+  
+  const maskedLocal = localPart.charAt(0) + '*'.repeat(Math.max(0, localPart.length - 2)) + localPart.slice(-1);
+  return `${maskedLocal}@${domain}`;
+}
+
+const maskedEmail = maskEmail(email);
+---
+
+<AuthLayout title="E-Mail bestätigen">
+  <div class="relative p-6 rounded-2xl overflow-hidden bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-white/10 shadow-sm max-w-md mx-auto">
+    <!-- Success Icon -->
+    <div class="text-center mb-6">
+      <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-full mb-4">
+        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 7.89a2 2 0 002.83 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+        </svg>
+      </div>
+      <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+        Prüfen Sie Ihre E-Mails
+      </h1>
+      <p class="text-gray-600 dark:text-gray-300 text-sm">
+        Wir haben Ihnen eine Bestätigungs-E-Mail gesendet
+      </p>
+    </div>
+
+    <!-- Email Info -->
+    <div class="bg-gradient-to-r from-emerald-50 to-cyan-50 dark:from-emerald-900/20 dark:to-cyan-900/20 rounded-lg p-4 mb-6">
+      {maskedEmail && (
+        <p class="text-sm text-gray-700 dark:text-gray-300 mb-2">
+          E-Mail wurde gesendet an:
+        </p>
+        <p class="font-mono text-sm bg-white dark:bg-gray-700 px-3 py-2 rounded border font-medium text-gray-900 dark:text-white">
+          {maskedEmail}
+        </p>
+      )}
+      
+      <div class="mt-4 space-y-2">
+        <p class="text-sm text-gray-600 dark:text-gray-400 flex items-start">
+          <svg class="w-4 h-4 text-emerald-500 mt-0.5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+          </svg>
+          Klicken Sie auf den Bestätigungs-Link in der E-Mail
+        </p>
+        <p class="text-sm text-gray-600 dark:text-gray-400 flex items-start">
+          <svg class="w-4 h-4 text-amber-500 mt-0.5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+          </svg>
+          Der Link ist 24 Stunden gültig
+        </p>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="space-y-4">
+      <!-- Resend Email Button -->
+      <form id="resend-form" class="w-full">
+        {email && (
+          <input type="hidden" name="email" value={email} />
+        )}
+        <button 
+          type="button" 
+          class="w-full bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-700 hover:to-cyan-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200"
+          id="resend-btn"
+        >
+          📧 E-Mail erneut senden
+        </button>
+      </form>
+
+      <div class="text-center">
+        <p class="text-xs text-gray-500 dark:text-gray-400 mb-3">
+          Keine E-Mail erhalten? Prüfen Sie auch Ihren Spam-Ordner
+        </p>
+        
+        <!-- Back to Register -->
+        <a 
+          href="/register" 
+          class="text-sm text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 hover:underline"
+        >
+          ← Zurück zur Registrierung
+        </a>
+      </div>
+    </div>
+
+    <!-- Error Message Container -->
+    <div id="error-message" class="mt-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-300 text-sm hidden">
+    </div>
+
+    <!-- Success Message Container -->
+    <div id="success-message" class="mt-4 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg text-green-700 dark:text-green-300 text-sm hidden">
+    </div>
+  </div>
+
+  <!-- Support Info -->
+  <div class="text-center mt-6">
+    <p class="text-xs text-gray-500 dark:text-gray-400">
+      Probleme? Kontaktieren Sie uns unter 
+      <a href="mailto:support@hub-evolution.com" class="text-emerald-600 hover:underline">
+        support@hub-evolution.com
+      </a>
+    </p>
+  </div>
+</AuthLayout>
+
+<script>
+  const resendBtn = document.getElementById('resend-btn') as HTMLButtonElement;
+  const errorMessage = document.getElementById('error-message');
+  const successMessage = document.getElementById('success-message');
+  let isResending = false;
+
+  // Resend Email Function
+  async function resendVerificationEmail() {
+    if (isResending) return;
+    
+    const email = (document.querySelector('input[name="email"]') as HTMLInputElement)?.value;
+    if (!email) {
+      showError('E-Mail-Adresse nicht verfügbar. Bitte registrieren Sie sich erneut.');
+      return;
+    }
+
+    isResending = true;
+    resendBtn.disabled = true;
+    resendBtn.textContent = '⏳ Wird gesendet...';
+    
+    hideMessages();
+
+    try {
+      const response = await fetch('/api/auth/resend-verification', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email })
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        showSuccess('✅ E-Mail erfolgreich erneut gesendet! Prüfen Sie Ihr Postfach.');
+        
+        // Countdown für erneutes Senden
+        let countdown = 60;
+        const interval = setInterval(() => {
+          resendBtn.textContent = `⏳ Erneut senden (${countdown}s)`;
+          countdown--;
+          
+          if (countdown <= 0) {
+            clearInterval(interval);
+            resendBtn.textContent = '📧 E-Mail erneut senden';
+            resendBtn.disabled = false;
+            isResending = false;
+          }
+        }, 1000);
+        
+      } else {
+        showError(result.message || 'Fehler beim Senden der E-Mail. Bitte versuchen Sie es später erneut.');
+        resetResendButton();
+      }
+    } catch (error) {
+      console.error('Resend verification error:', error);
+      showError('Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.');
+      resetResendButton();
+    }
+  }
+
+  function resetResendButton() {
+    resendBtn.textContent = '📧 E-Mail erneut senden';
+    resendBtn.disabled = false;
+    isResending = false;
+  }
+
+  function showError(message: string) {
+    if (errorMessage) {
+      errorMessage.textContent = message;
+      errorMessage.classList.remove('hidden');
+    }
+  }
+
+  function showSuccess(message: string) {
+    if (successMessage) {
+      successMessage.textContent = message;
+      successMessage.classList.remove('hidden');
+    }
+  }
+
+  function hideMessages() {
+    errorMessage?.classList.add('hidden');
+    successMessage?.classList.add('hidden');
+  }
+
+  // Event Listeners
+  if (resendBtn) {
+    resendBtn.addEventListener('click', resendVerificationEmail);
+  }
+
+  // Auto-hide messages after 10 seconds
+  setTimeout(() => {
+    hideMessages();
+  }, 10000);
+</script>

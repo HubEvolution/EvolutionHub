@@ -43,6 +43,10 @@ export interface User {
 	image?: string;
 	/** Gehashtes Passwort des Benutzers */
 	password_hash: string;
+	/** Gibt an, ob die E-Mail-Adresse verifiziert wurde */
+	email_verified: boolean;
+	/** Zeitstempel der E-Mail-Verifikation (Unix-Zeit, null wenn nicht verifiziert) */
+	email_verified_at?: number | null;
 }
 
 /**
@@ -127,13 +131,36 @@ export async function validateSession(db: D1Database, sessionId: string): Promis
         return { session: null, user: null };
     }
 
-    const userResult = await db.prepare("SELECT id, email, name, username, image FROM users WHERE id = ?").bind(session.userId).first<User>();
+    // User mit E-Mail-Verifikationsstatus laden
+    const userResult = await db.prepare(
+        "SELECT id, email, name, username, image, email_verified, email_verified_at FROM users WHERE id = ?"
+    ).bind(session.userId).first<{
+        id: string;
+        email: string;
+        name: string;
+        username: string;
+        image?: string;
+        email_verified: number; // SQLite boolean als integer
+        email_verified_at?: number | null;
+    }>();
 
     if (!userResult) {
         return { session: null, user: null };
     }
     
-    return { session, user: userResult };
+    // SQLite boolean (integer) zu JavaScript boolean konvertieren
+    const user: User = {
+        id: userResult.id,
+        email: userResult.email,
+        name: userResult.name,
+        username: userResult.username,
+        image: userResult.image,
+        password_hash: '', // Wird für Session-Validierung nicht benötigt
+        email_verified: Boolean(userResult.email_verified),
+        email_verified_at: userResult.email_verified_at
+    };
+    
+    return { session, user };
 }
 
 /**

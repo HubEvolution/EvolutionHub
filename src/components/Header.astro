@@ -14,17 +14,18 @@ const currentLocale = getLocale(Astro.url.pathname);
 
 // Generate proper URLs for language switching
 function generateLanguageUrl(targetLocale: string, currentPath: string): string {
-  // Remove any existing locale prefix
-  let cleanPath = currentPath;
-  if (cleanPath.startsWith('/de/')) {
-    cleanPath = cleanPath.replace('/de/', '/');
-  } else if (cleanPath.startsWith('/en/')) {
-    cleanPath = cleanPath.replace('/en/', '/');
+  // If not currently on a localized path, send user to the locale home
+  const isLocalized = /^\/(de|en)(\/|$)/.test(currentPath);
+  if (!isLocalized) {
+    return `/${targetLocale}/`;
   }
+
+  // Remove any existing locale prefix (supports "/de", "/de/", "/en", "/en/")
+  const cleanPath = currentPath.replace(/^\/(de|en)(\/|$)/, '/');
 
   // Handle root path
   if (cleanPath === '/') {
-    return targetLocale === 'de' ? '/de/' : '/en/';
+    return `/${targetLocale}/`;
   }
 
   // Add new locale prefix
