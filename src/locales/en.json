@@ -1,21 +1,21 @@
 {
   "common": {
-    "greeting": "Hello World!",
-    "description": "This is the English version of your website.",
+    "greeting": "Welcome to Evolution Hub! A project for the future of software development.",
+    "description": "Discover the power of AI-driven tools to optimize your workflow and boost your productivity.",
     "language_switch_label": "Language",
     "get_started": "Get Started",
     "documentation": "Documentation"
+  },
+  "cta": {
+    "headline": "Ready to get started?",
+    "subtitle": "Join thousands of developers already using Evolution Hub to build amazing applications.",
+    "button_text": "Create Free Account"
   },
   "hero": {
     "typewriter": {
       "part1_en": "Welcome to Evolution Hub",
       "part2_en": "The Future of AI-Powered Development"
     }
-  },
-  "cta": {
-    "headline": "Ready to get started?",
-    "subtitle": "Join thousands of developers already using Evolution Hub to build amazing applications.",
-    "button_text": "Create Free Account"
   },
   "pages": {
     "home": {
@@ -24,8 +24,8 @@
     "introduction": {
       "part1": "Evolution Hub offers an innovative collection of AI-powered tools specifically designed for developers and creatives. With our AI-powered tools, you can optimize your workflow, automate repetitive tasks, and increase your productivity. Whether you want to generate code, create content, or analyze complex data, our platform supports you at every step.",
       "part2": "The intelligent combination of artificial intelligence and user-friendly design enables you to unleash your creativity and bring projects to life faster. Discover our powerful features and learn how you can shape the future of software development and content creation with Evolution Hub.",
-      "part3": "Evolution Hub bietet eine innovative Sammlung von KI-gestützten Tools, die speziell für Entwickler und Kreative entwickelt wurden. Mit unseren KI-gestützten Tools können Sie Ihren Workflow optimieren, repetitive Aufgaben automatisieren und Ihre Produktivität steigern. Ob Sie Code generieren, Inhalte erstellen oder komplexe Daten analysieren möchten – unsere Plattform unterstützt Sie bei jedem Schritt.",
-      "part4": "Die intelligente Kombination aus künstlicher Intelligenz und benutzerfreundlichem Design ermöglicht es Ihnen, Ihre Kreativität freizusetzen und Projekte schneller zum Leben zu erwecken. Entdecken Sie unsere leistungsstarken Funktionen und erfahren Sie, wie Sie mit Evolution Hub die Zukunft der Softwareentwicklung und Content-Erstellung gestalten können."
+      "part3_de": "Unsere fortschrittlichen Algorithmen und benutzerfreundlichen Interfaces arbeiten nahtlos zusammen, um Ihnen die bestmögliche Entwicklererfahrung zu bieten. Von der ersten Idee bis zur finalen Umsetzung – Evolution Hub begleitet Sie durch jeden Schritt Ihres kreativen Prozesses.",
+      "part4_de": "Nutzen Sie die Kraft der künstlichen Intelligenz, um komplexe Aufgaben zu vereinfachen, innovative Lösungen zu entwickeln und Ihre Projekte auf das nächste Level zu heben. Mit Evolution Hub gestalten Sie die Zukunft der digitalen Entwicklung."
     },
     "impressum": {
       "title": "Imprint",
@@ -114,7 +114,9 @@
             "street_address": "Musterstraße 123",
             "city_postal_code": "10115 Berlin",
             "country": "Germany",
+            "email_label": "Email:",
             "email": "datenschutz@evolutionhub.de",
+            "phone_label": "Phone:",
             "phone": "+49 30 12345678"
           }
         },
@@ -221,7 +223,7 @@
         },
         "11": {
           "title": "11. Dispute Resolution",
-          "content": "The European Commission provides a platform for online dispute resolution (OS): <a href=\\\"https://ec.europa.eu/consumers/odr/\\\" target=\\\"_blank\\\" rel=\\\"noopener noreferrer\\\">https://ec.europa.eu/consumers/odr/</a>."
+          "content": "The European Commission provides a platform for online dispute resolution (OS): <a href=\"https://ec.europa.eu/consumers/odr/\" target=\"_blank\" rel=\"noopener noreferrer\">https://ec.europa.eu/consumers/odr/</a>."
         },
         "11_participation": {
           "title": "11. Dispute Resolution Participation",
@@ -232,6 +234,640 @@
           "content": "The place of jurisdiction for all disputes arising from contractual relationships with merchants, legal entities under public law, or special funds under public law shall be the registered office of the provider."
         }
       }
-    }
-  }
-}
+    },
+    "datenschutz": {
+      "title": "Privacy Policy",
+      "header": {
+        "title": "Privacy Policy",
+        "last_updated": "Last updated: July 20, 2025"
+      },
+      "sections": {
+        "1": {
+          "title": "1. Responsible Party",
+          "description": "In accordance with the General Data Protection Regulation (GDPR) and other national data protection laws of the member states, as well as other data protection provisions, the responsible party is:",
+          "provider": {
+            "company_name": "Evolution Hub GmbH",
+            "street_address": "Musterstraße 123",
+            "city_postal_code": "10115 Berlin",
+            "country": "Germany",
+            "email_label": "Email:",
+            "email": "datenschutz@evolutionhub.de",
+            "phone_label": "Phone:",
+            "phone": "+49 30 12345678"
+          }
+        },
+        "2": {
+          "title": "2. Basics of Data Processing",
+          "description": "We generally process our users' personal data only to the extent necessary to provide a functional website and our content and services. The processing of our users' personal data regularly occurs only after user consent. An exception applies in cases where obtaining prior consent is not possible for factual reasons and the processing of data is permitted by statutory provisions."
+        },
+        "3": {
+          "title": "3. Provision of the Website and Creation of Log Files",
+          "subtitle": "Description and scope of data processing",
+          "paragraph1": "Every time our website is accessed, our system automatically collects data and information from the computer system of the accessing computer.",
+          "list_intro": "The following data is collected:",
+          "list_items": {
+            "0": "Browser type and version",
+            "1": "Operating system used",
+            "2": "Referrer URL",
+            "3": "Hostname of the accessing computer",
+            "4": "Time of server request",
+            "5": "IP address"
+          }
+        },
+        "4": {
+          "title": "4. Cookies",
+          "description": "Our website uses cookies. Cookies are text files that are stored in the internet browser or by the internet browser on the user's computer system. When a user accesses a website, a cookie may be stored on the user's operating system. This cookie contains a characteristic string that allows unique identification of the browser upon repeated access to the website."
+        },
+        "5": {
+          "title": "5. Contact Form and Email Contact",
+          "paragraph1": "Our website provides a contact form that can be used for electronic contact. If a user takes advantage of this option, the data entered into the input mask will be transmitted and stored by us.",
+          "paragraph2": "Alternatively, contact can be made via the provided e-mail address. In this case, the personal data of the user transmitted with the e-mail will be stored."
+        },
+        "6": {
+          "title": "6. Rights of the Data Subject",
+          "subtitle": "You have the right:",
+          "list_items": {
+            "0": "pursuant to Art. 15 GDPR to request information about your personal data processed by us",
+            "1": "pursuant to Art. 16 GDPR to immediately request the rectification of inaccurate or completion of your personal data stored by us",
+            "2": "pursuant to Art. 17 GDPR to request the erasure of your personal data stored by us",
+            "3": "pursuant to Art. 18 GDPR to request the restriction of the processing of your personal data",
+            "4": "pursuant to Art. 20 GDPR to receive your personal data that you have provided to us in a structured, common, and machine-readable format",
+            "5": "pursuant to Art. 7 para. 3 GDPR to withdraw your consent at any time",
+            "6": "pursuant to Art. 77 GDPR to lodge a complaint with a supervisory authority"
+          }
+        },
+        "7": {
+          "title": "7. Right to Object",
+          "description": "You have the right to object, on grounds relating to your particular situation, at any time to the processing of personal data concerning you which is based on Art. 6 para. 1 lit. e or f GDPR."
+        },
+        "8": {
+          "title": "8. Data Security",
+          "description": "Within the website visit, we use the widespread SSL (Secure Socket Layer) procedure in conjunction with the highest level of encryption supported by your browser. This is typically 256-bit encryption. If your browser does not support 256-bit encryption, we will use 128-bit v3 technology instead."
+        },
+        "9": {
+          "title": "9. Timeliness and Changes to This Privacy Policy",
+          "description": "This Privacy Policy is currently valid and dated July 2025. Due to the further development of our website and offerings or due to changed legal or regulatory requirements, it may become necessary to amend this Privacy Policy."
+        }
+      }
+    },
+    "agb": {
+      "title": "General Terms and Conditions (AGB)",
+      "header": {
+        "title": "General Terms and Conditions (AGB)",
+        "effective_date": "Effective from: July 20, 2025"
+      },
+      "sections": {
+        "1": {
+          "title": "1. Scope of Application",
+          "content": "These General Terms and Conditions (hereinafter \\\"AGB\\\") of Evolution Hub GmbH (hereinafter \\\"Provider\\\" or \\\"we\\\") apply to the contractual relationships between the Provider and its customers (hereinafter \\\"Customer\\\" or \\\"Customers\\\") in their version valid at the time of order."
+        },
+        "2": {
+          "title": "2. Contracting Parties, Conclusion of Contract",
+          "content": "The purchase contract is concluded with Evolution Hub GmbH, Musterstraße 123, 10115 Berlin, Germany. The presentation of products in the online shop does not constitute a legally binding offer to conclude a contract, but is merely a non-binding invitation to submit an offer."
+        },
+        "3": {
+          "title": "3. Subject of the Contract",
+          "content": "The subject of the contract is the sale of software, digital content, and services. The essential characteristics of the goods/services are derived from the respective product description and supplementary information on the Provider's website."
+        },
+        "4": {
+          "title": "4. Prices and Payment Terms",
+          "content": "The prices stated in the shop are in Euros and include the statutory value-added tax. Payment is made optionally by bank transfer in advance, credit card, PayPal, or immediate bank transfer, unless otherwise agreed."
+        },
+        "5": {
+          "title": "5. Delivery Conditions",
+          "content": "Delivery is made worldwide. The delivery period is immediate upon conclusion of the contract for orders of services and digital products, and within 2-5 working days after receipt of payment for physical products."
+        },
+        "6": {
+          "title": "6. Right of Withdrawal",
+          "content": "You have the right to withdraw from this contract within fourteen days without giving any reason. The withdrawal period is fourteen days from the day of the conclusion of the contract. To exercise your right of withdrawal, you must inform us by means of a clear declaration of your decision to withdraw from this contract."
+        },
+        "7": {
+          "title": "7. Warranty",
+          "content": "The warranty is governed by statutory provisions. For used goods, the warranty period is one year from delivery of the goods. The aforementioned limitation does not apply to claims for damages arising from injury to life, body or health, nor in cases of fraudulent misrepresentation."
+        },
+        "8": {
+          "title": "8. Liability",
+          "content": "The liability of the Provider for damages, regardless of the legal ground, in particular for impossibility, default, defective or erroneous performance, breach of contract, or tortious act – insofar as fault is present in each case – is limited to intent and gross negligence. This does not apply to breaches of cardinal obligations, injury to life, body or health, nor to the assumption of a guarantee or a procurement risk."
+        },
+        "9": {
+          "title": "9. Data Protection",
+          "content": "The collection, processing, and use of personal data are carried out exclusively in accordance with statutory provisions. For further information on data protection, please refer to our Privacy Policy."
+        },
+        "10": {
+          "title": "10. Final Provisions",
+          "content": "The law of the Federal Republic of Germany shall apply, excluding the UN Convention on Contracts for the International Sale of Goods. Should individual provisions of the contract with the customer, including these AGB, be or become wholly or partially invalid, this shall not affect the validity of the remaining provisions."
+        },
+        "11": {
+          "title": "11. Dispute Resolution",
+          "content": "The European Commission provides a platform for online dispute resolution (OS): <a href=\"https://ec.europa.eu/consumers/odr/\" target=\"_blank\" rel=\"noopener noreferrer\">https://ec.europa.eu/consumers/odr/</a>."
+        },
+        "11_participation": {
+          "title": "11. Dispute Resolution Participation",
+          "content": "We are neither willing nor obliged to participate in dispute resolution proceedings before a consumer arbitration board."
+        },
+        "12": {
+          "title": "12. Jurisdiction",
+          "content": "The place of jurisdiction for all disputes arising from contractual relationships with merchants, legal entities under public law, or special funds under public law shall be the registered office of the provider."
+        }
+      }
+    },
+    "datenschutz": {
+      "title": "Privacy Policy",
+      "header": {
+        "title": "Privacy Policy",
+        "last_updated": "Last updated: July 20, 2025"
+      },
+      "sections": {
+        "1": {
+          "title": "1. Responsible Party",
+          "description": "In accordance with the General Data Protection Regulation (GDPR) and other national data protection laws of the member states, as well as other data protection provisions, the responsible party is:",
+          "provider": {
+            "company_name": "Evolution Hub GmbH",
+            "street_address": "Musterstraße 123",
+            "city_postal_code": "10115 Berlin",
+            "country": "Germany",
+            "email_label": "Email:",
+            "email": "datenschutz@evolutionhub.de",
+            "phone_label": "Phone:",
+            "phone": "+49 30 12345678"
+          }
+        },
+        "2": {
+          "title": "2. Basics of Data Processing",
+          "description": "We generally process our users' personal data only to the extent necessary to provide a functional website and our content and services. The processing of our users' personal data regularly occurs only after user consent. An exception applies in cases where obtaining prior consent is not possible for factual reasons and the processing of data is permitted by statutory provisions."
+        },
+        "3": {
+          "title": "3. Provision of the Website and Creation of Log Files",
+          "subtitle": "Description and scope of data processing",
+          "paragraph1": "Every time our website is accessed, our system automatically collects data and information from the computer system of the accessing computer.",
+          "list_intro": "The following data is collected:",
+          "list_items": {
+            "0": "Browser type and version",
+            "1": "Operating system used",
+            "2": "Referrer URL",
+            "3": "Hostname of the accessing computer",
+            "4": "Time of server request",
+            "5": "IP address"
+          }
+        },
+        "4": {
+          "title": "4. Cookies",
+          "description": "Our website uses cookies. Cookies are text files that are stored in the internet browser or by the internet browser on the user's computer system. When a user accesses a website, a cookie may be stored on the user's operating system. This cookie contains a characteristic string that allows unique identification of the browser upon repeated access to the website."
+        },
+        "5": {
+          "title": "5. Contact Form and Email Contact",
+          "paragraph1": "Our website provides a contact form that can be used for electronic contact. If a user takes advantage of this option, the data entered into the input mask will be transmitted and stored by us.",
+          "paragraph2": "Alternatively, contact can be made via the provided e-mail address. In this case, the personal data of the user transmitted with the e-mail will be stored."
+        },
+        "6": {
+          "title": "6. Rights of the Data Subject",
+          "subtitle": "You have the right:",
+          "list_items": {
+            "0": "pursuant to Art. 15 GDPR to request information about your personal data processed by us",
+            "1": "pursuant to Art. 16 GDPR to immediately request the rectification of inaccurate or completion of your personal data stored by us",
+            "2": "pursuant to Art. 17 GDPR to request the erasure of your personal data stored by us",
+            "3": "pursuant to Art. 18 GDPR to request the restriction of the processing of your personal data",
+            "4": "pursuant to Art. 20 GDPR to receive your personal data that you have provided to us in a structured, common, and machine-readable format",
+            "5": "pursuant to Art. 7 para. 3 GDPR to withdraw your consent at any time",
+            "6": "pursuant to Art. 77 GDPR to lodge a complaint with a supervisory authority"
+          }
+        },
+        "7": {
+          "title": "7. Right to Object",
+          "description": "You have the right to object, on grounds relating to your particular situation, at any time to the processing of personal data concerning you which is based on Art. 6 para. 1 lit. e or f GDPR."
+        },
+        "8": {
+          "title": "8. Data Security",
+          "description": "Within the website visit, we use the widespread SSL (Secure Socket Layer) procedure in conjunction with the highest level of encryption supported by your browser. This is typically 256-bit encryption. If your browser does not support 256-bit encryption, we will use 128-bit v3 technology instead."
+        },
+        "9": {
+          "title": "9. Timeliness and Changes to This Privacy Policy",
+          "description": "This Privacy Policy is currently valid and dated July 2025. Due to the further development of our website and offerings or due to changed legal or regulatory requirements, it may become necessary to amend this Privacy Policy."
+        }
+      }
+    },
+    "agb": {
+      "title": "General Terms and Conditions (AGB)",
+      "header": {
+        "title": "General Terms and Conditions (AGB)",
+        "effective_date": "Effective from: July 20, 2025"
+      },
+      "sections": {
+        "1": {
+          "title": "1. Scope of Application",
+          "content": "These General Terms and Conditions (hereinafter \\\"AGB\\\") of Evolution Hub GmbH (hereinafter \\\"Provider\\\" or \\\"we\\\") apply to the contractual relationships between the Provider and its customers (hereinafter \\\"Customer\\\" or \\\"Customers\\\") in their version valid at the time of order."
+        },
+        "2": {
+          "title": "2. Contracting Parties, Conclusion of Contract",
+          "content": "The purchase contract is concluded with Evolution Hub GmbH, Musterstraße 123, 10115 Berlin, Germany. The presentation of products in the online shop does not constitute a legally binding offer to conclude a contract, but is merely a non-binding invitation to submit an offer."
+        },
+        "3": {
+          "title": "3. Subject of the Contract",
+          "content": "The subject of the contract is the sale of software, digital content, and services. The essential characteristics of the goods/services are derived from the respective product description and supplementary information on the Provider's website."
+        },
+        "4": {
+          "title": "4. Prices and Payment Terms",
+          "content": "The prices stated in the shop are in Euros and include the statutory value-added tax. Payment is made optionally by bank transfer in advance, credit card, PayPal, or immediate bank transfer, unless otherwise agreed."
+        },
+        "5": {
+          "title": "5. Delivery Conditions",
+          "content": "Delivery is made worldwide. The delivery period is immediate upon conclusion of the contract for orders of services and digital products, and within 2-5 working days after receipt of payment for physical products."
+        },
+        "6": {
+          "title": "6. Right of Withdrawal",
+          "content": "You have the right to withdraw from this contract within fourteen days without giving any reason. The withdrawal period is fourteen days from the day of the conclusion of the contract. To exercise your right of withdrawal, you must inform us by means of a clear declaration of your decision to withdraw from this contract."
+        },
+        "7": {
+          "title": "7. Warranty",
+          "content": "The warranty is governed by statutory provisions. For used goods, the warranty period is one year from delivery of the goods. The aforementioned limitation does not apply to claims for damages arising from injury to life, body or health, nor in cases of fraudulent misrepresentation."
+        },
+        "8": {
+          "title": "8. Liability",
+          "content": "The liability of the Provider for damages, regardless of the legal ground, in particular for impossibility, default, defective or erroneous performance, breach of contract, or tortious act – insofar as fault is present in each case – is limited to intent and gross negligence. This does not apply to breaches of cardinal obligations, injury to life, body or health, nor to the assumption of a guarantee or a procurement risk."
+        },
+        "9": {
+          "title": "9. Data Protection",
+          "content": "The collection, processing, and use of personal data are carried out exclusively in accordance with statutory provisions. For further information on data protection, please refer to our Privacy Policy."
+        },
+        "10": {
+          "title": "10. Final Provisions",
+          "content": "The law of the Federal Republic of Germany shall apply, excluding the UN Convention on Contracts for the International Sale of Goods. Should individual provisions of the contract with the customer, including these AGB, be or become wholly or partially invalid, this shall not affect the validity of the remaining provisions."
+        },
+        "11": {
+          "title": "11. Dispute Resolution",
+          "content": "The European Commission provides a platform for online dispute resolution (OS): <a href=\"https://ec.europa.eu/consumers/odr/\" target=\"_blank\" rel=\"noopener noreferrer\">https://ec.europa.eu/consumers/odr/</a>."
+        },
+        "11_participation": {
+          "title": "11. Dispute Resolution Participation",
+          "content": "We are neither willing nor obliged to participate in dispute resolution proceedings before a consumer arbitration board."
+        },
+        "12": {
+          "title": "12. Jurisdiction",
+          "content": "The place of jurisdiction for all disputes arising from contractual relationships with merchants, legal entities under public law, or special funds under public law shall be the registered office of the provider."
+        }
+      }
+    },
+    "datenschutz": {
+      "title": "Privacy Policy",
+      "header": {
+        "title": "Privacy Policy",
+        "last_updated": "Last updated: July 20, 2025"
+      },
+      "sections": {
+        "1": {
+          "title": "1. Responsible Party",
+          "description": "In accordance with the General Data Protection Regulation (GDPR) and other national data protection laws of the member states, as well as other data protection provisions, the responsible party is:",
+          "provider": {
+            "company_name": "Evolution Hub GmbH",
+            "street_address": "Musterstraße 123",
+            "city_postal_code": "10115 Berlin",
+            "country": "Germany",
+            "email_label": "Email:",
+            "email": "datenschutz@evolutionhub.de",
+            "phone_label": "Phone:",
+            "phone": "+49 30 12345678"
+          }
+        },
+        "2": {
+          "title": "2. Basics of Data Processing",
+          "description": "We generally process our users' personal data only to the extent necessary to provide a functional website and our content and services. The processing of our users' personal data regularly occurs only after user consent. An exception applies in cases where obtaining prior consent is not possible for factual reasons and the processing of data is permitted by statutory provisions."
+        },
+        "3": {
+          "title": "3. Provision of the Website and Creation of Log Files",
+          "subtitle": "Description and scope of data processing",
+          "paragraph1": "Every time our website is accessed, our system automatically collects data and information from the computer system of the accessing computer.",
+          "list_intro": "The following data is collected:",
+          "list_items": {
+            "0": "Browser type and version",
+            "1": "Operating system used",
+            "2": "Referrer URL",
+            "3": "Hostname of the accessing computer",
+            "4": "Time of server request",
+            "5": "IP address"
+          }
+        },
+        "4": {
+          "title": "4. Cookies",
+          "description": "Our website uses cookies. Cookies are text files that are stored in the internet browser or by the internet browser on the user's computer system. When a user accesses a website, a cookie may be stored on the user's operating system. This cookie contains a characteristic string that allows unique identification of the browser upon repeated access to the website."
+        },
+        "5": {
+          "title": "5. Contact Form and Email Contact",
+          "paragraph1": "Our website provides a contact form that can be used for electronic contact. If a user takes advantage of this option, the data entered into the input mask will be transmitted and stored by us.",
+          "paragraph2": "Alternatively, contact can be made via the provided e-mail address. In this case, the personal data of the user transmitted with the e-mail will be stored."
+        },
+        "6": {
+          "title": "6. Rights of the Data Subject",
+          "subtitle": "You have the right:",
+          "list_items": {
+            "0": "pursuant to Art. 15 GDPR to request information about your personal data processed by us",
+            "1": "pursuant to Art. 16 GDPR to immediately request the rectification of inaccurate or completion of your personal data stored by us",
+            "2": "pursuant to Art. 17 GDPR to request the erasure of your personal data stored by us",
+            "3": "pursuant to Art. 18 GDPR to request the restriction of the processing of your personal data",
+            "4": "pursuant to Art. 20 GDPR to receive your personal data that you have provided to us in a structured, common, and machine-readable format",
+            "5": "pursuant to Art. 7 para. 3 GDPR to withdraw your consent at any time",
+            "6": "pursuant to Art. 77 GDPR to lodge a complaint with a supervisory authority"
+          }
+        },
+        "7": {
+          "title": "7. Right to Object",
+          "description": "You have the right to object, on grounds relating to your particular situation, at any time to the processing of personal data concerning you which is based on Art. 6 para. 1 lit. e or f GDPR."
+        },
+        "8": {
+          "title": "8. Data Security",
+          "description": "Within the website visit, we use the widespread SSL (Secure Socket Layer) procedure in conjunction with the highest level of encryption supported by your browser. This is typically 256-bit encryption. If your browser does not support 256-bit encryption, we will use 128-bit v3 technology instead."
+        },
+        "9": {
+          "title": "9. Timeliness and Changes to This Privacy Policy",
+          "description": "This Privacy Policy is currently valid and dated July 2025. Due to the further development of our website and offerings or due to changed legal or regulatory requirements, it may become necessary to amend this Privacy Policy."
+        }
+      }
+    },
+    "agb": {
+      "title": "General Terms and Conditions (AGB)",
+      "header": {
+        "title": "General Terms and Conditions (AGB)",
+        "effective_date": "Effective from: July 20, 2025"
+      },
+      "sections": {
+        "1": {
+          "title": "1. Scope of Application",
+          "content": "These General Terms and Conditions (hereinafter \\\"AGB\\\") of Evolution Hub GmbH (hereinafter \\\"Provider\\\" or \\\"we\\\") apply to the contractual relationships between the Provider and its customers (hereinafter \\\"Customer\\\" or \\\"Customers\\\") in their version valid at the time of order."
+        },
+        "2": {
+          "title": "2. Contracting Parties, Conclusion of Contract",
+          "content": "The purchase contract is concluded with Evolution Hub GmbH, Musterstraße 123, 10115 Berlin, Germany. The presentation of products in the online shop does not constitute a legally binding offer to conclude a contract, but is merely a non-binding invitation to submit an offer."
+        },
+        "3": {
+          "title": "3. Subject of the Contract",
+          "content": "The subject of the contract is the sale of software, digital content, and services. The essential characteristics of the goods/services are derived from the respective product description and supplementary information on the Provider's website."
+        },
+        "4": {
+          "title": "4. Prices and Payment Terms",
+          "content": "The prices stated in the shop are in Euros and include the statutory value-added tax. Payment is made optionally by bank transfer in advance, credit card, PayPal, or immediate bank transfer, unless otherwise agreed."
+        },
+        "5": {
+          "title": "5. Delivery Conditions",
+          "content": "Delivery is made worldwide. The delivery period is immediate upon conclusion of the contract for orders of services and digital products, and within 2-5 working days after receipt of payment for physical products."
+        },
+        "6": {
+          "title": "6. Right of Withdrawal",
+          "content": "You have the right to withdraw from this contract within fourteen days without giving any reason. The withdrawal period is fourteen days from the day of the conclusion of the contract. To exercise your right of withdrawal, you must inform us by means of a clear declaration of your decision to withdraw from this contract."
+        },
+        "7": {
+          "title": "7. Warranty",
+          "content": "The warranty is governed by statutory provisions. For used goods, the warranty period is one year from delivery of the goods. The aforementioned limitation does not apply to claims for damages arising from injury to life, body or health, nor in cases of fraudulent misrepresentation."
+        },
+        "8": {
+          "title": "8. Liability",
+          "content": "The liability of the Provider for damages, regardless of the legal ground, in particular for impossibility, default, defective or erroneous performance, breach of contract, or tortious act – insofar as fault is present in each case – is limited to intent and gross negligence. This does not apply to breaches of cardinal obligations, injury to life, body or health, nor to the assumption of a guarantee or a procurement risk."
+        },
+        "9": {
+          "title": "9. Data Protection",
+          "content": "The collection, processing, and use of personal data are carried out exclusively in accordance with statutory provisions. For further information on data protection, please refer to our Privacy Policy."
+        },
+        "10": {
+          "title": "10. Final Provisions",
+          "content": "The law of the Federal Republic of Germany shall apply, excluding the UN Convention on Contracts for the International Sale of Goods. Should individual provisions of the contract with the customer, including these AGB, be or become wholly or partially invalid, this shall not affect the validity of the remaining provisions."
+        },
+        "11": {
+          "title": "11. Dispute Resolution",
+          "content": "The European Commission provides a platform for online dispute resolution (OS): <a href=\"https://ec.europa.eu/consumers/odr/\" target=\"_blank\" rel=\"noopener noreferrer\">https://ec.europa.eu/consumers/odr/</a>."
+        },
+        "11_participation": {
+          "title": "11. Dispute Resolution Participation",
+          "content": "We are neither willing nor obliged to participate in dispute resolution proceedings before a consumer arbitration board."
+        },
+        "12": {
+          "title": "12. Jurisdiction",
+          "content": "The place of jurisdiction for all disputes arising from contractual relationships with merchants, legal entities under public law, or special funds under public law shall be the registered office of the provider."
+        }
+      }
+    },
+    "datenschutz": {
+      "title": "Privacy Policy",
+      "header": {
+        "title": "Privacy Policy",
+        "last_updated": "Last updated: July 20, 2025"
+      },
+      "sections": {
+        "1": {
+          "title": "1. Responsible Party",
+          "description": "In accordance with the General Data Protection Regulation (GDPR) and other national data protection laws of the member states, as well as other data protection provisions, the responsible party is:",
+          "provider": {
+            "company_name": "Evolution Hub GmbH",
+            "street_address": "Musterstraße 123",
+            "city_postal_code": "10115 Berlin",
+            "country": "Germany",
+            "email_label": "Email:",
+            "email": "datenschutz@evolutionhub.de",
+            "phone_label": "Phone:",
+            "phone": "+49 30 12345678"
+          }
+        },
+        "2": {
+          "title": "2. Basics of Data Processing",
+          "description": "We generally process our users' personal data only to the extent necessary to provide a functional website and our content and services. The processing of our users' personal data regularly occurs only after user consent. An exception applies in cases where obtaining prior consent is not possible for factual reasons and the processing of data is permitted by statutory provisions."
+        },
+        "3": {
+          "title": "3. Provision of the Website and Creation of Log Files",
+          "subtitle": "Description and scope of data processing",
+          "paragraph1": "Every time our website is accessed, our system automatically collects data and information from the computer system of the accessing computer.",
+          "list_intro": "The following data is collected:",
+          "list_items": {
+            "0": "Browser type and version",
+            "1": "Operating system used",
+            "2": "Referrer URL",
+            "3": "Hostname of the accessing computer",
+            "4": "Time of server request",
+            "5": "IP address"
+          }
+        },
+        "4": {
+          "title": "4. Cookies",
+          "description": "Our website uses cookies. Cookies are text files that are stored in the internet browser or by the internet browser on the user's computer system. When a user accesses a website, a cookie may be stored on the user's operating system. This cookie contains a characteristic string that allows unique identification of the browser upon repeated access to the website."
+        },
+        "5": {
+          "title": "5. Contact Form and Email Contact",
+          "paragraph1": "Our website provides a contact form that can be used for electronic contact. If a user takes advantage of this option, the data entered into the input mask will be transmitted and stored by us.",
+          "paragraph2": "Alternatively, contact can be made via the provided e-mail address. In this case, the personal data of the user transmitted with the e-mail will be stored."
+        },
+        "6": {
+          "title": "6. Rights of the Data Subject",
+          "subtitle": "You have the right:",
+          "list_items": {
+            "0": "pursuant to Art. 15 GDPR to request information about your personal data processed by us",
+            "1": "pursuant to Art. 16 GDPR to immediately request the rectification of inaccurate or completion of your personal data stored by us",
+            "2": "pursuant to Art. 17 GDPR to request the erasure of your personal data stored by us",
+            "3": "pursuant to Art. 18 GDPR to request the restriction of the processing of your personal data",
+            "4": "pursuant to Art. 20 GDPR to receive your personal data that you have provided to us in a structured, common, and machine-readable format",
+            "5": "pursuant to Art. 7 para. 3 GDPR to withdraw your consent at any time",
+            "6": "pursuant to Art. 77 GDPR to lodge a complaint with a supervisory authority"
+          }
+        },
+        "7": {
+          "title": "7. Right to Object",
+          "description": "You have the right to object, on grounds relating to your particular situation, at any time to the processing of personal data concerning you which is based on Art. 6 para. 1 lit. e or f GDPR."
+        },
+        "8": {
+          "title": "8. Data Security",
+          "description": "Within the website visit, we use the widespread SSL (Secure Socket Layer) procedure in conjunction with the highest level of encryption supported by your browser. This is typically 256-bit encryption. If your browser does not support 256-bit encryption, we will use 128-bit v3 technology instead."
+        },
+        "9": {
+          "title": "9. Timeliness and Changes to This Privacy Policy",
+          "description": "This Privacy Policy is currently valid and dated July 2025. Due to the further development of our website and offerings or due to changed legal or regulatory requirements, it may become necessary to amend this Privacy Policy."
+        }
+      }
+    },
+    "agb": {
+      "title": "General Terms and Conditions (AGB)",
+      "header": {
+        "title": "General Terms and Conditions (AGB)",
+        "effective_date": "Effective from: July 20, 2025"
+      },
+      "sections": {
+        "1": {
+          "title": "1. Scope of Application",
+          "content": "These General Terms and Conditions (hereinafter \\\"AGB\\\") of Evolution Hub GmbH (hereinafter \\\"Provider\\\" or \\\"we\\\") apply to the contractual relationships between the Provider and its customers (hereinafter \\\"Customer\\\" or \\\"Customers\\\") in their version valid at the time of order."
+        },
+        "2": {
+          "title": "2. Contracting Parties, Conclusion of Contract",
+          "content": "The purchase contract is concluded with Evolution Hub GmbH, Musterstraße 123, 10115 Berlin, Germany. The presentation of products in the online shop does not constitute a legally binding offer to conclude a contract, but is merely a non-binding invitation to submit an offer."
+        },
+        "3": {
+          "title": "3. Subject of the Contract",
+          "content": "The subject of the contract is the sale of software, digital content, and services. The essential characteristics of the goods/services are derived from the respective product description and supplementary information on the Provider's website."
+        },
+        "4": {
+          "title": "4. Prices and Payment Terms",
+          "content": "The prices stated in the shop are in Euros and include the statutory value-added tax. Payment is made optionally by bank transfer in advance, credit card, PayPal, or immediate bank transfer, unless otherwise agreed."
+        },
+        "5": {
+          "title": "5. Delivery Conditions",
+          "content": "Delivery is made worldwide. The delivery period is immediate upon conclusion of the contract for orders of services and digital products, and within 2-5 working days after receipt of payment for physical products."
+        },
+        "6": {
+          "title": "6. Right of Withdrawal",
+          "content": "You have the right to withdraw from this contract within fourteen days without giving any reason. The withdrawal period is fourteen days from the day of the conclusion of the contract. To exercise your right of withdrawal, you must inform us by means of a clear declaration of your decision to withdraw from this contract."
+        },
+        "7": {
+          "title": "7. Warranty",
+          "content": "The warranty is governed by statutory provisions. For used goods, the warranty period is one year from delivery of the goods. The aforementioned limitation does not apply to claims for damages arising from injury to life, body or health, nor in cases of fraudulent misrepresentation."
+        },
+        "8": {
+          "title": "8. Liability",
+          "content": "The liability of the Provider for damages, regardless of the legal ground, in particular for impossibility, default, defective or erroneous performance, breach of contract, or tortious act – insofar as fault is present in each case – is limited to intent and gross negligence. This does not apply to breaches of cardinal obligations, injury to life, body or health, nor to the assumption of a guarantee or a procurement risk."
+        },
+        "9": {
+          "title": "9. Data Protection",
+          "content": "The collection, processing, and use of personal data are carried out exclusively in accordance with statutory provisions. For further information on data protection, please refer to our Privacy Policy."
+        },
+        "10": {
+          "title": "10. Final Provisions",
+          "content": "The law of the Federal Republic of Germany shall apply, excluding the UN Convention on Contracts for the International Sale of Goods. Should individual provisions of the contract with the customer, including these AGB, be or become wholly or partially invalid, this shall not affect the validity of the remaining provisions."
+        },
+        "11": {
+          "title": "11. Dispute Resolution",
+          "content": "The European Commission provides a platform for online dispute resolution (OS): <a href=\"https://ec.europa.eu/consumers/odr/\" target=\"_blank\" rel=\"noopener noreferrer\">https://ec.europa.eu/consumers/odr/</a>."
+        },
+        "11_participation": {
+          "title": "11. Dispute Resolution Participation",
+          "content": "We are neither willing nor obliged to participate in dispute resolution proceedings before a consumer arbitration board."
+        },
+        "12": {
+          "title": "12. Jurisdiction",
+          "content": "The place of jurisdiction for all disputes arising from contractual relationships with merchants, legal entities under public law, or special funds under public law shall be the registered office of the provider."
+        }
+      }
+    },
+    "datenschutz": {
+      "title": "Privacy Policy",
+      "header": {
+        "title": "Privacy Policy",
+        "last_updated": "Last updated: July 20, 2025"
+      },
+      "sections": {
+        "1": {
+          "title": "1. Responsible Party",
+          "description": "In accordance with the General Data Protection Regulation (GDPR) and other national data protection laws of the member states, as well as other data protection provisions, the responsible party is:",
+          "provider": {
+            "company_name": "Evolution Hub GmbH",
+            "street_address": "Musterstraße 123",
+            "city_postal_code": "10115 Berlin",
+            "country": "Germany",
+            "email_label": "Email:",
+            "email": "datenschutz@evolutionhub.de",
+            "phone_label": "Phone:",
+            "phone": "+49 30 12345678"
+          }
+        },
+        "2": {
+          "title": "2. Basics of Data Processing",
+          "description": "We generally process our users' personal data only to the extent necessary to provide a functional website and our content and services. The processing of our users' personal data regularly occurs only after user consent. An exception applies in cases where obtaining prior consent is not possible for factual reasons and the processing of data is permitted by statutory provisions."
+        },
+        "3": {
+          "title": "3. Provision of the Website and Creation of Log Files",
+          "subtitle": "Description and scope of data processing",
+          "paragraph1": "Every time our website is accessed, our system automatically collects data and information from the computer system of the accessing computer.",
+          "list_intro": "The following data is collected:",
+          "list_items": {
+            "0": "Browser type and version",
+            "1": "Operating system used",
+            "2": "Referrer URL",
+            "3": "Hostname of the accessing computer",
+            "4": "Time of server request",
+            "5": "IP address"
+          }
+        },
+        "4": {
+          "title": "4. Cookies",
+          "description": "Our website uses cookies. Cookies are text files that are stored in the internet browser or by the internet browser on the user's computer system. When a user accesses a website, a cookie may be stored on the user's operating system. This cookie contains a characteristic string that allows unique identification of the browser upon repeated access to the website."
+        },
+        "5": {
+          "title": "5. Contact Form and Email Contact",
+          "paragraph1": "Our website provides a contact form that can be used for electronic contact. If a user takes advantage of this option, the data entered into the input mask will be transmitted and stored by us.",
+          "paragraph2": "Alternatively, contact can be made via the provided e-mail address. In this case, the personal data of the user transmitted with the e-mail will be stored."
+        },
+        "6": {
+          "title": "6. Rights of the Data Subject",
+          "subtitle": "You have the right:",
+          "list_items": {
+            "0": "pursuant to Art. 15 GDPR to request information about your personal data processed by us",
+            "1": "pursuant to Art. 16 GDPR to immediately request the rectification of inaccurate or completion of your personal data stored by us",
+            "2": "pursuant to Art. 17 GDPR to request the erasure of your personal data stored by us",
+            "3": "pursuant to Art. 18 GDPR to request the restriction of the processing of your personal data",
+            "4": "pursuant to Art. 20 GDPR to receive your personal data that you have provided to us in a structured, common, and machine-readable format",
+            "5": "pursuant to Art. 7 para. 3 GDPR to withdraw your consent at any time",
+            "6": "pursuant to Art. 77 GDPR to lodge a complaint with a supervisory authority"
+          }
+        },
+        "7": {
+          "title": "7. Right to Object",
+          "description": "You have the right to object, on grounds relating to your particular situation, at any time to the processing of personal data concerning you which is based on Art. 6 para. 1 lit. e or f GDPR."
+        },
+        "8": {
+          "title": "8. Data Security",
+          "description": "Within the website visit, we use the widespread SSL (Secure Socket Layer) procedure in conjunction with the highest level of encryption supported by your browser. This is typically 256-bit encryption. If your browser does not support 256-bit encryption, we will use 128-bit v3 technology instead."
+        },
+        "9": {
+          "title": "9. Timeliness and Changes to This Privacy Policy",
+          "description": "This Privacy Policy is currently valid and dated July 2025. Due to the further development of our website and offerings or due to changed legal or regulatory requirements, it may become necessary to amend this Privacy Policy."
+        }
+      }
+    },
+    "agb": {
+      "title": "General Terms and Conditions (AGB)",
+      "header": {
+        "title": "General Terms and Conditions (AGB)",
+        "effective_date": "Effective from: July 20, 2025"
+      },
+      "sections": {
+        "1": {
+          "title": "1. Scope of Application",
+          "content": "These General Terms and Conditions (hereinafter \\\"AGB\\\") of Evolution Hub GmbH (hereinafter \\\"Provider\\\" or \\\"we\\\") apply to the contractual relationships between the Provider and its customers (hereinafter \\\"Customer\\\" or \\\"Customers\\\") in their version valid at the time of order."
+        },
+        "2": {
+          "title": "2. Contracting Parties, Conclusion of Contract",
+          "content": "The purchase contract is concluded with Evolution Hub GmbH, Musterstraße 123, 10115 Berlin, Germany. The presentation of products in the online shop does not constitute a legally binding offer to conclude a contract, but is merely a non-binding invitation to submit an offer."
+        },
+        "3": {
+          "title": "3. Subject of the Contract",
