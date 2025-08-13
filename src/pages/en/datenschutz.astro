@@ -1,0 +1,124 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { getI18n } from '@/utils/i18n';
+
+// Get the translation function for the English locale
+const t = getI18n('en');
+---
+
+<BaseLayout title={t('pages.datenschutz.title')}>
+  <!-- Hero Section -->
+  <section class="py-16 md:py-24 bg-gradient-to-br from-primary/5 to-purple-500/5 dark:from-gray-800 dark:to-gray-900">
+    <div class="container mx-auto px-4">
+      <div class="max-w-4xl mx-auto text-center">
+        <h1 class="text-4xl md:text-5xl font-bold mb-6 text-gray-900 dark:text-white">
+          {t('pages.datenschutz.header.title')}
+        </h1>
+        <p class="text-xl text-gray-600 dark:text-gray-300">
+          {t('pages.datenschutz.header.last_updated')}
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Content Section -->
+  <section class="py-16 md:py-20 bg-white dark:bg-gray-900">
+    <div class="container mx-auto px-4">
+      <div class="max-w-4xl mx-auto prose prose-lg dark:prose-invert prose-headings:text-gray-900 dark:prose-headings:text-white prose-a:text-emerald-600 dark:prose-a:text-emerald-400 hover:prose-a:text-emerald-500 dark:hover:prose-a:text-emerald-300">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 md:p-10 space-y-6">
+          
+          <section>
+            <h2 class="text-2xl font-semibold mb-2">{t('pages.datenschutz.sections.1.title')}</h2>
+            <p>
+              {t('pages.datenschutz.sections.1.description')}
+            </p>
+            <address class="not-italic mt-2 space-y-1">
+              <p>{t('pages.datenschutz.sections.1.provider.company_name')}</p>
+              <p>{t('pages.datenschutz.sections.1.provider.street_address')}</p>
+              <p>{t('pages.datenschutz.sections.1.provider.city_postal_code')}</p>
+              <p>{t('pages.datenschutz.sections.1.provider.country')}</p>
+              <p>E-Mail: <a href="mailto:{t('pages.datenschutz.sections.1.provider.email')}" class="text-emerald-600 hover:text-emerald-500">{t('pages.datenschutz.sections.1.provider.email')}</a></p>
+              <p>Telefon: <a href="tel:+493012345678" class="text-emerald-600 hover:text-emerald-500">{t('pages.datenschutz.sections.1.provider.phone')}</a></p>
+            </address>
+          </section>
+
+          <section>
+            <h2 class="text-2xl font-semibold mb-2">{t('pages.datenschutz.sections.2.title')}</h2>
+            <p>
+              {t('pages.datenschutz.sections.2.description')}
+            </p>
+          </section>
+
+          <section>
+            <h2 class="text-2xl font-semibold mb-2">{t('pages.datenschutz.sections.3.title')}</h2>
+            <h3 class="text-xl font-semibold mb-1">{t('pages.datenschutz.sections.3.subtitle')}</h3>
+            <p>
+              {t('pages.datenschutz.sections.3.paragraph1')}
+            </p>
+            <p>{t('pages.datenschutz.sections.3.list_intro')}</p>
+            <ul class="list-disc list-inside space-y-1">
+              <li>{t('pages.datenschutz.sections.3.list_items.0')}</li>
+              <li>{t('pages.datenschutz.sections.3.list_items.1')}</li>
+              <li>{t('pages.datenschutz.sections.3.list_items.2')}</li>
+              <li>{t('pages.datenschutz.sections.3.list_items.3')}</li>
+              <li>{t('pages.datenschutz.sections.3.list_items.4')}</li>
+              <li>{t('pages.datenschutz.sections.3.list_items.5')}</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2 class="text-2xl font-semibold mb-2">{t('pages.datenschutz.sections.4.title')}</h2>
+            <p>
+              {t('pages.datenschutz.sections.4.description')}
+            </p>
+          </section>
+
+          <section>
+            <h2 class="text-2xl font-semibold mb-2">{t('pages.datenschutz.sections.5.title')}</h2>
+            <p>
+              {t('pages.datenschutz.sections.5.paragraph1')}
+            </p>
+            <p>
+              {t('pages.datenschutz.sections.5.paragraph2')}
+            </p>
+          </section>
+
+          <section>
+            <h2 class="text-2xl font-semibold mb-2">{t('pages.datenschutz.sections.6.title')}</h2>
+            <p>{t('pages.datenschutz.sections.6.subtitle')}</p>
+            <ul class="list-disc list-inside space-y-1">
+              <li>{t('pages.datenschutz.sections.6.list_items.0')}</li>
+              <li>{t('pages.datenschutz.sections.6.list_items.1')}</li>
+              <li>{t('pages.datenschutz.sections.6.list_items.2')}</li>
+              <li>{t('pages.datenschutz.sections.6.list_items.3')}</li>
+              <li>{t('pages.datenschutz.sections.6.list_items.4')}</li>
+              <li>{t('pages.datenschutz.sections.6.list_items.5')}</li>
+              <li>{t('pages.datenschutz.sections.6.list_items.6')}</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2 class="text-2xl font-semibold mb-2">{t('pages.datenschutz.sections.7.title')}</h2>
+            <p>
+              {t('pages.datenschutz.sections.7.description')}
+            </p>
+          </section>
+
+          <section>
+            <h2 class="text-2xl font-semibold mb-2">{t('pages.datenschutz.sections.8.title')}</h2>
+            <p>
+              {t('pages.datenschutz.sections.8.description')}
+            </p>
+          </section>
+
+          <section>
+            <h2 class="text-2xl font-semibold mb-2">{t('pages.datenschutz.sections.9.title')}</h2>
+            <p>
+              {t('pages.datenschutz.sections.9.description')}
+            </p>
+          </section>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

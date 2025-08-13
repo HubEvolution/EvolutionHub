@@ -1,0 +1,117 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+// Assuming a utility function for i18n is available.
+// If Astro's built-in i18n routing is used, this might be different.
+// For now, using a common pattern.
+import { getI18n } from '@/utils/i18n';
+const t = getI18n('de');
+---
+
+<BaseLayout title={t('pages.impressum.title')}>
+  <!-- Hero Section -->
+  <section class="py-16 md:py-24 bg-gradient-to-br from-primary/5 to-purple-500/5 dark:from-gray-800 dark:to-gray-900">
+    <div class="container mx-auto px-4">
+      <div class="max-w-4xl mx-auto text-center">
+        <h1 class="text-4xl md:text-5xl font-bold mb-6 text-gray-900 dark:text-white">
+          {t('pages.impressum.title')}
+        </h1>
+        <p class="text-xl text-gray-600 dark:text-gray-300">
+          {t('pages.impressum.section_intro.heading')}
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Content Section -->
+  <section class="py-16 md:py-20 bg-white dark:bg-gray-900">
+    <div class="container mx-auto px-4">
+      <div class="max-w-4xl mx-auto prose prose-lg dark:prose-invert prose-headings:text-gray-900 dark:prose-headings:text-white prose-a:text-emerald-600 dark:prose-a:text-emerald-400 hover:prose-a:text-emerald-500 dark:hover:prose-a:text-emerald-300">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 md:p-10">
+          <h2>{t('pages.impressum.sections.provider.headline')}</h2>
+          <address class="not-italic">
+            <strong>{t('pages.impressum.sections.provider.company_name')}</strong><br>
+            {t('pages.impressum.sections.provider.street_address')}<br>
+            {t('pages.impressum.sections.provider.city_postal_code')}<br>
+            {t('pages.impressum.sections.provider.country')}
+          </address>
+
+          <h3>{t('pages.impressum.sections.contact.headline')}</h3>
+          <address class="not-italic">
+            {t('pages.impressum.sections.contact.phone')}<br>
+            {t('pages.impressum.sections.contact.fax')}<br>
+            {t('pages.impressum.sections.contact.email')}<br>
+            {t('pages.impressum.sections.contact.website')}
+          </address>
+
+          <h3>{t('pages.impressum.sections.represented_by.headline')}</h3>
+          <p>
+            {t('pages.impressum.sections.represented_by.managing_directors')}
+          </p>
+
+          <h3>{t('pages.impressum.sections.registration.headline')}</h3>
+          <p>
+            {t('pages.impressum.sections.registration.register_entry')}<br>
+            {t('pages.impressum.sections.registration.register_court')}<br>
+            {t('pages.impressum.sections.registration.register_number')}
+          </p>
+
+          <h3>{t('pages.impressum.sections.vat.headline')}</h3>
+          <p>
+            {t('pages.impressum.sections.vat.vat_id_label')}<br>
+            {t('pages.impressum.sections.vat.vat_id')}
+          </p>
+
+          <h3>{t('pages.impressum.sections.content_responsible.headline')}</h3>
+          <address class="not-italic">
+            {t('pages.impressum.sections.content_responsible.name')}<br>
+            {t('pages.impressum.sections.content_responsible.street')}<br>
+            {t('pages.impressum.sections.content_responsible.city_postal_code')}
+          </address>
+
+          <h3>{t('pages.impressum.sections.dispute_resolution.headline')}</h3>
+          <p>
+            {t('pages.impressum.sections.dispute_resolution.os_platform_intro')}<a href={t('pages.impressum.sections.dispute_resolution.os_platform_url')} target="_blank" rel="noopener noreferrer">{t('pages.impressum.sections.dispute_resolution.os_platform_url')}</a><br>
+            {t('pages.impressum.sections.dispute_resolution.email_note')}
+          </p>
+          <p>
+            {t('pages.impressum.sections.dispute_resolution.participation_statement')}
+          </p>
+
+          <h3>{t('pages.impressum.sections.disclaimer.headline')}</h3>
+          <h4>{t('pages.impressum.sections.disclaimer.content_liability.headline')}</h4>
+          <p>
+            {t('pages.impressum.sections.disclaimer.content_liability.paragraph1')}
+          </p>
+          <p>
+            {t('pages.impressum.sections.disclaimer.content_liability.paragraph2')}
+          </p>
+
+          <h4>{t('pages.impressum.sections.disclaimer.link_liability.headline')}</h4>
+          <p>
+            {t('pages.impressum.sections.disclaimer.link_liability.paragraph1')}
+          </p>
+          <p>
+            {t('pages.impressum.sections.disclaimer.link_liability.paragraph2')}
+          </p>
+
+          <h4>{t('pages.impressum.sections.disclaimer.copyright.headline')}</h4>
+          <p>
+            {t('pages.impressum.sections.disclaimer.copyright.paragraph1')}
+          </p>
+          <p>
+            {t('pages.impressum.sections.disclaimer.copyright.paragraph2')}
+          </p>
+
+          <h3>{t('pages.impressum.sections.image_credits.headline')}</h3>
+          <p>
+            {t('pages.impressum.sections.image_credits.description')}
+          </p>
+
+          <p class="text-sm text-gray-500 dark:text-gray-400 mt-8">
+            {t('pages.impressum.source_label')} <a href={t('pages.impressum.source_url')} target="_blank" rel="noopener noreferrer" class="text-emerald-600 dark:text-emerald-400 hover:underline">{t('pages.impressum.source_name')}</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

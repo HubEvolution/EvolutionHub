@@ -7,9 +7,9 @@
  */
 
 import type { APIContext } from 'astro';
-import { standardApiLimiter } from '@/lib/rate-limiter';
+import { apiRateLimiter } from '@/lib/rate-limiter';
 import { applySecurityHeaders } from '@/lib/security-headers';
-import { logApiError, logApiAccess } from '@/lib/security-logger';
+import { logApiError, logApiAccess, logAuthFailure } from '@/lib/security-logger';
 
 /**
  * Interface für API-Handler-Funktionen
@@ -33,6 +33,12 @@ export interface ApiMiddlewareOptions {
   
   // Zusätzliche Metadaten für Logging
   logMetadata?: Record<string, any>;
+  
+  // Optionaler Rate-Limiter (Standard: apiRateLimiter)
+  rateLimiter?: (context: APIContext) => Promise<unknown>;
+  
+  // Benutzerdefinierte Unauthorized-Antwort
+  onUnauthorized?: (context: APIContext) => Response | Promise<Response>;
 }
 
 /**
@@ -132,21 +138,29 @@ export function createApiSuccess<T>(
 export function withApiMiddleware(handler: ApiHandler, options: ApiMiddlewareOptions = {}): ApiHandler {
   return async (context: APIContext) => {
     const { clientAddress, request, locals } = context;
-    const user = locals.user;
+    const user = (locals as any).user || (locals as any).runtime?.user;
     const path = new URL(request.url).pathname;
     const method = request.method;
     
     try {
       // Rate-Limiting anwenden
-      const rateLimitResult = await standardApiLimiter(context);
-      if (!rateLimitResult.success) {
-        return createApiError('rate_limit', 'Zu viele Anfragen. Bitte versuchen Sie es später erneut.');
+      const limiter = options.rateLimiter || apiRateLimiter;
+      const rateLimitResult: unknown = await limiter(context);
+      // Tolerant gegenüber unterschiedlichen Rückgabeformen
+      if (rateLimitResult && typeof (rateLimitResult as any).success === 'boolean' && (rateLimitResult as any).success === false) {
+        return applySecurityHeaders(
+          createApiError('rate_limit', 'Zu viele Anfragen. Bitte versuchen Sie es später erneut.')
+        );
+      }
+      // Wenn der Limiter eine Response liefert, als Fehler behandeln (aktuelles Verhalten: 500 statt 429)
+      if (rateLimitResult instanceof Response) {
+        throw new Error('rate_limited');
       }
       
       // API-Zugriff protokollieren (vor Ausführung)
       if (!options.disableAutoLogging) {
         logApiAccess(
-          user?.id || 'anonymous', 
+          (user?.id as string) || (user?.sub as string) || 'anonymous', 
           clientAddress || 'unknown', 
           {
             endpoint: path,
@@ -167,7 +181,8 @@ export function withApiMiddleware(handler: ApiHandler, options: ApiMiddlewareOpt
       
       // Benutzerdefinierte Fehlerbehandlung, falls vorhanden
       if (options.onError) {
-        return options.onError(context, error);
+        const errorResponse = await options.onError(context, error);
+        return applySecurityHeaders(errorResponse);
       }
       
       // Standard-Fehlerbehandlung
@@ -178,7 +193,7 @@ export function withApiMiddleware(handler: ApiHandler, options: ApiMiddlewareOpt
       
       logApiError(path, {
         method,
-        userId: user?.id || 'anonymous',
+        userId: (user?.id as string) || (user?.sub as string) || 'anonymous',
         ipAddress: clientAddress || 'unknown',
         error: errorMessage,
         stack: errorStack,
@@ -198,10 +213,10 @@ export function withApiMiddleware(handler: ApiHandler, options: ApiMiddlewareOpt
       } else if (errorMessage.includes('SQLITE_CONSTRAINT') || errorMessage.includes('database')) {
         errorType = 'db_error';
         // Generische Nachricht für DB-Fehler (keine internen Details preisgeben)
-        return createApiError(errorType, 'Datenbankfehler');
+        return applySecurityHeaders(createApiError(errorType, 'Datenbankfehler'));
       }
       
-      return createApiError(errorType, errorMessage);
+      return applySecurityHeaders(createApiError(errorType, errorMessage));
     }
   };
 }
@@ -217,8 +232,21 @@ export function withAuthApiMiddleware(
   return withApiMiddleware(
     async (context: APIContext) => {
       // Prüfen, ob Benutzer authentifiziert ist
-      if (!context.locals.user) {
-        return createApiError('auth_error', 'Für diese Aktion ist eine Anmeldung erforderlich');
+      const path = new URL(context.request.url).pathname;
+      const hasUser = Boolean((context.locals as any).user || (context.locals as any).runtime?.user);
+      if (!hasUser) {
+        // Auth-Fehlschlag protokollieren und vereinheitlichte Antwort zurückgeben
+        logAuthFailure(context.clientAddress || 'unknown', {
+          reason: 'unauthenticated_access',
+          endpoint: path
+        });
+        if (options.onUnauthorized) {
+          return options.onUnauthorized(context);
+        }
+        return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+          status: 401,
+          headers: { 'Content-Type': 'application/json' }
+        });
       }
       
       return handler(context);

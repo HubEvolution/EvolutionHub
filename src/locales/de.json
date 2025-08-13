@@ -1,7 +1,7 @@
 {
   "common": {
-    "greeting": "Hallo Welt!",
-    "description": "Das ist die deutsche Version Ihrer Website.",
+    "greeting": "Willkommen bei Evolution Hub! Ein Projekt für die Zukunft der Softwareentwicklung.",
+    "description": "Entdecken Sie die Leistung von KI-gestützten Tools zur Optimierung Ihres Workflows und zur Steigerung Ihrer Produktivität.",
     "language_switch_label": "Sprache",
     "get_started": "Loslegen",
     "documentation": "Dokumentation"
@@ -26,44 +26,214 @@
       "part2": "Die intelligente Kombination aus künstlicher Intelligenz und benutzerfreundlichem Design ermöglicht es Ihnen, Ihre Kreativität freizusetzen und Projekte schneller zum Leben zu erwecken. Entdecken Sie unsere leistungsstarken Funktionen und erfahren Sie, wie Sie mit Evolution Hub die Zukunft der Softwareentwicklung und Content-Erstellung gestalten können.",
       "part3_de": "Unsere fortschrittlichen Algorithmen und benutzerfreundlichen Interfaces arbeiten nahtlos zusammen, um Ihnen die bestmögliche Entwicklererfahrung zu bieten. Von der ersten Idee bis zur finalen Umsetzung – Evolution Hub begleitet Sie durch jeden Schritt Ihres kreativen Prozesses.",
       "part4_de": "Nutzen Sie die Kraft der künstlichen Intelligenz, um komplexe Aufgaben zu vereinfachen, innovative Lösungen zu entwickeln und Ihre Projekte auf das nächste Level zu heben. Mit Evolution Hub gestalten Sie die Zukunft der digitalen Entwicklung."
+    },
+    "impressum": {
+      "title": "Impressum",
+      "section_intro": {
+        "heading": "Angaben gemäß § 5 TMG"
+      },
+      "sections": {
+        "provider": {
+          "headline": "Diensteanbieter",
+          "company_name": "Evolution Hub GmbH",
+          "street_address": "Musterstraße 123",
+          "city_postal_code": "10115 Berlin",
+          "country": "Deutschland"
+        },
+        "contact": {
+          "headline": "Kontakt",
+          "phone": "Telefon: +49 (0)30 12345678",
+          "fax": "Telefax: +49 (0)30 12345679",
+          "email": "E-Mail: info@evolutionhub.de",
+          "website": "Web: www.evolutionhub.de"
+        },
+        "represented_by": {
+          "headline": "Vertreten durch",
+          "managing_directors": "Geschäftsführer: Max Mustermann, Erika Musterfrau"
+        },
+        "registration": {
+          "headline": "Registereintrag",
+          "register_entry": "Eingetragen im Handelsregister",
+          "register_court": "Registergericht: Amtsgericht Berlin-Charlottenburg",
+          "register_number": "Registernummer: HRB 123456"
+        },
+        "vat": {
+          "headline": "Umsatzsteuer-Identifikationsnummer",
+          "vat_id_label": "Umsatzsteuer-Identifikationsnummer gemäß § 27 a Umsatzsteuergesetz:",
+          "vat_id": "DE 123456789"
+        },
+        "content_responsible": {
+          "headline": "Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV",
+          "name": "Max Mustermann",
+          "street": "Musterstraße 123",
+          "city_postal_code": "10115 Berlin"
+        },
+        "dispute_resolution": {
+          "headline": "Streitschlichtung",
+          "os_platform_intro": "Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit: ",
+          "os_platform_url": "https://ec.europa.eu/consumers/odr/",
+          "email_note": "Unsere E-Mail-Adresse finden Sie oben im Impressum.",
+          "participation_statement": "Wir sind nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen."
+        },
+        "disclaimer": {
+          "headline": "Haftungsausschluss",
+          "content_liability": {
+            "headline": "Haftung für Inhalte",
+            "paragraph1": "Als Diensteanbieter sind wir gemäß § 7 Abs.1 TMG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 TMG sind wir als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen zu überwachen oder nach Umständen zu forschen, die auf eine rechtswidrige Tätigkeit hinweisen.",
+            "paragraph2": "Verpflichtungen zur Entfernung oder Sperrung der Nutzung von Informationen nach den allgemeinen Gesetzen bleiben hiervon unberührt. Eine diesbezügliche Haftung ist jedoch erst ab dem Zeitpunkt der Kenntnis einer konkreten Rechtsverletzung möglich. Bei Bekanntwerden von entsprechenden Rechtsverletzungen werden wir diese Inhalte umgehend entfernen."
+          },
+          "link_liability": {
+            "headline": "Haftung für Links",
+            "paragraph1": "Unser Angebot enthält Links zu externen Websites Dritter, auf deren Inhalte wir keinen Einfluss haben. Deshalb können wir für diese fremden Inhalte auch keine Gewähr übernehmen. Für die Inhalte der verlinkten Seiten ist stets der jeweilige Anbieter oder Betreiber der Seiten verantwortlich. Die verlinkten Seiten wurden zum Zeitpunkt der Verlinkung auf mögliche Rechtsverstöße überprüft. Rechtswidrige Inhalte waren zum Zeitpunkt der Verlinkung nicht erkennbar.",
+            "paragraph2": "Eine permanente inhaltliche Kontrolle der verlinkten Seiten ist jedoch ohne konkrete Anhaltspunkte einer Rechtsverletzung nicht zumutbar. Bei Bekanntwerden von Rechtsverletzungen werden wir derartige Links umgehend entfernen."
+          },
+          "copyright": {
+            "headline": "Urheberrecht",
+            "paragraph1": "Die durch die Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten unterliegen dem deutschen Urheberrecht. Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechtes bedürfen der schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers. Downloads und Kopien dieser Seite sind nur für den privaten, nicht kommerziellen Gebrauch gestattet.",
+            "paragraph2": "Soweit die Inhalte auf dieser Seite nicht vom Betreiber erstellt wurden, werden die Urheberrechte Dritter beachtet. Insbesondere werden Inhalte Dritter als solche gekennzeichnet. Sollten Sie trotzdem auf eine Urheberrechtsverletzung aufmerksam werden, bitten wir um einen entsprechenden Hinweis. Bei Bekanntwerden von Rechtsverletzungen werden wir derartige Inhalte umgehend entfernen."
+          }
+        },
+        "image_credits": {
+          "headline": "Bildnachweise",
+          "description": "Die auf dieser Website verwendeten Bilder und Grafiken unterliegen dem Urheberrecht der Evolution Hub GmbH oder sind lizenzfreie Stockfotos von Drittanbietern."
+        }
+      }
+    },
+    "agb": {
+      "title": "General Terms and Conditions (AGB)",
+      "header": {
+        "title": "General Terms and Conditions (AGB)",
+        "effective_date": "Effective from: July 20, 2025"
+      },
+      "sections": {
+        "1": {
+          "title": "1. Scope of Application",
+          "content": "These General Terms and Conditions (hereinafter \\\"AGB\\\") of Evolution Hub GmbH (hereinafter \\\"Provider\\\" or \\\"we\\\") apply to the contractual relationships between the Provider and its customers (hereinafter \\\"Customer\\\" or \\\"Customers\\\") in their version valid at the time of order."
+        },
+        "2": {
+          "title": "2. Contracting Parties, Conclusion of Contract",
+          "content": "The purchase contract is concluded with Evolution Hub GmbH, Musterstraße 123, 10115 Berlin, Germany. The presentation of products in the online shop does not constitute a legally binding offer to conclude a contract, but is merely a non-binding invitation to submit an offer."
+        },
+        "3": {
+          "title": "3. Subject of the Contract",
+          "content": "The subject of the contract is the sale of software, digital content, and services. The essential characteristics of the goods/services are derived from the respective product description and supplementary information on the Provider's website."
+        },
+        "4": {
+          "title": "4. Prices and Payment Terms",
+          "content": "The prices stated in the shop are in Euros and include the statutory value-added tax. Payment is made optionally by bank transfer in advance, credit card, PayPal, or immediate bank transfer, unless otherwise agreed."
+        },
+        "5": {
+          "title": "5. Delivery Conditions",
+          "content": "Delivery is made worldwide. The delivery period is immediate upon conclusion of the contract for orders of services and digital products, and within 2-5 working days after receipt of payment for physical products."
+        },
+        "6": {
+          "title": "6. Right of Withdrawal",
+          "content": "You have the right to withdraw from this contract within fourteen days without giving any reason. The withdrawal period is fourteen days from the day of the conclusion of the contract. To exercise your right of withdrawal, you must inform us by means of a clear declaration of your decision to withdraw from this contract."
+        },
+        "7": {
+          "title": "7. Warranty",
+          "content": "The warranty is governed by statutory provisions. For used goods, the warranty period is one year from delivery of the goods. The aforementioned limitation does not apply to claims for damages arising from injury to life, body or health, nor in cases of fraudulent misrepresentation."
+        },
+        "8": {
+          "title": "8. Liability",
+          "content": "The liability of the Provider for damages, regardless of the legal ground, in particular for impossibility, default, defective or erroneous performance, breach of contract, or tortious act – insofar as fault is present in each case – is limited to intent and gross negligence. This does not apply to breaches of cardinal obligations, injury to life, body or health, nor to the assumption of a guarantee or a procurement risk."
+        },
+        "9": {
+          "title": "9. Data Protection",
+          "content": "The collection, processing, and use of personal data are carried out exclusively in accordance with statutory provisions. For further information on data protection, please refer to our Privacy Policy."
+        },
+        "10": {
+          "title": "10. Final Provisions",
+          "content": "The law of the Federal Republic of Germany shall apply, excluding the UN Convention on Contracts for the International Sale of Goods. Should individual provisions of the contract with the customer, including these AGB, be or become wholly or partially invalid, this shall not affect the validity of the remaining provisions."
+        },
+        "11": {
+          "title": "11. Dispute Resolution",
+          "content": "The European Commission provides a platform for online dispute resolution (OS): <a href=\\\"https://ec.europa.eu/consumers/odr/\\\" target=\\\"_blank\\\" rel=\\\"noopener noreferrer\\\">https://ec.europa.eu/consumers/odr/</a>."
+        },
+        "11_participation": {
+          "title": "11. Dispute Resolution Participation",
+          "content": "We are neither willing nor obliged to participate in dispute resolution proceedings before a consumer arbitration board."
+        },
+        "12": {
+          "title": "12. Jurisdiction",
+          "content": "The place of jurisdiction for all disputes arising from contractual relationships with merchants, legal entities under public law, or special funds under public law shall be the registered office of the provider."
+        }
+      }
+    },
+    "datenschutz": {
+      "title": "Datenschutzerklärung",
+      "header": {
+        "title": "Datenschutzerklärung",
+        "last_updated": "Letzte Aktualisierung: 20. Juli 2025"
+      },
+      "sections": {
+        "1": {
+          "title": "1. Verantwortlicher",
+          "description": "Verantwortlich im Sinne der Datenschutz-Grundverordnung (DSGVO) und anderer nationaler Datenschutzgesetze der Mitgliedsstaaten sowie sonstiger datenschutzrechtlicher Bestimmungen ist:",
+          "provider": {
+            "company_name": "Evolution Hub GmbH",
+            "street_address": "Musterstraße 123",
+            "city_postal_code": "10115 Berlin",
+            "country": "Deutschland",
+            "email_label": "E-Mail:",
+            "email": "datenschutz@evolutionhub.de",
+            "phone_label": "Telefon:",
+            "phone": "+49 30 12345678"
+          }
+        },
+        "2": {
+          "title": "2. Grundlegendes zur Datenverarbeitung",
+          "description": "Wir verarbeiten personenbezogene Daten unserer Nutzer grundsätzlich nur, soweit dies zur Bereitstellung einer funktionsfähigen Website sowie unserer Inhalte und Leistungen erforderlich ist. Die Verarbeitung personenbezogener Daten unserer Nutzer erfolgt regelmäßig nur nach Einwilligung des Nutzers. Eine Ausnahme gilt in solchen Fällen, in denen eine vorherige Einholung einer Einwilligung aus tatsächlichen Gründen nicht möglich ist und die Verarbeitung der Daten durch gesetzliche Vorschriften gestattet ist."
+        },
+        "3": {
+          "title": "3. Bereitstellung der Website und Erstellung von Logfiles",
+          "subtitle": "Beschreibung und Umfang der Datenverarbeitung",
+          "paragraph1": "Bei jedem Aufruf unserer Internetseite erfasst unser System automatisiert Daten und Informationen vom Computersystem des aufrufenden Rechners.",
+          "list_intro": "Folgende Daten werden hierbei erhoben:",
+          "list_items": {
+            "0": "Browsertyp und -version",
+            "1": "Verwendetes Betriebssystem",
+            "2": "Referrer URL",
+            "3": "Hostname des zugreifenden Rechners",
+            "4": "Uhrzeit der Serveranfrage",
+            "5": "IP-Adresse"
+          }
+        },
+        "4": {
+          "title": "4. Cookies",
+          "description": "Unsere Webseite verwendet Cookies. Bei Cookies handelt es sich um Textdateien, die im Internetbrowser bzw. vom Internetbrowser auf dem Computersystem des Nutzers gespeichert werden. Ruft ein Nutzer eine Website auf, so kann ein Cookie auf dem Betriebssystem des Nutzers gespeichert werden. Dieser Cookie enthält eine charakteristische Zeichenfolge, die eine eindeutige Identifizierung des Browsers beim erneuten Aufrufen der Website ermöglicht."
+        },
+        "5": {
+          "title": "5. Kontaktformular und E-Mail-Kontakt",
+          "paragraph1": "Auf unserer Internetseite ist ein Kontaktformular vorhanden, welches für die elektronische Kontaktaufnahme genutzt werden kann. Nimmt ein Nutzer diese Möglichkeit wahr, werden die in der Eingabemaske eingegeben Daten an uns übermittelt und gespeichert.",
+          "paragraph2": "Alternativ ist eine Kontaktaufnahme über die bereitgestellte E-Mail-Adresse möglich. In diesem Fall werden die mit der E-Mail übermittelten personenbezogenen Daten des Nutzers gespeichert."
+        },
+        "6": {
+          "title": "6. Rechte der betroffenen Person",
+          "subtitle": "Sie haben das Recht:",
+          "list_items": {
+            "0": "gemäß Art. 15 DSGVO Auskunft über Ihre von uns verarbeiteten personenbezogenen Daten zu verlangen",
+            "1": "gemäß Art. 16 DSGVO unverzüglich die Berichtigung unrichtiger oder Vervollständigung Ihrer bei uns gespeicherten personenbezogenen Daten zu verlangen",
+            "2": "gemäß Art. 17 DSGVO die Löschung Ihrer bei uns gespeicherten personenbezogenen Daten zu verlangen",
+            "3": "gemäß Art. 18 DSGVO die Einschränkung der Verarbeitung Ihrer personenbezogenen Daten zu verlangen",
+            "4": "gemäß Art. 20 DSGVO Ihre personenbezogenen Daten, die Sie uns bereitgestellt haben, in einem strukturierten, gängigen und maschinenlesbaren Format zu erhalten",
+            "5": "gemäß Art. 7 Abs. 3 DSGVO Ihre einmal erteilte Einwilligung jederzeit gegenüber uns zu widerrufen",
+            "6": "gemäß Art. 77 DSGVO sich bei einer Aufsichtsbehörde zu beschweren"
+          }
+        },
+        "7": {
+          "title": "7. Widerspruchsrecht",
+          "description": "Sie haben das Recht, aus Gründen, die sich aus Ihrer besonderen Situation ergeben, jederzeit gegen die Verarbeitung Sie betreffender personenbezogener Daten, die aufgrund von Art. 6 Abs. 1 lit. e oder f DSGVO erfolgt, Widerspruch einzulegen."
+        },
+        "8": {
+          "title": "8. Datensicherheit",
+          "description": "Wir verwenden innerhalb des Website-Besuchs das verbreitete SSL-Verfahren (Secure Socket Layer) in Verbindung mit der jeweils höchsten Verschlüsselungsstufe, die von Ihrem Browser unterstützt wird. In der Regel handelt es sich dabei um eine 256-Bit-Verschlüsselung. Falls Ihr Browser keine 256-Bit-Verschlüsselung unterstützt, greifen wir stattdessen auf 128-Bit v3 Technologie zurück."
+        },
+        "9": {
+          "title": "9. Aktualität und Änderung dieser Datenschutzerklärung",
+          "description": "Diese Datenschutzerklärung ist aktuell gültig und hat den Stand Juli 2025. Durch die Weiterentwicklung unserer Website und Angebote darüber oder aufgrund geänderter gesetzlicher beziehungsweise behördlicher Vorgaben kann es notwendig werden, diese Datenschutzerklärung zu ändern."
+        }
+      }
     }
-  },
-  "features": {
-    "title": "Leistungsstarke Funktionen",
-    "subtitle": "Alles, was Sie brauchen, um erstaunliche Anwendungen mit KI-Unterstützung zu erstellen.",
-    "ai_powered": {
-      "title": "KI-gestützt",
-      "description": "Nutzen Sie modernste KI, um Ihre Workflows zu automatisieren und die Produktivität zu steigern."
-    },
-    "responsive": {
-      "title": "Vollständig responsiv",
-      "description": "Funktioniert nahtlos auf allen Geräten, von Mobilgeräten bis zu Desktops."
-    },
-    "secure_by_design": {
-      "title": "Sicher von Grund auf",
-      "description": "Unternehmensfähige Sicherheit, um Ihre Daten sicher und privat zu halten."
-    },
-    "lightning_fast": {
-      "title": "Blitzschnell",
-      "description": "Für beste Benutzererfahrung mit Fokus auf Leistung entwickelt."
-    }
-  },
-  "footer": {
-    "brand_description": "Die moderne Plattform für Entwickler, um Projekte zu verwalten, zu teilen und zu skalieren. Entwickelt von Entwicklern für Entwickler.",
-    "quick_links": "Schnellzugriff",
-    "links": {
-      "dashboard": "Dashboard",
-      "blog": "Blog",
-      "projects": "Projekte",
-      "documentation": "Dokumentation",
-      "contact": "Kontakt"
-    },
-    "legal": "Rechtliches",
-    "legal_links": {
-      "privacy": "Datenschutzerklärung",
-      "imprint": "Impressum",
-      "terms": "Nutzungsbedingungen"
-    },
-    "copyright": "© 2024 Evolution Hub. Alle Rechte vorbehalten."
   }
 }

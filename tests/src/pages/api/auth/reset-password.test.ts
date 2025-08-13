@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { POST } from '@/pages/api/auth/reset-password-v2';
+import { POST } from '@/pages/api/auth/reset-password';
 import * as authServiceModule from '@/lib/services/auth-service-impl';
 import * as rateLimiter from '@/lib/rate-limiter';
 import * as responseHelpers from '@/lib/response-helpers';
@@ -109,7 +109,7 @@ vi.mock('@/lib/response-helpers', () => ({
   }),
 }));
 
-describe('Reset-Password-V2 API Tests (Service-Layer)', () => {
+describe('Reset-Password API Tests (Service-Layer)', () => {
   // Service-Mock
   let mockAuthService: ReturnType<typeof createMockAuthService>;
   

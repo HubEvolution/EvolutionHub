@@ -13,26 +13,25 @@ Alle Auth-API-Endpunkte sind mit folgenden Sicherheitsmaßnahmen ausgestattet:
 * **Anti-User-Enumeration:** Gleiches Redirect-Verhalten unabhängig vom Benutzerexistenz-Status
 
 Hinweis: Die Auth-Endpunkte sind formularbasiert und antworten mit Redirects statt JSON. Bei Erfolg wird ein HttpOnly-Cookie `session_id` gesetzt.
-V2-Hinweis: Es existieren Service-Layer-Varianten mit zentralem Error-Handling: `/api/auth/login-v2`, `/api/auth/register-v2`, `/api/auth/reset-password-v2`. Diese verhalten sich gleich bzgl. Redirects/Cookies, liefern aber teils andere Fehlercodes.
+Hinweis: Die früheren `-v2` Varianten wurden in die kanonischen Endpunkte integriert (Service-Layer, zentrale Fehlerbehandlung, konsistente Redirects).
 
-## v2 Schnellreferenz
+## Endpunkte (kanonisch)
 
-* Endpunkte (v2):
-  * `POST /api/auth/login-v2`
-  * `POST /api/auth/register-v2`
-  * `POST /api/auth/reset-password-v2`
-  * `GET|POST /api/user/logout-v2`
-* Wesentliche Unterschiede:
+* Endpunkte:
+  * `POST /api/auth/login`
+  * `POST /api/auth/register`
+  * `POST /api/auth/reset-password`
+  * `GET|POST /api/user/logout`
+* Eigenschaften:
   * Service-Layer: `src/lib/services/auth-service-impl.ts`
   * Zentrale Fehlerbehandlung: `src/lib/error-handler.ts`
   * Konsistente Redirects: `src/lib/response-helpers.ts` (`createSecureRedirect`)
-  * Fehlercodes teils abweichend (z. B. `AuthFailed` statt `InvalidCredentials`)
-  * bcrypt Work-Factor: 12 (v2)
-  * Passwort-Reset-Token-TTL: 24h (v2)
-  * Bei Reset-Fehlern bleibt der `token`-Query-Parameter im Redirect erhalten (v2)
+  * bcrypt Work-Faktor: 12
+  * Passwort-Reset-Token-TTL: 24h
+  * Bei Reset-Fehlern bleibt der `token`-Query-Parameter im Redirect erhalten
 * Verhalten:
-  * Antworten weiterhin als `302 Redirect`
-  * Gleiches Cookie-Verhalten wie v1 (`session_id`, HttpOnly, SameSite=Lax, Secure über HTTPS)
+  * Antworten als `302 Redirect`
+  * Cookie-Verhalten: `session_id` (HttpOnly, SameSite=Lax, Secure über HTTPS)
 
 ---
 
@@ -225,11 +224,11 @@ Location: /reset-password?token=<token>&error=InvalidToken
 
 ### Fehlercodes (Passwort zurücksetzen)
 
-* v1 (`reset-password.ts`): `InvalidToken`, `TokenExpired`, `InvalidInput`, `TooManyRequests`, `ServerError`
-* v2 (`reset-password-v2.ts`): `AuthFailed`, `InvalidInput`, `TooManyRequests`, `ServerError`
+* `InvalidInput`
+* `TooManyRequests`
+* `ServerError`
 
-Hinweis (v2): Bei Fehlern wird der ursprüngliche `token`-Query-Parameter im Redirect beibehalten.
-Hinweis (v1): Fehlt der `token`-Parameter vollständig, erfolgt der Redirect nach `/login?error=InvalidToken`.
+Hinweis: Bei Fehlern wird der ursprüngliche `token`-Query-Parameter im Redirect beibehalten. Fehlt der `token`-Parameter vollständig, erfolgt der Redirect nach `/reset-password?error=InvalidInput`.
 
 ---
 
