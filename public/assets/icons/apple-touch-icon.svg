@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <linearGradient id="unifiedGradient" x1="0%" y1="100%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#10b981"/>
+            <stop offset="100%" stop-color="#06b6d4"/>
+        </linearGradient>
+    </defs>
+    <!-- Background for iOS -->
+    <rect width="180" height="180" fill="#111827"/>
+    <!-- Scaled and centered monogram -->
+    <g transform="translate(22, 26) scale(4)">
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M4 4H20L16 8H8V14H26V4H30V28H26V18H8V24H20L16 28H4V4Z" fill="url(#unifiedGradient)"/>
+    </g>
+</svg>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="230" height="32" viewBox="0 0 230 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <!-- A single, vibrant gradient for both icon and text, using original brand colors -->
+        <linearGradient id="unifiedGradient" x1="0%" y1="100%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#10b981"/> <!-- emerald-500 -->
+            <stop offset="100%" stop-color="#06b6d4"/> <!-- cyan-500 -->
+        </linearGradient>
+    </defs>
+
+    <!-- Futuristic "EH" Monogram Icon, drawn as a single, continuous path -->
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M4 4H20L16 8H8V14H26V4H30V28H26V18H8V24H20L16 28H4V4Z" fill="url(#unifiedGradient)"/>
+
+    <!-- Text "Evolution Hub" with the new unified gradient and custom font -->
+    <text x="44" y="16" dominant-baseline="middle" fill="url(#unifiedGradient)" font-family="'Exo 2', sans-serif" font-size="18" font-weight="700" letter-spacing="1.5" text-transform="uppercase">
+        Evolution Hub
+    </text>
+</svg>

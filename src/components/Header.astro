@@ -6,11 +6,12 @@ import ThemeToggle from './ThemeToggle.astro';
 import { getLocale } from '@/lib/i18n';
 // Import der dedizierten Scroll-Effect Komponente
 import HeaderScroll from './scripts/HeaderScroll.astro';
+import EvolutionHubLogo from 'public/assets/svg/evolutionhub-logo.svg';
 
 // Get current locale for language switching
 // These variables should be defined in Markdown Frontmatter or accessible in the script.
 // Ensuring they are correctly defined and typed.
-const currentLocale = getLocale(Astro.url.pathname); 
+const currentLocale = getLocale(Astro.url.pathname);
 
 // Generate proper URLs for language switching
 function generateLanguageUrl(targetLocale: string, currentPath: string): string {
@@ -38,6 +39,7 @@ const navItems = [
   { name: 'Tools', href: '/tools', 'aria-label': 'View available tools' },
   { name: 'Pricing', href: '/pricing', 'aria-label': 'View pricing plans' },
   { name: 'Documentation', href: '/docs', 'aria-label': 'View documentation' },
+  { name: 'Blog', href: '/blog', 'aria-label': 'View blog posts' },
 ];
 
 // Get current URL and path for active link highlighting
@@ -64,12 +66,7 @@ const isActive = (path: string): boolean => {
       <!-- Logo -->
       <div class="flex-shrink-0 flex items-center group">
         <a href="/" class="flex items-center space-x-3 group-hover:scale-105 transition-transform duration-300">
-          <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-cyan-500 flex items-center justify-center">
-            <span class="text-white font-bold text-lg">E</span>
-          </div>
-          <span class="text-xl font-bold bg-gradient-to-r from-emerald-600 to-cyan-500 bg-clip-text text-transparent">
-            Evolution Hub
-          </span>
+          <EvolutionHubLogo />
         </a>
       </div>
 
@@ -301,7 +298,7 @@ const isActive = (path: string): boolean => {
           toggleMenu();
         }
       });
-
+      
       // Close on outside click
       document.addEventListener('click', function(e) {
         if (isOpen && !mobileMenu.contains(e.target) && !mobileMenuButton.contains(e.target)) {
@@ -534,6 +531,5 @@ const isActive = (path: string): boolean => {
     }
   }
 </style>
-
 <!-- HeaderScroll-Komponente für Scroll-Effekt -->
 <HeaderScroll />

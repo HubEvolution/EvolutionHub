@@ -3,9 +3,11 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import PricingTable from '@/components/pricing/PricingTable.astro';
 import FeatureComparison from '@/components/pricing/FeatureComparison.astro';
 import { getI18n } from '@/utils/i18n';
+import { getLocale } from '@/lib/i18n';
 
 // Set page metadata
-const { t } = getI18n('pages.pricing');
+const locale = getLocale(Astro.url.pathname);
+const t = getI18n(locale);
 const title = t('pages.pricing.title');
 const description = t('pages.pricing.description');
 ---

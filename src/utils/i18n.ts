@@ -1,5 +1,6 @@
 import deTranslations from '../locales/de.json';
 import enTranslations from '../locales/en.json';
+import type { Locale } from '@/lib/i18n';
 
 // Define a general type for translations, assuming both files have similar structure
 // In a real-world scenario, you might want more robust type checking or generation.
@@ -13,8 +14,8 @@ const translations: Locales = {
   en: enTranslations,
 };
 
-export function getI18n(locale: string) {
-  const currentTranslations = translations[locale as keyof Locales];
+export function getI18n(locale: Locale) {
+  const currentTranslations = translations[locale];
 
   if (!currentTranslations) {
     console.warn(`Locale "${locale}" not found. Using English as fallback.`);

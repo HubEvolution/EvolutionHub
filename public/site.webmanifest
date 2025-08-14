@@ -1,0 +1,21 @@
+{
+    "name": "Evolution Hub",
+    "short_name": "EvoHub",
+    "description": "Die Zukunft der KI-gestützten Entwicklung.",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#111827",
+    "theme_color": "#10b981",
+    "icons": [
+        {
+            "src": "/assets/icons/android-chrome-192x192.svg",
+            "sizes": "192x192",
+            "type": "image/svg+xml"
+        },
+        {
+            "src": "/assets/icons/apple-touch-icon.svg",
+            "sizes": "180x180",
+            "type": "image/svg+xml"
+        }
+    ]
+}

@@ -4,7 +4,9 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 // If Astro's built-in i18n routing is used, this might be different.
 // For now, using a common pattern.
 import { getI18n } from '@/utils/i18n';
-const t = getI18n('en');
+import { getLocale } from '@/lib/i18n';
+const locale = getLocale(Astro.url.pathname);
+const t = getI18n(locale);
 ---
 
 <BaseLayout title={t('pages.impressum.title')}>

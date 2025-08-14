@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="230" height="32" viewBox="0 0 230 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- 
+        This version is optimized for dark backgrounds. 
+        The gradient is replaced with a solid white color for maximum contrast and clarity.
+    -->
+    <!-- Futuristic "EH" Monogram Icon, in white -->
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M4 4H20L16 8H8V14H26V4H30V28H26V18H8V24H20L16 28H4V4Z" fill="#FFFFFF"/>
+
+    <!-- Text "Evolution Hub", in white -->
+    <text x="44" y="16" dominant-baseline="middle" fill="#FFFFFF" font-family="'Exo 2', sans-serif" font-size="18" font-weight="700" letter-spacing="1.5" text-transform="uppercase">
+        Evolution Hub
+    </text>
+</svg>
