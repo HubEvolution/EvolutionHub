@@ -4,7 +4,30 @@
     "description": "Discover the power of AI-powered tools to optimize your workflow and boost your productivity.",
     "language_switch_label": "Language",
     "get_started": "Get Started",
-    "documentation": "Documentation"
+    "documentation": "Documentation",
+    "errors": {
+      "generic": "An error occurred. Please try again later.",
+      "upload_failed_prefix": "Upload failed:"
+    },
+    "upload": {
+      "invalid_type": "Please choose an image in JPG, PNG, or GIF format",
+      "too_large": "The file is too large. Maximum size is 2MB"
+    },
+    "status": {
+      "uploading": "Uploading...",
+      "sending": "Sending..."
+    },
+    "actions": {
+      "upload": "Upload",
+      "subscribe": "Subscribe"
+    },
+    "success": {
+      "avatar_updated": "Profile picture updated successfully!",
+      "newsletter_confirmation_sent": "Confirmation email sent!"
+    },
+    "forms": {
+      "email_placeholder": "Email address"
+    }
   },
   "cta": {
     "headline": "Ready to get started?",

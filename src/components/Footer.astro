@@ -1,12 +1,15 @@
 ---
 // Footer Component with modern design
 import Newsletter from './Newsletter.astro';
+import { type Locale } from '@/lib/i18n';
 
 interface Props {
   hideNewsletter?: boolean;
+  locale?: Locale;
 }
 
-const { hideNewsletter = false } = Astro.props;
+const { hideNewsletter = false, locale = 'de' as Locale } = Astro.props;
+
 ---
 
 <footer
@@ -312,7 +315,7 @@ const { hideNewsletter = false } = Astro.props;
         <ul class="space-y-3">
           <li>
             <a
-              href="/datenschutz"
+              href={`/${locale}/datenschutz`}
               class="flex items-center text-gray-600 hover:text-emerald-500 dark:text-gray-300 dark:hover:text-emerald-400 transition-colors duration-300 group"
             >
               <svg
@@ -336,7 +339,7 @@ const { hideNewsletter = false } = Astro.props;
           </li>
           <li>
             <a
-              href="/${Astro.currentLocale}/impressum"
+              href={`/${locale}/impressum`}
               class="flex items-center text-gray-600 hover:text-emerald-500 dark:text-gray-300 dark:hover:text-emerald-400 transition-colors duration-300 group"
             >
               <svg
@@ -360,7 +363,7 @@ const { hideNewsletter = false } = Astro.props;
           </li>
           <li>
             <a
-              href="/agb"
+              href={`/${locale}/agb`}
               class="flex items-center text-gray-600 hover:text-emerald-500 dark:text-gray-300 dark:hover:text-emerald-400 transition-colors duration-300 group"
             >
               <svg

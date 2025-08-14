@@ -1,12 +1,36 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import SettingsScript from '@/components/SettingsScript.astro';
+import { getLocale } from '@/lib/i18n';
+import { getI18n } from '@/utils/i18n';
 
 const locals = Astro.locals as any;
 if (!locals.user) {
   return Astro.redirect('/login');
 }
 const user = locals.user;
+
+// i18n setup for client alerts (embed only what the client needs)
+const locale = getLocale(Astro.url.pathname);
+const t = getI18n(locale);
+const i18nSettings = {
+  upload: {
+    invalid_type: t('common.upload.invalid_type'),
+    too_large: t('common.upload.too_large'),
+  },
+  status: {
+    uploading: t('common.status.uploading'),
+  },
+  actions: {
+    upload: t('common.actions.upload'),
+  },
+  success: {
+    avatar_updated: t('common.success.avatar_updated'),
+  },
+  errors: {
+    upload_failed_prefix: t('common.errors.upload_failed_prefix'),
+  },
+};
 
 ---
 
@@ -105,6 +129,9 @@ const user = locals.user;
   <!-- Lade die vollständige Settings-Funktionalität über die SettingsScript-Komponente -->
   <SettingsScript />
   
+  <!-- Page-scoped i18n messages for client script -->
+  <script type="application/json" id="i18n-settings">{JSON.stringify(i18nSettings)}</script>
+  
 <!-- Avatar Upload Modal direkt eingebunden -->
 <div id="avatar-modal" class="fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50 hidden" style="display: none;">
   <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full">
@@ -142,6 +169,9 @@ const user = locals.user;
 
 <script is:inline>
   console.log('INLINE AVATAR MODAL SCRIPT STARTING');
+  // Read i18n messages embedded server-side
+  const i18nEl = document.getElementById('i18n-settings');
+  const I18N = i18nEl ? JSON.parse(i18nEl.textContent || '{}') : {};
   // Modal-Elemente abrufen
   const modal = document.getElementById('avatar-modal');
   const openModalBtn = document.getElementById('change-avatar-btn');
@@ -267,12 +297,12 @@ const user = locals.user;
     const maxSize = 2 * 1024 * 1024; // 2MB
     
     if (!validTypes.includes(file.type)) {
-      alert('Bitte wähle ein Bild im Format JPG, PNG oder GIF');
+      alert(I18N.upload?.invalid_type || 'Please choose an image in JPG, PNG, or GIF format');
       return;
     }
     
     if (file.size > maxSize) {
-      alert('Die Datei ist zu groß. Maximale Größe ist 2MB');
+      alert(I18N.upload?.too_large || 'The file is too large. Maximum size is 2MB');
       return;
     }
     
@@ -305,7 +335,7 @@ const user = locals.user;
   function uploadAvatar(file) {
     // Zeige Ladezustand
     if (uploadBtn) {
-      uploadBtn.textContent = 'Wird hochgeladen...';
+      uploadBtn.textContent = I18N.status?.uploading || 'Uploading...';
       uploadBtn.disabled = true;
     }
     
@@ -338,7 +368,7 @@ const user = locals.user;
       }
       
       // Erfolgsmeldung anzeigen
-      alert('Profilbild erfolgreich aktualisiert!');
+      alert(I18N.success?.avatar_updated || 'Profile picture updated successfully!');
     })
     .catch(error => {
       console.error('Upload error:', error);
@@ -358,12 +388,12 @@ const user = locals.user;
         errorMessage = error.message || 'Fehler beim Parsen der Fehlermeldung';
       }
       
-      alert(`Fehler beim Hochladen: ${errorMessage}`);
+      alert(`${I18N.errors?.upload_failed_prefix || 'Upload failed:'} ${errorMessage}`);
     })
     .finally(() => {
       // Setze den Button zurück
       if (uploadBtn) {
-        uploadBtn.textContent = 'Hochladen';
+        uploadBtn.textContent = I18N.actions?.upload || 'Upload';
         uploadBtn.disabled = false;
       }
     });

@@ -4,7 +4,30 @@
     "description": "Entdecken Sie die Leistung von KI-gestützten Tools zur Optimierung Ihres Workflows und zur Steigerung Ihrer Produktivität.",
     "language_switch_label": "Sprache",
     "get_started": "Loslegen",
-    "documentation": "Dokumentation"
+    "documentation": "Dokumentation",
+    "errors": {
+      "generic": "Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.",
+      "upload_failed_prefix": "Fehler beim Hochladen:"
+    },
+    "upload": {
+      "invalid_type": "Bitte wähle ein Bild im Format JPG, PNG oder GIF",
+      "too_large": "Die Datei ist zu groß. Maximale Größe ist 2MB"
+    },
+    "status": {
+      "uploading": "Wird hochgeladen...",
+      "sending": "Wird gesendet..."
+    },
+    "actions": {
+      "upload": "Hochladen",
+      "subscribe": "Abonnieren"
+    },
+    "success": {
+      "avatar_updated": "Profilbild erfolgreich aktualisiert!",
+      "newsletter_confirmation_sent": "Bestätigungs-E-Mail gesendet!"
+    },
+    "forms": {
+      "email_placeholder": "E-Mail-Adresse"
+    }
   },
   "cta": {
     "headline": "Bereit loszulegen?",

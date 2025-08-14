@@ -9,6 +9,9 @@ interface Props {
   showBenefits?: boolean;
 }
 
+import { getLocale } from '@/lib/i18n';
+import { getI18n } from '@/utils/i18n';
+
 const { 
   variant = 'card',
   position = 'bottom',
@@ -17,6 +20,27 @@ const {
   incentive,
   showBenefits = false
 } = Astro.props;
+
+// Localized strings for client-side alerts and form texts (minimal subset)
+const locale = getLocale(Astro.url.pathname);
+const t = getI18n(locale);
+const i18nNewsletter = {
+  forms: {
+    email_placeholder: t('common.forms.email_placeholder'),
+  },
+  actions: {
+    subscribe: t('common.actions.subscribe'),
+  },
+  status: {
+    sending: t('common.status.sending'),
+  },
+  success: {
+    newsletter_confirmation_sent: t('common.success.newsletter_confirmation_sent'),
+  },
+  errors: {
+    generic: t('common.errors.generic'),
+  },
+};
 
 // Default content based on position and context
 const defaultContent = {
@@ -49,6 +73,8 @@ const isBanner = variant === 'banner';
 ---
 
 <div class={`newsletter-cta ${variant} ${position} not-prose my-8`}>
+  <!-- Page-scoped i18n for this CTA instance -->
+  <script type="application/json" data-role="i18n-newsletter-cta">{JSON.stringify(i18nNewsletter)}</script>
   {isCard && (
     <div class="bg-gradient-to-br from-emerald-50 to-cyan-50 dark:from-emerald-900/20 dark:to-cyan-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-6 text-center">
       <div class="max-w-md mx-auto">
@@ -151,6 +177,10 @@ const isBanner = variant === 'banner';
         ['top', 'middle', 'bottom'].includes(cls)
       ) || 'bottom';
       
+      // Read localized messages for this CTA
+      const i18nEl = cta.querySelector('script[data-role="i18n-newsletter-cta"]');
+      const I18N = i18nEl ? JSON.parse(i18nEl.textContent || '{}') : {};
+
       // Create and insert newsletter form
       const formContainer = cta.querySelector('.newsletter-form-container');
       if (formContainer) {
@@ -159,7 +189,7 @@ const isBanner = variant === 'banner';
         const source = `blog_newsletter_cta_${position}`;
         
         // Insert Newsletter component dynamically
-        insertNewsletterForm(formContainer, compactVariant, source);
+        insertNewsletterForm(formContainer, compactVariant, source, I18N);
         
         // Track CTA view
         console.log(`[Analytics] Newsletter CTA view: ${variant} ${position} ${source}`);
@@ -167,13 +197,13 @@ const isBanner = variant === 'banner';
     });
   });
   
-  function insertNewsletterForm(container: Element, variant: string, source: string) {
+  function insertNewsletterForm(container: Element, variant: string, source: string, I18N: any) {
     // Create newsletter form HTML (simplified version of Newsletter component)
     const formHTML = `
       <form id="newsletter-cta-form-${source}" class="newsletter-cta-form flex gap-2 max-w-sm mx-auto" data-source="${source}">
         <input 
           type="email" 
-          placeholder="E-Mail-Adresse" 
+          placeholder="${I18N.forms?.email_placeholder || 'Email address'}" 
           required
           class="flex-1 px-3 py-2 text-sm border border-white/30 rounded-lg bg-white/10 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50"
         />
@@ -181,7 +211,7 @@ const isBanner = variant === 'banner';
           type="submit"
           class="px-4 py-2 bg-white text-emerald-600 font-medium text-sm rounded-lg hover:bg-emerald-50 focus:outline-none focus:ring-2 focus:ring-white/50 transition-colors duration-300"
         >
-          Abonnieren
+          ${I18N.actions?.subscribe || 'Subscribe'}
         </button>
       </form>
     `;
@@ -202,7 +232,7 @@ const isBanner = variant === 'banner';
         
         // Set loading state
         const originalText = submitButton.textContent;
-        submitButton.textContent = 'Wird gesendet...';
+        submitButton.textContent = I18N.status?.sending || 'Sending...';
         submitButton.disabled = true;
         
         try {
@@ -226,7 +256,7 @@ const isBanner = variant === 'banner';
                 <svg class="w-5 h-5 text-white mx-auto mb-1" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                 </svg>
-                <p class="text-xs text-white/90">Bestätigungs-E-Mail gesendet!</p>
+                <p class="text-xs text-white/90">${I18N.success?.newsletter_confirmation_sent || 'Confirmation email sent!'}</p>
               </div>
             `;
             
@@ -243,7 +273,7 @@ const isBanner = variant === 'banner';
           submitButton.disabled = false;
           
           // Show error (could be enhanced with proper error UI)
-          alert('Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.');
+          alert(I18N.errors?.generic || 'An error occurred. Please try again later.');
           
           // Track error
           console.log(`[Analytics] Newsletter CTA error: ${error instanceof Error ? error.message : 'unknown'}`);

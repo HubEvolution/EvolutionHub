@@ -1,5 +1,9 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import { getLocale } from '@/lib/i18n';
+
+const locale = getLocale(Astro.url.pathname);
+
 // Icons als SVG-Strings, um Abhängigkeiten zu vermeiden
 const ChevronDown = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 text-gray-500 transition-transform duration-200"><path d="m6 9 6 6 6-6"/></svg>';
 const SearchIcon = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 text-gray-400"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>';
@@ -166,7 +170,7 @@ const faqCategories = [
             Alle anzeigen
           </button>
           {faqCategories.map(category => (
-            <div key={category.id}>
+            <div>
               <button
                 class="px-4 py-2 rounded-full bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 font-medium text-sm hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200 flex items-center gap-2"
                 data-category={category.id}
@@ -272,7 +276,7 @@ const faqCategories = [
                   class="h-4 w-4 mt-1 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded"
                 >
                 <label for="faq-privacy" class="ml-2 block text-sm text-gray-700 dark:text-gray-300">
-                  Ich stimme der <a href="/datenschutz" class="text-emerald-600 hover:text-emerald-500 dark:text-emerald-400 dark:hover:text-emerald-300">Datenschutzerklärung</a> zu.
+                  Ich stimme der <a href={`/${locale}/datenschutz`} class="text-emerald-600 hover:text-emerald-500 dark:text-emerald-400 dark:hover:text-emerald-300">Datenschutzerklärung</a> zu.
                 </label>
               </div>
 

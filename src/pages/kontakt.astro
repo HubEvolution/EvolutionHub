@@ -98,7 +98,7 @@ const t = getI18n(locale);
                     class="h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded"
                   >
                   <label for="privacy-policy" class="ml-2 block text-sm text-gray-700 dark:text-gray-300">
-                    Ich stimme der <a href="/datenschutz" class="text-emerald-600 hover:text-emerald-500 dark:text-emerald-400 dark:hover:text-emerald-300">{t('pages.kontakt.form.privacy_policy.link_text') ?? 'Datenschutzerklärung'}</a> zu.
+                    Ich stimme der <a href={`/${locale}/datenschutz`} class="text-emerald-600 hover:text-emerald-500 dark:text-emerald-400 dark:hover:text-emerald-300">{t('pages.kontakt.form.privacy_policy.link_text') ?? 'Datenschutzerklärung'}</a> zu.
                   </label>
                 </div>
 

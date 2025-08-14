@@ -1,4 +1,5 @@
 ---
+import { getLocale } from '@/lib/i18n';
 // Lead Magnet Form Component - Optimiert für Conversion und UX
 interface Props {
   leadMagnetId: string;
@@ -21,6 +22,8 @@ const {
   variant = 'inline',
   size = 'md'
 } = Astro.props;
+
+const locale = getLocale(Astro.url.pathname);
 
 // Variant-spezifische Styles
 const variantStyles = {
@@ -160,7 +163,7 @@ const formId = `lead-magnet-form-${leadMagnetId}-${Math.random().toString(36).su
     <div class="text-center">
       <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
         Mit dem Absenden erklären Sie sich mit unserer 
-        <a href="/datenschutz" class="text-emerald-600 dark:text-emerald-400 hover:underline" target="_blank">
+        <a href={`/${locale}/datenschutz`} class="text-emerald-600 dark:text-emerald-400 hover:underline" target="_blank">
           Datenschutzerklärung
         </a> 
         einverstanden. Sie können sich jederzeit abmelden.
