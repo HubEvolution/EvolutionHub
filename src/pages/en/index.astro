@@ -7,7 +7,7 @@ const locale = getLocale(Astro.url.pathname);
 const t = getI18n(locale);
 ---
 
-<BaseLayout title={t('title') ?? 'Welcome to Evolution Hub'}>
+<BaseLayout title={t('pages.home.title') ?? 'Evolution Hub'}>
   <!-- Hero Section -->
   <section class="relative py-20 md:py-32 bg-gradient-to-br from-primary/5 to-purple-500/5 dark:from-gray-800 dark:to-gray-900 overflow-hidden">
     <div class="container mx-auto px-4 relative z-10">
@@ -57,27 +57,27 @@ const t = getI18n(locale);
     <div class="container mx-auto px-4">
       <div class="text-center mb-16">
         <h2 class="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-          {t('features.heading')}
+          {t('pages.home.features.heading')}
         </h2>
         <p class="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-          {t('features.subtitle')}
+          {t('pages.home.features.subtitle')}
         </p>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
         <div class="feature-card text-center p-6 bg-gray-50 dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md transition duration-300">
-          <div class="text-5xl mb-4 inline-block">{t('features.feature1.icon')}</div>
-          <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">{t('features.feature1.title')}</h3>
-          <p class="text-gray-600 dark:text-gray-300">{t('features.feature1.description')}</p>
+          <div class="text-5xl mb-4 inline-block">{t('pages.home.features.feature1.icon')}</div>
+          <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">{t('pages.home.features.feature1.title')}</h3>
+          <p class="text-gray-600 dark:text-gray-300">{t('pages.home.features.feature1.description')}</p>
         </div>
         <div class="feature-card text-center p-6 bg-gray-50 dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md transition duration-300">
-          <div class="text-5xl mb-4 inline-block">{t('features.feature2.icon')}</div>
-          <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">{t('features.feature2.title')}</h3>
-          <p class="text-gray-600 dark:text-gray-300">{t('features.feature2.description')}</p>
+          <div class="text-5xl mb-4 inline-block">{t('pages.home.features.feature2.icon')}</div>
+          <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">{t('pages.home.features.feature2.title')}</h3>
+          <p class="text-gray-600 dark:text-gray-300">{t('pages.home.features.feature2.description')}</p>
         </div>
         <div class="feature-card text-center p-6 bg-gray-50 dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md transition duration-300">
-          <div class="text-5xl mb-4 inline-block">{t('features.feature3.icon')}</div>
-          <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">{t('features.feature3.title')}</h3>
-          <p class="text-gray-600 dark:text-gray-300">{t('features.feature3.description')}</p>
+          <div class="text-5xl mb-4 inline-block">{t('pages.home.features.feature3.icon')}</div>
+          <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">{t('pages.home.features.feature3.title')}</h3>
+          <p class="text-gray-600 dark:text-gray-300">{t('pages.home.features.feature3.description')}</p>
         </div>
       </div>
     </div>
@@ -88,20 +88,20 @@ const t = getI18n(locale);
     <div class="container mx-auto px-4">
       <div class="text-center mb-16">
         <h2 class="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-          {t('testimonials.heading')}
+          {t('pages.home.testimonials.heading')}
         </h2>
         <p class="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-          {t('testimonials.subtitle')}
+          {t('pages.home.testimonials.subtitle')}
         </p>
       </div>
       <!-- Testimonial Slider/Carousel would go here -->
       <div class="max-w-4xl mx-auto flex flex-col md:flex-row items-center gap-8">
         <div class="text-center md:text-left">
           <p class="text-lg italic text-gray-700 dark:text-gray-200 mb-4">
-            "{t('testimonials.testimonial1.quote')}"
+            "{t('pages.home.testimonials.testimonial1.quote')}"
           </p>
-          <p class="font-bold text-gray-900 dark:text-white">- {t('testimonials.testimonial1.author')}</p>
-          <p class="text-sm text-gray-500 dark:text-gray-400">{t('testimonials.testimonial1.role')}</p>
+          <p class="font-bold text-gray-900 dark:text-white">- {t('pages.home.testimonials.testimonial1.author')}</p>
+          <p class="text-sm text-gray-500 dark:text-gray-400">{t('pages.home.testimonials.testimonial1.role')}</p>
         </div>
         <div class="md:w-3/5 flex justify-center md:justify-end">
           <img src="/images/generic-avatar.svg" alt="User Avatar" class="w-32 h-32 rounded-full border-4 border-primary shadow-lg">

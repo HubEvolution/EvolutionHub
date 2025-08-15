@@ -385,92 +385,14 @@ const isActive = (path: string): boolean => {
       console.log('[Header] ✅ Language dropdown initialized successfully');
     }
     
-    // === HEADER SCROLL EFFECT FUNCTIONALITY ===
-    function initHeaderScrollEffect() {
-      console.log('[Header] 🔄 Initializing scroll effect functionality');
-      
-      const header = document.getElementById('site-header');
-      if (!header) {
-        console.error('[Header] ❌ Header element (#site-header) not found');
-        return;
-      }
-      
-      let lastScrollY = window.scrollY;
-      let ticking = false;
-      const scrollThreshold = 60;
-      const scrollDeltaThreshold = 5;
-      
-      // Initialize header state
-      header.classList.add('header-visible');
-      header.classList.remove('header-hidden');
-      
-      function handleScroll() {
-        const currentScrollY = window.scrollY;
-        const scrollDelta = currentScrollY - lastScrollY;
-        const scrollDirection = scrollDelta > 0 ? 'down' : 'up';
-        
-        console.log('[HeaderScroll] 📊 Scroll detected:', {
-          currentY: currentScrollY,
-          lastY: lastScrollY,
-          delta: scrollDelta,
-          direction: scrollDirection
-        });
-        
-        // Above threshold - keep header visible
-        if (currentScrollY <= scrollThreshold) {
-          showHeader();
-          lastScrollY = currentScrollY;
-          ticking = false;
-          return;
-        }
-        
-        // Check if scrolled enough
-        if (Math.abs(scrollDelta) < scrollDeltaThreshold) {
-          ticking = false;
-          return;
-        }
-        
-        // Hide on scroll down, show on scroll up
-        if (scrollDirection === 'down') {
-          hideHeader();
-        } else {
-          showHeader();
-        }
-        
-        lastScrollY = currentScrollY;
-        ticking = false;
-      }
-      
-      function showHeader() {
-        header.classList.add('header-visible');
-        header.classList.remove('header-hidden');
-        console.log('[HeaderScroll] 👆 Header shown');
-      }
-      
-      function hideHeader() {
-        header.classList.add('header-hidden');
-        header.classList.remove('header-visible');
-        console.log('[HeaderScroll] 👇 Header hidden');
-      }
-      
-      // Scroll listener with throttling
-      window.addEventListener('scroll', function() {
-        if (!ticking) {
-          requestAnimationFrame(function() {
-            handleScroll();
-          });
-          ticking = true;
-        }
-      }, { passive: true });
-      
-      console.log('[Header] ✅ Scroll effect initialized successfully');
-    }
+    // Scroll effect is handled by the HeaderScroll.astro Island.
+    // Inline scroll logic was removed to avoid duplication and conflicts.
     
     // Initialize all modules
     try {
       initMobileMenu();
       initLanguageDropdown();
-      initHeaderScrollEffect();
+      // Scroll effect handled by HeaderScroll.astro
       console.log('[Header] 🎉 All header functionality initialized successfully');
     } catch (error) {
       console.error('[Header] ❌ Failed to initialize header scripts:', error);

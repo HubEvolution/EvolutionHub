@@ -81,7 +81,10 @@ export const POST = async (context: APIContext) => {
         if (token && typeof token === 'string') {
           tokenForError = token;
         }
-      } catch {}
+      } catch (e) {
+        // Non-fatal: token extraction is best-effort for error context only
+        console.debug('Reset password: token extraction failed', e);
+      }
       throw ServiceError.validation(
         'Die eingegebenen Daten sind ungültig',
         { validationErrors: 'Formatierungsfehler' }
@@ -116,7 +119,10 @@ export const POST = async (context: APIContext) => {
         if (tokenValue && typeof tokenValue === 'string') {
           tokenForError = tokenValue;
         }
-      } catch {}
+      } catch (e) {
+        // Non-fatal: token extraction is best-effort for error context only
+        console.debug('Reset password: token extraction in error handler failed', e);
+      }
     }
 
     const baseUrl = tokenForError

@@ -1,20 +1,5 @@
-// Import locale JSON files
-import de from '../locales/de.json';
-import en from '../locales/en.json';
-
+// i18n: JSON imports and legacy translation function removed.
 export type Locale = 'de' | 'en';
-
-// Locale data structure
-const locales = {
-  de,
-  en
-} as const;
-
-// Translation interface
-interface TranslationFunction {
-  translate: (key: string) => string;
-  currentLang: Locale;
-}
 
 /**
  * Returns the locale based on the URL pathname.
@@ -40,48 +25,6 @@ export function getLocale(pathname: string): Locale {
   return 'de';
 }
 
-/**
- * Helper function to extract language from pathname (internal use)
- */
-const getLangFromPath = (pathname: string): Locale => {
-  const parts = pathname.split('/').filter(Boolean);
-  if (parts.length > 0 && ['de', 'en'].includes(parts[0])) {
-    return parts[0] as Locale;
-  }
-  return 'de'; // Fallback to German
-};
-
-/**
- * Main i18n function - provides translation functionality
- * @param pathname - URL pathname to determine language
- * @returns Translation function with translate method and current language
- */
-export const i18n = (pathname?: string): TranslationFunction => {
-  // Determine language from pathname or use default
-  const lang = pathname ? getLangFromPath(pathname) : 'de';
-  const translations = locales[lang] || locales.de; // Fallback to German
-
-  return {
-    translate: (key: string): string => {
-      // Traverse object to get the translation
-      const keys = key.split('.');
-      let value: any = translations;
-      
-      for (const k of keys) {
-        if (value && typeof value === 'object' && Object.prototype.hasOwnProperty.call(value, k)) {
-          value = value[k];
-        } else {
-          // Return key if translation not found, or return a placeholder/error
-          console.warn(`Translation key "${key}" not found for language "${lang}".`);
-          return `[${key}]`; // Return key as placeholder if not found
-        }
-      }
-      
-      return typeof value === 'string' ? value : `[${key}]`;
-    },
-    currentLang: lang
-  };
-};
 
 /**
  * Navigates to the same page with the given locale.
@@ -112,6 +55,3 @@ export function navigateLocale(locale: Locale): void {
   url.pathname = newPath;
   window.location.assign(url.toString());
 }
-
-// Default export for compatibility with existing imports
-export default { i18n, getLocale, navigateLocale };
