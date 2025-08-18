@@ -71,10 +71,15 @@ if (locals.user) {
         const errorText = await response.text();
         errorMessageDiv.textContent = errorText;
         errorMessageDiv.classList.remove('hidden');
+        // Also show a toast for better visibility
+        const { default: notify } = await import('@/lib/notify');
+        notify.error('Registration failed.');
       }
     } catch (error) {
       errorMessageDiv.textContent = 'An unexpected error occurred.';
       errorMessageDiv.classList.remove('hidden');
+      const { default: notify } = await import('@/lib/notify');
+      notify.error('Registration failed due to a network error.');
     }
   });
 </script>

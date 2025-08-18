@@ -39,10 +39,9 @@ if (locals.user) {
 </AuthLayout>
 
 <script type="module">
-  import notify from '@/lib/notify';
-
-  (() => {
+  (async () => {
     try {
+      const { default: notify } = await import('@/lib/notify');
       const url = new URL(window.location.href);
       const params = url.searchParams;
       const hasAny = params.has('loggedOut') || params.has('success') || params.has('error');

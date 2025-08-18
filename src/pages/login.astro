@@ -41,12 +41,23 @@ if (locals.user) {
 <script type="module">
   (async () => {
     try {
-      const { default: notify } = await import('@/lib/notify');
+      // Warte bis der Sonner-Toaster gemountet wurde, um verlorene Toasts zu vermeiden
+      const waitForToaster = async (timeout = 4000) => {
+        const start = Date.now();
+        while (Date.now() - start < timeout) {
+          if (document.querySelector('[data-sonner-toaster]')) return true;
+          await new Promise((r) => setTimeout(r, 50));
+        }
+        return false;
+      };
 
       const url = new URL(window.location.href);
       const params = url.searchParams;
       const hasAny = params.has('loggedOut') || params.has('success') || params.has('error');
       if (!hasAny) return;
+
+      await waitForToaster();
+      const { default: notify } = await import('@/lib/notify');
 
       const isGerman = window.location.pathname.startsWith('/de');
 

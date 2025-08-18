@@ -209,6 +209,9 @@ if (error) {
   </div>
 </AuthLayout>
 
+<!-- Add data attribute before scripts so it's available when scripts run -->
+<div data-page-state={pageState} style="display: none;"></div>
+
 <script>
   // Auto-redirect to dashboard after successful verification
   const pageState = document.querySelector('[data-page-state]')?.getAttribute('data-page-state');
@@ -246,9 +249,6 @@ if (error) {
     document.addEventListener('scroll', cancelAutoRedirect);
   }
 </script>
-
-<!-- Add data attribute for script -->
-<div data-page-state={pageState} style="display: none;"></div>
 
 <script>
   (() => {
