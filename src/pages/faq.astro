@@ -1,8 +1,9 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import { getI18n } from '@/utils/i18n';
 import { getLocale } from '@/lib/i18n';
-
-const locale = getLocale(Astro.url.pathname);
+import deTranslations from '../locales/de.json';
+import enTranslations from '../locales/en.json';
 
 // Icons als SVG-Strings, um Abhängigkeiten zu vermeiden
 const ChevronDown = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 text-gray-500 transition-transform duration-200"><path d="m6 9 6 6 6-6"/></svg>';
@@ -19,126 +20,36 @@ const categoryIcons: CategoryIcons = {
   technik: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 mr-2"><rect width="20" height="14" x="2" y="5" rx="2"/><path d="M2 10h20"/></svg>'
 };
 
-// FAQ-Daten
-const faqCategories = [
-  {
-    id: 'allgemein',
-    title: 'Allgemeine Fragen',
-    icon: 'info',
-    items: [
-      {
-        question: 'Was ist EvolutionHub?',
-        answer: 'EvolutionHub ist eine Plattform für moderne Webentwicklung mit Fokus auf Performance, Benutzerfreundlichkeit und moderne Technologien.'
-      },
-      {
-        question: 'Welche Technologien werden verwendet?',
-        answer: 'Wir verwenden Astro für das Frontend, TypeScript für typsichere Entwicklung, und Tailwind CSS für das Styling. Unser Backend basiert auf modernen JavaScript/TypeScript-Technologien.'
-      },
-      {
-        question: 'Ist ein Konto erforderlich?',
-        answer: 'Für die meisten Funktionen benötigen Sie ein Konto. Einige Bereiche wie die Dokumentation und Blogbeiträge sind auch ohne Konto einsehbar.'
-      },
-      {
-        question: 'Wie wird der Datenschutz gewährleistet?',
-        answer: 'Wir legen großen Wert auf Datenschutz und Sicherheit. Alle Daten werden verschlüsselt übertragen und gemäß der DSGVO verarbeitet.'
-      },
-      {
-        question: 'Wann ist der Support erreichbar?',
-        answer: 'Unser Support-Team ist von Montag bis Freitag, 9 bis 18 Uhr, für Sie erreichbar.'
-      },
-      {
-        question: 'Ist EvolutionHub auch mobil nutzbar?',
-        answer: 'Ja, unsere Plattform ist für mobile Geräte optimiert und kann auf Smartphones und Tablets genutzt werden.'
-      },
-      {
-        question: 'Ist die Plattform barrierefrei?',
-        answer: 'Wir arbeiten kontinuierlich daran, die Barrierefreiheit unserer Plattform zu verbessern, um sie für alle Nutzer zugänglich zu machen.'
-      }
-    ]
-  },
-  {
-    id: 'konto',
-    title: 'Konto & Abonnement',
-    icon: 'konto',
-    items: [
-      {
-        question: 'Wie erstelle ich ein Konto?',
-        answer: 'Klicken Sie auf "Registrieren" in der oberen Navigation und folgen Sie den Anweisungen. Sie benötigen eine gültige E-Mail-Adresse.'
-      },
-      {
-        question: 'Wie kann ich mein Passwort zurücksetzen?',
-        answer: 'Auf der Anmeldeseite finden Sie einen Link "Passwort vergessen". Geben Sie Ihre E-Mail-Adresse ein und folgen Sie den Anweisungen in der erhaltenen E-Mail.'
-      },
-      {
-        question: 'Wie kündige ich mein Abonnement?',
-        answer: 'Gehen Sie zu Ihren Kontoeinstellungen und wählen Sie "Abonnement verwalten". Dort können Sie Ihr Abonnement kündigen.'
-      },
-      {
-        question: 'Welche Abonnement-Pläne gibt es?',
-        answer: 'Wir bieten verschiedene Pläne an, die auf unterschiedliche Bedürfnisse zugeschnitten sind. Details finden Sie auf unserer Pricing-Seite.'
-      },
-      {
-        question: 'Welche Zahlungsmethoden werden akzeptiert?',
-        answer: 'Wir akzeptieren Kreditkarten, PayPal und SEPA-Lastschriftverfahren.'
-      },
-      {
-        question: 'Wie kann ich mein Konto wiederherstellen, wenn ich den Zugang verliere?',
-        answer: 'Nutzen Sie die Passwort-zurücksetzen-Funktion oder kontaktieren Sie unseren Support für weitere Hilfe.'
-      },
-      {
-        question: 'Wie verwalte ich meine Benachrichtigungseinstellungen?',
-        answer: 'In Ihren Kontoeinstellungen können Sie festlegen, welche Benachrichtigungen Sie erhalten möchten.'
-      }
-    ]
-  },
-  {
-    id: 'technik',
-    title: 'Technische Fragen',
-    icon: 'technik',
-    items: [
-      {
-        question: 'Welche Browser werden unterstützt?',
-        answer: 'Wir unterstützen die aktuellen Versionen von Chrome, Firefox, Safari, und Edge. Ältere Browser werden möglicherweise nicht vollständig unterstützt.'
-      },
-      {
-        question: 'Wie kann ich die API nutzen?',
-        answer: 'Unsere API-Dokumentation finden Sie unter /api-docs. Sie benötigen einen API-Schlüssel, den Sie in Ihren Kontoeinstellungen generieren können.'
-      },
-      {
-        question: 'Wie melde ich einen Fehler?',
-        answer: 'Bitte nutzen Sie unser Fehlerformular unter /kontakt oder erstellen Sie ein Issue in unserem GitHub-Repository.'
-      },
-      {
-        question: 'Gibt es Nutzungslimits für die API?',
-        answer: 'Ja, unsere API hat Nutzungslimits, um eine faire Verteilung der Ressourcen sicherzustellen. Details finden Sie in der API-Dokumentation.'
-      },
-      {
-        question: 'Kann ich EvolutionHub mit Drittanbieter-Tools integrieren?',
-        answer: 'Ja, wir bieten Integrationen und Webhooks für verschiedene Drittanbieter-Services an.'
-      },
-      {
-        question: 'Welche Systemanforderungen gibt es?',
-        answer: 'Für die Nutzung empfehlen wir aktuelle Browser und eine stabile Internetverbindung.'
-      },
-      {
-        question: 'Gibt es Backup- und Wiederherstellungsoptionen?',
-        answer: 'Ja, Ihre Daten werden regelmäßig gesichert und können bei Bedarf wiederhergestellt werden.'
-      }
-    ]
-  }
-];
+// Locale + i18n
+const locale = getLocale(Astro.url.pathname);
+const t = getI18n(locale);
+
+// Helper to build locale-aware internal links
+const localizePath = (path: string) => (locale === 'en' ? `/en${path}` : path);
+
+// Build FAQ categories dynamically from locale JSON
+const dict = locale === 'de' ? deTranslations : enTranslations;
+const categoriesData = (dict?.faq?.categories ?? {}) as Record<string, any>;
+const orderedIds = ['allgemein', 'konto', 'technik'].filter((id) => id in categoriesData);
+const faqCategories = orderedIds.map((id) => ({
+  id,
+  title: categoriesData[id]?.title ?? id,
+  icon: id,
+  items: (categoriesData[id]?.items ?? []) as Array<{ question: string; answer: string }>,
+}));
+
 ---
 
-<BaseLayout title="Häufig gestellte Fragen">
+<BaseLayout title={t('faq.title')}>
   <!-- Hero Section -->
   <section class="py-16 md:py-24 bg-gradient-to-br from-primary/5 to-purple-500/5 dark:from-gray-800 dark:to-gray-900">
     <div class="container mx-auto px-4">
       <div class="max-w-4xl mx-auto text-center">
         <h1 class="text-4xl md:text-5xl font-bold mb-6 text-gray-900 dark:text-white">
-          Häufig gestellte Fragen
+          {t('faq.hero.heading')}
         </h1>
         <p class="text-xl text-gray-600 dark:text-gray-300">
-          Finden Sie Antworten auf die am häufigsten gestellten Fragen
+          {t('faq.hero.subtitle')}
         </p>
 
         <!-- Suchleiste -->
@@ -147,7 +58,7 @@ const faqCategories = [
             <input
               type="text"
               id="faq-search"
-              placeholder="Suchen Sie nach einer Frage oder einem Stichwort..."
+              placeholder={t('faq.search_placeholder')}
               class="w-full px-5 py-4 pr-12 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200"
             />
             <span class="absolute right-4 top-1/2 transform -translate-y-1/2" set:html={SearchIcon} />
@@ -167,7 +78,7 @@ const faqCategories = [
             class="px-4 py-2 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400 font-medium text-sm transition-colors duration-200"
             data-category="all"
           >
-            Alle anzeigen
+            {t('faq.categories.all')}
           </button>
           {faqCategories.map(category => (
             <div>
@@ -226,8 +137,10 @@ const faqCategories = [
         <!-- No Results -->
         <div id="no-results" class="hidden text-center py-10">
           <div class="text-6xl mb-4">🔍</div>
-          <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Keine Ergebnisse gefunden</h3>
-          <p class="text-gray-600 dark:text-gray-400">Versuchen Sie es mit einem anderen Suchbegriff oder durchsuchen Sie unsere <a href="/kontakt" class="text-emerald-600 hover:text-emerald-500 dark:text-emerald-400 dark:hover:text-emerald-300 font-medium">Kontaktseite</a>.</p>
+          <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">{t('faq.no_results.title')}</h3>
+          <p class="text-gray-600 dark:text-gray-400">
+            {t('faq.no_results.description_before')} <a href={localizePath('/kontakt')} class="text-emerald-600 hover:text-emerald-500 dark:text-emerald-400 dark:hover:text-emerald-300 font-medium">{t('faq.no_results.description_link_text')}</a>{t('faq.no_results.description_after')}
+          </p>
         </div>
       </div>
     </div>
@@ -240,12 +153,12 @@ const faqCategories = [
         <div class="grid md:grid-cols-2">
           <!-- Contact Form -->
           <div class="p-8 md:p-10">
-            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Frage nicht gefunden?</h2>
-            <p class="text-gray-600 dark:text-gray-300 mb-6">Kein Problem! Senden Sie uns einfach eine Nachricht und wir melden uns schnellstmöglich bei Ihnen zurück.</p>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">{t('pages.kontakt.form.heading')}</h2>
+            <p class="text-gray-600 dark:text-gray-300 mb-6">{t('pages.kontakt.hero.subtitle')}</p>
 
             <form class="space-y-4">
               <div>
-                <label for="faq-email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Ihre E-Mail</label>
+                <label for="faq-email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('pages.kontakt.form.fields.email.label')}</label>
                 <input
                   type="email"
                   id="faq-email"
@@ -256,14 +169,14 @@ const faqCategories = [
               </div>
 
               <div>
-                <label for="faq-message" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Ihre Frage</label>
+                <label for="faq-message" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('pages.kontakt.form.fields.message.label')}</label>
                 <textarea
                   id="faq-message"
                   name="message"
                   rows="4"
                   required
                   class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition duration-200"
-                  placeholder="Beschreiben Sie Ihr Anliegen..."
+                  placeholder={t('pages.kontakt.form.fields.message.placeholder')}
                 ></textarea>
               </div>
 
@@ -276,7 +189,7 @@ const faqCategories = [
                   class="h-4 w-4 mt-1 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded"
                 >
                 <label for="faq-privacy" class="ml-2 block text-sm text-gray-700 dark:text-gray-300">
-                  Ich stimme der <a href={`/${locale}/datenschutz`} class="text-emerald-600 hover:text-emerald-500 dark:text-emerald-400 dark:hover:text-emerald-300">Datenschutzerklärung</a> zu.
+                  {t('pages.kontakt.form.privacy_policy.agree_prefix')}<a href={localizePath('/datenschutz')} class="text-emerald-600 hover:text-emerald-500 dark:text-emerald-400 dark:hover:text-emerald-300">{t('pages.kontakt.form.privacy_policy.link_text')}</a>{t('pages.kontakt.form.privacy_policy.agree_suffix')}
                 </label>
               </div>
 
@@ -285,7 +198,7 @@ const faqCategories = [
                   type="submit"
                   class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition duration-200"
                 >
-                  Nachricht senden
+                  {t('pages.kontakt.form.submit_button')}
                 </button>
               </div>
             </form>
@@ -295,10 +208,8 @@ const faqCategories = [
           <div class="bg-gradient-to-br from-emerald-100 to-cyan-100 dark:from-gray-800 dark:to-gray-900 p-8 md:p-10 flex flex-col justify-center">
             <div class="space-y-6">
               <div>
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Kontaktinformationen</h3>
-                <p class="text-gray-600 dark:text-gray-300 text-sm">
-                  Unser Support-Team ist für Sie da. Schreiben Sie uns oder rufen Sie uns an.
-                </p>
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">{t('pages.kontakt.info.heading')}</h3>
+                <p class="text-gray-600 dark:text-gray-300 text-sm">{t('pages.kontakt.info.subtitle')}</p>
               </div>
 
               <div class="space-y-4">
@@ -309,8 +220,8 @@ const faqCategories = [
                     </svg>
                   </div>
                   <div class="ml-4">
-                    <p class="text-sm font-medium text-gray-900 dark:text-white">E-Mail</p>
-                    <a href="mailto:support@evolutionhub.de" class="text-sm text-emerald-600 hover:text-emerald-500 dark:text-emerald-400 dark:hover:text-emerald-300">support@evolutionhub.de</a>
+                    <p class="text-sm font-medium text-gray-900 dark:text-white">{t('pages.kontakt.info.email_label')}</p>
+                    <a href={`mailto:${t('pages.kontakt.info.email_address')}`} class="text-sm text-emerald-600 hover:text-emerald-500 dark:text-emerald-400 dark:hover:text-emerald-300">{t('pages.kontakt.info.email_address')}</a>
                   </div>
                 </div>
 
@@ -321,16 +232,16 @@ const faqCategories = [
                     </svg>
                   </div>
                   <div class="ml-4">
-                    <p class="text-sm font-medium text-gray-900 dark:text-white">Support-Hotline</p>
-                    <p class="text-sm text-gray-600 dark:text-gray-300">Mo-Fr, 9-18 Uhr</p>
-                    <a href="tel:+4980012345678" class="text-sm text-emerald-600 hover:text-emerald-500 dark:text-emerald-400 dark:hover:text-emerald-300">0800 12345678</a>
+                    <p class="text-sm font-medium text-gray-900 dark:text-white">{t('pages.kontakt.info.phone_label')}</p>
+                    <p class="text-sm text-gray-600 dark:text-gray-300">{t('pages.kontakt.info.support_hours')}</p>
+                    <a href={`tel:${t('pages.kontakt.info.phone_number')}`} class="text-sm text-emerald-600 hover:text-emerald-500 dark:text-emerald-400 dark:hover:text-emerald-300">{t('pages.kontakt.info.phone_number')}</a>
                   </div>
                 </div>
               </div>
 
               <div class="pt-4">
                 <p class="text-xs text-gray-500 dark:text-gray-400">
-                  Durchschnittliche Antwortzeit: <span class="font-medium">innerhalb von 24h</span> an Werktagen.
+                  {t('pages.kontakt.info.response_time_label')} <span class="font-medium">{t('pages.kontakt.info.response_time')}</span> {t('pages.kontakt.info.response_time_unit')}
                 </p>
               </div>
             </div>
@@ -341,6 +252,6 @@ const faqCategories = [
   </section>
 
   <script>
-    // TODO: Add i18n for contact page content
+    // Client-side search filtering (text content localized on SSR)
   </script>
 </BaseLayout>

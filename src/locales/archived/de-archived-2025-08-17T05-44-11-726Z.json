@@ -1,0 +1,14 @@
+{
+  "common.resetPassword": {
+    "title": "",
+    "form": {
+      "heading": "",
+      "fields": {
+        "password": {
+          "label": ""
+        }
+      },
+      "submit_button": ""
+    }
+  }
+}

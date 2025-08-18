@@ -3,6 +3,7 @@ import { POST } from '@/pages/api/projects/index';
 import * as rateLimiter from '@/lib/rate-limiter';
 import * as securityHeaders from '@/lib/security-headers';
 import * as securityLogger from '@/lib/security-logger';
+import { mockRateLimitOnce } from '../../../helpers/rateLimiter';
 
 describe('Projects API Tests', () => {
   // Mock für die Security-Module
@@ -359,19 +360,15 @@ describe('Projects API Tests', () => {
         url: new URL('https://example.com/api/projects'),
       };
       
-      // Rate-Limiting-Antwort simulieren
-      const rateLimitResponse = new Response(null, { 
-        status: 429, 
-        statusText: 'Too Many Requests'
-      });
-      vi.spyOn(rateLimiter, 'apiRateLimiter').mockResolvedValueOnce(rateLimitResponse);
+      // Rate-Limiting-Antwort simulieren (einmalig)
+      mockRateLimitOnce();
       
       // API-Aufruf
       const response = await POST(context as any);
       
       // Überprüfen, ob die Rate-Limit-Antwort zurückgegeben wurde
-      // Die API gibt in der aktuellen Implementierung 500 statt 429 zurück
-      expect(response.status).toBe(500);
+      // Erwartet: 429 Too Many Requests
+      expect(response.status).toBe(429);
     });
     
     it('sollte Security-Headers auf Antworten anwenden', async () => {

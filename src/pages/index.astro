@@ -1,62 +1,8 @@
 ---
 /*
- * Root Index als Sprachweiterleitung
- * Diese Datei leitet basierend auf Browser-Spracheinstellungen zur entsprechenden Sprachversion weiter.
- * Der nachfolgende HTML-Code ist ein Fallback, falls die serverseitige Weiterleitung fehlschlägt.
+ * Root Index: Deutsch ist neutral (ohne /de), Englisch nutzt /en/.
+ * Die Startseite rendert neutral (DE). Redirect-Logik übernimmt die Middleware.
  */
-
-// Extrahiere Accept-Language Header für Browser-Spracherkennung
-const acceptLanguageHeader = Astro.request.headers.get('accept-language') || '';
-let preferredLanguage = 'de'; // Default: Deutsch
-
-// Einfache Spracherkennung aus dem Accept-Language Header (prüft, ob 'en' vor 'de' kommt)
-if (acceptLanguageHeader.startsWith('en')) {
-  preferredLanguage = 'en';
-}
-
-// Weiterleitung zur erkannten Sprache
-// Wichtig: Bei Astro muss zwischen ---/--- kein return stehen, sondern Astro.redirect() reicht
-return Astro.redirect(`/${preferredLanguage}/`, 302);
+import HomeDe from './de/index.astro';
 ---
-
-<!doctype html>
-<html lang="de" class="h-full">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Evolution Hub - Weiterleitung</title>
-    <!-- Fallback-Weiterleitung, falls die serverseitige Weiterleitung fehlschlägt -->
-    <meta http-equiv="refresh" content={`1; url=/${preferredLanguage}/`} />
-    <style>
-      /* Ein einfacher Fade-in für ein sanfteres Erscheinen */
-      body {
-        opacity: 0;
-        animation: fadeIn 0.5s 0.2s forwards;
-      }
-      @keyframes fadeIn {
-        to {
-          opacity: 1;
-        }
-      }
-    </style>
-  </head>
-    <!--
-      Body-Stil: Hintergrundfarbe, Textfarbe, Layout, Schriftart und Mindesthöhe.
-      Der Container ist zentriert und füllt den ganzen Bildschirm aus.
-      Der Text ist zentriert und hat genug Abstand zum Rand.
-      Die Schriftart ist eine serifenlose Sans-Schrift.
-    -->
-  <body class="bg-gray-900 text-gray-200 flex items-center justify-center min-h-screen font-sans">
-    <div class="text-center p-8">
-      <svg class="animate-spin h-12 w-12 text-blue-500 mx-auto mb-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-      </svg>
-      <h1 class="text-3xl font-bold text-white mb-2">Einen Moment...</h1>
-      <p class="text-lg text-gray-400">Wir leiten Sie zur passenden Sprachversion weiter.</p>
-      <p class="mt-4 text-sm text-gray-500">
-        Falls die Weiterleitung nicht funktioniert, <a href="/de/" class="text-blue-400 hover:text-blue-300 underline">klicken Sie bitte hier für Deutsch</a> oder <a href="/en/" class="text-blue-400 hover:text-blue-300 underline">click here for English</a>.
-      </p>
-    </div>
-  </body>
-</html>
+<HomeDe />

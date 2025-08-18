@@ -388,6 +388,68 @@ export class AuthServiceImpl extends AbstractBaseService implements AuthService 
       return true;
     });
   }
+
+  /**
+   * Ändert das Passwort eines eingeloggten Benutzers nach Verifizierung des aktuellen Passworts
+   *
+   * @param userId ID des Benutzers
+   * @param currentPassword Aktuelles Passwort
+   * @param newPassword Neues Passwort
+   * @param ipAddress Optionale IP-Adresse für Security-Logging
+   * @returns true, wenn erfolgreich
+   */
+  async changePassword(
+    userId: string,
+    currentPassword: string,
+    newPassword: string,
+    ipAddress?: string
+  ): Promise<boolean> {
+    return this.withTransaction(async (db) => {
+      const user = await db.prepare('SELECT id, password_hash, email, username FROM users WHERE id = ?')
+        .bind(userId)
+        .first<User>();
+
+      if (!user || !user.password_hash) {
+        logAuthFailure(ipAddress, { reason: 'user_not_found_or_no_password_hash', userId });
+        throw new ServiceError(
+          'Benutzer nicht gefunden oder Passwort nicht gesetzt',
+          ServiceErrorType.AUTHENTICATION,
+          { reason: 'user_not_found' }
+        );
+      }
+
+      // Gleiches Passwort verhindern (schneller Check ohne Hashing)
+      if (currentPassword === newPassword) {
+        throw new ServiceError(
+          'Das neue Passwort darf nicht mit dem aktuellen übereinstimmen',
+          ServiceErrorType.VALIDATION,
+          { reason: 'same_password' }
+        );
+      }
+
+      // Aktuelles Passwort verifizieren
+      const valid = await compare(currentPassword, user.password_hash);
+      if (!valid) {
+        logAuthFailure(ipAddress, { reason: 'invalid_current_password', userId });
+        throw new ServiceError(
+          'Aktuelles Passwort ist falsch',
+          ServiceErrorType.AUTHENTICATION,
+          { reason: 'invalid_current_password' }
+        );
+      }
+
+      // Neues Passwort hashen und aktualisieren
+      const newHash = await hash(newPassword, BCRYPT_COST);
+      await db.prepare('UPDATE users SET password_hash = ? WHERE id = ?')
+        .bind(newHash, userId)
+        .run();
+
+      // Erfolgreiche Passwortänderung protokollieren
+      logAuthSuccess(userId, ipAddress, { action: 'change_password' });
+
+      return true;
+    });
+  }
 }
 
 /**

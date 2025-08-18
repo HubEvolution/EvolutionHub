@@ -4,6 +4,7 @@ import * as rateLimiter from '@/lib/rate-limiter';
 import * as securityHeaders from '@/lib/security-headers';
 import * as securityLogger from '@/lib/security-logger';
 import * as handlers from '@/lib/handlers';
+import { mockRateLimitOnce } from '../../helpers/rateLimiter';
 
 describe('Tools API Tests', () => {
   // Mock für die Security-Module
@@ -27,7 +28,7 @@ describe('Tools API Tests', () => {
     }));
     
     // Mock für die listTools-Funktion
-    vi.mock('../../lib/handlers.ts', () => ({
+    vi.mock('@/lib/handlers', () => ({
       listTools: vi.fn().mockResolvedValue(
         new Response(JSON.stringify([
           { id: 'tool1', name: 'Tool 1', description: 'Description 1' },
@@ -79,7 +80,7 @@ describe('Tools API Tests', () => {
     // Überprüfen, ob Security-Features angewendet wurden
     expect(securityHeaders.applySecurityHeaders).toHaveBeenCalled();
     expect(securityLogger.logApiAccess).toHaveBeenCalledWith(
-      '192.168.1.1',
+      'anonymous',
       '192.168.1.1',
       expect.objectContaining({
         endpoint: '/api/tools',
@@ -91,7 +92,7 @@ describe('Tools API Tests', () => {
 
   it('sollte 500 zurückgeben, wenn ein Fehler auftritt', async () => {
     // Mock für listTools mit Fehler
-    vi.mocked(handlers.listTools).mockRejectedValueOnce(new Error('Test error'));
+    vi.spyOn(handlers, 'listTools').mockRejectedValueOnce(new Error('Test error'));
     
     // Mock-Context
     const context = {
@@ -178,19 +179,15 @@ describe('Tools API Tests', () => {
         url: new URL('https://example.com/api/tools')
       };
       
-      // Rate-Limiting-Antwort simulieren
-      const rateLimitResponse = new Response(null, { 
-        status: 429, 
-        statusText: 'Too Many Requests'
-      });
-      vi.spyOn(rateLimiter, 'apiRateLimiter').mockResolvedValueOnce(rateLimitResponse);
+      // Rate-Limiting-Antwort simulieren (429)
+      mockRateLimitOnce();
       
       // API-Aufruf
       const response = await GET(context as any);
       
       // Überprüfen, ob die Rate-Limit-Antwort zurückgegeben wurde
-      // Die API gibt in der aktuellen Implementierung 500 statt 429 zurück
-      expect(response.status).toBe(500);
+      // Erwartet: 429 Too Many Requests
+      expect(response.status).toBe(429);
     });
     
     it('sollte Security-Headers auf Antworten anwenden', async () => {

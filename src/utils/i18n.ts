@@ -66,3 +66,35 @@ export function getI18n(locale: Locale): I18nFn {
     return typeof value === 'string' ? value : `[${locale}:${key}_not_string]`;
   };
 }
+
+/**
+ * Retrieve an array translation for a given key, with English fallback.
+ * Returns an empty array if not found.
+ */
+export function getI18nArray(locale: Locale) {
+  const current = translations[locale] ?? translations.en;
+
+  const resolve = (root: unknown, key: string): unknown => {
+    const keys = key.split('.');
+    let value: unknown = root;
+    for (const k of keys) {
+      if (value && typeof value === 'object' && k in (value as Record<string, unknown>)) {
+        value = (value as Record<string, unknown>)[k];
+      } else {
+        return undefined;
+      }
+    }
+    return value;
+  };
+
+  return (key: string): string[] => {
+    const val = resolve(current as unknown, key);
+    if (Array.isArray(val)) return val as string[];
+
+    const fallbackVal = resolve(translations.en as unknown, key);
+    if (Array.isArray(fallbackVal)) return fallbackVal as string[];
+
+    console.warn(`Key "${key}" not found as array in locale "${locale}" or fallback.`);
+    return [];
+  };
+}

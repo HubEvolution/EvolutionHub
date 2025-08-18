@@ -39,6 +39,19 @@ Object.defineProperty(window, 'matchMedia', {
   })),
 });
 
+// Ensure a base URL is available for code that constructs URLs in tests
+if (!process.env.BASE_URL) {
+  process.env.BASE_URL = 'http://localhost';
+}
+
+// Provide a global mock for the security logger to avoid missing export errors in tests
+vi.mock('@/lib/security-logger', () => ({
+  logApiAccess: vi.fn(),
+  logApiError: vi.fn(),
+  logAuthFailure: vi.fn(),
+  logUserEvent: vi.fn(),
+}));
+
 // Run cleanup after each test case
 afterEach(() => {
   cleanup();

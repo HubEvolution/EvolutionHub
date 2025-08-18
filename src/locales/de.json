@@ -27,181 +27,6 @@
     },
     "forms": {
       "email_placeholder": "E-Mail-Adresse"
-    },
-    "login": {
-      "title": "Anmelden",
-      "form": {
-        "heading": "Melden Sie sich bei Ihrem Konto an",
-        "fields": {
-          "email": {
-            "label": "E-Mail"
-          },
-          "password": {
-            "label": "Passwort"
-          }
-        },
-        "forgot_password_link": "Passwort vergessen?",
-        "submit_button": "Anmelden",
-        "no_account_prompt": "Noch kein Konto?",
-        "register_link": "Registrieren"
-      }
-    },
-    "register": {
-      "title": "Konto erstellen",
-      "form": {
-        "heading": "Erstellen Sie Ihr Konto",
-        "fields": {
-          "name": {
-            "label": "Name"
-          },
-          "username": {
-            "label": "Benutzername"
-          },
-          "email": {
-            "label": "E-Mail"
-          },
-          "password": {
-            "label": "Passwort"
-          }
-        },
-        "submit_button": "Konto erstellen",
-        "already_have_account_prompt": "Sie haben bereits ein Konto?",
-        "login_link": "Anmelden"
-      }
-    },
-    "forgotPassword": {
-      "title": "Passwort vergessen",
-      "form": {
-        "heading": "Passwort vergessen",
-        "fields": {
-          "email": {
-            "label": "E-Mail"
-          }
-        },
-        "submit_button": "Link zum Zurücksetzen senden"
-      }
-    },
-    "resetPassword": {
-      "title": "Passwort zurücksetzen",
-      "form": {
-        "heading": "Passwort zurücksetzen",
-        "fields": {
-          "password": {
-            "label": "Neues Passwort"
-          }
-        },
-        "submit_button": "Passwort zurücksetzen"
-      }
-    },
-    "faq": {
-      "title": "Häufig gestellte Fragen",
-      "hero": {
-        "heading": "Häufig gestellte Fragen",
-        "subtitle": "Finden Sie Antworten auf die am häufigsten gestellten Fragen"
-      },
-      "search_placeholder": "Suchen Sie nach einer Frage oder einem Stichwort...",
-      "categories": {
-        "all": "Alle anzeigen",
-        "allgemein": {
-          "title": "Allgemeine Fragen",
-          "items": [
-            {
-              "question": "Was ist EvolutionHub?",
-              "answer": "EvolutionHub ist eine Plattform für moderne Webentwicklung mit Fokus auf Performance, Benutzerfreundlichkeit und moderne Technologien."
-            },
-            {
-              "question": "Welche Technologien werden verwendet?",
-              "answer": "Wir verwenden Astro für das Frontend, TypeScript für typsichere Entwicklung, und Tailwind CSS für das Styling. Unser Backend basiert auf modernen JavaScript/TypeScript-Technologien."
-            },
-            {
-              "question": "Ist ein Konto erforderlich?",
-              "answer": "Für die meisten Funktionen benötigen Sie ein Konto. Einige Bereiche wie die Dokumentation und Blogbeiträge sind auch ohne Konto einsehbar."
-            },
-            {
-              "question": "Wie wird der Datenschutz gewährleistet?",
-              "answer": "Wir legen großen Wert auf Datenschutz und Sicherheit. Alle Daten werden verschlüsselt übertragen und gemäß der DSGVO verarbeitet."
-            },
-            {
-              "question": "Wann ist der Support erreichbar?",
-              "answer": "Unser Support-Team ist von Montag bis Freitag, 9 bis 18 Uhr, für Sie erreichbar."
-            },
-            {
-              "question": "Ist EvolutionHub auch mobil nutzbar?",
-              "answer": "Ja, unsere Plattform ist für mobile Geräte optimiert und kann auf Smartphones und Tablets genutzt werden."
-            },
-            {
-              "question": "Ist die Plattform barrierefrei?",
-              "answer": "Wir arbeiten kontinuierlich daran, die Barrierefreiheit unserer Plattform zu verbessern, um sie für alle Nutzer zugänglich zu machen."
-            }
-          ]
-        },
-        "konto": {
-          "title": "Konto & Abonnement",
-          "items": [
-            {
-              "question": "Wie erstelle ich ein Konto?",
-              "answer": "Klicken Sie auf \"Registrieren\" in der oberen Navigation und folgen Sie den Anweisungen. Sie benötigen eine gültige E-Mail-Adresse."
-            },
-            {
-              "question": "Wie kann ich mein Passwort zurücksetzen?",
-              "answer": "Auf der Anmeldeseite finden Sie einen Link \"Passwort vergessen\". Geben Sie Ihre E-Mail-Adresse ein und folgen Sie den Anweisungen in der erhaltenen E-Mail."
-            },
-            {
-              "question": "Wie kündige ich mein Abonnement?",
-              "answer": "Gehen Sie zu Ihren Kontoeinstellungen und wählen Sie \"Abonnement verwalten\". Dort können Sie Ihr Abonnement kündigen."
-            },
-            {
-              "question": "Welche Abonnement-Pläne gibt es?",
-              "answer": "Wir bieten verschiedene Pläne an, die auf unterschiedliche Bedürfnisse zugeschnitten sind. Details finden Sie auf unserer Pricing-Seite."
-            },
-            {
-              "question": "Welche Zahlungsmethoden werden akzeptiert?",
-              "answer": "Wir akzeptieren Kreditkarten, PayPal und SEPA-Lastschriftverfahren."
-            },
-            {
-              "question": "Wie kann ich mein Konto wiederherstellen, wenn ich den Zugang verliere?",
-              "answer": "Nutzen Sie die Passwort-zurücksetzen-Funktion oder kontaktieren Sie unseren Support für weitere Hilfe."
-            },
-            {
-              "question": "Wie verwalte ich meine Benachrichtigungseinstellungen?",
-              "answer": "In Ihren Kontoeinstellungen können Sie festlegen, welche Benachrichtigungen Sie erhalten möchten."
-            }
-          ]
-        },
-        "technik": {
-          "title": "Technische Fragen",
-          "items": [
-            {
-              "question": "Welche Browser werden unterstützt?",
-              "answer": "Wir unterstützen die aktuellen Versionen von Chrome, Firefox, Safari, und Edge. Ältere Browser werden möglicherweise nicht vollständig unterstützt."
-            },
-            {
-              "question": "Wie kann ich die API nutzen?",
-              "answer": "Unsere API-Dokumentation finden Sie unter /api-docs. Sie benötigen einen API-Schlüssel, den Sie in Ihren Kontoeinstellungen generieren können."
-            },
-            {
-              "question": "Wie melde ich einen Fehler?",
-              "answer": "Bitte nutzen Sie unser Fehlerformular unter /kontakt oder erstellen Sie ein Issue in unserem GitHub-Repository."
-            },
-            {
-              "question": "Gibt es Nutzungslimits für die API?",
-              "answer": "Ja, unsere API hat Nutzungslimits, um eine faire Verteilung der Ressourcen sicherzustellen. Details finden Sie in der API-Dokumentation."
-            },
-            {
-              "question": "Kann ich EvolutionHub mit Drittanbieter-Tools integrieren?",
-              "answer": "Ja, wir bieten Integrationen und Webhooks für verschiedene Drittanbieter-Services an."
-            },
-            {
-              "question": "Welche Systemanforderungen gibt es?",
-              "answer": "Für die Nutzung empfehlen wir aktuelle Browser und eine stabile Internetverbindung."
-            },
-            {
-              "question": "Gibt es Backup- und Wiederherstellungsoptionen?",
-              "answer": "Ja, Ihre Daten werden regelmäßig gesichert und können bei Bedarf wiederhergestellt werden."
-            }
-          ]
-        }
-      }
     }
   },
   "cta": {
@@ -252,385 +77,26 @@
         "part2": "Die intelligente Kombination aus künstlicher Intelligenz und benutzerfreundlichem Design ermöglicht es Ihnen, Ihre Kreativität freizusetzen und Projekte schneller zum Leben zu erwecken. Entdecken Sie unsere leistungsstarken Funktionen und erfahren Sie, wie Sie mit Evolution Hub die Zukunft der Softwareentwicklung und Content-Erstellung gestalten können.",
         "part3_de": "Unsere fortschrittlichen Algorithmen und benutzerfreundlichen Interfaces arbeiten nahtlos zusammen, um Ihnen die bestmögliche Entwicklererfahrung zu bieten. Von der ersten Idee bis zur finalen Umsetzung – Evolution Hub begleitet Sie durch jeden Schritt Ihres kreativen Prozesses.",
         "part4_de": "Nutzen Sie die Kraft der künstlichen Intelligenz, um komplexe Aufgaben zu vereinfachen, innovative Solutions zu entwickeln und Ihre Projekte auf das nächste Level zu heben. Mit Evolution Hub gestalten Sie die Zukunft der digitalen Entwicklung."
-      }
-    },
-    "pricing": {
-      "title": "Preise – Evolution Hub",
-      "description": "Wähle den passenden Plan für deine Bedürfnisse. Kostenlose Testversion verfügbar.",
-      "header": {
-        "title": "Einfache, transparente Preise",
-        "subtitle": "Wähle den Plan, der am besten zu dir passt. Jeder Plan enthält eine 14-tägige kostenlose Testversion."
       },
-      "faq": {
-        "title": "Häufig gestellte Fragen",
-        "question1": "Kann ich meinen Plan später wechseln?",
-        "answer1": "Ja, du kannst jederzeit zwischen den Plänen wechseln. Die Änderung wird mit deinem nächsten Abrechnungszyklus wirksam.",
-        "question2": "Gibt es eine Mindestvertragslaufzeit?",
-        "answer2": "Nein, alle Pläne sind monatlich kündbar. Es gibt keine vertragliche Bindung.",
-        "question3": "Kann ich die Enterprise-Version testen?",
-        "answer3": "Ja, kontaktiere uns für eine individuelle Demo und Testphase der Enterprise-Features."
-      },
-      "faq_contact_cta_text": "Noch Fragen?",
-      "faq_contact_cta_link_text": "Kontaktiere unser Team"
-    },
-    "kontakt": {
-      "title": "Kontakt",
       "hero": {
-        "heading": "Kontaktieren Sie uns",
-        "subtitle": "Haben Sie Fragen oder Anregungen? Wir freuen uns, von Ihnen zu hören."
-      },
-      "form": {
-        "heading": "Senden Sie uns eine Nachricht",
-        "fields": {
-          "first_name": {
-            "label": "Vorname"
-          },
-          "last_name": {
-            "label": "Nachname"
-          },
-          "email": {
-            "label": "E-Mail"
-          },
-          "subject": {
-            "label": "Betreff"
-          },
-          "message": {
-            "label": "Ihre Nachricht",
-            "placeholder": "Beschreiben Sie Ihr Anliegen..."
-          }
-        },
-        "privacy_policy": {
-          "link_text": "Datenschutzerklärung"
-        },
-        "submit_button": "Nachricht senden"
-      },
-      "info": {
-        "heading": "Kontaktinformationen",
-        "subtitle": "Unser Support-Team ist für Sie da. Schreiben Sie uns oder rufen Sie uns an.",
-        "email_label": "E-Mail",
-        "email_address": "kontakt@evolutionhub.de",
-        "phone_label": "Telefon",
-        "support_hours": "Mo-Fr, 9-18 Uhr",
-        "phone_number": "+49 123 456789",
-        "address_label": "Adresse",
-        "response_time_label": "Durchschnittliche Antwortzeit:",
-        "response_time": "innerhalb von 24h",
-        "response_time_unit": "an Werktagen."
+        "title_part1": "Willkommen bei Evolution Hub",
+        "title_part2": "Die Zukunft der KI-gestützten Entwicklung",
+        "subtitle": "Entdecken Sie die Leistung von KI-gestützten Tools zur Optimierung Ihres Workflows und zur Steigerung Ihrer Produktivität.",
+        "get_started_button": "Jetzt loslegen",
+        "documentation_link": "Dokumentation anzeigen",
+        "typewriter": [
+          "Code generieren",
+          "Automatisierte Tests",
+          "Intelligente Fehlerbehebung"
+        ]
       }
-    }
-  },
-  "faq": {
-    "title": "Häufig gestellte Fragen",
-    "hero": {
-      "heading": "Häufig gestellte Fragen",
-      "subtitle": "Finden Sie Antworten auf die am häufigsten gestellten Fragen"
     },
-    "search_placeholder": "Suchen Sie nach einer Frage oder einem Stichwort...",
-    "categories": {
-      "all": "Alle anzeigen",
-      "allgemein": {
-        "title": "Allgemeine Fragen",
-        "items": [
-          {
-            "question": "Was ist EvolutionHub?",
-            "answer": "EvolutionHub ist eine Plattform für moderne Webentwicklung mit Fokus auf Performance, Benutzerfreundlichkeit und moderne Technologien."
-          },
-          {
-            "question": "Welche Technologien werden verwendet?",
-            "answer": "Wir verwenden Astro für das Frontend, TypeScript für typsichere Entwicklung, und Tailwind CSS für das Styling. Unser Backend basiert auf modernen JavaScript/TypeScript-Technologien."
-          },
-          {
-            "question": "Ist ein Konto erforderlich?",
-            "answer": "Für die meisten Funktionen benötigen Sie ein Konto. Einige Bereiche wie die Dokumentation und Blogbeiträge sind auch ohne Konto einsehbar."
-          },
-          {
-            "question": "Wie wird der Datenschutz gewährleistet?",
-            "answer": "Wir legen großen Wert auf Datenschutz und Sicherheit. Alle Daten werden verschlüsselt übertragen und gemäß der DSGVO verarbeitet."
-          },
-          {
-            "question": "Wann ist der Support erreichbar?",
-            "answer": "Unser Support-Team ist von Montag bis Freitag, 9 bis 18 Uhr, für Sie erreichbar."
-          },
-          {
-            "question": "Ist EvolutionHub auch mobil nutzbar?",
-            "answer": "Ja, unsere Plattform ist für mobile Geräte optimiert und kann auf Smartphones und Tablets genutzt werden."
-          },
-          {
-            "question": "Ist die Plattform barrierefrei?",
-            "answer": "Wir arbeiten kontinuierlich daran, die Barrierefreiheit unserer Plattform zu verbessern, um sie für alle Nutzer zugänglich zu machen."
-          }
-        ],
-        "sections": {
-          "1": {
-            "title": "",
-            "content": ""
-          },
-          "2": {
-            "title": "",
-            "content": ""
-          },
-          "3": {
-            "title": "",
-            "content": ""
-          },
-          "4": {
-            "title": "",
-            "content": ""
-          },
-          "5": {
-            "title": "",
-            "content": ""
-          },
-          "6": {
-            "title": "",
-            "content": ""
-          },
-          "7": {
-            "title": "",
-            "content": ""
-          },
-          "8": {
-            "title": "",
-            "content": ""
-          },
-          "9": {
-            "title": "",
-            "content": ""
-          },
-          "10": {
-            "title": "",
-            "content": ""
-          },
-          "11": {
-            "title": "",
-            "content": ""
-          },
-          "12": {
-            "title": "",
-            "content": ""
-          },
-          "11_participation": {
-            "title": "",
-            "content": ""
-          }
-        }
-      },
-      "konto": {
-        "title": "Konto & Abonnement",
-        "items": [
-          {
-            "question": "Wie erstelle ich ein Konto?",
-            "answer": "Klicken Sie auf \"Registrieren\" in der oberen Navigation und folgen Sie den Anweisungen. Sie benötigen eine gültige E-Mail-Adresse."
-          },
-          {
-            "question": "Wie kann ich mein Passwort zurücksetzen?",
-            "answer": "Auf der Anmeldeseite finden Sie einen Link \"Passwort vergessen\". Geben Sie Ihre E-Mail-Adresse ein und folgen Sie den Anweisungen in der erhaltenen E-Mail."
-          },
-          {
-            "question": "Wie kündige ich mein Abonnement?",
-            "answer": "Gehen Sie zu Ihren Kontoeinstellungen und wählen Sie \"Abonnement verwalten\". Dort können Sie Ihr Abonnement kündigen."
-          },
-          {
-            "question": "Welche Abonnement-Pläne gibt es?",
-            "answer": "Wir bieten verschiedene Pläne an, die auf unterschiedliche Bedürfnisse zugeschnitten sind. Details finden Sie auf unserer Pricing-Seite."
-          },
-          {
-            "question": "Welche Zahlungsmethoden werden akzeptiert?",
-            "answer": "Wir akzeptieren Kreditkarten, PayPal und SEPA-Lastschriftverfahren."
-          },
-          {
-            "question": "Wie kann ich mein Konto wiederherstellen, wenn ich den Zugang verliere?",
-            "answer": "Nutzen Sie die Passwort-zurücksetzen-Funktion oder kontaktieren Sie unseren Support für weitere Hilfe."
-          },
-          {
-            "question": "Wie verwalte ich meine Benachrichtigungseinstellungen?",
-            "answer": "In Ihren Kontoeinstellungen können Sie festlegen, welche Benachrichtigungen Sie erhalten möchten."
-          }
-        ]
-      },
-      "technik": {
-        "title": "Technische Fragen",
-        "items": [
-          {
-            "question": "Welche Browser werden unterstützt?",
-            "answer": "Wir unterstützen die aktuellen Versionen von Chrome, Firefox, Safari, und Edge. Ältere Browser werden möglicherweise nicht vollständig unterstützt."
-          },
-          {
-            "question": "Wie kann ich die API nutzen?",
-            "answer": "Unsere API-Dokumentation finden Sie unter /api-docs. Sie benötigen einen API-Schlüssel, den Sie in Ihren Kontoeinstellungen generieren können."
-          },
-          {
-            "question": "Wie melde ich einen Fehler?",
-            "answer": "Bitte nutzen Sie unser Fehlerformular unter /kontakt oder erstellen Sie ein Issue in unserem GitHub-Repository."
-          },
-          {
-            "question": "Gibt es Nutzungslimits für die API?",
-            "answer": "Ja, unsere API hat Nutzungslimits, um eine faire Verteilung der Ressourcen sicherzustellen. Details finden Sie in der API-Dokumentation."
-          },
-          {
-            "question": "Kann ich EvolutionHub mit Drittanbieter-Tools integrieren?",
-            "answer": "Ja, wir bieten Integrationen und Webhooks für verschiedene Drittanbieter-Services an."
-          },
-          {
-            "question": "Welche Systemanforderungen gibt es?",
-            "answer": "Für die Nutzung empfehlen wir aktuelle Browser und eine stabile Internetverbindung."
-          },
-          {
-            "question": "Gibt es Backup- und Wiederherstellungsoptionen?",
-            "answer": "Ja, Ihre Daten werden regelmäßig gesichert und können bei Bedarf wiederhergestellt werden."
-          }
-        ]
-      },
-      "impressum": {
-        "title": "",
-        "section_intro": {
-          "heading": ""
-        },
-        "sections": {
-          "provider": {
-            "headline": "",
-            "company_name": "",
-            "street_address": "",
-            "city_postal_code": "",
-            "country": ""
-          },
-          "contact": {
-            "headline": "",
-            "phone": "",
-            "fax": "",
-            "email": "",
-            "website": ""
-          },
-          "represented_by": {
-            "headline": "",
-            "managing_directors": ""
-          },
-          "registration": {
-            "headline": "",
-            "register_entry": "",
-            "register_court": "",
-            "register_number": ""
-          },
-          "vat": {
-            "headline": "",
-            "vat_id_label": "",
-            "vat_id": ""
-          },
-          "content_responsible": {
-            "headline": "",
-            "name": "",
-            "street": "",
-            "city_postal_code": ""
-          },
-          "dispute_resolution": {
-            "headline": "",
-            "os_platform_intro": "",
-            "os_platform_url": "",
-            "email_note": "",
-            "participation_statement": ""
-          },
-          "disclaimer": {
-            "headline": "",
-            "content_liability": {
-              "headline": "",
-              "paragraph1": "",
-              "paragraph2": ""
-            },
-            "link_liability": {
-              "headline": "",
-              "paragraph1": "",
-              "paragraph2": ""
-            },
-            "copyright": {
-              "headline": "",
-              "paragraph1": "",
-              "paragraph2": ""
-            }
-          },
-          "image_credits": {
-            "headline": "",
-            "description": ""
-          }
-        },
-        "source_label": "",
-        "source_url": "",
-        "source_name": "",
-        "source_attribution": ""
-      },
-      "datenschutz": {
-        "title": "",
-        "header": {
-          "title": "",
-          "last_updated": ""
-        },
-        "sections": {
-          "1": {
-            "title": "",
-            "description": "",
-            "provider": {
-              "company_name": "",
-              "street_address": "",
-              "city_postal_code": "",
-              "country": "",
-              "email_label": "",
-              "email": "",
-              "phone_label": "",
-              "phone": ""
-            }
-          },
-          "2": {
-            "title": "",
-            "description": ""
-          },
-          "3": {
-            "title": "",
-            "subtitle": "",
-            "paragraph1": "",
-            "list_intro": "",
-            "list_items": {
-              "0": "",
-              "1": "",
-              "2": "",
-              "3": "",
-              "4": "",
-              "5": ""
-            }
-          },
-          "4": {
-            "title": "",
-            "description": ""
-          },
-          "5": {
-            "title": "",
-            "paragraph1": "",
-            "paragraph2": ""
-          },
-          "6": {
-            "title": "",
-            "subtitle": "",
-            "list_items": {
-              "0": "",
-              "1": "",
-              "2": "",
-              "3": "",
-              "4": "",
-              "5": "",
-              "6": ""
-            }
-          },
-          "7": {
-            "title": "",
-            "description": ""
-          },
-          "8": {
-            "title": "",
-            "description": ""
-          },
-          "9": {
-            "title": "",
-            "description": ""
-          }
-        }
+    "welcome": {
+      "title": "",
+      "subtitle": "",
+      "buttons": {
+        "de": "",
+        "en": ""
       }
     },
     "impressum": {
@@ -784,6 +250,115 @@
         }
       }
     },
+    "pricing": {
+      "title": "Preise – Evolution Hub",
+      "description": "Wähle den passenden Plan für deine Bedürfnisse. Kostenlose Testversion verfügbar.",
+      "header": {
+        "title": "Einfache, transparente Preise",
+        "subtitle": "Wähle den Plan, der am besten zu dir passt. Jeder Plan enthält eine 14-tägige kostenlose Testversion."
+      },
+      "faq": {
+        "title": "Häufig gestellte Fragen",
+        "question1": "Kann ich meinen Plan später wechseln?",
+        "answer1": "Ja, du kannst jederzeit zwischen den Plänen wechseln. Die Änderung wird mit deinem nächsten Abrechnungszyklus wirksam.",
+        "question2": "Gibt es eine Mindestvertragslaufzeit?",
+        "answer2": "Nein, alle Pläne sind monatlich kündbar. Es gibt keine vertragliche Bindung.",
+        "question3": "Kann ich die Enterprise-Version testen?",
+        "answer3": "Ja, kontaktiere uns für eine individuelle Demo und Testphase der Enterprise-Features."
+      },
+      "faq_contact_cta_text": "Noch Fragen?",
+      "faq_contact_cta_link_text": "Kontaktiere unser Team"
+    },
+    "kontakt": {
+      "title": "Kontakt",
+      "hero": {
+        "heading": "Kontaktieren Sie uns",
+        "subtitle": "Haben Sie Fragen oder Anregungen? Wir freuen uns, von Ihnen zu hören."
+      },
+      "form": {
+        "heading": "Senden Sie uns eine Nachricht",
+        "fields": {
+          "first_name": { "label": "Vorname" },
+          "last_name": { "label": "Nachname" },
+          "email": { "label": "E-Mail" },
+          "subject": { "label": "Betreff" },
+          "message": { "label": "Ihre Nachricht", "placeholder": "Beschreiben Sie Ihr Anliegen..." }
+        },
+        "privacy_policy": { "link_text": "Datenschutzerklärung" },
+        "submit_button": "Nachricht senden"
+      },
+      "info": {
+        "heading": "Kontaktinformationen",
+        "subtitle": "Unser Support-Team ist für Sie da. Schreiben Sie uns oder rufen Sie uns an.",
+        "email_label": "E-Mail",
+        "email_address": "kontakt@evolutionhub.de",
+        "phone_label": "Telefon",
+        "support_hours": "Mo-Fr, 9-18 Uhr",
+        "phone_number": "+49 123 456789",
+        "address_label": "Adresse",
+        "response_time_label": "Durchschnittliche Antwortzeit:",
+        "response_time": "innerhalb von 24h",
+        "response_time_unit": "an Werktagen.",
+        "provider": { "headline": "", "company_name": "", "street_address": "", "city_postal_code": "", "country": "" },
+        "contact": { "headline": "", "phone": "", "fax": "", "email": "", "website": "" },
+        "represented_by": { "headline": "", "managing_directors": "" },
+        "registration": { "headline": "", "register_entry": "", "register_court": "", "register_number": "" },
+        "vat": { "headline": "", "vat_id_label": "", "vat_id": "" },
+        "content_responsible": { "headline": "", "name": "", "street": "", "city_postal_code": "" },
+        "dispute_resolution": { "headline": "", "os_platform_intro": "", "os_platform_url": "", "email_note": "", "participation_statement": "" },
+        "disclaimer": {
+          "headline": "",
+          "content_liability": { "headline": "", "paragraph1": "", "paragraph2": "" },
+          "link_liability": { "headline": "", "paragraph1": "", "paragraph2": "" },
+          "copyright": { "headline": "", "paragraph1": "", "paragraph2": "" }
+        }
+      }
+    },
+    "login": {
+      "title": "Anmelden",
+      "form": {
+        "heading": "Melden Sie sich bei Ihrem Konto an",
+        "fields": {
+          "email": { "label": "E-Mail" },
+          "password": { "label": "Passwort" }
+        },
+        "forgot_password_link": "Passwort vergessen?",
+        "submit_button": "Anmelden",
+        "no_account_prompt": "Sie haben noch kein Konto?",
+        "register_link": "Registrieren"
+      }
+    },
+    "register": {
+      "title": "Konto erstellen",
+      "form": {
+        "heading": "Erstellen Sie Ihr Konto",
+        "fields": {
+          "name": { "label": "Name" },
+          "username": { "label": "Benutzername" },
+          "email": { "label": "E-Mail" },
+          "password": { "label": "Passwort" }
+        },
+        "submit_button": "Konto erstellen",
+        "already_have_account_prompt": "Sie haben bereits ein Konto?",
+        "login_link": "Anmelden"
+      }
+    },
+    "forgotPassword": {
+      "title": "Passwort vergessen",
+      "form": {
+        "heading": "Passwort vergessen",
+        "fields": { "email": { "label": "E-Mail" } },
+        "submit_button": "Link zum Zurücksetzen senden"
+      }
+    },
+    "resetPassword": {
+      "title": "Passwort zurücksetzen",
+      "form": {
+        "heading": "Neues Passwort erstellen",
+        "fields": { "password": { "label": "Neues Passwort" } },
+        "submit_button": "Passwort zurücksetzen"
+      }
+    },
     "agb": {
       "title": "Allgemeine Geschäftsbedingungen – Evolution Hub",
       "header": {
@@ -791,58 +366,135 @@
         "effective_date": "Gültig ab: 20. Juli 2025"
       },
       "sections": {
-        "1": {
-          "title": "Geltungsbereich",
-          "content": "Diese Bedingungen regeln die Nutzung der Dienste von Evolution Hub und gelten für alle mit der Evolution Hub GmbH geschlossenen Verträge."
-        },
-        "2": {
-          "title": "Vertragsschluss",
-          "content": "Ein Vertrag kommt zustande, wenn Sie die Registrierung abschließen oder diese Bedingungen auf andere Weise akzeptieren, z. B. durch Nutzung des Dienstes nach Hinweis auf diese Bedingungen."
-        },
-        "3": {
-          "title": "Leistungen",
-          "content": "Wir stellen eine cloudbasierte Plattform und zugehörige Funktionen bereit. Der Leistungsumfang ergibt sich aus dem gewählten Plan und der zum Zeitpunkt des Vertragsschlusses gültigen Dokumentation."
-        },
-        "4": {
-          "title": "Konten und Sicherheit",
-          "content": "Sie sind für die Vertraulichkeit Ihrer Zugangsdaten und für alle Aktivitäten in Ihrem Konto verantwortlich. Informieren Sie uns umgehend über eine unbefugte Nutzung."
-        },
-        "5": {
-          "title": "Preise und Zahlung",
-          "content": "Gebühren, Abrechnungszyklen und Zahlungsmethoden sind auf der Preisseite angegeben. Alle Preise verstehen sich in EUR, sofern nicht anders angegeben. Gesetzliche Steuern können anfallen."
-        },
-        "6": {
-          "title": "Laufzeit und Kündigung",
-          "content": "Verträge werden auf unbestimmte Zeit geschlossen und können zum Ende des aktuellen Abrechnungszeitraums gekündigt werden. Eine fristlose Kündigung aus wichtigem Grund bleibt vorbehalten."
-        },
-        "7": {
-          "title": "Zulässige Nutzung",
-          "content": "Sie dürfen den Dienst nicht missbrauchen, seinen Betrieb stören oder gegen geltendes Recht verstoßen. Automatisiertes Scraping, Reverse Engineering oder Sicherheitstests ohne Zustimmung sind untersagt."
-        },
-        "8": {
-          "title": "Gewährleistung und Haftung",
-          "content": "Der Dienst wird im Rahmen des gewählten Plans bereitgestellt. Unsere Haftung ist auf Vorsatz und grobe Fahrlässigkeit beschränkt, sofern nicht zwingendes Recht etwas anderes vorschreibt."
-        },
-        "9": {
-          "title": "Geistiges Eigentum",
-          "content": "Alle Rechte am geistigen Eigentum am Dienst verbleiben bei Evolution Hub oder deren Lizenzgebern. Sie erhalten ein einfaches, nicht übertragbares Nutzungsrecht für die Vertragsdauer."
-        },
-        "10": {
-          "title": "Datenschutz",
-          "content": "Wir verarbeiten personenbezogene Daten gemäß unserer Datenschutzerklärung. Einzelheiten zu Zwecken und Rechtsgrundlagen finden Sie unter pages.datenschutz."
-        },
-        "11": {
-          "title": "Anwendbares Recht und Gerichtsstand",
-          "content": "Es gilt deutsches Recht unter Ausschluss des Kollisionsrechts. Gerichtsstand ist, soweit gesetzlich zulässig, Berlin."
-        },
-        "12": {
-          "title": "Änderungen dieser Bedingungen",
-          "content": "Wir können diese Bedingungen anpassen, um Änderungen der Rechtslage oder unserer Leistungen abzubilden. Wesentliche Änderungen werden vorab kommuniziert. Die fortgesetzte Nutzung gilt als Zustimmung."
-        },
-        "11_participation": {
-          "title": "Teilnahme an Streitbeilegung",
-          "content": "Wir sind weder bereit noch verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen."
-        }
+        "1": { "title": "Geltungsbereich", "content": "Diese Bedingungen regeln die Nutzung der Dienste von Evolution Hub und gelten für alle mit der Evolution Hub GmbH geschlossenen Verträge." },
+        "2": { "title": "Vertragsschluss", "content": "Ein Vertrag kommt zustande, wenn Sie die Registrierung abschließen oder diese Bedingungen auf andere Weise akzeptieren, z. B. durch Nutzung des Dienstes nach Hinweis auf diese Bedingungen." },
+        "3": { "title": "Leistungen", "content": "Wir stellen eine cloudbasierte Plattform und zugehörige Funktionen bereit. Der Leistungsumfang ergibt sich aus dem gewählten Plan und der zum Zeitpunkt des Vertragsschlusses gültigen Dokumentation." },
+        "4": { "title": "Konten und Sicherheit", "content": "Sie sind für die Vertraulichkeit Ihrer Zugangsdaten und für alle Aktivitäten in Ihrem Konto verantwortlich. Informieren Sie uns umgehend über eine unbefugte Nutzung." },
+        "5": { "title": "Preise und Zahlung", "content": "Gebühren, Abrechnungszyklen und Zahlungsmethoden sind auf der Preisseite angegeben. Alle Preise verstehen sich in EUR, sofern nicht anders angegeben. Gesetzliche Steuern können anfallen." },
+        "6": { "title": "Laufzeit und Kündigung", "content": "Verträge werden auf unbestimmte Zeit geschlossen und können zum Ende des aktuellen Abrechnungszeitraums gekündigt werden. Eine fristlose Kündigung aus wichtigem Grund bleibt vorbehalten." },
+        "7": { "title": "Zulässige Nutzung", "content": "Sie dürfen den Dienst nicht missbrauchen, seinen Betrieb stören oder gegen geltendes Recht verstoßen. Automatisiertes Scraping, Reverse Engineering oder Sicherheitstests ohne Zustimmung sind untersagt." },
+        "8": { "title": "Gewährleistung und Haftung", "content": "Der Dienst wird im Rahmen des gewählten Plans bereitgestellt. Unsere Haftung ist auf Vorsatz und grobe Fahrlässigkeit beschränkt, sofern nicht zwingendes Recht etwas anderes vorschreibt." },
+        "9": { "title": "Geistiges Eigentum", "content": "Alle Rechte am geistigen Eigentum am Dienst verbleiben bei Evolution Hub oder deren Lizenzgebern. Sie erhalten ein einfaches, nicht übertragbares Nutzungsrecht für die Vertragsdauer." },
+        "10": { "title": "Datenschutz", "content": "Wir verarbeiten personenbezogene Daten gemäß unserer Datenschutzerklärung. Einzelheiten zu Zwecken und Rechtsgrundlagen finden Sie unter pages.datenschutz." },
+        "11": { "title": "Anwendbares Recht und Gerichtsstand", "content": "Es gilt deutsches Recht unter Ausschluss des Kollisionsrechts. Gerichtsstand ist, soweit gesetzlich zulässig, Berlin." },
+        "12": { "title": "Änderungen dieser Bedingungen", "content": "Wir können diese Bedingungen anpassen, um Änderungen der Rechtslage oder unserer Leistungen abzubilden. Wesentliche Änderungen werden vorab kommuniziert. Die fortgesetzte Nutzung gilt als Zustimmung." },
+        "11_participation": { "title": "Teilnahme an Streitbeilegung", "content": "Wir sind weder bereit noch verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen." }
+      }
+    }
+  },
+  "faq": {
+    "title": "Häufig gestellte Fragen",
+    "hero": {
+      "heading": "Häufig gestellte Fragen",
+      "subtitle": "Finden Sie Antworten auf die am häufigsten gestellten Fragen"
+    },
+    "search_placeholder": "Suchen Sie nach einer Frage oder einem Stichwort...",
+    "no_results": {
+      "title": "Keine Ergebnisse gefunden",
+      "description_before": "Keine passenden Fragen. Versuche, deine Suche anzupassen oder",
+      "description_link_text": "kontaktiere uns",
+      "description_after": "."
+    },
+    "categories": {
+      "all": "Alle anzeigen",
+      "allgemein": {
+        "title": "Allgemeine Fragen",
+        "items": [
+          {
+            "question": "Was ist EvolutionHub?",
+            "answer": "EvolutionHub ist eine Plattform für moderne Webentwicklung mit Fokus auf Performance, Benutzerfreundlichkeit und moderne Technologien."
+          },
+          {
+            "question": "Welche Technologien werden verwendet?",
+            "answer": "Wir verwenden Astro für das Frontend, TypeScript für typsichere Entwicklung, und Tailwind CSS für das Styling. Unser Backend basiert auf modernen JavaScript/TypeScript-Technologien."
+          },
+          {
+            "question": "Ist ein Konto erforderlich?",
+            "answer": "Für die meisten Funktionen benötigen Sie ein Konto. Einige Bereiche wie die Dokumentation und Blogbeiträge sind auch ohne Konto einsehbar."
+          },
+          {
+            "question": "Wie wird der Datenschutz gewährleistet?",
+            "answer": "Wir legen großen Wert auf Datenschutz und Sicherheit. Alle Daten werden verschlüsselt übertragen und gemäß der DSGVO verarbeitet."
+          },
+          {
+            "question": "Wann ist der Support erreichbar?",
+            "answer": "Unser Support-Team ist von Montag bis Freitag, 9 bis 18 Uhr, für Sie erreichbar."
+          },
+          {
+            "question": "Ist EvolutionHub auch mobil nutzbar?",
+            "answer": "Ja, unsere Plattform ist für mobile Geräte optimiert und kann auf Smartphones und Tablets genutzt werden."
+          },
+          {
+            "question": "Ist die Plattform barrierefrei?",
+            "answer": "Wir arbeiten kontinuierlich daran, die Barrierefreiheit unserer Plattform zu verbessern, um sie für alle Nutzer zugänglich zu machen."
+          }
+        ]
+      },
+      "konto": {
+        "title": "Konto & Abonnement",
+        "items": [
+          {
+            "question": "Wie erstelle ich ein Konto?",
+            "answer": "Klicken Sie auf \"Registrieren\" in der oberen Navigation und folgen Sie den Anweisungen. Sie benötigen eine gültige E-Mail-Adresse."
+          },
+          {
+            "question": "Wie kann ich mein Passwort zurücksetzen?",
+            "answer": "Auf der Anmeldeseite finden Sie einen Link \"Passwort vergessen\". Geben Sie Ihre E-Mail-Adresse ein und folgen Sie den Anweisungen in der erhaltenen E-Mail."
+          },
+          {
+            "question": "Wie kündige ich mein Abonnement?",
+            "answer": "Gehen Sie zu Ihren Kontoeinstellungen und wählen Sie \"Abonnement verwalten\". Dort können Sie Ihr Abonnement kündigen."
+          },
+          {
+            "question": "Welche Abonnement-Pläne gibt es?",
+            "answer": "Wir bieten verschiedene Pläne an, die auf unterschiedliche Bedürfnisse zugeschnitten sind. Details finden Sie auf unserer Pricing-Seite."
+          },
+          {
+            "question": "Welche Zahlungsmethoden werden akzeptiert?",
+            "answer": "Wir akzeptieren Kreditkarten, PayPal und SEPA-Lastschriftverfahren."
+          },
+          {
+            "question": "Wie kann ich mein Konto wiederherstellen, wenn ich den Zugang verliere?",
+            "answer": "Nutzen Sie die Passwort-zurücksetzen-Funktion oder kontaktieren Sie unseren Support für weitere Hilfe."
+          },
+          {
+            "question": "Wie verwalte ich meine Benachrichtigungseinstellungen?",
+            "answer": "In Ihren Kontoeinstellungen können Sie festlegen, welche Benachrichtigungen Sie erhalten möchten."
+          }
+        ]
+      },
+      "technik": {
+        "title": "Technische Fragen",
+        "items": [
+          {
+            "question": "Welche Browser werden unterstützt?",
+            "answer": "Wir unterstützen die aktuellen Versionen von Chrome, Firefox, Safari, und Edge. Ältere Browser werden möglicherweise nicht vollständig unterstützt."
+          },
+          {
+            "question": "Wie kann ich die API nutzen?",
+            "answer": "Unsere API-Dokumentation finden Sie unter /api-docs. Sie benötigen einen API-Schlüssel, den Sie in Ihren Kontoeinstellungen generieren können."
+          },
+          {
+            "question": "Wie melde ich einen Fehler?",
+            "answer": "Bitte nutzen Sie unser Fehlerformular unter /kontakt oder erstellen Sie ein Issue in unserem GitHub-Repository."
+          },
+          {
+            "question": "Gibt es Nutzungslimits für die API?",
+            "answer": "Ja, unsere API hat Nutzungslimits, um eine faire Verteilung der Ressourcen sicherzustellen. Details finden Sie in der API-Dokumentation."
+          },
+          {
+            "question": "Kann ich EvolutionHub mit Drittanbieter-Tools integrieren?",
+            "answer": "Ja, wir bieten Integrationen und Webhooks für verschiedene Drittanbieter-Services an."
+          },
+          {
+            "question": "Welche Systemanforderungen gibt es?",
+            "answer": "Für die Nutzung empfehlen wir aktuelle Browser und eine stabile Internetverbindung."
+          },
+          {
+            "question": "Gibt es Backup- und Wiederherstellungsoptionen?",
+            "answer": "Ja, Ihre Daten werden regelmäßig gesichert und können bei Bedarf wiederhergestellt werden."
+          }
+        ]
       }
     }
   }

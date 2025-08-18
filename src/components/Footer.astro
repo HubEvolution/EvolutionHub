@@ -2,6 +2,7 @@
 // Footer Component with modern design
 import Newsletter from './Newsletter.astro';
 import { type Locale } from '@/lib/i18n';
+import { localizePath } from '@/lib/locale-path';
 
 interface Props {
   hideNewsletter?: boolean;
@@ -106,7 +107,7 @@ const cookieSlug: Record<Locale, string> = {
         <ul class="space-y-3">
           <li>
             <a
-              href="/dashboard"
+              href={localizePath(locale, '/dashboard')}
               class="flex items-center text-gray-600 hover:text-emerald-500 dark:text-gray-300 dark:hover:text-emerald-400 transition-colors duration-300 group"
             >
               <svg
@@ -130,7 +131,7 @@ const cookieSlug: Record<Locale, string> = {
           </li>
           <li>
             <a
-              href="/blog"
+              href={localizePath(locale, '/blog')}
               class="flex items-center text-gray-600 hover:text-emerald-500 dark:text-gray-300 dark:hover:text-emerald-400 transition-colors duration-300 group"
             >
               <svg
@@ -152,33 +153,10 @@ const cookieSlug: Record<Locale, string> = {
               >
             </a>
           </li>
+          <!-- removed: Projekte link (page not available) -->
           <li>
             <a
-              href="/projekte"
-              class="flex items-center text-gray-600 hover:text-emerald-500 dark:text-gray-300 dark:hover:text-emerald-400 transition-colors duration-300 group"
-            >
-              <svg
-                class="w-4 h-4 mr-2 text-emerald-500 transition-transform duration-300 group-hover:translate-x-1"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-                ></path>
-              </svg>
-              <span
-                class="group-hover:translate-x-1 transition-transform duration-300"
-                >Projekte</span
-              >
-            </a>
-          </li>
-          <li>
-            <a
-              href="/dokumentation"
+              href={localizePath(locale, '/docs')}
               class="flex items-center text-gray-600 hover:text-emerald-500 dark:text-gray-300 dark:hover:text-emerald-400 transition-colors duration-300 group"
             >
               <svg
@@ -202,7 +180,31 @@ const cookieSlug: Record<Locale, string> = {
           </li>
           <li>
             <a
-              href="/kontakt"
+              href={localizePath(locale, '/faq')}
+              class="flex items-center text-gray-600 hover:text-emerald-500 dark:text-gray-300 dark:hover:text-emerald-400 transition-colors duration-300 group"
+            >
+              <svg
+                class="w-4 h-4 mr-2 text-emerald-500 transition-transform duration-300 group-hover:translate-x-1"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M8 10a4 4 0 118 0c0 2-2 3-4 3m0 4h.01"
+                ></path>
+              </svg>
+              <span
+                class="group-hover:translate-x-1 transition-transform duration-300"
+                >FAQ</span
+              >
+            </a>
+          </li>
+          <li>
+            <a
+              href={localizePath(locale, '/kontakt')}
               class="flex items-center text-gray-600 hover:text-emerald-500 dark:text-gray-300 dark:hover:text-emerald-400 transition-colors duration-300 group"
             >
               <svg
@@ -227,88 +229,7 @@ const cookieSlug: Record<Locale, string> = {
         </ul>
       </div>
 
-      <!-- Ressourcen -->
-      <div>
-        <h3
-          class="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider mb-4"
-        >
-          Ressourcen
-        </h3>
-        <ul class="space-y-3">
-          <!-- Blog link will be added back with the new implementation -->
-          <li>
-            <a
-              href="/tutorials"
-              class="flex items-center text-gray-600 hover:text-emerald-500 dark:text-gray-300 dark:hover:text-emerald-400 transition-colors duration-300 group"
-            >
-              <svg
-                class="w-4 h-4 mr-2 text-emerald-500 transition-transform duration-300 group-hover:translate-x-1"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
-                ></path>
-              </svg>
-              <span
-                class="group-hover:translate-x-1 transition-transform duration-300"
-                >Tutorials</span
-              >
-            </a>
-          </li>
-          <li>
-            <a
-              href="/api-docs"
-              class="flex items-center text-gray-600 hover:text-emerald-500 dark:text-gray-300 dark:hover:text-emerald-400 transition-colors duration-300 group"
-            >
-              <svg
-                class="w-4 h-4 mr-2 text-emerald-500 transition-transform duration-300 group-hover:translate-x-1"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
-              </svg>
-              <span
-                class="group-hover:translate-x-1 transition-transform duration-300"
-                >API Referenz</span
-              >
-            </a>
-          </li>
-          <li>
-            <a
-              href="/community"
-              class="flex items-center text-gray-600 hover:text-emerald-500 dark:text-gray-300 dark:hover:text-emerald-400 transition-colors duration-300 group"
-            >
-              <svg
-                class="w-4 h-4 mr-2 text-emerald-500 transition-transform duration-300 group-hover:translate-x-1"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                ></path>
-              </svg>
-              <span
-                class="group-hover:translate-x-1 transition-transform duration-300"
-                >Community</span
-              >
-            </a>
-          </li>
-        </ul>
-      </div>
+      <!-- Ressourcen section removed (pages not available) -->
 
       <!-- Rechtliches -->
       <div>
@@ -320,7 +241,7 @@ const cookieSlug: Record<Locale, string> = {
         <ul class="space-y-3">
           <li>
             <a
-              href={`/${locale}/datenschutz`}
+              href={localizePath(locale, '/datenschutz')}
               class="flex items-center text-gray-600 hover:text-emerald-500 dark:text-gray-300 dark:hover:text-emerald-400 transition-colors duration-300 group"
             >
               <svg
@@ -344,7 +265,7 @@ const cookieSlug: Record<Locale, string> = {
           </li>
           <li>
             <a
-              href={`/${locale}/impressum`}
+              href={localizePath(locale, '/impressum')}
               class="flex items-center text-gray-600 hover:text-emerald-500 dark:text-gray-300 dark:hover:text-emerald-400 transition-colors duration-300 group"
             >
               <svg
@@ -368,7 +289,7 @@ const cookieSlug: Record<Locale, string> = {
           </li>
           <li>
             <a
-              href={`/${locale}/agb`}
+              href={localizePath(locale, '/agb')}
               class="flex items-center text-gray-600 hover:text-emerald-500 dark:text-gray-300 dark:hover:text-emerald-400 transition-colors duration-300 group"
             >
               <svg
@@ -391,7 +312,7 @@ const cookieSlug: Record<Locale, string> = {
           </li>
           <li>
             <a
-              href={`/${locale}/${cookieSlug[locale]}`}
+              href={localizePath(locale, `/${cookieSlug[locale]}`)}
               class="flex items-center text-gray-600 hover:text-emerald-500 dark:text-gray-300 dark:hover:text-emerald-400 transition-colors duration-300 group"
             >
               <svg

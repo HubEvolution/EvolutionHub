@@ -7,30 +7,19 @@ import { getLocale } from '@/lib/i18n';
 // Import der dedizierten Scroll-Effect Komponente
 import HeaderScroll from './scripts/HeaderScroll.astro';
 import EvolutionHubLogo from 'public/assets/svg/evolutionhub-logo.svg';
+import { localizePath, switchLocalePath } from '@/lib/locale-path';
 
 // Get current locale for language switching
 // These variables should be defined in Markdown Frontmatter or accessible in the script.
 // Ensuring they are correctly defined and typed.
 const currentLocale = getLocale(Astro.url.pathname);
 
-// Generate proper URLs for language switching
-function generateLanguageUrl(targetLocale: string, currentPath: string): string {
-  // If not currently on a localized path, send user to the locale home
-  const isLocalized = /^\/(de|en)(\/|$)/.test(currentPath);
-  if (!isLocalized) {
-    return `/${targetLocale}/`;
-  }
-
-  // Remove any existing locale prefix (supports "/de", "/de/", "/en", "/en/")
-  const cleanPath = currentPath.replace(/^\/(de|en)(\/|$)/, '/');
-
-  // Handle root path
-  if (cleanPath === '/') {
-    return `/${targetLocale}/`;
-  }
-
-  // Add new locale prefix
-  return `/${targetLocale}${cleanPath}`;
+// Helper für aktive Navigation: vergleicht gegen lokalisierte Hrefs
+function isActiveLocalized(href: string): boolean {
+  const localized = localizePath(currentLocale, href);
+  if (currentPath === localized) return true;
+  // Sub-Routen (z. B. Dashboard-Unterseiten)
+  return currentPath.startsWith(localized.endsWith('/') ? localized : `${localized}/`);
 }
 
 // Navigation items with ARIA labels
@@ -46,18 +35,19 @@ const navItems = [
 const url = Astro.url;
 const currentPath = url.pathname;
 
-// Function to check if a nav item is active
-const isActive = (path: string): boolean => {
-  // Check direct path match
-  if (currentPath === path) return true;
+// (entfernt) Unbenutzte isActive-Hilfsfunktion, um Lint-Fehler zu vermeiden
 
-  // Check for sub-routes
-  if (path === '/dashboard') {
-    return currentPath.startsWith('/dashboard');
-  }
-
-  return false;
-};
+// Baue Sprachwechsel-Link mit persistenter Auswahl via set_locale & next
+// - next verweist auf die aktuelle vollständige URL (inkl. Query/Hash), URL-enkodiert
+// - Basis-Link nutzt switchLocalePath auf dem pathname, um vorhandene Query/Hash zu vermeiden
+function setLocaleHref(target: 'de' | 'en'): string {
+  const base = switchLocalePath(target, Astro.url.pathname);
+  const next = encodeURIComponent(Astro.url.toString());
+  const sep = base.includes('?') ? '&' : '?';
+  // Entferne etwaige Hash-Fragmente aus base, damit wir ein sauberes Query anhängen
+  const cleanBase = base.split('#')[0];
+  return `${cleanBase}${sep}set_locale=${target}&next=${next}`;
+}
 ---
 
 <header id="site-header" data-testid="site-header" class="sticky top-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border-b border-gray-100 dark:border-gray-800 shadow-sm transition-all duration-300 hover:shadow-md header-visible">
@@ -65,7 +55,7 @@ const isActive = (path: string): boolean => {
     <div class="flex items-center justify-between h-20">
       <!-- Logo -->
       <div class="flex-shrink-0 flex items-center group">
-        <a href="/" class="flex items-center space-x-3 group-hover:scale-105 transition-transform duration-300">
+        <a href={localizePath(currentLocale, '/')} class="flex items-center space-x-3 group-hover:scale-105 transition-transform duration-300">
           <EvolutionHubLogo />
         </a>
       </div>
@@ -74,21 +64,21 @@ const isActive = (path: string): boolean => {
       <div class="hidden md:ml-10 md:flex md:items-center md:space-x-1">
         {navItems.map((item) => (
           <a
-            href={item.href}
+            href={localizePath(currentLocale, item.href)}
             class={`relative px-4 py-2.5 text-sm font-medium transition-all duration-300 rounded-lg group ${
-              isActive(item.href)
+              isActiveLocalized(item.href)
                 ? 'text-emerald-600 dark:text-emerald-400'
                 : 'text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white'
             }`}
-            aria-current={isActive(item.href) ? 'page' : undefined}
+            aria-current={isActiveLocalized(item.href) ? 'page' : undefined}
             aria-label={item['aria-label']}
           >
             {item.name}
-            {isActive(item.href) && (
+            {isActiveLocalized(item.href) && (
               <span class="absolute inset-x-1 -bottom-1 h-0.5 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-full" />
             )}
             <span class="absolute inset-x-1 -bottom-1 h-0.5 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-full transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300" />
-            {isActive(item.href) && <span class="sr-only">(current page)</span>}
+            {isActiveLocalized(item.href) && <span class="sr-only">(current page)</span>}
           </a>
         ))}
       </div>
@@ -127,7 +117,7 @@ const isActive = (path: string): boolean => {
           >
             <!-- German Option -->
             <a
-              href={generateLanguageUrl('de', Astro.url.pathname)}
+              href={setLocaleHref('de')}
               class={`dropdown-item flex items-center px-4 py-2 text-sm transition-colors hover:bg-gray-50 dark:hover:bg-gray-700/50 ${
                 currentLocale === 'de'
                   ? 'text-emerald-600 dark:text-emerald-400 font-medium'
@@ -147,7 +137,7 @@ const isActive = (path: string): boolean => {
 
             <!-- English Option -->
             <a
-              href={generateLanguageUrl('en', Astro.url.pathname)}
+              href={setLocaleHref('en')}
               class={`dropdown-item flex items-center px-4 py-2 text-sm transition-colors hover:bg-gray-50 dark:hover:bg-gray-700/50 ${
                 currentLocale === 'en'
                   ? 'text-emerald-600 dark:text-emerald-400 font-medium'
@@ -193,13 +183,13 @@ const isActive = (path: string): boolean => {
     <div class="px-2 pt-2 pb-3 space-y-1 border-t border-gray-200 dark:border-gray-700">
       {navItems.map((item) => (
         <a
-          href={item.href}
+          href={localizePath(currentLocale, item.href)}
           class={`block px-3 py-2 text-base font-medium rounded-md ${
-            isActive(item.href)
+            isActiveLocalized(item.href)
               ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400'
               : 'text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800'
           }`}
-          aria-current={isActive(item.href) ? 'page' : undefined}
+          aria-current={isActiveLocalized(item.href) ? 'page' : undefined}
           aria-label={item['aria-label']}
         >
           {item.name}
@@ -217,7 +207,7 @@ const isActive = (path: string): boolean => {
         <div class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Language</div>
         <div class="flex flex-col space-y-1">
           <a
-            href={generateLanguageUrl('de', Astro.url.pathname)}
+            href={setLocaleHref('de')}
             class={`block px-3 py-2 text-base rounded-md ${
               currentLocale === 'de'
                 ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 font-medium'
@@ -227,7 +217,7 @@ const isActive = (path: string): boolean => {
             Deutsch
           </a>
           <a
-            href={generateLanguageUrl('en', Astro.url.pathname)}
+            href={setLocaleHref('en')}
             class={`block px-3 py-2 text-base rounded-md ${
               currentLocale === 'en'
                 ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 font-medium'

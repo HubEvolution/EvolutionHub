@@ -16,12 +16,51 @@ coordinator.register({
     // Nur auf Settings-Seiten laden
     return pathname.includes('/settings') || pathname.includes('/profile') || pathname.includes('/account');
   },
-  init: async function() {
+  init: async function(this: any) {
     console.log('[Settings] Initializing settings page handlers');
     // Notifications are handled via typed Sonner wrapper (see '@/lib/notify')
     
+    // URL-Status-Handling (Success/Error) + Cleanup
+    (function handleStatusParams() {
+      try {
+        const url = new URL(window.location.href);
+        const params = url.searchParams;
+        const success = params.get('success');
+        const error = params.get('error');
+        if (!success && !error) return;
+
+        const isEnglish = window.location.pathname.startsWith('/en');
+
+        if (success) {
+          const message = isEnglish
+            ? (success === 'PasswordChanged'
+                ? 'Password updated successfully.'
+                : 'Action completed successfully.')
+            : (success === 'PasswordChanged'
+                ? 'Passwort wurde erfolgreich aktualisiert.'
+                : 'Aktion erfolgreich abgeschlossen.');
+          notify.success(message);
+        } else if (error) {
+          const code = error;
+          const message = isEnglish
+            ? `Action failed (${code}).`
+            : `Aktion fehlgeschlagen (${code}).`;
+          notify.error(message);
+        }
+
+        // Entferne Status-Parameter und bereinige die URL
+        params.delete('success');
+        params.delete('error');
+        const newQuery = params.toString();
+        const newUrl = url.pathname + (newQuery ? `?${newQuery}` : '') + url.hash;
+        window.history.replaceState({}, document.title, newUrl);
+      } catch (e) {
+        console.error('[Settings] URL status handling failed:', e);
+      }
+    })();
+
     // Profile Form Handler
-    function handleProfileForm() {
+    function handleProfileForm(this: any) {
       const form = document.getElementById('profile-form') as HTMLFormElement;
       if (!form) {
         console.log('[Settings] Profile form not found - skipping');
@@ -90,10 +129,11 @@ coordinator.register({
     }
     
     // Password Form Handler
-    function handlePasswordForm() {
+    function handlePasswordForm(this: any) {
       const form = document.getElementById('password-form') as HTMLFormElement;
       const strengthIndicator = document.getElementById('password-strength');
-      const newPasswordInput = document.getElementById('new_password') as HTMLInputElement;
+      const errorsContainer = document.getElementById('password-errors') as HTMLElement | null;
+      const newPasswordInput = document.getElementById('new-password') as HTMLInputElement;
       
       if (!form) {
         console.log('[Settings] Password form not found - skipping');
@@ -134,18 +174,53 @@ coordinator.register({
             submitButton.disabled = true;
           }
           
+          // Clear previous errors
+          if (errorsContainer) errorsContainer.textContent = '';
+
+          // Collect and validate inputs
           const formData = new FormData(form);
-          const response = await fetch('/api/user/password', {
+          const current = (formData.get('current-password') || '') as string;
+          const next = (formData.get('new-password') || '') as string;
+          const confirm = (formData.get('confirm-password') || '') as string;
+
+          if (!next || !current) {
+            const msg = 'Please fill in all required fields';
+            if (errorsContainer) errorsContainer.textContent = msg;
+            notify.error(msg);
+            return;
+          }
+
+          if (next !== confirm) {
+            const msg = 'Passwords do not match';
+            if (errorsContainer) errorsContainer.textContent = msg;
+            notify.error(msg);
+            return;
+          }
+
+          // Build payload matching API expectations
+          const payload = new FormData();
+          payload.set('currentPassword', current);
+          payload.set('newPassword', next);
+
+          const response = await fetch('/api/auth/change-password', {
             method: 'POST',
-            body: formData,
+            body: payload,
           });
-          
+
+          // The API responds with a redirect back to /account/settings
+          if (response.redirected) {
+            window.location.href = response.url;
+            return;
+          }
+
           if (response.ok) {
             notify.success('Password updated successfully!');
             form.reset();
             if (strengthIndicator) (strengthIndicator as HTMLElement).textContent = '';
+            if (errorsContainer) errorsContainer.textContent = '';
           } else {
             const errorText = await response.text();
+            if (errorsContainer) errorsContainer.textContent = errorText || 'Update failed';
             notify.error(`Error: ${errorText}`);
           }
         } catch (error) {
@@ -171,7 +246,7 @@ coordinator.register({
     }
     
     // Avatar Upload Handler
-    function handleAvatarUpload() {
+    function handleAvatarUpload(this: any) {
       const uploadElement = document.getElementById('avatar-upload') as HTMLInputElement;
       const changeButton = document.getElementById('change-avatar-btn') as HTMLButtonElement;
       
@@ -247,7 +322,7 @@ coordinator.register({
     console.log('[Settings] All settings handlers initialized successfully');
   },
   
-  cleanup: function() {
+  cleanup: function(this: any) {
     // Call all stored cleanup functions
     if ((this as any).profileFormCleanup) {
       (this as any).profileFormCleanup();

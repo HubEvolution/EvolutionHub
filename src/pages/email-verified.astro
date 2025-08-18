@@ -249,3 +249,26 @@ if (error) {
 
 <!-- Add data attribute for script -->
 <div data-page-state={pageState} style="display: none;"></div>
+
+<script>
+  (() => {
+    try {
+      const url = new URL(window.location.href);
+      const params = url.searchParams;
+      let mutated = false;
+      ['error', 'welcome', 'success'].forEach((key) => {
+        if (params.has(key)) {
+          params.delete(key);
+          mutated = true;
+        }
+      });
+      if (mutated) {
+        const newQuery = params.toString();
+        const newUrl = url.pathname + (newQuery ? `?${newQuery}` : '') + url.hash;
+        window.history.replaceState({}, document.title, newUrl);
+      }
+    } catch (e) {
+      console.error('[EmailVerified] URL cleanup failed:', e);
+    }
+  })();
+</script>

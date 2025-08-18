@@ -3,16 +3,10 @@ import { Resend } from 'resend';
 import type { User } from '@/lib/auth-v2';
 import { standardApiLimiter } from '@/lib/rate-limiter';
 import { logPasswordReset, logAuthFailure } from '@/lib/security-logger';
-import { createSecureRedirect } from '@/lib/response-helpers';
+import { createSecureRedirect, createSecureJsonResponse } from '@/lib/response-helpers';
 
 // Diese API-Route sollte nicht prerendered werden, da sie Request-Header benötigt
 export const prerender = false;
-
-interface PasswordResetToken {
-  id: string;
-  user_id: string;
-  expires_at: number;
-}
 
 /**
  * POST /api/auth/forgot-password
@@ -64,7 +58,8 @@ export const POST = async (context: APIContext) => {
     'INSERT INTO password_reset_tokens (id, user_id, expires_at) VALUES (?, ?, ?)'
   ).bind(token, existingUser.id, Math.floor(expiresAt.getTime() / 1000)).run();
 
-  const resetLink = `${context.url.origin}/reset-password?token=${token}`;
+  // Verwende ein Fragment-Token, um das Risiko von Token-Leaks in Logs/Proxys zu reduzieren
+  const resetLink = `${context.url.origin}/reset-password#token=${token}`;
   
   const resend = new Resend(context.locals.runtime.env.RESEND_API_KEY);
 
@@ -77,8 +72,7 @@ export const POST = async (context: APIContext) => {
 
   // Erfolgreiche Passwort-Reset-Anfrage protokollieren
   logPasswordReset(existingUser.id, context.clientAddress, {
-    action: 'password_reset_requested',
-    tokenId: token
+    action: 'password_reset_requested'
   });
 
   return createSecureRedirect('/auth/password-reset-sent');
@@ -89,3 +83,18 @@ export const POST = async (context: APIContext) => {
     return createSecureRedirect('/forgot-password?error=ServerError');
   }
 };
+
+// Explizite 405-Handler für nicht unterstützte Methoden
+const methodNotAllowed = () =>
+  createSecureJsonResponse(
+    { error: true, message: 'Method Not Allowed' },
+    405,
+    { Allow: 'POST' }
+  );
+
+export const GET = methodNotAllowed;
+export const PUT = methodNotAllowed;
+export const PATCH = methodNotAllowed;
+export const DELETE = methodNotAllowed;
+export const OPTIONS = methodNotAllowed;
+export const HEAD = methodNotAllowed;

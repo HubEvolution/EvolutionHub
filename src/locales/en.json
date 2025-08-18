@@ -1,17 +1,17 @@
 {
   "common": {
     "greeting": "Welcome to Evolution Hub! A project for the future of software development.",
-    "description": "Discover the power of AI-powered tools to optimize your workflow and boost your productivity.",
+    "description": "Discover the power of AI-powered tools to optimize your workflow and increase your productivity.",
     "language_switch_label": "Language",
     "get_started": "Get Started",
     "documentation": "Documentation",
     "errors": {
-      "generic": "An error occurred. Please try again later.",
+      "generic": "An error has occurred. Please try again later.",
       "upload_failed_prefix": "Upload failed:"
     },
     "upload": {
-      "invalid_type": "Please choose an image in JPG, PNG, or GIF format",
-      "too_large": "The file is too large. Maximum size is 2MB"
+      "invalid_type": "Please choose an image in JPG, PNG, or GIF format.",
+      "too_large": "The file is too large. Maximum size is 2MB."
     },
     "status": {
       "uploading": "Uploading...",
@@ -28,169 +28,85 @@
     "forms": {
       "email_placeholder": "Email address"
     }
-    ,
-    "login": {
-      "title": "Login",
-      "form": {
-        "heading": "Login to your Account",
-        "fields": {
-          "email": { "label": "Email" },
-          "password": { "label": "Password" }
-        },
-        "forgot_password_link": "Forgot Password?",
-        "submit_button": "Login",
-        "no_account_prompt": "Don't have an account?",
-        "register_link": "Register"
-      }
-    },
-    "register": {
-      "title": "Create an Account",
-      "form": {
-        "heading": "Create your Account",
-        "fields": {
-          "name": { "label": "Name" },
-          "username": { "label": "Username" },
-          "email": { "label": "Email" },
-          "password": { "label": "Password" }
-        },
-        "submit_button": "Create Account",
-        "already_have_account_prompt": "Already have an account?",
-        "login_link": "Login"
-      }
-    },
-    "forgotPassword": {
-      "title": "Forgot Password",
-      "form": {
-        "heading": "Forgot Password",
-        "fields": {
-          "email": { "label": "Email" }
-        },
-        "submit_button": "Send Password Reset Link"
-      }
-    },
-    "resetPassword": {
-      "title": "Reset Password",
-      "form": {
-        "heading": "Reset Password",
-        "fields": {
-          "password": { "label": "New Password" }
-        },
-        "submit_button": "Reset Password"
-      }
-    },
-    "faq": {
-      "title": "Frequently Asked Questions",
-      "hero": {
-        "heading": "Frequently Asked Questions",
-        "subtitle": "Find answers to the most frequently asked questions"
-      },
-      "search_placeholder": "Search for a question or keyword...",
-      "categories": {
-        "all": "Show All",
-        "allgemein": {
-          "title": "Allgemeine Fragen",
-          "items": [
-            {"question": "Was ist EvolutionHub?", "answer": "EvolutionHub ist eine Plattform für moderne Webentwicklung mit Fokus auf Performance, Benutzerfreundlichkeit und moderne Technologien."},
-            {"question": "Welche Technologien werden verwendet?", "answer": "Wir verwenden Astro für das Frontend, TypeScript für typsichere Entwicklung, und Tailwind CSS für das Styling. Unser Backend basiert auf modernen JavaScript/TypeScript-Technologien."},
-            {"question": "Ist ein Konto erforderlich?", "answer": "Für die meisten Funktionen benötigen Sie ein Konto. Einige Bereiche wie die Dokumentation und Blogbeiträge sind auch ohne Konto einsehbar."},
-            {"question": "Wie wird der Datenschutz gewährleistet?", "answer": "Wir legen großen Wert auf Datenschutz und Sicherheit. Alle Daten werden verschlüsselt übertragen und gemäß der DSGVO verarbeitet."},
-            {"question": "Wann ist der Support erreichbar?", "answer": "Unser Support-Team ist von Montag bis Freitag, 9 bis 18 Uhr, für Sie erreichbar."},
-            {"question": "Ist EvolutionHub auch mobil nutzbar?", "answer": "Ja, unsere Plattform ist für mobile Geräte optimiert und kann auf Smartphones und Tablets genutzt werden."},
-            {"question": "Ist die Plattform barrierefrei?", "answer": "Wir arbeiten kontinuierlich daran, die Barrierefreiheit unserer Plattform zu verbessern, um sie für alle Nutzer zugänglich zu machen."}
-          ]
-        },
-        "konto": {
-          "title": "Konto & Abonnement",
-          "items": [
-            {"question": "Wie erstelle ich ein Konto?", "answer": "Klicken Sie auf \"Registrieren\" in der oberen Navigation und folgen Sie den Anweisungen. Sie benötigen eine gültige E-Mail-Adresse."},
-            {"question": "Wie kann ich mein Passwort zurücksetzen?", "answer": "Auf der Anmeldeseite finden Sie einen Link \"Passwort vergessen\". Geben Sie Ihre E-Mail-Adresse ein und folgen Sie den Anweisungen in der erhaltenen E-Mail."},
-            {"question": "Wie kündige ich mein Abonnement?", "answer": "Gehen Sie zu Ihren Kontoeinstellungen und wählen Sie \"Abonnement verwalten\". Dort können Sie Ihr Abonnement kündigen."},
-            {"question": "Welche Abonnement-Pläne gibt es?", "answer": "Wir bieten verschiedene Pläne an, die auf unterschiedliche Bedürfnisse zugeschnitten sind. Details finden Sie auf unserer Pricing-Seite."},
-            {"question": "Welche Zahlungsmethoden werden akzeptiert?", "answer": "Wir akzeptieren Kreditkarten, PayPal und SEPA-Lastschriftverfahren."},
-            {"question": "Wie kann ich mein Konto wiederherstellen, wenn ich den Zugang verliere?", "answer": "Nutzen Sie die Passwort-zurücksetzen-Funktion oder kontaktieren Sie unseren Support für weitere Hilfe."},
-            {"question": "Wie verwalte ich meine Benachrichtigungseinstellungen?", "answer": "In Ihren Kontoeinstellungen können Sie festlegen, welche Benachrichtigungen Sie erhalten möchten."}
-          ]
-        },
-        "technik": {
-          "title": "Technische Fragen",
-          "items": [
-            {"question": "Welche Browser werden unterstützt?", "answer": "Wir unterstützen die aktuellen Versionen von Chrome, Firefox, Safari, und Edge. Ältere Browser werden möglicherweise nicht vollständig unterstützt."},
-            {"question": "Wie kann ich die API nutzen?", "answer": "Unsere API-Dokumentation finden Sie unter /api-docs. Sie benötigen einen API-Schlüssel, den Sie in Ihren Kontoeinstellungen generieren können."},
-            {"question": "Wie melde ich einen Fehler?", "answer": "Bitte nutzen Sie unser Fehlerformular unter /kontakt oder erstellen Sie ein Issue in unserem GitHub-Repository."},
-            {"question": "Gibt es Nutzungslimits für die API?", "answer": "Ja, unsere API hat Nutzungslimits, um eine faire Verteilung der Ressourcen sicherzustellen. Details finden Sie in der API-Dokumentation."},
-            {"question": "Kann ich EvolutionHub mit Drittanbieter-Tools integrieren?", "answer": "Ja, wir bieten Integrationen und Webhooks für verschiedene Drittanbieter-Services an."},
-            {"question": "Welche Systemanforderungen gibt es?", "answer": "Für die Nutzung empfehlen wir aktuelle Browser und eine stabile Internetverbindung."},
-            {"question": "Gibt es Backup- und Wiederherstellungsoptionen?", "answer": "Ja, Ihre Daten werden regelmäßig gesichert und können bei Bedarf wiederhergestellt werden."}
-          ]
-        }
-      }
-    }
   },
   "cta": {
     "headline": "Ready to get started?",
-    "subtitle": "Join thousands of developers already using Evolution Hub to build amazing applications.",
-    "button_text": "Create Free Account"
-  },
-  "hero": {
-    "title_part1": "Welcome to Evolution Hub",
-    "title_part2": "The Future of AI-Powered Development",
-    "subtitle": "Discover the power of AI-powered tools to optimize your workflow and boost your productivity.",
-    "get_started_button": "Get Started Now",
-    "documentation_link": "View Documentation"
+    "subtitle": "Join the thousands of developers already using Evolution Hub to build amazing applications.",
+    "button_text": "Create free account"
   },
   "pages": {
     "home": {
-      "title": "Welcome to the English homepage!",
       "features": {
-        "heading": "Our Powerful Features",
-        "subtitle": "AI-powered tools to supercharge your development workflow.",
         "feature1": {
           "icon": "✨",
-          "title": "AI Code Generation",
-          "description": "Generate code snippets, functions, and even entire components with AI assistance."
+          "title": "Generate Code",
+          "description": "Whether you want to generate code, create content, or analyze complex data – our platform supports you every step of the way."
         },
         "feature2": {
           "icon": "🚀",
-          "title": "Automated Testing",
-          "description": "Streamline your testing process with intelligent automation capabilities."
+          "title": "Automated Tests",
+          "description": "Optimize your testing process with intelligent automation capabilities."
         },
         "feature3": {
           "icon": "💡",
           "title": "Intelligent Debugging",
           "description": "Identify and fix bugs faster with AI-powered debugging tools."
-        }
+        },
+        "heading": "The future of AI-powered development",
+        "subtitle": "Discover the power of AI-driven tools to streamline your workflow and boost productivity."
       },
       "testimonials": {
-        "heading": "What Our Users Say",
-        "subtitle": "Hear from developers who are transforming their workflow with Evolution Hub.",
+        "heading": "What our users say",
+        "subtitle": "Hear from developers who are revolutionizing their workflow with Evolution Hub.",
         "testimonial1": {
-          "quote": "Evolution Hub has revolutionized how I code. The AI features save me hours of work every week!",
+          "quote": "Evolution Hub has revolutionized the way I write code. The AI features save me hours of work every week!",
           "author": "Jane Doe",
           "role": "Lead Developer at TechCorp"
         }
       },
       "introduction": {
-        "part1": "Evolution Hub offers an innovative collection of AI-powered tools specifically designed for developers and creatives. With our AI-powered tools, you can optimize your workflow, automate repetitive tasks, and increase your productivity. Whether you want to generate code, create content, or analyze complex data, our platform supports you at every step.",
-        "part2": "The intelligent combination of artificial intelligence and user-friendly design enables you to unleash your creativity and bring projects to life faster. Discover our powerful features and learn how you can shape the future of software development and content creation with Evolution Hub.",
-        "part3_de": "Unsere fortschrittlichen Algorithmen und benutzerfreundlichen Interfaces arbeiten nahtlos zusammen, um Ihnen die bestmögliche Entwicklererfahrung zu bieten. Von der ersten Idee bis zur finalen Umsetzung – Evolution Hub begleitet Sie durch jeden Schritt Ihres kreativen Prozesses.",
-        "part4_de": "Nutzen Sie die Kraft der künstlichen Intelligenz, um komplexe Aufgaben zu vereinfachen, innovative Solutions zu entwickeln und Ihre Projekte auf das nächste Level zu heben. Mit Evolution Hub gestalten Sie die Zukunft der digitalen Entwicklung."
+        "part1": "Evolution Hub offers an innovative collection of AI-powered tools designed specifically for developers and creators. With our AI-powered tools, you can optimize your workflow, automate repetitive tasks, and increase your productivity. Whether you want to generate code, create content, or analyze complex data – our platform supports you every step of the way.",
+        "part2": "The intelligent combination of artificial intelligence and user-friendly design allows you to unleash your creativity and bring projects to life faster. Discover our powerful features and learn how you can shape the future of software development and content creation with Evolution Hub.",
+        "part3_de": "Our advanced algorithms and user-friendly interfaces work together seamlessly to provide you with the best possible developer experience. From the initial idea to the final implementation – Evolution Hub accompanies you through every step of your creative process.",
+        "part4_de": "Harness the power of artificial intelligence to simplify complex tasks, develop innovative solutions, and take your projects to the next level. With Evolution Hub, you shape the future of digital development."
+      },
+      "title": "Welcome to Evolution Hub",
+      "hero": {
+        "title_part1": "Welcome to Evolution Hub",
+        "title_part2": "The future of AI-powered development",
+        "subtitle": "Discover the power of AI-driven tools to streamline your workflow and boost productivity.",
+        "get_started_button": "Get started",
+        "documentation_link": "View documentation",
+        "typewriter": [
+          "Generate Code",
+          "Automated Tests",
+          "Intelligent Debugging"
+        ]
+      }
+    },
+    "welcome": {
+      "title": "",
+      "subtitle": "",
+      "buttons": {
+        "de": "",
+        "en": ""
       }
     },
     "pricing": {
-      "title": "Prices – Evolution Hub",
-      "description": "Choose the plan that best suits your needs. Free trial available.",
+      "title": "Pricing – Evolution Hub",
+      "description": "Choose the right plan for your needs. Free trial available.",
       "header": {
-        "title": "Simple, Transparent Pricing",
-        "subtitle": "Choose the plan that best suits you. Every plan includes a 14-day free trial."
+        "title": "Simple, transparent pricing",
+        "subtitle": "Choose the plan that's right for you. Every plan includes a 14-day free trial."
       },
       "faq": {
         "title": "Frequently Asked Questions",
         "question1": "Can I change my plan later?",
-        "answer1": "Yes, you can switch between plans at any time. The change will take effect at the start of your next billing cycle.",
-        "question2": "Is there a minimum contract period?",
+        "answer1": "Yes, you can switch between plans at any time. The change will take effect with your next billing cycle.",
+        "question2": "Is there a minimum contract term?",
         "answer2": "No, all plans can be canceled monthly. There is no contractual commitment.",
         "question3": "Can I test the Enterprise version?",
-        "answer3": "Yes, contact us for a personalized demo and trial of the Enterprise features."
+        "answer3": "Yes, contact us for a personalized demo and trial period of the Enterprise features."
       },
       "faq_contact_cta_text": "Still have questions?",
       "faq_contact_cta_link_text": "Contact our team"
@@ -199,10 +115,10 @@
       "title": "Contact",
       "hero": {
         "heading": "Contact Us",
-        "subtitle": "Have questions or suggestions? We look forward to hearing from you."
+        "subtitle": "Have questions or suggestions? We'd love to hear from you."
       },
       "form": {
-        "heading": "Send Us a Message",
+        "heading": "Send us a message",
         "fields": {
           "first_name": {
             "label": "First Name"
@@ -228,321 +144,11 @@
       },
       "info": {
         "heading": "Contact Information",
-        "subtitle": "Our support team is here for you. Write to us or call us.",
+        "subtitle": "Our support team is here for you. Write to us or give us a call.",
         "email_label": "Email",
-        "email_address": "contact@evolutionhub.de",
+        "email_address": "kontakt@evolutionhub.de",
         "phone_label": "Phone",
-        "support_hours": "Mon-Fri, 9 AM - 6 PM",
-        "phone_number": "+49 123 456789",
-        "address_label": "Address",
-        "response_time_label": "Average response time:",
-        "response_time": "within 24 hours",
-        "response_time_unit": "on business days."
-      }
-    }
-  },
-  "faq": {
-    "title": "Frequently Asked Questions",
-    "hero": {
-      "heading": "Frequently Asked Questions",
-      "subtitle": "Find answers to the most frequently asked questions"
-    },
-    "search_placeholder": "Search for a question or keyword...",
-    "categories": {
-      "all": "Show All",
-      "allgemein": {
-        "title": "Allgemeine Fragen",
-        "items": [
-          {"question": "Was ist EvolutionHub?", "answer": "EvolutionHub ist eine Plattform für moderne Webentwicklung mit Fokus auf Performance, Benutzerfreundlichkeit und moderne Technologien."},
-          {"question": "Welche Technologien werden verwendet?", "answer": "Wir verwenden Astro für das Frontend, TypeScript für typsichere Entwicklung, und Tailwind CSS für das Styling. Unser Backend basiert auf modernen JavaScript/TypeScript-Technologien."},
-          {"question": "Ist ein Konto erforderlich?", "answer": "Für die meisten Funktionen benötigen Sie ein Konto. Einige Bereiche wie die Dokumentation und Blogbeiträge sind auch ohne Konto einsehbar."},
-          {"question": "Wie wird der Datenschutz gewährleistet?", "answer": "Wir legen großen Wert auf Datenschutz und Sicherheit. Alle Daten werden verschlüsselt übertragen und gemäß der DSGVO verarbeitet."},
-          {"question": "Wann ist der Support erreichbar?", "answer": "Unser Support-Team ist von Montag bis Freitag, 9 bis 18 Uhr, für Sie erreichbar."},
-          {"question": "Ist EvolutionHub auch mobil nutzbar?", "answer": "Ja, unsere Plattform ist für mobile Geräte optimiert und kann auf Smartphones und Tablets genutzt werden."},
-          {"question": "Ist die Plattform barrierefrei?", "answer": "Wir arbeiten kontinuierlich daran, die Barrierefreiheit unserer Plattform zu verbessern, um sie für alle Nutzer zugänglich zu machen."}
-        ],
-        "sections": {
-          "1": {
-            "title": "Scope",
-            "content": "These Terms govern the use of Evolution Hub’s services and apply to all contracts concluded with Evolution Hub GmbH."
-          },
-          "2": {
-            "title": "Conclusion of Contract",
-            "content": "A contract is formed when you complete registration or otherwise accept these Terms, for example by using the service after being informed about these Terms."
-          },
-          "3": {
-            "title": "Services",
-            "content": "We provide a cloud-based platform and related features. The scope of services is determined by the plan selected and the documentation valid at the time of conclusion."
-          },
-          "4": {
-            "title": "Accounts and Security",
-            "content": "You are responsible for the confidentiality of your login credentials and for all activities under your account. You must notify us immediately of any unauthorized use."
-          },
-          "5": {
-            "title": "Prices and Payment",
-            "content": "Fees, billing cycles, and payment methods are specified on the pricing page. All prices are in EUR unless stated otherwise. Statutory taxes may apply."
-          },
-          "6": {
-            "title": "Term and Termination",
-            "content": "Contracts are concluded for an indefinite period and may be canceled at the end of the current billing period. We may terminate for cause, including material breaches."
-          },
-          "7": {
-            "title": "Acceptable Use",
-            "content": "You may not misuse the service, interfere with its operation, or violate applicable law. Automated scraping, reverse engineering, or security testing without consent is prohibited."
-          },
-          "8": {
-            "title": "Warranty and Liability",
-            "content": "The service is provided as-is within the scope of the selected plan. Our liability is limited to intent and gross negligence, except where mandatory law provides otherwise."
-          },
-          "9": {
-            "title": "Intellectual Property",
-            "content": "All intellectual property rights in the service remain with Evolution Hub or its licensors. You receive a non-exclusive, non-transferable right to use the service during the term."
-          },
-          "10": {
-            "title": "Data Protection",
-            "content": "We process personal data in accordance with our Privacy Policy. For details on processing purposes and legal bases, see pages.datenschutz."
-          },
-          "11": {
-            "title": "Governing Law and Venue",
-            "content": "These Terms are governed by German law, excluding its conflict-of-law rules. The courts of Berlin shall have jurisdiction to the extent permitted by law."
-          },
-          "11_participation": {
-            "title": "Participation in Dispute Resolution",
-            "content": "We are neither willing nor obliged to participate in dispute resolution proceedings before a consumer arbitration board."
-          },
-          "12": {
-            "title": "Changes to These Terms",
-            "content": "We may adjust these Terms to reflect changes in law or our services. Material changes will be communicated in advance. Continued use signifies acceptance."
-          }
-        }
-      },
-      "konto": {
-        "title": "",
-        "items": []
-      },
-      "technik": {
-        "title": "",
-        "items": []
-      },
-      "impressum": {
-        "title": "Imprint",
-        "section_intro": {
-          "heading": "Information pursuant to § 5 TMG"
-        },
-        "sections": {
-          "provider": {
-            "headline": "Service Provider",
-            "company_name": "Evolution Hub GmbH",
-            "street_address": "Musterstraße 123",
-            "city_postal_code": "10115 Berlin",
-            "country": "Germany"
-          },
-          "contact": {
-            "headline": "Contact",
-            "phone": "Phone: +49 (0)30 12345678",
-            "fax": "Fax: +49 (0)30 12345679",
-            "email": "Email: info@evolutionhub.de",
-            "website": "Web: www.evolutionhub.de"
-          },
-          "represented_by": {
-            "headline": "Represented by",
-            "managing_directors": "Managing Directors: Max Mustermann, Erika Musterfrau"
-          },
-          "registration": {
-            "headline": "Registration Entry",
-            "register_entry": "Registered in the Commercial Register",
-            "register_court": "Registry Court: Amtsgericht Berlin-Charlottenburg",
-            "register_number": "Registration Number: HRB 123456"
-          },
-          "vat": {
-            "headline": "VAT Identification Number",
-            "vat_id_label": "VAT identification number according to § 27 a of the VAT Act:",
-            "vat_id": "DE 123456789"
-          },
-          "content_responsible": {
-            "headline": "Responsible for content according to § 55 Abs. 2 RStV",
-            "name": "Max Mustermann",
-            "street": "Musterstraße 123",
-            "city_postal_code": "10115 Berlin"
-          },
-          "dispute_resolution": {
-            "headline": "Dispute Resolution",
-            "os_platform_intro": "The European Commission provides a platform for online dispute resolution (OS): ",
-            "os_platform_url": "https://ec.europa.eu/consumers/odr/",
-            "email_note": "Our email address can be found at the top of the imprint.",
-            "participation_statement": "We are neither willing nor obliged to participate in dispute resolution proceedings before a consumer arbitration board."
-          },
-          "disclaimer": {
-            "headline": "Disclaimer",
-            "content_liability": {
-              "headline": "Liability for Content",
-              "paragraph1": "As a service provider, we are responsible for our own content on these pages according to Section 7(1) of the German Telemedia Act (TMG). However, pursuant to §§ 8 to 10 TMG, we as a service provider are not obligated to monitor transmitted or stored third-party information or to investigate circumstances that indicate illegal activity.",
-              "paragraph2": "Obligations to remove or block the use of information according to general laws remain unaffected. However, liability in this regard is only possible from the point in time at which a concrete infringement of rights becomes known. In the event of corresponding infringements becoming known, we will remove this content immediately."
-            },
-            "link_liability": {
-              "headline": "Liability for Links",
-              "paragraph1": "Our offer includes links to external websites of third parties, the content of which we have no influence over. Therefore, we cannot assume any liability for this external content. The respective provider or operator of the sites is always responsible for the content of the linked pages. The linked pages were checked for possible legal violations at the time of linking. Illegal content was not apparent at the time of linking.",
-              "paragraph2": "However, continuous monitoring of the content of linked pages is not feasible without concrete evidence of an infringement. In the event of infringements becoming known, we will remove such links immediately."
-            },
-            "copyright": {
-              "headline": "Copyright",
-              "paragraph1": "The content and works created by the site operators on these pages are subject to German copyright law. The reproduction, processing, dissemination, and any type of use outside the limits of copyright require the written consent of the respective author or creator. Downloads and copies of this page are only permitted for private, non-commercial use.",
-              "paragraph2": "To the extent that the content on this page was not created by the operator, the copyrights of third parties are respected. In particular, third-party content is identified as such. If you nevertheless become aware of a copyright infringement, we ask for a corresponding notification. In the event of infringements becoming known, we will remove such content immediately."
-            }
-          },
-          "image_credits": {
-            "headline": "Image Credits",
-            "description": "The images and graphics used on this website are subject to the copyright of Evolution Hub GmbH or are royalty-free stock photos from third-party providers."
-          }
-        },
-        "source_label": "Source:",
-        "source_url": "https://www.e-recht24.de",
-        "source_name": "e-recht24.de",
-        "source_attribution": "e-recht24.de"
-      },
-      "datenschutz": {
-        "title": "Privacy Policy",
-        "header": {
-          "title": "Privacy Policy",
-          "last_updated": "Last updated: July 20, 2025"
-        },
-        "sections": {
-          "1": {
-            "title": "1. Responsible Party",
-            "description": "In accordance with the General Data Protection Regulation (GDPR) and other national data protection laws of the member states, as well as other data protection provisions, the responsible party is:",
-            "provider": {
-              "company_name": "Evolution Hub GmbH",
-              "street_address": "Musterstraße 123",
-              "city_postal_code": "10115 Berlin",
-              "country": "Germany",
-              "email_label": "Email:",
-              "email": "datenschutz@evolutionhub.de",
-              "phone_label": "Phone:",
-              "phone": "+49 30 12345678"
-            }
-          },
-          "2": {
-            "title": "2. Basics of Data Processing",
-            "description": "We generally process our users' personal data only to the extent necessary to provide a functional website and our content and services. The processing of our users' personal data regularly occurs only after user consent. An exception applies in cases where obtaining prior consent is not possible for factual reasons and the processing of data is permitted by statutory provisions."
-          },
-          "3": {
-            "title": "3. Provision of the Website and Creation of Log Files",
-            "subtitle": "Description and scope of data processing",
-            "paragraph1": "Every time our website is accessed, our system automatically collects data and information from the computer system of the accessing computer.",
-            "list_intro": "The following data is collected:",
-            "list_items": {
-              "0": "Browser type and version",
-              "1": "Operating system used",
-              "2": "Referrer URL",
-              "3": "Hostname of the accessing computer",
-              "4": "Time of server request",
-              "5": "IP address"
-            }
-          },
-          "4": {
-            "title": "4. Cookies",
-            "description": "Our website uses cookies. Cookies are text files that are stored in the internet browser or by the internet browser on the user's computer system. When a user accesses a website, a cookie may be stored on the user's operating system. This cookie contains a characteristic string that allows unique identification of the browser upon repeated access to the website."
-          },
-          "5": {
-            "title": "5. Contact Form and Email Contact",
-            "paragraph1": "Our website provides a contact form that can be used for electronic contact. If a user takes advantage of this option, the data entered into the input mask will be transmitted and stored by us.",
-            "paragraph2": "Alternatively, contact can be made via the provided e-mail address. In this case, the personal data of the user transmitted with the e-mail will be stored."
-          },
-          "6": {
-            "title": "6. Rights of the Data Subject",
-            "subtitle": "You have the right:",
-            "list_items": {
-              "0": "pursuant to Art. 15 GDPR to request information about your personal data processed by us",
-              "1": "pursuant to Art. 16 GDPR to immediately request the rectification of inaccurate or completion of your personal data stored by us",
-              "2": "pursuant to Art. 17 GDPR to request the erasure of your personal data stored by us",
-              "3": "pursuant to Art. 18 GDPR to request the restriction of the processing of your personal data",
-              "4": "pursuant to Art. 20 GDPR to receive your personal data that you have provided to us in a structured, common, and machine-readable format",
-              "5": "pursuant to Art. 7 para. 3 GDPR to withdraw your consent at any time",
-              "6": "pursuant to Art. 77 GDPR to lodge a complaint with a supervisory authority"
-            }
-          },
-          "7": {
-            "title": "7. Right to Object",
-            "description": "You have the right to object, on grounds relating to your particular situation, at any time to the processing of personal data concerning you which is based on Art. 6 para. 1 lit. e or f GDPR."
-          },
-          "8": {
-            "title": "8. Data Security",
-            "description": "Within the website visit, we use the widespread SSL (Secure Socket Layer) procedure in conjunction with the highest level of encryption supported by your browser. This is typically 256-bit encryption. If your browser does not support 256-bit encryption, we will use 128-bit v3 technology instead."
-          },
-          "9": {
-            "title": "9. Timeliness and Changes to This Privacy Policy",
-            "description": "This Privacy Policy is currently valid and dated July 2025. Due to the further development of our website and offerings or due to changed legal or regulatory requirements, it may become necessary to amend this Privacy Policy."
-          }
-        }
-      }
-    },
-    "agb": {
-      "title": "Terms and Conditions – Evolution Hub",
-      "header": {
-        "title": "General Terms and Conditions (AGB)",
-        "effective_date": "Effective date: July 20, 2025"
-      },
-      "sections": {
-        "1": {
-          "title": "Scope",
-          "content": "These Terms govern the use of Evolution Hub’s services and apply to all contracts concluded with Evolution Hub GmbH."
-        },
-        "2": {
-          "title": "Conclusion of Contract",
-          "content": "A contract is formed when you complete registration or otherwise accept these Terms, for example by using the service after being informed about these Terms."
-        },
-        "3": {
-          "title": "Services",
-          "content": "We provide a cloud-based platform and related features. The scope of services is determined by the plan selected and the documentation valid at the time of conclusion."
-        },
-        "4": {
-          "title": "Accounts and Security",
-          "content": "You are responsible for the confidentiality of your login credentials and for all activities under your account. You must notify us immediately of any unauthorized use."
-        },
-        "5": {
-          "title": "Prices and Payment",
-          "content": "Fees, billing cycles, and payment methods are specified on the pricing page. All prices are in EUR unless stated otherwise. Statutory taxes may apply."
-        },
-        "6": {
-          "title": "Term and Termination",
-          "content": "Contracts are concluded for an indefinite period and may be canceled at the end of the current billing period. We may terminate for cause, including material breaches."
-        },
-        "7": {
-          "title": "Acceptable Use",
-          "content": "You may not misuse the service, interfere with its operation, or violate applicable law. Automated scraping, reverse engineering, or security testing without consent is prohibited."
-        },
-        "8": {
-          "title": "Warranty and Liability",
-          "content": "The service is provided as-is within the scope of the selected plan. Our liability is limited to intent and gross negligence, except where mandatory law provides otherwise."
-        },
-        "9": {
-          "title": "Intellectual Property",
-          "content": "All intellectual property rights in the service remain with Evolution Hub or its licensors. You receive a non-exclusive, non-transferable right to use the service during the term."
-        },
-        "10": {
-          "title": "Data Protection",
-          "content": "We process personal data in accordance with our Privacy Policy. For details on processing purposes and legal bases, see pages.datenschutz."
-        },
-        "11": {
-          "title": "Governing Law and Venue",
-          "content": "These Terms are governed by German law, excluding its conflict-of-law rules. The courts of Berlin shall have jurisdiction to the extent permitted by law."
-        },
-        "11_participation": {
-          "title": "Participation in Dispute Resolution",
-          "content": "We are neither willing nor obliged to participate in dispute resolution proceedings before a consumer arbitration board."
-        },
-        "12": {
-          "title": "Changes to These Terms",
-          "content": "We may adjust these Terms to reflect changes in law or our services. Material changes will be communicated in advance. Continued use signifies acceptance."
-        }
-      }
-    },
-    "impressum": {
-      "title": "Imprint",
-      "section_intro": {
-        "heading": "Information pursuant to § 5 TMG"
-      },
-      "sections": {
+        "support_hours": "Mon-Fri, 9am-6pm",
         "provider": {
           "headline": "Service Provider",
           "company_name": "Evolution Hub GmbH",
@@ -562,51 +168,56 @@
           "managing_directors": "Managing Directors: Max Mustermann, Erika Musterfrau"
         },
         "registration": {
-          "headline": "Registration Entry",
-          "register_entry": "Registered in the Commercial Register",
-          "register_court": "Registry Court: Amtsgericht Berlin-Charlottenburg",
-          "register_number": "Registration Number: HRB 123456"
+          "headline": "Register Entry",
+          "register_entry": "Entered in the Commercial Register",
+          "register_court": "Register Court: Amtsgericht Berlin-Charlottenburg",
+          "register_number": "Register Number: HRB 123456"
         },
         "vat": {
           "headline": "VAT Identification Number",
-          "vat_id_label": "VAT identification number according to § 27 a of the VAT Act:",
+          "vat_id_label": "VAT identification number according to § 27 a of the German VAT Act:",
           "vat_id": "DE 123456789"
         },
         "content_responsible": {
-          "headline": "Responsible for content according to § 55 Abs. 2 RStV",
+          "headline": "Responsible for the content according to § 55 Abs. 2 RStV",
           "name": "Max Mustermann",
           "street": "Musterstraße 123",
           "city_postal_code": "10115 Berlin"
         },
         "dispute_resolution": {
           "headline": "Dispute Resolution",
-          "os_platform_intro": "The European Commission provides a platform for online dispute resolution (OS): ",
+          "os_platform_intro": "The European Commission provides a platform for online dispute resolution (ODR): ",
           "os_platform_url": "https://ec.europa.eu/consumers/odr/",
-          "email_note": "Our email address can be found at the top of the imprint.",
-          "participation_statement": "We are neither willing nor obliged to participate in dispute resolution proceedings before a consumer arbitration board."
+          "email_note": "You can find our email address in the imprint above.",
+          "participation_statement": "We are not willing or obliged to participate in dispute resolution proceedings before a consumer arbitration board."
         },
         "disclaimer": {
           "headline": "Disclaimer",
           "content_liability": {
             "headline": "Liability for Content",
-            "paragraph1": "As a service provider, we are responsible for our own content on these pages according to Section 7(1) of the German Telemedia Act (TMG). However, pursuant to §§ 8 to 10 TMG, we as a service provider are not obligated to monitor transmitted or stored third-party information or to investigate circumstances that indicate illegal activity.",
-            "paragraph2": "Obligations to remove or block the use of information according to general laws remain unaffected. However, liability in this regard is only possible from the point in time at which a concrete infringement of rights becomes known. In the event of corresponding infringements becoming known, we will remove this content immediately."
+            "paragraph1": "As a service provider, we are responsible for our own content on these pages according to § 7 Abs.1 TMG and general laws. According to §§ 8 to 10 TMG, however, we as a service provider are not obligated to monitor transmitted or stored third-party information or to investigate circumstances that indicate illegal activity.",
+            "paragraph2": "Obligations to remove or block the use of information under general laws remain unaffected. However, liability in this regard is only possible from the moment of knowledge of a specific infringement. Upon notification of corresponding violations, we will remove this content immediately."
           },
           "link_liability": {
             "headline": "Liability for Links",
-            "paragraph1": "Our offer includes links to external websites of third parties, the content of which we have no influence over. Therefore, we cannot assume any liability for this external content. The respective provider or operator of the sites is always responsible for the content of the linked pages. The linked pages were checked for possible legal violations at the time of linking. Illegal content was not apparent at the time of linking.",
-            "paragraph2": "However, continuous monitoring of the content of linked pages is not feasible without concrete evidence of an infringement. In the event of infringements becoming known, we will remove such links immediately."
+            "paragraph1": "Our offer contains links to external websites of third parties, on whose contents we have no influence. Therefore, we cannot assume any liability for these external contents. The respective provider or operator of the pages is always responsible for the contents of the linked pages. The linked pages were checked for possible legal violations at the time of linking. Illegal contents were not recognizable at the time of linking.",
+            "paragraph2": "However, a permanent content control of the linked pages is not reasonable without concrete evidence of an infringement. Upon notification of violations, we will remove such links immediately."
           },
           "copyright": {
             "headline": "Copyright",
-            "paragraph1": "The content and works created by the site operators on these pages are subject to German copyright law. The reproduction, processing, dissemination, and any type of use outside the limits of copyright require the written consent of the respective author or creator. Downloads and copies of this page are only permitted for private, non-commercial use.",
-            "paragraph2": "To the extent that the content on this page was not created by the operator, the copyrights of third parties are respected. In particular, third-party content is identified as such. If you nevertheless become aware of a copyright infringement, we ask for a corresponding notification. In the event of infringements becoming known, we will remove such content immediately."
+            "paragraph1": "The content and works created by the site operators on these pages are subject to German copyright law. The reproduction, processing, distribution, and any kind of exploitation outside the limits of copyright require the written consent of the respective author or creator.",
+            "paragraph2": "Insofar as the content on this page was not created by the operator, the copyrights of third parties are respected. In particular, third-party content is identified as such. Should you nevertheless become aware of a copyright infringement, we ask for a corresponding notice. Upon notification of violations, we will remove such content immediately."
           }
         },
         "image_credits": {
           "headline": "Image Credits",
-          "description": "The images and graphics used on this website are subject to the copyright of Evolution Hub GmbH or are royalty-free stock photos from third-party providers."
-        }
+          "description": "The images and graphics used on this website are subject to the copyright of Evolution Hub GmbH or are license-free stock photos from third-party providers."
+        },
+        "phone_number": "",
+        "address_label": "",
+        "response_time_label": "",
+        "response_time": "",
+        "response_time_unit": ""
       },
       "source_label": "Source:",
       "source_url": "https://www.e-recht24.de",
@@ -621,8 +232,8 @@
       },
       "sections": {
         "1": {
-          "title": "1. Responsible Party",
-          "description": "In accordance with the General Data Protection Regulation (GDPR) and other national data protection laws of the member states, as well as other data protection provisions, the responsible party is:",
+          "title": "1. Controller",
+          "description": "The controller within the meaning of the General Data Protection Regulation (GDPR) and other national data protection laws of the member states as well as other data protection regulations is:",
           "provider": {
             "company_name": "Evolution Hub GmbH",
             "street_address": "Musterstraße 123",
@@ -635,58 +246,383 @@
           }
         },
         "2": {
-          "title": "2. Basics of Data Processing",
-          "description": "We generally process our users' personal data only to the extent necessary to provide a functional website and our content and services. The processing of our users' personal data regularly occurs only after user consent. An exception applies in cases where obtaining prior consent is not possible for factual reasons and the processing of data is permitted by statutory provisions."
+          "title": "2. General Information on Data Processing",
+          "description": "We process personal data of our users only to the extent necessary to provide a functional website and our content and services. The processing of personal data of our users regularly takes place only with the user's consent. An exception applies in cases where prior consent cannot be obtained for factual reasons and the processing of the data is permitted by law."
         },
         "3": {
           "title": "3. Provision of the Website and Creation of Log Files",
-          "subtitle": "Description and scope of data processing",
-          "paragraph1": "Every time our website is accessed, our system automatically collects data and information from the computer system of the accessing computer.",
+          "subtitle": "Description and Scope of Data Processing",
+          "paragraph1": "Each time our website is accessed, our system automatically collects data and information from the computer system of the calling computer.",
           "list_intro": "The following data is collected:",
           "list_items": {
             "0": "Browser type and version",
             "1": "Operating system used",
             "2": "Referrer URL",
             "3": "Hostname of the accessing computer",
-            "4": "Time of server request",
+            "4": "Time of the server request",
             "5": "IP address"
           }
         },
         "4": {
           "title": "4. Cookies",
-          "description": "Our website uses cookies. Cookies are text files that are stored in the internet browser or by the internet browser on the user's computer system. When a user accesses a website, a cookie may be stored on the user's operating system. This cookie contains a characteristic string that allows unique identification of the browser upon repeated access to the website."
+          "description": "Our website uses cookies. Cookies are text files that are stored in the internet browser or by the internet browser on the user's computer system. When a user calls up a website, a cookie can be stored on the user's operating system. This cookie contains a characteristic string of characters that enables the browser to be uniquely identified when the website is called up again."
         },
         "5": {
           "title": "5. Contact Form and Email Contact",
-          "paragraph1": "Our website provides a contact form that can be used for electronic contact. If a user takes advantage of this option, the data entered into the input mask will be transmitted and stored by us.",
-          "paragraph2": "Alternatively, contact can be made via the provided e-mail address. In this case, the personal data of the user transmitted with the e-mail will be stored."
+          "paragraph1": "A contact form is available on our website, which can be used for electronic contact. If a user takes advantage of this option, the data entered in the input mask will be transmitted to us and stored.",
+          "paragraph2": "Alternatively, contact can be made via the provided email address. In this case, the user's personal data transmitted with the email will be stored."
         },
         "6": {
           "title": "6. Rights of the Data Subject",
           "subtitle": "You have the right:",
           "list_items": {
-            "0": "pursuant to Art. 15 GDPR to request information about your personal data processed by us",
-            "1": "pursuant to Art. 16 GDPR to immediately request the rectification of inaccurate or completion of your personal data stored by us",
-            "2": "pursuant to Art. 17 GDPR to request the erasure of your personal data stored by us",
-            "3": "pursuant to Art. 18 GDPR to request the restriction of the processing of your personal data",
-            "4": "pursuant to Art. 20 GDPR to receive your personal data that you have provided to us in a structured, common, and machine-readable format",
-            "5": "pursuant to Art. 7 para. 3 GDPR to withdraw your consent at any time",
-            "6": "pursuant to Art. 77 GDPR to lodge a complaint with a supervisory authority"
+            "0": "according to Art. 15 GDPR, to request information about your personal data processed by us",
+            "1": "according to Art. 16 GDPR, to demand the immediate correction of incorrect or completion of your personal data stored by us",
+            "2": "according to Art. 17 GDPR, to demand the deletion of your personal data stored by us",
+            "3": "according to Art. 18 GDPR, to demand the restriction of the processing of your personal data",
+            "4": "according to Art. 20 GDPR, to receive your personal data that you have provided to us in a structured, common and machine-readable format",
+            "5": "according to Art. 7 Para. 3 GDPR, to revoke your once given consent to us at any time",
+            "6": "according to Art. 77 GDPR, to complain to a supervisory authority"
           }
         },
         "7": {
           "title": "7. Right to Object",
-          "description": "You have the right to object, on grounds relating to your particular situation, at any time to the processing of personal data concerning you which is based on Art. 6 para. 1 lit. e or f GDPR."
+          "description": "You have the right to object at any time, for reasons arising from your particular situation, to the processing of personal data concerning you which is carried out on the basis of Art. 6 para. 1 lit. e or f GDPR."
         },
         "8": {
           "title": "8. Data Security",
-          "description": "Within the website visit, we use the widespread SSL (Secure Socket Layer) procedure in conjunction with the highest level of encryption supported by your browser. This is typically 256-bit encryption. If your browser does not support 256-bit encryption, we will use 128-bit v3 technology instead."
+          "description": "We use the widespread SSL (Secure Socket Layer) method within the website visit in conjunction with the highest level of encryption supported by your browser. This is usually 256-bit encryption. If your browser does not support 256-bit encryption, we use 128-bit v3 technology instead."
         },
         "9": {
-          "title": "9. Timeliness and Changes to This Privacy Policy",
-          "description": "This Privacy Policy is currently valid and dated July 2025. Due to the further development of our website and offerings or due to changed legal or regulatory requirements, it may become necessary to amend this Privacy Policy."
+          "title": "9. Actuality and Amendment of this Privacy Policy",
+          "description": "This privacy policy is currently valid and is dated July 2025. Due to the further development of our website and offers on it or due to changed legal or official requirements, it may become necessary to change this privacy policy."
         }
       }
+    },
+    "agb": {
+      "title": "General Terms and Conditions – Evolution Hub",
+      "header": {
+        "title": "General Terms and Conditions (GTC)",
+        "effective_date": "Effective from: July 20, 2025"
+      },
+      "sections": {
+        "1": {
+          "title": "Scope",
+          "content": "These terms govern the use of the services of Evolution Hub and apply to all contracts concluded with Evolution Hub GmbH."
+        },
+        "2": {
+          "title": "Conclusion of Contract",
+          "content": "A contract is concluded when you complete the registration or otherwise accept these terms, e.g., by using the service after being notified of these terms."
+        },
+        "3": {
+          "title": "Services",
+          "content": "We provide a cloud-based platform and related features. The scope of services is determined by the selected plan and the documentation valid at the time of the contract conclusion."
+        },
+        "4": {
+          "title": "Accounts and Security",
+          "content": "You are responsible for the confidentiality of your access data and for all activities in your account. Inform us immediately of any unauthorized use."
+        },
+        "5": {
+          "title": "Prices and Payment",
+          "content": "Fees, billing cycles, and payment methods are specified on the pricing page. All prices are in EUR unless otherwise stated. Statutory taxes may apply."
+        },
+        "6": {
+          "title": "Term and Termination",
+          "content": "Contracts are concluded for an indefinite period and can be terminated at the end of the current billing period. Termination for cause remains reserved."
+        },
+        "7": {
+          "title": "Permissible Use",
+          "content": "You may not misuse the service, interfere with its operation, or violate applicable law. Automated scraping, reverse engineering, or security testing without consent is prohibited."
+        },
+        "8": {
+          "title": "Warranty and Liability",
+          "content": "The service is provided within the scope of the selected plan. Our liability is limited to intent and gross negligence, unless mandatory law provides otherwise."
+        },
+        "9": {
+          "title": "Intellectual Property",
+          "content": "All intellectual property rights in the service remain with Evolution Hub or its licensors. You receive a simple, non-transferable right of use for the duration of the contract."
+        },
+        "10": {
+          "title": "Data Protection",
+          "content": "We process personal data in accordance with our privacy policy. Details on purposes and legal bases can be found under pages.datenschutz."
+        },
+        "11": {
+          "title": "Applicable Law and Jurisdiction",
+          "content": "German law applies, excluding the conflict of laws rules. The place of jurisdiction is Berlin, as far as legally permissible."
+        },
+        "12": {
+          "title": "Changes to these Terms",
+          "content": "We may adapt these terms to reflect changes in the legal situation or our services. Significant changes will be communicated in advance. Continued use constitutes consent."
+        },
+        "11_participation": {
+          "title": "Participation in Dispute Resolution",
+          "content": "We are neither willing nor obliged to participate in dispute resolution proceedings before a consumer arbitration board."
+        }
+      }
+    },
+    "login": {
+      "title": "Login",
+      "form": {
+        "heading": "Log in to your account",
+        "fields": {
+          "email": {
+            "label": "Email"
+          },
+          "password": {
+            "label": "Password"
+          }
+        },
+        "forgot_password_link": "Forgot password?",
+        "submit_button": "Login",
+        "no_account_prompt": "Don't have an account yet?",
+        "register_link": "Register"
+      }
+    },
+    "register": {
+      "title": "Create Account",
+      "form": {
+        "heading": "Create your account",
+        "fields": {
+          "name": {
+            "label": "Name"
+          },
+          "username": {
+            "label": "Username"
+          },
+          "email": {
+            "label": "Email"
+          },
+          "password": {
+            "label": "Password"
+          }
+        },
+        "submit_button": "Create Account",
+        "already_have_account_prompt": "Already have an account?",
+        "login_link": "Login"
+      }
+    },
+    "forgotPassword": {
+      "title": "Forgot Password",
+      "form": {
+        "heading": "Forgot Password",
+        "fields": {
+          "email": {
+            "label": "Email"
+          }
+        },
+        "submit_button": "Send Reset Link"
+      }
+    },
+    "impressum": {
+      "title": "",
+      "section_intro": {
+        "heading": ""
+      },
+      "sections": {
+        "provider": {
+          "headline": "",
+          "company_name": "",
+          "street_address": "",
+          "city_postal_code": "",
+          "country": ""
+        },
+        "contact": {
+          "headline": "",
+          "phone": "",
+          "fax": "",
+          "email": "",
+          "website": ""
+        },
+        "represented_by": {
+          "headline": "",
+          "managing_directors": ""
+        },
+        "registration": {
+          "headline": "",
+          "register_entry": "",
+          "register_court": "",
+          "register_number": ""
+        },
+        "vat": {
+          "headline": "",
+          "vat_id_label": "",
+          "vat_id": ""
+        },
+        "content_responsible": {
+          "headline": "",
+          "name": "",
+          "street": "",
+          "city_postal_code": ""
+        },
+        "dispute_resolution": {
+          "headline": "",
+          "os_platform_intro": "",
+          "os_platform_url": "",
+          "email_note": "",
+          "participation_statement": ""
+        },
+        "disclaimer": {
+          "headline": "",
+          "content_liability": {
+            "headline": "",
+            "paragraph1": "",
+            "paragraph2": ""
+          },
+          "link_liability": {
+            "headline": "",
+            "paragraph1": "",
+            "paragraph2": ""
+          },
+          "copyright": {
+            "headline": "",
+            "paragraph1": "",
+            "paragraph2": ""
+          }
+        },
+        "image_credits": {
+          "headline": "",
+          "description": ""
+        }
+      },
+      "source_label": "",
+      "source_url": "",
+      "source_name": "",
+      "source_attribution": ""
+    },
+    "resetPassword": {
+      "title": "Reset your password",
+      "form": {
+        "heading": "Create a new password",
+        "fields": {
+          "password": {
+            "label": "New password"
+          }
+        },
+        "submit_button": "Reset password"
+      }
     }
+  },
+  "faq": {
+    "title": "Frequently Asked Questions",
+    "hero": {
+      "heading": "Frequently Asked Questions",
+      "subtitle": "Find answers to the most frequently asked questions"
+    },
+    "search_placeholder": "Search for a question or keyword...",
+    "no_results": {
+      "title": "No results found",
+      "description_before": "No matching questions. Try adjusting your search or",
+      "description_link_text": "contact us",
+      "description_after": "."
+    },
+    "categories": {
+      "all": "Show All",
+      "allgemein": {
+        "title": "General Questions",
+        "items": [
+          {
+            "question": "What is EvolutionHub?",
+            "answer": "EvolutionHub is a platform for modern web development with a focus on performance, usability, and modern technologies."
+          },
+          {
+            "question": "What technologies are used?",
+            "answer": "We use Astro for the frontend, TypeScript for type-safe development, and Tailwind CSS for styling. Our backend is based on modern JavaScript/TypeScript technologies."
+          },
+          {
+            "question": "Is an account required?",
+            "answer": "You need an account for most features. Some areas like the documentation and blog posts can be viewed without an account."
+          },
+          {
+            "question": "How is data privacy ensured?",
+            "answer": "We place great importance on data privacy and security. All data is transmitted encrypted and processed in accordance with the GDPR."
+          },
+          {
+            "question": "When is support available?",
+            "answer": "Our support team is available from Monday to Friday, 9 a.m. to 6 p.m."
+          },
+          {
+            "question": "Can EvolutionHub be used on mobile devices?",
+            "answer": "Yes, our platform is optimized for mobile devices and can be used on smartphones and tablets."
+          },
+          {
+            "question": "Is the platform accessible?",
+            "answer": "We are continuously working to improve the accessibility of our platform to make it accessible to all users."
+          }
+        ]
+      },
+      "konto": {
+        "title": "Account & Subscription",
+        "items": [
+          {
+            "question": "How do I create an account?",
+            "answer": "Click on 'Register' in the top navigation and follow the instructions. You will need a valid email address."
+          },
+          {
+            "question": "How can I reset my password?",
+            "answer": "On the login page, you will find a 'Forgot password' link. Enter your email address and follow the instructions in the email you receive."
+          },
+          {
+            "question": "How do I cancel my subscription?",
+            "answer": "Go to your account settings and select 'Manage Subscription'. You can cancel your subscription there."
+          },
+          {
+            "question": "What subscription plans are available?",
+            "answer": "We offer various plans tailored to different needs. You can find details on our Pricing page."
+          },
+          {
+            "question": "What payment methods are accepted?",
+            "answer": "We accept credit cards, PayPal, and SEPA direct debit."
+          },
+          {
+            "question": "How can I recover my account if I lose access?",
+            "answer": "Use the password reset function or contact our support for further assistance."
+          },
+          {
+            "question": "How do I manage my notification settings?",
+            "answer": "In your account settings, you can specify which notifications you would like to receive."
+          }
+        ]
+      },
+      "technik": {
+        "title": "Technical Questions",
+        "items": [
+          {
+            "question": "Which browsers are supported?",
+            "answer": "We support the latest versions of Chrome, Firefox, Safari, and Edge. Older browsers may not be fully supported."
+          },
+          {
+            "question": "How can I use the API?",
+            "answer": "Our API documentation can be found at /api-docs. You will need an API key, which you can generate in your account settings."
+          },
+          {
+            "question": "How do I report a bug?",
+            "answer": "Please use our bug report form at /contact or create an issue in our GitHub repository."
+          },
+          {
+            "question": "Are there usage limits for the API?",
+            "answer": "Yes, our API has usage limits to ensure a fair distribution of resources. Details can be found in the API documentation."
+          },
+          {
+            "question": "Can I integrate EvolutionHub with third-party tools?",
+            "answer": "Yes, we offer integrations and webhooks for various third-party services."
+          },
+          {
+            "question": "What are the system requirements?",
+            "answer": "We recommend using modern browsers and a stable internet connection."
+          },
+          {
+            "question": "Are there backup and recovery options?",
+            "answer": "Yes, your data is regularly backed up and can be restored if necessary."
+          }
+        ]
+      }
+    }
+  },
+  "hero": {
+    "title_part1": "Welcome to Evolution Hub",
+    "title_part2": "The future of AI-powered development",
+    "subtitle": "Discover the power of AI-driven tools to streamline your workflow and boost productivity.",
+    "get_started_button": "Get started",
+    "documentation_link": "View documentation"
   }
 }

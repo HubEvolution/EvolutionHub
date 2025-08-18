@@ -147,6 +147,8 @@ Sendet eine E-Mail mit einem Token zum Zurücksetzen des Passworts. Nutzt Resend
 * **Pfad:** `/api/auth/forgot-password`
 * **Handler-Funktion:** POST-Handler in `forgot-password.ts`
 * **Security:** Rate-Limiting (50/min über `standardApiLimiter`), Security-Headers, Audit-Logging, Anti-User-Enumeration
+* **Methoden-Policy:** Nur `POST`; alle anderen Methoden → `405 Method Not Allowed` (Header: `Allow: POST`)
+* **Reset-Link-Format:** Der in der E-Mail versendete Link enthält das Token als Fragment (`/reset-password#token=<token>`), um Leaks in Server-Logs/Proxys zu minimieren. Die Reset-Seite akzeptiert sowohl `?token=<...>` (Legacy) als auch `#token=<...>`.
 
 ### Anfrageparameter für Passwort vergessen
 
@@ -192,6 +194,12 @@ Setzt das Passwort eines Benutzers mit einem gültigen Token zurück.
 * **Pfad:** `/api/auth/reset-password`
 * **Handler-Funktion:** POST-Handler in `reset-password.ts`
 * **Security:** Rate-Limiting (50/min über `standardApiLimiter`), Security-Headers, Audit-Logging, Token-Validierung
+
+Hinweise zum Token-Transport und zur URL-Hygiene:
+
+* Die UI-Reset-Seite liest das Token aus dem Query-String (`?token=...`) oder aus dem Hash-Fragment (`#token=...`).
+* Nach dem Rendern entfernt die Seite das Token aus der URL (Query/Hash) via `history.replaceState`, um das Risiko von Token-Leaks (Referrer, Logs) zu reduzieren. Andere Query-Parameter und Hash-Bestandteile bleiben erhalten.
+* Bei Fehler-Redirects durch den Server wird das Token weiterhin als Query-Parameter in der Redirect-URL mitgegeben (Fragmente können serverseitig nicht gesetzt werden).
 
 ### Anfrageparameter für Passwort zurücksetzen
 

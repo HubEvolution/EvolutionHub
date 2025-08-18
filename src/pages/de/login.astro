@@ -27,13 +27,57 @@ if (locals.user) {
         <Input type="password" id="password" name="password" required />
       </div>
       <div class="text-right mb-4">
-        <a href="/de/forgot-password" class="text-emerald-600 hover:underline">{t('pages.login.form.forgot_password_link') ?? 'Passwort vergessen?'}</a>
+        <a href="/forgot-password" class="text-emerald-600 hover:underline">{t('pages.login.form.forgot_password_link') ?? 'Passwort vergessen?'}</a>
       </div>
       <!-- Turnstile entfernt -->
       <Button type="submit" className="w-full">{t('pages.login.form.submit_button') ?? 'Anmelden'}</Button>
     </form>
     <p class="text-center mt-4 text-sm">
-      {t('pages.login.form.no_account_prompt')} <a href="/de/register" class="text-emerald-600 hover:underline">{t('pages.login.form.register_link') ?? 'Registrieren'}</a>
+      {t('pages.login.form.no_account_prompt')} <a href="/register" class="text-emerald-600 hover:underline">{t('pages.login.form.register_link') ?? 'Registrieren'}</a>
     </p>
   </div>
 </AuthLayout>
+
+<script type="module">
+  import notify from '@/lib/notify';
+
+  (() => {
+    try {
+      const url = new URL(window.location.href);
+      const params = url.searchParams;
+      const hasAny = params.has('loggedOut') || params.has('success') || params.has('error');
+      if (!hasAny) return;
+
+      const isGerman = window.location.pathname.startsWith('/de');
+
+      const loggedOut = params.get('loggedOut');
+      const success = params.get('success');
+      const error = params.get('error');
+
+      if (loggedOut === 'true') {
+        notify.success(isGerman ? 'Erfolgreich abgemeldet.' : 'You have been logged out.');
+      }
+
+      if (success) {
+        const message = isGerman ? 'Aktion erfolgreich abgeschlossen.' : 'Action completed successfully.';
+        notify.success(message);
+      }
+
+      if (error) {
+        const code = error;
+        const message = isGerman ? `Anmeldung fehlgeschlagen (${code}).` : `Sign-in failed (${code}).`;
+        notify.error(message);
+      }
+
+      // Clean known status params while preserving others (e.g., next)
+      params.delete('loggedOut');
+      params.delete('success');
+      params.delete('error');
+      const newQuery = params.toString();
+      const newUrl = url.pathname + (newQuery ? `?${newQuery}` : '') + url.hash;
+      window.history.replaceState({}, document.title, newUrl);
+    } catch (e) {
+      console.error('[Login/de] URL status handling failed:', e);
+    }
+  })();
+</script>

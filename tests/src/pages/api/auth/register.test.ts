@@ -4,6 +4,7 @@ import * as authServiceModule from '@/lib/services/auth-service-impl';
 import * as rateLimiter from '@/lib/rate-limiter';
 import * as responseHelpers from '@/lib/response-helpers';
 import { ServiceError, ServiceErrorType } from '@/lib/services/types';
+import { mockRateLimitOnce } from '../../../helpers/rateLimiter';
 
 // Mock für die Astro APIContext
 const createMockContext = (formData: Record<string, any> = {}) => {
@@ -140,10 +141,7 @@ describe('Register-V2 API Tests (Service-Layer)', () => {
     });
 
     // Rate-Limiting simulieren
-    standardApiLimiterSpy.mockResolvedValue(new Response(null, {
-      status: 429,
-      headers: { 'Retry-After': '60' }
-    }));
+    mockRateLimitOnce(429, 'Too Many Requests', 'standardApiLimiter');
 
     const response = await POST(context as any);
 

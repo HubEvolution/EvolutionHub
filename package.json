@@ -33,7 +33,13 @@
     "db:migrate": "drizzle-kit migrate",
     "db:setup": "npm run setup:local",
     "i18n:diff": "node scripts/i18n-diff.mjs",
-    "i18n:fix-de-faq": "node scripts/fix-de-faq-structure.mjs"
+    "i18n:fix-de-faq": "node scripts/fix-de-faq-structure.mjs",
+    "i18n:identical": "node scripts/i18n-identical.mjs",
+    "i18n:fill": "node scripts/i18n-fill-missing.mjs",
+    "i18n:report": "node scripts/i18n-empty-report.mjs",
+    "i18n:validate": "node scripts/i18n-validate.mjs",
+    "i18n:migrate": "node scripts/i18n-migrate-paths.mjs",
+    "i18n:prune": "node scripts/i18n-prune-unused.mjs"
   },
   "dependencies": {
     "@astrojs/react": "^4.3.0",

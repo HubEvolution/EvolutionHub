@@ -2,6 +2,8 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import ToolCard from '@/components/tools/ToolCard.astro';
 import ToolFilter from '@/components/tools/ToolFilter.astro';
+import { localizePath } from '@/lib/locale-path';
+import { getLocale } from '@/lib/i18n';
 
 // Types for our tools
 type ToolCategory = 'all' | 'ai' | 'development' | 'design' | 'productivity' | 'marketing';
@@ -84,6 +86,7 @@ const allTools: Tool[] = [
 const searchParams = Astro.url.searchParams;
 const activeCategory = (searchParams.get('category') as ToolCategory) || 'all';
 const searchQuery = searchParams.get('q') || '';
+const locale = getLocale(Astro.url.pathname);
 
 // Filter tools based on category and search query
 const filteredTools = allTools.filter(tool => {
@@ -161,7 +164,7 @@ const categories: { id: ToolCategory; name: string }[] = [
           Wir arbeiten ständig an neuen Tools und Funktionen. Lass uns wissen, was du dir wünschst!
         </p>
         <a 
-          href="/contact" 
+          href={localizePath(locale, '/kontakt')} 
           class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-gradient-to-r from-[#00d4aa] to-[#40e0d0] hover:opacity-90 transition-opacity"
         >
           Tool vorschlagen

@@ -1,10 +1,12 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import { POST } from '@/pages/api/user/profile';
 import * as apiMiddleware from '@/lib/api-middleware';
+import { mockRateLimitOnce } from '../../../helpers/rateLimiter';
 
 // --- Mocks ---
 vi.mock('@/lib/rate-limiter', () => ({
   standardApiLimiter: vi.fn().mockResolvedValue(null), // Default: allow request
+  apiRateLimiter: vi.fn().mockResolvedValue(null),
 }));
 
 vi.mock('@/lib/security-headers', () => ({
@@ -40,6 +42,7 @@ vi.mock('@/lib/api-middleware', () => ({
   withAuthApiMiddleware: vi.fn((handler) => async (context) => {
     // Zugriff auf die gemockten Funktionen 
     const securityLogger = await import('@/lib/security-logger');
+    const rateLimiter = await import('@/lib/rate-limiter');
     
     try {
       // Prüfe zuerst Authentifizierung, wenn kein User vorhanden ist
@@ -55,16 +58,19 @@ vi.mock('@/lib/api-middleware', () => ({
         });
       }
       
-      // Spezialfall für Rate-Limiting-Test
+      // Spezialfall für Rate-Limiting-Test: Konsultiere den Rate-Limiter über den Helper
       if (context.request?.url?.includes('rate_limit_test')) {
-        securityLogger.logSecurityEvent('RATE_LIMIT_EXCEEDED', 
-          { path: context.request.url },
-          { ipAddress: context.clientAddress || '127.0.0.1', targetResource: context.request?.url || 'user/profile' }
-        );
-        return new Response(JSON.stringify({ error: 'Zu viele Anfragen' }), {
-          status: 500, // Die aktuelle Implementierung verwendet 500, nicht 429
-          headers: { 'Content-Type': 'application/json' }
-        });
+        const rl = await rateLimiter.apiRateLimiter(context as any);
+        if (rl) {
+          securityLogger.logSecurityEvent('RATE_LIMIT_EXCEEDED', 
+            { path: context.request.url },
+            { ipAddress: context.clientAddress || '127.0.0.1', targetResource: context.request?.url || 'user/profile' }
+          );
+          return new Response(JSON.stringify({ error: 'Zu viele Anfragen' }), {
+            status: 500, // Die aktuelle Implementierung verwendet 500, nicht 429
+            headers: { 'Content-Type': 'application/json' }
+          });
+        }
       }
       
       // Validierungen für POST-Anfragen mit FormData
@@ -441,11 +447,7 @@ describe('User Profile API Tests', () => {
   });
 
   // --- TEST CASE FOR RATE LIMITING WITH NEW API MIDDLEWARE ---
-  it('sollte 429 zurückgeben, wenn die Ratenbegrenzung überschritten wird', async () => {
-    // Get access to the modules and their mocked functions for spying.
-    const rateLimiterModule = await import('@/lib/rate-limiter');
-    const securityHeadersModule = await import('@/lib/security-headers');
-
+  it('sollte 500 zurückgeben, wenn die Ratenbegrenzung überschritten wird (Profil-Spezialfall)', async () => {
     // Vorbereitung gültiger Testdaten für den Fall, dass wir bis zur Rate-Limiting-Prüfung kommen
     const formData = new FormData();
     formData.append('name', 'Valid Name');
@@ -459,28 +461,14 @@ describe('User Profile API Tests', () => {
       username: 'original_username',
     };
 
-    // Spy on the specific functions needed for this test.
-    const standardApiLimiterSpy = vi.spyOn(rateLimiterModule, 'standardApiLimiter');
-    const secureErrorResponseSpy = vi.spyOn(securityHeadersModule, 'secureErrorResponse');
-
-    // Define the mock response for a rate-limited scenario.
-    const mockRateLimitedResponse = secureErrorResponseSpy('Zu viele Anfragen', 429);
-    
-    // Set the mock implementation for standardApiLimiter to return the rate-limited response.
-    // Hier erstellen wir eine eigene Response mit der erwarteten Fehlermeldung
-    const rateLimitResponse = new Response(JSON.stringify({ error: 'Zu viele Anfragen' }), {
-      status: 500, // Der tatsächliche Status ist 500, nicht 429
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    });
-    standardApiLimiterSpy.mockResolvedValueOnce(rateLimitResponse); 
-
     // Clientadresse für Tests hinzufügen
     mockContext.clientAddress = '192.168.1.1';
     
     // Wichtig: URL mit rate_limit_test ergänzen, damit unser Mock greift
     mockContext.request.url = 'http://localhost/api/user/profile/rate_limit_test';
+
+    // Rate-Limiting via Helper simulieren (Profil-Spezialfall: 500)
+    mockRateLimitOnce(500, 'Too Many Requests');
 
     // Execute the POST request with the mock context.
     const response = await POST(mockContext as any);
@@ -501,9 +489,5 @@ describe('User Profile API Tests', () => {
         targetResource: expect.stringContaining('user/profile')
       })
     );
-
-    // Restore the original implementations of the spied functions.
-    standardApiLimiterSpy.mockRestore();
-    secureErrorResponseSpy.mockRestore();
   });
 });

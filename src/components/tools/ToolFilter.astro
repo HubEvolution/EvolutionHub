@@ -12,6 +12,9 @@ interface Props {
 }
 
 const { categories, activeCategory, searchQuery, resultCount } = Astro.props;
+import { localizePath } from '@/lib/locale-path';
+import { getLocale } from '@/lib/i18n';
+const locale = getLocale(Astro.url.pathname);
 
 // Function to update URL with new search parameters
 const updateSearchParams = (params: Record<string, string>) => {
@@ -42,7 +45,7 @@ const updateSearchParams = (params: Record<string, string>) => {
         value={searchQuery}
         placeholder="Tools durchsuchen..."
         class="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md leading-5 bg-white dark:bg-gray-700 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-        hx-get="/tools"
+        hx-get={localizePath(locale, '/tools')}
         hx-trigger="keyup changed delay:500ms, search"
         hx-target="#tools-container"
         hx-push-url="true"
@@ -61,7 +64,7 @@ const updateSearchParams = (params: Record<string, string>) => {
               : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'
           }`}
           data-category={category.id}
-          hx-get="/tools"
+          hx-get={localizePath(locale, '/tools')}
           hx-target="#tools-container"
           hx-push-url="true"
           hx-params="q, category"

@@ -4,6 +4,7 @@ import PricingTable from '@/components/pricing/PricingTable.astro';
 import FeatureComparison from '@/components/pricing/FeatureComparison.astro';
 import { getI18n } from '@/utils/i18n';
 import { getLocale } from '@/lib/i18n';
+import { localizePath } from '@/lib/locale-path';
 
 // Set page metadata
 const locale = getLocale(Astro.url.pathname);
@@ -55,7 +56,7 @@ const description = t('pages.pricing.description');
 
         <div class="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
           <p class="text-center">
-            {t('pages.pricing.faq_contact_cta_text')} <a href="/kontakt" class="text-blue-600 dark:text-blue-400 hover:underline">{t('pages.pricing.faq_contact_cta_link_text')}</a>
+            {t('pages.pricing.faq_contact_cta_text')} <a href={localizePath(locale, '/kontakt')} class="text-blue-600 dark:text-blue-400 hover:underline">{t('pages.pricing.faq_contact_cta_link_text')}</a>
           </p>
         </div>
       </div>

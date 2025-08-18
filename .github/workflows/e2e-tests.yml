@@ -30,6 +30,17 @@ jobs:
     - name: Run Playwright Tests
       run: npx playwright test
 
+    - name: i18n Empty Strings Report
+      run: npm run i18n:report | tee i18n-empty-report.txt
+
+    - name: Upload i18n report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: i18n-empty-report
+        path: i18n-empty-report.txt
+        retention-days: 30
+
     - name: Upload report
       if: always()
       uses: actions/upload-artifact@v4

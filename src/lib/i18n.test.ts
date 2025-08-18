@@ -50,7 +50,7 @@ describe('i18n', () => {
     it('should navigate to German version when current locale is English', () => {
       window.location.pathname = '/en/blog/post';
       navigateLocale('de');
-      expect(mockAssign).toHaveBeenCalledWith('/de/blog/post');
+      expect(mockAssign).toHaveBeenCalledWith('/blog/post');
     });
 
     it('should add locale prefix to path without existing locale', () => {
@@ -66,7 +66,7 @@ describe('i18n', () => {
       
       window.location.pathname = '/en/';
       navigateLocale('de');
-      expect(mockAssign).toHaveBeenCalledWith('/de/');
+      expect(mockAssign).toHaveBeenCalledWith('/');
     });
   });
 });

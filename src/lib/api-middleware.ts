@@ -152,9 +152,9 @@ export function withApiMiddleware(handler: ApiHandler, options: ApiMiddlewareOpt
           createApiError('rate_limit', 'Zu viele Anfragen. Bitte versuchen Sie es später erneut.')
         );
       }
-      // Wenn der Limiter eine Response liefert, als Fehler behandeln (aktuelles Verhalten: 500 statt 429)
+      // Wenn der Limiter eine Response liefert, diese direkt (mit Security-Headers) zurückgeben
       if (rateLimitResult instanceof Response) {
-        throw new Error('rate_limited');
+        return applySecurityHeaders(rateLimitResult);
       }
       
       // API-Zugriff protokollieren (vor Ausführung)

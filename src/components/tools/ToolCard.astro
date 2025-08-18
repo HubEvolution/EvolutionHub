@@ -10,6 +10,9 @@ interface Props {
 }
 
 const { name, description, icon, color, url, isNew = false, isPopular = false } = Astro.props;
+import { localizePath } from '@/lib/locale-path';
+import { getLocale } from '@/lib/i18n';
+const locale = getLocale(Astro.url.pathname);
 ---
 
 <article class="group relative bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden">
@@ -33,7 +36,7 @@ const { name, description, icon, color, url, isNew = false, isPopular = false } 
     </div>
     
     <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-2">
-      <a href={url} class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors" aria-label={`Mehr erfahren über ${name}`}>
+      <a href={localizePath(locale, url)} class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors" aria-label={`Mehr erfahren über ${name}`}>
         {name}
         <span class="absolute inset-0" aria-hidden="true"></span>
       </a>

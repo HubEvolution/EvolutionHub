@@ -3,6 +3,7 @@ import { GET } from '@/pages/api/dashboard/activity';
 import * as rateLimiter from '@/lib/rate-limiter';
 import * as securityHeaders from '@/lib/security-headers';
 import * as securityLogger from '@/lib/security-logger';
+import { mockRateLimitOnce } from '../../../helpers/rateLimiter';
 
 describe('Dashboard Activity API Tests', () => {
   // Mock für die Security-Module
@@ -23,6 +24,8 @@ describe('Dashboard Activity API Tests', () => {
     vi.mock('@/lib/security-logger', () => ({
       logApiAccess: vi.fn(),
       logAuthFailure: vi.fn(),
+      logApiError: vi.fn(),
+      logUserEvent: vi.fn(),
     }));
   });
   
@@ -40,6 +43,10 @@ describe('Dashboard Activity API Tests', () => {
       },
       clientAddress: '192.168.1.1',
       url: new URL('https://example.com/api/dashboard/activity'),
+      request: {
+        url: 'https://example.com/api/dashboard/activity',
+        method: 'GET'
+      },
     };
     
     // API-Aufruf
@@ -67,7 +74,7 @@ describe('Dashboard Activity API Tests', () => {
   it('sollte Aktivitäten zurückgeben und 200 zurückgeben', async () => {
     // Mock-Benutzerdaten
     const mockUser = {
-      sub: 'user-123',
+      id: 'user-123',
       email: 'test@example.com',
       name: 'Test User',
     };
@@ -97,17 +104,21 @@ describe('Dashboard Activity API Tests', () => {
     // Mock-Context mit authentifiziertem Benutzer
     const context = {
       locals: {
+        user: mockUser,
         runtime: {
           env: {
             DB: {
               prepare: mockPrepare
             }
-          },
-          user: mockUser
+          }
         }
       },
       clientAddress: '192.168.1.1',
       url: new URL('https://example.com/api/dashboard/activity'),
+      request: {
+        url: 'https://example.com/api/dashboard/activity',
+        method: 'GET'
+      },
     };
     
     // API-Aufruf
@@ -128,13 +139,13 @@ describe('Dashboard Activity API Tests', () => {
     
     // Überprüfen, ob Datenbankabfrage korrekt ausgeführt wurde
     expect(mockPrepare).toHaveBeenCalled();
-    expect(mockBind).toHaveBeenCalledWith(mockUser.sub);
+    expect(mockBind).toHaveBeenCalledWith(mockUser.id);
     expect(mockAll).toHaveBeenCalled();
     
     // Überprüfen, ob Security-Features angewendet wurden
     expect(securityHeaders.applySecurityHeaders).toHaveBeenCalled();
     expect(securityLogger.logApiAccess).toHaveBeenCalledWith(
-      mockUser.sub,
+      mockUser.id,
       '192.168.1.1',
       expect.objectContaining({
         endpoint: '/api/dashboard/activity',
@@ -147,7 +158,7 @@ describe('Dashboard Activity API Tests', () => {
   it('sollte 500 zurückgeben, wenn ein Datenbankfehler auftritt', async () => {
     // Mock-Benutzerdaten
     const mockUser = {
-      sub: 'user-123',
+      id: 'user-123',
       email: 'test@example.com',
       name: 'Test User',
     };
@@ -160,17 +171,21 @@ describe('Dashboard Activity API Tests', () => {
     // Mock-Context mit authentifiziertem Benutzer
     const context = {
       locals: {
+        user: mockUser,
         runtime: {
           env: {
             DB: {
               prepare: mockPrepare
             }
-          },
-          user: mockUser
+          }
         }
       },
       clientAddress: '192.168.1.1',
       url: new URL('https://example.com/api/dashboard/activity'),
+      request: {
+        url: 'https://example.com/api/dashboard/activity',
+        method: 'GET'
+      },
     };
     
     // Spy auf console.error
@@ -185,18 +200,21 @@ describe('Dashboard Activity API Tests', () => {
     // Response-Body überprüfen
     const responseText = await response.text();
     const responseData = JSON.parse(responseText);
-    expect(responseData.error).toBe('Internal Server Error');
+    expect(responseData.success).toBe(false);
+    expect(responseData.error.type).toBe('server_error');
+    expect(responseData.error.message).toBe('Error fetching activity feed');
     
     // Überprüfen, ob Fehler protokolliert wurde
     expect(consoleErrorSpy).toHaveBeenCalled();
     
     // Überprüfen, ob Security-Features angewendet wurden
     expect(securityHeaders.applySecurityHeaders).toHaveBeenCalled();
-    expect(securityLogger.logAuthFailure).toHaveBeenCalledWith(
-      mockUser.sub,
+    expect(securityLogger.logUserEvent).toHaveBeenCalledWith(
+      mockUser.id,
+      'activity_feed_error',
       expect.objectContaining({
-        reason: 'server_error',
-        endpoint: '/api/dashboard/activity'
+        error: 'Database error',
+        ipAddress: '192.168.1.1'
       })
     );
     
@@ -209,7 +227,7 @@ describe('Dashboard Activity API Tests', () => {
     it('sollte Rate-Limiting anwenden', async () => {
       // Mock-Benutzerdaten
       const mockUser = {
-        sub: 'user-123',
+        id: 'user-123',
         email: 'test@example.com',
         name: 'Test User',
       };
@@ -222,17 +240,21 @@ describe('Dashboard Activity API Tests', () => {
       // Mock-Context mit authentifiziertem Benutzer
       const context = {
         locals: {
+          user: mockUser,
           runtime: {
             env: {
               DB: {
                 prepare: mockPrepare
               }
-            },
-            user: mockUser
+            }
           }
         },
         clientAddress: '192.168.1.1',
         url: new URL('https://example.com/api/dashboard/activity'),
+        request: {
+          url: 'https://example.com/api/dashboard/activity',
+          method: 'GET'
+        },
       };
       
       // API-Aufruf
@@ -245,7 +267,7 @@ describe('Dashboard Activity API Tests', () => {
     it('sollte abbrechen, wenn Rate-Limiting ausgelöst wird', async () => {
       // Mock-Benutzerdaten
       const mockUser = {
-        sub: 'user-123',
+        id: 'user-123',
         email: 'test@example.com',
         name: 'Test User',
       };
@@ -253,36 +275,35 @@ describe('Dashboard Activity API Tests', () => {
       // Mock-Context mit authentifiziertem Benutzer
       const context = {
         locals: {
+          user: mockUser,
           runtime: {
             env: {
               DB: {}
-            },
-            user: mockUser
+            }
           }
         },
         clientAddress: '192.168.1.1',
         url: new URL('https://example.com/api/dashboard/activity'),
+        request: {
+          url: 'https://example.com/api/dashboard/activity',
+          method: 'GET'
+        },
       };
       
-      // Rate-Limiting-Antwort simulieren
-      const rateLimitResponse = new Response(null, { 
-        status: 429, 
-        statusText: 'Too Many Requests'
-      });
-      vi.spyOn(rateLimiter, 'apiRateLimiter').mockResolvedValueOnce(rateLimitResponse);
+      // Rate-Limiting-Antwort simulieren (einmalig)
+      mockRateLimitOnce();
       
       // API-Aufruf
       const response = await GET(context as any);
       
       // Überprüfen, ob die Rate-Limit-Antwort zurückgegeben wurde
-      // Die API gibt in der aktuellen Implementierung 500 statt 429 zurück
-      expect(response.status).toBe(500);
+      expect(response.status).toBe(429);
     });
     
     it('sollte Security-Headers auf Antworten anwenden', async () => {
       // Mock-Benutzerdaten
       const mockUser = {
-        sub: 'user-123',
+        id: 'user-123',
         email: 'test@example.com',
         name: 'Test User',
       };
@@ -295,17 +316,21 @@ describe('Dashboard Activity API Tests', () => {
       // Mock-Context mit authentifiziertem Benutzer
       const context = {
         locals: {
+          user: mockUser,
           runtime: {
             env: {
               DB: {
                 prepare: mockPrepare
               }
-            },
-            user: mockUser
+            }
           }
         },
         clientAddress: '192.168.1.1',
         url: new URL('https://example.com/api/dashboard/activity'),
+        request: {
+          url: 'https://example.com/api/dashboard/activity',
+          method: 'GET'
+        },
       };
       
       // API-Aufruf

@@ -30,6 +30,6 @@
     "noUnusedParameters": true,
     "preserveSymlinks": true
   },
-  "include": ["src"],
+  "include": ["src", "tests", "test"],
   "exclude": ["node_modules"]
 }

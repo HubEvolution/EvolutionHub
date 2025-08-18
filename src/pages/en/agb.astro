@@ -94,15 +94,15 @@ const t = getI18n(locale);
 
             <div class="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700">
               <p class="text-sm text-gray-500 dark:text-gray-400">
-                <strong>Evolution Hub GmbH</strong><br>
-                Musterstraße 123<br>
-                10115 Berlin<br>
-                Deutschland
+                <strong>{t('pages.impressum.sections.provider.company_name')}</strong><br>
+                {t('pages.impressum.sections.provider.street_address')}<br>
+                {t('pages.impressum.sections.provider.city_postal_code')}<br>
+                {t('pages.impressum.sections.provider.country')}
               </p>
               <p class="mt-4 text-sm text-gray-500 dark:text-gray-400">
-                Telefon: +49 (0)30 12345678<br>
-                E-Mail: info@evolutionhub.de<br>
-                Internet: www.evolutionhub.de
+                {t('pages.impressum.sections.contact.phone')}<br>
+                {t('pages.impressum.sections.contact.email')}<br>
+                {t('pages.impressum.sections.contact.website')}
               </p>
             </div>
           </div>

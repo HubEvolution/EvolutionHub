@@ -93,6 +93,25 @@ export interface AuthService extends BaseService {
    * @returns true, wenn erfolgreich
    */
   resetPassword(token: string, newPassword: string): Promise<boolean>;
+
+  /**
+   * Ändert das Passwort eines eingeloggten Benutzers
+   *
+   * Überprüft das aktuelle Passwort mittels bcrypt und setzt anschließend
+   * das neue Passwort sicher in der Datenbank.
+   *
+   * @param userId ID des Benutzers
+   * @param currentPassword Aktuelles Passwort (im Klartext vom Nutzer eingegeben)
+   * @param newPassword Neues Passwort (im Klartext vom Nutzer eingegeben)
+   * @param ipAddress Optionale IP-Adresse für Security-Logging
+   * @returns true, wenn die Änderung erfolgreich war
+   */
+  changePassword(
+    userId: string,
+    currentPassword: string,
+    newPassword: string,
+    ipAddress?: string
+  ): Promise<boolean>;
 }
 
 /**

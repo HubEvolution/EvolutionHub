@@ -1,4 +1,3 @@
-import type { APIContext } from 'astro';
 import { withAuthApiMiddleware, createApiSuccess, createApiError } from '@/lib/api-middleware';
 import { logUserEvent } from '@/lib/security-logger';
 
@@ -14,7 +13,7 @@ import { logUserEvent } from '@/lib/security-logger';
 export const POST = withAuthApiMiddleware(async (context) => {
   const { request, locals, clientAddress } = context;
   const { env } = locals.runtime;
-  const user = locals.user;
+  const user = locals.user as { id: string };
   const userId = user.id;
 
   let requestData;
@@ -106,7 +105,7 @@ export const POST = withAuthApiMiddleware(async (context) => {
   return createApiSuccess(result);
 }, {
   // Zusätzliche Logging-Metadaten
-  logMetadata: { action: 'perform_dashboard_action' },
+  logMetadata: { action: 'perform_dashboard_action', method: 'POST' },
   
   // Spezielle Fehlerbehandlung für diesen Endpunkt
   onError: (context, error) => {

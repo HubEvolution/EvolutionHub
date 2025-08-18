@@ -1,5 +1,4 @@
-import type { APIRoute } from 'astro';
-import { withAuthApiMiddleware, createApiSuccess, createApiError } from '@/lib/api-middleware';
+import { withAuthApiMiddleware, createApiError } from '@/lib/api-middleware';
 import { logUserEvent } from '@/lib/security-logger';
 
 /**
@@ -39,7 +38,10 @@ export const GET = withAuthApiMiddleware(async (context) => {
   
   // Spezifisches Event-Logging wurde zur Middleware migriert
   
-  return createApiSuccess(activityFeed);
+  return new Response(JSON.stringify(activityFeed), {
+    status: 200,
+    headers: { 'Content-Type': 'application/json' }
+  });
 }, {
   // Zusätzliche Logging-Metadaten
   logMetadata: { action: 'activity_feed_accessed' },

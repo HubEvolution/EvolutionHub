@@ -3,6 +3,7 @@ import { POST } from '@/pages/api/dashboard/perform-action';
 import * as rateLimiter from '@/lib/rate-limiter';
 import * as securityHeaders from '@/lib/security-headers';
 import * as securityLogger from '@/lib/security-logger';
+import { mockRateLimitOnce } from '../../../helpers/rateLimiter';
 
 describe('Dashboard Perform-Action API Tests', () => {
   // Mock für die Security-Module
@@ -23,10 +24,12 @@ describe('Dashboard Perform-Action API Tests', () => {
     vi.mock('@/lib/security-logger', () => ({
       logApiAccess: vi.fn(),
       logAuthFailure: vi.fn(),
+      logApiError: vi.fn(),
+      logUserEvent: vi.fn(),
     }));
 
-    // Mock für crypto.randomUUID mit spyOn statt direktem Überschreiben
-    vi.spyOn(crypto, 'randomUUID').mockReturnValue('test-uuid-123');
+    // Mock für crypto.randomUUID mit gültigem UUID-String
+    vi.spyOn(crypto, 'randomUUID').mockReturnValue('11111111-1111-1111-1111-111111111111');
   });
   
   afterEach(() => {
@@ -87,6 +90,7 @@ describe('Dashboard Perform-Action API Tests', () => {
       url: new URL('https://example.com/api/dashboard/perform-action'),
       request: {
         url: 'https://example.com/api/dashboard/perform-action',
+        method: 'POST',
         json: vi.fn().mockRejectedValue(new Error('Invalid JSON'))
       }
     };
@@ -100,15 +104,18 @@ describe('Dashboard Perform-Action API Tests', () => {
     // Response-Body überprüfen
     const responseText = await response.text();
     const responseData = JSON.parse(responseText);
-    expect(responseData.error).toBe('Invalid JSON in request body');
+    expect(responseData.success).toBe(false);
+    expect(responseData.error.type).toBe('validation_error');
+    expect(responseData.error.message).toBe('Invalid JSON in request body');
     
     // Überprüfen, ob Security-Features angewendet wurden
     expect(securityHeaders.applySecurityHeaders).toHaveBeenCalled();
-    expect(securityLogger.logAuthFailure).toHaveBeenCalledWith(
+    expect(securityLogger.logUserEvent).toHaveBeenCalledWith(
       mockUser.id,
+      'invalid_dashboard_request',
       expect.objectContaining({
-        reason: 'invalid_request',
-        endpoint: '/api/dashboard/perform-action'
+        error: 'Invalid JSON in request body',
+        ipAddress: '192.168.1.1'
       })
     );
   });
@@ -159,12 +166,12 @@ describe('Dashboard Perform-Action API Tests', () => {
     // Response-Body überprüfen
     const responseText = await response.text();
     const responseData = JSON.parse(responseText);
-    expect(responseData.message).toBe('Project created successfully');
-    expect(responseData.projectId).toBe('test-uuid-123');
+    expect(responseData.data.message).toBe('Project created successfully');
+    expect(responseData.data.projectId).toBe('11111111-1111-1111-1111-111111111111');
     
     // Überprüfen, ob Datenbankabfrage korrekt ausgeführt wurde
     expect(mockPrepare).toHaveBeenCalledWith(expect.stringContaining('INSERT INTO projects'));
-    expect(mockBind).toHaveBeenCalledWith('test-uuid-123', mockUser.id, 'New Project', 'A placeholder project.', 'active', 0);
+    expect(mockBind).toHaveBeenCalledWith('11111111-1111-1111-1111-111111111111', mockUser.id, 'New Project', 'A placeholder project.', 'active', 0);
     expect(mockRun).toHaveBeenCalled();
     
     // Überprüfen, ob Security-Features angewendet wurden
@@ -175,8 +182,15 @@ describe('Dashboard Perform-Action API Tests', () => {
       expect.objectContaining({
         endpoint: '/api/dashboard/perform-action',
         method: 'POST',
-        action: 'create_project',
-        projectId: 'test-uuid-123'
+        action: 'perform_dashboard_action'
+      })
+    );
+    expect(securityLogger.logUserEvent).toHaveBeenCalledWith(
+      mockUser.id,
+      'project_created',
+      expect.objectContaining({
+        projectId: '11111111-1111-1111-1111-111111111111',
+        ipAddress: '192.168.1.1'
       })
     );
   });
@@ -209,6 +223,8 @@ describe('Dashboard Perform-Action API Tests', () => {
       clientAddress: '192.168.1.1',
       url: new URL('https://example.com/api/dashboard/perform-action'),
       request: {
+        url: 'https://example.com/api/dashboard/perform-action',
+        method: 'POST',
         json: vi.fn().mockResolvedValue({ action: 'create_task' })
       }
     };
@@ -222,12 +238,12 @@ describe('Dashboard Perform-Action API Tests', () => {
     // Response-Body überprüfen
     const responseText = await response.text();
     const responseData = JSON.parse(responseText);
-    expect(responseData.message).toBe('Task created successfully');
-    expect(responseData.taskId).toBe('test-uuid-123');
+    expect(responseData.data.message).toBe('Task created successfully');
+    expect(responseData.data.taskId).toBe('11111111-1111-1111-1111-111111111111');
     
     // Überprüfen, ob Datenbankabfrage korrekt ausgeführt wurde
     expect(mockPrepare).toHaveBeenCalledWith(expect.stringContaining('INSERT INTO tasks'));
-    expect(mockBind).toHaveBeenCalledWith('test-uuid-123', mockUser.id, 'New Task', 'pending');
+    expect(mockBind).toHaveBeenCalledWith('11111111-1111-1111-1111-111111111111', mockUser.id, 'New Task', 'pending');
     expect(mockRun).toHaveBeenCalled();
     
     // Überprüfen, ob Security-Features angewendet wurden
@@ -238,8 +254,15 @@ describe('Dashboard Perform-Action API Tests', () => {
       expect.objectContaining({
         endpoint: '/api/dashboard/perform-action',
         method: 'POST',
-        action: 'create_task',
-        taskId: 'test-uuid-123'
+        action: 'perform_dashboard_action'
+      })
+    );
+    expect(securityLogger.logUserEvent).toHaveBeenCalledWith(
+      mockUser.id,
+      'task_created',
+      expect.objectContaining({
+        taskId: '11111111-1111-1111-1111-111111111111',
+        ipAddress: '192.168.1.1'
       })
     );
   });
@@ -265,6 +288,8 @@ describe('Dashboard Perform-Action API Tests', () => {
       clientAddress: '192.168.1.1',
       url: new URL('https://example.com/api/dashboard/perform-action'),
       request: {
+        url: 'https://example.com/api/dashboard/perform-action',
+        method: 'POST',
         json: vi.fn().mockResolvedValue({ action: 'invalid_action' })
       }
     };
@@ -278,15 +303,18 @@ describe('Dashboard Perform-Action API Tests', () => {
     // Response-Body überprüfen
     const responseText = await response.text();
     const responseData = JSON.parse(responseText);
-    expect(responseData.error).toBe('Invalid action');
+    expect(responseData.success).toBe(false);
+    expect(responseData.error.type).toBe('validation_error');
+    expect(responseData.error.message).toBe('Invalid action: invalid_action');
     
     // Überprüfen, ob Security-Features angewendet wurden
     expect(securityHeaders.applySecurityHeaders).toHaveBeenCalled();
-    expect(securityLogger.logAuthFailure).toHaveBeenCalledWith(
+    expect(securityLogger.logUserEvent).toHaveBeenCalledWith(
       mockUser.id,
+      'invalid_dashboard_action',
       expect.objectContaining({
-        reason: 'invalid_action',
-        endpoint: '/api/dashboard/perform-action'
+        action: 'invalid_action',
+        ipAddress: '192.168.1.1'
       })
     );
   });
@@ -319,6 +347,8 @@ describe('Dashboard Perform-Action API Tests', () => {
       clientAddress: '192.168.1.1',
       url: new URL('https://example.com/api/dashboard/perform-action'),
       request: {
+        url: 'https://example.com/api/dashboard/perform-action',
+        method: 'POST',
         json: vi.fn().mockResolvedValue({ action: 'create_project' })
       }
     };
@@ -335,19 +365,21 @@ describe('Dashboard Perform-Action API Tests', () => {
     // Response-Body überprüfen
     const responseText = await response.text();
     const responseData = JSON.parse(responseText);
-    expect(responseData.error).toBe('Internal Server Error');
+    expect(responseData.success).toBe(false);
+    expect(responseData.error.type).toBe('server_error');
+    expect(responseData.error.message).toBe('Error performing dashboard action');
     
     // Überprüfen, ob Fehler protokolliert wurde
     expect(consoleErrorSpy).toHaveBeenCalled();
     
     // Überprüfen, ob Security-Features angewendet wurden
     expect(securityHeaders.applySecurityHeaders).toHaveBeenCalled();
-    expect(securityLogger.logAuthFailure).toHaveBeenCalledWith(
+    expect(securityLogger.logUserEvent).toHaveBeenCalledWith(
       mockUser.id,
+      'dashboard_action_error',
       expect.objectContaining({
-        reason: 'server_error',
-        endpoint: '/api/dashboard/perform-action',
-        action: 'create_project'
+        error: 'Database error',
+        ipAddress: '192.168.1.1'
       })
     );
     
@@ -378,6 +410,8 @@ describe('Dashboard Perform-Action API Tests', () => {
         clientAddress: '192.168.1.1',
         url: new URL('https://example.com/api/dashboard/perform-action'),
         request: {
+          url: 'https://example.com/api/dashboard/perform-action',
+          method: 'POST',
           json: vi.fn().mockResolvedValue({ action: 'view_docs' })
         }
       };
@@ -410,23 +444,21 @@ describe('Dashboard Perform-Action API Tests', () => {
         clientAddress: '192.168.1.1',
         url: new URL('https://example.com/api/dashboard/perform-action'),
         request: {
+          url: 'https://example.com/api/dashboard/perform-action',
+          method: 'POST',
           json: vi.fn().mockResolvedValue({ action: 'view_docs' })
         }
       };
       
-      // Rate-Limiting-Antwort simulieren
-      const rateLimitResponse = new Response(null, { 
-        status: 429, 
-        statusText: 'Too Many Requests'
-      });
-      vi.spyOn(rateLimiter, 'apiRateLimiter').mockResolvedValueOnce(rateLimitResponse);
+      // Rate-Limiting-Antwort simulieren (einmalig)
+      mockRateLimitOnce();
       
       // API-Aufruf
       const response = await POST(context as any);
       
       // Überprüfen, ob die Rate-Limit-Antwort zurückgegeben wurde
-      // Die API gibt in der aktuellen Implementierung 500 statt 429 zurück
-      expect(response.status).toBe(500);
+      // Erwartet: 429 Too Many Requests
+      expect(response.status).toBe(429);
     });
     
     it('sollte Security-Headers auf Antworten anwenden', async () => {
@@ -450,6 +482,8 @@ describe('Dashboard Perform-Action API Tests', () => {
         clientAddress: '192.168.1.1',
         url: new URL('https://example.com/api/dashboard/perform-action'),
         request: {
+          url: 'https://example.com/api/dashboard/perform-action',
+          method: 'POST',
           json: vi.fn().mockResolvedValue({ action: 'view_docs' })
         }
       };
