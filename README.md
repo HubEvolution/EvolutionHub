@@ -228,6 +228,8 @@ Detaillierte Informationen zum Datenbankschema und zu Migrationen finden Sie in 
   - Vollständige Testabdeckung (100%) für Auth-Modul, Login- und Register-API
   - Mocking-Framework für D1-Datenbankinteraktionen
 
+> Hinweis (E2E & CSRF): Für POST-Requests in E2E-Tests ist ein same-origin `Origin`-Header erforderlich (Astro/Cloudflare CSRF-Schutz). Siehe Abschnitt „CSRF-Schutz in E2E-Tests“ in der CI/CD-Doku: [docs/development/ci-cd.md#csrf-schutz-in-e2e-tests-astrocloudflare-workers](./docs/development/ci-cd.md#csrf-schutz-in-e2e-tests-astrocloudflare-workers)
+
 #### Test-Prioritäten
 
 Für die Weiterentwicklung der Tests wurden folgende Prioritäten identifiziert:

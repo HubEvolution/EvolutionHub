@@ -80,6 +80,20 @@
   animation: fadeIn 0.3s ease-out forwards;
 }
 
+/* AOS safety fallback: before AOS is enabled, keep content visible and neutralize transforms */
+html:not(.aos-enabled) [data-aos] {
+  opacity: 1;
+  visibility: visible;
+  /* Neutralize AOS initial transforms so elements are not pushed off-screen */
+  transform: none !important;
+}
+
+/* When AOS is enabled, allow pre-animate hidden state (restores default behavior). */
+html.aos-enabled [data-aos].aos-init:not(.aos-animate) {
+  opacity: 0;
+  visibility: hidden;
+}
+
 /* Typewriter animation */
 @keyframes typewriter {
   from { width: 0; }

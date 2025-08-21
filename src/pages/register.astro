@@ -1,5 +1,6 @@
 ---
 import AuthLayout from '@/layouts/AuthLayout.astro';
+import AuthStatusNotifier from '@/components/scripts/AuthStatusNotifier';
 import Button from '@/components/ui/Button.astro';
 import FormLabel from '@/components/ui/FormLabel.astro';
 import Input from '@/components/ui/Input.astro';
@@ -41,6 +42,7 @@ if (locals.user) {
     <p class="text-center mt-4 text-sm">
       {t('pages.register.form.already_have_account_prompt')} <a href="/login" class="text-emerald-600 hover:underline">{t('pages.register.form.login_link') ?? 'Login'}</a>
     </p>
+    <AuthStatusNotifier mode="register" client:load />
   </div>
 </AuthLayout>
 

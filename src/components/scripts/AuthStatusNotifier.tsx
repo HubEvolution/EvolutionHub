@@ -1,0 +1,150 @@
+import { useEffect } from 'react';
+import { toast } from 'sonner';
+
+type Mode =
+  | 'login'
+  | 'password-reset-sent'
+  | 'forgot-password'
+  | 'reset-password'
+  | 'register'
+  | 'email-verified';
+
+function wait(ms: number) {
+  return new Promise((r) => setTimeout(r, ms));
+}
+
+async function waitForToaster(timeout = 4000): Promise<boolean> {
+  const start = Date.now();
+  while (Date.now() - start < timeout) {
+    if (document.querySelector('[data-sonner-toaster]')) return true;
+    await wait(50);
+  }
+  return false;
+}
+
+export default function AuthStatusNotifier({ mode }: { mode: Mode }) {
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const url = new URL(window.location.href);
+        const params = url.searchParams;
+        const isGerman = window.location.pathname.startsWith('/de');
+
+        const keys = mode === 'login'
+          ? ['loggedOut', 'success', 'error']
+          : ['success', 'error'];
+
+        const hasAny = keys.some((k) => params.has(k));
+        if (!hasAny) return;
+
+        // Ensure toaster is mounted to avoid missed toasts
+        await waitForToaster();
+        if (cancelled) return;
+
+        if (mode === 'login') {
+          const loggedOut = params.get('loggedOut');
+          const success = params.get('success');
+          const error = params.get('error');
+
+          if (loggedOut === 'true') {
+            toast.success(isGerman ? 'Erfolgreich abgemeldet.' : 'You have been logged out.');
+          }
+          if (success) {
+            const msg = isGerman
+              ? 'Aktion erfolgreich abgeschlossen.'
+              : 'Action completed successfully.';
+            toast.success(msg);
+          }
+          if (error) {
+            const code = error;
+            const msg = isGerman
+              ? `Anmeldung fehlgeschlagen (${code}).`
+              : `Sign-in failed (${code}).`;
+            toast.error(msg);
+          }
+        } else if (mode === 'password-reset-sent') {
+          const success = params.get('success');
+          const error = params.get('error');
+          if (success) {
+            toast.success(isGerman ? 'E-Mail wurde versendet.' : 'Email has been sent.');
+          }
+          if (error) {
+            const code = error;
+            toast.error(isGerman ? `Versand fehlgeschlagen (${code}).` : `Sending failed (${code}).`);
+          }
+        } else if (mode === 'forgot-password') {
+          const success = params.get('success');
+          const error = params.get('error');
+          if (success) {
+            toast.success(
+              isGerman ? 'E-Mail zum Zurücksetzen wurde gesendet.' : 'Password reset email sent.'
+            );
+          }
+          if (error) {
+            const code = error;
+            toast.error(
+              isGerman
+                ? `Senden fehlgeschlagen (${code}).`
+                : `Failed to send reset email (${code}).`
+            );
+          }
+        } else if (mode === 'reset-password') {
+          const success = params.get('success');
+          const error = params.get('error');
+          if (success) {
+            toast.success(
+              isGerman ? 'Passwort wurde zurückgesetzt.' : 'Password has been reset.'
+            );
+          }
+          if (error) {
+            const code = error;
+            toast.error(
+              isGerman
+                ? `Passwort-Zurücksetzen fehlgeschlagen (${code}).`
+                : `Password reset failed (${code}).`
+            );
+          }
+        } else if (mode === 'register') {
+          const success = params.get('success');
+          const error = params.get('error');
+          if (success) {
+            toast.success(
+              isGerman ? 'Registrierung erfolgreich.' : 'Registration successful.'
+            );
+          }
+          if (error) {
+            const code = error;
+            toast.error(
+              isGerman
+                ? `Registrierung fehlgeschlagen (${code}).`
+                : `Registration failed (${code}).`
+            );
+          }
+        }
+
+        // Cleanup known params while preserving others
+        let mutated = false;
+        for (const k of keys) {
+          if (params.has(k)) {
+            params.delete(k);
+            mutated = true;
+          }
+        }
+        if (mutated) {
+          const newQuery = params.toString();
+          const newUrl = url.pathname + (newQuery ? `?${newQuery}` : '') + url.hash;
+          window.history.replaceState({}, document.title, newUrl);
+        }
+      } catch (e) {
+        console.error('[AuthStatusNotifier] Failed:', e);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [mode]);
+
+  return null;
+}

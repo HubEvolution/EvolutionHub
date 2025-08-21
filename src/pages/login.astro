@@ -1,17 +1,19 @@
 ---
 import AuthLayout from '@/layouts/AuthLayout.astro';
+import AuthStatusNotifier from '@/components/scripts/AuthStatusNotifier';
 import Button from '@/components/ui/Button.astro';
 import FormLabel from '@/components/ui/FormLabel.astro';
 import Input from '@/components/ui/Input.astro';
 import { getI18n } from '@/utils/i18n';
 import { getLocale } from '@/lib/i18n';
+import { localizePath } from '@/lib/locale-path';
 
 const locale = getLocale(Astro.url.pathname);
 const t = getI18n(locale);
 
 const locals = Astro.locals as any;
 if (locals.user) {
-  return Astro.redirect('/dashboard');
+  return Astro.redirect(localizePath(locale, '/dashboard'));
 }
 ---
 <AuthLayout title={t('pages.login.title') ?? 'Login'}>
@@ -36,59 +38,5 @@ if (locals.user) {
       {t('pages.login.form.no_account_prompt')} <a href="/register" class="text-emerald-600 hover:underline">{t('pages.login.form.register_link') ?? 'Register'}</a>
     </p>
   </div>
+  <AuthStatusNotifier mode="login" client:load />
 </AuthLayout>
-
-<script type="module">
-  (async () => {
-    try {
-      // Warte bis der Sonner-Toaster gemountet wurde, um verlorene Toasts zu vermeiden
-      const waitForToaster = async (timeout = 4000) => {
-        const start = Date.now();
-        while (Date.now() - start < timeout) {
-          if (document.querySelector('[data-sonner-toaster]')) return true;
-          await new Promise((r) => setTimeout(r, 50));
-        }
-        return false;
-      };
-
-      const url = new URL(window.location.href);
-      const params = url.searchParams;
-      const hasAny = params.has('loggedOut') || params.has('success') || params.has('error');
-      if (!hasAny) return;
-
-      await waitForToaster();
-      const { default: notify } = await import('@/lib/notify');
-
-      const isGerman = window.location.pathname.startsWith('/de');
-
-      const loggedOut = params.get('loggedOut');
-      const success = params.get('success');
-      const error = params.get('error');
-
-      if (loggedOut === 'true') {
-        notify.success(isGerman ? 'Erfolgreich abgemeldet.' : 'You have been logged out.');
-      }
-
-      if (success) {
-        const message = isGerman ? 'Aktion erfolgreich abgeschlossen.' : 'Action completed successfully.';
-        notify.success(message);
-      }
-
-      if (error) {
-        const code = error;
-        const message = isGerman ? `Anmeldung fehlgeschlagen (${code}).` : `Sign-in failed (${code}).`;
-        notify.error(message);
-      }
-
-      // Clean known status params while preserving others (e.g., next)
-      params.delete('loggedOut');
-      params.delete('success');
-      params.delete('error');
-      const newQuery = params.toString();
-      const newUrl = url.pathname + (newQuery ? `?${newQuery}` : '') + url.hash;
-      window.history.replaceState({}, document.title, newUrl);
-    } catch (e) {
-      console.error('[Login] URL status handling failed:', e);
-    }
-  })();
-</script>

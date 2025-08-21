@@ -29,6 +29,44 @@ const MIGRATIONS_DIR = path.join(ROOT_DIR, 'migrations');
 // Konfiguration aus wrangler.toml lesen
 const WRANGLER_CONFIG = fs.readFileSync(path.join(ROOT_DIR, 'wrangler.toml'), 'utf-8');
 
+// Utility: check if a column exists in a table
+function columnExists(dbPath: string, table: string, column: string): boolean {
+  try {
+    const out = execSync(`sqlite3 ${dbPath} "PRAGMA table_info('${table}');"`, {
+      encoding: 'utf-8',
+    });
+    return out.split('\n').some((line) => line.includes(`|${column}|`) || line.split('|')[1] === column);
+  } catch {
+    return false;
+  }
+}
+
+// Utility: add a column if it does not exist
+function addColumnIfMissing(dbPath: string, table: string, column: string, definition: string) {
+  if (!columnExists(dbPath, table, column)) {
+    try {
+      execSync(`sqlite3 ${dbPath} "ALTER TABLE ${table} ADD COLUMN ${column} ${definition};"`, { stdio: 'inherit' });
+      console.log(`✅ Added column ${table}.${column} to ${dbPath}`);
+    } catch (err) {
+      console.warn(`⚠️ Could not add column ${table}.${column} on ${dbPath} (may already exist).`, err);
+    }
+  } else {
+    console.log(`ℹ️ Column ${table}.${column} already exists on ${dbPath}`);
+  }
+}
+
+// Utility: run SQL safely with IF NOT EXISTS patterns
+function runSafeSQL(dbPath: string, sql: string) {
+  try {
+    const tmp = path.join(os.tmpdir(), `safe_${Date.now()}.sql`);
+    fs.writeFileSync(tmp, sql);
+    execSync(`cat ${tmp} | sqlite3 ${dbPath}`, { stdio: 'inherit' });
+    fs.unlinkSync(tmp);
+  } catch (err) {
+    console.warn(`⚠️ Safe SQL execution warning on ${dbPath}:`, err);
+  }
+}
+
 // Funktion zum Erstellen eines Test-Benutzers
 async function createTestUser() {
   console.log('\n👤 Erstelle Test-Benutzer für lokale Entwicklung...');
@@ -57,7 +95,7 @@ async function createTestUser() {
     `;
     
     // Finde alle SQLite-Dateien
-    const sqliteFiles = [];
+    const sqliteFiles: string[] = [];
     
     // Haupt-SQLite-Datei
     const mainDbPath = path.join(ROOT_DIR, '.wrangler', 'd1', 'miniflare', 'databases', `${DB_NAME}.sqlite`);
@@ -158,50 +196,55 @@ try {
     }
     const mainDbPath = path.join(mainDbDir, `${DB_NAME}.sqlite`);
     
-    // Stelle sicher, dass die Hauptdatenbank existiert
-    if (!fs.existsSync(mainDbPath)) {
+    // Stelle sicher, dass die Hauptdatenbank existiert und merke, ob sie neu erstellt wurde
+    const mainDbExisted = fs.existsSync(mainDbPath);
+    if (!mainDbExisted) {
       console.log(`Erstelle leere Datenbank-Datei: ${mainDbPath}`);
       fs.writeFileSync(mainDbPath, ''); // Erstelle eine leere Datei
     }
     
     console.log(`\n🔍 Primäre Wrangler-Datenbank: ${mainDbPath}`);
     
-    // Wende jede Migrationsdatei einzeln auf die Hauptdatenbank an
-    console.log('\n💾 Wende Migrationen direkt auf die Wrangler-Datenbank an...');
-    let migrationsApplied = 0;
-    
-    for (const migrationFile of migrationFiles) {
-      const migrationPath = path.join(MIGRATIONS_DIR, migrationFile);
-      console.log(`\n📃 Wende Migration an: ${migrationFile}`);
+    if (!mainDbExisted) {
+      // Wende jede Migrationsdatei einzeln auf die Hauptdatenbank an
+      console.log('\n💾 Wende Migrationen direkt auf die Wrangler-Datenbank an...');
+      let migrationsApplied = 0;
       
-      try {
-        // Lese den SQL-Inhalt
-        const sqlContent = fs.readFileSync(migrationPath, 'utf-8');
+      for (const migrationFile of migrationFiles) {
+        const migrationPath = path.join(MIGRATIONS_DIR, migrationFile);
+        console.log(`\n📃 Wende Migration an: ${migrationFile}`);
         
-        // Verwende die SQL-Anweisung direkt, da die Migrationsdateien bereits IF NOT EXISTS enthalten
-        const safeSQL = sqlContent;
-        
-        // Schreibe die sichere SQL in eine temporäre Datei
-        const tempSQLPath = path.join(os.tmpdir(), `migration_${Date.now()}.sql`);
-        fs.writeFileSync(tempSQLPath, safeSQL);
-        
-        // Führe die SQL direkt auf der Hauptdatenbank aus
-        execSync(`cat ${tempSQLPath} | sqlite3 ${mainDbPath}`, { stdio: 'inherit' });
-        console.log(`✅ Migration ${migrationFile} erfolgreich angewendet`);
-        
-        // Lösche die temporäre Datei
-        fs.unlinkSync(tempSQLPath);
-        migrationsApplied++;
-      } catch (error) {
-        console.error(`❌ Fehler bei Migration ${migrationFile}:`, error);
+        try {
+          // Lese den SQL-Inhalt
+          const sqlContent = fs.readFileSync(migrationPath, 'utf-8');
+          
+          // Verwende die SQL-Anweisung direkt, da die Migrationsdateien bereits IF NOT EXISTS enthalten
+          const safeSQL = sqlContent;
+          
+          // Schreibe die sichere SQL in eine temporäre Datei
+          const tempSQLPath = path.join(os.tmpdir(), `migration_${Date.now()}.sql`);
+          fs.writeFileSync(tempSQLPath, safeSQL);
+          
+          // Führe die SQL direkt auf der Hauptdatenbank aus
+          execSync(`cat ${tempSQLPath} | sqlite3 ${mainDbPath}`, { stdio: 'inherit' });
+          console.log(`✅ Migration ${migrationFile} erfolgreich angewendet`);
+          
+          // Lösche die temporäre Datei
+          fs.unlinkSync(tempSQLPath);
+          migrationsApplied++;
+        } catch (error) {
+          console.error(`❌ Fehler bei Migration ${migrationFile}:`, error);
+        }
       }
+      
+      console.log(`\n✅ ${migrationsApplied} von ${migrationFiles.length} Migrationen erfolgreich angewendet!`);
+    } else {
+      console.log('\nℹ️ Überspringe Migrationen auf Hauptdatenbank (bereits vorhanden). Schema-Guards folgen.');
     }
-    
-    console.log(`\n✅ ${migrationsApplied} von ${migrationFiles.length} Migrationen erfolgreich angewendet!`);
     
     // Suche nach weiteren SQLite-Dateien im state/v3/d1-Verzeichnis
     console.log('\n🔍 Suche nach weiteren Wrangler-Datenbanken...');
-    const sqliteFiles = [];
+    const sqliteFiles: string[] = [];
     const stateDbDir = path.join(ROOT_DIR, '.wrangler', 'state', 'v3', 'd1', 'miniflare-D1DatabaseObject');
     
     if (fs.existsSync(stateDbDir)) {
@@ -226,10 +269,17 @@ try {
       let combinedSQL = '';
       
       for (const migrationFile of migrationFiles) {
+        // Überspringe risikoreiche ALTER-Migrationen für zusätzliche DBs; Guards kümmern sich darum
+        if (migrationFile.startsWith('0002_add_password_hash_to_users') ||
+            migrationFile.startsWith('0007_add_email_verification')) {
+          console.log(`⏭️  Überspringe ${migrationFile} für zusätzliche DBs (durch Guards abgedeckt).`);
+          continue;
+        }
+
         const migrationPath = path.join(MIGRATIONS_DIR, migrationFile);
         const sqlContent = fs.readFileSync(migrationPath, 'utf-8');
         
-        // Füge IF NOT EXISTS zu CREATE TABLE-Anweisungen hinzu, aber nur wenn nicht bereits vorhanden
+        // Einige Migrationsdateien könnten ohne IF NOT EXISTS brechen; stelle sicher, dass CREATE TABLE abgesichert ist
         let safeSQL = sqlContent;
         if (!safeSQL.includes('IF NOT EXISTS')) {
           safeSQL = safeSQL.replace(
@@ -262,22 +312,7 @@ try {
     } else {
       console.log('Keine zusätzlichen Datenbanken gefunden.');
     }
-    
-    // Versuche auch den Wrangler-Befehl für die Hauptdatenbank
-    console.log('\n💻 Versuche auch Wrangler-Befehl für Migrationen...');
-    try {
-      for (const migrationFile of migrationFiles) {
-        const migrationPath = path.join(MIGRATIONS_DIR, migrationFile);
-        try {
-          execSync(`npx wrangler d1 execute ${DB_NAME} --local --file=${migrationPath}`, { stdio: 'inherit' });
-          console.log(`✅ Wrangler-Befehl für ${migrationFile} erfolgreich`);
-        } catch (error) {
-          console.log(`⚠️ Wrangler-Befehl für ${migrationFile} fehlgeschlagen (ignoriert).`);
-        }
-      }
-    } catch (error) {
-      console.log('⚠️ Wrangler-Migrations-Befehle fehlgeschlagen (ignoriert).');
-    }
+
     
     // Überprüfe, ob die wichtigsten Tabellen existieren
     console.log('\n🔍 Überprüfe, ob alle wichtigen Tabellen existieren...');
@@ -286,33 +321,75 @@ try {
       console.log(`Gefundene Tabellen: ${tables}`);
       
       // Überprüfe, ob die sessions-Tabelle existiert
-      if (!tables.includes('sessions')) {
-        console.log('⚠️ Die sessions-Tabelle fehlt! Wende die Migration direkt an...');
-        const sessionsMigrationPath = path.join(MIGRATIONS_DIR, '0001_add_sessions_table.sql');
-        if (fs.existsSync(sessionsMigrationPath)) {
-          execSync(`cat ${sessionsMigrationPath} | sqlite3 ${mainDbPath}`, { stdio: 'inherit' });
-          console.log(`✅ Sessions-Tabelle erfolgreich erstellt!`);
-        } else {
-          console.error('❌ Konnte die Sessions-Migrations-Datei nicht finden!');
-        }
+    if (!tables.includes('sessions')) {
+      console.log('⚠️ Die sessions-Tabelle fehlt! Wende die Migration direkt an...');
+      const sessionsMigrationPath = path.join(MIGRATIONS_DIR, '0001_add_sessions_table.sql');
+      if (fs.existsSync(sessionsMigrationPath)) {
+        execSync(`cat ${sessionsMigrationPath} | sqlite3 ${mainDbPath}`, { stdio: 'inherit' });
+        console.log(`✅ Sessions-Tabelle erfolgreich erstellt!`);
       } else {
-        console.log('✅ Sessions-Tabelle existiert!');
+        console.error('❌ Konnte die Sessions-Migrations-Datei nicht finden!');
       }
-    } catch (error) {
-      console.error('❌ Fehler beim Überprüfen der Tabellen:', error);
+    } else {
+      console.log('✅ Sessions-Tabelle existiert!');
     }
+  } catch (error) {
+    console.error('❌ Fehler beim Überprüfen der Tabellen:', error);
+  }
+
+  // 2b. Idempotente Schema-Guards für lokale DBs (stellt sicher, dass Spalten/Tabellen vorhanden sind)
+  try {
+    console.log('\n🛡️  Stelle Schema-Konsistenz sicher (idempotente Guards)...');
+    // Sammle alle bekannten lokalen DB-Dateien
+    const dbPaths: string[] = [];
+    const mainDbDir = path.join(ROOT_DIR, '.wrangler', 'd1', 'miniflare', 'databases');
+    const mainDbPath2 = path.join(mainDbDir, `${DB_NAME}.sqlite`);
+    if (fs.existsSync(mainDbPath2)) dbPaths.push(mainDbPath2);
+    const stateDbDir2 = path.join(ROOT_DIR, '.wrangler', 'state', 'v3', 'd1', 'miniflare-D1DatabaseObject');
+    if (fs.existsSync(stateDbDir2)) {
+      for (const f of fs.readdirSync(stateDbDir2)) {
+        if (f.endsWith('.sqlite')) dbPaths.push(path.join(stateDbDir2, f));
+      }
+    }
+
+    for (const dbPath of dbPaths) {
+      // users.password_hash
+      addColumnIfMissing(dbPath, 'users', 'password_hash', 'TEXT');
+      // users.email_verified (INTEGER as boolean)
+      addColumnIfMissing(dbPath, 'users', 'email_verified', 'INTEGER NOT NULL DEFAULT 0');
+      // users.email_verified_at (Unix timestamp seconds)
+      addColumnIfMissing(dbPath, 'users', 'email_verified_at', 'INTEGER NULL');
+
+      // email_verification_tokens table and indexes
+      runSafeSQL(
+        dbPath,
+        `CREATE TABLE IF NOT EXISTS email_verification_tokens (
+           token TEXT PRIMARY KEY,
+           user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+           email TEXT NOT NULL,
+           created_at INTEGER NOT NULL,
+           expires_at INTEGER NOT NULL,
+           used_at INTEGER NULL
+         );
+         CREATE INDEX IF NOT EXISTS idx_email_verification_tokens_user_id ON email_verification_tokens(user_id);
+         CREATE INDEX IF NOT EXISTS idx_email_verification_tokens_expires_at ON email_verification_tokens(expires_at);
+         CREATE INDEX IF NOT EXISTS idx_email_verification_tokens_email ON email_verification_tokens(email);`
+      );
+    }
+    console.log('✅ Schema-Guards abgeschlossen.');
+  } catch (error) {
+    console.warn('⚠️ Schema-Guards konnten nicht vollständig ausgeführt werden (fortgesetzt).', error);
+  }
   } catch (error) {
     console.error('❌ Fehler bei der D1-Migration:', error);
   }
 
   // 3. Lokalen R2-Bucket erstellen
-  console.log('\n📁 Erstelle lokalen R2-Bucket...');
+  console.log('\n🪣 Erstelle lokalen R2-Bucket...');
   try {
     // Prüfe, ob der Bucket bereits existiert
     const r2List = execSync('npx wrangler r2 bucket list', { encoding: 'utf-8' });
-    
     if (!r2List.includes(R2_BUCKET)) {
-      console.log(`Erstelle neuen R2-Bucket: ${R2_BUCKET}`);
       execSync(`npx wrangler r2 bucket create ${R2_BUCKET}`, { stdio: 'inherit' });
     } else {
       console.log(`R2-Bucket ${R2_BUCKET} existiert bereits.`);
@@ -364,9 +441,3 @@ try {
   console.error('❌ Fehler bei der Einrichtung der lokalen Entwicklungsumgebung:', error);
   process.exit(1);
 }
-
-console.log('\n✅ Lokale Entwicklungsumgebung wurde erfolgreich eingerichtet!');
-console.log('\nSie können jetzt den lokalen Entwicklungsserver starten mit:');
-console.log('  npm run dev');
-console.log('\nOder mit Verbindung zu Remote-Ressourcen:');
-console.log('  npm run dev:remote');

@@ -128,4 +128,30 @@ log('info', 'Message', context);
 - Automatic Connection-Recovery
 ```
 
+### Lokale E2E mit Debug-Login (Kurzüberblick)
+
+1. Dev-Server inkl. DB-Setup starten:
+
+```bash
+npm run dev:e2e
+```
+
+2. Zielgerichtete E2E-Tests (Chromium, 1 Worker):
+
+```bash
+npm run test:e2e:chromium -- tests/e2e/specs/en-login-auth-redirect.spec.ts --workers=1
+```
+
+3. CSRF-Hinweis (wichtig für POST in Tests):
+- Playwright sendet global einen same-origin `Origin`-Header. Details: 
+  [docs/development/ci-cd.md#csrf-schutz-in-e2e-tests-astrocloudflare-workers](./ci-cd.md#csrf-schutz-in-e2e-tests-astrocloudflare-workers)
+
+4. Optional: Manuell testen (curl):
+
+```bash
+curl -i -X POST \
+  -H 'Origin: http://127.0.0.1:8787' \
+  http://127.0.0.1:8787/api/debug-login
+```
+
 **Pro-Tip:** Debug Panel immer parallel zur Entwicklung offen halten! 🚀

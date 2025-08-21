@@ -653,3 +653,18 @@ export async function GET({ request, env }) {
   // ...
 }
 ```
+
+---
+
+## Lokalisierung der Auth-Routen (Verweis: ADR-0005)
+
+Für Auth-Seiten (z. B. `login`, `register`, `forgot-password`, `reset-password`, `email-verified`) gilt: Die Sprache wird strikt über das URL-Prefix bestimmt (z. B. `/de/*` für Deutsch, `/en/*` für Englisch). Die Middleware normalisiert Auth-Routen nicht, damit die Locale stabil bleibt und Client-seitige Toasts (Sonner) zuverlässig lokalisiert werden.
+
+Details und Begründung siehe ADR:
+
+- [ADR-0005: Auth-Routen – Locale-Normalisierung (DE/EN)](./adrs/0005-auth-route-locale-normalisierung.md)
+
+Konsequenzen für Implementierung und Tests:
+
+- Aufruf von `/de/*` zeigt deutsche Inhalte/Toasts, ungeachtet Cookie/Accept-Language.
+- E2E-Tests prüfen strikt locale-spezifische Texte und die URL-Bereinigung nach Toast-Anzeige.

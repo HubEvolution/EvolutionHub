@@ -132,9 +132,9 @@ const ogImage = customOgImage || seoData.ogImage;
       <Toaster client:load />
 
     <script>
-      const initSmoothScrolling = (): void => {
-        document.querySelectorAll<HTMLAnchorElement>('a[href^="#"]').forEach((anchor) => {
-          anchor.addEventListener('click', (e: Event) => {
+      const initSmoothScrolling = () => {
+        document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+          anchor.addEventListener('click', (e) => {
             e.preventDefault();
 
             const targetId = anchor.getAttribute('href');
@@ -243,38 +243,31 @@ const ogImage = customOgImage || seoData.ogImage;
 <!-- Analytics Module wird jetzt von AOSCoordinator gehandhabt -->
 <script>
   // Analytics Module ohne ES6-Imports (inline implementation für build compatibility)
-  
-  interface CookieConsentEvent extends Event {
-    detail: {
-      analytics?: boolean;
-      marketing?: boolean;
-    };
-  }
 
-  async function initializeAnalyticsTracking(): Promise<void> {
+  async function initializeAnalyticsTracking() {
     try {
       console.log('[Analytics] 🚀 Starting analytics initialization...');
       
       // Analytics Manager dynamisch laden
       const { initializeAnalytics, trackScrollDepth, trackTimeOnPage } = await import('@/lib/analytics');
       
-      let analytics: any;
+      let analytics;
       let timeOnPageStart = Date.now();
       let maxScrollDepth = 0;
-      let scrollDepthTracked = new Set<number>();
+      let scrollDepthTracked = new Set();
       
       // Analytics beim Laden der Seite initialisieren
       analytics = initializeAnalytics();
       
       // Event-Handler für Cleanup speichern
-      let consentHandler: ((event: Event) => void) | null = null;
-      let scrollHandler: (() => void) | null = null;
-      let beforeUnloadHandler: (() => void) | null = null;
-      let visibilityHandler: (() => void) | null = null;
+      let consentHandler = null;
+      let scrollHandler = null;
+      let beforeUnloadHandler = null;
+      let visibilityHandler = null;
       
       // Scroll-Depth-Tracking Setup
       function setupScrollTracking() {
-        let throttleTimer: ReturnType<typeof setTimeout> | null = null;
+        let throttleTimer = null;
         
         scrollHandler = () => {
           if (throttleTimer !== null) return;
@@ -327,10 +320,10 @@ const ogImage = customOgImage || seoData.ogImage;
       }
       
       // Cookie Consent Integration
-      consentHandler = function(event: Event) {
-        const cookieEvent = event as CookieConsentEvent;
+      consentHandler = function(event) {
+        const cookieEvent = event;
         
-        if (cookieEvent.detail.analytics) {
+        if (cookieEvent.detail && cookieEvent.detail.analytics) {
           console.log('[Analytics] ✅ Analytics cookies accepted - enabling tracking');
           
           // Page-View-Tracking nach Consent
@@ -346,17 +339,17 @@ const ogImage = customOgImage || seoData.ogImage;
           setupTimeTracking();
         }
         
-        if (cookieEvent.detail.marketing) {
+        if (cookieEvent.detail && cookieEvent.detail.marketing) {
           console.log('[Analytics] ✅ Marketing cookies accepted - enabling retargeting');
           
           // Facebook Pixel laden (falls konfiguriert)
-          if (typeof window !== 'undefined' && (window as any).fbq) {
-            (window as any).fbq('consent', 'grant');
-            (window as any).fbq('track', 'PageView');
+          if (typeof window !== 'undefined' && window.fbq) {
+            window.fbq('consent', 'grant');
+            window.fbq('track', 'PageView');
           }
           
           // LinkedIn Insight Tag aktivieren
-          if (typeof window !== 'undefined' && (window as any)._linkedin_data_partner_ids) {
+          if (typeof window !== 'undefined' && window['_linkedin_data_partner_ids']) {
             const linkedinScript = document.createElement('script');
             linkedinScript.src = 'https://snap.licdn.com/li.lms-analytics/insight.min.js';
             document.head.appendChild(linkedinScript);
@@ -379,7 +372,7 @@ const ogImage = customOgImage || seoData.ogImage;
       console.log('[Analytics] ✅ Tracking module initialized successfully');
       
       // Cleanup global verfügbar machen
-      (window as any).analyticsCleanup = function() {
+      window.analyticsCleanup = function() {
         if (consentHandler) {
           document.removeEventListener('cookieconsent:userpreferencesset', consentHandler);
         }
@@ -409,8 +402,8 @@ const ogImage = customOgImage || seoData.ogImage;
 
   // Cleanup on page unload
   window.addEventListener('beforeunload', () => {
-    if ((window as any).analyticsCleanup) {
-      (window as any).analyticsCleanup();
+    if (window.analyticsCleanup) {
+      window.analyticsCleanup();
     }
   });
 </script>

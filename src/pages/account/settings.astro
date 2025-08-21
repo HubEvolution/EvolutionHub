@@ -3,10 +3,12 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import SettingsScript from '@/components/SettingsScript.astro';
 import { getLocale } from '@/lib/i18n';
 import { getI18n } from '@/utils/i18n';
+import { localizePath } from '@/lib/locale-path';
 
 const locals = Astro.locals as any;
 if (!locals.user) {
-  return Astro.redirect('/login');
+  const locale = getLocale(Astro.url.pathname);
+  return Astro.redirect(localizePath(locale, '/login'));
 }
 const user = locals.user;
 

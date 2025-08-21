@@ -1,5 +1,6 @@
 import { defineMiddleware } from 'astro:middleware';
 import type { Locale } from '@/lib/i18n';
+import { validateSession } from '@/lib/auth-v2';
 
 export const onRequest = defineMiddleware(async (context, next) => {
   // Detaillierte Request-Logging
@@ -51,6 +52,13 @@ export const onRequest = defineMiddleware(async (context, next) => {
     const ua = (userAgent || '').toLowerCase();
     if (!ua) return false;
     return /(bot|crawl|spider|slurp|mediapartners|crawler|facebookexternalhit|whatsapp|telegram|discord|preview|linkchecker)/i.test(ua);
+  }
+
+  // Auth-Routen sollen niemals durch das Welcome-Gate unterbrochen werden
+  function isAuthRoute(p: string): boolean {
+    // Unterstützt optionale Sprachpräfixe /de/ oder /en/
+    const AUTH_RE = /^\/(?:(?:de|en)\/)?(?:login|register|forgot-password|reset-password|email-verified|auth\/password-reset-sent)(\/|$)/;
+    return AUTH_RE.test(p);
   }
 
   const preferredLocale: Locale = existingLocale
@@ -139,7 +147,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
   const bot = isBot(context.request.headers.get('user-agent'));
 
   // Zeige Splash/Welcome beim ersten sichtbaren Besuch dieser Session
-  if (!sessionWelcomeSeen && !isApi && !isAsset && !bot && !path.startsWith('/welcome')) {
+  if (!sessionWelcomeSeen && !isApi && !isAsset && !bot && !path.startsWith('/welcome') && !isAuthRoute(path) && !existingLocale) {
     try {
       // Session-Cookie (kein maxAge) setzen, damit Splash nur einmal pro Session erscheint
       context.cookies.set(sessionGateCookie, '1', {
@@ -161,7 +169,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
   }
 
   // Erste Besuche (kein Cookie, kein Locale in URL, kein Bot) -> Splash/Welcome mit next
-  if (!cookieLocale && !existingLocale && !isApi && !isAsset && !bot && !path.startsWith('/welcome')) {
+  if (!cookieLocale && !existingLocale && !isApi && !isAsset && !bot && !path.startsWith('/welcome') && !isAuthRoute(path)) {
     const location = `${url.origin}/welcome?next=${encodeURIComponent(url.toString())}`;
     const headers = new Headers();
     headers.set('Location', location);
@@ -171,8 +179,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
   }
 
   // Fallback: /de/* -> neutral bzw. /en/* je nach bevorzugter Locale
+  // Änderung: Auth-Routen NIE normalisieren, damit Locale stabil bleibt (Option B)
   const isDePrefixed = path === '/de' || path.startsWith('/de/');
-  if (isDePrefixed && !isApi && !isAsset) {
+  if (isDePrefixed && !isApi && !isAsset && !isAuthRoute(path)) {
     const pathWithoutDe = path.replace(/^\/de(\/|$)/, '/');
     const target = userPreferredLocale === 'en'
       ? (pathWithoutDe === '/' ? '/en/' : `/en${pathWithoutDe}`)
@@ -185,6 +194,13 @@ export const onRequest = defineMiddleware(async (context, next) => {
     headers.set('Vary', vary);
     console.log('[Middleware] Redirecting /de-prefixed path to', location);
     return new Response(null, { status: 308, headers });
+  }
+
+  // Symmetrischer Schutz: Auth-Routen unter /en/* niemals normalisieren
+  // (Expliziter Guard für zukünftige Erweiterungen; derzeit keine EN-Normalisierung aktiv.)
+  const isEnPrefixed = path === '/en' || path.startsWith('/en/');
+  if (isEnPrefixed && isAuthRoute(path)) {
+    // no-op: bewusst keine Normalisierung für Auth-Routen unter /en/*
   }
 
   // Bot/Crawler: Splash überspringen; neutrale Pfade anhand Accept-Language für Bots umleiten
@@ -203,7 +219,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
   }
 
   // Neutrale Pfade nur bei gesetztem Cookie=en auf /en/... umleiten; sonst neutral (DE) belassen
-  if (!existingLocale && !isApi && !isAsset && cookieLocale === 'en' && !path.startsWith('/welcome')) {
+  if (!existingLocale && !isApi && !isAsset && cookieLocale === 'en' && !path.startsWith('/welcome') && !isAuthRoute(path)) {
     const target = path === '/' ? '/en/' : `/en${path}`;
     const location = `${url.origin}${target}${url.search}${url.hash}`;
     const headers = new Headers();
@@ -231,23 +247,21 @@ export const onRequest = defineMiddleware(async (context, next) => {
     return next();
   }
 
-  // TEMPORÄR DEAKTIVIERT FÜR UI-TESTS
-  // try {
-  //   const { session, user } = await validateSession(context.locals.runtime.env.DB, sessionId);
-  //   console.log('[Middleware] Session validation result:', {
-  //     sessionValid: !!session,
-  //     userValid: !!user,
-  //   });
+  // Session validieren und Locals setzen
+  try {
+    const { session, user } = await validateSession(context.locals.runtime.env.DB, sessionId);
+    console.log('[Middleware] Session validation result:', {
+      sessionValid: !!session,
+      userValid: !!user,
+    });
 
-  //   context.locals.session = session;
-  //   context.locals.user = user;
-  // } catch (error) {
-  //   console.error('[Middleware] Error during session validation:', error);
-  //   context.locals.session = null;
-  //   context.locals.user = null;
-  // }
-  
-  // User und Session bereits auf null gesetzt (siehe oben)
+    context.locals.session = session;
+    context.locals.user = user;
+  } catch (error) {
+    console.error('[Middleware] Error during session validation:', error);
+    context.locals.session = null;
+    context.locals.user = null;
+  }
   
   // Führe den nächsten Middleware-Schritt aus
   const response = await next();
@@ -288,7 +302,24 @@ export const onRequest = defineMiddleware(async (context, next) => {
   if (path === '/welcome') {
     response.headers.set('X-Robots-Tag', 'noindex, nofollow, noarchive');
   }
-  response.headers.set('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com; frame-ancestors 'self'; object-src 'none'; base-uri 'self'; report-uri /csp-report;");
+  // CSP: relax in development for Astro/Vite HMR and inline module scripts; strict in production
+  if (import.meta.env.DEV) {
+    const devCsp = [
+      "default-src 'self' data: blob:",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: data: https://cdn.jsdelivr.net",
+      "script-src-elem 'self' 'unsafe-inline' 'unsafe-eval' blob: data: https://cdn.jsdelivr.net",
+      "connect-src 'self' ws: http: https:",
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net",
+      "img-src 'self' data: blob:",
+      "font-src 'self' https://fonts.gstatic.com",
+      "frame-ancestors 'self'",
+      "object-src 'none'",
+      "base-uri 'self'",
+    ].join('; ');
+    response.headers.set('Content-Security-Policy', devCsp);
+  } else {
+    response.headers.set('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com; frame-ancestors 'self'; object-src 'none'; base-uri 'self'; report-uri /csp-report;");
+  }
   response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
   response.headers.set('Cross-Origin-Opener-Policy', 'same-origin');
   response.headers.set('X-Frame-Options', 'DENY');

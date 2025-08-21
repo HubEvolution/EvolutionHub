@@ -190,6 +190,48 @@ npm test
 npm run test:coverage
 ```
 
+#### CSRF-Schutz in E2E-Tests (Astro/Cloudflare Workers)
+
+Astro (insb. in Verbindung mit Cloudflare Workers) blockiert cross-site POST-Requests standardmäßig. 
+POSTs ohne gültigen same-origin `Origin`-Header führen zu `403` mit der Meldung
+"Cross-site POST form submissions are forbidden".
+
+Damit E2E-Tests (z. B. Debug-/Auth-Endpunkte) funktionieren, müssen alle Test-Requests einen
+same-origin `Origin`-Header senden. Dies ist in Playwright global konfiguriert:
+
+```ts
+// tests/e2e/config/playwright.config.ts
+const BASE_URL = 'http://127.0.0.1:8787';
+
+export default defineConfig({
+  use: {
+    baseURL: BASE_URL,
+    extraHTTPHeaders: {
+      // Erforderlich für Astro-CSRF: same-origin Origin-Header
+      Origin: BASE_URL,
+    },
+  },
+  webServer: {
+    url: BASE_URL,
+    // ...
+  },
+});
+```
+
+Troubleshooting bei 403-Fehlern:
+
+- Prüfe, dass der Request einen `Origin`-Header mit der Base-URL trägt (z. B. `http://127.0.0.1:8787`).
+- Stelle sicher, dass die Worker-Umgebung `ENVIRONMENT=development` ist (Debug-Endpunkte sind in Prod gesperrt).
+- Reprodiziere mit curl:
+
+```bash
+curl -i -X POST \
+  -H 'Origin: http://127.0.0.1:8787' \
+  http://127.0.0.1:8787/api/debug-login
+```
+
+Best Practice: CSRF nicht abschalten. Verwende für Tests den same-origin `Origin`-Header.
+
 ### 4. Sicherheitsscans
 
 - **npm audit**: Überprüft Abhängigkeiten auf bekannte Sicherheitslücken

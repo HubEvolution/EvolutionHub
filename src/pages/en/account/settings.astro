@@ -1,5 +1,410 @@
 ---
-import SettingsPage from '../../account/settings.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import SettingsScript from '@/components/SettingsScript.astro';
+import { getLocale } from '@/lib/i18n';
+import { getI18n } from '@/utils/i18n';
+import { localizePath } from '@/lib/locale-path';
+
+const locals = Astro.locals as any;
+if (!locals.user) {
+  const locale = getLocale(Astro.url.pathname);
+  return Astro.redirect(localizePath(locale, '/login'));
+}
+const user = locals.user;
+
+// i18n setup for client alerts (embed only what the client needs)
+const locale = getLocale(Astro.url.pathname);
+const t = getI18n(locale);
+const i18nSettings = {
+  upload: {
+    invalid_type: t('common.upload.invalid_type'),
+    too_large: t('common.upload.too_large'),
+  },
+  status: {
+    uploading: t('common.status.uploading'),
+  },
+  actions: {
+    upload: t('common.actions.upload'),
+  },
+  success: {
+    avatar_updated: t('common.success.avatar_updated'),
+  },
+  errors: {
+    upload_failed_prefix: t('common.errors.upload_failed_prefix'),
+  },
+};
 ---
 
-<SettingsPage />
+<BaseLayout title="Account Settings">
+  <div class="container mx-auto p-4 sm:p-6 lg:p-8">
+    <h1 class="text-3xl font-bold mb-6 text-slate-800 dark:text-white">Account Settings</h1>
+    
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      
+      <!-- Left Navigation -->
+      <div class="lg:col-span-1">
+        <nav class="space-y-1">
+          <a href="#profile" class="block px-4 py-2 text-sm font-medium rounded-lg bg-sky-100 dark:bg-sky-900/50 text-primary">
+            Profile
+          </a>
+          <a href="#password" class="block px-4 py-2 text-sm font-medium rounded-lg hover:bg-sky-100/50 dark:hover:bg-sky-900/20">
+            Password
+          </a>
+        </nav>
+      </div>
+
+      <!-- Right Content -->
+      <div class="lg:col-span-2 space-y-8">
+        <div id="profile" class="relative p-6 rounded-2xl overflow-hidden bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-white/10 shadow-sm">
+          <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">Public Profile</h3>
+          <form id="profile-form" method="post">
+            <!-- Profile Picture -->
+            <div class="flex items-center space-x-4 mb-6">
+              <img id="avatar-preview" src={user.image || '/assets/svg/logo.svg'} alt="Avatar" class="w-20 h-20 rounded-full">
+              <input type="file" id="avatar-upload" name="avatar" class="hidden" accept="image/*">
+              <button type="button" id="change-avatar-btn" class="px-4 py-2 text-sm font-medium border rounded-lg">
+                Change Picture
+              </button>
+            </div>
+
+            <!-- Name -->
+            <div class="mb-4">
+              <label for="name" class="block text-sm font-medium mb-1">Name</label>
+              <input type="text" id="name" name="name" value={user.name} class="w-full p-2 border rounded-lg dark:bg-slate-700 dark:border-slate-600">
+            </div>
+
+            <!-- Username -->
+            <div class="mb-4">
+              <label for="username" class="block text-sm font-medium mb-1">Username</label>
+              <input type="text" id="username" name="username" value={user.username} class="w-full p-2 border rounded-lg dark:bg-slate-700 dark:border-slate-600">
+            </div>
+
+            <!-- Email (read-only) -->
+            <div class="mb-4">
+              <label for="email" class="block text-sm font-medium mb-1">Email</label>
+              <input type="email" id="email" name="email" value={user.email} class="w-full p-2 border rounded-lg bg-slate-100 dark:bg-slate-800" readonly>
+            </div>
+
+            <button type="submit" class="px-6 py-2 text-white bg-primary rounded-lg hover:bg-primary-dark">
+              Save Changes
+            </button>
+          </form>
+        </div>
+
+        <div id="password" class="relative p-6 rounded-2xl overflow-hidden bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-white/10 shadow-sm">
+          <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">Change Password</h3>
+          <form id="password-form">
+            <!-- Current Password -->
+            <div class="mb-4">
+              <label for="current-password" class="block text-sm font-medium mb-1">Current Password</label>
+              <input type="password" id="current-password" name="current-password" class="w-full p-2 border rounded-lg dark:bg-slate-700 dark:border-slate-600">
+            </div>
+
+            <!-- New Password -->
+            <div class="mb-4">
+              <label for="new-password" class="block text-sm font-medium mb-1">New Password</label>
+              <input type="password" id="new-password" name="new-password" class="w-full p-2 border rounded-lg dark:bg-slate-700 dark:border-slate-600" required>
+            </div>
+
+            <!-- Confirm New Password -->
+            <div class="mb-4">
+              <label for="confirm-password" class="block text-sm font-medium mb-1">Confirm New Password</label>
+              <input type="password" id="confirm-password" name="confirm-password" class="w-full p-2 border rounded-lg dark:bg-slate-700 dark:border-slate-600" required>
+            </div>
+
+            <!-- Password Strength Indicator -->
+            <div id="password-strength" class="mb-4 text-sm"></div>
+
+            <!-- Validation Messages -->
+            <div id="password-errors" class="mb-4 text-sm text-red-500"></div>
+
+            <button type="submit" class="px-6 py-2 text-white bg-primary rounded-lg hover:bg-primary-dark">
+              Update Password
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lade die vollständige Settings-Funktionalität über die SettingsScript-Komponente -->
+  <SettingsScript />
+  
+  <!-- Page-scoped i18n messages for client script -->
+  <script type="application/json" id="i18n-settings">{JSON.stringify(i18nSettings)}</script>
+  
+<!-- Avatar Upload Modal direkt eingebunden -->
+<div id="avatar-modal" class="fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50 hidden" style="display: none;">
+  <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full">
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-lg font-semibold text-gray-800 dark:text-white">Profilbild ändern</h3>
+      <button id="close-avatar-modal" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+    
+    <div id="upload-zone" class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 mb-4 text-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+      <div class="flex flex-col items-center justify-center space-y-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+        <p class="text-sm text-gray-600 dark:text-gray-300">Ziehe dein Bild hierher oder</p>
+        <button id="select-file-btn" class="px-4 py-2 text-sm font-medium bg-primary text-white rounded-lg hover:bg-primary-dark">Datei auswählen</button>
+        <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">Unterstützte Formate: JPG, PNG, GIF (max. 2MB)</p>
+      </div>
+    </div>
+    
+    <div id="preview-container" class="hidden">
+      <div class="flex flex-col items-center space-y-4">
+        <img id="modal-preview" class="w-32 h-32 rounded-full object-cover border-4 border-primary" src="" alt="Avatar Vorschau">
+        <div class="flex space-x-2">
+          <button id="change-selection-btn" class="px-4 py-2 text-sm font-medium border rounded-lg dark:border-gray-600">Ändern</button>
+          <button id="upload-btn" class="px-4 py-2 text-sm font-medium bg-primary text-white rounded-lg hover:bg-primary-dark">Hochladen</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script is:inline>
+  console.log('INLINE AVATAR MODAL SCRIPT STARTING');
+  // Read i18n messages embedded server-side
+  const i18nEl = document.getElementById('i18n-settings');
+  const I18N = i18nEl ? JSON.parse(i18nEl.textContent || '{}') : {};
+  // Modal-Elemente abrufen
+  const modal = document.getElementById('avatar-modal');
+  const openModalBtn = document.getElementById('change-avatar-btn');
+  const closeModalBtn = document.getElementById('close-avatar-modal');
+  const fileInput = document.getElementById('avatar-upload');
+  const uploadZone = document.getElementById('upload-zone');
+  const selectFileBtn = document.getElementById('select-file-btn');
+  const previewContainer = document.getElementById('preview-container');
+  const modalPreview = document.getElementById('modal-preview');
+  const changeSelectionBtn = document.getElementById('change-selection-btn');
+  const uploadBtn = document.getElementById('upload-btn');
+  const avatarPreview = document.getElementById('avatar-preview');
+  
+  console.log('ELEMENTS:', { 
+    modal, openModalBtn, closeModalBtn, fileInput, 
+    uploadZone, selectFileBtn, previewContainer, modalPreview,
+    changeSelectionBtn, uploadBtn, avatarPreview
+  });
+  
+  // Modal öffnen
+  if (openModalBtn) {
+    console.log('Setting up open modal click handler');
+    openModalBtn.addEventListener('click', (e) => {
+      console.log('Open modal button clicked');
+      if (modal) {
+        modal.classList.remove('hidden');
+        modal.style.display = 'flex';
+        document.body.classList.add('overflow-hidden');
+      }
+    });
+  }
+  
+  // Modal schließen
+  if (closeModalBtn) {
+    closeModalBtn.addEventListener('click', () => {
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.style.display = 'none';
+        document.body.classList.remove('overflow-hidden');
+      }
+    });
+  }
+  
+  // Außerhalb des Modals klicken, um es zu schließen
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        modal.classList.add('hidden');
+        modal.style.display = 'none';
+        document.body.classList.remove('overflow-hidden');
+      }
+    });
+  }
+  
+  // Klick auf die Upload-Zone
+  if (uploadZone) {
+    uploadZone.addEventListener('click', () => {
+      if (fileInput) {
+        fileInput.click();
+      }
+    });
+  }
+  
+  // Klick auf den "Datei auswählen" Button
+  if (selectFileBtn) {
+    selectFileBtn.addEventListener('click', (e) => {
+      e.stopPropagation(); // Verhindert Bubbling zum uploadZone
+      if (fileInput) {
+        fileInput.click();
+      }
+    });
+  }
+  
+  // Drag & Drop Ereignisse
+  if (uploadZone) {
+    uploadZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      uploadZone.classList.add('border-primary');
+    });
+    
+    uploadZone.addEventListener('dragleave', () => {
+      uploadZone.classList.remove('border-primary');
+    });
+    
+    uploadZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadZone.classList.remove('border-primary');
+      
+      if (e.dataTransfer && e.dataTransfer.files.length > 0) {
+        handleFileSelect(e.dataTransfer.files[0]);
+      }
+    });
+  }
+  
+  // Datei wurde ausgewählt
+  if (fileInput) {
+    fileInput.addEventListener('change', () => {
+      if (fileInput.files && fileInput.files.length > 0) {
+        handleFileSelect(fileInput.files[0]);
+      }
+    });
+  }
+  
+  // Dateiauswahl ändern
+  if (changeSelectionBtn) {
+    changeSelectionBtn.addEventListener('click', () => {
+      showUploadZone();
+    });
+  }
+  
+  // Upload starten
+  if (uploadBtn) {
+    uploadBtn.addEventListener('click', () => {
+      if (fileInput && fileInput.files && fileInput.files.length > 0) {
+        uploadAvatar(fileInput.files[0]);
+      }
+    });
+  }
+  
+  function handleFileSelect(file) {
+    // Validiere Dateityp und Größe
+    const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
+    const maxSize = 2 * 1024 * 1024; // 2MB
+    
+    if (!validTypes.includes(file.type)) {
+      alert(I18N.upload?.invalid_type || 'Please choose an image in JPG, PNG, or GIF format');
+      return;
+    }
+    
+    if (file.size > maxSize) {
+      alert(I18N.upload?.too_large || 'The file is too large. Maximum size is 2MB');
+      return;
+    }
+    
+    // Lese die Datei und zeige Vorschau
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      if (e.target && e.target.result && modalPreview) {
+        // @ts-ignore
+        modalPreview.src = e.target.result;
+        showPreview();
+      }
+    };
+    reader.readAsDataURL(file);
+  }
+  
+  function showUploadZone() {
+    if (uploadZone && previewContainer) {
+      uploadZone.classList.remove('hidden');
+      previewContainer.classList.add('hidden');
+      if (fileInput) fileInput.value = ''; // Zurücksetzen der Dateiauswahl
+    }
+  }
+  
+  function showPreview() {
+    if (uploadZone && previewContainer) {
+      uploadZone.classList.add('hidden');
+      previewContainer.classList.remove('hidden');
+    }
+  }
+  
+  function uploadAvatar(file) {
+    // Zeige Ladezustand
+    if (uploadBtn) {
+      uploadBtn.textContent = I18N.status?.uploading || 'Uploading...';
+      uploadBtn.disabled = true;
+    }
+    
+    const formData = new FormData();
+    formData.append('avatar', file);
+    
+    fetch('/api/user/avatar', {
+      method: 'POST',
+      body: formData,
+    })
+    .then(response => {
+      if (!response.ok) {
+        return response.text().then(error => {
+          throw new Error(error);
+        });
+      }
+      return response.json();
+    })
+    .then(data => {
+      // Aktualisiere den Avatar im Hauptprofil
+      if (avatarPreview) {
+        // @ts-ignore
+        avatarPreview.src = data.imageUrl;
+      }
+      
+      // Schließe das Modal
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.style.display = 'none';
+        document.body.classList.remove('overflow-hidden');
+      }
+      
+      // Erfolgsmeldung anzeigen
+      alert(I18N.success?.avatar_updated || 'Profile picture updated successfully!');
+    })
+    .catch(error => {
+      console.error('Upload error:', error);
+      
+      // Versuche, den Fehler als JSON zu parsen, falls es eine API-Fehlermeldung ist
+      let errorMessage = 'Unbekannter Fehler';
+      try {
+        if (error.message && error.message.includes('{')) {
+          const jsonStart = error.message.indexOf('{');
+          const jsonString = error.message.substring(jsonStart);
+          const errorData = JSON.parse(jsonString);
+          errorMessage = errorData.error?.message || errorData.error || errorData.message || 'API-Fehler';
+        } else {
+          errorMessage = error.message || 'Unbekannter Fehler';
+        }
+      } catch (e) {
+        errorMessage = error.message || 'Fehler beim Parsen der Fehlermeldung';
+      }
+      
+      alert(`${I18N.errors?.upload_failed_prefix || 'Upload failed:'} ${errorMessage}`);
+    })
+    .finally(() => {
+      // Setze den Button zurück
+      if (uploadBtn) {
+        uploadBtn.textContent = I18N.actions?.upload || 'Upload';
+        uploadBtn.disabled = false;
+      }
+    });
+  }
+  
+  // Initial auf Upload-Zone setzen
+  showUploadZone();
+  console.log('INLINE AVATAR MODAL SCRIPT COMPLETED');
+</script>
+
+</BaseLayout>

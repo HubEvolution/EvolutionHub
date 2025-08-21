@@ -3,7 +3,7 @@
 // Optimiert für Performance und Robustheit
 ---
 
-<script>
+<script is:inline>
   /**
    * HeaderScroll - Optimierter Header-Animation für Show/Hide beim Scrollen
    * - Verbesserte Performance durch RequestAnimationFrame
@@ -12,12 +12,7 @@
    * - Verwendet funktionierendes Pattern ohne script-coordinator
    */
   
-  // TypeScript-Typen für bessere Type-Safety
-  declare global {
-    interface Window {
-      headerScrollCleanup?: () => void;
-    }
-  }
+  
   
   // Direkte Ausführung ohne coordinator (funktionierendes Pattern aus Header.astro)
   function initHeaderScrollEffect() {
@@ -58,7 +53,7 @@
       // Variablen für Scroll-Logik
       let lastScrollY = window.scrollY;
       let ticking = false;
-      let hideTimeout: number | null = null;
+      let hideTimeout = null;
       const scrollThreshold = 60;     // Früher reagieren
       const scrollDeltaThreshold = 5; // Mindestens 5px scrollen für Aktion
       
@@ -158,8 +153,8 @@
       }
       
       // Event-Handler für Cleanup speichern
-      let scrollHandler: (() => void) | null = null;
-      let resizeHandler: (() => void) | null = null;
+      let scrollHandler = null;
+      let resizeHandler = null;
       
       // Optimiertes Event-Handling mit requestAnimationFrame
       console.log('[HeaderScroll] 🔗 Setting up event listeners...');

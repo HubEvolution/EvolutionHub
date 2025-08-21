@@ -7,10 +7,13 @@ import Notifications from '@/components/dashboard/Notifications.jsx';
 import ActivityFeed from '@/components/dashboard/ActivityFeed.jsx';
 import QuickActions from '@/components/dashboard/QuickActions.jsx';
 import type { QuickAction, Notification, ActivityItem } from '../types/dashboard';
+import { getLocale } from '@/lib/i18n';
+import { localizePath } from '@/lib/locale-path';
 
 const locals = Astro.locals as any;
+const locale = getLocale(Astro.url.pathname);
 if (!locals.user) {
-  return Astro.redirect('/login');
+  return Astro.redirect(localizePath(locale, '/login'));
 }
 
 const user = locals.user;
