@@ -8,6 +8,7 @@ import Footer from '@/components/Footer.astro';
 import ThemeProvider from '@/components/ThemeProvider.astro';
 import AOSCoordinator from '@/components/scripts/AOSCoordinator.astro';
 import Toaster from '@/components/Toaster';
+import { ViewTransitions } from 'astro:transitions';
 
 interface Props {
   title: string;
@@ -117,6 +118,8 @@ const ogImage = customOgImage || seoData.ogImage;
         @apply transition-colors duration-200;
       }
     </style>
+    <!-- Astro View Transitions for SPA-like navigation -->
+    <ViewTransitions />
   </head>
 
   <body class="min-h-screen bg-sky-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 flex flex-col overflow-x-hidden">
@@ -242,6 +245,7 @@ const ogImage = customOgImage || seoData.ogImage;
     </script>
 <!-- Analytics Module wird jetzt von AOSCoordinator gehandhabt -->
 <script>
+  // @ts-nocheck
   // Analytics Module ohne ES6-Imports (inline implementation für build compatibility)
 
   async function initializeAnalyticsTracking() {

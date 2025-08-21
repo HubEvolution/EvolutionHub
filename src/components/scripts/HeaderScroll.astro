@@ -54,8 +54,8 @@
       let lastScrollY = window.scrollY;
       let ticking = false;
       let hideTimeout = null;
-      const scrollThreshold = 60;     // Früher reagieren
-      const scrollDeltaThreshold = 5; // Mindestens 5px scrollen für Aktion
+      const scrollThreshold = 80;     // Reagiert etwas später
+      const scrollDeltaThreshold = 8; // Mindestens 8px scrollen für Aktion
       
       // Header initial sichtbar machen
       header.classList.add('header-visible');
@@ -114,7 +114,7 @@
               });
             }
             hideTimeout = null;
-          }, 150);
+          }, 200);
         } 
         // Nach oben scrollen - Header sofort einblenden
         else {
