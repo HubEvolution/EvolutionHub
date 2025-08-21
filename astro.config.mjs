@@ -144,6 +144,7 @@ export default defineConfig({
         '@/utils': '/src/utils',
         '@/assets': '/src/assets',
         '@/styles': '/src/styles',
+        '@/scripts': '/src/scripts',
         '@/api': '/src/pages/api',
         '@/tests': '/tests',
         '@/server/utils/logger': IS_WORKER_BUILD

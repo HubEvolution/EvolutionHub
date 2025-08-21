@@ -243,171 +243,18 @@ const ogImage = customOgImage || seoData.ogImage;
         initCookieConsent();
       });
     </script>
-<!-- Analytics Module wird jetzt von AOSCoordinator gehandhabt -->
-<script>
-  // @ts-nocheck
-  // Analytics Module ohne ES6-Imports (inline implementation für build compatibility)
-
-  async function initializeAnalyticsTracking() {
-    try {
-      console.log('[Analytics] 🚀 Starting analytics initialization...');
-      
-      // Analytics Manager dynamisch laden
-      const { initializeAnalytics, trackScrollDepth, trackTimeOnPage } = await import('@/lib/analytics');
-      
-      let analytics;
-      let timeOnPageStart = Date.now();
-      let maxScrollDepth = 0;
-      let scrollDepthTracked = new Set();
-      
-      // Analytics beim Laden der Seite initialisieren
-      analytics = initializeAnalytics();
-      
-      // Event-Handler für Cleanup speichern
-      let consentHandler = null;
-      let scrollHandler = null;
-      let beforeUnloadHandler = null;
-      let visibilityHandler = null;
-      
-      // Scroll-Depth-Tracking Setup
-      function setupScrollTracking() {
-        let throttleTimer = null;
-        
-        scrollHandler = () => {
-          if (throttleTimer !== null) return;
-          
-          throttleTimer = setTimeout(() => {
-            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-            const scrollPercent = Math.round((scrollTop / docHeight) * 100);
-            
-            // Track bei 25%, 50%, 75%, 90% Scroll-Depth
-            const milestones = [25, 50, 75, 90];
-            milestones.forEach(milestone => {
-              if (scrollPercent >= milestone && !scrollDepthTracked.has(milestone)) {
-                trackScrollDepth(milestone);
-                scrollDepthTracked.add(milestone);
-              }
-            });
-            
-            maxScrollDepth = Math.max(maxScrollDepth, scrollPercent);
-            throttleTimer = null;
-          }, 100);
-        };
-        
-        window.addEventListener('scroll', scrollHandler);
-      }
-      
-      // Time-on-Page-Tracking Setup
-      function setupTimeTracking() {
-        // Track bei Seitenverlassen
-        beforeUnloadHandler = () => {
-          const timeSpent = Math.round((Date.now() - timeOnPageStart) / 1000);
-          if (timeSpent > 10) { // Nur bei mindestens 10 Sekunden tracken
-            trackTimeOnPage(timeSpent);
-          }
-        };
-        window.addEventListener('beforeunload', beforeUnloadHandler);
-        
-        // Track bei Tab-Wechsel (falls User zurückkommt)
-        visibilityHandler = () => {
-          if (document.visibilityState === 'hidden') {
-            const timeSpent = Math.round((Date.now() - timeOnPageStart) / 1000);
-            if (timeSpent > 30) {
-              trackTimeOnPage(timeSpent);
-            }
-          } else {
-            timeOnPageStart = Date.now(); // Reset bei Rückkehr
-          }
-        };
-        document.addEventListener('visibilitychange', visibilityHandler);
-      }
-      
-      // Cookie Consent Integration
-      consentHandler = function(event) {
-        const cookieEvent = event;
-        
-        if (cookieEvent.detail && cookieEvent.detail.analytics) {
-          console.log('[Analytics] ✅ Analytics cookies accepted - enabling tracking');
-          
-          // Page-View-Tracking nach Consent
-          analytics?.trackPage(document.title, {
-            page_type: 'blog',
-            consent_given: true
-          });
-          
-          // Scroll-Depth-Tracking aktivieren
-          setupScrollTracking();
-          
-          // Time-on-Page-Tracking aktivieren
-          setupTimeTracking();
-        }
-        
-        if (cookieEvent.detail && cookieEvent.detail.marketing) {
-          console.log('[Analytics] ✅ Marketing cookies accepted - enabling retargeting');
-          
-          // Facebook Pixel laden (falls konfiguriert)
-          if (typeof window !== 'undefined' && window.fbq) {
-            window.fbq('consent', 'grant');
-            window.fbq('track', 'PageView');
-          }
-          
-          // LinkedIn Insight Tag aktivieren
-          if (typeof window !== 'undefined' && window['_linkedin_data_partner_ids']) {
-            const linkedinScript = document.createElement('script');
-            linkedinScript.src = 'https://snap.licdn.com/li.lms-analytics/insight.min.js';
-            document.head.appendChild(linkedinScript);
-          }
-        }
-      };
-      
-      document.addEventListener('cookieconsent:userpreferencesset', consentHandler);
-      
-      // Initial Page-View (falls bereits Consent vorhanden)
-      setTimeout(() => {
-        if (analytics && typeof window !== 'undefined') {
-          analytics.trackPage(document.title, {
-            page_type: window.location.pathname.startsWith('/blog') ? 'blog' : 'page',
-            initial_load: true
-          });
-        }
-      }, 1000);
-      
-      console.log('[Analytics] ✅ Tracking module initialized successfully');
-      
-      // Cleanup global verfügbar machen
-      window.analyticsCleanup = function() {
-        if (consentHandler) {
-          document.removeEventListener('cookieconsent:userpreferencesset', consentHandler);
-        }
-        if (scrollHandler) {
-          window.removeEventListener('scroll', scrollHandler);
-        }
-        if (beforeUnloadHandler) {
-          window.removeEventListener('beforeunload', beforeUnloadHandler);
-        }
-        if (visibilityHandler) {
-          document.removeEventListener('visibilitychange', visibilityHandler);
-        }
-        console.log('[Analytics] 🧹 Tracking module cleaned up');
-      };
-      
-    } catch (error) {
-      console.error('[Analytics] ❌ Failed to initialize analytics tracking:', error);
-    }
-  }
-
-  // Initialize analytics when DOM is ready
+<!-- Analytics Runtime Bootstrap -->
+<script type="module">
+  import initAnalytics from '@/scripts/analytics-runtime.ts';
   if (document.readyState !== 'loading') {
-    initializeAnalyticsTracking();
+    initAnalytics();
   } else {
-    document.addEventListener('DOMContentLoaded', initializeAnalyticsTracking);
+    document.addEventListener('DOMContentLoaded', initAnalytics);
   }
-
-  // Cleanup on page unload
+  // Optional: Cleanup beim Seitenwechsel
   window.addEventListener('beforeunload', () => {
-    if (window.analyticsCleanup) {
-      window.analyticsCleanup();
+    if (typeof window['analyticsCleanup'] === 'function') {
+      window['analyticsCleanup']();
     }
   });
 </script>

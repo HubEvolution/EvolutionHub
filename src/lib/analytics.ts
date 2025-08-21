@@ -67,8 +67,8 @@ class GoogleAnalyticsProvider implements AnalyticsProvider {
   }
 
   track(event: AnalyticsEvent) {
-    if (typeof gtag !== 'undefined') {
-      gtag('event', event.event, {
+    if (typeof (window as any).gtag !== 'undefined') {
+      (window as any).gtag('event', event.event, {
         event_category: event.event_category,
         event_label: event.event_label,
         value: event.value,
@@ -78,8 +78,8 @@ class GoogleAnalyticsProvider implements AnalyticsProvider {
   }
 
   identify(userId: string, traits?: Record<string, any>) {
-    if (typeof gtag !== 'undefined') {
-      gtag('config', this.measurementId, {
+    if (typeof (window as any).gtag !== 'undefined') {
+      (window as any).gtag('config', this.measurementId, {
         user_id: userId,
         custom_map: traits
       });
@@ -87,8 +87,8 @@ class GoogleAnalyticsProvider implements AnalyticsProvider {
   }
 
   page(pageName?: string, properties?: Record<string, any>) {
-    if (typeof gtag !== 'undefined') {
-      gtag('event', 'page_view', {
+    if (typeof (window as any).gtag !== 'undefined') {
+      (window as any).gtag('event', 'page_view', {
         page_title: pageName || document.title,
         page_location: window.location.href,
         ...properties
@@ -137,7 +137,7 @@ class PlausibleProvider implements AnalyticsProvider {
     console.log('Plausible user identified:', { userId, traits });
   }
 
-  page(pageName?: string, properties?: Record<string, any>) {
+  page(_pageName?: string, properties?: Record<string, any>) {
     // Plausible automatically tracks page views
     if (properties && Object.keys(properties).length > 0) {
       this.track({
@@ -186,11 +186,6 @@ class AnalyticsManager {
         this.cookieConsent = event.detail?.analytics || false;
         console.log('🍪 Cookie consent updated:', { analytics: this.cookieConsent });
       });
-
-      // Check initial consent status
-      setTimeout(() => {
-        this.cookieConsent = true; // Default für Development - in Production über Cookie Consent
-      }, 1000);
     }
   }
 
@@ -300,10 +295,12 @@ export const trackLeadMagnetDownload = (leadMagnetId: string, leadId?: string) =
   analytics?.trackConversion({
     event: 'lead_magnet_download',
     conversion_type: 'lead_magnet_download',
-    lead_magnet_id: leadMagnetId,
     lead_id: leadId,
     lead_value: 10, // Estimated lead value
-    attribution_source: document.referrer || 'direct'
+    attribution_source: document.referrer || 'direct',
+    custom_parameters: {
+      lead_magnet_id: leadMagnetId
+    }
   });
 };
 
