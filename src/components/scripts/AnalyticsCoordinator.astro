@@ -1,0 +1,42 @@
+---
+// AnalyticsCoordinator.astro - Build-kompatible Initialisierung der Analytics-Runtime
+// Kapselt das Laden der Runtime und sorgt für saubere Lifecycle-Integration
+---
+
+<script is:inline>
+  // Minimaler, robust gebundelter Loader über Astro.resolve
+  function initializeAnalyticsCoordinator() {
+    import(Astro.resolve('@/scripts/analytics-runtime.ts'))
+      .then((mod) => {
+        const init = (mod && (mod.default || (mod as any))) as unknown;
+        if (typeof init === 'function') {
+          init();
+          console.log('[AnalyticsCoordinator] ✅ Runtime initialized');
+        } else {
+          console.warn('[AnalyticsCoordinator] ⚠️ No default init() export found');
+        }
+      })
+      .catch((err) => {
+        console.error('[AnalyticsCoordinator] ❌ Failed to load runtime:', err);
+      });
+  }
+
+  // DOM ready
+  if (document.readyState !== 'loading') {
+    initializeAnalyticsCoordinator();
+  } else {
+    document.addEventListener('DOMContentLoaded', initializeAnalyticsCoordinator);
+  }
+
+  // Cleanup beim Seitenwechsel
+  window.addEventListener('beforeunload', () => {
+    if (typeof window['analyticsCleanup'] === 'function') {
+      window['analyticsCleanup']();
+    }
+  });
+
+  console.log('[AnalyticsCoordinator] 📋 Coordinator module loaded and ready');
+</script>
+
+<!-- Dummy Node, damit Astro das Script zuverlässig injiziert (HeaderScroll/AOS-Pattern) -->
+<div style="display: none;" aria-hidden="true"></div>

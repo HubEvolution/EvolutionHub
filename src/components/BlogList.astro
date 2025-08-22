@@ -1,6 +1,7 @@
 ---
 import type { ProcessedBlogPost } from '@/content/types';
 import BlogCard from './BlogCard.astro';
+import { aosDelayForIndex } from '@/lib/aos';
 
 // Define the shape of the component props
 interface Props {
@@ -72,7 +73,7 @@ const remainingPosts = showFeatured && posts.length > 0 ? posts.slice(1) : posts
         <BlogCard 
           post={post} 
           className="h-full"
-          aosDelay={Math.min(idx * 100, 300)}
+          aosDelay={aosDelayForIndex(idx, { step: 100, max: 300 })}
         />
       ))}
     </div>

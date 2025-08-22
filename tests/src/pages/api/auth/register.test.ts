@@ -1,8 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { POST } from '@/pages/api/auth/register';
 import * as authServiceModule from '@/lib/services/auth-service-impl';
-import * as rateLimiter from '@/lib/rate-limiter';
-import * as responseHelpers from '@/lib/response-helpers';
 import { ServiceError, ServiceErrorType } from '@/lib/services/types';
 import { mockRateLimitOnce } from '../../../helpers/rateLimiter';
 
@@ -79,6 +77,8 @@ const createMockAuthService = () => {
     createPasswordResetToken: vi.fn(),
     validatePasswordResetToken: vi.fn(),
     resetPassword: vi.fn(),
+    changePassword: vi.fn(),
+    withTransaction: vi.fn(async (cb: any) => cb({} as any)),
   };
 };
 
@@ -113,8 +113,6 @@ describe('Register-V2 API Tests (Service-Layer)', () => {
   let mockAuthService: ReturnType<typeof createMockAuthService>;
   
   // Spies für Funktionen
-  let standardApiLimiterSpy: any;
-  let createSecureRedirectSpy: any;
   let createAuthServiceSpy: any;
   
   beforeEach(() => {
@@ -127,9 +125,9 @@ describe('Register-V2 API Tests (Service-Layer)', () => {
     createAuthServiceSpy = vi.spyOn(authServiceModule, 'createAuthService')
       .mockReturnValue(mockAuthService);
     
-    // Spies für weitere Funktionen einrichten
-    standardApiLimiterSpy = vi.spyOn(rateLimiter, 'standardApiLimiter').mockResolvedValue(undefined);
-    createSecureRedirectSpy = vi.spyOn(responseHelpers, 'createSecureRedirect');
+    // Hinweis: Weitere Spies auf modulare Helfer entfallen hier, da Modul-Mocking vor dem Import
+    // des SUT zu Timing-Problemen führen kann. Die funktionale Wirkung (Redirect/Status) wird
+    // in den Tests direkt geprüft.
   });
 
   it('sollte bei zu vielen Anfragen Rate-Limiting anwenden', async () => {
@@ -146,8 +144,7 @@ describe('Register-V2 API Tests (Service-Layer)', () => {
     const response = await POST(context as any);
 
     expect(response.status).toBe(302);
-    expect(response.headers.get('Location')).toBe('/register?error=TooManyRequests');
-    expect(standardApiLimiterSpy).toHaveBeenCalledWith(context);
+    expect(response.headers.get('Location')).toBe('/en/register?error=TooManyRequests');
   });
 
   it('sollte eine Fehlermeldung zurückgeben, wenn die Eingabedaten ungültig sind', async () => {
@@ -161,7 +158,7 @@ describe('Register-V2 API Tests (Service-Layer)', () => {
     const response = await POST(context as any);
 
     expect(response.status).toBe(302);
-    expect(response.headers.get('Location')).toBe('/register?error=InvalidInput');
+    expect(response.headers.get('Location')).toBe('/en/register?error=InvalidInput');
     // Prüfen, dass der Service nicht aufgerufen wurde
     expect(mockAuthService.register).not.toHaveBeenCalled();
   });
@@ -177,7 +174,7 @@ describe('Register-V2 API Tests (Service-Layer)', () => {
     const response = await POST(context as any);
 
     expect(response.status).toBe(302);
-    expect(response.headers.get('Location')).toBe('/register?error=InvalidInput');
+    expect(response.headers.get('Location')).toBe('/en/register?error=InvalidInput');
     // Prüfen, dass der Service nicht aufgerufen wurde
     expect(mockAuthService.register).not.toHaveBeenCalled();
   });
@@ -191,14 +188,14 @@ describe('Register-V2 API Tests (Service-Layer)', () => {
     });
 
     // Runtime entfernen
-    context.locals.runtime = undefined;
+    (context.locals as any).runtime = undefined;
 
     const response = await POST(context as any);
 
     expect(response.status).toBe(302);
     // Die aktuelle Implementierung verwendet ServerError für Runtime-Fehler
     // TODO: Erwägen, spezifischere Fehlercodes für verschiedene Fehlertypen einzuführen
-    expect(response.headers.get('Location')).toBe('/register?error=ServerError');
+    expect(response.headers.get('Location')).toBe('/en/register?error=ServerError');
   });
 
   it('sollte eine Fehlermeldung zurückgeben, wenn der Service einen Konflikt-Fehler wegen existierendem Benutzer wirft', async () => {
@@ -221,7 +218,7 @@ describe('Register-V2 API Tests (Service-Layer)', () => {
     const response = await POST(context as any);
 
     expect(response.status).toBe(302);
-    expect(response.headers.get('Location')).toBe('/register?error=UserExists');
+    expect(response.headers.get('Location')).toBe('/en/register?error=UserExists');
     expect(mockAuthService.register).toHaveBeenCalledWith(
       expect.objectContaining({
         email: 'existing@example.com',
@@ -253,7 +250,7 @@ describe('Register-V2 API Tests (Service-Layer)', () => {
     const response = await POST(context as any);
 
     expect(response.status).toBe(302);
-    expect(response.headers.get('Location')).toBe('/register?error=UsernameExists');
+    expect(response.headers.get('Location')).toBe('/en/register?error=UsernameExists');
   });
 
   it('sollte eine Fehlermeldung zurückgeben, wenn der Service einen allgemeinen Fehler wirft', async () => {
@@ -270,7 +267,7 @@ describe('Register-V2 API Tests (Service-Layer)', () => {
     const response = await POST(context as any);
 
     expect(response.status).toBe(302);
-    expect(response.headers.get('Location')).toBe('/register?error=ServerError');
+    expect(response.headers.get('Location')).toBe('/en/register?error=ServerError');
   });
 
   it('sollte den Benutzer erfolgreich registrieren und zum Dashboard weiterleiten', async () => {

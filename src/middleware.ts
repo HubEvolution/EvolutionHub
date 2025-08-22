@@ -32,10 +32,19 @@ export const onRequest = defineMiddleware(async (context, next) => {
   })();
 
   const cookieName = 'pref_locale';
-  const cookieLocale = ((): Locale | null => {
+  let cookieLocale = ((): Locale | null => {
     const v = context.cookies.get(cookieName)?.value;
     return v === 'de' || v === 'en' ? (v as Locale) : null;
   })();
+  // Fallback: parse raw Cookie header, in case cookies API misses it (dev quirk)
+  if (!cookieLocale) {
+    const raw = context.request.headers.get('cookie') || '';
+    const match = raw.match(/(?:^|;\s*)pref_locale=(de|en)(?:;|$)/i);
+    if (match) {
+      cookieLocale = match[1].toLowerCase() as Locale;
+      console.log('[Middleware] Fallback parsed pref_locale from raw header:', cookieLocale);
+    }
+  }
 
   // Session-basierte Splash-Gate: einmal pro Browser-Session anzeigen
   const sessionGateCookie = 'session_welcome_seen';
@@ -65,9 +74,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
     ?? cookieLocale
     ?? detectFromAcceptLanguage(context.request.headers.get('accept-language'));
 
-  // Unabhängige Benutzerpräferenz (ignoriert bestehende URL-Locale)
-  const userPreferredLocale: Locale = cookieLocale
-    ?? detectFromAcceptLanguage(context.request.headers.get('accept-language'));
+  // (Entfernt) Unabhängige Benutzerpräferenz war redundant und ungenutzt
 
   // Helper: bereinigt und parst den next-Parameter sicher (nur gleiche Origin erlaubt)
   function safeParseNext(nextRaw: string | null): URL | null {
@@ -146,8 +153,33 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   const bot = isBot(context.request.headers.get('user-agent'));
 
+  // Referer-basiertes Fallback-Signal: wenn vorherige Seite /en/... war, präferiere EN
+  let refererSuggestsEn = false;
+  try {
+    const ref = context.request.headers.get('referer');
+    if (ref) {
+      const r = new URL(ref);
+      if (r.origin === url.origin && (r.pathname === '/en' || r.pathname.startsWith('/en/'))) {
+        refererSuggestsEn = true;
+      }
+    }
+  } catch {}
+
+  // Frühzeitiger Redirect: neutrale Pfade -> /en/* wenn cookie=en vorhanden
+  if (!existingLocale && !isApi && !isAsset && (cookieLocale === 'en' || refererSuggestsEn) && !path.startsWith('/welcome') && !isAuthRoute(path)) {
+    const target = path === '/' ? '/en/' : `/en${path}`;
+    const location = `${url.origin}${target}${url.search}${url.hash}`;
+    const headers = new Headers();
+    headers.set('Location', location);
+    headers.set('Content-Language', 'en');
+    headers.set('Vary', 'Cookie, Accept-Language');
+    console.log('[Middleware] Early neutral -> cookie=en, redirect to EN:', location);
+    return new Response(null, { status: 302, headers });
+  }
+
   // Zeige Splash/Welcome beim ersten sichtbaren Besuch dieser Session
-  if (!sessionWelcomeSeen && !isApi && !isAsset && !bot && !path.startsWith('/welcome') && !isAuthRoute(path) && !existingLocale) {
+  // Überspringe Splash, wenn bereits ein Locale-Cookie vorhanden ist
+  if (!sessionWelcomeSeen && !cookieLocale && !isApi && !isAsset && !bot && !path.startsWith('/welcome') && !isAuthRoute(path) && !existingLocale) {
     try {
       // Session-Cookie (kein maxAge) setzen, damit Splash nur einmal pro Session erscheint
       context.cookies.set(sessionGateCookie, '1', {
@@ -169,7 +201,8 @@ export const onRequest = defineMiddleware(async (context, next) => {
   }
 
   // Erste Besuche (kein Cookie, kein Locale in URL, kein Bot) -> Splash/Welcome mit next
-  if (!cookieLocale && !existingLocale && !isApi && !isAsset && !bot && !path.startsWith('/welcome') && !isAuthRoute(path)) {
+  // Respektiere Session-Gate, um doppelte Redirects zu vermeiden
+  if (!sessionWelcomeSeen && !cookieLocale && !existingLocale && !isApi && !isAsset && !bot && !path.startsWith('/welcome') && !isAuthRoute(path)) {
     const location = `${url.origin}/welcome?next=${encodeURIComponent(url.toString())}`;
     const headers = new Headers();
     headers.set('Location', location);
@@ -178,18 +211,16 @@ export const onRequest = defineMiddleware(async (context, next) => {
     return new Response(null, { status: 302, headers });
   }
 
-  // Fallback: /de/* -> neutral bzw. /en/* je nach bevorzugter Locale
+  // Fallback: /de/* -> nur zu /en/* normalisieren, wenn explizit cookie=en gesetzt ist
   // Änderung: Auth-Routen NIE normalisieren, damit Locale stabil bleibt (Option B)
   const isDePrefixed = path === '/de' || path.startsWith('/de/');
-  if (isDePrefixed && !isApi && !isAsset && !isAuthRoute(path)) {
+  if (isDePrefixed && !isApi && !isAsset && !isAuthRoute(path) && cookieLocale === 'en') {
     const pathWithoutDe = path.replace(/^\/de(\/|$)/, '/');
-    const target = userPreferredLocale === 'en'
-      ? (pathWithoutDe === '/' ? '/en/' : `/en${pathWithoutDe}`)
-      : pathWithoutDe;
+    const target = (pathWithoutDe === '/' ? '/en/' : `/en${pathWithoutDe}`);
     const location = `${url.origin}${target}${url.search}${url.hash}`;
     const headers = new Headers();
     headers.set('Location', location);
-    headers.set('Content-Language', userPreferredLocale);
+    headers.set('Content-Language', 'en');
     const vary = 'Cookie, Accept-Language';
     headers.set('Vary', vary);
     console.log('[Middleware] Redirecting /de-prefixed path to', location);

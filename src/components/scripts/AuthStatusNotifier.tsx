@@ -13,11 +13,11 @@ function wait(ms: number) {
   return new Promise((r) => setTimeout(r, ms));
 }
 
-async function waitForToaster(timeout = 4000): Promise<boolean> {
+async function waitForToaster(timeout = 150): Promise<boolean> {
   const start = Date.now();
   while (Date.now() - start < timeout) {
     if (document.querySelector('[data-sonner-toaster]')) return true;
-    await wait(50);
+    await wait(10);
   }
   return false;
 }

@@ -68,10 +68,17 @@ const registerValidator = createValidator<RegisterData>(registerSchema);
  * WICHTIG: Dieser Endpunkt verwendet KEINE API-Middleware, da er Redirects statt JSON zurückgibt!
  */
 export const POST = async (context: APIContext) => {
+  // Locale aus Referer ermitteln (Fallback)
+  const referer =
+    typeof context?.request?.headers?.get === 'function'
+      ? context.request.headers.get('referer') ?? ''
+      : '';
+  let locale = referer.includes('/de/') ? 'de' : referer.includes('/en/') ? 'en' : 'en';
+
   // Rate-Limiting anwenden
   const rateLimitResponse = await standardApiLimiter(context);
   if (rateLimitResponse) {
-    return createSecureRedirect('/register?error=TooManyRequests');
+    return createSecureRedirect(`/${locale}/register?error=TooManyRequests`);
   }
 
   try {
@@ -80,6 +87,10 @@ export const POST = async (context: APIContext) => {
     
     try {
       const formData = await context.request.formData();
+      const localeField = formData.get('locale');
+      if (typeof localeField === 'string' && (localeField === 'de' || localeField === 'en')) {
+        locale = localeField;
+      }
       const data: Record<string, unknown> = {};
       
       // FormData in ein Objekt konvertieren
@@ -153,11 +164,11 @@ export const POST = async (context: APIContext) => {
         errorCode = 'UsernameExists';
       }
       
-      return createSecureRedirect(`/register?error=${errorCode}`);
+      return createSecureRedirect(`/${locale}/register?error=${errorCode}`);
     }
     
     // Zentralen Error-Handler verwenden
-    return handleAuthError(error, '/register');
+    return handleAuthError(error, `/${locale}/register`);
   }
 };
 

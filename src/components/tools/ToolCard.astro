@@ -15,7 +15,7 @@ import { getLocale } from '@/lib/i18n';
 const locale = getLocale(Astro.url.pathname);
 ---
 
-<article class="group relative bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden">
+<article data-aos="fade-up" class="group relative bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden">
   {/* Badges */}
   <div class="absolute top-4 right-4 flex space-x-2">
     {isNew && (

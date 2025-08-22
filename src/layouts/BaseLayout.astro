@@ -7,6 +7,7 @@ import SkipLink from '@/components/SkipLink.astro';
 import Footer from '@/components/Footer.astro';
 import ThemeProvider from '@/components/ThemeProvider.astro';
 import AOSCoordinator from '@/components/scripts/AOSCoordinator.astro';
+import AnalyticsCoordinator from '@/components/scripts/AnalyticsCoordinator.astro';
 import Toaster from '@/components/Toaster';
 import { ViewTransitions } from 'astro:transitions';
 
@@ -24,6 +25,8 @@ interface Props {
   section?: string;
   tags?: string[];
   hideNewsletter?: boolean;
+  enableAOS?: boolean;
+  enableAnalytics?: boolean;
 }
 
 const {
@@ -32,6 +35,8 @@ const {
   ogImage: customOgImage,
   hideNewsletter
 } = Astro.props;
+
+const { enableAOS = true, enableAnalytics = true } = Astro.props as Props;
 
 // Get locale from URL
 const locale = getLocale(Astro.url.pathname);
@@ -106,8 +111,7 @@ const ogImage = customOgImage || seoData.ogImage;
       }
     </script>
 
-    <!-- AOS CSS via CDN (build-compatible, keine NPM-Imports) -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css">
+    {enableAOS && <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" />}
 
     <!-- Global CSS -->
     <style is:global>
@@ -131,7 +135,8 @@ const ogImage = customOgImage || seoData.ogImage;
       </main>
 
       <Footer locale={locale} hideNewsletter={hideNewsletter} />
-      <AOSCoordinator />
+      {enableAOS && <AOSCoordinator />}
+      {enableAnalytics && <AnalyticsCoordinator />}
       <Toaster client:load />
 
     <script>
@@ -243,20 +248,6 @@ const ogImage = customOgImage || seoData.ogImage;
         initCookieConsent();
       });
     </script>
-<!-- Analytics Runtime Bootstrap -->
-<script type="module">
-  import initAnalytics from '@/scripts/analytics-runtime.ts';
-  if (document.readyState !== 'loading') {
-    initAnalytics();
-  } else {
-    document.addEventListener('DOMContentLoaded', initAnalytics);
-  }
-  // Optional: Cleanup beim Seitenwechsel
-  window.addEventListener('beforeunload', () => {
-    if (typeof window['analyticsCleanup'] === 'function') {
-      window['analyticsCleanup']();
-    }
-  });
-</script>
+<!-- Analytics Runtime is loaded via <AnalyticsCoordinator /> -->
   </body>
 </html>

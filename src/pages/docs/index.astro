@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import { aosDelayForIndex } from '@/lib/aos';
 
 const sections = [
   {
@@ -44,9 +45,11 @@ const sections = [
 
       <div class="mt-10">
         <div class="space-y-10 md:space-y-0 md:grid md:grid-cols-2 md:gap-x-8 md:gap-y-10">
-          {sections.map((section) => (
+          {sections.map((section, idx) => (
             <a 
               href={section.link}
+              data-aos="fade-up"
+              data-aos-delay={String(aosDelayForIndex(idx, { step: 100, max: 300 }))}
               class="group relative bg-white dark:bg-gray-800 p-6 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-500 rounded-lg border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-shadow duration-200"
             >
               <div>

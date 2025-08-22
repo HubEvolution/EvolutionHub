@@ -24,7 +24,14 @@
     mirror: false,          // Don't animate elements out
     debounceDelay: 50,      // Debounce scroll events for performance
     throttleDelay: 99,      // Throttle scroll events for performance
-    disable: false          // Enable on all devices
+    // Disable animations for users who prefer reduced motion (A11y)
+    disable: function() {
+      try {
+        return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+      } catch (_) {
+        return false;
+      }
+    }
   };
 
   // AOS Initialization Function - NO ES6 IMPORTS

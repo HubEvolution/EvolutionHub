@@ -1,4 +1,6 @@
 ---
+import { aosDelayForIndex } from '@/lib/aos';
+
 interface Plan {
   name: string;
   price: string;
@@ -54,8 +56,10 @@ const plans: Plan[] = [
 ---
 
 <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
-  {plans.map((plan) => (
+  {plans.map((plan, idx) => (
     <div
+      data-aos="fade-up"
+      data-aos-delay={String(aosDelayForIndex(idx, { step: 100, max: 300 }))}
       class={`relative flex flex-col p-8 rounded-2xl bg-white dark:bg-gray-800 shadow-lg ${
         plan.featured ? 'ring-2 ring-blue-500 transform md:-translate-y-4' : ''
       }`}
