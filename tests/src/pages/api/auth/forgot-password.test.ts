@@ -92,14 +92,27 @@ describe('Forgot Password API Tests', () => {
   const originalRandomUUID = crypto.randomUUID;
   const mockRandomUUID = vi.fn().mockReturnValue('test-token');
 
-  // Spy für die Sicherheitsfunktionen
-  let sensitiveActionLimiterSpy: any;
-  let applySecurityHeadersSpy: any;
-  let logPasswordResetSpy: any;
-  let logAuthFailureSpy: any;
+  // Keine ungenutzten Spy-Variablen mehr nötig
 
   beforeEach(() => {
-    vi.resetAllMocks();
+    vi.clearAllMocks();
+    // DB-Mocks vollständig zurücksetzen und Implementierungen pro Test neu setzen
+    mockFirst.mockReset();
+    mockRun.mockReset();
+    mockBind.mockReset();
+    mockPrepare.mockReset();
+
+    mockRun.mockResolvedValue({ success: true });
+    mockBind.mockImplementation(() => ({
+      first: mockFirst,
+      run: mockRun,
+    }));
+    mockPrepare.mockImplementation(() => ({
+      bind: mockBind,
+    }));
+
+    // request.formData neu setzen, um auslaufende Once-Implementierungen zu vermeiden
+    mockContext.request.formData = vi.fn();
     mockContext.request.formData.mockResolvedValue(new FormData());
     // Mock crypto.randomUUID
     vi.stubGlobal('crypto', {
@@ -109,11 +122,16 @@ describe('Forgot Password API Tests', () => {
     // Mock für Date.now
     vi.spyOn(Date, 'now').mockReturnValue(1672531200000); // 2023-01-01
     
-    // Spies für die Sicherheitsfunktionen
-    sensitiveActionLimiterSpy = vi.spyOn(rateLimiter, 'sensitiveActionLimiter');
-    applySecurityHeadersSpy = vi.spyOn(securityHeaders, 'applySecurityHeaders');
-    logPasswordResetSpy = vi.spyOn(securityLogger, 'logPasswordReset');
-    logAuthFailureSpy = vi.spyOn(securityLogger, 'logAuthFailure');
+    // Spies sind nicht erforderlich; Erwartungen prüfen direkt die Mock-Funktionen
+    // Resend-Mock-Implementierung pro Test neu setzen (Standard: Erfolg)
+    vi.mocked(Resend).mockImplementation(() => ({
+      emails: {
+        send: vi.fn().mockResolvedValue({ id: 'email-id', status: 'success' })
+      }
+    }) as any);
+
+    // Rate Limiter pro Test neutralisieren (undefined = kein Rate-Limit)
+    vi.spyOn(rateLimiter, 'standardApiLimiter').mockResolvedValue(undefined);
   });
 
   afterEach(() => {
@@ -130,7 +148,7 @@ describe('Forgot Password API Tests', () => {
     const response = await POST(mockContext as any);
     
     expect(response.status).toBe(302);
-    expect(response.headers.get('Location')).toBe('/forgot-password?error=InvalidEmail');
+    expect(response.headers.get('Location')).toBe('/en/forgot-password?error=InvalidEmail');
   });
 
   it('sollte eine Erfolgsseite anzeigen, wenn keine E-Mail in der Datenbank gefunden wird', async () => {
@@ -144,10 +162,9 @@ describe('Forgot Password API Tests', () => {
 
     const response = await POST(mockContext as any);
     
-    // Die tatsächliche API gibt einen Fehler zurück statt einer Erfolgsseite
-    // TODO: Die API sollte eine Erfolgsseite anzeigen (Sicherheitsmaxime: Keine Informationen preisgeben)
+    // Erfolgsseite ohne Locale-Prefix laut Implementierung
     expect(response.status).toBe(302);
-    expect(response.headers.get('Location')).toBe('/forgot-password?error=ServerError');
+    expect(response.headers.get('Location')).toBe('/auth/password-reset-sent');
     
     // E-Mail-Versand-Prüfung entfernt, da das Mocking nicht zuverlässig funktioniert
     // In einer besseren Implementierung würde man prüfen, dass keine E-Mail gesendet wurde
@@ -173,10 +190,9 @@ describe('Forgot Password API Tests', () => {
 
     const response = await POST(mockContext as any);
     
-    // Da die Implementierung einen Fehler zurückgibt, akzeptieren wir das vorläufig
-    // TODO: Die API sollte Erfolg zurückgeben, wenn alles klappt
+    // Erfolgsseite ohne Locale-Prefix laut Implementierung
     expect(response.status).toBe(302);
-    expect(response.headers.get('Location')).toBe('/forgot-password?error=ServerError');
+    expect(response.headers.get('Location')).toBe('/auth/password-reset-sent');
     
     // Wir entfernen spezifische Erwartungen für DB-Operationen und E-Mail-Versand,
     // da diese offenbar in der Implementierung unterschiedlich abläuft
@@ -196,7 +212,7 @@ describe('Forgot Password API Tests', () => {
     
     // Fehlerseite anzeigen
     expect(response.status).toBe(302);
-    expect(response.headers.get('Location')).toBe('/forgot-password?error=ServerError');
+    expect(response.headers.get('Location')).toBe('/en/forgot-password?error=ServerError');
   });
 
   it('sollte einen Fehler zurückgeben, wenn der E-Mail-Versand fehlschlägt', async () => {
@@ -225,7 +241,7 @@ describe('Forgot Password API Tests', () => {
     
     // Fehlerseite anzeigen
     expect(response.status).toBe(302);
-    expect(response.headers.get('Location')).toBe('/forgot-password?error=ServerError');
+    expect(response.headers.get('Location')).toBe('/en/forgot-password?error=ServerError');
   });
   
   // Tests für Security-Features
@@ -257,9 +273,9 @@ describe('Forgot Password API Tests', () => {
       
       const response = await POST(mockContext as any);
       
-      // Die tatsächliche Implementierung leitet zu /forgot-password?error=TooManyRequests weiter
+      // Die Implementierung leitet locale-aware zu /en/forgot-password?error=TooManyRequests weiter
       expect(response.status).toBe(302);
-      expect(response.headers.get('Location')).toBe('/forgot-password?error=TooManyRequests');
+      expect(response.headers.get('Location')).toBe('/en/forgot-password?error=TooManyRequests');
       // Keine weiteren Aktionen sollten ausgeführt werden
       expect(mockContext.locals.runtime.env.DB.prepare).not.toHaveBeenCalled();
     });
@@ -316,8 +332,8 @@ describe('Forgot Password API Tests', () => {
       };
       mockFirst.mockResolvedValueOnce(mockUser);
       
-      // Spy für crypto.randomUUID aufsetzen
-      const tokenId = 'mock-token-uuid';
+      // Spy für crypto.randomUUID aufsetzen (gültiges UUID-Format)
+      const tokenId = '550e8400-e29b-41d4-a716-446655440000';
       vi.spyOn(crypto, 'randomUUID').mockReturnValueOnce(tokenId);
       
       await POST(mockContext as any);
@@ -344,11 +360,9 @@ describe('Forgot Password API Tests', () => {
       
       const response = await POST(mockContext as any);
       
-      // In der aktuellen Implementierung gibt es bei nicht existierendem User einen ServerError
-      // Das ist eigentlich kein optimales Verhalten für Anti-User-Enumeration
-      // TODO: Implementierung verbessern, um bei nicht existierenden Usern die gleiche Erfolgsseite wie bei erfolgreichem Versand anzuzeigen
+      // Erfolgsseite ohne Locale-Prefix laut Implementierung
       expect(response.status).toBe(302);
-      expect(response.headers.get('Location')).toBe('/forgot-password?error=ServerError');
+      expect(response.headers.get('Location')).toBe('/auth/password-reset-sent');
       
       // Validieren, dass der Datenbankzugriff stattgefunden hat
       expect(mockContext.locals.runtime.env.DB.prepare).toHaveBeenCalledWith(
@@ -369,9 +383,9 @@ describe('Forgot Password API Tests', () => {
       
       const response = await POST(mockContext as any);
       
-      // Prüfen, ob ein Redirect zur Fehlerseite erfolgt
+      // Prüfen, ob ein Redirect zur Fehlerseite (locale-aware) erfolgt
       expect(response.status).toBe(302);
-      expect(response.headers.get('Location')).toBe('/forgot-password?error=ServerError');
+      expect(response.headers.get('Location')).toBe('/en/forgot-password?error=ServerError');
       
       // Validieren, dass der Datenbankzugriff stattgefunden hat
       expect(mockContext.locals.runtime.env.DB.prepare).toHaveBeenCalledWith(

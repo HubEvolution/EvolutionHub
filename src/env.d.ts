@@ -19,6 +19,7 @@ declare namespace App {
             name: string;
             username: string;
             image?: string;
+            email_verified: boolean;
         } | null;
         runtime: {
             env: {

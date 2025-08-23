@@ -103,7 +103,10 @@ describe('Auth-Modul Tests', () => {
 
       // Überprüfungen
       expect(result).toEqual({ session: null, user: null });
-      expect(mockDb.prepare).toHaveBeenNthCalledWith(2, 'SELECT id, email, name, username, image FROM users WHERE id = ?');
+      expect(mockDb.prepare).toHaveBeenNthCalledWith(
+        2,
+        expect.stringMatching(/^SELECT\s+.+\s+FROM\s+users\s+WHERE\s+id\s+=\s+\?$/)
+      );
       expect(mockDb.bind).toHaveBeenNthCalledWith(2, 'test-user-id');
     });
 
@@ -120,7 +123,8 @@ describe('Auth-Modul Tests', () => {
         email: 'test@example.com',
         name: 'Test User',
         username: 'testuser',
-        image: 'avatar.jpg'
+        image: 'avatar.jpg',
+        email_verified: false
       };
       
       mockDb.first

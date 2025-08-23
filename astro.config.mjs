@@ -120,14 +120,10 @@ export default defineConfig({
     build: {
       assetsInlineLimit: 0,
       cssCodeSplit: true,
-      // Einheitliche Ausgabestruktur für alle Assets
-      outDir: './dist', // Ensure outDir is './dist'
+      // outDir remains './dist'; let Astro manage its default /_astro asset path
+      outDir: './dist',
       rollupOptions: {
-        external: [/[._]test\.js$/, /[._]test\.ts$/, /[._]test\.astro$/],
-        output: {
-          // Ensure assets are placed directly in dist/assets/
-          assetFileNames: 'assets/[name].[hash][extname]'
-        }
+        external: [/[._]test\.js$/, /[._]test\.ts$/, /[._]test\.astro$/]
       },
       ssr: {
         noExternal: [/[._]test\.js$/, /[._]test\.ts$/, /[._]test\.astro$/]

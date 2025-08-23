@@ -1,6 +1,7 @@
 # Setup Guide für Evolution Hub
 
 ## Inhaltsverzeichnis
+ 
 1. [Voraussetzungen](#voraussetzungen)
 2. [Projekt einrichten](#projekt-einrichten)
 3. [Datenbankkonfiguration](#datenbankkonfiguration)
@@ -23,17 +24,20 @@ Bevor Sie mit der Einrichtung beginnen, stellen Sie sicher, dass folgende Softwa
 ## Projekt einrichten
 
 1. Klonen Sie das Repository:
+ 
    ```bash
    git clone <repository-url>
    cd evolution-hub
    ```
 
 2. Installieren Sie die Abhängigkeiten:
+ 
    ```bash
    npm install
    ```
 
 3. Erstellen Sie eine `.env`-Datei aus dem Beispiel:
+ 
    ```bash
    cp .env.example .env
    ```
@@ -53,6 +57,7 @@ npm run setup:local
 ```
 
 Dieses Skript führt folgende Aktionen aus:
+ 
 - Erstellt eine lokale D1-Datenbank (falls nicht vorhanden)
 - Führt alle Migrations-Dateien auf ALLE lokalen Datenbanken aus
 - Erstellt einen lokalen R2-Bucket (falls nicht vorhanden)
@@ -62,16 +67,19 @@ Dieses Skript führt folgende Aktionen aus:
 ### Manuelle Einrichtung
 
 1. Installieren Sie die Wrangler CLI global (falls noch nicht geschehen):
+ 
    ```bash
    npm install -g wrangler
    ```
 
 2. Erstellen Sie eine neue D1-Datenbank:
+ 
    ```bash
    npx wrangler d1 create evolution-hub-main-local
    ```
 
 3. Führen Sie die Migrationen aus:
+ 
    ```bash
    npx wrangler d1 execute evolution-hub-main-local --local --file=./migrations/0000_initial_schema.sql
    npx wrangler d1 execute evolution-hub-main-local --local --file=./migrations/0001_add_sessions_table.sql
@@ -110,7 +118,8 @@ Verwenden Sie das interaktive CLI-Menü, um schnell zwischen verschiedenen Entwi
 npm run menu
 ```
 
-Wählen Sie "Lokale Entwicklung" und dann eine der folgenden Optionen:
+  Wählen Sie "Lokale Entwicklung" und dann eine der folgenden Optionen:
+ 
 - **UI-Entwicklung**: Startet den Astro Dev-Server (schnell, ideal für Frontend-Entwicklung)
 - **Cloudflare-Entwicklung**: Startet den Wrangler Dev-Server (vollständige Cloudflare-Integration)
 - **Datenbank zurücksetzen & Migrationen anwenden**: Setzt die lokale Datenbank zurück
@@ -139,6 +148,7 @@ npm run dev:remote
 
 Das Projekt ist nun unter der von `wrangler` angegebenen Adresse erreichbar (z.B. `http://localhost:8788`).
 
+
 ## Tests ausführen
 
 Das Projekt verfügt über verschiedene Arten von Tests. Um Tests erfolgreich auszuführen, ist eine korrekte Umgebungseinrichtung entscheidend.
@@ -164,7 +174,7 @@ npm run test:coverage
 
 Die aktuelle Test-Coverage des Projekts beträgt **14.76%** für alle Dateien. Die Coverage verteilt sich unterschiedlich auf verschiedene Projektbereiche:
 
-```
+```text
 ------------------------------|---------|----------|---------|---------|-------------------
 File                          | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
 ------------------------------|---------|----------|---------|---------|-------------------
@@ -176,7 +186,7 @@ Hervorstechende Coverage-Ergebnisse:
 
 - **Vollständig getestete Module** (100% Coverage):
   - `src/lib/auth-v2.ts`
-  - `src/pages/api/auth/login.ts` 
+  - `src/pages/api/auth/login.ts`
   - `src/pages/api/auth/register.ts`
 
 - **Kritische Bereiche ohne Tests** (0% Coverage):
@@ -251,6 +261,7 @@ npm run test:e2e:report
 ```
 
 #### Teststruktur
+
 - **E2E-Tests**: Verwenden das Page-Object-Pattern zur Abstraktion der UI-Interaktionen
 - **Auth-Tests**: Testen Login-Formular, Fehlerbehandlung, erfolgreiche Anmeldung und OAuth-Flows
 - **Dashboard-Tests**: Überprüfen Funktionalität nach erfolgreicher Anmeldung
@@ -259,9 +270,11 @@ npm run test:e2e:report
 ### Bekannte Testprobleme
 
 #### Webserver-Timeout
+
 E2E-Tests benötigen einen laufenden Webserver unter `http://localhost:4321`. Die Playwright-Konfiguration versucht, diesen automatisch mit `npm run dev` zu starten, was zu Timeouts führen kann. Lösung:
 
 1. Starten Sie den Webserver manuell vor der Testausführung:
+
    ```bash
    # Terminal 1
    npm run build:watch
@@ -274,9 +287,11 @@ E2E-Tests benötigen einen laufenden Webserver unter `http://localhost:4321`. Di
    ```
 
 #### Fehlende Integrationstests
+
 Das Skript `test:integration` fehlt in der `package.json`. Um Integrationstests zu aktivieren:
 
 1. Fügen Sie das Skript zur `package.json` hinzu:
+
    ```json
    "test:integration": "vitest run --config vitest.integration.config.ts"
    ```
@@ -284,6 +299,7 @@ Das Skript `test:integration` fehlt in der `package.json`. Um Integrationstests 
 2. Erstellen Sie eine Konfigurationsdatei `vitest.integration.config.ts` für Integrationstests.
 
 #### Statische Testdaten
+
 Die E2E-Tests verwenden statische Testdaten, die möglicherweise nicht in der Datenbank vorhanden sind. Lösung:
 
 1. Implementieren Sie einen Test-Setup-Mechanismus, der Testbenutzer erstellt
@@ -369,11 +385,13 @@ Das Deployment erfolgt automatisch bei jedem `git push` auf den `main`-Branch ü
 Für eine manuelle Bereitstellung führen Sie folgende Schritte aus:
 
 1. Bauen Sie das Projekt:
+ 
    ```bash
    npm run build
    ```
 
 2. Deployen Sie mit Wrangler:
+ 
    ```bash
    npx wrangler pages deploy dist
    ```

@@ -16,14 +16,25 @@ export const prerender = false;
  * WICHTIG: Dieser Endpunkt verwendet KEINE API-Middleware, da er Redirects statt JSON zurückgibt!
  */
 export const POST = async (context: APIContext) => {
+  // Locale aus Referer ermitteln (Fallback)
+  const referer =
+    typeof context?.request?.headers?.get === 'function'
+      ? context.request.headers.get('referer') ?? ''
+      : '';
+  let locale = referer.includes('/de/') ? 'de' : referer.includes('/en/') ? 'en' : 'en';
+
   // Rate-Limiting anwenden
   const rateLimitResponse = await standardApiLimiter(context);
   if (rateLimitResponse) {
-    return createSecureRedirect('/forgot-password?error=TooManyRequests');
+    return createSecureRedirect(`${locale === 'en' ? '/en' : ''}/forgot-password?error=TooManyRequests`);
   }
 
   try {
   const formData = await context.request.formData();
+  const localeField = formData.get('locale');
+  if (typeof localeField === 'string' && (localeField === 'de' || localeField === 'en')) {
+    locale = localeField;
+  }
   const email = formData.get('email');
 
   // Validate email
@@ -34,7 +45,7 @@ export const POST = async (context: APIContext) => {
       input: typeof email === 'string' ? email : null
     });
     
-    return createSecureRedirect('/forgot-password?error=InvalidEmail');
+    return createSecureRedirect(`${locale === 'en' ? '/en' : ''}/forgot-password?error=InvalidEmail`);
   }
 
   const db = context.locals.runtime.env.DB;
@@ -80,7 +91,7 @@ export const POST = async (context: APIContext) => {
     console.error('Forgot password error:', error);
     
     // Generischer Serverfehler
-    return createSecureRedirect('/forgot-password?error=ServerError');
+    return createSecureRedirect(`${locale === 'en' ? '/en' : ''}/forgot-password?error=ServerError`);
   }
 };
 

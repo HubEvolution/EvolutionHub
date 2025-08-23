@@ -12,7 +12,8 @@ Alle Auth-API-Endpunkte sind mit folgenden Sicherheitsmaßnahmen ausgestattet:
 * **Input-Validierung:** Alle Eingabeparameter werden validiert
 * **Anti-User-Enumeration:** Gleiches Redirect-Verhalten unabhängig vom Benutzerexistenz-Status
 
-Hinweis: Die Auth-Endpunkte sind formularbasiert und antworten mit Redirects statt JSON. Bei Erfolg wird ein HttpOnly-Cookie `session_id` gesetzt.
+Hinweis: Die Auth-Endpunkte sind formularbasiert und antworten mit Redirects statt JSON. Bei Erfolg wird ein HttpOnly-Cookie `session_id` gesetzt –
+mit Ausnahme der Registrierung (Double-Opt-In), die keine Session erstellt und stattdessen auf `/verify-email` weiterleitet.
 Hinweis: Die frühere Login-Variante `login-v2` wurde entfernt. Verwende ausschließlich den kanonischen Login-Endpunkt (Service-Layer, zentrale Fehlerbehandlung, konsistente Redirects).
 
 ## Endpunkte (kanonisch)
@@ -79,6 +80,18 @@ HTTP/1.1 302 Found
 Location: /login?error=InvalidCredentials
 ```
 
+### Sonderfall: E-Mail nicht verifiziert
+
+Wenn der Benutzer existiert, die Zugangsdaten korrekt sind, aber `email_verified = false`,
+liefert der Service-Layer einen speziellen Fehler (`details.reason = 'email_not_verified'`).
+Der zentrale Error-Handler leitet daraufhin auf die Verifizierungsseite um:
+
+```http
+HTTP/1.1 302 Found
+Location: /verify-email?email=<email>
+```
+Es wird in diesem Fall keine Session erstellt.
+
 ### Fehlercodes (Login)
 
 * Kanonisch (`login.ts`): `InvalidCredentials`, `InvalidInput`, `ValidationFailed`, `TooManyRequests`, `ServerError`, `MissingRuntime`
@@ -87,7 +100,7 @@ Location: /login?error=InvalidCredentials
 
 ## 2. Registrierung
 
-Registriert einen neuen Benutzer mit E-Mail, Passwort und Namen.
+Registriert einen neuen Benutzer mit E-Mail, Passwort und Namen. Double-Opt-In: Es wird keine Session erstellt; der Benutzer erhält eine Verifizierungs-E-Mail und wird auf `/verify-email` umgeleitet.
 
 * **HTTP-Methode:** `POST`
 * **Pfad:** `/api/auth/register`
@@ -119,8 +132,7 @@ Beispiel-Header:
 
 ```http
 HTTP/1.1 302 Found
-Location: /dashboard
-Set-Cookie: session_id=<opaque>; Path=/; HttpOnly; SameSite=Lax; Secure
+Location: /verify-email?email=<email>
 ```
 
 ### Fehlerhafte Antwort (Registrierung) (`302 Redirect`)

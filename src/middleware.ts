@@ -2,13 +2,68 @@ import { defineMiddleware } from 'astro:middleware';
 import type { Locale } from '@/lib/i18n';
 import { validateSession } from '@/lib/auth-v2';
 
-export const onRequest = defineMiddleware(async (context, next) => {
-  // Detaillierte Request-Logging
-  console.log('[Middleware] Incoming request:', {
-    url: context.request.url,
-    method: context.request.method,
-    headers: Object.fromEntries(context.request.headers.entries()),
+// Helper: redact sensitive headers and anonymize IPs for logs
+function anonymizeIp(value: string): string {
+  if (!value) return value;
+  // handle IPv4 list like "1.2.3.4, 5.6.7.8"
+  const parts = value.split(',').map((p) => p.trim());
+  const anonymized = parts.map((ip) => {
+    // IPv4
+    const m = ip.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
+    if (m) return `${m[1]}.${m[2]}.${m[3]}.0`;
+    // IPv6 – trim last hextet
+    if (ip.includes(':')) {
+      const segs = ip.split(':');
+      if (segs.length > 1) {
+        segs[segs.length - 1] = '0';
+        return segs.join(':');
+      }
+    }
+    return ip;
   });
+  return anonymized.join(', ');
+}
+
+function sanitizeHeaders(h: Headers): Record<string, string> {
+  const obj: Record<string, string> = {};
+  for (const [k, v] of h.entries()) {
+    const key = k.toLowerCase();
+    if (key === 'cookie' || key === 'authorization' || key === 'set-cookie') {
+      obj[k] = '[redacted]';
+      continue;
+    }
+    if (key === 'cf-connecting-ip' || key === 'x-forwarded-for' || key === 'x-real-ip') {
+      obj[k] = anonymizeIp(v);
+      continue;
+    }
+    obj[k] = v;
+  }
+  return obj;
+}
+
+// Generate a per-request CSP nonce (Web Crypto if available, fallback to Math.random)
+function generateNonce(): string {
+  try {
+    const arr = new Uint8Array(16);
+    const cryptoObj = (globalThis as unknown as { crypto?: Crypto }).crypto;
+    cryptoObj?.getRandomValues(arr);
+    let s = '';
+    for (const b of arr) s += String.fromCharCode(b);
+    return btoa(s);
+  } catch {
+    return Math.random().toString(36).slice(2);
+  }
+}
+
+export const onRequest = defineMiddleware(async (context, next) => {
+  // Detailliertes Request-Logging (nur DEV), mit Redaction
+  if (import.meta.env.DEV) {
+    console.log('[Middleware] Incoming request:', {
+      url: context.request.url,
+      method: context.request.method,
+      headers: sanitizeHeaders(context.request.headers),
+    });
+  }
 
   // WWW -> Apex Redirect (Fallback zu Cloudflare Redirect Rules)
   try {
@@ -24,6 +79,17 @@ export const onRequest = defineMiddleware(async (context, next) => {
   // Locale-Handling: Cookie persistieren und neutrale Pfade ggf. umleiten
   const url = new URL(context.request.url);
   const path = url.pathname;
+
+  // Create and expose CSP Nonce early so it's available during render
+  const cspNonce = generateNonce();
+  try {
+    // Expose for .astro via Astro.locals
+    (context.locals as unknown as { cspNonce?: string }).cspNonce = cspNonce;
+  } catch (e) {
+    if (import.meta.env.DEV) {
+      console.warn('[Middleware] Failed to set cspNonce on locals:', e);
+    }
+  }
 
   const LOCALE_PREFIX_RE = /^\/(de|en)(\/|$)/;
   const existingLocale = (() => {
@@ -42,7 +108,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
     const match = raw.match(/(?:^|;\s*)pref_locale=(de|en)(?:;|$)/i);
     if (match) {
       cookieLocale = match[1].toLowerCase() as Locale;
-      console.log('[Middleware] Fallback parsed pref_locale from raw header:', cookieLocale);
+      if (import.meta.env.DEV) {
+        console.log('[Middleware] Fallback parsed pref_locale from raw header:', cookieLocale);
+      }
     }
   }
 
@@ -66,7 +134,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
   // Auth-Routen sollen niemals durch das Welcome-Gate unterbrochen werden
   function isAuthRoute(p: string): boolean {
     // Unterstützt optionale Sprachpräfixe /de/ oder /en/
-    const AUTH_RE = /^\/(?:(?:de|en)\/)?(?:login|register|forgot-password|reset-password|email-verified|auth\/password-reset-sent)(\/|$)/;
+    const AUTH_RE = /^\/(?:(?:de|en)\/)?(?:login|register|forgot-password|reset-password|verify-email|email-verified|auth\/password-reset-sent)(\/|$)/;
     return AUTH_RE.test(p);
   }
 
@@ -113,7 +181,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
         secure: url.protocol === 'https:',
         maxAge: 60 * 60 * 24 * 180, // 180 Tage
       });
-      console.log('[Middleware] pref_locale cookie explicitly set to', targetLocale);
+      if (import.meta.env.DEV) {
+        console.log('[Middleware] pref_locale cookie explicitly set to', targetLocale);
+      }
     } catch (e) {
       console.warn('[Middleware] Failed to explicitly set pref_locale cookie:', e);
     }
@@ -137,7 +207,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
         secure: url.protocol === 'https:',
         maxAge: 60 * 60 * 24 * 180,
       });
-      console.log('[Middleware] pref_locale cookie synced to URL locale', existingLocale);
+      if (import.meta.env.DEV) {
+        console.log('[Middleware] pref_locale cookie synced to URL locale', existingLocale);
+      }
     } catch (e) {
       console.warn('[Middleware] Failed to sync pref_locale cookie with URL locale:', e);
     }
@@ -163,7 +235,11 @@ export const onRequest = defineMiddleware(async (context, next) => {
         refererSuggestsEn = true;
       }
     }
-  } catch {}
+  } catch (e) {
+    if (import.meta.env.DEV) {
+      console.warn('[Middleware] Failed to parse referer header:', e);
+    }
+  }
 
   // Frühzeitiger Redirect: neutrale Pfade -> /en/* wenn cookie=en vorhanden
   if (!existingLocale && !isApi && !isAsset && (cookieLocale === 'en' || refererSuggestsEn) && !path.startsWith('/welcome') && !isAuthRoute(path)) {
@@ -173,7 +249,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
     headers.set('Location', location);
     headers.set('Content-Language', 'en');
     headers.set('Vary', 'Cookie, Accept-Language');
-    console.log('[Middleware] Early neutral -> cookie=en, redirect to EN:', location);
+    if (import.meta.env.DEV) {
+      console.log('[Middleware] Early neutral -> cookie=en, redirect to EN:', location);
+    }
     return new Response(null, { status: 302, headers });
   }
 
@@ -188,7 +266,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
         sameSite: 'lax',
         secure: url.protocol === 'https:',
       });
-      console.log('[Middleware] Session splash gate -> set session_welcome_seen cookie');
+      if (import.meta.env.DEV) {
+        console.log('[Middleware] Session splash gate -> set session_welcome_seen cookie');
+      }
     } catch (e) {
       console.warn('[Middleware] Failed to set session splash cookie:', e);
     }
@@ -196,7 +276,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
     const headers = new Headers();
     headers.set('Location', location);
     headers.set('Vary', 'Cookie, Accept-Language');
-    console.log('[Middleware] First visible visit this session -> redirect to welcome:', location);
+    if (import.meta.env.DEV) {
+      console.log('[Middleware] First visible visit this session -> redirect to welcome:', location);
+    }
     return new Response(null, { status: 302, headers });
   }
 
@@ -207,7 +289,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
     const headers = new Headers();
     headers.set('Location', location);
     headers.set('Vary', 'Cookie, Accept-Language');
-    console.log('[Middleware] First visit -> redirect to welcome:', location);
+    if (import.meta.env.DEV) {
+      console.log('[Middleware] First visit -> redirect to welcome:', location);
+    }
     return new Response(null, { status: 302, headers });
   }
 
@@ -223,7 +307,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
     headers.set('Content-Language', 'en');
     const vary = 'Cookie, Accept-Language';
     headers.set('Vary', vary);
-    console.log('[Middleware] Redirecting /de-prefixed path to', location);
+    if (import.meta.env.DEV) {
+      console.log('[Middleware] Redirecting /de-prefixed path to', location);
+    }
     return new Response(null, { status: 308, headers });
   }
 
@@ -244,7 +330,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
       headers.set('Location', location);
       headers.set('Content-Language', 'en');
       headers.set('Vary', 'Cookie, Accept-Language');
-      console.log('[Middleware] Bot neutral -> redirect to EN:', location);
+      if (import.meta.env.DEV) {
+        console.log('[Middleware] Bot neutral -> redirect to EN:', location);
+      }
       return new Response(null, { status: 302, headers });
     }
   }
@@ -257,7 +345,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
     headers.set('Location', location);
     headers.set('Content-Language', 'en');
     headers.set('Vary', 'Cookie, Accept-Language');
-    console.log('[Middleware] Neutral path -> cookie=en, redirect to EN:', location);
+    if (import.meta.env.DEV) {
+      console.log('[Middleware] Neutral path -> cookie=en, redirect to EN:', location);
+    }
     return new Response(null, { status: 302, headers });
   }
 
@@ -270,7 +360,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
   }
   
   const sessionId = context.cookies.get('session_id')?.value ?? null;
-  console.log('[Middleware] Session ID from cookie:', sessionId ? 'Present' : 'Not present');
+  if (import.meta.env.DEV) {
+    console.log('[Middleware] Session ID from cookie:', sessionId ? 'Present' : 'Not present');
+  }
 
   if (!sessionId) {
     context.locals.user = null;
@@ -281,10 +373,12 @@ export const onRequest = defineMiddleware(async (context, next) => {
   // Session validieren und Locals setzen
   try {
     const { session, user } = await validateSession(context.locals.runtime.env.DB, sessionId);
-    console.log('[Middleware] Session validation result:', {
-      sessionValid: !!session,
-      userValid: !!user,
-    });
+    if (import.meta.env.DEV) {
+      console.log('[Middleware] Session validation result:', {
+        sessionValid: !!session,
+        userValid: !!user,
+      });
+    }
 
     context.locals.session = session;
     context.locals.user = user;
@@ -293,37 +387,78 @@ export const onRequest = defineMiddleware(async (context, next) => {
     context.locals.session = null;
     context.locals.user = null;
   }
+
+  // Verification gate: redirect unverifizierte Nutzer vom Dashboard zu /verify-email
+  try {
+    const user = context.locals.user;
+    const isDashboardRoute = (p: string): boolean => {
+      const DASH_RE = /^\/(?:(?:de|en)\/)?.*dashboard(\/|$)/;
+      return DASH_RE.test(p);
+    };
+    const isVerifyEmailRoute = (p: string): boolean => {
+      const VE_RE = /^\/(?:(?:de|en)\/)?.*verify-email(\/|$)/;
+      return VE_RE.test(p);
+    };
+    if (user && user.email_verified === false && isDashboardRoute(path) && !isVerifyEmailRoute(path)) {
+      const targetLocale: Locale = existingLocale ?? preferredLocale;
+      const base = targetLocale === 'en' ? '/en/verify-email' : '/verify-email';
+      const params = new URLSearchParams();
+      if (user.email) params.set('email', user.email);
+      const location = `${url.origin}${base}${params.toString() ? `?${params.toString()}` : ''}`;
+      const headers = new Headers();
+      headers.set('Location', location);
+      headers.set('Vary', 'Cookie, Accept-Language');
+      headers.set('Content-Language', targetLocale);
+      if (import.meta.env.DEV) {
+        console.log('[Middleware] Unverified user -> redirect to verify-email:', { location });
+      }
+      return new Response(null, { status: 302, headers });
+    }
+  } catch (e) {
+    console.warn('[Middleware] Verification gate check failed:', e);
+  }
   
   // Führe den nächsten Middleware-Schritt aus
   const response = await next();
   
-  // Detaillierte Response-Logging
-  console.log('[Middleware] Outgoing response:', {
-    status: response.status,
-    statusText: response.statusText,
-    headers: Object.fromEntries(response.headers.entries()),
-  });
+  // Detailliertes Response-Logging (nur DEV), mit Redaction
+  if (import.meta.env.DEV) {
+    const redacted = sanitizeHeaders(response.headers as unknown as Headers);
+    console.log('[Middleware] Outgoing response:', {
+      status: response.status,
+      statusText: response.statusText,
+      headers: redacted,
+    });
+  }
   
   // MIME-Typ-Korrektur für Assets
-  console.log('[Middleware] Processing path:', path);
+  if (import.meta.env.DEV) {
+    console.log('[Middleware] Processing path:', path);
+  }
   
   // Setze MIME-Typen für verschiedene Dateitypen
   if (path.endsWith('.css')) { // Geänderte Bedingung: Alle .css-Dateien berücksichtigen
     response.headers.set('Content-Type', 'text/css');
-    console.log('[Middleware] Set Content-Type to text/css for CSS file');
+    if (import.meta.env.DEV) {
+      console.log('[Middleware] Set Content-Type to text/css for CSS file');
+    }
   } else if (path.endsWith('.js')) {
     response.headers.set('Content-Type', 'application/javascript');
-    console.log('[Middleware] Set Content-Type to application/javascript for JS file');
+    if (import.meta.env.DEV) {
+      console.log('[Middleware] Set Content-Type to application/javascript for JS file');
+    }
   } else if (path.endsWith('.svg')) {
     response.headers.set('Content-Type', 'image/svg+xml');
-    console.log('[Middleware] Set Content-Type to image/svg+xml for SVG file');
+    if (import.meta.env.DEV) {
+      console.log('[Middleware] Set Content-Type to image/svg+xml for SVG file');
+    }
   }
   
   // Content-Language & Vary Header setzen
   const effectiveLocale: Locale = existingLocale ?? preferredLocale;
   response.headers.set('Content-Language', effectiveLocale);
   const existingVary = response.headers.get('Vary') || '';
-  const varyParts = new Set(existingVary.split(',').map((v) => v.trim()).filter(Boolean));
+  const varyParts = new Set(existingVary.split(',').map((v: string) => v.trim()).filter(Boolean));
   varyParts.add('Cookie');
   varyParts.add('Accept-Language');
   response.headers.set('Vary', Array.from(varyParts).join(', '));
@@ -349,7 +484,24 @@ export const onRequest = defineMiddleware(async (context, next) => {
     ].join('; ');
     response.headers.set('Content-Security-Policy', devCsp);
   } else {
-    response.headers.set('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com; frame-ancestors 'self'; object-src 'none'; base-uri 'self'; report-uri /csp-report;");
+    const prodCsp = [
+      "default-src 'self'",
+      // Allow inline scripts only with our per-request nonce; include strict-dynamic for modern browsers
+      `script-src 'self' 'nonce-${cspNonce}' 'strict-dynamic' https://cdn.jsdelivr.net`,
+      // Optional: also set script-src-elem explicitly for broader compatibility
+      `script-src-elem 'self' 'nonce-${cspNonce}' https://cdn.jsdelivr.net`,
+      // Allow connections to same-origin and HTTPS (and websockets if used)
+      "connect-src 'self' https: wss:",
+      // Styles keep 'unsafe-inline' to support inline <style is:global> blocks and third-party CSS
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net",
+      "img-src 'self' data:",
+      "font-src 'self' https://fonts.gstatic.com",
+      "frame-ancestors 'self'",
+      "object-src 'none'",
+      "base-uri 'self'",
+      "report-uri /api/csp-report",
+    ].join('; ');
+    response.headers.set('Content-Security-Policy', prodCsp);
   }
   response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
   response.headers.set('Cross-Origin-Opener-Policy', 'same-origin');
@@ -362,6 +514,8 @@ export const onRequest = defineMiddleware(async (context, next) => {
   if (isResetPasswordPath) {
     response.headers.set('Referrer-Policy', 'no-referrer');
   }
-  console.log('[Middleware] Security headers applied.');
+  if (import.meta.env.DEV) {
+    console.log('[Middleware] Security headers applied.');
+  }
   return response;
 });

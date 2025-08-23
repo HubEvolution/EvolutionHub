@@ -1,9 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { POST } from '@/pages/api/auth/login';
-import * as authServiceModule from '@/lib/services/auth-service-impl';
 import * as rateLimiter from '@/lib/rate-limiter';
-import * as responseHelpers from '@/lib/response-helpers';
-import { ServiceError, ServiceErrorType } from '@/lib/services/types';
+import * as authServiceModule from '@/lib/services/auth-service-impl';
+import { ServiceError } from '@/lib/services/types';
 
 // Mock für die Astro APIContext
 const createMockContext = (formData: Record<string, any> = {}) => {
@@ -113,8 +112,6 @@ describe('Login API Tests (Service-Layer)', () => {
   
   // Spies für Funktionen
   let standardApiLimiterSpy: any;
-  let createSecureRedirectSpy: any;
-  let createAuthServiceSpy: any;
   
   beforeEach(() => {
     vi.clearAllMocks();
@@ -122,13 +119,11 @@ describe('Login API Tests (Service-Layer)', () => {
     // Mock-Service erstellen
     mockAuthService = createMockAuthService();
     
-    // Spy für Auth-Service einrichten
-    createAuthServiceSpy = vi.spyOn(authServiceModule, 'createAuthService')
-      .mockReturnValue(mockAuthService as any);
-    
+    // createAuthService so mocken, dass er unseren Mock-Service zurückgibt
+    vi.spyOn(authServiceModule, 'createAuthService').mockReturnValue(mockAuthService as any);
+
     // Spies für weitere Funktionen einrichten
     standardApiLimiterSpy = vi.spyOn(rateLimiter, 'standardApiLimiter').mockResolvedValue(undefined as any);
-    createSecureRedirectSpy = vi.spyOn(responseHelpers, 'createSecureRedirect');
   });
 
   it('sollte bei zu vielen Anfragen Rate-Limiting anwenden', async () => {
@@ -146,7 +141,7 @@ describe('Login API Tests (Service-Layer)', () => {
     const response = await POST(context as any);
 
     expect(response.status).toBe(302);
-    expect(response.headers.get('Location')).toBe('/login?error=TooManyRequests');
+    expect(response.headers.get('Location')).toBe('/en/login?error=TooManyRequests');
     expect(standardApiLimiterSpy).toHaveBeenCalledWith(context as any);
   });
 
@@ -159,7 +154,7 @@ describe('Login API Tests (Service-Layer)', () => {
     const response = await POST(context as any);
 
     expect(response.status).toBe(302);
-    expect(response.headers.get('Location')).toBe('/login?error=InvalidInput');
+    expect(response.headers.get('Location')).toBe('/en/login?error=InvalidInput');
     // Service sollte nicht aufgerufen werden
     expect(mockAuthService.login).not.toHaveBeenCalled();
   });
@@ -173,7 +168,7 @@ describe('Login API Tests (Service-Layer)', () => {
     const response = await POST(context as any);
 
     expect(response.status).toBe(302);
-    expect(response.headers.get('Location')).toBe('/login?error=InvalidInput');
+    expect(response.headers.get('Location')).toBe('/en/login?error=InvalidInput');
     expect(mockAuthService.login).not.toHaveBeenCalled();
   });
 
@@ -189,7 +184,7 @@ describe('Login API Tests (Service-Layer)', () => {
     const response = await POST(context as any);
 
     expect(response.status).toBe(302);
-    expect(response.headers.get('Location')).toBe('/login?error=ServerError');
+    expect(response.headers.get('Location')).toBe('/en/login?error=ServerError');
     expect(mockAuthService.login).not.toHaveBeenCalled();
   });
 
@@ -206,7 +201,7 @@ describe('Login API Tests (Service-Layer)', () => {
     const response = await POST(context as any);
 
     expect(response.status).toBe(302);
-    expect(response.headers.get('Location')).toBe('/login?error=AuthFailed');
+    expect(response.headers.get('Location')).toBe('/en/login?error=AuthFailed');
   });
 
   it('sollte bei unverifizierter E-Mail zur Verifizierungsseite umleiten', async () => {
@@ -222,7 +217,7 @@ describe('Login API Tests (Service-Layer)', () => {
     const response = await POST(context as any);
 
     expect(response.status).toBe(302);
-    expect(response.headers.get('Location')).toBe('/verify-email?email=user%40example.com&error=EmailNotVerified');
+    expect(response.headers.get('Location')).toBe('/en/verify-email?email=user%40example.com&error=EmailNotVerified');
   });
 
   it('sollte den Benutzer erfolgreich anmelden (ohne RememberMe) und Cookie korrekt setzen', async () => {
@@ -236,7 +231,7 @@ describe('Login API Tests (Service-Layer)', () => {
     const response = await POST(context as any);
 
     expect(response.status).toBe(302);
-    expect(response.headers.get('Location')).toBe('/dashboard');
+    expect(response.headers.get('Location')).toBe('/en/dashboard');
 
     // Cookie gesetzt mit 1 Tag maxAge
     expect(context.cookies.set).toHaveBeenCalledWith(
@@ -271,7 +266,7 @@ describe('Login API Tests (Service-Layer)', () => {
     const response = await POST(context as any);
 
     expect(response.status).toBe(302);
-    expect(response.headers.get('Location')).toBe('/dashboard');
+    expect(response.headers.get('Location')).toBe('/en/dashboard');
 
     // Cookie gesetzt mit 30 Tagen maxAge
     expect(context.cookies.set).toHaveBeenCalledWith(
@@ -294,6 +289,6 @@ describe('Login API Tests (Service-Layer)', () => {
     const response = await POST(context as any);
 
     expect(response.status).toBe(302);
-    expect(response.headers.get('Location')).toBe('/login?error=ServerError');
+    expect(response.headers.get('Location')).toBe('/en/login?error=ServerError');
   });
 });

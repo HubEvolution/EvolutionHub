@@ -1,19 +1,19 @@
-import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { loadEnv } from 'vite';
 import { execa } from 'execa';
 import { fileURLToPath } from 'url';
 import { join, dirname } from 'path';
 
 // Lade Umgebungsvariablen
-const env = loadEnv(process.env.NODE_ENV || 'test', process.cwd(), '');
+loadEnv(process.env.NODE_ENV || 'test', process.cwd(), '');
 
 // Pfade für Testumgebung
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const rootDir = join(__dirname, '../..');
 
-// Test-Server-URL
-const TEST_URL = 'http://localhost:4321';
+// Test-Server-URL (Cloudflare Wrangler default: 8787). Prefer TEST_BASE_URL from global-setup
+const TEST_URL = (process.env.TEST_BASE_URL || 'http://127.0.0.1:8787').replace(/\/$/, '');
 
 // Interface für HTTP-Response
 interface FetchResponse {
@@ -94,16 +94,19 @@ async function submitForm(path: string, formData: Record<string, string>): Promi
 describe('Auth-Integration', () => {
   let serverProcess: any;
   
-  // Starte den Entwicklungsserver vor den Tests
+  // Starte den Entwicklungsserver vor den Tests (falls nicht durch Global-Setup vorgegeben)
   beforeAll(async () => {
-    // Starte den Astro-Entwicklungsserver
-    serverProcess = execa('npm', ['run', 'dev', '--', '--host'], {
-      cwd: rootDir,
-      env: { ...process.env, NODE_ENV: 'test' },
-      detached: false,
-    });
-    
-    // Warte bis der Server gestartet ist (max. 30 Sekunden)
+    const externalServer = !!process.env.TEST_BASE_URL;
+    if (!externalServer) {
+      // Starte den Cloudflare-Entwicklungsserver (Wrangler)
+      serverProcess = execa('npm', ['run', 'dev'], {
+        cwd: rootDir,
+        env: { ...process.env, NODE_ENV: 'test' },
+        detached: false,
+      });
+    }
+
+    // Warte bis der Server erreichbar ist (max. 30 Sekunden)
     const maxWaitTime = 30000; // 30 Sekunden
     const startTime = Date.now();
     let serverReady = false;
@@ -111,11 +114,12 @@ describe('Auth-Integration', () => {
     while (!serverReady && Date.now() - startTime < maxWaitTime) {
       try {
         const response = await fetch(TEST_URL);
-        if (response.ok) {
+        if (response.ok || response.status === 302) {
           serverReady = true;
-          console.log('Testserver erfolgreich gestartet');
+          // eslint-disable-next-line no-console
+          console.log('Testserver erreichbar unter', TEST_URL);
         }
-      } catch (error) {
+      } catch (_) {
         // Warte 500ms vor dem nächsten Versuch
         await new Promise(resolve => setTimeout(resolve, 500));
       }
@@ -165,7 +169,7 @@ describe('Auth-Integration', () => {
     // Erwarte Redirect mit Fehlerparameter
     expect(response.status).toBe(302);
     expect(response.redirected).toBe(true);
-    expect(response.redirectUrl).toContain('/login?error=InvalidInput');
+    expect(response.redirectUrl).toContain('/en/login?error=InvalidInput');
   });
   
   // Teste den Login-Prozess mit zu kurzem Passwort
@@ -180,7 +184,7 @@ describe('Auth-Integration', () => {
     // Erwarte Redirect mit Fehlerparameter
     expect(response.status).toBe(302);
     expect(response.redirected).toBe(true);
-    expect(response.redirectUrl).toContain('/login?error=InvalidInput');
+    expect(response.redirectUrl).toContain('/en/login?error=InvalidInput');
   });
   
   // Teste den Login-Prozess mit nicht existierendem Benutzer
@@ -195,7 +199,7 @@ describe('Auth-Integration', () => {
     // Erwarte Redirect mit Fehlerparameter
     expect(response.status).toBe(302);
     expect(response.redirected).toBe(true);
-    expect(response.redirectUrl).toContain('/login?error=InvalidCredentials');
+    expect(response.redirectUrl).toContain('/en/login?error=InvalidCredentials');
   });
   
   // Teste die "Remember Me"-Funktionalität

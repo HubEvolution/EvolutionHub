@@ -2,7 +2,6 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { POST } from '@/pages/api/auth/reset-password';
 import * as authServiceModule from '@/lib/services/auth-service-impl';
 import * as rateLimiter from '@/lib/rate-limiter';
-import * as responseHelpers from '@/lib/response-helpers';
 import { ServiceError, ServiceErrorType } from '@/lib/services/types';
 
 // Mock für die Astro APIContext
@@ -80,6 +79,11 @@ const createMockAuthService = () => {
     createPasswordResetToken: vi.fn(),
     validatePasswordResetToken: vi.fn(),
     resetPassword: vi.fn(),
+    changePassword: vi.fn(),
+    // BaseService: withTransaction wird im Service genutzt; hier als transparenter Wrapper mocken
+    withTransaction: vi.fn(async (callback: any) => {
+      return await callback({} as any);
+    }),
   };
 };
 
@@ -115,7 +119,6 @@ describe('Reset-Password API Tests (Service-Layer)', () => {
   
   // Spies für Funktionen
   let standardApiLimiterSpy: any;
-  let createSecureRedirectSpy: any;
   let createAuthServiceSpy: any;
   
   beforeEach(() => {
@@ -130,7 +133,6 @@ describe('Reset-Password API Tests (Service-Layer)', () => {
     
     // Spies für weitere Funktionen einrichten
     standardApiLimiterSpy = vi.spyOn(rateLimiter, 'standardApiLimiter').mockResolvedValue(undefined);
-    createSecureRedirectSpy = vi.spyOn(responseHelpers, 'createSecureRedirect');
   });
 
   it('sollte bei zu vielen Anfragen Rate-Limiting anwenden', async () => {
@@ -148,7 +150,7 @@ describe('Reset-Password API Tests (Service-Layer)', () => {
     const response = await POST(context as any);
 
     expect(response.status).toBe(302);
-    expect(response.headers.get('Location')).toBe('/reset-password?error=TooManyRequests');
+    expect(response.headers.get('Location')).toBe('/en/reset-password?error=TooManyRequests');
     expect(standardApiLimiterSpy).toHaveBeenCalledWith(context);
   });
 
@@ -161,7 +163,7 @@ describe('Reset-Password API Tests (Service-Layer)', () => {
     const response = await POST(context as any);
 
     expect(response.status).toBe(302);
-    expect(response.headers.get('Location')).toBe('/reset-password?token=valid-reset-token-12345&error=InvalidInput');
+    expect(response.headers.get('Location')).toBe('/en/reset-password?token=valid-reset-token-12345&error=InvalidInput');
     // Prüfen, dass der Service nicht aufgerufen wurde
     expect(mockAuthService.resetPassword).not.toHaveBeenCalled();
   });
@@ -177,7 +179,7 @@ describe('Reset-Password API Tests (Service-Layer)', () => {
     expect(response.status).toBe(302);
     // Die aktuelle Implementierung verwendet InvalidInput für fehlende Token
     // und leitet zurück zu reset-password, nicht zu login
-    expect(response.headers.get('Location')).toBe('/reset-password?error=InvalidInput');
+    expect(response.headers.get('Location')).toBe('/en/reset-password?error=InvalidInput');
     // Prüfen, dass der Service nicht aufgerufen wurde
     expect(mockAuthService.resetPassword).not.toHaveBeenCalled();
   });
@@ -188,13 +190,13 @@ describe('Reset-Password API Tests (Service-Layer)', () => {
       password: 'newPassword123',
     });
 
-    // Runtime entfernen
-    context.locals.runtime = undefined;
+    // Runtime entfernen (typsicher casten)
+    (context.locals as any).runtime = undefined;
 
     const response = await POST(context as any);
 
     expect(response.status).toBe(302);
-    expect(response.headers.get('Location')).toBe('/reset-password?token=valid-reset-token-12345&error=ServerError');
+    expect(response.headers.get('Location')).toBe('/en/reset-password?token=valid-reset-token-12345&error=ServerError');
   });
 
   it('sollte eine Fehlermeldung zurückgeben, wenn der Service einen NOT_FOUND-Fehler wirft', async () => {
@@ -215,7 +217,7 @@ describe('Reset-Password API Tests (Service-Layer)', () => {
 
     expect(response.status).toBe(302);
     // Der Endpunkt gibt tatsächlich InvalidInput zurück, nicht InvalidToken
-    expect(response.headers.get('Location')).toBe('/reset-password?token=invalid-reset-token&error=InvalidInput');
+    expect(response.headers.get('Location')).toBe('/en/reset-password?token=invalid-reset-token&error=InvalidInput');
   });
 
   it('sollte eine Fehlermeldung zurückgeben, wenn der Service einen EXPIRED-Fehler wirft', async () => {
@@ -228,7 +230,7 @@ describe('Reset-Password API Tests (Service-Layer)', () => {
     mockAuthService.resetPassword.mockRejectedValue(
       new ServiceError(
         'Das angegebene Reset-Token ist abgelaufen',
-        ServiceErrorType.EXPIRED
+        ServiceErrorType.AUTHENTICATION
       )
     );
 
@@ -236,7 +238,7 @@ describe('Reset-Password API Tests (Service-Layer)', () => {
 
     expect(response.status).toBe(302);
     // Der Endpunkt gibt tatsächlich InvalidInput zurück, nicht TokenExpired
-    expect(response.headers.get('Location')).toBe('/reset-password?token=expired-reset-token&error=InvalidInput');
+    expect(response.headers.get('Location')).toBe('/en/reset-password?token=expired-reset-token&error=InvalidInput');
   });
 
   it('sollte eine Fehlermeldung zurückgeben, wenn der Service einen allgemeinen Fehler wirft', async () => {
@@ -256,7 +258,7 @@ describe('Reset-Password API Tests (Service-Layer)', () => {
     const response = await POST(context as any);
 
     expect(response.status).toBe(302);
-    expect(response.headers.get('Location')).toBe('/reset-password?token=valid-reset-token-12345&error=ServerError');
+    expect(response.headers.get('Location')).toBe('/en/reset-password?token=valid-reset-token-12345&error=ServerError');
   });
 
   it('sollte das Passwort erfolgreich zurücksetzen und zur Login-Seite weiterleiten', async () => {
@@ -272,7 +274,7 @@ describe('Reset-Password API Tests (Service-Layer)', () => {
 
     // Überprüfen der Ergebnisse
     expect(response.status).toBe(302);
-    expect(response.headers.get('Location')).toBe('/login?success=PasswordReset');
+    expect(response.headers.get('Location')).toBe('/en/login?success=PasswordReset');
     
     // Überprüfen, ob der AuthService korrekt aufgerufen wurde
     expect(createAuthServiceSpy).toHaveBeenCalledWith({

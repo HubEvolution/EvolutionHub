@@ -56,10 +56,17 @@ const loginValidator = createValidator<LoginData>(loginSchema);
  * WICHTIG: Dieser Endpunkt verwendet KEINE API-Middleware, da er Redirects statt JSON zurückgibt!
  */
 export const POST = async (context: APIContext) => {
+  // Locale aus Referer ermitteln (Fallback)
+  const referer =
+    typeof context?.request?.headers?.get === 'function'
+      ? context.request.headers.get('referer') ?? ''
+      : '';
+  let locale = referer.includes('/de/') ? 'de' : referer.includes('/en/') ? 'en' : 'en';
+
   // Rate-Limiting anwenden
   const rateLimitResponse = await standardApiLimiter(context);
   if (rateLimitResponse) {
-    return createSecureRedirect('/login?error=TooManyRequests');
+    return createSecureRedirect(`/${locale}/login?error=TooManyRequests`);
   }
 
   try {
@@ -68,6 +75,10 @@ export const POST = async (context: APIContext) => {
     
     try {
       const formData = await context.request.formData();
+      const localeField = formData.get('locale');
+      if (typeof localeField === 'string' && (localeField === 'de' || localeField === 'en')) {
+        locale = localeField;
+      }
       const data: Record<string, unknown> = {};
       
       // FormData in ein Objekt konvertieren
@@ -90,7 +101,8 @@ export const POST = async (context: APIContext) => {
         );
       }
       
-      loginData = data as LoginData;
+      // Nach Validierung sicher casten
+      loginData = data as unknown as LoginData;
     } catch (validationError) {
       console.error('Login validation error:', validationError);
       throw ServiceError.validation(
@@ -132,13 +144,13 @@ export const POST = async (context: APIContext) => {
       sameSite: 'lax'
     });
 
-    // Weiterleitung zum Dashboard
-    return createSecureRedirect('/dashboard');
+    // Weiterleitung zum Dashboard (locale-bewusst)
+    return createSecureRedirect(locale === 'en' ? '/en/dashboard' : '/dashboard');
   } catch (error) {
     console.error('Login error:', error);
     
     // Zentralen Error-Handler verwenden
-    return handleAuthError(error, '/login');
+    return handleAuthError(error, locale === 'en' ? '/en/login' : '/login');
   }
 };
 

@@ -23,6 +23,7 @@ Die UI-Basiskomponenten bilden die Grundbausteine der Benutzeroberfläche und we
 Eine flexible Button-Komponente mit verschiedenen Varianten, Größen und Zuständen.
 
 **Props:**
+ 
 - `variant`: `'primary' | 'secondary' | 'outline' | 'ghost' | 'link'` (Standard: `'primary'`)
 - `size`: `'sm' | 'md' | 'lg'` (Standard: `'md'`)
 - `type`: `'button' | 'submit' | 'reset'` (Standard: `'button'`)
@@ -31,6 +32,7 @@ Eine flexible Button-Komponente mit verschiedenen Varianten, Größen und Zustä
 - `className`: `string` für zusätzliche CSS-Klassen
 
 **Beispiel:**
+ 
 ```astro
 <Button variant="primary" size="lg">
   Jetzt starten
@@ -41,21 +43,31 @@ Eine flexible Button-Komponente mit verschiedenen Varianten, Größen und Zustä
 </Button>
 ```
 
-### Card
+### CardReact
 
-**Datei:** `src/components/ui/Card.astro`
+**Datei:** `src/components/ui/CardReact.jsx`
 
-Eine Container-Komponente für die Gruppierung verwandter Inhalte.
+Container-Komponente für die Gruppierung verwandter Inhalte in React-Kontexten. In Astro werden stattdessen spezialisierte Karten wie `BlogCard.astro`, `dashboard/StatsCard.astro` oder `tools/ToolCard.astro` verwendet. Siehe auch `docs/frontend/card-components.md`.
 
 **Props:**
-- `className`: `string` für zusätzliche CSS-Klassen
+ 
+- `title?`: `string` – Optionaler Titel, wird als Überschrift gerendert
+- `id?`: `string`
+- `className?`: `string` – Zusätzliche CSS-Klassen
 
-**Beispiel:**
-```astro
-<Card className="p-6">
-  <h3 class="text-xl font-semibold">Kartenüberschrift</h3>
-  <p>Karteninhalt hier...</p>
-</Card>
+**Beispiel (React):**
+ 
+```jsx
+import CardReact from '@/components/ui/CardReact';
+
+export function Example() {
+  return (
+    <CardReact className="p-6">
+      <h3 className="text-xl font-semibold">Kartenüberschrift</h3>
+      <p>Karteninhalt hier…</p>
+    </CardReact>
+  );
+}
 ```
 
 ### Input
@@ -65,6 +77,7 @@ Eine Container-Komponente für die Gruppierung verwandter Inhalte.
 Eine Eingabefeld-Komponente für Formulare.
 
 **Props:**
+ 
 - `type`: `string` - HTML-Input-Typ (Standard: `'text'`)
 - `id`: `string` - ID für das Input-Element
 - `name`: `string` - Name des Input-Elements
@@ -73,6 +86,7 @@ Eine Eingabefeld-Komponente für Formulare.
 - `className`: `string` für zusätzliche CSS-Klassen
 
 **Beispiel:**
+ 
 ```astro
 <Input 
   type="email" 
@@ -90,10 +104,12 @@ Eine Eingabefeld-Komponente für Formulare.
 Eine Label-Komponente für Formularfelder.
 
 **Props:**
+ 
 - `for`: `string` - ID des zugehörigen Formularelements
 - `className`: `string` für zusätzliche CSS-Klassen
 
 **Beispiel:**
+ 
 ```astro
 <FormLabel for="email">E-Mail-Adresse</FormLabel>
 <Input type="email" id="email" name="email" />
@@ -106,11 +122,13 @@ Eine Label-Komponente für Formularfelder.
 Eine Skeleton-Loading-Komponente für Inhalte, die noch geladen werden.
 
 **Props:**
+ 
 - `className`: `string` für zusätzliche CSS-Klassen
 - `width`: `string` - Breite des Skeleton-Elements
 - `height`: `string` - Höhe des Skeleton-Elements
 
 **Beispiel:**
+ 
 ```astro
 <Skeleton width="100%" height="24px" className="mb-2" />
 <Skeleton width="70%" height="16px" className="mb-4" />
@@ -166,7 +184,7 @@ import Footer from '@/components/Footer.astro';
 
 ### ThemeProvider & ThemeToggle
 
-**Dateien:** 
+**Dateien:**
 - `src/components/ThemeProvider.astro`
 - `src/components/ThemeToggle.astro`
 
@@ -522,3 +540,31 @@ Die Komponenten sind nach folgenden Prinzipien organisiert:
    - Alle Komponenten folgen dem gleichen Muster für Props und Styling
    - Tailwind-Klassen werden konsistent angewendet
    - Dark-Mode-Unterstützung ist durchgängig implementiert
+
+---
+
+## Globale Mounts & Integrationen
+
+Zentrale, global gemountete Komponenten und Integrationen. Details siehe verlinkte Dokumente.
+
+- **AOSCoordinator** (`src/components/scripts/AOSCoordinator.astro`)
+  - Wird in `src/layouts/BaseLayout.astro` nur gemountet, wenn `enableAOS === true`.
+  - AOS-CSS wird im `<head>` ebenfalls nur bei `enableAOS` geladen.
+  - Respektiert `prefers-reduced-motion` automatisch.
+  - Siehe: `docs/frontend/aos-coordinator.md`.
+
+- **AnalyticsCoordinator** (`src/components/scripts/AnalyticsCoordinator.astro`)
+  - Wird in `BaseLayout.astro` gemountet, wenn `enableAnalytics === true`.
+
+- **Toaster** (`src/components/Toaster`)
+  - Global als React Island mit `client:load` eingebunden (siehe `BaseLayout.astro`).
+  - Dient für Sonner-Toast-Benachrichtigungen (siehe Auth-Status-Notifier-Dokumentation, falls vorhanden).
+
+- **Astro View Transitions**
+  - `<ViewTransitions />` ist in `BaseLayout.astro` aktiv.
+  - `AOSCoordinator` reagiert auf Transition-Events und ruft `AOS.refreshHard()` auf.
+
+Weitere Hinweise und Beispiele:
+
+- Kartenübersicht und Richtlinien: `docs/frontend/card-components.md`
+- Header-Scroll-Animation: `docs/frontend/header-scroll-animation.md`

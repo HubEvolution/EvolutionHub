@@ -8,6 +8,7 @@
 
 import { ServiceError, ServiceErrorType } from '@/lib/services/types';
 import { createSecureRedirect } from '@/lib/response-helpers';
+import { getPathLocale, localizePath } from '@/lib/locale-path';
 
 /**
  * Fehler-Map für die Konvertierung von ServiceError-Typen zu spezifischen Fehlercodes
@@ -128,7 +129,10 @@ export function handleAuthError(
       ...emailParam,
       error: 'EmailNotVerified'
     }).toString();
-    return createSecureRedirect(`/verify-email?${query}`);
+    // Locale aus baseUrl ableiten und Verifizierungs-URL entsprechend lokalisieren
+    const baseLocale = getPathLocale(baseUrl);
+    const verifyPath = baseLocale ? localizePath(baseLocale, '/verify-email') : '/verify-email';
+    return createSecureRedirect(`${verifyPath}?${query}`);
   }
   
   // Parameter als Query-String formatieren

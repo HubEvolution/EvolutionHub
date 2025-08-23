@@ -5,6 +5,8 @@ import { createValidator, ValidationRules, type ValidationSchema } from '@/lib/v
 import { createAuthService } from '@/lib/services/auth-service-impl';
 import { ServiceError, ServiceErrorType } from '@/lib/services/types';
 import { handleAuthError } from '@/lib/error-handler';
+import { createEmailService, type EmailServiceDependencies } from '@/lib/services/email-service-impl';
+import { createEmailVerificationToken } from '@/pages/api/auth/verify-email';
 
 // Interface für Registrierungsdaten mit strikter Typisierung
 interface RegisterData {
@@ -56,7 +58,7 @@ const registerValidator = createValidator<RegisterData>(registerSchema);
 
 /**
  * POST /api/auth/register
- * Registriert einen neuen Benutzer und erstellt eine Session
+ * Registriert einen neuen Benutzer und triggert E-Mail-Verifikation (keine Session bei Registrierung)
  * 
  * Features:
  * - Verwendung der Service-Layer für Geschäftslogik
@@ -129,7 +131,7 @@ export const POST = async (context: APIContext) => {
       isDevelopment: import.meta.env.DEV
     });
     
-    // Registrierung durchführen mit Service-Layer
+    // Registrierung durchführen mit Service-Layer (ohne Session)
     const authResult = await authService.register(
       {
         email: registerData.email,
@@ -139,18 +141,52 @@ export const POST = async (context: APIContext) => {
       },
       context.clientAddress
     );
-    
-    // Session-Cookie setzen
-    context.cookies.set('session_id', authResult.sessionId, {
-      path: '/',
-      httpOnly: true,
-      maxAge: 60 * 60 * 24 * 30, // 30 Tage bei Registrierung
-      secure: context.url.protocol === 'https:',
-      sameSite: 'lax'
-    });
 
-    // Weiterleitung zum Dashboard
-    return createSecureRedirect('/dashboard');
+    // E-Mail-Verifikation auslösen (non-blocking), inklusive locale in URL
+    try {
+      const db = context.locals.runtime.env.DB;
+      const userId = authResult.user.id;
+      const email = authResult.user.email;
+
+      // Neuen Verifikations-Token erstellen (löscht alte Tokens intern)
+      const token = await createEmailVerificationToken(db, userId, email);
+
+      const verificationUrl = `${context.url.origin}/api/auth/verify-email?token=${encodeURIComponent(token)}&email=${encodeURIComponent(email)}&locale=${encodeURIComponent(locale)}`;
+
+      // E-Mail-Service konfigurieren
+      const deps: EmailServiceDependencies = {
+        db,
+        isDevelopment: import.meta.env.DEV,
+        resendApiKey: context.locals.runtime.env.RESEND_API_KEY || '',
+        fromEmail: 'EvolutionHub <noreply@hub-evolution.com>',
+        baseUrl: context.url.origin
+      };
+
+      const emailService = createEmailService(deps);
+
+      // Verifikations-E-Mail senden (Fehler nicht blockierend)
+      emailService
+        .sendVerificationEmail({
+          email,
+          verificationUrl,
+          userName: authResult.user.name || authResult.user.username || undefined
+        })
+        .then((res) => {
+          if (!res.success) {
+            console.warn('Failed to send verification email on register:', res.error);
+          }
+        })
+        .catch((e) => {
+          console.warn('Verification email error on register:', e);
+        });
+    } catch (e) {
+      // Keine Blockierung der Registrierung bei E-Mail-Problemen
+      console.warn('Non-blocking verification email setup failed:', e);
+    }
+
+    // Weiterleitung zur Verifikationsseite (locale-bewusst, aber Route ist locale-neutral)
+    const verifyRedirect = `/verify-email?email=${encodeURIComponent(authResult.user.email)}&locale=${encodeURIComponent(locale)}`;
+    return createSecureRedirect(verifyRedirect);
   } catch (error) {
     console.error('Register error:', error);
     

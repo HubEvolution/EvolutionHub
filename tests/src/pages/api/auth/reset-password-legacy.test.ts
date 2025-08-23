@@ -62,13 +62,6 @@ describe.skip('Reset Password API Tests', () => {
     clientAddress: '192.168.1.1',  // Wird für Security-Tests benötigt
   };
 
-  // Spy für die Sicherheitsfunktionen
-  let authLimiterSpy: any;
-  let applySecurityHeadersSpy: any;
-  let logAuthAttemptSpy: any;
-  let logAuthSuccessSpy: any;
-  let logAuthFailureSpy: any;
-
   beforeEach(async () => {
     vi.resetAllMocks();
     mockContext.request.formData.mockResolvedValue(new FormData());
@@ -80,13 +73,6 @@ describe.skip('Reset Password API Tests', () => {
     
     // Reset aller Mocks
     vi.clearAllMocks();
-
-    // Spies für die Sicherheitsfunktionen
-    authLimiterSpy = vi.spyOn(rateLimiter, 'authLimiter');
-    applySecurityHeadersSpy = vi.spyOn(securityHeaders, 'applySecurityHeaders');
-    logAuthAttemptSpy = vi.spyOn(securityLogger, 'logAuthAttempt');
-    logAuthSuccessSpy = vi.spyOn(securityLogger, 'logAuthSuccess');
-    logAuthFailureSpy = vi.spyOn(securityLogger, 'logAuthFailure');
   });
 
   afterEach(() => {
@@ -101,7 +87,8 @@ describe.skip('Reset Password API Tests', () => {
 
     const response1 = await POST(mockContext as any);
     expect(response1.status).toBe(302);
-    expect(response1.headers.get('Location')).toBe('/login?error=InvalidToken');
+    // Validierungsfehler (fehlendes Token) leitet locale-aware zur Reset-Seite
+    expect(response1.headers.get('Location')).toBe('/en/reset-password?error=InvalidInput');
 
     // Test für zu kurzes Passwort
     const formData2 = new FormData();
@@ -111,7 +98,7 @@ describe.skip('Reset Password API Tests', () => {
 
     const response2 = await POST(mockContext as any);
     expect(response2.status).toBe(302);
-    expect(response2.headers.get('Location')).toBe('/reset-password?token=valid-token&error=InvalidInput');
+    expect(response2.headers.get('Location')).toBe('/en/reset-password?token=valid-token&error=InvalidInput');
   });
 
   it('sollte einen Fehler zurückgeben, wenn das Token nicht existiert', async () => {
@@ -126,8 +113,8 @@ describe.skip('Reset Password API Tests', () => {
     const response = await POST(mockContext as any);
     expect(response.status).toBe(302);
     // Angepasst an tatsächliche Implementierung des Endpunkts
-    // TODO: API sollte hier spezifischeren Fehler zurückgeben (InvalidToken)
-    expect(response.headers.get('Location')).toBe('/reset-password?error=ServerError');
+    // Authentifizierungsfehler (ungültiges Token) => AuthFailed und Token im Query
+    expect(response.headers.get('Location')).toBe('/en/reset-password?token=invalid-token&error=AuthFailed');
   });
 
   it('sollte einen Fehler zurückgeben, wenn das Token abgelaufen ist', async () => {
@@ -148,8 +135,8 @@ describe.skip('Reset Password API Tests', () => {
     const response = await POST(mockContext as any);
     expect(response.status).toBe(302);
     // Angepasst an tatsächliche Implementierung des Endpunkts
-    // TODO: API sollte hier spezifischeren Fehler zurückgeben (ExpiredToken)
-    expect(response.headers.get('Location')).toBe('/reset-password?error=ServerError');
+    // Abgelaufenes Token wird als Authentifizierungsfehler behandelt
+    expect(response.headers.get('Location')).toBe('/en/reset-password?token=expired-token&error=AuthFailed');
     
     // Der Test für Löschungen entfernt, da die Implementierung möglicherweise anders verläuft
     // TODO: Die API sollte abgelaufene Tokens konsequent löschen
@@ -178,10 +165,9 @@ describe.skip('Reset Password API Tests', () => {
 
     const response = await POST(mockContext as any);
     
-    // Da die API aktuell bei Serverfehler zurückleitet, passen wir den Test an
-    // TODO: Die API sollte bei erfolgreichem Reset zur Login-Seite weiterleiten
+    // Erfolgreicher Reset leitet zur Login-Seite mit Erfolgsmeldung (locale-aware)
     expect(response.status).toBe(302);
-    expect(response.headers.get('Location')).toBe('/reset-password?error=ServerError');
+    expect(response.headers.get('Location')).toBe('/en/login?success=PasswordReset');
   });
 
   it('sollte einen Fehler zurückgeben, wenn ein interner Fehler auftritt', async () => {
@@ -196,7 +182,8 @@ describe.skip('Reset Password API Tests', () => {
 
     const response = await POST(mockContext as any);
     expect(response.status).toBe(302);
-    expect(response.headers.get('Location')).toBe('/reset-password?error=ServerError');
+    // Generischer Fehler => ServerError, Token wird in Query beibehalten
+    expect(response.headers.get('Location')).toBe('/en/reset-password?token=valid-token&error=ServerError');
   });
 
   // Tests für Security-Features
@@ -226,7 +213,7 @@ describe.skip('Reset Password API Tests', () => {
       const response = await POST(mockContext as any);
       
       expect(response.status).toBe(302);
-      expect(response.headers.get('Location')).toBe('/reset-password?error=TooManyRequests');
+      expect(response.headers.get('Location')).toBe('/en/reset-password?error=TooManyRequests');
       // Keine weiteren Aktionen sollten ausgeführt werden
       expect(mockContext.locals.runtime.env.DB.first).not.toHaveBeenCalled();
     });
@@ -259,7 +246,7 @@ describe.skip('Reset Password API Tests', () => {
       formData.append('password', 'newpassword123');
       mockContext.request.formData.mockResolvedValueOnce(formData);
       
-      // DB-Mock für diesen Test korrekt einrichten
+      // DB-Mock für diesen Test korrekt einrichten (top-level bind/run ergänzen)
       mockContext.locals.runtime.env.DB = {
         prepare: vi.fn().mockImplementation(() => ({
           bind: vi.fn().mockImplementation(() => ({
@@ -267,6 +254,8 @@ describe.skip('Reset Password API Tests', () => {
             run: vi.fn().mockResolvedValue({ success: true })
           }))
         })),
+        bind: vi.fn(),
+        run: vi.fn(),
         first: vi.fn().mockResolvedValue(null)
       };
       
@@ -293,7 +282,7 @@ describe.skip('Reset Password API Tests', () => {
       // Gültiges Token simulieren
       const expiresAt = Math.floor((Date.now() + 3600000) / 1000); // 1 Stunde in der Zukunft
       
-      // DB-Mock für diesen Test korrekt einrichten
+      // DB-Mock für diesen Test korrekt einrichten (top-level bind/run ergänzen)
       mockContext.locals.runtime.env.DB = {
         prepare: vi.fn().mockImplementation(() => ({
           bind: vi.fn().mockImplementation(() => ({
@@ -305,6 +294,8 @@ describe.skip('Reset Password API Tests', () => {
             run: vi.fn().mockResolvedValue({ success: true })
           }))
         })),
+        bind: vi.fn(),
+        run: vi.fn(),
         first: vi.fn().mockResolvedValue({
           id: token,
           user_id: userId,

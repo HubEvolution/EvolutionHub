@@ -41,10 +41,17 @@ const resetPasswordValidator = createValidator<ResetPasswordData>(resetPasswordS
  * WICHTIG: Dieser Endpunkt verwendet KEINE API-Middleware, da er Redirects statt JSON zurückgibt!
  */
 export const POST = async (context: APIContext) => {
+  // Locale aus Referer ermitteln (Fallback)
+  const referer =
+    typeof context?.request?.headers?.get === 'function'
+      ? context.request.headers.get('referer') ?? ''
+      : '';
+  let locale = referer.includes('/de/') ? 'de' : referer.includes('/en/') ? 'en' : 'en';
+
   // Rate-Limiting anwenden
   const rateLimitResponse = await standardApiLimiter(context);
   if (rateLimitResponse) {
-    return createSecureRedirect('/reset-password?error=TooManyRequests');
+    return createSecureRedirect(`${locale === 'en' ? '/en' : ''}/reset-password?error=TooManyRequests`);
   }
 
   // Wir speichern den Token für die Fehlerbehandlung
@@ -56,6 +63,10 @@ export const POST = async (context: APIContext) => {
 
     try {
       const formData = await context.request.formData();
+      const localeField = formData.get('locale');
+      if (typeof localeField === 'string' && (localeField === 'de' || localeField === 'en')) {
+        locale = localeField;
+      }
       const data: Record<string, unknown> = {};
 
       for (const [key, value] of formData.entries()) {
@@ -108,7 +119,7 @@ export const POST = async (context: APIContext) => {
       context.clientAddress
     );
 
-    return createSecureRedirect('/login?success=PasswordReset');
+    return createSecureRedirect(`${locale === 'en' ? '/en' : ''}/login?success=PasswordReset`);
   } catch (error) {
     console.error('Reset password error:', error);
 
@@ -126,8 +137,8 @@ export const POST = async (context: APIContext) => {
     }
 
     const baseUrl = tokenForError
-      ? '/reset-password'
-      : (error instanceof ServiceError && error.type === ServiceErrorType.NOT_FOUND ? '/login' : '/reset-password');
+      ? `${locale === 'en' ? '/en' : ''}/reset-password`
+      : (error instanceof ServiceError && error.type === ServiceErrorType.NOT_FOUND ? `${locale === 'en' ? '/en' : ''}/login` : `${locale === 'en' ? '/en' : ''}/reset-password`);
 
     const contextParams = tokenForError ? { token: tokenForError } : {};
 

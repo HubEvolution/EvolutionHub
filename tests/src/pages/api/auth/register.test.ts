@@ -299,7 +299,8 @@ describe('Register-V2 API Tests (Service-Layer)', () => {
 
     // Überprüfen der Ergebnisse
     expect(response.status).toBe(302);
-    expect(response.headers.get('Location')).toBe('/dashboard');
+    // Double-Opt-In: Redirect auf verify-email (locale-neutraler Pfad, aber Query mit email und locale)
+    expect(response.headers.get('Location')).toBe('/verify-email?email=newuser%40example.com&locale=en');
     
     // Überprüfen, ob der AuthService korrekt aufgerufen wurde
     expect(createAuthServiceSpy).toHaveBeenCalledWith({
@@ -317,17 +318,7 @@ describe('Register-V2 API Tests (Service-Layer)', () => {
       '127.0.0.1'
     );
     
-    // Überprüfen, ob der Cookie gesetzt wurde
-    expect(context.mockCookies.set).toHaveBeenCalledWith(
-      'session_id',
-      mockAuthResult.sessionId,
-      expect.objectContaining({
-        path: '/',
-        httpOnly: true,
-        maxAge: 60 * 60 * 24 * 30, // 30 Tage
-        secure: true,
-        sameSite: 'lax'
-      })
-    );
+    // Registrierung setzt KEINE Session/Cookies (Double-Opt-In)
+    expect(context.mockCookies.set).not.toHaveBeenCalled();
   });
 });

@@ -5,20 +5,22 @@ import Button from '@/components/ui/Button.astro';
 import FormLabel from '@/components/ui/FormLabel.astro';
 import Input from '@/components/ui/Input.astro';
 import { getI18n } from '@/utils/i18n';
-
+import { localizePath } from '@/lib/locale-path';
 import { getLocale } from '@/lib/i18n';
+
 const locale = getLocale(Astro.url.pathname);
 const t = getI18n(locale);
 
 const locals = Astro.locals as any;
 if (locals.user) {
-  return Astro.redirect('/dashboard');
+  return Astro.redirect(localizePath(locale, '/dashboard'));
 }
 ---
 <AuthLayout title={t('pages.login.title') ?? 'Anmelden'}>
   <div class="relative p-6 rounded-2xl overflow-hidden bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-white/10 shadow-sm">
     <h1 class="text-2xl font-bold text-center mb-6">{t('pages.login.form.heading') ?? 'Melden Sie sich bei Ihrem Konto an'}</h1>
     <form method="POST" action="/api/auth/login">
+      <input type="hidden" name="locale" value={locale} />
       <div class="mb-4">
         <FormLabel for="email">{t('pages.login.form.fields.email.label') ?? 'E-Mail'}</FormLabel>
         <Input type="email" id="email" name="email" required />
@@ -28,13 +30,13 @@ if (locals.user) {
         <Input type="password" id="password" name="password" required />
       </div>
       <div class="text-right mb-4">
-        <a href="/forgot-password" class="text-emerald-600 hover:underline">{t('pages.login.form.forgot_password_link') ?? 'Passwort vergessen?'}</a>
+        <a href={localizePath(locale, '/forgot-password')} class="text-emerald-600 hover:underline">{t('pages.login.form.forgot_password_link') ?? 'Passwort vergessen?'}</a>
       </div>
       <!-- Turnstile entfernt -->
       <Button type="submit" className="w-full">{t('pages.login.form.submit_button') ?? 'Anmelden'}</Button>
     </form>
     <p class="text-center mt-4 text-sm">
-      {t('pages.login.form.no_account_prompt')} <a href="/register" class="text-emerald-600 hover:underline">{t('pages.login.form.register_link') ?? 'Registrieren'}</a>
+      {t('pages.login.form.no_account_prompt')} <a href={localizePath(locale, '/register')} class="text-emerald-600 hover:underline">{t('pages.login.form.register_link') ?? 'Registrieren'}</a>
     </p>
   </div>
   <AuthStatusNotifier mode="login" client:load />
