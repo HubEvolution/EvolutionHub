@@ -174,7 +174,21 @@ export const POST = async (context: APIContext) => {
         .then((res) => {
           if (!res.success) {
             console.warn('Failed to send verification email on register:', res.error);
+            return;
           }
+
+          // Staging-Debug-Logging: Message-ID + maskierte Empfängeradresse
+          try {
+            const envName = context?.locals?.runtime?.env?.ENVIRONMENT || '';
+            if (envName === 'staging') {
+              const masked = email.replace(/(^.).*(@.*$)/, '$1*****$2');
+              console.log('[staging][register] Verification email enqueued', {
+                to: masked,
+                messageId: res.messageId,
+                locale,
+              });
+            }
+          } catch {}
         })
         .catch((e) => {
           console.warn('Verification email error on register:', e);

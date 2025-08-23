@@ -1,14 +1,17 @@
 ---
 import AuthLayout from '@/layouts/AuthLayout.astro';
+import { getLocale } from '@/lib/i18n';
+import { localizePath } from '@/lib/locale-path';
 
 // URL-Parameter auslesen
 const url = Astro.url;
 const email = url.searchParams.get('email') || '';
+const locale = getLocale(Astro.url.pathname);
 
 // Benutzer ist bereits eingeloggt -> Redirect zum Dashboard
 const locals = Astro.locals as any;
 if (locals.user && locals.user.email_verified) {
-  return Astro.redirect('/dashboard');
+  return Astro.redirect(localizePath(locale, '/dashboard'));
 }
 
 // E-Mail-Adresse für Anzeige maskieren (Datenschutz)
@@ -92,7 +95,7 @@ const maskedEmail = maskEmail(email);
         
         <!-- Back to Register -->
         <a 
-          href="/register" 
+          href={localizePath(locale, '/register')} 
           class="text-sm text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 hover:underline"
         >
           ← Zurück zur Registrierung
