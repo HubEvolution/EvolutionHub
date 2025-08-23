@@ -100,17 +100,8 @@ export const POST = async (context: APIContext) => {
         data[key] = value;
       }
       
-      // Validierung durchführen
-      const validationResult = registerValidator.validate(data);
-      
-      if (!validationResult.valid) {
-        throw ServiceError.validation(
-          'Die eingegebenen Daten sind ungültig', 
-          { validationErrors: validationResult.errors }
-        );
-      }
-      
-      registerData = data as RegisterData;
+      // Validierung durchführen und getypte Daten erhalten
+      registerData = registerValidator.validateOrThrow(data);
     } catch (validationError) {
       console.error('Register validation error:', validationError);
       throw ServiceError.validation(
@@ -161,6 +152,14 @@ export const POST = async (context: APIContext) => {
         fromEmail: 'EvolutionHub <noreply@hub-evolution.com>',
         baseUrl: context.url.origin
       };
+
+      // Staging-Hinweis, falls RESEND_API_KEY fehlt
+      try {
+        const envName = context?.locals?.runtime?.env?.ENVIRONMENT || '';
+        if (envName === 'staging' && !deps.resendApiKey) {
+          console.warn('[staging][register] RESEND_API_KEY fehlt – Verifikationsmail kann nicht gesendet werden');
+        }
+      } catch {}
 
       const emailService = createEmailService(deps);
 

@@ -124,7 +124,7 @@ const maskedEmail = maskEmail(email);
 </AuthLayout>
 
 <script>
-  const resendBtn = document.getElementById('resend-btn') as HTMLButtonElement;
+  const resendBtn = document.getElementById('resend-btn');
   const errorMessage = document.getElementById('error-message');
   const successMessage = document.getElementById('success-message');
   let isResending = false;
@@ -133,7 +133,7 @@ const maskedEmail = maskEmail(email);
   async function resendVerificationEmail() {
     if (isResending) return;
     
-    const email = (document.querySelector('input[name="email"]') as HTMLInputElement)?.value;
+    const email = document.querySelector('input[name="email"]')?.value;
     if (!email) {
       showError('E-Mail-Adresse nicht verfügbar. Bitte registrieren Sie sich erneut.');
       return;
@@ -190,14 +190,14 @@ const maskedEmail = maskEmail(email);
     isResending = false;
   }
 
-  function showError(message: string) {
+  function showError(message) {
     if (errorMessage) {
       errorMessage.textContent = message;
       errorMessage.classList.remove('hidden');
     }
   }
 
-  function showSuccess(message: string) {
+  function showSuccess(message) {
     if (successMessage) {
       successMessage.textContent = message;
       successMessage.classList.remove('hidden');

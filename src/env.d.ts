@@ -26,6 +26,8 @@ declare namespace App {
                 DB: import('@cloudflare/workers-types').D1Database;
                 // Turnstile-Secret-Key entfernt
                 RESEND_API_KEY: string;
+                // Name der Laufzeitumgebung (z. B. 'staging', 'production')
+                ENVIRONMENT?: string;
             };
         };
     }

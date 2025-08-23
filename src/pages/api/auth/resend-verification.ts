@@ -117,6 +117,14 @@ export const POST = async (context: APIContext) => {
       baseUrl: context.url.origin
     };
 
+    // Staging-Hinweis, falls RESEND_API_KEY fehlt
+    try {
+      const envName = (context?.locals?.runtime?.env as any)?.ENVIRONMENT || '';
+      if (envName === 'staging' && !deps.resendApiKey) {
+        console.warn('[staging][resend-verification] RESEND_API_KEY fehlt – Verifikationsmail kann nicht gesendet werden');
+      }
+    } catch {}
+
     const emailService = createEmailService(deps);
 
     // Verifikations-E-Mail senden
@@ -131,6 +139,20 @@ export const POST = async (context: APIContext) => {
       console.warn('Failed to send verification email:', sendResult.error);
       return genericOk();
     }
+
+    // Staging-Debug-Logging: Message-ID + maskierte Empfängeradresse
+    try {
+      const envName = context?.locals?.runtime?.env as any;
+      const environment = typeof envName?.ENVIRONMENT === 'string' ? envName.ENVIRONMENT : '';
+      if (environment === 'staging') {
+        const masked = email.replace(/(^.).*(@.*$)/, '$1*****$2');
+        console.log('[staging][resend-verification] Verification email enqueued', {
+          to: masked,
+          messageId: sendResult.messageId,
+          locale,
+        });
+      }
+    } catch {}
 
     // Erfolgreicher Versand
     logApiAccess(String(user.id), context.clientAddress || 'unknown', {
