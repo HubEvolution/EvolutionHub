@@ -7,6 +7,8 @@ dotenv.config();
 // Plain Playwright config without top-level await or require overrides
 // Reuse BASE_URL in multiple places and set Origin header to satisfy CSRF checks
 const BASE_URL = process.env.BASE_URL || 'http://127.0.0.1:8787';
+// If BASE_URL points to a remote host (not localhost/127.0.0.1), we will not start a local web server
+const IS_REMOTE_TARGET = !/^https?:\/\/(localhost|127\.0\.0\.1)(:\\d+)?/i.test(BASE_URL);
 
 export default defineConfig({
   testDir: '../specs',
@@ -48,16 +50,20 @@ export default defineConfig({
     { name: 'webkit', use: { ...devices['Desktop Safari'] } },
   ],
 
-  // Start the Cloudflare Worker dev server (wrangler dev)
-  webServer: {
-    // Ensure npm runs from the project root even when config is in a subfolder
-    command: 'npm --prefix ../../.. run dev:e2e',
-    url: BASE_URL,
-    reuseExistingServer: !process.env.CI,
-    timeout: 120 * 1000,
-    stdout: 'ignore',
-    stderr: 'pipe',
-  },
+  // Start the Cloudflare Worker dev server (wrangler dev) only for local targets
+  ...(IS_REMOTE_TARGET
+    ? {}
+    : {
+        webServer: {
+          // Ensure npm runs from the project root even when config is in a subfolder
+          command: 'npm --prefix ../../.. run dev:e2e',
+          url: BASE_URL,
+          reuseExistingServer: !process.env.CI,
+          timeout: 120 * 1000,
+          stdout: 'ignore',
+          stderr: 'pipe',
+        },
+      }),
 
   // Use existing setup/teardown files
   globalSetup: './setup.ts',

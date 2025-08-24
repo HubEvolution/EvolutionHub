@@ -159,7 +159,10 @@ export const POST = async (context: APIContext) => {
         if (envName === 'staging' && !deps.resendApiKey) {
           console.warn('[staging][register] RESEND_API_KEY fehlt – Verifikationsmail kann nicht gesendet werden');
         }
-      } catch {}
+      } catch (e) {
+        // Avoid empty catch (ESLint: no-empty); dev-only noise
+        if (import.meta.env?.DEV) console.debug('[staging][register] RESEND_API_KEY check threw', e);
+      }
 
       const emailService = createEmailService(deps);
 
@@ -187,7 +190,10 @@ export const POST = async (context: APIContext) => {
                 locale,
               });
             }
-          } catch {}
+          } catch (e) {
+            // Avoid empty catch (ESLint: no-empty); dev-only noise
+            if (import.meta.env?.DEV) console.debug('[staging][register] staging log failed', e);
+          }
         })
         .catch((e) => {
           console.warn('Verification email error on register:', e);

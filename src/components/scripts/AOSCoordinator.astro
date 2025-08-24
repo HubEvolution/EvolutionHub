@@ -65,7 +65,7 @@
         const script = document.createElement('script');
         script.src = 'https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js';
         script.setAttribute('data-aos-script', 'true');
-        try { script.setAttribute('nonce', cspNonce); } catch {}
+        try { script.setAttribute('nonce', cspNonce); } catch { /* noop */ }
         script.onload = () => {
           console.log('[AOS] 📦 CDN script loaded successfully');
           checkAOSAvailability(() => resolve(), reject, 0);

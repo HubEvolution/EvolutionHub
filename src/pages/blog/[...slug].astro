@@ -205,42 +205,46 @@ const structuredData = {
       </div>
     </div>
   </div>
-
-  <script is:inline>
-    // Verbessere die Lesbarkeit für lange Artikel
-    document.addEventListener('DOMContentLoaded', () => {
-      // Füge Lazy Loading für Bilder im Beitrag hinzu
-      const images = document.querySelectorAll('article img:not([loading])');
-      images.forEach(img => {
-        img.loading = 'lazy';
-      });
-
-      // Füge Smooth Scrolling für interne Links hinzu
-      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-          e.preventDefault();
-          const targetId = this.getAttribute('href');
-          if (targetId === '#') return;
-
-          const targetElement = document.querySelector(targetId);
-          if (targetElement) {
-            targetElement.scrollIntoView({
-              behavior: 'smooth',
-              block: 'start'
-            });
-
-            // Füge den Hash zur URL hinzu, ohne die Seite neu zu laden
-            history.pushState(null, '', targetId);
+  <script is:inline nonce={Astro.locals.cspNonce}>
+    // CSP-sicherer Bootstrap-Loader für Blog-Enhancements (strict-dynamic kompatibel)
+    function initializeBlogPostEnhancements() {
+      import(Astro.resolve('@/scripts/blog-post-enhancements.ts'))
+        .then((mod) => {
+          try {
+            if (mod && typeof mod.cleanup === 'function') {
+              // Für Lifecycle-Cleanup bei Navigationswechseln verfügbar machen
+              window['blogPostEnhancementsCleanup'] = mod.cleanup;
+            }
+            if (mod && typeof mod.init === 'function') {
+              mod.init();
+            } else if (mod && typeof mod.default === 'function') {
+              // Fallback, falls default export genutzt wird
+              mod.default();
+            } else {
+              console.warn('[BlogPostEnhancements] Kein init() Export gefunden');
+            }
+          } catch (err) {
+            console.error('[BlogPostEnhancements] Fehler bei Initialisierung:', err);
           }
+        })
+        .catch((err) => {
+          console.error('[BlogPostEnhancements] Modul konnte nicht geladen werden:', err);
         });
-      });
+    }
 
-      // Aktiviere Tooltips für Fußnoten
-      const footnotes = document.querySelectorAll('a[href^="#fn"], a[href^="#ref"]');
-      footnotes.forEach(fn => {
-        fn.setAttribute('data-tooltip', 'Zum entsprechenden Absatz springen');
-        fn.classList.add('underline', 'decoration-dotted', 'decoration-gray-400', 'underline-offset-4');
-      });
+    if (document.readyState !== 'loading') {
+      initializeBlogPostEnhancements();
+    } else {
+      document.addEventListener('DOMContentLoaded', initializeBlogPostEnhancements);
+    }
+
+    // Cleanup bei Seitenwechsel
+    window.addEventListener('beforeunload', () => {
+      try {
+        if (typeof window['blogPostEnhancementsCleanup'] === 'function') {
+          window['blogPostEnhancementsCleanup']();
+        }
+      } catch { /* noop */ }
     });
   </script>
 </BaseLayout>
