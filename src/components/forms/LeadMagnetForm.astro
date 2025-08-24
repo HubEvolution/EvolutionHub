@@ -216,27 +216,28 @@ const formId = `lead-magnet-form-${leadMagnetId}-${Math.random().toString(36).su
       Erneut versuchen
     </button>
   </div>
-</div>
+ </div>
 
-<script>
-  // Lead Magnet Form Handler
+<script is:inline nonce={Astro.locals.cspNonce}>
+  // Lead Magnet Form Handler (pure JS, no TS syntax)
   document.addEventListener('DOMContentLoaded', () => {
     const forms = document.querySelectorAll('.lead-magnet-form-element');
     
-    forms.forEach(form => {
-      const formElement = form as HTMLFormElement;
+    forms.forEach((form) => {
+      if (!(form instanceof HTMLFormElement)) return;
+      const formElement = form;
       const leadMagnetId = formElement.dataset.leadMagnetId;
-      const container = form.closest('.lead-magnet-form') as HTMLElement;
+      const container = formElement.closest('.lead-magnet-form');
       if (!container) return; // Skip if container not found
       
-      const submitButton = form.querySelector('button[type="submit"]') as HTMLButtonElement;
-      const submitText = form.querySelector('.submit-text') as HTMLElement;
-      const loadingSpinner = form.querySelector('.loading-spinner') as HTMLElement;
-      const successMessage = container.querySelector('.success-message') as HTMLElement;
-      const errorMessage = container.querySelector('.error-message') as HTMLElement;
-      const errorText = container.querySelector('.error-text') as HTMLElement;
-      const retryButton = container.querySelector('.retry-button') as HTMLButtonElement;
-      const downloadLink = container.querySelector('.download-link') as HTMLAnchorElement;
+      const submitButton = formElement.querySelector('button[type="submit"]');
+      const submitText = formElement.querySelector('.submit-text');
+      const loadingSpinner = formElement.querySelector('.loading-spinner');
+      const successMessage = container.querySelector('.success-message');
+      const errorMessage = container.querySelector('.error-message');
+      const errorText = container.querySelector('.error-text');
+      const retryButton = container.querySelector('.retry-button');
+      const downloadLink = container.querySelector('.download-link');
       
       // UTM Parameter aus URL extrahieren
       const urlParams = new URLSearchParams(window.location.search);
@@ -246,18 +247,18 @@ const formId = `lead-magnet-form-${leadMagnetId}-${Math.random().toString(36).su
       const source = document.referrer || 'direct';
       
       // Hidden Fields befüllen
-      const sourceField = form.querySelector('[name="source"]') as HTMLInputElement;
-      const utmSourceField = form.querySelector('[name="utmSource"]') as HTMLInputElement;
-      const utmMediumField = form.querySelector('[name="utmMedium"]') as HTMLInputElement;
-      const utmCampaignField = form.querySelector('[name="utmCampaign"]') as HTMLInputElement;
+      const sourceField = formElement.querySelector('[name="source"]');
+      const utmSourceField = formElement.querySelector('[name="utmSource"]');
+      const utmMediumField = formElement.querySelector('[name="utmMedium"]');
+      const utmCampaignField = formElement.querySelector('[name="utmCampaign"]');
       
-      if (sourceField) sourceField.value = source;
-      if (utmSourceField) utmSourceField.value = utmSource;
-      if (utmMediumField) utmMediumField.value = utmMedium;
-      if (utmCampaignField) utmCampaignField.value = utmCampaign;
+      if (sourceField && 'value' in sourceField) sourceField.value = source;
+      if (utmSourceField && 'value' in utmSourceField) utmSourceField.value = utmSource;
+      if (utmMediumField && 'value' in utmMediumField) utmMediumField.value = utmMedium;
+      if (utmCampaignField && 'value' in utmCampaignField) utmCampaignField.value = utmCampaign;
       
       // Form Submit Handler
-      form.addEventListener('submit', async (e) => {
+      formElement.addEventListener('submit', async (e) => {
         e.preventDefault();
         
         // Button-State: Loading
@@ -276,8 +277,8 @@ const formId = `lead-magnet-form-${leadMagnetId}-${Math.random().toString(36).su
           const data = Object.fromEntries(formData.entries());
           
           // Analytics-Event senden
-          if (typeof (window as any).gtag !== 'undefined') {
-            (window as any).gtag('event', 'lead_magnet_form_submit', {
+          if (typeof window !== 'undefined' && typeof window.gtag === 'function') {
+            window.gtag('event', 'lead_magnet_form_submit', {
               'lead_magnet_id': leadMagnetId,
               'form_location': window.location.href,
               'event_category': 'Lead Generation'
@@ -295,9 +296,9 @@ const formId = `lead-magnet-form-${leadMagnetId}-${Math.random().toString(36).su
           
           const result = await response.json();
           
-          if (result.success) {
+          if (result && result.success) {
             // Success: Form verstecken, Success-Message zeigen
-            (form as HTMLElement).style.display = 'none';
+            if (formElement && formElement.style) formElement.style.display = 'none';
             if (successMessage) successMessage.classList.remove('hidden');
             
             // Download-Link setzen
@@ -307,8 +308,8 @@ const formId = `lead-magnet-form-${leadMagnetId}-${Math.random().toString(36).su
             }
             
             // Success-Analytics
-            if (typeof (window as any).gtag !== 'undefined') {
-              (window as any).gtag('event', 'lead_magnet_download_success', {
+            if (typeof window !== 'undefined' && typeof window.gtag === 'function') {
+              window.gtag('event', 'lead_magnet_download_success', {
                 'lead_magnet_id': leadMagnetId,
                 'lead_id': result.leadId,
                 'event_category': 'Lead Generation'
@@ -319,7 +320,7 @@ const formId = `lead-magnet-form-${leadMagnetId}-${Math.random().toString(36).su
             console.log('✅ Lead Magnet Success:', result);
             
           } else {
-            throw new Error(result.error || 'Unbekannter Fehler');
+            throw new Error((result && result.error) || 'Unbekannter Fehler');
           }
           
         } catch (error) {
@@ -335,9 +336,9 @@ const formId = `lead-magnet-form-${leadMagnetId}-${Math.random().toString(36).su
           }
           
           // Error-Analytics
-          if (typeof (window as any).gtag !== 'undefined') {
+          if (typeof window !== 'undefined' && typeof window.gtag === 'function') {
             const errorMsg = error instanceof Error ? error.message : 'Unknown error';
-            (window as any).gtag('event', 'lead_magnet_form_error', {
+            window.gtag('event', 'lead_magnet_form_error', {
               'lead_magnet_id': leadMagnetId,
               'error_message': errorMsg,
               'event_category': 'Lead Generation'
@@ -349,7 +350,7 @@ const formId = `lead-magnet-form-${leadMagnetId}-${Math.random().toString(36).su
           if (submitButton) {
             submitButton.disabled = false;
             if (submitText) {
-              submitText.textContent = submitButton.dataset.submitText || 'Herunterladen';
+              submitText.textContent = (submitButton.dataset && submitButton.dataset.submitText) || 'Herunterladen';
             }
             if (loadingSpinner) loadingSpinner.classList.add('hidden');
           }
@@ -360,17 +361,17 @@ const formId = `lead-magnet-form-${leadMagnetId}-${Math.random().toString(36).su
       if (retryButton) {
         retryButton.addEventListener('click', () => {
           if (errorMessage) errorMessage.classList.add('hidden');
-          (form as HTMLElement).style.display = 'block';
+          if (formElement && formElement.style) formElement.style.display = 'block';
           if (successMessage) successMessage.classList.add('hidden');
         });
       }
       
       // Form-Impression-Tracking
       const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
+        entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            if (typeof (window as any).gtag !== 'undefined') {
-              (window as any).gtag('event', 'lead_magnet_form_impression', {
+            if (typeof window !== 'undefined' && typeof window.gtag === 'function') {
+              window.gtag('event', 'lead_magnet_form_impression', {
                 'lead_magnet_id': leadMagnetId,
                 'form_location': window.location.href
               });

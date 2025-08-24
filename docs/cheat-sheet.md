@@ -5,7 +5,7 @@
 | Befehl | Beschreibung |
 |--------|--------------|
 | `npm run menu` | **Interaktives Entwicklungsmenü starten** |
-| `npm run dev` | Lokalen Entwicklungsserver starten |
+| `npm run dev:astro` | Lokalen Entwicklungsserver starten |
 | `npm run setup:local` | Lokale Entwicklungsumgebung einrichten |
 
 ## 🔄 Entwicklungsbefehle
@@ -20,10 +20,10 @@ npm run menu
 npm run setup:local
 
 # Lokalen Entwicklungsserver starten (mit lokalen Ressourcen)
-npm run dev
+npm run dev:astro
 
 # Entwicklungsserver mit Remote-Ressourcen starten (Vorsicht!)
-npm run dev:remote
+npm run dev:astro:remote
 ```
 
 ### Datenbank-Verwaltung
@@ -113,7 +113,7 @@ npx wrangler kv:key list --namespace-id=SESSION_LOCAL
 ## 🔄 Workflow-Beispiel
 
 1. **Einrichtung**: `npm run setup:local`
-2. **Entwicklung**: `npm run dev`
+2. **Entwicklung**: `npm run dev:astro`
 3. **Testen**: `npm run test`
 4. **Build**: `npm run build`
 5. **Preview**: `npm run preview`

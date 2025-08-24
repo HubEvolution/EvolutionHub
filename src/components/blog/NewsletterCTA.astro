@@ -42,6 +42,9 @@ const i18nNewsletter = {
   },
 };
 
+// No-op read to mark as used for TS in frontmatter (template also uses it)
+JSON.stringify(i18nNewsletter);
+
 // Default content based on position and context
 const defaultContent = {
   title: title || (
@@ -162,9 +165,17 @@ const isBanner = variant === 'banner';
   )}
 </div>
 
-<script>
-  import { trackNewsletterSignup } from '@/lib/analytics';
-  
+<script is:inline nonce={Astro.locals.cspNonce}>
+  // Safe analytics helper: use window.evolutionAnalytics if present; otherwise no-op.
+  function trackSignup(source) {
+    try {
+      const ea = typeof window !== 'undefined' && window['evolutionAnalytics'];
+      if (ea && typeof ea.trackNewsletterSignup === 'function') {
+        ea.trackNewsletterSignup(source);
+      }
+    } catch (_) {}
+  }
+
   // Newsletter CTA functionality
   document.addEventListener('DOMContentLoaded', () => {
     const ctaElements = document.querySelectorAll('.newsletter-cta');
@@ -197,7 +208,7 @@ const isBanner = variant === 'banner';
     });
   });
   
-  function insertNewsletterForm(container: Element, variant: string, source: string, I18N: any) {
+  function insertNewsletterForm(container, variant, source, I18N) {
     // Create newsletter form HTML (simplified version of Newsletter component)
     const formHTML = `
       <form id="newsletter-cta-form-${source}" class="newsletter-cta-form flex gap-2 max-w-sm mx-auto" data-source="${source}">
@@ -224,16 +235,18 @@ const isBanner = variant === 'banner';
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
         
-        const emailInput = form.querySelector('input[type="email"]') as HTMLInputElement;
-        const submitButton = form.querySelector('button[type="submit"]') as HTMLButtonElement;
-        const email = emailInput?.value.trim();
+        const emailInput = form.querySelector('input[type="email"]');
+        const submitButton = form.querySelector('button[type="submit"]');
+        const email = emailInput && 'value' in emailInput ? (emailInput.value || '').trim() : '';
         
         if (!email) return;
         
         // Set loading state
-        const originalText = submitButton.textContent;
-        submitButton.textContent = I18N.status?.sending || 'Sending...';
-        submitButton.disabled = true;
+        const originalText = submitButton && submitButton.textContent;
+        if (submitButton) {
+          submitButton.textContent = (I18N && I18N.status && I18N.status.sending) || 'Sending...';
+          submitButton.disabled = true;
+        }
         
         try {
           // Submit to newsletter API
@@ -256,12 +269,12 @@ const isBanner = variant === 'banner';
                 <svg class="w-5 h-5 text-white mx-auto mb-1" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                 </svg>
-                <p class="text-xs text-white/90">${I18N.success?.newsletter_confirmation_sent || 'Confirmation email sent!'}</p>
+                <p class="text-xs text-white/90">${(I18N && I18N.success && I18N.success.newsletter_confirmation_sent) || 'Confirmation email sent!'}</p>
               </div>
             `;
             
             // Track success
-            trackNewsletterSignup(source);
+            trackSignup(source);
           } else {
             throw new Error(result.message || 'Subscription failed');
           }
@@ -269,11 +282,13 @@ const isBanner = variant === 'banner';
           console.error('Newsletter CTA subscription error:', error);
           
           // Reset button
-          submitButton.textContent = originalText;
-          submitButton.disabled = false;
+          if (submitButton) {
+            submitButton.textContent = originalText || '';
+            submitButton.disabled = false;
+          }
           
           // Show error (could be enhanced with proper error UI)
-          alert(I18N.errors?.generic || 'An error occurred. Please try again later.');
+          alert((I18N && I18N.errors && I18N.errors.generic) || 'An error occurred. Please try again later.');
           
           // Track error
           console.log(`[Analytics] Newsletter CTA error: ${error instanceof Error ? error.message : 'unknown'}`);

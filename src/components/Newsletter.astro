@@ -97,16 +97,19 @@ const locale = getLocale(Astro.url.pathname);
 
   // Newsletter form functionality
   document.addEventListener('DOMContentLoaded', () => {
-    const form = document.getElementById('newsletter-form') as HTMLFormElement;
-    const emailInput = document.getElementById('newsletter-email') as HTMLInputElement;
-    const submitButton = document.getElementById('newsletter-submit') as HTMLButtonElement;
+    const form = document.getElementById('newsletter-form');
+    const emailInput = document.getElementById('newsletter-email');
+    const submitButton = document.getElementById('newsletter-submit');
     const statusDiv = document.getElementById('newsletter-status');
     const successDiv = document.getElementById('success-message');
     const errorDiv = document.getElementById('error-message');
-    const submitText = submitButton?.querySelector('.submit-text');
-    const loadingText = submitButton?.querySelector('.loading-text');
 
-    if (!form || !emailInput || !submitButton) return;
+    if (!(form instanceof HTMLFormElement) || !(emailInput instanceof HTMLInputElement) || !(submitButton instanceof HTMLButtonElement)) {
+      return;
+    }
+
+    const submitText = submitButton.querySelector('.submit-text');
+    const loadingText = submitButton.querySelector('.loading-text');
 
     // Form submission handler
     form.addEventListener('submit', async (e) => {
@@ -170,7 +173,7 @@ const locale = getLocale(Astro.url.pathname);
     });
     
     // Helper functions
-    function setLoading(loading: boolean) {
+    function setLoading(loading) {
       submitButton.disabled = loading;
       if (submitText && loadingText) {
         if (loading) {
@@ -184,7 +187,7 @@ const locale = getLocale(Astro.url.pathname);
     }
     
     // Show message function with support for different types
-    function showMessage(message: string, type: 'success' | 'error' | 'info') {
+    function showMessage(message, type) {
       const messageEl = document.getElementById('newsletter-message');
       if (!messageEl) return;
       

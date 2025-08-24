@@ -644,4 +644,14 @@
     "get_started_button": "Get started",
     "documentation_link": "View documentation"
   }
+,
+  "comingSoon": {
+    "title": "Coming soon",
+    "description": "Our pricing page is being updated. Join the waitlist to be among the first to know.",
+    "cta": {
+      "primary": "Back to home",
+      "secondary": "Join waitlist"
+    },
+    "ariaLabel": "Notice page in progress"
+  }
 }

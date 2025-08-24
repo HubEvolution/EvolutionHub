@@ -1,0 +1,117 @@
+/* src/styles/coming-soon.css - make overlay fully opaque and dim background further */
+:root {
+  --cs-backdrop: rgba(0, 0, 0, 0.98);
+  --cs-panel-bg: #0b1220; /* darker panel */
+  --cs-panel-bg-dark: #071018;
+  --cs-text: #ffffff;
+  --cs-text-dark: #e6eef8;
+  --cs-shadow: 0 30px 90px rgba(2,6,23,0.85);
+  --cs-radius: 0.75rem;
+}
+
+/* Overlay base */
+#coming-soon-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999; /* higher */
+  display: grid;
+  place-items: center;
+  background-color: var(--cs-backdrop);
+  backdrop-filter: none; /* remove blur to ensure opacity */
+  -webkit-backdrop-filter: none;
+  padding: 1rem;
+  pointer-events: auto;
+}
+
+/* Panel */
+#coming-soon-overlay > div {
+  width: min(96%, 42rem);
+  background-color: rgba(10,15,25,0.98); /* nearly opaque dark panel */
+  color: var(--cs-text);
+  border-radius: var(--cs-radius);
+  padding: 2rem;
+  box-shadow: var(--cs-shadow);
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Dim underlying content strongly */
+body.coming-soon-open #main-content,
+body.coming-soon-open header,
+body.coming-soon-open footer {
+  filter: none; /* removed blur; fully hidden by opaque backdrop */
+  opacity: 0.02; /* almost invisible */
+  transition: opacity 150ms ease;
+}
+
+/* Headline and text */
+#coming-soon-overlay h2 {
+  margin: 0;
+  line-height: 1.1;
+  font-weight: 800;
+  font-size: 1.5rem;
+  color: var(--cs-text);
+}
+
+#coming-soon-overlay p {
+  margin-top: 0.75rem;
+  color: inherit;
+  opacity: 0.95;
+  font-size: 1rem;
+}
+
+/* Buttons container */
+#coming-soon-overlay .buttons {
+  margin-top: 1.25rem;
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+/* Focus styles */
+#coming-soon-overlay a:focus,
+#coming-soon-overlay button:focus {
+  outline: 3px solid rgba(255,255,255,0.08);
+  outline-offset: 3px;
+  border-radius: 0.5rem;
+}
+
+/* Close button */
+#coming-soon-overlay .cs-close {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: transparent;
+  border: none;
+  color: inherit;
+  padding: 0.5rem;
+  cursor: pointer;
+}
+
+/* Prevent background scroll when body has helper class */
+body.coming-soon-open {
+  overflow: hidden;
+  touch-action: none;
+}
+
+/* Responsive tweaks */
+@media (max-width: 640px) {
+  #coming-soon-overlay > div {
+    padding: 1.25rem;
+    width: calc(100% - 2rem);
+  }
+  #coming-soon-overlay h2 {
+    font-size: 1.25rem;
+  }
+  #coming-soon-overlay p {
+    font-size: 0.95rem;
+  }
+}
+
+/* Utility visually-hidden */
+.cs-visually-hidden {
+  position: absolute !important;
+  height: 1px; width: 1px;
+  overflow: hidden; clip: rect(1px, 1px, 1px, 1px);
+  white-space: nowrap; border: 0; padding: 0; margin: -1px;
+}

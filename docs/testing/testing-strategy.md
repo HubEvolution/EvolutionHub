@@ -285,7 +285,7 @@ export default defineConfig({
     }
   ],
   webServer: {
-    command: 'npm run dev',
+    command: 'npm --prefix ../../.. run dev:e2e',\n    url: BASE_URL,
     port: 3000,
     reuseExistingServer: !process.env.CI
   }

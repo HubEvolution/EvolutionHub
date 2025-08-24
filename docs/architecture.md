@@ -1,149 +1,112 @@
 # Evolution Hub - Technologie-Stack und Architektur
 
-## Technologie-Stack
+## Technologie‑Stack (aktuell)
 
 ### Frontend
-- **Astro v5.12.2**: Framework für serverseitiges Rendern mit optimiertem Output
-- **React v18.2.0**: Für interaktive UI-Komponenten (Islands Architecture)
-- **Tailwind CSS v3.4.17**: Utility-first CSS-Framework für responsive Design
-- **AOS v2.3.1**: Animate On Scroll Library für Scroll-Animationen (CDN-basiert, integriert via AOSCoordinator.astro)
-- **Lottie Web v5.13.0**: Für hochwertige SVG-Animationen
-- **Heroicons v2.1.5-1**: Icon-Library für die Benutzeroberfläche
+- **Astro v5.13.0** (siehe [`package.json`](package.json:56))
+- **React v18.3.1** (siehe [`package.json`](package.json:75))
+- **Tailwind CSS v3.4.17** (siehe [`package.json`](package.json:115))
+- **AOS** (Animate On Scroll) – typischerweise via CDN/Coordinator‑Island
+- **Lottie Web v5.13.0** (siehe [`package.json`](package.json:74))
+- **astro‑heroicons / Heroicons** (siehe [`package.json`](package.json:57))
 
-### Backend
-- **Cloudflare Pages**: Hosting und SSR-Plattform
-- **Cloudflare D1**: Serverless SQLite-Datenbank
-- **Cloudflare R2**: Objektspeicher (für Benutzer-Avatare)
-- **Cloudflare KV**: Key-Value-Store für Session-Management
-- **Hono v4.8.5**: Minimalistischer, schneller Web-Framework
-- **bcrypt-ts v7.1.0/bcryptjs v3.0.2**: Für sichere Passwort-Hashing
+### Backend & Platform
+- **Cloudflare Workers / Wrangler** — primäres Deployment‑Target & lokale Runtime (siehe Build‑/Dev‑Skripte in [`package.json`](package.json:6))
+- **Cloudflare Pages** (Preview/hosting) — optional in CI/CD workflows
+- **Cloudflare D1** (Serverless SQLite) — persistente Daten
+- **Cloudflare R2** — Objektspeicher (Avatare, Assets)
+- **Cloudflare KV** — Key‑Value Store (Sessions, Cache)
+- **Hono v4.9.1** (siehe [`package.json`](package.json:72))
+- **bcrypt / bcrypt‑ts / bcryptjs** für sicheres Passwort‑Hashing (siehe [`package.json`](package.json:59-61))
 
 ### Authentifizierung & Sicherheit
-- **Jose v6.0.12**: Für JWT-Implementierung und -Verifikation
-- **Cookie v1.0.2**: Cookie-Parser und -Generator
-- **Neu implementierte Security-Features**:
-  - Rate-Limiting-System für API-Endpunkte
-  - Standardisierte Security-Headers
-  - Zentrales Security-Audit-Logging
+- **jose v6.0.12** (JWT, siehe [`package.json`](package.json:73))
+- **cookie v1.0.2** (siehe [`package.json`](package.json:66))
+- Zentrale Security‑Implementierungen:
+  - Rate‑Limiting: [`src/lib/rate-limiter.ts`](src/lib/rate-limiter.ts:1)
+  - Security‑Headers: [`src/lib/security-headers.ts`](src/lib/security-headers.ts:1)
+  - Audit‑Logging: [`src/lib/security-logger.ts`](src/lib/security-logger.ts:1) + [`src/server/utils/logger.ts`](src/server/utils/logger.ts:42)
 
-### Testing
-- **Vitest v3.2.4**: Test-Runner für Unit- und Integrationstests
-- **Playwright v1.54.1**: End-to-End-Testing-Framework
-- **Testing Library**: Für komponentenbasierte Tests
-- **MSW v2.10.4**: Mock Service Worker für API-Testing
-- **@mswjs/data**: Für Mock-Datenbank-Operationen
+### Testing & Tooling
+- **Vitest v3.2.4** (siehe [`package.json`](package.json:120)) — Unit & Integration
+- **Playwright v1.54.2** (siehe [`package.json`](package.json:90)) — E2E
+- **MSW v2.10.5 / @mswjs/data** (siehe [`package.json`](package.json:88, src entries))
 
-### E-Mail & Benachrichtigungen
-- **Resend v4.7.0**: E-Mail-API für transaktionale E-Mails
-- **Sonner**: Typisierte In-App-Benachrichtigungen über `notify`-Wrapper (`src/lib/notify.ts`) und globales `<Toaster />`-Island (`src/components/Toaster.tsx`)
+### E‑Mail & Notifications
+- **Resend v6.0.1** (siehe [`package.json`](package.json:78)) — Transaktionale E‑Mails
+- **Sonner** — In‑App Notifications (Wrapper in [`src/lib/notify.ts`](src/lib/notify.ts:1))
 
-### Zahlungen
-- **Stripe v18.3.0**: Payment Processing
+### Payments
+- **Stripe v18.4.0** (siehe [`package.json`](package.json:81))
 
-## Architektur-Übersicht
+## Architektur‑Übersicht
 
-### Verzeichnisstruktur
+### Verzeichnisstruktur (Auszug)
 ```
 evolution-hub/
 ├── src/
-│   ├── components/       # UI-Komponenten (Astro + React)
-│   ├── content/          # Content Collections für Blog/Docs
-│   ├── layouts/          # Layout-Templates
-│   ├── lib/              # Shared Libraries und Utilities
-│   │   ├── rate-limiter.ts   # Rate-Limiting-System
-│   │   ├── security-headers.ts # Security-Headers-System
-│   │   └── security-logger.ts  # Audit-Logging-System
-│   ├── pages/            # Routen und API-Endpunkte
-│   │   ├── api/          # Backend API
-│   │   │   ├── auth/     # Authentifizierungs-Endpunkte
-│   │   │   ├── user/     # Benutzer-bezogene APIs
-│   │   │   ├── projects/ # Projekt-bezogene APIs
-│   │   │   ├── billing/  # Zahlungs-APIs
-│   │   │   └── dashboard/ # Dashboard-APIs
-│   ├── server/           # Server-seitige Logik
-│   │   └── utils/        # Server-Utilities
-│   └── types/            # TypeScript-Typdefinitionen
-├── public/               # Statische Assets
-├── migrations/           # Datenbank-Migrationen
-└── tests/                # End-to-End und Integrationstests
+│   ├── components/       # UI‑Komponenten (Astro + React Islands)
+│   ├── content/          # Content Collections (Blog/Docs)
+│   ├── layouts/          # Layouts/Templates
+│   ├── lib/              # Shared Libraries (rate‑limiter, security, services)
+│   ├── pages/            # File‑based routing (Astro pages & API)
+│   ├── server/           # Dev/WebSocket/Logger utilities
+│   └── utils/            # Helpers (i18n, validators, services)
+├── public/               # Static assets
+├── migrations/           # D1 migration SQL files
+└── tests/                # E2E / integration / fixtures
 ```
 
-### API-Architektur
-Die API ist RESTful gestaltet und in logische Gruppen unterteilt:
-
-- **Authentication APIs** (`/api/auth/*`)
-  - `login`: Benutzeranmeldung via Benutzername/E-Mail und Passwort
-  - `register`: Neue Benutzer-Registrierung
-  - `forgot-password`: Password-Reset anfordern
-  - `reset-password`: Passwort mit Token zurücksetzen
-
-- **User APIs** (`/api/user/*`)
-  - `me`: Benutzerprofilinformationen abrufen
-  - `profile`: Profilinformationen aktualisieren
-  - `logout`: Session beenden
-  - Weitere benutzerbezogene Endpoints
-
-- **Project APIs** (`/api/projects/*`)
-  - CRUD-Operationen für Benutzerprojekte
-
-- **Dashboard APIs** (`/api/dashboard/*`)
-  - Analytik, Statistiken und Dashboard-spezifische Daten
-
-- **Billing APIs** (`/api/billing/*`)
-  - Zahlungsinformationen, Abonnements und Rechnungen
+### API‑Architektur
+- File‑based API unter `src/pages/api/`:
+  - Auth: `/api/auth/*` — login, register, forgot/reset‑password, verify
+  - User: `/api/user/*` — me/profile/logout/avatar
+  - Projects: `/api/projects/*` — CRUD
+  - Dashboard: `/api/dashboard/*`
+  - Billing: `/api/billing/*`
+- Middleware & helpers: [`src/lib/api-middleware.ts`](src/lib/api-middleware.ts:1), [`src/lib/response-helpers.ts`](src/lib/response-helpers.ts:1)
 
 ### Datenmodell
-Das Projekt verwendet eine SQLite-Datenbank (Cloudflare D1) mit folgenden Haupttabellen:
+Die DB‑Tabellen spiegeln die Migrations in `/migrations`:
+- `users` — Accounts, E‑Mail, Hashes, Verifikation
+- `sessions` — Session‑ID, user_id, expires_at
+- `projects` — Projekt‑Metadaten
+- `comments`
+- `subscriptions`
+(Konkret: siehe `/migrations/*.sql`)
 
-1. `users`: Benutzerkonten und Authentifizierungsdaten
-2. `sessions`: Aktive Benutzersitzungen
-3. `projects`: Benutzerprojekte und zugehörige Metadaten
-4. `comments`: Kommentare zu Projekten oder Inhalten
-5. `subscriptions`: Benutzerabonnements und Zahlungsdetails
+### Frontend‑Architektur
+- Islands Approach: statische SSR‑Seiten mit kleinen hydratisierbaren React‑Islands
+- Styling & Utility classes: Tailwind CSS (`src/styles/`)
+- Komponenten‑Standorte: [`src/components/`](src/components:1)
 
-### Frontend-Architektur
-- **Islands Architecture** mit Astro und React
-- **SSR-First Approach**: Server-seitiges Rendering für schnelles Initial Loading
-- **Progressive Enhancement**: Statische Inhalte mit gezielter JavaScript-Interaktivität
-- **Responsive Design** mit Tailwind CSS
-- **Component-Based UI**: Wiederverwendbare UI-Komponenten
+### Security & Observability
+- Rate‑Limiting: in [`src/lib/rate-limiter.ts`](src/lib/rate-limiter.ts:1) (In‑Memory; Persistenzplanung mit D1/KV)
+- Security‑Headers: applied via [`src/lib/security-headers.ts`](src/lib/security-headers.ts:59)
+- Centralized Logging: [`src/server/utils/logger.ts`](src/server/utils/logger.ts:37) + client UI [`src/components/ui/DebugPanel.tsx`](src/components/ui/DebugPanel.tsx:39)
+- SSE/WebSocket hybrid streaming for dev: logs via WebSocket in Astro dev, SSE in Wrangler dev
 
-### Security-Konzepte
-- **JWT-basierte Authentifizierung** mit sicheren HttpOnly-Cookies
-- **Strikte Content-Security-Policy** und Security-Headers
-- **Rate-Limiting** für alle API-Endpunkte
-- **Zentrales Audit-Logging** für sicherheitsrelevante Ereignisse
-- **Input-Validierung** und Whitelist-Filterung für alle API-Responses
+### Development & Deployment
+- Development modes:
+  - Fast UI dev: `npm run dev:astro` → starts Astro dev server (see [`package.json`](package.json:11))
+  - Full Worker dev: `npm run dev` → runs `npm run dev:worker` (see [`package.json`](package.json:6-13))
+  - Worker dev (no build): `npm run dev:worker:nobuild` (see [`package.json`](package.json:10))
+- Builds:
+  - `npm run build` → standard Astro build
+  - `npm run build:worker` → Worker build artifacts (see [`package.json`](package.json:17))
+- Deployment:
+  - Cloudflare Workers via Wrangler / Workers Builds; Cloudflare Pages used for preview/deployment pipelines where configured
 
-### Testing-Strategie
-- **Unit-Tests** für einzelne Funktionen und Utilities
-- **Integrationstests** für API-Endpunkte und Datenbank-Interaktionen
-- **End-to-End-Tests** für vollständige Benutzerflows mit Playwright
-- **Mock-Services** für externe Abhängigkeiten und Datenbank
+## Konkrete Implementationen & Orte
+- Rate‑Limiter: [`src/lib/rate-limiter.ts`](src/lib/rate-limiter.ts:1)
+- Security Headers: [`src/lib/security-headers.ts`](src/lib/security-headers.ts:1)
+- Security Logger: [`src/lib/security-logger.ts`](src/lib/security-logger.ts:1)
+- Central logger + SSE/WebSocket buffer: [`src/server/utils/logger.ts`](src/server/utils/logger.ts:37)
+- i18n utilities: [`src/lib/i18n.ts`](src/lib/i18n.ts:12) & [`src/utils/i18n.ts`](src/utils/i18n.ts:23)
 
-### CI/CD und Deployment
-- **GitHub Actions** für automatisierte Tests
-- **Cloudflare Pages** für Continuous Deployment
-- **Preview-Deployments** für Pull Requests
+## Hinweise
+- Diese Architektur‑Doku wurde an die aktuell in [`package.json`](package.json:1) gelisteten Abhängigkeiten angepasst.
+- Für exakte Versionen und weitere Abhängigkeiten prüfen Sie [`package.json`](package.json:6).
+- Änderungen an Build/Deploy können in `wrangler.toml` und CI‑Konfigurationen erfolgen.
 
-## Features
-
-### Implementierte Kernfunktionen
-- **Benutzerauthentifizierung**: Login, Registrierung, Passwort-Reset
-- **Benutzerprofil-Management**: Profil anzeigen und bearbeiten
-- **Projektmanagement**: Projekte erstellen, anzeigen, bearbeiten und löschen
-- **Dashboard**: Übersichtsseite mit relevanten Benutzerinformationen
-- **Blog/Content-System**: Content-Management und Darstellung
-
-### Sicherheitsfunktionen
-- **Rate-Limiting**: Schutz vor Brute-Force und DoS-Angriffen
-- **Security-Headers**: Standardisierte Headers für alle API-Antworten
-- **Audit-Logging**: Zentrales Protokollieren sicherheitsrelevanter Ereignisse
-- **Input-Validierung**: Strikte Validierung aller Benutzereingaben
-- **Output-Filterung**: Whitelist-basierte Filterung sensibler Daten
-
-### Neu implementierte Features
-- **Verbesserte Authentifizierungssicherheit**: Typisierte und getestete Auth-Module
-- **API-Security-Verbesserungen**: Rate-Limiting, Headers, Logging
-- **Erweiterte Testabdeckung**: Unit-Tests für kritische Komponenten
-- **Konsistente Fehlerbehandlung**: Standardisierte API-Fehlerantworten
+---

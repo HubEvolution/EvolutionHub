@@ -517,4 +517,14 @@
       }
     }
   }
+,
+  "comingSoon": {
+    "title": "Bald verfügbar",
+    "description": "Unsere Pricing-Seite wird gerade überarbeitet. Trage dich in die Warteliste ein, um als Erste informiert zu werden.",
+    "cta": {
+      "primary": "Zur Startseite",
+      "secondary": "Zur Warteliste"
+    },
+    "ariaLabel": "Hinweis Seite in Arbeit"
+  }
 }

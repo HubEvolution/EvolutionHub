@@ -3,12 +3,12 @@
 // Kapselt das Laden der Runtime und sorgt für saubere Lifecycle-Integration
 ---
 
-<script is:inline>
+<script is:inline nonce={Astro.locals.cspNonce}>
   // Minimaler, robust gebundelter Loader über Astro.resolve
   function initializeAnalyticsCoordinator() {
     import(Astro.resolve('@/scripts/analytics-runtime.ts'))
       .then((mod) => {
-        const init = (mod && (mod.default || (mod as any))) as unknown;
+        const init = mod && (mod.default || mod);
         if (typeof init === 'function') {
           init();
           console.log('[AnalyticsCoordinator] ✅ Runtime initialized');

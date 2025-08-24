@@ -4,295 +4,152 @@ Diese Dokumentation beschreibt, wie Sie die lokale Entwicklungsumgebung für Evo
 
 ## Übersicht
 
-Evolution Hub verwendet Cloudflare-Bindings für:
-- **D1**: SQL-Datenbank (`.wrangler/d1/miniflare/databases/evolution-hub-main-local.sqlite`)
-- **R2**: Objektspeicher für Dateien (z.B. Avatare)
-- **KV**: Key-Value-Speicher für Sessions
+Evolution Hub verwendet Cloudflare‑Bindings für:
+- **D1**: SQL‑Datenbank (`.wrangler/d1/miniflare/databases/evolution-hub-main-local.sqlite`)
+- **R2**: Objektspeicher für Dateien (z. B. Avatare)
+- **KV**: Key‑Value‑Speicher für Sessions
 
-Für die lokale Entwicklung können Sie entweder mit lokalen Kopien dieser Ressourcen arbeiten oder direkt auf die Remote-Ressourcen zugreifen.
+Für die lokale Entwicklung können Sie entweder mit lokalen Kopien dieser Ressourcen arbeiten oder direkt auf die Remote‑Ressourcen zugreifen.
 
 ## Schnellstart
 
-Wir haben ein interaktives Menü und ein Onboarding-Skript erstellt, um den Einstieg zu erleichtern:
+Wir haben ein interaktives Menü und ein Onboarding‑Skript erstellt, um den Einstieg zu erleichtern:
 
 ```bash
 # Interaktives Entwicklungsmenü starten
 npm run menu
 
-# ODER: Onboarding-Prozess für neue Entwickler starten
+# ODER: Onboarding‑Prozess für neue Entwickler starten
 npm run onboarding
 ```
 
-Das interaktive Menü bietet jetzt ein Untermenü für lokale Entwicklung mit folgenden Optionen:
-- **UI-Entwicklung**: Startet den Astro Dev-Server
-- **Cloudflare-Entwicklung**: Startet den Wrangler Dev-Server
+Das interaktive Menü bietet ein Untermenü für lokale Entwicklung mit folgenden Optionen:
+- **UI‑Entwicklung**: Startet den Astro Dev‑Server
+- **Cloudflare/Worker‑Entwicklung**: Startet den Wrangler Dev‑Server (vollständige Bindings)
 - **Datenbank zurücksetzen & Migrationen anwenden**: Setzt die lokale Datenbank zurück
 
 ## Einrichtung der lokalen Entwicklungsumgebung
 
 ### 1. Automatische Einrichtung
 
-Wir haben ein Setup-Skript erstellt, das die lokale Entwicklungsumgebung automatisch einrichtet:
+Verwenden Sie das Setup‑Skript:
 
 ```bash
 # Einrichtung der lokalen Entwicklungsumgebung
 npm run setup:local
 
-# Alternativ
-npm run db:setup
+# oder
+npx tsx scripts/setup-local-dev.ts
 ```
 
-Dieses Skript führt folgende Aktionen aus:
-- Erstellt eine lokale D1-Datenbank (falls nicht vorhanden)
-- Führt alle Migrations-Dateien auf ALLE lokalen Datenbanken aus (inkl. Wrangler-spezifische Datenbanken)
-- Erstellt einen lokalen R2-Bucket (falls nicht vorhanden)
-- Erstellt einen lokalen KV-Namespace (falls nicht vorhanden)
-- Erstellt einen Test-Benutzer für die lokale Entwicklung
-
-**Wichtig**: Das Setup-Skript erkennt und aktualisiert automatisch alle Wrangler-Datenbanken in den Verzeichnissen:
-- `.wrangler/d1/miniflare/databases/`
-- `.wrangler/state/v3/d1/miniflare-D1DatabaseObject/`
+Das Script führt u. a. aus:
+- Erstellt eine lokale D1‑Datenbank (falls nicht vorhanden)
+- Führt alle Migrationen aus (`/migrations`)
+- Erstellt lokale R2‑Buckets und KV‑Namespaces (preview IDs)
+- Erstellt einen Testbenutzer (E‑Mail: `test@example.com`, Passwort: `password123`)
+- Liest Konfigurationen aus [`wrangler.toml`](wrangler.toml:1) (DB‑/R2‑Bindings, preview IDs)
 
 ### 2. Manuelle Einrichtung
 
-Falls Sie die Umgebung manuell einrichten möchten:
-
 ```bash
-# D1-Datenbank erstellen
+# Wrangler CLI installieren (falls nötig)
+npm install -g wrangler
+
+# Lokale D1‑Datenbank erstellen (Wrangler)
 npx wrangler d1 create evolution-hub-main-local
 
-# Migrations-Dateien ausführen
+# Migrationen anwenden (Beispiel)
 npx wrangler d1 execute evolution-hub-main-local --file=./migrations/0000_initial_schema.sql
-npx wrangler d1 execute evolution-hub-main-local --file=./migrations/0001_add_sessions_table.sql
-# ... weitere Migrations-Dateien
-
-# R2-Bucket erstellen
-npx wrangler r2 bucket create evolution-hub-avatars-local
-
-# KV-Namespace erstellen
-npx wrangler kv namespace create SESSION_LOCAL
 ```
 
-## Lokale Entwicklung
+## Entwicklungs‑Modi (empfohlen)
 
-### Entwicklungs-Modi
+Es gibt zwei gebräuchliche Modi:
 
-Evolution Hub bietet zwei verschiedene lokale Entwicklungs-Modi:
+1. UI‑Entwicklung (Schnell, Hot‑Reload)
+   - Nutzt den lokalen Astro‑Dev‑Server
+   - Kommando: `npm run dev:astro` (siehe [`package.json`](package.json:11))
+   - Ideal für Komponenten‑ und Styling‑Arbeit
 
-1. **Astro Dev-Server** (`npm run dev`): 
-   - Schnelle UI-Entwicklung mit Hot-Reload
-   - Keine vollständige Cloudflare-Bindings-Integration
-   - Ideal für Frontend-Entwicklung
-
-2. **Wrangler Dev-Server** (`npm run dev:wrangler`): 
-   - Vollständige Cloudflare-Integration mit lokalen Bindings
-   - Langsamer als der Astro Dev-Server
-   - Ideal für Backend-Entwicklung und API-Tests
+2. Full Worker / Wrangler‑Entwicklung (vollständige Cloudflare‑Bindings)
+   - Nutzt Cloudflare Wrangler (lokale Bindings, D1/R2/KV)
+   - Empfohlenes Kommando: `npm run dev` (dies führt `npm run dev:worker` aus — siehe [`package.json`](package.json:6))
+   - Wenn Sie den Build‑Schritt überspringen möchten (schneller Start), verwenden Sie: `npm run dev:worker:nobuild` (führt direkt `wrangler dev` aus)
+   - Hinweis: `npm run dev` führt standardmäßig einen Worker‑Build aus (bei Bedarf mit `npm run build:worker`) und startet dann Wrangler Dev.
 
 ### Mit lokalen Ressourcen
 
-Um mit lokalen Kopien der Cloudflare-Bindings zu entwickeln:
-
 ```bash
-# Astro Dev-Server (für UI-Entwicklung)
-npm run dev
+# Astro Dev (UI)
+npm run dev:astro
 
-# ODER: Wrangler Dev-Server (für Backend-Entwicklung)
-npm run dev:wrangler
+# ODER: Worker Dev (vollständige Bindings)
+npm run dev   # mapped to dev:worker in package.json
+# oder (no build)
+npm run dev:worker:nobuild
 ```
 
-Diese Befehle starten den lokalen Entwicklungsserver mit den lokalen Ressourcen:
-- Lokale D1-Datenbank
-- Lokaler R2-Bucket
-- Lokaler KV-Namespace
+Diese Befehle starten Server mit lokalen Ressourcen:
+- Lokale D1‑Datenbank
+- Lokaler R2‑Bucket
+- Lokaler KV‑Namespace
 
-### Mit Remote-Ressourcen
+### Mit Remote‑Ressourcen
 
-Um mit den in Cloudflare gehosteten Ressourcen zu entwickeln:
+Wenn Sie direkt gegen Cloudflare‑Remote‑Ressourcen entwickeln, verwenden Sie Wrangler mit dem `--remote`‑Flag:
 
 ```bash
-npm run dev:remote
+# Direkt mit Wrangler (Remote)
+wrangler dev --remote
 ```
 
-Hinweis: Aktuell spiegelt `npm run dev:remote` das Verhalten von `npm run dev:wrangler` und verwendet lokale Bindings. Die Nutzung echter Remote-Ressourcen wird in einer späteren Iteration aktiviert und hier dokumentiert.
+Hinweis: Es existiert in `package.json` derzeit kein `dev:remote`‑Script. Verwenden Sie daher `wrangler dev --remote` oder passen Sie Ihr eigenes Skript an.
 
-## Shell-Aliase für schnellen Zugriff
-
-Für einen noch schnelleren Zugriff auf die wichtigsten Befehle können Sie die bereitgestellten Shell-Aliase verwenden:
+## Shell‑Aliase für schnellen Zugriff
 
 ```bash
-# Fügen Sie diese Zeile zu Ihrer .bashrc oder .zshrc hinzu
 source "/pfad/zu/evolution-hub/scripts/shell-aliases.sh"
-
-# Danach können Sie folgende Befehle verwenden:
-ehub                # Interaktives Menü starten
-ehub-dev            # Lokalen Entwicklungsserver starten
-ehub-remote         # Remote-Entwicklungsserver starten
+ehub                # Interaktives Menü (menu)
+ehub-dev            # Lokalen Entwicklungsserver starten (Alias)
+ehub-remote         # Remote‑Entwicklungsserver starten (Alias → wrangler --remote)
 ehub-setup          # Lokale Umgebung einrichten
-ehub-onboarding     # Onboarding-Prozess starten
 ```
 
-## Fehlerbehebung
+## Fehlerbehebung (häufig)
 
 ### Problem: "no such table: sessions"
+1. Führen Sie `npm run setup:local` aus (oder `npx tsx scripts/setup-local-dev.ts`)
+2. Prüfen Sie das Schema:
+   ```bash
+   sqlite3 .wrangler/d1/miniflare/databases/evolution-hub-main-local.sqlite ".tables"
+   ```
 
-Wenn dieser Fehler auftritt:
-1. Führe `npm run setup:local` aus, um sicherzustellen, dass alle Migrationen auf ALLE Datenbanken angewendet wurden
-2. Überprüfe, ob die Tabelle existiert: `sqlite3 .wrangler/d1/miniflare/databases/evolution-hub-main-local.sqlite ".tables"`
+### Problem: UI ist im Wrangler‑Modus fehlerhaft / ungestylt
+1. Bauen Sie den Worker‑Build neu (falls benötigt):
+   ```bash
+   npm run build:worker
+   ```
+2. Starten Sie Wrangler Dev (kein zusätzlicher Build):
+   ```bash
+   npm run dev:worker:nobuild
+   ```
 
-### Problem: Ungestylt/fehlerhaftes UI im Wrangler-Modus
-
-Wenn das UI im Wrangler-Modus nicht korrekt angezeigt wird:
-1. Führe `npm run build` aus, um das Projekt neu zu bauen
-2. Starte den Wrangler-Server neu: `npm run dev:wrangler`
-
-### Problem: Datenbank-Fehler
-
-Bei Problemen mit der Datenbank:
-1. Setze die Datenbank zurück: `npm run setup:local`
-2. Überprüfe die Migrationen auf Syntaxfehler
+### Problem: Datenbank‑Fehler / Migration nicht angewendet
+1. Setzen Sie die DB zurück und führen Sie das Setup erneut:
+   ```bash
+   rm .wrangler/d1/miniflare/databases/evolution-hub-main-local.sqlite
+   npm run setup:local
+   ```
 
 ## Konfiguration
 
-Die Konfiguration für die Cloudflare-Bindings befindet sich in der `wrangler.toml`-Datei:
+Die Cloudflare‑Bindings und Preview‑IDs werden in [`wrangler.toml`](wrangler.toml:1) konfiguriert. Das Setup‑Script liest diese Datei zur Ermittlung der `preview_database_id`, `preview_bucket_name` und `preview_id` für lokale Ressourcen.
 
-```toml
-# D1 Datenbank-Binding
-[[d1_databases]]
-binding = "DB"
-database_name = "evolution-hub-main"
-database_id = "cadc96d1-712a-4873-8f3d-da87a936f3be"
-preview_database_id = "evolution-hub-main-local"
+## Hinweise für CI / Playwright
 
-# R2 Bucket-Binding
-[[r2_buckets]]
-binding = "R2_AVATARS"
-bucket_name = "evolution-hub-avatars"
-preview_bucket_name = "evolution-hub-avatars-local"
-
-# KV Namespace-Binding
-[[kv_namespaces]]
-binding = "SESSION"
-id = "0a9b6b94e5664025a223d4d15ae13cd3"
-preview_id = "SESSION_LOCAL"
-
-# Umgebungsvariablen
-[vars]
-ENVIRONMENT = "development"
-```
-
-- Die `binding`-Werte müssen mit dem Code übereinstimmen (z.B. `context.locals.runtime.env.DB`)
-- Die `preview_*`-Werte werden für die lokale Entwicklung verwendet
-- Die anderen Werte werden für die Produktionsumgebung verwendet
-
-## Zugriff auf Bindings im Code
-
-### D1-Datenbank
-
-```typescript
-// In API-Routen
-export async function GET({ locals }) {
-  const db = locals.runtime.env.DB;
-  const result = await db.prepare("SELECT * FROM users").all();
-  return new Response(JSON.stringify(result));
-}
-```
-
-### R2-Bucket
-
-```typescript
-// In API-Routen
-export async function POST({ locals, request }) {
-  const formData = await request.formData();
-  const file = formData.get('avatar');
-  
-  if (file instanceof File) {
-    const key = `avatars/${crypto.randomUUID()}`;
-    await locals.runtime.env.R2_AVATARS.put(key, await file.arrayBuffer());
-    return new Response(JSON.stringify({ key }));
-  }
-}
-```
-
-### KV-Namespace
-
-```typescript
-// In API-Routen
-export async function GET({ locals, cookies }) {
-  const sessionId = cookies.get('sessionId');
-  if (sessionId) {
-    const session = await locals.runtime.env.SESSION.get(sessionId);
-    return new Response(session);
-  }
-}
-```
-
-### Umgebungserkennung
-
-Sie können das `environment.ts`-Modul verwenden, um die aktuelle Umgebung zu erkennen:
-
-```typescript
-import { isLocalEnvironment, getEnvironmentDescription } from '../lib/env/environment';
-
-export async function GET({ locals }) {
-  const env = locals.runtime.env;
-  const isLocal = isLocalEnvironment(env);
-  const envDescription = getEnvironmentDescription(env);
-  
-  return new Response(`Umgebung: ${envDescription}, Lokal: ${isLocal}`);
-}
-```
-
-## Umgebungsvariablen
-
-Die Umgebungsvariablen können in der `.dev.vars`-Datei für die lokale Entwicklung definiert werden:
-
-```
-AUTH_SECRET=lokales-entwicklungsgeheimnis
-AUTH_TRUST_HOST=false
-```
-
-In der Produktionsumgebung werden die Umgebungsvariablen in der Cloudflare-UI oder über GitHub Actions definiert.
+- Die Playwright‑Konfiguration verwendet standardmäßig `use.baseURL` und `webServer.command` für das Starten eines lokalen Servers; stellen Sie sicher, dass `npm run dev:astro` oder `npm run dev` entsprechend Ihrer Test‑Konfiguration ausgeführt werden kann.
 
 ## Weitere Dokumentation
 
-- **Cheat-Sheet**: Eine Übersicht aller wichtigen Befehle finden Sie in der [Cheat-Sheet-Dokumentation](./cheat-sheet.md).
-- **Datenbankschema**: Die Dokumentation des Datenbankschemas finden Sie in der [DB-Schema-Dokumentation](./db_schema_update.md).
-
-## Fehlerbehebung
-
-### Problem: Fehler beim Ausführen der TypeScript-Skripte
-
-```
-Typescript-Fehler: Unknown file extension ".ts"
-```
-
-Lösung: Stellen Sie sicher, dass `tsx` installiert ist:
-
-```bash
-npm install -D tsx
-```
-
-### Problem: Lokale Datenbank wird nicht gefunden
-
-```
-Error: D1 database "evolution-hub-main-local" not found
-```
-
-Lösung: Führen Sie das Setup-Skript aus:
-
-```bash
-npm run setup:local
-```
-
-### Problem: Fehler beim Zugriff auf R2-Bucket oder KV-Namespace
-
-Lösung: Stellen Sie sicher, dass die IDs in `wrangler.toml` korrekt sind und die Ressourcen existieren.
-
-### Problem: Änderungen an der Datenbank werden nicht übernommen
-
-Lösung: Führen Sie die Migrations-Dateien erneut aus:
-
-```bash
-npx wrangler d1 execute evolution-hub-main-local --file=./migrations/your_migration.sql
-```
+- Cheat‑Sheet: [`docs/cheat-sheet.md`](docs/cheat-sheet.md:1)
+- DB‑Migrations: [`docs/db_schema_update.md`](docs/db_schema_update.md:1)
