@@ -1,56 +1,210 @@
 ---
 // VerifyEmailCoordinator.astro
-// Lädt das TS-Clientmodul dynamisch und verwaltet Init/Cleanup
-const cspNonce = Astro.locals.cspNonce;
+// Importfreie Inline-Implementierung; exponiert Cleanup global
 ---
-<script is:inline nonce={cspNonce} define:vars={{ cspNonce }}>
+<script is:inline nonce={Astro.locals.cspNonce}>
   (function () {
-    let cleanupFn = null;
+    console.log('[VerifyEmailCoordinator] loading');
 
-    async function initialize() {
+    var cleanupFn = null;
+    var state = {
+      isResending: false,
+      countdownInterval: null,
+      autoHideTimeout: null,
+      abortCtrl: null,
+      lastFocus: null,
+      defaultLabel: ''
+    };
+
+    function initialize() {
       try {
-        const mod = await import(Astro.resolve('@/scripts/verify-email-client.ts'));
-        const init = (mod && (mod.default || mod)) as unknown as (() => () => void) | undefined;
-        if (typeof init === 'function') {
-          // Vorheriges Cleanup, falls vorhanden
-          if (cleanupFn && typeof cleanupFn === 'function') {
-            try { cleanupFn(); } catch {}
-          }
-          cleanupFn = init();
-          // Global verfügbar machen (Debug/Manuelles Cleanup)
-          try { window.verifyEmailCleanup = cleanupFn; } catch {}
+        var resendBtn = document.getElementById('resend-btn');
+        var errorMessage = document.getElementById('error-message');
+        var successMessage = document.getElementById('success-message');
+        var emailInput = document.querySelector('input[name="email"]');
+
+        if (!resendBtn) {
+          console.warn('[VerifyEmailCoordinator] #resend-btn not found, nothing to init');
+          try { window['verifyEmailCleanup'] = function () {}; } catch (_) {}
+          return;
         }
+
+        state.defaultLabel = resendBtn.textContent || '📧 E-Mail erneut senden';
+
+        var ds = resendBtn.dataset || {};
+        var msgSuccess = ds.msgSuccess || 'Email sent successfully.';
+        var msgError = ds.msgError || 'Failed to send email. Please try again later.';
+        var msgMissingEmail = ds.msgMissingEmail || 'Email address unavailable. Please register again.';
+        var msgUnexpected = ds.msgUnexpected || 'An unexpected error occurred. Please try again later.';
+        var labelSending = ds.labelSending || '⏳ Sending...';
+        var labelCountdownTemplate = ds.labelCountdown || '⏳ Resend ({s}s)';
+
+        function hideMessages() {
+          if (errorMessage) errorMessage.classList.add('hidden');
+          if (successMessage) successMessage.classList.add('hidden');
+        }
+
+        function autoHide() {
+          hideMessages();
+          if (state.lastFocus === 'error' && document.activeElement === errorMessage) {
+            resendBtn.focus();
+          } else if (state.lastFocus === 'success' && document.activeElement === successMessage) {
+            resendBtn.focus();
+          }
+          state.lastFocus = null;
+        }
+
+        function showError(message) {
+          if (errorMessage) {
+            errorMessage.textContent = message;
+            errorMessage.classList.remove('hidden');
+            state.lastFocus = 'error';
+            errorMessage.focus();
+          }
+        }
+
+        function showSuccess(message) {
+          if (successMessage) {
+            successMessage.textContent = message;
+            successMessage.classList.remove('hidden');
+            state.lastFocus = 'success';
+            successMessage.focus();
+          }
+        }
+
+        function setBusy(busy, labelWhenBusy) {
+          state.isResending = busy;
+          resendBtn.disabled = busy;
+          resendBtn.setAttribute('aria-busy', String(busy));
+          resendBtn.setAttribute('aria-disabled', String(busy));
+          resendBtn.textContent = busy ? (labelWhenBusy || labelSending) : state.defaultLabel;
+        }
+
+        function clearCountdown() {
+          if (state.countdownInterval != null) {
+            clearInterval(state.countdownInterval);
+            state.countdownInterval = null;
+          }
+        }
+
+        function startCountdown(seconds) {
+          var remaining = seconds;
+          setBusy(true, labelCountdownTemplate.replace('{s}', String(remaining)));
+          clearCountdown();
+          state.countdownInterval = window.setInterval(function () {
+            remaining -= 1;
+            if (remaining <= 0) {
+              clearCountdown();
+              setBusy(false);
+              return;
+            }
+            resendBtn.textContent = labelCountdownTemplate.replace('{s}', String(remaining));
+          }, 1000);
+        }
+
+        function resetButton() {
+          clearCountdown();
+          setBusy(false);
+        }
+
+        function onClick() {
+          if (state.isResending) return;
+          var email = (emailInput && emailInput.value) || '';
+          if (!email) {
+            showError(msgMissingEmail);
+            return;
+          }
+
+          hideMessages();
+          setBusy(true, labelSending);
+
+          try {
+            if (state.abortCtrl && typeof state.abortCtrl.abort === 'function') {
+              try { state.abortCtrl.abort(); } catch (_) {}
+            }
+            state.abortCtrl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+
+            var fetchOptions = {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email: email })
+            };
+            if (state.abortCtrl) fetchOptions.signal = state.abortCtrl.signal;
+
+            fetch('/api/auth/resend-verification', fetchOptions)
+              .then(function (response) {
+                return response
+                  .json()
+                  .catch(function () { return {}; })
+                  .then(function (data) { return { response: response, data: data || {} }; });
+              })
+              .then(function (pair) {
+                var response = pair.response; var data = pair.data;
+                if (response.ok && data && data.success) {
+                  showSuccess(msgSuccess);
+                  startCountdown(60);
+                } else {
+                  showError((data && data.message) || msgError);
+                  resetButton();
+                }
+              })
+              .catch(function (err) {
+                if (err && err.name === 'AbortError') return;
+                console.error('[VerifyEmailCoordinator] resend error:', err);
+                showError(msgUnexpected);
+                resetButton();
+              });
+          } catch (e) {
+            console.error('[VerifyEmailCoordinator] click handler error:', e);
+            showError(msgUnexpected);
+            resetButton();
+          }
+        }
+
+        resendBtn.addEventListener('click', onClick);
+        hideMessages();
+        if (state.autoHideTimeout != null) { clearTimeout(state.autoHideTimeout); }
+        state.autoHideTimeout = window.setTimeout(autoHide, 10000);
+
+        cleanupFn = function () {
+          try { resendBtn.removeEventListener('click', onClick); } catch (_) {}
+          if (state.autoHideTimeout != null) { clearTimeout(state.autoHideTimeout); state.autoHideTimeout = null; }
+          clearCountdown();
+          if (state.abortCtrl && typeof state.abortCtrl.abort === 'function') { try { state.abortCtrl.abort(); } catch (_) {} }
+          resendBtn.textContent = state.defaultLabel;
+          resendBtn.disabled = false;
+          resendBtn.setAttribute('aria-busy', 'false');
+          resendBtn.setAttribute('aria-disabled', 'false');
+        };
+
+        try { window['verifyEmailCleanup'] = cleanupFn; } catch (_) {}
+        console.log('[VerifyEmailCoordinator] initialized');
       } catch (e) {
-        console.error('[VerifyEmailCoordinator] Failed to initialize:', e);
+        console.error('[VerifyEmailCoordinator] init error:', e);
       }
     }
 
     function cleanup() {
-      if (cleanupFn && typeof cleanupFn === 'function') {
-        try { cleanupFn(); } catch {}
+      if (typeof cleanupFn === 'function') {
+        try { cleanupFn(); } catch (e) {}
       }
       cleanupFn = null;
     }
 
-    // Init, wenn DOM bereit
     if (document.readyState !== 'loading') {
       initialize();
     } else {
       document.addEventListener('DOMContentLoaded', initialize, { once: true });
     }
 
-    // Re-Init bei Astro Page Transitions
-    document.addEventListener('astro:page-load', () => {
+    document.addEventListener('astro:page-load', function () {
       cleanup();
       initialize();
     });
 
-    // Cleanup bei Unload
-    window.addEventListener('beforeunload', () => {
+    window.addEventListener('beforeunload', function () {
       cleanup();
     });
-
-    console.log('[VerifyEmailCoordinator] loaded');
   })();
 </script>
 

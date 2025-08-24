@@ -30,5 +30,9 @@ declare namespace App {
                 ENVIRONMENT?: string;
             };
         };
+        /**
+         * CSP Nonce, vom Server/Adapter gesetzt. Optional, damit Dev/Tests ohne CSP nicht brechen.
+         */
+        cspNonce?: string;
     }
 }

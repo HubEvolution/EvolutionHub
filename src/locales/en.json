@@ -84,6 +84,25 @@
         ]
       }
     },
+    "verifyEmail": {
+      "title": "Check your email",
+      "subtitle": "We've sent you a confirmation email",
+      "emailSentToLabel": "Email was sent to:",
+      "instructionClick": "Click the confirmation link in the email",
+      "linkValidity": "The link is valid for 24 hours",
+      "noEmailTip": "Didn't receive an email? Check your spam folder",
+      "backToRegister": "← Back to registration",
+      "supportLine": "Problems? Contact us at",
+      "resend": {
+        "btnDefault": "📧 Resend email",
+        "success": "✅ Verification email re-sent! Check your inbox.",
+        "error": "Failed to send the email. Please try again later.",
+        "missingEmail": "Email address unavailable. Please register again.",
+        "sending": "⏳ Sending...",
+        "countdown": "⏳ Resend ({s}s)",
+        "unexpected": "An unexpected error occurred. Please try again later."
+      }
+    },
     "welcome": {
       "title": "",
       "subtitle": "",
