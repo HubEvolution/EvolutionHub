@@ -23,7 +23,7 @@ Das System bietet drei vorkonfigurierte Limiter für verschiedene API-Typen:
    - **Anwendungsbereich:** Login, Registrierung, Passwort vergessen, Passwort zurücksetzen
 
 3. **sensitiveActionLimiter**
-   - **Limit:** 5 Anfragen pro Minute
+   - **Limit:** 5 Anfragen pro Stunde
    - **Verwendung:** Besonders sensible Aktionen
    - **Anwendungsbereich:** Profiländerungen, Passwortänderungen, Projekt-Erstellung/-Löschung
 

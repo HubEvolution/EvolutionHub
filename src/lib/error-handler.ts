@@ -16,7 +16,7 @@ import { getPathLocale, localizePath } from '@/lib/locale-path';
 export const errorCodeMap = {
   [ServiceErrorType.NOT_FOUND]: 'NotFound',
   [ServiceErrorType.VALIDATION]: 'InvalidInput',
-  [ServiceErrorType.AUTHENTICATION]: 'AuthFailed',
+  [ServiceErrorType.AUTHENTICATION]: 'InvalidCredentials',
   [ServiceErrorType.AUTHORIZATION]: 'Forbidden',
   [ServiceErrorType.DATABASE]: 'ServerError',
   [ServiceErrorType.UNKNOWN]: 'ServerError',
@@ -122,13 +122,11 @@ export function handleAuthError(
   
   // Spezialfall: Unverifizierte E-Mail soll zur Verifizierungsseite weiterleiten
   if (error instanceof ServiceError && error.details?.reason === 'email_not_verified') {
-    const emailParam = error.details?.email && typeof error.details.email === 'string'
-      ? { email: error.details.email }
-      : {};
-    const query = new URLSearchParams({
-      ...emailParam,
-      error: 'EmailNotVerified'
-    }).toString();
+    const params: Record<string, string> = { error: 'EmailNotVerified' };
+    if (typeof error.details?.email === 'string') {
+      params.email = error.details.email;
+    }
+    const query = new URLSearchParams(params).toString();
     // Locale aus baseUrl ableiten und Verifizierungs-URL entsprechend lokalisieren
     const baseLocale = getPathLocale(baseUrl);
     const verifyPath = baseLocale ? localizePath(baseLocale, '/verify-email') : '/verify-email';

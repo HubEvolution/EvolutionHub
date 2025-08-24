@@ -129,13 +129,13 @@ npm run menu
 #### Astro Dev-Server (für UI-Entwicklung)
 
 ```bash
-npm run dev
+npm run dev:astro
 ```
 
 #### Wrangler Dev-Server (für Backend-Entwicklung)
 
 ```bash
-npm run dev:wrangler
+npm run dev:worker
 ```
 
 #### Remote-Entwicklung (mit Cloudflare-Ressourcen)

@@ -201,7 +201,7 @@ describe('Login API Tests (Service-Layer)', () => {
     const response = await POST(context as any);
 
     expect(response.status).toBe(302);
-    expect(response.headers.get('Location')).toBe('/en/login?error=AuthFailed');
+    expect(response.headers.get('Location')).toBe('/en/login?error=InvalidCredentials');
   });
 
   it('sollte bei unverifizierter E-Mail zur Verifizierungsseite umleiten', async () => {
@@ -217,7 +217,12 @@ describe('Login API Tests (Service-Layer)', () => {
     const response = await POST(context as any);
 
     expect(response.status).toBe(302);
-    expect(response.headers.get('Location')).toBe('/en/verify-email?email=user%40example.com&error=EmailNotVerified');
+    const location = response.headers.get('Location') || '';
+    // Query-Parameter unabhängig von der Reihenfolge prüfen
+    expect(location.startsWith('/en/verify-email?')).toBe(true);
+    // Beide Parameter müssen vorhanden sein, Reihenfolge egal
+    expect(location.includes('error=EmailNotVerified')).toBe(true);
+    expect(location.includes('email=user%40example.com')).toBe(true);
   });
 
   it('sollte den Benutzer erfolgreich anmelden (ohne RememberMe) und Cookie korrekt setzen', async () => {

@@ -48,7 +48,7 @@ Ein flexibles Rate-Limiting-System schützt die API vor Brute-Force- und DoS-Ang
 - **Konfigurierbare Limiter**:
   - `standardApiLimiter`: 50 Anfragen/Minute für normale API-Endpunkte
   - `authLimiter`: 10 Anfragen/Minute für Authentifizierungs-Endpunkte
-  - `sensitiveActionLimiter`: 5 Anfragen/Minute für besonders sensible Aktionen
+  - `sensitiveActionLimiter`: 5 Anfragen/Stunde für besonders sensible Aktionen
  
 #### Verwendung im Code
  

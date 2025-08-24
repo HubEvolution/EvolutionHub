@@ -73,7 +73,9 @@ async function submitForm(path: string, formData: Record<string, string>): Promi
   const response = await fetch(`${TEST_URL}${path}`, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/x-www-form-urlencoded'
+      'Content-Type': 'application/x-www-form-urlencoded',
+      // Satisfy CSRF protection which validates Origin header
+      'Origin': TEST_URL
     },
     body: body.toString(),
     redirect: 'manual'
@@ -148,10 +150,17 @@ describe('Auth-Integration', () => {
     expect(status).toBe(200);
     expect(contentType).toContain('text/html');
     expect(text).toContain('<h1');
-    expect(text).toContain('Login');
+    // Überschrift kann je nach Locale variieren – akzeptiere DE/EN Varianten
+    const loginHeadingCandidates = [
+      'Login',
+      'Anmeldung',
+      'Anmelden',
+      'Einloggen'
+    ];
+    expect(loginHeadingCandidates.some(h => text.includes(h))).toBe(true);
     expect(text).toContain('<form');
     expect(text).toContain('action="/api/auth/login"');
-    expect(text).toContain('method="post"');
+    expect(text.toLowerCase()).toContain('method="post"');
     expect(text).toContain('name="email"');
     expect(text).toContain('name="password"');
     expect(text).toContain('type="submit"');
