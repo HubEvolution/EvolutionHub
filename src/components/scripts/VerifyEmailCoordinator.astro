@@ -1,0 +1,58 @@
+---
+// VerifyEmailCoordinator.astro
+// Lädt das TS-Clientmodul dynamisch und verwaltet Init/Cleanup
+const cspNonce = Astro.locals.cspNonce;
+---
+<script is:inline nonce={cspNonce} define:vars={{ cspNonce }}>
+  (function () {
+    let cleanupFn = null;
+
+    async function initialize() {
+      try {
+        const mod = await import(Astro.resolve('@/scripts/verify-email-client.ts'));
+        const init = (mod && (mod.default || mod)) as unknown as (() => () => void) | undefined;
+        if (typeof init === 'function') {
+          // Vorheriges Cleanup, falls vorhanden
+          if (cleanupFn && typeof cleanupFn === 'function') {
+            try { cleanupFn(); } catch {}
+          }
+          cleanupFn = init();
+          // Global verfügbar machen (Debug/Manuelles Cleanup)
+          try { window.verifyEmailCleanup = cleanupFn; } catch {}
+        }
+      } catch (e) {
+        console.error('[VerifyEmailCoordinator] Failed to initialize:', e);
+      }
+    }
+
+    function cleanup() {
+      if (cleanupFn && typeof cleanupFn === 'function') {
+        try { cleanupFn(); } catch {}
+      }
+      cleanupFn = null;
+    }
+
+    // Init, wenn DOM bereit
+    if (document.readyState !== 'loading') {
+      initialize();
+    } else {
+      document.addEventListener('DOMContentLoaded', initialize, { once: true });
+    }
+
+    // Re-Init bei Astro Page Transitions
+    document.addEventListener('astro:page-load', () => {
+      cleanup();
+      initialize();
+    });
+
+    // Cleanup bei Unload
+    window.addEventListener('beforeunload', () => {
+      cleanup();
+    });
+
+    console.log('[VerifyEmailCoordinator] loaded');
+  })();
+</script>
+
+<!-- Dummy-Knoten, damit Astro den Script-Block injiziert (Pattern aus HeaderScroll/AOS) -->
+<div style="display:none" aria-hidden="true"></div>

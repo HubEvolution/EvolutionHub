@@ -2,6 +2,7 @@
 import AuthLayout from '@/layouts/AuthLayout.astro';
 import { getLocale } from '@/lib/i18n';
 import { localizePath } from '@/lib/locale-path';
+import VerifyEmailCoordinator from '@/components/scripts/VerifyEmailCoordinator.astro';
 
 // URL-Parameter auslesen
 const url = Astro.url;
@@ -121,101 +122,5 @@ const maskedEmail = maskEmail(email);
       </a>
     </p>
   </div>
+  <VerifyEmailCoordinator />
 </AuthLayout>
-
-<script>
-  const resendBtn = document.getElementById('resend-btn');
-  const errorMessage = document.getElementById('error-message');
-  const successMessage = document.getElementById('success-message');
-  let isResending = false;
-
-  // Resend Email Function
-  async function resendVerificationEmail() {
-    if (isResending) return;
-    
-    const email = document.querySelector('input[name="email"]')?.value;
-    if (!email) {
-      showError('E-Mail-Adresse nicht verfügbar. Bitte registrieren Sie sich erneut.');
-      return;
-    }
-
-    isResending = true;
-    resendBtn.disabled = true;
-    resendBtn.textContent = '⏳ Wird gesendet...';
-    
-    hideMessages();
-
-    try {
-      const response = await fetch('/api/auth/resend-verification', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ email })
-      });
-
-      const result = await response.json();
-
-      if (response.ok && result.success) {
-        showSuccess('✅ E-Mail erfolgreich erneut gesendet! Prüfen Sie Ihr Postfach.');
-        
-        // Countdown für erneutes Senden
-        let countdown = 60;
-        const interval = setInterval(() => {
-          resendBtn.textContent = `⏳ Erneut senden (${countdown}s)`;
-          countdown--;
-          
-          if (countdown <= 0) {
-            clearInterval(interval);
-            resendBtn.textContent = '📧 E-Mail erneut senden';
-            resendBtn.disabled = false;
-            isResending = false;
-          }
-        }, 1000);
-        
-      } else {
-        showError(result.message || 'Fehler beim Senden der E-Mail. Bitte versuchen Sie es später erneut.');
-        resetResendButton();
-      }
-    } catch (error) {
-      console.error('Resend verification error:', error);
-      showError('Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.');
-      resetResendButton();
-    }
-  }
-
-  function resetResendButton() {
-    resendBtn.textContent = '📧 E-Mail erneut senden';
-    resendBtn.disabled = false;
-    isResending = false;
-  }
-
-  function showError(message) {
-    if (errorMessage) {
-      errorMessage.textContent = message;
-      errorMessage.classList.remove('hidden');
-    }
-  }
-
-  function showSuccess(message) {
-    if (successMessage) {
-      successMessage.textContent = message;
-      successMessage.classList.remove('hidden');
-    }
-  }
-
-  function hideMessages() {
-    errorMessage?.classList.add('hidden');
-    successMessage?.classList.add('hidden');
-  }
-
-  // Event Listeners
-  if (resendBtn) {
-    resendBtn.addEventListener('click', resendVerificationEmail);
-  }
-
-  // Auto-hide messages after 10 seconds
-  setTimeout(() => {
-    hideMessages();
-  }, 10000);
-</script>
