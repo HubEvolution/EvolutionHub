@@ -139,6 +139,7 @@ const structuredData = {
     '@id': canonicalUrl.toString()
   }
 };
+// Blog-Enhancements werden importfrei inline initialisiert (kein Astro.resolve)
 ---
 
 <BaseLayout
@@ -206,45 +207,70 @@ const structuredData = {
     </div>
   </div>
   <script is:inline nonce={Astro.locals.cspNonce}>
-    // CSP-sicherer Bootstrap-Loader für Blog-Enhancements (strict-dynamic kompatibel)
-    function initializeBlogPostEnhancements() {
-      import(Astro.resolve('@/scripts/blog-post-enhancements.ts'))
-        .then((mod) => {
-          try {
-            if (mod && typeof mod.cleanup === 'function') {
-              // Für Lifecycle-Cleanup bei Navigationswechseln verfügbar machen
-              window['blogPostEnhancementsCleanup'] = mod.cleanup;
-            }
-            if (mod && typeof mod.init === 'function') {
-              mod.init();
-            } else if (mod && typeof mod.default === 'function') {
-              // Fallback, falls default export genutzt wird
-              mod.default();
-            } else {
-              console.warn('[BlogPostEnhancements] Kein init() Export gefunden');
-            }
-          } catch (err) {
-            console.error('[BlogPostEnhancements] Fehler bei Initialisierung:', err);
-          }
-        })
-        .catch((err) => {
-          console.error('[BlogPostEnhancements] Modul konnte nicht geladen werden:', err);
-        });
-    }
+    (function () {
+      'use strict';
 
-    if (document.readyState !== 'loading') {
-      initializeBlogPostEnhancements();
-    } else {
-      document.addEventListener('DOMContentLoaded', initializeBlogPostEnhancements);
-    }
+      // Idempotenz-Flag
+      let initialized = false;
 
-    // Cleanup bei Seitenwechsel
-    window.addEventListener('beforeunload', () => {
-      try {
-        if (typeof window['blogPostEnhancementsCleanup'] === 'function') {
-          window['blogPostEnhancementsCleanup']();
-        }
-      } catch { /* noop */ }
-    });
+      function enhanceLazyImages() {
+        try {
+          const images = document.querySelectorAll('article img:not([loading])');
+          images.forEach((img) => {
+            if ('loading' in img) {
+              img.loading = 'lazy';
+            }
+            img.setAttribute('loading', 'lazy');
+          });
+        } catch (err) { try { console.warn('[BlogEnhancements] enhanceLazyImages failed', err); } catch (_) {} }
+      }
+
+      function enhanceFootnotes() {
+        try {
+          const footnotes = document.querySelectorAll('a[href^="#fn"], a[href^="#ref"]');
+          footnotes.forEach((a) => {
+            if (a.hasAttribute('data-footnote-enhanced')) return;
+            a.setAttribute('data-footnote-enhanced', 'true');
+            a.setAttribute('data-tooltip', 'Zum entsprechenden Absatz springen');
+            a.classList.add('underline', 'decoration-dotted', 'decoration-gray-400', 'underline-offset-4');
+          });
+        } catch (err) { try { console.warn('[BlogEnhancements] enhanceFootnotes failed', err); } catch (_) {} }
+      }
+
+      function init() {
+        if (initialized) return;
+        if (typeof document === 'undefined') return;
+        enhanceLazyImages();
+        enhanceFootnotes();
+        initialized = true;
+      }
+
+      function cleanup() {
+        if (!initialized) return;
+        initialized = false;
+      }
+
+      // Global für externes Cleanup verfügbar machen
+      window.blogPostEnhancementsCleanup = cleanup;
+
+      // DOM ready
+      const start = () => init();
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', start);
+      } else {
+        start();
+      }
+
+      // SPA-Navigation über Astro Events
+      document.addEventListener('astro:page-load', () => {
+        initialized = false;
+        init();
+      });
+
+      // Cleanup vor Seitenwechsel
+      window.addEventListener('beforeunload', () => {
+        try { cleanup(); } catch (_) {}
+      });
+    })();
   </script>
 </BaseLayout>

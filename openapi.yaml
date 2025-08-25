@@ -1,0 +1,564 @@
+openapi: 3.0.3
+info:
+  title: EvolutionHub API
+  version: "1.0.0"
+  description: Export der Routen aus src/pages als OpenAPI 3.0 Spec
+servers:
+  - url: /
+    description: Default server (relative)
+paths:
+  /api/csp-report:
+    post:
+      summary: Accept CSP reports
+      description: Legacy CSP report and Reporting API
+      x-source: src/pages/api/csp-report.ts
+      operationId: postCspReport
+      responses:
+        "204":
+          description: No Content
+  /api/debug-login:
+    post:
+      summary: Create a debug session (development only)
+      description: Debug login endpoint (dev only)
+      x-source: src/pages/api/debug-login.ts
+      operationId: postDebugLogin
+      responses:
+        "200":
+          description: Debug session created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+  /api/tools:
+    get:
+      summary: List available tools
+      description: Public tools list
+      x-source: src/pages/api/tools.ts
+      operationId: getTools
+      responses:
+        "200":
+          description: Array of tools
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Tool'
+  /api/auth/change-password:
+    post:
+      summary: Change password
+      description: Change current user's password (redirects)
+      x-source: src/pages/api/auth/change-password.ts
+      operationId: postAuthChangePassword
+      responses:
+        "302":
+          description: Redirect to settings with status
+        "400":
+          description: Validation error
+  /api/auth/forgot-password:
+    post:
+      summary: Request password reset
+      description: Sends password reset email (redirects)
+      x-source: src/pages/api/auth/forgot-password.ts
+      operationId: postAuthForgotPassword
+      responses:
+        "302":
+          description: Redirect to password-reset-sent or error
+  /api/auth/login:
+    post:
+      summary: Authenticate user
+      description: Authenticates and sets session cookie (redirects)
+      x-source: src/pages/api/auth/login.ts
+      operationId: postAuthLogin
+      responses:
+        "302":
+          description: Redirect to dashboard on success
+        "400":
+          description: Validation error
+  /api/auth/logout:
+    post:
+      summary: Logout user
+      description: Clears session cookie and redirects
+      x-source: src/pages/api/auth/logout.ts
+      operationId: postAuthLogout
+      responses:
+        "302":
+          description: Redirect after logout
+  /api/auth/register:
+    post:
+      summary: Register user
+      description: Registers a user and triggers email verification (redirects)
+      x-source: src/pages/api/auth/register.ts
+      operationId: postAuthRegister
+      responses:
+        "302":
+          description: Redirect to verify-email page
+  /api/auth/resend-verification:
+    post:
+      summary: Resend verification email
+      description: Resends email verification (JSON)
+      x-source: src/pages/api/auth/resend-verification.ts
+      operationId: postAuthResendVerification
+      responses:
+        "200":
+          description: Generic success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+  /api/auth/reset-password:
+    post:
+      summary: Reset password
+      description: Reset user password using token (redirects)
+      x-source: src/pages/api/auth/reset-password.ts
+      operationId: postAuthResetPassword
+      responses:
+        "302":
+          description: Redirect on success or error
+  /api/auth/verify-email:
+    get:
+      summary: Verify email
+      description: Handle email verification link and create session (redirects)
+      x-source: src/pages/api/auth/verify-email.ts
+      operationId: getAuthVerifyEmail
+      responses:
+        "302":
+          description: Redirect to email-verified or register on error
+  /api/billing/session:
+    post:
+      summary: Create billing session
+      description: Creates a Stripe checkout session
+      x-source: src/pages/api/billing/session.ts
+      operationId: postBillingSession
+      responses:
+        "200":
+          description: Checkout session URL
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  url:
+                    type: string
+  /api/dashboard/activity:
+    get:
+      summary: Get activity feed
+      description: Returns recent user activities
+      x-source: src/pages/api/dashboard/activity.ts
+      operationId: getDashboardActivity
+      responses:
+        "200":
+          description: Array of activity objects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Activity'
+  /api/dashboard/notifications:
+    get:
+      summary: Get notifications
+      description: Returns notifications for the authenticated user
+      x-source: src/pages/api/dashboard/notifications.ts
+      operationId: getDashboardNotifications
+      responses:
+        "200":
+          description: Notifications list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Notification'
+  /api/dashboard/perform-action:
+    post:
+      summary: Perform dashboard action
+      description: Executes various dashboard actions (create project, task, etc.)
+      x-source: src/pages/api/dashboard/perform-action.ts
+      operationId: postDashboardPerformAction
+      responses:
+        "200":
+          description: Action result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+  /api/dashboard/projects:
+    get:
+      summary: Get projects
+      description: Returns projects for the authenticated user
+      x-source: src/pages/api/dashboard/projects.ts
+      operationId: getDashboardProjects
+      responses:
+        "200":
+          description: Array of projects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Project'
+  /api/dashboard/quick-actions:
+    get:
+      summary: Get quick actions
+      description: Public quick actions
+      x-source: src/pages/api/dashboard/quick-actions.ts
+      operationId: getDashboardQuickActions
+      responses:
+        "200":
+          description: Array of quick actions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/QuickAction'
+  /api/dashboard/stats:
+    get:
+      summary: Get dashboard stats
+      description: Returns dashboard statistics for the user
+      x-source: src/pages/api/dashboard/stats.ts
+      operationId: getDashboardStats
+      responses:
+        "200":
+          description: Stats object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Stats'
+  /api/debug/logs-stream:
+    get:
+      summary: Stream logs (SSE)
+      description: Server-Sent Events endpoint for real-time logs
+      x-source: src/pages/api/debug/logs-stream.ts
+      operationId: getDebugLogsStream
+      responses:
+        "200":
+          description: SSE stream or JSON fallback
+    post:
+      summary: Poll logs
+      description: Polling fallback for logs-stream
+      x-source: src/pages/api/debug/logs-stream.ts
+      operationId: postDebugLogsStream
+      responses:
+        "200":
+          description: Polling response with logs
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DebugPollingResponse'
+  /api/internal/users/sync:
+    post:
+      summary: Sync user
+      description: Internal user sync endpoint (trusted systems)
+      x-source: src/pages/api/internal/users/sync.ts
+      operationId: postInternalUsersSync
+      responses:
+        "200":
+          description: Sync success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+  /api/lead-magnets/download:
+    get:
+      summary: Get lead magnet metadata or download
+      description: Return metadata or proxy download from R2; supports download query param
+      x-source: src/pages/api/lead-magnets/download.ts
+      operationId: getLeadMagnetsDownload
+      responses:
+        "200":
+          description: Metadata or file redirect
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeadMagnetMetadata'
+    post:
+      summary: Request lead magnet (email gate)
+      description: Submit lead data and receive download URL
+      x-source: src/pages/api/lead-magnets/download.ts
+      operationId: postLeadMagnetsDownload
+      responses:
+        "200":
+          description: Request accepted, returns downloadUrl and leadId
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeadMagnetRequestResponse'
+    options:
+      summary: CORS preflight
+      description: CORS preflight response
+      x-source: src/pages/api/lead-magnets/download.ts
+      operationId: optionsLeadMagnetsDownload
+      responses:
+        "200":
+          description: CORS preflight ok
+  /api/newsletter/confirm:
+    get:
+      summary: Confirm newsletter subscription
+      description: Double opt-in confirmation endpoint
+      x-source: src/pages/api/newsletter/confirm.ts
+      operationId: getNewsletterConfirm
+      responses:
+        "200":
+          description: Confirmation success
+  /api/newsletter/subscribe:
+    post:
+      summary: Subscribe to newsletter
+      description: Create pending subscription and send confirmation email
+      x-source: src/pages/api/newsletter/subscribe.ts
+      operationId: postNewsletterSubscribe
+      responses:
+        "200":
+          description: Pending subscription created
+  /api/projects:
+    post:
+      summary: Create project
+      description: Create new project for authenticated user
+      x-source: src/pages/api/projects/index.ts
+      operationId: postProjects
+      responses:
+        "201":
+          description: Project created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+  /api/test/seed-email-token:
+    get:
+      summary: Seed email token (test/dev only)
+      description: Generates test tokens for email verification
+      x-source: src/pages/api/test/seed-email-token.ts
+      operationId: getTestSeedEmailToken
+      responses:
+        "200":
+          description: Token seeded
+  /api/user/account:
+    delete:
+      summary: Delete account
+      description: Delete or anonymize user account
+      x-source: src/pages/api/user/account.ts
+      operationId: deleteUserAccount
+      responses:
+        "204":
+          description: No Content
+  /api/user/avatar:
+    post:
+      summary: Upload avatar
+      description: Upload profile image to R2; supports CORS preflight internally
+      x-source: src/pages/api/user/avatar.ts
+      operationId: postUserAvatar
+      responses:
+        "200":
+          description: Avatar updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+  /api/user/logout-v2:
+    get:
+      summary: Logout v2 (GET)
+      description: Logout endpoint (service-layer)
+      x-source: src/pages/api/user/logout-v2.ts
+      operationId: getUserLogoutV2
+      responses:
+        "302":
+          description: Redirect after logout
+    post:
+      summary: Logout v2 (POST)
+      description: Logout endpoint (service-layer)
+      x-source: src/pages/api/user/logout-v2.ts
+      operationId: postUserLogoutV2
+      responses:
+        "302":
+          description: Redirect after logout
+  /api/user/logout:
+    get:
+      summary: Logout (GET)
+      description: Logout endpoint
+      x-source: src/pages/api/user/logout.ts
+      operationId: getUserLogout
+      responses:
+        "302":
+          description: Redirect after logout
+    post:
+      summary: Logout (POST)
+      description: Logout endpoint
+      x-source: src/pages/api/user/logout.ts
+      operationId: postUserLogout
+      responses:
+        "302":
+          description: Redirect after logout
+  /api/user/me:
+    get:
+      summary: Get current user
+      description: Returns safe user object for authenticated user
+      x-source: src/pages/api/user/me.ts
+      operationId: getUserMe
+      responses:
+        "200":
+          description: User object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSafe'
+  /api/user/password:
+    post:
+      summary: Update password
+      description: Update current user's password
+      x-source: src/pages/api/user/password.ts
+      operationId: postUserPassword
+      responses:
+        "200":
+          description: Password updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+  /api/user/profile:
+    post:
+      summary: Update profile
+      description: Update user profile data
+      x-source: src/pages/api/user/profile.ts
+      operationId: postUserProfile
+      responses:
+        "200":
+          description: Profile updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+  /api/user/settings:
+    put:
+      summary: Update settings
+      description: Update user settings
+      x-source: src/pages/api/user/settings.ts
+      operationId: putUserSettings
+      responses:
+        "200":
+          description: Settings updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+  /r2/{path}:
+    get:
+      summary: R2 asset proxy (catch-all)
+      description: Proxy to R2 assets via catch-all path parameter
+      x-source: src/pages/r2/[...path].ts
+      operationId: getR2Path
+      parameters:
+        - name: path
+          in: path
+          required: true
+          description: Catch-all path to R2 object
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Asset stream or redirect
+components:
+  schemas:
+    GenericResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+    Tool:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+    Activity:
+      type: object
+      properties:
+        id:
+          type: string
+        user:
+          type: string
+        action:
+          type: string
+        timestamp:
+          type: string
+    Notification:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        body:
+          type: string
+    Project:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+    QuickAction:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+    Stats:
+      type: object
+      properties:
+        projects:
+          type: integer
+        tasks:
+          type: integer
+        teamMembers:
+          type: integer
+    DebugPollingResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+    LeadMagnetMetadata:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        fileName:
+          type: string
+        requiresEmail:
+          type: boolean
+    LeadMagnetRequestResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        leadId:
+          type: string
+        downloadUrl:
+          type: string
+    UserSafe:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+        name:
+          type: string
+        username:
+          type: string

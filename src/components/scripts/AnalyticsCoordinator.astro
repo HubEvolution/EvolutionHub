@@ -1,41 +1,208 @@
 ---
 // AnalyticsCoordinator.astro - Build-kompatible Initialisierung der Analytics-Runtime
 // Kapselt das Laden der Runtime und sorgt für saubere Lifecycle-Integration
+// Importfreies Inline-Setup: kein Astro.resolve, kein dynamic import (SSR/Worker-safe)
+// IDs/Domain per ENV injizieren, Consent-gesteuert initialisieren
+const GA_MEASUREMENT_ID = import.meta.env.PUBLIC_GA_MEASUREMENT_ID;
+const PLAUSIBLE_DOMAIN = import.meta.env.PUBLIC_PLAUSIBLE_DOMAIN;
 ---
 
-<script is:inline nonce={Astro.locals.cspNonce}>
-  // Minimaler, robust gebundelter Loader über Astro.resolve
-  function initializeAnalyticsCoordinator() {
-    import(Astro.resolve('@/scripts/analytics-runtime.ts'))
-      .then((mod) => {
-        const init = mod && (mod.default || mod);
-        if (typeof init === 'function') {
-          init();
-          console.log('[AnalyticsCoordinator] ✅ Runtime initialized');
-        } else {
-          console.warn('[AnalyticsCoordinator] ⚠️ No default init() export found');
-        }
-      })
-      .catch((err) => {
-        console.error('[AnalyticsCoordinator] ❌ Failed to load runtime:', err);
+<script is:inline nonce={Astro.locals.cspNonce} define:vars={{ GA_MEASUREMENT_ID, PLAUSIBLE_DOMAIN }}>
+  (function () {
+    'use strict';
+
+    // CSP Nonce für nachgeladene Scripts
+    const NONCE = (document.currentScript && 'nonce' in document.currentScript)
+      ? (document.currentScript.nonce || '')
+      : '';
+
+    // State & Consent
+    let hasAnalyticsConsent = false;
+    let providersInitialized = false;
+    let timeOnPageStart = Date.now();
+    let maxScrollDepth = 0;
+    const scrollDepthTracked = new Set([25, 50, 75, 90].map(Number));
+    scrollDepthTracked.clear();
+
+    // Handler-Referenzen für Cleanup
+    let consentHandler = null;
+    let pageLoadHandler = null;
+    let scrollHandler = null;
+    let beforeUnloadHandler = null;
+    let visibilityHandler = null;
+
+    function loadScript(src, attrs = {}) {
+      const s = document.createElement('script');
+      s.src = src;
+      if (NONCE) s.setAttribute('nonce', NONCE);
+      Object.entries(attrs).forEach(([k, v]) => {
+        if (v === true) s.setAttribute(k, '');
+        else if (v) s.setAttribute(k, String(v));
       });
-  }
-
-  // DOM ready
-  if (document.readyState !== 'loading') {
-    initializeAnalyticsCoordinator();
-  } else {
-    document.addEventListener('DOMContentLoaded', initializeAnalyticsCoordinator);
-  }
-
-  // Cleanup beim Seitenwechsel
-  window.addEventListener('beforeunload', () => {
-    if (typeof window['analyticsCleanup'] === 'function') {
-      window['analyticsCleanup']();
+      document.head.appendChild(s);
+      return s;
     }
-  });
 
-  console.log('[AnalyticsCoordinator] 📋 Coordinator module loaded and ready');
+    function addInlineScript(code) {
+      const s = document.createElement('script');
+      if (NONCE) s.setAttribute('nonce', NONCE);
+      s.textContent = code;
+      document.head.appendChild(s);
+      return s;
+    }
+
+    function initProviders() {
+      if (providersInitialized) return;
+      try {
+        if (GA_MEASUREMENT_ID) {
+          loadScript(`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`, { async: true });
+          addInlineScript(
+            `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${GA_MEASUREMENT_ID}',{page_title:document.title,page_location:window.location.href});`
+          );
+          console.log('✅ Google Analytics initialized:', GA_MEASUREMENT_ID);
+        }
+        if (PLAUSIBLE_DOMAIN) {
+          loadScript('https://plausible.io/js/script.js', { defer: true, 'data-domain': PLAUSIBLE_DOMAIN });
+          console.log('✅ Plausible initialized:', PLAUSIBLE_DOMAIN);
+        }
+        providersInitialized = true;
+      } catch (e) {
+        console.error('[Analytics] Provider init failed', e);
+      }
+    }
+
+    function track(event, props = {}) {
+      if (!hasAnalyticsConsent || !providersInitialized) {
+        if (console && console.debug) console.debug('📊 Analytics blocked (no consent/init):', event, props);
+        return;
+      }
+      try {
+        if (typeof window.gtag === 'function') {
+          window.gtag('event', event, { ...props });
+        }
+        if (typeof window.plausible === 'function') {
+          window.plausible(event, { props });
+        }
+        if (console && console.log) console.log('📊 Analytics Event:', event, props);
+      } catch (e) {
+        console.error('[Analytics] track error', e);
+      }
+    }
+
+    function trackPage(properties = {}) {
+      track('page_view', { page_title: document.title, page_location: window.location.href, ...properties });
+    }
+
+    function setupScrollTracking() {
+      let throttleTimer = null;
+      scrollHandler = () => {
+        if (throttleTimer !== null) return;
+        throttleTimer = window.setTimeout(() => {
+          const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+          const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+          const percent = Math.round((scrollTop / (docHeight || 1)) * 100);
+          [25, 50, 75, 90].forEach((ms) => {
+            if (percent >= ms && !scrollDepthTracked.has(ms)) {
+              track('scroll_depth', { event_category: 'Engagement', value: ms, page_url: window.location.href });
+              scrollDepthTracked.add(ms);
+            }
+          });
+          maxScrollDepth = Math.max(maxScrollDepth, percent);
+          throttleTimer = null;
+        }, 100);
+      };
+      window.addEventListener('scroll', scrollHandler, { passive: true });
+    }
+
+    function setupTimeTracking() {
+      beforeUnloadHandler = () => {
+        const seconds = Math.round((Date.now() - timeOnPageStart) / 1000);
+        if (seconds > 10) track('time_on_page', { event_category: 'Engagement', value: seconds, page_url: window.location.href });
+      };
+      window.addEventListener('beforeunload', beforeUnloadHandler);
+
+      visibilityHandler = () => {
+        if (document.visibilityState === 'hidden') {
+          const seconds = Math.round((Date.now() - timeOnPageStart) / 1000);
+          if (seconds > 30) track('time_on_page', { event_category: 'Engagement', value: seconds, page_url: window.location.href });
+        } else {
+          timeOnPageStart = Date.now();
+        }
+      };
+      document.addEventListener('visibilitychange', visibilityHandler);
+    }
+
+    function initAfterConsent() {
+      initProviders();
+      trackPage({ page_type: window.location.pathname.startsWith('/blog') ? 'blog' : 'page', consent_given: true });
+      setupScrollTracking();
+      setupTimeTracking();
+    }
+
+    consentHandler = (ev) => {
+      try {
+        const detail = (ev && ev.detail) || {};
+        if (detail.analytics) {
+          hasAnalyticsConsent = true;
+          initAfterConsent();
+        }
+        if (detail.marketing) {
+          if ('fbq' in window && typeof window.fbq === 'function') {
+            window.fbq('consent', 'grant');
+            window.fbq('track', 'PageView');
+          }
+        }
+      } catch (e) {
+        console.error('[Analytics] consent handler error', e);
+      }
+    };
+    document.addEventListener('cookieconsent:userpreferencesset', consentHandler);
+
+    pageLoadHandler = () => {
+      if (!hasAnalyticsConsent) return;
+      trackPage({ page_type: window.location.pathname.startsWith('/blog') ? 'blog' : 'page', navigation: 'astro:page-load' });
+      timeOnPageStart = Date.now();
+      maxScrollDepth = 0;
+      scrollDepthTracked.clear();
+    };
+    document.addEventListener('astro:page-load', pageLoadHandler);
+
+    function cleanup() {
+      if (consentHandler) document.removeEventListener('cookieconsent:userpreferencesset', consentHandler);
+      if (pageLoadHandler) document.removeEventListener('astro:page-load', pageLoadHandler);
+      if (scrollHandler) window.removeEventListener('scroll', scrollHandler);
+      if (beforeUnloadHandler) window.removeEventListener('beforeunload', beforeUnloadHandler);
+      if (visibilityHandler) document.removeEventListener('visibilitychange', visibilityHandler);
+      consentHandler = pageLoadHandler = scrollHandler = beforeUnloadHandler = visibilityHandler = null;
+      if (console && console.log) console.log('[AnalyticsRuntime] 🧹 Cleaned up');
+    }
+    window.analyticsCleanup = cleanup;
+
+    // Lightweight Global API (kompatibel zu vorhandener Nutzung)
+    window.evolutionAnalytics = {
+      track: (event) => track(event),
+      trackCTAClick: (ctaType, position, leadMagnetId) =>
+        track('cta_click', { event_category: 'Funnel', cta_type: ctaType, cta_position: position, lead_magnet_id: leadMagnetId, page_url: window.location.href }),
+      trackLeadMagnetDownload: (leadMagnetId, leadId) =>
+        track('lead_magnet_download', { event_category: 'Conversion', conversion_type: 'lead_magnet_download', lead_magnet_id: leadMagnetId, lead_id: leadId, attribution_source: document.referrer || 'direct' }),
+      trackNewsletterSignup: (source, leadId) =>
+        track('newsletter_signup', { event_category: 'Conversion', conversion_type: 'newsletter_signup', signup_source: source, lead_id: leadId }),
+      trackScrollDepth: (percentage) =>
+        track('scroll_depth', { event_category: 'Engagement', value: percentage, page_url: window.location.href }),
+      trackTimeOnPage: (seconds) =>
+        track('time_on_page', { event_category: 'Engagement', value: seconds, page_url: window.location.href })
+    };
+
+    // DOM ready => falls Consent schon vorher gesetzt wurde, initialisieren
+    const start = () => {
+      if (console && console.log) console.log('[AnalyticsCoordinator] ✅ Inline runtime ready');
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', start);
+    } else {
+      start();
+    }
+  })();
 </script>
 
 <!-- Dummy Node, damit Astro das Script zuverlässig injiziert (HeaderScroll/AOS-Pattern) -->

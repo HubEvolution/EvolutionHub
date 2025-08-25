@@ -1,261 +1,296 @@
- @---
-  // src/layouts/BaseLayout.astro
-  import Header from '@/components/Header.astro';
-  import { getLocale } from '@/lib/i18n';
-  import { getSEOData } from '@/lib/seo';
-  import SkipLink from '@/components/SkipLink.astro';
-  import Footer from '@/components/Footer.astro';
-  import ThemeProvider from '@/components/ThemeProvider.astro';
-  import AOSCoordinator from '@/components/scripts/AOSCoordinator.astro';
-  import AnalyticsCoordinator from '@/components/scripts/AnalyticsCoordinator.astro';
-  import Toaster from '@/components/Toaster';
-  import { ViewTransitions } from 'astro:transitions';
-  import ComingSoon from '@/components/ui/ComingSoon.astro';
-  import { isComingSoon } from '@/config/coming-soon';
-  
-  interface Props {
-    title: string;
-    description?: string;
-    ogImage?: string;
-    canonical?: string;
-    structuredData?: any;
-    image?: string;
-    type?: string;
-    publishedTime?: string;
-    modifiedTime?: string;
-    author?: string;
-    section?: string;
-    tags?: string[];
-    hideNewsletter?: boolean;
-    enableAOS?: boolean;
-    enableAnalytics?: boolean;
-    comingSoon?: boolean;
-  }
-  
-  const {
-    title: customTitle,
-    description: customDescription,
-    ogImage: customOgImage,
-    hideNewsletter
-  } = Astro.props;
-  
-  const { enableAOS = true, enableAnalytics = true } = Astro.props as Props;
-  
-  // Get locale from URL
-  const locale = getLocale(Astro.url.pathname);
-  
-  // Get SEO data for the current locale
-  const seoData = getSEOData(locale);
-  
-  // Use custom props if provided, otherwise use SEO data
-  const title = customTitle || seoData.title;
-  const description = customDescription || seoData.description;
-  const ogImage = customOgImage || seoData.ogImage;
-  // Compute whether to show Coming Soon overlay
-  const pageFrontmatter = Astro.props as unknown as Record<string, unknown>;
-  const showComingSoon = isComingSoon(Astro.url.pathname, pageFrontmatter);
-  const bodyClass = `min-h-screen bg-sky-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 flex flex-col overflow-x-hidden ${showComingSoon ? 'coming-soon-open' : ''}`;
-  ---
-  
-  <!DOCTYPE html>
-  <html lang={getLocale(Astro.url.pathname)} class="h-full">
-    <head>
-      <meta charset="UTF-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <meta name="description" content={description} />
-  
-      <!-- Open Graph / Facebook -->
-      <meta property="og:type" content="website" />
-      <meta property="og:url" content={Astro.url.href} />
-      <meta property="og:title" content={`${title} | Evolution Hub`} />
-      <meta property="og:description" content={description} />
-      <meta property="og:image" content={ogImage} />
-      
-      <!-- Twitter Card -->
-      <meta name="twitter:card" content="summary_large_image" />
-      <meta name="twitter:title" content={`${title} | Evolution Hub`} />
-      <meta name="twitter:description" content={description} />
-      <meta name="twitter:image" content={ogImage} />
-      
-      {Astro.props.canonical && <link rel="canonical" href={Astro.props.canonical} />}
-      
-      <!-- hreflang links for SEO -->
-      <link rel="alternate" hreflang="de" href={`${Astro.url.origin}/de${Astro.url.pathname.replace(/^\/(de|en)/, '')}`} />
-      <link rel="alternate" hreflang="en" href={`${Astro.url.origin}/en${Astro.url.pathname.replace(/^\/(de|en)/, '')}`} />
-      <link rel="alternate" hreflang="x-default" href={`${Astro.url.origin}${Astro.url.pathname.replace(/^\/(de|en)/, '')}`} />
-  
-      <title>{title} | Evolution Hub</title>
-  
-      <!-- Favicon -->
-      <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  
-      <!-- Scripts -->
-  
-      <!-- Google Fonts -->
-      <link rel="preconnect" href="https://fonts.googleapis.com">
-      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-      
-      <!-- Preload critical CSS -->
-      <!-- Global CSS wird über @import in style-Block geladen -->
-      <!-- AOS CSS wird über NPM-Import geladen -->
-      <link rel="preload" href="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.css" as="style">
-  
-      <!-- AOS Animation Library wird über NPM und script-coordinator geladen -->
-  
-  
-      <!-- Cookie Consent CSS -->
-      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.css">
-  
-      <!-- JSON-LD Schema -->
-      <script type="application/ld+json" nonce={Astro.locals.cspNonce}>
-        {
-          "@context": "https://schema.org",
-          "@type": "WebPage",
-          "name": `${title} | Evolution Hub`,
-          "description": description,
-          "inLanguage": locale
-        }
-      </script>
-  
-      {enableAOS && <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" />}
-  
-      <!-- Global CSS -->
-      <style is:global>
-        @import '@/styles/global.css';
-  
-        /* Smooth transitions for theme changes */
-        html {
-          @apply transition-colors duration-200;
-        }
-      </style>
-      <!-- Astro View Transitions for SPA-like navigation -->
-      <ViewTransitions />
-    </head>
-  
-    <body class={bodyClass}>
-        <ThemeProvider />
-        <SkipLink />
-        <Header />
-        <main id="main-content" class="flex-grow focus:outline-none" tabindex="-1">
-          <slot />
-        </main>
-  
-        <Footer locale={locale} hideNewsletter={hideNewsletter} />
-        {enableAOS && <AOSCoordinator />}
-  {showComingSoon && <ComingSoon />}
-        {enableAnalytics && <AnalyticsCoordinator />}
-        <Toaster client:load />
-  
-      {showComingSoon && <script src="/assets/coming-soon-client.js" defer nonce={Astro.locals.cspNonce}></script>}
-  
-      <script nonce={Astro.locals.cspNonce}>
-        const initSmoothScrolling = () => {
-          document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
-            anchor.addEventListener('click', (e) => {
-              e.preventDefault();
-  
-              const targetId = anchor.getAttribute('href');
-              if (!targetId) return;
-  
-              const targetElement = document.querySelector(targetId);
-              if (!targetElement) return;
-  
-              targetElement.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
-              });
-  
-              if (history.pushState) {
-                history.pushState(null, '', targetId);
-              } else {
-                location.hash = targetId;
-              }
-            });
-          });
-        };
-  
-        const initLibraries = () => {
-          // No third-party init here. Sonner Toaster is mounted as a React Island.
-        };
-  
-        const initApp = () => {
-          initSmoothScrolling();
-          initLibraries();
-        };
-  
-        // Verwende DOMContentLoaded statt astro:page-load zur Vermeidung des 'Astro is not defined' Fehlers
-        document.addEventListener('DOMContentLoaded', initApp);
-        
-        // Führe initApp auch sofort aus, falls DOM bereits geladen ist
-        if (document.readyState === 'loading') {
-          // DOM ist noch am Laden, Event-Listener wird ausgeführt
-        } else {
-          // DOM ist bereits geladen, führe initApp sofort aus
-          initApp();
-        }
-  
-        /* HMR handled by dev bundler; no inline import.meta usage in browser */
-      </script>
-      <!-- Cookie Consent JS -->
-      <script src="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.js" defer nonce={Astro.locals.cspNonce}></script>
-  <!-- Cookie Consent Configuration -->
-      <script define:vars={{ locale }} nonce={Astro.locals.cspNonce}>
-        // Saubere CookieConsent-Integration basierend auf Astro-Pattern
-        document.addEventListener('DOMContentLoaded', function() {
-          // Warten bis CookieConsent geladen ist
-          function initCookieConsent() {
-            if (window.CookieConsent) {
-              window.CookieConsent.run({
-                language: locale,
-                
-                categories: {
-                  necessary: {
-                    label: 'Notwendig',
-                    description: 'Diese Cookies sind für den Betrieb der Webseite essenziell.',
-                    checked: true,
-                  },
-                  analytics: {
-                    label: 'Analyse', 
-                    description: 'Diese Cookies ermöglichen uns, die Seitennutzung zu analysieren, um Ihr Erlebnis zu verbessern.',
-                    checked: false,
-                  },
-                  marketing: {
-                    label: 'Marketing',
-                    description: 'Diese Cookies werden verwendet, um personalisierte Werbung basierend auf Ihren Interessen anzuzeigen.',
-                    checked: false,
-                  },
-                },
-                
-                gui_options: {
-                  consent_modal: {
-                    position: 'bottom left',
-                    delay: 500,
-                    position_scroll: false,
-                  },
-                },
-                
-                theme: {
-                  primary: '#10b981',
-                  secondary: '#6b7280', 
-                  accept: '#059669',
-                  reject: '#6b7280',
-                  background: '#ffffff',
-                  text: '#1f2937',
-                  link: '#10b981',
-                  consentButton: '#3b82f6',
-                  secondaryButton: '#6b7280',
-                  border1: '#e5e7eb',
-                },
-              });
-            } else {
-              setTimeout(initCookieConsent, 100);
-            }
-          }
-          
-          initCookieConsent();
-        });
-      </script>
-  <!-- Analytics Runtime is loaded via <AnalyticsCoordinator /> -->
-    </body>
-  </html>
+@---
+ // src/layouts/BaseLayout.astro
+ import Header from '@/components/Header.astro';
+ // Global CSS wird weiter unten via <style is:global> importiert
+ import { getLocale } from '@/lib/i18n';
+ import { getSEOData } from '@/lib/seo';
+ import SkipLink from '@/components/SkipLink.astro';
+ import Footer from '@/components/Footer.astro';
+ import ThemeProvider from '@/components/ThemeProvider.astro';
+ import AOSCoordinator from '@/components/scripts/AOSCoordinator.astro';
+ import AnalyticsCoordinator from '@/components/scripts/AnalyticsCoordinator.astro';
+ import Toaster from '@/components/Toaster';
+ import { ViewTransitions } from 'astro:transitions';
+ import ComingSoon from '@/components/ui/ComingSoon.astro';
+ import { isComingSoon } from '@/config/coming-soon';
+ 
+ interface Props {
+   title: string;
+   description?: string;
+   ogImage?: string;
+   canonical?: string;
+   structuredData?: any;
+   image?: string;
+   type?: string;
+   publishedTime?: string;
+   modifiedTime?: string;
+   author?: string;
+   section?: string;
+   tags?: string[];
+   hideNewsletter?: boolean;
+   hideHeader?: boolean;
+   hideFooter?: boolean;
+   enableAOS?: boolean;
+   enableAnalytics?: boolean;
+   comingSoon?: boolean;
+ }
+ 
+ const {
+   title: customTitle,
+   description: customDescription,
+   ogImage: customOgImage,
+   hideNewsletter
+ } = Astro.props;
+ 
+ const { enableAOS = true, enableAnalytics = true } = Astro.props as Props;
+ const { hideHeader = false, hideFooter = false } = Astro.props as Props;
+ 
+ // Get locale from URL
+ const locale = getLocale(Astro.url.pathname);
+ 
+ // Get SEO data for the current locale
+ const seoData = getSEOData(locale);
+ 
+ // Use custom props if provided, otherwise use SEO data
+ const title = customTitle || seoData.title;
+ const description = customDescription || seoData.description;
+ const ogImage = customOgImage || seoData.ogImage;
+ // Compute whether to show Coming Soon overlay
+ const pageFrontmatter = Astro.props as unknown as Record<string, unknown>;
+ const showComingSoon = isComingSoon(Astro.url.pathname, pageFrontmatter);
+ const bodyClass = `min-h-screen bg-sky-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 flex flex-col overflow-x-hidden ${showComingSoon ? 'coming-soon-open' : ''}`;
+ ---
+ 
+ <!DOCTYPE html>
+ <html lang={getLocale(Astro.url.pathname)} class="h-full">
+   <head>
+     <meta charset="UTF-8" />
+     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+     <meta name="description" content={description} />
+ 
+     <!-- Open Graph / Facebook -->
+     <meta property="og:type" content="website" />
+     <meta property="og:url" content={Astro.url.href} />
+     <meta property="og:title" content={`${title} | Evolution Hub`} />
+     <meta property="og:description" content={description} />
+     <meta property="og:image" content={ogImage} />
+     
+     <!-- Twitter Card -->
+     <meta name="twitter:card" content="summary_large_image" />
+     <meta name="twitter:title" content={`${title} | Evolution Hub`} />
+     <meta name="twitter:description" content={description} />
+     <meta name="twitter:image" content={ogImage} />
+     
+     {Astro.props.canonical && <link rel="canonical" href={Astro.props.canonical} />}
+     
+     <!-- hreflang links for SEO -->
+     <link rel="alternate" hreflang="de" href={`${Astro.url.origin}/de${Astro.url.pathname.replace(/^\/(de|en)/, '')}`} />
+     <link rel="alternate" hreflang="en" href={`${Astro.url.origin}/en${Astro.url.pathname.replace(/^\/(de|en)/, '')}`} />
+     <link rel="alternate" hreflang="x-default" href={`${Astro.url.origin}${Astro.url.pathname.replace(/^\/(de|en)/, '')}`} />
+ 
+     <title>{title} | Evolution Hub</title>
+ 
+     <!-- Favicons -->
+     <link rel="apple-touch-icon" sizes="180x180" href="/favicons/apple-touch-icon.png" />
+     <link rel="icon" type="image/png" sizes="32x32" href="/favicons/favicon-32x32.png" />
+     <link rel="icon" type="image/png" sizes="16x16" href="/favicons/favicon-16x16.png" />
+     <link rel="manifest" href="/site.webmanifest" />
+     <!-- Optional: mask icon for Safari pinned tabs (add file to public/favicons if used) -->
+     <!-- <link rel="mask-icon" href="/favicons/safari-pinned-tab.svg" color="#5bbad5" /> -->
+     <link rel="shortcut icon" href="/favicon.ico" />
+     <meta name="theme-color" content="#ffffff" />
+ 
+     <!-- Scripts -->
+ 
+     <!-- Google Fonts -->
+     <link rel="preconnect" href="https://fonts.googleapis.com">
+     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+     
+     <!-- Preload critical CSS -->
+     <!-- Global CSS wird über @import in style-Block geladen -->
+     <!-- AOS CSS wird über NPM-Import geladen -->
+     <link rel="preload" href="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.css" as="style">
+ 
+     <!-- AOS Animation Library wird über NPM und script-coordinator geladen -->
+ 
+ 
+     <!-- Cookie Consent CSS -->
+     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.css">
+ 
+     <!-- JSON-LD Schema -->
+     <script type="application/ld+json" nonce={Astro.locals.cspNonce}>
+       {
+         "@context": "https://schema.org",
+         "@type": "WebPage",
+         "name": `${title} | Evolution Hub`,
+         "description": description,
+         "inLanguage": locale
+       }
+     </script>
+ 
+     {enableAOS && <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" />}
+ 
+     <!-- Global CSS via explicit global style import (SSR/dev-stabil) -->
+     <style is:global>
+       @import '@/styles/global.css';
+     </style>
+     
+     <!-- Astro View Transitions for SPA-like navigation -->
+     <ViewTransitions />
+   </head>
+ 
+   <body class={bodyClass}>
+       <ThemeProvider />
+       <SkipLink />
+       {!hideHeader && <Header />}
+       <main id="main-content" class="flex-grow focus:outline-none" tabindex="-1">
+         <slot />
+       </main>
+ 
+       {!hideFooter && <Footer locale={locale} hideNewsletter={hideNewsletter} />}
+       {enableAOS && <AOSCoordinator />}
+ {showComingSoon && <ComingSoon />}
+       {enableAnalytics && <AnalyticsCoordinator />}
+       <Toaster client:load />
+ 
+     {showComingSoon && <script src="/assets/coming-soon-client.js" defer nonce={Astro.locals.cspNonce}></script>}
+ 
+     <script nonce={Astro.locals.cspNonce}>
+       const initSmoothScrolling = () => {
+         document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+           anchor.addEventListener('click', (e) => {
+             e.preventDefault();
+ 
+             const targetId = anchor.getAttribute('href');
+             if (!targetId) return;
+ 
+             const targetElement = document.querySelector(targetId);
+             if (!targetElement) return;
+ 
+             targetElement.scrollIntoView({
+               behavior: 'smooth',
+               block: 'start'
+             });
+ 
+             if (history.pushState) {
+               history.pushState(null, '', targetId);
+             } else {
+               location.hash = targetId;
+             }
+           });
+         });
+       };
+ 
+       const initLibraries = () => {
+         // No third-party init here. Sonner Toaster is mounted as a React Island.
+       };
+ 
+       const initApp = () => {
+         initSmoothScrolling();
+         initLibraries();
+       };
+ 
+       // Verwende DOMContentLoaded statt astro:page-load zur Vermeidung des 'Astro is not defined' Fehlers
+       document.addEventListener('DOMContentLoaded', initApp);
+     </script>
+ 
+     <!-- Cookie Consent JS -->
+     <script src="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.js" defer nonce={Astro.locals.cspNonce}></script>
+     <!-- Cookie Consent Configuration -->
+     <script define:vars={{ locale }} nonce={Astro.locals.cspNonce}>
+       // CookieConsent-Integration mit Event-Bridge: 'cookieconsent:userpreferencesset'
+       document.addEventListener('DOMContentLoaded', function() {
+         function getConsentPreferences() {
+           try {
+             if (window.CookieConsent && typeof window.CookieConsent.getUserPreferences === 'function') {
+               const prefs = window.CookieConsent.getUserPreferences();
+               const analytics = !!(prefs?.analytics || (prefs?.accepted && Array.isArray(prefs.accepted) && prefs.accepted.includes('analytics')));
+               const marketing = !!(prefs?.marketing || (prefs?.accepted && Array.isArray(prefs.accepted) && prefs.accepted.includes('marketing')));
+               return { necessary: true, analytics, marketing };
+             }
+           } catch (e) {
+             console.warn('[CookieConsent] getUserPreferences fehlgeschlagen:', e);
+           }
+           try {
+             const status = localStorage.getItem('cookieconsent_status');
+             if (status === 'accept') return { necessary: true, analytics: true, marketing: true };
+             if (status === 'accept_specific') {
+               const raw = localStorage.getItem('cookieconsent_preferences');
+               const parsed = raw ? JSON.parse(raw) : null;
+               return parsed || { necessary: true, analytics: false, marketing: false };
+             }
+           } catch {}
+           return { necessary: true, analytics: false, marketing: false };
+         }
+
+         let lastKey = '';
+         function dispatchIfChanged() {
+           try {
+             const detail = getConsentPreferences();
+             const key = `${Number(!!detail.analytics)}|${Number(!!detail.marketing)}`;
+             if (key !== lastKey) {
+               document.dispatchEvent(new CustomEvent('cookieconsent:userpreferencesset', { detail }));
+               lastKey = key;
+               if (console && console.debug) console.debug('[CookieConsent] 📣 Consent-Event dispatcht:', detail);
+             }
+           } catch (e) {
+             console.warn('[CookieConsent] Konnte Consent-Event nicht dispatchen:', e);
+           }
+         }
+
+         function initCookieConsent() {
+           if (window.CookieConsent) {
+             window.CookieConsent.run({
+               language: locale,
+               categories: {
+                 necessary: {
+                   label: 'Notwendig',
+                   description: 'Diese Cookies sind für den Betrieb der Webseite essenziell.',
+                   checked: true,
+                 },
+                 analytics: {
+                   label: 'Analyse',
+                   description: 'Diese Cookies ermöglichen uns, die Seitennutzung zu analysieren, um Ihr Erlebnis zu verbessern.',
+                   checked: false,
+                 },
+                 marketing: {
+                   label: 'Marketing',
+                   description: 'Diese Cookies werden verwendet, um personalisierte Werbung basierend auf Ihren Interessen anzuzeigen.',
+                   checked: false,
+                 },
+               },
+               gui_options: {
+                 consent_modal: { position: 'bottom left', delay: 500, position_scroll: false },
+               },
+               theme: {
+                 primary: '#10b981',
+                 secondary: '#6b7280',
+                 accept: '#059669',
+                 reject: '#6b7280',
+                 background: '#ffffff',
+                 text: '#1f2937',
+                 link: '#10b981',
+                 consentButton: '#3b82f6',
+                 secondaryButton: '#6b7280',
+                 border1: '#e5e7eb',
+               },
+               onFirstAction: dispatchIfChanged,
+               onAccept: dispatchIfChanged,
+               onChange: dispatchIfChanged,
+               onFirstConsent: dispatchIfChanged,
+               onConsent: dispatchIfChanged,
+             });
+           } else {
+             setTimeout(initCookieConsent, 100);
+           }
+         }
+
+         // Initiales Event & Start
+         dispatchIfChanged();
+         initCookieConsent();
+       });
+     </script>
+     <!-- Analytics Runtime is loaded via <AnalyticsCoordinator /> -->
+   </body>
+ </html>

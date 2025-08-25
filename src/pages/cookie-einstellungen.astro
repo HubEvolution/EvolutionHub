@@ -161,7 +161,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
     </div>
   </div>
 
-  <script type="module">
+  <script type="module" nonce={Astro.locals.cspNonce}>
     import notify from '@/lib/notify';
     // Globale Deklarationen zur Vermeidung von TypeScript-Fehlern
     const CookieConsent = typeof window !== 'undefined' && (window)['CookieConsent']
@@ -239,7 +239,17 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
           } else {
             localStorage.setItem('cookieconsent_status', 'accept_specific');
           }
-           showNotification('Einstellungen wurden im LocalStorage gespeichert.', 'info');
+          // WICHTIG: Bei Fallback das Consent-CustomEvent selbst dispatchen,
+          // damit AnalyticsCoordinator informiert wird
+          try {
+            document.dispatchEvent(
+              new CustomEvent('cookieconsent:userpreferencesset', { detail: preferences })
+            );
+            console.log('[CookieSettings] 📣 Consent-Event (fallback) dispatcht:', preferences);
+          } catch (e) {
+            console.warn('[CookieSettings] ⚠️ Dispatch des Consent-Events (fallback) fehlgeschlagen:', e);
+          }
+          showNotification('Einstellungen wurden im LocalStorage gespeichert.', 'info');
         } catch (error) {
           console.error('Fehler beim Sichern in LocalStorage:', error);
           showNotification('Fehler beim Speichern der Einstellungen im LocalStorage.', 'error');

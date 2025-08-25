@@ -80,7 +80,15 @@ export const onRequest = defineMiddleware(async (context, next) => {
   const url = new URL(context.request.url);
   const path = url.pathname;
 
-  // Create and expose CSP Nonce early so it's available during render
+  // Direkt-Weiterleitung: /favicon.ico -> /favicon.svg
+// Auskommentiert, damit favicon.ico aus public/ ausgeliefert werden kann.
+// if (path === '/favicon.ico') {
+//   const location = `${url.origin}/favicon.svg`;
+//   const headers = new Headers();
+//   headers.set('Location', location);
+//   // Dauerhafte Weiterleitung, damit Browser den neuen Pfad cachen
+//   return new Response(null, { status: 308, headers });
+// }  // Create and expose CSP Nonce early so it's available during render
   const cspNonce = generateNonce();
   try {
     // Expose for .astro via Astro.locals
@@ -472,11 +480,11 @@ export const onRequest = defineMiddleware(async (context, next) => {
   if (import.meta.env.DEV) {
     const devCsp = [
       "default-src 'self' data: blob:",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: data: https://cdn.jsdelivr.net",
-      "script-src-elem 'self' 'unsafe-inline' 'unsafe-eval' blob: data: https://cdn.jsdelivr.net",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: data: https://cdn.jsdelivr.net https://www.googletagmanager.com https://plausible.io",
+      "script-src-elem 'self' 'unsafe-inline' 'unsafe-eval' blob: data: https://cdn.jsdelivr.net https://www.googletagmanager.com https://plausible.io",
       "connect-src 'self' ws: http: https:",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net",
-      "img-src 'self' data: blob:",
+      "img-src 'self' data: blob: https:",
       "font-src 'self' https://fonts.gstatic.com",
       "frame-ancestors 'self'",
       "object-src 'none'",
@@ -487,14 +495,14 @@ export const onRequest = defineMiddleware(async (context, next) => {
     const prodCsp = [
       "default-src 'self'",
       // Allow inline scripts only with our per-request nonce; include strict-dynamic for modern browsers
-      `script-src 'self' 'nonce-${cspNonce}' 'strict-dynamic' https://cdn.jsdelivr.net`,
+      `script-src 'self' 'nonce-${cspNonce}' 'strict-dynamic' https://cdn.jsdelivr.net https://www.googletagmanager.com https://plausible.io`,
       // Optional: also set script-src-elem explicitly for broader compatibility
-      `script-src-elem 'self' 'nonce-${cspNonce}' https://cdn.jsdelivr.net`,
+      `script-src-elem 'self' 'nonce-${cspNonce}' https://cdn.jsdelivr.net https://www.googletagmanager.com https://plausible.io`,
       // Allow connections to same-origin and HTTPS (and websockets if used)
       "connect-src 'self' https: wss:",
       // Styles keep 'unsafe-inline' to support inline <style is:global> blocks and third-party CSS
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net",
-      "img-src 'self' data:",
+      "img-src 'self' data: https:",
       "font-src 'self' https://fonts.gstatic.com",
       "frame-ancestors 'self'",
       "object-src 'none'",

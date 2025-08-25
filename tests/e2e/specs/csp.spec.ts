@@ -32,16 +32,16 @@ test.describe('CSP policy and nonce', () => {
     // Connect-src should allow HTTPS and WS for dev/prod respectively
     expect(csp).toMatch(/connect-src[^;]*https:/);
 
-    // Extract CSP nonce and assert it exists on at least one <script>
-    const m = csp.match(/'nonce-([^']+)'/);
-    expect(m, 'Expected a nonce value in CSP').toBeTruthy();
-    const nonce = m![1];
-
-    const noncedScriptCount = await page.locator(`script[nonce="${nonce}"]`).count();
-    expect(noncedScriptCount).toBeGreaterThan(0);
-
-    // In prod, ensure no inline script without nonce slips through
     if (!isDev) {
+      // Extract CSP nonce and assert it exists on at least one <script>
+      const m = csp.match(/'nonce-([^']+)'/);
+      expect(m, 'Expected a nonce value in CSP').toBeTruthy();
+      const nonce = m![1];
+
+      const noncedScriptCount = await page.locator(`script[nonce="${nonce}"]`).count();
+      expect(noncedScriptCount).toBeGreaterThan(0);
+
+      // Ensure no inline script without nonce slips through
       const inlineNoNonce = await page.$$eval('script:not([src]):not([nonce])', els => els.length);
       expect(inlineNoNonce).toBe(0);
     }

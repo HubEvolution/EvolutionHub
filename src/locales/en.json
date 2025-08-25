@@ -103,14 +103,6 @@
         "unexpected": "An unexpected error occurred. Please try again later."
       }
     },
-    "welcome": {
-      "title": "",
-      "subtitle": "",
-      "buttons": {
-        "de": "",
-        "en": ""
-      }
-    },
     "pricing": {
       "title": "Pricing – Evolution Hub",
       "description": "Choose the right plan for your needs. Free trial available.",

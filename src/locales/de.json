@@ -91,14 +91,6 @@
         ]
       }
     },
-    "welcome": {
-      "title": "",
-      "subtitle": "",
-      "buttons": {
-        "de": "",
-        "en": ""
-      }
-    },
     "impressum": {
       "title": "Impressum",
       "section_intro": {

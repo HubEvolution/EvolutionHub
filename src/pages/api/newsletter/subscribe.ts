@@ -1,7 +1,6 @@
 import type { APIRoute } from 'astro';
-import { z } from 'zod';
 import { createPendingSubscription } from './confirm.ts';
-import { trackNewsletterSignup } from '@/lib/analytics';
+// Tracking von Newsletter-Anmeldungen erfolgt clientseitig via window.evolutionAnalytics
 
 interface NewsletterSubscriptionRequest {
   email: string;

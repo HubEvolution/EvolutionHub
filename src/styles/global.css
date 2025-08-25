@@ -19,7 +19,7 @@
   h3 { @apply text-2xl md:text-3xl; }
   h4 { @apply text-xl md:text-2xl; }
   
-  a {
+  a:not(.btn):not(.btn-primary):not(.btn-secondary):not(.btn-outline) {
     @apply text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 transition-colors;
   }
   
@@ -40,7 +40,7 @@
 /* Custom components */
 @layer components {
   .btn {
-    @apply inline-flex items-center justify-center px-6 py-2.5 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center px-6 py-2.5 rounded-lg font-medium no-underline transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed;
   }
   
   .btn-primary {
