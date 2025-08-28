@@ -10,7 +10,7 @@ import {
   initializeTestLogger,
   getTestLogger,
   logger
-} from '@/utils/logger';
+} from '../../../utils/logger';
 
 describe('TestLogger', () => {
   let testLogger: TestLogger;
