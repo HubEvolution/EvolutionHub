@@ -1,17 +1,15 @@
 import type { APIContext } from 'astro';
 import { standardApiLimiter } from '@/lib/rate-limiter';
-import { logAuthSuccess, logAuthFailure } from '@/lib/security-logger';
-import { createSecureRedirect, applySecurityHeaders } from '@/lib/response-helpers';
+import { logAuthSuccess, logAuthFailure, logSecurityEvent } from '@/lib/security-logger';
+import { createSecureRedirect, createSecureJsonResponse } from '@/lib/response-helpers';
 
 /**
- * POST /api/auth/logout
+ * Gemeinsamer Logout-Handler für GET und POST
  * Meldet den Benutzer ab und löscht das Authentifizierungs-Cookie.
- * 
- * Implementiert Rate-Limiting, Security-Headers und Audit-Logging.
- * 
+ *
  * WICHTIG: Dieser Endpunkt verwendet KEINE API-Middleware, da er Redirects statt JSON zurückgibt!
  */
-export const POST = async (context: APIContext) => {
+const handleLogout = async (context: APIContext) => {
   // Rate-Limiting anwenden
   const rateLimitResponse = await standardApiLimiter(context);
   if (rateLimitResponse) {
@@ -47,14 +45,13 @@ export const POST = async (context: APIContext) => {
     }
 
     // Nach der Abmeldung zurück zum Login oder zur Startseite leiten
-    const redirectUrl = '/login?loggedOut=true'; 
+    const redirectUrl = '/login?loggedOut=true';
     return createSecureRedirect(redirectUrl);
 
   } catch (error) {
     console.error('Logout error:', error);
     
     // Generischen Serverfehler behandeln
-    const errorMessage = 'Ein interner Serverfehler ist aufgetreten.';
     
     // Fehler protokollieren
     logAuthFailure(context.clientAddress, {
@@ -66,3 +63,36 @@ export const POST = async (context: APIContext) => {
     return createSecureRedirect('/login?error=ServerError');
   }
 };
+
+export const POST = handleLogout;
+export const GET = handleLogout;
+
+// 405 Method Not Allowed für alle anderen Methoden
+const methodNotAllowed = (context: APIContext): Response => {
+  // Sicherheits-Logging für unzulässige Methoden
+  logSecurityEvent(
+    'API_ACCESS',
+    {
+      action: 'method_not_allowed',
+      method: context.request.method,
+      allowed: 'GET, POST',
+      path: '/api/auth/logout'
+    },
+    {
+      ipAddress: context.clientAddress,
+      targetResource: '/api/auth/logout'
+    }
+  );
+
+  return createSecureJsonResponse(
+    { error: true, message: 'Method Not Allowed' },
+    405,
+    { Allow: 'GET, POST' }
+  );
+};
+
+export const PUT = methodNotAllowed;
+export const PATCH = methodNotAllowed;
+export const DELETE = methodNotAllowed;
+export const OPTIONS = methodNotAllowed;
+export const HEAD = methodNotAllowed;

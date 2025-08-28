@@ -1,4 +1,4 @@
-![EvolutionHub Banner](./public/assets/svg/Banner.svg)
+ve![EvolutionHub Banner](./public/assets/svg/Banner.svg)
 
 [![Lizenz: MIT](https://img.shields.io/badge/Lizenz-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 ![Status: Aktiv](https://img.shields.io/badge/Status-Aktiv-brightgreen)
@@ -89,7 +89,37 @@ Führe den folgenden Befehl aus, um den `wrangler`-Server zu starten, der sich m
 npm run dev
 ```
 
-Das Projekt ist nun unter der von `wrangler` angegebenen Adresse erreichbar (z.B. `http://localhost:8788`).
+Das Projekt ist nun unter der von `wrangler` angegebenen Adresse erreichbar (z.B. `http://127.0.0.1:8787`).
+
+#### Dev-Server (Wrangler) & Smoke-Checks
+
+Führe nach dem Start ein paar schnelle Checks aus:
+
+```bash
+# Root -> Welcome-Redirect
+curl -sS -D - -o /dev/null http://127.0.0.1:8787/
+
+# Welcome-Seite (noindex, nofollow expected)
+curl -sS -D - -o /dev/null http://127.0.0.1:8787/welcome
+curl -sS -D - -o /dev/null http://127.0.0.1:8787/welcome/
+
+# EN-Startseite
+curl -sS -D - -o /dev/null http://127.0.0.1:8787/en/
+
+# Assets (SVG/PNG) – korrekter Content-Type
+curl -sS -D - -o /dev/null http://127.0.0.1:8787/assets/svg/logo.svg
+curl -sS -D - -o /dev/null http://127.0.0.1:8787/favicons/favicon-32x32.png
+
+# Web App Manifest – korrekter Content-Type
+curl -sS -D - -o /dev/null http://127.0.0.1:8787/site.webmanifest
+```
+
+Erwartete Header u. a.:
+
+- `Vary: Cookie, Accept-Language`
+- `Content-Language: en|de`
+- `X-Robots-Tag` auf `/welcome`
+- `Content-Type: application/manifest+json` auf `/site.webmanifest`
 
 ---
 

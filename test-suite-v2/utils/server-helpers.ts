@@ -1,0 +1,451 @@
+/**
+ * Server-Helper für Test-Suite v2
+ * Verwaltet Test-Server-Setup, Mocking und HTTP-Handling
+ */
+
+import { testConfig } from '@/config/test-config.js';
+import { getTestLogger } from './logger.js';
+
+export interface TestServer {
+  url: string;
+  port: number;
+  isRunning: boolean;
+  startTime: Date;
+  requestCount: number;
+  routes: Map<string, RouteHandler>;
+}
+
+export interface RouteHandler {
+  method: string;
+  path: string;
+  handler: (req: any, res: any) => void | Promise<void>;
+  middleware?: ((req: any, res: any, next: () => void) => void)[];
+}
+
+export interface MockResponse {
+  status: number;
+  headers?: Record<string, string>;
+  body?: any;
+  delay?: number;
+}
+
+/**
+ * Richtet einen Test-Server ein
+ */
+export async function setupTestServer(): Promise<TestServer> {
+  const logger = getTestLogger();
+  logger.info('Test-Server wird gestartet...');
+
+  try {
+    const port = parseInt(process.env.TEST_SERVER_PORT || '3001');
+    const server: TestServer = {
+      url: `http://localhost:${port}`,
+      port,
+      isRunning: false,
+      startTime: new Date(),
+      requestCount: 0,
+      routes: new Map(),
+    };
+
+    // Basis-Routen registrieren
+    await registerBaseRoutes(server);
+
+    // Server starten (simuliert)
+    server.isRunning = true;
+
+    logger.info(`Test-Server gestartet auf: ${server.url}`);
+    return server;
+
+  } catch (error) {
+    logger.error('Fehler beim Starten des Test-Servers', error);
+    throw new Error(`Server-Setup fehlgeschlagen: ${error}`);
+  }
+}
+
+/**
+ * Stoppt den Test-Server
+ */
+export async function teardownTestServer(server: TestServer): Promise<void> {
+  const logger = getTestLogger();
+  logger.info(`Test-Server wird gestoppt: ${server.url}`);
+
+  try {
+    // Server stoppen (simuliert)
+    server.isRunning = false;
+    server.routes.clear();
+
+    const uptime = Date.now() - server.startTime.getTime();
+    logger.info(`Test-Server gestoppt nach ${uptime}ms. ${server.requestCount} Anfragen verarbeitet`);
+
+  } catch (error) {
+    logger.error('Fehler beim Stoppen des Test-Servers', error);
+    throw new Error(`Server-Cleanup fehlgeschlagen: ${error}`);
+  }
+}
+
+/**
+ * Registriert Basis-Routen für den Test-Server
+ */
+async function registerBaseRoutes(server: TestServer): Promise<void> {
+  const logger = getTestLogger();
+
+  // Health-Check-Endpunkt
+  server.routes.set('GET /health', {
+    method: 'GET',
+    path: '/health',
+    handler: (req, res) => {
+      server.requestCount++;
+      res.status(200).json({
+        status: 'healthy',
+        timestamp: new Date().toISOString(),
+        uptime: Date.now() - server.startTime.getTime(),
+        requestCount: server.requestCount,
+      });
+    },
+  });
+
+  // API-Status-Endpunkt
+  server.routes.set('GET /api/status', {
+    method: 'GET',
+    path: '/api/status',
+    handler: (req, res) => {
+      server.requestCount++;
+      res.status(200).json({
+        status: 'ok',
+        version: 'test-suite-v2',
+        environment: testConfig.environment.nodeEnv,
+      });
+    },
+  });
+
+  // Mock-API-Endpunkte für Authentifizierung
+  registerAuthRoutes(server);
+
+  // Mock-API-Endpunkte für Dashboard
+  registerDashboardRoutes(server);
+
+  // Mock-API-Endpunkte für Newsletter
+  registerNewsletterRoutes(server);
+
+  logger.debug(`${server.routes.size} Routen registriert`);
+}
+
+/**
+ * Registriert Authentifizierungs-Routen
+ */
+function registerAuthRoutes(server: TestServer): void {
+  // Login-Endpunkt
+  server.routes.set('POST /api/auth/login', {
+    method: 'POST',
+    path: '/api/auth/login',
+    handler: async (req, res) => {
+      server.requestCount++;
+
+      const { email, password } = req.body || {};
+
+      if (!email || !password) {
+        return res.status(400).json({
+          error: 'Email und Passwort sind erforderlich',
+        });
+      }
+
+      // Vereinfachte Authentifizierungslogik für Tests
+      if (email === testConfig.testData.users.admin.email &&
+          password === testConfig.testData.users.admin.password) {
+        return res.status(200).json({
+          user: {
+            id: 1,
+            email: testConfig.testData.users.admin.email,
+            role: testConfig.testData.users.admin.role,
+          },
+          token: 'mock-jwt-token-admin',
+        });
+      }
+
+      if (email === testConfig.testData.users.regular.email &&
+          password === testConfig.testData.users.regular.password) {
+        return res.status(200).json({
+          user: {
+            id: 2,
+            email: testConfig.testData.users.regular.email,
+            role: testConfig.testData.users.regular.role,
+          },
+          token: 'mock-jwt-token-user',
+        });
+      }
+
+      return res.status(401).json({
+        error: 'Ungültige Anmeldedaten',
+      });
+    },
+  });
+
+  // Logout-Endpunkt
+  server.routes.set('POST /api/auth/logout', {
+    method: 'POST',
+    path: '/api/auth/logout',
+    handler: (req, res) => {
+      server.requestCount++;
+      res.status(200).json({ message: 'Erfolgreich abgemeldet' });
+    },
+  });
+
+  // Registrierung-Endpunkt
+  server.routes.set('POST /api/auth/register', {
+    method: 'POST',
+    path: '/api/auth/register',
+    handler: async (req, res) => {
+      server.requestCount++;
+
+      const { email, password, firstName, lastName } = req.body || {};
+
+      if (!email || !password || !firstName || !lastName) {
+        return res.status(400).json({
+          error: 'Alle Felder sind erforderlich',
+        });
+      }
+
+      // Prüfen, ob Benutzer bereits existiert
+      if (email === testConfig.testData.users.admin.email ||
+          email === testConfig.testData.users.regular.email) {
+        return res.status(409).json({
+          error: 'Benutzer existiert bereits',
+        });
+      }
+
+      return res.status(201).json({
+        user: {
+          id: Date.now(),
+          email,
+          firstName,
+          lastName,
+          role: 'user',
+          verified: false,
+        },
+        message: 'Benutzer erfolgreich registriert',
+      });
+    },
+  });
+}
+
+/**
+ * Registriert Dashboard-Routen
+ */
+function registerDashboardRoutes(server: TestServer): void {
+  // Dashboard-Statistiken
+  server.routes.set('GET /api/dashboard/stats', {
+    method: 'GET',
+    path: '/api/dashboard/stats',
+    handler: (req, res) => {
+      server.requestCount++;
+      res.status(200).json({
+        users: { total: 1250, active: 890, new: 45 },
+        projects: { total: 340, active: 280, completed: 60 },
+        revenue: { total: 45000, monthly: 5200 },
+        performance: { avgResponseTime: 245, uptime: 99.9 },
+      });
+    },
+  });
+
+  // Dashboard-Aktivitäten
+  server.routes.set('GET /api/dashboard/activity', {
+    method: 'GET',
+    path: '/api/dashboard/activity',
+    handler: (req, res) => {
+      server.requestCount++;
+      res.status(200).json([
+        {
+          id: 1,
+          type: 'user_registered',
+          message: 'Neuer Benutzer registriert',
+          timestamp: new Date().toISOString(),
+          user: 'john.doe@example.com',
+        },
+        {
+          id: 2,
+          type: 'project_created',
+          message: 'Neues Projekt erstellt',
+          timestamp: new Date(Date.now() - 3600000).toISOString(),
+          user: 'jane.smith@example.com',
+        },
+      ]);
+    },
+  });
+}
+
+/**
+ * Registriert Newsletter-Routen
+ */
+function registerNewsletterRoutes(server: TestServer): void {
+  // Newsletter-Abonnement
+  server.routes.set('POST /api/newsletter/subscribe', {
+    method: 'POST',
+    path: '/api/newsletter/subscribe',
+    handler: async (req, res) => {
+      server.requestCount++;
+
+      const { email } = req.body || {};
+
+      if (!email) {
+        return res.status(400).json({
+          error: 'Email ist erforderlich',
+        });
+      }
+
+      // Prüfen, ob bereits abonniert
+      if (email === testConfig.testData.newsletters[0].email) {
+        return res.status(409).json({
+          error: 'Bereits abonniert',
+        });
+      }
+
+      return res.status(200).json({
+        message: 'Erfolgreich abonniert',
+        email,
+      });
+    },
+  });
+
+  // Newsletter-Abmeldung
+  server.routes.set('POST /api/newsletter/unsubscribe', {
+    method: 'POST',
+    path: '/api/newsletter/unsubscribe',
+    handler: async (req, res) => {
+      server.requestCount++;
+
+      const { email } = req.body || {};
+
+      if (!email) {
+        return res.status(400).json({
+          error: 'Email ist erforderlich',
+        });
+      }
+
+      return res.status(200).json({
+        message: 'Erfolgreich abgemeldet',
+        email,
+      });
+    },
+  });
+}
+
+/**
+ * Erstellt eine benutzerdefinierte Mock-Route
+ */
+export function createMockRoute(
+  server: TestServer,
+  method: string,
+  path: string,
+  response: MockResponse
+): void {
+  const routeKey = `${method} ${path}`;
+
+  server.routes.set(routeKey, {
+    method,
+    path,
+    handler: async (req, res) => {
+      server.requestCount++;
+
+      // Verzögerung simulieren falls konfiguriert
+      if (response.delay) {
+        await new Promise(resolve => setTimeout(resolve, response.delay));
+      }
+
+      // Header setzen
+      if (response.headers) {
+        Object.entries(response.headers).forEach(([key, value]) => {
+          res.setHeader(key, value);
+        });
+      }
+
+      // Response senden
+      res.status(response.status).json(response.body || {});
+    },
+  });
+
+  getTestLogger().debug(`Mock-Route erstellt: ${routeKey}`);
+}
+
+/**
+ * Entfernt eine Mock-Route
+ */
+export function removeMockRoute(server: TestServer, method: string, path: string): void {
+  const routeKey = `${method} ${path}`;
+  const removed = server.routes.delete(routeKey);
+
+  if (removed) {
+    getTestLogger().debug(`Mock-Route entfernt: ${routeKey}`);
+  }
+}
+
+/**
+ * Hilfsfunktion zum Testen von HTTP-Anfragen
+ */
+export async function makeTestRequest(
+  server: TestServer,
+  method: string,
+  path: string,
+  options: {
+    headers?: Record<string, string>;
+    body?: any;
+    query?: Record<string, string>;
+  } = {}
+): Promise<{ status: number; headers: Record<string, string>; body: any }> {
+  const logger = getTestLogger();
+  logger.api.request(method, `${server.url}${path}`);
+
+  const routeKey = `${method} ${path}`;
+  const route = server.routes.get(routeKey);
+
+  if (!route) {
+    logger.api.error(method, path, new Error('Route nicht gefunden'));
+    return {
+      status: 404,
+      headers: {},
+      body: { error: 'Route nicht gefunden' },
+    };
+  }
+
+  // Mock request/response objects
+  const req = {
+    method,
+    url: path,
+    headers: options.headers || {},
+    body: options.body,
+    query: options.query || {},
+  };
+
+  let responseStatus = 200;
+  let responseHeaders: Record<string, string> = {};
+  let responseBody: any = {};
+
+  const res = {
+    status: (status: number) => {
+      responseStatus = status;
+      return res;
+    },
+    setHeader: (key: string, value: string) => {
+      responseHeaders[key] = value;
+    },
+    json: (body: any) => {
+      responseBody = body;
+    },
+  };
+
+  try {
+    await route.handler(req, res);
+    logger.api.response(method, path, responseStatus);
+    return {
+      status: responseStatus,
+      headers: responseHeaders,
+      body: responseBody,
+    };
+  } catch (error) {
+    logger.api.error(method, path, error);
+    return {
+      status: 500,
+      headers: {},
+      body: { error: 'Interner Server-Fehler' },
+    };
+  }
+}

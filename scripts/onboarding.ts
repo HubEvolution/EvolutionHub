@@ -21,12 +21,39 @@ const chalk = {
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
+import { fileURLToPath } from 'url';
+
+// Pfade für ESM-Module und Projekt-Root
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const ROOT_DIR = path.join(__dirname, '..');
+
+// DB-Name aus wrangler.toml (Fallback auf lokalen Standard)
+function extractConfigValue(config: string, key: string): string | null {
+  const regex = new RegExp(`${key}\\s*=\\s*["']([^"']+)["']`);
+  const match = config.match(regex);
+  return match ? match[1] : null;
+}
+const wranglerTomlPath = path.join(ROOT_DIR, 'wrangler.toml');
+let DB_NAME = 'evolution-hub-main-local';
+if (fs.existsSync(wranglerTomlPath)) {
+  try {
+    const wranglerConfigText = fs.readFileSync(wranglerTomlPath, 'utf-8');
+    const maybe = extractConfigValue(wranglerConfigText, 'preview_database_id');
+    if (maybe) DB_NAME = maybe;
+  } catch {
+    // still fallback to default
+  }
+}
 
 // Erstelle eine readline-Schnittstelle
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout
 });
+
+// CI/TTY-Guard: Nur in interaktiven TTYs nach Eingaben fragen
+const IS_INTERACTIVE = process.stdin.isTTY && !process.env.CI;
 
 // ASCII-Art-Logo
 const logo = `
@@ -76,7 +103,7 @@ async function createTestUser() {
     `;
     
     // Finde alle SQLite-Dateien
-    const sqliteFiles = [];
+    const sqliteFiles: string[] = [];
     
     // Haupt-SQLite-Datei
     const mainDbPath = path.join(ROOT_DIR, '.wrangler', 'd1', 'miniflare', 'databases', `${DB_NAME}.sqlite`);
@@ -134,20 +161,17 @@ async function createTestUser() {
 async function main() {
   console.log('🚀 Starte Einrichtung der lokalen Entwicklungsumgebung...');
 
-  // 1. Lokale D1-Datenbank erstellen
-  await createLocalD1Database();
+  if (!IS_INTERACTIVE) {
+    console.log('\nNicht-interaktive Umgebung erkannt (CI oder kein TTY).');
+    console.log('Onboarding wird übersprungen. Führen Sie für die lokale Einrichtung stattdessen aus:');
+    console.log('  npm run setup:local');
+    try { rl.close(); } catch {}
+    return;
+  }
 
-  // 2. Datenbankmigrationen ausführen
-  await runDatabaseMigrations();
-
-  // 3. Lokalen R2-Bucket erstellen
-  await createLocalR2Bucket();
-
-  // 4. Lokalen KV-Namespace erstellen
-  await createLocalKVNamespace();
-  
-  // 5. Test-Benutzer erstellen
-  await createTestUser();
+  await checkDependencies();
+  // Nutze das vorhandene Setup, das alle Schritte orchestriert
+  await setupEnvironment();
 
   console.log('\n✅ Lokale Entwicklungsumgebung wurde erfolgreich eingerichtet!');
   
@@ -155,7 +179,7 @@ async function main() {
   console.log('  npm run dev');
   
   console.log('\nOder mit Verbindung zu Remote-Ressourcen:')
-  console.log('  npm run dev:remote');
+  console.log('  npx --no-install wrangler dev --remote');
 }
 
 // Überprüfe, ob alle Abhängigkeiten installiert sind
@@ -173,12 +197,14 @@ async function checkDependencies() {
     
     // Wrangler überprüfen
     try {
-      const wranglerVersion = execSync('npx wrangler --version').toString().trim();
+      const wranglerVersion = execSync('npx --no-install wrangler --version').toString().trim();
       console.log(`Wrangler-Version: ${chalk.green(wranglerVersion)}`);
     } catch (error) {
-      console.log(`Wrangler: ${chalk.red('Nicht installiert')}`);
-      console.log('Installiere Wrangler...');
-      execSync('npm install -g wrangler', { stdio: 'inherit' });
+      console.log(`Wrangler: ${chalk.red('Nicht gefunden')}`);
+      console.log(chalk.yellow('Bitte installieren Sie Wrangler als Dev-Dependency im Projekt:'));
+      console.log(chalk.cyan('  npm i -D wrangler'));
+      console.log('Abbruch, damit Sie die Installation nachholen können.');
+      process.exit(1);
     }
     
     // Abhängigkeiten installieren
@@ -194,6 +220,7 @@ async function checkDependencies() {
   
   return new Promise<void>(resolve => {
     console.log('');
+    if (!IS_INTERACTIVE) return resolve();
     rl.question(chalk.yellow('Drücken Sie Enter, um fortzufahren...'), () => {
       resolve();
     });
@@ -219,6 +246,7 @@ async function setupEnvironment() {
   
   return new Promise<void>(resolve => {
     console.log('');
+    if (!IS_INTERACTIVE) return resolve();
     rl.question(chalk.yellow('Drücken Sie Enter, um fortzufahren...'), () => {
       resolve();
     });
@@ -242,6 +270,7 @@ async function setupShellAliases() {
   console.log('');
   
   return new Promise<void>(resolve => {
+    if (!IS_INTERACTIVE) return resolve();
     rl.question(chalk.yellow('Möchten Sie die Shell-Aliase zu Ihrer Shell-Konfiguration hinzufügen? (j/n) '), async (answer) => {
       if (answer.toLowerCase() === 'j' || answer.toLowerCase() === 'ja') {
         try {
@@ -271,6 +300,7 @@ async function setupShellAliases() {
       }
       
       console.log('');
+      if (!IS_INTERACTIVE) return resolve();
       rl.question(chalk.yellow('Drücken Sie Enter, um fortzufahren...'), () => {
         resolve();
       });
@@ -292,6 +322,7 @@ async function showDocumentation() {
   console.log('');
   
   return new Promise<void>(resolve => {
+    if (!IS_INTERACTIVE) return resolve();
     rl.question(chalk.yellow('Möchten Sie die Cheat-Sheet-Dokumentation öffnen? (j/n) '), (answer) => {
       if (answer.toLowerCase() === 'j' || answer.toLowerCase() === 'ja') {
         try {

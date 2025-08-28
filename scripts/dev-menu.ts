@@ -18,6 +18,9 @@ const chalk = {
   gray: (text: string) => `\x1b[90m${text}\x1b[0m`
 };
 
+// CI/TTY-Guard: In nicht-interaktiven Umgebungen sofort beenden
+const IS_INTERACTIVE = Boolean(process.stdin.isTTY) && !process.env.CI;
+
 // Erstelle eine readline-Schnittstelle
 const rl = readline.createInterface({
   input: process.stdin,
@@ -48,7 +51,7 @@ const logo = `
 // Hauptmenü-Optionen
 const mainMenuOptions = [
   { key: '1', label: 'Lokale Entwicklung', action: 'dev-menu' },
-  { key: '2', label: 'Remote-Entwicklung (Live-Daten)', action: 'dev:remote' },
+  { key: '2', label: 'Remote-Entwicklung (Live-Daten)', action: 'wrangler dev --remote' },
   { key: '3', label: 'Lokale Umgebung einrichten', action: 'setup:local' },
   { key: '4', label: 'Datenbank-Verwaltung', action: 'db-menu' },
   { key: '5', label: 'Build & Deployment', action: 'build-menu' },
@@ -58,8 +61,8 @@ const mainMenuOptions = [
 
 // Lokale Entwicklungs-Menü-Optionen
 const devMenuOptions = [
-  { key: '1', label: 'UI-Entwicklung (Astro-Server)', action: 'dev' },
-  { key: '2', label: 'Cloudflare-Entwicklung (Wrangler mit D1/R2/KV)', action: 'dev:wrangler' },
+  { key: '1', label: 'UI-Entwicklung (Astro-Server)', action: 'dev:astro' },
+  { key: '2', label: 'Cloudflare-Entwicklung (Wrangler mit D1/R2/KV)', action: 'dev' },
   { key: '3', label: 'Lokale Datenbank zurücksetzen & Migrationen anwenden', action: 'reset-db-menu' },
   { key: '0', label: 'Zurück zum Hauptmenü', action: 'main-menu' }
 ];
@@ -76,7 +79,7 @@ const dbMenuOptions = [
   { key: '1', label: 'Lokale Datenbank einrichten', action: 'db:setup' },
   { key: '2', label: 'Datenbank-Schema generieren', action: 'db:generate' },
   { key: '3', label: 'Migrationen ausführen', action: 'db:migrate' },
-  { key: '4', label: 'D1-Datenbank anzeigen', action: 'wrangler d1 list' },
+  { key: '4', label: 'D1-Datenbank anzeigen', action: 'npx --no-install wrangler d1 list' },
   { key: '0', label: 'Zurück zum Hauptmenü', action: 'main-menu' }
 ];
 
@@ -212,7 +215,7 @@ async function applyAllMigrations() {
       console.log(chalk.cyan(`Wende Migration an: ${migrationFile}`));
       
       try {
-        execSync(`npx wrangler d1 execute evolution-hub-main-local --local --file=${migrationPath}`, { stdio: 'inherit' });
+        execSync(`npx --no-install wrangler d1 execute evolution-hub-main-local --local --file=${migrationPath}`, { stdio: 'inherit' });
         console.log(chalk.green(`✓ Migration erfolgreich angewendet: ${migrationFile}`));
       } catch (error) {
         console.error(chalk.red(`✗ Fehler bei Migration ${migrationFile}: ${error}`));
@@ -277,7 +280,7 @@ async function recreateLocalDb() {
     // Erstelle die lokale D1-Datenbank neu
     console.log(chalk.cyan('\nErstelle lokale D1-Datenbank neu...'));
     try {
-      execSync('npx wrangler d1 create evolution-hub-main-local', { stdio: 'inherit' });
+      execSync('npx --no-install wrangler d1 create evolution-hub-main-local', { stdio: 'inherit' });
     } catch (error) {
       // Ignoriere Fehler, wenn die Datenbank bereits existiert
       console.log(chalk.yellow('Hinweis: Die Datenbank existiert möglicherweise bereits.'));
@@ -348,7 +351,13 @@ function handleMenuSelection(answer: string, options: typeof mainMenuOptions) {
     default:
       if (selectedOption.action.startsWith('wrangler') || 
           selectedOption.action.startsWith('npx')) {
-        runCommand(selectedOption.action);
+        let cmd = selectedOption.action;
+        if (cmd.startsWith('wrangler')) {
+          cmd = `npx --no-install ${cmd}`;
+        } else if (cmd.startsWith('npx wrangler')) {
+          cmd = cmd.replace(/^npx wrangler\b/, 'npx --no-install wrangler');
+        }
+        runCommand(cmd);
       } else {
         runNpmCommand(selectedOption.action);
       }
@@ -356,7 +365,12 @@ function handleMenuSelection(answer: string, options: typeof mainMenuOptions) {
   }
 }
 
-// Starte das Hauptmenü
+// Starte das Hauptmenü (nicht in CI/Non-TTY)
+if (!IS_INTERACTIVE) {
+  console.log(chalk.yellow('Nicht-interaktive Umgebung erkannt (CI oder kein TTY). Menü wird übersprungen.'));
+  try { rl.close(); } catch {}
+  process.exit(0);
+}
 displayMainMenu();
 
 // Event-Handler für das Schließen der readline-Schnittstelle

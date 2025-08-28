@@ -15,7 +15,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Use Node.js 18
+    - name: Use Node.js 22
       uses: actions/setup-node@v4
       with:
         node-version: 22
@@ -28,7 +28,9 @@ jobs:
       run: npx playwright install --with-deps
 
     - name: Run Playwright Tests
-      run: npx playwright test
+      run: npm run test:e2e
+      env:
+        TEST_BASE_URL: ${{ vars.TEST_BASE_URL }}
 
     - name: i18n Empty Strings Report
       run: npm run i18n:report | tee i18n-empty-report.txt

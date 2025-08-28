@@ -6,6 +6,8 @@ import { createAuthService } from '@/lib/services/auth-service-impl';
 import { ServiceError } from '@/lib/services/types';
 import { handleAuthError } from '@/lib/error-handler';
 import { validateSession } from '@/lib/auth-v2';
+import { loggerFactory } from '@/server/utils/logger-factory';
+import { type LogContext } from '@/config/logging';
 
 interface ChangePasswordData {
   currentPassword: string;
@@ -32,6 +34,9 @@ const changePasswordSchema: ValidationSchema<ChangePasswordData> = {
 };
 
 const changePasswordValidator = createValidator<ChangePasswordData>(changePasswordSchema);
+
+// Logger-Instanz für Security-Events
+const securityLogger = loggerFactory.createSecurityLogger();
 
 /**
  * POST /api/auth/change-password
@@ -60,7 +65,16 @@ export const POST = async (context: APIContext) => {
         throw ServiceError.validation('Das neue Passwort darf nicht mit dem aktuellen übereinstimmen');
       }
     } catch (validationError) {
-      console.error('Change password validation error:', validationError);
+      // Validierungsfehler → securityLogger.logAuthFailure()
+      const baseContext: LogContext = {
+        ipAddress: context.clientAddress,
+        resource: 'change-password',
+        action: 'validation'
+      };
+      securityLogger.logAuthFailure(
+        { error: validationError.message || 'Validation failed', details: validationError },
+        baseContext
+      );
       throw ServiceError.validation('Die eingegebenen Daten sind ungültig', {
         validationErrors: 'Formatierungsfehler'
       });
@@ -68,7 +82,16 @@ export const POST = async (context: APIContext) => {
 
     if (!context.locals.runtime) {
       const error = new Error('Runtime environment is not available. Are you running in a Cloudflare environment?');
-      console.error(error.message);
+      // Runtime-Fehler → securityLogger.logApiError()
+      const baseContext: LogContext = {
+        ipAddress: context.clientAddress,
+        resource: 'change-password',
+        action: 'runtime-check'
+      };
+      securityLogger.logApiError(
+        { error: error.message, details: error },
+        baseContext
+      );
       throw error;
     }
 
@@ -99,7 +122,16 @@ export const POST = async (context: APIContext) => {
     // Erfolg: Redirect zurück zu den Einstellungen
     return createSecureRedirect(`${baseRedirectUrl}?success=PasswordChanged`);
   } catch (error) {
-    console.error('Change password error:', error);
+    // Allgemeiner Fehler → securityLogger.logAuthFailure()
+    const baseContext: LogContext = {
+      ipAddress: context.clientAddress,
+      resource: 'change-password',
+      action: 'general-error'
+    };
+    securityLogger.logAuthFailure(
+      { error: error instanceof Error ? error.message : 'Unknown error', details: error },
+      baseContext
+    );
     return handleAuthError(error, '/account/settings');
   }
 };

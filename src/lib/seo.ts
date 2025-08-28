@@ -24,11 +24,11 @@ export function getSEOData(locale: Locale): SEOData {
 }
 
 export function getAlternateUrls(pathname: string): Record<Locale, string> {
-  // Remove existing locale prefix (if any)
-  const pathWithoutLocale = pathname.replace(/^\/(de|en)/, '');
-  
+  // Normalize by stripping any existing locale prefix and ensuring a leading slash
+  const base = pathname.replace(/^\/(de|en)(\/(|$))?/, '/');
+  const normalized = base === '' ? '/' : base; // safety: ensure root is '/'
   return {
-    de: `/de${pathWithoutLocale}`,
-    en: `/en${pathWithoutLocale}`
+    de: normalized,
+    en: normalized === '/' ? '/en/' : `/en${normalized}`,
   };
 }

@@ -1,16 +1,16 @@
-@---
+---
  // src/layouts/BaseLayout.astro
  import Header from '@/components/Header.astro';
  // Global CSS wird weiter unten via <style is:global> importiert
  import { getLocale } from '@/lib/i18n';
- import { getSEOData } from '@/lib/seo';
+ import { getSEOData, getAlternateUrls } from '@/lib/seo';
  import SkipLink from '@/components/SkipLink.astro';
  import Footer from '@/components/Footer.astro';
  import ThemeProvider from '@/components/ThemeProvider.astro';
  import AOSCoordinator from '@/components/scripts/AOSCoordinator.astro';
  import AnalyticsCoordinator from '@/components/scripts/AnalyticsCoordinator.astro';
  import Toaster from '@/components/Toaster';
- import { ViewTransitions } from 'astro:transitions';
+ import { ClientRouter } from 'astro:transitions';
  import ComingSoon from '@/components/ui/ComingSoon.astro';
  import { isComingSoon } from '@/config/coming-soon';
  
@@ -32,18 +32,22 @@
    hideFooter?: boolean;
    enableAOS?: boolean;
    enableAnalytics?: boolean;
+   noIndex?: boolean;
    comingSoon?: boolean;
  }
  
+ const props = Astro.props as Props;
+
  const {
    title: customTitle,
    description: customDescription,
    ogImage: customOgImage,
    hideNewsletter
- } = Astro.props;
+ } = props;
  
- const { enableAOS = true, enableAnalytics = true } = Astro.props as Props;
- const { hideHeader = false, hideFooter = false } = Astro.props as Props;
+ const { enableAOS = true, enableAnalytics = true } = props;
+ const { hideHeader = false, hideFooter = false } = props;
+ const { noIndex = false } = props;
  
  // Get locale from URL
  const locale = getLocale(Astro.url.pathname);
@@ -56,17 +60,18 @@
  const description = customDescription || seoData.description;
  const ogImage = customOgImage || seoData.ogImage;
  // Compute whether to show Coming Soon overlay
- const pageFrontmatter = Astro.props as unknown as Record<string, unknown>;
+ const pageFrontmatter = props as unknown as Record<string, unknown>;
  const showComingSoon = isComingSoon(Astro.url.pathname, pageFrontmatter);
  const bodyClass = `min-h-screen bg-sky-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 flex flex-col overflow-x-hidden ${showComingSoon ? 'coming-soon-open' : ''}`;
  ---
  
  <!DOCTYPE html>
- <html lang={getLocale(Astro.url.pathname)} class="h-full">
+ <html lang={locale} class="h-full">
    <head>
      <meta charset="UTF-8" />
      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
      <meta name="description" content={description} />
+     {noIndex && <meta name="robots" content="noindex, nofollow, noarchive" />}
  
      <!-- Open Graph / Facebook -->
      <meta property="og:type" content="website" />
@@ -81,12 +86,12 @@
      <meta name="twitter:description" content={description} />
      <meta name="twitter:image" content={ogImage} />
      
-     {Astro.props.canonical && <link rel="canonical" href={Astro.props.canonical} />}
+     <link rel="canonical" href={props.canonical || `${Astro.url.origin}${(locale === 'en' ? getAlternateUrls(Astro.url.pathname).en : getAlternateUrls(Astro.url.pathname).de)}`} />
      
      <!-- hreflang links for SEO -->
-     <link rel="alternate" hreflang="de" href={`${Astro.url.origin}/de${Astro.url.pathname.replace(/^\/(de|en)/, '')}`} />
-     <link rel="alternate" hreflang="en" href={`${Astro.url.origin}/en${Astro.url.pathname.replace(/^\/(de|en)/, '')}`} />
-     <link rel="alternate" hreflang="x-default" href={`${Astro.url.origin}${Astro.url.pathname.replace(/^\/(de|en)/, '')}`} />
+     <link rel="alternate" hreflang="de" href={`${Astro.url.origin}${getAlternateUrls(Astro.url.pathname).de}`} />
+     <link rel="alternate" hreflang="en" href={`${Astro.url.origin}${getAlternateUrls(Astro.url.pathname).en}`} />
+     <link rel="alternate" hreflang="x-default" href={`${Astro.url.origin}${getAlternateUrls(Astro.url.pathname).de}`} />
  
      <title>{title} | Evolution Hub</title>
  
@@ -137,7 +142,7 @@
      </style>
      
      <!-- Astro View Transitions for SPA-like navigation -->
-     <ViewTransitions />
+     <ClientRouter />
    </head>
  
    <body class={bodyClass}>

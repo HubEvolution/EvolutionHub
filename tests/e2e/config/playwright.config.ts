@@ -6,9 +6,17 @@ dotenv.config();
 
 // Plain Playwright config without top-level await or require overrides
 // Reuse BASE_URL in multiple places and set Origin header to satisfy CSRF checks
-const BASE_URL = process.env.BASE_URL || 'http://127.0.0.1:8787';
-// If BASE_URL points to a remote host (not localhost/127.0.0.1), we will not start a local web server
-const IS_REMOTE_TARGET = !/^https?:\/\/(localhost|127\.0\.0\.1)(:\\d+)?/i.test(BASE_URL);
+// Prefer TEST_BASE_URL, fallback to BASE_URL, then local default
+const TEST_BASE_URL = process.env.TEST_BASE_URL || process.env.BASE_URL;
+const BASE_URL = TEST_BASE_URL || 'http://127.0.0.1:8787';
+// Determine if target is remote via URL parsing (more robust than regex)
+let IS_REMOTE_TARGET = false;
+try {
+  const url = new URL(BASE_URL);
+  IS_REMOTE_TARGET = !(url.hostname === 'localhost' || url.hostname === '127.0.0.1');
+} catch {
+  IS_REMOTE_TARGET = false;
+}
 
 export default defineConfig({
   testDir: '../specs',

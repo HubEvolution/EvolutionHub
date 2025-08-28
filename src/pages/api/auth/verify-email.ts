@@ -8,10 +8,15 @@
 import type { APIContext } from 'astro';
 import { z } from 'zod';
 import { createSession } from '@/lib/auth-v2';
-import { createSecureRedirect } from '@/lib/response-helpers';
+import { createSecureRedirect, createSecureJsonResponse } from '@/lib/response-helpers';
 import { logAuthSuccess, logAuthFailure } from '@/lib/security-logger';
 import { createEmailService, type EmailServiceDependencies } from '@/lib/services/email-service-impl';
 import { localizePath } from '@/lib/locale-path';
+import { loggerFactory } from '@/server/utils/logger-factory';
+
+// Logger-Instanzen erstellen
+const logger = loggerFactory.createLogger('verify-email');
+const securityLogger = loggerFactory.createSecurityLogger();
 
 // Validierungsschema für Verifikations-Anfragen (analog zu Newsletter-Pattern)
 const verificationSchema = z.object({
@@ -60,7 +65,11 @@ export const GET = async (context: APIContext) => {
   // Locale aus Query (Fallback: Referer -> 'en') vorab berechnen
   const url = new URL(context.request.url);
   // Debug incoming request
-  console.log('[verify-email] Incoming URL:', url.toString());
+  logger.debug('Incoming URL', {
+    resource: 'verify-email',
+    action: 'incoming_request',
+    metadata: { url: url.toString() }
+  });
   const referer =
     typeof context?.request?.headers?.get === 'function'
       ? context.request.headers.get('referer') ?? ''
@@ -75,10 +84,39 @@ export const GET = async (context: APIContext) => {
     return createSecureRedirect(query ? `${base}?${query}` : base);
   };
 
+// 405 Method Not Allowed für alle anderen Methoden (nur GET ist erlaubt)
+const methodNotAllowed = (context: APIContext): Response => {
+  // Leichtes Logging für Policy Enforcement
+  logger.warn('Method not allowed on verify-email', {
+    resource: 'verify-email',
+    action: 'method_not_allowed',
+    metadata: { method: context.request.method }
+  });
+
+  return createSecureJsonResponse(
+    { error: true, message: 'Method Not Allowed' },
+    405,
+    { Allow: 'GET' }
+  );
+};
+
+export const POST = methodNotAllowed;
+export const PUT = methodNotAllowed;
+export const PATCH = methodNotAllowed;
+export const DELETE = methodNotAllowed;
+export const OPTIONS = methodNotAllowed;
+export const HEAD = methodNotAllowed;
+
+ 
+
   try {
     const token = url.searchParams.get('token');
     const email = url.searchParams.get('email');
-    console.log('[verify-email] token present:', !!token, 'len:', token?.length || 0, 'email present:', !!email);
+    logger.debug('Token validation parameters', {
+      resource: 'verify-email',
+      action: 'validate_query',
+      metadata: { hasToken: !!token, tokenLength: token?.length || 0, hasEmail: !!email }
+    });
 
     // Validierung der Query-Parameter
     // Important: URLSearchParams.get returns null when absent; Zod optional expects undefined
@@ -88,7 +126,11 @@ export const GET = async (context: APIContext) => {
     }
     const validation = verificationSchema.safeParse(validationPayload);
     if (!validation.success) {
-      console.log('[verify-email] validation failed:', validation.error.errors);
+      logger.warn('Validation failed', {
+        resource: 'verify-email',
+        action: 'validate_query',
+        metadata: { errors: validation.error.errors }
+      });
       logAuthFailure(context.clientAddress, {
         reason: 'invalid_verification_link',
         error: validation.error.errors
@@ -98,11 +140,19 @@ export const GET = async (context: APIContext) => {
     }
 
     const { token: validToken } = validation.data;
-    console.log('[verify-email] validation ok, token length:', validToken.length);
+    logger.debug('Validation successful', {
+      resource: 'verify-email',
+      action: 'validate_query',
+      metadata: { tokenLength: validToken.length }
+    });
 
     if (!context.locals.runtime) {
       const error = new Error("Runtime environment is not available. Are you running in a Cloudflare environment?");
-      console.error(error.message);
+      logger.error('Runtime environment error', {
+        resource: 'verify-email',
+        action: 'runtime_check',
+        metadata: { error: error.message }
+      });
       throw error;
     }
 
@@ -116,7 +166,11 @@ export const GET = async (context: APIContext) => {
     `).bind(validToken).first<EmailVerificationToken>();
 
     if (!tokenRecord) {
-      console.log('Verification token not found:', validToken);
+      logger.warn('Verification token not found', {
+        resource: 'verify-email',
+        action: 'verify_token_lookup',
+        metadata: { tokenPrefix: validToken.substring(0, 8) + '...' }
+      });
       logAuthFailure(context.clientAddress, {
         reason: 'verification_token_not_found',
         token: validToken.substring(0, 8) + '...' // Nur Anfang loggen für Security
@@ -127,7 +181,11 @@ export const GET = async (context: APIContext) => {
 
     // Prüfen, ob Token bereits verwendet wurde
     if (tokenRecord.used_at) {
-      console.log('Verification token already used:', validToken);
+      logger.warn('Verification token already used', {
+        resource: 'verify-email',
+        action: 'verify_token_used',
+        metadata: { userId: tokenRecord.user_id, usedAt: new Date(tokenRecord.used_at * 1000).toISOString() }
+      });
       logAuthFailure(context.clientAddress, {
         reason: 'verification_token_already_used',
         userId: tokenRecord.user_id,
@@ -140,7 +198,11 @@ export const GET = async (context: APIContext) => {
     // Prüfen, ob Token abgelaufen ist (24 Stunden)
     const now = Math.floor(Date.now() / 1000);
     if (now > tokenRecord.expires_at) {
-      console.log('Verification token expired:', validToken, 'Expired at:', new Date(tokenRecord.expires_at * 1000));
+      logger.warn('Verification token expired', {
+        resource: 'verify-email',
+        action: 'verify_token_expired',
+        metadata: { expiredAt: new Date(tokenRecord.expires_at * 1000).toISOString() }
+      });
       
       // Abgelaufenen Token löschen
       await db.prepare('DELETE FROM email_verification_tokens WHERE token = ?')
@@ -158,7 +220,11 @@ export const GET = async (context: APIContext) => {
 
     // E-Mail-Adresse validieren wenn angegeben
     if (email && email !== tokenRecord.email) {
-      console.log('Email mismatch in verification:', email, 'vs', tokenRecord.email);
+      logger.warn('Email mismatch in verification', {
+        resource: 'verify-email',
+        action: 'verify_email_mismatch',
+        metadata: { provided: email, expected: tokenRecord.email, userId: tokenRecord.user_id }
+      });
       logAuthFailure(context.clientAddress, {
         reason: 'verification_email_mismatch',
         provided: email,
@@ -175,7 +241,11 @@ export const GET = async (context: APIContext) => {
       .first<User>();
 
     if (!user) {
-      console.error('User not found for verification token:', tokenRecord.user_id);
+      logger.error('User not found for verification token', {
+        resource: 'verify-email',
+        action: 'verify_user_lookup',
+        metadata: { userId: tokenRecord.user_id }
+      });
       logAuthFailure(context.clientAddress, {
         reason: 'verification_user_not_found',
         userId: tokenRecord.user_id
@@ -229,17 +299,33 @@ export const GET = async (context: APIContext) => {
       emailService.sendWelcomeEmail(user.email, user.name)
         .then(result => {
           if (result.success) {
-            console.log('✅ Welcome email sent to:', user.email);
+            logger.info('Welcome email sent successfully', {
+              resource: 'verify-email',
+              action: 'send_welcome_email',
+              metadata: { email: user.email }
+            });
           } else {
-            console.warn('⚠️ Failed to send welcome email:', result.error);
+            logger.warn('Failed to send welcome email', {
+              resource: 'verify-email',
+              action: 'send_welcome_email',
+              metadata: { error: result.error }
+            });
           }
         })
         .catch(error => {
-          console.error('❌ Welcome email error:', error);
+          logger.error('Welcome email error', {
+            resource: 'verify-email',
+            action: 'send_welcome_email',
+            metadata: { error: error instanceof Error ? error.message : String(error) }
+          });
         });
       
     } catch (emailError) {
-      console.warn('Non-blocking email service error:', emailError);
+      logger.warn('Non-blocking email service error', {
+        resource: 'verify-email',
+        action: 'email_service_error',
+        metadata: { error: emailError instanceof Error ? emailError.message : String(emailError) }
+      });
       // Fehler beim E-Mail-Versand blockiert nicht die Verifikation
     }
 
@@ -251,13 +337,21 @@ export const GET = async (context: APIContext) => {
       verificationTime: new Date(verificationTime * 1000).toISOString()
     });
 
-    console.log('✅ Email successfully verified for user:', user.email);
+    logger.info('Email successfully verified for user', {
+      resource: 'verify-email',
+      action: 'verification_success',
+      metadata: { email: user.email }
+    });
 
     // Weiterleitung zur Erfolgsseite
     return redirectLocalized('/email-verified', 'welcome=true');
 
   } catch (error) {
-    console.error('Error during email verification:', error);
+    logger.error('Error during email verification', {
+      resource: 'verify-email',
+      action: 'verification_error',
+      metadata: { error: error instanceof Error ? error.message : String(error) }
+    });
     
     // Generischer Server-Fehler
     logAuthFailure(context.clientAddress, {
@@ -295,7 +389,11 @@ export async function createEmailVerificationToken(
     VALUES (?, ?, ?, ?, ?, NULL)
   `).bind(token, userId, email, now, expiresAt).run();
   
-  console.log('✅ Email verification token created for:', email, 'Token:', token.substring(0, 8) + '...');
+  logger.info('Email verification token created', {
+    resource: 'verify-email',
+    action: 'create_verification_token',
+    metadata: { email: email, tokenPrefix: token.substring(0, 8) + '...' }
+  });
   
   return token;
 }
@@ -316,3 +414,4 @@ function generateSecureToken(): string {
   // Timestamp-Komponente für Eindeutigkeit hinzufügen
   return token + Date.now().toString(36);
 }
+

@@ -7,6 +7,26 @@ import { ServiceError, ServiceErrorType } from '@/lib/services/types';
 import { handleAuthError } from '@/lib/error-handler';
 import { createEmailService, type EmailServiceDependencies } from '@/lib/services/email-service-impl';
 import { createEmailVerificationToken } from '@/pages/api/auth/verify-email';
+import { loggerFactory } from '@/server/utils/logger-factory';
+import { type LogContext } from '@/config/logging';
+// Logger-Instanz für Security-Events
+const securityLogger = loggerFactory.createSecurityLogger();
+// Hilfsfunktion für LogContext-Erstellung
+const createLogContext = (context: APIContext, additionalContext?: Partial<LogContext>): LogContext => {
+  const userAgent = typeof context?.request?.headers?.get === 'function'
+    ? context.request.headers.get('user-agent') ?? ''
+    : '';
+
+  return {
+    ipAddress: context.clientAddress,
+    userAgent,
+    requestId: crypto.randomUUID(),
+    resource: 'auth/register',
+    action: 'user_registration',
+    timestamp: new Date(),
+    ...additionalContext
+  };
+};
 
 // Interface für Registrierungsdaten mit strikter Typisierung
 interface RegisterData {
@@ -103,7 +123,15 @@ export const POST = async (context: APIContext) => {
       // Validierung durchführen und getypte Daten erhalten
       registerData = registerValidator.validateOrThrow(data);
     } catch (validationError) {
-      console.error('Register validation error:', validationError);
+      securityLogger.logApiError(
+        {
+          error: 'Register validation error',
+          details: validationError,
+          endpoint: '/api/auth/register',
+          method: 'POST'
+        },
+        createLogContext(context, { action: 'validation_failed' })
+      );
       throw ServiceError.validation(
         'Die eingegebenen Daten sind ungültig',
         { validationErrors: 'Formatierungsfehler' }
@@ -112,7 +140,15 @@ export const POST = async (context: APIContext) => {
     
     if (!context.locals.runtime) {
       const error = new Error("Runtime environment is not available. Are you running in a Cloudflare environment?");
-      console.error(error.message);
+      securityLogger.logApiError(
+        {
+          error: 'Runtime environment not available',
+          details: error,
+          endpoint: '/api/auth/register',
+          method: 'POST'
+        },
+        createLogContext(context, { action: 'runtime_error' })
+      );
       throw error;
     }
     
@@ -157,11 +193,29 @@ export const POST = async (context: APIContext) => {
       try {
         const envName = context?.locals?.runtime?.env?.ENVIRONMENT || '';
         if (envName === 'staging' && !deps.resendApiKey) {
-          console.warn('[staging][register] RESEND_API_KEY fehlt – Verifikationsmail kann nicht gesendet werden');
+          securityLogger.logSecurityEvent(
+            'CONFIG_WARNING',
+            {
+              message: 'RESEND_API_KEY fehlt in staging',
+              environment: 'staging',
+              impact: 'Verifikationsmail kann nicht gesendet werden'
+            },
+            createLogContext(context, { action: 'email_config_check' })
+          );
         }
       } catch (e) {
         // Avoid empty catch (ESLint: no-empty); dev-only noise
-        if (import.meta.env?.DEV) console.debug('[staging][register] RESEND_API_KEY check threw', e);
+        if (import.meta.env?.DEV) {
+          securityLogger.logSecurityEvent(
+            'CONFIG_CHECK_ERROR',
+            {
+              message: 'RESEND_API_KEY check failed',
+              error: e,
+              environment: 'staging'
+            },
+            createLogContext(context, { action: 'email_config_check_error' })
+          );
+        }
       }
 
       const emailService = createEmailService(deps);
@@ -175,7 +229,16 @@ export const POST = async (context: APIContext) => {
         })
         .then((res) => {
           if (!res.success) {
-            console.warn('Failed to send verification email on register:', res.error);
+            securityLogger.logApiError(
+              {
+                error: 'Failed to send verification email',
+                details: res.error,
+                endpoint: '/api/auth/register',
+                method: 'POST',
+                email: email
+              },
+              createLogContext(context, { action: 'email_send_failed', userId })
+            );
             return;
           }
 
@@ -184,30 +247,71 @@ export const POST = async (context: APIContext) => {
             const envName = context?.locals?.runtime?.env?.ENVIRONMENT || '';
             if (envName === 'staging') {
               const masked = email.replace(/(^.).*(@.*$)/, '$1*****$2');
-              console.log('[staging][register] Verification email enqueued', {
-                to: masked,
-                messageId: res.messageId,
-                locale,
-              });
+              securityLogger.logSecurityEvent(
+                'EMAIL_ENQUEUED',
+                {
+                  message: 'Verification email enqueued successfully',
+                  email: masked,
+                  messageId: res.messageId,
+                  locale,
+                  environment: 'staging'
+                },
+                createLogContext(context, { action: 'email_enqueued', userId })
+              );
             }
           } catch (e) {
             // Avoid empty catch (ESLint: no-empty); dev-only noise
-            if (import.meta.env?.DEV) console.debug('[staging][register] staging log failed', e);
+            if (import.meta.env?.DEV) {
+              securityLogger.logSecurityEvent(
+                'STAGING_LOG_ERROR',
+                {
+                  message: 'Staging log failed',
+                  error: e,
+                  environment: 'staging'
+                },
+                createLogContext(context, { action: 'staging_log_error', userId })
+              );
+            }
           }
         })
         .catch((e) => {
-          console.warn('Verification email error on register:', e);
+          securityLogger.logApiError(
+            {
+              error: 'Verification email error on register',
+              details: e,
+              endpoint: '/api/auth/register',
+              method: 'POST',
+              email: email
+            },
+            createLogContext(context, { action: 'email_send_error', userId })
+          );
         });
     } catch (e) {
       // Keine Blockierung der Registrierung bei E-Mail-Problemen
-      console.warn('Non-blocking verification email setup failed:', e);
+      securityLogger.logApiError(
+        {
+          error: 'Non-blocking verification email setup failed',
+          details: e,
+          endpoint: '/api/auth/register',
+          method: 'POST'
+        },
+        createLogContext(context, { action: 'email_setup_failed' })
+      );
     }
 
     // Weiterleitung zur Verifikationsseite (locale-bewusst, aber Route ist locale-neutral)
     const verifyRedirect = `/verify-email?email=${encodeURIComponent(authResult.user.email)}&locale=${encodeURIComponent(locale)}`;
     return createSecureRedirect(verifyRedirect);
   } catch (error) {
-    console.error('Register error:', error);
+    securityLogger.logApiError(
+      {
+        error: 'Register error',
+        details: error,
+        endpoint: '/api/auth/register',
+        method: 'POST'
+      },
+      createLogContext(context, { action: 'registration_failed' })
+    );
     
     // Wenn es ein Konflikt mit Details ist, spezialisieren wir den Fehlercode
     // bevor wir zum zentralen Error-Handler weiterleiten

@@ -2,8 +2,29 @@ import type { APIContext } from 'astro';
 import { Resend } from 'resend';
 import type { User } from '@/lib/auth-v2';
 import { standardApiLimiter } from '@/lib/rate-limiter';
-import { logPasswordReset, logAuthFailure } from '@/lib/security-logger';
 import { createSecureRedirect, createSecureJsonResponse } from '@/lib/response-helpers';
+import { loggerFactory } from '@/server/utils/logger-factory';
+import type { LogContext } from '@/config/logging';
+
+// Logger-Instanz für Security-Events
+const securityLogger = loggerFactory.createSecurityLogger();
+
+// Hilfsfunktion für LogContext-Erstellung
+const createLogContext = (context: APIContext, additionalContext?: Partial<LogContext>): LogContext => {
+  const userAgent = typeof context?.request?.headers?.get === 'function'
+    ? context.request.headers.get('user-agent') ?? ''
+    : '';
+
+  return {
+    ipAddress: context.clientAddress,
+    userAgent,
+    requestId: crypto.randomUUID(),
+    resource: 'auth/forgot-password',
+    action: 'password_reset_attempt',
+    timestamp: new Date(),
+    ...additionalContext
+  };
+};
 
 // Diese API-Route sollte nicht prerendered werden, da sie Request-Header benötigt
 export const prerender = false;
@@ -12,7 +33,7 @@ export const prerender = false;
  * POST /api/auth/forgot-password
  * Sendet eine E-Mail mit einem Passwort-Reset-Link
  * Implementiert Rate-Limiting, Security-Headers und Audit-Logging
- * 
+ *
  * WICHTIG: Dieser Endpunkt verwendet KEINE API-Middleware, da er Redirects statt JSON zurückgibt!
  */
 export const POST = async (context: APIContext) => {
@@ -26,6 +47,10 @@ export const POST = async (context: APIContext) => {
   // Rate-Limiting anwenden
   const rateLimitResponse = await standardApiLimiter(context);
   if (rateLimitResponse) {
+    securityLogger.logSecurityEvent('RATE_LIMIT_EXCEEDED', {
+      endpoint: '/api/auth/forgot-password',
+      ipAddress: context.clientAddress
+    }, createLogContext(context, { action: 'rate_limit_exceeded' }));
     return createSecureRedirect(`${locale === 'en' ? '/en' : ''}/forgot-password?error=TooManyRequests`);
   }
 
@@ -40,11 +65,12 @@ export const POST = async (context: APIContext) => {
   // Validate email
   if (typeof email !== 'string' || email.length < 3) {
     // Fehlgeschlagene Anfrage protokollieren
-    logAuthFailure(context.clientAddress, {
+    securityLogger.logAuthFailure({
+      email: typeof email === 'string' ? email : 'unknown',
       reason: 'invalid_email',
       input: typeof email === 'string' ? email : null
-    });
-    
+    }, createLogContext(context, { action: 'validation_failed' }));
+
     return createSecureRedirect(`${locale === 'en' ? '/en' : ''}/forgot-password?error=InvalidEmail`);
   }
 
@@ -54,11 +80,11 @@ export const POST = async (context: APIContext) => {
   if (!existingUser) {
     // We don't want to reveal if a user exists or not
     // Versuch trotzdem protokollieren, aber ohne zu viel Information preiszugeben
-    logAuthFailure(context.clientAddress, {
-      reason: 'password_reset_non_existent_user',
-      // Wir speichern die E-Mail absichtlich nicht, um keine User-Enumeration zu ermöglichen
-    });
-    
+    securityLogger.logAuthFailure({
+      email: 'unknown', // Wir speichern die E-Mail absichtlich nicht, um keine User-Enumeration zu ermöglichen
+      reason: 'password_reset_non_existent_user'
+    }, createLogContext(context, { action: 'user_not_found' }));
+
     return createSecureRedirect('/auth/password-reset-sent');
   }
 
@@ -71,7 +97,7 @@ export const POST = async (context: APIContext) => {
 
   // Verwende ein Fragment-Token, um das Risiko von Token-Leaks in Logs/Proxys zu reduzieren
   const resetLink = `${context.url.origin}/reset-password#token=${token}`;
-  
+
   const resend = new Resend(context.locals.runtime.env.RESEND_API_KEY);
 
   await resend.emails.send({
@@ -82,14 +108,27 @@ export const POST = async (context: APIContext) => {
   });
 
   // Erfolgreiche Passwort-Reset-Anfrage protokollieren
-  logPasswordReset(existingUser.id, context.clientAddress, {
+  securityLogger.logSecurityEvent('PASSWORD_RESET', {
+    userId: existingUser.id,
+    email: email,
+    ipAddress: context.clientAddress,
     action: 'password_reset_requested'
-  });
+  }, createLogContext(context, { userId: existingUser.id, action: 'password_reset_success' }));
 
   return createSecureRedirect('/auth/password-reset-sent');
   } catch (error) {
-    console.error('Forgot password error:', error);
-    
+    securityLogger.logApiError({
+      endpoint: '/api/auth/forgot-password',
+      error: error instanceof Error ? error.message : 'Unknown error',
+      method: 'POST'
+    }, createLogContext(context, {
+      action: 'password_reset_error',
+      metadata: {
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined
+      }
+    }));
+
     // Generischer Serverfehler
     return createSecureRedirect(`${locale === 'en' ? '/en' : ''}/forgot-password?error=ServerError`);
   }

@@ -225,11 +225,12 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   // Bestimme, ob Redirect vermieden werden soll (APIs/Assets)
   const isApi = path.startsWith('/api/');
-  const isAsset = /\.(css|js|mjs|map|svg|png|jpe?g|webp|gif|ico|json|xml|txt|woff2?|ttf)$/i.test(path)
+  const isAsset = /\.(css|js|mjs|map|svg|png|jpe?g|webp|gif|ico|json|xml|txt|woff2?|ttf|webmanifest)$/i.test(path)
     || path === '/favicon.ico'
     || path.startsWith('/assets/')
     || path.startsWith('/icons/')
-    || path.startsWith('/images/');
+    || path.startsWith('/images/')
+    || path.startsWith('/favicons/');
 
   const bot = isBot(context.request.headers.get('user-agent'));
 
@@ -303,29 +304,24 @@ export const onRequest = defineMiddleware(async (context, next) => {
     return new Response(null, { status: 302, headers });
   }
 
-  // Fallback: /de/* -> nur zu /en/* normalisieren, wenn explizit cookie=en gesetzt ist
-  // Änderung: Auth-Routen NIE normalisieren, damit Locale stabil bleibt (Option B)
+  // Normalisiere /de/* auf kanonische URL
+  // - DE ist neutral (ohne /de)
+  // - EN ist unter /en/* (wenn Cookie-Präferenz 'en')
   const isDePrefixed = path === '/de' || path.startsWith('/de/');
-  if (isDePrefixed && !isApi && !isAsset && !isAuthRoute(path) && cookieLocale === 'en') {
+  if (isDePrefixed && !isApi && !isAsset && !isAuthRoute(path)) {
     const pathWithoutDe = path.replace(/^\/de(\/|$)/, '/');
-    const target = (pathWithoutDe === '/' ? '/en/' : `/en${pathWithoutDe}`);
+    const target = cookieLocale === 'en'
+      ? (pathWithoutDe === '/' ? '/en/' : `/en${pathWithoutDe}`)
+      : pathWithoutDe;
     const location = `${url.origin}${target}${url.search}${url.hash}`;
     const headers = new Headers();
     headers.set('Location', location);
-    headers.set('Content-Language', 'en');
-    const vary = 'Cookie, Accept-Language';
-    headers.set('Vary', vary);
+    headers.set('Content-Language', cookieLocale === 'en' ? 'en' : 'de');
+    headers.set('Vary', 'Cookie, Accept-Language');
     if (import.meta.env.DEV) {
-      console.log('[Middleware] Redirecting /de-prefixed path to', location);
+      console.log('[Middleware] Normalize /de/* to canonical:', location);
     }
     return new Response(null, { status: 308, headers });
-  }
-
-  // Symmetrischer Schutz: Auth-Routen unter /en/* niemals normalisieren
-  // (Expliziter Guard für zukünftige Erweiterungen; derzeit keine EN-Normalisierung aktiv.)
-  const isEnPrefixed = path === '/en' || path.startsWith('/en/');
-  if (isEnPrefixed && isAuthRoute(path)) {
-    // no-op: bewusst keine Normalisierung für Auth-Routen unter /en/*
   }
 
   // Bot/Crawler: Splash überspringen; neutrale Pfade anhand Accept-Language für Bots umleiten
@@ -361,39 +357,39 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   // Authentifizierung
   if (!context.locals.runtime) {
-    console.log('[Middleware] No runtime context available');
-    context.locals.user = null;
-    context.locals.session = null;
-    return next();
-  }
-  
-  const sessionId = context.cookies.get('session_id')?.value ?? null;
-  if (import.meta.env.DEV) {
-    console.log('[Middleware] Session ID from cookie:', sessionId ? 'Present' : 'Not present');
-  }
-
-  if (!sessionId) {
-    context.locals.user = null;
-    context.locals.session = null;
-    return next();
-  }
-
-  // Session validieren und Locals setzen
-  try {
-    const { session, user } = await validateSession(context.locals.runtime.env.DB, sessionId);
     if (import.meta.env.DEV) {
-      console.log('[Middleware] Session validation result:', {
-        sessionValid: !!session,
-        userValid: !!user,
-      });
+      console.log('[Middleware] No runtime context available');
+    }
+    context.locals.user = null;
+    context.locals.session = null;
+  } else {
+    const sessionId = context.cookies.get('session_id')?.value ?? null;
+    if (import.meta.env.DEV) {
+      console.log('[Middleware] Session ID from cookie:', sessionId ? 'Present' : 'Not present');
     }
 
-    context.locals.session = session;
-    context.locals.user = user;
-  } catch (error) {
-    console.error('[Middleware] Error during session validation:', error);
-    context.locals.session = null;
-    context.locals.user = null;
+    if (!sessionId) {
+      context.locals.user = null;
+      context.locals.session = null;
+    } else {
+      // Session validieren und Locals setzen
+      try {
+        const { session, user } = await validateSession(context.locals.runtime.env.DB, sessionId);
+        if (import.meta.env.DEV) {
+          console.log('[Middleware] Session validation result:', {
+            sessionValid: !!session,
+            userValid: !!user,
+          });
+        }
+
+        context.locals.session = session;
+        context.locals.user = user;
+      } catch (error) {
+        console.error('[Middleware] Error during session validation:', error);
+        context.locals.session = null;
+        context.locals.user = null;
+      }
+    }
   }
 
   // Verification gate: redirect unverifizierte Nutzer vom Dashboard zu /verify-email
@@ -473,11 +469,22 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   // Sicherheits-Header hinzufügen
   // X-Robots-Tag for welcome page (HTTP-level noindex)
-  if (path === '/welcome') {
+  if (path === '/welcome' || path === '/welcome/') {
     response.headers.set('X-Robots-Tag', 'noindex, nofollow, noarchive');
   }
   // CSP: relax in development for Astro/Vite HMR and inline module scripts; strict in production
-  if (import.meta.env.DEV) {
+  // Wrangler "dev" runs a built worker, so import.meta.env.DEV can be false.
+  // Treat local loopbacks as development to keep relaxed CSP during local E2E/dev.
+  const cfEnv = (context.locals as unknown as { runtime?: { env?: Record<string, string> } })?.runtime?.env;
+  const envFlagDev = !!(cfEnv && (cfEnv.ENVIRONMENT === 'development' || cfEnv.NODE_ENV === 'development'));
+  const __devLike =
+    import.meta.env.DEV ||
+    import.meta.env.MODE === 'development' ||
+    url.hostname === '127.0.0.1' ||
+    url.hostname === 'localhost' ||
+    url.hostname === '::1' ||
+    envFlagDev;
+  if (__devLike) {
     const devCsp = [
       "default-src 'self' data: blob:",
       "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: data: https://cdn.jsdelivr.net https://www.googletagmanager.com https://plausible.io",

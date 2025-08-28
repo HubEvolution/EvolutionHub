@@ -1,0 +1,59 @@
+{
+  "name": "evolution-hub-test-suite-v2",
+  "version": "1.0.0",
+  "description": "Comprehensive test suite for Evolution Hub - separate and parallel to existing tests",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "test": "npm run test:unit && npm run test:integration && npm run test:e2e",
+    "test:unit": "vitest run src/unit --coverage",
+    "test:integration": "vitest run src/integration --coverage",
+    "test:e2e": "playwright test",
+    "test:watch": "vitest watch",
+    "test:coverage": "vitest run --coverage",
+    "test:ci": "npm run test:unit && npm run test:integration && npm run test:e2e && npm run coverage:report",
+    "coverage:report": "nyc report --reporter=html --reporter=json --reporter=text",
+    "lint": "eslint src/**/*.ts",
+    "type-check": "tsc --noEmit",
+    "build": "tsc",
+    "clean": "rm -rf dist coverage reports",
+    "setup": "npm install && npm run build",
+    "generate:fixtures": "tsx scripts/generate-test-data.ts",
+    "report:generate": "tsx scripts/generate-report.ts"
+  },
+  "dependencies": {
+    "@playwright/test": "^1.40.0",
+    "@types/node": "^20.0.0",
+    "axios": "^1.6.0",
+    "dotenv": "^16.3.0",
+    "faker": "^6.6.6",
+    "supertest": "^6.3.0",
+    "vitest": "^1.0.0",
+    "jsdom": "^23.0.0",
+    "nyc": "^15.1.0"
+  },
+  "devDependencies": {
+    "@types/faker": "^6.6.9",
+    "@types/supertest": "^2.0.16",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0",
+    "@vitest/coverage-v8": "^1.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "testing",
+    "test-suite",
+    "evolution-hub",
+    "typescript",
+    "vitest",
+    "playwright",
+    "comprehensive-testing"
+  ],
+  "author": "Test Engineering Team",
+  "license": "MIT"
+}

@@ -27,7 +27,29 @@ const ROOT_DIR = path.resolve(__dirname, '..');
 const MIGRATIONS_DIR = path.join(ROOT_DIR, 'migrations');
 
 // Konfiguration aus wrangler.toml lesen
-const WRANGLER_CONFIG = fs.readFileSync(path.join(ROOT_DIR, 'wrangler.toml'), 'utf-8');
+const WRANGLER_TOML_PATH = path.join(ROOT_DIR, 'wrangler.toml');
+let WRANGLER_CONFIG = '';
+let WRANGLER_TOML_EXISTS = false;
+try {
+  if (fs.existsSync(WRANGLER_TOML_PATH)) {
+    WRANGLER_CONFIG = fs.readFileSync(WRANGLER_TOML_PATH, 'utf-8');
+    WRANGLER_TOML_EXISTS = true;
+  } else {
+    console.warn('wrangler.toml nicht gefunden – verwende Fallback-Defaults für lokale Entwicklung.');
+  }
+} catch (err) {
+  console.warn('Konnte wrangler.toml nicht lesen – verwende Fallback-Defaults für lokale Entwicklung.', err);
+}
+
+// Interaktivitäts- und Wrangler-Verfügbarkeits-Checks
+const IS_INTERACTIVE = Boolean(process.stdin.isTTY) && !process.env.CI;
+let WRANGLER_AVAILABLE = false;
+try {
+  execSync('npx --no-install wrangler --version', { stdio: 'pipe' });
+  WRANGLER_AVAILABLE = true;
+} catch {
+  WRANGLER_AVAILABLE = false;
+}
 
 // Utility: check if a column exists in a table
 function columnExists(dbPath: string, table: string, column: string): boolean {
@@ -170,14 +192,18 @@ console.log('🚀 Starte Einrichtung der lokalen Entwicklungsumgebung...');
 // 1. Lokale D1-Datenbank erstellen
 console.log('\n📦 Erstelle lokale D1-Datenbank...');
 try {
-  // Prüfe, ob die Datenbank bereits existiert
-  const dbList = execSync('npx wrangler d1 list', { encoding: 'utf-8' });
-  
-  if (!dbList.includes(DB_NAME)) {
-    console.log(`Erstelle neue D1-Datenbank: ${DB_NAME}`);
-    execSync(`npx wrangler d1 create ${DB_NAME}`, { stdio: 'inherit' });
+  // Optional: Remote-D1 in interaktiven Umgebungen einrichten (kann Login erfordern)
+  if (IS_INTERACTIVE && WRANGLER_AVAILABLE) {
+    // Prüfe, ob die Datenbank bereits existiert (remote)
+    const dbList = execSync('npx --no-install wrangler d1 list', { encoding: 'utf-8' });
+    if (!dbList.includes(DB_NAME)) {
+      console.log(`Erstelle neue D1-Datenbank (remote): ${DB_NAME}`);
+      execSync(`npx --no-install wrangler d1 create ${DB_NAME}`, { stdio: 'inherit' });
+    } else {
+      console.log(`D1-Datenbank (remote) ${DB_NAME} existiert bereits.`);
+    }
   } else {
-    console.log(`D1-Datenbank ${DB_NAME} existiert bereits.`);
+    console.log('⏭️  Überspringe Remote-D1-Setup (nicht-interaktiv oder Wrangler nicht verfügbar).');
   }
   
   // 2. Datenbankmigrationen ausführen
@@ -387,12 +413,16 @@ try {
   // 3. Lokalen R2-Bucket erstellen
   console.log('\n🪣 Erstelle lokalen R2-Bucket...');
   try {
-    // Prüfe, ob der Bucket bereits existiert
-    const r2List = execSync('npx wrangler r2 bucket list', { encoding: 'utf-8' });
-    if (!r2List.includes(R2_BUCKET)) {
-      execSync(`npx wrangler r2 bucket create ${R2_BUCKET}`, { stdio: 'inherit' });
+    if (IS_INTERACTIVE && WRANGLER_AVAILABLE) {
+      // Prüfe, ob der Bucket bereits existiert (remote)
+      const r2List = execSync('npx --no-install wrangler r2 bucket list', { encoding: 'utf-8' });
+      if (!r2List.includes(R2_BUCKET)) {
+        execSync(`npx --no-install wrangler r2 bucket create ${R2_BUCKET}`, { stdio: 'inherit' });
+      } else {
+        console.log(`R2-Bucket ${R2_BUCKET} existiert bereits.`);
+      }
     } else {
-      console.log(`R2-Bucket ${R2_BUCKET} existiert bereits.`);
+      console.log('⏭️  Überspringe Remote-R2-Setup (nicht-interaktiv oder Wrangler nicht verfügbar).');
     }
   } catch (error) {
     console.error('❌ Fehler bei der R2-Bucket-Erstellung:', error);
@@ -401,28 +431,43 @@ try {
   // 4. Lokalen KV-Namespace erstellen
   console.log('\n🔑 Erstelle lokalen KV-Namespace...');
   try {
-    // Prüfe, ob der Namespace bereits existiert
-    const kvList = execSync('npx wrangler kv namespace list', { encoding: 'utf-8' });
-    
-    if (!kvList.includes(KV_NAMESPACE)) {
-      console.log(`Erstelle neuen KV-Namespace: ${KV_NAMESPACE}`);
-      const createOutput = execSync(`npx wrangler kv namespace create ${KV_NAMESPACE}`, { encoding: 'utf-8' });
+    if (IS_INTERACTIVE && WRANGLER_AVAILABLE) {
+      // Prüfe, ob der Namespace bereits existiert (remote)
+      const kvList = execSync('npx --no-install wrangler kv namespace list', { encoding: 'utf-8' });
       
-      // Extrahiere die ID aus der Ausgabe mit einem Regex
-      const idMatch = createOutput.match(/id = "([^"]+)"/i);
-      const namespaceId = idMatch ? idMatch[1] : null;
-      
-      if (namespaceId) {
-        console.log(`KV-Namespace erstellt mit ID: ${namespaceId}`);
-        // Aktualisiere wrangler.toml mit der neuen KV-Namespace-ID
-        let updatedConfig = WRANGLER_CONFIG.replace(
-          /preview_id\s*=\s*["'][^"']+["']/,
-          `preview_id = "${namespaceId}"`
-        );
-        fs.writeFileSync(path.join(ROOT_DIR, 'wrangler.toml'), updatedConfig);
+      if (!kvList.includes(KV_NAMESPACE)) {
+        console.log(`Erstelle neuen KV-Namespace: ${KV_NAMESPACE}`);
+        const createOutput = execSync(`npx --no-install wrangler kv namespace create ${KV_NAMESPACE}`, { encoding: 'utf-8' });
+        
+        // Extrahiere die ID aus der Ausgabe mit einem Regex
+        const idMatch = createOutput.match(/id = "([^"]+)"/i);
+        let namespaceId: string | null = null;
+        if (idMatch) {
+          namespaceId = idMatch[1];
+        }
+        
+        if (namespaceId) {
+          console.log(`KV-Namespace erstellt mit ID: ${namespaceId}`);
+          // Aktualisiere wrangler.toml mit der neuen KV-Namespace-ID (nur wenn vorhanden)
+          if (WRANGLER_TOML_EXISTS) {
+            const hasPreviewId = /preview_id\s*=\s*["'][^"']+["']/.test(WRANGLER_CONFIG);
+            const updatedConfig = hasPreviewId
+              ? WRANGLER_CONFIG.replace(
+                  /preview_id\s*=\s*["'][^"']+["']/,
+                  `preview_id = "${namespaceId}"`
+                )
+              : `${WRANGLER_CONFIG}\npreview_id = "${namespaceId}"\n`;
+            fs.writeFileSync(WRANGLER_TOML_PATH, updatedConfig);
+          } else {
+            console.warn('wrangler.toml ist nicht vorhanden – bitte fügen Sie die preview_id manuell hinzu oder erstellen Sie eine wrangler.toml.');
+            console.warn(`Vorgeschlagene Zeile: preview_id = "${namespaceId}"`);
+          }
+        }
+      } else {
+        console.log(`KV-Namespace ${KV_NAMESPACE} existiert bereits.`);
       }
     } else {
-      console.log(`KV-Namespace ${KV_NAMESPACE} existiert bereits.`);
+      console.log('⏭️  Überspringe Remote-KV-Setup (nicht-interaktiv oder Wrangler nicht verfügbar).');
     }
   } catch (error) {
     console.error('❌ Fehler bei der KV-Namespace-Erstellung:', error);
@@ -435,7 +480,7 @@ try {
   console.log('\nSie können jetzt den lokalen Entwicklungsserver starten mit:');
   console.log('  npm run dev');
   console.log('\nOder mit Verbindung zu Remote-Ressourcen:');
-  console.log('  npm run dev:remote');
+  console.log('  npx --no-install wrangler dev --remote');
 
 } catch (error) {
   console.error('❌ Fehler bei der Einrichtung der lokalen Entwicklungsumgebung:', error);

@@ -1,5 +1,10 @@
 // API Route für Lead-Magnet-Downloads mit Email-Gate und Analytics-Tracking
 import type { APIRoute } from 'astro';
+import type { R2Bucket } from '@cloudflare/workers-types';
+import { loggerFactory } from '@/server/utils/logger-factory';
+// Logger-Instanzen erstellen
+const logger = loggerFactory.createLogger('lead-magnets-download');
+const securityLogger = loggerFactory.createSecurityLogger();
 
 interface DownloadRequest {
   leadMagnetId: string;
@@ -102,11 +107,11 @@ const getLeadMagnetSource = (locals: any): 'public' | 'r2' => {
 // Lead-Daten speichern (hier würde normalerweise eine Datenbank verwendet)
 const saveLead = async (leadData: DownloadRequest, leadMagnet: LeadMagnetConfig) => {
   // Hier würde die Lead-Speicherung in einer Datenbank erfolgen
-  // Für Development: Console-Log
-  console.log('🎯 New Lead captured:', {
+  // Für Development: Security-Event loggen
+  securityLogger.logSecurityEvent('USER_EVENT', {
+    action: 'lead_captured',
     leadMagnetId: leadData.leadMagnetId,
     email: leadData.email,
-    timestamp: new Date().toISOString(),
     source: leadData.source,
     utm: {
       source: leadData.utmSource,
@@ -130,10 +135,12 @@ const saveLead = async (leadData: DownloadRequest, leadMagnet: LeadMagnetConfig)
 // Email-Automation triggern
 const triggerEmailSequence = async (email: string, sequence: string, leadMagnet: LeadMagnetConfig) => {
   // Hier würde die Email-Automation getriggert
-  console.log('📧 Email sequence triggered:', {
-    email,
-    sequence,
-    leadMagnet: leadMagnet.title
+  logger.info('Email sequence triggered', {
+    metadata: {
+      email,
+      sequence,
+      leadMagnet: leadMagnet.title
+    }
   });
   
   // TODO: Integration mit Email-Provider (ConvertKit, Mailchimp, etc.)
@@ -214,12 +221,13 @@ export const POST: APIRoute = async ({ request, locals, url }) => {
 
     // Analytics-Event für Server-side Tracking
     if (leadMagnet.trackingEnabled) {
-      console.log('📊 Analytics Event:', {
-        event: 'lead_magnet_download',
-        leadMagnetId: leadMagnet.id,
-        email: requestData.email,
-        source: requestData.source,
-        timestamp: new Date().toISOString()
+      logger.info('Analytics Event: lead_magnet_download', {
+        metadata: {
+          event: 'lead_magnet_download',
+          leadMagnetId: leadMagnet.id,
+          email: requestData.email,
+          source: requestData.source
+        }
       });
     }
 
@@ -243,8 +251,10 @@ export const POST: APIRoute = async ({ request, locals, url }) => {
     });
 
   } catch (error) {
-    console.error('❌ Lead-Magnet Download Error:', error);
-    
+    logger.error('Lead-Magnet Download Error', {
+      metadata: { error: error instanceof Error ? error.message : String(error) }
+    });
+
     return new Response(JSON.stringify({
       success: false,
       error: 'Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.'
@@ -300,7 +310,7 @@ export const GET: APIRoute = async ({ url, locals, request }) => {
     if (source === 'r2') {
       const key = leadMagnet.r2Key || `lead-magnets/${leadMagnet.fileName}`;
       // R2 lesen
-      const r2 = locals.runtime.env.R2_LEADMAGNETS as R2Bucket;
+      const r2 = locals.runtime.env.R2_LEADMAGNETS as any;
       const obj = await r2.get(key);
 
       if (!obj) {
@@ -318,7 +328,9 @@ export const GET: APIRoute = async ({ url, locals, request }) => {
           ).run();
         } catch (e) {
           // Audit-Insert fehlgeschlagen – bewusst ignoriert, um Download-Flow nicht zu stören
-          console.warn('download_audit insert failed (not_found)', e);
+          logger.warn('download_audit insert failed (not_found)', {
+             metadata: { error: e instanceof Error ? e.message : String(e) }
+           });
         }
 
         return new Response('Datei nicht gefunden', { status: 404 });
@@ -341,7 +353,9 @@ export const GET: APIRoute = async ({ url, locals, request }) => {
         ).run();
       } catch (e) {
         // Audit-Insert fehlgeschlagen – bewusst ignoriert, um Download-Flow nicht zu stören
-        console.warn('download_audit insert failed (ok)', e);
+        logger.warn('download_audit insert failed (ok)', {
+             metadata: { error: e instanceof Error ? e.message : String(e) }
+           });
       }
 
       const headers = new Headers();

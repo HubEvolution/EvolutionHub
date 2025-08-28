@@ -1,4 +1,5 @@
 import type { APIContext } from 'astro';
+import { log } from '@/server/utils/logger';
 
 // Accepts legacy CSP reports (application/csp-report) and modern Reporting API (application/reports+json)
 // - POST only -> 204 No Content
@@ -56,12 +57,13 @@ export const POST = async (context: APIContext) => {
         const blocked = r?.['blocked-uri'] || r?.['blockedURL'] || r?.['blocked'];
         const documentUri = r?.['document-uri'] || r?.['documentURL'] || r?.['url'];
         const disposition = r?.['disposition'];
-        // eslint-disable-next-line no-console
-        console.log('[csp-report] violation:', {
+        log('info', 'CSP violation detected', {
           directive: typeof directive === 'string' ? directive : String(directive || ''),
           blocked: typeof blocked === 'string' ? blocked : String(blocked || ''),
           document: typeof documentUri === 'string' ? documentUri : String(documentUri || ''),
           disposition: typeof disposition === 'string' ? disposition : String(disposition || ''),
+          resource: '/api/csp-report',
+          action: 'csp_violation_logged'
         });
       } catch {
         // Absichtlich stumm: Logging-Fehler nicht weitergeben

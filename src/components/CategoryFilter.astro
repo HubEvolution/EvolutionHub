@@ -19,6 +19,7 @@ const {
 const sortedCategories = [...categories].sort((a, b) => 
   a.name.localeCompare(b.name, 'de')
 );
+const nonce = (Astro.locals as any).cspNonce;
 ---
 
 <div class={['space-y-4', className].join(' ')}>
@@ -34,7 +35,6 @@ const sortedCategories = [...categories].sort((a, b) =>
       <select 
         id="category-filter"
         class="block w-full rounded-md border border-gray-300 bg-white py-2 pl-3 pr-10 text-base focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:focus:border-emerald-400 dark:focus:ring-emerald-400 sm:text-sm"
-        onchange="if (this.value) window.location.href = this.value;"
       >
         {showAllOption && (
           <option 
@@ -107,7 +107,26 @@ const sortedCategories = [...categories].sort((a, b) =>
     ))}
   </div>
 </div>
-
+<script is:inline nonce={nonce}>
+  const initCategoryFilter = () => {
+    const select = document.getElementById('category-filter');
+    if (!select) return;
+    select.addEventListener('change', (e) => {
+      const target = e.target;
+      const value = target && (target as any).value;
+      if (typeof value === 'string' && value) {
+        window.location.href = value;
+      }
+    });
+  };
+  if (document.readyState !== 'loading') {
+    initCategoryFilter();
+  } else {
+    document.addEventListener('DOMContentLoaded', initCategoryFilter);
+  }
+  // Re-init after Astro view transitions if needed
+  document.addEventListener('astro:after-swap', initCategoryFilter);
+</script>
 <style>
   /* Custom styles for the select dropdown */
   select {

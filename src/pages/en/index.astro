@@ -10,6 +10,7 @@ const t = getI18n(locale);
 const tArr = getI18nArray(locale);
 const heroTypewriterTexts = tArr('pages.home.hero.typewriter');
 const heroTypewriterItems = heroTypewriterTexts.map((text) => ({ text }));
+export const prerender = false;
 ---
 
 <BaseLayout title={t('pages.home.title') ?? 'Evolution Hub'}>

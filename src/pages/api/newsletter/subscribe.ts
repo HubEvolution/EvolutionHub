@@ -1,6 +1,12 @@
 import type { APIRoute } from 'astro';
 import { createPendingSubscription } from './confirm.ts';
+import { loggerFactory } from '@/server/utils/logger-factory';
+import { type LogContext } from '@/config/logging';
 // Tracking von Newsletter-Anmeldungen erfolgt clientseitig via window.evolutionAnalytics
+
+// Logger-Instanzen erstellen
+const logger = loggerFactory.createLogger('newsletter-subscribe');
+const securityLogger = loggerFactory.createSecurityLogger();
 
 interface NewsletterSubscriptionRequest {
   email: string;
@@ -81,7 +87,10 @@ export const POST: APIRoute = async ({ request }) => {
     const emailSent = await sendConfirmationEmail(data.email, confirmationUrl);
     
     if (!emailSent) {
-      console.error('Failed to send confirmation email to:', data.email);
+      logger.error('Failed to send confirmation email', {
+        email: data.email,
+        source: data.source || 'website'
+      });
       return new Response(JSON.stringify({
         success: false,
         error: 'Failed to send confirmation email. Please try again.'
@@ -91,14 +100,19 @@ export const POST: APIRoute = async ({ request }) => {
       });
     }
 
-    console.log('Double opt-in email sent to:', data.email);
-    console.log('Confirmation URL:', confirmationUrl);
+    logger.info('Double opt-in email sent successfully', {
+      email: data.email,
+      confirmationUrl: confirmationUrl,
+      source: data.source || 'website'
+    });
 
     // Analytics event tracking (stubbed for now)
-    console.log('Analytics: newsletter_subscribe_pending', {
-      email: data.email,
-      source: data.source || 'website',
-      timestamp: new Date().toISOString()
+    logger.info('Newsletter subscription pending - analytics event', {
+      metadata: {
+        email: data.email,
+        source: data.source || 'website',
+        event: 'newsletter_subscribe_pending'
+      }
     });
 
     return new Response(JSON.stringify({
@@ -112,10 +126,20 @@ export const POST: APIRoute = async ({ request }) => {
       headers: { 'Content-Type': 'application/json' }
     });
   } catch (error) {
-    console.error('Newsletter subscription error:', error);
+    logger.error('Newsletter subscription error occurred', {
+      metadata: {
+        error: error instanceof Error ? error.message : 'unknown',
+        stack: error instanceof Error ? error.stack : undefined
+      }
+    });
 
     // Track error in analytics
-    console.log(`[Analytics] Newsletter subscription API error: ${error instanceof Error ? error.message : 'unknown'}`);
+    logger.info('Newsletter subscription API error - analytics event', {
+      metadata: {
+        error: error instanceof Error ? error.message : 'unknown',
+        event: 'newsletter_subscription_error'
+      }
+    });
 
     return new Response(
       JSON.stringify({
@@ -137,20 +161,34 @@ export const POST: APIRoute = async ({ request }) => {
 async function sendConfirmationEmail(email: string, confirmationUrl: string): Promise<boolean> {
   try {
     // TODO: Integration with email service (Resend, SendGrid, etc.)
-    console.log('Sending confirmation email to:', email);
-    console.log('Confirmation URL:', confirmationUrl);
-    
+    logger.info('Sending confirmation email', {
+      metadata: {
+        email: email,
+        confirmationUrl: confirmationUrl
+      }
+    });
+
     // Mock email sending - in production, integrate with email service
     const emailContent = generateConfirmationEmailHTML(email, confirmationUrl);
-    
-    console.log('Email content generated:', emailContent.length, 'characters');
-    
+
+    logger.info('Email content generated for confirmation', {
+      metadata: {
+        email: email,
+        contentLength: emailContent.length
+      }
+    });
+
     // Simulate email sending delay
     await new Promise(resolve => setTimeout(resolve, 100));
-    
+
     return true; // Mock success
   } catch (error) {
-    console.error('Error sending confirmation email:', error);
+    logger.error('Error sending confirmation email', {
+      metadata: {
+        email: email,
+        error: error instanceof Error ? error.message : 'unknown'
+      }
+    });
     return false;
   }
 }
@@ -229,8 +267,13 @@ async function checkExistingSubscription(email: string): Promise<boolean> {
   // TODO: Implement database check
   // const result = await db.query('SELECT id FROM newsletter_subscriptions WHERE email = ? AND status = "active"', [email]);
   // return result.length > 0;
-  
-  console.log(`[Newsletter] Checking existing subscription for ${email}`);
+
+  logger.info('Checking existing newsletter subscription', {
+    metadata: {
+      email: email,
+      action: 'subscription_check'
+    }
+  });
   return false; // Stub: assume no existing subscription
 }
 
@@ -242,9 +285,16 @@ async function createNewsletterSubscription(data: any): Promise<string> {
   // TODO: Implement database insertion
   // const result = await db.query('INSERT INTO newsletter_subscriptions SET ?', data);
   // return result.insertId;
-  
+
   const subscriptionId = `sub_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-  console.log(`[Newsletter] Created subscription record:`, { subscriptionId, ...data });
+  logger.info('Newsletter subscription record created', {
+    metadata: {
+      subscriptionId: subscriptionId,
+      email: data.email,
+      source: data.source,
+      action: 'subscription_created'
+    }
+  });
   return subscriptionId;
 }
 

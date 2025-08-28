@@ -1,5 +1,10 @@
 import type { APIRoute } from 'astro';
 import { z } from 'zod';
+import { loggerFactory } from '@/server/utils/logger-factory';
+
+// Logger-Instanzen erstellen
+const logger = loggerFactory.createLogger('newsletter-confirm');
+const securityLogger = loggerFactory.createSecurityLogger();
 
 // Validation schema for confirmation request
 const confirmationSchema = z.object({
@@ -25,15 +30,21 @@ const pendingSubscriptions = new Map<string, PendingSubscription>();
  * Handles double opt-in email confirmations
  */
 export const GET: APIRoute = async ({ request, url }) => {
-  try {
-    const searchParams = url.searchParams;
-    const token = searchParams.get('token');
-    const email = searchParams.get('email');
+  const searchParams = url.searchParams;
+  const token = searchParams.get('token');
+  const email = searchParams.get('email');
 
+  try {
     // Validate query parameters
     const validation = confirmationSchema.safeParse({ token, email });
     if (!validation.success) {
-      console.log('Validation failed:', validation.error.errors);
+      logger.warn('Validation failed for newsletter confirmation', {
+        metadata: {
+          errors: validation.error.errors,
+          hasToken: !!token,
+          email: email || undefined
+        }
+      });
       return new Response(JSON.stringify({
         success: false,
         error: 'Invalid confirmation link',
@@ -49,7 +60,11 @@ export const GET: APIRoute = async ({ request, url }) => {
     // Find pending subscription by token
     const pending = pendingSubscriptions.get(validToken);
     if (!pending) {
-      console.log('Token not found:', validToken);
+      securityLogger.logSecurityEvent('USER_EVENT', {
+        action: 'newsletter_confirmation_token_not_found',
+        tokenHash: validToken.substring(0, 8) + '...',
+        email: email || undefined
+      });
       return new Response(JSON.stringify({
         success: false,
         error: 'Confirmation link expired or invalid'
@@ -62,12 +77,18 @@ export const GET: APIRoute = async ({ request, url }) => {
     // Check if token is expired (24 hours)
     const tokenAge = Date.now() - pending.createdAt.getTime();
     const maxAge = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
-    
+
     if (tokenAge > maxAge) {
-      console.log('Token expired:', validToken, 'Age:', tokenAge);
+      securityLogger.logSecurityEvent('USER_EVENT', {
+        action: 'newsletter_confirmation_token_expired',
+        tokenHash: validToken.substring(0, 8) + '...',
+        tokenAge: tokenAge,
+        maxAge: maxAge,
+        email: pending.email
+      });
       // Clean up expired token
       pendingSubscriptions.delete(validToken);
-      
+
       return new Response(JSON.stringify({
         success: false,
         error: 'Confirmation link has expired. Please subscribe again.'
@@ -79,7 +100,13 @@ export const GET: APIRoute = async ({ request, url }) => {
 
     // Validate email if provided
     if (email && email !== pending.email) {
-      console.log('Email mismatch:', email, 'vs', pending.email);
+      logger.warn('Email mismatch in newsletter confirmation', {
+        metadata: {
+          providedEmail: email,
+          storedEmail: pending.email,
+          tokenHash: validToken.substring(0, 8) + '...'
+        }
+      });
       return new Response(JSON.stringify({
         success: false,
         error: 'Email address does not match confirmation link'
@@ -90,15 +117,24 @@ export const GET: APIRoute = async ({ request, url }) => {
     }
 
     // TODO: Save confirmed subscription to actual newsletter database
-    console.log('Confirmed subscription for:', pending.email);
-    console.log('Source:', pending.source);
-    console.log('Consent given:', pending.consent);
+    logger.info('Newsletter subscription confirmed successfully', {
+      metadata: {
+        email: pending.email,
+        source: pending.source,
+        consent: pending.consent,
+        tokenHash: validToken.substring(0, 8) + '...'
+      }
+    });
 
     // Analytics event tracking (stubbed for now)
-    console.log('Analytics: newsletter_confirmed', {
-      email: pending.email,
-      source: pending.source || 'unknown',
-      timestamp: new Date().toISOString()
+    logger.info('Newsletter confirmation analytics event', {
+      metadata: {
+        event: 'newsletter_confirmed',
+        email: pending.email,
+        source: pending.source || 'unknown',
+        timestamp: new Date().toISOString(),
+        tokenHash: validToken.substring(0, 8) + '...'
+      }
     });
 
     // Clean up confirmed token
@@ -116,8 +152,14 @@ export const GET: APIRoute = async ({ request, url }) => {
     });
 
   } catch (error) {
-    console.error('Error confirming newsletter subscription:', error);
-    
+    logger.error('Error confirming newsletter subscription', {
+      metadata: {
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined
+      }
+    });
+
+    // Generischer Server-Fehler
     return new Response(JSON.stringify({
       success: false,
       error: 'Internal server error during confirmation',
@@ -134,7 +176,7 @@ export const GET: APIRoute = async ({ request, url }) => {
 export function createPendingSubscription(email: string, source?: string): string {
   // Generate secure random token
   const token = generateSecureToken();
-  
+
   const pendingSubscription: PendingSubscription = {
     email,
     token,
@@ -142,12 +184,17 @@ export function createPendingSubscription(email: string, source?: string): strin
     source: source || 'website',
     consent: true
   };
-  
+
   // Store pending subscription
   pendingSubscriptions.set(token, pendingSubscription);
-  
-  console.log('Created pending subscription:', email, 'Token:', token);
-  
+
+  securityLogger.logSecurityEvent('USER_EVENT', {
+    action: 'newsletter_pending_subscription_created',
+    email: email,
+    tokenHash: token.substring(0, 8) + '...',
+    source: source || 'website'
+  });
+
   return token;
 }
 
@@ -155,12 +202,12 @@ export function createPendingSubscription(email: string, source?: string): strin
 function generateSecureToken(): string {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   let token = '';
-  
+
   // Generate 64-character token
   for (let i = 0; i < 64; i++) {
     token += chars.charAt(Math.floor(Math.random() * chars.length));
   }
-  
+
   // Add timestamp component for uniqueness
   return token + Date.now().toString(36);
 }
@@ -170,14 +217,20 @@ export function cleanupExpiredTokens(): number {
   const now = Date.now();
   const maxAge = 24 * 60 * 60 * 1000; // 24 hours
   let cleanedCount = 0;
-  
+
   for (const [token, subscription] of pendingSubscriptions.entries()) {
     if (now - subscription.createdAt.getTime() > maxAge) {
       pendingSubscriptions.delete(token);
       cleanedCount++;
     }
   }
-  
-  console.log('Cleaned up', cleanedCount, 'expired tokens');
+
+  logger.info('Newsletter token cleanup completed', {
+    metadata: {
+      cleanedCount: cleanedCount,
+      remainingTokens: pendingSubscriptions.size,
+      maxAgeHours: 24
+    }
+  });
   return cleanedCount;
 }

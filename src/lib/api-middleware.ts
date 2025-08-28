@@ -1,6 +1,6 @@
 /**
  * API-Middleware für einheitliche Fehlerbehandlung, Rate-Limiting und Security-Headers
- * 
+ *
  * Diese Middleware kann in API-Endpunkten verwendet werden, um gemeinsame
  * Funktionalitäten wie Fehlerbehandlung, Rate-Limiting und Security-Headers
  * zu zentralisieren.
@@ -9,7 +9,11 @@
 import type { APIContext } from 'astro';
 import { apiRateLimiter } from '@/lib/rate-limiter';
 import { applySecurityHeaders } from '@/lib/security-headers';
-import { logApiError, logApiAccess, logAuthFailure } from '@/lib/security-logger';
+import { loggerFactory } from '@/server/utils/logger-factory';
+
+// Logger-Instanzen erstellen
+const securityLogger = loggerFactory.createSecurityLogger();
+const logger = loggerFactory.createLogger('api-middleware');
 
 /**
  * Interface für API-Handler-Funktionen
@@ -24,19 +28,19 @@ export interface ApiHandler {
 export interface ApiMiddlewareOptions {
   // Erfordert eine authentifizierte Benutzer-Session
   requireAuth?: boolean;
-  
+
   // Überschreibt die Standard-Fehlerbehandlung
   onError?: (context: APIContext, error: Error | unknown) => Response | Promise<Response>;
-  
+
   // Falls true, wird kein automatisches Logging durchgeführt (z.B. für sensible Endpunkte)
   disableAutoLogging?: boolean;
-  
+
   // Zusätzliche Metadaten für Logging
   logMetadata?: Record<string, any>;
-  
+
   // Optionaler Rate-Limiter (Standard: apiRateLimiter)
   rateLimiter?: (context: APIContext) => Promise<unknown>;
-  
+
   // Benutzerdefinierte Unauthorized-Antwort
   onUnauthorized?: (context: APIContext) => Response | Promise<Response>;
 }
@@ -44,7 +48,7 @@ export interface ApiMiddlewareOptions {
 /**
  * Typen für API-Fehler
  */
-export type ApiErrorType = 
+export type ApiErrorType =
   | 'validation_error'
   | 'auth_error'
   | 'not_found'
@@ -89,7 +93,7 @@ export function createApiError(
 ): Response {
   const status = errorStatusCodes[type];
   const errorMessage = message || errorMessages[type];
-  
+
   const responseBody = {
     success: false,
     error: {
@@ -98,7 +102,7 @@ export function createApiError(
       ...(details ? { details } : {})
     }
   };
-  
+
   return new Response(JSON.stringify(responseBody), {
     status,
     headers: {
@@ -118,7 +122,7 @@ export function createApiSuccess<T>(
     success: true,
     data
   };
-  
+
   return new Response(JSON.stringify(responseBody), {
     status,
     headers: {
@@ -141,7 +145,7 @@ export function withApiMiddleware(handler: ApiHandler, options: ApiMiddlewareOpt
     const user = (locals as any).user || (locals as any).runtime?.user;
     const path = new URL(request.url).pathname;
     const method = request.method;
-    
+
     try {
       // Rate-Limiting anwenden
       const limiter = options.rateLimiter || apiRateLimiter;
@@ -156,53 +160,54 @@ export function withApiMiddleware(handler: ApiHandler, options: ApiMiddlewareOpt
       if (rateLimitResult instanceof Response) {
         return applySecurityHeaders(rateLimitResult);
       }
-      
+
       // API-Zugriff protokollieren (vor Ausführung)
       if (!options.disableAutoLogging) {
-        logApiAccess(
-          (user?.id as string) || (user?.sub as string) || 'anonymous', 
-          clientAddress || 'unknown', 
-          {
-            endpoint: path,
-            method,
-            ...options.logMetadata
-          }
-        );
+        securityLogger.logApiAccess({
+          endpoint: path,
+          method,
+          ...options.logMetadata
+        }, {
+          userId: (user?.id as string) || (user?.sub as string) || 'anonymous',
+          ipAddress: clientAddress || 'unknown'
+        });
       }
-      
+
       // Handler ausführen
       const response = await handler(context);
-      
+
       // Security-Headers hinzufügen
       return applySecurityHeaders(response);
     } catch (error) {
       // Fehlerbehandlung
-      console.error(`[API Middleware] Error in ${method} ${path}:`, error);
-      
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      logger.error(`Error in ${method} ${path}: ${errorMessage}`);
+
       // Benutzerdefinierte Fehlerbehandlung, falls vorhanden
       if (options.onError) {
         const errorResponse = await options.onError(context, error);
         return applySecurityHeaders(errorResponse);
       }
-      
+
       // Standard-Fehlerbehandlung
-      
+
       // Fehler loggen
-      const errorMessage = error instanceof Error ? error.message : String(error);
       const errorStack = error instanceof Error ? error.stack : undefined;
-      
-      logApiError(path, {
+
+      securityLogger.logApiError({
+        endpoint: path,
         method,
-        userId: (user?.id as string) || (user?.sub as string) || 'anonymous',
-        ipAddress: clientAddress || 'unknown',
         error: errorMessage,
         stack: errorStack,
         ...options.logMetadata
+      }, {
+        userId: (user?.id as string) || (user?.sub as string) || 'anonymous',
+        ipAddress: clientAddress || 'unknown'
       });
-      
+
       // Fehlertyp bestimmen
       let errorType: ApiErrorType = 'server_error';
-      
+
       if (errorMessage.includes('UNIQUE constraint failed')) {
         errorType = 'validation_error';
         return createApiError(errorType, 'Diese Ressource existiert bereits');
@@ -215,7 +220,7 @@ export function withApiMiddleware(handler: ApiHandler, options: ApiMiddlewareOpt
         // Generische Nachricht für DB-Fehler (keine internen Details preisgeben)
         return applySecurityHeaders(createApiError(errorType, 'Datenbankfehler'));
       }
-      
+
       return applySecurityHeaders(createApiError(errorType, errorMessage));
     }
   };
@@ -226,7 +231,7 @@ export function withApiMiddleware(handler: ApiHandler, options: ApiMiddlewareOpt
  * Erweitert die Standard-API-Middleware um Authentifizierungsprüfung
  */
 export function withAuthApiMiddleware(
-  handler: ApiHandler, 
+  handler: ApiHandler,
   options: Omit<ApiMiddlewareOptions, 'requireAuth'> = {}
 ): ApiHandler {
   return withApiMiddleware(
@@ -236,9 +241,11 @@ export function withAuthApiMiddleware(
       const hasUser = Boolean((context.locals as any).user || (context.locals as any).runtime?.user);
       if (!hasUser) {
         // Auth-Fehlschlag protokollieren und vereinheitlichte Antwort zurückgeben
-        logAuthFailure(context.clientAddress || 'unknown', {
+        securityLogger.logAuthFailure({
           reason: 'unauthenticated_access',
           endpoint: path
+        }, {
+          ipAddress: context.clientAddress || 'unknown'
         });
         if (options.onUnauthorized) {
           return options.onUnauthorized(context);
@@ -248,7 +255,7 @@ export function withAuthApiMiddleware(
           headers: { 'Content-Type': 'application/json' }
         });
       }
-      
+
       return handler(context);
     },
     { ...options, requireAuth: true }

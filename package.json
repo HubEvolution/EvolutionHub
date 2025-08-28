@@ -8,6 +8,7 @@
     "dev:e2e": "npm run db:setup && npm run dev",
     "dev:worker": "npm run build:worker && wrangler dev",
     "dev:worker:nobuild": "wrangler dev",
+    "dev:open": "npm run build:worker && ( (until curl -sSf http://127.0.0.1:8787 >/dev/null 2>&1; do sleep 0.5; done; open http://127.0.0.1:8787) & ) && wrangler dev",
     "dev:astro": "astro dev",
     "dev:pages-fallback": "npm run build:worker && cp -r ./dist/_worker.js/assets ./dist/ && wrangler pages dev ./dist --d1=DB --r2=R2_AVATARS --kv=SESSION",
     "setup:local": "tsx ./scripts/setup-local-dev.ts",

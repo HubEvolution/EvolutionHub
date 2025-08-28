@@ -11,6 +11,20 @@ const IS_WORKER_BUILD = Boolean(
   process.env.ASTRO_DEPLOY_TARGET === 'worker'
 );
 
+// Dev-only CSP policy for static HTML (middleware is bypassed for prerendered assets)
+const DEV_CSP = [
+  "default-src 'self' data: blob:",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: data: https://cdn.jsdelivr.net https://www.googletagmanager.com https://plausible.io",
+  "script-src-elem 'self' 'unsafe-inline' 'unsafe-eval' blob: data: https://cdn.jsdelivr.net https://www.googletagmanager.com https://plausible.io",
+  "connect-src 'self' ws: http: https:",
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net",
+  "img-src 'self' data: blob: https:",
+  "font-src 'self' https://fonts.gstatic.com",
+  "frame-ancestors 'self'",
+  "object-src 'none'",
+  "base-uri 'self'",
+].join('; ');
+
 // Centralized Logging Configuration
 const LOGGING_CONFIG = {
   // Environment-based settings
@@ -62,6 +76,10 @@ export default defineConfig({
     mode: 'directory',
     // Removed: functionPerRoute: true, to simplify the output structure.
     staticAssetHeaders: {
+      // Ensure CSP headers exist in dev for prerendered/static HTML pages too
+      ...(process.env.NODE_ENV === 'development'
+        ? { '**/*.html': { 'Content-Security-Policy': DEV_CSP } }
+        : {}),
       // Target CSS files broadly to ensure correct MIME type handling.
       '**/*.css': {
         'Content-Type': 'text/css',
@@ -77,6 +95,9 @@ export default defineConfig({
         'Content-Type': 'image/svg+xml',
         // Also cache SVGs for 1 year
         'Cache-Control': 'public, max-age=31536000, immutable'
+      },
+      '**/*.webmanifest': {
+        'Content-Type': 'application/manifest+json'
       },
       // Add cache control for other static assets like fonts if necessary
       // '**/*.woff2': {

@@ -1,7 +1,7 @@
 /**
  * AuthService Implementierung
- * 
- * Diese Klasse implementiert das AuthService-Interface und kapselt 
+ *
+ * Diese Klasse implementiert das AuthService-Interface und kapselt
  * die Authentifizierungslogik für die Evolution Hub Anwendung.
  */
 
@@ -13,7 +13,7 @@ import { ServiceError, ServiceErrorType } from './types';
 import { createSession, validateSession as validateSessionV2, invalidateSession } from '@/lib/auth-v2';
 import type { User, Session } from '@/lib/auth-v2';
 import type { SafeUser } from '@/lib/db/types';
-import { logAuthSuccess, logAuthFailure, logPasswordReset } from '@/lib/security-logger';
+import { loggerFactory } from '@/server/utils/logger-factory';
 
 /**
  * Konstante für die Standard-Kosten des bcrypt-Hashing
@@ -30,9 +30,11 @@ const PASSWORD_RESET_TOKEN_EXPIRES_IN_SECONDS = 60 * 60 * 24;
  * Implementierung des AuthService
  */
 export class AuthServiceImpl extends AbstractBaseService implements AuthService {
+  private securityLogger = loggerFactory.createSecurityLogger();
+
   /**
    * Erstellt eine neue Instanz des AuthService
-   * 
+   *
    * @param deps Abhängigkeiten des Service
    */
   constructor(deps: ServiceDependencies) {
@@ -41,7 +43,7 @@ export class AuthServiceImpl extends AbstractBaseService implements AuthService 
 
   /**
    * Authentifiziert einen Benutzer mit E-Mail und Passwort
-   * 
+   *
    * @param email E-Mail-Adresse des Benutzers
    * @param password Passwort des Benutzers
    * @param ipAddress IP-Adresse für Logging-Zwecke
@@ -57,13 +59,16 @@ export class AuthServiceImpl extends AbstractBaseService implements AuthService 
 
       if (!existingUser) {
         // Fehlgeschlagene Anmeldung protokollieren
-        logAuthFailure(ipAddress, {
+        this.securityLogger.logAuthFailure({
           reason: 'user_not_found',
           email
+        }, {
+          ipAddress,
+          action: 'login_attempt'
         });
 
         throw new ServiceError(
-          'Ungültige Anmeldedaten', 
+          'Ungültige Anmeldedaten',
           ServiceErrorType.AUTHENTICATION,
           { reason: 'invalid_credentials' }
         );
@@ -71,9 +76,13 @@ export class AuthServiceImpl extends AbstractBaseService implements AuthService 
 
       if (!existingUser.password_hash) {
         // Fehlgeschlagene Anmeldung protokollieren
-        logAuthFailure(ipAddress, {
+        this.securityLogger.logAuthFailure({
           reason: 'missing_password_hash',
           userId: existingUser.id
+        }, {
+          ipAddress,
+          userId: existingUser.id,
+          action: 'login_attempt'
         });
 
         throw new ServiceError(
@@ -87,9 +96,13 @@ export class AuthServiceImpl extends AbstractBaseService implements AuthService 
       const validPassword = await compare(password, existingUser.password_hash);
       if (!validPassword) {
         // Fehlgeschlagene Anmeldung protokollieren
-        logAuthFailure(ipAddress, {
+        this.securityLogger.logAuthFailure({
           reason: 'invalid_password',
           userId: existingUser.id
+        }, {
+          ipAddress,
+          userId: existingUser.id,
+          action: 'login_attempt'
         });
 
         throw new ServiceError(
@@ -102,10 +115,14 @@ export class AuthServiceImpl extends AbstractBaseService implements AuthService 
       // E-Mail-Verifikation prüfen (Double-Opt-in-Blockade)
       const emailVerified = Boolean((existingUser as any).email_verified);
       if (!emailVerified) {
-        logAuthFailure(ipAddress, {
+        this.securityLogger.logAuthFailure({
           reason: 'email_not_verified',
           userId: existingUser.id,
           email: existingUser.email
+        }, {
+          ipAddress,
+          userId: existingUser.id,
+          action: 'login_attempt'
         });
 
         throw new ServiceError(
@@ -117,11 +134,16 @@ export class AuthServiceImpl extends AbstractBaseService implements AuthService 
 
       // Session erstellen
       const session = await createSession(db, existingUser.id);
-      
+
       // Erfolgreiche Anmeldung protokollieren
-      logAuthSuccess(existingUser.id, ipAddress, {
+      this.securityLogger.logAuthSuccess({
         action: 'login',
         sessionId: session.id
+      }, {
+        userId: existingUser.id,
+        ipAddress,
+        sessionId: session.id,
+        action: 'login_success'
       });
 
       // SafeUser-Objekt ohne sensible Daten erstellen
@@ -144,7 +166,7 @@ export class AuthServiceImpl extends AbstractBaseService implements AuthService 
 
   /**
    * Registriert einen neuen Benutzer
-   * 
+   *
    * @param data Registrierungsdaten
    * @param ipAddress IP-Adresse für Logging-Zwecke
    * @returns Authentifizierungsergebnis bei Erfolg
@@ -158,9 +180,12 @@ export class AuthServiceImpl extends AbstractBaseService implements AuthService 
         .first<{ id: string }>();
 
       if (existingUser) {
-        logAuthFailure(ipAddress, {
+        this.securityLogger.logAuthFailure({
           reason: 'duplicate_user',
           email: data.email
+        }, {
+          ipAddress,
+          action: 'register_attempt'
         });
 
         throw new ServiceError(
@@ -176,9 +201,12 @@ export class AuthServiceImpl extends AbstractBaseService implements AuthService 
         .first<{ id: string }>();
 
       if (existingUsername) {
-        logAuthFailure(ipAddress, {
+        this.securityLogger.logAuthFailure({
           reason: 'duplicate_username',
           username: data.username
+        }, {
+          ipAddress,
+          action: 'register_attempt'
         });
 
         throw new ServiceError(
@@ -190,7 +218,7 @@ export class AuthServiceImpl extends AbstractBaseService implements AuthService 
 
       // Passwort hashen
       const passwordHash = await hash(data.password, BCRYPT_COST);
-      
+
       // Benutzer erstellen
       const userId = crypto.randomUUID();
       const createdAt = new Date().toISOString();
@@ -207,8 +235,12 @@ export class AuthServiceImpl extends AbstractBaseService implements AuthService 
       ).run();
 
       // Erfolgreiche Registrierung protokollieren (ohne Session)
-      logAuthSuccess(userId, ipAddress, {
+      this.securityLogger.logAuthSuccess({
         action: 'register'
+      }, {
+        userId,
+        ipAddress,
+        action: 'register_success'
       });
 
       // SafeUser-Objekt ohne sensible Daten erstellen
@@ -229,7 +261,7 @@ export class AuthServiceImpl extends AbstractBaseService implements AuthService 
 
   /**
    * Beendet eine Benutzersitzung
-   * 
+   *
    * @param sessionId ID der zu beendenden Sitzung
    */
   async logout(sessionId: string): Promise<void> {
@@ -240,18 +272,18 @@ export class AuthServiceImpl extends AbstractBaseService implements AuthService 
 
   /**
    * Überprüft eine Benutzersitzung auf Gültigkeit
-   * 
+   *
    * @param sessionId ID der zu überprüfenden Sitzung
    * @returns Sitzung und Benutzer oder null, falls ungültig
    */
   async validateSession(sessionId: string): Promise<{ session: Session | null, user: SafeUser | null }> {
     return this.withTransaction(async (db) => {
       const result = await validateSessionV2(db, sessionId);
-      
+
       if (!result.session || !result.user) {
         return { session: null, user: null };
       }
-      
+
       // created_at für SafeUser nachladen, da auth-v2.validateSession es nicht liefert
       const createdRow = await db
         .prepare('SELECT created_at FROM users WHERE id = ?')
@@ -274,7 +306,7 @@ export class AuthServiceImpl extends AbstractBaseService implements AuthService 
 
   /**
    * Erstellt ein Token für das Zurücksetzen eines Passworts
-   * 
+   *
    * @param email E-Mail-Adresse des Benutzers
    * @param ipAddress IP-Adresse für Logging-Zwecke
    * @returns true, wenn ein Token erstellt wurde (auch wenn der Benutzer nicht existiert)
@@ -311,9 +343,13 @@ export class AuthServiceImpl extends AbstractBaseService implements AuthService 
       ).run();
 
       // Passwort-Reset-Event protokollieren
-      logPasswordReset(user.id, ipAddress, {
+      this.securityLogger.logSecurityEvent('PASSWORD_RESET', {
         action: 'create_token',
         tokenId: token.slice(0, 8)
+      }, {
+        userId: user.id,
+        ipAddress,
+        action: 'password_reset_token_created'
       });
 
       return true;
@@ -322,14 +358,14 @@ export class AuthServiceImpl extends AbstractBaseService implements AuthService 
 
   /**
    * Überprüft ein Passwort-Reset-Token
-   * 
+   *
    * @param token Das zu überprüfende Token
    * @returns Die Benutzer-ID, falls das Token gültig ist, sonst null
    */
   async validatePasswordResetToken(token: string): Promise<string | null> {
     return this.withTransaction(async (db) => {
       const result = await db.prepare(`
-        SELECT user_id, expires_at FROM password_reset_tokens 
+        SELECT user_id, expires_at FROM password_reset_tokens
         WHERE id = ?
       `).bind(token).first<{ user_id: string, expires_at: number }>();
 
@@ -352,7 +388,7 @@ export class AuthServiceImpl extends AbstractBaseService implements AuthService 
 
   /**
    * Setzt ein Passwort mit einem gültigen Token zurück
-   * 
+   *
    * @param token Das Passwort-Reset-Token
    * @param newPassword Das neue Passwort
    * @param ipAddress IP-Adresse für Logging-Zwecke
@@ -385,8 +421,12 @@ export class AuthServiceImpl extends AbstractBaseService implements AuthService 
         .run();
 
       // Erfolgreichen Passwort-Reset protokollieren
-      logPasswordReset(userId, ipAddress, {
+      this.securityLogger.logSecurityEvent('PASSWORD_RESET', {
         action: 'reset_successful'
+      }, {
+        userId,
+        ipAddress,
+        action: 'password_reset_successful'
       });
 
       return true;
@@ -414,7 +454,14 @@ export class AuthServiceImpl extends AbstractBaseService implements AuthService 
         .first<User>();
 
       if (!user || !user.password_hash) {
-        logAuthFailure(ipAddress, { reason: 'user_not_found_or_no_password_hash', userId });
+        this.securityLogger.logAuthFailure({
+          reason: 'user_not_found_or_no_password_hash',
+          userId
+        }, {
+          ipAddress,
+          userId,
+          action: 'change_password_attempt'
+        });
         throw new ServiceError(
           'Benutzer nicht gefunden oder Passwort nicht gesetzt',
           ServiceErrorType.AUTHENTICATION,
@@ -434,7 +481,14 @@ export class AuthServiceImpl extends AbstractBaseService implements AuthService 
       // Aktuelles Passwort verifizieren
       const valid = await compare(currentPassword, user.password_hash);
       if (!valid) {
-        logAuthFailure(ipAddress, { reason: 'invalid_current_password', userId });
+        this.securityLogger.logAuthFailure({
+          reason: 'invalid_current_password',
+          userId
+        }, {
+          ipAddress,
+          userId,
+          action: 'change_password_attempt'
+        });
         throw new ServiceError(
           'Aktuelles Passwort ist falsch',
           ServiceErrorType.AUTHENTICATION,
@@ -449,7 +503,13 @@ export class AuthServiceImpl extends AbstractBaseService implements AuthService 
         .run();
 
       // Erfolgreiche Passwortänderung protokollieren
-      logAuthSuccess(userId, ipAddress, { action: 'change_password' });
+      this.securityLogger.logAuthSuccess({
+        action: 'change_password'
+      }, {
+        userId,
+        ipAddress,
+        action: 'change_password_success'
+      });
 
       return true;
     });
@@ -458,7 +518,7 @@ export class AuthServiceImpl extends AbstractBaseService implements AuthService 
 
 /**
  * Factory-Funktion zur Erstellung einer AuthService-Instanz
- * 
+ *
  * @param deps Abhängigkeiten für den Service
  * @returns Eine neue AuthService-Instanz
  */
