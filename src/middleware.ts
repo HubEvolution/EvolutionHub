@@ -65,6 +65,51 @@ export const onRequest = defineMiddleware(async (context, next) => {
     });
   }
 
+  // HTTP Basic Auth Check für temporären Produktionsschutz
+  const auth = context.request.headers.get('Authorization');
+  const correctPassword = (context.locals.runtime?.env as any)?.SITE_PASSWORD || 'Evolution2024!';
+
+  // Ausnahmen: API-Routen, Assets und Health-Checks sollen passwortfrei bleiben
+  const requestUrl = new URL(context.request.url);
+  const isApiRoute = requestUrl.pathname.startsWith('/api/');
+  const isAssetFile = /\.(css|js|mjs|map|svg|png|jpe?g|webp|gif|ico|json|xml|txt|woff2?|ttf|webmanifest)$/i.test(requestUrl.pathname)
+    || requestUrl.pathname === '/favicon.ico'
+    || requestUrl.pathname.startsWith('/assets/')
+    || requestUrl.pathname.startsWith('/icons/')
+    || requestUrl.pathname.startsWith('/images/')
+    || requestUrl.pathname.startsWith('/favicons/');
+
+  // Nur HTML-Seiten und andere Inhalte schützen, nicht APIs oder Assets
+  if (!isApiRoute && !isAssetFile) {
+    if (!auth || !auth.startsWith('Basic ')) {
+      return new Response('Passwort erforderlich für Evolution Hub', {
+        status: 401,
+        headers: {
+          'WWW-Authenticate': 'Basic realm="Evolution Hub - Temporärer Zugang"',
+          'Content-Type': 'text/html; charset=utf-8'
+        }
+      });
+    }
+
+    try {
+      const credentials = atob(auth.slice(6));
+      const [username, password] = credentials.split(':');
+
+      if (password !== correctPassword) {
+        return new Response('Falsches Passwort', {
+          status: 401,
+          headers: { 'Content-Type': 'text/html; charset=utf-8' }
+        });
+      }
+    } catch (error) {
+      // Base64 decode Fehler
+      return new Response('Ungültige Authentifizierung', {
+        status: 401,
+        headers: { 'Content-Type': 'text/html; charset=utf-8' }
+      });
+    }
+  }
+
   // WWW -> Apex Redirect (Fallback zu Cloudflare Redirect Rules)
   try {
     const u = new URL(context.request.url);
