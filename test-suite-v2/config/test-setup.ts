@@ -4,17 +4,21 @@
  */
 
 import { beforeAll, afterAll, beforeEach, afterEach } from 'vitest';
-import { testConfig } from './test-config.js';
-import { setupTestDatabase, teardownTestDatabase } from '@/utils/database-helpers.js';
-import { setupTestServer, teardownTestServer } from '@/utils/server-helpers.js';
-import { initializeTestLogger } from '@/utils/logger.js';
+import { testConfig } from './test-config';
+import type { TestConfig as TestConfigType } from './test-config';
+import { setupTestDatabase, teardownTestDatabase } from '@/utils/database-helpers';
+import { setupTestServer, teardownTestServer } from '@/utils/server-helpers';
+import { initializeTestLogger } from '@/utils/logger';
 
 // Globale Test-Variablen
 declare global {
-  var testConfig: typeof testConfig;
+  var testConfig: TestConfigType;
   var testDatabase: any;
   var testServer: any;
 }
+
+// Map, um Startzeiten pro Test zu tracken (vermeidet inoffizielle context.meta Nutzung)
+const testStartTimes = new Map<string, number>();
 
 // Setup vor allen Tests
 beforeAll(async () => {
@@ -54,12 +58,9 @@ afterAll(async () => {
 
 // Setup vor jedem Test
 beforeEach(async (context) => {
-  // Test-Kontext erweitern
-  context.meta = {
-    ...context.meta,
-    startTime: Date.now(),
-    config: testConfig,
-  };
+  // Startzeit erfassen (nach Name, falls ID nicht verfügbar ist)
+  const key = context.task?.name ?? 'unknown-test';
+  testStartTimes.set(key, Date.now());
 
   // Test-spezifische Umgebungsvariablen setzen
   process.env.NODE_ENV = 'test';
@@ -70,7 +71,10 @@ beforeEach(async (context) => {
 // Cleanup nach jedem Test
 afterEach(async (context) => {
   // Test-Dauer berechnen
-  const duration = Date.now() - (context.meta?.startTime as number || Date.now());
+  const key = context.task?.name ?? 'unknown-test';
+  const start = testStartTimes.get(key) ?? Date.now();
+  const duration = Date.now() - start;
+  testStartTimes.delete(key);
 
   if (duration > testConfig.timeouts.test) {
     console.warn(`⚠️ Test "${context.task.name}" überschritt Timeout (${duration}ms > ${testConfig.timeouts.test}ms)`);

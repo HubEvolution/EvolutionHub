@@ -11,7 +11,7 @@ import {
   removeMockRoute,
   makeTestRequest
 } from '../../../utils/server-helpers';
-import { getTestLogger } from '../../../utils/logger';
+import * as loggerModule from '../../../utils/logger';
 
 describe('Server-Helper', () => {
   let mockLogger: any;
@@ -28,11 +28,11 @@ describe('Server-Helper', () => {
       },
     };
 
-    vi.mocked(getTestLogger).mockReturnValue(mockLogger);
+    vi.spyOn(loggerModule, 'getTestLogger').mockReturnValue(mockLogger);
   });
 
   afterEach(() => {
-    vi.clearAllMocks();
+    vi.restoreAllMocks();
   });
 
   describe('setupTestServer', () => {

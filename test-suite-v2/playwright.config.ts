@@ -4,6 +4,17 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+// Resolve BASE_URL similarly to the root E2E config
+const BASE_URL = process.env.TEST_BASE_URL || process.env.BASE_URL || 'http://127.0.0.1:8787';
+// Determine if target is remote; if remote, don't auto-start local server
+let IS_REMOTE_TARGET = false;
+try {
+  const url = new URL(BASE_URL);
+  IS_REMOTE_TARGET = !(url.hostname === 'localhost' || url.hostname === '127.0.0.1');
+} catch {
+  IS_REMOTE_TARGET = false;
+}
+
 export default defineConfig({
   testDir: './src/e2e',
   outputDir: './reports/playwright-results',
@@ -21,7 +32,9 @@ export default defineConfig({
   ],
 
   use: {
-    baseURL: process.env.BASE_URL || 'http://localhost:3000',
+    baseURL: BASE_URL,
+    // Ensure POSTs include an Origin header for CSRF protection in Astro middleware
+    extraHTTPHeaders: { Origin: BASE_URL },
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
@@ -52,12 +65,17 @@ export default defineConfig({
     },
   ],
 
-  webServer: {
-    command: 'npm run dev',
-    url: 'http://localhost:3000',
-    reuseExistingServer: !process.env.CI,
-    timeout: 120000,
-  },
+  ...(IS_REMOTE_TARGET
+    ? {}
+    : {
+        webServer: {
+          // Run the root project's E2E dev server (wrangler dev on 127.0.0.1:8787)
+          command: 'npm --prefix .. run dev:e2e',
+          url: BASE_URL,
+          reuseExistingServer: !process.env.CI,
+          timeout: 120 * 1000,
+        },
+      }),
 
   expect: {
     timeout: 10000,
@@ -66,6 +84,7 @@ export default defineConfig({
     },
   },
 
-  globalSetup: path.join(__dirname, './config/e2e-global-setup.ts'),
-  globalTeardown: path.join(__dirname, './config/e2e-global-teardown.ts'),
+  // Reuse existing setup/teardown from the root tests
+  globalSetup: path.join(__dirname, '../tests/e2e/config/setup.ts'),
+  globalTeardown: path.join(__dirname, '../tests/e2e/config/test-teardown.ts'),
 });

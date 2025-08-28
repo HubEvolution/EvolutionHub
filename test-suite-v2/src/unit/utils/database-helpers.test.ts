@@ -10,7 +10,7 @@ import {
   createTransaction,
   createDatabaseFactory
 } from '../../../utils/database-helpers';
-import { getTestLogger } from '../../../utils/logger';
+import * as loggerModule from '../../../utils/logger';
 
 describe('Datenbank-Helper', () => {
   let mockConnection: any;
@@ -37,16 +37,16 @@ describe('Datenbank-Helper', () => {
     };
 
     // Mock getTestLogger
-    vi.mocked(getTestLogger).mockReturnValue(mockLogger);
+    vi.spyOn(loggerModule, 'getTestLogger').mockReturnValue(mockLogger);
   });
 
   afterEach(() => {
-    vi.clearAllMocks();
+    vi.restoreAllMocks();
   });
 
   describe('setupTestDatabase', () => {
     it('sollte erfolgreich eine Test-Datenbank einrichten', async () => {
-      const result = await setupTestDatabase();
+      const result = await setupTestDatabase(mockConnection);
 
       expect(result).toHaveProperty('connection');
       expect(result).toHaveProperty('isConnected', true);
@@ -57,7 +57,7 @@ describe('Datenbank-Helper', () => {
     });
 
     it('sollte Datenbank-Schema initialisieren', async () => {
-      await setupTestDatabase();
+      await setupTestDatabase(mockConnection);
 
       expect(mockConnection.query).toHaveBeenCalledWith(
         expect.stringContaining('CREATE TABLE IF NOT EXISTS users')
@@ -71,7 +71,7 @@ describe('Datenbank-Helper', () => {
     });
 
     it('sollte Test-Fixtures laden', async () => {
-      await setupTestDatabase();
+      await setupTestDatabase(mockConnection);
 
       // Verifiziere, dass Benutzer eingefügt wurden
       expect(mockConnection.query).toHaveBeenCalledWith(
@@ -89,7 +89,7 @@ describe('Datenbank-Helper', () => {
     it('sollte bei Fehlern korrekt reagieren', async () => {
       mockConnection.query.mockRejectedValue(new Error('DB Error'));
 
-      await expect(setupTestDatabase()).rejects.toThrow('Fehler beim Datenbank-Setup');
+      await expect(setupTestDatabase(mockConnection)).rejects.toThrow('Fehler beim Datenbank-Setup');
 
       expect(mockLogger.database.error).toHaveBeenCalled();
     });
@@ -99,7 +99,7 @@ describe('Datenbank-Helper', () => {
     let testDb: any;
 
     beforeEach(async () => {
-      testDb = await setupTestDatabase();
+      testDb = await setupTestDatabase(mockConnection);
     });
 
     it('sollte Datenbank erfolgreich aufräumen', async () => {
@@ -142,7 +142,7 @@ describe('Datenbank-Helper', () => {
     let testDb: any;
 
     beforeEach(async () => {
-      testDb = await setupTestDatabase();
+      testDb = await setupTestDatabase(mockConnection);
     });
 
     it('sollte eine Transaktion erstellen', async () => {
@@ -215,7 +215,7 @@ describe('Datenbank-Helper', () => {
 
   describe('Schema-Initialisierung', () => {
     it('sollte alle erforderlichen Tabellen erstellen', async () => {
-      await setupTestDatabase();
+      await setupTestDatabase(mockConnection);
 
       const createTableCalls = mockConnection.query.mock.calls.filter(
         (call: any) => call[0].includes('CREATE TABLE')
@@ -232,7 +232,7 @@ describe('Datenbank-Helper', () => {
     });
 
     it('sollte korrekte Tabellen-Strukturen definieren', async () => {
-      await setupTestDatabase();
+      await setupTestDatabase(mockConnection);
 
       const usersTableQuery = mockConnection.query.mock.calls.find(
         (call: any) => call[0].includes('CREATE TABLE IF NOT EXISTS users')
@@ -248,7 +248,7 @@ describe('Datenbank-Helper', () => {
 
   describe('Fixture-Laden', () => {
     it('sollte Test-Benutzer einfügen', async () => {
-      await setupTestDatabase();
+      await setupTestDatabase(mockConnection);
 
       const userInsertCalls = mockConnection.query.mock.calls.filter(
         (call: any) => call[0].includes('INSERT INTO users')
@@ -268,7 +268,7 @@ describe('Datenbank-Helper', () => {
     });
 
     it('sollte Newsletter-Abonnements einfügen', async () => {
-      await setupTestDatabase();
+      await setupTestDatabase(mockConnection);
 
       const newsletterInsertCalls = mockConnection.query.mock.calls.filter(
         (call: any) => call[0].includes('INSERT INTO newsletters')
@@ -286,7 +286,7 @@ describe('Datenbank-Helper', () => {
     it('sollte Schema-Initialisierungsfehler behandeln', async () => {
       mockConnection.query.mockRejectedValueOnce(new Error('Schema Error'));
 
-      await expect(setupTestDatabase()).rejects.toThrow();
+      await expect(setupTestDatabase(mockConnection)).rejects.toThrow();
 
       expect(mockLogger.database.error).toHaveBeenCalledWith(
         expect.stringContaining('Fehler beim Ausführen von Schema-Query'),
@@ -305,7 +305,7 @@ describe('Datenbank-Helper', () => {
         return Promise.resolve();
       });
 
-      await expect(setupTestDatabase()).rejects.toThrow();
+      await expect(setupTestDatabase(mockConnection)).rejects.toThrow();
     });
 
     it('sollte bei Verbindungsfehlern korrekt reagieren', async () => {
@@ -324,8 +324,8 @@ describe('Datenbank-Helper', () => {
 
   describe('Performance und Ressourcen', () => {
     it('sollte Datenbank-Namen eindeutig generieren', async () => {
-      const db1 = await setupTestDatabase();
-      const db2 = await setupTestDatabase();
+      const db1 = await setupTestDatabase(mockConnection);
+      const db2 = await setupTestDatabase(mockConnection);
 
       expect(db1.name).not.toBe(db2.name);
       expect(db1.name).toMatch(/^test_\d+_[a-zA-Z0-9]+$/);
@@ -350,7 +350,7 @@ describe('Datenbank-Helper', () => {
 
   describe('Integration mit Logger', () => {
     it('sollte Logger bei erfolgreichem Setup informieren', async () => {
-      await setupTestDatabase();
+      await setupTestDatabase(mockConnection);
 
       expect(mockLogger.database.connect).toHaveBeenCalledWith(
         expect.stringMatching(/^test_\d+_[a-zA-Z0-9]+$/)
@@ -358,7 +358,7 @@ describe('Datenbank-Helper', () => {
     });
 
     it('sollte Logger bei erfolgreichem Cleanup informieren', async () => {
-      const testDb = await setupTestDatabase();
+      const testDb = await setupTestDatabase(mockConnection);
 
       await teardownTestDatabase(testDb);
 
@@ -368,7 +368,7 @@ describe('Datenbank-Helper', () => {
     it('sollte Logger bei Fehlern informieren', async () => {
       mockConnection.query.mockRejectedValue(new Error('DB Error'));
 
-      await expect(setupTestDatabase()).rejects.toThrow();
+      await expect(setupTestDatabase(mockConnection)).rejects.toThrow();
 
       expect(mockLogger.database.error).toHaveBeenCalled();
     });

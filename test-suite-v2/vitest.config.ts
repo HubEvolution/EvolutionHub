@@ -63,12 +63,13 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
+      // Specific aliases MUST come before the generic '@' alias
       '@/config': path.resolve(__dirname, './config'),
       '@/types': path.resolve(__dirname, './types'),
       '@/utils': path.resolve(__dirname, './utils'),
       '@/fixtures': path.resolve(__dirname, './fixtures'),
-      '@/data': path.resolve(__dirname, './data')
+      '@/data': path.resolve(__dirname, './data'),
+      '@': path.resolve(__dirname, './src')
     }
   }
 });

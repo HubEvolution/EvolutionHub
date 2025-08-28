@@ -26,6 +26,8 @@ export interface LogEntry {
   testId?: string;
 }
 
+let globalLogger: TestLogger | null = null;
+
 export class TestLogger {
   private logs: LogEntry[] = [];
   private currentLevel: keyof LogLevel = 'INFO';
@@ -39,22 +41,52 @@ export class TestLogger {
       this.info(`🗄️ Datenbank getrennt: ${database}`),
     query: (query: string) =>
       this.debug(`🔍 DB Query: ${query}`),
-    error: (error: any) =>
-      this.error('❌ Datenbank-Fehler', error),
+    error: (messageOrError: string | unknown, maybeError?: unknown) => {
+      if (typeof messageOrError === 'string') {
+        this.error(messageOrError, maybeError);
+      } else {
+        this.error('❌ Datenbank-Fehler', messageOrError);
+      }
+    },
   };
 
   // API logging methods
   api = {
     request: (method: string, url: string) =>
-      this.debug(`📡 API Request: ${method} ${url}`),
+      this.info(`📡 API Request: ${method} ${url}`),
     response: (method: string, url: string, status: number, duration?: number) =>
-      this.debug(`📨 API Response: ${method} ${url} - ${status}${duration ? ` (${duration}ms)` : ''}`),
+      this.info(`📨 API Response: ${method} ${url} - ${status}${duration ? ` (${duration}ms)` : ''}`),
     error: (method: string, url: string, error: any) =>
       this.error(`❌ API Error: ${method} ${url}`, error),
   };
 
+  // Test logging methods
+  test = {
+    start: (testName: string) => this.info(`🚀 Starte Test: ${testName}`),
+    pass: (testName: string, duration?: number) =>
+      duration !== undefined
+        ? this.logWithExtra('INFO', `✅ Test bestanden: ${testName}`, `(${duration}ms)`)
+        : this.info(`✅ Test bestanden: ${testName}`),
+    fail: (testName: string, error?: unknown) =>
+      this.error(`❌ Test fehlgeschlagen: ${testName}`, error),
+    skip: (testName: string, reason?: string) =>
+      reason !== undefined
+        ? this.logWithExtra('WARN', `⏭️ Test übersprungen: ${testName}`, reason)
+        : this.warn(`⏭️ Test übersprungen: ${testName}`),
+  };
+
+  // Performance logging methods
+  performance = {
+    slow: (operation: string, duration: number, threshold: number) =>
+      this.logWithExtra('WARN', `🐌 Langsame Operation: ${operation}`, `${duration}ms > ${threshold}ms`),
+    memory: (usage: number, threshold: number) =>
+      this.warn(`🧠 Hoher Speicherverbrauch: ${usage}MB > ${threshold}MB`),
+  };
+
   constructor(level: keyof LogLevel = 'INFO') {
     this.currentLevel = level;
+    // Set this instance as the global logger to keep helper `logger` in sync
+    globalLogger = this;
   }
 
   setContext(context: string): void {
@@ -92,23 +124,74 @@ export class TestLogger {
 
     this.logs.push(entry);
 
-    // Konsolen-Ausgabe formatieren
-    const prefix = `[${entry.timestamp.toISOString()}] [${level}]`;
-    const contextStr = entry.context ? ` [${entry.context}]` : '';
-    const fullMessage = `${prefix}${contextStr} ${message}`;
+    // Konsolen-Ausgabe formatieren: header beginnt mit Timestamp, enthält Level und Emojis
+    const ts = `[${entry.timestamp.toISOString()}]`;
+    const lvl = `[${level}]`;
+    const ctx = entry.context ? ` [${entry.context}]` : '';
+    const headerBase = `${ts} ${lvl}${ctx}`;
+
+    const levelEmoji = level === 'ERROR' ? '❌' : level === 'WARN' ? '⚠️' : level === 'INFO' ? 'ℹ️' : '🔍';
+    const EMOJI_PREFIXES = ['❌','⚠️','ℹ️','🔍','📡','📨','🗄️','🐌','🧠','⏭️','✅','🚀'];
+    const messageEmoji = EMOJI_PREFIXES.find(e => message.startsWith(e));
+    const header = `${headerBase}${levelEmoji ? ` ${levelEmoji}` : ''}${messageEmoji ? ` ${messageEmoji}` : ''}`;
 
     switch (level) {
       case 'ERROR':
-        console.error(`❌ ${fullMessage}`, data || '');
+        console.error(header, message, data !== undefined ? data : undefined);
         break;
       case 'WARN':
-        console.warn(`⚠️ ${fullMessage}`, data || '');
+        console.warn(header, message, data !== undefined ? data : undefined);
         break;
       case 'INFO':
-        console.info(`ℹ️ ${fullMessage}`, data || '');
+        console.info(header, message, data !== undefined ? data : undefined);
         break;
       case 'DEBUG':
-        console.debug(`🔍 ${fullMessage}`, data || '');
+        console.debug(header, message, data !== undefined ? data : undefined);
+        break;
+    }
+  }
+
+  // Spezialfall: zusätzliche Text-Komponente (z.B. Dauer) als separates Konsolenargument
+  logWithExtra(level: keyof LogLevel, message: string, extra?: string, data?: any): void {
+    if (LOG_LEVELS[level] > LOG_LEVELS[this.currentLevel]) {
+      return;
+    }
+
+    const entry: LogEntry = {
+      timestamp: new Date(),
+      level,
+      message: extra ? `${message} ${extra}` : message,
+      context: this.testContext,
+      data,
+    };
+    this.logs.push(entry);
+
+    const ts = `[${entry.timestamp.toISOString()}]`;
+    const lvl = `[${level}]`;
+    const ctx = entry.context ? ` [${entry.context}]` : '';
+    const headerBase = `${ts} ${lvl}${ctx}`;
+
+    const levelEmoji = level === 'ERROR' ? '❌' : level === 'WARN' ? '⚠️' : level === 'INFO' ? 'ℹ️' : '🔍';
+    const EMOJI_PREFIXES = ['❌','⚠️','ℹ️','🔍','📡','📨','🗄️','🐌','🧠','⏭️','✅','🚀'];
+    const messageEmoji = EMOJI_PREFIXES.find(e => message.startsWith(e));
+    const header = `${headerBase}${levelEmoji ? ` ${levelEmoji}` : ''}${messageEmoji ? ` ${messageEmoji}` : ''}`;
+
+    const args = [header, message] as any[];
+    if (extra !== undefined) args.push(extra);
+    args.push(data !== undefined ? data : undefined);
+
+    switch (level) {
+      case 'ERROR':
+        console.error(...args);
+        break;
+      case 'WARN':
+        console.warn(...args);
+        break;
+      case 'INFO':
+        console.info(...args);
+        break;
+      case 'DEBUG':
+        console.debug(...args);
         break;
     }
   }
@@ -146,7 +229,6 @@ export class TestLogger {
 }
 
 // Globale Logger-Instanz
-let globalLogger: TestLogger | null = null;
 
 /**
  * Initialisiert den globalen Test-Logger
@@ -173,18 +255,22 @@ export const logger = {
   test: {
     start: (testName: string) => getTestLogger().info(`🚀 Starte Test: ${testName}`),
     pass: (testName: string, duration?: number) =>
-      getTestLogger().info(`✅ Test bestanden: ${testName}${duration ? ` (${duration}ms)` : ''}`),
+      duration !== undefined
+        ? getTestLogger().logWithExtra('INFO', `✅ Test bestanden: ${testName}`, `(${duration}ms)`)
+        : getTestLogger().info(`✅ Test bestanden: ${testName}`),
     fail: (testName: string, error?: any) =>
       getTestLogger().error(`❌ Test fehlgeschlagen: ${testName}`, error),
     skip: (testName: string, reason?: string) =>
-      getTestLogger().warn(`⏭️ Test übersprungen: ${testName}${reason ? ` - ${reason}` : ''}`),
+      reason !== undefined
+        ? getTestLogger().logWithExtra('WARN', `⏭️ Test übersprungen: ${testName}`, reason)
+        : getTestLogger().warn(`⏭️ Test übersprungen: ${testName}`),
   },
 
   api: {
     request: (method: string, url: string) =>
-      getTestLogger().debug(`📡 API Request: ${method} ${url}`),
+      getTestLogger().info(`📡 API Request: ${method} ${url}`),
     response: (method: string, url: string, status: number, duration?: number) =>
-      getTestLogger().debug(`📨 API Response: ${method} ${url} - ${status}${duration ? ` (${duration}ms)` : ''}`),
+      getTestLogger().info(`📨 API Response: ${method} ${url} - ${status}${duration ? ` (${duration}ms)` : ''}`),
     error: (method: string, url: string, error: any) =>
       getTestLogger().error(`❌ API Error: ${method} ${url}`, error),
   },
@@ -195,14 +281,14 @@ export const logger = {
     disconnect: (database: string) =>
       getTestLogger().info(`🗄️ Datenbank getrennt: ${database}`),
     query: (query: string) =>
-      getTestLogger().debug(`🔍 DB Query: ${query}`),
+      getTestLogger().info(`🔍 DB Query: ${query}`),
     error: (error: any) =>
       getTestLogger().error('❌ Datenbank-Fehler', error),
   },
 
   performance: {
     slow: (operation: string, duration: number, threshold: number) =>
-      getTestLogger().warn(`🐌 Langsame Operation: ${operation} (${duration}ms > ${threshold}ms)`),
+      getTestLogger().logWithExtra('WARN', `🐌 Langsame Operation: ${operation}`, `${duration}ms > ${threshold}ms`),
     memory: (usage: number, threshold: number) =>
       getTestLogger().warn(`🧠 Hoher Speicherverbrauch: ${usage}MB > ${threshold}MB`),
   },
