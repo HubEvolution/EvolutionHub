@@ -7,6 +7,39 @@ ve![EvolutionHub Banner](./public/assets/svg/Banner.svg)
 [![Cloudflare](https://img.shields.io/badge/Cloudflare-F38020?logo=cloudflare&logoColor=fff)](https://pages.cloudflare.com/)
 [![Cloudflare Status](https://img.shields.io/endpoint?url=https://cloudflare-status-badge.endpoint)](https://www.cloudflarestatus.com/)
 
+---
+
+## 🔒 Temporärer Basic-Auth-Schutz (optional)
+
+- Standardmäßig deaktiviert.
+- Gilt nur für HTML-Seiten; APIs (`/api/*`) und statische Assets bleiben öffentlich.
+- Aktiviert zeigt der Browser einen HTTP Basic Auth Prompt.
+- Zugangsdaten werden ausschließlich per Wrangler Secret verwaltet (`SITE_PASSWORD`). Keine Klartext-Passwörter im Repo oder in der Doku.
+- Die frühere Seite `public/auth.html` wurde entfernt.
+
+Aktivieren (Produktion):
+```bash
+wrangler secret put SITE_PASSWORD --env production
+```
+
+Deaktivieren:
+- Secret löschen:
+```bash
+wrangler secret delete SITE_PASSWORD --env production
+```
+- Oder den Basic‑Auth‑Block in `src/middleware.ts` auskommentieren/entfernen.
+
+Schnelltests (wenn aktiviert):
+```bash
+# Ohne Passwort (401 erwartet)
+curl -I https://hub-evolution.com
+
+# Mit Credentials (200 bei korrektem Secret)
+curl -u "admin:<PASSWORD>" -I https://hub-evolution.com
+```
+
+---
+
 Eine Full-Stack-Webanwendung, die eine Sammlung von Entwickler-Tools bereitstellt. Gebaut mit den neuesten Web-Technologien, um eine schnelle, moderne und skalierbare Plattform zu schaffen.
 
 ---

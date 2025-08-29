@@ -13,6 +13,8 @@ export interface TestServer {
   startTime: Date;
   requestCount: number;
   routes: Map<string, RouteHandler>;
+  registeredEmails: Set<string>;
+  registrationInProgress: Set<string>;
 }
 
 export interface RouteHandler {
@@ -27,6 +29,15 @@ export interface MockResponse {
   headers?: Record<string, string>;
   body?: any;
   delay?: number;
+}
+
+// Kleine Hilfsfunktionen
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+function sanitizeInput(value: string): string {
+  if (value == null) return '';
+  return String(value)
+    .replace(/javascript:/gi, '')
+    .replace(/[<>]/g, '');
 }
 
 /**
@@ -45,6 +56,8 @@ export async function setupTestServer(): Promise<TestServer> {
       startTime: new Date(),
       requestCount: 0,
       routes: new Map(),
+      registeredEmails: new Set(),
+      registrationInProgress: new Set(),
     };
 
     // Basis-Routen registrieren
@@ -157,8 +170,11 @@ function registerAuthRoutes(server: TestServer): void {
       }
 
       // Vereinfachte Authentifizierungslogik für Tests
-      if (email === testConfig.testData.users.admin.email &&
-          password === testConfig.testData.users.admin.password) {
+      if (
+        email === testConfig.testData.users.admin.email &&
+        password === testConfig.testData.users.admin.password
+      ) {
+        await delay(5); // minimale Verzögerung für messbare Response-Zeit
         return res.status(200).json({
           user: {
             id: 1,
@@ -169,8 +185,11 @@ function registerAuthRoutes(server: TestServer): void {
         });
       }
 
-      if (email === testConfig.testData.users.regular.email &&
-          password === testConfig.testData.users.regular.password) {
+      if (
+        email === testConfig.testData.users.regular.email &&
+        password === testConfig.testData.users.regular.password
+      ) {
+        await delay(5);
         return res.status(200).json({
           user: {
             id: 2,
@@ -178,6 +197,21 @@ function registerAuthRoutes(server: TestServer): void {
             role: testConfig.testData.users.regular.role,
           },
           token: 'mock-jwt-token-user',
+        });
+      }
+
+      if (
+        email === testConfig.testData.users.premium.email &&
+        password === testConfig.testData.users.premium.password
+      ) {
+        await delay(5);
+        return res.status(200).json({
+          user: {
+            id: 3,
+            email: testConfig.testData.users.premium.email,
+            role: testConfig.testData.users.premium.role,
+          },
+          token: 'mock-jwt-token-premium',
         });
       }
 
@@ -212,25 +246,46 @@ function registerAuthRoutes(server: TestServer): void {
         });
       }
 
-      // Prüfen, ob Benutzer bereits existiert
-      if (email === testConfig.testData.users.admin.email ||
-          email === testConfig.testData.users.regular.email) {
+      // Concurrency-Guard: Parallelregistrierungen sauber behandeln
+      if (server.registrationInProgress.has(email)) {
         return res.status(409).json({
           error: 'Benutzer existiert bereits',
         });
       }
+      server.registrationInProgress.add(email);
 
-      return res.status(201).json({
-        user: {
-          id: Date.now(),
-          email,
-          firstName,
-          lastName,
-          role: 'user',
-          verified: false,
-        },
-        message: 'Benutzer erfolgreich registriert',
-      });
+      try {
+        // Prüfen, ob Benutzer bereits existiert (bekannte Testnutzer oder zuvor registriert)
+        if (
+          email === testConfig.testData.users.admin.email ||
+          email === testConfig.testData.users.regular.email ||
+          email === testConfig.testData.users.premium.email ||
+          server.registeredEmails.has(email)
+        ) {
+          return res.status(409).json({
+            error: 'Benutzer existiert bereits',
+          });
+        }
+
+        const safeFirstName = sanitizeInput(firstName);
+        const safeLastName = sanitizeInput(lastName);
+
+        server.registeredEmails.add(email);
+
+        return res.status(201).json({
+          user: {
+            id: Date.now(),
+            email,
+            firstName: safeFirstName,
+            lastName: safeLastName,
+            role: 'user',
+            verified: false,
+          },
+          message: 'Benutzer erfolgreich registriert',
+        });
+      } finally {
+        server.registrationInProgress.delete(email);
+      }
     },
   });
 }

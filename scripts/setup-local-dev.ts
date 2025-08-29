@@ -172,6 +172,109 @@ async function createTestUser() {
   }
 }
 
+// Zusätzliche Test-Suite-v2 Benutzer (admin, regular, premium) anlegen und verifizieren
+async function createSuiteV2TestUsers() {
+  console.log('\n👥 Erstelle Test-Suite v2 Benutzer (admin, user, premium)...');
+  try {
+    const bcrypt = await import('bcrypt');
+
+    const nowIso = new Date().toISOString();
+    const nowUnix = Math.floor(Date.now() / 1000);
+
+    const users = [
+      {
+        id: 'e2e-admin-0001',
+        name: 'Test Admin',
+        username: 'admin',
+        full_name: 'Test Admin',
+        email: 'admin@test-suite.local',
+        password: 'AdminPass123!'
+      },
+      {
+        id: 'e2e-user-0001',
+        name: 'Test User',
+        username: 'user',
+        full_name: 'Test User',
+        email: 'user@test-suite.local',
+        password: 'UserPass123!'
+      },
+      {
+        id: 'e2e-premium-0001',
+        name: 'Test Premium',
+        username: 'premium',
+        full_name: 'Test Premium',
+        email: 'premium@test-suite.local',
+        password: 'PremiumPass123!'
+      }
+    ];
+
+    // Finde alle SQLite-Dateien (wie oben)
+    const sqliteFiles: string[] = [];
+    const mainDbPath = path.join(ROOT_DIR, '.wrangler', 'd1', 'miniflare', 'databases', `${DB_NAME}.sqlite`);
+    if (fs.existsSync(mainDbPath)) {
+      sqliteFiles.push(mainDbPath);
+    }
+    const stateDbDir = path.join(ROOT_DIR, '.wrangler', 'state', 'v3', 'd1', 'miniflare-D1DatabaseObject');
+    if (fs.existsSync(stateDbDir)) {
+      try {
+        const stateFiles = fs.readdirSync(stateDbDir);
+        for (const file of stateFiles) {
+          if (file.endsWith('.sqlite')) {
+            sqliteFiles.push(path.join(stateDbDir, file));
+          }
+        }
+      } catch (error) {
+        console.warn(`Konnte Verzeichnis ${stateDbDir} nicht lesen:`, error);
+      }
+    }
+
+    let successCount = 0;
+    for (const u of users) {
+      const password_hash = await bcrypt.hash(u.password, 10);
+      const insertSQL = `
+        INSERT INTO users (id, name, username, full_name, email, image, created_at, password_hash, email_verified, email_verified_at)
+        VALUES ('${u.id}', '${u.name}', '${u.username}', '${u.full_name}', '${u.email}', NULL, '${nowIso}', '${password_hash}', 1, ${nowUnix})
+        ON CONFLICT(email) DO UPDATE SET
+          name=excluded.name,
+          username=excluded.username,
+          full_name=excluded.full_name,
+          image=excluded.image,
+          created_at=excluded.created_at,
+          password_hash=excluded.password_hash,
+          email_verified=excluded.email_verified,
+          email_verified_at=excluded.email_verified_at;
+      `;
+
+      const tempSQLPath = path.join(os.tmpdir(), `suitev2_user_${u.username}_${Date.now()}.sql`);
+      fs.writeFileSync(tempSQLPath, insertSQL);
+
+      for (const dbPath of sqliteFiles) {
+        try {
+          execSync(`cat ${tempSQLPath} | sqlite3 ${dbPath}`, { stdio: 'inherit' });
+          console.log(`✅ Benutzer ${u.email} in ${dbPath} erstellt/aktualisiert`);
+          successCount++;
+        } catch (error) {
+          console.error(`❌ Fehler beim Erstellen/Aktualisieren für ${u.email} in ${dbPath}:`, error);
+        }
+      }
+
+      fs.unlinkSync(tempSQLPath);
+    }
+
+    if (successCount > 0) {
+      console.log('\n✅ Test-Suite v2 Benutzer erfolgreich erstellt/aktualisiert!');
+      console.log('Login-Daten:');
+      console.log('  Admin   : admin@test-suite.local / AdminPass123!');
+      console.log('  User    : user@test-suite.local / UserPass123!');
+      console.log('  Premium : premium@test-suite.local / PremiumPass123!');
+    } else {
+      console.error('❌ Keine Test-Suite v2 Benutzer konnten erstellt werden.');
+    }
+  } catch (error) {
+    console.error('❌ Fehler beim Erstellen der Test-Suite v2 Benutzer:', error);
+  }
+}
+
 // Extrahiere Konfigurationswerte
 function extractConfigValue(config: string, key: string): string | null {
   const regex = new RegExp(`${key}\\s*=\\s*["']([^"']+)["']`);
@@ -475,6 +578,7 @@ try {
 
   // 5. Test-Benutzer erstellen
   await createTestUser();
+  await createSuiteV2TestUsers();
 
   console.log('\n✅ Lokale Entwicklungsumgebung wurde erfolgreich eingerichtet!');
   console.log('\nSie können jetzt den lokalen Entwicklungsserver starten mit:');

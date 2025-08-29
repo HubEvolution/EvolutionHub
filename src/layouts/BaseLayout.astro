@@ -140,6 +140,11 @@
      <style is:global>
        @import '@/styles/global.css';
      </style>
+     {showComingSoon && (
+       <style is:global>
+         @import '@/styles/coming-soon.css';
+       </style>
+     )}
      
      <!-- Astro View Transitions for SPA-like navigation -->
      <ClientRouter />

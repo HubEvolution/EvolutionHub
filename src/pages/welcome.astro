@@ -34,8 +34,8 @@ const hrefEn = `/welcome?set_locale=en&next=${encodeURIComponent(nextRaw)}`;
     <p class="mt-3 text-gray-600 dark:text-gray-300">Please choose your language / Bitte wähle deine Sprache</p>
 
     <div class="mt-8 flex items-center justify-center gap-4">
-      <a href={hrefDe} class="btn btn-primary">Deutsch</a>
-      <a href={hrefEn} class="btn btn-secondary">English</a>
+      <a href={hrefDe} class="btn btn-primary" data-astro-reload>Deutsch</a>
+      <a href={hrefEn} class="btn btn-secondary" data-astro-reload>English</a>
     </div>
 
     <p class="mt-6 text-xs text-gray-500 dark:text-gray-400">Your selection will be saved. / Ihre Auswahl wird gespeichert.</p>

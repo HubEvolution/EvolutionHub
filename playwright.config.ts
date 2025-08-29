@@ -1,12 +1,20 @@
 import { defineConfig, devices } from '@playwright/test';
-import dotenv from 'dotenv';
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
+import * as dotenv from 'dotenv';
 
-// Load environment variables from .env file
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-dotenv.config({ path: join(__dirname, '.env') });
+// Load environment variables from .env
+dotenv.config();
+
+// Prefer TEST_BASE_URL, fallback to BASE_URL, then local default
+const TEST_BASE_URL = process.env.TEST_BASE_URL || process.env.BASE_URL;
+const BASE_URL = TEST_BASE_URL || 'http://127.0.0.1:8787';
+// Determine if target is remote via URL parsing
+let IS_REMOTE_TARGET = false;
+try {
+  const url = new URL(BASE_URL);
+  IS_REMOTE_TARGET = !(url.hostname === 'localhost' || url.hostname === '127.0.0.1');
+} catch {
+  IS_REMOTE_TARGET = false;
+}
 
 export default defineConfig({
   testDir: './tests/e2e/specs',
@@ -15,11 +23,15 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
   reporter: [
-    ['html', { outputFolder: 'playwright-report' }],
+    ['html', { outputFolder: 'playwright-report', open: 'never' }],
     ['list']
   ],
   use: {
-    baseURL: process.env.BASE_URL || 'http://localhost:4321',
+    baseURL: BASE_URL,
+    // Ensure POSTs include same-origin Origin header for Astro/Workers CSRF protection
+    extraHTTPHeaders: {
+      Origin: BASE_URL,
+    },
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'on-first-retry',
@@ -44,11 +56,15 @@ export default defineConfig({
     },
   ],
 
-  // Run your local dev server before starting the tests
-  webServer: {
-    command: 'npm run dev:astro',
-    url: 'http://localhost:4321',
-    reuseExistingServer: !process.env.CI,
-    timeout: 120 * 1000,
-  },
+  // Start the Cloudflare Worker dev server (wrangler dev) only for local targets
+  ...(IS_REMOTE_TARGET
+    ? {}
+    : {
+        webServer: {
+          command: 'npm run dev:e2e',
+          url: BASE_URL,
+          reuseExistingServer: !process.env.CI,
+          timeout: 120 * 1000,
+        },
+      }),
 });

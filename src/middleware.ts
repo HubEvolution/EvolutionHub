@@ -65,52 +65,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
     });
   }
 
-  // HTTP Basic Auth Check für temporären Produktionsschutz
-  const auth = context.request.headers.get('Authorization');
-  const correctPassword = (context.locals.runtime?.env as any)?.SITE_PASSWORD || 'Evolution2024!';
-
-  // Ausnahmen: API-Routen, Assets und Health-Checks sollen passwortfrei bleiben
-  const requestUrl = new URL(context.request.url);
-  const isApiRoute = requestUrl.pathname.startsWith('/api/');
-  const isAssetFile = /\.(css|js|mjs|map|svg|png|jpe?g|webp|gif|ico|json|xml|txt|woff2?|ttf|webmanifest)$/i.test(requestUrl.pathname)
-    || requestUrl.pathname === '/favicon.ico'
-    || requestUrl.pathname.startsWith('/assets/')
-    || requestUrl.pathname.startsWith('/icons/')
-    || requestUrl.pathname.startsWith('/images/')
-    || requestUrl.pathname.startsWith('/favicons/');
-
-  // Nur HTML-Seiten und andere Inhalte schützen, nicht APIs oder Assets
-  if (!isApiRoute && !isAssetFile) {
-    if (!auth || !auth.startsWith('Basic ')) {
-      return new Response('Passwort erforderlich für Evolution Hub', {
-        status: 401,
-        headers: {
-          'WWW-Authenticate': 'Basic realm="Evolution Hub - Temporärer Zugang"',
-          'Content-Type': 'text/html; charset=utf-8'
-        }
-      });
-    }
-
-    try {
-      const credentials = atob(auth.slice(6));
-      const [username, password] = credentials.split(':');
-
-      if (password !== correctPassword) {
-        return new Response('Falsches Passwort', {
-          status: 401,
-          headers: { 'Content-Type': 'text/html; charset=utf-8' }
-        });
-      }
-    } catch (error) {
-      // Base64 decode Fehler
-      return new Response('Ungültige Authentifizierung', {
-        status: 401,
-        headers: { 'Content-Type': 'text/html; charset=utf-8' }
-      });
-    }
-  }
-
-  // WWW -> Apex Redirect (Fallback zu Cloudflare Redirect Rules)
+  // WWW -> Apex Redirect (before auth)
   try {
     const u = new URL(context.request.url);
     if (u.hostname === 'www.hub-evolution.com') {
@@ -120,6 +75,72 @@ export const onRequest = defineMiddleware(async (context, next) => {
   } catch (e) {
     console.warn('[Middleware] URL parse error for redirect check:', e);
   }
+
+  // HTTP Basic Auth Check für temporären Produktionsschutz
+  // Ausnahmen: API-Routen, Assets und Health-Checks sollen passwortfrei bleiben
+  const requestUrl = new URL(context.request.url);
+  // Umgebung ermitteln (nur in echter Produktion schützen)
+  const runtimeEnv = (context.locals as unknown as { runtime?: { env?: Record<string, string> } })?.runtime?.env;
+  const environment = runtimeEnv?.ENVIRONMENT || (runtimeEnv as Record<string, string> | undefined)?.NODE_ENV || 'development';
+  const isProductionEnv = environment === 'production';
+  const isProductionHost =
+    requestUrl.hostname === 'hub-evolution.com';
+  const isApiRoute = requestUrl.pathname.startsWith('/api/');
+  const isAssetFile =
+    /\.(css|js|mjs|map|svg|png|jpe?g|webp|gif|ico|json|xml|txt|woff2?|ttf|webmanifest)$/i.test(requestUrl.pathname) ||
+    requestUrl.pathname === '/favicon.ico' ||
+    requestUrl.pathname.startsWith('/_astro/') ||
+    requestUrl.pathname.startsWith('/assets/') ||
+    requestUrl.pathname.startsWith('/icons/') ||
+    requestUrl.pathname.startsWith('/images/') ||
+    requestUrl.pathname.startsWith('/favicons/');
+
+  // Feature-Flag: Basic Auth nur aktivieren, wenn explizit erlaubt (default: true für Backwards-Kompatibilität)
+  const siteAuthEnabledRaw = (context.locals.runtime?.env as any)?.SITE_AUTH_ENABLED as string | undefined;
+  const siteAuthEnabled = siteAuthEnabledRaw
+    ? /^(1|true|yes|on)$/i.test(siteAuthEnabledRaw)
+    : true;
+
+  // Nur in echter Produktion auf Hauptdomain schützen, nicht APIs/Assets
+  if (isProductionEnv && isProductionHost && !isApiRoute && !isAssetFile && siteAuthEnabled) {
+    const correctUsername = 'admin';
+    const correctPassword = (context.locals.runtime?.env as any)?.SITE_PASSWORD as string | undefined;
+
+    if (!correctPassword) {
+      if (import.meta.env.DEV) {
+        console.warn('[Middleware] SITE_PASSWORD missing in production environment');
+      }
+      return new Response('Service temporarily unavailable', {
+        status: 503,
+        headers: { 'Cache-Control': 'no-store' },
+      });
+    }
+
+    const auth = context.request.headers.get('Authorization');
+    const challengeHeaders = new Headers();
+    challengeHeaders.set('WWW-Authenticate', 'Basic realm="Evolution Hub", charset="UTF-8"');
+    challengeHeaders.set('Cache-Control', 'no-store');
+    challengeHeaders.set('Content-Type', 'text/html; charset=utf-8');
+
+    if (!auth || !auth.startsWith('Basic ')) {
+      return new Response('Authentication required', { status: 401, headers: challengeHeaders });
+    }
+
+    try {
+      const decoded = atob(auth.slice(6));
+      const sepIdx = decoded.indexOf(':');
+      const username = sepIdx >= 0 ? decoded.slice(0, sepIdx) : '';
+      const password = sepIdx >= 0 ? decoded.slice(sepIdx + 1) : '';
+
+      if (username !== correctUsername || password !== correctPassword) {
+        return new Response('Invalid credentials', { status: 401, headers: challengeHeaders });
+      }
+    } catch (error) {
+      return new Response('Invalid authentication', { status: 401, headers: challengeHeaders });
+    }
+  }
+
+  // WWW -> Apex Redirect handled earlier (before Basic Auth)
 
   // Locale-Handling: Cookie persistieren und neutrale Pfade ggf. umleiten
   const url = new URL(context.request.url);
@@ -295,8 +316,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
     }
   }
 
-  // Frühzeitiger Redirect: neutrale Pfade -> /en/* wenn cookie=en vorhanden
-  if (!existingLocale && !isApi && !isAsset && (cookieLocale === 'en' || refererSuggestsEn) && !path.startsWith('/welcome') && !isAuthRoute(path)) {
+  // Frühzeitiger Redirect: neutrale Pfade -> /en/* NUR wenn kein Cookie gesetzt ist, aber Referer EN nahelegt
+  const shouldPreferEnByReferer = !cookieLocale && refererSuggestsEn;
+  if (!existingLocale && !isApi && !isAsset && shouldPreferEnByReferer && !path.startsWith('/welcome') && !isAuthRoute(path)) {
     const target = path === '/' ? '/en/' : `/en${path}`;
     const location = `${url.origin}${target}${url.search}${url.hash}`;
     const headers = new Headers();
@@ -304,7 +326,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
     headers.set('Content-Language', 'en');
     headers.set('Vary', 'Cookie, Accept-Language');
     if (import.meta.env.DEV) {
-      console.log('[Middleware] Early neutral -> cookie=en, redirect to EN:', location);
+      console.log('[Middleware] Early neutral -> referer suggests EN (no cookie), redirect to EN:', location);
     }
     return new Response(null, { status: 302, headers });
   }
@@ -466,10 +488,10 @@ export const onRequest = defineMiddleware(async (context, next) => {
   } catch (e) {
     console.warn('[Middleware] Verification gate check failed:', e);
   }
-  
+
   // Führe den nächsten Middleware-Schritt aus
   const response = await next();
-  
+
   // Detailliertes Response-Logging (nur DEV), mit Redaction
   if (import.meta.env.DEV) {
     const redacted = sanitizeHeaders(response.headers as unknown as Headers);
@@ -479,12 +501,12 @@ export const onRequest = defineMiddleware(async (context, next) => {
       headers: redacted,
     });
   }
-  
+
   // MIME-Typ-Korrektur für Assets
   if (import.meta.env.DEV) {
     console.log('[Middleware] Processing path:', path);
   }
-  
+
   // Setze MIME-Typen für verschiedene Dateitypen
   if (path.endsWith('.css')) { // Geänderte Bedingung: Alle .css-Dateien berücksichtigen
     response.headers.set('Content-Type', 'text/css');
@@ -502,7 +524,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
       console.log('[Middleware] Set Content-Type to image/svg+xml for SVG file');
     }
   }
-  
+
   // Content-Language & Vary Header setzen
   const effectiveLocale: Locale = existingLocale ?? preferredLocale;
   response.headers.set('Content-Language', effectiveLocale);

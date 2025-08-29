@@ -7,7 +7,7 @@ import { getLocale } from '@/lib/i18n';
 // Import der dedizierten Scroll-Effect Komponente
 import HeaderScroll from './scripts/HeaderScroll.astro';
 import EvolutionHubLogo from 'public/assets/svg/evolutionhub-logo.svg';
-import { localizePath, switchLocalePath } from '@/lib/locale-path';
+import { localizePath } from '@/lib/locale-path';
 
 // Get current locale for language switching
 // These variables should be defined in Markdown Frontmatter or accessible in the script.
@@ -39,9 +39,9 @@ const currentPath = url.pathname;
 
 // Baue Sprachwechsel-Link mit persistenter Auswahl via set_locale & next
 // - next verweist auf die aktuelle vollständige URL (inkl. Query/Hash), URL-enkodiert
-// - Basis-Link nutzt switchLocalePath auf dem pathname, um vorhandene Query/Hash zu vermeiden
+// - Basis-Link bleibt der aktuelle Pfad; das Middleware-Redirect mappt anhand von `next` auf die Ziel-Locale
 function setLocaleHref(target: 'de' | 'en'): string {
-  const base = switchLocalePath(target, Astro.url.pathname);
+  const base = Astro.url.pathname;
   const next = encodeURIComponent(Astro.url.toString());
   const sep = base.includes('?') ? '&' : '?';
   // Entferne etwaige Hash-Fragmente aus base, damit wir ein sauberes Query anhängen
@@ -126,6 +126,7 @@ function setLocaleHref(target: 'de' | 'en'): string {
               role="menuitem"
               tabindex="-1"
               aria-current={currentLocale === 'de' ? 'page' : undefined}
+              data-astro-reload
             >
               <span>Deutsch</span>
               {currentLocale === 'de' && (
@@ -146,6 +147,7 @@ function setLocaleHref(target: 'de' | 'en'): string {
               role="menuitem"
               tabindex="-1"
               aria-current={currentLocale === 'en' ? 'page' : undefined}
+              data-astro-reload
             >
               <span>English</span>
               {currentLocale === 'en' && (
@@ -213,6 +215,7 @@ function setLocaleHref(target: 'de' | 'en'): string {
                 ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 font-medium'
                 : 'text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800'
             }`}
+            data-astro-reload
           >
             Deutsch
           </a>
@@ -223,6 +226,7 @@ function setLocaleHref(target: 'de' | 'en'): string {
                 ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 font-medium'
                 : 'text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800'
             }`}
+            data-astro-reload
           >
             English
           </a>

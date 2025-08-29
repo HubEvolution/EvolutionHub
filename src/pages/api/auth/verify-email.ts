@@ -83,32 +83,6 @@ export const GET = async (context: APIContext) => {
     const base = localizePath((locale === 'de' ? 'de' : 'en'), path);
     return createSecureRedirect(query ? `${base}?${query}` : base);
   };
-
-// 405 Method Not Allowed für alle anderen Methoden (nur GET ist erlaubt)
-const methodNotAllowed = (context: APIContext): Response => {
-  // Leichtes Logging für Policy Enforcement
-  logger.warn('Method not allowed on verify-email', {
-    resource: 'verify-email',
-    action: 'method_not_allowed',
-    metadata: { method: context.request.method }
-  });
-
-  return createSecureJsonResponse(
-    { error: true, message: 'Method Not Allowed' },
-    405,
-    { Allow: 'GET' }
-  );
-};
-
-export const POST = methodNotAllowed;
-export const PUT = methodNotAllowed;
-export const PATCH = methodNotAllowed;
-export const DELETE = methodNotAllowed;
-export const OPTIONS = methodNotAllowed;
-export const HEAD = methodNotAllowed;
-
- 
-
   try {
     const token = url.searchParams.get('token');
     const email = url.searchParams.get('email');
@@ -362,6 +336,31 @@ export const HEAD = methodNotAllowed;
     return redirectLocalized('/register', 'error=ServerError');
   }
 };
+
+/**
+ * 405 Method Not Allowed für nicht unterstützte Methoden (nur GET erlaubt)
+ */
+const methodNotAllowed = (context: APIContext): Response => {
+  // Leichtes Logging für Policy Enforcement
+  logger.warn('Method not allowed on verify-email', {
+    resource: 'verify-email',
+    action: 'method_not_allowed',
+    metadata: { method: context.request.method }
+  });
+
+  return createSecureJsonResponse(
+    { error: true, message: 'Method Not Allowed' },
+    405,
+    { Allow: 'GET' }
+  );
+};
+
+export const POST = methodNotAllowed;
+export const PUT = methodNotAllowed;
+export const PATCH = methodNotAllowed;
+export const DELETE = methodNotAllowed;
+export const OPTIONS = methodNotAllowed;
+export const HEAD = methodNotAllowed;
 
 /**
  * Utility-Funktion zum Erstellen eines E-Mail-Verifikations-Tokens

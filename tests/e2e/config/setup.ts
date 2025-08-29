@@ -3,7 +3,6 @@
 
 import type { FullConfig } from '@playwright/test';
 import * as dotenv from 'dotenv';
-import { expect } from '@playwright/test';
 
 // Load environment variables from .env file
 dotenv.config();
@@ -27,5 +26,4 @@ async function globalSetup(config: FullConfig) {
 }
 
 // Export the setup function and any test utilities
-export { expect };
 export default globalSetup;

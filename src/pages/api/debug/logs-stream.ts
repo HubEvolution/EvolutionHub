@@ -20,66 +20,72 @@ import { logApiAccess } from '@/lib/security-logger';
 export const GET = async (context: APIContext) => {
   try {
     // Manual logging instead of middleware
-    logApiAccess(context, {
-      action: 'debug_logs_stream_accessed',
-      streaming: 'sse'
-    });
-  const envInfo = getEnvironmentInfo();
+    logApiAccess(
+      'anonymous',
+      context.clientAddress || 'unknown',
+      {
+        endpoint: '/api/debug/logs-stream',
+        method: 'GET',
+        action: 'debug_logs_stream_accessed',
+        streaming: 'sse'
+      }
+    );
+    const envInfo = getEnvironmentInfo();
   
-  // If this is Astro dev environment, redirect to WebSocket
-  if (envInfo.isAstroDevEnvironment) {
-    return new Response(JSON.stringify({
-      success: false,
-      error: 'Use WebSocket connection for Astro dev environment',
-      websocketUrl: 'ws://localhost:8081'
-    }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' }
-    });
-  }
-
-  // Create SSE response headers
-  const headers = new Headers({
-    'Content-Type': 'text/event-stream',
-    'Cache-Control': 'no-cache',
-    'Connection': 'keep-alive',
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'Cache-Control'
-  });
-
-  // Get current log buffer
-  const logs = getLogBuffer();
-  
-  // Create SSE stream
-  const encoder = new TextEncoder();
-  let id = 0;
-  
-  const stream = new ReadableStream({
-    start(controller) {
-      // Send initial logs from buffer
-      logs.forEach(log => {
-        const sseData = `id: ${++id}\ndata: ${log}\n\n`;
-        controller.enqueue(encoder.encode(sseData));
+    // If this is Astro dev environment, redirect to WebSocket
+    if (envInfo.isAstroDevEnvironment) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: 'Use WebSocket connection for Astro dev environment',
+        websocketUrl: 'ws://localhost:8081'
+      }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' }
       });
-      
-      // Send environment info
-      const envData = `id: ${++id}\ndata: ${JSON.stringify({
-        type: 'environment-info',
-        environment: envInfo,
-        timestamp: new Date().toISOString()
-      })}\n\n`;
-      controller.enqueue(encoder.encode(envData));
-      
-      // Send keep-alive message
-      const keepAlive = `id: ${++id}\ndata: ${JSON.stringify({
-        type: 'keep-alive',
-        timestamp: new Date().toISOString()
-      })}\n\n`;
-      controller.enqueue(encoder.encode(keepAlive));
     }
-  });
 
-  return new Response(stream, { headers });
+    // Create SSE response headers
+    const headers = new Headers({
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive',
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Headers': 'Cache-Control'
+    });
+
+    // Get current log buffer
+    const logs = getLogBuffer();
+  
+    // Create SSE stream
+    const encoder = new TextEncoder();
+    let id = 0;
+  
+    const stream = new ReadableStream({
+      start(controller) {
+        // Send initial logs from buffer
+        logs.forEach(log => {
+          const sseData = `id: ${++id}\ndata: ${log}\n\n`;
+          controller.enqueue(encoder.encode(sseData));
+        });
+        
+        // Send environment info
+        const envData = `id: ${++id}\ndata: ${JSON.stringify({
+          type: 'environment-info',
+          environment: envInfo,
+          timestamp: new Date().toISOString()
+        })}\n\n`;
+        controller.enqueue(encoder.encode(envData));
+        
+        // Send keep-alive message
+        const keepAlive = `id: ${++id}\ndata: ${JSON.stringify({
+          type: 'keep-alive',
+          timestamp: new Date().toISOString()
+        })}\n\n`;
+        controller.enqueue(encoder.encode(keepAlive));
+      }
+    });
+
+    return new Response(stream, { headers });
   
   } catch (error: any) {
     // Error handling without middleware
@@ -102,28 +108,34 @@ export const GET = async (context: APIContext) => {
 export const POST = async (context: APIContext) => {
   try {
     // Manual logging instead of middleware
-    logApiAccess(context, {
-      action: 'debug_logs_polled',
-      method: 'polling'
-    });
-  const envInfo = getEnvironmentInfo();
-  const logs = getLogBuffer();
+    logApiAccess(
+      'anonymous',
+      context.clientAddress || 'unknown',
+      {
+        endpoint: '/api/debug/logs-stream',
+        method: 'POST',
+        action: 'debug_logs_polled',
+        transport: 'polling'
+      }
+    );
+    const envInfo = getEnvironmentInfo();
+    const logs = getLogBuffer();
   
-  return new Response(JSON.stringify({
-    success: true,
-    data: {
-      logs: logs.slice(-50), // Last 50 logs
-      environment: envInfo,
-      timestamp: new Date().toISOString(),
-      bufferSize: logs.length
-    }
-  }), {
-    status: 200,
-    headers: { 
-      'Content-Type': 'application/json',
-      'Cache-Control': 'no-cache'
-    }
-  });
+    return new Response(JSON.stringify({
+      success: true,
+      data: {
+        logs: logs.slice(-50), // Last 50 logs
+        environment: envInfo,
+        timestamp: new Date().toISOString(),
+        bufferSize: logs.length
+      }
+    }), {
+      status: 200,
+      headers: { 
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache'
+      }
+    });
   
   } catch (error: any) {
     // Error handling without middleware

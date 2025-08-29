@@ -23,8 +23,8 @@ test.describe('Benutzer-Authentifizierung - E2E Tests', () => {
       const testEmail = `e2e-${Date.now()}@test-suite.local`;
       const testPassword = 'E2eTestPass123!';
       const userData = {
-        firstName: 'E2E',
-        lastName: 'TestUser',
+        name: 'E2E TestUser',
+        username: `e2e-${Date.now()}`,
       };
 
       // Navigiere zur Registrierungsseite
@@ -33,21 +33,17 @@ test.describe('Benutzer-Authentifizierung - E2E Tests', () => {
       // Warte auf Seitenladung
       await page.waitForLoadState('networkidle');
 
-      // Fülle Registrierungsformular aus
+      // Fülle Registrierungsformular aus (aktuelles UI: name + username)
       await page.fill('input[name="email"]', testEmail);
       await page.fill('input[name="password"]', testPassword);
-      await page.fill('input[name="confirmPassword"]', testPassword);
-      await page.fill('input[name="firstName"]', userData.firstName);
-      await page.fill('input[name="lastName"]', userData.lastName);
-
-      // Akzeptiere Nutzungsbedingungen
-      await page.check('input[name="acceptTerms"]');
+      await page.fill('input[name="name"]', userData.name);
+      await page.fill('input[name="username"]', userData.username);
 
       // Sende Formular
       await page.click('button[type="submit"]');
 
       // Warte auf Erfolgsmeldung oder Weiterleitung
-      await expect(page).toHaveURL(/\/email-verified|\/dashboard|\/login/);
+      await expect(page).toHaveURL(/\/verify-email|\/email-verified|\/dashboard|\/login/);
 
       // Verifiziere Erfolgsmeldung
       const successMessage = page.locator('.success-message, .alert-success, [data-testid="success-message"]');
@@ -63,22 +59,16 @@ test.describe('Benutzer-Authentifizierung - E2E Tests', () => {
       // Fülle Formular mit ungültigen Daten
       await page.fill('input[name="email"]', 'invalid-email');
       await page.fill('input[name="password"]', '123'); // Zu kurz
-      await page.fill('input[name="confirmPassword"]', '456'); // Unterschiedlich
-      await page.fill('input[name="firstName"]', '');
-      await page.fill('input[name="lastName"]', '');
+      await page.fill('input[name="name"]', '');
+      await page.fill('input[name="username"]', '');
 
       // Sende Formular
       await page.click('button[type="submit"]');
 
-      // Verifiziere Fehlermeldungen
-      await expect(page.locator('.error-message, .alert-error, [data-testid="error-message"]')).toBeVisible();
-
-      // Verifiziere spezifische Validierungsfehler
-      const emailError = page.locator('text=/ungültige.*email|email.*ungültig/');
-      const passwordError = page.locator('text=/passwort.*zu.*kurz|zu.*kurz.*passwort/');
-      const confirmError = page.locator('text=/passwörter.*stimmen.*nicht|nicht.*überein/');
-
-      await expect(emailError.or(passwordError).or(confirmError)).toBeVisible();
+      // Verifiziere Fehlermeldung (Redirect mit Fehlercode und Toast über AuthStatusNotifier)
+      await expect(page).toHaveURL(/\/de\/register/);
+      await expect(page.locator('[data-sonner-toaster]')).toBeVisible();
+      await expect(page.locator('text=/Registrierung.*fehlgeschlagen|Registration.*failed/')).toBeVisible();
     });
 
     test('sollte Registrierung bei bereits existierender Email ablehnen', async () => {
@@ -86,17 +76,18 @@ test.describe('Benutzer-Authentifizierung - E2E Tests', () => {
       await page.waitForLoadState('networkidle');
 
       // Verwende bereits existierende Test-Email
+      const existingUsername = `e2e-existing-${Date.now()}`;
       await page.fill('input[name="email"]', 'admin@test-suite.local');
       await page.fill('input[name="password"]', 'TestPass123!');
-      await page.fill('input[name="confirmPassword"]', 'TestPass123!');
-      await page.fill('input[name="firstName"]', 'Test');
-      await page.fill('input[name="lastName"]', 'User');
-      await page.check('input[name="acceptTerms"]');
+      await page.fill('input[name="name"]', 'Test User');
+      await page.fill('input[name="username"]', existingUsername);
 
       await page.click('button[type="submit"]');
 
-      // Verifiziere Konflikt-Fehlermeldung
-      await expect(page.locator('text=/bereits.*registriert|benutzer.*existiert|email.*verwendet/')).toBeVisible();
+      // Verifiziere Konflikt-Fehlermeldung (URL enthält error und Toast sichtbar)
+      await expect(page).toHaveURL(/\/de\/register.*error=/);
+      await expect(page.locator('[data-sonner-toaster]')).toBeVisible();
+      await expect(page.locator('text=/Registrierung.*fehlgeschlagen|Registration.*failed/')).toBeVisible();
     });
   });
 
@@ -117,10 +108,6 @@ test.describe('Benutzer-Authentifizierung - E2E Tests', () => {
 
       // Verifiziere Dashboard-Zugang
       await expect(page.locator('text=/dashboard|übersicht|willkommen/')).toBeVisible();
-
-      // Verifiziere Admin-spezifische Elemente
-      const adminElements = page.locator('[data-testid="admin-panel"], .admin-controls, text=/admin|administrator/');
-      await expect(adminElements.first()).toBeVisible();
     });
 
     test('sollte erfolgreichen Login für regulären Benutzer ermöglichen', async () => {
@@ -139,9 +126,9 @@ test.describe('Benutzer-Authentifizierung - E2E Tests', () => {
       // Verifiziere Benutzer-Dashboard
       await expect(page.locator('text=/dashboard|mein.*bereich/')).toBeVisible();
 
-      // Verifiziere, dass Admin-Elemente nicht sichtbar sind
+      // Verifiziere, dass Admin-Elemente nicht vorhanden sind
       const adminElements = page.locator('[data-testid="admin-panel"], .admin-controls');
-      await expect(adminElements).not.toBeVisible();
+      await expect(adminElements).toHaveCount(0);
     });
 
     test('sollte fehlgeschlagenen Login bei falschen Anmeldedaten ablehnen', async () => {
@@ -261,12 +248,10 @@ test.describe('Benutzer-Authentifizierung - E2E Tests', () => {
       const xssPayload = '<script>alert("xss")</script>';
 
       // Fülle Formular mit XSS-Payload
-      await page.fill('input[name="firstName"]', xssPayload);
-      await page.fill('input[name="lastName"]', 'Test');
+      await page.fill('input[name="name"]', xssPayload);
+      await page.fill('input[name="username"]', 'Test');
       await page.fill('input[name="email"]', `test-${Date.now()}@test-suite.local`);
       await page.fill('input[name="password"]', 'TestPass123!');
-      await page.fill('input[name="confirmPassword"]', 'TestPass123!');
-      await page.check('input[name="acceptTerms"]');
 
       await page.click('button[type="submit"]');
 

@@ -1,5 +1,6 @@
 {
   "name": "evolution-hub-test-suite-v2",
+  "$schema": "https://json.schemastore.org/package",
   "version": "1.0.0",
   "description": "Comprehensive test suite for Evolution Hub - separate and parallel to existing tests",
   "main": "dist/index.js",
