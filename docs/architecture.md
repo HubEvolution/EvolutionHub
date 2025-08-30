@@ -11,7 +11,7 @@
 - **Heroicons v2.1.5-1**: Icon-Library für die Benutzeroberfläche
 
 ### Backend
-- **Cloudflare Pages**: Hosting und SSR-Plattform
+- **Cloudflare Worker**: Hosting und SSR-Plattform
 - **Cloudflare D1**: Serverless SQLite-Datenbank
 - **Cloudflare R2**: Objektspeicher (für Benutzer-Avatare)
 - **Cloudflare KV**: Key-Value-Store für Session-Management
