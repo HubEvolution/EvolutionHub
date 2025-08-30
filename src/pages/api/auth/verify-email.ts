@@ -11,12 +11,13 @@ import { createSession } from '@/lib/auth-v2';
 import { createSecureRedirect } from '@/lib/response-helpers';
 import { logAuthSuccess, logAuthFailure } from '@/lib/security-logger';
 import { createEmailService, type EmailServiceDependencies } from '@/lib/services/email-service-impl';
-import { ServiceError, ServiceErrorType } from '@/lib/services/types';
+import { localizePath } from '@/lib/locale-path';
 
 // Validierungsschema für Verifikations-Anfragen (analog zu Newsletter-Pattern)
 const verificationSchema = z.object({
   token: z.string().min(32, 'Invalid token format'),
-  email: z.string().email('Invalid email format').optional()
+  // Accept nullish (undefined or null) to be robust against URLSearchParams.get() returning null
+  email: z.string().email('Invalid email format').nullish()
 });
 
 /**
@@ -56,24 +57,48 @@ interface User {
  * - Bei Fehlern: /register mit entsprechendem error-Parameter
  */
 export const GET = async (context: APIContext) => {
+  // Locale aus Query (Fallback: Referer -> 'en') vorab berechnen
+  const url = new URL(context.request.url);
+  // Debug incoming request
+  console.log('[verify-email] Incoming URL:', url.toString());
+  const referer =
+    typeof context?.request?.headers?.get === 'function'
+      ? context.request.headers.get('referer') ?? ''
+      : '';
+  const qpLocale = url.searchParams.get('locale');
+  const locale = (qpLocale === 'de' || qpLocale === 'en')
+    ? qpLocale
+    : (referer.includes('/de/') ? 'de' : referer.includes('/en/') ? 'en' : 'en');
+
+  const redirectLocalized = (path: string, query?: string) => {
+    const base = localizePath((locale === 'de' ? 'de' : 'en'), path);
+    return createSecureRedirect(query ? `${base}?${query}` : base);
+  };
+
   try {
-    const url = new URL(context.request.url);
     const token = url.searchParams.get('token');
     const email = url.searchParams.get('email');
+    console.log('[verify-email] token present:', !!token, 'len:', token?.length || 0, 'email present:', !!email);
 
     // Validierung der Query-Parameter
-    const validation = verificationSchema.safeParse({ token, email });
+    // Important: URLSearchParams.get returns null when absent; Zod optional expects undefined
+    const validationPayload: { token: string | null; email?: string } = { token };
+    if (email != null) {
+      validationPayload.email = email;
+    }
+    const validation = verificationSchema.safeParse(validationPayload);
     if (!validation.success) {
-      console.log('Email verification validation failed:', validation.error.errors);
+      console.log('[verify-email] validation failed:', validation.error.errors);
       logAuthFailure(context.clientAddress, {
         reason: 'invalid_verification_link',
         error: validation.error.errors
       });
       
-      return createSecureRedirect('/register?error=InvalidVerificationLink');
+      return redirectLocalized('/register', 'error=InvalidVerificationLink');
     }
 
     const { token: validToken } = validation.data;
+    console.log('[verify-email] validation ok, token length:', validToken.length);
 
     if (!context.locals.runtime) {
       const error = new Error("Runtime environment is not available. Are you running in a Cloudflare environment?");
@@ -97,7 +122,7 @@ export const GET = async (context: APIContext) => {
         token: validToken.substring(0, 8) + '...' // Nur Anfang loggen für Security
       });
       
-      return createSecureRedirect('/register?error=VerificationLinkExpired');
+      return redirectLocalized('/register', 'error=VerificationLinkExpired');
     }
 
     // Prüfen, ob Token bereits verwendet wurde
@@ -109,7 +134,7 @@ export const GET = async (context: APIContext) => {
         usedAt: new Date(tokenRecord.used_at * 1000).toISOString()
       });
       
-      return createSecureRedirect('/register?error=VerificationLinkAlreadyUsed');
+      return redirectLocalized('/register', 'error=VerificationLinkAlreadyUsed');
     }
 
     // Prüfen, ob Token abgelaufen ist (24 Stunden)
@@ -128,7 +153,7 @@ export const GET = async (context: APIContext) => {
         expiredAt: new Date(tokenRecord.expires_at * 1000).toISOString()
       });
       
-      return createSecureRedirect('/register?error=VerificationLinkExpired');
+      return redirectLocalized('/register', 'error=VerificationLinkExpired');
     }
 
     // E-Mail-Adresse validieren wenn angegeben
@@ -141,7 +166,7 @@ export const GET = async (context: APIContext) => {
         userId: tokenRecord.user_id
       });
       
-      return createSecureRedirect('/register?error=InvalidVerificationLink');
+      return redirectLocalized('/register', 'error=InvalidVerificationLink');
     }
 
     // Benutzer aus der Datenbank laden
@@ -156,7 +181,7 @@ export const GET = async (context: APIContext) => {
         userId: tokenRecord.user_id
       });
       
-      return createSecureRedirect('/register?error=UserNotFound');
+      return redirectLocalized('/register', 'error=UserNotFound');
     }
 
     // Benutzer als verifiziert markieren
@@ -229,7 +254,7 @@ export const GET = async (context: APIContext) => {
     console.log('✅ Email successfully verified for user:', user.email);
 
     // Weiterleitung zur Erfolgsseite
-    return createSecureRedirect('/email-verified?welcome=true');
+    return redirectLocalized('/email-verified', 'welcome=true');
 
   } catch (error) {
     console.error('Error during email verification:', error);
@@ -240,7 +265,7 @@ export const GET = async (context: APIContext) => {
       error: error instanceof Error ? error.message : String(error)
     });
     
-    return createSecureRedirect('/register?error=ServerError');
+    return redirectLocalized('/register', 'error=ServerError');
   }
 };
 

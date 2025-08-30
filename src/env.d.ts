@@ -19,13 +19,20 @@ declare namespace App {
             name: string;
             username: string;
             image?: string;
+            email_verified: boolean;
         } | null;
         runtime: {
             env: {
                 DB: import('@cloudflare/workers-types').D1Database;
                 // Turnstile-Secret-Key entfernt
                 RESEND_API_KEY: string;
+                // Name der Laufzeitumgebung (z. B. 'staging', 'production')
+                ENVIRONMENT?: string;
             };
         };
+        /**
+         * CSP Nonce, vom Server/Adapter gesetzt. Optional, damit Dev/Tests ohne CSP nicht brechen.
+         */
+        cspNonce?: string;
     }
 }

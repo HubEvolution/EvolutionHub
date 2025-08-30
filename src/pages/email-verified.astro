@@ -2,9 +2,14 @@
 import AuthLayout from '@/layouts/AuthLayout.astro';
 import Button from '@/components/ui/Button.astro';
 
+import { getLocale } from '@/lib/i18n';
+import { localizePath } from '@/lib/locale-path';
+
 // URL-Parameter auslesen
 const url = Astro.url;
 const error = url.searchParams.get('error');
+
+const locale = getLocale(Astro.url.pathname);
 
 // Benutzer sollte bereits eingeloggt sein (Session wurde bei Verifikation erstellt)
 const locals = Astro.locals as any;
@@ -120,7 +125,7 @@ if (error) {
       <!-- Call to Action -->
       <div class="text-center">
         <Button className="w-full bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-700 hover:to-cyan-700 text-white font-semibold py-3 px-6 text-lg">
-          <a href="/dashboard" class="block w-full h-full">
+          <a href={localizePath(locale, '/dashboard')} class="block w-full h-full">
             🚀 Zum Dashboard
           </a>
         </Button>
@@ -154,13 +159,13 @@ if (error) {
       <!-- Action Buttons -->
       <div class="space-y-4">
         <Button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white">
-          <a href="/register" class="block w-full h-full">
+          <a href={localizePath(locale, '/register')} class="block w-full h-full">
             🔄 Neue Registrierung
           </a>
         </Button>
         
         <Button className="w-full bg-gray-600 hover:bg-gray-700 text-white">
-          <a href="/login" class="block w-full h-full">
+          <a href={localizePath(locale, '/login')} class="block w-full h-full">
             🔑 Zum Login
           </a>
         </Button>
@@ -190,7 +195,7 @@ if (error) {
       <!-- Action Button -->
       <div class="text-center">
         <Button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white">
-          <a href="/login" class="block w-full h-full">
+          <a href={localizePath(locale, '/login')} class="block w-full h-full">
             🔑 Jetzt einloggen
           </a>
         </Button>
@@ -209,12 +214,14 @@ if (error) {
   </div>
 </AuthLayout>
 
-<!-- Add data attribute before scripts so it's available when scripts run -->
-<div data-page-state={pageState} style="display: none;"></div>
+<!-- Add data attributes before scripts so they're available when scripts run -->
+<div data-page-state={pageState} data-dashboard-url={localizePath(locale, '/dashboard')} style="display: none;"></div>
 
 <script>
   // Auto-redirect to dashboard after successful verification
-  const pageState = document.querySelector('[data-page-state]')?.getAttribute('data-page-state');
+  const configEl = document.querySelector('[data-page-state]');
+  const pageState = configEl?.getAttribute('data-page-state');
+  const dashboardUrl = configEl?.getAttribute('data-dashboard-url') || '/dashboard';
   
   if (!pageState || pageState === 'success') {
     const countdownElement = document.getElementById('countdown');
@@ -228,7 +235,7 @@ if (error) {
       
       if (countdown <= 0) {
         clearInterval(interval);
-        window.location.href = '/dashboard';
+        window.location.href = dashboardUrl;
       }
     }, 1000);
     

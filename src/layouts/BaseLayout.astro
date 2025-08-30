@@ -101,7 +101,7 @@ const ogImage = customOgImage || seoData.ogImage;
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.css">
 
     <!-- JSON-LD Schema -->
-    <script type="application/ld+json">
+    <script type="application/ld+json" nonce={Astro.locals.cspNonce}>
       {
         "@context": "https://schema.org",
         "@type": "WebPage",
@@ -139,7 +139,7 @@ const ogImage = customOgImage || seoData.ogImage;
       {enableAnalytics && <AnalyticsCoordinator />}
       <Toaster client:load />
 
-    <script>
+    <script nonce={Astro.locals.cspNonce}>
       const initSmoothScrolling = () => {
         document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
           anchor.addEventListener('click', (e) => {
@@ -190,9 +190,9 @@ const ogImage = customOgImage || seoData.ogImage;
       }
     </script>
     <!-- Cookie Consent JS -->
-    <script src="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.js" defer nonce={Astro.locals.cspNonce}></script>
 <!-- Cookie Consent Configuration -->
-    <script define:vars={{ locale }}>
+    <script define:vars={{ locale }} nonce={Astro.locals.cspNonce}>
       // Saubere CookieConsent-Integration basierend auf Astro-Pattern
       document.addEventListener('DOMContentLoaded', function() {
         // Warten bis CookieConsent geladen ist

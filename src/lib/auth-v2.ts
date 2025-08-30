@@ -133,13 +133,15 @@ export async function validateSession(db: D1Database, sessionId: string): Promis
 
     // Nur sichere Benutzerfelder laden (kein password_hash o.ä.)
     const userResult = await db.prepare(
-        "SELECT id, email, name, username, image FROM users WHERE id = ?"
+        "SELECT id, email, name, username, image, email_verified, email_verified_at FROM users WHERE id = ?"
     ).bind(session.userId).first<{
         id: string;
         email: string;
         name: string;
         username: string;
         image?: string;
+        email_verified?: number | boolean;
+        email_verified_at?: number | null;
     }>();
 
     if (!userResult) {
@@ -152,6 +154,7 @@ export async function validateSession(db: D1Database, sessionId: string): Promis
         name: userResult.name,
         username: userResult.username,
         image: userResult.image,
+        email_verified: Boolean((userResult as any).email_verified),
     } as unknown as App.Locals['user'];
     
     return { session, user };

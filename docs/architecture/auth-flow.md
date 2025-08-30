@@ -8,7 +8,7 @@ Diese Dokumentation beschreibt den vollständigen Authentifizierungsflow im Evol
 2. [Authentifizierungskomponenten](#authentifizierungskomponenten)
 3. [Registrierungsflow](#registrierungsflow)
 4. [Anmeldeflow](#anmeldeflow)
-5. [Sitzungsverwaltung](#sitzungsverwaltung)
+5. [Sitzungsverwaltung](#sitzungsverwaltung) <!-- markdownlint-disable-line MD051 -->
 6. [Passwort-Reset-Flow](#passwort-reset-flow)
 7. [Abmeldeflow](#abmeldeflow)
 8. [Sicherheitsmaßnahmen](#sicherheitsmaßnahmen)
@@ -18,14 +18,14 @@ Diese Dokumentation beschreibt den vollständigen Authentifizierungsflow im Evol
 
 ## Überblick
 
-Das Evolution Hub Authentifizierungssystem basiert auf einem JWT-basierten (JSON Web Token) Ansatz mit sicheren HttpOnly-Cookies und implementiert Best Practices für Webanwendungssicherheit.
+Das Evolution Hub Authentifizierungssystem verwendet serverseitige Sitzungen mit einem sicheren HttpOnly-Cookie (`session_id`) und implementiert Best Practices für Webanwendungssicherheit. Es werden keine JWTs verwendet.
 
 ### Grundprinzipien
 
-1. **Zustandslose Authentifizierung**: JWT-basierte Authentifizierung ohne serverseitige Sitzungsspeicherung
-2. **Sichere Cookie-Verwaltung**: HttpOnly-Cookies zur Verhinderung von XSS-Angriffen
-3. **CSRF-Schutz**: Cross-Site Request Forgery Prävention durch Token-Validierung
-4. **Mehrschichtige Sicherheit**: Kombination verschiedener Sicherheitsmaßnahmen
+1. **Serverseitige Sitzungen**: Authentifizierung über persistente, serverseitig validierte Sitzungen (Cookie: `session_id`)
+2. **Sichere Cookie-Verwaltung**: HttpOnly, Secure (prod), SameSite=Lax, Path=/; `maxAge` abhängig von „Remember Me“
+3. **CSRF-Schutz**: CSRF-Prävention an relevanten Endpunkten
+4. **Mehrschichtige Sicherheit**: Rate-Limiting, Security Headers, Audit-Logging
 5. **Rollenbasierte Zugriffskontrolle**: Differenzierte Berechtigungen basierend auf Benutzerrollen
 
 ---
@@ -45,13 +45,13 @@ Das Authentifizierungssystem besteht aus folgenden Hauptkomponenten:
 ### 2. Auth-Service
 
 - **Benutzervalidierung**: Überprüfung von Anmeldedaten
-- **Token-Generierung**: Erstellung von JWT-Tokens
+- **Sitzungserstellung**: Erstellung und Persistierung von Sessions (`session_id`)
 - **Passwort-Hashing**: Sichere Speicherung von Passwörtern
 - **Berechtigungsprüfung**: Überprüfung von Benutzerberechtigungen
 
 ### 3. Auth-Middleware
 
-- **Token-Validierung**: Überprüfung von JWT-Tokens
+- **Sitzungsvalidierung**: Überprüfung der Session anhand des `session_id`-Cookies
 - **Benutzerkontext**: Bereitstellung des Benutzerkontexts für API-Handler
 - **Zugriffskontrolle**: Durchsetzung von Zugriffsrichtlinien
 
@@ -88,77 +88,20 @@ sequenceDiagram
     UserRepository->>Database: INSERT INTO users
     Database->>UserRepository: User ID
     UserRepository->>AuthService: Neuer Benutzer
-    AuthService->>EmailService: sendWelcomeEmail(email)
+    AuthService->>EmailService: sendVerificationEmail(email)
     AuthService->>RegisterAPI: Registrierungsergebnis
-    RegisterAPI->>Client: 201 Created, Benutzer erstellt
+    RegisterAPI->>Client: 302 Redirect /verify-email?email=<email>
 ```
 
 ### Registrierungscode
 
 ```typescript
-// src/pages/api/auth/register.ts
-export async function POST({ request, env }) {
-  try {
-    // Eingabedaten validieren
-    const data = await request.json();
-    const { email, password, name } = data;
-    
-    if (!email || !password || !name) {
-      return new Response(JSON.stringify({
-        error: 'Validation Error',
-        message: 'Email, password and name are required'
-      }), { status: 400 });
-    }
-    
-    // Rate-Limiting prüfen
-    const rateLimitResult = await checkRateLimit(request, 'register', env);
-    if (!rateLimitResult.success) {
-      return rateLimitResult.response;
-    }
-    
-    // Benutzer registrieren
-    const authService = new AuthService(env.DB);
-    const result = await authService.registerUser(email, password, name);
-    
-    // Audit-Logging
-    await logSecurityEvent(env, {
-      type: 'USER_REGISTERED',
-      email,
-      success: true,
-      ip: request.headers.get('CF-Connecting-IP')
-    });
-    
-    // Erfolgsantwort
-    return new Response(JSON.stringify({
-      message: 'User registered successfully',
-      userId: result.userId
-    }), {
-      status: 201,
-      headers: getSecurityHeaders()
-    });
-  } catch (error) {
-    // Fehlerbehandlung
-    if (error.code === 'USER_EXISTS') {
-      return new Response(JSON.stringify({
-        error: 'Conflict',
-        message: 'User with this email already exists'
-      }), { status: 409 });
-    }
-    
-    // Audit-Logging bei Fehler
-    await logSecurityEvent(env, {
-      type: 'USER_REGISTRATION_FAILED',
-      email: data?.email,
-      success: false,
-      error: error.message,
-      ip: request.headers.get('CF-Connecting-IP')
-    });
-    
-    return new Response(JSON.stringify({
-      error: 'Internal Server Error',
-      message: 'Failed to register user'
-    }), { status: 500 });
-  }
+// src/pages/api/auth/register.ts (vereinfacht)
+export async function POST(context) {
+  // Eingabedaten validieren, Rate-Limit etc.
+  // Benutzer anlegen (ohne Session) und Verifikationsmail auslösen
+  const location = `/verify-email?email=${encodeURIComponent(user.email)}`;
+  return Response.redirect(location, 302);
 }
 ```
 
@@ -175,206 +118,80 @@ sequenceDiagram
     participant AuthService
     participant UserRepository
     participant Database
-    participant JWTService
+    participant SessionStore
 
-    Client->>LoginAPI: POST {email, password}
-    LoginAPI->>LoginAPI: Validiere Eingabedaten
+    Client->>LoginAPI: POST {email, password, rememberMe}
+    LoginAPI->>LoginAPI: Validiere Eingabedaten & Rate-Limit
     LoginAPI->>AuthService: loginUser(email, password)
     AuthService->>UserRepository: findUserByEmail(email)
     UserRepository->>Database: SELECT * FROM users WHERE email = ?
     Database->>UserRepository: Benutzerdaten
     UserRepository->>AuthService: Benutzer-Objekt
     AuthService->>AuthService: Verifiziere Passwort-Hash
-    AuthService->>JWTService: generateToken(userId, roles)
-    JWTService->>AuthService: JWT-Token
-    AuthService->>LoginAPI: Login-Ergebnis mit Token
-    LoginAPI->>Client: 200 OK mit HttpOnly-Cookie
+    AuthService->>SessionStore: createSession(userId, rememberMe)
+    SessionStore->>AuthService: session_id
+    AuthService->>LoginAPI: Login-Ergebnis mit session_id
+    LoginAPI->>Client: 302 Redirect /dashboard + Set-Cookie: session_id
 ```
 
 ### Anmeldecode
 
 ```typescript
 // src/pages/api/auth/login.ts
-export async function POST({ request, env }) {
-  try {
-    // Eingabedaten validieren
-    const data = await request.json();
-    const { email, password } = data;
-    
-    if (!email || !password) {
-      return new Response(JSON.stringify({
-        error: 'Validation Error',
-        message: 'Email and password are required'
-      }), { status: 400 });
+export async function POST({ request, env }: any) {
+  // Eingabedaten validieren
+  const form = await request.formData();
+  const email = form.get('email');
+  const password = form.get('password');
+  const rememberMe = form.get('rememberMe') === 'on';
+
+  // Rate-Limiting prüfen
+  const rl = await checkRateLimit(request, 'login', env);
+  if (!rl.success) return rl.response;
+
+  // Benutzer anmelden und Session erstellen
+  const auth = new AuthService(env.DB);
+  const { userId } = await auth.loginUser(email, password);
+  const sessionId = await auth.createSession(userId, { rememberMe });
+
+  // Cookie setzen (HttpOnly, SameSite=Lax, Secure in Prod)
+  const maxAge = rememberMe ? 60 * 60 * 24 * 30 : 60 * 60 * 24; // 30d / 1d
+  const secure = process.env.NODE_ENV === 'production' ? 'Secure; ' : '';
+  const cookie = `session_id=${sessionId}; ${secure}HttpOnly; Path=/; SameSite=Lax; Max-Age=${maxAge}`;
+
+  return new Response(null, {
+    status: 302,
+    headers: {
+      'Set-Cookie': cookie,
+      Location: '/dashboard'
     }
-    
-    // Rate-Limiting prüfen
-    const rateLimitResult = await checkRateLimit(request, 'login', env);
-    if (!rateLimitResult.success) {
-      return rateLimitResult.response;
-    }
-    
-    // Benutzer anmelden
-    const authService = new AuthService(env.DB);
-    const result = await authService.loginUser(email, password);
-    
-    // Cookie-Einstellungen
-    const cookieOptions = {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'strict',
-      path: '/',
-      expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 Tage
-    };
-    
-    // Audit-Logging
-    await logSecurityEvent(env, {
-      type: 'USER_LOGIN',
-      userId: result.userId,
-      email,
-      success: true,
-      ip: request.headers.get('CF-Connecting-IP')
-    });
-    
-    // Erfolgsantwort mit Cookie
-    return new Response(JSON.stringify({
-      message: 'Login successful',
-      user: {
-        id: result.userId,
-        name: result.name,
-        email: result.email,
-        roles: result.roles
-      }
-    }), {
-      status: 200,
-      headers: {
-        'Set-Cookie': `auth-token=${result.token}; ${serializeCookieOptions(cookieOptions)}`,
-        ...getSecurityHeaders()
-      }
-    });
-  } catch (error) {
-    // Fehlerbehandlung
-    if (error.code === 'INVALID_CREDENTIALS') {
-      // Audit-Logging bei fehlgeschlagener Anmeldung
-      await logSecurityEvent(env, {
-        type: 'USER_LOGIN_FAILED',
-        email: data?.email,
-        success: false,
-        reason: 'INVALID_CREDENTIALS',
-        ip: request.headers.get('CF-Connecting-IP')
-      });
-      
-      return new Response(JSON.stringify({
-        error: 'Unauthorized',
-        message: 'Invalid email or password'
-      }), { status: 401 });
-    }
-    
-    // Audit-Logging bei Fehler
-    await logSecurityEvent(env, {
-      type: 'USER_LOGIN_ERROR',
-      email: data?.email,
-      success: false,
-      error: error.message,
-      ip: request.headers.get('CF-Connecting-IP')
-    });
-    
-    return new Response(JSON.stringify({
-      error: 'Internal Server Error',
-      message: 'Failed to login'
-    }), { status: 500 });
-  }
+  });
 }
-```
 
 ---
 
 ## Sitzungsverwaltung
 
-Die Sitzungsverwaltung basiert auf JWT-Tokens, die in HttpOnly-Cookies gespeichert werden:
+Die Sitzungsverwaltung basiert auf serverseitigen Sitzungen, identifiziert durch das HttpOnly-Cookie `session_id`:
 
-### Token-Struktur
+### Session-Cookie und Eigenschaften
 
-```javascript
-{
-  "sub": "user-123", // Benutzer-ID
-  "roles": ["user", "admin"], // Benutzerrollen
-  "iat": 1628610000, // Ausstellungszeitpunkt
-  "exp": 1628696400, // Ablaufzeitpunkt
-  "jti": "unique-token-id" // Eindeutige Token-ID
-}
-```
+- Cookie-Name: `session_id`
+- Eigenschaften: HttpOnly, Secure (in Produktion), SameSite=Lax, Path=/
+- Lebensdauer: Standard 1 Tag, 30 Tage bei „Remember Me“
 
-### Token-Validierung
+### Sitzungsvalidierung (aktuell)
 
 ```typescript
-// src/middleware.ts
-export async function onRequest({ request, env, next }) {
-  // Security-Headers hinzufügen
-  const response = await next();
-  addSecurityHeaders(response);
-  
-  // Öffentliche Routen überspringen
-  const url = new URL(request.url);
-  if (isPublicRoute(url.pathname)) {
-    return response;
-  }
-  
-  try {
-    // Token aus Cookie extrahieren
-    const cookies = parseCookies(request.headers.get('Cookie') || '');
-    const token = cookies['auth-token'];
-    
-    if (!token) {
-      throw new Error('No authentication token provided');
-    }
-    
-    // Token validieren
-    const authService = new AuthService(env.DB);
-    const decoded = await authService.verifyToken(token);
-    
-    // Benutzerkontext zur Anfrage hinzufügen
-    request.user = {
-      id: decoded.sub,
-      roles: decoded.roles
-    };
-    
-    // Anfrage mit Benutzerkontext weiterleiten
-    return next();
-  } catch (error) {
-    // Bei ungültigem Token Fehler zurückgeben
-    return new Response(JSON.stringify({
-      error: 'Unauthorized',
-      message: 'Invalid or expired authentication token'
-    }), {
-      status: 401,
-      headers: {
-        'Content-Type': 'application/json',
-        ...getSecurityHeaders()
-      }
-    });
-  }
+// src/middleware.ts (vereinfacht)
+const cookies = parseCookies(request.headers.get('Cookie') || '');
+const sessionId = cookies['session_id'];
+if (!sessionId) {
+  context.locals.session = null;
+  context.locals.user = null;
+  // Weiter mit nachfolgenden Handlern; Gating erfolgt separat (z. B. /verify-email)
 }
-```
-
-### Token-Erneuerung
-
-```typescript
-// Token-Erneuerung bei jeder Anfrage
-if (shouldRenewToken(decoded)) {
-  const newToken = await authService.refreshToken(token);
-  
-  // Neues Cookie setzen
-  const cookieOptions = {
-    httpOnly: true,
-    secure: true,
-    sameSite: 'strict',
-    path: '/',
-    expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 Tage
-  };
-  
-  response.headers.set('Set-Cookie', `auth-token=${newToken}; ${serializeCookieOptions(cookieOptions)}`);
-}
+// Session im Store/DB prüfen → context.locals.{session,user} setzen
 ```
 
 ---
@@ -406,7 +223,7 @@ sequenceDiagram
     AuthService->>EmailService: sendPasswordResetEmail(email, token)
     AuthService->>ForgotAPI: Reset initiiert
     ForgotAPI->>Client: 200 OK, E-Mail gesendet
-    
+
     %% Passwort zurücksetzen
     Client->>ResetAPI: POST {token, newPassword}
     ResetAPI->>AuthService: resetPassword(token, newPassword)
@@ -424,118 +241,89 @@ sequenceDiagram
     ResetAPI->>Client: 200 OK, Passwort aktualisiert
 ```
 
+### Hinweis: Token-Transport und URL-Bereinigung (aktuell)
+
+- Der Reset-Link verwendet ein Fragment-Token: `/reset-password#token=...` (reduziert die Gefahr von Token-Leaks in Logs/Proxys). Quelle: `src/pages/api/auth/forgot-password.ts`.
+- Die Seite `src/pages/reset-password.astro` extrahiert das Token sowohl aus Query als auch Hash, übergibt es als Hidden-Input an das Formular und bereinigt anschließend Query und Hash via `history.replaceState`.
+- Nach dem Absenden erfolgt ein Redirect durch `/api/auth/reset-password`; Rückmeldungen werden über `AuthStatusNotifier` als Toasts angezeigt.
+
 ---
 
 ## Abmeldeflow
 
 Der Abmeldeprozess umfasst folgende Schritte:
 
+Hinweis (aktuell): Das Cookie `session_id` wird gelöscht und der Nutzer wird nach `/login?loggedOut=true` umgeleitet. Die Seite zeigt über `AuthStatusNotifier` eine Bestätigungs-Toast an und bereinigt anschließend die URL.
+
 ```mermaid
 sequenceDiagram
     participant Client
     participant LogoutAPI as /api/auth/logout
-    participant AuthService
+    participant SessionStore
 
     Client->>LogoutAPI: POST {}
-    LogoutAPI->>AuthService: logoutUser(token)
-    AuthService->>LogoutAPI: Logout-Ergebnis
-    LogoutAPI->>Client: 200 OK mit gelöschtem Cookie
+    LogoutAPI->>SessionStore: invalidateSession(session_id)
+    SessionStore->>LogoutAPI: OK
+    LogoutAPI->>Client: 302 Redirect /login?loggedOut=true + Löschen von session_id
 ```
 
 ### Abmeldecode
 
 ```typescript
 // src/pages/api/auth/logout.ts
-export async function POST({ request, env }) {
-  try {
-    // Cookie löschen
-    const cookieOptions = {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'strict',
-      path: '/',
-      expires: new Date(0) // Sofort ablaufen lassen
-    };
-    
-    // Benutzer-ID aus Token extrahieren (falls vorhanden)
-    const cookies = parseCookies(request.headers.get('Cookie') || '');
-    const token = cookies['auth-token'];
-    let userId = null;
-    
-    if (token) {
-      try {
-        const authService = new AuthService(env.DB);
-        const decoded = await authService.verifyToken(token);
-        userId = decoded.sub;
-      } catch (error) {
-        // Token konnte nicht verifiziert werden, ignorieren
-      }
-    }
-    
-    // Audit-Logging
-    if (userId) {
-      await logSecurityEvent(env, {
-        type: 'USER_LOGOUT',
-        userId,
-        success: true,
-        ip: request.headers.get('CF-Connecting-IP')
-      });
-    }
-    
-    // Erfolgsantwort mit gelöschtem Cookie
-    return new Response(JSON.stringify({
-      message: 'Logout successful'
-    }), {
-      status: 200,
-      headers: {
-        'Set-Cookie': `auth-token=; ${serializeCookieOptions(cookieOptions)}`,
-        ...getSecurityHeaders()
-      }
-    });
-  } catch (error) {
-    return new Response(JSON.stringify({
-      error: 'Internal Server Error',
-      message: 'Failed to logout'
-    }), { status: 500 });
+import { invalidateSession } from '@/lib/auth-v2';
+
+export async function POST(context: any) {
+  // Session invalidieren und Cookie löschen, dann Redirect
+  const sessionId = context.cookies.get('session_id')?.value ?? null;
+  if (sessionId && context.locals?.runtime) {
+    await invalidateSession(context.locals.runtime.env.DB, sessionId);
   }
+  // Cookie entfernen
+  context.cookies.set('session_id', '', {
+    path: '/',
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: new URL(context.request.url).protocol === 'https:',
+    maxAge: 0,
+  });
+  return Response.redirect('/login?loggedOut=true', 302);
 }
 ```
 
 ---
 
+## Clientseitige Benachrichtigungen (Sonner) & URL-Bereinigung
+
+- Globaler Toaster wird in `src/layouts/BaseLayout.astro` mit `client:load` eingebunden.
+- Auth-Seiten binden die React-Insel `src/components/scripts/AuthStatusNotifier.tsx` mit `client:load` ein (z. B. `login`, `register`, `forgot-password`, `reset-password`, Bestätigungsseiten).
+- `AuthStatusNotifier` zeigt lokalisierte Toasts basierend auf URL-Parametern (`success`, `error`, `loggedOut`, ggf. weitere) und entfernt diese Parameter anschließend aus der URL.
+- Auf `reset-password` wird zusätzlich das `token`-Fragment/Query nach dem Auslesen bereinigt.
+- Strenge CSP ist in Produktion aktiv; der Notifier wartet auf das Mounten des Toasters, um Timing-Probleme zu vermeiden.
+- `AuthLayout.astro` deaktiviert AOS/Analytics für Auth-Seiten (siehe `docs/frontend/aos-coordinator.md`).
+
+## Lokalisierung der Auth-Routen (Verweis: ADR-0005)
+
+Für Auth-Seiten (z. B. `login`, `register`, `forgot-password`, `reset-password`, `email-verified`) gilt: Die Sprache wird strikt über das URL-Prefix bestimmt (z. B. `/de/*` für Deutsch, `/en/*` für Englisch). Die Middleware normalisiert Auth-Routen nicht, damit die Locale stabil bleibt und Client-seitige Toasts (Sonner) zuverlässig lokalisiert werden.
+
+Details und Begründung siehe ADR:
+
+- [ADR-0005: Auth-Routen – Locale-Normalisierung (DE/EN)](./adrs/0005-auth-route-locale-normalisierung.md)
+
+Konsequenzen für Implementierung und Tests:
+
+- Aufruf von `/de/*` zeigt deutsche Inhalte/Toasts, ungeachtet Cookie/Accept-Language.
+- E2E-Tests prüfen strikt locale-spezifische Texte und die URL-Bereinigung nach Toast-Anzeige.
+
+---
+
 ## Sicherheitsmaßnahmen
 
-Evolution Hub implementiert mehrere Sicherheitsmaßnahmen im Authentifizierungssystem:
-
-### 1. Passwort-Sicherheit
-
-- **Bcrypt-Hashing**: Sichere Passwort-Hashing-Algorithmen
-- **Passwort-Richtlinien**: Mindestanforderungen an Passwörter (Länge, Komplexität)
-- **Brute-Force-Schutz**: Rate-Limiting für Anmeldeversuche
-
-### 2. Token-Sicherheit
-
-- **Kurze Lebensdauer**: JWT-Tokens mit begrenzter Gültigkeit
-- **Sichere Signierung**: Verwendung starker Signierungsalgorithmen
-- **HttpOnly-Cookies**: Schutz vor JavaScript-Zugriff auf Tokens
-
-### 3. CSRF-Schutz
-
-- **CSRF-Tokens**: Zusätzliche Tokens für schreibende Operationen
-- **SameSite-Cookies**: Einschränkung von Cross-Site-Requests
-- **Origin-Validierung**: Überprüfung des Request-Origins
-
-### 4. XSS-Schutz
-
-- **Content-Security-Policy**: Einschränkung von Script-Quellen
-- **X-XSS-Protection**: Browser-seitiger XSS-Schutz
-- **HttpOnly-Cookies**: Schutz vor Cookie-Diebstahl durch XSS
-
-### 5. Audit-Logging
-
-- **Sicherheitsereignisse**: Protokollierung aller sicherheitsrelevanten Ereignisse
-- **Anmeldeversuche**: Erfolgreiche und fehlgeschlagene Anmeldungen
-- **Passwort-Änderungen**: Protokollierung von Passwort-Änderungen und -Resets
+- **Rate-Limiting**: Schutz vor Brute-Force/Abuse auf allen Auth-APIs und global in der Middleware.
+- **Security Headers**: Strenge Standard-Header inkl. CSP (in Produktion strikt), HSTS, Frame-/Referrer-Policies.
+- **CSRF/Origin-Checks**: CSRF-Token/Origin-Validierung an state-changing Endpunkten.
+- **Cookie-Härtung**: `session_id` als HttpOnly, SameSite=Lax, Secure (prod), kurze Standardlebensdauer.
+- **Audit-Logging**: Relevante Ereignisse (Login/Logout, Passwort-Reset) werden protokolliert.
 
 ---
 
@@ -548,64 +336,28 @@ Die Authentifizierung ist in die Middleware-Pipeline integriert und wird für al
 ```typescript
 // src/middleware.ts
 import { defineMiddleware } from 'astro:middleware';
-import { isPublicRoute } from './lib/auth';
-import { addSecurityHeaders } from './lib/security-headers';
-import { checkRateLimit } from './lib/rate-limiter';
-import { logRequest } from './lib/security-logger';
+import { validateSession } from '@/lib/auth-v2';
 
-export const onRequest = defineMiddleware(async ({ request, env, next }) => {
-  // Request-Logging
-  await logRequest(request, env);
-  
-  // Rate-Limiting für alle Anfragen
-  const rateLimitResult = await checkRateLimit(request, 'global', env);
-  if (!rateLimitResult.success) {
-    return rateLimitResult.response;
+export const onRequest = defineMiddleware(async (context, next) => {
+  // Session-ID aus Cookie lesen
+  const sessionId = context.cookies.get('session_id')?.value ?? null;
+
+  if (!sessionId || !context.locals?.runtime) {
+    context.locals.session = null;
+    context.locals.user = null;
+    return next();
   }
-  
-  // Öffentliche Routen überspringen Authentifizierung
-  const url = new URL(request.url);
-  if (isPublicRoute(url.pathname)) {
-    const response = await next();
-    addSecurityHeaders(response);
-    return response;
-  }
-  
-  // Authentifizierung für geschützte Routen
+
   try {
-    const authResult = await authenticateRequest(request, env);
-    if (!authResult.success) {
-      return authResult.response;
-    }
-    
-    // Benutzerkontext zur Anfrage hinzufügen
-    request.user = authResult.user;
-    
-    // Anfrage mit Benutzerkontext weiterleiten
-    const response = await next();
-    
-    // Token erneuern, wenn nötig
-    if (authResult.shouldRenewToken) {
-      const newToken = await refreshToken(authResult.token, env);
-      setAuthCookie(response, newToken);
-    }
-    
-    // Security-Headers hinzufügen
-    addSecurityHeaders(response);
-    return response;
-  } catch (error) {
-    // Bei Authentifizierungsfehler Fehler zurückgeben
-    return new Response(JSON.stringify({
-      error: 'Unauthorized',
-      message: 'Authentication failed'
-    }), {
-      status: 401,
-      headers: {
-        'Content-Type': 'application/json',
-        ...getSecurityHeaders()
-      }
-    });
+    const { session, user } = await validateSession(context.locals.runtime.env.DB, sessionId);
+    context.locals.session = session;
+    context.locals.user = user;
+  } catch {
+    context.locals.session = null;
+    context.locals.user = null;
   }
+
+  return next();
 });
 ```
 
@@ -652,19 +404,3 @@ export async function GET({ request, env }) {
   // Implementierung der Admin-API
   // ...
 }
-```
-
----
-
-## Lokalisierung der Auth-Routen (Verweis: ADR-0005)
-
-Für Auth-Seiten (z. B. `login`, `register`, `forgot-password`, `reset-password`, `email-verified`) gilt: Die Sprache wird strikt über das URL-Prefix bestimmt (z. B. `/de/*` für Deutsch, `/en/*` für Englisch). Die Middleware normalisiert Auth-Routen nicht, damit die Locale stabil bleibt und Client-seitige Toasts (Sonner) zuverlässig lokalisiert werden.
-
-Details und Begründung siehe ADR:
-
-- [ADR-0005: Auth-Routen – Locale-Normalisierung (DE/EN)](./adrs/0005-auth-route-locale-normalisierung.md)
-
-Konsequenzen für Implementierung und Tests:
-
-- Aufruf von `/de/*` zeigt deutsche Inhalte/Toasts, ungeachtet Cookie/Accept-Language.
-- E2E-Tests prüfen strikt locale-spezifische Texte und die URL-Bereinigung nach Toast-Anzeige.

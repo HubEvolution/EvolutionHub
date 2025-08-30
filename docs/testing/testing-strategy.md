@@ -305,6 +305,37 @@ npm run test:e2e -- --project=chromium
 npm run test:e2e -- --ui
 ```
 
+#### E2E gegen Cloudflare Wrangler (empfohlen)
+
+- **Konfiguration**: `tests/e2e/config/playwright.config.ts`
+- **BASE_URL**: Steuert `use.baseURL` und den `Origin`-Header (für CSRF). Standard: `http://127.0.0.1:8787`.
+- **Dev-Server**: Playwright startet Wrangler automatisch über `webServer.command`:
+  - `npm --prefix ../../.. run dev:e2e` → führt `db:setup` aus und startet `wrangler dev` (siehe `package.json`).
+  - `webServer.url` ist `BASE_URL`. Mit `reuseExistingServer: !CI` wird ein bereits laufender Server wiederverwendet.
+
+Beispiele:
+
+```bash
+# 1) Lokal mit automatisch gestarteten Wrangler-Dev (Standardport 8787)
+npm run test:e2e
+
+# 2) Gegen einen bereits laufenden Server (z. B. Remote/Staging)
+export BASE_URL="https://your-env.example.com"
+npm run test:e2e
+
+# 3) Nur Chromium
+npm run test:e2e -- --project=chromium
+
+# 4) Mit UI-Test-Runner
+npm run test:e2e:ui
+```
+
+Hinweise:
+
+- Tests laufen gegen den Cloudflare-Worker (Wrangler), nicht den Astro-Dev-Server.
+- `BASE_URL` wird als `Origin`-Header gesetzt, damit POST-Requests die CSRF-Prüfung bestehen.
+- Wenn bereits ein Server unter `BASE_URL` erreichbar ist, wird dieser genutzt; andernfalls startet Playwright Wrangler automatisch.
+
 ### MSW (Mock Service Worker)
 
 MSW wird für das Mocking von API-Anfragen in Tests verwendet.

@@ -1,0 +1,17 @@
+{
+  // Enable all rules by default
+  "default": true,
+
+  // Line length: disabled to avoid noisy reflows in long documentation files for now
+  "MD013": false,
+
+  // Trailing spaces
+  "MD009": { "br_spaces": 0, "list_item_empty_lines": false, "strict": true },
+
+  // Require blank lines around fenced code blocks and lists
+  "MD031": true,
+  "MD032": true,
+
+  // Allow duplicate headings only if they are not siblings (different sections)
+  "MD024": { "siblings_only": true }
+}

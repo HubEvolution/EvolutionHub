@@ -2,37 +2,36 @@
 
 ## Überblick
 
-Evolution Hub verwendet zwei verschiedene Card-Komponenten-Implementierungen, um sowohl in Astro- als auch in React-Kontexten eine konsistente UI zu gewährleisten:
+Evolution Hub verwendet aktuell:
 
-1. `Card.astro` - Für Verwendung in Astro-Komponenten und -Seiten
-2. `CardReact.jsx` - Für Verwendung in React-Komponenten
+1. Spezialisierte Astro-Karten (z. B. `BlogCard.astro`, `dashboard/StatsCard.astro`, `tools/ToolCard.astro`)
+2. `CardReact.jsx` für React-Komponenten
 
-Diese Trennung ist notwendig, da Astro-Komponenten nicht direkt in React-Komponenten verwendet werden können.
+Hinweis: Es gibt derzeit KEINE generische `Card.astro`-Basiskomponente. Die Astro-Seiten nutzen spezialisierte Karten, während interaktive React-Teile `CardReact.jsx` verwenden. Diese Trennung ist notwendig, da Astro-Komponenten nicht direkt in React-Komponenten verwendet werden können.
 
 ## Verwendungsrichtlinien
 
-### Card.astro
+### Spezialisierte Astro-Karten
+
+Verwende die jeweils passende spezialisierte Karte in Astro:
 
 ```astro
 ---
-// Import
-import Card from '@/components/ui/Card.astro';
+import BlogCard from '@/components/BlogCard.astro';
+import StatsCard from '@/components/dashboard/StatsCard.astro';
+import ToolCard from '@/components/tools/ToolCard.astro';
 ---
 
-<!-- Korrekte Verwendung in Astro-Dateien -->
-<Card>
-  <h2>Titel</h2>
-  <p>Inhalt</p>
-</Card>
+<BlogCard post={post} featured={index === 0} />
+<StatsCard title="Aktive Projekte" value={12} icon="project" />
+<ToolCard tool={tool} />
 ```
 
-**Wichtig:** `Card.astro` darf nur in folgenden Kontexten verwendet werden:
-- Direkt in Astro-Komponenten (`.astro`-Dateien)
-- Als statisches Element (nicht in Schleifen oder als Funktionsaufruf)
+Richtlinien:
 
-**Bekannte Probleme:**
-- Verwendung von `Card.astro` innerhalb von `.map()`-Funktionen kann zu `InvalidComponentArgs`-Fehlern führen
-- Verwendung in React-Komponenten führt zu `InvalidComponentArgs`-Fehlern
+- Nutze `BlogCard.astro` für Blog-Listen/-Teaser.
+- Nutze `StatsCard.astro` für Kennzahlen im Dashboard.
+- Nutze `ToolCard.astro` für Tool-/Kataloglisten.
 
 ### CardReact.jsx
 
@@ -52,27 +51,34 @@ function MyComponent() {
 ```
 
 **Empfohlene Verwendung:**
+
 - In allen React-Komponenten (`.jsx`, `.tsx`)
 - In dynamischen Kontexten (innerhalb von `.map()`, bedingtem Rendering)
 - Für interaktive UI-Elemente
 
 ## Fehlerbehebung
 
-### InvalidComponentArgs-Fehler
+### Häufige Fehler und Migration
 
-Wenn der Fehler `InvalidComponentArgs: Invalid arguments passed to <Card> component` auftritt:
+Wenn Fehlermeldungen im Zusammenhang mit einer nicht existierenden `Card.astro` oder `InvalidComponentArgs` auftreten:
 
-1. Prüfen Sie, ob `Card.astro` in einer React-Komponente verwendet wird
-2. Ersetzen Sie `Card.astro`-Importe in React-Komponenten durch `CardReact.jsx`
-3. Prüfen Sie, ob `Card.astro` in einem `.map()`-Aufruf oder als Funktionsaufruf verwendet wird
-4. Bei komplexen Verschachtelungen kann es helfen, die Komponente durch ein einfaches `<div>` zu ersetzen
+1. Stelle sicher, dass in Astro keine generische `Card.astro` importiert wird. Ersetze sie durch die passende spezialisierte Karte (`BlogCard.astro`, `StatsCard.astro`, `ToolCard.astro`) oder verwende ein semantisches `<div>` mit passenden Utility-Klassen.
+2. In React-Komponenten stets `CardReact.jsx` verwenden und keine `.astro`-Komponenten importieren.
+3. In dynamischen Listen/`.map()` in React immer `CardReact.jsx` verwenden.
+4. Für komplexe Verschachtelungen in Astro ggf. Layout mit `<div>`/`section` und Tailwind-Klassen aufbauen.
 
 ## Architektur-Entscheidung
 
-Die Verwendung von zwei separaten Card-Komponenten ist ein bewusstes Architektur-Pattern, das die Hybrid-Natur des Projekts (Astro + React) widerspiegelt. Langfristig sollte eine der folgenden Strategien in Betracht gezogen werden:
+Die aktuelle Aufteilung (spezialisierte Astro-Karten + `CardReact.jsx`) spiegelt die Hybrid-Natur des Projekts (Astro + React) wider.
 
-1. **Vereinheitlichung:** Eine gemeinsame Basis-Komponente entwickeln, die sowohl in Astro als auch React funktioniert
-2. **Klare Trennung:** Die UI-Bibliothek vollständig in React implementieren und Astro nur für das Routing und Layout verwenden
-3. **Astro-Islands:** Die React-Komponenten als Astro-Islands einbinden und die direkte Verwendung von React-Komponenten minimieren
+Langfristige Optionen:
+1. **Generische Basis in Astro (Phase 2):** Eine `Card.astro` als Basiskomponente einführen und spezialisierte Astro-Karten darauf aufbauen (Ziel: weniger Duplication, konsistentes Styling).
+2. **Klare Trennung:** UI-Bibliothek vollständig in React konsolidieren und React als Inseln verwenden, wo Interaktivität nötig ist.
+3. **Islands-Only für Karten:** Spezialisierte Astro-Karten beibehalten, React-Karten nur für interaktive Bereiche.
 
-Die aktuelle Lösung mit zwei parallelen Implementierungen ist ein pragmatischer Kompromiss, der die Entwicklung ermöglicht, während langfristige Architektur-Entscheidungen getroffen werden.
+Status: Für Phase 1 wurden die Dokumente aktualisiert; es erfolgen KEINE Codeänderungen.
+
+## Phase 2 (Backlog)
+
+Backlog: Erwäge die Einführung einer generischen `Card.astro` und einen Refactor der spezialisierten Astro-Karten, um Duplikate zu reduzieren und Konsistenz zu erhöhen. (Ausarbeitung als ADR in Phase 2.)
+

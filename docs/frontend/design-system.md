@@ -399,37 +399,30 @@ export default function LoadingAnimation() {
 
 ### AOS (Animate On Scroll)
 
-AOS v2.3.1 wird für Scroll-Animationen verwendet und ist als CDN-basierte Lösung implementiert, um Build-Kompatibilität mit Astro SSR und Cloudflare Pages zu gewährleisten.
+AOS v2.3.4 wird für Scroll-Animationen verwendet und ist CDN-basiert integriert, um Kompatibilität mit Astro SSR und Cloudflare Pages sicherzustellen.
 
 #### Integration & Architektur
 
-Die AOS-Integration erfolgt über eine dedizierte Koordinator-Komponente:
+- Dedizierte Koordinator-Komponente: `src/components/scripts/AOSCoordinator.astro`
+- AOS-CSS wird im `<head>` nur geladen, wenn `enableAOS === true` (siehe `src/layouts/BaseLayout.astro`).
+- Das AOS-Script wird vom Coordinator per CDN geladen und initialisiert; keine ESM-Imports.
+- Respektiert automatisch `prefers-reduced-motion` (Animationen werden für Nutzer mit reduzierter Bewegung deaktiviert).
+- Reagiert auf Astro View Transitions und ruft `AOS.refreshHard()` auf.
+- Auth-Seiten deaktivieren AOS bewusst: `AuthLayout.astro` setzt `enableAOS={false}`.
 
-```astro
-<!-- src/components/scripts/AOSCoordinator.astro -->
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
-    if (typeof AOS !== 'undefined') {
-      AOS.init({
-        duration: 800,
-        offset: 200,
-        easing: 'ease-in-out',
-        once: true
-      });
-    }
-  });
-</script>
-```
+Weitere Details: `docs/frontend/aos-coordinator.md`.
 
 #### CDN-Einbindung
 
-AOS wird über CDN geladen (keine NPM-Dependency):
+- CSS wird in `BaseLayout.astro` bedingt eingebunden:
 
 ```astro
-<!-- In BaseLayout.astro -->
-<link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
-<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+{enableAOS && (
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" />
+)}
 ```
+
+- Das JS wird vom `AOSCoordinator` dynamisch über CDN geladen und initialisiert. Es gibt keinen direkten `<script src=…>`-Eintrag im Layout.
 
 #### Verwendung in HTML
 

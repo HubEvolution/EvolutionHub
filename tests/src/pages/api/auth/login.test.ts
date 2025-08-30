@@ -3,8 +3,7 @@ import { POST } from '@/pages/api/auth/login';
 import * as authModule from '@/lib/auth-v2';
 import * as bcrypt from 'bcrypt-ts';
 import * as rateLimiter from '@/lib/rate-limiter';
-import * as apiMiddleware from '@/lib/api-middleware';
-import * as securityHeaders from '@/lib/security-headers';
+// Entfernt: ungenutzte Importe apiMiddleware und securityHeaders
 import * as securityLogger from '@/lib/security-logger';
 
 // Mock für die Astro APIContext
@@ -109,10 +108,7 @@ vi.mock('@/lib/security-logger', () => ({
 describe.skip('Login API Legacy Tests (to be migrated to service-layer)', () => {
   // Spy für die Sicherheitsfunktionen
   let standardApiLimiterSpy: any;
-  let applySecurityHeadersSpy: any;
-  let logSecurityEventSpy: any;
-  let logUserEventSpy: any;
-  let createApiErrorSpy: any;
+  // Entfernt: ungenutzte Spy-Variablen
   
   beforeEach(() => {
     vi.clearAllMocks();
@@ -120,10 +116,7 @@ describe.skip('Login API Legacy Tests (to be migrated to service-layer)', () => 
     // Spies für Funktionen einrichten
     // Wir müssen standardApiLimiter so einstellen, dass er standarmäßig undefined zurückgibt (kein Rate-Limiting)
     standardApiLimiterSpy = vi.spyOn(rateLimiter, 'standardApiLimiter').mockResolvedValue(undefined);
-    applySecurityHeadersSpy = vi.spyOn(securityHeaders, 'applySecurityHeaders');
-    logSecurityEventSpy = vi.spyOn(securityLogger, 'logSecurityEvent');
-    logUserEventSpy = vi.spyOn(securityLogger, 'logUserEvent');
-    createApiErrorSpy = vi.spyOn(apiMiddleware, 'createApiError');
+    // Entfernt: ungenutzte Spies
   });
 
   it('sollte eine Fehlermeldung zurückgeben, wenn die E-Mail ungültig ist', async () => {
@@ -135,7 +128,7 @@ describe.skip('Login API Legacy Tests (to be migrated to service-layer)', () => 
     const response = await POST(context as any);
 
     expect(response.status).toBe(302);
-    expect(response.headers.get('Location')).toBe('/login?error=InvalidInput');
+    expect(response.headers.get('Location')).toBe('/en/login?error=InvalidInput');
   });
 
   it('sollte eine Fehlermeldung zurückgeben, wenn das Passwort zu kurz ist', async () => {
@@ -147,7 +140,7 @@ describe.skip('Login API Legacy Tests (to be migrated to service-layer)', () => 
     const response = await POST(context as any);
 
     expect(response.status).toBe(302);
-    expect(response.headers.get('Location')).toBe('/login?error=InvalidInput');
+    expect(response.headers.get('Location')).toBe('/en/login?error=InvalidInput');
   });
 
   it('sollte eine Fehlermeldung zurückgeben, wenn die Runtime-Umgebung fehlt', async () => {
@@ -157,13 +150,13 @@ describe.skip('Login API Legacy Tests (to be migrated to service-layer)', () => 
     });
     
     // Runtime entfernen
-    context.locals.runtime = undefined;
+    (context.locals as any).runtime = undefined;
 
     const response = await POST(context as any);
 
     expect(response.status).toBe(302);
     // Der aktuelle Endpunkt gibt bei fehlender Runtime einen ServerError-Fehler zurück
-    expect(response.headers.get('Location')).toBe('/login?error=ServerError');
+    expect(response.headers.get('Location')).toBe('/en/login?error=ServerError');
   });
 
   it('sollte eine Fehlermeldung zurückgeben, wenn der Benutzer nicht existiert', async () => {
@@ -179,7 +172,7 @@ describe.skip('Login API Legacy Tests (to be migrated to service-layer)', () => 
 
     expect(response.status).toBe(302);
     // Der aktuelle Endpunkt verwendet '/login?error=ServerError' bei Authentifizierungsfehlern
-    expect(response.headers.get('Location')).toBe('/login?error=ServerError');
+    expect(response.headers.get('Location')).toBe('/en/login?error=ServerError');
     expect(context.mockDb.prepare).toHaveBeenCalledWith('SELECT * FROM users WHERE email = ?');
     expect(context.mockDb.bind).toHaveBeenCalledWith('nonexistent@example.com');
   });
@@ -203,7 +196,7 @@ describe.skip('Login API Legacy Tests (to be migrated to service-layer)', () => 
 
     expect(response.status).toBe(302);
     // Der aktuelle Endpunkt verwendet '/login?error=ServerError' bei Authentifizierungsfehlern
-    expect(response.headers.get('Location')).toBe('/login?error=ServerError');
+    expect(response.headers.get('Location')).toBe('/en/login?error=ServerError');
   });
 
   it('sollte eine Fehlermeldung zurückgeben, wenn das Passwort falsch ist', async () => {
@@ -228,7 +221,7 @@ describe.skip('Login API Legacy Tests (to be migrated to service-layer)', () => 
 
     expect(response.status).toBe(302);
     // Der aktuelle Endpunkt verwendet '/login?error=ServerError' bei Authentifizierungsfehlern
-    expect(response.headers.get('Location')).toBe('/login?error=ServerError');
+    expect(response.headers.get('Location')).toBe('/en/login?error=ServerError');
     expect(bcrypt.compare).toHaveBeenCalledWith('wrongpassword', 'hashed_password');
   });
 
@@ -265,7 +258,7 @@ describe.skip('Login API Legacy Tests (to be migrated to service-layer)', () => 
 
     // Überprüfen der Ergebnisse
     expect(response.status).toBe(302);
-    expect(response.headers.get('Location')).toBe('/dashboard');
+    expect(response.headers.get('Location')).toBe('/en/dashboard');
     
     // Überprüfen, ob die Session erstellt wurde
     expect(authModule.createSession).toHaveBeenCalledWith(context.mockDb, mockUser.id);
@@ -297,7 +290,7 @@ describe.skip('Login API Legacy Tests (to be migrated to service-layer)', () => 
 
     expect(response.status).toBe(302);
     // Der aktuelle Endpunkt verwendet '/login?error=ServerError' für Serverfehler
-    expect(response.headers.get('Location')).toBe('/login?error=ServerError');
+    expect(response.headers.get('Location')).toBe('/en/login?error=ServerError');
     
     // Das tatsächliche Format des logAuthFailure-Aufrufs ist anders als ursprünglich erwartet
     // Der erste Parameter ist ein leerer String (statt IP-Adresse)

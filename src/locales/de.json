@@ -380,6 +380,25 @@
         "12": { "title": "Änderungen dieser Bedingungen", "content": "Wir können diese Bedingungen anpassen, um Änderungen der Rechtslage oder unserer Leistungen abzubilden. Wesentliche Änderungen werden vorab kommuniziert. Die fortgesetzte Nutzung gilt als Zustimmung." },
         "11_participation": { "title": "Teilnahme an Streitbeilegung", "content": "Wir sind weder bereit noch verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen." }
       }
+    },
+    "verifyEmail": {
+      "title": "Prüfen Sie Ihre E-Mails",
+      "subtitle": "Wir haben Ihnen eine Bestätigungs-E-Mail gesendet",
+      "emailSentToLabel": "E-Mail wurde gesendet an:",
+      "instructionClick": "Klicken Sie auf den Bestätigungs-Link in der E-Mail",
+      "linkValidity": "Der Link ist 24 Stunden gültig",
+      "noEmailTip": "Keine E-Mail erhalten? Prüfen Sie auch Ihren Spam-Ordner",
+      "backToRegister": "← Zurück zur Registrierung",
+      "supportLine": "Probleme? Kontaktieren Sie uns unter",
+      "resend": {
+        "btnDefault": "📧 E-Mail erneut senden",
+        "success": "✅ E-Mail erfolgreich erneut gesendet! Prüfen Sie Ihr Postfach.",
+        "error": "Fehler beim Senden der E-Mail. Bitte versuchen Sie es später erneut.",
+        "missingEmail": "E-Mail-Adresse nicht verfügbar. Bitte registrieren Sie sich erneut.",
+        "sending": "⏳ Wird gesendet...",
+        "countdown": "⏳ Erneut senden ({s}s)",
+        "unexpected": "Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es später erneut."
+      }
     }
   },
   "faq": {

@@ -7,7 +7,7 @@
 
 import { compare, hash } from 'bcrypt-ts';
 import { AbstractBaseService } from './base-service';
-import type { AuthService, AuthResult, RegisterData } from './auth-service';
+import type { AuthService, AuthResult, RegisterData, RegistrationResult } from './auth-service';
 import type { ServiceDependencies } from './types';
 import { ServiceError, ServiceErrorType } from './types';
 import { createSession, validateSession as validateSessionV2, invalidateSession } from '@/lib/auth-v2';
@@ -130,7 +130,8 @@ export class AuthServiceImpl extends AbstractBaseService implements AuthService 
         email: existingUser.email,
         name: existingUser.name,
         username: existingUser.username,
-        image: existingUser.image
+        image: existingUser.image,
+        created_at: (existingUser as any).created_at as string
       };
 
       return {
@@ -149,7 +150,7 @@ export class AuthServiceImpl extends AbstractBaseService implements AuthService 
    * @returns Authentifizierungsergebnis bei Erfolg
    * @throws ServiceError wenn die Registrierung fehlschlägt
    */
-  async register(data: RegisterData, ipAddress?: string): Promise<AuthResult> {
+  async register(data: RegisterData, ipAddress?: string): Promise<RegistrationResult> {
     return this.withTransaction(async (db) => {
       // Prüfen, ob die E-Mail-Adresse bereits verwendet wird
       const existingUser = await db.prepare('SELECT id FROM users WHERE email = ?')
@@ -192,6 +193,7 @@ export class AuthServiceImpl extends AbstractBaseService implements AuthService 
       
       // Benutzer erstellen
       const userId = crypto.randomUUID();
+      const createdAt = new Date().toISOString();
       await db.prepare(
         'INSERT INTO users (id, email, name, username, password_hash, created_at, image) VALUES (?, ?, ?, ?, ?, ?, ?)'
       ).bind(
@@ -200,17 +202,13 @@ export class AuthServiceImpl extends AbstractBaseService implements AuthService 
         data.name,
         data.username,
         passwordHash,
-        Math.floor(Date.now() / 1000),
+        createdAt,
         data.image || null
       ).run();
 
-      // Session erstellen
-      const session = await createSession(db, userId);
-
-      // Erfolgreiche Registrierung protokollieren
+      // Erfolgreiche Registrierung protokollieren (ohne Session)
       logAuthSuccess(userId, ipAddress, {
-        action: 'register',
-        sessionId: session.id
+        action: 'register'
       });
 
       // SafeUser-Objekt ohne sensible Daten erstellen
@@ -219,13 +217,12 @@ export class AuthServiceImpl extends AbstractBaseService implements AuthService 
         email: data.email,
         name: data.name,
         username: data.username,
-        image: data.image
+        image: data.image,
+        created_at: createdAt
       };
 
       return {
-        user: safeUser,
-        session,
-        sessionId: session.id
+        user: safeUser
       };
     });
   }
@@ -255,6 +252,12 @@ export class AuthServiceImpl extends AbstractBaseService implements AuthService 
         return { session: null, user: null };
       }
       
+      // created_at für SafeUser nachladen, da auth-v2.validateSession es nicht liefert
+      const createdRow = await db
+        .prepare('SELECT created_at FROM users WHERE id = ?')
+        .bind(result.user.id)
+        .first<{ created_at: string }>();
+
       return {
         session: result.session,
         user: {
@@ -262,7 +265,8 @@ export class AuthServiceImpl extends AbstractBaseService implements AuthService 
           email: result.user.email,
           name: result.user.name,
           username: result.user.username,
-          image: result.user.image
+          image: result.user.image,
+          created_at: createdRow?.created_at ?? new Date(0).toISOString()
         }
       };
     });

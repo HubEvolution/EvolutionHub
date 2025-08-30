@@ -5,9 +5,8 @@
  * Passwort-Reset und Session-Management. Kapselt Datenbankzugriffe und Sicherheitslogik.
  */
 
-import type { D1Database } from '@cloudflare/workers-types';
-import type { User, Session } from '@/lib/auth-v2';
-import type { BaseService, ServiceDependencies } from './types';
+import type { Session } from '@/lib/auth-v2';
+import type { BaseService } from './types';
 import type { SafeUser } from '@/lib/db/types';
 
 /**
@@ -20,6 +19,14 @@ export interface AuthResult {
   session: Session;
   /** Session-ID für Cookies */
   sessionId: string;
+}
+
+/**
+ * Ergebnis einer erfolgreichen Registrierung (ohne Session)
+ */
+export interface RegistrationResult {
+  /** Benutzer ohne sensible Daten */
+  user: SafeUser;
 }
 
 /**
@@ -44,15 +51,15 @@ export interface AuthService extends BaseService {
    * @param password Passwort des Benutzers
    * @returns Authentifizierungsergebnis bei Erfolg
    */
-  login(email: string, password: string): Promise<AuthResult>;
+  login(email: string, password: string, ipAddress?: string): Promise<AuthResult>;
 
   /**
    * Registriert einen neuen Benutzer
    * 
    * @param data Registrierungsdaten
-   * @returns Authentifizierungsergebnis bei Erfolg
+   * @returns Registrierungsergebnis (ohne Session)
    */
-  register(data: RegisterData): Promise<AuthResult>;
+  register(data: RegisterData, ipAddress?: string): Promise<RegistrationResult>;
 
   /**
    * Beendet eine Benutzersitzung
@@ -75,7 +82,7 @@ export interface AuthService extends BaseService {
    * @param email E-Mail-Adresse des Benutzers
    * @returns true, wenn ein Token erstellt wurde (auch wenn der Benutzer nicht existiert)
    */
-  createPasswordResetToken(email: string): Promise<boolean>;
+  createPasswordResetToken(email: string, ipAddress?: string): Promise<boolean>;
 
   /**
    * Überprüft ein Passwort-Reset-Token
@@ -114,14 +121,7 @@ export interface AuthService extends BaseService {
   ): Promise<boolean>;
 }
 
-/**
- * Factory-Funktion zur Erstellung einer AuthService-Instanz
- * 
- * @param deps Abhängigkeiten für den Service
- * @returns Eine neue AuthService-Instanz
- */
-export function createAuthService(deps: ServiceDependencies): AuthService {
-  // Diese Funktion wird später die tatsächliche Implementierung zurückgeben
-  // Derzeit nur ein Platzhalter für das Interface-Design
-  return {} as AuthService;
-}
+// Hinweis: Die tatsächliche Factory wird aus der Implementierung re-exportiert.
+// Dies vermeidet doppelte Implementierungen und stellt sicher, dass immer die
+// produktive Service-Logik verwendet wird.
+export { createAuthService } from './auth-service-impl';

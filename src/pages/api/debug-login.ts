@@ -19,14 +19,29 @@ export const POST = withApiMiddleware(async (context) => {
   const cookies = context.cookies;
   const ip = typeof clientAddress === 'string' ? clientAddress : undefined;
 
-  // Only allow in non-production environments (driven by wrangler vars)
-  const isProduction = (env as any)?.ENVIRONMENT === 'production';
-  if (isProduction) {
+  // Restrict to development environment ONLY. This prevents usage in staging/production.
+  const environment = (env as any)?.ENVIRONMENT as string | undefined;
+  const isDevEnv = environment === 'development' || import.meta.env.DEV === true;
+  if (!isDevEnv) {
     logSecurityEvent('PERMISSION_DENIED', {
-      reason: 'production_environment',
-      message: 'Debug login attempted in production environment'
+      reason: 'non_development_environment',
+      message: 'Debug login attempted outside development environment',
+      environment: environment || 'unknown'
     }, { ipAddress: ip, targetResource: '/api/debug-login' });
-    return createApiError('forbidden', 'Debug login not available in production');
+    return createApiError('forbidden', 'Debug login not available');
+  }
+
+  // Optional additional protection: require a secret header if configured
+  const expectedToken = (env as any)?.DEBUG_LOGIN_TOKEN as string | undefined;
+  if (expectedToken) {
+    const provided = context.request?.headers?.get('x-debug-token') || context.request?.headers?.get('X-Debug-Token');
+    if (!provided || provided !== expectedToken) {
+      logSecurityEvent('PERMISSION_DENIED', {
+        reason: 'invalid_or_missing_debug_token',
+        message: 'Debug login missing or invalid X-Debug-Token header'
+      }, { ipAddress: ip, targetResource: '/api/debug-login' });
+      return createApiError('forbidden', 'Debug login token invalid');
+    }
   }
   
   const db = env.DB;
