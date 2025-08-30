@@ -32,6 +32,8 @@ wrangler.toml
 # Playwright Testing
 playwright-report/
 test-results/
+test-suite-v2/reports/
+test-suite-v2/coverage/
 
 # macOS
 .DS_Store
