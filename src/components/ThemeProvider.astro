@@ -2,7 +2,7 @@
 // This component initializes the theme and listens for theme change events
 // It works with ThemeToggle to manage the theme state
 ---
-<script is:inline>
+<script is:inline nonce={Astro.locals.cspNonce}>
   const getTheme = () => {
     // Check for a saved theme in localStorage, otherwise check system preference
     if (typeof localStorage !== 'undefined' && localStorage.getItem('theme')) {
@@ -23,9 +23,17 @@
     }
   };
 
+  const syncPressedAttr = () => {
+    const btn = document.querySelector('.theme-toggle');
+    if (!btn) return;
+    const isDark = document.documentElement.classList.contains('dark');
+    btn.setAttribute('aria-pressed', isDark ? 'true' : 'false');
+  };
+
   // Get the initial theme and apply it
   const theme = getTheme();
   applyTheme(theme);
+  syncPressedAttr();
   
   // Save the initial theme to localStorage
   if (typeof localStorage !== 'undefined') {
@@ -42,6 +50,7 @@
     if (typeof localStorage !== 'undefined') {
       localStorage.setItem("theme", isDark ? "dark" : "light");
     }
+    syncPressedAttr();
   }
 
   const addClickListener = () => {
@@ -50,6 +59,7 @@
 
       if (themeToggle) {
           themeToggle.addEventListener('click', handleToggleClick);
+          syncPressedAttr();
       }
   }
 

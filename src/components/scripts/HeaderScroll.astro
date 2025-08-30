@@ -3,7 +3,7 @@
 // Optimiert für Performance und Robustheit
 ---
 
-<script is:inline>
+<script is:inline nonce={Astro.locals.cspNonce}>
   /**
    * HeaderScroll - Optimierter Header-Animation für Show/Hide beim Scrollen
    * - Verbesserte Performance durch RequestAnimationFrame
@@ -225,6 +225,21 @@
     initHeaderScrollEffect();
   } else {
     document.addEventListener('DOMContentLoaded', initHeaderScrollEffect);
+  }
+
+  // Re-Init nach Astro View Transitions mit vorherigem Cleanup (doppelte Listener vermeiden)
+  if (!window.__headerScrollAfterSwapBound) {
+    window.__headerScrollAfterSwapBound = true;
+    document.addEventListener('astro:after-swap', () => {
+      try {
+        if (typeof window.headerScrollCleanup === 'function') {
+          window.headerScrollCleanup();
+        }
+      } catch (e) {
+        console.warn('[HeaderScroll] Cleanup error:', e);
+      }
+      initHeaderScrollEffect();
+    });
   }
 </script>
 

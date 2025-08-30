@@ -3,14 +3,45 @@ name: E2E Tests
 on:
   push:
     branches: [ main, develop ]
+    paths:
+      - 'src/**'
+      - 'public/**'
+      - 'migrations/**'
+      - 'package.json'
+      - 'astro.config.mjs'
+      - 'wrangler.toml'
+      - 'test-suite-v2/**'
+      - 'tests/e2e/**'
+      - 'playwright.config.ts'
+      - 'vitest.config.ts'
   pull_request:
     branches: [ main, develop ]
+    paths:
+      - 'src/**'
+      - 'public/**'
+      - 'migrations/**'
+      - 'package.json'
+      - 'astro.config.mjs'
+      - 'wrangler.toml'
+      - 'test-suite-v2/**'
+      - 'tests/e2e/**'
+      - 'playwright.config.ts'
+      - 'vitest.config.ts'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: e2e-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   test:
     name: Run E2E Tests
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
 
     steps:
     - uses: actions/checkout@v4
@@ -26,6 +57,15 @@ jobs:
 
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps
+
+    - name: Verify TEST_BASE_URL
+      run: |
+        if [ -z "${TEST_BASE_URL}" ]; then
+          echo "TEST_BASE_URL ist nicht gesetzt. Bitte in GitHub > Settings > Variables > Actions eine Variable TEST_BASE_URL (z.B. https://staging.hub-evolution.com) hinterlegen."
+          exit 1
+        fi
+      env:
+        TEST_BASE_URL: ${{ vars.TEST_BASE_URL }}
 
     - name: Run Playwright Tests
       run: npm run test:e2e
@@ -48,5 +88,8 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: playwright-report
-        path: playwright-report/
+        path: |
+          test-suite-v2/reports/playwright-html-report/
+          test-suite-v2/reports/playwright-results.json
+          test-suite-v2/reports/playwright-junit.xml
         retention-days: 30

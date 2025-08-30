@@ -22,7 +22,7 @@ const {
 ---
 
 <!-- Kein direktes Markup nötig, nur das Client-Script -->
-<script define:vars={{ elementId, texts, defaultDelay }}>
+<script define:vars={{ elementId, texts, defaultDelay }} nonce={Astro.locals.cspNonce}>
   // Typewriter-Funktion direkt hier definieren
   const runTypewriter = (targetElementId, textArray, baseDelay = 100) => {
     const element = document.getElementById(targetElementId);
@@ -35,6 +35,9 @@ const {
     if (!textArray || textArray.length === 0) {
       textArray = [{ text: "No text provided", delay: baseDelay }];
     }
+
+    // Sicherstellen, dass bei jedem Start frisch begonnen wird
+    element.textContent = '';
 
     let currentIndex = 0;
     let charIndex = 0;
@@ -83,9 +86,34 @@ const {
     };
   };
 
-  // Animation beim Laden der Seite starten
-  document.addEventListener('DOMContentLoaded', () => {
-    // Typewriter starten
-    runTypewriter(elementId, texts, defaultDelay);
-  });
+  // Animation robust starten und nach Astro-View-Transitions neu binden
+  let cleanup = null;
+  function startTypewriter() {
+    try {
+      if (typeof cleanup === 'function') cleanup();
+    } catch (e) {
+      console.warn('[Typewriter] Cleanup failed or not set:', e);
+    }
+    cleanup = runTypewriter(elementId, texts, defaultDelay);
+  }
+
+  if (document.readyState !== 'loading') {
+    startTypewriter();
+  } else {
+    document.addEventListener('DOMContentLoaded', startTypewriter, { once: true });
+  }
+
+  // Nach Astro View Transitions neu starten (pro Element-ID nur einmal binden)
+  (function bindAfterSwapOnce() {
+    const key = `__tw_after_swap_${elementId}`;
+    if (!window[key]) {
+      window[key] = true;
+      document.addEventListener('astro:after-swap', startTypewriter);
+    }
+  })();
+
+  // Fallback: falls DOMContentLoaded verpasst wurde
+  window.addEventListener('load', () => {
+    if (!cleanup) startTypewriter();
+  }, { once: true });
 </script>

@@ -236,170 +236,184 @@ function setLocaleHref(target: 'de' | 'en'): string {
   </div>
 </header>
 
-<script is:inline>
-  // Inline script for Cloudflare Pages build compatibility
-  function initializeHeaderScripts() {
-    console.log('[Header] 🚀 Initializing header scripts (inline version)');
-    
-    // === MOBILE MENU FUNCTIONALITY ===
-    function initMobileMenu() {
-      console.log('[Header] 🔄 Initializing mobile menu functionality');
-      
-      const mobileMenuButton = document.getElementById('mobile-menu-button');
-      const mobileMenu = document.getElementById('mobile-menu');
-      
-      if (!mobileMenu) {
-        console.error('[Header] ❌ Mobile menu element (#mobile-menu) not found');
-        return;
-      }
-      
-      if (!mobileMenuButton) {
-        console.error('[Header] ❌ Mobile menu button (#mobile-menu-button) not found');
-        return;
-      }
-      
-      let isOpen = false;
-      
-      function toggleMenu() {
-        console.log('[MobileMenu] 🔄 Toggling menu, current state:', isOpen);
-        isOpen = !isOpen;
-        
-        if (isOpen) {
-          mobileMenu.classList.remove('hidden');
-          mobileMenu.classList.add('block');
-          mobileMenuButton.setAttribute('aria-expanded', 'true');
-          console.log('[MobileMenu] ✅ Menu opened');
-        } else {
-          mobileMenu.classList.remove('block');
-          mobileMenu.classList.add('hidden');
-          mobileMenuButton.setAttribute('aria-expanded', 'false');
-          console.log('[MobileMenu] ✅ Menu closed');
-        }
-      }
-      
-      // Event listeners
-      mobileMenuButton.addEventListener('click', function(e) {
-        console.log('[MobileMenu] 🖱️ Button clicked');
-        e.preventDefault();
-        e.stopPropagation();
-        toggleMenu();
-      });
+<script is:inline nonce={Astro.locals.cspNonce}>
+  let mobileMenuInitialized = false;
+  let languageDropdownInitialized = false;
+   // Inline script for Cloudflare Pages build compatibility
+   function initializeHeaderScripts() {
+     console.log('[Header] 🚀 Initializing header scripts (inline version)');
+     
+     // === MOBILE MENU FUNCTIONALITY ===
+     function initMobileMenu() {
+       console.log('[Header] 🔄 Initializing mobile menu functionality');
+       if (mobileMenuInitialized) {
+         console.log('[Header] ℹ️ Mobile menu already initialized');
+         return;
+       }
+       
+       const mobileMenuButton = document.getElementById('mobile-menu-button');
+       const mobileMenu = document.getElementById('mobile-menu');
+       
+       if (!mobileMenu) {
+         console.error('[Header] ❌ Mobile menu element (#mobile-menu) not found');
+         return;
+       }
+       
+       if (!mobileMenuButton) {
+         console.error('[Header] ❌ Mobile menu button (#mobile-menu-button) not found');
+         return;
+       }
+       
+       let isOpen = false;
+       
+       function toggleMenu() {
+         console.log('[MobileMenu] 🔄 Toggling menu, current state:', isOpen);
+         isOpen = !isOpen;
+         
+         if (isOpen) {
+           mobileMenu.classList.remove('hidden');
+           mobileMenu.classList.add('block');
+           mobileMenuButton.setAttribute('aria-expanded', 'true');
+           console.log('[MobileMenu] ✅ Menu opened');
+         } else {
+           mobileMenu.classList.remove('block');
+           mobileMenu.classList.add('hidden');
+           mobileMenuButton.setAttribute('aria-expanded', 'false');
+           console.log('[MobileMenu] ✅ Menu closed');
+         }
+       }
+       
+       // Event listeners
+       mobileMenuButton.addEventListener('click', function(e) {
+         console.log('[MobileMenu] 🖱️ Button clicked');
+         e.preventDefault();
+         e.stopPropagation();
+         toggleMenu();
+       });
 
-      // Keyboard support
-      mobileMenuButton.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          toggleMenu();
-        }
-      });
-      
-      // Close on outside click
-      document.addEventListener('click', function(e) {
-        if (isOpen && !mobileMenu.contains(e.target) && !mobileMenuButton.contains(e.target)) {
-          toggleMenu();
-        }
-      });
-      
-      // Close on ESC
-      document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && isOpen) {
-          toggleMenu();
-        }
-      });
-      
-      console.log('[Header] ✅ Mobile menu initialized successfully');
-    }
-    
-    // === LANGUAGE DROPDOWN FUNCTIONALITY ===
-    function initLanguageDropdown() {
-      console.log('[Header] 🔄 Initializing language dropdown functionality');
-      
-      const languageButton = document.getElementById('language-selector');
-      const languageDropdown = document.getElementById('language-dropdown');
-      
-      if (!languageButton || !languageDropdown) {
-        console.error('[Header] ❌ Language selector elements not found', {
-          button: !!languageButton,
-          dropdown: !!languageDropdown
-        });
-        return;
-      }
-      
-      let isOpen = false;
-      
-      function toggleDropdown() {
-        console.log('[LanguageDropdown] 🔄 Toggling dropdown, current state:', isOpen);
-        isOpen = !isOpen;
-        
-        if (isOpen) {
-          // Show dropdown: remove opacity-0, scale-95, pointer-events-none
-          languageDropdown.classList.remove('opacity-0', 'scale-95', 'pointer-events-none');
-          languageDropdown.classList.add('opacity-100', 'scale-100');
-          languageButton.setAttribute('aria-expanded', 'true');
-          console.log('[LanguageDropdown] ✅ Dropdown opened');
-        } else {
-          // Hide dropdown: add opacity-0, scale-95, pointer-events-none
-          languageDropdown.classList.remove('opacity-100', 'scale-100');
-          languageDropdown.classList.add('opacity-0', 'scale-95', 'pointer-events-none');
-          languageButton.setAttribute('aria-expanded', 'false');
-          console.log('[LanguageDropdown] ✅ Dropdown closed');
-        }
-      }
-      
-      // Event listeners
-      languageButton.addEventListener('click', function(e) {
-        console.log('[LanguageDropdown] 🖱️ Button clicked');
-        e.preventDefault();
-        e.stopPropagation();
-        toggleDropdown();
-      });
-      
-      // Keyboard support
-      languageButton.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          toggleDropdown();
-        }
-      });
-      
-      // Close on outside click
-      document.addEventListener('click', function(e) {
-        if (isOpen && !languageDropdown.contains(e.target) && !languageButton.contains(e.target)) {
-          toggleDropdown();
-        }
-      });
-      
-      // Close on ESC
-      document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && isOpen) {
-          toggleDropdown();
-        }
-      });
-      
-      console.log('[Header] ✅ Language dropdown initialized successfully');
-    }
-    
-    // Scroll effect is handled by the HeaderScroll.astro Island.
-    // Inline scroll logic was removed to avoid duplication and conflicts.
-    
-    // Initialize all modules
-    try {
-      initMobileMenu();
-      initLanguageDropdown();
-      // Scroll effect handled by HeaderScroll.astro
-      console.log('[Header] 🎉 All header functionality initialized successfully');
-    } catch (error) {
-      console.error('[Header] ❌ Failed to initialize header scripts:', error);
-    }
-  }
-  
-  // Initialize all header scripts when DOM is ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initializeHeaderScripts);
-  } else {
-    initializeHeaderScripts();
-  }
-</script>
+       // Keyboard support
+       mobileMenuButton.addEventListener('keydown', function(e) {
+         if (e.key === 'Enter' || e.key === ' ') {
+           e.preventDefault();
+           toggleMenu();
+         }
+       });
+       
+       // Close on outside click
+       document.addEventListener('click', function(e) {
+         if (isOpen && !mobileMenu.contains(e.target) && !mobileMenuButton.contains(e.target)) {
+           toggleMenu();
+         }
+       });
+       
+       // Close on ESC
+       document.addEventListener('keydown', function(e) {
+         if (e.key === 'Escape' && isOpen) {
+           toggleMenu();
+         }
+       });
+       
+       mobileMenuInitialized = true;
+       console.log('[Header] ✅ Mobile menu initialized successfully');
+     }
+     
+     // === LANGUAGE DROPDOWN FUNCTIONALITY ===
+     function initLanguageDropdown() {
+       console.log('[Header] 🔄 Initializing language dropdown functionality');
+       if (languageDropdownInitialized) {
+         console.log('[Header] ℹ️ Language dropdown already initialized');
+         return;
+       }
+       
+       const languageButton = document.getElementById('language-selector');
+       const languageDropdown = document.getElementById('language-dropdown');
+       
+       if (!languageButton || !languageDropdown) {
+         console.error('[Header] ❌ Language selector elements not found', {
+           button: !!languageButton,
+           dropdown: !!languageDropdown
+         });
+         return;
+       }
+       
+       let isOpen = false;
+       
+       function toggleDropdown() {
+         console.log('[LanguageDropdown] 🔄 Toggling dropdown, current state:', isOpen);
+         isOpen = !isOpen;
+         
+         if (isOpen) {
+           // Show dropdown: remove opacity-0, scale-95, pointer-events-none
+           languageDropdown.classList.remove('opacity-0', 'scale-95', 'pointer-events-none');
+           languageDropdown.classList.add('opacity-100', 'scale-100');
+           languageButton.setAttribute('aria-expanded', 'true');
+           console.log('[LanguageDropdown] ✅ Dropdown opened');
+         } else {
+           // Hide dropdown: add opacity-0, scale-95, pointer-events-none
+           languageDropdown.classList.remove('opacity-100', 'scale-100');
+           languageDropdown.classList.add('opacity-0', 'scale-95', 'pointer-events-none');
+           languageButton.setAttribute('aria-expanded', 'false');
+           console.log('[LanguageDropdown] ✅ Dropdown closed');
+         }
+       }
+       
+       // Event listeners
+       languageButton.addEventListener('click', function(e) {
+         console.log('[LanguageDropdown] 🖱️ Button clicked');
+         e.preventDefault();
+         e.stopPropagation();
+         toggleDropdown();
+       });
+       
+       // Keyboard support
+       languageButton.addEventListener('keydown', function(e) {
+         if (e.key === 'Enter' || e.key === ' ') {
+           e.preventDefault();
+           toggleDropdown();
+         }
+       });
+       
+       // Close on outside click
+       document.addEventListener('click', function(e) {
+         if (isOpen && !languageDropdown.contains(e.target) && !languageButton.contains(e.target)) {
+           toggleDropdown();
+         }
+       });
+       
+       // Close on ESC
+       document.addEventListener('keydown', function(e) {
+         if (e.key === 'Escape' && isOpen) {
+           toggleDropdown();
+         }
+       });
+       
+       languageDropdownInitialized = true;
+       console.log('[Header] ✅ Language dropdown initialized successfully');
+     }
+     
+     // Scroll effect is handled by the HeaderScroll.astro Island.
+     // Inline scroll logic was removed to avoid duplication and conflicts.
+     
+     // Initialize all modules
+     try {
+       initMobileMenu();
+       initLanguageDropdown();
+       // Scroll effect handled by HeaderScroll.astro
+       console.log('[Header] 🎉 All header functionality initialized successfully');
+     } catch (error) {
+       console.error('[Header] ❌ Failed to initialize header scripts:', error);
+     }
+   }
+   
+   // Initialize all header scripts when DOM is ready
+   if (document.readyState === 'loading') {
+     document.addEventListener('DOMContentLoaded', initializeHeaderScripts);
+   } else {
+     initializeHeaderScripts();
+   }
+   // Re-initialize after Astro view transitions
+   document.addEventListener('astro:after-swap', initializeHeaderScripts);
+ </script>
 
 <style>
   /* Styles für die Header-Animation - wichtig: Spezifischere Selektoren verwenden */
