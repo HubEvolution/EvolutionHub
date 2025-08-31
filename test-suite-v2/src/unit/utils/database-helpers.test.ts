@@ -56,6 +56,19 @@ describe('Datenbank-Helper', () => {
       expect(result.created).toBeInstanceOf(Date);
     });
 
+    it('sollte Default-Mock-Connection nutzen, wenn keine Connection injiziert wird', async () => {
+      const db = await setupTestDatabase();
+
+      expect(db.isConnected).toBe(true);
+      expect(db.connection).toBeDefined();
+
+      // Default-Mock-Query sollte { rows: [], rowCount: 0 } liefern
+      const res = await db.connection.query('SELECT 1');
+      expect(res).toEqual({ rows: [], rowCount: 0 });
+
+      await expect(teardownTestDatabase(db)).resolves.not.toThrow();
+    });
+
     it('sollte Datenbank-Schema initialisieren', async () => {
       await setupTestDatabase(mockConnection);
 
@@ -84,6 +97,20 @@ describe('Datenbank-Helper', () => {
         expect.stringContaining('INSERT INTO newsletters'),
         expect.any(Array)
       );
+    });
+
+    it('sollte Wrapped-Query ohne params nicht "undefined" weiterreichen', async () => {
+      const db = await setupTestDatabase(mockConnection);
+
+      // Vorherige Calls (Schema/Fixtures) bereinigen für klare Assertion
+      mockConnection.query.mockClear();
+
+      await db.connection.query('SELECT 1');
+
+      expect(mockConnection.query).toHaveBeenCalledTimes(1);
+      const call = mockConnection.query.mock.calls[0];
+      expect(call[0]).toBe('SELECT 1');
+      expect(call.length).toBe(1); // keine params übergeben
     });
 
     it('sollte bei Fehlern korrekt reagieren', async () => {

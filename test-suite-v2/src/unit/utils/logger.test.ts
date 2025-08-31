@@ -33,6 +33,133 @@ describe('TestLogger', () => {
     testLogger = new TestLogger('DEBUG');
   });
 
+describe('Instanz-Methoden des TestLogger - Branch-Abdeckung', () => {
+  it('sollte Instanz: test.pass ohne Dauer loggen', () => {
+    const tl = new TestLogger('DEBUG');
+    const spyInfo = vi.spyOn(console, 'info').mockImplementation(() => {});
+    tl.test.pass('InstanzTestOhneDauer');
+    expect(spyInfo).toHaveBeenCalledWith(
+      expect.stringContaining('ℹ️'),
+      expect.stringContaining('InstanzTestOhneDauer'),
+      undefined
+    );
+    vi.restoreAllMocks();
+  });
+
+  it('sollte logWithExtra mit Emoji ohne extra loggen', () => {
+    const tl = new TestLogger('DEBUG');
+    const spyInfo = vi.spyOn(console, 'info').mockImplementation(() => {});
+    tl.logWithExtra('INFO', '🐌 EmojiMessageOhneExtra');
+    expect(spyInfo).toHaveBeenCalledWith(
+      expect.stringContaining('[INFO]'),
+      expect.stringContaining('🐌 EmojiMessageOhneExtra'),
+      undefined
+    );
+    vi.restoreAllMocks();
+  });
+
+  it('sollte Instanz: test.fail mit Error loggen', () => {
+    const tl = new TestLogger('DEBUG');
+    const spyErr = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const err = new Error('FailBoom');
+    tl.test.fail('InstanzTestFail', err);
+    expect(spyErr).toHaveBeenCalledWith(
+      expect.stringContaining('❌'),
+      expect.stringContaining('InstanzTestFail'),
+      err
+    );
+    vi.restoreAllMocks();
+  });
+
+  it('sollte Instanz: test.skip mit Grund loggen', () => {
+    const tl = new TestLogger('DEBUG');
+    const spyWarn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    tl.test.skip('InstanzTestSkip', 'Maintenance');
+    expect(spyWarn).toHaveBeenCalledWith(
+      expect.stringContaining('⚠️'),
+      expect.stringContaining('InstanzTestSkip'),
+      'Maintenance',
+      undefined
+    );
+    vi.restoreAllMocks();
+  });
+
+  it('sollte Instanz: test.skip ohne Grund loggen', () => {
+    const tl = new TestLogger('DEBUG');
+    const spyWarn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    tl.test.skip('InstanzTestSkipOhneGrund');
+    expect(spyWarn).toHaveBeenCalledWith(
+      expect.stringContaining('⚠️'),
+      expect.stringContaining('InstanzTestSkipOhneGrund'),
+      undefined
+    );
+    vi.restoreAllMocks();
+  });
+
+  it('sollte Instanz: api.error loggen', () => {
+    const tl = new TestLogger('DEBUG');
+    const spyErr = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const err = new Error('ApiBoom');
+    tl.api.error('GET', '/api/x', err);
+    expect(spyErr).toHaveBeenCalledWith(
+      expect.stringContaining('❌'),
+      expect.stringContaining('GET /api/x'),
+      err
+    );
+    vi.restoreAllMocks();
+  });
+
+  it('sollte Instanz: performance.slow loggen', () => {
+    const tl = new TestLogger('DEBUG');
+    const spyWarn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    tl.performance.slow('Op', 2200, 1000);
+    expect(spyWarn).toHaveBeenCalledWith(
+      expect.stringContaining('⚠️'),
+      expect.stringContaining('Op'),
+      expect.stringContaining('2200ms > 1000ms'),
+      undefined
+    );
+    vi.restoreAllMocks();
+  });
+
+  it('sollte Instanz: api.response mit Dauer loggen', () => {
+    const tl = new TestLogger('DEBUG');
+    const spyInfo = vi.spyOn(console, 'info').mockImplementation(() => {});
+    tl.api.response('GET', '/instanz/x', 200, 123);
+    expect(spyInfo).toHaveBeenCalledWith(
+      expect.stringContaining('ℹ️'),
+      expect.stringContaining('📨 API Response: GET /instanz/x - 200 (123ms)'),
+      undefined
+    );
+    vi.restoreAllMocks();
+  });
+
+  it('sollte Instanz: api.response ohne Dauer loggen', () => {
+    const tl = new TestLogger('DEBUG');
+    const spyInfo = vi.spyOn(console, 'info').mockImplementation(() => {});
+    tl.api.response('POST', '/instanz/y', 201);
+    expect(spyInfo).toHaveBeenCalledWith(
+      expect.stringContaining('ℹ️'),
+      expect.stringContaining('📨 API Response: POST /instanz/y - 201'),
+      undefined
+    );
+    vi.restoreAllMocks();
+  });
+
+  it('sollte direktes warn() mit Daten und Emoji (log()) loggen', () => {
+    const tl = new TestLogger('DEBUG');
+    const spyWarn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const data = { k: 1 };
+    tl.warn('🐌 Warn mit Daten', data);
+    expect(spyWarn).toHaveBeenCalledWith(
+      expect.stringContaining('⚠️'),
+      expect.stringContaining('🐌 Warn mit Daten'),
+      data
+    );
+    vi.restoreAllMocks();
+  });
+});
+
   afterEach(() => {
     // Mocks zurücksetzen
     vi.restoreAllMocks();
@@ -165,6 +292,16 @@ describe('TestLogger', () => {
       expect(consoleSpy.info).toHaveBeenCalledWith(
         expect.stringContaining(`[${context}]`),
         expect.any(String),
+        undefined
+      );
+    });
+
+    it('sollte Test-Erfolg ohne Dauer loggen', () => {
+      logger.test.pass('MyTestOhneDauer');
+
+      expect(consoleSpy.info).toHaveBeenCalledWith(
+        expect.stringContaining('✅'),
+        expect.stringContaining('MyTestOhneDauer'),
         undefined
       );
     });
@@ -417,6 +554,16 @@ describe('Logger-Hilfsfunktionen', () => {
         undefined
       );
     });
+
+    it('sollte Test-Überspringen ohne Grund loggen', () => {
+      logger.test.skip('MyTestOhneGrund');
+
+      expect(consoleSpy.warn).toHaveBeenCalledWith(
+        expect.stringContaining('⏭️'),
+        expect.stringContaining('MyTestOhneGrund'),
+        undefined
+      );
+    });
   });
 
   describe('API-Logging', () => {
@@ -436,6 +583,16 @@ describe('Logger-Hilfsfunktionen', () => {
       expect(consoleSpy.info).toHaveBeenCalledWith(
         expect.stringContaining('📨'),
         expect.stringContaining('POST /api/users - 201 (250ms)'),
+        undefined
+      );
+    });
+
+    it('sollte API-Responses ohne Dauer loggen', () => {
+      logger.api.response('GET', '/api/ping', 200);
+
+      expect(consoleSpy.info).toHaveBeenCalledWith(
+        expect.stringContaining('📨'),
+        expect.stringContaining('GET /api/ping - 200'),
         undefined
       );
     });
@@ -470,6 +627,17 @@ describe('Logger-Hilfsfunktionen', () => {
         expect.stringContaining('🔍'),
         expect.stringContaining('SELECT * FROM users'),
         undefined
+      );
+    });
+
+    it('sollte Datenbank-Fehler loggen (Helper)', () => {
+      const err = new Error('DB down');
+      logger.database.error(err);
+
+      expect(consoleSpy.error).toHaveBeenCalledWith(
+        expect.stringContaining('❌'),
+        expect.stringContaining('Datenbank-Fehler'),
+        err
       );
     });
   });
@@ -547,5 +715,84 @@ describe('Logger-Integrationstests', () => {
     // Speicher freigeben
     testLogger.clearLogs();
     expect(testLogger.getLogs()).toHaveLength(0);
+  });
+});
+
+describe('Zusätzliche Branch-Abdeckung', () => {
+  it('sollte getTestLogger initialisieren, wenn kein globaler Logger existiert', async () => {
+    const modPath = '../../../utils/logger';
+    vi.resetModules();
+    const mod = await import(modPath);
+    const gl = mod.getTestLogger();
+    expect(gl).toBeInstanceOf(mod.TestLogger);
+  });
+
+  it('sollte database.error mit String und Error-Objekt verarbeiten', () => {
+    const tl = new TestLogger('DEBUG');
+    const spyErr = vi.spyOn(console, 'error').mockImplementation(() => {});
+    tl.database.error('Fehler aufgetreten');
+    tl.database.error(new Error('DB kaputt'));
+    const logs = tl.getLogs('ERROR');
+    expect(logs.length).toBe(2);
+    expect(spyErr).toHaveBeenCalledTimes(2);
+    vi.restoreAllMocks();
+  });
+
+  it('sollte logWithExtra ohne extra-Parameter funktionieren', () => {
+    const tl = new TestLogger('DEBUG');
+    const spyInfo = vi.spyOn(console, 'info').mockImplementation(() => {});
+    tl.logWithExtra('INFO', 'Nachricht ohne Extra');
+    expect(spyInfo).toHaveBeenCalledWith(
+      expect.stringContaining('[INFO]'),
+      expect.stringContaining('Nachricht ohne Extra'),
+      undefined
+    );
+    const logs = tl.getLogs('INFO');
+    expect(logs[0].message).toBe('Nachricht ohne Extra');
+    vi.restoreAllMocks();
+  });
+});
+
+describe('logWithExtra - Branches', () => {
+  it('sollte DEBUG-Zweig (console.debug) nutzen', () => {
+    const tl = new TestLogger('DEBUG');
+    const spyDbg = vi.spyOn(console, 'debug').mockImplementation(() => {});
+    tl.logWithExtra('DEBUG', 'DBG Message', '(42ms)', { a: 1 });
+    expect(spyDbg).toHaveBeenCalledWith(
+      expect.stringContaining('[DEBUG]'),
+      expect.stringContaining('DBG Message'),
+      expect.stringContaining('42ms'),
+      { a: 1 }
+    );
+    const logs = tl.getLogs('DEBUG');
+    expect(logs[0].message).toBe('DBG Message (42ms)');
+    vi.restoreAllMocks();
+  });
+
+  it('sollte ERROR-Zweig (console.error) nutzen', () => {
+    const tl = new TestLogger('DEBUG');
+    const spyErr = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const err = new Error('boom');
+    tl.logWithExtra('ERROR', 'ERR Message', '(99ms)', err);
+    expect(spyErr).toHaveBeenCalledWith(
+      expect.stringContaining('[ERROR]'),
+      expect.stringContaining('ERR Message'),
+      expect.stringContaining('99ms'),
+      err
+    );
+    const logs = tl.getLogs('ERROR');
+    expect(logs[0].message).toBe('ERR Message (99ms)');
+    vi.restoreAllMocks();
+  });
+
+  it('sollte bei zu niedrigem Level in logWithExtra früh beenden (no-op)', () => {
+    const tl = new TestLogger('INFO');
+    const spyDbg = vi.spyOn(console, 'debug').mockImplementation(() => {});
+    tl.logWithExtra('DEBUG', 'Should not log', '(detail)');
+    expect(spyDbg).not.toHaveBeenCalled();
+    const logs = tl.getLogs();
+    // keine neuen Einträge
+    expect(logs.some(l => l.message.includes('Should not log'))).toBe(false);
+    vi.restoreAllMocks();
   });
 });

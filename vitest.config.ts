@@ -39,6 +39,13 @@ export default defineConfig({
       ],
       all: true,
       include: ['src/**/*.{ts,tsx}'],
+      thresholds: {
+        branches: 90,
+        functions: 95,
+        lines: 95,
+        statements: 95,
+        perFile: false,
+      },
     },
     
     // Test file patterns

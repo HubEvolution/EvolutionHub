@@ -94,6 +94,18 @@ describe('Server-Helper', () => {
 
       await expect(teardownTestServer(testServer)).resolves.not.toThrow();
     });
+
+    it('sollte Fehler beim Cleanup loggen und werfen', async () => {
+      // Force-Error: Map.clear wirft Fehler
+      const originalClear = testServer.routes.clear;
+      testServer.routes.clear = vi.fn(() => { throw new Error('clear failed'); });
+
+      await expect(teardownTestServer(testServer)).rejects.toThrow('Server-Cleanup fehlgeschlagen');
+      expect(mockLogger.error).toHaveBeenCalled();
+
+      // Wiederherstellen
+      testServer.routes.clear = originalClear;
+    });
   });
 
   describe('Basis-Routen', () => {
@@ -171,6 +183,19 @@ describe('Server-Helper', () => {
         expect(response.body.token).toBe('mock-jwt-token-user');
       });
 
+      it('sollte erfolgreichen Login für Premium-Benutzer verarbeiten', async () => {
+        const response = await makeTestRequest(testServer, 'POST', '/api/auth/login', {
+          body: {
+            email: 'premium@test-suite.local',
+            password: 'PremiumPass123!',
+          },
+        });
+
+        expect(response.status).toBe(200);
+        expect(response.body.user.role).toBe('premium');
+        expect(response.body.token).toBe('mock-jwt-token-premium');
+      });
+
       it('sollte fehlgeschlagenen Login bei falschen Anmeldedaten verarbeiten', async () => {
         const response = await makeTestRequest(testServer, 'POST', '/api/auth/login', {
           body: {
@@ -219,6 +244,44 @@ describe('Server-Helper', () => {
         expect(response.body.user.email).toBe('newuser@test-suite.local');
         expect(response.body.user.role).toBe('user');
         expect(response.body.user.verified).toBe(false);
+      });
+
+      it('sollte Concurrency-Guard bei paralleler Registrierung greifen lassen', async () => {
+        const email = 'dupeuser@test-suite.local';
+        // Simuliere laufende Registrierung
+        testServer.registrationInProgress.add(email);
+
+        const response = await makeTestRequest(testServer, 'POST', '/api/auth/register', {
+          body: {
+            email,
+            password: 'SomePass123!',
+            firstName: 'Dupe',
+            lastName: 'User',
+          },
+        });
+
+        expect(response.status).toBe(409);
+        expect(response.body).toHaveProperty('error', 'Benutzer existiert bereits');
+      });
+
+      it('sollte Eingaben (firstName/lastName) sanitisieren', async () => {
+        const response = await makeTestRequest(testServer, 'POST', '/api/auth/register', {
+          body: {
+            email: 'sanitize@test-suite.local',
+            password: 'San1t1ze!',
+            firstName: 'javaScript:Ali<ce>',
+            lastName: 'Ev</>il',
+          },
+        });
+
+        expect(response.status).toBe(201);
+        const user = response.body.user;
+        expect(user.firstName).not.toMatch(/</);
+        expect(user.firstName).not.toMatch(/>/);
+        expect(user.firstName.toLowerCase()).not.toContain('javascript:');
+        expect(user.lastName).not.toMatch(/</);
+        expect(user.lastName).not.toMatch(/>/);
+        expect(user.lastName.toLowerCase()).not.toContain('javascript:');
       });
 
       it('sollte Registrierung bei bereits existierendem Benutzer ablehnen', async () => {

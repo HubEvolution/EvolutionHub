@@ -182,7 +182,7 @@ Fixes #123
 - [ ] Ich habe Tests für meine Änderungen geschrieben
 - [ ] Ich habe die Dokumentation aktualisiert
 - [ ] Alle CI-Checks sind erfolgreich
-```
+- [ ] Coverage-Gates erfüllt (siehe `vitest.config.ts` Thresholds)
 
 ---
 
@@ -248,7 +248,8 @@ Tests sind ein wesentlicher Bestandteil unseres Entwicklungsprozesses:
 - Organisiere Tests in beschreibenden Blöcken mit `describe`
 - Verwende aussagekräftige Testbeschreibungen mit `it` oder `test`
 - Folge dem AAA-Prinzip (Arrange, Act, Assert)
-- Strebe eine Testabdeckung von mindestens 80% an
+- Mindestabdeckung (global): Branches ≥ 90%, Lines/Statements/Functions ≥ 95%
+  - Die Gates werden in `vitest.config.ts` konfiguriert und schlagen den Build/Test bei Unterschreitung fehl.
 
 ### Tests ausführen
 
@@ -319,6 +320,7 @@ Die Workflow-Konfigurationen befinden sich im Verzeichnis `.github/workflows/`:
 - `ci.yml`: Continuous Integration Workflow
 - `preview.yml`: Preview Deployment Workflow
 - `deploy.yml`: Production Deployment Workflow
+- `e2e-tests.yml`: E2E-Workflow inkl. Job "Unit + Coverage Gates"; E2E-Job hängt von Unit ab (`needs: unit`).
 
 ---
 
