@@ -159,3 +159,10 @@ export const apiRateLimiter = createRateLimiter({
   windowMs: 60 * 1000, // 1 Minute
   name: 'api'
 });
+
+// Für asynchrone AI-Job-Endpunkte (strenger: 10 Anfragen pro Minute)
+export const aiJobsLimiter = createRateLimiter({
+  maxRequests: 10,
+  windowMs: 60 * 1000, // 1 Minute
+  name: 'aiJobs'
+});

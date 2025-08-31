@@ -57,25 +57,33 @@
       },
       "testimonials": {
   "heading": "What our users say about Imag-Enhancer",
-  "subtitle": "Real stories from teams using Imag-Enhancer to improve image quality and speed up production.",
+  "subtitle": "Notes from people who use Imag‑Enhancer in real work — what actually helped.",
   "testimonial1": {
-    "quote": "Imag-Enhancer produced a clean 4x upscale of our product photos without artifacts — the color correction and noise reduction tools saved hours of manual editing.",
-    "author": "Oliver Grant",
-    "role": "Product Photographer, LumaStudio"
+    "quote": "I had a batch of dim café shots at ISO 3200. Imag‑Enhancer took the noise down without plastic skin. I nudged contrast a bit and sent them off the same night.",
+    "author": "Amira K.",
+    "role": "Freelance photographer"
   },
   "testimonial2": {
-    "quote": "We batch-processed thousands of user images with Imag-Enhancer. Throughput and quality were excellent, and integration via the API was straightforward.",
-    "author": "Sara Novak",
-    "role": "Head of Imaging, Pixly"
+    "quote": "We list second‑hand gear. Phone photos on creased paper used to look messy. Batch denoise + a gentle sharpen made everything consistent. Retouching went from two days to one afternoon.",
+    "author": "Diego R.",
+    "role": "Ops at a small e‑commerce"
   },
   "testimonial3": {
-    "quote": "Using Imag-Enhancer's presets we quickly found the right look for our marketing assets. The optional local-processing mode gave us confidence handling sensitive images.",
-    "author": "Dr. Markus Weber",
-    "role": "Marketing Lead, NovaApps"
+    "quote": "We needed clean 4× crops for a hero banner. The upscaler kept edges calm—no halos—and colors stayed honest. It's just another tiny step in our Figma → prod checklist now.",
+    "author": "Nina P.",
+    "role": "Design lead"
+  },
+  "testimonial4": {
+    "quote": "Clients send tiny JPEG logos five minutes before print. The upscaler gave us clean edges for A3 flyers—no stair‑steps—so we stopped chasing 'the original file' in panic.",
+    "author": "Leila M.",
+    "role": "Owner, small creative agency"
+  },
+  "testimonial5": {
+    "quote": "We pull stills from product videos for listings. Denoise + detail brings edges back so on‑screen text stays readable. It’s the difference between ‘looks okay’ and ‘looks crisp’.",
+    "author": "Tom S.",
+    "role": "Content manager, retail brand"
   }
 },
-  
-  
       "introduction": {
         "part1": "Evolution Hub offers an innovative collection of AI-powered tools designed specifically for developers and creators. With our AI-powered tools, you can optimize your workflow, automate repetitive tasks, and increase your productivity. Whether you want to generate code, create content, or analyze complex data – our platform supports you every step of the way.",
         "part2": "The intelligent combination of artificial intelligence and user-friendly design allows you to unleash your creativity and bring projects to life faster. Discover our powerful features and learn how you can shape the future of software development and content creation with Evolution Hub.",

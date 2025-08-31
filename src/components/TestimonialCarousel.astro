@@ -10,7 +10,7 @@ const { testimonials = [], id = `testimonial-carousel-${Math.random().toString(3
 
 <div id={id} data-role="testimonial-carousel" data-interval={String(interval)} class="max-w-4xl mx-auto flex flex-col md:flex-row items-center gap-8">
   <div class="w-full md:w-3/5 order-2 md:order-1">
-    <div class="relative min-h-[6rem]">
+    <div class="relative testimonial-items-wrapper min-h-[6rem]">
       {testimonials.map((item, i) => (
         <div class={"testimonial-item transition-opacity duration-500 " + (i === 0 ? "opacity-100 relative" : "opacity-0 pointer-events-none absolute inset-0")} data-index={i} aria-hidden={i === 0 ? "false" : "true"}>
           <p class="text-lg italic text-gray-700 dark:text-gray-200 mb-4">"{item.quote}"</p>
@@ -32,23 +32,41 @@ const { testimonials = [], id = `testimonial-carousel-${Math.random().toString(3
   </div>
 </div>
 
-<script is:inline nonce={Astro.locals.cspNonce} define:vars={{ id, interval }}>
+<script is:inline nonce={Astro.locals.cspNonce}>
+  // @ts-check
   (function () {
-    const root = document.getElementById(id);
+    /** @type {HTMLScriptElement | null} */
+    const scriptEl = document.currentScript;
+    /** @type {HTMLElement | null} */
+    const root = scriptEl && scriptEl.previousElementSibling ? scriptEl.previousElementSibling : null;
     if (!root) return;
+
+    /** @type {HTMLElement | null} */
+    const wrapper = root.querySelector('.testimonial-items-wrapper');
     /** @type {NodeListOf<HTMLElement>} */
     const items = root.querySelectorAll('.testimonial-item');
     /** @type {NodeListOf<HTMLButtonElement>} */
     const dots = root.querySelectorAll('[data-dot-index]');
-    if (items.length === 0) return;
+    if (items.length === 0 || !wrapper) return;
+
+    // Fix jumping dots: keep a stable wrapper height based on the tallest item
+    const computeMinHeight = () => {
+      let max = 0;
+      items.forEach((el) => {
+        const h = el.scrollHeight || el.offsetHeight || 0;
+        if (h > max) max = h;
+      });
+      if (max > 0) wrapper.style.minHeight = max + 'px';
+    };
 
     let current = 0;
 
+    /** @param {number} idx */
     const show = (idx) => {
       items.forEach((el, i) => {
         if (i === idx) {
           el.style.opacity = '1';
-          el.style.position = '';
+          el.style.position = 'relative';
           el.setAttribute('aria-hidden', 'false');
         } else {
           el.style.opacity = '0';
@@ -68,6 +86,11 @@ const { testimonials = [], id = `testimonial-carousel-${Math.random().toString(3
       });
     };
 
+    // Initialize stable height and first state
+    computeMinHeight();
+    show(current);
+
+    // Manual navigation via dots
     dots.forEach((d) => {
       d.addEventListener('click', () => {
         const idx = Number(d.getAttribute('data-dot-index'));
@@ -78,11 +101,20 @@ const { testimonials = [], id = `testimonial-carousel-${Math.random().toString(3
       });
     });
 
+    // Read interval from data-attribute, fallback to 5000ms
+    let intervalMs = 5000;
+    const rawInt = root.getAttribute('data-interval');
+    if (rawInt) {
+      const n = parseInt(rawInt, 10);
+      if (!Number.isNaN(n) && n > 0) intervalMs = n;
+    }
+
+    // Auto-rotate
     if (items.length > 1) {
       let timer = window.setInterval(() => {
         current = (current + 1) % items.length;
         show(current);
-      }, interval);
+      }, intervalMs);
 
       root.addEventListener('mouseenter', () => {
         window.clearInterval(timer);
@@ -92,8 +124,12 @@ const { testimonials = [], id = `testimonial-carousel-${Math.random().toString(3
         timer = window.setInterval(() => {
           current = (current + 1) % items.length;
           show(current);
-        }, interval);
+        }, intervalMs);
       });
     }
+
+    // Recompute on load/resize to keep wrapper height stable across layout changes
+    window.addEventListener('load', computeMinHeight, { once: true });
+    window.addEventListener('resize', computeMinHeight);
   })();
 </script>

@@ -11,13 +11,9 @@ Ziel: Saubere, erweiterbare Architektur mit Cloudflare Workers (D1 + R2), konsis
 
 ## 1) Überblick & Ziele
 
- 
  - Einfacher Upload eines Bildes → AI‑Enhancement (Upscaling, Denoise/Sharpness) → Download/Ansicht.
- 
  - Jobs sind asynchron und werden per Polling abgefragt (SSE optional später).
- 
  - Einheitliche API‑Responses: `{ success: boolean, data?: T, error?: { type, message, details? } }` (siehe `src/lib/api-middleware.ts`).
- 
  - Strikte Security‑Baselines: Rate‑Limiting, Auth, Input‑Validierung (Zod), sichere Logs.
 
 Bezug auf bestehende Standards:
@@ -37,18 +33,16 @@ Bezug auf bestehende Standards:
 
  
  - Server‑Side Service Layer (`src/lib/services/ai-image-service.ts`)
- 
-  - Startet Jobs bei Replicate, speichert Metadaten in D1, legt Input/Output in R2 ab.
- 
-  - Pollt Provider‑Status, persistiert Ergebnis, gibt saubere Status‑Objekte zurück.
- 
+   - Startet synchrone Generierungen bei Replicate, speichert Metadaten in D1, legt Input/Output in R2 ab.
+   - Liefert `{ model, originalUrl, imageUrl, usage }` zurück; Quoten via KV.
+ - Async Jobs Service (`src/lib/services/ai-jobs-service.ts`)
+   - Erstellt Jobs, verarbeitet Status und Cancel, persistiert in D1 (`ai_jobs`), nutzt R2 (`R2_AI_IMAGES`) und KV (`KV_AI_ENHANCER`).
+   - Unterstützt Polling der Job‑Ergebnisse und Übergang von queued → processing → succeeded/failed/canceled.
  - API‑Routen (Astro API Pages)
  
   - `POST /api/ai-image/jobs` – Job anlegen (Upload, Validierung, Queue/Provider call)
- 
-  - `GET /api/ai-image/jobs/[id]` – Job‑Status abfragen (Polling)
- 
-  - optional: `POST /api/ai-image/jobs/[id]/cancel`
+ - `GET /api/ai-image/jobs/[id]` – Job‑Status abfragen (Polling)
+ - `POST /api/ai-image/jobs/[id]/cancel` – Cancel eines laufenden Jobs
  
  - Storage (R2)
  
@@ -103,7 +97,7 @@ TypeScript‑Types: `src/lib/db/types.ts` um `AIJob` (und ggf. Create/Update‑T
 ## 4) API‑Design
 
  
- Alle Endpunkte mit `withApiMiddleware()` (siehe `src/lib/api-middleware.ts`), für AI‑Routen mit strengem `aiImageLimiter` (5/min). Auth ist für Jobs optional (Gäste erlaubt); Eigentümer‑Gating erfolgt bei Ergebnisabruf/Proxy.
+ Alle Endpunkte mit `withApiMiddleware()` (siehe `src/lib/api-middleware.ts`), für AI‑Routen mit `aiJobsLimiter` (10/min). Auth ist für Jobs optional (Gäste erlaubt); Eigentümer‑Gating erfolgt bei Ergebnisabruf/Proxy.
 
  
  - POST `/api/ai-image/generate`
@@ -126,7 +120,7 @@ TypeScript‑Types: `src/lib/db/types.ts` um `AIJob` (und ggf. Create/Update‑T
 
   - POST `/api/ai-image/jobs` — Job anlegen
 
-  - GET `/api/ai-image/jobs/[id]` — Polling
+  - GET `/api/ai-image/jobs/[id]` — Job‑Status abfragen (Polling)
 
   - POST `/api/ai-image/jobs/[id]/cancel` — Cancel
  
@@ -150,14 +144,11 @@ Fehlerformat (Beispiel):
 
  
  - Neuer Bucket‑Binding: `R2_AI_IMAGES` in `wrangler.toml` (alle Umgebungen).
- 
-  - Ergebnis‑Auslieferung
- 
-    - Phase 1: Implementiert als Proxy‑Route ohne Auth‑Gating → `src/pages/r2-ai/[...path].ts` (Binding `R2_AI_IMAGES`), Header: `Cache-Control: public, max-age=31536000`, ETag
- 
-    - Phase 2: Auth‑Gating (nur Eigentümer/Admin) oder signierte/expirierende URLs für Sharing/Downloads.
- 
-    - Für gated Varianten: `Cache-Control: no-store` erwägen; ETag optional.
+ - Ergebnis‑Auslieferung (implementiert)
+   - Proxy‑Route mit Owner‑Gating für Ergebnisse: `src/pages/r2-ai/[...path].ts`.
+   - Pfadschema: `ai-enhancer/results/<ownerType>/<ownerId>/...` nur für Eigentümer zugänglich.
+   - Cache: Ergebnisse `Cache-Control: private, max-age=31536000, immutable`; Uploads `public, max-age=900, immutable` (für externe Provider‑Fetches).
+ - Optional (später): Signierte/expirierende URLs für Sharing/Downloads; Admin‑Override.
 
 ---
 
@@ -286,43 +277,26 @@ Hinweis auf bestehende Security‑Fixes (Double‑Opt‑In, Redaction, 405‑Pol
 
 ---
 
-## 12) Aufgabenliste (Synchron mit Projekt‑TODOs)
+ ## 12) Aufgabenliste (Synchron mit Projekt‑TODOs)
 
- 
  - [x] D1‑Migration für `ai_jobs` erstellen (0008, 0009 angelegt)
- 
-  - [x] Service‑Layer (`ai-image-service.ts`) implementiert (Replicate + R2 + KV‑Quoten)
- 
-  - [x] API: `POST /api/ai-image/generate` (multipart: image, model)
- 
-  - [x] API: `GET /api/ai-image/usage`
- 
-  - [x] (Phase 1) API: `POST /api/ai-image/jobs`, `GET /api/ai-image/jobs/[id]`, `POST /api/ai-image/jobs/[id]/cancel` (Scaffold implementiert)
- 
-  - [x] `.env.example` updaten (REPLICATE_API_TOKEN, Hinweise)
- 
-  - [x] Basic R2‑AI Proxy (`src/pages/r2-ai/[...path].ts`) – öffentlich; Caching aktiv
- 
-  - [ ] Auth‑Gating + signierte URLs für AI‑Images
- 
-  - [ ] React‑Island UI (Upload, Polling, Slider, Download, Sonner)
- 
-  - [ ] Tests: Unit, Integration, E2E
- 
-  - [ ] OpenAPI‑Dokumentation ergänzen
- 
-  - [ ] Security‑Hardening (Rate‑Limit, Content‑Type/Size Checks, Log‑Redaction)
- 
- 
-  - [x] Quoten‑Durchsetzung (24h‑Fenster) – KV‑basiert umgesetzt
- 
-  - [ ] (Optional) D1‑basierte Quoten/Job‑Historie integrieren
- 
-  - [ ] Cron‑Cleanup: Input 24h, Output 30d, DB 90d (Scheduled Worker)
- 
-  - [x] Model‑Allowlist (`ALLOWED_MODELS`) definieren (Tags prüfen)
- 
-  - [ ] Gated‑Route Tests (401/403 bei Fremdzugriff), Header (`Cache-Control`) prüfen
+ - [x] Service‑Layer (`ai-image-service.ts`) implementiert (Replicate + R2 + KV‑Quoten)
+ - [x] API: `POST /api/ai-image/generate` (multipart: image, model)
+ - [x] API: `GET /api/ai-image/usage`
+ - [x] API (Jobs): `POST /api/ai-image/jobs`, `GET /api/ai-image/jobs/[id]`, `POST /api/ai-image/jobs/[id]/cancel` (inkl. 405s, einheitliche Responses, Rate‑Limit)
+ - [x] `.env.example` updaten (REPLICATE_API_TOKEN, Hinweise)
+- [x] R2‑AI Proxy (`src/pages/r2-ai/[...path].ts`) mit Owner‑Gating für Ergebnisse; Cache‑Policy: Ergebnisse private, Uploads public
+- [ ] Wrangler: `KV_AI_ENHANCER` Namespace‑IDs in `wrangler.toml` in allen Umgebungen ersetzen (dev/staging/prod)
+- [ ] Signierte/expirierende URLs für AI‑Images (optional)
+- [ ] React‑Island UI (Upload, Polling, Slider, Download, Sonner)
+- [ ] Tests: Unit, Integration, E2E (Jobs + R2 Owner‑Gating)
+ - [ ] OpenAPI‑Dokumentation ergänzen (Jobs + R2 Proxy Security)
+ - [ ] Security‑Hardening (Rate‑Limit, Content‑Type/Size Checks, Log‑Redaction)
+ - [x] Quoten‑Durchsetzung (24h‑Fenster) – KV‑basiert umgesetzt
+ - [ ] (Optional) D1‑basierte Quoten/Job‑Historie integrieren
+ - [ ] Cron‑Cleanup: Input 24h, Output 30d, DB 90d (Scheduled Worker)
+ - [x] Model‑Allowlist (`ALLOWED_MODELS`) definieren (Tags prüfen)
+ - [ ] Gated‑Route Tests (401/403 bei Fremdzugriff), Header (`Cache-Control`) prüfen
 
 ---
 
