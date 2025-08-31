@@ -1,5 +1,4 @@
-![EvolutionHub Banner](./public/assets/svg/Banner.svg)
-
+![EvolutionHub Banner](public/assets/svg/evolutionhub-logo-dark.svg)
 [![Lizenz: MIT](https://img.shields.io/badge/Lizenz-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 ![Status: Aktiv](https://img.shields.io/badge/Status-Aktiv-brightgreen)
 [![Astro](https://img.shields.io/badge/Astro-BC52EE?logo=astro&logoColor=fff)](https://astro.build/)
