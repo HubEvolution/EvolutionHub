@@ -44,11 +44,11 @@ Bezug auf bestehende Standards:
  
  - API‑Routen (Astro API Pages)
  
-  - `POST /api/imag-enhancer/jobs` – Job anlegen (Upload, Validierung, Queue/Provider call)
+  - `POST /api/ai-image/jobs` – Job anlegen (Upload, Validierung, Queue/Provider call)
  
-  - `GET /api/imag-enhancer/jobs/[id]` – Job‑Status abfragen (Polling)
+  - `GET /api/ai-image/jobs/[id]` – Job‑Status abfragen (Polling)
  
-  - optional: `POST /api/imag-enhancer/jobs/[id]/cancel`
+  - optional: `POST /api/ai-image/jobs/[id]/cancel`
  
  - Storage (R2)
  
@@ -103,7 +103,7 @@ TypeScript‑Types: `src/lib/db/types.ts` um `AIJob` (und ggf. Create/Update‑T
 ## 4) API‑Design
 
  
- Alle Endpunkte mit `withAuthApiMiddleware()` (siehe `src/lib/api-middleware.ts`) und `apiRateLimiter`.
+ Alle Endpunkte mit `withApiMiddleware()` (siehe `src/lib/api-middleware.ts`), für AI‑Routen mit strengem `aiImageLimiter` (5/min). Auth ist für Jobs optional (Gäste erlaubt); Eigentümer‑Gating erfolgt bei Ergebnisabruf/Proxy.
 
  
  - POST `/api/ai-image/generate`
@@ -122,13 +122,13 @@ TypeScript‑Types: `src/lib/db/types.ts` um `AIJob` (und ggf. Create/Update‑T
   - Antwort: `{ success: true, data: { ownerType, usage, limits } }`
  
  
- - Optional (Phase 2 – asynchrones Job‑Modell)
- 
-  - POST `/api/imag-enhancer/jobs` — Job anlegen
- 
-  - GET `/api/imag-enhancer/jobs/[id]` — Polling
- 
-  - POST `/api/imag-enhancer/jobs/[id]/cancel` — Cancel
+ - Asynchrones Job‑Modell (Phase 1)
+
+  - POST `/api/ai-image/jobs` — Job anlegen
+
+  - GET `/api/ai-image/jobs/[id]` — Polling
+
+  - POST `/api/ai-image/jobs/[id]/cancel` — Cancel
  
  
  - Methoden‑Policy: Nicht erlaubte Methoden → `405 Method Not Allowed` (Header `Allow` gesetzt).
@@ -297,9 +297,7 @@ Hinweis auf bestehende Security‑Fixes (Double‑Opt‑In, Redaction, 405‑Pol
  
   - [x] API: `GET /api/ai-image/usage`
  
-  - [ ] (Phase 2) API: `GET /api/imag-enhancer/jobs/[id]` (Polling)
- 
-  - [ ] (optional, Phase 2) API: `POST /api/imag-enhancer/jobs/[id]/cancel`
+  - [x] (Phase 1) API: `POST /api/ai-image/jobs`, `GET /api/ai-image/jobs/[id]`, `POST /api/ai-image/jobs/[id]/cancel` (Scaffold implementiert)
  
   - [x] `.env.example` updaten (REPLICATE_API_TOKEN, Hinweise)
  

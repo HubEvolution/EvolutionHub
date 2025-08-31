@@ -212,3 +212,30 @@ html.aos-enabled [data-aos].aos-init:not(.aos-animate) {
 html.dark #site-header.header-visible::before {
   background: rgba(15, 23, 42, 0.7);
 }
+/* Global fallback mask for pages without a header (covers top gap when header isn't rendered) */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 1rem; /* matches mx-4 */
+  right: 1rem;
+  height: 1rem; /* matches top-4 gap */
+  border-top-left-radius: 1rem;
+  border-top-right-radius: 1rem;
+  background: #ffffff;
+  pointer-events: none;
+  z-index: 48; /* below #site-header::before (49) and header (50) */
+  display: block;
+}
+
+@media (min-width: 768px) {
+  body::before {
+    left: 2rem; /* matches md:mx-8 */
+    right: 2rem;
+  }
+}
+
+/* Dark mode variant for the fallback mask */
+html.dark body::before {
+  background: #0f172a;
+}

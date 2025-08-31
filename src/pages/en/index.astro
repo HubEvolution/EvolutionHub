@@ -3,6 +3,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import { getI18n, getI18nArray } from '@/utils/i18n';
 import TypewriterComponent from '@/components/scripts/TypewriterComponent.astro';
 import Icon from '@/components/ui/Icon.astro';
+import TestimonialCarousel from '@/components/TestimonialCarousel.astro';
 
 import { getLocale } from '@/lib/i18n';
 import { localizePath } from '@/lib/locale-path';
@@ -11,6 +12,23 @@ const t = getI18n(locale);
 const tArr = getI18nArray(locale);
 const heroTypewriterTexts = tArr('pages.home.hero.typewriter');
 const heroTypewriterItems = heroTypewriterTexts.map((text) => ({ text }));
+const testimonials = [
+  {
+    quote: t('pages.home.testimonials.testimonial1.quote'),
+    author: t('pages.home.testimonials.testimonial1.author'),
+    role: t('pages.home.testimonials.testimonial1.role'),
+  },
+  {
+    quote: t('pages.home.testimonials.testimonial2.quote'),
+    author: t('pages.home.testimonials.testimonial2.author'),
+    role: t('pages.home.testimonials.testimonial2.role'),
+  },
+  {
+    quote: t('pages.home.testimonials.testimonial3.quote'),
+    author: t('pages.home.testimonials.testimonial3.author'),
+    role: t('pages.home.testimonials.testimonial3.role'),
+  },
+];
 export const prerender = false;
 ---
 
@@ -92,31 +110,19 @@ export const prerender = false;
   </section>
 
   <!-- Testimonials Section -->
-  <section class="py-16 md:py-24 bg-gradient-to-br from-emerald-50 to-cyan-50 dark:from-gray-800 dark:to-gray-900">
-    <div class="container mx-auto px-4">
-      <div class="text-center mb-16">
-        <h2 class="text-4xl font-bold text-gray-900 dark:text-white mb-4" data-aos="fade-up" data-aos-duration="650">
-          {t('pages.home.testimonials.heading')}
-        </h2>
-        <p class="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto" data-aos="fade-up" data-aos-delay="100" data-aos-duration="650">
-          {t('pages.home.testimonials.subtitle')}
-        </p>
-      </div>
-      {/* Testimonial Slider/Carousel would go here */}
-      <div class="max-w-4xl mx-auto flex flex-col md:flex-row items-center gap-8">
-        <div class="text-center md:text-left" data-aos="fade-up" data-aos-duration="600">
-          <p class="text-lg italic text-gray-700 dark:text-gray-200 mb-4">
-            "{t('pages.home.testimonials.testimonial1.quote')}"
-          </p>
-          <p class="font-bold text-gray-900 dark:text-white">- {t('pages.home.testimonials.testimonial1.author')}</p>
-          <p class="text-sm text-gray-500 dark:text-gray-400">{t('pages.home.testimonials.testimonial1.role')}</p>
-        </div>
-        <div class="md:w-3/5 flex justify-center md:justify-end" data-aos="fade-up" data-aos-delay="150" data-aos-duration="600">
-          <img src="/images/generic-avatar.svg" alt="User Avatar" class="w-32 h-32 rounded-full border-4 border-primary shadow-lg">
-        </div>
-      </div>
+<section class="py-16 md:py-24 bg-gradient-to-br from-emerald-50 to-cyan-50 dark:from-gray-800 dark:to-gray-900">
+  <div class="container mx-auto px-4">
+    <div class="text-center mb-16">
+      <h2 class="text-4xl font-bold text-gray-900 dark:text-white mb-4" data-aos="fade-up" data-aos-duration="650">
+        {t('pages.home.testimonials.heading')}
+      </h2>
+      <p class="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto" data-aos="fade-up" data-aos-delay="100" data-aos-duration="650">
+        {t('pages.home.testimonials.subtitle')}
+      </p>
     </div>
-  </section>
+    <TestimonialCarousel testimonials={testimonials} interval={6000} />
+  </div>
+</section>
 
   <!-- Call to Action Section -->
   {/* Using the CTA component from locales */}

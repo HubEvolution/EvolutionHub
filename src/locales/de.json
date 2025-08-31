@@ -64,15 +64,25 @@
         }
       },
       "testimonials": {
-        "heading": "Was unsere Benutzer sagen",
-        "subtitle": "Hören Sie von Entwicklern, die ihren Workflow mit Evolution Hub revolutionieren.",
-        "testimonial1": {
-          "quote": "Evolution Hub hat die Art und Weise, wie ich Code schreibe, revolutioniert. Die KI-Funktionen sparen mir jede Woche Stunden Arbeit!",
-          "author": "Jane Doe",
-          "role": "Lead Developer bei TechCorp"
-        }
-      },
-      "introduction": {
+  "heading": "Was unsere Nutzer über Imag-Enhancer sagen",
+  "subtitle": "Echte Erfahrungsberichte von Teams, die Imag-Enhancer nutzen, um Bildqualität zu verbessern und Produktionszeiten zu verkürzen.",
+  "testimonial1": {
+    "quote": "Imag-Enhancer lieferte ein sauberes 4× Upscaling unserer Produktfotos ohne Artefakte – Farbkorrektur und Rauschreduzierung haben uns Stunden manueller Nachbearbeitung erspart.",
+    "author": "Oliver Grant",
+    "role": "Produktfotograf, LumaStudio"
+  },
+  "testimonial2": {
+    "quote": "Wir haben Tausende von Nutzerbildern in Batch verarbeitet. Durchsatz und Qualität waren hervorragend, und die Integration über die API war unkompliziert.",
+    "author": "Sara Novak",
+    "role": "Leiterin Bildverarbeitung, Pixly"
+  },
+  "testimonial3": {
+    "quote": "Mit den Presets des Imag-Enhancer fanden wir schnell den passenden Look für unsere Marketing-Assets. Die lokale Verarbeitungsoption gab uns Sicherheit beim Umgang mit sensiblen Bildern.",
+    "author": "Dr. Markus Weber",
+    "role": "Leiter Marketing, NovaApps"
+  }
+},
+  "introduction": {
         "part1": "Evolution Hub bietet eine innovative Sammlung von KI-gestützten Tools, die speziell für Entwickler und Kreative entwickelt wurden. Mit unseren KI-gestützten Tools können Sie Ihren Workflow optimieren, repetitive Aufgaben automatisieren und Ihre Produktivität steigern. Ob Sie Code generieren, Inhalte erstellen oder komplexe Daten analysieren möchten – unsere Plattform unterstützt Sie bei jedem Schritt.",
         "part2": "Die intelligente Kombination aus künstlicher Intelligenz und benutzerfreundlichem Design ermöglicht es Ihnen, Ihre Kreativität freizusetzen und Projekte schneller zum Leben zu erwecken. Entdecken Sie unsere leistungsstarken Funktionen und erfahren Sie, wie Sie mit Evolution Hub die Zukunft der Softwareentwicklung und Content-Erstellung gestalten können.",
         "part3_de": "Unsere fortschrittlichen Algorithmen und benutzerfreundlichen Interfaces arbeiten nahtlos zusammen, um Ihnen die bestmögliche Entwicklererfahrung zu bieten. Von der ersten Idee bis zur finalen Umsetzung – Evolution Hub begleitet Sie durch jeden Schritt Ihres kreativen Prozesses.",

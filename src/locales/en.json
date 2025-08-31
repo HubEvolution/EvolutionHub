@@ -56,14 +56,26 @@
         "subtitle": "Explore our core capabilities — from code generation and automated testing to intelligent debugging."
       },
       "testimonials": {
-        "heading": "What our users say",
-        "subtitle": "Hear from developers who are revolutionizing their workflow with Evolution Hub.",
-        "testimonial1": {
-          "quote": "Evolution Hub has revolutionized the way I write code. The AI features save me hours of work every week!",
-          "author": "Jane Doe",
-          "role": "Lead Developer at TechCorp"
-        }
-      },
+  "heading": "What our users say about Imag-Enhancer",
+  "subtitle": "Real stories from teams using Imag-Enhancer to improve image quality and speed up production.",
+  "testimonial1": {
+    "quote": "Imag-Enhancer produced a clean 4x upscale of our product photos without artifacts — the color correction and noise reduction tools saved hours of manual editing.",
+    "author": "Oliver Grant",
+    "role": "Product Photographer, LumaStudio"
+  },
+  "testimonial2": {
+    "quote": "We batch-processed thousands of user images with Imag-Enhancer. Throughput and quality were excellent, and integration via the API was straightforward.",
+    "author": "Sara Novak",
+    "role": "Head of Imaging, Pixly"
+  },
+  "testimonial3": {
+    "quote": "Using Imag-Enhancer's presets we quickly found the right look for our marketing assets. The optional local-processing mode gave us confidence handling sensitive images.",
+    "author": "Dr. Markus Weber",
+    "role": "Marketing Lead, NovaApps"
+  }
+},
+  
+  
       "introduction": {
         "part1": "Evolution Hub offers an innovative collection of AI-powered tools designed specifically for developers and creators. With our AI-powered tools, you can optimize your workflow, automate repetitive tasks, and increase your productivity. Whether you want to generate code, create content, or analyze complex data – our platform supports you every step of the way.",
         "part2": "The intelligent combination of artificial intelligence and user-friendly design allows you to unleash your creativity and bring projects to life faster. Discover our powerful features and learn how you can shape the future of software development and content creation with Evolution Hub.",
