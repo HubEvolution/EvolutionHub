@@ -38,22 +38,22 @@
     "home": {
       "features": {
         "feature1": {
-          "icon": "✨",
+          "icon": "celebration",
           "title": "Generate Code",
           "description": "Whether you want to generate code, create content, or analyze complex data – our platform supports you every step of the way."
         },
         "feature2": {
-          "icon": "🚀",
+          "icon": "rocket",
           "title": "Automated Tests",
           "description": "Optimize your testing process with intelligent automation capabilities."
         },
         "feature3": {
-          "icon": "💡",
+          "icon": "lightbulb",
           "title": "Intelligent Debugging",
           "description": "Identify and fix bugs faster with AI-powered debugging tools."
         },
         "heading": "The future of AI-powered development",
-        "subtitle": "Discover the power of AI-driven tools to streamline your workflow and boost productivity."
+        "subtitle": "Explore our core capabilities — from code generation and automated testing to intelligent debugging."
       },
       "testimonials": {
         "heading": "What our users say",
@@ -70,15 +70,16 @@
         "part3_de": "Our advanced algorithms and user-friendly interfaces work together seamlessly to provide you with the best possible developer experience. From the initial idea to the final implementation – Evolution Hub accompanies you through every step of your creative process.",
         "part4_de": "Harness the power of artificial intelligence to simplify complex tasks, develop innovative solutions, and take your projects to the next level. With Evolution Hub, you shape the future of digital development."
       },
-      "title": "Welcome to Evolution Hub",
+      "title": "Evolution Hub",
       "hero": {
-        "title_part1": "Welcome to Evolution Hub",
+        "title_part1": "Evolution Hub",
         "title_part2": "The future of AI-powered development",
         "subtitle": "Discover the power of AI-driven tools to streamline your workflow and boost productivity.",
         "get_started_button": "Get started",
         "documentation_link": "View documentation",
+        "tools_link": "View our tools",
         "typewriter": [
-          "Generate Code",
+          "IMAG'-Enhancer",
           "Automated Tests",
           "Intelligent Debugging"
         ]
@@ -94,13 +95,114 @@
       "backToRegister": "← Back to registration",
       "supportLine": "Problems? Contact us at",
       "resend": {
-        "btnDefault": "📧 Resend email",
-        "success": "✅ Verification email re-sent! Check your inbox.",
+        "btnDefault": "Resend email",
+        "success": "Verification email re-sent! Check your inbox.",
         "error": "Failed to send the email. Please try again later.",
         "missingEmail": "Email address unavailable. Please register again.",
-        "sending": "⏳ Sending...",
-        "countdown": "⏳ Resend ({s}s)",
+        "sending": "Sending...",
+        "countdown": "Resend ({s}s)",
         "unexpected": "An unexpected error occurred. Please try again later."
+      }
+    },
+    "tools": {
+      "meta": {
+        "title": "Tools – Evolution Hub",
+        "description": "Discover our powerful tools for developers, designers, and content creators. Boost your productivity with our AI-powered solutions."
+      },
+      "heading": "Our Tools",
+      "subheading": "Explore powerful tools for developers, designers, and content creators",
+      "filter": {
+        "search_placeholder": "Search tools..."
+      },
+      "results": {
+        "singular": "result",
+        "plural": "results",
+        "found_suffix": "found"
+      },
+      "badges": {
+        "new": "New",
+        "popular": "Popular"
+      },
+      "card": {
+        "more": "Learn more",
+        "more_about_prefix": "More about"
+      },
+      "categories": {
+        "all": "All Tools",
+        "ai": "AI & Machine Learning",
+        "development": "Development",
+        "design": "Design",
+        "productivity": "Productivity",
+        "marketing": "Marketing"
+      },
+      "empty": {
+        "title": "No tools found",
+        "description": "Try a different search term or category."
+      },
+      "cta": {
+        "heading": "Missing a specific tool?",
+        "description": "We continuously build new tools and features. Tell us what you need!",
+        "button": "Suggest a tool"
+      },
+      "items": {
+        "code-review": {
+          "name": "Code Review Assistant",
+          "description": "AI-powered code review tool that detects issues and suggests improvements."
+        },
+        "design-system": {
+          "name": "Design System Builder",
+          "description": "Create and manage a consistent design system with reusable components."
+        },
+        "seo-analyzer": {
+          "name": "SEO Analyzer",
+          "description": "Analyzes page content and metrics to improve search engine visibility."
+        },
+        "api-tester": {
+          "name": "API Tester",
+          "description": "Send requests, inspect responses, and efficiently test endpoints."
+        },
+        "content-generator": {
+          "name": "Content Generator",
+          "description": "Generate high-quality text with AI – from descriptions to blog drafts."
+        },
+        "performance-monitor": {
+          "name": "Performance Monitor",
+          "description": "Monitors performance metrics and highlights optimization opportunities."
+        },
+        "Imag-Enhancer": {
+          "name": "Imag-Enhancer",
+          "description": "Automatically improves image quality: AI-based denoising, detail sharpening, high-quality upscaling, and color/contrast optimization — adjustable levels for single and batch processing."
+        }
+      },
+      "details": {
+        "Imag-Enhancer": {
+          "back": "Back to overview",
+          "badge_new": "New",
+          "open": "Open tool",
+          "support": "Support & Feedback",
+          "features": {
+            "heading": "Features",
+            "upscaling": { "title": "AI-powered upscaling", "description": "Upscale images without visible quality loss." },
+            "denoise_sharpen": { "title": "Denoising & sharpening", "description": "Reduces noise and restores fine details." },
+            "fine_tuning": { "title": "Fine-tuning & presets", "description": "Preset profiles and manual sliders for tailored results." },
+            "batch": { "title": "Batch processing", "description": "Process multiple files at once for efficient workflows." }
+          },
+          "privacy": {
+            "heading": "Privacy & processing",
+            "text": "Imag-Enhancer can run on our servers or locally (depending on the integration). Sensitive data should be processed locally; contact us for self-host options."
+          },
+          "workflow": {
+            "heading": "Example workflow",
+            "steps": [
+              "Upload an image or drop it via drag & drop.",
+              "Select a preset or adjust settings manually.",
+              "Check the preview and choose a quality level.",
+              "Process single images or start batch processing."
+            ]
+          },
+          "try": "Try it now",
+          "longDescription": "Imag-Enhancer leverages modern neural models to automatically optimize photos and graphics. Choose presets or fine-tune denoising, sharpness, color correction, and upscaling. Supports single and batch processing and respects privacy by offering optional local processing."
+        }
       }
     },
     "pricing": {
@@ -636,7 +738,7 @@
     "get_started_button": "Get started",
     "documentation_link": "View documentation"
   }
-,
+ ,
   "comingSoon": {
     "title": "Coming soon",
     "description": "Our pricing page is being updated. Join the waitlist to be among the first to know.",

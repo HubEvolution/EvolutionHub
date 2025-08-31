@@ -1,6 +1,7 @@
 ---
 import AuthLayout from '@/layouts/AuthLayout.astro';
 import Button from '@/components/ui/Button.astro';
+import Icon from '@/components/ui/Icon.astro';
 
 import { getLocale } from '@/lib/i18n';
 import { localizePath } from '@/lib/locale-path';
@@ -62,7 +63,7 @@ if (error) {
         </div>
 
         <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-3">
-          🎉 Willkommen bei EvolutionHub!
+          <span class="inline-flex items-center gap-2"><Icon name="celebration" class="w-6 h-6 inline-block text-emerald-500" ariaLabel="Willkommen" /> Willkommen bei EvolutionHub!</span>
         </h1>
         
         <p class="text-lg text-gray-600 dark:text-gray-300 mb-2">
@@ -126,7 +127,7 @@ if (error) {
       <div class="text-center">
         <Button className="w-full bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-700 hover:to-cyan-700 text-white font-semibold py-3 px-6 text-lg">
           <a href={localizePath(locale, '/dashboard')} class="block w-full h-full">
-            🚀 Zum Dashboard
+            <span class="inline-flex items-center gap-2"><Icon name="rocket" class="w-5 h-5 inline-block" ariaLabel="Zum Dashboard" /> Zum Dashboard</span>
           </a>
         </Button>
         
@@ -160,13 +161,13 @@ if (error) {
       <div class="space-y-4">
         <Button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white">
           <a href={localizePath(locale, '/register')} class="block w-full h-full">
-            🔄 Neue Registrierung
+            <span class="inline-flex items-center gap-2"><Icon name="refresh" class="w-5 h-5 inline-block" ariaLabel="Neue Registrierung" /> Neue Registrierung</span>
           </a>
         </Button>
         
         <Button className="w-full bg-gray-600 hover:bg-gray-700 text-white">
           <a href={localizePath(locale, '/login')} class="block w-full h-full">
-            🔑 Zum Login
+            <span class="inline-flex items-center gap-2"><Icon name="key" class="w-5 h-5 inline-block" ariaLabel="Zum Login" /> Zum Login</span>
           </a>
         </Button>
       </div>
@@ -196,7 +197,7 @@ if (error) {
       <div class="text-center">
         <Button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white">
           <a href={localizePath(locale, '/login')} class="block w-full h-full">
-            🔑 Jetzt einloggen
+            <span class="inline-flex items-center gap-2"><Icon name="key" class="w-5 h-5 inline-block" ariaLabel="Jetzt einloggen" /> Jetzt einloggen</span>
           </a>
         </Button>
       </div>

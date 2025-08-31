@@ -1,35 +1,35 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { aosDelayForIndex } from '@/lib/aos';
+import Icon from '@/components/ui/Icon.astro';
 
 const sections = [
   {
     title: 'Erste Schritte',
     description: 'Lernen Sie die Grundlagen kennen und starten Sie mit Evolution Hub durch.',
     link: '/docs/getting-started',
-    icon: '🚀'
+    icon: 'rocket'
   },
   {
     title: 'Anleitungen',
     description: 'Detaillierte Anleitungen für alle Funktionen und Features.',
     link: '/docs/guides',
-    icon: '📚'
+    icon: 'book'
   },
   {
     title: 'API-Referenz',
     description: 'Technische Dokumentation unserer API-Endpunkte.',
     link: '/docs/api',
-    icon: '🔌'
+    icon: 'plug'
   },
   {
     title: 'Häufige Fragen',
     description: 'Antworten auf häufig gestellte Fragen.',
     link: '/docs/faq',
-    icon: '❓'
+    icon: 'book'
   }
 ];
 ---
-
 <BaseLayout title="Dokumentation">
   <div class="py-12 bg-white dark:bg-gray-900">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -54,7 +54,7 @@ const sections = [
             >
               <div>
                 <span class="rounded-lg inline-flex p-3 bg-indigo-50 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-200 ring-4 ring-white dark:ring-gray-800">
-                  {section.icon}
+                  <Icon name={section.icon} class="w-6 h-6" ariaLabel={section.title} />
                 </span>
               </div>
               <div class="mt-8">

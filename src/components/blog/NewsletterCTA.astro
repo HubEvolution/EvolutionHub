@@ -1,80 +1,81 @@
 ---
-// Newsletter CTA for Blog Articles
-interface Props {
-  variant?: 'inline' | 'card' | 'banner';
-  position?: 'top' | 'middle' | 'bottom';
-  title?: string;
-  description?: string;
-  incentive?: string; // Special offer or incentive text
-  showBenefits?: boolean;
-}
+ // Newsletter CTA for Blog Articles
+ interface Props {
+   variant?: 'inline' | 'card' | 'banner';
+   position?: 'top' | 'middle' | 'bottom';
+   title?: string;
+   description?: string;
+   incentive?: string; // Special offer or incentive text
+   showBenefits?: boolean;
+ }
 
-import { getLocale } from '@/lib/i18n';
-import { getI18n } from '@/utils/i18n';
+ import { getLocale } from '@/lib/i18n';
+ import { getI18n } from '@/utils/i18n';
+ import Icon from '@/components/ui/Icon.astro';
 
-const { 
-  variant = 'card',
-  position = 'bottom',
-  title,
-  description,
-  incentive,
-  showBenefits = false
-} = Astro.props;
+ const { 
+   variant = 'card',
+   position = 'bottom',
+   title,
+   description,
+   incentive,
+   showBenefits = false
+ } = Astro.props;
 
-// Localized strings for client-side alerts and form texts (minimal subset)
-const locale = getLocale(Astro.url.pathname);
-const t = getI18n(locale);
-const i18nNewsletter = {
-  forms: {
-    email_placeholder: t('common.forms.email_placeholder'),
-  },
-  actions: {
-    subscribe: t('common.actions.subscribe'),
-  },
-  status: {
-    sending: t('common.status.sending'),
-  },
-  success: {
-    newsletter_confirmation_sent: t('common.success.newsletter_confirmation_sent'),
-  },
-  errors: {
-    generic: t('common.errors.generic'),
-  },
-};
+ // Localized strings for client-side alerts and form texts (minimal subset)
+ const locale = getLocale(Astro.url.pathname);
+ const t = getI18n(locale);
+ const i18nNewsletter = {
+   forms: {
+     email_placeholder: t('common.forms.email_placeholder'),
+   },
+   actions: {
+     subscribe: t('common.actions.subscribe'),
+   },
+   status: {
+     sending: t('common.status.sending'),
+   },
+   success: {
+     newsletter_confirmation_sent: t('common.success.newsletter_confirmation_sent'),
+   },
+   errors: {
+     generic: t('common.errors.generic'),
+   },
+ };
 
-// No-op read to mark as used for TS in frontmatter (template also uses it)
-JSON.stringify(i18nNewsletter);
+ // No-op read to mark as used for TS in frontmatter (template also uses it)
+ JSON.stringify(i18nNewsletter);
 
-// Default content based on position and context
-const defaultContent = {
-  title: title || (
-    position === 'top' 
-      ? 'Bleiben Sie informiert!' 
-      : position === 'middle'
-      ? 'Gefällt Ihnen dieser Artikel?'
-      : 'Verpassen Sie keine Updates!'
-  ),
-  description: description || (
-    position === 'top'
-      ? 'Erhalten Sie die neuesten Insights direkt in Ihr Postfach.'
-      : position === 'middle'
-      ? 'Dann abonnieren Sie unseren Newsletter für mehr solcher Inhalte.'
-      : 'Abonnieren Sie unseren Newsletter für regelmäßige Insights und Tipps.'
-  )
-};
+ // Default content based on position and context
+ const defaultContent = {
+   title: title || (
+     position === 'top' 
+       ? 'Bleiben Sie informiert!' 
+       : position === 'middle'
+       ? 'Gefällt Ihnen dieser Artikel?'
+       : 'Verpassen Sie keine Updates!'
+   ),
+   description: description || (
+     position === 'top'
+       ? 'Erhalten Sie die neuesten Insights direkt in Ihr Postfach.'
+       : position === 'middle'
+       ? 'Dann abonnieren Sie unseren Newsletter für mehr solcher Inhalte.'
+       : 'Abonnieren Sie unseren Newsletter für regelmäßige Insights und Tipps.'
+   )
+ };
 
-const benefits = [
-  '🚀 Neueste Trends und Best Practices',
-  '💡 Exklusive Tipps und Strategien',
-  '📚 Kostenlose Resources und Guides',
-  '🎯 Praxisnahe Case Studies'
-];
+ const benefits = [
+   { icon: 'rocket', text: 'Neueste Trends und Best Practices' },
+   { icon: 'lightbulb', text: 'Exklusive Tipps und Strategien' },
+   { icon: 'book', text: 'Kostenlose Resources und Guides' },
+   { icon: 'target', text: 'Praxisnahe Case Studies' }
+ ];
 
-const isCard = variant === 'card';
-const isInline = variant === 'inline';
-const isBanner = variant === 'banner';
+ const isCard = variant === 'card';
+ const isInline = variant === 'inline';
+ const isBanner = variant === 'banner';
 ---
-
+ 
 <div class={`newsletter-cta ${variant} ${position} not-prose my-8`}>
   <!-- Page-scoped i18n for this CTA instance -->
   <script type="application/json" data-role="i18n-newsletter-cta">{JSON.stringify(i18nNewsletter)}</script>
@@ -83,9 +84,7 @@ const isBanner = variant === 'banner';
       <div class="max-w-md mx-auto">
         <!-- Icon -->
         <div class="w-12 h-12 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-full flex items-center justify-center mx-auto mb-4">
-          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-          </svg>
+          <Icon name="mail" class="w-6 h-6 text-white" ariaLabel="Newsletter" />
         </div>
         
         <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">
@@ -98,8 +97,9 @@ const isBanner = variant === 'banner';
         
         {incentive && (
           <div class="bg-emerald-100 dark:bg-emerald-900/30 border border-emerald-300 dark:border-emerald-700 rounded-lg p-3 mb-4">
-            <p class="text-sm font-medium text-emerald-800 dark:text-emerald-200">
-              🎁 {incentive}
+            <p class="text-sm font-medium text-emerald-800 dark:text-emerald-200 inline-flex items-center gap-2">
+              <Icon name="gift" class="w-4 h-4 text-emerald-800 dark:text-emerald-200 inline-block" ariaLabel="Gift" />
+              {incentive}
             </p>
           </div>
         )}
@@ -108,8 +108,13 @@ const isBanner = variant === 'banner';
           <div class="text-left mb-4">
             <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">Sie erhalten:</p>
             <div class="grid grid-cols-1 gap-1">
-              {benefits.map(benefit => (
-                <p class="text-xs text-gray-600 dark:text-gray-300">{benefit}</p>
+              {benefits.map((benefit) => (
+                <p class="text-xs text-gray-600 dark:text-gray-300">
+                  <span class="inline-flex items-center gap-2">
+                    <Icon name={benefit.icon} class="w-4 h-4 text-gray-700 dark:text-gray-300 inline-block" ariaLabel={benefit.text} />
+                    <span>{benefit.text}</span>
+                  </span>
+                </p>
               ))}
             </div>
           </div>
@@ -129,7 +134,7 @@ const isBanner = variant === 'banner';
         <div class="flex-1 text-left">
           <h3 class="font-semibold text-lg mb-1">{defaultContent.title}</h3>
           <p class="text-emerald-100 text-sm">{defaultContent.description}</p>
-          {incentive && <p class="text-xs font-medium text-emerald-200 mt-1">🎁 {incentive}</p>}
+          {incentive && <p class="text-xs font-medium text-emerald-200 mt-1"><Icon name="gift" class="w-4 h-4 inline-block mr-2" ariaLabel="Gift" />{incentive}</p>}
         </div>
         
         <div class="newsletter-form-container flex-shrink-0">
@@ -143,9 +148,7 @@ const isBanner = variant === 'banner';
     <div class="border-l-4 border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20 p-4 rounded-r-lg">
       <div class="flex items-start gap-3">
         <div class="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center flex-shrink-0">
-          <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-          </svg>
+          <Icon name="mail" class="w-4 h-4 text-white" ariaLabel="Newsletter" />
         </div>
         
         <div class="flex-1 min-w-0">

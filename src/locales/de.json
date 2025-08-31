@@ -46,19 +46,19 @@
       "title": "Willkommen bei Evolution Hub",
       "features": {
         "heading": "Die Zukunft der KI-gestützten Entwicklung",
-        "subtitle": "Entdecken Sie die Leistung von KI-gestützten Tools zur Optimierung Ihres Workflows und zur Steigerung Ihrer Produktivität.",
+        "subtitle": "Ein Überblick über unsere Kernfunktionen – von Codegenerierung über automatisierte Tests bis zur intelligenten Fehlersuche.",
         "feature1": {
-          "icon": "✨",
+          "icon": "celebration",
           "title": "Code generieren",
           "description": "Ob Sie Code generieren, Inhalte erstellen oder komplexe Daten analysieren möchten – unsere Plattform unterstützt Sie bei jedem Schritt."
         },
         "feature2": {
-          "icon": "🚀",
+          "icon": "rocket",
           "title": "Automatisierte Tests",
           "description": "Optimieren Sie Ihren Testprozess mit intelligenten Automatisierungsfähigkeiten."
         },
         "feature3": {
-          "icon": "💡",
+          "icon": "lightbulb",
           "title": "Intelligente Fehlerbehebung",
           "description": "Identifizieren und beheben Sie Fehler schneller mit KI-gestützten Debugging-Tools."
         }
@@ -79,13 +79,14 @@
         "part4_de": "Nutzen Sie die Kraft der künstlichen Intelligenz, um komplexe Aufgaben zu vereinfachen, innovative Solutions zu entwickeln und Ihre Projekte auf das nächste Level zu heben. Mit Evolution Hub gestalten Sie die Zukunft der digitalen Entwicklung."
       },
       "hero": {
-        "title_part1": "Willkommen bei Evolution Hub",
+        "title_part1": "Evolution Hub",
         "title_part2": "Die Zukunft der KI-gestützten Entwicklung",
         "subtitle": "Entdecken Sie die Leistung von KI-gestützten Tools zur Optimierung Ihres Workflows und zur Steigerung Ihrer Produktivität.",
         "get_started_button": "Jetzt loslegen",
         "documentation_link": "Dokumentation anzeigen",
+        "tools_link": "Zu unseren Tools",
         "typewriter": [
-          "Code generieren",
+          "IMAG'-Enhancer",
           "Automatisierte Tests",
           "Intelligente Fehlerbehebung"
         ]
@@ -230,7 +231,7 @@
         },
         "7": {
           "title": "7. Widerspruchsrecht",
-          "description": "Sie haben das Recht, aus Gründen, die sich aus Ihrer besonderen Situation ergeben, jederzeit gegen die Verarbeitung Sie betreffender personenbezogener Daten, die aufgrund von Art. 6 Abs. 1 lit. e oder f DSGVO erfolgt, Widerspruch einzulelegen."
+          "description": "Sie haben das Recht, aus Gründen, die sich aus Ihrer besonderen Situation ergeben, jederzeit gegen die Verarbeitung Sie betreffender personenbezogener Daten, die aufgrund von Art. 6 Abs. 1 lit. e oder f DSGVO erfolgt, Widerspruch einzulegen."
         },
         "8": {
           "title": "8. Datensicherheit",
@@ -365,7 +366,7 @@
         "5": { "title": "Preise und Zahlung", "content": "Gebühren, Abrechnungszyklen und Zahlungsmethoden sind auf der Preisseite angegeben. Alle Preise verstehen sich in EUR, sofern nicht anders angegeben. Gesetzliche Steuern können anfallen." },
         "6": { "title": "Laufzeit und Kündigung", "content": "Verträge werden auf unbestimmte Zeit geschlossen und können zum Ende des aktuellen Abrechnungszeitraums gekündigt werden. Eine fristlose Kündigung aus wichtigem Grund bleibt vorbehalten." },
         "7": { "title": "Zulässige Nutzung", "content": "Sie dürfen den Dienst nicht missbrauchen, seinen Betrieb stören oder gegen geltendes Recht verstoßen. Automatisiertes Scraping, Reverse Engineering oder Sicherheitstests ohne Zustimmung sind untersagt." },
-        "8": { "title": "Gewährleistung und Haftung", "content": "Der Dienst wird im Rahmen des gewählten Plans bereitgestellt. Unsere Haftung ist auf Vorsatz und grobe Fahrlässigkeit beschränkt, sofern nicht zwingendes Recht etwas anderes vorschreibt." },
+        "8": { "title": "Gewährleistung und Haftung", "content": "Der Dienst wird im Rahmen des gewählten Plans bereitgestellt. Unsere Haftung ist auf Vorsatz und grobe Fahrlässigkeit beschränkt, sofern nicht zwingendes Recht etwas anderes vorsieht." },
         "9": { "title": "Geistiges Eigentum", "content": "Alle Rechte am geistigen Eigentum am Dienst verbleiben bei Evolution Hub oder deren Lizenzgebern. Sie erhalten ein einfaches, nicht übertragbares Nutzungsrecht für die Vertragsdauer." },
         "10": { "title": "Datenschutz", "content": "Wir verarbeiten personenbezogene Daten gemäß unserer Datenschutzerklärung. Einzelheiten zu Zwecken und Rechtsgrundlagen finden Sie unter pages.datenschutz." },
         "11": { "title": "Anwendbares Recht und Gerichtsstand", "content": "Es gilt deutsches Recht unter Ausschluss des Kollisionsrechts. Gerichtsstand ist, soweit gesetzlich zulässig, Berlin." },
@@ -383,13 +384,114 @@
       "backToRegister": "← Zurück zur Registrierung",
       "supportLine": "Probleme? Kontaktieren Sie uns unter",
       "resend": {
-        "btnDefault": "📧 E-Mail erneut senden",
-        "success": "✅ E-Mail erfolgreich erneut gesendet! Prüfen Sie Ihr Postfach.",
+        "btnDefault": "E-Mail erneut senden",
+        "success": "E-Mail erfolgreich erneut gesendet! Prüfen Sie Ihr Postfach.",
         "error": "Fehler beim Senden der E-Mail. Bitte versuchen Sie es später erneut.",
         "missingEmail": "E-Mail-Adresse nicht verfügbar. Bitte registrieren Sie sich erneut.",
-        "sending": "⏳ Wird gesendet...",
-        "countdown": "⏳ Erneut senden ({s}s)",
+        "sending": "Wird gesendet...",
+        "countdown": "Erneut senden ({s}s)",
         "unexpected": "Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es später erneut."
+      }
+    },
+    "tools": {
+      "meta": {
+        "title": "Tools – Evolution Hub",
+        "description": "Entdecke unsere leistungsstarken Tools für Entwickler, Designer und Content-Ersteller. Steigere deine Produktivität mit unseren KI-gestützten Lösungen."
+      },
+      "heading": "Unsere Tools",
+      "subheading": "Entdecke unsere leistungsstarken Tools für Entwickler, Designer und Content-Ersteller",
+      "filter": {
+        "search_placeholder": "Nach Tools suchen..."
+      },
+      "results": {
+        "singular": "Ergebnis",
+        "plural": "Ergebnisse",
+        "found_suffix": "gefunden"
+      },
+      "badges": {
+        "new": "Neu",
+        "popular": "Beliebt"
+      },
+      "card": {
+        "more": "Mehr erfahren",
+        "more_about_prefix": "Mehr über"
+      },
+      "categories": {
+        "all": "Alle Tools",
+        "ai": "KI & Maschinelles Lernen",
+        "development": "Entwicklung",
+        "design": "Design",
+        "productivity": "Produktivität",
+        "marketing": "Marketing"
+      },
+      "empty": {
+        "title": "Keine Tools gefunden",
+        "description": "Versuche es mit einem anderen Suchbegriff oder einer anderen Kategorie."
+      },
+      "cta": {
+        "heading": "Fehlt dir ein bestimmtes Tool?",
+        "description": "Wir arbeiten ständig an neuen Tools und Funktionen. Lass uns wissen, was du dir wünschst!",
+        "button": "Tool vorschlagen"
+      },
+      "items": {
+        "code-review": {
+          "name": "Code Review Assistant",
+          "description": "KI-gestütztes Code-Review-Tool zur Erkennung von Problemen und Verbesserungsvorschlägen."
+        },
+        "design-system": {
+          "name": "Design System Builder",
+          "description": "Erstelle und verwalte ein konsistentes Design-System mit wiederverwendbaren Komponenten."
+        },
+        "seo-analyzer": {
+          "name": "SEO-Analyzer",
+          "description": "Analysiert Seiteninhalte und Metriken, um die Sichtbarkeit in Suchmaschinen zu verbessern."
+        },
+        "api-tester": {
+          "name": "API-Tester",
+          "description": "Sende Anfragen, inspiziere Antworten und teste Endpunkte effizient."
+        },
+        "content-generator": {
+          "name": "Content-Generator",
+          "description": "Erzeuge hochwertige Texte mit KI – von Beschreibungen bis Blog-Entwürfen."
+        },
+        "performance-monitor": {
+          "name": "Performance Monitor",
+          "description": "Überwacht Leistungskennzahlen und zeigt Optimierungspotenziale auf."
+        },
+        "Imag-Enhancer": {
+          "name": "Imag-Enhancer",
+          "description": "Verbessert automatisch die Bildqualität: KI-basierte Rauschunterdrückung, Detail-Schärfung, hochwertiges Upscaling und Farb-/Kontrastoptimierung — einstellbare Stufen für Einzel- und Batchverarbeitung."
+        }
+      },
+      "details": {
+        "Imag-Enhancer": {
+          "back": "Zurück zur Übersicht",
+          "badge_new": "Neu",
+          "open": "Tool öffnen",
+          "support": "Support & Feedback",
+          "features": {
+            "heading": "Funktionen",
+            "upscaling": { "title": "KI-gestütztes Upscaling", "description": "Skaliere Bilder hoch ohne sichtbaren Qualitätsverlust." },
+            "denoise_sharpen": { "title": "Rauschunterdrückung & Schärfung", "description": "Reduziert Rauschen und stellt feine Details wieder her." },
+            "fine_tuning": { "title": "Feinabstimmung & Presets", "description": "Vordefinierte Presets und manuelle Regler für individuelle Ergebnisse." },
+            "batch": { "title": "Batch-Verarbeitung", "description": "Verarbeite mehrere Dateien gleichzeitig für effiziente Workflows." }
+          },
+          "privacy": {
+            "heading": "Datenschutz & Verarbeitung",
+            "text": "Imag-Enhancer kann auf unseren Servern oder lokal betrieben werden (abhängig von der Integration). Sensible Daten sollten lokal verarbeitet werden; kontaktiere uns für Self-Host-Optionen."
+          },
+          "workflow": {
+            "heading": "Beispiel-Workflow",
+            "steps": [
+              "Bild hochladen oder per Drag & Drop ablegen.",
+              "Preset auswählen oder manuelle Einstellungen vornehmen.",
+              "Vorschau prüfen und Qualitätsstufe wählen.",
+              "Einzeln verarbeiten oder Stapelverarbeitung starten."
+            ]
+          },
+          "try": "Jetzt ausprobieren",
+          "longDescription": "Imag-Enhancer verwendet moderne neuronale Modelle, um Fotos und Grafiken automatisch zu optimieren. Wähle Voreinstellungen oder feine Anpassungen für Rauschreduzierung, Schärfe, Farbkorrektur und Upscaling. Unterstützt Einzel- und Stapelverarbeitung und respektiert Datenschutzrichtlinien durch optionale lokale Verarbeitung."
+        }
       }
     }
   },
@@ -508,8 +610,7 @@
         ]
       }
     }
-  }
-,
+  },
   "comingSoon": {
     "title": "Bald verfügbar",
     "description": "Unsere Pricing-Seite wird gerade überarbeitet. Trage dich in die Warteliste ein, um als Erste informiert zu werden.",

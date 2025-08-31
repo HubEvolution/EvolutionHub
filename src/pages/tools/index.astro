@@ -4,89 +4,16 @@ import ToolCard from '@/components/tools/ToolCard.astro';
 import ToolFilter from '@/components/tools/ToolFilter.astro';
 import { localizePath } from '@/lib/locale-path';
 import { getLocale } from '@/lib/i18n';
-
-// Types for our tools
-type ToolCategory = 'all' | 'ai' | 'development' | 'design' | 'productivity' | 'marketing';
-
-interface Tool {
-  id: string;
-  name: string;
-  description: string;
-  category: ToolCategory[];
-  icon: string;
-  color: string;
-  url: string;
-  isNew?: boolean;
-  isPopular?: boolean;
-}
-
-// Mock data - in a real app, this would come from an API
-const allTools: Tool[] = [
-  {
-    id: 'code-review',
-    name: 'Code Review Assistant',
-    description: 'AI-powered code review tool that suggests improvements and finds bugs in your code',
-    category: ['ai', 'development'],
-    icon: '💻',
-    color: 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200',
-    url: '/tools/code-review',
-    isPopular: true
-  },
-  {
-    id: 'design-system',
-    name: 'Design System Manager',
-    description: 'Centralize and manage your design tokens, components, and documentation',
-    category: ['design', 'productivity'],
-    icon: '🎨',
-    color: 'bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200',
-    url: '/tools/design-system',
-    isNew: true
-  },
-  {
-    id: 'seo-analyzer',
-    name: 'SEO Analyzer',
-    description: 'Comprehensive SEO analysis and optimization recommendations',
-    category: ['marketing', 'ai'],
-    icon: '🔍',
-    color: 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200',
-    url: '/tools/seo-analyzer',
-    isPopular: true
-  },
-  {
-    id: 'api-tester',
-    name: 'API Tester',
-    description: 'Test and document your REST APIs with an intuitive interface',
-    category: ['development'],
-    icon: '⚡',
-    color: 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200',
-    url: '/tools/api-tester'
-  },
-  {
-    id: 'content-generator',
-    name: 'AI Content Generator',
-    description: 'Generate high-quality content using advanced AI models',
-    category: ['ai', 'marketing'],
-    icon: '✍️',
-    color: 'bg-pink-100 dark:bg-pink-900 text-pink-800 dark:text-pink-200',
-    url: '/tools/content-generator',
-    isNew: true
-  },
-  {
-    id: 'performance-monitor',
-    name: 'Performance Monitor',
-    description: 'Track and analyze your application performance metrics',
-    category: ['development', 'productivity'],
-    icon: '📊',
-    color: 'bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200',
-    url: '/tools/performance-monitor'
-  }
-];
+import { getI18n } from '@/utils/i18n';
+import { getAllTools, getToolCategories, type ToolCategory } from '@/lib/tools-data';
 
 // Get search params for filtering
 const searchParams = Astro.url.searchParams;
 const activeCategory = (searchParams.get('category') as ToolCategory) || 'all';
 const searchQuery = searchParams.get('q') || '';
 const locale = getLocale(Astro.url.pathname);
+const t = getI18n(locale);
+const allTools = getAllTools(locale);
 
 // Filter tools based on category and search query
 const filteredTools = allTools.filter(tool => {
@@ -96,29 +23,21 @@ const filteredTools = allTools.filter(tool => {
   return matchesCategory && matchesSearch;
 });
 
-// Get unique categories for filter
-const categories: { id: ToolCategory; name: string }[] = [
-  { id: 'all', name: 'All Tools' },
-  { id: 'ai', name: 'AI & Machine Learning' },
-  { id: 'development', name: 'Development' },
-  { id: 'design', name: 'Design' },
-  { id: 'productivity', name: 'Productivity' },
-  { id: 'marketing', name: 'Marketing' },
-];
+// Get categories for filter (localized)
+const categories: { id: ToolCategory; name: string }[] = getToolCategories(locale);
 ---
-
 <BaseLayout 
-  title="Tools – Evolution Hub" 
-  description="Entdecke unsere leistungsstarken Tools für Entwickler, Designer und Content-Ersteller. Steigere deine Produktivität mit unseren KI-gestützten Lösungen."
+  title={t('pages.tools.meta.title')} 
+  description={t('pages.tools.meta.description')}
 >
   <main class="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
     <div class="max-w-7xl mx-auto">
       <div class="text-center mb-12">
         <h1 class="text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white sm:text-5xl md:text-6xl">
-          Unsere Tools
+          {t('pages.tools.heading')}
         </h1>
         <p class="mt-4 max-w-3xl mx-auto text-xl text-gray-500 dark:text-gray-300">
-          Entdecke unsere leistungsstarken Tools für Entwickler, Designer und Content-Ersteller
+          {t('pages.tools.subheading')}
         </p>
       </div>
 
@@ -131,43 +50,45 @@ const categories: { id: ToolCategory; name: string }[] = [
       />
 
       <!-- Tools Grid -->
-      {filteredTools.length > 0 ? (
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
-          {filteredTools.map(tool => (
-            <ToolCard 
-              name={tool.name}
-              description={tool.description}
-              icon={tool.icon}
-              color={tool.color}
-              url={tool.url}
-              isNew={tool.isNew}
-              isPopular={tool.isPopular}
-            />
-          ))}
-        </div>
-      ) : (
-        <div class="text-center py-12 bg-white dark:bg-gray-800 rounded-lg shadow">
-          <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <h3 class="mt-2 text-lg font-medium text-gray-900 dark:text-white">Keine Tools gefunden</h3>
-          <p class="mt-1 text-gray-500 dark:text-gray-400">
-            Versuche es mit einem anderen Suchbegriff oder einer anderen Kategorie.
-          </p>
-        </div>
-      )}
+      <div id="tools-container">
+        {filteredTools.length > 0 ? (
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+            {filteredTools.map(tool => (
+              <ToolCard 
+                name={tool.name}
+                description={tool.description}
+                iconKey={tool.iconKey}
+                color={tool.color}
+                url={tool.url}
+                isNew={tool.isNew}
+                isPopular={tool.isPopular}
+              />
+            ))}
+          </div>
+        ) : (
+          <div class="text-center py-12 bg-white dark:bg-gray-800 rounded-lg shadow">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <h3 class="mt-2 text-lg font-medium text-gray-900 dark:text-white">{t('pages.tools.empty.title')}</h3>
+            <p class="mt-1 text-gray-500 dark:text-gray-400">
+              {t('pages.tools.empty.description')}
+            </p>
+          </div>
+        )}
+      </div>
 
       <!-- Call to Action -->
       <div class="mt-16 text-center">
-        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Fehlt dir ein bestimmtes Tool?</h2>
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">{t('pages.tools.cta.heading')}</h2>
         <p class="text-gray-600 dark:text-gray-300 mb-6 max-w-2xl mx-auto">
-          Wir arbeiten ständig an neuen Tools und Funktionen. Lass uns wissen, was du dir wünschst!
+          {t('pages.tools.cta.description')}
         </p>
         <a 
           href={localizePath(locale, '/kontakt')} 
           class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-gradient-to-r from-[#00d4aa] to-[#40e0d0] hover:opacity-90 transition-opacity"
         >
-          Tool vorschlagen
+          {t('pages.tools.cta.button')}
           <svg class="ml-2 -mr-1 w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
             <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
           </svg>

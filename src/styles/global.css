@@ -124,10 +124,27 @@ html.aos-enabled [data-aos].aos-init:not(.aos-animate) {
   }
 }
 
+/* Hero blob animations */
+@keyframes blobMove {
+  0%, 100% { transform: translate3d(0,0,0) scale(1); }
+  33% { transform: translate3d(24px,-16px,0) scale(1.05); }
+  66% { transform: translate3d(-20px,12px,0) scale(0.98); }
+}
+
+.animate-blob-1 { animation: blobMove 18s ease-in-out infinite; will-change: transform; }
+.animate-blob-2 { animation: blobMove 22s ease-in-out infinite reverse; will-change: transform; }
+.animate-blob-3 { animation: blobMove 26s ease-in-out infinite; will-change: transform; }
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-blob-1, .animate-blob-2, .animate-blob-3 { animation: none; }
+}
+
 /* Dark mode transition */
 * {
   @apply transition-colors duration-200;
 }
+
+/* removed hero-radial-overlay utilities after revert to blobs */
 
 @layer base {
   .prose {

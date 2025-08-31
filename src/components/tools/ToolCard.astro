@@ -2,17 +2,20 @@
 interface Props {
   name: string;
   description: string;
-  icon: string;
+  iconKey?: string;
   color: string;
   url: string;
   isNew?: boolean;
   isPopular?: boolean;
 }
 
-const { name, description, icon, color, url, isNew = false, isPopular = false } = Astro.props;
+const { name, description, iconKey, color, url, isNew = false, isPopular = false } = Astro.props;
+import Icon from '@/components/ui/Icon.astro';
 import { localizePath } from '@/lib/locale-path';
 import { getLocale } from '@/lib/i18n';
 const locale = getLocale(Astro.url.pathname);
+import { getI18n } from '@/utils/i18n';
+const t = getI18n(locale);
 ---
 
 <article data-aos="fade-up" class="group relative bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden">
@@ -20,23 +23,27 @@ const locale = getLocale(Astro.url.pathname);
   <div class="absolute top-4 right-4 flex space-x-2">
     {isNew && (
       <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-        New
+        {t('pages.tools.badges.new')}
       </span>
     )}
     {isPopular && (
       <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
-        Popular
+        {t('pages.tools.badges.popular')}
       </span>
     )}
   </div>
   
   <div class="p-6">
     <div class={`${color} w-12 h-12 rounded-lg flex items-center justify-center text-2xl mb-4`}>
-      {icon}
+      {Astro.slots.has('icon') ? (
+        <slot name="icon" />
+      ) : (
+        iconKey ? <Icon name={iconKey} class="w-6 h-6" ariaLabel={name} /> : null
+      )}
     </div>
     
     <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-2">
-      <a href={localizePath(locale, url)} class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors" aria-label={`Mehr erfahren über ${name}`}>
+      <a href={localizePath(locale, url)} class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors" aria-label={`${t('pages.tools.card.more_about_prefix')} ${name}`}>
         {name}
         <span class="absolute inset-0" aria-hidden="true"></span>
       </a>
@@ -47,7 +54,7 @@ const locale = getLocale(Astro.url.pathname);
     </p>
     
     <div class="flex items-center text-sm text-blue-600 dark:text-blue-400 font-medium">
-      Mehr erfahren
+      {t('pages.tools.card.more')}
       <svg class="ml-1 w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
         <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
       </svg>

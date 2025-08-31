@@ -1,0 +1,109 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { localizePath } from '@/lib/locale-path';
+import { getLocale } from '@/lib/i18n';
+import Icon from '@/components/ui/Icon.astro';
+import { getI18n } from '@/utils/i18n';
+
+const locale = getLocale(Astro.url.pathname);
+const t = getI18n(locale);
+
+const tool = {
+  id: 'Imag-Enhancer',
+  url: '/tools/imag-enhancer',
+  icon: 'tool',
+  isNew: true
+};
+---
+
+<BaseLayout title={`${t('pages.tools.items.Imag-Enhancer.name')} – Evolution Hub`} description={t('pages.tools.items.Imag-Enhancer.description')}>
+  <main class="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-4xl mx-auto">
+      <div class="flex items-start gap-6">
+        <div class="flex-shrink-0">
+          <div class="w-20 h-20 rounded-lg flex items-center justify-center text-4xl bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200">
+            <Icon name={tool.icon} class="w-12 h-12 text-gray-800 dark:text-gray-200" ariaLabel={`${t('pages.tools.items.Imag-Enhancer.name')} Icon`} />
+          </div>
+        </div>
+        <div>
+          <h1 class="text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white">
+            {t('pages.tools.items.Imag-Enhancer.name')}
+          </h1>
+          <div class="mt-2 flex items-center gap-3">
+            {tool.isNew && (
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                {t('pages.tools.details.Imag-Enhancer.badge_new')}
+              </span>
+            )}
+            <a href={localizePath(locale, '/tools')} class="text-sm text-gray-500 dark:text-gray-400 hover:underline">{t('pages.tools.details.Imag-Enhancer.back')}</a>
+          </div>
+          <p class="mt-4 text-gray-600 dark:text-gray-300">{t('pages.tools.details.Imag-Enhancer.longDescription')}</p>
+
+          <div class="mt-6 flex flex-wrap gap-3">
+            <a href={localizePath(locale, tool.url)} class="inline-flex items-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-gradient-to-r from-[#00d4aa] to-[#40e0d0] hover:opacity-90 transition">
+              {t('pages.tools.details.Imag-Enhancer.open')}
+            </a>
+            <a href={localizePath(locale, '/kontakt')} class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
+              {t('pages.tools.details.Imag-Enhancer.support')}
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <section class="mt-12 bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+        <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4">{t('pages.tools.details.Imag-Enhancer.features.heading')}</h2>
+        <ul class="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-600 dark:text-gray-300">
+          <li class="flex items-start gap-3">
+            <Icon name="photo" class="w-6 h-6 text-gray-700 dark:text-gray-300" ariaLabel={t('pages.tools.details.Imag-Enhancer.features.upscaling.title')} />
+            <div>
+              <div class="font-medium">{t('pages.tools.details.Imag-Enhancer.features.upscaling.title')}</div>
+              <div class="text-sm">{t('pages.tools.details.Imag-Enhancer.features.upscaling.description')}</div>
+            </div>
+          </li>
+          <li class="flex items-start gap-3">
+            <Icon name="noise" class="w-6 h-6 text-gray-700 dark:text-gray-300" ariaLabel={t('pages.tools.details.Imag-Enhancer.features.denoise_sharpen.title')} />
+            <div>
+              <div class="font-medium">{t('pages.tools.details.Imag-Enhancer.features.denoise_sharpen.title')}</div>
+              <div class="text-sm">{t('pages.tools.details.Imag-Enhancer.features.denoise_sharpen.description')}</div>
+            </div>
+          </li>
+          <li class="flex items-start gap-3">
+            <Icon name="preset" class="w-6 h-6 text-gray-700 dark:text-gray-300" ariaLabel={t('pages.tools.details.Imag-Enhancer.features.fine_tuning.title')} />
+            <div>
+              <div class="font-medium">{t('pages.tools.details.Imag-Enhancer.features.fine_tuning.title')}</div>
+              <div class="text-sm">{t('pages.tools.details.Imag-Enhancer.features.fine_tuning.description')}</div>
+            </div>
+          </li>
+          <li class="flex items-start gap-3">
+            <Icon name="batch" class="w-6 h-6 text-gray-700 dark:text-gray-300" ariaLabel={t('pages.tools.details.Imag-Enhancer.features.batch.title')} />
+            <div>
+              <div class="font-medium">{t('pages.tools.details.Imag-Enhancer.features.batch.title')}</div>
+              <div class="text-sm">{t('pages.tools.details.Imag-Enhancer.features.batch.description')}</div>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <section class="mt-8 text-sm text-gray-500 dark:text-gray-400">
+        <h3 class="font-semibold text-gray-900 dark:text-white mb-2">{t('pages.tools.details.Imag-Enhancer.privacy.heading')}</h3>
+        <p>{t('pages.tools.details.Imag-Enhancer.privacy.text')}</p>
+      </section>
+
+      <section class="mt-8">
+        <h3 class="font-semibold text-gray-900 dark:text-white mb-3">{t('pages.tools.details.Imag-Enhancer.workflow.heading')}</h3>
+        <ol class="list-decimal list-inside text-gray-600 dark:text-gray-300 space-y-2">
+          <li>{t('pages.tools.details.Imag-Enhancer.workflow.steps.0')}</li>
+          <li>{t('pages.tools.details.Imag-Enhancer.workflow.steps.1')}</li>
+          <li>{t('pages.tools.details.Imag-Enhancer.workflow.steps.2')}</li>
+          <li>{t('pages.tools.details.Imag-Enhancer.workflow.steps.3')}</li>
+        </ol>
+      </section>
+
+      <div class="mt-10 text-center">
+        <a href={localizePath(locale, tool.url)} class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition">
+          {t('pages.tools.details.Imag-Enhancer.try')}
+        </a>
+      </div>
+    </div>
+  </main>
+</BaseLayout>

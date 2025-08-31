@@ -1,5 +1,99 @@
 ---
-import Page from '../../tools/index.astro';
----
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import ToolCard from '@/components/tools/ToolCard.astro';
+import ToolFilter from '@/components/tools/ToolFilter.astro';
+import { localizePath } from '@/lib/locale-path';
+import { getLocale } from '@/lib/i18n';
+import { getI18n } from '@/utils/i18n';
+import { getAllTools, getToolCategories, type ToolCategory } from '@/lib/tools-data';
 
-<Page />
+// Get search params for filtering
+const searchParams = Astro.url.searchParams;
+const activeCategory = (searchParams.get('category') as ToolCategory) || 'all';
+const searchQuery = searchParams.get('q') || '';
+const locale = getLocale(Astro.url.pathname);
+const t = getI18n(locale);
+const allTools = getAllTools(locale);
+
+// Filter tools based on category and search query
+const filteredTools = allTools.filter(tool => {
+  const matchesCategory = activeCategory === 'all' || tool.category.includes(activeCategory);
+  const matchesSearch = tool.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                       tool.description.toLowerCase().includes(searchQuery.toLowerCase());
+  return matchesCategory && matchesSearch;
+});
+
+// Get categories for filter (localized)
+const categories: { id: ToolCategory; name: string }[] = getToolCategories(locale);
+---
+<BaseLayout 
+  title={t('pages.tools.meta.title')} 
+  description={t('pages.tools.meta.description')}
+>
+  <main class="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto">
+      <div class="text-center mb-12">
+        <h1 class="text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white sm:text-5xl md:text-6xl">
+          {t('pages.tools.heading')}
+        </h1>
+        <p class="mt-4 max-w-3xl mx-auto text-xl text-gray-500 dark:text-gray-300">
+          {t('pages.tools.subheading')}
+        </p>
+      </div>
+
+      <!-- Search and Filter Section -->
+      <ToolFilter 
+        {categories} 
+        activeCategory={activeCategory} 
+        searchQuery={searchQuery} 
+        resultCount={filteredTools.length} 
+      />
+
+      <!-- Tools Grid -->
+      <div id="tools-container">
+        {filteredTools.length > 0 ? (
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+            {filteredTools.map(tool => (
+              <ToolCard 
+                name={tool.name}
+                description={tool.description}
+                iconKey={tool.iconKey}
+                color={tool.color}
+                url={tool.url}
+                isNew={tool.isNew}
+                isPopular={tool.isPopular}
+              />
+            ))}
+          </div>
+        ) : (
+          <div class="text-center py-12 bg-white dark:bg-gray-800 rounded-lg shadow">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <h3 class="mt-2 text-lg font-medium text-gray-900 dark:text-white">{t('pages.tools.empty.title')}</h3>
+            <p class="mt-1 text-gray-500 dark:text-gray-400">
+              {t('pages.tools.empty.description')}
+            </p>
+          </div>
+        )}
+      </div>
+
+      <!-- Call to Action -->
+      <div class="mt-16 text-center">
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">{t('pages.tools.cta.heading')}</h2>
+        <p class="text-gray-600 dark:text-gray-300 mb-6 max-w-2xl mx-auto">
+          {t('pages.tools.cta.description')}
+        </p>
+        <a 
+          href={localizePath(locale, '/kontakt')} 
+          class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-gradient-to-r from-[#00d4aa] to-[#40e0d0] hover:opacity-90 transition-opacity"
+        >
+          {t('pages.tools.cta.button')}
+          <svg class="ml-2 -mr-1 w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+          </svg>
+        </a>
+      </div>
+    </div>
+  </main>
+</BaseLayout>
