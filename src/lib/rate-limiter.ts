@@ -60,7 +60,7 @@ export function createRateLimiter(config: RateLimitConfig) {
   
   // Gibt in regelmäßigen Abständen abgelaufene Einträge aus dem Store frei
   // (In einer Produktionsumgebung würde man einen besseren Mechanismus verwenden)
-  const cleanupInterval = setInterval(() => {
+  setInterval(() => {
     const now = Date.now();
     Object.keys(store).forEach(key => {
       if (store[key].resetAt <= now) {

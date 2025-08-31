@@ -177,10 +177,11 @@ export function withApiMiddleware(handler: ApiHandler, options: ApiMiddlewareOpt
     const method = request.method;
     
     try {
-      // Rate-Limiting anwenden
-      const rateLimitResult = await standardApiLimiter(context);
-      if (!rateLimitResult.success) {
-        return createApiError('rate_limit', 'Zu viele Anfragen. Bitte versuchen Sie es später erneut.');
+      // Rate-Limiting anwenden: Limiter gibt entweder Response (429) oder undefined zurück
+      const rateLimitResponse = await standardApiLimiter(context);
+      if (rateLimitResponse instanceof Response) {
+        // Security-Headers auch auf Rate-Limit-Antwort anwenden
+        return applySecurityHeaders(rateLimitResponse);
       }
       
       // API-Zugriff protokollieren (vor Ausführung)

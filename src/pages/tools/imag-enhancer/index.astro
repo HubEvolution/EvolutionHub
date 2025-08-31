@@ -3,10 +3,12 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import { localizePath } from '@/lib/locale-path';
 import { getLocale } from '@/lib/i18n';
 import Icon from '@/components/ui/Icon.astro';
-import { getI18n } from '@/utils/i18n';
+import { getI18n, getI18nArray } from '@/utils/i18n';
 
 const locale = getLocale(Astro.url.pathname);
 const t = getI18n(locale);
+const ta = getI18nArray(locale);
+const workflowSteps = ta('pages.tools.details.Imag-Enhancer.workflow.steps');
 
 const tool = {
   id: 'Imag-Enhancer',
@@ -22,7 +24,7 @@ const tool = {
       <div class="flex items-start gap-6">
         <div class="flex-shrink-0">
           <div class="w-20 h-20 rounded-lg flex items-center justify-center text-4xl bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200">
-            <Icon name={tool.icon} class="w-12 h-12 text-gray-800 dark:text-gray-200" ariaLabel={`${t('pages.tools.items.Imag-Enhancer.name')} Icon`} />
+            <Icon name={tool.icon} class="w-12 h-12 text-gray-800 dark:text-gray-200" ariaLabel={t('pages.tools.items.Imag-Enhancer.name')} />
           </div>
         </div>
         <div>
@@ -92,10 +94,9 @@ const tool = {
       <section class="mt-8">
         <h3 class="font-semibold text-gray-900 dark:text-white mb-3">{t('pages.tools.details.Imag-Enhancer.workflow.heading')}</h3>
         <ol class="list-decimal list-inside text-gray-600 dark:text-gray-300 space-y-2">
-          <li>{t('pages.tools.details.Imag-Enhancer.workflow.steps.0')}</li>
-          <li>{t('pages.tools.details.Imag-Enhancer.workflow.steps.1')}</li>
-          <li>{t('pages.tools.details.Imag-Enhancer.workflow.steps.2')}</li>
-          <li>{t('pages.tools.details.Imag-Enhancer.workflow.steps.3')}</li>
+          {workflowSteps.map((step) => (
+            <li>{step}</li>
+          ))}
         </ol>
       </section>
 

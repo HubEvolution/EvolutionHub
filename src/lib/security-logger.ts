@@ -98,7 +98,8 @@ export function logSecurityEvent(
     securityEventType: type, // Expliziter Typ für den Log-Eintrag
     originalDetails: details, // Die originalen Detail-Informationen
     ...(details.message && { userMessage: details.message }), // Füge eine spezifische Nachricht hinzu, falls vorhanden
-    logLevel: logLevel // Behalte das bestimmte Level bei, falls es im Kontext nützlich ist
+    logLevel: logLevel, // Behalte das bestimmte Level bei, falls es im Kontext nützlich ist
+    eventSnapshot: event // vollständiger Ereignis-Snapshot zur Nachverfolgbarkeit
   };
 
   // Rufe die zentrale log-Funktion auf, die die Nachrichten an die Clients broadcastet

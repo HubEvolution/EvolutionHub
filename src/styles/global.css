@@ -185,3 +185,30 @@ html.aos-enabled [data-aos].aos-init:not(.aos-animate) {
     --tw-prose-invert-td-borders: theme('colors.gray.700');
   }
 }
+
+/* Header top-gap pseudo mask: keeps the header visually floating (top-4) while hiding the hero color band underneath */
+#site-header.header-visible::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 1rem; /* matches mx-4 */
+  right: 1rem;
+  height: 1rem; /* matches top-4 gap */
+  border-top-left-radius: 1rem;
+  border-top-right-radius: 1rem;
+  background: #ffffff;
+  backdrop-filter: blur(12px);
+  pointer-events: none;
+  z-index: 49; /* below header (z-50) but above hero */
+}
+
+@media (min-width: 768px) {
+  #site-header.header-visible::before {
+    left: 2rem; /* md:mx-8 */
+    right: 2rem;
+  }
+}
+
+html.dark #site-header.header-visible::before {
+  background: rgba(15, 23, 42, 0.7);
+}
