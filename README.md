@@ -1,4 +1,4 @@
-ve![EvolutionHub Banner](./public/assets/svg/Banner.svg)
+![EvolutionHub Banner](./public/assets/svg/Banner.svg)
 
 [![Lizenz: MIT](https://img.shields.io/badge/Lizenz-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 ![Status: Aktiv](https://img.shields.io/badge/Status-Aktiv-brightgreen)
