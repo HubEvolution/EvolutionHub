@@ -6,7 +6,7 @@
 /* Custom base styles */
 @layer base {
   body {
-    @apply etc...
+    
     @apply antialiased text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-900;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
   }
@@ -190,4 +190,22 @@ body::before {
 #site-header {
   background: transparent !important;
   box-shadow: none !important;
+}
+
+/* Global override: Make page-level wrappers transparent so BaseLayout's global background (blobs/gradients) is dominant across all pages */
+/* Applies broadly, but keeps cards/boxes readable since they have their own bg (e.g., bg-white/dark:bg-gray-800) */
+main.min-h-screen {
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+/* Also cover common section-level full-screen wrappers, if used */
+section.min-h-screen {
+  background-color: transparent !important;
+  background-image: none !important;
+}
+/* Extend override: also make inner full-height wrappers inside main transparent (covers pages like cookie-einstellungen using a DIV wrapper) */
+main :is(div, section).min-h-screen {
+  background-color: transparent !important;
+  background-image: none !important;
 }

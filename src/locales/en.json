@@ -761,10 +761,11 @@
  ,
   "comingSoon": {
     "title": "Coming soon",
-    "description": "Our pricing page is being updated. Join the waitlist to be among the first to know.",
+    "description": "Our Plattform is being updated. Join the waitlist to be among the first to know.",
     "cta": {
       "primary": "Back to home",
-      "secondary": "Join waitlist"
+      "secondary": "Join waitlist",
+      "close": "Close"
     },
     "ariaLabel": "Notice page in progress"
   }

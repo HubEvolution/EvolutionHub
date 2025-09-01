@@ -26,6 +26,12 @@ const filteredTools = allTools.filter(tool => {
 
 // Get categories for filter (localized)
 const categories: { id: ToolCategory; name: string }[] = getToolCategories(locale);
+// Ensure Imag-Enhancer is shown first while preserving other order
+const displayTools = filteredTools.slice().sort((a, b) => {
+  if (a.id === 'Imag-Enhancer') return -1;
+  if (b.id === 'Imag-Enhancer') return 1;
+  return 0;
+});
 ---
 
 <style is:global>
@@ -34,14 +40,14 @@ const categories: { id: ToolCategory; name: string }[] = getToolCategories(local
   #coming-soon-overlay { z-index: 9999; }
   body.coming-soon-open { overflow: hidden; }
   /* Cursor and visual hint for coming soon cards */
-  article[data-coming-soon="true"] a[data-tool-link] { cursor: not-allowed; }
+  article[data-coming-soon="true"] a[data-tool-link] { cursor: not-allowed; pointer-events: none; }
   article[data-coming-soon="true"] .flex.items-center svg { opacity: 0.6; }
 </style>
 <BaseLayout 
   title={t('pages.tools.meta.title')} 
   description={t('pages.tools.meta.description')}
 >
-  <main class="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
+  <main class="min-h-screen bg-transparent py-12 px-4 sm:px-6 lg:px-8">
     <div class="max-w-7xl mx-auto">
       <div class="text-center mb-12">
         <h1 class="text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white sm:text-5xl md:text-6xl">
@@ -64,7 +70,7 @@ const categories: { id: ToolCategory; name: string }[] = getToolCategories(local
       <div id="tools-container">
         {filteredTools.length > 0 ? (
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
-            {filteredTools.map(tool => (
+            {displayTools.map(tool => (
               <ToolCard 
                 name={tool.name}
                 description={tool.description}
@@ -144,10 +150,10 @@ const categories: { id: ToolCategory; name: string }[] = getToolCategories(local
         if (!anchor) return;
         var card = anchor.closest('article[data-coming-soon="true"]');
         if (!card) return; // allow navigation for implemented tools
+        // coming soon: do nothing
         e.preventDefault();
-        if (ensureOverlay()) {
-          loadClientOnce();
-        }
+        e.stopPropagation();
+        return;
       }
 
       document.addEventListener('click', onClick);
