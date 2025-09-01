@@ -21,7 +21,7 @@ const srAltId = 'cs' + url.replace(/[^a-z0-9]+/gi, '-').toLowerCase() + '-desc';
 const comingSoonLabel = t('comingSoon.ariaLabel') || t('comingSoon.title') || 'Coming Soon';
 ---
 
-<article data-aos="fade-up" class="group relative bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300" data-coming-soon={comingSoon ? 'true' : undefined}>
+<article data-aos="fade-up" class="group relative bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden" data-coming-soon={comingSoon ? 'true' : undefined}>
   {/* Badges */}
   <div class="absolute top-4 right-4 z-20 flex space-x-2">
     {isNew && (
@@ -40,11 +40,7 @@ const comingSoonLabel = t('comingSoon.ariaLabel') || t('comingSoon.title') || 'C
       </span>
     )}
   </div>
-  {comingSoon && (
-    <div class="pointer-events-none absolute -top-2 -left-10 -rotate-45 z-20 bg-blue-600 text-white text-xs font-semibold tracking-wide px-16 py-1 shadow whitespace-nowrap">
-      {t('comingSoon.title') || 'Coming Soon'}
-    </div>
-  )}
+  {/* Variant A: Only pill badge, diagonal ribbon removed */}
   
   <div class="p-6">
     <div class={`${color} w-12 h-12 rounded-lg flex items-center justify-center text-2xl mb-4`}>
