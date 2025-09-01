@@ -113,7 +113,7 @@ export const POST = async (context: APIContext) => {
       db,
       isDevelopment: import.meta.env.DEV,
       resendApiKey: context.locals.runtime.env.RESEND_API_KEY || '',
-      fromEmail: 'EvolutionHub <noreply@hub-evolution.com>',
+      fromEmail: context.locals.runtime.env.EMAIL_FROM || 'EvolutionHub <noreply@hub-evolution.com>',
       baseUrl: context.url.origin
     };
 
@@ -128,20 +128,26 @@ export const POST = async (context: APIContext) => {
       if (import.meta.env?.DEV) console.debug('[staging][resend-verification] RESEND_API_KEY check threw', e);
     }
 
-    const emailService = createEmailService(deps);
+    let sendResult;
+try {
+  const emailService = createEmailService(deps);
+  // Verifikations-E-Mail senden
+  sendResult = await emailService.sendVerificationEmail({
+    email,
+    verificationUrl,
+    userName: user.name || user.username || undefined
+  });
+} catch (e) {
+  // Provider-/Konfig-Fehler nicht nach außen preisgeben
+  console.warn('Failed to initialize or send verification email:', e);
+  return genericOk();
+}
 
-    // Verifikations-E-Mail senden
-    const sendResult = await emailService.sendVerificationEmail({
-      email,
-      verificationUrl,
-      userName: user.name || user.username || undefined
-    });
-
-    if (!sendResult.success) {
-      // Interner Fehler beim Versand – nach außen generische Meldung
-      console.warn('Failed to send verification email:', sendResult.error);
-      return genericOk();
-    }
+if (!sendResult || !sendResult.success) {
+  // Interner Fehler beim Versand – nach außen generische Meldung
+  console.warn('Failed to send verification email:', sendResult?.error);
+  return genericOk();
+}
 
     // Staging-Debug-Logging: Message-ID + maskierte Empfängeradresse
     try {

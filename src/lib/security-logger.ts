@@ -29,7 +29,8 @@ type SecurityEventType =
   | 'SUSPICIOUS_ACTIVITY'  // Verdächtige Aktivität
   | 'API_ERROR'            // API-Fehler
   | 'API_ACCESS'           // API-Zugriff
-  | 'USER_EVENT';          // Allgemeine Benutzer-Events
+  | 'USER_EVENT'           // Allgemeine Benutzer-Events
+  | 'METRIC';              // Metrik-Events (gebündelte Telemetrie)          // Allgemeine Benutzer-Events
 
 interface SecurityEvent {
   type: SecurityEventType;
@@ -208,4 +209,47 @@ export function logAuthAttempt(ipAddress: string, details: Record<string, any> =
  */
 export function logUserEvent(userId: string, eventType: string, details: Record<string, any> = {}) {
   logSecurityEvent('USER_EVENT', { eventType, ...details }, { userId });
+}
+
+
+/**
+ * Metric-Helper (gebündelte Telemetrie über zentrale Log-Pipeline)
+ */
+export function logMetricCounter(name: string, value = 1, dims?: Record<string, any>) {
+  log('info', 'METRIC', {
+    type: 'METRIC',
+    metric: {
+      kind: 'counter',
+      name,
+      value,
+      ...(dims ? { dims } : {})
+    },
+    timestamp: Date.now()
+  });
+}
+
+export function logMetricGauge(name: string, value: number, dims?: Record<string, any>) {
+  log('info', 'METRIC', {
+    type: 'METRIC',
+    metric: {
+      kind: 'gauge',
+      name,
+      value,
+      ...(dims ? { dims } : {})
+    },
+    timestamp: Date.now()
+  });
+}
+
+export function logMetricTiming(name: string, ms: number, dims?: Record<string, any>) {
+  log('info', 'METRIC', {
+    type: 'METRIC',
+    metric: {
+      kind: 'timing',
+      name,
+      value: ms,
+      ...(dims ? { dims } : {})
+    },
+    timestamp: Date.now()
+  });
 }

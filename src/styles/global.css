@@ -209,3 +209,20 @@ main :is(div, section).min-h-screen {
   background-color: transparent !important;
   background-image: none !important;
 }
+/* Expose global blobs/gradients site‑wide:
+   Neutralize ONLY top‑level page wrappers (direct children of #main-content)
+   that set a page‑wide background, so the BaseLayout background dominates.
+   Cards/boxes deeper in the tree keep their own backgrounds and remain readable. */
+#main-content > :is(div, section, article):not(.allow-section-bg)[class*="bg-white"],
+#main-content > :is(div, section, article):not(.allow-section-bg)[class*="bg-gray-50"],
+#main-content > :is(div, section, article):not(.allow-section-bg)[class*="bg-gray-100"],
+#main-content > :is(div, section, article):not(.allow-section-bg)[class*="bg-gray-900"],
+#main-content > :is(div, section, article):not(.allow-section-bg)[class*="bg-gray-800"],
+#main-content > :is(div, section, article):not(.allow-section-bg)[class*="bg-gradient-to-"],
+#main-content > :is(div, section, article):not(.allow-section-bg)[class*="dark:bg-gray-900"],
+#main-content > :is(div, section, article):not(.allow-section-bg)[class*="dark:bg-gray-800"],
+#main-content > :is(div, section, article):not(.allow-section-bg)[class*="from-"],
+#main-content > :is(div, section, article):not(.allow-section-bg)[class*="to-"] {
+  background: transparent !important;
+  background-image: none !important;
+}

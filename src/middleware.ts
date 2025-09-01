@@ -266,7 +266,23 @@ export const onRequest = defineMiddleware(async (context, next) => {
     }
 
     const nextUrl = safeParseNext(url.searchParams.get('next')) ?? url;
-    const location = `${url.origin}${mapPathToLocale(targetLocale, nextUrl)}`;
+    // Loop-Guard: Wenn next auf /welcome zeigt, auf Startseite je nach Locale umleiten
+    let effectiveNext = nextUrl;
+    try {
+      const p = effectiveNext.pathname.replace(/\/+$/, '');
+      if (p === '/welcome' || p === '/en/welcome' || p === '/de/welcome') {
+        const fallbackPath = targetLocale === 'en' ? '/en/' : '/';
+        effectiveNext = new URL(fallbackPath, url.origin);
+        if (import.meta.env.DEV) {
+          console.log('[Middleware] set_locale loop-guard activated; next pointed to welcome. Using fallback:', { fallbackPath, targetLocale });
+        }
+      }
+    } catch (e) {
+      if (import.meta.env.DEV) {
+        console.warn('[Middleware] set_locale next parsing failed:', e);
+      }
+    }
+    const location = `${url.origin}${mapPathToLocale(targetLocale, effectiveNext)}`;
     const headers = new Headers();
     headers.set('Location', location);
     headers.set('Content-Language', targetLocale);
@@ -363,18 +379,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
     return new Response(null, { status: 302, headers });
   }
 
-  // Erste Besuche (kein Cookie, kein Locale in URL, kein Bot) -> Splash/Welcome mit next
-  // Respektiere Session-Gate, um doppelte Redirects zu vermeiden
-  if (!sessionWelcomeSeen && !cookieLocale && !existingLocale && !isApi && !isAsset && !isR2Proxy && !bot && !path.startsWith('/welcome') && !isAuthRoute(path)) {
-    const location = `${url.origin}/welcome?next=${encodeURIComponent(url.toString())}`;
-    const headers = new Headers();
-    headers.set('Location', location);
-    headers.set('Vary', 'Cookie, Accept-Language');
-    if (import.meta.env.DEV) {
-      console.log('[Middleware] First visit -> redirect to welcome:', location);
-    }
-    return new Response(null, { status: 302, headers });
-  }
+  // (Entfernt) Zweiter, redundanter Splash-Redirect-Block
 
   // Normalisiere /de/* auf kanonische URL
   // - DE ist neutral (ohne /de)

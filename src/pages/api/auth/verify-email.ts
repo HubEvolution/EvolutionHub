@@ -263,7 +263,7 @@ export const GET = async (context: APIContext) => {
         db: db,
         isDevelopment: import.meta.env.DEV,
         resendApiKey: context.locals.runtime.env.RESEND_API_KEY || '',
-        fromEmail: 'EvolutionHub <noreply@hub-evolution.com>',
+        fromEmail: context.locals.runtime.env.EMAIL_FROM || 'EvolutionHub <noreply@hub-evolution.com>',
         baseUrl: url.origin
       };
       
@@ -402,15 +402,37 @@ export async function createEmailVerificationToken(
  * Identisch zum Newsletter-Pattern
  */
 function generateSecureToken(): string {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let token = '';
-  
-  // 64-Zeichen Token generieren
-  for (let i = 0; i < 64; i++) {
-    token += chars.charAt(Math.floor(Math.random() * chars.length));
+  // Kryptografisch sichere Token-Generierung:
+  // 48 zufällige Bytes (hex) + Timestamp (base36) → nur URL-sichere Zeichen, Länge >= 64
+  try {
+    const cryptoObj = (globalThis as any).crypto;
+    if (cryptoObj && typeof cryptoObj.getRandomValues === 'function') {
+      const bytes = new Uint8Array(48); // 384 bits
+      cryptoObj.getRandomValues(bytes);
+      const hex = Array.from(bytes)
+        .map((b) => b.toString(16).padStart(2, '0'))
+        .join('');
+      return hex + Date.now().toString(36);
+    }
+  } catch {
+    // Fallback verwenden
   }
-  
-  // Timestamp-Komponente für Eindeutigkeit hinzufügen
-  return token + Date.now().toString(36);
+
+  // Fallback: randomUUID (kryptografisch stark), Bindestriche entfernen
+  const cryptoObj = (globalThis as any).crypto;
+  if (cryptoObj && typeof cryptoObj.randomUUID === 'function') {
+    let token = '';
+    for (let i = 0; i < 4; i++) {
+      token += cryptoObj.randomUUID().replace(/-/g, '');
+    }
+    return token + Date.now().toString(36);
+  }
+
+  // Letzter Fallback (nicht kryptografisch, sollte selten genutzt werden)
+  let weak = '';
+  for (let i = 0; i < 96; i++) {
+    weak += Math.floor(Math.random() * 16).toString(16);
+  }
+  return weak + Date.now().toString(36);
 }
 

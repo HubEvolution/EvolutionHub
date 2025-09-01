@@ -20,6 +20,7 @@ import {
   type EnvironmentDetector,
   type LoggerManager
 } from '../../types/logger';
+import { log } from './logger';
 
 /**
  * Umgebungs-Detektor Implementierung
@@ -127,23 +128,22 @@ class LoggerFactoryImpl implements LoggerFactoryInterface {
 
   createSecurityLogger(_config?: Partial<LoggerConfig>): SecurityLogger {
     // Config wird für spätere Implementierung gespeichert
-    // Placeholder für Security-Logger
-    // Wird in Phase 2 implementiert
+    // Implementierung über zentrale Log-Pipeline
     return {
       logSecurityEvent: (type, details, context) => {
-        console.log(`[SECURITY] ${type}:`, details, context);
+        log('info', 'SECURITY_EVENT', { type, details, ...(context || {}), timestamp: Date.now() });
       },
       logAuthSuccess: (details, context) => {
-        console.log('[SECURITY] AUTH_SUCCESS:', details, context);
+        log('info', 'AUTH_SUCCESS', { securityEventType: 'AUTH_SUCCESS', details, ...(context || {}), timestamp: Date.now() });
       },
       logAuthFailure: (details, context) => {
-        console.log('[SECURITY] AUTH_FAILURE:', details, context);
+        log('error', 'AUTH_FAILURE', { securityEventType: 'AUTH_FAILURE', details, ...(context || {}), timestamp: Date.now() });
       },
       logApiAccess: (details, context) => {
-        console.log('[SECURITY] API_ACCESS:', details, context);
+        log('info', 'API_ACCESS', { securityEventType: 'API_ACCESS', details, ...(context || {}), timestamp: Date.now() });
       },
       logApiError: (details, context) => {
-        console.log('[SECURITY] API_ERROR:', details, context);
+        log('error', 'API_ERROR', { securityEventType: 'API_ERROR', details, ...(context || {}), timestamp: Date.now() });
       }
     };
   }
