@@ -80,6 +80,7 @@ const dbMenuOptions = [
   { key: '2', label: 'Datenbank-Schema generieren', action: 'db:generate' },
   { key: '3', label: 'Migrationen ausführen', action: 'db:migrate' },
   { key: '4', label: 'D1-Datenbank anzeigen', action: 'npx --no-install wrangler d1 list' },
+  { key: '5', label: 'Remote-DB-Migrationen', action: 'remote-migrations-menu' },
   { key: '0', label: 'Zurück zum Hauptmenü', action: 'main-menu' }
 ];
 
@@ -88,7 +89,26 @@ const buildMenuOptions = [
   { key: '1', label: 'Build erstellen', action: 'build' },
   { key: '2', label: 'Build mit Watch-Modus', action: 'build:watch' },
   { key: '3', label: 'Preview starten', action: 'preview' },
+  { key: '4', label: 'Deployment', action: 'deploy-menu' },
   { key: '0', label: 'Zurück zum Hauptmenü', action: 'main-menu' }
+];
+
+// Deployment-Menü-Optionen
+const deployMenuOptions = [
+  { key: '1', label: 'Deploy zu Staging', action: 'deploy-staging' },
+  { key: '2', label: 'Deploy zu Production (mit Bestätigung)', action: 'deploy-production' },
+  { key: '3', label: 'Logs ansehen (Staging)', action: 'tail-staging' },
+  { key: '4', label: 'Logs ansehen (Production)', action: 'tail-production' },
+  { key: '5', label: 'Staging öffnen', action: 'open-staging' },
+  { key: '6', label: 'Production öffnen', action: 'open-production' },
+  { key: '0', label: 'Zurück zum Build & Deployment', action: 'build-menu' }
+];
+
+// Remote-Migrationen-Menü-Optionen
+const remoteMigrationsMenuOptions = [
+  { key: '1', label: 'Neueste Migration auf Staging anwenden', action: 'apply-latest-migration-staging' },
+  { key: '2', label: 'Neueste Migration auf Production anwenden (mit Bestätigung)', action: 'apply-latest-migration-production' },
+  { key: '0', label: 'Zurück zur DB-Verwaltung', action: 'db-menu' }
 ];
 
 // Test-Menü-Optionen
@@ -159,6 +179,140 @@ function runCommand(command: string) {
   });
 }
 
+// Hilfsfunktionen für das Deployment-Menü
+function displayDeployMenu() {
+  displayMenu(deployMenuOptions as any, 'Deployment');
+}
+
+function deployToEnv(env: 'staging' | 'production') {
+  console.clear();
+  console.log(chalk.yellow(`Starte Deployment für ${env.toUpperCase()}...`));
+  console.log(chalk.gray('-------------------------------------'));
+  try {
+    console.log(chalk.cyan('Schritt 1/2: Worker-Build ausführen (npm run build:worker)...'));
+    execSync('npm run build:worker', { stdio: 'inherit' });
+    console.log(chalk.cyan('\nSchritt 2/2: Wrangler Deploy ausführen...'));
+    execSync(`npx --no-install wrangler deploy --env ${env}`, { stdio: 'inherit' });
+    console.log(chalk.green('\n✓ Deployment abgeschlossen.'));
+  } catch (error) {
+    console.error(chalk.red(`✗ Deployment fehlgeschlagen: ${error}`));
+  }
+  console.log('');
+  rl.question(chalk.yellow('Drücken Sie Enter, um zum Deployment-Menü zurückzukehren...'), () => {
+    displayDeployMenu();
+  });
+}
+
+function confirmProductionDeploy(onConfirm: () => void) {
+  console.clear();
+  console.log(chalk.red('Achtung: Sie sind dabei, auf PRODUCTION zu deployen!'));
+  console.log('');
+  console.log(chalk.yellow('Zur Bestätigung tippen Sie bitte exakt: hub-evolution.com'));
+  rl.question(chalk.yellow('Eingabe: '), (answer) => {
+    if (answer.trim() === 'hub-evolution.com') {
+      onConfirm();
+    } else {
+      console.log(chalk.red('Abgebrochen: Eingabe stimmte nicht überein.'));
+      setTimeout(displayDeployMenu, 1500);
+    }
+  });
+}
+
+function tailEnv(env: 'staging' | 'production') {
+  console.clear();
+  console.log(chalk.yellow(`Starte Log Tail für ${env.toUpperCase()}... (Beenden mit Ctrl+C)`));
+  console.log(chalk.gray('-------------------------------------'));
+  try {
+    execSync(`npx --no-install wrangler tail --env ${env} --format=pretty`, { stdio: 'inherit' });
+  } catch (error) {
+    // tail beendet typischerweise per Ctrl+C; Fehler hier ignorieren
+  }
+  console.log('');
+  rl.question(chalk.yellow('Drücken Sie Enter, um zum Deployment-Menü zurückzukehren...'), () => {
+    displayDeployMenu();
+  });
+}
+
+function openUrl(url: string) {
+  try {
+    execSync(`open ${url}`, { stdio: 'inherit' });
+  } catch (error) {
+    console.error(chalk.red(`Konnte URL nicht öffnen: ${url}`));
+  }
+  rl.question(chalk.yellow('Drücken Sie Enter, um zum Deployment-Menü zurückzukehren...'), () => {
+    displayDeployMenu();
+  });
+}
+
+// Remote-Migrationen: Menü und Aktionen
+function displayRemoteMigrationsMenu() {
+  displayMenu(remoteMigrationsMenuOptions as any, 'Remote-DB-Migrationen');
+}
+
+async function applyLatestMigrationToEnv(env: 'staging' | 'production') {
+  console.clear();
+  console.log(chalk.yellow(`Wende neueste Migration auf ${env.toUpperCase()} an...`));
+  console.log(chalk.gray('-------------------------------------'));
+  try {
+    const fs = await import('fs');
+    const path = await import('path');
+    const { fileURLToPath } = await import('url');
+
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+    const MIGRATIONS_DIR = path.join(__dirname, '..', 'migrations');
+
+    const migrationFiles = fs.readdirSync(MIGRATIONS_DIR)
+      .filter(file => file.endsWith('.sql'))
+      .sort();
+
+    if (migrationFiles.length === 0) {
+      console.log(chalk.red('Keine Migrationsdateien gefunden.'));
+      rl.question(chalk.yellow('Enter zum Zurückkehren...'), () => displayRemoteMigrationsMenu());
+      return;
+    }
+
+    const latestMigration = migrationFiles[migrationFiles.length - 1];
+    const migrationPath = path.join(MIGRATIONS_DIR, latestMigration);
+    const dbName = getDbNameForEnv(env);
+
+    if (env === 'production') {
+      console.log(chalk.red('Achtung: Migration auf PRODUCTION!'));
+      console.log(chalk.yellow('Zur Bestätigung tippen Sie bitte exakt: hub-evolution.com'));
+      rl.question(chalk.yellow('Eingabe: '), (answer) => {
+        if (answer.trim() !== 'hub-evolution.com') {
+          console.log(chalk.red('Abgebrochen: Eingabe stimmte nicht überein.'));
+          setTimeout(displayRemoteMigrationsMenu, 1500);
+        } else {
+          try {
+            execSync(`npx --no-install wrangler d1 execute ${dbName} --env ${env} --file=${migrationPath}`, { stdio: 'inherit' });
+            console.log(chalk.green(`✓ Migration angewendet: ${latestMigration}`));
+          } catch (err) {
+            console.error(chalk.red(`✗ Fehler bei Migration: ${err}`));
+          }
+          rl.question(chalk.yellow('Enter zum Zurückkehren...'), () => displayRemoteMigrationsMenu());
+        }
+      });
+      return;
+    }
+
+    try {
+      execSync(`npx --no-install wrangler d1 execute ${dbName} --env ${env} --file=${migrationPath}`, { stdio: 'inherit' });
+      console.log(chalk.green(`✓ Migration angewendet: ${latestMigration}`));
+    } catch (err) {
+      console.error(chalk.red(`✗ Fehler bei Migration: ${err}`));
+    }
+  } catch (error) {
+    console.error(chalk.red(`Fehler beim Anwenden der Migration: ${error}`));
+  }
+  rl.question(chalk.yellow('Enter zum Zurückkehren...'), () => displayRemoteMigrationsMenu());
+}
+
+function getDbNameForEnv(env: 'staging' | 'production') {
+  // Basierend auf wrangler.toml Konfiguration
+  return env === 'production' ? 'evolution-hub-main' : 'evolution-hub-main-local';
+}
+
 // Funktion zum Anzeigen des Hauptmenüs
 function displayMainMenu() {
   displayMenu(mainMenuOptions, 'Evolution Hub Entwicklungsmenü');
@@ -189,7 +343,7 @@ function displayResetDbMenu() {
   displayMenu(resetDbMenuOptions, 'Datenbank zurücksetzen');
 }
 
-// Funktion zum Anwenden aller Migrationen
+// Funktion zum Anwenden aller Migrationen (lokal)
 async function applyAllMigrations() {
   console.clear();
   console.log(chalk.yellow('Wende alle Migrationen auf die lokale D1-Datenbank an...'));
@@ -315,6 +469,8 @@ function handleMenuSelection(answer: string, options: typeof mainMenuOptions) {
       else if (options === testMenuOptions) displayTestMenu();
       else if (options === devMenuOptions) displayDevMenu();
       else if (options === resetDbMenuOptions) displayResetDbMenu();
+      else if (options === deployMenuOptions as any) displayDeployMenu();
+      else if (options === remoteMigrationsMenuOptions as any) displayRemoteMigrationsMenu();
     }, 1500);
     return;
   }
@@ -341,6 +497,36 @@ function handleMenuSelection(answer: string, options: typeof mainMenuOptions) {
       break;
     case 'reset-db-menu':
       displayResetDbMenu();
+      break;
+    case 'deploy-menu':
+      displayDeployMenu();
+      break;
+    case 'deploy-staging':
+      deployToEnv('staging');
+      break;
+    case 'deploy-production':
+      confirmProductionDeploy(() => deployToEnv('production'));
+      break;
+    case 'tail-staging':
+      tailEnv('staging');
+      break;
+    case 'tail-production':
+      tailEnv('production');
+      break;
+    case 'open-staging':
+      openUrl('https://staging.hub-evolution.com');
+      break;
+    case 'open-production':
+      openUrl('https://hub-evolution.com');
+      break;
+    case 'remote-migrations-menu':
+      displayRemoteMigrationsMenu();
+      break;
+    case 'apply-latest-migration-staging':
+      applyLatestMigrationToEnv('staging');
+      break;
+    case 'apply-latest-migration-production':
+      applyLatestMigrationToEnv('production');
       break;
     case 'apply-all-migrations':
       applyAllMigrations();

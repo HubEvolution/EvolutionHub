@@ -6,6 +6,7 @@ import { localizePath } from '@/lib/locale-path';
 import { getLocale } from '@/lib/i18n';
 import { getI18n } from '@/utils/i18n';
 import { getAllTools, getToolCategories, type ToolCategory } from '@/lib/tools-data';
+import ComingSoon from '@/components/ui/ComingSoon.astro';
 
 // Get search params for filtering
 const searchParams = Astro.url.searchParams;
@@ -26,6 +27,16 @@ const filteredTools = allTools.filter(tool => {
 // Get categories for filter (localized)
 const categories: { id: ToolCategory; name: string }[] = getToolCategories(locale);
 ---
+
+<style is:global>
+  @import '@/styles/coming-soon.css';
+  /* Ensure overlay sits above possible page content */
+  #coming-soon-overlay { z-index: 9999; }
+  body.coming-soon-open { overflow: hidden; }
+  /* Cursor and visual hint for coming soon cards */
+  article[data-coming-soon="true"] a[data-tool-link] { cursor: not-allowed; }
+  article[data-coming-soon="true"] .flex.items-center svg { opacity: 0.6; }
+</style>
 <BaseLayout 
   title={t('pages.tools.meta.title')} 
   description={t('pages.tools.meta.description')}
@@ -62,6 +73,7 @@ const categories: { id: ToolCategory; name: string }[] = getToolCategories(local
                 url={tool.url}
                 isNew={tool.isNew}
                 isPopular={tool.isPopular}
+                comingSoon={tool.comingSoon}
               />
             ))}
           </div>
@@ -96,4 +108,49 @@ const categories: { id: ToolCategory; name: string }[] = getToolCategories(local
       </div>
     </div>
   </main>
+  
+  <!-- Coming Soon overlay template (rendered only on tool card click) -->
+  <template id="coming-soon-template">
+    <ComingSoon dismissible={true} />
+  </template>
+
+  <!-- Minimal client to open overlay on card clicks. CSP nonce applied. -->
+  <script nonce={Astro.locals.cspNonce} define:vars={{ nonce: Astro.locals.cspNonce }}>
+    (function () {
+      function ensureOverlay() {
+        if (document.getElementById('coming-soon-overlay')) return true;
+        var tpl = document.getElementById('coming-soon-template');
+        if (!tpl || !(tpl instanceof HTMLTemplateElement)) return false;
+        var node = tpl.content.firstElementChild ? tpl.content.firstElementChild.cloneNode(true) : null;
+        if (!node) return false;
+        document.body.appendChild(node);
+        return true;
+      }
+
+      function loadClientOnce() {
+        if (document.querySelector('script[data-cs-loader]')) return;
+        var s = document.createElement('script');
+        s.src = '/assets/coming-soon-client.js';
+        s.defer = true;
+        s.setAttribute('data-cs-loader', 'true');
+        if (typeof nonce === 'string' && nonce) s.setAttribute('nonce', nonce);
+        document.body.appendChild(s);
+      }
+
+      function onClick(e) {
+        var target = e.target;
+        if (!(target instanceof Element)) return;
+        var anchor = target.closest('a[data-tool-link]');
+        if (!anchor) return;
+        var card = anchor.closest('article[data-coming-soon="true"]');
+        if (!card) return; // allow navigation for implemented tools
+        e.preventDefault();
+        if (ensureOverlay()) {
+          loadClientOnce();
+        }
+      }
+
+      document.addEventListener('click', onClick);
+    })();
+  </script>
 </BaseLayout>

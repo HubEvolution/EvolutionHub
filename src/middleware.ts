@@ -86,6 +86,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
   const isProductionHost =
     requestUrl.hostname === 'hub-evolution.com';
   const isApiRoute = requestUrl.pathname.startsWith('/api/');
+  // Treat R2 proxy route as an asset-like route: must never be redirected or gated
+  // This ensures URLs like /r2-ai/ai-enhancer/uploads/... are always directly served
+  const isR2ProxyRoute = requestUrl.pathname.startsWith('/r2-ai/');
   const isAssetFile =
     /\.(css|js|mjs|map|svg|png|jpe?g|webp|gif|ico|json|xml|txt|woff2?|ttf|webmanifest)$/i.test(requestUrl.pathname) ||
     requestUrl.pathname === '/favicon.ico' ||
@@ -102,7 +105,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
     : true;
 
   // Nur in echter Produktion auf Hauptdomain schützen, nicht APIs/Assets
-  if (isProductionEnv && isProductionHost && !isApiRoute && !isAssetFile && siteAuthEnabled) {
+  if (isProductionEnv && isProductionHost && !isApiRoute && !isAssetFile && !isR2ProxyRoute && siteAuthEnabled) {
     const correctUsername = 'admin';
     const correctPassword = (context.locals.runtime?.env as any)?.SITE_PASSWORD as string | undefined;
 
@@ -297,6 +300,8 @@ export const onRequest = defineMiddleware(async (context, next) => {
     || path.startsWith('/icons/')
     || path.startsWith('/images/')
     || path.startsWith('/favicons/');
+  // Same treatment for path-based checks further down
+  const isR2Proxy = path.startsWith('/r2-ai/');
 
   const bot = isBot(context.request.headers.get('user-agent'));
 
@@ -318,7 +323,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   // Frühzeitiger Redirect: neutrale Pfade -> /en/* NUR wenn kein Cookie gesetzt ist, aber Referer EN nahelegt
   const shouldPreferEnByReferer = !cookieLocale && refererSuggestsEn;
-  if (!existingLocale && !isApi && !isAsset && shouldPreferEnByReferer && !path.startsWith('/welcome') && !isAuthRoute(path)) {
+  if (!existingLocale && !isApi && !isAsset && !isR2Proxy && shouldPreferEnByReferer && !path.startsWith('/welcome') && !isAuthRoute(path)) {
     const target = path === '/' ? '/en/' : `/en${path}`;
     const location = `${url.origin}${target}${url.search}${url.hash}`;
     const headers = new Headers();
@@ -333,7 +338,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   // Zeige Splash/Welcome beim ersten sichtbaren Besuch dieser Session
   // Überspringe Splash, wenn bereits ein Locale-Cookie vorhanden ist
-  if (!sessionWelcomeSeen && !cookieLocale && !isApi && !isAsset && !bot && !path.startsWith('/welcome') && !isAuthRoute(path) && !existingLocale) {
+  if (!sessionWelcomeSeen && !cookieLocale && !isApi && !isAsset && !isR2Proxy && !bot && !path.startsWith('/welcome') && !isAuthRoute(path) && !existingLocale) {
     try {
       // Session-Cookie (kein maxAge) setzen, damit Splash nur einmal pro Session erscheint
       context.cookies.set(sessionGateCookie, '1', {
@@ -360,7 +365,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   // Erste Besuche (kein Cookie, kein Locale in URL, kein Bot) -> Splash/Welcome mit next
   // Respektiere Session-Gate, um doppelte Redirects zu vermeiden
-  if (!sessionWelcomeSeen && !cookieLocale && !existingLocale && !isApi && !isAsset && !bot && !path.startsWith('/welcome') && !isAuthRoute(path)) {
+  if (!sessionWelcomeSeen && !cookieLocale && !existingLocale && !isApi && !isAsset && !isR2Proxy && !bot && !path.startsWith('/welcome') && !isAuthRoute(path)) {
     const location = `${url.origin}/welcome?next=${encodeURIComponent(url.toString())}`;
     const headers = new Headers();
     headers.set('Location', location);
@@ -375,7 +380,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
   // - DE ist neutral (ohne /de)
   // - EN ist unter /en/* (wenn Cookie-Präferenz 'en')
   const isDePrefixed = path === '/de' || path.startsWith('/de/');
-  if (isDePrefixed && !isApi && !isAsset && !isAuthRoute(path)) {
+  if (isDePrefixed && !isApi && !isAsset && !isR2Proxy && !isAuthRoute(path)) {
     const pathWithoutDe = path.replace(/^\/de(\/|$)/, '/');
     const target = cookieLocale === 'en'
       ? (pathWithoutDe === '/' ? '/en/' : `/en${pathWithoutDe}`)
@@ -392,7 +397,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
   }
 
   // Bot/Crawler: Splash überspringen; neutrale Pfade anhand Accept-Language für Bots umleiten
-  if (bot && !existingLocale && !isApi && !isAsset) {
+  if (bot && !existingLocale && !isApi && !isAsset && !isR2Proxy) {
     const botLocale = detectFromAcceptLanguage(context.request.headers.get('accept-language'));
     if (botLocale === 'en') {
       const target = path === '/' ? '/en/' : `/en${path}`;
@@ -409,7 +414,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
   }
 
   // Neutrale Pfade nur bei gesetztem Cookie=en auf /en/... umleiten; sonst neutral (DE) belassen
-  if (!existingLocale && !isApi && !isAsset && cookieLocale === 'en' && !path.startsWith('/welcome') && !isAuthRoute(path)) {
+  if (!existingLocale && !isApi && !isAsset && !isR2Proxy && cookieLocale === 'en' && !path.startsWith('/welcome') && !isAuthRoute(path)) {
     const target = path === '/' ? '/en/' : `/en${path}`;
     const location = `${url.origin}${target}${url.search}${url.hash}`;
     const headers = new Headers();

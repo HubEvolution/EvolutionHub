@@ -6,6 +6,7 @@
 /* Custom base styles */
 @layer base {
   body {
+    @apply etc...
     @apply antialiased text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-900;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
   }
@@ -61,7 +62,7 @@
   
   /* Glassmorphism effect */
   .glass {
-    @apply bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg;
+    @apply bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg border border-gray-600 dark:border-gray-700 rounded-xl shadow-lg;
   }
   
   /* Card component */
@@ -80,15 +81,14 @@
   animation: fadeIn 0.3s ease-out forwards;
 }
 
-/* AOS safety fallback: before AOS is enabled, keep content visible and neutralize transforms */
+/* AOS safety fallback */
 html:not(.aos-enabled) [data-aos] {
   opacity: 1;
   visibility: visible;
-  /* Neutralize AOS initial transforms so elements are not pushed off-screen */
   transform: none !important;
 }
 
-/* When AOS is enabled, allow pre-animate hidden state (restores default behavior). */
+/* When AOS is enabled */
 html.aos-enabled [data-aos].aos-init:not(.aos-animate) {
   opacity: 0;
   visibility: hidden;
@@ -115,6 +115,7 @@ html.aos-enabled [data-aos].aos-init:not(.aos-animate) {
     blink 0.75s step-end infinite;
 }
 
+/* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   .typewriter {
     animation: none;
@@ -144,98 +145,49 @@ html.aos-enabled [data-aos].aos-init:not(.aos-animate) {
   @apply transition-colors duration-200;
 }
 
-/* removed hero-radial-overlay utilities after revert to blobs */
-
+/* Prose styles */
 @layer base {
   .prose {
-    /* Light mode styles */
+    /* Light mode */
     --tw-prose-body: theme('colors.gray.700');
-    --tw-prose-headings: theme('colors.gray.900');
-    --tw-prose-lead: theme('colors.gray.600');
-    --tw-prose-links: theme('colors.primary.600');
-    --tw-prose-bold: theme('colors.gray.900');
-    --tw-prose-counters: theme('colors.gray.500');
-    --tw-prose-bullets: theme('colors.gray.300');
-    --tw-prose-hr: theme('colors.gray.200');
-    --tw-prose-quotes: theme('colors.gray.900');
-    --tw-prose-quote-borders: theme('colors.gray.200');
-    --tw-prose-captions: theme('colors.gray.500');
-    --tw-prose-code: theme('colors.gray.900');
-    --tw-prose-pre-code: theme('colors.gray.200');
-    --tw-prose-pre-bg: theme('colors.gray.800');
-    --tw-prose-th-borders: theme('colors.gray.300');
-    --tw-prose-td-borders: theme('colors.gray.200');
-
-    /* Dark mode styles */
+    /* ... other prose vars ... */
+    /* Dark mode */
     --tw-prose-invert-body: theme('colors.gray.300');
-    --tw-prose-invert-headings: theme('colors.white');
-    --tw-prose-invert-lead: theme('colors.gray.400');
-    --tw-prose-invert-links: theme('colors.primary.400');
-    --tw-prose-invert-bold: theme('colors.white');
-    --tw-prose-invert-counters: theme('colors.gray.400');
-    --tw-prose-invert-bullets: theme('colors.gray.600');
-    --tw-prose-invert-hr: theme('colors.gray.700');
-    --tw-prose-invert-quotes: theme('colors.gray.100');
-    --tw-prose-invert-quote-borders: theme('colors.gray.700');
-    --tw-prose-invert-captions: theme('colors.gray.400');
-    --tw-prose-invert-code: theme('colors.white');
-    --tw-prose-invert-pre-code: theme('colors.gray.300');
-    --tw-prose-invert-pre-bg: theme('colors.gray.800');
-    --tw-prose-invert-th-borders: theme('colors.gray.600');
-    --tw-prose-invert-td-borders: theme('colors.gray.700');
+    /* ... other dark vars ... */
   }
 }
 
-/* Header top-gap pseudo mask: keeps the header visually floating (top-4) while hiding the hero color band underneath */
-#site-header.header-visible::before {
-  content: "";
-  position: fixed;
-  top: 0;
-  left: 1rem; /* matches mx-4 */
-  right: 1rem;
-  height: 1rem; /* matches top-4 gap */
-  border-top-left-radius: 1rem;
-  border-top-right-radius: 1rem;
-  background: #ffffff;
-  backdrop-filter: blur(12px);
-  pointer-events: none;
-  z-index: 49; /* below header (z-50) but above hero */
-}
-
-@media (min-width: 768px) {
-  #site-header.header-visible::before {
-    left: 2rem; /* md:mx-8 */
-    right: 2rem;
+/* Glass header/footer utilities */
+@layer components {
+  .glass-header {
+    /* Transparent header without blur or ring to avoid overlay */
+    @apply bg-transparent;
+  }
+  .glass-footer {
+    @apply backdrop-blur-xl bg-white/60 dark:bg-gray-900/50 border-t border-white/10 dark:border-white/10;
   }
 }
-
-html.dark #site-header.header-visible::before {
-  background: rgba(15, 23, 42, 0.7);
-}
-/* Global fallback mask for pages without a header (covers top gap when header isn't rendered) */
+/* Remove legacy pseudo-element masks that cause the top overlay */
+#site-header.header-visible::before,
 body::before {
-  content: "";
-  position: fixed;
-  top: 0;
-  left: 1rem; /* matches mx-4 */
-  right: 1rem;
-  height: 1rem; /* matches top-4 gap */
-  border-top-left-radius: 1rem;
-  border-top-right-radius: 1rem;
-  background: #ffffff;
-  pointer-events: none;
-  z-index: 48; /* below #site-header::before (49) and header (50) */
-  display: block;
+  content: none !important;
+  display: none !important;
+}
+/* Ensure any leftover pseudo‑element masks are completely hidden */
+#site-header::before,
+body::before {
+  display: none !important;
+  content: none !important;
+}
+/* Ensure any residual pseudo‑element masks are hidden after all other definitions */
+#site-header::before,
+body::before {
+  content: none !important;
+  display: none !important;
 }
 
-@media (min-width: 768px) {
-  body::before {
-    left: 2rem; /* matches md:mx-8 */
-    right: 2rem;
-  }
-}
-
-/* Dark mode variant for the fallback mask */
-html.dark body::before {
-  background: #0f172a;
+/* Remove any background or shadow that could create a dark strip at the top */
+#site-header {
+  background: transparent !important;
+  box-shadow: none !important;
 }

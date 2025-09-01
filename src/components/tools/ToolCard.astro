@@ -7,9 +7,10 @@ interface Props {
   url: string;
   isNew?: boolean;
   isPopular?: boolean;
+  comingSoon?: boolean;
 }
 
-const { name, description, iconKey, color, url, isNew = false, isPopular = false } = Astro.props;
+const { name, description, iconKey, color, url, isNew = false, isPopular = false, comingSoon = false } = Astro.props;
 import Icon from '@/components/ui/Icon.astro';
 import { localizePath } from '@/lib/locale-path';
 import { getLocale } from '@/lib/i18n';
@@ -18,7 +19,7 @@ import { getI18n } from '@/utils/i18n';
 const t = getI18n(locale);
 ---
 
-<article data-aos="fade-up" class="group relative bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden">
+<article data-aos="fade-up" class="group relative bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden" data-coming-soon={comingSoon ? 'true' : undefined}>
   {/* Badges */}
   <div class="absolute top-4 right-4 flex space-x-2">
     {isNew && (
@@ -43,7 +44,7 @@ const t = getI18n(locale);
     </div>
     
     <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-2">
-      <a href={localizePath(locale, url)} class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors" aria-label={`${t('pages.tools.card.more_about_prefix')} ${name}`}>
+      <a data-tool-link href={localizePath(locale, url)} class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors" aria-label={`${t('pages.tools.card.more_about_prefix')} ${name}`}>
         {name}
         <span class="absolute inset-0" aria-hidden="true"></span>
       </a>

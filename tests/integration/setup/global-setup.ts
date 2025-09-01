@@ -51,7 +51,11 @@ export default async function () {
 
   // 1) Setup local dev resources (DB/KV/R2/test user)
   await new Promise<void>((resolve, reject) => {
-    const p = spawn('npm', ['run', 'db:setup'], { cwd: rootDir, stdio: 'inherit' });
+    const p = spawn('npm', ['run', 'db:setup'], {
+      cwd: rootDir,
+      stdio: 'inherit',
+      env: { ...process.env, CI: '1' },
+    });
     p.on('exit', (code) => (code === 0 ? resolve() : reject(new Error(`db:setup exited ${code}`))));
   });
 
@@ -67,7 +71,7 @@ export default async function () {
   // 3) Start wrangler dev without rebuilding (serve prebuilt worker)
   serverProcess = spawn('npm', ['run', 'dev:worker:nobuild'], {
     cwd: rootDir,
-    env: { ...process.env, NODE_ENV: 'test' },
+    env: { ...process.env, NODE_ENV: 'test', CI: '1', npm_config_yes: 'true' },
     detached: false,
   });
 
@@ -77,10 +81,18 @@ export default async function () {
     logs += s;
     // eslint-disable-next-line no-console
     console.log('[dev]', s.trim());
-    const m = logs.match(/https?:\/\/(localhost|127\.0\.0\.1):\d+/);
-    if (m) {
-      TEST_URL = m[0];
-    }
+    // Prefer canonical host 'localhost'. If both schemes appear, prefer HTTPS.
+    // Otherwise, choose whatever is available (including default http://localhost:8787).
+    const httpsMatches = logs.match(/https:\/\/(localhost|127\.0\.0\.1):\d+/g) || [];
+    const httpMatches = logs.match(/http:\/\/(localhost|127\.0\.0\.1):\d+/g) || [];
+    const httpsLocalhost = httpsMatches.find((u) => u.includes('https://localhost:'));
+    const httpLocalhost = httpMatches.find((u) => u.includes('http://localhost:'));
+    const httpsLoopback = httpsMatches.find((u) => u.includes('https://127.0.0.1:'));
+    const httpLoopback = httpMatches.find((u) => u.includes('http://127.0.0.1:'));
+    if (httpsLocalhost) TEST_URL = httpsLocalhost;
+    else if (httpLocalhost) TEST_URL = httpLocalhost;
+    else if (httpsLoopback) TEST_URL = httpsLoopback;
+    else if (httpLoopback) TEST_URL = httpLoopback;
   };
   serverProcess.stdout?.on('data', detectUrl);
   serverProcess.stderr?.on('data', detectUrl);
@@ -91,7 +103,7 @@ export default async function () {
   while (Date.now() - start < maxWaitTime) {
     if (!TEST_URL) {
       // After some delay, try common wrangler ports/schemes/hosts
-      if (Date.now() - start > 20000) {
+      if (Date.now() - start > 5000) {
         const ports = [8787, 8788, 8790, 8791];
         const schemes = ['http', 'https'] as const;
         const hosts = ['127.0.0.1', 'localhost'] as const;
@@ -113,6 +125,17 @@ export default async function () {
     await wait(300);
   }
 
+  // Normalize to localhost (instead of 127.0.0.1) when possible to avoid potential redirects
+  if (TEST_URL && /:\/\/(127\.0\.0\.1):\d+/.test(TEST_URL)) {
+    try {
+      const u = new URL(TEST_URL);
+      const alt = `${u.protocol}//localhost:${u.port}`;
+      if (await probeForUrl(alt)) {
+        TEST_URL = alt;
+      }
+    } catch {}
+  }
+
   if (!TEST_URL || !(await probeForUrl(TEST_URL))) {
     // eslint-disable-next-line no-console
     console.error('Dev server readiness failed. TEST_URL currently =', TEST_URL);
@@ -120,6 +143,8 @@ export default async function () {
   }
 
   process.env.TEST_BASE_URL = TEST_URL;
+  // eslint-disable-next-line no-console
+  console.log('[setup] TEST_BASE_URL =', TEST_URL);
 
   // Provide global teardown
   return async () => {

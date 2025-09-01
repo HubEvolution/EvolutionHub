@@ -10,11 +10,13 @@ export interface Tool {
   url: string;
   isNew?: boolean;
   isPopular?: boolean;
+  comingSoon?: boolean;
 }
 
 import { getI18n } from '@/utils/i18n';
+import type { Locale } from '@/lib/i18n';
 
-export function getAllTools(locale: string): Tool[] {
+export function getAllTools(locale: Locale): Tool[] {
   const t = getI18n(locale);
   return [
     {
@@ -25,7 +27,8 @@ export function getAllTools(locale: string): Tool[] {
       iconKey: 'laptop',
       color: 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200',
       url: '/tools/code-review',
-      isPopular: true
+      isPopular: true,
+      comingSoon: true
     },
     {
       id: 'design-system',
@@ -35,7 +38,8 @@ export function getAllTools(locale: string): Tool[] {
       iconKey: 'palette',
       color: 'bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200',
       url: '/tools/design-system',
-      isNew: true
+      isNew: true,
+      comingSoon: true
     },
     {
       id: 'seo-analyzer',
@@ -45,7 +49,8 @@ export function getAllTools(locale: string): Tool[] {
       iconKey: 'search',
       color: 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200',
       url: '/tools/seo-analyzer',
-      isPopular: true
+      isPopular: true,
+      comingSoon: true
     },
     {
       id: 'api-tester',
@@ -54,7 +59,8 @@ export function getAllTools(locale: string): Tool[] {
       category: ['development'],
       iconKey: 'rocket',
       color: 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200',
-      url: '/tools/api-tester'
+      url: '/tools/api-tester',
+      comingSoon: true
     },
     {
       id: 'content-generator',
@@ -62,9 +68,10 @@ export function getAllTools(locale: string): Tool[] {
       description: t('pages.tools.items.content-generator.description'),
       category: ['ai', 'marketing'],
       iconKey: 'edit',
-      color: 'bg-pink-100 dark:bg-pink-900 text-pink-800 dark:text-pink-200',
+      color: 'bg-pink-100 dark:bg-pink-900 text-pink-800',
       url: '/tools/content-generator',
-      isNew: true
+      isNew: true,
+      comingSoon: true
     },
     {
       id: 'performance-monitor',
@@ -73,7 +80,8 @@ export function getAllTools(locale: string): Tool[] {
       category: ['development', 'productivity'],
       iconKey: 'chart',
       color: 'bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200',
-      url: '/tools/performance-monitor'
+      url: '/tools/performance-monitor',
+      comingSoon: true
     },
     {
       id: 'Imag-Enhancer',
@@ -82,14 +90,15 @@ export function getAllTools(locale: string): Tool[] {
       category: ['development'],
       iconKey: 'tool',
       color: 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200',
-      url: '/tools/imag-enhancer',
+      url: '/tools/imag-enhancer/app',
       isNew: true,
-      isPopular: false
+      isPopular: false,
+      comingSoon: false
     }
   ];
 }
 
-export function getToolCategories(locale: string): { id: ToolCategory; name: string }[] {
+export function getToolCategories(locale: Locale): { id: ToolCategory; name: string }[] {
   const t = getI18n(locale);
   return [
     { id: 'all', name: t('pages.tools.categories.all') },

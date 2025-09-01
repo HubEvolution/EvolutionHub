@@ -18,11 +18,8 @@ export const COMING_SOON_PATTERNS: string[] = [
   '/kontakt',
   '/agb',
   '/impressum',
-  '/dashboard',
-  '/tools',
   '/pricing',
   '/account/settings',
-  '/debug',
 ];
 
 function normalizePath(pathname: string): string {
