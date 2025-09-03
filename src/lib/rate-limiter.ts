@@ -60,7 +60,7 @@ export function createRateLimiter(config: RateLimitConfig) {
   
   // Gibt in regelmäßigen Abständen abgelaufene Einträge aus dem Store frei
   // (In einer Produktionsumgebung würde man einen besseren Mechanismus verwenden)
-  const cleanupInterval = setInterval(() => {
+  setInterval(() => {
     const now = Date.now();
     Object.keys(store).forEach(key => {
       if (store[key].resetAt <= now) {
@@ -158,4 +158,18 @@ export const apiRateLimiter = createRateLimiter({
   maxRequests: 30,
   windowMs: 60 * 1000, // 1 Minute
   name: 'api'
+});
+
+// Für asynchrone AI-Job-Endpunkte (strenger: 10 Anfragen pro Minute)
+export const aiJobsLimiter = createRateLimiter({
+  maxRequests: 10,
+  windowMs: 60 * 1000, // 1 Minute
+  name: 'aiJobs'
+});
+
+// Für synchrone AI-Generierung (strenger als allgemeine API: 15 Anfragen pro Minute)
+export const aiGenerateLimiter = createRateLimiter({
+  maxRequests: 15,
+  windowMs: 60 * 1000, // 1 Minute
+  name: 'aiGenerate'
 });

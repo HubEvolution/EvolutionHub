@@ -34,6 +34,7 @@
    enableAnalytics?: boolean;
    noIndex?: boolean;
    comingSoon?: boolean;
+   disableGlobalBg?: boolean; // optional: globalen Hintergrund deaktivieren
  }
  
  const props = Astro.props as Props;
@@ -48,6 +49,7 @@
  const { enableAOS = true, enableAnalytics = true } = props;
  const { hideHeader = false, hideFooter = false } = props;
  const { noIndex = false } = props;
+ const { disableGlobalBg = false } = props;
  
  // Get locale from URL
  const locale = getLocale(Astro.url.pathname);
@@ -153,6 +155,20 @@
    <body class={bodyClass}>
        <ThemeProvider />
        <SkipLink />
+
+       {/* Globaler technischer Hintergrund (Light/Dark), hinter Header + Content */}
+       {!disableGlobalBg && (
+         <div id="global-bg" aria-hidden="true" class="fixed inset-0 -z-10 pointer-events-none overflow-hidden">
+           <div class="absolute inset-0 bg-gradient-to-br from-primary/20 to-purple-500/20 dark:from-primary/10 dark:to-purple-500/10"></div>
+           <!-- Top left -->
+           <div class="absolute -top-16 -left-16 w-[36rem] h-[36rem] rounded-full bg-emerald-400/90 dark:bg-emerald-500/45 blur-3xl mix-blend-overlay dark:mix-blend-screen saturate-200 brightness-160 dark:saturate-100 dark:brightness-90 animate-blob-1"></div>
+           <!-- Bottom right -->
+           <div class="absolute -bottom-20 -right-10 w-[40rem] h-[40rem] rounded-full bg-cyan-400/90 dark:bg-cyan-500/45 blur-3xl mix-blend-overlay dark:mix-blend-screen saturate-200 brightness-160 dark:saturate-100 dark:brightness-90 animate-blob-2"></div>
+           <!-- Center -->
+           <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[28rem] h-[28rem] rounded-full bg-purple-400/80 dark:bg-purple-500/40 blur-3xl mix-blend-overlay dark:mix-blend-screen saturate-200 brightness-160 dark:saturate-100 dark:brightness-90 animate-blob-3"></div>
+         </div>
+       )}
+       
        {!hideHeader && <Header />}
        <main id="main-content" class="flex-grow focus:outline-none" tabindex="-1">
          <slot />
@@ -233,7 +249,7 @@
            } catch {}
            return { necessary: true, analytics: false, marketing: false };
          }
-
+ 
          let lastKey = '';
          function dispatchIfChanged() {
            try {
@@ -248,7 +264,7 @@
              console.warn('[CookieConsent] Konnte Consent-Event nicht dispatchen:', e);
            }
          }
-
+ 
          function initCookieConsent() {
            if (window.CookieConsent) {
              window.CookieConsent.run({
@@ -295,7 +311,7 @@
              setTimeout(initCookieConsent, 100);
            }
          }
-
+ 
          // Initiales Event & Start
          dispatchIfChanged();
          initCookieConsent();

@@ -38,47 +38,68 @@
     "home": {
       "features": {
         "feature1": {
-          "icon": "✨",
+          "icon": "celebration",
           "title": "Generate Code",
           "description": "Whether you want to generate code, create content, or analyze complex data – our platform supports you every step of the way."
         },
         "feature2": {
-          "icon": "🚀",
+          "icon": "rocket",
           "title": "Automated Tests",
           "description": "Optimize your testing process with intelligent automation capabilities."
         },
         "feature3": {
-          "icon": "💡",
+          "icon": "lightbulb",
           "title": "Intelligent Debugging",
           "description": "Identify and fix bugs faster with AI-powered debugging tools."
         },
         "heading": "The future of AI-powered development",
-        "subtitle": "Discover the power of AI-driven tools to streamline your workflow and boost productivity."
+        "subtitle": "Explore our core capabilities — from code generation and automated testing to intelligent debugging."
       },
       "testimonials": {
-        "heading": "What our users say",
-        "subtitle": "Hear from developers who are revolutionizing their workflow with Evolution Hub.",
-        "testimonial1": {
-          "quote": "Evolution Hub has revolutionized the way I write code. The AI features save me hours of work every week!",
-          "author": "Jane Doe",
-          "role": "Lead Developer at TechCorp"
-        }
-      },
+  "heading": "What our users say about Imag-Enhancer",
+  "subtitle": "Notes from people who use Imag‑Enhancer in real work — what actually helped.",
+  "testimonial1": {
+    "quote": "I had a batch of dim café shots at ISO 3200. Imag‑Enhancer took the noise down without plastic skin. I nudged contrast a bit and sent them off the same night.",
+    "author": "Amira K.",
+    "role": "Freelance photographer"
+  },
+  "testimonial2": {
+    "quote": "We list second‑hand gear. Phone photos on creased paper used to look messy. Batch denoise + a gentle sharpen made everything consistent. Retouching went from two days to one afternoon.",
+    "author": "Diego R.",
+    "role": "Ops at a small e‑commerce"
+  },
+  "testimonial3": {
+    "quote": "We needed clean 4× crops for a hero banner. The upscaler kept edges calm—no halos—and colors stayed honest. It's just another tiny step in our Figma → prod checklist now.",
+    "author": "Nina P.",
+    "role": "Design lead"
+  },
+  "testimonial4": {
+    "quote": "Clients send tiny JPEG logos five minutes before print. The upscaler gave us clean edges for A3 flyers—no stair‑steps—so we stopped chasing 'the original file' in panic.",
+    "author": "Leila M.",
+    "role": "Owner, small creative agency"
+  },
+  "testimonial5": {
+    "quote": "We pull stills from product videos for listings. Denoise + detail brings edges back so on‑screen text stays readable. It’s the difference between ‘looks okay’ and ‘looks crisp’.",
+    "author": "Tom S.",
+    "role": "Content manager, retail brand"
+  }
+},
       "introduction": {
         "part1": "Evolution Hub offers an innovative collection of AI-powered tools designed specifically for developers and creators. With our AI-powered tools, you can optimize your workflow, automate repetitive tasks, and increase your productivity. Whether you want to generate code, create content, or analyze complex data – our platform supports you every step of the way.",
         "part2": "The intelligent combination of artificial intelligence and user-friendly design allows you to unleash your creativity and bring projects to life faster. Discover our powerful features and learn how you can shape the future of software development and content creation with Evolution Hub.",
         "part3_de": "Our advanced algorithms and user-friendly interfaces work together seamlessly to provide you with the best possible developer experience. From the initial idea to the final implementation – Evolution Hub accompanies you through every step of your creative process.",
         "part4_de": "Harness the power of artificial intelligence to simplify complex tasks, develop innovative solutions, and take your projects to the next level. With Evolution Hub, you shape the future of digital development."
       },
-      "title": "Welcome to Evolution Hub",
+      "title": "Evolution Hub",
       "hero": {
-        "title_part1": "Welcome to Evolution Hub",
+        "title_part1": "Evolution Hub",
         "title_part2": "The future of AI-powered development",
         "subtitle": "Discover the power of AI-driven tools to streamline your workflow and boost productivity.",
         "get_started_button": "Get started",
         "documentation_link": "View documentation",
+        "tools_link": "View our tools",
         "typewriter": [
-          "Generate Code",
+          "IMAG'-Enhancer",
           "Automated Tests",
           "Intelligent Debugging"
         ]
@@ -94,13 +115,145 @@
       "backToRegister": "← Back to registration",
       "supportLine": "Problems? Contact us at",
       "resend": {
-        "btnDefault": "📧 Resend email",
-        "success": "✅ Verification email re-sent! Check your inbox.",
+        "btnDefault": "Resend email",
+        "success": "Verification email re-sent! Check your inbox.",
         "error": "Failed to send the email. Please try again later.",
         "missingEmail": "Email address unavailable. Please register again.",
-        "sending": "⏳ Sending...",
-        "countdown": "⏳ Resend ({s}s)",
+        "sending": "Sending...",
+        "countdown": "Resend ({s}s)",
         "unexpected": "An unexpected error occurred. Please try again later."
+      }
+    },
+    "tools": {
+      "meta": {
+        "title": "Tools – Evolution Hub",
+        "description": "Discover our powerful tools for developers, designers, and content creators. Boost your productivity with our AI-powered solutions."
+      },
+      "heading": "Our Tools",
+      "subheading": "Explore powerful tools for developers, designers, and content creators",
+      "filter": {
+        "search_placeholder": "Search tools..."
+      },
+      "results": {
+        "singular": "result",
+        "plural": "results",
+        "found_suffix": "found"
+      },
+      "badges": {
+        "new": "New",
+        "popular": "Popular"
+      },
+      "card": {
+        "more": "Learn more",
+        "more_about_prefix": "More about"
+      },
+      "categories": {
+        "all": "All Tools",
+        "ai": "AI & Machine Learning",
+        "development": "Development",
+        "design": "Design",
+        "productivity": "Productivity",
+        "marketing": "Marketing"
+      },
+      "empty": {
+        "title": "No tools found",
+        "description": "Try a different search term or category."
+      },
+      "cta": {
+        "heading": "Missing a specific tool?",
+        "description": "We continuously build new tools and features. Tell us what you need!",
+        "button": "Suggest a tool"
+      },
+      "items": {
+        "code-review": {
+          "name": "Code Review Assistant",
+          "description": "AI-powered code review tool that detects issues and suggests improvements."
+        },
+        "design-system": {
+          "name": "Design System Builder",
+          "description": "Create and manage a consistent design system with reusable components."
+        },
+        "seo-analyzer": {
+          "name": "SEO Analyzer",
+          "description": "Analyzes page content and metrics to improve search engine visibility."
+        },
+        "api-tester": {
+          "name": "API Tester",
+          "description": "Send requests, inspect responses, and efficiently test endpoints."
+        },
+        "content-generator": {
+          "name": "Content Generator",
+          "description": "Generate high-quality text with AI – from descriptions to blog drafts."
+        },
+        "performance-monitor": {
+          "name": "Performance Monitor",
+          "description": "Monitors performance metrics and highlights optimization opportunities."
+        },
+        "Imag-Enhancer": {
+          "name": "Imag-Enhancer",
+          "description": "Automatically improves image quality: AI-based denoising, detail sharpening, high-quality upscaling, and color/contrast optimization — adjustable levels for single and batch processing.",
+          "app": {
+            "dropText": "Drop an image here or click to select",
+            "enhance": "Enhance",
+            "processing": "Processing...",
+            "model": "Model",
+            "usage": "Usage",
+            "result": "Result",
+            "original": "Original",
+            "allowedTypes": "Allowed types",
+            "max": "Max",
+            "download": "Download",
+            "loading": "Loading...",
+            "quotaBanner": "Usage limit reached. Try again later or sign in for higher limits.",
+            "toasts": {
+              "loadQuotaError": "Failed to load quota information.",
+              "loadError": "Failed to load. Please try again.",
+              "quotaReached": "You’ve reached your usage limit.",
+              "unsupportedType": "Unsupported file type.",
+              "fileTooLargePrefix": "File is too large. Max:",
+              "processingFailed": "Processing failed. Please try again.",
+              "successEnhanced": "Image enhanced successfully!"
+            },
+            "compare": {
+              "sliderLabel": "Compare",
+              "before": "Before",
+              "after": "After",
+              "handleAriaLabel": "Drag to compare",
+              "keyboardHint": "Use Left/Right to adjust; Home/End to reset",
+              "reset": "Reset"
+            }
+          }
+        }
+      },
+      "details": {
+        "Imag-Enhancer": {
+          "back": "Back to overview",
+          "badge_new": "New",
+          "open": "Open tool",
+          "support": "Support & Feedback",
+          "features": {
+            "heading": "Features",
+            "upscaling": { "title": "AI-powered upscaling", "description": "Upscale images without visible quality loss." },
+            "denoise_sharpen": { "title": "Denoising & sharpening", "description": "Reduces noise and restores fine details." },
+            "fine_tuning": { "title": "Fine-tuning & presets", "description": "Preset profiles and manual sliders for tailored results." },
+            "batch": { "title": "Batch processing", "description": "Process multiple files at once for efficient workflows." }
+          },
+          "privacy": {
+            "heading": "Privacy & processing",
+            "text": "Imag-Enhancer can run on our servers or locally (depending on the integration). Sensitive data should be processed locally; contact us for self-host options."
+          },
+          "workflow": {
+            "heading": "Example workflow",
+            "steps": [
+              "Upload an image or drop it via drag & drop.",
+              "Select a preset or adjust settings manually.",
+              "Check the preview and choose a quality level.",
+              "Process single images or start batch processing."
+            ]
+          },
+          "try": "Try it now",
+          "longDescription": "Imag-Enhancer leverages modern neural models to automatically optimize photos and graphics. Choose presets or fine-tune denoising, sharpness, color correction, and upscaling. Supports single and batch processing and respects privacy by offering optional local processing."
+        }
       }
     },
     "pricing": {
@@ -224,11 +377,11 @@
           "headline": "Image Credits",
           "description": "The images and graphics used on this website are subject to the copyright of Evolution Hub GmbH or are license-free stock photos from third-party providers."
         },
-        "phone_number": "",
-        "address_label": "",
-        "response_time_label": "",
-        "response_time": "",
-        "response_time_unit": ""
+        "phone_number": "+00 000 0000000",
+        "address_label": "Address",
+        "response_time_label": "Average response time:",
+        "response_time": "within 24h",
+        "response_time_unit": "on business days."
       },
       "source_label": "Source:",
       "source_url": "https://www.e-recht24.de",
@@ -425,80 +578,80 @@
       }
     },
     "impressum": {
-      "title": "",
+      "title": "Legal Notice (Impressum)",
       "section_intro": {
-        "heading": ""
+        "heading": "Provider Identification"
       },
       "sections": {
         "provider": {
-          "headline": "",
-          "company_name": "",
-          "street_address": "",
-          "city_postal_code": "",
-          "country": ""
+          "headline": "Provider",
+          "company_name": "To be provided",
+          "street_address": "To be provided",
+          "city_postal_code": "To be provided",
+          "country": "To be provided"
         },
         "contact": {
-          "headline": "",
-          "phone": "",
-          "fax": "",
-          "email": "",
-          "website": ""
+          "headline": "Contact",
+          "phone": "+00 000 0000000",
+          "fax": "+00 000 0000000",
+          "email": "contact@example.com",
+          "website": "https://example.com"
         },
         "represented_by": {
-          "headline": "",
-          "managing_directors": ""
+          "headline": "Represented by",
+          "managing_directors": "To be provided"
         },
         "registration": {
-          "headline": "",
-          "register_entry": "",
-          "register_court": "",
-          "register_number": ""
+          "headline": "Commercial Register",
+          "register_entry": "To be provided",
+          "register_court": "To be provided",
+          "register_number": "To be provided"
         },
         "vat": {
-          "headline": "",
-          "vat_id_label": "",
-          "vat_id": ""
+          "headline": "VAT Information",
+          "vat_id_label": "VAT ID",
+          "vat_id": "To be provided"
         },
         "content_responsible": {
-          "headline": "",
-          "name": "",
-          "street": "",
-          "city_postal_code": ""
+          "headline": "Responsible for Content",
+          "name": "To be provided",
+          "street": "To be provided",
+          "city_postal_code": "To be provided"
         },
         "dispute_resolution": {
-          "headline": "",
-          "os_platform_intro": "",
-          "os_platform_url": "",
-          "email_note": "",
-          "participation_statement": ""
+          "headline": "Dispute Resolution",
+          "os_platform_intro": "To be provided",
+          "os_platform_url": "https://example.com",
+          "email_note": "To be provided",
+          "participation_statement": "To be provided"
         },
         "disclaimer": {
-          "headline": "",
+          "headline": "Disclaimer",
           "content_liability": {
-            "headline": "",
-            "paragraph1": "",
-            "paragraph2": ""
+            "headline": "Liability for Content",
+            "paragraph1": "To be provided",
+            "paragraph2": "To be provided"
           },
           "link_liability": {
-            "headline": "",
-            "paragraph1": "",
-            "paragraph2": ""
+            "headline": "Liability for Links",
+            "paragraph1": "To be provided",
+            "paragraph2": "To be provided"
           },
           "copyright": {
-            "headline": "",
-            "paragraph1": "",
-            "paragraph2": ""
+            "headline": "Copyright",
+            "paragraph1": "To be provided",
+            "paragraph2": "To be provided"
           }
         },
         "image_credits": {
-          "headline": "",
-          "description": ""
+          "headline": "Image Credits",
+          "description": "The images and graphics used on this website are subject to the copyright of Evolution Hub GmbH or are license-free stock photos from third-party providers."
         }
       },
-      "source_label": "",
-      "source_url": "",
-      "source_name": "",
-      "source_attribution": ""
+      "source_label": "Source:",
+      "source_url": "https://www.e-recht24.de",
+      "source_name": "e-recht24.de",
+      "source_attribution": "e-recht24.de"
     },
     "resetPassword": {
       "title": "Reset your password",
@@ -636,13 +789,14 @@
     "get_started_button": "Get started",
     "documentation_link": "View documentation"
   }
-,
+ ,
   "comingSoon": {
     "title": "Coming soon",
-    "description": "Our pricing page is being updated. Join the waitlist to be among the first to know.",
+    "description": "Our Plattform is being updated. Join the waitlist to be among the first to know.",
     "cta": {
       "primary": "Back to home",
-      "secondary": "Join waitlist"
+      "secondary": "Join waitlist",
+      "close": "Close"
     },
     "ariaLabel": "Notice page in progress"
   }

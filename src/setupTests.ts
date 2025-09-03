@@ -27,7 +27,7 @@ interface AstroGlobal {
 }
 
 declare global {
-  // eslint-disable-next-line no-var
+   
   var Astro: AstroGlobal;
 }
 

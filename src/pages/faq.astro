@@ -4,6 +4,7 @@ import { getI18n } from '@/utils/i18n';
 import { getLocale } from '@/lib/i18n';
 import deTranslations from '../locales/de.json';
 import enTranslations from '../locales/en.json';
+import Icon from '@/components/ui/Icon.astro';
 
 // Icons als SVG-Strings, um Abhängigkeiten zu vermeiden
 const ChevronDown = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 text-gray-500 transition-transform duration-200"><path d="m6 9 6 6 6-6"/></svg>';
@@ -136,7 +137,7 @@ const faqCategories = orderedIds.map((id) => ({
 
         <!-- No Results -->
         <div id="no-results" class="hidden text-center py-10">
-          <div class="text-6xl mb-4">🔍</div>
+          <div class="text-6xl mb-4"><Icon name="search" class="w-14 h-14 text-gray-400 mx-auto" ariaLabel="Search" /></div>
           <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">{t('faq.no_results.title')}</h3>
           <p class="text-gray-600 dark:text-gray-400">
             {t('faq.no_results.description_before')} <a href={localizePath('/kontakt')} class="text-emerald-600 hover:text-emerald-500 dark:text-emerald-400 dark:hover:text-emerald-300 font-medium">{t('faq.no_results.description_link_text')}</a>{t('faq.no_results.description_after')}

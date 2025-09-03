@@ -121,7 +121,6 @@ Die folgenden Pfade zeigen aktuell das Coming‑Soon Overlay (wirken für /[loca
 ## Dateien zum Review
 
 - [src/components/ui/ComingSoon.astro](src/components/ui/ComingSoon.astro)
-- [scripts/coming-soon-client.ts](scripts/coming-soon-client.ts)
 - [public/assets/coming-soon-client.js](public/assets/coming-soon-client.js)
 - [src/config/coming-soon.ts](src/config/coming-soon.ts)
 - [src/layouts/BaseLayout.astro](src/layouts/BaseLayout.astro)

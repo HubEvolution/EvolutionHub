@@ -1,5 +1,5 @@
 import type { APIContext } from 'astro';
-import { standardApiLimiter } from '@/lib/rate-limiter';
+import { authLimiter } from '@/lib/rate-limiter';
 import { createSecureRedirect, createSecureJsonResponse } from '@/lib/response-helpers';
 import { createValidator, ValidationRules, type ValidationSchema } from '@/lib/validators';
 import { createAuthService } from '@/lib/services/auth-service-impl';
@@ -98,7 +98,7 @@ export const POST = async (context: APIContext) => {
   let locale = referer.includes('/de/') ? 'de' : referer.includes('/en/') ? 'en' : 'en';
 
   // Rate-Limiting anwenden
-  const rateLimitResponse = await standardApiLimiter(context);
+  const rateLimitResponse = await authLimiter(context);
   if (rateLimitResponse) {
     return createSecureRedirect(`/${locale}/register?error=TooManyRequests`);
   }
@@ -185,7 +185,7 @@ export const POST = async (context: APIContext) => {
         db,
         isDevelopment: import.meta.env.DEV,
         resendApiKey: context.locals.runtime.env.RESEND_API_KEY || '',
-        fromEmail: 'EvolutionHub <noreply@hub-evolution.com>',
+        fromEmail: context.locals.runtime.env.EMAIL_FROM || 'EvolutionHub <noreply@hub-evolution.com>',
         baseUrl: context.url.origin
       };
 

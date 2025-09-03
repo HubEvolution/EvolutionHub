@@ -1,48 +1,48 @@
 ---
-// src/pages/newsletter/confirm.astro
-// Newsletter double opt-in confirmation landing page
+ // src/pages/newsletter/confirm.astro
+ // Newsletter double opt-in confirmation landing page
 
-import BaseLayout from '@/layouts/BaseLayout.astro';
-import { Icon } from 'astro-icon/components';
-import { localizePath } from '@/lib/locale-path';
-import { getLocale } from '@/lib/i18n';
+ import BaseLayout from '@/layouts/BaseLayout.astro';
+ import Icon from '@/components/ui/Icon.astro';
+ import { localizePath } from '@/lib/locale-path';
+ import { getLocale } from '@/lib/i18n';
 
-// Get query parameters
-const url = Astro.url;
-const token = url.searchParams.get('token');
-const email = url.searchParams.get('email');
+ // Get query parameters
+ const url = Astro.url;
+ const token = url.searchParams.get('token');
+ const email = url.searchParams.get('email');
 
-// Initialize confirmation state
-let confirmationResult = null;
-let error = null;
-const locale = getLocale(Astro.url.pathname);
+ // Initialize confirmation state
+ let confirmationResult = null;
+ let error = null;
+ const locale = getLocale(Astro.url.pathname);
 
-// If token is provided, attempt confirmation
-if (token) {
-  try {
-    const confirmResponse = await fetch(
-      `${url.origin}/api/newsletter/confirm?token=${token}&email=${email || ''}`
-    );
-    confirmationResult = await confirmResponse.json();
-    
-    if (!confirmResponse.ok) {
-      error = confirmationResult.error || 'Unknown error occurred';
-    }
-  } catch (err) {
-    console.error('Error confirming subscription:', err);
-    error = 'Network error occurred while confirming subscription';
-  }
-}
+ // If token is provided, attempt confirmation
+ if (token) {
+   try {
+     const confirmResponse = await fetch(
+       `${url.origin}/api/newsletter/confirm?token=${token}&email=${email || ''}`
+     );
+     confirmationResult = await confirmResponse.json();
+     
+     if (!confirmResponse.ok) {
+       error = confirmationResult.error || 'Unknown error occurred';
+     }
+   } catch (err) {
+     console.error('Error confirming subscription:', err);
+     error = 'Network error occurred while confirming subscription';
+   }
+ }
 
-// SEO meta information
-const seoTitle = confirmationResult?.success 
-  ? 'Newsletter-Anmeldung bestätigt' 
-  : 'Newsletter-Anmeldung bestätigen';
-const seoDescription = confirmationResult?.success
-  ? 'Ihre Newsletter-Anmeldung wurde erfolgreich bestätigt. Vielen Dank für Ihr Interesse!'
-  : 'Bestätigen Sie Ihre Newsletter-Anmeldung, um exklusive Inhalte und Updates zu erhalten.';
+ // SEO meta information
+ const seoTitle = confirmationResult?.success 
+   ? 'Newsletter-Anmeldung bestätigt' 
+   : 'Newsletter-Anmeldung bestätigen';
+ const seoDescription = confirmationResult?.success
+   ? 'Ihre Newsletter-Anmeldung wurde erfolgreich bestätigt. Vielen Dank für Ihr Interesse!'
+   : 'Bestätigen Sie Ihre Newsletter-Anmeldung, um exklusive Inhalte und Updates zu erhalten.';
 ---
-
+ 
 <BaseLayout title={seoTitle} description={seoDescription}>
   <main class="min-h-screen bg-gradient-to-br from-emerald-50 to-cyan-50 dark:from-gray-900 dark:to-gray-800 py-12">
     <div class="container mx-auto px-4 max-w-2xl">
@@ -59,7 +59,10 @@ const seoDescription = confirmationResult?.success
           
           {/* Success Message */}
           <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-            🎉 Newsletter-Anmeldung bestätigt!
+            <span class="inline-flex items-center gap-2">
+              <Icon name="celebration" class="w-6 h-6 text-emerald-600 dark:text-emerald-400 inline-block" ariaLabel="Celebration" />
+              Newsletter-Anmeldung bestätigt!
+            </span>
           </h1>
           
           <p class="text-lg text-gray-600 dark:text-gray-300 mb-6">
@@ -74,19 +77,19 @@ const seoDescription = confirmationResult?.success
             </h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
               <div class="flex items-start space-x-3">
-                <span class="text-emerald-600 dark:text-emerald-400 text-lg">✨</span>
+                <Icon name="celebration" class="w-5 h-5 text-emerald-600 dark:text-emerald-400 inline-block" ariaLabel="Celebration" />
                 <span class="text-gray-700 dark:text-gray-300">Exklusive Einblicke in New Work und Produktivität</span>
               </div>
               <div class="flex items-start space-x-3">
-                <span class="text-emerald-600 dark:text-emerald-400 text-lg">🚀</span>
+                <Icon name="rocket" class="w-5 h-5 text-emerald-600 dark:text-emerald-400 inline-block" ariaLabel="Rocket" />
                 <span class="text-gray-700 dark:text-gray-300">Frühen Zugang zu neuen Features und Tools</span>
               </div>
               <div class="flex items-start space-x-3">
-                <span class="text-emerald-600 dark:text-emerald-400 text-lg">📊</span>
+                <Icon name="chart" class="w-5 h-5 text-emerald-600 dark:text-emerald-400 inline-block" ariaLabel="Chart" />
                 <span class="text-gray-700 dark:text-gray-300">Praktische Tipps für die moderne Arbeitswelt</span>
               </div>
               <div class="flex items-start space-x-3">
-                <span class="text-emerald-600 dark:text-emerald-400 text-lg">💡</span>
+                <Icon name="lightbulb" class="w-5 h-5 text-emerald-600 dark:text-emerald-400 inline-block" ariaLabel="Lightbulb" />
                 <span class="text-gray-700 dark:text-gray-300">Inspiration für Ihre berufliche Entwicklung</span>
               </div>
             </div>

@@ -6,23 +6,10 @@
  * - isComingSoon(pathname, frontmatter): resolves ENV override > frontmatter > patterns
  */
 export const COMING_SOON_PATTERNS: string[] = [
-  '/login',
-  '/register',
-  '/forgot-password',
-  '/reset-password',
-  '/verify-email',
-  '/email-verified',
-  '/auth/password-reset-sent',
-  '/auth/password-reset-success',
   '/docs',
   '/kontakt',
   '/agb',
   '/impressum',
-  '/dashboard',
-  '/tools',
-  '/pricing',
-  '/account/settings',
-  '/debug',
 ];
 
 function normalizePath(pathname: string): string {

@@ -1,5 +1,4 @@
 ---
-// Footer Component with modern design
 import Newsletter from './Newsletter.astro';
 import { type Locale } from '@/lib/i18n';
 import { localizePath } from '@/lib/locale-path';
@@ -9,7 +8,7 @@ interface Props {
   locale?: Locale;
 }
 
-const { hideNewsletter = false, locale = 'de' as Locale } = Astro.props;
+const { hideNewsletter = true, locale = 'de' as Locale } = Astro.props;
 
 const cookieSlug: Record<Locale, string> = {
   de: 'cookie-einstellungen',
@@ -19,7 +18,7 @@ const cookieSlug: Record<Locale, string> = {
 ---
 
 <footer
-  class="relative bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800"
+  class="relative glass-footer"
 >
   <!-- Decorative elements -->
   <div class="absolute inset-0 overflow-hidden z-0">
@@ -34,11 +33,11 @@ const cookieSlug: Record<Locale, string> = {
     </div>
   </div>
 
-  <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 z-10">
+  <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 z-10 text-slate-500 dark:text-slate-400">
     <!-- Main Footer Content - 4 Columns -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-12">
       <!-- Brand & Description -->
-      <div class="space-y-4">
+      <div class="space-y-4 lg:col-span-2 md:col-span-2">
         <div class="flex items-center space-x-3">
           <div
             class="w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-500 to-cyan-500 flex items-center justify-center"
@@ -51,19 +50,19 @@ const cookieSlug: Record<Locale, string> = {
             Evolution Hub
           </span>
         </div>
-        <p class="text-gray-600 dark:text-gray-300 text-sm leading-relaxed">
+        <p class="text-sm leading-relaxed">
           Die moderne Plattform für Entwickler, um Projekte zu verwalten, zu
           teilen und zu skalieren. Entwickelt von Entwicklern für Entwickler.
         </p>
 
         <!-- Social Links -->
-        <div class="flex space-x-4 pt-2">
+        <div class="flex space-x-3 pt-2">
           <a
             href="#"
-            class="text-gray-400 hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors duration-300"
+            class="text-current hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200"
             aria-label="GitHub"
           >
-            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
               <path
                 fill-rule="evenodd"
                 d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.699 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
@@ -72,12 +71,12 @@ const cookieSlug: Record<Locale, string> = {
           </a>
           <a
             href="https://x.com/hub_evolution?s=21"
-            class="text-gray-400 hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors duration-300"
+            class="text-current hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200"
             aria-label="Twitter"
             target="_blank"
             rel="noopener noreferrer"
           >
-            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
               <path
                 d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84"
               ></path>
@@ -85,10 +84,10 @@ const cookieSlug: Record<Locale, string> = {
           </a>
           <a
             href="#"
-            class="text-gray-400 hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors duration-300"
+            class="text-current hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200"
             aria-label="LinkedIn"
           >
-            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
               <path
                 d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"
               ></path>
@@ -100,7 +99,7 @@ const cookieSlug: Record<Locale, string> = {
       <!-- Quick Links -->
       <div>
         <h3
-          class="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider mb-4"
+          class="text-xs font-semibold text-gray-900 dark:text-white uppercase tracking-wider mb-2"
         >
           Schnellzugriff
         </h3>
@@ -108,10 +107,10 @@ const cookieSlug: Record<Locale, string> = {
           <li>
             <a
               href={localizePath(locale, '/dashboard')}
-              class="flex items-center text-gray-600 hover:text-emerald-500 dark:text-gray-300 dark:hover:text-emerald-400 transition-colors duration-300 group"
+              class="flex items-center text-current hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 group"
             >
               <svg
-                class="w-4 h-4 mr-2 text-emerald-500 transition-transform duration-300 group-hover:translate-x-1"
+                class="w-4 h-4 mr-2 text-current transition-transform duration-200 group-hover:translate-x-1"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -124,7 +123,7 @@ const cookieSlug: Record<Locale, string> = {
                 ></path>
               </svg>
               <span
-                class="group-hover:translate-x-1 transition-transform duration-300"
+                class="group-hover:translate-x-1 transition-transform duration-200"
                 >Dashboard</span
               >
             </a>
@@ -132,10 +131,10 @@ const cookieSlug: Record<Locale, string> = {
           <li>
             <a
               href={localizePath(locale, '/blog')}
-              class="flex items-center text-gray-600 hover:text-emerald-500 dark:text-gray-300 dark:hover:text-emerald-400 transition-colors duration-300 group"
+              class="flex items-center text-current hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 group"
             >
               <svg
-                class="w-4 h-4 mr-2 text-emerald-500 transition-transform duration-300 group-hover:translate-x-1"
+                class="w-4 h-4 mr-2 text-current transition-transform duration-200 group-hover:translate-x-1"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -148,7 +147,7 @@ const cookieSlug: Record<Locale, string> = {
                 ></path>
               </svg>
               <span
-                class="group-hover:translate-x-1 transition-transform duration-500"
+                class="group-hover:translate-x-1 transition-transform duration-200"
                 >Blog</span
               >
             </a>
@@ -157,10 +156,10 @@ const cookieSlug: Record<Locale, string> = {
           <li>
             <a
               href={localizePath(locale, '/docs')}
-              class="flex items-center text-gray-600 hover:text-emerald-500 dark:text-gray-300 dark:hover:text-emerald-400 transition-colors duration-300 group"
+              class="flex items-center text-current hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 group"
             >
               <svg
-                class="w-4 h-4 mr-2 text-emerald-500 transition-transform duration-300 group-hover:translate-x-1"
+                class="w-4 h-4 mr-2 text-current transition-transform duration-200 group-hover:translate-x-1"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -173,7 +172,7 @@ const cookieSlug: Record<Locale, string> = {
                 ></path>
               </svg>
               <span
-                class="group-hover:translate-x-1 transition-transform duration-300"
+                class="group-hover:translate-x-1 transition-transform duration-200"
                 >Dokumentation</span
               >
             </a>
@@ -181,10 +180,10 @@ const cookieSlug: Record<Locale, string> = {
           <li>
             <a
               href={localizePath(locale, '/faq')}
-              class="flex items-center text-gray-600 hover:text-emerald-500 dark:text-gray-300 dark:hover:text-emerald-400 transition-colors duration-300 group"
+              class="flex items-center text-current hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 group"
             >
               <svg
-                class="w-4 h-4 mr-2 text-emerald-500 transition-transform duration-300 group-hover:translate-x-1"
+                class="w-4 h-4 mr-2 text-current transition-transform duration-200 group-hover:translate-x-1"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -197,7 +196,7 @@ const cookieSlug: Record<Locale, string> = {
                 ></path>
               </svg>
               <span
-                class="group-hover:translate-x-1 transition-transform duration-300"
+                class="group-hover:translate-x-1 transition-transform duration-200"
                 >FAQ</span
               >
             </a>
@@ -205,10 +204,10 @@ const cookieSlug: Record<Locale, string> = {
           <li>
             <a
               href={localizePath(locale, '/kontakt')}
-              class="flex items-center text-gray-600 hover:text-emerald-500 dark:text-gray-300 dark:hover:text-emerald-400 transition-colors duration-300 group"
+              class="flex items-center text-current hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 group"
             >
               <svg
-                class="w-4 h-4 mr-2 text-emerald-500 transition-transform duration-300 group-hover:translate-x-1"
+                class="w-4 h-4 mr-2 text-current transition-transform duration-200 group-hover:translate-x-1"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -221,7 +220,7 @@ const cookieSlug: Record<Locale, string> = {
                 ></path>
               </svg>
               <span
-                class="group-hover:translate-x-1 transition-transform duration-300"
+                class="group-hover:translate-x-1 transition-transform duration-200"
                 >Kontakt</span
               >
             </a>
@@ -234,7 +233,7 @@ const cookieSlug: Record<Locale, string> = {
       <!-- Rechtliches -->
       <div>
         <h3
-          class="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider mb-4"
+          class="text-xs font-semibold text-gray-900 dark:text-white uppercase tracking-wider mb-2"
         >
           Rechtliches
         </h3>
@@ -242,10 +241,10 @@ const cookieSlug: Record<Locale, string> = {
           <li>
             <a
               href={localizePath(locale, '/datenschutz')}
-              class="flex items-center text-gray-600 hover:text-emerald-500 dark:text-gray-300 dark:hover:text-emerald-400 transition-colors duration-300 group"
+              class="flex items-center text-current hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 group"
             >
               <svg
-                class="w-4 h-4 mr-2 text-emerald-500 transition-transform duration-300 group-hover:translate-x-1"
+                class="w-4 h-4 mr-2 text-current transition-transform duration-200 group-hover:translate-x-1"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -258,7 +257,7 @@ const cookieSlug: Record<Locale, string> = {
                 ></path>
               </svg>
               <span
-                class="group-hover:translate-x-1 transition-transform duration-300"
+                class="group-hover:translate-x-1 transition-transform duration-200"
                 >Datenschutzerklärung</span
               >
             </a>
@@ -266,10 +265,10 @@ const cookieSlug: Record<Locale, string> = {
           <li>
             <a
               href={localizePath(locale, '/impressum')}
-              class="flex items-center text-gray-600 hover:text-emerald-500 dark:text-gray-300 dark:hover:text-emerald-400 transition-colors duration-300 group"
+              class="flex items-center text-current hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 group"
             >
               <svg
-                class="w-4 h-4 mr-2 text-emerald-500 transition-transform duration-300 group-hover:translate-x-1"
+                class="w-4 h-4 mr-2 text-current transition-transform duration-200 group-hover:translate-x-1"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -282,7 +281,7 @@ const cookieSlug: Record<Locale, string> = {
                 ></path>
               </svg>
               <span
-                class="group-hover:translate-x-1 transition-transform duration-300"
+                class="group-hover:translate-x-1 transition-transform duration-200"
                 >Impressum</span
               >
             </a>
@@ -290,10 +289,10 @@ const cookieSlug: Record<Locale, string> = {
           <li>
             <a
               href={localizePath(locale, '/agb')}
-              class="flex items-center text-gray-600 hover:text-emerald-500 dark:text-gray-300 dark:hover:text-emerald-400 transition-colors duration-300 group"
+              class="flex items-center text-current hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 group"
             >
               <svg
-                class="w-4 h-4 mr-2 text-emerald-500 transition-transform duration-300 group-hover:translate-x-1"
+                class="w-4 h-4 mr-2 text-current transition-transform duration-200 group-hover:translate-x-1"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -305,7 +304,7 @@ const cookieSlug: Record<Locale, string> = {
                   d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
               </svg>
               <span
-                class="group-hover:translate-x-1 transition-transform duration-300"
+                class="group-hover:translate-x-1 transition-transform duration-200"
                 >AGB</span
               >
             </a>
@@ -313,10 +312,10 @@ const cookieSlug: Record<Locale, string> = {
           <li>
             <a
               href={localizePath(locale, `/${cookieSlug[locale]}`)}
-              class="flex items-center text-gray-600 hover:text-emerald-500 dark:text-gray-300 dark:hover:text-emerald-400 transition-colors duration-300 group"
+              class="flex items-center text-current hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 group"
             >
               <svg
-                class="w-4 h-4 mr-2 text-emerald-500 transition-transform duration-300 group-hover:translate-x-1"
+                class="w-4 h-4 mr-2 text-current transition-transform duration-200 group-hover:translate-x-1"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -328,9 +327,61 @@ const cookieSlug: Record<Locale, string> = {
                   d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
               </svg>
               <span
-                class="group-hover:translate-x-1 transition-transform duration-300"
+                class="group-hover:translate-x-1 transition-transform duration-200"
                 >Cookie-Einstellungen</span
               >
+            </a>
+          </li>
+        </ul>
+      </div>
+      <!-- Tools -->
+      <div>
+        <h3
+          class="text-xs font-semibold text-gray-900 dark:text-white uppercase tracking-wider mb-2"
+        >
+          Tools
+        </h3>
+        <ul class="space-y-3">
+          <li>
+            <a
+              href={localizePath(locale, '/tools')}
+              class="flex items-center text-current hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 group"
+            >
+              <svg
+                class="w-4 h-4 mr-2 text-current transition-transform duration-200 group-hover:translate-x-1"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 6h16M4 12h16M4 18h16"
+                ></path>
+              </svg>
+              <span class="group-hover:translate-x-1 transition-transform duration-200">Alle Tools</span>
+            </a>
+          </li>
+          <li>
+            <a
+              href={localizePath(locale, '/tools/imag-enhancer/app')}
+              class="flex items-center text-current hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 group"
+            >
+              <svg
+                class="w-4 h-4 mr-2 text-current transition-transform duration-200 group-hover:translate-x-1"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 16l4-4 4 4 8-8"
+                ></path>
+              </svg>
+              <span class="group-hover:translate-x-1 transition-transform duration-200">Imag-Enhancer</span>
             </a>
           </li>
         </ul>
@@ -340,7 +391,7 @@ const cookieSlug: Record<Locale, string> = {
     {!hideNewsletter && <Newsletter />}
 
     <!-- Copyright Bar -->
-    <div class="border-t border-gray-200 dark:border-gray-700 mt-12 pt-8 text-center">
+    <div class="border-t border-gray-200 dark:border-gray-700 mt-6 pt-4 text-center">
       <p class="text-sm text-gray-500 dark:text-gray-400">
         &copy; 2025 Evolution Hub. Alle Rechte vorbehalten.
       </p>

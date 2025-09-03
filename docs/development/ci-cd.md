@@ -192,7 +192,7 @@ npm run test:coverage
 
 #### CSRF-Schutz in E2E-Tests (Astro/Cloudflare Workers)
 
-Astro (insb. in Verbindung mit Cloudflare Workers) blockiert cross-site POST-Requests standardmäßig. 
+Astro (insb. in Verbindung mit Cloudflare Workers) blockiert cross-site POST-Requests standardmäßig.
 POSTs ohne gültigen same-origin `Origin`-Header führen zu `403` mit der Meldung
 "Cross-site POST form submissions are forbidden".
 
@@ -242,6 +242,18 @@ Best Practice: CSRF nicht abschalten. Verwende für Tests den same-origin `Origi
 # Lokal ausführen
 npm audit
 ```
+
+### 5. i18n‑Checks
+
+- Lokal prüfen:
+
+```bash
+npm run i18n:diff
+npm run i18n:report
+```
+
+- CSV‑Report: `reports/i18n-empty-keys.csv`
+- CI‑Artefakt: `i18n-empty-report.txt` (siehe Workflow `.github/workflows/e2e-tests.yml` – Schritt „i18n Empty Strings Report“)
 
 ---
 

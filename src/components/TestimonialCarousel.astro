@@ -1,0 +1,159 @@
+---
+interface Testimonial {
+  quote: string;
+  author: string;
+  role: string;
+  avatar?: string;
+}
+const { testimonials = [], id = `testimonial-carousel-${Math.random().toString(36).slice(2)}`, interval = 5000 } = Astro.props as { testimonials?: Testimonial[]; id?: string; interval?: number };
+---
+
+<div id={id} data-role="testimonial-carousel" data-interval={String(interval)} class="max-w-4xl mx-auto flex flex-col md:flex-row items-center gap-8">
+  <div class="w-full md:w-3/5 order-2 md:order-1">
+    <div class="relative testimonial-items-wrapper min-h-[6rem]">
+      {testimonials.map((item, i) => (
+        <div class={"testimonial-item transition-opacity duration-500 " + (i === 0 ? "opacity-100 relative" : "opacity-0 pointer-events-none absolute inset-0")} data-index={i} aria-hidden={i === 0 ? "false" : "true"}>
+          <p class="text-lg italic text-gray-700 dark:text-gray-200 mb-4">"{item.quote}"</p>
+          <p class="font-bold text-gray-900 dark:text-white">- {item.author}</p>
+          <p class="text-sm text-gray-500 dark:text-gray-400">{item.role}</p>
+        </div>
+      ))}
+    </div>
+    {testimonials.length > 1 && (
+      <div class="mt-4 flex justify-center md:justify-start space-x-2" data-testid="testimonial-dots">
+        {testimonials.map((_, i) => (
+          <button type="button" class={"w-3 h-3 rounded-full transition-colors " + (i === 0 ? "bg-emerald-500" : "bg-gray-300 dark:bg-gray-600")} data-dot-index={i} aria-label={`Show testimonial ${i + 1}`}></button>
+        ))}
+      </div>
+    )}
+  </div>
+  <div class="md:w-2/5 flex justify-center md:justify-end order-1 md:order-2">
+    <img src={testimonials[0]?.avatar ?? "/images/generic-avatar.svg"} alt="User Avatar" class="w-32 h-32 rounded-full border-4 border-primary shadow-lg" />
+  </div>
+</div>
+
+<script is:inline nonce={Astro.locals.cspNonce}>
+  // @ts-check
+  (function () {
+    console.log('[TestimonialCarousel] Initializing...');
+
+    const scriptEl = document.currentScript;
+    const root = scriptEl && scriptEl.previousElementSibling ? scriptEl.previousElementSibling : null;
+    if (!root) return;
+
+    // Prevent multiple initializations
+    if (root.hasAttribute('data-testimonial-initialized')) return;
+
+    /** @type {HTMLElement | null} */
+    const wrapper = root.querySelector('.testimonial-items-wrapper');
+    /** @type {NodeListOf<HTMLElement>} */
+    const items = root.querySelectorAll('.testimonial-item');
+    /** @type {NodeListOf<HTMLButtonElement>} */
+    const dots = root.querySelectorAll('[data-dot-index]');
+    console.log('[TestimonialCarousel] Found items:', items.length, 'dots:', dots.length);
+
+    if (items.length === 0 || !wrapper) return;
+
+    // Fix jumping dots: keep a stable wrapper height based on the tallest item
+    const computeMinHeight = () => {
+      if (!wrapper) return;
+      let max = 0;
+      items.forEach((el) => {
+        const h = el.scrollHeight || el.offsetHeight || 0;
+        if (h > max) max = h;
+      });
+      if (max > 0) wrapper.style.minHeight = max + 'px';
+      console.log('[TestimonialCarousel] Set minHeight to:', max);
+    };
+
+    let current = 0;
+
+    /** @param {number} idx */
+    const show = (idx) => {
+      console.log('[TestimonialCarousel] Showing item:', idx);
+      items.forEach((el, i) => {
+        if (i === idx) {
+          el.style.opacity = '1';
+          el.style.position = 'relative';
+          el.setAttribute('aria-hidden', 'false');
+        } else {
+          el.style.opacity = '0';
+          el.style.position = 'absolute';
+          el.setAttribute('aria-hidden', 'true');
+        }
+      });
+
+      dots.forEach((d, i) => {
+        if (i === idx) {
+          d.classList.remove('bg-gray-300', 'dark:bg-gray-600');
+          d.classList.add('bg-emerald-500');
+        } else {
+          d.classList.add('bg-gray-300', 'dark:bg-gray-600');
+          d.classList.remove('bg-emerald-500');
+        }
+      });
+    };
+
+    // Initialize stable height and first state
+    computeMinHeight();
+    show(current);
+
+    // Manual navigation via dots
+    dots.forEach((d) => {
+      d.addEventListener('click', () => {
+        console.log(`[TestimonialCarousel] Dot clicked: ${d.getAttribute('data-dot-index')}`);
+        const idx = Number(d.getAttribute('data-dot-index'));
+        if (!Number.isNaN(idx)) {
+          current = idx;
+          show(current);
+        } else {
+          console.error(`[TestimonialCarousel] Invalid dot index: ${d.getAttribute('data-dot-index')}`);
+        }
+      });
+    });
+
+    // Read interval from data-attribute, fallback to 5000ms
+    let intervalMs = 5000;
+    const rawInt = root.getAttribute('data-interval');
+    if (rawInt) {
+      const n = parseInt(rawInt, 10);
+      if (!Number.isNaN(n) && n > 0) intervalMs = n;
+    }
+
+    // Auto-rotate
+    if (items.length > 1) {
+      let timer = window.setInterval(() => {
+        current = (current + 1) % items.length;
+        console.log('[TestimonialCarousel] Auto-rotating to:', current);
+        show(current);
+      }, intervalMs);
+
+      root.addEventListener('mouseenter', () => {
+        console.log('[TestimonialCarousel] Mouse entered, clearing interval');
+        window.clearInterval(timer);
+      });
+
+      root.addEventListener('mouseleave', () => {
+        console.log('[TestimonialCarousel] Mouse left, restarting interval');
+        timer = window.setInterval(() => {
+          current = (current + 1) % items.length;
+          show(current);
+        }, intervalMs);
+      });
+    }
+
+    // Recompute on load/resize to keep wrapper height stable across layout changes
+    window.addEventListener('load', () => {
+      console.log('[TestimonialCarousel] Window load event, recomputing height');
+      computeMinHeight();
+    }, { once: true });
+    window.addEventListener('resize', () => {
+      console.log('[TestimonialCarousel] Window resize event, recomputing height');
+      computeMinHeight();
+    });
+
+    // Mark as initialized to prevent multiple executions
+    root.setAttribute('data-testimonial-initialized', 'true');
+    console.log('[TestimonialCarousel] Marked as initialized');
+  })();
+</script>

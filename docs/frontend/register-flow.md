@@ -17,17 +17,23 @@ Quelle: `src/pages/api/auth/register.ts`
   - email (E-Mail-Format, max 255)
   - password (min 6, max 100)
   - name (min 2, max 100)
-  - username (min 3, max 50, Regex: `^[a-zA-Z0-9_-]+$`)
-- Rate-Limiting: `standardApiLimiter()`; bei Limit: Redirect `/{locale}/register?error=TooManyRequests`
+  - username (min 3, max 50, Regex: `^[a-zA-Z0-9_-]+# Registrierung: API-Flow & Frontend
+
+Diese Dokumentation beschreibt den End-to-End-Registrierungsfluss bestehend aus API-Endpoint, Formularseiten und Toast-Feedback via `AuthStatusNotifier`.
+
+## Überblick
+
+- POST-Endpunkt: `src/pages/api/auth/register.ts`
+- Frontend-Seiten: `src/pages/de/register.astro`, `src/pages/en/register.astro`
+- Toast-Feedback & URL-Cleanup: `src/components/scripts/AuthStatusNotifier.tsx`
+- Layouts: `AuthLayout.astro` (AOS/Analytics aus), `BaseLayout.astro` (Toaster global)
+
+)
+- Rate-Limiting: `authLimiter()`; bei Limit: Redirect `/{locale}/register?error=TooManyRequests`
 - Service-Layer: `createAuthService().register(...)`; Konfliktcodes:
   - `UserExists` (E-Mail existiert)
   - `UsernameExists` (Benutzername existiert)
-- Session-Cookie bei Erfolg:
-  - Name: `session_id`
-  - Attribute: HttpOnly, Secure (bei HTTPS), SameSite=lax, Path=/, MaxAge=30d
-- Redirects:
-  - Erfolg → `/dashboard`
-  - Fehler → `/{locale}/register?error=<Code>`
+- Double-Opt-In: Kein Session-Cookie bei Erfolg; stattdessen Verifikations-E-Mail (non-blocking) und Redirect → `/verify-email?email=<email>`
 - Locale-Ermittlung:
   - Primär: Hidden-Field `locale` aus dem Formular (`de`/`en`)
   - Fallback: `Referer`

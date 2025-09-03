@@ -86,6 +86,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
   const isProductionHost =
     requestUrl.hostname === 'hub-evolution.com';
   const isApiRoute = requestUrl.pathname.startsWith('/api/');
+  // Treat R2 proxy route as an asset-like route: must never be redirected or gated
+  // This ensures URLs like /r2-ai/ai-enhancer/uploads/... are always directly served
+  const isR2ProxyRoute = requestUrl.pathname.startsWith('/r2-ai/');
   const isAssetFile =
     /\.(css|js|mjs|map|svg|png|jpe?g|webp|gif|ico|json|xml|txt|woff2?|ttf|webmanifest)$/i.test(requestUrl.pathname) ||
     requestUrl.pathname === '/favicon.ico' ||
@@ -102,7 +105,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
     : true;
 
   // Nur in echter Produktion auf Hauptdomain schützen, nicht APIs/Assets
-  if (isProductionEnv && isProductionHost && !isApiRoute && !isAssetFile && siteAuthEnabled) {
+  if (isProductionEnv && isProductionHost && !isApiRoute && !isAssetFile && !isR2ProxyRoute && siteAuthEnabled) {
     const correctUsername = 'admin';
     const correctPassword = (context.locals.runtime?.env as any)?.SITE_PASSWORD as string | undefined;
 
@@ -263,7 +266,23 @@ export const onRequest = defineMiddleware(async (context, next) => {
     }
 
     const nextUrl = safeParseNext(url.searchParams.get('next')) ?? url;
-    const location = `${url.origin}${mapPathToLocale(targetLocale, nextUrl)}`;
+    // Loop-Guard: Wenn next auf /welcome zeigt, auf Startseite je nach Locale umleiten
+    let effectiveNext = nextUrl;
+    try {
+      const p = effectiveNext.pathname.replace(/\/+$/, '');
+      if (p === '/welcome' || p === '/en/welcome' || p === '/de/welcome') {
+        const fallbackPath = targetLocale === 'en' ? '/en/' : '/';
+        effectiveNext = new URL(fallbackPath, url.origin);
+        if (import.meta.env.DEV) {
+          console.log('[Middleware] set_locale loop-guard activated; next pointed to welcome. Using fallback:', { fallbackPath, targetLocale });
+        }
+      }
+    } catch (e) {
+      if (import.meta.env.DEV) {
+        console.warn('[Middleware] set_locale next parsing failed:', e);
+      }
+    }
+    const location = `${url.origin}${mapPathToLocale(targetLocale, effectiveNext)}`;
     const headers = new Headers();
     headers.set('Location', location);
     headers.set('Content-Language', targetLocale);
@@ -297,6 +316,8 @@ export const onRequest = defineMiddleware(async (context, next) => {
     || path.startsWith('/icons/')
     || path.startsWith('/images/')
     || path.startsWith('/favicons/');
+  // Same treatment for path-based checks further down
+  const isR2Proxy = path.startsWith('/r2-ai/');
 
   const bot = isBot(context.request.headers.get('user-agent'));
 
@@ -318,7 +339,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   // Frühzeitiger Redirect: neutrale Pfade -> /en/* NUR wenn kein Cookie gesetzt ist, aber Referer EN nahelegt
   const shouldPreferEnByReferer = !cookieLocale && refererSuggestsEn;
-  if (!existingLocale && !isApi && !isAsset && shouldPreferEnByReferer && !path.startsWith('/welcome') && !isAuthRoute(path)) {
+  if (!existingLocale && !isApi && !isAsset && !isR2Proxy && shouldPreferEnByReferer && !path.startsWith('/welcome') && !isAuthRoute(path)) {
     const target = path === '/' ? '/en/' : `/en${path}`;
     const location = `${url.origin}${target}${url.search}${url.hash}`;
     const headers = new Headers();
@@ -333,7 +354,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   // Zeige Splash/Welcome beim ersten sichtbaren Besuch dieser Session
   // Überspringe Splash, wenn bereits ein Locale-Cookie vorhanden ist
-  if (!sessionWelcomeSeen && !cookieLocale && !isApi && !isAsset && !bot && !path.startsWith('/welcome') && !isAuthRoute(path) && !existingLocale) {
+  if (!sessionWelcomeSeen && !cookieLocale && !isApi && !isAsset && !isR2Proxy && !bot && !path.startsWith('/welcome') && !isAuthRoute(path) && !existingLocale) {
     try {
       // Session-Cookie (kein maxAge) setzen, damit Splash nur einmal pro Session erscheint
       context.cookies.set(sessionGateCookie, '1', {
@@ -358,24 +379,13 @@ export const onRequest = defineMiddleware(async (context, next) => {
     return new Response(null, { status: 302, headers });
   }
 
-  // Erste Besuche (kein Cookie, kein Locale in URL, kein Bot) -> Splash/Welcome mit next
-  // Respektiere Session-Gate, um doppelte Redirects zu vermeiden
-  if (!sessionWelcomeSeen && !cookieLocale && !existingLocale && !isApi && !isAsset && !bot && !path.startsWith('/welcome') && !isAuthRoute(path)) {
-    const location = `${url.origin}/welcome?next=${encodeURIComponent(url.toString())}`;
-    const headers = new Headers();
-    headers.set('Location', location);
-    headers.set('Vary', 'Cookie, Accept-Language');
-    if (import.meta.env.DEV) {
-      console.log('[Middleware] First visit -> redirect to welcome:', location);
-    }
-    return new Response(null, { status: 302, headers });
-  }
+  // (Entfernt) Zweiter, redundanter Splash-Redirect-Block
 
   // Normalisiere /de/* auf kanonische URL
   // - DE ist neutral (ohne /de)
   // - EN ist unter /en/* (wenn Cookie-Präferenz 'en')
   const isDePrefixed = path === '/de' || path.startsWith('/de/');
-  if (isDePrefixed && !isApi && !isAsset && !isAuthRoute(path)) {
+  if (isDePrefixed && !isApi && !isAsset && !isR2Proxy && !isAuthRoute(path)) {
     const pathWithoutDe = path.replace(/^\/de(\/|$)/, '/');
     const target = cookieLocale === 'en'
       ? (pathWithoutDe === '/' ? '/en/' : `/en${pathWithoutDe}`)
@@ -392,7 +402,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
   }
 
   // Bot/Crawler: Splash überspringen; neutrale Pfade anhand Accept-Language für Bots umleiten
-  if (bot && !existingLocale && !isApi && !isAsset) {
+  if (bot && !existingLocale && !isApi && !isAsset && !isR2Proxy) {
     const botLocale = detectFromAcceptLanguage(context.request.headers.get('accept-language'));
     if (botLocale === 'en') {
       const target = path === '/' ? '/en/' : `/en${path}`;
@@ -409,7 +419,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
   }
 
   // Neutrale Pfade nur bei gesetztem Cookie=en auf /en/... umleiten; sonst neutral (DE) belassen
-  if (!existingLocale && !isApi && !isAsset && cookieLocale === 'en' && !path.startsWith('/welcome') && !isAuthRoute(path)) {
+  if (!existingLocale && !isApi && !isAsset && !isR2Proxy && cookieLocale === 'en' && !path.startsWith('/welcome') && !isAuthRoute(path)) {
     const target = path === '/' ? '/en/' : `/en${path}`;
     const location = `${url.origin}${target}${url.search}${url.hash}`;
     const headers = new Headers();
@@ -566,24 +576,44 @@ export const onRequest = defineMiddleware(async (context, next) => {
     ].join('; ');
     response.headers.set('Content-Security-Policy', devCsp);
   } else {
-    const prodCsp = [
-      "default-src 'self'",
-      // Allow inline scripts only with our per-request nonce; include strict-dynamic for modern browsers
-      `script-src 'self' 'nonce-${cspNonce}' 'strict-dynamic' https://cdn.jsdelivr.net https://www.googletagmanager.com https://plausible.io`,
-      // Optional: also set script-src-elem explicitly for broader compatibility
-      `script-src-elem 'self' 'nonce-${cspNonce}' https://cdn.jsdelivr.net https://www.googletagmanager.com https://plausible.io`,
-      // Allow connections to same-origin and HTTPS (and websockets if used)
-      "connect-src 'self' https: wss:",
-      // Styles keep 'unsafe-inline' to support inline <style is:global> blocks and third-party CSS
-      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net",
-      "img-src 'self' data: https:",
-      "font-src 'self' https://fonts.gstatic.com",
-      "frame-ancestors 'self'",
-      "object-src 'none'",
-      "base-uri 'self'",
-      "report-uri /api/csp-report",
-    ].join('; ');
-    response.headers.set('Content-Security-Policy', prodCsp);
+    // Use strict nonce-based CSP only when ENVIRONMENT === 'production'.
+    // Cloudflare sets NODE_ENV='production' even for preview/testing, so we MUST NOT rely on NODE_ENV here.
+    const isProduction = !!(cfEnv && cfEnv.ENVIRONMENT === 'production');
+    // Important: In non-production we must NOT include a nonce together with 'unsafe-inline'.
+    // Browsers ignore 'unsafe-inline' when a nonce or hash is present, which would still block inline scripts.
+    // Therefore:
+    // - Production: strict nonce-based policy with 'strict-dynamic'.
+    // - Non-production: relaxed policy with 'unsafe-inline' and 'unsafe-eval' (no nonce, no strict-dynamic).
+    const csp = (
+      isProduction
+        ? [
+            "default-src 'self'",
+            `script-src 'self' 'nonce-${cspNonce}' 'strict-dynamic' https://cdn.jsdelivr.net https://www.googletagmanager.com https://plausible.io`,
+            `script-src-elem 'self' 'nonce-${cspNonce}' https://cdn.jsdelivr.net https://www.googletagmanager.com https://plausible.io`,
+            "connect-src 'self' https: wss:",
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net",
+            "img-src 'self' data: blob: https:",
+            "font-src 'self' https://fonts.gstatic.com",
+            "frame-ancestors 'self'",
+            "object-src 'none'",
+            "base-uri 'self'",
+            "report-uri /api/csp-report",
+          ]
+        : [
+            "default-src 'self' data: blob:",
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: data: https://cdn.jsdelivr.net https://www.googletagmanager.com https://plausible.io",
+            "script-src-elem 'self' 'unsafe-inline' 'unsafe-eval' blob: data: https://cdn.jsdelivr.net https://www.googletagmanager.com https://plausible.io",
+            "connect-src 'self' ws: http: https:",
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net",
+            "img-src 'self' data: blob: https:",
+            "font-src 'self' https://fonts.gstatic.com",
+            "frame-ancestors 'self'",
+            "object-src 'none'",
+            "base-uri 'self'",
+            "report-uri /api/csp-report",
+          ]
+    ).join('; ');
+    response.headers.set('Content-Security-Policy', csp);
   }
   response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
   response.headers.set('Cross-Origin-Opener-Policy', 'same-origin');

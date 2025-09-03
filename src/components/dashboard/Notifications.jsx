@@ -1,6 +1,8 @@
 import React, { useEffect } from 'react';
 import { useNotificationStore } from '../../stores';
 import CardReact from '@/components/ui/CardReact.jsx';
+import Icon from '@/components/ui/Icon';
+
 /**
  * @typedef {Object} Notification
  * @property {string} id
@@ -19,7 +21,7 @@ import CardReact from '@/components/ui/CardReact.jsx';
  * @param {NotificationsProps} props
  * @returns {React.ReactElement}
  */
-const Notifications = ({ 
+const Notifications = ({
   initialNotifications = [],
   title = 'Notifications'
 }) => {
@@ -31,17 +33,21 @@ const Notifications = ({
       setNotifications(initialNotifications);
     }
   }, [initialNotifications]);
-
+  
   /**
    * @param {string} type
-   * @returns {string}
+   * @returns {React.ReactNode}
    */
   const getIconForType = (type) => {
     switch (type) {
-      case 'comment': return '💬';
-      case 'mention': return '@';
-      case 'task_completed': return '✅';
-      default: return '🔔';
+      case 'comment':
+        return <Icon name="chat" className="w-5 h-5 text-gray-700 dark:text-gray-300" ariaLabel="Kommentar" />;
+      case 'mention':
+        return <span className="w-5 h-5 inline-flex items-center justify-center text-gray-700 dark:text-gray-300" aria-hidden="true">@</span>;
+      case 'task_completed':
+        return <Icon name="check" className="w-5 h-5 text-emerald-600 dark:text-emerald-400" ariaLabel="Abgeschlossen" />;
+      default:
+        return <Icon name="bell" className="w-5 h-5 text-blue-600 dark:text-blue-400" ariaLabel="Benachrichtigung" />;
     }
   };
 
@@ -55,7 +61,9 @@ const Notifications = ({
         ) : (
           notifications.map((notification) => (
             <div key={notification.id} className="flex items-start space-x-3">
-              <div className="text-xl">{getIconForType(notification.type)}</div>
+              <div className="flex items-center justify-center w-6 h-6">
+                {getIconForType(notification.type)}
+              </div>
               <div className="flex-1">
                 <p className="text-sm text-gray-800 dark:text-gray-200">{notification.message}</p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">

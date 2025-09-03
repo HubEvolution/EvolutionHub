@@ -149,6 +149,47 @@ Die Cloudflare‑Bindings und Preview‑IDs werden in [`wrangler.toml`](wrangler
 
 - Die Playwright‑Konfiguration verwendet standardmäßig `use.baseURL` und `webServer.command` für das Starten eines lokalen Servers; stellen Sie sicher, dass `npm run dev:astro` oder `npm run dev` entsprechend Ihrer Test‑Konfiguration ausgeführt werden kann.
 
+## Deployment
+
+### Über das interaktive Menü
+1. `npm run menu`
+2. Build &amp; Deployment → Deployment
+   - Deploy zu Staging: führt automatisch einen Worker-Build aus und dann `wrangler deploy --env staging`
+   - Deploy zu Production: führt automatisch einen Worker-Build aus und dann `wrangler deploy --env production`; erfordert vorab eine Tipp-Bestätigung mit exakt `hub-evolution.com`
+   - Logs ansehen: `wrangler tail --env staging|production` direkt aus dem Menü
+   - Seiten öffnen: Staging-/Production-URL im Browser öffnen
+
+Die Menüfunktionen sind in [scripts/dev-menu.ts](scripts/dev-menu.ts) implementiert.
+
+### Remote-DB-Migrationen (manuell)
+- Menüpfad: Datenbank-Verwaltung → Remote-DB-Migrationen
+- Es wird jeweils die neueste SQL-Migration aus `/migrations` angewendet:
+  - Staging: ohne Bestätigung
+  - Production: mit Tipp-Bestätigung `hub-evolution.com`
+- DB-Namen-Mapping (aus [wrangler.toml](wrangler.toml)):
+  - Production → evolution-hub-main
+  - Staging → evolution-hub-main-local
+
+Hinweis: Für komplexere Szenarien (z. B. Auswahl einer bestimmten Migration oder Anwenden mehrerer fehlender Migrationen) kann das Menü später erweitert werden.
+
+### Direkt per CLI (Alternative zum Menü)
+- Deploy:
+  ```bash
+  npx wrangler deploy --env staging
+  npx wrangler deploy --env production
+  ```
+- Logs:
+  ```bash
+  npx wrangler tail --env staging --format=pretty
+  npx wrangler tail --env production --format=pretty
+  ```
+- Migration (neueste Datei anwenden):
+  ```bash
+  LATEST=$(ls -1 migrations/*.sql | sort | tail -n 1)
+  npx wrangler d1 execute evolution-hub-main-local --env staging --file="$LATEST"
+  # Production (Achtung!)
+  npx wrangler d1 execute evolution-hub-main --env production --file="$LATEST"
+  ```
 ## Weitere Dokumentation
 
 - Cheat‑Sheet: [`docs/cheat-sheet.md`](docs/cheat-sheet.md:1)
