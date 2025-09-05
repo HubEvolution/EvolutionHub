@@ -1,6 +1,7 @@
 import type { APIContext } from 'astro';
-import { standardApiLimiter } from '@/lib/rate-limiter';
-import { createSecureRedirect, createSecureJsonResponse } from '@/lib/response-helpers';
+import { authLimiter } from '@/lib/rate-limiter';
+import { createSecureRedirect } from '@/lib/response-helpers';
+import { withRedirectMiddleware, type ApiHandler, createMethodNotAllowed } from '@/lib/api-middleware';
 import {
   createValidator,
   ValidationRules,
@@ -11,6 +12,7 @@ import { ServiceError } from '@/lib/services/types';
 import { handleAuthError } from '@/lib/error-handler';
 import { loggerFactory } from '@/server/utils/logger-factory';
 import type { LogContext } from '@/config/logging';
+import { getPathLocale, localizePath } from '@/lib/locale-path';
 
 // Interface für Login-Daten mit strikter Typisierung
 interface LoginData {
@@ -55,15 +57,40 @@ const loginValidator = createValidator<LoginData>(loginSchema);
  * - Security-Headers gegen XSS und andere Angriffe
  * - Umfassendes Audit-Logging für Sicherheitsanalysen
  *
- * WICHTIG: Dieser Endpunkt verwendet KEINE API-Middleware, da er Redirects statt JSON zurückgibt!
+ * WICHTIG: Dieser Endpunkt verwendet withRedirectMiddleware, um Rate-Limiting,
+ * CSRF/Origin-Checks und Security-Headers anzuwenden, während Redirect-Responses
+ * beibehalten werden.
  */
-export const POST = async (context: APIContext) => {
-  // Locale aus Referer ermitteln (Fallback)
-  const referer =
-    typeof context?.request?.headers?.get === 'function'
-      ? context.request.headers.get('referer') ?? ''
-      : '';
-  let locale = referer.includes('/de/') ? 'de' : referer.includes('/en/') ? 'en' : 'en';
+// Hilfsfunktion: Locale aus Referer oder Pfad ermitteln (de = neutral, en = /en)
+function detectLocale(context: APIContext): 'de' | 'en' {
+  const referer = context.request.headers.get('referer') || '';
+  try {
+    const pathname = referer ? new URL(referer).pathname : new URL(context.request.url).pathname;
+    const l = getPathLocale(pathname);
+    if (l === 'en') return 'en';
+    if (l === 'de') return 'de';
+    // Fallback: Wenn keine Locale ableitbar ist, standardmäßig 'en'
+    return 'en';
+  } catch {
+    // Fehler beim Parsen: konservativ 'en' als Fallback
+    return 'en';
+  }
+}
+
+// Rate-Limiter-Wrapper: mappt 429-Responses auf einen sicheren Redirect zur Login-Seite
+async function loginRateLimiter(context: APIContext): Promise<unknown> {
+  const result = await authLimiter(context);
+  if (result instanceof Response) {
+    const locale = detectLocale(context);
+    const loginPath = localizePath(locale, '/login');
+    return createSecureRedirect(`${loginPath}?error=TooManyRequests`);
+  }
+  return result;
+}
+
+const postHandler: ApiHandler = async (context: APIContext) => {
+  // Locale bestimmen (kann durch Formularfeld überschrieben werden)
+  let locale = detectLocale(context);
 
   // SecurityLogger Instanz erstellen
   const securityLogger = loggerFactory.createSecurityLogger();
@@ -89,7 +116,6 @@ export const POST = async (context: APIContext) => {
 
     // FormData in ein Objekt konvertieren
     for (const [key, value] of formData.entries()) {
-      // Checkbox-Werte richtig konvertieren
       if (key === 'rememberMe') {
         data[key] = value === 'on' || value === 'true';
       } else {
@@ -99,7 +125,6 @@ export const POST = async (context: APIContext) => {
 
     // Validierung durchführen
     const validationResult = loginValidator.validate(data);
-
     if (!validationResult.valid) {
       throw ServiceError.validation(
         'Die eingegebenen Daten sind ungültig',
@@ -107,11 +132,11 @@ export const POST = async (context: APIContext) => {
       );
     }
 
-    // Nach Validierung sicher casten
     loginData = data as unknown as LoginData;
   } catch (validationError) {
+    const email = loginData?.email || 'unknown';
     securityLogger.logAuthFailure({
-      email: loginData?.email || 'unknown',
+      email,
       reason: 'validation_error',
       error: validationError instanceof Error ? validationError.message : 'Unknown validation error'
     }, {
@@ -119,53 +144,42 @@ export const POST = async (context: APIContext) => {
       action: 'validation_failed',
       metadata: { validationError: validationError instanceof Error ? validationError.message : String(validationError) }
     });
-    throw ServiceError.validation(
-      'Die eingegebenen Daten sind ungültig',
-      { validationErrors: 'Formatierungsfehler' }
-    );
+    // Fehler weiterwerfen, Middleware übernimmt Redirect via onError
+    throw validationError;
   }
 
-  // Rate-Limiting anwenden
-  const rateLimitResponse = await standardApiLimiter(context);
-  if (rateLimitResponse) {
-    securityLogger.logSecurityEvent('RATE_LIMIT_EXCEEDED', {
+  // Runtime prüfen
+  if (!context.locals.runtime) {
+    const error = new Error('Runtime environment is not available. Are you running in a Cloudflare environment?');
+    securityLogger.logApiError({
       endpoint: '/api/auth/login',
-      ipAddress: context.clientAddress
-    }, baseContext);
-    return createSecureRedirect(`/${locale}/login?error=TooManyRequests`);
+      error: error.message,
+      statusCode: 500
+    }, {
+      ...baseContext,
+      action: 'runtime_error',
+      metadata: { error: error.message }
+    });
+    throw error;
   }
+
+  // AuthService erstellen
+  const authService = createAuthService({
+    db: context.locals.runtime.env.DB,
+    isDevelopment: import.meta.env.DEV
+  });
 
   try {
-    if (!context.locals.runtime) {
-      const error = new Error("Runtime environment is not available. Are you running in a Cloudflare environment?");
-      securityLogger.logApiError({
-        endpoint: '/api/auth/login',
-        error: error.message,
-        statusCode: 500
-      }, {
-        ...baseContext,
-        action: 'runtime_error',
-        metadata: { error: error.message }
-      });
-      throw error;
-    }
-
-    // AuthService erstellen
-    const authService = createAuthService({
-      db: context.locals.runtime.env.DB,
-      isDevelopment: import.meta.env.DEV
-    });
-
     // Login durchführen mit Service-Layer
     const authResult = await authService.login(
-      loginData.email,
-      loginData.password,
+      (loginData as LoginData).email,
+      (loginData as LoginData).password,
       context.clientAddress
     );
 
     // Erfolgreichen Login loggen
     securityLogger.logAuthSuccess({
-      email: loginData.email,
+      email: (loginData as LoginData).email,
       sessionId: authResult.sessionId,
       ipAddress: context.clientAddress
     }, {
@@ -176,25 +190,26 @@ export const POST = async (context: APIContext) => {
     });
 
     // Cookie-Lebensdauer basierend auf rememberMe-Option einstellen
-    const maxAge = loginData.rememberMe === true
-      ? 60 * 60 * 24 * 30 // 30 Tage bei "Remember Me"
-      : 60 * 60 * 24;     // 1 Tag bei Standard-Login
+    const maxAge = (loginData as LoginData).rememberMe === true
+      ? 60 * 60 * 24 * 30
+      : 60 * 60 * 24;
 
     // Session-Cookie setzen
     context.cookies.set('session_id', authResult.sessionId, {
       path: '/',
       httpOnly: true,
-      maxAge: maxAge,
+      maxAge,
       secure: context.url.protocol === 'https:',
       sameSite: 'lax'
     });
 
     // Weiterleitung zum Dashboard (locale-bewusst)
-    return createSecureRedirect(locale === 'en' ? '/en/dashboard' : '/dashboard');
+    const dashboardPath = localizePath(locale, '/dashboard');
+    return createSecureRedirect(dashboardPath);
   } catch (error) {
-    // Login-Fehler loggen
+    // Login-Fehler loggen und weiterwerfen (Middleware erzeugt Redirect)
     securityLogger.logAuthFailure({
-      email: loginData?.email || 'unknown',
+      email: (loginData as LoginData)?.email || 'unknown',
       reason: 'login_error',
       error: error instanceof Error ? error.message : 'Unknown login error'
     }, {
@@ -205,19 +220,21 @@ export const POST = async (context: APIContext) => {
         stack: error instanceof Error ? error.stack : undefined
       }
     });
-
-    // Zentralen Error-Handler verwenden
-    return handleAuthError(error, locale === 'en' ? '/en/login' : '/login');
+    throw error;
   }
 };
 
-// Explizite 405-Handler für nicht unterstützte Methoden
-const methodNotAllowed = () =>
-  createSecureJsonResponse(
-    { error: true, message: 'Method Not Allowed' },
-    405,
-    { Allow: 'POST' }
-  );
+export const POST = withRedirectMiddleware(postHandler, {
+  rateLimiter: loginRateLimiter,
+  onError: (context, error) => {
+    const locale = detectLocale(context);
+    const loginPath = localizePath(locale, '/login');
+    return handleAuthError(error, loginPath);
+  }
+});
+
+// Nicht-POST-Methoden: 405 Method Not Allowed
+const methodNotAllowed = () => createMethodNotAllowed('POST');
 
 export const GET = methodNotAllowed;
 export const PUT = methodNotAllowed;

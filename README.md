@@ -37,22 +37,26 @@ Evolution Hub ist eine moderne Full-Stack-Webanwendung, die eine Sammlung von En
 ### Installation
 
 1. Repository klonen:
+
    ```bash
    git clone <repository-url>
    cd evolution-hub
    ```
 
 2. Abhängigkeiten installieren:
+
    ```bash
    npm install
    ```
 
 3. Lokale Datenbank einrichten:
+
    ```bash
    npx tsx scripts/setup-local-dev.ts
    ```
 
 4. Umgebungsvariablen konfigurieren:
+
    ```bash
    cp .env.example .env
    ```
@@ -62,11 +66,13 @@ Evolution Hub ist eine moderne Full-Stack-Webanwendung, die eine Sammlung von En
 Zwei Terminals benötigt:
 
 **Terminal 1: Build-Prozess**
+
 ```bash
 npm run build:watch
 ```
 
 **Terminal 2: Entwicklungs-Server**
+
 ```bash
 npm run dev
 ```
@@ -89,6 +95,7 @@ Für detaillierte Anweisungen siehe [docs/local-development.md](docs/local-devel
 - **Unit-Tests:** Vitest für Komponenten und Services
 
 Tests ausführen:
+
 ```bash
 npm run test:e2e
 npm run test

@@ -105,8 +105,13 @@ describe('Authentifizierung - Integration Tests', () => {
         },
       });
 
-      expect(logoutResponse.status).toBe(200);
-      expect(logoutResponse.body).toHaveProperty('message', 'Erfolgreich abgemeldet');
+      // Deprecated endpoint now returns 410 Gone (HTML)
+      expect(logoutResponse.status).toBe(410);
+      expect(typeof logoutResponse.body).toBe('string');
+      expect(logoutResponse.body).toContain('<!doctype html>');
+      expect(logoutResponse.body).toContain('410 Gone');
+      expect(logoutResponse.headers['Cache-Control']).toBe('no-store');
+      expect(logoutResponse.headers['Content-Type']).toContain('text/html');
 
       logger.test.pass('Complete Auth Flow', 150);
     });

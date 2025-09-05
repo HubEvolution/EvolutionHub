@@ -8,15 +8,15 @@
 import type { APIContext } from 'astro';
 import { z } from 'zod';
 import { createSession } from '@/lib/auth-v2';
-import { createSecureRedirect, createSecureJsonResponse } from '@/lib/response-helpers';
+import { createSecureRedirect, createDeprecatedGoneHtml, createDeprecatedGoneJson } from '@/lib/response-helpers';
 import { logAuthSuccess, logAuthFailure } from '@/lib/security-logger';
 import { createEmailService, type EmailServiceDependencies } from '@/lib/services/email-service-impl';
 import { localizePath } from '@/lib/locale-path';
 import { loggerFactory } from '@/server/utils/logger-factory';
+import { withRedirectMiddleware } from '@/lib/api-middleware';
 
 // Logger-Instanzen erstellen
 const logger = loggerFactory.createLogger('verify-email');
-const securityLogger = loggerFactory.createSecurityLogger();
 
 // Validierungsschema für Verifikations-Anfragen (analog zu Newsletter-Pattern)
 const verificationSchema = z.object({
@@ -62,6 +62,8 @@ interface User {
  * - Bei Fehlern: /register mit entsprechendem error-Parameter
  */
 export const GET = async (context: APIContext) => {
+  // Deprecated legacy endpoint: return 410 Gone early with security logging
+  return createDeprecatedGoneHtml(context);
   // Locale aus Query (Fallback: Referer -> 'en') vorab berechnen
   const url = new URL(context.request.url);
   // Debug incoming request
@@ -338,27 +340,21 @@ export const GET = async (context: APIContext) => {
 };
 
 /**
- * 405 Method Not Allowed für nicht unterstützte Methoden (nur GET erlaubt)
+ * 410 Gone für nicht unterstützte Methoden (Endpoint deprecated, nur GET existierte)
  */
-const methodNotAllowed = (context: APIContext): Response => {
-  // Leichtes Logging für Policy Enforcement
-  logger.warn('Method not allowed on verify-email', {
-    resource: 'verify-email',
-    action: 'method_not_allowed',
-    metadata: { method: context.request.method }
-  });
-
-  return createSecureJsonResponse(
-    { error: true, message: 'Method Not Allowed' },
-    405,
+const methodNotAllowed = (context: APIContext): Response =>
+  createDeprecatedGoneJson(
+    context,
+    'This endpoint has been deprecated. Please migrate to the new authentication flow.',
     { Allow: 'GET' }
   );
-};
 
-export const POST = methodNotAllowed;
-export const PUT = methodNotAllowed;
-export const PATCH = methodNotAllowed;
-export const DELETE = methodNotAllowed;
+// Enforce CSRF/Origin checks on unsafe methods via redirect middleware; it preserves response shape
+export const POST = withRedirectMiddleware(async (context) => methodNotAllowed(context));
+export const PUT = withRedirectMiddleware(async (context) => methodNotAllowed(context));
+export const PATCH = withRedirectMiddleware(async (context) => methodNotAllowed(context));
+export const DELETE = withRedirectMiddleware(async (context) => methodNotAllowed(context));
+// Safe methods remain plain 410 JSON without CSRF enforcement
 export const OPTIONS = methodNotAllowed;
 export const HEAD = methodNotAllowed;
 

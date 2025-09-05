@@ -1,7 +1,8 @@
 import type { APIContext } from 'astro';
 import { standardApiLimiter } from '@/lib/rate-limiter';
-import { logAuthSuccess, logAuthFailure, logSecurityEvent } from '@/lib/security-logger';
-import { createSecureRedirect, createSecureJsonResponse } from '@/lib/response-helpers';
+import { logAuthSuccess, logAuthFailure } from '@/lib/security-logger';
+import { createSecureRedirect, createDeprecatedGoneHtml, createDeprecatedGoneJson } from '@/lib/response-helpers';
+import { withRedirectMiddleware } from '@/lib/api-middleware';
 
 /**
  * Gemeinsamer Logout-Handler für GET und POST
@@ -10,6 +11,8 @@ import { createSecureRedirect, createSecureJsonResponse } from '@/lib/response-h
  * WICHTIG: Dieser Endpunkt verwendet KEINE API-Middleware, da er Redirects statt JSON zurückgibt!
  */
 const handleLogout = async (context: APIContext) => {
+  // Deprecated legacy endpoint: return 410 Gone early with security logging
+  return createDeprecatedGoneHtml(context);
   // Rate-Limiting anwenden
   const rateLimitResponse = await standardApiLimiter(context);
   if (rateLimitResponse) {
@@ -64,35 +67,21 @@ const handleLogout = async (context: APIContext) => {
   }
 };
 
-export const POST = handleLogout;
+// Enforce CSRF/Origin checks for POST via redirect middleware (HTML 410 on same-origin)
+export const POST = withRedirectMiddleware(handleLogout);
 export const GET = handleLogout;
 
-// 405 Method Not Allowed für alle anderen Methoden
-const methodNotAllowed = (context: APIContext): Response => {
-  // Sicherheits-Logging für unzulässige Methoden
-  logSecurityEvent(
-    'API_ACCESS',
-    {
-      action: 'method_not_allowed',
-      method: context.request.method,
-      allowed: 'GET, POST',
-      path: '/api/auth/logout'
-    },
-    {
-      ipAddress: context.clientAddress,
-      targetResource: '/api/auth/logout'
-    }
-  );
-
-  return createSecureJsonResponse(
-    { error: true, message: 'Method Not Allowed' },
-    405,
+// 410 Method Gone für alle anderen Methoden (Endpoint deprecated)
+const methodNotAllowed = (context: APIContext): Response =>
+  createDeprecatedGoneJson(
+    context,
+    'This endpoint has been deprecated. Please migrate to the new authentication flow.',
     { Allow: 'GET, POST' }
   );
-};
 
-export const PUT = methodNotAllowed;
-export const PATCH = methodNotAllowed;
-export const DELETE = methodNotAllowed;
+// Unsafe methods: enforce CSRF/Origin checks, return 410 JSON on same-origin
+export const PUT = withRedirectMiddleware(async (context) => methodNotAllowed(context));
+export const PATCH = withRedirectMiddleware(async (context) => methodNotAllowed(context));
+export const DELETE = withRedirectMiddleware(async (context) => methodNotAllowed(context));
 export const OPTIONS = methodNotAllowed;
 export const HEAD = methodNotAllowed;

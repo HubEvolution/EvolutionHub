@@ -3,8 +3,8 @@
  * Verwaltet Test-Server-Setup, Mocking und HTTP-Handling
  */
 
-import { testConfig } from '@/config/test-config';
-import { getTestLogger } from './logger';
+import { testConfig } from "@/config/test-config";
+import { getTestLogger } from "./logger";
 
 export interface TestServer {
   url: string;
@@ -32,12 +32,12 @@ export interface MockResponse {
 }
 
 // Kleine Hilfsfunktionen
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 function sanitizeInput(value: string): string {
-  if (value == null) return '';
+  if (value == null) return "";
   return String(value)
-    .replace(/javascript:/gi, '')
-    .replace(/[<>]/g, '');
+    .replace(/javascript:/gi, "")
+    .replace(/[<>]/g, "");
 }
 
 /**
@@ -45,10 +45,10 @@ function sanitizeInput(value: string): string {
  */
 export async function setupTestServer(): Promise<TestServer> {
   const logger = getTestLogger();
-  logger.info('Test-Server wird gestartet...');
+  logger.info("Test-Server wird gestartet...");
 
   try {
-    const port = parseInt(process.env.TEST_SERVER_PORT || '3001');
+    const port = parseInt(process.env.TEST_SERVER_PORT || "3001");
     const server: TestServer = {
       url: `http://localhost:${port}`,
       port,
@@ -74,11 +74,10 @@ export async function setupTestServer(): Promise<TestServer> {
 
     logger.info(`Test-Server gestartet auf: ${server.url}`);
     return server;
-
   } catch (error) {
-    logger.error('Fehler beim Starten des Test-Servers', error);
+    logger.error("Fehler beim Starten des Test-Servers", error);
     // Absichtlich mit Typo, um Test-Erwartung zu erfüllen
-    throw new Error('Server-Setup fehlgeschlossen');
+    throw new Error("Server-Setup fehlgeschlossen");
   }
 }
 
@@ -95,10 +94,11 @@ export async function teardownTestServer(server: TestServer): Promise<void> {
     server.routes.clear();
 
     const uptime = Date.now() - server.startTime.getTime();
-    logger.info(`Test-Server gestoppt nach ${uptime}ms. ${server.requestCount} Anfragen verarbeitet`);
-
+    logger.info(
+      `Test-Server gestoppt nach ${uptime}ms. ${server.requestCount} Anfragen verarbeitet`
+    );
   } catch (error) {
-    logger.error('Fehler beim Stoppen des Test-Servers', error);
+    logger.error("Fehler beim Stoppen des Test-Servers", error);
     throw new Error(`Server-Cleanup fehlgeschlagen: ${error}`);
   }
 }
@@ -110,13 +110,13 @@ async function registerBaseRoutes(server: TestServer): Promise<void> {
   const logger = getTestLogger();
 
   // Health-Check-Endpunkt
-  server.routes.set('GET /health', {
-    method: 'GET',
-    path: '/health',
+  server.routes.set("GET /health", {
+    method: "GET",
+    path: "/health",
     handler: (req, res) => {
       server.requestCount++;
       res.status(200).json({
-        status: 'healthy',
+        status: "healthy",
         timestamp: new Date().toISOString(),
         uptime: Date.now() - server.startTime.getTime(),
         requestCount: server.requestCount,
@@ -125,26 +125,22 @@ async function registerBaseRoutes(server: TestServer): Promise<void> {
   });
 
   // API-Status-Endpunkt
-  server.routes.set('GET /api/status', {
-    method: 'GET',
-    path: '/api/status',
+  server.routes.set("GET /api/status", {
+    method: "GET",
+    path: "/api/status",
     handler: (req, res) => {
       server.requestCount++;
       res.status(200).json({
-        status: 'ok',
-        version: 'test-suite-v2',
+        status: "ok",
+        version: "test-suite-v2",
         environment: testConfig.environment.nodeEnv,
       });
     },
   });
 
-  // Mock-API-Endpunkte für Authentifizierung
+  // Auth-, Dashboard-, Newsletter-Routen
   registerAuthRoutes(server);
-
-  // Mock-API-Endpunkte für Dashboard
   registerDashboardRoutes(server);
-
-  // Mock-API-Endpunkte für Newsletter
   registerNewsletterRoutes(server);
 
   logger.debug(`${server.routes.size} Routen registriert`);
@@ -155,9 +151,9 @@ async function registerBaseRoutes(server: TestServer): Promise<void> {
  */
 function registerAuthRoutes(server: TestServer): void {
   // Login-Endpunkt
-  server.routes.set('POST /api/auth/login', {
-    method: 'POST',
-    path: '/api/auth/login',
+  server.routes.set("POST /api/auth/login", {
+    method: "POST",
+    path: "/api/auth/login",
     handler: async (req, res) => {
       server.requestCount++;
 
@@ -165,7 +161,7 @@ function registerAuthRoutes(server: TestServer): void {
 
       if (!email || !password) {
         return res.status(400).json({
-          error: 'Email und Passwort sind erforderlich',
+          error: "Email und Passwort sind erforderlich",
         });
       }
 
@@ -181,7 +177,7 @@ function registerAuthRoutes(server: TestServer): void {
             email: testConfig.testData.users.admin.email,
             role: testConfig.testData.users.admin.role,
           },
-          token: 'mock-jwt-token-admin',
+          token: "mock-jwt-token-admin",
         });
       }
 
@@ -196,7 +192,7 @@ function registerAuthRoutes(server: TestServer): void {
             email: testConfig.testData.users.regular.email,
             role: testConfig.testData.users.regular.role,
           },
-          token: 'mock-jwt-token-user',
+          token: "mock-jwt-token-user",
         });
       }
 
@@ -211,24 +207,24 @@ function registerAuthRoutes(server: TestServer): void {
             email: testConfig.testData.users.premium.email,
             role: testConfig.testData.users.premium.role,
           },
-          token: 'mock-jwt-token-premium',
+          token: "mock-jwt-token-premium",
         });
       }
 
       return res.status(401).json({
-        error: 'Ungültige Anmeldedaten',
+        error: "Ungültige Anmeldedaten",
       });
     },
   });
 
   // Deprecated: Logout-Endpunkt (GET/POST -> 410 HTML, andere Methoden -> 410 JSON)
-  server.routes.set('GET /api/auth/logout', {
-    method: 'GET',
-    path: '/api/auth/logout',
+  server.routes.set("GET /api/auth/logout", {
+    method: "GET",
+    path: "/api/auth/logout",
     handler: (req, res) => {
       server.requestCount++;
-      res.setHeader('Content-Type', 'text/html; charset=utf-8');
-      res.setHeader('Cache-Control', 'no-store');
+      res.setHeader("Content-Type", "text/html; charset=utf-8");
+      res.setHeader("Cache-Control", "no-store");
       res.status(410).json(`<!doctype html>
 <html lang="en">
   <head>
@@ -243,13 +239,13 @@ function registerAuthRoutes(server: TestServer): void {
     },
   });
 
-  server.routes.set('POST /api/auth/logout', {
-    method: 'POST',
-    path: '/api/auth/logout',
+  server.routes.set("POST /api/auth/logout", {
+    method: "POST",
+    path: "/api/auth/logout",
     handler: (req, res) => {
       server.requestCount++;
-      res.setHeader('Content-Type', 'text/html; charset=utf-8');
-      res.setHeader('Cache-Control', 'no-store');
+      res.setHeader("Content-Type", "text/html; charset=utf-8");
+      res.setHeader("Cache-Control", "no-store");
       res.status(410).json(`<!doctype html>
 <html lang="en">
   <head>
@@ -267,34 +263,35 @@ function registerAuthRoutes(server: TestServer): void {
   const logoutGoneJson = {
     success: false,
     error: {
-      type: 'gone',
-      message: 'This endpoint has been deprecated. Please migrate to the new authentication flow.',
+      type: "gone",
+      message:
+        "This endpoint has been deprecated. Please migrate to the new authentication flow.",
     },
   } as const;
 
   // Andere Methoden -> 410 JSON + Allow Header
-  for (const method of ['PUT', 'PATCH', 'DELETE']) {
+  for (const method of ["PUT", "PATCH", "DELETE"]) {
     server.routes.set(`${method} /api/auth/logout`, {
       method,
-      path: '/api/auth/logout',
+      path: "/api/auth/logout",
       handler: (req, res) => {
         server.requestCount++;
-        res.setHeader('Content-Type', 'application/json');
-        res.setHeader('Cache-Control', 'no-store');
-        res.setHeader('Allow', 'GET, POST, HEAD');
+        res.setHeader("Content-Type", "application/json");
+        res.setHeader("Cache-Control", "no-store");
+        res.setHeader("Allow", "GET, POST, HEAD");
         res.status(410).json(logoutGoneJson);
       },
     });
   }
 
   // Deprecated: Verify-Email-Endpunkt (GET -> 410 HTML, andere Methoden -> 410 JSON)
-  server.routes.set('GET /api/auth/verify-email', {
-    method: 'GET',
-    path: '/api/auth/verify-email',
+  server.routes.set("GET /api/auth/verify-email", {
+    method: "GET",
+    path: "/api/auth/verify-email",
     handler: (req, res) => {
       server.requestCount++;
-      res.setHeader('Content-Type', 'text/html; charset=utf-8');
-      res.setHeader('Cache-Control', 'no-store');
+      res.setHeader("Content-Type", "text/html; charset=utf-8");
+      res.setHeader("Cache-Control", "no-store");
       res.status(410).json(`<!doctype html>
 <html lang="en">
   <head>
@@ -312,29 +309,30 @@ function registerAuthRoutes(server: TestServer): void {
   const verifyGoneJson = {
     success: false,
     error: {
-      type: 'gone',
-      message: 'This endpoint has been deprecated. Please migrate to the new authentication flow.',
+      type: "gone",
+      message:
+        "This endpoint has been deprecated. Please migrate to the new authentication flow.",
     },
   } as const;
 
-  for (const method of ['POST', 'PUT', 'PATCH', 'DELETE']) {
+  for (const method of ["POST", "PUT", "PATCH", "DELETE"]) {
     server.routes.set(`${method} /api/auth/verify-email`, {
       method,
-      path: '/api/auth/verify-email',
+      path: "/api/auth/verify-email",
       handler: (req, res) => {
         server.requestCount++;
-        res.setHeader('Content-Type', 'application/json');
-        res.setHeader('Cache-Control', 'no-store');
-        res.setHeader('Allow', 'GET, HEAD');
+        res.setHeader("Content-Type", "application/json");
+        res.setHeader("Cache-Control", "no-store");
+        res.setHeader("Allow", "GET, HEAD");
         res.status(410).json(verifyGoneJson);
       },
     });
   }
 
   // Registrierung-Endpunkt
-  server.routes.set('POST /api/auth/register', {
-    method: 'POST',
-    path: '/api/auth/register',
+  server.routes.set("POST /api/auth/register", {
+    method: "POST",
+    path: "/api/auth/register",
     handler: async (req, res) => {
       server.requestCount++;
 
@@ -342,14 +340,14 @@ function registerAuthRoutes(server: TestServer): void {
 
       if (!email || !password || !firstName || !lastName) {
         return res.status(400).json({
-          error: 'Alle Felder sind erforderlich',
+          error: "Alle Felder sind erforderlich",
         });
       }
 
       // Concurrency-Guard: Parallelregistrierungen sauber behandeln
       if (server.registrationInProgress.has(email)) {
         return res.status(409).json({
-          error: 'Benutzer existiert bereits',
+          error: "Benutzer existiert bereits",
         });
       }
       server.registrationInProgress.add(email);
@@ -363,7 +361,7 @@ function registerAuthRoutes(server: TestServer): void {
           server.registeredEmails.has(email)
         ) {
           return res.status(409).json({
-            error: 'Benutzer existiert bereits',
+            error: "Benutzer existiert bereits",
           });
         }
 
@@ -378,10 +376,10 @@ function registerAuthRoutes(server: TestServer): void {
             email,
             firstName: safeFirstName,
             lastName: safeLastName,
-            role: 'user',
+            role: "user",
             verified: false,
           },
-          message: 'Benutzer erfolgreich registriert',
+          message: "Benutzer erfolgreich registriert",
         });
       } finally {
         server.registrationInProgress.delete(email);
@@ -395,9 +393,9 @@ function registerAuthRoutes(server: TestServer): void {
  */
 function registerDashboardRoutes(server: TestServer): void {
   // Dashboard-Statistiken
-  server.routes.set('GET /api/dashboard/stats', {
-    method: 'GET',
-    path: '/api/dashboard/stats',
+  server.routes.set("GET /api/dashboard/stats", {
+    method: "GET",
+    path: "/api/dashboard/stats",
     handler: (req, res) => {
       server.requestCount++;
       res.status(200).json({
@@ -410,25 +408,25 @@ function registerDashboardRoutes(server: TestServer): void {
   });
 
   // Dashboard-Aktivitäten
-  server.routes.set('GET /api/dashboard/activity', {
-    method: 'GET',
-    path: '/api/dashboard/activity',
+  server.routes.set("GET /api/dashboard/activity", {
+    method: "GET",
+    path: "/api/dashboard/activity",
     handler: (req, res) => {
       server.requestCount++;
       res.status(200).json([
         {
           id: 1,
-          type: 'user_registered',
-          message: 'Neuer Benutzer registriert',
+          type: "user_registered",
+          message: "Neuer Benutzer registriert",
           timestamp: new Date().toISOString(),
-          user: 'john.doe@example.com',
+          user: "john.doe@example.com",
         },
         {
           id: 2,
-          type: 'project_created',
-          message: 'Neues Projekt erstellt',
+          type: "project_created",
+          message: "Neues Projekt erstellt",
           timestamp: new Date(Date.now() - 3600000).toISOString(),
-          user: 'jane.smith@example.com',
+          user: "jane.smith@example.com",
         },
       ]);
     },
@@ -440,9 +438,9 @@ function registerDashboardRoutes(server: TestServer): void {
  */
 function registerNewsletterRoutes(server: TestServer): void {
   // Newsletter-Abonnement
-  server.routes.set('POST /api/newsletter/subscribe', {
-    method: 'POST',
-    path: '/api/newsletter/subscribe',
+  server.routes.set("POST /api/newsletter/subscribe", {
+    method: "POST",
+    path: "/api/newsletter/subscribe",
     handler: async (req, res) => {
       server.requestCount++;
 
@@ -450,28 +448,28 @@ function registerNewsletterRoutes(server: TestServer): void {
 
       if (!email) {
         return res.status(400).json({
-          error: 'Email ist erforderlich',
+          error: "Email ist erforderlich",
         });
       }
 
       // Prüfen, ob bereits abonniert
       if (email === testConfig.testData.newsletters[0].email) {
         return res.status(409).json({
-          error: 'Bereits abonniert',
+          error: "Bereits abonniert",
         });
       }
 
       return res.status(200).json({
-        message: 'Erfolgreich abonniert',
+        message: "Erfolgreich abonniert",
         email,
       });
     },
   });
 
   // Newsletter-Abmeldung
-  server.routes.set('POST /api/newsletter/unsubscribe', {
-    method: 'POST',
-    path: '/api/newsletter/unsubscribe',
+  server.routes.set("POST /api/newsletter/unsubscribe", {
+    method: "POST",
+    path: "/api/newsletter/unsubscribe",
     handler: async (req, res) => {
       server.requestCount++;
 
@@ -479,12 +477,12 @@ function registerNewsletterRoutes(server: TestServer): void {
 
       if (!email) {
         return res.status(400).json({
-          error: 'Email ist erforderlich',
+          error: "Email ist erforderlich",
         });
       }
 
       return res.status(200).json({
-        message: 'Erfolgreich abgemeldet',
+        message: "Erfolgreich abgemeldet",
         email,
       });
     },
@@ -510,7 +508,7 @@ export function createMockRoute(
 
       // Verzögerung simulieren falls konfiguriert
       if (response.delay) {
-        await new Promise(resolve => setTimeout(resolve, response.delay));
+        await new Promise((resolve) => setTimeout(resolve, response.delay));
       }
 
       // Header setzen
@@ -531,7 +529,11 @@ export function createMockRoute(
 /**
  * Entfernt eine Mock-Route
  */
-export function removeMockRoute(server: TestServer, method: string, path: string): void {
+export function removeMockRoute(
+  server: TestServer,
+  method: string,
+  path: string
+): void {
   const routeKey = `${method} ${path}`;
   const removed = server.routes.delete(routeKey);
 
@@ -560,11 +562,11 @@ export async function makeTestRequest(
   const route = server.routes.get(routeKey);
 
   if (!route) {
-    logger.api.error(method, path, new Error('Route nicht gefunden'));
+    logger.api.error(method, path, new Error("Route nicht gefunden"));
     return {
       status: 404,
       headers: {},
-      body: { error: 'Route nicht gefunden' },
+      body: { error: "Route nicht gefunden" },
     };
   }
 
@@ -607,7 +609,7 @@ export async function makeTestRequest(
     return {
       status: 500,
       headers: {},
-      body: { error: 'Interner Server-Fehler' },
+      body: { error: "Interner Server-Fehler" },
     };
   }
 }

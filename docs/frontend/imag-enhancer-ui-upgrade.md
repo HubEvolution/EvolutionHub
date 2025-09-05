@@ -240,7 +240,7 @@ Betroffene Blöcke/Komponenten:
 - Service (`src/lib/services/ai-image-service.ts`):
   - `runReplicate()` wirft bei Fehlern eine aussagekräftige Meldung; `generate()` fängt 404 in Dev ODER fehlendes `REPLICATE_API_TOKEN` ab (`ENVIRONMENT=development|dev|''`) und setzt `outputUrl = originalUrl`.
   - Ergebnis wird wie gewohnt nach R2 geschrieben; die Response enthält beide URLs.
-  - Localhost-Regel: In Development und bei lokalem `requestOrigin` (localhost, 127.0.0.1, *.local, RFC1918 10./172.16–31./192.168.*) wird __ohne Replicate-Call__ direkt `originalUrl` zurückgegeben ("force dev echo"). Auf Test-/Staging-/Produktionsdomains erfolgen echte Replicate-Calls (bei vorhandenem Token).
+  - Localhost-Regel: In Development und bei lokalem `requestOrigin` (localhost, 127.0.0.1, *.local, RFC1918 10./172.16–31./192.168.*) wird **ohne Replicate-Call** direkt `originalUrl` zurückgegeben ("force dev echo"). Auf Test-/Staging-/Produktionsdomains erfolgen echte Replicate-Calls (bei vorhandenem Token).
 
 ## Offene Punkte / Nächste Schritte
 

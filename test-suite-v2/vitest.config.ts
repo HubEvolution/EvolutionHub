@@ -64,6 +64,12 @@ export default defineConfig({
   resolve: {
     alias: {
       // Specific aliases MUST come before the generic '@' alias
+      '@/config/logging': path.resolve(__dirname, '../src/config/logging.ts'),
+      '@/server/utils/logger-factory': path.resolve(__dirname, '../src/server/utils/logger-factory.ts'),
+      '@/lib/response-helpers': path.resolve(__dirname, '../src/lib/response-helpers.ts'),
+      '@/lib/rate-limiter': path.resolve(__dirname, '../src/lib/rate-limiter.ts'),
+      '@/lib/security-logger': path.resolve(__dirname, '../src/lib/security-logger.ts'),
+      '@/server/utils/logger': path.resolve(__dirname, '../src/server/utils/logger.ts'),
       '@/config': path.resolve(__dirname, './config'),
       '@/types': path.resolve(__dirname, './types'),
       '@/utils': path.resolve(__dirname, './utils'),

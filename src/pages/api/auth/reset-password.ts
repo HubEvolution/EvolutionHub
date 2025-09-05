@@ -1,6 +1,6 @@
 import type { APIContext } from 'astro';
 import { standardApiLimiter } from '@/lib/rate-limiter';
-import { createSecureRedirect, createSecureJsonResponse } from '@/lib/response-helpers';
+import { createSecureRedirect, createDeprecatedGoneHtml, createDeprecatedGoneJson } from '@/lib/response-helpers';
 import { createValidator, ValidationRules, type ValidationSchema } from '@/lib/validators';
 import { createAuthService } from '@/lib/services/auth-service-impl';
 import { ServiceError, ServiceErrorType } from '@/lib/services/types';
@@ -43,6 +43,8 @@ const resetPasswordValidator = createValidator<ResetPasswordData>(resetPasswordS
  * WICHTIG: Dieser Endpunkt verwendet KEINE API-Middleware, da er Redirects statt JSON zurückgibt!
  */
 export const POST = async (context: APIContext) => {
+  // Deprecated legacy endpoint: return 410 Gone early with security logging
+  return createDeprecatedGoneHtml(context);
   // Security Logger initialisieren
   const securityLogger = loggerFactory.createSecurityLogger();
 
@@ -213,13 +215,11 @@ export const POST = async (context: APIContext) => {
   }
 };
 
-// Explizite 405-Handler für nicht unterstützte Methoden
-const methodNotAllowed = () =>
-  createSecureJsonResponse(
-    { error: true, message: 'Method Not Allowed' },
-    405,
-    { Allow: 'POST' }
-  );
+// Explizite 410-Handler für nicht unterstützte Methoden (Endpoint deprecated)
+const methodNotAllowed = (context: APIContext) =>
+  createDeprecatedGoneJson(context, 'This endpoint has been deprecated. Please migrate to the new authentication flow.', {
+    allow: 'POST'
+  });
 
 export const GET = methodNotAllowed;
 export const PUT = methodNotAllowed;

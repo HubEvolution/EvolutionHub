@@ -12,6 +12,16 @@ export default defineConfig({
     watch: false,
   },
   resolve: {
-    alias: { '@': resolve(__dirname, './src') },
+    alias: {
+      // Spezifische Aliases zuerst (vor generischem '@')
+      '@/config/logging': resolve(__dirname, './src/config/logging.ts'),
+      '@/config/test-config': resolve(__dirname, './tests/src/legacy/config/test-config.ts'),
+      '@/server/utils/logger-factory': resolve(__dirname, './src/server/utils/logger-factory.ts'),
+      '@/lib/response-helpers': resolve(__dirname, './src/lib/response-helpers.ts'),
+      '@/lib/rate-limiter': resolve(__dirname, './src/lib/rate-limiter.ts'),
+      '@/lib/security-logger': resolve(__dirname, './src/lib/security-logger.ts'),
+      '@/server/utils/logger': resolve(__dirname, './src/server/utils/logger.ts'),
+      '@': resolve(__dirname, './src'),
+    },
   },
 });
