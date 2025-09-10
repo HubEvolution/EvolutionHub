@@ -204,7 +204,7 @@ Stytch CLI / API:
 - Redirect‑Parameter `r` clientseitig validieren; Server (Cookie `post_auth_redirect`) hat Vorrang. (Policy siehe Sicherheit)
 - Magic‑Link Cooldown & i18n: Der Submit‑Button ist nach Absenden 60s wirklich deaktiviert (`disabled`, `aria-disabled`, `pointer-events: none`, visuelles Feedback). Countdown‑Text ist i18n‑fähig über `pages.auth.magic.cooldown` (z. B. „Resend in {s}s“ / „Erneut senden in {s}s“).
 - Cross‑Tab‑Listener entfällt: Der Callback leitet direkt zum Ziel weiter; ein BroadcastChannel‑Listener auf den Login‑Seiten ist nicht mehr erforderlich.
- - Passwort‑Login entfernt: Die Login‑Seiten zeigen ausschließlich das Magic‑Link‑Formular (nur E‑Mail). Der frühere E‑Mail/Passwort‑Flow ist vollständig entfernt.
+- Passwort‑Login entfernt: Die Login‑Seiten zeigen ausschließlich das Magic‑Link‑Formular (nur E‑Mail). Der frühere E‑Mail/Passwort‑Flow ist vollständig entfernt.
 - Settings UI: Passwort‑Abschnitt aktuell verborgen (Flow deaktiviert); E‑Mail wird read‑only angezeigt mit lokalisiertem Hinweis und deaktivierter „Change Email“‑CTA (geplante Re‑Verifizierung via Stytch folgt).
 
 ## Guards & Legacy-Abschaltung
@@ -221,7 +221,7 @@ Stytch CLI / API:
 - Flag-Wechsel stytch ↔ legacy.
 - CI: Tests gegen Staging/Testing-Domain (TEST_BASE_URL) gemäß bestehender Teststrategie.
 - Legacy-Login (E-Mail/Passwort) entfernt: Tests wurden aktualisiert/entfernt. Fokus der E2E liegt auf direktem Callback‑Redirect und Session‑Cookie‑Setzung.
- - Callback‑Redirect‑E2E: Klicke den Magic‑Link und erwarte einen direkten Redirect vom Callback auf das Ziel (ggf. lokalisiert). Kein `/auth/notify`‑Zwischenschritt mehr.
+- Callback‑Redirect‑E2E: Klicke den Magic‑Link und erwarte einen direkten Redirect vom Callback auf das Ziel (ggf. lokalisiert). Kein `/auth/notify`‑Zwischenschritt mehr.
 
 ### E2E Fake‑Modus (Stytch)
 
@@ -316,37 +316,37 @@ Empfehlung:
 - Erwartung: 302 → `/dashboard`, Cookies `session_id` und `__Host-session` gesetzt.
 - Danach für schnelles lokales Iterieren optional zurück zu `STYTCH_BYPASS = "1"`.
 
-2) Tests erweitern (Integration)
+1) Tests erweitern (Integration)
 
 - Guards: `/dashboard` ohne Session → 302 auf `/(en/)login`; mit Session → 200/302 OK.
 - Redirect‑Policy (`r`): nur relative Pfade zulassen (externes Ziel ignorieren → Fallback `AUTH_REDIRECT`).
 - Flag‑Wechsel: `AUTH_PROVIDER=legacy` vs. `stytch` (UI: Passwortformular ausgeblendet; Endpunktverhalten unverändert/erwartet).
 
-3) CI aktualisieren
+1) CI aktualisieren
 
 - `astro check` + `vitest` (Workspace) integrieren; Port 8787 im Dev‑Worker fest verdrahten.
 - `TEST_BASE_URL` nutzen; wenn nicht gesetzt: lokalen Dev‑Worker in CI starten (Port 8787).
 - Secrets in CI für `testing`: `STYTCH_PROJECT_ID`, `STYTCH_SECRET` (TEST‑Werte).
 
-4) Staging vorbereiten
+1) Staging vorbereiten
 
 - Redirect‑URI ist bereits whitelisted.
 - Wrangler‑Secrets in `staging` setzen (TEST‑Werte), `AUTH_PROVIDER=stytch`, `STYTCH_BYPASS=0`.
 - Smoke: Request → E‑Mail → Callback → Dashboard/Cookies prüfen.
 
-5) Production vorbereiten
+1) Production vorbereiten
 
 - LIVE‑Redirect‑URI bestätigt; Wrangler‑Secrets in `production` setzen (LIVE‑Werte).
 - Sicherheitsreview: CSP/Headers, `__Host-session` (Secure, Strict, Path=/).
 - Turnstile in Prod aktivieren (nur Prod erzwingen).
 - Rollout: `AUTH_PROVIDER=stytch` auf Prod setzen, Monitoring aktiv.
 
-6) Monitoring/Logging
+1) Monitoring/Logging
 
 - Events: Magic‑Link Request/Callback; Fehlerpfade (Invalid/Expired/CSRF/RateLimit).
 - Alerts/Thresholds; Dashboard‑Queries definieren.
 
-7) Cleanup (nach Beobachtungsfenster)
+1) Cleanup (nach Beobachtungsfenster)
 
 - Deprecated Dateien entfernen, `routes.md` & CHANGELOG aktualisieren.
 

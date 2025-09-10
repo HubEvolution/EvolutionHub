@@ -101,6 +101,7 @@ Wir haben uns für Astro als primäres Frontend-Framework entschieden, mit folge
 Die Astro-Frontend-Architektur wird wie folgt implementiert:
 
 1. **Projektstruktur**:
+
    ```
    src/
    ├── components/     # Wiederverwendbare UI-Komponenten

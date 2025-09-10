@@ -24,6 +24,7 @@ Bevor du mit der Entwicklung beginnst, stelle sicher, dass du folgende Tools ins
 ### Erforderliche Software
 
 - **Node.js**: Version 18 oder höher
+
   ```bash
   # Überprüfe die installierte Version
   node --version
@@ -34,6 +35,7 @@ Bevor du mit der Entwicklung beginnst, stelle sicher, dass du folgende Tools ins
   ```
 
 - **npm**: Version 8 oder höher (wird mit Node.js installiert)
+
   ```bash
   # Überprüfe die installierte Version
   npm --version
@@ -43,6 +45,7 @@ Bevor du mit der Entwicklung beginnst, stelle sicher, dass du folgende Tools ins
   ```
 
 - **Git**: Aktuelle Version
+
   ```bash
   # Überprüfe die installierte Version
   git --version
@@ -52,6 +55,7 @@ Bevor du mit der Entwicklung beginnst, stelle sicher, dass du folgende Tools ins
   ```
 
 - **Wrangler CLI**: Cloudflare Workers Command Line Interface
+
   ```bash
   # Installiere Wrangler global
   npm install -g wrangler
@@ -341,6 +345,7 @@ http://localhost:8787/debug  # (Wrangler dev)
 ```
 
 **Features:**
+
 - ✅ **Auto-Environment-Detection**: Automatische Verbindungsart-Erkennung
 - ✅ **WebSocket-Streaming**: Real-time Logs für `npm run dev` (Astro)
 - ✅ **SSE-Streaming**: Near real-time Logs für `npm run dev:wrangler` (Cloudflare)
@@ -350,18 +355,21 @@ http://localhost:8787/debug  # (Wrangler dev)
 #### 2. **Traditionelle Logging-Methoden**
 
 **Wrangler-Logs**:
+
 ```bash
 # Zeige Logs an
 wrangler tail
 ```
 
 **Lokales Debugging**:
+
 ```bash
 # Starte mit Debugging-Flags
 NODE_OPTIONS="--inspect" npm run dev
 ```
 
 **Konsolen-Debugging**:
+
 - Füge `console.log()` oder `console.error()` in deinen Code ein
 - Logs erscheinen sowohl in Terminal als auch im Debug Panel
 
@@ -384,6 +392,7 @@ npm run test -- -t "test name"
 **Problem**: Wrangler kann sich nicht bei Cloudflare authentifizieren.
 
 **Lösung**:
+
 ```bash
 # Authentifiziere dich bei Cloudflare
 wrangler login
@@ -397,6 +406,7 @@ wrangler whoami
 **Problem**: D1-Datenbankoperationen schlagen fehl.
 
 **Lösung**:
+
 ```bash
 # Überprüfe die Datenbank-ID in wrangler.toml
 # Stelle sicher, dass die lokale Datenbank existiert
@@ -411,6 +421,7 @@ wrangler d1 create evolution-hub-local
 **Problem**: TypeScript-Compiler meldet Fehler.
 
 **Lösung**:
+
 ```bash
 # Überprüfe TypeScript-Fehler
 npm run type-check
@@ -424,6 +435,7 @@ npm install --save-dev @types/node@latest
 **Problem**: Astro-Build schlägt fehl.
 
 **Lösung**:
+
 ```bash
 # Lösche den Cache
 rm -rf .astro/
@@ -440,6 +452,7 @@ npm ci
 ### Feature-Entwicklung
 
 1. **Branch erstellen**:
+
    ```bash
    git checkout -b feature/neue-funktion
    ```
@@ -451,6 +464,7 @@ npm ci
    - Überprüfe Linting: `npm run lint`
 
 3. **Commit und Push**:
+
    ```bash
    git add .
    git commit -m "feat: Neue Funktion implementiert"
@@ -464,6 +478,7 @@ npm ci
 ### Bugfix-Workflow
 
 1. **Branch erstellen**:
+
    ```bash
    git checkout -b bugfix/fehler-beheben
    ```
@@ -477,6 +492,7 @@ npm ci
    - Stelle sicher, dass der Test erfolgreich ist
 
 4. **Commit und Push**:
+
    ```bash
    git add .
    git commit -m "fix: Fehler in XYZ behoben"
@@ -494,6 +510,7 @@ npm ci
    - Identifiziere unnötige Hydration
 
 2. **Bundle-Analyse**:
+
    ```bash
    # Führe eine Bundle-Analyse durch
    npm run build -- --analyze

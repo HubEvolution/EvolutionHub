@@ -87,11 +87,13 @@ Wir haben uns für folgende Technologien entschieden:
 ### Alternative 1: Next.js mit Vercel
 
 **Vorteile**:
+
 - Reiferes Ökosystem und umfangreichere Dokumentation
 - Nahtlose Integration mit Vercel
 - Größere Community und mehr verfügbare Beispiele
 
 **Nachteile**:
+
 - Weniger effizient bei der JavaScript-Auslieferung im Vergleich zu Astro
 - Potenziell höhere Kosten für Vercel im Vergleich zu Cloudflare
 - Weniger Kontrolle über Edge-Funktionen
@@ -99,11 +101,13 @@ Wir haben uns für folgende Technologien entschieden:
 ### Alternative 2: SvelteKit mit traditionellem Hosting
 
 **Vorteile**:
+
 - Svelte bietet hervorragende Performance und weniger Client-JavaScript
 - Flexibleres Hosting-Modell
 - Einfachere Lernkurve für Entwickler
 
 **Nachteile**:
+
 - Weniger ausgereiftes Ökosystem als React
 - Traditionelles Hosting erfordert mehr Infrastrukturmanagement
 - Weniger Edge-Computing-Möglichkeiten
@@ -111,11 +115,13 @@ Wir haben uns für folgende Technologien entschieden:
 ### Alternative 3: Monolithische Architektur mit Express.js und MongoDB
 
 **Vorteile**:
+
 - Einfachere Architektur und Entwicklungsworkflow
 - Reifere Technologien mit umfangreicher Dokumentation
 - Flexiblere Datenbankabfragen mit MongoDB
 
 **Nachteile**:
+
 - Höhere Infrastrukturkosten
 - Schlechtere Performance für statische Inhalte
 - Manuelle Skalierung erforderlich

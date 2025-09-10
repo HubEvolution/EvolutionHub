@@ -18,15 +18,15 @@ Hinweis: Die frühere Login-Variante `login-v2` wurde entfernt. Verwende ausschl
 
 ## Endpunkte (kanonisch)
 
-- Endpunkte (Stytch Magic Link):
+* Endpunkte (Stytch Magic Link):
   * `POST /api/auth/magic/request` — Fordert einen Magic Link an (JSON `{ success: true, data: { sent: true } }`)
   * `GET  /api/auth/callback` — Callback, setzt Session‑Cookies und leitet direkt zum Ziel weiter
   * `GET|POST /api/user/logout` — weiterhin aktiv (v2 bevorzugt)
-- Eigenschaften:
+* Eigenschaften:
   * Stytch‑Integration in `src/lib/stytch.ts` (Fake‑Modus via `E2E_FAKE_STYTCH` für Tests)
   * Zentrale Fehlerbehandlung/Headers: `src/lib/api-middleware.ts`, `src/lib/response-helpers.ts`
   * Session‑Cookies Ziel: `__Host-session` (HttpOnly, Secure, SameSite=Strict, Path=/); Legacy `session_id` kann parallel vorkommen
-- Verhalten:
+* Verhalten:
   * `magic/request` antwortet JSON (kein Redirect)
   * `callback` antwortet mit direktem Redirect zum Ziel (ggf. lokalisiert)
 
@@ -84,6 +84,7 @@ Der zentrale Error-Handler leitet daraufhin auf die Verifizierungsseite um:
 HTTP/1.1 302 Found
 Location: /verify-email?email=<email>
 ```
+
 Es wird in diesem Fall keine Session erstellt.
 
 ### Fehlercodes (Login)

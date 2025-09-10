@@ -271,7 +271,7 @@ Hinweis: Der Legacy Login-Endpunkt `/api/auth/login` ist deprecatet und liefert 
 
 ## Mermaid Diagram der Routenhierarchie
 
-```
+```mermaid
 graph TD
   Root[/] --> agb[/agb]
   Root --> cookie[/cookie-einstellungen]
@@ -385,7 +385,7 @@ graph TD
 
 ## JSON export (flache Route Objekte)
 
-```
+```json
 [
   { "path": "/", "source": "src/pages/index.astro", "type": "page" },
   { "path": "/agb", "source": "src/pages/agb.astro", "type": "page" },

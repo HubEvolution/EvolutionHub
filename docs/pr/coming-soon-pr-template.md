@@ -3,6 +3,7 @@
 Dieses Dokument enthält eine PR-Template-Vorlage, eine Checkliste für Reviewer und ein Beispiel-PR-Text, den du verwenden kannst, wenn du Änderungen am Coming-Soon Feature einreichst.
 
 Dateien, die relevant sind:
+
 - [`src/components/ui/ComingSoon.astro`](src/components/ui/ComingSoon.astro:1)
 - [`scripts/coming-soon-client.ts`](scripts/coming-soon-client.ts:1)
 - [`public/scripts/coming-soon-client.js`](public/scripts/coming-soon-client.js:1)
@@ -11,6 +12,7 @@ Dateien, die relevant sind:
 - [`src/styles/coming-soon.css`](src/styles/coming-soon.css:1)
 
 PR-Checklist (für Autor)
+
 - [ ] Branch-Name nach Konvention: feature/coming-soon-*
 - [ ] Lokale Tests: `npm run dev` startet, Seite /pricing lädt mit Overlay wie erwartet
 - [ ] E2E: `npx playwright test tests/e2e/specs/coming-soon.spec.ts` läuft grün
@@ -21,6 +23,7 @@ PR-Checklist (für Autor)
 - [ ] Keine sensitive Daten in `public/scripts/coming-soon-client.js`
 
 Reviewer-Checklist (für Reviewer)
+
 - [ ] Sind die Activation-Mechanismen korrekt implementiert? (ENV, Frontmatter, Patterns)
 - [ ] Wurde die Overlay-Komponente korrekt in [`src/layouts/BaseLayout.astro`](src/layouts/BaseLayout.astro:1) integriert?
 - [ ] Wurde das Client-Script externalisiert und CSP-Compliance geprüft?
@@ -31,6 +34,7 @@ Beispiel-PR-Titel
 `feat(coming-soon): add coming-soon overlay + external client script`
 
 Beispiel-PR-Beschreibung (kopierbar)
+
 ```
 Kurzbeschreibung
 Implementiert ein wiederverwendbares Coming-Soon Overlay mit:
@@ -54,9 +58,11 @@ Rollout / Entfernen des Overlays
 ```
 
 Release-Notes / Kurzbeschreibung für Release
+
 - Temporäres Coming-Soon Overlay für nicht-finalisierte Seiten, gesteuert per Frontmatter, zentraler Config oder ENV-Flag. (Siehe [`docs/frontend/coming-soon.md`](docs/frontend/coming-soon.md:1))
 
 Troubleshooting
+
 - Wenn Overlay nicht erscheint: prüfe `COMING_SOON` ENV und `COMING_SOON_PATTERNS`
 - Wenn Skript nicht geladen wird: prüfe `/public/scripts/coming-soon-client.js` im gebauten Output und CSP
 

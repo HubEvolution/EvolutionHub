@@ -75,6 +75,7 @@ Aktualisiert das Profil des aktuell authentifizierten Benutzers. Verwendet `with
 * `username`: string (3–30 Zeichen, nur Buchstaben/Zahlen/Underscore)
 
 Beispiel:
+
 ```bash
 curl -i -X POST \
   -F 'name=Max Neuer-Name' \
@@ -134,6 +135,7 @@ Set-Cookie: session_id=; Path=/; HttpOnly; SameSite=Lax; Secure; Max-Age=0
 ### Fehlerhafte Antwort – /api/user/logout (302 Redirect)
 
 Beispiel (Rate-Limit):
+
 ```http
 HTTP/1.1 302 Found
 Location: /login?error=rate_limit
@@ -197,6 +199,7 @@ Multipart/form-data mit einem Feld `avatar`, das die Bilddatei enthält.
 * `new-password`: string (≥ 6 Zeichen)
 
 Beispiel:
+
 ```bash
 curl -i -X POST \
   -F 'current-password=altes-passwort123' \
@@ -218,6 +221,7 @@ curl -i -X POST \
 ### Fehlerhafte Antworten – /api/user/password
 
 Beispiel falsches aktuelles Passwort (`403 Forbidden`):
+
 ```json
 {
   "success": false,
@@ -229,6 +233,7 @@ Beispiel falsches aktuelles Passwort (`403 Forbidden`):
 ```
 
 Beispiel Validierungsfehler (`400 Bad Request`):
+
 ```json
 {
   "success": false,

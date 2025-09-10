@@ -18,7 +18,6 @@ Die Migration von Cloudflare Pages zu Cloudflare Workers für das Projekt Evolut
 
 Diese Ergänzung beschreibt die projektspezifische Vorbereitung für die Migration von Cloudflare Pages zu Cloudflare Workers – rein dokumentarisch. Es werden keine Änderungen an Code, Build, CI/CD oder Cloudflare-Konfiguration durchgeführt.
 
-
 ### Ist‑Zustand EvolutionHub (Referenz)
 
 * API‑Endpunkte unter `src/pages/api/`, zentrale Middleware in `src/lib/api-middleware.ts` (`withApiMiddleware()`, `withAuthApiMiddleware()`).
@@ -30,7 +29,6 @@ Diese Ergänzung beschreibt die projektspezifische Vorbereitung für die Migrati
   * Debug‑Login: `src/pages/api/debug-login.ts` (nur Dev; setzt `session_id` Cookie; in Prod blockiert).
   * Logout v1/v2: `src/pages/api/user/logout*.ts` (Custom Handler, kein Middleware‑Wrapper).
   * Avatar: `src/pages/api/user/avatar.ts` (nutzt direkt `applySecurityHeaders()`).
-
 
 ### Pre‑Migration Checklist (Doc‑only)
 
@@ -54,7 +52,6 @@ Diese Ergänzung beschreibt die projektspezifische Vorbereitung für die Migrati
 * Security & Rate‑Limiting:
   * Wenn `run_worker_first = true`, greifen Middleware‑Security‑Header/Rate‑Limit auch für Assets.
   * Wenn nicht, `_headers` für statische Assets pflegen; Rate‑Limit dann nur für API‑Handler.
-
 
 ### Beispiel: `wrangler.toml` Skeleton (Platzhalter/TODOs)
 

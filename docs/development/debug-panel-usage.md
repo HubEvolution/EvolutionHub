@@ -5,6 +5,7 @@ Das Evolution Hub Debug Panel bietet Live-Log-Streaming für optimale Entwicklun
 ## Schnellstart
 
 ### URLs
+
 ```bash
 # Astro Development
 http://localhost:4322/debug
@@ -29,11 +30,13 @@ Connected. Waiting for logs...
 ## Connection-Status
 
 ### Badges
+
 - **🟢 WEBSOCKET**: Real-time (Astro Dev) - <10ms Latenz
-- **🔵 SSE**: Near real-time (Wrangler Dev) - 100-500ms Latenz  
+- **🔵 SSE**: Near real-time (Wrangler Dev) - 100-500ms Latenz
 - **🟠 POLLING**: Fallback - 1-5s Latenz
 
 ### Live-Indicator
+
 - **● (pulsierend)**: Aktive Verbindung
 - **○ (statisch)**: Getrennt oder wird aufgebaut
 
@@ -47,6 +50,7 @@ Connected. Waiting for logs...
 ## Praktisches Debugging
 
 ### API-Requests verfolgen
+
 ```
 06:02:20  [INFO]   API request: POST /api/auth/login  
 06:02:21  [INFO]   Authentication successful: user-123
@@ -55,6 +59,7 @@ Connected. Waiting for logs...
 ```
 
 ### Security-Events
+
 ```
 06:02:30  [WARN]   Multiple login attempts: 192.168.1.100
 06:02:31  [ERROR]  Authentication failed: invalid_credentials
@@ -64,7 +69,9 @@ Connected. Waiting for logs...
 ## Troubleshooting
 
 ### Problem: Keine Logs angezeigt
+
 **Lösung:**
+
 ```bash
 # 1. Server-Status prüfen
 npm run dev          # Astro
@@ -78,7 +85,9 @@ Ctrl+Shift+R
 ```
 
 ### Problem: Connection-Fehler
+
 **Lösung:**
+
 ```bash
 # WebSocket-Server testen
 curl -I http://localhost:8081
@@ -90,6 +99,7 @@ curl -N http://localhost:8787/api/debug/logs-stream
 ## Best Practices
 
 ### Strukturiertes Logging
+
 ```typescript
 // ✅ Gut
 import { log } from '@/server/utils/logger';
@@ -103,6 +113,7 @@ console.log(`User ${user.id} updated profile`);
 ```
 
 ### Security-bewusst
+
 ```typescript
 // ✅ Sicher
 log('info', 'Password reset', {
@@ -143,7 +154,8 @@ npm run test:e2e:chromium -- tests/e2e/specs/en-login-auth-redirect.spec.ts --wo
 ```
 
 3. CSRF-Hinweis (wichtig für POST in Tests):
-- Playwright sendet global einen same-origin `Origin`-Header. Details: 
+
+- Playwright sendet global einen same-origin `Origin`-Header. Details:
   [docs/development/ci-cd.md#csrf-schutz-in-e2e-tests-astrocloudflare-workers](./ci-cd.md#csrf-schutz-in-e2e-tests-astrocloudflare-workers)
 
 4. Optional: Manuell testen (curl):

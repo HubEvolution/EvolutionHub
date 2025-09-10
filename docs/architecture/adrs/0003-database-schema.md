@@ -97,11 +97,13 @@ Wir haben uns für folgende Datenbankstrategie entschieden:
 ### Alternative 1: NoSQL-Datenbank (z.B. Cloudflare KV oder Durable Objects)
 
 **Vorteile**:
+
 - Bessere Skalierbarkeit für bestimmte Anwendungsfälle
 - Flexibleres Schema ohne Migrationen
 - Möglicherweise bessere Performance für einfache Schlüssel-Wert-Operationen
 
 **Nachteile**:
+
 - Weniger mächtige Abfragemöglichkeiten als SQL
 - Schwierigere Umsetzung von Beziehungen zwischen Entitäten
 - Komplexere Datenmodellierung für relationale Daten
@@ -109,11 +111,13 @@ Wir haben uns für folgende Datenbankstrategie entschieden:
 ### Alternative 2: Externe SQL-Datenbank (z.B. PostgreSQL auf einem anderen Anbieter)
 
 **Vorteile**:
+
 - Vollständige SQL-Funktionalität
 - Reifere Tooling-Unterstützung
 - Unabhängigkeit von Cloudflare für Datenbankfunktionen
 
 **Nachteile**:
+
 - Höhere Latenz durch externe API-Aufrufe
 - Zusätzliche Infrastrukturkosten
 - Komplexere Verbindungsverwaltung in serverless Umgebungen
@@ -121,11 +125,13 @@ Wir haben uns für folgende Datenbankstrategie entschieden:
 ### Alternative 3: Hybridansatz mit mehreren Datenspeichern
 
 **Vorteile**:
+
 - Optimierte Speicherung für verschiedene Datentypen
 - Bessere Performance durch spezialisierte Datenspeicher
 - Geringere Abhängigkeit von einem einzelnen Anbieter
 
 **Nachteile**:
+
 - Erhöhte Komplexität durch mehrere Datenspeicher
 - Herausforderungen bei der Datenkonsistenz
 - Höherer Entwicklungs- und Wartungsaufwand

@@ -17,6 +17,7 @@ Evolution Hub verwendet eine SQLite-Datenbank mit Cloudflare D1. Die wichtigsten
 - `ai_jobs` - AI-Bildbearbeitungsaufträge (seit Migration `0008`)
 
 In Migration `0007_add_email_verification.sql` wurden außerdem Spalten in `users` ergänzt:
+
 - `email_verified` (INTEGER / boolean)
 - `email_verified_at` (Unix timestamp)
 
@@ -50,6 +51,7 @@ npx tsx scripts/setup-local-dev.ts
 ```
 
 Das Script legt lokal an:
+
 - Eine D1‑Datenbank (lokal / miniflare)
 - Führt alle Migrationen in `/migrations` aus
 - Erstellt bei Bedarf R2‑Bucket/KV‑Namespaces und Testdaten
@@ -127,14 +129,19 @@ CREATE INDEX idx_ai_jobs_type ON ai_jobs(type);
 ## Fehlerbehebung bei Migrationen
 
 Wenn Migrationen fehlschlagen oder Tabellen fehlen:
+
 1. Führen Sie das Setup‑Script aus:
+
    ```bash
    npm run setup:local
    ```
+
 2. Prüfen Sie das Schema einer Tabelle:
+
    ```bash
    sqlite3 .wrangler/d1/miniflare/databases/evolution-hub-main-local.sqlite ".schema sessions"
    ```
+
 3. Bei inkonsistenten Wrangler‑State‑Datenbanken prüfen Sie beide Speicherorte (siehe oben) und führen Migrationen dort aus.
 
 ## Rollback / Reset

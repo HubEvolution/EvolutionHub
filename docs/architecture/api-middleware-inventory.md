@@ -580,4 +580,3 @@ Jede Gruppe wird hinsichtlich Methoden, Pfade, Schemata, Abhängigkeiten, Konsis
 - DB-Interaktionen (über Services; inkl. Transaktionen, Fehlerfälle)
 - Einheitliche Fehler-/Response-Formate (JSON vs Redirect)
 - End-to-End-Request-Flow Diagramm
-

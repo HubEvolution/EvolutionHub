@@ -5,6 +5,7 @@ Status: In progress
 Last updated: 2025-08-24T23:27:01+02:00
 
 ## Scope & Goals
+
 - Inventory all inline script usages in `.astro` files, with emphasis on `<script lang="ts">`, `is:inline`, `define:vars`, and `nonce`.
 - Understand how inline scripts communicate with external TS/JS assets and components/layouts/pages.
 - Maintain CSP compliance while refactoring.
@@ -13,6 +14,7 @@ Last updated: 2025-08-24T23:27:01+02:00
 ## Inventory (current)
 
 ### A. Files containing any `<script>` tag (31)
+
 - `src/layouts/BaseLayout.astro`
 - `src/components/blog/NewsletterCTA.astro`
 - `src/pages/account/settings.astro`
@@ -46,6 +48,7 @@ Last updated: 2025-08-24T23:27:01+02:00
 - `src/pages/reset-password.astro`
 
 ### B. Inline `<script lang="ts">` occurrences (13)
+
 - `src/components/AvatarUploadModal.astro`
 - `src/components/ErrorBoundary.astro`
 - `src/components/Header.astro`
@@ -61,11 +64,13 @@ Last updated: 2025-08-24T23:27:01+02:00
 - `src/pages/en/account/settings.astro`
 
 ### C. `is:inline` usage (3)
+
 - `src/components/scripts/AOSCoordinator.astro`
 - `src/components/scripts/TypewriterComponent.astro`
 - `src/layouts/BaseLayout.astro`
 
 ### D. `define:vars` usage (6)
+
 - `src/layouts/BaseLayout.astro`
 - `src/components/blog/NewsletterCTA.astro`
 - `src/components/forms/LeadMagnetForm.astro`
@@ -74,6 +79,7 @@ Last updated: 2025-08-24T23:27:01+02:00
 - `src/components/scripts/VerifyEmailCoordinator.astro`
 
 ### E. `nonce` usage (6)
+
 - `src/layouts/BaseLayout.astro`
 - `src/components/blog/NewsletterCTA.astro`
 - `src/components/forms/LeadMagnetForm.astro`
@@ -82,6 +88,7 @@ Last updated: 2025-08-24T23:27:01+02:00
 - `src/components/scripts/VerifyEmailCoordinator.astro`
 
 ### F. Related external TS/JS assets and styles
+
 - `scripts/coming-soon-client.ts`
 - `public/assets/coming-soon-client.js`
 - `src/styles/coming-soon.css`
@@ -95,6 +102,7 @@ Last updated: 2025-08-24T23:27:01+02:00
   - `VerifyEmailCoordinator.astro`
 
 ## Communication Map (preliminary)
+
 - DOM lifecycle events: `DOMContentLoaded`, `astro:page-load` used to initialize behaviors.
 - Global window access: some scripts attach listeners or expose cleanup on `window`.
 - Data flow: `define:vars` passes server-side values into inline scripts; some components pass values via attributes/data-*.
@@ -102,11 +110,13 @@ Last updated: 2025-08-24T23:27:01+02:00
 - Module usage: inline scripts may dynamically import external modules or use CDN-based scripts.
 
 ## Observations
+
 - Inline scripts mix JS and TS; several use `lang="ts"` within `.astro`.
 - `nonce` appears concentrated in layout and coordinator scripts.
 - Some scripts initialize global behaviors (e.g., analytics, AOS, verify-email flows) that are cross-cutting concerns.
 
 ## Open Questions
+
 1. For CSP: Are external scripts (served from `self`) allowed by current `script-src`, enabling us to move logic out of inline blocks without weakening the policy?
 2. Constraints on hydration: Should we prefer Astro client directives (e.g., `client:load`) vs. DOM event wiring for global coordinators?
 3. Data passing: Should we replace `define:vars` with `data-*` attributes or JSON script tags when externalizing?
@@ -114,6 +124,7 @@ Last updated: 2025-08-24T23:27:01+02:00
 5. Accessibility requirements to prioritize (e.g., focus management patterns similar to Coming Soon overlay)?
 
 ## Next Steps
+
 - Deep-dive review of `src/layouts/BaseLayout.astro` inline scripts to identify externalization seams and variable inputs.
 - Pilot: externalize blog page enhancements from `src/pages/blog/[...slug].astro` into `src/scripts/blog-post-enhancements.ts`; wire with CSP-safe inline loader; validate CSP + hydration + typing.
 - Draft detailed refactor guidelines (structure, hydration patterns, CSP, typing, testing) once pilot confirms approach.
@@ -173,6 +184,7 @@ This document is provisional and will be updated as we read more files and confi
 This pilot is deployed to a staging Cloudflare Worker with strict environment isolation.
 
 ### Resource isolation (staging)
+
 - D1 database binding `DB` → `evolution-hub-main-local` (`11c6dad1-b35b-488e-a5f3-1d2e707afa65`).
 - R2 avatars binding `R2_AVATARS` → `evolution-hub-avatars-local`.
 - R2 lead magnets binding `R2_LEADMAGNETS` → `evolution-hub-lead-magnets-dev`.
@@ -182,18 +194,22 @@ This pilot is deployed to a staging Cloudflare Worker with strict environment is
 See `wrangler.toml` under `[env.staging]` for authoritative bindings.
 
 ### Migrations (staging DB)
+
 ```bash
 wrangler d1 migrations list --env staging evolution-hub-main-local
 wrangler d1 migrations apply --env staging evolution-hub-main-local
 ```
 
 ### Deploy to staging
+
 ```bash
 wrangler deploy --env staging
 ```
 
 ### E2E tests against staging
+
 Playwright config reads `BASE_URL` and will not start a local server for remote targets.
+
 ```bash
 BASE_URL=https://staging.hub-evolution.com npm run test:e2e:chromium
 # Full matrix (optional)
@@ -201,12 +217,14 @@ BASE_URL=https://staging.hub-evolution.com npm run test:e2e
 ```
 
 ### Validation checklist
+
 - CSP headers present; scripts execute via nonced inline loader (`nonce={Astro.locals.cspNonce}`) and `strict-dynamic`.
 - Smooth scroll works (centralized in `src/layouts/BaseLayout.astro`), no duplicate handlers.
 - Blog footnotes accessible (focus/scroll-to/underline styling preserved).
 - No duplicate event handlers or memory leaks (idempotent `init()`/`cleanup()`).
 
 ### Troubleshooting
+
 - If avatars fail on staging, verify `R2_AVATARS` points to `evolution-hub-avatars-local` and the proxy route `src/pages/r2/[...path].ts` is served.
 - If DB writes fail, confirm D1 binding `DB` uses `evolution-hub-main-local` and migrations are applied.
 - For CSP violations, check `src/middleware.ts` and ensure the inline loader is nonced and uses `Astro.resolve()` dynamic import.

@@ -441,7 +441,7 @@ Weitere Details: `docs/frontend/aos-coordinator.md`.
 #### Verfügbare Animationen
 
 - **Fade**: `fade-up`, `fade-down`, `fade-left`, `fade-right`
-- **Slide**: `slide-up`, `slide-down`, `slide-left`, `slide-right`  
+- **Slide**: `slide-up`, `slide-down`, `slide-left`, `slide-right`
 - **Zoom**: `zoom-in`, `zoom-out`
 - **Flip**: `flip-left`, `flip-right`, `flip-up`, `flip-down`
 

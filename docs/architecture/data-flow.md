@@ -50,16 +50,19 @@ graph TD
 Jede API-Anfrage durchläuft folgende Phasen:
 
 ### 1. Eingangsphase
+
 - **Middleware-Verarbeitung**: Authentifizierung, Rate-Limiting, Security-Headers
 - **Input-Validierung**: Überprüfung der Anfrageparameter und des Request-Body
 - **Autorisierung**: Überprüfung der Benutzerberechtigungen
 
 ### 2. Verarbeitungsphase
+
 - **Service-Aufruf**: Weiterleitung an den entsprechenden Service
 - **Geschäftslogik**: Anwendung der Geschäftsregeln
 - **Datenbankoperationen**: Lesen oder Schreiben von Daten
 
 ### 3. Antwortphase
+
 - **Datentransformation**: Umwandlung der internen Datenstrukturen in API-Antworten
 - **Fehlerbehandlung**: Umwandlung von Fehlern in konsistente API-Fehlerantworten
 - **Response-Generierung**: Erstellung der HTTP-Antwort mit entsprechenden Headers

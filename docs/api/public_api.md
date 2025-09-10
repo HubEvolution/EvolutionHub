@@ -309,12 +309,12 @@ Zusätzlich wird ein CORS-Preflight über `OPTIONS /api/lead-magnets/download` u
 
 Der Endpunkt setzt bei Erfolg ein Session-Cookie mit folgenden Attributen:
 
-- Name: `session_id`
-- Pfad: `/`
-- Ablauf: 7 Tage
-- HttpOnly: `true`
-- SameSite: `lax`
-- Secure: `true` in Produktion (`false` in Entwicklung)
+* Name: `session_id`
+* Pfad: `/`
+* Ablauf: 7 Tage
+* HttpOnly: `true`
+* SameSite: `lax`
+* Secure: `true` in Produktion (`false` in Entwicklung)
 
 #### Erfolgreiche Antwort (Entwicklung)
 

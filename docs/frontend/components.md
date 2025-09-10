@@ -23,7 +23,7 @@ Die UI-Basiskomponenten bilden die Grundbausteine der Benutzeroberfläche und we
 Eine flexible Button-Komponente mit verschiedenen Varianten, Größen und Zuständen.
 
 **Props:**
- 
+
 - `variant`: `'primary' | 'secondary' | 'outline' | 'ghost' | 'link'` (Standard: `'primary'`)
 - `size`: `'sm' | 'md' | 'lg'` (Standard: `'md'`)
 - `type`: `'button' | 'submit' | 'reset'` (Standard: `'button'`)
@@ -32,7 +32,7 @@ Eine flexible Button-Komponente mit verschiedenen Varianten, Größen und Zustä
 - `className`: `string` für zusätzliche CSS-Klassen
 
 **Beispiel:**
- 
+
 ```astro
 <Button variant="primary" size="lg">
   Jetzt starten
@@ -50,13 +50,13 @@ Eine flexible Button-Komponente mit verschiedenen Varianten, Größen und Zustä
 Container-Komponente für die Gruppierung verwandter Inhalte in React-Kontexten. In Astro werden stattdessen spezialisierte Karten wie `BlogCard.astro`, `dashboard/StatsCard.astro` oder `tools/ToolCard.astro` verwendet. Siehe auch `docs/frontend/card-components.md`.
 
 **Props:**
- 
+
 - `title?`: `string` – Optionaler Titel, wird als Überschrift gerendert
 - `id?`: `string`
 - `className?`: `string` – Zusätzliche CSS-Klassen
 
 **Beispiel (React):**
- 
+
 ```jsx
 import CardReact from '@/components/ui/CardReact';
 
@@ -77,7 +77,7 @@ export function Example() {
 Eine Eingabefeld-Komponente für Formulare.
 
 **Props:**
- 
+
 - `type`: `string` - HTML-Input-Typ (Standard: `'text'`)
 - `id`: `string` - ID für das Input-Element
 - `name`: `string` - Name des Input-Elements
@@ -86,7 +86,7 @@ Eine Eingabefeld-Komponente für Formulare.
 - `className`: `string` für zusätzliche CSS-Klassen
 
 **Beispiel:**
- 
+
 ```astro
 <Input 
   type="email" 
@@ -104,12 +104,12 @@ Eine Eingabefeld-Komponente für Formulare.
 Eine Label-Komponente für Formularfelder.
 
 **Props:**
- 
+
 - `for`: `string` - ID des zugehörigen Formularelements
 - `className`: `string` für zusätzliche CSS-Klassen
 
 **Beispiel:**
- 
+
 ```astro
 <FormLabel for="email">E-Mail-Adresse</FormLabel>
 <Input type="email" id="email" name="email" />
@@ -122,13 +122,13 @@ Eine Label-Komponente für Formularfelder.
 Eine Skeleton-Loading-Komponente für Inhalte, die noch geladen werden.
 
 **Props:**
- 
+
 - `className`: `string` für zusätzliche CSS-Klassen
 - `width`: `string` - Breite des Skeleton-Elements
 - `height`: `string` - Höhe des Skeleton-Elements
 
 **Beispiel:**
- 
+
 ```astro
 <Skeleton width="100%" height="24px" className="mb-2" />
 <Skeleton width="70%" height="16px" className="mb-4" />
@@ -147,12 +147,14 @@ Layout-Komponenten definieren die Struktur und das Layout der Anwendung.
 Die Hauptnavigationsleiste der Anwendung.
 
 **Features:**
+
 - Responsive Navigation
 - Dynamisches Menü basierend auf Authentifizierungsstatus
 - Dark/Light-Mode-Toggle
 - Mobile Navigation
 
 **Beispiel:**
+
 ```astro
 ---
 import Header from '@/components/Header.astro';
@@ -168,12 +170,14 @@ import Header from '@/components/Header.astro';
 Die Fußzeile der Anwendung mit Links, Copyright-Informationen und weiteren Ressourcen.
 
 **Features:**
+
 - Mehrspaltiges Layout
 - Social-Media-Links
 - Newsletter-Anmeldung
 - Copyright-Informationen
 
 **Beispiel:**
+
 ```astro
 ---
 import Footer from '@/components/Footer.astro';
@@ -185,12 +189,14 @@ import Footer from '@/components/Footer.astro';
 ### ThemeProvider & ThemeToggle
 
 **Dateien:**
+
 - `src/components/ThemeProvider.astro`
 - `src/components/ThemeToggle.astro`
 
 Komponenten zur Verwaltung und Umschaltung des Farbschemas (hell/dunkel).
 
 **Beispiel:**
+
 ```astro
 ---
 import ThemeProvider from '@/components/ThemeProvider.astro';
@@ -216,11 +222,13 @@ Komponenten speziell für das Dashboard der Anwendung.
 Zeigt die Projekte des Benutzers mit Fortschrittsanzeige und Aktionen an.
 
 **Features:**
+
 - Projektliste mit Status und Fortschritt
 - Sortier- und Filterfunktionen
 - Schnellaktionen für Projekte
 
 **Beispiel:**
+
 ```astro
 ---
 import ProjectsPanel from '@/components/dashboard/ProjectsPanel.astro';
@@ -236,11 +244,13 @@ import ProjectsPanel from '@/components/dashboard/ProjectsPanel.astro';
 Zeigt die neuesten Aktivitäten des Benutzers oder des Teams an.
 
 **Features:**
+
 - Chronologische Liste von Aktivitäten
 - Verschiedene Aktivitätstypen (Kommentare, Projekte, etc.)
 - Zeitstempel und Benutzerinformationen
 
 **Beispiel:**
+
 ```astro
 ---
 import ActivityFeed from '@/components/dashboard/ActivityFeed.astro';
@@ -256,11 +266,13 @@ import ActivityFeed from '@/components/dashboard/ActivityFeed.astro';
 Zeigt Benachrichtigungen für den Benutzer an.
 
 **Features:**
+
 - Ungelesene/gelesene Benachrichtigungen
 - Verschiedene Benachrichtigungstypen
 - Markieren als gelesen
 
 **Beispiel:**
+
 ```astro
 ---
 import Notifications from '@/components/dashboard/Notifications.astro';
@@ -276,11 +288,13 @@ import Notifications from '@/components/dashboard/Notifications.astro';
 Schnellzugriffsleiste für häufig verwendete Aktionen.
 
 **Features:**
+
 - Kontextbezogene Aktionen
 - Tastenkombinationen
 - Anpassbare Aktionen
 
 **Beispiel:**
+
 ```astro
 ---
 import QuickActions from '@/components/dashboard/QuickActions.astro';
@@ -296,6 +310,7 @@ import QuickActions from '@/components/dashboard/QuickActions.astro';
 Zeigt Statistiken und Kennzahlen in Kartenform an.
 
 **Props:**
+
 - `title`: `string` - Titel der Statistik
 - `value`: `string | number` - Wert der Statistik
 - `icon`: `string` - Icon-Name
@@ -303,6 +318,7 @@ Zeigt Statistiken und Kennzahlen in Kartenform an.
 - `trend`: `'up' | 'down' | 'neutral'` - Trend der Statistik (optional)
 
 **Beispiel:**
+
 ```astro
 ---
 import StatsCard from '@/components/dashboard/StatsCard.astro';
@@ -324,11 +340,13 @@ import StatsCard from '@/components/dashboard/StatsCard.astro';
 Zeigt Benutzerinformationen und Profileinstellungen an.
 
 **Features:**
+
 - Profilbild
 - Benutzerinformationen
 - Schnellzugriff auf Profileinstellungen
 
 **Beispiel:**
+
 ```astro
 ---
 import UserProfile from '@/components/dashboard/UserProfile.astro';
@@ -350,10 +368,12 @@ Komponenten für den Blog-Bereich der Anwendung.
 Zeigt eine Vorschau eines Blog-Beitrags an.
 
 **Props:**
+
 - `post`: `object` - Blog-Post-Daten
 - `featured`: `boolean` - Ob der Beitrag hervorgehoben werden soll
 
 **Beispiel:**
+
 ```astro
 ---
 import BlogCard from '@/components/BlogCard.astro';
@@ -369,10 +389,12 @@ import BlogCard from '@/components/BlogCard.astro';
 Zeigt eine Liste von Blog-Beiträgen an.
 
 **Props:**
+
 - `posts`: `array` - Liste der Blog-Posts
 - `showFeatured`: `boolean` - Ob der erste Beitrag hervorgehoben werden soll
 
 **Beispiel:**
+
 ```astro
 ---
 import BlogList from '@/components/BlogList.astro';
@@ -388,10 +410,12 @@ import BlogList from '@/components/BlogList.astro';
 Zeigt den vollständigen Inhalt eines Blog-Beitrags an.
 
 **Props:**
+
 - `post`: `object` - Blog-Post-Daten
 - `showRelated`: `boolean` - Ob verwandte Beiträge angezeigt werden sollen
 
 **Beispiel:**
+
 ```astro
 ---
 import BlogPost from '@/components/BlogPost.astro';
@@ -413,9 +437,11 @@ Weitere spezialisierte Komponenten für bestimmte Anwendungsfälle.
 Fängt Fehler in Komponenten ab und zeigt eine Fallback-UI an.
 
 **Props:**
+
 - `fallback`: `string | Component` - Fallback-UI bei Fehlern
 
 **Beispiel:**
+
 ```astro
 ---
 import ErrorBoundary from '@/components/ErrorBoundary.astro';
@@ -434,11 +460,13 @@ import Fallback from '@/components/Fallback.astro';
 Komponente für die Seitennavigation in Listen.
 
 **Props:**
+
 - `currentPage`: `number` - Aktuelle Seite
 - `totalPages`: `number` - Gesamtanzahl der Seiten
 - `baseUrl`: `string` - Basis-URL für die Seitenlinks
 
 **Beispiel:**
+
 ```astro
 ---
 import Pagination from '@/components/Pagination.astro';
@@ -458,10 +486,12 @@ import Pagination from '@/components/Pagination.astro';
 Anmeldeformular für den Newsletter.
 
 **Props:**
+
 - `title`: `string` - Titel des Anmeldeformulars
 - `description`: `string` - Beschreibung des Newsletters
 
 **Beispiel:**
+
 ```astro
 ---
 import Newsletter from '@/components/Newsletter.astro';
@@ -480,11 +510,13 @@ import Newsletter from '@/components/Newsletter.astro';
 Filter-Komponente für Kategorien oder Tags.
 
 **Props:**
+
 - `categories`: `array` - Liste der verfügbaren Kategorien
 - `selectedCategory`: `string` - Aktuell ausgewählte Kategorie
 - `baseUrl`: `string` - Basis-URL für die Kategorie-Links
 
 **Beispiel:**
+
 ```astro
 ---
 import CategoryFilter from '@/components/CategoryFilter.astro';
@@ -504,10 +536,12 @@ import CategoryFilter from '@/components/CategoryFilter.astro';
 Barrierefreiheits-Komponente zum Überspringen der Navigation.
 
 **Props:**
+
 - `href`: `string` - Ziel-ID zum Überspringen (Standard: `'#content'`)
 - `text`: `string` - Text des Links (Standard: `'Zum Inhalt springen'`)
 
 **Beispiel:**
+
 ```astro
 ---
 import SkipLink from '@/components/SkipLink.astro';

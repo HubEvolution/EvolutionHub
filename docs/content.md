@@ -22,6 +22,7 @@ When adding new content, always use the appropriate heading level to maintain th
 All interactive elements (links, buttons, form elements) should have descriptive ARIA labels to improve accessibility for users with assistive technologies. ARIA labels should be concise and clearly describe the purpose or action of the element.
 
 Examples of elements that should have ARIA labels:
+
 - Navigation links
 - Call-to-action buttons
 - Form submit buttons

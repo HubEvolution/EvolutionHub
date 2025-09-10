@@ -89,11 +89,13 @@ Wir haben uns für eine JWT-basierte (JSON Web Token) Authentifizierung mit Http
 ### Alternative 1: Bearer-Token in Authorization-Header
 
 **Vorteile**:
+
 - Einfachere API-Nutzung für externe Clients
 - Bessere Kontrolle über Token-Speicherung und -Übermittlung
 - Standardkonformität mit OAuth 2.0
 
 **Nachteile**:
+
 - Erhöhtes Risiko von XSS-Angriffen bei Client-seitiger Speicherung
 - Erfordert zusätzliche Client-seitige Logik für Token-Management
 - Komplexere Integration mit Browser-basierter Authentifizierung
@@ -101,11 +103,13 @@ Wir haben uns für eine JWT-basierte (JSON Web Token) Authentifizierung mit Http
 ### Alternative 2: Session-basierte Authentifizierung mit Server-seitiger Speicherung
 
 **Vorteile**:
+
 - Einfache sofortige Token-Widerrufung
 - Geringere Datenmenge in Cookies (nur Session-ID)
 - Bessere Kontrolle über Sitzungsdauer und -validität
 
 **Nachteile**:
+
 - Erfordert zusätzliche Datenbankabfragen bei jeder Anfrage
 - Schlechtere Skalierbarkeit in serverless Umgebungen
 - Höhere Latenz durch zusätzliche Datenbankabfragen
@@ -113,11 +117,13 @@ Wir haben uns für eine JWT-basierte (JSON Web Token) Authentifizierung mit Http
 ### Alternative 3: OAuth 2.0 mit externem Identitätsanbieter
 
 **Vorteile**:
+
 - Auslagern der Authentifizierungskomplexität an spezialisierte Dienste
 - Unterstützung für Single Sign-On (SSO)
 - Standardisierte Protokolle und Implementierungen
 
 **Nachteile**:
+
 - Erhöhte Komplexität und externe Abhängigkeiten
 - Potenziell höhere Kosten für externe Dienste
 - Weniger Kontrolle über den Authentifizierungsprozess

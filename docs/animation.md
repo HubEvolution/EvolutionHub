@@ -25,6 +25,7 @@ const heroTypewriterItems = heroTypewriterTexts.map((text) => ({ text }));
 ```
 
 Beispiele im Projekt:
+
 - [`src/pages/de/index.astro`](src/pages/de/index.astro:29)
 - [`src/pages/en/index.astro`](src/pages/en/index.astro:43)
 

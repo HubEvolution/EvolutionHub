@@ -24,13 +24,11 @@ Diese Dokumentation beschreibt die performante Show/Hide-Animation des Headers b
   - Beim Scrollen nach unten wird nach 200ms Verzögerung ausgeblendet (bessere UX), nach oben sofort eingeblendet.
 - Cleanup: Entfernt Listener und Timer über `window.headerScrollCleanup()`.
 
-
 ## CSS-Klassen
 
 - `#site-header.header-visible` – Header eingeblendet.
 - `#site-header.header-hidden` – Header ausgeblendet (TranslateY, Opacity reduziert, Pointer-Events off).
 - Transitions sind in `Header.astro` definiert (Transform/Opacity, `will-change` für Performance).
-
 
 ## Integration
 
@@ -42,4 +40,3 @@ Diese Dokumentation beschreibt die performante Show/Hide-Animation des Headers b
 - Header reagiert nicht: Stelle sicher, dass das Element `#site-header` vorhanden ist (siehe `Header.astro`).
 - Ruckeln/Flackern: Prüfe, ob zusätzliche Scroll-Skripte Konflikte verursachen; Doppel-Logik wurde bewusst entfernt und zentralisiert.
 - Barrierefreiheit: Der Header bleibt fokussierbar; Fokus-Stile sind im Header-CSS hinterlegt.
-

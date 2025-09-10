@@ -72,6 +72,7 @@ Wenn Fehlermeldungen im Zusammenhang mit einer nicht existierenden `Card.astro` 
 Die aktuelle Aufteilung (spezialisierte Astro-Karten + `CardReact.jsx`) spiegelt die Hybrid-Natur des Projekts (Astro + React) wider.
 
 Langfristige Optionen:
+
 1. **Generische Basis in Astro (Phase 2):** Eine `Card.astro` als Basiskomponente einführen und spezialisierte Astro-Karten darauf aufbauen (Ziel: weniger Duplication, konsistentes Styling).
 2. **Klare Trennung:** UI-Bibliothek vollständig in React konsolidieren und React als Inseln verwenden, wo Interaktivität nötig ist.
 3. **Islands-Only für Karten:** Spezialisierte Astro-Karten beibehalten, React-Karten nur für interaktive Bereiche.
@@ -81,4 +82,3 @@ Status: Für Phase 1 wurden die Dokumente aktualisiert; es erfolgen KEINE Codeä
 ## Phase 2 (Backlog)
 
 Backlog: Erwäge die Einführung einer generischen `Card.astro` und einen Refactor der spezialisierten Astro-Karten, um Duplikate zu reduzieren und Konsistenz zu erhöhen. (Ausarbeitung als ADR in Phase 2.)
-

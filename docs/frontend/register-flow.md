@@ -29,6 +29,7 @@ Diese Dokumentation beschreibt den End-to-End-Registrierungsfluss bestehend aus 
 - Layouts: `AuthLayout.astro` (AOS/Analytics aus), `BaseLayout.astro` (Toaster global)
 
 )
+
 - Rate-Limiting: `authLimiter()`; bei Limit: Redirect `/{locale}/register?error=TooManyRequests`
 - Service-Layer: `createAuthService().register(...)`; Konfliktcodes:
   - `UserExists` (E-Mail existiert)

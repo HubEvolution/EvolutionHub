@@ -17,22 +17,26 @@ Diese Dokumentation bietet einen umfassenden Überblick über die Systemarchitek
 Evolution Hub basiert auf einem modernen Web-Stack mit folgenden Haupttechnologien:
 
 ### Frontend
+
 - **Astro**: Framework für die Seitenerstellung mit Insel-Architektur
 - **React**: Für interaktive UI-Komponenten
 - **Tailwind CSS**: Utility-First CSS-Framework für das Styling
 - **TypeScript**: Typsicheres JavaScript für Frontend und Backend
 
 ### Backend
+
 - **Cloudflare Workers**: Serverless Edge-Computing-Plattform
 - **Cloudflare D1**: Serverless SQL-Datenbank
 - **Cloudflare Pages**: Hosting und Deployment-Plattform
 
 ### Testing
+
 - **Vitest**: Unit- und Integrationstests
 - **Playwright**: End-to-End-Tests
 - **MSW (Mock Service Worker)**: API-Mocking für Tests
 
 ### CI/CD
+
 - **GitHub Actions**: Automatisierte Workflows für Tests und Deployment
 
 ---
