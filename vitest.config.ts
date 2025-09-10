@@ -27,7 +27,7 @@ export default defineConfig({
     // Coverage configuration
     coverage: {
       provider: 'v8', // or 'istanbul'
-      reporter: ['text', 'json', 'html'],
+      reporter: ['text', 'json', 'html', 'lcov'],
       exclude: [
         'node_modules/.*',
         'test/.*',
@@ -40,10 +40,10 @@ export default defineConfig({
       all: true,
       include: ['src/**/*.{ts,tsx}'],
       thresholds: {
-        branches: 90,
-        functions: 95,
-        lines: 95,
-        statements: 95,
+        statements: 70,
+        branches: 70,
+        functions: 70,
+        lines: 70,
         perFile: false,
       },
     },

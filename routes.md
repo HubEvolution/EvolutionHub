@@ -157,7 +157,7 @@ Die folgenden Endpunkte sind deprecatet und liefern konsistent 410 Gone. Für un
   - JSON 410: `POST, PUT, PATCH, DELETE, OPTIONS, HEAD`
   - JSON Details: `{ Allow: 'GET' }`
 
-Hinweis: Der aktive Login-Endpunkt `/api/auth/login` ist nicht deprecatet. Fehler führen zu sicheren 302-Redirects (locale-aware), keine 410-Antworten.
+Hinweis: Der Legacy Login-Endpunkt `/api/auth/login` ist deprecatet und liefert 410 Gone. Verwende ausschließlich den Stytch Magic Link Flow (`POST /api/auth/magic/request` → `GET /api/auth/callback`).
 
 ## Routenhierarchie (Baum)
 
@@ -487,7 +487,7 @@ graph TD
 
 ## Auth-Flow Hinweise (Login/Register UI)
 
-- Login-Seiten (`/login`, `/:locale/login`): E‑Mail‑basiertes Magic‑Link‑Formular (nur E‑Mail). Das optionale Profil (Name, Benutzername) wird hier nicht abgefragt. Der Legacy‑E‑Mail/Passwort‑Login wird nur angezeigt, wenn `AUTH_PROVIDER !== 'stytch'`. Der Link „Passwort vergessen?“ befindet sich innerhalb dieses Legacy‑Formulars und ist somit im Stytch‑Modus nicht sichtbar.
+- Login-Seiten (`/login`, `/:locale/login`): E‑Mail‑basiertes Magic‑Link‑Formular (nur E‑Mail). Das optionale Profil (Name, Benutzername) wird hier nicht abgefragt. Der Legacy‑E‑Mail/Passwort‑Login wurde entfernt; es gibt keinen „Passwort vergessen?“‑Link mehr.
 
 - Register-Seiten (`/register`, `/:locale/register`): Magic‑Link‑Formular mit E‑Mail und optionalen Profildaten (Name, Benutzername). Diese werden serverseitig in einem kurzlebigen HttpOnly‑Cookie `post_auth_profile` (10 Min) gespeichert und beim Callback für das erstmalige Anlegen des Users genutzt (Username‑Kollisionen werden wie gehabt mit Suffix aufgelöst).
 

@@ -74,6 +74,10 @@ export default defineConfig({
           url: BASE_URL,
           reuseExistingServer: !process.env.CI,
           timeout: 120 * 1000,
+          env: {
+            E2E_FAKE_STYTCH: '1',
+            AUTH_PROVIDER: 'stytch',
+          },
         },
       }),
 

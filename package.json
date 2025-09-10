@@ -5,7 +5,7 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "npm run dev:worker",
-    "dev:e2e": "npm run db:setup && npm run dev",
+    "dev:e2e": "npm run db:setup && npm run dev:worker:dev",
     "dev:worker": "npm run build:worker && wrangler dev --port 8787",
     "dev:worker:dev": "npm run build:worker && wrangler dev --env development --port 8787",
     "dev:worker:nobuild": "wrangler dev --port 8787",
