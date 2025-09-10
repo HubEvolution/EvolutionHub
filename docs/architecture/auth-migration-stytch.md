@@ -204,12 +204,13 @@ Stytch CLI / API:
 - Redirect‑Parameter `r` clientseitig validieren; Server (Cookie `post_auth_redirect`) hat Vorrang. (Policy siehe Sicherheit)
 - Magic‑Link Cooldown & i18n: Der Submit‑Button ist nach Absenden 60s wirklich deaktiviert (`disabled`, `aria-disabled`, `pointer-events: none`, visuelles Feedback). Countdown‑Text ist i18n‑fähig über `pages.auth.magic.cooldown` (z. B. „Resend in {s}s“ / „Erneut senden in {s}s“).
 - Cross‑Tab‑Listener entfällt: Der Callback leitet direkt zum Ziel weiter; ein BroadcastChannel‑Listener auf den Login‑Seiten ist nicht mehr erforderlich.
+ - Passwort‑Login entfernt: Die Login‑Seiten zeigen ausschließlich das Magic‑Link‑Formular (nur E‑Mail). Der frühere E‑Mail/Passwort‑Flow ist vollständig entfernt.
 - Settings UI: Passwort‑Abschnitt aktuell verborgen (Flow deaktiviert); E‑Mail wird read‑only angezeigt mit lokalisiertem Hinweis und deaktivierter „Change Email“‑CTA (geplante Re‑Verifizierung via Stytch folgt).
 
 ## Guards & Legacy-Abschaltung
 
 - `src/middleware.ts`: Session-Gate vor `/dashboard` und `/api/*`.
-- Legacy-Endpoints bei Flag `stytch`: 410 Gone (login/register/password/*). Reset-Password bleibt technisch vorhanden, aber durch Flag deaktiviert.
+- Legacy-Endpoints: 410 Gone (inkl. `/api/auth/login`, `register`, `forgot-password`, `reset-password`, `logout`, `verify-email`, `change-password`).
 {{ ... }}
 
 ## Tests (QA & E2E)
@@ -219,7 +220,7 @@ Stytch CLI / API:
 - Guards für `/dashboard` und `/api/*` enforced.
 - Flag-Wechsel stytch ↔ legacy.
 - CI: Tests gegen Staging/Testing-Domain (TEST_BASE_URL) gemäß bestehender Teststrategie.
-- Legacy-Login (E-Mail/Passwort): Integrationstests erwarten bei Fehlern sichere 302-Redirects zur Login-Seite (standardmäßig `/en/login?...`). Wichtig: `TEST_BASE_URL` muss auf den korrekten, frisch gebauten Worker zeigen; bei falscher URL können 410-Responses von deprecateten Endpunkten auftreten.
+- Legacy-Login (E-Mail/Passwort) entfernt: Tests wurden aktualisiert/entfernt. Fokus der E2E liegt auf direktem Callback‑Redirect und Session‑Cookie‑Setzung.
  - Callback‑Redirect‑E2E: Klicke den Magic‑Link und erwarte einen direkten Redirect vom Callback auf das Ziel (ggf. lokalisiert). Kein `/auth/notify`‑Zwischenschritt mehr.
 
 ### E2E Fake‑Modus (Stytch)

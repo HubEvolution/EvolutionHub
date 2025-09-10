@@ -209,14 +209,8 @@ describe('Auth-Integration', () => {
     expect(text).toContain('type="submit"');
   });
   
-  // Teste die "Passwort vergessen"-Seite
-  it('sollte die "Passwort vergessen"-Seite korrekt anzeigen', async () => {
-    const { status, contentType, text } = await fetchPage('/forgot-password');
-    
-    expect(status).toBe(200);
-    expect(contentType).toContain('text/html');
-    expect(text).toContain('Passwort vergessen');
-    expect(text).toContain('<form');
-    expect(text).toContain('action="/api/auth/forgot-password"');
+  // Test zur "Passwort vergessen"-Seite entfällt im Stytch-only Flow
+  it.skip('sollte die "Passwort vergessen"-Seite korrekt anzeigen (legacy)', async () => {
+    // Skipped: UI-Seite wurde entfernt, Endpunkt liefert 410 Gone.
   });
 });

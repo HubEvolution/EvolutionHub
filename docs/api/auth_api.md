@@ -18,32 +18,26 @@ Hinweis: Die frühere Login-Variante `login-v2` wurde entfernt. Verwende ausschl
 
 ## Endpunkte (kanonisch)
 
-* Endpunkte:
-  * `POST /api/auth/login`
-  * `POST /api/auth/register`
-  * `POST /api/auth/reset-password`
-  * `GET|POST /api/user/logout`
-* Eigenschaften:
-  * Service-Layer: `src/lib/services/auth-service-impl.ts`
-  * Zentrale Fehlerbehandlung: `src/lib/error-handler.ts`
-  * Konsistente Redirects: `src/lib/response-helpers.ts` (`createSecureRedirect`)
-  * bcrypt Work-Faktor: 12
-  * Passwort-Reset-Token-TTL: 24h
-  * Bei Reset-Fehlern bleibt der `token`-Query-Parameter im Redirect erhalten
-* Verhalten:
-  * Antworten als `302 Redirect`
-  * Cookie-Verhalten: `session_id` (HttpOnly, SameSite=Lax, Secure über HTTPS)
+- Endpunkte (Stytch Magic Link):
+  * `POST /api/auth/magic/request` — Fordert einen Magic Link an (JSON `{ success: true, data: { sent: true } }`)
+  * `GET  /api/auth/callback` — Callback, setzt Session‑Cookies und leitet direkt zum Ziel weiter
+  * `GET|POST /api/user/logout` — weiterhin aktiv (v2 bevorzugt)
+- Eigenschaften:
+  * Stytch‑Integration in `src/lib/stytch.ts` (Fake‑Modus via `E2E_FAKE_STYTCH` für Tests)
+  * Zentrale Fehlerbehandlung/Headers: `src/lib/api-middleware.ts`, `src/lib/response-helpers.ts`
+  * Session‑Cookies Ziel: `__Host-session` (HttpOnly, Secure, SameSite=Strict, Path=/); Legacy `session_id` kann parallel vorkommen
+- Verhalten:
+  * `magic/request` antwortet JSON (kein Redirect)
+  * `callback` antwortet mit direktem Redirect zum Ziel (ggf. lokalisiert)
 
 ---
 
-## 1. Login
+## 1. Login (Legacy)
 
-Authentifiziert einen Benutzer mit E-Mail und Passwort. Setzt eine Server-Session (HttpOnly-Cookie) und antwortet mit Redirect.
+Hinweis: Der E‑Mail/Passwort‑Login ist deprecatet und liefert `410 Gone`. Verwende ausschließlich den Stytch Magic Link Flow (`/api/auth/magic/request` → `/api/auth/callback`).
 
-* **HTTP-Methode:** `POST`
-* **Pfad:** `/api/auth/login`
-* **Handler-Funktion:** POST-Handler in `login.ts`
-* **Security:** Rate-Limiting (50/min über `standardApiLimiter`), Security-Headers, Audit-Logging, Eingabevalidierung
+* **Legacy‑Pfad:** `/api/auth/login` → `410 Gone`
+* **Aktuell:** Kein Passwort‑Login mehr im UI; Login‑Seiten zeigen nur das Magic‑Link‑Formular
 
 ### Request-Felder (Login)
 
@@ -98,9 +92,9 @@ Es wird in diesem Fall keine Session erstellt.
 
 ---
 
-## 2. Registrierung
+## 2. Registrierung (Legacy)
 
-Registriert einen neuen Benutzer mit E-Mail, Passwort und Namen. Double-Opt-In: Es wird keine Session erstellt; der Benutzer erhält eine Verifizierungs-E-Mail und wird auf `/verify-email` umgeleitet.
+Legacy‑Registrierung mit Passwort ist deprecatet und liefert `410 Gone`. Registrierung erfolgt implizit über Magic Link beim ersten erfolgreichen Callback (Profilfelder optional per Cookie `post_auth_profile`).
 
 * **HTTP-Methode:** `POST`
 * **Pfad:** `/api/auth/register`
@@ -151,9 +145,9 @@ Location: /register?error=UserExists
 
 ---
 
-## 3. Passwort vergessen
+## 3. Passwort vergessen (Legacy)
 
-Sendet eine E-Mail mit einem Token zum Zurücksetzen des Passworts. Nutzt Resend API für den E-Mail-Versand.
+Deprecatet. Endpunkt liefert `410 Gone`. UI‑Seiten wurden entfernt.
 
 * **HTTP-Methode:** `POST`
 * **Pfad:** `/api/auth/forgot-password`
@@ -198,9 +192,9 @@ Location: /forgot-password?error=InvalidEmail
 
 ---
 
-## 4. Passwort zurücksetzen
+## 4. Passwort zurücksetzen (Legacy)
 
-Setzt das Passwort eines Benutzers mit einem gültigen Token zurück.
+Deprecatet. Endpunkt liefert `410 Gone`.
 
 * **HTTP-Methode:** `POST`
 * **Pfad:** `/api/auth/reset-password`
