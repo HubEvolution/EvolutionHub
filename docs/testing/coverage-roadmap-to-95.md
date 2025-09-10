@@ -81,46 +81,82 @@ Der Plan ist in 5 Phasen unterteilt, mit kumulativen Zielen (von aktuell ~30% Du
 
 ### Phase 2: Hochrisiko – Auth und Dashboard-APIs (Woche 2-3)
 
-- **Ziel**: +20% Coverage (Ziel: Branches/Lines >50%). Fokus auf Sicherheitsfeatures (z.B. Rate-Limiting, Session-Handling).
+- **Ziel**: +20% Coverage (Ziel: Branches/Lines >50%). Fokus auf Auth und Dashboard-APIs, integrierend offene Lücken aus Phase 1 (Vollständige Dashboard-API-Coverage in src/pages/api/dashboard/*, E2E gegen ci.hub-evolution.com). Abweichung: Rate-Limiting extern in rate-limiter.ts implementiert.
+
+- **Spezifische Test-Cases**:
+  - 10-15 Unit-Tests für auth-v2.ts (validateSession(), createSession(), invalidateSession(), Session-Handling mit KV, Error-Handling für abgelaufene Tokens, Integration mit KV/D1).
+  - 5-8 Unit-Tests für rate-limiter.ts (createRateLimiter(), IP-Keys-Generierung, Mock KV für TTL und Hit-Tracking, Edge-Cases wie Reset).
+  - 6-10 Integration-Tests für api-middleware.ts (Rate-Limit-Tests: Mehrfache Requests mit 429-Responses, Integration mit auth-Routen, Mock KV für Limits).
+  - 8 Integration-Tests für Dashboard-Routen (Mocks für KV/Sessions, z.B. fetchDashboardData() mit/ohne Auth, Error-Handling für DB-Fehler, Integration mit auth-v2 für User-Rechte, perform-action.ts mit verschiedenen User-Rollen).
+  - 7-10 E2E-Tests (Dashboard-Navigation, API-Calls gegen ci.hub-evolution.com, Flows: Dashboard-Zugriff mit gültiger/invalider Auth, Auth-Error-Handling, Notifications- und Projects-Panel-Interaktionen, Rate-Limit-Simulation).
+
+- **Benötigte Ressourcen**:
+  - Erweiterte Mocks (MSW für Dashboard-Endpoints, vi.mock für KV/Sessions und externe APIs, speziell für Rate-Limiting mit Mock KV).
+  - Neue Dateien: test-suite-v2/src/unit/security/rate-limiter.test.ts, test-suite-v2/src/integration/api/api-middleware.test.ts, test-suite-v2/src/integration/api/dashboard.test.ts, test-suite-v2/src/e2e/dashboard-flow.spec.ts.
+  - Dependencies: @mswjs/interceptors für API-Mocking, Playwright mit BASE_URL=ci.hub-evolution.com für E2E.
+
+- **Geschätzte Tests und Aufwand**:
+  - Gesamt: 30-40 Unit-Tests, 14-18 Integration-Tests, 7-10 E2E-Tests.
+  - Aufwand: +5-10h für Rate-Limiting-Tests und Abweichungen (gesamt 35-50h); Sequenz: Unit zuerst (15h), dann Integration (15h), E2E mit realer URL (10-15h).
+
+- **Abhängigkeiten/Sequenz**:
+  1. Unit-Tests für auth-v2.ts, rate-limiter.ts und Dashboard-Handler.
+  2. Integration-Tests mit Mocks für KV/Sessions und Rate-Limiting.
+  3. E2E-Tests gegen ci.hub-evolution.com (Playwright mit BASE_URL).
+
 - **Schritte**:
-  1. Unit-Tests für `auth-v2.ts` und Dashboard-Routen (Mock KV für Sessions).
-  2. Integrationstests für Auth-Flows (z.B. Login/Register mit Middleware).
-  3. E2E-Tests für Dashboard-Zugriffe (Playwright gegen Wrangler-Dev-Server).
-- **Test-Typen**: 60% Unit, 30% Integration, 10% E2E.
-- **CI-Integration**: Threshold auf 50%; E2E in CI mit `TEST_BASE_URL` (Cloudflare-Env).
-- **Meilenstein**: Alle API-Routen >80% abgedeckt.
+  1. Integriere Tests für dashboard/* und rate-limiter.ts (Unit/Integration: API-Handler, Auth-Integration mit Middleware und Rate-Limiting).
+  2. E2E gegen ci.hub-evolution.com (Playwright mit BASE_URL, Flows: Dashboard-Zugriff, Auth-Error-Handling, Rate-Limit-Überprüfung).
+
+- **Test-Typen**: 55% Unit, 30% Integration, 15% E2E.
+
+- **CI-Integration**: Threshold auf 50% anheben; unit-tests.yml erweitern um Rate-Limiting- und Middleware-Tests sowie E2E gegen ci.hub-evolution.com (parallele Jobs für Unit/Integration und E2E, Coverage-Reports mit Threshold-Check).
+
+- **Meilenstein**: Alle API-Routen >80% abgedeckt, inklusive Dashboard-Lücken und Rate-Limiting; E2E-Tests laufen grün gegen ci.hub-evolution.com.
 
 ### Phase 3: Mittleres Risiko – UI-Komponenten (Woche 3-4)
 
 - **Ziel**: +20% Coverage (Ziel: Functions >70%). Fokus auf Interaktivität (z.B. Image-Enhancer).
+
 - **Schritte**:
   1. Unit-Tests für Hooks/Komponenten (z.B. `useValidation.ts` in imag-enhancer: Vitest mit React-Testing-Library).
   2. Integrationstests für R2-Uploads (Mock Storage).
   3. E2E-Tests für Tool-Flows (Playwright: Bild-Upload und Enhancement).
+
 - **Test-Typen**: 40% Unit, 30% Integration, 30% E2E.
+
 - **CI-Integration**: Threshold auf 70%; Visual-Regression-Tests in Playwright hinzufügen.
+
 - **Meilenstein**: UI-Verzeichnisse >90% abgedeckt.
 
 ### Phase 4: Niedriges Risiko – Hilfsfunktionen und Refinements (Woche 4-5)
 
 - **Ziel**: +15% Coverage (Ziel: Alle Metriken >85%). Abschluss der Utilities.
+
 - **Schritte**:
   1. Unit-Tests für `db/helpers.ts` (Mock Drizzle-Queries).
   2. Refactoring bestehender Tests für bessere Branch-Coverage.
   3. Vollständige E2E-Suite für Cross-Features (z.B. Auth + AI).
+
 - **Test-Typen**: 80% Unit, 10% Integration, 10% E2E.
+
 - **CI-Integration**: Threshold auf 85%; `astro check` und Coverage in jeden PR.
+
 - **Meilenstein**: Keine 0%-Dateien mehr.
 
 ### Phase 5: Finalisierung und Optimierung (Woche 5-6)
 
 - **Ziel**: +5% Coverage (Ziel: 95% für alle). Polishing und Maintenance.
+
 - **Schritte**:
   1. Code-Review aller neuen Tests.
   2. Accessibility- und Mobile-Tests (WCAG 2.1 AA via Playwright).
   3. CI-Threshold auf 95% setzen; automatisierte Smoke-Tests post-Deploy.
+
 - **Test-Typen**: 50% E2E, 50% Refinements.
+
 - **CI-Integration**: Vollständige Pipeline (Unit + E2E + Coverage); Fail bei <95%.
+
 - **Meilenstein**: Grüner CI-Status bei 95%.
 
 ```mermaid

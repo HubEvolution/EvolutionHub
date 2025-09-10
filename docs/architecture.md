@@ -49,7 +49,7 @@
 
 ### Verzeichnisstruktur (Auszug)
 
-```
+```text
 evolution-hub/
 ├── src/
 │   ├── components/       # UI‑Komponenten (Astro + React Islands)

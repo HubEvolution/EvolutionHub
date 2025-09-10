@@ -182,64 +182,26 @@ Multipart/form-data mit einem Feld `avatar`, das die Bilddatei enthält.
 
 ---
 
-## 5. Passwort ändern
+## 5. Passwort ändern (Deprecated – 410 Gone)
 
-Ändert das Passwort des aktuell authentifizierten Benutzers. Nutzt `withAuthApiMiddleware`, inklusive Passwort-Validierung und Kollisionsprüfung.
+Im Stytch-only Flow ist die Passwortänderung über die API nicht mehr unterstützt. Der Endpoint ist deprecatet und liefert 410 Gone.
 
-### Passwort ändern
+### Verhalten
 
-* **HTTP-Methode:** `POST`
+* **HTTP-Methode:** `POST` → 410 Gone (HTML)
+* **Andere Methoden:** `GET, PUT, PATCH, DELETE, OPTIONS, HEAD` → 410 Gone (JSON)
 * **Pfad:** `/api/user/password`
-* **Handler-Funktion:** `changePassword` in `password.ts`
-* **Security:** Rate-Limiting (50/min), Security-Headers, Audit-Logging, Mindestlänge 6 (neues Passwort), Alte-Passwort-Validierung
+* **Details:** `Allow: 'POST'`
 
-#### Request-Felder (FormData)
-
-* `current-password`: string
-* `new-password`: string (≥ 6 Zeichen)
-
-Beispiel:
-
-```bash
-curl -i -X POST \
-  -F 'current-password=altes-passwort123' \
-  -F 'new-password=neues-sicheres-passwort456' \
-  https://<host>/api/user/password
-```
-
-#### Erfolgreiche Antwort (`200 OK`)
-
-```json
-{
-  "success": true,
-  "data": {
-    "message": "Password updated successfully"
-  }
-}
-```
-
-### Fehlerhafte Antworten – /api/user/password
-
-Beispiel falsches aktuelles Passwort (`403 Forbidden`):
+#### Beispielantwort (JSON)
 
 ```json
 {
   "success": false,
   "error": {
-    "type": "forbidden",
-    "message": "Incorrect current password"
-  }
-}
-```
-
-Beispiel Validierungsfehler (`400 Bad Request`):
-
-```json
-{
-  "success": false,
-  "error": {
-    "type": "validation_error",
-    "message": "Password must be at least 6 characters"
+    "type": "gone",
+    "message": "This endpoint has been deprecated. Password changes are no longer supported; use Stytch flows.",
+    "details": { "Allow": "POST" }
   }
 }
 ```

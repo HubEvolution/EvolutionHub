@@ -482,8 +482,6 @@ try {
     }
 
     for (const dbPath of dbPaths) {
-      // users.password_hash
-      addColumnIfMissing(dbPath, 'users', 'password_hash', 'TEXT');
       // users.email_verified (INTEGER as boolean)
       addColumnIfMissing(dbPath, 'users', 'email_verified', 'INTEGER NOT NULL DEFAULT 0');
       // users.email_verified_at (Unix timestamp seconds)
@@ -576,9 +574,13 @@ try {
     console.error('❌ Fehler bei der KV-Namespace-Erstellung:', error);
   }
 
-  // 5. Test-Benutzer erstellen
-  await createTestUser();
-  await createSuiteV2TestUsers();
+  // 5. Test-Benutzer erstellen (nur wenn Legacy-Auth verwendet wird)
+  if ((process.env.AUTH_PROVIDER || '').toLowerCase() !== 'stytch') {
+    await createTestUser();
+    await createSuiteV2TestUsers();
+  } else {
+    console.log('\n⏭️  Überspringe Passwort-basierte Test-User-Seeds (AUTH_PROVIDER=stytch)');
+  }
 
   console.log('\n✅ Lokale Entwicklungsumgebung wurde erfolgreich eingerichtet!');
   console.log('\nSie können jetzt den lokalen Entwicklungsserver starten mit:');
