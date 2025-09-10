@@ -280,7 +280,6 @@ graph TD
   Root --> debug[/debug]
   Root --> email_verified[/email-verified]
   Root --> faq[/faq]
-  Root --> forgot_password[/forgot-password]
   Root --> impressum[/impressum]
   Root --> kontakt[/kontakt]
   Root --> login[/login]
@@ -307,7 +306,6 @@ graph TD
   de --> de_cookie[/de/cookie-einstellungen]
   de --> de_datenschutz[/de/datenschutz]
   de --> de_faq[/de/faq]
-  de --> de_forgot[/de/forgot-password]
   de --> de_impressum[/de/impressum]
   de --> de_login[/de/login]
   de --> de_register[/de/register]
@@ -320,7 +318,6 @@ graph TD
   en --> en_datenschutz[/en/datenschutz]
   en --> en_email_verified[/en/email-verified]
   en --> en_faq[/en/faq]
-  en --> en_forgot[/en/forgot-password]
   en --> en_impressum[/en/impressum]
   en --> en_kontakt[/en/kontakt]
   en --> en_login[/en/login]
@@ -344,7 +341,6 @@ graph TD
   api_auth --> api_auth_register[/api/auth/register POST]
   api_auth --> api_auth_logout[/api/auth/logout POST]
   api_auth --> api_auth_change_pwd[/api/auth/change-password POST]
-  api_auth --> api_auth_forgot_pwd[/api/auth/forgot-password POST]
   api_auth --> api_auth_resend_verif[/api/auth/resend-verification POST]
   api_auth --> api_auth_reset_pwd[/api/auth/reset-password POST]
   api_auth --> api_auth_verify_email[/api/auth/verify-email GET]
@@ -395,7 +391,6 @@ graph TD
   { "path": "/debug", "source": "src/pages/debug.astro", "type": "page" },
   { "path": "/email-verified", "source": "src/pages/email-verified.astro", "type": "page" },
   { "path": "/faq", "source": "src/pages/faq.astro", "type": "page" },
-  { "path": "/forgot-password", "source": "src/pages/forgot-password.astro", "type": "page" },
   { "path": "/impressum", "source": "src/pages/impressum.astro", "type": "page" },
   { "path": "/kontakt", "source": "src/pages/kontakt.astro", "type": "page" },
   { "path": "/login", "source": "src/pages/login.astro", "type": "page" },

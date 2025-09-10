@@ -43,12 +43,40 @@ Der Plan ist in 5 Phasen unterteilt, mit kumulativen Zielen (von aktuell ~30% Du
 ### Phase 1: Hochrisiko – AI-Services und API-Routen (Woche 1-2)
 
 - **Ziel**: +25% Coverage (Ziel: Statements/Functions >30%). Fokus auf Core-Logik (z.B. Job-Handling, Auth-Integration).
+
+- **Spezifische Test-Cases**:
+  - Für `src/lib/services/ai-image-service.ts`: 5-10 Unit/Integration-Tests, z.B. generateImage() mit gültigen/ungültigen Prompts, uploadToR2() für erfolgreichen/ fehlgeschlagenen Upload, error-Handling für API-Fehler (z.B. Rate-Limits), Validierung von Bild-Parametern, Integration mit Drizzle für Job-Speicherung.
+  - Für `src/lib/services/ai-jobs-service.ts`: 5-8 Tests, z.B. createJob(), getJobById(), updateJobStatus(), cancelJob(), error-Handling bei ungültigen IDs, Integration mit KV für Status-Tracking.
+  - Für `src/pages/api/ai-image/jobs/[id].ts`: 6-10 Tests, z.B. GET für Job-Status, POST für Job-Updates, Auth-Validierung, Error-Responses bei nicht existierenden IDs, Rate-Limiting-Tests.
+  - Für `src/pages/api/dashboard/*`: 8-12 Tests pro Route, z.B. fetchDashboardData() mit/ohne Auth, Error-Handling für DB-Fehler, Integration mit auth-v2 für User-Rechte.
+  - Für `src/lib/auth-v2.ts`: 7-10 Tests, z.B. validateSession(), generateToken(), refreshAuth(), Error-Handling für abgelaufene Tokens, Integration mit KV/D1.
+
+- **Benötigte Ressourcen**:
+  - Mocks: vi.mock für Drizzle/R2/KV-Bindings, MSW für Hono-Requests und externe AI-APIs.
+  - Neue Test-Dateien: z.B. `test-suite-v2/src/unit/services/ai-image-service.test.ts`, `test-suite-v2/src/integration/api/ai-jobs.test.ts`.
+  - Dependencies: vi.mock('@cloudflare/workers-types'), @mswjs/interceptors für API-Mocking, vitest-mocks für Cloudflare-Env.
+
+- **Geschätzte Tests und Aufwand**:
+  - Gesamt: 20-30 Unit-Tests, 10 Integration-Tests, 5 E2E-Tests.
+  - Aufwand pro Datei: 8-10h für ai-image-service.ts (komplexe Mocks), 6-8h für ai-jobs-service.ts, 7-9h für API-Routen, 10-12h für Dashboard (mehrere Dateien), 5-7h für auth-v2.ts.
+  - Gesamtaufwand Phase 1: 40-50 Stunden.
+
+- **Abhängigkeiten/Sequenz**:
+  1. Mocks und Test-Setup konfigurieren (z.B. globale vi.mock in vitest.config.ts).
+  2. Unit-Tests implementieren (isolierte Funktionen).
+  3. Integration-Tests (mit Wrangler-Dev-Server für echte Bindings).
+  4. E2E-Tests (Playwright gegen TEST_BASE_URL).
+  5. CI-Anpassung (Threshold 30% in vitest.config.ts).
+
 - **Schritte**:
   1. Unit-Tests für Services (z.B. `ai-image-service.ts`: Mock Cloudflare R2/D1, testen von generate/upload-Funktionen).
   2. Integrationstests für APIs (z.B. `ai-image/jobs/[id].ts`: Vitest mit Hono-Mocks, simulierte Requests).
   3. E2E-Tests für kritische Flows (Playwright: AI-Job-Submission).
+
 - **Test-Typen**: 70% Unit, 20% Integration, 10% E2E.
-- **CI-Integration**: Threshold in `vitest.config.ts` auf 30% anheben; automatisierte Runs in `.github/workflows/unit-tests.yml` hinzufügen.
+
+- **CI-Integration**: Threshold in `vitest.config.ts` auf 30% anheben; automatisierte Runs in neuem Workflow `.github/workflows/unit-tests.yml` hinzufügen, der Unit- und Integration-Tests ausführt, Coverage-Reports generiert und bei <30% failt. Phase 1 fließt in CI durch parallele Jobs: unit-tests.yml für schnelle Feedback-Loops, integriert mit e2e-tests.yml für End-to-End-Validierung.
+
 - **Meilenstein**: Coverage-Report generieren und Delta tracken (>20% Steigerung in AI-Dateien).
 
 ### Phase 2: Hochrisiko – Auth und Dashboard-APIs (Woche 2-3)
