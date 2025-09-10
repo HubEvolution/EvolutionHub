@@ -197,21 +197,15 @@ coordinator.register({
             return;
           }
 
-          // Build payload matching API expectations
+          // Build payload matching API expectations of /api/user/password
           const payload = new FormData();
-          payload.set('currentPassword', current);
-          payload.set('newPassword', next);
+          payload.set('current-password', current);
+          payload.set('new-password', next);
 
-          const response = await fetch('/api/auth/change-password', {
+          const response = await fetch('/api/user/password', {
             method: 'POST',
             body: payload,
           });
-
-          // The API responds with a redirect back to /account/settings
-          if (response.redirected) {
-            window.location.href = response.url;
-            return;
-          }
 
           if (response.ok) {
             notify.success('Password updated successfully!');

@@ -4,6 +4,7 @@ Dieses Dokument fasst alle Routen zusammen, abgeleitet aus dem Dateibaum in [`sr
 Enthalten sind UI Seiten, API Endpunkte und r2 Endpunkte mit den tatsächlich im Quellcode gefundenen HTTP Methoden.
 
 Legende:
+
 - Statische Route: /pfad
 - Dynamische Route: :param  (z. B. [id] -> :id)
 - Catch‑all: :...param (z. B. [...slug] -> :...slug)
@@ -121,6 +122,42 @@ Hinweis: Quellen sind als Links zur Ursprungsdatei angegeben; HTTP Methoden wurd
 ## r2 Endpunkte
 
 - /r2/:...path — [`src/pages/r2/[...path].ts`](src/pages/r2/[...path].ts:1) (Catch‑all für R2 asset proxying; Methoden abhängig von Implementierung)
+
+## Deprecated Auth API Endpunkte (410 Gone)
+
+Die folgenden Endpunkte sind deprecatet und liefern konsistent 410 Gone. Für unsichere Methoden (POST/PUT/PATCH/DELETE) wird zusätzlich über `withRedirectMiddleware` CSRF/Origin enforced. JSON-Antworten folgen dem Schema `{ success: false, error: { type: 'gone', message, details? } }`.
+
+- `/api/auth/change-password`
+  - HTML 410: `POST`
+  - JSON 410: `GET, PUT, PATCH, DELETE, OPTIONS, HEAD`
+  - JSON Details: `{ Allow: 'POST' }`
+
+- `/api/auth/forgot-password`
+  - HTML 410: `POST`
+  - JSON 410: `GET, PUT, PATCH, DELETE, OPTIONS, HEAD`
+  - JSON Details: `{ Allow: 'POST' }`
+
+- `/api/auth/reset-password`
+  - HTML 410: `POST`
+  - JSON 410: `GET, PUT, PATCH, DELETE, OPTIONS, HEAD`
+  - JSON Details: `{ Allow: 'POST' }`
+
+- `/api/auth/register`
+  - HTML 410: `POST`
+  - JSON 410: `GET, PUT, PATCH, DELETE, OPTIONS, HEAD`
+  - JSON Details: `{ Allow: 'POST' }`
+
+- `/api/auth/logout`
+  - HTML 410: `GET, POST`
+  - JSON 410: `PUT, PATCH, DELETE, OPTIONS, HEAD`
+  - JSON Details: `{ Allow: 'GET, POST' }`
+
+- `/api/auth/verify-email`
+  - HTML 410: `GET`
+  - JSON 410: `POST, PUT, PATCH, DELETE, OPTIONS, HEAD`
+  - JSON Details: `{ Allow: 'GET' }`
+
+Hinweis: Der aktive Login-Endpunkt `/api/auth/login` ist nicht deprecatet. Fehler führen zu sicheren 302-Redirects (locale-aware), keine 410-Antworten.
 
 ## Routenhierarchie (Baum)
 
@@ -438,7 +475,6 @@ graph TD
   { "path": "/api/user/settings", "source": "src/pages/api/user/settings.ts", "type": "api", "methods": ["PUT"] },
   { "path": "/r2/:...path", "source": "src/pages/r2/[...path].ts", "type": "r2" }
 ]
-```
 
 ## Hinweise
 
@@ -448,5 +484,15 @@ graph TD
   - die HTTP Methoden in ein maschinenlesbares Format (openapi, YAML) exportieren,
   - pro API Route die erwarteten Response Codes und Beispielfragen extrahieren,
   - oder ein CI Check Script schreiben, das die Routen automatisch aktualisiert.
+
+## Auth-Flow Hinweise (Login/Register UI)
+
+- Login-Seiten (`/login`, `/:locale/login`): E‑Mail‑basiertes Magic‑Link‑Formular (nur E‑Mail). Das optionale Profil (Name, Benutzername) wird hier nicht abgefragt. Der Legacy‑E‑Mail/Passwort‑Login wird nur angezeigt, wenn `AUTH_PROVIDER !== 'stytch'`. Der Link „Passwort vergessen?“ befindet sich innerhalb dieses Legacy‑Formulars und ist somit im Stytch‑Modus nicht sichtbar.
+
+- Register-Seiten (`/register`, `/:locale/register`): Magic‑Link‑Formular mit E‑Mail und optionalen Profildaten (Name, Benutzername). Diese werden serverseitig in einem kurzlebigen HttpOnly‑Cookie `post_auth_profile` (10 Min) gespeichert und beim Callback für das erstmalige Anlegen des Users genutzt (Username‑Kollisionen werden wie gehabt mit Suffix aufgelöst).
+
+- Redirect‑Policy: Ein optionaler Weiterleitungs‑Pfad `r` (nur relative Pfade, kein `//`) wird als HttpOnly‑Cookie `post_auth_redirect` gesetzt. Im Callback hat dieses Cookie Vorrang vor einem Query‑`r`. Nach der Verwendung werden die Cookies gelöscht.
+
+- Response auf `POST /api/auth/magic/request`: JSON `{ "success": true, "data": { "sent": true } }`. Die UI weist darauf hin, dass nach Absenden eine Bestätigungs‑Antwort angezeigt wird.
 
 --- Ende

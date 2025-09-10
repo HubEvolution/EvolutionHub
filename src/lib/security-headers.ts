@@ -61,9 +61,10 @@ export function applySecurityHeaders(response: Response): Response {
   const secureResponse = new Response(response.body, response);
   
   // Content-Security-Policy
-  secureResponse.headers.set('Content-Security-Policy', 
+  secureResponse.headers.set('Content-Security-Policy',
     "default-src 'self'; " +
-    "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; " +
+    "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://static.cloudflareinsights.com; " +
+    "script-src-elem 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://static.cloudflareinsights.com; " +
     "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; " +
     "img-src 'self' data: blob: https://*; " +
     "connect-src 'self' https://*.cloudflare.com; " +

@@ -6,9 +6,10 @@
   "scripts": {
     "dev": "npm run dev:worker",
     "dev:e2e": "npm run db:setup && npm run dev",
-    "dev:worker": "npm run build:worker && wrangler dev",
-    "dev:worker:nobuild": "wrangler dev",
-    "dev:open": "npm run build:worker && ( (until curl -sSf http://127.0.0.1:8787 >/dev/null 2>&1; do sleep 0.5; done; open http://127.0.0.1:8787) & ) && wrangler dev",
+    "dev:worker": "npm run build:worker && wrangler dev --port 8787",
+    "dev:worker:dev": "npm run build:worker && wrangler dev --env development --port 8787",
+    "dev:worker:nobuild": "wrangler dev --port 8787",
+    "dev:open": "npm run build:worker && ( (until curl -sSf http://127.0.0.1:8787 >/dev/null 2>&1; do sleep 0.5; done; open http://127.0.0.1:8787) & ) && wrangler dev --env development --port 8787",
     "dev:astro": "astro dev",
     "dev:pages-fallback": "npm run build:worker && cp -r ./dist/_worker.js/assets ./dist/ && wrangler pages dev ./dist --d1=DB --r2=R2_AVATARS --kv=SESSION",
     "setup:local": "tsx ./scripts/setup-local-dev.ts",
@@ -52,7 +53,8 @@
     "i18n:migrate": "node scripts/i18n-migrate-paths.mjs",
     "i18n:prune": "node scripts/i18n-prune-unused.mjs",
     "tail:staging": "wrangler tail --env staging --format=pretty",
-    "tail:prod": "wrangler tail --env production --format=pretty"
+    "tail:prod": "wrangler tail --env production --format=pretty",
+    "secrets:dev": "wrangler secret put STYTCH_PROJECT_ID --env development && wrangler secret put STYTCH_SECRET --env development"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.4",

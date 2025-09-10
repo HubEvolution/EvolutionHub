@@ -343,8 +343,10 @@
           "email": { "label": "E-Mail" },
           "password": { "label": "Passwort" }
         },
+        "or": "oder",
         "forgot_password_link": "Passwort vergessen?",
         "submit_button": "Anmelden",
+        "magic_button": "Mit Magic Link fortfahren",
         "no_account_prompt": "Sie haben noch kein Konto?",
         "register_link": "Registrieren"
       }
@@ -353,9 +355,10 @@
       "title": "Konto erstellen",
       "form": {
         "heading": "Erstellen Sie Ihr Konto",
+        "subheading": "Wir senden dir einen Anmelde‑Link per E‑Mail. Nach dem Absenden siehst du eine Bestätigungs‑Antwort.",
         "fields": {
-          "name": { "label": "Name" },
-          "username": { "label": "Benutzername" },
+          "name": { "label": "Name", "help": "2–50 Zeichen." },
+          "username": { "label": "Benutzername", "help": "3–30 Zeichen; Buchstaben, Zahlen, Unterstrich." },
           "email": { "label": "E-Mail" },
           "password": { "label": "Passwort" }
         },
@@ -364,12 +367,27 @@
         "login_link": "Anmelden"
       }
     },
+    "auth": {
+      "magic": {
+        "success": "Prüfe deine E‑Mails auf den Anmelde‑Link.",
+        "error": "Der Link konnte nicht gesendet werden. Bitte versuche es erneut.",
+        "cooldown": "Erneut senden in {s}s"
+      }
+    },
     "forgotPassword": {
       "title": "Passwort vergessen",
       "form": {
         "heading": "Passwort vergessen",
         "fields": { "email": { "label": "E-Mail" } },
         "submit_button": "Link zum Zurücksetzen senden"
+      }
+    },
+    "account": {
+      "settings": {
+        "email": {
+          "change_hint": "Zum Ändern der E‑Mail ist eine erneute Verifizierung nötig. Bitte kontaktiere den Support oder nutze später die Funktion „E‑Mail ändern“.",
+          "change_cta": "E‑Mail ändern"
+        }
       }
     },
     "resetPassword": {

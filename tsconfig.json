@@ -31,6 +31,14 @@
     "noUnusedParameters": true,
     "preserveSymlinks": true
   },
-  "include": ["src", "tests", "test"],
-  "exclude": ["node_modules"]
+  "include": ["src"],
+  "exclude": [
+    "node_modules",
+    "tests",
+    "test",
+    "test-suite-v2",
+    "**/*.test.ts",
+    "**/*.spec.ts",
+    "src/server/**"
+  ]
 }

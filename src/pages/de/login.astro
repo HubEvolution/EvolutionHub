@@ -4,14 +4,20 @@ import AuthStatusNotifier from '@/components/scripts/AuthStatusNotifier';
 import Button from '@/components/ui/Button.astro';
 import FormLabel from '@/components/ui/FormLabel.astro';
 import Input from '@/components/ui/Input.astro';
+import MagicLinkForm from '@/components/auth/MagicLinkForm.astro';
 import { getI18n } from '@/utils/i18n';
 import { localizePath } from '@/lib/locale-path';
 import { getLocale } from '@/lib/i18n';
 
 const locale = getLocale(Astro.url.pathname);
 const t = getI18n(locale);
-
 const locals = Astro.locals as any;
+const authProvider: string = locals?.runtime?.env?.AUTH_PROVIDER ?? 'legacy';
+
+// Weiterleitungspfad (nur relative Pfade erlauben) für Magic Link Flow
+const rParam = Astro.url.searchParams.get('r') ?? '';
+const safeR = typeof rParam === 'string' && rParam.startsWith('/') && !rParam.startsWith('//') ? rParam : '';
+
 if (locals.user) {
   return Astro.redirect(localizePath(locale, '/dashboard'));
 }
@@ -19,25 +25,37 @@ if (locals.user) {
 <AuthLayout title={t('pages.login.title') ?? 'Anmelden'}>
   <div class="relative p-6 rounded-2xl overflow-hidden bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-white/10 shadow-sm">
     <h1 class="text-2xl font-bold text-center mb-6">{t('pages.login.form.heading') ?? 'Melden Sie sich bei Ihrem Konto an'}</h1>
-    <form method="POST" action="/api/auth/login">
-      <input type="hidden" name="locale" value={locale} />
-      <div class="mb-4">
-        <FormLabel for="email">{t('pages.login.form.fields.email.label') ?? 'E-Mail'}</FormLabel>
-        <Input type="email" id="email" name="email" required />
+    {authProvider !== 'stytch' && (
+      <form method="POST" action="/api/auth/login">
+        <input type="hidden" name="locale" value={locale} />
+        <div class="mb-4">
+          <FormLabel for="email">{t('pages.login.form.fields.email.label') ?? 'E-Mail'}</FormLabel>
+          <Input type="email" id="email" name="email" required />
+        </div>
+        <div class="mb-4">
+          <FormLabel for="password">{t('pages.login.form.fields.password.label') ?? 'Passwort'}</FormLabel>
+          <Input type="password" id="password" name="password" required />
+        </div>
+        <div class="text-right mb-4">
+          <a href={localizePath(locale, '/forgot-password')} class="text-emerald-600 hover:underline">{t('pages.login.form.forgot_password_link') ?? 'Passwort vergessen?'}</a>
+        </div>
+        <!-- Turnstile entfernt -->
+        <Button type="submit" className="w-full">{t('pages.login.form.submit_button') ?? 'Anmelden'}</Button>
+      </form>
+    )}
+
+    {authProvider !== 'stytch' && (
+      <div class="my-6 flex items-center">
+        <div class="flex-1 h-px bg-gray-200 dark:bg-white/10"></div>
+        <span class="px-3 text-sm text-gray-500">{t('pages.login.form.or') ?? 'oder'}</span>
+        <div class="flex-1 h-px bg-gray-200 dark:bg-white/10"></div>
       </div>
-      <div class="mb-4">
-        <FormLabel for="password">{t('pages.login.form.fields.password.label') ?? 'Passwort'}</FormLabel>
-        <Input type="password" id="password" name="password" required />
-      </div>
-      <div class="text-right mb-4">
-        <a href={localizePath(locale, '/forgot-password')} class="text-emerald-600 hover:underline">{t('pages.login.form.forgot_password_link') ?? 'Passwort vergessen?'}</a>
-      </div>
-      <!-- Turnstile entfernt -->
-      <Button type="submit" className="w-full">{t('pages.login.form.submit_button') ?? 'Anmelden'}</Button>
-    </form>
+    )}
+    <MagicLinkForm locale={locale} mode="login" r={safeR} />
     <p class="text-center mt-4 text-sm">
       {t('pages.login.form.no_account_prompt')} <a href={localizePath(locale, '/register')} class="text-emerald-600 hover:underline">{t('pages.login.form.register_link') ?? 'Registrieren'}</a>
     </p>
   </div>
   <AuthStatusNotifier mode="login" client:load />
 </AuthLayout>
+

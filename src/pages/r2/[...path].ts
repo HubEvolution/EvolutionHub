@@ -42,7 +42,9 @@ export async function GET(context: APIContext) {
     headers.set('Cache-Control', 'public, max-age=31536000'); // 1 Jahr
     headers.set('ETag', object.httpEtag || '');
     
-    return new Response(object.body, {
+    // Avoid ReadableStream type mismatch by converting to ArrayBuffer
+    const body = await object.arrayBuffer();
+    return new Response(body, {
       status: 200,
       headers
     });

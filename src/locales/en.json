@@ -536,8 +536,10 @@
             "label": "Password"
           }
         },
+        "or": "or",
         "forgot_password_link": "Forgot password?",
         "submit_button": "Login",
+        "magic_button": "Continue with Magic Link",
         "no_account_prompt": "Don't have an account yet?",
         "register_link": "Register"
       }
@@ -546,12 +548,15 @@
       "title": "Create Account",
       "form": {
         "heading": "Create your account",
+        "subheading": "We’ll email you a sign-in link. After submitting, you’ll see a confirmation response.",
         "fields": {
           "name": {
-            "label": "Name"
+            "label": "Name",
+            "help": "2–50 characters."
           },
           "username": {
-            "label": "Username"
+            "label": "Username",
+            "help": "3–30 characters; letters, numbers, underscore."
           },
           "email": {
             "label": "Email"
@@ -565,6 +570,13 @@
         "login_link": "Login"
       }
     },
+    "auth": {
+      "magic": {
+        "success": "Check your email for a sign‑in link.",
+        "error": "We couldn't send the link. Please try again.",
+        "cooldown": "Resend in {s}s"
+      }
+    },
     "forgotPassword": {
       "title": "Forgot Password",
       "form": {
@@ -575,6 +587,14 @@
           }
         },
         "submit_button": "Send Reset Link"
+      }
+    },
+    "account": {
+      "settings": {
+        "email": {
+          "change_hint": "Changing your email requires re‑verification. Please contact support or use the forthcoming \u201cChange Email\u201d flow.",
+          "change_cta": "Change Email"
+        }
       }
     },
     "impressum": {

@@ -168,6 +168,8 @@ export const onRequest = defineMiddleware(async (context, next) => {
     }
   }
 
+  // Removed: notify normalization (simplified auth flow redirects directly from callback)
+
   const LOCALE_PREFIX_RE = /^\/(de|en)(\/|$)/;
   const existingLocale = (() => {
     const m = path.match(LOCALE_PREFIX_RE);
@@ -211,6 +213,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
   // Auth-Routen sollen niemals durch das Welcome-Gate unterbrochen werden
   function isAuthRoute(p: string): boolean {
     // Unterstützt optionale Sprachpräfixe /de/ oder /en/
+    // Removed auth/notify from the list; flow no longer uses the route
     const AUTH_RE = /^\/(?:(?:de|en)\/)?(?:login|register|forgot-password|reset-password|verify-email|email-verified|auth\/password-reset-sent)(\/|$)/;
     return AUTH_RE.test(p);
   }
@@ -544,6 +547,16 @@ export const onRequest = defineMiddleware(async (context, next) => {
   varyParts.add('Accept-Language');
   response.headers.set('Vary', Array.from(varyParts).join(', '));
 
+  // Verhindere Caching für kritische Auth-Seiten (Login), um Stale-Bundles zu vermeiden
+  try {
+    const isLoginRoute = /^\/(?:(?:de|en)\/)?login(\/|$)/.test(path);
+    if (isLoginRoute) {
+      response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
+      response.headers.set('Pragma', 'no-cache');
+      response.headers.set('Expires', '0');
+    }
+  } catch {}
+
   // Sicherheits-Header hinzufügen
   // X-Robots-Tag for welcome page (HTTP-level noindex)
   if (path === '/welcome' || path === '/welcome/') {
@@ -564,8 +577,8 @@ export const onRequest = defineMiddleware(async (context, next) => {
   if (__devLike) {
     const devCsp = [
       "default-src 'self' data: blob:",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: data: https://cdn.jsdelivr.net https://www.googletagmanager.com https://plausible.io",
-      "script-src-elem 'self' 'unsafe-inline' 'unsafe-eval' blob: data: https://cdn.jsdelivr.net https://www.googletagmanager.com https://plausible.io",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: data: https://cdn.jsdelivr.net https://www.googletagmanager.com https://plausible.io https://static.cloudflareinsights.com",
+      "script-src-elem 'self' 'unsafe-inline' 'unsafe-eval' blob: data: https://cdn.jsdelivr.net https://www.googletagmanager.com https://plausible.io https://static.cloudflareinsights.com",
       "connect-src 'self' ws: http: https:",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net",
       "img-src 'self' data: blob: https:",
@@ -588,8 +601,8 @@ export const onRequest = defineMiddleware(async (context, next) => {
       isProduction
         ? [
             "default-src 'self'",
-            `script-src 'self' 'nonce-${cspNonce}' 'strict-dynamic' https://cdn.jsdelivr.net https://www.googletagmanager.com https://plausible.io`,
-            `script-src-elem 'self' 'nonce-${cspNonce}' https://cdn.jsdelivr.net https://www.googletagmanager.com https://plausible.io`,
+            `script-src 'self' 'nonce-${cspNonce}' 'strict-dynamic' https://cdn.jsdelivr.net https://www.googletagmanager.com https://plausible.io https://static.cloudflareinsights.com`,
+            `script-src-elem 'self' 'nonce-${cspNonce}' https://cdn.jsdelivr.net https://www.googletagmanager.com https://plausible.io https://static.cloudflareinsights.com`,
             "connect-src 'self' https: wss:",
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net",
             "img-src 'self' data: blob: https:",
@@ -601,8 +614,8 @@ export const onRequest = defineMiddleware(async (context, next) => {
           ]
         : [
             "default-src 'self' data: blob:",
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: data: https://cdn.jsdelivr.net https://www.googletagmanager.com https://plausible.io",
-            "script-src-elem 'self' 'unsafe-inline' 'unsafe-eval' blob: data: https://cdn.jsdelivr.net https://www.googletagmanager.com https://plausible.io",
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: data: https://cdn.jsdelivr.net https://www.googletagmanager.com https://plausible.io https://static.cloudflareinsights.com",
+            "script-src-elem 'self' 'unsafe-inline' 'unsafe-eval' blob: data: https://cdn.jsdelivr.net https://www.googletagmanager.com https://plausible.io https://static.cloudflareinsights.com",
             "connect-src 'self' ws: http: https:",
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net",
             "img-src 'self' data: blob: https:",

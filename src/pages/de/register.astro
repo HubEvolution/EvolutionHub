@@ -1,9 +1,7 @@
 ---
 import AuthLayout from '@/layouts/AuthLayout.astro';
 import AuthStatusNotifier from '@/components/scripts/AuthStatusNotifier';
-import Button from '@/components/ui/Button.astro';
-import FormLabel from '@/components/ui/FormLabel.astro';
-import Input from '@/components/ui/Input.astro';
+import MagicLinkForm from '@/components/auth/MagicLinkForm.astro';
 import { getI18n } from '@/utils/i18n';
 
 import { getLocale } from '@/lib/i18n';
@@ -15,88 +13,22 @@ const locals = Astro.locals as any;
 if (locals.user) {
   return Astro.redirect(localizePath(locale, '/dashboard'));
 }
+
+// Sichere relative Weiterleitung für Magic Link
+const rParam = Astro.url.searchParams.get('r') ?? '';
+const safeR = typeof rParam === 'string' && rParam.startsWith('/') && !rParam.startsWith('//') ? rParam : '';
 ---
 <AuthLayout title={t('pages.register.title') ?? 'Konto erstellen'}>
   <div class="relative p-6 rounded-2xl overflow-hidden bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-white/10 shadow-sm">
-    <h1 class="text-2xl font-bold text-center mb-6">{t('pages.register.form.heading') ?? 'Erstellen Sie Ihr Konto'}</h1>
-    <form id="register-form" method="POST" action="/api/auth/register">
-      <input type="hidden" name="locale" value={locale} />
-      <div class="mb-4">
-        <FormLabel for="name">{t('pages.register.form.fields.name.label') ?? 'Name'}</FormLabel>
-        <Input type="text" id="name" name="name" required />
-      </div>
-      <div class="mb-4">
-        <FormLabel for="username">{t('pages.register.form.fields.username.label') ?? 'Benutzername'}</FormLabel>
-        <Input type="text" id="username" name="username" required />
-      </div>
-      <div class="mb-4">
-        <FormLabel for="email">{t('pages.register.form.fields.email.label') ?? 'E-Mail'}</FormLabel>
-        <Input type="email" id="email" name="email" required />
-      </div>
-      <div class="mb-6">
-        <FormLabel for="password">{t('pages.register.form.fields.password.label') ?? 'Passwort'}</FormLabel>
-        <Input type="password" id="password" name="password" required />
-      </div>
-      <div id="error-message" class="text-red-500 text-center mb-4 hidden"></div>
-      <!-- Turnstile entfernt -->
-      <Button type="submit" className="w-full">
-        {t('pages.register.form.submit_button') ?? 'Konto erstellen'}
-      </Button>
-    </form>
+    <h1 class="text-2xl font-bold text-center mb-2">{t('pages.register.form.heading') ?? 'Erstellen Sie Ihr Konto'}</h1>
+    <p class="text-center text-sm text-gray-600 dark:text-gray-300 mb-6">
+      {t('pages.register.form.subheading') ?? 'Wir senden dir einen Anmelde‑Link per E‑Mail. Nach dem Absenden siehst du eine Bestätigungs‑Antwort.'}
+    </p>
+
+    <MagicLinkForm locale={locale} mode="register" r={safeR} showProfileFields={true} />
     <p class="text-center mt-4 text-sm">
       {t('pages.register.form.already_have_account_prompt')} <a href={localizePath(locale, '/login')} class="text-emerald-600 hover:underline">{t('pages.register.form.login_link') ?? 'Anmelden'}</a>
     </p>
     <AuthStatusNotifier mode="register" client:load />
   </div>
 </AuthLayout>
-
-<script>
-  const VERIFY_URL_BASE = "{localizePath(locale, '/verify-email')}";
-  const form = document.getElementById('register-form');
-  const errorMessageDiv = document.getElementById('error-message');
-
-  if (form instanceof HTMLFormElement) {
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-
-      if (errorMessageDiv) {
-        errorMessageDiv.classList.add('hidden');
-        errorMessageDiv.textContent = '';
-      }
-
-      const formData = new FormData(form);
-
-      try {
-        const response = await fetch('/api/auth/register', {
-          method: 'POST',
-          body: formData,
-          credentials: 'same-origin',
-        });
-
-        // Server gibt Redirects zurück (auch bei Fehlern).
-        // Falls fetch dem Redirect folgt, setzen wir die URL manuell.
-        if (response.redirected) {
-          window.location.href = response.url;
-          return;
-        }
-
-        if (response.ok) {
-          const email = (formData.get('email') as string) || '';
-          const target = email ? `${VERIFY_URL_BASE}?email=${encodeURIComponent(email)}` : VERIFY_URL_BASE;
-          window.location.href = target;
-        } else {
-          const errorText = await response.text();
-          if (errorMessageDiv) {
-            errorMessageDiv.textContent = errorText || 'Es ist ein Fehler aufgetreten.';
-            errorMessageDiv.classList.remove('hidden');
-          }
-        }
-      } catch (error) {
-        if (errorMessageDiv) {
-          errorMessageDiv.textContent = 'Es ist ein unerwarteter Fehler aufgetreten.';
-          errorMessageDiv.classList.remove('hidden');
-        }
-      }
-    });
-  }
-</script>

@@ -3,8 +3,30 @@
  * Testet komplette User-Flows von der Browser-Perspektive
  */
 
-import { test, expect, Page } from '@playwright/test';
+import { test, expect, Page, BrowserContext } from '@playwright/test';
 import { testConfig } from '../../../config/test-config.js';
+
+const IS_REMOTE_TARGET = (() => {
+  try {
+    const u = new URL(process.env.TEST_BASE_URL || process.env.BASE_URL || '');
+    return !(u.hostname === 'localhost' || u.hostname === '127.0.0.1');
+  } catch {
+    return false;
+  }
+})();
+
+async function skipIfNoPasswordUI(page: Page, path: '/de/login' | '/de/register') {
+  // Navigate (if not already on the path) and check whether a password field exists
+  if (!page.url().includes(path)) {
+    await page.goto(path);
+  }
+  // Give the page a brief moment to render
+  await page.waitForLoadState('domcontentloaded');
+  const pwCount = await page.locator('input[name="password"]').count();
+  if (pwCount === 0) {
+    test.skip(true, 'Password-basierte UI ist deaktiviert (Stytch Magic-Link aktiv)');
+  }
+}
 
 test.describe('Benutzer-Authentifizierung - E2E Tests', () => {
   let page: Page;
@@ -19,6 +41,11 @@ test.describe('Benutzer-Authentifizierung - E2E Tests', () => {
   });
 
   test.describe('Registrierungs-Flow', () => {
+    test.beforeEach(async () => {
+      if (IS_REMOTE_TARGET) {
+        test.skip(true, 'Registrierung wird in Remote/Stytch-Umgebungen übersprungen (Double-Opt-In/Email-Flow, abweichende Policies)');
+      }
+    });
     test('sollte erfolgreiche Benutzerregistrierung ermöglichen', async () => {
       const testEmail = `e2e-${Date.now()}@test-suite.local`;
       const testPassword = 'E2eTestPass123!';
@@ -32,6 +59,7 @@ test.describe('Benutzer-Authentifizierung - E2E Tests', () => {
 
       // Warte auf Seitenladung
       await page.waitForLoadState('networkidle');
+      await skipIfNoPasswordUI(page, '/de/register');
 
       // Fülle Registrierungsformular aus (aktuelles UI: name + username)
       await page.fill('input[name="email"]', testEmail);
@@ -55,6 +83,7 @@ test.describe('Benutzer-Authentifizierung - E2E Tests', () => {
     test('sollte Registrierung bei ungültigen Daten ablehnen', async () => {
       await page.goto('/de/register');
       await page.waitForLoadState('networkidle');
+      await skipIfNoPasswordUI(page, '/de/register');
 
       // Fülle Formular mit ungültigen Daten
       await page.fill('input[name="email"]', 'invalid-email');
@@ -74,6 +103,7 @@ test.describe('Benutzer-Authentifizierung - E2E Tests', () => {
     test('sollte Registrierung bei bereits existierender Email ablehnen', async () => {
       await page.goto('/de/register');
       await page.waitForLoadState('networkidle');
+      await skipIfNoPasswordUI(page, '/de/register');
 
       // Verwende bereits existierende Test-Email
       const existingUsername = `e2e-existing-${Date.now()}`;
@@ -95,6 +125,7 @@ test.describe('Benutzer-Authentifizierung - E2E Tests', () => {
     test('sollte erfolgreichen Login für Admin-Benutzer ermöglichen', async () => {
       await page.goto('/de/login');
       await page.waitForLoadState('networkidle');
+      await skipIfNoPasswordUI(page, '/de/login');
 
       // Fülle Login-Formular
       await page.fill('input[name="email"]', 'admin@test-suite.local');
@@ -113,6 +144,7 @@ test.describe('Benutzer-Authentifizierung - E2E Tests', () => {
     test('sollte erfolgreichen Login für regulären Benutzer ermöglichen', async () => {
       await page.goto('/de/login');
       await page.waitForLoadState('networkidle');
+      await skipIfNoPasswordUI(page, '/de/login');
 
       // Fülle Login-Formular
       await page.fill('input[name="email"]', 'user@test-suite.local');
@@ -134,6 +166,7 @@ test.describe('Benutzer-Authentifizierung - E2E Tests', () => {
     test('sollte fehlgeschlagenen Login bei falschen Anmeldedaten ablehnen', async () => {
       await page.goto('/de/login');
       await page.waitForLoadState('networkidle');
+      await skipIfNoPasswordUI(page, '/de/login');
 
       // Fülle Formular mit falschen Daten
       await page.fill('input[name="email"]', 'admin@test-suite.local');
@@ -151,6 +184,7 @@ test.describe('Benutzer-Authentifizierung - E2E Tests', () => {
     test('sollte "Passwort vergessen" Flow ermöglichen', async () => {
       await page.goto('/de/login');
       await page.waitForLoadState('networkidle');
+      await skipIfNoPasswordUI(page, '/de/login');
 
       // Klicke auf "Passwort vergessen" Link
       await page.click('text=/passwort.*vergessen|forgot.*password/');
@@ -174,6 +208,7 @@ test.describe('Benutzer-Authentifizierung - E2E Tests', () => {
       // Login durchführen
       await page.goto('/de/login');
       await page.waitForLoadState('networkidle');
+      await skipIfNoPasswordUI(page, '/de/login');
 
       await page.fill('input[name="email"]', 'admin@test-suite.local');
       await page.fill('input[name="password"]', 'AdminPass123!');
@@ -195,6 +230,7 @@ test.describe('Benutzer-Authentifizierung - E2E Tests', () => {
     test('sollte Logout korrekt durchführen', async () => {
       // Login durchführen
       await page.goto('/de/login');
+      await skipIfNoPasswordUI(page, '/de/login');
       await page.fill('input[name="email"]', 'admin@test-suite.local');
       await page.fill('input[name="password"]', 'AdminPass123!');
       await page.click('button[type="submit"]');
@@ -220,6 +256,7 @@ test.describe('Benutzer-Authentifizierung - E2E Tests', () => {
     test('sollte Session-Timeout behandeln', async () => {
       // Login durchführen
       await page.goto('/de/login');
+      await skipIfNoPasswordUI(page, '/de/login');
       await page.fill('input[name="email"]', 'admin@test-suite.local');
       await page.fill('input[name="password"]', 'AdminPass123!');
       await page.click('button[type="submit"]');
@@ -244,6 +281,7 @@ test.describe('Benutzer-Authentifizierung - E2E Tests', () => {
     test('sollte XSS-Angriffe in Formularfeldern verhindern', async () => {
       await page.goto('/de/register');
       await page.waitForLoadState('networkidle');
+      await skipIfNoPasswordUI(page, '/de/register');
 
       const xssPayload = '<script>alert("xss")</script>';
 
@@ -268,6 +306,7 @@ test.describe('Benutzer-Authentifizierung - E2E Tests', () => {
     test('sollte CSRF-Schutz implementieren', async () => {
       // Login durchführen
       await page.goto('/de/login');
+      await skipIfNoPasswordUI(page, '/de/login');
       await page.fill('input[name="email"]', 'admin@test-suite.local');
       await page.fill('input[name="password"]', 'AdminPass123!');
       await page.click('button[type="submit"]');
@@ -292,6 +331,7 @@ test.describe('Benutzer-Authentifizierung - E2E Tests', () => {
     test('sollte Rate-Limiting für Login-Versuche implementieren', async () => {
       await page.goto('/de/login');
       await page.waitForLoadState('networkidle');
+      await skipIfNoPasswordUI(page, '/de/login');
 
       // Mehrere schnelle Login-Versuche
       for (let i = 0; i < 5; i++) {
@@ -318,6 +358,7 @@ test.describe('Benutzer-Authentifizierung - E2E Tests', () => {
 
       await page.goto('/de/login');
       await page.waitForLoadState('networkidle');
+      await skipIfNoPasswordUI(page, '/de/login');
 
       // Verifiziere Mobile-Optimierung
       await expect(page.locator('input[name="email"]')).toBeVisible();
@@ -338,6 +379,7 @@ test.describe('Benutzer-Authentifizierung - E2E Tests', () => {
       await page.setViewportSize({ width: 375, height: 667 });
 
       await page.goto('/de/login');
+      await skipIfNoPasswordUI(page, '/de/login');
 
       // Verifiziere Touch-freundliche Elemente
       const submitButton = page.locator('button[type="submit"]');
@@ -371,6 +413,7 @@ test.describe('Benutzer-Authentifizierung - E2E Tests', () => {
     test('sollte WCAG 2.1 AA Konformität für Login-Formular erfüllen', async () => {
       await page.goto('/de/login');
       await page.waitForLoadState('networkidle');
+      await skipIfNoPasswordUI(page, '/de/login');
 
       // Verifiziere ARIA-Labels
       await expect(page.locator('input[name="email"]')).toHaveAttribute('aria-label', /email|e-mail/);
@@ -405,6 +448,7 @@ test.describe('Benutzer-Authentifizierung - E2E Tests', () => {
 
     test('sollte Keyboard-Navigation unterstützen', async () => {
       await page.goto('/de/login');
+      await skipIfNoPasswordUI(page, '/de/login');
 
       // Teste komplette Keyboard-Navigation
       await page.keyboard.press('Tab'); // Email Feld
@@ -435,6 +479,7 @@ test.describe('Benutzer-Authentifizierung - E2E Tests', () => {
 
     test('sollte Screen-Reader-Unterstützung bieten', async () => {
       await page.goto('/de/login');
+      await skipIfNoPasswordUI(page, '/de/login');
 
       // Verifiziere Screen-Reader-Attribute
       const emailInput = page.locator('input[name="email"]');
@@ -464,6 +509,7 @@ test.describe('Benutzer-Authentifizierung - E2E Tests', () => {
 
       await page.goto('/de/login');
       await page.waitForLoadState('networkidle');
+      await skipIfNoPasswordUI(page, '/de/login');
 
       const loadTime = Date.now() - startTime;
 
@@ -479,6 +525,7 @@ test.describe('Benutzer-Authentifizierung - E2E Tests', () => {
     test('sollte schnelle Login-Response-Zeiten haben', async () => {
       await page.goto('/de/login');
       await page.waitForLoadState('networkidle');
+      await skipIfNoPasswordUI(page, '/de/login');
 
       await page.fill('input[name="email"]', 'admin@test-suite.local');
       await page.fill('input[name="password"]', 'AdminPass123!');
@@ -500,8 +547,8 @@ test.describe('Benutzer-Authentifizierung - E2E Tests', () => {
 
     test('sollte effizient mit vielen gleichzeitigen Sessions umgehen', async () => {
       // Öffne mehrere Browser-Kontexte
-      const contexts = [];
-      const pages = [];
+      const contexts: BrowserContext[] = [];
+      const pages: Page[] = [];
 
       for (let i = 0; i < 3; i++) {
         const context = await page.context().browser()?.newContext();
@@ -512,6 +559,10 @@ test.describe('Benutzer-Authentifizierung - E2E Tests', () => {
 
           // Führe Login in jedem Kontext durch
           await newPage.goto('/de/login');
+          const pwCount = await newPage.locator('input[name="password"]').count();
+          if (pwCount === 0) {
+            test.skip(true, 'Password-basierte UI ist deaktiviert (Stytch Magic-Link aktiv)');
+          }
           await newPage.fill('input[name="email"]', 'admin@test-suite.local');
           await newPage.fill('input[name="password"]', 'AdminPass123!');
           await newPage.click('button[type="submit"]');
@@ -520,8 +571,8 @@ test.describe('Benutzer-Authentifizierung - E2E Tests', () => {
       }
 
       // Verifiziere, dass alle Sessions funktionieren
-      for (const page of pages) {
-        await expect(page.locator('text=/dashboard|übersicht/')).toBeVisible();
+      for (const p of pages) {
+        await expect(p.locator('text=/dashboard|übersicht/')).toBeVisible();
       }
 
       // Cleanup

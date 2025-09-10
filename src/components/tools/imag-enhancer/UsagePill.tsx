@@ -1,9 +1,28 @@
+/**
+ * Informationen zum Quota-Verbrauch für die UsagePill-Komponente.
+ * 
+ * @interface UsageInfo
+ * @property {number} used - Verbrauchte Anfragen.
+ * @property {number} limit - Gesamt-Limit.
+ * @property {number | null} resetAt - Zeitpunkt des Resets (timestamp oder null).
+ */
 interface UsageInfo {
   used: number;
   limit: number;
   resetAt: number | null;
 }
 
+/**
+ * Props für die UsagePill-Komponente.
+ * 
+ * @interface UsagePillProps
+ * @property {string} label - Hauptlabel (z.B. i18n.usage).
+ * @property {string} loadingLabel - Label während Laden (z.B. i18n.loading).
+ * @property {UsageInfo | null} usage - Quota-Info oder null während Laden.
+ * @property {'user' | 'guest' | null} ownerType - Typ des Besitzers.
+ * @property {number} percent - Prozentsatz des Verbrauchs (0-100).
+ * @property {boolean} critical - True, wenn Quota kritisch (rote Styling).
+ */
 interface UsagePillProps {
   label: string; // strings.usage
   loadingLabel: string; // strings.loading
@@ -13,6 +32,14 @@ interface UsagePillProps {
   critical: boolean;
 }
 
+/**
+ * UsagePill-Komponente für das Image Enhancer Tool.
+ * 
+ * Zeigt Quota-Verbrauch als Pill mit Progress-Bar an, unterstützt Ladezustand und kritische Warnung.
+ * 
+ * @param {UsagePillProps} props - Die Props für die Komponente.
+ * @returns {JSX.Element} Die gerenderte Komponente.
+ */
 export function UsagePill({ label, loadingLabel, usage, ownerType, percent, critical }: UsagePillProps) {
   return (
     <div className={`inline-flex flex-col items-start ${usage ? '' : 'opacity-70'}`}>

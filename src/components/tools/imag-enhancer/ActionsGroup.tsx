@@ -1,5 +1,28 @@
 import type { MouseEvent } from 'react';
 
+/**
+ * Props für die ActionsGroup-Komponente im Image Enhancer Tool.
+ * 
+ * Diese Komponente rendert Aktions-Buttons für das Erhöhen, Zurücksetzen und Herunterladen
+ * von Bildern. Sie unterstützt Ladezustände, Quota-Überprüfungen und optionale Start-Over-Funktion.
+ * 
+ * @interface ActionsGroupProps
+ * @property {string} enhanceLabel - Label für den Enhance-Button (z.B. "Enhance").
+ * @property {string} processingLabel - Label während des Ladevorgangs (z.B. "Processing...").
+ * @property {string} resetLabel - Label für den Reset-Button (z.B. "Reset").
+ * @property {string} downloadLabel - Label für den Download-Link (z.B. "Download").
+ * @property {boolean} canSubmit - Gibt an, ob der Submit möglich ist (z.B. gültige Eingabe).
+ * @property {boolean} quotaExceeded - True, wenn das Quota überschritten ist (deaktiviert Buttons).
+ * @property {boolean} loading - True während des Verarbeitungsvorgangs.
+ * @property {boolean} hasResult - True, wenn ein Ergebnis vorhanden ist (zeigt Reset/Download).
+ * @property {string | null} resultUrl - URL des Ergebnisbilds für Download (optional).
+ * @property {() => void} onEnhance - Callback für Enhance-Action.
+ * @property {() => void} onReset - Callback für Reset-Action.
+ * @property {(e: MouseEvent<HTMLAnchorElement>) => void} onDownload - Callback für Download-Click.
+ * @property {string} [startOverLabel] - Optionaler Label für Start-Over-Button.
+ * @property {() => void} [onStartOver] - Optionaler Callback für Start-Over.
+ * @property {boolean} [showEnhance=true] - Steuert Sichtbarkeit des Enhance-Buttons.
+ */
 interface ActionsGroupProps {
   enhanceLabel: string;
   processingLabel: string;
@@ -23,6 +46,15 @@ interface ActionsGroupProps {
   showEnhance?: boolean;
 }
 
+/**
+ * ActionsGroup-Komponente für das Image Enhancer Tool.
+ * 
+ * Rendert eine Gruppe von Aktions-Buttons basierend auf dem aktuellen Zustand (Laden, Ergebnis vorhanden).
+ * Unterstützt bedingte Deaktivierung durch Quota oder ungültige Eingabe.
+ * 
+ * @param {ActionsGroupProps} props - Die Props für die Komponente.
+ * @returns {JSX.Element} Die gerenderte Komponente.
+ */
 export function ActionsGroup({
   enhanceLabel,
   processingLabel,
