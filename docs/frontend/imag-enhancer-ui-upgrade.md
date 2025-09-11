@@ -18,14 +18,15 @@ Kurz-Dokument als Single-Source-of-Truth für das UI-Upgrade. Änderungen erfolg
 
 - **CSRF (Double-Submit-Token)**
   - POST-Routen erfordern Header `X-CSRF-Token`, der mit Cookie `csrf_token` übereinstimmen muss.
-  - Betroffene Routen: `/api/ai-image/jobs` (create), `/api/ai-image/jobs/{id}/cancel` (cancel). GET `/api/ai-image/jobs/{id}` erfordert kein CSRF.
+  - Betroffene Routen: `/api/ai-image/generate` (synchron), `/api/ai-image/jobs` (create), `/api/ai-image/jobs/{id}/cancel` (cancel). GET `/api/ai-image/jobs/{id}` erfordert kein CSRF.
 
 - **Rate Limiting (Middleware)**
+  - Generate: 15 Anfragen/Minute (`aiGenerateLimiter`).
   - AI-Jobs: 10 Anfragen/Minute (`aiJobsLimiter`).
   - Bei Überschreitung: HTTP 429 mit Header `Retry-After` (Sekunden bis Reset) und standardisiertem Error-Body.
 
 - **Quotas (24h Fenster)**
-  - Gäste: `FREE_LIMIT_GUEST = 3` (Produktion-Default).
+  - Gäste: `FREE_LIMIT_GUEST = 3` (Produktion-Default; QA/Dev kann temporär abweichen).
   - Nutzer (eingeloggt): `FREE_LIMIT_USER = 20`.
 
 - **Allowed Origins (Origin/CSRF-Validierung)**
@@ -63,7 +64,7 @@ export async function createAiJob(formData: FormData) {
 }
 ```
 
-Hinweis Dev-Fallback: In Entwicklung kann der Service das Originalbild zurückgeben (Echo), wenn Upstream/Token fehlt. UI kennzeichnet dies als Demo-Modus (siehe unten).
+Hinweis Dev-Fallback: In Entwicklung kann der Service das Originalbild zurückgeben (Echo), wenn Upstream/Token fehlt oder bei localhost. UI kennzeichnet dies als Demo-Modus (siehe unten).
 
 ## Status Quo (Stand: 2025-09-02)
 

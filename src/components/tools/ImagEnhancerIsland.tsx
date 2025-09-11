@@ -106,6 +106,9 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
     { model: string; scale: 2 | 4; faceEnhance: boolean } | null
   >(null);
 
+  // Resolve selected model to access capability flags
+  const selectedModel = useMemo(() => ALLOWED_MODELS.find((m) => m.slug === model), [model]);
+
   const inputRef = useRef<HTMLInputElement | null>(null);
   const draggingRef = useRef(false);
   const [sliderPos, setSliderPos] = useState<number>(50); // 0..100
@@ -169,6 +172,29 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
 
   // Programmatic download helper
   const download = useDownload();
+
+  // CSRF helper: ensure a csrf_token cookie exists and return a matching header token
+  const ensureCsrfToken = useCallback(() => {
+    try {
+      const cookie = document.cookie || '';
+      const m = cookie.match(/(?:^|; )csrf_token=([^;]+)/);
+      if (m && m[1]) return decodeURIComponent(m[1]);
+      // generate random token
+      const buf = new Uint8Array(16);
+      (globalThis.crypto || window.crypto).getRandomValues(buf);
+      const token = Array.from(buf).map((b) => b.toString(16).padStart(2, '0')).join('');
+      const attrs = [
+        'Path=/',
+        'SameSite=Lax',
+        (typeof location !== 'undefined' && location.protocol === 'https:') ? 'Secure' : ''
+      ].filter(Boolean).join('; ');
+      document.cookie = `csrf_token=${encodeURIComponent(token)}; ${attrs}`;
+      return token;
+    } catch {
+      // fallback empty -> request will likely be rejected, but avoid runtime errors
+      return '';
+    }
+  }, []);
 
   useEffect(() => {
     if (!strings?.toasts) {
@@ -453,16 +479,22 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
       const fd = new FormData();
       fd.set('image', file);
       fd.set('model', model);
-      // Only Real-ESRGAN supports scale parameter
-      if (model.startsWith('nightmareai/real-esrgan')) {
+      // Add optional params based on model capabilities
+      if (typeof scale === 'number' && selectedModel?.supportsScale) {
         fd.set('scale', String(scale));
+      }
+      if (typeof faceEnhance === 'boolean' && selectedModel?.supportsFaceEnhance) {
         fd.set('face_enhance', String(faceEnhance));
       }
 
+      const csrf = ensureCsrfToken();
       const res = await fetch('/api/ai-image/generate', {
         method: 'POST',
         body: fd,
         credentials: 'same-origin',
+        headers: {
+          'X-CSRF-Token': csrf,
+        },
       });
 
       const json = (await res.json()) as ApiSuccess<GenerateResponseData> | ApiErrorBody;
@@ -530,12 +562,14 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
   );
   const settingsSummary = useMemo(() => {
     const parts = [currentModelLabel];
-    if (model.startsWith('nightmareai/real-esrgan')) {
+    if (selectedModel?.supportsScale) {
       parts.push(`x${scale}`);
-      if (faceEnhance) parts.push('Face enhance');
+    }
+    if (selectedModel?.supportsFaceEnhance && faceEnhance) {
+      parts.push('Face enhance');
     }
     return parts.join(' · ');
-  }, [currentModelLabel, model, scale, faceEnhance]);
+  }, [currentModelLabel, selectedModel, scale, faceEnhance]);
 
   const settingsDirty = useMemo(() => {
     if (!resultUrl) return false;
@@ -656,42 +690,46 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
                           </option>
                         ))}
                       </select>
-                      {model.startsWith('nightmareai/real-esrgan') && (
+                      {(selectedModel?.supportsScale || selectedModel?.supportsFaceEnhance) && (
                         <div className="flex items-center gap-3">
-                          <div className="flex items-center gap-1" role="group" aria-label="Enhancement scale">
-                            <button
-                              type="button"
-                              onClick={() => setScale(2)}
-                              className={`px-2 py-1 text-xs rounded-md ring-1 ${
-                                scale === 2
-                                  ? 'bg-cyan-500/20 ring-cyan-400/50 text-cyan-700 dark:text-cyan-200'
-                                  : 'bg-white/10 dark:bg-slate-900/40 ring-cyan-400/20 text-gray-700 dark:text-gray-200 hover:ring-cyan-400/40'
-                              }`}
-                            >
-                              x2
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => setScale(4)}
-                              className={`px-2 py-1 text-xs rounded-md ring-1 ${
-                                scale === 4
-                                  ? 'bg-cyan-500/20 ring-cyan-400/50 text-cyan-700 dark:text-cyan-200'
-                                  : 'bg-white/10 dark:bg-slate-900/40 ring-cyan-400/20 text-gray-700 dark:text-gray-200 hover:ring-cyan-400/40'
-                              }`}
-                            >
-                              x4
-                            </button>
-                          </div>
-                          <label className="flex items-center gap-2 text-xs text-gray-700 dark:text-gray-300">
-                            <input
-                              type="checkbox"
-                              checked={faceEnhance}
-                              onChange={(e) => setFaceEnhance(e.target.checked)}
-                              className="h-3.5 w-3.5 rounded border-gray-300 dark:border-gray-600 text-cyan-600 focus:ring-cyan-500"
-                              aria-label="Face enhance"
-                            />
-                            <span>Face enhance</span>
-                          </label>
+                          {selectedModel?.supportsScale && (
+                            <div className="flex items-center gap-1" role="group" aria-label="Enhancement scale">
+                              <button
+                                type="button"
+                                onClick={() => setScale(2)}
+                                className={`px-2 py-1 text-xs rounded-md ring-1 ${
+                                  scale === 2
+                                    ? 'bg-cyan-500/20 ring-cyan-400/50 text-cyan-700 dark:text-cyan-200'
+                                    : 'bg-white/10 dark:bg-slate-900/40 ring-cyan-400/20 text-gray-700 dark:text-gray-200 hover:ring-cyan-400/40'
+                                }`}
+                              >
+                                x2
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setScale(4)}
+                                className={`px-2 py-1 text-xs rounded-md ring-1 ${
+                                  scale === 4
+                                    ? 'bg-cyan-500/20 ring-cyan-400/50 text-cyan-700 dark:text-cyan-200'
+                                    : 'bg-white/10 dark:bg-slate-900/40 ring-cyan-400/20 text-gray-700 dark:text-gray-200 hover:ring-cyan-400/40'
+                                }`}
+                              >
+                                x4
+                              </button>
+                            </div>
+                          )}
+                          {selectedModel?.supportsFaceEnhance && (
+                            <label className="flex items-center gap-2 text-xs text-gray-700 dark:text-gray-300">
+                              <input
+                                type="checkbox"
+                                checked={faceEnhance}
+                                onChange={(e) => setFaceEnhance(e.target.checked)}
+                                className="h-3.5 w-3.5 rounded border-gray-300 dark:border-gray-600 text-cyan-600 focus:ring-cyan-500"
+                                aria-label="Face enhance"
+                              />
+                              <span>Face enhance</span>
+                            </label>
+                          )}
                         </div>
                       )}
                       {resultUrl && (

@@ -552,6 +552,94 @@ paths:
       responses:
         "200":
           description: Datei-Stream
+  /api/ai-image/generate:
+    post:
+      summary: AI-Image synchron erzeugen/verbessern
+      description: Nimmt ein Bild als multipart/form-data entgegen, lädt Original in R2 hoch, ruft Replicate auf (in Dev ggf. Echo) und speichert das Ergebnis erneut in R2. Antwort enthält Limits und Usage.
+      x-source: src/pages/api/ai-image/generate.ts
+      operationId: postAiImageGenerate
+      parameters:
+        - name: X-CSRF-Token
+          in: header
+          required: true
+          description: CSRF-Token; muss mit Cookie 'csrf_token' übereinstimmen (Double-Submit-Pattern)
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                image:
+                  type: string
+                  format: binary
+                model:
+                  type: string
+                scale:
+                  type: integer
+                  enum: [2, 4]
+                face_enhance:
+                  type: boolean
+              required:
+                - image
+                - model
+      responses:
+        "200":
+          description: Erfolg – Ergebnis-URL und Limits
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AiGenerateSuccessResponse'
+        "400":
+          description: Validierungsfehler
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        "403":
+          description: Verboten (CSRF/Origin)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        "429":
+          description: Rate limit exceeded
+          headers:
+            Retry-After:
+              description: Seconds until the limit resets
+              schema:
+                type: integer
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        "500":
+          description: Serverfehler
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+  /api/ai-image/usage:
+    get:
+      summary: AI-Image-Nutzung/Limits abrufen
+      description: Liefert den aktuellen Usage-Stand und Limits (24h Fenster) für den aktuellen Besitzer (User oder Gast mit `guest_id`-Cookie).
+      x-source: src/pages/api/ai-image/usage.ts
+      operationId: getAiImageUsage
+      responses:
+        "200":
+          description: Usage/Limits
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsageSuccessResponse'
+        "500":
+          description: Serverfehler
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
   /api/ai-image/jobs:
     post:
       summary: AI-Image-Job erstellen
@@ -914,6 +1002,59 @@ components:
           enum: [true]
         data:
           $ref: '#/components/schemas/AiJob'
+      required:
+        - success
+        - data
+    AiGenerateData:
+      type: object
+      properties:
+        model:
+          type: string
+        originalUrl:
+          type: string
+        imageUrl:
+          type: string
+        usage:
+          $ref: '#/components/schemas/UsageInfo'
+        limits:
+          type: object
+          properties:
+            user:
+              type: integer
+            guest:
+              type: integer
+    AiGenerateSuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          enum: [true]
+        data:
+          $ref: '#/components/schemas/AiGenerateData'
+      required:
+        - success
+        - data
+    UsageSuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          enum: [true]
+        data:
+          type: object
+          properties:
+            ownerType:
+              type: string
+              enum: [user, guest]
+            usage:
+              $ref: '#/components/schemas/UsageInfo'
+            limits:
+              type: object
+              properties:
+                user:
+                  type: integer
+                guest:
+                  type: integer
       required:
         - success
         - data

@@ -104,6 +104,7 @@ npm run test
 ## 📚 Dokumentation
 
 - [API-Dokumentation](./docs/api/)
+- [API Quickstart](./docs/api/README.md)
 - [Architektur](./docs/architecture/)
 - [Sicherheit](./docs/security/)
 

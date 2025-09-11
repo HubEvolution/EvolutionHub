@@ -1,4 +1,5 @@
 import { ALLOWED_CONTENT_TYPES, ALLOWED_MODELS, AI_R2_PREFIX, FREE_LIMIT_GUEST, FREE_LIMIT_USER, MAX_UPLOAD_BYTES, type AllowedModel, type OwnerType } from '@/config/ai-image';
+import { detectImageMimeFromBytes } from '@/lib/utils/mime';
 import { AbstractBaseService } from './base-service';
 import type { ServiceDependencies } from './types';
 import type { KVNamespace, R2Bucket } from '@cloudflare/workers-types';
@@ -68,11 +69,14 @@ export class AiJobsService extends AbstractBaseService {
     const model = this.getAllowedModel(modelSlug);
     if (!model) throw new Error('Unsupported model');
     if (!(file instanceof File)) throw new Error('Invalid file');
-    if (!ALLOWED_CONTENT_TYPES.includes(file.type as any)) {
-      throw new Error(`Unsupported content type: ${file.type}`);
-    }
     if (file.size > MAX_UPLOAD_BYTES) {
       throw new Error(`File too large. Max ${Math.round(MAX_UPLOAD_BYTES / (1024 * 1024))} MB`);
+    }
+    const fileBuffer = await file.arrayBuffer();
+    const sniffed = detectImageMimeFromBytes(fileBuffer);
+    if (!sniffed || !ALLOWED_CONTENT_TYPES.includes(sniffed as any)) {
+      const display = sniffed ?? (file.type || 'unknown');
+      throw new Error(`Unsupported content type: ${display}`);
     }
 
     // Quota check (no increment yet)
@@ -92,13 +96,12 @@ export class AiJobsService extends AbstractBaseService {
     const bucket = this.env.R2_AI_IMAGES;
     if (!bucket) throw new Error('R2_AI_IMAGES bucket not configured');
 
-    const ext = this.extFromContentType(file.type) || this.extFromFilename(file.name) || 'bin';
+    const ext = this.extFromContentType(sniffed) || this.extFromFilename(file.name) || 'bin';
     const timestamp = Date.now();
     const baseKey = `${AI_R2_PREFIX}/uploads/${ownerType}/${ownerId}/${timestamp}`;
     const inputKey = `${baseKey}.${ext}`;
 
-    const fileBuffer = await file.arrayBuffer();
-    await bucket.put(inputKey, fileBuffer, { httpMetadata: { contentType: file.type } });
+    await bucket.put(inputKey, fileBuffer, { httpMetadata: { contentType: sniffed } });
 
     const inputUrl = this.buildPublicUrl(requestOrigin, inputKey);
 
@@ -133,7 +136,7 @@ export class AiJobsService extends AbstractBaseService {
       status: 'queued',
       provider: 'replicate',
       model: model.slug,
-      input: { key: inputKey, url: inputUrl, contentType: file.type, size: file.size },
+      input: { key: inputKey, url: inputUrl, contentType: sniffed, size: file.size },
       output: null,
       error: null,
       createdAt: nowIso,
@@ -336,6 +339,7 @@ export class AiJobsService extends AbstractBaseService {
     const payload = { input: { ...model.defaultParams, ...input } };
     const url = `https://api.replicate.com/v1/run/${model.slug}`;
 
+    const started = Date.now();
     const res = await fetch(url, {
       method: 'POST',
       headers: {
@@ -345,9 +349,35 @@ export class AiJobsService extends AbstractBaseService {
       body: JSON.stringify(payload),
     });
 
+    const durationMs = Date.now() - started;
+    // use console.debug only; service has no logger here
+    if ((this.env.ENVIRONMENT || '').toLowerCase() !== 'production') {
+      console.debug('[AiJobsService] Replicate duration(ms)', { model: model.slug, ms: durationMs });
+    }
+
     if (!res.ok) {
+      const status = res.status;
       const text = await res.text();
-      throw new Error(`Replicate error ${res.status} for model '${model.slug}' at ${url}: ${text}`);
+      const err: any = new Error(
+        status === 401 || status === 403
+          ? 'Provider access denied'
+          : status === 404
+          ? 'Provider model or endpoint not found'
+          : status >= 400 && status < 500
+          ? 'Provider rejected the request (validation error)'
+          : 'Provider service error'
+      );
+      err.status = status;
+      err.provider = 'replicate';
+      err.apiErrorType = status === 401 || status === 403
+        ? 'forbidden'
+        : status >= 400 && status < 500
+        ? 'validation_error'
+        : 'server_error';
+      if ((this.env.ENVIRONMENT || '').toLowerCase() !== 'production') {
+        console.warn('[AiJobsService] Replicate error payload (dev only)', { status, text: text.slice(0, 500) });
+      }
+      throw err;
     }
 
     const data = (await res.json()) as { output?: unknown };

@@ -10,6 +10,8 @@ export interface AllowedModel {
   label: string; // Human-readable name
   provider: 'replicate';
   defaultParams?: Record<string, unknown>;
+  supportsScale?: boolean;
+  supportsFaceEnhance?: boolean;
 }
 
 export const ALLOWED_MODELS: readonly AllowedModel[] = [
@@ -17,16 +19,22 @@ export const ALLOWED_MODELS: readonly AllowedModel[] = [
     slug: 'nightmareai/real-esrgan:latest', // Official Real-ESRGAN on Replicate: https://replicate.com/nightmareai/real-esrgan
     label: 'Real-ESRGAN 4x',
     provider: 'replicate',
+    supportsScale: true,
+    supportsFaceEnhance: true,
   },
   {
     slug: 'tencentarc/gfpgan:latest', // Official GFPGAN: https://replicate.com/tencentarc/gfpgan
     label: 'GFPGAN',
     provider: 'replicate',
+    supportsScale: false,
+    supportsFaceEnhance: false,
   },
   {
     slug: 'sczhou/codeformer:latest', // Official CodeFormer: https://replicate.com/sczhou/codeformer
     label: 'CodeFormer',
     provider: 'replicate',
+    supportsScale: false,
+    supportsFaceEnhance: false,
   },
 ] as const;
 

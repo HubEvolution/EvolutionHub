@@ -42,6 +42,8 @@
     "lint": "eslint 'src/**/*.{ts,astro}' --max-warnings=0",
     "lint:md": "markdownlint-cli2 \"docs/**/*.md\"",
     "lint:md:fix": "markdownlint-cli2 --fix \"docs/**/*.md\"",
+    "openapi:validate": "npx swagger-cli validate openapi.yaml",
+    "openapi:redoc": "npx redoc-cli build openapi.yaml -o api-docs.html",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:setup": "npm run setup:local",

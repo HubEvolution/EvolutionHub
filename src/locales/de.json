@@ -119,22 +119,20 @@
         "action": "Alle Beiträge anzeigen"
       },
       "filter": {
-        "category": "Gefiltert nach Kategorie: ",
+        "category": {
+          "title": "Nach Kategorie filtern",
+          "all": "Alle Kategorien"
+        },
         "tag": "Gefiltert nach Tag: ",
         "search": "Suchergebnisse für: ",
-        "reset": "Filter zurücksetzen"
+        "reset": "Filter zurücksetzen",
+        "all": "Alle",
+        "category_label": "Gefiltert nach Kategorie: "
       },
       "featured": "Featured Post",
       "tags": {
         "title": "Alle Tags",
         "none": "Keine Tags verfügbar"
-      },
-      "filter": {
-        "category": {
-          "title": "Nach Kategorie filtern",
-          "all": "Alle Kategorien"
-        },
-        "all": "Alle"
       },
       "posts": {
         "count": {

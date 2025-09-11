@@ -120,22 +120,20 @@
         "action": "Show all posts"
       },
       "filter": {
-        "category": "Filtered by category: ",
+        "category": {
+          "title": "Filter by category",
+          "all": "All categories"
+        },
         "tag": "Filtered by tag: ",
         "search": "Search results for: ",
-        "reset": "Reset filters"
+        "reset": "Reset filters",
+        "all": "All",
+        "category_label": "Filtered by category: "
       },
       "featured": "Featured Post",
       "tags": {
         "title": "All Tags",
         "none": "No tags available"
-      },
-      "filter": {
-        "category": {
-          "title": "Filter by category",
-          "all": "All categories"
-        },
-        "all": "All"
       },
       "posts": {
         "count": {
@@ -330,4 +328,10 @@
             "heading": "Features",
             "upscaling": { "title": "AI-powered upscaling", "description": "Upscale images without visible quality loss." },
             "denoise_sharpen": { "title": "Denoising & sharpening", "description": "Reduces noise and restores fine details." },
-            "fine_tuning": { "title": "Fine-tuning & presets", "description": "Preset profiles
+            "fine_tuning": { "title": "Fine-tuning & presets", "description": "Preset profiles for common edits." }
+          }
+        }
+      }
+    }
+  }
+}

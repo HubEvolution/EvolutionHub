@@ -100,7 +100,15 @@ export const POST = withApiMiddleware(async (context) => {
       return createApiError('forbidden', 'Kostenloses Nutzungslimit erreicht', (err as any).details || undefined);
     }
     // Map common validation failures
-    if (message.includes('Unsupported content type') || message.includes('File too large') || message.includes('Unsupported model') || message.includes('Invalid file')) {
+    if (
+      message.includes('Unsupported content type') ||
+      message.includes('File too large') ||
+      message.includes('Unsupported model') ||
+      message.includes('Invalid file') ||
+      message.includes("Unsupported parameter 'scale'") ||
+      message.includes("Unsupported parameter 'face_enhance'") ||
+      message.includes("Unsupported value for 'scale'")
+    ) {
       return createApiError('validation_error', message);
     }
     return createApiError('server_error', message);

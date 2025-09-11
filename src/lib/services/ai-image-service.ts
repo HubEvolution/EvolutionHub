@@ -1,4 +1,5 @@
 import { ALLOWED_MODELS, ALLOWED_CONTENT_TYPES, MAX_UPLOAD_BYTES, AI_R2_PREFIX, FREE_LIMIT_GUEST, FREE_LIMIT_USER, type AllowedModel, type OwnerType } from '@/config/ai-image';
+import { detectImageMimeFromBytes } from '@/lib/utils/mime';
 import type { R2Bucket, KVNamespace } from '@cloudflare/workers-types';
 
 interface RuntimeEnv {
@@ -81,11 +82,38 @@ export class AiImageService {
 
     if (!(file instanceof File)) throw new Error('Invalid file');
 
-    if (!ALLOWED_CONTENT_TYPES.includes(file.type as any)) {
-      throw new Error(`Unsupported content type: ${file.type}`);
+    // Validate model capabilities for optional params
+    if (typeof scale !== 'undefined') {
+      if (!model.supportsScale) {
+        const err: any = new Error(`Unsupported parameter 'scale' for model ${model.slug}`);
+        err.apiErrorType = 'validation_error';
+        throw err;
+      }
+      if (!(scale === 2 || scale === 4)) {
+        const err: any = new Error(`Unsupported value for 'scale': ${scale}`);
+        err.apiErrorType = 'validation_error';
+        throw err;
+      }
     }
+    if (typeof faceEnhance !== 'undefined') {
+      if (!model.supportsFaceEnhance) {
+        const err: any = new Error(`Unsupported parameter 'face_enhance' for model ${model.slug}`);
+        err.apiErrorType = 'validation_error';
+        throw err;
+      }
+    }
+
+    // Enforce size limit first
     if (file.size > MAX_UPLOAD_BYTES) {
       throw new Error(`File too large. Max ${Math.round(MAX_UPLOAD_BYTES / (1024 * 1024))} MB`);
+    }
+
+    // Sniff MIME type from magic bytes (do not trust client-provided type)
+    const fileBuffer = await file.arrayBuffer();
+    const sniffed = detectImageMimeFromBytes(fileBuffer);
+    if (!sniffed || !ALLOWED_CONTENT_TYPES.includes(sniffed as any)) {
+      const display = sniffed ?? (file.type || 'unknown');
+      throw new Error(`Unsupported content type: ${display}`);
     }
 
     // Dev debug: request context
@@ -116,13 +144,16 @@ export class AiImageService {
     const bucket = this.env.R2_AI_IMAGES;
     if (!bucket) throw new Error('R2_AI_IMAGES bucket not configured');
 
-    const originalExt = this.extFromContentType(file.type) || this.extFromFilename(file.name) || 'bin';
+    const originalExt = this.extFromContentType(sniffed) || this.extFromFilename(file.name) || 'bin';
     const timestamp = Date.now();
     const baseKey = `${AI_R2_PREFIX}/uploads/${ownerType}/${ownerId}/${timestamp}`;
     const originalKey = `${baseKey}.${originalExt}`;
 
-    const fileBuffer = await file.arrayBuffer();
-    await bucket.put(originalKey, fileBuffer, { httpMetadata: { contentType: file.type } });
+    const putOriginalStart = Date.now();
+    await bucket.put(originalKey, fileBuffer, { httpMetadata: { contentType: sniffed } });
+    if (this.isDevelopment()) {
+      console.debug(`[AiImageService][${reqId}] R2 put original(ms)`, { ms: Date.now() - putOriginalStart });
+    }
 
     const originalUrl = this.buildPublicUrl(requestOrigin, originalKey);
 
@@ -146,13 +177,10 @@ export class AiImageService {
         }
         // Build provider input parameters safely per model
         const replicateInput: Record<string, unknown> = { image: originalUrl };
-        // Only Real-ESRGAN supports explicit scale (commonly 2 or 4)
-        if (typeof scale === 'number' && model.slug.startsWith('nightmareai/real-esrgan')) {
+        if (typeof scale === 'number' && model.supportsScale) {
           replicateInput.scale = scale;
         }
-        // Enable optional GFPGAN-based face correction in Real-ESRGAN
-        if (model.slug.startsWith('nightmareai/real-esrgan') && typeof faceEnhance === 'boolean') {
-          // Replicate input uses snake_case for this flag
+        if (typeof faceEnhance === 'boolean' && model.supportsFaceEnhance) {
           (replicateInput as any).face_enhance = faceEnhance;
         }
         outputUrl = await this.runReplicate(model, replicateInput);
@@ -201,7 +229,11 @@ export class AiImageService {
     }
     const resultExt = this.extFromContentType(contentType) || 'png';
     const resultKey = `${AI_R2_PREFIX}/results/${ownerType}/${ownerId}/${timestamp}.${resultExt}`;
+    const putResultStart = Date.now();
     await bucket.put(resultKey, arrayBuffer, { httpMetadata: { contentType } });
+    if (this.isDevelopment()) {
+      console.debug(`[AiImageService][${reqId}] R2 put result(ms)`, { ms: Date.now() - putResultStart });
+    }
     if (this.isDevelopment()) {
       console.debug(`[AiImageService][${reqId}] stored result`, { resultKey, contentType });
     }
@@ -297,10 +329,14 @@ export class AiImageService {
   }
 
   private async fetchBinary(url: string): Promise<{ arrayBuffer: ArrayBuffer; contentType: string }> {
+    const started = Date.now();
     const res = await fetch(url);
     if (!res.ok) throw new Error(`Failed to fetch output ${res.status} from ${url}`);
     const ct = res.headers.get('content-type') || 'application/octet-stream';
     const buf = await res.arrayBuffer();
+    if (this.isDevelopment()) {
+      console.debug('[AiImageService] fetchBinary(ms)', { ms: Date.now() - started, contentType: ct, bytes: buf.byteLength });
+    }
     return { arrayBuffer: buf, contentType: ct };
   }
 
@@ -315,6 +351,7 @@ export class AiImageService {
     if (this.isDevelopment()) {
       console.debug('[AiImageService] Replicate POST', { url, model: model.slug });
     }
+    const started = Date.now();
     const res = await fetch(url, {
       method: 'POST',
       headers: {
@@ -324,9 +361,40 @@ export class AiImageService {
       body: JSON.stringify(payload),
     });
 
+    const durationMs = Date.now() - started;
+    if (this.isDevelopment()) {
+      console.debug('[AiImageService] Replicate duration(ms)', { model: model.slug, ms: durationMs });
+    }
+
     if (!res.ok) {
+      const status = res.status;
       const text = await res.text();
-      throw new Error(`Replicate error ${res.status} for model '${model.slug}' at ${url}: ${text}`);
+      // Create a typed error consumed by api-middleware
+      const err: any = new Error(
+        status === 401 || status === 403
+          ? 'Provider access denied'
+          : status === 404
+          ? 'Provider model or endpoint not found'
+          : status >= 400 && status < 500
+          ? 'Provider rejected the request (validation error)'
+          : 'Provider service error'
+      );
+      err.status = status;
+      err.provider = 'replicate';
+      err.apiErrorType = status === 401 || status === 403
+        ? 'forbidden'
+        : status >= 400 && status < 500
+        ? 'validation_error'
+        : 'server_error';
+      // In development, add minimal debug info to message tail
+      if (this.isDevelopment()) {
+        err.message += ` [${status}]`;
+      }
+      // Avoid leaking provider payloads to clients; keep text only for local logs
+      if (this.isDevelopment()) {
+        console.warn('[AiImageService] Replicate error payload (dev only)', { status, text: text.slice(0, 500) });
+      }
+      throw err;
     }
 
     const data = (await res.json()) as { output?: unknown };

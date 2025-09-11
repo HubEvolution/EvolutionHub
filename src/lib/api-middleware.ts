@@ -357,6 +357,13 @@ export function withApiMiddleware(handler: ApiHandler, options: ApiMiddlewareOpt
         ipAddress: clientAddress || 'unknown'
       });
 
+      // Falls ein Endpoint einen typisierten Fehler wirft (z. B. aus Services)
+      // mit einem expliziten apiErrorType, diesen bevorzugt verwenden.
+      const customType = (error as any)?.apiErrorType as ApiErrorType | undefined;
+      if (customType) {
+        return applySecurityHeaders(createApiError(customType, errorMessage));
+      }
+
       // Fehlertyp bestimmen
       let errorType: ApiErrorType = 'server_error';
 

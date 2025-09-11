@@ -75,3 +75,28 @@ jobs:
 
     - name: Run Astro Type Check
       run: npx astro check
+
+  openapi:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+        cache: 'npm'
+
+    - name: Validate OpenAPI (swagger-cli)
+      run: npx swagger-cli validate openapi.yaml
+
+    - name: Generate Redoc HTML
+      run: npx redoc-cli build openapi.yaml -o api-docs.html
+
+    - name: Upload OpenAPI Redoc Artifact
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: openapi-redoc
+        path: api-docs.html
+        retention-days: 30

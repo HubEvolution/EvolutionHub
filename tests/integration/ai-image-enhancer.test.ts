@@ -173,6 +173,29 @@ describe('AI Image Enhancer API + R2 Proxy (Integration)', () => {
     if (!body.success) expect(body.error.type).toBe('forbidden');
   });
 
+  it('POST /api/ai-image/jobs rejects non-image uploads via magic bytes -> 400 validation_error', async () => {
+    // Create a fake file with non-image content but image/png type and .png name
+    const fake = new TextEncoder().encode('not an image');
+    const file = new File([fake], 'fake.png', { type: 'image/png' });
+    const fd = new FormData();
+    fd.append('image', file);
+    fd.append('model', 'nightmareai/real-esrgan:latest');
+
+    const token = makeCsrfToken();
+    const res = await fetchManual('/api/ai-image/jobs', {
+      method: 'POST',
+      body: fd,
+      headers: {
+        Origin: TEST_URL,
+        ...csrfHeaders(token),
+      },
+    });
+    expect(res.status).toBe(400);
+    const body = await json<ApiEnvelope<any>>(res);
+    expect(body.success).toBe(false);
+    if (!body.success) expect(body.error.type).toBe('validation_error');
+  });
+
   it('POST /api/ai-image/jobs with mismatched CSRF -> 403 forbidden', async () => {
     const pngPath = join(rootDir, 'public', 'favicons', 'apple-touch-icon.png');
     const buf = await readFile(pngPath);

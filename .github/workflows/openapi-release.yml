@@ -1,0 +1,30 @@
+name: OpenAPI Redoc Release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  redoc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Validate OpenAPI (swagger-cli)
+        run: npx swagger-cli validate openapi.yaml
+
+      - name: Generate Redoc HTML
+        run: npx redoc-cli build openapi.yaml -o api-docs.html
+
+      - name: Attach Redoc to Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: api-docs.html
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
