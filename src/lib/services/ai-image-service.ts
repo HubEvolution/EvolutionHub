@@ -1,5 +1,7 @@
 import { ALLOWED_MODELS, ALLOWED_CONTENT_TYPES, MAX_UPLOAD_BYTES, AI_R2_PREFIX, FREE_LIMIT_GUEST, FREE_LIMIT_USER, type AllowedModel, type OwnerType } from '@/config/ai-image';
 import { detectImageMimeFromBytes } from '@/lib/utils/mime';
+import { loggerFactory } from '@/server/utils/logger-factory';
+import type { ExtendedLogger } from '@/types/logger';
 import type { R2Bucket, KVNamespace } from '@cloudflare/workers-types';
 
 interface RuntimeEnv {
@@ -35,9 +37,11 @@ export interface GenerateResult {
 
 export class AiImageService {
   private env: RuntimeEnv;
+  private log: ExtendedLogger;
 
   constructor(env: RuntimeEnv) {
     this.env = env;
+    this.log = loggerFactory.createLogger('ai-image-service');
   }
 
   private isLocalHost(origin: string): boolean {
@@ -118,15 +122,14 @@ export class AiImageService {
 
     // Dev debug: request context
     const reqId = `AIIMG-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
-    if (this.isDevelopment()) {
-      console.debug(`[AiImageService][${reqId}] generate start`, {
-        ownerType,
-        ownerId,
-        modelSlug,
-        fileType: file.type,
-        fileSize: file.size,
-      });
-    }
+    this.log.debug('generate_start', {
+      reqId,
+      ownerType,
+      ownerId,
+      modelSlug,
+      fileType: file.type,
+      fileSize: file.size,
+    });
 
     // Quota check (without increment yet)
     const limit = ownerType === 'user' ? FREE_LIMIT_USER : FREE_LIMIT_GUEST;
@@ -151,15 +154,11 @@ export class AiImageService {
 
     const putOriginalStart = Date.now();
     await bucket.put(originalKey, fileBuffer, { httpMetadata: { contentType: sniffed } });
-    if (this.isDevelopment()) {
-      console.debug(`[AiImageService][${reqId}] R2 put original(ms)`, { ms: Date.now() - putOriginalStart });
-    }
+    this.log.debug('r2_put_original_ms', { reqId, ms: Date.now() - putOriginalStart });
 
     const originalUrl = this.buildPublicUrl(requestOrigin, originalKey);
 
-    if (this.isDevelopment()) {
-      console.debug(`[AiImageService][${reqId}] uploaded original`, { originalKey, originalUrl });
-    }
+    this.log.debug('uploaded_original', { reqId, originalKey, originalUrl });
 
     // Call provider (Replicate) with the originalUrl
     let outputUrl: string;
@@ -168,14 +167,12 @@ export class AiImageService {
     // to avoid external dependencies in local/integration runs.
     const forceDevEcho = this.isDevelopment();
     if (forceDevEcho) {
-      console.warn(`[AiImageService][${reqId}] Development environment; forcing dev echo without Replicate call`);
+      this.log.warn('dev_echo_enabled', { reqId, reason: 'development_environment' });
       outputUrl = originalUrl;
       devEcho = true;
     } else {
       try {
-        if (this.isDevelopment()) {
-          console.debug(`[AiImageService][${reqId}] calling Replicate`, { model: model.slug, originalUrl, scale, faceEnhance });
-        }
+        this.log.debug('replicate_call_start', { reqId, model: model.slug, originalUrl, scale, faceEnhance });
         // Build provider input parameters safely per model
         const replicateInput: Record<string, unknown> = { image: originalUrl };
         if (typeof scale === 'number' && model.supportsScale) {
@@ -185,9 +182,7 @@ export class AiImageService {
           (replicateInput as any).face_enhance = faceEnhance;
         }
         outputUrl = await this.runReplicate(model, replicateInput);
-        if (this.isDevelopment()) {
-          console.debug(`[AiImageService][${reqId}] Replicate output URL`, { outputUrl });
-        }
+        this.log.debug('replicate_call_success', { reqId, outputUrl });
       } catch (err) {
         // Graceful dev fallback to unblock local UI testing: use original image
         // Applies in development when Replicate responds 404 (slug/version issues)
@@ -196,13 +191,7 @@ export class AiImageService {
         const is404 = /Replicate error\s+404/i.test(message);
         const missingToken = /Missing REPLICATE_API_TOKEN/i.test(message);
         if (this.isDevelopment() && (is404 || missingToken)) {
-          console.warn(
-            `[AiImageService] Dev fallback active (${is404 ? '404' : 'missing token'}) for model '${model.slug}'. ` +
-              `Echoing original. Hint: verify ALLOWED_MODELS in src/config/ai-image.ts and your Replicate model slug/tag. Error: ${message}`
-          );
-          if (this.isDevelopment()) {
-            console.debug(`[AiImageService][${reqId}] dev echo enabled due to ${is404 ? '404' : 'missing token'}`);
-          }
+          this.log.warn('dev_echo_enabled', { reqId, reason: is404 ? 'provider_404' : 'missing_token', model: model.slug });
           outputUrl = originalUrl;
           devEcho = true;
         } else {
@@ -214,38 +203,26 @@ export class AiImageService {
     // In dev echo mode, skip fetching via HTTP and re-writing to R2 to avoid transient 404s
     if (devEcho && this.isDevelopment() && outputUrl === originalUrl) {
       const usage = await this.incrementUsage(ownerType, ownerId, currentUsage.limit);
-      if (this.isDevelopment()) {
-        console.debug(`[AiImageService][${reqId}] returning dev echo`, { imageUrl: originalUrl, usage });
-      }
+      this.log.debug('dev_echo_return', { reqId, imageUrl: originalUrl, usage });
       return { model: model.slug, originalUrl, imageUrl: originalUrl, usage };
     }
 
     // Fetch output and store to R2
-    if (this.isDevelopment()) {
-      console.debug(`[AiImageService][${reqId}] fetching output URL`, { outputUrl });
-    }
+    this.log.debug('fetch_output_start', { reqId, outputUrl });
     const { arrayBuffer, contentType } = await this.fetchBinary(outputUrl);
-    if (this.isDevelopment()) {
-      console.debug(`[AiImageService][${reqId}] fetched output`, { contentType, bytes: arrayBuffer.byteLength });
-    }
+    this.log.debug('fetch_output_done', { reqId, contentType, bytes: arrayBuffer.byteLength });
     const resultExt = this.extFromContentType(contentType) || 'png';
     const resultKey = `${AI_R2_PREFIX}/results/${ownerType}/${ownerId}/${timestamp}.${resultExt}`;
     const putResultStart = Date.now();
     await bucket.put(resultKey, arrayBuffer, { httpMetadata: { contentType } });
-    if (this.isDevelopment()) {
-      console.debug(`[AiImageService][${reqId}] R2 put result(ms)`, { ms: Date.now() - putResultStart });
-    }
-    if (this.isDevelopment()) {
-      console.debug(`[AiImageService][${reqId}] stored result`, { resultKey, contentType });
-    }
+    this.log.debug('r2_put_result_ms', { reqId, ms: Date.now() - putResultStart });
+    this.log.debug('stored_result', { reqId, resultKey, contentType });
 
     const imageUrl = this.buildPublicUrl(requestOrigin, resultKey);
 
     // Increment usage after success
     const usage = await this.incrementUsage(ownerType, ownerId, currentUsage.limit);
-    if (this.isDevelopment()) {
-      console.debug(`[AiImageService][${reqId}] success`, { imageUrl, usage });
-    }
+    this.log.info('generate_success', { reqId, imageUrl, usage });
 
     return { model: model.slug, originalUrl, imageUrl, usage };
   }
@@ -363,9 +340,7 @@ export class AiImageService {
     });
 
     const durationMs = Date.now() - started;
-    if (this.isDevelopment()) {
-      console.debug('[AiImageService] Replicate duration(ms)', { model: model.slug, ms: durationMs });
-    }
+    this.log.debug('replicate_duration_ms', { model: model.slug, ms: durationMs });
 
     if (!res.ok) {
       const status = res.status;
@@ -387,14 +362,8 @@ export class AiImageService {
         : status >= 400 && status < 500
         ? 'validation_error'
         : 'server_error';
-      // In development, add minimal debug info to message tail
-      if (this.isDevelopment()) {
-        err.message += ` [${status}]`;
-      }
-      // Avoid leaking provider payloads to clients; keep text only for local logs
-      if (this.isDevelopment()) {
-        console.warn('[AiImageService] Replicate error payload (dev only)', { status, text: text.slice(0, 500) });
-      }
+      // Avoid leaking provider payloads to clients; keep text only for dev logs (truncated)
+      this.log.warn('replicate_error', { status, provider: 'replicate', snippet: text.slice(0, 200) });
       throw err;
     }
 
