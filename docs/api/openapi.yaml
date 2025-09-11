@@ -31,16 +31,8 @@ tags:
     description: Werkzeuge für Projekte
 
 paths:
-  /auth/login:
-    $ref: './openapi/paths/auth-login.yaml'
-  /auth/register:
-    $ref: './openapi/paths/auth-register.yaml'
   /auth/logout:
     $ref: './openapi/paths/auth-logout.yaml'
-  /auth/forgot-password:
-    $ref: './openapi/paths/auth-forgot-password.yaml'
-  /auth/reset-password:
-    $ref: './openapi/paths/auth-reset-password.yaml'
   /user/account:
     delete:
       tags:

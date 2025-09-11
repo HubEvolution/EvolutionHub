@@ -19,7 +19,7 @@
 - **Cloudflare R2** — Objektspeicher (Avatare, Assets)
 - **Cloudflare KV** — Key‑Value Store (Sessions, Cache)
 - **Hono v4.9.1** (siehe [`package.json`](package.json:72))
-- **bcrypt / bcrypt‑ts / bcryptjs** für sicheres Passwort‑Hashing (siehe [`package.json`](package.json:59-61))
+- **Auth:** Stytch Magic Link (Stytch SDK in `src/lib/stytch.ts`)
 
 ### Authentifizierung & Sicherheit
 
@@ -67,7 +67,7 @@ evolution-hub/
 ### API‑Architektur
 
 - File‑based API unter `src/pages/api/`:
-  - Auth: `/api/auth/*` — login, register, forgot/reset‑password, verify
+  - Auth: `/api/auth/*` — magic/request, callback
   - User: `/api/user/*` — me/profile/logout/avatar
   - Projects: `/api/projects/*` — CRUD
   - Dashboard: `/api/dashboard/*`
@@ -78,7 +78,7 @@ evolution-hub/
 
 Die DB‑Tabellen spiegeln die Migrations in `/migrations`:
 
-- `users` — Accounts, E‑Mail, Hashes, Verifikation
+- `users` — Accounts, E‑Mail, Verifikation
 - `sessions` — Session‑ID, user_id, expires_at
 - `projects` — Projekt‑Metadaten
 - `comments`

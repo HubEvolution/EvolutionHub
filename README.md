@@ -12,7 +12,7 @@ Evolution Hub ist eine moderne Full-Stack-Webanwendung, die eine Sammlung von En
 
 - **Tool-Sammlung:** Zugriff auf eine wachsende Bibliothek von Online-Tools für Entwickler
 - **AI-Bildbearbeitung:** KI-gestützte Bildverbesserung mit Modellen wie Real-ESRGAN und GFPGAN
-- **Authentifizierung:** Sichere Anmeldung mit E-Mail und Passwort, inklusive Registrierung und Passwort-Reset
+- **Authentifizierung:** Stytch Magic Link (E-Mail). Registrierung implizit beim ersten erfolgreichen Callback. Kein Passwort/Reset mehr.
 - **Job-System:** Asynchrones Management für langlaufende AI-Operationen
 - **API-Sicherheit:** Umfassende Sicherheitsmaßnahmen mit Rate-Limiting und Audit-Logging
 - **Mehrsprachig:** Unterstützung für Deutsch und Englisch
@@ -25,7 +25,7 @@ Evolution Hub ist eine moderne Full-Stack-Webanwendung, die eine Sammlung von En
 - **Datenbank:** [Cloudflare D1](https://developers.cloudflare.com/d1/)
 - **Speicher:** [Cloudflare R2](https://developers.cloudflare.com/r2/)
 - **Testing:** Playwright (E2E), Vitest (Unit)
-- **Authentifizierung:** Eigene Implementierung mit Sessions
+- **Authentifizierung:** Stytch Magic Link + Session-Cookies (`__Host-session`)
 
 ## 🚀 Getting Started
 
@@ -65,13 +65,13 @@ Evolution Hub ist eine moderne Full-Stack-Webanwendung, die eine Sammlung von En
 
 Zwei Terminals benötigt:
 
-**Terminal 1: Build-Prozess**
+#### Terminal 1: Build-Prozess
 
 ```bash
 npm run build:watch
 ```
 
-**Terminal 2: Entwicklungs-Server**
+#### Terminal 2: Entwicklungs-Server
 
 ```bash
 npm run dev

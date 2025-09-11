@@ -140,7 +140,6 @@ Ein **zentrales Hybrid-Logging-System** protokolliert sicherheitsrelevante Ereig
 - **Event-Typen**:
   - AUTH_SUCCESS: Erfolgreiche Authentifizierung
   - AUTH_FAILURE: Fehlgeschlagene Authentifizierung
-  - PASSWORD_RESET: Passwort-Reset-Aktionen
   - PROFILE_UPDATE: Profilaktualisierungen
   - PERMISSION_DENIED: Zugriffsverweigerungen
   - RATE_LIMIT_EXCEEDED: Überschrittene Rate-Limits
@@ -203,8 +202,7 @@ const safeUserData = {
   created_at: user.created_at
 };
  
-// Sensible Felder wie password_hash werden nicht zurückgegeben
-return secureJsonResponse({ user: safeUserData }, 200);
+return secureJsonResponse({ user: safeUser }, 200);
 ```
 
 ### 5. Datenschutz
@@ -223,11 +221,10 @@ Maßnahmen zum Schutz sensibler Benutzerdaten.
 
 | Endpunkt | Rate-Limit | Security-Headers | Audit-Logging | Input-Validierung | Besondere Maßnahmen |
 |----------|------------|------------------|---------------|-------------------|---------------------|
-| `/api/auth/login` | authLimiter (10/min) | Vollständig | AUTH_SUCCESS, AUTH_FAILURE | Vollständig | Schutz vor Credential-Stuffing |
-| `/api/auth/register` | authLimiter (10/min) | Vollständig | AUTH_SUCCESS, AUTH_FAILURE | Vollständig | Passwort-Komplexitätsprüfung |
-| `/api/auth/forgot-password` | authLimiter (10/min) | Vollständig | PASSWORD_RESET | Vollständig | Anti-User-Enumeration |
-| `/api/auth/reset-password` | authLimiter (10/min) | Vollständig | PASSWORD_RESET | Vollständig | Token-Validierung |
+| `/api/auth/magic/request` | authLimiter (10/min) | Vollständig | AUTH_SUCCESS | Vollständig | Anti-Abuse, CSRF/Origin-Checks |
+| `/api/auth/callback` | standardApiLimiter (50/min) | Vollständig | AUTH_SUCCESS | Vollständig | Redirect-only, Cookie-Setzung |
 | `/api/user/logout` | standardApiLimiter (50/min) | Vollständig | AUTH_SUCCESS | Vollständig | Session-Invalidierung |
+| `/api/user/logout-v2` | standardApiLimiter (50/min) | Vollständig | AUTH_SUCCESS | Vollständig | Session-Invalidierung |
 
 ### Benutzer-APIs
 
@@ -261,19 +258,12 @@ Maßnahmen zum Schutz sensibler Benutzerdaten.
 
 ## Sicherheitsrichtlinien
 
-### Passwort-Richtlinien
-
-- Mindestlänge: 8 Zeichen
-- Muss enthalten: Groß- und Kleinbuchstaben, Zahlen, Sonderzeichen
-- Passwort-Hashing: bcrypt mit angemessenem Work-Faktor
-- Keine Wiederverwendung der letzten 3 Passwörter
-
 ### Session-Management
 
-- JWT-Sessions nur über HttpOnly-Cookies
+- Session ausschließlich über HttpOnly-Cookie `__Host-session` (Secure, SameSite=Strict, Path=/)
 - Keine clientseitige Speicherung von Tokens im localStorage oder sessionStorage
-- Sichere Cookie-Attribute (Secure, SameSite)
-- Session-Timeout nach 24 Stunden Inaktivität
+- Sichere Cookie-Attribute erzwungen
+- Session-Timeout-Strategie über Server-Seite konfiguriert
 
 ### Fehlerbehandlung
 
@@ -291,17 +281,7 @@ Maßnahmen zum Schutz sensibler Benutzerdaten.
 
 ## Bekannte Sicherheitsprobleme
 
-### 1. Unspezifische Fehlerbehandlung bei Password-Reset
-
-**Problem**: Die `forgot-password.ts`-API gibt bei Fehlern oft generische Fehlermeldungen zurück.
-
-**Verbesserung**: Spezifischere Fehlermeldungen für E-Mail-Versandfehler implementieren.
-
-### 2. User-Enumeration-Risiken
-
-**Problem**: Einige APIs könnten durch unterschiedliche Antwortzeiten oder Fehlermeldungen die Existenz von Benutzern preisgeben.
-
-**Verbesserung**: Konsistente Antwortzeiten und Fehlermeldungen unabhängig vom Benutzerexistenz-Status implementieren.
+<!-- Abschnitt zu Password-Reset und legacy Enumeration entfernt: System ist Stytch‑only, keine Passwort‑Flows mehr. -->
 
 ### 3. In-Memory Rate-Limiting
 
