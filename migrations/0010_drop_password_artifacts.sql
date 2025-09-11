@@ -1,8 +1,5 @@
--- Migration 0010: Drop legacy password artifacts for Stytch-only auth
--- This migration removes users.password_hash and drops password_reset_tokens.
--- SQLite (D1) does not support DROP COLUMN, so we recreate the users table.
-
-BEGIN TRANSACTION;
+-- Migration 0010: Drop legacy password artifacts for Stytch-only auth (remote-safe)
+-- Removes users.password_hash by recreating the users table, and drops password_reset_tokens.
 
 -- 1) Create new users table without password_hash
 CREATE TABLE IF NOT EXISTS users_new (
@@ -34,4 +31,4 @@ ALTER TABLE users_new RENAME TO users;
 -- 4) Drop password reset tokens table if exists
 DROP TABLE IF EXISTS password_reset_tokens;
 
-COMMIT;
+-- End of migration

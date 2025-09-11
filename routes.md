@@ -159,6 +159,13 @@ Die folgenden Endpunkte sind deprecatet und liefern konsistent 410 Gone. Für un
 
 Hinweis: Der Legacy Login-Endpunkt `/api/auth/login` ist deprecatet und liefert 410 Gone. Verwende ausschließlich den Stytch Magic Link Flow (`POST /api/auth/magic/request` → `GET /api/auth/callback`).
 
+### Weitere deprecatete User-Endpoints (410 Gone)
+
+- `/api/user/password`
+  - HTML 410: `POST`
+  - JSON 410: `GET, PUT, PATCH, DELETE, OPTIONS, HEAD`
+  - JSON Details: `{ Allow: 'POST' }`
+
 ## Routenhierarchie (Baum)
 
 - /
