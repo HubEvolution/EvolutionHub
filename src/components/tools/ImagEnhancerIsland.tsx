@@ -123,6 +123,14 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
   const ZOOM_MIN = 1;
   const ZOOM_MAX = 5;
   const ZOOM_STEP = 0.25;
+  // Pan state
+  const [pan, setPan] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const panStartRef = useRef<{ x: number; y: number; originX: number; originY: number } | null>(null);
+  // Loupe (magnifier)
+  const [loupeEnabled, setLoupeEnabled] = useState<boolean>(false);
+  const [loupePos, setLoupePos] = useState<{ x: number; y: number } | null>(null);
+  const LOUPE_SIZE = 160;
+  const LOUPE_FACTOR = 2;
 
   // Image metadata (dimensions)
   const [imageDims, setImageDims] = useState<{ w: number; h: number } | null>(null);
@@ -322,6 +330,22 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
     else if (delta > 0) setClampedZoom(zoom - ZOOM_STEP);
   }, [zoom, setClampedZoom]);
 
+  // Loupe position tracking over container
+  const onMouseMoveLoupe = useCallback((e: React.MouseEvent) => {
+    if (!loupeEnabled) return;
+    const el = containerRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    setLoupePos({ x, y });
+  }, [loupeEnabled]);
+  const onMouseLeaveLoupe = useCallback(() => {
+    if (!loupeEnabled) return;
+    setLoupePos(null);
+  }, [loupeEnabled]);
+  const onToggleLoupe = useCallback(() => setLoupeEnabled((v) => !v), []);
+
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -396,6 +420,8 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
         e.preventDefault();
         setIsHeld(false);
         setSliderPos(50);
+        setZoom(1);
+        setPan({ x: 0, y: 0 });
         return;
       }
       // Cmd/Ctrl+S to download result
@@ -407,6 +433,13 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
         } catch {
           if (resultUrl) window.open(resultUrl, '_blank', 'noopener');
         }
+        return;
+      }
+      // L to toggle loupe
+      if (e.key === 'l' || e.key === 'L') {
+        e.preventDefault();
+        setLoupeEnabled((v) => !v);
+        return;
       }
     };
     window.addEventListener('keydown', onKeyDown);
@@ -651,6 +684,15 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
               onZoomIn={onZoomIn}
               onZoomOut={onZoomOut}
               onZoomReset={onZoomReset}
+              panX={pan.x}
+              panY={pan.y}
+              loupeEnabled={loupeEnabled}
+              loupeSize={LOUPE_SIZE}
+              loupeFactor={LOUPE_FACTOR}
+              loupePos={loupePos}
+              onToggleLoupe={onToggleLoupe}
+              onMouseMove={onMouseMoveLoupe}
+              onMouseLeave={onMouseLeaveLoupe}
             />
               {(resultDims || lastProcessMs) && (
                 <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
@@ -803,6 +845,10 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
               setBaselineSettings(null);
               setResultDims(null);
               setLastProcessMs(null);
+              setZoom(1);
+              setPan({ x: 0, y: 0 });
+              setLoupeEnabled(false);
+              setLoupePos(null);
             }}
             onDownload={(e) => download(e, resultUrl || undefined)}
             showEnhance={showEnhanceButton}

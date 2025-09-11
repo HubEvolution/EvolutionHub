@@ -36,6 +36,17 @@ export interface CompareSliderProps {
   onZoomIn?: () => void;
   onZoomOut?: () => void;
   onZoomReset?: () => void;
+  // Pan support (in pixels, relative to center)
+  panX?: number;
+  panY?: number;
+  // Loupe (magnifier) support
+  loupeEnabled?: boolean;
+  loupeSize?: number; // px
+  loupeFactor?: number; // extra factor over current zoom
+  loupePos?: { x: number; y: number } | null; // relative to container
+  onToggleLoupe?: () => void;
+  onMouseMove?: (e: React.MouseEvent) => void;
+  onMouseLeave?: () => void;
 }
 
 export function CompareSlider(props: CompareSliderProps) {
@@ -66,12 +77,14 @@ export function CompareSlider(props: CompareSliderProps) {
         onMouseDown={onMouseDown}
         onWheel={props.onWheelZoom}
         onTouchStart={onTouchStart}
+        onMouseMove={props.onMouseMove}
+        onMouseLeave={props.onMouseLeave}
         aria-label={compareStrings.sliderLabel}
       >
         {/* Scaled image layer (result + before overlay) */}
         <div
           className="absolute inset-0 z-0"
-          style={{ transform: `scale(${props.zoom})`, transformOrigin: 'center center' }}
+          style={{ transform: `translate(${props.panX ?? 0}px, ${props.panY ?? 0}px) scale(${props.zoom})`, transformOrigin: 'center center' }}
         >
           {/* After image (result) as base layer */}
           <img
@@ -98,6 +111,46 @@ export function CompareSlider(props: CompareSliderProps) {
             />
           </div>
         </div>
+
+        {/* Loupe (magnifier) overlay */}
+        {props.loupeEnabled && props.loupePos && (
+          <div
+            className="absolute z-40 rounded-full ring-2 ring-cyan-400/60 shadow-lg overflow-hidden pointer-events-none"
+            style={{
+              width: `${props.loupeSize ?? 160}px`,
+              height: `${props.loupeSize ?? 160}px`,
+              left: `${(props.loupePos.x - (props.loupeSize ?? 160) / 2) | 0}px`,
+              top: `${(props.loupePos.y - (props.loupeSize ?? 160) / 2) | 0}px`,
+            }}
+            aria-hidden
+          >
+            <div
+              className="absolute inset-0"
+              style={{
+                transformOrigin: 'top left',
+                transform: `translate(${-(props.loupePos.x - (props.loupeSize ?? 160) / 2)}px, ${-(props.loupePos.y - (props.loupeSize ?? 160) / 2)}px) translate(${props.panX ?? 0}px, ${props.panY ?? 0}px) scale(${props.zoom * (props.loupeFactor ?? 2)})`,
+              }}
+            >
+              {/* Reuse same composite rendering inside loupe */}
+              <img
+                src={resultUrl}
+                alt=""
+                className="pointer-events-none select-none absolute inset-0 w-full h-full object-contain"
+              />
+              <div
+                className="absolute inset-0 pointer-events-none"
+                style={{ clipPath: `polygon(0 0, ${isHeld ? 100 : sliderPos}% 0, ${isHeld ? 100 : sliderPos}% 100%, 0 100%)` }}
+                aria-hidden
+              >
+                <img
+                  src={previewUrl}
+                  alt=""
+                  className="pointer-events-none select-none absolute inset-0 w-full h-full object-contain"
+                />
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Edge gradient aligned with slider line */}
         <div
@@ -167,6 +220,14 @@ export function CompareSlider(props: CompareSliderProps) {
             onClick={props.onZoomReset}
           >
             Reset
+          </button>
+          <button
+            type="button"
+            aria-label="Toggle loupe"
+            className={`px-2 py-0.5 rounded ring-1 ${props.loupeEnabled ? 'bg-cyan-500/20 ring-cyan-400/50 text-cyan-700 dark:text-cyan-200' : 'bg-white/40 dark:bg-slate-800/60 ring-gray-400/30 text-gray-700 dark:text-gray-200 hover:ring-cyan-400/40'}`}
+            onClick={props.onToggleLoupe}
+          >
+            Loupe
           </button>
         </div>
       </figcaption>
