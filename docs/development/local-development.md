@@ -112,7 +112,7 @@ nano .env
 
 Wichtige Umgebungsvariablen:
 
-```
+```env
 # .env Beispiel
 NODE_ENV=development
 JWT_SECRET=your-local-jwt-secret

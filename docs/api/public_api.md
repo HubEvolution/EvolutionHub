@@ -41,7 +41,7 @@ Ruft eine Liste aller verfügbaren Tools ab.
 
 Keine. Filter, Paginierung und Sortierung werden derzeit nicht unterstützt.
 
-#### Erfolgreiche Antwort (`200 OK`)
+### Erfolgreiche Antwort (`200 OK`)
 
 ```json
 [
@@ -108,7 +108,7 @@ Ruft die verfügbaren Quick Actions ab. Nutzt `withApiMiddleware`, benötigt kei
 * **Implementierung:** `src/pages/api/dashboard/quick-actions.ts`
 * **Security:** Rate-Limiting (50/min), Security-Headers (über Middleware), Audit-Logging
 
-#### Erfolgreiche Antwort (`200 OK`)
+### Erfolgreiche Antwort (`200 OK`)
 
 ```json
 {
@@ -137,7 +137,7 @@ Ruft die verfügbaren Quick Actions ab. Nutzt `withApiMiddleware`, benötigt kei
 * **Implementierung:** `src/pages/api/newsletter/subscribe.ts` (ohne Middleware)
 * **Security:** Kein zentrales Rate-Limiting/Sicherheitsheader per Middleware; eigene Validierung.
 
-#### Request-Body
+### Request-Body
 
 ```json
 {
@@ -148,7 +148,7 @@ Ruft die verfügbaren Quick Actions ab. Nutzt `withApiMiddleware`, benötigt kei
 }
 ```
 
-#### Erfolgreiche Antwort (`200 OK`)
+### Erfolgreiche Antwort (`200 OK`)
 
 ```json
 {
@@ -160,7 +160,7 @@ Ruft die verfügbaren Quick Actions ab. Nutzt `withApiMiddleware`, benötigt kei
 }
 ```
 
-#### Fehlerhafte Antworten
+### Fehlerhafte Antworten
 
 ```json
 // 400 – Fehlende/ungültige Felder
@@ -222,7 +222,7 @@ Ruft die verfügbaren Quick Actions ab. Nutzt `withApiMiddleware`, benötigt kei
 * **Pfad:** `/api/lead-magnets/download`
 * **Implementierung:** `src/pages/api/lead-magnets/download.ts` (ohne Middleware; CORS aktiviert)
 
-#### Request-Body
+### Request-Body
 
 ```json
 {
@@ -305,18 +305,18 @@ Zusätzlich wird ein CORS-Preflight über `OPTIONS /api/lead-magnets/download` u
 * **Implementierung:** `src/pages/api/debug-login.ts` (mit `withApiMiddleware`)
 * **Hinweis:** In Produktionsumgebungen blockiert (Antwort sollte `403 Forbidden` sein).
 
-#### Cookies
+### Cookies
 
 Der Endpunkt setzt bei Erfolg ein Session-Cookie mit folgenden Attributen:
 
-* Name: `session_id`
+* Name: `__Host-session`
 * Pfad: `/`
 * Ablauf: 7 Tage
 * HttpOnly: `true`
-* SameSite: `lax`
-* Secure: `true` in Produktion (`false` in Entwicklung)
+* SameSite: `strict`
+* Secure: `true`
 
-#### Erfolgreiche Antwort (Entwicklung)
+### Erfolgreiche Antwort (Entwicklung)
 
 ```json
 {
@@ -329,7 +329,7 @@ Der Endpunkt setzt bei Erfolg ein Session-Cookie mit folgenden Attributen:
 }
 ```
 
-#### Fehlerhafte Antwort (Produktion)
+### Fehlerhafte Antwort (Produktion)
 
 ```json
 {
@@ -348,19 +348,19 @@ Synchronisiert Benutzerdaten in der internen Datenbank. Nur für vertrauenswürd
 * **Pfad:** `/api/internal/users/sync`
 * **Implementierung:** `src/pages/api/internal/users/sync.ts` (mit `withApiMiddleware`)
 
-#### Request-Body
+### Request-Body
 
 ```json
 { "id": "<uuid>", "name": "Max Mustermann", "email": "user@example.com", "image": "https://..." }
 ```
 
-#### Erfolgreiche Antwort (`200 OK`)
+### Erfolgreiche Antwort (`200 OK`)
 
 ```json
 { "success": true, "data": { "message": "User synced successfully", "userId": "<uuid>" } }
 ```
 
-#### Fehlerhafte Antwort (Validierung)
+### Fehlerhafte Antwort (Validierung)
 
 ```json
 { "success": false, "error": { "type": "validation_error", "message": "User ID and email are required" } }

@@ -35,7 +35,7 @@ Beispiel-PR-Titel
 
 Beispiel-PR-Beschreibung (kopierbar)
 
-```
+```markdown
 Kurzbeschreibung
 Implementiert ein wiederverwendbares Coming-Soon Overlay mit:
 - Serverseitiger Integration in BaseLayout

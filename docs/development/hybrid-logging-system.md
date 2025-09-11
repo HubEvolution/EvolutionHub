@@ -255,7 +255,7 @@ logAuthFailure(clientAddress, { reason: 'invalid_password', endpoint: '/api/auth
 
 Das Debug Panel zeigt **alle Live-Aktivitäten** in Echtzeit:
 
-```
+```text
 [2025-08-10T05:12:34.567Z] [INFO] User logged in: user-123 (auth/login.ts)
 [2025-08-10T05:12:35.123Z] [INFO] Dashboard stats requested (dashboard/stats.ts)  
 [2025-08-10T05:12:36.789Z] [INFO] Profile updated successfully (user/profile.ts)
@@ -273,13 +273,13 @@ Das Debug Panel bietet eine **intuitive Benutzeroberfläche** für Live-Log-Moni
 
 #### Connection-Status-Header
 
-```
+```text
 🎛️ Debugging Panel                           🟢 WEBSOCKET ●
 ```
 
 #### Log-Entry-Format
 
-```
+```text
 05:12:34  [INFO]   User authentication successful
 05:12:35  [WARN]   High memory usage detected: 85%  
 05:12:36  [ERROR]  Database connection failed: timeout

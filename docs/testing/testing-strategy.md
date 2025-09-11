@@ -436,7 +436,7 @@ Folgende Bereiche werden als kritisch eingestuft und erfordern eine besonders ho
 
 ### Verzeichnisstruktur
 
-```
+```text
 evolution-hub/
 ├── src/
 │   ├── components/

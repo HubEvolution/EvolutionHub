@@ -642,7 +642,7 @@ This compatibility matrix compares the features of Workers and Pages. Unless oth
 | **Static Assets** | | |
 | [Early Hints](https://developers.cloudflare.com/pages/configuration/early-hints/) | ❌ | ✅ |
 | [Custom HTTP headers for static assets](https://developers.cloudflare.com/workers/static-assets/headers/) | ✅ | ✅ |
-| [Middleware](https://developers.cloudflare.com/workers/static-assets/binding/#run_worker_first) | ✅ [1](#user-content-fn-1) | ✅ |
+| [Middleware](https://developers.cloudflare.com/workers/static-assets/binding/#run_worker_first) | ✅ [1](#footnotes) | ✅ |
 | [Redirects](https://developers.cloudflare.com/workers/static-assets/redirects/) | ✅ | ✅ |
 | [Smart Placement](https://developers.cloudflare.com/workers/configuration/smart-placement/) | ✅ | ✅ |
 | [Serve assets on a path](https://developers.cloudflare.com/workers/static-assets/routing/advanced/serving-a-subdirectory/) | ✅ | ❌ |
@@ -654,7 +654,7 @@ This compatibility matrix compares the features of Workers and Pages. Unless oth
 | [Source Maps](https://developers.cloudflare.com/workers/observability/source-maps/) | ✅ | ❌ |
 | **Runtime APIs & Compute Models** | | |
 | [Node.js Compatibility Mode](https://developers.cloudflare.com/workers/runtime-apis/nodejs/) | ✅ | ✅ |
-| [Durable Objects](https://developers.cloudflare.com/durable-objects/api/) | ✅ | 🟡 [2](#user-content-fn-2) |
+| [Durable Objects](https://developers.cloudflare.com/durable-objects/api/) | ✅ | 🟡 [2](#footnotes) |
 | [Cron Triggers](https://developers.cloudflare.com/workers/configuration/cron-triggers/) | ✅ | ❌ |
 | **Bindings** | | |
 | [AI](https://developers.cloudflare.com/workers-ai/get-started/workers-wrangler/#2-connect-your-worker-to-workers-ai) | ✅ | ✅ |
@@ -680,11 +680,11 @@ This compatibility matrix compares the features of Workers and Pages. Unless oth
 | [Build Watch Paths](https://developers.cloudflare.com/workers/ci-cd/builds/build-watch-paths/) | ✅ | ✅ |
 | [Build Caching](https://developers.cloudflare.com/workers/ci-cd/builds/build-caching/) | ✅ | ✅ |
 | [Deploy Hooks](https://developers.cloudflare.com/pages/configuration/deploy-hooks/) | ⏳ | ✅ |
-| [Branch Deploy Controls](https://developers.cloudflare.com/pages/configuration/branch-build-controls/) | 🟡 [3](#user-content-fn-3) | ✅ |
+| [Branch Deploy Controls](https://developers.cloudflare.com/pages/configuration/branch-build-controls/) | 🟡 [3](#footnotes) | ✅ |
 | [Custom Branch Aliases](https://developers.cloudflare.com/pages/how-to/custom-branch-aliases/) | ⏳ | ✅ |
 | **Pages Functions** | | |
-| [File-based Routing](https://developers.cloudflare.com/pages/functions/routing/) | 🟡 [4](#user-content-fn-4) | ✅ |
-| [Pages Plugins](https://developers.cloudflare.com/pages/functions/plugins/) | 🟡 [5](#user-content-fn-5) | ✅ |
+| [File-based Routing](https://developers.cloudflare.com/pages/functions/routing/) | 🟡 [4](#footnotes) | ✅ |
+| [Pages Plugins](https://developers.cloudflare.com/pages/functions/plugins/) | 🟡 [5](#footnotes) | ✅ |
 | **Domain Configuration** | | |
 | [Custom domains](https://developers.cloudflare.com/workers/configuration/routing/custom-domains/#add-a-custom-domain) | ✅ | ✅ |
 | [Custom subdomains](https://developers.cloudflare.com/workers/configuration/routing/custom-domains/#set-up-a-custom-domain-in-the-dashboard) | ✅ | ✅ |
@@ -693,8 +693,8 @@ This compatibility matrix compares the features of Workers and Pages. Unless oth
 
 ## Footnotes
 
-1. Middleware can be configured via the [`run_worker_first`](https://developers.cloudflare.com/workers/static-assets/binding/#run_worker_first) option, but is charged as a normal Worker invocation. We plan to explore additional related options in the future. [↩](#user-content-fnref-1)
-2. To [use Durable Objects with your Cloudflare Pages project](https://developers.cloudflare.com/pages/functions/bindings/#durable-objects), you must create a separate Worker with a Durable Object and then declare a binding to it in both your Production and Preview environments. Using Durable Objects with Workers is simpler and recommended. [↩](#user-content-fnref-2)
-3. Workers Builds supports enabling [non-production branch builds](https://developers.cloudflare.com/workers/ci-cd/builds/build-branches/#configure-non-production-branch-builds), though does not yet have the same level of configurability as Pages does. [↩](#user-content-fnref-3)
-4. Workers [supports popular frameworks](https://developers.cloudflare.com/workers/framework-guides/), many of which implement file-based routing. Additionally, you can use Wrangler to [compile your folder of `functions/`](#folder-of-functions) into a Worker to help ease the migration from Pages to Workers. [↩](#user-content-fnref-4)
-5. As in 4, Wrangler can [compile your Pages Functions into a Worker](#folder-of-functions). Or if you are starting from scratch, everything that is possible with Pages Functions can also be achieved by adding code to your Worker or by using framework-specific plugins for relevant third party tools. [↩](#user-content-fnref-5)
+1. Middleware can be configured via the [`run_worker_first`](https://developers.cloudflare.com/workers/static-assets/binding/#run_worker_first) option, but is charged as a normal Worker invocation. We plan to explore additional related options in the future. [↩](#footnotes)
+2. To [use Durable Objects with your Cloudflare Pages project](https://developers.cloudflare.com/pages/functions/bindings/#durable-objects), you must create a separate Worker with a Durable Object and then declare a binding to it in both your Production and Preview environments. Using Durable Objects with Workers is simpler and recommended. [↩](#footnotes)
+3. Workers Builds supports enabling [non-production branch builds](https://developers.cloudflare.com/workers/ci-cd/builds/build-branches/#configure-non-production-branch-builds), though does not yet have the same level of configurability as Pages does. [↩](#footnotes)
+4. Workers [supports popular frameworks](https://developers.cloudflare.com/workers/framework-guides/), many of which implement file-based routing. Additionally, you can use Wrangler to [compile your folder of `functions/`](#pages-functions-with-a-functions-folder) into a Worker to help ease the migration from Pages to Workers. [↩](#footnotes)
+5. As in 4, Wrangler can [compile your Pages Functions into a Worker](#pages-functions-with-a-functions-folder). Or if you are starting from scratch, everything that is possible with Pages Functions can also be achieved by adding code to your Worker or by using framework-specific plugins for relevant third party tools. [↩](#footnotes)

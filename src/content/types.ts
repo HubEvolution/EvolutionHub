@@ -23,6 +23,8 @@ export interface BlogPostData {
   description?: string;
   /** Author(s) of the blog post. */
   author?: string | string[];
+  /** The language of the blog post, optional for locale-specific filtering. */
+  lang?: 'de' | 'en';
 }
 
 /**
@@ -56,6 +58,8 @@ export interface BlogListOptions {
   limit?: number;
   /** The number of posts to skip for pagination. */
   offset?: number;
+  /** Optional language filter for locale-specific posts. */
+  lang?: 'de' | 'en';
   /** Include posts marked as drafts, typically for development environments. */
   includeDrafts?: boolean;
 }

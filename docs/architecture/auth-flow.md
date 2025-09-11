@@ -5,15 +5,9 @@ Diese Dokumentation beschreibt den vollständigen Authentifizierungsflow im Evol
 ## Inhaltsverzeichnis
 
 1. [Überblick](#überblick)
-2. [Authentifizierungskomponenten](#authentifizierungskomponenten)
-3. [Registrierungsflow](#registrierungsflow)
-4. [Anmeldeflow](#anmeldeflow)
-5. [Sitzungsverwaltung](#sitzungsverwaltung) <!-- markdownlint-disable-line MD051 -->
-6. [Passwort-Reset-Flow](#passwort-reset-flow)
-7. [Abmeldeflow](#abmeldeflow)
-8. [Sicherheitsmaßnahmen](#sicherheitsmaßnahmen)
-9. [Fehlerbehandlung](#fehlerbehandlung)
-10. [Middleware-Integration](#middleware-integration)
+2. [Sicherheitsmaßnahmen](#sicherheitsmaßnahmen)
+3. [Fehlerbehandlung](#fehlerbehandlung)
+4. [Middleware-Integration](#middleware-integration)
 
 ---
 

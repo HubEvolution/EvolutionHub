@@ -2,7 +2,7 @@
 
 [![Security Status](https://img.shields.io/badge/Security-Enhanced-brightgreen)](https://github.com/LucasBonnerue/evolution-hub)
 [![OWASP Compliant](https://img.shields.io/badge/OWASP-Compliant-blue)](https://owasp.org/www-project-top-ten/)
-<a href="https://owasp.org/www-project-top-ten/"><img src="./public/assets/svg/security.svg" alt="Security Banner" style="width: 75px; vertical-align: middle;"></a>
+[![Security Banner](../public/assets/svg/security.svg)](https://owasp.org/www-project-top-ten/)
 
 Diese Dokumentation bietet einen umfassenden Überblick über die Sicherheitsmaßnahmen, die im Evolution Hub implementiert wurden, um die Anwendung vor gängigen Bedrohungen zu schützen.
 
@@ -77,7 +77,7 @@ Wenn ein Client das Rate-Limit überschreitet, erhält er eine strukturierte JSO
 
 Dazu werden entsprechende HTTP-Header gesetzt:
 
-```
+```text
 Status: 429 Too Many Requests
 Content-Type: application/json
 Retry-After: 45

@@ -10,7 +10,7 @@ Das Evolution Hub implementiert folgende Security-Headers für alle API-Antworte
 
 ### 1. Content-Security-Policy (CSP)
 
-```
+```text
 Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: https://secure.gravatar.com; connect-src 'self'; font-src 'self'; object-src 'none'; media-src 'self'; frame-src 'none'; frame-ancestors 'none'; form-action 'self'; base-uri 'self';
 ```
 
@@ -27,7 +27,7 @@ Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'
 
 ### 2. X-Content-Type-Options
 
-```
+```text
 X-Content-Type-Options: nosniff
 ```
 
@@ -40,7 +40,7 @@ X-Content-Type-Options: nosniff
 
 ### 3. X-Frame-Options
 
-```
+```text
 X-Frame-Options: DENY
 ```
 
@@ -53,7 +53,7 @@ X-Frame-Options: DENY
 
 ### 4. X-XSS-Protection
 
-```
+```text
 X-XSS-Protection: 1; mode=block
 ```
 
@@ -67,7 +67,7 @@ X-XSS-Protection: 1; mode=block
 
 ### 5. Referrer-Policy
 
-```
+```text
 Referrer-Policy: strict-origin-when-cross-origin
 ```
 
@@ -79,7 +79,7 @@ Referrer-Policy: strict-origin-when-cross-origin
 
 ### 6. Strict-Transport-Security (HSTS)
 
-```
+```text
 Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
 ```
 
@@ -93,7 +93,7 @@ Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
 
 ### 7. Cache-Control
 
-```
+```text
 Cache-Control: no-store, max-age=0
 ```
 
@@ -106,7 +106,7 @@ Cache-Control: no-store, max-age=0
 
 ### 8. Permissions-Policy
 
-```
+```text
 Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=()
 ```
 

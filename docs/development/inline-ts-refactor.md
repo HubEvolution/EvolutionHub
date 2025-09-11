@@ -156,9 +156,9 @@ This document is provisional and will be updated as we read more files and confi
 
 ## Migration Template
 
-1) Move inline logic into `src/scripts/<feature>.ts` with `export function init()` and optional `export function cleanup()`.
+1. Move inline logic into `src/scripts/<feature>.ts` with `export function init()` and optional `export function cleanup()`.
 
-2) Replace inline script with nonced loader:
+1. Replace inline script with nonced loader:
 
 ```astro
 <script is:inline nonce={Astro.locals.cspNonce}>
@@ -177,7 +177,7 @@ This document is provisional and will be updated as we read more files and confi
 </script>
 ```
 
-3) Testing: Unit test the module API; E2E verify UX behavior and cleanup across navigation.
+1. Testing: Unit test the module API; E2E verify UX behavior and cleanup across navigation.
 
 ## Staging Deployment (Pilot) – Cloudflare Workers
 

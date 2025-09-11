@@ -1,5 +1,6 @@
 /// <reference types="astro/client" />
 import { getCollection, type CollectionEntry } from 'astro:content';
+import type { Locale } from './i18n';
 
 // ContentService is assumed to be correctly imported and functional.
 import { ContentService } from './content';
@@ -123,8 +124,9 @@ export class BlogService extends ContentService<BlogCollectionEntry> implements 
     processedPosts: ProcessedBlogPost[];
     categories: CategoryWithCount[];
     tags: TagWithCount[];
-  }> | null = null; // Cache for the fetched and processed blog data
+  }> |private cachedBlogIndexData: Map<string, Promise<{ processedPosts: ProcessedBlogPost[]; categories: CategoryWithCount[]; tags: TagWithCount[]; }>> = new Map(); // Cache for lang-specific fetched and processed blog data
 
+lang?: Locale
   private async fetchAllBlogData(): Promise<{
     processedPosts: ProcessedBlogPost[];
     categories: CategoryWithCount[];

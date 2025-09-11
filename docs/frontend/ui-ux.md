@@ -389,7 +389,7 @@ Evolution Hub strebt WCAG 2.1 AA-Konformität an und folgt diesen Richtlinien:
 
 ### Beispiele für Content-Richtlinien
 
-```
+```text
 // Gut
 "Bitte gib eine gültige E-Mail-Adresse ein, damit wir dir eine Bestätigung senden können."
 

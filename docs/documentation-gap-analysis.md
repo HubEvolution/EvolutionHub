@@ -182,44 +182,44 @@ Basierend auf den identifizierten Lücken werden folgende Maßnahmen priorisiert
 
 ### Mittlere Priorität
 
-5. **Monitoring und Alerting-Strategie**
+1. **Monitoring und Alerting-Strategie**
    - Zu überwachende Metriken und Schwellenwerte
    - Alerting-Kanäle und Eskalationspfade
    - Logging-Strategie und -Implementierung
 
-6. **Code-Review-Checkliste und -Richtlinien**
+2. **Code-Review-Checkliste und -Richtlinien**
    - Kriterien für Code-Reviews
    - Prozess für Code-Reviews
    - Integration in den Entwicklungs-Workflow
 
-7. **Storybook für Komponenten-Dokumentation**
+3. **Storybook für Komponenten-Dokumentation**
    - Interaktive Dokumentation aller UI-Komponenten
    - Nutzungsbeispiele und Varianten
    - Integration in CI/CD zur automatischen Aktualisierung
 
-8. **Barrierefreiheits-Richtlinien**
+4. **Barrierefreiheits-Richtlinien**
    - WCAG-Konformitätsziele
    - Checkliste für barrierefreie Komponenten
    - Testverfahren für Barrierefreiheit
 
 ### Niedrige Priorität
 
-9. **Endbenutzer-Dokumentation**
+1. **Endbenutzer-Dokumentation**
    - Benutzerhandbuch für Endbenutzer
    - Tutorials für häufige Aufgaben
    - FAQ für häufige Fragen
 
-10. **Glossar mit projektspezifischen Begriffen**
+2. **Glossar mit projektspezifischen Begriffen**
     - Definitionen aller projektspezifischen Begriffe
     - Abkürzungen und ihre Bedeutungen
     - Technische Konzepte in einfacher Sprache erklärt
 
-11. **Feature-Flag-Strategie**
+3. **Feature-Flag-Strategie**
     - Implementierung von Feature-Flags
     - Prozess für das Ein- und Ausschalten von Features
     - Testing mit Feature-Flags
 
-12. **GDPR/Datenschutz-Compliance-Dokumentation**
+4. **GDPR/Datenschutz-Compliance-Dokumentation**
     - Datenschutzrichtlinien
     - Prozesse für Datenverarbeitung und -löschung
     - Compliance-Checkliste
