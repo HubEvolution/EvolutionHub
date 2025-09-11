@@ -12,6 +12,7 @@ export interface CompareStrings {
   handleAriaLabel: string;
   keyboardHint: string;
   reset: string;
+  loupeLabel?: string;
 }
 
 export interface CompareSliderProps {
@@ -122,7 +123,8 @@ export function CompareSlider(props: CompareSliderProps) {
               left: `${(props.loupePos.x - (props.loupeSize ?? 160) / 2) | 0}px`,
               top: `${(props.loupePos.y - (props.loupeSize ?? 160) / 2) | 0}px`,
             }}
-            aria-hidden
+            role="img"
+            aria-label="Loupe magnifier"
           >
             <div
               className="absolute inset-0"
@@ -227,7 +229,7 @@ export function CompareSlider(props: CompareSliderProps) {
             className={`px-2 py-0.5 rounded ring-1 ${props.loupeEnabled ? 'bg-cyan-500/20 ring-cyan-400/50 text-cyan-700 dark:text-cyan-200' : 'bg-white/40 dark:bg-slate-800/60 ring-gray-400/30 text-gray-700 dark:text-gray-200 hover:ring-cyan-400/40'}`}
             onClick={props.onToggleLoupe}
           >
-            Loupe
+            {compareStrings.loupeLabel ?? 'Loupe'}
           </button>
         </div>
       </figcaption>

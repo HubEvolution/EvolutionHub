@@ -313,7 +313,8 @@
               "after": "After",
               "handleAriaLabel": "Drag to compare",
               "keyboardHint": "Use Left/Right to adjust; Home/End to reset",
-              "reset": "Reset"
+              "reset": "Reset",
+              "loupe": "Loupe"
             }
           }
         }

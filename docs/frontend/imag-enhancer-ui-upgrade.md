@@ -142,6 +142,28 @@ Betroffene Blöcke/Komponenten:
 - Slider und Buttons mit ARIA (inkl. `aria-pressed` beim Lupe-Button)
 - `prefers-reduced-motion`: keine unnötigen Transitions/Glows
 
+### Bedienung (Kurzreferenz)
+
+- Zoom:
+  - +/− Buttons neben der Prozentanzeige
+  - Mausrad/Trackpad über dem Compare-Bereich (clamped 1x…5x)
+  - Reset stellt 100% wieder her
+- Pan (bei Zoom > 1):
+  - Shift+Drag in der Bildfläche
+  - Shift+Pfeiltasten (← → ↑ ↓) in 20px-Schritten
+  - Clamping an Container-Größe
+- Lupe (Magnifier):
+  - Taste L toggelt die Lupe
+  - Hover bewegt die Lupe; Größe und Faktor konfiguriert (Standard 160px, 2x)
+  - Button „Loupe“ neben den Zoom-Controls (i18n-Label)
+
+Tastenkürzel (im Vergleichsmodus):
+
+- Space: Press-and-Hold – zeigt 100% Before
+- Home/End: Slider zentrieren (setzt auch Zoom/Pan zurück)
+- R: Reset (Slider 50, Zoom 1x, Pan 0/0, Lupe aus)
+- Cmd/Ctrl+S: Download
+
 ## Technische Umsetzung (Patch-Plan)
 
 ### 1) States/Refs/Typen (in `ImagEnhancerIsland.tsx`)
@@ -297,7 +319,7 @@ Betroffene Blöcke/Komponenten:
 ## Offene Punkte / Nächste Schritte
 
 - Replicate 404 fixen: Verifizierte Model-Slugs/Tags in `src/config/ai-image.ts` eintragen und `REPLICATE_API_TOKEN` sicher laden.
-- Pro-Compare Erweiterungen: Zoom/Pan/Lupe inkl. i18n-Keys und A11y.
+- Pro-Compare Erweiterungen: Zoom/Pan/Lupe – IMPLEMENTIERT (A11y/Shortcuts dokumentiert). i18n-Key für Lupe-Label ergänzt.
 - Feinjustierung Styling (Glass/Neon) und Reduced-Motion-Tweaks.
 
 ## Modularization Plan (Imag Enhancer)

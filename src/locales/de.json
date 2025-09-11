@@ -620,7 +620,8 @@
               "after": "Nachher",
               "handleAriaLabel": "Zum Vergleichen ziehen",
               "keyboardHint": "Mit Links/Rechts anpassen; Home/Ende zum Zurücksetzen",
-              "reset": "Zurücksetzen"
+              "reset": "Zurücksetzen",
+              "loupe": "Lupe"
             }
           }
         }
