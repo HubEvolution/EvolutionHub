@@ -89,7 +89,7 @@ test.describe('Imag Enhancer', () => {
     // Verify model select exists and switch to Real-ESRGAN (supports scale + face enhance)
     const modelSelect = page.locator('select#model');
     await expect(modelSelect).toBeVisible();
-    await modelSelect.selectOption('nightmareai/real-esrgan:latest');
+    await modelSelect.selectOption('nightmareai/real-esrgan:f0992969a94014d73864d08e6d9a39286868328e4263d9ce2da6fc4049d01a1a');
 
     // Capability-driven controls: scale buttons visible
     const scaleX2 = page.getByRole('button', { name: /^x2$/ });
@@ -149,13 +149,48 @@ test.describe('Imag Enhancer', () => {
     const downloadLink = page.locator('a[download]');
     await expect(downloadLink).toBeVisible();
 
+    // --- Pro-Compare: Zoom / Pan / Loupe ---
+    // Zoom in via + button and verify percentage increases
+    const zoomInBtn = page.getByRole('button', { name: /^Zoom in$/i });
+    const zoomPercent = page.locator('figcaption >> text=/\d+%/').first();
+    const z0 = await zoomPercent.textContent();
+    await zoomInBtn.click();
+    const z1 = await zoomPercent.textContent();
+    expect(Number((z1 || '').replace('%',''))).toBeGreaterThan(Number((z0 || '').replace('%','')));
+
+    // Reset zoom to 100% via dedicated control
+    const resetZoomBtn = page.getByRole('button', { name: /^Reset zoom$/i });
+    await resetZoomBtn.click();
+    await expect(zoomPercent).toHaveText(/100%/);
+
+    // Pan with Shift + Arrow keys (no strict visual assert; ensure no error and slider still operable)
+    await slider.focus();
+    await slider.press('Shift+ArrowRight');
+    await slider.press('Shift+ArrowDown');
+    await slider.press('Shift+ArrowLeft');
+    await slider.press('Shift+ArrowUp');
+    // Slider should still respond
+    await slider.press('ArrowRight');
+
+    // Toggle Loupe and verify overlay appears on hover
+    const loupeBtn = page.getByRole('button', { name: /(Loupe|Lupe)/i });
+    await loupeBtn.click();
+    const container = page.locator('figure div[aria-label="Compare"]').first().locator('xpath=..');
+    // Move mouse within container to show loupe overlay
+    const bbox = await page.locator('figure').first().boundingBox();
+    if (bbox) {
+      await page.mouse.move(bbox.x + bbox.width / 2, bbox.y + bbox.height / 2);
+    }
+    const loupeOverlay = page.getByRole('img', { name: /Loupe magnifier/i });
+    await expect(loupeOverlay).toBeVisible();
+
     // Switch to a model without capabilities and assert controls are hidden
     // After result, the select is behind a small 'Change model' pill
     const changeModel = page.getByRole('button', { name: /Change model/i });
     if (await changeModel.isVisible().catch(() => false)) {
       await changeModel.click();
     }
-    await modelSelect.selectOption('tencentarc/gfpgan:latest');
+    await modelSelect.selectOption('tencentarc/gfpgan:0fbacf7afc6c144e5be9767cff80f25aff23e52b0708f17e20f9879b2f21516c');
     await expect(page.getByRole('button', { name: /^x2$/ })).toHaveCount(0);
     await expect(page.getByRole('button', { name: /^x4$/ })).toHaveCount(0);
     await expect(page.getByLabel(/Face enhance/i)).toHaveCount(0);
