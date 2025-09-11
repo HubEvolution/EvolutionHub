@@ -44,6 +44,16 @@ Die API-Endpunkte sind in `/src/pages/api/ai-image/` organisiert:
 - CSRF: Double-Submit-Token für POST-Routen (Header `X-CSRF-Token` muss mit Cookie `csrf_token` übereinstimmen)
 - Audit-/Security-Logging: Standardisierte Fehler- und Limit-Logs über Middleware/Security-Logger
 
+##### Provider-Fehlermapping (Replicate → API-Error-Shape)
+
+- Quelle: `src/lib/services/ai-image-service.ts` (Erzeugung typisierter Fehler via `apiErrorType`),
+  Durchleitung in `src/pages/api/ai-image/generate.ts` (bevor Message-Heuristiken greifen)
+- Mapping:
+  - 401/403 → `forbidden`
+  - 4xx (inkl. 404/422) → `validation_error`
+  - 5xx → `server_error`
+  - Einheitliches Response-Format: `{ success: false, error: { type, message, … } }`
+
 ### 3. Service-Schicht
 
 #### AI-Image-Service
@@ -173,6 +183,23 @@ sequenceDiagram
 - **Audit-Logs**: Alle AI-Operationen werden protokolliert
 - **Nutzungsstatistiken**: Tracking von API-Nutzung pro Benutzer
 - **Fehlerbehandlung**: Umfassende Fehlerprotokollierung und -behandlung
+
+#### Observability (Structured Logs)
+
+- Quelle: `src/lib/services/ai-image-service.ts` (Logger: `loggerFactory.createLogger('ai-image-service')`)
+- Ereignisse (Auszug):
+  - `generate_start` (reqId, owner, model, datei-metadata)
+  - `r2_put_original_ms`, `uploaded_original`
+  - `replicate_call_start`, `replicate_call_success`, `replicate_duration_ms`, `replicate_error` (snippet redacted)
+  - `dev_echo_enabled`, `dev_echo_return` (Deterministischer Echo-Mode in Nicht‑Prod)
+  - `fetch_output_start`, `fetch_output_done`, `r2_put_result_ms`, `stored_result`
+  - `generate_success`
+- Kontext: `reqId` je Request, Dauer in ms; sensible Inhalte werden nicht geloggt (nur gekürzte Snippets)
+
+#### Content Security Policy (CSP) – Status
+
+- Aktuell: Statische CSP in `applySecurityHeaders()` (`src/lib/security-headers.ts`), enthält u. a. `script-src 'self' 'unsafe-inline' …`.
+- Ziel: Nonce‑basierte CSP für HTML‑Responses; Inline‑Skripte ohne `unsafe-inline` (siehe Projektregeln). Umsetzung/ADR folgt.
 
 ## Performance-Optimierungen
 
