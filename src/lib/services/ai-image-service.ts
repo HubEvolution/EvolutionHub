@@ -1,6 +1,7 @@
 import { ALLOWED_MODELS, ALLOWED_CONTENT_TYPES, MAX_UPLOAD_BYTES, AI_R2_PREFIX, FREE_LIMIT_GUEST, FREE_LIMIT_USER, type AllowedModel, type OwnerType } from '@/config/ai-image';
 import { detectImageMimeFromBytes } from '@/lib/utils/mime';
 import { loggerFactory } from '@/server/utils/logger-factory';
+import OpenAI from 'openai';
 import type { ExtendedLogger } from '@/types/logger';
 import type { R2Bucket, KVNamespace } from '@cloudflare/workers-types';
 
@@ -8,6 +9,7 @@ interface RuntimeEnv {
   R2_AI_IMAGES?: R2Bucket;
   KV_AI_ENHANCER?: KVNamespace;
   REPLICATE_API_TOKEN?: string;
+  OPENAI_API_KEY?: string;
   ENVIRONMENT?: string;
 }
 
@@ -26,6 +28,7 @@ export interface GenerateParams {
   // Optional enhancement parameters from client
   scale?: 2 | 4;
   faceEnhance?: boolean;
+  assistantId?: string;
 }
 
 export interface GenerateResult {
@@ -33,6 +36,10 @@ export interface GenerateResult {
   originalUrl: string;
   imageUrl: string; // public URL to the enhanced image
   usage: UsageInfo;
+}
+
+export interface AssistantResponse {
+  content: string;
 }
 
 export class AiImageService {
@@ -79,7 +86,54 @@ export class AiImageService {
     }
   }
 
-  async generate({ ownerType, ownerId, modelSlug, file, requestOrigin, scale, faceEnhance }: GenerateParams): Promise<GenerateResult> {
+  public async callCustomAssistant(prompt: string, assistantId: string): Promise<AssistantResponse> {
+    const apiKey = this.env.OPENAI_API_KEY;
+    if (!apiKey) {
+      throw new Error('OPENAI_API_KEY not configured');
+    }
+
+    const openai = new OpenAI({ apiKey });
+
+    try {
+      const thread = await openai.beta.threads.create();
+
+      await openai.beta.threads.messages.create(thread.id, {
+        role: 'user',
+        content: prompt,
+      });
+
+      const run = await openai.beta.threads.runs.create(thread.id, {
+        assistant_id: assistantId,
+      });
+
+      let status = run.status;
+      while (status !== 'completed' && status !== 'failed' && status !== 'cancelled') {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        const runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id);
+        status = runStatus.status;
+      }
+
+      if (status !== 'completed') {
+        throw new Error(`Run failed with status: ${status}`);
+      }
+
+      const messages = await openai.beta.threads.messages.list(thread.id);
+      const assistantMessage = messages.data.find((m) => m.role === 'assistant');
+
+      if (!assistantMessage || !assistantMessage.content || assistantMessage.content.length === 0) {
+        throw new Error('No response from assistant');
+      }
+
+      const content = assistantMessage.content[0].type === 'text' ? assistantMessage.content[0].text.value : '';
+
+      return { content };
+    } catch (error) {
+      this.log.error('assistant_call_failed', { error: error instanceof Error ? error.message : String(error) });
+      throw new Error('Failed to call assistant');
+    }
+  }
+
+  async generate({ ownerType, ownerId, modelSlug, file, requestOrigin, scale, faceEnhance, assistantId }: GenerateParams): Promise<GenerateResult> {
     // Validate input
     const model = this.getAllowedModel(modelSlug);
     if (!model) throw new Error('Unsupported model');
@@ -104,6 +158,24 @@ export class AiImageService {
         const err: any = new Error(`Unsupported parameter 'face_enhance' for model ${model.slug}`);
         err.apiErrorType = 'validation_error';
         throw err;
+      }
+    }
+
+    // Optional: Use assistant to suggest or override parameters
+    if (assistantId) {
+      const assistantPrompt = `Suggest optimal enhancement parameters for an image using model ${modelSlug}. Current params: scale=${scale}, faceEnhance=${faceEnhance}. Provide JSON: {"scale": 2|4, "faceEnhance": boolean}`;
+      const response = await this.callCustomAssistant(assistantPrompt, assistantId);
+      try {
+        const suggested = JSON.parse(response.content);
+        if (typeof suggested.scale === 'number' && (suggested.scale === 2 || suggested.scale === 4)) {
+          scale = suggested.scale;
+        }
+        if (typeof suggested.faceEnhance === 'boolean') {
+          faceEnhance = suggested.faceEnhance;
+        }
+        this.log.debug('assistant_params_applied', { assistantId, suggested });
+      } catch {
+        this.log.warn('assistant_suggestion_parse_failed', { assistantId });
       }
     }
 

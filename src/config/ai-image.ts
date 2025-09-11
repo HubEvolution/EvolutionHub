@@ -52,3 +52,6 @@ export const ALLOWED_CONTENT_TYPES = [
 
 // R2 key prefix
 export const AI_R2_PREFIX = 'ai-enhancer';
+
+// Default OpenAI Assistant ID (optional, can be overridden)
+export const DEFAULT_ASSISTANT_ID = '';

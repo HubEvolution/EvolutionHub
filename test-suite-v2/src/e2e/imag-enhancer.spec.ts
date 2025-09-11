@@ -152,7 +152,10 @@ test.describe('Imag Enhancer', () => {
     // --- Pro-Compare: Zoom / Pan / Loupe ---
     // Zoom in via + button and verify percentage increases
     const zoomInBtn = page.getByRole('button', { name: /^Zoom in$/i });
-    const zoomPercent = page.locator('figcaption >> text=/\d+%/').first();
+    const figcaption = page.locator('figure >> figcaption').first();
+    await expect(figcaption).toBeVisible();
+    const zoomPercent = page.locator('figcaption .tabular-nums').first();
+    await expect(zoomPercent).toBeVisible();
     const z0 = await zoomPercent.textContent();
     await zoomInBtn.click();
     const z1 = await zoomPercent.textContent();
@@ -175,7 +178,7 @@ test.describe('Imag Enhancer', () => {
     // Toggle Loupe and verify overlay appears on hover
     const loupeBtn = page.getByRole('button', { name: /(Loupe|Lupe)/i });
     await loupeBtn.click();
-    const container = page.locator('figure div[aria-label="Compare"]').first().locator('xpath=..');
+    // Locale-agnostic hover area (use the figure itself)
     // Move mouse within container to show loupe overlay
     const bbox = await page.locator('figure').first().boundingBox();
     if (bbox) {
@@ -199,4 +202,105 @@ test.describe('Imag Enhancer', () => {
     const png = await page.screenshot({ fullPage: true });
     await test.info().attach('enhancer-final', { body: png, contentType: 'image/png' });
   });
+test.describe('Responsive UI/UX Tests', () => {
+  const viewports = [
+    { name: 'Desktop', width: 1920, height: 1080 },
+    { name: 'Tablet', width: 768, height: 1024 },
+    { name: 'Mobile', width: 375, height: 667 }
+  ];
+
+  for (const vp of viewports) {
+    test(`Image Enhancer on ${vp.name} viewport`, async ({ page }, testInfo) => {
+      // Set viewport
+      await page.setViewportSize({ width: vp.width, height: vp.height });
+
+      // Seed guest cookie
+      const BASE_URL = process.env.TEST_BASE_URL || 'https://ci.hub-evolution.com';
+      const base = new URL(BASE_URL);
+      const freshGuest = `e2e-responsive-${vp.name}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+      await page.context().addCookies([
+        { name: 'guest_id', value: freshGuest, domain: base.hostname, path: '/' },
+      ]);
+
+      // Navigate to enhancer (prefer EN for consistency, test DE separately if needed)
+      await page.goto('/en/tools/imag-enhancer/app', { waitUntil: 'domcontentloaded' });
+      await page.waitForLoadState('domcontentloaded');
+
+      // Screenshot before interactions
+      await test.info().attach(`${vp.name}-before`, {
+        body: await page.screenshot({ fullPage: true }),
+        contentType: 'image/png'
+      });
+
+      // Dismiss consent
+      const acceptConsent = page.getByRole('button', { name: /(Accept|Akzeptieren)/i });
+      if (await acceptConsent.isVisible().catch(() => false)) {
+        await acceptConsent.click();
+      }
+
+      // Upload image
+      const dropzone = page.locator('[aria-label="Image upload dropzone"]');
+      await dropzone.first().waitFor({ state: 'attached', timeout: 10000 });
+      let fileInput = dropzone.locator('input[type="file"]').first();
+      if (!(await fileInput.count())) {
+        fileInput = page.locator('input[type="file"]').first();
+      }
+      await fileInput.setInputFiles(path.resolve(__dirname, '../../../public/favicons/apple-touch-icon.png'));
+
+      // Select model and options
+      const modelSelect = page.locator('select#model');
+      await modelSelect.selectOption('nightmareai/real-esrgan:f0992969a94014d73864d08e6d9a39286868328e4263d9ce2da6fc4049d01a1a');
+      const scaleX2 = page.getByRole('button', { name: /^x2$/ });
+      await scaleX2.click();
+      const faceEnhance = page.getByLabel(/Face enhance/i);
+      await faceEnhance.check();
+
+      // Enhance
+      const enhanceBtn = page.getByRole('button', { name: /Enhance/i });
+      await enhanceBtn.click();
+
+      // Wait for slider
+      const slider = page.getByRole('slider');
+      await expect(slider).toBeVisible({ timeout: 30000 });
+
+      // Interact with slider (touch simulation for mobile)
+      if (vp.name === 'Mobile') {
+        // Simulate touch drag
+        await slider.hover();
+        await page.mouse.down();
+        await page.mouse.move(vp.width / 2, vp.height / 2); // Drag to center
+        await page.mouse.up();
+      } else {
+        await slider.press('ArrowRight');
+        await page.keyboard.press('R'); // Reset
+      }
+
+      // Screenshot after interactions
+      await test.info().attach(`${vp.name}-after`, {
+        body: await page.screenshot({ fullPage: true }),
+        contentType: 'image/png'
+      });
+
+      // Basic assertions for layout (no breaks)
+      expect(await page.locator('body').screenshot()).toMatchSnapshot(`${vp.name}-layout.png`); // For visual regression if setup
+
+      // Test DE locale separately for this viewport
+      await page.goto('/de/tools/imag-enhancer/app', { waitUntil: 'domcontentloaded' });
+      await page.waitForLoadState('domcontentloaded');
+      await test.info().attach(`${vp.name}-de-before`, {
+        body: await page.screenshot({ fullPage: true }),
+        contentType: 'image/png'
+      });
+      // Quick upload and enhance for DE
+      await fileInput.setInputFiles(path.resolve(__dirname, '../../../public/favicons/apple-touch-icon.png'));
+      await modelSelect.selectOption('nightmareai/real-esrgan:f0992969a94014d73864d08e6d9a39286868328e4263d9ce2da6fc4049d01a1a');
+      await enhanceBtn.getByText(/Verbessern/i).click(); // DE label
+      await expect(slider).toBeVisible();
+      await test.info().attach(`${vp.name}-de-after`, {
+        body: await page.screenshot({ fullPage: true }),
+        contentType: 'image/png'
+      });
+    });
+  }
+});
 });
