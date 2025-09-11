@@ -404,17 +404,96 @@ paths:
                 $ref: '#/components/schemas/UserSafe'
   /api/user/password:
     post:
-      summary: Update password
-      description: Update current user's password
+      summary: Password change (deprecated)
+      description: Stytch-only migration – password changes are no longer supported. Returns 410 Gone (HTML).
+      deprecated: true
       x-source: src/pages/api/user/password.ts
       operationId: postUserPassword
       responses:
-        "200":
-          description: Password updated
+        "410":
+          description: Gone
+          content:
+            text/html:
+              schema:
+                type: string
+    get:
+      summary: Password change (deprecated)
+      description: Deprecated endpoint – returns 410 Gone (JSON)
+      deprecated: true
+      x-source: src/pages/api/user/password.ts
+      operationId: getUserPasswordDeprecated
+      responses:
+        "410":
+          description: Gone
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
+                $ref: '#/components/schemas/ApiErrorResponse'
+    put:
+      summary: Password change (deprecated)
+      description: Deprecated endpoint – returns 410 Gone (JSON)
+      deprecated: true
+      x-source: src/pages/api/user/password.ts
+      operationId: putUserPasswordDeprecated
+      responses:
+        "410":
+          description: Gone
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+    patch:
+      summary: Password change (deprecated)
+      description: Deprecated endpoint – returns 410 Gone (JSON)
+      deprecated: true
+      x-source: src/pages/api/user/password.ts
+      operationId: patchUserPasswordDeprecated
+      responses:
+        "410":
+          description: Gone
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+    delete:
+      summary: Password change (deprecated)
+      description: Deprecated endpoint – returns 410 Gone (JSON)
+      deprecated: true
+      x-source: src/pages/api/user/password.ts
+      operationId: deleteUserPasswordDeprecated
+      responses:
+        "410":
+          description: Gone
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+    options:
+      summary: Password change (deprecated)
+      description: Deprecated endpoint – returns 410 Gone (JSON)
+      deprecated: true
+      x-source: src/pages/api/user/password.ts
+      operationId: optionsUserPasswordDeprecated
+      responses:
+        "410":
+          description: Gone
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+    head:
+      summary: Password change (deprecated)
+      description: Deprecated endpoint – returns 410 Gone (JSON)
+      deprecated: true
+      x-source: src/pages/api/user/password.ts
+      operationId: headUserPasswordDeprecated
+      responses:
+        "410":
+          description: Gone
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
   /api/user/profile:
     post:
       summary: Update profile
