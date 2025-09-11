@@ -19,14 +19,15 @@ function makeService(env: Partial<{ REPLICATE_API_TOKEN: string; ENVIRONMENT: st
 }
 
 async function withMockedFetch<T>(status: number, body: string = 'err', fn: () => Promise<T>) {
-  const original = globalThis.fetch;
+  const original = globalThis.fetch as typeof fetch;
   const res = new Response(body, { status });
-  // @ts-expect-error allow vi mock assignment
-  globalThis.fetch = vi.fn(async () => res);
+  const fetchMock = vi.fn(async () => res) as unknown as typeof fetch;
+  // Assign typed mock
+  (globalThis as any).fetch = fetchMock;
   try {
     return await fn();
   } finally {
-    globalThis.fetch = original;
+    (globalThis as any).fetch = original;
   }
 }
 
