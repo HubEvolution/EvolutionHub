@@ -96,6 +96,20 @@ export const POST = withApiMiddleware(async (context) => {
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unbekannter Fehler';
+    // Prefer typed errors coming from services (e.g., provider mapping)
+    const typed = (err as any)?.apiErrorType as
+      | 'validation_error'
+      | 'auth_error'
+      | 'not_found'
+      | 'rate_limit'
+      | 'server_error'
+      | 'db_error'
+      | 'forbidden'
+      | 'method_not_allowed'
+      | undefined;
+    if (typed) {
+      return createApiError(typed, message);
+    }
     if (typeof (err as any)?.code === 'string' && (err as any).code === 'quota_exceeded') {
       return createApiError('forbidden', 'Kostenloses Nutzungslimit erreicht', (err as any).details || undefined);
     }
