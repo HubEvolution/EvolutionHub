@@ -164,10 +164,11 @@ export class AiImageService {
     // Call provider (Replicate) with the originalUrl
     let outputUrl: string;
     let devEcho = false;
-    // Force echo on localhost in development to avoid real provider calls during Wrangler dev
-    const forceDevEcho = this.isDevelopment() && this.isLocalHost(requestOrigin);
+    // In any non-production environment, prefer deterministic dev echo over provider calls
+    // to avoid external dependencies in local/integration runs.
+    const forceDevEcho = this.isDevelopment();
     if (forceDevEcho) {
-      console.warn(`[AiImageService][${reqId}] Localhost detected; forcing dev echo without Replicate call`);
+      console.warn(`[AiImageService][${reqId}] Development environment; forcing dev echo without Replicate call`);
       outputUrl = originalUrl;
       devEcho = true;
     } else {
@@ -408,8 +409,7 @@ export class AiImageService {
 
   private isDevelopment(): boolean {
     const env = (this.env.ENVIRONMENT || '').toLowerCase();
-    // Treat testing as development for short-term fallback behavior
-    // This enables graceful echo on 404/missing token in the testing environment.
-    return env === 'development' || env === 'dev' || env === 'testing' || env === 'test' || env === '';
+    // Treat only explicit dev/test/local as development-like
+    return env === 'development' || env === 'dev' || env === 'testing' || env === 'test' || env === 'local' || env === '';
   }
 }

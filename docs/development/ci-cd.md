@@ -79,6 +79,22 @@ Die CI/CD-Pipeline wird mit GitHub Actions implementiert. Die Workflow-Konfigura
    - Führt das Deployment in die Produktionsumgebung durch
    - Führt Datenbank-Migrationen aus
 
+#### Geplant: Enhancer E2E Smoke (EN+DE)
+
+- Zweck: Schneller UI-Smoketest nur für den Image Enhancer (EN/DE), inkl. Screenshots/Videos als Artefakte
+- Grundlage:
+  - Config: `test-suite-v2/playwright.enhancer.config.ts` (Screenshots/Video on)
+  - Spec: `test-suite-v2/src/e2e/imag-enhancer.spec.ts`
+  - Artefakte: `test-suite-v2/reports/playwright-results/` (HTML-Report in `test-suite-v2/reports/playwright-html-report`)
+- Lauf (Headless) in CI:
+  - Install: `npm ci && npx playwright install --with-deps`
+  - Dev-Worker starten (Port 8787): `npm run dev:worker:dev` (als Hintergrunddienst)
+  - Tests: `TEST_BASE_URL=http://127.0.0.1:8787 npx playwright test -c test-suite-v2/playwright.enhancer.config.ts test-suite-v2/src/e2e/imag-enhancer.spec.ts`
+  - Artefakt-Upload: `actions/upload-artifact@v4` für `test-suite-v2/reports/playwright-results/` und `test-suite-v2/reports/playwright-html-report/`
+- Hinweise:
+  - `TEST_BASE_URL` muss den laufenden Port widerspiegeln (Standard-Dev-Worker nutzt 8787)
+  - Der Enhancer nutzt in Nicht-Prod deterministischen Dev‑Echo (keine externen Provider nötig)
+
 ### Workflow-Beispiel: CI
 
 ```yaml

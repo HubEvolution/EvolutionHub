@@ -1,0 +1,65 @@
+name: Enhancer E2E Smoke
+
+on:
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  enhancer-e2e-smoke:
+    name: Enhancer E2E Smoke (EN+DE)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          npx playwright install --with-deps
+
+      - name: Start dev worker (background)
+        env:
+          # Force dev echo/no external provider calls
+          ENVIRONMENT: development
+        run: |
+          nohup npm run dev:worker:dev > dev-worker.log 2>&1 &
+
+      - name: Wait for dev worker
+        run: npx wait-on http://127.0.0.1:8787
+
+      - name: Run Enhancer E2E Smoke (EN+DE)
+        env:
+          TEST_BASE_URL: http://127.0.0.1:8787
+          ENVIRONMENT: development
+        run: |
+          npx playwright test -c test-suite-v2/playwright.enhancer.config.ts test-suite-v2/src/e2e/imag-enhancer.spec.ts
+
+      - name: Upload Playwright HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: enhancer-e2e-html-report
+          path: test-suite-v2/reports/playwright-html-report/**
+
+      - name: Upload Playwright results (screenshots/videos)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: enhancer-e2e-results
+          path: test-suite-v2/reports/playwright-results/**
+
+      - name: Upload dev worker log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dev-worker-log
+          path: dev-worker.log

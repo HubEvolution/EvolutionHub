@@ -12,13 +12,14 @@ Kurz-Dokument als Single-Source-of-Truth für das UI-Upgrade. Änderungen erfolg
 
 - UI/UX im Client-Island. Upload/Quota/Toasts bleiben funktional unverändert.
 - i18n-Keys für neue Compare-Controls in EN/DE hinzugefügt und an Island durchgereicht.
-- Backend: gezielter Dev-Fallback im Service (nur Entwicklung) zur Entkopplung von Replicate während des UI-Tests.
+- Backend: gezielter Dev-Fallback im Service (Entwicklungs-/Test-Umgebungen) zur Entkopplung von Replicate während des UI-Tests.
 
 ## API-Sicherheitsintegration (CSRF, Rate Limits, Allowed Origins)
 
 - **CSRF (Double-Submit-Token)**
   - POST-Routen erfordern Header `X-CSRF-Token`, der mit Cookie `csrf_token` übereinstimmen muss.
   - Betroffene Routen: `/api/ai-image/generate` (synchron), `/api/ai-image/jobs` (create), `/api/ai-image/jobs/{id}/cancel` (cancel). GET `/api/ai-image/jobs/{id}` erfordert kein CSRF.
+  - Hinweis Frontend: `ImagEnhancerIsland.tsx` setzt für `/api/ai-image/generate` den Double-Submit-CSRF-Flow automatisch um (Cookie `csrf_token` wird gelesen oder erzeugt und als `X-CSRF-Token` mitgesendet). Kein zusätzliches Setup in App.astro nötig.
 
 - **Rate Limiting (Middleware)**
   - Generate: 15 Anfragen/Minute (`aiGenerateLimiter`).
@@ -32,6 +33,8 @@ Kurz-Dokument als Single-Source-of-Truth für das UI-Upgrade. Änderungen erfolg
 - **Allowed Origins (Origin/CSRF-Validierung)**
   - Gültige Ursprünge aus Umgebungsvariablen: `ALLOWED_ORIGINS` | `ALLOW_ORIGINS` | `APP_ORIGIN` | `PUBLIC_APP_ORIGIN`.
   - Beispiel `.env.example` (kommagetrennt): `ALLOWED_ORIGINS="http://localhost:4321,https://hub-evolution.com"`.
+
+  Hinweis: Die aktuelle Request-Origin wird zusätzlich automatisch erlaubt (Same-Origin wird immer akzeptiert).
 
 - **Client-Beispiel (POST mit CSRF-Header)**
 
@@ -64,7 +67,16 @@ export async function createAiJob(formData: FormData) {
 }
 ```
 
-Hinweis Dev-Fallback: In Entwicklung kann der Service das Originalbild zurückgeben (Echo), wenn Upstream/Token fehlt oder bei localhost. UI kennzeichnet dies als Demo-Modus (siehe unten).
+Hinweis Dev-Fallback: In Entwicklung/Test kann der Service das Originalbild zurückgeben (Echo), wenn Upstream/Token fehlt oder generell in lokalen Dev-/Test-Umgebungen. UI kennzeichnet dies als Demo-Modus (siehe unten).
+
+## Modell-Fähigkeiten (Capabilities)
+
+- Serverseitig definieren `ALLOWED_MODELS` die Fähigkeiten eines Modells (z. B. `supportsScale`, `supportsFaceEnhance`).
+- Der Server validiert eingehende Parameter strikt anhand dieser Flags und gibt bei nicht unterstützten Parametern `validation_error` zurück.
+- Das Frontend blendet Controls dynamisch anhand dieser Fähigkeiten ein (z. B. `x2/x4`-Buttons nur bei `supportsScale`, Checkbox „Face enhance“ nur bei `supportsFaceEnhance`).
+- Die FormData enthält nur Parameter, die das aktuelle Modell unterstützt.
+
+Siehe: `src/config/ai-image.ts` (Modelle/Flags) und `src/components/tools/ImagEnhancerIsland.tsx` (UI/Controls + FormData-Aufbau).
 
 ## Status Quo (Stand: 2025-09-02)
 
@@ -169,6 +181,38 @@ Betroffene Blöcke/Komponenten:
 - A11y: Tastaturbedienung Slider, ARIA-Attribute vorhanden und korrekt.
 - Reduced Motion: keine unnötigen Animationen/Glows in kritischen Interaktionen.
 
+### Smoke-Test (Lokal)
+
+1. Dev-Server starten: `npm run dev:worker:dev` → <http://127.0.0.1:8787>
+2. Seite öffnen: `/tools/imag-enhancer/app` (DE) oder `/en/tools/imag-enhancer/app` (EN)
+3. Bild (PNG/JPG/WEBP) hochladen, Modell wählen, optional Scale/FaceEnhance (je nach Fähigkeit), „Enhance“ auslösen
+4. Compare-Slider bedienen (Maus/Touch/Keyboard) und „Download“ prüfen
+5. Quota-Anzeige/Toasts beobachten; bei Limit wird Button deaktiviert und Banner angezeigt
+
+### Integration/E2E-Tests
+
+- Integrationstests lokal gegen den Dev-Worker (Wrangler):
+  - Terminal A: `npm run dev:worker:dev`
+  - Terminal B: `TEST_BASE_URL=http://127.0.0.1:8787 npm run test:integration:run`
+- E2E (Playwright v2-Suite):
+  - Terminal A: `npm run dev:worker:dev`
+  - Terminal B (volle Suite): `TEST_BASE_URL=http://127.0.0.1:8787 npm run test:e2e:v2`
+  - Enhancer-only (fokussiert, mit Artefakten):
+    - Config: `test-suite-v2/playwright.enhancer.config.ts` (Screenshots/Video on)
+    - Spec: `test-suite-v2/src/e2e/imag-enhancer.spec.ts`
+    - Lauf: `TEST_BASE_URL=http://127.0.0.1:8787 npx playwright test -c test-suite-v2/playwright.enhancer.config.ts test-suite-v2/src/e2e/imag-enhancer.spec.ts`
+    - EN+DE parallel (Projekte `chromium-en` und `chromium-de`)
+    - HTML-Report öffnen: `npx playwright show-report test-suite-v2/reports/playwright-html-report`
+
+  Hinweis: `TEST_BASE_URL` muss immer den aktuell laufenden Port des Dev-Servers widerspiegeln (z. B. 8787 für den Standard-Dev-Worker, 8789 für die dedizierte Enhancer-Config, falls dort der Server läuft).
+
+#### Warum `TEST_BASE_URL`=localhost und nicht `ci.hub-evolution.com`?
+
+- Lokale Validierung testet den aktuellen Code-Stand (inkl. unveröffentlichter Änderungen) unmittelbar gegen den lokalen Worker – ideal für schnelle Iterationen.
+- CSRF-/Origin-Regeln akzeptieren die aktuelle Request-Origin ohnehin; lokale Läufe vermeiden Abhängigkeiten von entfernten Allowlists und externen Ratenlimits.
+- Remote-Umgebungen (z. B. `ci.hub-evolution.com`) sind sinnvoll für CI-Läufe mit stabilen Bindings/Secrets, können aber durch Ratenlimits/Quotas und geteilte Ressourcen beeinflusst werden und testen nicht notwendigerweise den neuesten lokalen Patch.
+- Empfehlung: Lokal verifizieren (Smoke/Integration), dann im CI gegen eine dedizierte Dev-/Testing-Domain laufen lassen.
+
 ## Akzeptanzkriterien
 
 - Konsistenter futuristischer Look (Light/Dark)
@@ -241,7 +285,14 @@ Betroffene Blöcke/Komponenten:
 - Service (`src/lib/services/ai-image-service.ts`):
   - `runReplicate()` wirft bei Fehlern eine aussagekräftige Meldung; `generate()` fängt 404 in Dev ODER fehlendes `REPLICATE_API_TOKEN` ab (`ENVIRONMENT=development|dev|''`) und setzt `outputUrl = originalUrl`.
   - Ergebnis wird wie gewohnt nach R2 geschrieben; die Response enthält beide URLs.
-  - Localhost-Regel: In Development und bei lokalem `requestOrigin` (localhost, 127.0.0.1, *.local, RFC1918 10./172.16–31./192.168.*) wird **ohne Replicate-Call** direkt `originalUrl` zurückgegeben ("force dev echo"). Auf Test-/Staging-/Produktionsdomains erfolgen echte Replicate-Calls (bei vorhandenem Token).
+  - Dev-Echo-Regel: In Umgebungen `ENVIRONMENT ∈ { development, dev, testing, test, local, '' }` wird **ohne Replicate-Call** direkt `originalUrl` zurückgegeben ("force dev echo"). Auf Staging-/Produktionsdomains erfolgen echte Replicate-Calls (bei vorhandenem Token).
+
+## Changelog (2025-09-11)
+
+- Frontend: CSRF Double-Submit (Cookie `csrf_token` + Header `X-CSRF-Token`) für `/api/ai-image/generate` im Island automatisch umgesetzt.
+- Frontend: Fähigkeitsbasierte Controls für Modelle (Scale/Face Enhance) mit striktem Parameterversand nur bei Unterstützung.
+- Doku: Abschnitte zu Capabilities, lokalem Smoke-Test, Integration/E2E-Läufen mit `TEST_BASE_URL` und Begründung für localhost ergänzt.
+- E2E (Enhancer-only): EN+DE grün; dedizierte Config (`test-suite-v2/playwright.enhancer.config.ts`) und Spec (`test-suite-v2/src/e2e/imag-enhancer.spec.ts`) mit Artefakten (Screenshots/Videos) ergänzt.
 
 ## Offene Punkte / Nächste Schritte
 
