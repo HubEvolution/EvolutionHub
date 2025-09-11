@@ -217,6 +217,61 @@
         "unexpected": "An unexpected error occurred. Please try again later."
       }
     },
+    "pricing": {
+      "title": "Pricing – Evolution Hub",
+      "description": "Choose the plan that fits your needs. Free trial available.",
+      "header": {
+        "title": "Simple, transparent pricing",
+        "subtitle": "Choose the plan that fits you best. Every plan includes a 14‑day free trial."
+      },
+      "faq": {
+        "title": "Frequently asked questions",
+        "question1": "Can I change my plan later?",
+        "answer1": "Yes, you can change plans at any time. The change takes effect with your next billing cycle.",
+        "question2": "Is there a minimum contract term?",
+        "answer2": "No, all plans are billed monthly and can be cancelled at any time.",
+        "question3": "Can I test the Enterprise edition?",
+        "answer3": "Yes, contact us for an individual demo and trial of the Enterprise features."
+      },
+      "faq_contact_cta_text": "Still have questions?",
+      "faq_contact_cta_link_text": "Contact our team"
+    },
+    "login": {
+      "title": "Sign in",
+      "form": {
+        "heading": "Sign in to your account",
+        "fields": { "email": { "label": "Email" } },
+        "or": "or",
+        "forgot_password_link": "Forgot password?",
+        "submit_button": "Sign in",
+        "magic_button": "Continue with Magic Link",
+        "no_account_prompt": "Don't have an account?",
+        "register_link": "Register"
+      }
+    },
+    "register": {
+      "title": "Create account",
+      "form": {
+        "heading": "Create your account",
+        "subheading": "We'll send you a sign‑in link by email. After submitting you'll see a confirmation.",
+        "fields": {
+          "name": { "label": "Name", "help": "2–50 characters." },
+          "username": { "label": "Username", "help": "3–30 characters; letters, numbers, underscore." },
+          "email": { "label": "Email" },
+          "password": { "label": "Password" }
+        },
+        "submit_button": "Create account",
+        "already_have_account_prompt": "Already have an account?",
+        "login_link": "Sign in"
+      }
+    },
+    "auth": {
+      "magic": {
+        "success": "Check your email for the sign‑in link.",
+        "error": "We couldn't send the link. Please try again.",
+        "cooldown": "Resend in {s}s"
+      }
+    },
     "tools": {
       "meta": {
         "title": "Tools – Evolution Hub",
