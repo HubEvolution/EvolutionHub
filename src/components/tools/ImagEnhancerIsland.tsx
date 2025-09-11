@@ -118,6 +118,11 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
   const [isHeld, setIsHeld] = useState(false); // Press-and-Hold A/B state
   const holdTimerRef = useRef<number | null>(null);
   const touchStartPosRef = useRef<{ x: number; y: number } | null>(null);
+  // Zoom state (phase 1: center-zoom only; pan follows in next PR)
+  const [zoom, setZoom] = useState<number>(1);
+  const ZOOM_MIN = 1;
+  const ZOOM_MAX = 5;
+  const ZOOM_STEP = 0.25;
 
   // Image metadata (dimensions)
   const [imageDims, setImageDims] = useState<{ w: number; h: number } | null>(null);
@@ -289,6 +294,7 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
     } else if (e.key === 'Home' || e.key === 'End') {
       e.preventDefault();
       setSliderPos(50); // reset to center
+      setZoom(1);
     } else if (e.key === 'PageDown') {
       e.preventDefault();
       setSliderPos((v) => clamp(v - 10, 0, 100));
@@ -297,6 +303,24 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
       setSliderPos((v) => clamp(v + 10, 0, 100));
     }
   }, [clamp]);
+
+  // Zoom handlers
+  const setClampedZoom = useCallback((next: number) => {
+    setZoom((prev) => {
+      const z = Number.isFinite(next) ? next : prev;
+      return Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, Math.round(z * 100) / 100));
+    });
+  }, []);
+  const onZoomIn = useCallback(() => setClampedZoom(zoom + ZOOM_STEP), [zoom, setClampedZoom]);
+  const onZoomOut = useCallback(() => setClampedZoom(zoom - ZOOM_STEP), [zoom, setClampedZoom]);
+  const onZoomReset = useCallback(() => setClampedZoom(1), [setClampedZoom]);
+  const onWheelZoom = useCallback((e: React.WheelEvent<HTMLDivElement>) => {
+    // Prevent page scroll while zooming
+    e.preventDefault();
+    const delta = e.deltaY;
+    if (delta < 0) setClampedZoom(zoom + ZOOM_STEP);
+    else if (delta > 0) setClampedZoom(zoom - ZOOM_STEP);
+  }, [zoom, setClampedZoom]);
 
   useEffect(() => {
     let cancelled = false;
@@ -622,6 +646,11 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
                 console.warn('ImagEnhancerIsland: failed to load preview image URL', previewUrl);
                 toast.error('Failed to load original preview');
               }}
+              zoom={zoom}
+              onWheelZoom={onWheelZoom}
+              onZoomIn={onZoomIn}
+              onZoomOut={onZoomOut}
+              onZoomReset={onZoomReset}
             />
               {(resultDims || lastProcessMs) && (
                 <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">

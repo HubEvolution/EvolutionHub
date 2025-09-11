@@ -30,6 +30,12 @@ export interface CompareSliderProps {
   onPreviewImageLoad: (e: React.SyntheticEvent<HTMLImageElement>) => void;
   onResultError?: () => void;
   onPreviewError?: () => void;
+  // Zoom support
+  zoom: number; // 1.0 = 100%
+  onWheelZoom?: (e: React.WheelEvent<HTMLDivElement>) => void;
+  onZoomIn?: () => void;
+  onZoomOut?: () => void;
+  onZoomReset?: () => void;
 }
 
 export function CompareSlider(props: CompareSliderProps) {
@@ -58,32 +64,39 @@ export function CompareSlider(props: CompareSliderProps) {
         className="relative w-full max-w-full overflow-hidden rounded-sm bg-black/40 h-64 sm:h-72 md:h-80"
         style={boxSize ? { width: `${boxSize.w}px`, height: `${boxSize.h}px` } : undefined}
         onMouseDown={onMouseDown}
+        onWheel={props.onWheelZoom}
         onTouchStart={onTouchStart}
         aria-label={compareStrings.sliderLabel}
       >
-        {/* After image (result) as base layer */}
-        <img
-          src={resultUrl}
-          alt={compareStrings.after}
-          className="pointer-events-none select-none absolute inset-0 w-full h-full object-contain z-0"
-          onLoad={onResultImageLoad}
-          onError={onResultError}
-          style={isDemoResult ? { filter: 'contrast(1.2) saturate(1.15) brightness(1.05)' } : undefined}
-        />
-
-        {/* Before image (original) overlay clipped to slider position (no resize) */}
+        {/* Scaled image layer (result + before overlay) */}
         <div
-          className="absolute inset-0 z-10 pointer-events-none"
-          style={{ clipPath: `polygon(0 0, ${isHeld ? 100 : sliderPos}% 0, ${isHeld ? 100 : sliderPos}% 100%, 0 100%)` }}
-          aria-hidden
+          className="absolute inset-0 z-0"
+          style={{ transform: `scale(${props.zoom})`, transformOrigin: 'center center' }}
         >
+          {/* After image (result) as base layer */}
           <img
-            src={previewUrl}
-            alt={compareStrings.before}
+            src={resultUrl}
+            alt={compareStrings.after}
             className="pointer-events-none select-none absolute inset-0 w-full h-full object-contain"
-            onLoad={onPreviewImageLoad}
-            onError={onPreviewError}
+            onLoad={onResultImageLoad}
+            onError={onResultError}
+            style={isDemoResult ? { filter: 'contrast(1.2) saturate(1.15) brightness(1.05)' } : undefined}
           />
+
+          {/* Before image (original) overlay clipped to slider position (no resize) */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{ clipPath: `polygon(0 0, ${isHeld ? 100 : sliderPos}% 0, ${isHeld ? 100 : sliderPos}% 100%, 0 100%)` }}
+            aria-hidden
+          >
+            <img
+              src={previewUrl}
+              alt={compareStrings.before}
+              className="pointer-events-none select-none absolute inset-0 w-full h-full object-contain"
+              onLoad={onPreviewImageLoad}
+              onError={onPreviewError}
+            />
+          </div>
         </div>
 
         {/* Edge gradient aligned with slider line */}
@@ -127,8 +140,35 @@ export function CompareSlider(props: CompareSliderProps) {
           {compareStrings.after}
         </div>
       </div>
-      <figcaption className="mt-2 flex items-center justify-end text-xs text-gray-500 dark:text-gray-400">
+      <figcaption className="mt-2 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
         <span className="opacity-80">{compareStrings.keyboardHint}</span>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            aria-label="Zoom out"
+            className="px-2 py-0.5 rounded bg-white/40 dark:bg-slate-800/60 ring-1 ring-gray-400/30 text-gray-700 dark:text-gray-200 hover:ring-cyan-400/40"
+            onClick={props.onZoomOut}
+          >
+            −
+          </button>
+          <span className="tabular-nums min-w-[3.5ch] text-center">{Math.round(props.zoom * 100)}%</span>
+          <button
+            type="button"
+            aria-label="Zoom in"
+            className="px-2 py-0.5 rounded bg-white/40 dark:bg-slate-800/60 ring-1 ring-gray-400/30 text-gray-700 dark:text-gray-200 hover:ring-cyan-400/40"
+            onClick={props.onZoomIn}
+          >
+            +
+          </button>
+          <button
+            type="button"
+            aria-label="Reset zoom"
+            className="px-2 py-0.5 rounded bg-white/40 dark:bg-slate-800/60 ring-1 ring-gray-400/30 text-gray-700 dark:text-gray-200 hover:ring-cyan-400/40"
+            onClick={props.onZoomReset}
+          >
+            Reset
+          </button>
+        </div>
       </figcaption>
     </figure>
   );
