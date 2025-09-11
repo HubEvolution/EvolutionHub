@@ -16,21 +16,21 @@ export interface AllowedModel {
 
 export const ALLOWED_MODELS: readonly AllowedModel[] = [
   {
-    slug: 'nightmareai/real-esrgan:latest', // Official Real-ESRGAN on Replicate: https://replicate.com/nightmareai/real-esrgan
+    slug: 'nightmareai/real-esrgan:f0992969a94014d73864d08e6d9a39286868328e4263d9ce2da6fc4049d01a1a', // Pinned Real-ESRGAN version: https://replicate.com/nightmareai/real-esrgan/versions/f0992969a94014d73864d08e6d9a39286868328e4263d9ce2da6fc4049d01a1a
     label: 'Real-ESRGAN 4x',
     provider: 'replicate',
     supportsScale: true,
     supportsFaceEnhance: true,
   },
   {
-    slug: 'tencentarc/gfpgan:latest', // Official GFPGAN: https://replicate.com/tencentarc/gfpgan
+    slug: 'tencentarc/gfpgan:0fbacf7afc6c144e5be9767cff80f25aff23e52b0708f17e20f9879b2f21516c', // Pinned GFPGAN version: https://replicate.com/tencentarc/gfpgan/versions/0fbacf7afc6c144e5be9767cff80f25aff23e52b0708f17e20f9879b2f21516c
     label: 'GFPGAN',
     provider: 'replicate',
     supportsScale: false,
     supportsFaceEnhance: false,
   },
   {
-    slug: 'sczhou/codeformer:latest', // Official CodeFormer: https://replicate.com/sczhou/codeformer
+    slug: 'sczhou/codeformer:7de2ea26c616d5bf2245ad0d5e24f0ff9a6204578a5c876db53142edd9d2cd56', // Pinned CodeFormer version: https://replicate.com/sczhou/codeformer/versions/7de2ea26c616d5bf2245ad0d5e24f0ff9a6204578a5c876db53142edd9d2cd56
     label: 'CodeFormer',
     provider: 'replicate',
     supportsScale: false,
