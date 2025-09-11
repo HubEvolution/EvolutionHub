@@ -1,11 +1,10 @@
 /// <reference types="astro/client" />
 import { getCollection, type CollectionEntry } from 'astro:content';
-import type { Locale } from './i18n';
+ 
 
 // ContentService is assumed to be correctly imported and functional.
 import { ContentService } from './content';
 import type {
-  BlogPost,
   BlogListOptions,
   ProcessedBlogPost,
   PaginatedResult
@@ -120,13 +119,12 @@ export class BlogService extends ContentService<BlogCollectionEntry> implements 
    * This method is optimized to fetch all blog entries only once.
    * It does NOT apply pagination here, but returns all processed data.
    */
-  private cachedBlogIndexData: Promise<{
+  private cachedBlogIndexData?: Promise<{
     processedPosts: ProcessedBlogPost[];
     categories: CategoryWithCount[];
     tags: TagWithCount[];
-  }> |private cachedBlogIndexData: Map<string, Promise<{ processedPosts: ProcessedBlogPost[]; categories: CategoryWithCount[]; tags: TagWithCount[]; }>> = new Map(); // Cache for lang-specific fetched and processed blog data
+  }>;
 
-lang?: Locale
   private async fetchAllBlogData(): Promise<{
     processedPosts: ProcessedBlogPost[];
     categories: CategoryWithCount[];
@@ -158,7 +156,7 @@ lang?: Locale
       // Calculate tags with counts
       const tagMap = new Map<string, number>();
       processedPosts.forEach(post => {
-        post.data.tags?.forEach(tag => {
+        post.data.tags?.forEach((tag: string) => {
           tagMap.set(tag, (tagMap.get(tag) || 0) + 1);
         });
       });
