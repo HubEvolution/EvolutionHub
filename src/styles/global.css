@@ -192,6 +192,21 @@ body::before {
   box-shadow: none !important;
 }
 
+/* Solid header style applied by HeaderScroll when page is scrolled */
+#site-header.header-solid {
+  /* Use CSS filters directly to avoid relying on Tailwind variants here */
+  -webkit-backdrop-filter: saturate(140%) blur(8px);
+  backdrop-filter: saturate(140%) blur(8px);
+  background-color: rgba(255, 255, 255, 0.7) !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.35) !important;
+}
+
+.dark #site-header.header-solid {
+  background-color: rgba(17, 24, 39, 0.6) !important; /* gray-900 */
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
 /* Global override: Make page-level wrappers transparent so BaseLayout's global background (blobs/gradients) is dominant across all pages */
 /* Applies broadly, but keeps cards/boxes readable since they have their own bg (e.g., bg-white/dark:bg-gray-800) */
 main.min-h-screen {

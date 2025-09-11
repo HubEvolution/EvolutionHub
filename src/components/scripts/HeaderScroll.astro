@@ -16,14 +16,17 @@
   
   // Direkte Ausführung ohne coordinator (funktionierendes Pattern aus Header.astro)
   function initHeaderScrollEffect() {
-      console.log('[HeaderScroll] 🚀 Starting header scroll effect initialization...');
+      const __DEV__ = (typeof location !== 'undefined') && (location.hostname === 'localhost' || location.hostname === '127.0.0.1');
+      const dlog = (...args) => { if (__DEV__) console.log(...args); };
+      const dwarn = (...args) => { if (__DEV__) console.warn(...args); };
+      dlog('[HeaderScroll] 🚀 Starting header scroll effect initialization...');
       
       // Header-Element mit detailliertem Logging suchen
       const header = document.getElementById('site-header');
       const headerByTag = document.querySelector('header');
       const headerByClass = document.querySelector('.header');
       
-      console.log('[HeaderScroll] 🔍 Header element detection results:', {
+      dlog('[HeaderScroll] 🔍 Header element detection results:', {
         headerById: !!header,
         headerByTag: !!headerByTag,
         headerByClass: !!headerByClass,
@@ -38,7 +41,7 @@
       
       if (!header) {
         console.error('[HeaderScroll] ❌ Header element (#site-header) not found in DOM');
-        console.log('[HeaderScroll] 🔍 Available header-related elements:', {
+        dlog('[HeaderScroll] 🔍 Available header-related elements:', {
           headerByTag: !!headerByTag,
           headerByClass: !!headerByClass,
           possibleHeaders: Array.from(document.querySelectorAll('[id*="header"], [class*="header"]')).map(el => ({
@@ -61,12 +64,25 @@
       header.classList.add('header-visible');
       header.classList.remove('header-hidden');
       
+      function applyHeaderBackground(y) {
+        try {
+          const scrolled = (typeof y === 'number' ? y : window.scrollY) > 10;
+          if (scrolled) {
+            header.classList.add('header-solid');
+          } else {
+            header.classList.remove('header-solid');
+          }
+        } catch (e) {
+          dwarn('[HeaderScroll] ⚠️ Failed to apply header background state:', e);
+        }
+      }
+
       function handleScroll() {
         const currentScrollY = window.scrollY;
         const scrollDelta = currentScrollY - lastScrollY;
         const scrollDirection = scrollDelta > 0 ? 'down' : 'up';
         
-        console.log('[HeaderScroll] 📜 Scroll event detected:', {
+        dlog('[HeaderScroll] 📜 Scroll event detected:', {
           currentScrollY,
           lastScrollY,
           scrollDelta,
@@ -76,10 +92,12 @@
           isAboveThreshold: currentScrollY <= scrollThreshold,
           isDeltaSignificant: Math.abs(scrollDelta) >= scrollDeltaThreshold
         });
+        // Update header background state based on scroll position
+        applyHeaderBackground(currentScrollY);
         
         // Oberhalb des Thresholds oder am Seitenanfang - Header immer sichtbar
         if (currentScrollY <= scrollThreshold) {
-          console.log('[HeaderScroll] 📜 Above threshold - keeping header visible');
+          dlog('[HeaderScroll] 📜 Above threshold - keeping header visible');
           showHeader();
           lastScrollY = currentScrollY;
           ticking = false;
@@ -88,28 +106,28 @@
         
         // Genug gescrollt für eine Aktion?
         if (Math.abs(currentScrollY - lastScrollY) < scrollDeltaThreshold) {
-          console.log('[HeaderScroll] 📜 Scroll delta too small - ignoring');
+          dlog('[HeaderScroll] 📜 Scroll delta too small - ignoring');
           ticking = false;
           return;
         }
         
         // Nach unten scrollen - Header ausblenden mit Verzögerung
         if (currentScrollY > lastScrollY) {
-          console.log('[HeaderScroll] 📜 Scrolling down - scheduling header hide');
+          dlog('[HeaderScroll] 📜 Scrolling down - scheduling header hide');
           
           // Bestehenden Timer löschen wenn vorhanden
           if (hideTimeout) {
-            console.log('[HeaderScroll] 📜 Clearing existing hide timeout');
+            dlog('[HeaderScroll] 📜 Clearing existing hide timeout');
             clearTimeout(hideTimeout);
           }
           
           // Kurze Verzögerung vor dem Ausblenden für bessere UX
           hideTimeout = window.setTimeout(() => {
-            console.log('[HeaderScroll] 📜 Hide timeout executed - hiding header');
+            dlog('[HeaderScroll] 📜 Hide timeout executed - hiding header');
             if (header) {
               header.classList.add('header-hidden');
               header.classList.remove('header-visible');
-              console.log('[HeaderScroll] ✅ Header hidden successfully:', {
+              dlog('[HeaderScroll] ✅ Header hidden successfully:', {
                 headerClasses: header.className
               });
             }
@@ -118,10 +136,10 @@
         } 
         // Nach oben scrollen - Header sofort einblenden
         else {
-          console.log('[HeaderScroll] 📜 Scrolling up - showing header immediately');
+          dlog('[HeaderScroll] 📜 Scrolling up - showing header immediately');
           
           if (hideTimeout) {
-            console.log('[HeaderScroll] 📜 Clearing hide timeout for immediate show');
+            dlog('[HeaderScroll] 📜 Clearing hide timeout for immediate show');
             clearTimeout(hideTimeout);
             hideTimeout = null;
           }
@@ -131,18 +149,19 @@
         lastScrollY = currentScrollY;
         ticking = false;
         
-        console.log('[HeaderScroll] 📜 Scroll handling completed:', {
+        dlog('[HeaderScroll] 📜 Scroll handling completed:', {
           newLastScrollY: lastScrollY,
           tickingReset: !ticking
         });
       }
       
       function showHeader() {
-        console.log('[HeaderScroll] 📜 showHeader() called');
+        dlog('[HeaderScroll] 📜 showHeader() called');
         if (header) {
           header.classList.add('header-visible');
           header.classList.remove('header-hidden');
-          console.log('[HeaderScroll] ✅ Header shown successfully:', {
+          applyHeaderBackground();
+          dlog('[HeaderScroll] ✅ Header shown successfully:', {
             headerClasses: header.className,
             hasVisibleClass: header.classList.contains('header-visible'),
             hasHiddenClass: header.classList.contains('header-hidden')
@@ -157,26 +176,26 @@
       let resizeHandler = null;
       
       // Optimiertes Event-Handling mit requestAnimationFrame
-      console.log('[HeaderScroll] 🔗 Setting up event listeners...');
+      dlog('[HeaderScroll] 🔗 Setting up event listeners...');
       
       scrollHandler = function() {
         if (!ticking) {
-          console.log('[HeaderScroll] 📜 Scroll event triggered - scheduling RAF');
+          dlog('[HeaderScroll] 📜 Scroll event triggered - scheduling RAF');
           window.requestAnimationFrame(function() {
             handleScroll();
           });
           ticking = true;
         } else {
-          console.log('[HeaderScroll] 📜 Scroll event throttled - already ticking');
+          dlog('[HeaderScroll] 📜 Scroll event throttled - already ticking');
         }
       };
       window.addEventListener('scroll', scrollHandler, { passive: true });
-      console.log('[HeaderScroll] 🔗 Scroll event listener attached');
+      dlog('[HeaderScroll] 🔗 Scroll event listener attached');
       
       // Resize-Event - Header neu positionieren
       resizeHandler = function() {
         if (!ticking) {
-          console.log('[HeaderScroll] 📱 Resize event triggered - scheduling RAF');
+          dlog('[HeaderScroll] 📱 Resize event triggered - scheduling RAF');
           window.requestAnimationFrame(function() {
             // Bei Resize immer Header zeigen
             showHeader();
@@ -184,17 +203,17 @@
           });
           ticking = true;
         } else {
-          console.log('[HeaderScroll] 📱 Resize event throttled - already ticking');
+          dlog('[HeaderScroll] 📱 Resize event throttled - already ticking');
         }
       };
       window.addEventListener('resize', resizeHandler, { passive: true });
-      console.log('[HeaderScroll] 🔗 Resize event listener attached');
+      dlog('[HeaderScroll] 🔗 Resize event listener attached');
       
       // Initial auslösen
-      console.log('[HeaderScroll] 🚀 Triggering initial handleScroll...');
+      dlog('[HeaderScroll] 🚀 Triggering initial handleScroll...');
       handleScroll();
       
-      console.log('[HeaderScroll] ✅ Scroll effect initialized successfully with comprehensive logging:', {
+      dlog('[HeaderScroll] ✅ Scroll effect initialized successfully with comprehensive logging:', {
         scrollThreshold,
         scrollDeltaThreshold,
         hasScrollHandler: !!scrollHandler,
@@ -216,7 +235,7 @@
         if (hideTimeout) {
           clearTimeout(hideTimeout);
         }
-        console.log('[HeaderScroll] Scroll effect cleaned up');
+        dlog('[HeaderScroll] Scroll effect cleaned up');
       };
     }
   

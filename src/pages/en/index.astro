@@ -53,10 +53,10 @@ export const prerender = false;
           data-aos-duration="700"
         >
           <span class="block">{t('pages.home.hero.title_part1')}</span>
-          <span id="hero-typewriter" aria-live="polite" class="block min-h-[1.2em] whitespace-nowrap text-transparent bg-clip-text bg-gradient-to-br from-emerald-400 to-cyan-500">{t('pages.home.hero.title_part2')}</span>
+          <span id="hero-typewriter" aria-live="polite" class="block min-h-[1.2em] whitespace-nowrap text-transparent bg-clip-text bg-gradient-to-br from-emerald-400 to-cyan-500 [text-shadow:_0_1px_0_rgb(255_255_255_/_0.6)] dark:[text-shadow:_0_1px_0_rgb(0_0_0_/_0.35)]">{t('pages.home.hero.title_part2')}</span>
         </h1>
         <p
-          class="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-10 max-w-3xl mx-auto"
+          class="text-xl md:text-2xl text-gray-700 dark:text-gray-300 mb-10 max-w-3xl mx-auto"
           data-aos="fade-up"
           data-aos-delay="100"
           data-aos-duration="650"
@@ -65,11 +65,11 @@ export const prerender = false;
         </p>
         
         <TypewriterComponent elementId="hero-typewriter" texts={heroTypewriterItems} defaultDelay={120} />
-        <div class="flex justify-center space-x-4" data-aos="fade-up" data-aos-delay="200" data-aos-duration="650">
-          <a href={localizePath(locale, '/register')} class="inline-flex items-center px-8 py-4 rounded-xl font-bold text-white bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 shadow-lg hover:shadow-xl transition duration-300">
+        <div class="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4" data-aos="fade-up" data-aos-delay="200" data-aos-duration="650">
+          <a href={localizePath(locale, '/register')} class="inline-flex items-center px-8 py-4 rounded-xl font-bold text-white bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 shadow-lg hover:shadow-xl transition duration-300 focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:outline-none">
             {t('pages.home.hero.get_started_button')}
           </a>
-          <a href={localizePath(locale, '/tools')} class="inline-flex items-center px-8 py-4 rounded-xl font-bold text-gray-800 dark:text-white bg-white dark:bg-gray-700 border border-gray-400 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 shadow transition duration-300">
+          <a href={localizePath(locale, '/tools')} class="inline-flex items-center px-8 py-4 rounded-xl font-bold text-gray-800 dark:text-white bg-white dark:bg-gray-700 border border-gray-400 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 shadow transition duration-300 focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:outline-none">
             {t('pages.home.hero.tools_link')}
           </a>
         </div>
@@ -144,9 +144,11 @@ export const prerender = false;
       <p class="text-lg text-gray-600 dark:text-gray-300 mb-10 max-w-3xl mx-auto" data-aos="fade-up" data-aos-delay="100" data-aos-duration="650">
         {t('cta.subtitle')}
       </p>
-      <a href={localizePath(locale, '/register')} class="inline-flex items-center px-10 py-5 rounded-xl font-bold text-white bg-gradient-to-r from-primary to-secondary hover:from-primary-dark hover:to-secondary-dark shadow-lg hover:shadow-xl transition duration-300 text-lg" data-aos="fade-up" data-aos-delay="200" data-aos-duration="650">
-        {t('cta.button_text')}
-      </a>
+      <div class="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4" data-aos="fade-up" data-aos-delay="200" data-aos-duration="650">
+        <a href={localizePath(locale, '/register')} class="inline-flex items-center px-10 py-5 rounded-xl font-bold text-white bg-gradient-to-r from-primary to-secondary hover:from-primary-dark hover:to-secondary-dark shadow-lg hover:shadow-xl transition duration-300 text-lg focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:outline-none">
+          {t('cta.button_text')}
+        </a>
+      </div>
     </div>
   </section>
 </BaseLayout>
