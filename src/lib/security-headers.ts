@@ -60,16 +60,8 @@ export function applySecurityHeaders(response: Response): Response {
   // Erstelle eine neue Response mit den gleichen Daten und Status
   const secureResponse = new Response(response.body, response);
   
-  // Content-Security-Policy
-  secureResponse.headers.set('Content-Security-Policy',
-    "default-src 'self'; " +
-    "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://static.cloudflareinsights.com; " +
-    "script-src-elem 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://static.cloudflareinsights.com; " +
-    "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; " +
-    "img-src 'self' data: blob: https://*; " +
-    "connect-src 'self' https://*.cloudflare.com; " +
-    "font-src 'self' https://cdn.jsdelivr.net;"
-  );
+  // Hinweis: CSP wird zentral in der globalen Middleware (src/middleware.ts) gesetzt.
+  // API-Antworten (JSON) benötigen keine CSP und sollten diese nicht überschreiben.
   
   // X-Content-Type-Options
   secureResponse.headers.set('X-Content-Type-Options', 'nosniff');
