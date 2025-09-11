@@ -43,16 +43,19 @@ Das **Hybrid-Logging-System** von Evolution Hub ist eine **vollständig integrie
 Das Hybrid-Logging-System basiert auf einer **dreischichtigen Architektur**:
 
 ### 1. Core Logger Layer
+
 - **`src/server/utils/logger.ts`**: Zentraler Logger mit Environment-Detection
 - **Dual-Mode Broadcasting**: WebSocket oder SSE basierend auf Umgebung
 - **Memory Management**: Effiziente Log-Buffer-Verwaltung für Edge Runtime
 
 ### 2. Transport Layer
+
 - **WebSocket Server**: `src/server/websocket/logServer.ts` (Port 8081)
 - **SSE API Endpoint**: `/api/debug/logs-stream` für Cloudflare-Umgebungen
 - **Polling Fallback**: POST-Endpoint für Environments ohne SSE-Support
 
 ### 3. Presentation Layer
+
 - **Debug Panel**: `src/components/ui/DebugPanel.tsx` mit Hybrid-Connection-Logic
 - **Auto-Connection**: Automatische Verbindungsart-Erkennung und Fallback
 - **Visual Status**: Real-time Connection-Status und Log-Level-Badges
@@ -76,6 +79,7 @@ log('debug', 'Request processing started', { endpoint: '/api/user/profile', meth
 ```
 
 **Environment-Detection:**
+
 ```typescript
 // Automatische Erkennung der Umgebung
 isAstroDevEnvironment(): boolean    // Node.js + development + !Wrangler
@@ -100,9 +104,10 @@ logPermissionDenied('user-789', '/admin/dashboard', { reason: 'Insufficient priv
 **Hybrid-fähiges Debug Panel** mit automatischer Connection-Mode-Erkennung:
 
 **Features:**
+
 - **Auto-Environment-Detection**: Erkennt automatisch Astro vs. Wrangler
 - **WebSocket-First-Strategie**: Versucht zuerst WebSocket, dann SSE-Fallback
-- **Visual Connection-Status**: 
+- **Visual Connection-Status**:
   - 🟢 **WEBSOCKET**: Grünes Badge für Real-time Streaming
   - 🔵 **SSE**: Blaues Badge für Near real-time Streaming
   - 🟠 **POLLING**: Orange Badge für Fallback-Modus
@@ -195,6 +200,7 @@ npm run dev
 ```
 
 **Features:**
+
 - ✅ **Echter Real-time Stream**: WebSocket-basiert, <10ms Latenz
 - ✅ **Hot Module Replacement**: Logs während Code-Changes verfügbar
 - ✅ **Bidirektionale Kommunikation**: WebSocket ermöglicht erweiterte Funktionen
@@ -213,6 +219,7 @@ npm run dev:wrangler
 ```
 
 **Features:**
+
 - ✅ **Cloudflare Edge-kompatibel**: Funktioniert in Workers/Pages Runtime
 - ✅ **Automatic Fallback**: Polling-Fallback für Environments ohne SSE
 - ✅ **Memory-efficient**: Log-Buffer mit Auto-Cleanup für Edge-Constraints
@@ -237,8 +244,9 @@ logAuthFailure(clientAddress, { reason: 'invalid_password', endpoint: '/api/auth
 ```
 
 **Integrierte API-Categories:**
+
 - ✅ **Authentication APIs**: `/api/auth/*` (Login, Register, Password Reset)
-- ✅ **User Management APIs**: `/api/user/*` (Profile, Settings, Preferences)  
+- ✅ **User Management APIs**: `/api/user/*` (Profile, Settings, Preferences)
 - ✅ **Dashboard APIs**: `/api/dashboard/*` (Stats, Activities, Notifications)
 - ✅ **Project APIs**: `/api/projects/*` (CRUD, Members, Settings)
 - ✅ **Public APIs**: `/api/public/*` (Comments, Tools, Blog Content)
@@ -247,7 +255,7 @@ logAuthFailure(clientAddress, { reason: 'invalid_password', endpoint: '/api/auth
 
 Das Debug Panel zeigt **alle Live-Aktivitäten** in Echtzeit:
 
-```
+```text
 [2025-08-10T05:12:34.567Z] [INFO] User logged in: user-123 (auth/login.ts)
 [2025-08-10T05:12:35.123Z] [INFO] Dashboard stats requested (dashboard/stats.ts)  
 [2025-08-10T05:12:36.789Z] [INFO] Profile updated successfully (user/profile.ts)
@@ -264,12 +272,14 @@ Das Debug Panel zeigt **alle Live-Aktivitäten** in Echtzeit:
 Das Debug Panel bietet eine **intuitive Benutzeroberfläche** für Live-Log-Monitoring:
 
 #### Connection-Status-Header
-```
+
+```text
 🎛️ Debugging Panel                           🟢 WEBSOCKET ●
 ```
 
 #### Log-Entry-Format
-```
+
+```text
 05:12:34  [INFO]   User authentication successful
 05:12:35  [WARN]   High memory usage detected: 85%  
 05:12:36  [ERROR]  Database connection failed: timeout
@@ -277,6 +287,7 @@ Das Debug Panel bietet eine **intuitive Benutzeroberfläche** für Live-Log-Moni
 ```
 
 #### Features
+
 - **Timestamp-Display**: Präzise Zeitstempel für jede Log-Entry
 - **Log-Level-Badges**: Farbkodierte Level-Anzeigen (INFO/WARN/ERROR/DEBUG)
 - **Auto-Scroll**: Automatisches Scrollen zu neuen Log-Entries
@@ -339,6 +350,7 @@ CLOUDFLARE_ENVIRONMENT=development
 **Problem:** Das Debug Panel lädt, aber keine Logs werden angezeigt.
 
 **Lösung:**
+
 ```bash
 # 1. Überprüfe Environment-Detection
 # Öffne Browser DevTools Console für Debug-Nachrichten
@@ -358,6 +370,7 @@ curl -N http://localhost:8787/api/debug/logs-stream
 **Problem:** "Connection failed" oder "WebSocket error" Meldungen.
 
 **Lösung:**
+
 ```bash
 # Prüfe Port-Verfügbarkeit
 lsof -i :8081
@@ -374,6 +387,7 @@ npm run dev:wrangler   # Für Wrangler
 **Problem:** Logs sind in Terminal sichtbar, aber nicht im Debug Panel.
 
 **Lösung:**
+
 ```typescript
 // Überprüfe dass der zentrale Logger verwendet wird
 import { log } from '@/server/utils/logger';  // ✅ Richtig

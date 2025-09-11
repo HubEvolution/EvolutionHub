@@ -79,6 +79,22 @@ Die CI/CD-Pipeline wird mit GitHub Actions implementiert. Die Workflow-Konfigura
    - Führt das Deployment in die Produktionsumgebung durch
    - Führt Datenbank-Migrationen aus
 
+#### Geplant: Enhancer E2E Smoke (EN+DE)
+
+- Zweck: Schneller UI-Smoketest nur für den Image Enhancer (EN/DE), inkl. Screenshots/Videos als Artefakte
+- Grundlage:
+  - Config: `test-suite-v2/playwright.enhancer.config.ts` (Screenshots/Video on)
+  - Spec: `test-suite-v2/src/e2e/imag-enhancer.spec.ts`
+  - Artefakte: `test-suite-v2/reports/playwright-results/` (HTML-Report in `test-suite-v2/reports/playwright-html-report`)
+- Lauf (Headless) in CI:
+  - Install: `npm ci && npx playwright install --with-deps`
+  - Dev-Worker starten (Port 8787): `npm run dev:worker:dev` (als Hintergrunddienst)
+  - Tests: `TEST_BASE_URL=http://127.0.0.1:8787 npx playwright test -c test-suite-v2/playwright.enhancer.config.ts test-suite-v2/src/e2e/imag-enhancer.spec.ts`
+  - Artefakt-Upload: `actions/upload-artifact@v4` für `test-suite-v2/reports/playwright-results/` und `test-suite-v2/reports/playwright-html-report/`
+- Hinweise:
+  - `TEST_BASE_URL` muss den laufenden Port widerspiegeln (Standard-Dev-Worker nutzt 8787)
+  - Der Enhancer nutzt in Nicht-Prod deterministischen Dev‑Echo (keine externen Provider nötig)
+
 ### Workflow-Beispiel: CI
 
 ```yaml
@@ -192,7 +208,7 @@ npm run test:coverage
 
 #### CSRF-Schutz in E2E-Tests (Astro/Cloudflare Workers)
 
-Astro (insb. in Verbindung mit Cloudflare Workers) blockiert cross-site POST-Requests standardmäßig. 
+Astro (insb. in Verbindung mit Cloudflare Workers) blockiert cross-site POST-Requests standardmäßig.
 POSTs ohne gültigen same-origin `Origin`-Header führen zu `403` mit der Meldung
 "Cross-site POST form submissions are forbidden".
 
@@ -242,6 +258,18 @@ Best Practice: CSRF nicht abschalten. Verwende für Tests den same-origin `Origi
 # Lokal ausführen
 npm audit
 ```
+
+### 5. i18n‑Checks
+
+- Lokal prüfen:
+
+```bash
+npm run i18n:diff
+npm run i18n:report
+```
+
+- CSV‑Report: `reports/i18n-empty-keys.csv`
+- CI‑Artefakt: `i18n-empty-report.txt` (siehe Workflow `.github/workflows/e2e-tests.yml` – Schritt „i18n Empty Strings Report“)
 
 ---
 

@@ -10,13 +10,14 @@ Das Evolution Hub implementiert folgende Security-Headers für alle API-Antworte
 
 ### 1. Content-Security-Policy (CSP)
 
-```
+```text
 Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: https://secure.gravatar.com; connect-src 'self'; font-src 'self'; object-src 'none'; media-src 'self'; frame-src 'none'; frame-ancestors 'none'; form-action 'self'; base-uri 'self';
 ```
 
 **Zweck:** Schützt vor XSS-Angriffen, indem festgelegt wird, welche Ressourcen geladen werden dürfen.
 
 **Details:**
+
 - `default-src 'self'`: Standardmäßig dürfen Ressourcen nur von der eigenen Domain geladen werden
 - `script-src 'self'`: JavaScript darf nur von der eigenen Domain geladen werden
 - `style-src 'self'`: CSS darf nur von der eigenen Domain geladen werden
@@ -26,86 +27,93 @@ Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'
 
 ### 2. X-Content-Type-Options
 
-```
+```text
 X-Content-Type-Options: nosniff
 ```
 
 **Zweck:** Verhindert, dass der Browser den MIME-Typ einer Ressource "errät" und stattdessen strikt den vom Server angegebenen Content-Type verwendet.
 
 **Details:**
+
 - Schützt vor MIME-Type-Sniffing-Angriffen
 - Besonders wichtig für Dateien, die vom Benutzer hochgeladen werden
 
 ### 3. X-Frame-Options
 
-```
+```text
 X-Frame-Options: DENY
 ```
 
 **Zweck:** Verhindert, dass die Seite in einem Frame, iframe oder object eingebettet wird.
 
 **Details:**
+
 - `DENY`: Verbietet jegliches Einbetten der Seite
 - Schützt vor Clickjacking-Angriffen
 
 ### 4. X-XSS-Protection
 
-```
+```text
 X-XSS-Protection: 1; mode=block
 ```
 
 **Zweck:** Aktiviert den XSS-Filter im Browser.
 
 **Details:**
+
 - `1`: Aktiviert den XSS-Filter
 - `mode=block`: Blockiert die gesamte Seite, wenn ein XSS-Angriff erkannt wird
 - Obwohl dieser Header in modernen Browsern als veraltet gilt (zugunsten von CSP), wird er für ältere Browser beibehalten
 
 ### 5. Referrer-Policy
 
-```
+```text
 Referrer-Policy: strict-origin-when-cross-origin
 ```
 
 **Zweck:** Kontrolliert, welche Referrer-Informationen an andere Websites gesendet werden.
 
 **Details:**
+
 - `strict-origin-when-cross-origin`: Sendet die vollständige URL als Referrer bei Anfragen an dieselbe Herkunft, nur die Herkunft bei Anfragen an andere sichere Herkunft (HTTPS → HTTPS) und kein Referrer bei Anfragen an unsichere Herkunft (HTTPS → HTTP)
 
 ### 6. Strict-Transport-Security (HSTS)
 
-```
+```text
 Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
 ```
 
 **Zweck:** Erzwingt HTTPS-Verbindungen und verhindert SSL-Stripping-Angriffe.
 
 **Details:**
+
 - `max-age=31536000`: Der Browser sollte diese Domain für ein Jahr (in Sekunden) als HTTPS-only behandeln
 - `includeSubDomains`: Die Regel gilt auch für alle Subdomains
 - `preload`: Die Domain kann in die HSTS-Preload-Liste der Browser aufgenommen werden
 
 ### 7. Cache-Control
 
-```
+```text
 Cache-Control: no-store, max-age=0
 ```
 
 **Zweck:** Verhindert das Caching sensibler Daten.
 
 **Details:**
+
 - `no-store`: Der Browser darf die Antwort nicht speichern
 - `max-age=0`: Die Antwort ist sofort veraltet
 
 ### 8. Permissions-Policy
 
-```
+```text
 Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=()
 ```
 
 **Zweck:** Kontrolliert, welche Browser-Features die Anwendung nutzen darf.
 
 **Details:**
+
 - Deaktiviert den Zugriff auf Kamera, Mikrofon, Geolocation und FLoC (Federated Learning of Cohorts)
 - Verhindert unerwünschten Zugriff auf Benutzergeräte und -daten
 
@@ -179,9 +187,9 @@ export function applyCustomSecurityHeaders(response: Response, options: Security
 
 Die korrekte Implementierung der Security-Headers kann mit folgenden Tools überprüft werden:
 
-1. **Mozilla Observatory**: https://observatory.mozilla.org/
-2. **Security Headers**: https://securityheaders.com/
-3. **CSP Evaluator**: https://csp-evaluator.withgoogle.com/
+1. **Mozilla Observatory**: <https://observatory.mozilla.org/>
+2. **Security Headers**: <https://securityheaders.com/>
+3. **CSP Evaluator**: <https://csp-evaluator.withgoogle.com/>
 
 ## Best Practices
 

@@ -4,7 +4,7 @@ Dieses Dokument beschreibt die API-Endpunkte für die Projektverwaltung im Evolu
 
 ## Authentifizierung
 
-Alle Endpunkte erfordern eine Authentifizierung über eine Server-Session (HttpOnly-Cookie `session_id`). Die Prüfung erfolgt zentral über `withAuthApiMiddleware`.
+Alle Endpunkte erfordern eine Authentifizierung über eine Server-Session (HttpOnly-Cookie `__Host-session`). Die Prüfung erfolgt zentral über `withAuthApiMiddleware`.
 
 ## Security-Features
 
@@ -27,7 +27,7 @@ Ruft alle Projekte ab, die dem authentifizierten Benutzer zugeordnet sind.
 * **Handler-Funktion:** GET-Handler in `dashboard/projects.ts`
 * **Security:** Rate-Limiting (50/min über `standardApiLimiter`), Security-Headers, Audit-Logging, Benutzer-spezifische Filterung
 
-#### Erfolgreiche Antwort (`200 OK`)
+### Erfolgreiche Antwort (`200 OK`)
 
 ```json
 {
@@ -46,7 +46,7 @@ Ruft alle Projekte ab, die dem authentifizierten Benutzer zugeordnet sind.
 }
 ```
 
-#### Fehlerhafte Antwort (`401 Unauthorized`)
+### Fehlerhafte Antwort (`401 Unauthorized`)
 
 ```json
 { "success": false, "error": { "type": "auth_error", "message": "Für diese Aktion ist eine Anmeldung erforderlich" } }
@@ -63,7 +63,7 @@ Erstellt ein neues Projekt für den authentifizierten Benutzer.
 * **Handler-Funktion:** POST-Handler in `index.ts`
 * **Security:** Rate-Limiting (50/min über `standardApiLimiter`), Security-Headers, Audit-Logging, Input-Validierung
 
-#### Request-Body
+### Request-Body
 
 ```json
 {
@@ -73,7 +73,7 @@ Erstellt ein neues Projekt für den authentifizierten Benutzer.
 }
 ```
 
-#### Erfolgreiche Antwort (`201 Created`)
+### Erfolgreiche Antwort (`201 Created`)
 
 ```json
 {
@@ -91,7 +91,7 @@ Erstellt ein neues Projekt für den authentifizierten Benutzer.
 }
 ```
 
-#### Fehlerhafte Antwort (`400 Bad Request`)
+### Fehlerhafte Antwort (`400 Bad Request`)
 
 ```json
 { "success": false, "error": { "type": "validation_error", "message": "Title is required" } }
@@ -111,7 +111,7 @@ Ruft die Details eines bestimmten Projekts ab.
 * **Hander-Datei:** Nicht vorhanden in `src/pages/api/projects/`.
 * **Security:** Theoretisch Rate-Limiting (50/min), Security-Headers, Audit-Logging, Eigentümer-Validierung
 
-#### Theoretische Erfolgreiche Antwort (`200 OK`)
+### Theoretische Erfolgreiche Antwort (`200 OK`)
 
 ```json
 {
@@ -145,7 +145,7 @@ Ruft die Details eines bestimmten Projekts ab.
 }
 ```
 
-#### Theoretische Fehlerhafte Antwort (`404 Not Found` / `403 Forbidden`)
+### Theoretische Fehlerhafte Antwort (`404 Not Found` / `403 Forbidden`)
 
 ```json
 {
@@ -168,7 +168,7 @@ Aktualisiert die Details eines bestimmten Projekts.
 * **Handler-Datei:** Nicht vorhanden in `src/pages/api/projects/`.
 * **Security:** Theoretisch Rate-Limiting (5/min), Security-Headers, Audit-Logging, Input-Validierung, Eigentümer-Validierung
 
-#### Theoretischer Request-Body
+### Theoretischer Request-Body
 
 ```json
 {
@@ -179,7 +179,7 @@ Aktualisiert die Details eines bestimmten Projekts.
 }
 ```
 
-#### Theoretische Erfolgreiche Antwort (`200 OK`)
+### Theoretische Erfolgreiche Antwort (`200 OK`)
 
 ```json
 {
@@ -197,7 +197,7 @@ Aktualisiert die Details eines bestimmten Projekts.
 }
 ```
 
-#### Theoretische Fehlerhafte Antwort (`404 Not Found`)
+### Theoretische Fehlerhafte Antwort (`404 Not Found`)
 
 ```json
 {
@@ -220,7 +220,7 @@ Löscht ein bestimmtes Projekt.
 * **Handler-Datei:** Nicht vorhanden in `src/pages/api/projects/`.
 * **Security:** Theoretisch Rate-Limiting (5/min), Security-Headers, Audit-Logging, Eigentümer-Validierung
 
-#### Theoretische Erfolgreiche Antwort (`200 OK`)
+### Theoretische Erfolgreiche Antwort (`200 OK`)
 
 ```json
 {
@@ -229,7 +229,7 @@ Löscht ein bestimmtes Projekt.
 }
 ```
 
-#### Theoretische Fehlerhafte Antwort (`404 Not Found`)
+### Theoretische Fehlerhafte Antwort (`404 Not Found`)
 
 ```json
 {

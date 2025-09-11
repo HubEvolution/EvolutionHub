@@ -1,21 +1,6 @@
 ---
 // Import getCollection and CollectionEntry directly from 'astro:content' for accurate typing.
 import { getCollection, type CollectionEntry } from 'astro:content';
-
-export async function getStaticPaths() {
-  // Fetch blog entries. Astro's getCollection('blog') returns a typed array
-  // of CollectionEntry<'blog'>.
-  // The previously observed TypeScript error "Der Parameter 'entry' weist implizit einen Typ 'any' auf"
-  // indicated that TypeScript might have had trouble inferring the type of 'entry'
-  // within the map function.
-  const blogEntries = await getCollection('blog');
-  
-  // Explicitly type 'entry' as CollectionEntry<'blog'> in the map function
-  // to ensure type safety and resolve any potential inference issues.
-  return blogEntries.map((entry: CollectionEntry<'blog'>) => ({
-    params: { slug: entry.slug }, props: { entry },
-  }));
-}
 // Prerender deaktiviert, da Astro.request.headers im Code verwendet wird
 export const prerender = false;
 // Import BaseLayout using a relative path.

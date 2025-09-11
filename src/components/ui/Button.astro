@@ -55,3 +55,17 @@ const buttonClasses = [
 >
   <slot />
 </button>
+
+<style>
+  /* Ensure visual disabled state also applies when disabled/aria-disabled is set at runtime */
+  button[disabled],
+  button[aria-disabled="true"] {
+    opacity: 0.6;
+    cursor: not-allowed;
+    pointer-events: none;
+    /* Override gradient to ensure clear disabled appearance */
+    background-image: none !important;
+    background-color: rgb(156 163 175 / 1) !important; /* tailwind gray-400 */
+    color: white !important;
+  }
+</style>

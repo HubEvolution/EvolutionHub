@@ -1,6 +1,7 @@
 ---
 import AuthLayout from '@/layouts/AuthLayout.astro';
 import Button from '@/components/ui/Button.astro';
+import Icon from '@/components/ui/Icon.astro';
 
 import { getLocale } from '@/lib/i18n';
 import { localizePath } from '@/lib/locale-path';
@@ -63,7 +64,10 @@ if (error) {
         </div>
 
         <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-3">
-          🎉 Welcome to EvolutionHub!
+          <span class="inline-flex items-center gap-2">
+            <Icon name="celebration" class="w-6 h-6 text-emerald-500 inline-block" ariaLabel="Celebration" />
+            Welcome to EvolutionHub!
+          </span>
         </h1>
         
         <p class="text-lg text-gray-600 dark:text-gray-300 mb-2">
@@ -126,8 +130,9 @@ if (error) {
       {/* Call to Action */}
       <div class="text-center">
         <Button className="w-full bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-700 hover:to-cyan-700 text-white font-semibold py-3 px-6 text-lg">
-          <a href={localizePath(locale, '/dashboard')} class="block w-full h-full">
-            🚀 Go to dashboard
+          <a href={localizePath(locale, '/dashboard')} class="inline-flex w-full h-full items-center justify-center">
+            <Icon name="rocket" class="w-5 h-5 mr-2 text-white inline-block" ariaLabel="Rocket" />
+            Go to dashboard
           </a>
         </Button>
         
@@ -160,14 +165,16 @@ if (error) {
       {/* Action Buttons */}
       <div class="space-y-4">
         <Button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white">
-          <a href={localizePath(locale, '/register')} class="block w-full h-full">
-            🔄 New registration
+          <a href={localizePath(locale, '/register')} class="inline-flex w-full h-full items-center justify-center">
+            <Icon name="refresh" class="w-4 h-4 mr-2 text-white inline-block" ariaLabel="Refresh" />
+            New registration
           </a>
         </Button>
         
         <Button className="w-full bg-gray-600 hover:bg-gray-700 text-white">
-          <a href={localizePath(locale, '/login')} class="block w-full h-full">
-            🔑 Go to login
+          <a href={localizePath(locale, '/login')} class="inline-flex w-full h-full items-center justify-center">
+            <Icon name="key" class="w-4 h-4 mr-2 text-white inline-block" ariaLabel="Key" />
+            Go to login
           </a>
         </Button>
       </div>
@@ -196,8 +203,9 @@ if (error) {
       {/* Action Button */}
       <div class="text-center">
         <Button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white">
-          <a href={localizePath(locale, '/login')} class="block w-full h-full">
-            🔑 Log in now
+          <a href={localizePath(locale, '/login')} class="inline-flex w-full h-full items-center justify-center">
+            <Icon name="key" class="w-4 h-4 mr-2 text-white inline-block" ariaLabel="Key" />
+            Log in now
           </a>
         </Button>
       </div>

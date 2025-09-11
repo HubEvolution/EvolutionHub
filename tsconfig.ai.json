@@ -1,0 +1,19 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "typeRoots": [
+      "./src/types",
+      "./node_modules/@types"
+    ]
+  },
+  "include": [
+    "src/env.d.ts",
+    "src/config/ai-image.ts",
+    "src/lib/services/ai-image-service.ts",
+    "src/pages/api/ai-image/*.ts",
+    "src/pages/r2-ai/[...path].ts",
+    "src/types/**/*.d.ts"
+  ],
+  "exclude": ["node_modules"]
+}

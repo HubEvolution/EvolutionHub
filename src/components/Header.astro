@@ -26,9 +26,7 @@ function isActiveLocalized(href: string): boolean {
 const navItems = [
   { name: 'Dashboard', href: '/dashboard', 'aria-label': 'Go to Dashboard' },
   { name: 'Tools', href: '/tools', 'aria-label': 'View available tools' },
-  { name: 'Pricing', href: '/pricing', 'aria-label': 'View pricing plans' },
-  { name: 'Documentation', href: '/docs', 'aria-label': 'View documentation' },
-  { name: 'Blog', href: '/blog', 'aria-label': 'View blog posts' },
+  { name: 'Pricing', href: '/pricing', 'aria-label': 'View pricing plans' },  { name: 'Blog', href: '/blog', 'aria-label': 'View blog posts' },
 ];
 
 // Get current URL and path for active link highlighting
@@ -50,7 +48,7 @@ function setLocaleHref(target: 'de' | 'en'): string {
 }
 ---
 
-<header id="site-header" data-testid="site-header" class="sticky top-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border-b border-gray-100 dark:border-gray-800 shadow-sm transition-all duration-300 hover:shadow-md header-visible">
+<header id="site-header" data-testid="site-header" class="sticky top-0 z-50 mx-4 md:mx-8 rounded-2xl glass-header header-visible">
   <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" aria-label="Main navigation">
     <div class="flex items-center justify-between h-20">
       <!-- Logo -->
@@ -431,17 +429,13 @@ function setLocaleHref(target: 'de' | 'en'): string {
   
   /* Add smooth transitions for the header - wichtig: Will-change für Performance */
   #site-header {
-    transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
-    will-change: transform, opacity;
-    z-index: 50;
-  }
+  will-change: transform, opacity;
+}
 
   /* Glassmorphism effect */
-  .backdrop-blur-lg {
-    backdrop-filter: blur(12px);
-  }
+  
 
-  /* Focus styles for better keyboard navigation */
+\n/* Focus styles for better keyboard navigation */
   a:focus-visible,
   button:focus-visible,
   [role="menuitem"]:focus-visible {

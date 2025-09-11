@@ -2,11 +2,13 @@
 
 ## Status
 
-Angenommen
+Abgelöst (Superseded)
 
 ## Datum
 
 2023-10-15
+
+> Hinweis (2025-09-11): Diese ADR ist historisch und wurde abgelöst. Evolution Hub verwendet keine JWT-basierte oder Passwort-Authentifizierung mehr. Die aktuelle Architektur setzt ausschließlich auf Stytch Magic Link mit serverseitiger Session und dem Cookie `__Host-session` (HttpOnly, Secure, SameSite=Strict, Path=/). Siehe `docs/architecture/auth-migration-stytch.md`.
 
 ## Kontext
 

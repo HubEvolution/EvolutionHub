@@ -26,6 +26,13 @@ declare namespace App {
                 DB: import('@cloudflare/workers-types').D1Database;
                 // Turnstile-Secret-Key entfernt
                 RESEND_API_KEY: string;
+                // R2 Buckets
+                R2_AVATARS?: import('@cloudflare/workers-types').R2Bucket;
+                R2_AI_IMAGES?: import('@cloudflare/workers-types').R2Bucket;
+                // KV Namespace for AI Enhancer guest quotas/metadata (optional in dev)
+                KV_AI_ENHANCER?: import('@cloudflare/workers-types').KVNamespace;
+                // External provider token
+                REPLICATE_API_TOKEN?: string;
                 // Name der Laufzeitumgebung (z. B. 'staging', 'production')
                 ENVIRONMENT?: string;
             };

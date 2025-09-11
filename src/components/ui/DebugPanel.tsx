@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
+import Icon from './Icon';
 
 // TypeScript interfaces for better type safety
 interface LogLevelBadgeProps {
@@ -55,7 +56,7 @@ const DebugPanel: React.FC = () => {
   useEffect(() => {
     stateRef.current = { logs, websocket, eventSource, isConnecting, error, connectionMode };
   });
-  
+
   // Computed panel status (single source of truth for conditional rendering)
   const computePanelStatus = useCallback((): PanelStatus => {
     if (error) return { type: 'error', error };
@@ -108,7 +109,7 @@ const DebugPanel: React.FC = () => {
         return null;
     }
   });
-  
+
   const TabNavigation = React.memo<{
     activeTab: 'logs' | 'help' | 'settings';
     setActiveTab: (tab: 'logs' | 'help' | 'settings') => void;
@@ -123,7 +124,10 @@ const DebugPanel: React.FC = () => {
           }`}
           onClick={() => setActiveTab('logs')}
         >
-          📋 Logs
+          <span className="inline-flex items-center gap-2">
+            <Icon name="clipboard" className="w-4 h-4" ariaLabel="Logs" />
+            Logs
+          </span>
         </button>
         <button
           className={`px-4 py-2 text-sm font-medium transition-colors ${
@@ -133,7 +137,10 @@ const DebugPanel: React.FC = () => {
           }`}
           onClick={() => setActiveTab('help')}
         >
-          ❓ Help
+          <span className="inline-flex items-center gap-2">
+            <Icon name="chat" className="w-4 h-4" ariaLabel="Help" />
+            Help
+          </span>
         </button>
         <button
           className={`px-4 py-2 text-sm font-medium transition-colors ${
@@ -143,7 +150,10 @@ const DebugPanel: React.FC = () => {
           }`}
           onClick={() => setActiveTab('settings')}
         >
-          ⚙️ Settings
+          <span className="inline-flex items-center gap-2">
+            <Icon name="tool" className="w-4 h-4" ariaLabel="Settings" />
+            Settings
+          </span>
         </button>
       </div>
     </nav>
@@ -186,27 +196,62 @@ const DebugPanel: React.FC = () => {
     return (
       <div className="text-sm space-y-4">
         <div>
-          <h3 className="text-blue-400 font-semibold mb-2">🔗 URLs:</h3>
+          <h3 className="text-blue-400 font-semibold mb-2">
+            <span className="inline-flex items-center gap-2">
+              <Icon name="plug" className="w-4 h-4 text-blue-400 inline-block" ariaLabel="URLs" />
+              URLs:
+            </span>
+          </h3>
           <p className="text-gray-300">Astro: localhost:4322/debug</p>
           <p className="text-gray-300">Wrangler: localhost:8787/debug</p>
         </div>
         
         <div>
-          <h3 className="text-blue-400 font-semibold mb-2">🎯 Current Status:</h3>
+          <h3 className="text-blue-400 font-semibold mb-2">
+            <span className="inline-flex items-center gap-2">
+              <Icon name="target" className="w-4 h-4 text-blue-400 inline-block" ariaLabel="Current Status" />
+              Current Status:
+            </span>
+          </h3>
           <p className="text-gray-300">Mode: {connectionInfo.current}</p>
           <p className="text-gray-300">Status: {connectionInfo.status}</p>
           <p className="text-gray-300">Logs: {connectionInfo.logCount}</p>
         </div>
         
         <div>
-          <h3 className="text-blue-400 font-semibold mb-2">🎯 Connection Types:</h3>
-          <p className="text-gray-300">🟢 WEBSOCKET: Real-time (&lt;10ms)</p>
-          <p className="text-gray-300">🔵 SSE: Near real-time (100-500ms)</p>
-          <p className="text-gray-300">🟠 POLLING: Fallback (1-5s)</p>
+          <h3 className="text-blue-400 font-semibold mb-2">
+            <span className="inline-flex items-center gap-2">
+              <Icon name="target" className="w-4 h-4 text-blue-400 inline-block" ariaLabel="Connection Types" />
+              Connection Types:
+            </span>
+          </h3>
+          <p className="text-gray-300">
+            <span className="inline-flex items-center gap-2">
+              <Icon name="statusDot" className="w-3 h-3 text-green-400 inline-block" ariaLabel="Websocket" />
+              WEBSOCKET: Real-time (&lt;10ms)
+            </span>
+          </p>
+          <p className="text-gray-300">
+            <span className="inline-flex items-center gap-2">
+              <Icon name="statusDot" className="w-3 h-3 text-blue-400 inline-block" ariaLabel="SSE" />
+              SSE: Near real-time (100-500ms)
+            </span>
+          </p>
+          <p className="text-gray-300">
+            <span className="inline-flex items-center gap-2">
+              <Icon name="statusDot" className="w-3 h-3 text-orange-400 inline-block" ariaLabel="Polling" />
+              POLLING: Fallback (1-5s)
+            </span>
+          </p>
         </div>
         
         <div>
-          <h3 className="text-blue-400 font-semibold mb-2">📊 Log Levels:</h3>
+          <h3 className="text-blue-400 font-semibold mb-2">
+            <span className="inline-flex items-center gap-2">
+              <Icon name="chart" className="w-4 h-4 text-blue-400 inline-block" ariaLabel="Log Levels" />
+              Log Levels:
+            </span>
+          </h3>
           <p className="text-gray-300">[DEBUG] Development details</p>
           <p className="text-gray-300">[INFO] Normal operations</p>
           <p className="text-gray-300">[WARN] Potential issues</p>
@@ -214,7 +259,12 @@ const DebugPanel: React.FC = () => {
         </div>
         
         <div>
-          <h3 className="text-blue-400 font-semibold mb-2">🔧 Quick Actions:</h3>
+          <h3 className="text-blue-400 font-semibold mb-2">
+            <span className="inline-flex items-center gap-2">
+              <Icon name="tool" className="w-4 h-4 text-blue-400 inline-block" ariaLabel="Quick Actions" />
+              Quick Actions:
+            </span>
+          </h3>
           <p className="text-gray-300">Auto-scroll: Scroll to bottom</p>
           <p className="text-gray-300">Clear logs: Refresh page</p>
           <p className="text-gray-300">Connection issues: Restart dev server</p>
@@ -230,7 +280,12 @@ const DebugPanel: React.FC = () => {
     return (
       <div className="text-sm space-y-4">
         <div>
-          <h3 className="text-blue-400 font-semibold mb-2">⚙️ Display Settings:</h3>
+          <h3 className="text-blue-400 font-semibold mb-2">
+            <span className="inline-flex items-center gap-2">
+              <Icon name="tool" className="w-4 h-4 text-blue-400 inline-block" ariaLabel="Display Settings" />
+              Display Settings:
+            </span>
+          </h3>
           <label className="flex items-center space-x-2">
             <input 
               type="checkbox" 
@@ -243,7 +298,12 @@ const DebugPanel: React.FC = () => {
         </div>
         
         <div>
-          <h3 className="text-blue-400 font-semibold mb-2">🎛️ Performance:</h3>
+          <h3 className="text-blue-400 font-semibold mb-2">
+            <span className="inline-flex items-center gap-2">
+              <Icon name="preset" className="w-4 h-4 text-blue-400 inline-block" ariaLabel="Performance" />
+              Performance:
+            </span>
+          </h3>
           <label className="block text-gray-300 mb-1">Max Log Entries:</label>
           <input 
             type="range" 
@@ -258,7 +318,12 @@ const DebugPanel: React.FC = () => {
         </div>
         
         <div>
-          <h3 className="text-blue-400 font-semibold mb-2">ℹ️ Information:</h3>
+          <h3 className="text-blue-400 font-semibold mb-2">
+            <span className="inline-flex items-center gap-2">
+              <Icon name="lightbulb" className="w-4 h-4 text-blue-400 inline-block" ariaLabel="Info" />
+              Information:
+            </span>
+          </h3>
           <p className="text-gray-300 text-xs">Settings are automatically saved to localStorage</p>
           <p className="text-gray-300 text-xs">Changes take effect immediately</p>
         </div>
@@ -313,16 +378,16 @@ const DebugPanel: React.FC = () => {
       </div>
     );
   });
-
+  
   // Environment-based connection URLs
   const WEBSOCKET_URL = "ws://localhost:8081";
   const SSE_URL = "/api/debug/logs-stream";
-  const POLLING_URL = "/api/debug/logs-stream";
+  // Removed unused POLLING_URL
 
   const addLog = (newLog: LogEntry) => {
     setLogs((prevLogs) => [...prevLogs, newLog].slice(-500)); // Keep only the last 500 logs
   };
-
+  
   // Environment detection
   const detectEnvironment = async () => {
     try {
@@ -335,12 +400,12 @@ const DebugPanel: React.FC = () => {
       } else {
         return 'wrangler'; // Should use SSE
       }
-    } catch (error) {
+    } catch {
       // Fallback: assume we're in standard dev if WebSocket works
       return 'astro-dev';
     }
   };
-
+  
   // SSE Connection
   const connectSSE = (url: string) => {
     if (eventSource && eventSource.readyState !== EventSource.CLOSED) {
@@ -351,15 +416,15 @@ const DebugPanel: React.FC = () => {
       console.log('DebugPanel: SSE connection already in progress.');
       return;
     }
-
+  
     setIsConnecting(true);
     setError(null);
     setConnectionMode('sse');
     console.log(`DebugPanel: Attempting to connect via SSE: ${url}`);
-
+  
     try {
       const es = new EventSource(url);
-
+  
       es.onopen = () => {
         console.log('DebugPanel: SSE connected successfully.');
         setEventSource(es);
@@ -367,7 +432,7 @@ const DebugPanel: React.FC = () => {
         setError(null);
         addLog({ timestamp: new Date().toISOString(), level: 'info', message: 'Connected to log stream via SSE.' });
       };
-
+  
       es.onmessage = (event) => {
         try {
           // Try to parse as JSON first (for structured messages)
@@ -381,7 +446,7 @@ const DebugPanel: React.FC = () => {
             // Not JSON, treat as log string
             logData = event.data;
           }
-
+  
           const logText = typeof logData === 'string' ? logData : JSON.stringify(logData);
           
           // Parse the log entry string with the same logic as WebSocket
@@ -401,7 +466,7 @@ const DebugPanel: React.FC = () => {
           addLog({ timestamp: new Date().toISOString(), level: 'error', message: 'Failed to parse SSE message.' });
         }
       };
-
+  
       es.onerror = (event) => {
         console.error('DebugPanel: SSE error:', event);
         setError('SSE connection error.');
@@ -409,15 +474,16 @@ const DebugPanel: React.FC = () => {
         setEventSource(null);
         addLog({ timestamp: new Date().toISOString(), level: 'error', message: 'SSE error: Could not connect or maintain connection.' });
       };
-
-    } catch (err: any) {
+  
+    } catch (err: unknown) {
       console.error('DebugPanel: Error creating SSE connection:', err);
-      setError(`Failed to connect via SSE: ${err.message}`);
+      const message = err instanceof Error ? err.message : String(err);
+      setError(`Failed to connect via SSE: ${message}`);
       setIsConnecting(false);
-      addLog({ timestamp: new Date().toISOString(), level: 'error', message: `Failed to create SSE connection: ${err.message}` });
+      addLog({ timestamp: new Date().toISOString(), level: 'error', message: `Failed to create SSE connection: ${message}` });
     }
   };
-
+  
   const connectWebSocket = (url: string) => {
     if (websocket && websocket.readyState === WebSocket.OPEN) {
       console.log('DebugPanel: WebSocket already connected.');
@@ -427,15 +493,15 @@ const DebugPanel: React.FC = () => {
       console.log('DebugPanel: WebSocket connection already in progress.');
       return;
     }
-
+  
     setIsConnecting(true);
     setError(null);
     setConnectionMode('websocket');
     console.log(`DebugPanel: Attempting to connect to WebSocket: ${url}`);
-
+  
     try {
       const client = new WebSocket(url);
-
+  
       client.onopen = () => {
         console.log('DebugPanel: WebSocket connected successfully.');
         setWebsocket(client);
@@ -443,7 +509,7 @@ const DebugPanel: React.FC = () => {
         setError(null);
         addLog({ timestamp: new Date().toISOString(), level: 'info', message: 'Connected to WebSocket server.' });
       };
-
+  
       client.onmessage = (event) => {
         try {
           const logText = event.data;
@@ -465,7 +531,7 @@ const DebugPanel: React.FC = () => {
           addLog({ timestamp: new Date().toISOString(), level: 'error', message: 'Failed to parse WebSocket message.' });
         }
       };
-
+  
       client.onerror = (event) => {
         console.error('DebugPanel: WebSocket error:', event);
         setError('WebSocket connection error.');
@@ -473,22 +539,23 @@ const DebugPanel: React.FC = () => {
         setWebsocket(null);
         addLog({ timestamp: new Date().toISOString(), level: 'error', message: 'WebSocket error: Could not connect or maintain connection.' });
       };
-
+  
       client.onclose = () => {
         console.log('DebugPanel: WebSocket disconnected.');
         setWebsocket(null);
         setIsConnecting(false);
         addLog({ timestamp: new Date().toISOString(), level: 'warn', message: 'Disconnected from WebSocket server.' });
       };
-
-    } catch (err: any) {
+  
+    } catch (err: unknown) {
       console.error('DebugPanel: Error creating WebSocket connection:', err);
-      setError(`Failed to connect: ${err.message}`);
+      const message = err instanceof Error ? err.message : String(err);
+      setError(`Failed to connect: ${message}`);
       setIsConnecting(false);
-      addLog({ timestamp: new Date().toISOString(), level: 'error', message: `Failed to create WebSocket connection: ${err.message}` });
+      addLog({ timestamp: new Date().toISOString(), level: 'error', message: `Failed to create WebSocket connection: ${message}` });
     }
   };
-
+  
   const disconnectWebSocket = () => {
     if (websocket) {
       websocket.close();
@@ -497,7 +564,7 @@ const DebugPanel: React.FC = () => {
       addLog({ timestamp: new Date().toISOString(), level: 'info', message: 'Disconnected WebSocket manually.' });
     }
   };
-
+  
   const disconnectSSE = () => {
     if (eventSource) {
       eventSource.close();
@@ -506,13 +573,13 @@ const DebugPanel: React.FC = () => {
       addLog({ timestamp: new Date().toISOString(), level: 'info', message: 'Disconnected SSE manually.' });
     }
   };
-
+  
   const disconnectAll = () => {
     disconnectWebSocket();
     disconnectSSE();
     setConnectionMode(null);
   };
-
+  
   // Hybrid connection logic - automatically chooses best method
   const connectHybrid = async () => {
     addLog({ timestamp: new Date().toISOString(), level: 'info', message: 'Detecting environment and connecting...' });
@@ -524,7 +591,7 @@ const DebugPanel: React.FC = () => {
         // Try WebSocket first for Astro dev environment
         try {
           connectWebSocket(WEBSOCKET_URL);
-        } catch (error) {
+        } catch {
           addLog({ timestamp: new Date().toISOString(), level: 'warn', message: 'WebSocket failed, falling back to SSE...' });
           connectSSE(SSE_URL);
         }
@@ -532,7 +599,7 @@ const DebugPanel: React.FC = () => {
         // Use SSE for Wrangler/Cloudflare environment
         connectSSE(SSE_URL);
       }
-    } catch (error) {
+    } catch {
       // Fallback: try WebSocket first, then SSE
       addLog({ timestamp: new Date().toISOString(), level: 'info', message: 'Environment detection failed, trying WebSocket first...' });
       try {
@@ -544,13 +611,13 @@ const DebugPanel: React.FC = () => {
             connectSSE(SSE_URL);
           }
         }, 3000);
-      } catch (wsError) {
+      } catch {
         addLog({ timestamp: new Date().toISOString(), level: 'warn', message: 'WebSocket failed, trying SSE...' });
         connectSSE(SSE_URL);
       }
     }
   };
-
+  
   // Stable hybrid connection function
   const connectHybridStable = useCallback(async () => {
     const current = stateRef.current;
@@ -573,7 +640,7 @@ const DebugPanel: React.FC = () => {
   useEffect(() => {
     console.log('DebugPanel with Sidebar-Tab-System initialized successfully');
   }, []);
-
+  
 
   return (
     <div className="bg-gray-800 text-white rounded-lg shadow-lg flex flex-col h-[600px]">

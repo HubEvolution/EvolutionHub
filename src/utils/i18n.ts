@@ -6,7 +6,12 @@ import type { Locale } from '@/lib/i18n';
  * I18n translation function type.
  * getI18n(locale) returns this function. Do NOT destructure `{ t }`.
  */
-export type I18nFn = (key: string) => string;
+export interface I18nParams {
+  count?: number;
+  [key: string]: unknown;
+}
+
+export type I18nFn = (key: string, params?: I18nParams) => string;
 
 // Define a general type for translations, assuming both files have similar structure
 // In a real-world scenario, you might want more robust type checking or generation.
@@ -27,7 +32,7 @@ export function getI18n(locale: Locale): I18nFn {
     console.warn(`Locale "${locale}" not found. Using English as fallback.`);
     // Fallback to English if locale is not found
     const fallbackTranslations = translations.en;
-    return (key: string): string => {
+    return (key: string, params?: I18nParams): string => {
       const keys = key.split('.');
       let value: unknown = fallbackTranslations as unknown;
       for (const k of keys) {
@@ -38,11 +43,15 @@ export function getI18n(locale: Locale): I18nFn {
           return `[${locale}:${key}_fallback_not_found]`;
         }
       }
-      return typeof value === 'string' ? value : `[${locale}:${key}_fallback_not_found]`;
+      if (typeof value === 'string') return formatWithParams(value, params);
+      // Attempt pluralization in fallback locale if object with one/other/zero
+      const plural = selectPluralString(value, params);
+      if (plural !== null) return formatWithParams(plural, params);
+      return `[${locale}:${key}_fallback_not_found]`;
     };
   }
 
-  return (key: string): string => {
+  return (key: string, params?: I18nParams): string => {
     const keys = key.split('.');
     let value: unknown = currentTranslations as unknown;
     for (const k of keys) {
@@ -60,10 +69,16 @@ export function getI18n(locale: Locale): I18nFn {
             return `[${locale}:${key}_fallback_not_found]`; // Key not found even in fallback
           }
         }
-        return typeof fallbackValue === 'string' ? fallbackValue : `[${locale}:${key}_fallback_not_found]`;
+        if (typeof fallbackValue === 'string') return formatWithParams(fallbackValue, params);
+        const pluralFallback = selectPluralString(fallbackValue, params);
+        if (pluralFallback !== null) return formatWithParams(pluralFallback, params);
+        return `[${locale}:${key}_fallback_not_found]`;
       }
     }
-    return typeof value === 'string' ? value : `[${locale}:${key}_not_string]`;
+    if (typeof value === 'string') return formatWithParams(value, params);
+    const pluralCurrent = selectPluralString(value, params);
+    if (pluralCurrent !== null) return formatWithParams(pluralCurrent, params);
+    return `[${locale}:${key}_not_string]`;
   };
 }
 
@@ -97,4 +112,25 @@ export function getI18nArray(locale: Locale) {
     console.warn(`Key "${key}" not found as array in locale "${locale}" or fallback.`);
     return [];
   };
+}
+
+function selectPluralString(value: unknown, params?: I18nParams): string | null {
+  if (!value || typeof value !== 'object') return null;
+  const obj = value as Record<string, unknown>;
+  const count = typeof params?.count === 'number' ? params!.count : undefined;
+  if (count === undefined) return null;
+
+  if ('zero' in obj && count === 0 && typeof obj.zero === 'string') return obj.zero as string;
+  if ('one' in obj && count === 1 && typeof obj.one === 'string') return obj.one as string;
+  if ('other' in obj && typeof obj.other === 'string') return obj.other as string;
+  return null;
+}
+
+function formatWithParams(template: string, params?: I18nParams): string {
+  if (!params) return template;
+  return template.replace(/\{(\w+)\}/g, (_, k: string) => {
+    const v = params[k];
+    if (v === null || v === undefined) return `{${k}}`;
+    return String(v);
+  });
 }

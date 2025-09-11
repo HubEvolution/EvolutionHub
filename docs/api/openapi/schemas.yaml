@@ -235,63 +235,6 @@ ToolUpdate:
       type: string
       description: Icon-Pfad oder -Name
 
-LoginRequest:
-  type: object
-  properties:
-    email:
-      type: string
-      format: email
-      description: E-Mail-Adresse des Benutzers
-    password:
-      type: string
-      format: password
-      description: Passwort des Benutzers
-  required:
-    - email
-    - password
-
-RegisterRequest:
-  type: object
-  properties:
-    email:
-      type: string
-      format: email
-      description: E-Mail-Adresse des Benutzers
-    password:
-      type: string
-      format: password
-      description: Passwort des Benutzers
-    name:
-      type: string
-      description: Anzeigename des Benutzers
-  required:
-    - email
-    - password
-    - name
-
-ForgotPasswordRequest:
-  type: object
-  properties:
-    email:
-      type: string
-      format: email
-      description: E-Mail-Adresse des Benutzers
-  required:
-    - email
-
-ResetPasswordRequest:
-  type: object
-  properties:
-    token:
-      type: string
-      description: Reset-Token
-    password:
-      type: string
-      format: password
-      description: Neues Passwort
-  required:
-    - token
-    - password
 
 Error:
   type: object

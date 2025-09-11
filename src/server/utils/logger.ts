@@ -103,7 +103,7 @@ async function initializeRedis() {
         await redisSubClient.subscribe('logs', (message: string) => {
             // Broadcast to WebSocket clients if available
             if (wssInstance) {
-                wssInstance.clients.forEach((client) => {
+                wssInstance.clients.forEach((client: WebSocket) => {
                     if (client.readyState === WebSocket.OPEN) {
                         client.send(message);
                     }
@@ -162,7 +162,7 @@ export const log = (level: string, message: string, contextObject?: Record<strin
     if (contextObject) {
         try {
             // Safely stringify the context object to avoid errors with circular references or large objects
-            const contextString = JSON.stringify(contextObject, (key, value) => {
+            const contextString = JSON.stringify(contextObject, (_key, value) => {
                 // Handle potential circular references or large objects during stringification
                 if (value !== null && typeof value === 'object' && Object.keys(value).length === 0) {
                     return '[empty object]';
@@ -188,7 +188,7 @@ export const log = (level: string, message: string, contextObject?: Record<strin
     if (isAstroDevEnvironment()) {
         // WebSocket broadcasting for standard Astro dev
         if (wssInstance && wssInstance.clients) {
-            wssInstance.clients.forEach((client) => {
+            wssInstance.clients.forEach((client: WebSocket) => {
                 if (client.readyState === WebSocket.OPEN) {
                     try {
                         client.send(logEntry);

@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/147</span>
+                <span class='fraction'>0/150</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/147</span>
+                <span class='fraction'>0/150</span>
             </div>
         
             
@@ -251,7 +251,12 @@
 <a name='L186'></a><a href='#L186'>186</a>
 <a name='L187'></a><a href='#L187'>187</a>
 <a name='L188'></a><a href='#L188'>188</a>
-<a name='L189'></a><a href='#L189'>189</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L189'></a><a href='#L189'>189</a>
+<a name='L190'></a><a href='#L190'>190</a>
+<a name='L191'></a><a href='#L191'>191</a>
+<a name='L192'></a><a href='#L192'>192</a>
+<a name='L193'></a><a href='#L193'>193</a>
+<a name='L194'></a><a href='#L194'>194</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -439,9 +444,14 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">// src/scripts/settings.ts
 // ESM-kompatible Import-Syntax
-<span class="cstat-no" title="statement not covered" >import toastr from 'toastr';</span>
+<span class="cstat-no" title="statement not covered" >import notify from '@/lib/notify';</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >export const handleProfileForm = () =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >  const form = document.getElementById('profile-form') as HTMLFormElement;</span>
@@ -473,14 +483,14 @@
 <span class="cstat-no" title="statement not covered" >      });</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      if (response.ok) {</span>
-<span class="cstat-no" title="statement not covered" >        toastr.success('Profile updated successfully!');</span>
+<span class="cstat-no" title="statement not covered" >        notify.success('Profile updated successfully!');</span>
 <span class="cstat-no" title="statement not covered" >      } else {</span>
 <span class="cstat-no" title="statement not covered" >        const errorText = await response.text();</span>
-<span class="cstat-no" title="statement not covered" >        toastr.error(`Error: ${errorText}`);</span>
+<span class="cstat-no" title="statement not covered" >        notify.error(`Error: ${errorText}`);</span>
 <span class="cstat-no" title="statement not covered" >      }</span>
-<span class="cstat-no" title="statement not covered" >    } catch (error) {</span>
+<span class="cstat-no" title="statement not covered" >    } catch (error: any) {</span>
 <span class="cstat-no" title="statement not covered" >      console.error('Profile update error:', error);</span>
-<span class="cstat-no" title="statement not covered" >      toastr.error(`Update failed: ${error.message || 'Network error'}`);</span>
+<span class="cstat-no" title="statement not covered" >      notify.error(`Update failed: ${error.message || 'Network error'}`);</span>
 <span class="cstat-no" title="statement not covered" >    } finally {</span>
       // Reset button state
 <span class="cstat-no" title="statement not covered" >      submitButton.textContent = originalButtonText;</span>
@@ -533,19 +543,19 @@
 &nbsp;
 <span class="cstat-no" title="statement not covered" >  form.addEventListener('submit', async (e) =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    e.preventDefault();</span>
-<span class="cstat-no" title="statement not covered" >    errorContainer.textContent = '';</span>
+<span class="cstat-no" title="statement not covered" >    if (errorContainer) errorContainer.textContent = '';</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    const newPassword = newPasswordInput.value;</span>
 <span class="cstat-no" title="statement not covered" >    const confirmPassword = confirmPasswordInput.value;</span>
 <span class="cstat-no" title="statement not covered" >    const { score } = checkPasswordStrength(newPassword);</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    if (newPassword !== confirmPassword) {</span>
-<span class="cstat-no" title="statement not covered" >      errorContainer.textContent = 'Passwords do not match.';</span>
+<span class="cstat-no" title="statement not covered" >      if (errorContainer) errorContainer.textContent = 'Passwords do not match.';</span>
 <span class="cstat-no" title="statement not covered" >      return;</span>
 <span class="cstat-no" title="statement not covered" >    }</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    if (score &lt; 3) {</span>
-<span class="cstat-no" title="statement not covered" >      errorContainer.textContent = 'Password is too weak. Please use a stronger password.';</span>
+<span class="cstat-no" title="statement not covered" >      if (errorContainer) errorContainer.textContent = 'Password is too weak. Please use a stronger password.';</span>
 <span class="cstat-no" title="statement not covered" >      return;</span>
 <span class="cstat-no" title="statement not covered" >    }</span>
 &nbsp;
@@ -557,12 +567,12 @@
 <span class="cstat-no" title="statement not covered" >    });</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    if (response.ok) {</span>
-<span class="cstat-no" title="statement not covered" >      toastr.success('Password updated successfully!');</span>
+<span class="cstat-no" title="statement not covered" >      notify.success('Password updated successfully!');</span>
 <span class="cstat-no" title="statement not covered" >      form.reset();</span>
 <span class="cstat-no" title="statement not covered" >      if (strengthIndicator) strengthIndicator.textContent = '';</span>
 <span class="cstat-no" title="statement not covered" >    } else {</span>
 <span class="cstat-no" title="statement not covered" >      const errorText = await response.text();</span>
-<span class="cstat-no" title="statement not covered" >      toastr.error(`Error: ${errorText}`);</span>
+<span class="cstat-no" title="statement not covered" >      notify.error(`Error: ${errorText}`);</span>
 <span class="cstat-no" title="statement not covered" >    }</span>
 <span class="cstat-no" title="statement not covered" >  });</span>
 <span class="cstat-no" title="statement not covered" >};</span>
@@ -574,19 +584,19 @@
 &nbsp;
   // Trigger file input when the button is clicked
 <span class="cstat-no" title="statement not covered" >  changeButton.addEventListener('click', () =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >    uploadElement.click();</span>
+<span class="cstat-no" title="statement not covered" >    (uploadElement as HTMLInputElement).click();</span>
 <span class="cstat-no" title="statement not covered" >  });</span>
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  uploadElement.addEventListener('change', async (e) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >  (uploadElement as HTMLInputElement).addEventListener('change', async (e) =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    const input = e.target as HTMLInputElement;</span>
 <span class="cstat-no" title="statement not covered" >    if (!input.files || input.files.length === 0) {</span>
 <span class="cstat-no" title="statement not covered" >      return;</span>
 <span class="cstat-no" title="statement not covered" >    }</span>
     
     // Show loading indicator
-<span class="cstat-no" title="statement not covered" >    toastr.info('Uploading avatar...');</span>
-<span class="cstat-no" title="statement not covered" >    changeButton.textContent = 'Uploading...';</span>
-<span class="cstat-no" title="statement not covered" >    changeButton.setAttribute('disabled', 'true');</span>
+<span class="cstat-no" title="statement not covered" >    notify.info('Uploading avatar...');</span>
+<span class="cstat-no" title="statement not covered" >    (changeButton as HTMLButtonElement).textContent = 'Uploading...';</span>
+<span class="cstat-no" title="statement not covered" >    (changeButton as HTMLButtonElement).setAttribute('disabled', 'true');</span>
     
 <span class="cstat-no" title="statement not covered" >    const file = input.files[0];</span>
 <span class="cstat-no" title="statement not covered" >    const formData = new FormData();</span>
@@ -601,18 +611,18 @@
 <span class="cstat-no" title="statement not covered" >      if (response.ok) {</span>
 <span class="cstat-no" title="statement not covered" >        const data = await response.json();</span>
 <span class="cstat-no" title="statement not covered" >        (document.getElementById('avatar-preview') as HTMLImageElement).src = data.imageUrl;</span>
-<span class="cstat-no" title="statement not covered" >        toastr.success('Avatar updated successfully!');</span>
+<span class="cstat-no" title="statement not covered" >        notify.success('Avatar updated successfully!');</span>
 <span class="cstat-no" title="statement not covered" >      } else {</span>
 <span class="cstat-no" title="statement not covered" >        const errorText = await response.text();</span>
-<span class="cstat-no" title="statement not covered" >        toastr.error(`Error: ${errorText}`);</span>
+<span class="cstat-no" title="statement not covered" >        notify.error(`Error: ${errorText}`);</span>
 <span class="cstat-no" title="statement not covered" >      }</span>
-<span class="cstat-no" title="statement not covered" >    } catch (error) {</span>
+<span class="cstat-no" title="statement not covered" >    } catch (error: any) {</span>
 <span class="cstat-no" title="statement not covered" >      console.error('Avatar upload error:', error);</span>
-<span class="cstat-no" title="statement not covered" >      toastr.error(`Upload failed: ${error.message || 'Network error'}`);</span>
+<span class="cstat-no" title="statement not covered" >      notify.error(`Upload failed: ${error.message || 'Network error'}`);</span>
 <span class="cstat-no" title="statement not covered" >    } finally {</span>
       // Reset button state
-<span class="cstat-no" title="statement not covered" >      changeButton.textContent = 'Change Picture';</span>
-<span class="cstat-no" title="statement not covered" >      changeButton.removeAttribute('disabled');</span>
+<span class="cstat-no" title="statement not covered" >      (changeButton as HTMLButtonElement).textContent = 'Change Picture';</span>
+<span class="cstat-no" title="statement not covered" >      (changeButton as HTMLButtonElement).removeAttribute('disabled');</span>
 <span class="cstat-no" title="statement not covered" >    }</span>
 <span class="cstat-no" title="statement not covered" >  });</span>
 <span class="cstat-no" title="statement not covered" >};</span>
@@ -623,18 +633,23 @@
 <span class="cstat-no" title="statement not covered" >  handleAvatarUpload();</span>
 <span class="cstat-no" title="statement not covered" >};</span>
 &nbsp;
-// Initial load
-<span class="cstat-no" title="statement not covered" >initSettingsPage();</span>
+// Sichere Initialisierung
+<span class="cstat-no" title="statement not covered" >document.addEventListener('DOMContentLoaded', initSettingsPage);</span>
 &nbsp;
-// Handle Astro's View Transitions
-<span class="cstat-no" title="statement not covered" >document.addEventListener('astro:page-load', initSettingsPage);</span></pre></td></tr></table></pre>
+// Sofortige Initialisierung, falls DOM bereits geladen ist
+<span class="cstat-no" title="statement not covered" >if (document.readyState === 'loading') {</span>
+  // DOM noch am Laden, Event-Listener wird ausgeführt
+<span class="cstat-no" title="statement not covered" >} else {</span>
+  // DOM bereits geladen, führe initSettingsPage sofort aus
+<span class="cstat-no" title="statement not covered" >  initSettingsPage();</span>
+<span class="cstat-no" title="statement not covered" >}</span></pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-08-06T01:02:00.440Z
+                at 2025-09-11T00:07:54.276Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

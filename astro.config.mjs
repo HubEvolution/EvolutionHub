@@ -69,9 +69,10 @@ export { LOGGING_CONFIG };
 export default defineConfig({
   // Provide a site URL for local development and for canonical tags
   // when no other site is specified. Crucial for the URL constructor.
-  site: 'http://localhost:8788', // Set correct URL for Wrangler development (Port 8788)
+  site: 'http://localhost:8787', // Match default Wrangler dev (http://localhost:8787)
   output: 'server',
   base: '/',
+  trailingSlash: 'ignore',
   adapter: cloudflare({
     mode: 'directory',
     // Removed: functionPerRoute: true, to simplify the output structure.
@@ -169,6 +170,18 @@ export default defineConfig({
           : '/src/server/utils/logger.node.ts',
         '@/server': '/src/server'
       }
+    },
+    ssr: {
+      // Silence SSR warnings about auto-externalized Node built-ins from transitive deps
+      external: [
+        'node:crypto',
+        'node:events',
+        'stream',
+        'node:net',
+        'node:tls',
+        'node:timers/promises',
+        'node:url'
+      ]
     },
     // Removed Vite server headers as they might be redundant or problematic with the adapter config.
     // Relying on adapter's staticAssetHeaders for deployment and Vite's defaults for local dev.

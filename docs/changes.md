@@ -5,6 +5,7 @@ Diese Dokumentation fasst die vorgenommenen Änderungen zusammen, die die Index-
 ## 1. `lang` & `hreflang` Attribute
 
 Die Datei `src/layouts/BaseLayout.astro` wurde geprüft.
+
 - Das `lang`-Attribut ist korrekt gesetzt, basierend auf der URL.
 - Die `hreflang`-Links für deutsche (`de`) und englische (`en`) Sprachvarianten sowie ein `x-default` Link wurden implementiert und sind korrekt konfiguriert, um die Mehrsprachigkeit der Seite zu unterstützen.
 

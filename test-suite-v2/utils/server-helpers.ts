@@ -221,15 +221,115 @@ function registerAuthRoutes(server: TestServer): void {
     },
   });
 
-  // Logout-Endpunkt
+  // Deprecated: Logout-Endpunkt (GET/POST -> 410 HTML, andere Methoden -> 410 JSON)
+  server.routes.set('GET /api/auth/logout', {
+    method: 'GET',
+    path: '/api/auth/logout',
+    handler: (req, res) => {
+      server.requestCount++;
+      res.setHeader('Content-Type', 'text/html; charset=utf-8');
+      res.setHeader('Cache-Control', 'no-store');
+      res.status(410).json(`<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>410 Gone</title>
+  </head>
+  <body>
+    <h1>410 Gone</h1>
+    <p>This endpoint has been removed. Please use the current sign-in/registration flow.</p>
+  </body>
+</html>`);
+    },
+  });
+
   server.routes.set('POST /api/auth/logout', {
     method: 'POST',
     path: '/api/auth/logout',
     handler: (req, res) => {
       server.requestCount++;
-      res.status(200).json({ message: 'Erfolgreich abgemeldet' });
+      res.setHeader('Content-Type', 'text/html; charset=utf-8');
+      res.setHeader('Cache-Control', 'no-store');
+      res.status(410).json(`<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>410 Gone</title>
+  </head>
+  <body>
+    <h1>410 Gone</h1>
+    <p>This endpoint has been removed. Please use the current sign-in/registration flow.</p>
+  </body>
+</html>`);
     },
   });
+
+  const logoutGoneJson = {
+    success: false,
+    error: {
+      type: 'gone',
+      message: 'This endpoint has been deprecated. Please migrate to the new authentication flow.',
+    },
+  } as const;
+
+  // Andere Methoden -> 410 JSON + Allow Header
+  for (const method of ['PUT', 'PATCH', 'DELETE']) {
+    server.routes.set(`${method} /api/auth/logout`, {
+      method,
+      path: '/api/auth/logout',
+      handler: (req, res) => {
+        server.requestCount++;
+        res.setHeader('Content-Type', 'application/json');
+        res.setHeader('Cache-Control', 'no-store');
+        res.setHeader('Allow', 'GET, POST, HEAD');
+        res.status(410).json(logoutGoneJson);
+      },
+    });
+  }
+
+  // Deprecated: Verify-Email-Endpunkt (GET -> 410 HTML, andere Methoden -> 410 JSON)
+  server.routes.set('GET /api/auth/verify-email', {
+    method: 'GET',
+    path: '/api/auth/verify-email',
+    handler: (req, res) => {
+      server.requestCount++;
+      res.setHeader('Content-Type', 'text/html; charset=utf-8');
+      res.setHeader('Cache-Control', 'no-store');
+      res.status(410).json(`<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>410 Gone</title>
+  </head>
+  <body>
+    <h1>410 Gone</h1>
+    <p>This endpoint has been removed. Please use the current sign-in/registration flow.</p>
+  </body>
+</html>`);
+    },
+  });
+
+  const verifyGoneJson = {
+    success: false,
+    error: {
+      type: 'gone',
+      message: 'This endpoint has been deprecated. Please migrate to the new authentication flow.',
+    },
+  } as const;
+
+  for (const method of ['POST', 'PUT', 'PATCH', 'DELETE']) {
+    server.routes.set(`${method} /api/auth/verify-email`, {
+      method,
+      path: '/api/auth/verify-email',
+      handler: (req, res) => {
+        server.requestCount++;
+        res.setHeader('Content-Type', 'application/json');
+        res.setHeader('Cache-Control', 'no-store');
+        res.setHeader('Allow', 'GET, HEAD');
+        res.status(410).json(verifyGoneJson);
+      },
+    });
+  }
 
   // Registrierung-Endpunkt
   server.routes.set('POST /api/auth/register', {

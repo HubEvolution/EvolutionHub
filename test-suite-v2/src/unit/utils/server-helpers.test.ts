@@ -222,8 +222,13 @@ describe('Server-Helper', () => {
       it('sollte erfolgreichen Logout verarbeiten', async () => {
         const response = await makeTestRequest(testServer, 'POST', '/api/auth/logout');
 
-        expect(response.status).toBe(200);
-        expect(response.body).toHaveProperty('message', 'Erfolgreich abgemeldet');
+        // Deprecated endpoint now returns 410 Gone (HTML)
+        expect(response.status).toBe(410);
+        expect(typeof response.body).toBe('string');
+        expect(response.body).toContain('<!doctype html>');
+        expect(response.body).toContain('410 Gone');
+        expect(response.headers['Cache-Control']).toBe('no-store');
+        expect(response.headers['Content-Type']).toContain('text/html');
       });
     });
 

@@ -1,0 +1,84 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { getLocale } from '@/lib/i18n';
+import { getI18n } from '@/utils/i18n';
+import { localizePath } from '@/lib/locale-path';
+import Icon from '@/components/ui/Icon.astro';
+import ImagEnhancerIsland from '@/components/tools/ImagEnhancerIsland';
+
+const locale = getLocale(Astro.url.pathname);
+const t = getI18n(locale);
+const strings = {
+  dropText: t('pages.tools.items.Imag-Enhancer.app.dropText'),
+  enhance: t('pages.tools.items.Imag-Enhancer.app.enhance'),
+  processing: t('pages.tools.items.Imag-Enhancer.app.processing'),
+  model: t('pages.tools.items.Imag-Enhancer.app.model'),
+  usage: t('pages.tools.items.Imag-Enhancer.app.usage'),
+  result: t('pages.tools.items.Imag-Enhancer.app.result'),
+  original: t('pages.tools.items.Imag-Enhancer.app.original'),
+  allowedTypes: t('pages.tools.items.Imag-Enhancer.app.allowedTypes'),
+  max: t('pages.tools.items.Imag-Enhancer.app.max'),
+  download: t('pages.tools.items.Imag-Enhancer.app.download'),
+  loading: t('pages.tools.items.Imag-Enhancer.app.loading'),
+  quotaBanner: t('pages.tools.items.Imag-Enhancer.app.quotaBanner'),
+  toasts: {
+    loadQuotaError: t('pages.tools.items.Imag-Enhancer.app.toasts.loadQuotaError'),
+    loadError: t('pages.tools.items.Imag-Enhancer.app.toasts.loadError'),
+    quotaReached: t('pages.tools.items.Imag-Enhancer.app.toasts.quotaReached'),
+    unsupportedType: t('pages.tools.items.Imag-Enhancer.app.toasts.unsupportedType'),
+    fileTooLargePrefix: t('pages.tools.items.Imag-Enhancer.app.toasts.fileTooLargePrefix'),
+    processingFailed: t('pages.tools.items.Imag-Enhancer.app.toasts.processingFailed'),
+    successEnhanced: t('pages.tools.items.Imag-Enhancer.app.toasts.successEnhanced'),
+  },
+  compare: {
+    sliderLabel: t('pages.tools.items.Imag-Enhancer.app.compare.sliderLabel'),
+    before: t('pages.tools.items.Imag-Enhancer.app.compare.before'),
+    after: t('pages.tools.items.Imag-Enhancer.app.compare.after'),
+    handleAriaLabel: t('pages.tools.items.Imag-Enhancer.app.compare.handleAriaLabel'),
+    keyboardHint: t('pages.tools.items.Imag-Enhancer.app.compare.keyboardHint'),
+    reset: t('pages.tools.items.Imag-Enhancer.app.compare.reset'),
+  },
+};
+
+const tool = {
+  id: 'Imag-Enhancer',
+  icon: 'tool'
+};
+
+---
+
+<BaseLayout title={`${t('pages.tools.items.Imag-Enhancer.name')} – Evolution Hub`} description={t('pages.tools.items.Imag-Enhancer.description')} comingSoon={false}>
+  <main class="min-h-screen bg-transparent py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-5xl mx-auto">
+      <div class="flex items-start gap-6">
+        <div class="flex-shrink-0">
+          <div class="w-16 h-16 rounded-lg flex items-center justify-center text-3xl bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200">
+            <Icon name={tool.icon} class="w-10 h-10 text-gray-800 dark:text-gray-200" ariaLabel={t('pages.tools.items.Imag-Enhancer.name')} />
+          </div>
+        </div>
+        <div>
+          <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white">
+            {t('pages.tools.items.Imag-Enhancer.name')}
+          </h1>
+          <div class="mt-2">
+            <a href={localizePath(locale, '/tools/imag-enhancer')} class="text-sm text-gray-500 dark:text-gray-400 hover:underline">
+              {t('pages.tools.details.Imag-Enhancer.back')}
+            </a>
+          </div>
+          <p class="mt-4 text-gray-600 dark:text-gray-300">
+            {t('pages.tools.items.Imag-Enhancer.description')}
+          </p>
+        </div>
+      </div>
+
+      <section class="mt-10 bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+        <h2 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">
+          {t('pages.tools.items.Imag-Enhancer.name')} App
+        </h2>
+        <div id="imag-enhancer-root" class="mt-6 min-h-[200px] grid place-items-center rounded-md border border-dashed border-gray-300 dark:border-gray-700 p-6" aria-label={`${t('pages.tools.items.Imag-Enhancer.name')} root`}>
+          <ImagEnhancerIsland strings={strings} client:load />
+        </div>
+      </section>
+    </div>
+  </main>
+</BaseLayout>

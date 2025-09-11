@@ -1,5 +1,10 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import { getLocale } from '@/lib/i18n';
+import { getI18n as getT } from '@/utils/i18n';
+
+const locale = getLocale(Astro.url.pathname);
+const t = getT(locale);
 import { blogService } from '@/lib/blog';
 // Ensure these types are correctly imported and available.
 // The previous errors indicated they might not be found, but we've created them.
@@ -120,7 +125,7 @@ baseUrlForPagination.searchParams.delete('page');
               <input
                 type="text"
                 name="suche"
-                placeholder="Suchen..."
+                placeholder={t('pages.blog.search.placeholder')}
                 value={searchQuery || ''}
                 class="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500 dark:bg-gray-700 dark:text-white dark:ring-gray-600 dark:placeholder-gray-400 sm:text-sm sm:leading-6"
               />

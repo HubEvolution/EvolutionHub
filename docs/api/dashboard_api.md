@@ -4,7 +4,7 @@ Dieses Dokument beschreibt die API-Endpunkte für das Benutzer-Dashboard.
 
 ## Authentifizierung
 
-Alle Endpunkte erfordern eine Authentifizierung über eine Server-Session (HttpOnly-Cookie `session_id`). Die Prüfung erfolgt zentral über `withAuthApiMiddleware`.
+Alle Endpunkte erfordern eine Authentifizierung über eine Server-Session (HttpOnly-Cookie `__Host-session`). Die Prüfung erfolgt zentral über `withAuthApiMiddleware`.
 
 ## Security-Features
 
@@ -29,7 +29,7 @@ Ruft eine Liste aller Projekte ab, die dem authentifizierten Benutzer zugeordnet
 * **Handler-Funktion:** GET-Handler in `dashboard/projects.ts`
 * **Security:** Rate-Limiting (50/min über `standardApiLimiter`), Security-Headers, Audit-Logging, Benutzer-Filterung
 
-#### Beispielhafte Antwort (`200 OK`)
+### Beispielhafte Antwort (`200 OK`)
 
 ```json
 {
@@ -62,7 +62,7 @@ Ruft eine Liste der letzten Aktivitäten des authentifizierten Benutzers ab.
 * **Handler-Funktion:** GET-Handler in `activity.ts`
 * **Security:** Rate-Limiting (50/min über `standardApiLimiter`), Security-Headers, Audit-Logging, Benutzer-Filterung
 
-#### Beispielhafte Antwort (`200 OK`)
+### Beispielhafte Antwort (`200 OK`)
 
 ```json
 {
@@ -91,7 +91,7 @@ Ruft aggregierte Dashboard-Statistiken ab.
 * **Handler-Funktion:** GET-Handler in `stats.ts`
 * **Security:** Rate-Limiting (50/min über `standardApiLimiter`), Security-Headers, Audit-Logging, Benutzer-Filterung
 
-#### Beispielhafte Antwort (`200 OK`)
+### Beispielhafte Antwort (`200 OK`)
 
 ```json
 {
@@ -125,7 +125,7 @@ Liefert die verfügbaren Quick Actions. Keine Authentifizierung erforderlich.
 * **Security:** Rate-Limiting (50/min über `standardApiLimiter`), Security-Headers, Audit-Logging
 * **Authentifizierung:** nicht erforderlich
 
-#### Beispielhafte Antwort (`200 OK`)
+### Beispielhafte Antwort (`200 OK`)
 
 ```json
 {
@@ -147,7 +147,7 @@ Führt eine Dashboard-Aktion aus.
 * **Handler-Funktion:** POST-Handler in `perform-action.ts`
 * **Security:** Rate-Limiting (50/min über `standardApiLimiter`), Security-Headers, Audit-Logging, Benutzer-Filterung, Input-Validierung
 
-#### Request-Body (JSON)
+### Request-Body (JSON)
 
 ```json
 { "action": "create_project" }
@@ -155,13 +155,13 @@ Führt eine Dashboard-Aktion aus.
 
 Unterstützte Aktionen: `create_project`, `create_task`, `invite_member`, `view_docs`.
 
-#### Erfolgreiche Antwort (`200 OK`)
+### Erfolgreiche Antwort (`200 OK`)
 
 ```json
 { "success": true, "data": { "message": "Project created successfully", "projectId": "prj_..." } }
 ```
 
-#### Fehlerhafte Antwort (`400 Bad Request`)
+### Fehlerhafte Antwort (`400 Bad Request`)
 
 ```json
 { "success": false, "error": { "type": "validation_error", "message": "Invalid action: <action>" } }

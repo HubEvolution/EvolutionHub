@@ -57,7 +57,7 @@ Wenn ein Client das Rate-Limit überschreitet, erhält er eine strukturierte JSO
 
 Dazu werden entsprechende HTTP-Header gesetzt:
 
-```
+```text
 Status: 429 Too Many Requests
 Content-Type: application/json
 Retry-After: 45

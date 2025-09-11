@@ -30,16 +30,31 @@ export default function AuthStatusNotifier({ mode }: { mode: Mode }) {
         const url = new URL(window.location.href);
         const params = url.searchParams;
         const isGerman = window.location.pathname.startsWith('/de');
+        const debug = /(?:^|[?&])debug_auth=1(?:&|$)/.test(url.search);
+        const log = (note: string, data?: unknown) => {
+          if (!debug) return;
+          try {
+            (window as any).__authLogs = (window as any).__authLogs || [];
+            (window as any).__authLogs.push({ via: 'notifier', t: Date.now(), note, data });
+            // keep console noise low but available when needed
+            // eslint-disable-next-line no-console
+            console.debug('[AuthStatusNotifier]', note, data ?? '');
+          } catch {}
+        };
 
         const keys = mode === 'login'
           ? ['loggedOut', 'success', 'error']
           : ['success', 'error'];
 
         const hasAny = keys.some((k) => params.has(k));
-        if (!hasAny) return;
+        if (!hasAny) {
+          log('no-query-flags', { mode });
+          return;
+        }
 
         // Ensure toaster is mounted to avoid missed toasts
-        await waitForToaster();
+        const toasterReady = await waitForToaster();
+        log('toaster-ready', { ready: toasterReady });
         if (cancelled) return;
 
         if (mode === 'login') {
@@ -49,12 +64,14 @@ export default function AuthStatusNotifier({ mode }: { mode: Mode }) {
 
           if (loggedOut === 'true') {
             toast.success(isGerman ? 'Erfolgreich abgemeldet.' : 'You have been logged out.');
+            log('toast-loggedOut');
           }
           if (success) {
             const msg = isGerman
               ? 'Aktion erfolgreich abgeschlossen.'
               : 'Action completed successfully.';
             toast.success(msg);
+            log('toast-success', { code: success });
           }
           if (error) {
             const code = error;
@@ -62,16 +79,19 @@ export default function AuthStatusNotifier({ mode }: { mode: Mode }) {
               ? `Anmeldung fehlgeschlagen (${code}).`
               : `Sign-in failed (${code}).`;
             toast.error(msg);
+            log('toast-error', { code });
           }
         } else if (mode === 'password-reset-sent') {
           const success = params.get('success');
           const error = params.get('error');
           if (success) {
             toast.success(isGerman ? 'E-Mail wurde versendet.' : 'Email has been sent.');
+            log('toast-success', { mode, code: success });
           }
           if (error) {
             const code = error;
             toast.error(isGerman ? `Versand fehlgeschlagen (${code}).` : `Sending failed (${code}).`);
+            log('toast-error', { mode, code });
           }
         } else if (mode === 'forgot-password') {
           const success = params.get('success');
@@ -80,6 +100,7 @@ export default function AuthStatusNotifier({ mode }: { mode: Mode }) {
             toast.success(
               isGerman ? 'E-Mail zum Zurücksetzen wurde gesendet.' : 'Password reset email sent.'
             );
+            log('toast-success', { mode, code: success });
           }
           if (error) {
             const code = error;
@@ -88,6 +109,7 @@ export default function AuthStatusNotifier({ mode }: { mode: Mode }) {
                 ? `Senden fehlgeschlagen (${code}).`
                 : `Failed to send reset email (${code}).`
             );
+            log('toast-error', { mode, code });
           }
         } else if (mode === 'reset-password') {
           const success = params.get('success');
@@ -96,6 +118,7 @@ export default function AuthStatusNotifier({ mode }: { mode: Mode }) {
             toast.success(
               isGerman ? 'Passwort wurde zurückgesetzt.' : 'Password has been reset.'
             );
+            log('toast-success', { mode, code: success });
           }
           if (error) {
             const code = error;
@@ -104,6 +127,7 @@ export default function AuthStatusNotifier({ mode }: { mode: Mode }) {
                 ? `Passwort-Zurücksetzen fehlgeschlagen (${code}).`
                 : `Password reset failed (${code}).`
             );
+            log('toast-error', { mode, code });
           }
         } else if (mode === 'register') {
           const success = params.get('success');
@@ -112,6 +136,7 @@ export default function AuthStatusNotifier({ mode }: { mode: Mode }) {
             toast.success(
               isGerman ? 'Registrierung erfolgreich.' : 'Registration successful.'
             );
+            log('toast-success', { mode, code: success });
           }
           if (error) {
             const code = error;
@@ -120,6 +145,7 @@ export default function AuthStatusNotifier({ mode }: { mode: Mode }) {
                 ? `Registrierung fehlgeschlagen (${code}).`
                 : `Registration failed (${code}).`
             );
+            log('toast-error', { mode, code });
           }
         }
 
@@ -135,6 +161,7 @@ export default function AuthStatusNotifier({ mode }: { mode: Mode }) {
           const newQuery = params.toString();
           const newUrl = url.pathname + (newQuery ? `?${newQuery}` : '') + url.hash;
           window.history.replaceState({}, document.title, newUrl);
+          log('cleaned-query', { newUrl });
         }
       } catch (e) {
         console.error('[AuthStatusNotifier] Failed:', e);

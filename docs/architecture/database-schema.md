@@ -1,7 +1,7 @@
 # Datenbank-Schema - Evolution Hub
 
 > **WICHTIG: Diese Dokumentation ist veraltet!**
-> 
+>
 > Die aktuelle und vollständige Dokumentation des Datenbankschemas ist unter [db_schema_update.md](../db_schema_update.md) verfügbar.
 > Bitte verwenden Sie ausschließlich die aktuelle Dokumentation für alle Entwicklungsarbeiten.
 
@@ -373,30 +373,35 @@ VALUES (
 Das Datenbankschema verwendet Fremdschlüsselbeziehungen, um die referenzielle Integrität zu gewährleisten:
 
 ### 1. Users → Sessions (1:n)
+
 - Ein Benutzer kann mehrere Sitzungen haben
 - Eine Sitzung gehört zu genau einem Benutzer
 - `sessions.user_id` → `users.id`
 - Cascade Delete: Wenn ein Benutzer gelöscht wird, werden alle seine Sitzungen gelöscht
 
 ### 2. Users → Projects (1:n)
+
 - Ein Benutzer kann mehrere Projekte haben
 - Ein Projekt gehört zu genau einem Benutzer
 - `projects.user_id` → `users.id`
 - Cascade Delete: Wenn ein Benutzer gelöscht wird, werden alle seine Projekte gelöscht
 
 ### 3. Users → Comments (1:n)
+
 - Ein Benutzer kann mehrere Kommentare verfassen
 - Ein Kommentar wird von genau einem Benutzer verfasst
 - `comments.user_id` → `users.id`
 - Cascade Delete: Wenn ein Benutzer gelöscht wird, werden alle seine Kommentare gelöscht
 
 ### 4. Projects → Comments (1:n)
+
 - Ein Projekt kann mehrere Kommentare haben
 - Ein Kommentar gehört zu genau einem Projekt
 - `comments.project_id` → `projects.id`
 - Cascade Delete: Wenn ein Projekt gelöscht wird, werden alle zugehörigen Kommentare gelöscht
 
 ### 5. Projects ↔ Tools (n:m)
+
 - Ein Projekt kann mehrere Werkzeuge verwenden
 - Ein Werkzeug kann in mehreren Projekten verwendet werden
 - Verknüpfungstabelle: `project_tools`
@@ -405,6 +410,7 @@ Das Datenbankschema verwendet Fremdschlüsselbeziehungen, um die referenzielle I
 - Cascade Delete: Wenn ein Projekt oder Werkzeug gelöscht wird, werden die entsprechenden Verknüpfungen gelöscht
 
 ### 6. Users → ResetTokens (1:n)
+
 - Ein Benutzer kann mehrere Reset-Token haben
 - Ein Reset-Token gehört zu genau einem Benutzer
 - `reset_tokens.user_id` → `users.id`
@@ -417,23 +423,28 @@ Das Datenbankschema verwendet Fremdschlüsselbeziehungen, um die referenzielle I
 Die Indizierungsstrategie zielt darauf ab, häufige Abfragemuster zu optimieren und die Datenbankleistung zu verbessern:
 
 ### Primärschlüssel
+
 - Alle Tabellen haben einen Primärschlüssel für schnellen Zugriff
 - Für Verknüpfungstabellen werden zusammengesetzte Primärschlüssel verwendet
 
 ### Fremdschlüssel
+
 - Alle Fremdschlüssel sind indiziert, um Joins zu optimieren
 - Dies verbessert die Performance bei Abfragen, die mehrere Tabellen verknüpfen
 
 ### Häufig abgefragte Spalten
+
 - `users.email`: Für Login und Benutzersuche
 - `projects.is_public`: Für Abfragen öffentlicher Projekte
 - `sessions.expires_at` und `reset_tokens.expires_at`: Für Bereinigungsabfragen
 
 ### Kombinierte Indizes
+
 - Für häufige Abfragemuster werden kombinierte Indizes verwendet
 - Beispiel: Ein kombinierter Index auf `projects.user_id` und `projects.is_public` könnte für Abfragen nützlich sein, die nach öffentlichen Projekten eines bestimmten Benutzers suchen
 
 ### Index-Wartung
+
 - Regelmäßige Überprüfung der Index-Nutzung
 - Entfernung ungenutzter Indizes
 - Hinzufügung neuer Indizes basierend auf Abfragemustern
@@ -443,31 +454,38 @@ Die Indizierungsstrategie zielt darauf ab, häufige Abfragemuster zu optimieren 
 ## Datentypen und Constraints
 
 ### Primärschlüssel
+
 - UUIDs werden als TEXT gespeichert (nicht als BLOB)
 - Dies verbessert die Lesbarkeit und Debugging-Möglichkeiten
 
 ### Textfelder
+
 - Keine Längenbeschränkungen für TEXT-Felder in SQLite
 - Für große Textfelder (wie `comments.content`) wird der TEXT-Typ verwendet
 
 ### Datumsfelder
+
 - Alle Zeitstempel werden als DATETIME im ISO-8601-Format gespeichert
 - Beispiel: '2023-01-01T00:00:00Z'
 
 ### Boolesche Felder
+
 - Boolesche Werte werden als INTEGER (0 oder 1) gespeichert
 - SQLite hat keinen nativen BOOLEAN-Typ
 
 ### JSON-Daten
+
 - JSON-Daten werden als TEXT gespeichert
 - Beispiele: `users.roles`, `project_tools.settings`
 - Validierung erfolgt auf Anwendungsebene
 
 ### NOT NULL Constraints
+
 - Kritische Felder haben NOT NULL-Constraints
 - Dies verhindert Inkonsistenzen und NULL-Werte in wichtigen Spalten
 
 ### DEFAULT-Werte
+
 - Zeitstempel haben DEFAULT CURRENT_TIMESTAMP
 - Boolesche Felder haben sinnvolle Standardwerte (z.B. `is_public` = 0)
 
@@ -478,11 +496,13 @@ Die Indizierungsstrategie zielt darauf ab, häufige Abfragemuster zu optimieren 
 Das Evolution Hub Projekt verwendet ein strukturiertes Migrations-System für Schemaänderungen:
 
 ### Migrations-Dateien
+
 - Versionierte SQL-Dateien im Verzeichnis `migrations/`
 - Namenskonvention: `YYYYMMDDHHMMSS_description.sql`
 - Beispiel: `20230101000000_create_users_table.sql`
 
 ### Migrations-Tabelle
+
 ```sql
 CREATE TABLE migrations (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -492,16 +512,19 @@ CREATE TABLE migrations (
 ```
 
 ### Migrations-Prozess
+
 1. Identifikation nicht angewendeter Migrationen
 2. Ausführung in Transaktionen
 3. Protokollierung in der `migrations`-Tabelle
 
 ### Rollback-Unterstützung
+
 - Jede Migration hat eine Up- und Down-Funktion
 - Up: Anwenden der Migration
 - Down: Rückgängigmachen der Migration
 
 ### Migrations-Befehle
+
 ```bash
 # Anwenden aller ausstehenden Migrationen
 npm run db:migrate
@@ -518,26 +541,31 @@ npm run db:migration:create -- --name add_new_table
 ## Performance-Optimierung
 
 ### Abfrage-Optimierung
+
 - Verwendung von Prepared Statements für alle Datenbankabfragen
 - Vermeidung von SELECT * zugunsten expliziter Spaltenauswahl
 - Begrenzung der Ergebnismenge mit LIMIT und OFFSET
 
 ### Indizierung
+
 - Sorgfältige Indizierung häufig abgefragter Spalten
 - Regelmäßige Überprüfung der Index-Nutzung
 - Vermeidung übermäßiger Indizierung
 
 ### Caching
+
 - Implementierung von Caching für häufig abgerufene Daten
 - Verwendung von Cloudflare Cache für unveränderliche Daten
 - Cache-Invalidierung bei Datenänderungen
 
 ### Abfrage-Analyse
+
 - Regelmäßige Analyse langsamer Abfragen
 - Optimierung problematischer Abfragen
 - Überwachung der Datenbankleistung
 
 ### Wartung
+
 - Regelmäßige Ausführung von VACUUM zur Optimierung der Datenbankgröße
 - Bereinigung abgelaufener Sitzungen und Token
 - Überwachung des Datenbankwachstums

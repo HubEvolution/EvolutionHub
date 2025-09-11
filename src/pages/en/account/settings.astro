@@ -3,17 +3,16 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import SettingsScript from '@/components/SettingsScript.astro';
 import { getLocale } from '@/lib/i18n';
 import { getI18n } from '@/utils/i18n';
-import { localizePath } from '@/lib/locale-path';
+ 
 
 const locals = Astro.locals as any;
+const locale = getLocale(Astro.url.pathname);
 if (!locals.user) {
-  const locale = getLocale(Astro.url.pathname);
-  return Astro.redirect(localizePath(locale, '/login'));
+  return Astro.redirect(`/${locale}/login`);
 }
 const user = locals.user;
 
 // i18n setup for client alerts (embed only what the client needs)
-const locale = getLocale(Astro.url.pathname);
 const t = getI18n(locale);
 const i18nSettings = {
   upload: {
@@ -33,6 +32,8 @@ const i18nSettings = {
     upload_failed_prefix: t('common.errors.upload_failed_prefix'),
   },
 };
+// Silence TS noUnusedLocals (bound to JSON script below)
+void i18nSettings;
 ---
 
 <BaseLayout title="Account Settings">
@@ -47,7 +48,7 @@ const i18nSettings = {
           <a href="#profile" class="block px-4 py-2 text-sm font-medium rounded-lg bg-sky-100 dark:bg-sky-900/50 text-primary">
             Profile
           </a>
-          <a href="#password" class="block px-4 py-2 text-sm font-medium rounded-lg hover:bg-sky-100/50 dark:hover:bg-sky-900/20">
+          <a href="#password" class="px-4 py-2 text-sm font-medium rounded-lg hover:bg-sky-100/50 dark:hover:bg-sky-900/20 hidden" aria-hidden="true" tabindex="-1">
             Password
           </a>
         </nav>
@@ -83,6 +84,19 @@ const i18nSettings = {
             <div class="mb-4">
               <label for="email" class="block text-sm font-medium mb-1">Email</label>
               <input type="email" id="email" name="email" value={user.email} class="w-full p-2 border rounded-lg bg-slate-100 dark:bg-slate-800" readonly>
+              <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                {t('pages.account.settings.email.change_hint') ?? 'Changing your email requires re‑verification. Please contact support or use the forthcoming “Change Email” flow.'}
+              </p>
+              <div class="mt-2">
+                <button
+                  type="button"
+                  class="px-3 py-1 text-xs border rounded-lg opacity-60 cursor-not-allowed dark:border-slate-600"
+                  title={t('pages.account.settings.email.change_hint') ?? 'Changing your email requires re‑verification.'}
+                  disabled
+                >
+                  {t('pages.account.settings.email.change_cta') ?? 'Change Email'}
+                </button>
+              </div>
             </div>
 
             <button type="submit" class="px-6 py-2 text-white bg-primary rounded-lg hover:bg-primary-dark">
@@ -91,7 +105,7 @@ const i18nSettings = {
           </form>
         </div>
 
-        <div id="password" class="relative p-6 rounded-2xl overflow-hidden bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-white/10 shadow-sm">
+        <div id="password" class="relative p-6 rounded-2xl overflow-hidden bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-white/10 shadow-sm hidden" aria-hidden="true">
           <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">Change Password</h3>
           <form id="password-form">
             <!-- Current Password -->

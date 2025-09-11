@@ -92,19 +92,19 @@ export const handlePasswordForm = () => {
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    errorContainer.textContent = '';
+    if (errorContainer) errorContainer.textContent = '';
 
     const newPassword = newPasswordInput.value;
     const confirmPassword = confirmPasswordInput.value;
     const { score } = checkPasswordStrength(newPassword);
 
     if (newPassword !== confirmPassword) {
-      errorContainer.textContent = 'Passwords do not match.';
+      if (errorContainer) errorContainer.textContent = 'Passwords do not match.';
       return;
     }
 
     if (score < 3) {
-      errorContainer.textContent = 'Password is too weak. Please use a stronger password.';
+      if (errorContainer) errorContainer.textContent = 'Password is too weak. Please use a stronger password.';
       return;
     }
 

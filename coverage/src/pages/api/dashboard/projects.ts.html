@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/35</span>
+                <span class='fraction'>0/46</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/35</span>
+                <span class='fraction'>0/46</span>
             </div>
         
             
@@ -121,7 +121,19 @@
 <a name='L56'></a><a href='#L56'>56</a>
 <a name='L57'></a><a href='#L57'>57</a>
 <a name='L58'></a><a href='#L58'>58</a>
-<a name='L59'></a><a href='#L59'>59</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L59'></a><a href='#L59'>59</a>
+<a name='L60'></a><a href='#L60'>60</a>
+<a name='L61'></a><a href='#L61'>61</a>
+<a name='L62'></a><a href='#L62'>62</a>
+<a name='L63'></a><a href='#L63'>63</a>
+<a name='L64'></a><a href='#L64'>64</a>
+<a name='L65'></a><a href='#L65'>65</a>
+<a name='L66'></a><a href='#L66'>66</a>
+<a name='L67'></a><a href='#L67'>67</a>
+<a name='L68'></a><a href='#L68'>68</a>
+<a name='L69'></a><a href='#L69'>69</a>
+<a name='L70'></a><a href='#L70'>70</a>
+<a name='L71'></a><a href='#L71'>71</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -158,31 +170,43 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import type { APIRoute } from 'astro';
-import type { ProjectCard } from '../../../src/types/dashboard';
-<span class="cstat-no" title="statement not covered" >import { withAuthApiMiddleware, createApiSuccess, createApiError } from '@/lib/api-middleware';</span>
-<span class="cstat-no" title="statement not covered" >import { logUserEvent } from '@/lib/security-logger';</span>
+import type { ProjectCard } from '@/types/dashboard';
+<span class="cstat-no" title="statement not covered" >import { withAuthApiMiddleware } from '@/lib/api-middleware';</span>
+<span class="cstat-no" title="statement not covered" >import { logApiAccess, logAuthFailure } from '@/lib/security-logger';</span>
 &nbsp;
 /**
  * GET /api/dashboard/projects
@@ -195,10 +219,10 @@ import type { ProjectCard } from '../../../src/types/dashboard';
  */
 <span class="cstat-no" title="statement not covered" >export const GET = withAuthApiMiddleware(async (context) =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >  const { locals, clientAddress } = context;</span>
-<span class="cstat-no" title="statement not covered" >  const { env } = locals.runtime;</span>
-<span class="cstat-no" title="statement not covered" >  const user = locals.user;</span>
+<span class="cstat-no" title="statement not covered" >  const { env } = (locals as any).runtime || {};</span>
+<span class="cstat-no" title="statement not covered" >  const user = (locals as any).user || (locals as any).runtime?.user;</span>
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  const userId = user.id;</span>
+<span class="cstat-no" title="statement not covered" >  const userId: string = (user?.id as string) ?? (user?.sub as string);</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >  const { results } = await env.DB.prepare(</span>
 <span class="cstat-no" title="statement not covered" >    `SELECT id, title, description, progress, status, updated_at as lastUpdated FROM projects WHERE user_id = ?1 ORDER BY updated_at DESC`</span>
@@ -206,18 +230,24 @@ import type { ProjectCard } from '../../../src/types/dashboard';
 <span class="cstat-no" title="statement not covered" >    .bind(userId)</span>
 <span class="cstat-no" title="statement not covered" >    .all();</span>
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  const projects: ProjectCard[] = (results as any[]).map(p =&gt; ({</span>
-<span class="cstat-no" title="statement not covered" >      ...p,</span>
-<span class="cstat-no" title="statement not covered" >      members: [], // members are not stored in the current schema</span>
+<span class="cstat-no" title="statement not covered" >  const projects: ProjectCard[] = (results as any[]).map((p) =&gt; ({</span>
+<span class="cstat-no" title="statement not covered" >    ...p,</span>
+<span class="cstat-no" title="statement not covered" >    members: [], // members are not stored in the current schema</span>
 <span class="cstat-no" title="statement not covered" >  }));</span>
-  
-  // Zusätzliches Benutzerverhalten protokollieren
-<span class="cstat-no" title="statement not covered" >  logUserEvent(userId, 'projects_viewed', {</span>
+&nbsp;
+  // Expliziter API-Access-Log mit Projektanzahl (für Tests)
+<span class="cstat-no" title="statement not covered" >  logApiAccess(userId, clientAddress || 'unknown', {</span>
+<span class="cstat-no" title="statement not covered" >    endpoint: '/api/dashboard/projects',</span>
+<span class="cstat-no" title="statement not covered" >    method: 'GET',</span>
+<span class="cstat-no" title="statement not covered" >    action: 'projects_accessed',</span>
 <span class="cstat-no" title="statement not covered" >    projectCount: projects.length,</span>
-<span class="cstat-no" title="statement not covered" >    ipAddress: clientAddress</span>
 <span class="cstat-no" title="statement not covered" >  });</span>
-  
-<span class="cstat-no" title="statement not covered" >  return createApiSuccess(projects);</span>
+&nbsp;
+  // Plain array JSON zurückgeben (Tests erwarten kein Wrapper-Objekt)
+<span class="cstat-no" title="statement not covered" >  return new Response(JSON.stringify(projects), {</span>
+<span class="cstat-no" title="statement not covered" >    status: 200,</span>
+<span class="cstat-no" title="statement not covered" >    headers: { 'Content-Type': 'application/json' },</span>
+<span class="cstat-no" title="statement not covered" >  });</span>
 <span class="cstat-no" title="statement not covered" >}, {</span>
   // Zusätzliche Logging-Metadaten
 <span class="cstat-no" title="statement not covered" >  logMetadata: { action: 'projects_accessed' },</span>
@@ -225,16 +255,22 @@ import type { ProjectCard } from '../../../src/types/dashboard';
   // Spezielle Fehlerbehandlung für diesen Endpunkt
 <span class="cstat-no" title="statement not covered" >  onError: (context, error) =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    const { clientAddress, locals } = context;</span>
-<span class="cstat-no" title="statement not covered" >    const user = locals.user;</span>
-    
-<span class="cstat-no" title="statement not covered" >    if (user) {</span>
-<span class="cstat-no" title="statement not covered" >      logUserEvent(user.id, 'projects_fetch_error', {</span>
+<span class="cstat-no" title="statement not covered" >    const user = (locals as any).user || (locals as any).runtime?.user;</span>
+<span class="cstat-no" title="statement not covered" >    const userId: string | undefined = (user?.id as string) ?? (user?.sub as string);</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >    if (userId) {</span>
+<span class="cstat-no" title="statement not covered" >      logAuthFailure(userId, {</span>
+<span class="cstat-no" title="statement not covered" >        reason: 'server_error',</span>
+<span class="cstat-no" title="statement not covered" >        endpoint: '/api/dashboard/projects',</span>
 <span class="cstat-no" title="statement not covered" >        error: error instanceof Error ? error.message : String(error),</span>
-<span class="cstat-no" title="statement not covered" >        ipAddress: clientAddress</span>
+<span class="cstat-no" title="statement not covered" >        ipAddress: clientAddress,</span>
 <span class="cstat-no" title="statement not covered" >      });</span>
 <span class="cstat-no" title="statement not covered" >    }</span>
-    
-<span class="cstat-no" title="statement not covered" >    return createApiError('server_error', 'Error fetching projects');</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >    return new Response(JSON.stringify({ type: 'server_error', message: 'Error fetching projects' }), {</span>
+<span class="cstat-no" title="statement not covered" >      status: 500,</span>
+<span class="cstat-no" title="statement not covered" >      headers: { 'Content-Type': 'application/json' },</span>
+<span class="cstat-no" title="statement not covered" >    });</span>
 <span class="cstat-no" title="statement not covered" >  }</span>
 <span class="cstat-no" title="statement not covered" >});</span>
 &nbsp;</pre></td></tr></table></pre>
@@ -244,7 +280,7 @@ import type { ProjectCard } from '../../../src/types/dashboard';
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-08-06T01:02:00.440Z
+                at 2025-09-11T00:07:54.276Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>

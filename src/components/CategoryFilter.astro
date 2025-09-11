@@ -1,4 +1,9 @@
 ---
+import { getLocale } from '@/lib/i18n';
+import { getI18n as getT } from '@/utils/i18n';
+
+const locale = getLocale(Astro.url.pathname);
+const t = getT(locale);
 interface Props {
   categories: Array<{ name: string; count: number }>;
   selectedCategory?: string;

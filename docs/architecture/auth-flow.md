@@ -5,21 +5,20 @@ Diese Dokumentation beschreibt den vollständigen Authentifizierungsflow im Evol
 ## Inhaltsverzeichnis
 
 1. [Überblick](#überblick)
-2. [Authentifizierungskomponenten](#authentifizierungskomponenten)
-3. [Registrierungsflow](#registrierungsflow)
-4. [Anmeldeflow](#anmeldeflow)
-5. [Sitzungsverwaltung](#sitzungsverwaltung) <!-- markdownlint-disable-line MD051 -->
-6. [Passwort-Reset-Flow](#passwort-reset-flow)
-7. [Abmeldeflow](#abmeldeflow)
-8. [Sicherheitsmaßnahmen](#sicherheitsmaßnahmen)
-9. [Fehlerbehandlung](#fehlerbehandlung)
-10. [Middleware-Integration](#middleware-integration)
+2. [Sicherheitsmaßnahmen](#sicherheitsmaßnahmen)
+3. [Fehlerbehandlung](#fehlerbehandlung)
+4. [Middleware-Integration](#middleware-integration)
 
 ---
 
 ## Überblick
 
-Das Evolution Hub Authentifizierungssystem verwendet serverseitige Sitzungen mit einem sicheren HttpOnly-Cookie (`session_id`) und implementiert Best Practices für Webanwendungssicherheit. Es werden keine JWTs verwendet.
+Das Evolution Hub Authentifizierungssystem verwendet serverseitige Sitzungen mit einem sicheren HttpOnly-Cookie (`__Host-session`, Secure, SameSite=Strict, Path=/) und implementiert Best Practices für Webanwendungssicherheit. Es werden keine JWTs verwendet.
+
+Hinweis: Das System ist auf Stytch Magic Link migriert. Der Authentifizierungsfluss ist:
+
+- `POST /api/auth/magic/request` (JSON)
+- `GET /api/auth/callback` (setzt Session und leitet weiter)
 
 ...
 
@@ -28,7 +27,7 @@ Das Evolution Hub Authentifizierungssystem verwendet serverseitige Sitzungen mit
 - **Rate-Limiting**: Schutz vor Brute-Force/Abuse auf allen Auth-APIs und global in der Middleware.
 - **Security Headers**: Strenge Standard-Header inkl. CSP (in Produktion strikt), HSTS, Frame-/Referrer-Policies.
 - **CSRF/Origin-Checks**: CSRF-Token/Origin-Validierung an state-changing Endpunkten.
-- **Cookie-Härtung**: `session_id` als HttpOnly, SameSite=Lax, Secure (prod), kurze Standardlebensdauer.
+- **Cookie-Härtung**: `__Host-session` als HttpOnly, Secure, SameSite=Strict, Path=/, serverseitige Lebensdauersteuerung.
 - **Audit-Logging**: Relevante Ereignisse (Login/Logout, Passwort-Reset) werden protokolliert.
 
 ---
@@ -36,8 +35,7 @@ Das Evolution Hub Authentifizierungssystem verwendet serverseitige Sitzungen mit
 ## Fehlerbehandlung
 
 - **Kanonischer Code: `InvalidCredentials`** für `ServiceErrorType.AUTHENTICATION` (z. B. falsche Login-Daten).
-- **Passwort-Reset:** Ungültige oder abgelaufene Tokens führen zu `InvalidInput`. Das übermittelte
-  `token` bleibt in der Redirect-URL erhalten (Kontext für die UI/Toasts).
+<!-- Legacy Passwort-Reset-Fehlerfall entfernt: System nutzt keinen Passwort-Flow mehr. -->
 - **Rate-Limiting:** `TooManyRequests`.
 - **Unerwartete Fehler:** `ServerError`.
 - **Spezialfall E-Mail-Verifizierung:** Wenn der Service mit `details.reason = 'email_not_verified'`
@@ -47,22 +45,22 @@ Das Evolution Hub Authentifizierungssystem verwendet serverseitige Sitzungen mit
 Technische Details
 
 - Zentraler Handler: `src/lib/error-handler.ts` (`getErrorCode()`, `handleAuthError()`).
-- Redirect-Basis-URL ist locale-aware, z. B. `'/en/login'` oder `'/en/reset-password'`.
+- Redirect-Basis-URL ist locale-aware, z. B. `'/en/login'`.
 - Kontext-Parameter (z. B. `token`) werden durchgereicht und in die Redirect-URL übernommen.
 - Die Reihenfolge von Query-Parametern ist unerheblich; Tests prüfen auf Vorhandensein, nicht auf
   die exakte Reihenfolge.
 
 Beispiele
 
-- Login (falsches Passwort): `/en/login?error=InvalidCredentials`.
-- Reset-Password (ungültiges Token `abc`): `/en/reset-password?token=abc&error=InvalidInput`.
+- Magic Link Request: `/api/auth/magic/request` → JSON `{ success: true }`.
+- Callback: `/api/auth/callback` → Redirect auf Ziel (z. B. `/dashboard`).
 - E-Mail nicht verifiziert: `/verify-email?error=EmailNotVerified&email=user%40example.com`.
 
 Referenzen
 
 - `src/lib/error-handler.ts`
-- `src/pages/api/auth/login.ts`
-- `src/pages/api/auth/reset-password.ts`
+- `src/pages/api/auth/magic/request.ts`
+- `src/pages/api/auth/callback.ts`
 
 ---
 
@@ -79,7 +77,7 @@ import { validateSession } from '@/lib/auth-v2';
 
 export const onRequest = defineMiddleware(async (context, next) => {
   // Session-ID aus Cookie lesen
-  const sessionId = context.cookies.get('session_id')?.value ?? null;
+  const sessionId = context.cookies.get('__Host-session')?.value ?? null;
 
   if (!sessionId || !context.locals?.runtime) {
     context.locals.session = null;

@@ -23,7 +23,7 @@ npm run setup:local
 npm run dev:astro
 
 # Entwicklungsserver mit Remote-Ressourcen starten (Vorsicht!)
-npm run dev:astro:remote
+wrangler dev --remote
 ```
 
 ### Datenbank-Verwaltung

@@ -52,6 +52,7 @@ Diese Pyramide veranschaulicht die Verteilung der verschiedenen Testtypen im Pro
 Unit-Tests prüfen einzelne Funktionen, Methoden oder Klassen in Isolation.
 
 **Fokus**:
+
 - Geschäftslogik in Services und Utilities
 - Helper-Funktionen und Utilities
 - Einzelne Komponenten (ohne externe Abhängigkeiten)
@@ -96,6 +97,7 @@ describe('Password Hashing', () => {
 Integrationstests prüfen die Interaktion zwischen verschiedenen Komponenten oder Systemen.
 
 **Fokus**:
+
 - API-Endpunkte
 - Datenbankinteraktionen
 - Service-Interaktionen
@@ -168,6 +170,7 @@ describe('Login API', () => {
 E2E-Tests prüfen das gesamte System aus Benutzerperspektive.
 
 **Fokus**:
+
 - Benutzerflows (Login, Registrierung, etc.)
 - Seitennavigation
 - Formularinteraktionen
@@ -433,7 +436,7 @@ Folgende Bereiche werden als kritisch eingestuft und erfordern eine besonders ho
 
 ### Verzeichnisstruktur
 
-```
+```text
 evolution-hub/
 ├── src/
 │   ├── components/

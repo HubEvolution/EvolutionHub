@@ -1,7 +1,7 @@
 # Setup Guide für Evolution Hub
 
 ## Inhaltsverzeichnis
- 
+
 1. [Voraussetzungen](#voraussetzungen)
 2. [Projekt einrichten](#projekt-einrichten)
 3. [Datenbankkonfiguration](#datenbankkonfiguration)
@@ -24,20 +24,20 @@ Bevor Sie mit der Einrichtung beginnen, stellen Sie sicher, dass folgende Softwa
 ## Projekt einrichten
 
 1. Klonen Sie das Repository:
- 
+
    ```bash
    git clone <repository-url>
    cd evolution-hub
    ```
 
 2. Installieren Sie die Abhängigkeiten:
- 
+
    ```bash
    npm install
    ```
 
 3. Erstellen Sie eine `.env`-Datei aus dem Beispiel:
- 
+
    ```bash
    cp .env.example .env
    ```
@@ -57,7 +57,7 @@ npm run setup:local
 ```
 
 Dieses Skript führt folgende Aktionen aus:
- 
+
 - Erstellt eine lokale D1-Datenbank (falls nicht vorhanden)
 - Führt alle Migrations-Dateien auf ALLE lokalen Datenbanken aus
 - Erstellt einen lokalen R2-Bucket (falls nicht vorhanden)
@@ -67,19 +67,19 @@ Dieses Skript führt folgende Aktionen aus:
 ### Manuelle Einrichtung
 
 1. Installieren Sie die Wrangler CLI global (falls noch nicht geschehen):
- 
+
    ```bash
    npm install -g wrangler
    ```
 
 2. Erstellen Sie eine neue D1-Datenbank:
- 
+
    ```bash
    npx wrangler d1 create evolution-hub-main-local
    ```
 
 3. Führen Sie die Migrationen aus:
- 
+
    ```bash
    npx wrangler d1 execute evolution-hub-main-local --local --file=./migrations/0000_initial_schema.sql
    npx wrangler d1 execute evolution-hub-main-local --local --file=./migrations/0001_add_sessions_table.sql
@@ -119,7 +119,7 @@ npm run menu
 ```
 
   Wählen Sie "Lokale Entwicklung" und dann eine der folgenden Optionen:
- 
+
 - **UI-Entwicklung**: Startet den Astro Dev-Server (schnell, ideal für Frontend-Entwicklung)
 - **Cloudflare-Entwicklung**: Startet den Wrangler Dev-Server (vollständige Cloudflare-Integration)
 - **Datenbank zurücksetzen & Migrationen anwenden**: Setzt die lokale Datenbank zurück
@@ -147,7 +147,6 @@ npm run dev:remote
 **Wichtig**: Bei Verwendung des `dev:remote`-Befehls werden alle Änderungen direkt auf den Produktionsressourcen vorgenommen. Verwenden Sie diesen Modus mit Vorsicht!
 
 Das Projekt ist nun unter der von `wrangler` angegebenen Adresse erreichbar (z.B. `http://localhost:8788`).
-
 
 ## Tests ausführen
 
@@ -385,13 +384,13 @@ Das Deployment erfolgt automatisch bei jedem `git push` auf den `main`-Branch ü
 Für eine manuelle Bereitstellung führen Sie folgende Schritte aus:
 
 1. Bauen Sie das Projekt:
- 
+
    ```bash
    npm run build
    ```
 
 2. Deployen Sie mit Wrangler:
- 
+
    ```bash
    npx wrangler pages deploy dist
    ```
@@ -618,7 +617,7 @@ Wenn ein Client das Rate-Limit überschreitet, erhält er eine strukturierte JSO
 
 Dazu werden entsprechende HTTP-Header gesetzt, die dem Client helfen, sein Verhalten anzupassen:
 
-```
+```text
 Status: 429 Too Many Requests
 Content-Type: application/json
 Retry-After: 45

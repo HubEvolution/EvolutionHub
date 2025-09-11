@@ -20,7 +20,7 @@ const compactMode = variant === 'compact';
 const inlineMode = variant === 'inline';
 const locale = getLocale(Astro.url.pathname);
 ---
-
+ 
 <div class={`${!inlineMode ? 'border-t border-gray-200 dark:border-gray-700 pt-12 mt-8' : ''}`}>
   <div class={`${compactMode ? 'max-w-md' : 'max-w-2xl'} mx-auto text-center`}>
     <h3 class={`${compactMode ? 'text-base' : 'text-lg'} font-medium text-gray-900 dark:text-white mb-3`}>
@@ -150,8 +150,9 @@ const locale = getLocale(Astro.url.pathname);
         if (result.success) {
           // Success - show confirmation message
           if (result.next_step === 'confirmation_required') {
+            // Removed leading emoji for consistency with Icon usage
             showMessage(
-              `📧 ${result.message || 'Bitte überprüfen Sie Ihre E-Mails!'}<br><small class="text-sm opacity-80">${result.info || 'Klicken Sie auf den Bestätigungslink in der E-Mail, um Ihre Anmeldung abzuschließen.'}</small>`, 
+              `${result.message || 'Bitte überprüfen Sie Ihre E-Mails!'}<br><small class="text-sm opacity-80">${result.info || 'Klicken Sie auf den Bestätigungslink in der E-Mail, um Ihre Anmeldung abzuschließen.'}</small>`, 
               'info'
             );
           } else {

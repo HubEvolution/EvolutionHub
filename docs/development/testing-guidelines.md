@@ -5,6 +5,7 @@ Diese Richtlinien definieren verbindliche Praktiken für Unit-, Integrations- un
 ---
 
 ## Ziele und Grundsätze
+
 - **Stabilität**: deterministische Tests, keine Flakes
 - **Lesbarkeit**: AAA-Muster (Arrange, Act, Assert)
 - **Realismus**: so wenig Mocks wie möglich, echte Kantenfälle
@@ -13,6 +14,7 @@ Diese Richtlinien definieren verbindliche Praktiken für Unit-, Integrations- un
 ---
 
 ## Test-Layer
+
 - **Unit**: reine Funktions-/Modultests (schnell, isoliert)
 - **Integration**: Zusammenspiel mehrerer Module/Schichten
 - **E2E (Playwright)**: Nutzerfluss gegen Staging (`TEST_BASE_URL`) oder lokal mit Wrangler-Fallback
@@ -20,6 +22,7 @@ Diese Richtlinien definieren verbindliche Praktiken für Unit-, Integrations- un
 ---
 
 ## Konventionen
+
 - **Dateinamen**: `*.test.ts` oder `*.spec.ts`
 - **Struktur**: `describe`-Blöcke mit sprechenden Namen; `it/test` für Fälle
 - **AAA**: Setup (Arrange), Ausführung (Act), Erwartungen (Assert)
@@ -47,6 +50,7 @@ describe('Modul XYZ', () => {
 ---
 
 ## Spies & Mocks (Vitest)
+
 - **Console-Spies**: `vi.spyOn(console, 'info')` etc. und nach jedem Test zurücksetzen
 - **Modul-Mocks**: sparsam einsetzen; nur externe Effekte (Netzwerk, Zeit, Zufall)
 - **Timer**: `vi.useFakeTimers()` nur, wenn nötig – sonst reale Timer lassen
@@ -61,9 +65,11 @@ expect(infoSpy).toHaveBeenCalled();
 ---
 
 ## Logger-Tests (Test-Suite v2)
+
 Quellmodul: `test-suite-v2/utils/logger.ts`
 
 ### Signaturen und Erwartungen
+
 - `log(level, message, data?)` ruft `console[level](header, message, data|undefined)`
 - `logWithExtra(level, message, extra?, data?)` ruft `console[level](header, message, [extra], data|undefined)`
 - `header` enthält ISO-Timestamp und Level plus Emojis
@@ -124,6 +130,7 @@ describe('TestLogger', () => {
 ```
 
 Tipps:
+
 - Verwende `expect.any(String)`/`expect.stringContaining('ℹ️')` für Header
 - Prüfe Argumentanzahl/Position: `data` ist immer das letzte Argument (auch wenn `undefined`)
 - Für `logWithExtra(...)` wird `extra` an Position 3 eingeschoben (falls gesetzt)
@@ -131,6 +138,7 @@ Tipps:
 ---
 
 ## Coverage & Quality Gates
+
 - Thresholds in `vitest.config.ts` (global):
   - Branches ≥ 90%, Lines/Statements/Functions ≥ 95%, `perFile: false`
 - Ausführung lokal:
@@ -144,6 +152,7 @@ npm run test:coverage
 ---
 
 ## E2E-Tests (Kurz)
+
 - CI: `TEST_BASE_URL` muss gesetzt sein (Staging)
 - Lokal: Ohne `TEST_BASE_URL` über Global-Setup Wrangler-Dev starten (`npm run dev`)
 - Ziel: echte Cloudflare-Bindings für realistische Flows
@@ -151,6 +160,7 @@ npm run test:coverage
 ---
 
 ## Best Practices
+
 - Keine starren Zeit-Assertions (Timestamps, zufällige IDs)
 - Keine globalen Seiteneffekte zwischen Tests; Cleanup erzwingen
 - Aussagekräftige Testnamen, klare Fehlermeldungen

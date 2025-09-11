@@ -4,7 +4,7 @@ Dieses Dokument beschreibt die API-Endpunkte für die Benutzerverwaltung im Evol
 
 ## Authentifizierung
 
-Alle Endpunkte erfordern eine authentifizierte Session über ein HttpOnly-Cookie `session_id`. Es wird kein JWT im `Authorization`-Header verwendet.
+Alle Endpunkte erfordern eine authentifizierte Session über ein HttpOnly-Cookie `__Host-session` (Secure, SameSite=Strict, Path=/). Es wird kein JWT im `Authorization`-Header verwendet.
 
 ## Security-Features
 
@@ -75,6 +75,7 @@ Aktualisiert das Profil des aktuell authentifizierten Benutzers. Verwendet `with
 * `username`: string (3–30 Zeichen, nur Buchstaben/Zahlen/Underscore)
 
 Beispiel:
+
 ```bash
 curl -i -X POST \
   -F 'name=Max Neuer-Name' \
@@ -128,12 +129,13 @@ Meldet den aktuell authentifizierten Benutzer ab und invalidiert die Session. Nu
 ```http
 HTTP/1.1 302 Found
 Location: /
-Set-Cookie: session_id=; Path=/; HttpOnly; SameSite=Lax; Secure; Max-Age=0
+Set-Cookie: __Host-session=; Path=/; HttpOnly; SameSite=Strict; Secure; Max-Age=0
 ```
 
 ### Fehlerhafte Antwort – /api/user/logout (302 Redirect)
 
 Beispiel (Rate-Limit):
+
 ```http
 HTTP/1.1 302 Found
 Location: /login?error=rate_limit
@@ -180,61 +182,26 @@ Multipart/form-data mit einem Feld `avatar`, das die Bilddatei enthält.
 
 ---
 
-## 5. Passwort ändern
+## 5. Passwort ändern (Deprecated – 410 Gone)
 
-Ändert das Passwort des aktuell authentifizierten Benutzers. Nutzt `withAuthApiMiddleware`, inklusive Passwort-Validierung und Kollisionsprüfung.
+Im Stytch-only Flow ist die Passwortänderung über die API nicht mehr unterstützt. Der Endpoint ist deprecatet und liefert 410 Gone.
 
-### Passwort ändern
+### Verhalten
 
-* **HTTP-Methode:** `POST`
+* **HTTP-Methode:** `POST` → 410 Gone (HTML)
+* **Andere Methoden:** `GET, PUT, PATCH, DELETE, OPTIONS, HEAD` → 410 Gone (JSON)
 * **Pfad:** `/api/user/password`
-* **Handler-Funktion:** `changePassword` in `password.ts`
-* **Security:** Rate-Limiting (50/min), Security-Headers, Audit-Logging, Mindestlänge 6 (neues Passwort), Alte-Passwort-Validierung
+* **Details:** `Allow: 'POST'`
 
-#### Request-Felder (FormData)
+#### Beispielantwort (JSON)
 
-* `current-password`: string
-* `new-password`: string (≥ 6 Zeichen)
-
-Beispiel:
-```bash
-curl -i -X POST \
-  -F 'current-password=altes-passwort123' \
-  -F 'new-password=neues-sicheres-passwort456' \
-  https://<host>/api/user/password
-```
-
-#### Erfolgreiche Antwort (`200 OK`)
-
-```json
-{
-  "success": true,
-  "data": {
-    "message": "Password updated successfully"
-  }
-}
-```
-
-### Fehlerhafte Antworten – /api/user/password
-
-Beispiel falsches aktuelles Passwort (`403 Forbidden`):
 ```json
 {
   "success": false,
   "error": {
-    "type": "forbidden",
-    "message": "Incorrect current password"
-  }
-}
-```
-
-Beispiel Validierungsfehler (`400 Bad Request`):
-```json
-{
-  "success": false,
-  "error": {
-    "type": "validation_error",
-    "message": "Password must be at least 6 characters"
+    "type": "gone",
+    "message": "This endpoint has been deprecated. Password changes are no longer supported; use Stytch flows.",
+    "details": { "Allow": "POST" }
   }
 }
 ```

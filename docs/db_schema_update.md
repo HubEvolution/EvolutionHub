@@ -9,15 +9,19 @@ Evolution Hub verwendet eine SQLite-Datenbank mit Cloudflare D1. Die wichtigsten
 - `projects` - Projektdaten
 - `activities` - Benutzeraktivitäten
 - `comments` - Kommentare
-- `password_reset_tokens` - Tokens für Passwort-Reset
+- `password_reset_tokens` - Tokens für Passwort-Reset (entfernt in Migration `0010_drop_password_artifacts.sql`)
 - `email_verification_tokens` - Tokens für E‑Mail‑Verifikation (seit Migration `0007`)
 - `download_audit` - Audit‑Log für Lead‑Magnet/Asset‑Downloads (seit Migration `0006`)
 - `tasks` - Aufgaben
 - `notifications` - Benachrichtigungen
+- `ai_jobs` - AI-Bildbearbeitungsaufträge (seit Migration `0008`, erweitert in `0009` für Gast‑Ownership)
 
 In Migration `0007_add_email_verification.sql` wurden außerdem Spalten in `users` ergänzt:
+
 - `email_verified` (INTEGER / boolean)
 - `email_verified_at` (Unix timestamp)
+
+In Migration `0009_update_ai_jobs_guest_ownership.sql` wurde die Gastbenutzer-Unterstützung für AI-Jobs hinzugefügt (`owner_type`, `owner_ref`).
 
 ## Migrations‑Dateien (in `/migrations`)
 
@@ -31,6 +35,9 @@ Die Migrations liegen im Verzeichnis `/migrations`. Aktuell vorhandene Migration
 6. `0005_add_notifications_table.sql` - Benachrichtigungs‑Tabelle
 7. `0006_create_download_audit.sql` - Audit‑Tabelle für Download/Lead‑Magnet‑Events (asset_key, status, bytes)
 8. `0007_add_email_verification.sql` - E‑Mail‑Verifikation (columns + tokens table + backfill)
+9. `0008_create_ai_jobs_table.sql` - AI-Jobs-Tabelle für asynchrone Bildbearbeitung
+10. `0009_update_ai_jobs_guest_ownership.sql` - Gastbenutzer-Unterstützung für AI-Jobs
+11. `0010_drop_password_artifacts.sql` - Entfernt `users.password_hash` und die Tabelle `password_reset_tokens`
 
 > Hinweis: Dateinamen und Reihenfolge sind wichtig. Führen Sie Migrations in numerischer Reihenfolge aus.
 
@@ -45,6 +52,7 @@ npx tsx scripts/setup-local-dev.ts
 ```
 
 Das Script legt lokal an:
+
 - Eine D1‑Datenbank (lokal / miniflare)
 - Führt alle Migrationen in `/migrations` aus
 - Erstellt bei Bedarf R2‑Bucket/KV‑Namespaces und Testdaten
@@ -79,17 +87,68 @@ Das Setup‑Script versucht, Migrationen in allen gefundenen Wrangler‑Datenban
   - Legt Tabelle `email_verification_tokens(token, user_id, email, created_at, expires_at, used_at)` an
   - Indizes für Performance und Backfill: markiert alle bestehenden Benutzer als verifiziert für Kompatibilität
 
+- `0008_create_ai_jobs_table.sql`:
+  - Erstellt Tabelle `ai_jobs` für asynchrone AI-Bildbearbeitung
+  - Felder: id, user_id, type, status, input_params, output_url, created_at, updated_at, completed_at, error_message
+  - Indizes für Performance: idx_ai_jobs_user_id, idx_ai_jobs_status, idx_ai_jobs_created_at
+
+- `0009_update_ai_jobs_guest_ownership.sql`:
+  - Fügt Unterstützung für Gastbenutzer zu AI-Jobs hinzu
+  - Neue Felder: owner_type, owner_id für flexiblere Besitzverhältnisse
+  - Migration bestehender Daten für Abwärtskompatibilität
+
+## AI-Jobs-Schema-Details
+
+Die `ai_jobs`-Tabelle ist speziell für die KI-Bildbearbeitungsfunktionalität optimiert und unterstützt Benutzer wie auch Gäste:
+
+```sql
+CREATE TABLE ai_jobs (
+  id TEXT PRIMARY KEY,
+  user_id TEXT,                    -- nullable für Gäste
+  owner_type TEXT NOT NULL,        -- 'user' | 'guest'
+  owner_ref TEXT NOT NULL,         -- user.id oder guest_id (Cookie)
+  provider TEXT NOT NULL,          -- z. B. 'replicate'
+  model TEXT,
+  status TEXT NOT NULL DEFAULT 'queued', -- 'queued' | 'processing' | 'succeeded' | 'failed' | 'canceled'
+  provider_job_id TEXT,
+  input_r2_key TEXT,
+  input_content_type TEXT,
+  input_size INTEGER,
+  output_r2_key TEXT,
+  params_json TEXT,
+  error_message TEXT,
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+```
+
+### Indizes für optimale Performance
+
+```sql
+CREATE INDEX IF NOT EXISTS idx_ai_jobs_user_created_at ON ai_jobs (user_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_ai_jobs_owner_created_at ON ai_jobs (owner_type, owner_ref, created_at);
+CREATE INDEX IF NOT EXISTS idx_ai_jobs_provider_job_id ON ai_jobs (provider_job_id);
+CREATE INDEX IF NOT EXISTS idx_ai_jobs_status ON ai_jobs (status);
+CREATE INDEX IF NOT EXISTS idx_ai_jobs_created_at ON ai_jobs (created_at);
+```
+
 ## Fehlerbehebung bei Migrationen
 
 Wenn Migrationen fehlschlagen oder Tabellen fehlen:
+
 1. Führen Sie das Setup‑Script aus:
+
    ```bash
    npm run setup:local
    ```
+
 2. Prüfen Sie das Schema einer Tabelle:
+
    ```bash
    sqlite3 .wrangler/d1/miniflare/databases/evolution-hub-main-local.sqlite ".schema sessions"
    ```
+
 3. Bei inkonsistenten Wrangler‑State‑Datenbanken prüfen Sie beide Speicherorte (siehe oben) und führen Migrationen dort aus.
 
 ## Rollback / Reset
@@ -107,7 +166,10 @@ npm run setup:local
 1. Versionieren Sie Migrationen streng und vermeiden Sie rückwirkende Änderungen an bereits deployten Migrationsnummern.
 2. Erstellen Sie separate Seed‑Scripte für Testdaten (`scripts/seed-test-data.ts`).
 3. Generieren Sie ein ER‑Diagramm aus den Migrations‑SQLs für die Entwickler‑Dokumentation.
+4. Überwachen Sie die Datenbank-Performance bei steigendem AI-Jobs-Volumen.
 
 ## Referenzen
 
 - Migrations‑Verzeichnis: [`/migrations`](migrations:1)
+- AI-Image-Service: [`src/lib/services/ai-image-service.ts`](src/lib/services/ai-image-service.ts:1)
+- AI-Jobs-Service: [`src/lib/services/ai-jobs-service.ts`](src/lib/services/ai-jobs-service.ts:1)

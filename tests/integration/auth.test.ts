@@ -159,81 +159,38 @@ describe('Auth-Integration', () => {
     ];
     expect(loginHeadingCandidates.some(h => text.includes(h))).toBe(true);
     expect(text).toContain('<form');
-    expect(text).toContain('action="/api/auth/login"');
+    // Magic Link-only flow
+    expect(text).toContain('action="/api/auth/magic/request"');
     expect(text.toLowerCase()).toContain('method="post"');
     expect(text).toContain('name="email"');
-    expect(text).toContain('name="password"');
+    expect(text).not.toContain('name="password"');
     expect(text).toContain('type="submit"');
   });
 
-  // Teste den Login-Prozess mit ungültigen Daten
-  it('sollte bei ungültiger E-Mail einen Validierungsfehler zurückgeben', async () => {
-    const formData = {
-      email: 'ungueltig',
-      password: 'password123'
-    };
-    
-    const response = await submitForm('/api/auth/login', formData);
-    
-    // Erwarte Redirect mit Fehlerparameter
-    expect(response.status).toBe(302);
-    expect(response.redirected).toBe(true);
-    expect(response.redirectUrl).toContain('/en/login?error=InvalidInput');
+  // Legacy password-login tests are deprecated; Magic Link flow is used instead
+  it.skip('sollte bei ungültiger E-Mail einen Validierungsfehler (legacy) zurückgeben', async () => {
+    // Skipped: /api/auth/login is deprecated (410 Gone). Magic Link validation is covered elsewhere.
   });
   
-  // Teste den Login-Prozess mit zu kurzem Passwort
-  it('sollte bei zu kurzem Passwort einen Validierungsfehler zurückgeben', async () => {
-    const formData = {
-      email: 'test@example.com',
-      password: '12345'  // zu kurz (min. 6 Zeichen)
-    };
-    
-    const response = await submitForm('/api/auth/login', formData);
-    
-    // Erwarte Redirect mit Fehlerparameter
-    expect(response.status).toBe(302);
-    expect(response.redirected).toBe(true);
-    expect(response.redirectUrl).toContain('/en/login?error=InvalidInput');
+  it.skip('sollte bei zu kurzem Passwort einen Validierungsfehler (legacy) zurückgeben', async () => {
+    // Skipped: legacy password flow removed.
   });
   
-  // Teste den Login-Prozess mit nicht existierendem Benutzer
-  it('sollte bei nicht existierendem Benutzer einen entsprechenden Fehler zurückgeben', async () => {
-    const formData = {
-      email: 'nichtexistierend@example.com',
-      password: 'password123'
-    };
-    
-    const response = await submitForm('/api/auth/login', formData);
-    
-    // Erwarte Redirect mit Fehlerparameter
-    expect(response.status).toBe(302);
-    expect(response.redirected).toBe(true);
-    expect(response.redirectUrl).toContain('/en/login?error=InvalidCredentials');
+  it.skip('sollte bei nicht existierendem Benutzer einen entsprechenden Fehler (legacy) zurückgeben', async () => {
+    // Skipped: legacy password flow removed.
   });
   
-  // Teste die "Remember Me"-Funktionalität
-  it('sollte die Cookie-Lebensdauer bei "Remember Me" anpassen', async () => {
-    // Da wir keinen Test-Benutzer in der DB haben, können wir nur die Fehlerbehandlung testen
-    // Aber wir können prüfen, ob der Parameter korrekt übermittelt wird
-    const formData = {
-      email: 'test@example.com',
-      password: 'password123',
-      rememberMe: 'true'
-    };
-    
-    // Parameter wird übermittelt, aber Auth schlägt fehl - trotzdem relevant für Testabdeckung
-    const response = await submitForm('/api/auth/login', formData);
-    expect(response.status).toBe(302);
+  it.skip('sollte die Cookie-Lebensdauer bei "Remember Me" anpassen (legacy)', async () => {
+    // Skipped: legacy password flow removed.
   });
   
-  // Teste die Register-Seite
-  it('sollte die Register-Seite korrekt anzeigen', async () => {
+  // Teste die Register-Seite (Magic Link with optional profile fields)
+  it('sollte die Register-Seite korrekt anzeigen (Magic Link)', async () => {
     const { status, contentType, text } = await fetchPage('/register');
     
     expect(status).toBe(200);
     expect(contentType).toContain('text/html');
     expect(text).toContain('<h1');
-    // Überschrift kann je nach Locale variieren – akzeptiere DE/EN Varianten
     const headingCandidates = [
       'Registrierung',
       'Konto erstellen',
@@ -243,21 +200,17 @@ describe('Auth-Integration', () => {
     ];
     expect(headingCandidates.some(h => text.includes(h))).toBe(true);
     expect(text).toContain('<form');
-    expect(text).toContain('action="/api/auth/register"');
+    expect(text).toContain('action="/api/auth/magic/request"');
     expect(text.toLowerCase()).toContain('method="post"');
     expect(text).toContain('name="email"');
-    expect(text).toContain('name="password"');
+    expect(text).toContain('name="name"');
+    expect(text).toContain('name="username"');
+    expect(text).not.toContain('name="password"');
     expect(text).toContain('type="submit"');
   });
   
-  // Teste die "Passwort vergessen"-Seite
-  it('sollte die "Passwort vergessen"-Seite korrekt anzeigen', async () => {
-    const { status, contentType, text } = await fetchPage('/forgot-password');
-    
-    expect(status).toBe(200);
-    expect(contentType).toContain('text/html');
-    expect(text).toContain('Passwort vergessen');
-    expect(text).toContain('<form');
-    expect(text).toContain('action="/api/auth/forgot-password"');
+  // Test zur "Passwort vergessen"-Seite entfällt im Stytch-only Flow
+  it.skip('sollte die "Passwort vergessen"-Seite korrekt anzeigen (legacy)', async () => {
+    // Skipped: UI-Seite wurde entfernt, Endpunkt liefert 410 Gone.
   });
 });
