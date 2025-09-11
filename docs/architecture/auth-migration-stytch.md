@@ -49,7 +49,6 @@ Der frühere E‑Mail/Passwort‑Login wurde vollständig entfernt und durch Sty
 
 - Nicht-POST-Methoden: 405 mit `Allow: POST`.
 
-
 ## Endpunkte & Flows
 
 ### Magic Link

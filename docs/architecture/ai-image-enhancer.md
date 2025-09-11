@@ -38,10 +38,11 @@ Die API-Endpunkte sind in `/src/pages/api/ai-image/` organisiert:
 
 #### Sicherheitsfeatures
 
-- Rate-Limiting: 10 Anfragen/Minute für AI-Operationen
-- Input-Validierung: Dateigröße, Format, Inhaltsprüfung
-- Authentifizierung: Erforderlich für alle AI-Operationen
-- Audit-Logging: Vollständige Nachverfolgung aller AI-Anfragen
+- Rate-Limiting: `aiGenerate` 15/min, `aiJobs` 10/min; sonst `api` 30/min
+- Input-Validierung: MIME-Type (JPEG/PNG/WebP) und Dateigröße (max. 10 MB); keine Inhaltsprüfung auf Server-Seite
+- Authentifizierung: optional. Gäste werden per `guest_id`-Cookie unterstützt; Owner-Gating auf Resultate via R2-Proxy
+- CSRF: Double-Submit-Token für POST-Routen (Header `X-CSRF-Token` muss mit Cookie `csrf_token` übereinstimmen)
+- Audit-/Security-Logging: Standardisierte Fehler- und Limit-Logs über Middleware/Security-Logger
 
 ### 3. Service-Schicht
 
@@ -73,17 +74,24 @@ export class AIJobsService {
 #### AI-Jobs-Tabelle
 
 ```sql
+-- Siehe Migration 0009: owner support für Gäste
 CREATE TABLE ai_jobs (
   id TEXT PRIMARY KEY,
-  user_id TEXT NOT NULL,
-  type TEXT NOT NULL, -- 'enhance', 'generate', 'variation'
-  status TEXT NOT NULL, -- 'pending', 'processing', 'completed', 'failed', 'cancelled'
-  input_params TEXT, -- JSON mit Eingabeparametern
-  output_url TEXT, -- URL zum verarbeiteten Bild in R2
-  created_at INTEGER NOT NULL,
-  updated_at INTEGER NOT NULL,
-  completed_at INTEGER,
-  error_message TEXT
+  user_id TEXT, -- nullable für Gäste
+  owner_type TEXT NOT NULL, -- 'user' | 'guest'
+  owner_ref TEXT NOT NULL,  -- user.id oder guest_id Cookie
+  provider TEXT NOT NULL,   -- z. B. 'replicate'
+  model TEXT,
+  status TEXT NOT NULL DEFAULT 'queued', -- 'queued' | 'processing' | 'succeeded' | 'failed' | 'canceled'
+  provider_job_id TEXT,
+  input_r2_key TEXT,
+  input_content_type TEXT,
+  input_size INTEGER,
+  output_r2_key TEXT,
+  params_json TEXT,
+  error_message TEXT,
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 ```
 
@@ -96,26 +104,29 @@ CREATE TABLE ai_jobs (
 
 #### AI-Modelle
 
-- Nutzt Cloudflare AI für verschiedene Bildbearbeitungs-Modelle
-- Unterstützt verschiedene Stile: Realistic, Artistic, Vintage, etc.
-- Automatische Modellauswahl basierend auf Eingabe
+- Verwendet Replicate als externen AI-Provider (HTTP API)
+- Unterstützte Modelle werden in `src/config/ai-image.ts` via `ALLOWED_MODELS` whitelisted
+- Beispiel: `nightmareai/real-esrgan:latest` (Upscaling, optional `scale` und `face_enhance`)
 
 #### R2-Speicher
 
-- **Bucket**: `evolution-hub-avatars` (erweitert für AI-Bilder)
-- **Pfad-Struktur**: `/ai-jobs/{jobId}/{filename}`
-- **Zugriffssteuerung**: Private Objekte mit signierten URLs
+- Binding: `R2_AI_IMAGES` (siehe `env.d.ts`), optional `KV_AI_ENHANCER` für Quoten
+- Pfad-Präfix: `AI_R2_PREFIX = 'ai-enhancer'`
+- Struktur:
+  - Uploads: `ai-enhancer/uploads/<ownerType>/<ownerId>/<file>` (öffentlich, damit Provider sie abrufen kann)
+  - Ergebnisse: `ai-enhancer/results/<ownerType>/<ownerId>/<file>` (owner-gated via Proxy `src/pages/r2-ai/[...path].ts`)
 
 #### Worker-Integration
 
 ```toml
-# wrangler.toml
-[[ai]]
-binding = "AI"
-
+# wrangler.toml (relevante Auszüge)
 [[r2_buckets]]
-binding = "R2_AI"
+binding = "R2_AI_IMAGES"
 bucket_name = "evolution-hub-ai-images"
+
+[[kv_namespaces]]
+binding = "KV_AI_ENHANCER"
+id = "<kv-id>"
 ```
 
 ## Datenfluss
@@ -153,9 +164,9 @@ sequenceDiagram
 
 ### Datenschutz
 
-- **Lokale Verarbeitung**: Bilder werden nicht an externe Dienste gesendet
-- **Temporäre Speicherung**: Verarbeitete Bilder werden nach 30 Tagen automatisch gelöscht
-- **Zugriffssteuerung**: Nur der Eigentümer kann auf seine Bilder zugreifen
+- Verarbeitung über externen Provider (Replicate). Originale werden in R2 gespeichert; der Provider lädt von dort.
+- Dev-Fallback: In Entwicklung kann der Service das Originalbild zurückgeben (Echo), ohne externen Aufruf.
+- Zugriffssteuerung: Ergebnisse sind ausschließlich für den Owner abrufbar (Owner-Gating im Proxy)
 
 ### Monitoring
 
@@ -167,9 +178,9 @@ sequenceDiagram
 
 ### Asynchrone Verarbeitung
 
-- Jobs werden asynchron verarbeitet, um UI-Blockierung zu vermeiden
-- WebSocket/SSE für Echtzeit-Status-Updates
-- Queue-basierte Verarbeitung für Lastverteilung
+- Jobs werden asynchron erstellt (`POST /api/ai-image/jobs`) und beim ersten `GET /api/ai-image/jobs/{id}` verarbeitet (Polling)
+- Kein WebSocket/SSE im aktuellen Stand; Status-Updates erfolgen per Polling
+- DB-Status-Lifecycle: `queued → processing → succeeded|failed|canceled`
 
 ### Caching-Strategien
 
