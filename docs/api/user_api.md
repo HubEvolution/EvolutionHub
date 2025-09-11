@@ -4,7 +4,7 @@ Dieses Dokument beschreibt die API-Endpunkte für die Benutzerverwaltung im Evol
 
 ## Authentifizierung
 
-Alle Endpunkte erfordern eine authentifizierte Session über ein HttpOnly-Cookie `session_id`. Es wird kein JWT im `Authorization`-Header verwendet.
+Alle Endpunkte erfordern eine authentifizierte Session über ein HttpOnly-Cookie `__Host-session` (Secure, SameSite=Strict, Path=/). Es wird kein JWT im `Authorization`-Header verwendet.
 
 ## Security-Features
 
@@ -129,7 +129,7 @@ Meldet den aktuell authentifizierten Benutzer ab und invalidiert die Session. Nu
 ```http
 HTTP/1.1 302 Found
 Location: /
-Set-Cookie: session_id=; Path=/; HttpOnly; SameSite=Lax; Secure; Max-Age=0
+Set-Cookie: __Host-session=; Path=/; HttpOnly; SameSite=Strict; Secure; Max-Age=0
 ```
 
 ### Fehlerhafte Antwort – /api/user/logout (302 Redirect)

@@ -6,10 +6,10 @@ Dieses Dokument bietet eine Übersicht über den aktuellen Status des Evolution 
 
 ### Authentifizierungssystem
 
-- ✅ **Login-API**: Vollständig implementiert, getestet und funktionsfähig
-- ✅ **Registrierungs-API**: Vollständig implementiert, getestet und funktionsfähig
-- ✅ **Passwort-Reset-Flow**: Implementiert mit Forgot- und Reset-Password-APIs
+- ✅ **Stytch Magic Link**: Vollständig implementiert, getestet und funktionsfähig (Request + Callback)
+- ✅ **Registrierung via Magic Link**: Vollständig implementiert, getestet und funktionsfähig
 - ✅ **Logout-API**: Implementiert und funktional
+- ℹ️  Hinweis: Legacy Passwort-Flows (Login/Register/Forgot/Reset/Change/Verify) wurden entfernt und liefern 410 Gone. Session-Management erfolgt ausschließlich über `__Host-session` (HttpOnly, Secure, SameSite=Strict, Path=/).
 
 ### Benutzer-APIs
 

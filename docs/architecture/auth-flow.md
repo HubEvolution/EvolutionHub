@@ -45,7 +45,7 @@ Hinweis: Das System ist auf Stytch Magic Link migriert. Der Authentifizierungsfl
 Technische Details
 
 - Zentraler Handler: `src/lib/error-handler.ts` (`getErrorCode()`, `handleAuthError()`).
-- Redirect-Basis-URL ist locale-aware, z. B. `'/en/login'` oder `'/en/reset-password'`.
+- Redirect-Basis-URL ist locale-aware, z. B. `'/en/login'`.
 - Kontext-Parameter (z. B. `token`) werden durchgereicht und in die Redirect-URL übernommen.
 - Die Reihenfolge von Query-Parametern ist unerheblich; Tests prüfen auf Vorhandensein, nicht auf
   die exakte Reihenfolge.
@@ -77,7 +77,7 @@ import { validateSession } from '@/lib/auth-v2';
 
 export const onRequest = defineMiddleware(async (context, next) => {
   // Session-ID aus Cookie lesen
-  const sessionId = context.cookies.get('session_id')?.value ?? null;
+  const sessionId = context.cookies.get('__Host-session')?.value ?? null;
 
   if (!sessionId || !context.locals?.runtime) {
     context.locals.session = null;

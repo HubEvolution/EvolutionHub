@@ -183,6 +183,8 @@ All files                     |   14.76 |     87.5 |   77.77 |   14.76 |
 
 Hervorstechende Coverage-Ergebnisse:
 
+- Hinweis (historisch): Die folgenden Einträge beziehen sich auf Legacy Passwort-Flows. Diese wurden vollständig entfernt und liefern nun 410 Gone. Das System verwendet ausschließlich Stytch Magic Link mit dem Session‑Cookie `__Host-session`.
+
 - **Vollständig getestete Module** (100% Coverage):
   - `src/lib/auth-v2.ts`
   - `src/pages/api/auth/login.ts`
@@ -309,6 +311,8 @@ Die E2E-Tests verwenden statische Testdaten, die möglicherweise nicht in der Da
 #### Weitere empfohlene Unit-Tests
 
 Zusätzlich zu den bereits implementierten Tests werden folgende weitere Tests empfohlen:
+
+Hinweis (historisch): Die nachfolgenden Empfehlungen bezogen sich auf Legacy Passwort‑Flows (Forgot/Reset/Logout v1). Diese Endpunkte sind deprecatet und liefern 410 Gone. Fokus der aktuellen Tests liegt auf Stytch Magic Link (`/api/auth/magic/request` → `/api/auth/callback`) und dem Session‑Cookie `__Host-session`.
 
 1. **Weitere Auth-bezogene APIs**:
    - `/api/auth/forgot-password.ts`

@@ -211,7 +211,7 @@ Maßnahmen zum Schutz sensibler Benutzerdaten.
 
 #### Technische Details
 
-- **Passwort-Hashing**: Sichere Hashing-Algorithmen (bcrypt)
+- **Kein Passwort-Hashing**: System verwendet Stytch Magic Link, keine Passwörter im System
 - **Datenfilterung**: Sensible Daten werden vor der Rückgabe gefiltert
 - **Vermeidung von User-Enumeration**: Konsistente Antworten unabhängig vom Benutzerexistenz-Status
 

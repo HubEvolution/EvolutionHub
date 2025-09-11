@@ -34,13 +34,6 @@
     "subtitle": "Werden Sie Teil der Tausenden von Entwicklern, die bereits Evolution Hub nutzen, um erstaunliche Anwendungen zu erstellen.",
     "button_text": "Kostenloses Konto erstellen"
   },
-  "hero": {
-    "title_part1": "Willkommen bei Evolution Hub",
-    "title_part2": "Die Zukunft der KI-gestützten Entwicklung",
-    "subtitle": "Entdecken Sie die Leistung von KI-gestützten Tools zur Optimierung Ihres Workflows und zur Steigerung Ihrer Produktivität.",
-    "get_started_button": "Jetzt loslegen",
-    "documentation_link": "Dokumentation anzeigen"
-  },
   "pages": {
     "home": {
       "title": "Willkommen bei Evolution Hub",
@@ -64,34 +57,34 @@
         }
       },
       "testimonials": {
-  "heading": "Was unsere Nutzer über Imag-Enhancer sagen",
-  "subtitle": "Kurze Notizen von Menschen, die Imag‑Enhancer wirklich einsetzen – was ihnen konkret geholfen hat.",
-  "testimonial1": {
-    "quote": "Ich fotografiere oft in Cafés bei wenig Licht – ISO 3200 ist normal. Imag‑Enhancer hat das Rauschen entfernt, ohne diesen Wachs‑Look. Ein Tick mehr Kontrast und die Dateien waren abends beim Kunden.",
-    "author": "Amira K.",
-    "role": "Freelance‑Fotografin"
-  },
-  "testimonial2": {
-    "quote": "Wir verkaufen Second‑Hand‑Ware. Handyfotos auf zerknittertem Papier sahen immer unruhig aus. Batch‑Entrauschen plus etwas Schärfen – plötzlich wirkt alles einheitlich. Retuschezeit: von zwei Tagen auf einen Nachmittag.",
-    "author": "Diego R.",
-    "role": "Operations, kleiner E‑Commerce"
-  },
-  "testimonial3": {
-    "quote": "Für die Startseite brauchten wir saubere 4×‑Crops. Der Upscaler blieb ohne Halos, Farben blieben ehrlich. Ist jetzt ein kleiner, verlässlicher Schritt in unserem Figma→Prod‑Ablauf.",
-    "author": "Nina P.",
-    "role": "Design Lead"
-  },
-  "testimonial4": {
-    "quote": "Kunden schicken winzige JPEG‑Logos fünf Minuten vor Druck. Der Upscaler liefert saubere Kanten für A3‑Flyer – keine Treppchen. Wir jagen nicht mehr panisch der „Originaldatei“ hinterher.",
-    "author": "Leila M.",
-    "role": "Inhaberin, kleine Kreativagentur"
-  },
-  "testimonial5": {
-    "quote": "Wir ziehen Stills aus Produktvideos für Listings. Denoise + Detail bringt Konturen zurück, Text bleibt lesbar. Das ist der Unterschied zwischen „geht so“ und „scharf“.",
-    "author": "Tom S.",
-    "role": "Content Manager, Retail‑Marke"
-  }
-},
+        "heading": "Was unsere Nutzer über Imag-Enhancer sagen",
+        "subtitle": "Kurze Notizen von Menschen, die Imag‑Enhancer wirklich einsetzen – was ihnen konkret geholfen hat.",
+        "testimonial1": {
+          "quote": "Ich fotografiere oft in Cafés bei wenig Licht – ISO 3200 ist normal. Imag‑Enhancer hat das Rauschen entfernt, ohne diesen Wachs‑Look. Ein Tick mehr Kontrast und die Dateien waren abends beim Kunden.",
+          "author": "Amira K.",
+          "role": "Freelance‑Fotografin"
+        },
+        "testimonial2": {
+          "quote": "Wir verkaufen Second‑Hand‑Ware. Handyfotos auf zerknittertem Papier sahen immer unruhig aus. Batch‑Entrauschen plus etwas Schärfen – plötzlich wirkt alles einheitlich. Retuschezeit: von zwei Tagen auf einen Nachmittag.",
+          "author": "Diego R.",
+          "role": "Operations, kleiner E‑Commerce"
+        },
+        "testimonial3": {
+          "quote": "Für die Startseite brauchten wir saubere 4×‑Crops. Der Upscaler blieb ohne Halos, Farben blieben ehrlich. Ist jetzt ein kleiner, verlässlicher Schritt in unserem Figma→Prod‑Ablauf.",
+          "author": "Nina P.",
+          "role": "Design Lead"
+        },
+        "testimonial4": {
+          "quote": "Kunden schicken winzige JPEG‑Logos fünf Minuten vor Druck. Der Upscaler liefert saubere Kanten für A3‑Flyer – keine Treppchen. Wir jagen nicht mehr panisch der „Originaldatei“ hinterher.",
+          "author": "Leila M.",
+          "role": "Inhaberin, kleine Kreativagentur"
+        },
+        "testimonial5": {
+          "quote": "Wir ziehen Stills aus Produktvideos für Listings. Denoise + Detail bringt Konturen zurück, Text bleibt lesbar. Das ist der Unterschied zwischen „geht so“ und „scharf“.",
+          "author": "Tom S.",
+          "role": "Content Manager, Retail‑Marke"
+        }
+      },
       "introduction": {
         "part1": "Evolution Hub bietet eine innovative Sammlung von KI-gestützten Tools, die speziell für Entwickler und Kreative entwickelt wurden. Mit unseren KI-gestützten Tools können Sie Ihren Workflow optimieren, repetitive Aufgaben automatisieren und Ihre Produktivität steigern. Ob Sie Code generieren, Inhalte erstellen oder komplexe Daten analysieren möchten – unsere Plattform unterstützt Sie bei jedem Schritt.",
         "part2": "Die intelligente Kombination aus künstlicher Intelligenz und benutzerfreundlichem Design ermöglicht es Ihnen, Ihre Kreativität freizusetzen und Projekte schneller zum Leben zu erwecken. Entdecken Sie unsere leistungsstarken Funktionen und erfahren Sie, wie Sie mit Evolution Hub die Zukunft der Softwareentwicklung und Content-Erstellung gestalten können.",
@@ -110,6 +103,100 @@
           "Automatisierte Tests",
           "Intelligente Fehlerbehebung"
         ]
+      }
+    },
+    "blog": {
+      "title": "Blog",
+      "description": "Aktuelle Artikel, Tutorials und Neuigkeiten aus der Welt der Webentwicklung",
+      "search": {
+        "title": "Blog durchsuchen",
+        "placeholder": "Suchen...",
+        "button": "Suchen"
+      },
+      "noPosts": {
+        "title": "Keine Beiträge gefunden",
+        "description": "Es wurden keine Blog-Beiträge gefunden, die Ihren Suchkriterien entsprechen.",
+        "action": "Alle Beiträge anzeigen"
+      },
+      "filter": {
+        "category": "Gefiltert nach Kategorie: ",
+        "tag": "Gefiltert nach Tag: ",
+        "search": "Suchergebnisse für: ",
+        "reset": "Filter zurücksetzen"
+      },
+      "featured": "Featured Post",
+      "tags": {
+        "title": "Alle Tags",
+        "none": "Keine Tags verfügbar"
+      },
+      "filter": {
+        "category": {
+          "title": "Nach Kategorie filtern",
+          "all": "Alle Kategorien"
+        },
+        "all": "Alle"
+      },
+      "posts": {
+        "count": {
+          "one": "1 Beitrag",
+          "other": "{count} Beiträge"
+        }
+      },
+      "cta": {
+        "newsletter": {
+          "title": "Bleiben Sie auf dem Laufenden",
+          "description": "Erhalten Sie wöchentlich die neuesten Insights zu New Work, KI und Produktivität direkt in Ihr Postfach.",
+          "button": "Newsletter abonnieren"
+        },
+        "leadmagnet": {
+          "title": "Kostenloses Experten-Material",
+          "description": "Laden Sie unser praxiserprobtes Material herunter und setzen Sie die Tipps sofort um.",
+          "button": "Jetzt herunterladen"
+        },
+        "consultation": {
+          "title": "Individuelle Beratung gewünscht?",
+          "description": "Lassen Sie uns in einem kostenlosen Gespräch Ihre spezifischen Herausforderungen besprechen.",
+          "button": "Gespräch vereinbaren"
+        },
+        "social": {
+          "title": "Teilen Sie diesen Artikel",
+          "description": "Helfen Sie anderen dabei, diese wertvollen Insights zu entdecken.",
+          "button": "Artikel teilen"
+        }
+      },
+      "leadMagnet": {
+        "newWorkGuide": {
+          "title": "New Work Transformation Guide",
+          "description": "Schritt-für-Schritt Anleitung zur erfolgreichen Einführung von New Work in Ihrem Unternehmen.",
+          "benefits": [
+            "Praxiserprobte Transformation-Roadmap",
+            "Checklisten für jede Implementierungsphase",
+            "Häufige Stolpersteine und wie Sie sie vermeiden",
+            "Erfolgsmetriken und KPI-Dashboard"
+          ]
+        },
+        "kiToolsChecklist": {
+          "title": "KI-Tools Checkliste 2025",
+          "description": "Umfassende Liste der besten KI-Tools für verschiedene Anwendungsbereiche im Business.",
+          "benefits": [
+            "50+ getestete KI-Tools mit Bewertungen",
+            "Kategorisiert nach Anwendungsbereich",
+            "Kosten-Nutzen-Analyse für jedes Tool",
+            "Implementierungs-Tipps und Best Practices"
+          ]
+        },
+        "productivityMasterclass": {
+          "title": "Produktivitäts-Masterclass",
+          "description": "Video-Serie mit den effektivsten Techniken für maximale Produktivität im Home Office.",
+          "benefits": [
+            "5 Video-Module (insgesamt 2 Stunden)",
+            "Downloadbare Arbeitsblätter",
+            "Pomodoro-Timer-App inklusive",
+            "Exklusive Community-Zugang"
+          ]
+        },
+        "download": "Kostenlos herunterladen",
+        "limited": "Limitiertes Angebot"
       }
     },
     "impressum": {
@@ -164,7 +251,7 @@
           "headline": "Haftungsausschluss",
           "content_liability": {
             "headline": "Haftung für Inhalte",
-            "paragraph1": "Als Diensteanbieter sind wir gemäß § 7 Abs.1 TMG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 TMG sind wir als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen zu überwachen oder nach Umständen zu forschen, die auf eine rechtswidrige Tätigkeit hinweisen.",
+            "paragraph1": "Als Diensteanbieter sind wir gemäß § 7 Abs.1 TMG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 TMG sind wir als Diensteanbieter jedoch nicht verpflichtet, übermittete oder gespeicherte fremde Informationen zu überwachen oder nach Umständen zu forschen, die auf eine rechtswidrige Tätigkeit hinweisen.",
             "paragraph2": "Verpflichtungen zur Entfernung oder Sperrung der Nutzung von Informationen nach den allgemeinen Gesetzen bleiben hiervon unberührt. Eine diesbezügliche Haftung ist jedoch erst ab dem Zeitpunkt der Kenntnis einer konkreten Rechtsverletzung möglich. Bei Bekanntwerden von entsprechenden Rechtsverletzungen werden wir diese Inhalte umgehend entfernen."
           },
           "link_liability": {
@@ -572,67 +659,67 @@
       }
     }
   },
-"comingSoon": {
-  "title": "Bald verfügbar",
-  "description": "Unsere Plattform wird gerade überarbeitet. Trage dich in die Warteliste ein, um als Erste informiert zu werden.",
-  "cta": {
-    "primary": "Zur Startseite",
-    "secondary": "Zur Warteliste",
-    "close": "Schließen"
-  },
-  "ariaLabel": "Hinweis Seite in Arbeit"
-},
-"faq": {
-  "title": "Häufig gestellte Fragen",
-  "hero": {
-    "heading": "Häufig gestellte Fragen",
-    "subtitle": "Finde Antworten auf die häufigsten Fragen"
-  },
-  "search_placeholder": "Suchen Sie nach einer Frage oder einem Stichwort...",
-  "no_results": {
-    "title": "Keine Ergebnisse gefunden",
-    "description_before": "Keine passenden Fragen. Versuche, deine Suche anzupassen oder",
-    "description_link_text": "kontaktiere uns",
-    "description_after": "."
-  },
-  "categories": {
-    "all": "Alle anzeigen",
-    "allgemein": {
-      "title": "Allgemeine Fragen",
-      "items": [
-        { "question": "Was ist EvolutionHub?", "answer": "EvolutionHub ist eine Plattform für moderne Webentwicklung mit Fokus auf Performance, Benutzerfreundlichkeit und moderne Technologien." },
-        { "question": "Welche Technologien werden verwendet?", "answer": "Wir verwenden Astro für das Frontend, TypeScript für typsichere Entwicklung, und Tailwind CSS für das Styling. Unser Backend basiert auf modernen JavaScript/TypeScript-Technologien." },
-        { "question": "Ist ein Konto erforderlich?", "answer": "Für die meisten Funktionen benötigen Sie ein Konto. Einige Bereiche wie die Dokumentation und Blogbeiträge sind auch ohne Konto einsehbar." },
-        { "question": "Wie wird der Datenschutz gewährleistet?", "answer": "Wir legen großen Wert auf Datenschutz und Sicherheit. Alle Daten werden verschlüsselt übertragen und gemäß der DSGVO verarbeitet." },
-        { "question": "Wann ist der Support erreichbar?", "answer": "Unser Support-Team ist von Montag bis Freitag, 9 bis 18 Uhr, für Sie erreichbar." },
-        { "question": "Ist EvolutionHub auch mobil nutzbar?", "answer": "Ja, unsere Plattform ist für mobile Geräte optimiert und kann auf Smartphones und Tablets genutzt werden." },
-        { "question": "Ist die Plattform barrierefrei?", "answer": "Wir arbeiten kontinuierlich daran, die Barrierefreiheit unserer Plattform zu verbessern, um sie für alle Nutzer zugänglich zu machen." }
-      ]
+  "comingSoon": {
+    "title": "Bald verfügbar",
+    "description": "Unsere Plattform wird gerade überarbeitet. Trage dich in die Warteliste ein, um als Erste informiert zu werden.",
+    "cta": {
+      "primary": "Zur Startseite",
+      "secondary": "Zur Warteliste",
+      "close": "Schließen"
     },
-    "konto": {
-      "title": "Konto & Abonnement",
-      "items": [
-        { "question": "Wie erstelle ich ein Konto?", "answer": "Klicken Sie auf \"Registrieren\" in der oberen Navigation und folgen Sie den Anweisungen. Sie benötigen eine gültige E-Mail-Adresse." },
-        { "question": "Wie kann ich mein Passwort zurücksetzen?", "answer": "Auf der Anmeldeseite finden Sie einen Link \"Passwort vergessen\". Geben Sie Ihre E-Mail-Adresse ein und folgen Sie den Anweisungen in der erhaltenen E-Mail." },
-        { "question": "Wie kündige ich mein Abonnement?", "answer": "Gehen Sie zu Ihren Kontoeinstellungen und wählen Sie \"Abonnement verwalten\". Dort können Sie Ihr Abonnement kündigen." },
-        { "question": "Welche Abonnement-Pläne gibt es?", "answer": "Wir bieten verschiedene Pläne an, die auf unterschiedliche Bedürfnisse zugeschnitten sind. Details finden Sie auf unserer Pricing-Seite." },
-        { "question": "Welche Zahlungsmethoden werden akzeptiert?", "answer": "Wir akzeptieren Kreditkarten, PayPal und SEPA-Lastschriftverfahren." },
-        { "question": "Wie kann ich mein Konto wiederherstellen, wenn ich den Zugang verliere?", "answer": "Nutzen Sie die Passwort-zurücksetzen-Funktion oder kontaktieren Sie unseren Support für weitere Hilfe." },
-        { "question": "Wie verwalte ich meine Benachrichtigungseinstellungen?", "answer": "In Ihren Kontoeinstellungen können Sie festlegen, welche Benachrichtigungen Sie erhalten möchten." }
-      ]
+    "ariaLabel": "Hinweis Seite in Arbeit"
+  },
+  "faq": {
+    "title": "Häufig gestellte Fragen",
+    "hero": {
+      "heading": "Häufig gestellte Fragen",
+      "subtitle": "Finde Antworten auf die häufigsten Fragen"
     },
-    "technik": {
-      "title": "Technische Fragen",
-      "items": [
-        { "question": "Welche Browser werden unterstützt?", "answer": "Wir unterstützen die aktuellen Versionen von Chrome, Firefox, Safari, und Edge. Ältere Browser werden möglicherweise nicht vollständig unterstützt." },
-        { "question": "Wie kann ich die API nutzen?", "answer": "Unsere API-Dokumentation finden Sie unter /api-docs. Sie benötigen einen API-Schlüssel, den Sie in Ihren Kontoeinstellungen generieren können." },
-        { "question": "Wie melde ich einen Fehler?", "answer": "Bitte nutzen Sie unser Fehlerformular unter /kontakt oder erstellen Sie ein Issue in unserem GitHub-Repository." },
-        { "question": "Gibt es Nutzungslimits für die API?", "answer": "Ja, unsere API hat Nutzungslimits, um eine faire Verteilung der Ressourcen sicherzustellen. Details finden Sie in der API-Dokumentation." },
-        { "question": "Kann ich EvolutionHub mit Drittanbieter-Tools integrieren?", "answer": "Ja, wir bieten Integrationen und Webhooks für verschiedene Drittanbieter-Services an." },
-        { "question": "Welche Systemanforderungen gibt es?", "answer": "Für die Nutzung empfehlen wir aktuelle Browser und eine stabile Internetverbindung." },
-        { "question": "Gibt es Backup- und Wiederherstellungsoptionen?", "answer": "Ja, Ihre Daten werden regelmäßig gesichert und können bei Bedarf wiederhergestellt werden." }
-      ]
+    "search_placeholder": "Suchen Sie nach einer Frage oder einem Stichwort...",
+    "no_results": {
+      "title": "Keine Ergebnisse gefunden",
+      "description_before": "Keine passenden Fragen. Versuche, deine Suche anzupassen oder",
+      "description_link_text": "kontaktiere uns",
+      "description_after": "."
+    },
+    "categories": {
+      "all": "Alle anzeigen",
+      "allgemein": {
+        "title": "Allgemeine Fragen",
+        "items": [
+          { "question": "Was ist EvolutionHub?", "answer": "EvolutionHub ist eine Plattform für moderne Webentwicklung mit Fokus auf Performance, Benutzerfreundlichkeit und moderne Technologien." },
+          { "question": "Welche Technologien werden verwendet?", "answer": "Wir verwenden Astro für das Frontend, TypeScript für typsichere Entwicklung, und Tailwind CSS für das Styling. Unser Backend basiert auf modernen JavaScript/TypeScript-Technologien." },
+          { "question": "Ist ein Konto erforderlich?", "answer": "Für die meisten Funktionen benötigen Sie ein Konto. Einige Bereiche wie die Dokumentation und Blogbeiträge sind auch ohne Konto einsehbar." },
+          { "question": "Wie wird der Datenschutz gewährleistet?", "answer": "Wir legen großen Wert auf Datenschutz und Sicherheit. Alle Daten werden verschlüsselt übertragen und gemäß der DSGVO verarbeitet." },
+          { "question": "Wann ist der Support erreichbar?", "answer": "Unser Support-Team ist von Montag bis Freitag, 9 bis 18 Uhr, für Sie erreichbar." },
+          { "question": "Ist EvolutionHub auch mobil nutzbar?", "answer": "Ja, unsere Plattform ist für mobile Geräte optimiert und kann auf Smartphones und Tablets genutzt werden." },
+          { "question": "Ist die Plattform barrierefrei?", "answer": "Wir arbeiten kontinuierlich daran, die Barrierefreiheit unserer Plattform zu verbessern, um sie für alle Nutzer zugänglich zu machen." }
+        ]
+      },
+      "konto": {
+        "title": "Konto & Abonnement",
+        "items": [
+          { "question": "Wie erstelle ich ein Konto?", "answer": "Klicken Sie auf \"Registrieren\" in der oberen Navigation und folgen Sie den Anweisungen. Sie benötigen eine gültige E-Mail-Adresse." },
+          { "question": "Wie kann ich mein Passwort zurücksetzen?", "answer": "Auf der Anmeldeseite finden Sie einen Link \"Passwort vergessen\". Geben Sie Ihre E-Mail-Adresse ein und folgen Sie den Anweisungen in der erhaltenen E-Mail." },
+          { "question": "Wie kündige ich mein Abonnement?", "answer": "Gehen Sie zu Ihren Kontoeinstellungen und wählen Sie \"Abonnement verwalten\". Dort können Sie Ihr Abonnement kündigen." },
+          { "question": "Welche Abonnement-Pläne gibt es?", "answer": "Wir bieten verschiedene Pläne an, die auf unterschiedliche Bedürfnisse zugeschnitten sind. Details finden Sie auf unserer Pricing-Seite." },
+          { "question": "Welche Zahlungsmethoden werden akzeptiert?", "answer": "Wir akzeptieren Kreditkarten, PayPal und SEPA-Lastschriftverfahren." },
+          { "question": "Wie kann ich mein Konto wiederherstellen, wenn ich den Zugang verliere?", "answer": "Nutzen Sie die Passwort-zurücksetzen-Funktion oder kontaktieren Sie unseren Support für weitere Hilfe." },
+          { "question": "Wie verwalte ich meine Benachrichtigungseinstellungen?", "answer": "In Ihren Kontoeinstellungen können Sie festlegen, welche Benachrichtigungen Sie erhalten möchten." }
+        ]
+      },
+      "technik": {
+        "title": "Technische Fragen",
+        "items": [
+          { "question": "Welche Browser werden unterstützt?", "answer": "Wir unterstützen die aktuellen Versionen von Chrome, Firefox, Safari, und Edge. Ältere Browser werden möglicherweise nicht vollständig unterstützt." },
+          { "question": "Wie kann ich die API nutzen?", "answer": "Unsere API-Dokumentation finden Sie unter /api-docs. Sie benötigen einen API-Schlüssel, den Sie in Ihren Kontoeinstellungen generieren können." },
+          { "question": "Wie melde ich einen Fehler?", "answer": "Bitte nutzen Sie unser Fehlerformular unter /kontakt oder erstellen Sie ein Issue in unserem GitHub-Repository." },
+          { "question": "Gibt es Nutzungslimits für die API?", "answer": "Ja, unsere API hat Nutzungslimits, um eine faire Verteilung der Ressourcen sicherzustellen. Details finden Sie in der API-Dokumentation." },
+          { "question": "Kann ich EvolutionHub mit Drittanbieter-Tools integrieren?", "answer": "Ja, wir bieten Integrationen und Webhooks für verschiedene Drittanbieter-Services an." },
+          { "question": "Welche Systemanforderungen gibt es?", "answer": "Für die Nutzung empfehlen wir aktuelle Browser und eine stabile Internetverbindung." },
+          { "question": "Gibt es Backup- und Wiederherstellungsoptionen?", "answer": "Ja, Ihre Daten werden regelmäßig gesichert und können bei Bedarf wiederhergestellt werden." }
+        ]
+      }
     }
   }
-}
 }

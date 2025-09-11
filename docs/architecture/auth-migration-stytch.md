@@ -21,8 +21,8 @@ Status: Phase 1 (Root-Workspace-Aliases) abgeschlossen am 2025-09-04T00:33:20+02
   - GET  `/api/auth/oauth/:provider/callback`
 - Legacy-Routen bei `AUTH_PROVIDER=stytch`: 410 Gone
   - Aktuell deprecatet (410): `src/pages/api/auth/register.ts`, `src/pages/api/auth/forgot-password.ts`, `src/pages/api/auth/logout.ts`, `src/pages/api/auth/verify-email.ts`, `src/pages/api/auth/change-password.ts`, `src/pages/api/auth/reset-password.ts` (Stand Codebasis).
-  - `src/pages/api/auth/login.ts` ist AKTIV und refaktoriert (Middleware + Service-Layer) und gibt KEIN 410 zurück.
-- Session-Cookie (aktuell): `session_id` (HttpOnly, SameSite=Lax, Path=/, Secure nur bei HTTPS). Zielzustand: `__Host-session` mit SameSite=Strict.
+  - `src/pages/api/auth/login.ts` ist nicht mehr aktiv.
+- Session-Cookie (aktuell): `__Host-session` (HttpOnly, Secure, SameSite=Strict, Path=/).
 
 ## Environments & Domains
 
@@ -43,13 +43,12 @@ Status: Phase 1 (Root-Workspace-Aliases) abgeschlossen am 2025-09-04T00:33:20+02
 - `legacy` = aktuelle Flows aktiv; `stytch` = neue Endpunkte aktiv, Legacy 410.
 - Guarding in `src/middleware.ts` und in einzelnen Routen.
 
-## Aktueller Status: Login-Endpoint (Legacy E-Mail/Passwort)
+## Legacy Passwort-Login – entfernt
 
-- Implementierung: `src/pages/api/auth/login.ts` nutzt `withRedirectMiddleware` (Rate-Limit, CSRF/Origin, Security-Headers) und Service-Layer (`AuthServiceImpl`).
-- Locale-Erkennung: `detectLocale()` fällt konservativ auf `'en'` zurück, wenn keine Locale ableitbar ist (Referer/Path). Redirects sind daher standardmäßig `/en/...`.
-- Fehlerverhalten: Validierungs- und Auth-Fehler werden zentral via `handleAuthError()` in sichere Redirects auf die locale-bewusste Login-Seite übersetzt (z. B. `/en/login?error=InvalidInput` oder `InvalidCredentials`).
-- Rate-Limiting: 429 wird in einen sicheren Redirect gemappt (`?error=TooManyRequests`).
+Der frühere E‑Mail/Passwort‑Login wurde vollständig entfernt und durch Stytch Magic Link ersetzt. Sämtliche Legacy‑Endpunkte liefern 410 Gone und sind in den Routen entsprechend dokumentiert.
+
 - Nicht-POST-Methoden: 405 mit `Allow: POST`.
+
 
 ## Endpunkte & Flows
 
@@ -89,11 +88,10 @@ Status: Phase 1 (Root-Workspace-Aliases) abgeschlossen am 2025-09-04T00:33:20+02
 
 ## Cookies & Lokal-Entwicklung
 
-- `__Host-session`: Secure + Path=/ + HttpOnly + SameSite=Strict.
+- `__Host-session`: Secure + Path=/ + HttpOnly + SameSite=Strict (aktiver Zustand).
 - Lokal:
   - Empfehlung: HTTPS für Dev; alternativ nur in Dev Secure-Flag entfernen (konfigurierbar) und klar dokumentieren.
 - Subdomains: getrennte Sessions sind gewollt; kein Domain-Attribut setzen (Host-only Cookie).
-- Hinweis (Ist-Zustand): Der Legacy-Login setzt aktuell `session_id` (HttpOnly, SameSite=Lax, Path=/, Secure wenn HTTPS) in `login.ts`. Die Umstellung auf `__Host-session` (Strict) ist geplant und sollte mit der Stytch-Migration erfolgen.
 
 ## Multi-Domain Entscheidung
 
@@ -313,7 +311,7 @@ Empfehlung:
 - In `wrangler.toml` (nur Dev): `STYTCH_BYPASS = "0"` setzen und Worker neu starten (`npm run dev:worker:dev`).
 - Magic‑Link anfordern: `POST /api/auth/magic/request` mit gültiger Test‑E‑Mail und `r=/dashboard`.
 - Link aus E‑Mail klicken → `GET /api/auth/callback?token=…&r=/dashboard`.
-- Erwartung: 302 → `/dashboard`, Cookies `session_id` und `__Host-session` gesetzt.
+- Erwartung: 302 → `/dashboard`, Cookie `__Host-session` gesetzt.
 - Danach für schnelles lokales Iterieren optional zurück zu `STYTCH_BYPASS = "1"`.
 
 1) Tests erweitern (Integration)
@@ -431,13 +429,11 @@ Empfehlung:
 
 - 2025-09-04 00:33 +02:00 — HEAD-Methoden-Tests für deprecated Endpoints (`/api/auth/logout`, `/api/auth/verify-email`) ergänzt in `test-suite-v2/src/unit/security/deprecated-logging.test.ts` (410 JSON, `Cache-Control: no-store`, Security-Logging `USER_EVENT`/`deprecated_endpoint_access`). Workspace-Phase 1 (zentrale Aliases) abgeschlossen; Suite grün.
 
-- 2025-09-05 21:00 +02:00 — Login-Endpoint verifiziert und dokumentiert: `login.ts` nutzt Middleware+Service, liefert 302-Redirects bei Fehlern; `detectLocale()` fallback `'en'`. Dokument bereinigt (Login nicht mehr als deprecated aufgeführt), Cookie-Istzustand (`session_id`, SameSite=Lax) ergänzt und Zielzustand `__Host-session` festgehalten. Troubleshooting-Hinweise zu 410 (falsches Routing/TEST_BASE_URL) ergänzt.
+- 2025-09-05 21:00 +02:00 — (Historisch) Login-Endpoint verifiziert und dokumentiert. Hinweis: Dieser Flow wurde mittlerweile entfernt; Stytch Magic Link ist allein gültig.
 
 ## Anhang: Referenzen im Code
 
 - Middleware: `src/middleware.ts`
-- Aktive Auth-Routen:
-  - `src/pages/api/auth/login.ts` (refaktoriert, `withRedirectMiddleware`, Service-Layer)
 - Deprecated Auth-Routen (410 Gone):
   - `src/pages/api/auth/register.ts`
   - `src/pages/api/auth/forgot-password.ts`

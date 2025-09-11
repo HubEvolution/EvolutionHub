@@ -1,5 +1,7 @@
 # API- & Middleware-Inventar (EvolutionHub)
 
+> Hinweis (Stand Stytch-Migration): Legacy Passwort-basierte Flows (`register`, `forgot-password`, `reset-password`, `change-password`, `verify-email`, `logout`) sind deprecatet und liefern 410 Gone. Die aktuelle Authentifizierung verwendet ausschließlich Stytch Magic Link mit dem Session-Cookie `__Host-session` (HttpOnly, Secure, SameSite=Strict, Path=/). Details siehe `docs/architecture/auth-migration-stytch.md` und `routes.md`.
+
 Stand: 2025-08-22 05:56 CEST
 Scope Phase 1 – Bestandsaufnahme und Analyse ohne Codeänderungen.
 
@@ -32,7 +34,7 @@ Scope Phase 1 – Bestandsaufnahme und Analyse ohne Codeänderungen.
   - Locale-Handling: Präfix-Erkennung `/de|/en`, Cookie `pref_locale`, neutrale Pfade → ggf. Redirect zu `/en/*`.
   - Welcome-Gate: Einmal pro Session (`session_welcome_seen`) Redirect auf `/welcome?next=...`.
   - Auth-Route-Schutz: Auth-Seiten nie normalisieren/unterbrechen.
-  - Session-Validierung: `session_id`-Cookie → `validateSession(DB, sessionId)` → `locals.session`/`locals.user`.
+  - Session-Validierung: `__Host-session`-Cookie → `validateSession(DB, sessionId)` → `locals.session`/`locals.user`.
   - Security: CSP (dev vs prod), HSTS, COOP, X-Frame-Options, Referrer-Policy für Reset-Password, `Content-Language`/`Vary`.
   - Content-Type-Korrektur: `.css`, `.js`, `.svg`.
   - Domain-Redirect: `www.hub-evolution.com` → `hub-evolution.com`.
@@ -43,7 +45,7 @@ Scope Phase 1 – Bestandsaufnahme und Analyse ohne Codeänderungen.
   - `Locale` Typ aus `@/lib/i18n`
   - `context.locals.runtime.env.DB` (Cloudflare D1)
 - Inputs/Outputs & Side-Effects
-  - Liest/setzt Cookies: `pref_locale`, `session_welcome_seen`, liest `session_id`.
+  - Liest/setzt Cookies: `pref_locale`, `session_welcome_seen`, liest `__Host-session`.
   - Setzt `context.locals.{user,session}`.
   - Führt Redirects aus (302/308) für Locale/Welcome.
   - Modifiziert Response-Header (CSP, HSTS, CL, Vary, Referrer-Policy).
@@ -242,20 +244,14 @@ Hinweis: Auth-Endpunkte setzen auf Redirect-Flows; JSON wird primär für 405-Fe
 
 ### 4.11 POST `/api/user/password` → `src/pages/api/user/password.ts`
 
-- Eingaben (FormData)
-  - `current-password: string`
-  - `new-password: string` (≥6)
-- Ablauf
-  - `withAuthApiMiddleware`
-  - `SELECT password_hash FROM users WHERE id = ?` → `compare`
-  - Fehlerfälle: invalid input → `validation_error`, falsches aktuelles Passwort → `forbidden`
-  - Hash mit `bcrypt-ts` (cost=10) → `UPDATE users SET password_hash = ? WHERE id = ?`
-  - Audit: `logUserEvent` für Erfolg und Fehler; `logMetadata: password_update`; spezielles `onError`
-- Antworten
-  - 200 JSON `{ success: true, message }`
-  - 404 JSON wenn User/Hash fehlt, 400/403 bei Validierungs-/Auth-Fehlern
-- Abhängigkeiten
-  - `bcrypt-ts`, `@/lib/api-middleware`, `@/lib/security-logger`, D1 `DB`
+Status: Deprecated — 410 Gone
+
+- Verhalten
+  - `POST` → 410 Gone (HTML)
+  - Andere Methoden → 410 Gone (JSON) mit `details.Allow: "POST"`
+- Hinweise
+  - Passwort-Änderungen werden im Stytch‑Modus nicht unterstützt. Nutzer-Authentifizierung erfolgt ausschließlich via Magic Link.
+  - Früher genutzte Artefakte wie `users.password_hash` wurden entfernt (siehe Migration `0010_drop_password_artifacts.sql`).
 
 ### 4.12 PUT `/api/user/settings` → `src/pages/api/user/settings.ts`
 
@@ -282,7 +278,7 @@ Hinweis: Auth-Endpunkte setzen auf Redirect-Flows; JSON wird primär für 405-Fe
     - `DELETE FROM activities WHERE user_id = ?`
     - `UPDATE comments SET content='[Deleted comment]', author_name='[Deleted user]' WHERE user_id = ?`
     - `UPDATE projects SET title='[Deleted project]', description='' WHERE user_id = ?`
-    - `UPDATE users SET email=anonymisiert, name='[Deleted User]', username='deleted_user_<id>', password_hash='', avatar='', is_deleted=1, deleted_at=NOW`
+    - `UPDATE users SET email=anonymisiert, name='[Deleted User]', username='deleted_user_<id>', avatar='', is_deleted=1, deleted_at=NOW`
   - Audit: `account_deletion_successful`; spezielles `onError`
 - Antworten
   - 204 No Content

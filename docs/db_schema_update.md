@@ -9,7 +9,7 @@ Evolution Hub verwendet eine SQLite-Datenbank mit Cloudflare D1. Die wichtigsten
 - `projects` - Projektdaten
 - `activities` - Benutzeraktivitäten
 - `comments` - Kommentare
-- `password_reset_tokens` - Tokens für Passwort-Reset
+- `password_reset_tokens` - Tokens für Passwort-Reset (entfernt in Migration `0010_drop_password_artifacts.sql`)
 - `email_verification_tokens` - Tokens für E‑Mail‑Verifikation (seit Migration `0007`)
 - `download_audit` - Audit‑Log für Lead‑Magnet/Asset‑Downloads (seit Migration `0006`)
 - `tasks` - Aufgaben
@@ -37,6 +37,7 @@ Die Migrations liegen im Verzeichnis `/migrations`. Aktuell vorhandene Migration
 8. `0007_add_email_verification.sql` - E‑Mail‑Verifikation (columns + tokens table + backfill)
 9. `0008_create_ai_jobs_table.sql` - AI-Jobs-Tabelle für asynchrone Bildbearbeitung
 10. `0009_update_ai_jobs_guest_ownership.sql` - Gastbenutzer-Unterstützung für AI-Jobs
+11. `0010_drop_password_artifacts.sql` - Entfernt `users.password_hash` und die Tabelle `password_reset_tokens`
 
 > Hinweis: Dateinamen und Reihenfolge sind wichtig. Führen Sie Migrations in numerischer Reihenfolge aus.
 

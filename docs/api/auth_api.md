@@ -12,8 +12,7 @@ Alle Auth-API-Endpunkte sind mit folgenden Sicherheitsmaßnahmen ausgestattet:
 * **Input-Validierung:** Alle Eingabeparameter werden validiert
 * **Anti-User-Enumeration:** Gleiches Redirect-Verhalten unabhängig vom Benutzerexistenz-Status
 
-Hinweis: Die Auth-Endpunkte sind formularbasiert und antworten mit Redirects statt JSON. Bei Erfolg wird ein HttpOnly-Cookie `session_id` gesetzt –
-mit Ausnahme der Registrierung (Double-Opt-In), die keine Session erstellt und stattdessen auf `/verify-email` weiterleitet.
+Hinweis: Die Stytch-Auth verwendet JSON (Magic Link Request) und Redirect (Callback). Die Session wird im Callback mit einem HttpOnly-Cookie `__Host-session` gesetzt (Secure, SameSite=Strict, Path=/).
 Hinweis: Die frühere Login-Variante `login-v2` wurde entfernt. Verwende ausschließlich den kanonischen Login-Endpunkt (Service-Layer, zentrale Fehlerbehandlung, konsistente Redirects).
 
 ## Endpunkte (kanonisch)
@@ -25,7 +24,7 @@ Hinweis: Die frühere Login-Variante `login-v2` wurde entfernt. Verwende ausschl
 * Eigenschaften:
   * Stytch‑Integration in `src/lib/stytch.ts` (Fake‑Modus via `E2E_FAKE_STYTCH` für Tests)
   * Zentrale Fehlerbehandlung/Headers: `src/lib/api-middleware.ts`, `src/lib/response-helpers.ts`
-  * Session‑Cookies Ziel: `__Host-session` (HttpOnly, Secure, SameSite=Strict, Path=/); Legacy `session_id` kann parallel vorkommen
+  * Session‑Cookie: `__Host-session` (HttpOnly, Secure, SameSite=Strict, Path=/)
 * Verhalten:
   * `magic/request` antwortet JSON (kein Redirect)
   * `callback` antwortet mit direktem Redirect zum Ziel (ggf. lokalisiert)
@@ -52,7 +51,7 @@ Beendet die aktuelle Benutzersitzung und löscht das Session-Cookie.
 ```http
 HTTP/1.1 302 Found
 Location: /
-Set-Cookie: session_id=; Path=/; HttpOnly; SameSite=Lax; Secure; Max-Age=0
+Set-Cookie: __Host-session=; Path=/; HttpOnly; SameSite=Strict; Secure; Max-Age=0
 ```
 
 ### Fehlerhafte Antwort (Logout) (`302 Redirect`)
