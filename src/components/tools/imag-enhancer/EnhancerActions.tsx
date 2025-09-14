@@ -62,6 +62,8 @@ interface EnhancerActionsProps {
   onStartOver?: () => void;
   // Optional: control visibility of Enhance button (e.g., only show when settings changed)
   showEnhance?: boolean;
+  // Optional: control whether Reset is enabled (e.g., when slider already centered)
+  canReset?: boolean;
 }
 
 /**
@@ -95,16 +97,17 @@ export function EnhancerActions({
   startOverLabel,
   onStartOver,
   showEnhance = true,
+  canReset = true,
 }: EnhancerActionsProps) {
   return (
-    <div className="mt-4 flex items-center gap-3">
+    <div className="mt-4 flex flex-wrap items-center gap-2 sm:gap-3 min-w-0">
       {modelControlsSlot ? (
         modelControlsSlot
       ) : (
         <ModelSelect id="model" label={modelLabel} value={model} options={models} onChange={onChangeModel} />
       )}
 
-      <div className="ml-auto flex items-center gap-3">
+      <div className="ml-auto flex flex-wrap items-center gap-2 sm:gap-3 min-w-0">
         {rightSlot}
         <ActionsGroup
           enhanceLabel={enhanceLabel}
@@ -122,6 +125,7 @@ export function EnhancerActions({
           startOverLabel={startOverLabel}
           onStartOver={onStartOver}
           showEnhance={showEnhance}
+          canReset={canReset}
         />
       </div>
     </div>

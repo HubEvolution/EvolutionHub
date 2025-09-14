@@ -60,6 +60,16 @@ test.describe('Imag Enhancer', () => {
       await acceptConsent.click().catch(() => {});
     }
 
+    // Open Help modal if Help/Hilfe button is present, then close with Escape
+    const helpBtn = page.getByRole('button', { name: /(Help|Hilfe)/i });
+    if (await helpBtn.isVisible().catch(() => false)) {
+      await helpBtn.click();
+      const dialog = page.getByRole('dialog');
+      await expect(dialog).toBeVisible();
+      await page.keyboard.press('Escape');
+      await expect(dialog).toBeHidden();
+    }
+
     // If compare slider is already visible (residual state), reset to show dropzone
     const existingSlider = page.getByRole('slider');
     if (await existingSlider.isVisible().catch(() => false)) {

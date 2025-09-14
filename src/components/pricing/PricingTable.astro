@@ -1,5 +1,8 @@
 ---
 import { aosDelayForIndex } from '@/lib/aos';
+import { getLocale } from '@/lib/i18n';
+import { getI18n, getI18nArray } from '@/utils/i18n';
+import { localizePath } from '@/lib/locale-path';
 
 interface Plan {
   name: string;
@@ -10,52 +13,70 @@ interface Plan {
   featured?: boolean;
 }
 
+const locale = getLocale(Astro.url.pathname);
+const t = getI18n(locale);
+const ta = getI18nArray(locale);
+
+// Simple sanitizer to avoid showing fallback tokens
+const sanitize = (s: string) => {
+  if (!s) return '';
+  const trimmed = s.trim();
+  if (trimmed.startsWith('[') && trimmed.endsWith(']')) return '';
+  if (/fallback_not_found/i.test(trimmed)) return '';
+  return trimmed;
+};
+const perMonthLabel = t('pages.pricing.table.per_month');
+const perYearLabel = sanitize(t('pages.pricing.table.per_year')) || 'per year';
+
 const plans: Plan[] = [
   {
-    name: 'Starter',
-    price: 'Kostenlos',
-    description: 'Perfekt zum Ausprobieren',
-    features: [
-      'Bis zu 3 Projekte',
-      'Basis-Tools',
-      'Community-Support',
-      '100 API-Anfragen/Tag'
-    ],
-    cta: 'Jetzt starten',
+    name: t('pages.pricing.table.plans.starter.name'),
+    price: t('pages.pricing.table.plans.starter.price'),
+    description: t('pages.pricing.table.plans.starter.description'),
+    features: ta('pages.pricing.table.plans.starter.features'),
+    cta: t('pages.pricing.table.plans.starter.cta'),
   },
   {
-    name: 'Pro',
-    price: '19€',
-    description: 'Für professionelle Nutzer',
-    features: [
-      'Unbegrenzte Projekte',
-      'Alle Tools',
-      'Priorisierter Support',
-      '10.000 API-Anfragen/Tag',
-      'Team-Funktionen',
-      'Erweiterte Analysen'
-    ],
-    cta: 'Kostenlos testen',
-    featured: true
+    name: t('pages.pricing.table.plans.pro.name'),
+    price: t('pages.pricing.table.plans.pro.price'),
+    description: t('pages.pricing.table.plans.pro.description'),
+    features: ta('pages.pricing.table.plans.pro.features'),
+    cta: t('pages.pricing.table.plans.pro.cta'),
+    featured: true,
   },
   {
-    name: 'Enterprise',
-    price: 'Individuell',
-    description: 'Für Unternehmen',
-    features: [
-      'Maßgeschneiderte Lösung',
-      'Dedizierter Support',
-      'Unbegrenzte API-Anfragen',
-      'SLA 99,9%',
-      'Individuelle Integrationen',
-      'Schulungen & Onboarding'
-    ],
-    cta: 'Kontakt aufnehmen'
-  }
+    name: t('pages.pricing.table.plans.premium.name'),
+    price: t('pages.pricing.table.plans.premium.price'),
+    description: t('pages.pricing.table.plans.premium.description'),
+    features: ta('pages.pricing.table.plans.premium.features'),
+    cta: t('pages.pricing.table.plans.premium.cta'),
+  },
+  {
+    name: t('pages.pricing.table.plans.enterprise.name'),
+    price: t('pages.pricing.table.plans.enterprise.price'),
+    description: t('pages.pricing.table.plans.enterprise.description'),
+    features: ta('pages.pricing.table.plans.enterprise.features'),
+    cta: t('pages.pricing.table.plans.enterprise.cta'),
+  },
 ];
 ---
 
-<div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
+<div class="mt-6 flex items-center justify-center gap-2">
+  <button
+    id="interval-monthly"
+    class="px-3 py-1.5 text-sm rounded-l-md ring-1 ring-gray-300 dark:ring-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 data-[active='1']:bg-emerald-600 data-[active='1']:text-white"
+    data-active="1"
+    type="button"
+  >Monthly</button>
+  <button
+    id="interval-annual"
+    class="px-3 py-1.5 text-sm rounded-r-md ring-1 ring-gray-300 dark:ring-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 data-[active='1']:bg-emerald-600 data-[active='1']:text-white"
+    data-active="0"
+    type="button"
+  >Annual</button>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-4 gap-8 mt-6">
   {plans.map((plan, idx) => (
     <div
       data-aos="fade-up"
@@ -63,20 +84,209 @@ const plans: Plan[] = [
       class={`relative flex flex-col p-8 rounded-2xl bg-white dark:bg-gray-800 shadow-lg ${
         plan.featured ? 'ring-2 ring-blue-500 transform md:-translate-y-4' : ''
       }`}
+      data-pro-card={plan.featured ? 'true' : undefined}
     >
       {plan.featured && (
         <div class="absolute top-0 right-0 -mt-3 -mr-3 px-3 py-1 bg-blue-500 text-white text-sm font-semibold rounded-full">
-          Beliebt
+          {t('pages.pricing.table.featured_badge')}
         </div>
+
+<script is:inline nonce={Astro.locals.cspNonce}>
+  (function () {
+    var pricingInterval = (function(){
+      try { return localStorage.getItem('pricing_interval') === 'annual' ? 'annual' : 'monthly'; } catch { return 'monthly'; }
+    })();
+
+    function readCookie(name) {
+      const m = document.cookie.match(new RegExp('(?:^|; )' + name.replace(/[.$?*|{}()\[\]\\/+^]/g, '\\$&') + '=([^;]*)'));
+      return m ? decodeURIComponent(m[1]) : null;
+    }
+    function ensureCsrfToken() {
+      let token = readCookie('csrf_token');
+      if (!token) {
+        try {
+          const buf = new Uint8Array(16);
+          (globalThis.crypto || window.crypto).getRandomValues(buf);
+          token = Array.from(buf).map((b) => b.toString(16).padStart(2, '0')).join('');
+          const attrs = [
+            'Path=/',
+            'SameSite=Lax',
+            (typeof location !== 'undefined' && location.protocol === 'https:') ? 'Secure' : ''
+          ].filter(Boolean).join('; ');
+          document.cookie = `csrf_token=${encodeURIComponent(token)}; ${attrs}`;
+        } catch {}
+      }
+      return token || '';
+    }
+    function getWorkspaceId() {
+      try {
+        const url = new URL(window.location.href);
+        const ws = url.searchParams.get('ws');
+        if (ws && ws.trim()) {
+          localStorage.setItem('ws_id', ws);
+          return ws;
+        }
+        const ls = localStorage.getItem('ws_id');
+        if (ls && ls.trim()) return ls;
+      } catch {}
+      return 'default';
+    }
+    function setIntervalButtons() {
+      try {
+        var m = document.getElementById('interval-monthly');
+        var a = document.getElementById('interval-annual');
+        if (m && a) {
+          if (pricingInterval === 'annual') {
+            m.setAttribute('data-active', '0');
+            a.setAttribute('data-active', '1');
+          } else {
+            m.setAttribute('data-active', '1');
+            a.setAttribute('data-active', '0');
+          }
+        }
+      } catch {}
+    }
+
+    async function createCheckout(plan) {
+      const csrf = ensureCsrfToken();
+      const body = { plan, workspaceId: getWorkspaceId(), interval: pricingInterval };
+      const res = await fetch('/api/billing/session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': csrf
+        },
+        body: JSON.stringify(body),
+        credentials: 'include'
+      });
+      if (res.status === 401) {
+        // Not logged in → redirect to login
+        window.location.href = '/login';
+        return;
+      }
+      if (!res.ok) {
+        const text = await res.text().catch(() => '');
+        alert('Checkout failed: ' + (text || res.status));
+        return;
+      }
+      const data = await res.json().catch(() => ({}));
+      if (data && data.url) {
+        window.location.href = data.url;
+      } else {
+        alert('Checkout failed: Invalid response');
+      }
+    }
+    function wire() {
+      let wired = false;
+      try {
+        var m = document.getElementById('interval-monthly');
+        var a = document.getElementById('interval-annual');
+        if (m && a) {
+          m.addEventListener('click', function(){ pricingInterval = 'monthly'; try { localStorage.setItem('pricing_interval', 'monthly'); } catch {}; setIntervalButtons(); });
+          a.addEventListener('click', function(){ pricingInterval = 'annual'; try { localStorage.setItem('pricing_interval', 'annual'); } catch {}; setIntervalButtons(); });
+          setIntervalButtons();
+          // Swap displayed prices for Pro & Premium (stable selectors)
+          var proAmt = document.querySelector('span[data-plan="pro"][data-role="amount"]');
+          var proPer = document.querySelector('span[data-plan="pro"][data-role="period"]');
+          var premAmt = document.querySelector('span[data-plan="premium"][data-role="amount"]');
+          var premPer = document.querySelector('span[data-plan="premium"][data-role="period"]');
+          function applyPrices() {
+            try {
+              if (proAmt && proPer) {
+                var pm = proAmt.getAttribute('data-monthly');
+                var pa = proAmt.getAttribute('data-annual');
+                var lm = proPer.getAttribute('data-monthly');
+                var la = proPer.getAttribute('data-annual');
+                proAmt.textContent = pricingInterval === 'annual' ? (pa || '') : (pm || '');
+                proPer.textContent = pricingInterval === 'annual' ? (la || '') : (lm || '');
+              }
+              if (premAmt && premPer) {
+                var pmm = premAmt.getAttribute('data-monthly');
+                var pma = premAmt.getAttribute('data-annual');
+                var lmm = premPer.getAttribute('data-monthly');
+                var laa = premPer.getAttribute('data-annual');
+                premAmt.textContent = pricingInterval === 'annual' ? (pma || '') : (pmm || '');
+                premPer.textContent = pricingInterval === 'annual' ? (laa || '') : (lmm || '');
+              }
+            } catch {}
+          }
+          applyPrices();
+          m.addEventListener('click', applyPrices);
+          a.addEventListener('click', applyPrices);
+        }
+      } catch {}
+      const proBtn = document.getElementById('buy-pro-cta');
+      if (proBtn) {
+        // use dataset flag to avoid duplicate wiring
+        if (!proBtn.dataset || !proBtn.dataset.wired) {
+          console.log('[pricing] wiring pro checkout via button');
+          proBtn.addEventListener('click', () => createCheckout('pro'));
+          if (proBtn.dataset) proBtn.dataset.wired = '1';
+        }
+        wired = true;
+      }
+      const premiumBtn = document.getElementById('buy-premium-cta');
+      if (premiumBtn) {
+        if (!premiumBtn.dataset || !premiumBtn.dataset.wired) {
+          console.log('[pricing] wiring premium checkout via button');
+          premiumBtn.addEventListener('click', () => createCheckout('premium'));
+          if (premiumBtn.dataset) premiumBtn.dataset.wired = '1';
+        }
+        wired = true;
+      }
+      if (!wired) {
+        // Fallback: legacy markup where Pro CTA is still an anchor to /register
+        try {
+          const proCard = document.querySelector('[data-pro-card="true"]');
+          const proAnchor = proCard && proCard.querySelector ? proCard.querySelector('a[href*="/register"]') : null;
+          if (proAnchor && proAnchor instanceof HTMLAnchorElement) {
+            const already = proAnchor.dataset && proAnchor.dataset.wired;
+            if (!already) {
+              console.log('[pricing] wiring pro checkout via legacy anchor');
+              proAnchor.addEventListener('click', (e) => {
+                e.preventDefault();
+                createCheckout('pro');
+              });
+              if (proAnchor.dataset) proAnchor.dataset.wired = '1';
+              wired = true;
+            }
+          }
+        } catch (e) {
+          console.warn('[pricing] wiring error', e);
+        }
+      }
+      if (!wired) {
+        console.log('[pricing] pro CTA not found to wire');
+      }
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', wire, { once: true });
+    } else {
+      wire();
+    }
+  })();
+</script>
       )}
       
       <h3 class="text-2xl font-bold">{plan.name}</h3>
       <p class="mt-2 text-gray-600 dark:text-gray-300">{plan.description}</p>
       
       <div class="mt-6">
-        <span class="text-4xl font-extrabold">{plan.price}</span>
-        {plan.price !== 'Kostenlos' && plan.price !== 'Individuell' && (
-          <span class="text-gray-500 dark:text-gray-400">/Monat</span>
+        <span
+          class="text-4xl font-extrabold"
+          data-plan={idx === 1 ? 'pro' : (idx === 2 ? 'premium' : undefined)}
+          data-role="amount"
+          data-monthly={idx === 1 ? '€14.99' : (idx === 2 ? '€24.99' : '')}
+          data-annual={idx === 1 ? '€149.90' : (idx === 2 ? '€249.90' : '')}
+        >{plan.price}</span>
+        {plan.price !== t('pages.pricing.table.free') && plan.price !== t('pages.pricing.table.custom') && (
+          <span
+            class="text-gray-500 dark:text-gray-400"
+            data-plan={idx === 1 ? 'pro' : (idx === 2 ? 'premium' : undefined)}
+            data-role="period"
+            data-monthly={perMonthLabel}
+            data-annual={perYearLabel}
+          >{perMonthLabel}</span>
         )}
       </div>
       
@@ -91,16 +301,33 @@ const plans: Plan[] = [
         ))}
       </ul>
       
-      <a
-        href={plan.name === 'Enterprise' ? '/kontakt' : '/signup'}
-        class={`mt-8 px-6 py-3 text-center font-medium rounded-lg ${
-          plan.featured
-            ? 'bg-blue-600 text-white hover:bg-blue-700'
-            : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600'
-        } transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2`}
-      >
-        {plan.cta}
-      </a>
+      {
+        // Render buttons for Pro and Premium (checkout), links for Starter (register) and Enterprise (contact)
+        plan.name === t('pages.pricing.table.plans.pro.name') ? (
+          <button
+            id="buy-pro-cta"
+            type="button"
+            class={`mt-8 px-6 py-3 text-center font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2`}
+          >
+            {plan.cta}
+          </button>
+        ) : plan.name === t('pages.pricing.table.plans.premium.name') ? (
+          <button
+            id="buy-premium-cta"
+            type="button"
+            class={`mt-8 px-6 py-3 text-center font-medium rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2`}
+          >
+            {plan.cta}
+          </button>
+        ) : (
+          <a
+            href={plan.name === t('pages.pricing.table.plans.enterprise.name') ? localizePath(locale, '/kontakt') : localizePath(locale, '/register')}
+            class={`mt-8 px-6 py-3 text-center font-medium rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2`}
+          >
+            {plan.cta}
+          </a>
+        )
+      }
     </div>
   ))}
 </div>

@@ -54,8 +54,8 @@ export function Dropzone(props: DropzoneProps) {
           inputRef.current?.click();
         }
       }}
-      className="relative grid place-items-center h-64 sm:h-72 md:h-80 w-full max-w-full overflow-hidden rounded-md border border-white/10 dark:border-white/10 border-dashed bg-white/10 dark:bg-slate-900/40 backdrop-blur ring-1 ring-cyan-400/20 shadow-lg shadow-cyan-500/10 text-center px-4"
-      style={boxSize ? { width: `${boxSize.w}px`, height: `${boxSize.h}px` } : undefined}
+      className="relative grid place-items-center w-full max-w-full overflow-hidden rounded-md bg-white/10 dark:bg-slate-900/40 text-center px-4 mx-auto"
+      style={boxSize ? { width: `${boxSize.w}px`, height: `${boxSize.h}px`, minHeight: 240 } : { minHeight: 240 }}
       aria-label="Image upload dropzone"
       role={!previewUrl ? 'button' : undefined}
       tabIndex={!previewUrl ? 0 : -1}
@@ -69,13 +69,23 @@ export function Dropzone(props: DropzoneProps) {
           onError={onPreviewError}
         />
       ) : (
-        <label
-          htmlFor={inputId}
-          className="text-sm text-gray-600 dark:text-gray-300 hover:underline cursor-pointer"
+        <button
+          type="button"
+          className="text-sm text-gray-600 dark:text-gray-300 hover:underline cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 rounded"
           aria-label={dropText}
+          onClick={(e) => {
+            e.stopPropagation();
+            inputRef.current?.click();
+          }}
+          onKeyDown={(e) => {
+            // Prevent bubbling to container which would trigger another click
+            if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+              e.stopPropagation();
+            }
+          }}
         >
           {dropText}
-        </label>
+        </button>
       )}
       <input
         ref={inputRef}

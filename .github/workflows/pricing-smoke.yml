@@ -1,0 +1,73 @@
+name: Pricing Smoke (Playwright)
+
+on:
+  workflow_dispatch:
+    inputs:
+      test_base_url:
+        description: "Optional: Remote TEST_BASE_URL (e.g. https://ci.hub-evolution.com). If empty, runs against local dev server."
+        required: false
+        default: ""
+  push:
+    branches: [ main ]
+    paths:
+      - 'src/components/pricing/**'
+      - 'src/pages/**pricing**'
+      - 'test-suite-v2/**'
+      - '.github/workflows/pricing-smoke.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'src/components/pricing/**'
+      - 'src/pages/**pricing**'
+      - 'test-suite-v2/**'
+  schedule:
+    # Täglich um 02:00 UTC (Nightly)
+    - cron: '0 2 * * *'
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      # Prefer workflow_dispatch input > repo/org variable; if empty, we set a default in the run step
+      TEST_BASE_URL: ${{ inputs.test_base_url != '' && inputs.test_base_url || vars.TEST_BASE_URL }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install root deps
+        run: npm ci
+
+      - name: Install test-suite-v2 deps
+        working-directory: ./test-suite-v2
+        run: npm ci
+
+      - name: Install Playwright browsers
+        working-directory: ./test-suite-v2
+        run: npx playwright install --with-deps
+
+      - name: Run pricing smoke (Playwright)
+        working-directory: ./test-suite-v2
+        run: |
+          if [ -z "$TEST_BASE_URL" ]; then
+            # Fallback: standard Testing-URL
+            TEST_BASE_URL="https://ci.hub-evolution.com"
+          fi
+          echo "Using TEST_BASE_URL=$TEST_BASE_URL"
+          TEST_BASE_URL="$TEST_BASE_URL" npm run test:e2e:pricing
+
+      - name: Upload Playwright artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-results
+          path: |
+            test-suite-v2/reports/playwright-results/**
+            test-suite-v2/reports/playwright-html-report/**
+          if-no-files-found: ignore

@@ -32,13 +32,17 @@
     "preserveSymlinks": true
   },
   "include": [
-    "src",
-    "tests",
-    "test",
-    "test-suite-v2"
+    "src"
   ],
   "exclude": [
     "node_modules",
-    "src/server/**"
+    "src/server/**",
+    "tests",
+    "test",
+    "test-suite-v2",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.spec.ts",
+    "**/*.spec.tsx"
   ]
 }

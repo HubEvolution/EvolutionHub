@@ -2,7 +2,8 @@ import type { APIRoute } from 'astro';
 import { withApiMiddleware, createApiError, createApiSuccess, createMethodNotAllowed } from '@/lib/api-middleware';
 import { aiJobsLimiter } from '@/lib/rate-limiter';
 import { AiJobsService } from '@/lib/services/ai-jobs-service';
-import type { OwnerType } from '@/config/ai-image';
+import { type OwnerType, type Plan } from '@/config/ai-image';
+import { getEntitlementsFor } from '@/config/ai-image/entitlements';
 
 function ensureGuestIdCookie(context: Parameters<APIRoute>[0]): string {
   const existing = context.cookies.get('guest_id')?.value;
@@ -27,6 +28,9 @@ export const GET = withApiMiddleware(async (context) => {
 
   const ownerType: OwnerType = locals.user?.id ? 'user' : 'guest';
   const ownerId = ownerType === 'user' ? (locals.user as { id: string }).id : ensureGuestIdCookie(context);
+  const plan = ownerType === 'user' ? ((locals.user as { plan?: Plan } | null)?.plan ?? 'free') as Plan : undefined;
+  const ent = getEntitlementsFor(ownerType, plan);
+  const effectiveLimit = ent.dailyBurstCap;
   
   const env = (locals.runtime?.env || {}) as App.Locals['runtime']['env'];
   const deps = { db: env.DB, isDevelopment: env.ENVIRONMENT !== 'production' };
@@ -40,7 +44,7 @@ export const GET = withApiMiddleware(async (context) => {
   const origin = new URL(request.url).origin;
 
   try {
-    const job = await service.getAndProcessIfNeeded({ id, ownerType, ownerId, requestOrigin: origin });
+    const job = await service.getAndProcessIfNeeded({ id, ownerType, ownerId, requestOrigin: origin, limitOverride: effectiveLimit, monthlyLimitOverride: ent.monthlyImages });
     return createApiSuccess(job);
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unbekannter Fehler';

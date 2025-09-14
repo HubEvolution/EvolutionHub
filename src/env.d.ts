@@ -20,6 +20,7 @@ declare namespace App {
             username: string;
             image?: string;
             email_verified: boolean;
+            plan?: import('./config/ai-image').Plan; // optional to keep backward compatibility until migration applied
         } | null;
         runtime: {
             env: {
@@ -35,6 +36,11 @@ declare namespace App {
                 REPLICATE_API_TOKEN?: string;
                 // Name der Laufzeitumgebung (z. B. 'staging', 'production')
                 ENVIRONMENT?: string;
+                // Stripe
+                STRIPE_SECRET?: string;
+                STRIPE_WEBHOOK_SECRET?: string;
+                // Pricing table mapping (plan -> priceId)
+                PRICING_TABLE?: string | Record<string, string>;
             };
         };
         /**

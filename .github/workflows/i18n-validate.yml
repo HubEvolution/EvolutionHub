@@ -1,0 +1,28 @@
+name: i18n Validation
+
+on:
+  pull_request:
+  push:
+    branches: [ main ]
+
+jobs:
+  i18n-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate i18n parity and schemas
+        run: node scripts/i18n-validate.mjs
+
+      - name: Print i18n diff for debugging (non-blocking)
+        run: node scripts/i18n-diff.mjs || true

@@ -1,7 +1,8 @@
 import type { APIRoute } from 'astro';
 import { withApiMiddleware, createApiError, createApiSuccess, createMethodNotAllowed } from '@/lib/api-middleware';
 import { AiImageService } from '@/lib/services/ai-image-service';
-import { FREE_LIMIT_GUEST, FREE_LIMIT_USER, type OwnerType } from '@/config/ai-image';
+import { FREE_LIMIT_GUEST, FREE_LIMIT_USER, type OwnerType, type Plan } from '@/config/ai-image';
+import { getEntitlementsFor } from '@/config/ai-image/entitlements';
 import { aiGenerateLimiter } from '@/lib/rate-limiter';
 
 function ensureGuestIdCookie(context: Parameters<APIRoute>[0]): string {
@@ -61,6 +62,9 @@ export const POST = withApiMiddleware(async (context) => {
   // Owner detection: user or guest
   const ownerType: OwnerType = locals.user?.id ? 'user' : 'guest';
   const ownerId = ownerType === 'user' ? (locals.user as { id: string }).id : ensureGuestIdCookie(context);
+  const plan = ownerType === 'user' ? ((locals.user as { plan?: Plan } | null)?.plan ?? 'free') as Plan : undefined;
+  const ent = getEntitlementsFor(ownerType, plan);
+  const effectiveLimit = ent.dailyBurstCap;
 
   // Init service with runtime env
   const env = locals.runtime?.env ?? {};
@@ -82,6 +86,10 @@ export const POST = withApiMiddleware(async (context) => {
       requestOrigin: origin,
       scale,
       faceEnhance,
+      limitOverride: effectiveLimit,
+      monthlyLimitOverride: ent.monthlyImages,
+      maxUpscaleOverride: ent.maxUpscale,
+      allowFaceEnhanceOverride: ent.faceEnhance,
     });
     // Standard success shape
     return createApiSuccess({
@@ -92,7 +100,9 @@ export const POST = withApiMiddleware(async (context) => {
       limits: {
         user: FREE_LIMIT_USER,
         guest: FREE_LIMIT_GUEST,
-      }
+      },
+      // expose plan entitlements so the UI can render upgrade hints if desired
+      entitlements: ent
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unbekannter Fehler';

@@ -10,6 +10,7 @@
     "test:unit": "vitest run src/unit --coverage",
     "test:integration": "vitest run src/integration --coverage",
     "test:e2e": "playwright test",
+    "test:e2e:pricing": "playwright test src/e2e/pricing-checkout-smoke.spec.ts --config=playwright.config.ts --project=chromium --workers=1 --reporter=line --timeout=60000",
     "test:watch": "vitest watch",
     "test:coverage": "vitest run --coverage",
     "test:ci": "npm run test:unit && npm run test:integration && npm run test:e2e && npm run coverage:report",

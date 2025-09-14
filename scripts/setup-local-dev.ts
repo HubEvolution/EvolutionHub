@@ -486,6 +486,8 @@ try {
       addColumnIfMissing(dbPath, 'users', 'email_verified', 'INTEGER NOT NULL DEFAULT 0');
       // users.email_verified_at (Unix timestamp seconds)
       addColumnIfMissing(dbPath, 'users', 'email_verified_at', 'INTEGER NULL');
+      // users.plan (plan-based entitlements; default 'free')
+      addColumnIfMissing(dbPath, 'users', 'plan', "TEXT NOT NULL DEFAULT 'free'");
 
       // email_verification_tokens table and indexes
       runSafeSQL(

@@ -6,7 +6,21 @@ import path from 'path';
 const ROOT = process.cwd();
 const LOCALES_DIR = path.join(ROOT, 'src', 'locales');
 const FILES = ['en.json', 'de.json'];
-const BASE_KEYS = ['pages.home', 'pages.datenschutz'];
+// Validate parity and types for critical sections across locales
+const BASE_KEYS = [
+  'nav',
+  'nav_language',
+  'cta',
+  'comingSoon',
+  'pages.home',
+  'pages.blog',
+  'pages.tools',
+  'pages.pricing',
+  'pages.kontakt',
+  'pages.verifyEmail',
+  'pages.impressum',
+  'pages.datenschutz',
+];
 
 function isObject(val) {
   return val && typeof val === 'object' && !Array.isArray(val);

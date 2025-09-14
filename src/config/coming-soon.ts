@@ -12,6 +12,13 @@ export const COMING_SOON_PATTERNS: string[] = [
   '/impressum',
 ];
 
+// Pages that must NEVER show the Coming Soon overlay.
+// Patterns support '*' suffix for prefix matching and are matched against normalized paths
+// (locale prefixes like /en or /de are stripped by normalizePath).
+export const COMING_SOON_EXCLUDE_PATTERNS: string[] = [
+  '/datenschutz*', // Privacy Policy (DE + EN)
+];
+
 function normalizePath(pathname: string): string {
   if (!pathname) return '/';
   // strip query and hash if present
@@ -51,16 +58,22 @@ function isEnvEnabled(): boolean {
 }
 
 export function isComingSoon(pathname: string, frontmatter?: Record<string, unknown>): boolean {
-  // ENV override (global)
-  if (isEnvEnabled()) return true;
+  const path = normalizePath(pathname);
 
-  // Per-page frontmatter explicitly set (true/false)
+  // 1) Hard exclusions take absolute precedence
+  for (const p of COMING_SOON_EXCLUDE_PATTERNS) {
+    if (matchPattern(path, p)) return false;
+  }
+
+  // 2) Per-page frontmatter explicitly set (true/false) overrides defaults and patterns
   if (frontmatter && typeof (frontmatter as any).comingSoon !== 'undefined') {
     return Boolean((frontmatter as any).comingSoon);
   }
 
-  // Central pattern matching
-  const path = normalizePath(pathname);
+  // 3) ENV override (global)
+  if (isEnvEnabled()) return true;
+
+  // 4) Central pattern matching
   for (const p of COMING_SOON_PATTERNS) {
     if (matchPattern(path, p)) return true;
   }

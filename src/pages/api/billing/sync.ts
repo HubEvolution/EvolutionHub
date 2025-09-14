@@ -1,0 +1,129 @@
+import { withAuthApiMiddleware } from '@/lib/api-middleware';
+import Stripe from 'stripe';
+
+function parsePricingTable(raw: unknown): Record<string, string> {
+  try {
+    if (!raw) return {};
+    if (typeof raw === 'string') return JSON.parse(raw);
+    if (typeof raw === 'object') return raw as Record<string, string>;
+  } catch {}
+  return {};
+}
+
+function invert<K extends string, V extends string>(obj: Record<K, V>): Record<V, K> {
+  const out: Record<string, string> = {};
+  for (const k of Object.keys(obj) as K[]) {
+    out[(obj[k] as unknown) as string] = k as string;
+  }
+  return out as Record<V, K>;
+}
+
+export const GET = withAuthApiMiddleware(async (context) => {
+  const { locals, request } = context;
+  const user = locals.user;
+  const env: any = locals?.runtime?.env ?? {};
+
+  if (!user) {
+    return new Response('Unauthorized', { status: 401 });
+  }
+
+  const url = new URL(request.url);
+  const sessionId = url.searchParams.get('session_id') || '';
+  const ws = url.searchParams.get('ws') || 'default';
+
+  const requestUrl = new URL(context.request.url);
+  const baseUrl: string = env.BASE_URL || `${requestUrl.protocol}//${requestUrl.host}`;
+
+  if (!env.STRIPE_SECRET) {
+    return new Response('Stripe not configured', { status: 500 });
+  }
+  if (!sessionId) {
+    return new Response('Missing session_id', { status: 400 });
+  }
+
+  // Build priceId -> plan mapping (monthly + annual)
+  const monthlyMap = invert(parsePricingTable(env.PRICING_TABLE));
+  const annualMap = invert(parsePricingTable(env.PRICING_TABLE_ANNUAL));
+  const priceMap: Record<string, 'free' | 'pro' | 'premium' | 'enterprise'> = {
+    ...(monthlyMap as any),
+    ...(annualMap as any),
+  } as any;
+
+  const stripe = new Stripe(env.STRIPE_SECRET);
+  const session = await stripe.checkout.sessions.retrieve(sessionId, { expand: ['subscription'] });
+
+  // Basic safety: enforce user matches the session's reference
+  const refUserId = (session.client_reference_id as string) || (session.metadata?.userId as string) || '';
+  if (refUserId && refUserId !== user.id) {
+    return new Response('Forbidden', { status: 403 });
+  }
+
+  const customerId = (session.customer as string) || '';
+  const sub = session.subscription as Stripe.Subscription | null;
+
+  let plan: 'free' | 'pro' | 'premium' | 'enterprise' = (session.metadata?.plan as any) || 'pro';
+  if (sub && sub.items?.data?.[0]?.price?.id) {
+    const priceId = sub.items.data[0].price.id as string;
+    const mapped = priceMap[priceId] as any;
+    if (mapped) plan = mapped;
+  }
+
+  // DB handles
+  const db = env.DB;
+
+  // Upsert stripe_customers
+  if (customerId) {
+    await db
+      .prepare(
+        "INSERT INTO stripe_customers (user_id, customer_id) VALUES (?, ?) ON CONFLICT(user_id) DO UPDATE SET customer_id = excluded.customer_id"
+      )
+      .bind(user.id, customerId)
+      .run();
+  }
+
+  // Upsert subscription row if available
+  if (sub) {
+    const status = sub.status as string;
+    const cpeRaw: any = (sub as any)?.current_period_end;
+    const currentPeriodEnd = typeof cpeRaw === 'number' ? cpeRaw : null;
+    const cancelAtPeriodEnd = !!(sub as any)?.cancel_at_period_end;
+    const cape = cancelAtPeriodEnd ? 1 : 0;
+
+    await db
+      .prepare(
+        `INSERT INTO subscriptions (id, user_id, customer_id, plan, status, current_period_end, cancel_at_period_end, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+         ON CONFLICT(id) DO UPDATE SET
+           user_id = excluded.user_id,
+           customer_id = excluded.customer_id,
+           plan = excluded.plan,
+           status = excluded.status,
+           current_period_end = excluded.current_period_end,
+           cancel_at_period_end = excluded.cancel_at_period_end,
+           updated_at = CURRENT_TIMESTAMP`
+      )
+      .bind(sub.id, user.id, customerId, plan, status, currentPeriodEnd, cape)
+      .run();
+
+    // Apply policy similar to webhook
+    if (status === 'active' || status === 'trialing' || status === 'past_due') {
+      await db.prepare('UPDATE users SET plan = ? WHERE id = ?').bind(plan, user.id).run();
+    } else if (status === 'canceled' || status === 'unpaid' || status === 'incomplete_expired') {
+      await db.prepare('UPDATE users SET plan = ? WHERE id = ?').bind('free', user.id).run();
+    }
+  } else {
+    // No subscription object (rare) — still set plan from metadata for UX
+    await db.prepare('UPDATE users SET plan = ? WHERE id = ?').bind(plan, user.id).run();
+  }
+
+  // Redirect to dashboard
+  return new Response(null, {
+    status: 302,
+    headers: {
+      Location: `${baseUrl}/dashboard?ws=${encodeURIComponent(ws)}`,
+      'Cache-Control': 'no-store',
+    },
+  });
+}, {
+  onError: (_ctx, _err) => new Response('sync_error', { status: 500 }),
+});

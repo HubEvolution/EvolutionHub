@@ -41,6 +41,35 @@ interface UsagePillProps {
  * @returns {JSX.Element} Die gerenderte Komponente.
  */
 export function UsagePill({ label, loadingLabel, usage, ownerType, percent, critical }: UsagePillProps) {
+  // Build a concise tooltip string without adding new props
+  const tooltip = (() => {
+    if (!usage) return loadingLabel;
+    const parts: string[] = [];
+    parts.push(`${label}: ${usage.used}/${usage.limit}`);
+    if (typeof usage.resetAt === 'number' && Number.isFinite(usage.resetAt)) {
+      try {
+        const d = new Date(usage.resetAt);
+        // ISO-like, readable; avoid locale surprises in tests
+        const ts = `${d.getFullYear()}-${(d.getMonth() + 1)
+          .toString()
+          .padStart(2, '0')}-${d
+          .getDate()
+          .toString()
+          .padStart(2, '0')} ${d
+          .getHours()
+          .toString()
+          .padStart(2, '0')}:${d
+          .getMinutes()
+          .toString()
+          .padStart(2, '0')}`;
+        parts.push(`reset: ${ts}`);
+      } catch {
+        // ignore formatting errors
+      }
+    }
+    if (ownerType) parts.push(`owner: ${ownerType}`);
+    return parts.join(' · ');
+  })();
   return (
     <div className={`inline-flex flex-col items-start ${usage ? '' : 'opacity-70'}`}>
       <span
@@ -49,6 +78,7 @@ export function UsagePill({ label, loadingLabel, usage, ownerType, percent, crit
             ? 'bg-red-500/15 ring-red-400/30 text-red-600 dark:text-red-300'
             : 'bg-white/10 ring-cyan-400/10 text-gray-700 dark:text-gray-200'
         }`}
+        title={tooltip}
       >
         {label}: {usage ? `${usage.used}/${usage.limit}` : loadingLabel}
         {ownerType ? <span className="ml-1 opacity-70">({ownerType})</span> : null}

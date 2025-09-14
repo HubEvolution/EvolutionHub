@@ -72,7 +72,8 @@ export default defineConfig({
           // Run the root project's E2E dev server (wrangler dev on 127.0.0.1:8787)
           command: 'npm --prefix .. run dev:e2e',
           url: BASE_URL,
-          reuseExistingServer: !process.env.CI,
+          // Always stop the server after tests to avoid hanging processes
+          reuseExistingServer: false,
           timeout: 120 * 1000,
           env: {
             E2E_FAKE_STYTCH: '1',

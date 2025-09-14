@@ -44,6 +44,8 @@ interface ActionsGroupProps {
   onStartOver?: () => void;
   // Optional: control visibility of Enhance button (e.g., only show when settings changed)
   showEnhance?: boolean;
+  // Optional: control whether Reset is enabled (e.g., when slider already centered)
+  canReset?: boolean;
 }
 
 /**
@@ -71,6 +73,7 @@ export function ActionsGroup({
   startOverLabel,
   onStartOver,
   showEnhance = true,
+  canReset = true,
 }: ActionsGroupProps) {
   return (
     <>
@@ -79,7 +82,7 @@ export function ActionsGroup({
           type="button"
           onClick={onEnhance}
           disabled={!canSubmit || quotaExceeded}
-          className={`inline-flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium text-white transition-colors ${
+          className={`inline-flex items-center gap-2 px-4 py-2 min-h-[44px] sm:min-h-0 rounded-md text-sm font-medium text-white transition-colors ${
             !quotaExceeded && canSubmit
               ? 'bg-gradient-to-r from-cyan-500 to-violet-600 hover:from-cyan-400 hover:to-violet-500'
               : 'bg-gray-400 cursor-not-allowed opacity-60'
@@ -110,7 +113,12 @@ export function ActionsGroup({
           <button
             type="button"
             onClick={onReset}
-            className="text-xs px-2 py-1 rounded-md bg-white/10 dark:bg-slate-900/40 ring-1 ring-cyan-400/10 text-gray-700 dark:text-gray-200 hover:ring-cyan-400/30"
+            disabled={!canReset}
+            className={`text-xs px-3 py-2 min-h-[44px] sm:px-2 sm:py-1 sm:min-h-0 rounded-md ring-1 transition-colors ${
+              canReset
+                ? 'bg-white/10 dark:bg-slate-900/40 ring-cyan-400/20 text-gray-700 dark:text-gray-200 hover:ring-cyan-400/40'
+                : 'bg-gray-400/30 dark:bg-gray-700/40 ring-gray-400/20 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+            }`}
           >
             {resetLabel}
           </button>
@@ -118,7 +126,7 @@ export function ActionsGroup({
             <button
               type="button"
               onClick={onStartOver}
-              className="text-xs px-2 py-1 rounded-md bg-white/10 dark:bg-slate-900/40 ring-1 ring-rose-400/20 text-rose-700 dark:text-rose-200 hover:ring-rose-400/40"
+              className="text-xs px-3 py-2 min-h-[44px] sm:px-2 sm:py-1 sm:min-h-0 rounded-md bg-white/10 dark:bg-slate-900/40 ring-1 ring-rose-400/20 text-rose-700 dark:text-rose-200 hover:ring-rose-400/40"
             >
               {startOverLabel || 'Start over'}
             </button>
@@ -127,7 +135,7 @@ export function ActionsGroup({
             href={resultUrl || undefined}
             download
             onClick={onDownload}
-            className="text-xs px-2 py-1 rounded-md bg-white/10 dark:bg-slate-900/40 ring-1 ring-cyan-400/10 text-gray-700 dark:text-gray-200 hover:ring-cyan-400/30"
+            className="text-xs px-3 py-2 min-h-[44px] sm:px-2 sm:py-1 sm:min-h-0 inline-flex items-center rounded-md bg-white/10 dark:bg-slate-900/40 ring-1 ring-cyan-400/10 text-gray-700 dark:text-gray-200 hover:ring-cyan-400/30"
           >
             {downloadLabel}
           </a>

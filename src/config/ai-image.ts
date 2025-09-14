@@ -5,6 +5,15 @@
 
 export type OwnerType = 'user' | 'guest';
 
+export interface PlanLimits {
+  free: number;
+  pro: number;
+  premium: number;
+  enterprise: number;
+}
+
+export type Plan = keyof PlanLimits; // 'free' | 'pro' | 'premium' | 'enterprise'
+
 export interface AllowedModel {
   slug: string; // Replicate model slug (verify exact tags)
   label: string; // Human-readable name
@@ -41,6 +50,25 @@ export const ALLOWED_MODELS: readonly AllowedModel[] = [
 // Quota (24h window)
 export const FREE_LIMIT_GUEST = 3; // production default
 export const FREE_LIMIT_USER = 20; // per design
+
+// Fixed plan limits (per-user unless otherwise specified)
+// If we later want to override via env, we can parse a JSON and hydrate this at runtime.
+export const PLAN_LIMITS: Readonly<PlanLimits> = Object.freeze({
+  free: 20,
+  pro: 200,
+  premium: 1000,
+  enterprise: 5000,
+});
+
+/**
+ * Resolve the effective daily limit for an owner based on type and optional user plan.
+ * Guests always use the guest limit. Users use the plan-based mapping, defaulting to 'free'.
+ */
+export function getAiLimitFor(ownerType: OwnerType, plan?: Plan): number {
+  if (ownerType === 'guest') return FREE_LIMIT_GUEST;
+  const p = plan ?? 'free';
+  return PLAN_LIMITS[p] ?? PLAN_LIMITS.free;
+}
 
 // Upload limits
 export const MAX_UPLOAD_BYTES = 10 * 1024 * 1024; // 10 MB

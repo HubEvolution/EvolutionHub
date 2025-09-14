@@ -63,3 +63,20 @@ Object.defineProperty(window, 'matchMedia', {
     dispatchEvent: vi.fn(),
   })),
 });
+
+// Mock ResizeObserver for components using it
+if (!(globalThis as any).ResizeObserver) {
+  (globalThis as any).ResizeObserver = class {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  } as any;
+}
+
+// Mock URL.createObjectURL / revokeObjectURL used by image previews
+if (!('createObjectURL' in URL)) {
+  (URL as any).createObjectURL = vi.fn(() => 'blob:mock');
+}
+if (!('revokeObjectURL' in URL)) {
+  (URL as any).revokeObjectURL = vi.fn();
+}

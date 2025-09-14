@@ -1,0 +1,22 @@
+{
+  "id": "prod_T3SR1D7ezJSc1l",
+  "object": "product",
+  "active": true,
+  "attributes": [],
+  "created": 1757877829,
+  "default_price": null,
+  "description": null,
+  "images": [],
+  "livemode": false,
+  "marketing_features": [],
+  "metadata": {},
+  "name": "Evolution Hub Pro",
+  "package_dimensions": null,
+  "shippable": null,
+  "statement_descriptor": null,
+  "tax_code": null,
+  "type": "service",
+  "unit_label": null,
+  "updated": 1757877829,
+  "url": null
+}

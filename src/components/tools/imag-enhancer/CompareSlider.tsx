@@ -70,13 +70,12 @@ export function CompareSlider(props: CompareSliderProps) {
   } = props;
 
   return (
-    <figure className="rounded-md border border-white/10 dark:border-white/10 p-2 bg-white/5 dark:bg-slate-900/30 backdrop-blur">
+    <figure className="m-0 p-0 bg-transparent">
       <div
         ref={containerRef}
-        className="relative w-full max-w-full overflow-hidden rounded-sm bg-black/40 h-64 sm:h-72 md:h-80"
-        style={boxSize ? { width: `${boxSize.w}px`, height: `${boxSize.h}px` } : undefined}
+        className="relative w-full max-w-full overflow-hidden rounded-sm bg-transparent mx-auto"
+        style={boxSize ? { width: `${boxSize.w}px`, height: `${boxSize.h}px`, overscrollBehavior: 'contain', touchAction: props.zoom <= 1 ? 'pan-y' : 'none' } : { overscrollBehavior: 'contain', touchAction: props.zoom <= 1 ? 'pan-y' : 'none' }}
         onMouseDown={onMouseDown}
-        onWheel={props.onWheelZoom}
         onTouchStart={onTouchStart}
         onMouseMove={props.onMouseMove}
         onMouseLeave={props.onMouseLeave}
@@ -85,7 +84,7 @@ export function CompareSlider(props: CompareSliderProps) {
         {/* Scaled image layer (result + before overlay) */}
         <div
           className="absolute inset-0 z-0"
-          style={{ transform: `translate(${props.panX ?? 0}px, ${props.panY ?? 0}px) scale(${props.zoom})`, transformOrigin: 'center center' }}
+          style={{ transform: `translate(${props.panX ?? 0}px, ${props.panY ?? 0}px) scale(${props.zoom})`, transformOrigin: 'center center', willChange: 'transform' }}
         >
           {/* After image (result) as base layer */}
           <img
@@ -114,7 +113,7 @@ export function CompareSlider(props: CompareSliderProps) {
         </div>
 
         {/* Loupe (magnifier) overlay */}
-        {props.loupeEnabled && props.loupePos && (
+        {props.loupeEnabled && props.loupePos && boxSize && (
           <div
             className="absolute z-40 rounded-full ring-2 ring-cyan-400/60 shadow-lg overflow-hidden pointer-events-none"
             style={{
@@ -127,10 +126,13 @@ export function CompareSlider(props: CompareSliderProps) {
             aria-label="Loupe magnifier"
           >
             <div
-              className="absolute inset-0"
+              className="absolute top-0 left-0"
               style={{
+                width: `${boxSize.w}px`,
+                height: `${boxSize.h}px`,
                 transformOrigin: 'top left',
                 transform: `translate(${-(props.loupePos.x - (props.loupeSize ?? 160) / 2)}px, ${-(props.loupePos.y - (props.loupeSize ?? 160) / 2)}px) translate(${props.panX ?? 0}px, ${props.panY ?? 0}px) scale(${props.zoom * (props.loupeFactor ?? 2)})`,
+                willChange: 'transform',
               }}
             >
               {/* Reuse same composite rendering inside loupe */}
@@ -180,7 +182,7 @@ export function CompareSlider(props: CompareSliderProps) {
           aria-valuenow={sliderPos}
           tabIndex={0}
           onKeyDown={onHandleKeyDown}
-          className={`absolute top-1/2 -translate-y-1/2 -translate-x-1/2 grid place-items-center h-8 w-8 rounded-full bg-white/70 dark:bg-slate-800/80 ring-2 ring-cyan-400/60 shadow-lg cursor-ew-resize z-40 ${isHeld ? 'opacity-0' : ''}`}
+          className={`slider-handle absolute top-1/2 -translate-y-1/2 -translate-x-1/2 grid place-items-center h-11 w-11 md:h-8 md:w-8 rounded-full bg-white/70 dark:bg-slate-800/80 ring-2 ring-cyan-400/60 shadow-lg cursor-ew-resize z-40 ${isHeld ? 'opacity-0' : ''}`}
           style={{ left: `${sliderPos}%` }}
         >
           <span className="sr-only">{compareStrings.handleAriaLabel}</span>
@@ -201,7 +203,7 @@ export function CompareSlider(props: CompareSliderProps) {
           <button
             type="button"
             aria-label="Zoom out"
-            className="px-2 py-0.5 rounded bg-white/40 dark:bg-slate-800/60 ring-1 ring-gray-400/30 text-gray-700 dark:text-gray-200 hover:ring-cyan-400/40"
+            className="px-3 py-2 min-w-[44px] min-h-[44px] rounded bg-white/40 dark:bg-slate-800/60 ring-1 ring-gray-400/30 text-gray-700 dark:text-gray-200 hover:ring-cyan-400/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
             onClick={props.onZoomOut}
           >
             −
@@ -210,7 +212,7 @@ export function CompareSlider(props: CompareSliderProps) {
           <button
             type="button"
             aria-label="Zoom in"
-            className="px-2 py-0.5 rounded bg-white/40 dark:bg-slate-800/60 ring-1 ring-gray-400/30 text-gray-700 dark:text-gray-200 hover:ring-cyan-400/40"
+            className="px-3 py-2 min-w-[44px] min-h-[44px] rounded bg-white/40 dark:bg-slate-800/60 ring-1 ring-gray-400/30 text-gray-700 dark:text-gray-200 hover:ring-cyan-400/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
             onClick={props.onZoomIn}
           >
             +
@@ -218,18 +220,10 @@ export function CompareSlider(props: CompareSliderProps) {
           <button
             type="button"
             aria-label="Reset zoom"
-            className="px-2 py-0.5 rounded bg-white/40 dark:bg-slate-800/60 ring-1 ring-gray-400/30 text-gray-700 dark:text-gray-200 hover:ring-cyan-400/40"
+            className="px-3 py-2 min-w-[44px] min-h-[44px] rounded bg-white/40 dark:bg-slate-800/60 ring-1 ring-gray-400/30 text-gray-700 dark:text-gray-200 hover:ring-cyan-400/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
             onClick={props.onZoomReset}
           >
-            Reset
-          </button>
-          <button
-            type="button"
-            aria-label="Toggle loupe"
-            className={`px-2 py-0.5 rounded ring-1 ${props.loupeEnabled ? 'bg-cyan-500/20 ring-cyan-400/50 text-cyan-700 dark:text-cyan-200' : 'bg-white/40 dark:bg-slate-800/60 ring-gray-400/30 text-gray-700 dark:text-gray-200 hover:ring-cyan-400/40'}`}
-            onClick={props.onToggleLoupe}
-          >
-            {compareStrings.loupeLabel ?? 'Loupe'}
+            100%
           </button>
         </div>
       </figcaption>

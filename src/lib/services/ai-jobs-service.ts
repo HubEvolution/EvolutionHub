@@ -26,6 +26,10 @@ export interface CreateJobParams {
   modelSlug: string;
   file: File;
   requestOrigin: string;
+  // Optional: override daily limit resolved by API (plan-based entitlements)
+  limitOverride?: number;
+  // Optional: override monthly limit
+  monthlyLimitOverride?: number;
 }
 
 export interface GetJobParams {
@@ -33,6 +37,10 @@ export interface GetJobParams {
   ownerType: OwnerType;
   ownerId: string;
   requestOrigin: string;
+  // Optional: override daily limit for usage increment after success
+  limitOverride?: number;
+  // Optional: override monthly limit for usage increment after success
+  monthlyLimitOverride?: number;
 }
 
 export interface CancelJobParams {
@@ -62,6 +70,37 @@ export class AiJobsService extends AbstractBaseService {
     this.env = env;
   }
 
+  private async getMonthlyUsage(ownerType: OwnerType, ownerId: string, limit: number, ym: string): Promise<UsageInfo> {
+    const kv = this.env.KV_AI_ENHANCER;
+    if (!kv) return { used: 0, limit, resetAt: null };
+    const key = this.monthlyUsageKey(ownerType, ownerId, ym);
+    const raw = await kv.get(key);
+    if (!raw) return { used: 0, limit, resetAt: null };
+    try {
+      const parsed = JSON.parse(raw) as { count: number };
+      return { used: parsed.count || 0, limit, resetAt: null };
+    } catch {
+      return { used: 0, limit, resetAt: null };
+    }
+  }
+
+  private async incrementMonthlyUsage(ownerType: OwnerType, ownerId: string, limit: number, ym: string): Promise<UsageInfo> {
+    const kv = this.env.KV_AI_ENHANCER;
+    if (!kv) return { used: 0, limit, resetAt: null };
+    const key = this.monthlyUsageKey(ownerType, ownerId, ym);
+    const raw = await kv.get(key);
+    let count = 0;
+    if (raw) {
+      try {
+        const parsed = JSON.parse(raw) as { count: number };
+        count = parsed.count || 0;
+      } catch {}
+    }
+    count += 1;
+    await kv.put(key, JSON.stringify({ count }));
+    return { used: count, limit, resetAt: null };
+  }
+
   async createJob(params: CreateJobParams): Promise<AiJobResponse> {
     const { ownerType, ownerId, userId, modelSlug, file, requestOrigin } = params;
 
@@ -79,16 +118,30 @@ export class AiJobsService extends AbstractBaseService {
       throw new Error(`Unsupported content type: ${display}`);
     }
 
-    // Quota check (no increment yet)
-    const limit = ownerType === 'user' ? FREE_LIMIT_USER : FREE_LIMIT_GUEST;
-    const currentUsage = await this.getUsage(ownerType, ownerId, limit);
+    // Quota checks (monthly first, then daily) — no increment yet
+    const dailyLimit = typeof params.limitOverride === 'number'
+      ? params.limitOverride
+      : (ownerType === 'user' ? FREE_LIMIT_USER : FREE_LIMIT_GUEST);
+    const monthlyLimit = typeof params.monthlyLimitOverride === 'number' ? params.monthlyLimitOverride : Number.POSITIVE_INFINITY;
+
+    const now = new Date();
+    const ym = `${now.getUTCFullYear()}${String(now.getUTCMonth() + 1).padStart(2, '0')}`;
+    const monthly = await this.getMonthlyUsage(ownerType, ownerId, monthlyLimit, ym);
+    if (monthly.used >= monthly.limit) {
+      const errM: any = new Error(`Monthly quota exceeded. Used ${monthly.used}/${monthly.limit}`);
+      errM.code = 'quota_exceeded';
+      errM.details = { scope: 'monthly', ...monthly };
+      throw errM;
+    }
+
+    const currentUsage = await this.getUsage(ownerType, ownerId, dailyLimit);
     if (currentUsage.used >= currentUsage.limit) {
       const resetInfo = currentUsage.resetAt ? new Date(currentUsage.resetAt).toISOString() : null;
       const err: any = new Error(
         `Quota exceeded. Used ${currentUsage.used}/${currentUsage.limit}` + (resetInfo ? `, resets at ${resetInfo}` : '')
       );
       err.code = 'quota_exceeded';
-      err.details = currentUsage;
+      err.details = { scope: 'daily', ...currentUsage };
       throw err;
     }
 
@@ -226,8 +279,14 @@ export class AiJobsService extends AbstractBaseService {
         });
 
         // Increment usage upon success
-        const limit = ownerType === 'user' ? FREE_LIMIT_USER : FREE_LIMIT_GUEST;
-        const usage = await this.incrementUsage(ownerType, ownerId, limit);
+        const limit = typeof params.limitOverride === 'number'
+          ? params.limitOverride
+          : (ownerType === 'user' ? FREE_LIMIT_USER : FREE_LIMIT_GUEST);
+        const usage = await this.incrementUsage(ownerType, ownerId, typeof params.limitOverride === 'number' ? params.limitOverride : (ownerType === 'user' ? FREE_LIMIT_USER : FREE_LIMIT_GUEST));
+        const now2 = new Date();
+        const ym2 = `${now2.getUTCFullYear()}${String(now2.getUTCMonth() + 1).padStart(2, '0')}`;
+        const monthlyLimit2 = typeof params.monthlyLimitOverride === 'number' ? params.monthlyLimitOverride : Number.POSITIVE_INFINITY;
+        await this.incrementMonthlyUsage(ownerType, ownerId, monthlyLimit2, ym2);
 
         // Reflect latest
         row.status = 'succeeded';
@@ -391,6 +450,10 @@ export class AiJobsService extends AbstractBaseService {
 
   private usageKey(ownerType: OwnerType, ownerId: string): string {
     return `ai:usage:${ownerType}:${ownerId}`;
+  }
+
+  private monthlyUsageKey(ownerType: OwnerType, ownerId: string, ym: string): string {
+    return `ai:usage:month:${ownerType}:${ownerId}:${ym}`;
   }
 
   async getUsage(ownerType: OwnerType, ownerId: string, limit: number): Promise<UsageInfo> {

@@ -1,0 +1,19 @@
+{
+  "id": "we_1S7K38Hr57WJCQliWqWTOFFF",
+  "object": "webhook_endpoint",
+  "api_version": null,
+  "application": null,
+  "created": 1757872158,
+  "description": null,
+  "enabled_events": [
+    "checkout.session.completed",
+    "customer.subscription.created",
+    "customer.subscription.updated",
+    "customer.subscription.deleted"
+  ],
+  "livemode": false,
+  "metadata": {},
+  "secret": "whsec_efBH9pYRz3JpPlJ9m2qlWvVlLrEpnFUd",
+  "status": "enabled",
+  "url": "https://ci.hub-evolution.com/api/billing/stripe-webhook"
+}

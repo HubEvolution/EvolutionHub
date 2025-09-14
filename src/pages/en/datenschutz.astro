@@ -17,6 +17,11 @@ const t = getI18n(locale);
         <p class="text-xl text-gray-600 dark:text-gray-300">
           {t('pages.datenschutz.header.last_updated') ?? 'Last updated: July 20, 2025'}
         </p>
+        {t('pages.datenschutz.disclaimer_note') && (
+          <p class="mt-3 text-sm text-gray-500 dark:text-gray-400">
+            {t('pages.datenschutz.disclaimer_note')}
+          </p>
+        )}
       </div>
     </div>
   </section>
@@ -26,6 +31,11 @@ const t = getI18n(locale);
     <div class="container mx-auto px-4">
       <div class="max-w-4xl mx-auto prose prose-lg dark:prose-invert prose-headings:text-gray-900 dark:prose-headings:text-white prose-a:text-emerald-600 dark:prose-a:text-emerald-400 hover:prose-a:text-emerald-500 dark:hover:prose-a:text-emerald-300">
         <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 md:p-10 space-y-6">
+          {t('pages.datenschutz.disclaimer_note') && (
+            <p class="-mt-2 mb-2 text-sm text-gray-500 dark:text-gray-400">
+              {t('pages.datenschutz.disclaimer_note')}
+            </p>
+          )}
           <section>
             <h2 class="text-2xl font-semibold mb-2">{t('pages.datenschutz.sections.1.title') ?? '1. Responsible Party'}</h2>
             <p>

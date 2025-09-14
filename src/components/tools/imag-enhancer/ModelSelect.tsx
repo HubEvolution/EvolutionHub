@@ -27,7 +27,7 @@ export function ModelSelect({ id = 'model', label, value, options, onChange }: M
         id={id}
         value={value}
         onChange={handleChange}
-        className="min-w-[200px] rounded-md border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 text-sm"
+        className="w-full sm:w-auto sm:min-w-[200px] rounded-md border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 text-sm"
       >
         {options.map((opt) => (
           <option key={opt.slug} value={opt.slug}>

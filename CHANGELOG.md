@@ -10,12 +10,15 @@ und dieser Projekt haftet an [Semantic Versioning](https://semver.org/spec/v2.0.
 ### Added
 
 - CI: Neuer Workflow „Enhancer E2E Smoke (EN+DE)“ mit Artefakt-Upload (Screenshots/Videos)
+- Imag‑Enhancer: Hilfe‑Modal mit Fokus‑Falle (A11y)
+- Imag‑Enhancer: Unit‑Test für Fokus‑Falle & Tastaturbedienung
 
 ### Changed
 
 - docs(frontend/imag-enhancer-ui-upgrade): Hinweis ergänzt, dass die aktuelle Request-Origin automatisch erlaubt wird
 - docs(frontend/imag-enhancer-ui-upgrade): Hinweis ergänzt, dass TEST_BASE_URL den laufenden Dev-Port widerspiegeln muss
 - docs(development/ci-cd): Abschnitt „Geplant: Enhancer E2E Smoke (EN+DE)“ mit Lauf- und Artefaktdetails ergänzt
+- Imag‑Enhancer: Tastatur‑Hinweis (i18n) erweitert – Pfeile/Shift+Pfeile, Home/End, 0, +/−, 1, L, Space (Hold)
 
 ### Deprecated
 

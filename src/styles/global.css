@@ -241,3 +241,20 @@ main :is(div, section).min-h-screen {
   background: transparent !important;
   background-image: none !important;
 }
+
+@media (max-width: 768px) {
+  .enhance-button,
+  .slider-handle {
+    min-height: 44px;
+  }
+}
+
+:focus-visible {
+  outline: 2px solid var(--primary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none;
+  }
+}

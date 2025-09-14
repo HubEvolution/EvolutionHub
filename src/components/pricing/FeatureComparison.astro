@@ -2,64 +2,103 @@
 import { localizePath } from '@/lib/locale-path';
 import { getLocale } from '@/lib/i18n';
 import { aosDelayForIndex } from '@/lib/aos';
+import { getI18n } from '@/utils/i18n';
 const locale = getLocale(Astro.url.pathname);
+const t = getI18n(locale);
+const heading = t('pages.pricing.comparison.title');
+const colFeature = t('pages.pricing.comparison.columns.feature');
+const colStarter = t('pages.pricing.comparison.columns.starter');
+const colPro = t('pages.pricing.comparison.columns.pro');
+const colEnterprise = t('pages.pricing.comparison.columns.enterprise');
+const colPremium = t('pages.pricing.comparison.columns.premium');
+const contactCta = t('pages.pricing.comparison.contact_cta');
+
 const features = [
   {
-    name: 'Projekte',
-    starter: 'Bis zu 3',
-    pro: 'Unbegrenzt',
-    enterprise: 'Unbegrenzt'
+    name: t('pages.pricing.comparison.rows.images_per_month.name'),
+    starter: t('pages.pricing.comparison.rows.images_per_month.starter'),
+    pro: t('pages.pricing.comparison.rows.images_per_month.pro'),
+    premium: t('pages.pricing.comparison.rows.images_per_month.premium'),
+    enterprise: t('pages.pricing.comparison.rows.images_per_month.enterprise')
   },
   {
-    name: 'API-Anfragen/Tag',
-    starter: '100',
-    pro: '10.000',
-    enterprise: 'Unbegrenzt'
+    name: t('pages.pricing.comparison.rows.daily_burst.name'),
+    starter: t('pages.pricing.comparison.rows.daily_burst.starter'),
+    pro: t('pages.pricing.comparison.rows.daily_burst.pro'),
+    premium: t('pages.pricing.comparison.rows.daily_burst.premium'),
+    enterprise: t('pages.pricing.comparison.rows.daily_burst.enterprise')
   },
   {
-    name: 'Speicherplatz',
-    starter: '1 GB',
-    pro: '50 GB',
-    enterprise: 'Unbegrenzt'
+    name: t('pages.pricing.comparison.rows.max_resolution.name'),
+    starter: t('pages.pricing.comparison.rows.max_resolution.starter'),
+    pro: t('pages.pricing.comparison.rows.max_resolution.pro'),
+    premium: t('pages.pricing.comparison.rows.max_resolution.premium'),
+    enterprise: t('pages.pricing.comparison.rows.max_resolution.enterprise')
   },
   {
-    name: 'Team-Mitglieder',
-    starter: '1',
-    pro: 'Bis zu 10',
-    enterprise: 'Unbegrenzt'
+    name: t('pages.pricing.comparison.rows.max_upscale.name'),
+    starter: t('pages.pricing.comparison.rows.max_upscale.starter'),
+    pro: t('pages.pricing.comparison.rows.max_upscale.pro'),
+    premium: t('pages.pricing.comparison.rows.max_upscale.premium'),
+    enterprise: t('pages.pricing.comparison.rows.max_upscale.enterprise')
   },
   {
-    name: 'Priorisierter Support',
-    starter: '❌',
-    pro: '✅',
-    enterprise: '✅ 24/7'
+    name: t('pages.pricing.comparison.rows.face_enhance.name'),
+    starter: t('pages.pricing.comparison.rows.face_enhance.starter'),
+    pro: t('pages.pricing.comparison.rows.face_enhance.pro'),
+    premium: t('pages.pricing.comparison.rows.face_enhance.premium'),
+    enterprise: t('pages.pricing.comparison.rows.face_enhance.enterprise')
   },
   {
-    name: 'SLA',
-    starter: 'Kein SLA',
-    pro: '99,5%',
-    enterprise: '99,9%'
+    name: t('pages.pricing.comparison.rows.batch.name'),
+    starter: t('pages.pricing.comparison.rows.batch.starter'),
+    pro: t('pages.pricing.comparison.rows.batch.pro'),
+    premium: t('pages.pricing.comparison.rows.batch.premium'),
+    enterprise: t('pages.pricing.comparison.rows.batch.enterprise')
   },
   {
-    name: 'Benutzerdefinierte Integrationen',
-    starter: '❌',
-    pro: '❌',
-    enterprise: '✅'
+    name: t('pages.pricing.comparison.rows.api_calls.name'),
+    starter: t('pages.pricing.comparison.rows.api_calls.starter'),
+    pro: t('pages.pricing.comparison.rows.api_calls.pro'),
+    premium: t('pages.pricing.comparison.rows.api_calls.premium'),
+    enterprise: t('pages.pricing.comparison.rows.api_calls.enterprise')
+  },
+  {
+    name: t('pages.pricing.comparison.rows.queue.name'),
+    starter: t('pages.pricing.comparison.rows.queue.starter'),
+    pro: t('pages.pricing.comparison.rows.queue.pro'),
+    premium: t('pages.pricing.comparison.rows.queue.premium'),
+    enterprise: t('pages.pricing.comparison.rows.queue.enterprise')
+  },
+  {
+    name: t('pages.pricing.comparison.rows.commercial.name'),
+    starter: t('pages.pricing.comparison.rows.commercial.starter'),
+    pro: t('pages.pricing.comparison.rows.commercial.pro'),
+    premium: t('pages.pricing.comparison.rows.commercial.premium'),
+    enterprise: t('pages.pricing.comparison.rows.commercial.enterprise')
+  },
+  {
+    name: t('pages.pricing.comparison.rows.support.name'),
+    starter: t('pages.pricing.comparison.rows.support.starter'),
+    pro: t('pages.pricing.comparison.rows.support.pro'),
+    premium: t('pages.pricing.comparison.rows.support.premium'),
+    enterprise: t('pages.pricing.comparison.rows.support.enterprise')
   }
 ];
 ---
 
 <div class="mt-16" data-aos="fade-up">
-  <h2 class="text-2xl font-bold text-center mb-8">Detaillierter Vergleich</h2>
+  <h2 class="text-2xl font-bold text-center mb-8">{heading}</h2>
   
   <div class="overflow-x-auto">
     <table class="w-full border-collapse">
       <thead>
         <tr class="border-b border-gray-200 dark:border-gray-700">
-          <th class="text-left py-4 px-6 font-medium text-gray-500 dark:text-gray-400">Feature</th>
-          <th class="text-center py-4 px-6 font-medium text-gray-500 dark:text-gray-400">Starter</th>
-          <th class="text-center py-4 px-6 font-medium text-blue-600 dark:text-blue-400">Pro</th>
-          <th class="text-center py-4 px-6 font-medium text-gray-500 dark:text-gray-400">Enterprise</th>
+          <th class="text-left py-4 px-6 font-medium text-gray-500 dark:text-gray-400">{colFeature}</th>
+          <th class="text-center py-4 px-6 font-medium text-gray-500 dark:text-gray-400">{colStarter}</th>
+          <th class="text-center py-4 px-6 font-medium text-blue-600 dark:text-blue-400">{colPro}</th>
+          <th class="text-center py-4 px-6 font-medium text-indigo-600 dark:text-indigo-400">{colPremium}</th>
+          <th class="text-center py-4 px-6 font-medium text-gray-500 dark:text-gray-400">{colEnterprise}</th>
         </tr>
       </thead>
       <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
@@ -67,7 +106,8 @@ const features = [
           <tr class="hover:bg-gray-50 dark:hover:bg-gray-800" data-aos="fade-up" data-aos-delay={String(aosDelayForIndex(idx, { step: 50, max: 400 }))}>
             <td class="py-4 px-6 font-medium">{feature.name}</td>
             <td class="py-4 px-6 text-center">{feature.starter}</td>
-            <td class="py-4 px-6 text-center bg-blue-50 dark:bg-blue-900/30">{feature.pro}</td>
+            <td class="py-4 px-6 text-center bg-blue-50 dark:bg-blue-900/30">{(feature as any).pro}</td>
+            <td class="py-4 px-6 text-center bg-indigo-50 dark:bg-indigo-900/30">{(feature as any).premium}</td>
             <td class="py-4 px-6 text-center">{feature.enterprise}</td>
           </tr>
         ))}
@@ -76,6 +116,6 @@ const features = [
   </div>
   
   <div class="mt-8 text-center text-sm text-gray-500 dark:text-gray-400">
-    <p>Fragen zu den Plänen? <a href={localizePath(locale, '/kontakt')} class="text-blue-600 dark:text-blue-400 hover:underline">Kontaktiere uns</a></p>
+    <p>{contactCta} <a href={localizePath(locale, '/kontakt')} class="text-blue-600 dark:text-blue-400 hover:underline">{t('pages.pricing.faq_contact_cta_link_text')}</a></p>
   </div>
 </div>

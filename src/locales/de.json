@@ -29,6 +29,16 @@
       "email_placeholder": "E-Mail-Adresse"
     }
   },
+  "nav": {
+    "dashboard": "Dashboard",
+    "tools": "Tools",
+    "pricing": "Preise",
+    "blog": "Blog"
+  },
+  "nav_language": {
+    "de": "Deutsch",
+    "en": "English"
+  },
   "cta": {
     "headline": "Bereit loszulegen?",
     "subtitle": "Werden Sie Teil der Tausenden von Entwicklern, die bereits Evolution Hub nutzen, um erstaunliche Anwendungen zu erstellen.",
@@ -199,6 +209,7 @@
     },
     "impressum": {
       "title": "Impressum",
+      "disclaimer_note": "Hinweis: Diese englische Übersetzung dient nur der Verständlichkeit. Verbindlich ist die deutsche Fassung.",
       "section_intro": {
         "heading": "Angaben gemäß § 5 TMG"
       },
@@ -275,6 +286,7 @@
     },
     "datenschutz": {
       "title": "Datenschutzerklärung",
+      "disclaimer_note": "Hinweis: Diese englische Übersetzung dient nur der Verständlichkeit. Verbindlich ist die deutsche Fassung.",
       "header": {
         "title": "Datenschutzerklärung",
         "last_updated": "Letzte Aktualisierung: 20. Juli 2025"
@@ -351,9 +363,97 @@
     "pricing": {
       "title": "Preise – Evolution Hub",
       "description": "Wähle den passenden Plan für deine Bedürfnisse. Kostenlose Testversion verfügbar.",
+      "table": {
+        "per_month": "/Monat",
+        "per_year": "pro Jahr",
+        "free": "Kostenlos",
+        "custom": "Individuell",
+        "featured_badge": "Beliebt",
+        "plans": {
+          "starter": {
+            "name": "Starter",
+            "price": "Kostenlos",
+            "description": "Perfekt zum Ausprobieren",
+            "features": [
+              "Bis zu 15 Bilder/Tag",
+              "Max 8 MP",
+              "Upscale bis 2×",
+              "Keine API",
+              "Keine kommerzielle Nutzung"
+            ],
+            "cta": "Jetzt starten"
+          },
+          "pro": {
+            "name": "Pro",
+            "price": "14,99€",
+            "description": "Für Creator und Indie-Teams",
+            "features": [
+              "400 Bilder/Monat (Burst: 40/Tag)",
+              "Max 16 MP",
+              "Upscale bis 4×",
+              "Face Enhance",
+              "Batch bis 5",
+              "API 2.000 Calls/Monat"
+            ],
+            "cta": "Pro kaufen"
+          },
+          "premium": {
+            "name": "Premium",
+            "price": "24,99€",
+            "description": "Für Power-User",
+            "features": [
+              "1.200 Bilder/Monat (Burst: 120/Tag)",
+              "Max 32 MP",
+              "Upscale bis 6×",
+              "Face Enhance",
+              "Batch bis 20",
+              "API 10.000 Calls/Monat",
+              "Hohe Queue-Priorität"
+            ],
+            "cta": "Premium kaufen"
+          },
+          "enterprise": {
+            "name": "Enterprise",
+            "price": "Individuell",
+            "description": "Für Unternehmen",
+            "features": [
+              "Individuelles Monatsvolumen",
+              "Max 64 MP",
+              "Upscale bis 8×",
+              "SSO & SLA 99,9%",
+              "Individuelle Integrationen",
+              "Dedizierter Support"
+            ],
+            "cta": "Kontakt aufnehmen"
+          }
+        }
+      },
+      "comparison": {
+        "title": "Detaillierter Vergleich",
+        "columns": {
+          "feature": "Feature",
+          "starter": "Starter",
+          "pro": "Pro",
+          "premium": "Premium",
+          "enterprise": "Enterprise"
+        },
+        "rows": {
+          "images_per_month": { "name": "Bilder pro Monat", "starter": "450 (15/Tag)", "pro": "400", "premium": "1.200", "enterprise": "5.000+" },
+          "daily_burst": { "name": "Tages‑Burst‑Limit", "starter": "15", "pro": "40", "premium": "120", "enterprise": "500" },
+          "max_resolution": { "name": "Max. Auflösung", "starter": "8 MP", "pro": "16 MP", "premium": "32 MP", "enterprise": "64 MP+" },
+          "max_upscale": { "name": "Max. Upscale", "starter": "2×", "pro": "4×", "premium": "6×", "enterprise": "8×" },
+          "face_enhance": { "name": "Face Enhance", "starter": "❌", "pro": "✅", "premium": "✅", "enterprise": "✅" },
+          "batch": { "name": "Batch‑Größe", "starter": "1", "pro": "5", "premium": "20", "enterprise": "100" },
+          "api_calls": { "name": "API‑Calls / Monat", "starter": "—", "pro": "2.000", "premium": "10.000", "enterprise": "Custom" },
+          "queue": { "name": "Queue‑Priorität", "starter": "Niedrig", "pro": "Normal", "premium": "Hoch", "enterprise": "Höchste" },
+          "commercial": { "name": "Kommerzielle Nutzung", "starter": "Nein", "pro": "Ja", "premium": "Ja", "enterprise": "Ja" },
+          "support": { "name": "Support", "starter": "Community", "pro": "48h", "premium": "24h", "enterprise": "Dediziert" }
+        },
+        "contact_cta": "Fragen zu den Plänen?"
+      },
       "header": {
         "title": "Einfache, transparente Preise",
-        "subtitle": "Wähle den Plan, der am besten zu dir passt. Jeder Plan enthält eine 14-tägige kostenlose Testversion."
+        "subtitle": "Wähle den Plan, der am besten zu dir passt."
       },
       "faq": {
         "title": "Häufig gestellte Fragen",
@@ -619,10 +719,28 @@
               "before": "Vorher",
               "after": "Nachher",
               "handleAriaLabel": "Zum Vergleichen ziehen",
-              "keyboardHint": "Mit Links/Rechts anpassen; Home/Ende zum Zurücksetzen",
+              "keyboardHint": "Pfeiltasten bewegen; Shift+Pfeile schneller; Pos1/Ende zu den Rändern; 0 zentriert; +/− zoomt; 1 setzt Zoom zurück; L schaltet die Lupe; Leertaste halten zeigt 100% „Vorher“.",
               "reset": "Zurücksetzen",
               "loupe": "Lupe"
-            }
+            },
+            "help": {
+              "button": "Hilfe",
+              "title": "So funktioniert es",
+              "close": "Schließen",
+              "sections": {
+                "upload": "Upload",
+                "models": "Modelle",
+                "compare": "Vergleichen & Inspizieren",
+                "quota": "Kontingent"
+              }
+            },
+            "fullscreen": "Vollbild",
+            "exitFullscreen": "Vollbild verlassen",
+            "changeModel": "Modell ändern",
+            "done": "Fertig",
+            "startOver": "Neu beginnen",
+            "faceEnhance": "Gesichtsverbesserung",
+            "upgrade": "Upgrade"
           }
         }
       },

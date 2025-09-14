@@ -1,7 +1,8 @@
 import type { APIContext } from 'astro';
 import { withApiMiddleware, createApiError, createApiSuccess, createMethodNotAllowed } from '@/lib/api-middleware';
 import { AiImageService } from '@/lib/services/ai-image-service';
-import { FREE_LIMIT_GUEST, FREE_LIMIT_USER, type OwnerType } from '@/config/ai-image';
+import { FREE_LIMIT_GUEST, FREE_LIMIT_USER, type OwnerType, type Plan } from '@/config/ai-image';
+import { getEntitlementsFor } from '@/config/ai-image/entitlements';
 
 function ensureGuestIdCookie(context: APIContext): string {
   const existing = context.cookies.get('guest_id')?.value;
@@ -35,8 +36,9 @@ export const GET = withApiMiddleware(async (context) => {
   });
 
   try {
-    const limit = ownerType === 'user' ? FREE_LIMIT_USER : FREE_LIMIT_GUEST;
-    const usage = await service.getUsage(ownerType, ownerId, limit);
+    const plan = ownerType === 'user' ? ((locals.user as { plan?: Plan } | null)?.plan ?? 'free') as Plan : undefined;
+    const ent = getEntitlementsFor(ownerType, plan);
+    const usage = await service.getUsage(ownerType, ownerId, ent.dailyBurstCap);
 
     return createApiSuccess({
       ownerType,
@@ -44,7 +46,10 @@ export const GET = withApiMiddleware(async (context) => {
       limits: {
         user: FREE_LIMIT_USER,
         guest: FREE_LIMIT_GUEST,
-      }
+      },
+      // optionally provide plan for clients that want to show it; existing clients safely ignore it
+      plan: ownerType === 'user' ? (plan ?? 'free') : undefined,
+      entitlements: ent
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unbekannter Fehler';

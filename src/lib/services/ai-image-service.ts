@@ -29,6 +29,12 @@ export interface GenerateParams {
   scale?: 2 | 4;
   faceEnhance?: boolean;
   assistantId?: string;
+  // Optional: override daily limit based on plan/entitlements resolved by API route
+  limitOverride?: number;
+  // Optional: plan-based constraints
+  monthlyLimitOverride?: number;
+  maxUpscaleOverride?: 2 | 4 | 6 | 8;
+  allowFaceEnhanceOverride?: boolean;
 }
 
 export interface GenerateResult {
@@ -49,6 +55,62 @@ export class AiImageService {
   constructor(env: RuntimeEnv) {
     this.env = env;
     this.log = loggerFactory.createLogger('ai-image-service');
+  }
+
+  private async getCreditsBalance(userId: string): Promise<number> {
+    const kv = this.env.KV_AI_ENHANCER;
+    if (!kv) return 0;
+    const key = this.creditsKey(userId);
+    const raw = await kv.get(key);
+    if (!raw) return 0;
+    const n = parseInt(raw, 10);
+    return Number.isFinite(n) && n > 0 ? n : 0;
+  }
+
+  private async decrementCreditsBalance(userId: string): Promise<number> {
+    const kv = this.env.KV_AI_ENHANCER;
+    if (!kv) return 0;
+    const key = this.creditsKey(userId);
+    const raw = await kv.get(key);
+    let n = 0;
+    if (raw) {
+      const parsed = parseInt(raw, 10);
+      n = Number.isFinite(parsed) ? parsed : 0;
+    }
+    n = Math.max(0, n - 1);
+    await kv.put(key, String(n));
+    return n;
+  }
+
+  private async getMonthlyUsage(ownerType: OwnerType, ownerId: string, limit: number, ym: string): Promise<UsageInfo> {
+    const kv = this.env.KV_AI_ENHANCER;
+    if (!kv) return { used: 0, limit, resetAt: null };
+    const key = this.monthlyUsageKey(ownerType, ownerId, ym);
+    const raw = await kv.get(key);
+    if (!raw) return { used: 0, limit, resetAt: null };
+    try {
+      const parsed = JSON.parse(raw) as { count: number };
+      return { used: parsed.count || 0, limit, resetAt: null };
+    } catch {
+      return { used: 0, limit, resetAt: null };
+    }
+  }
+
+  private async incrementMonthlyUsage(ownerType: OwnerType, ownerId: string, limit: number, ym: string): Promise<UsageInfo> {
+    const kv = this.env.KV_AI_ENHANCER;
+    if (!kv) return { used: 0, limit, resetAt: null };
+    const key = this.monthlyUsageKey(ownerType, ownerId, ym);
+    const raw = await kv.get(key);
+    let count = 0;
+    if (raw) {
+      try {
+        const parsed = JSON.parse(raw) as { count: number };
+        count = parsed.count || 0;
+      } catch {}
+    }
+    count += 1;
+    await kv.put(key, JSON.stringify({ count }));
+    return { used: count, limit, resetAt: null };
   }
 
   private isLocalHost(origin: string): boolean {
@@ -133,7 +195,7 @@ export class AiImageService {
     }
   }
 
-  async generate({ ownerType, ownerId, modelSlug, file, requestOrigin, scale, faceEnhance, assistantId }: GenerateParams): Promise<GenerateResult> {
+  async generate({ ownerType, ownerId, modelSlug, file, requestOrigin, scale, faceEnhance, assistantId, limitOverride, monthlyLimitOverride, maxUpscaleOverride, allowFaceEnhanceOverride }: GenerateParams): Promise<GenerateResult> {
     // Validate input
     const model = this.getAllowedModel(modelSlug);
     if (!model) throw new Error('Unsupported model');
@@ -152,10 +214,21 @@ export class AiImageService {
         err.apiErrorType = 'validation_error';
         throw err;
       }
+      // Enforce plan-based max upscale
+      if (typeof maxUpscaleOverride === 'number' && scale > maxUpscaleOverride) {
+        const err: any = new Error(`Requested 'scale' exceeds plan limit (${maxUpscaleOverride}x)`);
+        err.apiErrorType = 'validation_error';
+        throw err;
+      }
     }
     if (typeof faceEnhance !== 'undefined') {
       if (!model.supportsFaceEnhance) {
         const err: any = new Error(`Unsupported parameter 'face_enhance' for model ${model.slug}`);
+        err.apiErrorType = 'validation_error';
+        throw err;
+      }
+      if (faceEnhance === true && allowFaceEnhanceOverride === false) {
+        const err: any = new Error(`'face_enhance' not allowed on current plan`);
         err.apiErrorType = 'validation_error';
         throw err;
       }
@@ -203,15 +276,35 @@ export class AiImageService {
       fileSize: file.size,
     });
 
-    // Quota check (without increment yet)
-    const limit = ownerType === 'user' ? FREE_LIMIT_USER : FREE_LIMIT_GUEST;
-    const currentUsage = await this.getUsage(ownerType, ownerId, limit);
+    // Quota checks (monthly first, then daily burst), without increment yet
+    const dailyLimit = typeof limitOverride === 'number' ? limitOverride : (ownerType === 'user' ? FREE_LIMIT_USER : FREE_LIMIT_GUEST);
+    const monthlyLimit = typeof monthlyLimitOverride === 'number' ? monthlyLimitOverride : Number.POSITIVE_INFINITY;
+
+    const now = new Date();
+    const ym = `${now.getUTCFullYear()}${String(now.getUTCMonth() + 1).padStart(2, '0')}`;
+    const monthly = await this.getMonthlyUsage(ownerType, ownerId, monthlyLimit, ym);
+    let usedCreditPack = false;
+    if (monthly.used >= monthly.limit) {
+      // Allow users (not guests) to consume credits if available
+      const credits = ownerType === 'user' ? await this.getCreditsBalance(ownerId) : 0;
+      if (credits > 0) {
+        usedCreditPack = true;
+      } else {
+        const msgM = `Monthly quota exceeded. Used ${monthly.used}/${monthly.limit}`;
+        const errM: any = new Error(msgM);
+        errM.code = 'quota_exceeded';
+        errM.details = { scope: 'monthly', ...monthly };
+        throw errM;
+      }
+    }
+
+    const currentUsage = await this.getUsage(ownerType, ownerId, dailyLimit);
     if (currentUsage.used >= currentUsage.limit) {
       const resetInfo = currentUsage.resetAt ? new Date(currentUsage.resetAt).toISOString() : null;
       const msg = `Quota exceeded. Used ${currentUsage.used}/${currentUsage.limit}` + (resetInfo ? `, resets at ${resetInfo}` : '');
       const err: any = new Error(msg);
       err.code = 'quota_exceeded';
-      err.details = currentUsage;
+      err.details = { scope: 'daily', ...currentUsage };
       throw err;
     }
 
@@ -274,7 +367,13 @@ export class AiImageService {
 
     // In dev echo mode, skip fetching via HTTP and re-writing to R2 to avoid transient 404s
     if (devEcho && this.isDevelopment() && outputUrl === originalUrl) {
-      const usage = await this.incrementUsage(ownerType, ownerId, currentUsage.limit);
+      const usage = await this.incrementUsage(ownerType, ownerId, dailyLimit);
+      if (usedCreditPack) {
+        // consume one credit instead of incrementing monthly
+        await this.decrementCreditsBalance(ownerId);
+      } else {
+        await this.incrementMonthlyUsage(ownerType, ownerId, monthlyLimit, ym);
+      }
       this.log.debug('dev_echo_return', { reqId, imageUrl: originalUrl, usage });
       return { model: model.slug, originalUrl, imageUrl: originalUrl, usage };
     }
@@ -292,8 +391,13 @@ export class AiImageService {
 
     const imageUrl = this.buildPublicUrl(requestOrigin, resultKey);
 
-    // Increment usage after success
-    const usage = await this.incrementUsage(ownerType, ownerId, currentUsage.limit);
+    // Increment usage after success (both monthly and daily)
+    const usage = await this.incrementUsage(ownerType, ownerId, dailyLimit);
+    if (usedCreditPack) {
+      await this.decrementCreditsBalance(ownerId);
+    } else {
+      await this.incrementMonthlyUsage(ownerType, ownerId, monthlyLimit, ym);
+    }
     this.log.info('generate_success', { reqId, imageUrl, usage });
 
     return { model: model.slug, originalUrl, imageUrl, usage };
@@ -306,6 +410,14 @@ export class AiImageService {
 
   private usageKey(ownerType: OwnerType, ownerId: string): string {
     return `ai:usage:${ownerType}:${ownerId}`;
+  }
+
+  private monthlyUsageKey(ownerType: OwnerType, ownerId: string, ym: string): string {
+    return `ai:usage:month:${ownerType}:${ownerId}:${ym}`;
+  }
+
+  private creditsKey(userId: string): string {
+    return `ai:credits:user:${userId}`;
   }
 
   private async incrementUsage(ownerType: OwnerType, ownerId: string, limit: number): Promise<UsageInfo> {

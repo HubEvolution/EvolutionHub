@@ -1,284 +1,144 @@
-
 {
-  "common": {
-    "greeting": "Welcome to Evolution Hub! A project for the future of software development.",
-    "description": "Discover the power of AI-powered tools to optimize your workflow and increase your productivity.",
-    "language_switch_label": "Language",
-    "get_started": "Get Started",
-    "documentation": "Documentation",
-    "errors": {
-      "generic": "An error has occurred. Please try again later.",
-      "upload_failed_prefix": "Upload failed:"
-    },
-    "upload": {
-      "invalid_type": "Please choose an image in JPG, PNG, or GIF format.",
-      "too_large": "The file is too large. Maximum size is 2MB."
-    },
-    "status": {
-      "uploading": "Uploading...",
-      "sending": "Sending..."
-    },
-    "actions": {
-      "upload": "Upload",
-      "subscribe": "Subscribe"
-    },
-    "success": {
-      "avatar_updated": "Profile picture updated successfully!",
-      "newsletter_confirmation_sent": "Confirmation email sent!"
-    },
-    "forms": {
-      "email_placeholder": "Email address"
-    }
+  "nav": {
+    "dashboard": "Dashboard",
+    "tools": "Tools",
+    "pricing": "Pricing",
+    "blog": "Blog"
   },
-  "cta": {
-    "headline": "Ready to get started?",
-    "subtitle": "Join the thousands of developers already using Evolution Hub to build amazing applications.",
-    "button_text": "Create free account"
+  "nav_language": {
+    "de": "Deutsch",
+    "en": "English"
   },
   "pages": {
-    "home": {
-      "features": {
-        "feature1": {
-          "icon": "celebration",
-          "title": "Generate Code",
-          "description": "Whether you want to generate code, create content, or analyze complex data – our platform supports you every step of the way."
-        },
-        "feature2": {
-          "icon": "rocket",
-          "title": "Automated Tests",
-          "description": "Optimize your testing process with intelligent automation capabilities."
-        },
-        "feature3": {
-          "icon": "lightbulb",
-          "title": "Intelligent Debugging",
-          "description": "Identify and fix bugs faster with AI-powered debugging tools."
-        },
-        "heading": "The future of AI-powered development",
-        "subtitle": "Explore our core capabilities — from code generation and automated testing to intelligent debugging."
-      },
-      "testimonials": {
-        "heading": "What our users say about Imag-Enhancer",
-        "subtitle": "Notes from people who use Imag‑Enhancer in real work — what actually helped.",
-        "testimonial1": {
-          "quote": "I had a batch of dim café shots at ISO 3200. Imag‑Enhancer took the noise down without plastic skin. I nudged contrast a bit and sent them off the same night.",
-          "author": "Amira K.",
-          "role": "Freelance photographer"
-        },
-        "testimonial2": {
-          "quote": "We list second‑hand gear. Phone photos on creased paper used to look messy. Batch denoise + a gentle sharpen made everything consistent. Retouching went from two days to one afternoon.",
-          "author": "Diego R.",
-          "role": "Ops at a small e‑commerce"
-        },
-        "testimonial3": {
-          "quote": "We needed clean 4× crops for a hero banner. The upscaler kept edges calm—no halos—and colors stayed honest. It's just another tiny step in our Figma → prod checklist now.",
-          "author": "Nina P.",
-          "role": "Design lead"
-        },
-        "testimonial4": {
-          "quote": "Clients send tiny JPEG logos five minutes before print. The upscaler gave us clean edges for A3 flyers—no stair‑steps—so we stopped chasing 'the original file' in panic.",
-          "author": "Leila M.",
-          "role": "Owner, small creative agency"
-        },
-        "testimonial5": {
-          "quote": "We pull stills from product videos for listings. Denoise + detail brings edges back so on‑screen text stays readable. It's the difference between 'looks okay' and 'looks crisp'.",
-          "author": "Tom S.",
-          "role": "Content manager, retail brand"
-        }
-      },
-      "introduction": {
-        "part1": "Evolution Hub offers an innovative collection of AI-powered tools designed specifically for developers and creators. With our AI-powered tools, you can optimize your workflow, automate repetitive tasks, and increase your productivity. Whether you want to generate code, create content, or analyze complex data – our platform supports you every step of the way.",
-        "part2": "The intelligent combination of artificial intelligence and user-friendly design allows you to unleash your creativity and bring projects to life faster. Discover our powerful features and learn how you can shape the future of software development and content creation with Evolution Hub.",
-        "part3_de": "Our advanced algorithms and user-friendly interfaces work together seamlessly to provide you with the best possible developer experience. From the initial idea to the final implementation – Evolution Hub accompanies you through every step of your creative process.",
-        "part4_de": "Harness the power of artificial intelligence to simplify complex tasks, develop innovative solutions, and take your projects to the next level. With Evolution Hub, you shape the future of digital development."
-      },
-      "title": "Evolution Hub",
-      "hero": {
-        "title_part1": "Evolution Hub",
-        "title_part2": "The future of AI-powered development",
-        "subtitle": "Discover the power of AI-driven tools to streamline your workflow and boost productivity.",
-        "get_started_button": "Get started",
-        "documentation_link": "View documentation",
-        "tools_link": "View our tools",
-        "typewriter": [
-          "IMAG'-Enhancer",
-          "Automated Tests",
-          "Intelligent Debugging"
-        ]
-      }
-    },
-    "blog": {
-      "title": "Blog",
-      "description": "Latest articles, tutorials, and news from the world of web development",
-      "search": {
-        "title": "Browse Blog",
-        "placeholder": "Search...",
-        "button": "Search"
-      },
-      "noPosts": {
-        "title": "No posts found",
-        "description": "No blog posts match your search criteria.",
-        "action": "Show all posts"
-      },
-      "filter": {
-        "category": {
-          "title": "Filter by category",
-          "all": "All categories"
-        },
-        "tag": "Filtered by tag: ",
-        "search": "Search results for: ",
-        "reset": "Reset filters",
-        "all": "All",
-        "category_label": "Filtered by category: "
-      },
-      "featured": "Featured Post",
-      "tags": {
-        "title": "All Tags",
-        "none": "No tags available"
-      },
-      "posts": {
-        "count": {
-          "one": "1 post",
-          "other": "{count} posts"
-        }
-      },
-      "cta": {
-        "newsletter": {
-          "title": "Stay informed!",
-          "description": "Get the latest insights on New Work, AI, and productivity directly in your inbox weekly.",
-          "button": "Subscribe to newsletter"
-        },
-        "leadmagnet": {
-          "title": "Free Expert Material",
-          "description": "Download our proven material and implement the tips immediately.",
-          "button": "Download now"
-        },
-        "consultation": {
-          "title": "Want individual advice?",
-          "description": "Let us discuss your specific challenges in a free consultation.",
-          "button": "Schedule a call"
-        },
-        "social": {
-          "title": "Share this article",
-          "description": "Help others discover these valuable insights.",
-          "button": "Share article"
-        }
-      },
-      "leadMagnet": {
-        "newWorkGuide": {
-          "title": "New Work Transformation Guide",
-          "description": "Step-by-step guide to successfully introducing New Work in your company.",
-          "benefits": [
-            "Proven transformation roadmap",
-            "Checklists for every implementation phase",
-            "Common pitfalls and how to avoid them",
-            "Success metrics and KPI dashboard"
-          ]
-        },
-        "kiToolsChecklist": {
-          "title": "AI Tools Checklist 2025",
-          "description": "Comprehensive list of the best AI tools for various business applications.",
-          "benefits": [
-            "50+ tested AI tools with ratings",
-            "Categorized by application area",
-            "Cost-benefit analysis for each tool",
-            "Implementation tips and best practices"
-          ]
-        },
-        "productivityMasterclass": {
-          "title": "Productivity Masterclass",
-          "description": "Video series with the most effective techniques for maximum productivity in the home office.",
-          "benefits": [
-            "5 video modules (total 2 hours)",
-            "Downloadable worksheets",
-            "Pomodoro timer app included",
-            "Exclusive community access"
-          ]
-        },
-        "download": "Download for free",
-        "limited": "Limited offer"
-      }
-    },
-    "verifyEmail": {
-      "title": "Check your email",
-      "subtitle": "We've sent you a confirmation email",
-      "emailSentToLabel": "Email was sent to:",
-      "instructionClick": "Click the confirmation link in the email",
-      "linkValidity": "The link is valid for 24 hours",
-      "noEmailTip": "Didn't receive an email? Check your spam folder",
-      "backToRegister": "← Back to registration",
-      "supportLine": "Problems? Contact us at",
-      "resend": {
-        "btnDefault": "Resend email",
-        "success": "Verification email re-sent! Check your inbox.",
-        "error": "Failed to send the email. Please try again later.",
-        "missingEmail": "Email address unavailable. Please register again.",
-        "sending": "Sending...",
-        "countdown": "Resend ({s}s)",
-        "unexpected": "An unexpected error occurred. Please try again later."
-      }
-    },
-    "pricing": {
-      "title": "Pricing – Evolution Hub",
-      "description": "Choose the plan that fits your needs. Free trial available.",
-      "header": {
-        "title": "Simple, transparent pricing",
-        "subtitle": "Choose the plan that fits you best. Every plan includes a 14‑day free trial."
-      },
-      "faq": {
-        "title": "Frequently asked questions",
-        "question1": "Can I change my plan later?",
-        "answer1": "Yes, you can change plans at any time. The change takes effect with your next billing cycle.",
-        "question2": "Is there a minimum contract term?",
-        "answer2": "No, all plans are billed monthly and can be cancelled at any time.",
-        "question3": "Can I test the Enterprise edition?",
-        "answer3": "Yes, contact us for an individual demo and trial of the Enterprise features."
-      },
-      "faq_contact_cta_text": "Still have questions?",
-      "faq_contact_cta_link_text": "Contact our team"
-    },
-    "login": {
-      "title": "Sign in",
-      "form": {
-        "heading": "Sign in to your account",
-        "fields": { "email": { "label": "Email" } },
-        "or": "or",
-        "forgot_password_link": "Forgot password?",
-        "submit_button": "Sign in",
-        "magic_button": "Continue with Magic Link",
-        "no_account_prompt": "Don't have an account?",
-        "register_link": "Register"
-      }
-    },
-    "register": {
-      "title": "Create account",
-      "form": {
-        "heading": "Create your account",
-        "subheading": "We'll send you a sign‑in link by email. After submitting you'll see a confirmation.",
-        "fields": {
-          "name": { "label": "Name", "help": "2–50 characters." },
-          "username": { "label": "Username", "help": "3–30 characters; letters, numbers, underscore." },
-          "email": { "label": "Email" },
-          "password": { "label": "Password" }
-        },
-        "submit_button": "Create account",
-        "already_have_account_prompt": "Already have an account?",
-        "login_link": "Sign in"
-      }
-    },
-    "auth": {
-      "magic": {
-        "success": "Check your email for the sign‑in link.",
-        "error": "We couldn't send the link. Please try again.",
-        "cooldown": "Resend in {s}s"
-      }
-    },
     "tools": {
+      "items": {
+        "Imag-Enhancer": {
+          "name": "Imag-Enhancer",
+          "description": "Automatically improves image quality: AI denoising, detail sharpening, high‑quality upscaling, and color/contrast optimization — adjustable for single images and batches.",
+          "app": {
+            "dropText": "Drop an image here or click to select",
+            "enhance": "Enhance",
+            "processing": "Processing…",
+            "model": "Model",
+            "usage": "Usage",
+            "result": "Result",
+            "original": "Original",
+            "allowedTypes": "Allowed: JPG, PNG, GIF",
+            "max": "Max size",
+            "download": "Download",
+            "loading": "Loading…",
+            "quotaBanner": "Free tier usage is limited. Sign in for higher limits.",
+            "toasts": {
+              "loadQuotaError": "Failed to load quota information.",
+              "loadError": "Failed to load. Please try again.",
+              "quotaReached": "You have reached your usage limit.",
+              "unsupportedType": "Unsupported file type.",
+              "fileTooLargePrefix": "File is too large. Max:",
+              "processingFailed": "Processing failed. Please try again.",
+              "successEnhanced": "Image enhanced successfully!"
+            },
+            "compare": {
+              "sliderLabel": "Compare slider",
+              "before": "Before",
+              "after": "After",
+              "handleAriaLabel": "Drag to compare",
+              "keyboardHint": "Arrows move; Shift+Arrows faster; Home/End to edges; 0 centers; +/− zoom; 1 resets zoom; L toggles loupe; hold Space shows 100% Before.",
+              "reset": "Reset",
+              "loupe": "Loupe"
+            },
+            "help": {
+              "button": "Help",
+              "title": "How it works",
+              "close": "Close",
+              "sections": {
+                "upload": "Upload",
+                "models": "Models",
+                "compare": "Compare & Inspect",
+                "quota": "Quota"
+              }
+            },
+            "fullscreen": "Enter Fullscreen",
+            "exitFullscreen": "Exit Fullscreen",
+            "changeModel": "Change model",
+            "done": "Done",
+            "startOver": "Start over",
+            "faceEnhance": "Face enhance",
+            "upgrade": "Upgrade"
+          }
+        },
+        "code-review": {
+          "name": "Code Review Assistant",
+          "description": "KI-gestütztes Code-Review-Tool zur Erkennung von Problemen und Verbesserungsvorschlägen."
+        },
+        "design-system": {
+          "name": "Design System Builder",
+          "description": "Erstelle und verwalte ein konsistentes Design-System mit wiederverwendbaren Komponenten."
+        },
+        "seo-analyzer": {
+          "name": "SEO-Analyzer",
+          "description": "Analysiert Seiteninhalte und Metriken, um die Sichtbarkeit in Suchmaschinen zu verbessern."
+        },
+        "api-tester": {
+          "name": "API-Tester",
+          "description": "Sende Anfragen, inspiziere Antworten und teste Endpunkte effizient."
+        },
+        "content-generator": {
+          "name": "Content-Generator",
+          "description": "Erzeuge hochwertigen Text mit KI – von Beschreibungen bis hin zu Blog-Entwürfen."
+        },
+        "performance-monitor": {
+          "name": "Performance-Monitor",
+          "description": "Überwacht Performance-Metriken und hebt Optimierungspotenziale hervor."
+        }
+      },
+      "details": {
+        "Imag-Enhancer": {
+          "back": "Back to overview",
+          "badge_new": "New",
+          "open": "Open tool",
+          "support": "Support",
+          "features": {
+            "heading": "Key features",
+            "upscaling": {
+              "title": "High‑quality upscaling",
+              "description": "Increase resolution while preserving edges and natural textures."
+            },
+            "denoise_sharpen": {
+              "title": "Denoise + detail",
+              "description": "Reduce noise and bring back fine detail without a waxy look."
+            },
+            "fine_tuning": {
+              "title": "Fine‑tuning presets",
+              "description": "Choose presets or tweak parameters for color, contrast, and sharpness."
+            },
+            "batch": {
+              "title": "Batch processing",
+              "description": "Process multiple images in one go with consistent results."
+            }
+          },
+          "privacy": {
+            "heading": "Privacy & processing",
+            "text": "Imag‑Enhancer can run on our servers or locally (depending on your setup). For sensitive data, prefer local processing — contact us for self‑host options."
+          },
+          "workflow": {
+            "heading": "Example workflow",
+            "steps": [
+              "Upload or drop your image",
+              "Pick a model and options",
+              "Run enhance",
+              "Compare Before/After and download"
+            ]
+          },
+          "try": "Try it now",
+          "longDescription": "Imag‑Enhancer uses modern neural models to automatically optimize photos and graphics. Use presets or fine controls for denoising, sharpening, color correction, and upscaling. Supports single images and batch processing, with privacy‑friendly local options."
+        }
+      },
       "meta": {
         "title": "Tools – Evolution Hub",
-        "description": "Discover our powerful tools for developers, designers, and content creators. Boost your productivity with our AI-powered solutions."
+        "description": "Discover our powerful tools for developers, designers, and content creators. Boost your productivity with our AI‑powered solutions."
       },
       "heading": "Our Tools",
-      "subheading": "Explore powerful tools for developers, designers, and content creators",
+      "subheading": "Discover our powerful tools for developers, designers, and content creators",
       "filter": {
         "search_placeholder": "Search tools..."
       },
@@ -296,7 +156,7 @@
         "more_about_prefix": "More about"
       },
       "categories": {
-        "all": "All Tools",
+        "all": "All tools",
         "ai": "AI & Machine Learning",
         "development": "Development",
         "design": "Design",
@@ -309,84 +169,869 @@
       },
       "cta": {
         "heading": "Missing a specific tool?",
-        "description": "We continuously build new tools and features. Tell us what you need!",
+        "description": "We are continuously working on new tools and features. Tell us what you need!",
         "button": "Suggest a tool"
+      }
+    },
+    "home": {
+      "title": "Welcome to Evolution Hub",
+      "features": {
+        "heading": "The future of AI‑assisted development",
+        "subtitle": "An overview of our core capabilities — from code generation and automated testing to smart debugging.",
+        "feature1": {
+          "icon": "celebration",
+          "title": "Generate code",
+          "description": "Whether you want to generate code, create content, or analyze complex data — our platform supports you at every step."
+        },
+        "feature2": {
+          "icon": "rocket",
+          "title": "Automated tests",
+          "description": "Optimize your testing process with intelligent automation."
+        },
+        "feature3": {
+          "icon": "lightbulb",
+          "title": "Smart debugging",
+          "description": "Identify and fix issues faster with AI‑powered debugging tools."
+        }
       },
-      "items": {
-        "code-review": {
-          "name": "Code Review Assistant",
-          "description": "AI-powered code review tool that detects issues and suggests improvements."
+      "testimonials": {
+        "heading": "What users say about Imag‑Enhancer",
+        "subtitle": "Short notes from people who really use Imag‑Enhancer — what helped them in practice.",
+        "testimonial1": {
+          "quote": "I often shoot in cafés with low light — ISO 3200 is normal. Imag‑Enhancer removed the noise without that waxy look. A touch more contrast and the files were with the client that evening.",
+          "author": "Amira K.",
+          "role": "Freelance photographer"
         },
-        "design-system": {
-          "name": "Design System Builder",
-          "description": "Create and manage a consistent design system with reusable components."
+        "testimonial2": {
+          "quote": "We sell second‑hand goods. Phone photos on crumpled paper always looked busy. Batch denoise plus a bit of sharpening — suddenly everything feels consistent. Retouch time: from two days to one afternoon.",
+          "author": "Diego R.",
+          "role": "Operations, small e‑commerce"
         },
-        "seo-analyzer": {
-          "name": "SEO Analyzer",
-          "description": "Analyzes page content and metrics to improve search engine visibility."
+        "testimonial3": {
+          "quote": "We needed clean 4× crops for the homepage. The upscaler stayed free of halos and kept colors honest. It’s now a small, reliable step in our Figma→prod workflow.",
+          "author": "Nina P.",
+          "role": "Design Lead"
         },
-        "api-tester": {
-          "name": "API Tester",
-          "description": "Send requests, inspect responses, and efficiently test endpoints."
+        "testimonial4": {
+          "quote": "Clients send tiny JPEG logos five minutes before print. The upscaler delivers clean edges for A3 flyers — no stair‑stepping. We’re no longer chasing the “original file.”",
+          "author": "Leila M.",
+          "role": "Owner, small creative agency"
         },
-        "content-generator": {
-          "name": "Content Generator",
-          "description": "Generate high-quality text with AI – from descriptions to blog drafts."
+        "testimonial5": {
+          "quote": "We pull stills from product videos for listings. Denoise + detail brings contours back and keeps text readable. That’s the difference between ‘meh’ and ‘sharp’.",
+          "author": "Tom S.",
+          "role": "Content Manager, retail brand"
+        }
+      },
+      "introduction": {
+        "part1": "Evolution Hub offers an innovative collection of AI‑assisted tools built for developers and creatives. With our AI‑powered tools, you can streamline your workflow, automate repetitive tasks, and increase productivity. Whether you want to generate code, create content, or analyze complex data — our platform supports you at every step.",
+        "part2": "The intelligent combination of artificial intelligence and user‑friendly design lets you unlock creativity and bring projects to life faster. Explore our powerful capabilities and learn how Evolution Hub helps shape the future of software development and content creation.",
+        "part3_de": "Our advanced algorithms and user‑friendly interfaces work seamlessly to provide the best possible developer experience. From the first idea to the final implementation — Evolution Hub accompanies every step of your creative process.",
+        "part4_de": "Use the power of AI to simplify complex tasks, build innovative solutions, and take your projects to the next level. With Evolution Hub, you help shape the future of digital development."
+      },
+      "hero": {
+        "title_part1": "Evolution Hub",
+        "title_part2": "The future of AI‑assisted development",
+        "subtitle": "Discover the power of AI‑powered tools to optimize your workflow and boost productivity.",
+        "get_started_button": "Get started",
+        "documentation_link": "View documentation",
+        "tools_link": "Browse our tools",
+        "typewriter": [
+          "Imag‑Enhancer",
+          "Automated tests",
+          "Smart debugging"
+        ]
+      }
+    },
+    "blog": {
+      "title": "Blog",
+      "description": "Latest articles, tutorials, and news from the world of web development",
+      "search": {
+        "title": "Search the blog",
+        "placeholder": "Search...",
+        "button": "Search"
+      },
+      "noPosts": {
+        "title": "No posts found",
+        "description": "We couldn't find any blog posts matching your filters.",
+        "action": "View all posts"
+      },
+      "filter": {
+        "category": {
+          "title": "Filter by category",
+          "all": "All categories"
         },
-        "performance-monitor": {
-          "name": "Performance Monitor",
-          "description": "Monitors performance metrics and highlights optimization opportunities."
+        "tag": "Filtered by tag: ",
+        "search": "Search results for: ",
+        "reset": "Reset filters",
+        "all": "All",
+        "category_label": "Filtered by category: "
+      },
+      "featured": "Featured Post",
+      "tags": {
+        "title": "All tags",
+        "none": "No tags available"
+      },
+      "posts": {
+        "count": {
+          "one": "1 post",
+          "other": "{count} posts"
+        }
+      },
+      "cta": {
+        "newsletter": {
+          "title": "Stay in the loop",
+          "description": "Get weekly insights on new work, AI, and productivity straight to your inbox.",
+          "button": "Subscribe to newsletter"
         },
-        "Imag-Enhancer": {
-          "name": "Imag-Enhancer",
-          "description": "Automatically improves image quality: AI-based denoising, detail sharpening, high-quality upscaling, and color/contrast optimization — adjustable levels for single and batch processing.",
-          "app": {
-            "dropText": "Drop an image here or click to select",
-            "enhance": "Enhance",
-            "processing": "Processing...",
-            "model": "Model",
-            "usage": "Usage",
-            "result": "Result",
-            "original": "Original",
-            "allowedTypes": "Allowed types",
-            "max": "Max",
-            "download": "Download",
-            "loading": "Loading...",
-            "quotaBanner": "Usage limit reached. Try again later or sign in for higher limits.",
-            "toasts": {
-              "loadQuotaError": "Failed to load quota information.",
-              "loadError": "Failed to load. Please try again.",
-              "quotaReached": "You've reached your usage limit.",
-              "unsupportedType": "Unsupported file type.",
-              "fileTooLargePrefix": "File is too large. Max:",
-              "processingFailed": "Processing failed. Please try again.",
-              "successEnhanced": "Image enhanced successfully!"
-            },
-            "compare": {
-              "sliderLabel": "Compare",
-              "before": "Before",
-              "after": "After",
-              "handleAriaLabel": "Drag to compare",
-              "keyboardHint": "Use Left/Right to adjust; Home/End to reset",
-              "reset": "Reset",
-              "loupe": "Loupe"
-            }
+        "leadmagnet": {
+          "title": "Free expert material",
+          "description": "Download our battle‑tested material and put the tips to work right away.",
+          "button": "Download now"
+        },
+        "consultation": {
+          "title": "Need a consultation?",
+          "description": "Let's discuss your specific challenges in a free call.",
+          "button": "Book a call"
+        },
+        "social": {
+          "title": "Share this article",
+          "description": "Help others discover these valuable insights.",
+          "button": "Share article"
+        }
+      },
+      "leadMagnet": {
+        "newWorkGuide": {
+          "title": "New Work Transformation Guide",
+          "description": "Step‑by‑step guidance for successfully introducing new work in your organization.",
+          "benefits": [
+            "Battle‑tested transformation roadmap",
+            "Checklists for every implementation phase",
+            "Common pitfalls and how to avoid them",
+            "Success metrics and KPI dashboard"
+          ]
+        },
+        "kiToolsChecklist": {
+          "title": "AI Tools Checklist 2025",
+          "description": "A comprehensive list of the best AI tools for various business use cases.",
+          "benefits": [
+            "50+ tested AI tools with ratings",
+            "Categorized by use case",
+            "Cost‑benefit analysis for each tool",
+            "Implementation tips and best practices"
+          ]
+        },
+        "productivityMasterclass": {
+          "title": "Productivity Masterclass",
+          "description": "Video series with the most effective techniques for maximum productivity in the home office.",
+          "benefits": [
+            "5 video modules (2 hours total)",
+            "Downloadable worksheets",
+            "Pomodoro timer app included",
+            "Exclusive community access"
+          ]
+        },
+        "download": "Download for free",
+        "limited": "Limited offer"
+      }
+    },
+    "impressum": {
+      "title": "Legal Notice (Impressum)",
+      "disclaimer_note": "This English text is a convenience translation. The German version is legally binding.",
+      "section_intro": {
+        "heading": "Information in accordance with § 5 TMG"
+      },
+      "sections": {
+        "provider": {
+          "headline": "Service provider",
+          "company_name": "Evolution Hub GmbH",
+          "street_address": "Musterstraße 123",
+          "city_postal_code": "10115 Berlin",
+          "country": "Germany"
+        },
+        "contact": {
+          "headline": "Contact",
+          "phone": "Phone: +49 (0)30 12345678",
+          "fax": "Fax: +49 (0)30 12345679",
+          "email": "Email: info@evolutionhub.de",
+          "website": "Website: www.evolutionhub.de"
+        },
+        "represented_by": {
+          "headline": "Represented by",
+          "managing_directors": "Managing directors: Max Mustermann, Erika Musterfrau"
+        },
+        "registration": {
+          "headline": "Commercial register",
+          "register_entry": "Registered in the commercial register",
+          "register_court": "Register court: Amtsgericht Berlin‑Charlottenburg",
+          "register_number": "Registration number: HRB 123456"
+        },
+        "vat": {
+          "headline": "VAT identification number",
+          "vat_id_label": "VAT identification number pursuant to § 27 a UStG:",
+          "vat_id": "DE 123456789"
+        },
+        "content_responsible": {
+          "headline": "Responsible for content pursuant to § 55 (2) RStV",
+          "name": "Max Mustermann",
+          "street": "Musterstraße 123",
+          "city_postal_code": "10115 Berlin"
+        },
+        "dispute_resolution": {
+          "headline": "Dispute resolution",
+          "os_platform_intro": "The European Commission provides a platform for Online Dispute Resolution (ODR): ",
+          "os_platform_url": "https://ec.europa.eu/consumers/odr/",
+          "email_note": "You can find our email address above in this legal notice.",
+          "participation_statement": "We are neither willing nor obliged to participate in dispute resolution proceedings before a consumer arbitration board."
+        },
+        "disclaimer": {
+          "headline": "Disclaimer",
+          "content_liability": {
+            "headline": "Liability for content",
+            "paragraph1": "As a service provider, we are responsible for our own content on these pages under general legislation pursuant to § 7 (1) TMG. Under §§ 8 to 10 TMG, however, we are not obliged to monitor transmitted or stored third‑party information or to investigate circumstances indicating unlawful activity.",
+            "paragraph2": "Obligations to remove or block the use of information under general legislation remain unaffected. Liability in this respect is only possible from the time we become aware of a concrete infringement. As soon as we become aware of such infringements, we will remove this content immediately."
+          },
+          "link_liability": {
+            "headline": "Liability for links",
+            "paragraph1": "Our offer contains links to external third‑party websites over whose content we have no influence. Therefore, we cannot assume any liability for this external content. The respective provider or operator of the pages is always responsible for the content of the linked pages. The linked pages were checked for possible legal violations at the time of linking. Illegal content was not recognizable at the time of linking.",
+            "paragraph2": "However, permanent monitoring of the content of linked pages is not reasonable without concrete evidence of a violation. If we become aware of legal violations, we will remove such links immediately."
+          },
+          "copyright": {
+            "headline": "Copyright",
+            "paragraph1": "The content and works created by the website operators on these pages are subject to German copyright law. Duplication, processing and any kind of use outside the limits of copyright require the written consent of the respective author or creator.",
+            "paragraph2": "Insofar as the content on this site was not created by the operator, the copyrights of third parties are respected. In particular, third‑party content is identified as such. Should you nevertheless become aware of a copyright infringement, please inform us accordingly. Upon becoming aware of infringements, we will remove such content immediately."
+          }
+        },
+        "image_credits": {
+          "headline": "Image credits",
+          "description": "The images and graphics used on this website are copyrighted by Evolution Hub GmbH or are royalty‑free stock photos from third‑party providers."
+        }
+      },
+      "source_label": "Source:",
+      "source_url": "https://www.e-recht24.de",
+      "source_name": "e-recht24.de",
+      "source_attribution": "e-recht24.de"
+    },
+    "datenschutz": {
+      "title": "Privacy Policy",
+      "disclaimer_note": "This English text is a convenience translation. The German version is legally binding.",
+      "header": {
+        "title": "Privacy Policy",
+        "last_updated": "Last updated: 20 July 2025"
+      },
+      "sections": {
+        "1": {
+          "title": "1. Controller",
+          "description": "The controller within the meaning of the GDPR and other national data protection laws of the Member States as well as other data protection regulations is:",
+          "provider": {
+            "company_name": "Evolution Hub GmbH",
+            "street_address": "Musterstraße 123",
+            "city_postal_code": "10115 Berlin",
+            "country": "Germany",
+            "email_label": "Email:",
+            "email": "datenschutz@evolutionhub.de",
+            "phone_label": "Phone:",
+            "phone": "+49 30 12345678"
+          }
+        },
+        "2": {
+          "title": "2. General information on data processing",
+          "description": "We process personal data of our users only insofar as this is necessary to provide a functional website as well as our content and services. The processing of our users' personal data regularly takes place only with the user's consent. An exception applies in those cases in which prior consent cannot be obtained for practical reasons and the processing of the data is permitted by legal provisions."
+        },
+        "3": {
+          "title": "3. Provision of the website and creation of log files",
+          "subtitle": "Description and scope of data processing",
+          "paragraph1": "Every time our website is accessed, our system automatically collects data and information from the computer system of the calling device.",
+          "list_intro": "The following data is collected:",
+          "list_items": {
+            "0": "Browser type and version",
+            "1": "Operating system used",
+            "2": "Referrer URL",
+            "3": "Hostname of the accessing device",
+            "4": "Time of the server request",
+            "5": "IP address"
+          }
+        },
+        "4": {
+          "title": "4. Cookies",
+          "description": "Our website uses cookies. Cookies are text files that are stored in the internet browser or by the internet browser on the user's computer system. When a user visits a website, a cookie may be stored on the user's operating system. This cookie contains a characteristic string that enables the browser to be uniquely identified when the website is accessed again."
+        },
+        "5": {
+          "title": "5. Contact form and email contact",
+          "paragraph1": "A contact form is available on our website which can be used for electronic contact. If a user takes advantage of this option, the data entered in the input mask is transmitted to us and stored.",
+          "paragraph2": "Alternatively, it is possible to contact us via the email address provided. In this case, the user's personal data transmitted with the email will be stored."
+        },
+        "6": {
+          "title": "6. Rights of the data subject",
+          "subtitle": "You have the right to:",
+          "list_items": {
+            "0": "request information about your personal data processed by us in accordance with Art. 15 GDPR",
+            "1": "request the rectification of inaccurate or completion of your personal data stored by us without undue delay in accordance with Art. 16 GDPR",
+            "2": "request the erasure of your personal data stored by us in accordance with Art. 17 GDPR",
+            "3": "request the restriction of processing of your personal data in accordance with Art. 18 GDPR",
+            "4": "receive your personal data that you have provided to us in a structured, commonly used and machine‑readable format in accordance with Art. 20 GDPR",
+            "5": "withdraw consent once given to us at any time in accordance with Art. 7 (3) GDPR",
+            "6": "lodge a complaint with a supervisory authority in accordance with Art. 77 GDPR"
+          }
+        },
+        "7": {
+          "title": "7. Right to object",
+          "description": "You have the right, on grounds relating to your particular situation, to object at any time to processing of personal data concerning you which is based on Article 6 (1) (e) or (f) GDPR."
+        },
+        "8": {
+          "title": "8. Data security",
+          "description": "We use the common SSL (Secure Socket Layer) method during your website visit in conjunction with the highest level of encryption supported by your browser. This is usually 256‑bit encryption. If your browser does not support 256‑bit encryption, we use 128‑bit v3 technology instead."
+        },
+        "9": {
+          "title": "9. Currency and changes to this privacy policy",
+          "description": "This privacy policy is currently valid and is up to date as of July 2025. Due to the further development of our website and offers or due to changed legal or official requirements, it may become necessary to change this privacy policy."
+        }
+      }
+    },
+    "pricing": {
+      "title": "Pricing – Evolution Hub",
+      "description": "Choose the plan that fits your needs. Free trial available.",
+      "table": {
+        "per_month": "/month",
+        "per_year": "per year",
+        "free": "Free",
+        "custom": "Custom",
+        "featured_badge": "Popular",
+        "plans": {
+          "starter": {
+            "name": "Starter",
+            "price": "Free",
+            "description": "Perfect to get started",
+            "features": [
+              "Up to 15 images/day",
+              "Max 8 MP",
+              "Upscale up to 2×",
+              "No API",
+              "Non‑commercial use"
+            ],
+            "cta": "Get started"
+          },
+          "pro": {
+            "name": "Pro",
+            "price": "€14.99",
+            "description": "For creators and indie teams",
+            "features": [
+              "400 images/month (40/day burst)",
+              "Max 16 MP",
+              "Upscale up to 4×",
+              "Face Enhance",
+              "Batch up to 5",
+              "API 2,000 calls/month"
+            ],
+            "cta": "Buy Pro"
+          },
+          "premium": {
+            "name": "Premium",
+            "price": "€24.99",
+            "description": "For power users",
+            "features": [
+              "1,200 images/month (120/day burst)",
+              "Max 32 MP",
+              "Upscale up to 6×",
+              "Face Enhance",
+              "Batch up to 20",
+              "API 10,000 calls/month",
+              "Priority queue"
+            ],
+            "cta": "Buy Premium"
+          },
+          "enterprise": {
+            "name": "Enterprise",
+            "price": "Custom",
+            "description": "For organizations",
+            "features": [
+              "Custom monthly volume",
+              "Max 64 MP",
+              "Upscale up to 8×",
+              "SSO & 99.9% SLA",
+              "Custom integrations",
+              "Dedicated support"
+            ],
+            "cta": "Get in touch"
           }
         }
       },
-      "details": {
-        "Imag-Enhancer": {
-          "back": "Back to overview",
-          "badge_new": "New",
-          "open": "Open tool",
-          "support": "Support & Feedback",
-          "features": {
-            "heading": "Features",
-            "upscaling": { "title": "AI-powered upscaling", "description": "Upscale images without visible quality loss." },
-            "denoise_sharpen": { "title": "Denoising & sharpening", "description": "Reduces noise and restores fine details." },
-            "fine_tuning": { "title": "Fine-tuning & presets", "description": "Preset profiles for common edits." }
+      "comparison": {
+        "title": "Detailed comparison",
+        "columns": {
+          "feature": "Feature",
+          "starter": "Starter",
+          "pro": "Pro",
+          "premium": "Premium",
+          "enterprise": "Enterprise"
+        },
+        "rows": {
+          "images_per_month": { "name": "Images per month", "starter": "450 (15/day)", "pro": "400", "premium": "1,200", "enterprise": "5,000+" },
+          "daily_burst": { "name": "Daily burst cap", "starter": "15", "pro": "40", "premium": "120", "enterprise": "500" },
+          "max_resolution": { "name": "Max resolution", "starter": "8 MP", "pro": "16 MP", "premium": "32 MP", "enterprise": "64 MP+" },
+          "max_upscale": { "name": "Max upscale", "starter": "2×", "pro": "4×", "premium": "6×", "enterprise": "8×" },
+          "face_enhance": { "name": "Face enhance", "starter": "❌", "pro": "✅", "premium": "✅", "enterprise": "✅" },
+          "batch": { "name": "Batch size", "starter": "1", "pro": "5", "premium": "20", "enterprise": "100" },
+          "api_calls": { "name": "API calls / month", "starter": "—", "pro": "2,000", "premium": "10,000", "enterprise": "Custom" },
+          "queue": { "name": "Queue priority", "starter": "Low", "pro": "Normal", "premium": "High", "enterprise": "Highest" },
+          "commercial": { "name": "Commercial use", "starter": "No", "pro": "Yes", "premium": "Yes", "enterprise": "Yes" },
+          "support": { "name": "Support", "starter": "Community", "pro": "48h", "premium": "24h", "enterprise": "Dedicated" }
+        },
+        "contact_cta": "Questions about the plans?"
+      },
+      "header": {
+        "title": "Simple, transparent pricing",
+        "subtitle": "Choose the plan that fits you best."
+      },
+      "faq": {
+        "title": "Frequently asked questions",
+        "question1": "Can I change plans later?",
+        "answer1": "Yes, you can switch plans at any time. Changes take effect with your next billing cycle.",
+        "question2": "Is there a minimum contract term?",
+        "answer2": "No, all plans are monthly and can be cancelled anytime.",
+        "question3": "Can I try the Enterprise plan?",
+        "answer3": "Yes, contact us for a tailored demo and trial."
+      },
+      "faq_contact_cta_text": "Still have questions?",
+      "faq_contact_cta_link_text": "Contact our team"
+    },
+    "kontakt": {
+      "title": "Contact",
+      "hero": {
+        "heading": "Get in touch",
+        "subtitle": "Got questions or feedback? We'd love to hear from you."
+      },
+      "form": {
+        "heading": "Send us a message",
+        "fields": {
+          "first_name": {
+            "label": "First name"
+          },
+          "last_name": {
+            "label": "Last name"
+          },
+          "email": {
+            "label": "Email"
+          },
+          "subject": {
+            "label": "Subject"
+          },
+          "message": {
+            "label": "Your message",
+            "placeholder": "Describe your request..."
           }
+        },
+        "privacy_policy": {
+          "link_text": "Privacy policy"
+        },
+        "submit_button": "Send message"
+      },
+      "info": {
+        "heading": "Contact information",
+        "subtitle": "Our support team is here for you. Write to us or give us a call.",
+        "email_label": "Email",
+        "email_address": "kontakt@evolutionhub.de",
+        "phone_label": "Phone",
+        "support_hours": "Mon–Fri, 9am–6pm",
+        "phone_number": "+49 123 456789",
+        "address_label": "Address",
+        "response_time_label": "Average response time:",
+        "response_time": "within 24h",
+        "response_time_unit": "on business days.",
+        "provider": {
+          "headline": "Provider",
+          "company_name": "Noch anzugeben",
+          "street_address": "Noch anzugeben",
+          "city_postal_code": "Noch anzugeben",
+          "country": "Noch anzugeben"
+        },
+        "contact": {
+          "headline": "Contact",
+          "phone": "+00 000 0000000",
+          "fax": "+00 000 0000000",
+          "email": "kontakt@example.com",
+          "website": "https://example.com"
+        },
+        "represented_by": {
+          "headline": "Represented by",
+          "managing_directors": "Noch anzugeben"
+        },
+        "registration": {
+          "headline": "Commercial register",
+          "register_entry": "Noch anzugeben",
+          "register_court": "Noch anzugeben",
+          "register_number": "Noch anzugeben"
+        },
+        "vat": {
+          "headline": "VAT",
+          "vat_id_label": "VAT ID",
+          "vat_id": "Noch anzugeben"
+        },
+        "content_responsible": {
+          "headline": "Responsible for content",
+          "name": "Noch anzugeben",
+          "street": "Noch anzugeben",
+          "city_postal_code": "Noch anzugeben"
+        },
+        "dispute_resolution": {
+          "headline": "Dispute resolution",
+          "os_platform_intro": "To be provided",
+          "os_platform_url": "https://example.com",
+          "email_note": "To be provided",
+          "participation_statement": "To be provided"
+        },
+        "disclaimer": {
+          "headline": "Disclaimer",
+          "content_liability": {
+            "headline": "Liability for content",
+            "paragraph1": "To be provided",
+            "paragraph2": "To be provided"
+          },
+          "link_liability": {
+            "headline": "Liability for links",
+            "paragraph1": "To be provided",
+            "paragraph2": "To be provided"
+          },
+          "copyright": {
+            "headline": "Copyright",
+            "paragraph1": "To be provided",
+            "paragraph2": "To be provided"
+          }
+        },
+        "image_credits": {
+          "headline": "Image credits",
+          "description": "The images and graphics used on this website are copyrighted by Evolution Hub GmbH or are royalty‑free stock photos from third‑party providers."
         }
+      },
+      "source_label": "Source:",
+      "source_url": "https://www.e-recht24.de",
+      "source_name": "e-recht24.de",
+      "source_attribution": "e-recht24.de"
+    },
+    "login": {
+      "title": "Anmelden",
+      "form": {
+        "heading": "Melden Sie sich bei Ihrem Konto an",
+        "fields": {
+          "email": {
+            "label": "E-Mail"
+          },
+          "password": {
+            "label": "Passwort"
+          }
+        },
+        "or": "oder",
+        "forgot_password_link": "Passwort vergessen?",
+        "submit_button": "Anmelden",
+        "magic_button": "Mit Magic Link fortfahren",
+        "no_account_prompt": "Sie haben noch kein Konto?",
+        "register_link": "Registrieren"
+      }
+    },
+    "register": {
+      "title": "Konto erstellen",
+      "form": {
+        "heading": "Erstellen Sie Ihr Konto",
+        "subheading": "Wir senden dir einen Anmelde‑Link per E‑Mail. Nach dem Absenden siehst du eine Bestätigungs‑Antwort.",
+        "fields": {
+          "name": {
+            "label": "Name",
+            "help": "2–50 Zeichen."
+          },
+          "username": {
+            "label": "Benutzername",
+            "help": "3–30 Zeichen; Buchstaben, Zahlen, Unterstrich."
+          },
+          "email": {
+            "label": "E-Mail"
+          },
+          "password": {
+            "label": "Passwort"
+          }
+        },
+        "submit_button": "Konto erstellen",
+        "already_have_account_prompt": "Sie haben bereits ein Konto?",
+        "login_link": "Anmelden"
+      }
+    },
+    "auth": {
+      "magic": {
+        "success": "Prüfe deine E‑Mails auf den Anmelde‑Link.",
+        "error": "Der Link konnte nicht gesendet werden. Bitte versuche es erneut.",
+        "cooldown": "Erneut senden in {s}s"
+      }
+    },
+    "forgotPassword": {
+      "title": "Passwort vergessen",
+      "form": {
+        "heading": "Passwort vergessen",
+        "fields": {
+          "email": {
+            "label": "E-Mail"
+          }
+        },
+        "submit_button": "Link zum Zurücksetzen senden"
+      }
+    },
+    "account": {
+      "settings": {
+        "email": {
+          "change_hint": "Zum Ändern der E‑Mail ist eine erneute Verifizierung nötig. Bitte kontaktiere den Support oder nutze später die Funktion „E‑Mail ändern“.",
+          "change_cta": "E‑Mail ändern"
+        }
+      }
+    },
+    "resetPassword": {
+      "title": "Passwort zurücksetzen",
+      "form": {
+        "heading": "Neues Passwort erstellen",
+        "fields": {
+          "password": {
+            "label": "Neues Passwort"
+          }
+        },
+        "submit_button": "Passwort zurücksetzen"
+      }
+    },
+    "agb": {
+      "title": "Allgemeine Geschäftsbedingungen – Evolution Hub",
+      "header": {
+        "title": "Allgemeine Geschäftsbedingungen (AGB)",
+        "effective_date": "Gültig ab: 20. Juli 2025"
+      },
+      "sections": {
+        "1": {
+          "title": "Geltungsbereich",
+          "content": "Diese Bedingungen regeln die Nutzung der Dienste von Evolution Hub und gelten für alle mit der Evolution Hub GmbH geschlossenen Verträge."
+        },
+        "2": {
+          "title": "Vertragsschluss",
+          "content": "Ein Vertrag kommt zustande, wenn Sie die Registrierung abschließen oder diese Bedingungen auf andere Weise akzeptieren, z. B. durch Nutzung des Dienstes nach Hinweis auf diese Bedingungen."
+        },
+        "3": {
+          "title": "Leistungen",
+          "content": "Wir stellen eine cloudbasierte Plattform und zugehörige Funktionen bereit. Der Leistungsumfang ergibt sich aus dem gewählten Plan und der zum Zeitpunkt des Vertragsschlusses gültigen Dokumentation."
+        },
+        "4": {
+          "title": "Konten und Sicherheit",
+          "content": "Sie sind für die Vertraulichkeit Ihrer Zugangsdaten und für alle Aktivitäten in Ihrem Konto verantwortlich. Informieren Sie uns umgehend über eine unbefugte Nutzung."
+        },
+        "5": {
+          "title": "Preise und Zahlung",
+          "content": "Gebühren, Abrechnungszyklen und Zahlungsmethoden sind auf der Preisseite angegeben. Alle Preise verstehen sich in EUR, sofern nicht anders angegeben. Gesetzliche Steuern können anfallen."
+        },
+        "6": {
+          "title": "Laufzeit und Kündigung",
+          "content": "Verträge werden auf unbestimmte Zeit geschlossen und können zum Ende des aktuellen Abrechnungszeitraums gekündigt werden. Eine fristlose Kündigung aus wichtigem Grund bleibt vorbehalten."
+        },
+        "7": {
+          "title": "Zulässige Nutzung",
+          "content": "Sie dürfen den Dienst nicht missbrauchen, seinen Betrieb stören oder gegen geltendes Recht verstoßen. Automatisiertes Scraping, Reverse Engineering oder Sicherheitstests ohne Zustimmung sind untersagt."
+        },
+        "8": {
+          "title": "Gewährleistung und Haftung",
+          "content": "Der Dienst wird im Rahmen des gewählten Plans bereitgestellt. Unsere Haftung ist auf Vorsatz und grobe Fahrlässigkeit beschränkt, sofern nicht zwingendes Recht etwas anderes vorsieht."
+        },
+        "9": {
+          "title": "Geistiges Eigentum",
+          "content": "Alle Rechte am geistigen Eigentum am Dienst verbleiben bei Evolution Hub oder deren Lizenzgebern. Sie erhalten ein einfaches, nicht übertragbares Nutzungsrecht für die Vertragsdauer."
+        },
+        "10": {
+          "title": "Datenschutz",
+          "content": "Wir verarbeiten personenbezogene Daten gemäß unserer Datenschutzerklärung. Einzelheiten zu Zwecken und Rechtsgrundlagen finden Sie unter pages.datenschutz."
+        },
+        "11": {
+          "title": "Anwendbares Recht und Gerichtsstand",
+          "content": "Es gilt deutsches Recht unter Ausschluss des Kollisionsrechts. Gerichtsstand ist, soweit gesetzlich zulässig, Berlin."
+        },
+        "12": {
+          "title": "Änderungen dieser Bedingungen",
+          "content": "Wir können diese Bedingungen anpassen, um Änderungen der Rechtslage oder unserer Leistungen abzubilden. Wesentliche Änderungen werden vorab kommuniziert. Die fortgesetzte Nutzung gilt als Zustimmung."
+        },
+        "11_participation": {
+          "title": "Teilnahme an Streitbeilegung",
+          "content": "Wir sind weder bereit noch verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen."
+        }
+      }
+    },
+    "verifyEmail": {
+      "title": "Check your email",
+      "subtitle": "We've sent you a verification email",
+      "emailSentToLabel": "Email sent to:",
+      "instructionClick": "Click the verification link in the email",
+      "linkValidity": "The link is valid for 24 hours",
+      "noEmailTip": "No email received? Check your spam folder as well.",
+      "backToRegister": "← Back to registration",
+      "supportLine": "Problems? Contact us at",
+      "resend": {
+        "btnDefault": "Resend email",
+        "success": "Email resent successfully! Check your inbox.",
+        "error": "Failed to send the email. Please try again later.",
+        "missingEmail": "Email address not available. Please register again.",
+        "sending": "Sending...",
+        "countdown": "Resend in ({s}s)",
+        "unexpected": "An unexpected error occurred. Please try again later."
+      }
+    }
+  },
+  "common": {
+    "greeting": "Willkommen bei Evolution Hub! Ein Projekt für die Zukunft der Softwareentwicklung.",
+    "description": "Entdecken Sie die Leistung von KI-gestützten Tools zur Optimierung Ihres Workflows und zur Steigerung Ihrer Produktivität.",
+    "language_switch_label": "Sprache",
+    "get_started": "Loslegen",
+    "documentation": "Dokumentation",
+    "errors": {
+      "generic": "Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.",
+      "upload_failed_prefix": "Fehler beim Hochladen:"
+    },
+    "upload": {
+      "invalid_type": "Bitte wähle ein Bild im Format JPG, PNG oder GIF",
+      "too_large": "Die Datei ist zu groß. Maximale Größe ist 2MB"
+    },
+    "status": {
+      "uploading": "Wird hochgeladen...",
+      "sending": "Wird gesendet..."
+    },
+    "actions": {
+      "upload": "Hochladen",
+      "subscribe": "Abonnieren"
+    },
+    "success": {
+      "avatar_updated": "Profilbild erfolgreich aktualisiert!",
+      "newsletter_confirmation_sent": "Bestätigungs-E-Mail gesendet!"
+    },
+    "forms": {
+      "email_placeholder": "E-Mail-Adresse"
+    }
+  },
+  "cta": {
+    "headline": "Bereit loszulegen?",
+    "subtitle": "Werden Sie Teil der Tausenden von Entwicklern, die bereits Evolution Hub nutzen, um erstaunliche Anwendungen zu erstellen.",
+    "button_text": "Kostenloses Konto erstellen"
+  },
+  "comingSoon": {
+    "title": "Bald verfügbar",
+    "description": "Unsere Plattform wird gerade überarbeitet. Trage dich in die Warteliste ein, um als Erste informiert zu werden.",
+    "cta": {
+      "primary": "Zur Startseite",
+      "secondary": "Zur Warteliste",
+      "close": "Schließen"
+    },
+    "ariaLabel": "Hinweis Seite in Arbeit"
+  },
+  "faq": {
+    "title": "Häufig gestellte Fragen",
+    "hero": {
+      "heading": "Häufig gestellte Fragen",
+      "subtitle": "Finde Antworten auf die häufigsten Fragen"
+    },
+    "search_placeholder": "Suchen Sie nach einer Frage oder einem Stichwort...",
+    "no_results": {
+      "title": "Keine Ergebnisse gefunden",
+      "description_before": "Keine passenden Fragen. Versuche, deine Suche anzupassen oder",
+      "description_link_text": "kontaktiere uns",
+      "description_after": "."
+    },
+    "categories": {
+      "all": "Alle anzeigen",
+      "allgemein": {
+        "title": "Allgemeine Fragen",
+        "items": [
+          {
+            "question": "Was ist EvolutionHub?",
+            "answer": "EvolutionHub ist eine Plattform für moderne Webentwicklung mit Fokus auf Performance, Benutzerfreundlichkeit und moderne Technologien."
+          },
+          {
+            "question": "Welche Technologien werden verwendet?",
+            "answer": "Wir verwenden Astro für das Frontend, TypeScript für typsichere Entwicklung, und Tailwind CSS für das Styling. Unser Backend basiert auf modernen JavaScript/TypeScript-Technologien."
+          },
+          {
+            "question": "Ist ein Konto erforderlich?",
+            "answer": "Für die meisten Funktionen benötigen Sie ein Konto. Einige Bereiche wie die Dokumentation und Blogbeiträge sind auch ohne Konto einsehbar."
+          },
+          {
+            "question": "Wie wird der Datenschutz gewährleistet?",
+            "answer": "Wir legen großen Wert auf Datenschutz und Sicherheit. Alle Daten werden verschlüsselt übertragen und gemäß der DSGVO verarbeitet."
+          },
+          {
+            "question": "Wann ist der Support erreichbar?",
+            "answer": "Unser Support-Team ist von Montag bis Freitag, 9 bis 18 Uhr, für Sie erreichbar."
+          },
+          {
+            "question": "Ist EvolutionHub auch mobil nutzbar?",
+            "answer": "Ja, unsere Plattform ist für mobile Geräte optimiert und kann auf Smartphones und Tablets genutzt werden."
+          },
+          {
+            "question": "Ist die Plattform barrierefrei?",
+            "answer": "Wir arbeiten kontinuierlich daran, die Barrierefreiheit unserer Plattform zu verbessern, um sie für alle Nutzer zugänglich zu machen."
+          }
+        ]
+      },
+      "konto": {
+        "title": "Konto & Abonnement",
+        "items": [
+          {
+            "question": "Wie erstelle ich ein Konto?",
+            "answer": "Klicken Sie auf \"Registrieren\" in der oberen Navigation und folgen Sie den Anweisungen. Sie benötigen eine gültige E-Mail-Adresse."
+          },
+          {
+            "question": "Wie kann ich mein Passwort zurücksetzen?",
+            "answer": "Auf der Anmeldeseite finden Sie einen Link \"Passwort vergessen\". Geben Sie Ihre E-Mail-Adresse ein und folgen Sie den Anweisungen in der erhaltenen E-Mail."
+          },
+          {
+            "question": "Wie kündige ich mein Abonnement?",
+            "answer": "Gehen Sie zu Ihren Kontoeinstellungen und wählen Sie \"Abonnement verwalten\". Dort können Sie Ihr Abonnement kündigen."
+          },
+          {
+            "question": "Welche Abonnement-Pläne gibt es?",
+            "answer": "Wir bieten verschiedene Pläne an, die auf unterschiedliche Bedürfnisse zugeschnitten sind. Details finden Sie auf unserer Pricing-Seite."
+          },
+          {
+            "question": "Welche Zahlungsmethoden werden akzeptiert?",
+            "answer": "Wir akzeptieren Kreditkarten, PayPal und SEPA-Lastschriftverfahren."
+          },
+          {
+            "question": "Wie kann ich mein Konto wiederherstellen, wenn ich den Zugang verliere?",
+            "answer": "Nutzen Sie die Passwort-zurücksetzen-Funktion oder kontaktieren Sie unseren Support für weitere Hilfe."
+          },
+          {
+            "question": "Wie verwalte ich meine Benachrichtigungseinstellungen?",
+            "answer": "In Ihren Kontoeinstellungen können Sie festlegen, welche Benachrichtigungen Sie erhalten möchten."
+          }
+        ]
+      },
+      "technik": {
+        "title": "Technische Fragen",
+        "items": [
+          {
+            "question": "Welche Browser werden unterstützt?",
+            "answer": "Wir unterstützen die aktuellen Versionen von Chrome, Firefox, Safari, und Edge. Ältere Browser werden möglicherweise nicht vollständig unterstützt."
+          },
+          {
+            "question": "Wie kann ich die API nutzen?",
+            "answer": "Unsere API-Dokumentation finden Sie unter /api-docs. Sie benötigen einen API-Schlüssel, den Sie in Ihren Kontoeinstellungen generieren können."
+          },
+          {
+            "question": "Wie melde ich einen Fehler?",
+            "answer": "Bitte nutzen Sie unser Fehlerformular unter /kontakt oder erstellen Sie ein Issue in unserem GitHub-Repository."
+          },
+          {
+            "question": "Gibt es Nutzungslimits für die API?",
+            "answer": "Ja, unsere API hat Nutzungslimits, um eine faire Verteilung der Ressourcen sicherzustellen. Details finden Sie in der API-Dokumentation."
+          },
+          {
+            "question": "Kann ich EvolutionHub mit Drittanbieter-Tools integrieren?",
+            "answer": "Ja, wir bieten Integrationen und Webhooks für verschiedene Drittanbieter-Services an."
+          },
+          {
+            "question": "Welche Systemanforderungen gibt es?",
+            "answer": "Für die Nutzung empfehlen wir aktuelle Browser und eine stabile Internetverbindung."
+          },
+          {
+            "question": "Gibt es Backup- und Wiederherstellungsoptionen?",
+            "answer": "Ja, Ihre Daten werden regelmäßig gesichert und können bei Bedarf wiederhergestellt werden."
+          }
+        ]
       }
     }
   }
