@@ -1,0 +1,57 @@
+name: Prod Auth Smoke
+
+on:
+  workflow_dispatch:
+    inputs:
+      run:
+        description: "Run prod auth smoke against hub-evolution.com"
+        required: false
+        default: "false"
+  schedule:
+    - cron: '0 4 * * *'  # optional daily run at 04:00 UTC
+
+jobs:
+  prod-auth-smoke:
+    if: ${{ github.event_name == 'schedule' || github.event.inputs.run == 'true' }}
+    name: Prod Auth Smoke (hub-evolution.com)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    env:
+      # Gate the test strictly behind env switches and secrets
+      TEST_BASE_URL: https://hub-evolution.com
+      E2E_PROD_AUTH_SMOKE: ${{ secrets.E2E_PROD_AUTH_SMOKE }}
+      STYTCH_TEST_EMAIL: ${{ secrets.STYTCH_TEST_EMAIL }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          npx playwright install --with-deps
+
+      - name: Run Prod Auth Smoke (hub-evolution.com)
+        run: |
+          if [ "${E2E_PROD_AUTH_SMOKE}" != "1" ] && [ "${E2E_PROD_AUTH_SMOKE}" != "true" ]; then
+            echo "E2E_PROD_AUTH_SMOKE is not enabled; skipping." && exit 0
+          fi
+          if [ -z "${STYTCH_TEST_EMAIL}" ]; then
+            echo "STYTCH_TEST_EMAIL is not set; skipping." && exit 0
+          fi
+          npx playwright test test-suite-v2/src/e2e/prod-auth-smoke.spec.ts --reporter=list
+
+      - name: Upload Playwright results (if any)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: prod-auth-smoke-results
+          path: test-suite-v2/reports/**
+          if-no-files-found: ignore

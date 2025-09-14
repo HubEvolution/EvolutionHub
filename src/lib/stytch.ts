@@ -103,12 +103,29 @@ export async function stytchMagicLinkAuthenticate(
   token: string
 ): Promise<MagicLinkAuthenticateResponse> {
   if (isE2EFake(context)) {
+    // Allow tests to control the email so they can simulate first-time users
+    // Priority:
+    // 1) token like "e2e:email@example.com" → use the email after the colon
+    // 2) URL query param ?email=... (same-origin E2E only)
+    // 3) fallback to a default email
+    let email = 'e2e@example.com';
+    try {
+      if (token && token.startsWith('e2e:')) {
+        const candidate = token.slice(4);
+        if (candidate.includes('@')) email = candidate;
+      } else {
+        const url = new URL(context.request.url);
+        const qp = url.searchParams.get('email');
+        if (qp && qp.includes('@')) email = qp;
+      }
+    } catch {}
+
     return {
       request_id: 'fake-auth-id',
       user_id: 'fake-user-id',
       user: {
         user_id: 'fake-user-id',
-        emails: [{ email: 'e2e@example.com', verified: true }]
+        emails: [{ email, verified: true }]
       },
       status_code: 200,
     };

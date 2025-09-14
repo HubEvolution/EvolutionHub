@@ -761,6 +761,20 @@
         "cooldown": "Erneut senden in {s}s"
       }
     },
+    "welcomeProfile": {
+      "title": "Complete your profile",
+      "description": "Set your name and username",
+      "heading": "Welcome! Complete your profile",
+      "helper": "We created your account. You can adjust your public name and username now or do it later in settings.",
+      "fields": {
+        "name": { "label": "Name" },
+        "username": { "label": "Username" }
+      },
+      "buttons": {
+        "saveContinue": "Save and continue",
+        "skipNow": "Skip for now"
+      }
+    },
     "forgotPassword": {
       "title": "Passwort vergessen",
       "form": {

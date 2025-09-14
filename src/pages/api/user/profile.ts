@@ -1,5 +1,6 @@
 import type { APIContext } from 'astro';
 import { withAuthApiMiddleware, createApiSuccess } from '@/lib/api-middleware';
+import { createSecureRedirect } from '@/lib/response-helpers';
 import { logProfileUpdate } from '@/lib/security-logger';
 
 /**
@@ -20,6 +21,7 @@ export const POST = withAuthApiMiddleware(async (context: APIContext) => {
   const formData = await context.request.formData();
   const name = formData.get('name');
   const username = formData.get('username');
+  const nextRaw = formData.get('next');
 
   // Verbesserte Validierung mit Grenzen
   if (typeof name !== 'string' || name.length < 2 || name.length > 50) {
@@ -62,13 +64,21 @@ export const POST = withAuthApiMiddleware(async (context: APIContext) => {
     newName: name
   });
   
-  // Erfolgreiche Aktualisierung mit aktualisierten Daten zurückgeben
-  return createApiSuccess({ 
+  // Optionaler Redirect nach erfolgreicher Aktualisierung (HTML-Form Flow)
+  const isAllowedRelativePath = (p: unknown): p is string => {
+    return typeof p === 'string' && p.startsWith('/') && !p.startsWith('//');
+  };
+  if (isAllowedRelativePath(nextRaw)) {
+    return createSecureRedirect(nextRaw, 303);
+  }
+
+  // Erfolgreiche Aktualisierung mit aktualisierten Daten zurückgeben (JSON API)
+  return createApiSuccess({
     message: 'Profile updated successfully',
-    user: { 
-      id: locals.user.id, 
-      name, 
-      username 
+    user: {
+      id: locals.user.id,
+      name,
+      username
     }
   });
 });
