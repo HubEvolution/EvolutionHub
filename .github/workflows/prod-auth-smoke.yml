@@ -46,7 +46,7 @@ jobs:
           if [ -z "${STYTCH_TEST_EMAIL}" ]; then
             echo "STYTCH_TEST_EMAIL is not set; skipping." && exit 0
           fi
-          npx playwright test test-suite-v2/src/e2e/prod-auth-smoke.spec.ts --reporter=list
+          npx playwright test -c test-suite-v2/playwright.config.ts test-suite-v2/src/e2e/prod-auth-smoke.spec.ts --reporter=list
 
       - name: Upload Playwright results (if any)
         if: always()
