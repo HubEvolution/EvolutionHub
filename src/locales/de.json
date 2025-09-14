@@ -559,6 +559,20 @@
         "cooldown": "Erneut senden in {s}s"
       }
     },
+    "welcomeProfile": {
+      "title": "Profil vervollständigen",
+      "description": "Name und Benutzername festlegen",
+      "heading": "Willkommen! Profil vervollständigen",
+      "helper": "Wir haben dein Konto erstellt. Du kannst jetzt deinen öffentlichen Namen und Benutzernamen festlegen oder dies später in den Einstellungen erledigen.",
+      "fields": {
+        "name": { "label": "Name" },
+        "username": { "label": "Benutzername" }
+      },
+      "buttons": {
+        "saveContinue": "Speichern und weiter",
+        "skipNow": "Später"
+      }
+    },
     "forgotPassword": {
       "title": "Passwort vergessen",
       "form": {

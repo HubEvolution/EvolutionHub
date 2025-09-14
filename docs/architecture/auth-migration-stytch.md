@@ -157,6 +157,23 @@ wrangler secret put STYTCH_SECRET --env development
 - Für lokale Tests verwende TEST-Umgebung (Host: `https://test.stytch.com`).
 - Lege die Werte in Wrangler als Secrets an (`STYTCH_PROJECT_ID`, `STYTCH_SECRET`) – siehe Befehle oben.
 
+### Production Quick Checklist (Live)
+
+- Secrets (Wrangler, Environment: `production`):
+  - `STYTCH_PROJECT_ID` (beginnt mit `project-live-…`)
+  - `STYTCH_SECRET`
+  - `AUTH_PROVIDER=stytch`
+  - optional `AUTH_REDIRECT=/dashboard`
+- Stytch Dashboard (Live‑Projekt):
+  - Redirect URLs (Login + Signup):
+    - `https://hub-evolution.com/api/auth/callback`
+    - optional zusätzlich: `https://www.hub-evolution.com/api/auth/callback`
+- Routes/Deploy:
+  - Nur `env.production.routes` in `wrangler.toml` verwenden; deploy mit `wrangler deploy --env production`.
+- Curl‑Tests in Prod: Für `POST` immer `Origin: https://hub-evolution.com` setzen (same‑origin CSRF‑Check).
+- D1 Schema (Prod): Spalte `users.plan TEXT NOT NULL DEFAULT 'free'` muss existieren.
+  - Falls fehlend: Migration anwenden `migrations/0013_add_user_plan_column.sql`.
+
 #### Hinweis zu „Management Key“ / Automatisierung
 
 - Die Redirect-URL-Whitelist und verwandte Projekt-Settings werden bei Stytch üblicherweise im Dashboard gepflegt.
@@ -242,6 +259,16 @@ Empfehlung:
 - Prüfen, ob `TEST_BASE_URL` gesetzt ist und auf den korrekten Dev/Staging-Worker zeigt. Bei leerer Variable startet die Suite automatisch Wrangler Dev unter `http://127.0.0.1:8787`.
 - Wenn bei `POST /api/auth/login` 410 HTML/JSON erscheint, wird wahrscheinlich ein deprecated Endpoint getroffen (Proxy/Fallback/Caching). Gegencheck: `curl -i -X POST http://127.0.0.1:8787/api/auth/login -H 'Origin: http://127.0.0.1:8787' -H 'Content-Type: application/x-www-form-urlencoded' --data 'email=invalid&password=123456'` sollte `302 Found` mit `Location: /en/login?...` liefern.
 - Logging prüfen (`loggerFactory.createSecurityLogger()` Events): aktive Login-Route protokolliert `AUTH_FAILURE`/`API_ERROR` und endet mit `302 Found`.
+
+### Troubleshooting: Stytch & Prod Setup (Live)
+
+- 400 `no_login_redirect_urls_set`/`no_signup_redirect_urls_set`:
+  - In Stytch (Live) die Redirect‑URL(s) hinterlegen: `https://hub-evolution.com/api/auth/callback` (Login + Signup; ggf. zusätzlich www‑Variante).
+- 403 `Missing Origin/Referer header` bei `POST /api/auth/magic/request`:
+  - Curl sendet keinen Origin – Header ergänzen: `-H 'Origin: https://hub-evolution.com'`.
+- 500/D1 `no such column: plan` im Middleware‑Log (nach Callback → Redirect auf /login):
+  - In Prod D1 fehlt `users.plan`. Migration ausführen: `wrangler d1 execute evolution-hub-main --env production --remote --file=./migrations/0013_add_user_plan_column.sql`.
+  - Danach erneut `PRAGMA table_info(users);` prüfen – `plan` muss vorhanden sein.
 
 ## Migration & Rollback
 

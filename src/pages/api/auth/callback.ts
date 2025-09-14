@@ -11,7 +11,7 @@ function isAllowedRelativePath(r: string): boolean {
   return typeof r === 'string' && r.startsWith('/') && !r.startsWith('//');
 }
 
-async function upsertUser(db: D1Database, email: string, desiredName?: string, desiredUsername?: string): Promise<string> {
+async function upsertUser(db: D1Database, email: string, desiredName?: string, desiredUsername?: string): Promise<{ id: string; isNew: boolean }> {
   const existing = await db.prepare('SELECT id, email_verified FROM users WHERE email = ?').bind(email).first<{ id: string; email_verified?: number }>();
   const nowUnix = Math.floor(Date.now() / 1000);
   if (existing && existing.id) {
@@ -19,7 +19,7 @@ async function upsertUser(db: D1Database, email: string, desiredName?: string, d
     await db.prepare('UPDATE users SET email_verified = 1, email_verified_at = COALESCE(email_verified_at, ?) WHERE id = ?')
       .bind(nowUnix, existing.id)
       .run();
-    return existing.id;
+    return { id: existing.id, isNew: false };
   }
   const id = crypto.randomUUID();
   const fallbackName = email.split('@')[0] || 'user';
@@ -46,7 +46,7 @@ async function upsertUser(db: D1Database, email: string, desiredName?: string, d
     new Date().toISOString(),
     nowUnix
   ).run();
-  return id;
+  return { id, isNew: true };
 }
 
 const getHandler: ApiHandler = async (context: APIContext) => {
@@ -100,10 +100,10 @@ const getHandler: ApiHandler = async (context: APIContext) => {
     }
   } catch {}
 
-  const userId = await upsertUser(db, email, desiredName, desiredUsername);
+  const upsert = await upsertUser(db, email, desiredName, desiredUsername);
 
   // Create app session
-  const session = await createSession(db, userId);
+  const session = await createSession(db, upsert.id);
 
   const isHttps = url.protocol === 'https:';
   const maxAge = 60 * 60 * 24 * 30; // 30 days
@@ -153,6 +153,14 @@ const getHandler: ApiHandler = async (context: APIContext) => {
       try { context.cookies.delete('post_auth_locale', { path: '/' }); } catch {}
     }
   } catch {}
+
+  // If this is a first-time user and no explicit profile data was provided,
+  // guide them through a lightweight profile completion step.
+  const hasProfileFromRequest = Boolean(desiredName) || Boolean(desiredUsername);
+  if (upsert.isNew && !hasProfileFromRequest) {
+    const nextParam = encodeURIComponent(target);
+    return createSecureRedirect(`/welcome-profile?next=${nextParam}`);
+  }
 
   // Direct redirect to target (simplified flow; no cross-tab broadcast)
   return createSecureRedirect(target);

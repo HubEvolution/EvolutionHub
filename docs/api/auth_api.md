@@ -29,11 +29,23 @@ Hinweis: Die frühere Login-Variante `login-v2` wurde entfernt. Verwende ausschl
   * `magic/request` antwortet JSON (kein Redirect)
   * `callback` antwortet mit direktem Redirect zum Ziel (ggf. lokalisiert)
 
+### Production‑Hinweise (Stytch Live)
+
+* Redirect‑URLs in Stytch (Live) whitelisten:
+  * `https://hub-evolution.com/api/auth/callback`
+  * optional zusätzlich: `https://www.hub-evolution.com/api/auth/callback`
+* Erforderliche Secrets/Variablen (Wrangler, `--env production`):
+  * `STYTCH_PROJECT_ID` (Live, beginnt mit `project-live-…`)
+  * `STYTCH_SECRET`
+  * `AUTH_PROVIDER=stytch`
+* CSRF/Origin: `POST /api/auth/magic/request` verlangt same‑origin `Origin`/`Referer`.
+  * curl‑Beispiel: `-H 'Origin: https://hub-evolution.com'`
+
 ---
 
 > Hinweis: Alle legacy Passwort-basierten Endpunkte (login/register/forgot/reset) wurden entfernt. Das System verwendet ausschließlich Stytch Magic Link (`/api/auth/magic/request` → `/api/auth/callback`).
 
-## 5. Logout
+### 5. Logout
 
 Beendet die aktuelle Benutzersitzung und löscht das Session-Cookie.
 
