@@ -29,10 +29,13 @@ und dieser Projekt haftet an [Semantic Versioning](https://semver.org/spec/v2.0.
 ### Security
 
 ## [v1.7.0] - 2025-09-11
+
 ### Added
+
 - Evolution Hub Bundle v1.7_full
 
 ### Changed
+
 - Initiale Version
 
 [Unreleased]: https://github.com/evolution-hub/evolution-hub/compare/v1.7.0...HEAD

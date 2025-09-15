@@ -100,7 +100,7 @@ Die CI/CD-Pipeline wird mit GitHub Actions implementiert. Die Workflow-Konfigura
   - `TEST_BASE_URL` muss den laufenden Port widerspiegeln (Standard 8787)
   - Nicht-Prod nutzt deterministischen Dev‑Echo (keine externen Provider nötig)
 
-### How to trigger (GitHub CLI)
+###Ì How to trigger (GitHub CLI)
 
 ```bash
 # Start workflow manually
@@ -125,7 +125,7 @@ gh run list --workflow="enhancer-e2e-smoke.yml" -L 1
   - Worker muss in Prod Stytch LIVE-Secrets hinterlegt haben (`STYTCH_PROJECT_ID`, `STYTCH_SECRET`)
   - Test akzeptiert strukturierte Fehler (z. B. Provider-Fehler) und loggt diese sichtbar
 
-### How to trigger (GitHub CLI)
+#### How to trigger (GitHub CLI)
 
 ```bash
 # Ensure repository secrets are set: E2E_PROD_AUTH_SMOKE=1 and STYTCH_TEST_EMAIL
@@ -147,7 +147,7 @@ gh run list --workflow="prod-auth-smoke.yml" -L 1
   - Preflight: `GET /en/pricing` – Status+Headers werden geloggt
 - Default-BASE_URL: Fallback auf `https://ci.hub-evolution.com`, wenn kein Input/Repo-Var
 
-### How to trigger (GitHub CLI)
+## How to trigger (GitHub CLI)
 
 ```bash
 # Run against remote Testing
