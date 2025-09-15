@@ -1,7 +1,7 @@
 import type { APIContext } from 'astro';
 import { withApiMiddleware, type ApiHandler, createApiError, createApiSuccess } from '@/lib/api-middleware';
 import { authLimiter } from '@/lib/rate-limiter';
-import { stytchMagicLinkLoginOrCreate } from '@/lib/stytch';
+import { stytchMagicLinkLoginOrCreate, StytchError } from '@/lib/stytch';
 
 const parseBody = async (request: Request): Promise<{ email?: string; r?: string; name?: string; username?: string; locale?: string }> => {
   const ct = request.headers.get('content-type') || '';
@@ -113,11 +113,30 @@ const handler: ApiHandler = async (context: APIContext) => {
     });
   }
 
-  await stytchMagicLinkLoginOrCreate(context, {
-    email,
-    login_magic_link_url: callbackUrl,
-    signup_magic_link_url: callbackUrl,
-  });
+  try {
+    await stytchMagicLinkLoginOrCreate(context, {
+      email,
+      login_magic_link_url: callbackUrl,
+      signup_magic_link_url: callbackUrl,
+    });
+  } catch (err) {
+    if (err instanceof StytchError) {
+      const status = err.status;
+      // Map provider status to our unified error types
+      if (status === 429) {
+        return createApiError('rate_limit', 'Provider rate limit');
+      }
+      if (status === 401 || status === 403) {
+        return createApiError('forbidden', 'Provider authorization error');
+      }
+      if (status >= 400 && status < 500) {
+        return createApiError('validation_error', 'Provider rejected request');
+      }
+      return createApiError('server_error', 'Provider error');
+    }
+    // Unknown error
+    return createApiError('server_error', 'Magic link request failed');
+  }
 
   return createApiSuccess({ sent: true });
 };

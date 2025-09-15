@@ -4,6 +4,17 @@
 
 import type { APIContext } from 'astro';
 
+export class StytchError extends Error {
+  status: number;
+  providerType: string;
+  constructor(status: number, providerType: string, message: string) {
+    super(message);
+    this.name = 'StytchError';
+    this.status = status;
+    this.providerType = providerType;
+  }
+}
+
 interface StytchConfig {
   projectId: string;
   secret: string;
@@ -52,7 +63,8 @@ function readStytchConfig(context: APIContext): StytchConfig {
   const projectId = (env as Record<string, string>).STYTCH_PROJECT_ID;
   const secret = (env as Record<string, string>).STYTCH_SECRET;
   if (!projectId || !secret) {
-    throw new Error('Missing STYTCH_PROJECT_ID/STYTCH_SECRET in environment');
+    // Mark as provider config error to allow structured mapping at API boundary
+    throw new StytchError(500, 'config_error', 'Missing STYTCH_PROJECT_ID/STYTCH_SECRET in environment');
   }
   return { projectId, secret };
 }
@@ -93,7 +105,7 @@ export async function stytchMagicLinkLoginOrCreate(
   if (!res.ok) {
     const et = (json as any)?.error_type || 'unknown_error';
     const em = (json as any)?.error_message || (json as any)?.message || '';
-    throw new Error(`Stytch login_or_create failed: ${res.status} ${et}${em ? ` - ${em}` : ''}`);
+    throw new StytchError(res.status, et, `Stytch login_or_create failed: ${res.status} ${et}${em ? ` - ${em}` : ''}`);
   }
   return json;
 }
@@ -145,7 +157,7 @@ export async function stytchMagicLinkAuthenticate(
   if (!res.ok) {
     const et = (json as any)?.error_type || 'unknown_error';
     const em = (json as any)?.error_message || (json as any)?.message || '';
-    throw new Error(`Stytch authenticate failed: ${res.status} ${et}${em ? ` - ${em}` : ''}`);
+    throw new StytchError(res.status, et, `Stytch authenticate failed: ${res.status} ${et}${em ? ` - ${em}` : ''}`);
   }
   return json;
 }
