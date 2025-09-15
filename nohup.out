@@ -1,0 +1,1 @@
+sh: line 1: 27112 Hangup: 1               wrangler tail --env production --format=json > .logs/stripe-live-setup/20250915-040604/wrangler.tail.jsonl 2>&1
