@@ -35,7 +35,7 @@ export const GET = withRedirectMiddleware(async (context) => {
     cookies.set('post_auth_redirect', dest, {
       httpOnly: true,
       secure,
-      sameSite: 'Lax',
+      sameSite: 'lax',
       path: '/',
     });
   } catch {}
