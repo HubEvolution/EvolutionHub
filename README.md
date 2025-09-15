@@ -6,6 +6,11 @@
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?logo=tailwind-css&logoColor=fff)](https://tailwindcss.com/)
 [![Cloudflare](https://img.shields.io/badge/Cloudflare-F38020?logo=cloudflare&logoColor=fff)](https://workers.cloudflare.com/)
 
+<!-- CI Badges -->
+[![Enhancer E2E Smoke](https://github.com/HubEvolution/EvolutionHub/actions/workflows/enhancer-e2e-smoke.yml/badge.svg?branch=main)](https://github.com/HubEvolution/EvolutionHub/actions/workflows/enhancer-e2e-smoke.yml)
+[![Prod Auth Smoke](https://github.com/HubEvolution/EvolutionHub/actions/workflows/prod-auth-smoke.yml/badge.svg?branch=main)](https://github.com/HubEvolution/EvolutionHub/actions/workflows/prod-auth-smoke.yml)
+[![Pricing Smoke](https://github.com/HubEvolution/EvolutionHub/actions/workflows/pricing-smoke.yml/badge.svg?branch=main)](https://github.com/HubEvolution/EvolutionHub/actions/workflows/pricing-smoke.yml)
+
 Evolution Hub ist eine moderne Full-Stack-Webanwendung, die eine Sammlung von Entwickler-Tools bereitstellt. Gebaut mit den neuesten Web-Technologien für maximale Performance und Benutzerfreundlichkeit.
 
 ## ✨ Features
@@ -26,6 +31,16 @@ Evolution Hub ist eine moderne Full-Stack-Webanwendung, die eine Sammlung von En
 - **Speicher:** [Cloudflare R2](https://developers.cloudflare.com/r2/)
 - **Testing:** Playwright (E2E), Vitest (Unit)
 - **Authentifizierung:** Stytch Magic Link + Session-Cookies (`__Host-session`)
+
+## 🧭 CI at a glance
+
+Eine ausführliche Beschreibung befindet sich in `docs/development/ci-cd.md`. Wichtige Workflows:
+
+- Enhancer E2E Smoke: schneller UI-Smoke nur für den Image Enhancer, Chromium-only, mit Browser-Caching und Preflight-Diagnostik.
+- Prod Auth Smoke: produktionsnaher Magic-Link Smoke gegen hub-evolution.com, HTTP-basiert (ohne Browser-Download), mit Preflight POST.
+- Pricing Smoke: schneller Smoke der Pricing-Seite (gegen `TEST_BASE_URL` oder Fallback), Chromium-only, mit Browser-Caching und Preflight.
+
+Weitere Details und Trigger-Kommandos siehe: [`docs/development/ci-cd.md`](./docs/development/ci-cd.md)
 
 ## 🚀 Getting Started
 

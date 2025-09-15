@@ -100,6 +100,16 @@ Die CI/CD-Pipeline wird mit GitHub Actions implementiert. Die Workflow-Konfigura
   - `TEST_BASE_URL` muss den laufenden Port widerspiegeln (Standard 8787)
   - Nicht-Prod nutzt deterministischen Dev‑Echo (keine externen Provider nötig)
 
+### How to trigger (GitHub CLI)
+
+```bash
+# Start workflow manually
+gh workflow run enhancer-e2e-smoke.yml
+
+# Inspect latest run
+gh run list --workflow="enhancer-e2e-smoke.yml" -L 1
+```
+
 #### Prod Auth Smoke (Production)
 
 - Zweck: Produktionstest für Magic-Link-Flow (Stytch), rein HTTP-basiert (kein Browser-Download)
@@ -115,6 +125,17 @@ Die CI/CD-Pipeline wird mit GitHub Actions implementiert. Die Workflow-Konfigura
   - Worker muss in Prod Stytch LIVE-Secrets hinterlegt haben (`STYTCH_PROJECT_ID`, `STYTCH_SECRET`)
   - Test akzeptiert strukturierte Fehler (z. B. Provider-Fehler) und loggt diese sichtbar
 
+### How to trigger (GitHub CLI)
+
+```bash
+# Ensure repository secrets are set: E2E_PROD_AUTH_SMOKE=1 and STYTCH_TEST_EMAIL
+# Then trigger the run
+gh workflow run prod-auth-smoke.yml -f run=true
+
+# Inspect latest run
+gh run list --workflow="prod-auth-smoke.yml" -L 1
+```
+
 #### Pricing Smoke (Playwright)
 
 - Zweck: Schneller Smoke gegen Pricing-Seite (optional remote via `TEST_BASE_URL`)
@@ -125,6 +146,19 @@ Die CI/CD-Pipeline wird mit GitHub Actions implementiert. Die Workflow-Konfigura
   - Install nur Chromium: `npx playwright install --with-deps chromium`
   - Preflight: `GET /en/pricing` – Status+Headers werden geloggt
 - Default-BASE_URL: Fallback auf `https://ci.hub-evolution.com`, wenn kein Input/Repo-Var
+
+### How to trigger (GitHub CLI)
+
+```bash
+# Run against remote Testing
+gh workflow run pricing-smoke.yml -f test_base_url=https://ci.hub-evolution.com
+
+# Or rely on default fallback (ci.hub-evolution.com)
+gh workflow run pricing-smoke.yml
+
+# Inspect latest run
+gh run list --workflow="pricing-smoke.yml" -L 1
+```
 
 ### Aktuelle Workflow-Dateien
 
