@@ -10,7 +10,7 @@ interface QuickActionState {
   executeAction: (actionName: string) => Promise<void>;
 }
 
-const useQuickActionStore = create<QuickActionState>((set, get) => ({
+const useQuickActionStore = create<QuickActionState>((set) => ({
   actions: [],
   loading: false,
   error: null,

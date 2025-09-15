@@ -11,7 +11,7 @@ interface NotificationState {
   setNotifications: (notifications: Notification[]) => void;
 }
 
-const useNotificationStore = create<NotificationState>((set, get) => ({
+const useNotificationStore = create<NotificationState>((set) => ({
   notifications: [],
   unreadCount: 0,
   

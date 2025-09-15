@@ -1,4 +1,4 @@
-import type { BlogPost } from '../content/types';
+// Note: keep types local to avoid unused imports
 
 /**
  * Represents a category with its associated count of blog posts.
