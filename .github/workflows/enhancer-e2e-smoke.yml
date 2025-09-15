@@ -10,6 +10,8 @@ jobs:
     name: Enhancer E2E Smoke (EN+DE)
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    env:
+      PLAYWRIGHT_BROWSERS_PATH: ~/.cache/ms-playwright
 
     steps:
       - name: Checkout
@@ -21,10 +23,19 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-pw-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-pw-
+
       - name: Install dependencies
         run: |
           npm ci
-          npx playwright install --with-deps
+          # Install only chromium (faster) with system deps on ubuntu
+          npx playwright install --with-deps chromium
 
       - name: Start dev worker (background)
         env:
@@ -35,6 +46,11 @@ jobs:
 
       - name: Wait for dev worker
         run: npx wait-on http://127.0.0.1:8787
+
+      - name: "Preflight: GET /en/tools/ai-image-enhancer (log status + headers)"
+        run: |
+          set -o pipefail
+          curl -i "http://127.0.0.1:8787/en/tools/ai-image-enhancer" | sed -n '1,20p'
 
       - name: Run Enhancer E2E Smoke (EN+DE)
         env:

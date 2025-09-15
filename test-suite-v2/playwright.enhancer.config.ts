@@ -31,9 +31,5 @@ export default defineConfig({
       name: 'chromium-en',
       use: { ...devices['Desktop Chrome'] },
     },
-    {
-      name: 'chromium-de',
-      use: { ...devices['Desktop Chrome'] },
-    },
   ],
 });
