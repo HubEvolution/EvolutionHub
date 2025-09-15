@@ -137,7 +137,36 @@ export const POST: APIRoute = async (context) => {
           break; // for credits we are done here
         }
 
-        if (!userId || !customerId) break;
+        // If we don't have a userId but we do have an email, try to resolve the user by email.
+        let resolvedUserId = userId;
+        const customerEmail = (session.customer_details?.email as string | undefined) || undefined;
+        if (!resolvedUserId && customerEmail) {
+          try {
+            const row = await db
+              .prepare("SELECT id FROM users WHERE lower(email) = lower(?) LIMIT 1")
+              .bind(customerEmail)
+              .first<{ id: string }>();
+            if (row?.id) {
+              resolvedUserId = row.id;
+            }
+          } catch {}
+        }
+
+        if ((!resolvedUserId || !customerId) && customerEmail && kv) {
+          // Store a pending association for later (after user logs in)
+          try {
+            const payload = JSON.stringify({
+              customerId,
+              subscriptionId,
+              plan: (meta.plan as any) || 'pro',
+              ts: Date.now(),
+              reason: 'checkout_completed_no_user_context'
+            });
+            await kv.put(`stripe:pending:email:${customerEmail.toLowerCase()}`, payload);
+          } catch {}
+        }
+
+        if (!resolvedUserId || !customerId) break;
 
         // Determine plan from metadata or price mapping
         let plan = (meta.plan as 'free' | 'pro' | 'premium' | 'enterprise' | undefined) || undefined;
@@ -151,7 +180,7 @@ export const POST: APIRoute = async (context) => {
         if (subscriptionId) {
           await upsertSubscription({
             id: subscriptionId,
-            userId,
+            userId: resolvedUserId,
             customerId,
             plan: (plan as any) || 'pro',
             status: 'active',
@@ -160,9 +189,9 @@ export const POST: APIRoute = async (context) => {
           });
         }
         // Set user plan immediately for better UX
-        await setUserPlan(userId, (plan as any) || 'pro');
+        await setUserPlan(resolvedUserId, (plan as any) || 'pro');
         console.log('[stripe_webhook] handled checkout.session.completed', {
-          userId,
+          userId: resolvedUserId,
           customerId: customerId ? 'set' : 'missing',
           subscriptionId: subscriptionId ? 'set' : 'missing',
           plan: (plan as any) || 'pro'
