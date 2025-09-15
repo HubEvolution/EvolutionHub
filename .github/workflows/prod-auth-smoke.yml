@@ -22,6 +22,7 @@ jobs:
       TEST_BASE_URL: https://hub-evolution.com
       E2E_PROD_AUTH_SMOKE: ${{ secrets.E2E_PROD_AUTH_SMOKE }}
       STYTCH_TEST_EMAIL: ${{ secrets.STYTCH_TEST_EMAIL }}
+      PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
 
     steps:
       - name: Checkout
@@ -33,12 +34,21 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
-      - name: Install dependencies
+      - name: Install dependencies (no browsers)
         run: |
           npm ci
-          npx playwright install --with-deps
+          # For this smoke we use only the Playwright request fixture, no browsers needed
 
-      - name: Run Prod Auth Smoke (hub-evolution.com)
+      - name: "Preflight: POST /api/auth/magic/request (log status + body)"
+        run: |
+          echo "POSTing to ${TEST_BASE_URL}/api/auth/magic/request with STYTCH_TEST_EMAIL=${STYTCH_TEST_EMAIL}"
+          set -o pipefail
+          curl -i -X POST "${TEST_BASE_URL}/api/auth/magic/request" \
+            -H "Origin: https://hub-evolution.com" \
+            -H "Content-Type: application/json" \
+            --data "{\"email\":\"${STYTCH_TEST_EMAIL}\",\"r\":\"/dashboard\",\"locale\":\"en\"}"
+
+      - name: Run Prod Auth Smoke (hub-evolution.com) – chromium only
         run: |
           if [ "${E2E_PROD_AUTH_SMOKE}" != "1" ] && [ "${E2E_PROD_AUTH_SMOKE}" != "true" ]; then
             echo "E2E_PROD_AUTH_SMOKE is not enabled; skipping." && exit 0
@@ -46,7 +56,7 @@ jobs:
           if [ -z "${STYTCH_TEST_EMAIL}" ]; then
             echo "STYTCH_TEST_EMAIL is not set; skipping." && exit 0
           fi
-          npx playwright test -c test-suite-v2/playwright.config.ts test-suite-v2/src/e2e/prod-auth-smoke.spec.ts --reporter=list
+          npx playwright test -c test-suite-v2/playwright.config.ts test-suite-v2/src/e2e/prod-auth-smoke.spec.ts --project=chromium --reporter=list
 
       - name: Upload Playwright results (if any)
         if: always()
