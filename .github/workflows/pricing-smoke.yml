@@ -29,6 +29,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
+      PLAYWRIGHT_BROWSERS_PATH: ~/.cache/ms-playwright
       # Prefer workflow_dispatch input > repo/org variable; if empty, we set a default in the run step
       TEST_BASE_URL: ${{ inputs.test_base_url != '' && inputs.test_base_url || vars.TEST_BASE_URL }}
     steps:
@@ -46,11 +47,27 @@ jobs:
 
       - name: Install test-suite-v2 deps
         working-directory: ./test-suite-v2
-        run: npm ci
+        run: npm install
 
-      - name: Install Playwright browsers
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-pw-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-pw-
+
+      - name: Install Playwright browsers (chromium only)
         working-directory: ./test-suite-v2
-        run: npx playwright install --with-deps
+        run: npx playwright install --with-deps chromium
+
+      - name: "Preflight: GET /en/pricing (log status + headers)"
+        run: |
+          set -o pipefail
+          BASE_URL="$TEST_BASE_URL"
+          if [ -z "$BASE_URL" ]; then BASE_URL="https://ci.hub-evolution.com"; fi
+          echo "Preflight BASE_URL=$BASE_URL"
+          curl -i "$BASE_URL/en/pricing" | sed -n '1,25p'
 
       - name: Run pricing smoke (Playwright)
         working-directory: ./test-suite-v2
