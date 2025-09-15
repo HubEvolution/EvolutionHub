@@ -79,21 +79,60 @@ Die CI/CD-Pipeline wird mit GitHub Actions implementiert. Die Workflow-Konfigura
    - Führt das Deployment in die Produktionsumgebung durch
    - Führt Datenbank-Migrationen aus
 
-#### Geplant: Enhancer E2E Smoke (EN+DE)
+#### Enhancer E2E Smoke (EN)
 
-- Zweck: Schneller UI-Smoketest nur für den Image Enhancer (EN/DE), inkl. Screenshots/Videos als Artefakte
+- Zweck: Schneller UI-Smoketest nur für den Image Enhancer (EN), inkl. Screenshots/Videos als Artefakte
 - Grundlage:
   - Config: `test-suite-v2/playwright.enhancer.config.ts` (Screenshots/Video on)
+  - Projekt: nur `chromium-en` (DE-Projekt bei Bedarf separat/schedule)
   - Spec: `test-suite-v2/src/e2e/imag-enhancer.spec.ts`
   - Artefakte: `test-suite-v2/reports/playwright-results/` (HTML-Report in `test-suite-v2/reports/playwright-html-report`)
-- Lauf (Headless) in CI:
-  - Install: `npm ci && npx playwright install --with-deps`
-  - Dev-Worker starten (Port 8787): `npm run dev:worker:dev` (als Hintergrunddienst)
+- Optimierungen (CI):
+  - Playwright Browser Cache: `~/.cache/ms-playwright` via `actions/cache@v4`
+  - Install nur Chromium: `npx playwright install --with-deps chromium`
+  - Preflight: `curl -i http://127.0.0.1:8787/en/tools/ai-image-enhancer | head` nach `wait-on`
+- Ablauf:
+  - Dev-Worker starten (Port 8787): `npm run dev:worker:dev` (Hintergrund)
+  - Warten: `npx wait-on http://127.0.0.1:8787`
   - Tests: `TEST_BASE_URL=http://127.0.0.1:8787 npx playwright test -c test-suite-v2/playwright.enhancer.config.ts test-suite-v2/src/e2e/imag-enhancer.spec.ts`
-  - Artefakt-Upload: `actions/upload-artifact@v4` für `test-suite-v2/reports/playwright-results/` und `test-suite-v2/reports/playwright-html-report/`
+  - Artefakt-Upload: `actions/upload-artifact@v4`
 - Hinweise:
-  - `TEST_BASE_URL` muss den laufenden Port widerspiegeln (Standard-Dev-Worker nutzt 8787)
-  - Der Enhancer nutzt in Nicht-Prod deterministischen Dev‑Echo (keine externen Provider nötig)
+  - `TEST_BASE_URL` muss den laufenden Port widerspiegeln (Standard 8787)
+  - Nicht-Prod nutzt deterministischen Dev‑Echo (keine externen Provider nötig)
+
+#### Prod Auth Smoke (Production)
+
+- Zweck: Produktionstest für Magic-Link-Flow (Stytch), rein HTTP-basiert (kein Browser-Download)
+- Workflow: `.github/workflows/prod-auth-smoke.yml`
+- Gating/Secrets:
+  - `E2E_PROD_AUTH_SMOKE` muss `1/true` sein, sonst Skip
+  - `STYTCH_TEST_EMAIL` muss gesetzt sein, sonst Skip
+- Optimierungen:
+  - `PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1` (keine Browser-Downloads)
+  - Testlauf restriktiv: `--project=chromium`
+  - Preflight: `POST /api/auth/magic/request` mit `Origin`-Header und JSON-Body; Status+Body werden geloggt
+- Hinweise:
+  - Worker muss in Prod Stytch LIVE-Secrets hinterlegt haben (`STYTCH_PROJECT_ID`, `STYTCH_SECRET`)
+  - Test akzeptiert strukturierte Fehler (z. B. Provider-Fehler) und loggt diese sichtbar
+
+#### Pricing Smoke (Playwright)
+
+- Zweck: Schneller Smoke gegen Pricing-Seite (optional remote via `TEST_BASE_URL`)
+- Workflow: `.github/workflows/pricing-smoke.yml`
+- Optimierungen:
+  - In `test-suite-v2`: `npm install` statt `npm ci` (da kein Lockfile vorhanden)
+  - Playwright Browser Cache: `~/.cache/ms-playwright`
+  - Install nur Chromium: `npx playwright install --with-deps chromium`
+  - Preflight: `GET /en/pricing` – Status+Headers werden geloggt
+- Default-BASE_URL: Fallback auf `https://ci.hub-evolution.com`, wenn kein Input/Repo-Var
+
+### Aktuelle Workflow-Dateien
+
+- `.github/workflows/e2e-tests.yml` – Unit, Integration, E2E, i18n-Report
+- `.github/workflows/enhancer-e2e-smoke.yml` – Enhancer Smoke (EN, Chromium, Cache, Preflight)
+- `.github/workflows/prod-auth-smoke.yml` – Prod Auth Smoke (gated, Preflight, Chromium-only, skip browser downloads)
+- `.github/workflows/pricing-smoke.yml` – Pricing Smoke (Chromium-only, Cache, Preflight)
+- `.github/workflows/openapi-release.yml` – OpenAPI Validation
 
 ### Workflow-Beispiel: CI
 
