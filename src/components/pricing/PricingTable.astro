@@ -17,6 +17,25 @@ const locale = getLocale(Astro.url.pathname);
 const t = getI18n(locale);
 const ta = getI18nArray(locale);
 
+// Read optional Stripe Payment Links from runtime env (Cloudflare Worker)
+// Accept either JSON string or object; default to empty mapping
+const parseLinks = (v: unknown): Record<string, string> => {
+  if (!v) return {};
+  if (typeof v === 'string') {
+    try {
+      const parsed = JSON.parse(v);
+      return typeof parsed === 'object' && parsed ? parsed as Record<string, string> : {};
+    } catch {
+      return {};
+    }
+  }
+  if (typeof v === 'object') return v as Record<string, string>;
+  return {};
+};
+const env = (Astro.locals && Astro.locals.runtime && Astro.locals.runtime.env) || undefined;
+const paymentLinksMonthly = parseLinks(env?.PRICING_LINKS);
+const paymentLinksAnnual = parseLinks(env?.PRICING_LINKS_ANNUAL);
+
 // Simple sanitizer to avoid showing fallback tokens
 const sanitize = (s: string) => {
   if (!s) return '';
@@ -219,8 +238,20 @@ const plans: Plan[] = [
       if (proBtn) {
         // use dataset flag to avoid duplicate wiring
         if (!proBtn.dataset || !proBtn.dataset.wired) {
-          console.log('[pricing] wiring pro checkout via button');
-          proBtn.addEventListener('click', () => createCheckout('pro'));
+          const monthly = proBtn.getAttribute('data-payment-monthly') || '';
+          const annual = proBtn.getAttribute('data-payment-annual') || '';
+          proBtn.addEventListener('click', () => {
+            try {
+              const link = (pricingInterval === 'annual' ? annual : monthly);
+              if (link && /^https?:\/\//.test(link)) {
+                console.log('[pricing] redirecting to payment link (pro, ' + pricingInterval + ')');
+                window.location.href = link;
+                return;
+              }
+            } catch {}
+            console.log('[pricing] payment link missing → fallback to server checkout (pro)');
+            createCheckout('pro');
+          });
           if (proBtn.dataset) proBtn.dataset.wired = '1';
         }
         wired = true;
@@ -228,8 +259,20 @@ const plans: Plan[] = [
       const premiumBtn = document.getElementById('buy-premium-cta');
       if (premiumBtn) {
         if (!premiumBtn.dataset || !premiumBtn.dataset.wired) {
-          console.log('[pricing] wiring premium checkout via button');
-          premiumBtn.addEventListener('click', () => createCheckout('premium'));
+          const monthly = premiumBtn.getAttribute('data-payment-monthly') || '';
+          const annual = premiumBtn.getAttribute('data-payment-annual') || '';
+          premiumBtn.addEventListener('click', () => {
+            try {
+              const link = (pricingInterval === 'annual' ? annual : monthly);
+              if (link && /^https?:\/\//.test(link)) {
+                console.log('[pricing] redirecting to payment link (premium, ' + pricingInterval + ')');
+                window.location.href = link;
+                return;
+              }
+            } catch {}
+            console.log('[pricing] payment link missing → fallback to server checkout (premium)');
+            createCheckout('premium');
+          });
           if (premiumBtn.dataset) premiumBtn.dataset.wired = '1';
         }
         wired = true;
@@ -307,6 +350,8 @@ const plans: Plan[] = [
           <button
             id="buy-pro-cta"
             type="button"
+            data-payment-monthly={paymentLinksMonthly['pro']}
+            data-payment-annual={paymentLinksAnnual['pro']}
             class={`mt-8 px-6 py-3 text-center font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2`}
           >
             {plan.cta}
@@ -315,6 +360,8 @@ const plans: Plan[] = [
           <button
             id="buy-premium-cta"
             type="button"
+            data-payment-monthly={paymentLinksMonthly['premium']}
+            data-payment-annual={paymentLinksAnnual['premium']}
             class={`mt-8 px-6 py-3 text-center font-medium rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2`}
           >
             {plan.cta}

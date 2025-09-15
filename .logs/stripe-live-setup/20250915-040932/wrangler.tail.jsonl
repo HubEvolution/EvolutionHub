@@ -462,3 +462,500 @@
         }
     }
 }
+{
+    "wallTime": 9,
+    "cpuTime": 9,
+    "truncated": false,
+    "executionModel": "stateless",
+    "outcome": "ok",
+    "scriptVersion": {
+        "id": "5d5f6a52-f92a-421f-8f35-422a7e6b3af3"
+    },
+    "scriptName": "evolution-hub-production",
+    "diagnosticsChannelEvents": [],
+    "exceptions": [],
+    "logs": [],
+    "eventTimestamp": 1757903377894,
+    "event": {
+        "request": {
+            "url": "https://hub-evolution.com/sitemap.xml",
+            "method": "GET",
+            "headers": {
+                "accept": "*/*",
+                "accept-encoding": "gzip, br",
+                "cf-connecting-ip": "216.73.216.150",
+                "cf-ipcountry": "US",
+                "cf-ray": "97f4b28fce9ee822",
+                "cf-visitor": "{\"scheme\":\"https\"}",
+                "connection": "Keep-Alive",
+                "host": "hub-evolution.com",
+                "user-agent": "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; ClaudeBot/1.0; +claudebot@anthropic.com)",
+                "x-forwarded-proto": "https",
+                "x-real-ip": "216.73.216.150"
+            },
+            "cf": {
+                "clientTcpRtt": 11,
+                "requestHeaderNames": {},
+                "httpProtocol": "HTTP/2",
+                "tlsCipher": "AEAD-AES256-GCM-SHA384",
+                "continent": "NA",
+                "asn": 16509,
+                "clientAcceptEncoding": "gzip, deflate, br",
+                "verifiedBotCategory": "",
+                "country": "US",
+                "isEUCountry": false,
+                "region": "Ohio",
+                "tlsClientCiphersSha1": "WUS9+h7TjVkF9aEouGuCEMjGQGA=",
+                "tlsClientAuth": {
+                    "certIssuerDNLegacy": "",
+                    "certIssuerSKI": "",
+                    "certSubjectDNRFC2253": "",
+                    "certSubjectDNLegacy": "",
+                    "certFingerprintSHA256": "",
+                    "certNotBefore": "",
+                    "certSKI": "",
+                    "certSerial": "",
+                    "certIssuerDN": "",
+                    "certVerified": "NONE",
+                    "certNotAfter": "",
+                    "certSubjectDN": "",
+                    "certPresented": "0",
+                    "certRevoked": "0",
+                    "certIssuerSerial": "",
+                    "certIssuerDNRFC2253": "",
+                    "certFingerprintSHA1": ""
+                },
+                "tlsClientRandom": "y5mfpVJnKko35VHQYutqnB9mQuPWo4O57J7oukC4rRg=",
+                "tlsExportedAuthenticator": {
+                    "clientFinished": "59af3699f219c5a769996596ca8410b329606f81ad0fb1f7783201019615e67c723611403145ae624329e23073345c8f",
+                    "clientHandshake": "842b7f9545d06a89cc4c4b0988452e598bbd657f24fa9bc9b949f395ca4e38a60b32a50cd1caa857a0d64d26c5073536",
+                    "serverHandshake": "acf179490b414b4c857feadd301a53698d7ec729ad330319783c39ad9837adb698f01813f9cada9a5e33f9aea7875a51",
+                    "serverFinished": "b9194f718c29738102d7f945acb43226247131512b2639d960d39b10946722d12ca06e013099e5690789f9049b825256"
+                },
+                "tlsClientHelloLength": "253",
+                "colo": "ORD",
+                "timezone": "America/New_York",
+                "longitude": "-82.99879",
+                "latitude": "39.96118",
+                "edgeRequestKeepAliveStatus": 1,
+                "requestPriority": "weight=16;exclusive=0;group=0;group-weight=0",
+                "postalCode": "43215",
+                "city": "Columbus",
+                "tlsVersion": "TLSv1.3",
+                "regionCode": "OH",
+                "asOrganization": "Anthropic, PBC",
+                "tlsClientExtensionsSha1Le": "wjcz+VeRinZHDRPenlfg8HNsBFE=",
+                "tlsClientExtensionsSha1": "ReYe+TW7uBeZlY4sVHwtZSRu0No="
+            }
+        },
+        "response": {
+            "status": 200
+        }
+    }
+}
+{
+    "wallTime": 40,
+    "cpuTime": 37,
+    "truncated": false,
+    "executionModel": "stateless",
+    "outcome": "ok",
+    "scriptVersion": {
+        "id": "5d5f6a52-f92a-421f-8f35-422a7e6b3af3"
+    },
+    "scriptName": "evolution-hub-production",
+    "diagnosticsChannelEvents": [],
+    "exceptions": [],
+    "logs": [],
+    "eventTimestamp": 1757903496659,
+    "event": {
+        "request": {
+            "url": "https://hub-evolution.com/en/",
+            "method": "GET",
+            "headers": {
+                "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+                "accept-encoding": "gzip, br",
+                "accept-language": "de-DE,de;q=0.9",
+                "cf-connecting-ip": "2a09:bac2:2d10:1282::1d8:209",
+                "cf-ipcountry": "DE",
+                "cf-ray": "97f4b57608df45e1",
+                "cf-visitor": "{\"scheme\":\"https\"}",
+                "connection": "Keep-Alive",
+                "cookie": "REDACTED",
+                "host": "hub-evolution.com",
+                "priority": "u=0, i",
+                "referer": "https://hub-evolution.com/en/docs",
+                "sec-fetch-dest": "document",
+                "sec-fetch-mode": "navigate",
+                "sec-fetch-site": "cross-site",
+                "user-agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Mobile/15E148 Safari/604.1",
+                "x-forwarded-proto": "https",
+                "x-real-ip": "2a09:bac2:2d10:1282::1d8:209"
+            },
+            "cf": {
+                "requestHeaderNames": {},
+                "httpProtocol": "HTTP/3",
+                "tlsCipher": "AEAD-AES128-GCM-SHA256",
+                "continent": "EU",
+                "asn": 13335,
+                "clientAcceptEncoding": "gzip, deflate, br",
+                "verifiedBotCategory": "",
+                "country": "DE",
+                "isEUCountry": "1",
+                "region": "North Rhine-Westphalia",
+                "tlsClientCiphersSha1": "ry+H1+NRAU3W1qhijl/LGes3+Xs=",
+                "tlsClientAuth": {
+                    "certIssuerDNLegacy": "",
+                    "certIssuerSKI": "",
+                    "certSubjectDNRFC2253": "",
+                    "certSubjectDNLegacy": "",
+                    "certFingerprintSHA256": "",
+                    "certNotBefore": "",
+                    "certSKI": "",
+                    "certSerial": "",
+                    "certIssuerDN": "",
+                    "certVerified": "NONE",
+                    "certNotAfter": "",
+                    "certSubjectDN": "",
+                    "certPresented": "0",
+                    "certRevoked": "0",
+                    "certIssuerSerial": "",
+                    "certIssuerDNRFC2253": "",
+                    "certFingerprintSHA1": ""
+                },
+                "tlsClientRandom": "gU7U8DfPTpQvNN/YQywA01lpzPU4ot2iksbRoaCGaik=",
+                "tlsExportedAuthenticator": {
+                    "clientFinished": "61769c4bab379c4dafb32e5b713080ca44195c8fa046c68230870647b9873fea",
+                    "clientHandshake": "aa7284c24860f022f05b3c68a3c1dcc1938c657759880e6ac04720c48ba6fb82",
+                    "serverHandshake": "ab7b0b925392080e04e874b625c25326d65838cc778d906a368d34e013f7ce97",
+                    "serverFinished": "82b2b8928dc45b26566441cc5d19989c0b6d2b3199964809d11d5e3376a35737"
+                },
+                "tlsClientHelloLength": "264",
+                "colo": "FRA",
+                "timezone": "Europe/Berlin",
+                "longitude": "8.53468",
+                "latitude": "51.19248",
+                "edgeRequestKeepAliveStatus": 1,
+                "requestPriority": "",
+                "postalCode": "59955",
+                "city": "Winterberg",
+                "tlsVersion": "TLSv1.3",
+                "regionCode": "NW",
+                "asOrganization": "Cloudflare London, LLC",
+                "tlsClientExtensionsSha1Le": "WvGfTVuyzk5N8agAuXK40L8ibks=",
+                "tlsClientExtensionsSha1": "5FX2dmVc3UCRbtdgyPiP3D2GBHE="
+            }
+        },
+        "response": {
+            "status": 200
+        }
+    }
+}
+{
+    "wallTime": 2,
+    "cpuTime": 0,
+    "truncated": false,
+    "executionModel": "stateless",
+    "outcome": "ok",
+    "scriptVersion": {
+        "id": "5d5f6a52-f92a-421f-8f35-422a7e6b3af3"
+    },
+    "scriptName": "evolution-hub-production",
+    "diagnosticsChannelEvents": [],
+    "exceptions": [],
+    "logs": [
+        {
+            "message": [
+                "[2025-09-15T02:31:36.994Z] [INFO] CSP violation detected\nContext: {\n  \"directive\": \"script-src-elem\",\n  \"blocked\": \"inline\",\n  \"document\": \"https://hub-evolution.com/en/\",\n  \"disposition\": \"\",\n  \"resource\": \"/api/csp-report\",\n  \"action\": \"csp_violation_logged\"\n}"
+            ],
+            "level": "info",
+            "timestamp": 1757903496994
+        }
+    ],
+    "eventTimestamp": 1757903496992,
+    "event": {
+        "request": {
+            "url": "https://hub-evolution.com/api/csp-report",
+            "method": "POST",
+            "headers": {
+                "accept": "*/*",
+                "accept-encoding": "gzip, br",
+                "accept-language": "de-DE,de;q=0.9",
+                "cache-control": "max-age=0",
+                "cf-connecting-ip": "2a09:bac2:2d10:1282::1d8:209",
+                "cf-ipcountry": "DE",
+                "cf-ray": "97f4b578291745e1",
+                "cf-visitor": "{\"scheme\":\"https\"}",
+                "connection": "Keep-Alive",
+                "content-length": "1021",
+                "content-type": "application/csp-report",
+                "cookie": "REDACTED",
+                "host": "hub-evolution.com",
+                "origin": "null",
+                "priority": "u=7, i",
+                "referer": "https://hub-evolution.com/en/",
+                "sec-fetch-dest": "empty",
+                "sec-fetch-mode": "no-cors",
+                "sec-fetch-site": "same-origin",
+                "user-agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Mobile/15E148 Safari/604.1",
+                "x-forwarded-proto": "https",
+                "x-real-ip": "2a09:bac2:2d10:1282::1d8:209"
+            },
+            "cf": {
+                "requestHeaderNames": {},
+                "httpProtocol": "HTTP/3",
+                "tlsCipher": "AEAD-AES128-GCM-SHA256",
+                "continent": "EU",
+                "asn": 13335,
+                "clientAcceptEncoding": "gzip, deflate, br",
+                "verifiedBotCategory": "",
+                "country": "DE",
+                "isEUCountry": "1",
+                "region": "North Rhine-Westphalia",
+                "tlsClientCiphersSha1": "ry+H1+NRAU3W1qhijl/LGes3+Xs=",
+                "tlsClientAuth": {
+                    "certIssuerDNLegacy": "",
+                    "certIssuerSKI": "",
+                    "certSubjectDNRFC2253": "",
+                    "certSubjectDNLegacy": "",
+                    "certFingerprintSHA256": "",
+                    "certNotBefore": "",
+                    "certSKI": "",
+                    "certSerial": "",
+                    "certIssuerDN": "",
+                    "certVerified": "NONE",
+                    "certNotAfter": "",
+                    "certSubjectDN": "",
+                    "certPresented": "0",
+                    "certRevoked": "0",
+                    "certIssuerSerial": "",
+                    "certIssuerDNRFC2253": "",
+                    "certFingerprintSHA1": ""
+                },
+                "tlsClientRandom": "gU7U8DfPTpQvNN/YQywA01lpzPU4ot2iksbRoaCGaik=",
+                "tlsExportedAuthenticator": {
+                    "clientFinished": "61769c4bab379c4dafb32e5b713080ca44195c8fa046c68230870647b9873fea",
+                    "clientHandshake": "aa7284c24860f022f05b3c68a3c1dcc1938c657759880e6ac04720c48ba6fb82",
+                    "serverHandshake": "ab7b0b925392080e04e874b625c25326d65838cc778d906a368d34e013f7ce97",
+                    "serverFinished": "82b2b8928dc45b26566441cc5d19989c0b6d2b3199964809d11d5e3376a35737"
+                },
+                "tlsClientHelloLength": "264",
+                "colo": "FRA",
+                "timezone": "Europe/Berlin",
+                "longitude": "8.53468",
+                "latitude": "51.19248",
+                "edgeRequestKeepAliveStatus": 1,
+                "requestPriority": "",
+                "postalCode": "59955",
+                "city": "Winterberg",
+                "tlsVersion": "TLSv1.3",
+                "regionCode": "NW",
+                "asOrganization": "Cloudflare London, LLC",
+                "tlsClientExtensionsSha1Le": "WvGfTVuyzk5N8agAuXK40L8ibks=",
+                "tlsClientExtensionsSha1": "5FX2dmVc3UCRbtdgyPiP3D2GBHE="
+            }
+        },
+        "response": {
+            "status": 204
+        }
+    }
+}
+{
+    "wallTime": 2,
+    "cpuTime": 2,
+    "truncated": false,
+    "executionModel": "stateless",
+    "outcome": "ok",
+    "scriptVersion": {
+        "id": "5d5f6a52-f92a-421f-8f35-422a7e6b3af3"
+    },
+    "scriptName": "evolution-hub-production",
+    "diagnosticsChannelEvents": [],
+    "exceptions": [],
+    "logs": [
+        {
+            "message": [
+                "[2025-09-15T02:31:36.992Z] [INFO] CSP violation detected\nContext: {\n  \"directive\": \"script-src-elem\",\n  \"blocked\": \"inline\",\n  \"document\": \"https://hub-evolution.com/en/\",\n  \"disposition\": \"\",\n  \"resource\": \"/api/csp-report\",\n  \"action\": \"csp_violation_logged\"\n}"
+            ],
+            "level": "info",
+            "timestamp": 1757903496992
+        }
+    ],
+    "eventTimestamp": 1757903496991,
+    "event": {
+        "request": {
+            "url": "https://hub-evolution.com/api/csp-report",
+            "method": "POST",
+            "headers": {
+                "accept": "*/*",
+                "accept-encoding": "gzip, br",
+                "accept-language": "de-DE,de;q=0.9",
+                "cache-control": "max-age=0",
+                "cf-connecting-ip": "2a09:bac2:2d10:1282::1d8:209",
+                "cf-ipcountry": "DE",
+                "cf-ray": "97f4b578291645e1",
+                "cf-visitor": "{\"scheme\":\"https\"}",
+                "connection": "Keep-Alive",
+                "content-length": "1021",
+                "content-type": "application/csp-report",
+                "cookie": "REDACTED",
+                "host": "hub-evolution.com",
+                "origin": "null",
+                "priority": "u=7, i",
+                "referer": "https://hub-evolution.com/en/",
+                "sec-fetch-dest": "empty",
+                "sec-fetch-mode": "no-cors",
+                "sec-fetch-site": "same-origin",
+                "user-agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Mobile/15E148 Safari/604.1",
+                "x-forwarded-proto": "https",
+                "x-real-ip": "2a09:bac2:2d10:1282::1d8:209"
+            },
+            "cf": {
+                "requestHeaderNames": {},
+                "httpProtocol": "HTTP/3",
+                "tlsCipher": "AEAD-AES128-GCM-SHA256",
+                "continent": "EU",
+                "asn": 13335,
+                "clientAcceptEncoding": "gzip, deflate, br",
+                "verifiedBotCategory": "",
+                "country": "DE",
+                "isEUCountry": "1",
+                "region": "North Rhine-Westphalia",
+                "tlsClientCiphersSha1": "ry+H1+NRAU3W1qhijl/LGes3+Xs=",
+                "tlsClientAuth": {
+                    "certIssuerDNLegacy": "",
+                    "certIssuerSKI": "",
+                    "certSubjectDNRFC2253": "",
+                    "certSubjectDNLegacy": "",
+                    "certFingerprintSHA256": "",
+                    "certNotBefore": "",
+                    "certSKI": "",
+                    "certSerial": "",
+                    "certIssuerDN": "",
+                    "certVerified": "NONE",
+                    "certNotAfter": "",
+                    "certSubjectDN": "",
+                    "certPresented": "0",
+                    "certRevoked": "0",
+                    "certIssuerSerial": "",
+                    "certIssuerDNRFC2253": "",
+                    "certFingerprintSHA1": ""
+                },
+                "tlsClientRandom": "gU7U8DfPTpQvNN/YQywA01lpzPU4ot2iksbRoaCGaik=",
+                "tlsExportedAuthenticator": {
+                    "clientFinished": "61769c4bab379c4dafb32e5b713080ca44195c8fa046c68230870647b9873fea",
+                    "clientHandshake": "aa7284c24860f022f05b3c68a3c1dcc1938c657759880e6ac04720c48ba6fb82",
+                    "serverHandshake": "ab7b0b925392080e04e874b625c25326d65838cc778d906a368d34e013f7ce97",
+                    "serverFinished": "82b2b8928dc45b26566441cc5d19989c0b6d2b3199964809d11d5e3376a35737"
+                },
+                "tlsClientHelloLength": "264",
+                "colo": "FRA",
+                "timezone": "Europe/Berlin",
+                "longitude": "8.53468",
+                "latitude": "51.19248",
+                "edgeRequestKeepAliveStatus": 1,
+                "requestPriority": "",
+                "postalCode": "59955",
+                "city": "Winterberg",
+                "tlsVersion": "TLSv1.3",
+                "regionCode": "NW",
+                "asOrganization": "Cloudflare London, LLC",
+                "tlsClientExtensionsSha1Le": "WvGfTVuyzk5N8agAuXK40L8ibks=",
+                "tlsClientExtensionsSha1": "5FX2dmVc3UCRbtdgyPiP3D2GBHE="
+            }
+        },
+        "response": {
+            "status": 204
+        }
+    }
+}
+{
+    "wallTime": 11,
+    "cpuTime": 11,
+    "truncated": false,
+    "executionModel": "stateless",
+    "outcome": "ok",
+    "scriptVersion": {
+        "id": "5d5f6a52-f92a-421f-8f35-422a7e6b3af3"
+    },
+    "scriptName": "evolution-hub-production",
+    "diagnosticsChannelEvents": [],
+    "exceptions": [],
+    "logs": [],
+    "eventTimestamp": 1757904261188,
+    "event": {
+        "request": {
+            "url": "https://hub-evolution.com/sitemap.xml",
+            "method": "GET",
+            "headers": {
+                "accept": "*/*",
+                "accept-encoding": "gzip, br",
+                "cf-connecting-ip": "216.73.216.98",
+                "cf-ipcountry": "US",
+                "cf-ray": "97f4c8202f8298d7",
+                "cf-visitor": "{\"scheme\":\"https\"}",
+                "connection": "Keep-Alive",
+                "host": "hub-evolution.com",
+                "user-agent": "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; ClaudeBot/1.0; +claudebot@anthropic.com)",
+                "x-forwarded-proto": "https",
+                "x-real-ip": "216.73.216.98"
+            },
+            "cf": {
+                "clientTcpRtt": 10,
+                "requestHeaderNames": {},
+                "httpProtocol": "HTTP/2",
+                "tlsCipher": "AEAD-AES256-GCM-SHA384",
+                "continent": "NA",
+                "asn": 16509,
+                "clientAcceptEncoding": "gzip, deflate, br",
+                "verifiedBotCategory": "",
+                "country": "US",
+                "isEUCountry": false,
+                "region": "Ohio",
+                "tlsClientCiphersSha1": "WUS9+h7TjVkF9aEouGuCEMjGQGA=",
+                "tlsClientAuth": {
+                    "certIssuerDNLegacy": "",
+                    "certIssuerSKI": "",
+                    "certSubjectDNRFC2253": "",
+                    "certSubjectDNLegacy": "",
+                    "certFingerprintSHA256": "",
+                    "certNotBefore": "",
+                    "certSKI": "",
+                    "certSerial": "",
+                    "certIssuerDN": "",
+                    "certVerified": "NONE",
+                    "certNotAfter": "",
+                    "certSubjectDN": "",
+                    "certPresented": "0",
+                    "certRevoked": "0",
+                    "certIssuerSerial": "",
+                    "certIssuerDNRFC2253": "",
+                    "certFingerprintSHA1": ""
+                },
+                "tlsClientRandom": "YsLjJhyRHKQLQTy3WQbLvzwCVOCpFRRvKG1aqYXwsdo=",
+                "tlsExportedAuthenticator": {
+                    "clientFinished": "e700b260c497ebf08ff74d183612f215ded5a4d598698ef2bd32413bd98cf5f9c8bffdb62b40a1fd069ab6eba519576f",
+                    "clientHandshake": "99da35ce4e698de5b92e5cfeb9e4e41ee380147cfddb3ed2366c605c00a85447d0ccfebc8ab0bd2c6d3346a179c4e49e",
+                    "serverHandshake": "aff9d3007c3572059a7fda78e64b4c2172fc82f44dbae0c270b907a4055ac10db5ef1b9428b68324f03aa80eccbdb7e8",
+                    "serverFinished": "ea8f8961539928221dee53e3a35efa881abe80aea0b3f5417a7b6234709e2f15cdc00d605d145156d1a4c5272e2c8116"
+                },
+                "tlsClientHelloLength": "253",
+                "colo": "ORD",
+                "timezone": "America/New_York",
+                "longitude": "-82.99879",
+                "latitude": "39.96118",
+                "edgeRequestKeepAliveStatus": 1,
+                "requestPriority": "weight=16;exclusive=0;group=0;group-weight=0",
+                "postalCode": "43215",
+                "city": "Columbus",
+                "tlsVersion": "TLSv1.3",
+                "regionCode": "OH",
+                "asOrganization": "Anthropic, PBC",
+                "tlsClientExtensionsSha1Le": "qpZzghpeYVdJWZvT1MyfVVlBDpI=",
+                "tlsClientExtensionsSha1": "3dN0qqyxocMLq84hchEpg4Fcg20="
+            }
+        },
+        "response": {
+            "status": 200
+        }
+    }
+}

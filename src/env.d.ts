@@ -4,6 +4,8 @@ type ImportMetaEnv = {
   MODE?: string;
   BASE_URL?: string;
   PROD?: boolean;
+  PRICING_LINKS?: string | Record<string, string>;
+  PRICING_LINKS_ANNUAL?: string | Record<string, string>;
 } & Record<string, string | boolean | undefined>;
 
 interface ImportMeta {
@@ -41,6 +43,16 @@ declare namespace App {
                 STRIPE_WEBHOOK_SECRET?: string;
                 // Pricing table mapping (plan -> priceId)
                 PRICING_TABLE?: string | Record<string, string>;
+                /**
+                 * Stripe Payment Links mapping for monthly interval (plan -> url)
+                 * Example: { "pro": "https://buy.stripe.com/...", "premium": "https://buy.stripe.com/..." }
+                 */
+                PRICING_LINKS?: string | Record<string, string>;
+                /**
+                 * Stripe Payment Links mapping for annual interval (plan -> url)
+                 * Example: { "pro": "https://buy.stripe.com/...", "premium": "https://buy.stripe.com/..." }
+                 */
+                PRICING_LINKS_ANNUAL?: string | Record<string, string>;
             };
         };
         /**
