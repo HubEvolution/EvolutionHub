@@ -10,6 +10,7 @@
  import AOSCoordinator from '@/components/scripts/AOSCoordinator.astro';
  import AnalyticsCoordinator from '@/components/scripts/AnalyticsCoordinator.astro';
  import Toaster from '@/components/Toaster';
+ import BillingNotice from '@/components/BillingNotice';
  import { ClientRouter } from 'astro:transitions';
  import ComingSoon from '@/components/ui/ComingSoon.astro';
  import { isComingSoon } from '@/config/coming-soon';
@@ -179,6 +180,7 @@
  {showComingSoon && <ComingSoon />}
        {enableAnalytics && <AnalyticsCoordinator />}
        <Toaster client:load />
+       <BillingNotice client:load />
  
      {showComingSoon && <script src="/assets/coming-soon-client.js" defer nonce={Astro.locals.cspNonce}></script>}
  

@@ -27,7 +27,7 @@
             "max": "Max size",
             "download": "Download",
             "loading": "Loading…",
-            "quotaBanner": "Free tier usage is limited. Sign in for higher limits.",
+            "quotaBanner": "Starter tier usage is limited. Sign in for higher limits.",
             "toasts": {
               "loadQuotaError": "Failed to load quota information.",
               "loadError": "Failed to load. Please try again.",

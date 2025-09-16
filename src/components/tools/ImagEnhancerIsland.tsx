@@ -1061,8 +1061,9 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
 
   const planLabel = useMemo(() => {
     if (ownerType === 'guest') return 'Guest';
+    if (plan === 'free') return 'Starter';
     if (plan) return plan.charAt(0).toUpperCase() + plan.slice(1);
-    return 'Free';
+    return 'Starter';
   }, [ownerType, plan]);
 
   const helpLabel = sanitizeUiLabel(strings?.ui?.help?.button as string | undefined, 'Help');
@@ -1470,7 +1471,7 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
                   {/* Plan badge (compact) */}
                   <span
                     className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] bg-white/40 dark:bg-slate-800/40 ring-1 ring-gray-400/30 text-gray-700 dark:text-gray-200"
-                    title={ownerType === 'guest' ? 'Guest user' : `Plan: ${plan ?? 'free'}`}
+                    title={ownerType === 'guest' ? 'Guest user' : `Plan: ${planLabel}`}
                   >
                     {planLabel}
                   </span>

@@ -138,6 +138,24 @@ const handler: ApiHandler = async (context: APIContext) => {
     return createApiError('server_error', 'Magic link request failed');
   }
 
+  // Progressive enhancement: if this was a normal form POST (browser navigation),
+  // redirect back to the localized login page with a success hint instead of
+  // showing a raw JSON page.
+  try {
+    const accept = request.headers.get('accept') || '';
+    if (/\btext\/html\b/i.test(accept)) {
+      const loc = (locale === 'de' || locale === 'en') ? locale : 'en';
+      const target = loc === 'de' ? '/de/login?success=magic_sent' : '/en/login?success=magic_sent';
+      return new Response(null, {
+        status: 303,
+        headers: {
+          Location: target,
+          'Cache-Control': 'no-store',
+        },
+      });
+    }
+  } catch {}
+
   return createApiSuccess({ sent: true });
 };
 

@@ -8,11 +8,25 @@ interface Props {
     name: string;
     username: string;
     image?: string;
+    plan?: 'free' | 'pro' | 'premium' | 'enterprise';
   };
 }
 
-const { user } = Astro.props;
+const { user } = Astro.props as Props;
 const locale = getLocale(Astro.url.pathname);
+
+// Derive plan label and styling
+const plan: 'free' | 'pro' | 'premium' | 'enterprise' = (user.plan ?? 'free');
+const planLabel = plan === 'free' ? 'Starter' : plan === 'pro' ? 'Pro' : plan === 'premium' ? 'Premium' : 'Enterprise';
+const planClasses = (
+  plan === 'free'
+    ? 'bg-gray-100 text-gray-700 ring-1 ring-gray-200 dark:bg-gray-800 dark:text-gray-200 dark:ring-gray-700'
+    : plan === 'pro'
+      ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-300 dark:ring-emerald-800/40'
+      : plan === 'premium'
+        ? 'bg-indigo-50 text-indigo-700 ring-1 ring-indigo-200 dark:bg-indigo-900/20 dark:text-indigo-300 dark:ring-indigo-800/40'
+        : 'bg-amber-50 text-amber-700 ring-1 ring-amber-200 dark:bg-amber-900/20 dark:text-amber-300 dark:ring-amber-800/40'
+);
 ---
 <div class="p-6 bg-white rounded-lg shadow-md dark:bg-transparent dark:shadow-none dark:border-0">
   <div class="flex items-center space-x-4">
@@ -24,7 +38,12 @@ const locale = getLocale(Astro.url.pathname);
       />
     </div>
     <div>
-      <h3 class="text-xl font-bold text-gray-900 dark:text-white">{user.name}</h3>
+      <div class="flex items-center gap-2">
+        <h3 class="text-xl font-bold text-gray-900 dark:text-white">{user.name}</h3>
+        <span class={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] ${planClasses}`} title={`Current plan: ${planLabel}`}>
+          {planLabel}
+        </span>
+      </div>
       <p class="text-sm text-gray-500 dark:text-gray-400">@{user.username}</p>
     </div>
   </div>
@@ -34,6 +53,11 @@ const locale = getLocale(Astro.url.pathname);
       <a href={localizePath(locale, '/account/settings')} class="block w-full px-4 py-2 text-sm font-medium text-center text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
         Einstellungen bearbeiten
       </a>
+      {plan === 'free' && (
+        <a href={localizePath(locale, '/pricing')} class="block w-full px-4 py-2 text-sm font-semibold text-center text-white bg-emerald-600 rounded-lg hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500">
+          Upgrade
+        </a>
+      )}
       <a href="/api/user/logout" class="block w-full px-4 py-2 text-sm font-medium text-center text-white bg-red-600 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
         Abmelden
       </a>

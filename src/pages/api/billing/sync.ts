@@ -35,10 +35,16 @@ export const GET = withAuthApiMiddleware(async (context) => {
   const baseUrl: string = env.BASE_URL || `${requestUrl.protocol}//${requestUrl.host}`;
 
   if (!env.STRIPE_SECRET) {
-    return new Response('Stripe not configured', { status: 500 });
+    return new Response(null, {
+      status: 302,
+      headers: { Location: `${baseUrl}/dashboard?ws=${encodeURIComponent(ws)}&billing=stripe_not_configured` }
+    });
   }
   if (!sessionId) {
-    return new Response('Missing session_id', { status: 400 });
+    return new Response(null, {
+      status: 302,
+      headers: { Location: `${baseUrl}/dashboard?ws=${encodeURIComponent(ws)}&billing=missing_session` }
+    });
   }
 
   // Build priceId -> plan mapping (monthly + annual)
@@ -49,13 +55,24 @@ export const GET = withAuthApiMiddleware(async (context) => {
     ...(annualMap as any),
   } as any;
 
-  const stripe = new Stripe(env.STRIPE_SECRET);
-  const session = await stripe.checkout.sessions.retrieve(sessionId, { expand: ['subscription'] });
+  let session: Stripe.Checkout.Session;
+  try {
+    const stripe = new Stripe(env.STRIPE_SECRET);
+    session = await stripe.checkout.sessions.retrieve(sessionId, { expand: ['subscription'] });
+  } catch (err) {
+    return new Response(null, {
+      status: 302,
+      headers: { Location: `${baseUrl}/dashboard?ws=${encodeURIComponent(ws)}&billing=sync_error` }
+    });
+  }
 
   // Basic safety: enforce user matches the session's reference
   const refUserId = (session.client_reference_id as string) || (session.metadata?.userId as string) || '';
   if (refUserId && refUserId !== user.id) {
-    return new Response('Forbidden', { status: 403 });
+    return new Response(null, {
+      status: 302,
+      headers: { Location: `${baseUrl}/dashboard?ws=${encodeURIComponent(ws)}&billing=forbidden` }
+    });
   }
 
   const customerId = (session.customer as string) || '';
@@ -113,7 +130,9 @@ export const GET = withAuthApiMiddleware(async (context) => {
     }
   } else {
     // No subscription object (rare) — still set plan from metadata for UX
-    await db.prepare('UPDATE users SET plan = ? WHERE id = ?').bind(plan, user.id).run();
+    try {
+      await db.prepare('UPDATE users SET plan = ? WHERE id = ?').bind(plan, user.id).run();
+    } catch {}
   }
 
   // Redirect to dashboard

@@ -9,14 +9,15 @@ export const GET = withRedirectMiddleware(async (context) => {
   const sessionId = url.searchParams.get('session_id') || url.searchParams.get('cs') || '';
   const ws = url.searchParams.get('ws') || 'default';
 
-  if (!sessionId) {
-    return new Response('Missing session_id', { status: 400 });
-  }
+  // If no sessionId is provided, we still proceed to link-pending flow
+  // so unauthenticated checkouts can be associated via webhook-pending mapping.
 
   const baseUrl: string = env.BASE_URL || `${url.protocol}//${url.host}`;
   const user = locals.user;
 
-  const dest = `${baseUrl}/api/billing/sync?session_id=${encodeURIComponent(sessionId)}&ws=${encodeURIComponent(ws)}`;
+  const dest = sessionId
+    ? `${baseUrl}/api/billing/sync?session_id=${encodeURIComponent(sessionId)}&ws=${encodeURIComponent(ws)}`
+    : `${baseUrl}/api/billing/link-pending`;
 
   if (user) {
     // Already authenticated → go straight to sync
