@@ -65,6 +65,14 @@ export default function AuthStatusNotifier({ mode }: { mode: Mode }) {
           if (loggedOut === 'true') {
             toast.success(isGerman ? 'Erfolgreich abgemeldet.' : 'You have been logged out.');
             log('toast-loggedOut');
+            try {
+              window.dispatchEvent(
+                new CustomEvent('auth:changed', { detail: { state: 'logged_out', via: 'login' } })
+              );
+              try {
+                localStorage.setItem('auth:changed', JSON.stringify({ state: 'logged_out', t: Date.now(), via: 'login' }));
+              } catch {}
+            } catch {}
           }
           if (success) {
             const msg = isGerman
@@ -72,6 +80,14 @@ export default function AuthStatusNotifier({ mode }: { mode: Mode }) {
               : 'Action completed successfully.';
             toast.success(msg);
             log('toast-success', { code: success });
+            try {
+              window.dispatchEvent(
+                new CustomEvent('auth:changed', { detail: { state: 'logged_in', via: 'login' } })
+              );
+              try {
+                localStorage.setItem('auth:changed', JSON.stringify({ state: 'logged_in', t: Date.now(), via: 'login' }));
+              } catch {}
+            } catch {}
           }
           if (error) {
             const code = error;
@@ -137,6 +153,14 @@ export default function AuthStatusNotifier({ mode }: { mode: Mode }) {
               isGerman ? 'Registrierung erfolgreich.' : 'Registration successful.'
             );
             log('toast-success', { mode, code: success });
+            try {
+              window.dispatchEvent(
+                new CustomEvent('auth:changed', { detail: { state: 'logged_in', via: 'register' } })
+              );
+              try {
+                localStorage.setItem('auth:changed', JSON.stringify({ state: 'logged_in', t: Date.now(), via: 'register' }));
+              } catch {}
+            } catch {}
           }
           if (error) {
             const code = error;

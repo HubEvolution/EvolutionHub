@@ -730,9 +730,29 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
 
   const fetchUsage = useCallback(async () => {
     try {
-      const url = `/api/ai-image/usage?t=${Date.now()}`;
-      const res = await fetch(url, { credentials: 'same-origin', cache: 'no-store' });
+      const dbg = (() => {
+        try {
+          const url = new URL(window.location.href);
+          const qp = url.searchParams;
+          return qp.get('debug_usage') === '1' || localStorage.getItem('debug_usage') === '1';
+        } catch { return false; }
+      })();
+      const endpoint = `/api/ai-image/usage?t=${Date.now()}${dbg ? '&debug=1' : ''}`;
+      (window as any).__usageLogs = (window as any).__usageLogs || [];
+      (window as any).__usageLogs.push({ t: Date.now(), evt: 'fetchUsage:start', endpoint });
+      const res = await fetch(endpoint, { credentials: 'same-origin', cache: 'no-store' });
       const data = (await res.json()) as ApiSuccess<UsageResponseData> | ApiErrorBody;
+      if (dbg) {
+        try {
+          (window as any).__usageLogs.push({ t: Date.now(), evt: 'fetchUsage:resp', status: res.status, headers: {
+            ownerType: res.headers.get('X-Usage-OwnerType'),
+            plan: res.headers.get('X-Usage-Plan'),
+            limit: res.headers.get('X-Usage-Limit')
+          }, body: data });
+          // eslint-disable-next-line no-console
+          console.debug('[ImagEnhancer] usage response', data);
+        } catch {}
+      }
       if ('success' in data && data.success) {
         setUsage(data.data.usage);
         setOwnerType(data.data.ownerType);
@@ -764,13 +784,48 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
 
   // Refresh usage on window focus or when tab becomes visible (e.g., after login)
   useEffect(() => {
-    const onFocus = () => { void fetchUsage(); };
-    const onVisibility = () => { if (document.visibilityState === 'visible') { void fetchUsage(); } };
+    const log = (evt: string) => {
+      try {
+        const dbg = new URL(window.location.href).searchParams.get('debug_usage') === '1' || localStorage.getItem('debug_usage') === '1';
+        if (!dbg) return;
+        (window as any).__usageLogs = (window as any).__usageLogs || [];
+        (window as any).__usageLogs.push({ t: Date.now(), evt });
+        // eslint-disable-next-line no-console
+        console.debug('[ImagEnhancer] trigger', evt);
+      } catch {}
+    };
+    const onFocus = () => { log('focus'); void fetchUsage(); };
+    const onVisibility = () => { if (document.visibilityState === 'visible') { log('visibility'); void fetchUsage(); } };
     window.addEventListener('focus', onFocus);
     document.addEventListener('visibilitychange', onVisibility);
     return () => {
       window.removeEventListener('focus', onFocus);
       document.removeEventListener('visibilitychange', onVisibility);
+    };
+  }, [fetchUsage]);
+
+  // Also refresh on custom auth events, storage sync (other tabs), and pageshow (bfcache)
+  useEffect(() => {
+    const log = (evt: string, detail?: any) => {
+      try {
+        const dbg = new URL(window.location.href).searchParams.get('debug_usage') === '1' || localStorage.getItem('debug_usage') === '1';
+        if (!dbg) return;
+        (window as any).__usageLogs = (window as any).__usageLogs || [];
+        (window as any).__usageLogs.push({ t: Date.now(), evt, detail });
+        // eslint-disable-next-line no-console
+        console.debug('[ImagEnhancer] trigger', evt, detail || '');
+      } catch {}
+    };
+    const onAuthChanged = (e: Event) => { log('auth:changed', (e as CustomEvent).detail); void fetchUsage(); };
+    const onStorage = (e: StorageEvent) => { if (e.key === 'auth:changed') { log('storage:auth:changed'); void fetchUsage(); } };
+    const onPageShow = () => { log('pageshow'); void fetchUsage(); };
+    window.addEventListener('auth:changed', onAuthChanged);
+    window.addEventListener('storage', onStorage);
+    window.addEventListener('pageshow', onPageShow);
+    return () => {
+      window.removeEventListener('auth:changed', onAuthChanged);
+      window.removeEventListener('storage', onStorage);
+      window.removeEventListener('pageshow', onPageShow);
     };
   }, [fetchUsage]);
 

@@ -282,7 +282,7 @@ export class AiJobsService extends AbstractBaseService {
         const limit = typeof params.limitOverride === 'number'
           ? params.limitOverride
           : (ownerType === 'user' ? FREE_LIMIT_USER : FREE_LIMIT_GUEST);
-        const usage = await this.incrementUsage(ownerType, ownerId, typeof params.limitOverride === 'number' ? params.limitOverride : (ownerType === 'user' ? FREE_LIMIT_USER : FREE_LIMIT_GUEST));
+        const usage = await this.incrementUsage(ownerType, ownerId, limit);
         const now2 = new Date();
         const ym2 = `${now2.getUTCFullYear()}${String(now2.getUTCMonth() + 1).padStart(2, '0')}`;
         const monthlyLimit2 = typeof params.monthlyLimitOverride === 'number' ? params.monthlyLimitOverride : Number.POSITIVE_INFINITY;

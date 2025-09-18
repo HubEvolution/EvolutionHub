@@ -138,12 +138,27 @@ export class AiImageService {
 
     const key = this.usageKey(ownerType, ownerId);
     const raw = await kv.get(key);
-    if (!raw) return { used: 0, limit, resetAt: null };
+    if (!raw) {
+      try {
+        const mask = ownerId ? `…${ownerId.slice(-4)}(${ownerId.length})` : '';
+        this.log.debug('usage_get_empty', { action: 'usage_get_empty', metadata: { ownerType, ownerId: mask, key, limit } });
+      } catch {}
+      return { used: 0, limit, resetAt: null };
+    }
 
     try {
       const parsed = JSON.parse(raw) as { count: number; resetAt: number };
-      return { used: parsed.count || 0, limit, resetAt: parsed.resetAt || null };
+      const resp = { used: parsed.count || 0, limit, resetAt: parsed.resetAt || null };
+      try {
+        const mask = ownerId ? `…${ownerId.slice(-4)}(${ownerId.length})` : '';
+        this.log.debug('usage_get_ok', { action: 'usage_get_ok', metadata: { ownerType, ownerId: mask, key, used: resp.used, limit: resp.limit, hasReset: !!resp.resetAt } });
+      } catch {}
+      return resp;
     } catch {
+      try {
+        const mask = ownerId ? `…${ownerId.slice(-4)}(${ownerId.length})` : '';
+        this.log.warn('usage_get_parse_failed', { action: 'usage_get_parse_failed', metadata: { ownerType, ownerId: mask, key } });
+      } catch {}
       return { used: 0, limit, resetAt: null };
     }
   }
@@ -449,7 +464,12 @@ export class AiImageService {
     const expiration = Math.floor(resetAt / 1000);
     await kv.put(key, value, { expiration });
 
-    return { used: count, limit, resetAt };
+    const resp = { used: count, limit, resetAt };
+    try {
+      const mask = ownerId ? `…${ownerId.slice(-4)}(${ownerId.length})` : '';
+      this.log.debug('usage_increment', { action: 'usage_increment', metadata: { ownerType, ownerId: mask, key, used: resp.used, limit: resp.limit, expiration } });
+    } catch {}
+    return resp;
   }
 
   private extFromFilename(name: string): string | null {
