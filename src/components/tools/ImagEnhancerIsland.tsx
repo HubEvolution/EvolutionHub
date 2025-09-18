@@ -4,6 +4,8 @@ import { toast } from 'sonner';
 import {
   ALLOWED_CONTENT_TYPES,
   ALLOWED_MODELS,
+  FREE_LIMIT_GUEST,
+  FREE_LIMIT_USER,
 } from '@/config/ai-image';
 import { useDownload } from './imag-enhancer/hooks/useDownload';
 import { useValidation } from './imag-enhancer/hooks/useValidation';
@@ -136,6 +138,7 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
   // Help & loading skeleton states
   const [isHelpOpen, setIsHelpOpen] = useState<boolean>(false);
   const [isPreviewLoading, setIsPreviewLoading] = useState<boolean>(false);
+  const [selectError, setSelectError] = useState<string | null>(null);
   const [isResultLoading, setIsResultLoading] = useState<boolean>(false);
   // Baseline settings captured on last successful enhance to compute dirty state
   const [baselineSettings, setBaselineSettings] = useState<
@@ -725,33 +728,59 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
     };
   }, []);
 
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const res = await fetch('/api/ai-image/usage', { credentials: 'same-origin' });
-        const data = (await res.json()) as ApiSuccess<UsageResponseData> | ApiErrorBody;
-        if ('success' in data && data.success) {
-          if (!cancelled) {
-            setUsage(data.data.usage);
-            setOwnerType(data.data.ownerType);
-            if (typeof (data.data as UsageResponseData).plan === 'string') {
-              setPlan((data.data as UsageResponseData).plan!);
-            } else {
-              setPlan(null);
-            }
-          }
-        } else if ('success' in data && !data.success) {
-          toast.error(data.error.message || toasts.loadQuotaError);
+  const fetchUsage = useCallback(async () => {
+    try {
+      const url = `/api/ai-image/usage?t=${Date.now()}`;
+      const res = await fetch(url, { credentials: 'same-origin', cache: 'no-store' });
+      const data = (await res.json()) as ApiSuccess<UsageResponseData> | ApiErrorBody;
+      if ('success' in data && data.success) {
+        setUsage(data.data.usage);
+        setOwnerType(data.data.ownerType);
+        if (typeof (data.data as UsageResponseData).plan === 'string') {
+          setPlan((data.data as UsageResponseData).plan!);
+        } else {
+          setPlan(null);
         }
-      } catch {
-        toast.error(toasts.loadError);
+      } else if ('success' in data && !data.success) {
+        toast.error(data.error.message || toasts.loadQuotaError);
+        // Fallback UI for guests so the pill shows a limit instead of loading forever
+        setOwnerType((prev) => prev ?? 'guest');
+        setUsage({ used: 0, limit: FREE_LIMIT_GUEST, resetAt: null });
       }
-    })();
-    return () => {
-      cancelled = true;
-    };
+    } catch {
+      toast.error(toasts.loadError);
+      // Graceful guest fallback if request failed (network/CSP)
+      setOwnerType((prev) => prev ?? 'guest');
+      setUsage({ used: 0, limit: FREE_LIMIT_GUEST, resetAt: null });
+    }
   }, [toasts.loadError, toasts.loadQuotaError]);
+
+  // Initial load
+  useEffect(() => {
+    let mounted = true;
+    (async () => { if (mounted) await fetchUsage(); })();
+    return () => { mounted = false; };
+  }, [fetchUsage]);
+
+  // Refresh usage on window focus or when tab becomes visible (e.g., after login)
+  useEffect(() => {
+    const onFocus = () => { void fetchUsage(); };
+    const onVisibility = () => { if (document.visibilityState === 'visible') { void fetchUsage(); } };
+    window.addEventListener('focus', onFocus);
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => {
+      window.removeEventListener('focus', onFocus);
+      document.removeEventListener('visibilitychange', onVisibility);
+    };
+  }, [fetchUsage]);
+
+  // Safety timeout: ensure preview overlay doesn't block UI indefinitely if onLoad doesn't fire
+  useEffect(() => {
+    if (!previewUrl) return;
+    setIsPreviewLoading(true);
+    const t = window.setTimeout(() => setIsPreviewLoading(false), 2000);
+    return () => window.clearTimeout(t);
+  }, [previewUrl]);
 
   // Global Space key Press-and-Hold to show 100% Before
   useEffect(() => {
@@ -877,10 +906,12 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
       if (err) {
         console.warn('ImagEnhancerIsland:onSelectFile() - validateFile error', err);
         toast.error(err);
+        setSelectError(err);
         setFile(null);
         setPreviewUrl(null);
         return;
       }
+      setSelectError(null);
       setFile(f);
       setFileMeta({
         type: f.type || 'unknown',
@@ -1060,22 +1091,34 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
   }, [strings]);
 
   const planLabel = useMemo(() => {
-    if (ownerType === 'guest') return 'Guest';
-    if (plan === 'free') return 'Starter';
-    if (plan) return plan.charAt(0).toUpperCase() + plan.slice(1);
-    return 'Starter';
+    if (ownerType === 'guest' || ownerType === null) return 'Guest';
+    if (ownerType === 'user') {
+      if (plan === 'free' || !plan) return 'Starter';
+      return plan.charAt(0).toUpperCase() + plan.slice(1);
+    }
+    return '';
   }, [ownerType, plan]);
 
   const helpLabel = sanitizeUiLabel(strings?.ui?.help?.button as string | undefined, 'Help');
 
+  const effectiveUsageForDisplay = useMemo(() => {
+    if (usage) return usage;
+    // Before API returns or on error, show numeric fallback
+    if (ownerType === 'user') return { used: 0, limit: FREE_LIMIT_USER, resetAt: null };
+    // default to guest when owner not yet known
+    return { used: 0, limit: FREE_LIMIT_GUEST, resetAt: null };
+  }, [ownerType, usage]);
+
   const usagePercent = useMemo(() => {
-    if (!usage || !usage.limit) return 0;
-    return Math.min(100, Math.round((usage.used / usage.limit) * 100));
-  }, [usage]);
+    const u = effectiveUsageForDisplay;
+    if (!u || !u.limit) return 0;
+    return Math.min(100, Math.round((u.used / u.limit) * 100));
+  }, [effectiveUsageForDisplay]);
   const isUsageCritical = useMemo(() => {
-    if (!usage) return false;
-    return usage.used >= usage.limit - 1;
-  }, [usage]);
+    const u = effectiveUsageForDisplay;
+    if (!u) return false;
+    return u.used >= u.limit;
+  }, [effectiveUsageForDisplay]);
 
   const currentModelLabel = useMemo(
     () => ALLOWED_MODELS.find((m) => m.slug === model)?.label ?? model,
@@ -1297,6 +1340,11 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
                 {fileMeta ? ` · ${fileMeta.type || 'unknown'} · ${fileMeta.sizeMB}MB` : ''}
               </div>
             )}
+            {selectError && (
+              <div className="mt-2 text-xs font-medium text-red-600 dark:text-red-400">
+                {selectError}
+              </div>
+            )}
           </div>
 
           <div
@@ -1469,16 +1517,18 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
                     {isFullscreen ? exitFullscreenLabel : fullscreenLabel}
                   </button>
                   {/* Plan badge (compact) */}
-                  <span
-                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] bg-white/40 dark:bg-slate-800/40 ring-1 ring-gray-400/30 text-gray-700 dark:text-gray-200"
-                    title={ownerType === 'guest' ? 'Guest user' : `Plan: ${planLabel}`}
-                  >
-                    {planLabel}
-                  </span>
+                  {planLabel && (
+                    <span
+                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] bg-white/40 dark:bg-slate-800/40 ring-1 ring-gray-400/30 text-gray-700 dark:text-gray-200"
+                      title={ownerType === 'guest' ? 'Guest user' : `Plan: ${planLabel}`}
+                    >
+                      {planLabel}
+                    </span>
+                  )}
                   <UsagePill
                     label={strings.usage}
                     loadingLabel={strings.loading}
-                    usage={usage}
+                    usage={effectiveUsageForDisplay}
                     ownerType={ownerType}
                     percent={usagePercent}
                     critical={isUsageCritical}

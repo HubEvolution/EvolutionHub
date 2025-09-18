@@ -23,7 +23,7 @@
             "usage": "Usage",
             "result": "Result",
             "original": "Original",
-            "allowedTypes": "Allowed: JPG, PNG, GIF",
+            "allowedTypes": "Allowed: JPG, PNG, WEBP",
             "max": "Max size",
             "download": "Download",
             "loading": "Loading…",

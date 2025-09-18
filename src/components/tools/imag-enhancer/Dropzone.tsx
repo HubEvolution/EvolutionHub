@@ -69,13 +69,13 @@ export function Dropzone(props: DropzoneProps) {
           onError={onPreviewError}
         />
       ) : (
-        <button
-          type="button"
+        <label
+          htmlFor={inputId}
           className="text-sm text-gray-600 dark:text-gray-300 hover:underline cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 rounded"
           aria-label={dropText}
           onClick={(e) => {
+            // Prevent triggering container's onClick twice
             e.stopPropagation();
-            inputRef.current?.click();
           }}
           onKeyDown={(e) => {
             // Prevent bubbling to container which would trigger another click
@@ -85,7 +85,7 @@ export function Dropzone(props: DropzoneProps) {
           }}
         >
           {dropText}
-        </button>
+        </label>
       )}
       <input
         ref={inputRef}
