@@ -1,16 +1,4 @@
-/**
- * Informationen zum Quota-Verbrauch für die UsagePill-Komponente.
- * 
- * @interface UsageInfo
- * @property {number} used - Verbrauchte Anfragen.
- * @property {number} limit - Gesamt-Limit.
- * @property {number | null} resetAt - Zeitpunkt des Resets (timestamp oder null).
- */
-interface UsageInfo {
-  used: number;
-  limit: number;
-  resetAt: number | null;
-}
+import type { UsageInfo } from './types';
 
 /**
  * Props für die UsagePill-Komponente.

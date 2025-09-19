@@ -1,6 +1,6 @@
 # BEWERTUNG · LOGIK-REVIEW · Image‑Enhancer · UsagePill · Plan‑Anzeige
 
-Stand: 2025‑09‑19 01:49 (lokale Zeit)
+Stand: 2025‑09‑19 04:45 (lokale Zeit)
 
 ## Executive Summary
 
@@ -11,6 +11,23 @@ Stand: 2025‑09‑19 01:49 (lokale Zeit)
   - Upgrade‑CTA erscheint breit (Gast, Free, oder bei Quota erreicht); feinere Bedingung möglich.
   - Observability uneinheitlich zwischen Sync/Jobs‑Pfad (Logger vs. Konsole).
 - **Vertrauensgrad**: Hoch für Kernpfade (Usage, Generate, R2‑Gating, CSRF, Rate‑Limits). Mittel für UX‑Feinschliff (UI‑Gating der Plan‑Features) und semantische Vereinheitlichung der Limits.
+
+## Status‑Update (2025‑09‑19 04:45)
+
+- Phase 1 Frontend umgesetzt (per Feature‑Flag steuerbar):
+  - Entitlements‑basiertes UI‑Gating (Scale/FaceEnhance) in `ImagEnhancerIsland.tsx` mit Helfern `gating.ts`.
+  - Verfeinerte Upgrade‑CTA‑Regeln inkl. Tooltips; Client‑Telemetry‑Events (`enhancer_control_blocked_plan`, `enhancer_cta_impression/click`) via `useLog()`.
+  - Feature‑Flag: Frontend aktiviert über `PUBLIC_ENHANCER_PLAN_GATING_V1=1`.
+- Modularisierung Phase A/B umgesetzt:
+  - Shared Types: `src/components/tools/imag-enhancer/types.ts`.
+  - API‑Client: `src/components/tools/imag-enhancer/api.ts`.
+  - CSRF‑Util: `src/lib/security/csrf.ts`.
+  - Hooks: `useUsage`, `useRateLimit`, `useEnhance` unter `src/components/tools/imag-enhancer/hooks/`.
+  - Island nutzt die neuen Hooks; Retry‑After/429 wird über `useRateLimit` gehandhabt.
+  - Phase C gestartet: `ModelControls.tsx` und `hooks/useCompareInteractions.ts` extrahiert und in `ImagEnhancerIsland.tsx` integriert (Pointer/Wheel/Key/Loupe).
+- Tests:
+  - Unit‑Tests für Gating‑Ableitungen: `gating.test.ts` grün.
+  - Nächste Schritte: Hook‑Unit‑Tests und E2E (EN/DE) für Gating/CTA.
 
 ## Systemüberblick
 
@@ -112,24 +129,36 @@ Stand: 2025‑09‑19 01:49 (lokale Zeit)
 
 ## Nächste Schritte (konkret)
 
-- [ ] Entitlements an `ImagEnhancerIsland` durchreichen und Controls dynamisch anpassen.
+- [x] Entitlements an `ImagEnhancerIsland` durchreichen und Controls dynamisch anpassen.
 - [ ] API‑Dokumentation: Semantik von `usage.limit` vs. `limits.user/guest` klarstellen.
-- [ ] CTA‑Regeln gemäß oben implementieren und A/B‑fähig machen.
+- [x] CTA‑Regeln gemäß oben implementieren und A/B‑fähig machen.
 - [ ] Logger im Jobs‑Pfad harmonisieren (einheitliches Format/Level).
 - [ ] Optional: `UsagePill` Zeitformat lokalisieren (+ Tests aktualisieren).
 
 ## Anhang: Code‑Referenzen
 
 - `src/components/tools/ImagEnhancerIsland.tsx`
-  - Plan‑Badge/Usage/CTA: `1575–1598`
-  - Usage‑Berechnung: `1159–1176`
-  - 429‑Handling: `1051–1066`
-  - Model‑Controls (scale/faceEnhance): `1447–1487`
-  - Credits‑Checkout: `1228–1260`
-  - Plan‑Label: `1148–1155`
+  - Plan‑Badge/Usage/CTA: `1670–1689`
+  - Usage‑Berechnung: `1175–1212`
+  - Retry‑UI („Retry in …s“): `1459–1485`
+  - Model‑Controls (Scale/FaceEnhance, Gating/Tooltips/Telemetry): `1499–1576`
+  - Credits‑Checkout: `1230–1256`
+  - Plan‑Label: `1167–1174`
 
 - `src/components/tools/imag-enhancer/UsagePill.tsx`
   - Tooltip/Anzeige: `43–72`, Visualisierung: `74–91`
+
+- Neue Module (Modularisierung A/B):
+  - `src/components/tools/imag-enhancer/gating.ts` · Helfer `computeAllowedScales`, `computeCanUseFaceEnhance` (+ Tests in `gating.test.ts`).
+  - `src/components/tools/imag-enhancer/types.ts` · Shared Types (Usage, API‑Schemas).
+  - `src/components/tools/imag-enhancer/api.ts` · `getUsage`, `postGenerate`, `postCredits`.
+  - `src/lib/security/csrf.ts` · `ensureCsrfToken()` (Double‑Submit).
+  - `src/components/tools/imag-enhancer/hooks/useUsage.ts` · Laden/Refresh (focus/visibility/auth/storage/pageshow).
+  - `src/components/tools/imag-enhancer/hooks/useRateLimit.ts` · 429/Retry‑After (Header/JSON) + Countdown.
+  - `src/components/tools/imag-enhancer/hooks/useEnhance.ts` · POST‑Generate inkl. CSRF.
+  Neue Module (Modularisierung C, laufend):
+  - `src/components/tools/imag-enhancer/ModelControls.tsx` · UI‑Komponente für Scale/Face inkl. Tooltips/Telemetry.
+  - `src/components/tools/imag-enhancer/hooks/useCompareInteractions.ts` · Compare/Zoom/Loupe Interaktionen (Pointer/Wheel/Key) als Hook.
 
 - `src/pages/api/ai-image/usage.ts`
   - Response‑Shape inkl. `plan`/`entitlements`: `49–59`
@@ -251,7 +280,7 @@ Plan‑basierte Entitlements. Credits (In‑App) werden konsistent in Sync/Jobs 
 
 ### 9) Rollout‑Plan (Feature‑Flagged)
 
-- Feature‑Flag: `enhancer.planGating.v1` (Front‑ und Backend toggelbar via Env/Config).
+- Feature‑Flag: `enhancer.planGating.v1` (Front‑ und Backend toggelbar via Env/Config). Frontend: `PUBLIC_ENHANCER_PLAN_GATING_V1`.
 - Stufen:
   1. Dev: Flag ON, Tests grün (CI: `astro check`, `vitest`, Playwright E2E EN/DE).
   2. Staging: Limitierte Nutzer, Monitoring aktiv, Log‑Sampling prüfen.

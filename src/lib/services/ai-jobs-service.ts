@@ -1,6 +1,9 @@
 import { ALLOWED_CONTENT_TYPES, ALLOWED_MODELS, AI_R2_PREFIX, FREE_LIMIT_GUEST, FREE_LIMIT_USER, MAX_UPLOAD_BYTES, type AllowedModel, type OwnerType } from '@/config/ai-image';
 import { detectImageMimeFromBytes } from '@/lib/utils/mime';
 import { AbstractBaseService } from './base-service';
+import { buildProviderError } from './provider-error';
+import { loggerFactory } from '@/server/utils/logger-factory';
+import type { ExtendedLogger } from '@/types/logger';
 import type { ServiceDependencies } from './types';
 import type { KVNamespace, R2Bucket } from '@cloudflare/workers-types';
 
@@ -64,10 +67,12 @@ export interface AiJobResponse {
 
 export class AiJobsService extends AbstractBaseService {
   private env: RuntimeEnv;
+  private log: ExtendedLogger;
 
   constructor(deps: ServiceDependencies, env: RuntimeEnv) {
     super(deps);
     this.env = env;
+    this.log = loggerFactory.createLogger('ai-jobs-service');
   }
 
   private async getMonthlyUsage(ownerType: OwnerType, ownerId: string, limit: number, ym: string): Promise<UsageInfo> {
@@ -128,10 +133,26 @@ export class AiJobsService extends AbstractBaseService {
     const ym = `${now.getUTCFullYear()}${String(now.getUTCMonth() + 1).padStart(2, '0')}`;
     const monthly = await this.getMonthlyUsage(ownerType, ownerId, monthlyLimit, ym);
     if (monthly.used >= monthly.limit) {
-      const errM: any = new Error(`Monthly quota exceeded. Used ${monthly.used}/${monthly.limit}`);
-      errM.code = 'quota_exceeded';
-      errM.details = { scope: 'monthly', ...monthly };
-      throw errM;
+      // Credits-Bypass für User zulassen
+      if (ownerType === 'user') {
+        const credits = await this.getCreditsBalance(ownerId);
+        if (credits > 0) {
+          try {
+            const masked = ownerId ? `…${ownerId.slice(-4)}(${ownerId.length})` : '';
+            this.log.debug('credits_path_allowed_queue', { ownerType, ownerId: masked, credits });
+          } catch {}
+        } else {
+          const errM: any = new Error(`Monthly quota exceeded. Used ${monthly.used}/${monthly.limit}`);
+          errM.code = 'quota_exceeded';
+          errM.details = { scope: 'monthly', ...monthly };
+          throw errM;
+        }
+      } else {
+        const errM: any = new Error(`Monthly quota exceeded. Used ${monthly.used}/${monthly.limit}`);
+        errM.code = 'quota_exceeded';
+        errM.details = { scope: 'monthly', ...monthly };
+        throw errM;
+      }
     }
 
     const currentUsage = await this.getUsage(ownerType, ownerId, dailyLimit);
@@ -278,7 +299,7 @@ export class AiJobsService extends AbstractBaseService {
             .run();
         });
 
-        // Increment usage upon success
+        // Increment usage upon success (daily always), monthly or credits depending on plan state
         const limit = typeof params.limitOverride === 'number'
           ? params.limitOverride
           : (ownerType === 'user' ? FREE_LIMIT_USER : FREE_LIMIT_GUEST);
@@ -286,7 +307,27 @@ export class AiJobsService extends AbstractBaseService {
         const now2 = new Date();
         const ym2 = `${now2.getUTCFullYear()}${String(now2.getUTCMonth() + 1).padStart(2, '0')}`;
         const monthlyLimit2 = typeof params.monthlyLimitOverride === 'number' ? params.monthlyLimitOverride : Number.POSITIVE_INFINITY;
-        await this.incrementMonthlyUsage(ownerType, ownerId, monthlyLimit2, ym2);
+        const monthly2 = await this.getMonthlyUsage(ownerType, ownerId, monthlyLimit2, ym2);
+        if (monthly2.used >= monthly2.limit) {
+          if (ownerType === 'user') {
+            const credits = await this.getCreditsBalance(ownerId);
+            if (credits > 0) {
+              await this.decrementCreditsBalance(ownerId);
+              try {
+                const masked = ownerId ? `…${ownerId.slice(-4)}(${ownerId.length})` : '';
+                this.log.info('credits_consumed', { jobId: row.id, ownerId: masked, remaining: credits - 1 });
+              } catch {}
+            } else {
+              try {
+                const masked = ownerId ? `…${ownerId.slice(-4)}(${ownerId.length})` : '';
+                this.log.warn('credits_missing', { jobId: row.id, ownerId: masked });
+              } catch {}
+              // Kein Monats-Increment mehr möglich; wir lassen den Erfolg aber stehen (analog Sync-Service Verhalten)
+            }
+          }
+        } else {
+          await this.incrementMonthlyUsage(ownerType, ownerId, monthlyLimit2, ym2);
+        }
 
         // Reflect latest
         row.status = 'succeeded';
@@ -409,33 +450,13 @@ export class AiJobsService extends AbstractBaseService {
     });
 
     const durationMs = Date.now() - started;
-    // use console.debug only; service has no logger here
-    if ((this.env.ENVIRONMENT || '').toLowerCase() !== 'production') {
-      console.debug('[AiJobsService] Replicate duration(ms)', { model: model.slug, ms: durationMs });
-    }
+    this.log.debug('replicate_duration_ms', { model: model.slug, ms: durationMs });
 
     if (!res.ok) {
       const status = res.status;
       const text = await res.text();
-      const err: any = new Error(
-        status === 401 || status === 403
-          ? 'Provider access denied'
-          : status === 404
-          ? 'Provider model or endpoint not found'
-          : status >= 400 && status < 500
-          ? 'Provider rejected the request (validation error)'
-          : 'Provider service error'
-      );
-      err.status = status;
-      err.provider = 'replicate';
-      err.apiErrorType = status === 401 || status === 403
-        ? 'forbidden'
-        : status >= 400 && status < 500
-        ? 'validation_error'
-        : 'server_error';
-      if ((this.env.ENVIRONMENT || '').toLowerCase() !== 'production') {
-        console.warn('[AiJobsService] Replicate error payload (dev only)', { status, text: text.slice(0, 500) });
-      }
+      const err = buildProviderError(status, 'replicate', text);
+      this.log.warn('replicate_error', { status, provider: 'replicate', snippet: text.slice(0, 200) });
       throw err;
     }
 

@@ -1,6 +1,7 @@
 import { ALLOWED_MODELS, ALLOWED_CONTENT_TYPES, MAX_UPLOAD_BYTES, AI_R2_PREFIX, FREE_LIMIT_GUEST, FREE_LIMIT_USER, type AllowedModel, type OwnerType } from '@/config/ai-image';
 import { detectImageMimeFromBytes } from '@/lib/utils/mime';
 import { loggerFactory } from '@/server/utils/logger-factory';
+import { buildProviderError } from './provider-error';
 import OpenAI from 'openai';
 import type { ExtendedLogger } from '@/types/logger';
 import type { R2Bucket, KVNamespace } from '@cloudflare/workers-types';
@@ -549,24 +550,9 @@ export class AiImageService {
     if (!res.ok) {
       const status = res.status;
       const text = await res.text();
-      // Create a typed error consumed by api-middleware
-      const err: any = new Error(
-        status === 401 || status === 403
-          ? 'Provider access denied'
-          : status === 404
-          ? 'Provider model or endpoint not found'
-          : status >= 400 && status < 500
-          ? 'Provider rejected the request (validation error)'
-          : 'Provider service error'
-      );
-      err.status = status;
-      err.provider = 'replicate';
-      err.apiErrorType = status === 401 || status === 403
-        ? 'forbidden'
-        : status >= 400 && status < 500
-        ? 'validation_error'
-        : 'server_error';
-      // Avoid leaking provider payloads to clients; keep text only for dev logs (truncated)
+      // Build standardized provider error (typed for API middleware)
+      const err = buildProviderError(status, 'replicate', text);
+      // Avoid leaking provider payloads to clients; keep truncated snippet in logs only
       this.log.warn('replicate_error', { status, provider: 'replicate', snippet: text.slice(0, 200) });
       throw err;
     }
