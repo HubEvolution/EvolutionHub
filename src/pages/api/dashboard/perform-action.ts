@@ -16,7 +16,7 @@ export const POST = withAuthApiMiddleware(async (context) => {
   const user = locals.user as { id: string };
   const userId = user.id;
 
-  let requestData;
+  let requestData: unknown;
   try {
     requestData = await request.json();
   } catch (error) {
@@ -29,7 +29,10 @@ export const POST = withAuthApiMiddleware(async (context) => {
     return createApiError('validation_error', 'Invalid JSON in request body');
   }
 
-  const { action } = requestData;
+  if (!requestData || typeof requestData !== 'object' || !('action' in requestData) || typeof (requestData as any).action !== 'string') {
+    return createApiError('validation_error', 'Missing or invalid action');
+  }
+  const { action } = requestData as { action: string };
   const db = env.DB;
   
   let result;

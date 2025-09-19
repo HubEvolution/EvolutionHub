@@ -21,8 +21,8 @@ export const GET = withAuthApiMiddleware(async (context) => {
   const row = await db
     .prepare('SELECT plan FROM users WHERE id = ?')
     .bind(user.id)
-    .first<{ plan: 'free' | 'pro' | 'premium' | 'enterprise' }>();
-  const plan = (row?.plan ?? 'free') as 'free' | 'pro' | 'premium' | 'enterprise';
+    .first();
+  const plan = ((row as any)?.plan ?? 'free') as 'free' | 'pro' | 'premium' | 'enterprise';
 
   // Fetch credits if KV bound
   let credits = 0;
@@ -36,7 +36,7 @@ export const GET = withAuthApiMiddleware(async (context) => {
   }
 
   // Last subscription events (DB snapshot)
-  const subs = await db
+  const subsRes = await db
     .prepare(
       `SELECT id, plan, status, current_period_end, cancel_at_period_end, created_at, updated_at
        FROM subscriptions
@@ -45,15 +45,7 @@ export const GET = withAuthApiMiddleware(async (context) => {
        LIMIT 5`
     )
     .bind(user.id)
-    .all<{
-      id: string;
-      plan: 'free' | 'pro' | 'premium' | 'enterprise';
-      status: string;
-      current_period_end: number | null;
-      cancel_at_period_end: number | null;
-      created_at: string;
-      updated_at: string;
-    }>();
+    .all();
 
   return new Response(
     JSON.stringify({
@@ -62,7 +54,7 @@ export const GET = withAuthApiMiddleware(async (context) => {
         user: { id: user.id, email: user.email },
         plan,
         credits,
-        subscriptions: subs.results ?? [],
+        subscriptions: subsRes?.results ?? [],
       },
     }),
     { status: 200, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' } }

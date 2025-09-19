@@ -56,12 +56,21 @@ export function createValidator<T>(schema: ValidationSchema<T>): Validator<T> {
         return { valid: false, errors };
       }
       
-      for (const [key, definition] of Object.entries(schema)) {
+      for (const [key, definition] of Object.entries(schema) as Array<[
+        string,
+        {
+          required?: boolean;
+          rules?: ValidationRule<unknown>[];
+          type?: 'string' | 'number' | 'boolean' | 'object' | 'array';
+          nested?: ValidationSchema<any>;
+        }
+      ]>) {
+        const def = definition;
         const inputValue = (value as Record<string, unknown>)[key];
         const path = key;
         
         // Prüfe, ob das Feld erforderlich ist
-        if (definition.required && (inputValue === undefined || inputValue === null || inputValue === '')) {
+        if (def.required && (inputValue === undefined || inputValue === null || inputValue === '')) {
           errors.push({ path, message: `${key} is required` });
           continue;
         }
@@ -72,8 +81,8 @@ export function createValidator<T>(schema: ValidationSchema<T>): Validator<T> {
         }
         
         // Typ-Validierung
-        if (definition.type) {
-          const expectedType = definition.type;
+        if (def.type) {
+          const expectedType = def.type;
           let validType = true;
           
           switch (expectedType) {
@@ -101,8 +110,8 @@ export function createValidator<T>(schema: ValidationSchema<T>): Validator<T> {
         }
         
         // Regeln anwenden
-        if (definition.rules && definition.rules.length > 0) {
-          for (const rule of definition.rules) {
+        if (def.rules && def.rules.length > 0) {
+          for (const rule of def.rules) {
             if (!rule.validate(inputValue)) {
               errors.push({ path, message: rule.errorMessage });
             }
@@ -110,8 +119,8 @@ export function createValidator<T>(schema: ValidationSchema<T>): Validator<T> {
         }
         
         // Verschachtelte Validierung
-        if (definition.nested && typeof inputValue === 'object') {
-          const nestedValidator = createValidator(definition.nested);
+        if (def.nested && typeof inputValue === 'object') {
+          const nestedValidator = createValidator(def.nested as ValidationSchema<any>);
           const nestedResult = nestedValidator.validate(inputValue);
           
           if (!nestedResult.valid) {

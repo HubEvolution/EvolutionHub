@@ -1,4 +1,3 @@
-import type { APIContext } from 'astro';
 import { withAuthApiMiddleware, createApiSuccess, createApiError } from '@/lib/api-middleware';
 import { logUserEvent } from '@/lib/security-logger';
 
@@ -16,6 +15,9 @@ export const GET = withAuthApiMiddleware(async (context) => {
   const { env } = locals.runtime;
   const user = locals.user;
   
+  if (!user) {
+    return createApiError('auth_error', 'Unauthorized');
+  }
   const userId = user.id;
   const db = env.DB;
 

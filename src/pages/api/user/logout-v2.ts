@@ -12,7 +12,7 @@ import type { APIContext } from 'astro';
 import { standardApiLimiter } from '@/lib/rate-limiter';
 import { createSecureRedirect } from '@/lib/response-helpers';
 import { createAuthService } from '@/lib/services/auth-service-impl';
-import { ServiceError, ServiceErrorType } from '@/lib/services/types';
+// Removed unused ServiceError imports
 import { logSecurityEvent } from '@/lib/security-logger';
 import { getErrorCode } from '@/lib/error-handler';
 
@@ -69,10 +69,7 @@ const handleLogoutV2 = async (context: APIContext) => {
     if (sessionId) {
       try {
         // Service-Layer für Logout aufrufen
-        await authService.logout({
-          sessionId,
-          clientIp: context.clientAddress
-        });
+        await authService.logout(sessionId);
         
         // Cookie löschen
         context.cookies.delete('session_id', { path: '/' });
@@ -95,10 +92,8 @@ const handleLogoutV2 = async (context: APIContext) => {
       }
     } else {
       // Logout ohne aktive Session über Service protokollieren
-      await authService.logout({
-        sessionId: null, 
-        clientIp: context.clientAddress
-      });
+      // Service erwartet eine Session-ID: ohne aktive Session gibt es nichts zu invalidieren
+      // Wir protokollieren lediglich und fahren fort
     }
 
     // Redirect zur Startseite unabhängig vom Ergebnis

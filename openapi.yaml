@@ -555,7 +555,10 @@ paths:
   /api/ai-image/generate:
     post:
       summary: AI-Image synchron erzeugen/verbessern
-      description: Nimmt ein Bild als multipart/form-data entgegen, lädt Original in R2 hoch, ruft Replicate auf (in Dev ggf. Echo) und speichert das Ergebnis erneut in R2. Antwort enthält Limits und Usage.
+      description: |
+        Nimmt ein Bild als multipart/form-data entgegen, lädt Original in R2 hoch, ruft Replicate auf (in Dev ggf. Echo)
+        und speichert das Ergebnis erneut in R2. Antwort enthält Limits und Usage.
+        Hinweis: Provider-Fehler werden vereinheitlicht gemappt – 401/403 → forbidden, 4xx → validation_error, 5xx → server_error.
       x-source: src/pages/api/ai-image/generate.ts
       operationId: postAiImageGenerate
       parameters:
@@ -624,7 +627,10 @@ paths:
   /api/ai-image/usage:
     get:
       summary: AI-Image-Nutzung/Limits abrufen
-      description: Liefert den aktuellen Usage-Stand und Limits (24h Fenster) für den aktuellen Besitzer (User oder Gast mit `guest_id`-Cookie).
+      description: |
+        Liefert den aktuellen Usage-Stand und Limits (24h Fenster) für den aktuellen Besitzer (User oder Gast mit `guest_id`-Cookie).
+        Hinweis: usage.limit ist plan-bereinigt und maßgeblich für die Anzeige und Validierungen.
+        Die Felder limits.user/guest sind statische Defaults (legacy/debug) und können vom effektiven Limit abweichen.
       x-source: src/pages/api/ai-image/usage.ts
       operationId: getAiImageUsage
       responses:
@@ -643,7 +649,9 @@ paths:
   /api/ai-image/jobs:
     post:
       summary: AI-Image-Job erstellen
-      description: Lädt ein Bild hoch und erstellt einen AI-Enhance-Job. Antwortet mit 202 und Jobdaten.
+      description: |
+        Lädt ein Bild hoch und erstellt einen AI-Enhance-Job. Antwortet mit 202 und Jobdaten.
+        Hinweis: Provider-Fehler werden vereinheitlicht gemappt – 401/403 → forbidden, 4xx → validation_error, 5xx → server_error.
       x-source: src/pages/api/ai-image/jobs/index.ts
       operationId: postAiImageJobs
       parameters:
@@ -707,7 +715,9 @@ paths:
   /api/ai-image/jobs/{id}:
     get:
       summary: AI-Image-Job abfragen
-      description: Fragt den Status eines AI-Image-Jobs ab und führt Verarbeitung bei Bedarf aus.
+      description: |
+        Fragt den Status eines AI-Image-Jobs ab und führt Verarbeitung bei Bedarf aus.
+        Hinweis: Provider-Fehler werden vereinheitlicht gemappt – 401/403 → forbidden, 4xx → validation_error, 5xx → server_error.
       x-source: src/pages/api/ai-image/jobs/[id].ts
       operationId: getAiImageJob
       parameters:

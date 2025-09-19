@@ -12,6 +12,7 @@ und dieser Projekt haftet an [Semantic Versioning](https://semver.org/spec/v2.0.
 - CI: Neuer Workflow „Enhancer E2E Smoke (EN+DE)“ mit Artefakt-Upload (Screenshots/Videos)
 - Imag‑Enhancer: Hilfe‑Modal mit Fokus‑Falle (A11y)
 - Imag‑Enhancer: Unit‑Test für Fokus‑Falle & Tastaturbedienung
+- feat: implement prompt enhancer v1.0.0 with ai-parsing, ui, tests
 
 ### Changed
 

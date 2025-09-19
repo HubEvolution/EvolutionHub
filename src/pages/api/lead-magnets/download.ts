@@ -105,7 +105,7 @@ const getLeadMagnetSource = (locals: any): 'public' | 'r2' => {
 };
 
 // Lead-Daten speichern (hier würde normalerweise eine Datenbank verwendet)
-const saveLead = async (leadData: DownloadRequest, leadMagnet: LeadMagnetConfig) => {
+const saveLead = async (leadData: DownloadRequest, _leadMagnet: LeadMagnetConfig) => {
   // Hier würde die Lead-Speicherung in einer Datenbank erfolgen
   // Für Development: Security-Event loggen
   securityLogger.logSecurityEvent('USER_EVENT', {
@@ -128,7 +128,7 @@ const saveLead = async (leadData: DownloadRequest, leadMagnet: LeadMagnetConfig)
   
   return {
     success: true,
-    leadId: `lead_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    leadId: `lead_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`
   };
 };
 
@@ -159,7 +159,7 @@ const triggerEmailSequence = async (email: string, sequence: string, leadMagnet:
   return { success: true };
 };
 
-export const POST: APIRoute = async ({ request, locals, url }) => {
+export const POST: APIRoute = async ({ request, locals }) => {
   try {
     // CORS Headers für Frontend-Integration
     const corsHeaders = {
@@ -310,7 +310,16 @@ export const GET: APIRoute = async ({ url, locals, request }) => {
     if (source === 'r2') {
       const key = leadMagnet.r2Key || `lead-magnets/${leadMagnet.fileName}`;
       // R2 lesen
-      const r2 = locals.runtime.env.R2_LEADMAGNETS as any;
+      const r2 = (locals.runtime?.env as any)?.R2_LEADMAGNETS as R2Bucket | undefined;
+      if (!r2) {
+        logger.warn('R2_LEADMAGNETS binding not available, falling back to public asset path', {
+          metadata: { key, fileName: leadMagnet.fileName }
+        });
+        return new Response(null, {
+          status: 302,
+          headers: { Location: leadMagnet.filePath }
+        });
+      }
       const obj = await r2.get(key);
 
       if (!obj) {
@@ -363,7 +372,7 @@ export const GET: APIRoute = async ({ url, locals, request }) => {
       if (size) headers.set('Content-Length', String(size));
       headers.set('Content-Disposition', `attachment; filename="${leadMagnet.fileName}"`);
       headers.set('X-Download-Id', `dl_${Date.now()}`);
-      return new Response(obj.body, { status: 200, headers });
+      return new Response(obj.body as any, { status: 200, headers });
     }
 
     // public: einfach auf Asset-Pfad umleiten

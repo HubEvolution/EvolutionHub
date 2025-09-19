@@ -78,7 +78,7 @@
  
 <div class={`newsletter-cta ${variant} ${position} not-prose my-8`}>
   <!-- Page-scoped i18n for this CTA instance -->
-  <script type="application/json" data-role="i18n-newsletter-cta">{JSON.stringify(i18nNewsletter)}</script>
+  <script is:inline type="application/json" data-role="i18n-newsletter-cta">{JSON.stringify(i18nNewsletter)}</script>
   {isCard && (
     <div class="bg-gradient-to-br from-emerald-50 to-cyan-50 dark:from-emerald-900/20 dark:to-cyan-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-6 text-center">
       <div class="max-w-md mx-auto">

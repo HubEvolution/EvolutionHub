@@ -1,12 +1,11 @@
 import type { APIRoute } from 'astro';
-import { createPendingSubscription } from './confirm.ts';
+import { createPendingSubscription } from './confirm';
 import { loggerFactory } from '@/server/utils/logger-factory';
-import { type LogContext } from '@/config/logging';
 // Tracking von Newsletter-Anmeldungen erfolgt clientseitig via window.evolutionAnalytics
 
 // Logger-Instanzen erstellen
 const logger = loggerFactory.createLogger('newsletter-subscribe');
-const securityLogger = loggerFactory.createSecurityLogger();
+const _securityLogger = loggerFactory.createSecurityLogger();
 
 interface NewsletterSubscriptionRequest {
   email: string;
@@ -88,8 +87,10 @@ export const POST: APIRoute = async ({ request }) => {
     
     if (!emailSent) {
       logger.error('Failed to send confirmation email', {
-        email: data.email,
-        source: data.source || 'website'
+        metadata: {
+          email: data.email,
+          source: data.source || 'website'
+        }
       });
       return new Response(JSON.stringify({
         success: false,
@@ -101,9 +102,11 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     logger.info('Double opt-in email sent successfully', {
-      email: data.email,
-      confirmationUrl: confirmationUrl,
-      source: data.source || 'website'
+      metadata: {
+        email: data.email,
+        confirmationUrl: confirmationUrl,
+        source: data.source || 'website'
+      }
     });
 
     // Analytics event tracking (stubbed for now)
@@ -286,7 +289,7 @@ async function createNewsletterSubscription(data: any): Promise<string> {
   // const result = await db.query('INSERT INTO newsletter_subscriptions SET ?', data);
   // return result.insertId;
 
-  const subscriptionId = `sub_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  const subscriptionId = `sub_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
   logger.info('Newsletter subscription record created', {
     metadata: {
       subscriptionId: subscriptionId,

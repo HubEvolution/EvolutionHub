@@ -67,7 +67,9 @@ const leadMagnets = {
   }
 };
 
-const leadMagnet = leadMagnets[leadMagnetId] || {
+type LeadMagnetDef = typeof leadMagnets[keyof typeof leadMagnets];
+const leadMagnetMap = leadMagnets as Record<string, LeadMagnetDef>;
+const leadMagnet = leadMagnetMap[leadMagnetId] || {
   title: title || 'Exklusives Experten-Material',
   description: description || 'Laden Sie unser kostenloses Material herunter.',
   benefits: benefits,
@@ -131,7 +133,7 @@ const variantStyles = {
             Das erhalten Sie:
           </h4>
           <ul class="space-y-1">
-            {leadMagnet.benefits.map((benefit) => (
+            {leadMagnet.benefits.map((benefit: string) => (
               <li class={`flex items-start text-sm ${variant === 'banner' ? 'text-white/90' : 'text-gray-600 dark:text-gray-300'}`}>
                 <svg class="w-4 h-4 mt-0.5 mr-2 flex-shrink-0 text-emerald-500" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
@@ -201,14 +203,16 @@ const variantStyles = {
   document.addEventListener('DOMContentLoaded', () => {
     const leadMagnetButtons = document.querySelectorAll('.lead-magnet-button');
     
-    leadMagnetButtons.forEach(button => {
-      button.addEventListener('click', (e) => {
+    leadMagnetButtons.forEach((button) => {
+      if (!(button instanceof HTMLElement)) return;
+      button.addEventListener('click', (e: Event) => {
         e.preventDefault();
         
-        const leadMagnetId = button.dataset.leadMagnetId;
+        const leadMagnetId = button.dataset?.leadMagnetId;
         
         // Analytics-Event senden
-        if (typeof gtag !== 'undefined') {
+        const gtag = (window as any).gtag;
+        if (typeof gtag === 'function') {
           gtag('event', 'lead_magnet_click', {
             'lead_magnet_id': leadMagnetId,
             'page_location': window.location.href,
@@ -232,9 +236,11 @@ const variantStyles = {
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
-          const leadMagnetId = entry.target.dataset.leadMagnetId;
+          const target = entry.target as any;
+          const leadMagnetId = target && target.dataset ? target.dataset.leadMagnetId : undefined;
           
-          if (typeof gtag !== 'undefined') {
+          const gtag = (window as any).gtag;
+          if (typeof gtag === 'function') {
             gtag('event', 'lead_magnet_impression', {
               'lead_magnet_id': leadMagnetId,
               'page_location': window.location.href

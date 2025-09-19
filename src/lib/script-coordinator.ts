@@ -190,7 +190,7 @@ class ScriptCoordinator {
   getStatus(): Record<string, ScriptStatus> {
     const status: Record<string, ScriptStatus> = {};
     for (const [id, module] of this.modules.entries()) {
-      status[id] = module.status;
+      status[id] = module.status ?? 'pending';
     }
     return status;
   }

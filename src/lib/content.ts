@@ -1,10 +1,11 @@
 import { getCollection } from 'astro:content';
-import type { BlogPostFrontmatter, BlogListOptions, PaginatedResult } from '../content/types';
+import type { CollectionEntry } from 'astro:content';
+import type { BlogListOptions, PaginatedResult } from '../content/types';
 
 /**
  * Base content service for handling common content operations
  */
-export class ContentService<T extends Awaited<ReturnType<typeof getCollection<'blog'>>>[number]> {
+export class ContentService<T extends CollectionEntry<'blog'>> {
   protected collectionName: string;
   protected defaultOptions: BlogListOptions;
 
@@ -25,7 +26,7 @@ export class ContentService<T extends Awaited<ReturnType<typeof getCollection<'b
     const mergedOptions = { ...this.defaultOptions, ...options };
     const { limit, offset, includeDrafts, ...filters } = mergedOptions;
 
-    let entries = await getCollection(this.collectionName as any, (entry) => {
+    let entries = await getCollection(this.collectionName as 'blog', (entry: CollectionEntry<'blog'>) => {
       // Filter out drafts unless explicitly included
       if (entry.data.draft && !includeDrafts) {
         return false;
@@ -35,7 +36,7 @@ export class ContentService<T extends Awaited<ReturnType<typeof getCollection<'b
       return Object.entries(filters).every(([key, value]) => {
         if (value === undefined) return true;
         
-        const entryValue = entry.data[key as keyof BlogPostFrontmatter];
+        const entryValue = (entry.data as any)[key];
         if (entryValue === undefined) return true;
         
         // Handle array values (e.g., tags)
@@ -49,9 +50,9 @@ export class ContentService<T extends Awaited<ReturnType<typeof getCollection<'b
     });
 
     // Sort by publication date (newest first)
-    entries = entries.sort((a, b) => 
-      new Date(b.data.pubDate).getTime() - new Date(a.data.pubDate).getTime()
-    );
+    entries = entries.sort((a: CollectionEntry<'blog'>, b: CollectionEntry<'blog'>) => 
+      new Date(a.data.pubDate as any).getTime() - new Date(b.data.pubDate as any).getTime()
+    ).reverse();
 
     // Apply pagination
     if (offset !== undefined) {
@@ -68,7 +69,7 @@ export class ContentService<T extends Awaited<ReturnType<typeof getCollection<'b
     page: number = 1,
     perPage: number = 10,
     options: Omit<BlogListOptions, 'limit' | 'offset'> = {}
-  ): Promise<PaginatedResult<T>> {
+  ): Promise<PaginatedResult<T> & { perPage: number; hasNext: boolean; hasPrevious: boolean }> {
     const offset = (page - 1) * perPage;
     const allEntries = await this.getAllEntries({
       ...options,
@@ -106,7 +107,7 @@ export class ContentService<T extends Awaited<ReturnType<typeof getCollection<'b
    * Get a single entry by slug
    */
   async getEntryBySlug(slug: string): Promise<T | undefined> {
-    const entries = await getCollection(this.collectionName as any, (entry) => 
+    const entries = await getCollection(this.collectionName as 'blog', (entry: CollectionEntry<'blog'>) => 
       entry.slug === slug && (!entry.data.draft || this.defaultOptions.includeDrafts)
     );
     return entries[0] as unknown as T;
@@ -119,16 +120,18 @@ export class ContentService<T extends Awaited<ReturnType<typeof getCollection<'b
     currentEntry: T,
     { limit = 3, ...filters }: BlogListOptions & { limit?: number } = {}
   ): Promise<T[]> {
-    const { tags = [], category } = currentEntry.data;
+    const current = currentEntry as unknown as CollectionEntry<'blog'>;
+    const { tags = [], category } = current.data as any;
     const allEntries = await this.getAllEntries(filters);
+    const allCE = allEntries as unknown as CollectionEntry<'blog'>[];
 
     // Score entries based on tag matches, excluding the current entry
-    const scoredEntries = allEntries
-      .filter(entry => entry.id !== currentEntry.id)
-      .map(entry => {
-        const entryTags = entry.data.tags || [];
-        const tagMatches = entryTags.filter(tag => tags.includes(tag)).length;
-        const categoryMatch = entry.data.category === category ? 1 : 0;
+    const scoredEntries = allCE
+      .filter((entry) => entry.id !== current.id)
+      .map((entry) => {
+        const entryTags = ((entry.data as any).tags || []) as string[];
+        const tagMatches = entryTags.filter((tag: string) => (tags as string[]).includes(tag)).length;
+        const categoryMatch = (entry.data as any).category === category ? 1 : 0;
       
         return {
           entry,
@@ -140,14 +143,14 @@ export class ContentService<T extends Awaited<ReturnType<typeof getCollection<'b
     return scoredEntries
       .sort((a, b) => b.score - a.score)
       .slice(0, limit)
-      .map(item => item.entry as T);
+      .map((item) => item.entry as unknown as T);
   }
 }
 
 /**
  * Helper function to get a content service instance
  */
-export function createContentService<T extends Awaited<ReturnType<typeof getCollection<'blog'>>>[number]>(
+export function createContentService<T extends CollectionEntry<'blog'>>(
   collectionName: string,
   options: BlogListOptions = {}
 ): ContentService<T> {

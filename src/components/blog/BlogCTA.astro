@@ -142,13 +142,15 @@ const positionClass = {
   document.addEventListener('DOMContentLoaded', () => {
     const ctaButtons = document.querySelectorAll('.blog-cta-button');
     
-    ctaButtons.forEach(button => {
-      button.addEventListener('click', (e) => {
-        const ctaType = button.dataset.analyticsType;
-        const leadMagnet = button.dataset.leadmagnet;
+    ctaButtons.forEach((button) => {
+      if (!(button instanceof HTMLElement)) return;
+      button.addEventListener('click', (e: Event) => {
+        const ctaType = button.dataset?.analyticsType;
+        const leadMagnet = button.dataset?.leadmagnet;
         
         // Analytics-Event senden
-        if (typeof gtag !== 'undefined') {
+        const gtag = (window as any).gtag;
+        if (typeof gtag === 'function') {
           gtag('event', 'cta_click', {
             'cta_type': ctaType,
             'lead_magnet': leadMagnet,
@@ -171,11 +173,11 @@ const positionClass = {
           e.preventDefault();
           // Scroll to newsletter form oder trigger modal
           const newsletterForm = document.querySelector('.newsletter-form, #newsletter-form');
-          if (newsletterForm) {
+          if (newsletterForm instanceof HTMLElement) {
             newsletterForm.scrollIntoView({ behavior: 'smooth' });
             const emailInput = newsletterForm.querySelector('input[type="email"]');
-            if (emailInput) {
-              setTimeout(() => emailInput.focus(), 500);
+            if (emailInput instanceof HTMLElement) {
+              setTimeout(() => (emailInput as any).focus?.(), 500);
             }
           }
         }

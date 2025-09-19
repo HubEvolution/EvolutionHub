@@ -5,9 +5,8 @@
  * -löschung und Task-Management. Kapselt Datenbankzugriffe und Geschäftslogik.
  */
 
-import type { D1Database } from '@cloudflare/workers-types';
 import type { BaseService, ServiceDependencies } from './types';
-import type { Project, Task, CreateProjectData, UpdateProjectData, CreateTaskData, UpdateTaskData } from '@/lib/db/types';
+import type { Project, Task, CreateProject, UpdateProject, CreateTask, UpdateTask } from '@/lib/db/types';
 
 /**
  * Interface für den Project Service
@@ -20,7 +19,7 @@ export interface ProjectService extends BaseService {
    * @param data Projektdaten
    * @returns Das erstellte Projekt
    */
-  createProject(userId: string, data: CreateProjectData): Promise<Project>;
+  createProject(userId: string, data: CreateProject): Promise<Project>;
 
   /**
    * Holt ein Projekt anhand seiner ID
@@ -57,7 +56,7 @@ export interface ProjectService extends BaseService {
    * @param data Zu aktualisierende Daten
    * @returns Das aktualisierte Projekt
    */
-  updateProject(projectId: string, userId: string, data: UpdateProjectData): Promise<Project>;
+  updateProject(projectId: string, userId: string, data: UpdateProject): Promise<Project>;
 
   /**
    * Löscht ein Projekt
@@ -76,7 +75,7 @@ export interface ProjectService extends BaseService {
    * @param data Aufgabendaten
    * @returns Die erstellte Aufgabe
    */
-  createTask(projectId: string, userId: string, data: CreateTaskData): Promise<Task>;
+  createTask(projectId: string, userId: string, data: CreateTask): Promise<Task>;
 
   /**
    * Holt alle Aufgaben eines Projekts
@@ -99,7 +98,7 @@ export interface ProjectService extends BaseService {
    * @param data Zu aktualisierende Daten
    * @returns Die aktualisierte Aufgabe
    */
-  updateTask(taskId: string, userId: string, data: UpdateTaskData): Promise<Task>;
+  updateTask(taskId: string, userId: string, data: UpdateTask): Promise<Task>;
 
   /**
    * Löscht eine Aufgabe
@@ -125,7 +124,7 @@ export interface ProjectService extends BaseService {
  * @param deps Abhängigkeiten für den Service
  * @returns Eine neue ProjectService-Instanz
  */
-export function createProjectService(deps: ServiceDependencies): ProjectService {
+export function createProjectService(_deps: ServiceDependencies): ProjectService {
   // Diese Funktion wird später die tatsächliche Implementierung zurückgeben
   // Derzeit nur ein Platzhalter für das Interface-Design
   return {} as ProjectService;

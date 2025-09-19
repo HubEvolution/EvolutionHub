@@ -37,9 +37,10 @@ export const handleProfileForm = () => {
         const errorText = await response.text();
         notify.error(`Error: ${errorText}`);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Profile update error:', error);
-      notify.error(`Update failed: ${error.message || 'Network error'}`);
+      const message = error instanceof Error ? error.message : 'Network error';
+      notify.error(`Update failed: ${message}`);
     } finally {
       // Reset button state
       submitButton.textContent = originalButtonText;
@@ -158,16 +159,21 @@ export const handleAvatarUpload = () => {
       });
 
       if (response.ok) {
-        const data = await response.json();
-        (document.getElementById('avatar-preview') as HTMLImageElement).src = data.imageUrl;
-        notify.success('Avatar updated successfully!');
+        const json: unknown = await response.json();
+        if (json && typeof json === 'object' && 'imageUrl' in json) {
+          (document.getElementById('avatar-preview') as HTMLImageElement).src = String((json as any).imageUrl);
+          notify.success('Avatar updated successfully!');
+        } else {
+          notify.error('Unexpected response from server while updating avatar');
+        }
       } else {
         const errorText = await response.text();
         notify.error(`Error: ${errorText}`);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Avatar upload error:', error);
-      notify.error(`Upload failed: ${error.message || 'Network error'}`);
+      const message = error instanceof Error ? error.message : 'Network error';
+      notify.error(`Upload failed: ${message}`);
     } finally {
       // Reset button state
       (changeButton as HTMLButtonElement).textContent = 'Change Picture';

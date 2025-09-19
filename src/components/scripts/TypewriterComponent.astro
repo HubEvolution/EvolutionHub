@@ -22,7 +22,7 @@ const {
 ---
 
 <!-- Kein direktes Markup nötig, nur das Client-Script -->
-<script define:vars={{ elementId, texts, defaultDelay }} nonce={Astro.locals.cspNonce}>
+<script is:inline define:vars={{ elementId, texts, defaultDelay }} nonce={Astro.locals.cspNonce}>
   // Typewriter-Funktion direkt hier definieren
   const runTypewriter = (targetElementId, textArray, baseDelay = 100) => {
     const element = document.getElementById(targetElementId);

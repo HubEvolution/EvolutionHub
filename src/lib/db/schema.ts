@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer, sqliteCheck } from 'drizzle-orm/sqlite-core';
+import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core';
 
 export const users = sqliteTable('users', {
   id: integer('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
@@ -22,6 +22,4 @@ export const blogPosts = sqliteTable('blog_posts', {
   description: text('description'),
   featured: integer('featured', { mode: 'boolean' }).default(false),
   draft: integer('draft', { mode: 'boolean' }).default(false),
-}, (table) => ({
-  langCheck: sqliteCheck(table.lang, table.lang.in(['de', 'en'])),
-}));
+});

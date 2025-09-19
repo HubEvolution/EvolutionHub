@@ -6,6 +6,26 @@ import { getLocale } from '@/lib/i18n';
 const locale = getLocale(Astro.url.pathname);
 const t = getI18n(locale);
 
+type AdminStatusPayload = {
+  success: boolean;
+  data: {
+    user: { id: string; email: string };
+    plan: 'free' | 'pro' | 'premium' | 'enterprise';
+    credits: number;
+    subscriptions: Array<{
+      id: string;
+      plan: 'free' | 'pro' | 'premium' | 'enterprise';
+      status: string;
+      current_period_end: number | null;
+      cancel_at_period_end: number | null;
+      created_at: string;
+      updated_at: string;
+    }>;
+  };
+};
+
+type FetchStatus = { ok: boolean; status: number; data: AdminStatusPayload | null };
+
 async function fetchStatus() {
   try {
     const url = new URL('/api/admin/status', Astro.url).toString();
@@ -17,16 +37,16 @@ async function fetchStatus() {
       cache: 'no-store'
     });
     if (!res.ok) {
-      return { ok: false, status: res.status, data: null } as const;
+      return { ok: false, status: res.status, data: null } as FetchStatus;
     }
-    const data = await res.json();
-    return { ok: true, status: res.status, data } as const;
+    const data = (await res.json()) as AdminStatusPayload;
+    return { ok: true, status: res.status, data } as FetchStatus;
   } catch (e) {
-    return { ok: false, status: 500, data: null } as const;
+    return { ok: false, status: 500, data: null } as FetchStatus;
   }
 }
 
-const status = await fetchStatus();
+const status: FetchStatus = await fetchStatus();
 ---
 
 <BaseLayout title={`Admin Status`} description={`Read-only Status: Plan, Credits, Subscriptions`}>

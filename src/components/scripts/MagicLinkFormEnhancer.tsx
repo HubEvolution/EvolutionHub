@@ -25,7 +25,7 @@ export default function MagicLinkFormEnhancer({
       try {
         (window as any).__authLogs = (window as any).__authLogs || [];
         (window as any).__authLogs.push({ via: 'magic-form', t: Date.now(), note, data });
-        // eslint-disable-next-line no-console
+         
         console.debug('[MagicLinkFormEnhancer]', note, data ?? '');
       } catch {}
     };

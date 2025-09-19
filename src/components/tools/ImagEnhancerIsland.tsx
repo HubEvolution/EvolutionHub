@@ -15,48 +15,18 @@ import { Dropzone } from './imag-enhancer/Dropzone';
 import { UsagePill } from './imag-enhancer/UsagePill';
 import { EnhancerActions } from './imag-enhancer/EnhancerActions';
 import { HelpModal } from './imag-enhancer/HelpModal';
-import type { PlanEntitlements } from '@/config/ai-image/entitlements';
 import { useLog } from '@/contexts/LogContext';
+import { computeAllowedScales, computeCanUseFaceEnhance } from './imag-enhancer/gating';
+import type { ApiSuccess, ApiErrorBody, GenerateResponseData } from './imag-enhancer/types';
+import { postCredits } from './imag-enhancer/api';
+import { ensureCsrfToken } from '@/lib/security/csrf';
+import { useUsage } from './imag-enhancer/hooks/useUsage';
+import { useRateLimit } from './imag-enhancer/hooks/useRateLimit';
+import { useEnhance } from './imag-enhancer/hooks/useEnhance';
+import { ModelControls } from './imag-enhancer/ModelControls';
+import { useCompareInteractions } from './imag-enhancer/hooks/useCompareInteractions';
 
-interface UsageInfo {
-  used: number;
-  limit: number;
-  resetAt: number | null;
-}
-
-interface ApiSuccess<T> {
-  success: true;
-  data: T;
-}
-
-interface ApiErrorBody {
-  success: false;
-  error: {
-    type: string;
-    message: string;
-    details?: unknown;
-  };
-  ui?: {
-    fullscreen: string;
-    exitFullscreen: string;
-  };
-}
-
-interface UsageResponseData {
-  ownerType: 'user' | 'guest';
-  usage: UsageInfo;
-  limits: { user: number; guest: number };
-  plan?: 'free' | 'pro' | 'premium' | 'enterprise';
-  entitlements: PlanEntitlements;
-}
-
-interface GenerateResponseData {
-  model: string;
-  originalUrl: string;
-  imageUrl: string;
-  usage: UsageInfo;
-  limits: { user: number; guest: number };
-}
+// Types now come from imag-enhancer/types.ts
 
 interface ImagEnhancerStrings {
   dropText: string;
@@ -122,14 +92,10 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [resultUrl, setResultUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [usage, setUsage] = useState<UsageInfo | null>(null);
-  const [ownerType, setOwnerType] = useState<'user' | 'guest' | null>(null);
-  const [plan, setPlan] = useState<'free' | 'pro' | 'premium' | 'enterprise' | null>(null);
-  const [entitlements, setEntitlements] = useState<PlanEntitlements | null>(null);
+  const { usage, ownerType, plan, entitlements, refresh: refreshUsage } = useUsage();
   const [lastOriginalUrl, setLastOriginalUrl] = useState<string | null>(null);
   // Abort & retry handling
   const generateAbortRef = useRef<AbortController | null>(null);
-  const [retryUntil, setRetryUntil] = useState<number | null>(null); // epoch ms
   // Enhancement parameters
   const [scale, setScale] = useState<2 | 4>(4);
   const [faceEnhance, setFaceEnhance] = useState<boolean>(false);
@@ -162,7 +128,6 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
   }, [addLog]);
 
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const draggingRef = useRef(false);
   const [sliderPos, setSliderPos] = useState<number>(50); // 0..100
   // Mobile no-scroll support: detect viewport and reserve space for sticky actions
   const [isMobile, setIsMobile] = useState<boolean>(false);
@@ -275,41 +240,16 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
     sizingOptions
   );
   const [isHeld, setIsHeld] = useState(false); // Press-and-Hold A/B state
-  const holdTimerRef = useRef<number | null>(null);
-  const touchStartPosRef = useRef<{ x: number; y: number } | null>(null);
-  // Zoom state (phase 1: center-zoom only; pan follows in next PR)
+  // Zoom state
   const [zoom, setZoom] = useState<number>(1);
-  const ZOOM_MIN = 1;
-  const ZOOM_MAX = 5;
-  const ZOOM_STEP = 0.25;
   // Pan state
   const [pan, setPan] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
-  // Mirror zoom/pan in refs for atomic computations (cursor-centered zoom)
-  const zoomRef = useRef<number>(1);
-  const panRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
-  useEffect(() => { zoomRef.current = zoom; }, [zoom]);
-  useEffect(() => { panRef.current = pan; }, [pan]);
-  const basePanRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
-  useEffect(() => { basePanRef.current = pan; }, [pan]);
-  // Pointer tracking for pinch/drag
-  const pointersRef = useRef<Map<number, { x: number; y: number }>>(new Map());
-  const dragStartRef = useRef<{ x: number; y: number } | null>(null);
-  const pinchStartRef = useRef<{
-    dist: number;
-    center: { x: number; y: number };
-    zoom: number;
-    pan: { x: number; y: number };
-  } | null>(null);
-  // Note: pan gesture start ref removed; pan is adjusted by controls only for now
   // Loupe (magnifier)
   const [loupeEnabled, setLoupeEnabled] = useState<boolean>(false);
   const [loupePos, setLoupePos] = useState<{ x: number; y: number } | null>(null);
   const [loupeSize, setLoupeSize] = useState<number>(160);
   const [loupeFactor, setLoupeFactor] = useState<number>(2);
   const [loupeUiHint, setLoupeUiHint] = useState<string | null>(null);
-  // rAF-throttle for loupe updates
-  const loupeRafRef = useRef<number | null>(null);
-  const pendingLoupePosRef = useRef<{ x: number; y: number } | null>(null);
 
   // Image metadata (dimensions)
   const [imageDims, setImageDims] = useState<{ w: number; h: number } | null>(null);
@@ -368,28 +308,7 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
   // Programmatic download helper
   const download = useDownload();
 
-  // CSRF helper: ensure a csrf_token cookie exists and return a matching header token
-  const ensureCsrfToken = useCallback(() => {
-    try {
-      const cookie = document.cookie || '';
-      const m = cookie.match(/(?:^|; )csrf_token=([^;]+)/);
-      if (m && m[1]) return decodeURIComponent(m[1]);
-      // generate random token
-      const buf = new Uint8Array(16);
-      (globalThis.crypto || window.crypto).getRandomValues(buf);
-      const token = Array.from(buf).map((b) => b.toString(16).padStart(2, '0')).join('');
-      const attrs = [
-        'Path=/',
-        'SameSite=Lax',
-        (typeof location !== 'undefined' && location.protocol === 'https:') ? 'Secure' : ''
-      ].filter(Boolean).join('; ');
-      document.cookie = `csrf_token=${encodeURIComponent(token)}; ${attrs}`;
-      return token;
-    } catch {
-      // fallback empty -> request will likely be rejected, but avoid runtime errors
-      return '';
-    }
-  }, []);
+  // CSRF helper moved to '@/lib/security/csrf'
 
   useEffect(() => {
     if (!strings?.toasts) {
@@ -398,303 +317,44 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
     }
   }, [strings]);
 
-  // Helper to clamp and update slider position based on pointer X
-  const clamp = useCallback((val: number, min: number, max: number) => Math.min(max, Math.max(min, val)), []);
-  const updateFromClientX = useCallback((clientX: number) => {
-    const el = containerRef.current;
-    if (!el) return;
-    const rect = el.getBoundingClientRect();
-    const ratio = (clientX - rect.left) / rect.width;
-    setSliderPos((prev) => {
-      const next = clamp(Math.round(ratio * 100), 0, 100);
-      return next === prev ? prev : next;
-    });
-  }, [clamp]);
-
-  const onMouseDown = useCallback((e: React.MouseEvent) => {
-    draggingRef.current = true;
-    updateFromClientX(e.clientX);
-    const onMove = (ev: MouseEvent) => {
-      if (!draggingRef.current) return;
-      updateFromClientX(ev.clientX);
-    };
-    const onUp = () => {
-      draggingRef.current = false;
-      window.removeEventListener('mousemove', onMove);
-      window.removeEventListener('mouseup', onUp);
-    };
-    window.addEventListener('mousemove', onMove);
-    window.addEventListener('mouseup', onUp);
-  }, [updateFromClientX]);
-
-  const onTouchStart = useCallback((e: React.TouchEvent) => {
-    draggingRef.current = true;
-    const t0 = e.touches[0];
-    if (t0) {
-      updateFromClientX(t0.clientX);
-      touchStartPosRef.current = { x: t0.clientX, y: t0.clientY };
-      // Start long-press timer to show 100% Before while holding
-      if (holdTimerRef.current) window.clearTimeout(holdTimerRef.current);
-      holdTimerRef.current = window.setTimeout(() => setIsHeld(true), 350);
-    }
-    const onMove = (ev: TouchEvent) => {
-      if (!draggingRef.current) return;
-      const t = ev.touches[0];
-      if (t) {
-        updateFromClientX(t.clientX);
-        // Cancel hold if user is moving finger significantly
-        const start = touchStartPosRef.current;
-        if (start) {
-          const dx = Math.abs(t.clientX - start.x);
-          const dy = Math.abs(t.clientY - start.y);
-          if (dx > 8 || dy > 8) {
-            if (holdTimerRef.current) {
-              window.clearTimeout(holdTimerRef.current);
-              holdTimerRef.current = null;
-            }
-            if (isHeld) setIsHeld(false);
-          }
-        }
-      }
-    };
-    const onEnd = () => {
-      draggingRef.current = false;
-      if (holdTimerRef.current) {
-        window.clearTimeout(holdTimerRef.current);
-        holdTimerRef.current = null;
-      }
-      if (isHeld) setIsHeld(false);
-      window.removeEventListener('touchmove', onMove);
-      window.removeEventListener('touchend', onEnd);
-      window.removeEventListener('touchcancel', onEnd);
-    };
-    window.addEventListener('touchmove', onMove, { passive: true });
-    window.addEventListener('touchend', onEnd);
-    window.addEventListener('touchcancel', onEnd);
-  }, [updateFromClientX, isHeld]);
-
-  // Zoom handlers
-  const clampRound = useCallback((z: number) => {
-    const v = Number.isFinite(z) ? z : 1;
-    return Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, Math.round(v * 100) / 100));
-  }, []);
-  const onHandleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    const fine = e.shiftKey ? 10 : 5;
-    if (e.key === 'ArrowLeft') {
-      e.preventDefault();
-      setSliderPos((v) => clamp(v - fine, 0, 100));
-      return;
-    }
-    if (e.key === 'ArrowRight') {
-      e.preventDefault();
-      setSliderPos((v) => clamp(v + fine, 0, 100));
-      return;
-    }
-    if (e.key === 'Home') {
-      e.preventDefault();
-      setSliderPos(0);
-      return;
-    }
-    if (e.key === 'End') {
-      e.preventDefault();
-      setSliderPos(100);
-      return;
-    }
-    if (e.key === '0') {
-      e.preventDefault();
-      setSliderPos(50);
-      return;
-    }
-    if (e.key === '+' || e.key === '=') {
-      e.preventDefault();
-      setZoom((z) => clampRound(z + ZOOM_STEP));
-      return;
-    }
-    if (e.key === '-' || e.key === '_') {
-      e.preventDefault();
-      setZoom((z) => clampRound(z - ZOOM_STEP));
-      return;
-    }
-    if (e.key === '1') {
-      e.preventDefault();
-      setZoom(1);
-      return;
-    }
-  }, [clamp, clampRound]);
-  const lastPointerRef = useRef<{ x: number; y: number } | null>(null);
-  const applyZoomAround = useCallback((direction: 1 | -1, pivot: { x: number; y: number } | null) => {
-    const s1 = zoomRef.current;
-    const s2 = clampRound(s1 + (direction === 1 ? ZOOM_STEP : -ZOOM_STEP));
-    if (s2 === s1) return;
-    const T = panRef.current;
-    const el = containerRef.current;
-    const rect = el?.getBoundingClientRect();
-    const C = pivot ?? (rect ? { x: rect.width / 2, y: rect.height / 2 } : { x: 0, y: 0 });
-    const ratio = s2 / s1;
-    // T' = (1 - s2/s1) * C + (s2/s1) * T
-    const Tx = (1 - ratio) * C.x + ratio * T.x;
-    const Ty = (1 - ratio) * C.y + ratio * T.y;
-    setPan({ x: Math.round(Tx), y: Math.round(Ty) });
-    setZoom(s2);
-  }, [clampRound]);
-  const onZoomIn = useCallback(() => {
-    applyZoomAround(1, lastPointerRef.current);
-  }, [applyZoomAround]);
-  const onZoomOut = useCallback(() => {
-    applyZoomAround(-1, lastPointerRef.current);
-  }, [applyZoomAround]);
-  const onZoomReset = useCallback(() => {
-    setZoom(1);
-  }, []);
-  const onWheelZoom = useCallback((e: React.WheelEvent<HTMLDivElement>) => {
-    // Prevent page scroll while zooming
-    e.preventDefault();
-    // Loupe modifiers
-    if (e.shiftKey) {
-      setLoupeSize((prev) => {
-        const next = Math.max(120, Math.min(300, Math.round(prev + (e.deltaY < 0 ? 10 : -10))));
-        setLoupeUiHint(`Size: ${next}px`);
-        return next;
-      });
-      return;
-    }
-    if (e.altKey) {
-      setLoupeFactor((prev) => {
-        const next = Math.max(1.5, Math.min(4, Math.round((prev + (e.deltaY < 0 ? 0.1 : -0.1)) * 10) / 10));
-        setLoupeUiHint(`×${next.toFixed(1)}`);
-        return next;
-      });
-      return;
-    }
-    const delta = e.deltaY;
-    const el = containerRef.current;
-    const rect = el?.getBoundingClientRect();
-    const pivot = rect ? { x: e.clientX - rect.left, y: e.clientY - rect.top } : lastPointerRef.current;
-    if (delta < 0) applyZoomAround(1, pivot ?? null);
-    else if (delta > 0) applyZoomAround(-1, pivot ?? null);
-  }, [applyZoomAround]);
-
-  // Native non-passive wheel listener as a hardening against browser defaults
-  useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
-    const onWheel = (ev: WheelEvent) => {
-      ev.preventDefault();
-      // Loupe modifiers first
-      if (ev.shiftKey) {
-        setLoupeSize((prev) => {
-          const next = Math.max(120, Math.min(300, Math.round(prev + (ev.deltaY < 0 ? 10 : -10))));
-          setLoupeUiHint(`Size: ${next}px`);
-          return next;
-        });
-        return;
-      }
-      if (ev.altKey) {
-        setLoupeFactor((prev) => {
-          const next = Math.max(1.5, Math.min(4, Math.round((prev + (ev.deltaY < 0 ? 0.1 : -0.1)) * 10) / 10));
-          setLoupeUiHint(`×${next.toFixed(1)}`);
-          return next;
-        });
-        return;
-      }
-      const rect = el.getBoundingClientRect();
-      const pivot = { x: ev.clientX - rect.left, y: ev.clientY - rect.top };
-      applyZoomAround(ev.deltaY < 0 ? 1 : -1, pivot);
-    };
-    el.addEventListener('wheel', onWheel, { passive: false });
-    return () => {
-      el.removeEventListener('wheel', onWheel as EventListener);
-    };
-  }, [containerRef, applyZoomAround]);
-
-  // Pointer events: pinch-to-zoom and drag pan when zoom>1
-  useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
-    const getPoint = (e: PointerEvent) => {
-      const rect = el.getBoundingClientRect();
-      return { x: e.clientX - rect.left, y: e.clientY - rect.top };
-    };
-    const distance = (a: { x: number; y: number }, b: { x: number; y: number }) => {
-      const dx = a.x - b.x; const dy = a.y - b.y; return Math.hypot(dx, dy);
-    };
-    const centerOf = (a: { x: number; y: number }, b: { x: number; y: number }) => ({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 });
-
-    const onPointerDown = (e: PointerEvent) => {
-      // Avoid interfering with the slider handle
-      const t = e.target as HTMLElement | null;
-      if (t && t.closest('[role="slider"]')) return;
-      el.setPointerCapture(e.pointerId);
-      const p = getPoint(e);
-      pointersRef.current.set(e.pointerId, p);
-      if (pointersRef.current.size === 1) {
-        // start drag only when already zoomed in
-        if (zoomRef.current > 1) {
-          dragStartRef.current = p;
-          basePanRef.current = panRef.current;
-        }
-      } else if (pointersRef.current.size === 2) {
-        // start pinch
-        const pts = Array.from(pointersRef.current.values());
-        const c = centerOf(pts[0], pts[1]);
-        const d = distance(pts[0], pts[1]);
-        pinchStartRef.current = { dist: Math.max(1, d), center: c, zoom: zoomRef.current, pan: panRef.current };
-      }
-    };
-
-    const onPointerMove = (e: PointerEvent) => {
-      if (!pointersRef.current.has(e.pointerId)) return;
-      const p = getPoint(e);
-      pointersRef.current.set(e.pointerId, p);
-      const count = pointersRef.current.size;
-      if (count >= 2 && pinchStartRef.current) {
-        // Pinch scaling
-        const pts = Array.from(pointersRef.current.values());
-        const d = distance(pts[0], pts[1]);
-        const c = centerOf(pts[0], pts[1]);
-        const s1 = pinchStartRef.current.zoom;
-        const ratioRaw = Math.max(0.2, Math.min(5, d / pinchStartRef.current.dist));
-        const s2 = clampRound(s1 * ratioRaw);
-        const T0 = pinchStartRef.current.pan;
-        const ratio = s2 / s1;
-        const Tx = (1 - ratio) * c.x + ratio * T0.x;
-        const Ty = (1 - ratio) * c.y + ratio * T0.y;
-        setZoom(s2);
-        setPan({ x: Math.round(Tx), y: Math.round(Ty) });
-        lastPointerRef.current = c;
-      } else if (count === 1 && dragStartRef.current && zoomRef.current > 1) {
-        // Drag pan
-        const p0 = dragStartRef.current;
-        const dx = p.x - p0.x;
-        const dy = p.y - p0.y;
-        const base = basePanRef.current;
-        setPan({ x: Math.round(base.x + dx), y: Math.round(base.y + dy) });
-        lastPointerRef.current = p;
-      }
-    };
-
-    const endPointer = (e: PointerEvent) => {
-      if (pointersRef.current.has(e.pointerId)) {
-        pointersRef.current.delete(e.pointerId);
-      }
-      if (pointersRef.current.size < 2) pinchStartRef.current = null;
-      if (pointersRef.current.size === 0) dragStartRef.current = null;
-      try { el.releasePointerCapture(e.pointerId); } catch {}
-    };
-
-    el.addEventListener('pointerdown', onPointerDown);
-    el.addEventListener('pointermove', onPointerMove);
-    el.addEventListener('pointerup', endPointer);
-    el.addEventListener('pointercancel', endPointer);
-    return () => {
-      el.removeEventListener('pointerdown', onPointerDown);
-      el.removeEventListener('pointermove', onPointerMove);
-      el.removeEventListener('pointerup', endPointer);
-      el.removeEventListener('pointercancel', endPointer);
-    };
-  }, [clampRound]);
-
-  
+  // Interaktion: Pointer/Touch/Keyboard/Zoom/Loupe zentral über Hook
+  const {
+    onMouseDown,
+    onTouchStart,
+    onHandleKeyDown,
+    onWheelZoom,
+    onZoomIn,
+    onZoomOut,
+    onZoomReset,
+    onMouseMoveLoupe,
+    onMouseLeaveLoupe,
+    onToggleLoupe,
+  } = useCompareInteractions({
+    containerRef,
+    boxSize,
+    // Slider
+    setSliderPos,
+    // Hold
+    isHeld,
+    setIsHeld,
+    // Zoom
+    zoom,
+    setZoom,
+    // Pan
+    pan,
+    setPan,
+    // Loupe
+    loupeEnabled,
+    setLoupeEnabled,
+    loupeSize,
+    setLoupeSize,
+    loupeFactor,
+    setLoupeFactor,
+    setLoupePos,
+    setLoupeUiHint,
+    // Only enable global interactions when compare is visible
+    compareVisible: !!resultUrl,
+  });
 
   // Clear loupe hint shortly after change
   useEffect(() => {
@@ -703,149 +363,7 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
     return () => window.clearTimeout(t);
   }, [loupeUiHint]);
 
-  // Loupe position tracking over container
-  const onMouseMoveLoupe = useCallback((e: React.MouseEvent) => {
-    const el = containerRef.current;
-    if (!el) return;
-    const rect = el.getBoundingClientRect();
-    const rawX = e.clientX - rect.left;
-    const rawY = e.clientY - rect.top;
-    // Clamp innerhalb des Containers (auch für lastPointer)
-    const r = ((loupeSize || 160) / 2) | 0;
-    const maxX = (boxSize?.w ?? rect.width) - r;
-    const maxY = (boxSize?.h ?? rect.height) - r;
-    const x = clamp(Math.round(rawX), r, maxX);
-    const y = clamp(Math.round(rawY), r, maxY);
-    lastPointerRef.current = { x, y };
-    if (!loupeEnabled) return;
-    pendingLoupePosRef.current = { x, y };
-    if (loupeRafRef.current != null) return;
-    loupeRafRef.current = requestAnimationFrame(() => {
-      loupeRafRef.current = null;
-      const p = pendingLoupePosRef.current;
-      if (p) setLoupePos(p);
-    });
-  }, [loupeEnabled, boxSize, clamp, loupeSize]);
-  const onMouseLeaveLoupe = useCallback(() => {
-    if (!loupeEnabled) return;
-    setLoupePos(null);
-  }, [loupeEnabled]);
-  const onToggleLoupe = useCallback(() => setLoupeEnabled((v) => !v), []);
-
-  // Cleanup any pending rAF when toggling/teardown
-  useEffect(() => {
-    return () => {
-      if (loupeRafRef.current != null) cancelAnimationFrame(loupeRafRef.current);
-      loupeRafRef.current = null;
-      pendingLoupePosRef.current = null;
-    };
-  }, []);
-
-  const fetchUsage = useCallback(async () => {
-    try {
-      const dbg = (() => {
-        try {
-          const url = new URL(window.location.href);
-          const qp = url.searchParams;
-          return qp.get('debug_usage') === '1' || localStorage.getItem('debug_usage') === '1';
-        } catch { return false; }
-      })();
-      const endpoint = `/api/ai-image/usage?t=${Date.now()}${dbg ? '&debug=1' : ''}`;
-      (window as any).__usageLogs = (window as any).__usageLogs || [];
-      (window as any).__usageLogs.push({ t: Date.now(), evt: 'fetchUsage:start', endpoint });
-      const res = await fetch(endpoint, { credentials: 'same-origin', cache: 'no-store' });
-      const data = (await res.json()) as ApiSuccess<UsageResponseData> | ApiErrorBody;
-      if (dbg) {
-        try {
-          (window as any).__usageLogs.push({ t: Date.now(), evt: 'fetchUsage:resp', status: res.status, headers: {
-            ownerType: res.headers.get('X-Usage-OwnerType'),
-            plan: res.headers.get('X-Usage-Plan'),
-            limit: res.headers.get('X-Usage-Limit')
-          }, body: data });
-          // eslint-disable-next-line no-console
-          console.debug('[ImagEnhancer] usage response', data);
-        } catch {}
-      }
-      if ('success' in data && data.success) {
-        setUsage(data.data.usage);
-        setOwnerType(data.data.ownerType);
-        if (typeof (data.data as UsageResponseData).plan === 'string') {
-          setPlan((data.data as UsageResponseData).plan!);
-        } else {
-          setPlan(null);
-        }
-        try {
-          setEntitlements((data.data as UsageResponseData).entitlements || null);
-        } catch {
-          setEntitlements(null);
-        }
-      } else if ('success' in data && !data.success) {
-        toast.error(data.error.message || toasts.loadQuotaError);
-        // Fallback UI for guests so the pill shows a limit instead of loading forever
-        setOwnerType((prev) => prev ?? 'guest');
-        setUsage({ used: 0, limit: FREE_LIMIT_GUEST, resetAt: null });
-      }
-    } catch {
-      toast.error(toasts.loadError);
-      // Graceful guest fallback if request failed (network/CSP)
-      setOwnerType((prev) => prev ?? 'guest');
-      setUsage({ used: 0, limit: FREE_LIMIT_GUEST, resetAt: null });
-    }
-  }, [toasts.loadError, toasts.loadQuotaError]);
-
-  // Initial load
-  useEffect(() => {
-    let mounted = true;
-    (async () => { if (mounted) await fetchUsage(); })();
-    return () => { mounted = false; };
-  }, [fetchUsage]);
-
-  // Refresh usage on window focus or when tab becomes visible (e.g., after login)
-  useEffect(() => {
-    const log = (evt: string) => {
-      try {
-        const dbg = new URL(window.location.href).searchParams.get('debug_usage') === '1' || localStorage.getItem('debug_usage') === '1';
-        if (!dbg) return;
-        (window as any).__usageLogs = (window as any).__usageLogs || [];
-        (window as any).__usageLogs.push({ t: Date.now(), evt });
-        // eslint-disable-next-line no-console
-        console.debug('[ImagEnhancer] trigger', evt);
-      } catch {}
-    };
-    const onFocus = () => { log('focus'); void fetchUsage(); };
-    const onVisibility = () => { if (document.visibilityState === 'visible') { log('visibility'); void fetchUsage(); } };
-    window.addEventListener('focus', onFocus);
-    document.addEventListener('visibilitychange', onVisibility);
-    return () => {
-      window.removeEventListener('focus', onFocus);
-      document.removeEventListener('visibilitychange', onVisibility);
-    };
-  }, [fetchUsage]);
-
-  // Also refresh on custom auth events, storage sync (other tabs), and pageshow (bfcache)
-  useEffect(() => {
-    const log = (evt: string, detail?: any) => {
-      try {
-        const dbg = new URL(window.location.href).searchParams.get('debug_usage') === '1' || localStorage.getItem('debug_usage') === '1';
-        if (!dbg) return;
-        (window as any).__usageLogs = (window as any).__usageLogs || [];
-        (window as any).__usageLogs.push({ t: Date.now(), evt, detail });
-        // eslint-disable-next-line no-console
-        console.debug('[ImagEnhancer] trigger', evt, detail || '');
-      } catch {}
-    };
-    const onAuthChanged = (e: Event) => { log('auth:changed', (e as CustomEvent).detail); void fetchUsage(); };
-    const onStorage = (e: StorageEvent) => { if (e.key === 'auth:changed') { log('storage:auth:changed'); void fetchUsage(); } };
-    const onPageShow = () => { log('pageshow'); void fetchUsage(); };
-    window.addEventListener('auth:changed', onAuthChanged);
-    window.addEventListener('storage', onStorage);
-    window.addEventListener('pageshow', onPageShow);
-    return () => {
-      window.removeEventListener('auth:changed', onAuthChanged);
-      window.removeEventListener('storage', onStorage);
-      window.removeEventListener('pageshow', onPageShow);
-    };
-  }, [fetchUsage]);
+  // useUsage() already handles initial load and refresh triggers (focus/visibility/auth/storage/pageshow)
 
   // Safety timeout: ensure preview overlay doesn't block UI indefinitely if onLoad doesn't fire
   useEffect(() => {
@@ -855,41 +373,7 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
     return () => window.clearTimeout(t);
   }, [previewUrl]);
 
-  // Global Space key Press-and-Hold to show 100% Before
-  useEffect(() => {
-    const isEditable = (el: Element | null) => {
-      if (!el || !(el instanceof HTMLElement)) return false;
-      const tag = el.tagName;
-      if (el.isContentEditable) return true;
-      return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || tag === 'BUTTON';
-    };
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (!resultUrl) return; // only when compare is visible
-      if (e.code === 'Space' || e.key === ' ' || e.key === 'Spacebar') {
-        const target = e.target as Element | null;
-        if (isEditable(target)) return; // don't interfere with inputs/buttons
-        e.preventDefault();
-        setIsHeld(true);
-      }
-    };
-    const onKeyUp = (e: KeyboardEvent) => {
-      if (!resultUrl) return;
-      if (e.code === 'Space' || e.key === ' ' || e.key === 'Spacebar') {
-        const target = e.target as Element | null;
-        if (isEditable(target)) return;
-        e.preventDefault();
-        setIsHeld(false);
-      }
-    };
-    window.addEventListener('keydown', onKeyDown);
-    window.addEventListener('keyup', onKeyUp);
-    return () => {
-      window.removeEventListener('keydown', onKeyDown);
-      window.removeEventListener('keyup', onKeyUp);
-    };
-  }, [resultUrl]);
-
-  // Extra keyboard shortcuts: R to reset slider; Cmd/Ctrl+S to download
+  // Extra keyboard shortcuts: R to reset slider; Cmd/Ctrl+S to download; L to toggle loupe
   useEffect(() => {
     const isEditable = (el: Element | null) => {
       if (!el || !(el instanceof HTMLElement)) return false;
@@ -1041,6 +525,9 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
     return () => window.removeEventListener('paste', onPaste as unknown as EventListener);
   }, [onSelectFile]);
 
+  const { enhance } = useEnhance();
+  const { retryActive, retryRemainingSec, handle429Response } = useRateLimit();
+
   const onEnhance = useCallback(async () => {
     if (!file || !model) return;
     // Abort previous enhance
@@ -1052,47 +539,37 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
     setLoading(true);
     try {
       const t0 = typeof performance !== 'undefined' ? performance.now() : Date.now();
-      const fd = new FormData();
-      fd.set('image', file);
-      fd.set('model', model);
-      if (typeof scale === 'number' && selectedModel?.supportsScale) fd.set('scale', String(scale));
-      if (typeof faceEnhance === 'boolean' && selectedModel?.supportsFaceEnhance) fd.set('face_enhance', String(faceEnhance));
-      const csrf = ensureCsrfToken();
-      const res = await fetch('/api/ai-image/generate', {
-        method: 'POST',
-        body: fd,
-        credentials: 'same-origin',
-        headers: { 'X-CSRF-Token': csrf },
+      const resp = await enhance({
+        file,
+        model,
+        scale,
+        faceEnhance,
+        supportsScale: Boolean(selectedModel?.supportsScale),
+        supportsFaceEnhance: Boolean(selectedModel?.supportsFaceEnhance),
         signal: ac.signal,
       });
-
-      if (res.status === 429) {
-        const ra = res.headers.get('Retry-After');
-        let retrySec = ra ? parseInt(ra, 10) : 0;
-        let body: ApiErrorBody | null = null;
-        try { body = (await res.json()) as ApiErrorBody; } catch {}
-        if (!retrySec) {
-          const details = (body && (body.error?.details as any)) || {};
-          retrySec = Number(details?.retryAfter || 0);
+      if (resp instanceof Response) {
+        if (resp.status === 429) {
+          await handle429Response(resp);
+          toast.error('Rate limit reached. Please retry shortly.');
+          setIsResultLoading(false);
+          return;
         }
-        const until = Date.now() + Math.max(1, retrySec) * 1000;
-        setRetryUntil(until);
-        toast.error('Rate limit reached. Please retry shortly.');
-        setIsResultLoading(false);
-        return;
+        // Non-429 Response should not happen here (api returns JSON for non-429).
       }
 
-      const json = (await res.json()) as ApiSuccess<GenerateResponseData> | ApiErrorBody;
+      const json = resp as ApiSuccess<GenerateResponseData> | ApiErrorBody;
       if ('success' in json && json.success) {
         setIsResultLoading(true);
         setResultUrl(json.data.imageUrl);
         setLastOriginalUrl(json.data.originalUrl);
-        setUsage(json.data.usage);
         setSliderPos(50);
         setBaselineSettings({ model, scale, faceEnhance });
         const t1 = typeof performance !== 'undefined' ? performance.now() : Date.now();
         setLastProcessMs(Math.max(0, Math.round((t1 as number) - (t0 as number))));
         toast.success(toasts.successEnhanced);
+        // Update usage info asynchronously after success
+        try { await refreshUsage(); } catch {}
         requestAnimationFrame(() => {
           // jsdom: scrollIntoView may be undefined in tests
           containerRef.current?.scrollIntoView?.({ behavior: 'smooth', block: 'center' });
@@ -1109,20 +586,10 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
     } finally {
       setLoading(false);
     }
-  }, [file, model, scale, faceEnhance, toasts.processingFailed, toasts.successEnhanced]);
+  }, [enhance, file, model, scale, faceEnhance, selectedModel, toasts.processingFailed, toasts.successEnhanced, refreshUsage]);
 
-  // Retry-After ticker
-  const [nowMs, setNowMs] = useState<number>(Date.now());
-  useEffect(() => {
-    if (!retryUntil) return;
-    const id = window.setInterval(() => setNowMs(Date.now()), 500);
-    return () => window.clearInterval(id);
-  }, [retryUntil]);
-  const retryActive = useMemo(() => Boolean(retryUntil && nowMs < (retryUntil as number)), [retryUntil, nowMs]);
-  const retryRemainingSec = useMemo(() => {
-    if (!retryUntil) return 0;
-    return Math.max(0, Math.ceil((retryUntil - nowMs) / 1000));
-  }, [retryUntil, nowMs]);
+  // Retry-After via useRateLimit()
+  // Already destructured above: retryUntil, retryActive, retryRemainingSec
   const canSubmit = !!file && !!model && !loading && !retryActive;
   const quotaExceeded = !!usage && usage.used >= usage.limit;
 
@@ -1185,20 +652,14 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
   // Plan-aware UI gating derived flags
   const modelSupportsScale = Boolean(selectedModel?.supportsScale);
   const modelSupportsFace = Boolean(selectedModel?.supportsFaceEnhance);
-  const allowedScales = useMemo(() => {
-    if (!modelSupportsScale) return [] as (2 | 4)[];
-    if (!gatingEnabled || !entitlements) return [2, 4];
-    const max = entitlements.maxUpscale;
-    const arr: (2 | 4)[] = [];
-    if (2 <= max) arr.push(2);
-    if (4 <= max) arr.push(4);
-    return arr;
-  }, [modelSupportsScale, gatingEnabled, entitlements]);
-  const canUseFaceEnhance = useMemo(() => {
-    if (!modelSupportsFace) return false;
-    if (!gatingEnabled || !entitlements) return modelSupportsFace;
-    return entitlements.faceEnhance;
-  }, [modelSupportsFace, gatingEnabled, entitlements]);
+  const allowedScales = useMemo(
+    () => computeAllowedScales(modelSupportsScale, entitlements, gatingEnabled),
+    [modelSupportsScale, entitlements, gatingEnabled]
+  );
+  const canUseFaceEnhance = useMemo(
+    () => computeCanUseFaceEnhance(modelSupportsFace, entitlements, gatingEnabled),
+    [modelSupportsFace, entitlements, gatingEnabled]
+  );
 
   const usagePercent = useMemo(() => {
     const u = effectiveUsageForDisplay;
@@ -1232,6 +693,21 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
     if (!showUpgradeCta) return;
     trackEvent('enhancer_cta_impression', { reason: ctaReason || '', plan: plan || '', ownerType: ownerType || '', model });
   }, [showUpgradeCta, ctaReason, plan, ownerType, model, trackEvent]);
+
+  // Safety clamp: if gating is enabled and current selections exceed entitlements, adjust UI state
+  useEffect(() => {
+    if (!gatingEnabled || !entitlements) return;
+    try {
+      if (selectedModel?.supportsScale) {
+        const max = entitlements.maxUpscale;
+        if (scale === 4 && max < 4) setScale(2);
+      }
+      if (selectedModel?.supportsFaceEnhance) {
+        if (faceEnhance && !entitlements.faceEnhance) setFaceEnhance(false);
+      }
+    } catch {}
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gatingEnabled, entitlements, selectedModel]);
 
   const currentModelLabel = useMemo(
     () => ALLOWED_MODELS.find((m) => m.slug === model)?.label ?? model,
@@ -1288,13 +764,7 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
     try {
       setBuying(pack);
       const csrf = ensureCsrfToken();
-      const body = { pack, workspaceId: getWorkspaceId() };
-      const res = await fetch('/api/billing/credits', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
-        body: JSON.stringify(body),
-        credentials: 'include'
-      });
+      const res = await postCredits(pack, getWorkspaceId(), csrf);
       if (res.status === 401) {
         window.location.href = '/login';
         return;
@@ -1304,9 +774,10 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
         toast.error('Checkout failed: ' + (text || res.status));
         return;
       }
-      const data = await res.json().catch(() => ({} as any));
-      if (data && data.url) {
-        window.location.href = data.url;
+      const dataUnknown: unknown = await res.json().catch(() => null);
+      const url = dataUnknown && typeof (dataUnknown as any).url === 'string' ? (dataUnknown as any).url : undefined;
+      if (url) {
+        window.location.href = url;
       } else {
         toast.error('Checkout failed: Invalid response');
       }
@@ -1315,7 +786,7 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
     } finally {
       setBuying(false);
     }
-  }, [ensureCsrfToken, getWorkspaceId]);
+  }, [getWorkspaceId]);
 
   const helpLabels = useMemo(() => ({
     title: sanitizeUiLabel(strings?.ui?.help?.title as string | undefined, 'How to use'),
@@ -1503,77 +974,28 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
                           ))}
                         </select>
                         {(selectedModel?.supportsScale || selectedModel?.supportsFaceEnhance) && (
-                          <div className="flex items-center gap-3">
-                            {selectedModel?.supportsScale && (
-                              <div className="flex items-center gap-1" role="group" aria-label="Enhancement scale">
-                                {/* x2 */}
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    const allowed = allowedScales.includes(2);
-                                    if (!allowed) {
-                                      trackEvent('enhancer_control_blocked_plan', { feature: 'scale', requested: 2, max: entitlements?.maxUpscale || null, plan, ownerType, model });
-                                      return;
-                                    }
-                                    setScale(2);
-                                  }}
-                                  title={!allowedScales.includes(2) && gatingEnabled ? (strings?.ui?.upgrade || 'Upgrade') : ''}
-                                  className={`px-2 py-1 text-xs rounded-md ring-1 ${
-                                    scale === 2
-                                      ? 'bg-cyan-500/20 ring-cyan-400/50 text-cyan-700 dark:text-cyan-200'
-                                      : !allowedScales.includes(2) && gatingEnabled
-                                      ? 'opacity-60 cursor-not-allowed bg-white/10 dark:bg-slate-900/40 ring-cyan-400/20 text-gray-500 dark:text-gray-500'
-                                      : 'bg-white/10 dark:bg-slate-900/40 ring-cyan-400/20 text-gray-700 dark:text-gray-200 hover:ring-cyan-400/40'
-                                  }`}
-                                >
-                                  x2
-                                </button>
-                                {/* x4 */}
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    const allowed = allowedScales.includes(4);
-                                    if (!allowed) {
-                                      trackEvent('enhancer_control_blocked_plan', { feature: 'scale', requested: 4, max: entitlements?.maxUpscale || null, plan, ownerType, model });
-                                      return;
-                                    }
-                                    setScale(4);
-                                  }}
-                                  title={!allowedScales.includes(4) && gatingEnabled ? (strings?.ui?.upgrade || 'Upgrade') : ''}
-                                  className={`px-2 py-1 text-xs rounded-md ring-1 ${
-                                    scale === 4
-                                      ? 'bg-cyan-500/20 ring-cyan-400/50 text-cyan-700 dark:text-cyan-200'
-                                      : !allowedScales.includes(4) && gatingEnabled
-                                      ? 'opacity-60 cursor-not-allowed bg-white/10 dark:bg-slate-900/40 ring-cyan-400/20 text-gray-500 dark:text-gray-500'
-                                      : 'bg-white/10 dark:bg-slate-900/40 ring-cyan-400/20 text-gray-700 dark:text-gray-200 hover:ring-cyan-400/40'
-                                  }`}
-                                >
-                                  x4
-                                </button>
-                              </div>
-                            )}
-                            {selectedModel?.supportsFaceEnhance && (
-                              <label className="flex items-center gap-2 text-xs text-gray-700 dark:text-gray-300">
-                                <input
-                                  type="checkbox"
-                                  checked={faceEnhance}
-                                  onChange={(e) => {
-                                    const next = e.target.checked;
-                                    if (next && !canUseFaceEnhance) {
-                                      trackEvent('enhancer_control_blocked_plan', { feature: 'face_enhance', plan, ownerType, model });
-                                      return;
-                                    }
-                                    setFaceEnhance(next);
-                                  }}
-                                  disabled={gatingEnabled && !canUseFaceEnhance}
-                                  className="h-3.5 w-3.5 rounded border-gray-300 dark:border-gray-600 text-cyan-600 focus:ring-cyan-500"
-                                  aria-label={faceEnhanceLabel}
-                                  title={gatingEnabled && !canUseFaceEnhance ? (strings?.ui?.upgrade || 'Upgrade') : ''}
-                                />
-                                <span>{faceEnhanceLabel}</span>
-                              </label>
-                            )}
-                          </div>
+                          <ModelControls
+                            supportsScale={Boolean(selectedModel?.supportsScale)}
+                            allowedScales={allowedScales}
+                            selectedScale={scale}
+                            onScale={(s) => setScale(s)}
+                            supportsFaceEnhance={Boolean(selectedModel?.supportsFaceEnhance)}
+                            canUseFaceEnhance={canUseFaceEnhance}
+                            faceEnhance={faceEnhance}
+                            onToggleFace={(next) => setFaceEnhance(next)}
+                            faceEnhanceLabel={faceEnhanceLabel}
+                            upgradeLabel={strings?.ui?.upgrade || 'Upgrade'}
+                            gatingEnabled={gatingEnabled}
+                            onBlocked={(payload) =>
+                              trackEvent('enhancer_control_blocked_plan', {
+                                ...payload,
+                                max: entitlements?.maxUpscale || null,
+                                plan,
+                                ownerType,
+                                model,
+                              })
+                            }
+                          />
                         )}
                         {resultUrl && (
                           <button
@@ -1626,7 +1048,6 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
                 setPan({ x: 0, y: 0 });
                 setLoupeEnabled(false);
                 setLoupePos(null);
-                setRetryUntil(null);
               }}
               onDownload={(e) => download(e as unknown as React.MouseEvent, resultUrl || undefined)}
               showEnhance={showEnhanceButton}

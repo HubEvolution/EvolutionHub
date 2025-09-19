@@ -68,12 +68,13 @@ const useProjectStore = create<ProjectState>((set, get) => ({
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       
-      const result = await response.json();
+      const json: unknown = await response.json();
       
       // Nach erfolgreichem Erstellen das Projekt zur Liste hinzufügen
-      if (result.projectId) {
+      if (json && typeof json === 'object' && 'projectId' in json) {
+        const projectId = String((json as any).projectId);
         const newProject: ProjectCard = {
-          id: result.projectId,
+          id: projectId,
           title: 'New Project',
           description: 'A placeholder project.',
           progress: 0,

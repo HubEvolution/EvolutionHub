@@ -8,18 +8,19 @@ vi.mock('openai');
 
 // Mock process.env
 const mockEnv = {
-  R2_AI_IMAGES: {} as any,
-  KV_AI_ENHANCER: {} as any,
+  R2_AI_IMAGES: { put: vi.fn() } as any,
+  KV_AI_ENHANCER: { get: vi.fn(), put: vi.fn() } as any,
   REPLICATE_API_TOKEN: 'test-token',
   OPENAI_API_KEY: 'sk-test-key',
   ENVIRONMENT: 'development'
 };
 
-vi.mocked(OpenAI.prototype.beta.threads.create).mockResolvedValue({ id: 'thread-123' } as any);
-vi.mocked(OpenAI.prototype.beta.threads.messages.create).mockResolvedValue({} as any);
-vi.mocked(OpenAI.prototype.beta.threads.runs.create).mockResolvedValue({ id: 'run-123', status: 'completed' } as any);
-vi.mocked(OpenAI.prototype.beta.threads.runs.retrieve).mockResolvedValue({ status: 'completed' } as any);
-vi.mocked(OpenAI.prototype.beta.threads.messages.list).mockResolvedValue({
+// Provide a concrete beta.threads implementation on the mocked prototype
+const threadsCreate = vi.fn().mockResolvedValue({ id: 'thread-123' } as any);
+const messagesCreate = vi.fn().mockResolvedValue({} as any);
+const runsCreate = vi.fn().mockResolvedValue({ id: 'run-123', status: 'completed' } as any);
+const runsRetrieve = vi.fn().mockResolvedValue({ status: 'completed' } as any);
+const messagesList = vi.fn().mockResolvedValue({
   data: [
     {
       role: 'assistant',
@@ -27,6 +28,21 @@ vi.mocked(OpenAI.prototype.beta.threads.messages.list).mockResolvedValue({
     }
   ]
 } as any);
+
+// Attach to prototype so that instance under test sees these mocks
+(OpenAI as unknown as { prototype: any }).prototype.beta = {
+  threads: {
+    create: threadsCreate,
+    messages: {
+      create: messagesCreate,
+      list: messagesList
+    },
+    runs: {
+      create: runsCreate,
+      retrieve: runsRetrieve
+    }
+  }
+};
 
 describe('AiImageService', () => {
   let service: AiImageService;
@@ -36,6 +52,11 @@ describe('AiImageService', () => {
     originalEnv = { ...process.env };
     Object.assign(process.env, mockEnv);
     service = new AiImageService(mockEnv);
+    // reset R2/KV mocks
+    vi.clearAllMocks();
+    mockEnv.R2_AI_IMAGES.put = vi.fn();
+    mockEnv.KV_AI_ENHANCER.get = vi.fn();
+    mockEnv.KV_AI_ENHANCER.put = vi.fn();
   });
 
   afterEach(() => {
@@ -51,39 +72,40 @@ describe('AiImageService', () => {
       const result = await service.callCustomAssistant(prompt, assistantId);
 
       expect(OpenAI).toHaveBeenCalledWith({ apiKey: 'sk-test-key' });
-      expect(vi.mocked(OpenAI.prototype.beta.threads.create)).toHaveBeenCalled();
-      expect(vi.mocked(OpenAI.prototype.beta.threads.messages.create)).toHaveBeenCalledWith('thread-123', {
+      expect(threadsCreate).toHaveBeenCalled();
+      expect(messagesCreate).toHaveBeenCalledWith('thread-123', {
         role: 'user',
         content: prompt,
       });
-      expect(vi.mocked(OpenAI.prototype.beta.threads.runs.create)).toHaveBeenCalledWith('thread-123', {
+      expect(runsCreate).toHaveBeenCalledWith('thread-123', {
         assistant_id: assistantId,
       });
-      expect(vi.mocked(OpenAI.prototype.beta.threads.messages.list)).toHaveBeenCalledWith('thread-123');
+      expect(messagesList).toHaveBeenCalledWith('thread-123');
       expect(result).toEqual({ content: 'Test response' });
     });
 
     it('should throw error if OPENAI_API_KEY is missing', async () => {
-      delete process.env.OPENAI_API_KEY;
+      // Re-initialize service with missing key (service reads from env passed in constructor)
+      service = new AiImageService({ ...mockEnv, OPENAI_API_KEY: undefined } as any);
       await expect(service.callCustomAssistant('prompt', 'asst-123')).rejects.toThrow('OPENAI_API_KEY not configured');
     });
 
     it('should throw error on run failure (status: failed)', async () => {
-      vi.mocked(OpenAI.prototype.beta.threads.runs.create).mockResolvedValueOnce({ id: 'run-123', status: 'in_progress' } as any);
-      vi.mocked(OpenAI.prototype.beta.threads.runs.retrieve).mockResolvedValueOnce({ status: 'failed' } as any);
+      runsCreate.mockResolvedValueOnce({ id: 'run-123', status: 'in_progress' } as any);
+      runsRetrieve.mockResolvedValueOnce({ status: 'failed' } as any);
 
       await expect(service.callCustomAssistant('prompt', 'asst-123')).rejects.toThrow('Run failed with status: failed');
     });
 
     it('should throw error if no assistant message', async () => {
-      vi.mocked(OpenAI.prototype.beta.threads.messages.list).mockResolvedValueOnce({ data: [] } as any);
+      messagesList.mockResolvedValueOnce({ data: [] } as any);
 
       await expect(service.callCustomAssistant('prompt', 'asst-123')).rejects.toThrow('No response from assistant');
     });
 
     it('should throw error on network error during run creation', async () => {
       const error = new Error('Network error');
-      vi.mocked(OpenAI.prototype.beta.threads.runs.create).mockRejectedValueOnce(error);
+      runsCreate.mockRejectedValueOnce(error);
 
       await expect(service.callCustomAssistant('prompt', 'asst-123')).rejects.toThrow('Failed to call assistant');
     });
@@ -116,11 +138,10 @@ describe('AiImageService', () => {
       vi.spyOn(service as any, 'detectImageMimeFromBytes').mockReturnValue('image/jpeg'); // Mock import
       vi.spyOn(service as any, 'fetchBinary').mockResolvedValue({ arrayBuffer: new ArrayBuffer(0), contentType: 'image/png' });
       vi.spyOn(service as any, 'runReplicate').mockResolvedValue('https://example.com/output.png');
-      // Mock R2 put
-      vi.spyOn(mockEnv.R2_AI_IMAGES as any, 'put').mockResolvedValue(undefined);
-      // Mock KV get/put
-      vi.spyOn(mockEnv.KV_AI_ENHANCER as any, 'get').mockResolvedValue(null);
-      vi.spyOn(mockEnv.KV_AI_ENHANCER as any, 'put').mockResolvedValue(undefined);
+      // Mock R2/KV
+      (mockEnv.R2_AI_IMAGES.put as any).mockResolvedValue(undefined);
+      (mockEnv.KV_AI_ENHANCER.get as any).mockResolvedValue(null);
+      (mockEnv.KV_AI_ENHANCER.put as any).mockResolvedValue(undefined);
     });
 
     it('should call assistant and apply suggested scale and faceEnhance', async () => {

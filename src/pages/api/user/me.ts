@@ -37,5 +37,5 @@ export const GET = withAuthApiMiddleware(async (context) => {
     return standardApiLimiter(ctx as any);
   },
   // Standardisierte Unauthorized-Antwort (Tests erwarten error.type = 'auth_error')
-  onUnauthorized: (context) => createApiError('auth_error', 'Unauthorized')
+  onUnauthorized: (_context) => createApiError('auth_error', 'Unauthorized')
 });

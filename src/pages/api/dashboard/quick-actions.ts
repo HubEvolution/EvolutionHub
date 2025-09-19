@@ -1,9 +1,8 @@
-import type { APIRoute } from 'astro';
-import type { QuickAction } from '../../../src/types/dashboard';
+import type { QuickAction } from '@/types/dashboard';
 import { withApiMiddleware, createApiSuccess } from '@/lib/api-middleware';
 import { logApiAccess } from '@/lib/security-logger';
 
-const quickActions: Omit<QuickAction, 'action'> & { action: string }[] = [
+const quickActions: QuickAction[] = [
   { "id": "qa1", "title": "New Post", "description": "Write a new blog article.", "icon": "✍️", "variant": "primary", "action": "createPost" }
 ];
 

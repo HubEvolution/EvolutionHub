@@ -60,11 +60,11 @@
     const modal = document.getElementById('avatar-modal');
     const openModalBtn = document.getElementById('change-avatar-btn');
     const closeModalBtn = document.getElementById('close-avatar-modal');
-    const fileInput = document.getElementById('avatar-upload') as HTMLInputElement;
+    const fileInput = document.getElementById('avatar-upload');
     const uploadZone = document.getElementById('upload-zone');
     const selectFileBtn = document.getElementById('select-file-btn');
     const previewContainer = document.getElementById('preview-container');
-    const modalPreview = document.getElementById('modal-preview') as HTMLImageElement;
+    const modalPreview = document.getElementById('modal-preview');
     const changeSelectionBtn = document.getElementById('change-selection-btn');
     const uploadBtn = document.getElementById('upload-btn');
     
@@ -162,7 +162,9 @@
       const reader = new FileReader();
       reader.onload = (e) => {
         if (e.target && e.target.result) {
-          modalPreview.src = e.target.result as string;
+          if (modalPreview instanceof HTMLImageElement) {
+            modalPreview.src = String(e.target.result);
+          }
           showPreview();
         }
       };
@@ -202,8 +204,8 @@
       })
       .then(data => {
         // Aktualisiere den Avatar im Hauptprofil
-        const avatarPreview = document.getElementById('avatar-preview') as HTMLImageElement;
-        if (avatarPreview) {
+        const avatarPreview = document.getElementById('avatar-preview');
+        if (avatarPreview instanceof HTMLImageElement) {
           avatarPreview.src = data.imageUrl;
         }
         

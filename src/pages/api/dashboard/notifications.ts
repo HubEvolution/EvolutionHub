@@ -1,5 +1,4 @@
-import type { APIContext } from 'astro';
-import type { Notification } from '../../../types/dashboard';
+// Removed unused type imports
 import { withAuthApiMiddleware, createApiSuccess, createApiError } from '@/lib/api-middleware';
 import { logUserEvent } from '@/lib/security-logger';
 
@@ -17,6 +16,9 @@ export const GET = withAuthApiMiddleware(async (context) => {
   const { env } = locals.runtime;
   const user = locals.user;
   
+  if (!user) {
+    return createApiError('auth_error', 'Unauthorized');
+  }
   const stmt = env.DB.prepare('SELECT * FROM notifications WHERE user_id = ? ORDER BY created_at DESC LIMIT 10').bind(user.id);
   const { results } = await stmt.all();
   

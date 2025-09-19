@@ -1,6 +1,6 @@
 import { defineCollection, z } from 'astro:content';
 import { format } from 'date-fns';
-import { de } from 'date-fns/locale/index.js';
+import { de } from 'date-fns/locale';
 
 // Hilfsfunktion zur Validierung von Datumsangaben
 const dateSchema = z.preprocess((arg) => {
@@ -64,10 +64,16 @@ export const blogCollection = defineCollection({
       
     updatedDate: dateSchema
       .optional()
-      .refine((date, ctx) => {
-        if (!date) return true;
-        return date >= ctx.parent.pubDate;
-      }, 'Aktualisierungsdatum muss nach dem Veröffentlichungsdatum liegen'),
+      .superRefine((date, ctx) => {
+        const parent: any = (ctx as any).parent;
+        const pub: Date | undefined = parent?.pubDate;
+        if (date && pub && date < pub) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'Aktualisierungsdatum muss nach dem Veröffentlichungsdatum liegen'
+          });
+        }
+      }),
     
     // Autor-Informationen
     author: authorSchema.default('EvolutionHub Team'),

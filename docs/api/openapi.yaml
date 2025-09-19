@@ -1,47 +1,18 @@
-openapi: 3.0.3
+openapi: 3.0.0
 info:
   title: Evolution Hub API
-  description: |
-    API-Dokumentation für das Evolution Hub Projekt.
-    Diese API ermöglicht die Interaktion mit Benutzerkonten, Projekten, Kommentaren und Tools.
+  description: API for Evolution Hub, including auth, AI tools, billing, and more.
   version: 1.0.0
-  contact:
-    name: Evolution Hub Team
-    url: https://hub-evolution.pages.dev
-  license:
-    name: MIT
-    url: https://opensource.org/licenses/MIT
-
 servers:
-  - url: https://hub-evolution.pages.dev/api
-    description: Produktionsserver
-  - url: http://localhost:3000/api
-    description: Lokaler Entwicklungsserver
-
-tags:
-  - name: auth
-    description: Authentifizierung und Autorisierung
-  - name: users
-    description: Benutzerverwaltung
-  - name: projects
-    description: Projektverwaltung
-  - name: comments
-    description: Kommentare zu Projekten
-  - name: tools
-    description: Werkzeuge für Projekte
-
+  - url: https://api.hub-evolution.com/v1
+    description: Production server
+  - url: http://localhost:4321/v1
+    description: Local development server
 paths:
-  /auth/logout:
-    $ref: './openapi/paths/auth-logout.yaml'
-  /user/account:
-    delete:
-      tags:
-        - users
-      summary: Benutzerkonto löschen
-      description: |
-        Löscht das Benutzerkonto und alle zugehörigen Daten.
-        Dies ist ein permanenter Vorgang, der nur mit einer Bestätigung des Benutzers durchgeführt werden kann.
-      operationId: deleteUserAccount
+  /api/auth/login:
+    post:
+      summary: User login
+      description: Authenticates user and returns session token.
       requestBody:
         required: true
         content:
@@ -49,223 +20,238 @@ paths:
             schema:
               type: object
               properties:
-                confirm:
-                  type: boolean
-                  description: Bestätigung, dass das Konto gelöscht werden soll.
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  format: password
               required:
-                - confirm
+                - email
+                - password
       responses:
-        '204':
-          description: Konto erfolgreich gelöscht
-        '400':
-          description: Ungültige Anfrage (z.B. fehlende Bestätigung)
+        '200':
+          description: Successful login
           content:
             application/json:
               schema:
-                $ref: '../../openapi.yaml#/components/schemas/Error'
-              example:
-                error: true
-                message: Bestätigung erforderlich, um das Konto zu löschen.
-                status: 400
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  token:
+                    type: string
         '401':
-          $ref: '../../openapi.yaml#/components/responses/Unauthorized'
-        '429':
-          $ref: '../../openapi.yaml#/components/responses/TooManyRequests'
-        '500':
-          $ref: '../../openapi.yaml#/components/responses/InternalServerError'
+          description: Invalid credentials
+  /api/prompt-enhance:
+    post:
+      summary: Enhance prompt
+      description: Transforms raw text into a structured, AI-ready prompt using the Prompt Enhancer Service. Supports guest and authenticated users with quota management. Feature gated by PUBLIC_PROMPT_ENHANCER_V1.
+      tags:
+        - AI Tools
       security:
         - cookieAuth: []
-        - csrfToken: []
-  /projects:
-    post:
-      tags:
-        - projects
-      summary: Projekt erstellen
-      description: |
-        Erstellt ein neues Projekt für den authentifizierten Benutzer.
-      operationId: createProject
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '../schemas.yaml#/ProjectCreate'
-      responses:
-        '201':
-          description: Projekt erfolgreich erstellt
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  project:
-                    $ref: '../schemas.yaml#/Project'
-              example:
-                project:
-                  id: f47ac10b-58cc-4372-a567-0e02b2c3d479
-                  name: Mein Projekt
-                  description: Eine Beschreibung meines Projekts
-                  user_id: 550e8400-e29b-41d4-a716-446655440000
-                  is_public: false
-                  created_at: "2023-01-01T00:00:00Z"
-                  updated_at: "2023-01-01T00:00:00Z"
-                  user:
-                    id: 550e8400-e29b-41d4-a716-446655440000
-                    name: John Doe
-        '400':
-          $ref: '../../openapi.yaml#/components/responses/BadRequest'
-        '401':
-          $ref: '../../openapi.yaml#/components/responses/Unauthorized'
-        '429':
-          $ref: '../../openapi.yaml#/components/responses/TooManyRequests'
-        '500':
-          $ref: '../../openapi.yaml#/components/responses/InternalServerError'
-      security:
-        - cookieAuth: []
-        - csrfToken: []
-  /tools:
-    get:
-      tags:
-        - tools
-      summary: Tools abrufen
-      description: |
-        Gibt eine Liste von verfügbaren Tools zurück.
-      operationId: getTools
-      parameters:
-        - name: page
-          in: query
-          description: Seitennummer für die Paginierung
-          schema:
-            type: integer
-            default: 1
-            minimum: 1
-        - name: limit
-          in: query
-          description: Anzahl der Elemente pro Seite
-          schema:
-            type: integer
-            default: 10
-            minimum: 1
-            maximum: 100
+              type: object
+              properties:
+                input:
+                  type: object
+                  required:
+                    - text
+                  properties:
+                    text:
+                      type: string
+                      description: The raw text to enhance into a structured prompt.
+                      minLength: 1
+                      maxLength: 5000
+                options:
+                  type: object
+                  properties:
+                    mode:
+                      type: string
+                      enum: [agent, concise]
+                      default: agent
+                      description: Mode for rewriting the prompt ('agent' for step-by-step, 'concise' for shortened version).
+                    safety:
+                      type: boolean
+                      default: true
+                      description: Enable safety checks to mask PII (emails, phones, addresses, IDs).
+                    includeScores:
+                      type: boolean
+                      default: false
+                      description: Include quality scores (clarity, specificity, testability) in response.
+                    outputFormat:
+                      type: string
+                      enum: [markdown, json]
+                      default: markdown
+                      description: Output format for the enhanced prompt.
+              required:
+                - input
       responses:
         '200':
-          description: Erfolgreicher Abruf der Tools
+          description: Successful enhancement
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  tools:
-                    type: array
-                    items:
-                      $ref: '../schemas.yaml#/Tool'
-                  pagination:
-                    $ref: '../schemas.yaml#/Pagination'
-              example:
-                tools:
-                  - id: 123e4567-e89b-12d3-a456-426614174000
-                    name: Code-Editor
-                    description: Ein Tool zum Bearbeiten von Code
-                    icon: code-editor-icon
-                    created_at: "2023-01-01T00:00:00Z"
-                    updated_at: "2023-01-01T00:00:00Z"
-                pagination:
-                  page: 1
-                  limit: 10
-                  total: 1
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      enhanced:
+                        $ref: '#/components/schemas/EnhancedPrompt'
+                      safetyReport:
+                        $ref: '#/components/schemas/SafetyReport'
+                      scores:
+                        $ref: '#/components/schemas/Scores'
+                        description: Optional quality scores if includeScores=true.
+                      usage:
+                        $ref: '#/components/schemas/UsageInfo'
+                required:
+                  - enhanced
+                  - safetyReport
+                  - usage
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: Quota exceeded or feature disabled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         '429':
-          $ref: '../../openapi.yaml#/components/responses/TooManyRequests'
-        '500':
-          $ref: '../../openapi.yaml#/components/responses/InternalServerError'
-      security:
-        - cookieAuth: []
-        - {}  # Auch ohne Authentifizierung zugänglich
-
+          description: Rate limit exceeded
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+              description: Seconds to wait before retry.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  # ... other paths
 components:
+  schemas:
+    EnhancedPrompt:
+      type: object
+      properties:
+        role:
+          type: string
+          description: Role for the AI agent (e.g., 'You are an expert content creator.').
+        objective:
+          type: string
+          description: Clear objective derived from input text.
+        constraints:
+          type: string
+          description: Constraints for the response (e.g., word limits, PII masking).
+        outputFormat:
+          type: string
+          description: Desired output format (e.g., 'Markdown with sections').
+        steps:
+          type: array
+          items:
+            type: string
+          description: Optional step-by-step plan for complex prompts.
+        fewShotExamples:
+          type: array
+          items:
+            type: string
+          description: Optional few-shot examples for guidance.
+        rawText:
+          type: string
+          description: Original input text (safety-cleaned if enabled).
+      required:
+        - role
+        - objective
+        - constraints
+        - outputFormat
+        - rawText
+    SafetyReport:
+      type: object
+      properties:
+        masked:
+          type: array
+          items:
+            type: string
+          description: List of masked PII strings.
+        types:
+          type: array
+          items:
+            type: string
+            enum: [email, phone, address, id]
+          description: Types of masked PII.
+      required:
+        - masked
+        - types
+    Scores:
+      type: object
+      properties:
+        clarity:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Clarity score based on structure completeness.
+        specificity:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Specificity score based on keyword density and intent.
+        testability:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Testability score based on presence of steps.
+      required:
+        - clarity
+        - specificity
+        - testability
+    UsageInfo:
+      type: object
+      properties:
+        used:
+          type: integer
+          description: Number of enhancements used in current period.
+        limit:
+          type: integer
+          description: Daily limit (20 for users, 5 for guests).
+        resetAt:
+          type: integer
+          format: timestamp
+          description: Unix timestamp for quota reset (if applicable).
+      required:
+        - used
+        - limit
+    ApiError:
+      type: object
+      properties:
+        success:
+          type: boolean
+          enum: [false]
+        error:
+          type: string
+          description: Error message.
+        code:
+          type: string
+          description: Error code (e.g., 'validation_error', 'quota_exceeded').
+        details:
+          type: object
+          description: Additional error details (e.g., usage info).
+      required:
+        - success
+        - error
   securitySchemes:
     cookieAuth:
       type: apiKey
       in: cookie
-      name: auth-token
-    csrfToken:
-      type: apiKey
-      in: header
-      name: X-CSRF-Token
-
-  schemas:
-    $ref: './openapi/schemas.yaml'
-
-  responses:
-    Unauthorized:
-      description: Nicht authentifiziert
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            error: true
-            message: Nicht authentifiziert
-            status: 401
-    
-    Forbidden:
-      description: Nicht autorisiert
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            error: true
-            message: Nicht autorisiert
-            status: 403
-    
-    NotFound:
-      description: Ressource nicht gefunden
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            error: true
-            message: Ressource nicht gefunden
-            status: 404
-    
-    BadRequest:
-      description: Ungültige Anfrage
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            error: true
-            message: Ungültige Anfrage
-            status: 400
-    
-    TooManyRequests:
-      description: Zu viele Anfragen
-      headers:
-        Retry-After:
-          schema:
-            type: integer
-          description: Sekunden bis zum nächsten erlaubten Versuch
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            error: true
-            message: Zu viele Anfragen. Bitte versuchen Sie es später erneut.
-            status: 429
-    
-    InternalServerError:
-      description: Interner Serverfehler
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            error: true
-            message: Interner Serverfehler
-            status: 500
-
-security:
-  - cookieAuth: []
+      name: session

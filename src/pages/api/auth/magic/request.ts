@@ -7,14 +7,18 @@ const parseBody = async (request: Request): Promise<{ email?: string; r?: string
   const ct = request.headers.get('content-type') || '';
   if (ct.includes('application/json')) {
     try {
-      const json = await request.json();
-      return {
-        email: typeof json.email === 'string' ? json.email : undefined,
-        r: typeof json.r === 'string' ? json.r : undefined,
-        name: typeof json.name === 'string' ? json.name : undefined,
-        username: typeof json.username === 'string' ? json.username : undefined,
-        locale: typeof json.locale === 'string' ? json.locale : undefined,
-      };
+      const json: unknown = await request.json();
+      if (json && typeof json === 'object') {
+        const anyJson = json as Record<string, unknown>;
+        return {
+          email: typeof anyJson.email === 'string' ? anyJson.email : undefined,
+          r: typeof anyJson.r === 'string' ? anyJson.r : undefined,
+          name: typeof anyJson.name === 'string' ? anyJson.name : undefined,
+          username: typeof anyJson.username === 'string' ? anyJson.username : undefined,
+          locale: typeof anyJson.locale === 'string' ? anyJson.locale : undefined,
+        };
+      }
+      return {};
     } catch {
       return {};
     }

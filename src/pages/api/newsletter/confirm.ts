@@ -29,7 +29,7 @@ const pendingSubscriptions = new Map<string, PendingSubscription>();
  * Newsletter subscription confirmation endpoint
  * Handles double opt-in email confirmations
  */
-export const GET: APIRoute = async ({ request, url }) => {
+export const GET: APIRoute = async ({ request: _request, url }) => {
   const searchParams = url.searchParams;
   const token = searchParams.get('token');
   const email = searchParams.get('email');

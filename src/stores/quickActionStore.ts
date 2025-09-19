@@ -39,11 +39,11 @@ const useQuickActionStore = create<QuickActionState>((set) => ({
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       
-      const result = await response.json();
+      const json: unknown = await response.json();
       
       // Handle action-specific results
-      if (result.redirect) {
-        window.location.href = result.redirect;
+      if (json && typeof json === 'object' && 'redirect' in json) {
+        window.location.href = String((json as any).redirect);
       }
       
       set({ loading: false });

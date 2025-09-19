@@ -70,7 +70,8 @@ export async function POST(context: APIContext) {
                 avatarFile instanceof File ? 'is File object' : 'not a File object');
     } catch (formError) {
       console.error('Error parsing form data:', formError);
-      return applySecurityHeaders(createErrorResponse(`Could not parse form data: ${formError.message}`, 400));
+      const errMsg = formError instanceof Error ? formError.message : String(formError);
+      return applySecurityHeaders(createErrorResponse(`Could not parse form data: ${errMsg}`, 400));
     }
 
     if (!avatarFile) {

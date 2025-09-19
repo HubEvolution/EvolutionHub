@@ -36,8 +36,10 @@ export default function AuthSessionPoller({
           },
         });
         if (!res.ok) return false;
-        const data = await res.json().catch(() => null);
-        return Boolean(data && data.success === true && data.data && data.data.id);
+        const data: unknown = await res.json().catch(() => null);
+        if (!data || typeof data !== 'object') return false;
+        const anyData = data as any;
+        return Boolean(anyData && anyData.success === true && anyData.data && anyData.data.id);
       } catch {
         return false;
       }

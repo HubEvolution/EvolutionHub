@@ -1,0 +1,1214 @@
+15:04:34 [@astrojs/cloudflare] Enabling sessions with Cloudflare KV with the "SESSION" KV binding.
+15:04:34 [@astrojs/cloudflare] If you see the error "Invalid binding `SESSION`" in your build output, you need to add the binding to your wrangler config file.
+15:04:34 [WARN] [adapter] Cloudflare does not support sharp at runtime. However, you can configure `imageService: "compile"` to optimize images with sharp on prerendered pages during build time.
+15:04:34 [content] Syncing content
+15:04:34 [content] Synced content
+15:04:34 [types] Generated 538ms
+15:04:34 [check] Getting diagnostics for Astro files in /Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub...
+[96msrc/setupTests.ts[0m:[93m36[0m:[93m14[0m - [91merror[0m[90m ts(2339): [0mProperty 'Astro' does not exist on type 'typeof globalThis'.
+
+[7m36[0m   globalThis.Astro = {
+[7m  [0m [91m             ~~~~~[0m
+[96msrc/setupTests.ts[0m:[93m35[0m:[93m17[0m - [91merror[0m[90m ts(2339): [0mProperty 'Astro' does not exist on type 'typeof globalThis'.
+
+[7m35[0m if (!globalThis.Astro) {
+[7m  [0m [91m                ~~~~~[0m
+[96msrc/setupTests.ts[0m:[93m31[0m:[93m7[0m - [91merror[0m[90m ts(2649): [0mCannot augment module 'Astro' with value exports because it resolves to a non-module entity.
+
+[7m31[0m   var Astro: AstroGlobal;
+[7m  [0m [91m      ~~~~~[0m
+
+[96msrc/components/AvatarUploadModal.astro[0m:[93m197[0m:[93m13[0m - [93mwarning[0m[90m ts(80006): [0mThis may be converted to an async function.
+
+[7m197[0m       .then(response => {
+[7m   [0m [93m            ~~~~~~~~~~~~~[0m
+
+[96msrc/components/CategoryFilter.astro[0m:[93m6[0m:[93m7[0m - [93mwarning[0m[90m ts(6133): [0m't' is declared but its value is never read.
+
+[7m6[0m const t = getT(locale);
+[7m [0m [93m      ~[0m
+
+[96msrc/components/ErrorBoundary.astro[0m:[93m10[0m:[93m19[0m - [93mwarning[0m[90m ts(6133): [0m'client' is declared but its value is never read.
+
+[7m10[0m const { fallback, client = 'load' } = Astro.props;
+[7m  [0m [93m                  ~~~~~~[0m
+
+[96msrc/components/Fallback.astro[0m:[93m76[0m:[93m44[0m - [93mwarning[0m[90m ts(6133): [0m'index' is declared but its value is never read.
+
+[7m76[0m     {Array.from({ length: count }).map((_, index) => (
+[7m  [0m [93m                                           ~~~~~[0m
+[96msrc/components/Fallback.astro[0m:[93m52[0m:[93m44[0m - [93mwarning[0m[90m ts(6133): [0m'index' is declared but its value is never read.
+
+[7m52[0m     {Array.from({ length: count }).map((_, index) => (
+[7m  [0m [93m                                           ~~~~~[0m
+[96msrc/components/Fallback.astro[0m:[93m34[0m:[93m44[0m - [93mwarning[0m[90m ts(6133): [0m'index' is declared but its value is never read.
+
+[7m34[0m     {Array.from({ length: count }).map((_, index) => (
+[7m  [0m [93m                                           ~~~~~[0m
+
+[96msrc/components/Newsletter.astro[0m:[93m191[0m:[93m35[0m - [91merror[0m[90m ts(7006): [0mParameter 'type' implicitly has an 'any' type.
+
+[7m191[0m     function showMessage(message, type) {
+[7m   [0m [91m                                  ~~~~[0m
+[96msrc/components/Newsletter.astro[0m:[93m191[0m:[93m26[0m - [91merror[0m[90m ts(7006): [0mParameter 'message' implicitly has an 'any' type.
+
+[7m191[0m     function showMessage(message, type) {
+[7m   [0m [91m                         ~~~~~~~[0m
+[96msrc/components/Newsletter.astro[0m:[93m178[0m:[93m20[0m - [91merror[0m[90m ts(2339): [0mProperty 'disabled' does not exist on type 'HTMLElement'.
+
+[7m178[0m       submitButton.disabled = loading;
+[7m   [0m [91m                   ~~~~~~~~[0m
+[96msrc/components/Newsletter.astro[0m:[93m178[0m:[93m7[0m - [91merror[0m[90m ts(18047): [0m'submitButton' is possibly 'null'.
+
+[7m178[0m       submitButton.disabled = loading;
+[7m   [0m [91m      ~~~~~~~~~~~~[0m
+[96msrc/components/Newsletter.astro[0m:[93m177[0m:[93m25[0m - [91merror[0m[90m ts(7006): [0mParameter 'loading' implicitly has an 'any' type.
+
+[7m177[0m     function setLoading(loading) {
+[7m   [0m [91m                        ~~~~~~~[0m
+[96msrc/components/Newsletter.astro[0m:[93m164[0m:[93m23[0m - [91merror[0m[90m ts(18046): [0m'result' is of type 'unknown'.
+
+[7m164[0m           showMessage(result.message || 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.', 'error');
+[7m   [0m [91m                      ~~~~~~[0m
+[96msrc/components/Newsletter.astro[0m:[93m155[0m:[93m113[0m - [91merror[0m[90m ts(18046): [0m'result' is of type 'unknown'.
+
+[7m155[0m               `${result.message || 'Bitte überprüfen Sie Ihre E-Mails!'}<br><small class="text-sm opacity-80">${result.info || 'Klicken Sie auf den Bestätigungslink in der E-Mail, um Ihre Anmeldung abzuschließen.'}</small>`,
+[7m   [0m [91m                                                                                                                ~~~~~~[0m
+[96msrc/components/Newsletter.astro[0m:[93m155[0m:[93m18[0m - [91merror[0m[90m ts(18046): [0m'result' is of type 'unknown'.
+
+[7m155[0m               `${result.message || 'Bitte überprüfen Sie Ihre E-Mails!'}<br><small class="text-sm opacity-80">${result.info || 'Klicken Sie auf den Bestätigungslink in der E-Mail, um Ihre Anmeldung abzuschließen.'}</small>`,
+[7m   [0m [91m                 ~~~~~~[0m
+[96msrc/components/Newsletter.astro[0m:[93m152[0m:[93m15[0m - [91merror[0m[90m ts(18046): [0m'result' is of type 'unknown'.
+
+[7m152[0m           if (result.next_step === 'confirmation_required') {
+[7m   [0m [91m              ~~~~~~[0m
+[96msrc/components/Newsletter.astro[0m:[93m150[0m:[93m13[0m - [91merror[0m[90m ts(18046): [0m'result' is of type 'unknown'.
+
+[7m150[0m         if (result.success) {
+[7m   [0m [91m            ~~~~~~[0m
+
+[96msrc/components/Pagination.astro[0m:[93m114[0m:[93m33[0m - [93mwarning[0m[90m ts(6133): [0m'index' is declared but its value is never read.
+
+[7m114[0m     {pageNumbers.map((pageItem, index) => {
+[7m   [0m [93m                                ~~~~~[0m
+
+[96msrc/components/blog/BlogCTA.astro[0m:[93m178[0m:[93m43[0m - [91merror[0m[90m ts(2339): [0mProperty 'focus' does not exist on type 'Element'.
+
+[7m178[0m               setTimeout(() => emailInput.focus(), 500);
+[7m   [0m [91m                                          ~~~~~[0m
+[96msrc/components/blog/BlogCTA.astro[0m:[93m152[0m:[93m11[0m - [91merror[0m[90m ts(2304): [0mCannot find name 'gtag'.
+
+[7m152[0m           gtag('event', 'cta_click', {
+[7m   [0m [91m          ~~~~[0m
+[96msrc/components/blog/BlogCTA.astro[0m:[93m151[0m:[93m20[0m - [91merror[0m[90m ts(2304): [0mCannot find name 'gtag'.
+
+[7m151[0m         if (typeof gtag !== 'undefined') {
+[7m   [0m [91m                   ~~~~[0m
+[96msrc/components/blog/BlogCTA.astro[0m:[93m148[0m:[93m35[0m - [91merror[0m[90m ts(2339): [0mProperty 'dataset' does not exist on type 'Element'.
+
+[7m148[0m         const leadMagnet = button.dataset.leadmagnet;
+[7m   [0m [91m                                  ~~~~~~~[0m
+[96msrc/components/blog/BlogCTA.astro[0m:[93m147[0m:[93m32[0m - [91merror[0m[90m ts(2339): [0mProperty 'dataset' does not exist on type 'Element'.
+
+[7m147[0m         const ctaType = button.dataset.analyticsType;
+[7m   [0m [91m                               ~~~~~~~[0m
+
+[96msrc/components/blog/LeadMagnetCTA.astro[0m:[93m134[0m:[93m39[0m - [91merror[0m[90m ts(7006): [0mParameter 'benefit' implicitly has an 'any' type.
+
+[7m134[0m             {leadMagnet.benefits.map((benefit) => (
+[7m   [0m [91m                                      ~~~~~~~[0m
+[96msrc/components/blog/LeadMagnetCTA.astro[0m:[93m70[0m:[93m20[0m - [91merror[0m[90m ts(7053): [0mElement implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ 'new-work-guide': { title: string; description: string; benefits: string[]; image: string; fileSize: string; }; 'ki-tools-checkliste': { title: string; description: string; benefits: string[]; image: string; fileSize: string; }; 'produktivitaets-masterclass': { ...; }; }'.
+  No index signature with a parameter of type 'string' was found on type '{ 'new-work-guide': { title: string; description: string; benefits: string[]; image: string; fileSize: string; }; 'ki-tools-checkliste': { title: string; description: string; benefits: string[]; image: string; fileSize: string; }; 'produktivitaets-masterclass': { ...; }; }'.
+
+[7m70[0m const leadMagnet = leadMagnets[leadMagnetId] || {
+[7m  [0m [91m                   ~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/components/blog/LeadMagnetCTA.astro[0m:[93m238[0m:[93m13[0m - [91merror[0m[90m ts(2304): [0mCannot find name 'gtag'.
+
+[7m238[0m             gtag('event', 'lead_magnet_impression', {
+[7m   [0m [91m            ~~~~[0m
+[96msrc/components/blog/LeadMagnetCTA.astro[0m:[93m237[0m:[93m22[0m - [91merror[0m[90m ts(2304): [0mCannot find name 'gtag'.
+
+[7m237[0m           if (typeof gtag !== 'undefined') {
+[7m   [0m [91m                     ~~~~[0m
+[96msrc/components/blog/LeadMagnetCTA.astro[0m:[93m235[0m:[93m45[0m - [91merror[0m[90m ts(2339): [0mProperty 'dataset' does not exist on type 'Element'.
+
+[7m235[0m           const leadMagnetId = entry.target.dataset.leadMagnetId;
+[7m   [0m [91m                                            ~~~~~~~[0m
+[96msrc/components/blog/LeadMagnetCTA.astro[0m:[93m212[0m:[93m11[0m - [91merror[0m[90m ts(2304): [0mCannot find name 'gtag'.
+
+[7m212[0m           gtag('event', 'lead_magnet_click', {
+[7m   [0m [91m          ~~~~[0m
+[96msrc/components/blog/LeadMagnetCTA.astro[0m:[93m211[0m:[93m20[0m - [91merror[0m[90m ts(2304): [0mCannot find name 'gtag'.
+
+[7m211[0m         if (typeof gtag !== 'undefined') {
+[7m   [0m [91m                   ~~~~[0m
+[96msrc/components/blog/LeadMagnetCTA.astro[0m:[93m208[0m:[93m37[0m - [91merror[0m[90m ts(2339): [0mProperty 'dataset' does not exist on type 'Element'.
+
+[7m208[0m         const leadMagnetId = button.dataset.leadMagnetId;
+[7m   [0m [91m                                    ~~~~~~~[0m
+
+[96msrc/components/blog/NewsletterCTA.astro[0m:[93m214[0m:[93m44[0m - [93mwarning[0m[90m ts(6133): [0m'variant' is declared but its value is never read.
+
+[7m214[0m   function insertNewsletterForm(container, variant, source, I18N) {
+[7m   [0m [93m                                           ~~~~~~~[0m
+[96msrc/components/blog/NewsletterCTA.astro[0m:[93m81[0m:[93m11[0m - [93mwarning[0m[90m astro(4000): [0mThis script will be treated as if it has the `is:inline` directive because it contains an attribute. Therefore, features that require processing (e.g. using TypeScript or npm packages in the script) are unavailable.
+
+See docs for more details: https://docs.astro.build/en/guides/client-side-scripts/#script-processing.
+
+Add the `is:inline` directive explicitly to silence this hint.
+
+[7m81[0m   <script type="application/json" data-role="i18n-newsletter-cta">{JSON.stringify(i18nNewsletter)}</script>
+[7m  [0m [93m          ~~~~[0m
+
+[96msrc/components/forms/LeadMagnetForm.astro[0m:[93m42[0m:[93m79[0m - [93mwarning[0m[90m ts(6385): [0m'(from: number, length?: number | undefined): string' is deprecated.
+
+[7m42[0m const formId = `lead-magnet-form-${leadMagnetId}-${Math.random().toString(36).substr(2, 5)}`;
+[7m  [0m [93m                                                                              ~~~~~~[0m
+
+[96msrc/components/scripts/AOSCoordinator.astro[0m:[93m41[0m:[93m11[0m - [93mwarning[0m[90m ts(6133): [0m'dwarn' is declared but its value is never read.
+
+[7m41[0m     const dwarn = (...args) => { if (__DEV__) console.warn(...args); };
+[7m  [0m [93m          ~~~~~[0m
+
+[96msrc/components/scripts/AuthSessionPoller.tsx[0m:[93m40[0m:[93m75[0m - [91merror[0m[90m ts(2339): [0mProperty 'data' does not exist on type '{}'.
+
+[7m40[0m         return Boolean(data && data.success === true && data.data && data.data.id);
+[7m  [0m [91m                                                                          ~~~~[0m
+[96msrc/components/scripts/AuthSessionPoller.tsx[0m:[93m40[0m:[93m62[0m - [91merror[0m[90m ts(2339): [0mProperty 'data' does not exist on type '{}'.
+
+[7m40[0m         return Boolean(data && data.success === true && data.data && data.data.id);
+[7m  [0m [91m                                                             ~~~~[0m
+[96msrc/components/scripts/AuthSessionPoller.tsx[0m:[93m40[0m:[93m37[0m - [91merror[0m[90m ts(2339): [0mProperty 'success' does not exist on type '{}'.
+
+[7m40[0m         return Boolean(data && data.success === true && data.data && data.data.id);
+[7m  [0m [91m                                    ~~~~~~~[0m
+
+[96msrc/components/scripts/TypewriterComponent.astro[0m:[93m25[0m:[93m9[0m - [93mwarning[0m[90m astro(4000): [0mThis script will be treated as if it has the `is:inline` directive because it contains an attribute. Therefore, features that require processing (e.g. using TypeScript or npm packages in the script) are unavailable.
+
+See docs for more details: https://docs.astro.build/en/guides/client-side-scripts/#script-processing.
+
+Add the `is:inline` directive explicitly to silence this hint.
+
+[7m25[0m <script define:vars={{ elementId, texts, defaultDelay }} nonce={Astro.locals.cspNonce}>
+[7m  [0m [93m        ~~~~~~~~~~~[0m
+
+[96msrc/components/scripts/VerifyEmailCoordinator.astro[0m:[93m135[0m:[93m21[0m - [93mwarning[0m[90m ts(80006): [0mThis may be converted to an async function.
+
+[7m135[0m               .then(function (response) {
+[7m   [0m [93m                    ~~~~~~~~[0m
+
+[96msrc/components/tools/ImagEnhancerIsland.tsx[0m:[93m779[0m:[93m37[0m - [91merror[0m[90m ts(2339): [0mProperty 'url' does not exist on type '{}'.
+
+[7m779[0m         window.location.href = data.url;
+[7m   [0m [91m                                    ~~~[0m
+[96msrc/components/tools/ImagEnhancerIsland.tsx[0m:[93m778[0m:[93m24[0m - [91merror[0m[90m ts(2339): [0mProperty 'url' does not exist on type '{}'.
+
+[7m778[0m       if (data && data.url) {
+[7m   [0m [91m                       ~~~[0m
+
+[96msrc/components/tools/imag-enhancer/ActionsGroup.tsx[0m:[93m60[0m:[93m17[0m - [93mwarning[0m[90m ts(80004): [0mJSDoc types may be moved to TypeScript types.
+
+[7m60[0m export function ActionsGroup({
+[7m  [0m [93m                ~~~~~~~~~~~~[0m
+
+[96msrc/components/tools/imag-enhancer/EnhancerActions.tsx[0m:[93m78[0m:[93m17[0m - [93mwarning[0m[90m ts(80004): [0mJSDoc types may be moved to TypeScript types.
+
+[7m78[0m export function EnhancerActions({
+[7m  [0m [93m                ~~~~~~~~~~~~~~~[0m
+
+[96msrc/components/tools/imag-enhancer/ModelControls.tsx[0m:[93m1[0m:[93m1[0m - [93mwarning[0m[90m ts(6133): [0m'React' is declared but its value is never read.
+
+[7m1[0m import type React from 'react';
+[7m [0m [93m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/components/tools/imag-enhancer/UsagePill.tsx[0m:[93m31[0m:[93m17[0m - [93mwarning[0m[90m ts(80004): [0mJSDoc types may be moved to TypeScript types.
+
+[7m31[0m export function UsagePill({ label, loadingLabel, usage, ownerType, percent, critical }: UsagePillProps) {
+[7m  [0m [93m                ~~~~~~~~~[0m
+
+[96msrc/components/tools/imag-enhancer/hooks/useRateLimit.ts[0m:[93m38[0m:[93m53[0m - [91merror[0m[90m ts(2339): [0mProperty 'error' does not exist on type '{}'.
+
+[7m38[0m         const details = body && body.error && (body.error.details as any);
+[7m  [0m [91m                                                    ~~~~~[0m
+[96msrc/components/tools/imag-enhancer/hooks/useRateLimit.ts[0m:[93m38[0m:[93m38[0m - [91merror[0m[90m ts(2339): [0mProperty 'error' does not exist on type '{}'.
+
+[7m38[0m         const details = body && body.error && (body.error.details as any);
+[7m  [0m [91m                                     ~~~~~[0m
+
+[96msrc/components/tools/imag-enhancer/hooks/useUsage.ts[0m:[93m2[0m:[93m57[0m - [93mwarning[0m[90m ts(6196): [0m'ApiErrorBody' is declared but never used.
+
+[7m2[0m import type { UsageInfo, UsageResponseData, ApiSuccess, ApiErrorBody, OwnerType, Plan, PlanEntitlements } from '../types';
+[7m [0m [93m                                                        ~~~~~~~~~~~~[0m
+[96msrc/components/tools/imag-enhancer/hooks/useUsage.ts[0m:[93m2[0m:[93m45[0m - [93mwarning[0m[90m ts(6196): [0m'ApiSuccess' is declared but never used.
+
+[7m2[0m import type { UsageInfo, UsageResponseData, ApiSuccess, ApiErrorBody, OwnerType, Plan, PlanEntitlements } from '../types';
+[7m [0m [93m                                            ~~~~~~~~~~[0m
+
+[96msrc/components/tools/prompt-enhancer/EnhancerForm.tsx[0m:[93m182[0m:[93m19[0m - [91merror[0m[90m ts(2322): [0mType '{ children: Element[]; class: string; }' is not assignable to type 'DetailedHTMLProps<HTMLAttributes<HTMLUListElement>, HTMLUListElement>'.
+  Property 'class' does not exist on type 'DetailedHTMLProps<HTMLAttributes<HTMLUListElement>, HTMLUListElement>'. Did you mean 'className'?
+
+[7m182[0m               <ul class="list-disc list-inside mt-2">
+[7m   [0m [91m                  ~~~~~[0m
+[96msrc/components/tools/prompt-enhancer/EnhancerForm.tsx[0m:[93m179[0m:[93m16[0m - [91merror[0m[90m ts(2322): [0mType '{ children: (false | Element)[]; class: string; }' is not assignable to type 'DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>'.
+  Property 'class' does not exist on type 'DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>'. Did you mean 'className'?
+
+[7m179[0m           <div class="text-sm text-yellow-700 dark:text-yellow-300">
+[7m   [0m [91m               ~~~~~[0m
+[96msrc/components/tools/prompt-enhancer/EnhancerForm.tsx[0m:[93m176[0m:[93m15[0m - [91merror[0m[90m ts(2322): [0mType '{ children: string; class: string; }' is not assignable to type 'DetailedHTMLProps<HTMLAttributes<HTMLHeadingElement>, HTMLHeadingElement>'.
+  Property 'class' does not exist on type 'DetailedHTMLProps<HTMLAttributes<HTMLHeadingElement>, HTMLHeadingElement>'. Did you mean 'className'?
+
+[7m176[0m           <h3 class="text-sm font-medium text-yellow-800 dark:text-yellow-200 mb-2">
+[7m   [0m [91m              ~~~~~[0m
+[96msrc/components/tools/prompt-enhancer/EnhancerForm.tsx[0m:[93m175[0m:[93m14[0m - [91merror[0m[90m ts(2322): [0mType '{ children: Element[]; class: string; }' is not assignable to type 'DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>'.
+  Property 'class' does not exist on type 'DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>'. Did you mean 'className'?
+
+[7m175[0m         <div class="mt-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-md">
+[7m   [0m [91m             ~~~~~[0m
+[96msrc/components/tools/prompt-enhancer/EnhancerForm.tsx[0m:[93m168[0m:[93m13[0m - [91merror[0m[90m ts(2322): [0mType '{ id: string; value: string; readOnly: true; class: string; "aria-label": string; }' is not assignable to type 'DetailedHTMLProps<TextareaHTMLAttributes<HTMLTextAreaElement>, HTMLTextAreaElement>'.
+  Property 'class' does not exist on type 'DetailedHTMLProps<TextareaHTMLAttributes<HTMLTextAreaElement>, HTMLTextAreaElement>'. Did you mean 'className'?
+
+[7m168[0m             class="w-full h-32 p-3 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-gray-50 dark:bg-gray-600 dark:text-white"
+[7m   [0m [91m            ~~~~~[0m
+[96msrc/components/tools/prompt-enhancer/EnhancerForm.tsx[0m:[93m161[0m:[93m18[0m - [91merror[0m[90m ts(2322): [0mType '{ children: string; for: string; class: string; }' is not assignable to type 'DetailedHTMLProps<LabelHTMLAttributes<HTMLLabelElement>, HTMLLabelElement>'.
+  Property 'for' does not exist on type 'DetailedHTMLProps<LabelHTMLAttributes<HTMLLabelElement>, HTMLLabelElement>'. Did you mean 'htmlFor'?
+
+[7m161[0m           <label for="outputText" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+[7m   [0m [91m                 ~~~[0m
+[96msrc/components/tools/prompt-enhancer/EnhancerForm.tsx[0m:[93m160[0m:[93m14[0m - [91merror[0m[90m ts(2322): [0mType '{ children: Element[]; class: string; }' is not assignable to type 'DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>'.
+  Property 'class' does not exist on type 'DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>'. Did you mean 'className'?
+
+[7m160[0m         <div class="mt-6">
+[7m   [0m [91m             ~~~~~[0m
+[96msrc/components/tools/prompt-enhancer/EnhancerForm.tsx[0m:[93m153[0m:[93m16[0m - [91merror[0m[90m ts(2322): [0mType '{ children: string; class: string; }' is not assignable to type 'DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>'.
+  Property 'class' does not exist on type 'DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>'. Did you mean 'className'?
+
+[7m153[0m           <div class="text-sm text-gray-600 dark:text-gray-300">
+[7m   [0m [91m               ~~~~~[0m
+[96msrc/components/tools/prompt-enhancer/EnhancerForm.tsx[0m:[93m150[0m:[93m15[0m - [91merror[0m[90m ts(2322): [0mType '{ children: string; class: string; }' is not assignable to type 'DetailedHTMLProps<HTMLAttributes<HTMLHeadingElement>, HTMLHeadingElement>'.
+  Property 'class' does not exist on type 'DetailedHTMLProps<HTMLAttributes<HTMLHeadingElement>, HTMLHeadingElement>'. Did you mean 'className'?
+
+[7m150[0m           <h3 class="text-sm font-medium text-gray-900 dark:text-white mb-2">
+[7m   [0m [91m              ~~~~~[0m
+[96msrc/components/tools/prompt-enhancer/EnhancerForm.tsx[0m:[93m149[0m:[93m14[0m - [91merror[0m[90m ts(2322): [0mType '{ children: Element[]; class: string; }' is not assignable to type 'DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>'.
+  Property 'class' does not exist on type 'DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>'. Did you mean 'className'?
+
+[7m149[0m         <div class="mt-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-md">
+[7m   [0m [91m             ~~~~~[0m
+[96msrc/components/tools/prompt-enhancer/EnhancerForm.tsx[0m:[93m141[0m:[93m11[0m - [91merror[0m[90m ts(2322): [0mType '{ children: string; type: "button"; onClick: () => Promise<void>; disabled: boolean; class: string; "aria-label": string; }' is not assignable to type 'DetailedHTMLProps<ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>'.
+  Property 'class' does not exist on type 'DetailedHTMLProps<ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>'. Did you mean 'className'?
+
+[7m141[0m           class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+[7m   [0m [91m          ~~~~~[0m
+[96msrc/components/tools/prompt-enhancer/EnhancerForm.tsx[0m:[93m128[0m:[93m13[0m - [91merror[0m[90m ts(2322): [0mType '{ children: Element[]; id: string; value: "creative" | "professional" | "concise"; onChange: (e: ChangeEvent<HTMLSelectElement>) => void; class: string; disabled: boolean; }' is not assignable to type 'DetailedHTMLProps<SelectHTMLAttributes<HTMLSelectElement>, HTMLSelectElement>'.
+  Property 'class' does not exist on type 'DetailedHTMLProps<SelectHTMLAttributes<HTMLSelectElement>, HTMLSelectElement>'. Did you mean 'className'?
+
+[7m128[0m             class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+[7m   [0m [91m            ~~~~~[0m
+[96msrc/components/tools/prompt-enhancer/EnhancerForm.tsx[0m:[93m121[0m:[93m18[0m - [91merror[0m[90m ts(2322): [0mType '{ children: string; for: string; class: string; }' is not assignable to type 'DetailedHTMLProps<LabelHTMLAttributes<HTMLLabelElement>, HTMLLabelElement>'.
+  Property 'for' does not exist on type 'DetailedHTMLProps<LabelHTMLAttributes<HTMLLabelElement>, HTMLLabelElement>'. Did you mean 'htmlFor'?
+
+[7m121[0m           <label for="mode" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+[7m   [0m [91m                 ~~~[0m
+[96msrc/components/tools/prompt-enhancer/EnhancerForm.tsx[0m:[93m114[0m:[93m32[0m - [91merror[0m[90m ts(2322): [0mType '{ children: string; id: string; class: string; role: "alert"; }' is not assignable to type 'DetailedHTMLProps<HTMLAttributes<HTMLParagraphElement>, HTMLParagraphElement>'.
+  Property 'class' does not exist on type 'DetailedHTMLProps<HTMLAttributes<HTMLParagraphElement>, HTMLParagraphElement>'. Did you mean 'className'?
+
+[7m114[0m             <p id="inputError" class="mt-1 text-sm text-red-600 dark:text-red-400" role="alert">
+[7m   [0m [91m                               ~~~~~[0m
+[96msrc/components/tools/prompt-enhancer/EnhancerForm.tsx[0m:[93m110[0m:[93m16[0m - [91merror[0m[90m ts(2322): [0mType '{ children: (string | number)[]; class: string; }' is not assignable to type 'DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>'.
+  Property 'class' does not exist on type 'DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>'. Did you mean 'className'?
+
+[7m110[0m           <div class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+[7m   [0m [91m               ~~~~~[0m
+[96msrc/components/tools/prompt-enhancer/EnhancerForm.tsx[0m:[93m104[0m:[93m13[0m - [91merror[0m[90m ts(2322): [0mType '{ id: string; ref: RefObject<HTMLTextAreaElement>; value: string; onChange: (e: ChangeEvent<HTMLTextAreaElement>) => void; ... 4 more ...; maxLength: number; }' is not assignable to type 'DetailedHTMLProps<TextareaHTMLAttributes<HTMLTextAreaElement>, HTMLTextAreaElement>'.
+  Property 'class' does not exist on type 'DetailedHTMLProps<TextareaHTMLAttributes<HTMLTextAreaElement>, HTMLTextAreaElement>'. Did you mean 'className'?
+
+[7m104[0m             class="w-full h-32 p-3 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+[7m   [0m [91m            ~~~~~[0m
+[96msrc/components/tools/prompt-enhancer/EnhancerForm.tsx[0m:[93m96[0m:[93m18[0m - [91merror[0m[90m ts(2322): [0mType '{ children: string; for: string; class: string; }' is not assignable to type 'DetailedHTMLProps<LabelHTMLAttributes<HTMLLabelElement>, HTMLLabelElement>'.
+  Property 'for' does not exist on type 'DetailedHTMLProps<LabelHTMLAttributes<HTMLLabelElement>, HTMLLabelElement>'. Did you mean 'htmlFor'?
+
+[7m96[0m           <label for="inputText" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+[7m  [0m [91m                 ~~~[0m
+[96msrc/components/tools/prompt-enhancer/EnhancerForm.tsx[0m:[93m94[0m:[93m13[0m - [91merror[0m[90m ts(2322): [0mType '{ children: Element[]; class: string; }' is not assignable to type 'DetailedHTMLProps<FormHTMLAttributes<HTMLFormElement>, HTMLFormElement>'.
+  Property 'class' does not exist on type 'DetailedHTMLProps<FormHTMLAttributes<HTMLFormElement>, HTMLFormElement>'. Did you mean 'className'?
+
+[7m94[0m       <form class="space-y-6">
+[7m  [0m [91m            ~~~~~[0m
+[96msrc/components/tools/prompt-enhancer/EnhancerForm.tsx[0m:[93m93[0m:[93m10[0m - [91merror[0m[90m ts(2322): [0mType '{ children: ("" | Element | null)[]; class: string; }' is not assignable to type 'DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>'.
+  Property 'class' does not exist on type 'DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>'. Did you mean 'className'?
+
+[7m93[0m     <div class="max-w-4xl mx-auto p-6 bg-white dark:bg-gray-800 rounded-lg shadow">
+[7m  [0m [91m         ~~~~~[0m
+[96msrc/components/tools/prompt-enhancer/EnhancerForm.tsx[0m:[93m72[0m:[93m25[0m - [91merror[0m[90m ts(2339): [0mProperty 'error' does not exist on type 'Response | ApiErrorBody'.
+  Property 'error' does not exist on type 'Response'.
+
+[7m72[0m         setError(result.error?.message || t('pages.tools.prompt-enhancer.form.error.unknown'));
+[7m  [0m [91m                        ~~~~~[0m
+[96msrc/components/tools/prompt-enhancer/EnhancerForm.tsx[0m:[93m33[0m:[93m13[0m - [91merror[0m[90m ts(2554): [0mExpected 1 arguments, but got 0.
+
+[7m33[0m   const t = getI18n();
+[7m  [0m [91m            ~~~~~~~[0m
+[96msrc/components/tools/prompt-enhancer/EnhancerForm.tsx[0m:[93m28[0m:[93m24[0m - [93mwarning[0m[90m ts(6133): [0m'retryRemainingSec' is declared but its value is never read.
+
+[7m28[0m   const { retryActive, retryRemainingSec, handle429Response } = useRateLimit();
+[7m  [0m [93m                       ~~~~~~~~~~~~~~~~~[0m
+[96msrc/components/tools/prompt-enhancer/EnhancerForm.tsx[0m:[93m7[0m:[93m1[0m - [93mwarning[0m[90m ts(6133): [0m'UsageInfo' is declared but its value is never read.
+
+[7m7[0m import type { UsageInfo } from './types';
+[7m [0m [93m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/components/tools/prompt-enhancer/EnhancerForm.tsx[0m:[93m6[0m:[93m1[0m - [93mwarning[0m[90m ts(6133): [0m'ensureCsrfToken' is declared but its value is never read.
+
+[7m6[0m import { ensureCsrfToken } from '@/lib/security/csrf';
+[7m [0m [93m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/components/tools/prompt-enhancer/hooks/useRateLimit.ts[0m:[93m39[0m:[93m15[0m - [91merror[0m[90m ts(7005): [0mVariable 'details' implicitly has an 'any' type.
+
+[7m39[0m         const details
+[7m  [0m [91m              ~~~~~~~[0m
+[96msrc/components/tools/prompt-enhancer/hooks/useRateLimit.ts[0m:[93m12[0m:[93m33[0m - [91merror[0m[90m ts(2355): [0mA function whose declared type is neither 'undefined', 'void', nor 'any' must return a value.
+
+[7m12[0m export function useRateLimit(): UseRateLimit {
+[7m  [0m [91m                                ~~~~~~~~~~~~[0m
+[96msrc/components/tools/prompt-enhancer/hooks/useRateLimit.ts[0m:[93m39[0m:[93m15[0m - [93mwarning[0m[90m ts(6133): [0m'details' is declared but its value is never read.
+
+[7m39[0m         const details
+[7m  [0m [93m              ~~~~~~~[0m
+[96msrc/components/tools/prompt-enhancer/hooks/useRateLimit.ts[0m:[93m38[0m:[93m15[0m - [93mwarning[0m[90m ts(6133): [0m'body' is declared but its value is never read.
+
+[7m38[0m         const body = await res.clone().json().catch(() => null as any);
+[7m  [0m [93m              ~~~~[0m
+[96msrc/components/tools/prompt-enhancer/hooks/useRateLimit.ts[0m:[93m28[0m:[93m9[0m - [93mwarning[0m[90m ts(6133): [0m'setFromRetryAfter' is declared but its value is never read.
+
+[7m28[0m   const setFromRetryAfter = useCallback((seconds: number) => {
+[7m  [0m [93m        ~~~~~~~~~~~~~~~~~[0m
+[96msrc/components/tools/prompt-enhancer/hooks/useRateLimit.ts[0m:[93m23[0m:[93m9[0m - [93mwarning[0m[90m ts(6133): [0m'retryRemainingSec' is declared but its value is never read.
+
+[7m23[0m   const retryRemainingSec = useMemo(() => {
+[7m  [0m [93m        ~~~~~~~~~~~~~~~~~[0m
+[96msrc/components/tools/prompt-enhancer/hooks/useRateLimit.ts[0m:[93m22[0m:[93m9[0m - [93mwarning[0m[90m ts(6133): [0m'retryActive' is declared but its value is never read.
+
+[7m22[0m   const retryActive = useMemo(() => Boolean(retryUntil && nowMs < (retryUntil as number)), [retryUntil, nowMs]);
+[7m  [0m [93m        ~~~~~~~~~~~[0m
+[96msrc/components/tools/prompt-enhancer/hooks/useRateLimit.ts[0m:[93m39[0m:[93m22[0m - [91merror[0m[90m ts(1005): [0m'}' expected.
+
+[7m39[0m         const details
+[7m  [0m [91m                     [0m
+
+[96msrc/components/tools/prompt-enhancer/hooks/useUsage.ts[0m:[93m2[0m:[93m57[0m - [93mwarning[0m[90m ts(6196): [0m'ApiErrorBody' is declared but never used.
+
+[7m2[0m import type { UsageInfo, UsageResponseData, ApiSuccess, ApiErrorBody, OwnerType, Plan, PlanEntitlements } from '../types';
+[7m [0m [93m                                                        ~~~~~~~~~~~~[0m
+[96msrc/components/tools/prompt-enhancer/hooks/useUsage.ts[0m:[93m2[0m:[93m45[0m - [93mwarning[0m[90m ts(6196): [0m'ApiSuccess' is declared but never used.
+
+[7m2[0m import type { UsageInfo, UsageResponseData, ApiSuccess, ApiErrorBody, OwnerType, Plan, PlanEntitlements } from '../types';
+[7m [0m [93m                                            ~~~~~~~~~~[0m
+
+[96msrc/components/ui/DebugPanel.tsx[0m:[93m398[0m:[93m11[0m - [91merror[0m[90m ts(18046): [0m'data' is of type 'unknown'.
+
+[7m398[0m       if (data.websocketUrl) {
+[7m   [0m [91m          ~~~~[0m
+
+[96msrc/components/ui/Icon.tsx[0m:[93m1[0m:[93m1[0m - [93mwarning[0m[90m ts(6133): [0m'React' is declared but its value is never read.
+
+[7m1[0m import React from 'react';
+[7m [0m [93m~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/components/ui/Skeleton.astro[0m:[93m27[0m:[93m26[0m - [93mwarning[0m[90m ts(6133): [0m'index' is declared but its value is never read.
+
+[7m27[0m   {skeletonItems.map((_, index) => (
+[7m  [0m [93m                         ~~~~~[0m
+
+[96msrc/content/config.ts[0m:[93m67[0m:[93m22[0m - [91merror[0m[90m ts(7006): [0mParameter 'ctx' implicitly has an 'any' type.
+
+[7m67[0m       .refine((date, ctx) => {
+[7m  [0m [91m                     ~~~[0m
+[96msrc/content/config.ts[0m:[93m67[0m:[93m16[0m - [91merror[0m[90m ts(7006): [0mParameter 'date' implicitly has an 'any' type.
+
+[7m67[0m       .refine((date, ctx) => {
+[7m  [0m [91m               ~~~~[0m
+[96msrc/content/config.ts[0m:[93m67[0m:[93m15[0m - [91merror[0m[90m ts(2769): [0mNo overload matches this call.
+  Overload 1 of 2, '(check: (arg: Date | undefined) => arg is any, message?: string | Partial<Omit<ZodCustomIssue, "code">> | ((arg: Date | undefined) => Partial<Omit<ZodCustomIssue, "code">>) | undefined): ZodEffects<...>', gave the following error.
+  Overload 2 of 2, '(check: (arg: Date | undefined) => unknown, message?: string | Partial<Omit<ZodCustomIssue, "code">> | ((arg: Date | undefined) => Partial<Omit<ZodCustomIssue, "code">>) | undefined): ZodEffects<...>', gave the following error.
+
+[7m67[0m       .refine((date, ctx) => {
+[7m  [0m [91m              ~~~~~~~~~~~~~~~~[0m
+[96msrc/content/config.ts[0m:[93m3[0m:[93m20[0m - [91merror[0m[90m ts(7016): [0mCould not find a declaration file for module 'date-fns/locale/index.js'. '/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/node_modules/date-fns/locale/index.js' implicitly has an 'any' type.
+  If the 'date-fns' package actually exposes this module, try adding a new declaration (.d.ts) file containing `declare module 'date-fns/locale/index.js';`
+
+[7m3[0m import { de } from 'date-fns/locale/index.js';
+[7m [0m [91m                   ~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/layouts/BaseLayout.astro[0m:[93m229[0m:[93m14[0m - [93mwarning[0m[90m astro(4000): [0mThis script will be treated as if it has the `is:inline` directive because it contains an attribute. Therefore, features that require processing (e.g. using TypeScript or npm packages in the script) are unavailable.
+
+See docs for more details: https://docs.astro.build/en/guides/client-side-scripts/#script-processing.
+
+Add the `is:inline` directive explicitly to silence this hint.
+
+[7m229[0m      <script define:vars={{ locale }} nonce={Astro.locals.cspNonce}>
+[7m   [0m [93m             ~~~~~~~~~~~[0m
+[96msrc/layouts/BaseLayout.astro[0m:[93m227[0m:[93m14[0m - [93mwarning[0m[90m astro(4000): [0mThis script will be treated as if it has the `is:inline` directive because it contains an attribute. Therefore, features that require processing (e.g. using TypeScript or npm packages in the script) are unavailable.
+
+See docs for more details: https://docs.astro.build/en/guides/client-side-scripts/#script-processing.
+
+Add the `is:inline` directive explicitly to silence this hint.
+
+[7m227[0m      <script src="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.js" defer nonce={Astro.locals.cspNonce}></script>
+[7m   [0m [93m             ~~~[0m
+[96msrc/layouts/BaseLayout.astro[0m:[93m187[0m:[93m14[0m - [93mwarning[0m[90m astro(4000): [0mThis script will be treated as if it has the `is:inline` directive because it contains an attribute. Therefore, features that require processing (e.g. using TypeScript or npm packages in the script) are unavailable.
+
+See docs for more details: https://docs.astro.build/en/guides/client-side-scripts/#script-processing.
+
+Add the `is:inline` directive explicitly to silence this hint.
+
+[7m187[0m      <script nonce={Astro.locals.cspNonce}>
+[7m   [0m [93m             ~~~~~[0m
+[96msrc/layouts/BaseLayout.astro[0m:[93m185[0m:[93m33[0m - [93mwarning[0m[90m astro(4000): [0mThis script will be treated as if it has the `is:inline` directive because it contains an attribute. Therefore, features that require processing (e.g. using TypeScript or npm packages in the script) are unavailable.
+
+See docs for more details: https://docs.astro.build/en/guides/client-side-scripts/#script-processing.
+
+Add the `is:inline` directive explicitly to silence this hint.
+
+[7m185[0m      {showComingSoon && <script src="/assets/coming-soon-client.js" defer nonce={Astro.locals.cspNonce}></script>}
+[7m   [0m [93m                                ~~~[0m
+[96msrc/layouts/BaseLayout.astro[0m:[93m130[0m:[93m14[0m - [93mwarning[0m[90m astro(4000): [0mThis script will be treated as if it has the `is:inline` directive because it contains an attribute. Therefore, features that require processing (e.g. using TypeScript or npm packages in the script) are unavailable.
+
+See docs for more details: https://docs.astro.build/en/guides/client-side-scripts/#script-processing.
+
+Add the `is:inline` directive explicitly to silence this hint.
+
+[7m130[0m      <script type="application/ld+json" nonce={Astro.locals.cspNonce}>
+[7m   [0m [93m             ~~~~[0m
+
+[96msrc/lib/auth.ts[0m:[93m42[0m:[93m16[0m - [91merror[0m[90m ts(2664): [0mInvalid module name in augmentation, module 'lucia' cannot be found.
+
+[7m42[0m declare module 'lucia' {
+[7m  [0m [91m               ~~~~~~~[0m
+[96msrc/lib/auth.ts[0m:[93m28[0m:[93m25[0m - [91merror[0m[90m ts(7006): [0mParameter 'attributes' implicitly has an 'any' type.
+
+[7m28[0m     getUserAttributes: (attributes) => {
+[7m  [0m [91m                        ~~~~~~~~~~[0m
+[96msrc/lib/auth.ts[0m:[93m10[0m:[93m27[0m - [91merror[0m[90m ts(2307): [0mCannot find module '@lucia-auth/adapter-sqlite' or its corresponding type declarations.
+
+[7m10[0m import { D1Adapter } from '@lucia-auth/adapter-sqlite';
+[7m  [0m [91m                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/lib/auth.ts[0m:[93m9[0m:[93m23[0m - [91merror[0m[90m ts(2307): [0mCannot find module 'lucia' or its corresponding type declarations.
+
+[7m9[0m import { Lucia } from 'lucia';
+[7m [0m [91m                      ~~~~~~~[0m
+[96msrc/lib/auth.ts[0m:[93m44[0m:[93m30[0m - [93mwarning[0m[90m ts(6385): [0m'initializeLucia' is deprecated.
+
+[7m44[0m     Lucia: ReturnType<typeof initializeLucia>;
+[7m  [0m [93m                             ~~~~~~~~~~~~~~~[0m
+
+[96msrc/lib/content.ts[0m:[93m150[0m:[93m88[0m - [91merror[0m[90m ts(2635): [0mType '(...args: any[]) => any' has no signatures for which the type argument list is applicable.
+
+[7m150[0m export function createContentService<T extends Awaited<ReturnType<typeof getCollection<'blog'>>>[number]>(
+[7m   [0m [91m                                                                                       ~~~~~~[0m
+[96msrc/lib/content.ts[0m:[93m150[0m:[93m67[0m - [91merror[0m[90m ts(2344): [0mType 'typeof getCollection<"blog">' does not satisfy the constraint '(...args: any) => any'.
+  Type 'typeof getCollection<"blog">' provides no match for the signature '(...args: any): any'.
+
+[7m150[0m export function createContentService<T extends Awaited<ReturnType<typeof getCollection<'blog'>>>[number]>(
+[7m   [0m [91m                                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/lib/content.ts[0m:[93m131[0m:[93m37[0m - [91merror[0m[90m ts(2339): [0mProperty 'data' does not exist on type 'T'.
+
+[7m131[0m         const categoryMatch = entry.data.category === category ? 1 : 0;
+[7m   [0m [91m                                    ~~~~[0m
+[96msrc/lib/content.ts[0m:[93m130[0m:[93m45[0m - [91merror[0m[90m ts(7006): [0mParameter 'tag' implicitly has an 'any' type.
+
+[7m130[0m         const tagMatches = entryTags.filter(tag => tags.includes(tag)).length;
+[7m   [0m [91m                                            ~~~[0m
+[96msrc/lib/content.ts[0m:[93m129[0m:[93m33[0m - [91merror[0m[90m ts(2339): [0mProperty 'data' does not exist on type 'T'.
+
+[7m129[0m         const entryTags = entry.data.tags || [];
+[7m   [0m [91m                                ~~~~[0m
+[96msrc/lib/content.ts[0m:[93m127[0m:[93m50[0m - [91merror[0m[90m ts(2339): [0mProperty 'id' does not exist on type 'T'.
+
+[7m127[0m       .filter(entry => entry.id !== currentEntry.id)
+[7m   [0m [91m                                                 ~~[0m
+[96msrc/lib/content.ts[0m:[93m127[0m:[93m30[0m - [91merror[0m[90m ts(2339): [0mProperty 'id' does not exist on type 'T'.
+
+[7m127[0m       .filter(entry => entry.id !== currentEntry.id)
+[7m   [0m [91m                             ~~[0m
+[96msrc/lib/content.ts[0m:[93m122[0m:[93m50[0m - [91merror[0m[90m ts(2339): [0mProperty 'data' does not exist on type 'T'.
+
+[7m122[0m     const { tags = [], category } = currentEntry.data;
+[7m   [0m [91m                                                 ~~~~[0m
+[96msrc/lib/content.ts[0m:[93m109[0m:[93m70[0m - [91merror[0m[90m ts(7006): [0mParameter 'entry' implicitly has an 'any' type.
+
+[7m109[0m     const entries = await getCollection(this.collectionName as any, (entry) =>
+[7m   [0m [91m                                                                     ~~~~~[0m
+[96msrc/lib/content.ts[0m:[93m86[0m:[93m7[0m - [91merror[0m[90m ts(2353): [0mObject literal may only specify known properties, and 'perPage' does not exist in type 'PaginatedResult<T>'.
+
+[7m86[0m       perPage,
+[7m  [0m [91m      ~~~~~~~[0m
+[96msrc/lib/content.ts[0m:[93m52[0m:[93m32[0m - [91merror[0m[90m ts(7006): [0mParameter 'b' implicitly has an 'any' type.
+
+[7m52[0m     entries = entries.sort((a, b) =>
+[7m  [0m [91m                               ~[0m
+[96msrc/lib/content.ts[0m:[93m52[0m:[93m29[0m - [91merror[0m[90m ts(7006): [0mParameter 'a' implicitly has an 'any' type.
+
+[7m52[0m     entries = entries.sort((a, b) =>
+[7m  [0m [91m                            ~[0m
+[96msrc/lib/content.ts[0m:[93m28[0m:[93m68[0m - [91merror[0m[90m ts(7006): [0mParameter 'entry' implicitly has an 'any' type.
+
+[7m28[0m     let entries = await getCollection(this.collectionName as any, (entry) => {
+[7m  [0m [91m                                                                   ~~~~~[0m
+[96msrc/lib/content.ts[0m:[93m7[0m:[93m79[0m - [91merror[0m[90m ts(2635): [0mType '(...args: any[]) => any' has no signatures for which the type argument list is applicable.
+
+[7m7[0m export class ContentService<T extends Awaited<ReturnType<typeof getCollection<'blog'>>>[number]> {
+[7m [0m [91m                                                                              ~~~~~~[0m
+[96msrc/lib/content.ts[0m:[93m7[0m:[93m58[0m - [91merror[0m[90m ts(2344): [0mType 'typeof getCollection<"blog">' does not satisfy the constraint '(...args: any) => any'.
+  Type 'typeof getCollection<"blog">' provides no match for the signature '(...args: any): any'.
+
+[7m7[0m export class ContentService<T extends Awaited<ReturnType<typeof getCollection<'blog'>>>[number]> {
+[7m [0m [91m                                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/lib/content.ts[0m:[93m2[0m:[93m15[0m - [91merror[0m[90m ts(2305): [0mModule '"../content/types"' has no exported member 'BlogPostFrontmatter'.
+
+[7m2[0m import type { BlogPostFrontmatter, BlogListOptions, PaginatedResult } from '../content/types';
+[7m [0m [91m              ~~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/lib/handlers.ts[0m:[93m26[0m:[93m33[0m - [91merror[0m[90m ts(7006): [0mParameter 'c' implicitly has an 'any' type.
+
+[7m26[0m export async function listTools(c) {
+[7m  [0m [91m                                ~[0m
+[96msrc/lib/handlers.ts[0m:[93m14[0m:[93m44[0m - [91merror[0m[90m ts(7006): [0mParameter 'c' implicitly has an 'any' type.
+
+[7m14[0m export async function handleStripeCheckout(c) {
+[7m  [0m [91m                                           ~[0m
+[96msrc/lib/handlers.ts[0m:[93m12[0m:[93m35[0m - [91merror[0m[90m ts(2322): [0mType '"2022-11-15"' is not assignable to type '"2025-07-30.basil"'.
+
+[7m12[0m   new Stripe(env.STRIPE_SECRET, { apiVersion: '2022-11-15' });
+[7m  [0m [91m                                  ~~~~~~~~~~[0m
+
+[96msrc/lib/notify.ts[0m:[93m15[0m:[93m20[0m - [91merror[0m[90m ts(2322): [0mType '(string & { unwrap: () => Promise<T>; }) | (number & { unwrap: () => Promise<T>; }) | { unwrap: () => Promise<T>; }' is not assignable to type 'T'.
+  'T' could be instantiated with an arbitrary type which could be unrelated to '(string & { unwrap: () => Promise<T>; }) | (number & { unwrap: () => Promise<T>; }) | { unwrap: () => Promise<T>; }'.
+
+[7m15[0m   ): Promise<T> => toast.promise(p, msgs),
+[7m  [0m [91m                   ~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/lib/script-coordinator.ts[0m:[93m193[0m:[93m7[0m - [91merror[0m[90m ts(2322): [0mType 'ScriptStatus | undefined' is not assignable to type 'ScriptStatus'.
+  Type 'undefined' is not assignable to type 'ScriptStatus'.
+
+[7m193[0m       status[id] = module.status;
+[7m   [0m [91m      ~~~~~~~~~~[0m
+[96msrc/lib/script-coordinator.ts[0m:[93m82[0m:[93m27[0m - [93mwarning[0m[90m ts(6133): [0m'module' is declared but its value is never read.
+
+[7m82[0m     for (const [moduleId, module] of applicableModules) {
+[7m  [0m [93m                          ~~~~~~[0m
+[96msrc/lib/script-coordinator.ts[0m:[93m71[0m:[93m17[0m - [93mwarning[0m[90m ts(6133): [0m'id' is declared but its value is never read.
+
+[7m71[0m       .filter(([id, module]) => {
+[7m  [0m [93m                ~~[0m
+[96msrc/lib/script-coordinator.ts[0m:[93m35[0m:[93m11[0m - [93mwarning[0m[90m ts(6133): [0m'pendingInitializations' is declared but its value is never read.
+
+[7m35[0m   private pendingInitializations: string[] = [];
+[7m  [0m [93m          ~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/lib/settings-module.ts[0m:[93m285[0m:[93m35[0m - [91merror[0m[90m ts(18046): [0m'data' is of type 'unknown'.
+
+[7m285[0m               avatarPreview.src = data.imageUrl;
+[7m   [0m [91m                                  ~~~~[0m
+
+[96msrc/lib/typewriter.ts[0m:[93m33[0m:[93m5[0m - [91merror[0m[90m ts(18047): [0m'element' is possibly 'null'.
+
+[7m33[0m     element.className = 'typewriter';
+[7m  [0m [91m    ~~~~~~~[0m
+[96msrc/lib/typewriter.ts[0m:[93m28[0m:[93m7[0m - [91merror[0m[90m ts(18047): [0m'element' is possibly 'null'.
+
+[7m28[0m       element.textContent = currentText.substring(0, charIndex + 1);
+[7m  [0m [91m      ~~~~~~~[0m
+[96msrc/lib/typewriter.ts[0m:[93m24[0m:[93m7[0m - [91merror[0m[90m ts(18047): [0m'element' is possibly 'null'.
+
+[7m24[0m       element.textContent = currentText.substring(0, charIndex - 1);
+[7m  [0m [91m      ~~~~~~~[0m
+
+[96msrc/lib/validators.ts[0m:[93m114[0m:[93m51[0m - [91merror[0m[90m ts(18046): [0m'definition' is of type 'unknown'.
+
+[7m114[0m           const nestedValidator = createValidator(definition.nested);
+[7m   [0m [91m                                                  ~~~~~~~~~~[0m
+[96msrc/lib/validators.ts[0m:[93m113[0m:[93m13[0m - [91merror[0m[90m ts(18046): [0m'definition' is of type 'unknown'.
+
+[7m113[0m         if (definition.nested && typeof inputValue === 'object') {
+[7m   [0m [91m            ~~~~~~~~~~[0m
+[96msrc/lib/validators.ts[0m:[93m105[0m:[93m30[0m - [91merror[0m[90m ts(18046): [0m'definition' is of type 'unknown'.
+
+[7m105[0m           for (const rule of definition.rules) {
+[7m   [0m [91m                             ~~~~~~~~~~[0m
+[96msrc/lib/validators.ts[0m:[93m104[0m:[93m33[0m - [91merror[0m[90m ts(18046): [0m'definition' is of type 'unknown'.
+
+[7m104[0m         if (definition.rules && definition.rules.length > 0) {
+[7m   [0m [91m                                ~~~~~~~~~~[0m
+[96msrc/lib/validators.ts[0m:[93m104[0m:[93m13[0m - [91merror[0m[90m ts(18046): [0m'definition' is of type 'unknown'.
+
+[7m104[0m         if (definition.rules && definition.rules.length > 0) {
+[7m   [0m [91m            ~~~~~~~~~~[0m
+[96msrc/lib/validators.ts[0m:[93m76[0m:[93m32[0m - [91merror[0m[90m ts(18046): [0m'definition' is of type 'unknown'.
+
+[7m76[0m           const expectedType = definition.type;
+[7m  [0m [91m                               ~~~~~~~~~~[0m
+[96msrc/lib/validators.ts[0m:[93m75[0m:[93m13[0m - [91merror[0m[90m ts(18046): [0m'definition' is of type 'unknown'.
+
+[7m75[0m         if (definition.type) {
+[7m  [0m [91m            ~~~~~~~~~~[0m
+[96msrc/lib/validators.ts[0m:[93m64[0m:[93m13[0m - [91merror[0m[90m ts(18046): [0m'definition' is of type 'unknown'.
+
+[7m64[0m         if (definition.required && (inputValue === undefined || inputValue === null || inputValue === '')) {
+[7m  [0m [91m            ~~~~~~~~~~[0m
+[96msrc/lib/validators.ts[0m:[93m17[0m:[93m27[0m - [93mwarning[0m[90m ts(6133): [0m'T' is declared but its value is never read.
+
+[7m17[0m export type ValidationRule<T> = {
+[7m  [0m [93m                          ~~~[0m
+
+[96msrc/lib/db/helpers.ts[0m:[93m28[0m:[93m3[0m - [93mwarning[0m[90m ts(6196): [0m'D1QueryResult' is declared but never used.
+
+[7m28[0m   D1QueryResult,
+[7m  [0m [93m  ~~~~~~~~~~~~~[0m
+[96msrc/lib/db/helpers.ts[0m:[93m26[0m:[93m3[0m - [93mwarning[0m[90m ts(6196): [0m'UpdateTask' is declared but never used.
+
+[7m26[0m   UpdateTask,
+[7m  [0m [93m  ~~~~~~~~~~[0m
+[96msrc/lib/db/helpers.ts[0m:[93m17[0m:[93m3[0m - [93mwarning[0m[90m ts(6196): [0m'PasswordResetToken' is declared but never used.
+
+[7m17[0m   PasswordResetToken,
+[7m  [0m [93m  ~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/lib/db/schema.ts[0m:[93m26[0m:[93m49[0m - [91merror[0m[90m ts(2339): [0mProperty 'in' does not exist on type 'SQLiteColumn<{ name: "lang"; tableName: "blog_posts"; dataType: "string"; columnType: "SQLiteText"; data: "de" | "en"; driverParam: string; notNull: true; hasDefault: false; isPrimaryKey: false; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, { ...; }>'.
+
+[7m26[0m   langCheck: sqliteCheck(table.lang, table.lang.in(['de', 'en'])),
+[7m  [0m [91m                                                ~~[0m
+[96msrc/lib/db/schema.ts[0m:[93m1[0m:[93m38[0m - [91merror[0m[90m ts(2305): [0mModule '"drizzle-orm/sqlite-core"' has no exported member 'sqliteCheck'.
+
+[7m1[0m import { sqliteTable, text, integer, sqliteCheck } from 'drizzle-orm/sqlite-core';
+[7m [0m [91m                                     ~~~~~~~~~~~[0m
+[96msrc/lib/db/schema.ts[0m:[93m11[0m:[93m26[0m - [93mwarning[0m[90m ts(6387): [0mThe signature '(name: "blog_posts", columns: { id: IsPrimaryKey<NotNull<SQLiteTextBuilderInitial<"id", [string, ...string[]], number | undefined>>>; ... 11 more ...; draft: HasDefault<...>; }, extraConfig?: ((self: { ...; }) => SQLiteTableExtraConfig) | undefined): SQLiteTableWithColumns<...>' of 'sqliteTable' is deprecated.
+
+[7m11[0m export const blogPosts = sqliteTable('blog_posts', {
+[7m  [0m [93m                         ~~~~~~~~~~~[0m
+
+[96msrc/lib/services/ai-image-service.ts[0m:[93m563[0m:[93m42[0m - [91merror[0m[90m ts(2353): [0mObject literal may only specify known properties, and 'status' does not exist in type 'LogContext'.
+
+[7m563[0m       this.log.warn('replicate_error', { status, provider: 'replicate', snippet: text.slice(0, 200) });
+[7m   [0m [91m                                         ~~~~~~[0m
+[96msrc/lib/services/ai-image-service.ts[0m:[93m555[0m:[93m47[0m - [91merror[0m[90m ts(2353): [0mObject literal may only specify known properties, and 'model' does not exist in type 'LogContext'.
+
+[7m555[0m     this.log.debug('replicate_duration_ms', { model: model.slug, ms: durationMs });
+[7m   [0m [91m                                              ~~~~~[0m
+[96msrc/lib/services/ai-image-service.ts[0m:[93m424[0m:[93m41[0m - [91merror[0m[90m ts(2353): [0mObject literal may only specify known properties, and 'reqId' does not exist in type 'LogContext'.
+
+[7m424[0m     this.log.info('generate_success', { reqId, imageUrl, usage });
+[7m   [0m [91m                                        ~~~~~[0m
+[96msrc/lib/services/ai-image-service.ts[0m:[93m413[0m:[93m39[0m - [91merror[0m[90m ts(2353): [0mObject literal may only specify known properties, and 'reqId' does not exist in type 'LogContext'.
+
+[7m413[0m     this.log.debug('stored_result', { reqId, resultKey, contentType });
+[7m   [0m [91m                                      ~~~~~[0m
+[96msrc/lib/services/ai-image-service.ts[0m:[93m412[0m:[93m42[0m - [91merror[0m[90m ts(2353): [0mObject literal may only specify known properties, and 'reqId' does not exist in type 'LogContext'.
+
+[7m412[0m     this.log.debug('r2_put_result_ms', { reqId, ms: Date.now() - putResultStart });
+[7m   [0m [91m                                         ~~~~~[0m
+[96msrc/lib/services/ai-image-service.ts[0m:[93m407[0m:[93m43[0m - [91merror[0m[90m ts(2353): [0mObject literal may only specify known properties, and 'reqId' does not exist in type 'LogContext'.
+
+[7m407[0m     this.log.debug('fetch_output_done', { reqId, contentType, bytes: arrayBuffer.byteLength });
+[7m   [0m [91m                                          ~~~~~[0m
+[96msrc/lib/services/ai-image-service.ts[0m:[93m405[0m:[93m44[0m - [91merror[0m[90m ts(2353): [0mObject literal may only specify known properties, and 'reqId' does not exist in type 'LogContext'.
+
+[7m405[0m     this.log.debug('fetch_output_start', { reqId, outputUrl });
+[7m   [0m [91m                                           ~~~~~[0m
+[96msrc/lib/services/ai-image-service.ts[0m:[93m400[0m:[93m43[0m - [91merror[0m[90m ts(2353): [0mObject literal may only specify known properties, and 'reqId' does not exist in type 'LogContext'.
+
+[7m400[0m       this.log.debug('dev_echo_return', { reqId, imageUrl: originalUrl, usage });
+[7m   [0m [91m                                          ~~~~~[0m
+[96msrc/lib/services/ai-image-service.ts[0m:[93m382[0m:[93m47[0m - [91merror[0m[90m ts(2353): [0mObject literal may only specify known properties, and 'reqId' does not exist in type 'LogContext'.
+
+[7m382[0m           this.log.warn('dev_echo_enabled', { reqId, reason: is404 ? 'provider_404' : 'missing_token', model: model.slug });
+[7m   [0m [91m                                              ~~~~~[0m
+[96msrc/lib/services/ai-image-service.ts[0m:[93m373[0m:[93m52[0m - [91merror[0m[90m ts(2353): [0mObject literal may only specify known properties, and 'reqId' does not exist in type 'LogContext'.
+
+[7m373[0m         this.log.debug('replicate_call_success', { reqId, outputUrl });
+[7m   [0m [91m                                                   ~~~~~[0m
+[96msrc/lib/services/ai-image-service.ts[0m:[93m363[0m:[93m50[0m - [91merror[0m[90m ts(2353): [0mObject literal may only specify known properties, and 'reqId' does not exist in type 'LogContext'.
+
+[7m363[0m         this.log.debug('replicate_call_start', { reqId, model: model.slug, originalUrl, scale, faceEnhance });
+[7m   [0m [91m                                                 ~~~~~[0m
+[96msrc/lib/services/ai-image-service.ts[0m:[93m358[0m:[93m43[0m - [91merror[0m[90m ts(2353): [0mObject literal may only specify known properties, and 'reqId' does not exist in type 'LogContext'.
+
+[7m358[0m       this.log.warn('dev_echo_enabled', { reqId, reason: 'development_environment' });
+[7m   [0m [91m                                          ~~~~~[0m
+[96msrc/lib/services/ai-image-service.ts[0m:[93m349[0m:[93m43[0m - [91merror[0m[90m ts(2353): [0mObject literal may only specify known properties, and 'reqId' does not exist in type 'LogContext'.
+
+[7m349[0m     this.log.debug('uploaded_original', { reqId, originalKey, originalUrl });
+[7m   [0m [91m                                          ~~~~~[0m
+[96msrc/lib/services/ai-image-service.ts[0m:[93m345[0m:[93m44[0m - [91merror[0m[90m ts(2353): [0mObject literal may only specify known properties, and 'reqId' does not exist in type 'LogContext'.
+
+[7m345[0m     this.log.debug('r2_put_original_ms', { reqId, ms: Date.now() - putOriginalStart });
+[7m   [0m [91m                                           ~~~~~[0m
+[96msrc/lib/services/ai-image-service.ts[0m:[93m294[0m:[93m7[0m - [91merror[0m[90m ts(2353): [0mObject literal may only specify known properties, and 'reqId' does not exist in type 'LogContext'.
+
+[7m294[0m       reqId,
+[7m   [0m [91m      ~~~~~[0m
+[96msrc/lib/services/ai-image-service.ts[0m:[93m274[0m:[93m62[0m - [91merror[0m[90m ts(2353): [0mObject literal may only specify known properties, and 'assistantId' does not exist in type 'LogContext'.
+
+[7m274[0m         this.log.warn('assistant_suggestion_parse_failed', { assistantId });
+[7m   [0m [91m                                                             ~~~~~~~~~~~[0m
+[96msrc/lib/services/ai-image-service.ts[0m:[93m272[0m:[93m54[0m - [91merror[0m[90m ts(2353): [0mObject literal may only specify known properties, and 'assistantId' does not exist in type 'LogContext'.
+
+[7m272[0m         this.log.debug('assistant_params_applied', { assistantId, suggested });
+[7m   [0m [91m                                                     ~~~~~~~~~~~[0m
+[96msrc/lib/services/ai-image-service.ts[0m:[93m195[0m:[93m49[0m - [91merror[0m[90m ts(2353): [0mObject literal may only specify known properties, and 'error' does not exist in type 'LogContext'.
+
+[7m195[0m       this.log.error('assistant_call_failed', { error: msg });
+[7m   [0m [91m                                                ~~~~~[0m
+[96msrc/lib/services/ai-image-service.ts[0m:[93m212[0m:[93m57[0m - [93mwarning[0m[90m ts(6387): [0mThe signature '(threadID: string, query?: MessageListParams | null | undefined, options?: RequestOptions | undefined): PagePromise<MessagesPage, Message>' of 'openai.beta.threads.messages.list' is deprecated.
+
+[7m212[0m     const messages = await openai.beta.threads.messages.list(thread.id);
+[7m   [0m [93m                                                        ~~~~[0m
+[96msrc/lib/services/ai-image-service.ts[0m:[93m204[0m:[93m56[0m - [93mwarning[0m[90m ts(6387): [0mThe signature '(runID: string, params: RunRetrieveParams, options?: RequestOptions | undefined): APIPromise<Run>' of 'openai.beta.threads.runs.retrieve' is deprecated.
+
+[7m204[0m       const runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id as any);
+[7m   [0m [93m                                                       ~~~~~~~~[0m
+[96msrc/lib/services/ai-image-service.ts[0m:[93m190[0m:[93m44[0m - [93mwarning[0m[90m ts(6387): [0mThe signature '(threadID: string, params: RunCreateParamsNonStreaming, options?: RequestOptions | undefined): APIPromise<Run>' of 'openai.beta.threads.runs.create' is deprecated.
+
+[7m190[0m       run = await openai.beta.threads.runs.create(thread.id, {
+[7m   [0m [93m                                           ~~~~~~[0m
+[96msrc/lib/services/ai-image-service.ts[0m:[93m186[0m:[93m42[0m - [93mwarning[0m[90m ts(6387): [0mThe signature '(threadID: string, body: MessageCreateParams, options?: RequestOptions | undefined): APIPromise<Message>' of 'openai.beta.threads.messages.create' is deprecated.
+
+[7m186[0m       await openai.beta.threads.messages.create(thread.id, {
+[7m   [0m [93m                                         ~~~~~~[0m
+[96msrc/lib/services/ai-image-service.ts[0m:[93m185[0m:[93m42[0m - [93mwarning[0m[90m ts(6387): [0mThe signature '(body?: ThreadCreateParams | null | undefined, options?: RequestOptions | undefined): APIPromise<Thread>' of 'openai.beta.threads.create' is deprecated.
+
+[7m185[0m       thread = await openai.beta.threads.create();
+[7m   [0m [93m                                         ~~~~~~[0m
+[96msrc/lib/services/ai-image-service.ts[0m:[93m123[0m:[93m11[0m - [93mwarning[0m[90m ts(6133): [0m'isLocalHost' is declared but its value is never read.
+
+[7m123[0m   private isLocalHost(origin: string): boolean {
+[7m   [0m [93m          ~~~~~~~~~~~[0m
+
+[96msrc/lib/services/ai-jobs-service.ts[0m:[93m459[0m:[93m42[0m - [91merror[0m[90m ts(2353): [0mObject literal may only specify known properties, and 'status' does not exist in type 'LogContext'.
+
+[7m459[0m       this.log.warn('replicate_error', { status, provider: 'replicate', snippet: text.slice(0, 200) });
+[7m   [0m [91m                                         ~~~~~~[0m
+[96msrc/lib/services/ai-jobs-service.ts[0m:[93m453[0m:[93m47[0m - [91merror[0m[90m ts(2353): [0mObject literal may only specify known properties, and 'model' does not exist in type 'LogContext'.
+
+[7m453[0m     this.log.debug('replicate_duration_ms', { model: model.slug, ms: durationMs });
+[7m   [0m [91m                                              ~~~~~[0m
+[96msrc/lib/services/ai-jobs-service.ts[0m:[93m323[0m:[93m52[0m - [91merror[0m[90m ts(2353): [0mObject literal may only specify known properties, and 'jobId' does not exist in type 'LogContext'.
+
+[7m323[0m                 this.log.warn('credits_missing', { jobId: row.id, ownerId: masked });
+[7m   [0m [91m                                                   ~~~~~[0m
+[96msrc/lib/services/ai-jobs-service.ts[0m:[93m318[0m:[93m53[0m - [91merror[0m[90m ts(2353): [0mObject literal may only specify known properties, and 'jobId' does not exist in type 'LogContext'.
+
+[7m318[0m                 this.log.info('credits_consumed', { jobId: row.id, ownerId: masked, remaining: credits - 1 });
+[7m   [0m [91m                                                    ~~~~~[0m
+[96msrc/lib/services/ai-jobs-service.ts[0m:[93m315[0m:[93m26[0m - [91merror[0m[90m ts(2339): [0mProperty 'decrementCreditsBalance' does not exist on type 'AiJobsService'.
+
+[7m315[0m               await this.decrementCreditsBalance(ownerId);
+[7m   [0m [91m                         ~~~~~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/lib/services/ai-jobs-service.ts[0m:[93m313[0m:[93m40[0m - [91merror[0m[90m ts(2339): [0mProperty 'getCreditsBalance' does not exist on type 'AiJobsService'.
+
+[7m313[0m             const credits = await this.getCreditsBalance(ownerId);
+[7m   [0m [91m                                       ~~~~~~~~~~~~~~~~~[0m
+[96msrc/lib/services/ai-jobs-service.ts[0m:[93m142[0m:[93m60[0m - [91merror[0m[90m ts(2353): [0mObject literal may only specify known properties, and 'ownerType' does not exist in type 'LogContext'.
+
+[7m142[0m             this.log.debug('credits_path_allowed_queue', { ownerType, ownerId: masked, credits });
+[7m   [0m [91m                                                           ~~~~~~~~~[0m
+[96msrc/lib/services/ai-jobs-service.ts[0m:[93m138[0m:[93m36[0m - [91merror[0m[90m ts(2339): [0mProperty 'getCreditsBalance' does not exist on type 'AiJobsService'.
+
+[7m138[0m         const credits = await this.getCreditsBalance(ownerId);
+[7m   [0m [91m                                   ~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/lib/services/base-service.ts[0m:[93m40[0m:[93m5[0m - [93mwarning[0m[90m ts(6133): [0m'options' is declared but its value is never read.
+
+[7m40[0m     options?: TransactionOptions
+[7m  [0m [93m    ~~~~~~~[0m
+
+[96msrc/lib/services/email-service-impl.ts[0m:[93m64[0m:[93m26[0m - [91merror[0m[90m ts(2339): [0mProperty 'CONFIGURATION' does not exist on type 'typeof ServiceErrorType'.
+
+[7m64[0m         ServiceErrorType.CONFIGURATION,
+[7m  [0m [91m                         ~~~~~~~~~~~~~[0m
+[96msrc/lib/services/email-service-impl.ts[0m:[93m56[0m:[93m26[0m - [91merror[0m[90m ts(2339): [0mProperty 'CONFIGURATION' does not exist on type 'typeof ServiceErrorType'.
+
+[7m56[0m         ServiceErrorType.CONFIGURATION,
+[7m  [0m [91m                         ~~~~~~~~~~~~~[0m
+[96msrc/lib/services/email-service-impl.ts[0m:[93m48[0m:[93m26[0m - [91merror[0m[90m ts(2339): [0mProperty 'CONFIGURATION' does not exist on type 'typeof ServiceErrorType'.
+
+[7m48[0m         ServiceErrorType.CONFIGURATION,
+[7m  [0m [91m                         ~~~~~~~~~~~~~[0m
+[96msrc/lib/services/email-service-impl.ts[0m:[93m461[0m:[93m36[0m - [93mwarning[0m[90m ts(6133): [0m'email' is declared but its value is never read.
+
+[7m461[0m   private generateWelcomeEmailHTML(email: string, userName: string): string {
+[7m   [0m [93m                                   ~~~~~[0m
+[96msrc/lib/services/email-service-impl.ts[0m:[93m15[0m:[93m3[0m - [93mwarning[0m[90m ts(6196): [0m'EmailTemplateType' is declared but never used.
+
+[7m15[0m   EmailTemplateType
+[7m  [0m [93m  ~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/lib/services/project-service.ts[0m:[93m10[0m:[93m84[0m - [91merror[0m[90m ts(2724): [0m'"@/lib/db/types"' has no exported member named 'UpdateTaskData'. Did you mean 'UpdateTask'?
+
+[7m10[0m import type { Project, Task, CreateProjectData, UpdateProjectData, CreateTaskData, UpdateTaskData } from '@/lib/db/types';
+[7m  [0m [91m                                                                                   ~~~~~~~~~~~~~~[0m
+[96msrc/lib/services/project-service.ts[0m:[93m10[0m:[93m68[0m - [91merror[0m[90m ts(2724): [0m'"@/lib/db/types"' has no exported member named 'CreateTaskData'. Did you mean 'CreateTask'?
+
+[7m10[0m import type { Project, Task, CreateProjectData, UpdateProjectData, CreateTaskData, UpdateTaskData } from '@/lib/db/types';
+[7m  [0m [91m                                                                   ~~~~~~~~~~~~~~[0m
+[96msrc/lib/services/project-service.ts[0m:[93m10[0m:[93m49[0m - [91merror[0m[90m ts(2724): [0m'"@/lib/db/types"' has no exported member named 'UpdateProjectData'. Did you mean 'UpdateProject'?
+
+[7m10[0m import type { Project, Task, CreateProjectData, UpdateProjectData, CreateTaskData, UpdateTaskData } from '@/lib/db/types';
+[7m  [0m [91m                                                ~~~~~~~~~~~~~~~~~[0m
+[96msrc/lib/services/project-service.ts[0m:[93m10[0m:[93m30[0m - [91merror[0m[90m ts(2724): [0m'"@/lib/db/types"' has no exported member named 'CreateProjectData'. Did you mean 'CreateProject'?
+
+[7m10[0m import type { Project, Task, CreateProjectData, UpdateProjectData, CreateTaskData, UpdateTaskData } from '@/lib/db/types';
+[7m  [0m [91m                             ~~~~~~~~~~~~~~~~~[0m
+[96msrc/lib/services/project-service.ts[0m:[93m128[0m:[93m38[0m - [93mwarning[0m[90m ts(6133): [0m'deps' is declared but its value is never read.
+
+[7m128[0m export function createProjectService(deps: ServiceDependencies): ProjectService {
+[7m   [0m [93m                                     ~~~~[0m
+[96msrc/lib/services/project-service.ts[0m:[93m8[0m:[93m1[0m - [93mwarning[0m[90m ts(6133): [0m'D1Database' is declared but its value is never read.
+
+[7m8[0m import type { D1Database } from '@cloudflare/workers-types';
+[7m [0m [93m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/lib/services/prompt-enhancer-service.ts[0m:[93m271[0m:[93m11[0m - [93mwarning[0m[90m ts(6133): [0m'inputWords' is declared but its value is never read.
+
+[7m271[0m     const inputWords = inputText.split(/\s+/).length;
+[7m   [0m [93m          ~~~~~~~~~~[0m
+
+[96msrc/lib/services/user-service.ts[0m:[93m91[0m:[93m35[0m - [93mwarning[0m[90m ts(6133): [0m'deps' is declared but its value is never read.
+
+[7m91[0m export function createUserService(deps: ServiceDependencies): UserService {
+[7m  [0m [93m                                  ~~~~[0m
+[96msrc/lib/services/user-service.ts[0m:[93m8[0m:[93m1[0m - [93mwarning[0m[90m ts(6133): [0m'D1Database' is declared but its value is never read.
+
+[7m8[0m import type { D1Database } from '@cloudflare/workers-types';
+[7m [0m [93m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/pages/cookie-einstellungen.astro[0m:[93m164[0m:[93m11[0m - [93mwarning[0m[90m astro(4000): [0mThis script will be treated as if it has the `is:inline` directive because it contains an attribute. Therefore, features that require processing (e.g. using TypeScript or npm packages in the script) are unavailable.
+
+See docs for more details: https://docs.astro.build/en/guides/client-side-scripts/#script-processing.
+
+Add the `is:inline` directive explicitly to silence this hint.
+
+[7m164[0m   <script type="module" nonce={Astro.locals.cspNonce}>
+[7m   [0m [93m          ~~~~[0m
+
+[96msrc/pages/dashboard.astro[0m:[93m14[0m:[93m7[0m - [93mwarning[0m[90m ts(6133): [0m'locale' is declared but its value is never read.
+
+[7m14[0m const locale = getLocale(Astro.url.pathname);
+[7m  [0m [93m      ~~~~~~[0m
+[96msrc/pages/dashboard.astro[0m:[93m11[0m:[93m1[0m - [93mwarning[0m[90m ts(6133): [0m'localizePath' is declared but its value is never read.
+
+[7m11[0m import { localizePath } from '@/lib/locale-path';
+[7m  [0m [93m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/pages/dashboard.astro[0m:[93m9[0m:[93m42[0m - [93mwarning[0m[90m ts(6196): [0m'ActivityItem' is declared but never used.
+
+[7m9[0m import type { QuickAction, Notification, ActivityItem } from '../types/dashboard';
+[7m [0m [93m                                         ~~~~~~~~~~~~[0m
+
+[96msrc/pages/faq.astro[0m:[93m33[0m:[93m31[0m - [91merror[0m[90m ts(2339): [0mProperty 'faq' does not exist on type '{ common: { greeting: string; description: string; language_switch_label: string; get_started: string; documentation: string; errors: { generic: string; upload_failed_prefix: string; }; upload: { ...; }; status: { ...; }; actions: { ...; }; success: { ...; }; forms: { ...; }; }; ... 5 more ...; faq: { ...; }; } | { ...'.
+  Property 'faq' does not exist on type '{ "pages.tools.items": { "prompt-enhancer": { name: string; description: string; }; }; }'.
+
+[7m33[0m const categoriesData = (dict?.faq?.categories ?? {}) as Record<string, any>;
+[7m  [0m [91m                              ~~~[0m
+
+[96msrc/pages/account/settings.astro[0m:[93m365[0m:[93m11[0m - [93mwarning[0m[90m ts(80006): [0mThis may be converted to an async function.
+
+[7m365[0m     .then(response => {
+[7m   [0m [93m          ~~~~~~~~~~~~~[0m
+[96msrc/pages/account/settings.astro[0m:[93m213[0m:[93m45[0m - [93mwarning[0m[90m ts(6133): [0m'e' is declared but its value is never read.
+
+[7m213[0m     openModalBtn.addEventListener('click', (e) => {
+[7m   [0m [93m                                            ~[0m
+[96msrc/pages/account/settings.astro[0m:[93m149[0m:[93m11[0m - [93mwarning[0m[90m astro(4000): [0mThis script will be treated as if it has the `is:inline` directive because it contains an attribute. Therefore, features that require processing (e.g. using TypeScript or npm packages in the script) are unavailable.
+
+See docs for more details: https://docs.astro.build/en/guides/client-side-scripts/#script-processing.
+
+Add the `is:inline` directive explicitly to silence this hint.
+
+[7m149[0m   <script type="application/json" id="i18n-settings">{JSON.stringify(i18nSettings)}</script>
+[7m   [0m [93m          ~~~~[0m
+
+[96msrc/pages/admin/status.astro[0m:[93m89[0m:[93m34[0m - [91merror[0m[90m ts(2339): [0mProperty 'data' does not exist on type '{}'.
+
+[7m89[0m                     {status.data.data.subscriptions.map((s: any) => (
+[7m  [0m [91m                                 ~~~~[0m
+[96msrc/pages/admin/status.astro[0m:[93m75[0m:[93m26[0m - [91merror[0m[90m ts(2339): [0mProperty 'data' does not exist on type '{}'.
+
+[7m75[0m             {status.data.data.subscriptions?.length ? (
+[7m  [0m [91m                         ~~~~[0m
+[96msrc/pages/admin/status.astro[0m:[93m68[0m:[93m74[0m - [91merror[0m[90m ts(2339): [0mProperty 'data' does not exist on type '{}'.
+
+[7m68[0m                 <div class="text-gray-900 dark:text-white">{(status.data.data.subscriptions?.length ?? 0)} Einträge</div>
+[7m  [0m [91m                                                                         ~~~~[0m
+[96msrc/pages/admin/status.astro[0m:[93m64[0m:[93m80[0m - [91merror[0m[90m ts(2339): [0mProperty 'data' does not exist on type '{}'.
+
+[7m64[0m                 <div class="text-gray-900 dark:text-white">{String(status.data.data.credits)}</div>
+[7m  [0m [91m                                                                               ~~~~[0m
+[96msrc/pages/admin/status.astro[0m:[93m59[0m:[93m87[0m - [91merror[0m[90m ts(2339): [0mProperty 'data' does not exist on type '{}'.
+
+[7m59[0m                   <span class="text-gray-900 dark:text-white capitalize">{status.data.data.plan}</span>
+[7m  [0m [91m                                                                                      ~~~~[0m
+[96msrc/pages/admin/status.astro[0m:[93m48[0m:[93m73[0m - [91merror[0m[90m ts(2339): [0mProperty 'data' does not exist on type '{}'.
+
+[7m48[0m                 <div class="text-gray-900 dark:text-white">{status.data.data.user.email}</div>
+[7m  [0m [91m                                                                        ~~~~[0m
+[96msrc/pages/admin/status.astro[0m:[93m44[0m:[93m73[0m - [91merror[0m[90m ts(2339): [0mProperty 'data' does not exist on type '{}'.
+
+[7m44[0m                 <div class="text-gray-900 dark:text-white">{status.data.data.user.id}</div>
+[7m  [0m [91m                                                                        ~~~~[0m
+[96msrc/pages/admin/status.astro[0m:[93m37[0m:[93m34[0m - [91merror[0m[90m ts(2339): [0mProperty 'success' does not exist on type '{}'.
+
+[7m37[0m       {status.ok && status.data?.success ? (
+[7m  [0m [91m                                 ~~~~~~~[0m
+[96msrc/pages/admin/status.astro[0m:[93m7[0m:[93m7[0m - [93mwarning[0m[90m ts(6133): [0m't' is declared but its value is never read.
+
+[7m7[0m const t = getI18n(locale);
+[7m [0m [93m      ~[0m
+
+[96msrc/pages/api/csp-report.ts[0m:[93m48[0m:[93m81[0m - [91merror[0m[90m ts(2339): [0mProperty 'body' does not exist on type '{}'.
+
+[7m48[0m         const fallback = parsed['csp-report'] || parsed['csp_report'] || parsed.body || parsed;
+[7m  [0m [91m                                                                                ~~~~[0m
+[96msrc/pages/api/csp-report.ts[0m:[93m48[0m:[93m50[0m - [91merror[0m[90m ts(7053): [0mElement implicitly has an 'any' type because expression of type '"csp_report"' can't be used to index type '{}'.
+  Property 'csp_report' does not exist on type '{}'.
+
+[7m48[0m         const fallback = parsed['csp-report'] || parsed['csp_report'] || parsed.body || parsed;
+[7m  [0m [91m                                                 ~~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/pages/api/csp-report.ts[0m:[93m48[0m:[93m26[0m - [91merror[0m[90m ts(7053): [0mElement implicitly has an 'any' type because expression of type '"csp-report"' can't be used to index type '{}'.
+  Property 'csp-report' does not exist on type '{}'.
+
+[7m48[0m         const fallback = parsed['csp-report'] || parsed['csp_report'] || parsed.body || parsed;
+[7m  [0m [91m                         ~~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/pages/api/csp-report.ts[0m:[93m29[0m:[93m53[0m - [91merror[0m[90m ts(7053): [0mElement implicitly has an 'any' type because expression of type '"csp_report"' can't be used to index type '{}'.
+  Property 'csp_report' does not exist on type '{}'.
+
+[7m29[0m       const report = json && (json['csp-report'] || json['csp_report'] || json);
+[7m  [0m [91m                                                    ~~~~~~~~~~~~~~~~~~[0m
+[96msrc/pages/api/csp-report.ts[0m:[93m29[0m:[93m31[0m - [91merror[0m[90m ts(7053): [0mElement implicitly has an 'any' type because expression of type '"csp-report"' can't be used to index type '{}'.
+  Property 'csp-report' does not exist on type '{}'.
+
+[7m29[0m       const report = json && (json['csp-report'] || json['csp_report'] || json);
+[7m  [0m [91m                              ~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/pages/api/prompt-enhance.ts[0m:[93m90[0m:[93m29[0m - [91merror[0m[90m ts(2345): [0mArgument of type '"feature_not_enabled"' is not assignable to parameter of type 'ApiErrorType'.
+
+[7m90[0m       return createApiError('feature_not_enabled', err.message);
+[7m  [0m [91m                            ~~~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/pages/api/prompt-enhance.ts[0m:[93m74[0m:[93m25[0m - [91merror[0m[90m ts(2339): [0mProperty 'OPENAI_API_KEY' does not exist on type '{ DB: D1Database; RESEND_API_KEY: string; R2_AVATARS?: R2Bucket | undefined; R2_AI_IMAGES?: R2Bucket | undefined; KV_AI_ENHANCER?: KVNamespace<string> | undefined; ... 6 more ...; PRICING_LINKS_ANNUAL?: string | ... 1 more ... | undefined; }'.
+
+[7m74[0m     OPENAI_API_KEY: env.OPENAI_API_KEY
+[7m  [0m [91m                        ~~~~~~~~~~~~~~[0m
+[96msrc/pages/api/prompt-enhance.ts[0m:[93m73[0m:[93m36[0m - [91merror[0m[90m ts(2339): [0mProperty 'PUBLIC_PROMPT_ENHANCER_V1' does not exist on type '{ DB: D1Database; RESEND_API_KEY: string; R2_AVATARS?: R2Bucket | undefined; R2_AI_IMAGES?: R2Bucket | undefined; KV_AI_ENHANCER?: KVNamespace<string> | undefined; ... 6 more ...; PRICING_LINKS_ANNUAL?: string | ... 1 more ... | undefined; }'.
+
+[7m73[0m     PUBLIC_PROMPT_ENHANCER_V1: env.PUBLIC_PROMPT_ENHANCER_V1,
+[7m  [0m [91m                                   ~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/pages/api/prompt-enhance.ts[0m:[93m71[0m:[93m29[0m - [91merror[0m[90m ts(2339): [0mProperty 'KV_PROMPT_ENHANCER' does not exist on type '{ DB: D1Database; RESEND_API_KEY: string; R2_AVATARS?: R2Bucket | undefined; R2_AI_IMAGES?: R2Bucket | undefined; KV_AI_ENHANCER?: KVNamespace<string> | undefined; ... 6 more ...; PRICING_LINKS_ANNUAL?: string | ... 1 more ... | undefined; }'.
+
+[7m71[0m     KV_PROMPT_ENHANCER: env.KV_PROMPT_ENHANCER,
+[7m  [0m [91m                            ~~~~~~~~~~~~~~~~~~[0m
+[96msrc/pages/api/prompt-enhance.ts[0m:[93m68[0m:[93m27[0m - [91merror[0m[90m ts(2345): [0mArgument of type '"feature_not_enabled"' is not assignable to parameter of type 'ApiErrorType'.
+
+[7m68[0m     return createApiError('feature_not_enabled', 'Feature not enabled');
+[7m  [0m [91m                          ~~~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/pages/api/prompt-enhance.ts[0m:[93m67[0m:[93m11[0m - [91merror[0m[90m ts(2339): [0mProperty 'PUBLIC_PROMPT_ENHANCER_V1' does not exist on type '{ DB: D1Database; RESEND_API_KEY: string; R2_AVATARS?: R2Bucket | undefined; R2_AI_IMAGES?: R2Bucket | undefined; KV_AI_ENHANCER?: KVNamespace<string> | undefined; ... 6 more ...; PRICING_LINKS_ANNUAL?: string | ... 1 more ... | undefined; }'.
+
+[7m67[0m   if (env.PUBLIC_PROMPT_ENHANCER_V1 === 'false') {
+[7m  [0m [91m          ~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/pages/api/prompt-enhance.ts[0m:[93m55[0m:[93m21[0m - [91merror[0m[90m ts(18046): [0m'body' is of type 'unknown'.
+
+[7m55[0m       outputFormat: body.options?.outputFormat || 'markdown'
+[7m  [0m [91m                    ~~~~[0m
+[96msrc/pages/api/prompt-enhance.ts[0m:[93m54[0m:[93m22[0m - [91merror[0m[90m ts(18046): [0m'body' is of type 'unknown'.
+
+[7m54[0m       includeScores: body.options?.includeScores || false,
+[7m  [0m [91m                     ~~~~[0m
+[96msrc/pages/api/prompt-enhance.ts[0m:[93m53[0m:[93m15[0m - [91merror[0m[90m ts(18046): [0m'body' is of type 'unknown'.
+
+[7m53[0m       safety: body.options?.safety !== false,
+[7m  [0m [91m              ~~~~[0m
+[96msrc/pages/api/prompt-enhance.ts[0m:[93m52[0m:[93m13[0m - [91merror[0m[90m ts(18046): [0m'body' is of type 'unknown'.
+
+[7m52[0m       mode: body.options?.mode || 'agent',
+[7m  [0m [91m            ~~~~[0m
+[96msrc/pages/api/prompt-enhance.ts[0m:[93m47[0m:[93m21[0m - [91merror[0m[90m ts(18046): [0m'body' is of type 'unknown'.
+
+[7m47[0m     input = { text: body.input?.text };
+[7m  [0m [91m                    ~~~~[0m
+
+[96msrc/pages/api/templates.ts[0m:[93m21[0m:[93m10[0m - [91merror[0m[90m ts(2304): [0mCannot find name 'createApiSuccess'.
+
+[7m21[0m   return createApiSuccess({ message: 'Template saved', templateId });
+[7m  [0m [91m         ~~~~~~~~~~~~~~~~[0m
+[96msrc/pages/api/templates.ts[0m:[93m17[0m:[93m19[0m - [91merror[0m[90m ts(2304): [0mCannot find name 'createApiError'.
+
+[7m17[0m   if (!kv) return createApiError('server_error', 'KV not available');
+[7m  [0m [91m                  ~~~~~~~~~~~~~~[0m
+[96msrc/pages/api/templates.ts[0m:[93m9[0m:[93m12[0m - [91merror[0m[90m ts(2304): [0mCannot find name 'createApiError'.
+
+[7m9[0m     return createApiError('validation_error', 'templateId, prompt, name, description required');
+[7m [0m [91m           ~~~~~~~~~~~~~~[0m
+[96msrc/pages/api/templates.ts[0m:[93m5[0m:[93m21[0m - [91merror[0m[90m ts(2304): [0mCannot find name 'createApiError'.
+
+[7m5[0m   if (!user) return createApiError('auth_error', 'Authentication required for saving templates');
+[7m [0m [91m                    ~~~~~~~~~~~~~~[0m
+[96msrc/pages/api/templates.ts[0m:[93m2[0m:[93m46[0m - [91merror[0m[90m ts(7006): [0mParameter 'context' implicitly has an 'any' type.
+
+[7m2[0m export const POST = withApiMiddleware(async (context) => {
+[7m [0m [91m                                             ~~~~~~~[0m
+[96msrc/pages/api/templates.ts[0m:[93m2[0m:[93m21[0m - [91merror[0m[90m ts(2304): [0mCannot find name 'withApiMiddleware'.
+
+[7m2[0m export const POST = withApiMiddleware(async (context) => {
+[7m [0m [91m                    ~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/pages/api/admin/status.ts[0m:[93m39[0m:[93m22[0m - [91merror[0m[90m ts(2347): [0mUntyped function calls may not accept type arguments.
+
+[7m 39[0m   const subs = await db
+[7m   [0m [91m                     ~~[0m
+[7m 40[0m     .prepare(
+[7m   [0m [91m~~~~~~~~~~~~~[0m
+[7m...[0m 
+[7m 55[0m       updated_at: string;
+[7m   [0m [91m~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[7m 56[0m     }>();
+[7m   [0m [91m~~~~~~~~[0m
+[96msrc/pages/api/admin/status.ts[0m:[93m21[0m:[93m21[0m - [91merror[0m[90m ts(2347): [0mUntyped function calls may not accept type arguments.
+
+[7m21[0m   const row = await db
+[7m  [0m [91m                    ~~[0m
+[7m22[0m     .prepare('SELECT plan FROM users WHERE id = ?')
+[7m  [0m [91m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[7m23[0m     .bind(user.id)
+[7m  [0m [91m~~~~~~~~~~~~~~~~~~[0m
+[7m24[0m     .first<{ plan: 'free' | 'pro' | 'premium' | 'enterprise' }>();
+[7m  [0m [91m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/pages/api/dashboard/projects.ts[0m:[93m1[0m:[93m1[0m - [93mwarning[0m[90m ts(6133): [0m'APIRoute' is declared but its value is never read.
+
+[7m1[0m import type { APIRoute } from 'astro';
+[7m [0m [93m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/pages/api/dashboard/stats.ts[0m:[93m1[0m:[93m1[0m - [93mwarning[0m[90m ts(6133): [0m'APIContext' is declared but its value is never read.
+
+[7m1[0m import type { APIContext } from 'astro';
+[7m [0m [93m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/pages/api/lead-magnets/download.ts[0m:[93m162[0m:[93m57[0m - [93mwarning[0m[90m ts(6133): [0m'url' is declared but its value is never read.
+
+[7m162[0m export const POST: APIRoute = async ({ request, locals, url }) => {
+[7m   [0m [93m                                                        ~~~[0m
+[96msrc/pages/api/lead-magnets/download.ts[0m:[93m131[0m:[93m62[0m - [93mwarning[0m[90m ts(6385): [0m'(from: number, length?: number | undefined): string' is deprecated.
+
+[7m131[0m     leadId: `lead_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+[7m   [0m [93m                                                             ~~~~~~[0m
+[96msrc/pages/api/lead-magnets/download.ts[0m:[93m108[0m:[93m52[0m - [93mwarning[0m[90m ts(6133): [0m'leadMagnet' is declared but its value is never read.
+
+[7m108[0m const saveLead = async (leadData: DownloadRequest, leadMagnet: LeadMagnetConfig) => {
+[7m   [0m [93m                                                   ~~~~~~~~~~[0m
+
+[96msrc/pages/api/newsletter/confirm.ts[0m:[93m32[0m:[93m39[0m - [93mwarning[0m[90m ts(6133): [0m'request' is declared but its value is never read.
+
+[7m32[0m export const GET: APIRoute = async ({ request, url }) => {
+[7m  [0m [93m                                      ~~~~~~~[0m
+
+[96msrc/pages/api/newsletter/subscribe.ts[0m:[93m292[0m:[93m74[0m - [93mwarning[0m[90m ts(6385): [0m'(from: number, length?: number | undefined): string' is deprecated.
+
+[7m292[0m   const subscriptionId = `sub_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+[7m   [0m [93m                                                                         ~~~~~~[0m
+[96msrc/pages/api/newsletter/subscribe.ts[0m:[93m287[0m:[93m16[0m - [93mwarning[0m[90m ts(6133): [0m'createNewsletterSubscription' is declared but its value is never read.
+
+[7m287[0m async function createNewsletterSubscription(data: any): Promise<string> {
+[7m   [0m [93m               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/pages/api/newsletter/subscribe.ts[0m:[93m269[0m:[93m16[0m - [93mwarning[0m[90m ts(6133): [0m'checkExistingSubscription' is declared but its value is never read.
+
+[7m269[0m async function checkExistingSubscription(email: string): Promise<boolean> {
+[7m   [0m [93m               ~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/pages/api/newsletter/subscribe.ts[0m:[93m8[0m:[93m7[0m - [93mwarning[0m[90m ts(6133): [0m'securityLogger' is declared but its value is never read.
+
+[7m8[0m const securityLogger = loggerFactory.createSecurityLogger();
+[7m [0m [93m      ~~~~~~~~~~~~~~[0m
+
+[96msrc/pages/api/projects/index.ts[0m:[93m93[0m:[93m13[0m - [93mwarning[0m[90m ts(6133): [0m'clientAddress' is declared but its value is never read.
+
+[7m93[0m     const { clientAddress, locals } = context;
+[7m  [0m [93m            ~~~~~~~~~~~~~[0m
+[96msrc/pages/api/projects/index.ts[0m:[93m92[0m:[93m22[0m - [93mwarning[0m[90m ts(6133): [0m'error' is declared but its value is never read.
+
+[7m92[0m   onError: (context, error) => {
+[7m  [0m [93m                     ~~~~~[0m
+[96msrc/pages/api/projects/index.ts[0m:[93m14[0m:[93m28[0m - [93mwarning[0m[90m ts(6133): [0m'clientAddress' is declared but its value is never read.
+
+[7m14[0m   const { request, locals, clientAddress } = context;
+[7m  [0m [93m                           ~~~~~~~~~~~~~[0m
+
+[96msrc/pages/api/user/me.ts[0m:[93m40[0m:[93m20[0m - [93mwarning[0m[90m ts(6133): [0m'context' is declared but its value is never read.
+
+[7m40[0m   onUnauthorized: (context) => createApiError('auth_error', 'Unauthorized')
+[7m  [0m [93m                   ~~~~~~~[0m
+
+[96msrc/pages/api/user/settings.ts[0m:[93m24[0m:[93m22[0m - [93mwarning[0m[90m ts(6133): [0m'error' is declared but its value is never read.
+
+[7m24[0m   onError: (context, error) => {
+[7m  [0m [93m                     ~~~~~[0m
+[96msrc/pages/api/user/settings.ts[0m:[93m24[0m:[93m13[0m - [93mwarning[0m[90m ts(6133): [0m'context' is declared but its value is never read.
+
+[7m24[0m   onError: (context, error) => {
+[7m  [0m [93m            ~~~~~~~[0m
+[96msrc/pages/api/user/settings.ts[0m:[93m11[0m:[93m9[0m - [93mwarning[0m[90m ts(6133): [0m'user' is declared but its value is never read.
+
+[7m11[0m   const user = locals.user;
+[7m  [0m [93m        ~~~~[0m
+[96msrc/pages/api/user/settings.ts[0m:[93m1[0m:[93m1[0m - [93mwarning[0m[90m ts(6133): [0m'APIRoute' is declared but its value is never read.
+
+[7m1[0m import type { APIRoute } from 'astro';
+[7m [0m [93m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/pages/auth/notify.astro[0m:[93m16[0m:[93m7[0m - [93mwarning[0m[90m ts(6133): [0m'immediateTarget' is declared but its value is never read.
+
+[7m16[0m const immediateTarget = user ? localizePath(locale, '/dashboard') : localizePath(locale, '/login');
+[7m  [0m [93m      ~~~~~~~~~~~~~~~[0m
+[96msrc/pages/auth/notify.astro[0m:[93m12[0m:[93m7[0m - [93mwarning[0m[90m ts(6133): [0m'toParam' is declared but its value is never read.
+
+[7m12[0m const toParam = url.searchParams.get('to') || '';
+[7m  [0m [93m      ~~~~~~~[0m
+[96msrc/pages/auth/notify.astro[0m:[93m7[0m:[93m10[0m - [93mwarning[0m[90m ts(6133): [0m'isAllowedRelativePath' is declared but its value is never read.
+
+[7m7[0m function isAllowedRelativePath(path: string): boolean {
+[7m [0m [93m         ~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/pages/en/account/settings.astro[0m:[93m365[0m:[93m11[0m - [93mwarning[0m[90m ts(80006): [0mThis may be converted to an async function.
+
+[7m365[0m     .then(response => {
+[7m   [0m [93m          ~~~~~~~~~~~~~[0m
+[96msrc/pages/en/account/settings.astro[0m:[93m212[0m:[93m45[0m - [93mwarning[0m[90m ts(6133): [0m'e' is declared but its value is never read.
+
+[7m212[0m     openModalBtn.addEventListener('click', (e) => {
+[7m   [0m [93m                                            ~[0m
+[96msrc/pages/en/account/settings.astro[0m:[93m148[0m:[93m11[0m - [93mwarning[0m[90m astro(4000): [0mThis script will be treated as if it has the `is:inline` directive because it contains an attribute. Therefore, features that require processing (e.g. using TypeScript or npm packages in the script) are unavailable.
+
+See docs for more details: https://docs.astro.build/en/guides/client-side-scripts/#script-processing.
+
+Add the `is:inline` directive explicitly to silence this hint.
+
+[7m148[0m   <script type="application/json" id="i18n-settings">{JSON.stringify(i18nSettings)}</script>
+[7m   [0m [93m          ~~~~[0m
+
+[96msrc/pages/en/tools/index.astro[0m:[93m115[0m:[93m11[0m - [93mwarning[0m[90m astro(4000): [0mThis script will be treated as if it has the `is:inline` directive because it contains an attribute. Therefore, features that require processing (e.g. using TypeScript or npm packages in the script) are unavailable.
+
+See docs for more details: https://docs.astro.build/en/guides/client-side-scripts/#script-processing.
+
+Add the `is:inline` directive explicitly to silence this hint.
+
+[7m115[0m   <script nonce={Astro.locals.cspNonce}>
+[7m   [0m [93m          ~~~~~[0m
+
+[96msrc/pages/tools/index.astro[0m:[93m118[0m:[93m11[0m - [93mwarning[0m[90m astro(4000): [0mThis script will be treated as if it has the `is:inline` directive because it contains an attribute. Therefore, features that require processing (e.g. using TypeScript or npm packages in the script) are unavailable.
+
+See docs for more details: https://docs.astro.build/en/guides/client-side-scripts/#script-processing.
+
+Add the `is:inline` directive explicitly to silence this hint.
+
+[7m118[0m   <script nonce={Astro.locals.cspNonce}>
+[7m   [0m [93m          ~~~~~[0m
+
+Result (248 files): 
+- 167 errors
+- 0 warnings
+- 93 hints
+

@@ -94,6 +94,17 @@ export function getAllTools(locale: Locale): Tool[] {
       isNew: true,
       isPopular: false,
       comingSoon: false
+    },
+    {
+      id: 'prompt-enhancer',
+      name: t('pages.tools.items.prompt-enhancer.name'),
+      description: t('pages.tools.items.prompt-enhancer.description'),
+      category: ['ai'],
+      iconKey: 'edit',
+      color: 'bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200',
+      url: '/tools/prompt-enhancer',
+      isNew: true,
+      comingSoon: false
     }
   ];
 }

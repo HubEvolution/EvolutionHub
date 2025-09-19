@@ -1,5 +1,4 @@
-import type { APIRoute } from 'astro';
-import { withAuthApiMiddleware, createApiError, createApiSuccess } from '@/lib/api-middleware';
+import { withAuthApiMiddleware, createApiError } from '@/lib/api-middleware';
 import { logUserEvent } from '@/lib/security-logger';
 
 /**
@@ -20,12 +19,20 @@ export const DELETE = withAuthApiMiddleware(async (context) => {
   const user = locals.user;
   const db = env.DB;
   
+  // Ensure authenticated user before proceeding
+  if (!user) {
+    return createApiError('auth_error', 'Unauthorized');
+  }
+  
   // Optional: Bestätigung einfordern und validieren
   let confirmDelete = false;
   try {
-    const data = await request.json().catch(() => ({}));
-    confirmDelete = !!data.confirm;
-  } catch (error) {
+    const body = (await request.json().catch(() => null)) as unknown;
+    if (body && typeof body === 'object' && 'confirm' in body) {
+      const anyBody = body as Record<string, unknown>;
+      confirmDelete = Boolean(anyBody.confirm);
+    }
+  } catch (_error) {
     // JSON parsing error ignorieren, confirmDelete bleibt false
   }
   

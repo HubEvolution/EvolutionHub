@@ -136,6 +136,21 @@ Check D1 tables:
 - `subscriptions` (id, user_id, plan, status, current_period_end, ...)
 - `users.plan` is set to the active plan (or `free` on cancel).
 
+## 6) Credits & Plan Propagation
+
+The Image Enhancer supports consumable credits alongside plan quotas.
+
+- Credits are stored in KV and consumed by services when the monthly plan limit is reached.
+- Key format (KV_AI_ENHANCER): `ai:credits:user:<userId>` with a numeric balance.
+- Sync and Jobs paths will attempt a credits bypass if the user has remaining credits.
+- Example purchase endpoint (UI calls): `POST /api/billing/credits` (preconfigured amounts like 200/1000)
+
+Notes:
+
+- Plan is still the primary source for daily/monthly limits; credits are only consumed when monthly is exceeded.
+- The Stripe webhook updates `users.plan`; credits top‑ups may be handled via a dedicated credits checkout/session or internal admin tooling.
+- Never expose balances in client code without proper API routes; use server responses to display entitlements and usage.
+
 ## Troubleshooting
 
 - 401/403 in webhook: verify `STRIPE_WEBHOOK_SECRET` is correct and forwarded to the correct endpoint.

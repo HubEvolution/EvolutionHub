@@ -12,7 +12,11 @@ export const notify = {
   promise: async <T>(
     p: Promise<T>,
     msgs: { loading: string; success: string; error: string }
-  ): Promise<T> => toast.promise(p, msgs),
+  ): Promise<T> => {
+    // Trigger Sonner toast lifecycle, but return the original promise's value
+    toast.promise(p, msgs);
+    return await p;
+  },
 };
 
 export default notify;
