@@ -218,6 +218,14 @@ export const onRequest = defineMiddleware(async (context, next) => {
     return AUTH_RE.test(p);
   }
 
+  // Guests dürfen die Imag-Enhancer-Toolrouten direkt nutzen (besserer Funnel)
+  // -> Splash-/Welcome-Gate überspringen für diese Routen
+  function isGuestAccessibleToolRoute(p: string): boolean {
+    // Optionales Sprachpräfix /de oder /en unterstützen
+    const TOOL_RE = /^\/(?:(?:de|en)\/)?tools\/imag-enhancer(?:\/app)?(?:\/?$)/;
+    return TOOL_RE.test(p);
+  }
+
   const preferredLocale: Locale = existingLocale
     ?? cookieLocale
     ?? detectFromAcceptLanguage(context.request.headers.get('accept-language'));
@@ -357,7 +365,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   // Zeige Splash/Welcome beim ersten sichtbaren Besuch dieser Session
   // Überspringe Splash, wenn bereits ein Locale-Cookie vorhanden ist
-  if (!sessionWelcomeSeen && !cookieLocale && !isApi && !isAsset && !isR2Proxy && !bot && !path.startsWith('/welcome') && !isAuthRoute(path) && !existingLocale) {
+  if (!sessionWelcomeSeen && !cookieLocale && !isApi && !isAsset && !isR2Proxy && !bot && !path.startsWith('/welcome') && !isAuthRoute(path) && !isGuestAccessibleToolRoute(path) && !existingLocale) {
     try {
       // Session-Cookie (kein maxAge) setzen, damit Splash nur einmal pro Session erscheint
       context.cookies.set(sessionGateCookie, '1', {

@@ -15,6 +15,8 @@ import { Dropzone } from './imag-enhancer/Dropzone';
 import { UsagePill } from './imag-enhancer/UsagePill';
 import { EnhancerActions } from './imag-enhancer/EnhancerActions';
 import { HelpModal } from './imag-enhancer/HelpModal';
+import type { PlanEntitlements } from '@/config/ai-image/entitlements';
+import { useLog } from '@/contexts/LogContext';
 
 interface UsageInfo {
   used: number;
@@ -45,6 +47,7 @@ interface UsageResponseData {
   usage: UsageInfo;
   limits: { user: number; guest: number };
   plan?: 'free' | 'pro' | 'premium' | 'enterprise';
+  entitlements: PlanEntitlements;
 }
 
 interface GenerateResponseData {
@@ -122,6 +125,7 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
   const [usage, setUsage] = useState<UsageInfo | null>(null);
   const [ownerType, setOwnerType] = useState<'user' | 'guest' | null>(null);
   const [plan, setPlan] = useState<'free' | 'pro' | 'premium' | 'enterprise' | null>(null);
+  const [entitlements, setEntitlements] = useState<PlanEntitlements | null>(null);
   const [lastOriginalUrl, setLastOriginalUrl] = useState<string | null>(null);
   // Abort & retry handling
   const generateAbortRef = useRef<AbortController | null>(null);
@@ -147,6 +151,15 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
 
   // Resolve selected model to access capability flags
   const selectedModel = useMemo(() => ALLOWED_MODELS.find((m) => m.slug === model), [model]);
+  // Feature flag to guard plan-aware UI gating
+  const gatingEnabled = import.meta.env.PUBLIC_ENHANCER_PLAN_GATING_V1 === '1';
+  // Lightweight telemetry
+  const { addLog } = useLog();
+  const trackEvent = useCallback((evt: string, payload: Record<string, unknown> = {}) => {
+    try {
+      addLog({ timestamp: new Date().toISOString(), level: 'info', message: JSON.stringify({ evt, ...payload }) });
+    } catch {}
+  }, [addLog]);
 
   const inputRef = useRef<HTMLInputElement | null>(null);
   const draggingRef = useRef(false);
@@ -761,6 +774,11 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
         } else {
           setPlan(null);
         }
+        try {
+          setEntitlements((data.data as UsageResponseData).entitlements || null);
+        } catch {
+          setEntitlements(null);
+        }
       } else if ('success' in data && !data.success) {
         toast.error(data.error.message || toasts.loadQuotaError);
         // Fallback UI for guests so the pill shows a limit instead of loading forever
@@ -1164,6 +1182,24 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
     return { used: 0, limit: FREE_LIMIT_GUEST, resetAt: null };
   }, [ownerType, usage]);
 
+  // Plan-aware UI gating derived flags
+  const modelSupportsScale = Boolean(selectedModel?.supportsScale);
+  const modelSupportsFace = Boolean(selectedModel?.supportsFaceEnhance);
+  const allowedScales = useMemo(() => {
+    if (!modelSupportsScale) return [] as (2 | 4)[];
+    if (!gatingEnabled || !entitlements) return [2, 4];
+    const max = entitlements.maxUpscale;
+    const arr: (2 | 4)[] = [];
+    if (2 <= max) arr.push(2);
+    if (4 <= max) arr.push(4);
+    return arr;
+  }, [modelSupportsScale, gatingEnabled, entitlements]);
+  const canUseFaceEnhance = useMemo(() => {
+    if (!modelSupportsFace) return false;
+    if (!gatingEnabled || !entitlements) return modelSupportsFace;
+    return entitlements.faceEnhance;
+  }, [modelSupportsFace, gatingEnabled, entitlements]);
+
   const usagePercent = useMemo(() => {
     const u = effectiveUsageForDisplay;
     if (!u || !u.limit) return 0;
@@ -1174,6 +1210,28 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
     if (!u) return false;
     return u.used >= u.limit;
   }, [effectiveUsageForDisplay]);
+
+  // CTA refinement based on plan gating
+  const featureBlockedByPlan = useMemo(() => {
+    if (!gatingEnabled || !entitlements) return false;
+    if (modelSupportsScale && typeof scale === 'number' && entitlements.maxUpscale && scale > entitlements.maxUpscale) return true;
+    if (modelSupportsFace && faceEnhance && !entitlements.faceEnhance) return true;
+    return false;
+  }, [gatingEnabled, entitlements, modelSupportsScale, modelSupportsFace, scale, faceEnhance]);
+  const ctaReason = useMemo(() => {
+    if (ownerType === 'guest') return 'guest';
+    if (plan === 'free') return 'plan_free';
+    if (isUsageCritical || !!usage && usage.used >= usage.limit) return 'quota';
+    if (featureBlockedByPlan) return 'feature';
+    if (usagePercent >= 90) return 'high_usage';
+    return null as null | string;
+  }, [ownerType, plan, isUsageCritical, usage, featureBlockedByPlan, usagePercent]);
+  const showUpgradeCta = useMemo(() => ctaReason !== null, [ctaReason]);
+
+  useEffect(() => {
+    if (!showUpgradeCta) return;
+    trackEvent('enhancer_cta_impression', { reason: ctaReason || '', plan: plan || '', ownerType: ownerType || '', model });
+  }, [showUpgradeCta, ctaReason, plan, ownerType, model, trackEvent]);
 
   const currentModelLabel = useMemo(
     () => ALLOWED_MODELS.find((m) => m.slug === model)?.label ?? model,
@@ -1448,23 +1506,45 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
                           <div className="flex items-center gap-3">
                             {selectedModel?.supportsScale && (
                               <div className="flex items-center gap-1" role="group" aria-label="Enhancement scale">
+                                {/* x2 */}
                                 <button
                                   type="button"
-                                  onClick={() => setScale(2)}
+                                  onClick={() => {
+                                    const allowed = allowedScales.includes(2);
+                                    if (!allowed) {
+                                      trackEvent('enhancer_control_blocked_plan', { feature: 'scale', requested: 2, max: entitlements?.maxUpscale || null, plan, ownerType, model });
+                                      return;
+                                    }
+                                    setScale(2);
+                                  }}
+                                  title={!allowedScales.includes(2) && gatingEnabled ? (strings?.ui?.upgrade || 'Upgrade') : ''}
                                   className={`px-2 py-1 text-xs rounded-md ring-1 ${
                                     scale === 2
                                       ? 'bg-cyan-500/20 ring-cyan-400/50 text-cyan-700 dark:text-cyan-200'
+                                      : !allowedScales.includes(2) && gatingEnabled
+                                      ? 'opacity-60 cursor-not-allowed bg-white/10 dark:bg-slate-900/40 ring-cyan-400/20 text-gray-500 dark:text-gray-500'
                                       : 'bg-white/10 dark:bg-slate-900/40 ring-cyan-400/20 text-gray-700 dark:text-gray-200 hover:ring-cyan-400/40'
                                   }`}
                                 >
                                   x2
                                 </button>
+                                {/* x4 */}
                                 <button
                                   type="button"
-                                  onClick={() => setScale(4)}
+                                  onClick={() => {
+                                    const allowed = allowedScales.includes(4);
+                                    if (!allowed) {
+                                      trackEvent('enhancer_control_blocked_plan', { feature: 'scale', requested: 4, max: entitlements?.maxUpscale || null, plan, ownerType, model });
+                                      return;
+                                    }
+                                    setScale(4);
+                                  }}
+                                  title={!allowedScales.includes(4) && gatingEnabled ? (strings?.ui?.upgrade || 'Upgrade') : ''}
                                   className={`px-2 py-1 text-xs rounded-md ring-1 ${
                                     scale === 4
                                       ? 'bg-cyan-500/20 ring-cyan-400/50 text-cyan-700 dark:text-cyan-200'
+                                      : !allowedScales.includes(4) && gatingEnabled
+                                      ? 'opacity-60 cursor-not-allowed bg-white/10 dark:bg-slate-900/40 ring-cyan-400/20 text-gray-500 dark:text-gray-500'
                                       : 'bg-white/10 dark:bg-slate-900/40 ring-cyan-400/20 text-gray-700 dark:text-gray-200 hover:ring-cyan-400/40'
                                   }`}
                                 >
@@ -1477,9 +1557,18 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
                                 <input
                                   type="checkbox"
                                   checked={faceEnhance}
-                                  onChange={(e) => setFaceEnhance(e.target.checked)}
+                                  onChange={(e) => {
+                                    const next = e.target.checked;
+                                    if (next && !canUseFaceEnhance) {
+                                      trackEvent('enhancer_control_blocked_plan', { feature: 'face_enhance', plan, ownerType, model });
+                                      return;
+                                    }
+                                    setFaceEnhance(next);
+                                  }}
+                                  disabled={gatingEnabled && !canUseFaceEnhance}
                                   className="h-3.5 w-3.5 rounded border-gray-300 dark:border-gray-600 text-cyan-600 focus:ring-cyan-500"
                                   aria-label={faceEnhanceLabel}
+                                  title={gatingEnabled && !canUseFaceEnhance ? (strings?.ui?.upgrade || 'Upgrade') : ''}
                                 />
                                 <span>{faceEnhanceLabel}</span>
                               </label>
@@ -1588,10 +1677,11 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
                     percent={usagePercent}
                     critical={isUsageCritical}
                   />
-                  {(ownerType === 'guest' || plan === 'free' || quotaExceeded || isUsageCritical) && (
+                  {showUpgradeCta && (
                     <a
                       href={pricingHref}
                       className="inline-flex items-center rounded-md px-2 py-1 text-[11px] ring-1 ring-amber-400/30 bg-amber-500/10 text-amber-700 dark:text-amber-200 hover:ring-amber-400/60"
+                      onClick={() => trackEvent('enhancer_cta_click', { reason: ctaReason || '', plan: plan || '', ownerType: ownerType || '', model })}
                     >
                       {upgradeLabel}
                     </a>

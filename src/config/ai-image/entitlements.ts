@@ -8,6 +8,17 @@ export interface PlanEntitlements {
   // Future: add maxMegapixels, batchMax, api monthly calls, queue priority, commercial use, support SLA
 }
 
+import { FREE_LIMIT_GUEST } from '@/config/ai-image';
+
+// Guest entitlements: conservative 3/day aligned with FREE_LIMIT_GUEST
+// Keep other capabilities minimal to encourage upgrading, while still allowing a useful trial.
+const GUEST_ENTITLEMENTS: Readonly<PlanEntitlements> = Object.freeze({
+  monthlyImages: FREE_LIMIT_GUEST * 30, // e.g., ~90 per month if 3/day
+  dailyBurstCap: FREE_LIMIT_GUEST,
+  maxUpscale: 2,
+  faceEnhance: false,
+});
+
 export const ENTITLEMENTS: Readonly<Record<Plan, PlanEntitlements>> = Object.freeze({
   free: {
     monthlyImages: 450,
@@ -37,8 +48,8 @@ export const ENTITLEMENTS: Readonly<Record<Plan, PlanEntitlements>> = Object.fre
 
 export function getEntitlementsFor(ownerType: 'user' | 'guest', plan?: Plan): PlanEntitlements {
   if (ownerType === 'guest') {
-    // Guests map to a conservative free-like entitlement
-    return ENTITLEMENTS.free;
+    // Guests map to dedicated guest entitlements (aligned with FREE_LIMIT_GUEST)
+    return GUEST_ENTITLEMENTS;
   }
   const p = plan ?? 'free';
   return ENTITLEMENTS[p];

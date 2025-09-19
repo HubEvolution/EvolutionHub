@@ -49,6 +49,17 @@ const tool = {
   id: 'Imag-Enhancer',
   icon: 'tool'
 };
+
+// Fallback labels if auth/login or common/upgrade are not present in dictionary
+const loginRaw = t('auth.login');
+const loginLabel = (typeof loginRaw === 'string' && !/\[.+_fallback_not_found\]/.test(loginRaw))
+  ? loginRaw
+  : (locale === 'de' ? 'Anmelden' : 'Sign in');
+const upgradeRaw = t('common.upgrade');
+const upgradeLabel = (typeof upgradeRaw === 'string' && !/\[.+_fallback_not_found\]/.test(upgradeRaw))
+  ? upgradeRaw
+  : (locale === 'de' ? 'Upgrade' : 'Upgrade');
+
 ---
 <BaseLayout title={`${t('pages.tools.items.Imag-Enhancer.name')} – Evolution Hub`} description={t('pages.tools.items.Imag-Enhancer.description')} comingSoon={false}>
   <main class="min-h-screen bg-transparent py-6 sm:py-10 lg:py-12 px-4 sm:px-6 lg:px-8">
@@ -73,6 +84,33 @@ const tool = {
           </p>
         </div>
       </div>
+
+      {/* Guest Funnel Banner */}
+      {(() => {
+        try {
+          const user = Astro.locals.user as any | null;
+          if (user) return null;
+        } catch {}
+        const loginHref = localizePath(locale, '/login');
+        const pricingHref = localizePath(locale, '/pricing');
+        return (
+          <div id="guest-banner" class="mt-6 rounded-md border border-amber-300 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-700 px-4 py-3">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <p class="text-sm text-amber-900 dark:text-amber-200">
+                {strings.quotaBanner}
+              </p>
+              <div class="flex gap-2">
+                <a href={loginHref} class="inline-flex items-center justify-center rounded-md bg-white dark:bg-transparent border border-amber-300 dark:border-amber-600 px-3 py-1.5 text-sm font-medium text-amber-900 dark:text-amber-100 hover:bg-amber-100 dark:hover:bg-amber-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500">
+                  {loginLabel}
+                </a>
+                <a href={pricingHref} class="inline-flex items-center justify-center rounded-md bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500">
+                  {upgradeLabel}
+                </a>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       <section class="mt-8 sm:mt-10 bg-white dark:bg-gray-800 rounded-lg shadow p-4 sm:p-6">
         <h2 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">

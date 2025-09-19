@@ -74,6 +74,13 @@ export const GET = withApiMiddleware(async (context) => {
       resp.headers.set('X-Usage-OwnerType', ownerType);
       resp.headers.set('X-Usage-Plan', ownerType === 'user' ? (plan ?? 'free') : '');
       resp.headers.set('X-Usage-Limit', String(ent.dailyBurstCap));
+      // additional debug to diagnose session vs guest
+      try {
+        const hasSession = !!context.cookies.get('session_id')?.value;
+        const hasUser = !!locals.user?.id;
+        resp.headers.set('X-Debug-Session', hasSession ? '1' : '0');
+        resp.headers.set('X-Debug-User', hasUser ? '1' : '0');
+      } catch {}
     } catch {}
     return resp;
   } catch (err) {
