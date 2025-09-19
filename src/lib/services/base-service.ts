@@ -37,7 +37,7 @@ export abstract class AbstractBaseService implements BaseService {
    */
   async withTransaction<T>(
     callback: (tx: D1Database) => Promise<T>,
-    options?: TransactionOptions
+    _options?: TransactionOptions
   ): Promise<T> {
     try {
       // In Zukunft, wenn D1 Transaktionen unterstützt:

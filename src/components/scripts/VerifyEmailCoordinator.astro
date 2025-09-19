@@ -107,7 +107,7 @@
           setBusy(false);
         }
 
-        function onClick() {
+        async function onClick() {
           if (state.isResending) return;
           var email = (emailInput && emailInput.value) || '';
           if (!email) {
@@ -130,30 +130,27 @@
               body: JSON.stringify({ email: email })
             };
             if (state.abortCtrl) fetchOptions.signal = state.abortCtrl.signal;
-
-            fetch('/api/auth/resend-verification', fetchOptions)
-              .then(function (response) {
-                return response
-                  .json()
-                  .catch(function () { return {}; })
-                  .then(function (data) { return { response: response, data: data || {} }; });
-              })
-              .then(function (pair) {
-                var response = pair.response; var data = pair.data;
-                if (response.ok && data && data.success) {
-                  showSuccess(msgSuccess);
-                  startCountdown(60);
-                } else {
-                  showError((data && data.message) || msgError);
-                  resetButton();
-                }
-              })
-              .catch(function (err) {
-                if (err && err.name === 'AbortError') return;
-                console.error('[VerifyEmailCoordinator] resend error:', err);
-                showError(msgUnexpected);
+            try {
+              var response = await fetch('/api/auth/resend-verification', fetchOptions);
+              var data = {};
+              try {
+                data = await response.json();
+              } catch (_) {
+                data = {};
+              }
+              if (response.ok && data && data.success) {
+                showSuccess(msgSuccess);
+                startCountdown(60);
+              } else {
+                showError((data && data.message) || msgError);
                 resetButton();
-              });
+              }
+            } catch (err) {
+              if (err && err.name === 'AbortError') return;
+              console.error('[VerifyEmailCoordinator] resend error:', err);
+              showError(msgUnexpected);
+              resetButton();
+            }
           } catch (e) {
             console.error('[VerifyEmailCoordinator] click handler error:', e);
             showError(msgUnexpected);

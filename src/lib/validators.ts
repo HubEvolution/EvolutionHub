@@ -14,8 +14,8 @@
 import type { APIContext } from 'astro';
 
 // Validierungsregel-Typen
-export type ValidationRule<T> = {
-  validate: (value: unknown) => boolean;
+export type ValidationRule<TValue> = {
+  validate: (value: TValue) => boolean;
   errorMessage: string;
 }
 

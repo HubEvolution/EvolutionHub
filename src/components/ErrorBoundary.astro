@@ -4,10 +4,9 @@
 
 interface Props {
   fallback?: any;
-  client?: 'load' | 'idle' | 'visible' | 'media' | 'only';
 }
 
-const { fallback, client = 'load' } = Astro.props;
+const { fallback } = Astro.props;
 
 // This will be rendered on the server
 ---

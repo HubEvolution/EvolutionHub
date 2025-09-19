@@ -11,8 +11,7 @@ import type {
   EmailService, 
   EmailVerificationRequest, 
   EmailRequest, 
-  EmailResult, 
-  EmailTemplateType 
+  EmailResult 
 } from './email-service';
 import type { ServiceDependencies } from './types';
 import { ServiceError, ServiceErrorType } from './types';
@@ -458,7 +457,7 @@ export class ResendEmailService extends AbstractBaseService implements EmailServ
    * @param userName Name des Benutzers
    * @returns HTML-String für die E-Mail
    */
-  private generateWelcomeEmailHTML(email: string, userName: string): string {
+  private generateWelcomeEmailHTML(_email: string, userName: string): string {
     const dashboardUrl = `${this.baseUrl}/dashboard`;
     
     return `

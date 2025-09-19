@@ -1,0 +1,107 @@
+21:57:29 [@astrojs/cloudflare] Enabling sessions with Cloudflare KV with the "SESSION" KV binding.
+21:57:29 [@astrojs/cloudflare] If you see the error "Invalid binding `SESSION`" in your build output, you need to add the binding to your wrangler config file.
+21:57:30 [WARN] [adapter] Cloudflare does not support sharp at runtime. However, you can configure `imageService: "compile"` to optimize images with sharp on prerendered pages during build time.
+21:57:30 [vite] Re-optimizing dependencies because vite config has changed
+21:57:30 [content] Syncing content
+21:57:30 [content] Synced content
+21:57:30 [types] Generated 886ms
+21:57:30 [check] Getting diagnostics for Astro files in /Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub...
+[96msrc/components/AvatarUploadModal.astro[0m:[93m197[0m:[93m13[0m - [93mwarning[0m[90m ts(80006): [0mThis may be converted to an async function.
+
+[7m197[0m       .then(response => {
+[7m   [0m [93m            ~~~~~~~~~~~~~[0m
+
+[96msrc/components/scripts/VerifyEmailCoordinator.astro[0m:[93m135[0m:[93m21[0m - [93mwarning[0m[90m ts(80006): [0mThis may be converted to an async function.
+
+[7m135[0m               .then(function (response) {
+[7m   [0m [93m                    ~~~~~~~~[0m
+
+[96msrc/lib/auth.ts[0m:[93m12[0m:[93m48[0m - [93mwarning[0m[90m ts(6385): [0m'LegacyLucia' is deprecated.
+
+[7m12[0m export function initializeLucia(_D1: unknown): LegacyLucia {
+[7m  [0m [93m                                               ~~~~~~~~~~~[0m
+
+[96msrc/lib/services/ai-image-service.ts[0m:[93m212[0m:[93m57[0m - [93mwarning[0m[90m ts(6387): [0mThe signature '(threadID: string, query?: MessageListParams | null | undefined, options?: RequestOptions | undefined): PagePromise<MessagesPage, Message>' of 'openai.beta.threads.messages.list' is deprecated.
+
+[7m212[0m     const messages = await openai.beta.threads.messages.list(thread.id);
+[7m   [0m [93m                                                        ~~~~[0m
+[96msrc/lib/services/ai-image-service.ts[0m:[93m204[0m:[93m56[0m - [93mwarning[0m[90m ts(6387): [0mThe signature '(runID: string, params: RunRetrieveParams, options?: RequestOptions | undefined): APIPromise<Run>' of 'openai.beta.threads.runs.retrieve' is deprecated.
+
+[7m204[0m       const runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id as any);
+[7m   [0m [93m                                                       ~~~~~~~~[0m
+[96msrc/lib/services/ai-image-service.ts[0m:[93m190[0m:[93m44[0m - [93mwarning[0m[90m ts(6387): [0mThe signature '(threadID: string, params: RunCreateParamsNonStreaming, options?: RequestOptions | undefined): APIPromise<Run>' of 'openai.beta.threads.runs.create' is deprecated.
+
+[7m190[0m       run = await openai.beta.threads.runs.create(thread.id, {
+[7m   [0m [93m                                           ~~~~~~[0m
+[96msrc/lib/services/ai-image-service.ts[0m:[93m186[0m:[93m42[0m - [93mwarning[0m[90m ts(6387): [0mThe signature '(threadID: string, body: MessageCreateParams, options?: RequestOptions | undefined): APIPromise<Message>' of 'openai.beta.threads.messages.create' is deprecated.
+
+[7m186[0m       await openai.beta.threads.messages.create(thread.id, {
+[7m   [0m [93m                                         ~~~~~~[0m
+[96msrc/lib/services/ai-image-service.ts[0m:[93m185[0m:[93m42[0m - [93mwarning[0m[90m ts(6387): [0mThe signature '(body?: ThreadCreateParams | null | undefined, options?: RequestOptions | undefined): APIPromise<Thread>' of 'openai.beta.threads.create' is deprecated.
+
+[7m185[0m       thread = await openai.beta.threads.create();
+[7m   [0m [93m                                         ~~~~~~[0m
+[96msrc/lib/services/ai-image-service.ts[0m:[93m123[0m:[93m11[0m - [93mwarning[0m[90m ts(6133): [0m'isLocalHost' is declared but its value is never read.
+
+[7m123[0m   private isLocalHost(origin: string): boolean {
+[7m   [0m [93m          ~~~~~~~~~~~[0m
+
+[96msrc/lib/services/email-service-impl.ts[0m:[93m461[0m:[93m36[0m - [93mwarning[0m[90m ts(6133): [0m'email' is declared but its value is never read.
+
+[7m461[0m   private generateWelcomeEmailHTML(email: string, userName: string): string {
+[7m   [0m [93m                                   ~~~~~[0m
+[96msrc/lib/services/email-service-impl.ts[0m:[93m15[0m:[93m3[0m - [93mwarning[0m[90m ts(6196): [0m'EmailTemplateType' is declared but never used.
+
+[7m15[0m   EmailTemplateType
+[7m  [0m [93m  ~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/lib/services/prompt-enhancer-service.ts[0m:[93m271[0m:[93m11[0m - [93mwarning[0m[90m ts(6133): [0m'inputWords' is declared but its value is never read.
+
+[7m271[0m     const inputWords = inputText.split(/\s+/).length;
+[7m   [0m [93m          ~~~~~~~~~~[0m
+
+[96msrc/pages/account/settings.astro[0m:[93m365[0m:[93m11[0m - [93mwarning[0m[90m ts(80006): [0mThis may be converted to an async function.
+
+[7m365[0m     .then(response => {
+[7m   [0m [93m          ~~~~~~~~~~~~~[0m
+
+[96msrc/pages/api/newsletter/subscribe.ts[0m:[93m287[0m:[93m16[0m - [93mwarning[0m[90m ts(6133): [0m'createNewsletterSubscription' is declared but its value is never read.
+
+[7m287[0m async function createNewsletterSubscription(data: any): Promise<string> {
+[7m   [0m [93m               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/pages/api/newsletter/subscribe.ts[0m:[93m269[0m:[93m16[0m - [93mwarning[0m[90m ts(6133): [0m'checkExistingSubscription' is declared but its value is never read.
+
+[7m269[0m async function checkExistingSubscription(email: string): Promise<boolean> {
+[7m   [0m [93m               ~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/pages/api/newsletter/subscribe.ts[0m:[93m8[0m:[93m7[0m - [93mwarning[0m[90m ts(6133): [0m'_securityLogger' is declared but its value is never read.
+
+[7m8[0m const _securityLogger = loggerFactory.createSecurityLogger();
+[7m [0m [93m      ~~~~~~~~~~~~~~~[0m
+
+[96msrc/pages/auth/notify.astro[0m:[93m10[0m:[93m7[0m - [93mwarning[0m[90m ts(6133): [0m'user' is declared but its value is never read.
+
+[7m10[0m const user = (Astro.locals as any)?.user;
+[7m  [0m [93m      ~~~~[0m
+[96msrc/pages/auth/notify.astro[0m:[93m9[0m:[93m7[0m - [93mwarning[0m[90m ts(6133): [0m'locale' is declared but its value is never read.
+
+[7m9[0m const locale = getLocale(Astro.url.pathname);
+[7m [0m [93m      ~~~~~~[0m
+[96msrc/pages/auth/notify.astro[0m:[93m8[0m:[93m7[0m - [93mwarning[0m[90m ts(6133): [0m'to' is declared but its value is never read.
+
+[7m8[0m const to = url.searchParams.get('to') || '';
+[7m [0m [93m      ~~[0m
+[96msrc/pages/auth/notify.astro[0m:[93m5[0m:[93m1[0m - [93mwarning[0m[90m ts(6133): [0m'localizePath' is declared but its value is never read.
+
+[7m5[0m import { localizePath } from '@/lib/locale-path';
+[7m [0m [93m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/pages/en/account/settings.astro[0m:[93m365[0m:[93m11[0m - [93mwarning[0m[90m ts(80006): [0mThis may be converted to an async function.
+
+[7m365[0m     .then(response => {
+[7m   [0m [93m          ~~~~~~~~~~~~~[0m
+
+Result (251 files): 
+- 0 errors
+- 0 warnings
+- 21 hints
+

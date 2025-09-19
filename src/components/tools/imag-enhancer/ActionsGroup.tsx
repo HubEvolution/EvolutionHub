@@ -54,8 +54,8 @@ interface ActionsGroupProps {
  * Rendert eine Gruppe von Aktions-Buttons basierend auf dem aktuellen Zustand (Laden, Ergebnis vorhanden).
  * Unterstützt bedingte Deaktivierung durch Quota oder ungültige Eingabe.
  * 
- * @param {ActionsGroupProps} props - Die Props für die Komponente.
- * @returns {JSX.Element} Die gerenderte Komponente.
+ * @param props Die Props für die Komponente.
+ * @returns Die gerenderte Komponente.
  */
 export function ActionsGroup({
   enhanceLabel,

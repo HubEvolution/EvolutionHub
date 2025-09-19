@@ -1,19 +1,14 @@
 ---
 // Deprecated: notify route no longer used in simplified flow.
 // We redirect immediately to a safe target to avoid stale links.
-import { getLocale } from '@/lib/i18n';
-import { localizePath } from '@/lib/locale-path';
 
-function isAllowedRelativePath(path: string): boolean {
-  return typeof path === 'string' && path.startsWith('/') && !path.startsWith('//');
-}
-
-const url = new URL(Astro.request.url);
-const toParam = url.searchParams.get('to') || '';
-const locale = getLocale(Astro.url.pathname);
-// If a session exists, go to localized dashboard; otherwise go to localized login.
-const user = (Astro.locals as any)?.user;
-const immediateTarget = user ? localizePath(locale, '/dashboard') : localizePath(locale, '/login');
-// If a safe 'to' was passed, prefer it; otherwise fall back to immediateTarget.
-return Astro.redirect(isAllowedRelativePath(toParam) ? toParam : immediateTarget);
----
+return Astro.redirect((() => {
+  try {
+    const toParam = new URL(Astro.request.url).searchParams.get('to') || '';
+    if (typeof toParam === 'string' && toParam.startsWith('/') && !toParam.startsWith('//')) {
+      return toParam;
+    }
+  } catch {}
+  // Fallback: default to non-localized routes (notify is deprecated)
+  return ((Astro.locals as any)?.user ? '/dashboard' : '/login');
+})());

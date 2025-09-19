@@ -14,7 +14,6 @@ import type {
   Task,
   Notification,
   Session,
-  PasswordResetToken,
   CreateUser,
   CreateProject,
   CreateActivity,
@@ -23,9 +22,7 @@ import type {
   CreateNotification,
   UpdateUser,
   UpdateProject,
-  UpdateTask,
   D1FirstResult,
-  D1QueryResult,
   D1ExecuteResult
 } from './types';
 

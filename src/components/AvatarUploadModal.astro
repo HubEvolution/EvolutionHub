@@ -182,27 +182,25 @@
       previewContainer.classList.remove('hidden');
     }
     
-    function uploadAvatar(file) {
+    async function uploadAvatar(file) {
       // Zeige Ladezustand
       uploadBtn.textContent = 'Wird hochgeladen...';
       uploadBtn.disabled = true;
       
-      const formData = new FormData();
-      formData.append('avatar', file);
-      
-      fetch('/api/user/avatar', {
-        method: 'POST',
-        body: formData,
-      })
-      .then(response => {
+      try {
+        const formData = new FormData();
+        formData.append('avatar', file);
+        
+        const response = await fetch('/api/user/avatar', {
+          method: 'POST',
+          body: formData,
+        });
         if (!response.ok) {
-          return response.text().then(error => {
-            throw new Error(error);
-          });
+          const errorText = await response.text().catch(() => '');
+          throw new Error(errorText || 'Upload fehlgeschlagen');
         }
-        return response.json();
-      })
-      .then(data => {
+        const data = await response.json();
+        
         // Aktualisiere den Avatar im Hauptprofil
         const avatarPreview = document.getElementById('avatar-preview');
         if (avatarPreview instanceof HTMLImageElement) {
@@ -215,16 +213,15 @@
         
         // Erfolgsmeldung anzeigen
         notify.success('Profilbild erfolgreich aktualisiert!');
-      })
-      .catch(error => {
+      } catch (error) {
         console.error('Upload error:', error);
-        notify.error(`Fehler beim Hochladen: ${error.message || 'Unbekannter Fehler'}`);
-      })
-      .finally(() => {
+        const message = (error && error.message) ? error.message : 'Unbekannter Fehler';
+        notify.error(`Fehler beim Hochladen: ${message}`);
+      } finally {
         // Setze den Button zurück
         uploadBtn.textContent = 'Hochladen';
         uploadBtn.disabled = false;
-      });
+      }
     }
     
     // Initial auf Upload-Zone setzen

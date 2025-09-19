@@ -24,7 +24,7 @@ const EnhancerForm: React.FC<EnhancerFormProps> = ({ initialMode = 'creative' })
   const [error, setError] = useState<string | null>(null);
 
   const { enhance } = useEnhance();
-  const { retryActive, retryRemainingSec, handle429Response } = useRateLimit();
+  const { retryActive, handle429Response } = useRateLimit();
   const { usage, loading: usageLoading } = useUsage();
 
   const inputRef = useRef<HTMLTextAreaElement>(null);

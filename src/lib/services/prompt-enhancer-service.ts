@@ -267,8 +267,7 @@ export class PromptEnhancerService {
     return { cleaned, report };
   }
 
-  private calculateScores(prompt: EnhancedPrompt, inputText: string, parsed: Awaited<ReturnType<typeof this.parseInput>>): Scores {
-    const inputWords = inputText.split(/\s+/).length;
+  private calculateScores(prompt: EnhancedPrompt, _inputText: string, parsed: Awaited<ReturnType<typeof this.parseInput>>): Scores {
     const sections = Object.keys(prompt).length - 1; // Exclude rawText
     const clarity = Math.min(1, (sections / 6) * 1.25); // Max 1.0 for full structure
     let specificity = Math.min(1, prompt.objective.split(' ').length / 20); // Keyword density

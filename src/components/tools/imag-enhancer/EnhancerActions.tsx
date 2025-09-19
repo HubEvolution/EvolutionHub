@@ -72,8 +72,8 @@ interface EnhancerActionsProps {
  * Rendert die Haupt-Aktionsleiste mit Model-Auswahl und Button-Gruppe.
  * Unterstützt benutzerdefinierte Slots und bedingte Rendering basierend auf Zuständen.
  * 
- * @param {EnhancerActionsProps} props - Die Props für die Komponente.
- * @returns {JSX.Element} Die gerenderte Komponente.
+ * @param props Die Props für die Komponente.
+ * @returns Die gerenderte Komponente.
  */
 export function EnhancerActions({
   modelLabel,
