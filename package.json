@@ -60,13 +60,13 @@
   },
   "dependencies": {
     "@astrojs/check": "^0.9.4",
-    "@astrojs/react": "^4.3.0",
+    "@astrojs/react": "^4.3.1",
     "@contentful/rich-text-from-markdown": "^16.1.1",
     "@contentful/rich-text-html-renderer": "^17.1.0",
     "@types/bcrypt": "^6.0.0",
     "@types/redis": "^4.0.11",
     "@types/uuid": "^10.0.0",
-    "astro": "^5.13.0",
+    "astro": "^5.13.9",
     "astro-heroicons": "^2.1.5-1",
     "astro-i18n": "^2.2.4",
     "bcrypt": "^6.0.0",
@@ -82,7 +82,7 @@
     "drizzle-orm": "^0.44.4",
     "globby": "^14.1.0",
     "gray-matter": "^4.0.3",
-    "hono": "^4.9.1",
+    "hono": "^4.9.8",
     "jose": "^6.0.12",
     "lottie-web": "^5.13.0",
     "openai": "^5.20.1",
@@ -97,7 +97,7 @@
     "zustand": "^5.0.7"
   },
   "devDependencies": {
-    "@astrojs/cloudflare": "^12.6.3",
+    "@astrojs/cloudflare": "^12.6.8",
     "@astrojs/tailwind": "^6.0.2",
     "@cloudflare/workers-types": "^4.20250919.0",
     "@mswjs/data": "^0.16.2",
