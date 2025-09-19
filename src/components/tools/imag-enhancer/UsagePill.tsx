@@ -25,8 +25,8 @@ interface UsagePillProps {
  * 
  * Zeigt Quota-Verbrauch als Pill mit Progress-Bar an, unterstützt Ladezustand und kritische Warnung.
  * 
- * @param {UsagePillProps} props - Die Props für die Komponente.
- * @returns {JSX.Element} Die gerenderte Komponente.
+ * @param props Die Props für die Komponente.
+ * @returns Die gerenderte Komponente.
  */
 export function UsagePill({ label, loadingLabel, usage, ownerType, percent, critical }: UsagePillProps) {
   // Build a concise tooltip string without adding new props

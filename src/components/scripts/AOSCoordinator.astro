@@ -38,7 +38,6 @@
   function initializeAOS() {
     const __DEV__ = (typeof location !== 'undefined') && (location.hostname === 'localhost' || location.hostname === '127.0.0.1');
     const dlog = (...args) => { if (__DEV__) console.log(...args); };
-    const dwarn = (...args) => { if (__DEV__) console.warn(...args); };
     const derror = (...args) => { if (__DEV__) console.error(...args); };
     dlog('[AOS] 🚀 Starting build-compatible AOS initialization...');
     

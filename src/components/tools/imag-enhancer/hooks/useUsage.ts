@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import type { UsageInfo, UsageResponseData, ApiSuccess, ApiErrorBody, OwnerType, Plan, PlanEntitlements } from '../types';
+import type { UsageInfo, UsageResponseData, OwnerType, Plan, PlanEntitlements } from '../types';
 import { getUsage } from '../api';
 
 interface UseUsageResult {

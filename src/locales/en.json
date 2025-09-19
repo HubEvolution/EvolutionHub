@@ -89,6 +89,14 @@
         "performance-monitor": {
           "name": "Performance-Monitor",
           "description": "Überwacht Performance-Metriken und hebt Optimierungspotenziale hervor."
+        },
+        "prompt-enhancer": {
+          "name": "Prompt Enhancer",
+          "description": "AI-powered prompt optimizer for better results in AI chats and applications."
+        },
+        "Prompt-Enhancer": {
+          "name": "Prompt Enhancer",
+          "description": "AI-powered prompt optimizer for better results in AI chats and applications."
         }
       },
       "details": {
@@ -131,6 +139,18 @@
           },
           "try": "Try it now",
           "longDescription": "Imag‑Enhancer uses modern neural models to automatically optimize photos and graphics. Use presets or fine controls for denoising, sharpening, color correction, and upscaling. Supports single images and batch processing, with privacy‑friendly local options."
+        },
+        "Prompt-Enhancer": {
+          "back": "Back to overview",
+          "badge_new": "New",
+          "open": "Open tool",
+          "support": "Support",
+          "privacy": {
+            "heading": "Privacy & processing",
+            "text": "Prompts are processed on our servers. Please avoid entering sensitive or personal data."
+          },
+          "try": "Try it now",
+          "longDescription": "Prompt Enhancer refines your text prompts for clarity, tone, and completeness. Choose a style and get a safer, more effective prompt for AI tools."
         }
       },
       "meta": {
@@ -171,6 +191,35 @@
         "heading": "Missing a specific tool?",
         "description": "We are continuously working on new tools and features. Tell us what you need!",
         "button": "Suggest a tool"
+      },
+      "prompt-enhancer": {
+        "form": {
+          "inputLabel": "Input prompt",
+          "inputPlaceholder": "Describe what you want to say or ask...",
+          "modeLabel": "Style",
+          "mode": {
+            "creative": "Creative",
+            "professional": "Professional",
+            "concise": "Concise"
+          },
+          "enhanceButton": "Enhance prompt",
+          "enhancing": "Enhancing…",
+          "outputLabel": "Enhanced prompt",
+          "error": {
+            "required": "Please enter a prompt.",
+            "length": "Maximum length is 1000 characters.",
+            "rateLimit": "Too many requests. Please wait and try again.",
+            "unknown": "Something went wrong. Please try again.",
+            "network": "Network error. Please check your connection."
+          }
+        },
+        "usage": {
+          "title": "Usage",
+          "used": "{used} of {limit} used today"
+        },
+        "safety": {
+          "title": "Safety report"
+        }
       }
     },
     "home": {

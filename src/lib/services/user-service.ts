@@ -5,7 +5,6 @@
  * und Benutzersuche. Kapselt Datenbankzugriffe und Geschäftslogik.
  */
 
-import type { D1Database } from '@cloudflare/workers-types';
 import type { User } from '@/lib/auth-v2';
 import type { BaseService, ServiceDependencies } from './types';
 import type { SafeUser } from '@/lib/db/types';
@@ -88,7 +87,7 @@ export interface UserService extends BaseService {
  * @param deps Abhängigkeiten für den Service
  * @returns Eine neue UserService-Instanz
  */
-export function createUserService(deps: ServiceDependencies): UserService {
+export function createUserService(_deps: ServiceDependencies): UserService {
   // Diese Funktion wird später die tatsächliche Implementierung zurückgeben
   // Derzeit nur ein Platzhalter für das Interface-Design
   return {} as UserService;

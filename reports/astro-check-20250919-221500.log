@@ -1,0 +1,44 @@
+22:15:04 [@astrojs/cloudflare] Enabling sessions with Cloudflare KV with the "SESSION" KV binding.
+22:15:04 [@astrojs/cloudflare] If you see the error "Invalid binding `SESSION`" in your build output, you need to add the binding to your wrangler config file.
+22:15:04 [WARN] [adapter] Cloudflare does not support sharp at runtime. However, you can configure `imageService: "compile"` to optimize images with sharp on prerendered pages during build time.
+22:15:04 [vite] Re-optimizing dependencies because vite config has changed
+22:15:05 [content] Syncing content
+22:15:05 [content] Synced content
+22:15:05 [types] Generated 904ms
+22:15:05 [check] Getting diagnostics for Astro files in /Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub...
+[96msrc/lib/auth.ts[0m:[93m12[0m:[93m48[0m - [93mwarning[0m[90m ts(6385): [0m'LegacyLucia' is deprecated.
+
+[7m12[0m export function initializeLucia(_D1: unknown): LegacyLucia {
+[7m  [0m [93m                                               ~~~~~~~~~~~[0m
+
+[96msrc/lib/services/ai-image-service.ts[0m:[93m212[0m:[93m57[0m - [93mwarning[0m[90m ts(6387): [0mThe signature '(threadID: string, query?: MessageListParams | null | undefined, options?: RequestOptions | undefined): PagePromise<MessagesPage, Message>' of 'openai.beta.threads.messages.list' is deprecated.
+
+[7m212[0m     const messages = await openai.beta.threads.messages.list(thread.id);
+[7m   [0m [93m                                                        ~~~~[0m
+[96msrc/lib/services/ai-image-service.ts[0m:[93m204[0m:[93m56[0m - [93mwarning[0m[90m ts(6387): [0mThe signature '(runID: string, params: RunRetrieveParams, options?: RequestOptions | undefined): APIPromise<Run>' of 'openai.beta.threads.runs.retrieve' is deprecated.
+
+[7m204[0m       const runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id as any);
+[7m   [0m [93m                                                       ~~~~~~~~[0m
+[96msrc/lib/services/ai-image-service.ts[0m:[93m190[0m:[93m44[0m - [93mwarning[0m[90m ts(6387): [0mThe signature '(threadID: string, params: RunCreateParamsNonStreaming, options?: RequestOptions | undefined): APIPromise<Run>' of 'openai.beta.threads.runs.create' is deprecated.
+
+[7m190[0m       run = await openai.beta.threads.runs.create(thread.id, {
+[7m   [0m [93m                                           ~~~~~~[0m
+[96msrc/lib/services/ai-image-service.ts[0m:[93m186[0m:[93m42[0m - [93mwarning[0m[90m ts(6387): [0mThe signature '(threadID: string, body: MessageCreateParams, options?: RequestOptions | undefined): APIPromise<Message>' of 'openai.beta.threads.messages.create' is deprecated.
+
+[7m186[0m       await openai.beta.threads.messages.create(thread.id, {
+[7m   [0m [93m                                         ~~~~~~[0m
+[96msrc/lib/services/ai-image-service.ts[0m:[93m185[0m:[93m42[0m - [93mwarning[0m[90m ts(6387): [0mThe signature '(body?: ThreadCreateParams | null | undefined, options?: RequestOptions | undefined): APIPromise<Thread>' of 'openai.beta.threads.create' is deprecated.
+
+[7m185[0m       thread = await openai.beta.threads.create();
+[7m   [0m [93m                                         ~~~~~~[0m
+
+[96msrc/lib/services/prompt-enhancer-service.ts[0m:[93m270[0m:[93m51[0m - [93mwarning[0m[90m ts(6133): [0m'inputText' is declared but its value is never read.
+
+[7m270[0m   private calculateScores(prompt: EnhancedPrompt, inputText: string, parsed: Awaited<ReturnType<typeof this.parseInput>>): Scores {
+[7m   [0m [93m                                                  ~~~~~~~~~[0m
+
+Result (251 files): 
+- 0 errors
+- 0 warnings
+- 7 hints
+
