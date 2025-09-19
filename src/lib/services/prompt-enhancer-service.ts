@@ -3,21 +3,23 @@
  * 
  * Core service for transforming raw text inputs into structured, agent-ready prompts.
  * Implements modular pipeline: parse, structure, rewrite, safety, score.
- * Tracks usage via KV for guests/users with daily/monthly quotas.
+ * Tracks usage via KV for guests/users with daily quotas.
+ * Includes telemetry logs and env flag for safety.
  */
 
 import { loggerFactory } from '@/server/utils/logger-factory';
 import type { KVNamespace } from '@cloudflare/workers-types';
+import OpenAI from 'openai';
 
 export interface EnhanceInput {
   text: string;
 }
 
 export interface EnhanceOptions {
-  mode: 'agent' | 'concise';
-  safety: boolean;
-  includeScores: boolean;
-  outputFormat: 'markdown' | 'json';
+  mode?: 'agent' | 'concise';
+  safety?: boolean;
+  includeScores?: boolean;
+  outputFormat?: 'markdown' | 'json';
 }
 
 export interface EnhancedPrompt {
@@ -32,7 +34,7 @@ export interface EnhancedPrompt {
 
 export interface SafetyReport {
   masked: string[];
-  types: ('email' | 'phone')[];
+  types: ('email' | 'phone' | 'address' | 'id')[];
 }
 
 export interface Scores {
@@ -58,21 +60,27 @@ interface RuntimeEnv {
   KV_PROMPT_ENHANCER?: KVNamespace;
   ENVIRONMENT?: string;
   ENABLE_PROMPT_SAFETY?: string;
+  PROMPT_USER_LIMIT?: string;
+  PROMPT_GUEST_LIMIT?: string;
+  PUBLIC_PROMPT_ENHANCER_V1?: string;
+  OPENAI_API_KEY?: string;
 }
 
 export class PromptEnhancerService {
+  private env: RuntimeEnv;
+  private log: any;
   private enableSafety: boolean;
+  private publicFlag: boolean;
 
   constructor(env: RuntimeEnv) {
     this.env = env;
     this.log = loggerFactory.createLogger('prompt-enhancer-service');
     this.enableSafety = this.env.ENABLE_PROMPT_SAFETY !== 'false';
+    this.publicFlag = this.env.PUBLIC_PROMPT_ENHANCER_V1 !== 'false';
   }
 
-  private env: RuntimeEnv;
-  private log: any;
-
-  private async getUsage(ownerType: 'user' | 'guest', ownerId: string, limit: number): Promise<UsageInfo> {
+  private async getUsage(ownerType: 'user' | 'guest', ownerId: string, userLimit: number, guestLimit: number): Promise<UsageInfo> {
+    const limit = ownerType === 'user' ? userLimit : guestLimit;
     const kv = this.env.KV_PROMPT_ENHANCER;
     if (!kv) return { used: 0, limit, resetAt: null };
 
@@ -81,8 +89,8 @@ export class PromptEnhancerService {
     if (!raw) return { used: 0, limit, resetAt: null };
 
     try {
-      const parsed = JSON.parse(raw) as UsageInfo;
-      return { used: parsed.used || 0, limit, resetAt: parsed.resetAt || null };
+      const parsed = JSON.parse(raw) as { count: number; resetAt: number };
+      return { used: parsed.count || 0, limit, resetAt: parsed.resetAt || null };
     } catch {
       return { used: 0, limit, resetAt: null };
     }
@@ -94,36 +102,37 @@ export class PromptEnhancerService {
 
     const key = `prompt:usage:${ownerType}:${ownerId}`;
     const now = Date.now();
-    const windowMs = 24 * 60 * 60 * 1000; // Daily
-    const expiration = Math.floor(now / 1000) + (windowMs / 1000);
+    const windowMs = 24 * 60 * 60 * 1000;
+    const resetAt = now + windowMs;
 
-    let used = 0;
-    let resetAt = now + windowMs;
     const raw = await kv.get(key);
+    let count = 0;
     if (raw) {
       try {
-        const parsed = JSON.parse(raw) as UsageInfo;
-        used = (parsed.used || 0) + 1;
-        resetAt = parsed.resetAt || now + windowMs;
+        const parsed = JSON.parse(raw) as { count: number; resetAt: number };
+        count = parsed.count || 0;
       } catch {
-        used = 1;
+        count = 0;
       }
-    } else {
-      used = 1;
     }
 
-    await kv.put(key, JSON.stringify({ used, limit, resetAt }), { expiration });
+    count += 1;
+    const value = JSON.stringify({ count, resetAt });
+    const expiration = Math.floor(resetAt / 1000);
+    await kv.put(key, value, { expiration });
 
-    return { used, limit, resetAt };
+    return { used: count, limit, resetAt };
   }
 
-  private parseInput(text: string): { intent: string; keywords: string[]; isComplex: boolean } {
+  private async parseInput(text: string): Promise<{ intent: string; keywords: string[]; isComplex: boolean; aiUsed: boolean }> {
     const lowerText = text.toLowerCase();
     let intent = 'generate';
     const keywords: string[] = [];
     const words = lowerText.split(/\s+/).filter(w => w.length > 3);
     const isComplex = words.length > 50 || text.length > 200;
+    let aiUsed = false;
 
+    // Fallback rule-based parsing
     if (lowerText.includes('schreibe') || lowerText.includes('generate') || lowerText.includes('write')) {
       intent = 'generate';
     } else if (lowerText.includes('analysiere') || lowerText.includes('analyze')) {
@@ -132,14 +141,38 @@ export class PromptEnhancerService {
       intent = 'translate';
     }
 
-    // Extract unique keywords (simple, no NLP)
     const uniqueKeywords = [...new Set(words.slice(0, 10))];
     keywords.push(...uniqueKeywords);
 
-    return { intent, keywords, isComplex };
+    // AI-enhanced intent detection if available
+    if (this.env.OPENAI_API_KEY) {
+      try {
+        const openai = new OpenAI({ apiKey: this.env.OPENAI_API_KEY });
+        const prompt = `Classify the intent of this text as 'generate', 'analyze', 'translate', or 'other': "${text}". Respond only with JSON: {"intent": "generate"}`;
+        const completion = await openai.chat.completions.create({
+          model: 'gpt-4o-mini',
+          messages: [{ role: 'user', content: prompt }],
+          max_tokens: 20,
+        });
+        const response = completion.choices[0]?.message?.content?.trim();
+        if (response) {
+          const parsed = JSON.parse(response);
+          if (parsed.intent && ['generate', 'analyze', 'translate', 'other'].includes(parsed.intent)) {
+            intent = parsed.intent;
+            aiUsed = true;
+            this.log.debug('ai_intent_detected', { inputLength: text.length, intent, aiModel: 'gpt-4o-mini' });
+          }
+        }
+      } catch (error) {
+        this.log.warn('ai_intent_failed', { inputLength: text.length, error: (error as Error).message });
+        // Fallback to rule-based
+      }
+    }
+
+    return { intent, keywords, isComplex, aiUsed };
   }
 
-  private structurePrompt(parsed: ReturnType<typeof this.parseInput>, rawText: string): EnhancedPrompt {
+  private structurePrompt(parsed: Awaited<ReturnType<typeof this.parseInput>>, rawText: string): EnhancedPrompt {
     const { intent, keywords, isComplex } = parsed;
     const role = intent === 'generate' ? 'You are an expert content creator.' : 
                  intent === 'analyze' ? 'You are a precise analyst.' : 'You are a helpful assistant.';
@@ -150,7 +183,7 @@ export class PromptEnhancerService {
 
     const outputFormat = 'Markdown with sections for key parts.';
 
-    const steps: string[] = isComplex ? [
+    const steps: string[] | undefined = isComplex ? [
       'Understand the input.',
       'Plan the structure.',
       'Generate content.',
@@ -158,9 +191,9 @@ export class PromptEnhancerService {
       'Format output.'
     ] : undefined;
 
-    const fewShotExamples: string[] = keywords.length > 3 ? [
+    const fewShotExamples: string[] | undefined = isComplex ? [
       'Input: Write blog on AI. Output: Structured post with intro/body/conclusion.',
-      'Input: Analyze code. Output: Strengths/issues/suggestions.'
+      'Input: Analyze sales data. Output: Key insights in bullet points.'
     ] : undefined;
 
     return {
@@ -180,28 +213,48 @@ export class PromptEnhancerService {
       if (prompt.steps) prompt.steps = prompt.steps.slice(0, 3);
     } else {
       prompt.constraints += ' Collaborate as needed; think step-by-step.';
+      if (!prompt.steps) prompt.steps = ['Plan', 'Execute', 'Review'];
     }
 
     return prompt;
   }
 
   private applySafety(text: string, enableSafety: boolean): { cleaned: string; report: SafetyReport } {
-    if (!enableSafety) return { cleaned: text, report: { masked: [], types: [] } };
+    if (!enableSafety) {
+      return { cleaned: text, report: { masked: [], types: [] } };
+    }
 
+    let match;
     let cleaned = text;
     const masked: string[] = [];
-    const types: ('email' | 'phone')[] = [];
+    const types: ('email' | 'phone' | 'address' | 'id')[] = [];
+
+    // Mask addresses (e.g., "Strasse 123" or "Street HouseNumber")
+    const addressRegex = /(\d+\s+[A-Za-zäöüÄÖÜß]+(?:str|straße|street|haus|house|plz|zip)[^.,;]*)/gi;
+    while ((match = addressRegex.exec(text)) !== null) {
+      masked.push(match[1]);
+      types.push('address');
+      cleaned = cleaned.replace(match[1], '[REDACTED]');
+    }
+
+    // Mask IDs (e.g., user IDs, reference numbers)
+    const idRegex = /(?:ID|id):\s*[\w\-]+|user_\d+|ref_\w+/gi;
+    while ((match = idRegex.exec(text)) !== null) {
+      masked.push(match[0]);
+      types.push('id');
+      cleaned = cleaned.replace(match[0], '[REDACTED]');
+    }
 
     // Mask emails
     const emailRegex = /[\w\.-]+@[\w\.-]+\.\w+/g;
-    let match;
+    
     while ((match = emailRegex.exec(text)) !== null) {
       masked.push(match[0]);
       types.push('email');
       cleaned = cleaned.replace(match[0], '[REDACTED]');
     }
 
-    // Mask phones (basic pattern)
+    // Mask phones
     const phoneRegex = /(\+?[\d\s\-\(\)]{10,})/g;
     while ((match = phoneRegex.exec(text)) !== null) {
       masked.push(match[1]);
@@ -214,27 +267,41 @@ export class PromptEnhancerService {
     return { cleaned, report };
   }
 
-  private calculateScores(prompt: EnhancedPrompt, inputText: string): Scores {
+  private calculateScores(prompt: EnhancedPrompt, inputText: string, parsed: Awaited<ReturnType<typeof this.parseInput>>): Scores {
     const inputWords = inputText.split(/\s+/).length;
     const sections = Object.keys(prompt).length - 1; // Exclude rawText
     const clarity = Math.min(1, (sections / 6) * 1.25); // Max 1.0 for full structure
-    const specificity = Math.min(1, prompt.objective.split(' ').length / 20); // Keyword density
+    let specificity = Math.min(1, prompt.objective.split(' ').length / 20); // Keyword density
     const testability = prompt.steps && prompt.steps.length > 0 ? 0.8 : 0.5;
 
-    return { clarity: Number(clarity.toFixed(1)), specificity: Number(specificity.toFixed(1)), testability: Number(testability.toFixed(1)) };
+    // Boost specificity if AI was used for better intent detection
+    if (parsed.aiUsed) {
+      specificity = Math.min(1, specificity + 0.1);
+    }
+
+    return { clarity, specificity, testability };
   }
 
-  public async enhance(input: EnhanceInput, options: EnhanceOptions = { mode: 'agent' as const, safety: true, includeScores: false, outputFormat: 'markdown' as const }, ownerType: 'user' | 'guest', ownerId: string): Promise<EnhanceResult> {
+  public async enhance(input: EnhanceInput, options: EnhanceOptions = { mode: 'agent' as const, safety: true, includeScores: false, outputFormat: 'markdown' as const }, ownerType: 'user' | 'guest' = 'guest', ownerId: string): Promise<EnhanceResult> {
+    if (!this.publicFlag) {
+      const err = new Error('feature_not_enabled');
+      (err as any).code = 'feature_disabled';
+      this.log.warn('enhance_blocked_by_flag', { reqId: 'init', ownerType, ownerId: ownerId.slice(-4) });
+      throw err;
+    }
+
     const startTime = Date.now();
     const reqId = `enhance-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
-    const limit = ownerType === 'user' ? 20 : 5;
+    const userLimit = parseInt(this.env.PROMPT_USER_LIMIT || '20', 10);
+    const guestLimit = parseInt(this.env.PROMPT_GUEST_LIMIT || '5', 10);
+    const limit = ownerType === 'user' ? userLimit : guestLimit;
 
-    this.log.debug('enhance_requested', { reqId, inputLength: input.text.length, ownerType, ownerId: ownerId.slice(-4), mode: options.mode });
+    this.log.debug('enhance_requested', { reqId, inputLength: input.text.length, ownerType, ownerId: ownerId.slice(-4), mode: options.mode, flagEnabled: this.publicFlag });
 
-    // Check quota
-    const currentUsage = await this.getUsage(ownerType, ownerId, limit);
-    if (currentUsage.used >= limit) {
-      const err = new Error(`Daily quota exceeded. Used ${currentUsage.used}/${limit}`);
+    // Quota check
+    const currentUsage = await this.getUsage(ownerType, ownerId, userLimit, guestLimit);
+    if (currentUsage.used >= currentUsage.limit) {
+      const err = new Error(`Quota exceeded. Used ${currentUsage.used}/${limit}`);
       (err as any).code = 'quota_exceeded';
       (err as any).details = currentUsage;
       this.log.error('enhance_failed', { reqId, errorKind: 'quota_exceeded', inputLength: input.text.length, ownerType, ownerId: ownerId.slice(-4) });
@@ -242,23 +309,21 @@ export class PromptEnhancerService {
     }
 
     // Pipeline
-    const parsed = this.parseInput(input.text);
+    const parsed = await this.parseInput(input.text);
     let structured = this.structurePrompt(parsed, input.text);
-    structured = this.rewriteMode(structured, options.mode);
+    structured = this.rewriteMode(structured, options.mode || 'agent');
 
-    const { cleaned: safeText, report } = this.applySafety(input.text, options.safety && this.enableSafety);
-    structured.rawText = safeText; // Use safe text for structure (but rawText is original)
+    const { cleaned: safeText, report } = this.applySafety(input.text, options.safety !== false && this.enableSafety);
+    structured.rawText = safeText; // Use safe text for structure, original in field for reference
 
-    const scores = options.includeScores ? this.calculateScores(structured, input.text) : undefined;
+    const scores = options.includeScores ? this.calculateScores(structured, input.text, parsed) : undefined;
 
     // Increment usage
     const usage = await this.incrementUsage(ownerType, ownerId, limit);
 
     const latency = Date.now() - startTime;
-    this.log.info('enhance_completed', { reqId, latency, enhancedLength: JSON.stringify(structured).length, maskedCount: report.masked.length });
+    this.log.info('enhance_completed', { reqId, latency, enhancedLength: JSON.stringify(structured).length, maskedCount: report.masked.length, aiUsed: parsed.aiUsed });
 
-    const enhanced: EnhancedPrompt = structured;
-
-    return { enhanced, safetyReport: report, scores, usage };
+    return { enhanced: structured, safetyReport: report, scores, usage };
   }
 }

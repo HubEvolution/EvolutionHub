@@ -1,0 +1,416 @@
+19:28:59 [@astrojs/cloudflare] Enabling sessions with Cloudflare KV with the "SESSION" KV binding.
+19:28:59 [@astrojs/cloudflare] If you see the error "Invalid binding `SESSION`" in your build output, you need to add the binding to your wrangler config file.
+19:28:59 [WARN] [adapter] Cloudflare does not support sharp at runtime. However, you can configure `imageService: "compile"` to optimize images with sharp on prerendered pages during build time.
+19:29:00 [content] Syncing content
+19:29:00 [content] Synced content
+19:29:00 [types] Generated 925ms
+19:29:00 [check] Getting diagnostics for Astro files in /Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub...
+[96msrc/components/AvatarUploadModal.astro[0m:[93m197[0m:[93m13[0m - [93mwarning[0m[90m ts(80006): [0mThis may be converted to an async function.
+
+[7m197[0m       .then(response => {
+[7m   [0m [93m            ~~~~~~~~~~~~~[0m
+
+[96msrc/components/CategoryFilter.astro[0m:[93m6[0m:[93m7[0m - [93mwarning[0m[90m ts(6133): [0m't' is declared but its value is never read.
+
+[7m6[0m const t = getT(locale);
+[7m [0m [93m      ~[0m
+
+[96msrc/components/ErrorBoundary.astro[0m:[93m10[0m:[93m19[0m - [93mwarning[0m[90m ts(6133): [0m'client' is declared but its value is never read.
+
+[7m10[0m const { fallback, client = 'load' } = Astro.props;
+[7m  [0m [93m                  ~~~~~~[0m
+
+[96msrc/components/Fallback.astro[0m:[93m76[0m:[93m44[0m - [93mwarning[0m[90m ts(6133): [0m'index' is declared but its value is never read.
+
+[7m76[0m     {Array.from({ length: count }).map((_, index) => (
+[7m  [0m [93m                                           ~~~~~[0m
+[96msrc/components/Fallback.astro[0m:[93m52[0m:[93m44[0m - [93mwarning[0m[90m ts(6133): [0m'index' is declared but its value is never read.
+
+[7m52[0m     {Array.from({ length: count }).map((_, index) => (
+[7m  [0m [93m                                           ~~~~~[0m
+[96msrc/components/Fallback.astro[0m:[93m34[0m:[93m44[0m - [93mwarning[0m[90m ts(6133): [0m'index' is declared but its value is never read.
+
+[7m34[0m     {Array.from({ length: count }).map((_, index) => (
+[7m  [0m [93m                                           ~~~~~[0m
+
+[96msrc/components/Pagination.astro[0m:[93m114[0m:[93m33[0m - [93mwarning[0m[90m ts(6133): [0m'index' is declared but its value is never read.
+
+[7m114[0m     {pageNumbers.map((pageItem, index) => {
+[7m   [0m [93m                                ~~~~~[0m
+
+[96msrc/components/blog/NewsletterCTA.astro[0m:[93m214[0m:[93m44[0m - [93mwarning[0m[90m ts(6133): [0m'variant' is declared but its value is never read.
+
+[7m214[0m   function insertNewsletterForm(container, variant, source, I18N) {
+[7m   [0m [93m                                           ~~~~~~~[0m
+[96msrc/components/blog/NewsletterCTA.astro[0m:[93m81[0m:[93m11[0m - [93mwarning[0m[90m astro(4000): [0mThis script will be treated as if it has the `is:inline` directive because it contains an attribute. Therefore, features that require processing (e.g. using TypeScript or npm packages in the script) are unavailable.
+
+See docs for more details: https://docs.astro.build/en/guides/client-side-scripts/#script-processing.
+
+Add the `is:inline` directive explicitly to silence this hint.
+
+[7m81[0m   <script type="application/json" data-role="i18n-newsletter-cta">{JSON.stringify(i18nNewsletter)}</script>
+[7m  [0m [93m          ~~~~[0m
+
+[96msrc/components/scripts/AOSCoordinator.astro[0m:[93m41[0m:[93m11[0m - [93mwarning[0m[90m ts(6133): [0m'dwarn' is declared but its value is never read.
+
+[7m41[0m     const dwarn = (...args) => { if (__DEV__) console.warn(...args); };
+[7m  [0m [93m          ~~~~~[0m
+
+[96msrc/components/scripts/TypewriterComponent.astro[0m:[93m25[0m:[93m9[0m - [93mwarning[0m[90m astro(4000): [0mThis script will be treated as if it has the `is:inline` directive because it contains an attribute. Therefore, features that require processing (e.g. using TypeScript or npm packages in the script) are unavailable.
+
+See docs for more details: https://docs.astro.build/en/guides/client-side-scripts/#script-processing.
+
+Add the `is:inline` directive explicitly to silence this hint.
+
+[7m25[0m <script define:vars={{ elementId, texts, defaultDelay }} nonce={Astro.locals.cspNonce}>
+[7m  [0m [93m        ~~~~~~~~~~~[0m
+
+[96msrc/components/scripts/VerifyEmailCoordinator.astro[0m:[93m135[0m:[93m21[0m - [93mwarning[0m[90m ts(80006): [0mThis may be converted to an async function.
+
+[7m135[0m               .then(function (response) {
+[7m   [0m [93m                    ~~~~~~~~[0m
+
+[96msrc/components/tools/imag-enhancer/ActionsGroup.tsx[0m:[93m60[0m:[93m17[0m - [93mwarning[0m[90m ts(80004): [0mJSDoc types may be moved to TypeScript types.
+
+[7m60[0m export function ActionsGroup({
+[7m  [0m [93m                ~~~~~~~~~~~~[0m
+
+[96msrc/components/tools/imag-enhancer/EnhancerActions.tsx[0m:[93m78[0m:[93m17[0m - [93mwarning[0m[90m ts(80004): [0mJSDoc types may be moved to TypeScript types.
+
+[7m78[0m export function EnhancerActions({
+[7m  [0m [93m                ~~~~~~~~~~~~~~~[0m
+
+[96msrc/components/tools/imag-enhancer/ModelControls.tsx[0m:[93m1[0m:[93m1[0m - [93mwarning[0m[90m ts(6133): [0m'React' is declared but its value is never read.
+
+[7m1[0m import type React from 'react';
+[7m [0m [93m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/components/tools/imag-enhancer/UsagePill.tsx[0m:[93m31[0m:[93m17[0m - [93mwarning[0m[90m ts(80004): [0mJSDoc types may be moved to TypeScript types.
+
+[7m31[0m export function UsagePill({ label, loadingLabel, usage, ownerType, percent, critical }: UsagePillProps) {
+[7m  [0m [93m                ~~~~~~~~~[0m
+
+[96msrc/components/tools/imag-enhancer/hooks/useUsage.ts[0m:[93m2[0m:[93m57[0m - [93mwarning[0m[90m ts(6196): [0m'ApiErrorBody' is declared but never used.
+
+[7m2[0m import type { UsageInfo, UsageResponseData, ApiSuccess, ApiErrorBody, OwnerType, Plan, PlanEntitlements } from '../types';
+[7m [0m [93m                                                        ~~~~~~~~~~~~[0m
+[96msrc/components/tools/imag-enhancer/hooks/useUsage.ts[0m:[93m2[0m:[93m45[0m - [93mwarning[0m[90m ts(6196): [0m'ApiSuccess' is declared but never used.
+
+[7m2[0m import type { UsageInfo, UsageResponseData, ApiSuccess, ApiErrorBody, OwnerType, Plan, PlanEntitlements } from '../types';
+[7m [0m [93m                                            ~~~~~~~~~~[0m
+
+[96msrc/components/tools/prompt-enhancer/EnhancerForm.tsx[0m:[93m27[0m:[93m24[0m - [93mwarning[0m[90m ts(6133): [0m'retryRemainingSec' is declared but its value is never read.
+
+[7m27[0m   const { retryActive, retryRemainingSec, handle429Response } = useRateLimit();
+[7m  [0m [93m                       ~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/components/tools/prompt-enhancer/hooks/useUsage.ts[0m:[93m2[0m:[93m57[0m - [93mwarning[0m[90m ts(6196): [0m'ApiErrorBody' is declared but never used.
+
+[7m2[0m import type { UsageInfo, UsageResponseData, ApiSuccess, ApiErrorBody, OwnerType, Plan, PlanEntitlements } from '../types';
+[7m [0m [93m                                                        ~~~~~~~~~~~~[0m
+[96msrc/components/tools/prompt-enhancer/hooks/useUsage.ts[0m:[93m2[0m:[93m45[0m - [93mwarning[0m[90m ts(6196): [0m'ApiSuccess' is declared but never used.
+
+[7m2[0m import type { UsageInfo, UsageResponseData, ApiSuccess, ApiErrorBody, OwnerType, Plan, PlanEntitlements } from '../types';
+[7m [0m [93m                                            ~~~~~~~~~~[0m
+
+[96msrc/components/ui/Icon.tsx[0m:[93m1[0m:[93m1[0m - [93mwarning[0m[90m ts(6133): [0m'React' is declared but its value is never read.
+
+[7m1[0m import React from 'react';
+[7m [0m [93m~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/components/ui/Skeleton.astro[0m:[93m27[0m:[93m26[0m - [93mwarning[0m[90m ts(6133): [0m'index' is declared but its value is never read.
+
+[7m27[0m   {skeletonItems.map((_, index) => (
+[7m  [0m [93m                         ~~~~~[0m
+
+[96msrc/layouts/BaseLayout.astro[0m:[93m229[0m:[93m14[0m - [93mwarning[0m[90m astro(4000): [0mThis script will be treated as if it has the `is:inline` directive because it contains an attribute. Therefore, features that require processing (e.g. using TypeScript or npm packages in the script) are unavailable.
+
+See docs for more details: https://docs.astro.build/en/guides/client-side-scripts/#script-processing.
+
+Add the `is:inline` directive explicitly to silence this hint.
+
+[7m229[0m      <script define:vars={{ locale }} nonce={Astro.locals.cspNonce}>
+[7m   [0m [93m             ~~~~~~~~~~~[0m
+[96msrc/layouts/BaseLayout.astro[0m:[93m227[0m:[93m14[0m - [93mwarning[0m[90m astro(4000): [0mThis script will be treated as if it has the `is:inline` directive because it contains an attribute. Therefore, features that require processing (e.g. using TypeScript or npm packages in the script) are unavailable.
+
+See docs for more details: https://docs.astro.build/en/guides/client-side-scripts/#script-processing.
+
+Add the `is:inline` directive explicitly to silence this hint.
+
+[7m227[0m      <script src="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.js" defer nonce={Astro.locals.cspNonce}></script>
+[7m   [0m [93m             ~~~[0m
+[96msrc/layouts/BaseLayout.astro[0m:[93m187[0m:[93m14[0m - [93mwarning[0m[90m astro(4000): [0mThis script will be treated as if it has the `is:inline` directive because it contains an attribute. Therefore, features that require processing (e.g. using TypeScript or npm packages in the script) are unavailable.
+
+See docs for more details: https://docs.astro.build/en/guides/client-side-scripts/#script-processing.
+
+Add the `is:inline` directive explicitly to silence this hint.
+
+[7m187[0m      <script nonce={Astro.locals.cspNonce}>
+[7m   [0m [93m             ~~~~~[0m
+[96msrc/layouts/BaseLayout.astro[0m:[93m185[0m:[93m33[0m - [93mwarning[0m[90m astro(4000): [0mThis script will be treated as if it has the `is:inline` directive because it contains an attribute. Therefore, features that require processing (e.g. using TypeScript or npm packages in the script) are unavailable.
+
+See docs for more details: https://docs.astro.build/en/guides/client-side-scripts/#script-processing.
+
+Add the `is:inline` directive explicitly to silence this hint.
+
+[7m185[0m      {showComingSoon && <script src="/assets/coming-soon-client.js" defer nonce={Astro.locals.cspNonce}></script>}
+[7m   [0m [93m                                ~~~[0m
+[96msrc/layouts/BaseLayout.astro[0m:[93m130[0m:[93m14[0m - [93mwarning[0m[90m astro(4000): [0mThis script will be treated as if it has the `is:inline` directive because it contains an attribute. Therefore, features that require processing (e.g. using TypeScript or npm packages in the script) are unavailable.
+
+See docs for more details: https://docs.astro.build/en/guides/client-side-scripts/#script-processing.
+
+Add the `is:inline` directive explicitly to silence this hint.
+
+[7m130[0m      <script type="application/ld+json" nonce={Astro.locals.cspNonce}>
+[7m   [0m [93m             ~~~~[0m
+
+[96msrc/lib/auth.ts[0m:[93m12[0m:[93m48[0m - [93mwarning[0m[90m ts(6385): [0m'LegacyLucia' is deprecated.
+
+[7m12[0m export function initializeLucia(_D1: unknown): LegacyLucia {
+[7m  [0m [93m                                               ~~~~~~~~~~~[0m
+
+[96msrc/lib/script-coordinator.ts[0m:[93m82[0m:[93m27[0m - [93mwarning[0m[90m ts(6133): [0m'module' is declared but its value is never read.
+
+[7m82[0m     for (const [moduleId, module] of applicableModules) {
+[7m  [0m [93m                          ~~~~~~[0m
+[96msrc/lib/script-coordinator.ts[0m:[93m71[0m:[93m17[0m - [93mwarning[0m[90m ts(6133): [0m'id' is declared but its value is never read.
+
+[7m71[0m       .filter(([id, module]) => {
+[7m  [0m [93m                ~~[0m
+[96msrc/lib/script-coordinator.ts[0m:[93m35[0m:[93m11[0m - [93mwarning[0m[90m ts(6133): [0m'pendingInitializations' is declared but its value is never read.
+
+[7m35[0m   private pendingInitializations: string[] = [];
+[7m  [0m [93m          ~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/lib/typewriter.ts[0m:[93m33[0m:[93m5[0m - [91merror[0m[90m ts(18047): [0m'element' is possibly 'null'.
+
+[7m33[0m     element.className = 'typewriter';
+[7m  [0m [91m    ~~~~~~~[0m
+[96msrc/lib/typewriter.ts[0m:[93m28[0m:[93m7[0m - [91merror[0m[90m ts(18047): [0m'element' is possibly 'null'.
+
+[7m28[0m       element.textContent = currentText.substring(0, charIndex + 1);
+[7m  [0m [91m      ~~~~~~~[0m
+[96msrc/lib/typewriter.ts[0m:[93m24[0m:[93m7[0m - [91merror[0m[90m ts(18047): [0m'element' is possibly 'null'.
+
+[7m24[0m       element.textContent = currentText.substring(0, charIndex - 1);
+[7m  [0m [91m      ~~~~~~~[0m
+
+[96msrc/lib/validators.ts[0m:[93m114[0m:[93m51[0m - [91merror[0m[90m ts(18046): [0m'definition' is of type 'unknown'.
+
+[7m114[0m           const nestedValidator = createValidator(definition.nested);
+[7m   [0m [91m                                                  ~~~~~~~~~~[0m
+[96msrc/lib/validators.ts[0m:[93m113[0m:[93m13[0m - [91merror[0m[90m ts(18046): [0m'definition' is of type 'unknown'.
+
+[7m113[0m         if (definition.nested && typeof inputValue === 'object') {
+[7m   [0m [91m            ~~~~~~~~~~[0m
+[96msrc/lib/validators.ts[0m:[93m105[0m:[93m30[0m - [91merror[0m[90m ts(18046): [0m'definition' is of type 'unknown'.
+
+[7m105[0m           for (const rule of definition.rules) {
+[7m   [0m [91m                             ~~~~~~~~~~[0m
+[96msrc/lib/validators.ts[0m:[93m104[0m:[93m33[0m - [91merror[0m[90m ts(18046): [0m'definition' is of type 'unknown'.
+
+[7m104[0m         if (definition.rules && definition.rules.length > 0) {
+[7m   [0m [91m                                ~~~~~~~~~~[0m
+[96msrc/lib/validators.ts[0m:[93m104[0m:[93m13[0m - [91merror[0m[90m ts(18046): [0m'definition' is of type 'unknown'.
+
+[7m104[0m         if (definition.rules && definition.rules.length > 0) {
+[7m   [0m [91m            ~~~~~~~~~~[0m
+[96msrc/lib/validators.ts[0m:[93m76[0m:[93m32[0m - [91merror[0m[90m ts(18046): [0m'definition' is of type 'unknown'.
+
+[7m76[0m           const expectedType = definition.type;
+[7m  [0m [91m                               ~~~~~~~~~~[0m
+[96msrc/lib/validators.ts[0m:[93m75[0m:[93m13[0m - [91merror[0m[90m ts(18046): [0m'definition' is of type 'unknown'.
+
+[7m75[0m         if (definition.type) {
+[7m  [0m [91m            ~~~~~~~~~~[0m
+[96msrc/lib/validators.ts[0m:[93m64[0m:[93m13[0m - [91merror[0m[90m ts(18046): [0m'definition' is of type 'unknown'.
+
+[7m64[0m         if (definition.required && (inputValue === undefined || inputValue === null || inputValue === '')) {
+[7m  [0m [91m            ~~~~~~~~~~[0m
+[96msrc/lib/validators.ts[0m:[93m17[0m:[93m27[0m - [93mwarning[0m[90m ts(6133): [0m'T' is declared but its value is never read.
+
+[7m17[0m export type ValidationRule<T> = {
+[7m  [0m [93m                          ~~~[0m
+
+[96msrc/lib/db/helpers.ts[0m:[93m28[0m:[93m3[0m - [93mwarning[0m[90m ts(6196): [0m'D1QueryResult' is declared but never used.
+
+[7m28[0m   D1QueryResult,
+[7m  [0m [93m  ~~~~~~~~~~~~~[0m
+[96msrc/lib/db/helpers.ts[0m:[93m26[0m:[93m3[0m - [93mwarning[0m[90m ts(6196): [0m'UpdateTask' is declared but never used.
+
+[7m26[0m   UpdateTask,
+[7m  [0m [93m  ~~~~~~~~~~[0m
+[96msrc/lib/db/helpers.ts[0m:[93m17[0m:[93m3[0m - [93mwarning[0m[90m ts(6196): [0m'PasswordResetToken' is declared but never used.
+
+[7m17[0m   PasswordResetToken,
+[7m  [0m [93m  ~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/lib/services/ai-image-service.ts[0m:[93m212[0m:[93m57[0m - [93mwarning[0m[90m ts(6387): [0mThe signature '(threadID: string, query?: MessageListParams | null | undefined, options?: RequestOptions | undefined): PagePromise<MessagesPage, Message>' of 'openai.beta.threads.messages.list' is deprecated.
+
+[7m212[0m     const messages = await openai.beta.threads.messages.list(thread.id);
+[7m   [0m [93m                                                        ~~~~[0m
+[96msrc/lib/services/ai-image-service.ts[0m:[93m204[0m:[93m56[0m - [93mwarning[0m[90m ts(6387): [0mThe signature '(runID: string, params: RunRetrieveParams, options?: RequestOptions | undefined): APIPromise<Run>' of 'openai.beta.threads.runs.retrieve' is deprecated.
+
+[7m204[0m       const runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id as any);
+[7m   [0m [93m                                                       ~~~~~~~~[0m
+[96msrc/lib/services/ai-image-service.ts[0m:[93m190[0m:[93m44[0m - [93mwarning[0m[90m ts(6387): [0mThe signature '(threadID: string, params: RunCreateParamsNonStreaming, options?: RequestOptions | undefined): APIPromise<Run>' of 'openai.beta.threads.runs.create' is deprecated.
+
+[7m190[0m       run = await openai.beta.threads.runs.create(thread.id, {
+[7m   [0m [93m                                           ~~~~~~[0m
+[96msrc/lib/services/ai-image-service.ts[0m:[93m186[0m:[93m42[0m - [93mwarning[0m[90m ts(6387): [0mThe signature '(threadID: string, body: MessageCreateParams, options?: RequestOptions | undefined): APIPromise<Message>' of 'openai.beta.threads.messages.create' is deprecated.
+
+[7m186[0m       await openai.beta.threads.messages.create(thread.id, {
+[7m   [0m [93m                                         ~~~~~~[0m
+[96msrc/lib/services/ai-image-service.ts[0m:[93m185[0m:[93m42[0m - [93mwarning[0m[90m ts(6387): [0mThe signature '(body?: ThreadCreateParams | null | undefined, options?: RequestOptions | undefined): APIPromise<Thread>' of 'openai.beta.threads.create' is deprecated.
+
+[7m185[0m       thread = await openai.beta.threads.create();
+[7m   [0m [93m                                         ~~~~~~[0m
+[96msrc/lib/services/ai-image-service.ts[0m:[93m123[0m:[93m11[0m - [93mwarning[0m[90m ts(6133): [0m'isLocalHost' is declared but its value is never read.
+
+[7m123[0m   private isLocalHost(origin: string): boolean {
+[7m   [0m [93m          ~~~~~~~~~~~[0m
+
+[96msrc/lib/services/base-service.ts[0m:[93m40[0m:[93m5[0m - [93mwarning[0m[90m ts(6133): [0m'options' is declared but its value is never read.
+
+[7m40[0m     options?: TransactionOptions
+[7m  [0m [93m    ~~~~~~~[0m
+
+[96msrc/lib/services/email-service-impl.ts[0m:[93m461[0m:[93m36[0m - [93mwarning[0m[90m ts(6133): [0m'email' is declared but its value is never read.
+
+[7m461[0m   private generateWelcomeEmailHTML(email: string, userName: string): string {
+[7m   [0m [93m                                   ~~~~~[0m
+[96msrc/lib/services/email-service-impl.ts[0m:[93m15[0m:[93m3[0m - [93mwarning[0m[90m ts(6196): [0m'EmailTemplateType' is declared but never used.
+
+[7m15[0m   EmailTemplateType
+[7m  [0m [93m  ~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/lib/services/prompt-enhancer-service.ts[0m:[93m271[0m:[93m11[0m - [93mwarning[0m[90m ts(6133): [0m'inputWords' is declared but its value is never read.
+
+[7m271[0m     const inputWords = inputText.split(/\s+/).length;
+[7m   [0m [93m          ~~~~~~~~~~[0m
+
+[96msrc/lib/services/user-service.ts[0m:[93m91[0m:[93m35[0m - [93mwarning[0m[90m ts(6133): [0m'deps' is declared but its value is never read.
+
+[7m91[0m export function createUserService(deps: ServiceDependencies): UserService {
+[7m  [0m [93m                                  ~~~~[0m
+[96msrc/lib/services/user-service.ts[0m:[93m8[0m:[93m1[0m - [93mwarning[0m[90m ts(6133): [0m'D1Database' is declared but its value is never read.
+
+[7m8[0m import type { D1Database } from '@cloudflare/workers-types';
+[7m [0m [93m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/pages/cookie-einstellungen.astro[0m:[93m164[0m:[93m11[0m - [93mwarning[0m[90m astro(4000): [0mThis script will be treated as if it has the `is:inline` directive because it contains an attribute. Therefore, features that require processing (e.g. using TypeScript or npm packages in the script) are unavailable.
+
+See docs for more details: https://docs.astro.build/en/guides/client-side-scripts/#script-processing.
+
+Add the `is:inline` directive explicitly to silence this hint.
+
+[7m164[0m   <script type="module" nonce={Astro.locals.cspNonce}>
+[7m   [0m [93m          ~~~~[0m
+
+[96msrc/pages/dashboard.astro[0m:[93m14[0m:[93m7[0m - [93mwarning[0m[90m ts(6133): [0m'locale' is declared but its value is never read.
+
+[7m14[0m const locale = getLocale(Astro.url.pathname);
+[7m  [0m [93m      ~~~~~~[0m
+[96msrc/pages/dashboard.astro[0m:[93m11[0m:[93m1[0m - [93mwarning[0m[90m ts(6133): [0m'localizePath' is declared but its value is never read.
+
+[7m11[0m import { localizePath } from '@/lib/locale-path';
+[7m  [0m [93m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/pages/dashboard.astro[0m:[93m9[0m:[93m42[0m - [93mwarning[0m[90m ts(6196): [0m'ActivityItem' is declared but never used.
+
+[7m9[0m import type { QuickAction, Notification, ActivityItem } from '../types/dashboard';
+[7m [0m [93m                                         ~~~~~~~~~~~~[0m
+
+[96msrc/pages/account/settings.astro[0m:[93m365[0m:[93m11[0m - [93mwarning[0m[90m ts(80006): [0mThis may be converted to an async function.
+
+[7m365[0m     .then(response => {
+[7m   [0m [93m          ~~~~~~~~~~~~~[0m
+[96msrc/pages/account/settings.astro[0m:[93m213[0m:[93m45[0m - [93mwarning[0m[90m ts(6133): [0m'e' is declared but its value is never read.
+
+[7m213[0m     openModalBtn.addEventListener('click', (e) => {
+[7m   [0m [93m                                            ~[0m
+[96msrc/pages/account/settings.astro[0m:[93m149[0m:[93m11[0m - [93mwarning[0m[90m astro(4000): [0mThis script will be treated as if it has the `is:inline` directive because it contains an attribute. Therefore, features that require processing (e.g. using TypeScript or npm packages in the script) are unavailable.
+
+See docs for more details: https://docs.astro.build/en/guides/client-side-scripts/#script-processing.
+
+Add the `is:inline` directive explicitly to silence this hint.
+
+[7m149[0m   <script type="application/json" id="i18n-settings">{JSON.stringify(i18nSettings)}</script>
+[7m   [0m [93m          ~~~~[0m
+
+[96msrc/pages/admin/status.astro[0m:[93m7[0m:[93m7[0m - [93mwarning[0m[90m ts(6133): [0m't' is declared but its value is never read.
+
+[7m7[0m const t = getI18n(locale);
+[7m [0m [93m      ~[0m
+
+[96msrc/pages/api/tools.ts[0m:[93m18[0m:[93m41[0m - [91merror[0m[90m ts(2345): [0mArgument of type 'APIContext<Record<string, any>, Record<string, string | undefined>>' is not assignable to parameter of type 'Ctx'.
+  Type 'APIContext<Record<string, any>, Record<string, string | undefined>>' is missing the following properties from type 'Ctx': req, env, json
+
+[7m18[0m   const toolsResponse = await listTools(context); // Dies sollte eine Response oder ein Objekt sein
+[7m  [0m [91m                                        ~~~~~~~[0m
+
+[96msrc/pages/api/newsletter/subscribe.ts[0m:[93m287[0m:[93m16[0m - [93mwarning[0m[90m ts(6133): [0m'createNewsletterSubscription' is declared but its value is never read.
+
+[7m287[0m async function createNewsletterSubscription(data: any): Promise<string> {
+[7m   [0m [93m               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/pages/api/newsletter/subscribe.ts[0m:[93m269[0m:[93m16[0m - [93mwarning[0m[90m ts(6133): [0m'checkExistingSubscription' is declared but its value is never read.
+
+[7m269[0m async function checkExistingSubscription(email: string): Promise<boolean> {
+[7m   [0m [93m               ~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/pages/api/newsletter/subscribe.ts[0m:[93m8[0m:[93m7[0m - [93mwarning[0m[90m ts(6133): [0m'_securityLogger' is declared but its value is never read.
+
+[7m8[0m const _securityLogger = loggerFactory.createSecurityLogger();
+[7m [0m [93m      ~~~~~~~~~~~~~~~[0m
+
+[96msrc/pages/auth/notify.astro[0m:[93m16[0m:[93m7[0m - [93mwarning[0m[90m ts(6133): [0m'immediateTarget' is declared but its value is never read.
+
+[7m16[0m const immediateTarget = user ? localizePath(locale, '/dashboard') : localizePath(locale, '/login');
+[7m  [0m [93m      ~~~~~~~~~~~~~~~[0m
+[96msrc/pages/auth/notify.astro[0m:[93m12[0m:[93m7[0m - [93mwarning[0m[90m ts(6133): [0m'toParam' is declared but its value is never read.
+
+[7m12[0m const toParam = url.searchParams.get('to') || '';
+[7m  [0m [93m      ~~~~~~~[0m
+[96msrc/pages/auth/notify.astro[0m:[93m7[0m:[93m10[0m - [93mwarning[0m[90m ts(6133): [0m'isAllowedRelativePath' is declared but its value is never read.
+
+[7m7[0m function isAllowedRelativePath(path: string): boolean {
+[7m [0m [93m         ~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/pages/en/account/settings.astro[0m:[93m365[0m:[93m11[0m - [93mwarning[0m[90m ts(80006): [0mThis may be converted to an async function.
+
+[7m365[0m     .then(response => {
+[7m   [0m [93m          ~~~~~~~~~~~~~[0m
+[96msrc/pages/en/account/settings.astro[0m:[93m212[0m:[93m45[0m - [93mwarning[0m[90m ts(6133): [0m'e' is declared but its value is never read.
+
+[7m212[0m     openModalBtn.addEventListener('click', (e) => {
+[7m   [0m [93m                                            ~[0m
+[96msrc/pages/en/account/settings.astro[0m:[93m148[0m:[93m11[0m - [93mwarning[0m[90m astro(4000): [0mThis script will be treated as if it has the `is:inline` directive because it contains an attribute. Therefore, features that require processing (e.g. using TypeScript or npm packages in the script) are unavailable.
+
+See docs for more details: https://docs.astro.build/en/guides/client-side-scripts/#script-processing.
+
+Add the `is:inline` directive explicitly to silence this hint.
+
+[7m148[0m   <script type="application/json" id="i18n-settings">{JSON.stringify(i18nSettings)}</script>
+[7m   [0m [93m          ~~~~[0m
+
+[96msrc/pages/en/tools/index.astro[0m:[93m115[0m:[93m11[0m - [93mwarning[0m[90m astro(4000): [0mThis script will be treated as if it has the `is:inline` directive because it contains an attribute. Therefore, features that require processing (e.g. using TypeScript or npm packages in the script) are unavailable.
+
+See docs for more details: https://docs.astro.build/en/guides/client-side-scripts/#script-processing.
+
+Add the `is:inline` directive explicitly to silence this hint.
+
+[7m115[0m   <script nonce={Astro.locals.cspNonce}>
+[7m   [0m [93m          ~~~~~[0m
+
+[96msrc/pages/tools/index.astro[0m:[93m118[0m:[93m11[0m - [93mwarning[0m[90m astro(4000): [0mThis script will be treated as if it has the `is:inline` directive because it contains an attribute. Therefore, features that require processing (e.g. using TypeScript or npm packages in the script) are unavailable.
+
+See docs for more details: https://docs.astro.build/en/guides/client-side-scripts/#script-processing.
+
+Add the `is:inline` directive explicitly to silence this hint.
+
+[7m118[0m   <script nonce={Astro.locals.cspNonce}>
+[7m   [0m [93m          ~~~~~[0m
+
+Result (248 files): 
+- 12 errors
+- 0 warnings
+- 67 hints
+

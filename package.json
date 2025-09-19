@@ -99,6 +99,7 @@
   "devDependencies": {
     "@astrojs/cloudflare": "^12.6.3",
     "@astrojs/tailwind": "^6.0.2",
+    "@cloudflare/workers-types": "^4.20250919.0",
     "@mswjs/data": "^0.16.2",
     "@mswjs/interceptors": "^0.39.6",
     "@playwright/test": "^1.54.2",

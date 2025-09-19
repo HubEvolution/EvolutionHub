@@ -37,19 +37,28 @@ export function UsagePill({ label, loadingLabel, usage, ownerType, percent, crit
     if (typeof usage.resetAt === 'number' && Number.isFinite(usage.resetAt)) {
       try {
         const d = new Date(usage.resetAt);
-        // ISO-like, readable; avoid locale surprises in tests
-        const ts = `${d.getFullYear()}-${(d.getMonth() + 1)
-          .toString()
-          .padStart(2, '0')}-${d
-          .getDate()
-          .toString()
-          .padStart(2, '0')} ${d
-          .getHours()
-          .toString()
-          .padStart(2, '0')}:${d
-          .getMinutes()
-          .toString()
-          .padStart(2, '0')}`;
+        // Prefer locale-aware formatting where available, fallback to stable ISO-like
+        let ts = '';
+        try {
+          const locale = (typeof navigator !== 'undefined' && navigator.language) ? navigator.language : 'en-US';
+          ts = d.toLocaleString(locale, { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+        } catch {
+          // ignore, will fallback below
+        }
+        if (!ts) {
+          ts = `${d.getFullYear()}-${(d.getMonth() + 1)
+            .toString()
+            .padStart(2, '0')}-${d
+            .getDate()
+            .toString()
+            .padStart(2, '0')} ${d
+            .getHours()
+            .toString()
+            .padStart(2, '0')}:${d
+            .getMinutes()
+            .toString()
+            .padStart(2, '0')}`;
+        }
         parts.push(`reset: ${ts}`);
       } catch {
         // ignore formatting errors

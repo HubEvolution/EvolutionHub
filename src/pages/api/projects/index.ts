@@ -11,15 +11,23 @@ import { logAuthFailure } from '@/lib/security-logger';
  * - Audit-Logging
  */
 export const POST = withAuthApiMiddleware(async (context) => {
-  const { request, locals, clientAddress } = context;
+  const { request, locals } = context;
   const { env } = (locals as any).runtime;
   const user = (locals as any).user || (locals as any).runtime?.user;
 
   const userId: string = (user?.id as string) ?? (user?.sub as string);
-  const { title, description } = (await request.json()) as {
-    title: string;
-    description?: string;
-  };
+  let title: string | undefined;
+  let description: string | undefined;
+  try {
+    const bodyUnknown: unknown = await request.json();
+    if (bodyUnknown && typeof bodyUnknown === 'object') {
+      const anyBody = bodyUnknown as Record<string, unknown>;
+      if (typeof anyBody.title === 'string') title = anyBody.title;
+      if (typeof anyBody.description === 'string') description = anyBody.description;
+    }
+  } catch {
+    // ignore parse errors, will be handled by validation below
+  }
 
   // Eingabe validieren
   if (!title) {
@@ -89,8 +97,8 @@ export const POST = withAuthApiMiddleware(async (context) => {
 }, {
   // Sicherstellen, dass das Access-Log die erwartete Aktion enthält
   logMetadata: { action: 'project_created' },
-  onError: (context, error) => {
-    const { clientAddress, locals } = context;
+  onError: (context, _error) => {
+    const { clientAddress: _clientAddress, locals } = context;
     const user = (locals as any).user || (locals as any).runtime?.user;
     const userId: string | undefined = (user?.id as string) ?? (user?.sub as string);
 

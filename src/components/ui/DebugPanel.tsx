@@ -393,9 +393,9 @@ const DebugPanel: React.FC = () => {
     try {
       // Try to detect environment via API
       const response = await fetch(SSE_URL, { method: 'GET' });
-      const data = await response.json();
+      const dataUnknown: unknown = await response.json().catch(() => null);
       
-      if (data.websocketUrl) {
+      if (dataUnknown && typeof dataUnknown === 'object' && 'websocketUrl' in dataUnknown) {
         return 'astro-dev'; // Should use WebSocket
       } else {
         return 'wrangler'; // Should use SSE

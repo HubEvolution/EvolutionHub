@@ -37,7 +37,7 @@ export default function AuthStatusNotifier({ mode }: { mode: Mode }) {
             (window as any).__authLogs = (window as any).__authLogs || [];
             (window as any).__authLogs.push({ via: 'notifier', t: Date.now(), note, data });
             // keep console noise low but available when needed
-            // eslint-disable-next-line no-console
+             
             console.debug('[AuthStatusNotifier]', note, data ?? '');
           } catch {}
         };

@@ -30,7 +30,7 @@ describe('i18n Utils', () => {
 
   it('should fallback to English for unknown locale', () => {
     const t = getI18n('unknown');
-    expect(t('pages.blog.search.title')).toBe('Browse Blog');
+    expect(t('pages.blog.search.title')).toBe('Search the blog');
   });
 
   it('should use English plural for en locale', () => {

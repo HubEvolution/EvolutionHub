@@ -19,7 +19,7 @@
       "tests-legacy/*": ["./tests/src/legacy/*"],
       "@/config/test-config": ["./tests/src/legacy/config/test-config.ts"]
     },
-    "types": ["node", "astro/client"],
+    "types": ["node", "astro/client", "@cloudflare/workers-types"],
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,

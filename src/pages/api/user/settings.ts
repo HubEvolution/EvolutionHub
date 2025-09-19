@@ -1,4 +1,3 @@
-import type { APIRoute } from 'astro';
 import { withAuthApiMiddleware, createApiSuccess, createApiError } from '@/lib/api-middleware';
 
 /**
@@ -6,9 +5,8 @@ import { withAuthApiMiddleware, createApiSuccess, createApiError } from '@/lib/a
  * Aktualisiert die Benutzereinstellungen
  * Implementiert Rate-Limiting, Security-Headers und Audit-Logging
  */
-export const PUT = withAuthApiMiddleware(async (context) => {
-  const { locals } = context;
-  const user = locals.user;
+export const PUT = withAuthApiMiddleware(async (_context) => {
+  // withAuthApiMiddleware ensures authenticated user; no local usage needed here
   
   // Hier würde die eigentliche Einstellungsaktualisierung implementiert werden
   // TODO: Implementiere die Einstellungsaktualisierung
@@ -21,7 +19,7 @@ export const PUT = withAuthApiMiddleware(async (context) => {
   logMetadata: { action: 'settings_update' },
   
   // Spezielle Fehlerbehandlung für diesen Endpunkt
-  onError: (context, error) => {
+  onError: (_context, _error) => {
     return createApiError('server_error', 'An error occurred during settings update');
   }
 });

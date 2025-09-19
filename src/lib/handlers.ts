@@ -1,4 +1,6 @@
 import Stripe from 'stripe';
+import type { KVNamespace } from '@cloudflare/workers-types';
+import type { APIContext } from 'astro';
 
 export interface Env {
   STRIPE_SECRET: string;
@@ -9,10 +11,18 @@ export interface Env {
 }
 
 const stripeFromEnv = (env: Env) =>
-  new Stripe(env.STRIPE_SECRET, { apiVersion: '2022-11-15' });
+  new Stripe(env.STRIPE_SECRET, { apiVersion: '2022-11-15' } as any);
 
-export async function handleStripeCheckout(c) {
-  const { plan, workspaceId } = await c.req.json();
+// Minimal context typing to avoid implicit any; Hono-like context is expected
+type JsonFn = (data: unknown, init?: number | ResponseInit) => Response;
+interface Ctx {
+  req: Request;
+  env: Env;
+  json: JsonFn;
+}
+
+export async function handleStripeCheckout(c: Ctx): Promise<Response> {
+  const { plan, workspaceId } = (await c.req.json()) as { plan: string; workspaceId: string };
   const session = await stripeFromEnv(c.env).checkout.sessions.create({
     mode: 'subscription',
     success_url: `${c.env.BASE_URL}/dashboard?ws=${workspaceId}`,
@@ -23,7 +33,12 @@ export async function handleStripeCheckout(c) {
   return c.json({ url: session.url });
 }
 
-export async function listTools(c) {
-  const tools = await c.env.TOOLS.get('manifest', 'json');
-  return c.json(tools);
+export async function listTools(c: Ctx | APIContext): Promise<Response> {
+  // Support both our minimal Ctx (with env/json) and Astro's APIContext (with locals.runtime.env)
+  const env: any = (c as any).env ?? (c as any).locals?.runtime?.env;
+  const tools = await env?.TOOLS?.get('manifest', 'json');
+  return new Response(JSON.stringify(tools ?? null), {
+    status: 200,
+    headers: { 'Content-Type': 'application/json' }
+  });
 }

@@ -161,7 +161,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
     </div>
   </div>
 
-  <script type="module" nonce={Astro.locals.cspNonce}>
+  <script is:inline type="module" nonce={Astro.locals.cspNonce}>
     import notify from '@/lib/notify';
     // Globale Deklarationen zur Vermeidung von TypeScript-Fehlern
     const CookieConsent = typeof window !== 'undefined' && (window)['CookieConsent']

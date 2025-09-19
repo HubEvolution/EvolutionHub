@@ -15,6 +15,9 @@ export const GET = withAuthApiMiddleware(async (context) => {
   const { env } = locals.runtime;
   const user = locals.user;
 
+  if (!user) {
+    return createApiError('auth_error', 'Unauthorized');
+  }
   const userId = user.id;
 
   const { results } = await env.DB.prepare(`

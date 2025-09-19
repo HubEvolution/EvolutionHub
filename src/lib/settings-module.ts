@@ -279,12 +279,21 @@ coordinator.register({
           });
           
           if (response.ok) {
-            const data = await response.json();
+            const dataUnknown: unknown = await response.json().catch(() => null);
             const avatarPreview = document.getElementById('avatar-preview') as HTMLImageElement;
-            if (avatarPreview) {
-              avatarPreview.src = data.imageUrl;
+            if (
+              dataUnknown &&
+              typeof dataUnknown === 'object' &&
+              'imageUrl' in dataUnknown &&
+              typeof (dataUnknown as any).imageUrl === 'string'
+            ) {
+              if (avatarPreview) {
+                avatarPreview.src = (dataUnknown as any).imageUrl as string;
+              }
+              notify.success('Avatar updated successfully!');
+            } else {
+              notify.error('Unexpected response while updating avatar.');
             }
-            notify.success('Avatar updated successfully!');
           } else {
             const errorText = await response.text();
             notify.error(`Error: ${errorText}`);

@@ -48,7 +48,7 @@ const handleLogout = async (context: APIContext) => {
       context.cookies.delete('session_id', { path: '/' });
     } else {
       // Logout ohne aktive Session protokollieren
-      logSecurityEvent('AUTH_ATTEMPT', {
+      logSecurityEvent('API_ACCESS', {
         action: 'logout',
         reason: 'no_active_session'
       }, {

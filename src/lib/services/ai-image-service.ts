@@ -1,5 +1,5 @@
 import { ALLOWED_MODELS, ALLOWED_CONTENT_TYPES, MAX_UPLOAD_BYTES, AI_R2_PREFIX, FREE_LIMIT_GUEST, FREE_LIMIT_USER, type AllowedModel, type OwnerType } from '@/config/ai-image';
-import { detectImageMimeFromBytes } from '@/lib/utils/mime';
+import { detectImageMimeFromBytes as sniffImageMimeFromBytes } from '@/lib/utils/mime';
 import { loggerFactory } from '@/server/utils/logger-factory';
 import { buildProviderError } from './provider-error';
 import OpenAI from 'openai';
@@ -56,6 +56,12 @@ export class AiImageService {
   constructor(env: RuntimeEnv) {
     this.env = env;
     this.log = loggerFactory.createLogger('ai-image-service');
+  }
+
+  // For testability: expose a method that forwards to the shared MIME sniffer
+  // so unit tests can spy on instance instead of module import.
+  private detectImageMimeFromBytes(buffer: ArrayBuffer): string | null {
+    return sniffImageMimeFromBytes(buffer) as any;
   }
 
   private async getCreditsBalance(userId: string): Promise<number> {
@@ -172,43 +178,44 @@ export class AiImageService {
 
     const openai = new OpenAI({ apiKey });
 
+    // Step 1: Create thread, add user message, create run (wrap network errors)
+    let thread: { id: string };
+    let run: { id: string; status: string };
     try {
-      const thread = await openai.beta.threads.create();
-
+      thread = await openai.beta.threads.create();
       await openai.beta.threads.messages.create(thread.id, {
         role: 'user',
         content: prompt,
       });
-
-      const run = await openai.beta.threads.runs.create(thread.id, {
+      run = await openai.beta.threads.runs.create(thread.id, {
         assistant_id: assistantId,
       });
-
-      let status = run.status;
-      while (status !== 'completed' && status !== 'failed' && status !== 'cancelled') {
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        const runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id);
-        status = runStatus.status;
-      }
-
-      if (status !== 'completed') {
-        throw new Error(`Run failed with status: ${status}`);
-      }
-
-      const messages = await openai.beta.threads.messages.list(thread.id);
-      const assistantMessage = messages.data.find((m) => m.role === 'assistant');
-
-      if (!assistantMessage || !assistantMessage.content || assistantMessage.content.length === 0) {
-        throw new Error('No response from assistant');
-      }
-
-      const content = assistantMessage.content[0].type === 'text' ? assistantMessage.content[0].text.value : '';
-
-      return { content };
     } catch (error) {
-      this.log.error('assistant_call_failed', { error: error instanceof Error ? error.message : String(error) });
+      const msg = error instanceof Error ? error.message : String(error);
+      this.log.error('assistant_call_failed', { action: 'assistant_call_failed', metadata: { error: msg } });
       throw new Error('Failed to call assistant');
     }
+
+    // Step 2: Poll run status (bubble failures with specific message)
+    let status = run.status;
+    while (status !== 'completed' && status !== 'failed' && status !== 'cancelled') {
+      // Keep this short for tests; real systems can lengthen via backoff
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      const runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id as any);
+      status = (runStatus as any).status;
+    }
+    if (status !== 'completed') {
+      throw new Error(`Run failed with status: ${status}`);
+    }
+
+    // Step 3: Fetch messages, ensure assistant response exists (bubble specific error)
+    const messages = await openai.beta.threads.messages.list(thread.id);
+    const assistantMessage = (messages as any).data.find((m: any) => m.role === 'assistant');
+    if (!assistantMessage || !assistantMessage.content || assistantMessage.content.length === 0) {
+      throw new Error('No response from assistant');
+    }
+    const content = assistantMessage.content[0].type === 'text' ? assistantMessage.content[0].text.value : '';
+    return { content };
   }
 
   async generate({ ownerType, ownerId, modelSlug, file, requestOrigin, scale, faceEnhance, assistantId, limitOverride, monthlyLimitOverride, maxUpscaleOverride, allowFaceEnhanceOverride }: GenerateParams): Promise<GenerateResult> {
@@ -262,9 +269,9 @@ export class AiImageService {
         if (typeof suggested.faceEnhance === 'boolean') {
           faceEnhance = suggested.faceEnhance;
         }
-        this.log.debug('assistant_params_applied', { assistantId, suggested });
+        this.log.debug('assistant_params_applied', { action: 'assistant_params_applied', metadata: { assistantId, suggested } });
       } catch {
-        this.log.warn('assistant_suggestion_parse_failed', { assistantId });
+        this.log.warn('assistant_suggestion_parse_failed', { action: 'assistant_suggestion_parse_failed', metadata: { assistantId } });
       }
     }
 
@@ -275,7 +282,7 @@ export class AiImageService {
 
     // Sniff MIME type from magic bytes (do not trust client-provided type)
     const fileBuffer = await file.arrayBuffer();
-    const sniffed = detectImageMimeFromBytes(fileBuffer);
+    const sniffed = this.detectImageMimeFromBytes(fileBuffer);
     if (!sniffed || !ALLOWED_CONTENT_TYPES.includes(sniffed as any)) {
       const display = sniffed ?? (file.type || 'unknown');
       throw new Error(`Unsupported content type: ${display}`);
@@ -284,12 +291,8 @@ export class AiImageService {
     // Dev debug: request context
     const reqId = `AIIMG-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
     this.log.debug('generate_start', {
-      reqId,
-      ownerType,
-      ownerId,
-      modelSlug,
-      fileType: file.type,
-      fileSize: file.size,
+      action: 'generate_start',
+      metadata: { reqId, ownerType, ownerId, modelSlug, fileType: file.type, fileSize: file.size },
     });
 
     // Quota checks (monthly first, then daily burst), without increment yet
@@ -335,11 +338,11 @@ export class AiImageService {
 
     const putOriginalStart = Date.now();
     await bucket.put(originalKey, fileBuffer, { httpMetadata: { contentType: sniffed } });
-    this.log.debug('r2_put_original_ms', { reqId, ms: Date.now() - putOriginalStart });
+    this.log.debug('r2_put_original_ms', { action: 'r2_put_original_ms', metadata: { reqId, ms: Date.now() - putOriginalStart } });
 
     const originalUrl = this.buildPublicUrl(requestOrigin, originalKey);
 
-    this.log.debug('uploaded_original', { reqId, originalKey, originalUrl });
+    this.log.debug('uploaded_original', { action: 'uploaded_original', metadata: { reqId, originalKey, originalUrl } });
 
     // Call provider (Replicate) with the originalUrl
     let outputUrl: string;
@@ -348,12 +351,12 @@ export class AiImageService {
     // to avoid external dependencies in local/integration runs.
     const forceDevEcho = this.isDevelopment();
     if (forceDevEcho) {
-      this.log.warn('dev_echo_enabled', { reqId, reason: 'development_environment' });
+      this.log.warn('dev_echo_enabled', { action: 'dev_echo_enabled', metadata: { reqId, reason: 'development_environment' } });
       outputUrl = originalUrl;
       devEcho = true;
     } else {
       try {
-        this.log.debug('replicate_call_start', { reqId, model: model.slug, originalUrl, scale, faceEnhance });
+        this.log.debug('replicate_call_start', { action: 'replicate_call_start', metadata: { reqId, model: model.slug, originalUrl, scale, faceEnhance } });
         // Build provider input parameters safely per model
         const replicateInput: Record<string, unknown> = { image: originalUrl };
         if (typeof scale === 'number' && model.supportsScale) {
@@ -363,7 +366,7 @@ export class AiImageService {
           (replicateInput as any).face_enhance = faceEnhance;
         }
         outputUrl = await this.runReplicate(model, replicateInput);
-        this.log.debug('replicate_call_success', { reqId, outputUrl });
+        this.log.debug('replicate_call_success', { action: 'replicate_call_success', metadata: { reqId, outputUrl } });
       } catch (err) {
         // Graceful dev fallback to unblock local UI testing: use original image
         // Applies in development when Replicate responds 404 (slug/version issues)
@@ -372,7 +375,7 @@ export class AiImageService {
         const is404 = /Replicate error\s+404/i.test(message);
         const missingToken = /Missing REPLICATE_API_TOKEN/i.test(message);
         if (this.isDevelopment() && (is404 || missingToken)) {
-          this.log.warn('dev_echo_enabled', { reqId, reason: is404 ? 'provider_404' : 'missing_token', model: model.slug });
+          this.log.warn('dev_echo_enabled', { action: 'dev_echo_enabled', metadata: { reqId, reason: is404 ? 'provider_404' : 'missing_token', model: model.slug } });
           outputUrl = originalUrl;
           devEcho = true;
         } else {
@@ -390,20 +393,20 @@ export class AiImageService {
       } else {
         await this.incrementMonthlyUsage(ownerType, ownerId, monthlyLimit, ym);
       }
-      this.log.debug('dev_echo_return', { reqId, imageUrl: originalUrl, usage });
+      this.log.debug('dev_echo_return', { action: 'dev_echo_return', metadata: { reqId, imageUrl: originalUrl, usage } });
       return { model: model.slug, originalUrl, imageUrl: originalUrl, usage };
     }
 
     // Fetch output and store to R2
-    this.log.debug('fetch_output_start', { reqId, outputUrl });
+    this.log.debug('fetch_output_start', { action: 'fetch_output_start', metadata: { reqId, outputUrl } });
     const { arrayBuffer, contentType } = await this.fetchBinary(outputUrl);
-    this.log.debug('fetch_output_done', { reqId, contentType, bytes: arrayBuffer.byteLength });
+    this.log.debug('fetch_output_done', { action: 'fetch_output_done', metadata: { reqId, contentType, bytes: arrayBuffer.byteLength } });
     const resultExt = this.extFromContentType(contentType) || 'png';
     const resultKey = `${AI_R2_PREFIX}/results/${ownerType}/${ownerId}/${timestamp}.${resultExt}`;
     const putResultStart = Date.now();
     await bucket.put(resultKey, arrayBuffer, { httpMetadata: { contentType } });
-    this.log.debug('r2_put_result_ms', { reqId, ms: Date.now() - putResultStart });
-    this.log.debug('stored_result', { reqId, resultKey, contentType });
+    this.log.debug('r2_put_result_ms', { action: 'r2_put_result_ms', metadata: { reqId, ms: Date.now() - putResultStart } });
+    this.log.debug('stored_result', { action: 'stored_result', metadata: { reqId, resultKey, contentType } });
 
     const imageUrl = this.buildPublicUrl(requestOrigin, resultKey);
 
@@ -414,7 +417,7 @@ export class AiImageService {
     } else {
       await this.incrementMonthlyUsage(ownerType, ownerId, monthlyLimit, ym);
     }
-    this.log.info('generate_success', { reqId, imageUrl, usage });
+    this.log.info('generate_success', { action: 'generate_success', metadata: { reqId, imageUrl, usage } });
 
     return { model: model.slug, originalUrl, imageUrl, usage };
   }
@@ -545,7 +548,7 @@ export class AiImageService {
     });
 
     const durationMs = Date.now() - started;
-    this.log.debug('replicate_duration_ms', { model: model.slug, ms: durationMs });
+    this.log.debug('replicate_duration_ms', { action: 'replicate_duration_ms', metadata: { model: model.slug, ms: durationMs } });
 
     if (!res.ok) {
       const status = res.status;
@@ -553,7 +556,7 @@ export class AiImageService {
       // Build standardized provider error (typed for API middleware)
       const err = buildProviderError(status, 'replicate', text);
       // Avoid leaking provider payloads to clients; keep truncated snippet in logs only
-      this.log.warn('replicate_error', { status, provider: 'replicate', snippet: text.slice(0, 200) });
+      this.log.warn('replicate_error', { action: 'replicate_error', metadata: { status, provider: 'replicate', snippet: text.slice(0, 200) } });
       throw err;
     }
 

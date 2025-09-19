@@ -774,9 +774,10 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
         toast.error('Checkout failed: ' + (text || res.status));
         return;
       }
-      const data = await res.json().catch(() => ({} as any));
-      if (data && data.url) {
-        window.location.href = data.url;
+      const dataUnknown: unknown = await res.json().catch(() => null);
+      const url = dataUnknown && typeof (dataUnknown as any).url === 'string' ? (dataUnknown as any).url : undefined;
+      if (url) {
+        window.location.href = url;
       } else {
         toast.error('Checkout failed: Invalid response');
       }

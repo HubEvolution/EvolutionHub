@@ -25,28 +25,37 @@ export const POST = async (context: APIContext) => {
 
     if (ct.includes('application/csp-report')) {
       // Legacy: body is an object with { "csp-report": {...} }
-      const json = await context.request.json().catch(() => null);
-      const report = json && (json['csp-report'] || json['csp_report'] || json);
-      if (report && typeof report === 'object') {
-        reports.push(report);
+      const jsonUnknown: unknown = await context.request.json().catch(() => null);
+      if (jsonUnknown && typeof jsonUnknown === 'object') {
+        const obj = jsonUnknown as Record<string, unknown>;
+        const repUnknown = obj['csp-report'] ?? obj['csp_report'] ?? obj;
+        if (repUnknown && typeof repUnknown === 'object') {
+          reports.push(repUnknown as Record<string, any>);
+        }
       }
     } else if (ct.includes('application/reports+json') || ct.includes('application/report')) {
       // Reporting API: array of { type, url, body, age, ... }
-      const arr = await context.request.json().catch(() => null);
+      const arr: unknown = await context.request.json().catch(() => null);
       if (Array.isArray(arr)) {
         for (const entry of arr) {
           if (entry && typeof entry === 'object') {
-            const body = entry.body || entry['csp-report'] || entry['csp_report'] || {};
-            reports.push(body);
+            const anyEntry = entry as Record<string, any>;
+            const body = anyEntry.body || anyEntry['csp-report'] || anyEntry['csp_report'] || {};
+            if (body && typeof body === 'object') {
+              reports.push(body as Record<string, any>);
+            }
           }
         }
       }
     } else {
       // Try best-effort JSON parse for unknown types (browsers can vary)
-      const parsed = await context.request.json().catch(() => null);
-      if (parsed) {
-        const fallback = parsed['csp-report'] || parsed['csp_report'] || parsed.body || parsed;
-        reports.push(fallback);
+      const parsedUnknown: unknown = await context.request.json().catch(() => null);
+      if (parsedUnknown && typeof parsedUnknown === 'object') {
+        const obj = parsedUnknown as Record<string, any>;
+        const fallback = obj['csp-report'] || obj['csp_report'] || obj.body || obj;
+        if (fallback && typeof fallback === 'object') {
+          reports.push(fallback as Record<string, any>);
+        }
       }
     }
 

@@ -45,7 +45,7 @@ export class ResendEmailService extends AbstractBaseService implements EmailServ
     if (!deps.resendApiKey) {
       throw new ServiceError(
         'Resend API Key ist erforderlich',
-        ServiceErrorType.CONFIGURATION,
+        ServiceErrorType.VALIDATION,
         { missingConfig: 'resendApiKey' }
       );
     }
@@ -53,7 +53,7 @@ export class ResendEmailService extends AbstractBaseService implements EmailServ
     if (!deps.fromEmail) {
       throw new ServiceError(
         'From-E-Mail-Adresse ist erforderlich',
-        ServiceErrorType.CONFIGURATION,
+        ServiceErrorType.VALIDATION,
         { missingConfig: 'fromEmail' }
       );
     }
@@ -61,7 +61,7 @@ export class ResendEmailService extends AbstractBaseService implements EmailServ
     if (!deps.baseUrl) {
       throw new ServiceError(
         'Base URL ist erforderlich',
-        ServiceErrorType.CONFIGURATION,
+        ServiceErrorType.VALIDATION,
         { missingConfig: 'baseUrl' }
       );
     }

@@ -9,8 +9,9 @@ export function runTypewriter(
   texts: string[],
   speed: number
 ): void {
-  const element = document.getElementById(elementId);
-  if (!element) return;
+  const elMaybe = document.getElementById(elementId);
+  if (!(elMaybe instanceof HTMLElement)) return;
+  const el: HTMLElement = elMaybe;
 
   let textIndex = 0;
   let charIndex = 0;
@@ -21,16 +22,16 @@ export function runTypewriter(
 
     if (isDeleting) {
       // Remove characters
-      element.textContent = currentText.substring(0, charIndex - 1);
+      el.textContent = currentText.substring(0, charIndex - 1);
       charIndex--;
     } else {
       // Add characters
-      element.textContent = currentText.substring(0, charIndex + 1);
+      el.textContent = currentText.substring(0, charIndex + 1);
       charIndex++;
     }
 
     // Set element class for CSS animation
-    element.className = 'typewriter';
+    el.className = 'typewriter';
 
     // Check if word is complete
     if (!isDeleting && charIndex === currentText.length) {
@@ -52,8 +53,8 @@ export function runTypewriter(
   const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
   if (mediaQuery.matches) {
     // Show all texts without animation
-    element.textContent = texts[0];
-    element.className = '';
+    el.textContent = texts[0];
+    el.className = '';
     return;
   }
 

@@ -118,7 +118,7 @@ const nonce = (Astro.locals as any).cspNonce;
     if (!select) return;
     select.addEventListener('change', (e) => {
       const target = e.target;
-      const value = target && (target as any).value;
+      const value = target && target.value;
       if (typeof value === 'string' && value) {
         window.location.href = value;
       }

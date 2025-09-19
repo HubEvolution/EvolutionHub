@@ -11,29 +11,11 @@ vi.mock('astro', () => ({
   },
 }));
 
-// Extend the global type for Astro
-interface AstroGlobal {
-  request: {
-    url: URL;
-  };
-  params: Record<string, string>;
-  props: Record<string, unknown>;
-  redirect: (url: string) => Response;
-  response: {
-    headers: Headers;
-    status: number;
-    statusText: string;
-  };
-}
-
-declare global {
-   
-  var Astro: AstroGlobal;
-}
+// Keep global assignment untyped to avoid module augmentation issues
 
 // Mock Astro global
-if (!globalThis.Astro) {
-  globalThis.Astro = {
+if (!(globalThis as any).Astro) {
+  (globalThis as any).Astro = {
     request: { url: new URL('http://localhost:3000/') },
     params: {},
     props: {},

@@ -24,7 +24,7 @@ function ensureGuestIdCookie(context: Parameters<APIRoute>[0]): string {
   if (!guestId) {
     guestId = crypto.randomUUID?.() ?? Math.random().toString(36).slice(2);
     const url = new URL(context.request.url);
-    cookies.set('guest_id', guestId, {
+    cookies.set('guestId', guestId, {
       path: '/',
       httpOnly: true,
       sameSite: 'lax',
@@ -43,17 +43,23 @@ export const POST = withApiMiddleware(async (context) => {
   let input: EnhanceInput;
   let options: EnhanceOptions = {};
   try {
-    const body = await request.json();
-    input = { text: body.input?.text };
+    const bodyUnknown: unknown = await request.json();
+    if (!bodyUnknown || typeof bodyUnknown !== 'object') {
+      return createApiError('validation_error', 'Invalid JSON body');
+    }
+    const body = bodyUnknown as Record<string, any>;
+    const inputText = body?.input?.text;
+    input = { text: typeof inputText === 'string' ? inputText : undefined } as EnhanceInput;
     if (!input.text || typeof input.text !== 'string' || input.text.trim().length === 0) {
       return createApiError('validation_error', 'Input text is required');
     }
+    const bodyOptions = (body?.options ?? {}) as Record<string, any>;
     options = {
-      mode: body.options?.mode || 'agent',
-      safety: body.options?.safety !== false,
-      includeScores: body.options?.includeScores || false,
-      outputFormat: body.options?.outputFormat || 'markdown'
-    };
+      mode: typeof bodyOptions.mode === 'string' ? bodyOptions.mode : 'agent',
+      safety: bodyOptions.safety !== false,
+      includeScores: Boolean(bodyOptions.includeScores),
+      outputFormat: typeof bodyOptions.outputFormat === 'string' ? bodyOptions.outputFormat : 'markdown'
+    } as EnhanceOptions;
   } catch {
     return createApiError('validation_error', 'Invalid JSON body');
   }
@@ -62,11 +68,16 @@ export const POST = withApiMiddleware(async (context) => {
   const ownerType = user ? 'user' : 'guest';
   const ownerId = user?.id || ensureGuestIdCookie(context);
 
-  // Init service
-  const env = locals.runtime?.env ?? {};
+  // Init service with flag check
+  const env = (locals.runtime?.env as any) ?? {};
+  if (env.PUBLIC_PROMPT_ENHANCER_V1 === 'false') {
+    return createApiError('forbidden', 'Feature not enabled');
+  }
   const service = new PromptEnhancerService({
     KV_PROMPT_ENHANCER: env.KV_PROMPT_ENHANCER,
-    ENVIRONMENT: env.ENVIRONMENT
+    ENVIRONMENT: env.ENVIRONMENT,
+    PUBLIC_PROMPT_ENHANCER_V1: env.PUBLIC_PROMPT_ENHANCER_V1,
+    OPENAI_API_KEY: env.OPENAI_API_KEY
   });
 
   try {
@@ -80,6 +91,9 @@ export const POST = withApiMiddleware(async (context) => {
   } catch (err) {
     if (err instanceof Error && err.message.includes('quota exceeded')) {
       return createApiError('forbidden', err.message, (err as any).details);
+    }
+    if (err instanceof Error && (err as any).code === 'feature_disabled') {
+      return createApiError('forbidden', err.message);
     }
     if (err instanceof Error && (err as any).apiErrorType === 'validation_error') {
       return createApiError('validation_error', err.message);

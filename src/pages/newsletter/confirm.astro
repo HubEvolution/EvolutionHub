@@ -1,46 +1,57 @@
 ---
- // src/pages/newsletter/confirm.astro
- // Newsletter double opt-in confirmation landing page
+// src/pages/newsletter/confirm.astro
+// Newsletter double opt-in confirmation landing page
 
- import BaseLayout from '@/layouts/BaseLayout.astro';
- import Icon from '@/components/ui/Icon.astro';
- import { localizePath } from '@/lib/locale-path';
- import { getLocale } from '@/lib/i18n';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Icon from '@/components/ui/Icon.astro';
+import { localizePath } from '@/lib/locale-path';
+import { getLocale } from '@/lib/i18n';
 
- // Get query parameters
- const url = Astro.url;
- const token = url.searchParams.get('token');
- const email = url.searchParams.get('email');
+// Get query parameters
+const url = Astro.url;
+const token = url.searchParams.get('token');
+const email = url.searchParams.get('email');
 
- // Initialize confirmation state
- let confirmationResult = null;
- let error = null;
- const locale = getLocale(Astro.url.pathname);
+// Initialize confirmation state
+interface ConfirmationResult {
+  success: boolean;
+  error?: string;
+  subscription_date?: string;
+}
 
- // If token is provided, attempt confirmation
- if (token) {
-   try {
-     const confirmResponse = await fetch(
-       `${url.origin}/api/newsletter/confirm?token=${token}&email=${email || ''}`
-     );
-     confirmationResult = await confirmResponse.json();
-     
-     if (!confirmResponse.ok) {
-       error = confirmationResult.error || 'Unknown error occurred';
-     }
-   } catch (err) {
-     console.error('Error confirming subscription:', err);
-     error = 'Network error occurred while confirming subscription';
-   }
- }
+let confirmationResult: ConfirmationResult | null = null;
+let error: string | null = null;
+const locale = getLocale(Astro.url.pathname);
 
- // SEO meta information
- const seoTitle = confirmationResult?.success 
-   ? 'Newsletter-Anmeldung bestätigt' 
-   : 'Newsletter-Anmeldung bestätigen';
- const seoDescription = confirmationResult?.success
-   ? 'Ihre Newsletter-Anmeldung wurde erfolgreich bestätigt. Vielen Dank für Ihr Interesse!'
-   : 'Bestätigen Sie Ihre Newsletter-Anmeldung, um exklusive Inhalte und Updates zu erhalten.';
+// If token is provided, attempt confirmation
+if (token) {
+  try {
+    const confirmResponse = await fetch(
+      `${url.origin}/api/newsletter/confirm?token=${token}&email=${email || ''}`
+    );
+    const json: unknown = await confirmResponse.json();
+    if (json && typeof json === 'object') {
+      confirmationResult = json as ConfirmationResult;
+    } else {
+      error = 'Unexpected confirmation response';
+    }
+    
+    if (!confirmResponse.ok) {
+      error = confirmationResult?.error || 'Unknown error occurred';
+    }
+  } catch (err) {
+    console.error('Error confirming subscription:', err);
+    error = 'Network error occurred while confirming subscription';
+  }
+}
+
+// SEO meta information
+const seoTitle = confirmationResult?.success 
+  ? 'Newsletter-Anmeldung bestätigt' 
+  : 'Newsletter-Anmeldung bestätigen';
+const seoDescription = confirmationResult?.success
+  ? 'Ihre Newsletter-Anmeldung wurde erfolgreich bestätigt. Vielen Dank für Ihr Interesse!'
+  : 'Bestätigen Sie Ihre Newsletter-Anmeldung, um exklusive Inhalte und Updates zu erhalten.';
 ---
  
 <BaseLayout title={seoTitle} description={seoDescription}>
@@ -123,7 +134,7 @@
           {/* Subscription Info */}
           <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-600">
             <p class="text-sm text-gray-500 dark:text-gray-400">
-              Bestätigt am: {new Date(confirmationResult.subscription_date).toLocaleDateString('de-DE', {
+              Bestätigt am: {new Date(confirmationResult?.subscription_date ?? Date.now()).toLocaleDateString('de-DE', {
                 year: 'numeric',
                 month: 'long',
                 day: 'numeric',

@@ -1,4 +1,3 @@
-import type { APIRoute } from 'astro';
 import type { ProjectCard } from '@/types/dashboard';
 import { withAuthApiMiddleware } from '@/lib/api-middleware';
 import { logApiAccess, logAuthFailure } from '@/lib/security-logger';

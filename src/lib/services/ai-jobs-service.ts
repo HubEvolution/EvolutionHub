@@ -75,6 +75,35 @@ export class AiJobsService extends AbstractBaseService {
     this.log = loggerFactory.createLogger('ai-jobs-service');
   }
 
+  private creditsKey(userId: string): string {
+    return `ai:credits:user:${userId}`;
+  }
+
+  private async getCreditsBalance(userId: string): Promise<number> {
+    const kv = this.env.KV_AI_ENHANCER;
+    if (!kv) return 0;
+    const key = this.creditsKey(userId);
+    const raw = await kv.get(key);
+    if (!raw) return 0;
+    const n = parseInt(raw, 10);
+    return Number.isFinite(n) && n > 0 ? n : 0;
+  }
+
+  private async decrementCreditsBalance(userId: string): Promise<number> {
+    const kv = this.env.KV_AI_ENHANCER;
+    if (!kv) return 0;
+    const key = this.creditsKey(userId);
+    const raw = await kv.get(key);
+    let n = 0;
+    if (raw) {
+      const parsed = parseInt(raw, 10);
+      n = Number.isFinite(parsed) ? parsed : 0;
+    }
+    n = Math.max(0, n - 1);
+    await kv.put(key, String(n));
+    return n;
+  }
+
   private async getMonthlyUsage(ownerType: OwnerType, ownerId: string, limit: number, ym: string): Promise<UsageInfo> {
     const kv = this.env.KV_AI_ENHANCER;
     if (!kv) return { used: 0, limit, resetAt: null };
@@ -139,7 +168,7 @@ export class AiJobsService extends AbstractBaseService {
         if (credits > 0) {
           try {
             const masked = ownerId ? `…${ownerId.slice(-4)}(${ownerId.length})` : '';
-            this.log.debug('credits_path_allowed_queue', { ownerType, ownerId: masked, credits });
+            this.log.debug('credits_path_allowed_queue', { action: 'credits_path_allowed_queue', metadata: { ownerType, ownerId: masked, credits } });
           } catch {}
         } else {
           const errM: any = new Error(`Monthly quota exceeded. Used ${monthly.used}/${monthly.limit}`);
@@ -315,12 +344,12 @@ export class AiJobsService extends AbstractBaseService {
               await this.decrementCreditsBalance(ownerId);
               try {
                 const masked = ownerId ? `…${ownerId.slice(-4)}(${ownerId.length})` : '';
-                this.log.info('credits_consumed', { jobId: row.id, ownerId: masked, remaining: credits - 1 });
+                this.log.info('credits_consumed', { action: 'credits_consumed', metadata: { jobId: row.id, ownerId: masked, remaining: credits - 1 } });
               } catch {}
             } else {
               try {
                 const masked = ownerId ? `…${ownerId.slice(-4)}(${ownerId.length})` : '';
-                this.log.warn('credits_missing', { jobId: row.id, ownerId: masked });
+                this.log.warn('credits_missing', { action: 'credits_missing', metadata: { jobId: row.id, ownerId: masked } });
               } catch {}
               // Kein Monats-Increment mehr möglich; wir lassen den Erfolg aber stehen (analog Sync-Service Verhalten)
             }
@@ -450,13 +479,13 @@ export class AiJobsService extends AbstractBaseService {
     });
 
     const durationMs = Date.now() - started;
-    this.log.debug('replicate_duration_ms', { model: model.slug, ms: durationMs });
+    this.log.debug('replicate_duration_ms', { action: 'replicate_duration_ms', metadata: { model: model.slug, ms: durationMs } });
 
     if (!res.ok) {
       const status = res.status;
       const text = await res.text();
       const err = buildProviderError(status, 'replicate', text);
-      this.log.warn('replicate_error', { status, provider: 'replicate', snippet: text.slice(0, 200) });
+      this.log.warn('replicate_error', { action: 'replicate_error', metadata: { status, provider: 'replicate', snippet: text.slice(0, 200) } });
       throw err;
     }
 

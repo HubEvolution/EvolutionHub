@@ -34,8 +34,8 @@ export function useRateLimit(): UseRateLimit {
     let retrySec = ra ? parseInt(ra, 10) : 0;
     if (!retrySec) {
       try {
-        const body = await res.clone().json().catch(() => null as any);
-        const details = body && body.error && (body.error.details as any);
+        const body: any = await res.clone().json().catch(() => null as any);
+        const details: any = body && body.error && (body.error.details as any);
         retrySec = Number(details?.retryAfter || 0);
       } catch {
         // ignore JSON parse errors

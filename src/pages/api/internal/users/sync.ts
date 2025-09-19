@@ -1,4 +1,3 @@
-import type { APIRoute } from 'astro';
 import { withApiMiddleware, createApiSuccess, createApiError } from '@/lib/api-middleware';
 import { logSecurityEvent, logUserEvent } from '@/lib/security-logger';
 
@@ -21,12 +20,13 @@ export const POST = withApiMiddleware(async (context) => {
 
   if (!user || !user.id || !user.email) {
     // Fehlerhafte Anfrage protokollieren
-    logSecurityEvent('invalid_sync_request', {
+    logSecurityEvent('API_ERROR', {
+      reason: 'invalid_sync_request',
       ipAddress: clientAddress,
       details: 'User ID and email are required for sync'
     });
     
-    return createApiError('validation_error', 'User ID and email are required', 400);
+    return createApiError('validation_error', 'User ID and email are required', { reason: 'invalid_sync_request' });
   }
 
   const { id, name, email, image } = user;
@@ -61,7 +61,8 @@ export const POST = withApiMiddleware(async (context) => {
     const { clientAddress } = context;
     
     // Serverfehler protokollieren
-    logSecurityEvent('user_sync_error', {
+    logSecurityEvent('API_ERROR', {
+      reason: 'user_sync_error',
       error: error instanceof Error ? error.message : String(error),
       ipAddress: clientAddress
     });

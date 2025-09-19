@@ -108,11 +108,12 @@ const locale = getLocale(Astro.url.pathname);
       return;
     }
 
-    const submitText = submitButton.querySelector('.submit-text');
-    const loadingText = submitButton.querySelector('.loading-text');
+    const btn: HTMLButtonElement = submitButton as HTMLButtonElement;
+    const submitText = btn.querySelector('.submit-text');
+    const loadingText = btn.querySelector('.loading-text');
 
     // Form submission handler
-    form.addEventListener('submit', async (e) => {
+    form.addEventListener('submit', async (e: Event) => {
       e.preventDefault();
       
       const email = emailInput.value.trim();
@@ -145,9 +146,11 @@ const locale = getLocale(Astro.url.pathname);
           })
         });
         
-        const result = await response.json();
+        const resultJson: unknown = await response.json().catch(() => null);
         
-        if (result.success) {
+        if (resultJson && typeof resultJson === 'object' && 'success' in resultJson) {
+          const result: any = resultJson as any;
+          if (result.success) {
           // Success - show confirmation message
           if (result.next_step === 'confirmation_required') {
             // Removed leading emoji for consistency with Icon usage
@@ -159,9 +162,12 @@ const locale = getLocale(Astro.url.pathname);
             showMessage('Vielen Dank für Ihre Anmeldung! Sie erhalten in Kürze unseren Newsletter.', 'success');
           }
           form.reset();
-        } else {
+          } else {
           // API returned error
-          showMessage(result.message || 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.', 'error');
+          showMessage(String(result.message || 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.'), 'error');
+          }
+        } else {
+          showMessage('Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.', 'error');
         }
       } catch (error) {
         console.error('Newsletter subscription error:', error);
@@ -174,8 +180,8 @@ const locale = getLocale(Astro.url.pathname);
     });
     
     // Helper functions
-    function setLoading(loading) {
-      submitButton.disabled = loading;
+    function setLoading(loading: boolean) {
+      btn.disabled = loading;
       if (submitText && loadingText) {
         if (loading) {
           submitText.classList.add('hidden');
@@ -188,7 +194,7 @@ const locale = getLocale(Astro.url.pathname);
     }
     
     // Show message function with support for different types
-    function showMessage(message, type) {
+    function showMessage(message: string, type: 'success' | 'info' | 'error') {
       const messageEl = document.getElementById('newsletter-message');
       if (!messageEl) return;
       

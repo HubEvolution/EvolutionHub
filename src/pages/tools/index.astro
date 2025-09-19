@@ -115,7 +115,7 @@ const displayTools = filteredTools.slice().sort((a, b) => {
   </main>
 
   <!-- Minimal client to open overlay on card clicks. CSP nonce applied. -->
-  <script nonce={Astro.locals.cspNonce}>
+  <script is:inline nonce={Astro.locals.cspNonce}>
     (function () {
       function onClick(e) {
         var target = e.target;
