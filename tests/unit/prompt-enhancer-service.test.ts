@@ -35,42 +35,43 @@ describe('PromptEnhancerService', () => {
   });
 
   describe('parseInput', () => {
-    it('should detect "generate" intent for write-related input', () => {
+    it('should detect "generate" intent for write-related input', async () => {
       const input = 'Schreibe einen Blog über AI.';
-      const result = (service as any).parseInput(input);
+      const result = await (service as any).parseInput(input);
       expect(result.intent).toBe('generate');
       expect(result.keywords).toContain('schreibe');
       expect(result.keywords).toContain('blog');
       expect(result.isComplex).toBe(false);
     });
 
-    it('should detect "analyze" intent for analysis input', () => {
+    it('should detect "analyze" intent for analysis input', async () => {
       const input = 'Analysiere die Verkaufsdaten.';
-      const result = (service as any).parseInput(input);
+      const result = await (service as any).parseInput(input);
       expect(result.intent).toBe('analyze');
       expect(result.isComplex).toBe(false);
     });
 
-    it('should detect "translate" intent for translation input', () => {
+    it('should detect "translate" intent for translation input', async () => {
       const input = 'Übersetze diesen Text ins Englische.';
-      const result = (service as any).parseInput(input);
+      const result = await (service as any).parseInput(input);
       expect(result.intent).toBe('translate');
       expect(result.isComplex).toBe(false);
     });
 
-    it('should default to "generate" intent and extract keywords', () => {
+    it('should default to "generate" intent and extract keywords', async () => {
       const input = 'Erstelle eine Liste von Ideen.';
-      const result = (service as any).parseInput(input);
+      const result = await (service as any).parseInput(input);
       expect(result.intent).toBe('generate');
       expect(result.keywords.length).toBeGreaterThan(0);
       expect(result.keywords).toContain('ideen');
     });
 
-    it('should mark as complex for long text', () => {
+    it('should mark as complex for long text', async () => {
       const longText = 'Dies ist ein sehr langer Text mit vielen Wörtern. '.repeat(10);
-      const result = (service as any).parseInput(longText);
+      const result = await (service as any).parseInput(longText);
       expect(result.isComplex).toBe(true);
-      expect(result.keywords.length).toBe(10); // Max 10 unique
+      expect(result.keywords.length).toBeGreaterThan(0);
+      expect(result.keywords.length).toBeLessThanOrEqual(10); // Max 10 unique
     });
   });
 

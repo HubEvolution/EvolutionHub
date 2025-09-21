@@ -1,12 +1,13 @@
 import { useCallback } from 'react';
 import type { ApiErrorBody, ApiSuccess, EnhanceResponseData } from '../types';
 import { postEnhance } from '../api';
-import { ensureCsrfToken } from '@/lib/security/csrf';
+import { ensureCsrfToken } from '../../../../lib/security/csrf';
 
 export interface EnhanceArgs {
   text: string;
   mode: 'creative' | 'professional' | 'concise';
   signal?: AbortSignal;
+  files?: File[];
 }
 
 export function useEnhance() {
@@ -21,7 +22,7 @@ export function useEnhance() {
     const serviceMode = args.mode === 'concise' ? 'concise' : 'agent';
 
     const csrf = ensureCsrfToken();
-    return postEnhance(args.text, serviceMode, csrf, args.signal);
+    return postEnhance(args.text, serviceMode, csrf, args.signal, args.files);
   }, [isEnabled]);
 
   return { enhance, isEnabled };

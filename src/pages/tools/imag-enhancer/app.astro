@@ -73,6 +73,10 @@ const tool = {
   icon: 'tool'
 };
 
+// Deterministic labels for guest banner buttons (robust against i18n fallback)
+const loginLabel = (locale === 'de' ? 'Anmelden' : 'Sign in');
+const upgradeLabel = 'Upgrade';
+
 ---
 
 <BaseLayout title={`${t('pages.tools.items.Imag-Enhancer.name')} – Evolution Hub`} description={t('pages.tools.items.Imag-Enhancer.description')} comingSoon={false}>
@@ -115,10 +119,10 @@ const tool = {
               </p>
               <div class="flex gap-2">
                 <a href={loginHref} class="inline-flex items-center justify-center rounded-md bg-white dark:bg-transparent border border-amber-300 dark:border-amber-600 px-3 py-1.5 text-sm font-medium text-amber-900 dark:text-amber-100 hover:bg-amber-100 dark:hover:bg-amber-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500">
-                  {t('auth.login')}
+                  {loginLabel}
                 </a>
                 <a href={pricingHref} class="inline-flex items-center justify-center rounded-md bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500">
-                  {t('common.upgrade')}
+                  {upgradeLabel}
                 </a>
               </div>
             </div>

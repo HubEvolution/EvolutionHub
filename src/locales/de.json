@@ -45,6 +45,9 @@
     "subtitle": "Werden Sie Teil der Tausenden von Entwicklern, die bereits Evolution Hub nutzen, um erstaunliche Anwendungen zu erstellen.",
     "button_text": "Kostenloses Konto erstellen"
   },
+  "auth": {
+    "login": "Anmelden"
+  },
   "pages": {
     "home": {
       "title": "Willkommen bei Evolution Hub",
@@ -693,12 +696,30 @@
           "enhanceButton": "Prompt verbessern",
           "enhancing": "Wird verbessert…",
           "outputLabel": "Verbesserter Prompt",
+          "copy": "Kopieren",
+          "copied": "Kopiert",
+          "clear": "Leeren",
+          "files": {
+            "label": "Dateien (optional)",
+            "dropHint": "Dateien hier ablegen oder klicken, um auszuwählen",
+            "allowedTypes": "Erlaubte Typen",
+            "maxSize": "Max. Größe",
+            "maxCount": "Max. Dateien: {count}",
+            "remove": "Entfernen"
+          },
           "error": {
             "required": "Bitte gib einen Prompt ein.",
             "length": "Maximale Länge ist 1000 Zeichen.",
             "rateLimit": "Zu viele Anfragen. Bitte warte und versuche es erneut.",
             "unknown": "Etwas ist schiefgelaufen. Bitte versuche es erneut.",
-            "network": "Netzwerkfehler. Bitte überprüfe deine Verbindung."
+            "network": "Netzwerkfehler. Bitte überprüfe deine Verbindung.",
+            "file": {
+              "invalidType": "Nicht unterstützter Dateityp.",
+              "tooLarge": "Datei ist zu groß. Max.: {max}"
+            },
+            "files": {
+              "tooMany": "Zu viele Dateien. Maximal {count}."
+            }
           }
         },
         "usage": {

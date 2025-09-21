@@ -205,12 +205,30 @@
           "enhanceButton": "Enhance prompt",
           "enhancing": "Enhancing…",
           "outputLabel": "Enhanced prompt",
+          "copy": "Copy",
+          "copied": "Copied",
+          "clear": "Clear",
+          "files": {
+            "label": "Files (optional)",
+            "dropHint": "Drop files here or click to select",
+            "allowedTypes": "Allowed types",
+            "maxSize": "Max size",
+            "maxCount": "Max files: {count}",
+            "remove": "Remove"
+          },
           "error": {
             "required": "Please enter a prompt.",
             "length": "Maximum length is 1000 characters.",
             "rateLimit": "Too many requests. Please wait and try again.",
             "unknown": "Something went wrong. Please try again.",
-            "network": "Network error. Please check your connection."
+            "network": "Network error. Please check your connection.",
+            "file": {
+              "invalidType": "Unsupported file type.",
+              "tooLarge": "File is too large. Max: {max}"
+            },
+            "files": {
+              "tooMany": "Too many files. Maximum {count}."
+            }
           }
         },
         "usage": {
@@ -959,6 +977,7 @@
       "upload": "Hochladen",
       "subscribe": "Abonnieren"
     },
+    "upgrade": "Upgrade",
     "success": {
       "avatar_updated": "Profilbild erfolgreich aktualisiert!",
       "newsletter_confirmation_sent": "Bestätigungs-E-Mail gesendet!"
@@ -971,6 +990,14 @@
     "headline": "Bereit loszulegen?",
     "subtitle": "Werden Sie Teil der Tausenden von Entwicklern, die bereits Evolution Hub nutzen, um erstaunliche Anwendungen zu erstellen.",
     "button_text": "Kostenloses Konto erstellen"
+  },
+  "auth": {
+    "login": "Sign in",
+    "magic": {
+      "success": "Prüfe deine E‑Mails auf den Anmelde‑Link.",
+      "error": "Der Link konnte nicht gesendet werden. Bitte versuche es erneut.",
+      "cooldown": "Erneut senden in {s}s"
+    }
   },
   "comingSoon": {
     "title": "Bald verfügbar",

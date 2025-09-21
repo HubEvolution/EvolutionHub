@@ -102,7 +102,7 @@ export function getAllTools(locale: Locale): Tool[] {
       category: ['ai'],
       iconKey: 'edit',
       color: 'bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200',
-      url: '/tools/prompt-enhancer',
+      url: '/tools/prompt-enhancer/app',
       isNew: true,
       comingSoon: false
     }

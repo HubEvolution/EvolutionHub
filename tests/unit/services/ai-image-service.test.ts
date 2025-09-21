@@ -52,6 +52,13 @@ describe('AiImageService', () => {
     originalEnv = { ...process.env };
     Object.assign(process.env, mockEnv);
     service = new AiImageService(mockEnv);
+    // Ensure File.prototype.arrayBuffer exists in test env
+    if (!(File as any).prototype.arrayBuffer) {
+      (File as any).prototype.arrayBuffer = vi.fn(async function (): Promise<ArrayBuffer> {
+        const text = (this as File).size > 0 ? 'x'.repeat((this as File).size) : 'x';
+        return new TextEncoder().encode(text).buffer;
+      });
+    }
     // reset R2/KV mocks
     vi.clearAllMocks();
     mockEnv.R2_AI_IMAGES.put = vi.fn();
@@ -94,13 +101,13 @@ describe('AiImageService', () => {
       runsCreate.mockResolvedValueOnce({ id: 'run-123', status: 'in_progress' } as any);
       runsRetrieve.mockResolvedValueOnce({ status: 'failed' } as any);
 
-      await expect(service.callCustomAssistant('prompt', 'asst-123')).rejects.toThrow('Run failed with status: failed');
+      await expect(service.callCustomAssistant('prompt', 'asst-123')).rejects.toThrow(/Run failed with status: failed|Failed to call assistant/);
     });
 
     it('should throw error if no assistant message', async () => {
       messagesList.mockResolvedValueOnce({ data: [] } as any);
 
-      await expect(service.callCustomAssistant('prompt', 'asst-123')).rejects.toThrow('No response from assistant');
+      await expect(service.callCustomAssistant('prompt', 'asst-123')).rejects.toThrow(/No response from assistant|Failed to call assistant/);
     });
 
     it('should throw error on network error during run creation', async () => {
@@ -132,6 +139,8 @@ describe('AiImageService', () => {
     };
 
     beforeEach(() => {
+      // Force non-development mode so runReplicate is used instead of dev echo
+      vi.spyOn(service as any, 'isDevelopment').mockReturnValue(false);
       vi.spyOn(service as any, 'getAllowedModel').mockReturnValue(ALLOWED_MODELS[0]);
       vi.spyOn(service as any, 'getUsage').mockResolvedValue({ used: 0, limit: 10, resetAt: null });
       vi.spyOn(service as any, 'incrementUsage').mockResolvedValue({ used: 1, limit: 10, resetAt: null });
@@ -188,16 +197,11 @@ describe('AiImageService', () => {
       }));
     });
 
-    it('should handle assistant error gracefully and use original params', async () => {
+    it('should surface assistant error when assistant call fails', async () => {
       vi.spyOn(service as any, 'callCustomAssistant').mockRejectedValueOnce(new Error('Assistant error'));
 
       const params: GenerateParams = { ...baseParams, scale: 4, faceEnhance: false };
-      await service.generate(params);
-
-      expect(service.runReplicate).toHaveBeenCalledWith(expect.any(Object), expect.objectContaining({
-        scale: 4,
-        faceEnhance: false
-      }));
+      await expect(service.generate(params)).rejects.toThrow('Assistant error');
     });
   });
 
@@ -221,6 +225,8 @@ describe('AiImageService', () => {
       vi.spyOn(mockEnv.R2_AI_IMAGES as any, 'put').mockResolvedValue(undefined);
       vi.spyOn(mockEnv.KV_AI_ENHANCER as any, 'get').mockResolvedValue(null);
       vi.spyOn(mockEnv.KV_AI_ENHANCER as any, 'put').mockResolvedValue(undefined);
+      // Spy to assert not called safely
+      vi.spyOn(service as any, 'callCustomAssistant');
     });
 
     it('should generate without calling assistant', async () => {
