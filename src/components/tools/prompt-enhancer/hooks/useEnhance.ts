@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import type { ApiErrorBody, ApiSuccess, EnhanceResponseData } from '../types';
 import { postEnhance } from '../api';
-import { ensureCsrfToken } from '../../../../lib/security/csrf';
+import { ensureCsrfToken } from '@/lib/security/csrf';
 
 export interface EnhanceArgs {
   text: string;

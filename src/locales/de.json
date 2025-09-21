@@ -28,7 +28,9 @@
     },
     "forms": {
       "email_placeholder": "E-Mail-Adresse"
-    }
+    },
+    "loading": "Laden...",
+    "import": "Importieren"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -702,6 +704,8 @@
           "files": {
             "label": "Dateien (optional)",
             "dropHint": "Dateien hier ablegen oder klicken, um auszuwählen",
+            "urlImportLabel": "Aus URL importieren (TXT/Markdown)",
+            "urlImportPlaceholder": "https://beispiel.de/datei.txt",
             "allowedTypes": "Erlaubte Typen",
             "maxSize": "Max. Größe",
             "maxCount": "Max. Dateien: {count}",

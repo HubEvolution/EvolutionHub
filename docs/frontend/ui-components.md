@@ -50,6 +50,15 @@ Dieser Leitfaden dokumentiert die gemeinsamen UI-Bausteine und deren Verwendung 
   - Modus‑Toggle (`Creative/Professional/Concise`) als segmentierte Buttons mit `Button` (primary/secondary) und `aria-pressed`
   - `accept`‑Hint für Dateiauswahl ist gesetzt; Validierung bleibt serverseitig/Client‑Logik
 
+### i18n‑Keys (Prompt‑Enhancer)
+
+- `pages.tools.prompt-enhancer.form.files.urlImportLabel`
+- `pages.tools.prompt-enhancer.form.files.urlImportPlaceholder`
+- `common.loading`
+- `common.import`
+
+Hinweis: Die Komponente `EnhancerForm.tsx` nutzt diese Keys direkt über `getI18n()`. Fallback‑Strings wurden entfernt, nachdem die Keys in `src/locales/en.json` und `src/locales/de.json` ergänzt wurden.
+
 ## Tailwind‑Theme
 
 - Datei: `tailwind.config.js`

@@ -211,6 +211,8 @@
           "files": {
             "label": "Files (optional)",
             "dropHint": "Drop files here or click to select",
+            "urlImportLabel": "Import from URL (TXT/Markdown)",
+            "urlImportPlaceholder": "https://example.com/file.txt",
             "allowedTypes": "Allowed types",
             "maxSize": "Max size",
             "maxCount": "Max files: {count}",
@@ -984,7 +986,9 @@
     },
     "forms": {
       "email_placeholder": "E-Mail-Adresse"
-    }
+    },
+    "loading": "Loading...",
+    "import": "Import"
   },
   "cta": {
     "headline": "Bereit loszulegen?",

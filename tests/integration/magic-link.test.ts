@@ -37,7 +37,12 @@ describe('Magic Link MVP endpoints', () => {
   });
 
   it('GET /api/auth/callback without token redirects to login with error', async () => {
-    const res = await fetchManual('/api/auth/callback');
+    const res = await fetchManual('/api/auth/callback', {
+      headers: {
+        // Force cookie-less state to avoid accidental session redirects
+        cookie: 'session_id=; __Host-session=; post_auth_redirect=',
+      },
+    });
     expect(res.status).toBeGreaterThanOrEqual(300);
     expect(res.status).toBeLessThan(400);
     expect(res.redirected).toBe(true);
@@ -46,7 +51,11 @@ describe('Magic Link MVP endpoints', () => {
   });
 
   it('GET /api/auth/callback with invalid token redirects to login with error', async () => {
-    const res = await fetchManual('/api/auth/callback?token=invalid-token');
+    const res = await fetchManual('/api/auth/callback?token=invalid-token', {
+      headers: {
+        cookie: 'session_id=; __Host-session=; post_auth_redirect=',
+      },
+    });
     expect(res.status).toBeGreaterThanOrEqual(300);
     expect(res.status).toBeLessThan(400);
     expect(res.redirected).toBe(true);

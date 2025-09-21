@@ -4,11 +4,16 @@ import { useEnhance } from './hooks/useEnhance';
 import { useRateLimit } from './hooks/useRateLimit';
 import { getI18n } from '@/utils/i18n';
 import { getLocale } from '@/lib/i18n';
-import { ALLOWED_TYPES, MAX_FILE_BYTES, MAX_FILES } from '@/config/prompt-enhancer';
+import { ALLOWED_TYPES, MAX_FILE_BYTES, MAX_FILES, TEXT_LENGTH_MAX } from '@/config/prompt-enhancer';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Alert from '@/components/ui/Alert';
 import UploadIcon from '@/components/ui/icons/Upload';
+import {
+  emitPromptEnhancerStarted,
+  emitPromptEnhancerSucceeded,
+  emitPromptEnhancerFailed,
+} from '@/lib/client/telemetry';
 
 interface EnhancerFormProps {
   initialMode?: 'creative' | 'professional' | 'concise';
@@ -29,6 +34,9 @@ const EnhancerForm: React.FC<EnhancerFormProps> = ({ initialMode = 'creative' })
   const [errorScope, setErrorScope] = useState<'input' | 'files' | null>(null);
   const [files, setFiles] = useState<File[]>([]);
   const [dragActive, setDragActive] = useState(false);
+  const [urlValue, setUrlValue] = useState('');
+  const [urlLoading, setUrlLoading] = useState(false);
+  const [textPreviews, setTextPreviews] = useState<Record<string, string>>({});
 
   const { enhance } = useEnhance();
   const { retryActive, handle429Response } = useRateLimit();
@@ -81,17 +89,46 @@ const EnhancerForm: React.FC<EnhancerFormProps> = ({ initialMode = 'creative' })
     return null;
   };
 
-  const onFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const list = Array.from(e.target.files || []);
-    const err = validateFiles(list);
+  const fileKey = (f: File) => `${f.name}:${f.size}:${f.type}`;
+
+  const createTextPreview = async (f: File): Promise<string> => {
+    try {
+      const isText = f.type === 'text/plain' || f.type === 'text/markdown';
+      if (!isText) return '';
+      const raw = await f.text();
+      const trimmed = raw.replace(/\s+/g, ' ').trim();
+      return trimmed.slice(0, 160);
+    } catch {
+      return '';
+    }
+  };
+
+  const addFiles = async (incoming: File[]) => {
+    const err = validateFiles(incoming);
     if (err) {
       setError(err);
       setErrorScope('files');
       return;
     }
-    setFiles((prev) => [...prev, ...list].slice(0, MAX_FILES));
+    // Generate previews for text files
+    const previewEntries: Array<[string, string]> = [];
+    for (const f of incoming) {
+      const pv = await createTextPreview(f);
+      if (pv) previewEntries.push([fileKey(f), pv]);
+    }
+    setTextPreviews((prev) => {
+      const next = { ...prev };
+      for (const [k, v] of previewEntries) next[k] = v;
+      return next;
+    });
+    setFiles((prev) => [...prev, ...incoming].slice(0, MAX_FILES));
     setError(null);
     setErrorScope(null);
+  };
+
+  const onFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const list = Array.from(e.target.files || []);
+    void addFiles(list);
     e.target.value = '';
   };
 
@@ -116,15 +153,59 @@ const EnhancerForm: React.FC<EnhancerFormProps> = ({ initialMode = 'creative' })
     e.stopPropagation();
     setDragActive(false);
     const incoming = Array.from(e.dataTransfer.files || []);
-    const err = validateFiles(incoming);
-    if (err) {
-      setError(err);
+    void addFiles(incoming);
+  };
+
+  const moveFileUp = (idx: number) => {
+    if (idx <= 0) return;
+    setFiles((prev) => {
+      const next = [...prev];
+      const tmp = next[idx - 1];
+      next[idx - 1] = next[idx];
+      next[idx] = tmp;
+      return next;
+    });
+  };
+
+  const moveFileDown = (idx: number) => {
+    setFiles((prev) => {
+      if (idx >= prev.length - 1) return prev;
+      const next = [...prev];
+      const tmp = next[idx + 1];
+      next[idx + 1] = next[idx];
+      next[idx] = tmp;
+      return next;
+    });
+  };
+
+  const onImportUrl = async () => {
+    const url = urlValue.trim();
+    if (!url) return;
+    try {
+      setUrlLoading(true);
+      const res = await fetch(url, { credentials: 'omit', cache: 'no-store' });
+      if (!res.ok) throw new Error('fetch_failed');
+      const ct = res.headers.get('content-type') || '';
+      const isText = ct.includes('text/plain') || ct.includes('text/markdown') || ct.includes('text/');
+      if (!isText) {
+        setError(t('pages.tools.prompt-enhancer.form.error.file.invalidType'));
+        setErrorScope('files');
+        return;
+      }
+      const raw = await res.text();
+      const clamped = raw.slice(0, TEXT_LENGTH_MAX * 3); // allow a few tokens worth; server clamps more
+      const u = new URL(url);
+      const base = u.pathname.split('/').filter(Boolean).pop() || 'imported.txt';
+      const safeName = base.endsWith('.md') || base.endsWith('.txt') ? base : `${base}.txt`;
+      const vf = new File([clamped], safeName, { type: 'text/plain' });
+      await addFiles([vf]);
+      setUrlValue('');
+    } catch {
+      setError(t('pages.tools.prompt-enhancer.form.error.network'));
       setErrorScope('files');
-      return;
+    } finally {
+      setUrlLoading(false);
     }
-    setFiles((prev) => [...prev, ...incoming].slice(0, MAX_FILES));
-    setError(null);
-    setErrorScope(null);
   };
 
   const handleCopy = async () => {
@@ -180,6 +261,18 @@ const EnhancerForm: React.FC<EnhancerFormProps> = ({ initialMode = 'creative' })
       files: files.length ? files : undefined,
     };
 
+    const startedAt = Date.now();
+    // Telemetry: started
+    try {
+      await emitPromptEnhancerStarted({
+        mode,
+        hasFiles: files.length > 0,
+        fileTypes: files.map((f) => f.type).slice(0, 5),
+      });
+    } catch {
+      // swallow
+    }
+
     try {
       const result = await enhance(args);
       // Handle fetch Response first
@@ -187,6 +280,8 @@ const EnhancerForm: React.FC<EnhancerFormProps> = ({ initialMode = 'creative' })
         if (result.status === 429) {
           await handle429Response(result);
           setError(t('pages.tools.prompt-enhancer.form.error.rateLimit'));
+          // Telemetry: failed (rate-limited)
+          await emitPromptEnhancerFailed({ errorKind: 'rate_limited', httpStatus: 429 });
         } else {
           // Best-effort parse error payload
           const payload: unknown = await result.clone().json().catch(() => null);
@@ -194,6 +289,7 @@ const EnhancerForm: React.FC<EnhancerFormProps> = ({ initialMode = 'creative' })
             ? (payload as any).error.message
             : t('pages.tools.prompt-enhancer.form.error.unknown');
           setError(msg);
+          await emitPromptEnhancerFailed({ errorKind: 'api_error', httpStatus: result.status });
         }
       } else if ('success' in result) {
         if (result.success) {
@@ -201,19 +297,25 @@ const EnhancerForm: React.FC<EnhancerFormProps> = ({ initialMode = 'creative' })
           setSafetyReport(result.data.safetyReport || null);
           setError(null);
           setErrorScope(null);
+          // Telemetry: succeeded
+          const latencyMs = Math.max(0, Date.now() - startedAt);
+          await emitPromptEnhancerSucceeded({ latencyMs, maskedCount: result.data.safetyReport?.warnings?.length });
           // keep selected files for context or clear? keep for convenience
         } else {
           // ApiErrorBody
           setError(result.error?.message || t('pages.tools.prompt-enhancer.form.error.unknown'));
           setErrorScope('input');
+          await emitPromptEnhancerFailed({ errorKind: result.error?.type || 'api_error' });
         }
       } else {
         setError(t('pages.tools.prompt-enhancer.form.error.unknown'));
         setErrorScope('input');
+        await emitPromptEnhancerFailed({ errorKind: 'unknown' });
       }
     } catch (err) {
       setError(t('pages.tools.prompt-enhancer.form.error.network'));
       setErrorScope('input');
+      await emitPromptEnhancerFailed({ errorKind: 'network' });
     } finally {
       setIsLoading(false);
     }
@@ -260,6 +362,31 @@ const EnhancerForm: React.FC<EnhancerFormProps> = ({ initialMode = 'creative' })
         </div>
 
         <div>
+          {/* URL Import */}
+          <div className="mb-4">
+            <label htmlFor="urlImport" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              {t('pages.tools.prompt-enhancer.form.files.urlImportLabel')}
+            </label>
+            <div className="flex gap-2">
+              <input
+                id="urlImport"
+                type="url"
+                value={urlValue}
+                onChange={(e) => setUrlValue(e.target.value)}
+                placeholder={t('pages.tools.prompt-enhancer.form.files.urlImportPlaceholder')}
+                className="flex-1 p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                disabled={isLoading || urlLoading || files.length >= MAX_FILES}
+              />
+              <Button
+                type="button"
+                onClick={onImportUrl}
+                disabled={isLoading || urlLoading || !urlValue.trim() || files.length >= MAX_FILES}
+              >
+                {urlLoading ? t('common.loading') : t('common.import')}
+              </Button>
+            </div>
+          </div>
+
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             {t('pages.tools.prompt-enhancer.form.files.label')}
           </label>
@@ -294,16 +421,45 @@ const EnhancerForm: React.FC<EnhancerFormProps> = ({ initialMode = 'creative' })
             {files.length > 0 && (
               <ul className="mt-3 space-y-2">
                 {files.map((f, idx) => (
-                  <li key={idx} className="flex items-center justify-between text-sm">
-                    <span className="truncate">{f.name} · {formatBytes(f.size)}</span>
-                    <button
-                      type="button"
-                      onClick={() => onRemoveFile(idx)}
-                      className="px-2 py-1 rounded-md border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
-                      disabled={isLoading}
-                    >
-                      {t('pages.tools.prompt-enhancer.form.files.remove')}
-                    </button>
+                  <li key={idx} className="text-sm border border-gray-200 dark:border-gray-700 rounded-md p-2">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="truncate">{f.name} · {f.type || 'unknown'} · {formatBytes(f.size)}</span>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => moveFileUp(idx)}
+                          aria-label={`Move up ${f.name}`}
+                          className="px-2 py-1 rounded-md border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50"
+                          disabled={isLoading || idx === 0}
+                        >↑</button>
+                        <button
+                          type="button"
+                          onClick={() => moveFileDown(idx)}
+                          aria-label={`Move down ${f.name}`}
+                          className="px-2 py-1 rounded-md border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50"
+                          disabled={isLoading || idx === files.length - 1}
+                        >↓</button>
+                        <button
+                          type="button"
+                          onClick={() => onRemoveFile(idx)}
+                          className="px-2 py-1 rounded-md border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
+                          disabled={isLoading}
+                        >
+                          {t('pages.tools.prompt-enhancer.form.files.remove')}
+                        </button>
+                      </div>
+                    </div>
+                    {/* Text preview if available */}
+                    {(() => {
+                      const key = fileKey(f);
+                      const pv = textPreviews[key];
+                      return pv ? (
+                        <div className="mt-1 text-xs text-gray-600 dark:text-gray-300">
+                          {pv}
+                          {pv.length >= 160 ? '…' : ''}
+                        </div>
+                      ) : null;
+                    })()}
                   </li>
                 ))}
               </ul>

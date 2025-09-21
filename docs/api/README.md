@@ -129,6 +129,48 @@ curl -X POST http://127.0.0.1:8787/api/ai-image/jobs/JOB_ID/cancel \
 - Magic‑Link (Stytch). Registrierung implizit beim ersten Callback, Passwörter entfallen.
 - Cookies: `__Host-session` für authentifizierte Nutzer; Gästen kann serverseitig eine `guest_id` gesetzt werden (Rate‑Limit/Quota).
 
+## Telemetrie (Prompt‑Enhancer)
+
+- Feature‑Flag: `PUBLIC_PROMPT_TELEMETRY_V1` (default: off). Ist das Flag deaktiviert, werden clientseitig keine Events gesendet und der Server antwortet mit `403 forbidden`.
+- Endpoint: `POST /api/telemetry`
+- Schutz:
+  - CSRF: Double‑Submit (Header `X-CSRF-Token` + Cookie `csrf_token`).
+  - Origin/Referer: Same‑Origin Check (per API‑Middleware).
+  - Rate‑Limit: 30/min.
+- Payload‑Envelope (Beispiel):
+
+```json
+{
+  "eventName": "prompt_enhance_started",
+  "ts": 1712345678901,
+  "context": { "tool": "prompt-enhancer" },
+  "props": { "mode": "concise", "hasFiles": false, "fileTypes": [] }
+}
+```
+
+- Unterstützte Events:
+  - `prompt_enhance_started` (Props: `mode`, `hasFiles`, `fileTypes[]`)
+  - `prompt_enhance_succeeded` (Props: `latencyMs`, optional `maskedCount`)
+  - `prompt_enhance_failed` (Props: `errorKind`, optional `httpStatus`)
+  - `prompt_enhance_cta_upgrade_click` (keine Props)
+
+- Beispiel (curl):
+
+```bash
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -H "X-CSRF-Token: 123" \
+  -H "Cookie: csrf_token=123" \
+  -H "Origin: http://127.0.0.1:8787" \
+  -d '{
+    "eventName": "prompt_enhance_started",
+    "ts": 1712345678901,
+    "context": { "tool": "prompt-enhancer" },
+    "props": { "mode": "creative", "hasFiles": true, "fileTypes": ["application/pdf"] }
+  }' \
+  http://127.0.0.1:8787/api/telemetry
+```
+
 ## Sicherheit
 
 - CSRF, Rate‑Limiting, strukturierte Logs. Fehler werden auf ein Provider‑neutrales `error.type` gemappt (z. B. `validation_error`, `forbidden`, `server_error`).

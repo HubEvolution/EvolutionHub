@@ -1,0 +1,57 @@
+name: Prompt Enhancer E2E Smoke (All Browsers)
+
+on:
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  prompt-enhancer-e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      PLAYWRIGHT_BROWSERS_PATH: ~/.cache/ms-playwright
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-pw-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-pw-
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          npx playwright install --with-deps
+
+      - name: Run Prompt Enhancer E2E (Chromium/Firefox/WebKit)
+        env:
+          # Let the Playwright config start the local dev worker automatically
+          ENVIRONMENT: development
+        run: |
+          npx playwright test -c tests/e2e/config/playwright.config.ts tests/e2e/specs/prompt-enhancer.spec.ts
+
+      - name: Upload Playwright HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: prompt-enhancer-playwright-report
+          path: playwright-report/**
+
+      - name: Upload JUnit results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: prompt-enhancer-junit
+          path: test-results/e2e/results.xml
