@@ -82,7 +82,7 @@
     "drizzle-orm": "^0.44.4",
     "globby": "^14.1.0",
     "gray-matter": "^4.0.3",
-    "hono": "^4.9.1",
+    "hono": "^4.9.9",
     "jose": "^6.0.12",
     "lottie-web": "^5.13.0",
     "openai": "^5.20.1",
@@ -97,7 +97,7 @@
     "zustand": "^5.0.7"
   },
   "devDependencies": {
-    "@astrojs/cloudflare": "^12.6.3",
+    "@astrojs/cloudflare": "^12.6.9",
     "@astrojs/tailwind": "^6.0.2",
     "@cloudflare/workers-types": "^4.20250919.0",
     "@mswjs/data": "^0.16.2",
