@@ -1,492 +1,664 @@
 # CI/CD-Pipeline - Evolution Hub
 
-Diese Dokumentation beschreibt die Continuous Integration und Continuous Deployment (CI/CD) Pipeline für das Evolution Hub Projekt. Sie bietet einen detaillierten Überblick über die automatisierten Prozesse, die bei der Entwicklung, dem Testen und dem Deployment der Anwendung verwendet werden.
+Diese Dokumentation beschreibt die vollständig automatisierte Continuous Integration und Continuous Deployment (CI/CD) Pipeline für Evolution Hub.
 
 ## Inhaltsverzeichnis
 
 1. [Überblick](#überblick)
 2. [GitHub Actions Workflows](#github-actions-workflows)
-3. [CI-Prozess](#ci-prozess)
-4. [CD-Prozess](#cd-prozess)
+3. [CI-Gates (Qualitätssicherung)](#ci-gates-qualitätssicherung)
+4. [Deployment-Prozess](#deployment-prozess)
 5. [Umgebungen](#umgebungen)
-6. [Konfiguration und Anpassung](#konfiguration-und-anpassung)
-7. [Fehlerbehebung](#fehlerbehebung)
+6. [Health-Check-System](#health-check-system)
+7. [Secrets & Konfiguration](#secrets--konfiguration)
+8. [Rollback-Strategien](#rollback-strategien)
+9. [Fehlerbehebung](#fehlerbehebung)
 
 ---
 
 ## Überblick
 
-Die CI/CD-Pipeline des Evolution Hub Projekts ist darauf ausgelegt, einen effizienten und zuverlässigen Entwicklungs- und Deployment-Prozess zu gewährleisten. Sie automatisiert das Testen, Bauen und Deployen der Anwendung und stellt sicher, dass nur qualitativ hochwertiger Code in die Produktion gelangt.
+Die CI/CD-Pipeline implementiert alle Anforderungen aus [CLAUDE.md](../../CLAUDE.md#6-testing--cicd):
 
-### Ziele der CI/CD-Pipeline
+✅ **CI-Gates (alle müssen grün sein):**
+- Lint/Format Check (ESLint + Prettier)
+- TypeScript Check (`astro check`)
+- Unit/Integration Tests (Coverage ≥70%)
+- E2E-Smoke-Tests
+- Security-Scan (`npm audit`)
 
-- **Codequalität sicherstellen**: Automatisierte Tests und Linting
-- **Konsistente Builds**: Reproduzierbare Build-Prozesse
-- **Schnelles Feedback**: Sofortiges Feedback zu Code-Änderungen
-- **Automatisiertes Deployment**: Reduzierung manueller Eingriffe
-- **Sicherheit gewährleisten**: Automatisierte Sicherheitsscans
+✅ **Deployment:**
+- Automatisch via Git Tags oder manuell via GitHub Actions UI
+- Health-Check nach jedem Deployment
+- Production-Deployment erfordert manuelle Approval
 
 ### Pipeline-Übersicht
 
 ```mermaid
 graph TD
-    subgraph "Entwicklung"
-        Dev["Lokale Entwicklung"]
-        PR["Pull Request"]
-    end
-    
-    subgraph "CI-Prozess"
-        Lint["Lint & Format Check"]
-        Build["Build"]
-        Test["Tests"]
-        Security["Security Scan"]
-    end
-    
-    subgraph "CD-Prozess"
-        Preview["Preview Deployment"]
-        Production["Production Deployment"]
-    end
-    
-    Dev --> PR
-    PR --> Lint
-    Lint --> Build
-    Build --> Test
-    Test --> Security
-    Security --> Preview
-    PR -- "Merge in main" --> Production
+    A[Git Tag v1.7.1] --> B{Pre-Deploy Gates}
+
+    B --> C[Lint: ESLint + Prettier]
+    B --> D[Security: npm audit]
+    B --> E[Tests: Unit + Coverage ≥70%]
+    B --> F[TypeScript: astro check]
+
+    C --> G{Alle grün?}
+    D --> G
+    E --> G
+    F --> G
+
+    G -->|Ja| H[Deploy Staging]
+    G -->|Nein| Z[❌ Abbruch]
+
+    H --> I[Health Check Staging]
+    I -->|OK| J[⏸️ Warte auf Approval]
+    I -->|Fehler| Z
+
+    J -->|Approved| K[Deploy Production]
+    J -->|Rejected| Z
+
+    K --> L[Health Check Production]
+    L -->|OK| M[✅ GitHub Release]
+    L -->|Fehler| Z
 ```
 
 ---
 
 ## GitHub Actions Workflows
 
-Die CI/CD-Pipeline wird mit GitHub Actions implementiert. Die Workflow-Konfigurationen befinden sich im Verzeichnis `.github/workflows/`.
+### 1. **Unit and E2E Tests** (`.github/workflows/unit-tests.yml`)
 
-### Hauptworkflows
+**Trigger:** Push auf `main`/`develop`, PRs zu `main`, manuell
 
-1. **CI Workflow** (`ci.yml`):
-   - Ausgelöst bei Pull Requests und Pushes auf den `main`-Branch
-   - Führt Linting, Build und Tests durch
-   - Führt Sicherheitsscans für Abhängigkeiten durch
+**Jobs (parallel):**
 
-2. **Preview Workflow** (`preview.yml`):
-   - Ausgelöst bei Pull Requests
-   - Erstellt ein temporäres Deployment für Testzwecke
-   - Ermöglicht das Testen von Änderungen vor dem Merge
-
-3. **Production Workflow** (`deploy.yml`):
-   - Ausgelöst bei Pushes auf den `main`-Branch
-   - Führt das Deployment in die Produktionsumgebung durch
-   - Führt Datenbank-Migrationen aus
-
-#### Enhancer E2E Smoke (EN)
-
-- Zweck: Schneller UI-Smoketest nur für den Image Enhancer (EN), inkl. Screenshots/Videos als Artefakte
-- Grundlage:
-  - Config: `test-suite-v2/playwright.enhancer.config.ts` (Screenshots/Video on)
-  - Projekt: nur `chromium-en` (DE-Projekt bei Bedarf separat/schedule)
-  - Spec: `test-suite-v2/src/e2e/imag-enhancer.spec.ts`
-  - Artefakte: `test-suite-v2/reports/playwright-results/` (HTML-Report in `test-suite-v2/reports/playwright-html-report`)
-- Optimierungen (CI):
-  - Playwright Browser Cache: `~/.cache/ms-playwright` via `actions/cache@v4`
-  - Install nur Chromium: `npx playwright install --with-deps chromium`
-  - Preflight: `curl -i http://127.0.0.1:8787/en/tools/ai-image-enhancer | head` nach `wait-on`
-- Ablauf:
-  - Dev-Worker starten (Port 8787): `npm run dev:worker:dev` (Hintergrund)
-  - Warten: `npx wait-on http://127.0.0.1:8787`
-  - Tests: `TEST_BASE_URL=http://127.0.0.1:8787 npx playwright test -c test-suite-v2/playwright.enhancer.config.ts test-suite-v2/src/e2e/imag-enhancer.spec.ts`
-  - Artefakt-Upload: `actions/upload-artifact@v4`
-- Hinweise:
-  - `TEST_BASE_URL` muss den laufenden Port widerspiegeln (Standard 8787)
-  - Nicht-Prod nutzt deterministischen Dev‑Echo (keine externen Provider nötig)
-
-#### How to trigger (GitHub CLI)
-
+#### A) `lint` — Lint & Format Check
 ```bash
-# Start workflow manually
-gh workflow run enhancer-e2e-smoke.yml
-
-# Inspect latest run
-gh run list --workflow="enhancer-e2e-smoke.yml" -L 1
+npm run lint              # ESLint (max-warnings=280)
+npm run format:check      # Prettier Check
 ```
 
-#### Prod Auth Smoke (Production)
-
-- Zweck: Produktionstest für Magic-Link-Flow (Stytch), rein HTTP-basiert (kein Browser-Download)
-- Workflow: `.github/workflows/prod-auth-smoke.yml`
-- Gating/Secrets:
-  - `E2E_PROD_AUTH_SMOKE` muss `1/true` sein, sonst Skip
-  - `STYTCH_TEST_EMAIL` muss gesetzt sein, sonst Skip
-- Optimierungen:
-  - `PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1` (keine Browser-Downloads)
-  - Testlauf restriktiv: `--project=chromium`
-  - Preflight: `POST /api/auth/magic/request` mit `Origin`-Header und JSON-Body; Status+Body werden geloggt
-- Hinweise:
-  - Worker muss in Prod Stytch LIVE-Secrets hinterlegt haben (`STYTCH_PROJECT_ID`, `STYTCH_SECRET`)
-  - Test akzeptiert strukturierte Fehler (z. B. Provider-Fehler) und loggt diese sichtbar
-
-#### How to trigger I (GitHub CLI)
-
+#### B) `security` — Security Audit
 ```bash
-# Ensure repository secrets are set: E2E_PROD_AUTH_SMOKE=1 and STYTCH_TEST_EMAIL
-# Then trigger the run
-gh workflow run prod-auth-smoke.yml -f run=true
-
-# Inspect latest run
-gh run list --workflow="prod-auth-smoke.yml" -L 1
+npm audit --audit-level=moderate
 ```
+Schlägt fehl bei moderate/high/critical Vulnerabilities.
 
-#### Pricing Smoke (Playwright)
-
-- Zweck: Schneller Smoke gegen Pricing-Seite (optional remote via `TEST_BASE_URL`)
-- Workflow: `.github/workflows/pricing-smoke.yml`
-- Optimierungen:
-  - In `test-suite-v2`: `npm install` statt `npm ci` (da kein Lockfile vorhanden)
-  - Playwright Browser Cache: `~/.cache/ms-playwright`
-  - Install nur Chromium: `npx playwright install --with-deps chromium`
-  - Preflight: `GET /en/pricing` – Status+Headers werden geloggt
-- Default-BASE_URL: Fallback auf `https://ci.hub-evolution.com`, wenn kein Input/Repo-Var
-
-#### How to trigger II (GitHub CLI)
-
+#### C) `unit` — Unit Tests + Coverage
 ```bash
-# Run against remote Testing
-gh workflow run pricing-smoke.yml -f test_base_url=https://ci.hub-evolution.com
+npx vitest run --coverage
+```
+- Coverage-Threshold: **≥70%** (statements, branches, functions, lines)
+- Upload zu Codecov
 
-# Or rely on default fallback (ci.hub-evolution.com)
-gh workflow run pricing-smoke.yml
+#### D) `e2e` — E2E Tests
+```bash
+npm run test:e2e -- --base-url=https://ci.hub-evolution.com
+```
+Playwright gegen Testing-Environment.
 
-# Inspect latest run
-gh run list --workflow="pricing-smoke.yml" -L 1
+#### E) `check` — TypeScript Check
+```bash
+npx astro check --tsconfig tsconfig.astro.json
 ```
 
-### Aktuelle Workflow-Dateien
-
-- `.github/workflows/e2e-tests.yml` – Unit, Integration, E2E, i18n-Report
-- `.github/workflows/enhancer-e2e-smoke.yml` – Enhancer Smoke (EN, Chromium, Cache, Preflight)
-- `.github/workflows/prod-auth-smoke.yml` – Prod Auth Smoke (gated, Preflight, Chromium-only, skip browser downloads)
-- `.github/workflows/pricing-smoke.yml` – Pricing Smoke (Chromium-only, Cache, Preflight)
-- `.github/workflows/openapi-release.yml` – OpenAPI Validation
-
-### Workflow-Beispiel: CI
-
-```yaml
-name: CI
-
-on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
-
-jobs:
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-          cache: 'npm'
-      - run: npm ci
-      - run: npm run lint
-
-  build:
-    runs-on: ubuntu-latest
-    needs: lint
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-          cache: 'npm'
-      - run: npm ci
-      - run: npm run build
-      - uses: actions/upload-artifact@v3
-        with:
-          name: build-output
-          path: dist/
-
-  test:
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-          cache: 'npm'
-      - run: npm ci
-      - run: npm test
-      - run: npm run test:coverage
-      - uses: actions/upload-artifact@v3
-        with:
-          name: coverage-report
-          path: coverage/
-
-  security:
-    runs-on: ubuntu-latest
-    needs: test
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-          cache: 'npm'
-      - run: npm audit
-      - uses: snyk/actions/node@master
-        with:
-          args: --severity-threshold=high
+#### F) `openapi` — OpenAPI Validation
+```bash
+npx swagger-cli validate openapi.yaml
+npx redoc-cli build openapi.yaml -o api-docs.html
 ```
+
+#### G) `prompt-enhancer-tests` — Spezielle Tests
+- Startet Dev-Worker (Background)
+- Unit + Integration Tests für Prompt-Enhancer
 
 ---
 
-## CI-Prozess
+### 2. **Deploy to Cloudflare** (`.github/workflows/deploy.yml`)
 
-Der CI-Prozess besteht aus mehreren Schritten, die sicherstellen, dass Code-Änderungen den Qualitätsstandards entsprechen.
+**Trigger:**
+- **Git Tags:** `v*.*.*` (z.B. `v1.7.1`)
+- **Manuell:** Actions UI → "Run workflow" → Environment wählen
 
-### 1. Linting und Formatierung
+**Jobs:**
 
-- **ESLint**: Überprüft den JavaScript/TypeScript-Code auf Stilprobleme und potenzielle Fehler
-- **Prettier**: Stellt eine konsistente Formatierung sicher
-- **TypeScript**: Führt Typüberprüfungen durch
+#### A) `pre-deploy` — Alle CI-Gates
+Führt parallel aus:
+- Lint + Format Check
+- TypeScript Check
+- Unit Tests mit Coverage (≥70%)
+- Security Audit
 
-```bash
-# Lokal ausführen
-npm run lint
+**Nur wenn alle grün:** Weiter zu Deploy.
+
+#### B) `deploy-staging`
+```yaml
+environment:
+  name: staging
+  url: https://staging.hub-evolution.com
+
+steps:
+  1. npm run build:worker
+  2. wrangler deploy --env staging
+  3. Health Check (3 Retries, 10s Timeout)
 ```
 
-### 2. Build-Prozess
+**Nur wenn Staging OK:** Weiter zu Production.
 
-- Kompiliert TypeScript zu JavaScript
-- Bündelt Assets mit Vite
-- Optimiert für Produktion
+#### C) `deploy-production`
+```yaml
+environment:
+  name: production
+  url: https://hub-evolution.com
 
-```bash
-# Lokal ausführen
-npm run build
+protection_rules:
+  - Required reviewers: 1
+  - Deployment branches: main + v*
+
+steps:
+  1. ⏸️ Warte auf manuelle Approval
+  2. npm run build:worker
+  3. wrangler deploy --env production
+  4. Health Check
+  5. GitHub Release erstellen (bei Tag-Push)
 ```
 
-### 3. Tests
+#### D) `notify-failure`
+Loggt Fehlerdetails bei Deployment-Failure.
 
-- **Unit-Tests**: Testet einzelne Funktionen und Komponenten
-- **Integrationstests**: Testet die Interaktion zwischen Komponenten
-- **E2E-Tests**: Testet die Anwendung aus Benutzerperspektive
+---
 
+### 3. **E2E Tests** (`.github/workflows/e2e-tests.yml`)
+
+**Trigger:** Push/PRs (wenn relevante Pfade geändert), manuell
+
+**Jobs:**
+1. **unit** (Node 22): Astro Check, Vitest Coverage
+2. **integration** (benötigt `unit`): Vitest Integration gegen `vars.TEST_BASE_URL`
+3. **test** (benötigt `unit` + `integration`): Playwright E2E, i18n-Report
+
+**Concurrency:** Cancelation bei neuen Pushes.
+
+---
+
+### 4. **Smoke-Tests** (gezielte Überwachung)
+
+#### **enhancer-e2e-smoke.yml**
+- **Trigger:** PRs zu `main`, manuell
+- **Zweck:** Schneller UI-Smoke für Image Enhancer (EN + DE)
+- **Browser:** Chromium-only
+- **Target:** Lokaler Dev-Worker (`http://127.0.0.1:8787`)
+- **Optimierung:** Browser-Caching, Preflight-Diagnostik
+
+#### **prompt-enhancer-e2e-smoke.yml**
+- **Trigger:** PRs zu `main`, manuell
+- **Zweck:** Prompt-Enhancer E2E (Chromium, Firefox, WebKit)
+- **Target:** Lokaler Dev-Worker (Auto-Start via Playwright Config)
+
+#### **pricing-smoke.yml**
+- **Trigger:** PRs/Pushes (Pricing-Änderungen), täglich 02:00 UTC, manuell
+- **Zweck:** Pricing-Seite Smoke
+- **Target:** `TEST_BASE_URL` (Standard: `ci.hub-evolution.com`)
+
+#### **prod-auth-smoke.yml**
+- **Trigger:** Täglich 04:00 UTC, manuell (mit Gate)
+- **Zweck:** Production Auth-Flow-Test gegen `hub-evolution.com`
+- **Gated:** `E2E_PROD_AUTH_SMOKE=1` + `STYTCH_TEST_EMAIL` erforderlich
+- **Optimierung:** Keine Browser-Installation (Playwright Request API)
+
+---
+
+### 5. **i18n Validation** (`.github/workflows/i18n-validate.yml`)
+
+**Trigger:** PRs, Push auf `main`
+
+**Jobs:**
+- Validiert i18n-Parity (EN/DE) via `scripts/i18n-validate.mjs`
+- Non-blocking Diff-Report
+
+---
+
+## CI-Gates (Qualitätssicherung)
+
+Alle Gates laufen **parallel** und müssen **grün** sein:
+
+### 1. Lint/Format ✅
 ```bash
-# Lokal ausführen
-npm test
+npm run lint              # ESLint
+npm run format:check      # Prettier
+```
+
+**Lokal ausführen:**
+```bash
+npm run format            # Auto-Fix
+npm run lint              # Check
+```
+
+**Pre-Commit-Hook:** Husky führt automatisch aus:
+- `eslint --fix` auf geänderte `*.{ts,tsx,astro}`-Files
+- `prettier --write` auf geänderte Files
+
+### 2. TypeScript Check ✅
+```bash
+npx astro check --tsconfig tsconfig.astro.json
+```
+
+### 3. Tests + Coverage ✅
+```bash
 npm run test:coverage
 ```
 
-#### CSRF-Schutz in E2E-Tests (Astro/Cloudflare Workers)
+**Coverage-Thresholds (global):**
+- Statements: ≥70%
+- Branches: ≥70%
+- Functions: ≥70%
+- Lines: ≥70%
 
-Astro (insb. in Verbindung mit Cloudflare Workers) blockiert cross-site POST-Requests standardmäßig.
-POSTs ohne gültigen same-origin `Origin`-Header führen zu `403` mit der Meldung
-"Cross-site POST form submissions are forbidden".
-
-Damit E2E-Tests (z. B. Debug-/Auth-Endpunkte) funktionieren, müssen alle Test-Requests einen
-same-origin `Origin`-Header senden. Dies ist in Playwright global konfiguriert:
-
-```ts
-// tests/e2e/config/playwright.config.ts
-const BASE_URL = 'http://127.0.0.1:8787';
-
-export default defineConfig({
-  use: {
-    baseURL: BASE_URL,
-    extraHTTPHeaders: {
-      // Erforderlich für Astro-CSRF: same-origin Origin-Header
-      Origin: BASE_URL,
-    },
-  },
-  webServer: {
-    url: BASE_URL,
-    // ...
-  },
-});
+**Lokal ausführen:**
+```bash
+npm test                  # Watch-Mode
+npm run test:once         # Single Run
+npm run test:coverage     # Mit Coverage-Report
 ```
 
-Troubleshooting bei 403-Fehlern:
-
-- Prüfe, dass der Request einen `Origin`-Header mit der Base-URL trägt (z. B. `http://127.0.0.1:8787`).
-- Stelle sicher, dass die Worker-Umgebung `ENVIRONMENT=development` ist (Debug-Endpunkte sind in Prod gesperrt).
-- Reprodiziere mit curl:
-
+### 4. Security-Scan ✅
 ```bash
-curl -i -X POST \
-  -H 'Origin: http://127.0.0.1:8787' \
-  http://127.0.0.1:8787/api/debug-login
+npm audit --audit-level=moderate
 ```
 
-Best Practice: CSRF nicht abschalten. Verwende für Tests den same-origin `Origin`-Header.
+Schlägt fehl bei:
+- Moderate Vulnerabilities
+- High Vulnerabilities
+- Critical Vulnerabilities
 
-### 4. Sicherheitsscans
-
-- **npm audit**: Überprüft Abhängigkeiten auf bekannte Sicherheitslücken
-- **Snyk**: Führt erweiterte Sicherheitsanalysen durch
-- **Dependabot**: Automatische Aktualisierung von Abhängigkeiten
-
+**Lokal ausführen:**
 ```bash
-# Lokal ausführen
 npm audit
+npm audit fix             # Auto-Fix (wenn möglich)
 ```
 
-### 5. i18n‑Checks
-
-- Lokal prüfen:
-
-```bash
-npm run i18n:diff
-npm run i18n:report
-```
-
-- CSV‑Report: `reports/i18n-empty-keys.csv`
-- CI‑Artefakt: `i18n-empty-report.txt` (siehe Workflow `.github/workflows/e2e-tests.yml` – Schritt „i18n Empty Strings Report“)
+### 5. E2E-Smoke ✅
+Playwright-Tests gegen Testing-Environment.
 
 ---
 
-## CD-Prozess
+## Deployment-Prozess
 
-Der CD-Prozess automatisiert das Deployment der Anwendung in verschiedene Umgebungen.
+### Automatisches Deployment (Empfohlen)
 
-### 1. Preview Deployment
+#### **Via Git Tags** (Production + Staging)
 
-Für jeden Pull Request wird ein temporäres Deployment erstellt, um die Änderungen zu testen:
+```bash
+# 1. Erstelle Tag
+git tag v1.7.1 -m "Release v1.7.1"
 
-- **Umgebung**: Cloudflare Pages Preview
-- **URL-Format**: `https://pr-{PR_NUMBER}.evolution-hub.pages.dev`
-- **Lebensdauer**: Bleibt aktiv, bis der PR geschlossen wird
+# 2. Push Tag (startet Workflow)
+git push origin v1.7.1
+```
 
-### 2. Production Deployment
+**Was passiert:**
+1. Pre-Deploy Checks (alle CI-Gates)
+2. Deploy Staging → Health Check
+3. ⏸️ Warte auf manuelle Approval
+4. Deploy Production → Health Check
+5. GitHub Release erstellen
 
-Nach dem Merge in den `main`-Branch wird die Anwendung automatisch in die Produktionsumgebung deployed:
+#### **Via GitHub Actions UI** (Staging oder Production einzeln)
 
-- **Umgebung**: Cloudflare Pages Production
-- **URL**: `https://hub-evolution.pages.dev`
-- **Datenbank-Migrationen**: Werden automatisch ausgeführt
+1. Gehe zu **Actions** → **Deploy to Cloudflare**
+2. Klicke **"Run workflow"**
+3. Wähle Environment: `staging` oder `production`
+4. Klicke **"Run workflow"**
 
-### 3. Deployment-Prozess
+### Production-Approval
 
-```mermaid
-sequenceDiagram
-    participant GitHub as GitHub Repository
-    participant Actions as GitHub Actions
-    participant Cloudflare as Cloudflare Pages
-    participant D1 as Cloudflare D1
+Sobald Staging erfolgreich deployed wurde:
 
-    GitHub->>Actions: Push to main
-    Actions->>Actions: Run CI Process
-    Actions->>Cloudflare: Deploy to Pages
-    Cloudflare->>Cloudflare: Build and Deploy
-    Actions->>D1: Run DB Migrations
-    D1->>D1: Apply Migrations
-    Cloudflare->>GitHub: Deployment Status
+1. Gehe zu **Actions** → Laufender Workflow
+2. Klicke auf Job **"Deploy to Production"**
+3. Klicke **"Review deployments"**
+4. Wähle ☑️ `production`
+5. Klicke **"Approve and deploy"**
+
+### Manuelles Deployment (Fallback)
+
+Falls GitHub Actions nicht verfügbar ist:
+
+```bash
+# 1. Build erstellen
+npm run build:worker
+
+# 2. Deploy
+npx wrangler deploy --env staging
+# oder
+npx wrangler deploy --env production
+
+# 3. Health Check
+npm run health-check -- --url https://staging.hub-evolution.com
 ```
 
 ---
 
 ## Umgebungen
 
-Das Evolution Hub Projekt verwendet mehrere Umgebungen für verschiedene Phasen des Entwicklungszyklus.
+### 1. **Development** (Lokal)
+- **URL:** `http://127.0.0.1:8787`
+- **D1:** Lokale SQLite (`evolution-hub-main-local`)
+- **KV/R2:** Lokale Bindings
+- **Start:** `npm run dev:worker:dev`
 
-### 1. Lokale Entwicklungsumgebung
+### 2. **Testing/CI** (`env.testing`)
+- **URL:** `https://ci.hub-evolution.com`
+- **Zweck:** CI/E2E-Tests
+- **D1:** `evolution-hub-main-local` (separate Instanz)
+- **Deploy:** Automatisch via CI (nicht in deploy.yml)
 
-- **Zweck**: Lokale Entwicklung und Tests
-- **Setup**: Siehe [SETUP.md](../../SETUP.md)
-- **Datenbank**: Lokale SQLite-Datenbank oder D1 Local
-- **URL**: `http://localhost:3000`
+### 3. **Staging** (`env.staging`)
+- **URL:** `https://staging.hub-evolution.com`
+- **Zweck:** Pre-Production Testing
+- **D1:** `evolution-hub-main-local`
+- **Deploy:** Automatisch via `deploy.yml` (bei Tag oder manuell)
+- **Protection:** Keine
 
-### 2. Preview-Umgebung
-
-- **Zweck**: Testen von Änderungen vor dem Merge
-- **Bereitstellung**: Automatisch für jeden Pull Request
-- **Datenbank**: Isolierte Testdatenbank
-- **URL**: `https://pr-{PR_NUMBER}.evolution-hub.pages.dev`
-
-### 3. Staging-Umgebung (optional)
-
-- **Zweck**: Integration und UAT-Tests
-- **Bereitstellung**: Automatisch nach Merge in den `develop`-Branch
-- **Datenbank**: Staging-Datenbank mit anonymisierten Daten
-- **URL**: `https://staging.hub-evolution.pages.dev`
-
-### 4. Produktionsumgebung
-
-- **Zweck**: Live-System für Endbenutzer
-- **Bereitstellung**: Automatisch nach Merge in den `main`-Branch
-- **Datenbank**: Produktionsdatenbank
-- **URL**: `https://hub-evolution.pages.dev`
+### 4. **Production** (`env.production`)
+- **URL:** `https://hub-evolution.com` + `www.hub-evolution.com`
+- **Zweck:** Live-System
+- **D1:** `evolution-hub-main` (Production DB)
+- **Deploy:** Automatisch via `deploy.yml` (bei Tag oder manuell)
+- **Protection:** ✅ 1 Reviewer, nur `main` + Tags `v*`
 
 ---
 
-## Konfiguration und Anpassung
+## Health-Check-System
 
-### Umgebungsvariablen
+### Endpoint: `GET /api/health`
 
-Die CI/CD-Pipeline verwendet verschiedene Umgebungsvariablen, die in GitHub Actions Secrets konfiguriert sind:
-
-- `CF_API_TOKEN`: Cloudflare API-Token für Deployments
-- `CF_ACCOUNT_ID`: Cloudflare Account-ID
-- `CF_PROJECT_NAME`: Cloudflare Pages Projektname
-- `D1_DATABASE_ID`: Cloudflare D1 Datenbank-ID
-
-### Workflow-Anpassung
-
-Um die Workflows anzupassen:
-
-1. Bearbeite die YAML-Dateien im Verzeichnis `.github/workflows/`
-2. Committe die Änderungen in einen Feature-Branch
-3. Erstelle einen Pull Request für Code-Review
-4. Nach Genehmigung werden die Änderungen wirksam
-
-### Lokale Workflow-Tests
-
-GitHub Actions Workflows können lokal mit [act](https://github.com/nektos/act) getestet werden:
+Prüft Konnektivität zu allen kritischen Services:
 
 ```bash
-# Installiere act
-brew install act
+curl https://hub-evolution.com/api/health | jq
+```
 
-# Führe den CI-Workflow lokal aus
-act -j build
+**Response (200 OK):**
+```json
+{
+  "status": "ok",
+  "services": {
+    "d1": true,
+    "kv": true,
+    "r2": true
+  },
+  "duration": "45ms",
+  "timestamp": "2025-01-15T10:30:00.000Z",
+  "version": "production"
+}
+```
 
-# Führe einen bestimmten Job aus
-act -j test
+**Response (503 Service Unavailable):**
+```json
+{
+  "status": "degraded",
+  "services": {
+    "d1": true,
+    "kv": false,
+    "r2": true
+  },
+  "errors": [
+    "KV: Could not read/write test key"
+  ],
+  "duration": "102ms",
+  "timestamp": "2025-01-15T10:30:00.000Z",
+  "version": "production"
+}
+```
+
+### CLI-Script
+
+```bash
+npm run health-check -- --url https://hub-evolution.com
+```
+
+**Features:**
+- 3 Retries mit 5s Delay
+- 10s Timeout pro Request
+- Exit Code: 0 (OK), 1 (Fehler)
+
+**Verwendung in Deployment:**
+- Automatisch nach jedem Deploy
+- Schlägt Deployment fehl, wenn Health Check fehlschlägt
+
+---
+
+## Secrets & Konfiguration
+
+### GitHub Secrets
+
+**Settings** → **Secrets and variables** → **Actions** → **New repository secret**
+
+| Secret Name | Beschreibung | Erforderlich für |
+|-------------|--------------|------------------|
+| `CLOUDFLARE_API_TOKEN` | Cloudflare API Token (Workers:Edit) | Deployment |
+| `CLOUDFLARE_ACCOUNT_ID` | Cloudflare Account-ID (`39434b5635d8beb4bde93e1792b628d7`) | Deployment |
+| `E2E_PROD_AUTH_SMOKE` | Gate für Prod-Auth-Smoke (`1` oder `true`) | Prod-Smoke-Tests |
+| `STYTCH_TEST_EMAIL` | E-Mail für Auth-E2E-Tests | Prod-Smoke-Tests |
+
+### GitHub Environments
+
+**Settings** → **Environments**
+
+#### **staging**
+- ❌ Keine Protection Rules
+- Automatisches Deployment ohne Approval
+
+#### **production**
+- ✅ **Required reviewers:** 1
+- ✅ **Deployment branches:** `main` + Pattern `v*`
+- Manuelle Approval erforderlich
+
+### Cloudflare API Token erstellen
+
+1. **Cloudflare Dashboard** → **My Profile** → **API Tokens**
+2. **Create Token** → Vorlage: **"Edit Cloudflare Workers"**
+3. **Permissions:**
+   - Account: `Workers Scripts:Edit`
+   - Account: `Workers KV Storage:Edit` (optional)
+   - Account: `Workers Routes:Edit` (optional)
+4. **Account Resources:** Wähle deinen Account
+5. **Continue to summary** → **Create Token**
+6. Kopiere Token und füge als GitHub Secret ein
+
+---
+
+## Rollback-Strategien
+
+### Option 1: Cloudflare Rollback (Empfohlen)
+
+Cloudflare speichert automatisch vorherige Deployments:
+
+```bash
+# Liste aller Deployments anzeigen
+npx wrangler deployments list --env production
+
+# Rollback zum vorherigen Deployment
+npx wrangler rollback --env production
+```
+
+### Option 2: Git Tag Rollback
+
+Deploy vorherigen Tag:
+
+```bash
+# 1. Checkout vorheriger Tag
+git checkout v1.7.0
+
+# 2. Deploy
+npx wrangler deploy --env production
+
+# 3. Health Check
+npm run health-check -- --url https://hub-evolution.com
+```
+
+### Option 3: Hotfix-Deployment
+
+Bei kritischem Bug:
+
+```bash
+# 1. Erstelle Hotfix-Branch von letztem stabilen Tag
+git checkout -b hotfix/critical-bug v1.7.0
+
+# 2. Fixe Bug
+# ... Code-Änderungen ...
+
+# 3. Commit + Tag
+git commit -am "hotfix: critical bug"
+git tag v1.7.1
+git push origin v1.7.1
+
+# 4. Deployment läuft automatisch
 ```
 
 ---
 
 ## Fehlerbehebung
 
-### Häufige CI-Fehler
+### CI schlägt fehl
 
-1. **Lint-Fehler**:
-   - Problem: Code entspricht nicht den Stilrichtlinien
-   - Lösung: Führe `npm run lint:fix` aus und committe die Änderungen
+#### **Lint-Fehler**
+```bash
+# Lokal fixen
+npm run format
+npm run lint
 
-2. **Build-Fehler**:
-   - Problem: TypeScript-Fehler oder ungültige Imports
-   - Lösung: Überprüfe die Build-Logs und behebe die gemeldeten Fehler
+# Commit
+git add .
+git commit -m "style: fix lint errors"
+```
 
-3. **Test-Fehler**:
-   - Problem: Tests schlagen fehl
-   - Lösung: Führe Tests lokal aus, um das Problem zu identifizieren und zu beheben
+#### **Test-Fehler**
+```bash
+# Tests lokal ausführen
+npm test
 
-### Häufige CD-Fehler
+# Coverage prüfen
+npm run test:coverage
 
-1. **Deployment-Fehler**:
-   - Problem: Deployment auf Cloudflare Pages schlägt fehl
-   - Lösung: Überprüfe die Build-Logs in der Cloudflare Pages-Konsole
+# Einzelnen Test debuggen
+npx vitest tests/unit/example.test.ts
+```
 
-2. **Migrations-Fehler**:
-   - Problem: Datenbank-Migrationen schlagen fehl
-   - Lösung: Überprüfe die Migrations-Logs und stelle sicher, dass die Migrationen kompatibel sind
+#### **Security-Fehler**
+```bash
+# Vulnerabilities anzeigen
+npm audit
 
-### Support
+# Auto-Fix (wenn möglich)
+npm audit fix
 
-Bei anhaltenden Problemen mit der CI/CD-Pipeline:
+# Manuelle Updates
+npm update <package>
+```
 
-1. Überprüfe die GitHub Actions Logs für detaillierte Fehlerinformationen
-2. Konsultiere die Dokumentation für [GitHub Actions](https://docs.github.com/en/actions) und [Cloudflare Pages](https://developers.cloudflare.com/pages/)
-3. Erstelle ein Issue im Repository mit einer detaillierten Beschreibung des Problems
+#### **TypeScript-Fehler**
+```bash
+# Lokal prüfen
+npx astro check
+
+# Alternative Config testen
+npx astro check --tsconfig tsconfig.astro.json
+```
+
+### Deployment schlägt fehl
+
+#### **Pre-Deploy Gates fehlgeschlagen**
+- Prüfe GitHub Actions Logs
+- Fixe fehlerhafte CI-Gates (siehe oben)
+- Push Fix → Workflow läuft erneut
+
+#### **Health Check fehlgeschlagen**
+```bash
+# Manueller Health Check
+npm run health-check -- --url https://staging.hub-evolution.com
+
+# Logs anschauen
+npx wrangler tail --env staging
+
+# Häufige Ursachen:
+# - D1: Migration fehlgeschlagen → Prüfe `migrations/`
+# - KV: Binding fehlt → Prüfe `wrangler.toml`
+# - R2: Bucket nicht verfügbar → Prüfe Cloudflare Dashboard
+```
+
+#### **Wrangler Deploy Error**
+```bash
+# Secrets prüfen
+npx wrangler secret list --env production
+
+# Manuell setzen (falls fehlend)
+npx wrangler secret put STYTCH_PROJECT_ID --env production
+npx wrangler secret put STYTCH_SECRET --env production
+
+# Bindings prüfen
+npx wrangler deployments list --env production
+```
+
+### Approval funktioniert nicht
+
+1. **Prüfe GitHub Environment Settings:**
+   - Settings → Environments → `production`
+   - Required reviewers muss konfiguriert sein
+   - Du musst als Reviewer eingetragen sein
+
+2. **Prüfe Deployment Branches:**
+   - Pattern `v*` muss erlaubt sein
+   - Oder: "All branches" aktivieren
+
+### GitHub Actions hängt
+
+1. **Cancel laufenden Workflow:**
+   - Actions → Laufender Workflow → "Cancel workflow"
+
+2. **Re-run:**
+   - Actions → Fehlgeschlagener Workflow → "Re-run failed jobs"
+
+3. **Logs prüfen:**
+   - Klicke auf fehlgeschlagenen Job
+   - Scroll zu roter Zeile
+   - Lies Fehler-Message
+
+---
+
+## Weitere Dokumentation
+
+- **Setup:** [README.md](../../README.md#-deployment)
+- **Projektrichtlinien:** [CLAUDE.md](../../CLAUDE.md)
+- **Smoke-Tests:** Siehe jeweilige Workflow-Dateien in `.github/workflows/`
+- **CSRF-Schutz in Tests:** Siehe Abschnitt weiter oben
+
+---
+
+## Workflow-Trigger (Quick Reference)
+
+```bash
+# Manuell via GitHub CLI
+
+# Deploy Staging
+gh workflow run deploy.yml -f environment=staging
+
+# Deploy Production
+gh workflow run deploy.yml -f environment=production
+
+# Smoke-Tests
+gh workflow run enhancer-e2e-smoke.yml
+gh workflow run prompt-enhancer-e2e-smoke.yml
+gh workflow run pricing-smoke.yml -f test_base_url=https://ci.hub-evolution.com
+gh workflow run prod-auth-smoke.yml -f run=true  # Erfordert Secrets
+
+# Workflow-Status prüfen
+gh run list --workflow=deploy.yml -L 5
+gh run watch  # Live-Monitoring
+```
+
+---
+
+**Stand:** 2025-01-15 (v1.7.1)
