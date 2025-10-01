@@ -1,0 +1,45 @@
+# Build outputs
+dist/
+.astro/
+.wrangler/
+build/
+
+# Dependencies
+node_modules/
+
+# Coverage & Reports
+coverage/
+reports/
+test-results/
+playwright-report/
+test-suite-v2/reports/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Environment
+.env
+.env.local
+.env.*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Lock files
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+
+# Backups
+.backups/
+
+# Generated files
+api-docs.html
+openapi.yaml
+
+# Misc
+favicon_package/
+*.min.js
+*.min.css
