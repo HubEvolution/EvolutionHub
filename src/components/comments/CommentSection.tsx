@@ -34,10 +34,17 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
     deleteComment,
     currentUser,
     csrfToken,
+    initializeCsrfToken,
+    hasMore,
+    loadMoreComments,
   } = useCommentStore();
 
   // Load comments on mount
   useEffect(() => {
+    // Ensure CSRF token exists once on mount
+    if (!csrfToken) {
+      try { initializeCsrfToken(); } catch {}
+    }
     loadComments();
   }, [entityType, entityId]);
 
@@ -80,6 +87,10 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
     if (!content.trim()) return;
 
     try {
+      if (!csrfToken) {
+        setError('Sicherheits-Token fehlt. Bitte Seite aktualisieren.');
+        return;
+      }
       await updateComment(commentId, {
         content: content.trim(),
       }, csrfToken);
@@ -92,6 +103,10 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
 
   const handleDeleteComment = async (commentId: string) => {
     try {
+      if (!csrfToken) {
+        setError('Sicherheits-Token fehlt. Bitte Seite aktualisieren.');
+        return;
+      }
       await deleteComment(commentId, csrfToken);
       await loadComments();
     } catch (err) {
@@ -216,6 +231,18 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
               <p>Noch keine Kommentare vorhanden.</p>
               <p className="text-sm mt-1">Sei der Erste und schreibe einen Kommentar!</p>
             </div>
+          </div>
+        )}
+
+        {comments.length > 0 && hasMore && (
+          <div className="text-center pt-4">
+            <button
+              onClick={() => loadMoreComments({ entityType, entityId, includeReplies: true })}
+              className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700"
+              disabled={isLoading}
+            >
+              {isLoading ? 'Laden…' : 'Mehr laden'}
+            </button>
           </div>
         )}
       </div>

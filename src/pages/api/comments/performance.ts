@@ -6,17 +6,19 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { jwt } from 'hono/jwt';
-import { rateLimiter } from 'hono/rate-limiter';
+import { rateLimiter } from 'hono-rate-limiter';
 import { drizzle } from 'drizzle-orm/d1';
-import { PerformanceService } from '../../lib/services/performance-service';
-import { requireAuth } from '../../lib/api-middleware';
+import { PerformanceService } from '../../../lib/services/performance-service';
+import { requireAuth } from '../../../lib/auth-helpers';
 import type {
   PaginationOptions,
   CommentSearchOptions,
-  LazyLoadOptions
-} from '../../lib/types/performance';
+} from '../../../lib/types/performance';
 
-const app = new Hono<{ Bindings: { DB: D1Database; JWT_SECRET: string } }>();
+const app = new Hono<{
+  Bindings: { DB: D1Database; JWT_SECRET: string };
+  Variables: { userId: number };
+}>();
 
 // Middleware
 app.use('/*', cors());
@@ -80,10 +82,11 @@ app.get('/paginated/:postId', async (c) => {
  * GET /api/comments/performance/search
  * Sucht Kommentare mit Volltext-Suche und Performance-Optimierungen
  */
-app.get('/search', requireAuth, async (c) => {
+app.get('/search', async (c) => {
   try {
     const query = c.req.query();
-    const userId = c.get('userId') as number;
+    const user = await requireAuth(c);
+    const userId = Number(user.id);
 
     if (!query.q) {
       return c.json({
@@ -139,10 +142,11 @@ app.get('/search', requireAuth, async (c) => {
  * POST /api/comments/performance/preload/:postId
  * Preloadet Kommentare für bessere UX
  */
-app.post('/preload/:postId', requireAuth, async (c) => {
+app.post('/preload/:postId', async (c) => {
   try {
     const postId = c.req.param('postId');
-    const userId = c.get('userId') as number;
+    const user = await requireAuth(c);
+    const userId = Number(user.id);
 
     const db = drizzle(c.env.DB);
     const performanceService = new PerformanceService(db);
@@ -199,9 +203,10 @@ app.get('/cache/stats', async (c) => {
  * POST /api/comments/performance/cache/clear
  * Bereinigt Cache (nur für Admins)
  */
-app.post('/cache/clear', requireAuth, async (c) => {
+app.post('/cache/clear', async (c) => {
   try {
-    const userId = c.get('userId') as number;
+    const user = await requireAuth(c);
+    const userId = Number(user.id);
 
     // Prüfe Admin-Berechtigung (vereinfacht)
     if (userId !== 1) { // Annahme: User ID 1 ist Admin
@@ -296,9 +301,10 @@ app.get('/metrics', async (c) => {
  * POST /api/comments/performance/optimize
  * Optimiert Datenbank-Indizes (nur für Admins)
  */
-app.post('/optimize', requireAuth, async (c) => {
+app.post('/optimize', async (c) => {
   try {
-    const userId = c.get('userId') as number;
+    const user = await requireAuth(c);
+    const userId = Number(user.id);
 
     // Prüfe Admin-Berechtigung
     if (userId !== 1) {

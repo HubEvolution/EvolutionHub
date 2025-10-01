@@ -8,9 +8,8 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import { blogService, type BlogCollectionEntry } from '@/lib/blog';
 import BlogPostComponent from '@/components/BlogPost.astro';
 import type { ProcessedBlogPost } from '../../content/types';
-// Commented out CommentSection as it was removed earlier following user instructions.
-// Commenting out the import for CommentSection as it's no longer used.
-import CommentSection from '@/components/comments/CommentSection.astro';
+// Import CommentSection with a named import
+import { CommentSection } from '@/components/comments/CommentSection';
 
 // Get slug from URL parameters
 const { slug } = Astro.params;
@@ -147,7 +146,7 @@ const structuredData = {
         </BlogPostComponent>
 
         {/* Kommentarbereich */}
-        <CommentSection postId={slug} entityType="blog_post" client:load />
+        <CommentSection entityType="blog_post" entityId={slug} client:load />
       </div>
     </div>
   </article>

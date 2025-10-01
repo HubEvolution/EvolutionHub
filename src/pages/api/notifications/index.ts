@@ -1,12 +1,11 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { jwt } from 'hono/jwt';
-import { rateLimit } from '../../lib/rate-limiter';
-import { NotificationService } from '../../lib/services/notification-service';
-import { getDb } from '../../lib/db/helpers';
-import type { NotificationFilters } from '../../lib/types/notifications';
+import { rateLimit } from '../../../lib/rate-limiter';
+import { NotificationService } from '../../../lib/services/notification-service';
+import type { NotificationFilters } from '../../../lib/types/notifications';
 
-const app = new Hono();
+const app = new Hono<{ Bindings: { DB: D1Database; JWT_SECRET: string } }>();
 
 // Apply CORS middleware
 app.use('*', cors({
@@ -37,8 +36,7 @@ app.get('/', async (c) => {
     // Rate limiting: 30 requests per minute
     await rateLimit(`notifications:list:${userId}`, 30, 60);
 
-    const db = getDb(c.env.DB);
-    const notificationService = new NotificationService(db);
+    const notificationService = new NotificationService(c.env.DB);
 
     // Parse query parameters
     const query = c.req.query();
@@ -88,8 +86,7 @@ app.post('/mark-read', async (c) => {
       }, 400);
     }
 
-    const db = getDb(c.env.DB);
-    const notificationService = new NotificationService(db);
+    const notificationService = new NotificationService(c.env.DB);
 
     const notification = await notificationService.markAsRead(notificationId, userId);
 
@@ -117,8 +114,7 @@ app.post('/mark-all-read', async (c) => {
     // Rate limiting: 10 requests per minute
     await rateLimit(`notifications:mark-all-read:${userId}`, 10, 60);
 
-    const db = getDb(c.env.DB);
-    const notificationService = new NotificationService(db);
+    const notificationService = new NotificationService(c.env.DB);
 
     await notificationService.markAllAsRead(userId);
 
@@ -148,8 +144,7 @@ app.delete('/:id', async (c) => {
     // Rate limiting: 10 requests per minute
     await rateLimit(`notifications:delete:${userId}`, 10, 60);
 
-    const db = getDb(c.env.DB);
-    const notificationService = new NotificationService(db);
+    const notificationService = new NotificationService(c.env.DB);
 
     await notificationService.deleteNotification(notificationId, userId);
 
@@ -177,8 +172,7 @@ app.get('/stats', async (c) => {
     // Rate limiting: 15 requests per minute
     await rateLimit(`notifications:stats:${userId}`, 15, 60);
 
-    const db = getDb(c.env.DB);
-    const notificationService = new NotificationService(db);
+    const notificationService = new NotificationService(c.env.DB);
 
     const stats = await notificationService.getNotificationStats(userId);
 

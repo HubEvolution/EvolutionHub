@@ -2,11 +2,11 @@ import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
 import { CommentService } from '../../../lib/services/comment-service';
-import { getDb } from '../../../lib/db/helpers';
 import { requireModerator } from '../../../lib/auth-helpers';
+import { createCsrfMiddleware } from '../../../lib/security/csrf';
 import type { ModerateCommentRequest } from '../../../lib/types/comments';
 
-const app = new Hono();
+const app = new Hono<{ Bindings: { DB: D1Database } }>();
 
 // Middleware
 app.use('*', logger());
@@ -20,11 +20,18 @@ app.use('*', cors({
   credentials: true,
 }));
 
+// CSRF protection for mutating moderation route
+app.use('/', createCsrfMiddleware());
+
 // POST /api/comments/moderate - Moderate a comment (approve, reject, flag, hide)
 app.post('/', async (c) => {
   try {
     // Require moderator or admin role
-    const user = await requireModerator(c);
+    const user = await requireModerator({
+      req: { header: (name: string) => c.req.header(name) },
+      request: c.req.raw,
+      env: { DB: c.env.DB },
+    });
 
     const body = await c.req.json<ModerateCommentRequest & {
       commentId: string;
@@ -34,95 +41,88 @@ app.post('/', async (c) => {
     const { commentId, csrfToken, ...moderationData } = body;
 
     if (!commentId || !csrfToken) {
-      return createErrorResponse(c, 'Comment ID and CSRF token required', 'validation_error', 400);
+      return c.json({ success: false, error: { type: 'validation_error', message: 'Comment ID and CSRF token required' } }, 400);
     }
 
     // Validate CSRF token
     const { validateCsrfToken } = await import('../../../lib/security/csrf');
     const isValidCsrf = await validateCsrfToken(csrfToken);
     if (!isValidCsrf) {
-      return createErrorResponse(c, 'Invalid CSRF token', 'validation_error', 400);
+      return c.json({ success: false, error: { type: 'validation_error', message: 'Invalid CSRF token' } }, 400);
     }
 
-    const db = getDb(c.env.DB);
-    const commentService = new CommentService(db);
+    const commentService = new CommentService(c.env.DB);
 
     const moderation = await commentService.moderateComment(
       commentId,
       moderationData,
-      user.id
+      Number(user.id)
     );
 
-    return createResponse(c, moderation);
+    return c.json({ success: true, data: moderation });
   } catch (error) {
     console.error('Error moderating comment:', error);
 
     if (error instanceof Error) {
       if (error.message.includes('CSRF') || error.message.includes('not found')) {
-        return createErrorResponse(c, error.message, 'validation_error', 400);
+        return c.json({ success: false, error: { type: 'validation_error', message: error.message } }, 400);
       }
       if (error.message.includes('Authentication')) {
-        return createErrorResponse(c, error.message, 'auth_error', 401);
+        return c.json({ success: false, error: { type: 'auth_error', message: error.message } }, 401);
       }
     }
 
-    return createErrorResponse(c, 'Failed to moderate comment', 'server_error', 500);
+    return c.json({ success: false, error: { type: 'server_error', message: 'Failed to moderate comment' } }, 500);
   }
 });
 
 // GET /api/comments/moderation-queue - Get comments needing moderation
 app.get('/queue', async (c) => {
   try {
-    const user = await authenticateUser(c);
+    await requireModerator({
+      req: { header: (name: string) => c.req.header(name) },
+      request: c.req.raw,
+      env: { DB: c.env.DB },
+    });
 
-    if (!user) {
-      return createErrorResponse(c, 'Authentication required', 'auth_error', 401);
-    }
-
-    // TODO: Check if user has moderation permissions
-
-    const db = getDb(c.env.DB);
-    const commentService = new CommentService(db);
+    const commentService = new CommentService(c.env.DB);
 
     const queue = await commentService.getModerationQueue();
 
-    return createResponse(c, queue);
+    return c.json({ success: true, data: queue });
   } catch (error) {
     console.error('Error fetching moderation queue:', error);
 
     if (error instanceof Error && error.message.includes('Authentication')) {
-      return createErrorResponse(c, error.message, 'auth_error', 401);
+      return c.json({ success: false, error: { type: 'auth_error', message: error.message } }, 401);
     }
 
-    return createErrorResponse(c, 'Failed to fetch moderation queue', 'server_error', 500);
+    return c.json({ success: false, error: { type: 'server_error', message: 'Failed to fetch moderation queue' } }, 500);
   }
 });
 
 // GET /api/comments/stats - Get comment statistics
 app.get('/stats', async (c) => {
   try {
-    const user = await authenticateUser(c);
+    await requireModerator({
+      req: { header: (name: string) => c.req.header(name) },
+      request: c.req.raw,
+      env: { DB: c.env.DB },
+    });
 
-    if (!user) {
-      return createErrorResponse(c, 'Authentication required', 'auth_error', 401);
-    }
-
-    // TODO: Check if user has admin permissions
-
-    const db = getDb(c.env.DB);
-    const commentService = new CommentService(db);
+    const commentService = new CommentService(c.env.DB);
 
     const stats = await commentService.getCommentStats();
 
-    return createResponse(c, stats);
+    return c.json({ success: true, data: stats });
   } catch (error) {
     console.error('Error fetching comment stats:', error);
 
     if (error instanceof Error && error.message.includes('Authentication')) {
-      return createErrorResponse(c, error.message, 'auth_error', 401);
+      return c.json({ success: false, error: { type: 'auth_error', message: error.message } }, 401);
     }
 
-    return createErrorResponse(c, 'Failed to fetch comment stats', 'server_error', 500);
+    return c.json({ success: false, error: { type: 'server_error', message: 'Failed to fetch comment stats' } }, 500);
   }
 });
 

@@ -281,11 +281,13 @@ interface EmailTemplate {
 ### **Sprint 1: Kritische Blocker** (Completed 2025-10-01)
 
 #### **Schema-Alignment**
+
 - ✅ Korrektur: `entityType`/`entityId` statt veraltete `postId`-Referenzen
 - ✅ Anpassung: [performance-service.ts](../../src/lib/services/performance-service.ts) an tatsächliche DB-Struktur
 - ✅ Entfernung: Nicht-existente Felder (`likes`, `dislikes`, `authorAvatar`)
 
 #### **Admin-Berechtigungssystem**
+
 - ✅ **Neue Migration**: [0018_add_user_roles.sql](../../migrations/0018_add_user_roles.sql)
   - User-Roles: `user`, `moderator`, `admin`
   - Index für performante Role-Queries
@@ -303,6 +305,7 @@ interface EmailTemplate {
   - [admin/comments/[id]/moderate.ts](../../src/pages/api/admin/comments/[id]/moderate.ts) - Protected Routes
 
 #### **Code-Qualität**
+
 - ✅ Doppelte Type-Imports entfernt in [comment-service.ts](../../src/lib/services/comment-service.ts)
 - ✅ Fehlende API-Endpunkte implementiert
 
@@ -311,6 +314,7 @@ interface EmailTemplate {
 ### **Sprint 2: Wichtige Fixes** (Completed 2025-10-01)
 
 #### **Rate-Limiting Service-Layer**
+
 - ✅ **Erweitert**: [rate-limiter.ts](../../src/lib/rate-limiter.ts) (+58 Zeilen)
   - Neue `rateLimit()` Funktion für Service-Layer
   - Nutzt bestehende Store-Infrastruktur
@@ -318,6 +322,7 @@ interface EmailTemplate {
   - Beispiel: `await rateLimit('comment:${userId}', 5, 60);`
 
 #### **CSRF-Protection Server-Side**
+
 - ✅ **Erweitert**: [csrf.ts](../../src/lib/security/csrf.ts) (+100 Zeilen)
   - `validateCsrfToken()` - Format + Cookie-Validierung
   - `createCsrfMiddleware()` - Hono-Middleware für automatischen Schutz
@@ -325,12 +330,14 @@ interface EmailTemplate {
   - Production-Ready mit TODOs für KV-Store-Integration
 
 #### **Test-Infrastructure**
+
 - ✅ **Vollständig**: [comments.test.ts](../../tests/integration/comments.test.ts)
   - `resetDatabase()` implementiert mit Foreign-Key-Safe Deletion
   - Auto-Erstellung von Test-Usern (User ID 1, Admin ID 999)
   - Idempotente Setup-Funktionen
 
 #### **Settings-Management**
+
 - ✅ **Neue Migration**: [0019_create_settings_table.sql](../../migrations/0019_create_settings_table.sql)
   - Key-Value Store mit Kategorien (`comments`, `security`, `performance`, etc.)
   - `is_public` Flag für Frontend-Exposition
@@ -341,6 +348,7 @@ interface EmailTemplate {
   - Exportiertes `settings` Schema für Drizzle ORM
 
 **Default-Settings**:
+
 ```sql
 comment_moderation_enabled: true
 comment_auto_approve_trusted: false
@@ -357,9 +365,11 @@ notification_email_enabled: true
 ### **Sprint 3: UX-Verbesserungen** (Completed 2025-10-01)
 
 #### **Enhanced Spam-Detection**
+
 - ✅ **Neues Modul**: [spam-detection.ts](../../src/lib/spam-detection.ts) (380 Zeilen)
 
 **Multi-Layer Detection-System**:
+
 - **6 Detection-Layer** mit Scoring-Algorithmus (0-100+ Punkte)
   1. **Keyword-Check**: 40+ Spam-Keywords (Pharma, Casino, MLM, SEO)
   2. **Pattern-Detection**: Lange URLs, Wiederholungen, CAPS
@@ -369,6 +379,7 @@ notification_email_enabled: true
   6. **Caps-Lock-Check**: Übermäßige Großschreibung (>50%)
 
 **Strictness-Levels**:
+
 ```typescript
 low:    threshold >= 70 (permissiv)
 medium: threshold >= 50 (balanced) ← Default
@@ -376,11 +387,13 @@ high:   threshold >= 30 (streng)
 ```
 
 **Integration**:
+
 - ✅ [comment-service.ts](../../src/lib/services/comment-service.ts) - Ersetzt primitive 3-Keyword-Check
 - ✅ Detaillierte Fehler-Messages mit Rejection-Gründen
 - ✅ Test-Suite: [spam-detection.test.ts](../../tests/unit/spam-detection.test.ts) (89 Zeilen)
 
 #### **Mobile-Responsive Auto-Switch**
+
 - ✅ **Hook-Implementierung**: [CommentMobile.tsx](../../src/components/comments/CommentMobile.tsx)
   - `useIsMobile()` Hook mit Viewport + Touch-Detection
   - Responsive mit `resize` Event-Listener
@@ -395,6 +408,7 @@ high:   threshold >= 30 (streng)
     - Kompakte Darstellung
 
 **User Experience**:
+
 ```
 Desktop (>768px) → CommentList (Thread-View, Hover-Actions)
 Mobile  (<768px) → CommentMobile (Swipe-Actions, Touch-First)
@@ -406,6 +420,7 @@ Resize           → Automatischer Wechsel (responsive)
 ## Statistiken Sprint 1-3
 
 ### **Datei-Änderungen**
+
 - **Geänderte Dateien**: 8
 - **Neue Dateien**: 6
 - **Neue Migrationen**: 2 (0018, 0019)
@@ -413,6 +428,7 @@ Resize           → Automatischer Wechsel (responsive)
 - **Code-Zeilen hinzugefügt**: ~1.200
 
 ### **Neue Komponenten**
+
 | Datei | Zeilen | Beschreibung |
 |-------|--------|--------------|
 | `auth-helpers.ts` | 160 | Rollenbasiertes Auth-System |
@@ -422,6 +438,7 @@ Resize           → Automatischer Wechsel (responsive)
 | Migration 0019 | 38 | Settings-Tabelle |
 
 ### **Erweiterte Module**
+
 | Datei | +Zeilen | Features |
 |-------|---------|----------|
 | `rate-limiter.ts` | +58 | Service-Layer Rate-Limiting |
@@ -435,6 +452,7 @@ Resize           → Automatischer Wechsel (responsive)
 ## Deployment-Checklist
 
 ### **Pre-Deployment**
+
 - [x] Alle Migrationen (0018-0019) bereit
 - [x] TypeScript kompiliert ohne Fehler
 - [x] Admin-Auth-System vollständig
@@ -447,6 +465,7 @@ Resize           → Automatischer Wechsel (responsive)
 - [ ] ENV-Variablen konfigurieren
 
 ### **Post-Deployment**
+
 - [ ] Smoke-Tests in Production durchführen
 - [ ] Spam-Detection Schwellenwerte überwachen
 - [ ] Performance-Metriken validieren
@@ -458,6 +477,7 @@ Resize           → Automatischer Wechsel (responsive)
 ## Technische Details
 
 ### **Architektur-Verbesserungen**
+
 - **Authentication**: Session-basiert mit D1-backed User-Roles
 - **Authorization**: Middleware-basierte RBAC (Role-Based Access Control)
 - **Security**: Multi-Layer (CSRF, Rate-Limiting, Spam-Detection)
@@ -465,12 +485,14 @@ Resize           → Automatischer Wechsel (responsive)
 - **Responsiveness**: Viewport-basierter Auto-Switch für Mobile
 
 ### **API-Compliance**
+
 - **REST-Standards**: Konsistente Response-Formate
 - **HTTP-Codes**: Korrekte Status-Codes (401, 403, 429, 500)
 - **Error-Handling**: Strukturierte Error-Responses
 - **Rate-Limiting**: RFC 6585 konforme `Retry-After` Headers
 
 ### **Testing-Coverage**
+
 - **Unit-Tests**: 159/189 passed (84% Pass-Rate)
 - **TypeScript**: 0 Fehler in neuen Dateien
 - **Spam-Detection**: 6/9 Tests bestehen (konservative Kalibrierung)
@@ -481,6 +503,7 @@ Resize           → Automatischer Wechsel (responsive)
 ## Bekannte Einschränkungen & TODOs
 
 ### **Phase 6 (Optional)**
+
 - [ ] WebSocket-Integration für Real-time Updates
 - [ ] CSRF-Token gegen KV-Store validieren (Replay-Attack Prevention)
 - [ ] Spam-Detection ML-Modell trainieren
@@ -488,6 +511,7 @@ Resize           → Automatischer Wechsel (responsive)
 - [ ] E2E-Tests für gesamten Comment-Flow
 
 ### **Performance-Optimierungen**
+
 - [ ] Redis-basiertes Rate-Limiting für Production
 - [ ] CDN-Integration für Comment-Avatare
 - [ ] Server-Side Rendering für SEO

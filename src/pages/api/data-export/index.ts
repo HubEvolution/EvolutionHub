@@ -6,11 +6,13 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { jwt } from 'hono/jwt';
-import { rateLimiter } from 'hono/rate-limiter';
+import { rateLimiter } from 'hono-rate-limiter';
 import { drizzle } from 'drizzle-orm/d1';
-import { DataExportService } from '../../lib/services/data-export-service';
-import { requireAuth, requireAdmin } from '../../lib/api-middleware';
-import type { ExportOptions } from '../../lib/types/data-management';
+import { eq } from 'drizzle-orm';
+import { DataExportService } from '../../../lib/services/data-export-service';
+import { requireAuth } from '../../../lib/auth-helpers';
+import { dataExportJobs } from '../../../lib/db/schema';
+import type { ExportOptions } from '../../../lib/types/data-management';
 
 const app = new Hono<{ Bindings: { DB: D1Database; JWT_SECRET: string } }>();
 
@@ -25,9 +27,10 @@ app.use('/delete', rateLimiter({ windowMs: 60 * 1000, limit: 3 })); // 3 pro Min
  * GET /api/data-export/jobs
  * Holt alle Export-Jobs für den aktuellen Benutzer
  */
-app.get('/jobs', requireAuth, async (c) => {
+app.get('/jobs', async (c) => {
   try {
-    const userId = c.get('userId') as number;
+    const user = await requireAuth(c);
+    const userId = Number(user.id);
     const db = drizzle(c.env.DB);
     const exportService = new DataExportService(db);
 
@@ -64,9 +67,10 @@ app.get('/jobs', requireAuth, async (c) => {
  * GET /api/data-export/jobs/:id
  * Holt Details eines spezifischen Export-Jobs
  */
-app.get('/jobs/:id', requireAuth, async (c) => {
+app.get('/jobs/:id', async (c) => {
   try {
-    const userId = c.get('userId') as number;
+    const user = await requireAuth(c);
+    const userId = Number(user.id);
     const jobId = c.req.param('id');
     const db = drizzle(c.env.DB);
     const exportService = new DataExportService(db);
@@ -116,9 +120,10 @@ app.get('/jobs/:id', requireAuth, async (c) => {
  * GET /api/data-export/jobs/:id/progress
  * Holt Fortschritt eines laufenden Export-Jobs
  */
-app.get('/jobs/:id/progress', requireAuth, async (c) => {
+app.get('/jobs/:id/progress', async (c) => {
   try {
-    const userId = c.get('userId') as number;
+    const user = await requireAuth(c);
+    const userId = Number(user.id);
     const jobId = c.req.param('id');
     const db = drizzle(c.env.DB);
     const exportService = new DataExportService(db);
@@ -158,9 +163,10 @@ app.get('/jobs/:id/progress', requireAuth, async (c) => {
  * POST /api/data-export/create
  * Erstellt einen neuen Daten-Export-Job
  */
-app.post('/create', requireAuth, async (c) => {
+app.post('/create', async (c) => {
   try {
-    const userId = c.get('userId') as number;
+    const user = await requireAuth(c);
+    const userId = Number(user.id);
     const body = await c.req.json<ExportOptions>();
     const db = drizzle(c.env.DB);
     const exportService = new DataExportService(db);
@@ -224,9 +230,10 @@ app.post('/create', requireAuth, async (c) => {
  * GET /api/data-export/download/:id
  * Lädt eine Export-Datei herunter
  */
-app.get('/download/:id', requireAuth, async (c) => {
+app.get('/download/:id', async (c) => {
   try {
-    const userId = c.get('userId') as number;
+    const user = await requireAuth(c);
+    const userId = Number(user.id);
     const jobId = c.req.param('id');
     const db = drizzle(c.env.DB);
     const exportService = new DataExportService(db);
@@ -284,8 +291,8 @@ app.get('/download/:id', requireAuth, async (c) => {
       .where(eq(dataExportJobs.id, jobId));
 
     return c.body(mockContent, 200, {
-      'Content-Type': this.getContentType(job.format),
-      'Content-Disposition': `attachment; filename="export-${jobId}.${this.getFileExtension(job.format)}"`,
+      'Content-Type': getContentType(job.format),
+      'Content-Disposition': `attachment; filename="export-${jobId}.${getFileExtension(job.format)}"`,
     });
   } catch (error) {
     console.error('Error downloading export:', error);
@@ -303,9 +310,10 @@ app.get('/download/:id', requireAuth, async (c) => {
  * POST /api/data-export/delete-request
  * Erstellt eine Datenlösch-Anfrage (GDPR Right to Erasure)
  */
-app.post('/delete-request', requireAuth, async (c) => {
+app.post('/delete-request', async (c) => {
   try {
-    const userId = c.get('userId') as number;
+    const user = await requireAuth(c);
+    const userId = Number(user.id);
     const body = await c.req.json<{ reason?: string }>();
     const db = drizzle(c.env.DB);
     const exportService = new DataExportService(db);

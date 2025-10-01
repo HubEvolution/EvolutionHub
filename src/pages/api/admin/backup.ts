@@ -8,17 +8,43 @@ import { cors } from 'hono/cors';
 import { jwt } from 'hono/jwt';
 import { rateLimiter } from 'hono-rate-limiter';
 import { drizzle } from 'drizzle-orm/d1';
-import { BackupService } from '../../lib/services/backup-service';
-import { requireAdmin } from '../../lib/api-middleware';
-import type { BackupOptions } from '../../lib/types/data-management';
+import { BackupService } from '../../../lib/services/backup-service';
+import { requireAdmin } from '../../../lib/auth-helpers';
+import type { BackupOptions } from '../../../lib/types/data-management';
 
-const app = new Hono<{ Bindings: { DB: D1Database; JWT_SECRET: string } }>();
+const app = new Hono<{
+  Bindings: { DB: D1Database; JWT_SECRET: string };
+  Variables: { userId: number };
+}>();
 
 // Middleware
 app.use('/*', cors());
 app.use('/*', jwt({ secret: process.env.JWT_SECRET! }));
-app.use('/*', rateLimiter({ windowMs: 60 * 1000, limit: 10 })); // 10 pro Minute für Admins
-app.use('/*', requireAdmin);
+app.use('/*', rateLimiter({
+  windowMs: 60 * 1000,
+  limit: 10,
+  keyGenerator: (c) =>
+    c.req.header('cf-connecting-ip') ||
+    c.req.header('x-forwarded-for') ||
+    c.req.header('x-real-ip') ||
+    'anonymous'
+})); // 10 pro Minute für Admins
+app.use('/*', async (c, next) => {
+  try {
+    const user = await requireAdmin({
+      req: { header: (name: string) => c.req.header(name) },
+      request: c.req.raw,
+      env: { DB: c.env.DB },
+    });
+    c.set('userId', Number(user.id));
+    await next();
+  } catch {
+    return c.json({
+      success: false,
+      error: { type: 'auth_error', message: 'Unauthorized' },
+    }, 401);
+  }
+});
 
 /**
  * GET /api/admin/backup/jobs

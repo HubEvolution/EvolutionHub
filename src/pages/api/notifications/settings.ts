@@ -1,12 +1,14 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { jwt } from 'hono/jwt';
-import { rateLimit } from '../../lib/rate-limiter';
-import { NotificationService } from '../../lib/services/notification-service';
-import { getDb } from '../../lib/db/helpers';
-import type { UpdateNotificationSettingsRequest } from '../../lib/types/notifications';
+import { rateLimit } from '../../../lib/rate-limiter';
+import { NotificationService } from '../../../lib/services/notification-service';
+import { drizzle } from 'drizzle-orm/d1';
+import { eq } from 'drizzle-orm';
+import { notificationSettings } from '../../../lib/db/schema';
+import type { UpdateNotificationSettingsRequest } from '../../../lib/types/notifications';
 
-const app = new Hono();
+const app = new Hono<{ Bindings: { DB: D1Database; JWT_SECRET: string } }>();
 
 // Apply CORS middleware
 app.use('*', cors({
@@ -37,8 +39,7 @@ app.get('/', async (c) => {
     // Rate limiting: 20 requests per minute
     await rateLimit(`notifications:settings:${userId}`, 20, 60);
 
-    const db = getDb(c.env.DB);
-    const notificationService = new NotificationService(db);
+    const notificationService = new NotificationService(c.env.DB);
 
     const settings = await notificationService.getUserNotificationSettings(userId);
 
@@ -122,14 +123,12 @@ app.post('/', async (c) => {
       frequency: frequency || 'immediate',
     };
 
-    const db = getDb(c.env.DB);
-    const notificationService = new NotificationService(db);
+    const notificationService = new NotificationService(c.env.DB);
 
-    const updatedSetting = await notificationService.updateNotificationSettings(userId, request);
+    await notificationService.updateNotificationSettings(userId, request);
 
     return c.json({
       success: true,
-      data: updatedSetting,
     });
   } catch (error) {
     console.error('Error updating notification settings:', error);
@@ -151,8 +150,7 @@ app.post('/initialize', async (c) => {
     // Rate limiting: 5 requests per hour (users shouldn't need to initialize often)
     await rateLimit(`notifications:settings:init:${userId}`, 5, 3600);
 
-    const db = getDb(c.env.DB);
-    const notificationService = new NotificationService(db);
+    const notificationService = new NotificationService(c.env.DB);
 
     await notificationService.initializeDefaultSettings(userId);
 
@@ -182,10 +180,10 @@ app.post('/reset', async (c) => {
     // Rate limiting: 5 requests per hour
     await rateLimit(`notifications:settings:reset:${userId}`, 5, 3600);
 
-    const db = getDb(c.env.DB);
-    const notificationService = new NotificationService(db);
+    const notificationService = new NotificationService(c.env.DB);
 
     // Delete existing settings
+    const db = drizzle(c.env.DB);
     await db.delete(notificationSettings).where(eq(notificationSettings.userId, userId));
 
     // Initialize with defaults

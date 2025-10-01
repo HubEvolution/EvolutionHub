@@ -3,12 +3,11 @@ import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
 import { rateLimiter } from 'hono-rate-limiter';
 import { CommentService } from '../../../lib/services/comment-service';
-import { getDb } from '../../../lib/db/helpers';
-import { authenticateUser } from '../../../lib/auth';
-import { createResponse, createErrorResponse } from '../../../lib/response-helpers';
+import { getAuthUser } from '../../../lib/auth-helpers';
+import { createCsrfMiddleware } from '../../../lib/security/csrf';
 import type { CreateCommentRequest, CommentFilters } from '../../../lib/types/comments';
 
-const app = new Hono();
+const app = new Hono<{ Bindings: { DB: D1Database } }>();
 
 // Middleware
 app.use('*', logger());
@@ -27,19 +26,22 @@ app.use('*', cors({
 app.use('/create', rateLimiter({
   windowMs: 60 * 1000, // 1 minute
   limit: 5, // 5 comments per minute
-  keyGenerator: (c) => {
-    // Use user ID if authenticated, otherwise IP
-    const user = c.get('user');
-    return user?.id?.toString() || c.req.header('CF-Connecting-IP') || 'anonymous';
-  },
+  keyGenerator: (c) =>
+    c.req.header('CF-Connecting-IP') ||
+    c.req.header('cf-connecting-ip') ||
+    c.req.header('x-forwarded-for') ||
+    c.req.header('x-real-ip') ||
+    'anonymous',
   message: { success: false, error: { type: 'rate_limit', message: 'Too many comments' } },
 }));
+
+// CSRF protection for mutating route
+app.use('/create', createCsrfMiddleware());
 
 // GET /api/comments - List comments with filtering
 app.get('/', async (c) => {
   try {
-    const db = getDb(c.env.DB);
-    const commentService = new CommentService(db);
+    const commentService = new CommentService(c.env.DB);
 
     const query = c.req.query();
 
@@ -55,48 +57,49 @@ app.get('/', async (c) => {
     };
 
     const result = await commentService.listComments(filters);
-
-    return createResponse(c, result);
+    return c.json({ success: true, data: result });
   } catch (error) {
     console.error('Error fetching comments:', error);
-    return createErrorResponse(c, 'Failed to fetch comments', 'server_error', 500);
+    return c.json({ success: false, error: { type: 'server_error', message: 'Failed to fetch comments' } }, 500);
   }
 });
 
 // POST /api/comments/create - Create a new comment
 app.post('/create', async (c) => {
   try {
-    const db = getDb(c.env.DB);
-    const commentService = new CommentService(db);
+    const commentService = new CommentService(c.env.DB);
 
     // Authenticate user (optional for guest comments)
-    const user = await authenticateUser(c);
-    const userId = user?.id;
+    const user = await getAuthUser({
+      req: { header: (name: string) => c.req.header(name) },
+      request: c.req.raw,
+      env: { DB: c.env.DB },
+    });
+    const userId = user ? Number(user.id) : undefined;
 
     const body = await c.req.json<CreateCommentRequest & { csrfToken?: string }>();
     const { csrfToken, ...commentData } = body;
 
     // Validate required fields
     if (!commentData.content || !commentData.entityType || !commentData.entityId) {
-      return createErrorResponse(c, 'Missing required fields', 'validation_error', 400);
+      return c.json({ success: false, error: { type: 'validation_error', message: 'Missing required fields' } }, 400);
     }
 
     const comment = await commentService.createComment(commentData, userId, csrfToken);
-
-    return createResponse(c, comment, 201);
+    return c.json({ success: true, data: comment }, 201);
   } catch (error) {
     console.error('Error creating comment:', error);
 
     if (error instanceof Error) {
       if (error.message.includes('CSRF') || error.message.includes('rate limit')) {
-        return createErrorResponse(c, error.message, 'validation_error', 400);
+        return c.json({ success: false, error: { type: 'validation_error', message: error.message } }, 400);
       }
       if (error.message.includes('prohibited content')) {
-        return createErrorResponse(c, error.message, 'validation_error', 400);
+        return c.json({ success: false, error: { type: 'validation_error', message: error.message } }, 400);
       }
     }
 
-    return createErrorResponse(c, 'Failed to create comment', 'server_error', 500);
+    return c.json({ success: false, error: { type: 'server_error', message: 'Failed to create comment' } }, 500);
   }
 });
 

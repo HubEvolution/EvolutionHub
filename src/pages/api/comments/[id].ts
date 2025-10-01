@@ -2,12 +2,11 @@ import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
 import { CommentService } from '../../../lib/services/comment-service';
-import { getDb } from '../../../lib/db/helpers';
-import { authenticateUser } from '../../../lib/auth';
-import { createResponse, createErrorResponse } from '../../../lib/response-helpers';
+import { requireAuth } from '../../../lib/auth-helpers';
+import { createCsrfMiddleware } from '../../../lib/security/csrf';
 import type { UpdateCommentRequest } from '../../../lib/types/comments';
 
-const app = new Hono();
+const app = new Hono<{ Bindings: { DB: D1Database } }>();
 
 // Middleware
 app.use('*', logger());
@@ -21,24 +20,26 @@ app.use('*', cors({
   credentials: true,
 }));
 
+// CSRF protection for mutating methods on /:id
+app.use('/:id', createCsrfMiddleware());
+
 // GET /api/comments/[id] - Get a specific comment
 app.get('/:id', async (c) => {
   try {
     const commentId = c.req.param('id');
-    const db = getDb(c.env.DB);
-    const commentService = new CommentService(db);
+    const commentService = new CommentService(c.env.DB);
 
     const comment = await commentService.getCommentById(commentId);
 
-    return createResponse(c, comment);
+    return c.json({ success: true, data: comment });
   } catch (error) {
     console.error('Error fetching comment:', error);
 
     if (error instanceof Error && error.message.includes('not found')) {
-      return createErrorResponse(c, 'Comment not found', 'not_found', 404);
+      return c.json({ success: false, error: { type: 'not_found', message: 'Comment not found' } }, 404);
     }
 
-    return createErrorResponse(c, 'Failed to fetch comment', 'server_error', 500);
+    return c.json({ success: false, error: { type: 'server_error', message: 'Failed to fetch comment' } }, 500);
   }
 });
 
@@ -46,43 +47,42 @@ app.get('/:id', async (c) => {
 app.put('/:id', async (c) => {
   try {
     const commentId = c.req.param('id');
-    const user = await authenticateUser(c);
-
-    if (!user) {
-      return createErrorResponse(c, 'Authentication required', 'auth_error', 401);
-    }
+    const user = await requireAuth({
+      req: { header: (name: string) => c.req.header(name) },
+      request: c.req.raw,
+      env: { DB: c.env.DB },
+    });
 
     const body = await c.req.json<UpdateCommentRequest & { csrfToken: string }>();
     const { csrfToken, ...updateData } = body;
 
     if (!csrfToken) {
-      return createErrorResponse(c, 'CSRF token required', 'validation_error', 400);
+      return c.json({ success: false, error: { type: 'validation_error', message: 'CSRF token required' } }, 400);
     }
 
-    const db = getDb(c.env.DB);
-    const commentService = new CommentService(db);
+    const commentService = new CommentService(c.env.DB);
 
     const updatedComment = await commentService.updateComment(
       commentId,
       updateData,
-      user.id,
+      Number(user.id),
       csrfToken
     );
 
-    return createResponse(c, updatedComment);
+    return c.json({ success: true, data: updatedComment });
   } catch (error) {
     console.error('Error updating comment:', error);
 
     if (error instanceof Error) {
       if (error.message.includes('CSRF') || error.message.includes('not found')) {
-        return createErrorResponse(c, error.message, 'validation_error', 400);
+        return c.json({ success: false, error: { type: 'validation_error', message: error.message } }, 400);
       }
       if (error.message.includes('Authentication')) {
-        return createErrorResponse(c, error.message, 'auth_error', 401);
+        return c.json({ success: false, error: { type: 'auth_error', message: error.message } }, 401);
       }
     }
 
-    return createErrorResponse(c, 'Failed to update comment', 'server_error', 500);
+    return c.json({ success: false, error: { type: 'server_error', message: 'Failed to update comment' } }, 500);
   }
 });
 
@@ -90,38 +90,37 @@ app.put('/:id', async (c) => {
 app.delete('/:id', async (c) => {
   try {
     const commentId = c.req.param('id');
-    const user = await authenticateUser(c);
-
-    if (!user) {
-      return createErrorResponse(c, 'Authentication required', 'auth_error', 401);
-    }
+    const user = await requireAuth({
+      req: { header: (name: string) => c.req.header(name) },
+      request: c.req.raw,
+      env: { DB: c.env.DB },
+    });
 
     const body = await c.req.json<{ csrfToken: string }>();
     const { csrfToken } = body;
 
     if (!csrfToken) {
-      return createErrorResponse(c, 'CSRF token required', 'validation_error', 400);
+      return c.json({ success: false, error: { type: 'validation_error', message: 'CSRF token required' } }, 400);
     }
 
-    const db = getDb(c.env.DB);
-    const commentService = new CommentService(db);
+    const commentService = new CommentService(c.env.DB);
 
-    await commentService.deleteComment(commentId, user.id, csrfToken);
+    await commentService.deleteComment(commentId, Number(user.id), csrfToken);
 
-    return createResponse(c, { message: 'Comment deleted successfully' });
+    return c.json({ success: true, data: { message: 'Comment deleted successfully' } });
   } catch (error) {
     console.error('Error deleting comment:', error);
 
     if (error instanceof Error) {
       if (error.message.includes('CSRF') || error.message.includes('not found')) {
-        return createErrorResponse(c, error.message, 'validation_error', 400);
+        return c.json({ success: false, error: { type: 'validation_error', message: error.message } }, 400);
       }
       if (error.message.includes('Authentication')) {
-        return createErrorResponse(c, error.message, 'auth_error', 401);
+        return c.json({ success: false, error: { type: 'auth_error', message: error.message } }, 401);
       }
     }
 
-    return createErrorResponse(c, 'Failed to delete comment', 'server_error', 500);
+    return c.json({ success: false, error: { type: 'server_error', message: 'Failed to delete comment' } }, 500);
   }
 });
 

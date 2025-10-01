@@ -2,10 +2,8 @@ import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
 import { CommentService } from '../../../../lib/services/comment-service';
-import { getDb } from '../../../../lib/db/helpers';
 import { requireAdmin } from '../../../../lib/auth-helpers';
-
-const app = new Hono();
+const app = new Hono<{ Bindings: { DB: D1Database } }>();
 
 // Middleware
 app.use('*', logger());
@@ -24,10 +22,13 @@ app.use('*', cors({
 app.get('/', async (c) => {
   try {
     // Require admin role
-    await requireAdmin(c);
+    await requireAdmin({
+      req: { header: (name: string) => c.req.header(name) },
+      request: c.req.raw,
+      env: { DB: c.env.DB },
+    });
 
-    const db = getDb(c.env.DB);
-    const commentService = new CommentService(db);
+    const commentService = new CommentService(c.env.DB);
 
     const query = c.req.query();
 
@@ -71,10 +72,13 @@ app.get('/', async (c) => {
 app.get('/stats', async (c) => {
   try {
     // Require admin role
-    await requireAdmin(c);
+    await requireAdmin({
+      req: { header: (name: string) => c.req.header(name) },
+      request: c.req.raw,
+      env: { DB: c.env.DB },
+    });
 
-    const db = getDb(c.env.DB);
-    const commentService = new CommentService(db);
+    const commentService = new CommentService(c.env.DB);
 
     const stats = await commentService.getCommentStats();
 
@@ -93,41 +97,36 @@ app.get('/stats', async (c) => {
 // GET /api/admin/comments/queue - Get comments needing moderation
 app.get('/queue', async (c) => {
   try {
-    const user = await authenticateUser(c);
+    await requireAdmin({
+      req: { header: (name: string) => c.req.header(name) },
+      request: c.req.raw,
+      env: { DB: c.env.DB },
+    });
 
-    if (!user) {
-      return createErrorResponse(c, 'Authentication required', 'auth_error', 401);
-    }
-
-    // TODO: Check if user has moderation permissions
-
-    const db = getDb(c.env.DB);
-    const commentService = new CommentService(db);
+    const commentService = new CommentService(c.env.DB);
 
     const queue = await commentService.getModerationQueue();
 
-    return createResponse(c, queue);
+    return c.json({ success: true, data: queue });
   } catch (error) {
     console.error('Error fetching moderation queue:', error);
 
     if (error instanceof Error && error.message.includes('Authentication')) {
-      return createErrorResponse(c, error.message, 'auth_error', 401);
+      return c.json({ success: false, error: { type: 'auth_error', message: error.message } }, 401);
     }
 
-    return createErrorResponse(c, 'Failed to fetch moderation queue', 'server_error', 500);
+    return c.json({ success: false, error: { type: 'server_error', message: 'Failed to fetch moderation queue' } }, 500);
   }
 });
 
 // POST /api/admin/comments/bulk-moderate - Bulk moderation actions
 app.post('/bulk-moderate', async (c) => {
   try {
-    const user = await authenticateUser(c);
-
-    if (!user) {
-      return createErrorResponse(c, 'Authentication required', 'auth_error', 401);
-    }
-
-    // TODO: Check if user has admin permissions
+    const user = await requireAdmin({
+      req: { header: (name: string) => c.req.header(name) },
+      request: c.req.raw,
+      env: { DB: c.env.DB },
+    });
 
     const body = await c.req.json<{
       commentIds: string[];
@@ -138,15 +137,14 @@ app.post('/bulk-moderate', async (c) => {
     const { commentIds, action, reason } = body;
 
     if (!commentIds || !Array.isArray(commentIds) || commentIds.length === 0) {
-      return createErrorResponse(c, 'Comment IDs array required', 'validation_error', 400);
+      return c.json({ success: false, error: { type: 'validation_error', message: 'Comment IDs array required' } }, 400);
     }
 
     if (!['approve', 'reject', 'flag', 'hide'].includes(action)) {
-      return createErrorResponse(c, 'Invalid action', 'validation_error', 400);
+      return c.json({ success: false, error: { type: 'validation_error', message: 'Invalid action' } }, 400);
     }
 
-    const db = getDb(c.env.DB);
-    const commentService = new CommentService(db);
+    const commentService = new CommentService(c.env.DB);
 
     const results = [];
 
@@ -154,8 +152,8 @@ app.post('/bulk-moderate', async (c) => {
       try {
         const moderation = await commentService.moderateComment(
           commentId,
-          { status: action, reason },
-          user.id
+          { action, reason },
+          Number(user.id)
         );
         results.push({ commentId, success: true, moderation });
       } catch (error) {
@@ -167,10 +165,10 @@ app.post('/bulk-moderate', async (c) => {
       }
     }
 
-    return createResponse(c, { results });
+    return c.json({ success: true, data: { results } });
   } catch (error) {
     console.error('Error in bulk moderation:', error);
-    return createErrorResponse(c, 'Failed to perform bulk moderation', 'server_error', 500);
+    return c.json({ success: false, error: { type: 'server_error', message: 'Failed to perform bulk moderation' } }, 500);
   }
 });
 
