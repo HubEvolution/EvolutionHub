@@ -21,6 +21,7 @@ Diese Dokumentation beschreibt die vollständig automatisierte Continuous Integr
 Die CI/CD-Pipeline implementiert alle Anforderungen aus [CLAUDE.md](../../CLAUDE.md#6-testing--cicd):
 
 ✅ **CI-Gates (alle müssen grün sein):**
+
 - Lint/Format Check (ESLint + Prettier)
 - TypeScript Check (`astro check`)
 - Unit/Integration Tests (Coverage ≥70%)
@@ -28,6 +29,7 @@ Die CI/CD-Pipeline implementiert alle Anforderungen aus [CLAUDE.md](../../CLAUDE
 - Security-Scan (`npm audit`)
 
 ✅ **Deployment:**
+
 - Automatisch via Git Tags oder manuell via GitHub Actions UI
 - Health-Check nach jedem Deployment
 - Production-Deployment erfordert manuelle Approval
@@ -74,42 +76,52 @@ graph TD
 **Jobs (parallel):**
 
 #### A) `lint` — Lint & Format Check
+
 ```bash
 npm run lint              # ESLint (max-warnings=280)
 npm run format:check      # Prettier Check
 ```
 
 #### B) `security` — Security Audit
+
 ```bash
 npm audit --audit-level=moderate
 ```
+
 Schlägt fehl bei moderate/high/critical Vulnerabilities.
 
 #### C) `unit` — Unit Tests + Coverage
+
 ```bash
 npx vitest run --coverage
 ```
+
 - Coverage-Threshold: **≥70%** (statements, branches, functions, lines)
 - Upload zu Codecov
 
 #### D) `e2e` — E2E Tests
+
 ```bash
 npm run test:e2e -- --base-url=https://ci.hub-evolution.com
 ```
+
 Playwright gegen Testing-Environment.
 
 #### E) `check` — TypeScript Check
+
 ```bash
 npx astro check --tsconfig tsconfig.astro.json
 ```
 
 #### F) `openapi` — OpenAPI Validation
+
 ```bash
 npx swagger-cli validate openapi.yaml
 npx redoc-cli build openapi.yaml -o api-docs.html
 ```
 
 #### G) `prompt-enhancer-tests` — Spezielle Tests
+
 - Startet Dev-Worker (Background)
 - Unit + Integration Tests für Prompt-Enhancer
 
@@ -118,13 +130,16 @@ npx redoc-cli build openapi.yaml -o api-docs.html
 ### 2. **Deploy to Cloudflare** (`.github/workflows/deploy.yml`)
 
 **Trigger:**
+
 - **Git Tags:** `v*.*.*` (z.B. `v1.7.1`)
 - **Manuell:** Actions UI → "Run workflow" → Environment wählen
 
 **Jobs:**
 
 #### A) `pre-deploy` — Alle CI-Gates
+
 Führt parallel aus:
+
 - Lint + Format Check
 - TypeScript Check
 - Unit Tests mit Coverage (≥70%)
@@ -133,6 +148,7 @@ Führt parallel aus:
 **Nur wenn alle grün:** Weiter zu Deploy.
 
 #### B) `deploy-staging`
+
 ```yaml
 environment:
   name: staging
@@ -147,6 +163,7 @@ steps:
 **Nur wenn Staging OK:** Weiter zu Production.
 
 #### C) `deploy-production`
+
 ```yaml
 environment:
   name: production
@@ -165,6 +182,7 @@ steps:
 ```
 
 #### D) `notify-failure`
+
 Loggt Fehlerdetails bei Deployment-Failure.
 
 ---
@@ -174,6 +192,7 @@ Loggt Fehlerdetails bei Deployment-Failure.
 **Trigger:** Push/PRs (wenn relevante Pfade geändert), manuell
 
 **Jobs:**
+
 1. **unit** (Node 22): Astro Check, Vitest Coverage
 2. **integration** (benötigt `unit`): Vitest Integration gegen `vars.TEST_BASE_URL`
 3. **test** (benötigt `unit` + `integration`): Playwright E2E, i18n-Report
@@ -185,6 +204,7 @@ Loggt Fehlerdetails bei Deployment-Failure.
 ### 4. **Smoke-Tests** (gezielte Überwachung)
 
 #### **enhancer-e2e-smoke.yml**
+
 - **Trigger:** PRs zu `main`, manuell
 - **Zweck:** Schneller UI-Smoke für Image Enhancer (EN + DE)
 - **Browser:** Chromium-only
@@ -192,16 +212,19 @@ Loggt Fehlerdetails bei Deployment-Failure.
 - **Optimierung:** Browser-Caching, Preflight-Diagnostik
 
 #### **prompt-enhancer-e2e-smoke.yml**
+
 - **Trigger:** PRs zu `main`, manuell
 - **Zweck:** Prompt-Enhancer E2E (Chromium, Firefox, WebKit)
 - **Target:** Lokaler Dev-Worker (Auto-Start via Playwright Config)
 
 #### **pricing-smoke.yml**
+
 - **Trigger:** PRs/Pushes (Pricing-Änderungen), täglich 02:00 UTC, manuell
 - **Zweck:** Pricing-Seite Smoke
 - **Target:** `TEST_BASE_URL` (Standard: `ci.hub-evolution.com`)
 
 #### **prod-auth-smoke.yml**
+
 - **Trigger:** Täglich 04:00 UTC, manuell (mit Gate)
 - **Zweck:** Production Auth-Flow-Test gegen `hub-evolution.com`
 - **Gated:** `E2E_PROD_AUTH_SMOKE=1` + `STYTCH_TEST_EMAIL` erforderlich
@@ -214,6 +237,7 @@ Loggt Fehlerdetails bei Deployment-Failure.
 **Trigger:** PRs, Push auf `main`
 
 **Jobs:**
+
 - Validiert i18n-Parity (EN/DE) via `scripts/i18n-validate.mjs`
 - Non-blocking Diff-Report
 
@@ -224,38 +248,45 @@ Loggt Fehlerdetails bei Deployment-Failure.
 Alle Gates laufen **parallel** und müssen **grün** sein:
 
 ### 1. Lint/Format ✅
+
 ```bash
 npm run lint              # ESLint
 npm run format:check      # Prettier
 ```
 
 **Lokal ausführen:**
+
 ```bash
 npm run format            # Auto-Fix
 npm run lint              # Check
 ```
 
 **Pre-Commit-Hook:** Husky führt automatisch aus:
+
 - `eslint --fix` auf geänderte `*.{ts,tsx,astro}`-Files
 - `prettier --write` auf geänderte Files
 
 ### 2. TypeScript Check ✅
+
 ```bash
 npx astro check --tsconfig tsconfig.astro.json
 ```
 
 ### 3. Tests + Coverage ✅
+
 ```bash
 npm run test:coverage
 ```
 
 **Coverage-Thresholds (global):**
+
 - Statements: ≥70%
 - Branches: ≥70%
 - Functions: ≥70%
 - Lines: ≥70%
 
 **Lokal ausführen:**
+
 ```bash
 npm test                  # Watch-Mode
 npm run test:once         # Single Run
@@ -263,22 +294,26 @@ npm run test:coverage     # Mit Coverage-Report
 ```
 
 ### 4. Security-Scan ✅
+
 ```bash
 npm audit --audit-level=moderate
 ```
 
 Schlägt fehl bei:
+
 - Moderate Vulnerabilities
 - High Vulnerabilities
 - Critical Vulnerabilities
 
 **Lokal ausführen:**
+
 ```bash
 npm audit
 npm audit fix             # Auto-Fix (wenn möglich)
 ```
 
 ### 5. E2E-Smoke ✅
+
 Playwright-Tests gegen Testing-Environment.
 
 ---
@@ -298,6 +333,7 @@ git push origin v1.7.1
 ```
 
 **Was passiert:**
+
 1. Pre-Deploy Checks (alle CI-Gates)
 2. Deploy Staging → Health Check
 3. ⏸️ Warte auf manuelle Approval
@@ -343,18 +379,21 @@ npm run health-check -- --url https://staging.hub-evolution.com
 ## Umgebungen
 
 ### 1. **Development** (Lokal)
+
 - **URL:** `http://127.0.0.1:8787`
 - **D1:** Lokale SQLite (`evolution-hub-main-local`)
 - **KV/R2:** Lokale Bindings
 - **Start:** `npm run dev:worker:dev`
 
 ### 2. **Testing/CI** (`env.testing`)
+
 - **URL:** `https://ci.hub-evolution.com`
 - **Zweck:** CI/E2E-Tests
 - **D1:** `evolution-hub-main-local` (separate Instanz)
 - **Deploy:** Automatisch via CI (nicht in deploy.yml)
 
 ### 3. **Staging** (`env.staging`)
+
 - **URL:** `https://staging.hub-evolution.com`
 - **Zweck:** Pre-Production Testing
 - **D1:** `evolution-hub-main-local`
@@ -362,6 +401,7 @@ npm run health-check -- --url https://staging.hub-evolution.com
 - **Protection:** Keine
 
 ### 4. **Production** (`env.production`)
+
 - **URL:** `https://hub-evolution.com` + `www.hub-evolution.com`
 - **Zweck:** Live-System
 - **D1:** `evolution-hub-main` (Production DB)
@@ -381,6 +421,7 @@ curl https://hub-evolution.com/api/health | jq
 ```
 
 **Response (200 OK):**
+
 ```json
 {
   "status": "ok",
@@ -396,6 +437,7 @@ curl https://hub-evolution.com/api/health | jq
 ```
 
 **Response (503 Service Unavailable):**
+
 ```json
 {
   "status": "degraded",
@@ -420,11 +462,13 @@ npm run health-check -- --url https://hub-evolution.com
 ```
 
 **Features:**
+
 - 3 Retries mit 5s Delay
 - 10s Timeout pro Request
 - Exit Code: 0 (OK), 1 (Fehler)
 
 **Verwendung in Deployment:**
+
 - Automatisch nach jedem Deploy
 - Schlägt Deployment fehl, wenn Health Check fehlschlägt
 
@@ -448,10 +492,12 @@ npm run health-check -- --url https://hub-evolution.com
 **Settings** → **Environments**
 
 #### **staging**
+
 - ❌ Keine Protection Rules
 - Automatisches Deployment ohne Approval
 
 #### **production**
+
 - ✅ **Required reviewers:** 1
 - ✅ **Deployment branches:** `main` + Pattern `v*`
 - Manuelle Approval erforderlich
@@ -525,6 +571,7 @@ git push origin v1.7.1
 ### CI schlägt fehl
 
 #### **Lint-Fehler**
+
 ```bash
 # Lokal fixen
 npm run format
@@ -536,6 +583,7 @@ git commit -m "style: fix lint errors"
 ```
 
 #### **Test-Fehler**
+
 ```bash
 # Tests lokal ausführen
 npm test
@@ -548,6 +596,7 @@ npx vitest tests/unit/example.test.ts
 ```
 
 #### **Security-Fehler**
+
 ```bash
 # Vulnerabilities anzeigen
 npm audit
@@ -560,6 +609,7 @@ npm update <package>
 ```
 
 #### **TypeScript-Fehler**
+
 ```bash
 # Lokal prüfen
 npx astro check
@@ -571,11 +621,13 @@ npx astro check --tsconfig tsconfig.astro.json
 ### Deployment schlägt fehl
 
 #### **Pre-Deploy Gates fehlgeschlagen**
+
 - Prüfe GitHub Actions Logs
 - Fixe fehlerhafte CI-Gates (siehe oben)
 - Push Fix → Workflow läuft erneut
 
 #### **Health Check fehlgeschlagen**
+
 ```bash
 # Manueller Health Check
 npm run health-check -- --url https://staging.hub-evolution.com
@@ -590,6 +642,7 @@ npx wrangler tail --env staging
 ```
 
 #### **Wrangler Deploy Error**
+
 ```bash
 # Secrets prüfen
 npx wrangler secret list --env production
