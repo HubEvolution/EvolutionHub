@@ -96,13 +96,104 @@ Die Anwendung ist dann unter der von Wrangler angegebenen Adresse verfügbar (z.
 
 ## 📦 Deployment
 
-Das Deployment erfolgt manuell über die Cloudflare Wrangler CLI in verschiedene Umgebungen:
+### Automatisches Deployment (Empfohlen)
 
-- **Testing**: `npx wrangler deploy --env testing` (ci.hub-evolution.com)
-- **Staging**: `npx wrangler deploy --env staging` (staging.hub-evolution.com)
-- **Production**: `npx wrangler deploy --env production` (hub-evolution.com)
+Das Projekt nutzt GitHub Actions für automatisierte Deployments mit vollständigen CI-Gates:
 
-Für detaillierte Anweisungen siehe [docs/local-development.md](docs/local-development.md).
+#### Via Git Tags (Production + Staging)
+```bash
+# Tag erstellen und pushen
+git tag v1.7.1
+git push origin v1.7.1
+```
+
+Dies startet automatisch:
+1. Pre-Deploy Checks (Lint, Tests, Security Audit)
+2. Deploy zu Staging
+3. Health Check (Staging)
+4. Deploy zu Production (erfordert manuelle Approval)
+5. Health Check (Production)
+6. GitHub Release erstellen
+
+#### Via GitHub Actions UI (Staging oder Production)
+1. Gehe zu **Actions** → **Deploy to Cloudflare**
+2. Klicke **Run workflow**
+3. Wähle Environment: `staging` oder `production`
+4. Klicke **Run workflow**
+
+### Manuelles Deployment (Fallback)
+
+Falls GitHub Actions nicht verfügbar ist:
+
+```bash
+# 1. Build erstellen
+npm run build:worker
+
+# 2. Deploy zu gewünschtem Environment
+npx wrangler deploy --env staging
+# oder
+npx wrangler deploy --env production
+
+# 3. Health Check ausführen
+npm run health-check -- --url https://staging.hub-evolution.com
+```
+
+### Benötigte GitHub Secrets
+
+Für automatisches Deployment müssen folgende Secrets in GitHub hinterlegt werden:
+
+1. **Repository Settings** → **Secrets and variables** → **Actions** → **New repository secret**
+
+| Secret Name | Beschreibung | Wo zu finden |
+|-------------|--------------|--------------|
+| `CLOUDFLARE_API_TOKEN` | Cloudflare API Token mit Workers:Edit-Rechten | Cloudflare Dashboard → My Profile → API Tokens → Create Token |
+| `CLOUDFLARE_ACCOUNT_ID` | Cloudflare Account-ID | Bereits in `wrangler.toml`: `39434b5635d8beb4bde93e1792b628d7` |
+
+2. **GitHub Environments einrichten**
+
+Settings → Environments → New environment:
+- **staging**: Keine Protection Rules
+- **production**:
+  - ✅ Required reviewers: 1
+  - ✅ Deployment branches: `main` + Tags `v*`
+
+### Health Check Endpoint
+
+Das Deployment prüft automatisch die Verfügbarkeit aller Services:
+
+```bash
+curl https://hub-evolution.com/api/health
+```
+
+Response:
+```json
+{
+  "status": "ok",
+  "services": {
+    "d1": true,
+    "kv": true,
+    "r2": true
+  },
+  "duration": "45ms",
+  "timestamp": "2025-01-15T10:30:00.000Z",
+  "version": "production"
+}
+```
+
+### Rollback-Strategie
+
+Bei fehlgeschlagenem Deployment:
+
+```bash
+# Option 1: Cloudflare Rollback (automatisch gespeichert)
+npx wrangler rollback --env production
+
+# Option 2: Vorherigen Tag deployen
+git checkout v1.7.0
+npx wrangler deploy --env production
+```
+
+Für detaillierte Anweisungen siehe [docs/development/local-development.md](docs/development/local-development.md).
 
 ## 🧪 Tests
 

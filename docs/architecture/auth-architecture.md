@@ -1,6 +1,6 @@
 # Authentifizierungs-Architektur
 
-Stand: 2025-09-11 – Post-Refactoring Phase 1. Diese Dokumentation fasst den aktuellen Authentifizierungsflow, die Migrationshistorie und Sicherheitsmaßnahmen zusammen. Für Middleware-Details siehe [api-middleware-inventory.md](api-middleware-inventory.md). Historische ADR: [adrs/0001-jwt-authentication.md](adrs/0001-jwt-authentication.md) (deprecated zugunsten serverseitiger Sessions).
+Stand: 2025-09-11 – Post-Refactoring Phase 1. Diese Dokumentation fasst den aktuellen Authentifizierungsflow, die Migrationshistorie und Sicherheitsmaßnahmen zusammen. Für Middleware-Details siehe [api-middleware-inventory.md](api-middleware-inventory.md). Historische ADR: [adrs/deprecated/0001-jwt-authentication.md](adrs/deprecated/0001-jwt-authentication.md) (deprecated zugunsten serverseitiger Sessions).
 
 ## Inhaltsverzeichnis
 
@@ -155,7 +155,7 @@ Die Migration von Entfernt (410 Gone) (E-Mail/Passwort mit Resend) zu Stytch Mag
 - **Status**: Phase 1 (Root-Workspace-Aliases) abgeschlossen 2025-09-04.
 - **Entfernt (410 Gone)-Endpunkte**: 410 Gone (z.B. `/api/auth/login`, `/register`, `/forgot-password`).
 - **Feature-Flag**: `AUTH_PROVIDER` steuert Entfernt (410 Gone) vs. Stytch; Guards in Middleware/Routen.
-- **Multi-Domain-Entscheidung**: Ein Stytch-Projekt mit whitelisten Redirect-URIs (Option A) für Einfachheit. Siehe ADR [0001-jwt-authentication.md](adrs/0001-jwt-authentication.md) für Übergang von JWT zu Sessions.
+- **Multi-Domain-Entscheidung**: Ein Stytch-Projekt mit whitelisten Redirect-URIs (Option A) für Einfachheit. Siehe ADR [deprecated/0001-jwt-authentication.md](adrs/deprecated/0001-jwt-authentication.md) für Übergang von JWT zu Sessions.
 
 Protokoll:
 
@@ -239,7 +239,7 @@ Stytch Dashboard: TEST-Umgebung für Dev/Testing/Staging; LIVE für Prod.
 
 ## Testing
 
-Die Authentifizierung wird durch schrittweise Tests validiert, inkl. Stytch-Wrapper, Endpunkte und Flows. Ziel: >70% Coverage, CI-Integration (Vitest, Playwright gegen Wrangler mit TEST_BASE_URL). ADR-Referenz: Tests decken Übergang von JWT zu Sessions ab (siehe [0001-jwt-authentication.md](adrs/0001-jwt-authentication.md)).
+Die Authentifizierung wird durch schrittweise Tests validiert, inkl. Stytch-Wrapper, Endpunkte und Flows. Ziel: >70% Coverage, CI-Integration (Vitest, Playwright gegen Wrangler mit TEST_BASE_URL). ADR-Referenz: Tests decken Übergang von JWT zu Sessions ab (siehe [deprecated/0001-jwt-authentication.md](adrs/deprecated/0001-jwt-authentication.md)).
 
 ### Unit-Tests (Vitest)
 

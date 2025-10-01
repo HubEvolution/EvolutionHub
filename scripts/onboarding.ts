@@ -316,7 +316,7 @@ async function showDocumentation() {
   console.log('');
   console.log('Hier sind einige wichtige Dokumentationsdateien:');
   console.log('');
-  console.log(`- ${chalk.cyan('./docs/local-development.md')}: Anleitung zur lokalen Entwicklung`);
+  console.log(`- ${chalk.cyan('./docs/development/local-development.md')}: Anleitung zur lokalen Entwicklung`);
   console.log(`- ${chalk.cyan('./docs/cheat-sheet.md')}: Übersicht über häufig verwendete Befehle`);
   console.log(`- ${chalk.cyan('./docs/db_schema.md')}: Dokumentation des Datenbankschemas`);
   console.log('');
