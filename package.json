@@ -54,6 +54,7 @@
     "i18n:report": "node scripts/i18n-empty-report.mjs",
     "i18n:migrate": "node scripts/i18n-migrate-paths.mjs",
     "i18n:prune": "node scripts/i18n-prune-unused.mjs",
+    "docs:routes:normalize": "node scripts/normalize-routes-links.mjs",
     "tail:staging": "wrangler tail --env staging --format=pretty",
     "tail:prod": "wrangler tail --env production --format=pretty",
     "secrets:dev": "wrangler secret put STYTCH_PROJECT_ID --env development && wrangler secret put STYTCH_SECRET --env development",

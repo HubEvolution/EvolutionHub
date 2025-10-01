@@ -28,20 +28,49 @@ describe('i18n Utils', () => {
     expect(t('pages.blog.posts.count', { count: 5 })).toBe('5 Beiträge');
   });
 
-  it('should fallback to English for unknown locale', () => {
-    const t = getI18n('unknown');
+  it('should fallback to English for unknown locale (simulated)', () => {
+    // Simulate an invalid runtime locale by bypassing TS types
+    const t = (getI18n as any)('xx');
     expect(t('pages.blog.search.title')).toBe('Search the blog');
   });
-
   it('should use English plural for en locale', () => {
     vi.mocked(getLocale).mockReturnValue('en');
     const t = getI18n('en');
     expect(t('pages.blog.posts.count', { count: 1 })).toBe('1 post');
     expect(t('pages.blog.posts.count', { count: 5 })).toBe('5 posts');
   });
-
   it('should handle plural with options for en', () => {
     const t = getI18n('en');
     expect(t('pages.blog.posts.count', { count: 0 })).toBe('0 posts');
+  });
+
+  it('login keys exist for de and do not leak fallback markers', () => {
+    const t = getI18n('de');
+    const keys = [
+      'pages.login.form.oauth.github',
+      'pages.login.form.or',
+      'pages.login.form.no_account_prompt',
+      'pages.login.form.register_link',
+    ];
+    for (const k of keys) {
+      const v = t(k);
+      expect(typeof v).toBe('string');
+      expect(v).not.toContain('_fallback_not_found');
+    }
+  });
+
+  it('login keys exist for en and do not leak fallback markers', () => {
+    const t = getI18n('en');
+    const keys = [
+      'pages.login.form.oauth.github',
+      'pages.login.form.or',
+      'pages.login.form.no_account_prompt',
+      'pages.login.form.register_link',
+    ];
+    for (const k of keys) {
+      const v = t(k);
+      expect(typeof v).toBe('string');
+      expect(v).not.toContain('_fallback_not_found');
+    }
   });
 });

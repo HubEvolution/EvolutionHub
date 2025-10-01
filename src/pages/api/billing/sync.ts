@@ -1,4 +1,5 @@
 import { withAuthApiMiddleware } from '@/lib/api-middleware';
+import { createSecureErrorResponse, createSecureRedirect } from '@/lib/response-helpers';
 import Stripe from 'stripe';
 
 function parsePricingTable(raw: unknown): Record<string, string> {
@@ -26,7 +27,7 @@ export const GET = withAuthApiMiddleware(async (context) => {
   const env: any = locals?.runtime?.env ?? {};
 
   if (!user) {
-    return new Response('Unauthorized', { status: 401 });
+    return createSecureErrorResponse('Unauthorized', 401);
   }
 
   const url = new URL(request.url);
@@ -37,16 +38,10 @@ export const GET = withAuthApiMiddleware(async (context) => {
   const baseUrl: string = env.BASE_URL || `${requestUrl.protocol}//${requestUrl.host}`;
 
   if (!env.STRIPE_SECRET) {
-    return new Response(null, {
-      status: 302,
-      headers: { Location: `${baseUrl}/dashboard?ws=${encodeURIComponent(ws)}&billing=stripe_not_configured` }
-    });
+    return createSecureRedirect(`${baseUrl}/dashboard?ws=${encodeURIComponent(ws)}&billing=stripe_not_configured`);
   }
   if (!sessionId) {
-    return new Response(null, {
-      status: 302,
-      headers: { Location: `${baseUrl}/dashboard?ws=${encodeURIComponent(ws)}&billing=missing_session` }
-    });
+    return createSecureRedirect(`${baseUrl}/dashboard?ws=${encodeURIComponent(ws)}&billing=missing_session`);
   }
 
   // Build priceId -> plan mapping (monthly + annual)
@@ -62,19 +57,13 @@ export const GET = withAuthApiMiddleware(async (context) => {
     const stripe = new Stripe(env.STRIPE_SECRET);
     session = await stripe.checkout.sessions.retrieve(sessionId, { expand: ['subscription'] });
   } catch (err) {
-    return new Response(null, {
-      status: 302,
-      headers: { Location: `${baseUrl}/dashboard?ws=${encodeURIComponent(ws)}&billing=sync_error` }
-    });
+    return createSecureRedirect(`${baseUrl}/dashboard?ws=${encodeURIComponent(ws)}&billing=sync_error`);
   }
 
   // Basic safety: enforce user matches the session's reference
   const refUserId = (session.client_reference_id as string) || (session.metadata?.userId as string) || '';
   if (refUserId && refUserId !== user.id) {
-    return new Response(null, {
-      status: 302,
-      headers: { Location: `${baseUrl}/dashboard?ws=${encodeURIComponent(ws)}&billing=forbidden` }
-    });
+    return createSecureRedirect(`${baseUrl}/dashboard?ws=${encodeURIComponent(ws)}&billing=forbidden`);
   }
 
   const customerId = (session.customer as string) || '';
@@ -140,13 +129,7 @@ export const GET = withAuthApiMiddleware(async (context) => {
   }
 
   // Redirect to dashboard
-  return new Response(null, {
-    status: 302,
-    headers: {
-      Location: `${baseUrl}/dashboard?ws=${encodeURIComponent(ws)}`,
-      'Cache-Control': 'no-store',
-    },
-  });
+  return createSecureRedirect(`${baseUrl}/dashboard?ws=${encodeURIComponent(ws)}`);
 }, {
-  onError: (_ctx, _err) => new Response('sync_error', { status: 500 }),
+  onError: (_ctx, _err) => createSecureErrorResponse('sync_error', 500),
 });

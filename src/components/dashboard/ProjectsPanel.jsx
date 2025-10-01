@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useProjectStore } from '../../stores';
+import { useProjectStore } from '@/lib/stores/project-store';
 import CardReact from '@/components/ui/CardReact.jsx';
 // Korrigierte Typdefinition für JSX-Datei
 /* @type {import('../../types/dashboard').ProjectCard} */

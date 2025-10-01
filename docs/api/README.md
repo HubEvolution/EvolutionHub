@@ -135,6 +135,27 @@ curl -X POST http://127.0.0.1:8787/api/ai-image/jobs/JOB_ID/cancel \
 - Magic‑Link (Stytch). Registrierung implizit beim ersten Callback, Passwörter entfallen.
 - Cookies: `__Host-session` für authentifizierte Nutzer; Gästen kann serverseitig eine `guest_id` gesetzt werden (Rate‑Limit/Quota).
 
+### Auth API (Magic Link)
+
+- Siehe: [`docs/api/auth_api.md`](./auth_api.md)
+- Endpunkte:
+  - `POST /api/auth/magic/request` → JSON `{ success: true, data: { sent: true } }` oder HTML `303` Redirect bei Formular‑POST
+  - `GET  /api/auth/callback` → `302` Redirect zum Ziel (lokalisiert)
+
+Beispiele:
+
+```bash
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -H "Origin: http://127.0.0.1:8787" \
+  -d '{"email":"user@example.com","r":"/dashboard","locale":"en"}' \
+  http://127.0.0.1:8787/api/auth/magic/request
+```
+
+```bash
+curl -i "http://127.0.0.1:8787/api/auth/callback?token=dev-ok&email=user@example.com&r=/dashboard"
+```
+
 ## Telemetrie (Prompt‑Enhancer)
 
 - Feature‑Flag: `PUBLIC_PROMPT_TELEMETRY_V1` (default: off). Ist das Flag deaktiviert, werden clientseitig keine Events gesendet und der Server antwortet mit `403 forbidden`.

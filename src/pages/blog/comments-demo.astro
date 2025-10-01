@@ -1,0 +1,108 @@
+---
+import { CommentSection } from '../components/comments/CommentSection';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+// Beispielhafte Entity-Daten für die Demo
+const entityType = 'blog_post';
+const entityId = 'demo-post-123';
+const title = 'Kommentarsystem Demo';
+---
+
+<BaseLayout title={title}>
+  <div class="container mx-auto px-4 py-8 max-w-4xl">
+    <article class="prose prose-lg dark:prose-invert mx-auto">
+      <h1>{title}</h1>
+
+      <p>
+        Dies ist eine Demo-Seite für das neue Kommentarsystem. Hier kannst du testen,
+        wie Kommentare erstellt, bearbeitet und moderiert werden können.
+      </p>
+
+      <h2>Features des Kommentarsystems</h2>
+
+      <ul>
+        <li>✅ Kommentare erstellen und bearbeiten</li>
+        <li>✅ Verschachtelte Kommentare (Replies)</li>
+        <li>✅ Moderationssystem mit verschiedenen Stati</li>
+        <li>✅ Rate-Limiting (5 Kommentare pro Minute)</li>
+        <li>✅ Spam-Schutz und Validierung</li>
+        <li>✅ Responsive Design für alle Geräte</li>
+        <li>✅ Dark Mode Unterstützung</li>
+        <li>✅ Echtzeit-Updates</li>
+      </ul>
+
+      <h2>So funktioniert es</h2>
+
+      <p>
+        Das Kommentarsystem unterstützt sowohl authentifizierte als auch Gast-Nutzer.
+        Authentifizierte Nutzer können Kommentare sofort sehen, während Gast-Kommentare
+        zunächst moderiert werden müssen.
+      </p>
+
+      <div class="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-400 p-4 my-6">
+        <div class="flex">
+          <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          <div class="ml-3">
+            <p class="text-sm text-blue-700 dark:text-blue-300">
+              <strong>Hinweis:</strong> Dies ist eine Demo-Seite. Alle Kommentare werden
+              regelmäßig gelöscht und dienen nur zu Testzwecken.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <h2>Kommentare</h2>
+
+      <!-- Kommentarsektion -->
+      <CommentSection
+        entityType={entityType}
+        entityId={entityId}
+        title="Diskussion"
+        client:load
+      />
+    </article>
+  </div>
+</BaseLayout>
+
+<style>
+  .prose {
+    color: rgb(55 65 81);
+  }
+
+  .dark .prose {
+    color: rgb(229 231 235);
+  }
+
+  .prose h1 {
+    font-size: 2.25rem;
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 2rem;
+  }
+
+  .prose h2 {
+    font-size: 1.875rem;
+    font-weight: 700;
+    line-height: 1.3;
+    margin-top: 3rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .prose p {
+    margin-bottom: 1.5rem;
+    line-height: 1.7;
+  }
+
+  .prose ul {
+    margin-bottom: 1.5rem;
+    padding-left: 1.5rem;
+  }
+
+  .prose li {
+    margin-bottom: 0.5rem;
+  }
+</style>

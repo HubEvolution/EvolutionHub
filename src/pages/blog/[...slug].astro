@@ -10,7 +10,7 @@ import BlogPostComponent from '@/components/BlogPost.astro';
 import type { ProcessedBlogPost } from '../../content/types';
 // Commented out CommentSection as it was removed earlier following user instructions.
 // Commenting out the import for CommentSection as it's no longer used.
-// import CommentSection from '@/components/comments/CommentSection.astro';
+import CommentSection from '@/components/comments/CommentSection.astro';
 
 // Get slug from URL parameters
 const { slug } = Astro.params;
@@ -147,8 +147,7 @@ const structuredData = {
         </BlogPostComponent>
 
         {/* Kommentarbereich */}
-        {/* CommentSection is removed as per earlier user instructions */}
-        {/* <CommentSection postId={slug} /> Is removed because the component was deleted */}
+        <CommentSection postId={slug} entityType="blog_post" client:load />
       </div>
     </div>
   </article>

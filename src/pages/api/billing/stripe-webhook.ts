@@ -1,6 +1,7 @@
 import Stripe from 'stripe';
 import { withApiMiddleware } from '@/lib/api-middleware';
 import { createRateLimiter } from '@/lib/rate-limiter';
+import { createSecureErrorResponse, createSecureJsonResponse } from '@/lib/response-helpers';
 // Minimal KV interface to avoid external type dependency
 type KV = {
   get(key: string): Promise<string | null>;
@@ -43,7 +44,7 @@ export const POST = withApiMiddleware(async (context) => {
   const webhookSecret = (env as any).STRIPE_WEBHOOK_SECRET as string | undefined;
 
   if (!stripeSecret || !webhookSecret) {
-    return new Response('Stripe not configured', { status: 500 });
+    return createSecureErrorResponse('Stripe not configured', 500);
   }
 
   const sig = context.request.headers.get('stripe-signature') || '';
@@ -59,7 +60,7 @@ export const POST = withApiMiddleware(async (context) => {
       type: event.type
     });
   } catch (err) {
-    return new Response('Invalid signature', { status: 400 });
+    return createSecureErrorResponse('Invalid signature', 400);
   }
 
   const db = env.DB;
@@ -260,20 +261,14 @@ export const POST = withApiMiddleware(async (context) => {
         // ignore other events
         break;
     }
-    return new Response(JSON.stringify({ received: true }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return createSecureJsonResponse({ received: true });
   } catch (err) {
     console.error('[stripe_webhook] error', err instanceof Error ? err.message : String(err));
-    return new Response(JSON.stringify({ error: 'webhook_error' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return createSecureErrorResponse('webhook_error', 500);
   }
 }, {
   rateLimiter: stripeWebhookLimiter,
   disableAutoLogging: false,
   requireSameOriginForUnsafeMethods: false, // Stripe calls from external origin
   enforceCsrfToken: false // Signature validation is the CSRF equivalent
-});
+} as any);

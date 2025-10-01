@@ -1,11 +1,12 @@
 import type { ProjectCard } from '@/types/dashboard';
-import { withAuthApiMiddleware } from '@/lib/api-middleware';
+import { withAuthApiMiddleware, createApiError } from '@/lib/api-middleware';
 import { logApiAccess, logAuthFailure } from '@/lib/security-logger';
+import { createSecureJsonResponse } from '@/lib/response-helpers';
 
 /**
  * GET /api/dashboard/projects
  * Ruft die Projekte des authentifizierten Benutzers ab.
- * 
+ *
  * Security-Features:
  * - Rate-Limiting: Begrenzt die Anzahl der API-Aufrufe pro Zeiteinheit
  * - Security-Headers: Setzt wichtige Sicherheits-Header
@@ -38,14 +39,11 @@ export const GET = withAuthApiMiddleware(async (context) => {
   });
 
   // Plain array JSON zurückgeben (Tests erwarten kein Wrapper-Objekt)
-  return new Response(JSON.stringify(projects), {
-    status: 200,
-    headers: { 'Content-Type': 'application/json' },
-  });
+  return createSecureJsonResponse(projects);
 }, {
   // Zusätzliche Logging-Metadaten
   logMetadata: { action: 'projects_accessed' },
-  
+
   // Spezielle Fehlerbehandlung für diesen Endpunkt
   onError: (context, error) => {
     const { clientAddress, locals } = context;
@@ -61,9 +59,6 @@ export const GET = withAuthApiMiddleware(async (context) => {
       });
     }
 
-    return new Response(JSON.stringify({ type: 'server_error', message: 'Error fetching projects' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return createApiError('server_error', 'Error fetching projects');
   }
 });

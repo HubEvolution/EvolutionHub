@@ -1,4 +1,5 @@
 import { withRedirectMiddleware } from '@/lib/api-middleware';
+import { createSecureRedirect, createSecureErrorResponse } from '@/lib/response-helpers';
 
 export const GET = withRedirectMiddleware(async (context) => {
   const { locals, request, cookies } = context;
@@ -21,13 +22,7 @@ export const GET = withRedirectMiddleware(async (context) => {
 
   if (user) {
     // Already authenticated → go straight to sync
-    return new Response(null, {
-      status: 302,
-      headers: {
-        Location: dest,
-        'Cache-Control': 'no-store'
-      }
-    });
+    return createSecureRedirect(dest, 302);
   }
 
   // Not authenticated → store post-auth redirect to complete sync after login
@@ -44,13 +39,7 @@ export const GET = withRedirectMiddleware(async (context) => {
   }
 
   // Redirect to login; login flow will honor post_auth_redirect and finish sync automatically
-  return new Response(null, {
-    status: 302,
-    headers: {
-      Location: `${baseUrl}/login`,
-      'Cache-Control': 'no-store'
-    }
-  });
+  return createSecureRedirect(`${baseUrl}/login`, 302);
 }, {
-  onError: () => new Response('sync_cb_error', { status: 500 })
+  onError: () => createSecureErrorResponse('sync_cb_error', 500)
 });

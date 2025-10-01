@@ -29,8 +29,8 @@ export async function loginAs(
  * @param page Playwright Page-Objekt
  */
 export async function logout(page: Page) {
-  await page.goto('/auth/logout');
-  await page.waitForURL('**/auth/login');
+  await page.goto('/api/user/logout');
+  await page.waitForURL('**/');
 }
 
 /**

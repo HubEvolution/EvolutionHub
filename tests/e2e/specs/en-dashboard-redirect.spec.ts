@@ -16,11 +16,10 @@ test.describe('Locale-aware redirect: /en/dashboard', () => {
     const url = new URL(page.url());
     expect(url.pathname).toMatch(/^(\/en)?\/login\/?$/);
 
-    // Ensure the login form is present (robust selector)
-    await expect(page.locator('form[action="/api/auth/login"]')).toBeVisible();
+    // Ensure the login form is present (Magic Link)
+    await expect(page.locator('form[action="/api/auth/magic/request"][method="post"]')).toBeVisible();
 
-    // Basic sanity checks: there should be an email and password input
-    await expect(page.locator('input#email')).toBeVisible();
-    await expect(page.locator('input#password')).toBeVisible();
+    // Basic sanity checks: there should be an email input (magic)
+    await expect(page.locator('input#email-magic')).toBeVisible();
   });
 });

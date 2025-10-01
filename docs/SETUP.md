@@ -270,7 +270,7 @@ npm run test:e2e:report
 
 #### Webserver-Timeout
 
-E2E-Tests benötigen einen laufenden Webserver unter `http://localhost:4321`. Die Playwright-Konfiguration versucht, diesen automatisch mit `npm run dev` zu starten, was zu Timeouts führen kann. Lösung:
+E2E-Tests benötigen einen laufenden Webserver unter `http://127.0.0.1:8787`. Die Playwright-Konfiguration startet Wrangler Dev automatisch (oder nutzt einen bereits laufenden Server), was zu Timeouts führen kann. Lösung:
 
 1. Starten Sie den Webserver manuell vor der Testausführung:
 
@@ -282,10 +282,10 @@ E2E-Tests benötigen einen laufenden Webserver unter `http://localhost:4321`. Di
    npm run dev
    
    # Terminal 3 (nach Serverstart)
-   npm run test:e2e
+   npm run test:e2e --webserver=http://127.0.0.1:8787
    ```
 
-#### Fehlende Integrationstests
+{{ ... }}
 
 Das Skript `test:integration` fehlt in der `package.json`. Um Integrationstests zu aktivieren:
 

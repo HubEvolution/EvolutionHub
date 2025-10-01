@@ -1,25 +1,18 @@
 import type { APIRoute } from 'astro';
+import { withApiMiddleware, createApiSuccess, createApiError } from '@/lib/api-middleware';
 
 /**
  * Health check endpoint for deployment verification
  * Tests connectivity to critical infrastructure: D1, KV, R2
+ * Now includes basic security headers and structured logging
  */
-export const GET: APIRoute = async ({ locals }) => {
+export const GET = withApiMiddleware(async (context) => {
+  const { locals } = context;
   const env = locals.runtime?.env;
   const startTime = Date.now();
 
   if (!env) {
-    return new Response(
-      JSON.stringify({
-        status: 'error',
-        message: 'Runtime environment not available',
-        timestamp: new Date().toISOString(),
-      }),
-      {
-        status: 503,
-        headers: { 'Content-Type': 'application/json' },
-      }
-    );
+    return createApiError('server_error', 'Runtime environment not available');
   }
 
   const services = {
@@ -74,23 +67,30 @@ export const GET: APIRoute = async ({ locals }) => {
   const duration = Date.now() - startTime;
   const allHealthy = services.d1 && services.kv && services.r2;
   const status = allHealthy ? 'ok' : 'degraded';
-  const httpStatus = allHealthy ? 200 : 503;
 
-  return new Response(
-    JSON.stringify({
-      status,
-      services,
-      duration: `${duration}ms`,
-      timestamp: new Date().toISOString(),
-      version: env.ENVIRONMENT || 'unknown',
-      ...(errors.length > 0 && { errors }),
-    }),
-    {
-      status: httpStatus,
-      headers: {
-        'Content-Type': 'application/json',
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-      },
-    }
-  );
-};
+  // Return structured response with consistent format
+  return createApiSuccess({
+    status,
+    services,
+    duration: `${duration}ms`,
+    timestamp: new Date().toISOString(),
+    version: env.ENVIRONMENT || 'unknown',
+    ...(errors.length > 0 && { errors }),
+  });
+}, {
+  // Health check should have minimal rate limiting
+  rateLimiter: async () => {
+    const { createRateLimiter } = await import('@/lib/rate-limiter');
+    return createRateLimiter({
+      maxRequests: 60, // Higher limit for health checks
+      windowMs: 60 * 1000,
+      name: 'healthCheck'
+    });
+  },
+  // Disable CSRF for health checks (monitoring systems may call this)
+  enforceCsrfToken: false,
+  // Disable auto-logging for health checks to reduce noise
+  disableAutoLogging: true,
+  // Custom log metadata for health checks
+  logMetadata: { action: 'health_check' }
+});

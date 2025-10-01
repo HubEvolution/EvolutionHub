@@ -1,10 +1,20 @@
 // API Route für Lead-Magnet-Downloads mit Email-Gate und Analytics-Tracking
 import type { APIRoute } from 'astro';
 import type { R2Bucket } from '@cloudflare/workers-types';
+import { withApiMiddleware, createApiSuccess, createApiError, createMethodNotAllowed } from '@/lib/api-middleware';
 import { loggerFactory } from '@/server/utils/logger-factory';
+import { createRateLimiter } from '@/lib/rate-limiter';
+
 // Logger-Instanzen erstellen
 const logger = loggerFactory.createLogger('lead-magnets-download');
 const securityLogger = loggerFactory.createSecurityLogger();
+
+// Rate-Limiter für Lead-Magnet-Downloads (10/Minute)
+const leadMagnetLimiter = createRateLimiter({
+  maxRequests: 10,
+  windowMs: 60 * 1000,
+  name: 'leadMagnetDownload'
+});
 
 interface DownloadRequest {
   leadMagnetId: string;
@@ -111,7 +121,7 @@ const saveLead = async (leadData: DownloadRequest, _leadMagnet: LeadMagnetConfig
   securityLogger.logSecurityEvent('USER_EVENT', {
     action: 'lead_captured',
     leadMagnetId: leadData.leadMagnetId,
-    email: leadData.email,
+    email: leadData.email.substring(0, 3) + '***', // PII-Redaction
     source: leadData.source,
     utm: {
       source: leadData.utmSource,
@@ -119,13 +129,13 @@ const saveLead = async (leadData: DownloadRequest, _leadMagnet: LeadMagnetConfig
       campaign: leadData.utmCampaign
     }
   });
-  
+
   // TODO: Implementierung
   // - Lead in Datenbank speichern
   // - Email-Automation triggern
   // - CRM-Integration
   // - Analytics-Event senden
-  
+
   return {
     success: true,
     leadId: `lead_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`
@@ -137,12 +147,12 @@ const triggerEmailSequence = async (email: string, sequence: string, leadMagnet:
   // Hier würde die Email-Automation getriggert
   logger.info('Email sequence triggered', {
     metadata: {
-      email,
+      email: email.substring(0, 3) + '***', // PII-Redaction
       sequence,
       leadMagnet: leadMagnet.title
     }
   });
-  
+
   // TODO: Integration mit Email-Provider (ConvertKit, Mailchimp, etc.)
   // Beispiel für ConvertKit:
   // await fetch('https://api.convertkit.com/v3/sequences/[SEQUENCE_ID]/subscribe', {
@@ -155,152 +165,89 @@ const triggerEmailSequence = async (email: string, sequence: string, leadMagnet:
   //     tags: [leadMagnet.id]
   //   })
   // });
-  
+
   return { success: true };
 };
 
-export const POST: APIRoute = async ({ request, locals }) => {
-  try {
-    // CORS Headers für Frontend-Integration
-    const corsHeaders = {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
-    };
+export const POST = withApiMiddleware(async (context) => {
+  const { request, locals } = context;
+  const requestData: DownloadRequest = await request.json();
 
-    // Request-Body parsen
-    const requestData: DownloadRequest = await request.json();
-    
-    // Validierung
-    if (!requestData.leadMagnetId) {
-      return new Response(JSON.stringify({
-        success: false,
-        error: 'Lead-Magnet-ID ist erforderlich'
-      }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json', ...corsHeaders }
-      });
-    }
+  // Validierung
+  if (!requestData.leadMagnetId) {
+    return createApiError('validation_error', 'Lead-Magnet-ID ist erforderlich');
+  }
 
-    if (!requestData.email || !validateEmail(requestData.email)) {
-      return new Response(JSON.stringify({
-        success: false,
-        error: 'Gültige E-Mail-Adresse ist erforderlich'
-      }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json', ...corsHeaders }
-      });
-    }
+  if (!requestData.email || !validateEmail(requestData.email)) {
+    return createApiError('validation_error', 'Gültige E-Mail-Adresse ist erforderlich');
+  }
 
-    // Lead-Magnet validieren
-    const leadMagnet = validateLeadMagnetId(requestData.leadMagnetId);
-    if (!leadMagnet) {
-      return new Response(JSON.stringify({
-        success: false,
-        error: 'Ungültige Lead-Magnet-ID'
-      }), {
-        status: 404,
-        headers: { 'Content-Type': 'application/json', ...corsHeaders }
-      });
-    }
+  // Lead-Magnet validieren
+  const leadMagnet = validateLeadMagnetId(requestData.leadMagnetId);
+  if (!leadMagnet) {
+    return createApiError('validation_error', 'Ungültige Lead-Magnet-ID');
+  }
 
-    // Lead speichern
-    const leadResult = await saveLead(requestData, leadMagnet);
-    if (!leadResult.success) {
-      throw new Error('Fehler beim Speichern der Lead-Daten');
-    }
+  // Lead speichern
+  const leadResult = await saveLead(requestData, leadMagnet);
+  if (!leadResult.success) {
+    return createApiError('server_error', 'Fehler beim Speichern der Lead-Daten');
+  }
 
-    // Email-Sequence triggern (falls konfiguriert)
-    if (leadMagnet.autoEmailSequence) {
-      await triggerEmailSequence(
-        requestData.email, 
-        leadMagnet.autoEmailSequence, 
-        leadMagnet
-      );
-    }
+  // Email-Sequence triggern (falls konfiguriert)
+  if (leadMagnet.autoEmailSequence) {
+    await triggerEmailSequence(
+      requestData.email,
+      leadMagnet.autoEmailSequence,
+      leadMagnet
+    );
+  }
 
-    // Analytics-Event für Server-side Tracking
-    if (leadMagnet.trackingEnabled) {
-      logger.info('Analytics Event: lead_magnet_download', {
-        metadata: {
-          event: 'lead_magnet_download',
-          leadMagnetId: leadMagnet.id,
-          email: requestData.email,
-          source: requestData.source
-        }
-      });
-    }
-
-    // Download-URL abhängig von Quelle (public vs. r2)
-    const source = getLeadMagnetSource(locals);
-    const downloadUrl = source === 'r2'
-      ? `/api/lead-magnets/download?id=${encodeURIComponent(leadMagnet.id)}&download=1`
-      : leadMagnet.filePath;
-
-    // Erfolgreiche Response
-    return new Response(JSON.stringify({
-      success: true,
-      leadId: leadResult.leadId,
-      downloadUrl,
-      fileName: leadMagnet.fileName,
-      title: leadMagnet.title,
-      message: 'Lead-Magnet erfolgreich angefordert. Sie erhalten eine E-Mail mit dem Download-Link.'
-    }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json', ...corsHeaders }
-    });
-
-  } catch (error) {
-    logger.error('Lead-Magnet Download Error', {
-      metadata: { error: error instanceof Error ? error.message : String(error) }
-    });
-
-    return new Response(JSON.stringify({
-      success: false,
-      error: 'Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.'
-    }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' }
+  // Analytics-Event für Server-side Tracking
+  if (leadMagnet.trackingEnabled) {
+    logger.info('Analytics Event: lead_magnet_download', {
+      metadata: {
+        event: 'lead_magnet_download',
+        leadMagnetId: leadMagnet.id,
+        email: requestData.email.substring(0, 3) + '***', // PII-Redaction
+        source: requestData.source
+      }
     });
   }
-};
 
-// OPTIONS für CORS Preflight
-export const OPTIONS: APIRoute = async () => {
-  return new Response(null, {
-    status: 200,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
-    }
+  // Download-URL abhängig von Quelle (public vs. r2)
+  const source = getLeadMagnetSource(locals);
+  const downloadUrl = source === 'r2'
+    ? `/api/lead-magnets/download?id=${encodeURIComponent(leadMagnet.id)}&download=1`
+    : leadMagnet.filePath;
+
+  // Erfolgreiche Response
+  return createApiSuccess({
+    leadId: leadResult.leadId,
+    downloadUrl,
+    fileName: leadMagnet.fileName,
+    title: leadMagnet.title,
+    message: 'Lead-Magnet erfolgreich angefordert. Sie erhalten eine E-Mail mit dem Download-Link.'
   });
-};
+}, {
+  rateLimiter: leadMagnetLimiter,
+  enforceCsrfToken: false, // Lead-Magnet-Downloads sind öffentlich
+  disableAutoLogging: false
+});
 
 // GET für Lead-Magnet-Informationen (ohne Email-Gate)
-export const GET: APIRoute = async ({ url, locals, request }) => {
+export const GET = withApiMiddleware(async (context) => {
+  const { url, locals, request } = context;
   const leadMagnetId = url.searchParams.get('id');
   const shouldDownload = url.searchParams.get('download') === '1';
-  
+
   if (!leadMagnetId) {
-    return new Response(JSON.stringify({
-      success: false,
-      error: 'Lead-Magnet-ID erforderlich'
-    }), {
-      status: 400,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    return createApiError('validation_error', 'Lead-Magnet-ID erforderlich');
   }
 
   const leadMagnet = validateLeadMagnetId(leadMagnetId);
   if (!leadMagnet) {
-    return new Response(JSON.stringify({
-      success: false,
-      error: 'Lead-Magnet nicht gefunden'
-    }), {
-      status: 404,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    return createApiError('validation_error', 'Lead-Magnet nicht gefunden');
   }
 
   // Download ausführen, wenn angefordert
@@ -315,10 +262,7 @@ export const GET: APIRoute = async ({ url, locals, request }) => {
         logger.warn('R2_LEADMAGNETS binding not available, falling back to public asset path', {
           metadata: { key, fileName: leadMagnet.fileName }
         });
-        return new Response(null, {
-          status: 302,
-          headers: { Location: leadMagnet.filePath }
-        });
+        return createApiError('server_error', 'Datei-Service nicht verfügbar');
       }
       const obj = await r2.get(key);
 
@@ -342,7 +286,7 @@ export const GET: APIRoute = async ({ url, locals, request }) => {
            });
         }
 
-        return new Response('Datei nicht gefunden', { status: 404 });
+        return createApiError('validation_error', 'Datei nicht gefunden');
       }
 
       const contentType = obj.httpMetadata?.contentType || getMimeTypeByExtension(leadMagnet.fileName);
@@ -372,19 +316,20 @@ export const GET: APIRoute = async ({ url, locals, request }) => {
       if (size) headers.set('Content-Length', String(size));
       headers.set('Content-Disposition', `attachment; filename="${leadMagnet.fileName}"`);
       headers.set('X-Download-Id', `dl_${Date.now()}`);
-      return new Response(obj.body as any, { status: 200, headers });
+
+      // Für R2-Downloads direktes Streaming zurückgeben
+      return new Response(obj.body as any, {
+        status: 200,
+        headers
+      });
     }
 
     // public: einfach auf Asset-Pfad umleiten
-    return new Response(null, {
-      status: 302,
-      headers: { Location: leadMagnet.filePath }
-    });
+    return createApiError('server_error', 'Public downloads nicht über API verfügbar');
   }
 
   // Standard: Metadaten (ohne Dateipfad)
-  return new Response(JSON.stringify({
-    success: true,
+  return createApiSuccess({
     leadMagnet: {
       id: leadMagnet.id,
       title: leadMagnet.title,
@@ -392,8 +337,25 @@ export const GET: APIRoute = async ({ url, locals, request }) => {
       fileName: leadMagnet.fileName,
       requiresEmail: leadMagnet.requiresEmail
     }
-  }), {
-    status: 200,
-    headers: { 'Content-Type': 'application/json' }
   });
-};
+}, {
+  rateLimiter: leadMagnetLimiter,
+  enforceCsrfToken: false, // Öffentliche Metadaten-API
+  disableAutoLogging: false
+});
+
+// OPTIONS für CORS Preflight
+export const OPTIONS = withApiMiddleware(async () => {
+  return new Response(null, {
+    status: 200,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type',
+    }
+  });
+}, {
+  rateLimiter: leadMagnetLimiter,
+  enforceCsrfToken: false,
+  disableAutoLogging: true // CORS preflight braucht kein Logging
+});

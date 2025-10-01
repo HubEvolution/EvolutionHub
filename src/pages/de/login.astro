@@ -16,18 +16,10 @@ const locals = Astro.locals as any;
 const rParam = Astro.url.searchParams.get('r') ?? '';
 const safeR = typeof rParam === 'string' && rParam.startsWith('/') && !rParam.startsWith('//') ? rParam : '';
 
-// OAuth GitHub button label with robust fallback (avoid displaying fallback token)
-const MISSING_MARKER = '_fallback_not_found';
-function pick(keys: string[], fallback: string): string {
-  for (const k of keys) {
-    const v = t(k);
-    if (v && typeof v === 'string' && !v.includes(MISSING_MARKER)) return v;
-  }
-  return fallback;
-}
-const githubText = pick(['pages.login.form.oauth.github', 'login.form.oauth.github'], 'Mit GitHub anmelden');
-const noAccountPrompt = pick(['pages.login.form.no_account_prompt', 'login.form.no_account_prompt'], 'Sie haben noch kein Konto?');
-const registerLinkText = pick(['pages.login.form.register_link', 'login.form.register_link'], 'Registrieren');
+// OAuth GitHub button label (single source of truth)
+const githubText = t('pages.login.form.oauth.github') ?? 'Mit GitHub anmelden';
+const noAccountPrompt = t('pages.login.form.no_account_prompt') ?? 'Sie haben noch kein Konto?';
+const registerLinkText = t('pages.login.form.register_link') ?? 'Registrieren';
 
 if (locals.user) {
   return Astro.redirect(localizePath(locale, '/dashboard'));
@@ -41,7 +33,7 @@ if (locals.user) {
 
     <div class="my-4 flex items-center gap-3 text-gray-500 dark:text-gray-400">
       <div class="h-px bg-gray-200 dark:bg-white/10 flex-1" />
-      <span class="text-xs uppercase tracking-wider">oder</span>
+      <span class="text-xs uppercase tracking-wider">{t('pages.login.form.or') ?? 'oder'}</span>
       <div class="h-px bg-gray-200 dark:bg-white/10 flex-1" />
     </div>
 

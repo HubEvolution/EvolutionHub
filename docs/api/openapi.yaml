@@ -6,13 +6,13 @@ info:
 servers:
   - url: https://api.hub-evolution.com/v1
     description: Production server
-  - url: http://localhost:4321/v1
+  - url: http://127.0.0.1:8787/v1
     description: Local development server
 paths:
-  /api/auth/login:
+  /api/auth/magic/request:
     post:
-      summary: User login
-      description: Authenticates user and returns session token.
+      summary: Request Magic Link
+      description: Request a magic link for login or signup. Returns JSON success or an HTML redirect (progressive enhancement).
       requestBody:
         required: true
         content:
@@ -23,26 +23,59 @@ paths:
                 email:
                   type: string
                   format: email
-                password:
+                r:
                   type: string
-                  format: password
-              required:
-                - email
-                - password
+                  description: Optional relative redirect target after auth
+                name:
+                  type: string
+                username:
+                  type: string
+                locale:
+                  type: string
+                  enum: [de, en]
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                r:
+                  type: string
+                name:
+                  type: string
+                username:
+                  type: string
+                locale:
+                  type: string
+                  enum: [de, en]
       responses:
         '200':
-          description: Successful login
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                  token:
-                    type: string
-        '401':
-          description: Invalid credentials
+          description: Magic link request accepted (JSON)
+        '303':
+          description: Redirect to localized login page with success hint (HTML navigation)
+  /api/auth/callback:
+    get:
+      summary: Magic Link callback
+      description: Verifies the magic link token, creates a session, and redirects to the target route.
+      parameters:
+        - name: token
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: email
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: r
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '302':
+          description: Redirect to target route (localized)
   /api/prompt-enhance:
     post:
       summary: Enhance prompt

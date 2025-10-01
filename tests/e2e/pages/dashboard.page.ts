@@ -57,7 +57,7 @@ export class DashboardPage {
   async logout() {
     await this.page.click(this.navigation.userMenu);
     await this.page.click(this.navigation.logout);
-    await this.page.waitForURL('**/auth/login');
+    await this.page.waitForURL('**/login');
   }
 
   /**

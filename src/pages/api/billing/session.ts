@@ -1,4 +1,4 @@
-import { withAuthApiMiddleware } from '@/lib/api-middleware';
+import { withAuthApiMiddleware, createApiSuccess, createApiError } from '@/lib/api-middleware';
 import Stripe from 'stripe';
 import { logUserEvent } from '@/lib/security-logger';
 
@@ -43,33 +43,21 @@ export const POST = withAuthApiMiddleware(async (context) => {
 
   const body = (await context.request.json().catch(() => null)) as { plan?: 'pro' | 'premium' | 'enterprise'; workspaceId?: string; interval?: 'monthly' | 'annual' } | null;
   if (!body || !body.plan || !body.workspaceId) {
-    return new Response(JSON.stringify({ error: 'plan and workspaceId are required' }), {
-      status: 400,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    return createApiError('validation_error', 'plan and workspaceId are required');
   }
 
   const interval = body.interval || 'monthly';
   const priceId = interval === 'annual' ? pricingTableAnnual[body.plan] : pricingTable[body.plan];
   if (!priceId) {
-    return new Response(JSON.stringify({ error: 'Unknown plan' }), {
-      status: 400,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    return createApiError('validation_error', 'Unknown plan');
   }
 
   if (!env.STRIPE_SECRET) {
-    return new Response(JSON.stringify({ error: 'Stripe not configured' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    return createApiError('server_error', 'Stripe not configured');
   }
 
   if (!user) {
-    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-      status: 401,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    return createApiError('auth_error', 'Unauthorized');
   }
   // Do not pin apiVersion here to avoid TS literal mismatches; use package default
   const stripe = new Stripe(env.STRIPE_SECRET);
@@ -84,15 +72,7 @@ export const POST = withAuthApiMiddleware(async (context) => {
     metadata: { workspaceId: body.workspaceId, userId: user!.id, plan: body.plan }
   });
 
-  return new Response(JSON.stringify({ url: session.url }), {
-    status: 200,
-    headers: { 
-      'Content-Type': 'application/json',
-      'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
-      'Pragma': 'no-cache',
-      'Expires': '0'
-    }
-  });
+  return createApiSuccess({ url: session.url });
 }, {
   // Zusätzliche Logging-Metadaten
   logMetadata: { action: 'create_checkout_session' },

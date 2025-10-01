@@ -38,14 +38,11 @@ Last updated: 2025-08-24T23:27:01+02:00
 - `src/pages/blog/[...slug].astro`
 - `src/pages/cookie-einstellungen.astro`
 - `src/pages/de/register.astro`
-- `src/pages/de/reset-password.astro`
 - `src/pages/en/register.astro`
-- `src/pages/en/reset-password.astro`
 - `src/pages/faq.astro`
 - `src/pages/kontakt.astro`
 - `src/pages/newsletter/confirm.astro`
 - `src/pages/register.astro`
-- `src/pages/reset-password.astro`
 
 ### B. Inline `<script lang="ts">` occurrences (13)
 

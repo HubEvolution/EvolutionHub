@@ -59,18 +59,15 @@ Jede API-Anfrage durchläuft folgende Phasen:
 
 - **Service-Aufruf**: Weiterleitung an den entsprechenden Service
 - **Geschäftslogik**: Anwendung der Geschäftsregeln
-- **Datenbankoperationen**: Lesen oder Schreiben von Daten
 
 ### 3. Antwortphase
 
 - **Datentransformation**: Umwandlung der internen Datenstrukturen in API-Antworten
 - **Fehlerbehandlung**: Umwandlung von Fehlern in konsistente API-Fehlerantworten
-- **Response-Generierung**: Erstellung der HTTP-Antwort mit entsprechenden Headers
+- **Response-Generierung**: Erstellung der HTTP-Antwort mit
 
 ```mermaid
 sequenceDiagram
-    participant Client
-    participant Middleware
     participant APIHandler
     participant Service
     participant Repository
@@ -98,6 +95,8 @@ sequenceDiagram
 ## Datenfluss-Diagramme
 
 ### Benutzerauthentifizierung
+
+Hinweis (historisch): Das folgende Sequenzdiagramm zeigt den früheren Passwort-/JWT‑Login‑Flow. Der aktuelle Auth‑Flow basiert auf Magic Link (siehe `docs/architecture/auth-migration-stytch.md`).
 
 Der Authentifizierungsdatenfluss umfasst Login, Registrierung und Sitzungsverwaltung:
 

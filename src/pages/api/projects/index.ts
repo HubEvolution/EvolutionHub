@@ -1,5 +1,6 @@
-import { withAuthApiMiddleware } from '@/lib/api-middleware';
+import { withAuthApiMiddleware, createApiError } from '@/lib/api-middleware';
 import { logAuthFailure } from '@/lib/security-logger';
+import { createSecureJsonResponse } from '@/lib/response-helpers';
 
 /**
  * POST /api/projects
@@ -36,10 +37,7 @@ export const POST = withAuthApiMiddleware(async (context) => {
       reason: 'validation_failed',
       endpoint: '/api/projects'
     });
-    return new Response(JSON.stringify({ error: 'Title is required' }), {
-      status: 400,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    return createApiError('validation_error', 'Title is required');
   }
 
   const now = new Date().toISOString();
@@ -90,10 +88,7 @@ export const POST = withAuthApiMiddleware(async (context) => {
   // Audit-Event Logging über logApiAccess erfolgt in der Middleware (siehe logMetadata)
 
   // Tests erwarten kein Wrapper-Objekt, sondern das Projekt direkt
-  return new Response(JSON.stringify(newProject), {
-    status: 201,
-    headers: { 'Content-Type': 'application/json' }
-  });
+  return createSecureJsonResponse(newProject);
 }, {
   // Sicherstellen, dass das Access-Log die erwartete Aktion enthält
   logMetadata: { action: 'project_created' },
@@ -111,9 +106,6 @@ export const POST = withAuthApiMiddleware(async (context) => {
     }
 
     // Tests erwarten Top-Level { type, message }
-    return new Response(JSON.stringify({ type: 'server_error', message: 'Failed to create project' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    return createApiError('server_error', 'Failed to create project');
   },
 });

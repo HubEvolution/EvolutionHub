@@ -47,4 +47,32 @@ export interface DashboardData {
   projects: ProjectCard[];
   quickActions: QuickAction[];
   notifications: Notification[];
+export interface CreateProjectRequest {
+  title: string;
+  description: string;
+  status?: 'active' | 'completed' | 'on-hold' | 'archived';
+  priority?: 'low' | 'medium' | 'high';
+  dueDate?: string;
+  tags?: string[];
+}
+
+export interface UpdateProjectRequest extends Partial<CreateProjectRequest> {
+  id: string;
+}
+
+export interface ProjectFormData {
+  title: string;
+  description: string;
+  status: 'active' | 'completed' | 'on-hold' | 'archived';
+  priority: 'low' | 'medium' | 'high';
+  dueDate: string;
+  tags: string[];
+}
+
+export interface ProjectFilters {
+  status?: 'active' | 'completed' | 'on-hold' | 'archived';
+  priority?: 'low' | 'medium' | 'high';
+  search?: string;
+  tags?: string[];
+}
 }

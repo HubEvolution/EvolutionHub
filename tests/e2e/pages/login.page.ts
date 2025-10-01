@@ -1,5 +1,4 @@
 import type { Page } from '@playwright/test';
-import { expect } from '@playwright/test';
 
 export class LoginPage {
   // Page selectors
@@ -15,8 +14,8 @@ export class LoginPage {
 
   // Navigate to login page
   async goto() {
-    // Use the full URL to avoid navigation issues
-    await this.page.goto('http://localhost:4321/auth/login');
+    // Use relative URL so Playwright uses configured baseURL (playwright.config.ts)
+    await this.page.goto('/login');
     await this.page.waitForLoadState('networkidle');
   }
 

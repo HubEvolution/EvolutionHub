@@ -1,10 +1,11 @@
 import { withAuthApiMiddleware, createApiError } from '@/lib/api-middleware';
 import { logUserEvent } from '@/lib/security-logger';
+import { createSecureJsonResponse } from '@/lib/response-helpers';
 
 /**
  * GET /api/dashboard/activity
  * Ruft die Aktivitäten des authentifizierten Benutzers ab.
- * 
+ *
  * Security-Features:
  * - Rate-Limiting: Begrenzt die Anzahl der API-Aufrufe pro Zeiteinheit
  * - Security-Headers: Setzt wichtige Sicherheits-Header
@@ -38,29 +39,26 @@ export const GET = withAuthApiMiddleware(async (context) => {
       icon: "✨", // Default icon, can be customized based on action
       color: "text-purple-400"
   }));
-  
+
   // Spezifisches Event-Logging wurde zur Middleware migriert
-  
-  return new Response(JSON.stringify(activityFeed), {
-    status: 200,
-    headers: { 'Content-Type': 'application/json' }
-  });
+
+  return createSecureJsonResponse(activityFeed);
 }, {
   // Zusätzliche Logging-Metadaten
   logMetadata: { action: 'activity_feed_accessed' },
-  
+
   // Spezielle Fehlerbehandlung für diesen Endpunkt
   onError: (context, error) => {
     const { clientAddress, locals } = context;
     const user = locals.user;
-    
+
     if (user) {
       logUserEvent(user.id, 'activity_feed_error', {
         error: error instanceof Error ? error.message : String(error),
         ipAddress: clientAddress
       });
     }
-    
+
     return createApiError('server_error', 'Error fetching activity feed');
   }
 });
