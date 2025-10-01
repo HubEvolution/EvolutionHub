@@ -173,3 +173,62 @@ export const aiGenerateLimiter = createRateLimiter({
   windowMs: 60 * 1000, // 1 Minute
   name: 'aiGenerate'
 });
+
+/**
+ * Einfache Rate-Limiting-Funktion für Service-Layer
+ * Nutzt die bestehende Store-Infrastruktur ohne Request-Kontext
+ *
+ * @param key - Eindeutiger Schlüssel für Rate-Limit (z.B. IP, User-ID, Action)
+ * @param maxRequests - Maximale Anzahl erlaubter Anfragen
+ * @param windowSeconds - Zeitfenster in Sekunden
+ * @throws Error wenn Rate-Limit überschritten
+ *
+ * @example
+ * // In Service-Methoden:
+ * await rateLimit(`comment:${userId}`, 5, 60); // 5 Kommentare pro Minute
+ */
+export async function rateLimit(
+  key: string,
+  maxRequests: number,
+  windowSeconds: number
+): Promise<void> {
+  const limiterName = 'service-limiter';
+
+  // Stelle sicher, dass Store existiert
+  if (!limitStores[limiterName]) {
+    limitStores[limiterName] = {};
+  }
+
+  const store = limitStores[limiterName];
+  const now = Date.now();
+  const windowMs = windowSeconds * 1000;
+
+  // Neuer Eintrag
+  if (!store[key]) {
+    store[key] = {
+      count: 1,
+      resetAt: now + windowMs
+    };
+    return;
+  }
+
+  const entry = store[key];
+
+  // Zeitfenster abgelaufen - zurücksetzen
+  if (entry.resetAt <= now) {
+    entry.count = 1;
+    entry.resetAt = now + windowMs;
+    return;
+  }
+
+  // Rate-Limit überschritten
+  if (entry.count >= maxRequests) {
+    const retryAfter = Math.ceil((entry.resetAt - now) / 1000);
+    throw new Error(
+      `Rate limit exceeded. Please retry after ${retryAfter} seconds.`
+    );
+  }
+
+  // Zähler erhöhen
+  entry.count += 1;
+}
