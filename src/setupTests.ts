@@ -78,7 +78,9 @@ try {
       return new Uint8Array([0x00, 0x01, 0x02, 0x03]).buffer;
     };
   }
-} catch {}
+} catch {
+  // Ignore polyfill setup failures
+}
 
 // Ensure React Testing Library cleans up between tests to avoid duplicate nodes
 afterEach(() => {

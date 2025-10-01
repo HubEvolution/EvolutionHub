@@ -149,7 +149,9 @@ export const POST: APIRoute = async (context) => {
             if (row?.id) {
               resolvedUserId = row.id;
             }
-          } catch {}
+          } catch {
+            // Ignore database lookup failures
+          }
         }
 
         if ((!resolvedUserId || !customerId) && customerEmail && kv) {
@@ -163,7 +165,9 @@ export const POST: APIRoute = async (context) => {
               reason: 'checkout_completed_no_user_context'
             });
             await kv.put(`stripe:pending:email:${customerEmail.toLowerCase()}`, payload);
-          } catch {}
+          } catch {
+            // Ignore KV storage failures
+          }
         }
 
         if (!resolvedUserId || !customerId) break;

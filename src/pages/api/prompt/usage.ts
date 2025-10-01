@@ -46,7 +46,10 @@ export const GET = withApiMiddleware(async (context) => {
       ...(isDebug
         ? {
             debug: {
-              ownerId: (() => { try { return ownerId ? `…${ownerId.slice(-4)}(${ownerId.length})` : ''; } catch { return ''; } })(),
+              ownerId: (() => { try { return ownerId ? `…${ownerId.slice(-4)}(${ownerId.length})` : ''; } catch {
+                // Ignore string slicing errors
+                return '';
+              } })(),
               limitResolved: ent.dailyBurstCap,
               env: String(locals.runtime?.env?.ENVIRONMENT || '')
             }
@@ -60,7 +63,9 @@ export const GET = withApiMiddleware(async (context) => {
       resp.headers.set('X-Usage-OwnerType', ownerType);
       resp.headers.set('X-Usage-Plan', ownerType === 'user' ? (plan ?? 'free') : '');
       resp.headers.set('X-Usage-Limit', String(ent.dailyBurstCap));
-    } catch {}
+    } catch {
+      // Ignore header setting failures
+    }
     return resp;
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unbekannter Fehler';
@@ -70,7 +75,9 @@ export const GET = withApiMiddleware(async (context) => {
       resp.headers.set('Pragma', 'no-cache');
       resp.headers.set('Expires', '0');
       resp.headers.set('X-Usage-Error', '1');
-    } catch {}
+    } catch {
+      // Ignore header setting failures
+    }
     return resp;
   }
 });

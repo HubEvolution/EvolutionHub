@@ -538,6 +538,7 @@
         "forgot_password_link": "Passwort vergessen?",
         "submit_button": "Anmelden",
         "magic_button": "Mit Magic Link fortfahren",
+        "oauth": { "github": "Mit GitHub anmelden" },
         "no_account_prompt": "Sie haben noch kein Konto?",
         "register_link": "Registrieren"
       }

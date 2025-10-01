@@ -563,7 +563,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
       response.headers.set('Pragma', 'no-cache');
       response.headers.set('Expires', '0');
     }
-  } catch {}
+  } catch {
+    // Ignore header setting failures
+  }
 
   // Sicherheits-Header hinzufügen
   // X-Robots-Tag for welcome page (HTTP-level noindex)

@@ -113,9 +113,7 @@ export class AiImageService {
       try {
         const parsed = JSON.parse(raw) as { count: number };
         count = parsed.count || 0;
-      } catch {
-        // Ignore logging failures
-      }
+      } catch {}
     }
     count += 1;
     await kv.put(key, JSON.stringify({ count }));
@@ -151,9 +149,7 @@ export class AiImageService {
       try {
         const mask = ownerId ? `…${ownerId.slice(-4)}(${ownerId.length})` : '';
         this.log.debug('usage_get_empty', { action: 'usage_get_empty', metadata: { ownerType, ownerId: mask, key, limit } });
-      } catch {
-        // Ignore logging failures
-      }
+      } catch {}
       return { used: 0, limit, resetAt: null };
     }
 
@@ -163,17 +159,13 @@ export class AiImageService {
       try {
         const mask = ownerId ? `…${ownerId.slice(-4)}(${ownerId.length})` : '';
         this.log.debug('usage_get_ok', { action: 'usage_get_ok', metadata: { ownerType, ownerId: mask, key, used: resp.used, limit: resp.limit, hasReset: !!resp.resetAt } });
-      } catch {
-        // Ignore logging failures
-      }
+      } catch {}
       return resp;
     } catch {
       try {
         const mask = ownerId ? `…${ownerId.slice(-4)}(${ownerId.length})` : '';
         this.log.warn('usage_get_parse_failed', { action: 'usage_get_parse_failed', metadata: { ownerType, ownerId: mask, key } });
-      } catch {
-        // Ignore logging failures
-      }
+      } catch {}
       return { used: 0, limit, resetAt: null };
     }
   }
@@ -480,9 +472,7 @@ export class AiImageService {
     try {
       const mask = ownerId ? `…${ownerId.slice(-4)}(${ownerId.length})` : '';
       this.log.debug('usage_increment', { action: 'usage_increment', metadata: { ownerType, ownerId: mask, key, used: resp.used, limit: resp.limit, expiration } });
-    } catch {
-        // Ignore logging failures
-      }
+    } catch {}
     return resp;
   }
 

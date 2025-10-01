@@ -114,6 +114,7 @@ export class AiJobsService extends AbstractBaseService {
       const parsed = JSON.parse(raw) as { count: number };
       return { used: parsed.count || 0, limit, resetAt: null };
     } catch {
+      // Invalid JSON - return zero usage
       return { used: 0, limit, resetAt: null };
     }
   }
@@ -128,7 +129,9 @@ export class AiJobsService extends AbstractBaseService {
       try {
         const parsed = JSON.parse(raw) as { count: number };
         count = parsed.count || 0;
-      } catch {}
+      } catch {
+        // Invalid JSON - keep count at 0
+      }
     }
     count += 1;
     await kv.put(key, JSON.stringify({ count }));
@@ -169,15 +172,17 @@ export class AiJobsService extends AbstractBaseService {
           try {
             const masked = ownerId ? `…${ownerId.slice(-4)}(${ownerId.length})` : '';
             this.log.debug('credits_path_allowed_queue', { action: 'credits_path_allowed_queue', metadata: { ownerType, ownerId: masked, credits } });
-          } catch {}
+          } catch {
+            // Ignore logging failures
+          }
         } else {
-          const errM: any = new Error(`Monthly quota exceeded. Used ${monthly.used}/${monthly.limit}`);
+          const errM = new Error(`Monthly quota exceeded. Used ${monthly.used}/${monthly.limit}`) as Error & { code?: string; details?: unknown };
           errM.code = 'quota_exceeded';
           errM.details = { scope: 'monthly', ...monthly };
           throw errM;
         }
       } else {
-        const errM: any = new Error(`Monthly quota exceeded. Used ${monthly.used}/${monthly.limit}`);
+        const errM = new Error(`Monthly quota exceeded. Used ${monthly.used}/${monthly.limit}`) as Error & { code?: string; details?: unknown };
         errM.code = 'quota_exceeded';
         errM.details = { scope: 'monthly', ...monthly };
         throw errM;
@@ -345,12 +350,16 @@ export class AiJobsService extends AbstractBaseService {
               try {
                 const masked = ownerId ? `…${ownerId.slice(-4)}(${ownerId.length})` : '';
                 this.log.info('credits_consumed', { action: 'credits_consumed', metadata: { jobId: row.id, ownerId: masked, remaining: credits - 1 } });
-              } catch {}
+              } catch {
+                // Ignore logging failures
+              }
             } else {
               try {
                 const masked = ownerId ? `…${ownerId.slice(-4)}(${ownerId.length})` : '';
                 this.log.warn('credits_missing', { action: 'credits_missing', metadata: { jobId: row.id, ownerId: masked } });
-              } catch {}
+              } catch {
+                // Ignore logging failures
+              }
               // Kein Monats-Increment mehr möglich; wir lassen den Erfolg aber stehen (analog Sync-Service Verhalten)
             }
           }

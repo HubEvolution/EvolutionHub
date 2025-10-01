@@ -100,16 +100,24 @@ export class PromptEnhancerService {
 
   // Safe logger helpers (tests may mock logger without full interface)
   private logInfo(event: string, data?: unknown) {
-    try { this.log?.info ? this.log.info(event, data) : this.log?.log?.(event, data); } catch {}
+    try { this.log?.info ? this.log.info(event, data) : this.log?.log?.(event, data); } catch {
+      // Ignore logging failures
+    }
   }
   private logWarn(event: string, data?: unknown) {
-    try { this.log?.warn ? this.log.warn(event, data) : this.log?.info?.(event, data); } catch {}
+    try { this.log?.warn ? this.log.warn(event, data) : this.log?.info?.(event, data); } catch {
+      // Ignore logging failures
+    }
   }
   private logError(event: string, data?: unknown) {
-    try { this.log?.error ? this.log.error(event, data) : this.log?.info?.(event, data); } catch {}
+    try { this.log?.error ? this.log.error(event, data) : this.log?.info?.(event, data); } catch {
+      // Ignore logging failures
+    }
   }
   private logDebug(event: string, data?: unknown) {
-    try { this.log?.debug ? this.log.debug(event, data) : this.log?.info?.(event, data); } catch {}
+    try { this.log?.debug ? this.log.debug(event, data) : this.log?.info?.(event, data); } catch {
+      // Ignore logging failures
+    }
   }
 
   private getTextModel(): string {

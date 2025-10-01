@@ -35,6 +35,7 @@ Enhance‑Endpoint für Text mit optionalen Anhängen (Bilder, Textdateien, PDF)
   - `files[]`: 0..3 Dateien (`image/jpeg|png|webp`, `text/plain|markdown`, `application/pdf`)
 
 - Beispiel (curl):
+
 ```bash
 curl -X POST \
   -H "X-CSRF-Token: 123" \
@@ -47,6 +48,7 @@ curl -X POST \
 ```
 
 - Erfolg (200):
+
 ```json
 {
   "success": true,
@@ -59,6 +61,7 @@ curl -X POST \
 ```
 
 - Validierungsfehler (400):
+
 ```json
 {
   "success": false,
@@ -79,6 +82,7 @@ Startet eine Bildverbesserung (z. B. Real‑ESRGAN). Erwartet Multipart mit Bild
   - `image`: Datei (image/jpeg|png|webp)
 
 - Beispiel (curl):
+
 ```bash
 curl -X POST \
   -H "X-CSRF-Token: 123" \
@@ -92,6 +96,7 @@ curl -X POST \
 ```
 
 - Erfolg (200):
+
 ```json
 {
   "success": true,
@@ -108,6 +113,7 @@ curl -X POST \
 Fragt den Status eines Jobs ab.
 
 - Beispiel:
+
 ```bash
 curl http://127.0.0.1:8787/api/ai-image/jobs/JOB_ID \
   -H "X-CSRF-Token: 123" -H "Cookie: csrf_token=123" -H "Origin: http://127.0.0.1:8787"

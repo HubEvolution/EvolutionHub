@@ -44,7 +44,10 @@ export const GET = withApiMiddleware(async (context) => {
 
     const debugOwnerId = (() => {
       // Avoid leaking IDs; expose only last 4 chars and length
-      try { return ownerId ? `…${ownerId.slice(-4)}(${ownerId.length})` : ''; } catch { return ''; }
+      try { return ownerId ? `…${ownerId.slice(-4)}(${ownerId.length})` : ''; } catch {
+        // Ignore string slicing errors - return empty string
+        return '';
+      }
     })();
     const resp = createApiSuccess({
       ownerType,
@@ -80,8 +83,12 @@ export const GET = withApiMiddleware(async (context) => {
         const hasUser = !!locals.user?.id;
         resp.headers.set('X-Debug-Session', hasSession ? '1' : '0');
         resp.headers.set('X-Debug-User', hasUser ? '1' : '0');
-      } catch {}
-    } catch {}
+      } catch {
+        // Ignore debug header failures
+      }
+    } catch {
+      // Ignore header setting failures
+    }
     return resp;
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unbekannter Fehler';
@@ -91,7 +98,9 @@ export const GET = withApiMiddleware(async (context) => {
       resp.headers.set('Pragma', 'no-cache');
       resp.headers.set('Expires', '0');
       resp.headers.set('X-Usage-Error', '1');
-    } catch {}
+    } catch {
+      // Ignore header setting failures
+    }
     return resp;
   }
 });

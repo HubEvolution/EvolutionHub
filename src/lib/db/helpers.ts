@@ -144,7 +144,7 @@ export async function updateUser(db: D1Database, id: string, updates: UpdateUser
  * Konvertiert User zu SafeUser (ohne sensible Daten)
  */
 export function toSafeUser(user: User): SafeUser {
-  const { password_hash, ...safeUser } = user;
+  const { password_hash: _password_hash, ...safeUser } = user;
   return safeUser;
 }
 

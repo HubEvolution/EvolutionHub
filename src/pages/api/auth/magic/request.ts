@@ -102,7 +102,9 @@ const handler: ApiHandler = async (context: APIContext) => {
         secure: isHttps,
         maxAge: 10 * 60, // 10 minutes
       });
-    } catch {}
+    } catch {
+      // Ignore cookie setting failures
+    }
   }
 
   // Persist locale hint so the callback can localize the final redirect consistently
@@ -158,7 +160,9 @@ const handler: ApiHandler = async (context: APIContext) => {
         },
       });
     }
-  } catch {}
+  } catch {
+    // Ignore redirect preparation failures
+  }
 
   return createApiSuccess({ sent: true });
 };

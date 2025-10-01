@@ -1,0 +1,18 @@
+---
+interface Props {
+  name: 'github' | 'google' | 'apple' | 'microsoft';
+  className?: string;
+  ariaLabel?: string;
+}
+
+const { name, className = '', ariaLabel } = Astro.props as Props;
+---
+<svg
+  class={`inline-block align-middle ${className}`}
+  aria-hidden={ariaLabel ? 'false' : 'true'}
+  aria-label={ariaLabel}
+  role={ariaLabel ? 'img' : 'presentation'}
+  focusable="false"
+>
+  <use href={`#icon-${name}`} />
+</svg>
