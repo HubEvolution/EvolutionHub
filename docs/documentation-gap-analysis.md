@@ -47,9 +47,13 @@ Die Analyse orientiert sich an folgenden Kategorien:
 - ✅ docs/architecture/auth-flow.md - Dokumentation des Authentifizierungsflusses
 - ✅ docs/architecture/adrs/ - Architecture Decision Records
   - ✅ 0000-adr-template.md - ADR-Template
-  - ✅ 0001-jwt-authentication.md - ADR zur JWT-Authentifizierung
+  - ✅ 0001-astro-cloudflare-stack.md - ADR zum Astro + Cloudflare Stack
   - ✅ 0002-cloudflare-architecture.md - ADR zur Cloudflare-Architektur
   - ✅ 0003-astro-frontend-architecture.md - ADR zur Astro Frontend-Architektur
+  - ✅ 0004-database-schema.md - ADR zum Datenbank-Schema
+  - ✅ 0005-auth-route-locale-normalisierung.md - ADR zur Auth-Route-Locale-Normalisierung
+  - ✅ 0006-dev-echo-non-prod.md - ADR zum Dev-Echo in Nicht-Prod-Umgebungen
+  - ✅ deprecated/ - Veraltete ADRs (z.B. JWT-Auth)
 
 ### API und Schnittstellen
 
