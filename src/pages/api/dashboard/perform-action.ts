@@ -19,7 +19,7 @@ export const POST = withAuthApiMiddleware(async (context) => {
   let requestData: unknown;
   try {
     requestData = await request.json();
-  } catch (error) {
+  } catch (_error) {
     // Fehlerhafte Anfrage protokollieren
     logUserEvent(userId, 'invalid_dashboard_request', {
       error: 'Invalid JSON in request body',

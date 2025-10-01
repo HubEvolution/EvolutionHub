@@ -23,7 +23,9 @@ function parsePricingTable(raw: unknown): Record<string, string> {
     if (!raw) return {};
     if (typeof raw === 'string') return JSON.parse(raw);
     if (typeof raw === 'object') return raw as Record<string, string>;
-  } catch {}
+  } catch {
+    // Intentionally ignore parsing errors; return empty object
+  }
   return {};
 }
 
@@ -156,8 +158,8 @@ export const POST = withApiMiddleware(async (context) => {
             if (row?.id) {
               resolvedUserId = row.id;
             }
-          } catch {
-            // Ignore database lookup failures
+          } catch (_err) {
+            // Ignore database lookup failures; continue without resolved user
           }
         }
 
@@ -172,8 +174,8 @@ export const POST = withApiMiddleware(async (context) => {
               reason: 'checkout_completed_no_user_context'
             });
             await kv.put(`stripe:pending:email:${customerEmail.toLowerCase()}`, payload);
-          } catch {
-            // Ignore KV storage failures
+          } catch (_err) {
+            // Ignore KV storage failures; pending association will retry via webhook
           }
         }
 

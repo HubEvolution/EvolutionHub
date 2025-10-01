@@ -65,8 +65,8 @@ export const blogCollection = defineCollection({
     updatedDate: dateSchema
       .optional()
       .superRefine((date, ctx) => {
-        const parent: any = (ctx as any).parent;
-        const pub: Date | undefined = parent?.pubDate;
+        const parent = ctx as unknown as { parent?: { pubDate?: Date } };
+        const pub: Date | undefined = parent.parent?.pubDate;
         if (date && pub && date < pub) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
@@ -163,7 +163,7 @@ export const blogCollection = defineCollection({
     }).optional(),
     
     // Benutzerdefinierte Felder
-    custom: z.record(z.any()).optional()
+    custom: z.record(z.unknown()).optional()
   })
   .refine(
     (data) => {

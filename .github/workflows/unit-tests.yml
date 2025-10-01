@@ -75,7 +75,7 @@ jobs:
       run: npm ci
 
     - name: Run Astro Type Check
-      run: npx astro check
+      run: npx astro check --tsconfig tsconfig.astro.json
 
   openapi:
     runs-on: ubuntu-latest

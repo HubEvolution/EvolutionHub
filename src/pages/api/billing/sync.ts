@@ -6,7 +6,9 @@ function parsePricingTable(raw: unknown): Record<string, string> {
     if (!raw) return {};
     if (typeof raw === 'string') return JSON.parse(raw);
     if (typeof raw === 'object') return raw as Record<string, string>;
-  } catch {}
+  } catch (_err) {
+    // Intentionally ignore parsing errors; return empty object
+  }
   return {};
 }
 
@@ -132,8 +134,8 @@ export const GET = withAuthApiMiddleware(async (context) => {
     // No subscription object (rare) — still set plan from metadata for UX
     try {
       await db.prepare('UPDATE users SET plan = ? WHERE id = ?').bind(plan, user.id).run();
-    } catch {
-      // Ignore plan update failures
+    } catch (_err) {
+      // Ignore plan update failures; webhook will eventually sync
     }
   }
 

@@ -40,7 +40,7 @@ export function useDownload() {
           a.remove();
           URL.revokeObjectURL(objectUrl);
         }
-      } catch (err) {
+      } catch (_err) {
         // As a last resort, open in a new tab to avoid full-page navigation
         if (url) window.open(url, '_blank', 'noopener');
       }

@@ -100,22 +100,22 @@ export class PromptEnhancerService {
 
   // Safe logger helpers (tests may mock logger without full interface)
   private logInfo(event: string, data?: unknown) {
-    try { this.log?.info ? this.log.info(event, data) : this.log?.log?.(event, data); } catch {
+    try { void (this.log?.info ? this.log.info(event, data) : this.log?.log?.(event, data)); } catch (_err) {
       // Ignore logging failures
     }
   }
   private logWarn(event: string, data?: unknown) {
-    try { this.log?.warn ? this.log.warn(event, data) : this.log?.info?.(event, data); } catch {
+    try { void (this.log?.warn ? this.log.warn(event, data) : this.log?.info?.(event, data)); } catch (_err) {
       // Ignore logging failures
     }
   }
   private logError(event: string, data?: unknown) {
-    try { this.log?.error ? this.log.error(event, data) : this.log?.info?.(event, data); } catch {
+    try { void (this.log?.error ? this.log.error(event, data) : this.log?.info?.(event, data)); } catch (_err) {
       // Ignore logging failures
     }
   }
   private logDebug(event: string, data?: unknown) {
-    try { this.log?.debug ? this.log.debug(event, data) : this.log?.info?.(event, data); } catch {
+    try { void (this.log?.debug ? this.log.debug(event, data) : this.log?.info?.(event, data)); } catch (_err) {
       // Ignore logging failures
     }
   }
@@ -318,7 +318,7 @@ export class PromptEnhancerService {
     }
 
     // Mask IDs (e.g., user IDs, reference numbers)
-    const idRegex = /(?:ID|id):\s*[\w\-]+|user_\d+|ref_\w+/gi;
+    const idRegex = /(?:ID|id):\s*[\w-]+|user_\d+|ref_\w+/gi;
     while ((match = idRegex.exec(text)) !== null) {
       masked.push(String(match[0]).trim());
       types.push('id');
@@ -326,7 +326,7 @@ export class PromptEnhancerService {
     }
 
     // Mask emails
-    const emailRegex = /[\w\.-]+@[\w\.-]+\.\w+/g;
+    const emailRegex = /[\w.-]+@[\w.-]+\.\w+/g;
     
     while ((match = emailRegex.exec(text)) !== null) {
       masked.push(String(match[0]).trim());
@@ -335,7 +335,7 @@ export class PromptEnhancerService {
     }
 
     // Mask phones
-    const phoneRegex = /(\+?[\d\s\-\(\)]{10,})/g;
+    const phoneRegex = /(\+?[\d\s\-()]{10,})/g;
     while ((match = phoneRegex.exec(text)) !== null) {
       masked.push(String(match[1]).trim());
       types.push('phone');

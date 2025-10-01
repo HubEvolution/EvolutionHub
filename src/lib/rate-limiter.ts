@@ -30,15 +30,15 @@ const limitStores: Record<string, RateLimitStore> = {};
 
 /**
  * Ermittelt einen eindeutigen Schlüssel für einen Benutzer/eine Anfrage basierend auf IP und User-ID
- * 
+ *
  * @param context Der Astro-Kontext der Anfrage
  * @returns Ein eindeutiger Schlüssel für Rate-Limiting
  */
-function getRateLimitKey(context: any): string {
+function getRateLimitKey(context: { clientAddress?: string; locals?: { user?: { id?: string } } }): string {
   // In einer echten Umgebung würde man die IP-Adresse und optional die User-ID verwenden
   const clientIp = context.clientAddress || '0.0.0.0';
   const userId = context.locals?.user?.id || 'anonymous';
-  
+
   return `${clientIp}:${userId}`;
 }
 
@@ -70,7 +70,7 @@ export function createRateLimiter(config: RateLimitConfig) {
   }, 60000); // Einmal pro Minute aufräumen
   
   // Die eigentliche Rate-Limiting-Middleware
-  return async function rateLimitMiddleware(context: any) {
+  return async function rateLimitMiddleware(context: { clientAddress?: string; locals?: { user?: { id?: string } }; request: Request }) {
     const key = getRateLimitKey(context);
     const now = Date.now();
     

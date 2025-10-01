@@ -24,6 +24,38 @@ export const GET: APIRoute = withRedirectMiddleware(async (context) => {
   const url = new URL(request.url);
   const origin = url.origin;
 
+  // Ensure locale hint is available for the callback localization.
+  // Priority:
+  // 1) explicit query param ?locale=de|en → set/override cookie
+  // 2) if cookie missing, derive from Referer path prefix (/de or /en)
+  try {
+    const existing = cookies.get('post_auth_locale')?.value as 'de' | 'en' | undefined;
+    const qp = (url.searchParams.get('locale') || '').toLowerCase();
+    const isValidLocale = (v: string): v is 'de' | 'en' => v === 'de' || v === 'en';
+    let derived: 'de' | 'en' | undefined;
+    if (!qp && !existing) {
+      const ref = request.headers.get('referer') || '';
+      try {
+        const refUrl = new URL(ref);
+        const p = refUrl.pathname || '';
+        if (p.startsWith('/de')) derived = 'de';
+        else if (p.startsWith('/en')) derived = 'en';
+      } catch {}
+    }
+    const finalLocale = isValidLocale(qp) ? (qp as 'de' | 'en') : existing || derived;
+    if (finalLocale && finalLocale !== existing) {
+      cookies.set('post_auth_locale', finalLocale, {
+        path: '/',
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: url.protocol === 'https:',
+        maxAge: 60 * 10,
+      });
+    }
+  } catch {
+    // Best effort only; proceed without locale cookie if anything goes wrong
+  }
+
   const env = (locals as any)?.runtime?.env || {};
   const projectId = env.STYTCH_PROJECT_ID as string | undefined;
   const publicToken = env.STYTCH_PUBLIC_TOKEN as string | undefined;

@@ -1,9 +1,9 @@
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
-import { resolve } from 'path';
+import tsconfigPaths from 'vite-tsconfig-paths';
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), tsconfigPaths({ projects: ['./tsconfig.json'] })],
   test: {
     // Shared defaults
     globals: true,
@@ -35,6 +35,7 @@ export default defineConfig({
     projects: [
       // Unit tests project
       {
+        plugins: [react(), tsconfigPaths({ projects: ['./tsconfig.json'] })],
         test: {
           environment: 'jsdom',
           setupFiles: ['./src/setupTests.ts'],
@@ -53,6 +54,7 @@ export default defineConfig({
       },
       // Integration tests project
       {
+        plugins: [tsconfigPaths({ projects: ['./tsconfig.json'] })],
         test: {
           include: ['tests/integration/**/*.{test,spec}.{ts,tsx}'],
           environment: 'node',
@@ -63,20 +65,5 @@ export default defineConfig({
     ],
   },
 
-  // Resolve aliases shared by projects
-  resolve: {
-    alias: {
-      // Spezifische Aliases zuerst (vor generischem '@')
-      '@/config/logging': resolve(__dirname, './src/config/logging.ts'),
-      '@/config/test-config': resolve(__dirname, './tests/src/legacy/config/test-config.ts'),
-      '@/server/utils/logger-factory': resolve(__dirname, './src/server/utils/logger-factory.ts'),
-      '@/lib/response-helpers': resolve(__dirname, './src/lib/response-helpers.ts'),
-      '@/lib/rate-limiter': resolve(__dirname, './src/lib/rate-limiter.ts'),
-      '@/lib/security-logger': resolve(__dirname, './src/lib/security-logger.ts'),
-      '@/lib/security/csrf': resolve(__dirname, './src/lib/security/csrf.ts'),
-      '@/server/utils/logger': resolve(__dirname, './src/server/utils/logger.ts'),
-      'tests-legacy': resolve(__dirname, './tests/src/legacy'),
-      '@': resolve(__dirname, './src'),
-    },
-  },
+  // tsconfigPaths plugin handles path resolution from tsconfig.json
 });

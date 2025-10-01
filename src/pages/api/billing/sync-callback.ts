@@ -39,7 +39,9 @@ export const GET = withRedirectMiddleware(async (context) => {
       sameSite: 'lax',
       path: '/',
     });
-  } catch {}
+  } catch (_err) {
+    // Ignore cookie setting failures; redirect will proceed anyway
+  }
 
   // Redirect to login; login flow will honor post_auth_redirect and finish sync automatically
   return new Response(null, {

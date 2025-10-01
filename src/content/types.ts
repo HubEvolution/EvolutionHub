@@ -2,7 +2,28 @@
 // These types are used by the BlogService to enrich blog post data.
 
 /**
+ * Author information for a blog post.
+ */
+export interface AuthorInfo {
+  name: string;
+  avatar?: string;
+  bio?: string;
+  twitter?: string;
+}
+
+/**
+ * Image metadata from Astro's image() schema helper.
+ */
+export interface ImageData {
+  src: string;
+  width: number;
+  height: number;
+  format: string;
+}
+
+/**
  * Represents the metadata associated with a blog post.
+ * Matches the schema defined in src/content/config.ts
  */
 export interface BlogPostData {
   /** The title of the blog post. */
@@ -11,18 +32,22 @@ export interface BlogPostData {
   pubDate: Date;
   /** The last updated date of the blog post, if available. */
   updatedDate?: Date;
-  /** The category the blog post belongs to, if any. */
-  category?: string;
+  /** The category the blog post belongs to. */
+  category: string;
   /** An array of tags associated with the blog post. */
-  tags?: string[];
+  tags: string[];
   /** Indicates if the blog post is featured. */
-  featured?: boolean;
+  featured: boolean;
   /** Indicates if the blog post is a draft, typically relevant in development environments. */
-  draft?: boolean;
+  draft: boolean;
   /** A short description or excerpt for meta tags or previews. */
-  description?: string;
-  /** Author(s) of the blog post. */
-  author?: string | string[];
+  description: string;
+  /** Author information - can be string or object. */
+  author: string | AuthorInfo;
+  /** The image for the blog post. */
+  image?: ImageData;
+  /** Alt text for the image. */
+  imageAlt?: string;
   /** The language of the blog post, optional for locale-specific filtering. */
   lang?: 'de' | 'en';
 }
@@ -72,7 +97,7 @@ interface BlogCollectionEntryBase {
   id: string;
   slug: string;
   body: string;
-  data: Record<string, any>; // Placeholder, specific data is defined in BlogPostData
+  data: Record<string, unknown>; // Placeholder, specific data is defined in BlogPostData
 }
 
 /**

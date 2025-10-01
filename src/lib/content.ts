@@ -35,24 +35,27 @@ export class ContentService<T extends CollectionEntry<'blog'>> {
       // Apply additional filters
       return Object.entries(filters).every(([key, value]) => {
         if (value === undefined) return true;
-        
-        const entryValue = (entry.data as any)[key];
+
+        const entryData = entry.data as Record<string, unknown>;
+        const entryValue = entryData[key];
         if (entryValue === undefined) return true;
-        
+
         // Handle array values (e.g., tags)
         if (Array.isArray(entryValue)) {
-          return (entryValue as any[]).includes(value);
+          return entryValue.includes(value);
         }
-        
+
         // Handle direct comparison
         return entryValue === value;
       });
     });
 
     // Sort by publication date (newest first)
-    entries = entries.sort((a: CollectionEntry<'blog'>, b: CollectionEntry<'blog'>) => 
-      new Date(a.data.pubDate as any).getTime() - new Date(b.data.pubDate as any).getTime()
-    ).reverse();
+    entries = entries.sort((a: CollectionEntry<'blog'>, b: CollectionEntry<'blog'>) => {
+      const dateA = new Date(a.data.pubDate as Date | string).getTime();
+      const dateB = new Date(b.data.pubDate as Date | string).getTime();
+      return dateA - dateB;
+    }).reverse();
 
     // Apply pagination
     if (offset !== undefined) {
@@ -121,7 +124,8 @@ export class ContentService<T extends CollectionEntry<'blog'>> {
     { limit = 3, ...filters }: BlogListOptions & { limit?: number } = {}
   ): Promise<T[]> {
     const current = currentEntry as unknown as CollectionEntry<'blog'>;
-    const { tags = [], category } = current.data as any;
+    const currentData = current.data as { tags?: string[]; category?: string };
+    const { tags = [], category } = currentData;
     const allEntries = await this.getAllEntries(filters);
     const allCE = allEntries as unknown as CollectionEntry<'blog'>[];
 
@@ -129,9 +133,10 @@ export class ContentService<T extends CollectionEntry<'blog'>> {
     const scoredEntries = allCE
       .filter((entry) => entry.id !== current.id)
       .map((entry) => {
-        const entryTags = ((entry.data as any).tags || []) as string[];
-        const tagMatches = entryTags.filter((tag: string) => (tags as string[]).includes(tag)).length;
-        const categoryMatch = (entry.data as any).category === category ? 1 : 0;
+        const entryData = entry.data as { tags?: string[]; category?: string };
+        const entryTags = entryData.tags || [];
+        const tagMatches = entryTags.filter((tag: string) => tags.includes(tag)).length;
+        const categoryMatch = entryData.category === category ? 1 : 0;
       
         return {
           entry,

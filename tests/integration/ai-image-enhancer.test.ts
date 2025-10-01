@@ -180,7 +180,7 @@ describe('AI Image Enhancer API + R2 Proxy (Integration)', () => {
     const file = new File([fake], 'fake.png', { type: 'image/png' });
     const fd = new FormData();
     fd.append('image', file);
-    fd.append('model', 'nightmareai/real-esrgan:latest');
+    fd.append('model', 'nightmareai/real-esrgan:f0992969a94014d73864d08e6d9a39286868328e4263d9ce2da6fc4049d01a1a');
 
     const token = makeCsrfToken();
     const res = await fetchManual('/api/ai-image/jobs', {
@@ -203,7 +203,7 @@ describe('AI Image Enhancer API + R2 Proxy (Integration)', () => {
     const file = new File([buf], 'sample.png', { type: 'image/png' });
     const fd = new FormData();
     fd.append('image', file);
-    fd.append('model', 'nightmareai/real-esrgan:latest');
+    fd.append('model', 'nightmareai/real-esrgan:f0992969a94014d73864d08e6d9a39286868328e4263d9ce2da6fc4049d01a1a');
 
     const token = makeCsrfToken();
     const res = await fetchManual('/api/ai-image/jobs', {
@@ -386,7 +386,7 @@ describe('AI Image Enhancer API + R2 Proxy (Integration)', () => {
     const file = new File([buf], 'sample.png', { type: 'image/png' });
     const fd = new FormData();
     fd.append('image', file);
-    fd.append('model', 'nightmareai/real-esrgan:latest');
+    fd.append('model', 'nightmareai/real-esrgan:f0992969a94014d73864d08e6d9a39286868328e4263d9ce2da6fc4049d01a1a');
 
     const token = makeCsrfToken();
     const res = await fetchManual('/api/ai-image/generate', {
@@ -413,7 +413,7 @@ describe('AI Image Enhancer API + R2 Proxy (Integration)', () => {
     const file = new File([buf], 'sample.png', { type: 'image/png' });
     const fd = new FormData();
     fd.append('image', file);
-    fd.append('model', 'nightmareai/real-esrgan:latest');
+    fd.append('model', 'nightmareai/real-esrgan:f0992969a94014d73864d08e6d9a39286868328e4263d9ce2da6fc4049d01a1a');
 
     const res = await fetchManual('/api/ai-image/generate', {
       method: 'POST',

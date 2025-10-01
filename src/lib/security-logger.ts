@@ -38,7 +38,7 @@ interface SecurityEvent {
   targetResource?: string; // Betroffene Ressource (z.B. '/api/user/profile')
   ipAddress?: string;     // IP-Adresse des Anfragenden
   timestamp: number;      // Zeitstempel
-  details: Record<string, any>; // Zusätzliche Details zum Ereignis
+  details: Record<string, unknown>; // Zusätzliche Details zum Ereignis
 }
 
 /**
@@ -51,7 +51,7 @@ interface SecurityEvent {
  */
 export function logSecurityEvent(
   type: SecurityEventType,
-  details: Record<string, any>,
+  details: Record<string, unknown>,
   options: {
     userId?: string;
     targetResource?: string;
@@ -110,49 +110,49 @@ export function logSecurityEvent(
 /**
  * Hilfsfunktion für erfolgreiche Authentifizierungs-Events
  */
-export function logAuthSuccess(userId: string, ipAddress?: string, details: Record<string, any> = {}) {
+export function logAuthSuccess(userId: string, ipAddress?: string, details: Record<string, unknown> = {}) {
   logSecurityEvent('AUTH_SUCCESS', details, { userId, ipAddress });
 }
 
 /**
  * Hilfsfunktion für fehlgeschlagene Authentifizierungs-Events
  */
-export function logAuthFailure(ipAddress?: string, details: Record<string, any> = {}) {
+export function logAuthFailure(ipAddress?: string, details: Record<string, unknown> = {}) {
   logSecurityEvent('AUTH_FAILURE', details, { ipAddress });
 }
 
 /**
  * Hilfsfunktion für Passwort-Reset-Events
  */
-export function logPasswordReset(userId: string, ipAddress?: string, details: Record<string, any> = {}) {
+export function logPasswordReset(userId: string, ipAddress?: string, details: Record<string, unknown> = {}) {
   logSecurityEvent('PASSWORD_RESET', details, { userId, ipAddress });
 }
 
 /**
  * Hilfsfunktion für Profil-Update-Events
  */
-export function logProfileUpdate(userId: string, details: Record<string, any> = {}) {
+export function logProfileUpdate(userId: string, details: Record<string, unknown> = {}) {
   logSecurityEvent('PROFILE_UPDATE', details, { userId });
 }
 
 /**
  * Hilfsfunktion für Zugriffsverweigerungs-Events
  */
-export function logPermissionDenied(userId: string, targetResource: string, details: Record<string, any> = {}) {
+export function logPermissionDenied(userId: string, targetResource: string, details: Record<string, unknown> = {}) {
   logSecurityEvent('PERMISSION_DENIED', details, { userId, targetResource });
 }
 
 /**
  * Hilfsfunktion für Rate-Limiting-Events
  */
-export function logRateLimitExceeded(ipAddress: string, targetResource: string, details: Record<string, any> = {}) {
+export function logRateLimitExceeded(ipAddress: string, targetResource: string, details: Record<string, unknown> = {}) {
   logSecurityEvent('RATE_LIMIT_EXCEEDED', details, { ipAddress, targetResource });
 }
 
 /**
  * Hilfsfunktion für verdächtige Aktivitäten
  */
-export function logSuspiciousActivity(ipAddress: string, details: Record<string, any> = {}) {
+export function logSuspiciousActivity(ipAddress: string, details: Record<string, unknown> = {}) {
   logSecurityEvent('SUSPICIOUS_ACTIVITY', details, { ipAddress });
 }
 

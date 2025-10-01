@@ -145,8 +145,9 @@ export class BlogService extends ContentService<BlogCollectionEntry> implements 
       const categoryMap = new Map<string, number>();
       processedPosts.forEach(post => {
         if (post.data.category) {
-          const currentCount = categoryMap.get(post.data.category) || 0;
-          categoryMap.set(post.data.category, currentCount + 1);
+          const cat = post.data.category as string;
+          const currentCount = categoryMap.get(cat) || 0;
+          categoryMap.set(cat, currentCount + 1);
         }
       });
       const categoriesWithCounts: CategoryWithCount[] = Array.from(categoryMap.entries())
@@ -227,13 +228,14 @@ export class BlogService extends ContentService<BlogCollectionEntry> implements 
       if (options.category && post.data.category !== options.category) {
         match = false;
       }
-      if (options.tag && !post.data.tags?.includes(options.tag)) {
+      if (options.tag && !(post.data.tags as string[])?.includes(options.tag)) {
         match = false;
       }
       if (options.search && typeof options.search === 'string' && options.search.trim() !== '') {
         const searchTerm = options.search.toLowerCase();
         // Check if search term is in body or title.
-        if (!(post.body.toLowerCase().includes(searchTerm) || post.data.title.toLowerCase().includes(searchTerm))) {
+        const title = post.data.title as string;
+        if (!(post.body.toLowerCase().includes(searchTerm) || title.toLowerCase().includes(searchTerm))) {
            match = false;
         }
       }
@@ -327,12 +329,13 @@ export class BlogService extends ContentService<BlogCollectionEntry> implements 
       if (options.category && post.data.category !== options.category) {
         match = false;
       }
-      if (options.tag && !post.data.tags?.includes(options.tag)) {
+      if (options.tag && !(post.data.tags as string[])?.includes(options.tag)) {
         match = false;
       }
       if (options.search && typeof options.search === 'string' && options.search.trim() !== '') {
         const searchTerm = options.search.toLowerCase();
-        if (!(post.body.toLowerCase().includes(searchTerm) || post.data.title.toLowerCase().includes(searchTerm))) {
+        const title = post.data.title as string;
+        if (!(post.body.toLowerCase().includes(searchTerm) || title.toLowerCase().includes(searchTerm))) {
           match = false;
         }
       }

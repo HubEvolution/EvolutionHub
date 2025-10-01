@@ -155,8 +155,8 @@ export async function validateSession(db: D1Database, sessionId: string): Promis
         name: userResult.name,
         username: userResult.username,
         image: userResult.image,
-        email_verified: Boolean((userResult as any).email_verified),
-        plan: (userResult as any).plan ?? 'free',
+        email_verified: Boolean(userResult.email_verified),
+        plan: userResult.plan ?? 'free',
     } as unknown as App.Locals['user'];
     
     return { session, user };

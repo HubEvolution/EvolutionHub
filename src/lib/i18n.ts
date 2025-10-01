@@ -40,7 +40,7 @@ export function getLocale(pathname: string): Locale {
 export function navigateLocale(locale: Locale): void {
   if (typeof window === 'undefined') return; // safety for SSR
 
-  const loc = window.location as any;
+  const loc = window.location;
   const currentPath: string = loc.pathname || '/';
   const currentSearch: string = loc.search || '';
   const currentHash: string = loc.hash || '';

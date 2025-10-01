@@ -69,7 +69,7 @@ const getHandler: ApiHandler = async (context: APIContext) => {
     const authRes = await stytchOAuthAuthenticate(context, token);
     const emails = authRes.user?.emails || [];
     stytchEmail = emails.find((e) => e.verified)?.email || emails[0]?.email;
-  } catch (e) {
+  } catch (_e) {
     return createSecureRedirect('/en/login?magic_error=InvalidOrExpired');
   }
 
@@ -143,9 +143,13 @@ const getHandler: ApiHandler = async (context: APIContext) => {
       if (!isLocalizedPath(target)) {
         target = localizePath(localeCookie, target);
       }
-      try { context.cookies.delete('post_auth_locale', { path: '/' }); } catch {}
+      try { context.cookies.delete('post_auth_locale', { path: '/' }); } catch (_err) {
+        // Ignore cookie deletion failures
+      }
     }
-  } catch {}
+  } catch (_err) {
+    // Ignore locale processing failures
+  }
 
   if (upsert.isNew && !(desiredName || desiredUsername)) {
     const nextParam = encodeURIComponent(target);

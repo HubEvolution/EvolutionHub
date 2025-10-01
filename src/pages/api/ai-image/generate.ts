@@ -48,7 +48,7 @@ export const POST = withApiMiddleware(async (context) => {
       if (v === 'true' || v === '1' || v === 'on' || v === 'yes') faceEnhance = true;
       else if (v === 'false' || v === '0' || v === 'off' || v === 'no') faceEnhance = false;
     }
-  } catch (e) {
+  } catch (_e) {
     return createApiError('validation_error', 'Ungültige Formulardaten');
   }
 

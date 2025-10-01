@@ -83,14 +83,14 @@ export function useCompareInteractions(props: UseCompareInteractionsProps): UseC
   }, [clamp, containerRef, setSliderPos]);
 
   const onMouseDown = useCallback((e: React.MouseEvent) => {
-    (draggingRef.current as any) = true;
+    draggingRef.current = true;
     updateFromClientX(e.clientX);
     const onMove = (ev: MouseEvent) => {
       if (!draggingRef.current) return;
       updateFromClientX(ev.clientX);
     };
     const onUp = () => {
-      (draggingRef.current as any) = false;
+      draggingRef.current = false;
       window.removeEventListener('mousemove', onMove);
       window.removeEventListener('mouseup', onUp);
     };
@@ -99,7 +99,7 @@ export function useCompareInteractions(props: UseCompareInteractionsProps): UseC
   }, [updateFromClientX]);
 
   const onTouchStart = useCallback((e: React.TouchEvent) => {
-    (draggingRef.current as any) = true;
+    draggingRef.current = true;
     const t0 = e.touches[0];
     if (t0) {
       updateFromClientX(t0.clientX);
@@ -127,19 +127,19 @@ export function useCompareInteractions(props: UseCompareInteractionsProps): UseC
       }
     };
     const onEnd = () => {
-      (draggingRef.current as any) = false;
+      draggingRef.current = false;
       if (holdTimerRef.current) {
         window.clearTimeout(holdTimerRef.current);
         holdTimerRef.current = null;
       }
       if (isHeld) setIsHeld(false);
-      window.removeEventListener('touchmove', onMove as any);
-      window.removeEventListener('touchend', onEnd as any);
-      window.removeEventListener('touchcancel', onEnd as any);
+      window.removeEventListener('touchmove', onMove);
+      window.removeEventListener('touchend', onEnd);
+      window.removeEventListener('touchcancel', onEnd);
     };
-    window.addEventListener('touchmove', onMove as any, { passive: true } as any);
-    window.addEventListener('touchend', onEnd as any);
-    window.addEventListener('touchcancel', onEnd as any);
+    window.addEventListener('touchmove', onMove, { passive: true });
+    window.addEventListener('touchend', onEnd);
+    window.addEventListener('touchcancel', onEnd);
   }, [isHeld, setIsHeld, updateFromClientX]);
 
   const onHandleKeyDown = useCallback((e: React.KeyboardEvent) => {

@@ -47,7 +47,10 @@ function matchPattern(path: string, pattern: string): boolean {
 function isEnvEnabled(): boolean {
   try {
     // Vite/astro environment
-    const v = (typeof import.meta !== 'undefined' && (import.meta as any).env && (import.meta as any).env.COMING_SOON) ||
+    const importMetaEnv = typeof import.meta !== 'undefined' && 'env' in import.meta
+      ? (import.meta as { env?: Record<string, unknown> }).env
+      : undefined;
+    const v = (importMetaEnv && importMetaEnv.COMING_SOON) ||
               (typeof process !== 'undefined' && (process.env && process.env.COMING_SOON));
     if (!v) return false;
     const val = String(v).toLowerCase();
@@ -66,8 +69,8 @@ export function isComingSoon(pathname: string, frontmatter?: Record<string, unkn
   }
 
   // 2) Per-page frontmatter explicitly set (true/false) overrides defaults and patterns
-  if (frontmatter && typeof (frontmatter as any).comingSoon !== 'undefined') {
-    return Boolean((frontmatter as any).comingSoon);
+  if (frontmatter && typeof frontmatter.comingSoon !== 'undefined') {
+    return Boolean(frontmatter.comingSoon);
   }
 
   // 3) ENV override (global)

@@ -11,7 +11,7 @@ export interface Env {
 }
 
 const stripeFromEnv = (env: Env) =>
-  new Stripe(env.STRIPE_SECRET, { apiVersion: '2022-11-15' } as any);
+  new Stripe(env.STRIPE_SECRET, { apiVersion: '2022-11-15' } as Stripe.StripeConfig);
 
 // Minimal context typing to avoid implicit any; Hono-like context is expected
 type JsonFn = (data: unknown, init?: number | ResponseInit) => Response;
@@ -35,7 +35,8 @@ export async function handleStripeCheckout(c: Ctx): Promise<Response> {
 
 export async function listTools(c: Ctx | APIContext): Promise<Response> {
   // Support both our minimal Ctx (with env/json) and Astro's APIContext (with locals.runtime.env)
-  const env: any = (c as any).env ?? (c as any).locals?.runtime?.env;
+  const contextWithEnv = c as { env?: Env; locals?: { runtime?: { env?: Env } } };
+  const env = contextWithEnv.env ?? contextWithEnv.locals?.runtime?.env;
   const tools = await env?.TOOLS?.get('manifest', 'json');
   return new Response(JSON.stringify(tools ?? null), {
     status: 200,

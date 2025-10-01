@@ -32,14 +32,14 @@ export interface ExtendedLogger extends Logger {
 export interface SecurityLogger {
   logSecurityEvent(
     type: SecurityEventType,
-    details: Record<string, any>,
+    details: Record<string, unknown>,
     context?: Partial<LogContext>
   ): void;
-  
-  logAuthSuccess(details: Record<string, any>, context?: Partial<LogContext>): void;
-  logAuthFailure(details: Record<string, any>, context?: Partial<LogContext>): void;
-  logApiAccess(details: Record<string, any>, context?: Partial<LogContext>): void;
-  logApiError(details: Record<string, any>, context?: Partial<LogContext>): void;
+
+  logAuthSuccess(details: Record<string, unknown>, context?: Partial<LogContext>): void;
+  logAuthFailure(details: Record<string, unknown>, context?: Partial<LogContext>): void;
+  logApiAccess(details: Record<string, unknown>, context?: Partial<LogContext>): void;
+  logApiError(details: Record<string, unknown>, context?: Partial<LogContext>): void;
 }
 
 /**
@@ -134,7 +134,7 @@ export interface LogFormatter {
  */
 export interface LogFilter {
   shouldLog(entry: LogEntry): boolean;
-  filterSensitiveData(data: any): any;
+  filterSensitiveData(data: unknown): unknown;
 }
 
 /**

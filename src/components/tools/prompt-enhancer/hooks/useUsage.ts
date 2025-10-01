@@ -47,7 +47,7 @@ export function useUsage(): UseUsageResult {
       } else {
         setError(data.error?.message || 'Failed to load usage');
       }
-    } catch (e) {
+    } catch (_e) {
       setError('Failed to load usage');
     } finally {
       setLoading(false);
@@ -69,14 +69,14 @@ export function useUsage(): UseUsageResult {
 
     window.addEventListener('focus', onFocus);
     document.addEventListener('visibilitychange', onVisibility);
-    window.addEventListener('auth:changed', onAuthChanged as any);
-    window.addEventListener('storage', onStorage as any);
+    window.addEventListener('auth:changed', onAuthChanged as EventListener);
+    window.addEventListener('storage', onStorage);
     window.addEventListener('pageshow', onPageShow);
     return () => {
       window.removeEventListener('focus', onFocus);
       document.removeEventListener('visibilitychange', onVisibility);
-      window.removeEventListener('auth:changed', onAuthChanged as any);
-      window.removeEventListener('storage', onStorage as any);
+      window.removeEventListener('auth:changed', onAuthChanged as EventListener);
+      window.removeEventListener('storage', onStorage);
       window.removeEventListener('pageshow', onPageShow);
     };
   }, [refresh]);

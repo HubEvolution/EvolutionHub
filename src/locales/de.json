@@ -819,8 +819,8 @@
           "description": "KI-gestützter Prompt-Optimierer für bessere Ergebnisse in KI-Chats und -Anwendungen."
         },
         "Prompt-Enhancer": {
-          "name_de": "Prompt-Enhancer",
-          "description_de": "KI-gestützter Prompt-Optimierer für bessere Ergebnisse in KI-Chats und -Anwendungen."
+          "name": "Prompt-Enhancer",
+          "description": "KI-gestützter Prompt-Optimierer für bessere Ergebnisse in KI-Chats und -Anwendungen."
         }
       },
       "details": {
@@ -853,16 +853,16 @@
           "longDescription": "Imag-Enhancer verwendet moderne neuronale Modelle, um Fotos und Grafiken automatisch zu optimieren. Wähle Voreinstellungen oder feine Anpassungen für Rauschreduzierung, Schärfe, Farbkorrektur und Upscaling. Unterstützt Einzel- und Stapelverarbeitung und respektiert Datenschutzrichtlinien durch optionale lokale Verarbeitung."
         },
         "Prompt-Enhancer": {
-          "back_de": "Zurück zur Übersicht",
-          "badge_new_de": "Neu",
-          "open_de": "Tool öffnen",
-          "support_de": "Support",
+          "back": "Zurück zur Übersicht",
+          "badge_new": "Neu",
+          "open": "Tool öffnen",
+          "support": "Support",
           "privacy": {
-            "heading_de": "Datenschutz & Verarbeitung",
-            "text_de": "Prompts werden auf unseren Servern verarbeitet. Bitte keine sensiblen oder personenbezogenen Daten eingeben."
+            "heading": "Datenschutz & Verarbeitung",
+            "text": "Prompts werden auf unseren Servern verarbeitet. Bitte keine sensiblen oder personenbezogenen Daten eingeben."
           },
-          "try_de": "Jetzt ausprobieren",
-          "longDescription_de": "Prompt-Enhancer verfeinert deine Text-Prompts hinsichtlich Klarheit, Ton und Vollständigkeit. Wähle einen Stil und erhalte einen besseren, sichereren Prompt für KI-Tools."
+          "try": "Jetzt ausprobieren",
+          "longDescription": "Prompt-Enhancer verfeinert deine Text-Prompts hinsichtlich Klarheit, Ton und Vollständigkeit. Wähle einen Stil und erhalte einen besseren, sichereren Prompt für KI-Tools."
         }
       }
     }

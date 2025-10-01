@@ -201,7 +201,7 @@ export interface ApiMiddlewareOptions {
   disableAutoLogging?: boolean;
 
   // Zusätzliche Metadaten für Logging
-  logMetadata?: Record<string, any>;
+  logMetadata?: Record<string, unknown>;
 
   // Optionaler Rate-Limiter (Standard: apiRateLimiter)
   rateLimiter?: (context: APIContext) => Promise<unknown>;
@@ -269,7 +269,7 @@ const errorStatusCodes: Record<ApiErrorType, number> = {
 export function createApiError(
   type: ApiErrorType,
   message?: string,
-  details?: Record<string, any>
+  details?: Record<string, unknown>
 ): Response {
   const status = errorStatusCodes[type];
   const errorMessage = message || errorMessages[type];
@@ -322,7 +322,8 @@ export function createApiSuccess<T>(
 export function withApiMiddleware(handler: ApiHandler, options: ApiMiddlewareOptions = {}): ApiHandler {
   return async (context: APIContext) => {
     const { clientAddress, request, locals } = context;
-    const user = (locals as any).user || (locals as any).runtime?.user;
+    const localsWithUser = locals as { user?: { id?: string; sub?: string }; runtime?: { user?: { id?: string; sub?: string } } };
+    const user = localsWithUser.user || localsWithUser.runtime?.user;
     const path = new URL(request.url).pathname;
     const method = request.method;
 
@@ -331,7 +332,8 @@ export function withApiMiddleware(handler: ApiHandler, options: ApiMiddlewareOpt
       const limiter = options.rateLimiter || apiRateLimiter;
       const rateLimitResult: unknown = await limiter(context);
       // Tolerant gegenüber unterschiedlichen Rückgabeformen
-      if (rateLimitResult && typeof (rateLimitResult as any).success === 'boolean' && (rateLimitResult as any).success === false) {
+      const resultObj = rateLimitResult as { success?: boolean };
+      if (rateLimitResult && typeof resultObj.success === 'boolean' && resultObj.success === false) {
         return applySecurityHeaders(
           createApiError('rate_limit', 'Zu viele Anfragen. Bitte versuchen Sie es später erneut.')
         );
@@ -393,7 +395,8 @@ export function withApiMiddleware(handler: ApiHandler, options: ApiMiddlewareOpt
 
       // Falls ein Endpoint einen typisierten Fehler wirft (z. B. aus Services)
       // mit einem expliziten apiErrorType, diesen bevorzugt verwenden.
-      const customType = (error as any)?.apiErrorType as ApiErrorType | undefined;
+      const errorObj = error as { apiErrorType?: ApiErrorType };
+      const customType = errorObj?.apiErrorType;
       if (customType) {
         return applySecurityHeaders(createApiError(customType, errorMessage));
       }
@@ -431,7 +434,8 @@ export function withAuthApiMiddleware(
     async (context: APIContext) => {
       // Prüfen, ob Benutzer authentifiziert ist
       const path = new URL(context.request.url).pathname;
-      const hasUser = Boolean((context.locals as any).user || (context.locals as any).runtime?.user);
+      const localsWithUser = context.locals as { user?: unknown; runtime?: { user?: unknown } };
+      const hasUser = Boolean(localsWithUser.user || localsWithUser.runtime?.user);
       if (!hasUser) {
         // Auth-Fehlschlag protokollieren und vereinheitlichte Antwort zurückgeben
         securityLogger.logAuthFailure({

@@ -16,7 +16,7 @@ export async function createJwt(userId: string, secret: string): Promise<string>
 export async function verifyJwt(token: string, secret: string): Promise<JwtPayload | null> {
   try {
     return await verify(token, secret);
-  } catch (error) {
+  } catch (_error) {
     return null;
   }
 }

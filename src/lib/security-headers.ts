@@ -30,7 +30,7 @@ export interface ApiMiddlewareOptions {
   disableAutoLogging?: boolean;
   
   // Zusätzliche Metadaten für Logging
-  logMetadata?: Record<string, any>;
+  logMetadata?: Record<string, unknown>;
 }
 
 /**
@@ -112,7 +112,7 @@ const errorStatusCodes: Record<ApiErrorType, number> = {
 export function createApiError(
   type: ApiErrorType,
   message?: string,
-  details?: Record<string, any>
+  details?: Record<string, unknown>
 ): Response {
   const status = errorStatusCodes[type];
   const errorMessage = message || errorMessages[type];

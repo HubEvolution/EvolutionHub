@@ -21,8 +21,8 @@ describe('computeAllowedScales', () => {
     expect(computeAllowedScales(false, ent2, true)).toEqual([]);
   });
   it('returns [2,4] when gating disabled or entitlements missing', () => {
-    expect(computeAllowedScales(true, null as any, false)).toEqual([2, 4]);
-    expect(computeAllowedScales(true, null as any, true)).toEqual([2, 4]);
+    expect(computeAllowedScales(true, null, false)).toEqual([2, 4]);
+    expect(computeAllowedScales(true, null, true)).toEqual([2, 4]);
     expect(computeAllowedScales(true, ent2, false)).toEqual([2, 4]);
   });
   it('respects maxUpscale when gating enabled', () => {
@@ -37,7 +37,7 @@ describe('computeCanUseFaceEnhance', () => {
   });
   it('is true when gating disabled regardless of entitlements', () => {
     expect(computeCanUseFaceEnhance(true, ent2, false)).toBe(true);
-    expect(computeCanUseFaceEnhance(true, null as any, false)).toBe(true);
+    expect(computeCanUseFaceEnhance(true, null, false)).toBe(true);
   });
   it('respects entitlements when gating enabled', () => {
     expect(computeCanUseFaceEnhance(true, ent2, true)).toBe(false);

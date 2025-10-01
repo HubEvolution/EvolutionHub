@@ -19,6 +19,7 @@ function toBase64(buffer: ArrayBuffer): string {
   return btoa(binary);
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface PreparedAttachments extends AttachmentContext {}
 
 export interface PrepareOptions {
@@ -77,7 +78,7 @@ export async function buildAttachmentContext(files: File[], options: PrepareOpti
 
 // Upload PDFs to OpenAI Files API for use with Responses API (file_search)
 // Mutates the given context.pdfs to include fileId.
-export async function uploadPdfFilesToProvider(openai: import('openai').default, ctx: PreparedAttachments, log?: { info?: Function; warn?: Function; error?: Function; }): Promise<void> {
+export async function uploadPdfFilesToProvider(openai: import('openai').default, ctx: PreparedAttachments, log?: { info?: (event: string, data?: unknown) => void; warn?: (event: string, data?: unknown) => void; error?: (event: string, data?: unknown) => void; }): Promise<void> {
   if (!ctx.pdfs.length) return;
   for (const pdf of ctx.pdfs) {
     if (pdf.fileId || !pdf.file) continue;

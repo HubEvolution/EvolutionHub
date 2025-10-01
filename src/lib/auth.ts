@@ -6,6 +6,7 @@
  * zu vermeiden, wurde dieses Modul auf einen Stub reduziert. Es wird im Projekt nicht mehr verwendet.
  */
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface LegacyLucia {}
 
 // Stub-Funktion: existiert nur für rückwärtskompatible Exporte. Nicht verwenden.

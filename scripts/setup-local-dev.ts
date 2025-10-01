@@ -93,9 +93,9 @@ function runSafeSQL(dbPath: string, sql: string) {
 async function createTestUser() {
   console.log('\n👤 Erstelle Test-Benutzer für lokale Entwicklung...');
   try {
-    // Importiere bcrypt für Passwort-Hashing
-    const bcrypt = await import('bcrypt');
-    
+    const nowIso = new Date().toISOString();
+    const nowUnix = Math.floor(Date.now() / 1000);
+
     // Test-Benutzer-Daten
     const testUser = {
       id: 'test-user-id-123',
@@ -104,16 +104,15 @@ async function createTestUser() {
       full_name: 'Test User',
       email: 'test@example.com',
       image: null,
-      created_at: new Date().toISOString(),
-      password_hash: await bcrypt.hash('password123', 10) // Einfaches Passwort für Testzwecke
+      created_at: nowIso
     };
-    
+
     // SQL für das Einfügen oder Aktualisieren des Test-Benutzers
     const insertUserSQL = `
-      INSERT OR REPLACE INTO users (id, name, username, full_name, email, image, created_at, password_hash)
-      VALUES ('${testUser.id}', '${testUser.name}', '${testUser.username}', '${testUser.full_name}', 
-              '${testUser.email}', ${testUser.image === null ? 'NULL' : `'${testUser.image}'`}, 
-              '${testUser.created_at}', '${testUser.password_hash}')
+      INSERT OR REPLACE INTO users (id, name, username, full_name, email, image, created_at, email_verified, email_verified_at, plan)
+      VALUES ('${testUser.id}', '${testUser.name}', '${testUser.username}', '${testUser.full_name}',
+              '${testUser.email}', ${testUser.image === null ? 'NULL' : `'${testUser.image}'`},
+              '${testUser.created_at}', 1, ${nowUnix}, 'free')
     `;
     
     // Finde alle SQLite-Dateien
@@ -176,8 +175,6 @@ async function createTestUser() {
 async function createSuiteV2TestUsers() {
   console.log('\n👥 Erstelle Test-Suite v2 Benutzer (admin, user, premium)...');
   try {
-    const bcrypt = await import('bcrypt');
-
     const nowIso = new Date().toISOString();
     const nowUnix = Math.floor(Date.now() / 1000);
 
@@ -230,19 +227,18 @@ async function createSuiteV2TestUsers() {
 
     let successCount = 0;
     for (const u of users) {
-      const password_hash = await bcrypt.hash(u.password, 10);
       const insertSQL = `
-        INSERT INTO users (id, name, username, full_name, email, image, created_at, password_hash, email_verified, email_verified_at)
-        VALUES ('${u.id}', '${u.name}', '${u.username}', '${u.full_name}', '${u.email}', NULL, '${nowIso}', '${password_hash}', 1, ${nowUnix})
+        INSERT INTO users (id, name, username, full_name, email, image, created_at, email_verified, email_verified_at, plan)
+        VALUES ('${u.id}', '${u.name}', '${u.username}', '${u.full_name}', '${u.email}', NULL, '${nowIso}', 1, ${nowUnix}, 'free')
         ON CONFLICT(email) DO UPDATE SET
           name=excluded.name,
           username=excluded.username,
           full_name=excluded.full_name,
           image=excluded.image,
           created_at=excluded.created_at,
-          password_hash=excluded.password_hash,
           email_verified=excluded.email_verified,
-          email_verified_at=excluded.email_verified_at;
+          email_verified_at=excluded.email_verified_at,
+          plan=excluded.plan;
       `;
 
       const tempSQLPath = path.join(os.tmpdir(), `suitev2_user_${u.username}_${Date.now()}.sql`);

@@ -96,7 +96,7 @@ export interface LogContext {
   resource?: string;
   action?: string;
   timestamp?: Date;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 /**
@@ -123,10 +123,10 @@ export const LogUtils = {
   /**
    * Filtert sensible Daten aus Objekten
    */
-  sanitizeObject(obj: any): any {
+  sanitizeObject(obj: unknown): unknown {
     if (typeof obj !== 'object' || obj === null) return obj;
 
-    const sanitized = { ...obj };
+    const sanitized = { ...obj as Record<string, unknown> };
     const sensitiveKeys = LOG_CONFIG.filters.sensitiveKeys;
 
     for (const key of sensitiveKeys) {

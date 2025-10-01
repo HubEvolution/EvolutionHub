@@ -98,7 +98,9 @@ const getHandler: ApiHandler = async (context: APIContext) => {
       if (typeof data.name === 'string') desiredName = data.name;
       if (typeof data.username === 'string') desiredUsername = data.username;
     }
-  } catch {}
+  } catch (_err) {
+    // Ignore profile cookie parsing failures
+  }
 
   const upsert = await upsertUser(db, email, desiredName, desiredUsername);
 
@@ -124,7 +126,9 @@ const getHandler: ApiHandler = async (context: APIContext) => {
       secure: isHttps,
       maxAge,
     });
-  } catch {}
+  } catch (_err) {
+    // Ignore cookie setting failures; session will be retried on next request
+  }
 
   // Determine redirect target: prefer cookie set during request phase over query param
   const rCookie = context.cookies.get('post_auth_redirect')?.value || '';
@@ -132,13 +136,17 @@ const getHandler: ApiHandler = async (context: APIContext) => {
   let target = (env?.AUTH_REDIRECT as string) || '/dashboard';
   if (isAllowedRelativePath(rCookie)) {
     target = rCookie;
-    try { context.cookies.delete('post_auth_redirect', { path: '/' }); } catch {}
+    try { context.cookies.delete('post_auth_redirect', { path: '/' }); } catch (_err) {
+      // Ignore cookie deletion failures
+    }
   }
 
   // Clear optional profile cookie once consumed
   try {
     context.cookies.delete('post_auth_profile', { path: '/' });
-  } catch {}
+  } catch (_err) {
+    // Ignore cookie deletion failures
+  }
   if (!isAllowedRelativePath(rCookie) && isAllowedRelativePath(r)) {
     target = r;
   }
@@ -150,9 +158,13 @@ const getHandler: ApiHandler = async (context: APIContext) => {
       if (!isLocalizedPath(target)) {
         target = localizePath(localeCookie, target);
       }
-      try { context.cookies.delete('post_auth_locale', { path: '/' }); } catch {}
+      try { context.cookies.delete('post_auth_locale', { path: '/' }); } catch (_err) {
+        // Ignore cookie deletion failures
+      }
     }
-  } catch {}
+  } catch (_err) {
+    // Ignore locale processing failures
+  }
 
   // If this is a first-time user and no explicit profile data was provided,
   // guide them through a lightweight profile completion step.
