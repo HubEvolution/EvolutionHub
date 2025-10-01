@@ -1,162 +1,199 @@
-# Stytch Custom Domains with Cloudflare
+# Stytch-Integration: Aktueller Stand (2025-10-01)
 
-This guide explains how to configure Stytch Custom Domains using Cloudflare DNS and wire them into this app.
+**Letzte Analyse:** 2025-10-01T03:16:24+02:00
 
-- Two domains are used:
-  - `login-test.<your-domain>` for Local/Test
-  - `login.<your-domain>` for Staging/Production
+## Executive Summary
 
-## Prerequisites
+- ✅ **Magic Link:** Vollständig implementiert und produktiv
+- ✅ **OAuth:** Aktiv in Testing und Production (GitHub verifiziert)
+- ✅ **Custom Domain:** Aktiv (Testing: `login-test.hub-evolution.com`, Production: `login.hub-evolution.com`)
+- ℹ️ **Hinweis:** Server-zu-Stytch API-Calls bleiben über `https://test.stytch.com`/`https://api.stytch.com`; nur der Public OAuth Start nutzt die Custom Domain
 
-- Cloudflare account with access to your DNS zone
-- Stytch account (TEST and LIVE projects)
-- Values from Stytch Custom Domain modal:
-  - CNAME target for TEST (e.g. `abc.customers.stytch.dev`)
-  - CNAME target for LIVE (e.g. `xyz.customers.stytch.dev`)
+---
 
-## 1) Create DNS Records in Cloudflare (Dashboard)
+## 1. Implementierungsstatus
 
-Create the following records in your zone:
+### Core-Komponenten
 
-- CNAME for `login-test`
-  - Name: `login-test`
-  - Content: `<TEST_TARGET>.customers.stytch.dev`
-  - Proxy: DNS only (disable orange cloud)
-  - TTL: Auto
-- CNAME for `login`
-  - Name: `login`
-  - Content: `<LIVE_TARGET>.customers.stytch.dev`
-  - Proxy: DNS only
-  - TTL: Auto
-- CAA records on the root (not on the subdomain):
-  - Type: `CAA`, Name: `@`, Tag: `issue`, Value: `letsencrypt.org`
-  - Type: `CAA`, Name: `@`, Tag: `issue`, Value: `ssl.com`
-  - Type: `CAA`, Name: `@`, Tag: `issue`, Value: `pki.goog`
+| Komponente | Status | Datei |
+|-----------|--------|-------|
+| Stytch Client | ✅ Aktiv | `src/lib/stytch.ts` |
+| Magic Link Request | ✅ Aktiv | `src/pages/api/auth/magic/request.ts` |
+| Magic Link Callback | ✅ Aktiv | `src/pages/api/auth/callback.ts` |
+| OAuth Start | ✅ Aktiv | `src/pages/api/auth/oauth/[provider]/start.ts` |
+| OAuth Callback | ✅ Aktiv | `src/pages/api/auth/oauth/[provider]/callback.ts` |
 
-Notes:
-- CAA must be added on the root domain (e.g. `example.com`), not on `login.example.com`.
-- The CNAME must be DNS only to allow Stytch to issue certificates.
+- Development: `http://127.0.0.1:8787/api/auth/callback`
+- Testing: `https://ci.hub-evolution.com/api/auth/callback`
+- Staging: `https://staging.hub-evolution.com/api/auth/callback`
+- Production: `https://hub-evolution.com/api/auth/callback`
 
-## 2) Verify DNS Propagation
+### Custom Domain: Aktiv (Testing + Production)
 
-Use `dig` to confirm records:
+**Aktiver Zustand:**
 
-```bash
-dig +short CNAME login-test.example.com
-dig +short CNAME login.example.com
-dig +short CAA example.com
-```
+- ✅ Testing: `login-test.hub-evolution.com` (DNS CNAME → Stytch Target, Proxy: DNS only)
+- ✅ Production: `login.hub-evolution.com` (DNS CNAME → Stytch Target, Proxy: DNS only)
+- ✅ `STYTCH_CUSTOM_DOMAIN` gesetzt (Host ohne Schema)
+- ✅ Stytch Dashboard: Custom Domains „Active“
 
-Proceed once `login(-test)` resolves to the Stytch `*.customers.stytch.dev` host and CAA issuers are present.
+**CAA-Empfehlung (Root-Domain `hub-evolution.com`):**
 
-## 3) Verify Domain in Stytch
+- `CAA 0 issue "letsencrypt.org"`
+- `CAA 0 issue "ssl.com"`
+- `CAA 0 issue "pki.goog"`
 
-For each project (TEST and LIVE):
+**Checks:**
 
-- Go to: Configuration → Custom Domains → Add new
-- Enter the full domain exactly as created in DNS:
-  - TEST: `login-test.example.com`
-  - LIVE: `login.example.com`
-- Click “Verify” (certificate issuance can take a few minutes).
+- `dig +short CNAME login-test.hub-evolution.com` → zeigt Stytch Target
+- `dig +short CNAME login.hub-evolution.com` → zeigt Stytch Target
 
-## 4) Configure Redirect URLs in Stytch
+  ---
 
-- TEST project:
-  - `http://127.0.0.1:8787/api/auth/oauth/github/callback`
-  - `http://localhost:8787/api/auth/oauth/github/callback`
-- LIVE project:
-  - `https://app.example.com/api/auth/oauth/github/callback` (replace with your app domain)
+## 3. Secrets & Credentials
 
-Custom Domains are used for the PUBLIC OAuth start endpoints; callbacks still point to your app domain.
-
-## 5) Configure the App Environments
-
-Set `STYTCH_CUSTOM_DOMAIN` so PUBLIC OAuth starts use your custom domain. This app already supports it in `src/pages/api/auth/oauth/[provider]/start.ts`.
-
-- Development: `login-test.example.com`
-- Staging: `login.example.com`
-- Production: `login.example.com`
-
-Wrangler secrets examples:
+### Lokale Konfiguration (.env)
 
 ```bash
-printf "login-test.example.com" | npx wrangler secret put STYTCH_CUSTOM_DOMAIN --env development
-printf "login.example.com"      | npx wrangler secret put STYTCH_CUSTOM_DOMAIN --env staging
-printf "login.example.com"      | npx wrangler secret put STYTCH_CUSTOM_DOMAIN --env production
+STYTCH_PROJECT_ID=project-test-9ae8446a-d90b-4159-9ee8-441304458865
+STYTCH_SECRET=secret-test-zolDGVVKCJV36qEpoXIxHSGUiPkqzf6jt1A=
 ```
 
-Ensure the following Stytch secrets are set as well (per environment):
+- `STYTCH_PUBLIC_TOKEN` (für OAuth)
+- `STYTCH_CUSTOM_DOMAIN` (optional)
 
-- `STYTCH_PUBLIC_TOKEN`
-- `STYTCH_PROJECT_ID`
-- `STYTCH_SECRET`
+---
 
-## 6) Build & Roundtrip Test
+## 4. Wichtige Checks & Troubleshooting
 
-```bash
-npm run build:worker
-npm run dev:worker:dev
-```
+### Redirect-URL-Whitelist
 
-Test (Dev/Local):
+**Dashboard prüfen:** Configuration → Redirect URLs → sind Login/Signup-Callbacks whitelisted?
 
-1. Open `/en/login`.
-2. Click “Continue with GitHub”.
-3. Expect a 302 to `https://login-test.example.com/v1/public/oauth/github/start?...`.
-4. Complete GitHub consent.
-5. Expect redirect to `/api/auth/oauth/github/callback` and then to the target page (e.g. `/dashboard`).
+- `http://127.0.0.1:8787/api/auth/callback` (Dev)
+- `https://ci.hub-evolution.com/api/auth/callback` (Testing)
+- `https://staging.hub-evolution.com/api/auth/callback` (Staging)
+- `https://hub-evolution.com/api/auth/callback` (Production)
 
-For Staging/Prod, expect redirect to `https://login.example.com/...` after deployment.
+Fehlerbilder: `400 no_login_redirect_urls_set` / `no_signup_redirect_urls_set`.
 
-## Troubleshooting
+### Provider-Enablement
 
-- **Fallback text shown for button**
-  - Hard‑reload. Keys exist in `src/locales/en.json`. App also uses soft fallback + `||` defaults.
-- **No redirect to custom domain**
-  - `STYTCH_CUSTOM_DOMAIN` set for the current environment? Rebuild/restart Worker.
-- **Verification/cert issues**
-  - CNAME points to `*.customers.stytch.dev`? CAA present on root? Proxy disabled? Wait a few minutes.
-- **Wrong Stytch environment**
-  - TEST custom domain must be created in TEST project; LIVE custom domain in LIVE project.
-- **Callback errors**
-  - Exact callback URL registered in Stytch? Route exists at `/api/auth/oauth/github/callback`?
+- Stytch → Configuration → OAuth → Provider (GitHub/Google/Apple/Microsoft) „Enabled“ und LIVE/TEST‑Creds hinterlegt.
 
-## Automation (Optional)
+### Custom Domain Variable
 
-A helper script is provided to upsert Cloudflare DNS via API:
+- `STYTCH_CUSTOM_DOMAIN` ohne Schema setzen (z. B. `login.hub-evolution.com`).
+- Der Start-Endpoint baut selbst `https://${STYTCH_CUSTOM_DOMAIN}/v1/public/oauth/...`.
 
-- Script: `scripts/cloudflare/setup-stytch-custom-domain.sh`
-- Required env vars:
-  - `CF_API_TOKEN` (DNS:Edit scoped to the zone)
-  - `CF_ZONE_ID`
-  - `CF_ROOT_DOMAIN` (e.g. `example.com`)
-  - `CF_SUBDOMAIN` (`login` or `login-test`)
-  - `STYTCH_TARGET` (e.g. `abc.customers.stytch.dev`)
-  - Optional: `ENSURE_CAA=true` to add CAA issuers on the root
+  ---
 
-Example:
+## 5. Nächste Schritte (Priorisiert)
 
-```bash
-export CF_API_TOKEN=***
-export CF_ZONE_ID=***
-export CF_ROOT_DOMAIN=example.com
-export STYTCH_TARGET=iris-gibbon-2947.customers.stytch.dev
+### Abgeschlossen
 
-# TEST
-ENSURE_CAA=true  CF_SUBDOMAIN=login-test STYTCH_TARGET="$STYTCH_TARGET" \
-  ./scripts/cloudflare/setup-stytch-custom-domain.sh
+- Testing: Custom Domain `login-test.hub-evolution.com` aktiv; OAuth (GitHub) erfolgreich; Cookies verifiziert
+- Production: Custom Domain `login.hub-evolution.com` aktiv; OAuth (GitHub) erfolgreich; Cookies verifiziert
+- Redirect‑URL‑Whitelists in Stytch gesetzt (Dev/Testing/Staging/Prod)
+- Secrets gesetzt (`STYTCH_PROJECT_ID`, `STYTCH_SECRET`, `STYTCH_PUBLIC_TOKEN`, `STYTCH_CUSTOM_DOMAIN`)
 
-# LIVE
-ENSURE_CAA=false CF_SUBDOMAIN=login      STYTCH_TARGET="$STYTCH_TARGET" \
-  ./scripts/cloudflare/setup-stytch-custom-domain.sh
-```
+Weitere Flow-Details:
 
-### Terraform (Recommended for Infra‑as‑Code)
+- Validiert Token mit Stytch
+- Upsert User in D1
+- Erstellt Session, setzt Cookies (`session_id` + `__Host-session`)
+- Redirect zu Ziel (Cookie hat Vorrang vor Query-`r`)
 
-You can codify the CNAME/CAA records via Terraform (`cloudflare_record`). Keep `proxied=false` for the CNAME.
+### OAuth Flow
 
-## Security
+1. **Start:** GET `/api/auth/oauth/:provider/start`
+   - Validiert Provider (github, google, apple, microsoft)
+   - Ermittelt Base-URL (Custom Domain oder Standard)
+   - Redirect zu Stytch OAuth-Endpoint
 
-- Do not paste API tokens into chat or logs. Export them in your local shell when running scripts.
-- Limit Cloudflare tokens to the specific zone and only DNS:Edit (+ Zone:Read for discovery).
-- Separate TEST and LIVE flows carefully. Verify the correct project before adding Custom Domains.
+2. **Callback:** GET `/api/auth/oauth/:provider/callback`
+   - Validiert OAuth-Token mit Stytch
+   - Identischer User/Session-Flow wie Magic Link
+
+---
+
+## 7. Referenzen
+
+### Dateien
+
+- **Client:** `src/lib/stytch.ts`
+- **Magic Link Request:** `src/pages/api/auth/magic/request.ts`
+- **Callback:** `src/pages/api/auth/callback.ts`
+- **OAuth Start:** `src/pages/api/auth/oauth/[provider]/start.ts`
+- **OAuth Callback:** `src/pages/api/auth/oauth/[provider]/callback.ts`
+
+### Dokumentation
+
+- **Migration:** `docs/architecture/auth-migration-stytch.md`
+- **Custom Domains:** `docs/ops/stytch-custom-domains.md`
+
+### Skripte
+
+- **DNS Setup:** `scripts/cloudflare/setup-stytch-custom-domain.sh`
+
+### Konfiguration
+
+- **Environments:** `wrangler.toml`
+- **Lokale Secrets:** `.env`
+
+---
+
+## 8. Entscheidungsmatrix
+
+### Custom Domain: Ja oder Nein?
+
+| Kriterium | Standard-Domain | Custom Domain |
+|-----------|----------------|---------------|
+| **Setup-Aufwand** | ✅ Keine Konfiguration | ❌ DNS + Stytch-Verifizierung |
+| **Branding** | ❌ `test.stytch.com` sichtbar | ✅ `login.hub-evolution.com` |
+| **Nutzervertrauen** | ⚠️ Drittanbieter-Domain | ✅ Eigene Domain |
+| **Kosten** | ✅ Kostenlos | ✅ Kostenlos (nur DNS) |
+| **Wartung** | ✅ Keine | ⚠️ Zertifikat-Renewal automatisch |
+
+**Empfehlung:**
+
+- **MVP/Testing:** Standard-Domain ausreichend
+- **Production-Launch:** Custom Domain empfohlen
+
+---
+
+## 9. Troubleshooting
+
+### OAuth funktioniert nicht
+
+**Symptom:** "ServerConfig"-Fehler beim Klick auf Social-Login-Button
+
+**Ursache:** `STYTCH_PUBLIC_TOKEN` fehlt
+
+**Lösung:** Public Token aus Dashboard holen und setzen (siehe Phase 2)
+
+### 400 no_login_redirect_urls_set
+
+**Ursache:** Callback-URL nicht in Stytch whitelisted
+
+**Lösung:**
+
+1. Stytch Dashboard → Configuration → Redirect URLs
+2. Callback-URL hinzufügen (z.B. `https://hub-evolution.com/api/auth/callback`)
+3. Speichern und erneut testen
+
+### Custom Domain zeigt nicht
+
+**Symptom:** OAuth leitet zu `test.stytch.com` statt `login.hub-evolution.com`
+
+**Ursache:** `STYTCH_CUSTOM_DOMAIN` nicht gesetzt oder DNS nicht konfiguriert
+
+**Lösung:**
+
+1. DNS-Records prüfen: `dig +short CNAME login.hub-evolution.com`
+2. Stytch Dashboard: Custom Domain verifiziert?
+3. Environment-Variable gesetzt? `wrangler secret list --env production`
+
+---
+
+**Status:** Aktualisiert am 2025-10-01T08:21:00+02:00

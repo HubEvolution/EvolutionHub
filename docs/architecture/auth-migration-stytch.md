@@ -33,9 +33,15 @@ Status: Phase 1 (Root-Workspace-Aliases) abgeschlossen am 2025-09-04T00:33:20+02
 ### Redirect-URIs pro Environment (Stytch Whitelist)
 
 - Development: `http://127.0.0.1:8787/api/auth/callback`
-- Testing: `https://test.hub-evolution.com/api/auth/callback`
+- Testing: `https://ci.hub-evolution.com/api/auth/callback`
 - Staging: `https://staging.hub-evolution.com/api/auth/callback`
 - Production: `https://hub-evolution.com/api/auth/callback`
+
+#### Public OAuth Start Hosts (Custom Domains)
+
+- Testing: `https://login-test.hub-evolution.com`
+- Production: `https://login.hub-evolution.com`
+  - Hinweis: Server→Stytch API-Calls nutzen weiterhin `https://test.stytch.com`/`https://api.stytch.com` basierend auf der Project-ID; die Custom Domain betrifft nur die Public OAuth Start-URL.
 
 ## Feature-Flag
 
@@ -213,7 +219,7 @@ Stytch CLI / API:
 - Login: E‑Mail‑basiertes Magic‑Link‑Formular (nur E‑Mail). Optionales Profil (Name/Username) wird hier nicht abgefragt.
 - Register: Magic‑Link‑Formular mit E‑Mail und optionalen Profilfeldern (Name, Username). Übergabe erfolgt serverseitig via `post_auth_profile`.
 - „Forgot password?“: Link wird in Stytch‑Modus ausgeblendet (Legacy‑Formular hidden bei `AUTH_PROVIDER=stytch`).
-- Social/OAuth‑Buttons: standardmäßig verborgen; Anzeige erst, wenn Feature‑Flag/Backends aktiviert sind.
+- Social/OAuth‑Buttons: aktiv (GitHub) in Testing und Production; weitere Provider können nach Enablement in Stytch ergänzt werden.
 - UI‑Zustände: „Link gesendet“, „ungültig/abgelaufen“, „erneut senden“.
 - Redirect‑Parameter `r` clientseitig validieren; Server (Cookie `post_auth_redirect`) hat Vorrang. (Policy siehe Sicherheit)
 - Magic‑Link Cooldown & i18n: Der Submit‑Button ist nach Absenden 60s wirklich deaktiviert (`disabled`, `aria-disabled`, `pointer-events: none`, visuelles Feedback). Countdown‑Text ist i18n‑fähig über `pages.auth.magic.cooldown` (z. B. „Resend in {s}s“ / „Erneut senden in {s}s“).
