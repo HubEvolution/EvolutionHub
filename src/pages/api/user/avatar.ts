@@ -1,6 +1,6 @@
 import type { APIContext } from 'astro';
 import { logUserEvent } from '@/lib/security-logger';
-import { applySecurityHeaders } from '@/lib/security-headers';
+import { applySecurityHeaders } from '@/lib/api-middleware';
 
 // Direktes Response-Erstellen ohne Middleware
 function createSuccessResponse(data: any) {

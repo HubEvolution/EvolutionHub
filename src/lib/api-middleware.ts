@@ -8,12 +8,46 @@
 
 import type { APIContext } from 'astro';
 import { apiRateLimiter } from '@/lib/rate-limiter';
-import { applySecurityHeaders } from '@/lib/security-headers';
 import { loggerFactory } from '@/server/utils/logger-factory';
 
 // Logger-Instanzen erstellen
 const securityLogger = loggerFactory.createSecurityLogger();
 const logger = loggerFactory.createLogger('api-middleware');
+
+/**
+ * Wendet Sicherheits-Header auf eine Response an, um die Anwendung vor
+ * verschiedenen Sicherheitsbedrohungen zu schützen.
+ *
+ * @param response - Die Response, auf die die Sicherheitsheader angewendet werden sollen
+ * @returns Die Response mit angewendeten Sicherheitsheadern
+ */
+export function applySecurityHeaders(response: Response): Response {
+  // Erstelle eine neue Response mit den gleichen Daten und Status
+  const secureResponse = new Response(response.body, response);
+
+  // Hinweis: CSP wird zentral in der globalen Middleware (src/middleware.ts) gesetzt.
+  // API-Antworten (JSON) benötigen keine CSP und sollten diese nicht überschreiben.
+
+  // X-Content-Type-Options
+  secureResponse.headers.set('X-Content-Type-Options', 'nosniff');
+
+  // X-Frame-Options
+  secureResponse.headers.set('X-Frame-Options', 'DENY');
+
+  // X-XSS-Protection
+  secureResponse.headers.set('X-XSS-Protection', '1; mode=block');
+
+  // Referrer-Policy
+  secureResponse.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+
+  // Strict-Transport-Security (with preload to match global middleware)
+  secureResponse.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+
+  // Permissions-Policy
+  secureResponse.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), interest-cohort=()');
+
+  return secureResponse;
+}
 
 /**
  * Interface für API-Handler-Funktionen

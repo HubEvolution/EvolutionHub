@@ -1,10 +1,17 @@
-import type { APIRoute } from 'astro';
 import Stripe from 'stripe';
+import { withApiMiddleware } from '@/lib/api-middleware';
+import { createRateLimiter } from '@/lib/rate-limiter';
 // Minimal KV interface to avoid external type dependency
 type KV = {
   get(key: string): Promise<string | null>;
   put(key: string, value: string): Promise<void>;
 };
+
+const stripeWebhookLimiter = createRateLimiter({
+  maxRequests: 100,
+  windowMs: 60 * 1000,
+  name: 'stripeWebhook'
+});
 
 // Stripe Webhook to synchronize subscriptions and set users.plan
 // Events handled:
@@ -28,7 +35,7 @@ function invert<K extends string, V extends string>(obj: Record<K, V>): Record<V
   return out as Record<V, K>;
 }
 
-export const POST: APIRoute = async (context) => {
+export const POST = withApiMiddleware(async (context) => {
   const env = (context.locals?.runtime?.env || {}) as App.Locals['runtime']['env'];
   const stripeSecret = (env as any).STRIPE_SECRET as string | undefined;
   const webhookSecret = (env as any).STRIPE_WEBHOOK_SECRET as string | undefined;
@@ -262,4 +269,9 @@ export const POST: APIRoute = async (context) => {
       headers: { 'Content-Type': 'application/json' },
     });
   }
-};
+}, {
+  rateLimiter: stripeWebhookLimiter,
+  disableAutoLogging: false,
+  requireSameOriginForUnsafeMethods: false, // Stripe calls from external origin
+  enforceCsrfToken: false // Signature validation is the CSRF equivalent
+});
