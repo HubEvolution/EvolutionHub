@@ -377,22 +377,46 @@ vi.mock('bcrypt-ts', async () => ({
 
 ## Bereitstellung
 
-Das Deployment erfolgt automatisch bei jedem `git push` auf den `main`-Branch über **Cloudflare Pages**.
+Das Deployment erfolgt automatisch über **GitHub Actions** mit Tag-basiertem Workflow.
 
-### Manuelle Bereitstellung
+### Automatisches Deployment (Empfohlen)
 
-Für eine manuelle Bereitstellung führen Sie folgende Schritte aus:
+```bash
+# Tag erstellen und pushen
+git tag v1.7.1 -m "Release v1.7.1"
+git push origin v1.7.1
+```
+
+Dies startet automatisch:
+1. Pre-Deploy Checks (Lint, Tests, Security)
+2. Deploy zu Staging → Health Check
+3. Deploy zu Production (nach manueller Approval) → Health Check
+4. GitHub Release erstellen
+
+Siehe [README.md Deployment-Sektion](../README.md#-deployment) für Details.
+
+### Manuelles Deployment (Fallback)
+
+Für eine manuelle Bereitstellung:
 
 1. Bauen Sie das Projekt:
 
    ```bash
-   npm run build
+   npm run build:worker
    ```
 
 2. Deployen Sie mit Wrangler:
 
    ```bash
-   npx wrangler pages deploy dist
+   npx wrangler deploy --env staging
+   # oder
+   npx wrangler deploy --env production
+   ```
+
+3. Health Check ausführen:
+
+   ```bash
+   npm run health-check -- --url https://staging.hub-evolution.com
    ```
 
 ### Cloudflare Ressourcen
