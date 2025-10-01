@@ -122,6 +122,7 @@ npm run test
 - [API Quickstart](./docs/api/README.md)
 - [Architektur](./docs/architecture/)
 - [Sicherheit](./docs/security/)
+- [UI-Komponenten Leitfaden](./docs/frontend/ui-components.md)
 
 ## 🤝 Mitwirken
 

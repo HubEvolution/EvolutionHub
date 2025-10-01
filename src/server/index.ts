@@ -1,5 +1,6 @@
-import http from 'http';
-import { WebSocketServer } from 'ws';
+// Unused imports for future WebSocket functionality
+// import http from 'http';
+// import { WebSocketServer } from 'ws';
 import { initializeLogger, log } from './utils/logger';
 import { logAuthSuccess, logApiError, logPermissionDenied } from '../lib/security-logger';
 

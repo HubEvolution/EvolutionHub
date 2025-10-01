@@ -5,6 +5,7 @@ on:
     branches: [ main, develop ]
   pull_request:
     branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   unit:
@@ -100,3 +101,49 @@ jobs:
         name: openapi-redoc
         path: api-docs.html
         retention-days: 30
+
+  prompt-enhancer-tests:
+    name: Prompt Enhancer Unit + Integration
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Start dev worker (background)
+        env:
+          ENVIRONMENT: development
+        run: |
+          nohup npm run dev:worker:dev > dev-worker.log 2>&1 &
+
+      - name: Wait for dev worker
+        run: npx wait-on http://127.0.0.1:8787
+
+      - name: Run Prompt-Enhancer Unit Tests
+        run: |
+          npx vitest run -c vitest.config.ts \
+            tests/unit/hooks/useUsage.test.tsx \
+            tests/unit/hooks/useRateLimit.test.tsx \
+            tests/unit/hooks/useEnhance.test.tsx \
+            tests/unit/services/provider-error-mapping.test.ts
+
+      - name: Run Prompt-Enhancer Integration Tests (multipart)
+        env:
+          TEST_BASE_URL: http://127.0.0.1:8787
+        run: |
+          npx vitest run -c vitest.config.ts tests/integration/prompt-enhance-multipart.test.ts
+
+      - name: Upload dev worker log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: prompt-enhancer-dev-worker-log
+          path: dev-worker.log

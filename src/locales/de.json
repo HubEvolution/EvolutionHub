@@ -21,13 +21,16 @@
       "upload": "Hochladen",
       "subscribe": "Abonnieren"
     },
+    "upgrade": "Upgrade",
     "success": {
       "avatar_updated": "Profilbild erfolgreich aktualisiert!",
       "newsletter_confirmation_sent": "Bestätigungs-E-Mail gesendet!"
     },
     "forms": {
       "email_placeholder": "E-Mail-Adresse"
-    }
+    },
+    "loading": "Laden...",
+    "import": "Importieren"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -43,6 +46,9 @@
     "headline": "Bereit loszulegen?",
     "subtitle": "Werden Sie Teil der Tausenden von Entwicklern, die bereits Evolution Hub nutzen, um erstaunliche Anwendungen zu erstellen.",
     "button_text": "Kostenloses Konto erstellen"
+  },
+  "auth": {
+    "login": "Anmelden"
   },
   "pages": {
     "home": {
@@ -532,6 +538,7 @@
         "forgot_password_link": "Passwort vergessen?",
         "submit_button": "Anmelden",
         "magic_button": "Mit Magic Link fortfahren",
+        "oauth": { "github": "Mit GitHub anmelden" },
         "no_account_prompt": "Sie haben noch kein Konto?",
         "register_link": "Registrieren"
       }
@@ -553,6 +560,7 @@
       }
     },
     "auth": {
+      "login": "Anmelden",
       "magic": {
         "success": "Prüfe deine E‑Mails auf den Anmelde‑Link.",
         "error": "Der Link konnte nicht gesendet werden. Bitte versuche es erneut.",
@@ -678,6 +686,55 @@
         "description": "Wir arbeiten ständig an neuen Tools und Funktionen. Lass uns wissen, was du dir wünschst!",
         "button": "Tool vorschlagen"
       },
+      "prompt-enhancer": {
+        "form": {
+          "inputLabel": "Eingabe‑Prompt",
+          "inputPlaceholder": "Beschreibe, was du sagen oder fragen möchtest...",
+          "modeLabel": "Stil",
+          "mode": {
+            "creative": "Kreativ",
+            "professional": "Professionell",
+            "concise": "Kurz"
+          },
+          "enhanceButton": "Prompt verbessern",
+          "enhancing": "Wird verbessert…",
+          "outputLabel": "Verbesserter Prompt",
+          "copy": "Kopieren",
+          "copied": "Kopiert",
+          "clear": "Leeren",
+          "files": {
+            "label": "Dateien (optional)",
+            "dropHint": "Dateien hier ablegen oder klicken, um auszuwählen",
+            "urlImportLabel": "Aus URL importieren (TXT/Markdown)",
+            "urlImportPlaceholder": "https://beispiel.de/datei.txt",
+            "allowedTypes": "Erlaubte Typen",
+            "maxSize": "Max. Größe",
+            "maxCount": "Max. Dateien: {count}",
+            "remove": "Entfernen"
+          },
+          "error": {
+            "required": "Bitte gib einen Prompt ein.",
+            "length": "Maximale Länge ist 1000 Zeichen.",
+            "rateLimit": "Zu viele Anfragen. Bitte warte und versuche es erneut.",
+            "unknown": "Etwas ist schiefgelaufen. Bitte versuche es erneut.",
+            "network": "Netzwerkfehler. Bitte überprüfe deine Verbindung.",
+            "file": {
+              "invalidType": "Nicht unterstützter Dateityp.",
+              "tooLarge": "Datei ist zu groß. Max.: {max}"
+            },
+            "files": {
+              "tooMany": "Zu viele Dateien. Maximal {count}."
+            }
+          }
+        },
+        "usage": {
+          "title": "Nutzung",
+          "used": "{used} von {limit} heute genutzt"
+        },
+        "safety": {
+          "title": "Sicherheitsbericht"
+        }
+      },
       "items": {
         "code-review": {
           "name": "Code Review Assistant",
@@ -756,6 +813,14 @@
             "faceEnhance": "Gesichtsverbesserung",
             "upgrade": "Upgrade"
           }
+        },
+        "prompt-enhancer": {
+          "name": "Prompt-Enhancer",
+          "description": "KI-gestützter Prompt-Optimierer für bessere Ergebnisse in KI-Chats und -Anwendungen."
+        },
+        "Prompt-Enhancer": {
+          "name_de": "Prompt-Enhancer",
+          "description_de": "KI-gestützter Prompt-Optimierer für bessere Ergebnisse in KI-Chats und -Anwendungen."
         }
       },
       "details": {
@@ -786,6 +851,18 @@
           },
           "try": "Jetzt ausprobieren",
           "longDescription": "Imag-Enhancer verwendet moderne neuronale Modelle, um Fotos und Grafiken automatisch zu optimieren. Wähle Voreinstellungen oder feine Anpassungen für Rauschreduzierung, Schärfe, Farbkorrektur und Upscaling. Unterstützt Einzel- und Stapelverarbeitung und respektiert Datenschutzrichtlinien durch optionale lokale Verarbeitung."
+        },
+        "Prompt-Enhancer": {
+          "back_de": "Zurück zur Übersicht",
+          "badge_new_de": "Neu",
+          "open_de": "Tool öffnen",
+          "support_de": "Support",
+          "privacy": {
+            "heading_de": "Datenschutz & Verarbeitung",
+            "text_de": "Prompts werden auf unseren Servern verarbeitet. Bitte keine sensiblen oder personenbezogenen Daten eingeben."
+          },
+          "try_de": "Jetzt ausprobieren",
+          "longDescription_de": "Prompt-Enhancer verfeinert deine Text-Prompts hinsichtlich Klarheit, Ton und Vollständigkeit. Wähle einen Stil und erhalte einen besseren, sichereren Prompt für KI-Tools."
         }
       }
     }

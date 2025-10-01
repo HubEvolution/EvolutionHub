@@ -1,6 +1,8 @@
-// Import jest-dom for better assertions
-import '@testing-library/jest-dom';
+// Import jest-dom (Vitest compatible) for better assertions
+import '@testing-library/jest-dom/vitest';
 import { vi } from 'vitest';
+import { afterEach } from 'vitest';
+import { cleanup } from '@testing-library/react';
 import React from 'react';
 
 // Mock Astro components
@@ -62,3 +64,25 @@ if (!('createObjectURL' in URL)) {
 if (!('revokeObjectURL' in URL)) {
   (URL as any).revokeObjectURL = vi.fn();
 }
+
+// Polyfill Blob/File.arrayBuffer when missing (some jsdom envs)
+try {
+  if (typeof Blob !== 'undefined' && !(Blob as any).prototype.arrayBuffer) {
+    (Blob as any).prototype.arrayBuffer = async function (): Promise<ArrayBuffer> {
+      // Return small deterministic buffer without relying on stream()
+      return new Uint8Array([0x00, 0x01, 0x02, 0x03]).buffer;
+    };
+  }
+  if (typeof File !== 'undefined' && !(File as any).prototype.arrayBuffer) {
+    (File as any).prototype.arrayBuffer = async function (): Promise<ArrayBuffer> {
+      return new Uint8Array([0x00, 0x01, 0x02, 0x03]).buffer;
+    };
+  }
+} catch {
+  // Ignore polyfill setup failures
+}
+
+// Ensure React Testing Library cleans up between tests to avoid duplicate nodes
+afterEach(() => {
+  cleanup();
+});

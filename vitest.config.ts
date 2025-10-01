@@ -5,28 +5,12 @@ import { resolve } from 'path';
 export default defineConfig({
   plugins: [react()],
   test: {
-    name: 'unit',
-    // Test environment
-    environment: 'jsdom',
+    // Shared defaults
     globals: true,
-    
-    // Setup files
-    setupFiles: ['./src/setupTests.ts'],
-    
-    // Mock modules
-    deps: {
-      inline: ['@testing-library/user-event'],
-    },
-    
-    // Test timeout
-    testTimeout: 10000,
-    
-    // Watch mode configuration
     watch: false,
-    
-    // Coverage configuration
+    env: { NODE_ENV: 'test' },
     coverage: {
-      provider: 'v8', // or 'istanbul'
+      provider: 'v8',
       reporter: ['text', 'json', 'html', 'lcov'],
       exclude: [
         'node_modules/.*',
@@ -47,25 +31,39 @@ export default defineConfig({
         perFile: false,
       },
     },
-    
-    // Test file patterns
-    include: [
-      'src/**/*.{test,spec}.{ts,tsx}',
-      'tests/unit/**/*.{test,spec,_test}.{ts,tsx}',
+    // Migrate workspace → projects: define unit + integration here
+    projects: [
+      // Unit tests project
+      {
+        test: {
+          environment: 'jsdom',
+          setupFiles: ['./src/setupTests.ts'],
+          // Note: removed deprecated deps.inline; tests run fine without explicit inlining
+          testTimeout: 10000,
+          include: [
+            'src/**/*.{test,spec}.{ts,tsx}',
+            'tests/unit/**/*.{test,spec,_test}.{ts,tsx}',
+          ],
+          exclude: [
+            'tests/src/**',
+            'tests/integration/**',
+            'test-suite-v2/**',
+          ],
+        },
+      },
+      // Integration tests project
+      {
+        test: {
+          include: ['tests/integration/**/*.{test,spec}.{ts,tsx}'],
+          environment: 'node',
+          testTimeout: 180000,
+          globalSetup: ['./tests/integration/setup/global-setup.ts'],
+        },
+      },
     ],
-    exclude: [
-      'tests/src/**',
-      'tests/integration/**',
-      'test-suite-v2/**',
-    ],
-    
-    // Environment variables
-    env: {
-      NODE_ENV: 'test',
-    },
   },
-  
-  // Resolve aliases
+
+  // Resolve aliases shared by projects
   resolve: {
     alias: {
       // Spezifische Aliases zuerst (vor generischem '@')
@@ -75,6 +73,7 @@ export default defineConfig({
       '@/lib/response-helpers': resolve(__dirname, './src/lib/response-helpers.ts'),
       '@/lib/rate-limiter': resolve(__dirname, './src/lib/rate-limiter.ts'),
       '@/lib/security-logger': resolve(__dirname, './src/lib/security-logger.ts'),
+      '@/lib/security/csrf': resolve(__dirname, './src/lib/security/csrf.ts'),
       '@/server/utils/logger': resolve(__dirname, './src/server/utils/logger.ts'),
       'tests-legacy': resolve(__dirname, './tests/src/legacy'),
       '@': resolve(__dirname, './src'),

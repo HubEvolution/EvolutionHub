@@ -5,7 +5,6 @@ import { loggerFactory } from '@/server/utils/logger-factory';
 
 // Logger-Instanzen erstellen
 const logger = loggerFactory.createLogger('newsletter-subscribe');
-const _securityLogger = loggerFactory.createSecurityLogger();
 
 interface NewsletterSubscriptionRequest {
   email: string;
@@ -262,43 +261,4 @@ function generateConfirmationEmailHTML(email: string, confirmationUrl: string): 
   `;
 }
 
-/**
- * Check if email is already subscribed (stub implementation)
- * In production, this would query the database
- */
-async function checkExistingSubscription(email: string): Promise<boolean> {
-  // TODO: Implement database check
-  // const result = await db.query('SELECT id FROM newsletter_subscriptions WHERE email = ? AND status = "active"', [email]);
-  // return result.length > 0;
-
-  logger.info('Checking existing newsletter subscription', {
-    metadata: {
-      email: email,
-      action: 'subscription_check'
-    }
-  });
-  return false; // Stub: assume no existing subscription
-}
-
-/**
- * Create newsletter subscription record (stub implementation)
- * In production, this would insert into database
- */
-async function createNewsletterSubscription(data: any): Promise<string> {
-  // TODO: Implement database insertion
-  // const result = await db.query('INSERT INTO newsletter_subscriptions SET ?', data);
-  // return result.insertId;
-
-  const subscriptionId = `sub_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
-  logger.info('Newsletter subscription record created', {
-    metadata: {
-      subscriptionId: subscriptionId,
-      email: data.email,
-      source: data.source,
-      action: 'subscription_created'
-    }
-  });
-  return subscriptionId;
-}
-
-// Duplicate function removed - using the new sendConfirmationEmail function above
+// Duplicate functions removed - using the new sendConfirmationEmail function above

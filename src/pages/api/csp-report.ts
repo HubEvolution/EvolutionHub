@@ -1,16 +1,13 @@
 import type { APIContext } from 'astro';
 import { log } from '@/server/utils/logger';
+import { createMethodNotAllowed } from '@/lib/api-middleware';
 
 // Accepts legacy CSP reports (application/csp-report) and modern Reporting API (application/reports+json)
 // - POST only -> 204 No Content
 // - Other methods -> 405 Method Not Allowed with Allow: POST
 // - Minimal, privacy-preserving logging; no cookies/IPs
 
-function methodNotAllowed() {
-  const headers = new Headers();
-  headers.set('Allow', 'POST');
-  return new Response('Method Not Allowed', { status: 405, headers });
-}
+const methodNotAllowed = () => createMethodNotAllowed('POST');
 
 export const GET = methodNotAllowed;
 export const PUT = methodNotAllowed;

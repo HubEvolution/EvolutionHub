@@ -113,7 +113,9 @@ export class AiImageService {
       try {
         const parsed = JSON.parse(raw) as { count: number };
         count = parsed.count || 0;
-      } catch {}
+      } catch {
+        // Ignore logging failures
+      }
     }
     count += 1;
     await kv.put(key, JSON.stringify({ count }));
@@ -149,7 +151,9 @@ export class AiImageService {
       try {
         const mask = ownerId ? `…${ownerId.slice(-4)}(${ownerId.length})` : '';
         this.log.debug('usage_get_empty', { action: 'usage_get_empty', metadata: { ownerType, ownerId: mask, key, limit } });
-      } catch {}
+      } catch {
+        // Ignore logging failures
+      }
       return { used: 0, limit, resetAt: null };
     }
 
@@ -159,13 +163,17 @@ export class AiImageService {
       try {
         const mask = ownerId ? `…${ownerId.slice(-4)}(${ownerId.length})` : '';
         this.log.debug('usage_get_ok', { action: 'usage_get_ok', metadata: { ownerType, ownerId: mask, key, used: resp.used, limit: resp.limit, hasReset: !!resp.resetAt } });
-      } catch {}
+      } catch {
+        // Ignore logging failures
+      }
       return resp;
     } catch {
       try {
         const mask = ownerId ? `…${ownerId.slice(-4)}(${ownerId.length})` : '';
         this.log.warn('usage_get_parse_failed', { action: 'usage_get_parse_failed', metadata: { ownerType, ownerId: mask, key } });
-      } catch {}
+      } catch {
+        // Ignore logging failures
+      }
       return { used: 0, limit, resetAt: null };
     }
   }
@@ -472,7 +480,9 @@ export class AiImageService {
     try {
       const mask = ownerId ? `…${ownerId.slice(-4)}(${ownerId.length})` : '';
       this.log.debug('usage_increment', { action: 'usage_increment', metadata: { ownerType, ownerId: mask, key, used: resp.used, limit: resp.limit, expiration } });
-    } catch {}
+    } catch {
+        // Ignore logging failures
+      }
     return resp;
   }
 
@@ -495,16 +505,8 @@ export class AiImageService {
     // Normalize origin and coerce to https on non-local hosts to avoid CSP blocking http images on production.
     try {
       const u = new URL(origin);
-      const host = u.hostname;
-      const isLocal =
-        host === 'localhost' ||
-        host === '127.0.0.1' ||
-        host.endsWith('.local') ||
-        /^192\.168\./.test(host) ||
-        /^10\./.test(host) ||
-        /^172\.(1[6-9]|2\d|3[0-1])\./.test(host);
       // If not local and protocol is http, switch to https
-      if (!isLocal && u.protocol === 'http:') {
+      if (!this.isLocalHost(origin) && u.protocol === 'http:') {
         u.protocol = 'https:';
       }
       return `${u.origin.replace(/\/$/, '')}/r2-ai/${encodeURI(key)}`;

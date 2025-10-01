@@ -345,7 +345,9 @@ export function useCompareInteractions(props: UseCompareInteractionsProps): UseC
       }
       if (pointersRef.current.size < 2) pinchStartRef.current = null;
       if (pointersRef.current.size === 0) dragStartRef.current = null;
-      try { el.releasePointerCapture(e.pointerId); } catch {}
+      try { el.releasePointerCapture(e.pointerId); } catch {
+        // Ignore pointer capture release failures
+      }
     };
 
     el.addEventListener('pointerdown', onPointerDown);

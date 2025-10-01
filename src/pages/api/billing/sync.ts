@@ -132,7 +132,9 @@ export const GET = withAuthApiMiddleware(async (context) => {
     // No subscription object (rare) — still set plan from metadata for UX
     try {
       await db.prepare('UPDATE users SET plan = ? WHERE id = ?').bind(plan, user.id).run();
-    } catch {}
+    } catch {
+      // Ignore plan update failures
+    }
   }
 
   // Redirect to dashboard

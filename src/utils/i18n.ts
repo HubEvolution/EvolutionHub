@@ -39,8 +39,8 @@ export function getI18n(locale: Locale): I18nFn {
         if (value && typeof value === 'object' && k in (value as Record<string, unknown>)) {
           value = (value as Record<string, unknown>)[k];
         } else {
-          // Return a placeholder if the key doesn't exist in fallback
-          return `[${locale}:${key}_fallback_not_found]`;
+          // Soft fallback: missing key → empty string, so callers can provide UI defaults
+          return '';
         }
       }
       if (typeof value === 'string') return formatWithParams(value, params);
@@ -66,19 +66,22 @@ export function getI18n(locale: Locale): I18nFn {
           if (fallbackValue && typeof fallbackValue === 'object' && fk in (fallbackValue as Record<string, unknown>)) {
             fallbackValue = (fallbackValue as Record<string, unknown>)[fk];
           } else {
-            return `[${locale}:${key}_fallback_not_found]`; // Key not found even in fallback
+            // Soft fallback: missing in fallback too → empty string
+            return '';
           }
         }
         if (typeof fallbackValue === 'string') return formatWithParams(fallbackValue, params);
         const pluralFallback = selectPluralString(fallbackValue, params);
         if (pluralFallback !== null) return formatWithParams(pluralFallback, params);
-        return `[${locale}:${key}_fallback_not_found]`;
+        // Soft fallback: structure not a string and no plural applicable
+        return '';
       }
     }
     if (typeof value === 'string') return formatWithParams(value, params);
     const pluralCurrent = selectPluralString(value, params);
     if (pluralCurrent !== null) return formatWithParams(pluralCurrent, params);
-    return `[${locale}:${key}_not_string]`;
+    // Soft fallback: not a string and no pluralization
+    return '';
   };
 }
 

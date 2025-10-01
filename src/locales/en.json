@@ -9,7 +9,9 @@
     "de": "Deutsch",
     "en": "English"
   },
+  
   "pages": {
+    "login": { "form": { "heading": "Login to your Account", "magic_button": "Continue with Magic Link", "oauth": { "github": "Continue with GitHub" } } },
     "tools": {
       "items": {
         "Imag-Enhancer": {
@@ -89,6 +91,14 @@
         "performance-monitor": {
           "name": "Performance-Monitor",
           "description": "Überwacht Performance-Metriken und hebt Optimierungspotenziale hervor."
+        },
+        "prompt-enhancer": {
+          "name": "Prompt Enhancer",
+          "description": "AI-powered prompt optimizer for better results in AI chats and applications."
+        },
+        "Prompt-Enhancer": {
+          "name": "Prompt Enhancer",
+          "description": "AI-powered prompt optimizer for better results in AI chats and applications."
         }
       },
       "details": {
@@ -131,6 +141,18 @@
           },
           "try": "Try it now",
           "longDescription": "Imag‑Enhancer uses modern neural models to automatically optimize photos and graphics. Use presets or fine controls for denoising, sharpening, color correction, and upscaling. Supports single images and batch processing, with privacy‑friendly local options."
+        },
+        "Prompt-Enhancer": {
+          "back": "Back to overview",
+          "badge_new": "New",
+          "open": "Open tool",
+          "support": "Support",
+          "privacy": {
+            "heading": "Privacy & processing",
+            "text": "Prompts are processed on our servers. Please avoid entering sensitive or personal data."
+          },
+          "try": "Try it now",
+          "longDescription": "Prompt Enhancer refines your text prompts for clarity, tone, and completeness. Choose a style and get a safer, more effective prompt for AI tools."
         }
       },
       "meta": {
@@ -171,6 +193,55 @@
         "heading": "Missing a specific tool?",
         "description": "We are continuously working on new tools and features. Tell us what you need!",
         "button": "Suggest a tool"
+      },
+      "prompt-enhancer": {
+        "form": {
+          "inputLabel": "Input prompt",
+          "inputPlaceholder": "Describe what you want to say or ask...",
+          "modeLabel": "Style",
+          "mode": {
+            "creative": "Creative",
+            "professional": "Professional",
+            "concise": "Concise"
+          },
+          "enhanceButton": "Enhance prompt",
+          "enhancing": "Enhancing…",
+          "outputLabel": "Enhanced prompt",
+          "copy": "Copy",
+          "copied": "Copied",
+          "clear": "Clear",
+          "files": {
+            "label": "Files (optional)",
+            "dropHint": "Drop files here or click to select",
+            "urlImportLabel": "Import from URL (TXT/Markdown)",
+            "urlImportPlaceholder": "https://example.com/file.txt",
+            "allowedTypes": "Allowed types",
+            "maxSize": "Max size",
+            "maxCount": "Max files: {count}",
+            "remove": "Remove"
+          },
+          "error": {
+            "required": "Please enter a prompt.",
+            "length": "Maximum length is 1000 characters.",
+            "rateLimit": "Too many requests. Please wait and try again.",
+            "unknown": "Something went wrong. Please try again.",
+            "network": "Network error. Please check your connection.",
+            "file": {
+              "invalidType": "Unsupported file type.",
+              "tooLarge": "File is too large. Max: {max}"
+            },
+            "files": {
+              "tooMany": "Too many files. Maximum {count}."
+            }
+          }
+        },
+        "usage": {
+          "title": "Usage",
+          "used": "{used} of {limit} used today"
+        },
+        "safety": {
+          "title": "Safety report"
+        }
       }
     },
     "home": {
@@ -910,140 +981,151 @@
       "upload": "Hochladen",
       "subscribe": "Abonnieren"
     },
+    "upgrade": "Upgrade",
     "success": {
       "avatar_updated": "Profilbild erfolgreich aktualisiert!",
       "newsletter_confirmation_sent": "Bestätigungs-E-Mail gesendet!"
     },
     "forms": {
       "email_placeholder": "E-Mail-Adresse"
-    }
+    },
+    "loading": "Loading...",
+    "import": "Import"
   },
   "cta": {
     "headline": "Bereit loszulegen?",
     "subtitle": "Werden Sie Teil der Tausenden von Entwicklern, die bereits Evolution Hub nutzen, um erstaunliche Anwendungen zu erstellen.",
     "button_text": "Kostenloses Konto erstellen"
   },
+  "auth": {
+    "login": "Sign in",
+    "magic": {
+      "success": "Prüfe deine E‑Mails auf den Anmelde‑Link.",
+      "error": "Der Link konnte nicht gesendet werden. Bitte versuche es erneut.",
+      "cooldown": "Erneut senden in {s}s"
+    }
+  },
   "comingSoon": {
-    "title": "Bald verfügbar",
-    "description": "Unsere Plattform wird gerade überarbeitet. Trage dich in die Warteliste ein, um als Erste informiert zu werden.",
+    "title": "Coming soon",
+    "description": "Our platform is currently being updated. Join the waitlist to be the first to know.",
     "cta": {
-      "primary": "Zur Startseite",
-      "secondary": "Zur Warteliste",
-      "close": "Schließen"
+      "primary": "Go to homepage",
+      "secondary": "Join waitlist",
+      "close": "Close"
     },
-    "ariaLabel": "Hinweis Seite in Arbeit"
+    "ariaLabel": "Page under construction notice"
   },
   "faq": {
-    "title": "Häufig gestellte Fragen",
+    "title": "Frequently asked questions",
     "hero": {
-      "heading": "Häufig gestellte Fragen",
-      "subtitle": "Finde Antworten auf die häufigsten Fragen"
+      "heading": "Frequently asked questions",
+      "subtitle": "Find answers to the most common questions"
     },
-    "search_placeholder": "Suchen Sie nach einer Frage oder einem Stichwort...",
+    "search_placeholder": "Search for a question or keyword...",
     "no_results": {
-      "title": "Keine Ergebnisse gefunden",
-      "description_before": "Keine passenden Fragen. Versuche, deine Suche anzupassen oder",
-      "description_link_text": "kontaktiere uns",
+      "title": "No results found",
+      "description_before": "No matching questions. Try refining your search or ",
+      "description_link_text": "contact us",
       "description_after": "."
     },
     "categories": {
-      "all": "Alle anzeigen",
+      "all": "Show all",
       "allgemein": {
-        "title": "Allgemeine Fragen",
+        "title": "General questions",
         "items": [
           {
-            "question": "Was ist EvolutionHub?",
-            "answer": "EvolutionHub ist eine Plattform für moderne Webentwicklung mit Fokus auf Performance, Benutzerfreundlichkeit und moderne Technologien."
+            "question": "What is EvolutionHub?",
+            "answer": "EvolutionHub is a platform for modern web development with a focus on performance, usability, and modern technologies."
           },
           {
-            "question": "Welche Technologien werden verwendet?",
-            "answer": "Wir verwenden Astro für das Frontend, TypeScript für typsichere Entwicklung, und Tailwind CSS für das Styling. Unser Backend basiert auf modernen JavaScript/TypeScript-Technologien."
+            "question": "Which technologies are used?",
+            "answer": "We use Astro for the frontend, TypeScript for type‑safe development, and Tailwind CSS for styling. Our backend is based on modern JavaScript/TypeScript technologies."
           },
           {
-            "question": "Ist ein Konto erforderlich?",
-            "answer": "Für die meisten Funktionen benötigen Sie ein Konto. Einige Bereiche wie die Dokumentation und Blogbeiträge sind auch ohne Konto einsehbar."
+            "question": "Is an account required?",
+            "answer": "You need an account for most features. Some areas like documentation and blog posts are available without an account."
           },
           {
-            "question": "Wie wird der Datenschutz gewährleistet?",
-            "answer": "Wir legen großen Wert auf Datenschutz und Sicherheit. Alle Daten werden verschlüsselt übertragen und gemäß der DSGVO verarbeitet."
+            "question": "How is data privacy ensured?",
+            "answer": "We take privacy and security seriously. All data is transmitted encrypted and processed in accordance with GDPR."
           },
           {
-            "question": "Wann ist der Support erreichbar?",
-            "answer": "Unser Support-Team ist von Montag bis Freitag, 9 bis 18 Uhr, für Sie erreichbar."
+            "question": "When is support available?",
+            "answer": "Our support team is available Monday to Friday, 9am–6pm (CET)."
           },
           {
-            "question": "Ist EvolutionHub auch mobil nutzbar?",
-            "answer": "Ja, unsere Plattform ist für mobile Geräte optimiert und kann auf Smartphones und Tablets genutzt werden."
+            "question": "Is EvolutionHub usable on mobile?",
+            "answer": "Yes, our platform is optimized for mobile devices and can be used on smartphones and tablets."
           },
           {
-            "question": "Ist die Plattform barrierefrei?",
-            "answer": "Wir arbeiten kontinuierlich daran, die Barrierefreiheit unserer Plattform zu verbessern, um sie für alle Nutzer zugänglich zu machen."
+            "question": "Is the platform accessible?",
+            "answer": "We continuously improve the accessibility of our platform to make it usable for everyone."
           }
         ]
       },
       "konto": {
-        "title": "Konto & Abonnement",
+        "title": "Account & subscription",
         "items": [
           {
-            "question": "Wie erstelle ich ein Konto?",
-            "answer": "Klicken Sie auf \"Registrieren\" in der oberen Navigation und folgen Sie den Anweisungen. Sie benötigen eine gültige E-Mail-Adresse."
+            "question": "How do I create an account?",
+            "answer": "Click \"Register\" in the top navigation and follow the instructions. A valid email address is required."
           },
           {
-            "question": "Wie kann ich mein Passwort zurücksetzen?",
-            "answer": "Auf der Anmeldeseite finden Sie einen Link \"Passwort vergessen\". Geben Sie Ihre E-Mail-Adresse ein und folgen Sie den Anweisungen in der erhaltenen E-Mail."
+            "question": "How can I reset my password?",
+            "answer": "On the sign‑in page, use the \"Forgot password\" link. Enter your email address and follow the instructions in the email you receive."
           },
           {
-            "question": "Wie kündige ich mein Abonnement?",
-            "answer": "Gehen Sie zu Ihren Kontoeinstellungen und wählen Sie \"Abonnement verwalten\". Dort können Sie Ihr Abonnement kündigen."
+            "question": "How do I cancel my subscription?",
+            "answer": "Go to your account settings and choose \"Manage subscription\". You can cancel your subscription there."
           },
           {
-            "question": "Welche Abonnement-Pläne gibt es?",
-            "answer": "Wir bieten verschiedene Pläne an, die auf unterschiedliche Bedürfnisse zugeschnitten sind. Details finden Sie auf unserer Pricing-Seite."
+            "question": "What subscription plans are available?",
+            "answer": "We offer several plans tailored to different needs. See our pricing page for details."
           },
           {
-            "question": "Welche Zahlungsmethoden werden akzeptiert?",
-            "answer": "Wir akzeptieren Kreditkarten, PayPal und SEPA-Lastschriftverfahren."
+            "question": "Which payment methods are accepted?",
+            "answer": "We accept credit cards, PayPal, and SEPA direct debit."
           },
           {
-            "question": "Wie kann ich mein Konto wiederherstellen, wenn ich den Zugang verliere?",
-            "answer": "Nutzen Sie die Passwort-zurücksetzen-Funktion oder kontaktieren Sie unseren Support für weitere Hilfe."
+            "question": "How can I regain access if I lose it?",
+            "answer": "Use the password reset feature or contact our support team for further assistance."
           },
           {
-            "question": "Wie verwalte ich meine Benachrichtigungseinstellungen?",
-            "answer": "In Ihren Kontoeinstellungen können Sie festlegen, welche Benachrichtigungen Sie erhalten möchten."
+            "question": "How do I manage notification settings?",
+            "answer": "In your account settings you can configure which notifications you want to receive."
           }
         ]
       },
       "technik": {
-        "title": "Technische Fragen",
+        "title": "Technical questions",
         "items": [
           {
-            "question": "Welche Browser werden unterstützt?",
-            "answer": "Wir unterstützen die aktuellen Versionen von Chrome, Firefox, Safari, und Edge. Ältere Browser werden möglicherweise nicht vollständig unterstützt."
+            "question": "Which browsers are supported?",
+            "answer": "We support current versions of Chrome, Firefox, Safari and Edge. Older browsers may not be fully supported."
           },
           {
-            "question": "Wie kann ich die API nutzen?",
-            "answer": "Unsere API-Dokumentation finden Sie unter /api-docs. Sie benötigen einen API-Schlüssel, den Sie in Ihren Kontoeinstellungen generieren können."
+            "question": "How can I use the API?",
+            "answer": "See our API documentation at /api-docs. You will need an API key that you can generate in your account settings."
           },
           {
-            "question": "Wie melde ich einen Fehler?",
-            "answer": "Bitte nutzen Sie unser Fehlerformular unter /kontakt oder erstellen Sie ein Issue in unserem GitHub-Repository."
+            "question": "How do I report a bug?",
+            "answer": "Please use our bug report form at /contact or create an issue in our GitHub repository."
           },
           {
-            "question": "Gibt es Nutzungslimits für die API?",
-            "answer": "Ja, unsere API hat Nutzungslimits, um eine faire Verteilung der Ressourcen sicherzustellen. Details finden Sie in der API-Dokumentation."
+            "question": "Are there API usage limits?",
+            "answer": "Yes, our API has usage limits to ensure fair resource allocation. Details are provided in the API docs."
           },
           {
-            "question": "Kann ich EvolutionHub mit Drittanbieter-Tools integrieren?",
-            "answer": "Ja, wir bieten Integrationen und Webhooks für verschiedene Drittanbieter-Services an."
+            "question": "Can I integrate EvolutionHub with third‑party tools?",
+            "answer": "Yes, we provide integrations and webhooks for various third‑party services."
           },
           {
-            "question": "Welche Systemanforderungen gibt es?",
-            "answer": "Für die Nutzung empfehlen wir aktuelle Browser und eine stabile Internetverbindung."
+            "question": "What are the system requirements?",
+            "answer": "We recommend up‑to‑date browsers and a stable internet connection."
           },
           {
-            "question": "Gibt es Backup- und Wiederherstellungsoptionen?",
-            "answer": "Ja, Ihre Daten werden regelmäßig gesichert und können bei Bedarf wiederhergestellt werden."
+            "question": "Are there backup and restore options?",
+            "answer": "Yes, your data is regularly backed up and can be restored if needed."
           }
         ]
       }

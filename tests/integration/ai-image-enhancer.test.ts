@@ -2,6 +2,7 @@ import { describe, it, expect, beforeAll } from 'vitest';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { readFile } from 'fs/promises';
+import { ALLOWED_MODELS } from '../../src/config/ai-image';
 
 // Allow self-signed localhost certs (wrangler https)
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
@@ -119,7 +120,7 @@ describe('AI Image Enhancer API + R2 Proxy (Integration)', () => {
     const file = new File([buf], 'sample.png', { type: 'image/png' });
     const fd = new FormData();
     fd.append('image', file);
-    fd.append('model', 'nightmareai/real-esrgan:latest');
+    fd.append('model', ALLOWED_MODELS[0].slug);
 
     const token = makeCsrfToken();
     const res = await fetchManual('/api/ai-image/jobs', {
@@ -157,7 +158,7 @@ describe('AI Image Enhancer API + R2 Proxy (Integration)', () => {
     const file = new File([buf], 'sample.png', { type: 'image/png' });
     const fd = new FormData();
     fd.append('image', file);
-    fd.append('model', 'nightmareai/real-esrgan:latest');
+    fd.append('model', ALLOWED_MODELS[0].slug);
 
     const res = await fetchManual('/api/ai-image/jobs', {
       method: 'POST',
@@ -434,7 +435,7 @@ describe('AI Image Enhancer API + R2 Proxy (Integration)', () => {
     for (let i = 0; i < 20; i++) {
       const fd = new FormData();
       fd.append('image', file);
-      fd.append('model', 'nightmareai/real-esrgan:latest');
+      fd.append('model', ALLOWED_MODELS[0].slug);
       const res = await fetchManual('/api/ai-image/generate', {
         method: 'POST',
         body: fd,

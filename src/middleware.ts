@@ -563,7 +563,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
       response.headers.set('Pragma', 'no-cache');
       response.headers.set('Expires', '0');
     }
-  } catch {}
+  } catch {
+    // Ignore header setting failures
+  }
 
   // Sicherheits-Header hinzufügen
   // X-Robots-Tag for welcome page (HTTP-level noindex)
@@ -639,6 +641,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
   response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
   response.headers.set('Cross-Origin-Opener-Policy', 'same-origin');
   response.headers.set('X-Frame-Options', 'DENY');
+  // Add missing headers for HTML responses (previously only on API routes)
+  response.headers.set('X-Content-Type-Options', 'nosniff');
+  response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), interest-cohort=()');
   // Referrer-Policy nur auf Reset-Passwort-Seiten erzwingen (keine Weitergabe sensibler Token über Referrer)
   const isResetPasswordPath =
     path === '/reset-password' || path === '/reset-password/' ||

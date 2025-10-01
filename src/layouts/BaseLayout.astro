@@ -14,6 +14,7 @@
  import { ClientRouter } from 'astro:transitions';
  import ComingSoon from '@/components/ui/ComingSoon.astro';
  import { isComingSoon } from '@/config/coming-soon';
+ import SpriteDefs from '@/components/ui/icons/SpriteDefs.astro';
  
  interface Props {
    title: string;
@@ -154,6 +155,8 @@
    </head>
  
    <body class={bodyClass}>
+       {/* Inline SVG sprite definitions once, available site-wide */}
+       <SpriteDefs />
        <ThemeProvider />
        <SkipLink />
 

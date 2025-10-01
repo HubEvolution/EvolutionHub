@@ -46,6 +46,13 @@ interface MagicLinkAuthenticateResponse {
   status_code?: number;
 }
 
+interface OAuthAuthenticateResponse {
+  request_id: string;
+  user_id: string;
+  user: StytchUser;
+  status_code?: number;
+}
+
 function toBasicAuth(projectId: string, secret: string): string {
   const raw = `${projectId}:${secret}`;
   // btoa is available in Workers runtime
@@ -110,6 +117,47 @@ export async function stytchMagicLinkLoginOrCreate(
   return json;
 }
 
+export async function stytchOAuthAuthenticate(
+  context: APIContext,
+  token: string
+): Promise<OAuthAuthenticateResponse> {
+  if (isE2EFake(context)) {
+    // In E2E fake mode, behave like a verified user
+    let email = 'e2e@example.com';
+    try {
+      const url = new URL(context.request.url);
+      const qp = url.searchParams.get('email');
+      if (qp && qp.includes('@')) email = qp;
+    } catch {
+      // Ignore URL parsing failures in test mode
+    }
+    return {
+      request_id: 'fake-oauth-auth-id',
+      user_id: 'fake-user-id',
+      user: { user_id: 'fake-user-id', emails: [{ email, verified: true }] },
+      status_code: 200,
+    };
+  }
+  const { projectId, secret } = readStytchConfig(context);
+  const base = resolveBaseUrl(projectId);
+  const url = `${base}/v1/oauth/authenticate`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Authorization': toBasicAuth(projectId, secret),
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ token }),
+  });
+  const json = (await res.json()) as OAuthAuthenticateResponse;
+  if (!res.ok) {
+    const et = (json as any)?.error_type || 'unknown_error';
+    const em = (json as any)?.error_message || (json as any)?.message || '';
+    throw new StytchError(res.status, et, `Stytch OAuth authenticate failed: ${res.status} ${et}${em ? ` - ${em}` : ''}`);
+  }
+  return json;
+}
+
 export async function stytchMagicLinkAuthenticate(
   context: APIContext,
   token: string
@@ -130,7 +178,9 @@ export async function stytchMagicLinkAuthenticate(
         const qp = url.searchParams.get('email');
         if (qp && qp.includes('@')) email = qp;
       }
-    } catch {}
+    } catch {
+      // Ignore URL parsing failures in test mode
+    }
 
     return {
       request_id: 'fake-auth-id',

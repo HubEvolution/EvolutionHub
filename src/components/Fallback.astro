@@ -31,7 +31,7 @@ const {
 
 {type === 'skeleton' && (
   <div class={`animate-pulse space-y-4 ${className}`}>
-    {Array.from({ length: count }).map((_, index) => (
+    {Array.from({ length: count }).map(() => (
       <div class="space-y-3">
         <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
         <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
@@ -49,7 +49,7 @@ const {
 
 {type === 'card' && (
   <div class={`grid gap-6 sm:grid-cols-2 lg:grid-cols-3 ${className}`}>
-    {Array.from({ length: count }).map((_, index) => (
+    {Array.from({ length: count }).map(() => (
       <div class="overflow-hidden rounded-lg bg-white dark:bg-gray-800 shadow hover:shadow-md transition-shadow duration-200">
         <div class="h-48 bg-gray-200 dark:bg-gray-700 animate-pulse"></div>
         <div class="p-6">
@@ -73,7 +73,7 @@ const {
 
 {type === 'list' && (
   <div class={`space-y-4 ${className}`}>
-    {Array.from({ length: count }).map((_, index) => (
+    {Array.from({ length: count }).map(() => (
       <div class="p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
         <div class="flex space-x-3">
           <div class="flex-shrink-0">

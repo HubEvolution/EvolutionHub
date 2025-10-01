@@ -14,7 +14,6 @@ import type {
   Task,
   Notification,
   Session,
-  PasswordResetToken,
   CreateUser,
   CreateProject,
   CreateActivity,
@@ -23,9 +22,7 @@ import type {
   CreateNotification,
   UpdateUser,
   UpdateProject,
-  UpdateTask,
   D1FirstResult,
-  D1QueryResult,
   D1ExecuteResult
 } from './types';
 
@@ -147,7 +144,7 @@ export async function updateUser(db: D1Database, id: string, updates: UpdateUser
  * Konvertiert User zu SafeUser (ohne sensible Daten)
  */
 export function toSafeUser(user: User): SafeUser {
-  const { password_hash, ...safeUser } = user;
+  const { password_hash: _password_hash, ...safeUser } = user;
   return safeUser;
 }
 

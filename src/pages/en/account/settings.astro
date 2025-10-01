@@ -209,7 +209,7 @@ void i18nSettings;
   // Modal öffnen
   if (openModalBtn) {
     console.log('Setting up open modal click handler');
-    openModalBtn.addEventListener('click', (e) => {
+    openModalBtn.addEventListener('click', () => {
       console.log('Open modal button clicked');
       if (modal) {
         modal.classList.remove('hidden');
@@ -348,49 +348,36 @@ void i18nSettings;
     }
   }
   
-  function uploadAvatar(file) {
+  async function uploadAvatar(file) {
     // Zeige Ladezustand
     if (uploadBtn) {
       uploadBtn.textContent = I18N.status?.uploading || 'Uploading...';
       uploadBtn.disabled = true;
     }
-    
-    const formData = new FormData();
-    formData.append('avatar', file);
-    
-    fetch('/api/user/avatar', {
-      method: 'POST',
-      body: formData,
-    })
-    .then(response => {
+    try {
+      const formData = new FormData();
+      formData.append('avatar', file);
+      const response = await fetch('/api/user/avatar', { method: 'POST', body: formData });
       if (!response.ok) {
-        return response.text().then(error => {
-          throw new Error(error);
-        });
+        const errorText = await response.text().catch(() => '');
+        throw new Error(errorText || 'Upload failed');
       }
-      return response.json();
-    })
-    .then(data => {
+      const data = await response.json();
       // Aktualisiere den Avatar im Hauptprofil
       if (avatarPreview) {
         // @ts-ignore
         avatarPreview.src = data.imageUrl;
       }
-      
       // Schließe das Modal
       if (modal) {
         modal.classList.add('hidden');
         modal.style.display = 'none';
         document.body.classList.remove('overflow-hidden');
       }
-      
       // Erfolgsmeldung anzeigen
       alert(I18N.success?.avatar_updated || 'Profile picture updated successfully!');
-    })
-    .catch(error => {
+    } catch (error) {
       console.error('Upload error:', error);
-      
-      // Versuche, den Fehler als JSON zu parsen, falls es eine API-Fehlermeldung ist
       let errorMessage = 'Unbekannter Fehler';
       try {
         if (error.message && error.message.includes('{')) {
@@ -404,16 +391,14 @@ void i18nSettings;
       } catch (e) {
         errorMessage = error.message || 'Fehler beim Parsen der Fehlermeldung';
       }
-      
       alert(`${I18N.errors?.upload_failed_prefix || 'Upload failed:'} ${errorMessage}`);
-    })
-    .finally(() => {
+    } finally {
       // Setze den Button zurück
       if (uploadBtn) {
         uploadBtn.textContent = I18N.actions?.upload || 'Upload';
         uploadBtn.disabled = false;
       }
-    });
+    }
   }
   
   // Initial auf Upload-Zone setzen

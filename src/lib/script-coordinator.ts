@@ -32,7 +32,6 @@ class ScriptCoordinator {
   private initPromises = new Map<string, Promise<void>>();
   private readyModules = new Set<string>();
   private isPageReady = false;
-  private pendingInitializations: string[] = [];
 
   /**
    * Register a script module
@@ -68,7 +67,7 @@ class ScriptCoordinator {
     
     // Filter modules based on page requirements
     const applicableModules = Array.from(this.modules.entries())
-      .filter(([id, module]) => {
+      .filter(([, module]) => {
         if (module.pageFilter) {
           return module.pageFilter(currentPath);
         }
@@ -79,7 +78,7 @@ class ScriptCoordinator {
     console.log(`[ScriptCoordinator] Found ${applicableModules.length} applicable modules for path: ${currentPath}`);
 
     // Initialize modules in priority order
-    for (const [moduleId, module] of applicableModules) {
+    for (const [moduleId] of applicableModules) {
       await this.initializeModule(moduleId);
     }
 
