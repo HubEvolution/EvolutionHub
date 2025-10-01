@@ -193,7 +193,7 @@ git checkout v1.7.0
 npx wrangler deploy --env production
 ```
 
-Für detaillierte Anweisungen siehe [docs/local-development.md](docs/local-development.md).
+Für detaillierte Anweisungen siehe [docs/development/local-development.md](docs/development/local-development.md).
 
 ## 🧪 Tests
 

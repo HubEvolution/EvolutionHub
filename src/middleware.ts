@@ -451,7 +451,8 @@ export const onRequest = defineMiddleware(async (context, next) => {
     context.locals.user = null;
     context.locals.session = null;
   } else {
-    const sessionId = context.cookies.get('session_id')?.value ?? null;
+    // Try __Host-session first (stricter, SameSite=Strict), fallback to session_id (SameSite=Lax)
+    const sessionId = context.cookies.get('__Host-session')?.value ?? context.cookies.get('session_id')?.value ?? null;
     if (import.meta.env.DEV) {
       console.log('[Middleware] Session ID from cookie:', sessionId ? 'Present' : 'Not present');
     }
