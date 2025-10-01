@@ -16,8 +16,8 @@ const locals = Astro.locals as any;
 const rParam = Astro.url.searchParams.get('r') ?? '';
 const safeR = typeof rParam === 'string' && rParam.startsWith('/') && !rParam.startsWith('//') ? rParam : '';
 
-// OAuth GitHub button label (use soft fallback with ||)
-const githubText = t('pages.login.form.oauth.github') || 'Continue with GitHub';
+// OAuth GitHub button label (tries pages.* first, then legacy login.*)
+const githubText = t('pages.login.form.oauth.github') || t('login.form.oauth.github') || 'Continue with GitHub';
 
 if (locals.user) {
   return Astro.redirect(localizePath(locale, '/dashboard'));

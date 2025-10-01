@@ -388,6 +388,7 @@ git push origin v1.7.1
 ```
 
 Dies startet automatisch:
+
 1. Pre-Deploy Checks (Lint, Tests, Security)
 2. Deploy zu Staging → Health Check
 3. Deploy zu Production (nach manueller Approval) → Health Check
@@ -442,13 +443,16 @@ npx wrangler d1 migrations apply evolution-hub-main --remote
 Für detaillierte Informationen zu spezifischen Themen siehe:
 
 ### API-Dokumentation
+
 - **[Bekannte API-Probleme & Verbesserungspotentiale](./api/known-issues.md)** — Identifizierte Verbesserungspotentiale in den APIs
 
 ### Sicherheit
+
 - **[Implementierte Sicherheitsverbesserungen](./security/improvements.md)** — Details zu User-API Sicherheit, Rate-Limiting, Security-Headers und Audit-Logging
 - **[Security-Richtlinien](./SECURITY.md)** — Allgemeine Sicherheitsrichtlinien
 
 ### Weitere Themen
+
 - **[Lokale Entwicklung](./development/local-development.md)** — Detaillierte Anleitung zur lokalen Entwicklungsumgebung
 - **[CI/CD-Pipeline](./development/ci-cd.md)** — Continuous Integration und Deployment
 - **[Testing-Strategie](./testing/testing-strategy.md)** — Umfassende Teststrategie und -richtlinien

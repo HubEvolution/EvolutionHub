@@ -11,7 +11,23 @@
   },
   
   "pages": {
-    "login": { "form": { "heading": "Login to your Account", "magic_button": "Continue with Magic Link", "oauth": { "github": "Continue with GitHub" } } },
+    "login": {
+      "title": "Login",
+      "form": {
+        "heading": "Login to your Account",
+        "fields": {
+          "email": { "label": "Email" },
+          "password": { "label": "Password" }
+        },
+        "or": "or",
+        "forgot_password_link": "Forgot your password?",
+        "submit_button": "Login",
+        "magic_button": "Continue with Magic Link",
+        "oauth": { "github": "Continue with GitHub" },
+        "no_account_prompt": "Don't have an account yet?",
+        "register_link": "Register"
+      }
+    },
     "tools": {
       "items": {
         "Imag-Enhancer": {
@@ -779,50 +795,30 @@
       "source_name": "e-recht24.de",
       "source_attribution": "e-recht24.de"
     },
-    "login": {
-      "title": "Anmelden",
-      "form": {
-        "heading": "Melden Sie sich bei Ihrem Konto an",
-        "fields": {
-          "email": {
-            "label": "E-Mail"
-          },
-          "password": {
-            "label": "Passwort"
-          }
-        },
-        "or": "oder",
-        "forgot_password_link": "Passwort vergessen?",
-        "submit_button": "Anmelden",
-        "magic_button": "Mit Magic Link fortfahren",
-        "no_account_prompt": "Sie haben noch kein Konto?",
-        "register_link": "Registrieren"
-      }
-    },
     "register": {
-      "title": "Konto erstellen",
+      "title": "Create account",
       "form": {
-        "heading": "Erstellen Sie Ihr Konto",
-        "subheading": "Wir senden dir einen Anmelde‑Link per E‑Mail. Nach dem Absenden siehst du eine Bestätigungs‑Antwort.",
+        "heading": "Create your account",
+        "subheading": "We'll send you a sign‑up link by email. After submitting, you'll see a confirmation message.",
         "fields": {
           "name": {
             "label": "Name",
-            "help": "2–50 Zeichen."
+            "help": "2–50 characters."
           },
           "username": {
-            "label": "Benutzername",
-            "help": "3–30 Zeichen; Buchstaben, Zahlen, Unterstrich."
+            "label": "Username",
+            "help": "3–30 characters; letters, numbers, underscore."
           },
           "email": {
-            "label": "E-Mail"
+            "label": "Email"
           },
           "password": {
-            "label": "Passwort"
+            "label": "Password"
           }
         },
-        "submit_button": "Konto erstellen",
-        "already_have_account_prompt": "Sie haben bereits ein Konto?",
-        "login_link": "Anmelden"
+        "submit_button": "Create account",
+        "already_have_account_prompt": "Already have an account?",
+        "login_link": "Sign in"
       }
     },
     "auth": {
@@ -847,35 +843,35 @@
       }
     },
     "forgotPassword": {
-      "title": "Passwort vergessen",
+      "title": "Forgot password",
       "form": {
-        "heading": "Passwort vergessen",
+        "heading": "Forgot password",
         "fields": {
           "email": {
-            "label": "E-Mail"
+            "label": "Email"
           }
         },
-        "submit_button": "Link zum Zurücksetzen senden"
+        "submit_button": "Send reset link"
       }
     },
     "account": {
       "settings": {
         "email": {
-          "change_hint": "Zum Ändern der E‑Mail ist eine erneute Verifizierung nötig. Bitte kontaktiere den Support oder nutze später die Funktion „E‑Mail ändern“.",
-          "change_cta": "E‑Mail ändern"
+          "change_hint": "Changing your email requires re‑verification. Please contact support or use the 'Change email' feature later.",
+          "change_cta": "Change email"
         }
       }
     },
     "resetPassword": {
-      "title": "Passwort zurücksetzen",
+      "title": "Reset password",
       "form": {
-        "heading": "Neues Passwort erstellen",
+        "heading": "Create new password",
         "fields": {
           "password": {
-            "label": "Neues Passwort"
+            "label": "New password"
           }
         },
-        "submit_button": "Passwort zurücksetzen"
+        "submit_button": "Reset password"
       }
     },
     "agb": {

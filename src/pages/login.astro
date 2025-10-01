@@ -15,8 +15,11 @@ const t = getI18n(locale);
 const rParam = Astro.url.searchParams.get('r') ?? '';
 const safeR = typeof rParam === 'string' && rParam.startsWith('/') && !rParam.startsWith('//') ? rParam : '';
 
-// OAuth GitHub button label
-const githubText = t('pages.login.form.oauth.github') ?? (locale === 'de' ? 'Mit GitHub anmelden' : 'Continue with GitHub');
+// OAuth GitHub button label (guard against fallback token and try legacy key)
+const rawGithub = t('pages.login.form.oauth.github');
+const githubText = (rawGithub && !rawGithub.includes('_fallback_not_found'))
+  ? rawGithub
+  : (t('login.form.oauth.github') || (locale === 'de' ? 'Mit GitHub anmelden' : 'Continue with GitHub'));
 
 const locals = Astro.locals as any;
 if (locals.user) {

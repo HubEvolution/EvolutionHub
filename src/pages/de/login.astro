@@ -16,8 +16,18 @@ const locals = Astro.locals as any;
 const rParam = Astro.url.searchParams.get('r') ?? '';
 const safeR = typeof rParam === 'string' && rParam.startsWith('/') && !rParam.startsWith('//') ? rParam : '';
 
-// OAuth GitHub button label
-const githubText = t('pages.login.form.oauth.github') ?? 'Mit GitHub anmelden';
+// OAuth GitHub button label with robust fallback (avoid displaying fallback token)
+const MISSING_MARKER = '_fallback_not_found';
+function pick(keys: string[], fallback: string): string {
+  for (const k of keys) {
+    const v = t(k);
+    if (v && typeof v === 'string' && !v.includes(MISSING_MARKER)) return v;
+  }
+  return fallback;
+}
+const githubText = pick(['pages.login.form.oauth.github', 'login.form.oauth.github'], 'Mit GitHub anmelden');
+const noAccountPrompt = pick(['pages.login.form.no_account_prompt', 'login.form.no_account_prompt'], 'Sie haben noch kein Konto?');
+const registerLinkText = pick(['pages.login.form.register_link', 'login.form.register_link'], 'Registrieren');
 
 if (locals.user) {
   return Astro.redirect(localizePath(locale, '/dashboard'));
@@ -43,7 +53,7 @@ if (locals.user) {
       </Button>
     </form>
     <p class="text-center mt-4 text-sm">
-      {t('pages.login.form.no_account_prompt')} <a href={localizePath(locale, '/register')} class="text-emerald-600 hover:underline">{t('pages.login.form.register_link') ?? 'Registrieren'}</a>
+      {noAccountPrompt} <a href={localizePath(locale, '/register')} class="text-emerald-600 hover:underline">{registerLinkText}</a>
     </p>
   </div>
   <AuthStatusNotifier mode="login" client:load />
