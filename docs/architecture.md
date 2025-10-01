@@ -118,6 +118,24 @@ Die DB‑Tabellen spiegeln die Migrations in `/migrations`:
 - Central logger + SSE/WebSocket buffer: [`src/server/utils/logger.ts`](src/server/utils/logger.ts:37)
 - i18n utilities: [`src/lib/i18n.ts`](src/lib/i18n.ts:12) & [`src/utils/i18n.ts`](src/utils/i18n.ts:23)
 
+## Weitere Architektur-Dokumentation
+
+Detaillierte Architektur-Dokumentation finden Sie in:
+
+- **[System-Übersicht](./architecture/system-overview.md)** — Umfassender Überblick über die Systemarchitektur
+- **[Datenfluss](./architecture/data-flow.md)** — Dokumentation der Datenflüsse
+- **[Auth-Architektur](./architecture/auth-architecture.md)** — Authentifizierungsflow und Sicherheitsmaßnahmen
+- **[Datenbank-Schema](./architecture/database-schema.md)** — DB-Struktur und Migrations
+- **[AI Image Enhancer](./architecture/ai-image-enhancer.md)** — AI-Service-Architektur
+- **[API Middleware Inventory](./architecture/api-middleware-inventory.md)** — Middleware-Übersicht
+- **[ADRs](./architecture/adrs/)** — Architecture Decision Records
+  - [0001: Astro + Cloudflare Stack](./architecture/adrs/0001-astro-cloudflare-stack.md)
+  - [0002: Cloudflare Architecture](./architecture/adrs/0002-cloudflare-architecture.md)
+  - [0003: Astro Frontend Architecture](./architecture/adrs/0003-astro-frontend-architecture.md)
+  - [0004: Database Schema](./architecture/adrs/0004-database-schema.md)
+  - [0005: Auth Route Locale Normalisierung](./architecture/adrs/0005-auth-route-locale-normalisierung.md)
+  - [0006: Dev Echo in Nicht-Prod-Umgebungen](./architecture/adrs/0006-dev-echo-non-prod.md)
+
 ## Hinweise
 
 - Diese Architektur‑Doku wurde an die aktuell in [`package.json`](package.json:1) gelisteten Abhängigkeiten angepasst.
