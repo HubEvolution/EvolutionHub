@@ -76,6 +76,15 @@ Hinweis: Quellen sind als Links zur Ursprungsdatei angegeben; HTTP Methoden wurd
 - POST /api/debug-login — [`src/pages/api/debug-login.ts`](src/pages/api/debug-login.ts)
 - GET  /api/tools — [`src/pages/api/tools.ts`](src/pages/api/tools.ts)
 
+- GET  /api/comments — [`src/pages/api/comments/index.ts`](src/pages/api/comments/index.ts)
+- POST /api/comments/create — [`src/pages/api/comments/index.ts`](src/pages/api/comments/index.ts)
+- GET  /api/comments/:id — [`src/pages/api/comments/[id].ts`](src/pages/api/comments/[id].ts)
+- PUT  /api/comments/:id — [`src/pages/api/comments/[id].ts`](src/pages/api/comments/[id].ts)
+- DELETE /api/comments/:id — [`src/pages/api/comments/[id].ts`](src/pages/api/comments/[id].ts)
+- POST /api/comments/moderate — [`src/pages/api/comments/moderate.ts`](src/pages/api/comments/moderate.ts)
+- GET  /api/comments/moderate/queue — [`src/pages/api/comments/moderate.ts`](src/pages/api/comments/moderate.ts)
+- GET  /api/comments/stats — [`src/pages/api/comments/moderate.ts`](src/pages/api/comments/moderate.ts)
+
 - POST /api/auth/change-password — [`src/pages/api/auth/change-password.ts`](src/pages/api/auth/change-password.ts)
 - POST /api/auth/forgot-password — [`src/pages/api/auth/forgot-password.ts`](src/pages/api/auth/forgot-password.ts)
 - POST /api/auth/login — [`src/pages/api/auth/login.ts`](src/pages/api/auth/login.ts)
@@ -337,6 +346,12 @@ graph TD
   api --> api_csp[/api/csp-report POST]
   api --> api_debug_login[/api/debug-login POST]
   api --> api_tools[/api/tools GET]
+  api --> api_comments[/api/comments GET]
+  api --> api_comments_create[/api/comments/create POST]
+  api --> api_comments_id[/api/comments/:id GET PUT DELETE]
+  api --> api_comments_moderate[/api/comments/moderate POST]
+  api --> api_comments_queue[/api/comments/moderate/queue GET]
+  api --> api_comments_stats[/api/comments/stats GET]
   api --> api_auth[/api/auth]
   api_auth --> api_auth_login[/api/auth/login POST]
   api_auth --> api_auth_register[/api/auth/register POST]

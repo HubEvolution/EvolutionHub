@@ -81,7 +81,7 @@ export const useCommentStore = create<CommentStore>()(
           });
 
           if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
+            const errorData = (await response.json().catch(() => ({}))) as Partial<ApiError>;
             throw new Error(errorData.error?.message || `HTTP ${response.status}`);
           }
 
@@ -117,12 +117,38 @@ export const useCommentStore = create<CommentStore>()(
       createComment: async (data: CreateCommentRequest, csrfToken?: string | null) => {
         set({ isLoading: true, error: null });
 
+        // 1. Optimistic Update: Add comment immediately to UI
+        const tempId = `temp-${Date.now()}`;
+        const currentUser = get().currentUser;
+        const optimisticComment: Comment = {
+          id: tempId,
+          content: data.content,
+          authorId: currentUser?.id || 0,
+          authorName: currentUser?.name || 'Du',
+          authorEmail: currentUser?.email || '',
+          parentId: data.parentId || undefined,
+          entityType: data.entityType,
+          entityId: data.entityId,
+          status: 'pending',
+          isEdited: false,
+          editedAt: undefined,
+          createdAt: Math.floor(Date.now() / 1000),
+          updatedAt: Math.floor(Date.now() / 1000),
+          replies: [],
+          reportCount: 0,
+        };
+
+        set(state => ({
+          comments: [optimisticComment, ...state.comments],
+        }));
+
         try {
           const token = csrfToken || get().csrfToken;
           if (!token) {
             throw new Error('CSRF token not available');
           }
 
+          // 2. Server Request
           const response = await fetch('/api/comments/create', {
             method: 'POST',
             headers: {
@@ -141,16 +167,24 @@ export const useCommentStore = create<CommentStore>()(
           const result = await response.json() as ApiResult<Comment>;
 
           if (result.success) {
-            set({ isLoading: false });
+            // 3. Replace temporary comment with real one from server
+            set(state => ({
+              comments: state.comments.map(c =>
+                c.id === tempId ? result.data : c
+              ),
+              isLoading: false,
+            }));
             return result.data;
           } else {
             throw new Error(result.error?.message || 'Failed to create comment');
           }
         } catch (error) {
-          set({
+          // 4. Rollback on error: Remove optimistic comment
+          set(state => ({
+            comments: state.comments.filter(c => c.id !== tempId),
             isLoading: false,
             error: error instanceof Error ? error.message : 'Failed to create comment',
-          });
+          }));
           throw error;
         }
       },

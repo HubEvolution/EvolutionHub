@@ -22,7 +22,9 @@ export const GET: APIRoute = withRedirectMiddleware(async (context) => {
   }
 
   const url = new URL(request.url);
-  const origin = url.origin;
+  const env = (locals as any)?.runtime?.env || {};
+  const isDev = (env.ENVIRONMENT || env.NODE_ENV) === 'development';
+  const origin = isDev && env.BASE_URL ? (env.BASE_URL as string) : url.origin;
 
   // Ensure locale hint is available for the callback localization.
   // Priority:
@@ -56,7 +58,6 @@ export const GET: APIRoute = withRedirectMiddleware(async (context) => {
     // Best effort only; proceed without locale cookie if anything goes wrong
   }
 
-  const env = (locals as any)?.runtime?.env || {};
   const projectId = env.STYTCH_PROJECT_ID as string | undefined;
   const publicToken = env.STYTCH_PUBLIC_TOKEN as string | undefined;
   const customDomain = (env.STYTCH_CUSTOM_DOMAIN as string | undefined)?.trim();
@@ -67,7 +68,15 @@ export const GET: APIRoute = withRedirectMiddleware(async (context) => {
     // Misconfiguration
     const locale = (cookies.get('post_auth_locale')?.value || 'en') as 'en' | 'de';
     const prefix = locale === 'de' ? '/de' : '/en';
-    return Response.redirect(new URL(`${prefix}/login?magic_error=ServerConfig`, request.url), 302);
+    if (isDev) {
+      console.warn('[auth][oauth][start] missing STYTCH_PUBLIC_TOKEN', {
+        provider,
+        origin,
+        base,
+        customDomain,
+      });
+    }
+    return Response.redirect(`${origin}${prefix}/login?magic_error=ServerConfig`, 302);
   }
 
   // Desired redirect after successful auth; stored as cookie similar to Magic Link flow
@@ -89,7 +98,18 @@ export const GET: APIRoute = withRedirectMiddleware(async (context) => {
   // optional: scopes, state
   const state = url.searchParams.get('state') || '';
   if (state) sp.searchParams.set('state', state);
-
+  if (isDev) {
+    const mask = (t: string) => (typeof t === 'string' && t.length > 8 ? `${t.slice(0, 6)}…` : t);
+    console.log('[auth][oauth][start] redirecting to provider', {
+      provider,
+      base,
+      origin,
+      callbackUrl,
+      hasState: Boolean(state),
+      publicToken: mask(publicToken as string),
+      final: `${sp.origin}${sp.pathname}`,
+    });
+  }
   return Response.redirect(sp.toString(), 302);
 });
 

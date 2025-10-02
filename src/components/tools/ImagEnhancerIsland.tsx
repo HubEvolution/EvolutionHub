@@ -15,7 +15,6 @@ import { Dropzone } from './imag-enhancer/Dropzone';
 import { UsagePill } from './imag-enhancer/UsagePill';
 import { EnhancerActions } from './imag-enhancer/EnhancerActions';
 import { HelpModal } from './imag-enhancer/HelpModal';
-import { useLog } from '@/contexts/LogContext';
 import { computeAllowedScales, computeCanUseFaceEnhance } from './imag-enhancer/gating';
 import type { ApiSuccess, ApiErrorBody, GenerateResponseData } from './imag-enhancer/types';
 import { postCredits } from './imag-enhancer/api';
@@ -120,12 +119,13 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
   // Feature flag to guard plan-aware UI gating
   const gatingEnabled = import.meta.env.PUBLIC_ENHANCER_PLAN_GATING_V1 === '1';
   // Lightweight telemetry
-  const { addLog } = useLog();
   const trackEvent = useCallback((evt: string, payload: Record<string, unknown> = {}) => {
     try {
-      addLog({ timestamp: new Date().toISOString(), level: 'info', message: JSON.stringify({ evt, ...payload }) });
+      if (import.meta.env.DEV) {
+        console.log('[ImagEnhancer]', evt, payload);
+      }
     } catch {}
-  }, [addLog]);
+  }, []);
 
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [sliderPos, setSliderPos] = useState<number>(50); // 0..100

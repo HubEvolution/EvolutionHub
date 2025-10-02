@@ -19,6 +19,14 @@ if (!slug) {
   return new Response(null, { status: 404, statusText: 'Not Found' });
 }
 
+// Load user session for comment system
+const user = (Astro.locals as any)?.user || null;
+const initialUser = user ? {
+  id: Number(user.id),
+  name: user.name,
+  email: user.email
+} : null;
+
 // Try to load the blog post
 let postData: ProcessedBlogPost | null = null;
 // To satisfy TypeScript, originalEntry should be typed as CollectionEntry<'blog'>.
@@ -146,7 +154,7 @@ const structuredData = {
         </BlogPostComponent>
 
         {/* Kommentarbereich */}
-        <CommentSection entityType="blog_post" entityId={slug} client:load />
+        <CommentSection entityType="blog_post" entityId={slug} initialUser={initialUser} client:load />
       </div>
     </div>
   </article>

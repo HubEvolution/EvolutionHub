@@ -2,10 +2,12 @@ import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
 import { rateLimiter } from 'hono-rate-limiter';
-import { CommentService } from '../../../lib/services/comment-service';
-import { getAuthUser } from '../../../lib/auth-helpers';
-import { createCsrfMiddleware } from '../../../lib/security/csrf';
-import type { CreateCommentRequest, CommentFilters } from '../../../lib/types/comments';
+import type { APIContext } from 'astro';
+import { withApiMiddleware, createApiError, createApiSuccess } from '@/lib/api-middleware';
+import { CommentService } from '@/lib/services/comment-service';
+import { getAuthUser } from '@/lib/auth-helpers';
+import { createCsrfMiddleware } from '@/lib/security/csrf';
+import type { CreateCommentRequest, CommentFilters } from '@/lib/types/comments';
 
 const app = new Hono<{ Bindings: { DB: D1Database } }>();
 
@@ -84,7 +86,6 @@ app.post('/create', async (c) => {
     if (!commentData.content || !commentData.entityType || !commentData.entityId) {
       return c.json({ success: false, error: { type: 'validation_error', message: 'Missing required fields' } }, 400);
     }
-
     const comment = await commentService.createComment(commentData, userId, csrfToken);
     return c.json({ success: true, data: comment }, 201);
   } catch (error) {
@@ -98,9 +99,36 @@ app.post('/create', async (c) => {
         return c.json({ success: false, error: { type: 'validation_error', message: error.message } }, 400);
       }
     }
-
     return c.json({ success: false, error: { type: 'server_error', message: 'Failed to create comment' } }, 500);
   }
 });
 
-export default app;
+// Named export for GET /api/comments (required by file-based router)
+export const GET = withApiMiddleware(async (context: APIContext) => {
+  try {
+    const env = (context.locals as any).runtime?.env as { DB: D1Database } | undefined;
+    const db = env?.DB || (context as any).locals?.env?.DB;
+    if (!db) return createApiError('server_error', 'Database binding missing');
+
+    const url = new URL(context.request.url);
+    const q = url.searchParams;
+    const filters: CommentFilters = {
+      status: (q.get('status') as any) ?? undefined,
+      entityType: (q.get('entityType') as any) ?? undefined,
+      entityId: q.get('entityId') ?? undefined,
+      authorId: q.get('authorId') ? Number(q.get('authorId')) : undefined,
+      limit: q.get('limit') ? Number(q.get('limit')) : 20,
+      offset: q.get('offset') ? Number(q.get('offset')) : 0,
+      includeReplies: q.get('includeReplies') !== 'false',
+    };
+
+    const service = new CommentService(db);
+    const result = await service.listComments(filters);
+    return createApiSuccess(result);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    return createApiError('server_error', msg);
+  }
+});
+
+// Note: no default export; named handlers are used by the router

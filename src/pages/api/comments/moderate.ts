@@ -1,10 +1,12 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
-import { CommentService } from '../../../lib/services/comment-service';
-import { requireModerator } from '../../../lib/auth-helpers';
-import { createCsrfMiddleware } from '../../../lib/security/csrf';
-import type { ModerateCommentRequest } from '../../../lib/types/comments';
+import type { APIContext } from 'astro';
+import { createApiError, createApiSuccess } from '@/lib/api-middleware';
+import { CommentService } from '@/lib/services/comment-service';
+import { requireModerator } from '@/lib/auth-helpers';
+import { createCsrfMiddleware, validateCsrfToken } from '@/lib/security/csrf';
+import type { ModerateCommentRequest } from '@/lib/types/comments';
 
 const app = new Hono<{ Bindings: { DB: D1Database } }>();
 
@@ -121,9 +123,49 @@ app.get('/stats', async (c) => {
     if (error instanceof Error && error.message.includes('Authentication')) {
       return c.json({ success: false, error: { type: 'auth_error', message: error.message } }, 401);
     }
-
     return c.json({ success: false, error: { type: 'server_error', message: 'Failed to fetch comment stats' } }, 500);
   }
 });
 
-export default app;
+// Note: no default export; named handlers are used by the router
+
+// Named POST handler for /api/comments/moderate
+export const POST = async (context: APIContext) => {
+  try {
+    const env = (context.locals as any).runtime?.env as { DB: D1Database } | undefined;
+    const db = env?.DB || (context as any).locals?.env?.DB;
+    if (!db) return createApiError('server_error', 'Database binding missing');
+
+    // Require moderator or admin
+    const user = await requireModerator({ request: context.request, env: { DB: db } });
+
+    const body = (await context.request.json()) as (ModerateCommentRequest & { commentId?: string; csrfToken?: string });
+    const token = body?.csrfToken || context.request.headers.get('x-csrf-token') || '';
+    const cookie = context.request.headers.get('cookie') || undefined;
+    const ok = await validateCsrfToken(token, cookie);
+    if (!ok) {
+      return new Response(JSON.stringify({ success: false, error: { type: 'csrf_error', message: 'Invalid CSRF token' } }), {
+        status: 403,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    const commentId = body.commentId;
+    if (!commentId) return createApiError('validation_error', 'Comment ID required');
+
+    const { csrfToken, commentId: _omit, ...moderationData } = body as any;
+    const service = new CommentService(db);
+    const res = await service.moderateComment(commentId, moderationData, Number(user.id));
+    return createApiSuccess(res);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    if (msg.includes('Authentication')) return createApiError('auth_error', msg);
+    if (msg.toLowerCase().includes('csrf')) {
+      return new Response(JSON.stringify({ success: false, error: { type: 'csrf_error', message: msg } }), {
+        status: 403,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+    return createApiError('server_error', msg);
+  }
+};

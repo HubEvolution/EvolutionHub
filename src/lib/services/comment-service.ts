@@ -1,9 +1,10 @@
-import { eq, and, desc, count, sql } from 'drizzle-orm';
+import { eq, and, desc, count, sql, inArray } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/d1';
 import { generateId } from '../utils/id-generator';
 import { rateLimit } from '../rate-limiter';
 import { validateCsrfToken } from '../security/csrf';
 import { checkSpam } from '../spam-detection';
+import { sanitizeCommentContent } from '../security/sanitize';
 import {
   comments,
   commentModeration,
@@ -92,10 +93,13 @@ export class CommentService {
       }
     }
 
+    // Sanitize content to prevent XSS attacks
+    const sanitizedContent = sanitizeCommentContent(request.content.trim());
+
     // Insert comment
     await this.db.insert(comments).values({
       id: commentId,
-      content: request.content.trim(),
+      content: sanitizedContent,
       authorId: userId || 0, // 0 for guest users
       authorName,
       authorEmail,
@@ -138,11 +142,14 @@ export class CommentService {
 
     const now = Math.floor(Date.now() / 1000);
 
+    // Sanitize content to prevent XSS attacks
+    const sanitizedContent = sanitizeCommentContent(request.content.trim());
+
     // Update comment
     await this.db
       .update(comments)
       .set({
-        content: request.content.trim(),
+        content: sanitizedContent,
         isEdited: true,
         editedAt: now,
         updatedAt: now,
@@ -233,12 +240,8 @@ export class CommentService {
     }
 
     if (entityType && entityId) {
-      whereConditions.push(
-        and(
-          eq(comments.entityType, entityType),
-          eq(comments.entityId, entityId)
-        )
-      );
+      whereConditions.push(eq(comments.entityType, entityType));
+      whereConditions.push(eq(comments.entityId, entityId));
     }
 
     if (authorId) {
@@ -283,10 +286,44 @@ export class CommentService {
       reportCount: reportCount || 0,
     })) as Comment[];
 
-    // Fetch replies if requested
-    if (includeReplies) {
+    // Fetch replies if requested (batch-load to avoid N+1 problem)
+    if (includeReplies && commentsWithReports.length > 0) {
+      const parentIds = commentsWithReports.map(c => c.id);
+
+      // Load all replies in a single query
+      const allRepliesResults = await this.db
+        .select({
+          comment: comments,
+          reportCount: sql<number>`(
+            SELECT COUNT(*)
+            FROM ${commentReports}
+            WHERE ${commentReports.commentId} = ${comments.id}
+            AND ${commentReports.status} IN ('pending', 'reviewed')
+          )`
+        })
+        .from(comments)
+        .where(and(
+          inArray(comments.parentId, parentIds),
+          eq(comments.status, 'approved')
+        ))
+        .orderBy(comments.createdAt);
+
+      // Group replies by parent ID
+      const repliesByParent = new Map<string, Comment[]>();
+      allRepliesResults.forEach(({ comment, reportCount }) => {
+        const parentId = comment.parentId!;
+        if (!repliesByParent.has(parentId)) {
+          repliesByParent.set(parentId, []);
+        }
+        repliesByParent.get(parentId)!.push({
+          ...comment,
+          reportCount: reportCount || 0,
+        } as Comment);
+      });
+
+      // Attach replies to their parent comments
       for (const comment of commentsWithReports) {
-        comment.replies = await this.getCommentReplies(comment.id);
+        comment.replies = repliesByParent.get(comment.id) || [];
       }
     }
 

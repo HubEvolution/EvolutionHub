@@ -59,6 +59,11 @@ const getHandler: ApiHandler = async (context: APIContext) => {
   // Stytch redirects back with stytch_token_type=oauth & token=...
   const tokenType = url.searchParams.get('stytch_token_type') || '';
   const token = url.searchParams.get('token') || '';
+  const devEnv = ((context.locals as any)?.runtime?.env?.ENVIRONMENT || 'development') === 'development';
+  const startedAt = Date.now();
+  if (devEnv) {
+    console.log('[auth][oauth][callback] received', { provider, tokenType, hasToken: Boolean(token) });
+  }
   if (tokenType !== 'oauth' || !token) {
     return createSecureRedirect('/en/login?magic_error=InvalidOrExpired');
   }
@@ -69,7 +74,13 @@ const getHandler: ApiHandler = async (context: APIContext) => {
     const authRes = await stytchOAuthAuthenticate(context, token);
     const emails = authRes.user?.emails || [];
     stytchEmail = emails.find((e) => e.verified)?.email || emails[0]?.email;
+    if (devEnv) {
+      console.log('[auth][oauth][callback] provider accepted', { ms: Date.now() - startedAt, hasEmail: Boolean(stytchEmail) });
+    }
   } catch (_e) {
+    if (devEnv) {
+      console.warn('[auth][oauth][callback] provider rejected', { ms: Date.now() - startedAt });
+    }
     return createSecureRedirect('/en/login?magic_error=InvalidOrExpired');
   }
 
@@ -153,9 +164,14 @@ const getHandler: ApiHandler = async (context: APIContext) => {
 
   if (upsert.isNew && !(desiredName || desiredUsername)) {
     const nextParam = encodeURIComponent(target);
+    if (devEnv) {
+      console.log('[auth][oauth][callback] redirect first-time to welcome-profile', { target });
+    }
     return createSecureRedirect(`/welcome-profile?next=${nextParam}`);
   }
-
+  if (devEnv) {
+    console.log('[auth][oauth][callback] redirect to target', { target });
+  }
   return createSecureRedirect(target);
 };
 

@@ -165,9 +165,6 @@ export default defineConfig({
         '@/scripts': '/src/scripts',
         '@/api': '/src/pages/api',
         '@/tests': '/tests',
-        '@/server/utils/logger': IS_WORKER_BUILD
-          ? '/src/server/utils/logger.worker.ts'
-          : '/src/server/utils/logger.node.ts',
         '@/server': '/src/server'
       }
     },

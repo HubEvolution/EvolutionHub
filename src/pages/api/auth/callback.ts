@@ -52,6 +52,11 @@ async function upsertUser(db: D1Database, email: string, desiredName?: string, d
 const getHandler: ApiHandler = async (context: APIContext) => {
   const url = new URL(context.request.url);
   const token = url.searchParams.get('token') || '';
+  const devEnv = (((context.locals as any)?.runtime?.env?.ENVIRONMENT) || 'development') === 'development';
+  const startedAt = Date.now();
+  if (devEnv) {
+    console.log('[auth][magic][callback] received', { hasToken: Boolean(token) });
+  }
   if (!token) {
     // Pending final UX: redirect to login with error
     return createSecureRedirect('/en/login?magic_error=MissingToken');
@@ -64,12 +69,21 @@ const getHandler: ApiHandler = async (context: APIContext) => {
   if (isBypass) {
     // In Dev/Test, allow bypass with explicit email param
     stytchEmail = url.searchParams.get('email') || undefined;
+    if (devEnv) {
+      console.log('[auth][magic][callback] using dev bypass', { hasEmail: Boolean(stytchEmail) });
+    }
   } else {
     try {
       const authRes = await stytchMagicLinkAuthenticate(context, token);
       const emails = authRes.user?.emails || [];
       stytchEmail = emails.find((e) => e.verified)?.email || emails[0]?.email;
+      if (devEnv) {
+        console.log('[auth][magic][callback] provider accepted', { ms: Date.now() - startedAt, hasEmail: Boolean(stytchEmail) });
+      }
     } catch (e) {
+      if (devEnv) {
+        console.warn('[auth][magic][callback] provider rejected', { ms: Date.now() - startedAt });
+      }
       return createSecureRedirect('/en/login?magic_error=InvalidOrExpired');
     }
   }
@@ -171,9 +185,14 @@ const getHandler: ApiHandler = async (context: APIContext) => {
   const hasProfileFromRequest = Boolean(desiredName) || Boolean(desiredUsername);
   if (upsert.isNew && !hasProfileFromRequest) {
     const nextParam = encodeURIComponent(target);
+    if (devEnv) {
+      console.log('[auth][magic][callback] redirect first-time to welcome-profile', { target });
+    }
     return createSecureRedirect(`/welcome-profile?next=${nextParam}`);
   }
-
+  if (devEnv) {
+    console.log('[auth][magic][callback] redirect to target', { target });
+  }
   // Direct redirect to target (simplified flow; no cross-tab broadcast)
   return createSecureRedirect(target);
 };

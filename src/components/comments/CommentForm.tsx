@@ -62,6 +62,22 @@ export const CommentForm: React.FC<CommentFormProps> = ({
     onCancel?.();
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    // Ctrl+Enter or Cmd+Enter to submit
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+      e.preventDefault();
+      if (!isDisabled) {
+        handleSubmit(e as any);
+      }
+    }
+
+    // Escape to cancel
+    if (e.key === 'Escape' && showCancel) {
+      e.preventDefault();
+      handleCancel();
+    }
+  };
+
   const isDisabled = isLoading || isSubmitting || !content.trim();
 
   return (
@@ -106,11 +122,13 @@ export const CommentForm: React.FC<CommentFormProps> = ({
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            placeholder={placeholder}
+            onKeyDown={handleKeyDown}
+            placeholder={`${placeholder} (Strg+Enter zum Absenden)`}
             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white resize-vertical"
             rows={4}
             maxLength={2000}
             disabled={isLoading || isSubmitting}
+            aria-label="Kommentar schreiben"
           />
           <div className="flex justify-between items-center mt-1">
             <span className="text-xs text-gray-500 dark:text-gray-400">

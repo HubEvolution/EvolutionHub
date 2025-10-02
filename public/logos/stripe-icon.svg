@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Minimalist Stripe Wave "S" -->
+  <g opacity="0.9">
+    <!-- Rounded rectangle background -->
+    <rect
+      x="8"
+      y="16"
+      width="48"
+      height="32"
+      rx="6"
+      fill="#635BFF"
+    />
+    <!-- Stylized "S" with wave -->
+    <path
+      d="M32 24 Q28 24 26 26 Q24 28 26 30 L32 32 Q36 34 38 36 Q40 38 38 40 Q36 42 32 42 Q28 42 24 40"
+      stroke="white"
+      stroke-width="4"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      fill="none"
+    />
+    <!-- Accent lines (payment stripes) -->
+    <line x1="12" y1="22" x2="20" y2="22" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+    <line x1="12" y1="26" x2="18" y2="26" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.4"/>
+  </g>
+</svg>

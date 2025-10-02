@@ -149,6 +149,12 @@ export const onRequest = defineMiddleware(async (context, next) => {
   const url = new URL(context.request.url);
   const path = url.pathname;
 
+  // In Remote Dev zeigt url.origin auf *.workers.dev. Für lokale UX und korrekte
+  // Callback-URLs verwenden wir in Development die BASE_URL aus dem Runtime-Env.
+  const cfEnv = (context.locals as unknown as { runtime?: { env?: Record<string, string> } })?.runtime?.env;
+  const isDevEnv = (cfEnv?.ENVIRONMENT || (cfEnv as Record<string, string> | undefined)?.NODE_ENV) === 'development';
+  const originForRedirects = isDevEnv && cfEnv?.BASE_URL ? cfEnv.BASE_URL : url.origin;
+
   // Direkt-Weiterleitung: /favicon.ico -> /favicon.svg
 // Auskommentiert, damit favicon.ico aus public/ ausgeliefert werden kann.
 // if (path === '/favicon.ico') {
@@ -293,7 +299,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
         console.warn('[Middleware] set_locale next parsing failed:', e);
       }
     }
-    const location = `${url.origin}${mapPathToLocale(targetLocale, effectiveNext)}`;
+    const location = `${originForRedirects}${mapPathToLocale(targetLocale, effectiveNext)}`;
     const headers = new Headers();
     headers.set('Location', location);
     headers.set('Content-Language', targetLocale);
@@ -352,7 +358,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
   const shouldPreferEnByReferer = !cookieLocale && refererSuggestsEn;
   if (!existingLocale && !isApi && !isAsset && !isR2Proxy && shouldPreferEnByReferer && !path.startsWith('/welcome') && !isAuthRoute(path)) {
     const target = path === '/' ? '/en/' : `/en${path}`;
-    const location = `${url.origin}${target}${url.search}${url.hash}`;
+    const location = `${originForRedirects}${target}${url.search}${url.hash}`;
     const headers = new Headers();
     headers.set('Location', location);
     headers.set('Content-Language', 'en');
@@ -401,7 +407,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
     const target = cookieLocale === 'en'
       ? (pathWithoutDe === '/' ? '/en/' : `/en${pathWithoutDe}`)
       : pathWithoutDe;
-    const location = `${url.origin}${target}${url.search}${url.hash}`;
+    const location = `${originForRedirects}${target}${url.search}${url.hash}`;
     const headers = new Headers();
     headers.set('Location', location);
     headers.set('Content-Language', cookieLocale === 'en' ? 'en' : 'de');
@@ -417,7 +423,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
     const botLocale = detectFromAcceptLanguage(context.request.headers.get('accept-language'));
     if (botLocale === 'en') {
       const target = path === '/' ? '/en/' : `/en${path}`;
-      const location = `${url.origin}${target}${url.search}${url.hash}`;
+      const location = `${originForRedirects}${target}${url.search}${url.hash}`;
       const headers = new Headers();
       headers.set('Location', location);
       headers.set('Content-Language', 'en');
@@ -432,7 +438,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
   // Neutrale Pfade nur bei gesetztem Cookie=en auf /en/... umleiten; sonst neutral (DE) belassen
   if (!existingLocale && !isApi && !isAsset && !isR2Proxy && cookieLocale === 'en' && !path.startsWith('/welcome') && !isAuthRoute(path)) {
     const target = path === '/' ? '/en/' : `/en${path}`;
-    const location = `${url.origin}${target}${url.search}${url.hash}`;
+    const location = `${originForRedirects}${target}${url.search}${url.hash}`;
     const headers = new Headers();
     headers.set('Location', location);
     headers.set('Content-Language', 'en');
@@ -497,7 +503,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
       const base = targetLocale === 'en' ? '/en/verify-email' : '/verify-email';
       const params = new URLSearchParams();
       if (user.email) params.set('email', user.email);
-      const location = `${url.origin}${base}${params.toString() ? `?${params.toString()}` : ''}`;
+      const location = `${originForRedirects}${base}${params.toString() ? `?${params.toString()}` : ''}`;
       const headers = new Headers();
       headers.set('Location', location);
       headers.set('Vary', 'Cookie, Accept-Language');
@@ -576,8 +582,8 @@ export const onRequest = defineMiddleware(async (context, next) => {
   // CSP: relax in development for Astro/Vite HMR and inline module scripts; strict in production
   // Wrangler "dev" runs a built worker, so import.meta.env.DEV can be false.
   // Treat local loopbacks as development to keep relaxed CSP during local E2E/dev.
-  const cfEnv = (context.locals as unknown as { runtime?: { env?: Record<string, string> } })?.runtime?.env;
-  const envFlagDev = !!(cfEnv && (cfEnv.ENVIRONMENT === 'development' || cfEnv.NODE_ENV === 'development'));
+  // cfEnv wurde weiter oben definiert
+  const envFlagDev = !!(cfEnv && (cfEnv.ENVIRONMENT === 'development' || (cfEnv as any).NODE_ENV === 'development'));
   const __devLike =
     import.meta.env.DEV ||
     import.meta.env.MODE === 'development' ||

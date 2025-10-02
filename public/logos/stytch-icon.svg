@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Minimalist Stytch Shield "S" -->
+  <g opacity="0.9">
+    <!-- Shield outline -->
+    <path
+      d="M32 8 L48 16 L48 32 Q48 44 32 56 Q16 44 16 32 L16 16 Z"
+      fill="url(#stytch-gradient)"
+      stroke="currentColor"
+      stroke-width="2"
+    />
+    <!-- Abstract "S" shape -->
+    <path
+      d="M28 24 Q32 22 36 24 Q38 26 36 28 Q32 30 28 28 Q26 30 28 32 Q32 34 36 32 Q38 34 36 36 Q32 38 28 36"
+      stroke="white"
+      stroke-width="3"
+      stroke-linecap="round"
+      fill="none"
+    />
+  </g>
+  <defs>
+    <linearGradient id="stytch-gradient" x1="16" y1="8" x2="48" y2="56">
+      <stop offset="0%" stop-color="#6366F1"/>
+      <stop offset="100%" stop-color="#8B5CF6"/>
+    </linearGradient>
+  </defs>
+</svg>

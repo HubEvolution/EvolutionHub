@@ -23,7 +23,16 @@ const app = new Hono<{
 // Middleware
 app.use('/*', cors());
 app.use('/search', jwt({ secret: process.env.JWT_SECRET! }));
-app.use('/search', rateLimiter({ windowMs: 60 * 1000, limit: 20 })); // 20 Suchen pro Minute
+app.use('/search', rateLimiter({
+  windowMs: 60 * 1000,
+  limit: 20, // 20 Suchen pro Minute
+  keyGenerator: (c) =>
+    c.req.header('CF-Connecting-IP') ||
+    c.req.header('cf-connecting-ip') ||
+    c.req.header('x-forwarded-for') ||
+    c.req.header('x-real-ip') ||
+    'anonymous',
+}));
 app.use('/preload', jwt({ secret: process.env.JWT_SECRET! }));
 
 /**
@@ -85,8 +94,7 @@ app.get('/paginated/:postId', async (c) => {
 app.get('/search', async (c) => {
   try {
     const query = c.req.query();
-    const user = await requireAuth(c);
-    const userId = Number(user.id);
+    await requireAuth(c);
 
     if (!query.q) {
       return c.json({
@@ -346,7 +354,7 @@ app.post('/optimize', async (c) => {
  */
 app.get('/batch/:postId', async (c) => {
   try {
-    const postId = c.req.param('postId');
+    // const postId = c.req.param('postId'); // currently unused in mock response
     const query = c.req.query();
 
     const batchOptions = {
@@ -366,7 +374,7 @@ app.get('/batch/:postId', async (c) => {
         hasMore: false,
         nextOffset: batchOptions.offset + batchOptions.limit,
         batchSize: batchOptions.limit,
-      },
+      }
     });
   } catch (error) {
     console.error('Error fetching comment batch:', error);
@@ -379,5 +387,3 @@ app.get('/batch/:postId', async (c) => {
     }, 500);
   }
 });
-
-export default app;

@@ -388,52 +388,11 @@ try {
     if (sqliteFiles.length > 0) {
       console.log(`Gefundene zusätzliche SQLite-Dateien: ${sqliteFiles.length}`);
       sqliteFiles.forEach(file => console.log(` - ${file}`));
-      
-      // Kombiniere alle Migrationen für die zusätzlichen Datenbanken
-      console.log('\nKombiniere alle Migrationen für zusätzliche Datenbanken...');
-      let combinedSQL = '';
-      
-      for (const migrationFile of migrationFiles) {
-        // Überspringe risikoreiche ALTER-Migrationen für zusätzliche DBs; Guards kümmern sich darum
-        if (migrationFile.startsWith('0002_add_password_hash_to_users') ||
-            migrationFile.startsWith('0007_add_email_verification')) {
-          console.log(`⏭️  Überspringe ${migrationFile} für zusätzliche DBs (durch Guards abgedeckt).`);
-          continue;
-        }
-
-        const migrationPath = path.join(MIGRATIONS_DIR, migrationFile);
-        const sqlContent = fs.readFileSync(migrationPath, 'utf-8');
-        
-        // Einige Migrationsdateien könnten ohne IF NOT EXISTS brechen; stelle sicher, dass CREATE TABLE abgesichert ist
-        let safeSQL = sqlContent;
-        if (!safeSQL.includes('IF NOT EXISTS')) {
-          safeSQL = safeSQL.replace(
-            /CREATE TABLE ([^\(]+)/gi, 
-            'CREATE TABLE IF NOT EXISTS $1'
-          );
-        }
-        
-        combinedSQL += `\n-- Migration: ${migrationFile}\n${safeSQL}\n`;
-      }
-      
-      // Schreibe die kombinierte SQL in eine temporäre Datei
-      const tempSQLPath = path.join(os.tmpdir(), `combined_migrations_${Date.now()}.sql`);
-      fs.writeFileSync(tempSQLPath, combinedSQL);
-      
-      // Führe die kombinierte SQL-Datei für jede zusätzliche SQLite-Datei aus
-      for (const dbPath of sqliteFiles) {
-        console.log(`Führe Migrationen für zusätzliche Datenbank aus: ${dbPath}`);
-        
-        try {
-          execSync(`cat ${tempSQLPath} | sqlite3 ${dbPath}`, { stdio: 'inherit' });
-          console.log(`✅ Migrationen erfolgreich auf ${dbPath} angewendet`);
-        } catch (error) {
-          console.error(`❌ Fehler beim Ausführen der Migrationen auf ${dbPath}:`, error);
-        }
-      }
-      
-      // Lösche die temporäre Datei
-      fs.unlinkSync(tempSQLPath);
+      // Hinweis: Wir wenden KEINE kombinierten Migrationen mehr auf zusätzliche DBs an.
+      // Stattdessen verlassen wir uns vollständig auf die idempotenten Schema-Guards weiter unten,
+      // um notwendige Tabellen/Spalten/Indizes sicher zu erstellen. Das vermeidet laute Parse-Fehler
+      // durch doppelte Indizes/Trigger oder nicht vorhandene Spalten in optionalen Features.
+      console.log('\n⏭️  Überspringe das Anwenden kombinierter Migrationen auf zusätzliche DBs. Guards übernehmen Konsistenz.');
     } else {
       console.log('Keine zusätzlichen Datenbanken gefunden.');
     }
@@ -478,6 +437,89 @@ try {
     }
 
     for (const dbPath of dbPaths) {
+      // Ensure modern comments table exists
+      runSafeSQL(dbPath, `
+        CREATE TABLE IF NOT EXISTS comments (
+          id TEXT PRIMARY KEY,
+          content TEXT NOT NULL,
+          author_id INTEGER NOT NULL DEFAULT 0,
+          author_name TEXT NOT NULL,
+          author_email TEXT NOT NULL,
+          parent_id TEXT NULL,
+          entity_type TEXT NOT NULL,
+          entity_id TEXT NOT NULL,
+          status TEXT NOT NULL DEFAULT 'pending',
+          is_edited INTEGER DEFAULT 0,
+          edited_at INTEGER NULL,
+          created_at INTEGER NOT NULL,
+          updated_at INTEGER NOT NULL
+        );
+      `);
+      // Migrate legacy comments table (postId/author/createdAt) → modern schema if detected
+      const hasLegacyPostId = columnExists(dbPath, 'comments', 'postId');
+      const hasLegacyAuthor = columnExists(dbPath, 'comments', 'author');
+      const hasLegacyCreatedAt = columnExists(dbPath, 'comments', 'createdAt');
+      if (hasLegacyPostId && hasLegacyAuthor && hasLegacyCreatedAt) {
+        console.log(`\n⚙️  Migriere Legacy-Comments-Schema in ${dbPath} → modernes Schema...`);
+        runSafeSQL(dbPath, `
+          PRAGMA foreign_keys=OFF;
+          BEGIN TRANSACTION;
+          CREATE TABLE IF NOT EXISTS comments_new (
+            id TEXT PRIMARY KEY,
+            content TEXT NOT NULL,
+            author_id INTEGER DEFAULT 0,
+            author_name TEXT NOT NULL DEFAULT 'Anonymous',
+            author_email TEXT NOT NULL DEFAULT '',
+            parent_id TEXT,
+            entity_type TEXT NOT NULL DEFAULT 'blog_post',
+            entity_id TEXT NOT NULL,
+            status TEXT NOT NULL DEFAULT 'pending',
+            is_edited INTEGER DEFAULT 0,
+            edited_at INTEGER,
+            created_at INTEGER NOT NULL,
+            updated_at INTEGER NOT NULL
+          );
+          INSERT INTO comments_new (
+            id, content, author_id, author_name, author_email, parent_id,
+            entity_type, entity_id, status, is_edited, edited_at, created_at, updated_at
+          )
+          SELECT
+            id,
+            content,
+            0 as author_id,
+            COALESCE(author, 'Anonymous') as author_name,
+            '' as author_email,
+            NULL as parent_id,
+            'blog_post' as entity_type,
+            postId as entity_id,
+            CASE approved WHEN 1 THEN 'approved' ELSE 'pending' END as status,
+            0 as is_edited,
+            NULL as edited_at,
+            CAST(strftime('%s', createdAt) AS INTEGER) as created_at,
+            CAST(strftime('%s', 'now') AS INTEGER) as updated_at
+          FROM comments;
+          DROP TABLE comments;
+          ALTER TABLE comments_new RENAME TO comments;
+          COMMIT;
+          PRAGMA foreign_keys=ON;
+        `);
+        // Rebuild indices for modern schema
+        if (columnExists(dbPath, 'comments', 'entity_type') && columnExists(dbPath, 'comments', 'entity_id')) {
+          runSafeSQL(dbPath, 'CREATE INDEX IF NOT EXISTS idx_comments_entity ON comments(entity_type, entity_id);');
+        }
+        if (columnExists(dbPath, 'comments', 'status')) {
+          runSafeSQL(dbPath, 'CREATE INDEX IF NOT EXISTS idx_comments_status ON comments(status);');
+        }
+        if (columnExists(dbPath, 'comments', 'author_id')) {
+          runSafeSQL(dbPath, 'CREATE INDEX IF NOT EXISTS idx_comments_author ON comments(author_id);');
+        }
+        if (columnExists(dbPath, 'comments', 'parent_id')) {
+          runSafeSQL(dbPath, 'CREATE INDEX IF NOT EXISTS idx_comments_parent ON comments(parent_id);');
+        }
+        if (columnExists(dbPath, 'comments', 'created_at')) {
+          runSafeSQL(dbPath, 'CREATE INDEX IF NOT EXISTS idx_comments_created_at ON comments(created_at DESC);');
+        }
+      }
       // users.email_verified (INTEGER as boolean)
       addColumnIfMissing(dbPath, 'users', 'email_verified', 'INTEGER NOT NULL DEFAULT 0');
       // users.email_verified_at (Unix timestamp seconds)
@@ -500,6 +542,100 @@ try {
          CREATE INDEX IF NOT EXISTS idx_email_verification_tokens_expires_at ON email_verification_tokens(expires_at);
          CREATE INDEX IF NOT EXISTS idx_email_verification_tokens_email ON email_verification_tokens(email);`
       );
+
+      // comments table: ensure required columns exist (idempotent guards)
+      addColumnIfMissing(dbPath, 'comments', 'entity_type', 'TEXT');
+      addColumnIfMissing(dbPath, 'comments', 'entity_id', 'TEXT');
+      addColumnIfMissing(dbPath, 'comments', 'status', "TEXT DEFAULT 'pending'");
+      addColumnIfMissing(dbPath, 'comments', 'author_id', 'INTEGER');
+      addColumnIfMissing(dbPath, 'comments', 'parent_id', 'TEXT');
+      addColumnIfMissing(dbPath, 'comments', 'created_at', 'INTEGER');
+      addColumnIfMissing(dbPath, 'comments', 'updated_at', 'INTEGER');
+      addColumnIfMissing(dbPath, 'comments', 'is_edited', 'INTEGER DEFAULT 0');
+      addColumnIfMissing(dbPath, 'comments', 'edited_at', 'INTEGER');
+      addColumnIfMissing(dbPath, 'comments', 'author_name', 'TEXT');
+      addColumnIfMissing(dbPath, 'comments', 'author_email', 'TEXT');
+
+      // comments indices: only create if referenced columns exist
+      if (columnExists(dbPath, 'comments', 'entity_type') && columnExists(dbPath, 'comments', 'entity_id')) {
+        runSafeSQL(dbPath, 'CREATE INDEX IF NOT EXISTS idx_comments_entity ON comments(entity_type, entity_id);');
+      }
+      if (columnExists(dbPath, 'comments', 'status')) {
+        runSafeSQL(dbPath, 'CREATE INDEX IF NOT EXISTS idx_comments_status ON comments(status);');
+      }
+      if (columnExists(dbPath, 'comments', 'author_id')) {
+        runSafeSQL(dbPath, 'CREATE INDEX IF NOT EXISTS idx_comments_author ON comments(author_id);');
+      }
+      if (columnExists(dbPath, 'comments', 'parent_id')) {
+        runSafeSQL(dbPath, 'CREATE INDEX IF NOT EXISTS idx_comments_parent ON comments(parent_id);');
+      }
+      if (columnExists(dbPath, 'comments', 'created_at')) {
+        runSafeSQL(dbPath, 'CREATE INDEX IF NOT EXISTS idx_comments_created_at ON comments(created_at DESC);');
+      }
+
+      // comment_reports table
+      runSafeSQL(dbPath, `
+        CREATE TABLE IF NOT EXISTS comment_reports (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          comment_id TEXT NOT NULL,
+          reporter_id INTEGER NULL,
+          reporter_email TEXT NULL,
+          reason TEXT NOT NULL,
+          description TEXT NULL,
+          status TEXT NOT NULL DEFAULT 'pending',
+          created_at INTEGER NOT NULL,
+          reviewed_at INTEGER NULL,
+          reviewed_by INTEGER NULL
+        );
+        CREATE INDEX IF NOT EXISTS idx_comment_reports_comment ON comment_reports(comment_id);
+        CREATE INDEX IF NOT EXISTS idx_comment_reports_status ON comment_reports(status);
+        CREATE INDEX IF NOT EXISTS idx_comment_reports_created_at ON comment_reports(created_at);
+      `);
+
+      // comment_moderation table
+      runSafeSQL(dbPath, `
+        CREATE TABLE IF NOT EXISTS comment_moderation (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          comment_id TEXT NOT NULL,
+          moderator_id INTEGER NULL,
+          action TEXT NOT NULL,
+          reason TEXT NULL,
+          created_at INTEGER NOT NULL
+        );
+        CREATE INDEX IF NOT EXISTS idx_comment_moderation_comment ON comment_moderation(comment_id);
+        CREATE INDEX IF NOT EXISTS idx_comment_moderation_moderator ON comment_moderation(moderator_id);
+        CREATE INDEX IF NOT EXISTS idx_comment_moderation_created_at ON comment_moderation(created_at);
+      `);
+
+      // comment_audit_logs table
+      runSafeSQL(dbPath, `
+        CREATE TABLE IF NOT EXISTS comment_audit_logs (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          comment_id TEXT NOT NULL,
+          user_id INTEGER NULL,
+          action TEXT NOT NULL,
+          old_values TEXT NULL,
+          new_values TEXT NULL,
+          reason TEXT NULL,
+          ip_address TEXT NULL,
+          user_agent TEXT NULL,
+          metadata TEXT NULL,
+          created_at INTEGER NOT NULL
+        );
+        CREATE INDEX IF NOT EXISTS idx_comment_audit_logs_comment_id ON comment_audit_logs(comment_id);
+        CREATE INDEX IF NOT EXISTS idx_comment_audit_logs_user_id ON comment_audit_logs(user_id);
+        CREATE INDEX IF NOT EXISTS idx_comment_audit_logs_action ON comment_audit_logs(action);
+        CREATE INDEX IF NOT EXISTS idx_comment_audit_logs_created_at ON comment_audit_logs(created_at);
+      `);
+
+      // notifications table: ensure is_read column exists and indices
+      addColumnIfMissing(dbPath, 'notifications', 'is_read', 'INTEGER DEFAULT 0');
+      if (columnExists(dbPath, 'notifications', 'is_read')) {
+        runSafeSQL(dbPath, 'CREATE INDEX IF NOT EXISTS idx_notifications_is_read ON notifications(is_read);');
+        if (columnExists(dbPath, 'notifications', 'user_id')) {
+          runSafeSQL(dbPath, 'CREATE INDEX IF NOT EXISTS idx_notifications_user_unread ON notifications(user_id, is_read) WHERE is_read = 0;');
+        }
+      }
     }
     console.log('✅ Schema-Guards abgeschlossen.');
   } catch (error) {

@@ -3,6 +3,7 @@ import { CommentForm } from './CommentForm';
 import { CommentList } from './CommentList';
 import { CommentStats } from './CommentStats';
 import { CommentMobile, useIsMobile } from './CommentMobile';
+import { CommentErrorBoundary } from './CommentErrorBoundary';
 import { useCommentStore } from '../../stores/comment-store';
 import type { CommentEntityType } from '../../lib/types/comments';
 
@@ -11,13 +12,15 @@ interface CommentSectionProps {
   entityId: string;
   title?: string;
   className?: string;
+  initialUser?: { id: number; name: string; email: string } | null;
 }
 
-export const CommentSection: React.FC<CommentSectionProps> = ({
+const CommentSectionInner: React.FC<CommentSectionProps> = ({
   entityType,
   entityId,
   title = "Kommentare",
   className = "",
+  initialUser = null,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -37,21 +40,24 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
     initializeCsrfToken,
     hasMore,
     loadMoreComments,
+    setCurrentUser,
   } = useCommentStore();
-
   // Load comments on mount
   useEffect(() => {
+    // Set user from server-side session if available
+    if (initialUser && !currentUser) {
+      setCurrentUser(initialUser);
+    }
     // Ensure CSRF token exists once on mount
     if (!csrfToken) {
-      try { initializeCsrfToken(); } catch {}
+      try { initializeCsrfToken(); } catch { /* no-op */ void 0; }
     }
     loadComments();
-  }, [entityType, entityId]);
+  }, [entityType, entityId, initialUser]);
 
   const loadComments = async () => {
     setIsLoading(true);
     setError(null);
-
     try {
       await fetchComments({
         entityType,
@@ -249,3 +255,10 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
     </div>
   );
 };
+
+// Wrap with Error Boundary for resilience
+export const CommentSection: React.FC<CommentSectionProps> = (props) => (
+  <CommentErrorBoundary>
+    <CommentSectionInner {...props} />
+  </CommentErrorBoundary>
+);

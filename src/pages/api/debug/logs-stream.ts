@@ -67,7 +67,7 @@ export const GET = async (context: APIContext) => {
           const sseData = `id: ${++id}\ndata: ${log}\n\n`;
           controller.enqueue(encoder.encode(sseData));
         });
-        
+
         // Send environment info
         const envData = `id: ${++id}\ndata: ${JSON.stringify({
           type: 'environment-info',
@@ -75,13 +75,34 @@ export const GET = async (context: APIContext) => {
           timestamp: new Date().toISOString()
         })}\n\n`;
         controller.enqueue(encoder.encode(envData));
-        
-        // Send keep-alive message
-        const keepAlive = `id: ${++id}\ndata: ${JSON.stringify({
-          type: 'keep-alive',
-          timestamp: new Date().toISOString()
-        })}\n\n`;
-        controller.enqueue(encoder.encode(keepAlive));
+
+        // Heartbeat interval to keep connection alive (Cloudflare Workers requirement)
+        const heartbeatInterval = setInterval(() => {
+          try {
+            const keepAlive = `id: ${++id}\ndata: ${JSON.stringify({
+              type: 'keep-alive',
+              timestamp: new Date().toISOString()
+            })}\n\n`;
+            controller.enqueue(encoder.encode(keepAlive));
+          } catch (err) {
+            clearInterval(heartbeatInterval);
+          }
+        }, 5000); // Every 5 seconds
+
+        // Auto-close after 30 seconds to prevent hanging
+        const timeout = setTimeout(() => {
+          clearInterval(heartbeatInterval);
+          controller.close();
+        }, 30000); // 30 seconds
+
+        // Cleanup on abort
+        const cleanup = () => {
+          clearInterval(heartbeatInterval);
+          clearTimeout(timeout);
+        };
+
+        // Note: Cannot directly listen to abort signal in this context
+        // Client will reconnect if connection drops
       }
     });
 

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Minimalist Cloudflare Orange Cloud -->
+  <path
+    d="M48 28c0-8.837-7.163-16-16-16-6.906 0-12.784 4.379-15.07 10.512A10 10 0 0 0 6 30c0 5.523 4.477 10 10 10h32c5.523 0 10-4.477 10-10 0-5.185-3.947-9.449-9-9.95z"
+    fill="#F6821F"
+    opacity="0.9"
+  />
+  <!-- Abstract network lines (simplified) -->
+  <path
+    d="M20 32h24M28 28v8M36 28v8"
+    stroke="#FFFFFF"
+    stroke-width="2"
+    stroke-linecap="round"
+    opacity="0.6"
+  />
+</svg>

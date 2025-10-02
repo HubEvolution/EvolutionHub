@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import fetch from '@whatwg-node/fetch';
-import type { PromptEnhancerResponse } from 'src/lib/services/prompt-enhancer-service';
+import { TEST_URL, csrfHeaders } from '../shared/http';
 
 // Mock the PromptEnhancerService
 vi.mock('src/lib/services/prompt-enhancer-service', () => ({
@@ -9,17 +8,14 @@ vi.mock('src/lib/services/prompt-enhancer-service', () => ({
   }))
 }));
 
-// Mock KV for quota
-vi.mock('upstash/kv', async () => {
-  const { Redis } = await import('ioredis');
-  return {
-    Redis: vi.fn(() => ({
-      get: vi.fn(),
-      set: vi.fn(),
-      del: vi.fn()
-    }))
-  };
-});
+// Mock KV for quota (simple stub, no external deps)
+vi.mock('upstash/kv', () => ({
+  Redis: vi.fn(() => ({
+    get: vi.fn(),
+    set: vi.fn(),
+    del: vi.fn(),
+  })),
+}));
 
 // Mock auth service to control locals.user
 vi.mock('src/lib/services/auth-service', () => ({
@@ -27,19 +23,20 @@ vi.mock('src/lib/services/auth-service', () => ({
 }));
 
 // Assume cookie helpers if needed
-const baseUrl = process.env.TEST_BASE_URL || 'http://localhost:8787';
-const apiUrl = `${baseUrl}/api/prompt-enhance`;
+const apiUrl = `${TEST_URL}/api/prompt-enhance`;
 
 describe('prompt-enhance API Integration Tests', () => {
   let enhanceMock: any;
   let kvGetMock: any;
   let getUserFromSessionMock: any;
 
-  beforeEach(() => {
-    enhanceMock = vi.mocked((await import('src/lib/services/prompt-enhancer-service')).PromptEnhancerService.prototype.enhance);
-    const kvModule = vi.mocked(await import('upstash/kv')).Redis;
-    kvGetMock = kvModule().get;
-    getUserFromSessionMock = vi.mocked((await import('src/lib/services/auth-service')).getUserFromSession);
+  beforeEach(async () => {
+    const svc = await import('src/lib/services/prompt-enhancer-service');
+    enhanceMock = vi.mocked((svc as any).PromptEnhancerService.prototype.enhance);
+    const kvModule: any = await import('upstash/kv');
+    kvGetMock = kvModule.Redis().get;
+    const authSvc: any = await import('src/lib/services/auth-service');
+    getUserFromSessionMock = authSvc.getUserFromSession;
 
     // Reset mocks
     vi.clearAllMocks();
@@ -55,6 +52,7 @@ describe('prompt-enhance API Integration Tests', () => {
   const createRequest = (body: any, options: RequestInit = {}) => {
     const headers = new Headers({
       'Content-Type': 'application/json',
+      Origin: TEST_URL,
       ...options.headers
     });
     return new Request(apiUrl, {
@@ -72,14 +70,13 @@ describe('prompt-enhance API Integration Tests', () => {
 
     // Mock CSRF - assume cookie and header match
     const csrfToken = 'valid-csrf-token';
-    const cookies = { csrf_token: csrfToken };
     const request = createRequest({ text: 'test prompt' }, {
-      headers: { 'X-CSRF-Token': csrfToken, 'Cookie': `csrf_token=${csrfToken}` }
+      headers: csrfHeaders(csrfToken)
     });
 
     const response = await fetch(request);
     expect(response.status).toBe(200);
-    const json = await response.json() as PromptEnhancerResponse;
+    const json: any = await response.json();
     expect(json.success).toBe(true);
     expect(json.data.enhancedPrompt).toBe('enhanced text');
     expect(enhanceMock).toHaveBeenCalledWith(expect.objectContaining({ text: 'test prompt', ownerId: 'user1' }));
@@ -91,12 +88,12 @@ describe('prompt-enhance API Integration Tests', () => {
 
     const csrfToken = 'valid-csrf-token';
     const request = createRequest({ text: 'test prompt' }, {
-      headers: { 'X-CSRF-Token': csrfToken, 'Cookie': `csrf_token=${csrfToken}` }
+      headers: csrfHeaders(csrfToken)
     });
 
     const response = await fetch(request);
     expect(response.status).toBe(200);
-    const json = await response.json() as PromptEnhancerResponse;
+    const json: any = await response.json();
     expect(json.success).toBe(true);
     expect(enhanceMock).toHaveBeenCalledWith(expect.objectContaining({ text: 'test prompt', ownerId: expect.any(String) })); // guest id
   });

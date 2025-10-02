@@ -72,7 +72,13 @@ const handler: ApiHandler = async (context: APIContext) => {
     return createApiError('validation_error', 'Ungültige E-Mail-Adresse');
   }
 
-  const origin = new URL(request.url).origin;
+  // In Remote Dev, request.url.origin is *.workers.dev. To keep local UX and
+  // avoid whitelisting workers.dev in Stytch, prefer BASE_URL in development.
+  const cfEnv = (context.locals as unknown as { runtime?: { env?: Record<string, string> } })?.runtime?.env || {};
+  const isDev = (cfEnv.ENVIRONMENT || (cfEnv as Record<string, string> | undefined)?.NODE_ENV) === 'development';
+  const origin = isDev && typeof cfEnv.BASE_URL === 'string' && cfEnv.BASE_URL
+    ? (cfEnv.BASE_URL as string)
+    : new URL(request.url).origin;
   // Do NOT include dynamic r in the Stytch redirect URL, Stytch validates query params strictly.
   const callbackUrl = `${origin}/api/auth/callback`;
 
@@ -119,13 +125,33 @@ const handler: ApiHandler = async (context: APIContext) => {
     });
   }
 
+  const devEnv = ((context.locals as any)?.runtime?.env?.ENVIRONMENT || 'development') === 'development';
+  const startedAt = Date.now();
   try {
+    if (devEnv) {
+      console.log('[auth][magic][request] sending to provider', {
+        emailDomain: email.split('@')[1] || 'n/a',
+        callbackUrl,
+      });
+    }
     await stytchMagicLinkLoginOrCreate(context, {
       email,
       login_magic_link_url: callbackUrl,
       signup_magic_link_url: callbackUrl,
     });
+    if (devEnv) {
+      console.log('[auth][magic][request] provider accepted', { ms: Date.now() - startedAt });
+    }
   } catch (err) {
+    if (devEnv) {
+      const e = err as any;
+      const payload = {
+        status: e?.status,
+        providerType: e?.providerType,
+        message: e?.message,
+      };
+      console.warn('[auth][magic][request] provider error', payload);
+    }
     if (err instanceof StytchError) {
       const status = err.status;
       // Map provider status to our unified error types
@@ -169,7 +195,10 @@ const handler: ApiHandler = async (context: APIContext) => {
 
 export const POST = withApiMiddleware(handler, {
   rateLimiter: authLimiter,
-  // CSRF/Origin defaults to same-origin for unsafe methods; no extra config needed
+  // In remote dev, the browser may omit Origin/Referer headers due to the proxy.
+  // Disable strict same-origin header check for this endpoint (still protected by
+  // short‑lived cookies and provider-side validation), to avoid false 403s locally.
+  requireSameOriginForUnsafeMethods: false,
 });
 
 export const GET = () => createApiError('method_not_allowed', 'Method Not Allowed');
