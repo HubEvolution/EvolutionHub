@@ -12,7 +12,7 @@ const DebugPanelOverlay: React.FC = () => {
   });
 
   const togglePanel = useCallback(() => {
-    setIsOpen(prev => {
+    setIsOpen((prev) => {
       const newState = !prev;
       try {
         localStorage.setItem('debugPanel.isOpen', String(newState));
@@ -74,11 +74,10 @@ const DebugPanelOverlay: React.FC = () => {
   // Overlay when open
   return (
     <>
-      {/* Backdrop */}
+      {/* Backdrop - only visual, no onClick to allow testing components */}
       <div
-        className="fixed inset-0 bg-black/50 z-[9998] transition-opacity duration-300"
+        className="fixed inset-0 bg-black/50 z-[9998] transition-opacity duration-300 pointer-events-none"
         style={{ backdropFilter: 'blur(4px)' }}
-        onClick={closePanel}
       />
 
       {/* Panel Container */}
