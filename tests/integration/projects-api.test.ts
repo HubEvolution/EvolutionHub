@@ -1,8 +1,9 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { loadEnv } from 'vite';
 import { execa } from 'execa';
 import { fileURLToPath } from 'url';
 import { join, dirname } from 'path';
+import { TEST_URL } from '../shared/http';
 
 // Lade Umgebungsvariablen
 loadEnv(process.env.NODE_ENV || 'test', process.cwd(), '');
@@ -12,8 +13,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const rootDir = join(__dirname, '../..');
 
-// Test-Server-URL (Cloudflare Wrangler default: 8787). Prefer TEST_BASE_URL from global-setup
-const TEST_URL = (process.env.TEST_BASE_URL || 'http://127.0.0.1:8787').replace(/\/$/, '');
+// TEST_URL provided by shared helper (global-setup ensures it's set)
 
 // Interface für HTTP-Response
 interface FetchResponse {
@@ -30,7 +30,7 @@ interface FetchResponse {
 // Hilfsfunktion zum Abrufen einer Seite
 async function fetchPage(path: string): Promise<FetchResponse> {
   const response = await fetch(`${TEST_URL}${path}`, {
-    redirect: 'manual' // Wichtig für Tests: Redirects nicht automatisch folgen
+    redirect: 'manual', // Wichtig für Tests: Redirects nicht automatisch folgen
   });
 
   return {
@@ -41,7 +41,7 @@ async function fetchPage(path: string): Promise<FetchResponse> {
     headers: response.headers,
     redirected: response.type === 'opaqueredirect' || response.status === 302,
     redirectUrl: response.headers.get('location'),
-    cookies: parseCookies(response.headers.get('set-cookie') || '')
+    cookies: parseCookies(response.headers.get('set-cookie') || ''),
   };
 }
 
@@ -67,10 +67,10 @@ async function sendJson(path: string, data: any, method: string = 'POST'): Promi
     method,
     headers: {
       'Content-Type': 'application/json',
-      'Origin': TEST_URL
+      Origin: TEST_URL,
     },
     body: JSON.stringify(data),
-    redirect: 'manual'
+    redirect: 'manual',
   });
 
   return {
@@ -81,7 +81,7 @@ async function sendJson(path: string, data: any, method: string = 'POST'): Promi
     headers: response.headers,
     redirected: response.type === 'opaqueredirect' || response.status === 302,
     redirectUrl: response.headers.get('location'),
-    cookies: parseCookies(response.headers.get('set-cookie') || '')
+    cookies: parseCookies(response.headers.get('set-cookie') || ''),
   };
 }
 
@@ -110,12 +110,12 @@ describe('Projects-API-Integration', () => {
         const response = await fetch(TEST_URL);
         if (response.ok || response.status === 302) {
           serverReady = true;
-          // eslint-disable-next-line no-console
+
           console.log('Testserver erreichbar unter', TEST_URL);
         }
       } catch (_) {
         // Warte 500ms vor dem nächsten Versuch
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise((resolve) => setTimeout(resolve, 500));
       }
     }
 
@@ -174,7 +174,7 @@ describe('Projects-API-Integration', () => {
       const projectData = {
         name: 'Test Projekt für API-Tests',
         description: 'Dies ist ein Testprojekt für die API-Integrationstests',
-        status: 'active'
+        status: 'active',
       };
 
       const response = await sendJson('/api/projects', projectData);
@@ -194,7 +194,7 @@ describe('Projects-API-Integration', () => {
     it('sollte Validierungsfehler für fehlenden Projektnamen zurückgeben', async () => {
       const projectData = {
         description: 'Projekt ohne Namen',
-        status: 'active'
+        status: 'active',
         // name fehlt
       };
 
@@ -210,7 +210,7 @@ describe('Projects-API-Integration', () => {
       const projectData = {
         name: 'Projekt mit ungültigem Status',
         description: 'Dieses Projekt hat einen ungültigen Status',
-        status: 'invalid_status'
+        status: 'invalid_status',
       };
 
       const response = await sendJson('/api/projects', projectData);
@@ -225,7 +225,7 @@ describe('Projects-API-Integration', () => {
       const updateData = {
         name: 'Aktualisiertes Testprojekt',
         description: 'Das Projekt wurde erfolgreich aktualisiert',
-        status: 'completed'
+        status: 'completed',
       };
 
       const response = await sendJson(`/api/projects/${createdProjectId}`, updateData, 'PUT');
@@ -240,7 +240,7 @@ describe('Projects-API-Integration', () => {
     it('sollte 404 für nicht existierende Projekt-Updates zurückgeben', async () => {
       const updateData = {
         name: 'Nicht existierendes Projekt',
-        description: 'Dieses Projekt existiert nicht'
+        description: 'Dieses Projekt existiert nicht',
       };
 
       const response = await sendJson('/api/projects/non-existent-id', updateData, 'PUT');
@@ -276,7 +276,11 @@ describe('Projects-API-Integration', () => {
       const testProjects = [
         { name: 'Aktives Projekt Alpha', description: 'Erstes Testprojekt', status: 'active' },
         { name: 'Inaktives Projekt Beta', description: 'Zweites Testprojekt', status: 'inactive' },
-        { name: 'Abgeschlossenes Projekt Gamma', description: 'Drittes Testprojekt', status: 'completed' }
+        {
+          name: 'Abgeschlossenes Projekt Gamma',
+          description: 'Drittes Testprojekt',
+          status: 'completed',
+        },
       ];
 
       for (const projectData of testProjects) {
@@ -307,8 +311,8 @@ describe('Projects-API-Integration', () => {
       expect(Array.isArray(json.data)).toBe(true);
 
       // Mindestens ein Projekt sollte den Suchbegriff enthalten
-      const hasMatchingProject = json.data.some((project: any) =>
-        project.name.includes('Alpha') || project.description.includes('Alpha')
+      const hasMatchingProject = json.data.some(
+        (project: any) => project.name.includes('Alpha') || project.description.includes('Alpha')
       );
       expect(hasMatchingProject).toBe(true);
     });
@@ -337,7 +341,7 @@ describe('Projects-API-Integration', () => {
     it('sollte Security-Headers für POST /api/projects setzen', async () => {
       const projectData = {
         name: 'Security Headers Test',
-        description: 'Test für Security Headers'
+        description: 'Test für Security Headers',
       };
 
       const response = await sendJson('/api/projects', projectData);
@@ -353,18 +357,18 @@ describe('Projects-API-Integration', () => {
     it('sollte Rate-Limiting für Projekt-Erstellung korrekt handhaben', async () => {
       const projectData = {
         name: 'Rate Limit Test Projekt',
-        description: 'Test für Rate Limiting'
+        description: 'Test für Rate Limiting',
       };
 
       // Mehrere Anfragen senden um Rate-Limit zu triggern
-      const requests = Array(15).fill(null).map(() =>
-        sendJson('/api/projects', projectData)
-      );
+      const requests = Array(15)
+        .fill(null)
+        .map(() => sendJson('/api/projects', projectData));
 
       const responses = await Promise.all(requests);
 
       // Mindestens eine sollte Rate-Limited sein (429)
-      const rateLimitedResponses = responses.filter(r => r.status === 429);
+      const rateLimitedResponses = responses.filter((r) => r.status === 429);
       expect(rateLimitedResponses.length).toBeGreaterThan(0);
 
       // Rate-Limit Response sollte Retry-After Header haben
@@ -375,10 +379,7 @@ describe('Projects-API-Integration', () => {
 
   describe('Fehlerbehandlung', () => {
     it('sollte strukturierte Fehler für alle Projekt-Endpunkte zurückgeben', async () => {
-      const endpoints = [
-        '/api/projects',
-        '/api/projects/non-existent-id'
-      ];
+      const endpoints = ['/api/projects', '/api/projects/non-existent-id'];
 
       for (const endpoint of endpoints) {
         const isGetRequest = !endpoint.includes('non-existent-id');
@@ -398,9 +399,7 @@ describe('Projects-API-Integration', () => {
     });
 
     it('sollte 405 für nicht unterstützte HTTP-Methoden zurückgeben', async () => {
-      const endpoints = [
-        '/api/projects'
-      ];
+      const endpoints = ['/api/projects'];
 
       for (const endpoint of endpoints) {
         const response = await sendJson(endpoint, {}, 'PATCH');
@@ -419,7 +418,7 @@ describe('Projects-API-Integration', () => {
       const projectData = {
         name: 'Konsistenz-Test Projekt',
         description: 'Test für Datenkonsistenz',
-        status: 'active'
+        status: 'active',
       };
 
       const createResponse = await sendJson('/api/projects', projectData);

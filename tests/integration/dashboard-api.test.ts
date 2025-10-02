@@ -1,8 +1,9 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { loadEnv } from 'vite';
 import { execa } from 'execa';
 import { fileURLToPath } from 'url';
 import { join, dirname } from 'path';
+import { TEST_URL } from '../shared/http';
 
 // Lade Umgebungsvariablen
 loadEnv(process.env.NODE_ENV || 'test', process.cwd(), '');
@@ -12,8 +13,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const rootDir = join(__dirname, '../..');
 
-// Test-Server-URL (Cloudflare Wrangler default: 8787). Prefer TEST_BASE_URL from global-setup
-const TEST_URL = (process.env.TEST_BASE_URL || 'http://127.0.0.1:8787').replace(/\/$/, '');
+// TEST_URL provided by shared helper (global-setup ensures it's set)
 
 // Interface für HTTP-Response
 interface FetchResponse {
@@ -30,7 +30,7 @@ interface FetchResponse {
 // Hilfsfunktion zum Abrufen einer Seite
 async function fetchPage(path: string): Promise<FetchResponse> {
   const response = await fetch(`${TEST_URL}${path}`, {
-    redirect: 'manual' // Wichtig für Tests: Redirects nicht automatisch folgen
+    redirect: 'manual', // Wichtig für Tests: Redirects nicht automatisch folgen
   });
 
   return {
@@ -41,7 +41,7 @@ async function fetchPage(path: string): Promise<FetchResponse> {
     headers: response.headers,
     redirected: response.type === 'opaqueredirect' || response.status === 302,
     redirectUrl: response.headers.get('location'),
-    cookies: parseCookies(response.headers.get('set-cookie') || '')
+    cookies: parseCookies(response.headers.get('set-cookie') || ''),
   };
 }
 
@@ -67,10 +67,10 @@ async function sendJson(path: string, data: any, method: string = 'POST'): Promi
     method,
     headers: {
       'Content-Type': 'application/json',
-      'Origin': TEST_URL
+      Origin: TEST_URL,
     },
     body: JSON.stringify(data),
-    redirect: 'manual'
+    redirect: 'manual',
   });
 
   return {
@@ -81,7 +81,7 @@ async function sendJson(path: string, data: any, method: string = 'POST'): Promi
     headers: response.headers,
     redirected: response.type === 'opaqueredirect' || response.status === 302,
     redirectUrl: response.headers.get('location'),
-    cookies: parseCookies(response.headers.get('set-cookie') || '')
+    cookies: parseCookies(response.headers.get('set-cookie') || ''),
   };
 }
 
@@ -110,12 +110,12 @@ describe('Dashboard-API-Integration', () => {
         const response = await fetch(TEST_URL);
         if (response.ok || response.status === 302) {
           serverReady = true;
-          // eslint-disable-next-line no-console
+
           console.log('Testserver erreichbar unter', TEST_URL);
         }
       } catch (_) {
         // Warte 500ms vor dem nächsten Versuch
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise((resolve) => setTimeout(resolve, 500));
       }
     }
 
@@ -258,7 +258,7 @@ describe('Dashboard-API-Integration', () => {
     it('sollte Dashboard-Aktionen erfolgreich ausführen', async () => {
       const requestData = {
         action: 'mark_notifications_read',
-        data: {}
+        data: {},
       };
 
       const response = await sendJson('/api/dashboard/perform-action', requestData);
@@ -272,7 +272,7 @@ describe('Dashboard-API-Integration', () => {
 
     it('sollte Validierungsfehler für fehlende action zurückgeben', async () => {
       const requestData = {
-        data: {}
+        data: {},
         // action fehlt
       };
 
@@ -287,7 +287,7 @@ describe('Dashboard-API-Integration', () => {
     it('sollte Validierungsfehler für unbekannte action zurückgeben', async () => {
       const requestData = {
         action: 'unknown_action',
-        data: {}
+        data: {},
       };
 
       const response = await sendJson('/api/dashboard/perform-action', requestData);
@@ -301,7 +301,7 @@ describe('Dashboard-API-Integration', () => {
     it('sollte 401 für nicht authentifizierte Anfragen zurückgeben', async () => {
       const requestData = {
         action: 'mark_notifications_read',
-        data: {}
+        data: {},
       };
 
       const response = await sendJson('/api/dashboard/perform-action', requestData);
@@ -350,15 +350,17 @@ describe('Dashboard-API-Integration', () => {
       '/api/dashboard/projects',
       '/api/dashboard/notifications',
       '/api/dashboard/perform-action',
-      '/api/dashboard/quick-actions'
+      '/api/dashboard/quick-actions',
     ];
 
     it.each(dashboardEndpoints)('sollte Security-Headers für %s setzen', async (endpoint) => {
       const isPostEndpoint = endpoint.includes('perform-action');
-      const requestData = isPostEndpoint ? {
-        action: 'mark_notifications_read',
-        data: {}
-      } : {};
+      const requestData = isPostEndpoint
+        ? {
+            action: 'mark_notifications_read',
+            data: {},
+          }
+        : {};
 
       const response = isPostEndpoint
         ? await sendJson(endpoint, requestData)
@@ -374,14 +376,14 @@ describe('Dashboard-API-Integration', () => {
   describe('Rate-Limiting für Dashboard-Endpunkte', () => {
     it('sollte Rate-Limiting für Dashboard-Stats korrekt handhaben', async () => {
       // Mehrere Anfragen senden um Rate-Limit zu triggern
-      const requests = Array(15).fill(null).map(() =>
-        fetchPage('/api/dashboard/stats')
-      );
+      const requests = Array(15)
+        .fill(null)
+        .map(() => fetchPage('/api/dashboard/stats'));
 
       const responses = await Promise.all(requests);
 
       // Mindestens eine sollte Rate-Limited sein (429)
-      const rateLimitedResponses = responses.filter(r => r.status === 429);
+      const rateLimitedResponses = responses.filter((r) => r.status === 429);
       expect(rateLimitedResponses.length).toBeGreaterThan(0);
 
       // Rate-Limit Response sollte Retry-After Header haben
@@ -392,9 +394,7 @@ describe('Dashboard-API-Integration', () => {
 
   describe('Fehlerbehandlung', () => {
     it('sollte strukturierte Fehler für alle Dashboard-Endpunkte zurückgeben', async () => {
-      const endpoints = [
-        '/api/dashboard/perform-action'
-      ];
+      const endpoints = ['/api/dashboard/perform-action'];
 
       for (const endpoint of endpoints) {
         const requestData = {}; // Leere Daten um Validierungsfehler zu triggern
@@ -416,7 +416,7 @@ describe('Dashboard-API-Integration', () => {
         '/api/dashboard/activity',
         '/api/dashboard/projects',
         '/api/dashboard/notifications',
-        '/api/dashboard/quick-actions'
+        '/api/dashboard/quick-actions',
       ];
 
       for (const endpoint of endpoints) {
@@ -436,7 +436,7 @@ describe('Dashboard-API-Integration', () => {
       const [statsResponse, projectsResponse, activityResponse] = await Promise.all([
         fetchPage('/api/dashboard/stats'),
         fetchPage('/api/dashboard/projects'),
-        fetchPage('/api/dashboard/activity')
+        fetchPage('/api/dashboard/activity'),
       ]);
 
       expect(statsResponse.status).toBe(200);

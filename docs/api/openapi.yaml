@@ -173,6 +173,265 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
+  /api/ai-image/generate:
+    post:
+      summary: AI-Bildverbesserung generieren
+      description: Startet eine KI-gestützte Bildverbesserung mit verschiedenen Modellen wie Real-ESRGAN oder GFPGAN
+      tags:
+        - AI-Tools
+        - Bildverarbeitung
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - image
+                - model
+              properties:
+                model:
+                  type: string
+                  description: KI-Modell für die Bildverbesserung
+                  enum:
+                    - real-esrgan
+                    - gfpgan
+                    - remini
+                  example: "real-esrgan"
+                scale:
+                  type: integer
+                  description: Vergrößerungsfaktor für das Bild
+                  enum:
+                    - 2
+                    - 4
+                  default: 2
+                  example: 4
+                face_enhance:
+                  type: boolean
+                  description: Gesichtsverbesserung aktivieren (nur bei kompatiblen Modellen)
+                  default: false
+                  example: true
+                image:
+                  type: string
+                  format: binary
+                  description: Bild-Datei im JPEG, PNG oder WebP Format
+      responses:
+        '200':
+          description: Bildverbesserung erfolgreich gestartet
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      jobId:
+                        type: string
+                        description: Eindeutige Job-ID für die Statusverfolgung
+                        example: "job_abc123def456"
+                      usage:
+                        $ref: '#/components/schemas/UsageInfo'
+                      limits:
+                        $ref: '#/components/schemas/Limits'
+                      entitlements:
+                        $ref: '#/components/schemas/Entitlements'
+        '400':
+          description: Ungültige Anfrage-Parameter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+              examples:
+                validation_error:
+                  value:
+                    success: false
+                    error:
+                      type: "validation_error"
+                      message: "Bilddatei (field 'image') ist erforderlich"
+        '401':
+          description: Nicht autorisiert oder Nutzungslimit erreicht
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+              examples:
+                quota_exceeded:
+                  value:
+                    success: false
+                    error:
+                      type: "forbidden"
+                      message: "Kostenloses Nutzungslimit erreicht"
+        '429':
+          description: Rate limit erreicht
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+              description: Sekunden bis zum nächsten Versuch
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+  /api/ai-image/usage:
+    get:
+      summary: Aktuelle Nutzungsstatistik abrufen
+      description: Zeigt die aktuelle Nutzung und verbleibende Limits für AI-Bildverbesserungen
+      tags:
+        - AI-Tools
+        - Nutzung
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Nutzungsstatistik erfolgreich abgerufen
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      usage:
+                        $ref: '#/components/schemas/UsageInfo'
+                      limits:
+                        $ref: '#/components/schemas/Limits'
+                      resetAt:
+                        type: integer
+                        format: timestamp
+                        description: Zeitstempel für Limit-Reset
+
+  /api/ai-image/jobs:
+    get:
+      summary: Liste aller AI-Bild Jobs abrufen
+      description: Ruft eine paginierte Liste aller AI-Bildverbesserungs-Jobs des Benutzers ab
+      tags:
+        - AI-Tools
+        - Jobs
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 20
+      responses:
+        '200':
+          description: Job-Liste erfolgreich abgerufen
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      jobs:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/JobInfo'
+                      pagination:
+                        $ref: '#/components/schemas/Pagination'
+
+  /api/ai-image/jobs/{id}:
+    get:
+      summary: Einzelnen Job-Status abrufen
+      description: Ruft den detaillierten Status eines spezifischen AI-Bildverbesserungs-Jobs ab
+      tags:
+        - AI-Tools
+        - Jobs
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Eindeutige Job-ID
+          example: "job_abc123def456"
+      responses:
+        '200':
+          description: Job-Status erfolgreich abgerufen
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/JobInfo'
+        '404':
+          description: Job nicht gefunden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+    post:
+      summary: AI-Bild Job abbrechen
+      description: Bricht einen laufenden AI-Bildverbesserungs-Job vorzeitig ab
+      tags:
+        - AI-Tools
+        - Jobs
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Eindeutige Job-ID
+          example: "job_abc123def456"
+      responses:
+        '200':
+          description: Job erfolgreich abgebrochen
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      cancelled:
+                        type: boolean
+                        example: true
+        '404':
+          description: Job nicht gefunden oder bereits abgeschlossen
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
   # ... other paths
 components:
   schemas:
@@ -283,6 +542,132 @@ components:
       required:
         - success
         - error
+    Limits:
+      type: object
+      properties:
+        user:
+          type: integer
+          description: Tägliches Limit für authentifizierte Benutzer
+          example: 20
+        guest:
+          type: integer
+          description: Tägliches Limit für Gäste
+          example: 3
+      required:
+        - user
+        - guest
+    Entitlements:
+      type: object
+      properties:
+        dailyBurstCap:
+          type: integer
+          description: Tägliches Burst-Limit für den aktuellen Plan
+          example: 10
+        monthlyImages:
+          type: integer
+          description: Monatliches Bild-Limit
+          example: 100
+        maxUpscale:
+          type: integer
+          description: Maximaler Upscale-Faktor
+          example: 4
+        faceEnhance:
+          type: boolean
+          description: Face-Enhancement verfügbar
+          example: true
+      required:
+        - dailyBurstCap
+        - monthlyImages
+        - maxUpscale
+        - faceEnhance
+    JobInfo:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Eindeutige Job-ID
+          example: "job_abc123def456"
+        status:
+          type: string
+          enum: [queued, processing, succeeded, failed, canceled]
+          description: Aktueller Job-Status
+          example: "processing"
+        createdAt:
+          type: integer
+          format: timestamp
+          description: Erstellungszeitpunkt
+          example: 1699123456789
+        updatedAt:
+          type: integer
+          format: timestamp
+          description: Letzte Aktualisierung
+          example: 1699123456789
+        resultUrl:
+          type: string
+          description: URL zum verarbeiteten Bild (falls erfolgreich)
+          example: "https://r2.example.com/results/job_abc123def456.png"
+        error:
+          type: string
+          description: Fehlermeldung (falls fehlgeschlagen)
+          example: "Bild zu groß"
+        progress:
+          type: number
+          minimum: 0
+          maximum: 100
+          description: Verarbeitungsfortschritt in Prozent
+          example: 75.5
+        model:
+          type: string
+          description: Verwendetes AI-Modell
+          example: "real-esrgan"
+        settings:
+          type: object
+          properties:
+            scale:
+              type: integer
+              example: 4
+            face_enhance:
+              type: boolean
+              example: true
+      required:
+        - id
+        - status
+        - createdAt
+        - updatedAt
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+          description: Aktuelle Seite
+          example: 1
+        limit:
+          type: integer
+          description: Elemente pro Seite
+          example: 20
+        total:
+          type: integer
+          description: Gesamtanzahl Elemente
+          example: 156
+        totalPages:
+          type: integer
+          description: Gesamtanzahl Seiten
+          example: 8
+        hasNext:
+          type: boolean
+          description: Nächste Seite verfügbar
+          example: true
+        hasPrev:
+          type: boolean
+          description: Vorherige Seite verfügbar
+          example: false
+      required:
+        - page
+        - limit
+        - total
+        - totalPages
+        - hasNext
+        - hasPrev
   securitySchemes:
     cookieAuth:
       type: apiKey

@@ -1,8 +1,10 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { loadEnv } from 'vite';
 import { execa } from 'execa';
 import { fileURLToPath } from 'url';
 import { join, dirname } from 'path';
+import { TEST_URL } from '../shared/http';
+import { debugLogin } from '../shared/auth';
 
 // Lade Umgebungsvariablen
 loadEnv(process.env.NODE_ENV || 'test', process.cwd(), '');
@@ -12,8 +14,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const rootDir = join(__dirname, '../..');
 
-// Test-Server-URL (Cloudflare Wrangler default: 8787). Prefer TEST_BASE_URL from global-setup
-const TEST_URL = (process.env.TEST_BASE_URL || 'http://127.0.0.1:8787').replace(/\/$/, '');
+// TEST_URL provided by shared helper (global-setup ensures it's set)
 
 // Interface für HTTP-Response
 interface FetchResponse {
@@ -30,7 +31,7 @@ interface FetchResponse {
 // Hilfsfunktion zum Abrufen einer Seite
 async function fetchPage(path: string): Promise<FetchResponse> {
   const response = await fetch(`${TEST_URL}${path}`, {
-    redirect: 'manual' // Wichtig für Tests: Redirects nicht automatisch folgen
+    redirect: 'manual', // Wichtig für Tests: Redirects nicht automatisch folgen
   });
 
   return {
@@ -41,7 +42,7 @@ async function fetchPage(path: string): Promise<FetchResponse> {
     headers: response.headers,
     redirected: response.type === 'opaqueredirect' || response.status === 302,
     redirectUrl: response.headers.get('location'),
-    cookies: parseCookies(response.headers.get('set-cookie') || '')
+    cookies: parseCookies(response.headers.get('set-cookie') || ''),
   };
 }
 
@@ -62,7 +63,12 @@ function parseCookies(cookieHeader: string): Record<string, string> {
 }
 
 // Hilfsfunktion zum Erstellen von Multipart-Form-Data für Datei-Uploads
-async function createMultipartRequest(path: string, fileContent: string, fileName: string, options: RequestInit = {}) {
+async function createMultipartRequest(
+  path: string,
+  fileContent: string,
+  fileName: string,
+  options: RequestInit = {}
+) {
   const boundary = '----WebKitFormBoundary' + Math.random().toString(36).substr(2, 9);
   const bodyParts = [];
 
@@ -86,8 +92,8 @@ async function createMultipartRequest(path: string, fileContent: string, fileNam
 
   const headers = new Headers({
     'Content-Type': `multipart/form-data; boundary=${boundary}`,
-    'Origin': TEST_URL,
-    ...options.headers
+    Origin: TEST_URL,
+    ...options.headers,
   });
 
   return fetch(`${TEST_URL}${path}`, {
@@ -95,46 +101,54 @@ async function createMultipartRequest(path: string, fileContent: string, fileNam
     headers,
     body,
     credentials: 'include',
-    redirect: 'manual'
+    redirect: 'manual',
   });
 }
 
 describe('User-Avatar-API-Integration', () => {
   let serverProcess: any;
+  let authCookie: string | null = null;
 
   // Starte den Entwicklungsserver vor den Tests (falls nicht durch Global-Setup vorgegeben)
   beforeAll(async () => {
     const externalServer = !!process.env.TEST_BASE_URL;
     if (!externalServer) {
-      // Starte den Cloudflare-Entwicklungsserver (Wrangler)
       serverProcess = execa('npm', ['run', 'dev'], {
         cwd: rootDir,
         env: { ...process.env, NODE_ENV: 'test' },
-        detached: false,
       });
-    }
 
-    // Warte bis der Server erreichbar ist (max. 30 Sekunden)
-    const maxWaitTime = 30000; // 30 Sekunden
-    const startTime = Date.now();
-    let serverReady = false;
+      // Warte bis der Server erreichbar ist (max. 30 Sekunden)
+      const maxWaitTime = 30000; // 30 Sekunden
+      let serverReady = false;
+      const startTime = Date.now();
 
-    while (!serverReady && Date.now() - startTime < maxWaitTime) {
-      try {
-        const response = await fetch(TEST_URL);
-        if (response.ok || response.status === 302) {
-          serverReady = true;
-          // eslint-disable-next-line no-console
-          console.log('Testserver erreichbar unter', TEST_URL);
+      while (!serverReady && Date.now() - startTime < maxWaitTime) {
+        try {
+          const response = await fetch(TEST_URL);
+          if (response.ok || response.status === 302) {
+            serverReady = true;
+
+            console.log('Testserver erreichbar unter', TEST_URL);
+          }
+        } catch (_) {
+          // Warte 500ms vor dem nächsten Versuch
+          await new Promise((resolve) => setTimeout(resolve, 500));
         }
-      } catch (_) {
-        // Warte 500ms vor dem nächsten Versuch
-        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+
+      if (!serverReady) {
+        throw new Error('Testserver konnte nicht gestartet werden');
       }
     }
-
-    if (!serverReady) {
-      throw new Error('Testserver konnte nicht gestartet werden');
+    // Acquire real session cookie via debug login (development env only)
+    try {
+      const token = process.env.DEBUG_LOGIN_TOKEN;
+      const result = await debugLogin(token);
+      authCookie = result.cookie;
+    } catch (e) {
+      console.warn('[tests] debugLogin failed, authenticated avatar tests may fail:', e);
+      authCookie = null;
     }
   }, 35000); // Erhöhte Timeout für langsame Systeme
 
@@ -154,16 +168,21 @@ describe('User-Avatar-API-Integration', () => {
       const validImageContent = 'fake-image-content';
       const csrfToken = 'valid-csrf-token-for-avatar';
 
-      const response = await createMultipartRequest('/api/user/avatar', validImageContent, 'test-avatar.jpg', {
-        headers: {
-          'X-CSRF-Token': csrfToken,
-          'Cookie': `csrf_token=${csrfToken}; session_id=valid-session`
+      const response = await createMultipartRequest(
+        '/api/user/avatar',
+        validImageContent,
+        'test-avatar.jpg',
+        {
+          headers: {
+            'X-CSRF-Token': csrfToken,
+            Cookie: `${authCookie ? authCookie + '; ' : ''}csrf_token=${csrfToken}`,
+          },
         }
-      });
+      );
 
       expect(response.status).toBe(200);
       expect(response.headers.get('Content-Type')).toContain('application/json');
-      const json = await response.json();
+      const json: any = await response.json();
       expect(json.success).toBe(true);
       expect(json.data.message).toContain('successfully');
     });
@@ -173,19 +192,26 @@ describe('User-Avatar-API-Integration', () => {
       const csrfToken = 'valid-csrf-token-rate-limit';
 
       // Mehrere Anfragen senden um Rate-Limit zu triggern (Avatar-Limit ist 5/Minute)
-      const requests = Array(8).fill(null).map((_, index) =>
-        createMultipartRequest('/api/user/avatar', `${validImageContent}-${index}`, `test-avatar-${index}.jpg`, {
-          headers: {
-            'X-CSRF-Token': csrfToken,
-            'Cookie': `csrf_token=${csrfToken}; session_id=valid-session`
-          }
-        })
-      );
+      const requests = Array(8)
+        .fill(null)
+        .map((_, index) =>
+          createMultipartRequest(
+            '/api/user/avatar',
+            `${validImageContent}-${index}`,
+            `test-avatar-${index}.jpg`,
+            {
+              headers: {
+                'X-CSRF-Token': csrfToken,
+                Cookie: `${authCookie ? authCookie + '; ' : ''}csrf_token=${csrfToken}`,
+              },
+            }
+          )
+        );
 
       const responses = await Promise.all(requests);
 
       // Mindestens eine sollte Rate-Limited sein (429)
-      const rateLimitedResponses = responses.filter(r => r.status === 429);
+      const rateLimitedResponses = responses.filter((r) => r.status === 429);
       expect(rateLimitedResponses.length).toBeGreaterThan(0);
 
       // Rate-Limit Response sollte Retry-After Header haben
@@ -197,15 +223,20 @@ describe('User-Avatar-API-Integration', () => {
       const invalidContent = 'not-an-image';
       const csrfToken = 'valid-csrf-token-invalid-file';
 
-      const response = await createMultipartRequest('/api/user/avatar', invalidContent, 'test.txt', {
-        headers: {
-          'X-CSRF-Token': csrfToken,
-          'Cookie': `csrf_token=${csrfToken}; session_id=valid-session`
+      const response = await createMultipartRequest(
+        '/api/user/avatar',
+        invalidContent,
+        'test.txt',
+        {
+          headers: {
+            'X-CSRF-Token': csrfToken,
+            Cookie: `${authCookie ? authCookie + '; ' : ''}csrf_token=${csrfToken}`,
+          },
         }
-      });
+      );
 
       expect(response.status).toBe(400);
-      const json = await response.json();
+      const json: any = await response.json();
       expect(json.success).toBe(false);
       expect(json.error.type).toBe('VALIDATION_ERROR');
     });
@@ -214,12 +245,17 @@ describe('User-Avatar-API-Integration', () => {
       const largeContent = 'x'.repeat(6 * 1024 * 1024); // 6MB (über 5MB Limit)
       const csrfToken = 'valid-csrf-token-large-file';
 
-      const response = await createMultipartRequest('/api/user/avatar', largeContent, 'large-avatar.jpg', {
-        headers: {
-          'X-CSRF-Token': csrfToken,
-          'Cookie': `csrf_token=${csrfToken}; session_id=valid-session`
+      const response = await createMultipartRequest(
+        '/api/user/avatar',
+        largeContent,
+        'large-avatar.jpg',
+        {
+          headers: {
+            'X-CSRF-Token': csrfToken,
+            Cookie: `${authCookie ? authCookie + '; ' : ''}csrf_token=${csrfToken}`,
+          },
         }
-      });
+      );
 
       expect(response.status).toBe(400);
       const json = await response.json();
@@ -231,15 +267,20 @@ describe('User-Avatar-API-Integration', () => {
       const validImageContent = 'fake-image-content-unauth';
       const csrfToken = 'valid-csrf-token-unauth';
 
-      const response = await createMultipartRequest('/api/user/avatar', validImageContent, 'test-avatar.jpg', {
-        headers: {
-          'X-CSRF-Token': csrfToken
-          // Kein session_id Cookie
+      const response = await createMultipartRequest(
+        '/api/user/avatar',
+        validImageContent,
+        'test-avatar.jpg',
+        {
+          headers: {
+            'X-CSRF-Token': csrfToken,
+            // Kein session_id Cookie
+          },
         }
-      });
+      );
 
       expect(response.status).toBe(401);
-      const json = await response.json();
+      const json: any = await response.json();
       expect(json.success).toBe(false);
       expect(json.error.type).toBe('UNAUTHORIZED');
     });
@@ -248,15 +289,20 @@ describe('User-Avatar-API-Integration', () => {
       const validImageContent = 'fake-image-content-csrf';
       const invalidCsrfToken = 'invalid-csrf-token';
 
-      const response = await createMultipartRequest('/api/user/avatar', validImageContent, 'test-avatar.jpg', {
-        headers: {
-          'X-CSRF-Token': invalidCsrfToken,
-          'Cookie': `csrf_token=different-token; session_id=valid-session`
+      const response = await createMultipartRequest(
+        '/api/user/avatar',
+        validImageContent,
+        'test-avatar.jpg',
+        {
+          headers: {
+            'X-CSRF-Token': invalidCsrfToken,
+            Cookie: `${authCookie ? authCookie + '; ' : ''}csrf_token=different-token`,
+          },
         }
-      });
+      );
 
       expect(response.status).toBe(400);
-      const json = await response.json();
+      const json: any = await response.json();
       expect(json.success).toBe(false);
       expect(json.error.type).toBe('CSRF_INVALID');
     });
@@ -265,7 +311,7 @@ describe('User-Avatar-API-Integration', () => {
       const response = await fetchPage('/api/user/avatar');
 
       expect(response.status).toBe(405);
-      const json = await response.json();
+      const json: any = JSON.parse(response.text);
       expect(json.success).toBe(false);
       expect(json.error.type).toBe('METHOD_NOT_ALLOWED');
     });
@@ -273,13 +319,17 @@ describe('User-Avatar-API-Integration', () => {
     it('sollte Security-Headers setzen', async () => {
       const validImageContent = 'fake-image-content-headers';
       const csrfToken = 'valid-csrf-token-headers';
-
-      const response = await createMultipartRequest('/api/user/avatar', validImageContent, 'test-avatar.jpg', {
-        headers: {
-          'X-CSRF-Token': csrfToken,
-          'Cookie': `csrf_token=${csrfToken}; session_id=valid-session`
+      const response = await createMultipartRequest(
+        '/api/user/avatar',
+        validImageContent,
+        'test-avatar.jpg',
+        {
+          headers: {
+            'X-CSRF-Token': csrfToken,
+            Cookie: `${authCookie ? authCookie + '; ' : ''}csrf_token=${csrfToken}`,
+          },
         }
-      });
+      );
 
       // Prüfe wichtige Security-Headers
       expect(response.headers.get('X-Content-Type-Options')).toBe('nosniff');
@@ -292,15 +342,20 @@ describe('User-Avatar-API-Integration', () => {
       const validFormats = ['test.jpg', 'test.jpeg', 'test.png', 'test.webp'];
 
       for (const format of validFormats) {
-        const response = await createMultipartRequest('/api/user/avatar', 'fake-image-content', format, {
-          headers: {
-            'X-CSRF-Token': `${csrfToken}-${format}`,
-            'Cookie': `csrf_token=${csrfToken}-${format}; session_id=valid-session`
+        const response = await createMultipartRequest(
+          '/api/user/avatar',
+          'fake-image-content',
+          format,
+          {
+            headers: {
+              'X-CSRF-Token': `${csrfToken}-${format}`,
+              Cookie: `${authCookie ? authCookie + '; ' : ''}csrf_token=${csrfToken}-${format}`,
+            },
           }
-        });
+        );
 
         expect(response.status).toBe(200);
-        const json = await response.json();
+        const json: any = await response.json();
         expect(json.success).toBe(true);
       }
     });
@@ -309,15 +364,20 @@ describe('User-Avatar-API-Integration', () => {
       const validImageContent = 'fake-image-content-audit';
       const csrfToken = 'valid-csrf-token-audit';
 
-      const response = await createMultipartRequest('/api/user/avatar', validImageContent, 'audit-avatar.jpg', {
-        headers: {
-          'X-CSRF-Token': csrfToken,
-          'Cookie': `csrf_token=${csrfToken}; session_id=valid-session`
+      const response = await createMultipartRequest(
+        '/api/user/avatar',
+        validImageContent,
+        'audit-avatar.jpg',
+        {
+          headers: {
+            'X-CSRF-Token': csrfToken,
+            Cookie: `${authCookie ? authCookie + '; ' : ''}csrf_token=${csrfToken}`,
+          },
         }
-      });
+      );
 
       expect(response.status).toBe(200);
-      const json = await response.json();
+      const json: any = await response.json();
       expect(json.success).toBe(true);
 
       // Prüfe strukturierte Response

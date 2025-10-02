@@ -1,8 +1,9 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { loadEnv } from 'vite';
 import { execa } from 'execa';
 import { fileURLToPath } from 'url';
 import { join, dirname } from 'path';
+import { TEST_URL } from '../shared/http';
 
 // Lade Umgebungsvariablen
 loadEnv(process.env.NODE_ENV || 'test', process.cwd(), '');
@@ -12,8 +13,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const rootDir = join(__dirname, '../..');
 
-// Test-Server-URL (Cloudflare Wrangler default: 8787). Prefer TEST_BASE_URL from global-setup
-const TEST_URL = (process.env.TEST_BASE_URL || 'http://127.0.0.1:8787').replace(/\/$/, '');
+// TEST_URL provided by shared helper (global-setup ensures it's set)
 
 // Interface für HTTP-Response
 interface FetchResponse {
@@ -30,7 +30,7 @@ interface FetchResponse {
 // Hilfsfunktion zum Abrufen einer Seite
 async function fetchPage(path: string): Promise<FetchResponse> {
   const response = await fetch(`${TEST_URL}${path}`, {
-    redirect: 'manual' // Wichtig für Tests: Redirects nicht automatisch folgen
+    redirect: 'manual', // Wichtig für Tests: Redirects nicht automatisch folgen
   });
 
   return {
@@ -41,7 +41,7 @@ async function fetchPage(path: string): Promise<FetchResponse> {
     headers: response.headers,
     redirected: response.type === 'opaqueredirect' || response.status === 302,
     redirectUrl: response.headers.get('location'),
-    cookies: parseCookies(response.headers.get('set-cookie') || '')
+    cookies: parseCookies(response.headers.get('set-cookie') || ''),
   };
 }
 
@@ -67,10 +67,10 @@ async function sendJson(path: string, data: any, method: string = 'POST'): Promi
     method,
     headers: {
       'Content-Type': 'application/json',
-      'Origin': TEST_URL
+      Origin: TEST_URL,
     },
     body: JSON.stringify(data),
-    redirect: 'manual'
+    redirect: 'manual',
   });
 
   return {
@@ -81,7 +81,7 @@ async function sendJson(path: string, data: any, method: string = 'POST'): Promi
     headers: response.headers,
     redirected: response.type === 'opaqueredirect' || response.status === 302,
     redirectUrl: response.headers.get('location'),
-    cookies: parseCookies(response.headers.get('set-cookie') || '')
+    cookies: parseCookies(response.headers.get('set-cookie') || ''),
   };
 }
 
@@ -110,12 +110,12 @@ describe('Billing-API-Integration', () => {
         const response = await fetch(TEST_URL);
         if (response.ok || response.status === 302) {
           serverReady = true;
-          // eslint-disable-next-line no-console
+
           console.log('Testserver erreichbar unter', TEST_URL);
         }
       } catch (_) {
         // Warte 500ms vor dem nächsten Versuch
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise((resolve) => setTimeout(resolve, 500));
       }
     }
 
@@ -140,7 +140,7 @@ describe('Billing-API-Integration', () => {
       const requestData = {
         priceId: 'price_test_123',
         successUrl: 'https://example.com/success',
-        cancelUrl: 'https://example.com/cancel'
+        cancelUrl: 'https://example.com/cancel',
       };
 
       const response = await sendJson('/api/billing/session', requestData);
@@ -156,7 +156,7 @@ describe('Billing-API-Integration', () => {
     it('sollte Validierungsfehler für fehlende priceId zurückgeben', async () => {
       const requestData = {
         successUrl: 'https://example.com/success',
-        cancelUrl: 'https://example.com/cancel'
+        cancelUrl: 'https://example.com/cancel',
         // priceId fehlt
       };
 
@@ -172,7 +172,7 @@ describe('Billing-API-Integration', () => {
       const requestData = {
         priceId: 'price_test_123',
         successUrl: 'https://example.com/success',
-        cancelUrl: 'https://example.com/cancel'
+        cancelUrl: 'https://example.com/cancel',
       };
 
       const response = await sendJson('/api/billing/session', requestData);
@@ -210,7 +210,7 @@ describe('Billing-API-Integration', () => {
     it('sollte erfolgreich Billing-Daten synchronisieren', async () => {
       const requestData = {
         subscriptionId: 'sub_test_123',
-        customerId: 'cus_test_456'
+        customerId: 'cus_test_456',
       };
 
       const response = await sendJson('/api/billing/sync', requestData);
@@ -225,7 +225,7 @@ describe('Billing-API-Integration', () => {
     it('sollte 401 für nicht authentifizierte Anfragen zurückgeben', async () => {
       const requestData = {
         subscriptionId: 'sub_test_123',
-        customerId: 'cus_test_456'
+        customerId: 'cus_test_456',
       };
 
       const response = await sendJson('/api/billing/sync', requestData);
@@ -241,7 +241,7 @@ describe('Billing-API-Integration', () => {
     it('sollte erfolgreich pending Payment-Link erstellen', async () => {
       const requestData = {
         priceId: 'price_test_123',
-        email: 'customer@example.com'
+        email: 'customer@example.com',
       };
 
       const response = await sendJson('/api/billing/link-pending', requestData);
@@ -256,7 +256,7 @@ describe('Billing-API-Integration', () => {
     it('sollte Validierungsfehler für ungültige E-Mail zurückgeben', async () => {
       const requestData = {
         priceId: 'price_test_123',
-        email: 'invalid-email'
+        email: 'invalid-email',
       };
 
       const response = await sendJson('/api/billing/link-pending', requestData);
@@ -276,9 +276,9 @@ describe('Billing-API-Integration', () => {
           object: {
             id: 'in_test_123',
             customer: 'cus_test_456',
-            subscription: 'sub_test_789'
-          }
-        }
+            subscription: 'sub_test_789',
+          },
+        },
       };
 
       const response = await sendJson('/api/billing/sync-callback', requestData);
@@ -295,7 +295,7 @@ describe('Billing-API-Integration', () => {
         'customer.subscription.updated',
         'customer.subscription.deleted',
         'invoice.payment_succeeded',
-        'invoice.payment_failed'
+        'invoice.payment_failed',
       ];
 
       for (const eventType of events) {
@@ -304,9 +304,9 @@ describe('Billing-API-Integration', () => {
           data: {
             object: {
               id: `${eventType.replace('.', '_')}_test`,
-              customer: 'cus_test_456'
-            }
-          }
+              customer: 'cus_test_456',
+            },
+          },
         };
 
         const response = await sendJson('/api/billing/sync-callback', requestData);
@@ -324,15 +324,17 @@ describe('Billing-API-Integration', () => {
       '/api/billing/credits',
       '/api/billing/sync',
       '/api/billing/link-pending',
-      '/api/billing/sync-callback'
+      '/api/billing/sync-callback',
     ];
 
     it.each(billingEndpoints)('sollte Security-Headers für %s setzen', async (endpoint) => {
-      const requestData = endpoint.includes('credits') ? {} : {
-        priceId: 'price_test_123',
-        successUrl: 'https://example.com/success',
-        cancelUrl: 'https://example.com/cancel'
-      };
+      const requestData = endpoint.includes('credits')
+        ? {}
+        : {
+            priceId: 'price_test_123',
+            successUrl: 'https://example.com/success',
+            cancelUrl: 'https://example.com/cancel',
+          };
 
       const response = await sendJson(endpoint, requestData);
 
@@ -348,18 +350,18 @@ describe('Billing-API-Integration', () => {
       const requestData = {
         priceId: 'price_test_123',
         successUrl: 'https://example.com/success',
-        cancelUrl: 'https://example.com/cancel'
+        cancelUrl: 'https://example.com/cancel',
       };
 
       // Mehrere Anfragen senden um Rate-Limit zu triggern
-      const requests = Array(15).fill(null).map(() =>
-        sendJson('/api/billing/session', requestData)
-      );
+      const requests = Array(15)
+        .fill(null)
+        .map(() => sendJson('/api/billing/session', requestData));
 
       const responses = await Promise.all(requests);
 
       // Mindestens eine sollte Rate-Limited sein (429)
-      const rateLimitedResponses = responses.filter(r => r.status === 429);
+      const rateLimitedResponses = responses.filter((r) => r.status === 429);
       expect(rateLimitedResponses.length).toBeGreaterThan(0);
 
       // Rate-Limit Response sollte Retry-After Header haben
@@ -370,11 +372,7 @@ describe('Billing-API-Integration', () => {
 
   describe('Fehlerbehandlung', () => {
     it('sollte strukturierte Fehler für alle Billing-Endpunkte zurückgeben', async () => {
-      const endpoints = [
-        '/api/billing/session',
-        '/api/billing/sync',
-        '/api/billing/link-pending'
-      ];
+      const endpoints = ['/api/billing/session', '/api/billing/sync', '/api/billing/link-pending'];
 
       for (const endpoint of endpoints) {
         const requestData = {}; // Leere Daten um Validierungsfehler zu triggern
@@ -391,11 +389,7 @@ describe('Billing-API-Integration', () => {
     });
 
     it('sollte 405 für nicht unterstützte HTTP-Methoden zurückgeben', async () => {
-      const endpoints = [
-        '/api/billing/session',
-        '/api/billing/credits',
-        '/api/billing/sync'
-      ];
+      const endpoints = ['/api/billing/session', '/api/billing/credits', '/api/billing/sync'];
 
       for (const endpoint of endpoints) {
         const response = await sendJson(endpoint, {}, 'DELETE');
