@@ -432,6 +432,324 @@ paths:
               schema:
                 $ref: '#/components/schemas/ApiError'
 
+  /api/billing/credits:
+    post:
+      summary: Credits-Paket kaufen
+      description: Erstellt eine Stripe-Checkout-Session für den Kauf von Credit-Paketen (200 oder 1000 Bilder)
+      tags:
+        - Billing
+        - Credits
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - pack
+              properties:
+                pack:
+                  type: integer
+                  description: Anzahl der zu kaufenden Credits
+                  enum:
+                    - 200
+                    - 1000
+                  example: 1000
+                workspaceId:
+                  type: string
+                  description: Optionale Workspace-ID für Team-Nutzung
+                  example: "ws_abc123def456"
+      responses:
+        '200':
+          description: Checkout-Session erfolgreich erstellt
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      url:
+                        type: string
+                        description: Stripe-Checkout-URL
+                        example: "https://checkout.stripe.com/pay/cs_test_..."
+        '400':
+          description: Ungültiger Credit-Pack-Wert
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+              examples:
+                invalid_pack:
+                  value:
+                    success: false
+                    error:
+                      type: "validation_error"
+                      message: "Ungültiger Credit-Pack-Wert"
+                pack_not_configured:
+                  value:
+                    success: false
+                    error:
+                      type: "validation_error"
+                      message: "Credit-Pack nicht konfiguriert"
+        '500':
+          description: Stripe nicht konfiguriert
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+              examples:
+                stripe_not_configured:
+                  value:
+                    success: false
+                    error:
+                      type: "server_error"
+                      message: "Stripe nicht konfiguriert"
+
+  /api/billing/session:
+    post:
+      summary: Subscription-Checkout-Session erstellen
+      description: Erstellt eine Stripe-Checkout-Session für Abonnement-Pläne (Pro, Premium, Enterprise)
+      tags:
+        - Billing
+        - Subscription
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - plan
+                - workspaceId
+              properties:
+                plan:
+                  type: string
+                  description: Abonnement-Plan
+                  enum:
+                    - pro
+                    - premium
+                    - enterprise
+                  example: "premium"
+                workspaceId:
+                  type: string
+                  description: Workspace-ID für das Abonnement
+                  example: "ws_abc123def456"
+                interval:
+                  type: string
+                  description: Abrechnungsintervall
+                  enum:
+                    - monthly
+                    - annual
+                  default: monthly
+                  example: "annual"
+      responses:
+        '200':
+          description: Subscription-Checkout erfolgreich erstellt
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      url:
+                        type: string
+                        description: Stripe-Subscription-Checkout-URL
+                        example: "https://checkout.stripe.com/subscriptions/cs_test_..."
+        '400':
+          description: Ungültige Plan- oder Workspace-Parameter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+              examples:
+                validation_error:
+                  value:
+                    success: false
+                    error:
+                      type: "validation_error"
+                      message: "plan and workspaceId are required"
+                unknown_plan:
+                  value:
+                    success: false
+                    error:
+                      type: "validation_error"
+                      message: "Unknown plan"
+        '401':
+          description: Nicht autorisiert
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '500':
+          description: Stripe nicht konfiguriert oder interner Fehler
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+  /api/billing/sync:
+    get:
+      summary: Billing-Synchronisation nach Checkout
+      description: Synchronisiert Billing-Informationen nach erfolgreichem Stripe-Checkout
+      tags:
+        - Billing
+        - Sync
+      parameters:
+        - name: session_id
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Stripe-Checkout-Session-ID
+          example: "cs_test_abc123def456"
+        - name: ws
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Workspace-ID für Team-Kontext
+          example: "ws_abc123def456"
+      responses:
+        '302':
+          description: Weiterleitung nach erfolgreicher Synchronisation
+        '400':
+          description: Fehlende oder ungültige Session-ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+  /api/billing/sync-callback:
+    post:
+      summary: Billing-Status-Callback
+      description: Empfängt Billing-Status-Updates von externen Systemen
+      tags:
+        - Billing
+        - Webhook
+      parameters:
+        - name: session_id
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Stripe-Checkout-Session-ID
+          example: "cs_test_abc123def456"
+      responses:
+        '200':
+          description: Callback erfolgreich verarbeitet
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      synced:
+                        type: boolean
+                        example: true
+
+  /api/billing/link-pending:
+    post:
+      summary: Ausstehende Zahlung verknüpfen
+      description: Verknüpft ausstehende Zahlungen mit Benutzerkonten
+      tags:
+        - Billing
+        - Payment
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - sessionId
+              properties:
+                sessionId:
+                  type: string
+                  description: Stripe-Session-ID der ausstehenden Zahlung
+                  example: "cs_test_abc123def456"
+      responses:
+        '200':
+          description: Zahlung erfolgreich verknüpft
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      linked:
+                        type: boolean
+                        example: true
+        '400':
+          description: Ungültige Session-ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+  /api/billing/stripe-webhook:
+    post:
+      summary: Stripe-Webhook-Endpunkt
+      description: Empfängt Webhook-Events von Stripe für Zahlungsstatus-Updates
+      tags:
+        - Billing
+        - Webhook
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Stripe-Webhook-Event-Payload
+      responses:
+        '200':
+          description: Webhook erfolgreich verarbeitet
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      processed:
+                        type: boolean
+                        example: true
+        '400':
+          description: Ungültiger Webhook-Payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
   # ... other paths
 components:
   schemas:
