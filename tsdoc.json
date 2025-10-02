@@ -1,0 +1,69 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/tsdoc/v0/tsdoc.schema.json",
+  "tsdoc": {
+    "tagDefinitions": [
+      {
+        "tagName": "@public",
+        "syntaxKind": "modifier",
+        "allowMultiple": false,
+        "overridesScopes": ["@internal", "@beta", "@alpha"],
+        "documentation": "Marks an API as publicly supported."
+      },
+      {
+        "tagName": "@beta",
+        "syntaxKind": "modifier",
+        "allowMultiple": false,
+        "overridesScopes": ["@internal", "@alpha"],
+        "documentation": "Beta APIs are subject to change without notice."
+      },
+      {
+        "tagName": "@alpha",
+        "syntaxKind": "modifier",
+        "allowMultiple": false,
+        "overridesScopes": ["@internal"],
+        "documentation": "Alpha APIs are experimental and not ready for production."
+      },
+      {
+        "tagName": "@internal",
+        "syntaxKind": "modifier",
+        "allowMultiple": false,
+        "documentation": "Internal APIs are excluded from public documentation."
+      },
+      {
+        "tagName": "@remarks",
+        "syntaxKind": "block",
+        "allowMultiple": false,
+        "documentation": "Provides extended remarks for an API."
+      },
+      {
+        "tagName": "@example",
+        "syntaxKind": "block",
+        "allowMultiple": true,
+        "documentation": "Provides runnable or descriptive usage examples."
+      },
+      {
+        "tagName": "@see",
+        "syntaxKind": "inline",
+        "allowMultiple": true,
+        "documentation": "Links to related APIs or resources."
+      },
+      {
+        "tagName": "@defaultValue",
+        "syntaxKind": "block",
+        "allowMultiple": false,
+        "documentation": "Describes the default value for a property or parameter."
+      }
+    ],
+    "supportForTags": {
+      "@alpha": true,
+      "@beta": true,
+      "@deprecated": true,
+      "@defaultValue": true,
+      "@example": true,
+      "@internal": true,
+      "@public": true,
+      "@remarks": true,
+      "@see": true
+    }
+  }
+}

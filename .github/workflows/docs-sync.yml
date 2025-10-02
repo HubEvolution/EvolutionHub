@@ -1,0 +1,33 @@
+name: docs-sync
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+  workflow_dispatch:
+
+jobs:
+  docs:
+    name: Enforce documentation hygiene
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Check for documentation drift
+        run: node ./scripts/doc-drift.mjs
+      - name: Markdown lint
+        run: npm run docs:lint
+      - name: Validate documentation links
+        run: node ./scripts/doc-links.mjs

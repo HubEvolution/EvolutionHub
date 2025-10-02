@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://evolutionhub.dev/schemas/docs-registry.json",
+  "title": "EvolutionHub Documentation Registry",
+  "description": "Schema for the generated documentation inventory covering Markdown, AsciiDoc and plaintext assets.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "format": "uri"
+    },
+    "generatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO-8601 timestamp indicating when the registry was produced."
+    },
+    "generatedBy": {
+      "type": "string",
+      "description": "CLI identifier that produced this registry snapshot."
+    },
+    "sourceRoot": {
+      "type": "string",
+      "description": "Absolute path on disk used as the root when scanning documentation files."
+    },
+    "documents": {
+      "type": "array",
+      "description": "List of documentation artefacts discovered in the repository.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "path",
+          "format"
+        ],
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "Repository relative file path to the documentation asset."
+          },
+          "title": {
+            "type": "string",
+            "description": "Best effort document title resolved from frontmatter or first heading."
+          },
+          "description": {
+            "type": "string",
+            "description": "Optional short summary extracted from the body content."
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "markdown",
+              "mdx",
+              "asciidoc",
+              "text"
+            ],
+            "description": "Document format inferred from the file extension."
+          },
+          "hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "description": "SHA-256 hash of the raw file contents for change detection."
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "File size in bytes."
+          },
+          "headings": {
+            "type": "array",
+            "description": "Ordered list of headings discovered within the document.",
+            "items": {
+              "type": "object",
+              "required": [
+                "level",
+                "value"
+              ],
+              "properties": {
+                "level": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 6
+                },
+                "value": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "frontMatter": {
+            "type": "object",
+            "description": "Parsed frontmatter metadata when present.",
+            "additionalProperties": true
+          },
+          "lastModified": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Filesystem last modified timestamp."
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "generatedAt",
+    "documents"
+  ]
+}
