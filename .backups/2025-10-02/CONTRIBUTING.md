@@ -4,10 +4,9 @@ Vielen Dank, dass du Evolution Hub weiterentwickeln möchtest! Dieser Leitfaden 
 
 ## Branch-Strategie
 
-- **main** enthält den stabilen Produktionscode. Pushes direkt auf `main` sind nicht erlaubt.
+- **main** enthält den stabilen Produktionscode.
 - Verwende Feature-Branches im Format `feature/<kurze-beschreibung>` für neue Funktionen.
 - Verwende Fix-Branches im Format `fix/<kurze-beschreibung>` für Bugfixes.
-- Für reine Dokumentationsänderungen empfiehlt sich das Schema `docs/<datum>-<thema>`.
 - Synchronisiere deine Branches regelmäßig mit `main`, um Merge-Konflikte zu vermeiden.
 
 ## Commit-Style
@@ -28,12 +27,10 @@ feat(auth): füge passwortlosen login hinzu
 
 Bitte stelle sicher, dass jeder PR folgende Punkte erfüllt:
 
-- [ ] Branch ist aktuell mit `main` rebaset oder gemergt.
-- [ ] Linting ausgeführt (`npm run lint` und relevante Format-Checks).
-- [ ] Tests ausgeführt (`npm run test` bzw. zielgerichtete Suites).
-- [ ] Dokumentationsupdates enthalten erforderliche Backups in `.backups/<YYYY-MM-DD>/…`.
-- [ ] Screenshots oder GIFs angehängt, wenn UI-Verhalten betroffen ist.
-- [ ] Changelog oder Release Notes aktualisiert, falls erforderlich.
+- [ ] Linting ausgeführt (`npm run lint` und relevante Format-Checks)
+- [ ] Tests ausgeführt (`npm run test` bzw. zielgerichtete Suites)
+- [ ] Screenshots oder GIFs angehängt, wenn UI-Verhalten betroffen ist
+- [ ] Changelog oder Release Notes aktualisiert, falls erforderlich
 
 ## Code-Style-Guide
 
