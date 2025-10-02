@@ -1,9 +1,4 @@
-# Tools
+### Features
 
-- Image Enhancer
-- Prompt Enhancer
-
-## Features
-
-- Image Enhancer: Enhances images using advanced algorithms.
-- Prompt Enhancer: Improves user prompts for better interaction.
+- **AI-Bildbearbeitung**: A tool for image editing with advanced AI capabilities.
+- **Prompt Enhancer**: A tool for improving user prompts for better interaction.
