@@ -40,6 +40,26 @@ const DebugPanelOverlay: React.FC = () => {
 
   const [isResizing, setIsResizing] = useState(false);
   const [isResizingVertical, setIsResizingVertical] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [right, setRight] = useState(() => {
+    if (typeof window === 'undefined') return 16;
+    try {
+      const saved = localStorage.getItem('debugPanel.right');
+      return saved ? parseInt(saved, 10) : 16;
+    } catch {
+      return 16;
+    }
+  });
+  const [bottom, setBottom] = useState(() => {
+    if (typeof window === 'undefined') return 16;
+    try {
+      const saved = localStorage.getItem('debugPanel.bottom');
+      return saved ? parseInt(saved, 10) : 16;
+    } catch {
+      return 16;
+    }
+  });
+  const dragStartRef = useRef<{ x: number; y: number; right: number; bottom: number } | null>(null);
   const resizeRef = useRef<HTMLDivElement>(null);
   const resizeVerticalRef = useRef<HTMLDivElement>(null);
 
@@ -75,6 +95,16 @@ const DebugPanelOverlay: React.FC = () => {
     e.preventDefault();
     setIsResizingVertical(true);
   }, []);
+
+  // Drag positioning (drag by header controls bar)
+  const handleDragMouseDown = useCallback((e: React.MouseEvent) => {
+    // Ignore drags starting on interactive elements
+    const target = e.target as HTMLElement;
+    if (target.closest('button, input, label, kbd, svg, a')) return;
+    e.preventDefault();
+    setIsDragging(true);
+    dragStartRef.current = { x: e.clientX, y: e.clientY, right, bottom };
+  }, [right, bottom]);
 
   useEffect(() => {
     if (!isResizing) return;
@@ -133,6 +163,35 @@ const DebugPanelOverlay: React.FC = () => {
   }, [isResizingVertical]);
 
   useEffect(() => {
+    if (!isDragging) return;
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!dragStartRef.current) return;
+      const dx = e.clientX - dragStartRef.current.x;
+      const dy = e.clientY - dragStartRef.current.y;
+      const maxRight = Math.max(8, window.innerWidth - width - 8);
+      const maxBottom = Math.max(8, window.innerHeight - height - 8);
+      const newRight = Math.min(maxRight, Math.max(8, dragStartRef.current.right - dx));
+      const newBottom = Math.min(maxBottom, Math.max(8, dragStartRef.current.bottom - dy));
+      setRight(newRight);
+      setBottom(newBottom);
+    };
+    const handleMouseUp = () => {
+      setIsDragging(false);
+      try {
+        localStorage.setItem('debugPanel.right', String(right));
+        localStorage.setItem('debugPanel.bottom', String(bottom));
+      } catch {
+        /* noop */
+      }
+    };
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp, { once: true });
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+    };
+  }, [isDragging, width, height, right, bottom]);
+
+  useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       // Ignore when typing inside form fields or editable areas
       const target = e.target as HTMLElement | null;
@@ -186,10 +245,12 @@ const DebugPanelOverlay: React.FC = () => {
     <>
       {/* Panel Container - lower-right, resizable */}
       <div
-        className="fixed bottom-4 right-4 z-[9999] flex flex-col relative"
+        className="fixed z-[9999] flex flex-col relative"
         style={{
           width: `${width}px`,
           height: `${height}px`,
+          right: `${right}px`,
+          bottom: `${bottom}px`,
           transition:
             isResizing || isResizingVertical ? 'none' : 'width 0.2s ease, height 0.2s ease',
         }}
@@ -219,7 +280,10 @@ const DebugPanelOverlay: React.FC = () => {
           {/* Panel Content */}
           <div className="relative flex-1 flex flex-col min-w-0">
             {/* Top Controls */}
-            <div className="absolute -top-2 left-0 right-0 flex justify-between items-center px-2 z-10">
+            <div
+              className="absolute -top-2 left-0 right-0 flex justify-between items-center px-2 z-10 cursor-move select-none"
+              onMouseDown={handleDragMouseDown}
+            >
               {/* Keyboard Hint */}
               <div className="text-xs text-white/80 bg-gray-800/90 px-2 py-1 rounded backdrop-blur-sm">
                 <kbd className="bg-gray-700 px-1.5 py-0.5 rounded text-white font-mono text-[10px]">
