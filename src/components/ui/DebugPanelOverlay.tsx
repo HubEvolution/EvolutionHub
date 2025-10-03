@@ -307,13 +307,14 @@ const DebugPanelOverlay: React.FC = () => {
     // Run once on mount to normalize persisted values
     computeMinTop();
     clamp();
+    const onScroll = () => { computeMinTop(); clamp(); };
     window.addEventListener('resize', clamp);
     window.addEventListener('orientationchange', clamp);
-    window.addEventListener('scroll', () => { computeMinTop(); clamp(); }, { passive: true });
+    window.addEventListener('scroll', onScroll, { passive: true });
     return () => {
       window.removeEventListener('resize', clamp);
       window.removeEventListener('orientationchange', clamp);
-      window.removeEventListener('scroll', () => { computeMinTop(); clamp(); });
+      window.removeEventListener('scroll', onScroll);
     };
   }, [width, height, right, bottom, minTop, computeMinTop]);
 

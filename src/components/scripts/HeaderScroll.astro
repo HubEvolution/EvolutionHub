@@ -17,13 +17,32 @@
     const __DEV__ =
       typeof location !== 'undefined' &&
       (location.hostname === 'localhost' || location.hostname === '127.0.0.1');
+    const getFlag = () => {
+      try {
+        const ls = localStorage.getItem('debug.headerScroll') === '1';
+        const qp = new URLSearchParams(location.search).has('debugHeader');
+        return ls || qp;
+      } catch {
+        return false;
+      }
+    };
+    const VERBOSE = __DEV__ && getFlag();
+    const TRACE = __DEV__ && ((() => {
+      try { return localStorage.getItem('debug.headerScrollTrace') === '1'; } catch { return false; }
+    })());
     const dlog = (...args) => {
-      if (__DEV__) console.log(...args);
+      if (VERBOSE) console.debug(...args);
+    };
+    const dinfo = (...args) => {
+      if (VERBOSE) console.info(...args);
+    };
+    const dtrace = (...args) => {
+      if (TRACE) console.debug(...args);
     };
     const dwarn = (...args) => {
       if (__DEV__) console.warn(...args);
     };
-    dlog('[HeaderScroll] 🚀 Starting header scroll effect initialization...');
+    dinfo('[HeaderScroll] 🚀 Starting header scroll effect initialization...');
 
     // Header-Element mit detailliertem Logging suchen
     const header = document.getElementById('site-header');
@@ -65,6 +84,7 @@
     let hideTimeout = null;
     const scrollThreshold = 80; // Reagiert etwas später
     const scrollDeltaThreshold = 8; // Mindestens 8px scrollen für Aktion
+    let isVisible = true;
 
     // Header initial sichtbar machen
     header.classList.add('header-visible');
@@ -88,7 +108,7 @@
       const scrollDelta = currentScrollY - lastScrollY;
       const scrollDirection = scrollDelta > 0 ? 'down' : 'up';
 
-      dlog('[HeaderScroll] 📜 Scroll event detected:', {
+      dtrace('[HeaderScroll] 📜 Scroll event detected:', {
         currentScrollY,
         lastScrollY,
         scrollDelta,
@@ -103,7 +123,7 @@
 
       // Oberhalb des Thresholds oder am Seitenanfang - Header immer sichtbar
       if (currentScrollY <= scrollThreshold) {
-        dlog('[HeaderScroll] 📜 Above threshold - keeping header visible');
+        dtrace('[HeaderScroll] 📜 Above threshold - keeping header visible');
         showHeader();
         lastScrollY = currentScrollY;
         ticking = false;
@@ -112,40 +132,39 @@
 
       // Genug gescrollt für eine Aktion?
       if (Math.abs(currentScrollY - lastScrollY) < scrollDeltaThreshold) {
-        dlog('[HeaderScroll] 📜 Scroll delta too small - ignoring');
+        dtrace('[HeaderScroll] 📜 Scroll delta too small - ignoring');
         ticking = false;
         return;
       }
 
       // Nach unten scrollen - Header ausblenden mit Verzögerung
       if (currentScrollY > lastScrollY) {
-        dlog('[HeaderScroll] 📜 Scrolling down - scheduling header hide');
+        dtrace('[HeaderScroll] 📜 Scrolling down - scheduling header hide');
 
         // Bestehenden Timer löschen wenn vorhanden
         if (hideTimeout) {
-          dlog('[HeaderScroll] 📜 Clearing existing hide timeout');
+          dtrace('[HeaderScroll] 📜 Clearing existing hide timeout');
           clearTimeout(hideTimeout);
         }
 
         // Kurze Verzögerung vor dem Ausblenden für bessere UX
         hideTimeout = window.setTimeout(() => {
-          dlog('[HeaderScroll] 📜 Hide timeout executed - hiding header');
-          if (header) {
+          dtrace('[HeaderScroll] 📜 Hide timeout executed - hiding header');
+          if (header && isVisible) {
             header.classList.add('header-hidden');
             header.classList.remove('header-visible');
-            dlog('[HeaderScroll] ✅ Header hidden successfully:', {
-              headerClasses: header.className,
-            });
+            isVisible = false;
+            dinfo('[HeaderScroll] ✅ Header hidden');
           }
           hideTimeout = null;
         }, 200);
       }
       // Nach oben scrollen - Header sofort einblenden
       else {
-        dlog('[HeaderScroll] 📜 Scrolling up - showing header immediately');
+        dtrace('[HeaderScroll] 📜 Scrolling up - showing header immediately');
 
         if (hideTimeout) {
-          dlog('[HeaderScroll] 📜 Clearing hide timeout for immediate show');
+          dtrace('[HeaderScroll] 📜 Clearing hide timeout for immediate show');
           clearTimeout(hideTimeout);
           hideTimeout = null;
         }
@@ -155,23 +174,25 @@
       lastScrollY = currentScrollY;
       ticking = false;
 
-      dlog('[HeaderScroll] 📜 Scroll handling completed:', {
+      dtrace('[HeaderScroll] 📜 Scroll handling completed:', {
         newLastScrollY: lastScrollY,
         tickingReset: !ticking,
       });
     }
 
     function showHeader() {
-      dlog('[HeaderScroll] 📜 showHeader() called');
       if (header) {
-        header.classList.add('header-visible');
-        header.classList.remove('header-hidden');
-        applyHeaderBackground();
-        dlog('[HeaderScroll] ✅ Header shown successfully:', {
-          headerClasses: header.className,
-          hasVisibleClass: header.classList.contains('header-visible'),
-          hasHiddenClass: header.classList.contains('header-hidden'),
-        });
+        if (!isVisible) {
+          header.classList.add('header-visible');
+          header.classList.remove('header-hidden');
+          isVisible = true;
+          applyHeaderBackground();
+          dinfo('[HeaderScroll] ✅ Header shown');
+        } else {
+          // keep classes but avoid logging when already visible
+          header.classList.add('header-visible');
+          header.classList.remove('header-hidden');
+        }
       } else {
         console.error('[HeaderScroll] ❌ Cannot show header - header element is null');
       }
@@ -182,26 +203,26 @@
     let resizeHandler = null;
 
     // Optimiertes Event-Handling mit requestAnimationFrame
-    dlog('[HeaderScroll] 🔗 Setting up event listeners...');
+    dtrace('[HeaderScroll] 🔗 Setting up event listeners...');
 
     scrollHandler = function () {
       if (!ticking) {
-        dlog('[HeaderScroll] 📜 Scroll event triggered - scheduling RAF');
+        dtrace('[HeaderScroll] 📜 Scroll event triggered - scheduling RAF');
         window.requestAnimationFrame(function () {
           handleScroll();
         });
         ticking = true;
       } else {
-        dlog('[HeaderScroll] 📜 Scroll event throttled - already ticking');
+        dtrace('[HeaderScroll] 📜 Scroll event throttled - already ticking');
       }
     };
     window.addEventListener('scroll', scrollHandler, { passive: true });
-    dlog('[HeaderScroll] 🔗 Scroll event listener attached');
+    dtrace('[HeaderScroll] 🔗 Scroll event listener attached');
 
     // Resize-Event - Header neu positionieren
     resizeHandler = function () {
       if (!ticking) {
-        dlog('[HeaderScroll] 📱 Resize event triggered - scheduling RAF');
+        dtrace('[HeaderScroll] 📱 Resize event triggered - scheduling RAF');
         window.requestAnimationFrame(function () {
           // Bei Resize immer Header zeigen
           showHeader();
@@ -209,17 +230,17 @@
         });
         ticking = true;
       } else {
-        dlog('[HeaderScroll] 📱 Resize event throttled - already ticking');
+        dtrace('[HeaderScroll] 📱 Resize event throttled - already ticking');
       }
     };
     window.addEventListener('resize', resizeHandler, { passive: true });
-    dlog('[HeaderScroll] 🔗 Resize event listener attached');
+    dtrace('[HeaderScroll] 🔗 Resize event listener attached');
 
     // Initial auslösen
-    dlog('[HeaderScroll] 🚀 Triggering initial handleScroll...');
+    dinfo('[HeaderScroll] 🚀 Triggering initial handleScroll...');
     handleScroll();
 
-    dlog('[HeaderScroll] ✅ Scroll effect initialized successfully with comprehensive logging:', {
+    dinfo('[HeaderScroll] ✅ Scroll effect initialized', {
       scrollThreshold,
       scrollDeltaThreshold,
       hasScrollHandler: !!scrollHandler,
@@ -241,7 +262,7 @@
       if (hideTimeout) {
         clearTimeout(hideTimeout);
       }
-      dlog('[HeaderScroll] Scroll effect cleaned up');
+      dinfo('[HeaderScroll] Scroll effect cleaned up');
     };
   }
 
