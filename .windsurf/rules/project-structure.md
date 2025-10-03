@@ -1,3 +1,7 @@
+---
+trigger: always_on
+---
+
 # Project Structure Rules
 
 - Treat `src/` as the runtime root: UI lives in `src/components`, `src/pages`, and `src/layouts`, while shared logic sits in `src/lib`, `src/config`, and `src/utils` (`AGENTS.md`).

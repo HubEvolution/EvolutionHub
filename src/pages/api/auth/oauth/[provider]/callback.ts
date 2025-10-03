@@ -199,10 +199,17 @@ const getHandler: ApiHandler = async (context: APIContext) => {
 
   if (upsert.isNew && !(desiredName || desiredUsername)) {
     const nextParam = encodeURIComponent(target);
-    if (devEnv) {
-      console.log('[auth][oauth][callback] redirect first-time to welcome-profile', { target });
+    // Extract locale from target path to ensure welcome-profile is localized
+    let welcomePath = '/welcome-profile';
+    if (target.startsWith('/en/')) {
+      welcomePath = '/en/welcome-profile';
+    } else if (target.startsWith('/de/')) {
+      welcomePath = '/de/welcome-profile';
     }
-    return createSecureRedirect(`/welcome-profile?next=${nextParam}`);
+    if (devEnv) {
+      console.log('[auth][oauth][callback] redirect first-time to welcome-profile', { target, welcomePath });
+    }
+    return createSecureRedirect(`${welcomePath}?next=${nextParam}`);
   }
   if (devEnv) {
     console.log('[auth][oauth][callback] redirect to target', { target });

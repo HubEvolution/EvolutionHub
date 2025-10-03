@@ -1,3 +1,7 @@
+---
+trigger: always_on
+---
+
 # Tooling & Style Rules
 
 - Use the strict TypeScript configuration from `tsconfig.json`: ESNext modules, React JSX runtime, and aliases like `@/*`, `@api/*`, `@components/*`.

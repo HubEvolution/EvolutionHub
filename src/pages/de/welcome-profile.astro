@@ -1,0 +1,79 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import FormLabel from '@/components/ui/FormLabel.astro';
+import Input from '@/components/ui/Input.astro';
+import Button from '@/components/ui/Button.astro';
+import type { Locale } from '@/lib/i18n';
+import { getLocale } from '@/lib/i18n';
+import { getI18n } from '@/utils/i18n';
+
+// Require auth via middleware; page assumes a valid session cookie
+const nextRaw = Astro.url.searchParams.get('next') || '/dashboard';
+
+function isAllowedRelativePath(p: string): boolean {
+  return typeof p === 'string' && p.startsWith('/') && !p.startsWith('//');
+}
+
+const nextSafe = isAllowedRelativePath(nextRaw) ? nextRaw : '/dashboard';
+const locale: Locale = getLocale(Astro.url.pathname);
+const t = getI18n(locale);
+---
+
+<BaseLayout
+  title={t('pages.welcomeProfile.title') ?? 'Complete your profile'}
+  description={t('pages.welcomeProfile.description') ?? 'Set your name and username'}
+  noIndex={true}
+>
+  <section class="mx-auto max-w-md px-4 py-12">
+    <h1 class="text-xl font-semibold tracking-tight">
+      {t('pages.welcomeProfile.heading') ?? 'Welcome! Complete your profile'}
+    </h1>
+    <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+      {
+        t('pages.welcomeProfile.helper') ??
+          'We created your account. You can adjust your public name and username now or do it later in settings.'
+      }
+    </p>
+
+    <form method="POST" action="/api/user/profile" class="mt-6 space-y-4">
+      <div>
+        <FormLabel for="name">{t('pages.welcomeProfile.fields.name.label') ?? 'Name'}</FormLabel>
+        <Input
+          id="name"
+          name="name"
+          type="text"
+          minlength="2"
+          maxlength="50"
+          autocomplete="name"
+          required
+        />
+      </div>
+      <div>
+        <FormLabel for="username"
+          >{t('pages.welcomeProfile.fields.username.label') ?? 'Username'}</FormLabel
+        >
+        <Input
+          id="username"
+          name="username"
+          type="text"
+          minlength="3"
+          maxlength="30"
+          pattern="[a-zA-Z0-9_]+"
+          autocomplete="username"
+          required
+        />
+      </div>
+      <input type="hidden" name="next" value={nextSafe} />
+      <div class="flex items-center gap-3 pt-2">
+        <Button type="submit"
+          >{t('pages.welcomeProfile.buttons.saveContinue') ?? 'Save and continue'}</Button
+        >
+        <a
+          href={nextSafe}
+          class="text-sm text-zinc-500 hover:text-zinc-300 underline underline-offset-4"
+          >{t('pages.welcomeProfile.buttons.skipNow') ?? 'Skip for now'}</a
+        >
+      </div>
+    </form>
+  </section>
+</BaseLayout>

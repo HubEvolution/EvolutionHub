@@ -1,3 +1,7 @@
+---
+trigger: always_on
+---
+
 # API & Security Rules
 
 - Wrap Astro API handlers with `withApiMiddleware`/`withAuthApiMiddleware` from `src/lib/api-middleware.ts` to inherit security headers, logging, and default `apiRateLimiter` (30 req/min) unless a different preset from `src/lib/rate-limiter.ts` is required.

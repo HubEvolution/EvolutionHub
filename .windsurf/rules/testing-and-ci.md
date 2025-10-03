@@ -1,3 +1,7 @@
+---
+trigger: always_on
+---
+
 # Testing & CI Rules
 
 - Run `npm run test` (Vitest) locally before PRs; it loads plugins `@vitejs/plugin-react` and `vite-tsconfig-paths` (`vitest.config.ts`).
