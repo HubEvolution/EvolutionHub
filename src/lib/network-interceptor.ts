@@ -32,6 +32,8 @@ function buildSanitizedRequestMeta(init?: RequestInit) {
     // headers: only whitelist a few safe headers, otherwise report presence only
     const presentHeaders: string[] = [];
     const safeHeaders: Record<string, string> = {};
+    const sensitiveHeadersPresent: string[] = [];
+    const SENSITIVE_HEADER_KEYS = ['authorization', 'cookie', 'set-cookie', 'x-api-key'];
     if (init?.headers) {
       const h = init.headers instanceof Headers ? init.headers : new Headers(init.headers as any);
       h.forEach((value, key) => {
@@ -40,11 +42,14 @@ function buildSanitizedRequestMeta(init?: RequestInit) {
         if (k === 'content-type' || k === 'accept' || k === 'cache-control') {
           safeHeaders[k] = value.substring(0, 100);
         }
+        if (SENSITIVE_HEADER_KEYS.includes(k) || k.startsWith('x-auth-')) {
+          sensitiveHeadersPresent.push(k);
+        }
       });
     }
 
     // body: handle only safe, non-stream cases
-    let bodySummary: { type: string; length?: number; keys?: string[] } | undefined;
+    let bodySummary: { type: string; length?: number; keys?: string[]; sensitiveKeys?: string[] } | undefined;
     const b: any = (init as any)?.body;
     if (typeof b === 'string') {
       bodySummary = { type: 'text', length: b.length };
@@ -52,8 +57,10 @@ function buildSanitizedRequestMeta(init?: RequestInit) {
       try {
         const json = JSON.parse(b);
         if (json && typeof json === 'object' && !Array.isArray(json)) {
-          const keys = Object.keys(json).slice(0, 20);
-          bodySummary = { type: 'json', length: b.length, keys };
+          const keys = Object.keys(json).slice(0, 50);
+          const SENSITIVE_JSON_KEYS = ['password','token','secret','email','session','apikey','api_key','auth'];
+          const sensitiveKeys = keys.filter((k) => SENSITIVE_JSON_KEYS.includes(k.toLowerCase()));
+          bodySummary = { type: 'json', length: b.length, keys, sensitiveKeys };
         }
       } catch {
         /* not json */
@@ -73,7 +80,7 @@ function buildSanitizedRequestMeta(init?: RequestInit) {
       bodySummary = { type: typeName };
     }
 
-    return { headers: { present: presentHeaders, safe: safeHeaders }, body: bodySummary };
+    return { headers: { present: presentHeaders, safe: safeHeaders, sensitivePresent: sensitiveHeadersPresent }, body: bodySummary };
   } catch {
     return undefined;
   }
@@ -140,7 +147,7 @@ export function installNetworkInterceptor() {
       if (u.searchParams && [...u.searchParams.keys()].length > 0) {
         const masked = new URL(u.origin + u.pathname);
         // keep keys, replace values by ***
-        u.searchParams.forEach((value, key) => {
+        u.searchParams.forEach((_value, key) => {
           masked.searchParams.set(key, '***');
         });
         safeUrl = masked.toString();

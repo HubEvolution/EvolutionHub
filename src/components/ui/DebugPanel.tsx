@@ -25,6 +25,9 @@ const DebugPanel: React.FC = () => {
   const [autoScroll, setAutoScroll] = useState(true);
   const [showAll, setShowAll] = useState(false);
   const [windowSize, setWindowSize] = useState(200);
+  const [paused, setPaused] = useState(false);
+  const pausedRef = useRef(false);
+  useEffect(() => { pausedRef.current = paused; }, [paused]);
   const [groupRepeats, setGroupRepeats] = useState<boolean>(() => {
     if (typeof window === 'undefined') return false;
     try {
@@ -76,7 +79,9 @@ const DebugPanel: React.FC = () => {
         const data = JSON.parse(event.data);
         if (data.type === 'keep-alive' || data.type === 'environment-info') return;
         if (data.type === 'log' && data.timestamp && data.level && typeof data.message === 'string') {
-          addLog({ timestamp: data.timestamp, level: String(data.level), message: data.message, source: data.source });
+          if (!pausedRef.current) {
+            addLog({ timestamp: data.timestamp, level: String(data.level), message: data.message, source: data.source });
+          }
           return;
         }
       } catch {
@@ -139,6 +144,8 @@ const DebugPanel: React.FC = () => {
       console.warn('Failed to clear logs from LocalStorage:', e);
     }
   }, []);
+
+  // exportLogs is defined after displayLogs to avoid TDZ issues
 
   const toggleLevelFilter = useCallback((level: string) => {
     setLevelFilter((prev) =>
@@ -218,6 +225,34 @@ const DebugPanel: React.FC = () => {
     return grouped;
   }, [filteredLogs, groupRepeats]);
 
+  const exportLogs = useCallback(() => {
+    const items = (showAll ? displayLogs : displayLogs.slice(-Math.min(windowSize, displayLogs.length)));
+    const payload = {
+      exportedAt: new Date().toISOString(),
+      status,
+      filters: {
+        levels: levelFilter,
+        sources: sourceFilters,
+        mutes: mutePatterns,
+      },
+      count: items.length,
+      items,
+    };
+    try {
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `debug-logs-${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      console.error('Export failed', e);
+    }
+  }, [displayLogs, showAll, windowSize, status, levelFilter, sourceFilters, mutePatterns]);
+
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg flex flex-col h-full overflow-hidden">
       {/* Header */}
@@ -235,6 +270,21 @@ const DebugPanel: React.FC = () => {
               title="Clear all logs"
             >
               Clear
+            </button>
+            <button
+              onClick={() => setPaused((p) => !p)}
+              className={`px-2 py-1 text-white text-xs rounded transition-colors ${paused ? 'bg-yellow-600 hover:bg-yellow-700' : 'bg-gray-700 hover:bg-gray-800'}`}
+              aria-pressed={paused}
+              title="Pause/resume capturing new logs"
+            >
+              {paused ? 'Resume' : 'Pause'}
+            </button>
+            <button
+              onClick={exportLogs}
+              className="px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors"
+              title="Export current view as JSON"
+            >
+              Export JSON
             </button>
             <label className="flex items-center gap-1 text-xs text-gray-700 dark:text-gray-300 cursor-pointer">
               <input
