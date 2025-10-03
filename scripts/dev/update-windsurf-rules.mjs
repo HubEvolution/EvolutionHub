@@ -68,11 +68,20 @@ function updateTestingAndCI(content) {
   );
   // Add suites location bullet if not present
   if (!/tests\/playwright/.test(updated)) {
-    const insAfter = updated.indexOf('\n', updated.indexOf('# Testing & CI Rules'));
-    // Append near the end of bullets (after last listed bullet)
-    const insertPoint = updated.lastIndexOf('\n', updated.length - 2);
     const addon = '\n- Playwright suites live in `tests/playwright` and `test-suite-v2`.\n';
     updated = updated.trimEnd() + addon + '\n';
+  }
+  // Add OpenAPI validation mention
+  if (!/openapi:validate/.test(updated)) {
+    updated = updated.trimEnd() + '\n- Validate OpenAPI via `npm run openapi:validate` before PRs.\n';
+  }
+  // Add docs build sync
+  if (!/docs:build/.test(updated)) {
+    updated = updated.trimEnd() + '\n- Keep docs in sync; regenerate with `npm run docs:build` when API or env docs change.\n';
+  }
+  // Add TEST_BASE_URL and E2E_FAKE_STYTCH hints
+  if (!/TEST_BASE_URL/.test(updated)) {
+    updated = updated.trimEnd() + '\n- E2E config honors `TEST_BASE_URL`; local runs default to `http://127.0.0.1:8787`. For auth smokes, `E2E_FAKE_STYTCH=1` enables the fake provider in dev.\n';
   }
   return updated;
 }
@@ -90,6 +99,29 @@ function updateToolingAndStyle(content) {
   return updated + '\n';
 }
 
+function updateApiAndSecurity(content) {
+  let updated = content.trimEnd();
+  const extras = [
+    "- Observability: client logs are batched to `src/pages/api/debug/client-log.ts` (headers redacted, rate-limited). Enable the Debug Panel via `PUBLIC_ENABLE_DEBUG_PANEL`; see `src/components/ui/DebugPanel.tsx`.",
+    "- AI Image Enhancer entitlements: server enforces plan-based quotas; UI reflects `allowedScales`/`canUseFaceEnhance`. Plans propagate via Stripe webhook; guests have separate KV-based limits.",
+  ];
+  for (const line of extras) {
+    if (!updated.includes(line)) {
+      updated += '\n' + line;
+    }
+  }
+  return updated + '\n';
+}
+
+function updateProjectStructureExtra(content) {
+  let updated = content.trimEnd();
+  const line = "- Worker build details: `ASTRO_DEPLOY_TARGET=worker` copies static assets to `dist/assets` and writes `.assetsignore` to exclude `_worker.js`; Wrangler serves from `dist` (see `package.json` `build:worker` and `wrangler.toml [assets]`).";
+  if (!updated.includes(line)) {
+    updated += '\n' + line + '\n';
+  }
+  return updated;
+}
+
 for (const [file, prio] of priorities.entries()) {
   const filePath = path.join(rulesDir, file);
   if (!fs.existsSync(filePath)) {
@@ -98,9 +130,10 @@ for (const [file, prio] of priorities.entries()) {
   }
   const orig = fs.readFileSync(filePath, 'utf8');
   let next = updateFrontMatter(orig, prio);
-  if (file === 'project-structure.md') next = updateProjectStructure(next);
+  if (file === 'project-structure.md') next = updateProjectStructureExtra(updateProjectStructure(next));
   if (file === 'testing-and-ci.md') next = updateTestingAndCI(next);
   if (file === 'tooling-and-style.md') next = updateToolingAndStyle(next);
+  if (file === 'api-and-security.md') next = updateApiAndSecurity(next);
   if (next !== orig) {
     fs.writeFileSync(filePath, next, 'utf8');
     console.log(`[updated] ${file}`);

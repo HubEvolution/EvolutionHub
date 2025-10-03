@@ -170,9 +170,11 @@ async function main() {
   }
   lines.push('');
   lines.push('Quelle:');
+  lines.push('');
   lines.push("- Regeln: `.windsurf/rules/*.md`");
   lines.push('- Skripte: `package.json`');
   lines.push('- Referenz: `global_rules.md`');
+  lines.push('');
   lines.push('');
 
   fs.writeFileSync(outFile, lines.join('\n'), 'utf8');
