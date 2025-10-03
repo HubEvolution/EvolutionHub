@@ -7,6 +7,9 @@ const DEFAULT_WIDTH = 600;
 const MIN_HEIGHT = 200;
 const MAX_HEIGHT_VH = 90; // 90% of viewport height
 const DEFAULT_HEIGHT = 400;
+const GRID = 8; // grid snapping size
+
+type PanelMode = 'floating' | 'rightDock' | 'bottomSheet';
 
 const DebugPanelOverlay: React.FC = () => {
   const [isOpen, setIsOpen] = useState(() => {
@@ -41,11 +44,16 @@ const DebugPanelOverlay: React.FC = () => {
   const [isResizing, setIsResizing] = useState(false);
   const [isResizingVertical, setIsResizingVertical] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [dragCandidate, setDragCandidate] = useState<{
+    x: number; y: number; right: number; bottom: number;
+  } | null>(null);
   const [right, setRight] = useState(() => {
     if (typeof window === 'undefined') return 16;
     try {
       const saved = localStorage.getItem('debugPanel.right');
-      return saved ? parseInt(saved, 10) : 16;
+      if (!saved) return 16;
+      const n = parseInt(saved, 10);
+      return Number.isFinite(n) ? n : 16;
     } catch {
       return 16;
     }
@@ -54,12 +62,23 @@ const DebugPanelOverlay: React.FC = () => {
     if (typeof window === 'undefined') return 16;
     try {
       const saved = localStorage.getItem('debugPanel.bottom');
-      return saved ? parseInt(saved, 10) : 16;
+      if (!saved) return 16;
+      const n = parseInt(saved, 10);
+      return Number.isFinite(n) ? n : 16;
     } catch {
       return 16;
     }
   });
   const dragStartRef = useRef<{ x: number; y: number; right: number; bottom: number } | null>(null);
+  const [mode, setMode] = useState<PanelMode>(() => {
+    if (typeof window === 'undefined') return 'floating';
+    try {
+      const m = localStorage.getItem('debugPanel.mode') as PanelMode | null;
+      return m === 'rightDock' || m === 'bottomSheet' ? m : 'floating';
+    } catch { return 'floating'; }
+  });
+  const [isMaximized, setIsMaximized] = useState(false);
+  const prevLayoutRef = useRef<{ width: number; height: number; right: number; bottom: number } | null>(null);
   const resizeRef = useRef<HTMLDivElement>(null);
   const resizeVerticalRef = useRef<HTMLDivElement>(null);
 
@@ -102,7 +121,8 @@ const DebugPanelOverlay: React.FC = () => {
     const target = e.target as HTMLElement;
     if (target.closest('button, input, label, kbd, svg, a')) return;
     e.preventDefault();
-    setIsDragging(true);
+    // start as candidate; require threshold before real dragging
+    setDragCandidate({ x: e.clientX, y: e.clientY, right, bottom });
     dragStartRef.current = { x: e.clientX, y: e.clientY, right, bottom };
   }, [right, bottom]);
 
@@ -167,18 +187,21 @@ const DebugPanelOverlay: React.FC = () => {
   // Clamp position and size when viewport changes (e.g., address bar/DevTools resize)
   useEffect(() => {
     const clamp = () => {
+      const minMargin = 8;
       const maxHeight = (window.innerHeight * MAX_HEIGHT_VH) / 100;
       const nextHeight = Math.min(height, maxHeight);
       if (nextHeight !== height) setHeight(nextHeight);
 
-      const maxRight = Math.max(8, window.innerWidth - width - 8);
-      const maxBottom = Math.max(8, window.innerHeight - height - 8);
+      const maxRight = Math.max(minMargin, window.innerWidth - width - minMargin);
+      const maxBottom = Math.max(minMargin, window.innerHeight - height - minMargin);
 
-      const nextRight = Math.min(right, maxRight);
-      const nextBottom = Math.min(bottom, maxBottom);
+      const nextRight = Math.min(Math.max(right, minMargin), maxRight);
+      const nextBottom = Math.min(Math.max(bottom, minMargin), maxBottom);
       if (nextRight !== right) setRight(nextRight);
       if (nextBottom !== bottom) setBottom(nextBottom);
     };
+    // Run once on mount to normalize persisted values
+    clamp();
     window.addEventListener('resize', clamp);
     window.addEventListener('orientationchange', clamp);
     return () => {
@@ -187,10 +210,56 @@ const DebugPanelOverlay: React.FC = () => {
     };
   }, [width, height, right, bottom]);
 
+  const resetPosition = useCallback(() => {
+    setRight(16);
+    setBottom(16);
+    try {
+      localStorage.setItem('debugPanel.right', '16');
+      localStorage.setItem('debugPanel.bottom', '16');
+    } catch {/* noop */}
+  }, []);
+
+  // Maximize/restore toggling
+  const toggleMaximize = useCallback(() => {
+    if (!isMaximized) {
+      prevLayoutRef.current = { width, height, right, bottom };
+      setIsMaximized(true);
+      const maxHeight = (window.innerHeight * MAX_HEIGHT_VH) / 100;
+      setHeight(maxHeight);
+      setWidth(Math.min(MAX_WIDTH, Math.round(window.innerWidth * 0.4)));
+      setRight(GRID * 2);
+      setBottom(GRID * 2);
+    } else {
+      const prev = prevLayoutRef.current;
+      setIsMaximized(false);
+      if (prev) {
+        setWidth(prev.width);
+        setHeight(prev.height);
+        setRight(prev.right);
+        setBottom(prev.bottom);
+      }
+    }
+  }, [isMaximized, width, height, right, bottom]);
+
+  // Persist mode
   useEffect(() => {
-    if (!isDragging) return;
+    try { localStorage.setItem('debugPanel.mode', mode); } catch {/* noop */}
+  }, [mode]);
+
+  useEffect(() => {
+    if (!isDragging && !dragCandidate) return;
     const handleMouseMove = (e: MouseEvent) => {
       if (!dragStartRef.current) return;
+      // promote candidate to real dragging after threshold
+      if (!isDragging && dragCandidate) {
+        const ddx = e.clientX - dragCandidate.x;
+        const ddy = e.clientY - dragCandidate.y;
+        if (Math.hypot(ddx, ddy) >= 6) {
+          setIsDragging(true);
+        } else {
+          return; // do nothing until threshold crossed
+        }
+      }
       const dx = e.clientX - dragStartRef.current.x;
       const dy = e.clientY - dragStartRef.current.y;
       const maxRight = Math.max(8, window.innerWidth - width - 8);
@@ -201,7 +270,11 @@ const DebugPanelOverlay: React.FC = () => {
       setBottom(newBottom);
     };
     const handleMouseUp = () => {
+      // snap to GRID on release
+      setRight((r) => Math.max(8, Math.round(r / GRID) * GRID));
+      setBottom((b) => Math.max(8, Math.round(b / GRID) * GRID));
       setIsDragging(false);
+      setDragCandidate(null);
       try {
         localStorage.setItem('debugPanel.right', String(right));
         localStorage.setItem('debugPanel.bottom', String(bottom));
@@ -214,7 +287,7 @@ const DebugPanelOverlay: React.FC = () => {
     return () => {
       document.removeEventListener('mousemove', handleMouseMove);
     };
-  }, [isDragging, width, height, right, bottom]);
+  }, [isDragging, dragCandidate, width, height, right, bottom]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -271,14 +344,20 @@ const DebugPanelOverlay: React.FC = () => {
       {/* Panel Container - lower-right, resizable */}
       <div
         className="fixed z-[9999] flex flex-col"
-        style={{
-          width: `${width}px`,
-          height: `${height}px`,
-          right: `${right}px`,
-          bottom: `${bottom}px`,
-          transition:
-            isResizing || isResizingVertical ? 'none' : 'width 0.2s ease, height 0.2s ease',
-        }}
+        style={(() => {
+          const base: React.CSSProperties = {
+            width: `${width}px`,
+            height: `${height}px`,
+            transition: isResizing || isResizingVertical ? 'none' : 'width 0.2s ease, height 0.2s ease',
+          };
+          if (mode === 'rightDock') {
+            return { ...base, right: `${GRID}px`, bottom: `${GRID}px` };
+          }
+          if (mode === 'bottomSheet') {
+            return { ...base, left: '50%', transform: 'translateX(-50%)', bottom: `${GRID}px` };
+          }
+          return { ...base, right: `${right}px`, bottom: `${bottom}px` };
+        })()}
       >
         {/* Top Resize Handle (overlayed above header controls) */}
         <div
@@ -306,8 +385,10 @@ const DebugPanelOverlay: React.FC = () => {
           <div className="relative flex-1 flex flex-col min-w-0">
             {/* Top Controls */}
             <div
-              className="absolute -top-2 left-0 right-0 flex justify-between items-center px-2 z-10 cursor-move select-none"
-              onMouseDown={handleDragMouseDown}
+              className="absolute -top-2 left-0 right-0 flex justify-between items-center px-2 z-10 select-none"
+              onMouseDown={mode === 'floating' ? handleDragMouseDown : undefined}
+              onDoubleClick={toggleMaximize}
+              title={mode === 'floating' ? 'Drag to move • Double-click to maximize/restore' : 'Double-click to maximize/restore'}
             >
               {/* Keyboard Hint */}
               <div className="text-xs text-white/80 bg-gray-800/90 px-2 py-1 rounded backdrop-blur-sm">
@@ -321,20 +402,42 @@ const DebugPanelOverlay: React.FC = () => {
               </div>
 
               {/* Close Button */}
-              <button
-                onClick={closePanel}
-                className="bg-red-600 text-white w-7 h-7 rounded-full hover:bg-red-700 transition-colors flex items-center justify-center shadow-lg"
-                title="Close (ESC)"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
+              <div className="flex items-center gap-2">
+                {/* Mode selector */}
+                <select
+                  value={mode}
+                  onChange={(e) => setMode(e.target.value as PanelMode)}
+                  className="text-xs bg-gray-800/90 text-white rounded px-2 py-1 border border-white/10"
+                  title="Panel mode"
+                >
+                  <option value="floating">Floating</option>
+                  <option value="rightDock">Right Dock</option>
+                  <option value="bottomSheet">Bottom Sheet</option>
+                </select>
+                <button
+                  onClick={resetPosition}
+                  className="bg-gray-700 text-white w-7 h-7 rounded-full hover:bg-gray-600 transition-colors flex items-center justify-center shadow-lg cursor-pointer"
+                  title="Reset position to bottom-right"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v6h6M20 20v-6h-6M4 20h6v-6M20 4h-6v6" />
+                  </svg>
+                </button>
+                <button
+                  onClick={closePanel}
+                  className="bg-red-600 text-white w-7 h-7 rounded-full hover:bg-red-700 transition-colors flex items-center justify-center shadow-lg"
+                  title="Close (ESC)"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
             </div>
 
             {/* Debug Panel */}
