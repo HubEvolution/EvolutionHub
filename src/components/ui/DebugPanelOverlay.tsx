@@ -110,7 +110,8 @@ const DebugPanelOverlay: React.FC = () => {
     if (!isResizing) return;
 
     const handleMouseMove = (e: MouseEvent) => {
-      const newWidth = window.innerWidth - e.clientX;
+      // Use current right offset to compute width correctly after dragging
+      const newWidth = window.innerWidth - e.clientX - right;
       const clampedWidth = Math.max(MIN_WIDTH, Math.min(MAX_WIDTH, newWidth));
       setWidth(clampedWidth);
       try {
@@ -131,14 +132,15 @@ const DebugPanelOverlay: React.FC = () => {
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [isResizing]);
+  }, [isResizing, right]);
 
   useEffect(() => {
     if (!isResizingVertical) return;
 
     const handleMouseMove = (e: MouseEvent) => {
       // Calculate height change (inverted: drag UP = taller, drag DOWN = shorter)
-      const newHeight = window.innerHeight - e.clientY - 16; // 16px = bottom-4
+      // Use current bottom offset to compute height correctly after dragging
+      const newHeight = window.innerHeight - e.clientY - bottom;
       const maxHeight = (window.innerHeight * MAX_HEIGHT_VH) / 100;
       const clampedHeight = Math.max(MIN_HEIGHT, Math.min(maxHeight, newHeight));
       setHeight(clampedHeight);
@@ -160,7 +162,30 @@ const DebugPanelOverlay: React.FC = () => {
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [isResizingVertical]);
+  }, [isResizingVertical, bottom]);
+
+  // Clamp position and size when viewport changes (e.g., address bar/DevTools resize)
+  useEffect(() => {
+    const clamp = () => {
+      const maxHeight = (window.innerHeight * MAX_HEIGHT_VH) / 100;
+      const nextHeight = Math.min(height, maxHeight);
+      if (nextHeight !== height) setHeight(nextHeight);
+
+      const maxRight = Math.max(8, window.innerWidth - width - 8);
+      const maxBottom = Math.max(8, window.innerHeight - height - 8);
+
+      const nextRight = Math.min(right, maxRight);
+      const nextBottom = Math.min(bottom, maxBottom);
+      if (nextRight !== right) setRight(nextRight);
+      if (nextBottom !== bottom) setBottom(nextBottom);
+    };
+    window.addEventListener('resize', clamp);
+    window.addEventListener('orientationchange', clamp);
+    return () => {
+      window.removeEventListener('resize', clamp);
+      window.removeEventListener('orientationchange', clamp);
+    };
+  }, [width, height, right, bottom]);
 
   useEffect(() => {
     if (!isDragging) return;
