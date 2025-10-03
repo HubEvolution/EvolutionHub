@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useRef } from 'react';
+import React, { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 
 interface LogEntry {
   timestamp: string;
@@ -22,6 +22,14 @@ const DebugPanel: React.FC = () => {
   });
   const [status, setStatus] = useState<'connecting' | 'connected' | 'error'>('connecting');
   const [autoScroll, setAutoScroll] = useState(true);
+  const [groupRepeats, setGroupRepeats] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    try {
+      return localStorage.getItem('debugPanel.groupRepeats') === 'true';
+    } catch {
+      return false;
+    }
+  });
   const [levelFilter, setLevelFilter] = useState<string[]>([
     'error',
     'warn',
@@ -84,6 +92,15 @@ const DebugPanel: React.FC = () => {
     return () => eventSource.close();
   }, []);
 
+  // Persist groupRepeats
+  useEffect(() => {
+    try {
+      localStorage.setItem('debugPanel.groupRepeats', String(groupRepeats));
+    } catch {
+      /* noop */
+    }
+  }, [groupRepeats]);
+
   const addLog = useCallback((log: LogEntry) => {
     setLogs((prev) => {
       const newLogs = [...prev, log].slice(-MAX_STORED_LOGS);
@@ -136,6 +153,28 @@ const DebugPanel: React.FC = () => {
 
   const filteredLogs = logs.filter((log) => levelFilter.includes(log.level.toLowerCase()));
 
+  type DisplayLog = LogEntry & { count?: number };
+
+  const displayLogs: DisplayLog[] = useMemo(() => {
+    // Render order is newest-first; group on that order
+    const inRenderOrder = filteredLogs.slice().reverse();
+    if (!groupRepeats) return inRenderOrder;
+    const grouped: DisplayLog[] = [];
+    for (const log of inRenderOrder) {
+      const prev = grouped[grouped.length - 1];
+      const key = `${log.level.toLowerCase()}|${log.message}`;
+      const prevKey = prev ? `${prev.level.toLowerCase()}|${prev.message}` : null;
+      if (prev && prevKey === key) {
+        prev.count = (prev.count ?? 1) + 1;
+        // Optionally update timestamp to latest occurrence
+        prev.timestamp = log.timestamp;
+      } else {
+        grouped.push({ ...log, count: 1 });
+      }
+    }
+    return grouped;
+  }, [filteredLogs, groupRepeats]);
+
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg flex flex-col h-full overflow-hidden">
       {/* Header */}
@@ -161,6 +200,15 @@ const DebugPanel: React.FC = () => {
                 className="rounded"
               />
               Auto-scroll
+            </label>
+            <label className="flex items-center gap-1 text-xs text-gray-700 dark:text-gray-300 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={groupRepeats}
+                onChange={(e) => setGroupRepeats(e.target.checked)}
+                className="rounded"
+              />
+              Group repeats
             </label>
             <span
               className={`px-2 py-1 rounded text-xs font-semibold ${
@@ -198,32 +246,34 @@ const DebugPanel: React.FC = () => {
 
       {/* Logs - mit explizitem overflow-y-auto und min-h-0 */}
       <div className="flex-1 overflow-y-auto p-4 space-y-2 bg-gray-50 dark:bg-gray-900 min-h-0">
-        {filteredLogs.length === 0 ? (
+        {displayLogs.length === 0 ? (
           <p className="text-gray-500 dark:text-gray-400 text-sm">
             {logs.length === 0 ? 'Waiting for logs...' : 'No logs match current filter'}
           </p>
         ) : (
-          filteredLogs
-            .slice()
-            .reverse()
-            .map((log, idx) => (
-              <div
-                key={idx}
-                className="flex items-start text-sm border-b border-gray-200 dark:border-gray-700 pb-2 last:border-0"
+          displayLogs.map((log, idx) => (
+            <div
+              key={idx}
+              className="flex items-start text-sm border-b border-gray-200 dark:border-gray-700 pb-2 last:border-0"
+            >
+              <span className="flex-shrink-0 w-24 text-xs text-gray-500 dark:text-gray-400 mr-3 font-mono">
+                {log.timestamp.split('T')[1]?.split('.')[0] || log.timestamp}
+              </span>
+              <span
+                className={`px-2 py-0.5 rounded text-xs font-semibold mr-2 flex-shrink-0 ${getLevelColor(log.level)}`}
               >
-                <span className="flex-shrink-0 w-24 text-xs text-gray-500 dark:text-gray-400 mr-3 font-mono">
-                  {log.timestamp.split('T')[1]?.split('.')[0] || log.timestamp}
-                </span>
-                <span
-                  className={`px-2 py-0.5 rounded text-xs font-semibold mr-2 flex-shrink-0 ${getLevelColor(log.level)}`}
-                >
-                  {log.level.toUpperCase()}
-                </span>
-                <div className="flex-1 whitespace-pre-wrap break-words text-gray-900 dark:text-gray-100 font-mono text-xs leading-relaxed">
-                  {log.message}
-                </div>
+                {log.level.toUpperCase()}
+              </span>
+              <div className="flex-1 whitespace-pre-wrap break-words text-gray-900 dark:text-gray-100 font-mono text-xs leading-relaxed">
+                {log.message}
               </div>
-            ))
+              {log.count && log.count > 1 && (
+                <span className="ml-2 px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 text-[10px] font-semibold">
+                  × {log.count}
+                </span>
+              )}
+            </div>
+          ))
         )}
         {/* Auto-scroll anchor */}
         <div ref={logsEndRef} />
