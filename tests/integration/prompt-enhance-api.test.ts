@@ -1,11 +1,26 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import {
+  describe,
+  it,
+  expect,
+  vi as _vi,
+  beforeEach as _beforeEach,
+  afterEach as _afterEach,
+} from 'vitest';
 import { TEST_URL, csrfHeaders } from '../shared/http';
 
 // Assume cookie helpers if needed
+interface ApiSuccess<T = unknown> {
+  success: true;
+  data: T;
+}
+interface ApiError {
+  success: false;
+  error: { type: string; message?: string; details?: unknown };
+}
 const apiUrl = `${TEST_URL}/api/prompt-enhance`;
 
 describe('prompt-enhance API Integration Tests', () => {
-  const createRequest = (body: any, options: RequestInit = {}) => {
+  const createRequest = (body: unknown, options: RequestInit = {}) => {
     const headers = new Headers({
       'Content-Type': 'application/json',
       Origin: TEST_URL,
@@ -31,7 +46,7 @@ describe('prompt-enhance API Integration Tests', () => {
 
     const response = await fetch(request);
     expect(response.status).toBe(200);
-    const json: any = await response.json();
+    const json = (await response.json()) as ApiSuccess<{ enhancedPrompt: string }>;
     expect(json.success).toBe(true);
     expect(typeof json.data.enhancedPrompt).toBe('string');
   });
@@ -47,7 +62,7 @@ describe('prompt-enhance API Integration Tests', () => {
 
     const response = await fetch(request);
     expect(response.status).toBe(200);
-    const json: any = await response.json();
+    const json = (await response.json()) as ApiSuccess<unknown>;
     expect(json.success).toBe(true);
   });
 
@@ -77,7 +92,7 @@ describe('prompt-enhance API Integration Tests', () => {
 
     const response = await fetch(request);
     expect([400, 403]).toContain(response.status);
-    const json: any = await response.json();
+    const json = (await response.json()) as ApiError;
     expect(json.success).toBe(false);
     expect(typeof json.error.type).toBe('string');
   });
@@ -108,7 +123,7 @@ describe('prompt-enhance API Integration Tests', () => {
 
     const response = await fetch(request);
     expect(response.status).toBe(400);
-    const json: any = await response.json();
+    const json = (await response.json()) as ApiError;
     expect(json.success).toBe(false);
     expect(json.error.type).toBe('VALIDATION_ERROR');
     expect(json.error.message).toContain('text');
@@ -125,7 +140,7 @@ describe('prompt-enhance API Integration Tests', () => {
 
     const response = await fetch(request);
     expect(response.status).toBe(400);
-    const json: any = await response.json();
+    const json = (await response.json()) as ApiError;
     expect(json.success).toBe(false);
     expect(json.error.type).toBe('VALIDATION_ERROR');
   });
@@ -140,12 +155,9 @@ describe('prompt-enhance API Integration Tests', () => {
       }
     );
 
-    // Assume service handles it, or errors
-    enhanceMock.mockResolvedValue({ success: true, data: { enhancedPrompt: 'enhanced long' } });
-
     const response = await fetch(request);
     expect(response.status).toBe(200);
-    const json: any = await response.json();
+    const json = (await response.json()) as ApiSuccess<unknown>;
     expect(json.success).toBe(true);
   });
 
@@ -154,7 +166,7 @@ describe('prompt-enhance API Integration Tests', () => {
 
     const response = await fetch(request);
     expect([405, 404]).toContain(response.status);
-    const json: any = await response.json();
+    const json = (await response.json()) as ApiError;
     expect(json.success).toBe(false);
     expect(typeof json.error.type).toBe('string');
   });
@@ -169,7 +181,7 @@ describe('prompt-enhance API Integration Tests', () => {
 
     const response = await fetch(invalidBody);
     expect(response.status).toBe(400);
-    const json: any = await response.json();
+    const json = (await response.json()) as ApiError;
     expect(json.success).toBe(false);
     expect(json.error.type).toBe('PARSE_ERROR');
   });

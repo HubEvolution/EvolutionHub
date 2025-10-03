@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { loadEnv } from 'vite';
 import { execa } from 'execa';
+import type { ExecaChildProcess } from 'execa';
 import { fileURLToPath } from 'url';
 import { join, dirname } from 'path';
 import { TEST_URL } from '../shared/http';
@@ -62,7 +63,11 @@ function parseCookies(cookieHeader: string): Record<string, string> {
 }
 
 // Hilfsfunktion zum Senden von JSON-Daten
-async function sendJson(path: string, data: any, method: string = 'POST'): Promise<FetchResponse> {
+async function sendJson(
+  path: string,
+  data: unknown,
+  method: string = 'POST'
+): Promise<FetchResponse> {
   const response = await fetch(`${TEST_URL}${path}`, {
     method,
     headers: {
@@ -86,7 +91,7 @@ async function sendJson(path: string, data: any, method: string = 'POST'): Promi
 }
 
 describe('Billing-API-Integration', () => {
-  let serverProcess: any;
+  let serverProcess: ExecaChildProcess | undefined;
 
   // Starte den Entwicklungsserver vor den Tests (falls nicht durch Global-Setup vorgegeben)
   beforeAll(async () => {
@@ -126,7 +131,7 @@ describe('Billing-API-Integration', () => {
 
   // Stoppe den Server nach den Tests
   afterAll(async () => {
-    if (serverProcess) {
+    if (serverProcess && typeof serverProcess.pid === 'number') {
       try {
         process.kill(-serverProcess.pid, 'SIGTERM');
       } catch (error) {

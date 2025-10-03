@@ -5,6 +5,15 @@ import { csrfHeaders, TEST_URL } from '../shared/http';
 
 const FIX = (name: string) => join(process.cwd(), 'tests', 'fixtures', name);
 
+interface ApiSuccess<T = unknown> {
+  success: true;
+  data: T;
+}
+interface ApiError {
+  success: false;
+  error: { type: string; message?: string; details?: unknown };
+}
+
 describe('POST /api/prompt-enhance (multipart)', () => {
   it('accepts image/png + text and returns success', async () => {
     const form = new FormData();
@@ -16,12 +25,16 @@ describe('POST /api/prompt-enhance (multipart)', () => {
 
     const res = await fetch(`${TEST_URL}/api/prompt-enhance`, {
       method: 'POST',
-      body: form as any,
-      headers: new Headers({ ...csrfHeaders(Math.random().toString(16).slice(2)), Origin: TEST_URL, Referer: `${TEST_URL}/tools/prompt-enhancer/app` }),
+      body: form,
+      headers: new Headers({
+        ...csrfHeaders(Math.random().toString(16).slice(2)),
+        Origin: TEST_URL,
+        Referer: `${TEST_URL}/tools/prompt-enhancer/app`,
+      }),
     });
 
     expect(res.status).toBe(200);
-    const json: any = await res.json();
+    const json = (await res.json()) as ApiSuccess<{ enhancedPrompt: string }>;
     expect(json.success).toBe(true);
     expect(json.data?.enhancedPrompt).toBeTypeOf('string');
   });
@@ -36,12 +49,16 @@ describe('POST /api/prompt-enhance (multipart)', () => {
     const token = Math.random().toString(16).slice(2);
     const res = await fetch(`${TEST_URL}/api/prompt-enhance`, {
       method: 'POST',
-      body: form as any,
-      headers: new Headers({ ...csrfHeaders(token), Origin: TEST_URL, Referer: `${TEST_URL}/tools/prompt-enhancer/app` }),
+      body: form,
+      headers: new Headers({
+        ...csrfHeaders(token),
+        Origin: TEST_URL,
+        Referer: `${TEST_URL}/tools/prompt-enhancer/app`,
+      }),
     });
 
     expect(res.status).toBe(200);
-    const json: any = await res.json();
+    const json = (await res.json()) as ApiSuccess<unknown>;
     expect(json.success).toBe(true);
   });
 
@@ -55,12 +72,16 @@ describe('POST /api/prompt-enhance (multipart)', () => {
     const token2 = Math.random().toString(16).slice(2);
     const res = await fetch(`${TEST_URL}/api/prompt-enhance`, {
       method: 'POST',
-      body: form as any,
-      headers: new Headers({ ...csrfHeaders(token2), Origin: TEST_URL, Referer: `${TEST_URL}/tools/prompt-enhancer/app` }),
+      body: form,
+      headers: new Headers({
+        ...csrfHeaders(token2),
+        Origin: TEST_URL,
+        Referer: `${TEST_URL}/tools/prompt-enhancer/app`,
+      }),
     });
 
     expect(res.status).toBeGreaterThanOrEqual(400);
-    const json: any = await res.json();
+    const json = (await res.json()) as ApiError;
     expect(json.success).toBe(false);
     expect(String(json.error?.type || '')).toMatch(/validation/i);
   });
@@ -72,11 +93,22 @@ describe('POST /api/prompt-enhance (multipart)', () => {
     form.set('text', 'Use PDF content.');
     form.set('mode', 'professional');
     const pdfBuf = readFileSync(FIX('tiny.pdf'));
-    form.append('files[]', new File([new Uint8Array(pdfBuf)], 'tiny.pdf', { type: 'application/pdf' }));
+    form.append(
+      'files[]',
+      new File([new Uint8Array(pdfBuf)], 'tiny.pdf', { type: 'application/pdf' })
+    );
     const token3 = Math.random().toString(16).slice(2);
-    const res = await fetch(`${TEST_URL}/api/prompt-enhance`, { method: 'POST', body: form as any, headers: new Headers({ ...csrfHeaders(token3), Origin: TEST_URL, Referer: `${TEST_URL}/tools/prompt-enhancer/app` }) });
+    const res = await fetch(`${TEST_URL}/api/prompt-enhance`, {
+      method: 'POST',
+      body: form,
+      headers: new Headers({
+        ...csrfHeaders(token3),
+        Origin: TEST_URL,
+        Referer: `${TEST_URL}/tools/prompt-enhancer/app`,
+      }),
+    });
     expect(res.status).toBe(200);
-    const json: any = await res.json();
+    const json = (await res.json()) as ApiSuccess<unknown>;
     expect(json.success).toBe(true);
   });
 });

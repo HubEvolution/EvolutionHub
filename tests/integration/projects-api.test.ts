@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { loadEnv } from 'vite';
 import { execa } from 'execa';
+import type { ExecaChildProcess } from 'execa';
 import { fileURLToPath } from 'url';
 import { join, dirname } from 'path';
 import { TEST_URL } from '../shared/http';
@@ -26,6 +27,15 @@ interface FetchResponse {
   redirectUrl: string | null;
   cookies: Record<string, string>;
 }
+
+type ProjectItem = {
+  id: string;
+  name: string;
+  description?: string;
+  status?: string;
+  createdAt?: string;
+  updatedAt?: string;
+};
 
 // Hilfsfunktion zum Abrufen einer Seite
 async function fetchPage(path: string): Promise<FetchResponse> {
@@ -62,7 +72,11 @@ function parseCookies(cookieHeader: string): Record<string, string> {
 }
 
 // Hilfsfunktion zum Senden von JSON-Daten
-async function sendJson(path: string, data: any, method: string = 'POST'): Promise<FetchResponse> {
+async function sendJson(
+  path: string,
+  data: unknown,
+  method: string = 'POST'
+): Promise<FetchResponse> {
   const response = await fetch(`${TEST_URL}${path}`, {
     method,
     headers: {
@@ -86,7 +100,7 @@ async function sendJson(path: string, data: any, method: string = 'POST'): Promi
 }
 
 describe('Projects-API-Integration', () => {
-  let serverProcess: any;
+  let serverProcess: ExecaChildProcess | undefined;
 
   // Starte den Entwicklungsserver vor den Tests (falls nicht durch Global-Setup vorgegeben)
   beforeAll(async () => {
@@ -126,7 +140,7 @@ describe('Projects-API-Integration', () => {
 
   // Stoppe den Server nach den Tests
   afterAll(async () => {
-    if (serverProcess) {
+    if (serverProcess && typeof serverProcess.pid === 'number') {
       try {
         process.kill(-serverProcess.pid, 'SIGTERM');
       } catch (error) {
@@ -292,12 +306,12 @@ describe('Projects-API-Integration', () => {
       const response = await fetchPage('/api/projects?status=active');
 
       expect(response.status).toBe(200);
-      const json = JSON.parse(response.text);
+      const json = JSON.parse(response.text) as { success: true; data: ProjectItem[] };
       expect(json.success).toBe(true);
       expect(Array.isArray(json.data)).toBe(true);
 
       // Alle zurückgegebenen Projekte sollten den Status 'active' haben
-      json.data.forEach((project: any) => {
+      json.data.forEach((project) => {
         expect(project.status).toBe('active');
       });
     });
@@ -306,13 +320,13 @@ describe('Projects-API-Integration', () => {
       const response = await fetchPage('/api/projects?search=Alpha');
 
       expect(response.status).toBe(200);
-      const json = JSON.parse(response.text);
+      const json = JSON.parse(response.text) as { success: true; data: ProjectItem[] };
       expect(json.success).toBe(true);
       expect(Array.isArray(json.data)).toBe(true);
 
       // Mindestens ein Projekt sollte den Suchbegriff enthalten
       const hasMatchingProject = json.data.some(
-        (project: any) => project.name.includes('Alpha') || project.description.includes('Alpha')
+        (project) => project.name.includes('Alpha') || (project.description || '').includes('Alpha')
       );
       expect(hasMatchingProject).toBe(true);
     });
@@ -428,14 +442,15 @@ describe('Projects-API-Integration', () => {
       // Hole die Projektliste
       const listResponse = await fetchPage('/api/projects');
       expect(listResponse.status).toBe(200);
-      const projects = JSON.parse(listResponse.text).data;
+      const projects = JSON.parse(listResponse.text).data as ProjectItem[];
 
       // Das erstellte Projekt sollte in der Liste enthalten sein
-      const foundProject = projects.find((p: any) => p.id === createdProject.id);
+      const foundProject = projects.find((p) => p.id === createdProject.id);
       expect(foundProject).toBeDefined();
-      expect(foundProject.name).toBe(createdProject.name);
-      expect(foundProject.description).toBe(createdProject.description);
-      expect(foundProject.status).toBe(createdProject.status);
+      const fp = foundProject as ProjectItem;
+      expect(fp.name).toBe(createdProject.name);
+      expect(fp.description).toBe(createdProject.description);
+      expect(fp.status).toBe(createdProject.status);
 
       // Aufräumen
       await sendJson(`/api/projects/${createdProject.id}`, {}, 'DELETE');

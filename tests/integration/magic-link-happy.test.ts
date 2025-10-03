@@ -17,7 +17,8 @@ async function fetchManual(path: string, init: RequestInit = {}) {
   const clone = response.clone();
   return {
     status: response.status,
-    redirected: response.type === 'opaqueredirect' || (response.status >= 300 && response.status < 400),
+    redirected:
+      response.type === 'opaqueredirect' || (response.status >= 300 && response.status < 400),
     location: response.headers.get('location') || null,
     contentType: response.headers.get('content-type') || '',
     setCookie: response.headers.get('set-cookie') || '',
@@ -29,7 +30,7 @@ function extractCookieHeader(setCookieHeader: string): string {
   if (!setCookieHeader) return '';
   // naive parse: split by comma but respect that commas may appear very rarely; our case has 2 simple cookies
   const parts = setCookieHeader.split(/,(?=[^;]+?=)/g);
-  const pairs = parts.map(p => p.trim().split(';')[0]).filter(Boolean);
+  const pairs = parts.map((p) => p.trim().split(';')[0]).filter(Boolean);
   return pairs.join('; ');
 }
 
@@ -43,22 +44,27 @@ describe('Magic Link Happy Path (dev bypass)', () => {
   // The real Magic Link flow is covered by E2E tests (Playwright) or manual smoke tests.
   const itOrSkip = IS_EXTERNAL ? it.skip : it;
 
-  itOrSkip('GET /api/auth/callback?token=dev-ok&email=...&r=/dashboard -> 302 to /dashboard and session works', async () => {
-    const email = `dev.user+${Date.now()}@example.com`;
-    const res = await fetchManual(`/api/auth/callback?token=dev-ok&email=${encodeURIComponent(email)}&r=${encodeURIComponent('/dashboard')}`);
-    expect(res.status).toBeGreaterThanOrEqual(300);
-    expect(res.status).toBeLessThan(400);
-    expect(res.location).toBe('/dashboard');
-    const cookieHeader = extractCookieHeader(res.setCookie);
-    expect(cookieHeader).toMatch(/(session_id|__Host-session)=/);
+  itOrSkip(
+    'GET /api/auth/callback?token=dev-ok&email=...&r=/dashboard -> 302 to /dashboard and session works',
+    async () => {
+      const email = `dev.user+${Date.now()}@example.com`;
+      const res = await fetchManual(
+        `/api/auth/callback?token=dev-ok&email=${encodeURIComponent(email)}&r=${encodeURIComponent('/dashboard')}`
+      );
+      expect(res.status).toBeGreaterThanOrEqual(300);
+      expect(res.status).toBeLessThan(400);
+      expect(res.location).toBe('/dashboard');
+      const cookieHeader = extractCookieHeader(res.setCookie);
+      expect(cookieHeader).toMatch(/(session_id|__Host-session)=/);
 
-    // follow to dashboard with cookies
-    const dash = await fetchManual('/dashboard', {
-      headers: {
-        cookie: cookieHeader,
-      },
-    });
-    // We expect 200 OK HTML (or 302 to onboarding inside dashboard, also acceptable)
-    expect([200, 302]).toContain(dash.status);
-  });
+      // follow to dashboard with cookies
+      const dash = await fetchManual('/dashboard', {
+        headers: {
+          cookie: cookieHeader,
+        },
+      });
+      // We expect 200 OK HTML (or 302 to onboarding inside dashboard, also acceptable)
+      expect([200, 302]).toContain(dash.status);
+    }
+  );
 });

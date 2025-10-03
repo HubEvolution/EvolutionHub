@@ -21,14 +21,18 @@ async function probeForUrl(candidate: string): Promise<boolean> {
       redirect: 'manual',
     });
     if (res.status === 405 && res.headers.get('allow') === 'POST') return true;
-  } catch (e) { /* no-op */ void 0; }
+  } catch (_e) {
+    /* no-op */ void 0;
+  }
   // Fallback API probe
   try {
     const res = await fetch(`${candidate}/api/auth/verify-email?token=abc`, {
       redirect: 'manual',
     });
     if (res.status === 302) return true;
-  } catch (e) { /* no-op */ void 0; }
+  } catch (_e) {
+    /* no-op */ void 0;
+  }
   return false;
 }
 
@@ -61,7 +65,9 @@ export default async function () {
   // 2) Always (re)build worker to ensure latest route changes are included
   await new Promise<void>((resolve, reject) => {
     const p = spawn('npm', ['run', 'build:worker'], { cwd: rootDir, stdio: 'inherit' });
-    p.on('exit', (code) => (code === 0 ? resolve() : reject(new Error(`build:worker exited ${code}`))));
+    p.on('exit', (code) =>
+      code === 0 ? resolve() : reject(new Error(`build:worker exited ${code}`))
+    );
   });
 
   // 3) Start wrangler dev after rebuilding (serve freshly built worker)
@@ -75,7 +81,6 @@ export default async function () {
   const detectUrl = (chunk: Buffer | string) => {
     const s = chunk.toString();
     logs += s;
-    // eslint-disable-next-line no-console
     console.log('[dev]', s.trim());
     // Prefer canonical host 'localhost'. If both schemes appear, prefer HTTPS.
     // Otherwise, choose whatever is available (including default http://localhost:8787).
@@ -129,17 +134,17 @@ export default async function () {
       if (await probeForUrl(alt)) {
         TEST_URL = alt;
       }
-    } catch { /* no-op */ void 0; }
+    } catch {
+      /* no-op */ void 0;
+    }
   }
 
   if (!TEST_URL || !(await probeForUrl(TEST_URL))) {
-    // eslint-disable-next-line no-console
     console.error('Dev server readiness failed. TEST_URL currently =', TEST_URL);
     throw new Error('Dev server did not start in time');
   }
 
   process.env.TEST_BASE_URL = TEST_URL;
-  // eslint-disable-next-line no-console
   console.log('[setup] TEST_BASE_URL =', TEST_URL);
 
   // Provide global teardown
@@ -147,7 +152,9 @@ export default async function () {
     if (serverProcess) {
       try {
         serverProcess.kill('SIGTERM');
-      } catch { /* no-op */ void 0; }
+      } catch {
+        /* no-op */ void 0;
+      }
     }
   };
 }

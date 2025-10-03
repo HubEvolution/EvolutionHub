@@ -38,7 +38,7 @@ describe('CSP Report API', () => {
         'effective-directive': 'script-src',
         'blocked-uri': 'inline',
         'document-uri': `${TEST_URL}/`,
-        'disposition': 'enforce',
+        disposition: 'enforce',
       },
     };
     const res = await fetchManual('/api/csp-report', {

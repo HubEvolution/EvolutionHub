@@ -4,14 +4,18 @@ import { commentService } from '../../src/lib/services/comment-service';
 import type { CreateCommentRequest, UpdateCommentRequest } from '../../src/lib/types/comments';
 
 // Test database setup
-const TEST_DB_PATH = ':memory:';
+interface DBLike {
+  run: (sql: string) => Promise<unknown>;
+  prepare: (sql: string) => { first: () => Promise<unknown> };
+  close: () => Promise<void>;
+}
+
+let db!: DBLike;
 
 describe('Comment API Integration Tests', () => {
-  let db: any;
-
   beforeAll(async () => {
     // Initialize test database
-    db = getDb({} as any);
+    db = getDb({} as unknown as Parameters<typeof getDb>[0]) as unknown as DBLike;
   });
 
   afterAll(async () => {
@@ -113,7 +117,7 @@ describe('Comment API Integration Tests', () => {
 
       // At least one should fail due to rate limiting
       const results = await Promise.allSettled(promises);
-      const rejected = results.filter(r => r.status === 'rejected');
+      const rejected = results.filter((r) => r.status === 'rejected');
 
       expect(rejected.length).toBeGreaterThan(0);
     });
@@ -148,7 +152,7 @@ describe('Comment API Integration Tests', () => {
       });
 
       expect(result).toBeDefined();
-      expect(result.comments.every(c => c.status === 'approved')).toBe(true);
+      expect(result.comments.every((c: { status: string }) => c.status === 'approved')).toBe(true);
     });
 
     it('should paginate results correctly', async () => {
@@ -189,11 +193,14 @@ describe('Comment API Integration Tests', () => {
 
     beforeEach(async () => {
       // Create a test comment
-      const comment = await commentService.createComment({
-        content: 'Test comment for individual retrieval',
-        entityType: 'blog_post',
-        entityId: 'test-post-123',
-      }, 1);
+      const comment = await commentService.createComment(
+        {
+          content: 'Test comment for individual retrieval',
+          entityType: 'blog_post',
+          entityId: 'test-post-123',
+        },
+        1
+      );
       testCommentId = comment.id;
     });
 
@@ -217,11 +224,14 @@ describe('Comment API Integration Tests', () => {
 
     beforeEach(async () => {
       // Create a test comment
-      const comment = await commentService.createComment({
-        content: 'Original comment content',
-        entityType: 'blog_post',
-        entityId: 'test-post-123',
-      }, 1);
+      const comment = await commentService.createComment(
+        {
+          content: 'Original comment content',
+          entityType: 'blog_post',
+          entityId: 'test-post-123',
+        },
+        1
+      );
       testCommentId = comment.id;
     });
 
@@ -268,11 +278,14 @@ describe('Comment API Integration Tests', () => {
 
     beforeEach(async () => {
       // Create a test comment
-      const comment = await commentService.createComment({
-        content: 'Comment to be deleted',
-        entityType: 'blog_post',
-        entityId: 'test-post-123',
-      }, 1);
+      const comment = await commentService.createComment(
+        {
+          content: 'Comment to be deleted',
+          entityType: 'blog_post',
+          entityId: 'test-post-123',
+        },
+        1
+      );
       testCommentId = comment.id;
     });
 
@@ -297,11 +310,14 @@ describe('Comment API Integration Tests', () => {
 
     beforeEach(async () => {
       // Create a test comment
-      const comment = await commentService.createComment({
-        content: 'Comment to be moderated',
-        entityType: 'blog_post',
-        entityId: 'test-post-123',
-      }, 1);
+      const comment = await commentService.createComment(
+        {
+          content: 'Comment to be moderated',
+          entityType: 'blog_post',
+          entityId: 'test-post-123',
+        },
+        1
+      );
       testCommentId = comment.id;
     });
 
@@ -357,11 +373,14 @@ describe('Comment API Integration Tests', () => {
 
     beforeEach(async () => {
       // Create a test comment
-      const comment = await commentService.createComment({
-        content: 'Comment to be reported',
-        entityType: 'blog_post',
-        entityId: 'test-post-123',
-      }, 1);
+      const comment = await commentService.createComment(
+        {
+          content: 'Comment to be reported',
+          entityType: 'blog_post',
+          entityId: 'test-post-123',
+        },
+        1
+      );
       testCommentId = comment.id;
     });
 
@@ -421,11 +440,14 @@ describe('Comment API Integration Tests', () => {
 
     beforeEach(async () => {
       // Create a parent comment
-      const parentComment = await commentService.createComment({
-        content: 'This is a parent comment',
-        entityType: 'blog_post',
-        entityId: 'test-post-123',
-      }, 1);
+      const parentComment = await commentService.createComment(
+        {
+          content: 'This is a parent comment',
+          entityType: 'blog_post',
+          entityId: 'test-post-123',
+        },
+        1
+      );
       parentCommentId = parentComment.id;
     });
 
@@ -448,7 +470,9 @@ describe('Comment API Integration Tests', () => {
         entityId: 'test-post-123',
       });
 
-      const parentWithReplies = comments.comments.find(c => c.id === parentCommentId);
+      const parentWithReplies = comments.comments.find(
+        (c: { id: string; replies?: { id: string }[] }) => c.id === parentCommentId
+      );
       expect(parentWithReplies?.replies).toBeDefined();
       expect(parentWithReplies?.replies?.[0].id).toBe(reply.id);
     });
@@ -490,9 +514,7 @@ describe('Comment API Integration Tests', () => {
         entityId: 'test-post-123',
       };
 
-      await expect(commentService.createComment(request)).rejects.toThrow(
-        'Invalid entity type'
-      );
+      await expect(commentService.createComment(request)).rejects.toThrow('Invalid entity type');
     });
 
     it('should validate entity ID format', async () => {
@@ -502,9 +524,7 @@ describe('Comment API Integration Tests', () => {
         entityId: '',
       };
 
-      await expect(commentService.createComment(request)).rejects.toThrow(
-        'Entity ID is required'
-      );
+      await expect(commentService.createComment(request)).rejects.toThrow('Entity ID is required');
     });
   });
 });
@@ -589,17 +609,22 @@ async function createTestCommentsWithStatuses() {
 
   for (const { status, count } of testComments) {
     for (let i = 0; i < count; i++) {
-      await commentService.createComment({
-        content: `${status} comment ${i + 1}`,
-        entityType: 'blog_post',
-        entityId: 'test-post-123',
-      }, 1);
+      await commentService.createComment(
+        {
+          content: `${status} comment ${i + 1}`,
+          entityType: 'blog_post',
+          entityId: 'test-post-123',
+        },
+        1
+      );
 
       // Update status for testing
       if (status !== 'pending') {
+        const actionMap = { approved: 'approve', rejected: 'reject', flagged: 'flag' } as const;
+        const action = actionMap[status as keyof typeof actionMap];
         await commentService.moderateComment(
           `test-id-${status}-${i}`,
-          { action: status as any, reason: 'Test moderation' },
+          { action, reason: 'Test moderation' },
           1
         );
       }

@@ -1,6 +1,16 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import {
+  describe,
+  it,
+  expect,
+  beforeAll,
+  afterAll,
+  vi as _vi,
+  beforeEach as _beforeEach,
+  afterEach as _afterEach,
+} from 'vitest';
 import { loadEnv } from 'vite';
 import { execa } from 'execa';
+import type { ExecaChildProcess } from 'execa';
 import { fileURLToPath } from 'url';
 import { join, dirname } from 'path';
 
@@ -30,7 +40,7 @@ interface FetchResponse {
 // Hilfsfunktion zum Abrufen einer Seite
 async function fetchPage(path: string): Promise<FetchResponse> {
   const response = await fetch(`${TEST_URL}${path}`, {
-    redirect: 'manual' // Wichtig für Tests: Redirects nicht automatisch folgen
+    redirect: 'manual', // Wichtig für Tests: Redirects nicht automatisch folgen
   });
 
   return {
@@ -41,7 +51,7 @@ async function fetchPage(path: string): Promise<FetchResponse> {
     headers: response.headers,
     redirected: response.type === 'opaqueredirect' || response.status === 302,
     redirectUrl: response.headers.get('location'),
-    cookies: parseCookies(response.headers.get('set-cookie') || '')
+    cookies: parseCookies(response.headers.get('set-cookie') || ''),
   };
 }
 
@@ -75,10 +85,10 @@ async function submitForm(path: string, formData: Record<string, string>): Promi
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
       // Satisfy CSRF protection which validates Origin header
-      'Origin': TEST_URL
+      Origin: TEST_URL,
     },
     body: body.toString(),
-    redirect: 'manual'
+    redirect: 'manual',
   });
 
   return {
@@ -89,12 +99,12 @@ async function submitForm(path: string, formData: Record<string, string>): Promi
     headers: response.headers,
     redirected: response.type === 'opaqueredirect' || response.status === 302,
     redirectUrl: response.headers.get('location'),
-    cookies: parseCookies(response.headers.get('set-cookie') || '')
+    cookies: parseCookies(response.headers.get('set-cookie') || ''),
   };
 }
 
 describe('Lead-Magnet-API-Integration', () => {
-  let serverProcess: any;
+  let serverProcess: ExecaChildProcess | undefined;
 
   // Starte den Entwicklungsserver vor den Tests (falls nicht durch Global-Setup vorgegeben)
   beforeAll(async () => {
@@ -118,12 +128,11 @@ describe('Lead-Magnet-API-Integration', () => {
         const response = await fetch(TEST_URL);
         if (response.ok || response.status === 302) {
           serverReady = true;
-          // eslint-disable-next-line no-console
           console.log('Testserver erreichbar unter', TEST_URL);
         }
       } catch (_) {
         // Warte 500ms vor dem nächsten Versuch
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise((resolve) => setTimeout(resolve, 500));
       }
     }
 
@@ -134,7 +143,7 @@ describe('Lead-Magnet-API-Integration', () => {
 
   // Stoppe den Server nach den Tests
   afterAll(async () => {
-    if (serverProcess) {
+    if (serverProcess && typeof serverProcess.pid === 'number') {
       try {
         process.kill(-serverProcess.pid, 'SIGTERM');
       } catch (error) {
@@ -148,7 +157,7 @@ describe('Lead-Magnet-API-Integration', () => {
       const formData = {
         email: 'lead-magnet-test@example.com',
         name: 'Lead Magnet Test User',
-        magnetId: 'ki-tools-checkliste-2025'
+        magnetId: 'ki-tools-checkliste-2025',
       };
 
       const response = await submitForm('/api/lead-magnets/download', formData);
@@ -165,18 +174,18 @@ describe('Lead-Magnet-API-Integration', () => {
       const formData = {
         email: 'ratelimit-lead@example.com',
         name: 'Rate Limit Lead Test',
-        magnetId: 'ki-tools-checkliste-2025'
+        magnetId: 'ki-tools-checkliste-2025',
       };
 
       // Mehrere Anfragen senden um Rate-Limit zu triggern
-      const requests = Array(15).fill(null).map(() =>
-        submitForm('/api/lead-magnets/download', formData)
-      );
+      const requests = Array(15)
+        .fill(null)
+        .map(() => submitForm('/api/lead-magnets/download', formData));
 
       const responses = await Promise.all(requests);
 
       // Mindestens eine sollte Rate-Limited sein (429)
-      const rateLimitedResponses = responses.filter(r => r.status === 429);
+      const rateLimitedResponses = responses.filter((r) => r.status === 429);
       expect(rateLimitedResponses.length).toBeGreaterThan(0);
 
       // Rate-Limit Response sollte Retry-After Header haben
@@ -188,7 +197,7 @@ describe('Lead-Magnet-API-Integration', () => {
       const formData = {
         email: 'invalid-email-format',
         name: 'Test User',
-        magnetId: 'ki-tools-checkliste-2025'
+        magnetId: 'ki-tools-checkliste-2025',
       };
 
       const response = await submitForm('/api/lead-magnets/download', formData);
@@ -202,7 +211,7 @@ describe('Lead-Magnet-API-Integration', () => {
     it('sollte Validierungsfehler für fehlende E-Mail zurückgeben', async () => {
       const formData = {
         name: 'Test User',
-        magnetId: 'ki-tools-checkliste-2025'
+        magnetId: 'ki-tools-checkliste-2025',
         // email fehlt
       };
 
@@ -217,7 +226,7 @@ describe('Lead-Magnet-API-Integration', () => {
     it('sollte Validierungsfehler für fehlende magnetId zurückgeben', async () => {
       const formData = {
         email: 'test@example.com',
-        name: 'Test User'
+        name: 'Test User',
         // magnetId fehlt
       };
 
@@ -233,7 +242,7 @@ describe('Lead-Magnet-API-Integration', () => {
       const formData = {
         email: 'test@example.com',
         name: 'Test User',
-        magnetId: 'non-existent-magnet'
+        magnetId: 'non-existent-magnet',
       };
 
       const response = await submitForm('/api/lead-magnets/download', formData);
@@ -257,7 +266,7 @@ describe('Lead-Magnet-API-Integration', () => {
       const formData = {
         email: 'csrf-lead-test@example.com',
         name: 'CSRF Lead Test',
-        magnetId: 'ki-tools-checkliste-2025'
+        magnetId: 'ki-tools-checkliste-2025',
       };
 
       // Ohne CSRF-Token senden
@@ -265,14 +274,14 @@ describe('Lead-Magnet-API-Integration', () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
-          'Origin': TEST_URL
+          Origin: TEST_URL,
         },
         body: new URLSearchParams(formData).toString(),
-        redirect: 'manual'
+        redirect: 'manual',
       });
 
       expect(response.status).toBe(400);
-      const json = JSON.parse(response.text);
+      const json = JSON.parse(await response.text());
       expect(json.success).toBe(false);
       expect(json.error.type).toBe('CSRF_INVALID');
     });
@@ -281,7 +290,7 @@ describe('Lead-Magnet-API-Integration', () => {
       const formData = {
         email: 'headers-lead-test@example.com',
         name: 'Headers Lead Test',
-        magnetId: 'ki-tools-checkliste-2025'
+        magnetId: 'ki-tools-checkliste-2025',
       };
 
       const response = await submitForm('/api/lead-magnets/download', formData);
@@ -296,7 +305,7 @@ describe('Lead-Magnet-API-Integration', () => {
       const formData = {
         email: 'audit-lead-test@example.com',
         name: 'Audit Lead Test',
-        magnetId: 'ki-tools-checkliste-2025'
+        magnetId: 'ki-tools-checkliste-2025',
       };
 
       const response = await submitForm('/api/lead-magnets/download', formData);
@@ -314,14 +323,14 @@ describe('Lead-Magnet-API-Integration', () => {
       const testMagnets = [
         'ki-tools-checkliste-2025',
         'new-work-transformation-guide',
-        'produktivitaets-masterclass'
+        'produktivitaets-masterclass',
       ];
 
       for (const magnetId of testMagnets) {
         const formData = {
           email: `test-${magnetId}@example.com`,
           name: `Test User for ${magnetId}`,
-          magnetId: magnetId
+          magnetId: magnetId,
         };
 
         const response = await submitForm('/api/lead-magnets/download', formData);

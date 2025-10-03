@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { loadEnv } from 'vite';
 import { execa } from 'execa';
+import type { ExecaChildProcess } from 'execa';
 import { fileURLToPath } from 'url';
 import { join, dirname } from 'path';
 import { TEST_URL } from '../shared/http';
@@ -26,6 +27,17 @@ interface FetchResponse {
   redirected: boolean;
   redirectUrl: string | null;
   cookies: Record<string, string>;
+}
+
+// API-Response-Typen für Tests (vermeidet 'any')
+interface ApiSuccess<T = unknown> {
+  success: true;
+  data: T;
+}
+
+interface ApiError {
+  success: false;
+  error: { type: string; message?: string; details?: unknown };
 }
 
 // Hilfsfunktion zum Abrufen einer Seite
@@ -106,7 +118,7 @@ async function createMultipartRequest(
 }
 
 describe('User-Avatar-API-Integration', () => {
-  let serverProcess: any;
+  let serverProcess: ExecaChildProcess | undefined;
   let authCookie: string | null = null;
 
   // Starte den Entwicklungsserver vor den Tests (falls nicht durch Global-Setup vorgegeben)
@@ -154,7 +166,7 @@ describe('User-Avatar-API-Integration', () => {
 
   // Stoppe den Server nach den Tests
   afterAll(async () => {
-    if (serverProcess) {
+    if (serverProcess && typeof serverProcess.pid === 'number') {
       try {
         process.kill(-serverProcess.pid, 'SIGTERM');
       } catch (error) {
@@ -182,7 +194,7 @@ describe('User-Avatar-API-Integration', () => {
 
       expect(response.status).toBe(200);
       expect(response.headers.get('Content-Type')).toContain('application/json');
-      const json: any = await response.json();
+      const json = (await response.json()) as ApiSuccess<{ message: string }>; // data.message asserted below
       expect(json.success).toBe(true);
       expect(json.data.message).toContain('successfully');
     });
@@ -236,7 +248,7 @@ describe('User-Avatar-API-Integration', () => {
       );
 
       expect(response.status).toBe(400);
-      const json: any = await response.json();
+      const json = (await response.json()) as ApiError;
       expect(json.success).toBe(false);
       expect(json.error.type).toBe('VALIDATION_ERROR');
     });
@@ -258,7 +270,7 @@ describe('User-Avatar-API-Integration', () => {
       );
 
       expect(response.status).toBe(400);
-      const json = await response.json();
+      const json = (await response.json()) as ApiError;
       expect(json.success).toBe(false);
       expect(json.error.type).toBe('VALIDATION_ERROR');
     });
@@ -280,7 +292,7 @@ describe('User-Avatar-API-Integration', () => {
       );
 
       expect(response.status).toBe(401);
-      const json: any = await response.json();
+      const json = (await response.json()) as ApiError;
       expect(json.success).toBe(false);
       expect(json.error.type).toBe('UNAUTHORIZED');
     });
@@ -302,7 +314,7 @@ describe('User-Avatar-API-Integration', () => {
       );
 
       expect(response.status).toBe(400);
-      const json: any = await response.json();
+      const json = (await response.json()) as ApiError;
       expect(json.success).toBe(false);
       expect(json.error.type).toBe('CSRF_INVALID');
     });
@@ -311,7 +323,7 @@ describe('User-Avatar-API-Integration', () => {
       const response = await fetchPage('/api/user/avatar');
 
       expect(response.status).toBe(405);
-      const json: any = JSON.parse(response.text);
+      const json = JSON.parse(response.text) as ApiError;
       expect(json.success).toBe(false);
       expect(json.error.type).toBe('METHOD_NOT_ALLOWED');
     });
@@ -355,7 +367,7 @@ describe('User-Avatar-API-Integration', () => {
         );
 
         expect(response.status).toBe(200);
-        const json: any = await response.json();
+        const json = (await response.json()) as ApiSuccess<unknown>;
         expect(json.success).toBe(true);
       }
     });
@@ -377,7 +389,7 @@ describe('User-Avatar-API-Integration', () => {
       );
 
       expect(response.status).toBe(200);
-      const json: any = await response.json();
+      const json = (await response.json()) as ApiSuccess<{ message: string; avatarUrl: string }>;
       expect(json.success).toBe(true);
 
       // Prüfe strukturierte Response
