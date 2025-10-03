@@ -28,6 +28,8 @@ const DebugPanel: React.FC = () => {
   const [paused, setPaused] = useState(false);
   const pausedRef = useRef(false);
   useEffect(() => { pausedRef.current = paused; }, [paused]);
+  const pausedBufferRef = useRef<LogEntry[]>([]);
+  const [suppressedCount, setSuppressedCount] = useState(0);
   const [groupRepeats, setGroupRepeats] = useState<boolean>(() => {
     if (typeof window === 'undefined') return false;
     try {
@@ -79,8 +81,15 @@ const DebugPanel: React.FC = () => {
         const data = JSON.parse(event.data);
         if (data.type === 'keep-alive' || data.type === 'environment-info') return;
         if (data.type === 'log' && data.timestamp && data.level && typeof data.message === 'string') {
+          const entry: LogEntry = { timestamp: data.timestamp, level: String(data.level), message: data.message, source: data.source };
           if (!pausedRef.current) {
-            addLog({ timestamp: data.timestamp, level: String(data.level), message: data.message, source: data.source });
+            addLog(entry);
+          } else {
+            // buffer while paused (cap to 500)
+            const buf = pausedBufferRef.current;
+            buf.push(entry);
+            if (buf.length > 500) buf.shift();
+            setSuppressedCount(buf.length);
           }
           return;
         }
@@ -253,6 +262,45 @@ const DebugPanel: React.FC = () => {
     }
   }, [displayLogs, showAll, windowSize, status, levelFilter, sourceFilters, mutePatterns]);
 
+  const exportNdjson = useCallback(() => {
+    const items = (showAll ? displayLogs : displayLogs.slice(-Math.min(windowSize, displayLogs.length)));
+    try {
+      const nd = items.map((it) => JSON.stringify(it)).join('\n');
+      const blob = new Blob([nd], { type: 'application/x-ndjson' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `debug-logs-${new Date().toISOString().replace(/[:.]/g, '-')}.ndjson`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      console.error('Export NDJSON failed', e);
+    }
+  }, [displayLogs, showAll, windowSize]);
+
+  const copyJson = useCallback(async () => {
+    const items = (showAll ? displayLogs : displayLogs.slice(-Math.min(windowSize, displayLogs.length)));
+    try {
+      await navigator.clipboard.writeText(JSON.stringify(items, null, 2));
+    } catch (e) {
+      console.error('Copy failed', e);
+    }
+  }, [displayLogs, showAll, windowSize]);
+
+  const catchUp = useCallback(() => {
+    const buf = pausedBufferRef.current;
+    if (!buf.length) return;
+    setLogs((prev) => {
+      const merged = [...prev, ...buf].slice(-MAX_STORED_LOGS);
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(merged)); } catch {}
+      return merged;
+    });
+    pausedBufferRef.current = [];
+    setSuppressedCount(0);
+  }, []);
+
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg flex flex-col h-full overflow-hidden">
       {/* Header */}
@@ -277,14 +325,37 @@ const DebugPanel: React.FC = () => {
               aria-pressed={paused}
               title="Pause/resume capturing new logs"
             >
-              {paused ? 'Resume' : 'Pause'}
+              {paused ? `Resume${suppressedCount ? ` (${suppressedCount})` : ''}` : 'Pause'}
             </button>
+            {paused && suppressedCount > 0 && (
+              <button
+                onClick={catchUp}
+                className="px-2 py-1 bg-amber-600 text-white text-xs rounded hover:bg-amber-700 transition-colors"
+                title="Append buffered logs and reset counter"
+              >
+                Catch up
+              </button>
+            )}
             <button
               onClick={exportLogs}
               className="px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors"
               title="Export current view as JSON"
             >
               Export JSON
+            </button>
+            <button
+              onClick={exportNdjson}
+              className="px-2 py-1 bg-indigo-600 text-white text-xs rounded hover:bg-indigo-700 transition-colors"
+              title="Export current view as NDJSON"
+            >
+              Export NDJSON
+            </button>
+            <button
+              onClick={copyJson}
+              className="px-2 py-1 bg-gray-500 text-white text-xs rounded hover:bg-gray-600 transition-colors"
+              title="Copy current view as JSON to clipboard"
+            >
+              Copy JSON
             </button>
             <label className="flex items-center gap-1 text-xs text-gray-700 dark:text-gray-300 cursor-pointer">
               <input

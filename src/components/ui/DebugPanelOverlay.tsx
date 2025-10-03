@@ -9,13 +9,31 @@ const MAX_HEIGHT_VH = 90; // 90% of viewport height
 const DEFAULT_HEIGHT = 400;
 const GRID = 8; // grid snapping size
 
+// Route-scoped LocalStorage helpers to avoid cross-route clashes
+const keyPrefix = typeof window !== 'undefined' ? `debugPanel:${window.location.pathname}:` : 'debugPanel:';
+const getLS = (key: string) => {
+  try {
+    return localStorage.getItem(keyPrefix + key) ?? localStorage.getItem('debugPanel.' + key);
+  } catch {
+    return null;
+  }
+};
+const setLS = (key: string, value: string) => {
+  try {
+    localStorage.setItem(keyPrefix + key, value);
+  } catch {
+    /* noop */
+  }
+};
+
 type PanelMode = 'floating' | 'rightDock' | 'bottomSheet';
 
 const DebugPanelOverlay: React.FC = () => {
   const [isOpen, setIsOpen] = useState(() => {
     if (typeof window === 'undefined') return false;
     try {
-      return localStorage.getItem('debugPanel.isOpen') === 'true';
+      const v = getLS('isOpen');
+      return v === 'true';
     } catch {
       return false;
     }
@@ -24,7 +42,7 @@ const DebugPanelOverlay: React.FC = () => {
   const [width, setWidth] = useState(() => {
     if (typeof window === 'undefined') return DEFAULT_WIDTH;
     try {
-      const saved = localStorage.getItem('debugPanel.width');
+      const saved = getLS('width');
       return saved ? parseInt(saved, 10) : DEFAULT_WIDTH;
     } catch {
       return DEFAULT_WIDTH;
@@ -34,7 +52,7 @@ const DebugPanelOverlay: React.FC = () => {
   const [height, setHeight] = useState(() => {
     if (typeof window === 'undefined') return DEFAULT_HEIGHT;
     try {
-      const saved = localStorage.getItem('debugPanel.height');
+      const saved = getLS('height');
       return saved ? parseInt(saved, 10) : DEFAULT_HEIGHT;
     } catch {
       return DEFAULT_HEIGHT;
@@ -50,7 +68,7 @@ const DebugPanelOverlay: React.FC = () => {
   const [right, setRight] = useState(() => {
     if (typeof window === 'undefined') return 16;
     try {
-      const saved = localStorage.getItem('debugPanel.right');
+      const saved = getLS('right');
       if (!saved) return 16;
       const n = parseInt(saved, 10);
       return Number.isFinite(n) ? n : 16;
@@ -61,7 +79,7 @@ const DebugPanelOverlay: React.FC = () => {
   const [bottom, setBottom] = useState(() => {
     if (typeof window === 'undefined') return 16;
     try {
-      const saved = localStorage.getItem('debugPanel.bottom');
+      const saved = getLS('bottom');
       if (!saved) return 16;
       const n = parseInt(saved, 10);
       return Number.isFinite(n) ? n : 16;
@@ -73,7 +91,7 @@ const DebugPanelOverlay: React.FC = () => {
   const [mode, setMode] = useState<PanelMode>(() => {
     if (typeof window === 'undefined') return 'floating';
     try {
-      const m = localStorage.getItem('debugPanel.mode') as PanelMode | null;
+      const m = getLS('mode') as PanelMode | null;
       return m === 'rightDock' || m === 'bottomSheet' ? m : 'floating';
     } catch { return 'floating'; }
   });
@@ -86,22 +104,14 @@ const DebugPanelOverlay: React.FC = () => {
   const togglePanel = useCallback(() => {
     setIsOpen((prev) => {
       const newState = !prev;
-      try {
-        localStorage.setItem('debugPanel.isOpen', String(newState));
-      } catch (e) {
-        console.warn('Failed to save debug panel state:', e);
-      }
+      setLS('isOpen', String(newState));
       return newState;
     });
   }, []);
 
   const closePanel = useCallback(() => {
     setIsOpen(false);
-    try {
-      localStorage.setItem('debugPanel.isOpen', 'false');
-    } catch (e) {
-      console.warn('Failed to save debug panel state:', e);
-    }
+    setLS('isOpen', 'false');
   }, []);
 
   // Horizontal resize logic
@@ -135,11 +145,7 @@ const DebugPanelOverlay: React.FC = () => {
       const newWidth = window.innerWidth - e.clientX - right;
       const clampedWidth = Math.max(MIN_WIDTH, Math.min(MAX_WIDTH, newWidth));
       setWidth(clampedWidth);
-      try {
-        localStorage.setItem('debugPanel.width', String(clampedWidth));
-      } catch {
-        /* noop */
-      }
+      setLS('width', String(clampedWidth));
     };
 
     const handleMouseUp = () => {
@@ -184,6 +190,26 @@ const DebugPanelOverlay: React.FC = () => {
       document.removeEventListener('mouseup', handleMouseUp);
     };
   }, [isResizingVertical, bottom]);
+
+  const [isResizingCorner, setIsResizingCorner] = useState(false);
+  useEffect(() => {
+    if (!isResizingCorner) return;
+    const onMove = (e: MouseEvent) => {
+      const newWidth = window.innerWidth - e.clientX - right;
+      const newHeight = window.innerHeight - e.clientY - bottom;
+      const maxHeight = (window.innerHeight * MAX_HEIGHT_VH) / 100;
+      const clampedWidth = Math.max(MIN_WIDTH, Math.min(MAX_WIDTH, newWidth));
+      const clampedHeight = Math.max(MIN_HEIGHT, Math.min(maxHeight, newHeight));
+      setWidth(clampedWidth);
+      setHeight(clampedHeight);
+      setLS('width', String(clampedWidth));
+      setLS('height', String(clampedHeight));
+    };
+    const onUp = () => setIsResizingCorner(false);
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp, { once: true });
+    return () => document.removeEventListener('mousemove', onMove);
+  }, [isResizingCorner, right, bottom]);
 
   // Clamp position and size when viewport changes (e.g., address bar/DevTools resize)
   useEffect(() => {
@@ -271,17 +297,29 @@ const DebugPanelOverlay: React.FC = () => {
       setBottom(newBottom);
     };
     const handleMouseUp = () => {
-      // snap to GRID on release
-      setRight((r) => Math.max(8, Math.round(r / GRID) * GRID));
-      setBottom((b) => Math.max(8, Math.round(b / GRID) * GRID));
+      // snap to GRID and to nearest edges (left/top/right/bottom) if within 16px
+      const minMargin = 8;
+      let newRight = Math.max(minMargin, Math.round(right / GRID) * GRID);
+      let newBottom = Math.max(minMargin, Math.round(bottom / GRID) * GRID);
+      const leftDist = Math.max(0, window.innerWidth - width - newRight);
+      const topDist = Math.max(0, window.innerHeight - height - newBottom);
+      if (leftDist < 16) {
+        newRight = Math.max(minMargin, window.innerWidth - width - GRID);
+      }
+      if (topDist < 16) {
+        newBottom = Math.max(minMargin, window.innerHeight - height - GRID);
+      }
+      // clamp to viewport
+      const maxRight = Math.max(minMargin, window.innerWidth - width - minMargin);
+      const maxBottom = Math.max(minMargin, window.innerHeight - height - minMargin);
+      newRight = Math.min(newRight, maxRight);
+      newBottom = Math.min(newBottom, maxBottom);
+      setRight(newRight);
+      setBottom(newBottom);
       setIsDragging(false);
       setDragCandidate(null);
-      try {
-        localStorage.setItem('debugPanel.right', String(right));
-        localStorage.setItem('debugPanel.bottom', String(bottom));
-      } catch {
-        /* noop */
-      }
+      setLS('right', String(newRight));
+      setLS('bottom', String(newBottom));
     };
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseup', handleMouseUp, { once: true });
@@ -522,6 +560,16 @@ const DebugPanelOverlay: React.FC = () => {
               <DebugPanel />
             </div>
           </div>
+        </div>
+        {/* Bottom-right diagonal resize handle */}
+        <div
+          onMouseDown={() => setIsResizingCorner(true)}
+          className="absolute bottom-0 right-0 w-4 h-4 cursor-nwse-resize select-none"
+          title="Drag to resize"
+        >
+          <svg className="w-4 h-4 text-gray-400" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+            <path d="M1 15h2l12-12V1h-2L1 13v2z" />
+          </svg>
         </div>
       </div>
     </>
