@@ -105,8 +105,6 @@ const DebugPanelOverlay: React.FC = () => {
 
   useEffect(() => {
     if (!isResizingVertical) return;
-    let _startY = 0;
-    let _startHeight = height;
 
     const handleMouseMove = (e: MouseEvent) => {
       // Calculate height change (inverted: drag UP = taller, drag DOWN = shorter)
@@ -121,17 +119,10 @@ const DebugPanelOverlay: React.FC = () => {
       }
     };
 
-    const handleMouseDown = (e: MouseEvent) => {
-      _startY = e.clientY;
-      _startHeight = height;
-    };
-
     const handleMouseUp = () => {
       setIsResizingVertical(false);
     };
 
-    // Initialize start position
-    document.addEventListener('mousedown', handleMouseDown, { once: true });
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseup', handleMouseUp);
 
@@ -139,10 +130,20 @@ const DebugPanelOverlay: React.FC = () => {
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [isResizingVertical, height]);
+  }, [isResizingVertical]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Ignore when typing inside form fields or editable areas
+      const target = e.target as HTMLElement | null;
+      if (
+        target &&
+        (target.isContentEditable ||
+          !!target.closest('input, textarea, select, [contenteditable="true"]'))
+      ) {
+        return;
+      }
+
       // Ctrl+Shift+D or Cmd+Shift+D
       if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'D') {
         e.preventDefault();

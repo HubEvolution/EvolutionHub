@@ -13,6 +13,7 @@
  import BillingNotice from '@/components/BillingNotice';
  import DebugPanelIsland from '@/components/DebugPanelIsland.astro';
  import DebugPanelOverlay from '@/components/ui/DebugPanelOverlay';
+ import DebugInterceptors from '@/components/scripts/DebugInterceptors';
  import { ClientRouter } from 'astro:transitions';
  import ComingSoon from '@/components/ui/ComingSoon.astro';
  import { isComingSoon } from '@/config/coming-soon';
@@ -191,18 +192,8 @@
        <DebugPanelIsland>
          <DebugPanelOverlay client:load />
        </DebugPanelIsland>
-
-       {/* Initialize Debug Interceptors - nur wenn PUBLIC_ENABLE_DEBUG_PANEL=true */}
-       <script>
-         import { installConsoleInterceptor } from '@/lib/console-interceptor';
-         import { installNetworkInterceptor } from '@/lib/network-interceptor';
-
-         // Only run when debug panel is enabled (DEV/Staging/Test, but NOT Production)
-         if (import.meta.env.PUBLIC_ENABLE_DEBUG_PANEL === 'true') {
-           installConsoleInterceptor();
-           installNetworkInterceptor();
-         }
-       </script>
+       {/* Initialize Debug Interceptors as a client island (CSP-safe) */}
+       <DebugInterceptors client:load />
 
      {showComingSoon && <script is:inline src="/assets/coming-soon-client.js" defer nonce={Astro.locals.cspNonce}></script>}
  

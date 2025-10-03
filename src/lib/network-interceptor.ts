@@ -36,12 +36,47 @@ export function installNetworkInterceptor() {
   if (isInstalled) return;
   isInstalled = true;
 
+  // Helpers
+  const isDebugEndpoint = (url: string) =>
+    url.startsWith('/api/debug/client-log') || url.startsWith('/api/debug/logs-stream');
+  const isOptions = (method: string) => method.toUpperCase() === 'OPTIONS';
+  const isStaticAsset = (url: string) =>
+    /\.(css|js|mjs|map|png|jpg|jpeg|gif|svg|webp|ico|woff2?|ttf|eot|txt|json|webmanifest)(\?|#|$)/i.test(url);
+  const hasDebugHeader = (init?: RequestInit) => {
+    try {
+      if (!init?.headers) return false;
+      const h = init.headers instanceof Headers ? init.headers : new Headers(init.headers as any);
+      return h.get('X-Debug-Log') === '1';
+    } catch {
+      return false;
+    }
+  };
+
   // Override fetch
   window.fetch = async (...args: Parameters<typeof fetch>): Promise<Response> => {
     const [resource, init] = args;
-    const url = typeof resource === 'string' ? resource : resource.url;
-    const method = init?.method || 'GET';
+    let url = '';
+    try {
+      if (typeof resource === 'string') {
+        url = resource;
+      } else if (typeof URL !== 'undefined' && resource instanceof URL) {
+        url = resource.toString();
+      } else if (typeof Request !== 'undefined' && resource instanceof Request) {
+        url = resource.url;
+      } else {
+        // Fallback best effort
+        url = String((resource as any)?.url || resource);
+      }
+    } catch {
+      url = '';
+    }
+    const method = (init?.method || 'GET').toUpperCase();
     const startTime = performance.now();
+
+    // Skip noisy or recursive cases
+    if (isDebugEndpoint(url) || isOptions(method) || isStaticAsset(url) || hasDebugHeader(init)) {
+      return originalFetch(...args);
+    }
 
     // Log request start
     clientLogger.info(`[NETWORK] ${method} ${url}`, {

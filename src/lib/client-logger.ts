@@ -20,7 +20,7 @@ class ClientLogger {
     try {
       await fetch('/api/debug/client-log', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'X-Debug-Log': '1' },
         body: JSON.stringify({ level, message, context }),
       });
     } catch (err) {
