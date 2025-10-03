@@ -9,14 +9,36 @@ interface LogEntry {
 
 const STORAGE_KEY = 'debugPanel.logs';
 const MAX_STORED_LOGS = 500;
+const createLogKey = (log: LogEntry) =>
+  `${log.timestamp}|${log.level}|${log.message}|${log.source ?? ''}`;
 
 const DebugPanel: React.FC = () => {
+  const logKeysRef = useRef<Set<string>>(new Set());
   const [logs, setLogs] = useState<LogEntry[]>(() => {
     // Load logs from LocalStorage on mount
     if (typeof window === 'undefined') return [];
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
-      return stored ? JSON.parse(stored) : [];
+      if (!stored) return [];
+      const parsed = JSON.parse(stored);
+      if (!Array.isArray(parsed)) return [];
+      const keys = logKeysRef.current;
+      keys.clear();
+      const valid: LogEntry[] = [];
+      for (const item of parsed) {
+        if (
+          item &&
+          typeof item === 'object' &&
+          typeof item.timestamp === 'string' &&
+          typeof item.level === 'string' &&
+          typeof item.message === 'string'
+        ) {
+          const entry = item as LogEntry;
+          keys.add(createLogKey(entry));
+          valid.push(entry);
+        }
+      }
+      return valid;
     } catch {
       return [];
     }
@@ -99,14 +121,23 @@ const DebugPanel: React.FC = () => {
           if (!res.ok) throw new Error('poll failed');
           const payload: any = await res.json().catch(() => null);
           const items: unknown[] = payload?.data?.logs || [];
+          const entries: LogEntry[] = [];
           for (const raw of items) {
             try {
               const data = typeof raw === 'string' ? JSON.parse(raw) : raw;
               if (!data) continue;
               if (data.type === 'log' && data.timestamp && data.level && typeof data.message === 'string') {
-                addLog({ timestamp: data.timestamp, level: String(data.level), message: data.message, source: data.source });
+                entries.push({
+                  timestamp: data.timestamp,
+                  level: String(data.level),
+                  message: data.message,
+                  source: data.source,
+                });
               }
             } catch {}
+          }
+          if (entries.length) {
+            mergeLogs(entries);
           }
           setStatus('connected');
         } catch {
@@ -214,21 +245,50 @@ const DebugPanel: React.FC = () => {
     }
   }, [muteIsRegex]);
 
-  const addLog = useCallback((log: LogEntry) => {
+  const mergeLogs = useCallback((incoming: LogEntry[]) => {
+    if (!incoming.length) return;
+    const keys = logKeysRef.current;
+    const seen = new Set<string>();
     setLogs((prev) => {
-      const newLogs = [...prev, log].slice(-MAX_STORED_LOGS);
-      // Persist to LocalStorage
+      let next = prev;
+      let mutated = false;
+      for (const log of incoming) {
+        const key = createLogKey(log);
+        if (keys.has(key) || seen.has(key)) continue;
+        seen.add(key);
+        if (!mutated) {
+          next = [...prev];
+          mutated = true;
+        }
+        next.push(log);
+        keys.add(key);
+      }
+      if (!mutated) return prev;
+
+      if (next.length > MAX_STORED_LOGS) {
+        const dropCount = next.length - MAX_STORED_LOGS;
+        const removed = next.splice(0, dropCount);
+        for (const entry of removed) {
+          keys.delete(createLogKey(entry));
+        }
+      }
+
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(newLogs));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
       } catch (e) {
         console.warn('Failed to save logs to LocalStorage:', e);
       }
-      return newLogs;
+      return next;
     });
   }, []);
 
+  const addLog = useCallback((log: LogEntry) => {
+    mergeLogs([log]);
+  }, [mergeLogs]);
+
   const clearLogs = useCallback(() => {
     setLogs([]);
+    logKeysRef.current.clear();
     try {
       localStorage.removeItem(STORAGE_KEY);
     } catch (e) {
@@ -576,16 +636,10 @@ const DebugPanel: React.FC = () => {
   const catchUp = useCallback(() => {
     const buf = pausedBufferRef.current;
     if (!buf.length) return;
-    setLogs((prev) => {
-      const merged = [...prev, ...buf].slice(-MAX_STORED_LOGS);
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
-      } catch {}
-      return merged;
-    });
+    mergeLogs(buf);
     pausedBufferRef.current = [];
     setSuppressedCount(0);
-  }, []);
+  }, [mergeLogs]);
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg flex flex-col h-full overflow-hidden">
