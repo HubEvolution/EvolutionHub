@@ -4,6 +4,7 @@ interface LogEntry {
   timestamp: string;
   level: string;
   message: string;
+  source?: string;
 }
 
 const STORAGE_KEY = 'debugPanel.logs';
@@ -22,6 +23,8 @@ const DebugPanel: React.FC = () => {
   });
   const [status, setStatus] = useState<'connecting' | 'connected' | 'error'>('connecting');
   const [autoScroll, setAutoScroll] = useState(true);
+  const [showAll, setShowAll] = useState(false);
+  const [windowSize, setWindowSize] = useState(200);
   const [groupRepeats, setGroupRepeats] = useState<boolean>(() => {
     if (typeof window === 'undefined') return false;
     try {
@@ -70,31 +73,16 @@ const DebugPanel: React.FC = () => {
 
     eventSource.onmessage = (event) => {
       try {
-        // Try to parse as JSON first
         const data = JSON.parse(event.data);
-        if (data.type === 'keep-alive' || data.type === 'environment-info') {
-          return; // Skip system messages
+        if (data.type === 'keep-alive' || data.type === 'environment-info') return;
+        if (data.type === 'log' && data.timestamp && data.level && typeof data.message === 'string') {
+          addLog({ timestamp: data.timestamp, level: String(data.level), message: data.message, source: data.source });
+          return;
         }
       } catch {
-        // Not JSON, treat as log entry
+        // ignore malformed JSON
       }
-
-      // Parse log format: "[TIMESTAMP] [LEVEL] MESSAGE"
-      const logMatch = event.data.match(/^\[(.*?)\] \[(.*?)\] (.*)/s);
-      if (logMatch) {
-        addLog({
-          timestamp: logMatch[1],
-          level: logMatch[2],
-          message: logMatch[3],
-        });
-      } else {
-        // Fallback for unparseable logs
-        addLog({
-          timestamp: new Date().toISOString(),
-          level: 'log',
-          message: event.data,
-        });
-      }
+      // Unknown payloads: ignore to keep list clean
     };
 
     eventSource.onerror = () => {
@@ -238,7 +226,8 @@ const DebugPanel: React.FC = () => {
           <h2 className="text-lg font-bold text-gray-900 dark:text-white">Debug Logs</h2>
           <div className="flex items-center gap-2">
             <span className="text-xs text-gray-600 dark:text-gray-400">
-              {filteredLogs.length} / {logs.length} logs
+              {Math.min(filteredLogs.length, showAll ? filteredLogs.length : Math.min(windowSize, filteredLogs.length))}
+              {' '}of {filteredLogs.length} (total {logs.length})
             </span>
             <button
               onClick={clearLogs}
@@ -247,6 +236,29 @@ const DebugPanel: React.FC = () => {
             >
               Clear
             </button>
+            <label className="flex items-center gap-1 text-xs text-gray-700 dark:text-gray-300 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={showAll}
+                onChange={(e) => setShowAll(e.target.checked)}
+                className="rounded"
+              />
+              Show all
+            </label>
+            {!showAll && (
+              <div className="flex items-center gap-1 text-xs text-gray-700 dark:text-gray-300">
+                <span>Window</span>
+                <input
+                  type="number"
+                  min={50}
+                  max={1000}
+                  step={50}
+                  value={windowSize}
+                  onChange={(e) => setWindowSize(Math.max(50, Math.min(1000, Number(e.target.value) || 200)))}
+                  className="w-16 px-1 py-0.5 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100"
+                />
+              </div>
+            )}
             <label className="flex items-center gap-1 text-xs text-gray-700 dark:text-gray-300 cursor-pointer">
               <input
                 type="checkbox"
@@ -287,7 +299,8 @@ const DebugPanel: React.FC = () => {
             <button
               key={level}
               onClick={() => toggleLevelFilter(level)}
-              className={`px-2 py-1 rounded text-xs font-semibold transition-all ${
+              aria-pressed={levelFilter.includes(level)}
+              className={`px-2 py-1 rounded text-xs font-semibold transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                 levelFilter.includes(level)
                   ? getLevelColor(level)
                   : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 opacity-50'
@@ -308,7 +321,8 @@ const DebugPanel: React.FC = () => {
             <button
               key={key}
               onClick={() => setSourceFilters((p) => ({ ...p, [key]: !p[key] }))}
-              className={`px-2 py-1 rounded text-xs font-semibold transition-all ${
+              aria-pressed={sourceFilters[key]}
+              className={`px-2 py-1 rounded text-xs font-semibold transition-all focus:outline-none focus:ring-2 focus:ring-teal-500 ${
                 sourceFilters[key]
                   ? 'bg-teal-100 text-teal-800 dark:bg-teal-900/30 dark:text-teal-300'
                   : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 opacity-50'
@@ -340,14 +354,14 @@ const DebugPanel: React.FC = () => {
         </div>
       </div>
 
-      {/* Logs - mit explizitem overflow-y-auto und min-h-0 */}
+      {/* Logs - windowed rendering for performance */}
       <div className="flex-1 overflow-y-auto p-4 space-y-2 bg-gray-50 dark:bg-gray-900 min-h-0">
         {displayLogs.length === 0 ? (
           <p className="text-gray-500 dark:text-gray-400 text-sm">
             {logs.length === 0 ? 'Waiting for logs...' : 'No logs match current filter'}
           </p>
         ) : (
-          displayLogs.map((log, idx) => (
+          (showAll ? displayLogs : displayLogs.slice(-Math.min(windowSize, displayLogs.length))).map((log, idx) => (
             <div
               key={idx}
               className="flex items-start text-sm border-b border-gray-200 dark:border-gray-700 pb-2 last:border-0"

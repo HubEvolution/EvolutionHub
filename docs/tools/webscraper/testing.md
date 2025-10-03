@@ -6,13 +6,13 @@ Umfassende Testing-Strategie für höchste Code-Qualität und Systemstabilität 
 
 ## Unit-Tests
 
-### Parser-Tests
+#### Parser-Tests
 
 - Verschiedene HTML-Strukturen testen
 - Edge-Cases und Fehlerbehandlung validieren
 - Performance-Tests für große Dokumente
 
-### AI-Komponenten-Tests
+#### AI-Komponenten-Tests
 
 - Sentiment-Analyse-Genauigkeit messen
 - Entitäten-Erkennung-Qualität bewerten

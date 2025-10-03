@@ -81,6 +81,7 @@ const DebugPanelOverlay: React.FC = () => {
   const prevLayoutRef = useRef<{ width: number; height: number; right: number; bottom: number } | null>(null);
   const resizeRef = useRef<HTMLDivElement>(null);
   const resizeVerticalRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const togglePanel = useCallback(() => {
     setIsOpen((prev) => {
@@ -311,11 +312,83 @@ const DebugPanelOverlay: React.FC = () => {
         e.preventDefault();
         closePanel();
       }
+
+      // Keyboard move/resize only in floating mode
+      if (!isOpen || mode !== 'floating') return;
+      const step = e.altKey ? 1 : 10;
+      const minMargin = 8;
+      const clampNum = (val: number, min: number, max: number) => Math.max(min, Math.min(max, val));
+      let handled = false;
+      if (e.shiftKey) {
+        // Resize
+        if (e.key === 'ArrowLeft') {
+          setWidth((w) => clampNum(w - step, MIN_WIDTH, MAX_WIDTH)); handled = true;
+        } else if (e.key === 'ArrowRight') {
+          setWidth((w) => clampNum(w + step, MIN_WIDTH, MAX_WIDTH)); handled = true;
+        } else if (e.key === 'ArrowUp') {
+          const maxH = (window.innerHeight * MAX_HEIGHT_VH) / 100;
+          setHeight((h) => clampNum(h + step, MIN_HEIGHT, maxH)); handled = true;
+        } else if (e.key === 'ArrowDown') {
+          const maxH = (window.innerHeight * MAX_HEIGHT_VH) / 100;
+          setHeight((h) => clampNum(h - step, MIN_HEIGHT, maxH)); handled = true;
+        }
+      } else {
+        // Move
+        if (e.key === 'ArrowLeft') {
+          // move left => increase right
+          setRight((r) => clampNum(r + step, minMargin, Math.max(minMargin, window.innerWidth - width - minMargin))); handled = true;
+        } else if (e.key === 'ArrowRight') {
+          setRight((r) => clampNum(r - step, minMargin, Math.max(minMargin, window.innerWidth - width - minMargin))); handled = true;
+        } else if (e.key === 'ArrowUp') {
+          // move up => increase bottom
+          setBottom((b) => clampNum(b + step, minMargin, Math.max(minMargin, window.innerHeight - height - minMargin))); handled = true;
+        } else if (e.key === 'ArrowDown') {
+          setBottom((b) => clampNum(b - step, minMargin, Math.max(minMargin, window.innerHeight - height - minMargin))); handled = true;
+        }
+      }
+      if (handled) e.preventDefault();
     };
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, togglePanel, closePanel]);
+  }, [isOpen, togglePanel, closePanel, mode, width, height]);
+
+  // Focus management: focus panel on open
+  useEffect(() => {
+    if (isOpen) {
+      setTimeout(() => containerRef.current?.focus(), 0);
+    }
+  }, [isOpen]);
+
+  // Basic focus trap within the panel when open
+  useEffect(() => {
+    if (!isOpen) return;
+    const el = containerRef.current;
+    if (!el) return;
+    const onKeydown = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab') return;
+      const focusables = el.querySelectorAll<HTMLElement>(
+        'a[href], button, textarea, input, select, [tabindex]:not([tabindex="-1"])'
+      );
+      if (focusables.length === 0) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      const active = document.activeElement as HTMLElement | null;
+      if (e.shiftKey) {
+        if (active === first || !el.contains(active)) {
+          (last as HTMLElement).focus();
+          e.preventDefault();
+        }
+      } else {
+        if (active === last) {
+          (first as HTMLElement).focus();
+          e.preventDefault();
+        }
+      }
+    };
+    el.addEventListener('keydown', onKeydown);
+    return () => el.removeEventListener('keydown', onKeydown);
+  }, [isOpen]);
 
   // Mini button when closed
   if (!isOpen) {
@@ -343,7 +416,11 @@ const DebugPanelOverlay: React.FC = () => {
     <>
       {/* Panel Container - lower-right, resizable */}
       <div
-        className="fixed z-[9999] flex flex-col"
+        ref={containerRef}
+        className="fixed z-[9999] flex flex-col focus:outline-none"
+        role="dialog"
+        aria-label="Debug Logs"
+        tabIndex={-1}
         style={(() => {
           const base: React.CSSProperties = {
             width: `${width}px`,

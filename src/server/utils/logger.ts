@@ -6,7 +6,8 @@ let logBuffer: string[] = [];
 const MAX_LOG_BUFFER_SIZE = 100;
 
 // Active SSE stream controllers for live log broadcasting
-const activeSSEStreams: Set<ReadableStreamDefaultController> = new Set();
+type ActiveStream = { ctrl: ReadableStreamDefaultController; alive: boolean };
+const activeSSEStreams: Set<ActiveStream> = new Set();
 
 // Environment detection
 function isWranglerEnvironment(): boolean {
@@ -79,17 +80,28 @@ export const log = (level: string, message: string, contextObject?: Record<strin
     }
   }
 
-  // Add to buffer for SSE streaming
+  // Prepare JSON event payload for SSE/buffer
+  const event = {
+    type: 'log' as const,
+    timestamp,
+    level,
+    message,
+    source: (contextObject as any)?.source || 'server',
+    context: contextObject ? contextObject : undefined,
+  };
+  const eventJson = JSON.stringify(event);
+
+  // Add to buffer for SSE streaming (JSON)
   if (isWranglerEnvironment()) {
-    logBuffer.push(logEntry);
+    logBuffer.push(eventJson);
 
     // Maintain buffer size limit
     if (logBuffer.length > MAX_LOG_BUFFER_SIZE) {
       logBuffer = logBuffer.slice(-MAX_LOG_BUFFER_SIZE);
     }
 
-    // Broadcast to all active SSE streams in real-time
-    broadcastLogToStreams(logEntry);
+    // Broadcast to all active SSE streams in real-time (JSON)
+    broadcastLogToStreams(eventJson);
   }
 
   // Log to console
@@ -135,14 +147,21 @@ export function getEnvironmentInfo() {
  * Register an SSE stream controller for live log broadcasting
  */
 export function registerSSEStream(controller: ReadableStreamDefaultController): void {
-  activeSSEStreams.add(controller);
+  // Wrap controller with alive flag; use a new object reference to avoid Set collisions
+  activeSSEStreams.add({ ctrl: controller, alive: true });
 }
 
 /**
  * Unregister an SSE stream controller
  */
 export function unregisterSSEStream(controller: ReadableStreamDefaultController): void {
-  activeSSEStreams.delete(controller);
+  // Mark matching entries dead and remove them
+  for (const item of Array.from(activeSSEStreams)) {
+    if (item.ctrl === controller) {
+      item.alive = false;
+      activeSSEStreams.delete(item);
+    }
+  }
 }
 
 /**
@@ -153,13 +172,24 @@ function broadcastLogToStreams(logEntry: string): void {
   const sseData = `data: ${logEntry}\n\n`;
   const encodedData = encoder.encode(sseData);
 
-  // Send to all active streams
-  activeSSEStreams.forEach((controller) => {
-    try {
-      controller.enqueue(encodedData);
-    } catch (error) {
-      // Stream closed or errored - remove it
-      activeSSEStreams.delete(controller);
+  // Work on a snapshot to avoid mutation during iteration
+  const snapshot = Array.from(activeSSEStreams);
+  for (const item of snapshot) {
+    if (!item.alive) {
+      activeSSEStreams.delete(item);
+      continue;
     }
-  });
+    try {
+      // Guard against unexpected ctrl state in dev runtime
+      if (typeof (item.ctrl as any)?.enqueue === 'function') {
+        item.ctrl.enqueue(encodedData);
+      } else {
+        activeSSEStreams.delete(item);
+      }
+    } catch {
+      // Stream closed or errored - remove it
+      item.alive = false;
+      activeSSEStreams.delete(item);
+    }
+  }
 }

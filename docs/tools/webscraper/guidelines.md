@@ -32,21 +32,21 @@ src/
 
 ### Coding Standards (strikt befolgen)
 
-**TypeScript-Richtlinien**
+#### TypeScript-Richtlinien
 
 - **Strict Mode**: Immer `strict: true` in tsconfig.json
 - **Keine `any` Types**: Verwenden Sie spezifische Interface-Definitionen
 - **Error Handling**: Umfassende Fehlerbehandlung mit strukturierten Fehlern
 - **Async/Await**: Konsequente Verwendung für alle asynchronen Operationen
 
-**API-Entwicklung**
+#### API-Entwicklung
 
 - **Hono.js Framework**: Verwenden Sie die bestehenden Muster aus dem Projekt
 - **Request Validation**: Valideren Sie alle Eingaben mit Zod oder ähnlichen Tools
 - **Response Format**: Konsistentes `{ success: true, data: T }` Format
 - **Error Responses**: Strukturierte Fehler mit `{ success: false, error: {...} }`
 
-**Sicherheitsanforderungen**
+#### Sicherheitsanforderungen
 
 - **CSRF Protection**: Implementieren Sie Double-Submit-Cookie-Muster
 - **Rate Limiting**: Begrenzen Sie Anfragen nach Projektstandards
@@ -55,7 +55,7 @@ src/
 
 ### Testing-Anforderungen
 
-**Unit-Tests**
+#### Unit-Tests
 
 ```typescript
 // Beispiel-Teststruktur
@@ -68,13 +68,13 @@ describe('WebscraperService', () => {
 });
 ```
 
-**Integration-Tests**
+#### Integration-Tests
 
 - Testen Sie die kompletten API-Endpunkte
 - Validieren Sie Datenbank-Interaktionen
 - Testen Sie Fehlerfälle und Edge-Cases
 
-**E2E-Tests**
+#### E2E-Tests
 
 - Verwenden Sie Playwright für Browser-Interaktionen
 - Testen Sie komplette User-Workflows
@@ -82,14 +82,14 @@ describe('WebscraperService', () => {
 
 ### Performance-Optimierung
 
-**Cloudflare Workers Optimierung**
+#### Cloudflare Workers Optimierung
 
 - **Bundle Size**: Halten Sie Bundles unter 1MB
 - **Cold Starts**: Minimieren Sie Initialisierungszeit
 - **Memory Usage**: Effiziente Speicherverwaltung
 - **Network Requests**: Optimieren Sie externe API-Calls
 
-**Browser-Performance**
+#### Browser-Performance
 
 - **Lazy Loading**: Implementieren Sie für schwere Komponenten
 - **Caching**: Nutzen Sie Service Worker für Offline-Fähigkeiten
@@ -97,7 +97,7 @@ describe('WebscraperService', () => {
 
 ### Monitoring & Observability
 
-**Logging-Standards**
+#### Logging-Standards
 
 ```typescript
 // Strukturiertes Logging nach Projektstandards
@@ -139,7 +139,7 @@ logger.info('Scraping job started', {
 
 #### Vor dem Deployment
 
-- [ ] **Integration-Tests**: Cross-Tool-Interaktionen testen
+- [ ] #### Integration-Tests: Cross-Tool-Interaktionen testen
 - [ ] **Performance-Tests**: Last-Testing durchführen
 - [ ] **Accessibility**: WCAG 2.1 AA-Compliance sicherstellen
 - [ ] **Documentation**: Aktualisieren Sie Benutzerdokumentation

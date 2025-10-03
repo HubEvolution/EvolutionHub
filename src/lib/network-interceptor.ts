@@ -25,6 +25,61 @@ function formatBytes(bytes: number): string {
 }
 
 /**
+ * Build a sanitized request meta snapshot from RequestInit without consuming streams.
+ */
+function buildSanitizedRequestMeta(init?: RequestInit) {
+  try {
+    // headers: only whitelist a few safe headers, otherwise report presence only
+    const presentHeaders: string[] = [];
+    const safeHeaders: Record<string, string> = {};
+    if (init?.headers) {
+      const h = init.headers instanceof Headers ? init.headers : new Headers(init.headers as any);
+      h.forEach((value, key) => {
+        const k = key.toLowerCase();
+        presentHeaders.push(k);
+        if (k === 'content-type' || k === 'accept' || k === 'cache-control') {
+          safeHeaders[k] = value.substring(0, 100);
+        }
+      });
+    }
+
+    // body: handle only safe, non-stream cases
+    let bodySummary: { type: string; length?: number; keys?: string[] } | undefined;
+    const b: any = (init as any)?.body;
+    if (typeof b === 'string') {
+      bodySummary = { type: 'text', length: b.length };
+      // attempt JSON keys only
+      try {
+        const json = JSON.parse(b);
+        if (json && typeof json === 'object' && !Array.isArray(json)) {
+          const keys = Object.keys(json).slice(0, 20);
+          bodySummary = { type: 'json', length: b.length, keys };
+        }
+      } catch {
+        /* not json */
+      }
+    } else if (b instanceof URLSearchParams) {
+      const keys: string[] = [];
+      b.forEach((_v, k) => { if (!keys.includes(k)) keys.push(k); });
+      bodySummary = { type: 'urlencoded', keys };
+    } else if (typeof FormData !== 'undefined' && b instanceof FormData) {
+      const keys: string[] = [];
+      // FormData#forEach exists in browsers
+      (b as FormData).forEach((_v, k) => { if (!keys.includes(k)) keys.push(k); });
+      bodySummary = { type: 'formdata', keys };
+    } else if (b && typeof b === 'object') {
+      // Blob/ArrayBuffer/TypedArray: don't inspect; just state type
+      const typeName = b.constructor?.name || 'object';
+      bodySummary = { type: typeName };
+    }
+
+    return { headers: { present: presentHeaders, safe: safeHeaders }, body: bodySummary };
+  } catch {
+    return undefined;
+  }
+}
+
+/**
  * Install network interceptor
  * Overrides window.fetch to capture all HTTP requests
  */
@@ -78,12 +133,32 @@ export function installNetworkInterceptor() {
       return originalFetch(...args);
     }
 
+    // Sanitize URL: mask all query values to avoid leaking tokens/PII
+    let safeUrl = url;
+    try {
+      const u = new URL(url, window.location.origin);
+      if (u.searchParams && [...u.searchParams.keys()].length > 0) {
+        const masked = new URL(u.origin + u.pathname);
+        // keep keys, replace values by ***
+        u.searchParams.forEach((value, key) => {
+          masked.searchParams.set(key, '***');
+        });
+        safeUrl = masked.toString();
+      } else {
+        safeUrl = u.toString();
+      }
+    } catch {
+      // fallback: if malformed, keep as-is
+    }
+
     // Log request start
-    clientLogger.info(`[NETWORK] ${method} ${url}`, {
+    const reqMeta = buildSanitizedRequestMeta(init);
+    clientLogger.info(`[NETWORK] ${method} ${safeUrl} [REDACTED]`, {
       source: 'network',
       action: 'request_start',
       method,
-      url,
+      url: safeUrl,
+      request: reqMeta,
     });
 
     try {
@@ -99,16 +174,17 @@ export function installNetworkInterceptor() {
 
       // Log response
       clientLogger.info(
-        `[NETWORK] ${method} ${url} → ${response.status} (${duration}ms, ${size})`,
+        `[NETWORK] ${method} ${safeUrl} → ${response.status} (${duration}ms, ${size}) [REDACTED]`,
         {
           source: 'network',
           action: 'request_complete',
           method,
-          url,
+          url: safeUrl,
           status: response.status,
           statusText: response.statusText,
           duration,
           size,
+          request: reqMeta,
         }
       );
 
@@ -119,14 +195,15 @@ export function installNetworkInterceptor() {
 
       // Log error
       clientLogger.error(
-        `[NETWORK] ${method} ${url} FAILED (${duration}ms): ${error instanceof Error ? error.message : String(error)}`,
+        `[NETWORK] ${method} ${safeUrl} FAILED (${duration}ms): ${error instanceof Error ? error.message : String(error)} [REDACTED]`,
         {
           source: 'network',
           action: 'request_failed',
           method,
-          url,
+          url: safeUrl,
           duration,
           error: error instanceof Error ? error.message : String(error),
+          request: reqMeta,
         }
       );
 
