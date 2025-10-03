@@ -1,10 +1,10 @@
 export type Plan = 'free' | 'pro' | 'premium' | 'enterprise';
 
 export interface PlanEntitlements {
-  monthlyImages: number;      // total images per calendar month
-  dailyBurstCap: number;      // max images per rolling 24h window
-  maxUpscale: 2 | 4 | 6 | 8;  // allowed upscale factor
-  faceEnhance: boolean;       // allow face enhancement toggle
+  monthlyImages: number; // total images per calendar month
+  dailyBurstCap: number; // max images per rolling 24h window
+  maxUpscale: 2 | 4 | 6 | 8; // allowed upscale factor
+  faceEnhance: boolean; // allow face enhancement toggle
   // Future: add maxMegapixels, batchMax, api monthly calls, queue priority, commercial use, support SLA
 }
 
@@ -43,7 +43,7 @@ export const ENTITLEMENTS: Readonly<Record<Plan, PlanEntitlements>> = Object.fre
     dailyBurstCap: 500,
     maxUpscale: 8,
     faceEnhance: true,
-  }
+  },
 });
 
 export function getEntitlementsFor(ownerType: 'user' | 'guest', plan?: Plan): PlanEntitlements {

@@ -39,17 +39,18 @@ export function buildProviderError(
     status === 401 || status === 403
       ? 'Provider access denied'
       : status >= 400 && status < 500
-      ? 'Provider rejected the request (validation error)'
-      : 'Provider service error';
+        ? 'Provider rejected the request (validation error)'
+        : 'Provider service error';
 
   const err = new Error(message) as ProviderError;
   err.status = status;
   err.provider = provider;
-  err.apiErrorType = (status === 401 || status === 403)
-    ? 'forbidden'
-    : status >= 400 && status < 500
-    ? 'validation_error'
-    : 'server_error';
+  err.apiErrorType =
+    status === 401 || status === 403
+      ? 'forbidden'
+      : status >= 400 && status < 500
+        ? 'validation_error'
+        : 'server_error';
 
   // Attach a concise snippet for internal diagnostics only (callers may log)
   if (payloadSnippet) {

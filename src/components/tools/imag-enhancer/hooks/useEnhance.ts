@@ -14,15 +14,21 @@ export interface EnhanceArgs {
 }
 
 export function useEnhance() {
-  const enhance = useCallback(async (args: EnhanceArgs): Promise<ApiSuccess<GenerateResponseData> | ApiErrorBody | Response> => {
-    const fd = new FormData();
-    fd.set('image', args.file);
-    fd.set('model', args.model);
-    if (typeof args.scale === 'number' && args.supportsScale) fd.set('scale', String(args.scale));
-    if (typeof args.faceEnhance === 'boolean' && args.supportsFaceEnhance) fd.set('face_enhance', String(args.faceEnhance));
-    const csrf = ensureCsrfToken();
-    return postGenerate(fd, csrf, args.signal);
-  }, []);
+  const enhance = useCallback(
+    async (
+      args: EnhanceArgs
+    ): Promise<ApiSuccess<GenerateResponseData> | ApiErrorBody | Response> => {
+      const fd = new FormData();
+      fd.set('image', args.file);
+      fd.set('model', args.model);
+      if (typeof args.scale === 'number' && args.supportsScale) fd.set('scale', String(args.scale));
+      if (typeof args.faceEnhance === 'boolean' && args.supportsFaceEnhance)
+        fd.set('face_enhance', String(args.faceEnhance));
+      const csrf = ensureCsrfToken();
+      return postGenerate(fd, csrf, args.signal);
+    },
+    []
+  );
 
   return { enhance };
 }

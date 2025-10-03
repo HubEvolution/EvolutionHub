@@ -21,7 +21,8 @@ vi.mock('@/utils/i18n', () => ({
       'pages.tools.prompt-enhancer.form.clear': 'Clear',
       'pages.tools.prompt-enhancer.form.error.required': 'Please enter a prompt.',
       'pages.tools.prompt-enhancer.form.error.length': 'Maximum length is 1000 characters.',
-      'pages.tools.prompt-enhancer.form.error.rateLimit': 'Too many requests. Please wait and try again.',
+      'pages.tools.prompt-enhancer.form.error.rateLimit':
+        'Too many requests. Please wait and try again.',
       'pages.tools.prompt-enhancer.form.error.unknown': 'Something went wrong. Please try again.',
       'pages.tools.prompt-enhancer.form.error.network': 'Network error.',
       'pages.tools.prompt-enhancer.form.files.label': 'Files (optional)',
@@ -39,13 +40,22 @@ vi.mock('@/utils/i18n', () => ({
     };
     const value = map[key] || key;
     return value.replace(/\{(\w+)\}/g, (_, k) => String(params?.[k] ?? ''));
-  }
+  },
 }));
 vi.mock('@/lib/i18n', () => ({ getLocale: () => 'en' }));
 
 // Mock useEnhance to avoid network
 vi.mock('./hooks/useEnhance', () => ({
-  useEnhance: () => ({ enhance: vi.fn(async () => ({ success: true, data: { enhancedPrompt: 'ok', usage: { used: 1, limit: 5, resetAt: null }, limits: { user: 20, guest: 3 } } })) })
+  useEnhance: () => ({
+    enhance: vi.fn(async () => ({
+      success: true,
+      data: {
+        enhancedPrompt: 'ok',
+        usage: { used: 1, limit: 5, resetAt: null },
+        limits: { user: 20, guest: 3 },
+      },
+    })),
+  }),
 }));
 
 describe('EnhancerForm (files validation)', () => {
@@ -55,7 +65,9 @@ describe('EnhancerForm (files validation)', () => {
 
   it('shows error for unsupported file type', async () => {
     render(<EnhancerForm />);
-    const input = screen.getByLabelText(/files/i).parentElement!.querySelector('input[type="file"]') as HTMLInputElement;
+    const input = screen
+      .getByLabelText(/files/i)
+      .parentElement!.querySelector('input[type="file"]') as HTMLInputElement;
 
     const bad = new File([new Blob(['abc'])], 'malware.exe', { type: 'application/x-msdownload' });
     await userEvent.upload(input, bad);
@@ -65,7 +77,9 @@ describe('EnhancerForm (files validation)', () => {
 
   it('shows error for too large file', async () => {
     render(<EnhancerForm />);
-    const input = screen.getByLabelText(/files/i).parentElement!.querySelector('input[type="file"]') as HTMLInputElement;
+    const input = screen
+      .getByLabelText(/files/i)
+      .parentElement!.querySelector('input[type="file"]') as HTMLInputElement;
 
     const oversizeBytes = MAX_FILE_BYTES + 1;
     const bigChunk = 'a'.repeat(oversizeBytes);
@@ -78,7 +92,9 @@ describe('EnhancerForm (files validation)', () => {
 
   it('shows error when exceeding max files', async () => {
     render(<EnhancerForm />);
-    const input = screen.getByLabelText(/files/i).parentElement!.querySelector('input[type="file"]') as HTMLInputElement;
+    const input = screen
+      .getByLabelText(/files/i)
+      .parentElement!.querySelector('input[type="file"]') as HTMLInputElement;
 
     const files: File[] = [];
     for (let i = 0; i < MAX_FILES; i++) {
@@ -98,7 +114,9 @@ describe('EnhancerForm (files validation)', () => {
     const textarea = screen.getByLabelText(/input prompt/i);
     fireEvent.change(textarea, { target: { value: 'Hello world' } });
 
-    const input = screen.getByLabelText(/files/i).parentElement!.querySelector('input[type="file"]') as HTMLInputElement;
+    const input = screen
+      .getByLabelText(/files/i)
+      .parentElement!.querySelector('input[type="file"]') as HTMLInputElement;
     const ok = new File(['x'], 'note.txt', { type: 'text/plain' });
     await userEvent.upload(input, ok);
 

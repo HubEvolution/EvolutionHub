@@ -28,7 +28,7 @@ export function getAllTools(locale: Locale): Tool[] {
       color: 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200',
       url: '/tools/code-review',
       isPopular: true,
-      comingSoon: true
+      comingSoon: true,
     },
     {
       id: 'design-system',
@@ -39,7 +39,7 @@ export function getAllTools(locale: Locale): Tool[] {
       color: 'bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200',
       url: '/tools/design-system',
       isNew: true,
-      comingSoon: true
+      comingSoon: true,
     },
     {
       id: 'seo-analyzer',
@@ -50,7 +50,7 @@ export function getAllTools(locale: Locale): Tool[] {
       color: 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200',
       url: '/tools/seo-analyzer',
       isPopular: true,
-      comingSoon: true
+      comingSoon: true,
     },
     {
       id: 'api-tester',
@@ -60,7 +60,7 @@ export function getAllTools(locale: Locale): Tool[] {
       iconKey: 'rocket',
       color: 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200',
       url: '/tools/api-tester',
-      comingSoon: true
+      comingSoon: true,
     },
     {
       id: 'content-generator',
@@ -71,7 +71,7 @@ export function getAllTools(locale: Locale): Tool[] {
       color: 'bg-pink-100 dark:bg-pink-900 text-pink-800',
       url: '/tools/content-generator',
       isNew: true,
-      comingSoon: true
+      comingSoon: true,
     },
     {
       id: 'performance-monitor',
@@ -81,7 +81,7 @@ export function getAllTools(locale: Locale): Tool[] {
       iconKey: 'chart',
       color: 'bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200',
       url: '/tools/performance-monitor',
-      comingSoon: true
+      comingSoon: true,
     },
     {
       id: 'Imag-Enhancer',
@@ -93,7 +93,7 @@ export function getAllTools(locale: Locale): Tool[] {
       url: '/tools/imag-enhancer/app',
       isNew: true,
       isPopular: false,
-      comingSoon: false
+      comingSoon: false,
     },
     {
       id: 'prompt-enhancer',
@@ -104,8 +104,8 @@ export function getAllTools(locale: Locale): Tool[] {
       color: 'bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200',
       url: '/tools/prompt-enhancer/app',
       isNew: true,
-      comingSoon: false
-    }
+      comingSoon: false,
+    },
   ];
 }
 
@@ -117,6 +117,6 @@ export function getToolCategories(locale: Locale): { id: ToolCategory; name: str
     { id: 'development', name: t('pages.tools.categories.development') },
     { id: 'design', name: t('pages.tools.categories.design') },
     { id: 'productivity', name: t('pages.tools.categories.productivity') },
-    { id: 'marketing', name: t('pages.tools.categories.marketing') }
+    { id: 'marketing', name: t('pages.tools.categories.marketing') },
   ];
 }

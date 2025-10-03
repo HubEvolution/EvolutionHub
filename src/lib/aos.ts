@@ -4,9 +4,9 @@
  */
 
 export interface AosDelayOptions {
-  step?: number;   // Schrittweite in ms zwischen Items (Default: 100)
-  max?: number;    // maximale Verzögerung in ms (Default: 400)
-  start?: number;  // Start-Offset in ms (Default: 0)
+  step?: number; // Schrittweite in ms zwischen Items (Default: 100)
+  max?: number; // maximale Verzögerung in ms (Default: 400)
+  start?: number; // Start-Offset in ms (Default: 0)
 }
 
 /**

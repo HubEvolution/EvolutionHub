@@ -68,17 +68,21 @@ export const onRequest = defineMiddleware(async (context, next) => {
   // HTTP Basic Auth Check für temporären Produktionsschutz
   const auth = context.request.headers.get('Authorization');
   const correctUsername = 'admin';
-  const correctPassword = (context.locals.runtime?.env as any)?.SITE_PASSWORD || 'EvolutionHub2024!';
+  const correctPassword =
+    (context.locals.runtime?.env as any)?.SITE_PASSWORD || 'EvolutionHub2024!';
 
   // Ausnahmen: API-Routen, Assets und Health-Checks sollen passwortfrei bleiben
   const requestUrl = new URL(context.request.url);
   const isApiRoute = requestUrl.pathname.startsWith('/api/');
-  const isAssetFile = /\.(css|js|mjs|map|svg|png|jpe?g|webp|gif|ico|json|xml|txt|woff2?|ttf|webmanifest)$/i.test(requestUrl.pathname)
-    || requestUrl.pathname === '/favicon.ico'
-    || requestUrl.pathname.startsWith('/assets/')
-    || requestUrl.pathname.startsWith('/icons/')
-    || requestUrl.pathname.startsWith('/images/')
-    || requestUrl.pathname.startsWith('/favicons/');
+  const isAssetFile =
+    /\.(css|js|mjs|map|svg|png|jpe?g|webp|gif|ico|json|xml|txt|woff2?|ttf|webmanifest)$/i.test(
+      requestUrl.pathname
+    ) ||
+    requestUrl.pathname === '/favicon.ico' ||
+    requestUrl.pathname.startsWith('/assets/') ||
+    requestUrl.pathname.startsWith('/icons/') ||
+    requestUrl.pathname.startsWith('/images/') ||
+    requestUrl.pathname.startsWith('/favicons/');
 
   // Nur HTML-Seiten und andere Inhalte schützen, nicht APIs oder Assets
   if (!isApiRoute && !isAssetFile) {
@@ -94,14 +98,14 @@ export const onRequest = defineMiddleware(async (context, next) => {
       if (username !== correctUsername || password !== correctPassword) {
         return new Response('Falscher Benutzername oder Passwort', {
           status: 401,
-          headers: { 'Content-Type': 'text/html; charset=utf-8' }
+          headers: { 'Content-Type': 'text/html; charset=utf-8' },
         });
       }
     } catch (error) {
       // Base64 decode Fehler
       return new Response('Ungültige Authentifizierung', {
         status: 401,
-        headers: { 'Content-Type': 'text/html; charset=utf-8' }
+        headers: { 'Content-Type': 'text/html; charset=utf-8' },
       });
     }
   }
@@ -122,14 +126,14 @@ export const onRequest = defineMiddleware(async (context, next) => {
   const path = url.pathname;
 
   // Direkt-Weiterleitung: /favicon.ico -> /favicon.svg
-// Auskommentiert, damit favicon.ico aus public/ ausgeliefert werden kann.
-// if (path === '/favicon.ico') {
-//   const location = `${url.origin}/favicon.svg`;
-//   const headers = new Headers();
-//   headers.set('Location', location);
-//   // Dauerhafte Weiterleitung, damit Browser den neuen Pfad cachen
-//   return new Response(null, { status: 308, headers });
-// }  // Create and expose CSP Nonce early so it's available during render
+  // Auskommentiert, damit favicon.ico aus public/ ausgeliefert werden kann.
+  // if (path === '/favicon.ico') {
+  //   const location = `${url.origin}/favicon.svg`;
+  //   const headers = new Headers();
+  //   headers.set('Location', location);
+  //   // Dauerhafte Weiterleitung, damit Browser den neuen Pfad cachen
+  //   return new Response(null, { status: 308, headers });
+  // }  // Create and expose CSP Nonce early so it's available during render
   const cspNonce = generateNonce();
   try {
     // Expose for .astro via Astro.locals
@@ -177,19 +181,23 @@ export const onRequest = defineMiddleware(async (context, next) => {
   function isBot(userAgent: string | null): boolean {
     const ua = (userAgent || '').toLowerCase();
     if (!ua) return false;
-    return /(bot|crawl|spider|slurp|mediapartners|crawler|facebookexternalhit|whatsapp|telegram|discord|preview|linkchecker)/i.test(ua);
+    return /(bot|crawl|spider|slurp|mediapartners|crawler|facebookexternalhit|whatsapp|telegram|discord|preview|linkchecker)/i.test(
+      ua
+    );
   }
 
   // Auth-Routen sollen niemals durch das Welcome-Gate unterbrochen werden
   function isAuthRoute(p: string): boolean {
     // Unterstützt optionale Sprachpräfixe /de/ oder /en/
-    const AUTH_RE = /^\/(?:(?:de|en)\/)?(?:login|register|forgot-password|reset-password|verify-email|email-verified|auth\/password-reset-sent)(\/|$)/;
+    const AUTH_RE =
+      /^\/(?:(?:de|en)\/)?(?:login|register|forgot-password|reset-password|verify-email|email-verified|auth\/password-reset-sent)(\/|$)/;
     return AUTH_RE.test(p);
   }
 
-  const preferredLocale: Locale = existingLocale
-    ?? cookieLocale
-    ?? detectFromAcceptLanguage(context.request.headers.get('accept-language'));
+  const preferredLocale: Locale =
+    existingLocale ??
+    cookieLocale ??
+    detectFromAcceptLanguage(context.request.headers.get('accept-language'));
 
   // (Entfernt) Unabhängige Benutzerpräferenz war redundant und ungenutzt
 
@@ -209,7 +217,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
   function mapPathToLocale(targetLocale: Locale, base: URL): string {
     const LOCALE_RE = /^\/(de|en)(\/|$)/;
     const pathname = base.pathname.replace(LOCALE_RE, '/');
-    const build = (p: string) => targetLocale === 'en' ? (p === '/' ? '/en/' : `/en${p}`) : p;
+    const build = (p: string) => (targetLocale === 'en' ? (p === '/' ? '/en/' : `/en${p}`) : p);
     const targetPath = build(pathname);
     const next = new URL(base.toString());
     // Entferne Steuerparameter
@@ -266,12 +274,15 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   // Bestimme, ob Redirect vermieden werden soll (APIs/Assets)
   const isApi = path.startsWith('/api/');
-  const isAsset = /\.(css|js|mjs|map|svg|png|jpe?g|webp|gif|ico|json|xml|txt|woff2?|ttf|webmanifest)$/i.test(path)
-    || path === '/favicon.ico'
-    || path.startsWith('/assets/')
-    || path.startsWith('/icons/')
-    || path.startsWith('/images/')
-    || path.startsWith('/favicons/');
+  const isAsset =
+    /\.(css|js|mjs|map|svg|png|jpe?g|webp|gif|ico|json|xml|txt|woff2?|ttf|webmanifest)$/i.test(
+      path
+    ) ||
+    path === '/favicon.ico' ||
+    path.startsWith('/assets/') ||
+    path.startsWith('/icons/') ||
+    path.startsWith('/images/') ||
+    path.startsWith('/favicons/');
 
   const bot = isBot(context.request.headers.get('user-agent'));
 
@@ -292,7 +303,14 @@ export const onRequest = defineMiddleware(async (context, next) => {
   }
 
   // Frühzeitiger Redirect: neutrale Pfade -> /en/* wenn cookie=en vorhanden
-  if (!existingLocale && !isApi && !isAsset && (cookieLocale === 'en' || refererSuggestsEn) && !path.startsWith('/welcome') && !isAuthRoute(path)) {
+  if (
+    !existingLocale &&
+    !isApi &&
+    !isAsset &&
+    (cookieLocale === 'en' || refererSuggestsEn) &&
+    !path.startsWith('/welcome') &&
+    !isAuthRoute(path)
+  ) {
     const target = path === '/' ? '/en/' : `/en${path}`;
     const location = `${url.origin}${target}${url.search}${url.hash}`;
     const headers = new Headers();
@@ -307,7 +325,16 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   // Zeige Splash/Welcome beim ersten sichtbaren Besuch dieser Session
   // Überspringe Splash, wenn bereits ein Locale-Cookie vorhanden ist
-  if (!sessionWelcomeSeen && !cookieLocale && !isApi && !isAsset && !bot && !path.startsWith('/welcome') && !isAuthRoute(path) && !existingLocale) {
+  if (
+    !sessionWelcomeSeen &&
+    !cookieLocale &&
+    !isApi &&
+    !isAsset &&
+    !bot &&
+    !path.startsWith('/welcome') &&
+    !isAuthRoute(path) &&
+    !existingLocale
+  ) {
     try {
       // Session-Cookie (kein maxAge) setzen, damit Splash nur einmal pro Session erscheint
       context.cookies.set(sessionGateCookie, '1', {
@@ -327,14 +354,26 @@ export const onRequest = defineMiddleware(async (context, next) => {
     headers.set('Location', location);
     headers.set('Vary', 'Cookie, Accept-Language');
     if (import.meta.env.DEV) {
-      console.log('[Middleware] First visible visit this session -> redirect to welcome:', location);
+      console.log(
+        '[Middleware] First visible visit this session -> redirect to welcome:',
+        location
+      );
     }
     return new Response(null, { status: 302, headers });
   }
 
   // Erste Besuche (kein Cookie, kein Locale in URL, kein Bot) -> Splash/Welcome mit next
   // Respektiere Session-Gate, um doppelte Redirects zu vermeiden
-  if (!sessionWelcomeSeen && !cookieLocale && !existingLocale && !isApi && !isAsset && !bot && !path.startsWith('/welcome') && !isAuthRoute(path)) {
+  if (
+    !sessionWelcomeSeen &&
+    !cookieLocale &&
+    !existingLocale &&
+    !isApi &&
+    !isAsset &&
+    !bot &&
+    !path.startsWith('/welcome') &&
+    !isAuthRoute(path)
+  ) {
     const location = `${url.origin}/welcome?next=${encodeURIComponent(url.toString())}`;
     const headers = new Headers();
     headers.set('Location', location);
@@ -351,9 +390,12 @@ export const onRequest = defineMiddleware(async (context, next) => {
   const isDePrefixed = path === '/de' || path.startsWith('/de/');
   if (isDePrefixed && !isApi && !isAsset && !isAuthRoute(path)) {
     const pathWithoutDe = path.replace(/^\/de(\/|$)/, '/');
-    const target = cookieLocale === 'en'
-      ? (pathWithoutDe === '/' ? '/en/' : `/en${pathWithoutDe}`)
-      : pathWithoutDe;
+    const target =
+      cookieLocale === 'en'
+        ? pathWithoutDe === '/'
+          ? '/en/'
+          : `/en${pathWithoutDe}`
+        : pathWithoutDe;
     const location = `${url.origin}${target}${url.search}${url.hash}`;
     const headers = new Headers();
     headers.set('Location', location);
@@ -383,7 +425,14 @@ export const onRequest = defineMiddleware(async (context, next) => {
   }
 
   // Neutrale Pfade nur bei gesetztem Cookie=en auf /en/... umleiten; sonst neutral (DE) belassen
-  if (!existingLocale && !isApi && !isAsset && cookieLocale === 'en' && !path.startsWith('/welcome') && !isAuthRoute(path)) {
+  if (
+    !existingLocale &&
+    !isApi &&
+    !isAsset &&
+    cookieLocale === 'en' &&
+    !path.startsWith('/welcome') &&
+    !isAuthRoute(path)
+  ) {
     const target = path === '/' ? '/en/' : `/en${path}`;
     const location = `${url.origin}${target}${url.search}${url.hash}`;
     const headers = new Headers();
@@ -444,7 +493,12 @@ export const onRequest = defineMiddleware(async (context, next) => {
       const VE_RE = /^\/(?:(?:de|en)\/)?.*verify-email(\/|$)/;
       return VE_RE.test(p);
     };
-    if (user && user.email_verified === false && isDashboardRoute(path) && !isVerifyEmailRoute(path)) {
+    if (
+      user &&
+      user.email_verified === false &&
+      isDashboardRoute(path) &&
+      !isVerifyEmailRoute(path)
+    ) {
       const targetLocale: Locale = existingLocale ?? preferredLocale;
       const base = targetLocale === 'en' ? '/en/verify-email' : '/verify-email';
       const params = new URLSearchParams();
@@ -482,7 +536,8 @@ export const onRequest = defineMiddleware(async (context, next) => {
   }
 
   // Setze MIME-Typen für verschiedene Dateitypen
-  if (path.endsWith('.css')) { // Geänderte Bedingung: Alle .css-Dateien berücksichtigen
+  if (path.endsWith('.css')) {
+    // Geänderte Bedingung: Alle .css-Dateien berücksichtigen
     response.headers.set('Content-Type', 'text/css');
     if (import.meta.env.DEV) {
       console.log('[Middleware] Set Content-Type to text/css for CSS file');
@@ -503,7 +558,12 @@ export const onRequest = defineMiddleware(async (context, next) => {
   const effectiveLocale: Locale = existingLocale ?? preferredLocale;
   response.headers.set('Content-Language', effectiveLocale);
   const existingVary = response.headers.get('Vary') || '';
-  const varyParts = new Set(existingVary.split(',').map((v: string) => v.trim()).filter(Boolean));
+  const varyParts = new Set(
+    existingVary
+      .split(',')
+      .map((v: string) => v.trim())
+      .filter(Boolean)
+  );
   varyParts.add('Cookie');
   varyParts.add('Accept-Language');
   response.headers.set('Vary', Array.from(varyParts).join(', '));
@@ -516,8 +576,12 @@ export const onRequest = defineMiddleware(async (context, next) => {
   // CSP: relax in development for Astro/Vite HMR and inline module scripts; strict in production
   // Wrangler "dev" runs a built worker, so import.meta.env.DEV can be false.
   // Treat local loopbacks as development to keep relaxed CSP during local E2E/dev.
-  const cfEnv = (context.locals as unknown as { runtime?: { env?: Record<string, string> } })?.runtime?.env;
-  const envFlagDev = !!(cfEnv && (cfEnv.ENVIRONMENT === 'development' || cfEnv.NODE_ENV === 'development'));
+  const cfEnv = (context.locals as unknown as { runtime?: { env?: Record<string, string> } })
+    ?.runtime?.env;
+  const envFlagDev = !!(
+    cfEnv &&
+    (cfEnv.ENVIRONMENT === 'development' || cfEnv.NODE_ENV === 'development')
+  );
   const __devLike =
     import.meta.env.DEV ||
     import.meta.env.MODE === 'development' ||
@@ -555,7 +619,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
       "frame-ancestors 'self'",
       "object-src 'none'",
       "base-uri 'self'",
-      "report-uri /api/csp-report",
+      'report-uri /api/csp-report',
     ].join('; ');
     response.headers.set('Content-Security-Policy', prodCsp);
   }
@@ -564,9 +628,12 @@ export const onRequest = defineMiddleware(async (context, next) => {
   response.headers.set('X-Frame-Options', 'DENY');
   // Referrer-Policy nur auf Reset-Passwort-Seiten erzwingen (keine Weitergabe sensibler Token über Referrer)
   const isResetPasswordPath =
-    path === '/reset-password' || path === '/reset-password/' ||
-    path === '/de/reset-password' || path === '/de/reset-password/' ||
-    path === '/en/reset-password' || path === '/en/reset-password/';
+    path === '/reset-password' ||
+    path === '/reset-password/' ||
+    path === '/de/reset-password' ||
+    path === '/de/reset-password/' ||
+    path === '/en/reset-password' ||
+    path === '/en/reset-password/';
   if (isResetPasswordPath) {
     response.headers.set('Referrer-Policy', 'no-referrer');
   }

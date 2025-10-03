@@ -136,7 +136,7 @@ describe('AI Image Enhancer API + R2 Proxy (Integration)', () => {
     expect(res.status).toBe(202);
     expect(res.headers.get('content-type') || '').toContain('application/json');
 
-    const body = (await json<ApiEnvelope<AiJobData>>(res));
+    const body = await json<ApiEnvelope<AiJobData>>(res);
     expect(body.success).toBe(true);
     if (body.success) {
       expect(typeof body.data.id).toBe('string');
@@ -180,7 +180,10 @@ describe('AI Image Enhancer API + R2 Proxy (Integration)', () => {
     const file = new File([fake], 'fake.png', { type: 'image/png' });
     const fd = new FormData();
     fd.append('image', file);
-    fd.append('model', 'nightmareai/real-esrgan:f0992969a94014d73864d08e6d9a39286868328e4263d9ce2da6fc4049d01a1a');
+    fd.append(
+      'model',
+      'nightmareai/real-esrgan:f0992969a94014d73864d08e6d9a39286868328e4263d9ce2da6fc4049d01a1a'
+    );
 
     const token = makeCsrfToken();
     const res = await fetchManual('/api/ai-image/jobs', {
@@ -192,7 +195,7 @@ describe('AI Image Enhancer API + R2 Proxy (Integration)', () => {
       },
     });
     expect(res.status).toBe(400);
-    const body = await json<ApiEnvelope<any>>(res);
+    const body = await json<ApiEnvelope<unknown>>(res);
     expect(body.success).toBe(false);
     if (!body.success) expect(body.error.type).toBe('validation_error');
   });
@@ -203,7 +206,10 @@ describe('AI Image Enhancer API + R2 Proxy (Integration)', () => {
     const file = new File([buf], 'sample.png', { type: 'image/png' });
     const fd = new FormData();
     fd.append('image', file);
-    fd.append('model', 'nightmareai/real-esrgan:f0992969a94014d73864d08e6d9a39286868328e4263d9ce2da6fc4049d01a1a');
+    fd.append(
+      'model',
+      'nightmareai/real-esrgan:f0992969a94014d73864d08e6d9a39286868328e4263d9ce2da6fc4049d01a1a'
+    );
 
     const token = makeCsrfToken();
     const res = await fetchManual('/api/ai-image/jobs', {
@@ -233,7 +239,7 @@ describe('AI Image Enhancer API + R2 Proxy (Integration)', () => {
       },
     });
     expect(res.status).toBe(200);
-    const body = (await json<ApiEnvelope<AiJobData>>(res));
+    const body = await json<ApiEnvelope<AiJobData>>(res);
     expect(body.success).toBe(true);
     if (body.success) {
       expect(body.data.id).toBe(jobId);
@@ -248,7 +254,7 @@ describe('AI Image Enhancer API + R2 Proxy (Integration)', () => {
       },
     });
     expect(res.status).toBe(200);
-    const body = (await json<ApiEnvelope<AiJobData>>(res));
+    const body = await json<ApiEnvelope<AiJobData>>(res);
     expect(body.success).toBe(true);
     if (body.success) {
       expect(body.data.id).toBe(jobId);
@@ -272,7 +278,7 @@ describe('AI Image Enhancer API + R2 Proxy (Integration)', () => {
       },
     });
     expect(res.status).toBe(403);
-    const body = (await json<ApiEnvelope<unknown>>(res));
+    const body = await json<ApiEnvelope<unknown>>(res);
     expect(body.success).toBe(false);
     if (!body.success) {
       expect(body.error.type).toBe('forbidden');
@@ -290,7 +296,7 @@ describe('AI Image Enhancer API + R2 Proxy (Integration)', () => {
       },
     });
     expect(res.status).toBe(403);
-    const body = (await json<ApiEnvelope<unknown>>(res));
+    const body = await json<ApiEnvelope<unknown>>(res);
     expect(body.success).toBe(false);
     if (!body.success) {
       expect(body.error.type).toBe('forbidden');
@@ -324,7 +330,9 @@ describe('AI Image Enhancer API + R2 Proxy (Integration)', () => {
     if (res.status === 404) {
       // Avoid flakiness in local/dev where R2 edge may be eventually consistent.
       // In CI against a persistent R2 bucket this should be 200.
-      console.warn('[integration] R2 uploads fetch returned 404 after retries; skipping header assertions');
+      console.warn(
+        '[integration] R2 uploads fetch returned 404 after retries; skipping header assertions'
+      );
       return;
     }
     expect(res.status).toBe(200);
@@ -366,7 +374,10 @@ describe('AI Image Enhancer API + R2 Proxy (Integration)', () => {
         saw429 = true;
         expect(res.headers.get('retry-after')).toBeTruthy();
         // body from limiter is plain JSON (not envelope)
-        const data = await res.json().catch(() => null) as { error?: string; retryAfter?: number } | null;
+        const data = (await res.json().catch(() => null)) as {
+          error?: string;
+          retryAfter?: number;
+        } | null;
         expect(data && typeof data.retryAfter === 'number').toBe(true);
         break;
       }
@@ -386,7 +397,10 @@ describe('AI Image Enhancer API + R2 Proxy (Integration)', () => {
     const file = new File([buf], 'sample.png', { type: 'image/png' });
     const fd = new FormData();
     fd.append('image', file);
-    fd.append('model', 'nightmareai/real-esrgan:f0992969a94014d73864d08e6d9a39286868328e4263d9ce2da6fc4049d01a1a');
+    fd.append(
+      'model',
+      'nightmareai/real-esrgan:f0992969a94014d73864d08e6d9a39286868328e4263d9ce2da6fc4049d01a1a'
+    );
 
     const token = makeCsrfToken();
     const res = await fetchManual('/api/ai-image/generate', {
@@ -398,12 +412,12 @@ describe('AI Image Enhancer API + R2 Proxy (Integration)', () => {
       },
     });
     expect(res.status).toBe(200);
-    const body = await json<ApiEnvelope<any>>(res);
+    const body = await json<ApiEnvelope<unknown>>(res);
     expect(body.success).toBe(true);
     if (body.success) {
-      expect(body.data).toHaveProperty('limits');
-      expect(typeof body.data.limits.user).toBe('number');
-      expect(typeof body.data.limits.guest).toBe('number');
+      const limits = (body.data as { limits: { user: number; guest: number } }).limits;
+      expect(typeof limits.user).toBe('number');
+      expect(typeof limits.guest).toBe('number');
     }
   });
 
@@ -413,7 +427,10 @@ describe('AI Image Enhancer API + R2 Proxy (Integration)', () => {
     const file = new File([buf], 'sample.png', { type: 'image/png' });
     const fd = new FormData();
     fd.append('image', file);
-    fd.append('model', 'nightmareai/real-esrgan:f0992969a94014d73864d08e6d9a39286868328e4263d9ce2da6fc4049d01a1a');
+    fd.append(
+      'model',
+      'nightmareai/real-esrgan:f0992969a94014d73864d08e6d9a39286868328e4263d9ce2da6fc4049d01a1a'
+    );
 
     const res = await fetchManual('/api/ai-image/generate', {
       method: 'POST',
@@ -447,7 +464,10 @@ describe('AI Image Enhancer API + R2 Proxy (Integration)', () => {
       if (res.status === 429) {
         saw429 = true;
         expect(res.headers.get('retry-after')).toBeTruthy();
-        const data = await res.json().catch(() => null) as { error?: string; retryAfter?: number } | null;
+        const data = (await res.json().catch(() => null)) as {
+          error?: string;
+          retryAfter?: number;
+        } | null;
         expect(data && typeof data.retryAfter === 'number').toBe(true);
         break;
       }

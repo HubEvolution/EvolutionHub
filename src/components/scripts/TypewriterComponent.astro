@@ -14,11 +14,7 @@ interface Props {
 }
 
 // Props mit Standardwerten
-const { 
-  elementId = "typewriter", 
-  texts = [], 
-  defaultDelay = 100 
-} = Astro.props;
+const { elementId = 'typewriter', texts = [], defaultDelay = 100 } = Astro.props;
 ---
 
 <!-- Kein direktes Markup nötig, nur das Client-Script -->
@@ -33,7 +29,7 @@ const {
 
     // Fallback für leeres Array
     if (!textArray || textArray.length === 0) {
-      textArray = [{ text: "No text provided", delay: baseDelay }];
+      textArray = [{ text: 'No text provided', delay: baseDelay }];
     }
 
     // Sicherstellen, dass bei jedem Start frisch begonnen wird
@@ -113,7 +109,11 @@ const {
   })();
 
   // Fallback: falls DOMContentLoaded verpasst wurde
-  window.addEventListener('load', () => {
-    if (!cleanup) startTypewriter();
-  }, { once: true });
+  window.addEventListener(
+    'load',
+    () => {
+      if (!cleanup) startTypewriter();
+    },
+    { once: true }
+  );
 </script>

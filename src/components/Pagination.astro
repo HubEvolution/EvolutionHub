@@ -6,12 +6,7 @@ interface Props {
   className?: string;
 }
 
-const { 
-  currentPage, 
-  totalPages, 
-  baseUrl,
-  className = '' 
-} = Astro.props;
+const { currentPage, totalPages, baseUrl, className = '' } = Astro.props;
 
 if (totalPages <= 1) return null;
 
@@ -21,167 +16,175 @@ type PageNumber = number | '...';
 const getPageNumbers = (): PageNumber[] => {
   const pages: PageNumber[] = [];
   const maxVisiblePages = 5;
-  
+
   // If there are fewer pages than the maximum, return all
   if (totalPages <= maxVisiblePages) {
     return Array.from({ length: totalPages }, (_, i) => i + 1);
   }
-  
+
   // Always add first page
   pages.push(1);
-  
+
   // Calculate range of pages to show around current page
   let startPage = Math.max(2, currentPage - 1);
   let endPage = Math.min(totalPages - 1, currentPage + 1);
-  
+
   // Adjust if we're near the start or end
   if (currentPage <= 3) {
     endPage = 4;
   } else if (currentPage >= totalPages - 2) {
     startPage = totalPages - 3;
   }
-  
+
   // Add ellipsis if needed before middle pages
   if (startPage > 2) {
     pages.push('...');
   }
-  
+
   // Add middle pages
   for (let i = startPage; i <= endPage; i++) {
     pages.push(i);
   }
-  
+
   // Add ellipsis if needed after middle pages
   if (endPage < totalPages - 1) {
     pages.push('...');
   }
-  
+
   // Add last page if not already included
   if (totalPages > 1) {
     pages.push(totalPages);
   }
-  
+
   return pages;
 };
 
 const pageNumbers = getPageNumbers();
 ---
 
-<nav 
-  class={['flex items-center justify-between border-t border-gray-200 px-4 sm:px-0', className].join(' ')}
+<nav
+  class={[
+    'flex items-center justify-between border-t border-gray-200 px-4 sm:px-0',
+    className,
+  ].join(' ')}
   aria-label="Pagination"
 >
   <div class="flex w-0 flex-1">
-    {currentPage > 1 ? (
-      <a 
-        href={`${baseUrl}?page=${currentPage - 1}`}
-        class="inline-flex items-center border-t-2 border-transparent pt-4 pr-1 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-300 dark:hover:text-gray-200"
-      >
-        <svg 
-          class="mr-3 h-5 w-5 text-gray-400" 
-          viewBox="0 0 20 20" 
-          fill="currentColor" 
-          aria-hidden="true"
+    {
+      currentPage > 1 ? (
+        <a
+          href={`${baseUrl}?page=${currentPage - 1}`}
+          class="inline-flex items-center border-t-2 border-transparent pt-4 pr-1 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-300 dark:hover:text-gray-200"
         >
-          <path 
-            fill-rule="evenodd" 
-            d="M18 10a.75.75 0 01-.75.75H4.66l2.1 1.95a.75.75 0 11-1.02 1.1l-3.5-3.25a.75.75 0 010-1.1l3.5-3.25a.75.75 0 111.02 1.1l-2.1 1.95h12.59A.75.75 0 0118 10z" 
-            clip-rule="evenodd" 
-          />
-        </svg>
-        Zurück
-      </a>
-    ) : (
-      <span class="inline-flex items-center border-t-2 border-transparent pt-4 pr-1 text-sm font-medium text-gray-300 dark:text-gray-600">
-        <svg 
-          class="mr-3 h-5 w-5 text-gray-300 dark:text-gray-600" 
-          viewBox="0 0 20 20" 
-          fill="currentColor" 
-          aria-hidden="true"
-        >
-          <path 
-            fill-rule="evenodd" 
-            d="M18 10a.75.75 0 01-.75.75H4.66l2.1 1.95a.75.75 0 11-1.02 1.1l-3.5-3.25a.75.75 0 010-1.1l3.5-3.25a.75.75 0 111.02 1.1l-2.1 1.95h12.59A.75.75 0 0118 10z" 
-            clip-rule="evenodd" 
-          />
-        </svg>
-        Zurück
-      </span>
-    )}
+          <svg
+            class="mr-3 h-5 w-5 text-gray-400"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+            aria-hidden="true"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M18 10a.75.75 0 01-.75.75H4.66l2.1 1.95a.75.75 0 11-1.02 1.1l-3.5-3.25a.75.75 0 010-1.1l3.5-3.25a.75.75 0 111.02 1.1l-2.1 1.95h12.59A.75.75 0 0118 10z"
+              clip-rule="evenodd"
+            />
+          </svg>
+          Zurück
+        </a>
+      ) : (
+        <span class="inline-flex items-center border-t-2 border-transparent pt-4 pr-1 text-sm font-medium text-gray-300 dark:text-gray-600">
+          <svg
+            class="mr-3 h-5 w-5 text-gray-300 dark:text-gray-600"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+            aria-hidden="true"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M18 10a.75.75 0 01-.75.75H4.66l2.1 1.95a.75.75 0 11-1.02 1.1l-3.5-3.25a.75.75 0 010-1.1l3.5-3.25a.75.75 0 111.02 1.1l-2.1 1.95h12.59A.75.75 0 0118 10z"
+              clip-rule="evenodd"
+            />
+          </svg>
+          Zurück
+        </span>
+      )
+    }
   </div>
 
   <div class="hidden md:-mt-px md:flex">
-    {pageNumbers.map((pageItem) => {
-      // Handle ellipsis case
-      if (pageItem === '...') {
+    {
+      pageNumbers.map((pageItem) => {
+        // Handle ellipsis case
+        if (pageItem === '...') {
+          return (
+            <span class="inline-flex items-center border-t-2 border-transparent px-4 pt-4 text-sm font-medium text-gray-500">
+              ...
+            </span>
+          );
+        }
+
+        // Handle number case
+        const pageNumber: number = pageItem;
+        const isActive = pageNumber === currentPage;
+        const pageHref =
+          pageNumber === 1
+            ? baseUrl
+            : `${baseUrl}${baseUrl.includes('?') ? '&' : '?'}page=${pageNumber}`;
+
         return (
-          <span 
-            class="inline-flex items-center border-t-2 border-transparent px-4 pt-4 text-sm font-medium text-gray-500"
+          <a
+            href={pageHref}
+            class={`inline-flex items-center border-t-2 px-4 pt-4 text-sm font-medium ${
+              isActive
+                ? 'border-emerald-500 text-emerald-600 dark:border-emerald-400 dark:text-emerald-400'
+                : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-300 dark:hover:text-gray-200'
+            }`}
+            aria-current={isActive ? 'page' : undefined}
           >
-            ...
-          </span>
+            {pageNumber}
+          </a>
         );
-      }
-      
-      // Handle number case
-      const pageNumber: number = pageItem;
-      const isActive = pageNumber === currentPage;
-      const pageHref = pageNumber === 1 
-        ? baseUrl 
-        : `${baseUrl}${baseUrl.includes('?') ? '&' : '?'}page=${pageNumber}`;
-      
-      return (
-        <a
-          href={pageHref}
-          class={`inline-flex items-center border-t-2 px-4 pt-4 text-sm font-medium ${
-            isActive
-              ? 'border-emerald-500 text-emerald-600 dark:border-emerald-400 dark:text-emerald-400'
-              : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-300 dark:hover:text-gray-200'
-          }`}
-          aria-current={isActive ? 'page' : undefined}
-        >
-          {pageNumber}
-        </a>
-      );
-    })}
+      })
+    }
   </div>
 
   <div class="flex w-0 flex-1 justify-end">
-    {currentPage < totalPages ? (
-      <a 
-        href={`${baseUrl}?page=${currentPage + 1}`}
-        class="inline-flex items-center border-t-2 border-transparent pt-4 pl-1 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-300 dark:hover:text-gray-200"
-      >
-        Weiter
-        <svg 
-          class="ml-3 h-5 w-5 text-gray-400" 
-          viewBox="0 0 20 20" 
-          fill="currentColor" 
-          aria-hidden="true"
+    {
+      currentPage < totalPages ? (
+        <a
+          href={`${baseUrl}?page=${currentPage + 1}`}
+          class="inline-flex items-center border-t-2 border-transparent pt-4 pl-1 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-300 dark:hover:text-gray-200"
         >
-          <path 
-            fill-rule="evenodd" 
-            d="M2 10a.75.75 0 01.75-.75h12.59l-2.1-1.95a.75.75 0 111.02-1.1l3.5 3.25a.75.75 0 010 1.1l-3.5 3.25a.75.75 0 11-1.02-1.1l2.1-1.95H2.75A.75.75 0 012 10z" 
-            clip-rule="evenodd" 
-          />
-        </svg>
-      </a>
-    ) : (
-      <span class="inline-flex items-center border-t-2 border-transparent pt-4 pl-1 text-sm font-medium text-gray-300 dark:text-gray-600">
-        Weiter
-        <svg 
-          class="ml-3 h-5 w-5 text-gray-300 dark:text-gray-600" 
-          viewBox="0 0 20 20" 
-          fill="currentColor" 
-          aria-hidden="true"
-        >
-          <path 
-            fill-rule="evenodd" 
-            d="M2 10a.75.75 0 01.75-.75h12.59l-2.1-1.95a.75.75 0 111.02-1.1l3.5 3.25a.75.75 0 010 1.1l-3.5 3.25a.75.75 0 11-1.02-1.1l2.1-1.95H2.75A.75.75 0 012 10z" 
-            clip-rule="evenodd" 
-          />
-        </svg>
-      </span>
-    )}
+          Weiter
+          <svg
+            class="ml-3 h-5 w-5 text-gray-400"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+            aria-hidden="true"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M2 10a.75.75 0 01.75-.75h12.59l-2.1-1.95a.75.75 0 111.02-1.1l3.5 3.25a.75.75 0 010 1.1l-3.5 3.25a.75.75 0 11-1.02-1.1l2.1-1.95H2.75A.75.75 0 012 10z"
+              clip-rule="evenodd"
+            />
+          </svg>
+        </a>
+      ) : (
+        <span class="inline-flex items-center border-t-2 border-transparent pt-4 pl-1 text-sm font-medium text-gray-300 dark:text-gray-600">
+          Weiter
+          <svg
+            class="ml-3 h-5 w-5 text-gray-300 dark:text-gray-600"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+            aria-hidden="true"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M2 10a.75.75 0 01.75-.75h12.59l-2.1-1.95a.75.75 0 111.02-1.1l3.5 3.25a.75.75 0 010 1.1l-3.5 3.25a.75.75 0 11-1.02-1.1l2.1-1.95H2.75A.75.75 0 012 10z"
+              clip-rule="evenodd"
+            />
+          </svg>
+        </span>
+      )
+    }
   </div>
 </nav>

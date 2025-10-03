@@ -12,7 +12,7 @@ Willkommen zur Evolution Hub Dokumentation. Diese Dokumentation bietet umfassend
   - Architecture Decision Records (ADRs)
   - Code-Reviews und Analysen
 
-- **[Development](./development/)** — Entwicklungs-Workflows, Tools, Setup
+- **[Development](./development/.)** — Entwicklungs-Workflows, Tools, Setup
   - Lokale Entwicklungsumgebung
   - CI/CD-Pipeline und Deployment
   - Testing-Guidelines
@@ -43,6 +43,7 @@ Willkommen zur Evolution Hub Dokumentation. Diese Dokumentation bietet umfassend
   - API-Endpunkte und Routen
   - OpenAPI-Spezifikation
   - Known Issues und Verbesserungspotentiale
+  - Auth (Magic Link): [Auth API](./api/auth_api.md)
 
 ### Operational Documentation
 
@@ -57,24 +58,28 @@ Willkommen zur Evolution Hub Dokumentation. Diese Dokumentation bietet umfassend
 ## 🚀 Schnellstart-Guides
 
 ### Für neue Entwickler
+
 1. **Setup:** [SETUP.md](./SETUP.md) — Schnellstart-Anleitung für lokale Entwicklung
 2. **Lokale Entwicklung:** [Development: Local Development](./development/local-development.md) — Detaillierte Anleitung für lokale Umgebung
 3. **Architektur-Übersicht:** [Architecture: System Overview](./architecture/system-overview.md) — Verstehen Sie die Systemarchitektur
 4. **Testing:** [Testing: Strategy](./testing/testing-strategy.md) — Wie Tests geschrieben werden
 
 ### Für Contributors
+
 1. **CONTRIBUTING.md** (Root) — Richtlinien für Contributions
 2. **[Cheat Sheet](./cheat-sheet.md)** — Wichtige Kommandos und Workflows
 3. **[CI/CD](./development/ci-cd.md)** — GitHub Actions und Deployment-Pipeline
 4. **[Testing Guidelines](./development/testing-guidelines.md)** — Testing-Best-Practices
 
 ### Für Security-Reviews
+
 1. **[Security: README](./security/README.md)** — Übersicht aller Security-Features
 2. **[Security: Improvements](./security/improvements.md)** — Implementierte Sicherheitsverbesserungen
 3. **[Auth Architecture](./architecture/auth-architecture.md)** — Authentifizierungs-Flow und Sicherheit
 4. **SECURITY.md** (Root) — Vulnerability-Reporting-Policy
 
 ### Für UI/UX-Entwicklung
+
 1. **[Frontend: Design System](./frontend/design-system.md)** — Design-Tokens und Style-Guide
 2. **[Frontend: UI Components](./frontend/ui-components.md)** — Komponenten-Leitfaden
 3. **[Frontend: UI/UX Guidelines](./frontend/ui-ux.md)** — UX-Prinzipien und Best Practices
@@ -83,27 +88,32 @@ Willkommen zur Evolution Hub Dokumentation. Diese Dokumentation bietet umfassend
 ## 📖 Wichtige Root-Dokumente
 
 ### Setup & Onboarding
+
 - **[SETUP.md](./SETUP.md)** — Hauptdokument für Projekt-Setup und Konfiguration
 - **[Cheat Sheet](./cheat-sheet.md)** — Schnellreferenz für wichtige Kommandos
 
 ### Technical Reference
+
 - **[Architecture](./architecture.md)** — High-Level Tech-Stack und Architektur-Übersicht
 - **[Database Schema Update](./db_schema_update.md)** — DB-Schema und Migrations-Dokumentation
 - **[i18n](./i18n.md)** — Internationalisierung und Locale-Management
 
 ### Content & SEO
+
 - **[Content Management](./content.md)** — Content-Guidelines und Best Practices
 - **[SEO](./seo.md)** — SEO-Guidelines und Optimierung
 
 ### Product
+
 - **[Feature Roadmap](./feature-roadmap.md)** — Produkt-Roadmap und geplante Features
 
 ### Security & Compliance
+
 - **[SECURITY.md](./SECURITY.md)** — Security-Policy und Vulnerability-Reporting
 
 ## 🗂️ Dokumentationsstruktur
 
-```
+```plain
 docs/
 ├── README.md                          # Diese Datei - Hauptindex
 ├── SETUP.md                           # Hauptdokument für Setup
@@ -156,6 +166,7 @@ docs/
 ### Nach Kategorie
 
 Jede Kategorie hat ein eigenes **README.md** mit Links zu allen Dokumenten in dieser Kategorie:
+
 - `docs/architecture/README.md`
 - `docs/development/README.md`
 - `docs/frontend/README.md`
@@ -167,16 +178,19 @@ Jede Kategorie hat ein eigenes **README.md** mit Links zu allen Dokumenten in di
 ## 📝 Dokumentations-Konventionen
 
 ### Markdown-Format
+
 - Alle Dokumentation in Markdown (`.md`)
 - Relative Links für interne Verweise
 - Code-Beispiele mit Syntax-Highlighting
 
 ### Struktur
+
 - Jede Kategorie hat ein `README.md` als Index
 - Haupt-Kategorie-Dokumente in Kategorie-Verzeichnissen
 - Root-Dokumente nur für übergreifende Themen
 
 ### Aktualisierung
+
 - Dokumentation bei Code-Änderungen mitpflegen
 - ADRs für wichtige Architektur-Entscheidungen
 - Obsolete Dokumente nach `docs/archive/` verschieben
@@ -186,6 +200,7 @@ Jede Kategorie hat ein eigenes **README.md** mit Links zu allen Dokumenten in di
 Siehe **CONTRIBUTING.md** (Root) für detaillierte Contribution-Guidelines.
 
 Bei Dokumentations-Verbesserungen:
+
 1. Prüfen, ob das Dokument in die richtige Kategorie gehört
 2. Kategorie-README.md aktualisieren, wenn neue Dokumente hinzugefügt werden
 3. Links und Referenzen überprüfen

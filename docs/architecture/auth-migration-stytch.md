@@ -21,6 +21,7 @@ Status: Phase 1 (Root-Workspace-Aliases) abgeschlossen am 2025-09-04T00:33:20+02
   - GET  `/api/auth/oauth/:provider/callback`
 - Legacy-Routen bei `AUTH_PROVIDER=stytch`: 410 Gone
   - Aktuell deprecatet (410): `src/pages/api/auth/register.ts`, `src/pages/api/auth/forgot-password.ts`, `src/pages/api/auth/logout.ts`, `src/pages/api/auth/verify-email.ts`, `src/pages/api/auth/change-password.ts`, `src/pages/api/auth/reset-password.ts` (Stand Codebasis).
+  - UI‑Seiten für Reset‑Password wurden entfernt (neutral/en/de). Es existiert nur noch der 410‑API‑Endpoint.
   - `src/pages/api/auth/login.ts` ist nicht mehr aktiv.
 - Session-Cookie (aktuell): `__Host-session` (HttpOnly, Secure, SameSite=Strict, Path=/).
 
@@ -219,6 +220,7 @@ Stytch CLI / API:
 - Login: E‑Mail‑basiertes Magic‑Link‑Formular (nur E‑Mail). Optionales Profil (Name/Username) wird hier nicht abgefragt.
 - Register: Magic‑Link‑Formular mit E‑Mail und optionalen Profilfeldern (Name, Username). Übergabe erfolgt serverseitig via `post_auth_profile`.
 - „Forgot password?“: Link wird in Stytch‑Modus ausgeblendet (Legacy‑Formular hidden bei `AUTH_PROVIDER=stytch`).
+  - Hinweis: Die Reset‑Password UI wurde komplett entfernt; Nutzer melden sich ausschließlich via Magic Link an.
 - Social/OAuth‑Buttons: aktiv (GitHub) in Testing und Production; weitere Provider können nach Enablement in Stytch ergänzt werden.
 - UI‑Zustände: „Link gesendet“, „ungültig/abgelaufen“, „erneut senden“.
 - Redirect‑Parameter `r` clientseitig validieren; Server (Cookie `post_auth_redirect`) hat Vorrang. (Policy siehe Sicherheit)

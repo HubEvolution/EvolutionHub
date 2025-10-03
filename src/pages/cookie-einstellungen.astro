@@ -6,28 +6,34 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 // da diese Seite rein clientseitig ist und die cookieconsent-API verwendet wird.
 ---
 
-<BaseLayout title="Cookie-Einstellungen" description="Verwalten Sie Ihre Cookie-Einstellungen für Evolution Hub">
+<BaseLayout
+  title="Cookie-Einstellungen"
+  description="Verwalten Sie Ihre Cookie-Einstellungen für Evolution Hub"
+>
   <div class="min-h-screen bg-gray-50 dark:bg-gray-900 py-12">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
       <!-- Header -->
       <div class="text-center mb-12">
-        <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-          Cookie-Einstellungen
-        </h1>
+        <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-4">Cookie-Einstellungen</h1>
         <p class="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-          Wir verwenden Cookies, um Ihre Erfahrung auf unserer Website zu verbessern.
-          Sie können hier auswählen, welche Cookie-Kategorien Sie zulassen möchten.
+          Wir verwenden Cookies, um Ihre Erfahrung auf unserer Website zu verbessern. Sie können
+          hier auswählen, welche Cookie-Kategorien Sie zulassen möchten.
         </p>
       </div>
 
       <!-- Cookie-Einstellungen Formular -->
-      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 sm:p-8 border border-gray-200 dark:border-gray-700">
+      <div
+        class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 sm:p-8 border border-gray-200 dark:border-gray-700"
+      >
         <form id="cookie-preferences-form" class="space-y-8">
           <!-- Notwendige Cookies -->
           <div class="flex items-start space-x-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
             <div class="flex-shrink-0 mt-1">
               <svg class="w-5 h-5 text-emerald-500" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                <path
+                  fill-rule="evenodd"
+                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                  clip-rule="evenodd"></path>
               </svg>
             </div>
             <div class="flex-grow">
@@ -56,10 +62,22 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
           </div>
 
           <!-- Analyse Cookies -->
-          <div class="flex items-start space-x-4 p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600">
+          <div
+            class="flex items-start space-x-4 p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600"
+          >
             <div class="flex-shrink-0 mt-1">
-              <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              <svg
+                class="w-5 h-5 text-blue-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                ></path>
               </svg>
             </div>
             <div class="flex-grow">
@@ -67,9 +85,9 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
                 Analyse-Cookies
               </h3>
               <p class="text-gray-600 dark:text-gray-300 mb-4">
-                Diese Cookies helfen uns dabei, das Nutzungsverhalten zu verstehen und die
-                Website zu verbessern. Sie sammeln Informationen in aggregierter Form über
-                die Nutzung unserer Website.
+                Diese Cookies helfen uns dabei, das Nutzungsverhalten zu verstehen und die Website
+                zu verbessern. Sie sammeln Informationen in aggregierter Form über die Nutzung
+                unserer Website.
               </p>
               <div class="flex items-center">
                 <input
@@ -86,10 +104,22 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
           </div>
 
           <!-- Marketing Cookies -->
-          <div class="flex items-start space-x-4 p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600">
+          <div
+            class="flex items-start space-x-4 p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600"
+          >
             <div class="flex-shrink-0 mt-1">
-              <svg class="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+              <svg
+                class="w-5 h-5 text-purple-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
+                ></path>
               </svg>
             </div>
             <div class="flex-grow">
@@ -116,7 +146,9 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
           </div>
 
           <!-- Aktionen -->
-          <div class="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
+          <div
+            class="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200 dark:border-gray-700"
+          >
             <button
               type="submit"
               class="flex-1 bg-gradient-to-r from-emerald-500 to-cyan-500 text-white px-6 py-3 rounded-lg font-medium hover:from-emerald-600 hover:to-cyan-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all duration-200 transform hover:scale-105"
@@ -142,18 +174,23 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
       </div>
 
       <!-- Info Box -->
-      <div class="mt-8 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6">
+      <div
+        class="mt-8 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6"
+      >
         <div class="flex items-start space-x-3">
           <svg class="w-5 h-5 text-blue-500 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+            <path
+              fill-rule="evenodd"
+              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+              clip-rule="evenodd"></path>
           </svg>
           <div>
             <h3 class="text-sm font-semibold text-blue-800 dark:text-blue-200 mb-1">
               Informationen zu Ihren Daten
             </h3>
             <p class="text-sm text-blue-700 dark:text-blue-300">
-              Ihre Cookie-Einstellungen werden lokal in Ihrem Browser gespeichert.
-              Sie können diese Einstellungen jederzeit ändern, indem Sie diese Seite erneut besuchen.
+              Ihre Cookie-Einstellungen werden lokal in Ihrem Browser gespeichert. Sie können diese
+              Einstellungen jederzeit ändern, indem Sie diese Seite erneut besuchen.
             </p>
           </div>
         </div>
@@ -164,11 +201,10 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
   <script is:inline type="module" nonce={Astro.locals.cspNonce}>
     import notify from '@/lib/notify';
     // Globale Deklarationen zur Vermeidung von TypeScript-Fehlern
-    const CookieConsent = typeof window !== 'undefined' && (window)['CookieConsent']
-      ? (window)['CookieConsent']
-      : null;
+    const CookieConsent =
+      typeof window !== 'undefined' && window['CookieConsent'] ? window['CookieConsent'] : null;
 
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
       const form = document.getElementById('cookie-preferences-form');
       const acceptAllBtn = document.getElementById('accept-all');
       const rejectAllBtn = document.getElementById('reject-all');
@@ -184,7 +220,9 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
           }
           if (status === 'accept_specific') {
             const preferences = localStorage.getItem('cookieconsent_preferences');
-            return preferences ? JSON.parse(preferences) : { necessary: true, analytics: false, marketing: false };
+            return preferences
+              ? JSON.parse(preferences)
+              : { necessary: true, analytics: false, marketing: false };
           }
         } catch (error) {
           console.error('Fehler beim Abrufen der gespeicherten Cookie-Präferenzen:', error);
@@ -223,9 +261,15 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
           }
           CookieConsent.hide(); // Schließt das Cookie-Banner
         } catch (error) {
-          console.error('Fehler beim Speichern der Cookie-Einstellungen via CookieConsent API:', error);
+          console.error(
+            'Fehler beim Speichern der Cookie-Einstellungen via CookieConsent API:',
+            error
+          );
           // Fallback auf localStorage, falls die API nicht verfügbar ist
-          showNotification('Fehler bei der Speicherung via CookieConsent API. Versuche eine alternative Methode.', 'error');
+          showNotification(
+            'Fehler bei der Speicherung via CookieConsent API. Versuche eine alternative Methode.',
+            'error'
+          );
           saveToLocalStorageFallback(prefs);
         }
       };
@@ -247,7 +291,10 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
             );
             console.log('[CookieSettings] 📣 Consent-Event (fallback) dispatcht:', preferences);
           } catch (e) {
-            console.warn('[CookieSettings] ⚠️ Dispatch des Consent-Events (fallback) fehlgeschlagen:', e);
+            console.warn(
+              '[CookieSettings] ⚠️ Dispatch des Consent-Events (fallback) fehlgeschlagen:',
+              e
+            );
           }
           showNotification('Einstellungen wurden im LocalStorage gespeichert.', 'info');
         } catch (error) {
@@ -261,15 +308,14 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
         notify[type](message);
       };
 
-
       // Formular-Submit Handler
-      form.addEventListener('submit', function(e) {
+      form.addEventListener('submit', function (e) {
         e.preventDefault(); // Verhindert den Standard-Formular-Submit
 
         const preferences = {
           necessary: true, // Notwendige Cookies sind immer true
           analytics: analyticsCheckbox ? analyticsCheckbox.checked : false,
-          marketing: marketingCheckbox ? marketingCheckbox.checked : false
+          marketing: marketingCheckbox ? marketingCheckbox.checked : false,
         };
 
         saveCookiePreferences(preferences);
@@ -277,31 +323,31 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
       });
 
       // Button: Alle akzeptieren
-      acceptAllBtn.addEventListener('click', function() {
+      acceptAllBtn.addEventListener('click', function () {
         const preferences = {
           necessary: true,
           analytics: true,
-          marketing: true
+          marketing: true,
         };
-        
+
         if (analyticsCheckbox) analyticsCheckbox.checked = true;
         if (marketingCheckbox) marketingCheckbox.checked = true;
-        
+
         saveCookiePreferences(preferences);
         showNotification('Alle Cookies wurden akzeptiert!', 'success');
       });
 
       // Button: Alle ablehnen
-      rejectAllBtn.addEventListener('click', function() {
+      rejectAllBtn.addEventListener('click', function () {
         const preferences = {
           necessary: true,
           analytics: false,
-          marketing: false
+          marketing: false,
         };
-        
+
         if (analyticsCheckbox) analyticsCheckbox.checked = false;
         if (marketingCheckbox) marketingCheckbox.checked = false;
-        
+
         saveCookiePreferences(preferences);
         showNotification('Nur notwendige Cookies wurden zugelassen!', 'info');
       });

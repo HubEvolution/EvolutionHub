@@ -1,10 +1,19 @@
-import type { APIRoute } from 'astro';
+import { withApiMiddleware, createApiSuccess, createApiError } from '@/lib/api-middleware';
 import { createPendingSubscription } from './confirm';
 import { loggerFactory } from '@/server/utils/logger-factory';
+import { createRateLimiter } from '@/lib/rate-limiter';
+
 // Tracking von Newsletter-Anmeldungen erfolgt clientseitig via window.evolutionAnalytics
 
 // Logger-Instanzen erstellen
 const logger = loggerFactory.createLogger('newsletter-subscribe');
+
+// Rate-Limiter für Newsletter-Subscribe (10/Minute)
+const newsletterLimiter = createRateLimiter({
+  maxRequests: 10,
+  windowMs: 60 * 1000,
+  name: 'newsletterSubscribe',
+});
 
 interface NewsletterSubscriptionRequest {
   email: string;
@@ -13,69 +22,38 @@ interface NewsletterSubscriptionRequest {
   source?: string; // Track where subscription came from
 }
 
-interface NewsletterSubscriptionResponse {
-  success: boolean;
-  message: string;
-  requiresConfirmation?: boolean;
-  confirmationSent?: boolean;
-}
+// Note: response typing is inferred from createApiSuccess/createApiError contracts
 
 /**
  * Newsletter subscription API endpoint
  * Handles email validation, consent verification, and triggers email automation
  */
-export const POST: APIRoute = async ({ request }) => {
-  try {
+export const POST = withApiMiddleware(
+  async (context) => {
+    const { request } = context;
     const data: NewsletterSubscriptionRequest = await request.json();
-    
+
     // Validate required fields
     if (!data.email) {
-      return new Response(
-        JSON.stringify({
-          success: false,
-          message: 'E-Mail-Adresse ist erforderlich'
-        } satisfies NewsletterSubscriptionResponse),
-        { 
-          status: 400,
-          headers: { 'Content-Type': 'application/json' }
-        }
-      );
+      return createApiError('validation_error', 'E-Mail-Adresse ist erforderlich');
     }
 
     // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(data.email)) {
-      return new Response(
-        JSON.stringify({
-          success: false,
-          message: 'Bitte geben Sie eine gültige E-Mail-Adresse ein'
-        } satisfies NewsletterSubscriptionResponse),
-        { 
-          status: 400,
-          headers: { 'Content-Type': 'application/json' }
-        }
-      );
+      return createApiError('validation_error', 'Bitte geben Sie eine gültige E-Mail-Adresse ein');
     }
 
     // Consent validation (GDPR compliance)
     if (!data.consent) {
-      return new Response(
-        JSON.stringify({
-          success: false,
-          message: 'Zustimmung zur Datenschutzerklärung ist erforderlich'
-        } satisfies NewsletterSubscriptionResponse),
-        { 
-          status: 400,
-          headers: { 'Content-Type': 'application/json' }
-        }
+      return createApiError(
+        'validation_error',
+        'Zustimmung zur Datenschutzerklärung ist erforderlich'
       );
     }
 
     // Create pending subscription with secure token
-    const confirmationToken = createPendingSubscription(
-      data.email,
-      data.source || 'website'
-    );
+    const confirmationToken = createPendingSubscription(data.email, data.source || 'website');
 
     // Generate confirmation URL
     const baseUrl = new URL(request.url).origin;
@@ -83,78 +61,47 @@ export const POST: APIRoute = async ({ request }) => {
 
     // Send double opt-in confirmation email
     const emailSent = await sendConfirmationEmail(data.email, confirmationUrl);
-    
+
     if (!emailSent) {
       logger.error('Failed to send confirmation email', {
         metadata: {
-          email: data.email,
-          source: data.source || 'website'
-        }
+          email: data.email.substring(0, 3) + '***', // PII-Redaction
+          source: data.source || 'website',
+        },
       });
-      return new Response(JSON.stringify({
-        success: false,
-        error: 'Failed to send confirmation email. Please try again.'
-      }), {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' }
-      });
+      return createApiError('server_error', 'Failed to send confirmation email. Please try again.');
     }
 
     logger.info('Double opt-in email sent successfully', {
       metadata: {
-        email: data.email,
+        email: data.email.substring(0, 3) + '***', // PII-Redaction
         confirmationUrl: confirmationUrl,
-        source: data.source || 'website'
-      }
+        source: data.source || 'website',
+      },
     });
 
     // Analytics event tracking (stubbed for now)
     logger.info('Newsletter subscription pending - analytics event', {
       metadata: {
-        email: data.email,
+        email: data.email.substring(0, 3) + '***', // PII-Redaction
         source: data.source || 'website',
-        event: 'newsletter_subscribe_pending'
-      }
+        event: 'newsletter_subscribe_pending',
+      },
     });
 
-    return new Response(JSON.stringify({
-      success: true,
+    return createApiSuccess({
       message: 'Please check your email to confirm your subscription!',
       email: data.email,
-      next_step: 'confirmation_required',
-      info: 'We have sent a confirmation email to your address. Please click the link in the email to complete your subscription.'
-    }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' }
+      nextStep: 'confirmation_required',
+      info: 'We have sent a confirmation email to your address. Please click the link in the email to complete your subscription.',
     });
-  } catch (error) {
-    logger.error('Newsletter subscription error occurred', {
-      metadata: {
-        error: error instanceof Error ? error.message : 'unknown',
-        stack: error instanceof Error ? error.stack : undefined
-      }
-    });
-
-    // Track error in analytics
-    logger.info('Newsletter subscription API error - analytics event', {
-      metadata: {
-        error: error instanceof Error ? error.message : 'unknown',
-        event: 'newsletter_subscription_error'
-      }
-    });
-
-    return new Response(
-      JSON.stringify({
-        success: false,
-        message: 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.'
-      } satisfies NewsletterSubscriptionResponse),
-      { 
-        status: 500,
-        headers: { 'Content-Type': 'application/json' }
-      }
-    );
+  },
+  {
+    rateLimiter: newsletterLimiter,
+    enforceCsrfToken: false, // Newsletter-Anmeldung ist öffentlich
+    disableAutoLogging: false,
   }
-};
+);
 
 /**
  * Send double opt-in confirmation email
@@ -166,8 +113,8 @@ async function sendConfirmationEmail(email: string, confirmationUrl: string): Pr
     logger.info('Sending confirmation email', {
       metadata: {
         email: email,
-        confirmationUrl: confirmationUrl
-      }
+        confirmationUrl: confirmationUrl,
+      },
     });
 
     // Mock email sending - in production, integrate with email service
@@ -176,20 +123,20 @@ async function sendConfirmationEmail(email: string, confirmationUrl: string): Pr
     logger.info('Email content generated for confirmation', {
       metadata: {
         email: email,
-        contentLength: emailContent.length
-      }
+        contentLength: emailContent.length,
+      },
     });
 
     // Simulate email sending delay
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise((resolve) => setTimeout(resolve, 100));
 
     return true; // Mock success
   } catch (error) {
     logger.error('Error sending confirmation email', {
       metadata: {
         email: email,
-        error: error instanceof Error ? error.message : 'unknown'
-      }
+        error: error instanceof Error ? error.message : 'unknown',
+      },
     });
     return false;
   }
@@ -224,23 +171,23 @@ function generateConfirmationEmailHTML(email: string, confirmationUrl: string): 
             <div class="logo">Evolution Hub</div>
             <h1>Newsletter-Anmeldung bestätigen</h1>
         </div>
-        
+
         <div class="content">
             <p>Hallo!</p>
-            
+
             <p>Sie haben sich für unseren Newsletter mit der E-Mail-Adresse <strong>${email}</strong> angemeldet.</p>
-            
+
             <p>Um Ihre Anmeldung abzuschließen und sicherzustellen, dass Sie unsere wertvollen Inhalte erhalten, klicken Sie bitte auf den folgenden Button:</p>
-            
+
             <div style="text-align: center;">
                 <a href="${confirmationUrl}" class="button">Newsletter-Anmeldung bestätigen</a>
             </div>
-            
+
             <p>Falls der Button nicht funktioniert, können Sie auch den folgenden Link in Ihren Browser kopieren:</p>
             <p style="word-break: break-all; background: #f9fafb; padding: 10px; border-radius: 4px; font-family: monospace; font-size: 12px;">${confirmationUrl}</p>
-            
+
             <p><strong>Wichtig:</strong> Dieser Bestätigungslink ist nur 24 Stunden gültig.</p>
-            
+
             <p>Nach der Bestätigung erhalten Sie:</p>
             <ul>
                 <li>✨ Exklusive Einblicke in New Work und Produktivität</li>
@@ -249,7 +196,7 @@ function generateConfirmationEmailHTML(email: string, confirmationUrl: string): 
                 <li>💡 Inspiration für Ihre berufliche Entwicklung</li>
             </ul>
         </div>
-        
+
         <div class="footer">
             <p>Diese E-Mail wurde an <strong>${email}</strong> gesendet.</p>
             <p class="small">Falls Sie sich nicht für unseren Newsletter angemeldet haben, können Sie diese E-Mail ignorieren.</p>

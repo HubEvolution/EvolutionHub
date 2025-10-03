@@ -31,12 +31,6 @@
     "noUnusedParameters": true,
     "preserveSymlinks": true
   },
-  "include": [
-    "src",
-    "tests"
-  ],
-  "exclude": [
-    "node_modules",
-    "test-suite-v2"
-  ]
+  "include": ["src", "tests"],
+  "exclude": ["node_modules", "test-suite-v2"]
 }

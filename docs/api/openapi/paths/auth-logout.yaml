@@ -1,30 +1,38 @@
-post:
+get:
   tags:
     - auth
-  summary: Benutzerabmeldung
+  summary: Benutzerabmeldung (Redirect)
   description: |
-    Beendet die aktuelle Benutzersitzung und löscht das Auth-Cookie.
-  operationId: logoutUser
+    Beendet die aktuelle Benutzersitzung und löscht das Session-Cookie. Antwortet mit 302 Redirect.
+  operationId: getUserLogout
   responses:
-    '200':
-      description: Erfolgreiche Abmeldung
+    '302':
+      description: Redirect nach Logout
       headers:
+        Location:
+          schema:
+            type: string
+            example: /
         Set-Cookie:
           schema:
             type: string
-            example: auth-token=; HttpOnly; Secure; SameSite=Strict; Max-Age=0
-      content:
-        application/json:
+            example: __Host-session=; Path=/; HttpOnly; SameSite=Strict; Secure; Max-Age=0
+post:
+  tags:
+    - auth
+  summary: Benutzerabmeldung (Redirect)
+  description: |
+    Beendet die aktuelle Benutzersitzung und löscht das Session-Cookie. Antwortet mit 302 Redirect.
+  operationId: postUserLogout
+  responses:
+    '302':
+      description: Redirect nach Logout
+      headers:
+        Location:
           schema:
-            $ref: '../schemas.yaml#/SuccessResponse'
-          example:
-            message: Erfolgreich abgemeldet
-    '401':
-      $ref: '../../openapi.yaml#/components/responses/Unauthorized'
-    '429':
-      $ref: '../../openapi.yaml#/components/responses/TooManyRequests'
-    '500':
-      $ref: '../../openapi.yaml#/components/responses/InternalServerError'
-  security:
-    - cookieAuth: []
-    - csrfToken: []
+            type: string
+            example: /
+        Set-Cookie:
+          schema:
+            type: string
+            example: __Host-session=; Path=/; HttpOnly; SameSite=Strict; Secure; Max-Age=0

@@ -12,7 +12,10 @@ const DUMMY_MODEL: AllowedModel = {
 
 function makeService(env: Partial<{ REPLICATE_API_TOKEN: string; ENVIRONMENT: string }>) {
   // Only the methods used by runReplicate are relevant; db is unused there
-  const deps = { db: {} as any, isDevelopment: (env.ENVIRONMENT || '').toLowerCase() !== 'production' };
+  const deps = {
+    db: {} as any,
+    isDevelopment: (env.ENVIRONMENT || '').toLowerCase() !== 'production',
+  };
   return new AiJobsService(deps, {
     REPLICATE_API_TOKEN: env.REPLICATE_API_TOKEN ?? 'token',
     ENVIRONMENT: env.ENVIRONMENT ?? 'production',
@@ -35,40 +38,45 @@ describe('AiJobsService.runReplicate() provider error mapping', () => {
   it('maps 401 to forbidden', async () => {
     const service = makeService({ REPLICATE_API_TOKEN: 't', ENVIRONMENT: 'production' });
     await withMockedFetch(401, 'unauthorized', async () => {
-      await expect(((service as any).runReplicate)(DUMMY_MODEL, { image: 'http://x' }))
-        .rejects.toMatchObject({ apiErrorType: 'forbidden', status: 401 });
+      await expect(
+        (service as any).runReplicate(DUMMY_MODEL, { image: 'http://x' })
+      ).rejects.toMatchObject({ apiErrorType: 'forbidden', status: 401 });
     });
   });
 
   it('maps 403 to forbidden', async () => {
     const service = makeService({ REPLICATE_API_TOKEN: 't', ENVIRONMENT: 'production' });
     await withMockedFetch(403, 'forbidden', async () => {
-      await expect(((service as any).runReplicate)(DUMMY_MODEL, { image: 'http://x' }))
-        .rejects.toMatchObject({ apiErrorType: 'forbidden', status: 403 });
+      await expect(
+        (service as any).runReplicate(DUMMY_MODEL, { image: 'http://x' })
+      ).rejects.toMatchObject({ apiErrorType: 'forbidden', status: 403 });
     });
   });
 
   it('maps 404 to validation_error', async () => {
     const service = makeService({ REPLICATE_API_TOKEN: 't', ENVIRONMENT: 'production' });
     await withMockedFetch(404, 'not found', async () => {
-      await expect(((service as any).runReplicate)(DUMMY_MODEL, { image: 'http://x' }))
-        .rejects.toMatchObject({ apiErrorType: 'validation_error', status: 404 });
+      await expect(
+        (service as any).runReplicate(DUMMY_MODEL, { image: 'http://x' })
+      ).rejects.toMatchObject({ apiErrorType: 'validation_error', status: 404 });
     });
   });
 
   it('maps 422 to validation_error', async () => {
     const service = makeService({ REPLICATE_API_TOKEN: 't', ENVIRONMENT: 'production' });
     await withMockedFetch(422, 'unprocessable', async () => {
-      await expect(((service as any).runReplicate)(DUMMY_MODEL, { image: 'http://x' }))
-        .rejects.toMatchObject({ apiErrorType: 'validation_error', status: 422 });
+      await expect(
+        (service as any).runReplicate(DUMMY_MODEL, { image: 'http://x' })
+      ).rejects.toMatchObject({ apiErrorType: 'validation_error', status: 422 });
     });
   });
 
   it('maps 500 to server_error', async () => {
     const service = makeService({ REPLICATE_API_TOKEN: 't', ENVIRONMENT: 'production' });
     await withMockedFetch(500, 'server err', async () => {
-      await expect(((service as any).runReplicate)(DUMMY_MODEL, { image: 'http://x' }))
-        .rejects.toMatchObject({ apiErrorType: 'server_error', status: 500 });
+      await expect(
+        (service as any).runReplicate(DUMMY_MODEL, { image: 'http://x' })
+      ).rejects.toMatchObject({ apiErrorType: 'server_error', status: 500 });
     });
   });
 });

@@ -1,5 +1,3 @@
- 
-
 export interface ModelControlsProps {
   // Scale controls
   supportsScale: boolean;
@@ -60,8 +58,8 @@ export function ModelControls(props: ModelControlsProps) {
               selectedScale === 2
                 ? 'bg-cyan-500/20 ring-cyan-400/50 text-cyan-700 dark:text-cyan-200'
                 : !allowedScales.includes(2) && gatingEnabled
-                ? 'opacity-60 cursor-not-allowed bg-white/10 dark:bg-slate-900/40 ring-cyan-400/20 text-gray-500 dark:text-gray-500'
-                : 'bg-white/10 dark:bg-slate-900/40 ring-cyan-400/20 text-gray-700 dark:text-gray-200 hover:ring-cyan-400/40'
+                  ? 'opacity-60 cursor-not-allowed bg-white/10 dark:bg-slate-900/40 ring-cyan-400/20 text-gray-500 dark:text-gray-500'
+                  : 'bg-white/10 dark:bg-slate-900/40 ring-cyan-400/20 text-gray-700 dark:text-gray-200 hover:ring-cyan-400/40'
             }`}
           >
             x2
@@ -82,8 +80,8 @@ export function ModelControls(props: ModelControlsProps) {
               selectedScale === 4
                 ? 'bg-cyan-500/20 ring-cyan-400/50 text-cyan-700 dark:text-cyan-200'
                 : !allowedScales.includes(4) && gatingEnabled
-                ? 'opacity-60 cursor-not-allowed bg-white/10 dark:bg-slate-900/40 ring-cyan-400/20 text-gray-500 dark:text-gray-500'
-                : 'bg-white/10 dark:bg-slate-900/40 ring-cyan-400/20 text-gray-700 dark:text-gray-200 hover:ring-cyan-400/40'
+                  ? 'opacity-60 cursor-not-allowed bg-white/10 dark:bg-slate-900/40 ring-cyan-400/20 text-gray-500 dark:text-gray-500'
+                  : 'bg-white/10 dark:bg-slate-900/40 ring-cyan-400/20 text-gray-700 dark:text-gray-200 hover:ring-cyan-400/40'
             }`}
           >
             x4

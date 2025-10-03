@@ -67,9 +67,7 @@ async function checkHealth(baseUrl: string, retries = 3, timeout = 10000): Promi
         if (err.name === 'AbortError') {
           console.error(`❌ Request timeout after ${timeout}ms (attempt ${attempt}/${retries})`);
         } else {
-          console.error(
-            `❌ Health check failed (attempt ${attempt}/${retries}): ${err.message}`
-          );
+          console.error(`❌ Health check failed (attempt ${attempt}/${retries}): ${err.message}`);
         }
       }
     }

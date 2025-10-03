@@ -7,6 +7,7 @@ interface Props {
 
 const { name, className = '', ariaLabel } = Astro.props as Props;
 ---
+
 <svg
   class={`inline-block align-middle ${className}`}
   aria-hidden={ariaLabel ? 'false' : 'true'}
@@ -14,5 +15,5 @@ const { name, className = '', ariaLabel } = Astro.props as Props;
   role={ariaLabel ? 'img' : 'presentation'}
   focusable="false"
 >
-  <use href={`#icon-${name}`} />
+  <use href={`#icon-${name}`}></use>
 </svg>

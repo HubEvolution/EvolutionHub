@@ -63,6 +63,15 @@ Hinweis: Auth-Endpunkte setzen auf Redirect-Flows; JSON wird primär für 405-Fe
 
 ### 4.1 POST `/api/auth/login` → `src/pages/api/auth/login.ts`
 
+Status: Deprecated — 410 Gone
+
+- Verhalten
+  - `POST` → 410 Gone (HTML)
+  - Andere Methoden → 410 Gone (JSON) mit `details.Allow: "POST"`
+- Hinweise
+  - Passwortbasierter Login ist entfernt. Aktiver Flow ist Magic Link (siehe `docs/architecture/auth-migration-stytch.md`).
+
+
 - Eingaben (FormData)
   - `email: string` (email-format, ≤255)
   - `password: string` (6–100)
@@ -105,20 +114,13 @@ Hinweis: Auth-Endpunkte setzen auf Redirect-Flows; JSON wird primär für 405-Fe
 
 ### 4.3 POST `/api/auth/reset-password` → `src/pages/api/auth/reset-password.ts`
 
-- Eingaben (FormData)
-  - `token: string` (20–255)
-  - `password: string` (6–100)
-- Ablauf
-  - `standardApiLimiter(context)`
-  - Validation (Token zusätzlich für Fehlerkontext extrahiert)
-  - Service: `createAuthService(...).resetPassword(token, password, clientAddress)`
-  - Redirect: `/login?success=PasswordReset`
-  - Fehler: Kontext (`token`) wird an `handleAuthError` gegeben; `baseUrl` ist `'/reset-password'` oder bei `NOT_FOUND` ggf. `'/login'`
-- Antworten
-  - 302 Redirect (Erfolg/Fehlerpfade)
-  - 405 JSON, `Allow: POST`
-- Abhängigkeiten
-  - wie bei Login
+Status: Deprecated — 410 Gone
+
+- Verhalten
+  - `POST` → 410 Gone (HTML)
+  - Andere Methoden → 410 Gone (JSON) mit `details.Allow: "POST"`
+- Hinweise
+  - Passwort-Reset per UI/Server wird nicht mehr unterstützt (Magic Link only). Siehe `docs/architecture/auth-migration-stytch.md`.
 
 ### 4.4 POST `/api/auth/logout` → `src/pages/api/auth/logout.ts`
 
@@ -155,22 +157,13 @@ Hinweis: Auth-Endpunkte setzen auf Redirect-Flows; JSON wird primär für 405-Fe
 
 ### 4.6 POST `/api/auth/forgot-password` → `src/pages/api/auth/forgot-password.ts`
 
-- Eingaben (FormData)
-  - `email: string`
-- Ablauf
-  - `standardApiLimiter(context)`
-  - Form-Parsing; Basisvalidierung der E-Mail
-  - DB: `users`-Lookup; Enumeration vermeiden → immer generische Redirects
-  - Token-Erzeugung: `password_reset_tokens` (UUID, 1h gültig)
-  - Reset-Link nutzt Fragment-Token: `/reset-password#token=...` (minimiert Token-Leaks in Logs/Proxys)
-  - E-Mail-Versand via `Resend`
-  - Audit-Logs (`logPasswordReset`, `logAuthFailure`)
-  - Redirect: `/auth/password-reset-sent`
-- Antworten
-  - 302 Redirect (Erfolg/Fehlerpfade)
-  - 405 JSON, `Allow: POST`
-- Abhängigkeiten
-  - `resend`, `@/lib/security-logger`, `@/lib/response-helpers`, D1 `DB`
+Status: Deprecated — 410 Gone
+
+- Verhalten
+  - `POST` → 410 Gone (HTML)
+  - Andere Methoden → 410 Gone (JSON) mit `details.Allow: "POST"`
+- Hinweise
+  - Passwort-Reset-Flows sind abgeschaltet (Magic Link only). Siehe `docs/architecture/auth-migration-stytch.md`.
 
 ### 4.7 POST `/api/auth/resend-verification` → `src/pages/api/auth/resend-verification.ts`
 

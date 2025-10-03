@@ -8,7 +8,9 @@ const t = getI18n(locale);
 
 <BaseLayout title={t('pages.datenschutz.title') ?? 'Privacy Policy'}>
   <!-- Hero Section -->
-  <section class="py-16 md:py-24 bg-gradient-to-br from-primary/5 to-purple-500/5 dark:from-gray-800 dark:to-gray-900">
+  <section
+    class="py-16 md:py-24 bg-gradient-to-br from-primary/5 to-purple-500/5 dark:from-gray-800 dark:to-gray-900"
+  >
     <div class="container mx-auto px-4">
       <div class="max-w-4xl mx-auto text-center">
         <h1 class="text-4xl md:text-5xl font-bold mb-6 text-gray-900 dark:text-white">
@@ -17,11 +19,13 @@ const t = getI18n(locale);
         <p class="text-xl text-gray-600 dark:text-gray-300">
           {t('pages.datenschutz.header.last_updated') ?? 'Last updated: July 20, 2025'}
         </p>
-        {t('pages.datenschutz.disclaimer_note') && (
-          <p class="mt-3 text-sm text-gray-500 dark:text-gray-400">
-            {t('pages.datenschutz.disclaimer_note')}
-          </p>
-        )}
+        {
+          t('pages.datenschutz.disclaimer_note') && (
+            <p class="mt-3 text-sm text-gray-500 dark:text-gray-400">
+              {t('pages.datenschutz.disclaimer_note')}
+            </p>
+          )
+        }
       </div>
     </div>
   </section>
@@ -29,101 +33,224 @@ const t = getI18n(locale);
   <!-- Content Section -->
   <section class="py-16 md:py-20 bg-white dark:bg-gray-900">
     <div class="container mx-auto px-4">
-      <div class="max-w-4xl mx-auto prose prose-lg dark:prose-invert prose-headings:text-gray-900 dark:prose-headings:text-white prose-a:text-emerald-600 dark:prose-a:text-emerald-400 hover:prose-a:text-emerald-500 dark:hover:prose-a:text-emerald-300">
+      <div
+        class="max-w-4xl mx-auto prose prose-lg dark:prose-invert prose-headings:text-gray-900 dark:prose-headings:text-white prose-a:text-emerald-600 dark:prose-a:text-emerald-400 hover:prose-a:text-emerald-500 dark:hover:prose-a:text-emerald-300"
+      >
         <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 md:p-10 space-y-6">
-          {t('pages.datenschutz.disclaimer_note') && (
-            <p class="-mt-2 mb-2 text-sm text-gray-500 dark:text-gray-400">
-              {t('pages.datenschutz.disclaimer_note')}
-            </p>
-          )}
+          {
+            t('pages.datenschutz.disclaimer_note') && (
+              <p class="-mt-2 mb-2 text-sm text-gray-500 dark:text-gray-400">
+                {t('pages.datenschutz.disclaimer_note')}
+              </p>
+            )
+          }
           <section>
-            <h2 class="text-2xl font-semibold mb-2">{t('pages.datenschutz.sections.1.title') ?? '1. Responsible Party'}</h2>
+            <h2 class="text-2xl font-semibold mb-2">
+              {t('pages.datenschutz.sections.1.title') ?? '1. Responsible Party'}
+            </h2>
             <p>
-              {t('pages.datenschutz.sections.1.description') ?? 'In accordance with the General Data Protection Regulation (GDPR) and other national data protection laws of the member states, as well as other data protection provisions, the responsible party is:'}
+              {
+                t('pages.datenschutz.sections.1.description') ??
+                  'In accordance with the General Data Protection Regulation (GDPR) and other national data protection laws of the member states, as well as other data protection provisions, the responsible party is:'
+              }
             </p>
             <address class="not-italic mt-2 space-y-1">
-              <p>{t('pages.datenschutz.sections.1.provider.company_name') ?? 'Evolution Hub GmbH'}</p>
-              <p>{t('pages.datenschutz.sections.1.provider.street_address') ?? 'Musterstraße 123'}</p>
+              <p>
+                {t('pages.datenschutz.sections.1.provider.company_name') ?? 'Evolution Hub GmbH'}
+              </p>
+              <p>
+                {t('pages.datenschutz.sections.1.provider.street_address') ?? 'Musterstraße 123'}
+              </p>
               <p>{t('pages.datenschutz.sections.1.provider.city_postal_code') ?? '10115 Berlin'}</p>
               <p>{t('pages.datenschutz.sections.1.provider.country') ?? 'Germany'}</p>
-              <p>{t('pages.datenschutz.sections.1.provider.email_label') ?? 'Email:'} <a href="mailto:datenschutz@evolutionhub.de" class="text-emerald-600 hover:text-emerald-500">{t('pages.datenschutz.sections.1.provider.email') ?? 'datenschutz@evolutionhub.de'}</a></p>
-              <p>{t('pages.datenschutz.sections.1.provider.phone_label') ?? 'Phone:'} <a href="tel:+493012345678" class="text-emerald-600 hover:text-emerald-500">{t('pages.datenschutz.sections.1.provider.phone') ?? '+49 30 12345678'}</a></p>
+              <p>
+                {t('pages.datenschutz.sections.1.provider.email_label') ?? 'Email:'}
+                <a
+                  href="mailto:datenschutz@evolutionhub.de"
+                  class="text-emerald-600 hover:text-emerald-500"
+                  >{
+                    t('pages.datenschutz.sections.1.provider.email') ??
+                      'datenschutz@evolutionhub.de'
+                  }</a
+                >
+              </p>
+              <p>
+                {t('pages.datenschutz.sections.1.provider.phone_label') ?? 'Phone:'}
+                <a href="tel:+493012345678" class="text-emerald-600 hover:text-emerald-500"
+                  >{t('pages.datenschutz.sections.1.provider.phone') ?? '+49 30 12345678'}</a
+                >
+              </p>
             </address>
           </section>
 
           <section>
-            <h2 class="text-2xl font-semibold mb-2">{t('pages.datenschutz.sections.2.title') ?? '2. Basics of Data Processing'}</h2>
+            <h2 class="text-2xl font-semibold mb-2">
+              {t('pages.datenschutz.sections.2.title') ?? '2. Basics of Data Processing'}
+            </h2>
             <p>
-              {t('pages.datenschutz.sections.2.description') ?? 'We generally process our users\' personal data only to the extent necessary to provide a functional website and our content and services. The processing of our users\' personal data regularly occurs only after user consent. An exception applies in cases where obtaining prior consent is not possible for factual reasons and the processing of data is permitted by statutory provisions.'}
+              {
+                t('pages.datenschutz.sections.2.description') ??
+                  "We generally process our users' personal data only to the extent necessary to provide a functional website and our content and services. The processing of our users' personal data regularly occurs only after user consent. An exception applies in cases where obtaining prior consent is not possible for factual reasons and the processing of data is permitted by statutory provisions."
+              }
             </p>
           </section>
 
           <section>
-            <h2 class="text-2xl font-semibold mb-2">{t('pages.datenschutz.sections.3.title') ?? '3. Provision of the Website and Creation of Log Files'}</h2>
-            <h3 class="text-xl font-semibold mb-1">{t('pages.datenschutz.sections.3.subtitle') ?? 'Description and scope of data processing'}</h3>
+            <h2 class="text-2xl font-semibold mb-2">
+              {
+                t('pages.datenschutz.sections.3.title') ??
+                  '3. Provision of the Website and Creation of Log Files'
+              }
+            </h2>
+            <h3 class="text-xl font-semibold mb-1">
+              {
+                t('pages.datenschutz.sections.3.subtitle') ??
+                  'Description and scope of data processing'
+              }
+            </h3>
             <p>
-              {t('pages.datenschutz.sections.3.paragraph1') ?? 'Every time our website is accessed, our system automatically collects data and information from the computer system of the accessing computer.'}
+              {
+                t('pages.datenschutz.sections.3.paragraph1') ??
+                  'Every time our website is accessed, our system automatically collects data and information from the computer system of the accessing computer.'
+              }
             </p>
-            <p>{t('pages.datenschutz.sections.3.list_intro') ?? 'The following data is collected:'}</p>
+            <p>
+              {t('pages.datenschutz.sections.3.list_intro') ?? 'The following data is collected:'}
+            </p>
             <ul class="list-disc list-inside space-y-1">
-              <li>{t('pages.datenschutz.sections.3.list_items.0') ?? 'Browser type and version'}</li>
+              <li>
+                {t('pages.datenschutz.sections.3.list_items.0') ?? 'Browser type and version'}
+              </li>
               <li>{t('pages.datenschutz.sections.3.list_items.1') ?? 'Operating system used'}</li>
               <li>{t('pages.datenschutz.sections.3.list_items.2') ?? 'Referrer URL'}</li>
-              <li>{t('pages.datenschutz.sections.3.list_items.3') ?? 'Hostname of the accessing computer'}</li>
+              <li>
+                {
+                  t('pages.datenschutz.sections.3.list_items.3') ??
+                    'Hostname of the accessing computer'
+                }
+              </li>
               <li>{t('pages.datenschutz.sections.3.list_items.4') ?? 'Time of server request'}</li>
               <li>{t('pages.datenschutz.sections.3.list_items.5') ?? 'IP address'}</li>
             </ul>
           </section>
 
           <section>
-            <h2 class="text-2xl font-semibold mb-2">{t('pages.datenschutz.sections.4.title') ?? '4. Cookies'}</h2>
+            <h2 class="text-2xl font-semibold mb-2">
+              {t('pages.datenschutz.sections.4.title') ?? '4. Cookies'}
+            </h2>
             <p>
-              {t('pages.datenschutz.sections.4.description') ?? 'Our website uses cookies. Cookies are text files that are stored in the internet browser or by the internet browser on the user\'s computer system. When a user accesses a website, a cookie may be stored on the user\'s operating system. This cookie contains a characteristic string that allows unique identification of the browser upon repeated access to the website.'}
+              {
+                t('pages.datenschutz.sections.4.description') ??
+                  "Our website uses cookies. Cookies are text files that are stored in the internet browser or by the internet browser on the user's computer system. When a user accesses a website, a cookie may be stored on the user's operating system. This cookie contains a characteristic string that allows unique identification of the browser upon repeated access to the website."
+              }
             </p>
           </section>
 
           <section>
-            <h2 class="text-2xl font-semibold mb-2">{t('pages.datenschutz.sections.5.title') ?? '5. Contact Form and Email Contact'}</h2>
+            <h2 class="text-2xl font-semibold mb-2">
+              {t('pages.datenschutz.sections.5.title') ?? '5. Contact Form and Email Contact'}
+            </h2>
             <p>
-              {t('pages.datenschutz.sections.5.paragraph1') ?? 'Our website provides a contact form that can be used for electronic contact. If a user takes advantage of this option, the data entered into the input mask will be transmitted and stored by us.'}
+              {
+                t('pages.datenschutz.sections.5.paragraph1') ??
+                  'Our website provides a contact form that can be used for electronic contact. If a user takes advantage of this option, the data entered into the input mask will be transmitted and stored by us.'
+              }
             </p>
             <p>
-              {t('pages.datenschutz.sections.5.paragraph2') ?? 'Alternatively, contact can be made via the provided e-mail address. In this case, the personal data of the user transmitted with the e-mail will be stored.'}
+              {
+                t('pages.datenschutz.sections.5.paragraph2') ??
+                  'Alternatively, contact can be made via the provided e-mail address. In this case, the personal data of the user transmitted with the e-mail will be stored.'
+              }
             </p>
           </section>
 
           <section>
-            <h2 class="text-2xl font-semibold mb-2">{t('pages.datenschutz.sections.6.title') ?? '6. Rights of the Data Subject'}</h2>
+            <h2 class="text-2xl font-semibold mb-2">
+              {t('pages.datenschutz.sections.6.title') ?? '6. Rights of the Data Subject'}
+            </h2>
             <p>{t('pages.datenschutz.sections.6.subtitle') ?? 'You have the right:'}</p>
             <ul class="list-disc list-inside space-y-1">
-              <li>{t('pages.datenschutz.sections.6.list_items.0') ?? 'pursuant to Art. 15 GDPR to request information about your personal data processed by us'}</li>
-              <li>{t('pages.datenschutz.sections.6.list_items.1') ?? 'pursuant to Art. 16 GDPR to immediately request the rectification of inaccurate or completion of your personal data stored by us'}</li>
-              <li>{t('pages.datenschutz.sections.6.list_items.2') ?? 'pursuant to Art. 17 GDPR to request the erasure of your personal data stored by us'}</li>
-              <li>{t('pages.datenschutz.sections.6.list_items.3') ?? 'pursuant to Art. 18 GDPR to request the restriction of the processing of your personal data'}</li>
-              <li>{t('pages.datenschutz.sections.6.list_items.4') ?? 'pursuant to Art. 20 GDPR to receive your personal data that you have provided to us in a structured, common, and machine-readable format'}</li>
-              <li>{t('pages.datenschutz.sections.6.list_items.5') ?? 'pursuant to Art. 7 para. 3 GDPR to withdraw your consent at any time'}</li>
-              <li>{t('pages.datenschutz.sections.6.list_items.6') ?? 'pursuant to Art. 77 GDPR to lodge a complaint with a supervisory authority'}</li>
+              <li>
+                {
+                  t('pages.datenschutz.sections.6.list_items.0') ??
+                    'pursuant to Art. 15 GDPR to request information about your personal data processed by us'
+                }
+              </li>
+              <li>
+                {
+                  t('pages.datenschutz.sections.6.list_items.1') ??
+                    'pursuant to Art. 16 GDPR to immediately request the rectification of inaccurate or completion of your personal data stored by us'
+                }
+              </li>
+              <li>
+                {
+                  t('pages.datenschutz.sections.6.list_items.2') ??
+                    'pursuant to Art. 17 GDPR to request the erasure of your personal data stored by us'
+                }
+              </li>
+              <li>
+                {
+                  t('pages.datenschutz.sections.6.list_items.3') ??
+                    'pursuant to Art. 18 GDPR to request the restriction of the processing of your personal data'
+                }
+              </li>
+              <li>
+                {
+                  t('pages.datenschutz.sections.6.list_items.4') ??
+                    'pursuant to Art. 20 GDPR to receive your personal data that you have provided to us in a structured, common, and machine-readable format'
+                }
+              </li>
+              <li>
+                {
+                  t('pages.datenschutz.sections.6.list_items.5') ??
+                    'pursuant to Art. 7 para. 3 GDPR to withdraw your consent at any time'
+                }
+              </li>
+              <li>
+                {
+                  t('pages.datenschutz.sections.6.list_items.6') ??
+                    'pursuant to Art. 77 GDPR to lodge a complaint with a supervisory authority'
+                }
+              </li>
             </ul>
           </section>
 
           <section>
-            <h2 class="text-2xl font-semibold mb-2">{t('pages.datenschutz.sections.7.title') ?? '7. Right to Object'}</h2>
+            <h2 class="text-2xl font-semibold mb-2">
+              {t('pages.datenschutz.sections.7.title') ?? '7. Right to Object'}
+            </h2>
             <p>
-              {t('pages.datenschutz.sections.7.description') ?? 'You have the right to object, on grounds relating to your particular situation, at any time to the processing of personal data concerning you which is based on Art. 6 para. 1 lit. e or f GDPR.'}
+              {
+                t('pages.datenschutz.sections.7.description') ??
+                  'You have the right to object, on grounds relating to your particular situation, at any time to the processing of personal data concerning you which is based on Art. 6 para. 1 lit. e or f GDPR.'
+              }
             </p>
           </section>
 
           <section>
-            <h2 class="text-2xl font-semibold mb-2">{t('pages.datenschutz.sections.8.title') ?? '8. Data Security'}</h2>
+            <h2 class="text-2xl font-semibold mb-2">
+              {t('pages.datenschutz.sections.8.title') ?? '8. Data Security'}
+            </h2>
             <p>
-              {t('pages.datenschutz.sections.8.description') ?? 'Within the website visit, we use the widespread SSL (Secure Socket Layer) procedure in conjunction with the highest level of encryption supported by your browser. This is typically 256-bit encryption. If your browser does not support 256-bit encryption, we will use 128-bit v3 technology instead.'}
+              {
+                t('pages.datenschutz.sections.8.description') ??
+                  'Within the website visit, we use the widespread SSL (Secure Socket Layer) procedure in conjunction with the highest level of encryption supported by your browser. This is typically 256-bit encryption. If your browser does not support 256-bit encryption, we will use 128-bit v3 technology instead.'
+              }
             </p>
           </section>
 
           <section>
-            <h2 class="text-2xl font-semibold mb-2">{t('pages.datenschutz.sections.9.title') ?? '9. Timeliness and Changes to This Privacy Policy'}</h2>
+            <h2 class="text-2xl font-semibold mb-2">
+              {
+                t('pages.datenschutz.sections.9.title') ??
+                  '9. Timeliness and Changes to This Privacy Policy'
+              }
+            </h2>
             <p>
-              {t('pages.datenschutz.sections.9.description') ?? 'This Privacy Policy is currently valid and dated July 2025. Due to the further development of our website and offerings or due to changed legal or regulatory requirements, it may become necessary to amend this Privacy Policy.'}
+              {
+                t('pages.datenschutz.sections.9.description') ??
+                  'This Privacy Policy is currently valid and dated July 2025. Due to the further development of our website and offerings or due to changed legal or regulatory requirements, it may become necessary to amend this Privacy Policy.'
+              }
             </p>
           </section>
         </div>

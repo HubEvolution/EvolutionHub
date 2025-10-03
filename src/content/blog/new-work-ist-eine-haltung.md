@@ -34,6 +34,7 @@ funnelSeo:
   secondaryKeywords: ['New Work Haltung', 'Unternehmenskultur wandeln', 'Zukunft der Arbeit']
   searchVolume: 1200
 ---
+
 image: { src: '/src/content/blog/images/new-work-mindset.webp', width: 1200, height: 675 }
 imageAlt: 'Person gestaltet aktiv ihre Arbeitszukunft mit New Work Haltung'
 
@@ -57,10 +58,10 @@ Viele Unternehmen führen agile Methoden wie Scrum oder Kanban ein und glauben, 
 
 Eine echte New-Work-**Unternehmenskultur** zeichnet sich durch folgende Merkmale aus:
 
-* **Vertrauenskultur statt Kontrolle:** Führungskräfte agieren als Coaches und Mentoren, nicht als Aufseher.
-* **Psychologische Sicherheit:** Mitarbeiter trauen sich, Ideen zu äußern, Fragen zu stellen und Risiken einzugehen, ohne Angst vor negativen Konsequenzen.
-* **Partizipation:** Entscheidungen werden dort getroffen, wo die Expertise liegt – oft im Team selbst.
-* **Lebenslanges Lernen:** Weiterbildung wird als integraler Bestandteil der Arbeit verstanden.
+- **Vertrauenskultur statt Kontrolle:** Führungskräfte agieren als Coaches und Mentoren, nicht als Aufseher.
+- **Psychologische Sicherheit:** Mitarbeiter trauen sich, Ideen zu äußern, Fragen zu stellen und Risiken einzugehen, ohne Angst vor negativen Konsequenzen.
+- **Partizipation:** Entscheidungen werden dort getroffen, wo die Expertise liegt – oft im Team selbst.
+- **Lebenslanges Lernen:** Weiterbildung wird als integraler Bestandteil der Arbeit verstanden.
 
 ## Die Zukunft der Arbeit selbst gestalten: Erste Schritte
 
@@ -68,15 +69,15 @@ Die Transformation hin zu New Work ist kein Projekt mit einem festen Enddatum, s
 
 ### Für Führungskräfte & HR-Manager
 
-* **Hinterfragen Sie traditionelle Strukturen:** Sind starre Hierarchien und Kontrollmechanismen noch zeitgemäß?
-* **Schaffen Sie Freiräume:** Geben Sie Ihren Teams mehr Autonomie bei der Gestaltung ihrer Arbeitsprozesse.
-* **Kommunizieren Sie den "Purpose":** Warum gibt es Ihr Unternehmen? Welchen Beitrag leisten Sie zur Gesellschaft?
+- **Hinterfragen Sie traditionelle Strukturen:** Sind starre Hierarchien und Kontrollmechanismen noch zeitgemäß?
+- **Schaffen Sie Freiräume:** Geben Sie Ihren Teams mehr Autonomie bei der Gestaltung ihrer Arbeitsprozesse.
+- **Kommunizieren Sie den "Purpose":** Warum gibt es Ihr Unternehmen? Welchen Beitrag leisten Sie zur Gesellschaft?
 
 ### Für Angestellte
 
-* **Übernehmen Sie Verantwortung:** Warten Sie nicht auf Anweisungen. Gestalten Sie Ihren Arbeitsbereich proaktiv.
-* **Suchen Sie den Dialog:** Sprechen Sie mit Ihren Vorgesetzten über Ihre Wünsche nach mehr Autonomie und Sinnhaftigkeit.
-* **Bilden Sie sich weiter:** Die **Zukunft der Arbeit** gehört denen, die neugierig bleiben und sich anpassen können.
+- **Übernehmen Sie Verantwortung:** Warten Sie nicht auf Anweisungen. Gestalten Sie Ihren Arbeitsbereich proaktiv.
+- **Suchen Sie den Dialog:** Sprechen Sie mit Ihren Vorgesetzten über Ihre Wünsche nach mehr Autonomie und Sinnhaftigkeit.
+- **Bilden Sie sich weiter:** Die **Zukunft der Arbeit** gehört denen, die neugierig bleiben und sich anpassen können.
 
 ## Fazit: New Work beginnt im Kopf
 

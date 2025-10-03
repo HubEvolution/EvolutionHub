@@ -9,7 +9,8 @@
   };
 
   const getFocusable = (el: HTMLElement): HTMLElement[] => {
-    const selector = 'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])';
+    const selector =
+      'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])';
     const nodes = Array.from(el.querySelectorAll<HTMLElement>(selector));
     return nodes.filter(isVisible);
   };
@@ -51,7 +52,9 @@
     document.body.classList.add(BODY_LOCK_CLASS);
 
     const focusable = getFocusable(overlay);
-    const primary = (overlay.querySelector<HTMLElement>('[data-cs-primary]') as HTMLElement | null) || focusable[0];
+    const primary =
+      (overlay.querySelector<HTMLElement>('[data-cs-primary]') as HTMLElement | null) ||
+      focusable[0];
     if (primary) {
       primary.focus();
     } else {

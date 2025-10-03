@@ -12,11 +12,14 @@ export const POST = withAuthApiMiddleware(async (context) => {
   const user = locals.user;
 
   // Parse body
-  const body = (await context.request.json().catch(() => null)) as { pack?: number; workspaceId?: string } | null;
+  const body = (await context.request.json().catch(() => null)) as {
+    pack?: number;
+    workspaceId?: string;
+  } | null;
   if (!body || (body.pack !== 200 && body.pack !== 1000)) {
     return new Response(JSON.stringify({ error: 'invalid_pack' }), {
       status: 400,
-      headers: { 'Content-Type': 'application/json' }
+      headers: { 'Content-Type': 'application/json' },
     });
   }
 
@@ -24,7 +27,7 @@ export const POST = withAuthApiMiddleware(async (context) => {
   if (!env.STRIPE_SECRET) {
     return new Response(JSON.stringify({ error: 'stripe_not_configured' }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' }
+      headers: { 'Content-Type': 'application/json' },
     });
   }
 
@@ -32,7 +35,7 @@ export const POST = withAuthApiMiddleware(async (context) => {
   let table: Record<string, string> = {};
   try {
     const raw = env.CREDITS_PRICING_TABLE;
-    table = typeof raw === 'string' ? JSON.parse(raw) : (raw || {});
+    table = typeof raw === 'string' ? JSON.parse(raw) : raw || {};
   } catch {
     table = {};
   }
@@ -40,7 +43,7 @@ export const POST = withAuthApiMiddleware(async (context) => {
   if (!priceId) {
     return new Response(JSON.stringify({ error: 'pack_not_configured' }), {
       status: 400,
-      headers: { 'Content-Type': 'application/json' }
+      headers: { 'Content-Type': 'application/json' },
     });
   }
 
@@ -50,7 +53,7 @@ export const POST = withAuthApiMiddleware(async (context) => {
   // Audit log
   logUserEvent(user?.id ?? 'anonymous', 'credits_checkout_session_created', {
     ipAddress: clientAddress,
-    pack: String(body.pack)
+    pack: String(body.pack),
   });
 
   const stripe = new Stripe(env.STRIPE_SECRET);
@@ -62,11 +65,11 @@ export const POST = withAuthApiMiddleware(async (context) => {
     line_items: [{ price: priceId, quantity: 1 }],
     customer_email: user!.email,
     client_reference_id: user!.id,
-    metadata: { purpose: 'credits', userId: user!.id, pack: String(body.pack) }
+    metadata: { purpose: 'credits', userId: user!.id, pack: String(body.pack) },
   });
 
   return new Response(JSON.stringify({ url: session.url }), {
     status: 200,
-    headers: { 'Content-Type': 'application/json' }
+    headers: { 'Content-Type': 'application/json' },
   });
 });

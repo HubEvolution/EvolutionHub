@@ -55,7 +55,11 @@ export function Dropzone(props: DropzoneProps) {
         }
       }}
       className="relative grid place-items-center w-full max-w-full overflow-hidden rounded-md bg-white/10 dark:bg-slate-900/40 text-center px-4 mx-auto"
-      style={boxSize ? { width: `${boxSize.w}px`, height: `${boxSize.h}px`, minHeight: 240 } : { minHeight: 240 }}
+      style={
+        boxSize
+          ? { width: `${boxSize.w}px`, height: `${boxSize.h}px`, minHeight: 240 }
+          : { minHeight: 240 }
+      }
       aria-label="Image upload dropzone"
       role={!previewUrl ? 'button' : undefined}
       tabIndex={!previewUrl ? 0 : -1}

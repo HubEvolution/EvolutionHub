@@ -1,6 +1,6 @@
 /**
  * Email Service Interface
- * 
+ *
  * Definiert die Schnittstelle für E-Mail-Services in der Evolution Hub Anwendung.
  * Unterstützt verschiedene E-Mail-Provider und Template-Systeme.
  */
@@ -41,7 +41,7 @@ export interface EmailResult {
 export interface EmailService extends BaseService {
   /**
    * Sendet eine E-Mail-Verifikations-E-Mail an einen neuen Benutzer
-   * 
+   *
    * @param request Verifikations-E-Mail-Anfrage mit allen notwendigen Daten
    * @returns Promise mit dem Ergebnis der E-Mail-Versendung
    */
@@ -49,7 +49,7 @@ export interface EmailService extends BaseService {
 
   /**
    * Sendet eine Willkommens-E-Mail an einen verifizierten Benutzer
-   * 
+   *
    * @param email E-Mail-Adresse des Benutzers
    * @param userName Name des Benutzers
    * @returns Promise mit dem Ergebnis der E-Mail-Versendung
@@ -58,7 +58,7 @@ export interface EmailService extends BaseService {
 
   /**
    * Sendet eine allgemeine E-Mail
-   * 
+   *
    * @param request E-Mail-Anfrage mit allen notwendigen Parametern
    * @returns Promise mit dem Ergebnis der E-Mail-Versendung
    */
@@ -66,7 +66,7 @@ export interface EmailService extends BaseService {
 
   /**
    * Validiert eine E-Mail-Adresse auf Korrektheit
-   * 
+   *
    * @param email Zu validierende E-Mail-Adresse
    * @returns true wenn die E-Mail-Adresse gültig ist, false andernfalls
    */
@@ -80,7 +80,7 @@ export enum EmailTemplateType {
   VERIFICATION = 'email_verification',
   WELCOME = 'welcome',
   PASSWORD_RESET = 'password_reset',
-  NEWSLETTER_CONFIRMATION = 'newsletter_confirmation'
+  NEWSLETTER_CONFIRMATION = 'newsletter_confirmation',
 }
 
 /**

@@ -7,7 +7,6 @@ import Notifications from '@/components/dashboard/Notifications.jsx';
 import ActivityFeed from '@/components/dashboard/ActivityFeed.jsx';
 import QuickActions from '@/components/dashboard/QuickActions.jsx';
 import type { QuickAction, Notification } from '../types/dashboard';
- 
 
 const locals = Astro.locals as any;
 if (!locals.user) {
@@ -20,29 +19,49 @@ const user = locals.user;
 const db = locals.runtime.env.DB;
 
 // Fetch projects, activities, and stats in parallel
-const activitiesStmt = db.prepare("SELECT * FROM activities WHERE user_id = ? ORDER BY created_at DESC LIMIT 10").bind(user.id);
-const projectsCountStmt = db.prepare('SELECT count(*) as count FROM projects WHERE user_id = ?').bind(user.id);
-const tasksCountStmt = db.prepare('SELECT count(*) as count FROM tasks WHERE user_id = ?').bind(user.id);
+const activitiesStmt = db
+  .prepare('SELECT * FROM activities WHERE user_id = ? ORDER BY created_at DESC LIMIT 10')
+  .bind(user.id);
+const projectsCountStmt = db
+  .prepare('SELECT count(*) as count FROM projects WHERE user_id = ?')
+  .bind(user.id);
+const tasksCountStmt = db
+  .prepare('SELECT count(*) as count FROM tasks WHERE user_id = ?')
+  .bind(user.id);
 const teamMembersCountStmt = db.prepare('SELECT count(*) as count FROM users').bind(); // As per original logic
 
 // Mock notifications fetch
 const notifications: Notification[] = [
-    { id: '1', message: 'You have a new comment on your project "Website Redesign".', type: 'comment', timestamp: new Date().toISOString(), read: false },
-    { id: '2', message: '@jane mentioned you in the task "Update Documentation".', type: 'mention', timestamp: new Date(Date.now() - 1000 * 60 * 5).toISOString(), read: false },
-    { id: '3', message: 'Task "Deploy to Staging" was completed.', type: 'task_completed', timestamp: new Date(Date.now() - 1000 * 60 * 30).toISOString(), read: true },
+  {
+    id: '1',
+    message: 'You have a new comment on your project "Website Redesign".',
+    type: 'comment',
+    timestamp: new Date().toISOString(),
+    read: false,
+  },
+  {
+    id: '2',
+    message: '@jane mentioned you in the task "Update Documentation".',
+    type: 'mention',
+    timestamp: new Date(Date.now() - 1000 * 60 * 5).toISOString(),
+    read: false,
+  },
+  {
+    id: '3',
+    message: 'Task "Deploy to Staging" was completed.',
+    type: 'task_completed',
+    timestamp: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
+    read: true,
+  },
 ];
 
-const [
-    activitiesResponse,
-    projectsCountResult,
-    tasksCountResult,
-    teamMembersCountResult
-] = await Promise.all([
+const [activitiesResponse, projectsCountResult, tasksCountResult, teamMembersCountResult] =
+  await Promise.all([
     activitiesStmt.all(),
     projectsCountStmt.first(),
     tasksCountStmt.first(),
-    teamMembersCountStmt.first()
-]);
+    teamMembersCountStmt.first(),
+  ]);
 
 const activities = activitiesResponse.results || [];
 const stats = {
@@ -52,17 +71,44 @@ const stats = {
 };
 
 const quickActions: QuickAction[] = [
-    { id: 'new-project', title: 'New Project', description: 'Start a new project', icon: '/icons/project.svg', action: 'create_project', variant: 'primary' },
-    { id: 'new-task', title: 'New Task', description: 'Create a new task', icon: '/icons/task.svg', action: 'create_task', variant: 'success' },
-    { id: 'invite-team', title: 'Invite Team', description: 'Invite a new team member', icon: '/icons/team.svg', action: 'invite_member', variant: 'secondary' },
-    { id: 'view-docs', title: 'View Docs', description: 'Read the documentation', icon: '/icons/docs.svg', action: 'view_docs', variant: 'secondary' }
+  {
+    id: 'new-project',
+    title: 'New Project',
+    description: 'Start a new project',
+    icon: '/icons/project.svg',
+    action: 'create_project',
+    variant: 'primary',
+  },
+  {
+    id: 'new-task',
+    title: 'New Task',
+    description: 'Create a new task',
+    icon: '/icons/task.svg',
+    action: 'create_task',
+    variant: 'success',
+  },
+  {
+    id: 'invite-team',
+    title: 'Invite Team',
+    description: 'Invite a new team member',
+    icon: '/icons/team.svg',
+    action: 'invite_member',
+    variant: 'secondary',
+  },
+  {
+    id: 'view-docs',
+    title: 'View Docs',
+    description: 'Read the documentation',
+    icon: '/icons/docs.svg',
+    action: 'view_docs',
+    variant: 'secondary',
+  },
 ];
 ---
 
 <BaseLayout title="Dashboard">
   <div class="container mx-auto p-4 sm:p-6 lg:p-8">
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      
       <!-- Left Column (1/3) -->
       <div class="lg:col-span-1 flex flex-col gap-6">
         <UserProfile user={user} />
@@ -80,7 +126,6 @@ const quickActions: QuickAction[] = [
         <Notifications initialNotifications={notifications} />
         <ActivityFeed initialActivities={activities} />
       </div>
-
     </div>
   </div>
 </BaseLayout>

@@ -46,84 +46,212 @@ paths:
                   $ref: '#/components/schemas/Tool'
   /api/auth/change-password:
     post:
-      summary: Change password
-      description: Change current user's password (redirects)
+      summary: Change password (deprecated)
+      description: Deprecated endpoint — returns 410 Gone (HTML).
+      deprecated: true
       x-source: src/pages/api/auth/change-password.ts
       operationId: postAuthChangePassword
       responses:
-        "302":
-          description: Redirect to settings with status
-        "400":
-          description: Validation error
+        "410":
+          description: Gone
+          content:
+            text/html:
+              schema:
+                type: string
   /api/auth/forgot-password:
     post:
-      summary: Request password reset
-      description: Sends password reset email (redirects)
+      summary: Request password reset (deprecated)
+      description: Deprecated endpoint — returns 410 Gone (HTML).
+      deprecated: true
       x-source: src/pages/api/auth/forgot-password.ts
       operationId: postAuthForgotPassword
       responses:
-        "302":
-          description: Redirect to password-reset-sent or error
+        "410":
+          description: Gone
+          content:
+            text/html:
+              schema:
+                type: string
   /api/auth/login:
     post:
-      summary: Authenticate user
-      description: Authenticates and sets session cookie (redirects)
+      summary: Authenticate user (deprecated)
+      description: Deprecated endpoint — returns 410 Gone (HTML).
+      deprecated: true
       x-source: src/pages/api/auth/login.ts
       operationId: postAuthLogin
       responses:
-        "302":
-          description: Redirect to dashboard on success
-        "400":
-          description: Validation error
+        "410":
+          description: Gone
+          content:
+            text/html:
+              schema:
+                type: string
   /api/auth/logout:
+    get:
+      summary: Logout (deprecated)
+      description: Deprecated endpoint — returns 410 Gone (HTML).
+      deprecated: true
+      x-source: src/pages/api/auth/logout.ts
+      operationId: getAuthLogout
+      responses:
+        "410":
+          description: Gone
+          content:
+            text/html:
+              schema:
+                type: string
     post:
-      summary: Logout user
-      description: Clears session cookie and redirects
+      summary: Logout (deprecated)
+      description: Deprecated endpoint — returns 410 Gone (HTML).
+      deprecated: true
       x-source: src/pages/api/auth/logout.ts
       operationId: postAuthLogout
       responses:
-        "302":
-          description: Redirect after logout
+        "410":
+          description: Gone
+          content:
+            text/html:
+              schema:
+                type: string
   /api/auth/register:
     post:
-      summary: Register user
-      description: Registers a user and triggers email verification (redirects)
+      summary: Register user (deprecated)
+      description: Deprecated endpoint — returns 410 Gone (HTML).
+      deprecated: true
       x-source: src/pages/api/auth/register.ts
       operationId: postAuthRegister
       responses:
-        "302":
-          description: Redirect to verify-email page
+        "410":
+          description: Gone
+          content:
+            text/html:
+              schema:
+                type: string
   /api/auth/resend-verification:
     post:
-      summary: Resend verification email
-      description: Resends email verification (JSON)
+      summary: Resend verification email (deprecated)
+      description: Deprecated endpoint — returns 410 Gone (JSON).
+      deprecated: true
       x-source: src/pages/api/auth/resend-verification.ts
       operationId: postAuthResendVerification
       responses:
-        "200":
-          description: Generic success
+        "410":
+          description: Gone
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
+                $ref: '#/components/schemas/ApiErrorResponse'
   /api/auth/reset-password:
     post:
-      summary: Reset password
-      description: Reset user password using token (redirects)
+      summary: Reset password (deprecated)
+      description: Deprecated endpoint — returns 410 Gone (HTML).
+      deprecated: true
       x-source: src/pages/api/auth/reset-password.ts
       operationId: postAuthResetPassword
       responses:
-        "302":
-          description: Redirect on success or error
+        "410":
+          description: Gone
+          content:
+            text/html:
+              schema:
+                type: string
   /api/auth/verify-email:
     get:
-      summary: Verify email
-      description: Handle email verification link and create session (redirects)
+      summary: Verify email (deprecated)
+      description: Deprecated endpoint — returns 410 Gone (HTML).
+      deprecated: true
       x-source: src/pages/api/auth/verify-email.ts
       operationId: getAuthVerifyEmail
       responses:
+        "410":
+          description: Gone
+          content:
+            text/html:
+              schema:
+                type: string
+  /api/auth/magic/request:
+    post:
+      summary: Request Magic Link
+      description: Request a magic link for login or signup. Returns JSON success or an HTML redirect (progressive enhancement).
+      x-source: src/pages/api/auth/magic/request.ts
+      operationId: postAuthMagicRequest
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                r:
+                  type: string
+                  description: Optional relative redirect target after auth
+                name:
+                  type: string
+                username:
+                  type: string
+                locale:
+                  type: string
+                  enum: [de, en]
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                r:
+                  type: string
+                name:
+                  type: string
+                username:
+                  type: string
+                locale:
+                  type: string
+                  enum: [de, en]
+      responses:
+        "200":
+          description: Magic link request accepted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    enum: [true]
+                  data:
+                    type: object
+                    properties:
+                      sent:
+                        type: boolean
+        "303":
+          description: Redirect to localized login page with success hint (HTML navigation)
+  /api/auth/callback:
+    get:
+      summary: Magic Link callback
+      description: Verifies the magic link token, creates a session, and redirects to the target route.
+      x-source: src/pages/api/auth/callback.ts
+      operationId: getAuthMagicCallback
+      parameters:
+        - name: token
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: email
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: r
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
         "302":
-          description: Redirect to email-verified or register on error
+          description: Redirect to target route (localized)
   /api/billing/session:
     post:
       summary: Create billing session

@@ -1,0 +1,323 @@
+---
+/**
+ * Futuristische Landingpage (DE) - Parallel-Route
+ *
+ * Route: /new oder /de/new
+ * Features:
+ * - Neural Mesh Canvas Background (Dark/Light Mode)
+ * - WAAPI Entrance Animations mit Stagger
+ * - Glassmorphism UI
+ * - Before/After Transformation Showcase
+ * - Tech Partner Integration (Cloudflare, Stytch, Stripe)
+ * - Responsive & Accessible (a11y ≥ 90)
+ * - Performance-optimiert (LCP < 2.5s, CLS < 0.03)
+ */
+
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { localizePath } from '@/lib/locale-path';
+import '@/styles/future-tokens.css';
+
+const locale = 'de';
+const title = 'Evolution Hub - Die Zukunft der Entwicklung';
+const description =
+  'Erlebe die neue Ära der Kollaboration mit KI-gestützten Tools, Edge-Computing und nahtloser Integration.';
+---
+
+<BaseLayout title={title} description={description}>
+  <!-- HERO Section -->
+  <section class="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <!-- Neural Mesh Canvas Background -->
+    <canvas id="neural-mesh" class="canvas-neural-mesh" aria-hidden="true"></canvas>
+
+    <div class="container mx-auto px-4 py-20 relative z-10">
+      <div class="max-w-5xl mx-auto text-center">
+        <!-- Eyebrow Badge -->
+        <span
+          class="inline-block px-4 py-2 glass-future text-sm font-semibold text-neon-cyan mb-8 rounded-full"
+          data-animate
+        >
+          🚀 Next Generation Platform
+        </span>
+
+        <!-- H1 with Gradient -->
+        <h1
+          class="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black mb-8 text-gradient-future leading-tight"
+          data-animate
+          data-stagger="100"
+        >
+          Die Zukunft der<br />Entwicklung ist hier
+        </h1>
+
+        <!-- Subhead -->
+        <p
+          class="text-xl md:text-2xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-12 text-balance"
+          data-animate
+          data-stagger="200"
+        >
+          Erlebe die neue Ära der Kollaboration mit KI-gestützten Tools, Edge-Computing und
+          nahtloser Integration.
+        </p>
+
+        <!-- CTA Duo -->
+        <div
+          class="flex flex-col sm:flex-row gap-4 justify-center mb-16"
+          data-animate
+          data-stagger="300"
+        >
+          <a href={localizePath(locale, '/register')} class="btn-neon-primary"> Jetzt starten → </a>
+          <a href={localizePath(locale, '/tools')} class="btn-glass-outline"> Tools entdecken </a>
+        </div>
+
+        <!-- KPI Row -->
+        <div
+          class="grid grid-cols-1 sm:grid-cols-3 gap-8 max-w-4xl mx-auto"
+          data-animate
+          data-stagger="400"
+        >
+          <div class="text-center">
+            <div class="text-4xl md:text-5xl font-black text-neon-cyan mb-2">99.9%</div>
+            <div class="text-sm text-gray-500 dark:text-gray-400">Uptime</div>
+          </div>
+          <div class="text-center">
+            <div class="text-4xl md:text-5xl font-black text-neon-emerald mb-2">
+              {'<'} 50ms
+            </div>
+            <div class="text-sm text-gray-500 dark:text-gray-400">Latenz</div>
+          </div>
+          <div class="text-center">
+            <div class="text-4xl md:text-5xl font-black text-neon-magenta mb-2">200+</div>
+            <div class="text-sm text-gray-500 dark:text-gray-400">Edge Locations</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scroll indicator -->
+    <div
+      class="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce"
+      data-animate
+      data-stagger="500"
+      aria-hidden="true"
+    >
+      <svg
+        class="w-6 h-6 text-gray-400 dark:text-gray-500"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+      </svg>
+    </div>
+  </section>
+
+  <!-- BEFORE/AFTER Section -->
+  <section class="py-24 bg-gray-50 dark:bg-gray-900/50">
+    <div class="container mx-auto px-4">
+      <h2 class="text-4xl md:text-5xl font-bold text-center mb-4 text-gradient-future" data-animate>
+        Transformation in Aktion
+      </h2>
+      <p
+        class="text-center text-gray-600 dark:text-gray-400 mb-16 max-w-2xl mx-auto"
+        data-animate
+        data-stagger="100"
+      >
+        Sehen Sie den Unterschied: Von langsamen Legacy-Systemen zu blitzschneller
+        Edge-Infrastruktur
+      </p>
+
+      <div class="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        <!-- Card 1: Before -->
+        <div class="glass-future p-6 rounded-2xl" data-animate data-stagger="100">
+          <div class="aspect-video mb-4 rounded-lg overflow-hidden">
+            <img
+              src="/images/future/before-placeholder.svg"
+              alt="Vorher: Langsame Deployments"
+              class="w-full h-full object-cover"
+              loading="lazy"
+            />
+          </div>
+          <h3 class="text-xl font-bold mb-2 text-red-500 dark:text-red-400">Vorher</h3>
+          <p class="text-gray-600 dark:text-gray-400 text-sm">
+            Langsame Deployments, komplexe Infrastruktur, hohe Latenzen
+          </p>
+        </div>
+
+        <!-- Card 2: After (featured) -->
+        <div
+          class="glass-future p-6 rounded-2xl border-2 border-cyan-500/50 shadow-lg shadow-cyan-500/20"
+          data-animate
+          data-stagger="200"
+        >
+          <div class="aspect-video mb-4 rounded-lg overflow-hidden">
+            <img
+              src="/images/future/after-placeholder.svg"
+              alt="Nachher: Instant Deployments"
+              class="w-full h-full object-cover"
+              loading="lazy"
+            />
+          </div>
+          <h3 class="text-xl font-bold mb-2 text-neon-emerald">Nachher</h3>
+          <p class="text-gray-600 dark:text-gray-400 text-sm">
+            Instant Deployments, globale Edge-Präsenz, {'<'} 50ms Latenz
+          </p>
+        </div>
+
+        <!-- Card 3: Metrics -->
+        <div class="glass-future p-6 rounded-2xl" data-animate data-stagger="300">
+          <div
+            class="aspect-video mb-4 flex items-center justify-center bg-gradient-to-br from-cyan-500/20 to-emerald-500/20 rounded-lg"
+          >
+            <div class="text-center">
+              <div class="text-6xl font-black text-neon-cyan mb-2">10x</div>
+              <div class="text-sm text-gray-500 dark:text-gray-400">Schneller</div>
+            </div>
+          </div>
+          <h3 class="text-xl font-bold mb-2 text-neon-magenta">Performance</h3>
+          <p class="text-gray-600 dark:text-gray-400 text-sm">
+            Messbare Verbesserungen in allen KPIs und Metriken
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES Section -->
+  <section class="py-24">
+    <div class="container mx-auto px-4">
+      <h2 class="text-4xl md:text-5xl font-bold text-center mb-4 text-gradient-future" data-animate>
+        Powered by Best-in-Class Tech
+      </h2>
+      <p
+        class="text-center text-gray-600 dark:text-gray-400 mb-16 max-w-2xl mx-auto"
+        data-animate
+        data-stagger="100"
+      >
+        Wir setzen auf die führenden Technologien der Branche für maximale Performance und
+        Sicherheit
+      </p>
+
+      <div class="grid md:grid-cols-3 gap-12 max-w-6xl mx-auto">
+        <!-- Cloudflare -->
+        <div class="text-center group" data-animate data-stagger="100">
+          <div class="mb-6 flex justify-center">
+            <img
+              src="/logos/cloudflare-icon.svg"
+              alt="Cloudflare"
+              class="w-20 h-20 transition-transform duration-300 group-hover:scale-110"
+              loading="lazy"
+            />
+          </div>
+          <h3 class="text-2xl font-bold mb-4 text-gray-900 dark:text-white">Cloudflare Edge</h3>
+          <p class="text-gray-600 dark:text-gray-400">
+            Globale Auslieferung mit {'<'} 50ms Latenz in 200+ Städten weltweit. Unschlagbare Performance
+            auf der Edge.
+          </p>
+        </div>
+
+        <!-- Stytch Auth -->
+        <div class="text-center group" data-animate data-stagger="200">
+          <div class="mb-6 flex justify-center">
+            <img
+              src="/logos/stytch-icon.svg"
+              alt="Stytch"
+              class="w-20 h-20 transition-transform duration-300 group-hover:scale-110"
+              loading="lazy"
+            />
+          </div>
+          <h3 class="text-2xl font-bold mb-4 text-gray-900 dark:text-white">Stytch Auth</h3>
+          <p class="text-gray-600 dark:text-gray-400">
+            Passwortlose Authentifizierung, Magic Links und Enterprise-SSO. Sicherheit ohne
+            Kompromisse.
+          </p>
+        </div>
+
+        <!-- Stripe -->
+        <div class="text-center group" data-animate data-stagger="300">
+          <div class="mb-6 flex justify-center">
+            <img
+              src="/logos/stripe-icon.svg"
+              alt="Stripe"
+              class="w-20 h-20 transition-transform duration-300 group-hover:scale-110"
+              loading="lazy"
+            />
+          </div>
+          <h3 class="text-2xl font-bold mb-4 text-gray-900 dark:text-white">Stripe Payments</h3>
+          <p class="text-gray-600 dark:text-gray-400">
+            Sichere Zahlungen, Subscriptions und globale Währungsunterstützung. Payment-Stack der
+            Fortune 500.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="py-24 relative overflow-hidden">
+    <!-- Background gradient -->
+    <div
+      class="absolute inset-0 bg-gradient-to-br from-cyan-900/20 to-emerald-900/20 dark:from-cyan-900/30 dark:to-emerald-900/30"
+      aria-hidden="true"
+    >
+    </div>
+
+    <div class="container mx-auto px-4 text-center relative z-10">
+      <h2
+        class="text-4xl md:text-5xl lg:text-6xl font-black mb-6 text-gradient-future"
+        data-animate
+      >
+        Bereit für die Zukunft?
+      </h2>
+      <p
+        class="text-xl md:text-2xl text-gray-700 dark:text-gray-300 mb-12 max-w-2xl mx-auto text-balance"
+        data-animate
+        data-stagger="100"
+      >
+        Schließe dich tausenden Entwicklern an, die bereits auf die Next-Gen Plattform setzen.
+      </p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center" data-animate data-stagger="200">
+        <a href={localizePath(locale, '/register')} class="btn-neon-primary">
+          Kostenlos starten →
+        </a>
+        <a href={localizePath(locale, '/pricing')} class="btn-glass-outline"> Preise ansehen </a>
+      </div>
+
+      <!-- Trust badges -->
+      <div
+        class="mt-16 flex flex-wrap items-center justify-center gap-8 opacity-60"
+        data-animate
+        data-stagger="300"
+      >
+        <div class="text-sm text-gray-600 dark:text-gray-400">
+          <strong class="text-neon-cyan">5000+</strong> aktive Nutzer
+        </div>
+        <div class="text-sm text-gray-600 dark:text-gray-400">
+          <strong class="text-neon-emerald">99.9%</strong> Uptime SLA
+        </div>
+        <div class="text-sm text-gray-600 dark:text-gray-400">
+          <strong class="text-neon-magenta">24/7</strong> Support
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Scripts -->
+  <script>
+    import NeuralMesh from '@/scripts/neural-mesh';
+    import EntranceOrchestrator from '@/scripts/orchestrate-entrance';
+
+    // Initialize Neural Mesh Canvas
+    document.addEventListener('DOMContentLoaded', () => {
+      const canvas = document.getElementById('neural-mesh') as HTMLCanvasElement;
+      if (canvas) {
+        new NeuralMesh(canvas);
+      }
+
+      // Initialize Entrance Animations
+      new EntranceOrchestrator();
+    });
+  </script>
+</BaseLayout>

@@ -12,35 +12,42 @@
    * - Basiert auf funktionierendem HeaderScroll.astro-Pattern
    */
 
-
   // AOS Configuration - Optimized for Evolution Hub
   const AOS_CONFIG = {
-    duration: 700,           // Animation duration (matches current config)
-    once: true,             // Animate only once (matches current config)
-    easing: 'ease-out',     // Smooth easing
-    delay: 0,               // No global delay
-    offset: 0,              // Trigger animations as soon as elements enter viewport (fixes above-the-fold invisibility)
+    duration: 700, // Animation duration (matches current config)
+    once: true, // Animate only once (matches current config)
+    easing: 'ease-out', // Smooth easing
+    delay: 0, // No global delay
+    offset: 0, // Trigger animations as soon as elements enter viewport (fixes above-the-fold invisibility)
     anchorPlacement: 'top-bottom', // When to trigger animation
-    mirror: false,          // Don't animate elements out
-    debounceDelay: 50,      // Debounce scroll events for performance
-    throttleDelay: 99,      // Throttle scroll events for performance
+    mirror: false, // Don't animate elements out
+    debounceDelay: 50, // Debounce scroll events for performance
+    throttleDelay: 99, // Throttle scroll events for performance
     // Disable animations for users who prefer reduced motion (A11y)
-    disable: function() {
+    disable: function () {
       try {
-        return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+        return !!(
+          window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        );
       } catch (_) {
         return false;
       }
-    }
+    },
   };
 
   // AOS Initialization Function - NO ES6 IMPORTS
   function initializeAOS() {
-    const __DEV__ = (typeof location !== 'undefined') && (location.hostname === 'localhost' || location.hostname === '127.0.0.1');
-    const dlog = (...args) => { if (__DEV__) console.log(...args); };
-    const derror = (...args) => { if (__DEV__) console.error(...args); };
+    const __DEV__ =
+      typeof location !== 'undefined' &&
+      (location.hostname === 'localhost' || location.hostname === '127.0.0.1');
+    const dlog = (...args) => {
+      if (__DEV__) console.log(...args);
+    };
+    const derror = (...args) => {
+      if (__DEV__) console.error(...args);
+    };
     dlog('[AOS] 🚀 Starting build-compatible AOS initialization...');
-    
+
     try {
       // Check if AOS is already loaded via CDN or previous initialization
       if (window.AOS) {
@@ -55,7 +62,7 @@
       }
 
       dlog('[AOS] 📦 Loading AOS library via CDN...');
-      
+
       // Load AOS via CDN script injection (NO ES6 imports)
       return new Promise((resolve, reject) => {
         // Check if script already exists
@@ -68,7 +75,11 @@
         const script = document.createElement('script');
         script.src = 'https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js';
         script.setAttribute('data-aos-script', 'true');
-        try { script.setAttribute('nonce', cspNonce); } catch { /* noop */ }
+        try {
+          script.setAttribute('nonce', cspNonce);
+        } catch {
+          /* noop */
+        }
         script.onload = () => {
           dlog('[AOS] 📦 CDN script loaded successfully');
           checkAOSAvailability(() => resolve(), reject, 0);
@@ -77,10 +88,9 @@
           derror('[AOS] ❌ Failed to load AOS via CDN');
           reject(new Error('Failed to load AOS from CDN'));
         };
-        
+
         document.head.appendChild(script);
       });
-      
     } catch (error) {
       derror('[AOS] ❌ Failed to initialize:', error);
       return Promise.reject(error);
@@ -90,8 +100,12 @@
   // Check AOS availability with timeout
   function checkAOSAvailability(resolve, reject, attempts) {
     if (window.AOS) {
-      const __DEV__ = (typeof location !== 'undefined') && (location.hostname === 'localhost' || location.hostname === '127.0.0.1');
-      const dlog = (...args) => { if (__DEV__) console.log(...args); };
+      const __DEV__ =
+        typeof location !== 'undefined' &&
+        (location.hostname === 'localhost' || location.hostname === '127.0.0.1');
+      const dlog = (...args) => {
+        if (__DEV__) console.log(...args);
+      };
       dlog('[AOS] ⚙️  Initializing AOS with config:', AOS_CONFIG);
       window.AOS.init(AOS_CONFIG);
       setupAOSHandlers();
@@ -101,10 +115,14 @@
       document.documentElement.classList.add('aos-enabled');
       dlog('[AOS] ✅ Animation library initialized successfully');
       resolve();
-    } else if (attempts < 50) { // 5 second timeout
+    } else if (attempts < 50) {
+      // 5 second timeout
       setTimeout(() => checkAOSAvailability(resolve, reject, attempts + 1), 100);
     } else {
-      if ((typeof location !== 'undefined') && (location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
+      if (
+        typeof location !== 'undefined' &&
+        (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+      ) {
         console.error('[AOS] ❌ Timeout waiting for AOS to become available');
       }
       reject(new Error('AOS initialization timeout'));
@@ -116,14 +134,16 @@
     // Refresh AOS on page transitions (Astro compatibility)
     const refreshAOS = () => {
       if (window.AOS && window.AOS.refresh) {
-        const __DEV__ = (typeof location !== 'undefined') && (location.hostname === 'localhost' || location.hostname === '127.0.0.1');
+        const __DEV__ =
+          typeof location !== 'undefined' &&
+          (location.hostname === 'localhost' || location.hostname === '127.0.0.1');
         if (__DEV__) console.log('[AOS] 🔄 Refreshing animations for page transition...');
         window.AOS.refresh();
         // Run safety pass again after refresh to ensure visibility
         runSafetyPassInView();
       }
     };
-    
+
     // Store refresh function for cleanup
     window.aosRefresh = refreshAOS;
   }
@@ -146,11 +166,17 @@
       });
 
       // Also run once after load to cover late layout shifts
-      window.addEventListener('load', () => {
-        runSafetyPassInView();
-      }, { once: true });
+      window.addEventListener(
+        'load',
+        () => {
+          runSafetyPassInView();
+        },
+        { once: true }
+      );
     } catch (e) {
-      const __DEV__ = (typeof location !== 'undefined') && (location.hostname === 'localhost' || location.hostname === '127.0.0.1');
+      const __DEV__ =
+        typeof location !== 'undefined' &&
+        (location.hostname === 'localhost' || location.hostname === '127.0.0.1');
       if (__DEV__) console.warn('[AOS] ⚠️ Safety pass scheduling failed:', e);
     }
   }
@@ -158,7 +184,9 @@
   // Safety pass: force-animate elements currently visible in the viewport
   function runSafetyPassInView() {
     try {
-      const candidates = Array.from(document.querySelectorAll('[data-aos].aos-init:not(.aos-animate)'));
+      const candidates = Array.from(
+        document.querySelectorAll('[data-aos].aos-init:not(.aos-animate)')
+      );
       const vh = window.innerHeight || document.documentElement.clientHeight;
       let forced = 0;
       for (const el of candidates) {
@@ -169,7 +197,9 @@
           forced++;
         }
       }
-      const __DEV__ = (typeof location !== 'undefined') && (location.hostname === 'localhost' || location.hostname === '127.0.0.1');
+      const __DEV__ =
+        typeof location !== 'undefined' &&
+        (location.hostname === 'localhost' || location.hostname === '127.0.0.1');
       if (__DEV__) {
         if (forced > 0) {
           console.log(`[AOS] ✅ Safety pass applied to ${forced} element(s) in view`);
@@ -178,7 +208,9 @@
         }
       }
     } catch (e) {
-      const __DEV__ = (typeof location !== 'undefined') && (location.hostname === 'localhost' || location.hostname === '127.0.0.1');
+      const __DEV__ =
+        typeof location !== 'undefined' &&
+        (location.hostname === 'localhost' || location.hostname === '127.0.0.1');
       if (__DEV__) console.warn('[AOS] ⚠️ Safety pass failed:', e);
     }
   }
@@ -189,21 +221,28 @@
 
   // Main Coordinator Function (specialized for AOS-only integration)
   function initializeCoordinator() {
-    const __DEV__ = (typeof location !== 'undefined') && (location.hostname === 'localhost' || location.hostname === '127.0.0.1');
-    const dlog = (...args) => { if (__DEV__) console.log(...args); };
-    const derror = (...args) => { if (__DEV__) console.error(...args); };
+    const __DEV__ =
+      typeof location !== 'undefined' &&
+      (location.hostname === 'localhost' || location.hostname === '127.0.0.1');
+    const dlog = (...args) => {
+      if (__DEV__) console.log(...args);
+    };
+    const derror = (...args) => {
+      if (__DEV__) console.error(...args);
+    };
     dlog('[AOSCoordinator] 🚀 Starting AOS coordinator initialization...');
-    
+
     try {
       // Initialize AOS (MEDIUM priority) - Promise-based but non-blocking
-      const kickoff = () => initializeAOS()
-        .then(() => {
-          dlog('[AOSCoordinator] ✅ AOS module initialized successfully');
-        })
-        .catch((error) => {
-          derror('[AOSCoordinator] ❌ AOS initialization failed:', error);
-          dlog('[AOSCoordinator] ⚠️  Continuing without animations (graceful degradation)');
-        });
+      const kickoff = () =>
+        initializeAOS()
+          .then(() => {
+            dlog('[AOSCoordinator] ✅ AOS module initialized successfully');
+          })
+          .catch((error) => {
+            derror('[AOSCoordinator] ❌ AOS initialization failed:', error);
+            dlog('[AOSCoordinator] ⚠️  Continuing without animations (graceful degradation)');
+          });
       // Defer if possible
       try {
         if (typeof window.requestIdleCallback === 'function') {
@@ -214,30 +253,33 @@
       } catch {
         kickoff();
       }
-      
+
       // Note: Settings handlers are now managed by src/lib/settings-module.ts via script-coordinator.ts
-      
+
       dlog('[AOSCoordinator] ✅ AOS coordinator initialization completed');
-      
     } catch (error) {
       derror('[AOSCoordinator] ❌ AOS coordinator initialization failed:', error);
     }
   }
 
   // Cleanup Function (AOS-only)
-  window.aosCoordinatorCleanup = function() {
+  window.aosCoordinatorCleanup = function () {
     // Cleanup AOS
     if (window.AOS && window.AOS.refresh) {
-      const __DEV__ = (typeof location !== 'undefined') && (location.hostname === 'localhost' || location.hostname === '127.0.0.1');
+      const __DEV__ =
+        typeof location !== 'undefined' &&
+        (location.hostname === 'localhost' || location.hostname === '127.0.0.1');
       if (__DEV__) console.log('[AOSCoordinator] 🔄 Refreshing AOS for cleanup');
       window.AOS.refresh();
     }
     // Remove the AOS-enabled marker to restore safety fallback
     document.documentElement.classList.remove('aos-enabled');
-    
+
     // Note: Settings cleanup is now handled by src/lib/settings-module.ts via script-coordinator.ts
-    
-    const __DEV__ = (typeof location !== 'undefined') && (location.hostname === 'localhost' || location.hostname === '127.0.0.1');
+
+    const __DEV__ =
+      typeof location !== 'undefined' &&
+      (location.hostname === 'localhost' || location.hostname === '127.0.0.1');
     if (__DEV__) console.log('[AOSCoordinator] 🧹 AOS coordinator cleaned up');
   };
 
@@ -250,7 +292,9 @@
 
   // Astro page transitions support
   document.addEventListener('astro:page-load', () => {
-    const __DEV__ = (typeof location !== 'undefined') && (location.hostname === 'localhost' || location.hostname === '127.0.0.1');
+    const __DEV__ =
+      typeof location !== 'undefined' &&
+      (location.hostname === 'localhost' || location.hostname === '127.0.0.1');
     if (__DEV__) console.log('[AOSCoordinator] 🔄 Astro page transition detected');
     initializeCoordinator();
   });
@@ -262,8 +306,10 @@
     }
   });
 
-  (function(){
-    const __DEV__ = (typeof location !== 'undefined') && (location.hostname === 'localhost' || location.hostname === '127.0.0.1');
+  (function () {
+    const __DEV__ =
+      typeof location !== 'undefined' &&
+      (location.hostname === 'localhost' || location.hostname === '127.0.0.1');
     if (__DEV__) console.log('[AOSCoordinator] 📋 Coordinator module loaded and ready');
   })();
 </script>

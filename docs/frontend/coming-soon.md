@@ -39,12 +39,11 @@ Datei: [src/config/coming-soon.ts](src/config/coming-soon.ts)
 
 ### Aktive Pattern-Liste (locale‑agnostisch)
 
-Die folgenden Pfade zeigen aktuell das Coming‑Soon Overlay (wirken für /[locale]/... gleichermaßen):
+Die folgenden Pfade zeigen aktuell das Coming‑Soon Overlay (wirken für `/[locale]/...` gleichermaßen):
 
 - /login
 - /register
 - /forgot-password
-- /reset-password
 - /verify-email
 - /email-verified
 - /auth/password-reset-sent
@@ -61,8 +60,8 @@ Die folgenden Pfade zeigen aktuell das Coming‑Soon Overlay (wirken für /[loca
 
 ## Client-Script
 
-- Quelle (TypeScript): [scripts/coming-soon-client.ts](scripts/coming-soon-client.ts)
-- Produktions-Datei (genutzt): [public/assets/coming-soon-client.js](public/assets/coming-soon-client.js)
+- Quelle (TypeScript): [scripts/coming-soon-client.ts](../../scripts/coming-soon-client.ts)
+- Produktions-Datei (genutzt): [public/assets/coming-soon-client.js](../../public/assets/coming-soon-client.js)
 - Wird nur eingebunden, wenn Overlay aktiv ist:
 
 ```html
@@ -120,8 +119,8 @@ Die folgenden Pfade zeigen aktuell das Coming‑Soon Overlay (wirken für /[loca
 
 ## Dateien zum Review
 
-- [src/components/ui/ComingSoon.astro](src/components/ui/ComingSoon.astro)
-- [public/assets/coming-soon-client.js](public/assets/coming-soon-client.js)
-- [src/config/coming-soon.ts](src/config/coming-soon.ts)
-- [src/layouts/BaseLayout.astro](src/layouts/BaseLayout.astro)
-- [src/styles/coming-soon.css](src/styles/coming-soon.css)
+- [src/components/ui/ComingSoon.astro](../../src/components/ui/ComingSoon.astro)
+- [public/assets/coming-soon-client.js](../../public/assets/coming-soon-client.js)
+- [src/config/coming-soon.ts](../../src/config/coming-soon.ts)
+- [src/layouts/BaseLayout.astro](../../src/layouts/BaseLayout.astro)
+- [src/styles/coming-soon.css](../../src/styles/coming-soon.css)

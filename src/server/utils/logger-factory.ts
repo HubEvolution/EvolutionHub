@@ -8,7 +8,7 @@ import {
   LOG_LEVELS,
   LogUtils,
   type LogLevelType,
-  type LogContext
+  type LogContext,
 } from '../../config/logging';
 import {
   type ExtendedLogger,
@@ -18,7 +18,7 @@ import {
   type LoggerConfig,
   type LoggerFactory as LoggerFactoryInterface,
   type EnvironmentDetector,
-  type LoggerManager
+  type LoggerManager,
 } from '../../types/logger';
 import { log } from '@/server/utils/logger';
 
@@ -134,17 +134,37 @@ class LoggerFactoryImpl implements LoggerFactoryInterface {
         log('info', 'SECURITY_EVENT', { type, details, ...(context || {}), timestamp: Date.now() });
       },
       logAuthSuccess: (details, context) => {
-        log('info', 'AUTH_SUCCESS', { securityEventType: 'AUTH_SUCCESS', details, ...(context || {}), timestamp: Date.now() });
+        log('info', 'AUTH_SUCCESS', {
+          securityEventType: 'AUTH_SUCCESS',
+          details,
+          ...(context || {}),
+          timestamp: Date.now(),
+        });
       },
       logAuthFailure: (details, context) => {
-        log('error', 'AUTH_FAILURE', { securityEventType: 'AUTH_FAILURE', details, ...(context || {}), timestamp: Date.now() });
+        log('error', 'AUTH_FAILURE', {
+          securityEventType: 'AUTH_FAILURE',
+          details,
+          ...(context || {}),
+          timestamp: Date.now(),
+        });
       },
       logApiAccess: (details, context) => {
-        log('info', 'API_ACCESS', { securityEventType: 'API_ACCESS', details, ...(context || {}), timestamp: Date.now() });
+        log('info', 'API_ACCESS', {
+          securityEventType: 'API_ACCESS',
+          details,
+          ...(context || {}),
+          timestamp: Date.now(),
+        });
       },
       logApiError: (details, context) => {
-        log('error', 'API_ERROR', { securityEventType: 'API_ERROR', details, ...(context || {}), timestamp: Date.now() });
-      }
+        log('error', 'API_ERROR', {
+          securityEventType: 'API_ERROR',
+          details,
+          ...(context || {}),
+          timestamp: Date.now(),
+        });
+      },
     };
   }
 
@@ -162,7 +182,7 @@ class LoggerFactoryImpl implements LoggerFactoryInterface {
       getConnectedClients: () => [],
       close: () => {
         console.log('[WS] Closing WebSocket server');
-      }
+      },
     };
   }
 
@@ -181,7 +201,7 @@ class LoggerFactoryImpl implements LoggerFactoryInterface {
         console.log('[BUFFER] Clearing buffer');
       },
       getSize: () => 0,
-      isFull: () => false
+      isFull: () => false,
     };
   }
 }
@@ -259,21 +279,17 @@ const loggerManager = new LoggerManagerImpl();
  * Export der Factory-Funktionen
  */
 export const loggerFactory = {
-  createLogger: (name: string, _config?: Partial<LoggerConfig>) =>
-    loggerManager.getLogger(name),
+  createLogger: (name: string, _config?: Partial<LoggerConfig>) => loggerManager.getLogger(name),
 
-  createSecurityLogger: (_config?: Partial<LoggerConfig>) =>
-    loggerManager.getSecurityLogger(),
+  createSecurityLogger: (_config?: Partial<LoggerConfig>) => loggerManager.getSecurityLogger(),
 
-  createWebSocketLogger: (_port: number) =>
-    loggerManager.getWebSocketLogger(),
+  createWebSocketLogger: (_port: number) => loggerManager.getWebSocketLogger(),
 
-  createBufferLogger: (_config?: Partial<LoggerConfig>) =>
-    loggerManager.getBufferLogger(),
+  createBufferLogger: (_config?: Partial<LoggerConfig>) => loggerManager.getBufferLogger(),
 
   getManager: () => loggerManager,
 
-  shutdown: () => loggerManager.shutdown()
+  shutdown: () => loggerManager.shutdown(),
 };
 
 /**

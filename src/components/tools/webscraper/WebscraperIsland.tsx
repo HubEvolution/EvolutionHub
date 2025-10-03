@@ -1,0 +1,204 @@
+import { useState } from 'react';
+import type React from 'react';
+import { toast } from 'sonner';
+import { ensureCsrfToken } from '@/lib/security/csrf';
+import { WebscraperForm } from './WebscraperForm';
+import { WebscraperResults } from './WebscraperResults';
+import Card from '@/components/ui/Card';
+import type { ScrapingResult, UsageInfo } from '@/types/webscraper';
+
+interface WebscraperStrings {
+  title: string;
+  description: string;
+  urlPlaceholder: string;
+  submitButton: string;
+  processing: string;
+  result: string;
+  usage: string;
+  toasts: {
+    quotaReached: string;
+    invalidUrl: string;
+    robotsBlocked: string;
+    fetchError: string;
+    parseError: string;
+    success: string;
+    error: string;
+  };
+}
+
+interface WebscraperIslandProps {
+  strings: WebscraperStrings;
+}
+
+export default function WebscraperIsland({ strings }: WebscraperIslandProps) {
+  const [url, setUrl] = useState<string>('');
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState<ScrapingResult | null>(null);
+  const [usage, setUsage] = useState<UsageInfo | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleClear = () => {
+    setUrl('');
+    setResult(null);
+    setError(null);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!url.trim()) {
+      toast.error(strings.toasts.invalidUrl);
+      setError(strings.toasts.invalidUrl);
+      return;
+    }
+
+    setLoading(true);
+    setResult(null);
+    setError(null);
+
+    try {
+      await ensureCsrfToken();
+
+      const response = await fetch('/api/webscraper/extract', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token':
+            document.cookie
+              .split('; ')
+              .find((row) => row.startsWith('csrf_token='))
+              ?.split('=')[1] || '',
+        },
+        body: JSON.stringify({ url: url.trim() }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        const errorMessage = data.error?.message || strings.toasts.error;
+
+        if (errorMessage.includes('quota exceeded')) {
+          toast.error(strings.toasts.quotaReached);
+          setError(strings.toasts.quotaReached);
+        } else if (errorMessage.includes('robots.txt')) {
+          toast.error(strings.toasts.robotsBlocked);
+          setError(strings.toasts.robotsBlocked);
+        } else if (errorMessage.includes('Fetch failed')) {
+          toast.error(strings.toasts.fetchError);
+          setError(strings.toasts.fetchError);
+        } else if (errorMessage.includes('Parse failed')) {
+          toast.error(strings.toasts.parseError);
+          setError(strings.toasts.parseError);
+        } else if (errorMessage.includes('Invalid URL')) {
+          toast.error(strings.toasts.invalidUrl);
+          setError(strings.toasts.invalidUrl);
+        } else {
+          toast.error(errorMessage);
+          setError(errorMessage);
+        }
+        return;
+      }
+
+      setResult(data.data.result);
+      setUsage(data.data.usage);
+      toast.success(strings.toasts.success);
+    } catch (error) {
+      console.error('Scraping error:', error);
+      const errorMsg = strings.toasts.error;
+      toast.error(errorMsg);
+      setError(errorMsg);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="mx-auto max-w-5xl space-y-6">
+      {/* Header */}
+      <div className="text-center">
+        <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-3">
+          {strings.title}
+        </h1>
+        <p className="text-lg text-gray-600 dark:text-gray-300">{strings.description}</p>
+      </div>
+
+      {/* Main Form Card */}
+      <Card className="p-6">
+        <WebscraperForm
+          url={url}
+          onUrlChange={setUrl}
+          onSubmit={handleSubmit}
+          onClear={handleClear}
+          loading={loading}
+          error={error}
+          strings={{
+            urlPlaceholder: strings.urlPlaceholder,
+            submitButton: strings.submitButton,
+            processing: strings.processing,
+          }}
+        />
+
+        {/* Usage Info */}
+        {usage && (
+          <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
+                  <svg
+                    className="w-5 h-5 text-gray-500 dark:text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                    />
+                  </svg>
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    {strings.usage}:
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                      {usage.used}
+                    </span>
+                    <span className="text-sm text-gray-500 dark:text-gray-400">/ {usage.limit}</span>
+                  </div>
+                </div>
+              </div>
+              {usage.resetAt && (
+                <div className="text-sm text-gray-500 dark:text-gray-400">
+                  Reset: {new Date(usage.resetAt).toLocaleTimeString()}
+                </div>
+              )}
+            </div>
+            {/* Progress Bar */}
+            <div className="mt-3 w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+              <div
+                className={`h-2 rounded-full transition-all duration-300 ${
+                  (usage.used / usage.limit) * 100 > 80
+                    ? 'bg-red-500'
+                    : (usage.used / usage.limit) * 100 > 50
+                      ? 'bg-yellow-500'
+                      : 'bg-blue-500'
+                }`}
+                style={{ width: `${Math.min((usage.used / usage.limit) * 100, 100)}%` }}
+              />
+            </div>
+          </div>
+        )}
+      </Card>
+
+      {/* Results */}
+      {result && (
+        <div className="animate-fade-in">
+          <WebscraperResults result={result} strings={{ resultTitle: strings.result }} />
+        </div>
+      )}
+    </div>
+  );
+}

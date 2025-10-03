@@ -6,6 +6,7 @@ author: 'Evolution Hub'
 category: 'Führung'
 tags: ['Führung', 'Empathie', 'Zukunft der Arbeit', 'Leadership']
 ---
+
 image: { src: '/src/content/blog/images/future-of-leadership-empathy.webp', width: 1200, height: 675 }
 imageAlt: 'Führungskraft zeigt Empathie gegenüber einem Team'
 
@@ -23,9 +24,9 @@ Die wahre Herausforderung für Leader heute ist nicht, Befehle zu geben, sondern
 
 Empathische Führung ist weit mehr als nur "nett" zu seinen Mitarbeitern zu sein. Es ist die Fähigkeit, die Perspektiven, Gefühle und Motivationen anderer zu verstehen und dieses Verständnis in die eigenen Entscheidungen und Handlungen einfließen zu lassen. Es geht um drei Kernkompetenzen:
 
-1.  **Kognitive Empathie:** Die Fähigkeit, die Sichtweise einer anderen Person zu verstehen. *Was denkt mein Teammitglied über dieses Projekt? Welche Argumente sieht er oder sie, die ich übersehe?*
-2.  **Emotionale Empathie:** Die Fähigkeit, die Gefühle anderer zu spüren und nachzuempfinden. *Wie fühlt sich mein Team nach der letzten anstrengenden Projektphase? Herrscht Unsicherheit oder Begeisterung?*
-3.  **Empathisches Handeln (Compassion):** Die Bereitschaft, auf Basis dieses Verständnisses zu handeln und Unterstützung anzubieten. *Wie kann ich als Führungskraft helfen, Hindernisse aus dem Weg zu räumen oder die nötigen Ressourcen bereitzustellen?*
+1.  **Kognitive Empathie:** Die Fähigkeit, die Sichtweise einer anderen Person zu verstehen. _Was denkt mein Teammitglied über dieses Projekt? Welche Argumente sieht er oder sie, die ich übersehe?_
+2.  **Emotionale Empathie:** Die Fähigkeit, die Gefühle anderer zu spüren und nachzuempfinden. _Wie fühlt sich mein Team nach der letzten anstrengenden Projektphase? Herrscht Unsicherheit oder Begeisterung?_
+3.  **Empathisches Handeln (Compassion):** Die Bereitschaft, auf Basis dieses Verständnisses zu handeln und Unterstützung anzubieten. _Wie kann ich als Führungskraft helfen, Hindernisse aus dem Weg zu räumen oder die nötigen Ressourcen bereitzustellen?_
 
 Eine Führungskraft, die diese Fähigkeiten meistert, baut psychologische Sicherheit auf – die Grundlage für Kreativität, Risikobereitschaft und echte **Team-Motivation**.
 
@@ -33,10 +34,10 @@ Eine Führungskraft, die diese Fähigkeiten meistert, baut psychologische Sicher
 
 In der modernen Arbeitswelt ist Empathie eine knallharte Kernkompetenz mit messbaren Vorteilen:
 
-*   **Höhere Mitarbeiterbindung:** Wer sich verstanden und wertgeschätzt fühlt, bleibt dem Unternehmen treu.
-*   **Gesteigerte Innovation:** In einem empathischen Umfeld trauen sich Mitarbeiter, neue Ideen zu äußern und Risiken einzugehen.
-*   **Bessere Zusammenarbeit:** Empathie baut Brücken zwischen Abteilungen und fördert eine Kultur des gegenseitigen Respekts.
-*   **Effektivere Problemlösung:** Teams, die unterschiedliche Perspektiven verstehen und integrieren, finden nachhaltigere Lösungen.
+- **Höhere Mitarbeiterbindung:** Wer sich verstanden und wertgeschätzt fühlt, bleibt dem Unternehmen treu.
+- **Gesteigerte Innovation:** In einem empathischen Umfeld trauen sich Mitarbeiter, neue Ideen zu äußern und Risiken einzugehen.
+- **Bessere Zusammenarbeit:** Empathie baut Brücken zwischen Abteilungen und fördert eine Kultur des gegenseitigen Respekts.
+- **Effektivere Problemlösung:** Teams, die unterschiedliche Perspektiven verstehen und integrieren, finden nachhaltigere Lösungen.
 
 ## Wie man Empathische Führungskompetenzen entwickelt
 

@@ -22,7 +22,7 @@ function parseArgs() {
     const a = args[i];
     if (a === '--from') opts.from = args[++i];
     else if (a === '--to') opts.to = args[++i];
-    else if (a === '--locales') opts.locales = args[++i].split(',').map(s => s.trim());
+    else if (a === '--locales') opts.locales = args[++i].split(',').map((s) => s.trim());
     else if (a === '--apply') opts.dryRun = false;
     else if (a === '--dry-run') opts.dryRun = true;
   }

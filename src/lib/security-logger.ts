@@ -20,24 +20,24 @@ import { log } from '@/server/utils/logger';
  */
 
 type SecurityEventType =
-  | 'AUTH_SUCCESS'         // Erfolgreiche Authentifizierung
-  | 'AUTH_FAILURE'         // Fehlgeschlagene Authentifizierung
-  | 'PASSWORD_RESET'       // Passwort-Reset angefordert/durchgeführt
-  | 'PROFILE_UPDATE'       // Profiländerung
-  | 'PERMISSION_DENIED'    // Zugriff verweigert
-  | 'RATE_LIMIT_EXCEEDED'  // Rate-Limit überschritten
-  | 'SUSPICIOUS_ACTIVITY'  // Verdächtige Aktivität
-  | 'API_ERROR'            // API-Fehler
-  | 'API_ACCESS'           // API-Zugriff
-  | 'USER_EVENT'           // Allgemeine Benutzer-Events
-  | 'METRIC';              // Metrik-Events (gebündelte Telemetrie)          // Allgemeine Benutzer-Events
+  | 'AUTH_SUCCESS' // Erfolgreiche Authentifizierung
+  | 'AUTH_FAILURE' // Fehlgeschlagene Authentifizierung
+  | 'PASSWORD_RESET' // Passwort-Reset angefordert/durchgeführt
+  | 'PROFILE_UPDATE' // Profiländerung
+  | 'PERMISSION_DENIED' // Zugriff verweigert
+  | 'RATE_LIMIT_EXCEEDED' // Rate-Limit überschritten
+  | 'SUSPICIOUS_ACTIVITY' // Verdächtige Aktivität
+  | 'API_ERROR' // API-Fehler
+  | 'API_ACCESS' // API-Zugriff
+  | 'USER_EVENT' // Allgemeine Benutzer-Events
+  | 'METRIC'; // Metrik-Events (gebündelte Telemetrie)          // Allgemeine Benutzer-Events
 
 interface SecurityEvent {
   type: SecurityEventType;
-  userId?: string;        // Betroffene User-ID (wenn zutreffend)
+  userId?: string; // Betroffene User-ID (wenn zutreffend)
   targetResource?: string; // Betroffene Ressource (z.B. '/api/user/profile')
-  ipAddress?: string;     // IP-Adresse des Anfragenden
-  timestamp: number;      // Zeitstempel
+  ipAddress?: string; // IP-Adresse des Anfragenden
+  timestamp: number; // Zeitstempel
   details: Record<string, unknown>; // Zusätzliche Details zum Ereignis
 }
 
@@ -64,7 +64,7 @@ export function logSecurityEvent(
     targetResource: options.targetResource,
     ipAddress: options.ipAddress,
     timestamp: Date.now(),
-    details
+    details,
   };
 
   // Bestimme das Log-Level basierend auf dem SecurityEventType
@@ -100,7 +100,7 @@ export function logSecurityEvent(
     originalDetails: details, // Die originalen Detail-Informationen
     ...(details.message && { userMessage: details.message }), // Füge eine spezifische Nachricht hinzu, falls vorhanden
     logLevel: logLevel, // Behalte das bestimmte Level bei, falls es im Kontext nützlich ist
-    eventSnapshot: event // vollständiger Ereignis-Snapshot zur Nachverfolgbarkeit
+    eventSnapshot: event, // vollständiger Ereignis-Snapshot zur Nachverfolgbarkeit
   };
 
   // Rufe die zentrale log-Funktion auf, die die Nachrichten an die Clients broadcastet
@@ -110,7 +110,11 @@ export function logSecurityEvent(
 /**
  * Hilfsfunktion für erfolgreiche Authentifizierungs-Events
  */
-export function logAuthSuccess(userId: string, ipAddress?: string, details: Record<string, unknown> = {}) {
+export function logAuthSuccess(
+  userId: string,
+  ipAddress?: string,
+  details: Record<string, unknown> = {}
+) {
   logSecurityEvent('AUTH_SUCCESS', details, { userId, ipAddress });
 }
 
@@ -124,7 +128,11 @@ export function logAuthFailure(ipAddress?: string, details: Record<string, unkno
 /**
  * Hilfsfunktion für Passwort-Reset-Events
  */
-export function logPasswordReset(userId: string, ipAddress?: string, details: Record<string, unknown> = {}) {
+export function logPasswordReset(
+  userId: string,
+  ipAddress?: string,
+  details: Record<string, unknown> = {}
+) {
   logSecurityEvent('PASSWORD_RESET', details, { userId, ipAddress });
 }
 
@@ -138,14 +146,22 @@ export function logProfileUpdate(userId: string, details: Record<string, unknown
 /**
  * Hilfsfunktion für Zugriffsverweigerungs-Events
  */
-export function logPermissionDenied(userId: string, targetResource: string, details: Record<string, unknown> = {}) {
+export function logPermissionDenied(
+  userId: string,
+  targetResource: string,
+  details: Record<string, unknown> = {}
+) {
   logSecurityEvent('PERMISSION_DENIED', details, { userId, targetResource });
 }
 
 /**
  * Hilfsfunktion für Rate-Limiting-Events
  */
-export function logRateLimitExceeded(ipAddress: string, targetResource: string, details: Record<string, unknown> = {}) {
+export function logRateLimitExceeded(
+  ipAddress: string,
+  targetResource: string,
+  details: Record<string, unknown> = {}
+) {
   logSecurityEvent('RATE_LIMIT_EXCEEDED', details, { ipAddress, targetResource });
 }
 
@@ -166,12 +182,12 @@ export function logSuspiciousActivity(ipAddress: string, details: Record<string,
 export function logApiError(
   targetResource: string,
   details: Record<string, any> = {},
-  options: { userId?: string, ipAddress?: string } = {}
+  options: { userId?: string; ipAddress?: string } = {}
 ) {
   logSecurityEvent('API_ERROR', details, {
     targetResource,
     userId: options.userId,
-    ipAddress: options.ipAddress
+    ipAddress: options.ipAddress,
   });
 }
 
@@ -186,7 +202,7 @@ export function logApiAccess(userId: string, ipAddress: string, details: Record<
   logSecurityEvent('API_ACCESS', details, {
     userId: userId || 'anonymous',
     ipAddress: ipAddress || 'unknown',
-    targetResource: details.endpoint || details.path || 'unknown'
+    targetResource: details.endpoint || details.path || 'unknown',
   });
 }
 
@@ -211,7 +227,6 @@ export function logUserEvent(userId: string, eventType: string, details: Record<
   logSecurityEvent('USER_EVENT', { eventType, ...details }, { userId });
 }
 
-
 /**
  * Metric-Helper (gebündelte Telemetrie über zentrale Log-Pipeline)
  */
@@ -222,9 +237,9 @@ export function logMetricCounter(name: string, value = 1, dims?: Record<string, 
       kind: 'counter',
       name,
       value,
-      ...(dims ? { dims } : {})
+      ...(dims ? { dims } : {}),
     },
-    timestamp: Date.now()
+    timestamp: Date.now(),
   });
 }
 
@@ -235,9 +250,9 @@ export function logMetricGauge(name: string, value: number, dims?: Record<string
       kind: 'gauge',
       name,
       value,
-      ...(dims ? { dims } : {})
+      ...(dims ? { dims } : {}),
     },
-    timestamp: Date.now()
+    timestamp: Date.now(),
   });
 }
 
@@ -248,8 +263,8 @@ export function logMetricTiming(name: string, ms: number, dims?: Record<string, 
       kind: 'timing',
       name,
       value: ms,
-      ...(dims ? { dims } : {})
+      ...(dims ? { dims } : {}),
     },
-    timestamp: Date.now()
+    timestamp: Date.now(),
   });
 }

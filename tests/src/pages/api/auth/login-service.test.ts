@@ -109,21 +109,23 @@ vi.mock('@/lib/response-helpers', () => ({
 describe('Login API Tests (Service-Layer)', () => {
   // Service-Mock
   let mockAuthService: ReturnType<typeof createMockAuthService>;
-  
+
   // Spies für Funktionen
   let standardApiLimiterSpy: any;
-  
+
   beforeEach(() => {
     vi.clearAllMocks();
-    
+
     // Mock-Service erstellen
     mockAuthService = createMockAuthService();
-    
+
     // createAuthService so mocken, dass er unseren Mock-Service zurückgibt
     vi.spyOn(authServiceModule, 'createAuthService').mockReturnValue(mockAuthService as any);
 
     // Spies für weitere Funktionen einrichten
-    standardApiLimiterSpy = vi.spyOn(rateLimiter, 'standardApiLimiter').mockResolvedValue(undefined as any);
+    standardApiLimiterSpy = vi
+      .spyOn(rateLimiter, 'standardApiLimiter')
+      .mockResolvedValue(undefined as any);
   });
 
   it('sollte bei zu vielen Anfragen Rate-Limiting anwenden', async () => {
@@ -133,10 +135,12 @@ describe('Login API Tests (Service-Layer)', () => {
     });
 
     // Rate-Limiting simulieren
-    standardApiLimiterSpy.mockResolvedValue(new Response(null, {
-      status: 429,
-      headers: { 'Retry-After': '60' }
-    }) as any);
+    standardApiLimiterSpy.mockResolvedValue(
+      new Response(null, {
+        status: 429,
+        headers: { 'Retry-After': '60' },
+      }) as any
+    );
 
     const response = await POST(context as any);
 
@@ -194,9 +198,7 @@ describe('Login API Tests (Service-Layer)', () => {
       password: 'wrongpassword',
     });
 
-    mockAuthService.login.mockRejectedValue(
-      ServiceError.authentication('Auth failed')
-    );
+    mockAuthService.login.mockRejectedValue(ServiceError.authentication('Auth failed'));
 
     const response = await POST(context as any);
 
@@ -211,7 +213,10 @@ describe('Login API Tests (Service-Layer)', () => {
     });
 
     mockAuthService.login.mockRejectedValue(
-      ServiceError.authentication('Email not verified', { reason: 'email_not_verified', email: 'user@example.com' })
+      ServiceError.authentication('Email not verified', {
+        reason: 'email_not_verified',
+        email: 'user@example.com',
+      })
     );
 
     const response = await POST(context as any);

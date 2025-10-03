@@ -2,52 +2,23 @@
 
 Bei der Implementierung und Testabdeckung der APIs wurden verschiedene Verbesserungspotentiale identifiziert, die mittel- bis langfristig behoben werden sollten.
 
-## Auth-API-Probleme
+## Auth-API-Probleme (aktueller Stand: Magic Link)
 
-### 1. Inkonsistente Fehlerbehandlung
+Die Passwort-Reset‑UI ist entfernt; Legacy‑Endpoints (u. a. `reset-password`, `forgot-password`) liefern 410 Gone. Aktive Flows nutzen Magic Link (`POST /api/auth/magic/request`, `GET /api/auth/callback`). Relevante Punkte:
 
-Die Authentication-APIs zeigen inkonsistentes Verhalten bei der Fehlerbehandlung:
+- **Fehlerklassifizierung präzisieren**
+  - Für Magic‑Link‑Requests und Callback spezifische Fehlercodes/logging nutzen (z. B. `invalid_email`, `rate_limited`, `token_invalid`, `token_expired`).
+  - Einheitliches JSON‑Schema `{ success: false, error: { type, message, details? } }` sicherstellen.
 
-- **Unspezifische Fehlermeldungen**: Fast alle Fehler werden als `UnknownError` zurückgegeben, auch wenn die spezifische Fehlerursache bekannt ist (z.B. ungültiges Token, abgelaufenes Token)
-- **Beispiel**: In `reset-password.ts` sollten spezifische Fehlercodes wie `InvalidToken` oder `ExpiredToken` zurückgegeben werden
+- **User‑Enumeration vermeiden**
+  - Bei `POST /api/auth/magic/request` nie preisgeben, ob eine E‑Mail existiert. Immer Erfolgsmeldung im gleichen Format zurückgeben; Fehler (Rate‑Limit, CSRF) nur generisch.
 
-```typescript
-// Aktuell
-return context.redirect(`/reset-password?token=${token}&error=UnknownError`, 302);
+- **Redirect‑Kohärenz**
+  - Einheitlich Magic‑Link‑Flow verwenden (kein `/auth/*` UI‑Login). Weiterleitungen über `post_auth_redirect` (HttpOnly) steuern; Query‑`r` hat nachrangige Priorität.
 
-// Besser
-return context.redirect(`/reset-password?token=${token}&error=InvalidToken`, 302);
-```
-
-### 2. Sicherheitsprobleme bei User-Enumeration
-
-Eine Security Best Practice ist, keine Informationen preiszugeben, ob ein Benutzer existiert oder nicht:
-
-- **Aktuelles Problem**: Die `forgot-password.ts` API gibt einen Fehler zurück, wenn keine E-Mail gefunden wurde, anstatt immer die gleiche Erfolgsmeldung anzuzeigen
-- **Best Practice**: Immer die gleiche Erfolgsantwort zurückgeben, unabhängig davon, ob ein Benutzer gefunden wurde oder nicht
-
-```typescript
-// Aktuell
-if (!existingUser) {
-  return context.redirect('/forgot-password?error=UnknownError', 302);
-}
-
-// Besser (verhindert User Enumeration)
-if (!existingUser) {
-  // Bei nicht existierendem Benutzer trotzdem Erfolg anzeigen
-  return context.redirect('/auth/password-reset-sent', 302);
-}
-```
-
-### 3. Inkonsistente Redirect-URLs
-
-Die APIs verwenden unterschiedliche Pfadformate für Redirects:
-
-- Mal mit führendem `/auth/` (z.B. `/auth/login`)
-- Mal ohne führendes `/auth/` (z.B. `/login`)
-- Mal mit Fehlerparametern (`?error=`), mal ohne
-
-Die URL-Struktur sollte vereinheitlicht werden, vorzugsweise mit einem zentralen Routing-System.
+- **E‑Mail‑Versand/Provider-Fehler robust behandeln**
+  - Provider‑Antworten mappen (429 → `rate_limited`, 4xx → `validation_error`, 5xx → `server_error`).
+  - In DEV/CI deterministischen Fake‑Modus zulassen (Flag), in Live deaktivieren.
 
 ### 4. Probleme beim Email-Versand
 
@@ -60,26 +31,18 @@ Der E-Mail-Versand bei Passwort-Reset-Anfragen scheint nicht robust implementier
 
 ### 1. Konsistente try/catch-Blöcke
 
-Die Fehlerbehandlung sollte in allen APIs konsistent sein:
-
-```typescript
 try {
   // API-Logik
 } catch (error) {
-  console.error('Spezifische API-Operation fehlgeschlagen:', error);
-  return context.redirect('/pfad?error=SpezifischerErrorCode', 302);
+  // Map auf internes Schema
+  return jsonGoneOrError({ type: mapProviderError(error), message: 'Request failed' });
 }
-```
 
-### 2. Spezifische Fehlermeldungen
-
-Jede API sollte spezifische Fehlercodes zurückgeben, die dem Client helfen, das Problem zu verstehen:
-
-- `InvalidInput`: Bei Validierungsfehlern
-- `NotFound`: Bei nicht gefundenen Ressourcen
-- `Forbidden`: Bei fehlenden Berechtigungen
-- `ExpiredToken`: Bei abgelaufenen Tokens
-- `InvalidToken`: Bei ungültigen Tokens
+- `invalid_input`: Bei Validierungsfehlern
+- `not_found`: Bei nicht gefundenen Ressourcen
+- `forbidden`: Bei fehlenden Berechtigungen
+- `token_expired`: Bei abgelaufenen Tokens (Callback)
+- `token_invalid`: Bei ungültigen Tokens (Callback)
 
 ### 3. Zentrales Fehlerhandling
 

@@ -1,7 +1,6 @@
 import { spawn } from 'child_process';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
-import { existsSync } from 'fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -22,14 +21,18 @@ async function probeForUrl(candidate: string): Promise<boolean> {
       redirect: 'manual',
     });
     if (res.status === 405 && res.headers.get('allow') === 'POST') return true;
-  } catch {}
+  } catch (_e) {
+    /* no-op */ void 0;
+  }
   // Fallback API probe
   try {
     const res = await fetch(`${candidate}/api/auth/verify-email?token=abc`, {
       redirect: 'manual',
     });
     if (res.status === 302) return true;
-  } catch {}
+  } catch (_e) {
+    /* no-op */ void 0;
+  }
   return false;
 }
 
@@ -37,7 +40,6 @@ export default async function () {
   const ENV_URL = process.env.TEST_BASE_URL || '';
   let TEST_URL = '';
   let serverProcess: ReturnType<typeof spawn> | null = null;
-
   if (ENV_URL) {
     TEST_URL = ENV_URL.replace(/\/$/, '');
     // Validate provided URL
@@ -46,6 +48,7 @@ export default async function () {
     process.env.TEST_BASE_URL = TEST_URL;
     return async () => {
       // external server, nothing to teardown
+      void 0; // no-op to satisfy no-empty
     };
   }
 
@@ -59,17 +62,16 @@ export default async function () {
     p.on('exit', (code) => (code === 0 ? resolve() : reject(new Error(`db:setup exited ${code}`))));
   });
 
-  // 2) Build worker once (avoids bundling during dev) if not present
-  const workerEntry = join(rootDir, 'dist/_worker.js/index.js');
-  if (!existsSync(workerEntry)) {
-    await new Promise<void>((resolve, reject) => {
-      const p = spawn('npm', ['run', 'build:worker'], { cwd: rootDir, stdio: 'inherit' });
-      p.on('exit', (code) => (code === 0 ? resolve() : reject(new Error(`build:worker exited ${code}`))));
-    });
-  }
+  // 2) Always (re)build worker to ensure latest route changes are included
+  await new Promise<void>((resolve, reject) => {
+    const p = spawn('npm', ['run', 'build:worker'], { cwd: rootDir, stdio: 'inherit' });
+    p.on('exit', (code) =>
+      code === 0 ? resolve() : reject(new Error(`build:worker exited ${code}`))
+    );
+  });
 
-  // 3) Start wrangler dev without rebuilding (serve prebuilt worker)
-  serverProcess = spawn('npm', ['run', 'dev:worker:nobuild'], {
+  // 3) Start wrangler dev after rebuilding (serve freshly built worker)
+  serverProcess = spawn('npm', ['run', 'dev:worker'], {
     cwd: rootDir,
     env: { ...process.env, NODE_ENV: 'test', CI: '1', npm_config_yes: 'true' },
     detached: false,
@@ -79,7 +81,6 @@ export default async function () {
   const detectUrl = (chunk: Buffer | string) => {
     const s = chunk.toString();
     logs += s;
-    // eslint-disable-next-line no-console
     console.log('[dev]', s.trim());
     // Prefer canonical host 'localhost'. If both schemes appear, prefer HTTPS.
     // Otherwise, choose whatever is available (including default http://localhost:8787).
@@ -133,17 +134,17 @@ export default async function () {
       if (await probeForUrl(alt)) {
         TEST_URL = alt;
       }
-    } catch {}
+    } catch {
+      /* no-op */ void 0;
+    }
   }
 
   if (!TEST_URL || !(await probeForUrl(TEST_URL))) {
-    // eslint-disable-next-line no-console
     console.error('Dev server readiness failed. TEST_URL currently =', TEST_URL);
     throw new Error('Dev server did not start in time');
   }
 
   process.env.TEST_BASE_URL = TEST_URL;
-  // eslint-disable-next-line no-console
   console.log('[setup] TEST_BASE_URL =', TEST_URL);
 
   // Provide global teardown
@@ -151,7 +152,9 @@ export default async function () {
     if (serverProcess) {
       try {
         serverProcess.kill('SIGTERM');
-      } catch {}
+      } catch {
+        /* no-op */ void 0;
+      }
     }
   };
 }

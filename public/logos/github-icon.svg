@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Minimalist GitHub Cat Silhouette -->
+  <g opacity="0.9">
+    <!-- Cat head outline -->
+    <circle cx="32" cy="28" r="18" fill="currentColor"/>
+    <!-- Cat ears -->
+    <path
+      d="M18 20 L14 12 L20 16 Z M46 20 L50 12 L44 16 Z"
+      fill="currentColor"
+    />
+    <!-- Cat body (simplified) -->
+    <path
+      d="M20 38 Q32 50 44 38 L44 44 Q32 52 20 44 Z"
+      fill="currentColor"
+    />
+    <!-- Eyes -->
+    <circle cx="26" cy="26" r="2.5" fill="white"/>
+    <circle cx="38" cy="26" r="2.5" fill="white"/>
+    <!-- Nose -->
+    <path
+      d="M32 32 L30 34 L34 34 Z"
+      fill="white"
+    />
+  </g>
+</svg>

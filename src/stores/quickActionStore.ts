@@ -14,18 +14,17 @@ const useQuickActionStore = create<QuickActionState>((set) => ({
   actions: [],
   loading: false,
   error: null,
-  
+
   setActions: (actions) => set({ actions }),
-  
-  updateActionStatus: (id, status) => set((state) => ({
-    actions: state.actions.map(action => 
-      action.id === id ? { ...action, status } : action
-    )
-  })),
-  
+
+  updateActionStatus: (id, status) =>
+    set((state) => ({
+      actions: state.actions.map((action) => (action.id === id ? { ...action, status } : action)),
+    })),
+
   executeAction: async (actionName) => {
     set({ loading: true, error: null });
-    
+
     try {
       const response = await fetch('/api/dashboard/perform-action', {
         method: 'POST',
@@ -34,24 +33,24 @@ const useQuickActionStore = create<QuickActionState>((set) => ({
         },
         body: JSON.stringify({ action: actionName }),
       });
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const json: unknown = await response.json();
-      
+
       // Handle action-specific results
       if (json && typeof json === 'object' && 'redirect' in json) {
         window.location.href = String((json as any).redirect);
       }
-      
+
       set({ loading: false });
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       set({ error: errorMessage, loading: false });
     }
-  }
+  },
 }));
 
 export default useQuickActionStore;

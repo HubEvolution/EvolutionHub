@@ -16,7 +16,8 @@ async function fetchManual(path: string, init: RequestInit = {}) {
   const clone = response.clone();
   return {
     status: response.status,
-    redirected: response.type === 'opaqueredirect' || (response.status >= 300 && response.status < 400),
+    redirected:
+      response.type === 'opaqueredirect' || (response.status >= 300 && response.status < 400),
     location: response.headers.get('location') || null,
     contentType: response.headers.get('content-type') || '',
     text: response.status < 300 || response.status >= 400 ? await clone.text() : '',

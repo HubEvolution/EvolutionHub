@@ -48,174 +48,247 @@ if (error) {
 }
 ---
 
-<AuthLayout title={pageState === 'success' ? 'Email verified successfully' : 'Email verification failed'}>
-  {pageState === 'success' && (
-    <div class="relative p-8 rounded-2xl overflow-hidden bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-white/10 shadow-sm max-w-lg mx-auto">
-      {/* Success Animation Container */}
-      <div class="text-center mb-8">
-        {/* Animated Success Icon */}
-        <div class="relative inline-flex items-center justify-center w-20 h-20 mb-6">
-          <div class="absolute inset-0 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-full animate-ping opacity-25"></div>
-          <div class="relative flex items-center justify-center w-20 h-20 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-full">
-            <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+<AuthLayout
+  title={pageState === 'success' ? 'Email verified successfully' : 'Email verification failed'}
+>
+  {
+    pageState === 'success' && (
+      <div class="relative p-8 rounded-2xl overflow-hidden bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-white/10 shadow-sm max-w-lg mx-auto">
+        {/* Success Animation Container */}
+        <div class="text-center mb-8">
+          {/* Animated Success Icon */}
+          <div class="relative inline-flex items-center justify-center w-20 h-20 mb-6">
+            <div class="absolute inset-0 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-full animate-ping opacity-25" />
+            <div class="relative flex items-center justify-center w-20 h-20 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-full">
+              <svg
+                class="w-10 h-10 text-white"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+            </div>
+          </div>
+
+          <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-3">
+            <span class="inline-flex items-center gap-2">
+              <Icon
+                name="celebration"
+                class="w-6 h-6 text-emerald-500 inline-block"
+                ariaLabel="Celebration"
+              />
+              Welcome to EvolutionHub!
+            </span>
+          </h1>
+
+          <p class="text-lg text-gray-600 dark:text-gray-300 mb-2">
+            Your email address has been verified successfully
+          </p>
+
+          {user && (
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+              Hi{' '}
+              <span class="font-semibold text-emerald-600 dark:text-emerald-400">{user.name}</span>!
+              Your account is now fully activated.
+            </p>
+          )}
+        </div>
+
+        {/* Welcome Benefits */}
+        <div class="bg-gradient-to-r from-emerald-50 to-cyan-50 dark:from-emerald-900/20 dark:to-cyan-900/20 rounded-lg p-6 mb-8">
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 text-center">
+            What awaits you in EvolutionHub:
+          </h2>
+
+          <div class="space-y-3">
+            <div class="flex items-start">
+              <div class="flex-shrink-0 w-6 h-6 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-full flex items-center justify-center mr-3 mt-0.5">
+                <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <path
+                    fill-rule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+              </div>
+              <div>
+                <p class="text-sm font-medium text-gray-900 dark:text-white">Personal dashboard</p>
+                <p class="text-xs text-gray-600 dark:text-gray-400">
+                  Overview of all your projects and activities
+                </p>
+              </div>
+            </div>
+
+            <div class="flex items-start">
+              <div class="flex-shrink-0 w-6 h-6 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-full flex items-center justify-center mr-3 mt-0.5">
+                <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <path
+                    fill-rule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+              </div>
+              <div>
+                <p class="text-sm font-medium text-gray-900 dark:text-white">
+                  Modern productivity tools
+                </p>
+                <p class="text-xs text-gray-600 dark:text-gray-400">
+                  Optimize your workflow with smart features
+                </p>
+              </div>
+            </div>
+
+            <div class="flex items-start">
+              <div class="flex-shrink-0 w-6 h-6 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-full flex items-center justify-center mr-3 mt-0.5">
+                <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <path
+                    fill-rule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+              </div>
+              <div>
+                <p class="text-sm font-medium text-gray-900 dark:text-white">New Work community</p>
+                <p class="text-xs text-gray-600 dark:text-gray-400">
+                  Connect with like-minded people
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Call to Action */}
+        <div class="text-center">
+          <Button className="w-full bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-700 hover:to-cyan-700 text-white font-semibold py-3 px-6 text-lg">
+            <a
+              href={localizePath(locale, '/dashboard')}
+              class="inline-flex w-full h-full items-center justify-center"
+            >
+              <Icon name="rocket" class="w-5 h-5 mr-2 text-white inline-block" ariaLabel="Rocket" />
+              Go to dashboard
+            </a>
+          </Button>
+
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-4">
+            You will be redirected automatically in <span id="countdown">10</span> seconds
+          </p>
+        </div>
+      </div>
+    )
+  }
+
+  {
+    pageState === 'error' && (
+      <div class="relative p-8 rounded-2xl overflow-hidden bg-white dark:bg-gray-800/50 border border-red-200 dark:border-red-800 shadow-sm max-w-lg mx-auto">
+        {/* Error Icon */}
+        <div class="text-center mb-6">
+          <div class="inline-flex items-center justify-center w-16 h-16 bg-red-100 dark:bg-red-900/20 rounded-full mb-4">
+            <svg
+              class="w-8 h-8 text-red-600 dark:text-red-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.732 15.5c-.77.833.192 2.5 1.732 2.5z"
+              />
             </svg>
           </div>
+
+          <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+            Email verification failed
+          </h1>
+
+          <p class="text-red-600 dark:text-red-400 text-sm mb-4">{errorMessage}</p>
         </div>
 
-        <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-3">
-          <span class="inline-flex items-center gap-2">
-            <Icon name="celebration" class="w-6 h-6 text-emerald-500 inline-block" ariaLabel="Celebration" />
-            Welcome to EvolutionHub!
-          </span>
-        </h1>
-        
-        <p class="text-lg text-gray-600 dark:text-gray-300 mb-2">
-          Your email address has been verified successfully
-        </p>
-        
-        {user && (
-          <p class="text-sm text-gray-500 dark:text-gray-400">
-            Hi <span class="font-semibold text-emerald-600 dark:text-emerald-400">{user.name}</span>! 
-            Your account is now fully activated.
-          </p>
-        )}
-      </div>
+        {/* Action Buttons */}
+        <div class="space-y-4">
+          <Button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white">
+            <a
+              href={localizePath(locale, '/register')}
+              class="inline-flex w-full h-full items-center justify-center"
+            >
+              <Icon
+                name="refresh"
+                class="w-4 h-4 mr-2 text-white inline-block"
+                ariaLabel="Refresh"
+              />
+              New registration
+            </a>
+          </Button>
 
-      {/* Welcome Benefits */}
-      <div class="bg-gradient-to-r from-emerald-50 to-cyan-50 dark:from-emerald-900/20 dark:to-cyan-900/20 rounded-lg p-6 mb-8">
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 text-center">
-          What awaits you in EvolutionHub:
-        </h2>
-        
-        <div class="space-y-3">
-          <div class="flex items-start">
-            <div class="flex-shrink-0 w-6 h-6 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-full flex items-center justify-center mr-3 mt-0.5">
-              <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-              </svg>
-            </div>
-            <div>
-              <p class="text-sm font-medium text-gray-900 dark:text-white">Personal dashboard</p>
-              <p class="text-xs text-gray-600 dark:text-gray-400">Overview of all your projects and activities</p>
-            </div>
+          <Button className="w-full bg-gray-600 hover:bg-gray-700 text-white">
+            <a
+              href={localizePath(locale, '/login')}
+              class="inline-flex w-full h-full items-center justify-center"
+            >
+              <Icon name="key" class="w-4 h-4 mr-2 text-white inline-block" ariaLabel="Key" />
+              Go to login
+            </a>
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
+  {
+    pageState === 'no_session' && (
+      <div class="relative p-8 rounded-2xl overflow-hidden bg-white dark:bg-gray-800/50 border border-amber-200 dark:border-amber-800 shadow-sm max-w-lg mx-auto">
+        {/* Warning Icon */}
+        <div class="text-center mb-6">
+          <div class="inline-flex items-center justify-center w-16 h-16 bg-amber-100 dark:bg-amber-900/20 rounded-full mb-4">
+            <svg
+              class="w-8 h-8 text-amber-600 dark:text-amber-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.732 15.5c-.77.833.192 2.5 1.732 2.5z"
+              />
+            </svg>
           </div>
-          
-          <div class="flex items-start">
-            <div class="flex-shrink-0 w-6 h-6 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-full flex items-center justify-center mr-3 mt-0.5">
-              <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-              </svg>
-            </div>
-            <div>
-              <p class="text-sm font-medium text-gray-900 dark:text-white">Modern productivity tools</p>
-              <p class="text-xs text-gray-600 dark:text-gray-400">Optimize your workflow with smart features</p>
-            </div>
-          </div>
-          
-          <div class="flex items-start">
-            <div class="flex-shrink-0 w-6 h-6 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-full flex items-center justify-center mr-3 mt-0.5">
-              <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-              </svg>
-            </div>
-            <div>
-              <p class="text-sm font-medium text-gray-900 dark:text-white">New Work community</p>
-              <p class="text-xs text-gray-600 dark:text-gray-400">Connect with like-minded people</p>
-            </div>
-          </div>
+
+          <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Session not found</h1>
+
+          <p class="text-amber-600 dark:text-amber-400 text-sm mb-4">{errorMessage}</p>
+        </div>
+
+        {/* Action Button */}
+        <div class="text-center">
+          <Button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white">
+            <a
+              href={localizePath(locale, '/login')}
+              class="inline-flex w-full h-full items-center justify-center"
+            >
+              <Icon name="key" class="w-4 h-4 mr-2 text-white inline-block" ariaLabel="Key" />
+              Log in now
+            </a>
+          </Button>
         </div>
       </div>
-
-      {/* Call to Action */}
-      <div class="text-center">
-        <Button className="w-full bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-700 hover:to-cyan-700 text-white font-semibold py-3 px-6 text-lg">
-          <a href={localizePath(locale, '/dashboard')} class="inline-flex w-full h-full items-center justify-center">
-            <Icon name="rocket" class="w-5 h-5 mr-2 text-white inline-block" ariaLabel="Rocket" />
-            Go to dashboard
-          </a>
-        </Button>
-        
-        <p class="text-xs text-gray-500 dark:text-gray-400 mt-4">
-          You will be redirected automatically in <span id="countdown">10</span> seconds
-        </p>
-      </div>
-    </div>
-  )}
-
-  {pageState === 'error' && (
-    <div class="relative p-8 rounded-2xl overflow-hidden bg-white dark:bg-gray-800/50 border border-red-200 dark:border-red-800 shadow-sm max-w-lg mx-auto">
-      {/* Error Icon */}
-      <div class="text-center mb-6">
-        <div class="inline-flex items-center justify-center w-16 h-16 bg-red-100 dark:bg-red-900/20 rounded-full mb-4">
-          <svg class="w-8 h-8 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.732 15.5c-.77.833.192 2.5 1.732 2.5z"/>
-          </svg>
-        </div>
-        
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          Email verification failed
-        </h1>
-        
-        <p class="text-red-600 dark:text-red-400 text-sm mb-4">
-          {errorMessage}
-        </p>
-      </div>
-
-      {/* Action Buttons */}
-      <div class="space-y-4">
-        <Button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white">
-          <a href={localizePath(locale, '/register')} class="inline-flex w-full h-full items-center justify-center">
-            <Icon name="refresh" class="w-4 h-4 mr-2 text-white inline-block" ariaLabel="Refresh" />
-            New registration
-          </a>
-        </Button>
-        
-        <Button className="w-full bg-gray-600 hover:bg-gray-700 text-white">
-          <a href={localizePath(locale, '/login')} class="inline-flex w-full h-full items-center justify-center">
-            <Icon name="key" class="w-4 h-4 mr-2 text-white inline-block" ariaLabel="Key" />
-            Go to login
-          </a>
-        </Button>
-      </div>
-    </div>
-  )}
-
-  {pageState === 'no_session' && (
-    <div class="relative p-8 rounded-2xl overflow-hidden bg-white dark:bg-gray-800/50 border border-amber-200 dark:border-amber-800 shadow-sm max-w-lg mx-auto">
-      {/* Warning Icon */}
-      <div class="text-center mb-6">
-        <div class="inline-flex items-center justify-center w-16 h-16 bg-amber-100 dark:bg-amber-900/20 rounded-full mb-4">
-          <svg class="w-8 h-8 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.732 15.5c-.77.833.192 2.5 1.732 2.5z"/>
-          </svg>
-        </div>
-        
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          Session not found
-        </h1>
-        
-        <p class="text-amber-600 dark:text-amber-400 text-sm mb-4">
-          {errorMessage}
-        </p>
-      </div>
-
-      {/* Action Button */}
-      <div class="text-center">
-        <Button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white">
-          <a href={localizePath(locale, '/login')} class="inline-flex w-full h-full items-center justify-center">
-            <Icon name="key" class="w-4 h-4 mr-2 text-white inline-block" ariaLabel="Key" />
-            Log in now
-          </a>
-        </Button>
-      </div>
-    </div>
-  )}
+    )
+  }
 
   {/* Support Info */}
   <div class="text-center mt-6">
     <p class="text-xs text-gray-500 dark:text-gray-400">
-      Problems? Contact us at 
+      Problems? Contact us at
       <a href="mailto:support@hub-evolution.com" class="text-emerald-600 hover:underline">
         support@hub-evolution.com
       </a>
@@ -224,30 +297,35 @@ if (error) {
 </AuthLayout>
 
 {/* Hidden config for scripts */}
-<div data-page-state={pageState} data-dashboard-url={localizePath(locale, '/dashboard')} style="display: none;"></div>
+<div
+  data-page-state={pageState}
+  data-dashboard-url={localizePath(locale, '/dashboard')}
+  style="display: none;"
+>
+</div>
 
 <script>
   // Auto-redirect to dashboard after successful verification
   const configEl = document.querySelector('[data-page-state]');
   const pageState = configEl?.getAttribute('data-page-state');
   const dashboardUrl = configEl?.getAttribute('data-dashboard-url') || '/en/dashboard';
-  
+
   if (!pageState || pageState === 'success') {
     const countdownElement = document.getElementById('countdown');
     let countdown = 10;
-    
+
     const interval = setInterval(() => {
       countdown--;
       if (countdownElement) {
         countdownElement.textContent = countdown.toString();
       }
-      
+
       if (countdown <= 0) {
         clearInterval(interval);
         window.location.href = dashboardUrl;
       }
     }, 1000);
-    
+
     // Allow users to cancel auto-redirect by interacting with the page
     let userInteracted = false;
     const cancelAutoRedirect = () => {
@@ -259,7 +337,7 @@ if (error) {
         }
       }
     };
-    
+
     document.addEventListener('click', cancelAutoRedirect);
     document.addEventListener('keydown', cancelAutoRedirect);
     document.addEventListener('scroll', cancelAutoRedirect);

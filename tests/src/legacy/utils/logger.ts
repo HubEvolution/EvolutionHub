@@ -35,12 +35,9 @@ export class TestLogger {
 
   // Database logging methods
   database = {
-    connect: (database: string) =>
-      this.info(`🗄️ Datenbank verbunden: ${database}`),
-    disconnect: (database: string) =>
-      this.info(`🗄️ Datenbank getrennt: ${database}`),
-    query: (query: string) =>
-      this.debug(`🔍 DB Query: ${query}`),
+    connect: (database: string) => this.info(`🗄️ Datenbank verbunden: ${database}`),
+    disconnect: (database: string) => this.info(`🗄️ Datenbank getrennt: ${database}`),
+    query: (query: string) => this.debug(`🔍 DB Query: ${query}`),
     error: (messageOrError: string | unknown, maybeError?: unknown) => {
       if (typeof messageOrError === 'string') {
         this.error(messageOrError, maybeError);
@@ -52,10 +49,11 @@ export class TestLogger {
 
   // API logging methods
   api = {
-    request: (method: string, url: string) =>
-      this.info(`📡 API Request: ${method} ${url}`),
+    request: (method: string, url: string) => this.info(`📡 API Request: ${method} ${url}`),
     response: (method: string, url: string, status: number, duration?: number) =>
-      this.info(`📨 API Response: ${method} ${url} - ${status}${duration ? ` (${duration}ms)` : ''}`),
+      this.info(
+        `📨 API Response: ${method} ${url} - ${status}${duration ? ` (${duration}ms)` : ''}`
+      ),
     error: (method: string, url: string, error: any) =>
       this.error(`❌ API Error: ${method} ${url}`, error),
   };
@@ -78,7 +76,11 @@ export class TestLogger {
   // Performance logging methods
   performance = {
     slow: (operation: string, duration: number, threshold: number) =>
-      this.logWithExtra('WARN', `🐌 Langsame Operation: ${operation}`, `${duration}ms > ${threshold}ms`),
+      this.logWithExtra(
+        'WARN',
+        `🐌 Langsame Operation: ${operation}`,
+        `${duration}ms > ${threshold}ms`
+      ),
     memory: (usage: number, threshold: number) =>
       this.warn(`🧠 Hoher Speicherverbrauch: ${usage}MB > ${threshold}MB`),
   };
@@ -130,9 +132,10 @@ export class TestLogger {
     const ctx = entry.context ? ` [${entry.context}]` : '';
     const headerBase = `${ts} ${lvl}${ctx}`;
 
-    const levelEmoji = level === 'ERROR' ? '❌' : level === 'WARN' ? '⚠️' : level === 'INFO' ? 'ℹ️' : '🔍';
-    const EMOJI_PREFIXES = ['❌','⚠️','ℹ️','🔍','📡','📨','🗄️','🐌','🧠','⏭️','✅','🚀'];
-    const messageEmoji = EMOJI_PREFIXES.find(e => message.startsWith(e));
+    const levelEmoji =
+      level === 'ERROR' ? '❌' : level === 'WARN' ? '⚠️' : level === 'INFO' ? 'ℹ️' : '🔍';
+    const EMOJI_PREFIXES = ['❌', '⚠️', 'ℹ️', '🔍', '📡', '📨', '🗄️', '🐌', '🧠', '⏭️', '✅', '🚀'];
+    const messageEmoji = EMOJI_PREFIXES.find((e) => message.startsWith(e));
     const header = `${headerBase}${levelEmoji ? ` ${levelEmoji}` : ''}${messageEmoji ? ` ${messageEmoji}` : ''}`;
 
     switch (level) {
@@ -171,9 +174,10 @@ export class TestLogger {
     const ctx = entry.context ? ` [${entry.context}]` : '';
     const headerBase = `${ts} ${lvl}${ctx}`;
 
-    const levelEmoji = level === 'ERROR' ? '❌' : level === 'WARN' ? '⚠️' : level === 'INFO' ? 'ℹ️' : '🔍';
-    const EMOJI_PREFIXES = ['❌','⚠️','ℹ️','🔍','📡','📨','🗄️','🐌','🧠','⏭️','✅','🚀'];
-    const messageEmoji = EMOJI_PREFIXES.find(e => message.startsWith(e));
+    const levelEmoji =
+      level === 'ERROR' ? '❌' : level === 'WARN' ? '⚠️' : level === 'INFO' ? 'ℹ️' : '🔍';
+    const EMOJI_PREFIXES = ['❌', '⚠️', 'ℹ️', '🔍', '📡', '📨', '🗄️', '🐌', '🧠', '⏭️', '✅', '🚀'];
+    const messageEmoji = EMOJI_PREFIXES.find((e) => message.startsWith(e));
     const header = `${headerBase}${levelEmoji ? ` ${levelEmoji}` : ''}${messageEmoji ? ` ${messageEmoji}` : ''}`;
 
     const args = [header, message] as any[];
@@ -201,7 +205,7 @@ export class TestLogger {
       return [...this.logs];
     }
 
-    return this.logs.filter(log => log.level === level);
+    return this.logs.filter((log) => log.level === level);
   }
 
   clearLogs(): void {
@@ -220,7 +224,7 @@ export class TestLogger {
       DEBUG: 0,
     };
 
-    this.logs.forEach(log => {
+    this.logs.forEach((log) => {
       summary[log.level]++;
     });
 
@@ -270,25 +274,27 @@ export const logger = {
     request: (method: string, url: string) =>
       getTestLogger().info(`📡 API Request: ${method} ${url}`),
     response: (method: string, url: string, status: number, duration?: number) =>
-      getTestLogger().info(`📨 API Response: ${method} ${url} - ${status}${duration ? ` (${duration}ms)` : ''}`),
+      getTestLogger().info(
+        `📨 API Response: ${method} ${url} - ${status}${duration ? ` (${duration}ms)` : ''}`
+      ),
     error: (method: string, url: string, error: any) =>
       getTestLogger().error(`❌ API Error: ${method} ${url}`, error),
   },
 
   database: {
-    connect: (database: string) =>
-      getTestLogger().info(`🗄️ Datenbank verbunden: ${database}`),
-    disconnect: (database: string) =>
-      getTestLogger().info(`🗄️ Datenbank getrennt: ${database}`),
-    query: (query: string) =>
-      getTestLogger().info(`🔍 DB Query: ${query}`),
-    error: (error: any) =>
-      getTestLogger().error('❌ Datenbank-Fehler', error),
+    connect: (database: string) => getTestLogger().info(`🗄️ Datenbank verbunden: ${database}`),
+    disconnect: (database: string) => getTestLogger().info(`🗄️ Datenbank getrennt: ${database}`),
+    query: (query: string) => getTestLogger().info(`🔍 DB Query: ${query}`),
+    error: (error: any) => getTestLogger().error('❌ Datenbank-Fehler', error),
   },
 
   performance: {
     slow: (operation: string, duration: number, threshold: number) =>
-      getTestLogger().logWithExtra('WARN', `🐌 Langsame Operation: ${operation}`, `${duration}ms > ${threshold}ms`),
+      getTestLogger().logWithExtra(
+        'WARN',
+        `🐌 Langsame Operation: ${operation}`,
+        `${duration}ms > ${threshold}ms`
+      ),
     memory: (usage: number, threshold: number) =>
       getTestLogger().warn(`🧠 Hoher Speicherverbrauch: ${usage}MB > ${threshold}MB`),
   },

@@ -1,20 +1,32 @@
 /**
  * Resend Email Service Implementation
- * 
+ *
  * Diese Klasse implementiert das EmailService-Interface unter Verwendung der Resend API.
  * Sie unterstützt E-Mail-Verifikation, Willkommens-E-Mails und allgemeine E-Mail-Versendung.
  */
 
 import { Resend } from 'resend';
 import { AbstractBaseService } from './base-service';
-import type { 
-  EmailService, 
-  EmailVerificationRequest, 
-  EmailRequest, 
-  EmailResult 
+import type {
+  EmailService,
+  EmailVerificationRequest,
+  EmailRequest,
+  EmailResult,
 } from './email-service';
 import type { ServiceDependencies } from './types';
 import { ServiceError, ServiceErrorType } from './types';
+import { log } from '@/server/utils/logger';
+
+function maskEmail(email: string): string {
+  try {
+    const [user, domain] = email.split('@');
+    if (!user || !domain) return email;
+    const maskedUser = user.length <= 2 ? user[0] + '*' : user[0] + '***' + user[user.length - 1];
+    return `${maskedUser}@${domain}`;
+  } catch {
+    return email;
+  }
+}
 
 /**
  * Erweiterte Service-Abhängigkeiten für den E-Mail-Service
@@ -35,34 +47,28 @@ export class ResendEmailService extends AbstractBaseService implements EmailServ
 
   /**
    * Erstellt eine neue Instanz des Resend Email Service
-   * 
+   *
    * @param deps Service-Abhängigkeiten inklusive Resend API-Key
    */
   constructor(deps: EmailServiceDependencies) {
     super(deps);
-    
+
     if (!deps.resendApiKey) {
-      throw new ServiceError(
-        'Resend API Key ist erforderlich',
-        ServiceErrorType.VALIDATION,
-        { missingConfig: 'resendApiKey' }
-      );
+      throw new ServiceError('Resend API Key ist erforderlich', ServiceErrorType.VALIDATION, {
+        missingConfig: 'resendApiKey',
+      });
     }
 
     if (!deps.fromEmail) {
-      throw new ServiceError(
-        'From-E-Mail-Adresse ist erforderlich',
-        ServiceErrorType.VALIDATION,
-        { missingConfig: 'fromEmail' }
-      );
+      throw new ServiceError('From-E-Mail-Adresse ist erforderlich', ServiceErrorType.VALIDATION, {
+        missingConfig: 'fromEmail',
+      });
     }
 
     if (!deps.baseUrl) {
-      throw new ServiceError(
-        'Base URL ist erforderlich',
-        ServiceErrorType.VALIDATION,
-        { missingConfig: 'baseUrl' }
-      );
+      throw new ServiceError('Base URL ist erforderlich', ServiceErrorType.VALIDATION, {
+        missingConfig: 'baseUrl',
+      });
     }
 
     this.resend = new Resend(deps.resendApiKey);
@@ -72,7 +78,7 @@ export class ResendEmailService extends AbstractBaseService implements EmailServ
 
   /**
    * Sendet eine E-Mail-Verifikations-E-Mail an einen neuen Benutzer
-   * 
+   *
    * @param request Verifikations-E-Mail-Anfrage
    * @returns Promise mit dem Ergebnis der E-Mail-Versendung
    */
@@ -85,44 +91,49 @@ export class ResendEmailService extends AbstractBaseService implements EmailServ
         from: this.fromEmail,
         to: [request.email],
         subject,
-        html
+        html,
       });
 
       if (error) {
-        console.error('Resend API error:', error);
+        log('error', 'Resend API error (verification email)', {
+          errorMessage: (error as any)?.message || String(error),
+          to: maskEmail(request.email),
+          kind: 'verification',
+        });
         return {
           success: false,
-          error: error.message || 'Failed to send verification email'
+          error: error.message || 'Failed to send verification email',
         };
       }
 
       if (this.isDevelopment) {
-        console.log('✅ Verification email sent successfully:', {
-          to: request.email,
+        log('info', 'Verification email sent successfully', {
+          to: maskEmail(request.email),
           messageId: data?.id,
-          verificationUrl: request.verificationUrl
         });
       }
 
       return {
         success: true,
-        messageId: data?.id
+        messageId: data?.id,
       };
-
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      console.error('Error sending verification email:', errorMessage);
-      
+      log('error', 'Error sending verification email', {
+        errorMessage,
+        to: maskEmail(request.email),
+      });
+
       return {
         success: false,
-        error: errorMessage
+        error: errorMessage,
       };
     }
   }
 
   /**
    * Sendet eine Willkommens-E-Mail an einen verifizierten Benutzer
-   * 
+   *
    * @param email E-Mail-Adresse des Benutzers
    * @param userName Name des Benutzers
    * @returns Promise mit dem Ergebnis der E-Mail-Versendung
@@ -136,44 +147,50 @@ export class ResendEmailService extends AbstractBaseService implements EmailServ
         from: this.fromEmail,
         to: [email],
         subject,
-        html
+        html,
       });
 
       if (error) {
-        console.error('Resend API error:', error);
+        log('error', 'Resend API error (welcome email)', {
+          errorMessage: (error as any)?.message || String(error),
+          to: maskEmail(email),
+          kind: 'welcome',
+        });
         return {
           success: false,
-          error: error.message || 'Failed to send welcome email'
+          error: error.message || 'Failed to send welcome email',
         };
       }
 
       if (this.isDevelopment) {
-        console.log('✅ Welcome email sent successfully:', {
-          to: email,
+        log('info', 'Welcome email sent successfully', {
+          to: maskEmail(email),
           userName,
-          messageId: data?.id
+          messageId: data?.id,
         });
       }
 
       return {
         success: true,
-        messageId: data?.id
+        messageId: data?.id,
       };
-
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      console.error('Error sending welcome email:', errorMessage);
-      
+      log('error', 'Error sending welcome email', {
+        errorMessage,
+        to: maskEmail(email),
+      });
+
       return {
         success: false,
-        error: errorMessage
+        error: errorMessage,
       };
     }
   }
 
   /**
    * Sendet eine allgemeine E-Mail
-   * 
+   *
    * @param request E-Mail-Anfrage
    * @returns Promise mit dem Ergebnis der E-Mail-Versendung
    */
@@ -183,44 +200,50 @@ export class ResendEmailService extends AbstractBaseService implements EmailServ
         from: request.from || this.fromEmail,
         to: request.to,
         subject: request.subject,
-        html: request.html
+        html: request.html,
       });
 
       if (error) {
-        console.error('Resend API error:', error);
+        log('error', 'Resend API error (generic email)', {
+          errorMessage: (error as any)?.message || String(error),
+          to: (request.to || []).map(maskEmail).join(','),
+          kind: 'generic',
+        });
         return {
           success: false,
-          error: error.message || 'Failed to send email'
+          error: error.message || 'Failed to send email',
         };
       }
 
       if (this.isDevelopment) {
-        console.log('✅ Email sent successfully:', {
-          to: request.to,
+        log('info', 'Email sent successfully', {
+          to: (request.to || []).map(maskEmail),
           subject: request.subject,
-          messageId: data?.id
+          messageId: data?.id,
         });
       }
 
       return {
         success: true,
-        messageId: data?.id
+        messageId: data?.id,
       };
-
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      console.error('Error sending email:', errorMessage);
-      
+      log('error', 'Error sending email', {
+        errorMessage,
+        to: (request.to || []).map(maskEmail),
+      });
+
       return {
         success: false,
-        error: errorMessage
+        error: errorMessage,
       };
     }
   }
 
   /**
    * Validiert eine E-Mail-Adresse auf Korrektheit
-   * 
+   *
    * @param email Zu validierende E-Mail-Adresse
    * @returns true wenn die E-Mail-Adresse gültig ist, false andernfalls
    */
@@ -231,13 +254,13 @@ export class ResendEmailService extends AbstractBaseService implements EmailServ
 
   /**
    * Generiert HTML-Inhalt für die E-Mail-Verifikations-E-Mail
-   * 
+   *
    * @param request Verifikations-E-Mail-Anfrage
    * @returns HTML-String für die E-Mail
    */
   private generateVerificationEmailHTML(request: EmailVerificationRequest): string {
     const userName = request.userName || 'dort';
-    
+
     return `
 <!DOCTYPE html>
 <html lang="de" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
@@ -452,14 +475,14 @@ export class ResendEmailService extends AbstractBaseService implements EmailServ
 
   /**
    * Generiert HTML-Inhalt für die Willkommens-E-Mail
-   * 
+   *
    * @param email E-Mail-Adresse des Benutzers
    * @param userName Name des Benutzers
    * @returns HTML-String für die E-Mail
    */
   private generateWelcomeEmailHTML(_email: string, userName: string): string {
     const dashboardUrl = `${this.baseUrl}/dashboard`;
-    
+
     return `
 <!DOCTYPE html>
 <html lang="de" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
@@ -715,7 +738,7 @@ export class ResendEmailService extends AbstractBaseService implements EmailServ
 
 /**
  * Factory-Funktion zur Erstellung einer EmailService-Instanz
- * 
+ *
  * @param deps Abhängigkeiten für den Service
  * @returns Eine neue EmailService-Instanz
  */

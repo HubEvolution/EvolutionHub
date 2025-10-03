@@ -4,7 +4,12 @@ import { useEnhance } from './hooks/useEnhance';
 import { useRateLimit } from './hooks/useRateLimit';
 import { getI18n } from '@/utils/i18n';
 import { getLocale } from '@/lib/i18n';
-import { ALLOWED_TYPES, MAX_FILE_BYTES, MAX_FILES, TEXT_LENGTH_MAX } from '@/config/prompt-enhancer';
+import {
+  ALLOWED_TYPES,
+  MAX_FILE_BYTES,
+  MAX_FILES,
+  TEXT_LENGTH_MAX,
+} from '@/config/prompt-enhancer';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Alert from '@/components/ui/Alert';
@@ -14,6 +19,7 @@ import {
   emitPromptEnhancerSucceeded,
   emitPromptEnhancerFailed,
 } from '@/lib/client/telemetry';
+import { clientLogger } from '@/lib/client-logger';
 
 interface EnhancerFormProps {
   initialMode?: 'creative' | 'professional' | 'concise';
@@ -83,7 +89,9 @@ const EnhancerForm: React.FC<EnhancerFormProps> = ({ initialMode = 'creative' })
         return t('pages.tools.prompt-enhancer.form.error.file.invalidType');
       }
       if (f.size > MAX_FILE_BYTES) {
-        return t('pages.tools.prompt-enhancer.form.error.file.tooLarge', { max: formatBytes(MAX_FILE_BYTES) });
+        return t('pages.tools.prompt-enhancer.form.error.file.tooLarge', {
+          max: formatBytes(MAX_FILE_BYTES),
+        });
       }
     }
     return null;
@@ -186,7 +194,8 @@ const EnhancerForm: React.FC<EnhancerFormProps> = ({ initialMode = 'creative' })
       const res = await fetch(url, { credentials: 'omit', cache: 'no-store' });
       if (!res.ok) throw new Error('fetch_failed');
       const ct = res.headers.get('content-type') || '';
-      const isText = ct.includes('text/plain') || ct.includes('text/markdown') || ct.includes('text/');
+      const isText =
+        ct.includes('text/plain') || ct.includes('text/markdown') || ct.includes('text/');
       if (!isText) {
         setError(t('pages.tools.prompt-enhancer.form.error.file.invalidType'));
         setErrorScope('files');
@@ -229,8 +238,21 @@ const EnhancerForm: React.FC<EnhancerFormProps> = ({ initialMode = 'creative' })
   };
 
   const handleEnhance = async () => {
+    clientLogger.info('Prompt enhancer form submitted', {
+      component: 'EnhancerForm',
+      action: 'enhance_requested',
+      mode,
+      textLength: inputText.length,
+      fileCount: files.length,
+    });
+
     const validationError = validateInput(inputText);
     if (validationError) {
+      clientLogger.warn('Prompt enhancer validation failed: invalid input', {
+        component: 'EnhancerForm',
+        error: 'validation_input',
+        textLength: inputText.length,
+      });
       setError(validationError);
       setErrorScope('input');
       return;
@@ -239,12 +261,21 @@ const EnhancerForm: React.FC<EnhancerFormProps> = ({ initialMode = 'creative' })
     // Validate files before sending
     const fileErr = validateFiles([]); // ensures count rule against current state
     if (fileErr) {
+      clientLogger.warn('Prompt enhancer validation failed: invalid files', {
+        component: 'EnhancerForm',
+        error: 'validation_files',
+        fileCount: files.length,
+      });
       setError(fileErr);
       setErrorScope('files');
       return;
     }
 
     if (retryActive) {
+      clientLogger.warn('Prompt enhancer rate-limited', {
+        component: 'EnhancerForm',
+        error: 'rate_limit_active',
+      });
       setError(t('pages.tools.prompt-enhancer.form.error.rateLimit'));
       setErrorScope('input');
       return;
@@ -278,41 +309,80 @@ const EnhancerForm: React.FC<EnhancerFormProps> = ({ initialMode = 'creative' })
       // Handle fetch Response first
       if (result instanceof Response) {
         if (result.status === 429) {
+          clientLogger.warn('Prompt enhancer rate-limited by API', {
+            component: 'EnhancerForm',
+            error: 'rate_limit_429',
+            status: 429,
+          });
           await handle429Response(result);
           setError(t('pages.tools.prompt-enhancer.form.error.rateLimit'));
           // Telemetry: failed (rate-limited)
           await emitPromptEnhancerFailed({ errorKind: 'rate_limited', httpStatus: 429 });
         } else {
           // Best-effort parse error payload
-          const payload: unknown = await result.clone().json().catch(() => null);
-          const msg = payload && typeof (payload as any).error?.message === 'string'
-            ? (payload as any).error.message
-            : t('pages.tools.prompt-enhancer.form.error.unknown');
+          const payload: unknown = await result
+            .clone()
+            .json()
+            .catch(() => null);
+          const msg =
+            payload && typeof (payload as any).error?.message === 'string'
+              ? (payload as any).error.message
+              : t('pages.tools.prompt-enhancer.form.error.unknown');
+          clientLogger.error('Prompt enhancer API error', {
+            component: 'EnhancerForm',
+            error: 'api_error',
+            status: result.status,
+            message: msg,
+          });
           setError(msg);
           await emitPromptEnhancerFailed({ errorKind: 'api_error', httpStatus: result.status });
         }
       } else if ('success' in result) {
         if (result.success) {
+          const latencyMs = Math.max(0, Date.now() - startedAt);
+          clientLogger.info('Prompt enhanced successfully', {
+            component: 'EnhancerForm',
+            action: 'enhance_success',
+            mode,
+            latency: latencyMs,
+            warningsCount: result.data.safetyReport?.warnings?.length || 0,
+          });
           setOutputText(result.data.enhancedPrompt);
           setSafetyReport(result.data.safetyReport || null);
           setError(null);
           setErrorScope(null);
           // Telemetry: succeeded
-          const latencyMs = Math.max(0, Date.now() - startedAt);
-          await emitPromptEnhancerSucceeded({ latencyMs, maskedCount: result.data.safetyReport?.warnings?.length });
+          await emitPromptEnhancerSucceeded({
+            latencyMs,
+            maskedCount: result.data.safetyReport?.warnings?.length,
+          });
           // keep selected files for context or clear? keep for convenience
         } else {
           // ApiErrorBody
+          clientLogger.error('Prompt enhancer returned error', {
+            component: 'EnhancerForm',
+            error: result.error?.type || 'api_error',
+            message: result.error?.message,
+          });
           setError(result.error?.message || t('pages.tools.prompt-enhancer.form.error.unknown'));
           setErrorScope('input');
           await emitPromptEnhancerFailed({ errorKind: result.error?.type || 'api_error' });
         }
       } else {
+        clientLogger.error('Prompt enhancer unknown error', {
+          component: 'EnhancerForm',
+          error: 'unknown',
+        });
         setError(t('pages.tools.prompt-enhancer.form.error.unknown'));
         setErrorScope('input');
         await emitPromptEnhancerFailed({ errorKind: 'unknown' });
       }
     } catch (err) {
+      clientLogger.error('Prompt enhancer network error', {
+        component: 'EnhancerForm',
+        error: 'network',
+        message: err instanceof Error ? err.message : String(err),
+      });
       setError(t('pages.tools.prompt-enhancer.form.error.network'));
       setErrorScope('input');
       await emitPromptEnhancerFailed({ errorKind: 'network' });
@@ -339,7 +409,10 @@ const EnhancerForm: React.FC<EnhancerFormProps> = ({ initialMode = 'creative' })
     <Card className="max-w-4xl mx-auto p-6">
       <form className="space-y-6">
         <div>
-          <label htmlFor="inputText" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label
+            htmlFor="inputText"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+          >
             {t('pages.tools.prompt-enhancer.form.inputLabel')}
           </label>
           <textarea
@@ -364,7 +437,10 @@ const EnhancerForm: React.FC<EnhancerFormProps> = ({ initialMode = 'creative' })
         <div>
           {/* URL Import */}
           <div className="mb-4">
-            <label htmlFor="urlImport" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label
+              htmlFor="urlImport"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            >
               {t('pages.tools.prompt-enhancer.form.files.urlImportLabel')}
             </label>
             <div className="flex gap-2">
@@ -407,23 +483,29 @@ const EnhancerForm: React.FC<EnhancerFormProps> = ({ initialMode = 'creative' })
                 type="file"
                 onChange={onFileInputChange}
                 multiple
-                accept={['.jpg','.jpeg','.png','.webp','.pdf','.txt','.md'].join(',')}
+                accept={['.jpg', '.jpeg', '.png', '.webp', '.pdf', '.txt', '.md'].join(',')}
                 disabled={isLoading}
                 className="block text-sm text-gray-700 dark:text-gray-200"
               />
             </div>
             <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-              {t('pages.tools.prompt-enhancer.form.files.allowedTypes')}: JPG, PNG, WEBP, PDF, TXT, MD · {t('pages.tools.prompt-enhancer.form.files.maxSize')}: {formatBytes(MAX_FILE_BYTES)} · {t('pages.tools.prompt-enhancer.form.files.maxCount', { count: MAX_FILES })}
+              {t('pages.tools.prompt-enhancer.form.files.allowedTypes')}: JPG, PNG, WEBP, PDF, TXT,
+              MD · {t('pages.tools.prompt-enhancer.form.files.maxSize')}:{' '}
+              {formatBytes(MAX_FILE_BYTES)} ·{' '}
+              {t('pages.tools.prompt-enhancer.form.files.maxCount', { count: MAX_FILES })}
             </div>
-            {error && errorScope === 'files' && (
-              <Alert className="mt-2">{error}</Alert>
-            )}
+            {error && errorScope === 'files' && <Alert className="mt-2">{error}</Alert>}
             {files.length > 0 && (
               <ul className="mt-3 space-y-2">
                 {files.map((f, idx) => (
-                  <li key={idx} className="text-sm border border-gray-200 dark:border-gray-700 rounded-md p-2">
+                  <li
+                    key={idx}
+                    className="text-sm border border-gray-200 dark:border-gray-700 rounded-md p-2"
+                  >
                     <div className="flex items-center justify-between gap-2">
-                      <span className="truncate">{f.name} · {f.type || 'unknown'} · {formatBytes(f.size)}</span>
+                      <span className="truncate">
+                        {f.name} · {f.type || 'unknown'} · {formatBytes(f.size)}
+                      </span>
                       <div className="flex items-center gap-2">
                         <button
                           type="button"
@@ -431,14 +513,18 @@ const EnhancerForm: React.FC<EnhancerFormProps> = ({ initialMode = 'creative' })
                           aria-label={`Move up ${f.name}`}
                           className="px-2 py-1 rounded-md border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50"
                           disabled={isLoading || idx === 0}
-                        >↑</button>
+                        >
+                          ↑
+                        </button>
                         <button
                           type="button"
                           onClick={() => moveFileDown(idx)}
                           aria-label={`Move down ${f.name}`}
                           className="px-2 py-1 rounded-md border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50"
                           disabled={isLoading || idx === files.length - 1}
-                        >↓</button>
+                        >
+                          ↓
+                        </button>
                         <button
                           type="button"
                           onClick={() => onRemoveFile(idx)}
@@ -471,10 +557,15 @@ const EnhancerForm: React.FC<EnhancerFormProps> = ({ initialMode = 'creative' })
           <div className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             {t('pages.tools.prompt-enhancer.form.modeLabel')}
           </div>
-          <div role="group" aria-label={t('pages.tools.prompt-enhancer.form.modeLabel')} className="inline-flex shadow-sm">
+          <div
+            role="group"
+            aria-label={t('pages.tools.prompt-enhancer.form.modeLabel')}
+            className="inline-flex shadow-sm"
+          >
             {modes.map((m, idx) => {
               const selected = mode === (m.value as 'creative' | 'professional' | 'concise');
-              const radius = idx === 0 ? 'rounded-l-md' : idx === modes.length - 1 ? 'rounded-r-md' : '';
+              const radius =
+                idx === 0 ? 'rounded-l-md' : idx === modes.length - 1 ? 'rounded-r-md' : '';
               const spacing = idx > 0 ? '-ml-px' : '';
               return (
                 <Button
@@ -501,15 +592,19 @@ const EnhancerForm: React.FC<EnhancerFormProps> = ({ initialMode = 'creative' })
           className="w-full"
           aria-label={t('pages.tools.prompt-enhancer.form.enhanceButton')}
         >
-          {isLoading ? t('pages.tools.prompt-enhancer.form.enhancing') : t('pages.tools.prompt-enhancer.form.enhanceButton')}
+          {isLoading
+            ? t('pages.tools.prompt-enhancer.form.enhancing')
+            : t('pages.tools.prompt-enhancer.form.enhanceButton')}
         </Button>
       </form>
-
 
       {outputText && (
         <div className="mt-6">
           <div className="flex items-center justify-between mb-2">
-            <label htmlFor="outputText" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            <label
+              htmlFor="outputText"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
               {t('pages.tools.prompt-enhancer.form.outputLabel')}
             </label>
             <div className="flex items-center gap-2">
@@ -520,7 +615,9 @@ const EnhancerForm: React.FC<EnhancerFormProps> = ({ initialMode = 'creative' })
                 disabled={!outputText}
                 aria-live="polite"
               >
-                {copied ? t('pages.tools.prompt-enhancer.form.copied') : t('pages.tools.prompt-enhancer.form.copy')}
+                {copied
+                  ? t('pages.tools.prompt-enhancer.form.copied')
+                  : t('pages.tools.prompt-enhancer.form.copy')}
               </button>
               <button
                 type="button"

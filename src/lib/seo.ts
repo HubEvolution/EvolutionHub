@@ -9,14 +9,16 @@ interface SEOData {
 const seoData: Record<Locale, SEOData> = {
   de: {
     title: 'Entwickle die Zukunft mit KI-gestützten Tools',
-    description: 'Streamline your workflow with our powerful suite of AI tools designed for developers and creators.',
-    ogImage: '/assets/images/og-image-de.png'
+    description:
+      'Streamline your workflow with our powerful suite of AI tools designed for developers and creators.',
+    ogImage: '/assets/images/og-image-de.png',
   },
   en: {
     title: 'Build the Future with AI-Powered Tools',
-    description: 'Streamline your workflow with our powerful suite of AI tools designed for developers and creators.',
-    ogImage: '/assets/images/og-image-en.png'
-  }
+    description:
+      'Streamline your workflow with our powerful suite of AI tools designed for developers and creators.',
+    ogImage: '/assets/images/og-image-en.png',
+  },
 };
 
 export function getSEOData(locale: Locale): SEOData {

@@ -15,10 +15,7 @@ interface Options {
  * useValidation
  * Encapsulates file validation (MIME type + size) and exposes acceptAttr and maxMb helpers.
  */
-export function useValidation(
-  toasts: ValidationToasts,
-  options: Options = {}
-) {
+export function useValidation(toasts: ValidationToasts, options: Options = {}) {
   const maxBytes = options.maxBytes ?? MAX_UPLOAD_BYTES;
   const allowed = options.allowedTypes ?? ALLOWED_CONTENT_TYPES;
 

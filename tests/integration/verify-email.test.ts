@@ -1,9 +1,9 @@
-import { describe, it, expect, beforeAll } from "vitest";
+import { describe, it, expect, beforeAll } from 'vitest';
 
-let TEST_URL = "";
-const ENV_URL = process.env.TEST_BASE_URL || "";
+let TEST_URL = '';
+const ENV_URL = process.env.TEST_BASE_URL || '';
 // Allow self-signed localhost certs (wrangler https)
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 async function fetchManual(path: string, init: RequestInit = {}) {
   const response = await fetch(`${TEST_URL}${path}`, {
@@ -30,36 +30,35 @@ async function fetchManual(path: string, init: RequestInit = {}) {
   };
 }
 
-describe("Verify Email API - deprecated 410 behavior", () => {
+describe('Verify Email API - deprecated 410 behavior', () => {
   beforeAll(async () => {
-    if (!ENV_URL)
-      throw new Error("TEST_BASE_URL must be provided by global setup");
-    TEST_URL = ENV_URL.replace(/\/$/, "");
+    if (!ENV_URL) throw new Error('TEST_BASE_URL must be provided by global setup');
+    TEST_URL = ENV_URL.replace(/\/$/, '');
     const r = await fetch(`${TEST_URL}/api/auth/verify-email?token=abc`, {
-      redirect: "manual",
+      redirect: 'manual',
     });
     if (r.status !== 410) throw new Error(`Worker not ready at ${TEST_URL}`);
   });
 
-  it("GET /api/auth/verify-email returns 410 HTML (deprecated endpoint)", async () => {
-    const res = await fetchManual("/api/auth/verify-email?token=abc&locale=de");
+  it('GET /api/auth/verify-email returns 410 HTML (deprecated endpoint)', async () => {
+    const res = await fetchManual('/api/auth/verify-email?token=abc&locale=de');
     expect(res.status).toBe(410);
     expect(res.redirected).toBe(false);
-    expect(res.contentType).toContain("text/html");
+    expect(res.contentType).toContain('text/html');
     expect(res.text).toMatch(/410|Gone|deprecated/i);
   });
 
   it('POST /api/auth/verify-email returns 410 JSON with details.Allow = "GET"', async () => {
-    const res = await fetchManual("/api/auth/verify-email?token=abc", {
-      method: "POST",
+    const res = await fetchManual('/api/auth/verify-email?token=abc', {
+      method: 'POST',
       headers: {
-        "content-type": "application/json",
+        'content-type': 'application/json',
         origin: TEST_URL,
       },
       body: JSON.stringify({}),
     });
     expect(res.status).toBe(410);
-    expect(res.contentType).toContain("application/json");
+    expect(res.contentType).toContain('application/json');
     const body = await res.json();
     expect(body).toBeTruthy();
     expect(body.success).toBe(false);
@@ -67,14 +66,14 @@ describe("Verify Email API - deprecated 410 behavior", () => {
   });
 
   it('PUT /api/auth/verify-email returns 410 JSON with details.Allow = "GET"', async () => {
-    const res = await fetchManual("/api/auth/verify-email?token=abc", {
-      method: "PUT",
+    const res = await fetchManual('/api/auth/verify-email?token=abc', {
+      method: 'PUT',
       headers: {
         origin: TEST_URL,
       },
     });
     expect(res.status).toBe(410);
-    expect(res.contentType).toContain("application/json");
+    expect(res.contentType).toContain('application/json');
     const body = await res.json();
     expect(body).toBeTruthy();
     expect(body.success).toBe(false);

@@ -47,18 +47,27 @@ describe('ModelControls', () => {
   });
 
   it('blocks selection of disallowed scale and emits onBlocked with tooltip when gating enabled', () => {
-    const { onScale, onBlocked } = renderControls({ allowedScales: [2], selectedScale: 2, gatingEnabled: true });
+    const { onScale, onBlocked } = renderControls({
+      allowedScales: [2],
+      selectedScale: 2,
+      gatingEnabled: true,
+    });
     const btn4 = screen.getByRole('button', { name: /^x4$/ });
     // Tooltip should be present to hint upgrade
     expect(btn4).toHaveAttribute('title', 'Upgrade');
 
     fireEvent.click(btn4);
     expect(onScale).not.toHaveBeenCalled();
-    expect(onBlocked).toHaveBeenCalledWith(expect.objectContaining({ feature: 'scale', requested: 4 }));
+    expect(onBlocked).toHaveBeenCalledWith(
+      expect.objectContaining({ feature: 'scale', requested: 4 })
+    );
   });
 
   it('disables face enhance and emits onBlocked when plan forbids it', () => {
-    const { onToggleFace, onBlocked } = renderControls({ canUseFaceEnhance: false, gatingEnabled: true });
+    const { onToggleFace, onBlocked } = renderControls({
+      canUseFaceEnhance: false,
+      gatingEnabled: true,
+    });
     const checkbox = screen.getByLabelText(/Face enhance/i) as HTMLInputElement;
     expect(checkbox).toBeInTheDocument();
     expect(checkbox.disabled).toBe(true);

@@ -1,4 +1,5 @@
 import { withRedirectMiddleware } from '@/lib/api-middleware';
+import { createSecureRedirect } from '@/lib/response-helpers';
 
 export const GET = withRedirectMiddleware(async (context) => {
   const { locals, request } = context;
@@ -11,26 +12,17 @@ export const GET = withRedirectMiddleware(async (context) => {
   const baseUrl: string = env.BASE_URL || `${url.protocol}//${url.host}`;
 
   if (!user) {
-    return new Response(null, {
-      status: 302,
-      headers: { Location: `${baseUrl}/login` }
-    });
+    return createSecureRedirect(`${baseUrl}/login`, 302);
   }
   const email = (user.email || '').toLowerCase();
   if (!kv || !email) {
-    return new Response(null, {
-      status: 302,
-      headers: { Location: `${baseUrl}/dashboard?billing=link-pending-missing` }
-    });
+    return createSecureRedirect(`${baseUrl}/dashboard?billing=link-pending-missing`, 302);
   }
 
   const key = `stripe:pending:email:${email}`;
   const raw = await kv.get(key);
   if (!raw) {
-    return new Response(null, {
-      status: 302,
-      headers: { Location: `${baseUrl}/dashboard?billing=nopending` }
-    });
+    return createSecureRedirect(`${baseUrl}/dashboard?billing=nopending`, 302);
   }
 
   try {
@@ -47,7 +39,7 @@ export const GET = withRedirectMiddleware(async (context) => {
     if (customerId) {
       await db
         .prepare(
-          "INSERT INTO stripe_customers (user_id, customer_id) VALUES (?, ?) ON CONFLICT(user_id) DO UPDATE SET customer_id = excluded.customer_id"
+          'INSERT INTO stripe_customers (user_id, customer_id) VALUES (?, ?) ON CONFLICT(user_id) DO UPDATE SET customer_id = excluded.customer_id'
         )
         .bind(user.id, customerId)
         .run();
@@ -74,14 +66,8 @@ export const GET = withRedirectMiddleware(async (context) => {
     await db.prepare('UPDATE users SET plan = ? WHERE id = ?').bind(plan, user.id).run();
     await kv.delete(key);
 
-    return new Response(null, {
-      status: 302,
-      headers: { Location: `${baseUrl}/dashboard?billing=linked` }
-    });
+    return createSecureRedirect(`${baseUrl}/dashboard?billing=linked`, 302);
   } catch {
-    return new Response(null, {
-      status: 302,
-      headers: { Location: `${baseUrl}/dashboard?billing=link-error` }
-    });
+    return createSecureRedirect(`${baseUrl}/dashboard?billing=link-error`, 302);
   }
 });

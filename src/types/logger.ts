@@ -166,4 +166,3 @@ export interface LoggerManager {
   configure(config: Partial<LoggerConfig>): void;
   shutdown(): Promise<void>;
 }
-

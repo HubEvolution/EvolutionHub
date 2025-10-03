@@ -1,687 +1,961 @@
-import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
-import Icon from './Icon';
-
-// TypeScript interfaces for better type safety
-interface LogLevelBadgeProps {
-  level: string;
-}
+import React, { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 
 interface LogEntry {
   timestamp: string;
   level: string;
   message: string;
+  source?: string;
 }
 
-// Panel status types for state machine
-type PanelStatus = 
-  | { type: 'initializing' }
-  | { type: 'connecting'; mode: string }
-  | { type: 'connected'; mode: string; hasLogs: boolean }
-  | { type: 'error'; error: string }
-  | { type: 'waiting'; mode: string };
-
-const LogLevelBadge: React.FC<LogLevelBadgeProps> = React.memo(({ level }) => {
-  const baseStyle = "px-2 py-1 rounded text-xs font-semibold mr-2";
-  switch (level.toLowerCase()) {
-    case 'info':
-      return <span className={`${baseStyle} bg-blue-100 text-blue-800`}>Info</span>;
-    case 'warn':
-      return <span className={`${baseStyle} bg-yellow-100 text-yellow-800`}>Warn</span>;
-    case 'error':
-      return <span className={`${baseStyle} bg-red-100 text-red-800`}>Error</span>;
-    case 'debug':
-      return <span className={`${baseStyle} bg-purple-100 text-purple-800`}>Debug</span>;
-    case 'log':
-    default:
-      return <span className={`${baseStyle} bg-gray-100 text-gray-800`}>Log</span>;
-  }
-});
+const STORAGE_KEY = 'debugPanel.logs';
+const MAX_STORED_LOGS = 500;
+const createLogKey = (log: LogEntry) =>
+  `${log.timestamp}|${log.level}|${log.message}|${log.source ?? ''}`;
 
 const DebugPanel: React.FC = () => {
-  // Hybrid connection state management
-  const [logs, setLogs] = useState<LogEntry[]>([]);
-  const [websocket, setWebsocket] = useState<WebSocket | null>(null);
-  const [eventSource, setEventSource] = useState<EventSource | null>(null);
-  const [isConnecting, setIsConnecting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [connectionMode, setConnectionMode] = useState<'websocket' | 'sse' | 'polling' | null>(null);
-  
-  // Tab system state
-  const [activeTab, setActiveTab] = useState<'logs' | 'help' | 'settings'>('logs');
-  
-  // Stable references to prevent useEffect dependencies issues
-  const stateRef = useRef({ logs, websocket, eventSource, isConnecting, error, connectionMode });
-  
-  // Update ref after each render
-  useEffect(() => {
-    stateRef.current = { logs, websocket, eventSource, isConnecting, error, connectionMode };
-  });
-
-  // Computed panel status (single source of truth for conditional rendering)
-  const computePanelStatus = useCallback((): PanelStatus => {
-    if (error) return { type: 'error', error };
-    if (isConnecting) return { type: 'connecting', mode: connectionMode || 'hybrid' };
-    if (!connectionMode) return { type: 'initializing' };
-    if (logs.length === 0) return { type: 'waiting', mode: connectionMode };
-    return { type: 'connected', mode: connectionMode, hasLogs: true };
-  }, [error, isConnecting, connectionMode, logs.length]);
-  
-  const panelStatus = useMemo(() => computePanelStatus(), [computePanelStatus]);
-  
-  // Performance-optimized components for tab content
-  const LogItem = React.memo<{ log: LogEntry; index: number }>(({ log, index }) => (
-    <li key={`${log.timestamp}-${index}`} className="flex items-start text-sm border-b border-gray-700 pb-2 last:border-b-0 last:pb-0">
-      <span className="flex-shrink-0 w-24 text-xs text-gray-400 mr-3">
-        {log.timestamp.split('T')[1]?.split('.')[0] || log.timestamp}
-      </span>
-      <LogLevelBadge level={log.level} />
-      <div className="flex-1 whitespace-pre-wrap break-words">
-        {log.message}
-      </div>
-    </li>
-  ));
-  
-  const LogsList = React.memo<{ logs: LogEntry[] }>(({ logs }) => {
-    const reversedLogs = useMemo(() => logs.slice().reverse(), [logs]);
-    
-    return (
-      <ul className="space-y-2">
-        {reversedLogs.map((log, index) => (
-          <LogItem key={`${log.timestamp}-${index}`} log={log} index={index} />
-        ))}
-      </ul>
-    );
-  });
-  
-  const StatusMessage = React.memo<{ status: PanelStatus }>(({ status }) => {
-    switch (status.type) {
-      case 'initializing':
-        return <p className="text-yellow-400 mb-2">Initializing connection...</p>;
-      case 'connecting':
-        return <p className="text-blue-400 mb-2">Connecting via {status.mode}...</p>;
-      case 'connected':
-        return null;
-      case 'error':
-        return <p className="text-red-500 mb-2">Error: {status.error}</p>;
-      case 'waiting':
-        return <p className="text-gray-400 mb-2">Connected. Waiting for logs...</p>;
-      default:
-        return null;
+  const logKeysRef = useRef<Set<string>>(new Set());
+  const [logs, setLogs] = useState<LogEntry[]>(() => {
+    // Load logs from LocalStorage on mount
+    if (typeof window === 'undefined') return [];
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (!stored) return [];
+      const parsed = JSON.parse(stored);
+      if (!Array.isArray(parsed)) return [];
+      const keys = logKeysRef.current;
+      keys.clear();
+      const valid: LogEntry[] = [];
+      for (const item of parsed) {
+        if (
+          item &&
+          typeof item === 'object' &&
+          typeof item.timestamp === 'string' &&
+          typeof item.level === 'string' &&
+          typeof item.message === 'string'
+        ) {
+          const entry = item as LogEntry;
+          keys.add(createLogKey(entry));
+          valid.push(entry);
+        }
+      }
+      return valid;
+    } catch {
+      return [];
     }
   });
+  const [status, setStatus] = useState<'connecting' | 'connected' | 'error'>('connecting');
+  const [autoScroll, setAutoScroll] = useState(true);
+  const [showAll, setShowAll] = useState(false);
+  const [windowSize, setWindowSize] = useState(200);
+  const [paused, setPaused] = useState(false);
+  const pausedRef = useRef(false);
+  useEffect(() => {
+    pausedRef.current = paused;
+  }, [paused]);
+  const pausedBufferRef = useRef<LogEntry[]>([]);
+  const [suppressedCount, setSuppressedCount] = useState(0);
+  const [groupRepeats, setGroupRepeats] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    try {
+      return localStorage.getItem('debugPanel.groupRepeats') === 'true';
+    } catch {
+      return false;
+    }
+  });
+  const [levelFilter, setLevelFilter] = useState<string[]>(() => {
+    if (typeof window === 'undefined') return ['error', 'warn', 'info', 'debug', 'log'];
+    try {
+      const stored = localStorage.getItem('debugPanel.levelFilter');
+      return stored ? JSON.parse(stored) : ['error', 'warn', 'info', 'debug', 'log'];
+    } catch {
+      return ['error', 'warn', 'info', 'debug', 'log'];
+    }
+  });
+  const [sourceFilters, setSourceFilters] = useState<
+    Record<'server' | 'client' | 'console' | 'network', boolean>
+  >(() => {
+    if (typeof window === 'undefined')
+      return { server: true, client: true, console: true, network: true };
+    try {
+      const stored = localStorage.getItem('debugPanel.sourceFilters');
+      return stored
+        ? JSON.parse(stored)
+        : { server: true, client: true, console: true, network: true };
+    } catch {
+      return { server: true, client: true, console: true, network: true };
+    }
+  });
+  const [mutePatterns, setMutePatterns] = useState<string>(() => {
+    if (typeof window === 'undefined') return '';
+    try {
+      return localStorage.getItem('debugPanel.mutePatterns') || '';
+    } catch {
+      return '';
+    }
+  });
+  const [muteIsRegex, setMuteIsRegex] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    try {
+      return localStorage.getItem('debugPanel.muteIsRegex') === 'true';
+    } catch {
+      return false;
+    }
+  });
+  const logsEndRef = useRef<HTMLDivElement>(null);
+  const pollTimerRef = useRef<number | null>(null);
+  type FilterSnapshot = {
+    levelFilter: string[];
+    sourceFilters: Record<'server' | 'client' | 'console' | 'network', boolean>;
+    mutePatterns: string;
+    muteIsRegex: boolean;
+  };
+  const filterHistoryRef = useRef<FilterSnapshot[]>([]);
+  const [historySize, setHistorySize] = useState(0);
 
-  const TabNavigation = React.memo<{
-    activeTab: 'logs' | 'help' | 'settings';
-    setActiveTab: (tab: 'logs' | 'help' | 'settings') => void;
-  }>(({ activeTab, setActiveTab }) => (
-    <nav className="flex-shrink-0 border-b border-gray-700">
-      <div className="flex">
-        <button
-          className={`px-4 py-2 text-sm font-medium transition-colors ${
-            activeTab === 'logs'
-              ? 'border-b-2 border-blue-400 text-blue-400'
-              : 'text-gray-400 hover:text-white'
-          }`}
-          onClick={() => setActiveTab('logs')}
-        >
-          <span className="inline-flex items-center gap-2">
-            <Icon name="clipboard" className="w-4 h-4" ariaLabel="Logs" />
-            Logs
-          </span>
-        </button>
-        <button
-          className={`px-4 py-2 text-sm font-medium transition-colors ${
-            activeTab === 'help'
-              ? 'border-b-2 border-blue-400 text-blue-400'
-              : 'text-gray-400 hover:text-white'
-          }`}
-          onClick={() => setActiveTab('help')}
-        >
-          <span className="inline-flex items-center gap-2">
-            <Icon name="chat" className="w-4 h-4" ariaLabel="Help" />
-            Help
-          </span>
-        </button>
-        <button
-          className={`px-4 py-2 text-sm font-medium transition-colors ${
-            activeTab === 'settings'
-              ? 'border-b-2 border-blue-400 text-blue-400'
-              : 'text-gray-400 hover:text-white'
-          }`}
-          onClick={() => setActiveTab('settings')}
-        >
-          <span className="inline-flex items-center gap-2">
-            <Icon name="tool" className="w-4 h-4" ariaLabel="Settings" />
-            Settings
-          </span>
-        </button>
-      </div>
-    </nav>
-  ));
-  
-  // Settings persistence hook
-  const useSettingsPersistence = <T,>(key: string, defaultValue: T): [T, (value: T) => void] => {
-    const [value, setValue] = useState<T>(() => {
+  useEffect(() => {
+    const startPolling = () => {
+      if (pollTimerRef.current != null) return;
+      const poll = async () => {
+        try {
+          const res = await fetch('/api/debug/logs-stream', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+          if (!res.ok) throw new Error('poll failed');
+          const payload: any = await res.json().catch(() => null);
+          const items: unknown[] = payload?.data?.logs || [];
+          const entries: LogEntry[] = [];
+          for (const raw of items) {
+            try {
+              const data = typeof raw === 'string' ? JSON.parse(raw) : raw;
+              if (!data) continue;
+              if (data.type === 'log' && data.timestamp && data.level && typeof data.message === 'string') {
+                entries.push({
+                  timestamp: data.timestamp,
+                  level: String(data.level),
+                  message: data.message,
+                  source: data.source,
+                });
+              }
+            } catch {}
+          }
+          if (entries.length) {
+            mergeLogs(entries);
+          }
+          setStatus('connected');
+        } catch {
+          setStatus('error');
+        }
+      };
+      setStatus('connecting');
+      void poll();
+      pollTimerRef.current = window.setInterval(poll, 2000);
+    };
+
+    const eventSource = new EventSource('/api/debug/logs-stream');
+
+    eventSource.onopen = () => {
+      setStatus('connected');
+      addLog({
+        timestamp: new Date().toISOString(),
+        level: 'info',
+        message: 'Connected to log stream',
+      });
+    };
+
+    eventSource.onmessage = (event) => {
       try {
-        const item = localStorage.getItem(key);
-        return item ? JSON.parse(item) : defaultValue;
+        const data = JSON.parse(event.data);
+        if (data.type === 'keep-alive' || data.type === 'environment-info') return;
+        if (
+          data.type === 'log' &&
+          data.timestamp &&
+          data.level &&
+          typeof data.message === 'string'
+        ) {
+          const entry: LogEntry = {
+            timestamp: data.timestamp,
+            level: String(data.level),
+            message: data.message,
+            source: data.source,
+          };
+          if (!pausedRef.current) {
+            addLog(entry);
+          } else {
+            // buffer while paused (cap to 500)
+            const buf = pausedBufferRef.current;
+            buf.push(entry);
+            if (buf.length > 500) buf.shift();
+            setSuppressedCount(buf.length);
+          }
+          return;
+        }
       } catch {
-        return defaultValue;
+        // ignore malformed JSON
+      }
+      // Unknown payloads: ignore to keep list clean
+    };
+
+    eventSource.onerror = () => {
+      setStatus('error');
+      addLog({
+        timestamp: new Date().toISOString(),
+        level: 'error',
+        message: 'Connection error - switching to polling...',
+      });
+      try { eventSource.close(); } catch {}
+      startPolling();
+    };
+
+    return () => {
+      try { eventSource.close(); } catch {}
+      if (pollTimerRef.current != null) {
+        clearInterval(pollTimerRef.current);
+        pollTimerRef.current = null;
+      }
+    };
+  }, []);
+
+  // Persist groupRepeats
+  useEffect(() => {
+    try {
+      localStorage.setItem('debugPanel.groupRepeats', String(groupRepeats));
+    } catch {
+      /* noop */
+    }
+  }, [groupRepeats]);
+
+  // Persist sourceFilters & mutePatterns
+  useEffect(() => {
+    try {
+      localStorage.setItem('debugPanel.sourceFilters', JSON.stringify(sourceFilters));
+    } catch {
+      /* noop */
+    }
+  }, [sourceFilters]);
+  useEffect(() => {
+    try {
+      localStorage.setItem('debugPanel.mutePatterns', mutePatterns);
+    } catch {
+      /* noop */
+    }
+  }, [mutePatterns]);
+  useEffect(() => {
+    try {
+      localStorage.setItem('debugPanel.muteIsRegex', String(muteIsRegex));
+    } catch {
+      /* noop */
+    }
+  }, [muteIsRegex]);
+
+  const mergeLogs = useCallback((incoming: LogEntry[]) => {
+    if (!incoming.length) return;
+    const keys = logKeysRef.current;
+    const seen = new Set<string>();
+    setLogs((prev) => {
+      let next = prev;
+      let mutated = false;
+      for (const log of incoming) {
+        const key = createLogKey(log);
+        if (keys.has(key) || seen.has(key)) continue;
+        seen.add(key);
+        if (!mutated) {
+          next = [...prev];
+          mutated = true;
+        }
+        next.push(log);
+        keys.add(key);
+      }
+      if (!mutated) return prev;
+
+      if (next.length > MAX_STORED_LOGS) {
+        const dropCount = next.length - MAX_STORED_LOGS;
+        const removed = next.splice(0, dropCount);
+        for (const entry of removed) {
+          keys.delete(createLogKey(entry));
+        }
+      }
+
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      } catch (e) {
+        console.warn('Failed to save logs to LocalStorage:', e);
+      }
+      return next;
+    });
+  }, []);
+
+  const addLog = useCallback((log: LogEntry) => {
+    mergeLogs([log]);
+  }, [mergeLogs]);
+
+  const clearLogs = useCallback(() => {
+    setLogs([]);
+    logKeysRef.current.clear();
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch (e) {
+      console.warn('Failed to clear logs from LocalStorage:', e);
+    }
+  }, []);
+
+  // exportLogs is defined after displayLogs to avoid TDZ issues
+
+  const toggleLevelFilter = useCallback((level: string) => {
+    setLevelFilter((prev) =>
+      prev.includes(level) ? prev.filter((l) => l !== level) : [...prev, level]
+    );
+  }, []);
+
+  const addMutePattern = useCallback((pattern: string) => {
+    setMutePatterns((prev) => {
+      const list = prev
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean);
+      const has = list.map((s) => s.toLowerCase()).includes(pattern.toLowerCase());
+      if (has) return prev;
+      if (list.length === 0) return pattern;
+      return `${prev}${prev.trim().endsWith(',') ? '' : ','} ${pattern}`;
+    });
+  }, []);
+  const pushFilterSnapshot = useCallback(() => {
+    const snap: FilterSnapshot = {
+      levelFilter: [...levelFilter],
+      sourceFilters: { ...sourceFilters },
+      mutePatterns,
+      muteIsRegex,
+    };
+    const arr = filterHistoryRef.current;
+    arr.push(snap);
+    if (arr.length > 20) arr.shift();
+    setHistorySize(arr.length);
+  }, [levelFilter, sourceFilters, mutePatterns, muteIsRegex]);
+  const undoLastApply = useCallback(() => {
+    const arr = filterHistoryRef.current;
+    if (!arr.length) return;
+    const snap = arr.pop()!;
+    setLevelFilter(snap.levelFilter);
+    setSourceFilters(snap.sourceFilters);
+    setMutePatterns(snap.mutePatterns);
+    setMuteIsRegex(snap.muteIsRegex);
+    setHistorySize(arr.length);
+  }, []);
+
+  // Persist levelFilter
+  useEffect(() => {
+    try {
+      localStorage.setItem('debugPanel.levelFilter', JSON.stringify(levelFilter));
+    } catch {
+      /* noop */
+    }
+  }, [levelFilter]);
+
+  // Auto-scroll to bottom when new logs arrive
+  useEffect(() => {
+    if (autoScroll && logsEndRef.current) {
+      logsEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [logs, autoScroll]);
+
+  const getLevelColor = (level: string) => {
+    switch (level.toLowerCase()) {
+      case 'error':
+        return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300';
+      case 'warn':
+        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300';
+      case 'info':
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300';
+      case 'debug':
+        return 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300';
+      default:
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
+    }
+  };
+
+  const resolveSource = (log: LogEntry): 'server' | 'client' | 'console' | 'network' => {
+    const msg = log.message || '';
+    if (msg.includes('[NETWORK]')) return 'network';
+    if (msg.includes('[CONSOLE]')) return 'console';
+    if (msg.includes('[CLIENT]')) return 'client';
+    return 'server';
+  };
+
+  const muteList = useMemo(
+    () =>
+      mutePatterns
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean)
+        .map((s) => s.toLowerCase()),
+    [mutePatterns]
+  );
+  const muteRegexes = useMemo(() => {
+    if (!muteIsRegex) return [] as RegExp[];
+    const out: RegExp[] = [];
+    for (const raw of mutePatterns.split(',').map((s) => s.trim()).filter(Boolean)) {
+      try {
+        out.push(new RegExp(raw, 'i'));
+      } catch {
+        // ignore invalid regex
+      }
+    }
+    return out;
+  }, [mutePatterns, muteIsRegex]);
+
+  const filteredLogs = logs.filter((log) => {
+    if (!levelFilter.includes(log.level.toLowerCase())) return false;
+    const src = resolveSource(log);
+    if (!sourceFilters[src]) return false;
+    if (muteList.length) {
+      const hay = `${log.level} ${log.message}`;
+      const hayLower = hay.toLowerCase();
+      if (muteIsRegex) {
+        if (muteRegexes.length && muteRegexes.some((re) => re.test(hay))) return false;
+      } else {
+        if (muteList.some((needle) => hayLower.includes(needle))) return false;
+      }
+    }
+    return true;
+  });
+
+  type DisplayLog = LogEntry & { count?: number };
+
+  const displayLogs: DisplayLog[] = useMemo(() => {
+    // Render order is newest-first; group on that order
+    const inRenderOrder = filteredLogs.slice().reverse();
+    if (!groupRepeats) return inRenderOrder;
+    const grouped: DisplayLog[] = [];
+    for (const log of inRenderOrder) {
+      const prev = grouped[grouped.length - 1];
+      const key = `${log.level.toLowerCase()}|${log.message}`;
+      const prevKey = prev ? `${prev.level.toLowerCase()}|${prev.message}` : null;
+      if (prev && prevKey === key) {
+        prev.count = (prev.count ?? 1) + 1;
+        // Optionally update timestamp to latest occurrence
+        prev.timestamp = log.timestamp;
+      } else {
+        grouped.push({ ...log, count: 1 });
+      }
+    }
+    return grouped;
+  }, [filteredLogs, groupRepeats]);
+
+  const levelCounts = useMemo(() => {
+    const acc: Record<string, number> = {};
+    for (const l of filteredLogs) {
+      const k = l.level.toLowerCase();
+      acc[k] = (acc[k] || 0) + 1;
+    }
+    return acc;
+  }, [filteredLogs]);
+
+  const sourceCounts = useMemo(() => {
+    const acc: Record<'server' | 'client' | 'console' | 'network', number> = {
+      server: 0,
+      client: 0,
+      console: 0,
+      network: 0,
+    };
+    for (const l of filteredLogs) {
+      acc[resolveSource(l)]++;
+    }
+    return acc;
+  }, [filteredLogs]);
+
+  type Suggestion = { type: 'mute' | 'source' | 'level'; value: string; label: string };
+  const suggestions: Suggestion[] = useMemo(() => {
+    const recent = logs.slice(-300);
+    const total = recent.length || 1;
+    const bySource: Record<'server' | 'client' | 'console' | 'network', number> = {
+      server: 0,
+      client: 0,
+      console: 0,
+      network: 0,
+    };
+    const pathCounts = new Map<string, number>();
+    const msgCounts = new Map<string, number>();
+    const levelCountsAll: Record<string, number> = {};
+
+    const pathRegex = /(\/[^\s\?\"]+)(?:[\?\s]|$)/g;
+
+    for (const l of recent) {
+      // source tally
+      const src = resolveSource(l);
+      bySource[src]++;
+      // level tally
+      const lvl = l.level.toLowerCase();
+      levelCountsAll[lvl] = (levelCountsAll[lvl] || 0) + 1;
+      // paths
+      let m: RegExpExecArray | null;
+      const text = l.message || '';
+      pathRegex.lastIndex = 0;
+      while ((m = pathRegex.exec(text))) {
+        const raw = (m[1] || '').split('?')[0];
+        if (!raw) continue;
+        const base = raw;
+        pathCounts.set(base, (pathCounts.get(base) || 0) + 1);
+      }
+      // message heads (first 80 chars)
+      const head = (text.slice(0, 80) || '').trim();
+      if (head.length >= 10) {
+        msgCounts.set(head, (msgCounts.get(head) || 0) + 1);
+      }
+    }
+
+    const out: Suggestion[] = [];
+    // Suggest muting top paths not already muted
+    const muted = new Set(
+      mutePatterns
+        .split(',')
+        .map((s) => s.trim().toLowerCase())
+        .filter(Boolean)
+    );
+    const topPaths = Array.from(pathCounts.entries())
+      .filter(([p]) => p.length > 3 && !muted.has(p.toLowerCase()))
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3);
+    for (const [p, c] of topPaths) {
+      if (c / total < 0.05) continue; // only if at least 5% of recent logs
+      out.push({ type: 'mute', value: p, label: `Mute ${p} (${c})` });
+    }
+
+    // Suggest muting frequent message heads
+    const topMsgs = Array.from(msgCounts.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 2);
+    for (const [h, c] of topMsgs) {
+      const key = h.toLowerCase();
+      if (muted.has(key)) continue;
+      if (c >= 3) out.push({ type: 'mute', value: h, label: `Mute "${h}" (${c})` });
+    }
+
+    // Suggest hiding overrepresented source
+    (['network', 'console', 'client', 'server'] as const).forEach((s) => {
+      const ratio = bySource[s] / total;
+      if (ratio >= 0.6 && sourceFilters[s]) {
+        out.push({ type: 'source', value: s, label: `Hide ${s.toUpperCase()} (${Math.round(ratio * 100)}%)` });
       }
     });
-  
-    const setPersistentValue = useCallback((newValue: T) => {
-      setValue(newValue);
-      try {
-        localStorage.setItem(key, JSON.stringify(newValue));
-      } catch (error) {
-        console.warn(`Failed to persist setting ${key}:`, error);
-      }
-    }, [key]);
-  
-    return [value, setPersistentValue];
-  };
-  
-  const HelpContent = React.memo<{
-    connectionMode: string | null;
-    logsCount: number;
-    panelStatus: PanelStatus;
-  }>(({ connectionMode, logsCount, panelStatus }) => {
-    const connectionInfo = useMemo(() => ({
-      current: connectionMode || 'Not connected',
-      status: panelStatus.type,
-      logCount: logsCount
-    }), [connectionMode, panelStatus.type, logsCount]);
-  
-    return (
-      <div className="text-sm space-y-4">
-        <div>
-          <h3 className="text-blue-400 font-semibold mb-2">
-            <span className="inline-flex items-center gap-2">
-              <Icon name="plug" className="w-4 h-4 text-blue-400 inline-block" ariaLabel="URLs" />
-              URLs:
-            </span>
-          </h3>
-          <p className="text-gray-300">Astro: localhost:4322/debug</p>
-          <p className="text-gray-300">Wrangler: localhost:8787/debug</p>
-        </div>
-        
-        <div>
-          <h3 className="text-blue-400 font-semibold mb-2">
-            <span className="inline-flex items-center gap-2">
-              <Icon name="target" className="w-4 h-4 text-blue-400 inline-block" ariaLabel="Current Status" />
-              Current Status:
-            </span>
-          </h3>
-          <p className="text-gray-300">Mode: {connectionInfo.current}</p>
-          <p className="text-gray-300">Status: {connectionInfo.status}</p>
-          <p className="text-gray-300">Logs: {connectionInfo.logCount}</p>
-        </div>
-        
-        <div>
-          <h3 className="text-blue-400 font-semibold mb-2">
-            <span className="inline-flex items-center gap-2">
-              <Icon name="target" className="w-4 h-4 text-blue-400 inline-block" ariaLabel="Connection Types" />
-              Connection Types:
-            </span>
-          </h3>
-          <p className="text-gray-300">
-            <span className="inline-flex items-center gap-2">
-              <Icon name="statusDot" className="w-3 h-3 text-green-400 inline-block" ariaLabel="Websocket" />
-              WEBSOCKET: Real-time (&lt;10ms)
-            </span>
-          </p>
-          <p className="text-gray-300">
-            <span className="inline-flex items-center gap-2">
-              <Icon name="statusDot" className="w-3 h-3 text-blue-400 inline-block" ariaLabel="SSE" />
-              SSE: Near real-time (100-500ms)
-            </span>
-          </p>
-          <p className="text-gray-300">
-            <span className="inline-flex items-center gap-2">
-              <Icon name="statusDot" className="w-3 h-3 text-orange-400 inline-block" ariaLabel="Polling" />
-              POLLING: Fallback (1-5s)
-            </span>
-          </p>
-        </div>
-        
-        <div>
-          <h3 className="text-blue-400 font-semibold mb-2">
-            <span className="inline-flex items-center gap-2">
-              <Icon name="chart" className="w-4 h-4 text-blue-400 inline-block" ariaLabel="Log Levels" />
-              Log Levels:
-            </span>
-          </h3>
-          <p className="text-gray-300">[DEBUG] Development details</p>
-          <p className="text-gray-300">[INFO] Normal operations</p>
-          <p className="text-gray-300">[WARN] Potential issues</p>
-          <p className="text-gray-300">[ERROR] Critical problems</p>
-        </div>
-        
-        <div>
-          <h3 className="text-blue-400 font-semibold mb-2">
-            <span className="inline-flex items-center gap-2">
-              <Icon name="tool" className="w-4 h-4 text-blue-400 inline-block" ariaLabel="Quick Actions" />
-              Quick Actions:
-            </span>
-          </h3>
-          <p className="text-gray-300">Auto-scroll: Scroll to bottom</p>
-          <p className="text-gray-300">Clear logs: Refresh page</p>
-          <p className="text-gray-300">Connection issues: Restart dev server</p>
-        </div>
-      </div>
-    );
-  });
-  
-  const SettingsContent = React.memo(() => {
-    const [autoScroll, setAutoScroll] = useSettingsPersistence('debugPanel.autoScroll', true);
-    const [maxLogEntries, setMaxLogEntries] = useSettingsPersistence('debugPanel.maxLogEntries', 500);
-  
-    return (
-      <div className="text-sm space-y-4">
-        <div>
-          <h3 className="text-blue-400 font-semibold mb-2">
-            <span className="inline-flex items-center gap-2">
-              <Icon name="tool" className="w-4 h-4 text-blue-400 inline-block" ariaLabel="Display Settings" />
-              Display Settings:
-            </span>
-          </h3>
-          <label className="flex items-center space-x-2">
-            <input 
-              type="checkbox" 
-              checked={autoScroll} 
-              onChange={(e) => setAutoScroll(e.target.checked)}
-              className="rounded"
-            />
-            <span className="text-gray-300">Auto-scroll to new logs</span>
-          </label>
-        </div>
-        
-        <div>
-          <h3 className="text-blue-400 font-semibold mb-2">
-            <span className="inline-flex items-center gap-2">
-              <Icon name="preset" className="w-4 h-4 text-blue-400 inline-block" ariaLabel="Performance" />
-              Performance:
-            </span>
-          </h3>
-          <label className="block text-gray-300 mb-1">Max Log Entries:</label>
-          <input 
-            type="range" 
-            min="100" 
-            max="1000" 
-            step="50"
-            value={maxLogEntries}
-            onChange={(e) => setMaxLogEntries(Number(e.target.value))}
-            className="w-full"
-          />
-          <span className="text-gray-400 text-xs">{maxLogEntries} entries</span>
-        </div>
-        
-        <div>
-          <h3 className="text-blue-400 font-semibold mb-2">
-            <span className="inline-flex items-center gap-2">
-              <Icon name="lightbulb" className="w-4 h-4 text-blue-400 inline-block" ariaLabel="Info" />
-              Information:
-            </span>
-          </h3>
-          <p className="text-gray-300 text-xs">Settings are automatically saved to localStorage</p>
-          <p className="text-gray-300 text-xs">Changes take effect immediately</p>
-        </div>
-      </div>
-    );
-  });
-  
-  // Scroll position persistence
-  const scrollPositions = useRef<Record<string, number>>({
-    logs: 0,
-    help: 0,
-    settings: 0
-  });
-  
-  const useScrollPersistence = (tabId: string, containerRef: React.RefObject<HTMLDivElement>) => {
-    useEffect(() => {
-      const container = containerRef.current;
-      if (!container) return;
-  
-      // Restore scroll position when tab becomes active
-      container.scrollTop = scrollPositions.current[tabId] || 0;
-  
-      const handleScroll = () => {
-        scrollPositions.current[tabId] = container.scrollTop;
-      };
-  
-      container.addEventListener('scroll', handleScroll);
-      return () => container.removeEventListener('scroll', handleScroll);
-    }, [tabId]);
-  };
-  
-  const TabContent = React.memo<{
-    activeTab: 'logs' | 'help' | 'settings';
-    logs: LogEntry[];
-    connectionMode: string | null;
-    panelStatus: PanelStatus;
-  }>(({ activeTab, logs, connectionMode, panelStatus }) => {
-    const scrollRef = useRef<HTMLDivElement>(null);
-    useScrollPersistence(activeTab, scrollRef);
-  
-    return (
-      <div ref={scrollRef} className="h-full overflow-y-auto">
-        {activeTab === 'logs' && <LogsList logs={logs} />}
-        {activeTab === 'help' && (
-          <HelpContent 
-            connectionMode={connectionMode}
-            logsCount={logs.length}
-            panelStatus={panelStatus}
-          />
-        )}
-        {activeTab === 'settings' && <SettingsContent />}
-      </div>
-    );
-  });
-  
-  // Environment-based connection URLs
-  const WEBSOCKET_URL = "ws://localhost:8081";
-  const SSE_URL = "/api/debug/logs-stream";
-  // Removed unused POLLING_URL
 
-  const addLog = (newLog: LogEntry) => {
-    setLogs((prevLogs) => [...prevLogs, newLog].slice(-500)); // Keep only the last 500 logs
-  };
-  
-  // Environment detection
-  const detectEnvironment = async () => {
-    try {
-      // Try to detect environment via API
-      const response = await fetch(SSE_URL, { method: 'GET' });
-      const dataUnknown: unknown = await response.json().catch(() => null);
-      
-      if (dataUnknown && typeof dataUnknown === 'object' && 'websocketUrl' in dataUnknown) {
-        return 'astro-dev'; // Should use WebSocket
-      } else {
-        return 'wrangler'; // Should use SSE
+    // Suggest hiding DEBUG if too chatty
+    const dbg = levelCountsAll['debug'] || 0;
+    if (dbg / total >= 0.5 && levelFilter.includes('debug')) {
+      out.push({ type: 'level', value: 'debug', label: 'Hide DEBUG (noisy)' });
+    }
+
+    return out;
+  }, [logs, mutePatterns, sourceFilters, levelFilter]);
+
+  const applySuggestion = useCallback(
+    (s: Suggestion) => {
+      pushFilterSnapshot();
+      if (s.type === 'mute') {
+        addMutePattern(s.value);
+      } else if (s.type === 'source') {
+        setSourceFilters((p) => ({
+          ...p,
+          [s.value as 'server' | 'client' | 'console' | 'network']: false,
+        }));
+      } else if (s.type === 'level') {
+        setLevelFilter((prev) => prev.filter((l) => l !== s.value));
       }
-    } catch {
-      // Fallback: assume we're in standard dev if WebSocket works
-      return 'astro-dev';
+    },
+    [addMutePattern, pushFilterSnapshot]
+  );
+
+  const applyAllSuggestions = useCallback(() => {
+    pushFilterSnapshot();
+    const seen = new Set<string>();
+    for (const s of suggestions) {
+      const k = `${s.type}|${s.value.toLowerCase()}`;
+      if (seen.has(k)) continue;
+      seen.add(k);
+      applySuggestion(s);
     }
-  };
-  
-  // SSE Connection
-  const connectSSE = (url: string) => {
-    if (eventSource && eventSource.readyState !== EventSource.CLOSED) {
-      console.log('DebugPanel: SSE already connected.');
-      return;
-    }
-    if (isConnecting) {
-      console.log('DebugPanel: SSE connection already in progress.');
-      return;
-    }
-  
-    setIsConnecting(true);
-    setError(null);
-    setConnectionMode('sse');
-    console.log(`DebugPanel: Attempting to connect via SSE: ${url}`);
-  
-    try {
-      const es = new EventSource(url);
-  
-      es.onopen = () => {
-        console.log('DebugPanel: SSE connected successfully.');
-        setEventSource(es);
-        setIsConnecting(false);
-        setError(null);
-        addLog({ timestamp: new Date().toISOString(), level: 'info', message: 'Connected to log stream via SSE.' });
-      };
-  
-      es.onmessage = (event) => {
-        try {
-          // Try to parse as JSON first (for structured messages)
-          let logData;
-          try {
-            logData = JSON.parse(event.data);
-            if (logData.type === 'keep-alive' || logData.type === 'environment-info') {
-              return; // Skip system messages
-            }
-          } catch {
-            // Not JSON, treat as log string
-            logData = event.data;
-          }
-  
-          const logText = typeof logData === 'string' ? logData : JSON.stringify(logData);
-          
-          // Parse the log entry string with the same logic as WebSocket
-          const logParts = logText.match(/^\[(.*?)\] \[(.*?)\] (.*)/s);
-          if (logParts && logParts[1] && logParts[2] && logParts[3]) {
-            addLog({
-              timestamp: logParts[1],
-              level: logParts[2],
-              message: logParts[3],
-            });
-          } else {
-            // Fallback if parsing fails
-            addLog({ timestamp: new Date().toISOString(), level: 'log', message: logText });
-          }
-        } catch (e) {
-          console.error('DebugPanel: Failed to parse SSE message:', e);
-          addLog({ timestamp: new Date().toISOString(), level: 'error', message: 'Failed to parse SSE message.' });
-        }
-      };
-  
-      es.onerror = (event) => {
-        console.error('DebugPanel: SSE error:', event);
-        setError('SSE connection error.');
-        setIsConnecting(false);
-        setEventSource(null);
-        addLog({ timestamp: new Date().toISOString(), level: 'error', message: 'SSE error: Could not connect or maintain connection.' });
-      };
-  
-    } catch (err: unknown) {
-      console.error('DebugPanel: Error creating SSE connection:', err);
-      const message = err instanceof Error ? err.message : String(err);
-      setError(`Failed to connect via SSE: ${message}`);
-      setIsConnecting(false);
-      addLog({ timestamp: new Date().toISOString(), level: 'error', message: `Failed to create SSE connection: ${message}` });
-    }
-  };
-  
-  const connectWebSocket = (url: string) => {
-    if (websocket && websocket.readyState === WebSocket.OPEN) {
-      console.log('DebugPanel: WebSocket already connected.');
-      return;
-    }
-    if (isConnecting) {
-      console.log('DebugPanel: WebSocket connection already in progress.');
-      return;
-    }
-  
-    setIsConnecting(true);
-    setError(null);
-    setConnectionMode('websocket');
-    console.log(`DebugPanel: Attempting to connect to WebSocket: ${url}`);
-  
-    try {
-      const client = new WebSocket(url);
-  
-      client.onopen = () => {
-        console.log('DebugPanel: WebSocket connected successfully.');
-        setWebsocket(client);
-        setIsConnecting(false);
-        setError(null);
-        addLog({ timestamp: new Date().toISOString(), level: 'info', message: 'Connected to WebSocket server.' });
-      };
-  
-      client.onmessage = (event) => {
-        try {
-          const logText = event.data;
-          // Parse the log entry string with the same logic as LogContext
-          // Expected format from logger.ts: "[TIMESTAMP] [LEVEL] MESSAGE"
-          const logParts = logText.match(/^\[(.*?)\] \[(.*?)\] (.*)/s);
-          if (logParts && logParts[1] && logParts[2] && logParts[3]) {
-            addLog({
-              timestamp: logParts[1],
-              level: logParts[2],
-              message: logParts[3],
-            });
-          } else {
-            // Fallback if parsing fails, display raw message
-            addLog({ timestamp: new Date().toISOString(), level: 'log', message: logText });
-          }
-        } catch (e) {
-          console.error('DebugPanel: Failed to parse WebSocket message:', e);
-          addLog({ timestamp: new Date().toISOString(), level: 'error', message: 'Failed to parse WebSocket message.' });
-        }
-      };
-  
-      client.onerror = (event) => {
-        console.error('DebugPanel: WebSocket error:', event);
-        setError('WebSocket connection error.');
-        setIsConnecting(false);
-        setWebsocket(null);
-        addLog({ timestamp: new Date().toISOString(), level: 'error', message: 'WebSocket error: Could not connect or maintain connection.' });
-      };
-  
-      client.onclose = () => {
-        console.log('DebugPanel: WebSocket disconnected.');
-        setWebsocket(null);
-        setIsConnecting(false);
-        addLog({ timestamp: new Date().toISOString(), level: 'warn', message: 'Disconnected from WebSocket server.' });
-      };
-  
-    } catch (err: unknown) {
-      console.error('DebugPanel: Error creating WebSocket connection:', err);
-      const message = err instanceof Error ? err.message : String(err);
-      setError(`Failed to connect: ${message}`);
-      setIsConnecting(false);
-      addLog({ timestamp: new Date().toISOString(), level: 'error', message: `Failed to create WebSocket connection: ${message}` });
-    }
-  };
-  
-  const disconnectWebSocket = () => {
-    if (websocket) {
-      websocket.close();
-      setWebsocket(null);
-      setIsConnecting(false);
-      addLog({ timestamp: new Date().toISOString(), level: 'info', message: 'Disconnected WebSocket manually.' });
-    }
-  };
-  
-  const disconnectSSE = () => {
-    if (eventSource) {
-      eventSource.close();
-      setEventSource(null);
-      setIsConnecting(false);
-      addLog({ timestamp: new Date().toISOString(), level: 'info', message: 'Disconnected SSE manually.' });
-    }
-  };
-  
-  const disconnectAll = () => {
-    disconnectWebSocket();
-    disconnectSSE();
-    setConnectionMode(null);
-  };
-  
-  // Hybrid connection logic - automatically chooses best method
-  const connectHybrid = async () => {
-    addLog({ timestamp: new Date().toISOString(), level: 'info', message: 'Detecting environment and connecting...' });
-    
-    try {
-      const environment = await detectEnvironment();
-      
-      if (environment === 'astro-dev') {
-        // Try WebSocket first for Astro dev environment
-        try {
-          connectWebSocket(WEBSOCKET_URL);
-        } catch {
-          addLog({ timestamp: new Date().toISOString(), level: 'warn', message: 'WebSocket failed, falling back to SSE...' });
-          connectSSE(SSE_URL);
-        }
-      } else {
-        // Use SSE for Wrangler/Cloudflare environment
-        connectSSE(SSE_URL);
-      }
-    } catch {
-      // Fallback: try WebSocket first, then SSE
-      addLog({ timestamp: new Date().toISOString(), level: 'info', message: 'Environment detection failed, trying WebSocket first...' });
-      try {
-        connectWebSocket(WEBSOCKET_URL);
-        // Set a timeout to fall back to SSE if WebSocket doesn't connect
-        setTimeout(() => {
-          if (!websocket || websocket.readyState !== WebSocket.OPEN) {
-            addLog({ timestamp: new Date().toISOString(), level: 'warn', message: 'WebSocket timeout, falling back to SSE...' });
-            connectSSE(SSE_URL);
-          }
-        }, 3000);
-      } catch {
-        addLog({ timestamp: new Date().toISOString(), level: 'warn', message: 'WebSocket failed, trying SSE...' });
-        connectSSE(SSE_URL);
-      }
-    }
-  };
-  
-  // Stable hybrid connection function
-  const connectHybridStable = useCallback(async () => {
-    const current = stateRef.current;
-    if (!current.websocket && !current.eventSource && !current.isConnecting) {
-      console.log("DebugPanel: Initiating hybrid connection...");
-      await connectHybrid();
-    }
-  }, []);
-  
-  // Auto-connect using stable hybrid logic for live logging
-  useEffect(() => {
-    connectHybridStable();
-    // Cleanup on unmount
-    return () => {
-      disconnectAll();
+  }, [suggestions, applySuggestion, pushFilterSnapshot]);
+
+  const exportLogs = useCallback(() => {
+    const items = showAll
+      ? displayLogs
+      : displayLogs.slice(-Math.min(windowSize, displayLogs.length));
+    const payload = {
+      exportedAt: new Date().toISOString(),
+      status,
+      filters: {
+        levels: levelFilter,
+        sources: sourceFilters,
+        mutes: mutePatterns,
+      },
+      count: items.length,
+      items,
     };
-  }, [connectHybridStable]);
-  
-  // Create memory for the implementation to save context
-  useEffect(() => {
-    console.log('DebugPanel with Sidebar-Tab-System initialized successfully');
-  }, []);
-  
+    try {
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `debug-logs-${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      console.error('Export failed', e);
+    }
+  }, [displayLogs, showAll, windowSize, status, levelFilter, sourceFilters, mutePatterns]);
+
+  const exportNdjson = useCallback(() => {
+    const items = showAll
+      ? displayLogs
+      : displayLogs.slice(-Math.min(windowSize, displayLogs.length));
+    try {
+      const nd = items.map((it) => JSON.stringify(it)).join('\n');
+      const blob = new Blob([nd], { type: 'application/x-ndjson' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `debug-logs-${new Date().toISOString().replace(/[:.]/g, '-')}.ndjson`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      console.error('Export NDJSON failed', e);
+    }
+  }, [displayLogs, showAll, windowSize]);
+
+  const copyJson = useCallback(async () => {
+    const items = showAll
+      ? displayLogs
+      : displayLogs.slice(-Math.min(windowSize, displayLogs.length));
+    try {
+      await navigator.clipboard.writeText(JSON.stringify(items, null, 2));
+    } catch (e) {
+      console.error('Copy failed', e);
+    }
+  }, [displayLogs, showAll, windowSize]);
+
+  const catchUp = useCallback(() => {
+    const buf = pausedBufferRef.current;
+    if (!buf.length) return;
+    mergeLogs(buf);
+    pausedBufferRef.current = [];
+    setSuppressedCount(0);
+  }, [mergeLogs]);
 
   return (
-    <div className="bg-gray-800 text-white rounded-lg shadow-lg flex flex-col h-[600px]">
-      {/* HEADER - FIXED HEIGHT */}
-      <header className="flex-shrink-0 px-4 py-3 border-b border-gray-700">
-        <div className="flex justify-between items-center">
-          <h2 className="text-lg font-bold">Debugging Panel</h2>
-          {connectionMode && (
-            <div className="flex items-center space-x-2">
-              <span className={`px-2 py-1 rounded text-xs font-semibold ${
-                connectionMode === 'websocket' ? 'bg-green-600 text-white' :
-                connectionMode === 'sse' ? 'bg-blue-600 text-white' : 
-                'bg-orange-600 text-white'
-              }`}>
-                {connectionMode.toUpperCase()}
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg flex flex-col h-full overflow-hidden">
+      {/* Header */}
+      <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
+        <div className="flex justify-between items-center flex-wrap gap-2">
+          <h2 className="text-lg font-bold text-gray-900 dark:text-white">Debug Logs</h2>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-gray-600 dark:text-gray-400">
+              {Math.min(
+                filteredLogs.length,
+                showAll ? filteredLogs.length : Math.min(windowSize, filteredLogs.length)
+              )}{' '}
+              of {filteredLogs.length} (total {logs.length})
+            </span>
+            <button
+              onClick={clearLogs}
+              className="px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition-colors"
+              title="Clear all logs"
+            >
+              Clear
+            </button>
+            <button
+              onClick={() => setPaused((p) => !p)}
+              className={`px-2 py-1 text-white text-xs rounded transition-colors ${paused ? 'bg-yellow-600 hover:bg-yellow-700' : 'bg-gray-700 hover:bg-gray-800'}`}
+              aria-pressed={paused}
+              title="Pause/resume capturing new logs"
+            >
+              {paused ? `Resume${suppressedCount ? ` (${suppressedCount})` : ''}` : 'Pause'}
+            </button>
+            {paused && suppressedCount > 0 && (
+              <button
+                onClick={catchUp}
+                className="px-2 py-1 bg-amber-600 text-white text-xs rounded hover:bg-amber-700 transition-colors"
+                title="Append buffered logs and reset counter"
+              >
+                Catch up
+              </button>
+            )}
+            <button
+              onClick={exportLogs}
+              className="px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors"
+              title="Export current view as JSON"
+            >
+              Export JSON
+            </button>
+            <button
+              onClick={exportNdjson}
+              className="px-2 py-1 bg-indigo-600 text-white text-xs rounded hover:bg-indigo-700 transition-colors"
+              title="Export current view as NDJSON"
+            >
+              Export NDJSON
+            </button>
+            <button
+              onClick={copyJson}
+              className="px-2 py-1 bg-gray-500 text-white text-xs rounded hover:bg-gray-600 transition-colors"
+              title="Copy current view as JSON to clipboard"
+            >
+              Copy JSON
+            </button>
+            <button
+              onClick={async () => {
+                try { console.error('Self-test: console.error'); } catch {}
+                try { await fetch('/__debug-self-test-404'); } catch {}
+                try {
+                  const x = new XMLHttpRequest();
+                  x.open('GET', '/__debug-self-test-xhr-404');
+                  x.send();
+                } catch {}
+                try {
+                  if (typeof navigator !== 'undefined' && typeof (navigator as any).sendBeacon === 'function') {
+                    (navigator as any).sendBeacon('/__debug-self-test-beacon', 'x=1');
+                  }
+                } catch {}
+                try {
+                  await fetch('/api/debug/client-log', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-Debug-Log': '1' },
+                    body: JSON.stringify({ level: 'info', message: 'Self-test: client-log' })
+                  });
+                } catch {}
+              }}
+              className="px-2 py-1 bg-emerald-600 text-white text-xs rounded hover:bg-emerald-700 transition-colors"
+              title="Emit sample console, network, XHR, beacon and client-log events"
+            >
+              Self-test
+            </button>
+            <label className="flex items-center gap-1 text-xs text-gray-700 dark:text-gray-300 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={showAll}
+                onChange={(e) => setShowAll(e.target.checked)}
+                className="rounded"
+              />
+              Show all
+            </label>
+            {!showAll && (
+              <div className="flex items-center gap-1 text-xs text-gray-700 dark:text-gray-300">
+                <span>Window</span>
+                <input
+                  type="number"
+                  min={50}
+                  max={1000}
+                  step={50}
+                  value={windowSize}
+                  onChange={(e) =>
+                    setWindowSize(Math.max(50, Math.min(1000, Number(e.target.value) || 200)))
+                  }
+                  className="w-16 px-1 py-0.5 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100"
+                />
+              </div>
+            )}
+            <label className="flex items-center gap-1 text-xs text-gray-700 dark:text-gray-300 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={autoScroll}
+                onChange={(e) => setAutoScroll(e.target.checked)}
+                className="rounded"
+              />
+              Auto-scroll
+            </label>
+            <label className="flex items-center gap-1 text-xs text-gray-700 dark:text-gray-300 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={groupRepeats}
+                onChange={(e) => setGroupRepeats(e.target.checked)}
+                className="rounded"
+              />
+              Group repeats
+            </label>
+            <span
+              className={`px-2 py-1 rounded text-xs font-semibold ${
+                status === 'connected'
+                  ? 'bg-green-600 text-white'
+                  : status === 'error'
+                    ? 'bg-red-600 text-white'
+                    : 'bg-yellow-600 text-white'
+              }`}
+            >
+              {status.toUpperCase()}
+            </span>
+            {status === 'connected' && (
+              <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+            )}
+            {/* Metrics chips */}
+            <div className="hidden md:flex items-center gap-1 ml-2">
+              <span className="px-1.5 py-0.5 rounded text-[10px] bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300">
+                E:{levelCounts['error'] || 0}
               </span>
-              {(websocket?.readyState === WebSocket.OPEN || eventSource?.readyState === EventSource.OPEN) && (
-                <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+              <span className="px-1.5 py-0.5 rounded text-[10px] bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">
+                W:{levelCounts['warn'] || 0}
+              </span>
+              <span className="px-1.5 py-0.5 rounded text-[10px] bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                I:{levelCounts['info'] || 0}
+              </span>
+              <span className="px-1.5 py-0.5 rounded text-[10px] bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
+                D:{levelCounts['debug'] || 0}
+              </span>
+              <span className="px-1.5 py-0.5 rounded text-[10px] bg-teal-100 text-teal-800 dark:bg-teal-900/30 dark:text-teal-300">
+                NET:{sourceCounts.network}
+              </span>
+            </div>
+          </div>
+        </div>
+        {/* Filter Buttons */}
+        <div className="flex flex-wrap items-center gap-2 mt-2">
+          {['error', 'warn', 'info', 'debug', 'log'].map((level) => (
+            <button
+              key={level}
+              onClick={() => toggleLevelFilter(level)}
+              aria-pressed={levelFilter.includes(level)}
+              className={`px-2 py-1 rounded text-xs font-semibold transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                levelFilter.includes(level)
+                  ? getLevelColor(level)
+                  : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 opacity-50'
+              }`}
+            >
+              {level.toUpperCase()}
+            </button>
+          ))}
+          {/* Source Filters */}
+          {(
+            [
+              ['server', 'SERVER'],
+              ['client', 'CLIENT'],
+              ['console', 'CONSOLE'],
+              ['network', 'NETWORK'],
+            ] as const
+          ).map(([key, label]) => (
+            <button
+              key={key}
+              onClick={() => setSourceFilters((p) => ({ ...p, [key]: !p[key] }))}
+              aria-pressed={sourceFilters[key]}
+              className={`px-2 py-1 rounded text-xs font-semibold transition-all focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                sourceFilters[key]
+                  ? 'bg-teal-100 text-teal-800 dark:bg-teal-900/30 dark:text-teal-300'
+                  : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 opacity-50'
+              }`}
+              title={`Toggle ${label}`}
+            >
+              {label}
+            </button>
+          ))}
+          {/* Mute patterns input */}
+          <div className="flex items-center gap-1 ml-auto">
+            <input
+              value={mutePatterns}
+              onChange={(e) => setMutePatterns(e.target.value)}
+              placeholder="mute patterns (comma-separated)"
+              className="px-2 py-1 text-xs rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100"
+              style={{ minWidth: 220 }}
+            />
+            {mutePatterns && (
+              <button
+                onClick={() => setMutePatterns('')}
+                className="px-2 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 text-xs rounded"
+                title="Clear mute patterns"
+              >
+                Clear mutes
+              </button>
+            )}
+            <label className="flex items-center gap-1 text-xs text-gray-700 dark:text-gray-300 cursor-pointer ml-2">
+              <input
+                type="checkbox"
+                checked={muteIsRegex}
+                onChange={(e) => setMuteIsRegex(e.target.checked)}
+                className="rounded"
+              />
+              Regex mutes
+            </label>
+          </div>
+        </div>
+      </div>
+      {/* Suggested filters */}
+      {suggestions.length > 0 && (
+        <div className="px-4 py-2 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">Suggested filters:</span>
+            {suggestions.slice(0, 6).map((s, idx) => (
+              <button
+                key={`${s.type}-${idx}-${s.value}`}
+                onClick={() => applySuggestion(s)}
+                className={
+                  s.type === 'mute'
+                    ? 'px-2 py-0.5 rounded text-[11px] bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600'
+                    : s.type === 'source'
+                      ? 'px-2 py-0.5 rounded text-[11px] bg-teal-100 dark:bg-teal-900/30 text-teal-800 dark:text-teal-300 hover:bg-teal-200 dark:hover:bg-teal-800'
+                      : 'px-2 py-0.5 rounded text-[11px] bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 hover:bg-purple-200 dark:hover:bg-purple-800'
+                }
+                title={`Apply: ${s.label}`}
+              >
+                {s.label}
+              </button>
+            ))}
+            {suggestions.length > 1 && (
+              <button
+                onClick={applyAllSuggestions}
+                className="ml-2 px-2 py-0.5 rounded text-[11px] bg-blue-600 text-white hover:bg-blue-700"
+                title="Apply all suggestions"
+              >
+                Apply all
+              </button>
+            )}
+            <button
+              onClick={undoLastApply}
+              disabled={historySize === 0}
+              className={`px-2 py-0.5 rounded text-[11px] ${
+                historySize === 0
+                  ? 'bg-gray-200 dark:bg-gray-700 text-gray-400 cursor-not-allowed'
+                  : 'bg-gray-600 text-white hover:bg-gray-700'
+              }`}
+              title="Undo last filter change"
+            >
+              Undo
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Logs - windowed rendering for performance */}
+      <div className="flex-1 overflow-y-auto overscroll-contain p-4 space-y-2 bg-gray-50 dark:bg-gray-900 min-h-0">
+        {displayLogs.length === 0 ? (
+          <p className="text-gray-500 dark:text-gray-400 text-sm">
+            {logs.length === 0 ? 'Waiting for logs...' : 'No logs match current filter'}
+          </p>
+        ) : (
+          (showAll
+            ? displayLogs
+            : displayLogs.slice(-Math.min(windowSize, displayLogs.length))
+          ).map((log, idx) => (
+            <div
+              key={idx}
+              className="flex items-start text-sm border-b border-gray-200 dark:border-gray-700 pb-2 last:border-0"
+            >
+              <span className="flex-shrink-0 w-24 text-xs text-gray-500 dark:text-gray-400 mr-3 font-mono">
+                {log.timestamp.split('T')[1]?.split('.')[0] || log.timestamp}
+              </span>
+              <span
+                className={`px-2 py-0.5 rounded text-xs font-semibold mr-2 flex-shrink-0 ${getLevelColor(log.level)}`}
+              >
+                {log.level.toUpperCase()}
+              </span>
+              <div className="flex-1 whitespace-pre-wrap break-words text-gray-900 dark:text-gray-100 font-mono text-xs leading-relaxed">
+                {log.message}
+              </div>
+              {log.count && log.count > 1 && (
+                <span className="ml-2 px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 text-[10px] font-semibold">
+                  × {log.count}
+                </span>
               )}
             </div>
-          )}
-        </div>
-      </header>
-
-      {/* TAB NAVIGATION - FIXED HEIGHT */}
-      <TabNavigation activeTab={activeTab} setActiveTab={setActiveTab} />
-
-      {/* STATUS MESSAGES - DYNAMIC HEIGHT */}
-      <div className="flex-shrink-0 px-4 py-2">
-        <StatusMessage status={panelStatus} />
+          ))
+        )}
+        {/* Auto-scroll anchor */}
+        <div ref={logsEndRef} />
       </div>
-
-      {/* TAB CONTENT - FLEXIBLE HEIGHT */}
-      <main className="flex-1 min-h-0 px-4 pb-4">
-        <TabContent 
-          activeTab={activeTab}
-          logs={logs}
-          connectionMode={connectionMode}
-          panelStatus={panelStatus}
-        />
-      </main>
     </div>
   );
 };

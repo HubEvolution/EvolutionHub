@@ -24,8 +24,14 @@ describe('detectImageMimeFromBytes', () => {
   it('detects WebP by magic bytes', () => {
     // RIFF....WEBP
     const riff = new Uint8Array(12);
-    riff[0] = 0x52; riff[1] = 0x49; riff[2] = 0x46; riff[3] = 0x46;
-    riff[8] = 0x57; riff[9] = 0x45; riff[10] = 0x42; riff[11] = 0x50;
+    riff[0] = 0x52;
+    riff[1] = 0x49;
+    riff[2] = 0x46;
+    riff[3] = 0x46;
+    riff[8] = 0x57;
+    riff[9] = 0x45;
+    riff[10] = 0x42;
+    riff[11] = 0x50;
     expect(detectImageMimeFromBytes(riff)).toBe('image/webp');
   });
 

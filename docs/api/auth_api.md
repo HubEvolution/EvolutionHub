@@ -26,8 +26,59 @@ Hinweis: Die frühere Login-Variante `login-v2` wurde entfernt. Verwende ausschl
   * Zentrale Fehlerbehandlung/Headers: `src/lib/api-middleware.ts`, `src/lib/response-helpers.ts`
   * Session‑Cookie: `__Host-session` (HttpOnly, Secure, SameSite=Strict, Path=/)
 * Verhalten:
-  * `magic/request` antwortet JSON (kein Redirect)
-  * `callback` antwortet mit direktem Redirect zum Ziel (ggf. lokalisiert)
+  * `magic/request` antwortet
+    * JSON `{ success: true, data: { sent: true } }` bei programmatic calls
+    * HTML `303 See Other` Redirect zur lokalisierten Login-Seite mit `?success=magic_sent` bei klassischem Formular‑POST
+  * `callback` antwortet mit direktem `302` Redirect zum Ziel (ggf. lokalisiert)
+
+### Beispiele
+
+#### Magic Link anfordern (JSON)
+
+```bash
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -H "Origin: http://127.0.0.1:8787" \
+  -d '{"email":"user@example.com","r":"/dashboard","locale":"en"}' \
+  http://127.0.0.1:8787/api/auth/magic/request
+```
+
+Erfolg (200):
+
+```json
+{ "success": true, "data": { "sent": true } }
+```
+
+#### Magic Link anfordern (Form‑POST, progressive enhancement)
+
+```bash
+curl -X POST \
+  -H "Origin: http://127.0.0.1:8787" \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d 'email=user@example.com&r=/dashboard&locale=en' \
+  -i http://127.0.0.1:8787/api/auth/magic/request
+```
+
+Antwort (303):
+
+```http
+HTTP/1.1 303 See Other
+Location: /en/login?success=magic_sent
+```
+
+#### Callback
+
+```bash
+curl -i "http://127.0.0.1:8787/api/auth/callback?token=dev-ok&email=user@example.com&r=/dashboard"
+```
+
+Antwort (302):
+
+```http
+HTTP/1.1 302 Found
+Location: /en/dashboard
+Set-Cookie: __Host-session=...; Path=/; HttpOnly; SameSite=Strict; Secure; Max-Age=2592000
+```
 
 ### Production‑Hinweise (Stytch Live)
 

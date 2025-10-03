@@ -1,0 +1,269 @@
+{
+  "testEnvironments": {
+    "development": {
+      "baseUrl": "http://localhost:8787",
+      "timeout": 30000,
+      "retries": 3
+    },
+    "staging": {
+      "baseUrl": "https://staging.your-domain.com",
+      "timeout": 10000,
+      "retries": 2
+    },
+    "production": {
+      "baseUrl": "https://your-domain.com",
+      "timeout": 5000,
+      "retries": 1
+    }
+  },
+
+  "rateLimitTests": {
+    "newsletter": {
+      "endpoint": "/api/newsletter/subscribe",
+      "method": "POST",
+      "limit": 15,
+      "window": "1m",
+      "testScenarios": [
+        {
+          "name": "Normal_Load",
+          "requestsPerSecond": 1,
+          "duration": 60,
+          "expectedRateLimited": 0
+        },
+        {
+          "name": "High_Load",
+          "requestsPerSecond": 5,
+          "duration": 30,
+          "expectedRateLimited": 50
+        },
+        {
+          "name": "Burst_Load",
+          "requestsPerSecond": 20,
+          "duration": 10,
+          "expectedRateLimited": 80
+        }
+      ]
+    },
+
+    "leadMagnet": {
+      "endpoint": "/api/lead-magnets/download",
+      "method": "POST",
+      "limit": 15,
+      "window": "1m",
+      "testScenarios": [
+        {
+          "name": "Normal_Load",
+          "requestsPerSecond": 2,
+          "duration": 60,
+          "expectedRateLimited": 0
+        },
+        {
+          "name": "High_Load",
+          "requestsPerSecond": 10,
+          "duration": 20,
+          "expectedRateLimited": 40
+        }
+      ]
+    },
+
+    "avatar": {
+      "endpoint": "/api/user/avatar",
+      "method": "POST",
+      "limit": 5,
+      "window": "1m",
+      "testScenarios": [
+        {
+          "name": "Normal_Load",
+          "requestsPerSecond": 1,
+          "duration": 30,
+          "expectedRateLimited": 0
+        },
+        {
+          "name": "High_Load",
+          "requestsPerSecond": 3,
+          "duration": 15,
+          "expectedRateLimited": 60
+        }
+      ]
+    },
+
+    "billing": {
+      "endpoint": "/api/billing/session",
+      "method": "POST",
+      "limit": 10,
+      "window": "1m",
+      "testScenarios": [
+        {
+          "name": "Normal_Load",
+          "requestsPerSecond": 1,
+          "duration": 60,
+          "expectedRateLimited": 0
+        },
+        {
+          "name": "High_Load",
+          "requestsPerSecond": 5,
+          "duration": 20,
+          "expectedRateLimited": 50
+        }
+      ]
+    },
+
+    "dashboard": {
+      "endpoint": "/api/dashboard/stats",
+      "method": "GET",
+      "limit": 30,
+      "window": "1m",
+      "testScenarios": [
+        {
+          "name": "Normal_Load",
+          "requestsPerSecond": 5,
+          "duration": 60,
+          "expectedRateLimited": 0
+        },
+        {
+          "name": "High_Load",
+          "requestsPerSecond": 15,
+          "duration": 30,
+          "expectedRateLimited": 30
+        },
+        {
+          "name": "Burst_Load",
+          "requestsPerSecond": 50,
+          "duration": 10,
+          "expectedRateLimited": 70
+        }
+      ]
+    },
+
+    "projects": {
+      "endpoint": "/api/projects",
+      "method": "POST",
+      "limit": 20,
+      "window": "1m",
+      "testScenarios": [
+        {
+          "name": "Normal_Load",
+          "requestsPerSecond": 3,
+          "duration": 60,
+          "expectedRateLimited": 0
+        },
+        {
+          "name": "High_Load",
+          "requestsPerSecond": 12,
+          "duration": 25,
+          "expectedRateLimited": 40
+        }
+      ]
+    }
+  },
+
+  "stressTests": {
+    "burstTraffic": {
+      "description": "Testet plötzliche Lastspitzen auf mehrere Endpunkte gleichzeitig",
+      "parallelEndpoints": [
+        "/api/dashboard/stats",
+        "/api/projects",
+        "/api/newsletter/subscribe",
+        "/api/lead-magnets/download"
+      ],
+      "requestsPerEndpoint": 50,
+      "maxConcurrency": 100,
+      "timeout": 30000
+    },
+
+    "sustainedLoad": {
+      "description": "Testet anhaltende hohe Last über längere Zeit",
+      "endpoint": "/api/dashboard/stats",
+      "requestsPerSecond": 25,
+      "duration": 120,
+      "maxConcurrency": 50,
+      "timeout": 5000
+    },
+
+    "mixedWorkload": {
+      "description": "Testet gemischte Last mit verschiedenen Endpunkten",
+      "workload": [
+        {
+          "endpoint": "/api/dashboard/stats",
+          "weight": 40,
+          "method": "GET"
+        },
+        {
+          "endpoint": "/api/projects",
+          "weight": 25,
+          "method": "POST",
+          "body": {
+            "name": "Load Test Projekt",
+            "description": "Automatisch erstellt für Load-Tests"
+          }
+        },
+        {
+          "endpoint": "/api/newsletter/subscribe",
+          "weight": 20,
+          "method": "POST",
+          "body": {
+            "email": "loadtest@example.com",
+            "name": "Load Test User",
+            "magnetId": "ki-tools-checkliste-2025"
+          }
+        },
+        {
+          "endpoint": "/api/lead-magnets/download",
+          "weight": 15,
+          "method": "POST",
+          "body": {
+            "email": "loadtest@example.com",
+            "name": "Load Test User",
+            "magnetId": "ki-tools-checkliste-2025"
+          }
+        }
+      ],
+      "totalRequestsPerSecond": 20,
+      "duration": 90
+    }
+  },
+
+  "performanceThresholds": {
+    "maxAverageResponseTime": 2000,
+    "max95thPercentile": 5000,
+    "minRequestsPerSecond": 5,
+    "maxErrorRate": 0.05,
+    "maxMemoryUsage": 128,
+    "maxCpuUsage": 80
+  },
+
+  "monitoring": {
+    "metrics": [
+      "response_time",
+      "requests_per_second",
+      "error_rate",
+      "rate_limit_hits",
+      "memory_usage",
+      "cpu_usage"
+    ],
+    "reportingInterval": 5000,
+    "outputFormats": ["console", "json", "csv"]
+  },
+
+  "testData": {
+    "users": [
+      { "email": "test1@example.com", "name": "Test User 1" },
+      { "email": "test2@example.com", "name": "Test User 2" },
+      { "email": "test3@example.com", "name": "Test User 3" },
+      { "email": "test4@example.com", "name": "Test User 4" },
+      { "email": "test5@example.com", "name": "Test User 5" }
+    ],
+
+    "projects": [
+      { "name": "Load Test Projekt", "description": "Für Performance-Tests erstellt" },
+      { "name": "API Test Projekt", "description": "Testet API-Performance" },
+      { "name": "Dashboard Test", "description": "Dashboard-Last-Test" }
+    ],
+
+    "leadMagnets": [
+      "ki-tools-checkliste-2025",
+      "new-work-transformation-guide",
+      "produktivitaets-masterclass"
+    ]
+  }
+}

@@ -1,6 +1,8 @@
 import type { ApiErrorBody, ApiSuccess, GenerateResponseData, UsageResponseData } from './types';
 
-export async function getUsage(debug: boolean = false): Promise<ApiSuccess<UsageResponseData> | ApiErrorBody> {
+export async function getUsage(
+  debug: boolean = false
+): Promise<ApiSuccess<UsageResponseData> | ApiErrorBody> {
   const endpoint = `/api/ai-image/usage?t=${Date.now()}${debug ? '&debug=1' : ''}`;
   const res = await fetch(endpoint, { credentials: 'same-origin', cache: 'no-store' });
   const data = (await res.json()) as ApiSuccess<UsageResponseData> | ApiErrorBody;

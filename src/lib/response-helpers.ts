@@ -26,8 +26,8 @@ export function createSecureRedirect(
     status,
     headers: {
       Location: location,
-      ...headers
-    }
+      ...headers,
+    },
   });
 
   return applySecurityHeaders(response);
@@ -36,7 +36,7 @@ export function createSecureRedirect(
 /**
  * Erstellt eine JSON-Response mit automatisch angewendeten Security-Headers
  * Vereinfacht den JSON-Response-Flow in API-Endpunkten und sorgt für konsistente Security-Headers
- * 
+ *
  * @param data - Die zu serialisierenden JSON-Daten
  * @param status - HTTP-Statuscode für die Response (Standard: 200 OK)
  * @param headers - Zusätzliche HTTP-Header, die in die Response eingefügt werden sollen
@@ -51,8 +51,8 @@ export function createSecureJsonResponse(
     status,
     headers: {
       'Content-Type': 'application/json',
-      ...headers
-    }
+      ...headers,
+    },
   });
 
   return applySecurityHeaders(response);
@@ -61,7 +61,7 @@ export function createSecureJsonResponse(
 /**
  * Erstellt eine Error-Response mit korrektem Statuscode und automatisch angewendeten Security-Headers
  * Vereinfacht den Error-Handling-Flow in API-Endpunkten
- * 
+ *
  * @param message - Die Fehlermeldung
  * @param status - HTTP-Statuscode für die Response (Standard: 400 Bad Request)
  * @param code - Optionaler Fehlercode für die Strukturierung von Fehlerresponses
@@ -76,7 +76,7 @@ export function createSecureErrorResponse(
     {
       error: true,
       message,
-      ...(code ? { code } : {})
+      ...(code ? { code } : {}),
     },
     status
   );
@@ -100,11 +100,11 @@ export function createDeprecatedGoneJson(
         reason: 'deprecated_endpoint_access',
         endpoint: url.pathname,
         method: context.request.method,
-        ...(details ? { details } : {})
+        ...(details ? { details } : {}),
       },
       {
         ipAddress: context.clientAddress || 'unknown',
-        userAgent: context.request.headers.get('user-agent') || undefined
+        userAgent: context.request.headers.get('user-agent') || undefined,
       }
     );
   } catch {
@@ -117,12 +117,12 @@ export function createDeprecatedGoneJson(
       error: {
         type: 'gone',
         message,
-        ...(details ? { details } : {})
-      }
+        ...(details ? { details } : {}),
+      },
     },
     410,
     {
-      'Cache-Control': 'no-store'
+      'Cache-Control': 'no-store',
     }
   );
 }
@@ -143,11 +143,11 @@ export function createDeprecatedGoneHtml(
       {
         reason: 'deprecated_endpoint_access',
         endpoint: url.pathname,
-        method: context.request.method
+        method: context.request.method,
       },
       {
         ipAddress: context.clientAddress || 'unknown',
-        userAgent: context.request.headers.get('user-agent') || undefined
+        userAgent: context.request.headers.get('user-agent') || undefined,
       }
     );
   } catch {
@@ -186,8 +186,8 @@ export function createDeprecatedGoneHtml(
     status: 410,
     headers: {
       'Content-Type': 'text/html; charset=utf-8',
-      'Cache-Control': 'no-store'
-    }
+      'Cache-Control': 'no-store',
+    },
   });
 
   return applySecurityHeaders(resp);

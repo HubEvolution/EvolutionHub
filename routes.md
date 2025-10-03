@@ -1,6 +1,6 @@
 # Routenübersicht
 
-Dieses Dokument fasst alle Routen zusammen, abgeleitet aus dem Dateibaum in [`src/pages`](src/pages:1).
+Dieses Dokument fasst alle Routen zusammen, abgeleitet aus dem Dateibaum in [`src/pages`](src/pages).
 Enthalten sind UI Seiten, API Endpunkte und r2 Endpunkte mit den tatsächlich im Quellcode gefundenen HTTP Methoden.
 
 > Für weiterführende Beschreibungen nutze das [API-Handbuch](./docs/api/README.md) oder die [OpenAPI-Spezifikation](./openapi.yaml).
@@ -8,122 +8,128 @@ Enthalten sind UI Seiten, API Endpunkte und r2 Endpunkte mit den tatsächlich im
 Legende:
 
 - Statische Route: /pfad
-- Dynamische Route: :param  (z. B. [id] -> :id)
-- Catch‑all: :...param (z. B. [...slug] -> :...slug)
+- Dynamische Route: :param  (z. B. `[id]` -> `:id`)
+- Catch‑all: :...param (z. B. `[...slug]` -> `:...slug`)
 
 Hinweis: Quellen sind als Links zur Ursprungsdatei angegeben; HTTP Methoden wurden aus den API Quelldateien extrahiert.
 
 ## UI Seiten — Flache Liste
 
-- / — [`src/pages/index.astro`](src/pages/index.astro:1)
-- /agb — [`src/pages/agb.astro`](src/pages/agb.astro:1)
-- /cookie-einstellungen — [`src/pages/cookie-einstellungen.astro`](src/pages/cookie-einstellungen.astro:1)
-- /dashboard — [`src/pages/dashboard.astro`](src/pages/dashboard.astro:1)
-- /datenschutz — [`src/pages/datenschutz.astro`](src/pages/datenschutz.astro:1)
-- /debug — [`src/pages/debug.astro`](src/pages/debug.astro:1)
-- /email-verified — [`src/pages/email-verified.astro`](src/pages/email-verified.astro:1)
-- /faq — [`src/pages/faq.astro`](src/pages/faq.astro:1)
-- /forgot-password — [`src/pages/forgot-password.astro`](src/pages/forgot-password.astro:1)
-- /impressum — [`src/pages/impressum.astro`](src/pages/impressum.astro:1)
-- /kontakt — [`src/pages/kontakt.astro`](src/pages/kontakt.astro:1)
-- /login — [`src/pages/login.astro`](src/pages/login.astro:1)
-- /pricing — [`src/pages/pricing.astro`](src/pages/pricing.astro:1)
-- /register — [`src/pages/register.astro`](src/pages/register.astro:1)
-- /reset-password — [`src/pages/reset-password.astro`](src/pages/reset-password.astro:1)
-- /verify-email — [`src/pages/verify-email.astro`](src/pages/verify-email.astro:1)
-- /welcome — [`src/pages/welcome.astro`](src/pages/welcome.astro:1)
-- /account/settings — [`src/pages/account/settings.astro`](src/pages/account/settings.astro:1)
-- /auth/password-reset-sent — [`src/pages/auth/password-reset-sent.astro`](src/pages/auth/password-reset-sent.astro:1)
-- /auth/password-reset-success — [`src/pages/auth/password-reset-success.astro`](src/pages/auth/password-reset-success.astro:1)
-- /blog — [`src/pages/blog/index.astro`](src/pages/blog/index.astro:1)
-- /blog/:...slug — [`src/pages/blog/[...slug].astro`](src/pages/blog/[...slug].astro:1)
-- /docs — [`src/pages/docs/index.astro`](src/pages/docs/index.astro:1)
-- /newsletter/confirm — [`src/pages/newsletter/confirm.astro`](src/pages/newsletter/confirm.astro:1)
-- /tools — [`src/pages/tools/index.astro`](src/pages/tools/index.astro:1)
+- / — [`src/pages/index.astro`](src/pages/index.astro)
+- /agb — [`src/pages/agb.astro`](src/pages/agb.astro)
+- /cookie-einstellungen — [`src/pages/cookie-einstellungen.astro`](src/pages/cookie-einstellungen.astro)
+- /dashboard — [`src/pages/dashboard.astro`](src/pages/dashboard.astro)
+- /datenschutz — [`src/pages/datenschutz.astro`](src/pages/datenschutz.astro)
+- /debug — [`src/pages/debug.astro`](src/pages/debug.astro)
+- /email-verified — [`src/pages/email-verified.astro`](src/pages/email-verified.astro)
+- /faq — [`src/pages/faq.astro`](src/pages/faq.astro)
+- /forgot-password — [`src/pages/forgot-password.astro`](src/pages/forgot-password.astro)
+- /impressum — [`src/pages/impressum.astro`](src/pages/impressum.astro)
+- /kontakt — [`src/pages/kontakt.astro`](src/pages/kontakt.astro)
+- /login — [`src/pages/login.astro`](src/pages/login.astro)
+- /pricing — [`src/pages/pricing.astro`](src/pages/pricing.astro)
+- /register — [`src/pages/register.astro`](src/pages/register.astro)
+- /verify-email — [`src/pages/verify-email.astro`](src/pages/verify-email.astro)
+- /welcome — [`src/pages/welcome.astro`](src/pages/welcome.astro)
+- /account/settings — [`src/pages/account/settings.astro`](src/pages/account/settings.astro)
+- /auth/password-reset-sent — [`src/pages/auth/password-reset-sent.astro`](src/pages/auth/password-reset-sent.astro)
+- /auth/password-reset-success — [`src/pages/auth/password-reset-success.astro`](src/pages/auth/password-reset-success.astro)
+- /blog — [`src/pages/blog/index.astro`](src/pages/blog/index.astro)
+- /blog/:...slug — [`src/pages/blog/[...slug].astro`](src/pages/blog/[...slug].astro)
+- /docs — [`src/pages/docs/index.astro`](src/pages/docs/index.astro)
+- /newsletter/confirm — [`src/pages/newsletter/confirm.astro`](src/pages/newsletter/confirm.astro)
+- /tools — [`src/pages/tools/index.astro`](src/pages/tools/index.astro)
 
 ## Lokalisierte Seiten
 
-- /de/ — [`src/pages/de/index.astro`](src/pages/de/index.astro:1)
-- /de/agb — [`src/pages/de/agb.astro`](src/pages/de/agb.astro:1)
-- /de/cookie-einstellungen — [`src/pages/de/cookie-einstellungen.astro`](src/pages/de/cookie-einstellungen.astro:1)
-- /de/datenschutz — [`src/pages/de/datenschutz.astro`](src/pages/de/datenschutz.astro:1)
-- /de/faq — [`src/pages/de/faq.astro`](src/pages/de/faq.astro:1)
-- /de/forgot-password — [`src/pages/de/forgot-password.astro`](src/pages/de/forgot-password.astro:1)
-- /de/impressum — [`src/pages/de/impressum.astro`](src/pages/de/impressum.astro:1)
-- /de/login — [`src/pages/de/login.astro`](src/pages/de/login.astro:1)
-- /de/register — [`src/pages/de/register.astro`](src/pages/de/register.astro:1)
-- /de/reset-password — [`src/pages/de/reset-password.astro`](src/pages/de/reset-password.astro:1)
+- /de/ — [`src/pages/de/index.astro`](src/pages/de/index.astro)
+- /de/agb — [`src/pages/de/agb.astro`](src/pages/de/agb.astro)
+- /de/cookie-einstellungen — [`src/pages/de/cookie-einstellungen.astro`](src/pages/de/cookie-einstellungen.astro)
+- /de/datenschutz — [`src/pages/de/datenschutz.astro`](src/pages/de/datenschutz.astro)
+- /de/faq — [`src/pages/de/faq.astro`](src/pages/de/faq.astro)
+- /de/forgot-password — [`src/pages/de/forgot-password.astro`](src/pages/de/forgot-password.astro)
+- /de/impressum — [`src/pages/de/impressum.astro`](src/pages/de/impressum.astro)
+- /de/login — [`src/pages/de/login.astro`](src/pages/de/login.astro)
+- /de/register — [`src/pages/de/register.astro`](src/pages/de/register.astro)
 
-- /en/ — [`src/pages/en/index.astro`](src/pages/en/index.astro:1)
-- /en/agb — [`src/pages/en/agb.astro`](src/pages/en/agb.astro:1)
-- /en/cookie-settings — [`src/pages/en/cookie-settings.astro`](src/pages/en/cookie-settings.astro:1)
-- /en/dashboard — [`src/pages/en/dashboard.astro`](src/pages/en/dashboard.astro:1)
-- /en/datenschutz — [`src/pages/en/datenschutz.astro`](src/pages/en/datenschutz.astro:1)
-- /en/email-verified — [`src/pages/en/email-verified.astro`](src/pages/en/email-verified.astro:1)
-- /en/faq — [`src/pages/en/faq.astro`](src/pages/en/faq.astro:1)
-- /en/forgot-password — [`src/pages/en/forgot-password.astro`](src/pages/en/forgot-password.astro:1)
-- /en/impressum — [`src/pages/en/impressum.astro`](src/pages/en/impressum.astro:1)
-- /en/kontakt — [`src/pages/en/kontakt.astro`](src/pages/en/kontakt.astro:1)
-- /en/login — [`src/pages/en/login.astro`](src/pages/en/login.astro:1)
-- /en/pricing — [`src/pages/en/pricing.astro`](src/pages/en/pricing.astro:1)
-- /en/register — [`src/pages/en/register.astro`](src/pages/en/register.astro:1)
-- /en/reset-password — [`src/pages/en/reset-password.astro`](src/pages/en/reset-password.astro:1)
-- /en/verify-email — [`src/pages/en/verify-email.astro`](src/pages/en/verify-email.astro:1)
-- /en/blog — [`src/pages/en/blog/index.astro`](src/pages/en/blog/index.astro:1)
-- /en/blog/:...slug — [`src/pages/en/blog/[...slug].astro`](src/pages/en/blog/[...slug].astro:1)
-- /en/account/settings — [`src/pages/en/account/settings.astro`](src/pages/en/account/settings.astro:1)
-- /en/docs — [`src/pages/en/docs/index.astro`](src/pages/en/docs/index.astro:1)
-- /en/tools — [`src/pages/en/tools/index.astro`](src/pages/en/tools/index.astro:1)
+- /en/ — [`src/pages/en/index.astro`](src/pages/en/index.astro)
+- /en/agb — [`src/pages/en/agb.astro`](src/pages/en/agb.astro)
+- /en/cookie-settings — [`src/pages/en/cookie-settings.astro`](src/pages/en/cookie-settings.astro)
+- /en/dashboard — [`src/pages/en/dashboard.astro`](src/pages/en/dashboard.astro)
+- /en/datenschutz — [`src/pages/en/datenschutz.astro`](src/pages/en/datenschutz.astro)
+- /en/email-verified — [`src/pages/en/email-verified.astro`](src/pages/en/email-verified.astro)
+- /en/faq — [`src/pages/en/faq.astro`](src/pages/en/faq.astro)
+- /en/forgot-password — [`src/pages/en/forgot-password.astro`](src/pages/en/forgot-password.astro)
+- /en/impressum — [`src/pages/en/impressum.astro`](src/pages/en/impressum.astro)
+- /en/kontakt — [`src/pages/en/kontakt.astro`](src/pages/en/kontakt.astro)
+- /en/login — [`src/pages/en/login.astro`](src/pages/en/login.astro)
+- /en/pricing — [`src/pages/en/pricing.astro`](src/pages/en/pricing.astro)
+- /en/register — [`src/pages/en/register.astro`](src/pages/en/register.astro)
+- /en/verify-email — [`src/pages/en/verify-email.astro`](src/pages/en/verify-email.astro)
+- /en/blog — [`src/pages/en/blog/index.astro`](src/pages/en/blog/index.astro)
+- /en/blog/:...slug — [`src/pages/en/blog/[...slug].astro`](src/pages/en/blog/[...slug].astro)
+- /en/account/settings — [`src/pages/en/account/settings.astro`](src/pages/en/account/settings.astro)
+- /en/docs — [`src/pages/en/docs/index.astro`](src/pages/en/docs/index.astro)
+- /en/tools — [`src/pages/en/tools/index.astro`](src/pages/en/tools/index.astro)
 
 ## API Endpunkte (mit HTTP Methoden)
 
-- POST /api/csp-report — [`src/pages/api/csp-report.ts`](src/pages/api/csp-report.ts:1)
-- POST /api/debug-login — [`src/pages/api/debug-login.ts`](src/pages/api/debug-login.ts:1)
-- GET  /api/tools — [`src/pages/api/tools.ts`](src/pages/api/tools.ts:1)
+- POST /api/csp-report — [`src/pages/api/csp-report.ts`](src/pages/api/csp-report.ts)
+- POST /api/debug-login — [`src/pages/api/debug-login.ts`](src/pages/api/debug-login.ts)
+- GET  /api/tools — [`src/pages/api/tools.ts`](src/pages/api/tools.ts)
 
-- POST /api/auth/change-password — [`src/pages/api/auth/change-password.ts`](src/pages/api/auth/change-password.ts:1)
-- POST /api/auth/forgot-password — [`src/pages/api/auth/forgot-password.ts`](src/pages/api/auth/forgot-password.ts:1)
-- POST /api/auth/login — [`src/pages/api/auth/login.ts`](src/pages/api/auth/login.ts:1)
-- POST /api/auth/logout — [`src/pages/api/auth/logout.ts`](src/pages/api/auth/logout.ts:1)
-- POST /api/auth/register — [`src/pages/api/auth/register.ts`](src/pages/api/auth/register.ts:1)
-- POST /api/auth/resend-verification — [`src/pages/api/auth/resend-verification.ts`](src/pages/api/auth/resend-verification.ts:1)
-- POST /api/auth/reset-password — [`src/pages/api/auth/reset-password.ts`](src/pages/api/auth/reset-password.ts:1)
-- GET  /api/auth/verify-email — [`src/pages/api/auth/verify-email.ts`](src/pages/api/auth/verify-email.ts:1)
+- GET  /api/comments — [`src/pages/api/comments/index.ts`](src/pages/api/comments/index.ts)
+- POST /api/comments/create — [`src/pages/api/comments/index.ts`](src/pages/api/comments/index.ts)
+- GET  /api/comments/:id — [`src/pages/api/comments/[id].ts`](src/pages/api/comments/[id].ts)
+- PUT  /api/comments/:id — [`src/pages/api/comments/[id].ts`](src/pages/api/comments/[id].ts)
+- DELETE /api/comments/:id — [`src/pages/api/comments/[id].ts`](src/pages/api/comments/[id].ts)
+- POST /api/comments/moderate — [`src/pages/api/comments/moderate.ts`](src/pages/api/comments/moderate.ts)
+- GET  /api/comments/moderate/queue — [`src/pages/api/comments/moderate.ts`](src/pages/api/comments/moderate.ts)
+- GET  /api/comments/stats — [`src/pages/api/comments/moderate.ts`](src/pages/api/comments/moderate.ts)
 
-- POST /api/billing/session — [`src/pages/api/billing/session.ts`](src/pages/api/billing/session.ts:1)
+- POST /api/auth/change-password — [`src/pages/api/auth/change-password.ts`](src/pages/api/auth/change-password.ts)
+- POST /api/auth/forgot-password — [`src/pages/api/auth/forgot-password.ts`](src/pages/api/auth/forgot-password.ts)
+- POST /api/auth/login — [`src/pages/api/auth/login.ts`](src/pages/api/auth/login.ts)
+- POST /api/auth/logout — [`src/pages/api/auth/logout.ts`](src/pages/api/auth/logout.ts)
+- POST /api/auth/register — [`src/pages/api/auth/register.ts`](src/pages/api/auth/register.ts)
+- POST /api/auth/resend-verification — [`src/pages/api/auth/resend-verification.ts`](src/pages/api/auth/resend-verification.ts)
+- POST /api/auth/reset-password — [`src/pages/api/auth/reset-password.ts`](src/pages/api/auth/reset-password.ts)
+- GET  /api/auth/verify-email — [`src/pages/api/auth/verify-email.ts`](src/pages/api/auth/verify-email.ts)
 
-- GET  /api/dashboard/activity — [`src/pages/api/dashboard/activity.ts`](src/pages/api/dashboard/activity.ts:1)
-- GET  /api/dashboard/notifications — [`src/pages/api/dashboard/notifications.ts`](src/pages/api/dashboard/notifications.ts:1)
-- POST /api/dashboard/perform-action — [`src/pages/api/dashboard/perform-action.ts`](src/pages/api/dashboard/perform-action.ts:1)
-- GET  /api/dashboard/projects — [`src/pages/api/dashboard/projects.ts`](src/pages/api/dashboard/projects.ts:1)
-- GET  /api/dashboard/quick-actions — [`src/pages/api/dashboard/quick-actions.ts`](src/pages/api/dashboard/quick-actions.ts:1)
-- GET  /api/dashboard/stats — [`src/pages/api/dashboard/stats.ts`](src/pages/api/dashboard/stats.ts:1)
+- POST /api/billing/session — [`src/pages/api/billing/session.ts`](src/pages/api/billing/session.ts)
 
-- GET, POST /api/debug/logs-stream — [`src/pages/api/debug/logs-stream.ts`](src/pages/api/debug/logs-stream.ts:1)
+- GET  /api/dashboard/activity — [`src/pages/api/dashboard/activity.ts`](src/pages/api/dashboard/activity.ts)
+- GET  /api/dashboard/notifications — [`src/pages/api/dashboard/notifications.ts`](src/pages/api/dashboard/notifications.ts)
+- POST /api/dashboard/perform-action — [`src/pages/api/dashboard/perform-action.ts`](src/pages/api/dashboard/perform-action.ts)
+- GET  /api/dashboard/projects — [`src/pages/api/dashboard/projects.ts`](src/pages/api/dashboard/projects.ts)
+- GET  /api/dashboard/quick-actions — [`src/pages/api/dashboard/quick-actions.ts`](src/pages/api/dashboard/quick-actions.ts)
+- GET  /api/dashboard/stats — [`src/pages/api/dashboard/stats.ts`](src/pages/api/dashboard/stats.ts)
 
-- POST /api/internal/users/sync — [`src/pages/api/internal/users/sync.ts`](src/pages/api/internal/users/sync.ts:1)
+- GET, POST /api/debug/logs-stream — [`src/pages/api/debug/logs-stream.ts`](src/pages/api/debug/logs-stream.ts)
 
-- POST, GET, OPTIONS /api/lead-magnets/download — [`src/pages/api/lead-magnets/download.ts`](src/pages/api/lead-magnets/download.ts:1)
+- POST /api/internal/users/sync — [`src/pages/api/internal/users/sync.ts`](src/pages/api/internal/users/sync.ts)
 
-- GET  /api/newsletter/confirm — [`src/pages/api/newsletter/confirm.ts`](src/pages/api/newsletter/confirm.ts:1)
-- POST /api/newsletter/subscribe — [`src/pages/api/newsletter/subscribe.ts`](src/pages/api/newsletter/subscribe.ts:1)
+- POST, GET, OPTIONS /api/lead-magnets/download — [`src/pages/api/lead-magnets/download.ts`](src/pages/api/lead-magnets/download.ts)
 
-- POST /api/projects — [`src/pages/api/projects/index.ts`](src/pages/api/projects/index.ts:1)
+- GET  /api/newsletter/confirm — [`src/pages/api/newsletter/confirm.ts`](src/pages/api/newsletter/confirm.ts)
+- POST /api/newsletter/subscribe — [`src/pages/api/newsletter/subscribe.ts`](src/pages/api/newsletter/subscribe.ts)
 
-- GET  /api/test/seed-email-token — [`src/pages/api/test/seed-email-token.ts`](src/pages/api/test/seed-email-token.ts:1)
+- POST /api/projects — [`src/pages/api/projects/index.ts`](src/pages/api/projects/index.ts)
 
-- DELETE /api/user/account — [`src/pages/api/user/account.ts`](src/pages/api/user/account.ts:1)
-- POST   /api/user/avatar — [`src/pages/api/user/avatar.ts`](src/pages/api/user/avatar.ts:1)  (implementiert intern eine OPTIONS CORS-Response)
-- GET, POST /api/user/logout-v2 — [`src/pages/api/user/logout-v2.ts`](src/pages/api/user/logout-v2.ts:1)
-- GET, POST /api/user/logout — [`src/pages/api/user/logout.ts`](src/pages/api/user/logout.ts:1)
-- GET  /api/user/me — [`src/pages/api/user/me.ts`](src/pages/api/user/me.ts:1)
-- POST /api/user/password — [`src/pages/api/user/password.ts`](src/pages/api/user/password.ts:1)
-- POST /api/user/profile — [`src/pages/api/user/profile.ts`](src/pages/api/user/profile.ts:1)
-- PUT  /api/user/settings — [`src/pages/api/user/settings.ts`](src/pages/api/user/settings.ts:1)
+- GET  /api/test/seed-email-token — [`src/pages/api/test/seed-email-token.ts`](src/pages/api/test/seed-email-token.ts)
+
+- DELETE /api/user/account — [`src/pages/api/user/account.ts`](src/pages/api/user/account.ts)
+- POST   /api/user/avatar — [`src/pages/api/user/avatar.ts`](src/pages/api/user/avatar.ts)  (implementiert intern eine OPTIONS CORS-Response)
+- GET, POST /api/user/logout-v2 — [`src/pages/api/user/logout-v2.ts`](src/pages/api/user/logout-v2.ts)
+- GET, POST /api/user/logout — [`src/pages/api/user/logout.ts`](src/pages/api/user/logout.ts)
+- GET  /api/user/me — [`src/pages/api/user/me.ts`](src/pages/api/user/me.ts)
+- POST /api/user/password — [`src/pages/api/user/password.ts`](src/pages/api/user/password.ts)
+- POST /api/user/profile — [`src/pages/api/user/profile.ts`](src/pages/api/user/profile.ts)
+- PUT  /api/user/settings — [`src/pages/api/user/settings.ts`](src/pages/api/user/settings.ts)
 
 ## r2 Endpunkte
 
-- /r2/:...path — [`src/pages/r2/[...path].ts`](src/pages/r2/[...path].ts:1) (Catch‑all für R2 asset proxying; Methoden abhängig von Implementierung)
+- /r2/:...path — [`src/pages/r2/[...path].ts`](src/pages/r2/[...path].ts) (Catch‑all für R2 asset proxying; Methoden abhängig von Implementierung)
 
 ## Deprecated Auth API Endpunkte (410 Gone)
 
@@ -294,7 +300,6 @@ graph TD
   Root --> login[/login]
   Root --> pricing[/pricing]
   Root --> register[/register]
-  Root --> reset_password[/reset-password]
   Root --> verify_email[/verify-email]
   Root --> welcome[/welcome]
   Root --> account[/account]
@@ -318,7 +323,6 @@ graph TD
   de --> de_impressum[/de/impressum]
   de --> de_login[/de/login]
   de --> de_register[/de/register]
-  de --> de_reset[/de/reset-password]
   Root --> en[/en]
   en --> en_index[/en/]
   en --> en_agb[/en/agb]
@@ -332,7 +336,6 @@ graph TD
   en --> en_login[/en/login]
   en --> en_pricing[/en/pricing]
   en --> en_register[/en/register]
-  en --> en_reset[/en/reset-password]
   en --> en_verify_email[/en/verify-email]
   en --> en_blog[/en/blog]
   en_blog --> en_blog_index[/en/blog]
@@ -345,6 +348,12 @@ graph TD
   api --> api_csp[/api/csp-report POST]
   api --> api_debug_login[/api/debug-login POST]
   api --> api_tools[/api/tools GET]
+  api --> api_comments[/api/comments GET]
+  api --> api_comments_create[/api/comments/create POST]
+  api --> api_comments_id[/api/comments/:id GET PUT DELETE]
+  api --> api_comments_moderate[/api/comments/moderate POST]
+  api --> api_comments_queue[/api/comments/moderate/queue GET]
+  api --> api_comments_stats[/api/comments/stats GET]
   api --> api_auth[/api/auth]
   api_auth --> api_auth_login[/api/auth/login POST]
   api_auth --> api_auth_register[/api/auth/register POST]
@@ -405,7 +414,6 @@ graph TD
   { "path": "/login", "source": "src/pages/login.astro", "type": "page" },
   { "path": "/pricing", "source": "src/pages/pricing.astro", "type": "page" },
   { "path": "/register", "source": "src/pages/register.astro", "type": "page" },
-  { "path": "/reset-password", "source": "src/pages/reset-password.astro", "type": "page" },
   { "path": "/verify-email", "source": "src/pages/verify-email.astro", "type": "page" },
   { "path": "/welcome", "source": "src/pages/welcome.astro", "type": "page" },
   { "path": "/account/settings", "source": "src/pages/account/settings.astro", "type": "page" },
@@ -423,7 +431,6 @@ graph TD
   { "path": "/de/impressum", "source": "src/pages/de/impressum.astro", "type": "page" },
   { "path": "/de/login", "source": "src/pages/de/login.astro", "type": "page" },
   { "path": "/de/register", "source": "src/pages/de/register.astro", "type": "page" },
-  { "path": "/de/reset-password", "source": "src/pages/de/reset-password.astro", "type": "page" },
   { "path": "/en", "source": "src/pages/en/index.astro", "type": "page" },
   { "path": "/en/agb", "source": "src/pages/en/agb.astro", "type": "page" },
   { "path": "/en/cookie-settings", "source": "src/pages/en/cookie-settings.astro", "type": "page" },
@@ -437,7 +444,6 @@ graph TD
   { "path": "/en/login", "source": "src/pages/en/login.astro", "type": "page" },
   { "path": "/en/pricing", "source": "src/pages/en/pricing.astro", "type": "page" },
   { "path": "/en/register", "source": "src/pages/en/register.astro", "type": "page" },
-  { "path": "/en/reset-password", "source": "src/pages/en/reset-password.astro", "type": "page" },
   { "path": "/en/verify-email", "source": "src/pages/en/verify-email.astro", "type": "page" },
   { "path": "/en/blog", "source": "src/pages/en/blog/index.astro", "type": "page" },
   { "path": "/en/blog/:...slug", "source": "src/pages/en/blog/[...slug].astro", "type": "page" },
@@ -483,7 +489,7 @@ graph TD
 ## Hinweise
 
 - Die HTTP Methoden wurden programmgesteuert aus den oben gelesenen Quelldateien extrahiert. Bei einigen Endpunkten gibt es zusätzlich interne Handling-Fälle (z. B. CORS OPTIONS im Code), die nur erwähnt werden, wenn sie explizit exportiert sind oder im Kommentar klar erscheinen.
-- Backup- oder .bak Dateien (z. B. [`src/pages/api/projects/index.corrupted.ts.bak`](src/pages/api/projects/index.corrupted.ts.bak:1)) werden nicht als aktive Routen behandelt.
+- Backup- oder .bak Dateien (z. B. [`src/pages/api/projects/index.corrupted.ts.bak`](src/pages/api/projects/index.corrupted.ts.bak)) werden nicht als aktive Routen behandelt.
 - Falls du möchtest, kann ich:
   - die HTTP Methoden in ein maschinenlesbares Format (openapi, YAML) exportieren,
   - pro API Route die erwarteten Response Codes und Beispielfragen extrahieren,

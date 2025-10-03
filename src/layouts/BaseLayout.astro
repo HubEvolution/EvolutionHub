@@ -11,6 +11,9 @@
  import AnalyticsCoordinator from '@/components/scripts/AnalyticsCoordinator.astro';
  import Toaster from '@/components/Toaster';
  import BillingNotice from '@/components/BillingNotice';
+ import DebugPanelIsland from '@/components/DebugPanelIsland.astro';
+ import DebugPanelOverlay from '@/components/ui/DebugPanelOverlay';
+ import DebugInterceptors from '@/components/scripts/DebugInterceptors';
  import { ClientRouter } from 'astro:transitions';
  import ComingSoon from '@/components/ui/ComingSoon.astro';
  import { isComingSoon } from '@/config/coming-soon';
@@ -184,7 +187,14 @@
        {enableAnalytics && <AnalyticsCoordinator />}
        <Toaster client:load />
        <BillingNotice client:load />
- 
+
+       {/* Debug Panel Overlay - nur in DEV */}
+       <DebugPanelIsland>
+         <DebugPanelOverlay client:load />
+       </DebugPanelIsland>
+       {/* Initialize Debug Interceptors as a client island (CSP-safe) */}
+       <DebugInterceptors client:load />
+
      {showComingSoon && <script is:inline src="/assets/coming-soon-client.js" defer nonce={Astro.locals.cspNonce}></script>}
  
      <script is:inline nonce={Astro.locals.cspNonce}>

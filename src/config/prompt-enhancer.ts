@@ -4,7 +4,8 @@
 export type PromptMode = 'creative' | 'professional' | 'concise';
 
 export const DEFAULT_TEXT_MODEL = (import.meta.env.PROMPT_TEXT_MODEL || 'gpt-4o-mini') as string;
-export const DEFAULT_VISION_MODEL = (import.meta.env.PROMPT_VISION_MODEL || 'gpt-4o-mini') as string;
+export const DEFAULT_VISION_MODEL = (import.meta.env.PROMPT_VISION_MODEL ||
+  'gpt-4o-mini') as string;
 
 export const MAX_FILES = Number(import.meta.env.PROMPT_MAX_FILES || 3);
 export const MAX_FILE_BYTES = Number(import.meta.env.PROMPT_MAX_FILE_BYTES || 5 * 1024 * 1024);
@@ -13,18 +14,20 @@ export const OUTPUT_TOKENS_MAX = Number(import.meta.env.PROMPT_OUTPUT_TOKENS_MAX
 export const TEMPERATURE = Number(import.meta.env.PROMPT_TEMPERATURE || 0.2);
 export const TOP_P = Number(import.meta.env.PROMPT_TOP_P || 0.9);
 
-export const PDF_FILE_SEARCH_ENABLED = (import.meta.env.PROMPT_PDF_FILE_SEARCH || 'true') !== 'false';
+export const PDF_FILE_SEARCH_ENABLED =
+  (import.meta.env.PROMPT_PDF_FILE_SEARCH || 'true') !== 'false';
 
-export const ALLOWED_TYPES = (
-  (import.meta.env.PROMPT_ALLOWED_TYPES as string | undefined)?.split(',').map((t) => t.trim()).filter(Boolean) || [
-    'image/jpeg',
-    'image/png',
-    'image/webp',
-    'application/pdf',
-    'text/plain',
-    'text/markdown',
-  ]
-) as readonly string[];
+export const ALLOWED_TYPES = ((import.meta.env.PROMPT_ALLOWED_TYPES as string | undefined)
+  ?.split(',')
+  .map((t) => t.trim())
+  .filter(Boolean) || [
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'application/pdf',
+  'text/plain',
+  'text/markdown',
+]) as readonly string[];
 
 export interface AttachmentMeta {
   filename: string;

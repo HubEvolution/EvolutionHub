@@ -114,11 +114,7 @@
         "get_started_button": "Jetzt loslegen",
         "documentation_link": "Dokumentation anzeigen",
         "tools_link": "Zu unseren Tools",
-        "typewriter": [
-          "IMAG'-Enhancer",
-          "Automatisierte Tests",
-          "Intelligente Fehlerbehebung"
-        ]
+        "typewriter": ["IMAG'-Enhancer", "Automatisierte Tests", "Intelligente Fehlerbehebung"]
       }
     },
     "blog": {
@@ -444,16 +440,76 @@
           "enterprise": "Enterprise"
         },
         "rows": {
-          "images_per_month": { "name": "Bilder pro Monat", "starter": "450 (15/Tag)", "pro": "400", "premium": "1.200", "enterprise": "5.000+" },
-          "daily_burst": { "name": "Tages‑Burst‑Limit", "starter": "15", "pro": "40", "premium": "120", "enterprise": "500" },
-          "max_resolution": { "name": "Max. Auflösung", "starter": "8 MP", "pro": "16 MP", "premium": "32 MP", "enterprise": "64 MP+" },
-          "max_upscale": { "name": "Max. Upscale", "starter": "2×", "pro": "4×", "premium": "6×", "enterprise": "8×" },
-          "face_enhance": { "name": "Face Enhance", "starter": "❌", "pro": "✅", "premium": "✅", "enterprise": "✅" },
-          "batch": { "name": "Batch‑Größe", "starter": "1", "pro": "5", "premium": "20", "enterprise": "100" },
-          "api_calls": { "name": "API‑Calls / Monat", "starter": "—", "pro": "2.000", "premium": "10.000", "enterprise": "Custom" },
-          "queue": { "name": "Queue‑Priorität", "starter": "Niedrig", "pro": "Normal", "premium": "Hoch", "enterprise": "Höchste" },
-          "commercial": { "name": "Kommerzielle Nutzung", "starter": "Nein", "pro": "Ja", "premium": "Ja", "enterprise": "Ja" },
-          "support": { "name": "Support", "starter": "Community", "pro": "48h", "premium": "24h", "enterprise": "Dediziert" }
+          "images_per_month": {
+            "name": "Bilder pro Monat",
+            "starter": "450 (15/Tag)",
+            "pro": "400",
+            "premium": "1.200",
+            "enterprise": "5.000+"
+          },
+          "daily_burst": {
+            "name": "Tages‑Burst‑Limit",
+            "starter": "15",
+            "pro": "40",
+            "premium": "120",
+            "enterprise": "500"
+          },
+          "max_resolution": {
+            "name": "Max. Auflösung",
+            "starter": "8 MP",
+            "pro": "16 MP",
+            "premium": "32 MP",
+            "enterprise": "64 MP+"
+          },
+          "max_upscale": {
+            "name": "Max. Upscale",
+            "starter": "2×",
+            "pro": "4×",
+            "premium": "6×",
+            "enterprise": "8×"
+          },
+          "face_enhance": {
+            "name": "Face Enhance",
+            "starter": "❌",
+            "pro": "✅",
+            "premium": "✅",
+            "enterprise": "✅"
+          },
+          "batch": {
+            "name": "Batch‑Größe",
+            "starter": "1",
+            "pro": "5",
+            "premium": "20",
+            "enterprise": "100"
+          },
+          "api_calls": {
+            "name": "API‑Calls / Monat",
+            "starter": "—",
+            "pro": "2.000",
+            "premium": "10.000",
+            "enterprise": "Custom"
+          },
+          "queue": {
+            "name": "Queue‑Priorität",
+            "starter": "Niedrig",
+            "pro": "Normal",
+            "premium": "Hoch",
+            "enterprise": "Höchste"
+          },
+          "commercial": {
+            "name": "Kommerzielle Nutzung",
+            "starter": "Nein",
+            "pro": "Ja",
+            "premium": "Ja",
+            "enterprise": "Ja"
+          },
+          "support": {
+            "name": "Support",
+            "starter": "Community",
+            "pro": "48h",
+            "premium": "24h",
+            "enterprise": "Dediziert"
+          }
         },
         "contact_cta": "Fragen zu den Plänen?"
       },
@@ -503,18 +559,62 @@
         "response_time_label": "Durchschnittliche Antwortzeit:",
         "response_time": "innerhalb von 24h",
         "response_time_unit": "an Werktagen.",
-        "provider": { "headline": "Anbieter", "company_name": "Noch anzugeben", "street_address": "Noch anzugeben", "city_postal_code": "Noch anzugeben", "country": "Noch anzugeben" },
-        "contact": { "headline": "Kontakt", "phone": "+00 000 0000000", "fax": "+00 000 0000000", "email": "kontakt@example.com", "website": "https://example.com" },
+        "provider": {
+          "headline": "Anbieter",
+          "company_name": "Noch anzugeben",
+          "street_address": "Noch anzugeben",
+          "city_postal_code": "Noch anzugeben",
+          "country": "Noch anzugeben"
+        },
+        "contact": {
+          "headline": "Kontakt",
+          "phone": "+00 000 0000000",
+          "fax": "+00 000 0000000",
+          "email": "kontakt@example.com",
+          "website": "https://example.com"
+        },
         "represented_by": { "headline": "Vertreten durch", "managing_directors": "Noch anzugeben" },
-        "registration": { "headline": "Handelsregister", "register_entry": "Noch anzugeben", "register_court": "Noch anzugeben", "register_number": "Noch anzugeben" },
-        "vat": { "headline": "Umsatzsteuer", "vat_id_label": "USt-IdNr.", "vat_id": "Noch anzugeben" },
-        "content_responsible": { "headline": "Inhaltlich verantwortlich", "name": "Noch anzugeben", "street": "Noch anzugeben", "city_postal_code": "Noch anzugeben" },
-        "dispute_resolution": { "headline": "Streitschlichtung", "os_platform_intro": "Noch anzugeben", "os_platform_url": "https://example.com", "email_note": "Noch anzugeben", "participation_statement": "Noch anzugeben" },
+        "registration": {
+          "headline": "Handelsregister",
+          "register_entry": "Noch anzugeben",
+          "register_court": "Noch anzugeben",
+          "register_number": "Noch anzugeben"
+        },
+        "vat": {
+          "headline": "Umsatzsteuer",
+          "vat_id_label": "USt-IdNr.",
+          "vat_id": "Noch anzugeben"
+        },
+        "content_responsible": {
+          "headline": "Inhaltlich verantwortlich",
+          "name": "Noch anzugeben",
+          "street": "Noch anzugeben",
+          "city_postal_code": "Noch anzugeben"
+        },
+        "dispute_resolution": {
+          "headline": "Streitschlichtung",
+          "os_platform_intro": "Noch anzugeben",
+          "os_platform_url": "https://example.com",
+          "email_note": "Noch anzugeben",
+          "participation_statement": "Noch anzugeben"
+        },
         "disclaimer": {
           "headline": "Haftungsausschluss",
-          "content_liability": { "headline": "Haftung für Inhalte", "paragraph1": "Noch anzugeben", "paragraph2": "Noch anzugeben" },
-          "link_liability": { "headline": "Haftung für Links", "paragraph1": "Noch anzugeben", "paragraph2": "Noch anzugeben" },
-          "copyright": { "headline": "Urheberrecht", "paragraph1": "Noch anzugeben", "paragraph2": "Noch anzugeben" }
+          "content_liability": {
+            "headline": "Haftung für Inhalte",
+            "paragraph1": "Noch anzugeben",
+            "paragraph2": "Noch anzugeben"
+          },
+          "link_liability": {
+            "headline": "Haftung für Links",
+            "paragraph1": "Noch anzugeben",
+            "paragraph2": "Noch anzugeben"
+          },
+          "copyright": {
+            "headline": "Urheberrecht",
+            "paragraph1": "Noch anzugeben",
+            "paragraph2": "Noch anzugeben"
+          }
         },
         "image_credits": {
           "headline": "Bildnachweise",
@@ -550,7 +650,10 @@
         "subheading": "Wir senden dir einen Anmelde‑Link per E‑Mail. Nach dem Absenden siehst du eine Bestätigungs‑Antwort.",
         "fields": {
           "name": { "label": "Name", "help": "2–50 Zeichen." },
-          "username": { "label": "Benutzername", "help": "3–30 Zeichen; Buchstaben, Zahlen, Unterstrich." },
+          "username": {
+            "label": "Benutzername",
+            "help": "3–30 Zeichen; Buchstaben, Zahlen, Unterstrich."
+          },
           "email": { "label": "E-Mail" },
           "password": { "label": "Passwort" }
         },
@@ -612,19 +715,58 @@
         "effective_date": "Gültig ab: 20. Juli 2025"
       },
       "sections": {
-        "1": { "title": "Geltungsbereich", "content": "Diese Bedingungen regeln die Nutzung der Dienste von Evolution Hub und gelten für alle mit der Evolution Hub GmbH geschlossenen Verträge." },
-        "2": { "title": "Vertragsschluss", "content": "Ein Vertrag kommt zustande, wenn Sie die Registrierung abschließen oder diese Bedingungen auf andere Weise akzeptieren, z. B. durch Nutzung des Dienstes nach Hinweis auf diese Bedingungen." },
-        "3": { "title": "Leistungen", "content": "Wir stellen eine cloudbasierte Plattform und zugehörige Funktionen bereit. Der Leistungsumfang ergibt sich aus dem gewählten Plan und der zum Zeitpunkt des Vertragsschlusses gültigen Dokumentation." },
-        "4": { "title": "Konten und Sicherheit", "content": "Sie sind für die Vertraulichkeit Ihrer Zugangsdaten und für alle Aktivitäten in Ihrem Konto verantwortlich. Informieren Sie uns umgehend über eine unbefugte Nutzung." },
-        "5": { "title": "Preise und Zahlung", "content": "Gebühren, Abrechnungszyklen und Zahlungsmethoden sind auf der Preisseite angegeben. Alle Preise verstehen sich in EUR, sofern nicht anders angegeben. Gesetzliche Steuern können anfallen." },
-        "6": { "title": "Laufzeit und Kündigung", "content": "Verträge werden auf unbestimmte Zeit geschlossen und können zum Ende des aktuellen Abrechnungszeitraums gekündigt werden. Eine fristlose Kündigung aus wichtigem Grund bleibt vorbehalten." },
-        "7": { "title": "Zulässige Nutzung", "content": "Sie dürfen den Dienst nicht missbrauchen, seinen Betrieb stören oder gegen geltendes Recht verstoßen. Automatisiertes Scraping, Reverse Engineering oder Sicherheitstests ohne Zustimmung sind untersagt." },
-        "8": { "title": "Gewährleistung und Haftung", "content": "Der Dienst wird im Rahmen des gewählten Plans bereitgestellt. Unsere Haftung ist auf Vorsatz und grobe Fahrlässigkeit beschränkt, sofern nicht zwingendes Recht etwas anderes vorsieht." },
-        "9": { "title": "Geistiges Eigentum", "content": "Alle Rechte am geistigen Eigentum am Dienst verbleiben bei Evolution Hub oder deren Lizenzgebern. Sie erhalten ein einfaches, nicht übertragbares Nutzungsrecht für die Vertragsdauer." },
-        "10": { "title": "Datenschutz", "content": "Wir verarbeiten personenbezogene Daten gemäß unserer Datenschutzerklärung. Einzelheiten zu Zwecken und Rechtsgrundlagen finden Sie unter pages.datenschutz." },
-        "11": { "title": "Anwendbares Recht und Gerichtsstand", "content": "Es gilt deutsches Recht unter Ausschluss des Kollisionsrechts. Gerichtsstand ist, soweit gesetzlich zulässig, Berlin." },
-        "12": { "title": "Änderungen dieser Bedingungen", "content": "Wir können diese Bedingungen anpassen, um Änderungen der Rechtslage oder unserer Leistungen abzubilden. Wesentliche Änderungen werden vorab kommuniziert. Die fortgesetzte Nutzung gilt als Zustimmung." },
-        "11_participation": { "title": "Teilnahme an Streitbeilegung", "content": "Wir sind weder bereit noch verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen." }
+        "1": {
+          "title": "Geltungsbereich",
+          "content": "Diese Bedingungen regeln die Nutzung der Dienste von Evolution Hub und gelten für alle mit der Evolution Hub GmbH geschlossenen Verträge."
+        },
+        "2": {
+          "title": "Vertragsschluss",
+          "content": "Ein Vertrag kommt zustande, wenn Sie die Registrierung abschließen oder diese Bedingungen auf andere Weise akzeptieren, z. B. durch Nutzung des Dienstes nach Hinweis auf diese Bedingungen."
+        },
+        "3": {
+          "title": "Leistungen",
+          "content": "Wir stellen eine cloudbasierte Plattform und zugehörige Funktionen bereit. Der Leistungsumfang ergibt sich aus dem gewählten Plan und der zum Zeitpunkt des Vertragsschlusses gültigen Dokumentation."
+        },
+        "4": {
+          "title": "Konten und Sicherheit",
+          "content": "Sie sind für die Vertraulichkeit Ihrer Zugangsdaten und für alle Aktivitäten in Ihrem Konto verantwortlich. Informieren Sie uns umgehend über eine unbefugte Nutzung."
+        },
+        "5": {
+          "title": "Preise und Zahlung",
+          "content": "Gebühren, Abrechnungszyklen und Zahlungsmethoden sind auf der Preisseite angegeben. Alle Preise verstehen sich in EUR, sofern nicht anders angegeben. Gesetzliche Steuern können anfallen."
+        },
+        "6": {
+          "title": "Laufzeit und Kündigung",
+          "content": "Verträge werden auf unbestimmte Zeit geschlossen und können zum Ende des aktuellen Abrechnungszeitraums gekündigt werden. Eine fristlose Kündigung aus wichtigem Grund bleibt vorbehalten."
+        },
+        "7": {
+          "title": "Zulässige Nutzung",
+          "content": "Sie dürfen den Dienst nicht missbrauchen, seinen Betrieb stören oder gegen geltendes Recht verstoßen. Automatisiertes Scraping, Reverse Engineering oder Sicherheitstests ohne Zustimmung sind untersagt."
+        },
+        "8": {
+          "title": "Gewährleistung und Haftung",
+          "content": "Der Dienst wird im Rahmen des gewählten Plans bereitgestellt. Unsere Haftung ist auf Vorsatz und grobe Fahrlässigkeit beschränkt, sofern nicht zwingendes Recht etwas anderes vorsieht."
+        },
+        "9": {
+          "title": "Geistiges Eigentum",
+          "content": "Alle Rechte am geistigen Eigentum am Dienst verbleiben bei Evolution Hub oder deren Lizenzgebern. Sie erhalten ein einfaches, nicht übertragbares Nutzungsrecht für die Vertragsdauer."
+        },
+        "10": {
+          "title": "Datenschutz",
+          "content": "Wir verarbeiten personenbezogene Daten gemäß unserer Datenschutzerklärung. Einzelheiten zu Zwecken und Rechtsgrundlagen finden Sie unter pages.datenschutz."
+        },
+        "11": {
+          "title": "Anwendbares Recht und Gerichtsstand",
+          "content": "Es gilt deutsches Recht unter Ausschluss des Kollisionsrechts. Gerichtsstand ist, soweit gesetzlich zulässig, Berlin."
+        },
+        "12": {
+          "title": "Änderungen dieser Bedingungen",
+          "content": "Wir können diese Bedingungen anpassen, um Änderungen der Rechtslage oder unserer Leistungen abzubilden. Wesentliche Änderungen werden vorab kommuniziert. Die fortgesetzte Nutzung gilt als Zustimmung."
+        },
+        "11_participation": {
+          "title": "Teilnahme an Streitbeilegung",
+          "content": "Wir sind weder bereit noch verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen."
+        }
       }
     },
     "verifyEmail": {
@@ -831,10 +973,22 @@
           "support": "Support & Feedback",
           "features": {
             "heading": "Funktionen",
-            "upscaling": { "title": "KI-gestütztes Upscaling", "description": "Skaliere Bilder hoch ohne sichtbaren Qualitätsverlust." },
-            "denoise_sharpen": { "title": "Rauschunterdrückung & Schärfung", "description": "Reduziert Rauschen und stellt feine Details wieder her." },
-            "fine_tuning": { "title": "Feinabstimmung & Presets", "description": "Vordefinierte Presets und manuelle Regler für individuelle Ergebnisse." },
-            "batch": { "title": "Batch-Verarbeitung", "description": "Verarbeite mehrere Dateien gleichzeitig für effiziente Workflows." }
+            "upscaling": {
+              "title": "KI-gestütztes Upscaling",
+              "description": "Skaliere Bilder hoch ohne sichtbaren Qualitätsverlust."
+            },
+            "denoise_sharpen": {
+              "title": "Rauschunterdrückung & Schärfung",
+              "description": "Reduziert Rauschen und stellt feine Details wieder her."
+            },
+            "fine_tuning": {
+              "title": "Feinabstimmung & Presets",
+              "description": "Vordefinierte Presets und manuelle Regler für individuelle Ergebnisse."
+            },
+            "batch": {
+              "title": "Batch-Verarbeitung",
+              "description": "Verarbeite mehrere Dateien gleichzeitig für effiziente Workflows."
+            }
           },
           "privacy": {
             "heading": "Datenschutz & Verarbeitung",
@@ -895,37 +1049,100 @@
       "allgemein": {
         "title": "Allgemeine Fragen",
         "items": [
-          { "question": "Was ist EvolutionHub?", "answer": "EvolutionHub ist eine Plattform für moderne Webentwicklung mit Fokus auf Performance, Benutzerfreundlichkeit und moderne Technologien." },
-          { "question": "Welche Technologien werden verwendet?", "answer": "Wir verwenden Astro für das Frontend, TypeScript für typsichere Entwicklung, und Tailwind CSS für das Styling. Unser Backend basiert auf modernen JavaScript/TypeScript-Technologien." },
-          { "question": "Ist ein Konto erforderlich?", "answer": "Für die meisten Funktionen benötigen Sie ein Konto. Einige Bereiche wie die Dokumentation und Blogbeiträge sind auch ohne Konto einsehbar." },
-          { "question": "Wie wird der Datenschutz gewährleistet?", "answer": "Wir legen großen Wert auf Datenschutz und Sicherheit. Alle Daten werden verschlüsselt übertragen und gemäß der DSGVO verarbeitet." },
-          { "question": "Wann ist der Support erreichbar?", "answer": "Unser Support-Team ist von Montag bis Freitag, 9 bis 18 Uhr, für Sie erreichbar." },
-          { "question": "Ist EvolutionHub auch mobil nutzbar?", "answer": "Ja, unsere Plattform ist für mobile Geräte optimiert und kann auf Smartphones und Tablets genutzt werden." },
-          { "question": "Ist die Plattform barrierefrei?", "answer": "Wir arbeiten kontinuierlich daran, die Barrierefreiheit unserer Plattform zu verbessern, um sie für alle Nutzer zugänglich zu machen." }
+          {
+            "question": "Was ist EvolutionHub?",
+            "answer": "EvolutionHub ist eine Plattform für moderne Webentwicklung mit Fokus auf Performance, Benutzerfreundlichkeit und moderne Technologien."
+          },
+          {
+            "question": "Welche Technologien werden verwendet?",
+            "answer": "Wir verwenden Astro für das Frontend, TypeScript für typsichere Entwicklung, und Tailwind CSS für das Styling. Unser Backend basiert auf modernen JavaScript/TypeScript-Technologien."
+          },
+          {
+            "question": "Ist ein Konto erforderlich?",
+            "answer": "Für die meisten Funktionen benötigen Sie ein Konto. Einige Bereiche wie die Dokumentation und Blogbeiträge sind auch ohne Konto einsehbar."
+          },
+          {
+            "question": "Wie wird der Datenschutz gewährleistet?",
+            "answer": "Wir legen großen Wert auf Datenschutz und Sicherheit. Alle Daten werden verschlüsselt übertragen und gemäß der DSGVO verarbeitet."
+          },
+          {
+            "question": "Wann ist der Support erreichbar?",
+            "answer": "Unser Support-Team ist von Montag bis Freitag, 9 bis 18 Uhr, für Sie erreichbar."
+          },
+          {
+            "question": "Ist EvolutionHub auch mobil nutzbar?",
+            "answer": "Ja, unsere Plattform ist für mobile Geräte optimiert und kann auf Smartphones und Tablets genutzt werden."
+          },
+          {
+            "question": "Ist die Plattform barrierefrei?",
+            "answer": "Wir arbeiten kontinuierlich daran, die Barrierefreiheit unserer Plattform zu verbessern, um sie für alle Nutzer zugänglich zu machen."
+          }
         ]
       },
       "konto": {
         "title": "Konto & Abonnement",
         "items": [
-          { "question": "Wie erstelle ich ein Konto?", "answer": "Klicken Sie auf \"Registrieren\" in der oberen Navigation und folgen Sie den Anweisungen. Sie benötigen eine gültige E-Mail-Adresse." },
-          { "question": "Wie kann ich mein Passwort zurücksetzen?", "answer": "Auf der Anmeldeseite finden Sie einen Link \"Passwort vergessen\". Geben Sie Ihre E-Mail-Adresse ein und folgen Sie den Anweisungen in der erhaltenen E-Mail." },
-          { "question": "Wie kündige ich mein Abonnement?", "answer": "Gehen Sie zu Ihren Kontoeinstellungen und wählen Sie \"Abonnement verwalten\". Dort können Sie Ihr Abonnement kündigen." },
-          { "question": "Welche Abonnement-Pläne gibt es?", "answer": "Wir bieten verschiedene Pläne an, die auf unterschiedliche Bedürfnisse zugeschnitten sind. Details finden Sie auf unserer Pricing-Seite." },
-          { "question": "Welche Zahlungsmethoden werden akzeptiert?", "answer": "Wir akzeptieren Kreditkarten, PayPal und SEPA-Lastschriftverfahren." },
-          { "question": "Wie kann ich mein Konto wiederherstellen, wenn ich den Zugang verliere?", "answer": "Nutzen Sie die Passwort-zurücksetzen-Funktion oder kontaktieren Sie unseren Support für weitere Hilfe." },
-          { "question": "Wie verwalte ich meine Benachrichtigungseinstellungen?", "answer": "In Ihren Kontoeinstellungen können Sie festlegen, welche Benachrichtigungen Sie erhalten möchten." }
+          {
+            "question": "Wie erstelle ich ein Konto?",
+            "answer": "Klicken Sie auf \"Registrieren\" in der oberen Navigation und folgen Sie den Anweisungen. Sie benötigen eine gültige E-Mail-Adresse."
+          },
+          {
+            "question": "Wie kann ich mein Passwort zurücksetzen?",
+            "answer": "Auf der Anmeldeseite finden Sie einen Link \"Passwort vergessen\". Geben Sie Ihre E-Mail-Adresse ein und folgen Sie den Anweisungen in der erhaltenen E-Mail."
+          },
+          {
+            "question": "Wie kündige ich mein Abonnement?",
+            "answer": "Gehen Sie zu Ihren Kontoeinstellungen und wählen Sie \"Abonnement verwalten\". Dort können Sie Ihr Abonnement kündigen."
+          },
+          {
+            "question": "Welche Abonnement-Pläne gibt es?",
+            "answer": "Wir bieten verschiedene Pläne an, die auf unterschiedliche Bedürfnisse zugeschnitten sind. Details finden Sie auf unserer Pricing-Seite."
+          },
+          {
+            "question": "Welche Zahlungsmethoden werden akzeptiert?",
+            "answer": "Wir akzeptieren Kreditkarten, PayPal und SEPA-Lastschriftverfahren."
+          },
+          {
+            "question": "Wie kann ich mein Konto wiederherstellen, wenn ich den Zugang verliere?",
+            "answer": "Nutzen Sie die Passwort-zurücksetzen-Funktion oder kontaktieren Sie unseren Support für weitere Hilfe."
+          },
+          {
+            "question": "Wie verwalte ich meine Benachrichtigungseinstellungen?",
+            "answer": "In Ihren Kontoeinstellungen können Sie festlegen, welche Benachrichtigungen Sie erhalten möchten."
+          }
         ]
       },
       "technik": {
         "title": "Technische Fragen",
         "items": [
-          { "question": "Welche Browser werden unterstützt?", "answer": "Wir unterstützen die aktuellen Versionen von Chrome, Firefox, Safari, und Edge. Ältere Browser werden möglicherweise nicht vollständig unterstützt." },
-          { "question": "Wie kann ich die API nutzen?", "answer": "Unsere API-Dokumentation finden Sie unter /api-docs. Sie benötigen einen API-Schlüssel, den Sie in Ihren Kontoeinstellungen generieren können." },
-          { "question": "Wie melde ich einen Fehler?", "answer": "Bitte nutzen Sie unser Fehlerformular unter /kontakt oder erstellen Sie ein Issue in unserem GitHub-Repository." },
-          { "question": "Gibt es Nutzungslimits für die API?", "answer": "Ja, unsere API hat Nutzungslimits, um eine faire Verteilung der Ressourcen sicherzustellen. Details finden Sie in der API-Dokumentation." },
-          { "question": "Kann ich EvolutionHub mit Drittanbieter-Tools integrieren?", "answer": "Ja, wir bieten Integrationen und Webhooks für verschiedene Drittanbieter-Services an." },
-          { "question": "Welche Systemanforderungen gibt es?", "answer": "Für die Nutzung empfehlen wir aktuelle Browser und eine stabile Internetverbindung." },
-          { "question": "Gibt es Backup- und Wiederherstellungsoptionen?", "answer": "Ja, Ihre Daten werden regelmäßig gesichert und können bei Bedarf wiederhergestellt werden." }
+          {
+            "question": "Welche Browser werden unterstützt?",
+            "answer": "Wir unterstützen die aktuellen Versionen von Chrome, Firefox, Safari, und Edge. Ältere Browser werden möglicherweise nicht vollständig unterstützt."
+          },
+          {
+            "question": "Wie kann ich die API nutzen?",
+            "answer": "Unsere API-Dokumentation finden Sie unter /api-docs. Sie benötigen einen API-Schlüssel, den Sie in Ihren Kontoeinstellungen generieren können."
+          },
+          {
+            "question": "Wie melde ich einen Fehler?",
+            "answer": "Bitte nutzen Sie unser Fehlerformular unter /kontakt oder erstellen Sie ein Issue in unserem GitHub-Repository."
+          },
+          {
+            "question": "Gibt es Nutzungslimits für die API?",
+            "answer": "Ja, unsere API hat Nutzungslimits, um eine faire Verteilung der Ressourcen sicherzustellen. Details finden Sie in der API-Dokumentation."
+          },
+          {
+            "question": "Kann ich EvolutionHub mit Drittanbieter-Tools integrieren?",
+            "answer": "Ja, wir bieten Integrationen und Webhooks für verschiedene Drittanbieter-Services an."
+          },
+          {
+            "question": "Welche Systemanforderungen gibt es?",
+            "answer": "Für die Nutzung empfehlen wir aktuelle Browser und eine stabile Internetverbindung."
+          },
+          {
+            "question": "Gibt es Backup- und Wiederherstellungsoptionen?",
+            "answer": "Ja, Ihre Daten werden regelmäßig gesichert und können bei Bedarf wiederhergestellt werden."
+          }
         ]
       }
     }

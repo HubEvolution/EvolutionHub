@@ -8,74 +8,82 @@ const sections = [
     title: 'Erste Schritte',
     description: 'Lernen Sie die Grundlagen kennen und starten Sie mit Evolution Hub durch.',
     link: '/docs/getting-started',
-    icon: 'rocket'
+    icon: 'rocket',
   },
   {
     title: 'Anleitungen',
     description: 'Detaillierte Anleitungen für alle Funktionen und Features.',
     link: '/docs/guides',
-    icon: 'book'
+    icon: 'book',
   },
   {
     title: 'API-Referenz',
     description: 'Technische Dokumentation unserer API-Endpunkte.',
     link: '/docs/api',
-    icon: 'plug'
+    icon: 'plug',
   },
   {
     title: 'Häufige Fragen',
     description: 'Antworten auf häufig gestellte Fragen.',
     link: '/docs/faq',
-    icon: 'book'
-  }
+    icon: 'book',
+  },
 ];
 ---
+
 <BaseLayout title="Dokumentation">
   <div class="py-12 bg-white dark:bg-gray-900">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="lg:text-center">
-        <h2 class="text-base text-indigo-600 dark:text-indigo-400 font-semibold tracking-wide uppercase">Dokumentation</h2>
-        <p class="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 dark:text-white sm:text-4xl">
+        <h2
+          class="text-base text-indigo-600 dark:text-indigo-400 font-semibold tracking-wide uppercase"
+        >
+          Dokumentation
+        </h2>
+        <p
+          class="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 dark:text-white sm:text-4xl"
+        >
           Alles was Sie wissen müssen
         </p>
         <p class="mt-4 max-w-2xl text-xl text-gray-700 dark:text-gray-300 lg:mx-auto">
-          Umfassende Anleitungen und Dokumentationen, die Ihnen helfen, das Beste aus Evolution Hub herauszuholen.
+          Umfassende Anleitungen und Dokumentationen, die Ihnen helfen, das Beste aus Evolution Hub
+          herauszuholen.
         </p>
       </div>
 
       <div class="mt-10">
         <div class="space-y-10 md:space-y-0 md:grid md:grid-cols-2 md:gap-x-8 md:gap-y-10">
-          {sections.map((section, idx) => (
-            <a 
-              href={section.link}
-              data-aos="fade-up"
-              data-aos-delay={String(aosDelayForIndex(idx, { step: 100, max: 300 }))}
-              class="group relative bg-white dark:bg-gray-800 p-6 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-500 focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:outline-none rounded-lg border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-shadow duration-200"
-            >
-              <div>
-                <span class="rounded-lg inline-flex p-3 bg-indigo-50 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-200 ring-4 ring-white dark:ring-gray-800">
-                  <Icon name={section.icon} class="w-6 h-6" ariaLabel={section.title} />
-                </span>
-              </div>
-              <div class="mt-8">
-                <h3 class="text-lg font-medium">
-                  <span class="absolute inset-0" aria-hidden="true"></span>
-                  {section.title}
-                </h3>
-                <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                  {section.description}
-                </p>
-              </div>
-              <span 
-                class="pointer-events-none absolute top-6 right-6 text-gray-300 group-hover:text-indigo-400 dark:text-gray-500 dark:group-hover:text-indigo-400"
-                aria-hidden="true"
+          {
+            sections.map((section, idx) => (
+              <a
+                href={section.link}
+                data-aos="fade-up"
+                data-aos-delay={String(aosDelayForIndex(idx, { step: 100, max: 300 }))}
+                class="group relative bg-white dark:bg-gray-800 p-6 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-500 focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:outline-none rounded-lg border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-shadow duration-200"
               >
-                <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M20 4h1a1 1 0 00-1-1v1zm-1 12a1 1 0 102 0h-2zM8 3a1 1 0 000 2V3zM3.293 19.293a1 1 0 101.414 1.414L3.293 19.293zM19 4v12h2V4h-2zm1-1H8v2h12V3zm-.707.293l-16 16 1.414 1.414 16-16-1.414-1.414z" />
-                </svg>
-              </span>
-            </a>
-          ))}
+                <div>
+                  <span class="rounded-lg inline-flex p-3 bg-indigo-50 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-200 ring-4 ring-white dark:ring-gray-800">
+                    <Icon name={section.icon} class="w-6 h-6" ariaLabel={section.title} />
+                  </span>
+                </div>
+                <div class="mt-8">
+                  <h3 class="text-lg font-medium">
+                    <span class="absolute inset-0" aria-hidden="true" />
+                    {section.title}
+                  </h3>
+                  <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">{section.description}</p>
+                </div>
+                <span
+                  class="pointer-events-none absolute top-6 right-6 text-gray-300 group-hover:text-indigo-400 dark:text-gray-500 dark:group-hover:text-indigo-400"
+                  aria-hidden="true"
+                >
+                  <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M20 4h1a1 1 0 00-1-1v1zm-1 12a1 1 0 102 0h-2zM8 3a1 1 0 000 2V3zM3.293 19.293a1 1 0 101.414 1.414L3.293 19.293zM19 4v12h2V4h-2zm1-1H8v2h12V3zm-.707.293l-16 16 1.414 1.414 16-16-1.414-1.414z" />
+                  </svg>
+                </span>
+              </a>
+            ))
+          }
         </div>
       </div>
     </div>

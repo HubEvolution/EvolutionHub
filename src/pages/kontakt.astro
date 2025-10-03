@@ -9,23 +9,31 @@ const hasText = (s: string) => !!(s && s.trim());
 const tx = (key: string) => t(key);
 const pageTitle = hasText(tx('pages.kontakt.title'))
   ? tx('pages.kontakt.title')
-  : (locale === 'en' ? 'Contact' : 'Kontakt');
+  : locale === 'en'
+    ? 'Contact'
+    : 'Kontakt';
 const heroHeading = hasText(tx('pages.kontakt.hero.heading'))
   ? tx('pages.kontakt.hero.heading')
-  : (locale === 'en' ? 'Get in touch' : 'Kontaktieren Sie uns');
+  : locale === 'en'
+    ? 'Get in touch'
+    : 'Kontaktieren Sie uns';
 const heroSubtitle = hasText(tx('pages.kontakt.hero.subtitle'))
   ? tx('pages.kontakt.hero.subtitle')
-  : (locale === 'en'
-      ? 'Have questions or feedback? We’d love to hear from you.'
-      : 'Haben Sie Fragen oder Anregungen? Wir freuen uns, von Ihnen zu hören.');
+  : locale === 'en'
+    ? 'Have questions or feedback? We’d love to hear from you.'
+    : 'Haben Sie Fragen oder Anregungen? Wir freuen uns, von Ihnen zu hören.';
 ---
 
 <BaseLayout title={pageTitle}>
   <!-- Hero Section -->
-  <section class="py-16 md:py-24 allow-section-bg bg-gradient-to-br from-primary/5 to-purple-500/5 dark:from-gray-800 dark:to-gray-900">
+  <section
+    class="py-16 md:py-24 allow-section-bg bg-gradient-to-br from-primary/5 to-purple-500/5 dark:from-gray-800 dark:to-gray-900"
+  >
     <div class="container mx-auto px-4">
       <div class="max-w-3xl mx-auto text-center">
-        <h1 class="text-4xl md:text-5xl font-bold mb-6 text-gray-900 dark:text-white [text-shadow:_0_1px_0_rgb(255_255_255_/_0.6)] dark:[text-shadow:_0_1px_0_rgb(0_0_0_/_0.35)]">
+        <h1
+          class="text-4xl md:text-5xl font-bold mb-6 text-gray-900 dark:text-white [text-shadow:_0_1px_0_rgb(255_255_255_/_0.6)] dark:[text-shadow:_0_1px_0_rgb(0_0_0_/_0.35)]"
+        >
           {heroHeading}
         </h1>
         <p class="text-xl text-gray-700 dark:text-gray-300 mb-8">
@@ -43,64 +51,125 @@ const heroSubtitle = hasText(tx('pages.kontakt.hero.subtitle'))
           <div class="grid md:grid-cols-2">
             <!-- Contact Form -->
             <div class="p-8 md:p-10">
-              <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">{hasText(tx('pages.kontakt.form.heading')) ? tx('pages.kontakt.form.heading') : (locale === 'en' ? 'Send us a message' : 'Senden Sie uns eine Nachricht')}</h2>
+              <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+                {
+                  hasText(tx('pages.kontakt.form.heading'))
+                    ? tx('pages.kontakt.form.heading')
+                    : locale === 'en'
+                      ? 'Send us a message'
+                      : 'Senden Sie uns eine Nachricht'
+                }
+              </h2>
 
               <form class="space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label for="first-name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{hasText(tx('pages.kontakt.form.fields.first_name.label')) ? tx('pages.kontakt.form.fields.first_name.label') : (locale === 'en' ? 'First name' : 'Vorname')}</label>
+                    <label
+                      for="first-name"
+                      class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                      >{
+                        hasText(tx('pages.kontakt.form.fields.first_name.label'))
+                          ? tx('pages.kontakt.form.fields.first_name.label')
+                          : locale === 'en'
+                            ? 'First name'
+                            : 'Vorname'
+                      }</label
+                    >
                     <input
                       type="text"
                       id="first-name"
                       name="first-name"
                       required
                       class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition duration-200"
-                    >
+                    />
                   </div>
                   <div>
-                    <label for="last-name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{hasText(tx('pages.kontakt.form.fields.last_name.label')) ? tx('pages.kontakt.form.fields.last_name.label') : (locale === 'en' ? 'Last name' : 'Nachname')}</label>
+                    <label
+                      for="last-name"
+                      class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                      >{
+                        hasText(tx('pages.kontakt.form.fields.last_name.label'))
+                          ? tx('pages.kontakt.form.fields.last_name.label')
+                          : locale === 'en'
+                            ? 'Last name'
+                            : 'Nachname'
+                      }</label
+                    >
                     <input
                       type="text"
                       id="last-name"
                       name="last-name"
                       required
                       class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition duration-200"
-                    >
+                    />
                   </div>
                 </div>
 
                 <div>
-                  <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{hasText(tx('pages.kontakt.form.fields.email.label')) ? tx('pages.kontakt.form.fields.email.label') : (locale === 'en' ? 'Email' : 'E-Mail')}</label>
+                  <label
+                    for="email"
+                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                    >{
+                      hasText(tx('pages.kontakt.form.fields.email.label'))
+                        ? tx('pages.kontakt.form.fields.email.label')
+                        : locale === 'en'
+                          ? 'Email'
+                          : 'E-Mail'
+                    }</label
+                  >
                   <input
                     type="email"
                     id="email"
                     name="email"
                     required
                     class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition duration-200"
-                  >
+                  />
                 </div>
 
                 <div>
-                  <label for="subject" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{hasText(tx('pages.kontakt.form.fields.subject.label')) ? tx('pages.kontakt.form.fields.subject.label') : (locale === 'en' ? 'Subject' : 'Betreff')}</label>
+                  <label
+                    for="subject"
+                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                    >{
+                      hasText(tx('pages.kontakt.form.fields.subject.label'))
+                        ? tx('pages.kontakt.form.fields.subject.label')
+                        : locale === 'en'
+                          ? 'Subject'
+                          : 'Betreff'
+                    }</label
+                  >
                   <input
                     type="text"
                     id="subject"
                     name="subject"
                     required
                     class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition duration-200"
-                  >
+                  />
                 </div>
 
                 <div>
-                  <label for="message" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{hasText(tx('pages.kontakt.form.fields.message.label')) ? tx('pages.kontakt.form.fields.message.label') : (locale === 'en' ? 'Your message' : 'Ihre Nachricht')}</label>
+                  <label
+                    for="message"
+                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                    >{
+                      hasText(tx('pages.kontakt.form.fields.message.label'))
+                        ? tx('pages.kontakt.form.fields.message.label')
+                        : locale === 'en'
+                          ? 'Your message'
+                          : 'Ihre Nachricht'
+                    }</label
+                  >
                   <textarea
                     id="message"
                     name="message"
                     rows="4"
                     required
                     class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition duration-200"
-                    placeholder={hasText(tx('pages.kontakt.form.fields.message.placeholder')) ? tx('pages.kontakt.form.fields.message.placeholder') : (locale === 'en' ? 'Describe your request...' : 'Beschreiben Sie Ihr Anliegen...')}
-                  ></textarea>
+                    placeholder={hasText(tx('pages.kontakt.form.fields.message.placeholder'))
+                      ? tx('pages.kontakt.form.fields.message.placeholder')
+                      : locale === 'en'
+                        ? 'Describe your request...'
+                        : 'Beschreiben Sie Ihr Anliegen...'}></textarea>
                 </div>
 
                 <div class="flex items-center">
@@ -110,10 +179,23 @@ const heroSubtitle = hasText(tx('pages.kontakt.hero.subtitle'))
                     type="checkbox"
                     required
                     class="h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded"
+                  />
+                  <label
+                    for="privacy-policy"
+                    class="ml-2 block text-sm text-gray-700 dark:text-gray-300"
                   >
-                  <label for="privacy-policy" class="ml-2 block text-sm text-gray-700 dark:text-gray-300">
                     {locale === 'en' ? 'I agree to the ' : 'Ich stimme der '}
-                    <a href={locale === 'en' ? '/en/datenschutz' : '/datenschutz'} class="text-emerald-600 hover:text-emerald-500 dark:text-emerald-400 dark:hover:text-emerald-300">{hasText(tx('pages.kontakt.form.privacy_policy.link_text')) ? tx('pages.kontakt.form.privacy_policy.link_text') : (locale === 'en' ? 'Privacy Policy' : 'Datenschutzerklärung')}</a>
+                    <a
+                      href={locale === 'en' ? '/en/datenschutz' : '/datenschutz'}
+                      class="text-emerald-600 hover:text-emerald-500 dark:text-emerald-400 dark:hover:text-emerald-300"
+                      >{
+                        hasText(tx('pages.kontakt.form.privacy_policy.link_text'))
+                          ? tx('pages.kontakt.form.privacy_policy.link_text')
+                          : locale === 'en'
+                            ? 'Privacy Policy'
+                            : 'Datenschutzerklärung'
+                      }</a
+                    >
                     {locale === 'en' ? '.' : ' zu.'}
                   </label>
                 </div>
@@ -123,60 +205,170 @@ const heroSubtitle = hasText(tx('pages.kontakt.hero.subtitle'))
                     type="submit"
                     class="w-full flex justify-center py-3 px-6 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition duration-200"
                   >
-                    {hasText(tx('pages.kontakt.form.submit_button')) ? tx('pages.kontakt.form.submit_button') : (locale === 'en' ? 'Send message' : 'Nachricht senden')}
+                    {
+                      hasText(tx('pages.kontakt.form.submit_button'))
+                        ? tx('pages.kontakt.form.submit_button')
+                        : locale === 'en'
+                          ? 'Send message'
+                          : 'Nachricht senden'
+                    }
                   </button>
                 </div>
               </form>
             </div>
 
             <!-- Contact Info -->
-            <div class="allow-section-bg bg-gradient-to-br from-emerald-50 to-cyan-50 dark:from-gray-800 dark:to-gray-900 p-8 md:p-10 flex flex-col justify-center">
+            <div
+              class="allow-section-bg bg-gradient-to-br from-emerald-50 to-cyan-50 dark:from-gray-800 dark:to-gray-900 p-8 md:p-10 flex flex-col justify-center"
+            >
               <div class="space-y-6">
                 <div>
-                  <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">{hasText(tx('pages.kontakt.info.heading')) ? tx('pages.kontakt.info.heading') : (locale === 'en' ? 'Contact information' : 'Kontaktinformationen')}</h3>
+                  <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                    {
+                      hasText(tx('pages.kontakt.info.heading'))
+                        ? tx('pages.kontakt.info.heading')
+                        : locale === 'en'
+                          ? 'Contact information'
+                          : 'Kontaktinformationen'
+                    }
+                  </h3>
                   <p class="text-gray-600 dark:text-gray-300 text-sm">
-                    {hasText(tx('pages.kontakt.info.subtitle')) ? tx('pages.kontakt.info.subtitle') : (locale === 'en' ? 'Our support team is here for you. Write to us or give us a call.' : 'Unser Support-Team ist für Sie da. Schreiben Sie uns oder rufen Sie uns an.')}
+                    {
+                      hasText(tx('pages.kontakt.info.subtitle'))
+                        ? tx('pages.kontakt.info.subtitle')
+                        : locale === 'en'
+                          ? 'Our support team is here for you. Write to us or give us a call.'
+                          : 'Unser Support-Team ist für Sie da. Schreiben Sie uns oder rufen Sie uns an.'
+                    }
                   </p>
                 </div>
 
                 <div class="space-y-4">
                   <div class="flex items-start">
-                    <div class="flex-shrink-0 h-10 w-10 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
-                      <svg class="h-5 w-5 text-emerald-600 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    <div
+                      class="flex-shrink-0 h-10 w-10 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center"
+                    >
+                      <svg
+                        class="h-5 w-5 text-emerald-600 dark:text-emerald-400"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="1.5"
+                          d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                        ></path>
                       </svg>
                     </div>
                     <div class="ml-4">
-                      <p class="text-sm font-medium text-gray-900 dark:text-white">{hasText(tx('pages.kontakt.info.email_label')) ? tx('pages.kontakt.info.email_label') : (locale === 'en' ? 'Email' : 'E-Mail')}</p>
-                      <a href="mailto:kontakt@evolutionhub.de" class="text-sm text-emerald-600 hover:text-emerald-500 dark:text-emerald-400 dark:hover:text-emerald-300">{hasText(tx('pages.kontakt.info.email_address')) ? tx('pages.kontakt.info.email_address') : 'kontakt@evolutionhub.de'}</a>
+                      <p class="text-sm font-medium text-gray-900 dark:text-white">
+                        {
+                          hasText(tx('pages.kontakt.info.email_label'))
+                            ? tx('pages.kontakt.info.email_label')
+                            : locale === 'en'
+                              ? 'Email'
+                              : 'E-Mail'
+                        }
+                      </p>
+                      <a
+                        href="mailto:kontakt@evolutionhub.de"
+                        class="text-sm text-emerald-600 hover:text-emerald-500 dark:text-emerald-400 dark:hover:text-emerald-300"
+                        >{
+                          hasText(tx('pages.kontakt.info.email_address'))
+                            ? tx('pages.kontakt.info.email_address')
+                            : 'kontakt@evolutionhub.de'
+                        }</a
+                      >
                     </div>
                   </div>
 
                   <div class="flex items-start">
-                    <div class="flex-shrink-0 h-10 w-10 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
-                      <svg class="h-5 w-5 text-emerald-600 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                    <div
+                      class="flex-shrink-0 h-10 w-10 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center"
+                    >
+                      <svg
+                        class="h-5 w-5 text-emerald-600 dark:text-emerald-400"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="1.5"
+                          d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                        ></path>
                       </svg>
                     </div>
                     <div class="ml-4">
-                      <p class="text-sm font-medium text-gray-900 dark:text-white">{hasText(tx('pages.kontakt.info.phone_label')) ? tx('pages.kontakt.info.phone_label') : (locale === 'en' ? 'Phone' : 'Telefon')}</p>
-                      <p class="text-sm text-gray-600 dark:text-gray-300">{hasText(tx('pages.kontakt.info.support_hours')) ? tx('pages.kontakt.info.support_hours') : (locale === 'en' ? 'Mon-Fri, 9am-6pm' : 'Mo-Fr, 9-18 Uhr')}</p>
-                      <a href="tel:+49123456789" class="text-sm text-emerald-600 hover:text-emerald-500 dark:text-emerald-400 dark:hover:text-emerald-300">{hasText(tx('pages.kontakt.info.phone_number')) ? tx('pages.kontakt.info.phone_number') : '+49 123 456789'}</a>
-                    </div>
-                  </div>
-
-                  <div class="flex items-start">
-                    <div class="flex-shrink-0 h-10 w-10 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
-                      <svg class="h-5 w-5 text-emerald-600 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                      </svg>
-                    </div>
-                    <div class="ml-4">
-                      <p class="text-sm font-medium text-gray-900 dark:text-white">{hasText(tx('pages.kontakt.info.address_label')) ? tx('pages.kontakt.info.address_label') : (locale === 'en' ? 'Address' : 'Adresse')}</p>
+                      <p class="text-sm font-medium text-gray-900 dark:text-white">
+                        {
+                          hasText(tx('pages.kontakt.info.phone_label'))
+                            ? tx('pages.kontakt.info.phone_label')
+                            : locale === 'en'
+                              ? 'Phone'
+                              : 'Telefon'
+                        }
+                      </p>
                       <p class="text-sm text-gray-600 dark:text-gray-300">
-                        Evolution Hub GmbH<br>
-                        Musterstraße 123<br>
+                        {
+                          hasText(tx('pages.kontakt.info.support_hours'))
+                            ? tx('pages.kontakt.info.support_hours')
+                            : locale === 'en'
+                              ? 'Mon-Fri, 9am-6pm'
+                              : 'Mo-Fr, 9-18 Uhr'
+                        }
+                      </p>
+                      <a
+                        href="tel:+49123456789"
+                        class="text-sm text-emerald-600 hover:text-emerald-500 dark:text-emerald-400 dark:hover:text-emerald-300"
+                        >{
+                          hasText(tx('pages.kontakt.info.phone_number'))
+                            ? tx('pages.kontakt.info.phone_number')
+                            : '+49 123 456789'
+                        }</a
+                      >
+                    </div>
+                  </div>
+
+                  <div class="flex items-start">
+                    <div
+                      class="flex-shrink-0 h-10 w-10 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center"
+                    >
+                      <svg
+                        class="h-5 w-5 text-emerald-600 dark:text-emerald-400"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="1.5"
+                          d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                        ></path>
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="1.5"
+                          d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                      </svg>
+                    </div>
+                    <div class="ml-4">
+                      <p class="text-sm font-medium text-gray-900 dark:text-white">
+                        {
+                          hasText(tx('pages.kontakt.info.address_label'))
+                            ? tx('pages.kontakt.info.address_label')
+                            : locale === 'en'
+                              ? 'Address'
+                              : 'Adresse'
+                        }
+                      </p>
+                      <p class="text-sm text-gray-600 dark:text-gray-300">
+                        Evolution Hub GmbH<br />
+                        Musterstraße 123<br />
                         10115 Berlin, Deutschland
                       </p>
                     </div>
@@ -185,7 +377,29 @@ const heroSubtitle = hasText(tx('pages.kontakt.hero.subtitle'))
 
                 <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
                   <p class="text-xs text-gray-500 dark:text-gray-400">
-                    {(hasText(tx('pages.kontakt.info.response_time_label')) ? tx('pages.kontakt.info.response_time_label') : (locale === 'en' ? 'Average response time:' : 'Durchschnittliche Antwortzeit:'))} <span class="font-medium">{hasText(tx('pages.kontakt.info.response_time')) ? tx('pages.kontakt.info.response_time') : (locale === 'en' ? 'within 24h' : 'innerhalb von 24h')}</span> {hasText(tx('pages.kontakt.info.response_time_unit')) ? tx('pages.kontakt.info.response_time_unit') : (locale === 'en' ? 'on business days.' : 'an Werktagen.')}
+                    {
+                      hasText(tx('pages.kontakt.info.response_time_label'))
+                        ? tx('pages.kontakt.info.response_time_label')
+                        : locale === 'en'
+                          ? 'Average response time:'
+                          : 'Durchschnittliche Antwortzeit:'
+                    }
+                    <span class="font-medium"
+                      >{
+                        hasText(tx('pages.kontakt.info.response_time'))
+                          ? tx('pages.kontakt.info.response_time')
+                          : locale === 'en'
+                            ? 'within 24h'
+                            : 'innerhalb von 24h'
+                      }</span
+                    >
+                    {
+                      hasText(tx('pages.kontakt.info.response_time_unit'))
+                        ? tx('pages.kontakt.info.response_time_unit')
+                        : locale === 'en'
+                          ? 'on business days.'
+                          : 'an Werktagen.'
+                    }
                   </p>
                 </div>
               </div>

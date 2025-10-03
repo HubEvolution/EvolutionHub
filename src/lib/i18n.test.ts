@@ -25,15 +25,15 @@ describe('i18n', () => {
   describe('navigateLocale', () => {
     // Mock window.location.assign
     const mockAssign = vi.fn();
-    
+
     beforeEach(() => {
       // Mock window.location
       Object.defineProperty(window, 'location', {
         value: {
           assign: mockAssign,
-          pathname: '/de/blog/post'
+          pathname: '/de/blog/post',
         },
-        writable: true
+        writable: true,
       });
     });
 
@@ -63,7 +63,7 @@ describe('i18n', () => {
       window.location.pathname = '/';
       navigateLocale('en');
       expect(mockAssign).toHaveBeenCalledWith('/en/');
-      
+
       window.location.pathname = '/en/';
       navigateLocale('de');
       expect(mockAssign).toHaveBeenCalledWith('/');

@@ -53,7 +53,12 @@ export const prerender = false;
           data-aos-duration="700"
         >
           <span class="block">{t('pages.home.hero.title_part1')}</span>
-          <span id="hero-typewriter" aria-live="polite" class="block min-h-[1.2em] whitespace-nowrap text-transparent bg-clip-text bg-gradient-to-br from-emerald-400 to-cyan-500 [text-shadow:_0_1px_0_rgb(255_255_255_/_0.6)] dark:[text-shadow:_0_1px_0_rgb(0_0_0_/_0.35)]">{t('pages.home.hero.title_part2')}</span>
+          <span
+            id="hero-typewriter"
+            aria-live="polite"
+            class="block min-h-[1.2em] whitespace-nowrap text-transparent bg-clip-text bg-gradient-to-br from-emerald-400 to-cyan-500 [text-shadow:_0_1px_0_rgb(255_255_255_/_0.6)] dark:[text-shadow:_0_1px_0_rgb(0_0_0_/_0.35)]"
+            >{t('pages.home.hero.title_part2')}</span
+          >
         </h1>
         <p
           class="text-xl md:text-2xl text-gray-700 dark:text-gray-300 mb-10 max-w-3xl mx-auto"
@@ -63,13 +68,28 @@ export const prerender = false;
         >
           {t('pages.home.hero.subtitle')}
         </p>
-        
-        <TypewriterComponent elementId="hero-typewriter" texts={heroTypewriterItems} defaultDelay={120} />
-        <div class="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4" data-aos="fade-up" data-aos-delay="200" data-aos-duration="650">
-          <a href={localizePath(locale, '/register')} class="inline-flex items-center px-8 py-4 rounded-xl font-bold text-white bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 shadow-lg hover:shadow-xl transition duration-300 focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:outline-none">
+
+        <TypewriterComponent
+          elementId="hero-typewriter"
+          texts={heroTypewriterItems}
+          defaultDelay={120}
+        />
+        <div
+          class="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4"
+          data-aos="fade-up"
+          data-aos-delay="200"
+          data-aos-duration="650"
+        >
+          <a
+            href={localizePath(locale, '/register')}
+            class="inline-flex items-center px-8 py-4 rounded-xl font-bold text-white bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 shadow-lg hover:shadow-xl transition duration-300 focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:outline-none"
+          >
             {t('pages.home.hero.get_started_button')}
           </a>
-          <a href={localizePath(locale, '/tools')} class="inline-flex items-center px-8 py-4 rounded-xl font-bold text-gray-800 dark:text-white bg-white dark:bg-gray-700 border border-gray-400 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 shadow transition duration-300 focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:outline-none">
+          <a
+            href={localizePath(locale, '/tools')}
+            class="inline-flex items-center px-8 py-4 rounded-xl font-bold text-gray-800 dark:text-white bg-white dark:bg-gray-700 border border-gray-400 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 shadow transition duration-300 focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:outline-none"
+          >
             {t('pages.home.hero.tools_link')}
           </a>
         </div>
@@ -78,11 +98,20 @@ export const prerender = false;
     <!-- Background elements: animated gradient blobs (CSS only) -->
     <div class="absolute inset-0 pointer-events-none" aria-hidden="true">
       <!-- Top left -->
-      <div class="absolute -top-16 -left-16 w-[36rem] h-[36rem] rounded-full bg-emerald-400/90 dark:bg-emerald-500/45 blur-3xl mix-blend-overlay dark:mix-blend-screen saturate-200 brightness-160 dark:saturate-100 dark:brightness-90 animate-blob-1"></div>
+      <div
+        class="absolute -top-16 -left-16 w-[36rem] h-[36rem] rounded-full bg-emerald-400/90 dark:bg-emerald-500/45 blur-3xl mix-blend-overlay dark:mix-blend-screen saturate-200 brightness-160 dark:saturate-100 dark:brightness-90 animate-blob-1"
+      >
+      </div>
       <!-- Bottom right -->
-      <div class="absolute -bottom-20 -right-10 w-[40rem] h-[40rem] rounded-full bg-cyan-400/90 dark:bg-cyan-500/45 blur-3xl mix-blend-overlay dark:mix-blend-screen saturate-200 brightness-160 dark:saturate-100 dark:brightness-90 animate-blob-2"></div>
+      <div
+        class="absolute -bottom-20 -right-10 w-[40rem] h-[40rem] rounded-full bg-cyan-400/90 dark:bg-cyan-500/45 blur-3xl mix-blend-overlay dark:mix-blend-screen saturate-200 brightness-160 dark:saturate-100 dark:brightness-90 animate-blob-2"
+      >
+      </div>
       <!-- Center -->
-      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[28rem] h-[28rem] rounded-full bg-purple-400/80 dark:bg-purple-500/40 blur-3xl mix-blend-overlay dark:mix-blend-screen saturate-200 brightness-160 dark:saturate-100 dark:brightness-90 animate-blob-3"></div>
+      <div
+        class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[28rem] h-[28rem] rounded-full bg-purple-400/80 dark:bg-purple-500/40 blur-3xl mix-blend-overlay dark:mix-blend-screen saturate-200 brightness-160 dark:saturate-100 dark:brightness-90 animate-blob-3"
+      >
+      </div>
       <!-- Bottom fade to content background -->
       <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-full h-64 bg-transparent"></div>
     </div>
@@ -92,60 +121,135 @@ export const prerender = false;
   <section class="py-16 md:py-24 allow-section-bg bg-white dark:bg-gray-900">
     <div class="container mx-auto px-4">
       <div class="text-center mb-16">
-        <h2 class="text-4xl font-bold text-gray-900 dark:text-white mb-4" data-aos="fade-up" data-aos-duration="650">
+        <h2
+          class="text-4xl font-bold text-gray-900 dark:text-white mb-4"
+          data-aos="fade-up"
+          data-aos-duration="650"
+        >
           {t('pages.home.features.heading')}
         </h2>
-        <p class="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto" data-aos="fade-up" data-aos-delay="100" data-aos-duration="650">
+        <p
+          class="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto"
+          data-aos="fade-up"
+          data-aos-delay="100"
+          data-aos-duration="650"
+        >
           {t('pages.home.features.subtitle')}
         </p>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
-        <div class="feature-card text-center p-6 bg-gray-50 dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md transition duration-300" data-aos="fade-up" data-aos-duration="600">
-          <Icon name={t('pages.home.features.feature1.icon')} class="w-12 h-12 text-emerald-500 mb-4 inline-block" ariaLabel={t('pages.home.features.feature1.title')} />
-          <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">{t('pages.home.features.feature1.title')}</h3>
-          <p class="text-gray-600 dark:text-gray-300">{t('pages.home.features.feature1.description')}</p>
+        <div
+          class="feature-card text-center p-6 bg-gray-50 dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md transition duration-300"
+          data-aos="fade-up"
+          data-aos-duration="600"
+        >
+          <Icon
+            name={t('pages.home.features.feature1.icon')}
+            class="w-12 h-12 text-emerald-500 mb-4 inline-block"
+            ariaLabel={t('pages.home.features.feature1.title')}
+          />
+          <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">
+            {t('pages.home.features.feature1.title')}
+          </h3>
+          <p class="text-gray-600 dark:text-gray-300">
+            {t('pages.home.features.feature1.description')}
+          </p>
         </div>
-        <div class="feature-card text-center p-6 bg-gray-50 dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md transition duration-300" data-aos="fade-up" data-aos-delay="100" data-aos-duration="600">
-          <Icon name={t('pages.home.features.feature2.icon')} class="w-12 h-12 text-emerald-500 mb-4 inline-block" ariaLabel={t('pages.home.features.feature2.title')} />
-          <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">{t('pages.home.features.feature2.title')}</h3>
-          <p class="text-gray-600 dark:text-gray-300">{t('pages.home.features.feature2.description')}</p>
+        <div
+          class="feature-card text-center p-6 bg-gray-50 dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md transition duration-300"
+          data-aos="fade-up"
+          data-aos-delay="100"
+          data-aos-duration="600"
+        >
+          <Icon
+            name={t('pages.home.features.feature2.icon')}
+            class="w-12 h-12 text-emerald-500 mb-4 inline-block"
+            ariaLabel={t('pages.home.features.feature2.title')}
+          />
+          <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">
+            {t('pages.home.features.feature2.title')}
+          </h3>
+          <p class="text-gray-600 dark:text-gray-300">
+            {t('pages.home.features.feature2.description')}
+          </p>
         </div>
-        <div class="feature-card text-center p-6 bg-gray-50 dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md transition duration-300" data-aos="fade-up" data-aos-delay="200" data-aos-duration="600">
-          <Icon name={t('pages.home.features.feature3.icon')} class="w-12 h-12 text-emerald-500 mb-4 inline-block" ariaLabel={t('pages.home.features.feature3.title')} />
-          <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">{t('pages.home.features.feature3.title')}</h3>
-          <p class="text-gray-600 dark:text-gray-300">{t('pages.home.features.feature3.description')}</p>
+        <div
+          class="feature-card text-center p-6 bg-gray-50 dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md transition duration-300"
+          data-aos="fade-up"
+          data-aos-delay="200"
+          data-aos-duration="600"
+        >
+          <Icon
+            name={t('pages.home.features.feature3.icon')}
+            class="w-12 h-12 text-emerald-500 mb-4 inline-block"
+            ariaLabel={t('pages.home.features.feature3.title')}
+          />
+          <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">
+            {t('pages.home.features.feature3.title')}
+          </h3>
+          <p class="text-gray-600 dark:text-gray-300">
+            {t('pages.home.features.feature3.description')}
+          </p>
         </div>
       </div>
     </div>
   </section>
 
   <!-- Testimonials Section -->
-<section class="py-16 md:py-24 allow-section-bg bg-gradient-to-br from-emerald-50 to-cyan-50 dark:from-gray-800 dark:to-gray-900">
-  <div class="container mx-auto px-4">
-    <div class="text-center mb-16">
-      <h2 class="text-4xl font-bold text-gray-900 dark:text-white mb-4" data-aos="fade-up" data-aos-duration="650">
-        {t('pages.home.testimonials.heading')}
-      </h2>
-      <p class="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto" data-aos="fade-up" data-aos-delay="100" data-aos-duration="650">
-        {t('pages.home.testimonials.subtitle')}
-      </p>
+  <section
+    class="py-16 md:py-24 allow-section-bg bg-gradient-to-br from-emerald-50 to-cyan-50 dark:from-gray-800 dark:to-gray-900"
+  >
+    <div class="container mx-auto px-4">
+      <div class="text-center mb-16">
+        <h2
+          class="text-4xl font-bold text-gray-900 dark:text-white mb-4"
+          data-aos="fade-up"
+          data-aos-duration="650"
+        >
+          {t('pages.home.testimonials.heading')}
+        </h2>
+        <p
+          class="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto"
+          data-aos="fade-up"
+          data-aos-delay="100"
+          data-aos-duration="650"
+        >
+          {t('pages.home.testimonials.subtitle')}
+        </p>
+      </div>
+      <TestimonialCarousel testimonials={testimonials} interval={6000} />
     </div>
-    <TestimonialCarousel testimonials={testimonials} interval={6000} />
-  </div>
-</section>
+  </section>
 
   <!-- Call to Action Section -->
   {/* Using the CTA component from locales */}
   <section class="py-16 md:py-24">
     <div class="container mx-auto px-4 text-center">
-      <h2 class="text-4xl font-bold text-gray-900 dark:text-white mb-6" data-aos="fade-up" data-aos-duration="650">
+      <h2
+        class="text-4xl font-bold text-gray-900 dark:text-white mb-6"
+        data-aos="fade-up"
+        data-aos-duration="650"
+      >
         {t('cta.headline')}
       </h2>
-      <p class="text-lg text-gray-600 dark:text-gray-300 mb-10 max-w-3xl mx-auto" data-aos="fade-up" data-aos-delay="100" data-aos-duration="650">
+      <p
+        class="text-lg text-gray-600 dark:text-gray-300 mb-10 max-w-3xl mx-auto"
+        data-aos="fade-up"
+        data-aos-delay="100"
+        data-aos-duration="650"
+      >
         {t('cta.subtitle')}
       </p>
-      <div class="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4" data-aos="fade-up" data-aos-delay="200" data-aos-duration="650">
-        <a href={localizePath(locale, '/register')} class="inline-flex items-center px-10 py-5 rounded-xl font-bold text-white bg-gradient-to-r from-primary to-secondary hover:from-primary-dark hover:to-secondary-dark shadow-lg hover:shadow-xl transition duration-300 text-lg focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:outline-none">
+      <div
+        class="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4"
+        data-aos="fade-up"
+        data-aos-delay="200"
+        data-aos-duration="650"
+      >
+        <a
+          href={localizePath(locale, '/register')}
+          class="inline-flex items-center px-10 py-5 rounded-xl font-bold text-white bg-gradient-to-r from-primary to-secondary hover:from-primary-dark hover:to-secondary-dark shadow-lg hover:shadow-xl transition duration-300 text-lg focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:outline-none"
+        >
           {t('cta.button_text')}
         </a>
       </div>

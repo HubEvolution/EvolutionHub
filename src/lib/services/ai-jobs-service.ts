@@ -1,4 +1,13 @@
-import { ALLOWED_CONTENT_TYPES, ALLOWED_MODELS, AI_R2_PREFIX, FREE_LIMIT_GUEST, FREE_LIMIT_USER, MAX_UPLOAD_BYTES, type AllowedModel, type OwnerType } from '@/config/ai-image';
+import {
+  ALLOWED_CONTENT_TYPES,
+  ALLOWED_MODELS,
+  AI_R2_PREFIX,
+  FREE_LIMIT_GUEST,
+  FREE_LIMIT_USER,
+  MAX_UPLOAD_BYTES,
+  type AllowedModel,
+  type OwnerType,
+} from '@/config/ai-image';
 import { detectImageMimeFromBytes } from '@/lib/utils/mime';
 import { AbstractBaseService } from './base-service';
 import { buildProviderError } from './provider-error';
@@ -57,7 +66,12 @@ export interface AiJobResponse {
   status: AiJobStatus;
   provider: 'replicate';
   model: string | null;
-  input?: { key: string; url: string | null; contentType?: string | null; size?: number | null } | null;
+  input?: {
+    key: string;
+    url: string | null;
+    contentType?: string | null;
+    size?: number | null;
+  } | null;
   output?: { key: string; url: string | null } | null;
   error?: string | null;
   createdAt: string;
@@ -104,7 +118,12 @@ export class AiJobsService extends AbstractBaseService {
     return n;
   }
 
-  private async getMonthlyUsage(ownerType: OwnerType, ownerId: string, limit: number, ym: string): Promise<UsageInfo> {
+  private async getMonthlyUsage(
+    ownerType: OwnerType,
+    ownerId: string,
+    limit: number,
+    ym: string
+  ): Promise<UsageInfo> {
     const kv = this.env.KV_AI_ENHANCER;
     if (!kv) return { used: 0, limit, resetAt: null };
     const key = this.monthlyUsageKey(ownerType, ownerId, ym);
@@ -119,7 +138,12 @@ export class AiJobsService extends AbstractBaseService {
     }
   }
 
-  private async incrementMonthlyUsage(ownerType: OwnerType, ownerId: string, limit: number, ym: string): Promise<UsageInfo> {
+  private async incrementMonthlyUsage(
+    ownerType: OwnerType,
+    ownerId: string,
+    limit: number,
+    ym: string
+  ): Promise<UsageInfo> {
     const kv = this.env.KV_AI_ENHANCER;
     if (!kv) return { used: 0, limit, resetAt: null };
     const key = this.monthlyUsageKey(ownerType, ownerId, ym);
@@ -156,10 +180,16 @@ export class AiJobsService extends AbstractBaseService {
     }
 
     // Quota checks (monthly first, then daily) — no increment yet
-    const dailyLimit = typeof params.limitOverride === 'number'
-      ? params.limitOverride
-      : (ownerType === 'user' ? FREE_LIMIT_USER : FREE_LIMIT_GUEST);
-    const monthlyLimit = typeof params.monthlyLimitOverride === 'number' ? params.monthlyLimitOverride : Number.POSITIVE_INFINITY;
+    const dailyLimit =
+      typeof params.limitOverride === 'number'
+        ? params.limitOverride
+        : ownerType === 'user'
+          ? FREE_LIMIT_USER
+          : FREE_LIMIT_GUEST;
+    const monthlyLimit =
+      typeof params.monthlyLimitOverride === 'number'
+        ? params.monthlyLimitOverride
+        : Number.POSITIVE_INFINITY;
 
     const now = new Date();
     const ym = `${now.getUTCFullYear()}${String(now.getUTCMonth() + 1).padStart(2, '0')}`;
@@ -171,18 +201,25 @@ export class AiJobsService extends AbstractBaseService {
         if (credits > 0) {
           try {
             const masked = ownerId ? `…${ownerId.slice(-4)}(${ownerId.length})` : '';
-            this.log.debug('credits_path_allowed_queue', { action: 'credits_path_allowed_queue', metadata: { ownerType, ownerId: masked, credits } });
+            this.log.debug('credits_path_allowed_queue', {
+              action: 'credits_path_allowed_queue',
+              metadata: { ownerType, ownerId: masked, credits },
+            });
           } catch {
             // Ignore logging failures
           }
         } else {
-          const errM = new Error(`Monthly quota exceeded. Used ${monthly.used}/${monthly.limit}`) as Error & { code?: string; details?: unknown };
+          const errM = new Error(
+            `Monthly quota exceeded. Used ${monthly.used}/${monthly.limit}`
+          ) as Error & { code?: string; details?: unknown };
           errM.code = 'quota_exceeded';
           errM.details = { scope: 'monthly', ...monthly };
           throw errM;
         }
       } else {
-        const errM = new Error(`Monthly quota exceeded. Used ${monthly.used}/${monthly.limit}`) as Error & { code?: string; details?: unknown };
+        const errM = new Error(
+          `Monthly quota exceeded. Used ${monthly.used}/${monthly.limit}`
+        ) as Error & { code?: string; details?: unknown };
         errM.code = 'quota_exceeded';
         errM.details = { scope: 'monthly', ...monthly };
         throw errM;
@@ -193,7 +230,8 @@ export class AiJobsService extends AbstractBaseService {
     if (currentUsage.used >= currentUsage.limit) {
       const resetInfo = currentUsage.resetAt ? new Date(currentUsage.resetAt).toISOString() : null;
       const err: any = new Error(
-        `Quota exceeded. Used ${currentUsage.used}/${currentUsage.limit}` + (resetInfo ? `, resets at ${resetInfo}` : '')
+        `Quota exceeded. Used ${currentUsage.used}/${currentUsage.limit}` +
+          (resetInfo ? `, resets at ${resetInfo}` : '')
       );
       err.code = 'quota_exceeded';
       err.details = { scope: 'daily', ...currentUsage };
@@ -225,7 +263,7 @@ export class AiJobsService extends AbstractBaseService {
         )
         .bind(
           id,
-          ownerType === 'user' ? (userId || ownerId) : null,
+          ownerType === 'user' ? userId || ownerId : null,
           ownerType,
           ownerId,
           'replicate',
@@ -249,7 +287,7 @@ export class AiJobsService extends AbstractBaseService {
       error: null,
       createdAt: nowIso,
       updatedAt: nowIso,
-      usage: currentUsage
+      usage: currentUsage,
     };
   }
 
@@ -298,7 +336,9 @@ export class AiJobsService extends AbstractBaseService {
     if (row.status === 'queued') {
       await this.safeDbOperation(async () => {
         await this.db
-          .prepare(`UPDATE ai_jobs SET status = 'processing', updated_at = CURRENT_TIMESTAMP WHERE id = ?`)
+          .prepare(
+            `UPDATE ai_jobs SET status = 'processing', updated_at = CURRENT_TIMESTAMP WHERE id = ?`
+          )
           .bind(row.id)
           .run();
       });
@@ -308,7 +348,9 @@ export class AiJobsService extends AbstractBaseService {
     if (row.status === 'processing') {
       try {
         // call provider using input URL
-        const inputUrl = row.input_r2_key ? this.buildPublicUrl(requestOrigin, row.input_r2_key) : null;
+        const inputUrl = row.input_r2_key
+          ? this.buildPublicUrl(requestOrigin, row.input_r2_key)
+          : null;
         if (!inputUrl) throw new Error('Missing input');
         const model = this.getAllowedModel(row.model || '');
         if (!model) throw new Error('Unsupported model');
@@ -334,13 +376,19 @@ export class AiJobsService extends AbstractBaseService {
         });
 
         // Increment usage upon success (daily always), monthly or credits depending on plan state
-        const limit = typeof params.limitOverride === 'number'
-          ? params.limitOverride
-          : (ownerType === 'user' ? FREE_LIMIT_USER : FREE_LIMIT_GUEST);
+        const limit =
+          typeof params.limitOverride === 'number'
+            ? params.limitOverride
+            : ownerType === 'user'
+              ? FREE_LIMIT_USER
+              : FREE_LIMIT_GUEST;
         const usage = await this.incrementUsage(ownerType, ownerId, limit);
         const now2 = new Date();
         const ym2 = `${now2.getUTCFullYear()}${String(now2.getUTCMonth() + 1).padStart(2, '0')}`;
-        const monthlyLimit2 = typeof params.monthlyLimitOverride === 'number' ? params.monthlyLimitOverride : Number.POSITIVE_INFINITY;
+        const monthlyLimit2 =
+          typeof params.monthlyLimitOverride === 'number'
+            ? params.monthlyLimitOverride
+            : Number.POSITIVE_INFINITY;
         const monthly2 = await this.getMonthlyUsage(ownerType, ownerId, monthlyLimit2, ym2);
         if (monthly2.used >= monthly2.limit) {
           if (ownerType === 'user') {
@@ -349,14 +397,20 @@ export class AiJobsService extends AbstractBaseService {
               await this.decrementCreditsBalance(ownerId);
               try {
                 const masked = ownerId ? `…${ownerId.slice(-4)}(${ownerId.length})` : '';
-                this.log.info('credits_consumed', { action: 'credits_consumed', metadata: { jobId: row.id, ownerId: masked, remaining: credits - 1 } });
+                this.log.info('credits_consumed', {
+                  action: 'credits_consumed',
+                  metadata: { jobId: row.id, ownerId: masked, remaining: credits - 1 },
+                });
               } catch {
                 // Ignore logging failures
               }
             } else {
               try {
                 const masked = ownerId ? `…${ownerId.slice(-4)}(${ownerId.length})` : '';
-                this.log.warn('credits_missing', { action: 'credits_missing', metadata: { jobId: row.id, ownerId: masked } });
+                this.log.warn('credits_missing', {
+                  action: 'credits_missing',
+                  metadata: { jobId: row.id, ownerId: masked },
+                });
               } catch {
                 // Ignore logging failures
               }
@@ -428,7 +482,9 @@ export class AiJobsService extends AbstractBaseService {
     if (row.status === 'queued' || row.status === 'processing') {
       await this.safeDbOperation(async () => {
         await this.db
-          .prepare(`UPDATE ai_jobs SET status = 'canceled', updated_at = CURRENT_TIMESTAMP WHERE id = ?`)
+          .prepare(
+            `UPDATE ai_jobs SET status = 'canceled', updated_at = CURRENT_TIMESTAMP WHERE id = ?`
+          )
           .bind(row.id)
           .run();
       });
@@ -447,7 +503,7 @@ export class AiJobsService extends AbstractBaseService {
     const i = name.lastIndexOf('.');
     if (i === -1) return null;
     return name.slice(i + 1).toLowerCase();
-    }
+  }
 
   private extFromContentType(ct: string): string | null {
     if (!ct) return null;
@@ -462,7 +518,9 @@ export class AiJobsService extends AbstractBaseService {
     return `${origin.replace(/\/$/, '')}/r2-ai/${encodeURI(key)}`;
   }
 
-  private async fetchBinary(url: string): Promise<{ arrayBuffer: ArrayBuffer; contentType: string }> {
+  private async fetchBinary(
+    url: string
+  ): Promise<{ arrayBuffer: ArrayBuffer; contentType: string }> {
     const res = await fetch(url);
     if (!res.ok) throw new Error(`Failed to fetch output: ${res.status}`);
     const ct = res.headers.get('content-type') || 'application/octet-stream';
@@ -488,13 +546,19 @@ export class AiJobsService extends AbstractBaseService {
     });
 
     const durationMs = Date.now() - started;
-    this.log.debug('replicate_duration_ms', { action: 'replicate_duration_ms', metadata: { model: model.slug, ms: durationMs } });
+    this.log.debug('replicate_duration_ms', {
+      action: 'replicate_duration_ms',
+      metadata: { model: model.slug, ms: durationMs },
+    });
 
     if (!res.ok) {
       const status = res.status;
       const text = await res.text();
       const err = buildProviderError(status, 'replicate', text);
-      this.log.warn('replicate_error', { action: 'replicate_error', metadata: { status, provider: 'replicate', snippet: text.slice(0, 200) } });
+      this.log.warn('replicate_error', {
+        action: 'replicate_error',
+        metadata: { status, provider: 'replicate', snippet: text.slice(0, 200) },
+      });
       throw err;
     }
 
@@ -531,7 +595,11 @@ export class AiJobsService extends AbstractBaseService {
     }
   }
 
-  private async incrementUsage(ownerType: OwnerType, ownerId: string, limit: number): Promise<UsageInfo> {
+  private async incrementUsage(
+    ownerType: OwnerType,
+    ownerId: string,
+    limit: number
+  ): Promise<UsageInfo> {
     const kv = this.env.KV_AI_ENHANCER;
     if (!kv) return { used: 0, limit, resetAt: null };
 
@@ -592,13 +660,13 @@ export class AiJobsService extends AbstractBaseService {
             key: row.input_r2_key,
             url: this.buildPublicUrl(origin, row.input_r2_key),
             contentType: row.input_content_type || null,
-            size: row.input_size ?? null
+            size: row.input_size ?? null,
           }
         : null,
       output: row.output_r2_key
         ? {
             key: row.output_r2_key,
-            url: this.buildPublicUrl(origin, row.output_r2_key)
+            url: this.buildPublicUrl(origin, row.output_r2_key),
           }
         : null,
       error: row.error_message,

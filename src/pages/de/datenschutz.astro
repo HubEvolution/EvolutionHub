@@ -8,7 +8,9 @@ const t = getI18n(locale);
 
 <BaseLayout title={t('pages.datenschutz.title') ?? 'Datenschutzerklärung'}>
   <!-- Hero Section -->
-  <section class="py-16 md:py-24 bg-gradient-to-br from-primary/5 to-purple-500/5 dark:from-gray-800 dark:to-gray-900">
+  <section
+    class="py-16 md:py-24 bg-gradient-to-br from-primary/5 to-purple-500/5 dark:from-gray-800 dark:to-gray-900"
+  >
     <div class="container mx-auto px-4">
       <div class="max-w-4xl mx-auto text-center">
         <h1 class="text-4xl md:text-5xl font-bold mb-6 text-gray-900 dark:text-white">
@@ -24,96 +26,222 @@ const t = getI18n(locale);
   <!-- Content Section -->
   <section class="py-16 md:py-20 bg-white dark:bg-gray-900">
     <div class="container mx-auto px-4">
-      <div class="max-w-4xl mx-auto prose prose-lg dark:prose-invert prose-headings:text-gray-900 dark:prose-headings:text-white prose-a:text-emerald-600 dark:prose-a:text-emerald-400 hover:prose-a:text-emerald-500 dark:hover:prose-a:text-emerald-300">
+      <div
+        class="max-w-4xl mx-auto prose prose-lg dark:prose-invert prose-headings:text-gray-900 dark:prose-headings:text-white prose-a:text-emerald-600 dark:prose-a:text-emerald-400 hover:prose-a:text-emerald-500 dark:hover:prose-a:text-emerald-300"
+      >
         <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 md:p-10 space-y-6">
           <section>
-            <h2 class="text-2xl font-semibold mb-2">{t('pages.datenschutz.sections.1.title') ?? '1. Verantwortlicher'}</h2>
+            <h2 class="text-2xl font-semibold mb-2">
+              {t('pages.datenschutz.sections.1.title') ?? '1. Verantwortlicher'}
+            </h2>
             <p>
-              {t('pages.datenschutz.sections.1.description') ?? 'Verantwortlich im Sinne der Datenschutz-Grundverordnung (DSGVO) und anderer nationaler Datenschutzgesetze der Mitgliedsstaaten sowie sonstiger datenschutzrechtlicher Bestimmungen ist:'}
+              {
+                t('pages.datenschutz.sections.1.description') ??
+                  'Verantwortlich im Sinne der Datenschutz-Grundverordnung (DSGVO) und anderer nationaler Datenschutzgesetze der Mitgliedsstaaten sowie sonstiger datenschutzrechtlicher Bestimmungen ist:'
+              }
             </p>
             <address class="not-italic mt-2 space-y-1">
-              <p>{t('pages.datenschutz.sections.1.provider.company_name') ?? 'Evolution Hub GmbH'}</p>
-              <p>{t('pages.datenschutz.sections.1.provider.street_address') ?? 'Musterstraße 123'}</p>
+              <p>
+                {t('pages.datenschutz.sections.1.provider.company_name') ?? 'Evolution Hub GmbH'}
+              </p>
+              <p>
+                {t('pages.datenschutz.sections.1.provider.street_address') ?? 'Musterstraße 123'}
+              </p>
               <p>{t('pages.datenschutz.sections.1.provider.city_postal_code') ?? '10115 Berlin'}</p>
               <p>{t('pages.datenschutz.sections.1.provider.country') ?? 'Deutschland'}</p>
-              <p>{t('pages.datenschutz.sections.1.provider.email_label') ?? 'E-Mail:'} <a href="mailto:datenschutz@evolutionhub.de" class="text-emerald-600 hover:text-emerald-500">{t('pages.datenschutz.sections.1.provider.email') ?? 'datenschutz@evolutionhub.de'}</a></p>
-              <p>{t('pages.datenschutz.sections.1.provider.phone_label') ?? 'Telefon:'} <a href="tel:+493012345678" class="text-emerald-600 hover:text-emerald-500">+49 30 12345678</a></p>
+              <p>
+                {t('pages.datenschutz.sections.1.provider.email_label') ?? 'E-Mail:'}
+                <a
+                  href="mailto:datenschutz@evolutionhub.de"
+                  class="text-emerald-600 hover:text-emerald-500"
+                  >{
+                    t('pages.datenschutz.sections.1.provider.email') ??
+                      'datenschutz@evolutionhub.de'
+                  }</a
+                >
+              </p>
+              <p>
+                {t('pages.datenschutz.sections.1.provider.phone_label') ?? 'Telefon:'}
+                <a href="tel:+493012345678" class="text-emerald-600 hover:text-emerald-500"
+                  >+49 30 12345678</a
+                >
+              </p>
             </address>
           </section>
 
           <section>
-            <h2 class="text-2xl font-semibold mb-2">{t('pages.datenschutz.sections.2.title') ?? '2. Grundlegendes zur Datenverarbeitung'}</h2>
+            <h2 class="text-2xl font-semibold mb-2">
+              {t('pages.datenschutz.sections.2.title') ?? '2. Grundlegendes zur Datenverarbeitung'}
+            </h2>
             <p>
-              {t('pages.datenschutz.sections.2.description') ?? 'Wir verarbeiten personenbezogene Daten unserer Nutzer grundsätzlich nur, soweit dies zur Bereitstellung einer funktionsfähigen Website sowie unserer Inhalte und Leistungen erforderlich ist. Die Verarbeitung personenbezogener Daten unserer Nutzer erfolgt regelmäßig nur nach Einwilligung des Nutzers. Eine Ausnahme gilt in solchen Fällen, in denen eine vorherige Einholung einer Einwilligung aus tatsächlichen Gründen nicht möglich ist und die Verarbeitung der Daten durch gesetzliche Vorschriften gestattet ist.'}
+              {
+                t('pages.datenschutz.sections.2.description') ??
+                  'Wir verarbeiten personenbezogene Daten unserer Nutzer grundsätzlich nur, soweit dies zur Bereitstellung einer funktionsfähigen Website sowie unserer Inhalte und Leistungen erforderlich ist. Die Verarbeitung personenbezogener Daten unserer Nutzer erfolgt regelmäßig nur nach Einwilligung des Nutzers. Eine Ausnahme gilt in solchen Fällen, in denen eine vorherige Einholung einer Einwilligung aus tatsächlichen Gründen nicht möglich ist und die Verarbeitung der Daten durch gesetzliche Vorschriften gestattet ist.'
+              }
             </p>
           </section>
 
           <section>
-            <h2 class="text-2xl font-semibold mb-2">{t('pages.datenschutz.sections.3.title') ?? '3. Bereitstellung der Website und Erstellung von Logfiles'}</h2>
-            <h3 class="text-xl font-semibold mb-1">{t('pages.datenschutz.sections.3.subtitle') ?? 'Beschreibung und Umfang der Datenverarbeitung'}</h3>
+            <h2 class="text-2xl font-semibold mb-2">
+              {
+                t('pages.datenschutz.sections.3.title') ??
+                  '3. Bereitstellung der Website und Erstellung von Logfiles'
+              }
+            </h2>
+            <h3 class="text-xl font-semibold mb-1">
+              {
+                t('pages.datenschutz.sections.3.subtitle') ??
+                  'Beschreibung und Umfang der Datenverarbeitung'
+              }
+            </h3>
             <p>
-              {t('pages.datenschutz.sections.3.paragraph1') ?? 'Bei jedem Aufruf unserer Internetseite erfasst unser System automatisiert Daten und Informationen vom Computersystem des aufrufenden Rechners.'}
+              {
+                t('pages.datenschutz.sections.3.paragraph1') ??
+                  'Bei jedem Aufruf unserer Internetseite erfasst unser System automatisiert Daten und Informationen vom Computersystem des aufrufenden Rechners.'
+              }
             </p>
-            <p>{t('pages.datenschutz.sections.3.list_intro') ?? 'Folgende Daten werden hierbei erhoben:'}</p>
+            <p>
+              {
+                t('pages.datenschutz.sections.3.list_intro') ??
+                  'Folgende Daten werden hierbei erhoben:'
+              }
+            </p>
             <ul class="list-disc list-inside space-y-1">
               <li>{t('pages.datenschutz.sections.3.list_items.0') ?? 'Browsertyp und -version'}</li>
-              <li>{t('pages.datenschutz.sections.3.list_items.1') ?? 'Verwendetes Betriebssystem'}</li>
+              <li>
+                {t('pages.datenschutz.sections.3.list_items.1') ?? 'Verwendetes Betriebssystem'}
+              </li>
               <li>{t('pages.datenschutz.sections.3.list_items.2') ?? 'Referrer URL'}</li>
-              <li>{t('pages.datenschutz.sections.3.list_items.3') ?? 'Hostname des zugreifenden Rechners'}</li>
-              <li>{t('pages.datenschutz.sections.3.list_items.4') ?? 'Uhrzeit der Serveranfrage'}</li>
+              <li>
+                {
+                  t('pages.datenschutz.sections.3.list_items.3') ??
+                    'Hostname des zugreifenden Rechners'
+                }
+              </li>
+              <li>
+                {t('pages.datenschutz.sections.3.list_items.4') ?? 'Uhrzeit der Serveranfrage'}
+              </li>
               <li>{t('pages.datenschutz.sections.3.list_items.5') ?? 'IP-Adresse'}</li>
             </ul>
           </section>
 
           <section>
-            <h2 class="text-2xl font-semibold mb-2">{t('pages.datenschutz.sections.4.title') ?? '4. Cookies'}</h2>
+            <h2 class="text-2xl font-semibold mb-2">
+              {t('pages.datenschutz.sections.4.title') ?? '4. Cookies'}
+            </h2>
             <p>
-              {t('pages.datenschutz.sections.4.description') ?? 'Unsere Webseite verwendet Cookies. Bei Cookies handelt es sich um Textdateien, die im Internetbrowser bzw. vom Internetbrowser auf dem Computersystem des Nutzers gespeichert werden. Ruft ein Nutzer eine Website auf, so kann ein Cookie auf dem Betriebssystem des Nutzers gespeichert werden. Dieser Cookie enthält eine charakteristische Zeichenfolge, die eine eindeutige Identifizierung des Browsers beim erneuten Aufrufen der Website ermöglicht.'}
+              {
+                t('pages.datenschutz.sections.4.description') ??
+                  'Unsere Webseite verwendet Cookies. Bei Cookies handelt es sich um Textdateien, die im Internetbrowser bzw. vom Internetbrowser auf dem Computersystem des Nutzers gespeichert werden. Ruft ein Nutzer eine Website auf, so kann ein Cookie auf dem Betriebssystem des Nutzers gespeichert werden. Dieser Cookie enthält eine charakteristische Zeichenfolge, die eine eindeutige Identifizierung des Browsers beim erneuten Aufrufen der Website ermöglicht.'
+              }
             </p>
           </section>
 
           <section>
-            <h2 class="text-2xl font-semibold mb-2">{t('pages.datenschutz.sections.5.title') ?? '5. Kontaktformular und E-Mail-Kontakt'}</h2>
+            <h2 class="text-2xl font-semibold mb-2">
+              {t('pages.datenschutz.sections.5.title') ?? '5. Kontaktformular und E-Mail-Kontakt'}
+            </h2>
             <p>
-              {t('pages.datenschutz.sections.5.paragraph1') ?? 'Auf unserer Internetseite ist ein Kontaktformular vorhanden, welches für die elektronische Kontaktaufnahme genutzt werden kann. Nimmt ein Nutzer diese Möglichkeit wahr, werden die in der Eingabemaske eingegeben Daten an uns übermittelt und gespeichert.'}
+              {
+                t('pages.datenschutz.sections.5.paragraph1') ??
+                  'Auf unserer Internetseite ist ein Kontaktformular vorhanden, welches für die elektronische Kontaktaufnahme genutzt werden kann. Nimmt ein Nutzer diese Möglichkeit wahr, werden die in der Eingabemaske eingegeben Daten an uns übermittelt und gespeichert.'
+              }
             </p>
             <p>
-              {t('pages.datenschutz.sections.5.paragraph2') ?? 'Alternativ ist eine Kontaktaufnahme über die bereitgestellte E-Mail-Adresse möglich. In diesem Fall werden die mit der E-Mail übermittelten personenbezogenen Daten des Nutzers gespeichert.'}
+              {
+                t('pages.datenschutz.sections.5.paragraph2') ??
+                  'Alternativ ist eine Kontaktaufnahme über die bereitgestellte E-Mail-Adresse möglich. In diesem Fall werden die mit der E-Mail übermittelten personenbezogenen Daten des Nutzers gespeichert.'
+              }
             </p>
           </section>
 
           <section>
-            <h2 class="text-2xl font-semibold mb-2">{t('pages.datenschutz.sections.6.title') ?? '6. Rechte der betroffenen Person'}</h2>
+            <h2 class="text-2xl font-semibold mb-2">
+              {t('pages.datenschutz.sections.6.title') ?? '6. Rechte der betroffenen Person'}
+            </h2>
             <p>{t('pages.datenschutz.sections.6.subtitle') ?? 'Sie haben das Recht:'}</p>
             <ul class="list-disc list-inside space-y-1">
-              <li>{t('pages.datenschutz.sections.6.list_items.0') ?? 'gemäß Art. 15 DSGVO Auskunft über Ihre von uns verarbeiteten personenbezogenen Daten zu verlangen'}</li>
-              <li>{t('pages.datenschutz.sections.6.list_items.1') ?? 'gemäß Art. 16 DSGVO unverzüglich die Berichtigung unrichtiger oder Vervollständigung Ihrer bei uns gespeicherten personenbezogenen Daten zu verlangen'}</li>
-              <li>{t('pages.datenschutz.sections.6.list_items.2') ?? 'gemäß Art. 17 DSGVO die Löschung Ihrer bei uns gespeicherten personenbezogenen Daten zu verlangen'}</li>
-              <li>{t('pages.datenschutz.sections.6.list_items.3') ?? 'gemäß Art. 18 DSGVO die Einschränkung der Verarbeitung Ihrer personenbezogenen Daten zu verlangen'}</li>
-              <li>{t('pages.datenschutz.sections.6.list_items.4') ?? 'gemäß Art. 20 DSGVO Ihre personenbezogenen Daten, die Sie uns bereitgestellt haben, in einem strukturierten, gängigen und maschinenlesbaren Format zu erhalten'}</li>
-              <li>{t('pages.datenschutz.sections.6.list_items.5') ?? 'gemäß Art. 7 Abs. 3 DSGVO Ihre einmal erteilte Einwilligung jederzeit gegenüber uns zu widerrufen'}</li>
-              <li>{t('pages.datenschutz.sections.6.list_items.6') ?? 'gemäß Art. 77 DSGVO sich bei einer Aufsichtsbehörde zu beschweren'}</li>
+              <li>
+                {
+                  t('pages.datenschutz.sections.6.list_items.0') ??
+                    'gemäß Art. 15 DSGVO Auskunft über Ihre von uns verarbeiteten personenbezogenen Daten zu verlangen'
+                }
+              </li>
+              <li>
+                {
+                  t('pages.datenschutz.sections.6.list_items.1') ??
+                    'gemäß Art. 16 DSGVO unverzüglich die Berichtigung unrichtiger oder Vervollständigung Ihrer bei uns gespeicherten personenbezogenen Daten zu verlangen'
+                }
+              </li>
+              <li>
+                {
+                  t('pages.datenschutz.sections.6.list_items.2') ??
+                    'gemäß Art. 17 DSGVO die Löschung Ihrer bei uns gespeicherten personenbezogenen Daten zu verlangen'
+                }
+              </li>
+              <li>
+                {
+                  t('pages.datenschutz.sections.6.list_items.3') ??
+                    'gemäß Art. 18 DSGVO die Einschränkung der Verarbeitung Ihrer personenbezogenen Daten zu verlangen'
+                }
+              </li>
+              <li>
+                {
+                  t('pages.datenschutz.sections.6.list_items.4') ??
+                    'gemäß Art. 20 DSGVO Ihre personenbezogenen Daten, die Sie uns bereitgestellt haben, in einem strukturierten, gängigen und maschinenlesbaren Format zu erhalten'
+                }
+              </li>
+              <li>
+                {
+                  t('pages.datenschutz.sections.6.list_items.5') ??
+                    'gemäß Art. 7 Abs. 3 DSGVO Ihre einmal erteilte Einwilligung jederzeit gegenüber uns zu widerrufen'
+                }
+              </li>
+              <li>
+                {
+                  t('pages.datenschutz.sections.6.list_items.6') ??
+                    'gemäß Art. 77 DSGVO sich bei einer Aufsichtsbehörde zu beschweren'
+                }
+              </li>
             </ul>
           </section>
 
           <section>
-            <h2 class="text-2xl font-semibold mb-2">{t('pages.datenschutz.sections.7.title') ?? '7. Widerspruchsrecht'}</h2>
+            <h2 class="text-2xl font-semibold mb-2">
+              {t('pages.datenschutz.sections.7.title') ?? '7. Widerspruchsrecht'}
+            </h2>
             <p>
-              {t('pages.datenschutz.sections.7.description') ?? 'Sie haben das Recht, aus Gründen, die sich aus Ihrer besonderen Situation ergeben, jederzeit gegen die Verarbeitung Sie betreffender personenbezogener Daten, die aufgrund von Art. 6 Abs. 1 lit. e oder f DSGVO erfolgt, Widerspruch einzulegen.'}
+              {
+                t('pages.datenschutz.sections.7.description') ??
+                  'Sie haben das Recht, aus Gründen, die sich aus Ihrer besonderen Situation ergeben, jederzeit gegen die Verarbeitung Sie betreffender personenbezogener Daten, die aufgrund von Art. 6 Abs. 1 lit. e oder f DSGVO erfolgt, Widerspruch einzulegen.'
+              }
             </p>
           </section>
 
           <section>
-            <h2 class="text-2xl font-semibold mb-2">{t('pages.datenschutz.sections.8.title') ?? '8. Datensicherheit'}</h2>
+            <h2 class="text-2xl font-semibold mb-2">
+              {t('pages.datenschutz.sections.8.title') ?? '8. Datensicherheit'}
+            </h2>
             <p>
-              {t('pages.datenschutz.sections.8.description') ?? 'Wir verwenden innerhalb des Website-Besuchs das verbreitete SSL-Verfahren (Secure Socket Layer) in Verbindung mit der jeweils höchsten Verschlüsselungsstufe, die von Ihrem Browser unterstützt wird. In der Regel handelt es sich dabei um eine 256-Bit-Verschlüsselung. Falls Ihr Browser keine 256-Bit-Verschlüsselung unterstützt, greifen wir stattdessen auf 128-Bit v3 Technologie zurück.'}
+              {
+                t('pages.datenschutz.sections.8.description') ??
+                  'Wir verwenden innerhalb des Website-Besuchs das verbreitete SSL-Verfahren (Secure Socket Layer) in Verbindung mit der jeweils höchsten Verschlüsselungsstufe, die von Ihrem Browser unterstützt wird. In der Regel handelt es sich dabei um eine 256-Bit-Verschlüsselung. Falls Ihr Browser keine 256-Bit-Verschlüsselung unterstützt, greifen wir stattdessen auf 128-Bit v3 Technologie zurück.'
+              }
             </p>
           </section>
 
           <section>
-            <h2 class="text-2xl font-semibold mb-2">{t('pages.datenschutz.sections.9.title') ?? '9. Aktualität und Änderung dieser Datenschutzerklärung'}</h2>
+            <h2 class="text-2xl font-semibold mb-2">
+              {
+                t('pages.datenschutz.sections.9.title') ??
+                  '9. Aktualität und Änderung dieser Datenschutzerklärung'
+              }
+            </h2>
             <p>
-              {t('pages.datenschutz.sections.9.description') ?? 'Diese Datenschutzerklärung ist aktuell gültig und hat den Stand Juli 2025. Durch die Weiterentwicklung unserer Website und Angebote darüber oder aufgrund geänderter gesetzlicher beziehungsweise behördlicher Vorgaben kann es notwendig werden, diese Datenschutzerklärung zu ändern.'}
+              {
+                t('pages.datenschutz.sections.9.description') ??
+                  'Diese Datenschutzerklärung ist aktuell gültig und hat den Stand Juli 2025. Durch die Weiterentwicklung unserer Website und Angebote darüber oder aufgrund geänderter gesetzlicher beziehungsweise behördlicher Vorgaben kann es notwendig werden, diese Datenschutzerklärung zu ändern.'
+              }
             </p>
           </section>
         </div>

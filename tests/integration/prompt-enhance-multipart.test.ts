@@ -1,18 +1,17 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'fs';
 import { join } from 'path';
+import { csrfHeaders, TEST_URL } from '../shared/http';
 
-const baseUrl = (process.env.TEST_BASE_URL || 'http://127.0.0.1:8787').replace(/\/$/, '');
 const FIX = (name: string) => join(process.cwd(), 'tests', 'fixtures', name);
 
-function csrfHeaders() {
-  const token = Math.random().toString(16).slice(2);
-  return {
-    'X-CSRF-Token': token,
-    'Cookie': `csrf_token=${token}`,
-    'Origin': baseUrl,
-    'Referer': `${baseUrl}/tools/prompt-enhancer/app`,
-  } as Record<string, string>;
+interface ApiSuccess<T = unknown> {
+  success: true;
+  data: T;
+}
+interface ApiError {
+  success: false;
+  error: { type: string; message?: string; details?: unknown };
 }
 
 describe('POST /api/prompt-enhance (multipart)', () => {
@@ -24,14 +23,18 @@ describe('POST /api/prompt-enhance (multipart)', () => {
     const file = new File([new Uint8Array(pngBuf)], 'tiny.png', { type: 'image/png' });
     form.append('files[]', file);
 
-    const res = await fetch(`${baseUrl}/api/prompt-enhance`, {
+    const res = await fetch(`${TEST_URL}/api/prompt-enhance`, {
       method: 'POST',
-      body: form as any,
-      headers: new Headers(csrfHeaders()),
+      body: form,
+      headers: new Headers({
+        ...csrfHeaders(Math.random().toString(16).slice(2)),
+        Origin: TEST_URL,
+        Referer: `${TEST_URL}/tools/prompt-enhancer/app`,
+      }),
     });
 
     expect(res.status).toBe(200);
-    const json = await res.json();
+    const json = (await res.json()) as ApiSuccess<{ enhancedPrompt: string }>;
     expect(json.success).toBe(true);
     expect(json.data?.enhancedPrompt).toBeTypeOf('string');
   });
@@ -43,14 +46,19 @@ describe('POST /api/prompt-enhance (multipart)', () => {
     const noteBuf = readFileSync(FIX('note.txt'));
     form.append('files[]', new File([new Uint8Array(noteBuf)], 'note.txt', { type: 'text/plain' }));
 
-    const res = await fetch(`${baseUrl}/api/prompt-enhance`, {
+    const token = Math.random().toString(16).slice(2);
+    const res = await fetch(`${TEST_URL}/api/prompt-enhance`, {
       method: 'POST',
-      body: form as any,
-      headers: new Headers(csrfHeaders()),
+      body: form,
+      headers: new Headers({
+        ...csrfHeaders(token),
+        Origin: TEST_URL,
+        Referer: `${TEST_URL}/tools/prompt-enhancer/app`,
+      }),
     });
 
     expect(res.status).toBe(200);
-    const json = await res.json();
+    const json = (await res.json()) as ApiSuccess<unknown>;
     expect(json.success).toBe(true);
   });
 
@@ -61,14 +69,19 @@ describe('POST /api/prompt-enhance (multipart)', () => {
     const bad = new Blob(['abc'], { type: 'application/x-msdownload' });
     form.append('files[]', new File([bad], 'malware.exe', { type: 'application/x-msdownload' }));
 
-    const res = await fetch(`${baseUrl}/api/prompt-enhance`, {
+    const token2 = Math.random().toString(16).slice(2);
+    const res = await fetch(`${TEST_URL}/api/prompt-enhance`, {
       method: 'POST',
-      body: form as any,
-      headers: new Headers(csrfHeaders()),
+      body: form,
+      headers: new Headers({
+        ...csrfHeaders(token2),
+        Origin: TEST_URL,
+        Referer: `${TEST_URL}/tools/prompt-enhancer/app`,
+      }),
     });
 
     expect(res.status).toBeGreaterThanOrEqual(400);
-    const json = await res.json();
+    const json = (await res.json()) as ApiError;
     expect(json.success).toBe(false);
     expect(String(json.error?.type || '')).toMatch(/validation/i);
   });
@@ -80,10 +93,22 @@ describe('POST /api/prompt-enhance (multipart)', () => {
     form.set('text', 'Use PDF content.');
     form.set('mode', 'professional');
     const pdfBuf = readFileSync(FIX('tiny.pdf'));
-    form.append('files[]', new File([new Uint8Array(pdfBuf)], 'tiny.pdf', { type: 'application/pdf' }));
-    const res = await fetch(`${baseUrl}/api/prompt-enhance`, { method: 'POST', body: form as any, headers: new Headers(csrfHeaders()) });
+    form.append(
+      'files[]',
+      new File([new Uint8Array(pdfBuf)], 'tiny.pdf', { type: 'application/pdf' })
+    );
+    const token3 = Math.random().toString(16).slice(2);
+    const res = await fetch(`${TEST_URL}/api/prompt-enhance`, {
+      method: 'POST',
+      body: form,
+      headers: new Headers({
+        ...csrfHeaders(token3),
+        Origin: TEST_URL,
+        Referer: `${TEST_URL}/tools/prompt-enhancer/app`,
+      }),
+    });
     expect(res.status).toBe(200);
-    const json = await res.json();
+    const json = (await res.json()) as ApiSuccess<unknown>;
     expect(json.success).toBe(true);
   });
 });

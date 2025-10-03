@@ -141,10 +141,14 @@ describe('Login API Logger Tests', () => {
     vi.spyOn(authServiceModule, 'createAuthService').mockReturnValue(mockAuthService as any);
 
     // createSecurityLogger so mocken, dass er unseren Mock-Logger zurückgibt
-    createSecurityLoggerSpy = vi.spyOn(loggerFactoryModule.loggerFactory, 'createSecurityLogger').mockReturnValue(mockSecurityLogger);
+    createSecurityLoggerSpy = vi
+      .spyOn(loggerFactoryModule.loggerFactory, 'createSecurityLogger')
+      .mockReturnValue(mockSecurityLogger);
 
     // Spies für weitere Funktionen einrichten
-    standardApiLimiterSpy = vi.spyOn(rateLimiter, 'standardApiLimiter').mockResolvedValue(undefined as any);
+    standardApiLimiterSpy = vi
+      .spyOn(rateLimiter, 'standardApiLimiter')
+      .mockResolvedValue(undefined as any);
   });
 
   describe('Logger-Initialisierung testen', () => {
@@ -196,7 +200,7 @@ describe('Login API Logger Tests', () => {
 
       mockAuthService.login.mockResolvedValue({
         sessionId: mockSessionId,
-        user: mockUser
+        user: mockUser,
       });
 
       await POST(context as any);
@@ -207,7 +211,7 @@ describe('Login API Logger Tests', () => {
         {
           email: 'user@example.com',
           sessionId: mockSessionId,
-          ipAddress: '127.0.0.1'
+          ipAddress: '127.0.0.1',
         },
         expect.objectContaining({
           ipAddress: '127.0.0.1',
@@ -215,7 +219,7 @@ describe('Login API Logger Tests', () => {
           resource: 'auth/login',
           action: 'login_success',
           userId: mockUser.id,
-          sessionId: mockSessionId
+          sessionId: mockSessionId,
         })
       );
     });
@@ -235,7 +239,7 @@ describe('Login API Logger Tests', () => {
       const mockUser = { id: 'user-123', email: 'user@example.com' };
       mockAuthService.login.mockResolvedValue({
         sessionId: 'session-456',
-        user: mockUser
+        user: mockUser,
       });
 
       await POST(context as any);
@@ -244,7 +248,7 @@ describe('Login API Logger Tests', () => {
       expect(mockSecurityLogger.logAuthSuccess).toHaveBeenCalledWith(
         expect.any(Object),
         expect.objectContaining({
-          userAgent: undefined
+          userAgent: undefined,
         })
       );
     });
@@ -265,7 +269,7 @@ describe('Login API Logger Tests', () => {
         {
           email: 'invalid-email',
           reason: 'validation_error',
-          error: expect.stringContaining('validation')
+          error: expect.stringContaining('validation'),
         },
         expect.objectContaining({
           ipAddress: '127.0.0.1',
@@ -273,8 +277,8 @@ describe('Login API Logger Tests', () => {
           resource: 'auth/login',
           action: 'validation_failed',
           metadata: expect.objectContaining({
-            validationError: expect.any(String)
-          })
+            validationError: expect.any(String),
+          }),
         })
       );
     });
@@ -285,9 +289,7 @@ describe('Login API Logger Tests', () => {
         password: 'wrongpassword',
       });
 
-      mockAuthService.login.mockRejectedValue(
-        ServiceError.authentication('Invalid credentials')
-      );
+      mockAuthService.login.mockRejectedValue(ServiceError.authentication('Invalid credentials'));
 
       await POST(context as any);
 
@@ -297,7 +299,7 @@ describe('Login API Logger Tests', () => {
         {
           email: 'user@example.com',
           reason: 'login_error',
-          error: 'Invalid credentials'
+          error: 'Invalid credentials',
         },
         expect.objectContaining({
           ipAddress: '127.0.0.1',
@@ -305,8 +307,8 @@ describe('Login API Logger Tests', () => {
           resource: 'auth/login',
           action: 'login_failed',
           metadata: expect.objectContaining({
-            error: 'Invalid credentials'
-          })
+            error: 'Invalid credentials',
+          }),
         })
       );
     });
@@ -328,7 +330,7 @@ describe('Login API Logger Tests', () => {
         {
           endpoint: '/api/auth/login',
           error: expect.stringContaining('Runtime environment'),
-          statusCode: 500
+          statusCode: 500,
         },
         expect.objectContaining({
           ipAddress: '127.0.0.1',
@@ -336,8 +338,8 @@ describe('Login API Logger Tests', () => {
           resource: 'auth/login',
           action: 'runtime_error',
           metadata: expect.objectContaining({
-            error: expect.stringContaining('Runtime environment')
-          })
+            error: expect.stringContaining('Runtime environment'),
+          }),
         })
       );
     });
@@ -349,10 +351,12 @@ describe('Login API Logger Tests', () => {
       });
 
       // Rate-Limiting simulieren
-      standardApiLimiterSpy.mockResolvedValue(new Response(null, {
-        status: 429,
-        headers: { 'Retry-After': '60' }
-      }) as any);
+      standardApiLimiterSpy.mockResolvedValue(
+        new Response(null, {
+          status: 429,
+          headers: { 'Retry-After': '60' },
+        }) as any
+      );
 
       await POST(context as any);
 
@@ -362,13 +366,13 @@ describe('Login API Logger Tests', () => {
         'RATE_LIMIT_EXCEEDED',
         {
           endpoint: '/api/auth/login',
-          ipAddress: '127.0.0.1'
+          ipAddress: '127.0.0.1',
         },
         expect.objectContaining({
           ipAddress: '127.0.0.1',
           userAgent: 'test-agent',
           resource: 'auth/login',
-          action: 'login_attempt'
+          action: 'login_attempt',
         })
       );
     });
@@ -383,7 +387,7 @@ describe('Login API Logger Tests', () => {
 
       mockAuthService.login.mockResolvedValue({
         sessionId: 'session-123',
-        user: { id: 'user-123', email: 'test@example.com' }
+        user: { id: 'user-123', email: 'test@example.com' },
       });
 
       await POST(context as any);
@@ -407,22 +411,25 @@ describe('Login API Logger Tests', () => {
           setup: () => {
             const context = createMockContext({ email: 'invalid', password: 'test' });
             return { context, expectedAction: 'validation_failed' };
-          }
+          },
         },
         {
           setup: () => {
             const context = createMockContext({ email: 'test@example.com', password: 'correct' });
-            mockAuthService.login.mockResolvedValue({ sessionId: 'session-123', user: { id: 'user-123' } });
+            mockAuthService.login.mockResolvedValue({
+              sessionId: 'session-123',
+              user: { id: 'user-123' },
+            });
             return { context, expectedAction: 'login_success' };
-          }
+          },
         },
         {
           setup: () => {
             const context = createMockContext({ email: 'test@example.com', password: 'wrong' });
             mockAuthService.login.mockRejectedValue(ServiceError.authentication('Invalid'));
             return { context, expectedAction: 'login_failed' };
-          }
-        }
+          },
+        },
       ];
 
       for (const testCase of testCases) {
@@ -436,7 +443,7 @@ describe('Login API Logger Tests', () => {
           ...mockSecurityLogger.logAuthSuccess.mock.calls,
           ...mockSecurityLogger.logAuthFailure.mock.calls,
           ...mockSecurityLogger.logSecurityEvent.mock.calls,
-          ...mockSecurityLogger.logApiError.mock.calls
+          ...mockSecurityLogger.logApiError.mock.calls,
         ];
 
         expect(allLogCalls.length).toBeGreaterThan(0);
@@ -457,7 +464,7 @@ describe('Login API Logger Tests', () => {
 
       mockAuthService.login.mockResolvedValue({
         sessionId: 'session-123',
-        user: { id: 'user-123', email: 'user@example.com' }
+        user: { id: 'user-123', email: 'user@example.com' },
       });
 
       await POST(context as any);

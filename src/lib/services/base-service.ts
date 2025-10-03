@@ -1,6 +1,6 @@
 /**
  * Basis-Service-Implementierung
- * 
+ *
  * Implementiert gemeinsame Funktionalitäten für alle Services,
  * insbesondere Transaktionsmanagement und Fehlerbehandlung.
  */
@@ -24,11 +24,11 @@ export abstract class AbstractBaseService implements BaseService {
 
   /**
    * Führt eine Funktion innerhalb einer Datenbanktransaktion aus
-   * 
+   *
    * @param callback Funktion, die innerhalb der Transaktion ausgeführt werden soll
    * @param options Optionen für die Transaktion
    * @returns Das Ergebnis der ausgeführten Funktion
-   * 
+   *
    * @remarks
    * Da D1 derzeit keine nativen Transaktionen unterstützt, ist diese Implementierung
    * eine Vorbereitung für zukünftige Updates. Aktuell wird einfach die Funktion mit der
@@ -58,11 +58,9 @@ export abstract class AbstractBaseService implements BaseService {
       } else {
         // Andere Fehler in ServiceErrors umwandeln
         console.error(`Database error: ${error instanceof Error ? error.message : String(error)}`);
-        throw new ServiceError(
-          'Ein Datenbankfehler ist aufgetreten',
-          ServiceErrorType.DATABASE,
-          { originalError: this.isDevelopment ? error : undefined }
-        );
+        throw new ServiceError('Ein Datenbankfehler ist aufgetreten', ServiceErrorType.DATABASE, {
+          originalError: this.isDevelopment ? error : undefined,
+        });
       }
     }
   }
@@ -70,7 +68,7 @@ export abstract class AbstractBaseService implements BaseService {
   /**
    * Helper-Methode für sichere Datenbankoperationen
    * Kapselt try/catch und wandelt DB-Fehler in typisierte ServiceErrors um
-   * 
+   *
    * @param operation Die auszuführende Datenbankoperation
    * @returns Das Ergebnis der Operation
    */
@@ -78,12 +76,12 @@ export abstract class AbstractBaseService implements BaseService {
     try {
       return await operation();
     } catch (error) {
-      console.error(`Database operation failed: ${error instanceof Error ? error.message : String(error)}`);
-      throw new ServiceError(
-        'Ein Datenbankfehler ist aufgetreten',
-        ServiceErrorType.DATABASE,
-        { originalError: this.isDevelopment ? error : undefined }
+      console.error(
+        `Database operation failed: ${error instanceof Error ? error.message : String(error)}`
       );
+      throw new ServiceError('Ein Datenbankfehler ist aufgetreten', ServiceErrorType.DATABASE, {
+        originalError: this.isDevelopment ? error : undefined,
+      });
     }
   }
 }

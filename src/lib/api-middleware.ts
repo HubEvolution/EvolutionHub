@@ -41,10 +41,16 @@ export function applySecurityHeaders(response: Response): Response {
   secureResponse.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
 
   // Strict-Transport-Security (with preload to match global middleware)
-  secureResponse.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+  secureResponse.headers.set(
+    'Strict-Transport-Security',
+    'max-age=31536000; includeSubDomains; preload'
+  );
 
   // Permissions-Policy
-  secureResponse.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), interest-cohort=()');
+  secureResponse.headers.set(
+    'Permissions-Policy',
+    'camera=(), microphone=(), geolocation=(), interest-cohort=()'
+  );
 
   return secureResponse;
 }
@@ -60,20 +66,23 @@ export interface ApiHandler {
  * Hilfsfunktion: Erzeugt eine 405-Response im standardisierten Fehlerformat
  * und setzt den Allow-Header entsprechend.
  */
-export function createMethodNotAllowed(allow: string, message: string = 'Method Not Allowed'): Response {
+export function createMethodNotAllowed(
+  allow: string,
+  message: string = 'Method Not Allowed'
+): Response {
   const body = {
     success: false,
     error: {
       type: 'method_not_allowed' as const,
-      message
-    }
+      message,
+    },
   };
   return new Response(JSON.stringify(body), {
     status: errorStatusCodes['method_not_allowed'],
     headers: {
       'Content-Type': 'application/json',
-      'Allow': allow
-    }
+      Allow: allow,
+    },
   });
 }
 
@@ -111,12 +120,15 @@ function extractOriginFromHeaders(request: Request): string | null {
 
 function getEnvAllowedOrigins(context: APIContext): string[] {
   try {
-    const env = (context.locals as unknown as { runtime?: { env?: Record<string, string> } })?.runtime?.env || {};
+    const env =
+      (context.locals as unknown as { runtime?: { env?: Record<string, string> } })?.runtime?.env ||
+      {};
     const raw =
       (env as Record<string, string>)?.ALLOWED_ORIGINS ||
       (env as Record<string, string>)?.ALLOW_ORIGINS ||
       (env as Record<string, string>)?.APP_ORIGIN ||
-      (env as Record<string, string>)?.PUBLIC_APP_ORIGIN || '';
+      (env as Record<string, string>)?.PUBLIC_APP_ORIGIN ||
+      '';
     const list = String(raw)
       .split(',')
       .map((s) => s.trim())
@@ -132,13 +144,18 @@ function getEnvAllowedOrigins(context: APIContext): string[] {
 function resolveAllowedOrigins(context: APIContext, options: ApiMiddlewareOptions): string[] {
   const reqOrigin = normalizeOrigin(new URL(context.request.url).origin);
   const envOrigins = getEnvAllowedOrigins(context);
-  const custom = (options.allowedOrigins || []).map((o) => normalizeOrigin(o)).filter((o): o is string => !!o);
+  const custom = (options.allowedOrigins || [])
+    .map((o) => normalizeOrigin(o))
+    .filter((o): o is string => !!o);
   // Immer die aktuelle Origin erlauben
   const base = new Set<string>([...(reqOrigin ? [reqOrigin] : []), ...envOrigins, ...custom]);
   return Array.from(base);
 }
 
-function validateCsrfAndOrigin(context: APIContext, options: ApiMiddlewareOptions): Response | null {
+function validateCsrfAndOrigin(
+  context: APIContext,
+  options: ApiMiddlewareOptions
+): Response | null {
   const method = context.request.method.toUpperCase();
   const requireSame = options.requireSameOriginForUnsafeMethods !== false; // default true
   if (!UNSAFE_METHODS.has(method)) return null;
@@ -152,12 +169,16 @@ function validateCsrfAndOrigin(context: APIContext, options: ApiMiddlewareOption
     if (!allowedOrigins.includes(headerOrigin)) {
       const logger = loggerFactory.createSecurityLogger();
       const path = new URL(context.request.url).pathname;
-      logger.logSecurityEvent('SUSPICIOUS_ACTIVITY', {
-        reason: 'csrf_origin_rejected',
-        endpoint: path,
-        origin: headerOrigin,
-        allowedOrigins
-      }, { ipAddress: context.clientAddress || 'unknown' });
+      logger.logSecurityEvent(
+        'SUSPICIOUS_ACTIVITY',
+        {
+          reason: 'csrf_origin_rejected',
+          endpoint: path,
+          origin: headerOrigin,
+          allowedOrigins,
+        },
+        { ipAddress: context.clientAddress || 'unknown' }
+      );
       return createApiError('forbidden', 'Origin not allowed');
     }
   }
@@ -174,12 +195,16 @@ function validateCsrfAndOrigin(context: APIContext, options: ApiMiddlewareOption
     if (!headerToken || !cookieToken || headerToken !== cookieToken) {
       const path = new URL(context.request.url).pathname;
       const logger = loggerFactory.createSecurityLogger();
-      logger.logSecurityEvent('SUSPICIOUS_ACTIVITY', {
-        reason: 'csrf_token_mismatch',
-        endpoint: path,
-        hasHeader: !!headerToken,
-        hasCookie: !!cookieToken
-      }, { ipAddress: context.clientAddress || 'unknown' });
+      logger.logSecurityEvent(
+        'SUSPICIOUS_ACTIVITY',
+        {
+          reason: 'csrf_token_mismatch',
+          endpoint: path,
+          hasHeader: !!headerToken,
+          hasCookie: !!cookieToken,
+        },
+        { ipAddress: context.clientAddress || 'unknown' }
+      );
       return createApiError('forbidden', 'Invalid CSRF token');
     }
   }
@@ -246,7 +271,7 @@ const errorMessages: Record<ApiErrorType, string> = {
   server_error: 'Interner Serverfehler',
   db_error: 'Datenbankfehler',
   forbidden: 'Zugriff verweigert',
-  method_not_allowed: 'Methode nicht erlaubt'
+  method_not_allowed: 'Methode nicht erlaubt',
 };
 
 /**
@@ -260,7 +285,7 @@ const errorStatusCodes: Record<ApiErrorType, number> = {
   server_error: 500,
   db_error: 500,
   forbidden: 403,
-  method_not_allowed: 405
+  method_not_allowed: 405,
 };
 
 /**
@@ -279,35 +304,32 @@ export function createApiError(
     error: {
       type,
       message: errorMessage,
-      ...(details ? { details } : {})
-    }
+      ...(details ? { details } : {}),
+    },
   };
 
   return new Response(JSON.stringify(responseBody), {
     status,
     headers: {
-      'Content-Type': 'application/json'
-    }
+      'Content-Type': 'application/json',
+    },
   });
 }
 
 /**
  * Erstellt eine standardisierte Erfolgsantwort
  */
-export function createApiSuccess<T>(
-  data: T,
-  status: number = 200
-): Response {
+export function createApiSuccess<T>(data: T, status: number = 200): Response {
   const responseBody = {
     success: true,
-    data
+    data,
   };
 
   return new Response(JSON.stringify(responseBody), {
     status,
     headers: {
-      'Content-Type': 'application/json'
-    }
+      'Content-Type': 'application/json',
+    },
   });
 }
 
@@ -319,10 +341,16 @@ export function createApiSuccess<T>(
  * - Einheitliche Fehlerbehandlung
  * - Zentralisiertes Logging
  */
-export function withApiMiddleware(handler: ApiHandler, options: ApiMiddlewareOptions = {}): ApiHandler {
+export function withApiMiddleware(
+  handler: ApiHandler,
+  options: ApiMiddlewareOptions = {}
+): ApiHandler {
   return async (context: APIContext) => {
     const { clientAddress, request, locals } = context;
-    const localsWithUser = locals as { user?: { id?: string; sub?: string }; runtime?: { user?: { id?: string; sub?: string } } };
+    const localsWithUser = locals as {
+      user?: { id?: string; sub?: string };
+      runtime?: { user?: { id?: string; sub?: string } };
+    };
     const user = localsWithUser.user || localsWithUser.runtime?.user;
     const path = new URL(request.url).pathname;
     const method = request.method;
@@ -333,7 +361,11 @@ export function withApiMiddleware(handler: ApiHandler, options: ApiMiddlewareOpt
       const rateLimitResult: unknown = await limiter(context);
       // Tolerant gegenüber unterschiedlichen Rückgabeformen
       const resultObj = rateLimitResult as { success?: boolean };
-      if (rateLimitResult && typeof resultObj.success === 'boolean' && resultObj.success === false) {
+      if (
+        rateLimitResult &&
+        typeof resultObj.success === 'boolean' &&
+        resultObj.success === false
+      ) {
         return applySecurityHeaders(
           createApiError('rate_limit', 'Zu viele Anfragen. Bitte versuchen Sie es später erneut.')
         );
@@ -351,14 +383,17 @@ export function withApiMiddleware(handler: ApiHandler, options: ApiMiddlewareOpt
 
       // API-Zugriff protokollieren (vor Ausführung)
       if (!options.disableAutoLogging) {
-        securityLogger.logApiAccess({
-          endpoint: path,
-          method,
-          ...options.logMetadata
-        }, {
-          userId: (user?.id as string) || (user?.sub as string) || 'anonymous',
-          ipAddress: clientAddress || 'unknown'
-        });
+        securityLogger.logApiAccess(
+          {
+            endpoint: path,
+            method,
+            ...options.logMetadata,
+          },
+          {
+            userId: (user?.id as string) || (user?.sub as string) || 'anonymous',
+            ipAddress: clientAddress || 'unknown',
+          }
+        );
       }
 
       // Handler ausführen
@@ -382,16 +417,19 @@ export function withApiMiddleware(handler: ApiHandler, options: ApiMiddlewareOpt
       // Fehler loggen
       const errorStack = error instanceof Error ? error.stack : undefined;
 
-      securityLogger.logApiError({
-        endpoint: path,
-        method,
-        error: errorMessage,
-        stack: errorStack,
-        ...options.logMetadata
-      }, {
-        userId: (user?.id as string) || (user?.sub as string) || 'anonymous',
-        ipAddress: clientAddress || 'unknown'
-      });
+      securityLogger.logApiError(
+        {
+          endpoint: path,
+          method,
+          error: errorMessage,
+          stack: errorStack,
+          ...options.logMetadata,
+        },
+        {
+          userId: (user?.id as string) || (user?.sub as string) || 'anonymous',
+          ipAddress: clientAddress || 'unknown',
+        }
+      );
 
       // Falls ein Endpoint einen typisierten Fehler wirft (z. B. aus Services)
       // mit einem expliziten apiErrorType, diesen bevorzugt verwenden.
@@ -438,18 +476,21 @@ export function withAuthApiMiddleware(
       const hasUser = Boolean(localsWithUser.user || localsWithUser.runtime?.user);
       if (!hasUser) {
         // Auth-Fehlschlag protokollieren und vereinheitlichte Antwort zurückgeben
-        securityLogger.logAuthFailure({
-          reason: 'unauthenticated_access',
-          endpoint: path
-        }, {
-          ipAddress: context.clientAddress || 'unknown'
-        });
+        securityLogger.logAuthFailure(
+          {
+            reason: 'unauthenticated_access',
+            endpoint: path,
+          },
+          {
+            ipAddress: context.clientAddress || 'unknown',
+          }
+        );
         if (options.onUnauthorized) {
           return options.onUnauthorized(context);
         }
         return new Response(JSON.stringify({ error: 'Unauthorized' }), {
           status: 401,
-          headers: { 'Content-Type': 'application/json' }
+          headers: { 'Content-Type': 'application/json' },
         });
       }
 
@@ -490,15 +531,18 @@ export function withRedirectMiddleware(
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       const errorStack = error instanceof Error ? error.stack : undefined;
-      securityLogger.logApiError({
-        endpoint: path,
-        method,
-        error: errorMessage,
-        stack: errorStack,
-        ...options.logMetadata
-      }, {
-        ipAddress: context.clientAddress || 'unknown'
-      });
+      securityLogger.logApiError(
+        {
+          endpoint: path,
+          method,
+          error: errorMessage,
+          stack: errorStack,
+          ...options.logMetadata,
+        },
+        {
+          ipAddress: context.clientAddress || 'unknown',
+        }
+      );
 
       if (options.onError) {
         const r = await options.onError(context, error);

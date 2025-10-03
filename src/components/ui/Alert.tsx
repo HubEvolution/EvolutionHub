@@ -13,9 +13,18 @@ const variantMap: Record<AlertVariant, string> = {
   success: 'text-green-700 bg-green-50 dark:text-green-300 dark:bg-green-900/20',
 };
 
-const Alert: React.FC<AlertProps> = ({ variant = 'error', role = 'alert', className = '', ...props }) => {
+const Alert: React.FC<AlertProps> = ({
+  variant = 'error',
+  role = 'alert',
+  className = '',
+  ...props
+}) => {
   return (
-    <div role={role} className={`mt-2 text-sm rounded-md px-3 py-2 ${variantMap[variant]} ${className}`} {...props} />
+    <div
+      role={role}
+      className={`mt-2 text-sm rounded-md px-3 py-2 ${variantMap[variant]} ${className}`}
+      {...props}
+    />
   );
 };
 

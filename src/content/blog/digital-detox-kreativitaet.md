@@ -6,6 +6,7 @@ author: 'Evolution Hub'
 category: 'Mentale Gesundheit'
 tags: ['Digital Detox', 'Achtsamkeit', 'Kreativität', 'Produktivität']
 ---
+
 image: { src: '/src/content/blog/images/digital-detox-focus.webp', width: 1200, height: 675 }
 imageAlt: 'Person meditiert unter Baum, Smartphone wird von Vögeln davongetragen'
 
@@ -33,11 +34,11 @@ Ein Digital Detox ist wie ein Reset-Knopf für unser Gehirn. Wenn wir die extern
 
 Du musst nicht gleich für eine Woche in den Wald ziehen. Schon kleine Veränderungen können eine große Wirkung haben und deine **Kreativität steigern**:
 
-* **Definiere handyfreie Zonen:** Das Schlafzimmer oder der Esstisch sind gute Orte, um zu starten.
-* **Plane feste Offline-Zeiten:** Beginne mit einer Stunde pro Tag und steigere dich langsam.
-* **Deaktiviere unnötige Benachrichtigungen:** Du musst nicht über jedes Like sofort informiert werden.
-* **Nutze die Natur:** Ein Spaziergang im Park ohne Smartphone kann Wunder wirken.
-* **Finde analoge Hobbys:** Lies ein Buch, male, spiele ein Instrument oder schreibe Tagebuch.
+- **Definiere handyfreie Zonen:** Das Schlafzimmer oder der Esstisch sind gute Orte, um zu starten.
+- **Plane feste Offline-Zeiten:** Beginne mit einer Stunde pro Tag und steigere dich langsam.
+- **Deaktiviere unnötige Benachrichtigungen:** Du musst nicht über jedes Like sofort informiert werden.
+- **Nutze die Natur:** Ein Spaziergang im Park ohne Smartphone kann Wunder wirken.
+- **Finde analoge Hobbys:** Lies ein Buch, male, spiele ein Instrument oder schreibe Tagebuch.
 
 ### Dein Weg zu mehr Fokus und Kreativität
 

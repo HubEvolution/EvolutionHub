@@ -5,10 +5,10 @@ import { ActionsGroup } from './ActionsGroup';
 
 /**
  * Props für die EnhancerActions-Komponente im Image Enhancer Tool.
- * 
+ *
  * Diese Komponente kombiniert ModelSelect und ActionsGroup für die Haupt-Aktionsleiste.
  * Unterstützt optionale Slots für benutzerdefinierte Controls und Right-Slot (z.B. UsagePill).
- * 
+ *
  * @interface EnhancerActionsProps
  * @property {string} modelLabel - Label für den Model-Select (z.B. "Model").
  * @property {string} model - Aktueller ausgewählter Model-Slug.
@@ -68,10 +68,10 @@ interface EnhancerActionsProps {
 
 /**
  * EnhancerActions-Komponente für das Image Enhancer Tool.
- * 
+ *
  * Rendert die Haupt-Aktionsleiste mit Model-Auswahl und Button-Gruppe.
  * Unterstützt benutzerdefinierte Slots und bedingte Rendering basierend auf Zuständen.
- * 
+ *
  * @param props Die Props für die Komponente.
  * @returns Die gerenderte Komponente.
  */
@@ -104,7 +104,13 @@ export function EnhancerActions({
       {modelControlsSlot ? (
         modelControlsSlot
       ) : (
-        <ModelSelect id="model" label={modelLabel} value={model} options={models} onChange={onChangeModel} />
+        <ModelSelect
+          id="model"
+          label={modelLabel}
+          value={model}
+          options={models}
+          onChange={onChangeModel}
+        />
       )}
 
       <div className="ml-auto flex flex-wrap items-center gap-2 sm:gap-3 min-w-0">

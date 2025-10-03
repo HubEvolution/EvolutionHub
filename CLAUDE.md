@@ -1,184 +1,414 @@
-# CLAUDE.md — Globale Projektregeln, Policies & Subagents
+# CLAUDE.md — Evolution Hub Project Guide
 
-## Zweck
-
-Dieses Dokument steuert Claude Code (Sonnet 4.5, Pro) bei allen Änderungen in diesem Repository. Ziel: konsistente Code-Qualität, sichere Änderungen und reproduzierbare Deployments.
-
----
-
-## 1) Arbeitsstil & Autonomie
-
-- **Autonomie-Level:** „assistiert-autonom“
-  Plane Schritte, führe kleine bis mittlere Änderungen selbst aus. Frage **immer** nach Bestätigung bei: API-/Schema-Änderungen, Security-relevanten Stellen, DB-Migrations, neuen Abhängigkeiten, CI/Build-Änderungen, Diffs > 300 Zeilen oder > 5 Dateien.
-- **Kontextquellen (lesen bevor du änderst):** `package.json`, `tsconfig.json`, `.eslintrc*`, `.prettierrc*`, `astro.config.*`, `wrangler.toml`, `README.md`, `docs/`, `src/`, `tests/`.
-- **Suchpfade:** `src/`, `tests/`, `docs/`
-- **Excludes:** `dist/`, `node_modules/`, `.wrangler/`, `coverage/`, `.backups/`, `reports/`, `favicon_package/`
-- **Keine Navigation:** niemals `cd`; arbeite im Repo-Root (CWD).
+> **Quick Reference for Claude Code (Sonnet 4.5)**
+> Last Updated: 2025-10-03
 
 ---
 
-## 2) Coding Standards
+## 📋 Projekt-Übersicht
 
-- Einrückung: 2 Leerzeichen für `.astro`, `.ts`, `.tsx`, `.js`
-- Benennung: `camelCase` (Variablen/Funktionen), `PascalCase` (Klassen/Komponenten)
-- TypeScript: `strict`; **kein** `any`. Bevorzuge `interface` statt `type` für Objekte.
-- Funktionen & Methoden: < 50 Zeilen; max. 3 Ebenen Verschachtelung.
-- Zeilenlänge: 80–100 Zeichen.
-- Format/Lint: Prettier & ESLint strikt anwenden.
-- Architektur: Trennung der Zuständigkeiten; modular & wiederverwendbar; Komposition > Vererbung; klare Schichtgrenzen; Server/Client strikt trennen (Astro Islands).
+**Evolution Hub** ist eine moderne Full-Stack-Webanwendung für Developer-Tools mit KI-gestützten Features.
 
----
+### Hauptfeatures
 
-## 3) Security & Compliance (hart)
+- 🖼 **AI Image Enhancer**: KI-Bildverbesserung (Real-ESRGAN, GFPGAN)
+- ✨ **Prompt Enhancer**: Text-zu-Prompt-Optimierung
+- 🛠 **Tool-Sammlung**: Wachsende Bibliothek von Developer-Tools
+- 🔐 **Stytch Auth**: Magic Link Authentifizierung (passwordless)
+- 🌍 **i18n**: Mehrsprachig (DE/EN)
 
-- Niemals Secrets im Code speichern. Nur via ENV (`.env.local`), `.gitignore` schützt.
-- CSP konfigurieren; Cookies `HttpOnly`, `Secure`, `SameSite`.
-- Eingaben bereinigen; HTTPS only; regelmäßige Dependency-Updates.
-- Principle of Least Privilege; Fehlerbehandlung ohne sensitive Details.
-- **Registrierung:** Double-Opt-In; unverifizierte Nutzer erhalten keine Session.
-- **Middleware:** unverifizierte Nutzer per Locale redirect auf `/<locale>/verify-email?email=…`; Logs redakten.
+### Live URLs
+
+- **Production**: [hub-evolution.com](https://hub-evolution.com)
+- **Staging**: staging.hub-evolution.com
+- **Testing/CI**: ci.hub-evolution.com
 
 ---
 
-## 4) API, Middleware & Edge
+## 🛠 Tech Stack
 
-- **API (Hono):** `{ success: boolean, data?: T, error?: { type: string; message: string; details?: unknown } }`
-  Typed `APIContext`, zentrales Error-Handling, Input-Validierung per TS.
-  **429:** `Retry-After` + optional `{ retryAfter: number }`. **405:** standardisiert (z. B. `createMethodNotAllowed`).
-- **Security-Header:** HSTS, COOP, X-Frame-Options; CSP-Nonce für HTML.
-- **Rate-Limits:** `aiGenerate: 15/min`, `auth: 10/min`, `sensitiveAction: 5/h`, `api: 30/min`.
-- **Cloudflare:** D1 via Drizzle (typisiert); R2 Upload/Download mit Fehlerpfaden; KV für Sessions (TTL).
-  Bundle optimieren (Tree-Shaking, Code-Splitting); Graceful-Degradation Offline/Cache.
+### Frontend
 
----
+- **Astro 5** (Insel-Architektur, SSR/SSG)
+- **React 18** (Interactive Islands)
+- **TypeScript 5** (strict mode)
+- **Tailwind CSS 3**
 
-## 5) Feature Flags & Rollout
+### Backend & Infrastructure
 
-- Flags standardmäßig **aus**; pro Environment aktivieren (Dev → Staging → Prod).
-- Client-exponierte Flags **müssen** mit `PUBLIC_` beginnen (z. B. `PUBLIC_ENHANCER_PLAN_GATING_V1`).
-- Rollout: Canary 5–10% → 50% → 100% mit Telemetrie/Monitoring.
-- CI: Smoke-Tests (EN/DE) für kritische Flows.
+- **Cloudflare Workers** (Edge Computing)
+- **Cloudflare D1** (SQL Database)
+- **Cloudflare R2** (Object Storage)
+- **Cloudflare KV** (Key-Value Store)
 
----
+### Testing & Quality
 
-## 6) Testing & CI/CD
-
-- Unit/Integration: Vitest/Jest; Ziel-Coverage ≥ 70% (projektspezifisch).
-- E2E: Playwright; zusätzlich Accessibility (WCAG 2.1 AA), Visual-Regression, Mobile-Responsiveness.
-- Astro: `astro check` in CI; Integration/E2E bevorzugt gegen Cloudflare Dev (Wrangler) via `TEST_BASE_URL`.
-- **CI Gates (alle müssen grün sein):** Lint/Format, TS-Check, Unit/Integration, E2E-Smoke, Security-Scan (`npm audit`/Snyk`).
-- Environments: getrennt Dev/Staging/Prod; **keine** implizite Binding-Vererbung (Wrangler).
-- Deploy: Health-Check; Deployment als fehlgeschlagen markieren, wenn Health-Check scheitert.
+- **Vitest** (Unit/Integration, Coverage ≥70%)
+- **Playwright** (E2E, Chromium/Firefox/WebKit)
+- **ESLint** + **Prettier**
+- **Husky** (Pre-commit Hooks, aktuell deaktiviert)
 
 ---
 
-## 7) Observability & Logging
+## 🏗 Architektur
 
-- Strukturierte JSON-Logs (`debug|info|warn|error`); Request-ID je Request; keine PII.
-- Access-Logs: Methode, Pfad, Status, Dauer, RateLimit-Hits.
-- Client-Telemetrie: PII-frei, konsistente Namespaces (z. B. `enhancer_*`).
-- Stacktraces säubern.
+### Astro Islands Architecture
 
----
+```plain
+src/
+├── pages/          # Routes (Astro/React)
+├── components/     # UI Components
+├── layouts/        # Page Layouts
+├── lib/            # Shared Logic
+├── server/         # Server-only Code
+└── types/          # TypeScript Types
+```
 
-## 8) Edit-Regeln (für alle Agents)
+### API-Layer
 
-- Kleine, fokussierte Patches; Imports oben; strikte Typen; kein `any`.
-- Große Dateien segmentiert lesen (`limit`/`offset`); keine Binär-/Bilddateien öffnen.
-- Nur **lesende** Shell-Befehle automatisch; mutierende Befehle (Install/Migration/Push) **immer bestätigen**.
-- Parallele Schreibvorgänge vermeiden; Lese-Suchen dürfen parallel laufen.
+- **Location**: `src/pages/api/`
+- **Pattern**: Hono-ähnliche Handler-Struktur
+- **Response**: Standardisiertes JSON-Format
 
----
+```typescript
+// Success
+{ success: true, data: T }
 
-## 9) Commit-, Branch- & Release-Konventionen
+// Error
+{
+  success: false,
+  error: {
+    type: string,
+    message: string,
+    details?: unknown
+  }
+}
+```
 
-- Branches: `feature/*`, `bugfix/*`, `hotfix/*`, `release/*`.
-- **Conventional Commits:** `feat: …`, `fix: …`, `chore: …`, `refactor: …`, `test: …`, `docs: …`
-- Commits fokussiert/atomar; Squash wenn sinnvoll; lineare Historie bevorzugt.
-- Tags: SemVer `vMAJOR.MINOR.PATCH`.
-- Changelog pflegen.
+### Service-Layer
 
----
-
-## 10) Doku-Pflichten
-
-- Öffentliche APIs mit TSDoc dokumentieren; Autogen in CI.
-- Architekturentscheidungen (ADR) festhalten.
-- Setup/Install, Beispiele, bekannte Einschränkungen & Workarounds pflegen.
-
----
-
-## 11) Governance
-
-- Regeln quartalsweise prüfen/aktualisieren; Ausnahmen dokumentieren (mit Begründung).
-- Durchsetzung automatisieren (ESLint, Prettier, CI-Gates).
-- Verantwortliche je Kategorie festlegen; Änderungen transparent kommunizieren.
-
----
-
-## 12) Subagents (Profile)
-
-> **Nutzung:** Schreibe z. B. *use `Scout`* im Prompt, um das Profil zu aktivieren.
-> **Gemeinsame Defaults:** Keine Secrets anfassen; keine `cd`; Diffs > 300 Zeilen oder > 5 Dateien nur mit Plan & Review.
-
-### A) **Scout** — Analyse & Planung
-
-- **Ziel:** Verständnis, Impact, Änderungsplan.
-- **Scope:** *read-only* (Code, Configs, Tests, Logs).
-- **Aktionen:** Lesen, Suchen, Summaries; KEINE Schreib-/Install-/Git-Befehle.
-- **Output:** Liste oder Zusammenfassung (statt plan.md).
-- **Gate:** Plan muss bestätigt werden.
-
-### B) **Stylist** — Format, Lint, Hygiene
-
-- **Ziel:** Stil-Konsistenz.
-- **Scope:** Prettier, ESLint-Fixes, tote Imports.
-- **Befehle:** `npm run format`, `npm run lint:fix`.
-- **Beschränkung:** Keine API-/Schema-/Build-Änderungen.
-- **Gate:** Auto-Commit nur wenn Tests grün.
-
-### C) **Type-Medic** — TypeScript-Strenge
-
-- **Ziel:** TS-Fehler beheben, Typen härten.
-- **Scope:** TS-Fehler, Interfaces statt `type`, Rückgabetypen präzisieren.
-- **Befehle:** `npm run typecheck`; gezielte Code-Patches.
-- **Gate:** > 5 Dateien oder > 200 Zeilen Diff → Plan/Approval.
-
-### D) **Test-Fixer** — Tests stabilisieren
-
-- **Ziel:** Tests grün; Flakes reduzieren.
-- **Scope:** Unit/Integration/E2E; Mocks.
-- **Befehle:** `npm test`, `npm run test:e2e`.
-- **Beschränkung:** Produktionscode nur minimal anpassen; größere Refactors → **Refactorist**.
-- **Gate:** Kurzbegründung pro Fix (root cause).
-
-### E) **Refactorist** — Struktur & Lesbarkeit
-
-- **Ziel:** Verständlichkeit/Modularität erhöhen ohne Verhalten zu ändern.
-- **Scope:** Extraktion, Aufteilung großer Dateien, bessere Benennungen.
-- **Beschränkung:** Max 300 Zeilen / 5 Dateien je Lauf; keine API-Kontraktänderungen.
-- **Gate:** Diff-Summary + Motivation; Tests grün.
-
-### F) **Edge-Guardian** — Security & Middleware
-
-- **Ziel:** CSP, Security-Header, Rate-Limits, Auth-Flows.
-- **Scope:** Middleware, Headers, 429/405, Logging (PII-frei).
-- **Gate:** Immer Plan + Review (Security-kritisch).
-
-### G) **CF-Operator** — Cloudflare & Deployability
-
-- **Ziel:** D1/R2/KV-Bindings korrekt; Bundle optimiert; Health-Checks.
-- **Scope:** `wrangler.toml`, ENV-Checks, Dev/Staging/Prod.
-- **Befehle:** Nur Lese-Shell; Deploy-Befehle erst nach Freigabe.
-- **Gate:** Explizite Approval vor Änderungen an `wrangler.toml`/ENV.
+- **Auth Service**: Stytch Magic Link
+- **User Service**: Profil & Settings
+- **Security Services**: Rate-Limiting, Logging, Headers
 
 ---
 
-## 13) Empfohlene Start-Kommandos
+## 🔒 Security & Compliance
 
-1. `summarize repo and key files`
-2. `use "Scout" to propose next 3 tasks`
-3. `use "Stylist" to run eslint and apply safe autofixes`
-4. `use "Type-Medic" to run typecheck and fix strict errors`
-5. `use "Test-Fixer" to run unit tests; fix minimal issues; summarize diffs`
-6. `show diff summary; generate a conventional commit message; commit`
+### Authentifizierung
+
+- **Stytch Magic Link** (kein Passwort)
+- **Session Cookie**: `__Host-session` (HttpOnly, Secure, SameSite=Strict)
+- **Middleware**: Unverifizierte Nutzer → `/[locale]/verify-email?email=...`
+
+### Rate-Limiting
+
+| Scope | Limit | Verwendung |
+|-------|-------|------------|
+| `authLimiter` | 10/min | Auth-Endpunkte |
+| `standardApiLimiter` | 50/min | Normale APIs |
+| `sensitiveActionLimiter` | 5/h | Sensible Aktionen |
+
+### Security Headers
+
+- CSP, HSTS, X-Frame-Options, X-Content-Type-Options
+- COOP, COEP, Referrer-Policy
+
+### Audit-Logging
+
+- **Dev (Astro)**: WebSocket Live-Streaming
+- **Dev (Wrangler)**: SSE Live-Streaming (`/api/debug/logs-stream`)
+- **Production**: Console + Cloudflare Analytics
+
+**Event-Typen**: AUTH_SUCCESS, AUTH_FAILURE, PROFILE_UPDATE, PERMISSION_DENIED, RATE_LIMIT_EXCEEDED, SUSPICIOUS_ACTIVITY, API_ERROR, API_ACCESS
+
+---
+
+## ☁️ Cloudflare Infrastructure
+
+### Environments
+
+| Environment | URL | D1 Database | Purpose |
+|-------------|-----|-------------|---------|
+| **development** | `http://127.0.0.1:8787` | `evolution-hub-main-dev` | Lokal |
+| **testing** | `ci.hub-evolution.com` | `evolution-hub-main-local` | CI/E2E |
+| **staging** | `staging.hub-evolution.com` | `evolution-hub-main-local` | Pre-Prod |
+| **production** | `hub-evolution.com` | `evolution-hub-main` | Live |
+
+### Bindings (pro Environment explizit)
+
+**D1**: `DB`
+**R2**: `R2_AVATARS`, `R2_LEADMAGNETS`, `R2_AI_IMAGES`
+**KV**: `SESSION`, `KV_AI_ENHANCER`
+
+**Wichtig**: Keine implizite Vererbung zwischen Environments - alle Bindings müssen explizit in `wrangler.toml` definiert sein.
+
+---
+
+## 🧪 Testing & Quality
+
+### Test-Struktur
+
+```bash
+tests/
+├── unit/           # Vitest Unit Tests
+├── integration/    # Vitest Integration Tests
+└── e2e/            # Playwright E2E Tests (test-suite-v2/)
+```
+
+### Coverage-Anforderungen
+
+- **Statements**: ≥70%
+- **Branches**: ≥70%
+- **Functions**: ≥70%
+- **Lines**: ≥70%
+
+### CI-Gates (alle müssen grün sein)
+
+1. ✅ **Lint/Format**: ESLint + Prettier
+2. ✅ **TypeScript**: `astro check`
+3. ✅ **Unit/Integration**: Vitest (Coverage ≥70%)
+4. ✅ **E2E Smoke**: Playwright (Enhancer, Pricing, Auth)
+5. ✅ **Security**: `npm audit --audit-level=moderate`
+6. ✅ **OpenAPI**: Schema-Validierung
+
+### Test-Befehle
+
+```bash
+npm test                    # Vitest Watch
+npm run test:once          # Single Run
+npm run test:coverage      # Mit Coverage-Report
+npm run test:e2e           # Playwright E2E
+```
+
+---
+
+## 🚀 CI/CD & Deployment
+
+### Deployment-Flow (Git Tags)
+
+```mermaid
+graph LR
+    A[Git Tag v1.7.1] --> B[Pre-Deploy Gates]
+    B --> C[Deploy Staging]
+    C --> D[Health Check]
+    D --> E[Manual Approval]
+    E --> F[Deploy Production]
+    F --> G[Health Check]
+    G --> H[GitHub Release]
+```
+
+### Deployment-Trigger
+
+1. **Git Tags**: `git tag v1.7.1 && git push origin v1.7.1`
+2. **Manual**: GitHub Actions UI → "Deploy to Cloudflare"
+
+### Health-Check
+
+```bash
+# Endpoint
+GET /api/health
+
+# Response (200 OK)
+{
+  "status": "ok",
+  "services": { "d1": true, "kv": true, "r2": true },
+  "duration": "45ms",
+  "timestamp": "2025-01-15T10:30:00.000Z",
+  "version": "production"
+}
+```
+
+### Rollback-Strategien
+
+```bash
+# Option 1: Cloudflare Rollback
+npx wrangler rollback --env production
+
+# Option 2: Git Tag Rollback
+git checkout v1.7.0
+npx wrangler deploy --env production
+```
+
+---
+
+## 💻 Development Workflow
+
+### Pre-Commit Hooks
+
+**Status**: Deaktiviert (für schnellere Entwicklung)
+**CI/CD**: Bleibt streng (alle Gates aktiv)
+
+### Empfohlener Workflow
+
+**Tägliche Entwicklung:**
+
+```bash
+git add .
+git commit -m "feat: implement new feature"
+npm run lint              # Optional: Grundcheck
+```
+
+**Vor PR-Erstellung:**
+
+```bash
+npm run format            # Auto-Fix
+npm run lint              # Code-Qualität
+npx astro check           # TypeScript
+npm run test:coverage     # Tests + Coverage
+```
+
+**Für Releases:**
+
+```bash
+npm run lint
+npm run format:check
+npx astro check
+npm run test:coverage
+npm audit --audit-level=moderate
+```
+
+### IDE-Integration
+
+- **VS Code**: ESLint + Prettier Extensions
+- **Dev-Config**: `eslint.config.dev.js` (entspannte Regeln)
+- **Strict-Config**: `eslint.config.js` (für CI/CD)
+
+---
+
+## 📐 Coding Standards
+
+### TypeScript
+
+- **strict mode**: Aktiviert
+- **kein `any`**: Immer explizite Typen
+- **Interface > Type**: Für Objekt-Definitionen
+- **Path Aliases**: `@/*`, `@components/*`, `@lib/*`, etc.
+
+### Code-Style
+
+```typescript
+// Einrückung: 2 Leerzeichen
+// Zeilenlänge: max 100 Zeichen
+// Quotes: Single Quotes
+// Semicolons: Ja
+
+// Benennung
+camelCase     // Variablen, Funktionen
+PascalCase    // Klassen, Komponenten
+UPPER_CASE    // Konstanten
+```
+
+### Funktionen
+
+- **Max. Länge**: 50 Zeilen
+- **Max. Verschachtelung**: 3 Ebenen
+- **Single Responsibility**: Eine Funktion = Ein Zweck
+
+### Imports
+
+```typescript
+// Imports immer oben, gruppiert
+import { something } from '@/lib/module';  // ✅
+import something from '~/lib/module';      // ❌ Nicht erlaubt
+```
+
+---
+
+## 🤖 AI Agent Guidelines
+
+### Allgemeine Regeln
+
+- **Autonomie**: Assistiert-autonom (kleine bis mittlere Änderungen)
+- **Bestätigung erforderlich bei**:
+  - API-/Schema-Änderungen
+  - Security-relevanten Stellen
+  - DB-Migrations
+  - Neue Dependencies
+  - CI/Build-Änderungen
+  - Diffs > 300 Zeilen oder > 5 Dateien
+
+### Dateizugriff
+
+- **Read**: Große Dateien segmentiert (`limit`/`offset`)
+- **Write**: Kleine, fokussierte Patches
+- **No Binary**: Keine Binär-/Bilddateien öffnen
+- **Parallelisierung**: Nur Reads parallel, Writes sequentiell
+
+### Terminal-Nutzung
+
+```bash
+# ✅ Erlaubt (automatisch)
+ls, tree, curl, git status, git diff, git log
+npm test, npm run lint, npm run format
+npx prettier, npx astro check
+
+# ⚠️  Bestätigung erforderlich
+npm install, npm audit fix
+git push, wrangler deploy
+npm run build, npm run db:migrate
+```
+
+### Code-Edits
+
+- **Imports**: Immer oben
+- **Typen**: Strikte Typisierung, kein `any`
+- **Diffs**: Kleine, fokussierte Änderungen
+- **Tests**: Bei Logik-Änderungen mitaktualisieren
+
+### Commit-Konventionen
+
+```bash
+# Conventional Commits
+feat:      # Neue Features
+fix:       # Bug-Fixes
+chore:     # Wartung, Dependencies
+refactor:  # Code-Verbesserungen
+test:      # Tests
+docs:      # Dokumentation
+```
+
+### Feature Flags
+
+- **Client-exponiert**: `PUBLIC_*` Prefix erforderlich
+- **Default**: Aus (pro Environment aktivieren)
+- **Rollout**: Canary 5-10% → 50% → 100%
+
+---
+
+## 🔍 Wichtige Hinweise
+
+### Navigation
+
+- **Niemals `cd` verwenden**
+- **CWD**: Immer im Repo-Root bleiben
+- **Pfade**: Absolute Pfade bevorzugen
+
+### Excludes (nicht durchsuchen)
+
+- `dist/`, `node_modules/`, `.wrangler/`
+- `coverage/`, `.backups/`, `reports/`
+- `favicon_package/`
+
+### Suchpfade (bevorzugt)
+
+- `src/`, `tests/`, `docs/`
+
+### Context-Quellen (immer prüfen)
+
+- `package.json`, `tsconfig.json`
+- `eslint.config.js`, `.prettierrc.json`
+- `astro.config.mjs`, `wrangler.toml`
+- `README.md`, `docs/`
+
+---
+
+## 📚 Weitere Ressourcen
+
+- **Setup**: [README.md](README.md)
+- **CI/CD**: [docs/development/ci-cd.md](docs/development/ci-cd.md)
+- **Security**: [docs/SECURITY.md](docs/SECURITY.md)
+- **Architecture**: [docs/architecture/system-overview.md](docs/architecture/system-overview.md)
+- **API Docs**: [docs/api/](docs/api/)
+
+---

@@ -59,7 +59,8 @@ export const POST = async (context: APIContext) => {
     // Minimal, redacted logging (sample first N fields only)
     for (const r of reports) {
       try {
-        const directive = r?.['effective-directive'] || r?.['violated-directive'] || r?.['directive'];
+        const directive =
+          r?.['effective-directive'] || r?.['violated-directive'] || r?.['directive'];
         const blocked = r?.['blocked-uri'] || r?.['blockedURL'] || r?.['blocked'];
         const documentUri = r?.['document-uri'] || r?.['documentURL'] || r?.['url'];
         const disposition = r?.['disposition'];
@@ -69,7 +70,7 @@ export const POST = async (context: APIContext) => {
           document: typeof documentUri === 'string' ? documentUri : String(documentUri || ''),
           disposition: typeof disposition === 'string' ? disposition : String(disposition || ''),
           resource: '/api/csp-report',
-          action: 'csp_violation_logged'
+          action: 'csp_violation_logged',
         });
       } catch {
         // Absichtlich stumm: Logging-Fehler nicht weitergeben

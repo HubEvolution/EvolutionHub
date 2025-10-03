@@ -63,7 +63,11 @@ export function getI18n(locale: Locale): I18nFn {
         const englishValueTranslations = translations.en;
         let fallbackValue: unknown = englishValueTranslations as unknown;
         for (const fk of keys) {
-          if (fallbackValue && typeof fallbackValue === 'object' && fk in (fallbackValue as Record<string, unknown>)) {
+          if (
+            fallbackValue &&
+            typeof fallbackValue === 'object' &&
+            fk in (fallbackValue as Record<string, unknown>)
+          ) {
             fallbackValue = (fallbackValue as Record<string, unknown>)[fk];
           } else {
             // Missing in fallback too

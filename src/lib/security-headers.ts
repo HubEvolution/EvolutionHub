@@ -4,7 +4,7 @@ import { logApiError, logApiAccess } from '@/lib/security-logger';
 
 /**
  * API-Middleware für einheitliche Fehlerbehandlung, Rate-Limiting und Security-Headers
- * 
+ *
  * Dieses Modul bietet Funktionen zum Anwenden von standardisierten Sicherheits-Headers
  * auf API-Antworten, um die Anwendung vor verschiedenen Sicherheitsbedrohungen zu schützen.
  */
@@ -22,13 +22,13 @@ export interface ApiHandler {
 export interface ApiMiddlewareOptions {
   // Erfordert eine authentifizierte Benutzer-Session
   requireAuth?: boolean;
-  
+
   // Überschreibt die Standard-Fehlerbehandlung
   onError?: (context: APIContext, error: Error | unknown) => Response | Promise<Response>;
-  
+
   // Falls true, wird kein automatisches Logging durchgeführt (z.B. für sensible Endpunkte)
   disableAutoLogging?: boolean;
-  
+
   // Zusätzliche Metadaten für Logging
   logMetadata?: Record<string, unknown>;
 }
@@ -52,35 +52,38 @@ export type ApiErrorType =
 /**
  * Wendet Sicherheits-Header auf eine Response an, um die Anwendung vor
  * verschiedenen Sicherheitsbedrohungen zu schützen.
- * 
+ *
  * @param response - Die Response, auf die die Sicherheitsheader angewendet werden sollen
  * @returns Die Response mit angewendeten Sicherheitsheadern
  */
 export function applySecurityHeaders(response: Response): Response {
   // Erstelle eine neue Response mit den gleichen Daten und Status
   const secureResponse = new Response(response.body, response);
-  
+
   // Hinweis: CSP wird zentral in der globalen Middleware (src/middleware.ts) gesetzt.
   // API-Antworten (JSON) benötigen keine CSP und sollten diese nicht überschreiben.
-  
+
   // X-Content-Type-Options
   secureResponse.headers.set('X-Content-Type-Options', 'nosniff');
-  
+
   // X-Frame-Options
   secureResponse.headers.set('X-Frame-Options', 'DENY');
-  
+
   // X-XSS-Protection
   secureResponse.headers.set('X-XSS-Protection', '1; mode=block');
-  
+
   // Referrer-Policy
   secureResponse.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
-  
+
   // Strict-Transport-Security
   secureResponse.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
-  
+
   // Permissions-Policy
-  secureResponse.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), interest-cohort=()');
-  
+  secureResponse.headers.set(
+    'Permissions-Policy',
+    'camera=(), microphone=(), geolocation=(), interest-cohort=()'
+  );
+
   return secureResponse;
 }
 const errorMessages: Record<ApiErrorType, string> = {
@@ -90,7 +93,7 @@ const errorMessages: Record<ApiErrorType, string> = {
   rate_limit: 'Zu viele Anfragen',
   server_error: 'Interner Serverfehler',
   db_error: 'Datenbankfehler',
-  forbidden: 'Zugriff verweigert'
+  forbidden: 'Zugriff verweigert',
 };
 
 /**
@@ -103,7 +106,7 @@ const errorStatusCodes: Record<ApiErrorType, number> = {
   rate_limit: 429,
   server_error: 500,
   db_error: 500,
-  forbidden: 403
+  forbidden: 403,
 };
 
 /**
@@ -116,41 +119,38 @@ export function createApiError(
 ): Response {
   const status = errorStatusCodes[type];
   const errorMessage = message || errorMessages[type];
-  
+
   const responseBody = {
     success: false,
     error: {
       type,
       message: errorMessage,
-      ...(details ? { details } : {})
-    }
+      ...(details ? { details } : {}),
+    },
   };
-  
+
   return new Response(JSON.stringify(responseBody), {
     status,
     headers: {
-      'Content-Type': 'application/json'
-    }
+      'Content-Type': 'application/json',
+    },
   });
 }
 
 /**
  * Erstellt eine standardisierte Erfolgsantwort
  */
-export function createApiSuccess<T>(
-  data: T,
-  status: number = 200
-): Response {
+export function createApiSuccess<T>(data: T, status: number = 200): Response {
   const responseBody = {
     success: true,
-    data
+    data,
   };
-  
+
   return new Response(JSON.stringify(responseBody), {
     status,
     headers: {
-      'Content-Type': 'application/json'
-    }
+      'Content-Type': 'application/json',
+    },
   });
 }
 
@@ -162,13 +162,16 @@ export function createApiSuccess<T>(
  * - Einheitliche Fehlerbehandlung
  * - Zentralisiertes Logging
  */
-export function withApiMiddleware(handler: ApiHandler, options: ApiMiddlewareOptions = {}): ApiHandler {
+export function withApiMiddleware(
+  handler: ApiHandler,
+  options: ApiMiddlewareOptions = {}
+): ApiHandler {
   return async (context: APIContext) => {
     const { clientAddress, request, locals } = context;
     const user = locals.user;
     const path = new URL(request.url).pathname;
     const method = request.method;
-    
+
     try {
       // Rate-Limiting anwenden: Limiter gibt entweder Response (429) oder undefined zurück
       const rateLimitResponse = await standardApiLimiter(context);
@@ -176,52 +179,48 @@ export function withApiMiddleware(handler: ApiHandler, options: ApiMiddlewareOpt
         // Security-Headers auch auf Rate-Limit-Antwort anwenden
         return applySecurityHeaders(rateLimitResponse);
       }
-      
+
       // API-Zugriff protokollieren (vor Ausführung)
       if (!options.disableAutoLogging) {
-        logApiAccess(
-          user?.id || 'anonymous', 
-          clientAddress || 'unknown', 
-          {
-            endpoint: path,
-            method,
-            ...options.logMetadata
-          }
-        );
+        logApiAccess(user?.id || 'anonymous', clientAddress || 'unknown', {
+          endpoint: path,
+          method,
+          ...options.logMetadata,
+        });
       }
-      
+
       // Handler ausführen
       const response = await handler(context);
-      
+
       // Security-Headers hinzufügen
       return applySecurityHeaders(response);
     } catch (error) {
       // Fehlerbehandlung
       console.error(`[API Middleware] Error in ${method} ${path}:`, error);
-      
+
       // Benutzerdefinierte Fehlerbehandlung, falls vorhanden
       if (options.onError) {
         return options.onError(context, error);
       }
-      
+
       // Standard-Fehlerbehandlung
-      
+
       // Fehler loggen
       const errorMessage = error instanceof Error ? error.message : String(error);
       const errorStack = error instanceof Error ? error.stack : undefined;
-      
+
       logApiError(path, {
         method,
         userId: user?.id || 'anonymous',
         ipAddress: clientAddress || 'unknown',
         error: errorMessage,
         stack: errorStack,
-        ...options.logMetadata
+        ...options.logMetadata,
       });
-      
+
       // Fehlertyp bestimmen
       let errorType: ApiErrorType = 'server_error';
-      
+
       if (errorMessage.includes('UNIQUE constraint failed')) {
         errorType = 'validation_error';
         return createApiError(errorType, 'Diese Ressource existiert bereits');
@@ -234,7 +233,7 @@ export function withApiMiddleware(handler: ApiHandler, options: ApiMiddlewareOpt
         // Generische Nachricht für DB-Fehler (keine internen Details preisgeben)
         return createApiError(errorType, 'Datenbankfehler');
       }
-      
+
       return createApiError(errorType, errorMessage);
     }
   };
@@ -245,7 +244,7 @@ export function withApiMiddleware(handler: ApiHandler, options: ApiMiddlewareOpt
  * Erweitert die Standard-API-Middleware um Authentifizierungsprüfung
  */
 export function withAuthApiMiddleware(
-  handler: ApiHandler, 
+  handler: ApiHandler,
   options: Omit<ApiMiddlewareOptions, 'requireAuth'> = {}
 ): ApiHandler {
   return withApiMiddleware(
@@ -254,7 +253,7 @@ export function withAuthApiMiddleware(
       if (!context.locals.user) {
         return createApiError('auth_error', 'Für diese Aktion ist eine Anmeldung erforderlich');
       }
-      
+
       return handler(context);
     },
     { ...options, requireAuth: true }

@@ -6,6 +6,7 @@ author: 'Evolution Hub'
 category: 'Produktivität'
 tags: ['Second Brain', 'Wissensmanagement', 'Notizen', 'Produktivität']
 ---
+
 image: { src: '/src/content/blog/images/second-brain-organization.webp', width: 1200, height: 675 }
 imageAlt: 'Grafik, die das Gehirn mit einem digitalen "Second Brain" verbindet'
 
@@ -23,10 +24,10 @@ Die Kernbotschaft ist einfach: Lagere Informationen smart aus, um deinen Kopf f�
 
 Unser Gehirn ist hervorragend darin, Ideen zu generieren und Muster zu erkennen, aber es ist ein notorisch unzuverlässiger Speicher. Die **Second Brain Methode** kompensiert diese Schwäche und bietet entscheidende Vorteile:
 
-*   **Reduzierung von kognitiver Last:** Sie müssen nicht mehr alles im Kopf behalten.
-*   **Steigerung der Kreativität:** Durch die Verknüpfung von scheinbar unzusammenhängenden Notizen entstehen neue Ideen.
-*   **Verbesserte Produktivität:** Schneller Zugriff auf relevante Informationen beschleunigt Arbeitsprozesse.
-*   **Nachhaltiges Lernen:** Einmal erfasstes Wissen geht nicht mehr verloren und kann jederzeit reaktiviert werden.
+- **Reduzierung von kognitiver Last:** Sie müssen nicht mehr alles im Kopf behalten.
+- **Steigerung der Kreativität:** Durch die Verknüpfung von scheinbar unzusammenhängenden Notizen entstehen neue Ideen.
+- **Verbesserte Produktivität:** Schneller Zugriff auf relevante Informationen beschleunigt Arbeitsprozesse.
+- **Nachhaltiges Lernen:** Einmal erfasstes Wissen geht nicht mehr verloren und kann jederzeit reaktiviert werden.
 
 ## Anleitung: In 4 Schritten zum eigenen "Second Brain"
 
@@ -40,10 +41,10 @@ Erfassen Sie alles, was Ihre Aufmerksamkeit erregt oder potenziell nützlich sei
 
 Strukturieren Sie Ihre Notizen nach Handlungsrelevanz. Die PARA-Methode schlägt vier Hauptkategorien vor:
 
-*   **P**rojekte: Aufgaben mit einem klaren Ziel und einer Deadline.
-*   **A**reas (Bereiche): Verantwortungsbereiche ohne festes Enddatum (z.B. "Gesundheit", "Finanzen").
-*   **R**essourcen: Themen von persönlichem Interesse (z.B. "KI-Entwicklung", "Marketing-Strategien").
-*   **A**rchiv: Abgeschlossene Projekte und Bereiche, die aktuell nicht relevant sind.
+- **P**rojekte: Aufgaben mit einem klaren Ziel und einer Deadline.
+- **A**reas (Bereiche): Verantwortungsbereiche ohne festes Enddatum (z.B. "Gesundheit", "Finanzen").
+- **R**essourcen: Themen von persönlichem Interesse (z.B. "KI-Entwicklung", "Marketing-Strategien").
+- **A**rchiv: Abgeschlossene Projekte und Bereiche, die aktuell nicht relevant sind.
 
 ### Schritt 3: Destillieren (Distill)
 

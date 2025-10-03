@@ -46,7 +46,12 @@ const strings = {
       button: 'Help',
       title: 'How to use',
       close: 'Close',
-      sections: { upload: 'Upload', models: 'Models', compare: 'Compare & Inspect', quota: 'Quota' },
+      sections: {
+        upload: 'Upload',
+        models: 'Models',
+        compare: 'Compare & Inspect',
+        quota: 'Quota',
+      },
     },
   },
 } as const;
@@ -59,13 +64,29 @@ describe('ImagEnhancerIsland keyboard shortcuts', () => {
       const url = typeof input === 'string' ? input : (input as URL).toString();
       if (url.includes('/api/ai-image/usage')) {
         return new Response(
-          JSON.stringify({ success: true, data: { ownerType: 'guest', usage: { used: 0, limit: 20, resetAt: null }, limits: { user: 20, guest: 3 } } }),
+          JSON.stringify({
+            success: true,
+            data: {
+              ownerType: 'guest',
+              usage: { used: 0, limit: 20, resetAt: null },
+              limits: { user: 20, guest: 3 },
+            },
+          }),
           { status: 200, headers: { 'Content-Type': 'application/json' } }
         ) as any;
       }
       if (url.includes('/api/ai-image/generate')) {
         return new Response(
-          JSON.stringify({ success: true, data: { model: 'm', originalUrl: 'blob:mock', imageUrl: 'blob:mock', usage: { used: 1, limit: 20, resetAt: null }, limits: { user: 20, guest: 3 } } }),
+          JSON.stringify({
+            success: true,
+            data: {
+              model: 'm',
+              originalUrl: 'blob:mock',
+              imageUrl: 'blob:mock',
+              usage: { used: 1, limit: 20, resetAt: null },
+              limits: { user: 20, guest: 3 },
+            },
+          }),
           { status: 200, headers: { 'Content-Type': 'application/json' } }
         ) as any;
       }
@@ -80,7 +101,9 @@ describe('ImagEnhancerIsland keyboard shortcuts', () => {
     // Query file input (dropzone)
     let input = document.querySelector('input[type="file"]') as HTMLInputElement | null;
     if (!input) {
-      input = document.querySelector('[aria-label="Image upload dropzone"] input[type="file"]') as HTMLInputElement | null;
+      input = document.querySelector(
+        '[aria-label="Image upload dropzone"] input[type="file"]'
+      ) as HTMLInputElement | null;
     }
     expect(input).toBeTruthy();
 

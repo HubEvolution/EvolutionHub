@@ -1,14 +1,11 @@
-import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
-import {
-  createDeprecatedGoneHtml,
-  createDeprecatedGoneJson,
-} from "@/lib/response-helpers";
-import { SECURITY_EVENTS } from "@/config/logging";
+import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
+import { createDeprecatedGoneHtml, createDeprecatedGoneJson } from '@/lib/response-helpers';
+import { SECURITY_EVENTS } from '@/config/logging';
 
 // Spy holder to assert calls from within mocked factory
 const mockLogSecurityEvent = vi.fn();
 
-vi.mock("@/server/utils/logger-factory", () => {
+vi.mock('@/server/utils/logger-factory', () => {
   return {
     loggerFactory: {
       createSecurityLogger: () => ({
@@ -36,11 +33,11 @@ function makeContext(
   });
   return {
     request,
-    clientAddress: clientIp || "127.0.0.1",
+    clientAddress: clientIp || '127.0.0.1',
   } as any; // Minimal APIContext shape for our helpers
 }
 
-describe("Security logging for deprecated endpoints (response helpers)", () => {
+describe('Security logging for deprecated endpoints (response helpers)', () => {
   beforeEach(() => {
     mockLogSecurityEvent.mockClear();
   });
@@ -49,140 +46,138 @@ describe("Security logging for deprecated endpoints (response helpers)", () => {
     vi.restoreAllMocks();
   });
 
-  describe("createDeprecatedGoneHtml()", () => {
-    it("logs USER_EVENT with reason deprecated_endpoint_access for GET /api/auth/logout", async () => {
+  describe('createDeprecatedGoneHtml()', () => {
+    it('logs USER_EVENT with reason deprecated_endpoint_access for GET /api/auth/logout', async () => {
       const ctx = makeContext(
-        "/api/auth/logout",
-        "GET",
+        '/api/auth/logout',
+        'GET',
         {
-          "user-agent": "Vitest UA",
-          referer: "http://localhost/de/some-page",
+          'user-agent': 'Vitest UA',
+          referer: 'http://localhost/de/some-page',
         },
-        "203.0.113.5"
+        '203.0.113.5'
       );
 
       const resp = createDeprecatedGoneHtml(ctx);
 
       expect(resp.status).toBe(410);
-      expect(resp.headers.get("Cache-Control")).toBe("no-store");
-      expect(resp.headers.get("Content-Type") || "").toContain("text/html");
+      expect(resp.headers.get('Cache-Control')).toBe('no-store');
+      expect(resp.headers.get('Content-Type') || '').toContain('text/html');
 
       expect(mockLogSecurityEvent).toHaveBeenCalledTimes(1);
       const [type, details, context] = mockLogSecurityEvent.mock.calls[0];
       expect(type).toBe(SECURITY_EVENTS.USER_EVENT);
       expect(details).toMatchObject({
-        reason: "deprecated_endpoint_access",
-        endpoint: "/api/auth/logout",
-        method: "GET",
+        reason: 'deprecated_endpoint_access',
+        endpoint: '/api/auth/logout',
+        method: 'GET',
       });
       expect(context).toMatchObject({
-        ipAddress: "203.0.113.5",
-        userAgent: "Vitest UA",
+        ipAddress: '203.0.113.5',
+        userAgent: 'Vitest UA',
       });
     });
 
-    it("logs with correct method for POST /api/auth/logout", async () => {
+    it('logs with correct method for POST /api/auth/logout', async () => {
       const ctx = makeContext(
-        "/api/auth/logout",
-        "POST",
+        '/api/auth/logout',
+        'POST',
         {
-          "user-agent": "Vitest UA 2",
+          'user-agent': 'Vitest UA 2',
         },
-        "198.51.100.10"
+        '198.51.100.10'
       );
 
       const resp = createDeprecatedGoneHtml(ctx);
 
       expect(resp.status).toBe(410);
-      expect(resp.headers.get("Cache-Control")).toBe("no-store");
+      expect(resp.headers.get('Cache-Control')).toBe('no-store');
 
       expect(mockLogSecurityEvent).toHaveBeenCalledTimes(1);
       const [type, details, context] = mockLogSecurityEvent.mock.calls[0];
       expect(type).toBe(SECURITY_EVENTS.USER_EVENT);
       expect(details).toMatchObject({
-        reason: "deprecated_endpoint_access",
-        endpoint: "/api/auth/logout",
-        method: "POST",
+        reason: 'deprecated_endpoint_access',
+        endpoint: '/api/auth/logout',
+        method: 'POST',
       });
       expect(context).toMatchObject({
-        ipAddress: "198.51.100.10",
-        userAgent: "Vitest UA 2",
+        ipAddress: '198.51.100.10',
+        userAgent: 'Vitest UA 2',
       });
     });
 
-    it("logs for GET /api/auth/verify-email", async () => {
+    it('logs for GET /api/auth/verify-email', async () => {
       const ctx = makeContext(
-        "/api/auth/verify-email",
-        "GET",
+        '/api/auth/verify-email',
+        'GET',
         {
-          "user-agent": "Vitest Verify",
+          'user-agent': 'Vitest Verify',
         },
-        "192.0.2.55"
+        '192.0.2.55'
       );
 
       const resp = createDeprecatedGoneHtml(ctx);
 
       expect(resp.status).toBe(410);
-      expect(resp.headers.get("Cache-Control")).toBe("no-store");
+      expect(resp.headers.get('Cache-Control')).toBe('no-store');
 
       expect(mockLogSecurityEvent).toHaveBeenCalledTimes(1);
       const [type, details, context] = mockLogSecurityEvent.mock.calls[0];
       expect(type).toBe(SECURITY_EVENTS.USER_EVENT);
       expect(details).toMatchObject({
-        reason: "deprecated_endpoint_access",
-        endpoint: "/api/auth/verify-email",
-        method: "GET",
+        reason: 'deprecated_endpoint_access',
+        endpoint: '/api/auth/verify-email',
+        method: 'GET',
       });
       expect(context).toMatchObject({
-        ipAddress: "192.0.2.55",
-        userAgent: "Vitest Verify",
+        ipAddress: '192.0.2.55',
+        userAgent: 'Vitest Verify',
       });
     });
   });
 
-  describe("createDeprecatedGoneJson()", () => {
-    it("logs with details for PUT /api/auth/logout", async () => {
+  describe('createDeprecatedGoneJson()', () => {
+    it('logs with details for PUT /api/auth/logout', async () => {
       const ctx = makeContext(
-        "/api/auth/logout",
-        "PUT",
+        '/api/auth/logout',
+        'PUT',
         {
-          "user-agent": "Vitest JSON",
+          'user-agent': 'Vitest JSON',
         },
-        "203.0.113.99"
+        '203.0.113.99'
       );
 
-      const extra = { attemptedMethod: "PUT" } as const;
+      const extra = { attemptedMethod: 'PUT' } as const;
       const resp = createDeprecatedGoneJson(ctx, undefined, extra);
 
       expect(resp.status).toBe(410);
-      expect(resp.headers.get("Cache-Control")).toBe("no-store");
-      expect(resp.headers.get("Content-Type") || "").toContain(
-        "application/json"
-      );
+      expect(resp.headers.get('Cache-Control')).toBe('no-store');
+      expect(resp.headers.get('Content-Type') || '').toContain('application/json');
 
       expect(mockLogSecurityEvent).toHaveBeenCalledTimes(1);
       const [type, details, context] = mockLogSecurityEvent.mock.calls[0];
       expect(type).toBe(SECURITY_EVENTS.USER_EVENT);
       expect(details).toMatchObject({
-        reason: "deprecated_endpoint_access",
-        endpoint: "/api/auth/logout",
-        method: "PUT",
+        reason: 'deprecated_endpoint_access',
+        endpoint: '/api/auth/logout',
+        method: 'PUT',
         details: extra,
       });
       expect(context).toMatchObject({
-        ipAddress: "203.0.113.99",
-        userAgent: "Vitest JSON",
+        ipAddress: '203.0.113.99',
+        userAgent: 'Vitest JSON',
       });
     });
 
-    it("logs for DELETE /api/auth/verify-email", async () => {
+    it('logs for DELETE /api/auth/verify-email', async () => {
       const ctx = makeContext(
-        "/api/auth/verify-email",
-        "DELETE",
+        '/api/auth/verify-email',
+        'DELETE',
         {
-          "user-agent": "Vitest JSON 2",
+          'user-agent': 'Vitest JSON 2',
         },
-        "198.51.100.77"
+        '198.51.100.77'
       );
 
       const resp = createDeprecatedGoneJson(ctx);
@@ -192,81 +187,77 @@ describe("Security logging for deprecated endpoints (response helpers)", () => {
       const [type, details, context] = mockLogSecurityEvent.mock.calls[0];
       expect(type).toBe(SECURITY_EVENTS.USER_EVENT);
       expect(details).toMatchObject({
-        reason: "deprecated_endpoint_access",
-        endpoint: "/api/auth/verify-email",
-        method: "DELETE",
+        reason: 'deprecated_endpoint_access',
+        endpoint: '/api/auth/verify-email',
+        method: 'DELETE',
       });
       expect(context).toMatchObject({
-        ipAddress: "198.51.100.77",
-        userAgent: "Vitest JSON 2",
+        ipAddress: '198.51.100.77',
+        userAgent: 'Vitest JSON 2',
       });
     });
 
-    it("logs for HEAD /api/auth/logout (JSON 410)", async () => {
+    it('logs for HEAD /api/auth/logout (JSON 410)', async () => {
       const ctx = makeContext(
-        "/api/auth/logout",
-        "HEAD",
+        '/api/auth/logout',
+        'HEAD',
         {
-          "user-agent": "Vitest JSON HEAD",
+          'user-agent': 'Vitest JSON HEAD',
         },
-        "203.0.113.200"
+        '203.0.113.200'
       );
 
-      const extra = { attemptedMethod: "HEAD" } as const;
+      const extra = { attemptedMethod: 'HEAD' } as const;
       const resp = createDeprecatedGoneJson(ctx, undefined, extra);
 
       expect(resp.status).toBe(410);
-      expect(resp.headers.get("Cache-Control")).toBe("no-store");
-      expect(resp.headers.get("Content-Type") || "").toContain(
-        "application/json"
-      );
+      expect(resp.headers.get('Cache-Control')).toBe('no-store');
+      expect(resp.headers.get('Content-Type') || '').toContain('application/json');
 
       expect(mockLogSecurityEvent).toHaveBeenCalledTimes(1);
       const [type, details, context] = mockLogSecurityEvent.mock.calls[0];
       expect(type).toBe(SECURITY_EVENTS.USER_EVENT);
       expect(details).toMatchObject({
-        reason: "deprecated_endpoint_access",
-        endpoint: "/api/auth/logout",
-        method: "HEAD",
+        reason: 'deprecated_endpoint_access',
+        endpoint: '/api/auth/logout',
+        method: 'HEAD',
         details: extra,
       });
       expect(context).toMatchObject({
-        ipAddress: "203.0.113.200",
-        userAgent: "Vitest JSON HEAD",
+        ipAddress: '203.0.113.200',
+        userAgent: 'Vitest JSON HEAD',
       });
     });
 
-    it("logs for HEAD /api/auth/verify-email (JSON 410)", async () => {
+    it('logs for HEAD /api/auth/verify-email (JSON 410)', async () => {
       const ctx = makeContext(
-        "/api/auth/verify-email",
-        "HEAD",
+        '/api/auth/verify-email',
+        'HEAD',
         {
-          "user-agent": "Vitest JSON HEAD 2",
+          'user-agent': 'Vitest JSON HEAD 2',
         },
-        "198.51.100.201"
+        '198.51.100.201'
       );
 
-      const extra = { attemptedMethod: "HEAD" } as const;
+      const extra = { attemptedMethod: 'HEAD' } as const;
       const resp = createDeprecatedGoneJson(ctx, undefined, extra);
 
       expect(resp.status).toBe(410);
-      expect(resp.headers.get("Cache-Control")).toBe("no-store");
-      expect(resp.headers.get("Content-Type") || "").toContain(
-        "application/json"
-      );
+      expect(resp.headers.get('Cache-Control')).toBe('no-store');
+      expect(resp.headers.get('Content-Type') || '').toContain('application/json');
 
       expect(mockLogSecurityEvent).toHaveBeenCalledTimes(1);
       const [type, details, context] = mockLogSecurityEvent.mock.calls[0];
       expect(type).toBe(SECURITY_EVENTS.USER_EVENT);
       expect(details).toMatchObject({
-        reason: "deprecated_endpoint_access",
-        endpoint: "/api/auth/verify-email",
-        method: "HEAD",
+        reason: 'deprecated_endpoint_access',
+        endpoint: '/api/auth/verify-email',
+        method: 'HEAD',
         details: extra,
       });
       expect(context).toMatchObject({
-        ipAddress: "198.51.100.201",
-        userAgent: "Vitest JSON HEAD 2",
+        ipAddress: '198.51.100.201',
+        userAgent: 'Vitest JSON HEAD 2',
       });
     });
   });

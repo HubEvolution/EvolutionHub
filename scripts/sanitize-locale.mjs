@@ -20,16 +20,35 @@ function cropToBalancedJSON(s) {
   for (let j = i; j < s.length; j++) {
     const ch = s[j];
     if (inStr) {
-      if (esc) { esc = false; continue; }
-      if (ch === '\\') { esc = true; continue; }
-      if (ch === '"') { inStr = false; continue; }
+      if (esc) {
+        esc = false;
+        continue;
+      }
+      if (ch === '\\') {
+        esc = true;
+        continue;
+      }
+      if (ch === '"') {
+        inStr = false;
+        continue;
+      }
       continue;
     }
-    if (ch === '"') { inStr = true; continue; }
-    if (ch === '{') { depthO++; started = true; }
-    else if (ch === '}') { depthO--; }
-    else if (ch === '[') { depthA++; started = true; }
-    else if (ch === ']') { depthA--; }
+    if (ch === '"') {
+      inStr = true;
+      continue;
+    }
+    if (ch === '{') {
+      depthO++;
+      started = true;
+    } else if (ch === '}') {
+      depthO--;
+    } else if (ch === '[') {
+      depthA++;
+      started = true;
+    } else if (ch === ']') {
+      depthA--;
+    }
 
     if (started && depthO === 0 && depthA === 0) {
       return s.slice(i, j + 1);

@@ -7,14 +7,19 @@ const GA_MEASUREMENT_ID = import.meta.env.PUBLIC_GA_MEASUREMENT_ID;
 const PLAUSIBLE_DOMAIN = import.meta.env.PUBLIC_PLAUSIBLE_DOMAIN;
 ---
 
-<script is:inline nonce={Astro.locals.cspNonce} define:vars={{ GA_MEASUREMENT_ID, PLAUSIBLE_DOMAIN }}>
+<script
+  is:inline
+  nonce={Astro.locals.cspNonce}
+  define:vars={{ GA_MEASUREMENT_ID, PLAUSIBLE_DOMAIN }}
+>
   (function () {
     'use strict';
 
     // CSP Nonce für nachgeladene Scripts
-    const NONCE = (document.currentScript && 'nonce' in document.currentScript)
-      ? (document.currentScript.nonce || '')
-      : '';
+    const NONCE =
+      document.currentScript && 'nonce' in document.currentScript
+        ? document.currentScript.nonce || ''
+        : '';
 
     // State & Consent
     let hasAnalyticsConsent = false;
@@ -55,14 +60,19 @@ const PLAUSIBLE_DOMAIN = import.meta.env.PUBLIC_PLAUSIBLE_DOMAIN;
       if (providersInitialized) return;
       try {
         if (GA_MEASUREMENT_ID) {
-          loadScript(`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`, { async: true });
+          loadScript(`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`, {
+            async: true,
+          });
           addInlineScript(
             `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${GA_MEASUREMENT_ID}',{page_title:document.title,page_location:window.location.href});`
           );
           console.log('✅ Google Analytics initialized:', GA_MEASUREMENT_ID);
         }
         if (PLAUSIBLE_DOMAIN) {
-          loadScript('https://plausible.io/js/script.js', { defer: true, 'data-domain': PLAUSIBLE_DOMAIN });
+          loadScript('https://plausible.io/js/script.js', {
+            defer: true,
+            'data-domain': PLAUSIBLE_DOMAIN,
+          });
           console.log('✅ Plausible initialized:', PLAUSIBLE_DOMAIN);
         }
         providersInitialized = true;
@@ -73,7 +83,8 @@ const PLAUSIBLE_DOMAIN = import.meta.env.PUBLIC_PLAUSIBLE_DOMAIN;
 
     function track(event, props = {}) {
       if (!hasAnalyticsConsent || !providersInitialized) {
-        if (console && console.debug) console.debug('📊 Analytics blocked (no consent/init):', event, props);
+        if (console && console.debug)
+          console.debug('📊 Analytics blocked (no consent/init):', event, props);
         return;
       }
       try {
@@ -90,7 +101,11 @@ const PLAUSIBLE_DOMAIN = import.meta.env.PUBLIC_PLAUSIBLE_DOMAIN;
     }
 
     function trackPage(properties = {}) {
-      track('page_view', { page_title: document.title, page_location: window.location.href, ...properties });
+      track('page_view', {
+        page_title: document.title,
+        page_location: window.location.href,
+        ...properties,
+      });
     }
 
     function setupScrollTracking() {
@@ -103,7 +118,11 @@ const PLAUSIBLE_DOMAIN = import.meta.env.PUBLIC_PLAUSIBLE_DOMAIN;
           const percent = Math.round((scrollTop / (docHeight || 1)) * 100);
           [25, 50, 75, 90].forEach((ms) => {
             if (percent >= ms && !scrollDepthTracked.has(ms)) {
-              track('scroll_depth', { event_category: 'Engagement', value: ms, page_url: window.location.href });
+              track('scroll_depth', {
+                event_category: 'Engagement',
+                value: ms,
+                page_url: window.location.href,
+              });
               scrollDepthTracked.add(ms);
             }
           });
@@ -117,14 +136,24 @@ const PLAUSIBLE_DOMAIN = import.meta.env.PUBLIC_PLAUSIBLE_DOMAIN;
     function setupTimeTracking() {
       beforeUnloadHandler = () => {
         const seconds = Math.round((Date.now() - timeOnPageStart) / 1000);
-        if (seconds > 10) track('time_on_page', { event_category: 'Engagement', value: seconds, page_url: window.location.href });
+        if (seconds > 10)
+          track('time_on_page', {
+            event_category: 'Engagement',
+            value: seconds,
+            page_url: window.location.href,
+          });
       };
       window.addEventListener('beforeunload', beforeUnloadHandler);
 
       visibilityHandler = () => {
         if (document.visibilityState === 'hidden') {
           const seconds = Math.round((Date.now() - timeOnPageStart) / 1000);
-          if (seconds > 30) track('time_on_page', { event_category: 'Engagement', value: seconds, page_url: window.location.href });
+          if (seconds > 30)
+            track('time_on_page', {
+              event_category: 'Engagement',
+              value: seconds,
+              page_url: window.location.href,
+            });
         } else {
           timeOnPageStart = Date.now();
         }
@@ -134,7 +163,10 @@ const PLAUSIBLE_DOMAIN = import.meta.env.PUBLIC_PLAUSIBLE_DOMAIN;
 
     function initAfterConsent() {
       initProviders();
-      trackPage({ page_type: window.location.pathname.startsWith('/blog') ? 'blog' : 'page', consent_given: true });
+      trackPage({
+        page_type: window.location.pathname.startsWith('/blog') ? 'blog' : 'page',
+        consent_given: true,
+      });
       setupScrollTracking();
       setupTimeTracking();
     }
@@ -160,7 +192,10 @@ const PLAUSIBLE_DOMAIN = import.meta.env.PUBLIC_PLAUSIBLE_DOMAIN;
 
     pageLoadHandler = () => {
       if (!hasAnalyticsConsent) return;
-      trackPage({ page_type: window.location.pathname.startsWith('/blog') ? 'blog' : 'page', navigation: 'astro:page-load' });
+      trackPage({
+        page_type: window.location.pathname.startsWith('/blog') ? 'blog' : 'page',
+        navigation: 'astro:page-load',
+      });
       timeOnPageStart = Date.now();
       maxScrollDepth = 0;
       scrollDepthTracked.clear();
@@ -168,12 +203,18 @@ const PLAUSIBLE_DOMAIN = import.meta.env.PUBLIC_PLAUSIBLE_DOMAIN;
     document.addEventListener('astro:page-load', pageLoadHandler);
 
     function cleanup() {
-      if (consentHandler) document.removeEventListener('cookieconsent:userpreferencesset', consentHandler);
+      if (consentHandler)
+        document.removeEventListener('cookieconsent:userpreferencesset', consentHandler);
       if (pageLoadHandler) document.removeEventListener('astro:page-load', pageLoadHandler);
       if (scrollHandler) window.removeEventListener('scroll', scrollHandler);
       if (beforeUnloadHandler) window.removeEventListener('beforeunload', beforeUnloadHandler);
       if (visibilityHandler) document.removeEventListener('visibilitychange', visibilityHandler);
-      consentHandler = pageLoadHandler = scrollHandler = beforeUnloadHandler = visibilityHandler = null;
+      consentHandler =
+        pageLoadHandler =
+        scrollHandler =
+        beforeUnloadHandler =
+        visibilityHandler =
+          null;
       if (console && console.log) console.log('[AnalyticsRuntime] 🧹 Cleaned up');
     }
     window.analyticsCleanup = cleanup;
@@ -182,15 +223,40 @@ const PLAUSIBLE_DOMAIN = import.meta.env.PUBLIC_PLAUSIBLE_DOMAIN;
     window.evolutionAnalytics = {
       track: (event) => track(event),
       trackCTAClick: (ctaType, position, leadMagnetId) =>
-        track('cta_click', { event_category: 'Funnel', cta_type: ctaType, cta_position: position, lead_magnet_id: leadMagnetId, page_url: window.location.href }),
+        track('cta_click', {
+          event_category: 'Funnel',
+          cta_type: ctaType,
+          cta_position: position,
+          lead_magnet_id: leadMagnetId,
+          page_url: window.location.href,
+        }),
       trackLeadMagnetDownload: (leadMagnetId, leadId) =>
-        track('lead_magnet_download', { event_category: 'Conversion', conversion_type: 'lead_magnet_download', lead_magnet_id: leadMagnetId, lead_id: leadId, attribution_source: document.referrer || 'direct' }),
+        track('lead_magnet_download', {
+          event_category: 'Conversion',
+          conversion_type: 'lead_magnet_download',
+          lead_magnet_id: leadMagnetId,
+          lead_id: leadId,
+          attribution_source: document.referrer || 'direct',
+        }),
       trackNewsletterSignup: (source, leadId) =>
-        track('newsletter_signup', { event_category: 'Conversion', conversion_type: 'newsletter_signup', signup_source: source, lead_id: leadId }),
+        track('newsletter_signup', {
+          event_category: 'Conversion',
+          conversion_type: 'newsletter_signup',
+          signup_source: source,
+          lead_id: leadId,
+        }),
       trackScrollDepth: (percentage) =>
-        track('scroll_depth', { event_category: 'Engagement', value: percentage, page_url: window.location.href }),
+        track('scroll_depth', {
+          event_category: 'Engagement',
+          value: percentage,
+          page_url: window.location.href,
+        }),
       trackTimeOnPage: (seconds) =>
-        track('time_on_page', { event_category: 'Engagement', value: seconds, page_url: window.location.href })
+        track('time_on_page', {
+          event_category: 'Engagement',
+          value: seconds,
+          page_url: window.location.href,
+        }),
     };
 
     // DOM ready => falls Consent schon vorher gesetzt wurde, initialisieren

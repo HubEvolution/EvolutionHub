@@ -6,6 +6,7 @@ author: 'Evolution Hub'
 category: 'Karriere'
 tags: ['Lernen', 'Karriere', 'Entwicklung', 'Future Skills']
 ---
+
 image: { src: '/src/content/blog/images/lifelong-learning-career.webp', width: 1200, height: 675 }
 imageAlt: 'Person mit Hut aus Büchern, der auf einer Treppe aus Fähigkeiten steht'
 
@@ -23,10 +24,10 @@ Erinnerst du dich an das Wissen, das du in deiner Ausbildung oder deinem Studium
 
 Wenn wir über die Zukunft der Arbeit sprechen, fallen oft Begriffe wie `Future Skills`. Doch was verbirgt sich dahinter? Es geht weniger um spezifische Software-Kenntnisse, sondern um übergeordnete Kompetenzen:
 
-* **Kritisches Denken & Problemlösung:** Komplexe Herausforderungen analysieren und kreative Lösungen finden.
-* **Kreativität & Innovation:** Neue Ideen entwickeln und umsetzen.
-* **Lernfähigkeit & Anpassungsfähigkeit:** Sich schnell in neue Themen einarbeiten und flexibel auf Veränderungen reagieren.
-* **Emotionale Intelligenz & Zusammenarbeit:** Empathisch kommunizieren und effektiv im Team arbeiten.
+- **Kritisches Denken & Problemlösung:** Komplexe Herausforderungen analysieren und kreative Lösungen finden.
+- **Kreativität & Innovation:** Neue Ideen entwickeln und umsetzen.
+- **Lernfähigkeit & Anpassungsfähigkeit:** Sich schnell in neue Themen einarbeiten und flexibel auf Veränderungen reagieren.
+- **Emotionale Intelligenz & Zusammenarbeit:** Empathisch kommunizieren und effektiv im Team arbeiten.
 
 Diese Fähigkeiten lassen sich nicht in einem Wochenendseminar erlernen. Sie sind das Ergebnis eines kontinuierlichen Entwicklungsprozesses.
 
@@ -42,9 +43,9 @@ Der stärkste Motor für Lernen ist intrinsische Motivation. Frage dich: Was hat
 
 Du hast keine Zeit für stundenlange Kurse? Nutze kleine Zeitfenster.
 
-* Höre auf dem Weg zur Arbeit einen Fach-Podcast.
-* Lies in der Mittagspause einen Blogartikel zu einem neuen Trend.
-* Schaue dir ein 15-minütiges Tutorial auf YouTube an.
+- Höre auf dem Weg zur Arbeit einen Fach-Podcast.
+- Lies in der Mittagspause einen Blogartikel zu einem neuen Trend.
+- Schaue dir ein 15-minütiges Tutorial auf YouTube an.
 
 Kleine, regelmäßige Lerneinheiten sind oft effektiver als unregelmäßige, lange Lernphasen.
 

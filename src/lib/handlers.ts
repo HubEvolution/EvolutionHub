@@ -28,7 +28,7 @@ export async function handleStripeCheckout(c: Ctx): Promise<Response> {
     success_url: `${c.env.BASE_URL}/dashboard?ws=${workspaceId}`,
     cancel_url: `${c.env.BASE_URL}/pricing`,
     line_items: [{ price: c.env.PRICING_TABLE[plan], quantity: 1 }],
-    metadata: { workspaceId }
+    metadata: { workspaceId },
   });
   return c.json({ url: session.url });
 }
@@ -40,6 +40,6 @@ export async function listTools(c: Ctx | APIContext): Promise<Response> {
   const tools = await env?.TOOLS?.get('manifest', 'json');
   return new Response(JSON.stringify(tools ?? null), {
     status: 200,
-    headers: { 'Content-Type': 'application/json' }
+    headers: { 'Content-Type': 'application/json' },
   });
 }

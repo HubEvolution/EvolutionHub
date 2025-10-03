@@ -2,13 +2,16 @@
 // Deprecated: notify route no longer used in simplified flow.
 // We redirect immediately to a safe target to avoid stale links.
 
-return Astro.redirect((() => {
-  try {
-    const toParam = new URL(Astro.request.url).searchParams.get('to') || '';
-    if (typeof toParam === 'string' && toParam.startsWith('/') && !toParam.startsWith('//')) {
-      return toParam;
-    }
-  } catch {}
-  // Fallback: default to non-localized routes (notify is deprecated)
-  return ((Astro.locals as any)?.user ? '/dashboard' : '/login');
-})());
+return Astro.redirect(
+  (() => {
+    try {
+      const toParam = new URL(Astro.request.url).searchParams.get('to') || '';
+      if (typeof toParam === 'string' && toParam.startsWith('/') && !toParam.startsWith('//')) {
+        return toParam;
+      }
+    } catch {}
+    // Fallback: default to non-localized routes (notify is deprecated)
+    return (Astro.locals as any)?.user ? '/dashboard' : '/login';
+  })()
+);
+---

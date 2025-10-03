@@ -11,7 +11,7 @@ describe('Dashboard Activity API Tests', () => {
     vi.mock('@/lib/rate-limiter', () => ({
       apiRateLimiter: vi.fn().mockResolvedValue(null),
     }));
-    
+
     vi.mock('@/lib/security-headers', () => ({
       applySecurityHeaders: vi.fn((response) => {
         response.headers.set('X-Content-Type-Options', 'nosniff');
@@ -20,7 +20,7 @@ describe('Dashboard Activity API Tests', () => {
         return response;
       }),
     }));
-    
+
     vi.mock('@/lib/security-logger', () => ({
       logApiAccess: vi.fn(),
       logAuthFailure: vi.fn(),
@@ -28,7 +28,7 @@ describe('Dashboard Activity API Tests', () => {
       logUserEvent: vi.fn(),
     }));
   });
-  
+
   afterEach(() => {
     vi.resetAllMocks();
   });
@@ -38,35 +38,35 @@ describe('Dashboard Activity API Tests', () => {
     const context = {
       locals: {
         runtime: {
-          env: {}
-        }
+          env: {},
+        },
       },
       clientAddress: '192.168.1.1',
       url: new URL('https://example.com/api/dashboard/activity'),
       request: {
         url: 'https://example.com/api/dashboard/activity',
-        method: 'GET'
+        method: 'GET',
       },
     };
-    
+
     // API-Aufruf
     const response = await GET(context as any);
-    
+
     // Überprüfungen
     expect(response.status).toBe(401);
-    
+
     // Response-Body überprüfen
     const responseText = await response.text();
     const responseData = JSON.parse(responseText);
     expect(responseData.error).toBe('Unauthorized');
-    
+
     // Überprüfen, ob Security-Features angewendet wurden
     expect(securityHeaders.applySecurityHeaders).toHaveBeenCalled();
     expect(securityLogger.logAuthFailure).toHaveBeenCalledWith(
       '192.168.1.1',
       expect.objectContaining({
         reason: 'unauthenticated_access',
-        endpoint: '/api/dashboard/activity'
+        endpoint: '/api/dashboard/activity',
       })
     );
   });
@@ -78,7 +78,7 @@ describe('Dashboard Activity API Tests', () => {
       email: 'test@example.com',
       name: 'Test User',
     };
-    
+
     // Mock für die Datenbank
     const mockResults = [
       {
@@ -86,21 +86,21 @@ describe('Dashboard Activity API Tests', () => {
         action: 'created project "Test"',
         created_at: '2023-01-01T12:00:00Z',
         user: 'Test User',
-        user_image: 'avatar.jpg'
+        user_image: 'avatar.jpg',
       },
       {
         id: 'activity-2',
         action: 'updated profile',
         created_at: '2023-01-02T12:00:00Z',
         user: 'Test User',
-        user_image: 'avatar.jpg'
-      }
+        user_image: 'avatar.jpg',
+      },
     ];
-    
+
     const mockAll = vi.fn().mockResolvedValue({ results: mockResults });
     const mockBind = vi.fn().mockReturnValue({ all: mockAll });
     const mockPrepare = vi.fn().mockReturnValue({ bind: mockBind });
-    
+
     // Mock-Context mit authentifiziertem Benutzer
     const context = {
       locals: {
@@ -108,25 +108,25 @@ describe('Dashboard Activity API Tests', () => {
         runtime: {
           env: {
             DB: {
-              prepare: mockPrepare
-            }
-          }
-        }
+              prepare: mockPrepare,
+            },
+          },
+        },
       },
       clientAddress: '192.168.1.1',
       url: new URL('https://example.com/api/dashboard/activity'),
       request: {
         url: 'https://example.com/api/dashboard/activity',
-        method: 'GET'
+        method: 'GET',
       },
     };
-    
+
     // API-Aufruf
     const response = await GET(context as any);
-    
+
     // Überprüfungen
     expect(response.status).toBe(200);
-    
+
     // Response-Body überprüfen
     const responseText = await response.text();
     const responseData = JSON.parse(responseText);
@@ -136,12 +136,12 @@ describe('Dashboard Activity API Tests', () => {
     expect(responseData[0].user).toBe('Test User');
     expect(responseData[0].timestamp).toBe('2023-01-01T12:00:00Z');
     expect(responseData[0].icon).toBe('✨');
-    
+
     // Überprüfen, ob Datenbankabfrage korrekt ausgeführt wurde
     expect(mockPrepare).toHaveBeenCalled();
     expect(mockBind).toHaveBeenCalledWith(mockUser.id);
     expect(mockAll).toHaveBeenCalled();
-    
+
     // Überprüfen, ob Security-Features angewendet wurden
     expect(securityHeaders.applySecurityHeaders).toHaveBeenCalled();
     expect(securityLogger.logApiAccess).toHaveBeenCalledWith(
@@ -150,7 +150,7 @@ describe('Dashboard Activity API Tests', () => {
       expect.objectContaining({
         endpoint: '/api/dashboard/activity',
         method: 'GET',
-        action: 'activity_feed_accessed'
+        action: 'activity_feed_accessed',
       })
     );
   });
@@ -162,12 +162,12 @@ describe('Dashboard Activity API Tests', () => {
       email: 'test@example.com',
       name: 'Test User',
     };
-    
+
     // Mock für die Datenbank mit Fehler
     const mockAll = vi.fn().mockRejectedValue(new Error('Database error'));
     const mockBind = vi.fn().mockReturnValue({ all: mockAll });
     const mockPrepare = vi.fn().mockReturnValue({ bind: mockBind });
-    
+
     // Mock-Context mit authentifiziertem Benutzer
     const context = {
       locals: {
@@ -175,38 +175,38 @@ describe('Dashboard Activity API Tests', () => {
         runtime: {
           env: {
             DB: {
-              prepare: mockPrepare
-            }
-          }
-        }
+              prepare: mockPrepare,
+            },
+          },
+        },
       },
       clientAddress: '192.168.1.1',
       url: new URL('https://example.com/api/dashboard/activity'),
       request: {
         url: 'https://example.com/api/dashboard/activity',
-        method: 'GET'
+        method: 'GET',
       },
     };
-    
+
     // Spy auf console.error
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    
+
     // API-Aufruf
     const response = await GET(context as any);
-    
+
     // Überprüfungen
     expect(response.status).toBe(500);
-    
+
     // Response-Body überprüfen
     const responseText = await response.text();
     const responseData = JSON.parse(responseText);
     expect(responseData.success).toBe(false);
     expect(responseData.error.type).toBe('server_error');
     expect(responseData.error.message).toBe('Error fetching activity feed');
-    
+
     // Überprüfen, ob Fehler protokolliert wurde
     expect(consoleErrorSpy).toHaveBeenCalled();
-    
+
     // Überprüfen, ob Security-Features angewendet wurden
     expect(securityHeaders.applySecurityHeaders).toHaveBeenCalled();
     expect(securityLogger.logUserEvent).toHaveBeenCalledWith(
@@ -214,10 +214,10 @@ describe('Dashboard Activity API Tests', () => {
       'activity_feed_error',
       expect.objectContaining({
         error: 'Database error',
-        ipAddress: '192.168.1.1'
+        ipAddress: '192.168.1.1',
       })
     );
-    
+
     // Spy zurücksetzen
     consoleErrorSpy.mockRestore();
   });
@@ -231,12 +231,12 @@ describe('Dashboard Activity API Tests', () => {
         email: 'test@example.com',
         name: 'Test User',
       };
-      
+
       // Mock für die Datenbank
       const mockAll = vi.fn().mockResolvedValue({ results: [] });
       const mockBind = vi.fn().mockReturnValue({ all: mockAll });
       const mockPrepare = vi.fn().mockReturnValue({ bind: mockBind });
-      
+
       // Mock-Context mit authentifiziertem Benutzer
       const context = {
         locals: {
@@ -244,26 +244,26 @@ describe('Dashboard Activity API Tests', () => {
           runtime: {
             env: {
               DB: {
-                prepare: mockPrepare
-              }
-            }
-          }
+                prepare: mockPrepare,
+              },
+            },
+          },
         },
         clientAddress: '192.168.1.1',
         url: new URL('https://example.com/api/dashboard/activity'),
         request: {
           url: 'https://example.com/api/dashboard/activity',
-          method: 'GET'
+          method: 'GET',
         },
       };
-      
+
       // API-Aufruf
       await GET(context as any);
-      
+
       // Überprüfen, ob Rate-Limiting angewendet wurde
       expect(rateLimiter.apiRateLimiter).toHaveBeenCalledWith(context);
     });
-    
+
     it('sollte abbrechen, wenn Rate-Limiting ausgelöst wird', async () => {
       // Mock-Benutzerdaten
       const mockUser = {
@@ -271,35 +271,35 @@ describe('Dashboard Activity API Tests', () => {
         email: 'test@example.com',
         name: 'Test User',
       };
-      
+
       // Mock-Context mit authentifiziertem Benutzer
       const context = {
         locals: {
           user: mockUser,
           runtime: {
             env: {
-              DB: {}
-            }
-          }
+              DB: {},
+            },
+          },
         },
         clientAddress: '192.168.1.1',
         url: new URL('https://example.com/api/dashboard/activity'),
         request: {
           url: 'https://example.com/api/dashboard/activity',
-          method: 'GET'
+          method: 'GET',
         },
       };
-      
+
       // Rate-Limiting-Antwort simulieren (einmalig)
       mockRateLimitOnce();
-      
+
       // API-Aufruf
       const response = await GET(context as any);
-      
+
       // Überprüfen, ob die Rate-Limit-Antwort zurückgegeben wurde
       expect(response.status).toBe(429);
     });
-    
+
     it('sollte Security-Headers auf Antworten anwenden', async () => {
       // Mock-Benutzerdaten
       const mockUser = {
@@ -307,12 +307,12 @@ describe('Dashboard Activity API Tests', () => {
         email: 'test@example.com',
         name: 'Test User',
       };
-      
+
       // Mock für die Datenbank
       const mockAll = vi.fn().mockResolvedValue({ results: [] });
       const mockBind = vi.fn().mockReturnValue({ all: mockAll });
       const mockPrepare = vi.fn().mockReturnValue({ bind: mockBind });
-      
+
       // Mock-Context mit authentifiziertem Benutzer
       const context = {
         locals: {
@@ -320,22 +320,22 @@ describe('Dashboard Activity API Tests', () => {
           runtime: {
             env: {
               DB: {
-                prepare: mockPrepare
-              }
-            }
-          }
+                prepare: mockPrepare,
+              },
+            },
+          },
         },
         clientAddress: '192.168.1.1',
         url: new URL('https://example.com/api/dashboard/activity'),
         request: {
           url: 'https://example.com/api/dashboard/activity',
-          method: 'GET'
+          method: 'GET',
         },
       };
-      
+
       // API-Aufruf
       await GET(context as any);
-      
+
       // Überprüfen, ob Security-Headers angewendet wurden
       expect(securityHeaders.applySecurityHeaders).toHaveBeenCalled();
     });

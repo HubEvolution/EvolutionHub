@@ -1,6 +1,6 @@
 /**
  * Umgebungskonfiguration und -erkennung
- * 
+ *
  * Dieses Modul stellt Funktionen und Konstanten bereit, um die aktuelle
  * Ausführungsumgebung zu erkennen und entsprechend zu konfigurieren.
  */
@@ -11,7 +11,7 @@
 export enum EnvironmentType {
   DEVELOPMENT = 'development',
   PRODUCTION = 'production',
-  PREVIEW = 'preview'
+  PREVIEW = 'preview',
 }
 
 /**
@@ -25,7 +25,7 @@ export function getCurrentEnvironment(): EnvironmentType {
     if (envVar.toLowerCase() === 'preview') return EnvironmentType.PREVIEW;
     return EnvironmentType.DEVELOPMENT;
   }
-  
+
   // Prüfen auf Cloudflare-spezifische Umgebungsvariablen
   const cfEnv = typeof process !== 'undefined' ? process.env.CF_PAGES_BRANCH : undefined;
   if (cfEnv) {
@@ -33,7 +33,7 @@ export function getCurrentEnvironment(): EnvironmentType {
     if (cfEnv === 'preview') return EnvironmentType.PREVIEW;
     return EnvironmentType.DEVELOPMENT;
   }
-  
+
   // Fallback auf Entwicklungsumgebung
   return EnvironmentType.DEVELOPMENT;
 }
@@ -66,7 +66,7 @@ export function isPreview(): boolean {
 
 /**
  * Prüft, ob die aktuelle Umgebung lokal oder remote ist
- * 
+ *
  * @param env Cloudflare-Umgebungsobjekt
  * @returns true, wenn lokale Umgebung, false wenn remote
  */
@@ -75,12 +75,12 @@ export function isLocalEnvironment(env: Record<string, any>): boolean {
   if (typeof process !== 'undefined' && process.env.WRANGLER_REMOTE === 'true') {
     return false;
   }
-  
+
   // Prüfen auf lokale Wrangler-Umgebung
   if (env && env.ENVIRONMENT === 'development') {
     return true;
   }
-  
+
   return isDevelopment();
 }
 
@@ -102,13 +102,13 @@ export function getEnvironmentName(): string {
 
 /**
  * Gibt eine Beschreibung der aktuellen Umgebung zurück
- * 
+ *
  * @param env Cloudflare-Umgebungsobjekt
  * @returns Beschreibung der aktuellen Umgebung
  */
 export function getEnvironmentDescription(env: Record<string, any>): string {
   const envName = getEnvironmentName();
   const isLocal = isLocalEnvironment(env);
-  
+
   return `${envName} (${isLocal ? 'Lokal' : 'Remote'})`;
 }

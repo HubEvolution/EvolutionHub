@@ -14,19 +14,18 @@ export function getLocale(pathname: string): Locale {
   if (pathname === '/') {
     return 'de';
   }
-  
+
   // Check if path starts with locale prefix
   if (pathname.startsWith('/de/') || pathname === '/de') {
     return 'de';
   } else if (pathname.startsWith('/en/') || pathname === '/en') {
     return 'en';
   }
-  
+
   // If no locale prefix, check if we're on a German page (default for this site)
   // This handles paths like /blog, /pricing etc. - assume German by default
   return 'de';
 }
-
 
 /**
  * Navigates to the same page with the given locale.
@@ -48,9 +47,8 @@ export function navigateLocale(locale: Locale): void {
 
   // If path is not localized (e.g., /pricing, /docs)
   if (!isLocalized) {
-    const targetPath = locale === 'en'
-      ? (currentPath === '/' ? '/en/' : `/en${currentPath}`)
-      : currentPath; // de: keep neutral
+    const targetPath =
+      locale === 'en' ? (currentPath === '/' ? '/en/' : `/en${currentPath}`) : currentPath; // de: keep neutral
     const final = `${targetPath}${currentSearch}${currentHash}`;
     window.location.assign(final);
     return;
@@ -58,9 +56,12 @@ export function navigateLocale(locale: Locale): void {
 
   // Remove existing locale prefix (supports "/de", "/de/", "/en", "/en/")
   const pathWithoutLocale = currentPath.replace(/^\/(de|en)(\/|$)/, '/');
-  const newPath = locale === 'en'
-    ? (pathWithoutLocale === '/' ? '/en/' : `/en${pathWithoutLocale}`)
-    : pathWithoutLocale; // de: neutral
+  const newPath =
+    locale === 'en'
+      ? pathWithoutLocale === '/'
+        ? '/en/'
+        : `/en${pathWithoutLocale}`
+      : pathWithoutLocale; // de: neutral
 
   const final = `${newPath}${currentSearch}${currentHash}`;
   window.location.assign(final);

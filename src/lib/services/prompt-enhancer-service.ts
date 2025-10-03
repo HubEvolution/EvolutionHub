@@ -1,6 +1,6 @@
 /**
  * Prompt Enhancer Service
- * 
+ *
  * Core service for transforming raw text inputs into structured, agent-ready prompts.
  * Implements modular pipeline: parse, structure, rewrite, safety, score.
  * Tracks usage via KV for guests/users with daily quotas.
@@ -100,22 +100,30 @@ export class PromptEnhancerService {
 
   // Safe logger helpers (tests may mock logger without full interface)
   private logInfo(event: string, data?: unknown) {
-    try { void (this.log?.info ? this.log.info(event, data) : this.log?.log?.(event, data)); } catch (_err) {
+    try {
+      void (this.log?.info ? this.log.info(event, data) : this.log?.log?.(event, data));
+    } catch (_err) {
       // Ignore logging failures
     }
   }
   private logWarn(event: string, data?: unknown) {
-    try { void (this.log?.warn ? this.log.warn(event, data) : this.log?.info?.(event, data)); } catch (_err) {
+    try {
+      void (this.log?.warn ? this.log.warn(event, data) : this.log?.info?.(event, data));
+    } catch (_err) {
       // Ignore logging failures
     }
   }
   private logError(event: string, data?: unknown) {
-    try { void (this.log?.error ? this.log.error(event, data) : this.log?.info?.(event, data)); } catch (_err) {
+    try {
+      void (this.log?.error ? this.log.error(event, data) : this.log?.info?.(event, data));
+    } catch (_err) {
       // Ignore logging failures
     }
   }
   private logDebug(event: string, data?: unknown) {
-    try { void (this.log?.debug ? this.log.debug(event, data) : this.log?.info?.(event, data)); } catch (_err) {
+    try {
+      void (this.log?.debug ? this.log.debug(event, data) : this.log?.info?.(event, data));
+    } catch (_err) {
       // Ignore logging failures
     }
   }
@@ -136,7 +144,9 @@ export class PromptEnhancerService {
     } as const;
   }
 
-  private async incrementPathMetric(pathType: 'llm_text' | 'llm_vision' | 'llm_file_search'): Promise<void> {
+  private async incrementPathMetric(
+    pathType: 'llm_text' | 'llm_vision' | 'llm_file_search'
+  ): Promise<void> {
     try {
       if (this.env.PROMPT_METRICS_V1 === 'false') return;
       const kv = this.env.KV_PROMPT_ENHANCER;
@@ -152,7 +162,12 @@ export class PromptEnhancerService {
     }
   }
 
-  private async getUsage(ownerType: 'user' | 'guest', ownerId: string, userLimit: number, guestLimit: number): Promise<UsageInfo> {
+  private async getUsage(
+    ownerType: 'user' | 'guest',
+    ownerId: string,
+    userLimit: number,
+    guestLimit: number
+  ): Promise<UsageInfo> {
     const limit = ownerType === 'user' ? userLimit : guestLimit;
     const kv = this.env.KV_PROMPT_ENHANCER;
     if (!kv) return { used: 0, limit, resetAt: null };
@@ -169,7 +184,11 @@ export class PromptEnhancerService {
     }
   }
 
-  private async incrementUsage(ownerType: 'user' | 'guest', ownerId: string, limit: number): Promise<UsageInfo> {
+  private async incrementUsage(
+    ownerType: 'user' | 'guest',
+    ownerId: string,
+    limit: number
+  ): Promise<UsageInfo> {
     const kv = this.env.KV_PROMPT_ENHANCER;
     if (!kv) return { used: 1, limit, resetAt: null };
 
@@ -197,18 +216,24 @@ export class PromptEnhancerService {
     return { used: count, limit, resetAt };
   }
 
-  private async parseInput(text: string): Promise<{ intent: string; keywords: string[]; isComplex: boolean; aiUsed: boolean }> {
+  private async parseInput(
+    text: string
+  ): Promise<{ intent: string; keywords: string[]; isComplex: boolean; aiUsed: boolean }> {
     const lowerText = text.toLowerCase();
     let intent = 'generate';
     const keywords: string[] = [];
     // Normalize tokens: strip punctuation, keep letters/numbers/umlauts/hyphen/underscore
-    const rawTokens = lowerText.split(/\s+/).map(w => w.replace(/[^a-z0-9äöüß_-]+/gi, ''));
-    const words = rawTokens.filter(w => w.length > 3);
+    const rawTokens = lowerText.split(/\s+/).map((w) => w.replace(/[^a-z0-9äöüß_-]+/gi, ''));
+    const words = rawTokens.filter((w) => w.length > 3);
     const isComplex = words.length > 50 || text.length > 200;
     let aiUsed = false;
 
     // Fallback rule-based parsing
-    if (lowerText.includes('schreibe') || lowerText.includes('generate') || lowerText.includes('write')) {
+    if (
+      lowerText.includes('schreibe') ||
+      lowerText.includes('generate') ||
+      lowerText.includes('write')
+    ) {
       intent = 'generate';
     } else if (lowerText.includes('analysiere') || lowerText.includes('analyze')) {
       intent = 'analyze';
@@ -237,14 +262,24 @@ export class PromptEnhancerService {
           : '';
         if (response) {
           const parsed = JSON.parse(response);
-          if (parsed.intent && ['generate', 'analyze', 'translate', 'other'].includes(parsed.intent)) {
+          if (
+            parsed.intent &&
+            ['generate', 'analyze', 'translate', 'other'].includes(parsed.intent)
+          ) {
             intent = parsed.intent;
             aiUsed = true;
-            this.logDebug('ai_intent_detected', { inputLength: text.length, intent, aiModel: 'gpt-4o-mini' });
+            this.logDebug('ai_intent_detected', {
+              inputLength: text.length,
+              intent,
+              aiModel: 'gpt-4o-mini',
+            });
           }
         }
       } catch (error) {
-        this.logWarn('ai_intent_failed', { inputLength: text.length, error: (error as Error).message });
+        this.logWarn('ai_intent_failed', {
+          inputLength: text.length,
+          error: (error as Error).message,
+        });
         // Fallback to rule-based
       }
     }
@@ -252,29 +287,41 @@ export class PromptEnhancerService {
     return { intent, keywords, isComplex, aiUsed };
   }
 
-  private structurePrompt(parsed: Awaited<ReturnType<typeof this.parseInput>>, rawText: string): EnhancedPrompt {
+  private structurePrompt(
+    parsed: Awaited<ReturnType<typeof this.parseInput>>,
+    rawText: string
+  ): EnhancedPrompt {
     const { intent, keywords, isComplex } = parsed;
-    const role = intent === 'generate' ? 'You are an expert content creator.' : 
-                 intent === 'analyze' ? 'You are a precise analyst.' : 'You are a helpful assistant.';
+    const role =
+      intent === 'generate'
+        ? 'You are an expert content creator.'
+        : intent === 'analyze'
+          ? 'You are a precise analyst.'
+          : 'You are a helpful assistant.';
 
     const objective = `Perform ${intent} task based on: ${keywords.slice(0, 5).join(', ') || rawText.substring(0, 100)}`;
 
-    const constraints = 'Keep response clear and concise; cite sources if applicable; limit to 1000 words; mask any PII.';
+    const constraints =
+      'Keep response clear and concise; cite sources if applicable; limit to 1000 words; mask any PII.';
 
     const outputFormat = 'Markdown with sections for key parts.';
 
-    const steps: string[] | undefined = isComplex ? [
-      'Understand the input.',
-      'Plan the structure.',
-      'Generate content.',
-      'Review for accuracy.',
-      'Format output.'
-    ] : undefined;
+    const steps: string[] | undefined = isComplex
+      ? [
+          'Understand the input.',
+          'Plan the structure.',
+          'Generate content.',
+          'Review for accuracy.',
+          'Format output.',
+        ]
+      : undefined;
 
-    const fewShotExamples: string[] | undefined = isComplex ? [
-      'Input: Write blog on AI. Output: Structured post with intro/body/conclusion.',
-      'Input: Analyze sales data. Output: Key insights in bullet points.'
-    ] : undefined;
+    const fewShotExamples: string[] | undefined = isComplex
+      ? [
+          'Input: Write blog on AI. Output: Structured post with intro/body/conclusion.',
+          'Input: Analyze sales data. Output: Key insights in bullet points.',
+        ]
+      : undefined;
 
     return {
       role,
@@ -283,13 +330,16 @@ export class PromptEnhancerService {
       outputFormat,
       steps,
       fewShotExamples,
-      rawText
+      rawText,
     };
   }
 
   private rewriteMode(prompt: EnhancedPrompt, mode: 'agent' | 'concise'): EnhancedPrompt {
     if (mode === 'concise') {
-      prompt.constraints = prompt.constraints.replace('limit to 1000 words', 'keep under 500 words');
+      prompt.constraints = prompt.constraints.replace(
+        'limit to 1000 words',
+        'keep under 500 words'
+      );
       if (prompt.steps) prompt.steps = prompt.steps.slice(0, 3);
     } else {
       prompt.constraints += ' Collaborate as needed; think step-by-step.';
@@ -299,7 +349,10 @@ export class PromptEnhancerService {
     return prompt;
   }
 
-  private applySafety(text: string, enableSafety: boolean): { cleaned: string; report: SafetyReport } {
+  private applySafety(
+    text: string,
+    enableSafety: boolean
+  ): { cleaned: string; report: SafetyReport } {
     if (!enableSafety) {
       return { cleaned: text, report: { masked: [], types: [] } };
     }
@@ -310,7 +363,8 @@ export class PromptEnhancerService {
     const types: ('email' | 'phone' | 'address' | 'id')[] = [];
 
     // Mask addresses (e.g., "Strasse 123" or "Street HouseNumber")
-    const addressRegex = /(\d+\s+[A-Za-zäöüÄÖÜß]+(?:str|straße|street|haus|house|plz|zip)[^.,;]*)/gi;
+    const addressRegex =
+      /(\d+\s+[A-Za-zäöüÄÖÜß]+(?:str|straße|street|haus|house|plz|zip)[^.,;]*)/gi;
     while ((match = addressRegex.exec(text)) !== null) {
       masked.push(String(match[1]).trim());
       types.push('address');
@@ -327,7 +381,7 @@ export class PromptEnhancerService {
 
     // Mask emails
     const emailRegex = /[\w.-]+@[\w.-]+\.\w+/g;
-    
+
     while ((match = emailRegex.exec(text)) !== null) {
       masked.push(String(match[0]).trim());
       types.push('email');
@@ -347,7 +401,11 @@ export class PromptEnhancerService {
     return { cleaned, report };
   }
 
-  private calculateScores(prompt: EnhancedPrompt, _inputText: string, parsed?: Awaited<ReturnType<typeof this.parseInput>>): Scores {
+  private calculateScores(
+    prompt: EnhancedPrompt,
+    _inputText: string,
+    parsed?: Awaited<ReturnType<typeof this.parseInput>>
+  ): Scores {
     const sections = Object.keys(prompt).length - 1; // Exclude rawText
     const clarity = Math.min(1, (sections / 6) * 1.25); // Max 1.0 for full structure
     let specificity = Math.min(1, prompt.objective.split(' ').length / 20); // Keyword density
@@ -361,29 +419,39 @@ export class PromptEnhancerService {
     return { clarity, specificity, testability };
   }
 
-  private composeRewriteMessages(inputText: string, mode: 'agent' | 'concise', attachment: AttachmentContext | null): Parameters<OpenAI.Chat.Completions['create']>[0] {
+  private composeRewriteMessages(
+    inputText: string,
+    mode: 'agent' | 'concise',
+    attachment: AttachmentContext | null
+  ): Parameters<OpenAI.Chat.Completions['create']>[0] {
     const systemParts: string[] = [];
     systemParts.push(
-      'You rewrite user prompts into clearer, more specific, policy-compliant prompts. Preserve the user\'s intent. Do not invent requirements. Respond in the same language as the input. Output only the enhanced prompt (no quotes, no lists, no explanations).'
+      "You rewrite user prompts into clearer, more specific, policy-compliant prompts. Preserve the user's intent. Do not invent requirements. Respond in the same language as the input. Output only the enhanced prompt (no quotes, no lists, no explanations)."
     );
-    if (attachment && (attachment.texts.length || attachment.images.length || attachment.pdfs.length)) {
-      systemParts.push('Use attachments only to resolve ambiguity. Do not expose sensitive data or PII.');
+    if (
+      attachment &&
+      (attachment.texts.length || attachment.images.length || attachment.pdfs.length)
+    ) {
+      systemParts.push(
+        'Use attachments only to resolve ambiguity. Do not expose sensitive data or PII.'
+      );
     }
     if (mode === 'concise') {
-      systemParts.push('Be succinct and unambiguous; remove filler; target under ~120 words unless essential.');
+      systemParts.push(
+        'Be succinct and unambiguous; remove filler; target under ~120 words unless essential.'
+      );
     } else {
       // agent mode maps to more elaborate but precise output
-      systemParts.push('Use precise, actionable phrasing; add conservative clarifications; avoid adding new facts.');
+      systemParts.push(
+        'Use precise, actionable phrasing; add conservative clarifications; avoid adding new facts.'
+      );
     }
 
     const userTextHeader = 'Enhance this prompt. Reply with only the enhanced prompt:';
 
     const content: Array<
-      | { type: 'text'; text: string }
-      | { type: 'image_url'; image_url: { url: string } }
-    > = [
-      { type: 'text', text: `${userTextHeader}\n\n${inputText}` },
-    ];
+      { type: 'text'; text: string } | { type: 'image_url'; image_url: { url: string } }
+    > = [{ type: 'text', text: `${userTextHeader}\n\n${inputText}` }];
 
     // Attach text snippets
     if (attachment && attachment.texts.length) {
@@ -401,7 +469,8 @@ export class PromptEnhancerService {
       }
     }
 
-    const model = attachment && attachment.images.length ? this.getVisionModel() : this.getTextModel();
+    const model =
+      attachment && attachment.images.length ? this.getVisionModel() : this.getTextModel();
 
     return {
       model,
@@ -433,12 +502,16 @@ export class PromptEnhancerService {
 
         const systemParts: string[] = [];
         systemParts.push(
-          'You rewrite user prompts into clearer, more specific, policy-compliant prompts. Preserve the user\'s intent. Do not invent requirements. Respond in the same language as the input. Output only the enhanced prompt (no quotes, no lists, no explanations).'
+          "You rewrite user prompts into clearer, more specific, policy-compliant prompts. Preserve the user's intent. Do not invent requirements. Respond in the same language as the input. Output only the enhanced prompt (no quotes, no lists, no explanations)."
         );
         if (mode === 'concise') {
-          systemParts.push('Be succinct and unambiguous; remove filler; target under ~120 words unless essential.');
+          systemParts.push(
+            'Be succinct and unambiguous; remove filler; target under ~120 words unless essential.'
+          );
         } else {
-          systemParts.push('Use precise, actionable phrasing; add conservative clarifications; avoid adding new facts.');
+          systemParts.push(
+            'Use precise, actionable phrasing; add conservative clarifications; avoid adding new facts.'
+          );
         }
 
         const textBlocks: string[] = [];
@@ -453,7 +526,8 @@ export class PromptEnhancerService {
         // Build attachments for file_search
         const attachments: Array<{ file_id: string; tools: Array<{ type: 'file_search' }> }> = [];
         for (const pdf of attachment!.pdfs) {
-          if (pdf.fileId) attachments.push({ file_id: pdf.fileId, tools: [{ type: 'file_search' }] });
+          if (pdf.fileId)
+            attachments.push({ file_id: pdf.fileId, tools: [{ type: 'file_search' }] });
         }
 
         const resp = await (client as any).responses.create({
@@ -477,7 +551,8 @@ export class PromptEnhancerService {
 
         const out: any = resp as any;
         const tryOutputText = out?.output_text as string | undefined;
-        if (tryOutputText && typeof tryOutputText === 'string') return { text: tryOutputText.trim(), pathType: 'llm_file_search' };
+        if (tryOutputText && typeof tryOutputText === 'string')
+          return { text: tryOutputText.trim(), pathType: 'llm_file_search' };
         // Fallback parse for nested output format
         const maybeText = (() => {
           const output = out?.output;
@@ -506,29 +581,49 @@ export class PromptEnhancerService {
         raw = completion.choices?.[0]?.message?.content || '';
       }
       const text = (raw || '').trim();
-      const pathType: 'llm_text' | 'llm_vision' = attachment && attachment.images && attachment.images.length ? 'llm_vision' : 'llm_text';
+      const pathType: 'llm_text' | 'llm_vision' =
+        attachment && attachment.images && attachment.images.length ? 'llm_vision' : 'llm_text';
       return { text, pathType };
     } catch (err) {
       // Map provider errors to standardized errors
       const anyErr = err as any;
-      const status: number | undefined = anyErr?.status || anyErr?.statusCode || (typeof anyErr?.code === 'number' ? anyErr.code : undefined);
-      const mapped = buildProviderError(status ?? 500, 'openai', (anyErr?.message || '').slice(0, 200));
-      this.logError('rewrite_llm_failed', { message: (err as Error).message, status: status ?? 'unknown' });
+      const status: number | undefined =
+        anyErr?.status ||
+        anyErr?.statusCode ||
+        (typeof anyErr?.code === 'number' ? anyErr.code : undefined);
+      const mapped = buildProviderError(
+        status ?? 500,
+        'openai',
+        (anyErr?.message || '').slice(0, 200)
+      );
+      this.logError('rewrite_llm_failed', {
+        message: (err as Error).message,
+        status: status ?? 'unknown',
+      });
       throw mapped;
     }
   }
 
   public async enhance(
     input: EnhanceInput,
-    options: EnhanceOptions = { mode: 'agent' as const, safety: true, includeScores: false, outputFormat: 'markdown' as const },
+    options: EnhanceOptions = {
+      mode: 'agent' as const,
+      safety: true,
+      includeScores: false,
+      outputFormat: 'markdown' as const,
+    },
     ownerType: 'user' | 'guest' = 'guest',
     ownerId: string,
-    attachments: AttachmentContext | null = null,
+    attachments: AttachmentContext | null = null
   ): Promise<EnhanceResult> {
     if (!this.publicFlag) {
       const err = new Error('feature_not_enabled');
       (err as any).code = 'feature_disabled';
-      this.logWarn('enhance_blocked_by_flag', { reqId: 'init', ownerType, ownerId: ownerId.slice(-4) });
+      this.logWarn('enhance_blocked_by_flag', {
+        reqId: 'init',
+        ownerType,
+        ownerId: ownerId.slice(-4),
+      });
       throw err;
     }
 
@@ -538,7 +633,14 @@ export class PromptEnhancerService {
     const guestLimit = parseInt(this.env.PROMPT_GUEST_LIMIT || '5', 10);
     const limit = ownerType === 'user' ? userLimit : guestLimit;
 
-    this.logDebug('enhance_requested', { reqId, inputLength: input.text.length, ownerType, ownerId: ownerId.slice(-4), mode: options.mode, flagEnabled: this.publicFlag });
+    this.logDebug('enhance_requested', {
+      reqId,
+      inputLength: input.text.length,
+      ownerType,
+      ownerId: ownerId.slice(-4),
+      mode: options.mode,
+      flagEnabled: this.publicFlag,
+    });
 
     // Quota check
     const currentUsage = await this.getUsage(ownerType, ownerId, userLimit, guestLimit);
@@ -546,7 +648,13 @@ export class PromptEnhancerService {
       const err = new Error(`Quota exceeded. Used ${currentUsage.used}/${limit}`);
       (err as any).code = 'quota_exceeded';
       (err as any).details = currentUsage;
-      this.logError('enhance_failed', { reqId, errorKind: 'quota_exceeded', inputLength: input.text.length, ownerType, ownerId: ownerId.slice(-4) });
+      this.logError('enhance_failed', {
+        reqId,
+        errorKind: 'quota_exceeded',
+        inputLength: input.text.length,
+        ownerType,
+        ownerId: ownerId.slice(-4),
+      });
       throw err;
     }
 
@@ -554,7 +662,10 @@ export class PromptEnhancerService {
     const parsed = await this.parseInput(input.text);
 
     // Safety (on input only; attachments should be prepared upstream)
-    const { cleaned: safeText, report } = this.applySafety(input.text, options.safety !== false && this.enableSafety);
+    const { cleaned: safeText, report } = this.applySafety(
+      input.text,
+      options.safety !== false && this.enableSafety
+    );
 
     let enhancedPromptText: string | null = null;
     let pathType: 'llm_text' | 'llm_vision' | 'llm_file_search' | null = null;
@@ -579,24 +690,43 @@ export class PromptEnhancerService {
         fewShotExamples: undefined,
         rawText: safeText,
       };
-      const scores = options.includeScores ? this.calculateScores(structured, input.text, parsed) : undefined;
+      const scores = options.includeScores
+        ? this.calculateScores(structured, input.text, parsed)
+        : undefined;
       const usage = await this.incrementUsage(ownerType, ownerId, limit);
       const latency = Date.now() - startTime;
       const finalPathType = pathType || 'llm_text';
       // Lightweight counter log for metrics pipelines
       this.logInfo('enhance_path_counter', { pathType: finalPathType, inc: 1 });
       await this.incrementPathMetric(finalPathType);
-      this.logInfo('enhance_completed', { reqId, latency, enhancedLength: enhancedPromptText.length, maskedCount: report.masked.length, aiUsed: true, path: 'llm', pathType: finalPathType });
+      this.logInfo('enhance_completed', {
+        reqId,
+        latency,
+        enhancedLength: enhancedPromptText.length,
+        maskedCount: report.masked.length,
+        aiUsed: true,
+        path: 'llm',
+        pathType: finalPathType,
+      });
       return { enhanced: structured, safetyReport: report, scores, usage };
     }
 
     // Deterministic fallback
     let structured = this.structurePrompt(parsed, safeText);
     structured = this.rewriteMode(structured, options.mode || 'agent');
-    const scores = options.includeScores ? this.calculateScores(structured, input.text, parsed) : undefined;
+    const scores = options.includeScores
+      ? this.calculateScores(structured, input.text, parsed)
+      : undefined;
     const usage = await this.incrementUsage(ownerType, ownerId, limit);
     const latency = Date.now() - startTime;
-    this.logInfo('enhance_completed', { reqId, latency, enhancedLength: JSON.stringify(structured).length, maskedCount: report.masked.length, aiUsed: parsed.aiUsed, path: 'deterministic' });
+    this.logInfo('enhance_completed', {
+      reqId,
+      latency,
+      enhancedLength: JSON.stringify(structured).length,
+      maskedCount: report.masked.length,
+      aiUsed: parsed.aiUsed,
+      path: 'deterministic',
+    });
     return { enhanced: structured, safetyReport: report, scores, usage };
   }
 }

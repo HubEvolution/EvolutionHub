@@ -89,18 +89,18 @@ function main() {
   console.log(`[i18n-identical] Identical values: ${identical.length}`);
   if (identical.length) {
     console.log('\nIdentical keys:');
-    identical.sort().forEach(k => console.log(` - ${k}`));
+    identical.sort().forEach((k) => console.log(` - ${k}`));
   }
 
   if (onlyDe.length || onlyEn.length) {
     console.log('\n[Parity warnings]');
     if (onlyDe.length) {
       console.log(` - Missing in en.json: ${onlyDe.length}`);
-      onlyDe.sort().forEach(k => console.log(`   * ${k}`));
+      onlyDe.sort().forEach((k) => console.log(`   * ${k}`));
     }
     if (onlyEn.length) {
       console.log(` - Missing in de.json: ${onlyEn.length}`);
-      onlyEn.sort().forEach(k => console.log(`   * ${k}`));
+      onlyEn.sort().forEach((k) => console.log(`   * ${k}`));
     }
   }
 

@@ -32,7 +32,7 @@ export default function AuthSessionPoller({
           method: 'GET',
           credentials: 'same-origin',
           headers: {
-            'accept': 'application/json',
+            accept: 'application/json',
           },
         });
         if (!res.ok) return false;
@@ -80,18 +80,24 @@ export default function AuthSessionPoller({
     };
 
     // Kick off polling
-    intervalId = window.setInterval(() => {
-      void checkAndRedirect();
-    }, Math.max(1000, pollIntervalMs || 2000));
+    intervalId = window.setInterval(
+      () => {
+        void checkAndRedirect();
+      },
+      Math.max(1000, pollIntervalMs || 2000)
+    );
 
     // Also run an immediate check on mount
     void checkAndRedirect();
 
     // Stop after maxWaitMs to avoid infinite polling
     if (maxWaitMs && maxWaitMs > 0) {
-      timeoutId = window.setTimeout(() => {
-        clearAll();
-      }, Math.max(10000, maxWaitMs));
+      timeoutId = window.setTimeout(
+        () => {
+          clearAll();
+        },
+        Math.max(10000, maxWaitMs)
+      );
     }
 
     // Listen for focus/visibility to re-check ASAP

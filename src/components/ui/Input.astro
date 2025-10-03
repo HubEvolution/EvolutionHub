@@ -12,17 +12,32 @@ interface Props {
   ariaDescribedby?: string;
 }
 
-const { type, id, name, required = false, className, minlength, maxlength, pattern, autocomplete, ariaDescribedby } = Astro.props as Props;
+const {
+  type,
+  id,
+  name,
+  required = false,
+  className,
+  minlength,
+  maxlength,
+  pattern,
+  autocomplete,
+  ariaDescribedby,
+} = Astro.props as Props;
 ---
-<input 
-  type={type} 
-  id={id} 
-  name={name} 
+
+<input
+  type={type}
+  id={id}
+  name={name}
   required={required}
   minlength={minlength}
   maxlength={maxlength}
   pattern={pattern}
   autocomplete={autocomplete}
   aria-describedby={ariaDescribedby}
-  class:list={["mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-emerald-500 focus:border-emerald-500", className]}
+  class:list={[
+    'mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-emerald-500 focus:border-emerald-500',
+    className,
+  ]}
 />

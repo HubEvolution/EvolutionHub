@@ -6,6 +6,7 @@ author: 'Evolution Hub'
 category: 'Kommunikation'
 tags: ['Feedback', 'Kommunikation', 'Teamkultur', 'Wachstum']
 ---
+
 image: { src: '/src/content/blog/images/constructive-feedback-growth.webp', width: 1200, height: 675 }
 imageAlt: 'Zwei Personen im Gespräch, die Feedback geben und empfangen, symbolisiert Wachstum'
 
@@ -19,10 +20,10 @@ Dieser Artikel ist dein praktischer Leitfaden, um die Kunst des Feedbacks zu mei
 
 Feedback ist mehr als nur eine jährliche Leistungsbeurteilung. Es ist ein alltägliches Werkzeug, das, wenn es richtig eingesetzt wird, folgende Vorteile bringt:
 
-*   **Persönliches Wachstum:** Es deckt blinde Flecken auf und hilft uns, unsere Fähigkeiten zu schärfen.
-*   **Stärkere Teams:** Offene Kommunikation baut Vertrauen auf und verbessert die Zusammenarbeit.
-*   **Bessere Ergebnisse:** Kontinuierliche Verbesserung führt zu höherer Qualität und Effizienz.
-*   **Höhere Mitarbeiterbindung:** Eine Kultur der Wertschätzung und Entwicklung motiviert und bindet Talente.
+- **Persönliches Wachstum:** Es deckt blinde Flecken auf und hilft uns, unsere Fähigkeiten zu schärfen.
+- **Stärkere Teams:** Offene Kommunikation baut Vertrauen auf und verbessert die Zusammenarbeit.
+- **Bessere Ergebnisse:** Kontinuierliche Verbesserung führt zu höherer Qualität und Effizienz.
+- **Höhere Mitarbeiterbindung:** Eine Kultur der Wertschätzung und Entwicklung motiviert und bindet Talente.
 
 ## Die Kunst des Gebens: Wie du konstruktives Feedback formulierst
 
@@ -32,20 +33,20 @@ Gutes Feedback ist spezifisch, objektiv und lösungsorientiert. Es zielt darauf 
 
 Dieses Modell ist einfach und extrem wirkungsvoll. Es strukturiert dein Feedback in drei klare Schritte:
 
-*   **Wahrnehmung:** Beschreibe eine konkrete Situation oder ein Verhalten, das du beobachtet hast – ohne Wertung.
-    *   *Beispiel:* "Mir ist aufgefallen, dass du in den letzten beiden Team-Meetings später gekommen bist."
-*   **Wirkung:** Erkläre, welche Auswirkung dieses Verhalten auf dich, das Team oder das Projekt hatte.
-    *   *Beispiel:* "Dadurch haben wir die ersten Minuten verloren und mussten die Agenda überstürzen, was bei mir Stress ausgelöst hat."
-*   **Wunsch:** Formuliere einen konkreten Wunsch oder Vorschlag für die Zukunft.
-    *   *Beispiel:* "Ich würde mir wünschen, dass wir alle pünktlich starten, damit wir die Zeit optimal nutzen können. Können wir uns darauf einigen?"
+- **Wahrnehmung:** Beschreibe eine konkrete Situation oder ein Verhalten, das du beobachtet hast – ohne Wertung.
+  - _Beispiel:_ "Mir ist aufgefallen, dass du in den letzten beiden Team-Meetings später gekommen bist."
+- **Wirkung:** Erkläre, welche Auswirkung dieses Verhalten auf dich, das Team oder das Projekt hatte.
+  - _Beispiel:_ "Dadurch haben wir die ersten Minuten verloren und mussten die Agenda überstürzen, was bei mir Stress ausgelöst hat."
+- **Wunsch:** Formuliere einen konkreten Wunsch oder Vorschlag für die Zukunft.
+  - _Beispiel:_ "Ich würde mir wünschen, dass wir alle pünktlich starten, damit wir die Zeit optimal nutzen können. Können wir uns darauf einigen?"
 
 ### 2. Die SBI-Formel: Situation, Behavior, Impact
 
 Ähnlich wie das WWW-Modell, aber im englischsprachigen Raum weiter verbreitet, ist die SBI-Formel (Situation, Behavior, Impact).
 
-*   **Situation:** Wo und wann ist das Verhalten aufgetreten? ("Gestern im Projekt-Update...")
-*   **Behavior (Verhalten):** Was genau hat die Person getan oder gesagt? ("...hast du die Ergebnisse des Marketing-Teams sehr detailliert vorgestellt.")
-*   **Impact (Auswirkung):** Welchen Effekt hatte das? ("Das hat mir geholfen, die Zusammenhänge besser zu verstehen und meine eigenen Aufgaben neu zu priorisieren.")
+- **Situation:** Wo und wann ist das Verhalten aufgetreten? ("Gestern im Projekt-Update...")
+- **Behavior (Verhalten):** Was genau hat die Person getan oder gesagt? ("...hast du die Ergebnisse des Marketing-Teams sehr detailliert vorgestellt.")
+- **Impact (Auswirkung):** Welchen Effekt hatte das? ("Das hat mir geholfen, die Zusammenhänge besser zu verstehen und meine eigenen Aufgaben neu zu priorisieren.")
 
 ### 3. Die Pendleton-Regel: Positives zuerst
 
@@ -62,11 +63,11 @@ Feedback zu erhalten, kann herausfordernd sein. Unser Gehirn neigt dazu, Kritik 
 
 ### Tipps, um Feedback anzunehmen:
 
-*   **Höre aktiv zu:** Konzentriere dich voll und ganz auf das, was gesagt wird. Unterbrich nicht und plane keine Gegenargumente.
-*   **Stelle Verständnisfragen:** "Wenn ich dich richtig verstehe, meinst du, dass..." Das zeigt, dass du zuhörst und hilft, Missverständnisse zu vermeiden.
-*   **Bedanke dich:** Auch wenn es schwerfällt – bedanke dich für das Feedback. Die Person hat sich die Zeit genommen, dir zu helfen. "Danke, dass du mir das so offen sagst."
-*   **Nimm dir Zeit zum Nachdenken:** Du musst nicht sofort reagieren. Es ist völlig in Ordnung zu sagen: "Danke für deine Gedanken. Ich werde darüber nachdenken."
-*   **Entscheide, was du umsetzt:** Nicht jedes Feedback ist zu 100 % zutreffend. Analysiere die Kritik und entscheide selbst, welche Punkte für dich relevant sind und welche du umsetzen möchtest.
+- **Höre aktiv zu:** Konzentriere dich voll und ganz auf das, was gesagt wird. Unterbrich nicht und plane keine Gegenargumente.
+- **Stelle Verständnisfragen:** "Wenn ich dich richtig verstehe, meinst du, dass..." Das zeigt, dass du zuhörst und hilft, Missverständnisse zu vermeiden.
+- **Bedanke dich:** Auch wenn es schwerfällt – bedanke dich für das Feedback. Die Person hat sich die Zeit genommen, dir zu helfen. "Danke, dass du mir das so offen sagst."
+- **Nimm dir Zeit zum Nachdenken:** Du musst nicht sofort reagieren. Es ist völlig in Ordnung zu sagen: "Danke für deine Gedanken. Ich werde darüber nachdenken."
+- **Entscheide, was du umsetzt:** Nicht jedes Feedback ist zu 100 % zutreffend. Analysiere die Kritik und entscheide selbst, welche Punkte für dich relevant sind und welche du umsetzen möchtest.
 
 ## Fazit: Feedback ist ein Muskel, der trainiert werden will
 

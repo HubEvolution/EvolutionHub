@@ -42,7 +42,11 @@ export async function GET(context: APIContext) {
 
     // Basic prefix validation
     if (!key || !key.startsWith(`${AI_R2_PREFIX}/`)) {
-      if (isDev) console.warn(`[R2Proxy][${reqId}] invalid prefix`, { key, expectedPrefix: `${AI_R2_PREFIX}/` });
+      if (isDev)
+        console.warn(`[R2Proxy][${reqId}] invalid prefix`, {
+          key,
+          expectedPrefix: `${AI_R2_PREFIX}/`,
+        });
       return new Response('Not found', { status: 404 });
     }
 
@@ -64,10 +68,17 @@ export async function GET(context: APIContext) {
         return new Response('Not found', { status: 404 });
       }
       const currentOwnerType: OwnerType = locals.user?.id ? 'user' : 'guest';
-      const currentOwnerId = currentOwnerType === 'user' ? (locals.user as { id: string }).id : ensureGuestIdCookie(context);
+      const currentOwnerId =
+        currentOwnerType === 'user'
+          ? (locals.user as { id: string }).id
+          : ensureGuestIdCookie(context);
       const isOwner = currentOwnerType === pathOwnerType && currentOwnerId === pathOwnerId;
       if (isDev) {
-        console.debug(`[R2Proxy][${reqId}] owner gate`, { currentOwnerType, currentOwnerId, isOwner });
+        console.debug(`[R2Proxy][${reqId}] owner gate`, {
+          currentOwnerType,
+          currentOwnerId,
+          isOwner,
+        });
       }
       if (!isOwner) {
         if (isDev) console.warn(`[R2Proxy][${reqId}] forbidden for non-owner`);

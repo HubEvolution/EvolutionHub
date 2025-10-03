@@ -6,11 +6,7 @@ const DRY_RUN = process.argv.includes('--dry');
 
 const repoRoot = process.cwd();
 
-const INCLUDE_DIRS = [
-  'src/pages',
-  'src/components',
-  'src/locales',
-];
+const INCLUDE_DIRS = ['src/pages', 'src/components', 'src/locales'];
 
 const EXCLUDE_CONTAINS = [
   'node_modules',
@@ -20,46 +16,45 @@ const EXCLUDE_CONTAINS = [
   'tests/',
   'test-suite-v2/',
   '/scripts/', // Komponenten-Skripte, nicht UI-Templates
-  '/debug/',   // Debug-Seiten/Ordner
-  '/api/',     // Serverrouten, keine UI-Seiten
+  '/debug/', // Debug-Seiten/Ordner
+  '/api/', // Serverrouten, keine UI-Seiten
 ];
 
-const EXCLUDE_FILES = new Set([
-  'src/components/ui/Icon.astro',
-  'src/components/ui/Icon.tsx',
-]);
+const EXCLUDE_FILES = new Set(['src/components/ui/Icon.astro', 'src/components/ui/Icon.tsx']);
 
 // Mapping Emoji → Icon-Key
-const EMOJI_MAP = new Map(Object.entries({
-  '🎉': 'celebration',
-  '🚀': 'rocket',
-  '📊': 'chart',
-  '💡': 'lightbulb',
-  '🔍': 'search',
-  '🔑': 'key',
-  '🔄': 'refresh',
-  '🔧': 'tool',
-  '🎨': 'palette',
-  '💻': 'laptop',
-  '🖼️': 'photo',
-  '🔇': 'noise',
-  '🎛️': 'preset',
-  '📦': 'box',
-  '📧': 'mail',
-  '🎁': 'gift',
-  '✍️': 'edit',
-  '🎯': 'target',
-  '📚': 'book',
-  '🔌': 'plug',
-  '📋': 'clipboard',
-  '✅': 'check',
-  '🔔': 'bell',
-  '💬': 'chat',
-  '🟢': 'statusDot',
-  '🔵': 'statusDot',
-  '🟠': 'statusDot',
-  '🖱️': 'mouse',
-}));
+const EMOJI_MAP = new Map(
+  Object.entries({
+    '🎉': 'celebration',
+    '🚀': 'rocket',
+    '📊': 'chart',
+    '💡': 'lightbulb',
+    '🔍': 'search',
+    '🔑': 'key',
+    '🔄': 'refresh',
+    '🔧': 'tool',
+    '🎨': 'palette',
+    '💻': 'laptop',
+    '🖼️': 'photo',
+    '🔇': 'noise',
+    '🎛️': 'preset',
+    '📦': 'box',
+    '📧': 'mail',
+    '🎁': 'gift',
+    '✍️': 'edit',
+    '🎯': 'target',
+    '📚': 'book',
+    '🔌': 'plug',
+    '📋': 'clipboard',
+    '✅': 'check',
+    '🔔': 'bell',
+    '💬': 'chat',
+    '🟢': 'statusDot',
+    '🔵': 'statusDot',
+    '🟠': 'statusDot',
+    '🖱️': 'mouse',
+  })
+);
 
 const VARIATION_SELECTOR = '\uFE0F'; // U+FE0F
 
@@ -300,17 +295,20 @@ function extOf(file) {
           continue;
         }
         if (await processAstro(file)) {
-          changed++; touched.push(file);
+          changed++;
+          touched.push(file);
         }
       } else if (ext === '.tsx' || ext === '.jsx') {
         const norm = file.split(path.sep).join('/');
         if (norm.includes('/scripts/')) continue;
         if (await processJsxTsx(file)) {
-          changed++; touched.push(file);
+          changed++;
+          touched.push(file);
         }
       } else if (ext === '.json' && file.split(path.sep).join('/').startsWith('src/locales/')) {
         if (await processJson(file)) {
-          changed++; touched.push(file);
+          changed++;
+          touched.push(file);
         }
       }
     } catch (e) {

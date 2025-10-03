@@ -9,7 +9,7 @@
     "de": "Deutsch",
     "en": "English"
   },
-  
+
   "pages": {
     "login": {
       "title": "Login",
@@ -323,11 +323,7 @@
         "get_started_button": "Get started",
         "documentation_link": "View documentation",
         "tools_link": "Browse our tools",
-        "typewriter": [
-          "Imag‑Enhancer",
-          "Automated tests",
-          "Smart debugging"
-        ]
+        "typewriter": ["Imag‑Enhancer", "Automated tests", "Smart debugging"]
       }
     },
     "blog": {
@@ -653,16 +649,76 @@
           "enterprise": "Enterprise"
         },
         "rows": {
-          "images_per_month": { "name": "Images per month", "starter": "450 (15/day)", "pro": "400", "premium": "1,200", "enterprise": "5,000+" },
-          "daily_burst": { "name": "Daily burst cap", "starter": "15", "pro": "40", "premium": "120", "enterprise": "500" },
-          "max_resolution": { "name": "Max resolution", "starter": "8 MP", "pro": "16 MP", "premium": "32 MP", "enterprise": "64 MP+" },
-          "max_upscale": { "name": "Max upscale", "starter": "2×", "pro": "4×", "premium": "6×", "enterprise": "8×" },
-          "face_enhance": { "name": "Face enhance", "starter": "❌", "pro": "✅", "premium": "✅", "enterprise": "✅" },
-          "batch": { "name": "Batch size", "starter": "1", "pro": "5", "premium": "20", "enterprise": "100" },
-          "api_calls": { "name": "API calls / month", "starter": "—", "pro": "2,000", "premium": "10,000", "enterprise": "Custom" },
-          "queue": { "name": "Queue priority", "starter": "Low", "pro": "Normal", "premium": "High", "enterprise": "Highest" },
-          "commercial": { "name": "Commercial use", "starter": "No", "pro": "Yes", "premium": "Yes", "enterprise": "Yes" },
-          "support": { "name": "Support", "starter": "Community", "pro": "48h", "premium": "24h", "enterprise": "Dedicated" }
+          "images_per_month": {
+            "name": "Images per month",
+            "starter": "450 (15/day)",
+            "pro": "400",
+            "premium": "1,200",
+            "enterprise": "5,000+"
+          },
+          "daily_burst": {
+            "name": "Daily burst cap",
+            "starter": "15",
+            "pro": "40",
+            "premium": "120",
+            "enterprise": "500"
+          },
+          "max_resolution": {
+            "name": "Max resolution",
+            "starter": "8 MP",
+            "pro": "16 MP",
+            "premium": "32 MP",
+            "enterprise": "64 MP+"
+          },
+          "max_upscale": {
+            "name": "Max upscale",
+            "starter": "2×",
+            "pro": "4×",
+            "premium": "6×",
+            "enterprise": "8×"
+          },
+          "face_enhance": {
+            "name": "Face enhance",
+            "starter": "❌",
+            "pro": "✅",
+            "premium": "✅",
+            "enterprise": "✅"
+          },
+          "batch": {
+            "name": "Batch size",
+            "starter": "1",
+            "pro": "5",
+            "premium": "20",
+            "enterprise": "100"
+          },
+          "api_calls": {
+            "name": "API calls / month",
+            "starter": "—",
+            "pro": "2,000",
+            "premium": "10,000",
+            "enterprise": "Custom"
+          },
+          "queue": {
+            "name": "Queue priority",
+            "starter": "Low",
+            "pro": "Normal",
+            "premium": "High",
+            "enterprise": "Highest"
+          },
+          "commercial": {
+            "name": "Commercial use",
+            "starter": "No",
+            "pro": "Yes",
+            "premium": "Yes",
+            "enterprise": "Yes"
+          },
+          "support": {
+            "name": "Support",
+            "starter": "Community",
+            "pro": "48h",
+            "premium": "24h",
+            "enterprise": "Dedicated"
+          }
         },
         "contact_cta": "Questions about the plans?"
       },

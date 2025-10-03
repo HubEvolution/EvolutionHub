@@ -7,7 +7,8 @@ const outDir = join(root, 'tests', 'fixtures');
 mkdirSync(outDir, { recursive: true });
 
 // 1x1 transparent PNG (base64)
-const pngBase64 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9YvJk8UAAAAASUVORK5CYII=';
+const pngBase64 =
+  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9YvJk8UAAAAASUVORK5CYII=';
 const png = Buffer.from(pngBase64, 'base64');
 writeFileSync(join(outDir, 'tiny.png'), png);
 

@@ -2,10 +2,7 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "noEmit": true,
-    "typeRoots": [
-      "./src/types",
-      "./node_modules/@types"
-    ]
+    "typeRoots": ["./src/types", "./node_modules/@types"]
   },
   "include": [
     "src/env.d.ts",

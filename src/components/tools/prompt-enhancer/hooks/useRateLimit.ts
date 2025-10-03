@@ -1,4 +1,3 @@
-
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 export interface UseRateLimit {
@@ -19,7 +18,10 @@ export function useRateLimit(): UseRateLimit {
     return () => window.clearInterval(id);
   }, [retryUntil]);
 
-  const retryActive = useMemo(() => Boolean(retryUntil && nowMs < (retryUntil as number)), [retryUntil, nowMs]);
+  const retryActive = useMemo(
+    () => Boolean(retryUntil && nowMs < (retryUntil as number)),
+    [retryUntil, nowMs]
+  );
   const retryRemainingSec = useMemo(() => {
     if (!retryUntil) return 0;
     return Math.max(0, Math.ceil((retryUntil - nowMs) / 1000));
@@ -35,13 +37,24 @@ export function useRateLimit(): UseRateLimit {
     let retrySec = ra ? parseInt(ra, 10) : 0;
     if (!retrySec) {
       try {
-        const bodyUnknown: unknown = await res.clone().json().catch(() => null);
-        const details = (bodyUnknown && typeof bodyUnknown === 'object' && bodyUnknown !== null && 'error' in bodyUnknown && typeof (bodyUnknown as { error: unknown }).error === 'object' && (bodyUnknown as { error: unknown }).error !== null && 'details' in (bodyUnknown as { error: { details?: unknown } }).error)
-          ? (bodyUnknown as { error: { details: unknown } }).error.details
-          : null;
-        const retryAfter = (details && typeof details === 'object' && details !== null && 'retryAfter' in details)
-          ? (details as { retryAfter: unknown }).retryAfter
-          : undefined;
+        const bodyUnknown: unknown = await res
+          .clone()
+          .json()
+          .catch(() => null);
+        const details =
+          bodyUnknown &&
+          typeof bodyUnknown === 'object' &&
+          bodyUnknown !== null &&
+          'error' in bodyUnknown &&
+          typeof (bodyUnknown as { error: unknown }).error === 'object' &&
+          (bodyUnknown as { error: unknown }).error !== null &&
+          'details' in (bodyUnknown as { error: { details?: unknown } }).error
+            ? (bodyUnknown as { error: { details: unknown } }).error.details
+            : null;
+        const retryAfter =
+          details && typeof details === 'object' && details !== null && 'retryAfter' in details
+            ? (details as { retryAfter: unknown }).retryAfter
+            : undefined;
         if (typeof retryAfter === 'number' || typeof retryAfter === 'string') {
           const n = Number(retryAfter);
           if (Number.isFinite(n) && n > 0) retrySec = n;

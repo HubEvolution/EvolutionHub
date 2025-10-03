@@ -53,6 +53,15 @@ Siehe auch: [../SETUP.md](../SETUP.md) für Schnellstart-Anleitung
 - **[Hybrid Logging System](./hybrid-logging-system.md)** — WebSocket/SSE-basiertes Logging für Astro/Wrangler Dev
 - **[Icon Guidelines](./icon-guidelines.md)** — Verwendung von Icons (Heroicons, Lottie)
 
+### Debug Panel: Filter & Header-Debug-Flags
+
+- Standardmäßig sind die Level-Filter `error`, `warn`, `info`, `log` aktiv; `debug` ist per Default deaktiviert und wird in `localStorage.debugPanel.levelFilter` persistiert.
+- Quellen-Filter (`server|client|console|network`) sowie Mute-Patterns werden ebenfalls in LocalStorage gespeichert.
+- HeaderScroll-Diagnose-Flags (nur in Dev):
+  - `localStorage.debug.headerScroll = '1'` oder URL-Query `?debugHeader` aktiviert ausführlichere Logs.
+  - `localStorage.debug.headerScrollTrace = '1'` schaltet optionale Trace-Logs (per Scroll) frei.
+  - Ohne Flags werden nur Zustandswechsel (sichtbar/hidden, Init/Cleanup) geloggt, um Log-Spam zu vermeiden.
+
 ## Third-Party Integrations
 
 - **[Stripe Setup](./stripe-setup.md)** — Stripe-Integration für Payments und Subscriptions

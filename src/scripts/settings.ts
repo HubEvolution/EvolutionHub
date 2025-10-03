@@ -9,23 +9,23 @@ export const handleProfileForm = () => {
   // Ensure the form doesn't submit normally
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    
+
     const submitButton = form.querySelector('button[type="submit"]') as HTMLButtonElement;
     const originalButtonText = submitButton.textContent;
-    
+
     try {
       // Show loading state
       submitButton.textContent = 'Saving...';
       submitButton.disabled = true;
-      
+
       const formData = new FormData(form);
-      
+
       // Remove avatar field from profile update if it exists
       // (avatar is handled separately)
       if (formData.has('avatar')) {
         formData.delete('avatar');
       }
-      
+
       const response = await fetch('/api/user/profile', {
         method: 'POST',
         body: formData,
@@ -105,12 +105,13 @@ export const handlePasswordForm = () => {
     }
 
     if (score < 3) {
-      if (errorContainer) errorContainer.textContent = 'Password is too weak. Please use a stronger password.';
+      if (errorContainer)
+        errorContainer.textContent = 'Password is too weak. Please use a stronger password.';
       return;
     }
 
     const formData = new FormData(form);
-    
+
     const response = await fetch('/api/user/password', {
       method: 'POST',
       body: formData,
@@ -142,12 +143,12 @@ export const handleAvatarUpload = () => {
     if (!input.files || input.files.length === 0) {
       return;
     }
-    
+
     // Show loading indicator
     notify.info('Uploading avatar...');
     (changeButton as HTMLButtonElement).textContent = 'Uploading...';
     (changeButton as HTMLButtonElement).setAttribute('disabled', 'true');
-    
+
     const file = input.files[0];
     const formData = new FormData();
     formData.append('avatar', file);
@@ -161,7 +162,9 @@ export const handleAvatarUpload = () => {
       if (response.ok) {
         const json: unknown = await response.json();
         if (json && typeof json === 'object' && 'imageUrl' in json) {
-          (document.getElementById('avatar-preview') as HTMLImageElement).src = String((json as any).imageUrl);
+          (document.getElementById('avatar-preview') as HTMLImageElement).src = String(
+            (json as any).imageUrl
+          );
           notify.success('Avatar updated successfully!');
         } else {
           notify.error('Unexpected response from server while updating avatar');
