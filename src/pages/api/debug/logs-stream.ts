@@ -25,6 +25,10 @@ import { logApiAccess } from '@/lib/security-logger';
  */
 export const GET = async (context: APIContext) => {
   try {
+    // Gate by env flag to avoid exposing debug stream when disabled
+    if (import.meta.env.PUBLIC_ENABLE_DEBUG_PANEL !== 'true') {
+      return new Response('Not found', { status: 404 });
+    }
     // Manual logging instead of middleware
     logApiAccess('anonymous', context.clientAddress || 'unknown', {
       endpoint: '/api/debug/logs-stream',
@@ -87,18 +91,11 @@ export const GET = async (context: APIContext) => {
         }, 5000); // Every 5 seconds
 
         // Auto-close after 5 minutes to prevent indefinite connections
-        const timeout = setTimeout(() => {
+        void setTimeout(() => {
           clearInterval(heartbeatInterval);
           unregisterSSEStream(controller);
           controller.close();
         }, 300000); // 5 minutes
-
-        // Cleanup on abort
-        const cleanup = () => {
-          clearInterval(heartbeatInterval);
-          clearTimeout(timeout);
-          unregisterSSEStream(controller);
-        };
 
         // Note: Cannot directly listen to abort signal in this context
         // Client will auto-reconnect if connection drops
@@ -133,6 +130,13 @@ export const GET = async (context: APIContext) => {
  */
 export const POST = async (context: APIContext) => {
   try {
+    // Gate by env flag to avoid exposing debug polling when disabled
+    if (import.meta.env.PUBLIC_ENABLE_DEBUG_PANEL !== 'true') {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Debug panel disabled' }),
+        { status: 404, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
     // Manual logging instead of middleware
     logApiAccess('anonymous', context.clientAddress || 'unknown', {
       endpoint: '/api/debug/logs-stream',

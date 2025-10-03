@@ -6,7 +6,6 @@ Diese Dokumentation beschreibt die vollständig automatisierte Continuous Integr
 
 1. [Überblick](#überblick)
 2. [GitHub Actions Workflows](#github-actions-workflows)
-10. [Entwicklungs-Workflow](#entwicklungs-workflow)
 3. [CI-Gates (Qualitätssicherung)](#ci-gates-qualitätssicherung)
 4. [Deployment-Prozess](#deployment-prozess)
 5. [Umgebungen](#umgebungen)
@@ -14,6 +13,7 @@ Diese Dokumentation beschreibt die vollständig automatisierte Continuous Integr
 7. [Secrets & Konfiguration](#secrets--konfiguration)
 8. [Rollback-Strategien](#rollback-strategien)
 9. [Fehlerbehebung](#fehlerbehebung)
+10. [Entwicklungs-Workflow](#entwicklungs-workflow)
 
 ---
 
@@ -725,6 +725,7 @@ Für eine optimale Entwicklungserfahrung wurden die strengen Pre-commit Hooks an
 ### Aktuelle Konfiguration
 
 #### ✅ **Deaktivierte Pre-commit Hooks**
+
 ```bash
 # .husky/pre-commit
 # npx lint-staged  # Disabled for development
@@ -733,6 +734,7 @@ Für eine optimale Entwicklungserfahrung wurden die strengen Pre-commit Hooks an
 **Auswirkung:** Keine automatische Code-Formatierung oder Linting bei Commits mehr.
 
 #### ✅ **Entspannte ESLint-Konfiguration**
+
 ```bash
 # eslint.config.dev.js verfügbar für Entwicklung
 # - @typescript-eslint/no-explicit-any: 'off'
@@ -743,6 +745,7 @@ Für eine optimale Entwicklungserfahrung wurden die strengen Pre-commit Hooks an
 ### Empfohlener Entwicklungs-Workflow
 
 #### **Tägliche Entwicklung:**
+
 ```bash
 # 1. Code entwickeln (keine strengen Prüfungen)
 git add .
@@ -754,6 +757,7 @@ npx astro check           # TypeScript Check
 ```
 
 #### **Vor PR-Erstellung:**
+
 ```bash
 # 1. Vollständige Qualitätsprüfung
 npm run format            # Formatierung korrigieren
@@ -766,6 +770,7 @@ npx eslint 'src/**/*.{ts,astro}' --fix --max-warnings=280
 ```
 
 #### **Für Releases:**
+
 ```bash
 # Alle CI-Gates lokal durchführen
 npm run lint
@@ -778,6 +783,7 @@ npm audit --audit-level=moderate
 ### Temporäres Überspringen von Hooks
 
 Für eilige Commits:
+
 ```bash
 git commit --no-verify -m "WIP: Your message"
 ```
@@ -795,11 +801,13 @@ git commit --no-verify -m "WIP: Your message"
 ### IDE-Integration
 
 #### **VS Code Empfehlungen:**
+
 - **ESLint Extension:** Echtzeit-Feedback (konfiguriere auf `eslint.config.dev.js`)
 - **Prettier Extension:** Automatische Formatierung bei Speichern
 - **Astro Extension:** TypeScript-Unterstützung
 
 #### **Andere Editoren:**
+
 ```bash
 # Verwende die entspannte Konfiguration
 npx eslint --config eslint.config.dev.js src/
@@ -808,6 +816,7 @@ npx eslint --config eslint.config.dev.js src/
 ### Troubleshooting
 
 #### **ESLint blockiert nicht mehr, aber:**
+
 ```bash
 # Bei vielen Warnungen: Entspannte Regeln verwenden
 npx eslint --config eslint.config.dev.js src/
@@ -817,6 +826,7 @@ npx eslint --config eslint.config.js src/
 ```
 
 #### **Formatierung inkonistent:**
+
 ```bash
 # Schnelle Korrektur
 npm run format
@@ -828,6 +838,7 @@ npx prettier --write src/components/Example.tsx
 ### Migration von altem Workflow
 
 #### **Falls du die strengen Hooks wieder brauchst:**
+
 ```bash
 # 1. Pre-commit Hook reaktivieren
 echo "npx lint-staged" > .husky/pre-commit
@@ -837,6 +848,7 @@ echo "npx lint-staged" > .husky/pre-commit
 ```
 
 #### **Für Team-Entwicklung:**
+
 - Pre-commit Hooks können pro Entwickler aktiviert werden
 - CI/CD Pipeline bleibt unverändert streng
 - Nur lokale Entwicklung wird entspannter
@@ -844,6 +856,7 @@ echo "npx lint-staged" > .husky/pre-commit
 ### Nächste Schritte
 
 Nach der Entwicklungsphase kannst du:
+
 1. **Hooks wieder aktivieren:** Wenn das Team strengere lokale Prüfungen wünscht
 2. **Custom ESLint-Regeln:** Team-spezifische Regeln für bessere Balance
 3. **IDE-Settings:** Automatische Formatierung bei Speichern aktivieren

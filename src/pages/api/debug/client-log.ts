@@ -11,61 +11,54 @@ import { log } from '@/server/utils/logger';
 
 export const POST = async (context: APIContext) => {
   try {
-    const body = await context.request.json();
-    const { level, message, context: logContext } = body;
+    // Gate by env flag to avoid exposure when disabled
+    if (import.meta.env.PUBLIC_ENABLE_DEBUG_PANEL !== 'true') {
+      return new Response(
+        JSON.stringify({ success: false, error: { type: 'not_found', message: 'Debug panel disabled' } }),
+        { status: 404, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+    const raw: unknown = await context.request.json();
+    const validLevels = ['info', 'warn', 'error', 'debug', 'log'] as const;
+    type Level = typeof validLevels[number];
 
-    if (!level || !message) {
+    const isLevel = (v: unknown): v is Level =>
+      typeof v === 'string' && (validLevels as readonly string[]).includes(v);
+
+    type Entry = { level: Level; message: string; context?: Record<string, unknown> };
+    const isEntry = (v: unknown): v is Entry =>
+      !!v && typeof v === 'object' &&
+      isLevel((v as any).level) && typeof (v as any).message === 'string';
+
+    let entries: Entry[] = [];
+    if (Array.isArray(raw)) {
+      entries = raw.filter(isEntry);
+    } else if (raw && typeof raw === 'object' && Array.isArray((raw as any).entries)) {
+      entries = ((raw as any).entries as unknown[]).filter(isEntry) as Entry[];
+    } else if (isEntry(raw)) {
+      entries = [raw];
+    }
+
+    if (!entries.length) {
       return new Response(
         JSON.stringify({
           success: false,
-          error: {
-            type: 'validation_error',
-            message: 'Missing required fields: level and message',
-          },
+          error: { type: 'validation_error', message: 'No valid log entries provided' },
         }),
-        {
-          status: 400,
-          headers: { 'Content-Type': 'application/json' },
-        }
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
       );
     }
 
-    // Validate level
-    const validLevels = ['info', 'warn', 'error', 'debug', 'log'];
-    if (!validLevels.includes(level)) {
-      return new Response(
-        JSON.stringify({
-          success: false,
-          error: {
-            type: 'validation_error',
-            message: `Invalid level. Must be one of: ${validLevels.join(', ')}`,
-          },
-        }),
-        {
-          status: 400,
-          headers: { 'Content-Type': 'application/json' },
-        }
-      );
+    let count = 0;
+    for (const { level, message, context: logContext } of entries) {
+      const enrichedContext = { ...(logContext || {}), source: 'client' } as Record<string, unknown>;
+      log(level, `[CLIENT] ${message}`, enrichedContext);
+      count++;
     }
-
-    // Add client indicator to context
-    const enrichedContext = {
-      ...logContext,
-      source: 'client',
-    };
-
-    // Log it using the server logger (will appear in debug panel)
-    log(level, `[CLIENT] ${message}`, enrichedContext);
 
     return new Response(
-      JSON.stringify({
-        success: true,
-        data: { logged: true },
-      }),
-      {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' },
-      }
+      JSON.stringify({ success: true, data: { logged: count } }),
+      { status: 200, headers: { 'Content-Type': 'application/json' } }
     );
   } catch (error: any) {
     return new Response(
