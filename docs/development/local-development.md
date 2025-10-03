@@ -23,15 +23,15 @@ Bevor du mit der Entwicklung beginnst, stelle sicher, dass du folgende Tools ins
 
 ### Erforderliche Software
 
-- **Node.js**: Version 18 oder höher
+- **Node.js**: Version 20 (siehe Projekt-README)
 
   ```bash
   # Überprüfe die installierte Version
   node --version
   
   # Installiere Node.js mit nvm (empfohlen)
-  nvm install 18
-  nvm use 18
+  nvm install 20
+  nvm use 20
   ```
 
 - **npm**: Version 8 oder höher (wird mit Node.js installiert)
@@ -119,21 +119,18 @@ JWT_SECRET=your-local-jwt-secret
 D1_DATABASE=evolution-hub-local
 ```
 
-### 4. Datenbank initialisieren
+### 4. Automatisches Setup (empfohlen)
 
 ```bash
-# Erstelle die lokale D1-Datenbank
-wrangler d1 create evolution-hub-local
-
-# Führe Migrationen aus
-npm run db:migrate
+# Erstellt lokale D1-Datenbank, führt Migrationen aus und richtet R2/KV für Dev ein
+npm run setup:local
 ```
 
-### 5. Seed-Daten laden (optional)
+### 5. Datenbank-Migrationen manuell ausführen (optional)
 
 ```bash
-# Lade Testdaten in die Datenbank
-npm run db:seed
+# Führt alle Migrationen erneut aus
+npm run db:migrate
 ```
 
 ---
@@ -142,12 +139,19 @@ npm run db:seed
 
 ### Starten des Entwicklungsservers
 
+Empfohlen ist ein Zwei-Terminal-Setup:
+
 ```bash
-# Starte den Astro-Entwicklungsserver
-npm run dev
+# Terminal 1 – beobachtet Builds für den Worker-Ausgabeordner
+npm run build:watch
+
+# Terminal 2 – startet Wrangler Dev (inklusive Build) auf Port 8787
+npm run dev:worker
 ```
 
-Der Entwicklungsserver ist dann unter `http://localhost:3000` verfügbar.
+Alternativ kannst du `npm run dev` verwenden, was denselben Worker-Flow startet. Für reine Astro-UI-Iterationen ohne Cloudflare-Bindings steht `npm run dev:astro` bereit.
+
+Der vollständige Stack ist unter `http://127.0.0.1:8787` erreichbar.
 
 ### Entwicklungsserver-Features
 
@@ -158,11 +162,14 @@ Der Entwicklungsserver ist dann unter `http://localhost:3000` verfügbar.
 ### Entwicklungsserver-Optionen
 
 ```bash
-# Starte den Server auf einem anderen Port
-npm run dev -- --port 4000
+# Erzwinge das Development-Environment und nutze Remote-Ressourcen aus wrangler.toml
+npm run dev:worker:dev
 
-# Starte den Server mit Netzwerkzugriff (für Tests auf anderen Geräten)
-npm run dev -- --host
+# Überspringe den Build-Schritt (nur wenn ein frisches dist/ bereits existiert)
+npm run dev:worker:nobuild
+
+# Astro-Only Server auf Port 4321 (Standard-Astro-Port) starten
+npm run dev:astro -- --port 4321
 ```
 
 ---
@@ -218,31 +225,16 @@ Wrangler ist das CLI-Tool für die Entwicklung mit Cloudflare Workers und D1.
 
 ### Wrangler-Konfiguration
 
-Die Hauptkonfiguration befindet sich in der `wrangler.toml`-Datei:
-
-```toml
-name = "evolution-hub"
-compatibility_date = "2023-01-01"
-
-# Umgebungsvariablen
-[vars]
-NODE_ENV = "development"
-
-# D1-Datenbank
-[[d1_databases]]
-binding = "DB"
-database_name = "evolution-hub-local"
-database_id = "deine-datenbank-id"
-```
+Die Hauptkonfiguration befindet sich in der `wrangler.toml`-Datei und definiert Worker-Eintrittspunkt, `compatibility_date`, Assets sowie alle D1-, R2- und KV-Bindings für jede Umgebung (`wrangler.toml:5-124`).
 
 ### Lokale Entwicklung mit Wrangler
 
 ```bash
-# Starte den Wrangler-Entwicklungsserver
-wrangler dev
+# Startet Wrangler inklusive Worker-Build aus dist/
+npm run dev:worker
 
-# Starte mit spezifischen Umgebungsvariablen
-wrangler dev --env development
+# Nutzt explizit das development-Environment (Secrets/Buckets gemäß wrangler.toml)
+npm run dev:worker:dev
 ```
 
 ### D1-Operationen

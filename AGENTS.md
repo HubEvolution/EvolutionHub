@@ -1,143 +1,55 @@
-# Repository Guidelines
+# Evolution Hub – AGENTS Leitfaden
 
-## Project Structure & Module Organization
+## Ziel & Scope
 
-Evolution Hub is an Astro + Cloudflare Workers app. Runtime source lives under `src/` with UI in `components/` and `pages/`, server handlers in `server/` and shared logic in `lib/`, `stores/`, and `utils/`. Content entries are under `src/content/`, locales in `src/locales/`, and styles in `src/styles/`. Automation and migration scripts live in `scripts/` and `migrations/`. End-to-end assets (fixtures, snapshots, reports) sit alongside tests in `tests/` and `test-suite-v2/`. Built worker files output to `dist/`, while static assets resolve from `public/`.
+- Arbeite auf dem Astro 5 + Cloudflare Workers Stack mit React-Inseln und Tailwind als beschriebenes Produktfundament; alle Entscheidungen sollten sich am dokumentierten Feature-Set orientieren (`README.md:27-36`).
+- Nutze die vorhandene Projekt-Dokumentation als primäre Quelle bevor du neue Anforderungen definierst oder rätst (`docs/README.md:1-43`).
+- Halte Beiträge klein und überprüfbar – das Agent-Setup erwartet assistiert-autonome Änderungen in begrenztem Umfang (`CLAUDE.md:318-335`).
 
-## Build, Test, and Development Commands
+## Build/Run/Test-Laufzettel
 
-Use `npm run dev:remote` for the default Cloudflare-backed dev server, or `npm run dev:worker:dev` when iterating locally without remote services. `npm run build` emits the Astro worker bundle. Run all unit and integration suites with `npm run test`, or scope to `npm run test:unit` / `npm run test:integration`. Launch Playwright end-to-end checks via `npm run test:e2e` and open the HTML report with `npm run test:e2e:report`. `npm run lint` covers TypeScript/Astro linting, and `npm run format:check` validates Prettier formatting.
+- Lokales Setup inkl. Datenbank: `npm run setup:local` (ruft `scripts/setup-local-dev.ts`) und `npm run db:migrate` falls nötig (`package.json:15`,`package.json:49-50`).
+- Cloudflare Worker-Dev: `npm run dev:worker` baut zuerst den Worker und startet Wrangler auf Port 8787; `npm run dev:worker:dev` erzwingt das Development-Env (`package.json:9-12`).
+- Astro-Only Preview: `npm run dev:astro` für reine UI-Iterationen ohne Wrangler (`package.json:13`).
+- Build-Artefakte: `npm run build` für den Standard-Build, `npm run build:worker` erzwingt `ASTRO_DEPLOY_TARGET=worker` und kopiert die Assets in `dist/` (`package.json:18-21`).
+- Tests (Vitest): `npm run test`, `npm run test:once`, `npm run test:coverage`, sowie fokussierte Läufe wie `npm run test:unit` und `npm run test:integration` (`package.json:24-31`).
+- Playwright E2E: Standard über `npm run test:e2e`/`test:e2e:v2`; verwende `test:e2e:chromium|firefox|webkit|mobile` für projektspezifische Läufe (`package.json:32-41`).
+- Coverage-Gate: Vitest erzwingt ≥70 % für Statements/Branches/Functions/Lines (`vitest.config.ts:25-33`).
+- Lint & Format: `npm run lint` (ESLint) + `npm run format:check` bzw. `npm run format` für Prettier; Markdownlint verfügbar via `npm run lint:md` (`package.json:43-45`,`package.json:61-62`).
+- Type-Checks laufen in CI via `npx astro check --tsconfig tsconfig.astro.json`; führe lokal denselben Befehl, um Pipeline-Fehler zu vermeiden (`.github/workflows/unit-tests.yml:142-158`).
 
-## Coding Style & Naming Conventions
+## Arbeitsregeln
 
-The repo targets TypeScript with strict module resolution (`tsconfig.json`) and formats via Prettier (2-space indent, single quotes). Components and stores use PascalCase filenames (`ProfileCard.astro`, `UserStore.ts`); shared utilities stay camelCase (`fetchProfile.ts`). React hooks should be prefixed with `use`. Run `npm run format` before submitting; ESLint rules (see `eslint.config.js`) enforce import ordering, unused checks, and Astro template hygiene.
+- Beginne jede Aufgabe mit Analyse und Plan (Scout-Rolle) und dokumentiere Pfad-/Zeilenbelege, bevor du schreibst (`docs/meta/registry.json:461-505`).
+- Folge dem in `CONTRIBUTING` beschriebenen Workflow: Issue wählen, Branch von `main`, implementieren, testen, PR erstellen (`CONTRIBUTING.md:65-74`).
+- Fokusbereiche stimmen mit dem TypeScript-Include überein: arbeite primär in `src/**` und `tests/**` (`tsconfig.json:34-35`).
+- Behalte Repo-Dokumentation und Konfigurationen als Referenz offen; viele Workflows sind in `docs/development/README.md` hinterlegt (`docs/development/README.md:7-116`).
 
-## Testing Guidelines
+## Code-Qualität
 
-Place new unit specs next to the target module under `tests/unit/**` using `*.spec.ts` naming. Integration flows belong in `tests/integration/**`, and UI automation extends Playwright configs in `test-suite-v2/`. Seeded fixtures live in `tests/fixtures/`. Execute `npm run test:coverage` to confirm V8 coverage before large changes; Playwright snapshots should be regenerated with `npm run test:e2e:update-snapshots` when UI baselines shift.
+- TypeScript läuft im Strict-Mode, inklusive `noUnusedLocals` und `noUnusedParameters`; Respektiere diese Guards (`tsconfig.json:23-32`).
+- ESLint-Regeln erzwingen u. a. Alias-Nutzung (`@/*`), React-Hooks-Checks und `prettier/prettier` Warnungen – halte dich daran (`eslint.config.js:13-46`).
+- Prettier formatiert mit `singleQuote`, `semi`, `printWidth 100`; nutze dieselben Optionen (`.prettierrc.json:2-18`).
+- Pre-commit läuft über lint-staged (`eslint --fix` + `prettier --write`), also commite nur saubere Dateien (`.lintstagedrc.json:1-4`).
+- CI erwartet `npm audit --audit-level=moderate`, Astro-Typecheck, Lint und Tests – gleiche Checks sind in der Deploy-Pipeline obligatorisch (`.github/workflows/unit-tests.yml:66-175`,`.github/workflows/deploy.yml:38-52`).
+- Keine PII oder Secrets loggen; maskiere insbesondere E-Mails und Token wie im Auth-Dokument gefordert (`docs/architecture/auth-migration-stytch.md:63-94`).
 
-## Commit & Pull Request Guidelines
+## Cloudflare Workers
 
-Follow Conventional Commits (`type(scope): summary`), mirroring existing history (e.g., `refactor(logging): consolidate worker adapters`). Include context in the body for migrations or scripts. PRs should summarize intent, list affected routes or services, link related issues, and attach logs or screenshots for UI updates. Ensure lint/test checks pass locally and note any follow-up work in the PR description.
+- Worker-Builds setzen `ASTRO_DEPLOY_TARGET=worker` und legen Assets in `dist/`; halte dazu `npm run build:worker` aktuell (`package.json:20`).
+- D1-Datenbank steht als `DB` zur Verfügung, mit separaten IDs je Environment (`wrangler.toml:18-47`,`wrangler.toml:185-229`).
+- R2-Buckets (`R2_AVATARS`, `R2_LEADMAGNETS`, `R2_AI_IMAGES`) und KV-Namespaces (`SESSION`, `KV_AI_ENHANCER`, `KV_WEBSCRAPER`) sind pro Env definiert – binde sie exakt nach Config ein (`wrangler.toml:48-116`,`wrangler.toml:200-254`,`wrangler.toml:256-309`).
+- Secrets gehören in Wrangler-Variablen/Secrets, nicht in den Code (`wrangler.toml:125-147`).
 
-# GLOBAL_RULES.md — Projektregeln (IST, 2025-10-03)
+## Rollen
 
-Diese Regeln spiegeln den aktuellen Stand der Codebasis wider (Astro/TypeScript auf Cloudflare Workers). Quelle: tatsächliche Konfiguration und Implementierung in `astro.config.mjs`, `wrangler.toml`, `tsconfig.json`, `eslint.config.js`, `.prettierrc.json`, `src/middleware.ts`, `src/lib/**`, `src/pages/api/**`, `openapi.yaml`, sowie Test-Configs.
+- **Reviewer**: Prüfe Branch-Konvention, PR-Inhalt und dass Lint, Tests, Coverage und Audit laufen; orientiere dich an den PR-Anforderungen in `CONTRIBUTING` (`CONTRIBUTING.md:150-190`) und den Pflicht-Jobs in CI (`.github/workflows/unit-tests.yml:66-175`).
+- **Debugger**: Halte das Debug-Panel aktiv (Astro: 4322, Worker: 8787), überwache Log-Levels und nutze die beschriebenen Troubleshooting-Schritte (`docs/development/debug-panel-usage.md:1-169`).
 
-## Stack & Architektur
+## PR-Flow
 
-- **Framework/Runtime**: Astro v5 mit Adapter `@astrojs/cloudflare` (Directory-Mode). React- und Tailwind-Integrationen in `astro.config.mjs`.
-- **Zielplattform**: Cloudflare Workers + D1 (DB), KV, R2 (Assets). Bindings/Envs je Umgebung in `wrangler.toml` (`development`, `testing`, `staging`, `production`).
-- **Modulorganisation**: Runtime-Code unter `src/`.
-  - UI: `src/components/`, `src/pages/`, Layouts in `src/layouts/`.
-  - Server/Handlers: Astro API-Routen in `src/pages/api/**`.
-  - Shared/Infra: `src/lib/`, `src/config/`, `src/utils/`.
-  - Inhalte/Locales: `src/content/`, `src/locales/`, Styles in `src/styles/`.
-  - Automatisierung/Migrationen: `scripts/`, `migrations/`.
-  - E2E/Tests/Artefakte: `tests/**`, `test-suite-v2/**`.
-  - R2-Proxy-Routen: `src/pages/r2/**`, `src/pages/r2-ai/**`.
-
-## Entwicklung, Build & Skripte
-
-- **Dev-Server**: `npm run dev:remote` (Workers-Remote), `npm run dev:worker:dev` (lokal ohne Remote), `npm run dev:e2e` für Playwright-Läufe (startet Worker).
-- **Build**: `npm run build` (Astro), Worker-Bundles über `build:worker*`-Skripte. Assets-Header via Adapter `staticAssetHeaders` in `astro.config.mjs`.
-- **Preview**: `npm run preview`.
-- **Lint/Format**: `npm run lint`, `npm run format`, `npm run format:check`.
-- **OpenAPI**: `npm run openapi:validate`, `openapi.yaml` ist Quelle der Routen-Doku.
-- **Datenbank/Setup**: `npm run db:setup` (lokal), Drizzle-Skripte vorhanden.
-
-## TypeScript, ESLint, Prettier
-
-- **TS-Strict**: `strict: true`, `noUnusedLocals/Parameters: true`, Pfad-Aliase in `tsconfig.json` (`@/*`, `@api/*`, etc.).
-- **ESLint**: Regeln in `eslint.config.js` (u. a. `no-empty` mit erlaubten Catches, React Hooks-Regeln, `no-restricted-imports` für `~/*`).
-- **Prettier**: `singleQuote: true`, `tabWidth: 2`, `printWidth: 100`, Astro-Plugin in `.prettierrc.json`.
-- **Namenskonventionen**: Komponenten/Stores PascalCase-Dateinamen, Utilities camelCase (siehe `AGENTS.md`).
-
-## Tests
-
-- **Vitest**: Multi-Project-Setup in `vitest.config.ts`.
-  - Unit (jsdom): inkludiert `src/**/*.{test,spec}.{ts,tsx}` und `tests/unit/**`.
-  - Integration (node): `tests/integration/**`, `global-setup` aktiv.
-  - Coverage: Provider V8, Schwellen 70% global, `include: src/**/*.{ts,tsx}`.
-- **Playwright**: `playwright.config.ts` nutzt `baseURL` (mit optionalem `TEST_BASE_URL`). Setzt same-origin `Origin`-Header für POSTs (CSRF-Checks). Projekte: chromium/firefox/webkit, WebServer lokal nur für Loopback-Ziele.
-
-## Middleware & Sicherheit (global)
-
-- **Globale Middleware**: `src/middleware.ts` setzt Request-Tracing (`requestId`), anonymisiert IPs, redaktiert sensible Header in Logs.
-- **CSP**:
-  - Dev-like (lokal/preview): relaxte Policy mit `'unsafe-inline'`/`'unsafe-eval'` für HMR; externe Quellen u. a. `cdn.jsdelivr.net`, `googletagmanager.com`, `plausible.io`, `static.cloudflareinsights.com`.
-  - Production (`ENVIRONMENT === 'production'`): strikte, nonce-basierte Policy mit `'strict-dynamic'`; Nonce pro Request (`cspNonce`). `report-uri /api/csp-report` aktiv. Header werden serverseitig auf alle Antworten angewandt.
-- **Weitere Security-Header**: `Strict-Transport-Security` (inkl. `preload`), `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Cross-Origin-Opener-Policy: same-origin`, `Permissions-Policy` restriktiv, `Referrer-Policy` gezielt für Reset-Passwort-Seiten.
-- **Basic Auth Gate (Prod)**: Wenn `SITE_AUTH_ENABLED` (Default true) und `SITE_PASSWORD` gesetzt, dann Basic-Auth-Gate für HTML-Seiten auf `hub-evolution.com` (nicht für `/api/**`, Assets, `/r2-ai/**`).
-- **Locale & Redirects**: Neutrale Pfade vs. `/en/*` abhängig von Cookie `pref_locale`. Splash-Gate nur einmal pro Session (`session_welcome_seen`). Auth-Routen und Imag-Enhancer-Tool sind ausgenommen.
-- **Session-Erkennung**: Liest zuerst `__Host-session`, dann Fallback `session_id` (siehe `src/middleware.ts`).
-
-## API-Design & Server-Middleware
-
-- **API-Wrapper**: `src/lib/api-middleware.ts` implementiert standardisierte Antworten, Rate-Limiting, Security-Headers, Logging, CORS/CSRF-Prüfungen sowie Varianten `withApiMiddleware`, `withAuthApiMiddleware`, `withRedirectMiddleware`.
-- **JSON-Antwort-Formate**:
-  - Erfolg: `{ success: true, data: T }` (via `createApiSuccess()`)
-  - Fehler: `{ success: false, error: { type, message, details? } }` (via `createApiError()`)
-  - Einheitliche 405: `createMethodNotAllowed(allow)` setzt Header `Allow`.
-- **CSRF & Origin**:
-  - Default: Same-Origin-Prüfung für unsichere Methoden (POST/PUT/PATCH/DELETE) via `Origin`/`Referer` (`requireSameOriginForUnsafeMethods` true).
-  - Optional strikt: Double-Submit (`X-CSRF-Token` muss Cookie `csrf_token` entsprechen) via `enforceCsrfToken`.
-  - Client-Helfer: `src/lib/security/csrf.ts` (`ensureCsrfToken()` setzt Lax-Cookie, Secure bei HTTPS; `validateCsrfToken()` prüft 32-hex & Cookie-Match).
-- **CORS/Allowed Origins**: Aus Umgebungsvariablen (`ALLOWED_ORIGINS|ALLOW_ORIGINS|APP_ORIGIN|PUBLIC_APP_ORIGIN`) plus Request-Origin (siehe `resolveAllowedOrigins()` in `api-middleware.ts`).
-- **Rate-Limiting**: In `src/lib/rate-limiter.ts` vordefiniert:
-  - `apiRateLimiter`: 30/min (Default in API-Middleware)
-  - `standardApiLimiter`: 50/min (Alternative)
-  - `authLimiter`: 10/min
-  - `sensitiveActionLimiter`: 5/Std
-  - `aiGenerateLimiter`: 15/min
-  - `aiJobsLimiter`: 10/min
-  - 429 antwortet mit JSON und Header `Retry-After` (Sekunden).
-
-## Routen, OpenAPI & Deprecations
-
-- **OpenAPI**: `openapi.yaml` spiegelt Astro-API-Routen (`x-source`) und Fehler-Mapping wider.
-  - AI-Image-Endpunkte verlangen teils `X-CSRF-Token` (Double-Submit) und mappen Providerfehler vereinheitlicht: 401/403 → `forbidden`, 4xx → `validation_error`, 5xx → `server_error`.
-  - Mehrere Legacy-Auth-Endpunkte sind als deprecated markiert und liefern `410 Gone` gemäß Spec.
-- **R2-Proxies**: `src/pages/r2-ai/[...path].ts` schützt Owner-spezifische Result-Pfade, lässt Upload-Pfade öffentlich (für Provider-Fetches), setzt differenzierte Cache-Control. Diese Routen werden in `src/middleware.ts` nie gegated/umgeleitet.
-
-## Debug/Observability
-
-- **Debug Panel (Client → Server)**: Clientseitiger Logger `src/lib/client-logger.ts` bündelt Logs (Batch, 1s Flush) und sendet an `POST /api/debug/client-log` (`src/pages/api/debug/client-log.ts`). Aktiv nur bei `PUBLIC_ENABLE_DEBUG_PANEL === 'true'`.
-- **CSP- & Access-Logs**: CSP-Reports via `POST /api/csp-report`. Request-/Response-Logging mit Redaction (`sanitizeHeaders`) und IP-Anonymisierung (`anonymizeIp`) in `src/middleware.ts`.
-
-## Coming Soon Overlay
-
-- **Konfiguration**: `src/config/coming-soon.ts`
-  - Default-Patterns: `COMING_SOON_PATTERNS` (Prefix `*` unterstützt), ENV-Override möglich (Env `COMING_SOON`).
-  - Hard-Exclusions: `COMING_SOON_EXCLUDE_PATTERNS` enthält `'/datenschutz*'` (DE/EN) — niemals überdecken.
-
-## Auth & Cookies (IST)
-
-- **Session-Cookies**: Ziel ist `__Host-session` (HttpOnly, Secure, SameSite=Strict, Path=/). Fallback `session_id` wird toleriert (SameSite=Lax). Gelesen im Middleware-Flow.
-- **Verifizierungen**: Unverifizierte Nutzer auf Dashboard-Routen werden auf `*/verify-email` umgeleitet und erhalten `email` im Query (siehe `src/middleware.ts`).
-
-## Qualität, Commits & PRs
-
-- **Qualität**: Lint (ESLint 9) und Format (Prettier 3) sind verpflichtend; CI bricht bei Verstößen (Projektregeln setzen Warnungen/Fehler je Datei-Kontext). Kurze, fokussierte Funktionen (< ~50 LOC) und flache Verschachtelung anstreben.
-- **Commits**: Conventional Commits (`type(scope): summary)`. Kontext bei Migrationen/Skripten im Body. Siehe `AGENTS.md`.
-- **PRs**: Intent erläutern, betroffene Routen/Services listen, relevante Logs/Screenshots anfügen, sicherstellen, dass Lint/Tests grün sind.
-
-## Richtlinien für Änderungen (Sicherheits- & Betriebsrelevanz)
-
-- **Secrets & Konfiguration**: Keine Secrets ins Repo. Nutzung von Wrangler-Secrets/ENV. Änderungen an `wrangler.toml` (Bindings/ENV) immer bewusst durchführen und pro Umgebung prüfen.
-- **Sicherheitsrelevantes**: CSP, Cookies, Auth-Flows und Rate-Limits nur mit Bedacht anpassen. 429-Antworten stets mit `Retry-After`. Bei neuen mutierenden Endpunkten CSRF/Origin-Checks aktivieren (`withApiMiddleware` + Optionen, ggf. `enforceCsrfToken`).
-- **API-Konsistenz**: Erfolg/Fehler-Shape strikt beibehalten. 405 immer mit `Allow`. Für HTML-Redirect-Flows `withRedirectMiddleware` verwenden.
-- **R2/Assets**: `/r2-ai/**` nie durch Gates/Overlays/Basic-Auth einschränken. Cache-Header verantwortlich setzen.
-
-## Nützliche Referenzen (Code)
-
-- **Astro/Vite/Adapter**: `astro.config.mjs`
-- **Worker/Envs/Bindings**: `wrangler.toml`
-- **Global Middleware (CSP, Locale, Auth, Gates)**: `src/middleware.ts`
-- **API Middleware (CSRF/Origin, Limits, Errors/JSON)**: `src/lib/api-middleware.ts`
-- **Rate Limiter**: `src/lib/rate-limiter.ts`
-- **CSRF Utils**: `src/lib/security/csrf.ts`
-- **Coming Soon**: `src/config/coming-soon.ts`
-- **Debug Client Log**: `src/pages/api/debug/client-log.ts`, `src/lib/client-logger.ts`
-- **OpenAPI Spec**: `openapi.yaml`
-- **Tests**: `vitest.config.ts`, `playwright.config.ts`
+- Branch-Namen folgen dem Schema `feature/*`, `bugfix/*`, `hotfix/*`, `release/*`; nutze Kleinbuchstaben und Bindestriche (`CONTRIBUTING.md:79-101`).
+- Commit-Messages nutzen Conventional Commits (`CONTRIBUTING.md:104-126`).
+- PR-Bodies müssen Änderungen, Tests, Screenshots (falls nötig) und Verknüpfungen dokumentieren; verwende die bereitgestellte Checkliste (`CONTRIBUTING.md:150-190`).
+- Stelle vor dem PR sicher, dass lokale Runs `lint`, `format:check`, `test:coverage`, `test:e2e` (falls betroffen) und `npx astro check` bestehen – sie sind Blocking-Gates in CI/Deploy (`.github/workflows/unit-tests.yml:66-175`,`.github/workflows/deploy.yml:38-125`).
+- Deployment-PRs respektieren die Staging→Production-Abfolge inklusive Health-Checks und manuellem Approval (`.github/workflows/deploy.yml:54-148`).
