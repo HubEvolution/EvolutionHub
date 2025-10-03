@@ -641,7 +641,13 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
         setIsResultLoading(false);
       }
     } catch (err: unknown) {
-      if ((err as any)?.name === 'AbortError') {
+      const isAbort =
+        typeof err === 'object' &&
+        err !== null &&
+        'name' in err &&
+        typeof (err as { name?: unknown }).name === 'string' &&
+        (err as { name?: string }).name === 'AbortError';
+      if (isAbort) {
         clientLogger.info('Image enhancement aborted', {
           component: 'ImagEnhancerIsland',
           action: 'enhance_aborted',
@@ -875,10 +881,17 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
           return;
         }
         const dataUnknown: unknown = await res.json().catch(() => null);
-        const url =
-          dataUnknown && typeof (dataUnknown as any).url === 'string'
-            ? (dataUnknown as any).url
-            : undefined;
+        let url: string | undefined;
+        if (
+          dataUnknown &&
+          typeof dataUnknown === 'object' &&
+          'url' in dataUnknown &&
+          typeof (dataUnknown as { url?: unknown }).url === 'string'
+        ) {
+          url = (dataUnknown as { url: string }).url;
+        } else {
+          url = undefined;
+        }
         if (url) {
           window.location.href = url;
         } else {

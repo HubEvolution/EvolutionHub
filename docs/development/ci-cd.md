@@ -6,6 +6,7 @@ Diese Dokumentation beschreibt die vollständig automatisierte Continuous Integr
 
 1. [Überblick](#überblick)
 2. [GitHub Actions Workflows](#github-actions-workflows)
+10. [Entwicklungs-Workflow](#entwicklungs-workflow)
 3. [CI-Gates (Qualitätssicherung)](#ci-gates-qualitätssicherung)
 4. [Deployment-Prozess](#deployment-prozess)
 5. [Umgebungen](#umgebungen)
@@ -711,6 +712,143 @@ gh workflow run prod-auth-smoke.yml -f run=true  # Erfordert Secrets
 gh run list --workflow=deploy.yml -L 5
 gh run watch  # Live-Monitoring
 ```
+
+---
+---
+
+## Entwicklungs-Workflow
+
+### Übersicht
+
+Für eine optimale Entwicklungserfahrung wurden die strengen Pre-commit Hooks angepasst. Die CI/CD Pipeline läuft weiterhin vollständig auf GitHub Actions, aber lokale Commits werden nicht mehr blockiert.
+
+### Aktuelle Konfiguration
+
+#### ✅ **Deaktivierte Pre-commit Hooks**
+```bash
+# .husky/pre-commit
+# npx lint-staged  # Disabled for development
+```
+
+**Auswirkung:** Keine automatische Code-Formatierung oder Linting bei Commits mehr.
+
+#### ✅ **Entspannte ESLint-Konfiguration**
+```bash
+# eslint.config.dev.js verfügbar für Entwicklung
+# - @typescript-eslint/no-explicit-any: 'off'
+# - @typescript-eslint/no-unused-vars: 'off'
+# - Weitere Regeln als 'warn' statt 'error'
+```
+
+### Empfohlener Entwicklungs-Workflow
+
+#### **Tägliche Entwicklung:**
+```bash
+# 1. Code entwickeln (keine strengen Prüfungen)
+git add .
+git commit -m "feat: implement new feature"
+
+# 2. Optional: Grundlegende Qualitätsprüfung
+npm run lint              # ESLint (nur warnings)
+npx astro check           # TypeScript Check
+```
+
+#### **Vor PR-Erstellung:**
+```bash
+# 1. Vollständige Qualitätsprüfung
+npm run format            # Formatierung korrigieren
+npm run lint              # Code-Qualität prüfen
+npx astro check           # TypeScript prüfen
+npm run test:coverage     # Tests mit Coverage
+
+# 2. Bei Bedarf: Strenge Prüfung
+npx eslint 'src/**/*.{ts,astro}' --fix --max-warnings=280
+```
+
+#### **Für Releases:**
+```bash
+# Alle CI-Gates lokal durchführen
+npm run lint
+npm run format:check
+npx astro check --tsconfig tsconfig.astro.json
+npm run test:coverage
+npm audit --audit-level=moderate
+```
+
+### Temporäres Überspringen von Hooks
+
+Für eilige Commits:
+```bash
+git commit --no-verify -m "WIP: Your message"
+```
+
+### Verfügbare Qualitätsprüfungen
+
+| Befehl | Zweck | Dauer | Wann verwenden |
+|--------|-------|-------|---------------|
+| `npm run lint` | Grundlegende Linting | ~10s | Täglich |
+| `npm run format` | Code formatieren | ~5s | Bei Bedarf |
+| `npx astro check` | TypeScript prüfen | ~15s | Vor PR |
+| `npm run test:coverage` | Tests + Coverage | ~30s | Vor PR |
+| `npm audit` | Sicherheitslücken | ~10s | Vor Release |
+
+### IDE-Integration
+
+#### **VS Code Empfehlungen:**
+- **ESLint Extension:** Echtzeit-Feedback (konfiguriere auf `eslint.config.dev.js`)
+- **Prettier Extension:** Automatische Formatierung bei Speichern
+- **Astro Extension:** TypeScript-Unterstützung
+
+#### **Andere Editoren:**
+```bash
+# Verwende die entspannte Konfiguration
+npx eslint --config eslint.config.dev.js src/
+```
+
+### Troubleshooting
+
+#### **ESLint blockiert nicht mehr, aber:**
+```bash
+# Bei vielen Warnungen: Entspannte Regeln verwenden
+npx eslint --config eslint.config.dev.js src/
+
+# Bei Bedarf: Zurück zu strengen Regeln
+npx eslint --config eslint.config.js src/
+```
+
+#### **Formatierung inkonistent:**
+```bash
+# Schnelle Korrektur
+npm run format
+
+# Einzelne Dateien
+npx prettier --write src/components/Example.tsx
+```
+
+### Migration von altem Workflow
+
+#### **Falls du die strengen Hooks wieder brauchst:**
+```bash
+# 1. Pre-commit Hook reaktivieren
+echo "npx lint-staged" > .husky/pre-commit
+
+# 2. Strenge ESLint-Konfiguration verwenden
+# Bearbeite .lintstagedrc.json oder verwende eslint.config.js
+```
+
+#### **Für Team-Entwicklung:**
+- Pre-commit Hooks können pro Entwickler aktiviert werden
+- CI/CD Pipeline bleibt unverändert streng
+- Nur lokale Entwicklung wird entspannter
+
+### Nächste Schritte
+
+Nach der Entwicklungsphase kannst du:
+1. **Hooks wieder aktivieren:** Wenn das Team strengere lokale Prüfungen wünscht
+2. **Custom ESLint-Regeln:** Team-spezifische Regeln für bessere Balance
+3. **IDE-Settings:** Automatische Formatierung bei Speichern aktivieren
+
+**Ergebnis:** Schnellere Entwicklung ohne Qualitätsverlust - die CI/CD Pipeline sichert weiterhin hohe Code-Qualität vor dem Merge.
 
 ---
 

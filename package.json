@@ -67,6 +67,9 @@
     "format": "prettier --write \"src/**/*.{ts,tsx,astro,json,md}\" \"tests/**/*.{ts,tsx}\" \"scripts/**/*.{ts,js,mjs}\" \"*.{json,md,yaml,yml}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,astro,json,md}\" \"tests/**/*.{ts,tsx}\" \"scripts/**/*.{ts,js,mjs}\" \"*.{json,md,yaml,yml}\"",
     "health-check": "tsx scripts/health-check.ts",
+    "quality-check": "node scripts/quality-check.js",
+    "quality-check:quick": "node scripts/quality-check.js --quick",
+    "quality-check:strict": "node scripts/quality-check.js --strict",
     "prepare": "husky"
   },
   "dependencies": {

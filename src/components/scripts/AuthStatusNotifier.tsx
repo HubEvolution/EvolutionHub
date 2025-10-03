@@ -31,6 +31,7 @@ export default function AuthStatusNotifier({ mode }: { mode: Mode }) {
     (async () => {
       try {
         const url = new URL(window.location.href);
+        const params = url.searchParams;
         const isGerman = window.location.pathname.startsWith('/de');
         const debug = /(?:^|[?&])debug_auth=1(?:&|$)/.test(url.search);
         const log = (note: string, data?: unknown) => {
@@ -40,13 +41,12 @@ export default function AuthStatusNotifier({ mode }: { mode: Mode }) {
             w.__authLogs = w.__authLogs || [];
             w.__authLogs.push({ via: 'notifier', t: Date.now(), note, data });
             // keep console noise low but available when needed
-             
+
             console.debug('[AuthStatusNotifier]', note, data ?? '');
           } catch {
             /* noop */
           }
         };
-{{ ... }}
         const keys = mode === 'login' ? ['loggedOut', 'success', 'error'] : ['success', 'error'];
 
         const hasAny = keys.some((k) => params.has(k));

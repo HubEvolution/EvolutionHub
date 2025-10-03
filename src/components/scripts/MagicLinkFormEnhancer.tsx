@@ -142,26 +142,23 @@ export default function MagicLinkFormEnhancer({
           method: formEl.method || 'POST',
           body: formData,
           credentials: 'same-origin',
-          headers: {
-            // Let the server infer form boundary; no explicit Content-Type for FormData
-          } as any,
         });
-        const ok = res.ok;
+        const _ok = res.ok;
         let json: unknown;
         try {
           json = await res.json();
           if (typeof json !== 'object' || json === null) {
             json = null;
           }
-        } catch { /* noop */ }
-    };
-    log('response', { ok, json });
+        } catch {
+          /* noop */
+        }
+        log('response', { ok: _ok, json });
 
-        if (ok && isSentResponse(json)) {
+        if (_ok && isSentResponse(json)) {
           if (statusEl) {
             statusEl.textContent = successText;
             statusEl.classList.remove('hidden');
-{{ ... }}
             statusEl.classList.add('text-emerald-600');
             statusEl.setAttribute('role', 'status');
           }
