@@ -234,6 +234,23 @@ const DebugPanel: React.FC = () => {
     return grouped;
   }, [filteredLogs, groupRepeats]);
 
+  const levelCounts = useMemo(() => {
+    const acc: Record<string, number> = {};
+    for (const l of filteredLogs) {
+      const k = l.level.toLowerCase();
+      acc[k] = (acc[k] || 0) + 1;
+    }
+    return acc;
+  }, [filteredLogs]);
+
+  const sourceCounts = useMemo(() => {
+    const acc: Record<'server'|'client'|'console'|'network', number> = { server: 0, client: 0, console: 0, network: 0 };
+    for (const l of filteredLogs) {
+      acc[resolveSource(l)]++;
+    }
+    return acc;
+  }, [filteredLogs]);
+
   const exportLogs = useCallback(() => {
     const items = (showAll ? displayLogs : displayLogs.slice(-Math.min(windowSize, displayLogs.length)));
     const payload = {
@@ -412,6 +429,14 @@ const DebugPanel: React.FC = () => {
             {status === 'connected' && (
               <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
             )}
+            {/* Metrics chips */}
+            <div className="hidden md:flex items-center gap-1 ml-2">
+              <span className="px-1.5 py-0.5 rounded text-[10px] bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300">E:{levelCounts['error']||0}</span>
+              <span className="px-1.5 py-0.5 rounded text-[10px] bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">W:{levelCounts['warn']||0}</span>
+              <span className="px-1.5 py-0.5 rounded text-[10px] bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">I:{levelCounts['info']||0}</span>
+              <span className="px-1.5 py-0.5 rounded text-[10px] bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">D:{levelCounts['debug']||0}</span>
+              <span className="px-1.5 py-0.5 rounded text-[10px] bg-teal-100 text-teal-800 dark:bg-teal-900/30 dark:text-teal-300">NET:{sourceCounts.network}</span>
+            </div>
           </div>
         </div>
         {/* Filter Buttons */}
@@ -476,7 +501,7 @@ const DebugPanel: React.FC = () => {
       </div>
 
       {/* Logs - windowed rendering for performance */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-2 bg-gray-50 dark:bg-gray-900 min-h-0">
+      <div className="flex-1 overflow-y-auto overscroll-contain p-4 space-y-2 bg-gray-50 dark:bg-gray-900 min-h-0">
         {displayLogs.length === 0 ? (
           <p className="text-gray-500 dark:text-gray-400 text-sm">
             {logs.length === 0 ? 'Waiting for logs...' : 'No logs match current filter'}

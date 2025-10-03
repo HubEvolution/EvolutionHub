@@ -1,8 +1,16 @@
 # CLAUDE.md — Globale Projektregeln, Policies & Subagents
 
-## Zweck
+## Zweck & Dokumenten-Beziehung
 
-Dieses Dokument steuert Claude Code (Sonnet 4.5, Pro) bei allen Änderungen in diesem Repository. Ziel: konsistente Code-Qualität, sichere Änderungen und reproduzierbare Deployments.
+Dieses Dokument dient als **"Quick Reference" für Claude Code** (Sonnet 4.5, Pro) und enthält die wichtigsten Richtlinien für alle Änderungen in diesem Repository. 
+
+**📋 Dokumenten-Hierarchie:**
+- **[CLAUDE.md]** → Quick Reference für Claude Code (Subagents, Edit-Regeln, Bestätigungs-Gates)
+- **[GLOBAL_RULES.md]** → Authoritative Technical Reference ([Pfad](cci:7://file:///Users/lucas/.codeium/windsurf/memories/global_rules.md:0:0-0:0))
+
+**Ziel:** Konsistente Code-Qualität, sichere Änderungen und reproduzierbare Deployments.
+
+**Letzte Aktualisierung:** 2025-10-03 (Synchronisiert mit GLOBAL_RULES.md v2025-10-01)
 
 ---
 
@@ -174,7 +182,118 @@ Dieses Dokument steuert Claude Code (Sonnet 4.5, Pro) bei allen Änderungen in d
 
 ---
 
-## 13) Empfohlene Start-Kommandos
+## 13) AI-Agent Tooling & IDE-Integration (Windsurf/Cascade)
+
+> **Referenz:** Für vollständige Details siehe [GLOBAL_RULES.md](cci:7://file:///Users/lucas/.codeium/windsurf/memories/global_rules.md:0:0-0:0) "AI-Agent Tooling & IDE-Integration"
+
+- **Suchpfade:** `src/`, `tests/`, `docs/`
+- **Excludes:** `dist/`, `node_modules/`, `.wrangler/`, `coverage/`, `.backups/`, `reports/`, `favicon_package/`
+- **Suchregeln:** `grep_search` immer mit `Includes` einschränken; `MatchPerLine` nur bei enger Suche
+- **Datei-Zugriff:** Große Dateien segmentiert lesen (`limit`/`offset`); keine Binär-/Bilddateien öffnen
+- **Parallelisierung:** Nur unabhängige Lese-/Suchen parallel; keine parallelen Schreibvorgänge
+- **Terminal:** Niemals `cd`; CWD setzen; nur lesende Befehle automatisch; mutierende Befehle immer bestätigen
+- **Code-Edits:** Imports oben; kleine, fokussierte Patches; TS strict; kein `any`
+- **Diff-Grenzen:** > 300 LOC oder > 5 Dateien → Plan & Approval
+
+---
+
+## 14) Erweiterte Cloudflare Environment-Bindings
+
+> **Referenz:** Für vollständige Details siehe [GLOBAL_RULES.md](cci:7://file:///Users/lucas/.codeium/windsurf/memories/global_rules.md:0:0-0:0) "Cloudflare Environments & Bindings"
+
+### Pro Environment vollständige & explizite Bindings (keine Vererbung annehmen):
+- **D1:** `DB` (Datenbank-Binding)
+- **R2:** `R2_AVATARS`, `R2_LEADMAGNETS`, `R2_AI_IMAGES` (Storage-Buckets)
+- **KV:** `SESSION`, `KV_AI_ENHANCER` (Key-Value-Namespaces)
+- **Vars:** `ENVIRONMENT`, `BASE_URL`, Pricing-Tabellen (`PRICING_TABLE*`), Stytch-Flags (`AUTH_PROVIDER`, `E2E_FAKE_STYTCH`), Feature-Flags
+
+### Deployment-Anforderungen:
+- [ ] Routen pro Env (`routes` Blöcke) gepflegt
+- [ ] Post-Deploy Health-Check/Smoke-Test implementiert
+- [ ] Deployment als fehlgeschlagen markieren, wenn Health-Check scheitert
+- [ ] Wrangler aktuell halten (Minor), Breaking-Changes-Changelog geprüft
+
+---
+
+## 15) Testing-Strategien & CI/CD
+
+> **Referenz:** Für vollständige Details siehe [GLOBAL_RULES.md](cci:7://file:///Users/lucas/.codeium/windsurf/memories/global_rules.md:0:0-0:0) "Testing-Strategien & CI/CD"
+
+### Test-Arten & Coverage:
+- **Unit & Integration:** Vitest/Jest; Ziel-Coverage ≥ 70%
+- **E2E:** Playwright (Chromium/FF/WebKit), `TEST_BASE_URL` bevorzugt
+- **Astro:** `astro check` in CI via `tsconfig.astro-check.json`
+- **OpenAPI:** Workflow-Validierung (`openapi:validate`)
+
+### CI Gates (alle müssen grün sein):
+- [ ] Lint/Format (ESLint/Prettier, markdownlint für `docs/**/*.md`)
+- [ ] TypeScript Check (inkl. astro-check)
+- [ ] Unit/Integration Tests
+- [ ] E2E Smokes (Enhancer, Prompt-Enhancer, Pricing)
+- [ ] OpenAPI Validate
+- [ ] Security-Scans (`npm audit`/Snyk)
+
+### E2E Besonderheiten:
+- [ ] Cookie-Consent-Dismiss implementiert
+- [ ] Frischer `guest_id` pro Run
+- [ ] Route-Fallback EN/DE
+- [ ] Robuste Selektoren verwenden
+
+---
+
+## 16) AI Image Enhancer – Spezifische Regeln
+
+> **Referenz:** Für vollständige Details siehe [GLOBAL_RULES.md](cci:7://file:///Users/lucas/.codeium/windsurf/memories/global_rules.md:0:0-0:0) "AI Image Enhancer – Spezifische Regeln"
+
+### Model-Capabilities & Entitlements:
+- [ ] Model-Capabilities (Flags): UI blendet Controls je Fähigkeit
+- [ ] Server validiert strikt
+- [ ] Entitlements/Plan-Gating: `usage.limit` ist maßgeblich
+- [ ] Gäste mit separatem KV-Limit
+
+### Provider-Error-Mapping:
+- [ ] 401/403 → `forbidden`
+- [ ] 4xx → `validation_error`
+- [ ] 5xx → `server_error`
+- [ ] Einheitliche Darstellung in Responses
+
+### Jobs-Service:
+- [ ] Unterstützt Monthly Credits Bypass mit KV
+- [ ] Logging von `credits_consumed`/`credits_missing`
+- [ ] OpenAPI dokumentiert Limits-/Mapping-Semantik
+- [ ] UI zeigt Plan-Badge & Upgrade-CTA
+
+---
+
+## 17) Validation Checklist (für PRs & Audits)
+
+> **Referenz:** Für vollständige Details siehe [GLOBAL_RULES.md](cci:7://file:///Users/lucas/.codeium/windsurf/memories/global_rules.md:0:0-0:0) "Validation Checklist"
+
+### Security-Validierung
+- [ ] Keine Widersprüche zu [CLAUDE.md](cci:7://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/CLAUDE.md:0:0-0:0) (Subagent-Scopes, Edit-Regeln, Security)
+- [ ] Security enthält: CSP/Headers, Rate-Limits, Auth-Flows, Secrets-Handhabung
+- [ ] API-Formate konsistent: `{ success, data? }` / `{ success: false, error: {…} }`
+- [ ] 429 mit `Retry-After`; 405 standardisiert
+- [ ] CSRF/CORS/Origin-Regeln eingehalten (Double-Submit; `Origin` in Tests)
+
+### Cloudflare & Infrastructure
+- [ ] Cloudflare Envs/Bindings explizit (keine Vererbung)
+- [ ] Post-Deploy Health-Checks vorhanden
+- [ ] Wrangler aktuell (Minor-Updates); Breaking-Changes geprüft
+
+### Internationalisierung & Testing
+- [ ] i18n: EN/DE, erforderliche Keys vorhanden (Prompt-Enhancer)
+- [ ] Route-Konsistenz gewährleistet
+- [ ] Testing: Vitest/Jest, Playwright E2E, `astro check`
+- [ ] Coverage-Policy (Ziel ≥ 70%), CI-Gates grün
+
+### Feature Flags & Documentation
+- [ ] Feature Flags: `PUBLIC_*` Namensschema, kontrollierter Rollout
+- [ ] Commits/Branches: Conventional Commits, SemVer Tags, Changelog gepflegt
+
+---
+
+## 15) Empfohlene Start-Kommandos
 
 1. `summarize repo and key files`
 2. `use "Scout" to propose next 3 tasks`

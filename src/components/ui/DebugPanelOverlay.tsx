@@ -62,6 +62,7 @@ const DebugPanelOverlay: React.FC = () => {
   const [isResizing, setIsResizing] = useState(false);
   const [isResizingVertical, setIsResizingVertical] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [minTop, setMinTop] = useState(56);
   const [dragCandidate, setDragCandidate] = useState<{
     x: number; y: number; right: number; bottom: number;
   } | null>(null);
@@ -109,6 +110,56 @@ const DebugPanelOverlay: React.FC = () => {
     });
   }, []);
 
+  // Avoid overlapping common fixed/sticky CTAs by nudging panel away
+  const avoidOverlap = useCallback((currentRight: number, currentBottom: number) => {
+    try {
+      const panelRect = {
+        left: Math.max(0, window.innerWidth - currentRight - width),
+        top: Math.max(0, window.innerHeight - currentBottom - height),
+        right: Math.max(0, window.innerWidth - currentRight),
+        bottom: Math.max(0, window.innerHeight - currentBottom),
+      };
+      const selectors = 'button, a.btn, [data-avoid-debug], .toast, .fixed-cta, .sticky-cta';
+      const candidates = Array.from(document.querySelectorAll<HTMLElement>(selectors)).filter((el) => {
+        const style = getComputedStyle(el);
+        if (style.visibility === 'hidden' || style.display === 'none') return false;
+        const pos = style.position;
+        if (pos !== 'fixed' && pos !== 'sticky') return false;
+        const r = el.getBoundingClientRect();
+        if (r.width === 0 || r.height === 0) return false;
+        // Only consider items near the panel corner (bottom-right by default)
+        return r.top < panelRect.bottom && r.bottom > panelRect.top && r.left < panelRect.right && r.right > panelRect.left;
+      });
+      if (!candidates.length) return { right: currentRight, bottom: currentBottom };
+      // Nudge away from the first overlapping element
+      const r = candidates[0].getBoundingClientRect();
+      const panelCenterX = (panelRect.left + panelRect.right) / 2;
+      const panelCenterY = (panelRect.top + panelRect.bottom) / 2;
+      const targetCenterX = (r.left + r.right) / 2;
+      const targetCenterY = (r.top + r.bottom) / 2;
+      let nextRight = currentRight;
+      let nextBottom = currentBottom;
+      const delta = 24; // nudge distance
+      if (targetCenterX >= panelCenterX) {
+        // push panel left (increase right)
+        nextRight = Math.min(Math.max(8, currentRight + delta), Math.max(8, window.innerWidth - width - 8));
+      } else {
+        // push panel right (decrease right)
+        nextRight = Math.max(8, currentRight - delta);
+      }
+      if (targetCenterY >= panelCenterY) {
+        // push panel up (increase bottom)
+        nextBottom = Math.min(Math.max(8, currentBottom + delta), Math.max(8, window.innerHeight - height - 8));
+      } else {
+        // push panel down (decrease bottom)
+        nextBottom = Math.max(8, currentBottom - delta);
+      }
+      return { right: nextRight, bottom: nextBottom };
+    } catch {
+      return { right: currentRight, bottom: currentBottom };
+    }
+  }, [width, height]);
+
   const closePanel = useCallback(() => {
     setIsOpen(false);
     setLS('isOpen', 'false');
@@ -130,7 +181,7 @@ const DebugPanelOverlay: React.FC = () => {
   const handleDragMouseDown = useCallback((e: React.MouseEvent) => {
     // Ignore drags starting on interactive elements
     const target = e.target as HTMLElement;
-    if (target.closest('button, input, label, kbd, svg, a')) return;
+    if (target.closest('button, input, select, label, kbd, svg, a, [role="button"], [role="listbox"]')) return;
     e.preventDefault();
     // start as candidate; require threshold before real dragging
     setDragCandidate({ x: e.clientX, y: e.clientY, right, bottom });
@@ -211,39 +262,66 @@ const DebugPanelOverlay: React.FC = () => {
     return () => document.removeEventListener('mousemove', onMove);
   }, [isResizingCorner, right, bottom]);
 
+  // Compute dynamic safe top margin to avoid overlapping sticky/fixed headers
+  const computeMinTop = useCallback(() => {
+    try {
+      const candidates = Array.from(document.querySelectorAll<HTMLElement>('header, nav, .sticky, [data-sticky], .site-header'));
+      let maxBottom = 56;
+      for (const el of candidates) {
+        const style = getComputedStyle(el);
+        const pos = style.position;
+        if (pos === 'fixed' || pos === 'sticky') {
+          const r = el.getBoundingClientRect();
+          if (r.top <= 0 && r.height > 0 && r.height < window.innerHeight * 0.5) {
+            maxBottom = Math.max(maxBottom, r.bottom);
+          }
+        }
+      }
+      setMinTop(Math.min(Math.max(40, Math.round(maxBottom + 8)), Math.floor(window.innerHeight * 0.4)));
+    } catch {}
+  }, []);
+
   // Clamp position and size when viewport changes (e.g., address bar/DevTools resize)
   useEffect(() => {
     const clamp = () => {
       const minMargin = 8;
+      // ensure header controls remain accessible
       const maxHeight = (window.innerHeight * MAX_HEIGHT_VH) / 100;
       const nextHeight = Math.min(height, maxHeight);
       if (nextHeight !== height) setHeight(nextHeight);
 
       const maxRight = Math.max(minMargin, window.innerWidth - width - minMargin);
-      const maxBottom = Math.max(minMargin, window.innerHeight - height - minMargin);
+      // additionally ensure top >= minTop → bottom <= window.innerHeight - height - minTop
+      const maxBottomByTop = Math.max(minMargin, window.innerHeight - height - minTop);
+      const maxBottom = Math.min(Math.max(minMargin, window.innerHeight - height - minMargin), maxBottomByTop);
 
-      const nextRight = Math.min(Math.max(right, minMargin), maxRight);
-      const nextBottom = Math.min(Math.max(bottom, minMargin), maxBottom);
+      let nextRight = Math.min(Math.max(right, minMargin), maxRight);
+      let nextBottom = Math.min(Math.max(bottom, minMargin), maxBottom);
+      // Nudge away from overlapping CTAs
+      const nudged = avoidOverlap(nextRight, nextBottom);
+      nextRight = Math.min(Math.max(nudged.right, minMargin), maxRight);
+      nextBottom = Math.min(Math.max(nudged.bottom, minMargin), maxBottom);
       if (nextRight !== right) setRight(nextRight);
       if (nextBottom !== bottom) setBottom(nextBottom);
     };
     // Run once on mount to normalize persisted values
+    computeMinTop();
     clamp();
     window.addEventListener('resize', clamp);
     window.addEventListener('orientationchange', clamp);
+    window.addEventListener('scroll', () => { computeMinTop(); clamp(); }, { passive: true });
     return () => {
       window.removeEventListener('resize', clamp);
       window.removeEventListener('orientationchange', clamp);
+      window.removeEventListener('scroll', () => { computeMinTop(); clamp(); });
     };
-  }, [width, height, right, bottom]);
+  }, [width, height, right, bottom, minTop, computeMinTop]);
 
   const resetPosition = useCallback(() => {
     setRight(16);
     setBottom(16);
-    try {
-      localStorage.setItem('debugPanel.right', '16');
-      localStorage.setItem('debugPanel.bottom', '16');
-    } catch {/* noop */}
+    setLS('right', '16');
+    setLS('bottom', '16');
   }, []);
 
   // Maximize/restore toggling
@@ -311,9 +389,13 @@ const DebugPanelOverlay: React.FC = () => {
       }
       // clamp to viewport
       const maxRight = Math.max(minMargin, window.innerWidth - width - minMargin);
-      const maxBottom = Math.max(minMargin, window.innerHeight - height - minMargin);
-      newRight = Math.min(newRight, maxRight);
-      newBottom = Math.min(newBottom, maxBottom);
+      let maxBottom = Math.max(minMargin, window.innerHeight - height - minMargin);
+      // enforce minTop for header controls
+      maxBottom = Math.min(maxBottom, Math.max(minMargin, window.innerHeight - height - minTop));
+      // Nudge away from overlapping elements on release
+      const nudged2 = avoidOverlap(newRight, newBottom);
+      newRight = Math.min(Math.max(nudged2.right, minMargin), maxRight);
+      newBottom = Math.min(Math.max(nudged2.bottom, minMargin), maxBottom);
       setRight(newRight);
       setBottom(newBottom);
       setIsDragging(false);
@@ -433,7 +515,7 @@ const DebugPanelOverlay: React.FC = () => {
     return (
       <button
         onClick={togglePanel}
-        className="fixed bottom-4 right-4 z-[9998] bg-gray-800 dark:bg-gray-700 text-white px-3 py-2 rounded-lg shadow-lg hover:bg-gray-700 dark:hover:bg-gray-600 transition-colors text-sm flex items-center gap-2"
+        className="fixed bottom-4 right-4 z-[100000] bg-gray-800 dark:bg-gray-700 text-white px-3 py-2 rounded-lg shadow-lg hover:bg-gray-700 dark:hover:bg-gray-600 transition-colors text-sm flex items-center gap-2"
         title="Open Debug Panel (Ctrl+Shift+D)"
       >
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -455,10 +537,12 @@ const DebugPanelOverlay: React.FC = () => {
       {/* Panel Container - lower-right, resizable */}
       <div
         ref={containerRef}
-        className="fixed z-[9999] flex flex-col focus:outline-none"
+        className="fixed z-[9999] flex flex-col focus:outline-none overscroll-contain"
         role="dialog"
         aria-label="Debug Logs"
         tabIndex={-1}
+        onWheelCapture={(e) => { e.stopPropagation(); }}
+        onTouchMoveCapture={(e) => { e.stopPropagation(); }}
         style={(() => {
           const base: React.CSSProperties = {
             width: `${width}px`,
@@ -477,11 +561,13 @@ const DebugPanelOverlay: React.FC = () => {
         {/* Top Resize Handle (overlayed above header controls) */}
         <div
           ref={resizeVerticalRef}
-          onMouseDown={handleVerticalMouseDown}
-          className="absolute -top-2 left-0 right-0 h-6 cursor-ns-resize select-none hover:bg-blue-500/40 active:bg-blue-600/60 transition-colors flex items-center justify-center group z-[10000]"
+          className="absolute -top-2 left-0 right-0 h-6 select-none transition-colors flex items-center justify-center z-[10000] pointer-events-none"
           title="Drag to resize height"
         >
-          <div className="h-1 w-12 bg-gray-400 dark:bg-gray-600 rounded-full group-hover:bg-blue-500" />
+          <div
+            onMouseDown={handleVerticalMouseDown}
+            className="h-1 w-12 cursor-ns-resize bg-gray-400 dark:bg-gray-600 rounded-full hover:bg-blue-500 active:bg-blue-600 pointer-events-auto"
+          />
         </div>
 
         {/* Main Panel Area */}
