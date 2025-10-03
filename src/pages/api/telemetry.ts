@@ -1,4 +1,9 @@
-import { withApiMiddleware, createApiError, createApiSuccess, createMethodNotAllowed } from '@/lib/api-middleware';
+import {
+  withApiMiddleware,
+  createApiError,
+  createApiSuccess,
+  createMethodNotAllowed,
+} from '@/lib/api-middleware';
 import { createRateLimiter } from '@/lib/rate-limiter';
 import { loggerFactory } from '@/server/utils/logger-factory';
 
@@ -7,7 +12,7 @@ const telemetryLogger = loggerFactory.createLogger('telemetry');
 const telemetryLimiter = createRateLimiter({
   maxRequests: 30,
   windowMs: 60 * 1000,
-  name: 'telemetry'
+  name: 'telemetry',
 });
 
 type TelemetryEventName =
@@ -30,7 +35,7 @@ function validateEnvelope(body: unknown): body is TelemetryEnvelope<AnyProps> {
   const b = body as Record<string, unknown>;
   const ev = b.eventName;
   const ts = b.ts;
-  const ctx = b.context as any;
+  const ctx = (b.context as { tool?: unknown }) || {};
   const props = b.props;
   const allowed: TelemetryEventName[] = [
     'prompt_enhance_started',
@@ -40,46 +45,52 @@ function validateEnvelope(body: unknown): body is TelemetryEnvelope<AnyProps> {
   ];
   if (!allowed.includes(ev as TelemetryEventName)) return false;
   if (typeof ts !== 'number') return false;
-  if (!ctx || typeof ctx !== 'object' || ctx.tool !== 'prompt-enhancer') return false;
+  if (!ctx || typeof ctx !== 'object' || (ctx.tool as string | undefined) !== 'prompt-enhancer')
+    return false;
   if (!props || typeof props !== 'object') return false;
   return true;
 }
 
-export const POST = withApiMiddleware(async (context) => {
-  const env = (context.locals.runtime?.env as any) || {};
-  if ((env.PUBLIC_PROMPT_TELEMETRY_V1 || 'false') === 'false') {
-    return createApiError('forbidden', 'Telemetry disabled');
-  }
+export const POST = withApiMiddleware(
+  async (context) => {
+    type EnvFlag = { PUBLIC_PROMPT_TELEMETRY_V1?: string };
+    const env = (context.locals.runtime?.env as EnvFlag | undefined) || {};
+    const flag = env.PUBLIC_PROMPT_TELEMETRY_V1 ?? 'false';
+    if (flag === 'false') {
+      return createApiError('forbidden', 'Telemetry disabled');
+    }
 
-  let body: unknown;
-  try {
-    body = await context.request.json();
-  } catch {
-    return createApiError('validation_error', 'Invalid JSON body');
-  }
+    let body: unknown;
+    try {
+      body = await context.request.json();
+    } catch {
+      return createApiError('validation_error', 'Invalid JSON body');
+    }
 
-  if (!validateEnvelope(body)) {
-    return createApiError('validation_error', 'Invalid telemetry envelope');
-  }
+    if (!validateEnvelope(body)) {
+      return createApiError('validation_error', 'Invalid telemetry envelope');
+    }
 
-  try {
-    const { eventName, ts, context: ctx, props } = body as TelemetryEnvelope<AnyProps>;
-    // Redacted log: no payload dump, only minimal metadata
-    telemetryLogger.info('TELEMETRY_EVENT', {
-      resource: 'telemetry',
-      action: String(eventName),
-      metadata: { ts, tool: ctx?.tool, hasProps: !!props },
-    });
-  } catch (err) {
-    // swallow server-side errors but return success to not impact UX
-  }
+    try {
+      const { eventName, ts, context: ctx, props } = body as TelemetryEnvelope<AnyProps>;
+      // Redacted log: no payload dump, only minimal metadata
+      telemetryLogger.info('TELEMETRY_EVENT', {
+        resource: 'telemetry',
+        action: String(eventName),
+        metadata: { ts, tool: ctx?.tool, hasProps: !!props },
+      });
+    } catch (_err) {
+      // swallow server-side errors but return success to not impact UX
+    }
 
-  return createApiSuccess({ ok: true }, 200);
-}, {
-  rateLimiter: telemetryLimiter,
-  enforceCsrfToken: true,
-  // require same-origin for unsafe methods (default true)
-});
+    return createApiSuccess({ ok: true }, 200);
+  },
+  {
+    rateLimiter: telemetryLimiter,
+    enforceCsrfToken: true,
+    // require same-origin for unsafe methods (default true)
+  }
+);
 
 const methodNotAllowed = () => createMethodNotAllowed('POST');
 export const GET = methodNotAllowed;

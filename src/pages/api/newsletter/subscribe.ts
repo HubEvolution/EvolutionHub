@@ -1,5 +1,4 @@
-import type { APIRoute } from 'astro';
-import { withApiMiddleware, createApiSuccess, createApiError, createMethodNotAllowed } from '@/lib/api-middleware';
+import { withApiMiddleware, createApiSuccess, createApiError } from '@/lib/api-middleware';
 import { createPendingSubscription } from './confirm';
 import { loggerFactory } from '@/server/utils/logger-factory';
 import { createRateLimiter } from '@/lib/rate-limiter';
@@ -13,7 +12,7 @@ const logger = loggerFactory.createLogger('newsletter-subscribe');
 const newsletterLimiter = createRateLimiter({
   maxRequests: 10,
   windowMs: 60 * 1000,
-  name: 'newsletterSubscribe'
+  name: 'newsletterSubscribe',
 });
 
 interface NewsletterSubscriptionRequest {
@@ -23,88 +22,86 @@ interface NewsletterSubscriptionRequest {
   source?: string; // Track where subscription came from
 }
 
-interface NewsletterSubscriptionResponse {
-  success: boolean;
-  message: string;
-  requiresConfirmation?: boolean;
-  confirmationSent?: boolean;
-}
+// Note: response typing is inferred from createApiSuccess/createApiError contracts
 
 /**
  * Newsletter subscription API endpoint
  * Handles email validation, consent verification, and triggers email automation
  */
-export const POST = withApiMiddleware(async (context) => {
-  const { request } = context;
-  const data: NewsletterSubscriptionRequest = await request.json();
+export const POST = withApiMiddleware(
+  async (context) => {
+    const { request } = context;
+    const data: NewsletterSubscriptionRequest = await request.json();
 
-  // Validate required fields
-  if (!data.email) {
-    return createApiError('validation_error', 'E-Mail-Adresse ist erforderlich');
-  }
+    // Validate required fields
+    if (!data.email) {
+      return createApiError('validation_error', 'E-Mail-Adresse ist erforderlich');
+    }
 
-  // Email validation
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(data.email)) {
-    return createApiError('validation_error', 'Bitte geben Sie eine gültige E-Mail-Adresse ein');
-  }
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(data.email)) {
+      return createApiError('validation_error', 'Bitte geben Sie eine gültige E-Mail-Adresse ein');
+    }
 
-  // Consent validation (GDPR compliance)
-  if (!data.consent) {
-    return createApiError('validation_error', 'Zustimmung zur Datenschutzerklärung ist erforderlich');
-  }
+    // Consent validation (GDPR compliance)
+    if (!data.consent) {
+      return createApiError(
+        'validation_error',
+        'Zustimmung zur Datenschutzerklärung ist erforderlich'
+      );
+    }
 
-  // Create pending subscription with secure token
-  const confirmationToken = createPendingSubscription(
-    data.email,
-    data.source || 'website'
-  );
+    // Create pending subscription with secure token
+    const confirmationToken = createPendingSubscription(data.email, data.source || 'website');
 
-  // Generate confirmation URL
-  const baseUrl = new URL(request.url).origin;
-  const confirmationUrl = `${baseUrl}/newsletter/confirm?token=${confirmationToken}&email=${encodeURIComponent(data.email)}`;
+    // Generate confirmation URL
+    const baseUrl = new URL(request.url).origin;
+    const confirmationUrl = `${baseUrl}/newsletter/confirm?token=${confirmationToken}&email=${encodeURIComponent(data.email)}`;
 
-  // Send double opt-in confirmation email
-  const emailSent = await sendConfirmationEmail(data.email, confirmationUrl);
+    // Send double opt-in confirmation email
+    const emailSent = await sendConfirmationEmail(data.email, confirmationUrl);
 
-  if (!emailSent) {
-    logger.error('Failed to send confirmation email', {
+    if (!emailSent) {
+      logger.error('Failed to send confirmation email', {
+        metadata: {
+          email: data.email.substring(0, 3) + '***', // PII-Redaction
+          source: data.source || 'website',
+        },
+      });
+      return createApiError('server_error', 'Failed to send confirmation email. Please try again.');
+    }
+
+    logger.info('Double opt-in email sent successfully', {
       metadata: {
         email: data.email.substring(0, 3) + '***', // PII-Redaction
-        source: data.source || 'website'
-      }
+        confirmationUrl: confirmationUrl,
+        source: data.source || 'website',
+      },
     });
-    return createApiError('server_error', 'Failed to send confirmation email. Please try again.');
+
+    // Analytics event tracking (stubbed for now)
+    logger.info('Newsletter subscription pending - analytics event', {
+      metadata: {
+        email: data.email.substring(0, 3) + '***', // PII-Redaction
+        source: data.source || 'website',
+        event: 'newsletter_subscribe_pending',
+      },
+    });
+
+    return createApiSuccess({
+      message: 'Please check your email to confirm your subscription!',
+      email: data.email,
+      nextStep: 'confirmation_required',
+      info: 'We have sent a confirmation email to your address. Please click the link in the email to complete your subscription.',
+    });
+  },
+  {
+    rateLimiter: newsletterLimiter,
+    enforceCsrfToken: false, // Newsletter-Anmeldung ist öffentlich
+    disableAutoLogging: false,
   }
-
-  logger.info('Double opt-in email sent successfully', {
-    metadata: {
-      email: data.email.substring(0, 3) + '***', // PII-Redaction
-      confirmationUrl: confirmationUrl,
-      source: data.source || 'website'
-    }
-  });
-
-  // Analytics event tracking (stubbed for now)
-  logger.info('Newsletter subscription pending - analytics event', {
-    metadata: {
-      email: data.email.substring(0, 3) + '***', // PII-Redaction
-      source: data.source || 'website',
-      event: 'newsletter_subscribe_pending'
-    }
-  });
-
-  return createApiSuccess({
-    message: 'Please check your email to confirm your subscription!',
-    email: data.email,
-    nextStep: 'confirmation_required',
-    info: 'We have sent a confirmation email to your address. Please click the link in the email to complete your subscription.'
-  });
-}, {
-  rateLimiter: newsletterLimiter,
-  enforceCsrfToken: false, // Newsletter-Anmeldung ist öffentlich
-  disableAutoLogging: false
-});
+);
 
 /**
  * Send double opt-in confirmation email
@@ -116,8 +113,8 @@ async function sendConfirmationEmail(email: string, confirmationUrl: string): Pr
     logger.info('Sending confirmation email', {
       metadata: {
         email: email,
-        confirmationUrl: confirmationUrl
-      }
+        confirmationUrl: confirmationUrl,
+      },
     });
 
     // Mock email sending - in production, integrate with email service
@@ -126,20 +123,20 @@ async function sendConfirmationEmail(email: string, confirmationUrl: string): Pr
     logger.info('Email content generated for confirmation', {
       metadata: {
         email: email,
-        contentLength: emailContent.length
-      }
+        contentLength: emailContent.length,
+      },
     });
 
     // Simulate email sending delay
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise((resolve) => setTimeout(resolve, 100));
 
     return true; // Mock success
   } catch (error) {
     logger.error('Error sending confirmation email', {
       metadata: {
         email: email,
-        error: error instanceof Error ? error.message : 'unknown'
-      }
+        error: error instanceof Error ? error.message : 'unknown',
+      },
     });
     return false;
   }

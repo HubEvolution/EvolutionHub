@@ -47,6 +47,8 @@ export interface DashboardData {
   projects: ProjectCard[];
   quickActions: QuickAction[];
   notifications: Notification[];
+}
+
 export interface CreateProjectRequest {
   title: string;
   description: string;
@@ -74,5 +76,4 @@ export interface ProjectFilters {
   priority?: 'low' | 'medium' | 'high';
   search?: string;
   tags?: string[];
-}
 }
