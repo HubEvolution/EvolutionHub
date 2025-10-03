@@ -49,7 +49,9 @@ function buildSanitizedRequestMeta(init?: RequestInit) {
     }
 
     // body: handle only safe, non-stream cases
-    let bodySummary: { type: string; length?: number; keys?: string[]; sensitiveKeys?: string[] } | undefined;
+    let bodySummary:
+      | { type: string; length?: number; keys?: string[]; sensitiveKeys?: string[] }
+      | undefined;
     const b: any = (init as any)?.body;
     if (typeof b === 'string') {
       bodySummary = { type: 'text', length: b.length };
@@ -58,7 +60,16 @@ function buildSanitizedRequestMeta(init?: RequestInit) {
         const json = JSON.parse(b);
         if (json && typeof json === 'object' && !Array.isArray(json)) {
           const keys = Object.keys(json).slice(0, 50);
-          const SENSITIVE_JSON_KEYS = ['password','token','secret','email','session','apikey','api_key','auth'];
+          const SENSITIVE_JSON_KEYS = [
+            'password',
+            'token',
+            'secret',
+            'email',
+            'session',
+            'apikey',
+            'api_key',
+            'auth',
+          ];
           const sensitiveKeys = keys.filter((k) => SENSITIVE_JSON_KEYS.includes(k.toLowerCase()));
           bodySummary = { type: 'json', length: b.length, keys, sensitiveKeys };
         }
@@ -67,12 +78,16 @@ function buildSanitizedRequestMeta(init?: RequestInit) {
       }
     } else if (b instanceof URLSearchParams) {
       const keys: string[] = [];
-      b.forEach((_v, k) => { if (!keys.includes(k)) keys.push(k); });
+      b.forEach((_v, k) => {
+        if (!keys.includes(k)) keys.push(k);
+      });
       bodySummary = { type: 'urlencoded', keys };
     } else if (typeof FormData !== 'undefined' && b instanceof FormData) {
       const keys: string[] = [];
       // FormData#forEach exists in browsers
-      (b as FormData).forEach((_v, k) => { if (!keys.includes(k)) keys.push(k); });
+      (b as FormData).forEach((_v, k) => {
+        if (!keys.includes(k)) keys.push(k);
+      });
       bodySummary = { type: 'formdata', keys };
     } else if (b && typeof b === 'object') {
       // Blob/ArrayBuffer/TypedArray: don't inspect; just state type
@@ -80,7 +95,14 @@ function buildSanitizedRequestMeta(init?: RequestInit) {
       bodySummary = { type: typeName };
     }
 
-    return { headers: { present: presentHeaders, safe: safeHeaders, sensitivePresent: sensitiveHeadersPresent }, body: bodySummary };
+    return {
+      headers: {
+        present: presentHeaders,
+        safe: safeHeaders,
+        sensitivePresent: sensitiveHeadersPresent,
+      },
+      body: bodySummary,
+    };
   } catch {
     return undefined;
   }
@@ -103,7 +125,9 @@ export function installNetworkInterceptor() {
     url.startsWith('/api/debug/client-log') || url.startsWith('/api/debug/logs-stream');
   const isOptions = (method: string) => method.toUpperCase() === 'OPTIONS';
   const isStaticAsset = (url: string) =>
-    /\.(css|js|mjs|map|png|jpg|jpeg|gif|svg|webp|ico|woff2?|ttf|eot|txt|json|webmanifest)(\?|#|$)/i.test(url);
+    /\.(css|js|mjs|map|png|jpg|jpeg|gif|svg|webp|ico|woff2?|ttf|eot|txt|json|webmanifest)(\?|#|$)/i.test(
+      url
+    );
   const hasDebugHeader = (init?: RequestInit) => {
     try {
       if (!init?.headers) return false;

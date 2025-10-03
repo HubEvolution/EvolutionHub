@@ -67,9 +67,7 @@ export function WebscraperResults({ result, strings }: WebscraperResultsProps) {
             )}
             {result.metadata.ogImage && (
               <div className="sm:col-span-2">
-                <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                  OG Image
-                </dt>
+                <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">OG Image</dt>
                 <dd className="mt-1">
                   <img
                     src={result.metadata.ogImage}

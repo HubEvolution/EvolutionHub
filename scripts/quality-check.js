@@ -26,7 +26,7 @@ const colors = {
   yellow: '\x1b[33m',
   blue: '\x1b[34m',
   reset: '\x1b[0m',
-  bright: '\x1b[1m'
+  bright: '\x1b[1m',
 };
 
 function log(message, color = 'reset') {
@@ -50,51 +50,33 @@ async function runQualityChecks() {
 
   // 1. Grundlegende Linting (immer)
   log('\n📋 Schritt 1: Code-Qualität prüfen', 'bright');
-  results.push(runCommand(
-    'npm run lint',
-    'ESLint-Prüfung'
-  ));
+  results.push(runCommand('npm run lint', 'ESLint-Prüfung'));
 
   // 2. TypeScript Check (immer)
-  results.push(runCommand(
-    'npx astro check --tsconfig tsconfig.astro.json',
-    'TypeScript-Prüfung'
-  ));
+  results.push(runCommand('npx astro check --tsconfig tsconfig.astro.json', 'TypeScript-Prüfung'));
 
   // 3. Formatierung (nur bei --strict)
   if (isStrict) {
     log('\n🎨 Schritt 2: Formatierung prüfen', 'bright');
-    results.push(runCommand(
-      'npm run format:check',
-      'Prettier Formatierungsprüfung'
-    ));
+    results.push(runCommand('npm run format:check', 'Prettier Formatierungsprüfung'));
   }
 
   // 4. Tests (nur bei --strict)
   if (isStrict) {
     log('\n🧪 Schritt 3: Tests ausführen', 'bright');
-    results.push(runCommand(
-      'npm run test:coverage',
-      'Unit Tests mit Coverage'
-    ));
+    results.push(runCommand('npm run test:coverage', 'Unit Tests mit Coverage'));
   }
 
   // 5. Security Audit (nur bei --strict)
   if (isStrict) {
     log('\n🔒 Schritt 4: Sicherheitsprüfung', 'bright');
-    results.push(runCommand(
-      'npm audit --audit-level=moderate',
-      'Security Audit'
-    ));
+    results.push(runCommand('npm audit --audit-level=moderate', 'Security Audit'));
   }
 
   // 6. Schnelle Tests (nur bei --quick)
   if (isQuick) {
     log('\n⚡ Schnelle Tests ausführen', 'bright');
-    results.push(runCommand(
-      'npm run test:unit',
-      'Unit Tests (ohne Coverage)'
-    ));
+    results.push(runCommand('npm run test:unit', 'Unit Tests (ohne Coverage)'));
   }
 
   // Zusammenfassung

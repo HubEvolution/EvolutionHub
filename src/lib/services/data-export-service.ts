@@ -6,6 +6,7 @@
 import { eq, and, gte, lte, desc, sql } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/d1';
 import { dataExportJobs, dataDeletionRequests, users, comments, notifications } from '../db/schema';
+import { log } from '@/server/utils/logger';
 import type {
   DataExportJob,
   ExportOptions,
@@ -39,7 +40,12 @@ export class DataExportService {
     });
 
     // Starte asynchrone Verarbeitung
-    this.processExportJob(jobId).catch(console.error);
+    this.processExportJob(jobId).catch((err) =>
+      log('error', 'processExportJob unhandled error', {
+        jobId,
+        errorMessage: err instanceof Error ? err.message : String(err),
+      })
+    );
 
     return jobId;
   }
@@ -96,7 +102,10 @@ export class DataExportService {
         })
         .where(eq(dataExportJobs.id, jobId));
     } catch (error) {
-      console.error('Export job failed:', error);
+      log('error', 'Export job failed', {
+        jobId,
+        errorMessage: error instanceof Error ? error.message : String(error),
+      });
 
       // Update job mit Fehler
       await this.db
@@ -326,7 +335,7 @@ export class DataExportService {
     // In einer echten Implementierung würde hier R2 verwendet
     const filePath = `exports/${jobId}.json`;
     // Simuliere Storage-Operation
-    console.log(`Saving export ${jobId} to ${filePath}, size: ${content.length} bytes`);
+    log('info', 'Saving export', { jobId, filePath, size: content.length });
     return filePath;
   }
 
@@ -449,7 +458,13 @@ export class DataExportService {
     const request = requests[0];
 
     // Starte asynchrone Löschung
-    this.performDataDeletion(request.userId, requestId).catch(console.error);
+    this.performDataDeletion(request.userId, requestId).catch((err) =>
+      log('error', 'performDataDeletion unhandled error', {
+        requestId,
+        userId: request.userId,
+        errorMessage: err instanceof Error ? err.message : String(err),
+      })
+    );
 
     return true;
   }
@@ -489,7 +504,11 @@ export class DataExportService {
         })
         .where(eq(dataDeletionRequests.id, requestId));
     } catch (error) {
-      console.error('Data deletion failed:', error);
+      log('error', 'Data deletion failed', {
+        requestId,
+        userId,
+        errorMessage: error instanceof Error ? error.message : String(error),
+      });
 
       // Markiere request als fehlgeschlagen
       await this.db

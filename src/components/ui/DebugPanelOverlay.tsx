@@ -10,7 +10,8 @@ const DEFAULT_HEIGHT = 400;
 const GRID = 8; // grid snapping size
 
 // Route-scoped LocalStorage helpers to avoid cross-route clashes
-const keyPrefix = typeof window !== 'undefined' ? `debugPanel:${window.location.pathname}:` : 'debugPanel:';
+const keyPrefix =
+  typeof window !== 'undefined' ? `debugPanel:${window.location.pathname}:` : 'debugPanel:';
 const getLS = (key: string) => {
   try {
     return localStorage.getItem(keyPrefix + key) ?? localStorage.getItem('debugPanel.' + key);
@@ -64,7 +65,10 @@ const DebugPanelOverlay: React.FC = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [minTop, setMinTop] = useState(56);
   const [dragCandidate, setDragCandidate] = useState<{
-    x: number; y: number; right: number; bottom: number;
+    x: number;
+    y: number;
+    right: number;
+    bottom: number;
   } | null>(null);
   const [right, setRight] = useState(() => {
     if (typeof window === 'undefined') return 16;
@@ -94,10 +98,17 @@ const DebugPanelOverlay: React.FC = () => {
     try {
       const m = getLS('mode') as PanelMode | null;
       return m === 'rightDock' || m === 'bottomSheet' ? m : 'floating';
-    } catch { return 'floating'; }
+    } catch {
+      return 'floating';
+    }
   });
   const [isMaximized, setIsMaximized] = useState(false);
-  const prevLayoutRef = useRef<{ width: number; height: number; right: number; bottom: number } | null>(null);
+  const prevLayoutRef = useRef<{
+    width: number;
+    height: number;
+    right: number;
+    bottom: number;
+  } | null>(null);
   const resizeRef = useRef<HTMLDivElement>(null);
   const resizeVerticalRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -111,54 +122,70 @@ const DebugPanelOverlay: React.FC = () => {
   }, []);
 
   // Avoid overlapping common fixed/sticky CTAs by nudging panel away
-  const avoidOverlap = useCallback((currentRight: number, currentBottom: number) => {
-    try {
-      const panelRect = {
-        left: Math.max(0, window.innerWidth - currentRight - width),
-        top: Math.max(0, window.innerHeight - currentBottom - height),
-        right: Math.max(0, window.innerWidth - currentRight),
-        bottom: Math.max(0, window.innerHeight - currentBottom),
-      };
-      const selectors = 'button, a.btn, [data-avoid-debug], .toast, .fixed-cta, .sticky-cta';
-      const candidates = Array.from(document.querySelectorAll<HTMLElement>(selectors)).filter((el) => {
-        const style = getComputedStyle(el);
-        if (style.visibility === 'hidden' || style.display === 'none') return false;
-        const pos = style.position;
-        if (pos !== 'fixed' && pos !== 'sticky') return false;
-        const r = el.getBoundingClientRect();
-        if (r.width === 0 || r.height === 0) return false;
-        // Only consider items near the panel corner (bottom-right by default)
-        return r.top < panelRect.bottom && r.bottom > panelRect.top && r.left < panelRect.right && r.right > panelRect.left;
-      });
-      if (!candidates.length) return { right: currentRight, bottom: currentBottom };
-      // Nudge away from the first overlapping element
-      const r = candidates[0].getBoundingClientRect();
-      const panelCenterX = (panelRect.left + panelRect.right) / 2;
-      const panelCenterY = (panelRect.top + panelRect.bottom) / 2;
-      const targetCenterX = (r.left + r.right) / 2;
-      const targetCenterY = (r.top + r.bottom) / 2;
-      let nextRight = currentRight;
-      let nextBottom = currentBottom;
-      const delta = 24; // nudge distance
-      if (targetCenterX >= panelCenterX) {
-        // push panel left (increase right)
-        nextRight = Math.min(Math.max(8, currentRight + delta), Math.max(8, window.innerWidth - width - 8));
-      } else {
-        // push panel right (decrease right)
-        nextRight = Math.max(8, currentRight - delta);
+  const avoidOverlap = useCallback(
+    (currentRight: number, currentBottom: number) => {
+      try {
+        const panelRect = {
+          left: Math.max(0, window.innerWidth - currentRight - width),
+          top: Math.max(0, window.innerHeight - currentBottom - height),
+          right: Math.max(0, window.innerWidth - currentRight),
+          bottom: Math.max(0, window.innerHeight - currentBottom),
+        };
+        const selectors = 'button, a.btn, [data-avoid-debug], .toast, .fixed-cta, .sticky-cta';
+        const candidates = Array.from(document.querySelectorAll<HTMLElement>(selectors)).filter(
+          (el) => {
+            const style = getComputedStyle(el);
+            if (style.visibility === 'hidden' || style.display === 'none') return false;
+            const pos = style.position;
+            if (pos !== 'fixed' && pos !== 'sticky') return false;
+            const r = el.getBoundingClientRect();
+            if (r.width === 0 || r.height === 0) return false;
+            // Only consider items near the panel corner (bottom-right by default)
+            return (
+              r.top < panelRect.bottom &&
+              r.bottom > panelRect.top &&
+              r.left < panelRect.right &&
+              r.right > panelRect.left
+            );
+          }
+        );
+        if (!candidates.length) return { right: currentRight, bottom: currentBottom };
+        // Nudge away from the first overlapping element
+        const r = candidates[0].getBoundingClientRect();
+        const panelCenterX = (panelRect.left + panelRect.right) / 2;
+        const panelCenterY = (panelRect.top + panelRect.bottom) / 2;
+        const targetCenterX = (r.left + r.right) / 2;
+        const targetCenterY = (r.top + r.bottom) / 2;
+        let nextRight = currentRight;
+        let nextBottom = currentBottom;
+        const delta = 24; // nudge distance
+        if (targetCenterX >= panelCenterX) {
+          // push panel left (increase right)
+          nextRight = Math.min(
+            Math.max(8, currentRight + delta),
+            Math.max(8, window.innerWidth - width - 8)
+          );
+        } else {
+          // push panel right (decrease right)
+          nextRight = Math.max(8, currentRight - delta);
+        }
+        if (targetCenterY >= panelCenterY) {
+          // push panel up (increase bottom)
+          nextBottom = Math.min(
+            Math.max(8, currentBottom + delta),
+            Math.max(8, window.innerHeight - height - 8)
+          );
+        } else {
+          // push panel down (decrease bottom)
+          nextBottom = Math.max(8, currentBottom - delta);
+        }
+        return { right: nextRight, bottom: nextBottom };
+      } catch {
+        return { right: currentRight, bottom: currentBottom };
       }
-      if (targetCenterY >= panelCenterY) {
-        // push panel up (increase bottom)
-        nextBottom = Math.min(Math.max(8, currentBottom + delta), Math.max(8, window.innerHeight - height - 8));
-      } else {
-        // push panel down (decrease bottom)
-        nextBottom = Math.max(8, currentBottom - delta);
-      }
-      return { right: nextRight, bottom: nextBottom };
-    } catch {
-      return { right: currentRight, bottom: currentBottom };
-    }
-  }, [width, height]);
+    },
+    [width, height]
+  );
 
   const closePanel = useCallback(() => {
     setIsOpen(false);
@@ -178,15 +205,23 @@ const DebugPanelOverlay: React.FC = () => {
   }, []);
 
   // Drag positioning (drag by header controls bar)
-  const handleDragMouseDown = useCallback((e: React.MouseEvent) => {
-    // Ignore drags starting on interactive elements
-    const target = e.target as HTMLElement;
-    if (target.closest('button, input, select, label, kbd, svg, a, [role="button"], [role="listbox"]')) return;
-    e.preventDefault();
-    // start as candidate; require threshold before real dragging
-    setDragCandidate({ x: e.clientX, y: e.clientY, right, bottom });
-    dragStartRef.current = { x: e.clientX, y: e.clientY, right, bottom };
-  }, [right, bottom]);
+  const handleDragMouseDown = useCallback(
+    (e: React.MouseEvent) => {
+      // Ignore drags starting on interactive elements
+      const target = e.target as HTMLElement;
+      if (
+        target.closest(
+          'button, input, select, label, kbd, svg, a, [role="button"], [role="listbox"]'
+        )
+      )
+        return;
+      e.preventDefault();
+      // start as candidate; require threshold before real dragging
+      setDragCandidate({ x: e.clientX, y: e.clientY, right, bottom });
+      dragStartRef.current = { x: e.clientX, y: e.clientY, right, bottom };
+    },
+    [right, bottom]
+  );
 
   useEffect(() => {
     if (!isResizing) return;
@@ -265,7 +300,9 @@ const DebugPanelOverlay: React.FC = () => {
   // Compute dynamic safe top margin to avoid overlapping sticky/fixed headers
   const computeMinTop = useCallback(() => {
     try {
-      const candidates = Array.from(document.querySelectorAll<HTMLElement>('header, nav, .sticky, [data-sticky], .site-header'));
+      const candidates = Array.from(
+        document.querySelectorAll<HTMLElement>('header, nav, .sticky, [data-sticky], .site-header')
+      );
       let maxBottom = 56;
       for (const el of candidates) {
         const style = getComputedStyle(el);
@@ -277,7 +314,9 @@ const DebugPanelOverlay: React.FC = () => {
           }
         }
       }
-      setMinTop(Math.min(Math.max(40, Math.round(maxBottom + 8)), Math.floor(window.innerHeight * 0.4)));
+      setMinTop(
+        Math.min(Math.max(40, Math.round(maxBottom + 8)), Math.floor(window.innerHeight * 0.4))
+      );
     } catch {}
   }, []);
 
@@ -293,7 +332,10 @@ const DebugPanelOverlay: React.FC = () => {
       const maxRight = Math.max(minMargin, window.innerWidth - width - minMargin);
       // additionally ensure top >= minTop → bottom <= window.innerHeight - height - minTop
       const maxBottomByTop = Math.max(minMargin, window.innerHeight - height - minTop);
-      const maxBottom = Math.min(Math.max(minMargin, window.innerHeight - height - minMargin), maxBottomByTop);
+      const maxBottom = Math.min(
+        Math.max(minMargin, window.innerHeight - height - minMargin),
+        maxBottomByTop
+      );
 
       let nextRight = Math.min(Math.max(right, minMargin), maxRight);
       let nextBottom = Math.min(Math.max(bottom, minMargin), maxBottom);
@@ -307,7 +349,10 @@ const DebugPanelOverlay: React.FC = () => {
     // Run once on mount to normalize persisted values
     computeMinTop();
     clamp();
-    const onScroll = () => { computeMinTop(); clamp(); };
+    const onScroll = () => {
+      computeMinTop();
+      clamp();
+    };
     window.addEventListener('resize', clamp);
     window.addEventListener('orientationchange', clamp);
     window.addEventListener('scroll', onScroll, { passive: true });
@@ -349,7 +394,11 @@ const DebugPanelOverlay: React.FC = () => {
 
   // Persist mode
   useEffect(() => {
-    try { localStorage.setItem('debugPanel.mode', mode); } catch {/* noop */}
+    try {
+      localStorage.setItem('debugPanel.mode', mode);
+    } catch {
+      /* noop */
+    }
   }, [mode]);
 
   useEffect(() => {
@@ -443,28 +492,60 @@ const DebugPanelOverlay: React.FC = () => {
       if (e.shiftKey) {
         // Resize
         if (e.key === 'ArrowLeft') {
-          setWidth((w) => clampNum(w - step, MIN_WIDTH, MAX_WIDTH)); handled = true;
+          setWidth((w) => clampNum(w - step, MIN_WIDTH, MAX_WIDTH));
+          handled = true;
         } else if (e.key === 'ArrowRight') {
-          setWidth((w) => clampNum(w + step, MIN_WIDTH, MAX_WIDTH)); handled = true;
+          setWidth((w) => clampNum(w + step, MIN_WIDTH, MAX_WIDTH));
+          handled = true;
         } else if (e.key === 'ArrowUp') {
           const maxH = (window.innerHeight * MAX_HEIGHT_VH) / 100;
-          setHeight((h) => clampNum(h + step, MIN_HEIGHT, maxH)); handled = true;
+          setHeight((h) => clampNum(h + step, MIN_HEIGHT, maxH));
+          handled = true;
         } else if (e.key === 'ArrowDown') {
           const maxH = (window.innerHeight * MAX_HEIGHT_VH) / 100;
-          setHeight((h) => clampNum(h - step, MIN_HEIGHT, maxH)); handled = true;
+          setHeight((h) => clampNum(h - step, MIN_HEIGHT, maxH));
+          handled = true;
         }
       } else {
         // Move
         if (e.key === 'ArrowLeft') {
           // move left => increase right
-          setRight((r) => clampNum(r + step, minMargin, Math.max(minMargin, window.innerWidth - width - minMargin))); handled = true;
+          setRight((r) =>
+            clampNum(
+              r + step,
+              minMargin,
+              Math.max(minMargin, window.innerWidth - width - minMargin)
+            )
+          );
+          handled = true;
         } else if (e.key === 'ArrowRight') {
-          setRight((r) => clampNum(r - step, minMargin, Math.max(minMargin, window.innerWidth - width - minMargin))); handled = true;
+          setRight((r) =>
+            clampNum(
+              r - step,
+              minMargin,
+              Math.max(minMargin, window.innerWidth - width - minMargin)
+            )
+          );
+          handled = true;
         } else if (e.key === 'ArrowUp') {
           // move up => increase bottom
-          setBottom((b) => clampNum(b + step, minMargin, Math.max(minMargin, window.innerHeight - height - minMargin))); handled = true;
+          setBottom((b) =>
+            clampNum(
+              b + step,
+              minMargin,
+              Math.max(minMargin, window.innerHeight - height - minMargin)
+            )
+          );
+          handled = true;
         } else if (e.key === 'ArrowDown') {
-          setBottom((b) => clampNum(b - step, minMargin, Math.max(minMargin, window.innerHeight - height - minMargin))); handled = true;
+          setBottom((b) =>
+            clampNum(
+              b - step,
+              minMargin,
+              Math.max(minMargin, window.innerHeight - height - minMargin)
+            )
+          );
+          handled = true;
         }
       }
       if (handled) e.preventDefault();
@@ -542,13 +623,18 @@ const DebugPanelOverlay: React.FC = () => {
         role="dialog"
         aria-label="Debug Logs"
         tabIndex={-1}
-        onWheelCapture={(e) => { e.stopPropagation(); }}
-        onTouchMoveCapture={(e) => { e.stopPropagation(); }}
+        onWheelCapture={(e) => {
+          e.stopPropagation();
+        }}
+        onTouchMoveCapture={(e) => {
+          e.stopPropagation();
+        }}
         style={(() => {
           const base: React.CSSProperties = {
             width: `${width}px`,
             height: `${height}px`,
-            transition: isResizing || isResizingVertical ? 'none' : 'width 0.2s ease, height 0.2s ease',
+            transition:
+              isResizing || isResizingVertical ? 'none' : 'width 0.2s ease, height 0.2s ease',
           };
           if (mode === 'rightDock') {
             return { ...base, right: `${GRID}px`, bottom: `${GRID}px` };
@@ -590,7 +676,11 @@ const DebugPanelOverlay: React.FC = () => {
               className="absolute -top-2 left-0 right-0 flex justify-between items-center px-2 z-10 select-none"
               onMouseDown={mode === 'floating' ? handleDragMouseDown : undefined}
               onDoubleClick={toggleMaximize}
-              title={mode === 'floating' ? 'Drag to move • Double-click to maximize/restore' : 'Double-click to maximize/restore'}
+              title={
+                mode === 'floating'
+                  ? 'Drag to move • Double-click to maximize/restore'
+                  : 'Double-click to maximize/restore'
+              }
             >
               {/* Keyboard Hint */}
               <div className="text-xs text-white/80 bg-gray-800/90 px-2 py-1 rounded backdrop-blur-sm">
@@ -622,7 +712,12 @@ const DebugPanelOverlay: React.FC = () => {
                   title="Reset position to bottom-right"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v6h6M20 20v-6h-6M4 20h6v-6M20 4h-6v6" />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 4v6h6M20 20v-6h-6M4 20h6v-6M20 4h-6v6"
+                    />
                   </svg>
                 </button>
                 <button
@@ -654,7 +749,12 @@ const DebugPanelOverlay: React.FC = () => {
           className="absolute bottom-0 right-0 w-4 h-4 cursor-nwse-resize select-none"
           title="Drag to resize"
         >
-          <svg className="w-4 h-4 text-gray-400" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+          <svg
+            className="w-4 h-4 text-gray-400"
+            viewBox="0 0 16 16"
+            fill="currentColor"
+            aria-hidden="true"
+          >
             <path d="M1 15h2l12-12V1h-2L1 13v2z" />
           </svg>
         </div>

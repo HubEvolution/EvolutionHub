@@ -58,6 +58,7 @@ export default tseslint.config(
       'src/pages/api/admin/backup.ts',
       'src/pages/api/comments/performance.ts',
       'src/pages/api/data-export/index.ts',
+      'src/middleware.ts',
     ],
     rules: {
       'no-console': ['error', { allow: [] }],

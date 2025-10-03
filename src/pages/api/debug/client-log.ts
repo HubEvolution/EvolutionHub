@@ -14,21 +14,26 @@ export const POST = async (context: APIContext) => {
     // Gate by env flag to avoid exposure when disabled
     if (import.meta.env.PUBLIC_ENABLE_DEBUG_PANEL !== 'true') {
       return new Response(
-        JSON.stringify({ success: false, error: { type: 'not_found', message: 'Debug panel disabled' } }),
+        JSON.stringify({
+          success: false,
+          error: { type: 'not_found', message: 'Debug panel disabled' },
+        }),
         { status: 404, headers: { 'Content-Type': 'application/json' } }
       );
     }
     const raw: unknown = await context.request.json();
     const validLevels = ['info', 'warn', 'error', 'debug', 'log'] as const;
-    type Level = typeof validLevels[number];
+    type Level = (typeof validLevels)[number];
 
     const isLevel = (v: unknown): v is Level =>
       typeof v === 'string' && (validLevels as readonly string[]).includes(v);
 
     type Entry = { level: Level; message: string; context?: Record<string, unknown> };
     const isEntry = (v: unknown): v is Entry =>
-      !!v && typeof v === 'object' &&
-      isLevel((v as any).level) && typeof (v as any).message === 'string';
+      !!v &&
+      typeof v === 'object' &&
+      isLevel((v as any).level) &&
+      typeof (v as any).message === 'string';
 
     let entries: Entry[] = [];
     if (Array.isArray(raw)) {
@@ -51,15 +56,18 @@ export const POST = async (context: APIContext) => {
 
     let count = 0;
     for (const { level, message, context: logContext } of entries) {
-      const enrichedContext = { ...(logContext || {}), source: 'client' } as Record<string, unknown>;
+      const enrichedContext = { ...(logContext || {}), source: 'client' } as Record<
+        string,
+        unknown
+      >;
       log(level, `[CLIENT] ${message}`, enrichedContext);
       count++;
     }
 
-    return new Response(
-      JSON.stringify({ success: true, data: { logged: count } }),
-      { status: 200, headers: { 'Content-Type': 'application/json' } }
-    );
+    return new Response(JSON.stringify({ success: true, data: { logged: count } }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
   } catch (error: any) {
     return new Response(
       JSON.stringify({

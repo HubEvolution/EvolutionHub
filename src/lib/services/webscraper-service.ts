@@ -260,15 +260,23 @@ export class WebscraperService {
 
     // Extract meta description
     const description =
-      $('meta[name="description"]').attr('content')?.trim().slice(0, EXTRACTION_LIMITS.descriptionMaxLength) ||
-      $('meta[property="og:description"]').attr('content')?.trim().slice(0, EXTRACTION_LIMITS.descriptionMaxLength) ||
+      $('meta[name="description"]')
+        .attr('content')
+        ?.trim()
+        .slice(0, EXTRACTION_LIMITS.descriptionMaxLength) ||
+      $('meta[property="og:description"]')
+        .attr('content')
+        ?.trim()
+        .slice(0, EXTRACTION_LIMITS.descriptionMaxLength) ||
       undefined;
 
     // Extract metadata
     const metadata = {
       author: $('meta[name="author"]').attr('content')?.trim(),
       publishDate: $('meta[property="article:published_time"]').attr('content')?.trim(),
-      language: $('html').attr('lang')?.trim() || $('meta[http-equiv="content-language"]').attr('content')?.trim(),
+      language:
+        $('html').attr('lang')?.trim() ||
+        $('meta[http-equiv="content-language"]').attr('content')?.trim(),
       charset: $('meta[charset]').attr('charset')?.trim() || 'UTF-8',
       ogImage: $('meta[property="og:image"]').attr('content')?.trim(),
       ogTitle: $('meta[property="og:title"]').attr('content')?.trim(),
@@ -334,11 +342,7 @@ export class WebscraperService {
   /**
    * Get usage from KV
    */
-  private async getUsage(
-    ownerType: OwnerType,
-    ownerId: string,
-    limit: number
-  ): Promise<UsageInfo> {
+  private async getUsage(ownerType: OwnerType, ownerId: string, limit: number): Promise<UsageInfo> {
     const kv = this.env.KV_WEBSCRAPER;
     if (!kv) return { used: 0, limit, resetAt: null };
 

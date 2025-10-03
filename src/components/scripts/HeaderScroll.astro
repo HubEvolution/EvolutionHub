@@ -27,9 +27,15 @@
       }
     };
     const VERBOSE = __DEV__ && getFlag();
-    const TRACE = __DEV__ && ((() => {
-      try { return localStorage.getItem('debug.headerScrollTrace') === '1'; } catch { return false; }
-    })());
+    const TRACE =
+      __DEV__ &&
+      (() => {
+        try {
+          return localStorage.getItem('debug.headerScrollTrace') === '1';
+        } catch {
+          return false;
+        }
+      })();
     const dlog = (...args) => {
       if (VERBOSE) console.debug(...args);
     };

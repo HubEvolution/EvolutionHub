@@ -27,7 +27,9 @@ const DebugPanel: React.FC = () => {
   const [windowSize, setWindowSize] = useState(200);
   const [paused, setPaused] = useState(false);
   const pausedRef = useRef(false);
-  useEffect(() => { pausedRef.current = paused; }, [paused]);
+  useEffect(() => {
+    pausedRef.current = paused;
+  }, [paused]);
   const pausedBufferRef = useRef<LogEntry[]>([]);
   const [suppressedCount, setSuppressedCount] = useState(0);
   const [groupRepeats, setGroupRepeats] = useState<boolean>(() => {
@@ -39,19 +41,24 @@ const DebugPanel: React.FC = () => {
     }
   });
   const [levelFilter, setLevelFilter] = useState<string[]>(() => {
-    if (typeof window === 'undefined') return ['error','warn','info','log'];
+    if (typeof window === 'undefined') return ['error', 'warn', 'info', 'log'];
     try {
       const stored = localStorage.getItem('debugPanel.levelFilter');
-      return stored ? JSON.parse(stored) : ['error','warn','info','log']; // default excludes 'debug'
+      return stored ? JSON.parse(stored) : ['error', 'warn', 'info', 'log']; // default excludes 'debug'
     } catch {
-      return ['error','warn','info','log'];
+      return ['error', 'warn', 'info', 'log'];
     }
   });
-  const [sourceFilters, setSourceFilters] = useState<Record<'server'|'client'|'console'|'network', boolean>>(() => {
-    if (typeof window === 'undefined') return { server: true, client: true, console: true, network: true };
+  const [sourceFilters, setSourceFilters] = useState<
+    Record<'server' | 'client' | 'console' | 'network', boolean>
+  >(() => {
+    if (typeof window === 'undefined')
+      return { server: true, client: true, console: true, network: true };
     try {
       const stored = localStorage.getItem('debugPanel.sourceFilters');
-      return stored ? JSON.parse(stored) : { server: true, client: true, console: true, network: true };
+      return stored
+        ? JSON.parse(stored)
+        : { server: true, client: true, console: true, network: true };
     } catch {
       return { server: true, client: true, console: true, network: true };
     }
@@ -82,8 +89,18 @@ const DebugPanel: React.FC = () => {
       try {
         const data = JSON.parse(event.data);
         if (data.type === 'keep-alive' || data.type === 'environment-info') return;
-        if (data.type === 'log' && data.timestamp && data.level && typeof data.message === 'string') {
-          const entry: LogEntry = { timestamp: data.timestamp, level: String(data.level), message: data.message, source: data.source };
+        if (
+          data.type === 'log' &&
+          data.timestamp &&
+          data.level &&
+          typeof data.message === 'string'
+        ) {
+          const entry: LogEntry = {
+            timestamp: data.timestamp,
+            level: String(data.level),
+            message: data.message,
+            source: data.source,
+          };
           if (!pausedRef.current) {
             addLog(entry);
           } else {
@@ -126,12 +143,16 @@ const DebugPanel: React.FC = () => {
   useEffect(() => {
     try {
       localStorage.setItem('debugPanel.sourceFilters', JSON.stringify(sourceFilters));
-    } catch {/* noop */}
+    } catch {
+      /* noop */
+    }
   }, [sourceFilters]);
   useEffect(() => {
     try {
       localStorage.setItem('debugPanel.mutePatterns', mutePatterns);
-    } catch {/* noop */}
+    } catch {
+      /* noop */
+    }
   }, [mutePatterns]);
 
   const addLog = useCallback((log: LogEntry) => {
@@ -168,7 +189,9 @@ const DebugPanel: React.FC = () => {
   useEffect(() => {
     try {
       localStorage.setItem('debugPanel.levelFilter', JSON.stringify(levelFilter));
-    } catch {/* noop */}
+    } catch {
+      /* noop */
+    }
   }, [levelFilter]);
 
   // Auto-scroll to bottom when new logs arrive
@@ -193,7 +216,7 @@ const DebugPanel: React.FC = () => {
     }
   };
 
-  const resolveSource = (log: LogEntry): 'server'|'client'|'console'|'network' => {
+  const resolveSource = (log: LogEntry): 'server' | 'client' | 'console' | 'network' => {
     const msg = log.message || '';
     if (msg.includes('[NETWORK]')) return 'network';
     if (msg.includes('[CONSOLE]')) return 'console';
@@ -201,12 +224,13 @@ const DebugPanel: React.FC = () => {
     return 'server';
   };
 
-  const muteList = useMemo(() =>
-    mutePatterns
-      .split(',')
-      .map((s) => s.trim())
-      .filter(Boolean)
-      .map((s) => s.toLowerCase()),
+  const muteList = useMemo(
+    () =>
+      mutePatterns
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean)
+        .map((s) => s.toLowerCase()),
     [mutePatterns]
   );
 
@@ -253,7 +277,12 @@ const DebugPanel: React.FC = () => {
   }, [filteredLogs]);
 
   const sourceCounts = useMemo(() => {
-    const acc: Record<'server'|'client'|'console'|'network', number> = { server: 0, client: 0, console: 0, network: 0 };
+    const acc: Record<'server' | 'client' | 'console' | 'network', number> = {
+      server: 0,
+      client: 0,
+      console: 0,
+      network: 0,
+    };
     for (const l of filteredLogs) {
       acc[resolveSource(l)]++;
     }
@@ -261,7 +290,9 @@ const DebugPanel: React.FC = () => {
   }, [filteredLogs]);
 
   const exportLogs = useCallback(() => {
-    const items = (showAll ? displayLogs : displayLogs.slice(-Math.min(windowSize, displayLogs.length)));
+    const items = showAll
+      ? displayLogs
+      : displayLogs.slice(-Math.min(windowSize, displayLogs.length));
     const payload = {
       exportedAt: new Date().toISOString(),
       status,
@@ -289,7 +320,9 @@ const DebugPanel: React.FC = () => {
   }, [displayLogs, showAll, windowSize, status, levelFilter, sourceFilters, mutePatterns]);
 
   const exportNdjson = useCallback(() => {
-    const items = (showAll ? displayLogs : displayLogs.slice(-Math.min(windowSize, displayLogs.length)));
+    const items = showAll
+      ? displayLogs
+      : displayLogs.slice(-Math.min(windowSize, displayLogs.length));
     try {
       const nd = items.map((it) => JSON.stringify(it)).join('\n');
       const blob = new Blob([nd], { type: 'application/x-ndjson' });
@@ -307,7 +340,9 @@ const DebugPanel: React.FC = () => {
   }, [displayLogs, showAll, windowSize]);
 
   const copyJson = useCallback(async () => {
-    const items = (showAll ? displayLogs : displayLogs.slice(-Math.min(windowSize, displayLogs.length)));
+    const items = showAll
+      ? displayLogs
+      : displayLogs.slice(-Math.min(windowSize, displayLogs.length));
     try {
       await navigator.clipboard.writeText(JSON.stringify(items, null, 2));
     } catch (e) {
@@ -320,7 +355,9 @@ const DebugPanel: React.FC = () => {
     if (!buf.length) return;
     setLogs((prev) => {
       const merged = [...prev, ...buf].slice(-MAX_STORED_LOGS);
-      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(merged)); } catch {}
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+      } catch {}
       return merged;
     });
     pausedBufferRef.current = [];
@@ -335,8 +372,11 @@ const DebugPanel: React.FC = () => {
           <h2 className="text-lg font-bold text-gray-900 dark:text-white">Debug Logs</h2>
           <div className="flex items-center gap-2">
             <span className="text-xs text-gray-600 dark:text-gray-400">
-              {Math.min(filteredLogs.length, showAll ? filteredLogs.length : Math.min(windowSize, filteredLogs.length))}
-              {' '}of {filteredLogs.length} (total {logs.length})
+              {Math.min(
+                filteredLogs.length,
+                showAll ? filteredLogs.length : Math.min(windowSize, filteredLogs.length)
+              )}{' '}
+              of {filteredLogs.length} (total {logs.length})
             </span>
             <button
               onClick={clearLogs}
@@ -401,7 +441,9 @@ const DebugPanel: React.FC = () => {
                   max={1000}
                   step={50}
                   value={windowSize}
-                  onChange={(e) => setWindowSize(Math.max(50, Math.min(1000, Number(e.target.value) || 200)))}
+                  onChange={(e) =>
+                    setWindowSize(Math.max(50, Math.min(1000, Number(e.target.value) || 200)))
+                  }
                   className="w-16 px-1 py-0.5 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100"
                 />
               </div>
@@ -440,11 +482,21 @@ const DebugPanel: React.FC = () => {
             )}
             {/* Metrics chips */}
             <div className="hidden md:flex items-center gap-1 ml-2">
-              <span className="px-1.5 py-0.5 rounded text-[10px] bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300">E:{levelCounts['error']||0}</span>
-              <span className="px-1.5 py-0.5 rounded text-[10px] bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">W:{levelCounts['warn']||0}</span>
-              <span className="px-1.5 py-0.5 rounded text-[10px] bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">I:{levelCounts['info']||0}</span>
-              <span className="px-1.5 py-0.5 rounded text-[10px] bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">D:{levelCounts['debug']||0}</span>
-              <span className="px-1.5 py-0.5 rounded text-[10px] bg-teal-100 text-teal-800 dark:bg-teal-900/30 dark:text-teal-300">NET:{sourceCounts.network}</span>
+              <span className="px-1.5 py-0.5 rounded text-[10px] bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300">
+                E:{levelCounts['error'] || 0}
+              </span>
+              <span className="px-1.5 py-0.5 rounded text-[10px] bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">
+                W:{levelCounts['warn'] || 0}
+              </span>
+              <span className="px-1.5 py-0.5 rounded text-[10px] bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                I:{levelCounts['info'] || 0}
+              </span>
+              <span className="px-1.5 py-0.5 rounded text-[10px] bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
+                D:{levelCounts['debug'] || 0}
+              </span>
+              <span className="px-1.5 py-0.5 rounded text-[10px] bg-teal-100 text-teal-800 dark:bg-teal-900/30 dark:text-teal-300">
+                NET:{sourceCounts.network}
+              </span>
             </div>
           </div>
         </div>
@@ -467,12 +519,12 @@ const DebugPanel: React.FC = () => {
           {/* Source Filters */}
           {(
             [
-              ['server','SERVER'],
-              ['client','CLIENT'],
-              ['console','CONSOLE'],
-              ['network','NETWORK'],
+              ['server', 'SERVER'],
+              ['client', 'CLIENT'],
+              ['console', 'CONSOLE'],
+              ['network', 'NETWORK'],
             ] as const
-          ).map(([key,label]) => (
+          ).map(([key, label]) => (
             <button
               key={key}
               onClick={() => setSourceFilters((p) => ({ ...p, [key]: !p[key] }))}
@@ -516,7 +568,10 @@ const DebugPanel: React.FC = () => {
             {logs.length === 0 ? 'Waiting for logs...' : 'No logs match current filter'}
           </p>
         ) : (
-          (showAll ? displayLogs : displayLogs.slice(-Math.min(windowSize, displayLogs.length))).map((log, idx) => (
+          (showAll
+            ? displayLogs
+            : displayLogs.slice(-Math.min(windowSize, displayLogs.length))
+          ).map((log, idx) => (
             <div
               key={idx}
               className="flex items-start text-sm border-b border-gray-200 dark:border-gray-700 pb-2 last:border-0"

@@ -6,6 +6,7 @@
 import { eq, and, gte, lte, desc, sql } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/d1';
 import { backupJobs, systemMaintenance, users, comments, notifications } from '../db/schema';
+import { log } from '@/server/utils/logger';
 import type {
   BackupJob,
   BackupOptions,
@@ -38,7 +39,12 @@ export class BackupService {
     });
 
     // Starte asynchrone Backup-Verarbeitung
-    this.processBackupJob(jobId).catch(console.error);
+    this.processBackupJob(jobId).catch((err) =>
+      log('error', 'processBackupJob unhandled error', {
+        jobId,
+        errorMessage: err instanceof Error ? err.message : String(err),
+      })
+    );
 
     return jobId;
   }
@@ -84,7 +90,10 @@ export class BackupService {
         })
         .where(eq(backupJobs.id, jobId));
     } catch (error) {
-      console.error('Backup job failed:', error);
+      log('error', 'Backup job failed', {
+        jobId,
+        errorMessage: error instanceof Error ? error.message : String(error),
+      });
 
       // Update job mit Fehler
       await this.db
@@ -159,7 +168,7 @@ export class BackupService {
         return await this.db.select().from(notifications);
 
       default:
-        console.warn(`Unknown table: ${tableName}`);
+        log('warn', 'Unknown table requested for export', { tableName });
         return [];
     }
   }
@@ -203,7 +212,7 @@ export class BackupService {
   private async saveBackupToStorage(content: string, type: string): Promise<string> {
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     const filePath = `backups/${type}-${timestamp}.json`;
-    console.log(`Saving backup to ${filePath}, size: ${content.length} bytes`);
+    log('info', 'Saving backup', { filePath, size: content.length, type });
     return filePath;
   }
 
@@ -247,7 +256,7 @@ export class BackupService {
    */
   async scheduleAutomatedBackup(type: string, cronExpression: string): Promise<void> {
     // In einer echten Implementierung würde hier ein Cron-Job geplant
-    console.log(`Scheduled automated backup: ${type} with cron: ${cronExpression}`);
+    log('info', 'Scheduled automated backup', { type, cronExpression });
 
     // Für jetzt simulieren wir einen sofortigen Backup
     await this.createBackupJob(
@@ -321,7 +330,10 @@ export class BackupService {
         })
         .where(eq(systemMaintenance.id, maintenanceId));
     } catch (error) {
-      console.error('Maintenance failed:', error);
+      log('error', 'Maintenance failed', {
+        maintenanceId,
+        errorMessage: error instanceof Error ? error.message : String(error),
+      });
 
       // Update maintenance mit Fehler
       await this.db
@@ -381,7 +393,7 @@ export class BackupService {
       )
     );
 
-    console.log('Cleanup completed');
+    log('info', 'Cleanup completed');
   }
 
   /**
@@ -394,7 +406,7 @@ export class BackupService {
     // ANALYZE für bessere Query-Planung
     await this.db.run(sql`ANALYZE`);
 
-    console.log('Database optimization completed');
+    log('info', 'Database optimization completed');
   }
 
   /**
@@ -412,7 +424,7 @@ export class BackupService {
       ON notifications(user_id, is_read)
     `);
 
-    console.log('Database migration completed');
+    log('info', 'Database migration completed');
   }
 
   /**
@@ -425,7 +437,7 @@ export class BackupService {
       .set({ status: 'approved' })
       .where(eq(comments.status, 'pending'));
 
-    console.log('Database repair completed');
+    log('info', 'Database repair completed');
   }
 
   /**
@@ -477,8 +489,8 @@ export class BackupService {
     // In einer echten Implementierung würde hier das Backup aus R2 geladen
     // und die Daten wiederhergestellt werden
 
-    console.warn('Restore operation would be implemented here');
-    console.warn('WARNING: This operation is destructive and should be used with caution');
+    log('warn', 'Restore operation would be implemented here');
+    log('warn', 'WARNING: This operation is destructive and should be used with caution');
 
     return false; // Nicht implementiert aus Sicherheitsgründen
   }
@@ -495,7 +507,7 @@ export class BackupService {
     // In einer echten Implementierung würde hier das Backup aus R2 geladen
     // und die Checksum verifiziert werden
 
-    console.log(`Verifying backup integrity for job ${backupJobId}`);
+    log('info', 'Verifying backup integrity', { backupJobId });
     return true; // Simuliert erfolgreiche Verifikation
   }
 }

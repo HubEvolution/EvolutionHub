@@ -12,7 +12,11 @@ interface ClientLogContext {
   [key: string]: any;
 }
 
-interface QueuedEntry { level: LogLevel; message: string; context?: ClientLogContext }
+interface QueuedEntry {
+  level: LogLevel;
+  message: string;
+  context?: ClientLogContext;
+}
 
 class ClientLogger {
   private queue: QueuedEntry[] = [];
@@ -59,15 +63,25 @@ class ClientLogger {
     }
   }
 
-  info(message: string, context?: ClientLogContext) { this.enqueue('info', message, context); }
+  info(message: string, context?: ClientLogContext) {
+    this.enqueue('info', message, context);
+  }
 
-  warn(message: string, context?: ClientLogContext) { this.enqueue('warn', message, context); }
+  warn(message: string, context?: ClientLogContext) {
+    this.enqueue('warn', message, context);
+  }
 
-  error(message: string, context?: ClientLogContext) { this.enqueue('error', message, context); }
+  error(message: string, context?: ClientLogContext) {
+    this.enqueue('error', message, context);
+  }
 
-  debug(message: string, context?: ClientLogContext) { this.enqueue('debug', message, context); }
+  debug(message: string, context?: ClientLogContext) {
+    this.enqueue('debug', message, context);
+  }
 
-  log(message: string, context?: ClientLogContext) { this.enqueue('log', message, context); }
+  log(message: string, context?: ClientLogContext) {
+    this.enqueue('log', message, context);
+  }
 }
 
 export const clientLogger = new ClientLogger();

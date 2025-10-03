@@ -147,7 +147,7 @@ npm run health-check -- --url https://staging.hub-evolution.com
 
 Für automatisches Deployment müssen folgende Secrets in GitHub hinterlegt werden:
 
-***Repository Settings** → **Secrets and variables** → **Actions** → **New repository secret**
+**\*Repository Settings** → **Secrets and variables** → **Actions** → **New repository secret**
 
 | Secret Name             | Beschreibung                                  | Wo zu finden                                                   |
 | ----------------------- | --------------------------------------------- | -------------------------------------------------------------- |

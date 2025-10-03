@@ -53,10 +53,11 @@ export default function WebscraperIsland({ strings }: WebscraperIslandProps) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-CSRF-Token': document.cookie
-            .split('; ')
-            .find((row) => row.startsWith('csrf_token='))
-            ?.split('=')[1] || '',
+          'X-CSRF-Token':
+            document.cookie
+              .split('; ')
+              .find((row) => row.startsWith('csrf_token='))
+              ?.split('=')[1] || '',
         },
         body: JSON.stringify({ url: url.trim() }),
       });
@@ -125,9 +126,7 @@ export default function WebscraperIsland({ strings }: WebscraperIslandProps) {
         </div>
       )}
 
-      {result && (
-        <WebscraperResults result={result} strings={{ resultTitle: strings.result }} />
-      )}
+      {result && <WebscraperResults result={result} strings={{ resultTitle: strings.result }} />}
     </div>
   );
 }

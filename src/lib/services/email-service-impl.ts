@@ -15,6 +15,18 @@ import type {
 } from './email-service';
 import type { ServiceDependencies } from './types';
 import { ServiceError, ServiceErrorType } from './types';
+import { log } from '@/server/utils/logger';
+
+function maskEmail(email: string): string {
+  try {
+    const [user, domain] = email.split('@');
+    if (!user || !domain) return email;
+    const maskedUser = user.length <= 2 ? user[0] + '*' : user[0] + '***' + user[user.length - 1];
+    return `${maskedUser}@${domain}`;
+  } catch {
+    return email;
+  }
+}
 
 /**
  * Erweiterte Service-Abhängigkeiten für den E-Mail-Service
@@ -83,7 +95,11 @@ export class ResendEmailService extends AbstractBaseService implements EmailServ
       });
 
       if (error) {
-        console.error('Resend API error:', error);
+        log('error', 'Resend API error (verification email)', {
+          errorMessage: (error as any)?.message || String(error),
+          to: maskEmail(request.email),
+          kind: 'verification',
+        });
         return {
           success: false,
           error: error.message || 'Failed to send verification email',
@@ -91,10 +107,9 @@ export class ResendEmailService extends AbstractBaseService implements EmailServ
       }
 
       if (this.isDevelopment) {
-        console.log('✅ Verification email sent successfully:', {
-          to: request.email,
+        log('info', 'Verification email sent successfully', {
+          to: maskEmail(request.email),
           messageId: data?.id,
-          verificationUrl: request.verificationUrl,
         });
       }
 
@@ -104,7 +119,10 @@ export class ResendEmailService extends AbstractBaseService implements EmailServ
       };
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      console.error('Error sending verification email:', errorMessage);
+      log('error', 'Error sending verification email', {
+        errorMessage,
+        to: maskEmail(request.email),
+      });
 
       return {
         success: false,
@@ -133,7 +151,11 @@ export class ResendEmailService extends AbstractBaseService implements EmailServ
       });
 
       if (error) {
-        console.error('Resend API error:', error);
+        log('error', 'Resend API error (welcome email)', {
+          errorMessage: (error as any)?.message || String(error),
+          to: maskEmail(email),
+          kind: 'welcome',
+        });
         return {
           success: false,
           error: error.message || 'Failed to send welcome email',
@@ -141,8 +163,8 @@ export class ResendEmailService extends AbstractBaseService implements EmailServ
       }
 
       if (this.isDevelopment) {
-        console.log('✅ Welcome email sent successfully:', {
-          to: email,
+        log('info', 'Welcome email sent successfully', {
+          to: maskEmail(email),
           userName,
           messageId: data?.id,
         });
@@ -154,7 +176,10 @@ export class ResendEmailService extends AbstractBaseService implements EmailServ
       };
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      console.error('Error sending welcome email:', errorMessage);
+      log('error', 'Error sending welcome email', {
+        errorMessage,
+        to: maskEmail(email),
+      });
 
       return {
         success: false,
@@ -179,7 +204,11 @@ export class ResendEmailService extends AbstractBaseService implements EmailServ
       });
 
       if (error) {
-        console.error('Resend API error:', error);
+        log('error', 'Resend API error (generic email)', {
+          errorMessage: (error as any)?.message || String(error),
+          to: (request.to || []).map(maskEmail).join(','),
+          kind: 'generic',
+        });
         return {
           success: false,
           error: error.message || 'Failed to send email',
@@ -187,8 +216,8 @@ export class ResendEmailService extends AbstractBaseService implements EmailServ
       }
 
       if (this.isDevelopment) {
-        console.log('✅ Email sent successfully:', {
-          to: request.to,
+        log('info', 'Email sent successfully', {
+          to: (request.to || []).map(maskEmail),
           subject: request.subject,
           messageId: data?.id,
         });
@@ -200,7 +229,10 @@ export class ResendEmailService extends AbstractBaseService implements EmailServ
       };
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      console.error('Error sending email:', errorMessage);
+      log('error', 'Error sending email', {
+        errorMessage,
+        to: (request.to || []).map(maskEmail),
+      });
 
       return {
         success: false,

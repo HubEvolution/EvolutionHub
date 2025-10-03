@@ -40,7 +40,8 @@ class ScriptCoordinator {
     module.status = 'pending';
     this.modules.set(module.id, module);
 
-    console.log(`[ScriptCoordinator] Registered module: ${module.id}`, {
+    const { dlog } = getLoggers();
+    dlog(`[ScriptCoordinator] Registered module: ${module.id}`, {
       priority: module.priority,
       hasDependencies: !!(module.dependencies && module.dependencies.length > 0),
       dependencies: module.dependencies || [],
@@ -60,7 +61,8 @@ class ScriptCoordinator {
    * Initialize all registered modules in priority order
    */
   async initializeAll(): Promise<void> {
-    console.log('[ScriptCoordinator] Starting initialization of all modules');
+    const { dlog, dtrace } = getLoggers();
+    dlog('[ScriptCoordinator] Starting initialization of all modules');
 
     // Get current page path for filtering
     const currentPath = window.location.pathname;
@@ -75,7 +77,7 @@ class ScriptCoordinator {
       })
       .sort(([, a], [, b]) => a.priority - b.priority);
 
-    console.log(
+    dtrace(
       `[ScriptCoordinator] Found ${applicableModules.length} applicable modules for path: ${currentPath}`
     );
 
@@ -85,13 +87,14 @@ class ScriptCoordinator {
     }
 
     this.isPageReady = true;
-    console.log('[ScriptCoordinator] All modules initialized successfully');
+    dlog('[ScriptCoordinator] All modules initialized successfully');
   }
 
   /**
    * Initialize a specific module with dependency resolution
    */
   private async initializeModule(moduleId: string): Promise<void> {
+    const { dlog } = getLoggers();
     const module = this.modules.get(moduleId);
     if (!module) {
       console.warn(`[ScriptCoordinator] Module not found: ${moduleId}`);
@@ -103,14 +106,14 @@ class ScriptCoordinator {
       return this.initPromises.get(moduleId) || Promise.resolve();
     }
 
-    console.log(`[ScriptCoordinator] Initializing module: ${moduleId}`);
+    dlog(`[ScriptCoordinator] Initializing module: ${moduleId}`);
     module.status = 'initializing';
 
     // Check dependencies first
     if (module.dependencies) {
       for (const depId of module.dependencies) {
         if (!this.readyModules.has(depId)) {
-          console.log(
+          dlog(
             `[ScriptCoordinator] Waiting for dependency: ${depId} (required by ${moduleId})`
           );
           await this.initializeModule(depId);
@@ -126,7 +129,7 @@ class ScriptCoordinator {
       await initPromise;
       module.status = 'ready';
       this.readyModules.add(moduleId);
-      console.log(`[ScriptCoordinator] Module ready: ${moduleId}`);
+      dlog(`[ScriptCoordinator] Module ready: ${moduleId}`);
     } catch (error) {
       module.status = 'error';
       console.error(`[ScriptCoordinator] Module initialization failed: ${moduleId}`, error);
@@ -137,21 +140,22 @@ class ScriptCoordinator {
    * Safe module initialization with error handling
    */
   private async safeInitialize(module: ScriptModule): Promise<void> {
-    console.log(`[ScriptCoordinator] Starting initialization of module: ${module.id}`);
+    const { dlog, dtrace } = getLoggers();
+    dlog(`[ScriptCoordinator] Starting initialization of module: ${module.id}`);
 
     try {
-      console.log(`[ScriptCoordinator] Calling init() for module: ${module.id}`);
+      dtrace(`[ScriptCoordinator] Calling init() for module: ${module.id}`);
       const result = module.init();
 
       if (result instanceof Promise) {
-        console.log(`[ScriptCoordinator] Module ${module.id} returned Promise, awaiting...`);
+        dtrace(`[ScriptCoordinator] Module ${module.id} returned Promise, awaiting...`);
         await result;
-        console.log(`[ScriptCoordinator] Promise resolved for module: ${module.id}`);
+        dtrace(`[ScriptCoordinator] Promise resolved for module: ${module.id}`);
       } else {
-        console.log(`[ScriptCoordinator] Module ${module.id} returned synchronously`);
+        dtrace(`[ScriptCoordinator] Module ${module.id} returned synchronously`);
       }
 
-      console.log(`[ScriptCoordinator] ✅ Module ${module.id} initialized successfully`);
+      dlog(`[ScriptCoordinator] ✅ Module ${module.id} initialized successfully`);
     } catch (error) {
       console.error(`[ScriptCoordinator] ❌ Error initializing ${module.id}:`, error);
       console.error(`[ScriptCoordinator] Error details:`, {
@@ -168,13 +172,14 @@ class ScriptCoordinator {
    * Cleanup all modules (for page transitions)
    */
   cleanup(): void {
-    console.log('[ScriptCoordinator] Cleaning up all modules');
+    const { dlog } = getLoggers();
+    dlog('[ScriptCoordinator] Cleaning up all modules');
 
     for (const [moduleId, module] of this.modules.entries()) {
       if (module.cleanup && this.readyModules.has(moduleId)) {
         try {
           module.cleanup();
-          console.log(`[ScriptCoordinator] Cleaned up module: ${moduleId}`);
+          dlog(`[ScriptCoordinator] Cleaned up module: ${moduleId}`);
         } catch (error) {
           console.error(`[ScriptCoordinator] Cleanup error for ${moduleId}:`, error);
         }
@@ -218,7 +223,8 @@ const coordinator = new ScriptCoordinator();
 let isInitialLoad = true;
 
 document.addEventListener('DOMContentLoaded', async () => {
-  console.log('[ScriptCoordinator] DOM Content Loaded');
+  const { dlog } = getLoggers();
+  dlog('[ScriptCoordinator] DOM Content Loaded');
   await coordinator.initializeAll();
 });
 
@@ -228,7 +234,8 @@ document.addEventListener('astro:page-load', async () => {
     return; // Skip on initial load (already handled by DOMContentLoaded)
   }
 
-  console.log('[ScriptCoordinator] Astro page transition detected');
+  const { dlog } = getLoggers();
+  dlog('[ScriptCoordinator] Astro page transition detected');
   coordinator.cleanup();
   await coordinator.initializeAll();
 });
@@ -241,3 +248,19 @@ window.addEventListener('beforeunload', () => {
 // Export for use in other modules
 export default coordinator;
 export type { ScriptModule };
+
+// Debug flag helpers (client-only)
+function getLoggers() {
+  const isDev = typeof location !== 'undefined' && (location.hostname === 'localhost' || location.hostname === '127.0.0.1');
+  const verbose = (() => {
+    try {
+      return isDev && (localStorage.getItem('debug.scriptCoordinator') === '1' || new URLSearchParams(location.search).has('debugScripts'));
+    } catch { return false; }
+  })();
+  const trace = (() => {
+    try { return isDev && localStorage.getItem('debug.scriptCoordinatorTrace') === '1'; } catch { return false; }
+  })();
+  const dlog = (...args: unknown[]) => { if (verbose) console.debug(...args); };
+  const dtrace = (...args: unknown[]) => { if (trace) console.debug(...args); };
+  return { dlog, dtrace };
+}

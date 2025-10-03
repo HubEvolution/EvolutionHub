@@ -132,10 +132,10 @@ export const POST = async (context: APIContext) => {
   try {
     // Gate by env flag to avoid exposing debug polling when disabled
     if (import.meta.env.PUBLIC_ENABLE_DEBUG_PANEL !== 'true') {
-      return new Response(
-        JSON.stringify({ success: false, error: 'Debug panel disabled' }),
-        { status: 404, headers: { 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ success: false, error: 'Debug panel disabled' }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json' },
+      });
     }
     // Manual logging instead of middleware
     logApiAccess('anonymous', context.clientAddress || 'unknown', {
