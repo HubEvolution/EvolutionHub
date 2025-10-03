@@ -38,13 +38,15 @@ const DebugPanel: React.FC = () => {
       return false;
     }
   });
-  const [levelFilter, setLevelFilter] = useState<string[]>([
-    'error',
-    'warn',
-    'info',
-    'debug',
-    'log',
-  ]);
+  const [levelFilter, setLevelFilter] = useState<string[]>(() => {
+    if (typeof window === 'undefined') return ['error','warn','info','log'];
+    try {
+      const stored = localStorage.getItem('debugPanel.levelFilter');
+      return stored ? JSON.parse(stored) : ['error','warn','info','log']; // default excludes 'debug'
+    } catch {
+      return ['error','warn','info','log'];
+    }
+  });
   const [sourceFilters, setSourceFilters] = useState<Record<'server'|'client'|'console'|'network', boolean>>(() => {
     if (typeof window === 'undefined') return { server: true, client: true, console: true, network: true };
     try {
@@ -161,6 +163,13 @@ const DebugPanel: React.FC = () => {
       prev.includes(level) ? prev.filter((l) => l !== level) : [...prev, level]
     );
   }, []);
+
+  // Persist levelFilter
+  useEffect(() => {
+    try {
+      localStorage.setItem('debugPanel.levelFilter', JSON.stringify(levelFilter));
+    } catch {/* noop */}
+  }, [levelFilter]);
 
   // Auto-scroll to bottom when new logs arrive
   useEffect(() => {
