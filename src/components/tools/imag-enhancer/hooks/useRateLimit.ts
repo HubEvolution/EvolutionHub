@@ -18,7 +18,10 @@ export function useRateLimit(): UseRateLimit {
     return () => window.clearInterval(id);
   }, [retryUntil]);
 
-  const retryActive = useMemo(() => Boolean(retryUntil && nowMs < (retryUntil as number)), [retryUntil, nowMs]);
+  const retryActive = useMemo(
+    () => Boolean(retryUntil && nowMs < (retryUntil as number)),
+    [retryUntil, nowMs]
+  );
   const retryRemainingSec = useMemo(() => {
     if (!retryUntil) return 0;
     return Math.max(0, Math.ceil((retryUntil - nowMs) / 1000));
@@ -29,27 +32,41 @@ export function useRateLimit(): UseRateLimit {
     setRetryUntil(until);
   }, []);
 
-  const handle429Response = useCallback(async (res: Response) => {
-    const ra = res.headers.get('Retry-After');
-    let retrySec = ra ? parseInt(ra, 10) : 0;
-    if (!retrySec) {
-      try {
-        const body: unknown = await res.clone().json().catch(() => null);
-        const details = (body && typeof body === 'object' && body !== null && 'error' in body && typeof (body as { error: unknown }).error === 'object' && (body as { error: unknown }).error !== null && 'details' in (body as { error: { details?: unknown } }).error)
-          ? (body as { error: { details: unknown } }).error.details
-          : null;
-        const retryAfter = (details && typeof details === 'object' && details !== null && 'retryAfter' in details)
-          ? (details as { retryAfter: unknown }).retryAfter
-          : undefined;
-        retrySec = typeof retryAfter === 'number' ? retryAfter : 0;
-      } catch {
-        // ignore JSON parse errors
+  const handle429Response = useCallback(
+    async (res: Response) => {
+      const ra = res.headers.get('Retry-After');
+      let retrySec = ra ? parseInt(ra, 10) : 0;
+      if (!retrySec) {
+        try {
+          const body: unknown = await res
+            .clone()
+            .json()
+            .catch(() => null);
+          const details =
+            body &&
+            typeof body === 'object' &&
+            body !== null &&
+            'error' in body &&
+            typeof (body as { error: unknown }).error === 'object' &&
+            (body as { error: unknown }).error !== null &&
+            'details' in (body as { error: { details?: unknown } }).error
+              ? (body as { error: { details: unknown } }).error.details
+              : null;
+          const retryAfter =
+            details && typeof details === 'object' && details !== null && 'retryAfter' in details
+              ? (details as { retryAfter: unknown }).retryAfter
+              : undefined;
+          retrySec = typeof retryAfter === 'number' ? retryAfter : 0;
+        } catch {
+          // ignore JSON parse errors
+        }
       }
-    }
-    if (!Number.isFinite(retrySec) || retrySec <= 0) retrySec = 1;
-    setFromRetryAfter(retrySec);
-    return retrySec;
-  }, [setFromRetryAfter]);
+      if (!Number.isFinite(retrySec) || retrySec <= 0) retrySec = 1;
+      setFromRetryAfter(retrySec);
+      return retrySec;
+    },
+    [setFromRetryAfter]
+  );
 
   return { retryUntil, retryActive, retryRemainingSec, setFromRetryAfter, handle429Response };
 }

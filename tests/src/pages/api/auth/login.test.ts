@@ -57,7 +57,7 @@ const createMockContext = (formData: Record<string, any> = {}) => {
     mockDb,
     mockFormData,
     mockCookies,
-    clientAddress: '',  // Wird für Security-Tests benötigt
+    clientAddress: '', // Wird für Security-Tests benötigt
     redirect: vi.fn((url: string, status: number) => {
       return new Response(null, {
         status,
@@ -71,7 +71,7 @@ const createMockContext = (formData: Record<string, any> = {}) => {
 vi.mock('@/lib/auth-v2', async (importOriginal) => {
   const actual = await importOriginal();
   return {
-    ...actual as any,
+    ...(actual as any),
     createSession: vi.fn(),
   };
 });
@@ -102,20 +102,22 @@ vi.mock('@/lib/security-logger', () => ({
   logAuthSuccess: vi.fn(),
   logAuthFailure: vi.fn(),
   logSecurityEvent: vi.fn(),
-  logUserEvent: vi.fn()
+  logUserEvent: vi.fn(),
 }));
 
 describe.skip('Login API Legacy Tests (to be migrated to service-layer)', () => {
   // Spy für die Sicherheitsfunktionen
   let standardApiLimiterSpy: any;
   // Entfernt: ungenutzte Spy-Variablen
-  
+
   beforeEach(() => {
     vi.clearAllMocks();
-    
+
     // Spies für Funktionen einrichten
     // Wir müssen standardApiLimiter so einstellen, dass er standarmäßig undefined zurückgibt (kein Rate-Limiting)
-    standardApiLimiterSpy = vi.spyOn(rateLimiter, 'standardApiLimiter').mockResolvedValue(undefined);
+    standardApiLimiterSpy = vi
+      .spyOn(rateLimiter, 'standardApiLimiter')
+      .mockResolvedValue(undefined);
     // Entfernt: ungenutzte Spies
   });
 
@@ -148,7 +150,7 @@ describe.skip('Login API Legacy Tests (to be migrated to service-layer)', () => 
       email: 'test@example.com',
       password: 'password123',
     });
-    
+
     // Runtime entfernen
     (context.locals as any).runtime = undefined;
 
@@ -259,10 +261,10 @@ describe.skip('Login API Legacy Tests (to be migrated to service-layer)', () => 
     // Überprüfen der Ergebnisse
     expect(response.status).toBe(302);
     expect(response.headers.get('Location')).toBe('/en/dashboard');
-    
+
     // Überprüfen, ob die Session erstellt wurde
     expect(authModule.createSession).toHaveBeenCalledWith(context.mockDb, mockUser.id);
-    
+
     // Überprüfen, ob der Cookie gesetzt wurde
     expect(context.mockCookies.set).toHaveBeenCalledWith(
       'session_id',
@@ -272,7 +274,7 @@ describe.skip('Login API Legacy Tests (to be migrated to service-layer)', () => 
         httpOnly: true,
         maxAge: 60 * 60 * 24, // 1 Tag (statt 30 Tage)
         secure: true,
-        sameSite: 'lax'
+        sameSite: 'lax',
       })
     );
   });
@@ -291,20 +293,20 @@ describe.skip('Login API Legacy Tests (to be migrated to service-layer)', () => 
     expect(response.status).toBe(302);
     // Der aktuelle Endpunkt verwendet '/login?error=ServerError' für Serverfehler
     expect(response.headers.get('Location')).toBe('/en/login?error=ServerError');
-    
+
     // Das tatsächliche Format des logAuthFailure-Aufrufs ist anders als ursprünglich erwartet
     // Der erste Parameter ist ein leerer String (statt IP-Adresse)
     // Das zweite Objekt enthält error, reason und stack-Trace statt email und reason
     expect(securityLogger.logAuthFailure).toHaveBeenCalledWith(
-      "", // Leerer String statt IP-Adresse im aktuellen Implementierungsstand
+      '', // Leerer String statt IP-Adresse im aktuellen Implementierungsstand
       expect.objectContaining({
-        error: "Datenbankfehler",
-        reason: "server_error",
-        stack: expect.stringContaining("Error: Datenbankfehler")
+        error: 'Datenbankfehler',
+        reason: 'server_error',
+        stack: expect.stringContaining('Error: Datenbankfehler'),
       })
     );
   });
-  
+
   it('sollte das neue API-Logging verwenden, wenn die Authentifizierung erfolgreich ist', async () => {
     const context = createMockContext({
       email: 'test@example.com',
@@ -343,10 +345,10 @@ describe.skip('Login API Legacy Tests (to be migrated to service-layer)', () => 
       expect.any(String),
       expect.objectContaining({
         action: 'login',
-        sessionId: mockSession.id
+        sessionId: mockSession.id,
       })
     );
-    
+
     // Überprüfen, ob der Rate-Limiter korrekt aufgerufen wurde
     expect(standardApiLimiterSpy).toHaveBeenCalled();
   });

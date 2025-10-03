@@ -38,7 +38,7 @@ app.get('/jobs', async (c) => {
 
     return c.json({
       success: true,
-      data: jobs.map(job => ({
+      data: jobs.map((job) => ({
         id: job.id,
         type: job.type,
         status: job.status,
@@ -53,13 +53,16 @@ app.get('/jobs', async (c) => {
     });
   } catch (error) {
     console.error('Error fetching export jobs:', error);
-    return c.json({
-      success: false,
-      error: {
-        type: 'server_error',
-        message: 'Failed to fetch export jobs',
+    return c.json(
+      {
+        success: false,
+        error: {
+          type: 'server_error',
+          message: 'Failed to fetch export jobs',
+        },
       },
-    }, 500);
+      500
+    );
   }
 });
 
@@ -79,13 +82,16 @@ app.get('/jobs/:id', async (c) => {
 
     // Sicherheitscheck: Job gehört zum Benutzer
     if (!job || job.userId !== userId) {
-      return c.json({
-        success: false,
-        error: {
-          type: 'not_found',
-          message: 'Export job not found',
+      return c.json(
+        {
+          success: false,
+          error: {
+            type: 'not_found',
+            message: 'Export job not found',
+          },
         },
-      }, 404);
+        404
+      );
     }
 
     return c.json({
@@ -106,13 +112,16 @@ app.get('/jobs/:id', async (c) => {
     });
   } catch (error) {
     console.error('Error fetching export job:', error);
-    return c.json({
-      success: false,
-      error: {
-        type: 'server_error',
-        message: 'Failed to fetch export job',
+    return c.json(
+      {
+        success: false,
+        error: {
+          type: 'server_error',
+          message: 'Failed to fetch export job',
+        },
       },
-    }, 500);
+      500
+    );
   }
 });
 
@@ -132,13 +141,16 @@ app.get('/jobs/:id/progress', async (c) => {
 
     // Sicherheitscheck: Job gehört zum Benutzer
     if (!job || job.userId !== userId) {
-      return c.json({
-        success: false,
-        error: {
-          type: 'not_found',
-          message: 'Export job not found',
+      return c.json(
+        {
+          success: false,
+          error: {
+            type: 'not_found',
+            message: 'Export job not found',
+          },
         },
-      }, 404);
+        404
+      );
     }
 
     const progress = await exportService.getExportProgress(jobId);
@@ -149,13 +161,16 @@ app.get('/jobs/:id/progress', async (c) => {
     });
   } catch (error) {
     console.error('Error fetching export progress:', error);
-    return c.json({
-      success: false,
-      error: {
-        type: 'server_error',
-        message: 'Failed to fetch export progress',
+    return c.json(
+      {
+        success: false,
+        error: {
+          type: 'server_error',
+          message: 'Failed to fetch export progress',
+        },
       },
-    }, 500);
+      500
+    );
   }
 });
 
@@ -173,36 +188,45 @@ app.post('/create', async (c) => {
 
     // Validierung
     if (!body.type || !body.format) {
-      return c.json({
-        success: false,
-        error: {
-          type: 'validation_error',
-          message: 'Export type and format are required',
+      return c.json(
+        {
+          success: false,
+          error: {
+            type: 'validation_error',
+            message: 'Export type and format are required',
+          },
         },
-      }, 400);
+        400
+      );
     }
 
     const allowedTypes = ['user_data', 'comments', 'notifications', 'full_export'];
     const allowedFormats = ['json', 'csv', 'xml'];
 
     if (!allowedTypes.includes(body.type)) {
-      return c.json({
-        success: false,
-        error: {
-          type: 'validation_error',
-          message: 'Invalid export type',
+      return c.json(
+        {
+          success: false,
+          error: {
+            type: 'validation_error',
+            message: 'Invalid export type',
+          },
         },
-      }, 400);
+        400
+      );
     }
 
     if (!allowedFormats.includes(body.format)) {
-      return c.json({
-        success: false,
-        error: {
-          type: 'validation_error',
-          message: 'Invalid export format',
+      return c.json(
+        {
+          success: false,
+          error: {
+            type: 'validation_error',
+            message: 'Invalid export format',
+          },
         },
-      }, 400);
+        400
+      );
     }
 
     const jobId = await exportService.createExportJob(userId, body);
@@ -216,13 +240,16 @@ app.post('/create', async (c) => {
     });
   } catch (error) {
     console.error('Error creating export job:', error);
-    return c.json({
-      success: false,
-      error: {
-        type: 'server_error',
-        message: 'Failed to create export job',
+    return c.json(
+      {
+        success: false,
+        error: {
+          type: 'server_error',
+          message: 'Failed to create export job',
+        },
       },
-    }, 500);
+      500
+    );
   }
 });
 
@@ -242,33 +269,42 @@ app.get('/download/:id', async (c) => {
 
     // Sicherheitschecks
     if (!job || job.userId !== userId) {
-      return c.json({
-        success: false,
-        error: {
-          type: 'not_found',
-          message: 'Export job not found',
+      return c.json(
+        {
+          success: false,
+          error: {
+            type: 'not_found',
+            message: 'Export job not found',
+          },
         },
-      }, 404);
+        404
+      );
     }
 
     if (job.status !== 'completed') {
-      return c.json({
-        success: false,
-        error: {
-          type: 'validation_error',
-          message: 'Export job is not completed yet',
+      return c.json(
+        {
+          success: false,
+          error: {
+            type: 'validation_error',
+            message: 'Export job is not completed yet',
+          },
         },
-      }, 400);
+        400
+      );
     }
 
     if (!job.downloadUrl || !job.expiresAt || job.expiresAt < Date.now()) {
-      return c.json({
-        success: false,
-        error: {
-          type: 'validation_error',
-          message: 'Download URL has expired',
+      return c.json(
+        {
+          success: false,
+          error: {
+            type: 'validation_error',
+            message: 'Download URL has expired',
+          },
         },
-      }, 400);
+        400
+      );
     }
 
     // In einer echten Implementierung würde hier die Datei aus R2 geladen
@@ -296,13 +332,16 @@ app.get('/download/:id', async (c) => {
     });
   } catch (error) {
     console.error('Error downloading export:', error);
-    return c.json({
-      success: false,
-      error: {
-        type: 'server_error',
-        message: 'Failed to download export',
+    return c.json(
+      {
+        success: false,
+        error: {
+          type: 'server_error',
+          message: 'Failed to download export',
+        },
       },
-    }, 500);
+      500
+    );
   }
 });
 
@@ -329,13 +368,16 @@ app.post('/delete-request', async (c) => {
     });
   } catch (error) {
     console.error('Error creating deletion request:', error);
-    return c.json({
-      success: false,
-      error: {
-        type: 'server_error',
-        message: 'Failed to create deletion request',
+    return c.json(
+      {
+        success: false,
+        error: {
+          type: 'server_error',
+          message: 'Failed to create deletion request',
+        },
       },
-    }, 500);
+      500
+    );
   }
 });
 
@@ -351,13 +393,16 @@ app.post('/verify-deletion', async (c) => {
     }>();
 
     if (!body.requestId || !body.verificationToken) {
-      return c.json({
-        success: false,
-        error: {
-          type: 'validation_error',
-          message: 'Request ID and verification token are required',
+      return c.json(
+        {
+          success: false,
+          error: {
+            type: 'validation_error',
+            message: 'Request ID and verification token are required',
+          },
         },
-      }, 400);
+        400
+      );
     }
 
     const db = drizzle(c.env.DB);
@@ -369,13 +414,16 @@ app.post('/verify-deletion', async (c) => {
     );
 
     if (!success) {
-      return c.json({
-        success: false,
-        error: {
-          type: 'validation_error',
-          message: 'Invalid or expired deletion request',
+      return c.json(
+        {
+          success: false,
+          error: {
+            type: 'validation_error',
+            message: 'Invalid or expired deletion request',
+          },
         },
-      }, 400);
+        400
+      );
     }
 
     return c.json({
@@ -386,13 +434,16 @@ app.post('/verify-deletion', async (c) => {
     });
   } catch (error) {
     console.error('Error processing deletion request:', error);
-    return c.json({
-      success: false,
-      error: {
-        type: 'server_error',
-        message: 'Failed to process deletion request',
+    return c.json(
+      {
+        success: false,
+        error: {
+          type: 'server_error',
+          message: 'Failed to process deletion request',
+        },
       },
-    }, 500);
+      500
+    );
   }
 });
 
@@ -410,9 +461,9 @@ app.get('/gdpr-info', (c) => {
     ],
     retentionPeriods: {
       'Account data': 'Until account deletion or 3 years after last activity',
-      'Comments': 'Until account deletion or manual removal',
-      'Notifications': '90 days after being read',
-      'Analytics': '2 years for aggregated data',
+      Comments: 'Until account deletion or manual removal',
+      Notifications: '90 days after being read',
+      Analytics: '2 years for aggregated data',
     },
     thirdPartyTransfers: [
       'Cloudflare (hosting and CDN)',

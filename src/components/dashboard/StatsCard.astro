@@ -14,31 +14,42 @@ interface Props {
 const { stats } = Astro.props;
 const loading = !stats;
 
-const statsMap = !loading ? [
-  { label: 'Projects', value: stats.projects },
-  { label: 'Tasks', value: stats.tasks },
-  { label: 'Team Members', value: stats.teamMembers },
-] : [];
+const statsMap = !loading
+  ? [
+      { label: 'Projects', value: stats.projects },
+      { label: 'Tasks', value: stats.tasks },
+      { label: 'Team Members', value: stats.teamMembers },
+    ]
+  : [];
 ---
 
-<div class="relative p-6 rounded-2xl bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-white/10 shadow-sm">
-  {loading ? (
-    <div class="flex justify-center items-center h-24">
-      <div class="lottie-loader w-16 h-16"></div>
-    </div>
-  ) : (
-    <div class="grid grid-cols-1 md:grid-cols-3">
-      {statsMap.map((stat, index) => (
-        <div class:list={[
-          "p-6 flex items-center",
-          { "border-r border-gray-200 dark:border-white/10": index < statsMap.length - 1 && index % 3 !== 2 }
-        ]}>
-          <div>
-            <p class="text-gray-500 dark:text-gray-400 text-sm">{stat.label}</p>
-            <span class="text-2xl font-bold text-gray-800 dark:text-white">{stat.value}</span>
+<div
+  class="relative p-6 rounded-2xl bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-white/10 shadow-sm"
+>
+  {
+    loading ? (
+      <div class="flex justify-center items-center h-24">
+        <div class="lottie-loader w-16 h-16" />
+      </div>
+    ) : (
+      <div class="grid grid-cols-1 md:grid-cols-3">
+        {statsMap.map((stat, index) => (
+          <div
+            class:list={[
+              'p-6 flex items-center',
+              {
+                'border-r border-gray-200 dark:border-white/10':
+                  index < statsMap.length - 1 && index % 3 !== 2,
+              },
+            ]}
+          >
+            <div>
+              <p class="text-gray-500 dark:text-gray-400 text-sm">{stat.label}</p>
+              <span class="text-2xl font-bold text-gray-800 dark:text-white">{stat.value}</span>
+            </div>
           </div>
-        </div>
-      ))}
-    </div>
-  )}
+        ))}
+      </div>
+    )
+  }
 </div>

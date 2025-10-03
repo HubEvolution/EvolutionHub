@@ -1,6 +1,6 @@
 /**
  * User Service Interface und Implementierung
- * 
+ *
  * Verantwortlich für alle Benutzer-bezogenen Operationen wie Profilverwaltung
  * und Benutzersuche. Kapselt Datenbankzugriffe und Geschäftslogik.
  */
@@ -15,7 +15,7 @@ import type { SafeUser } from '@/lib/db/types';
 export interface UserService extends BaseService {
   /**
    * Holt Benutzerdaten anhand der ID
-   * 
+   *
    * @param userId ID des Benutzers
    * @returns Der Benutzer oder null, falls nicht gefunden
    */
@@ -23,7 +23,7 @@ export interface UserService extends BaseService {
 
   /**
    * Holt einen Benutzer anhand seiner E-Mail-Adresse
-   * 
+   *
    * @param email E-Mail-Adresse des Benutzers
    * @returns Der Benutzer oder null, falls nicht gefunden
    */
@@ -31,7 +31,7 @@ export interface UserService extends BaseService {
 
   /**
    * Holt einen Benutzer anhand seines Benutzernamens
-   * 
+   *
    * @param username Benutzername
    * @returns Der Benutzer oder null, falls nicht gefunden
    */
@@ -39,20 +39,23 @@ export interface UserService extends BaseService {
 
   /**
    * Aktualisiert das Benutzerprofil
-   * 
+   *
    * @param userId ID des zu aktualisierenden Benutzers
    * @param data Zu aktualisierende Daten
    * @returns Der aktualisierte Benutzer
    */
-  updateProfile(userId: string, data: {
-    name?: string;
-    username?: string;
-    image?: string;
-  }): Promise<SafeUser>;
+  updateProfile(
+    userId: string,
+    data: {
+      name?: string;
+      username?: string;
+      image?: string;
+    }
+  ): Promise<SafeUser>;
 
   /**
    * Ändert das Benutzerpasswort
-   * 
+   *
    * @param userId ID des Benutzers
    * @param currentPassword Aktuelles Passwort (zur Verifikation)
    * @param newPassword Neues Passwort
@@ -62,7 +65,7 @@ export interface UserService extends BaseService {
 
   /**
    * Löscht ein Benutzerkonto
-   * 
+   *
    * @param userId ID des zu löschenden Benutzers
    * @returns true, wenn erfolgreich
    */
@@ -70,20 +73,16 @@ export interface UserService extends BaseService {
 
   /**
    * Sucht Benutzer anhand verschiedener Kriterien
-   * 
+   *
    * @param query Suchparameter
    * @returns Liste von Benutzern, die den Kriterien entsprechen
    */
-  searchUsers(query: {
-    term?: string;
-    limit?: number;
-    offset?: number;
-  }): Promise<SafeUser[]>;
+  searchUsers(query: { term?: string; limit?: number; offset?: number }): Promise<SafeUser[]>;
 }
 
 /**
  * Factory-Funktion zur Erstellung einer UserService-Instanz
- * 
+ *
  * @param deps Abhängigkeiten für den Service
  * @returns Eine neue UserService-Instanz
  */

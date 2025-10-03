@@ -28,7 +28,7 @@ const {
   r = '',
   showProfileFields = false,
   action = '/api/auth/magic/request',
-  labelKeys = {}
+  labelKeys = {},
 } = Astro.props as Props;
 
 const t = getI18n(locale as Locale);
@@ -39,33 +39,93 @@ function isAllowedRelativePath(path: string): boolean {
 
 const safeR = isAllowedRelativePath(r) ? r : '';
 const formId = `magic-link-form-${mode}`;
-const successText = t('pages.auth.magic.success') ?? (locale === 'de' ? 'Prüfe deine E‑Mails auf den Anmelde‑Link.' : 'Check your email for a sign‑in link.');
-const errorText = t('pages.auth.magic.error') ?? (locale === 'de' ? 'Der Link konnte nicht gesendet werden. Bitte versuche es erneut.' : "We couldn't send the link. Please try again.");
-const cooldownLabel = t('pages.auth.magic.cooldown') ?? (locale === 'de' ? 'Erneut senden in {s}s' : 'Resend in {s}s');
+const successText =
+  t('pages.auth.magic.success') ??
+  (locale === 'de'
+    ? 'Prüfe deine E‑Mails auf den Anmelde‑Link.'
+    : 'Check your email for a sign‑in link.');
+const errorText =
+  t('pages.auth.magic.error') ??
+  (locale === 'de'
+    ? 'Der Link konnte nicht gesendet werden. Bitte versuche es erneut.'
+    : "We couldn't send the link. Please try again.");
+const cooldownLabel =
+  t('pages.auth.magic.cooldown') ?? (locale === 'de' ? 'Erneut senden in {s}s' : 'Resend in {s}s');
 ---
-<form id={formId} method="POST" action={action} class="space-y-4" data-cooldown-label={cooldownLabel}>
-  {showProfileFields && (
-    <>
-      <div>
-        <FormLabel for="name">{t(labelKeys.nameLabelKey ?? 'pages.register.form.fields.name.label') ?? 'Name'}</FormLabel>
-        <Input type="text" id="name" name="name" minlength="2" maxlength="50" autocomplete="name" ariaDescribedby={`${formId}-name-help`} />
-        <p id={`${formId}-name-help`} class="mt-1 text-xs text-gray-500 dark:text-gray-400">{t('pages.register.form.fields.name.help') ?? (locale === 'de' ? '2–50 Zeichen.' : '2–50 characters.')}</p>
-      </div>
-      <div>
-        <FormLabel for="username">{t(labelKeys.usernameLabelKey ?? 'pages.register.form.fields.username.label') ?? 'Username'}</FormLabel>
-        <Input type="text" id="username" name="username" minlength="3" maxlength="30" pattern="[a-zA-Z0-9_]+" autocomplete="username" ariaDescribedby={`${formId}-username-help`} />
-        <p id={`${formId}-username-help`} class="mt-1 text-xs text-gray-500 dark:text-gray-400">{t('pages.register.form.fields.username.help') ?? (locale === 'de' ? '3–30 Zeichen; Buchstaben, Zahlen, Unterstrich.' : '3–30 characters; letters, numbers, underscore.')}</p>
-      </div>
-    </>
-  )}
+
+<form
+  id={formId}
+  method="POST"
+  action={action}
+  class="space-y-4"
+  data-cooldown-label={cooldownLabel}
+>
+  {
+    showProfileFields && (
+      <>
+        <div>
+          <FormLabel for="name">
+            {t(labelKeys.nameLabelKey ?? 'pages.register.form.fields.name.label') ?? 'Name'}
+          </FormLabel>
+          <Input
+            type="text"
+            id="name"
+            name="name"
+            minlength="2"
+            maxlength="50"
+            autocomplete="name"
+            ariaDescribedby={`${formId}-name-help`}
+          />
+          <p id={`${formId}-name-help`} class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            {t('pages.register.form.fields.name.help') ??
+              (locale === 'de' ? '2–50 Zeichen.' : '2–50 characters.')}
+          </p>
+        </div>
+        <div>
+          <FormLabel for="username">
+            {t(labelKeys.usernameLabelKey ?? 'pages.register.form.fields.username.label') ??
+              'Username'}
+          </FormLabel>
+          <Input
+            type="text"
+            id="username"
+            name="username"
+            minlength="3"
+            maxlength="30"
+            pattern="[a-zA-Z0-9_]+"
+            autocomplete="username"
+            ariaDescribedby={`${formId}-username-help`}
+          />
+          <p id={`${formId}-username-help`} class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            {t('pages.register.form.fields.username.help') ??
+              (locale === 'de'
+                ? '3–30 Zeichen; Buchstaben, Zahlen, Unterstrich.'
+                : '3–30 characters; letters, numbers, underscore.')}
+          </p>
+        </div>
+      </>
+    )
+  }
   <div>
-    <FormLabel for="email-magic">{t(labelKeys.emailLabelKey ?? 'pages.login.form.fields.email.label') ?? 'Email'}</FormLabel>
+    <FormLabel for="email-magic"
+      >{t(labelKeys.emailLabelKey ?? 'pages.login.form.fields.email.label') ?? 'Email'}</FormLabel
+    >
     <Input type="email" id="email-magic" name="email" required autocomplete="email" />
   </div>
   {safeR && <input type="hidden" name="r" value={safeR} />}
   <input type="hidden" name="locale" value={locale} />
-  <Button type="submit" className="w-full">{t(labelKeys.submitLabelKey ?? 'pages.login.form.magic_button') ?? 'Continue with Magic Link'}</Button>
+  <Button type="submit" className="w-full"
+    >{
+      t(labelKeys.submitLabelKey ?? 'pages.login.form.magic_button') ?? 'Continue with Magic Link'
+    }</Button
+  >
   <p id={`${formId}-status`} class="hidden text-sm"></p>
 </form>
 
-<MagicLinkFormEnhancer client:load formId={formId} successText={successText} errorText={errorText} cooldownLabel={cooldownLabel} />
+<MagicLinkFormEnhancer
+  client:load
+  formId={formId}
+  successText={successText}
+  errorText={errorText}
+  cooldownLabel={cooldownLabel}
+/>

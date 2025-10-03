@@ -4,11 +4,7 @@
  * @param texts - Array of texts to rotate through
  * @param speed - Speed of typing in milliseconds
  */
-export function runTypewriter(
-  elementId: string,
-  texts: string[],
-  speed: number
-): void {
+export function runTypewriter(elementId: string, texts: string[], speed: number): void {
   const elMaybe = document.getElementById(elementId);
   if (!(elMaybe instanceof HTMLElement)) return;
   const el: HTMLElement = elMaybe;

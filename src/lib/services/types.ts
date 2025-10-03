@@ -1,6 +1,6 @@
 /**
  * Basistypen und Interfaces für die Service-Layer
- * 
+ *
  * Dieses Modul definiert gemeinsame Typen und Interfaces, die von allen Services genutzt werden.
  * Es bildet die Grundlage für Dependency Injection und Transaktionsmanagement.
  */
@@ -16,7 +16,7 @@ export interface ServiceDependencies {
    * Die D1-Datenbankinstanz
    */
   db: D1Database;
-  
+
   /**
    * Flag, das angibt, ob die Anwendung im Entwicklungsmodus läuft
    */
@@ -41,12 +41,15 @@ export interface TransactionOptions {
 export interface BaseService {
   /**
    * Führt eine Funktion innerhalb einer Datenbanktransaktion aus
-   * 
+   *
    * @param callback Funktion, die innerhalb der Transaktion ausgeführt werden soll
    * @param options Optionen für die Transaktion
    * @returns Das Ergebnis der ausgeführten Funktion
    */
-  withTransaction<T>(callback: (tx: D1Database) => Promise<T>, options?: TransactionOptions): Promise<T>;
+  withTransaction<T>(
+    callback: (tx: D1Database) => Promise<T>,
+    options?: TransactionOptions
+  ): Promise<T>;
 }
 
 /**

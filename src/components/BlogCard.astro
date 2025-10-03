@@ -11,13 +11,7 @@ interface Props {
 
 const { post, featured = false, className = '', aosDelay } = Astro.props;
 
-const {
-  title,
-  description,
-  image,
-  imageAlt,
-  category,
-} = post.data;
+const { title, description, image, imageAlt, category } = post.data;
 
 const { url, formattedPubDate, readingTime } = post;
 ---
@@ -26,51 +20,58 @@ const { url, formattedPubDate, readingTime } = post;
   class:list={[
     'group relative flex flex-col overflow-hidden rounded-lg bg-white shadow-lg transition-all duration-300 hover:shadow-xl dark:bg-gray-800 group-hover:-translate-y-1',
     featured ? 'md:flex-row' : 'flex-col',
-    className
+    className,
   ]}
   data-itemscope
   data-itemtype="http://schema.org/BlogPosting"
   data-aos="fade-up"
   data-aos-duration="650"
-  {...(typeof aosDelay === 'number' ? { 'data-aos-delay': String(aosDelay) } : {})}
+  {...typeof aosDelay === 'number' ? { 'data-aos-delay': String(aosDelay) } : {}}
 >
-  {image && (
-    <div class={featured ? 'md:w-1/3' : 'w-full'}>
-      <a
-        href={url}
-        class="block aspect-video overflow-hidden"
-        aria-label={`Bild für ${title}`}
-        tabindex="-1"
-      >
-        <img
-          src={image.src}
-          alt={imageAlt ? imageAlt : title}
-          class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-          loading="lazy"
-          width={featured ? 400 : 800}
-          height={featured ? 300 : 600}
-          decoding="async"
-        />
-      </a>
-    </div>
-  )}
+  {
+    image && (
+      <div class={featured ? 'md:w-1/3' : 'w-full'}>
+        <a
+          href={url}
+          class="block aspect-video overflow-hidden"
+          aria-label={`Bild für ${title}`}
+          tabindex="-1"
+        >
+          <img
+            src={image.src}
+            alt={imageAlt ? imageAlt : title}
+            class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            loading="lazy"
+            width={featured ? 400 : 800}
+            height={featured ? 300 : 600}
+            decoding="async"
+          />
+        </a>
+      </div>
+    )
+  }
 
   <div class:list={['flex flex-col flex-grow', featured && image ? 'p-6 md:w-2/3' : 'p-6']}>
     <div class="flex-grow">
-      {category && (
-        <div class="mb-2">
-          <a
-            href={`/blog/kategorie/${typeof category === 'string' ? category.toLowerCase() : 'allgemein'}`}
-            class="relative z-10 inline-flex items-center px-3 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-400 hover:bg-indigo-200 dark:hover:bg-indigo-800/50 transition-colors"
-            data-itemprop="articleSection"
-          >
-            {category}
-          </a>
-        </div>
-      )}
+      {
+        category && (
+          <div class="mb-2">
+            <a
+              href={`/blog/kategorie/${typeof category === 'string' ? category.toLowerCase() : 'allgemein'}`}
+              class="relative z-10 inline-flex items-center px-3 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-400 hover:bg-indigo-200 dark:hover:bg-indigo-800/50 transition-colors"
+              data-itemprop="articleSection"
+            >
+              {category}
+            </a>
+          </div>
+        )
+      }
 
       <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-2">
-        <a href={url} class="relative z-10 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
+        <a
+          href={url}
+          class="relative z-10 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+        >
           <span class="absolute inset-0" aria-hidden="true"></span>
           {title}
         </a>
@@ -78,25 +79,29 @@ const { url, formattedPubDate, readingTime } = post;
 
       <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-3">
         <time
-          datetime={post.data.pubDate instanceof Date ? post.data.pubDate.toISOString() : new Date(post.data.pubDate).toISOString()}
+          datetime={post.data.pubDate instanceof Date
+            ? post.data.pubDate.toISOString()
+            : new Date(post.data.pubDate).toISOString()}
           class="whitespace-nowrap"
           data-itemprop="datePublished"
         >
           {formattedPubDate}
         </time>
-        {readingTime && (
-          <>
-            <span class="mx-1">•</span>
-            <span>{readingTime.text}</span>
-          </>
-        )}
+        {
+          readingTime && (
+            <>
+              <span class="mx-1">•</span>
+              <span>{readingTime.text}</span>
+            </>
+          )
+        }
       </div>
 
-      {description && (
-        <p class="mb-4 text-gray-600 dark:text-gray-300 line-clamp-3 flex-grow">
-          {description}
-        </p>
-      )}
+      {
+        description && (
+          <p class="mb-4 text-gray-600 dark:text-gray-300 line-clamp-3 flex-grow">{description}</p>
+        )
+      }
     </div>
 
     <div class="mt-auto pt-2">
@@ -106,7 +111,9 @@ const { url, formattedPubDate, readingTime } = post;
         aria-label={`Weiterlesen: ${title}`}
       >
         Weiterlesen
-        <ArrowRightCircleIcon class="ml-2 h-5 w-5 transition-transform group-hover/readmore:translate-x-1" />
+        <ArrowRightCircleIcon
+          class="ml-2 h-5 w-5 transition-transform group-hover/readmore:translate-x-1"
+        />
       </a>
     </div>
   </div>

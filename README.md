@@ -7,6 +7,7 @@
 [![Cloudflare](https://img.shields.io/badge/Cloudflare-F38020?logo=cloudflare&logoColor=fff)](https://workers.cloudflare.com/)
 
 <!-- CI Badges -->
+
 [![Enhancer E2E Smoke](https://github.com/HubEvolution/EvolutionHub/actions/workflows/enhancer-e2e-smoke.yml/badge.svg?branch=main)](https://github.com/HubEvolution/EvolutionHub/actions/workflows/enhancer-e2e-smoke.yml)
 [![Prod Auth Smoke](https://github.com/HubEvolution/EvolutionHub/actions/workflows/prod-auth-smoke.yml/badge.svg?branch=main)](https://github.com/HubEvolution/EvolutionHub/actions/workflows/prod-auth-smoke.yml)
 [![Pricing Smoke](https://github.com/HubEvolution/EvolutionHub/actions/workflows/pricing-smoke.yml/badge.svg?branch=main)](https://github.com/HubEvolution/EvolutionHub/actions/workflows/pricing-smoke.yml)
@@ -16,7 +17,8 @@ Evolution Hub ist eine moderne Full-Stack-Webanwendung, die eine Sammlung von En
 ## ✨ Features
 
 - **Tool-Sammlung:** Zugriff auf eine wachsende Bibliothek von Online-Tools für Entwickler
-- **AI-Bildbearbeitung:** KI-gestützte Bildverbesserung mit Modellen wie Real-ESRGAN und GFPGAN
+- **AI-Bildverbesserung:** KI-gestützte Bildverbesserung mit Modellen wie Real-ESRGAN und GFPGAN
+- **Prompt-Enhancer:** KI-gestützte Text-zu-Prompt-Optimierung für bessere AI-Ergebnisse
 - **Authentifizierung:** Stytch Magic Link (E-Mail). Registrierung implizit beim ersten erfolgreichen Callback. Kein Passwort/Reset mehr.
 - **Job-System:** Asynchrones Management für langlaufende AI-Operationen
 - **API-Sicherheit:** Umfassende Sicherheitsmaßnahmen mit Rate-Limiting und Audit-Logging
@@ -101,6 +103,7 @@ Die Anwendung ist dann unter der von Wrangler angegebenen Adresse verfügbar (z.
 Das Projekt nutzt GitHub Actions für automatisierte Deployments mit vollständigen CI-Gates:
 
 #### Via Git Tags (Production + Staging)
+
 ```bash
 # Tag erstellen und pushen
 git tag v1.7.1
@@ -108,6 +111,7 @@ git push origin v1.7.1
 ```
 
 Dies startet automatisch:
+
 1. Pre-Deploy Checks (Lint, Tests, Security Audit)
 2. Deploy zu Staging
 3. Health Check (Staging)
@@ -116,6 +120,7 @@ Dies startet automatisch:
 6. GitHub Release erstellen
 
 #### Via GitHub Actions UI (Staging oder Production)
+
 1. Gehe zu **Actions** → **Deploy to Cloudflare**
 2. Klicke **Run workflow**
 3. Wähle Environment: `staging` oder `production`
@@ -142,16 +147,16 @@ npm run health-check -- --url https://staging.hub-evolution.com
 
 Für automatisches Deployment müssen folgende Secrets in GitHub hinterlegt werden:
 
-1. **Repository Settings** → **Secrets and variables** → **Actions** → **New repository secret**
+***Repository Settings** → **Secrets and variables** → **Actions** → **New repository secret**
 
-| Secret Name | Beschreibung | Wo zu finden |
-|-------------|--------------|--------------|
-| `CLOUDFLARE_API_TOKEN` | Cloudflare API Token mit Workers:Edit-Rechten | Cloudflare Dashboard → My Profile → API Tokens → Create Token |
-| `CLOUDFLARE_ACCOUNT_ID` | Cloudflare Account-ID | Bereits in `wrangler.toml`: `39434b5635d8beb4bde93e1792b628d7` |
+| Secret Name             | Beschreibung                                  | Wo zu finden                                                   |
+| ----------------------- | --------------------------------------------- | -------------------------------------------------------------- |
+| `CLOUDFLARE_API_TOKEN`  | Cloudflare API Token mit Workers:Edit-Rechten | Cloudflare Dashboard → My Profile → API Tokens → Create Token  |
+| `CLOUDFLARE_ACCOUNT_ID` | Cloudflare Account-ID                         | Bereits in `wrangler.toml`: `39434b5635d8beb4bde93e1792b628d7` |
 
-2. **GitHub Environments einrichten**
+**GitHub Environments einrichten** →
+**Settings** → **Environments** → **New environment**:
 
-Settings → Environments → New environment:
 - **staging**: Keine Protection Rules
 - **production**:
   - ✅ Required reviewers: 1
@@ -166,6 +171,7 @@ curl https://hub-evolution.com/api/health
 ```
 
 Response:
+
 ```json
 {
   "status": "ok",

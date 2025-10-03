@@ -12,7 +12,7 @@ import type {
   ExportData,
   ExportJobType,
   ExportFormat,
-  ExportProgress
+  ExportProgress,
 } from '../types/data-management';
 
 export class DataExportService {
@@ -91,11 +91,10 @@ export class DataExportService {
           filePath,
           fileSize: fileContent.length,
           downloadUrl,
-          expiresAt: Date.now() + (7 * 24 * 60 * 60 * 1000), // 7 Tage gültig
+          expiresAt: Date.now() + 7 * 24 * 60 * 60 * 1000, // 7 Tage gültig
           completedAt: Date.now(),
         })
         .where(eq(dataExportJobs.id, jobId));
-
     } catch (error) {
       console.error('Export job failed:', error);
 
@@ -114,7 +113,10 @@ export class DataExportService {
   /**
    * Sammelt Daten für Export basierend auf Typ und Optionen
    */
-  private async collectExportData(userId: number, options: { type: ExportJobType; format: ExportFormat }): Promise<ExportData> {
+  private async collectExportData(
+    userId: number,
+    options: { type: ExportJobType; format: ExportFormat }
+  ): Promise<ExportData> {
     const exportData: ExportData = {
       metadata: {
         exportId: crypto.randomUUID(),
@@ -163,7 +165,7 @@ export class DataExportService {
         .from(comments)
         .where(eq(comments.authorId, userId));
 
-      exportData.comments = commentsData.map(comment => ({
+      exportData.comments = commentsData.map((comment) => ({
         ...comment,
         author: { id: userId, name: exportData.user?.name },
       }));
@@ -210,14 +212,18 @@ export class DataExportService {
     // Metadata
     lines.push('Metadata');
     lines.push('exportId,userId,exportType,format,generatedAt,version');
-    lines.push(`${data.metadata.exportId},${data.metadata.userId},${data.metadata.exportType},${data.metadata.format},${data.metadata.generatedAt},${data.metadata.version}`);
+    lines.push(
+      `${data.metadata.exportId},${data.metadata.userId},${data.metadata.exportType},${data.metadata.format},${data.metadata.generatedAt},${data.metadata.version}`
+    );
 
     // User data
     if (data.user) {
       lines.push('');
       lines.push('User Data');
       lines.push('id,email,name,createdAt');
-      lines.push(`${data.user.id},${data.user.email},${data.user.name || ''},${data.user.createdAt}`);
+      lines.push(
+        `${data.user.id},${data.user.email},${data.user.name || ''},${data.user.createdAt}`
+      );
     }
 
     // Comments
@@ -225,8 +231,10 @@ export class DataExportService {
       lines.push('');
       lines.push('Comments');
       lines.push('id,content,postId,status,createdAt,updatedAt,parentId,authorName');
-      data.comments.forEach(comment => {
-        lines.push(`${comment.id},"${comment.content}",${comment.postId || ''},${comment.status},${comment.createdAt},${comment.updatedAt || ''},${comment.parentId || ''},"${comment.author.name || ''}"`);
+      data.comments.forEach((comment) => {
+        lines.push(
+          `${comment.id},"${comment.content}",${comment.postId || ''},${comment.status},${comment.createdAt},${comment.updatedAt || ''},${comment.parentId || ''},"${comment.author.name || ''}"`
+        );
       });
     }
 
@@ -235,8 +243,10 @@ export class DataExportService {
       lines.push('');
       lines.push('Notifications');
       lines.push('id,type,title,message,isRead,createdAt,readAt');
-      data.notifications.forEach(notification => {
-        lines.push(`${notification.id},${notification.type},"${notification.title}","${notification.message}",${notification.isRead},${notification.createdAt},${notification.readAt || ''}`);
+      data.notifications.forEach((notification) => {
+        lines.push(
+          `${notification.id},${notification.type},"${notification.title}","${notification.message}",${notification.isRead},${notification.createdAt},${notification.readAt || ''}`
+        );
       });
     }
 
@@ -273,7 +283,7 @@ export class DataExportService {
     // Comments
     if (data.comments && data.comments.length > 0) {
       xml += '  <comments>\n';
-      data.comments.forEach(comment => {
+      data.comments.forEach((comment) => {
         xml += '    <comment>\n';
         xml += `      <id>${comment.id}</id>\n`;
         xml += `      <content><![CDATA[${comment.content}]]></content>\n`;
@@ -291,7 +301,7 @@ export class DataExportService {
     // Notifications
     if (data.notifications && data.notifications.length > 0) {
       xml += '  <notifications>\n';
-      data.notifications.forEach(notification => {
+      data.notifications.forEach((notification) => {
         xml += '    <notification>\n';
         xml += `      <id>${notification.id}</id>\n`;
         xml += `      <type>${notification.type}</type>\n`;
@@ -326,7 +336,7 @@ export class DataExportService {
   private async generateDownloadUrl(jobId: string, filePath: string): Promise<string> {
     // In einer echten Implementierung würde hier eine signierte URL erstellt
     const baseUrl = process.env.BASE_URL || 'http://localhost:8787';
-    const expires = Date.now() + (7 * 24 * 60 * 60 * 1000); // 7 Tage
+    const expires = Date.now() + 7 * 24 * 60 * 60 * 1000; // 7 Tage
     return `${baseUrl}/api/data-export/download/${jobId}?expires=${expires}`;
   }
 
@@ -378,20 +388,18 @@ export class DataExportService {
     const expiredJobs = await this.db
       .select()
       .from(dataExportJobs)
-      .where(and(
-        eq(dataExportJobs.status, 'completed'),
-        lte(dataExportJobs.expiresAt, Date.now())
-      ));
+      .where(
+        and(eq(dataExportJobs.status, 'completed'), lte(dataExportJobs.expiresAt, Date.now()))
+      );
 
     if (expiredJobs.length === 0) return 0;
 
     // Lösche abgelaufene Jobs
     await this.db
       .delete(dataExportJobs)
-      .where(and(
-        eq(dataExportJobs.status, 'completed'),
-        lte(dataExportJobs.expiresAt, Date.now())
-      ));
+      .where(
+        and(eq(dataExportJobs.status, 'completed'), lte(dataExportJobs.expiresAt, Date.now()))
+      );
 
     return expiredJobs.length;
   }
@@ -399,10 +407,7 @@ export class DataExportService {
   /**
    * Erstellt Datenlösch-Anfrage (GDPR Right to Erasure)
    */
-  async createDeletionRequest(
-    userId: number,
-    reason?: string
-  ): Promise<string> {
+  async createDeletionRequest(userId: number, reason?: string): Promise<string> {
     const requestId = crypto.randomUUID();
     const verificationToken = crypto.randomUUID();
 
@@ -413,7 +418,7 @@ export class DataExportService {
       status: 'pending',
       reason,
       verificationToken,
-      expiresAt: Date.now() + (30 * 24 * 60 * 60 * 1000), // 30 Tage gültig
+      expiresAt: Date.now() + 30 * 24 * 60 * 60 * 1000, // 30 Tage gültig
       createdAt: Date.now(),
     });
 
@@ -423,19 +428,18 @@ export class DataExportService {
   /**
    * Verifiziert und verarbeitet Datenlösch-Anfrage
    */
-  async processDeletionRequest(
-    requestId: string,
-    verificationToken: string
-  ): Promise<boolean> {
+  async processDeletionRequest(requestId: string, verificationToken: string): Promise<boolean> {
     const requests = await this.db
       .select()
       .from(dataDeletionRequests)
-      .where(and(
-        eq(dataDeletionRequests.id, requestId),
-        eq(dataDeletionRequests.verificationToken, verificationToken),
-        eq(dataDeletionRequests.status, 'pending'),
-        gte(dataDeletionRequests.expiresAt, Date.now())
-      ))
+      .where(
+        and(
+          eq(dataDeletionRequests.id, requestId),
+          eq(dataDeletionRequests.verificationToken, verificationToken),
+          eq(dataDeletionRequests.status, 'pending'),
+          gte(dataDeletionRequests.expiresAt, Date.now())
+        )
+      )
       .limit(1);
 
     if (requests.length === 0) {
@@ -484,7 +488,6 @@ export class DataExportService {
           processedAt: Date.now(),
         })
         .where(eq(dataDeletionRequests.id, requestId));
-
     } catch (error) {
       console.error('Data deletion failed:', error);
 

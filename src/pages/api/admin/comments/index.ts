@@ -7,16 +7,19 @@ const app = new Hono<{ Bindings: { DB: D1Database } }>();
 
 // Middleware
 app.use('*', logger());
-app.use('*', cors({
-  origin: (origin) => {
-    // Allow requests from the same origin and localhost for development
-    if (!origin || origin.includes('localhost') || origin.endsWith('.vercel.app')) {
-      return origin;
-    }
-    return null; // Reject other origins
-  },
-  credentials: true,
-}));
+app.use(
+  '*',
+  cors({
+    origin: (origin) => {
+      // Allow requests from the same origin and localhost for development
+      if (!origin || origin.includes('localhost') || origin.endsWith('.vercel.app')) {
+        return origin;
+      }
+      return null; // Reject other origins
+    },
+    credentials: true,
+  })
+);
 
 // GET /api/admin/comments - List all comments for admin moderation
 app.get('/', async (c) => {
@@ -64,7 +67,10 @@ app.get('/', async (c) => {
       return c.json({ success: false, error: { type: 'forbidden', message: error.message } }, 403);
     }
 
-    return c.json({ success: false, error: { type: 'server_error', message: 'Failed to fetch comments' } }, 500);
+    return c.json(
+      { success: false, error: { type: 'server_error', message: 'Failed to fetch comments' } },
+      500
+    );
   }
 });
 
@@ -90,7 +96,10 @@ app.get('/stats', async (c) => {
       return c.json({ success: false, error: { type: 'forbidden', message: error.message } }, 403);
     }
 
-    return c.json({ success: false, error: { type: 'server_error', message: 'Failed to fetch comment stats' } }, 500);
+    return c.json(
+      { success: false, error: { type: 'server_error', message: 'Failed to fetch comment stats' } },
+      500
+    );
   }
 });
 
@@ -115,7 +124,13 @@ app.get('/queue', async (c) => {
       return c.json({ success: false, error: { type: 'auth_error', message: error.message } }, 401);
     }
 
-    return c.json({ success: false, error: { type: 'server_error', message: 'Failed to fetch moderation queue' } }, 500);
+    return c.json(
+      {
+        success: false,
+        error: { type: 'server_error', message: 'Failed to fetch moderation queue' },
+      },
+      500
+    );
   }
 });
 
@@ -137,11 +152,20 @@ app.post('/bulk-moderate', async (c) => {
     const { commentIds, action, reason } = body;
 
     if (!commentIds || !Array.isArray(commentIds) || commentIds.length === 0) {
-      return c.json({ success: false, error: { type: 'validation_error', message: 'Comment IDs array required' } }, 400);
+      return c.json(
+        {
+          success: false,
+          error: { type: 'validation_error', message: 'Comment IDs array required' },
+        },
+        400
+      );
     }
 
     if (!['approve', 'reject', 'flag', 'hide'].includes(action)) {
-      return c.json({ success: false, error: { type: 'validation_error', message: 'Invalid action' } }, 400);
+      return c.json(
+        { success: false, error: { type: 'validation_error', message: 'Invalid action' } },
+        400
+      );
     }
 
     const commentService = new CommentService(c.env.DB);
@@ -160,7 +184,7 @@ app.post('/bulk-moderate', async (c) => {
         results.push({
           commentId,
           success: false,
-          error: error instanceof Error ? error.message : 'Unknown error'
+          error: error instanceof Error ? error.message : 'Unknown error',
         });
       }
     }
@@ -168,7 +192,13 @@ app.post('/bulk-moderate', async (c) => {
     return c.json({ success: true, data: { results } });
   } catch (error) {
     console.error('Error in bulk moderation:', error);
-    return c.json({ success: false, error: { type: 'server_error', message: 'Failed to perform bulk moderation' } }, 500);
+    return c.json(
+      {
+        success: false,
+        error: { type: 'server_error', message: 'Failed to perform bulk moderation' },
+      },
+      500
+    );
   }
 });
 

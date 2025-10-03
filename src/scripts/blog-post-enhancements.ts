@@ -28,12 +28,19 @@ function enhanceLazyImages(): void {
 
 function enhanceFootnotes(): void {
   try {
-    const footnotes = document.querySelectorAll<HTMLAnchorElement>('a[href^="#fn"], a[href^="#ref"]');
+    const footnotes = document.querySelectorAll<HTMLAnchorElement>(
+      'a[href^="#fn"], a[href^="#ref"]'
+    );
     footnotes.forEach((a) => {
       if (a.hasAttribute('data-footnote-enhanced')) return;
       a.setAttribute('data-footnote-enhanced', 'true');
       a.setAttribute('data-tooltip', 'Zum entsprechenden Absatz springen');
-      a.classList.add('underline', 'decoration-dotted', 'decoration-gray-400', 'underline-offset-4');
+      a.classList.add(
+        'underline',
+        'decoration-dotted',
+        'decoration-gray-400',
+        'underline-offset-4'
+      );
     });
   } catch (err) {
     if (import.meta.env.DEV) console.warn('[BlogEnhancements] enhanceFootnotes failed', err);

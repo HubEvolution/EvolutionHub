@@ -16,9 +16,13 @@ export const POST = async (context: APIContext) => {
 
 // Explizite 410-Handler für nicht unterstützte Methoden (Endpoint deprecated)
 const methodNotAllowed = (context: APIContext) =>
-  createDeprecatedGoneJson(context, 'This endpoint has been deprecated. Please migrate to the new authentication flow.', {
-    Allow: 'POST'
-  });
+  createDeprecatedGoneJson(
+    context,
+    'This endpoint has been deprecated. Please migrate to the new authentication flow.',
+    {
+      Allow: 'POST',
+    }
+  );
 
 export const GET = methodNotAllowed;
 export const PUT = methodNotAllowed;

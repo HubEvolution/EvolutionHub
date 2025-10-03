@@ -14,7 +14,5 @@ export function mockRateLimitOnce(
     status,
     statusText,
   });
-  return vi
-    .spyOn(rateLimiter as any, limiter)
-    .mockResolvedValueOnce(rateLimitResponse as any);
+  return vi.spyOn(rateLimiter as any, limiter).mockResolvedValueOnce(rateLimitResponse as any);
 }

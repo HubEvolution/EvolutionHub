@@ -5,12 +5,7 @@
  * - COMING_SOON_PATTERNS: array of patterns. Patterns may end with * for prefix matching.
  * - isComingSoon(pathname, frontmatter): resolves ENV override > frontmatter > patterns
  */
-export const COMING_SOON_PATTERNS: string[] = [
-  '/docs',
-  '/kontakt',
-  '/agb',
-  '/impressum',
-];
+export const COMING_SOON_PATTERNS: string[] = ['/docs', '/kontakt', '/agb', '/impressum'];
 
 // Pages that must NEVER show the Coming Soon overlay.
 // Patterns support '*' suffix for prefix matching and are matched against normalized paths
@@ -47,11 +42,13 @@ function matchPattern(path: string, pattern: string): boolean {
 function isEnvEnabled(): boolean {
   try {
     // Vite/astro environment
-    const importMetaEnv = typeof import.meta !== 'undefined' && 'env' in import.meta
-      ? (import.meta as { env?: Record<string, unknown> }).env
-      : undefined;
-    const v = (importMetaEnv && importMetaEnv.COMING_SOON) ||
-              (typeof process !== 'undefined' && (process.env && process.env.COMING_SOON));
+    const importMetaEnv =
+      typeof import.meta !== 'undefined' && 'env' in import.meta
+        ? (import.meta as { env?: Record<string, unknown> }).env
+        : undefined;
+    const v =
+      (importMetaEnv && importMetaEnv.COMING_SOON) ||
+      (typeof process !== 'undefined' && process.env && process.env.COMING_SOON);
     if (!v) return false;
     const val = String(v).toLowerCase();
     return val === '1' || val === 'true' || val === 'yes';

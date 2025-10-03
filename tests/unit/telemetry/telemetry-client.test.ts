@@ -35,7 +35,11 @@ describe('telemetry client (prompt-enhancer)', () => {
     (global as any).fetch = fetchSpy;
 
     const mod = await import(MOD_PATH);
-    await mod.emitPromptEnhancerStarted({ mode: 'creative', hasFiles: true, fileTypes: ['application/pdf'] });
+    await mod.emitPromptEnhancerStarted({
+      mode: 'creative',
+      hasFiles: true,
+      fileTypes: ['application/pdf'],
+    });
 
     expect(fetchSpy).toHaveBeenCalledTimes(1);
     const [url, init] = fetchSpy.mock.calls[0] as any;

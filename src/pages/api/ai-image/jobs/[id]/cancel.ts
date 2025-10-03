@@ -1,5 +1,10 @@
 import type { APIRoute } from 'astro';
-import { withApiMiddleware, createApiError, createApiSuccess, createMethodNotAllowed } from '@/lib/api-middleware';
+import {
+  withApiMiddleware,
+  createApiError,
+  createApiSuccess,
+  createMethodNotAllowed,
+} from '@/lib/api-middleware';
 import { aiJobsLimiter } from '@/lib/rate-limiter';
 import { AiJobsService } from '@/lib/services/ai-jobs-service';
 import type { OwnerType } from '@/config/ai-image';
@@ -15,38 +20,43 @@ function ensureGuestIdCookie(context: Parameters<APIRoute>[0]): string {
     httpOnly: true,
     sameSite: 'lax',
     secure: url.protocol === 'https:',
-    maxAge: 60 * 60 * 24 * 180 // 180 days
+    maxAge: 60 * 60 * 24 * 180, // 180 days
   });
   return id;
 }
 
-export const POST: APIRoute = withApiMiddleware(async (context) => {
-  const { locals, params } = context;
-  const id = params.id as string | undefined;
-  if (!id) return createApiError('validation_error', 'Job ID fehlt');
+export const POST: APIRoute = withApiMiddleware(
+  async (context) => {
+    const { locals, params } = context;
+    const id = params.id as string | undefined;
+    if (!id) return createApiError('validation_error', 'Job ID fehlt');
 
-  const ownerType: OwnerType = locals.user?.id ? 'user' : 'guest';
-  const ownerId = ownerType === 'user' ? (locals.user as { id: string }).id : ensureGuestIdCookie(context);
+    const ownerType: OwnerType = locals.user?.id ? 'user' : 'guest';
+    const ownerId =
+      ownerType === 'user' ? (locals.user as { id: string }).id : ensureGuestIdCookie(context);
 
-  const env = (locals.runtime?.env || {}) as App.Locals['runtime']['env'];
-  const deps = { db: env.DB, isDevelopment: env.ENVIRONMENT !== 'production' };
-  const service = new AiJobsService(deps, {
-    R2_AI_IMAGES: env.R2_AI_IMAGES,
-    KV_AI_ENHANCER: env.KV_AI_ENHANCER,
-    REPLICATE_API_TOKEN: env.REPLICATE_API_TOKEN,
-    ENVIRONMENT: env.ENVIRONMENT
-  });
+    const env = (locals.runtime?.env || {}) as App.Locals['runtime']['env'];
+    const deps = { db: env.DB, isDevelopment: env.ENVIRONMENT !== 'production' };
+    const service = new AiJobsService(deps, {
+      R2_AI_IMAGES: env.R2_AI_IMAGES,
+      KV_AI_ENHANCER: env.KV_AI_ENHANCER,
+      REPLICATE_API_TOKEN: env.REPLICATE_API_TOKEN,
+      ENVIRONMENT: env.ENVIRONMENT,
+    });
 
-  try {
-    const job = await service.cancelJob({ id, ownerType, ownerId });
-    return createApiSuccess(job);
-  } catch (err) {
-    const message = err instanceof Error ? err.message : 'Unbekannter Fehler';
-    if (message.includes('not authorized')) return createApiError('forbidden', 'Zugriff verweigert');
-    if (message.includes('not found')) return createApiError('not_found', 'Job nicht gefunden');
-    return createApiError('server_error', message);
-  }
-}, { rateLimiter: aiJobsLimiter, enforceCsrfToken: true });
+    try {
+      const job = await service.cancelJob({ id, ownerType, ownerId });
+      return createApiSuccess(job);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Unbekannter Fehler';
+      if (message.includes('not authorized'))
+        return createApiError('forbidden', 'Zugriff verweigert');
+      if (message.includes('not found')) return createApiError('not_found', 'Job nicht gefunden');
+      return createApiError('server_error', message);
+    }
+  },
+  { rateLimiter: aiJobsLimiter, enforceCsrfToken: true }
+);
 
 // 405s for unsupported methods (standardized error shape)
 const methodNotAllowed = () => createMethodNotAllowed('POST');

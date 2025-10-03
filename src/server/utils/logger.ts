@@ -10,14 +10,26 @@ const activeSSEStreams: Set<ReadableStreamDefaultController> = new Set();
 
 // Environment detection
 function isWranglerEnvironment(): boolean {
-  if (typeof process !== 'undefined') {
-    return !!(
-      process.env.WRANGLER_REMOTE ||
-      process.env.CF_PAGES ||
-      process.env.CLOUDFLARE_ENVIRONMENT
-    );
-  }
-  return true; // Default to Wrangler if no process object (Edge Runtime)
+  // Always enable logging for debug panel
+  // This includes local dev (wrangler dev) and all deployment environments
+  return true;
+}
+
+/**
+ * Context for enriching logs with request and user information
+ */
+export interface LogContext {
+  requestId?: string;
+  userId?: string;
+  endpoint?: string;
+  duration?: number;
+}
+
+/**
+ * Generate a unique request ID for tracing
+ */
+export function generateRequestId(): string {
+  return Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
 }
 
 /**
@@ -31,7 +43,13 @@ function isWranglerEnvironment(): boolean {
  */
 export const log = (level: string, message: string, contextObject?: Record<string, any>): void => {
   const timestamp = new Date().toISOString();
-  let logEntry = `[${timestamp}] [${level.toUpperCase()}] ${message}`;
+
+  // Extract special context fields for structured logging
+  const reqId = contextObject?.requestId ? `[${contextObject.requestId.substring(0, 8)}]` : '';
+  const userId = contextObject?.userId ? `[U:${contextObject.userId}]` : '';
+  const duration = contextObject?.duration ? `(${contextObject.duration}ms)` : '';
+
+  let logEntry = `[${timestamp}] [${level.toUpperCase()}]${reqId}${userId} ${message}${duration ? ' ' + duration : ''}`;
 
   if (contextObject) {
     try {

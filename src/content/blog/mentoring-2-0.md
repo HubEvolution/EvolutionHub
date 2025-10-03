@@ -6,6 +6,7 @@ author: 'Evolution Hub'
 category: 'Karriere'
 tags: ['Mentoring', 'Karriere', 'Netzwerk', 'Entwicklung']
 ---
+
 image: { src: '/src/content/blog/images/mentoring-2-0.webp', width: 1200, height: 675 }
 imageAlt: 'Mentoring-Beziehung zwischen erfahrenem Mentor und Protegé'
 
@@ -25,17 +26,17 @@ Die Suche nach dem richtigen Mentor kann wie eine Herausforderung wirken, aber m
 
 Bevor du dein **Karriere-Netzwerk** aktivierst, frage dich:
 
-* Welche Fähigkeiten möchte ich in den nächsten 6-12 Monaten entwickeln?
-* Vor welchen beruflichen Herausforderungen stehe ich?
-* Wo sehe ich mich in fünf Jahren und wer könnte mir helfen, dorthin zu gelangen?
+- Welche Fähigkeiten möchte ich in den nächsten 6-12 Monaten entwickeln?
+- Vor welchen beruflichen Herausforderungen stehe ich?
+- Wo sehe ich mich in fünf Jahren und wer könnte mir helfen, dorthin zu gelangen?
 
 ### Schritt 2: Identifiziere potenzielle Mentoren
 
 Denk über deinen direkten Arbeitsplatz hinaus. Potenzielle Mentoren können sein:
 
-* **Erfahrene Kollegen:** Personen in deinem Unternehmen, deren Werdegang du bewunderst.
-* **Branchenexperten:** Speaker auf Konferenzen, Autoren von Fachartikeln oder aktive Persönlichkeiten auf LinkedIn.
-* **Teilnehmer in einem Mentoring Programm:** Viele Unternehmen und Organisationen bieten strukturierte Programme an.
+- **Erfahrene Kollegen:** Personen in deinem Unternehmen, deren Werdegang du bewunderst.
+- **Branchenexperten:** Speaker auf Konferenzen, Autoren von Fachartikeln oder aktive Persönlichkeiten auf LinkedIn.
+- **Teilnehmer in einem Mentoring Programm:** Viele Unternehmen und Organisationen bieten strukturierte Programme an.
 
 ### Schritt 3: Der richtige Erstkontakt
 
@@ -49,9 +50,9 @@ Mentoring ist keine Last, sondern eine Chance. Es bietet die Möglichkeit, die n
 
 ### Die Vorteile des Mentorings
 
-* **Neue Perspektiven:** Mentees bringen oft frische Ideen und Kenntnisse über neue Technologien mit.
-* **Führungsqualitäten stärken:** Du lernst, zuzuhören, Feedback zu geben und andere zu motivieren.
-* **Dein Vermächtnis:** Du gibst etwas an die Gemeinschaft zurück und hinterlässt einen positiven Einfluss.
+- **Neue Perspektiven:** Mentees bringen oft frische Ideen und Kenntnisse über neue Technologien mit.
+- **Führungsqualitäten stärken:** Du lernst, zuzuhören, Feedback zu geben und andere zu motivieren.
+- **Dein Vermächtnis:** Du gibst etwas an die Gemeinschaft zurück und hinterlässt einen positiven Einfluss.
 
 ### Wie du ein großartiger Mentor wirst
 

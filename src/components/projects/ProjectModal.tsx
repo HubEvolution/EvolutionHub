@@ -70,8 +70,8 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
 
     try {
       const dataToSave = project
-        ? { ...formData, id: project.id } as UpdateProjectRequest
-        : formData as CreateProjectRequest;
+        ? ({ ...formData, id: project.id } as UpdateProjectRequest)
+        : (formData as CreateProjectRequest);
 
       await onSave(dataToSave);
       onClose();
@@ -82,7 +82,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
 
   const handleAddTag = () => {
     if (tagInput.trim() && !formData.tags.includes(tagInput.trim())) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         tags: [...prev.tags, tagInput.trim()],
       }));
@@ -91,9 +91,9 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
   };
 
   const handleRemoveTag = (tagToRemove: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      tags: prev.tags.filter(tag => tag !== tagToRemove),
+      tags: prev.tags.filter((tag) => tag !== tagToRemove),
     }));
   };
 
@@ -119,7 +119,12 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
               className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
               </svg>
             </button>
           </div>
@@ -127,14 +132,17 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Title */}
             <div>
-              <label htmlFor="title" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label
+                htmlFor="title"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              >
                 Titel *
               </label>
               <input
                 type="text"
                 id="title"
                 value={formData.title}
-                onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                onChange={(e) => setFormData((prev) => ({ ...prev, title: e.target.value }))}
                 className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
                   errors.title ? 'border-red-500' : 'border-gray-300'
                 }`}
@@ -145,32 +153,42 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
 
             {/* Description */}
             <div>
-              <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label
+                htmlFor="description"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              >
                 Beschreibung *
               </label>
               <textarea
                 id="description"
                 rows={4}
                 value={formData.description}
-                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
                 className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
                   errors.description ? 'border-red-500' : 'border-gray-300'
                 }`}
                 placeholder="Projekt-Beschreibung eingeben"
               />
-              {errors.description && <p className="mt-1 text-sm text-red-500">{errors.description}</p>}
+              {errors.description && (
+                <p className="mt-1 text-sm text-red-500">{errors.description}</p>
+              )}
             </div>
 
             {/* Status and Priority */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label htmlFor="status" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label
+                  htmlFor="status"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                >
                   Status
                 </label>
                 <select
                   id="status"
                   value={formData.status}
-                  onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value as any }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, status: e.target.value as any }))
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                 >
                   <option value="active">Aktiv</option>
@@ -181,13 +199,18 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
               </div>
 
               <div>
-                <label htmlFor="priority" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label
+                  htmlFor="priority"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                >
                   Priorität
                 </label>
                 <select
                   id="priority"
                   value={formData.priority}
-                  onChange={(e) => setFormData(prev => ({ ...prev, priority: e.target.value as any }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, priority: e.target.value as any }))
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                 >
                   <option value="low">Niedrig</option>
@@ -199,21 +222,27 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
 
             {/* Due Date */}
             <div>
-              <label htmlFor="dueDate" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label
+                htmlFor="dueDate"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              >
                 Fälligkeitsdatum
               </label>
               <input
                 type="date"
                 id="dueDate"
                 value={formData.dueDate}
-                onChange={(e) => setFormData(prev => ({ ...prev, dueDate: e.target.value }))}
+                onChange={(e) => setFormData((prev) => ({ ...prev, dueDate: e.target.value }))}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white"
               />
             </div>
 
             {/* Tags */}
             <div>
-              <label htmlFor="tags" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label
+                htmlFor="tags"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              >
                 Tags
               </label>
               <div className="flex gap-2 mb-2">
@@ -247,8 +276,18 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
                         onClick={() => handleRemoveTag(tag)}
                         className="ml-1.5 text-primary hover:text-primary-dark"
                       >
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        <svg
+                          className="w-3 h-3"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M6 18L18 6M6 6l12 12"
+                          />
                         </svg>
                       </button>
                     </span>
@@ -271,7 +310,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
                 disabled={loading}
                 className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? 'Speichern...' : (project ? 'Aktualisieren' : 'Erstellen')}
+                {loading ? 'Speichern...' : project ? 'Aktualisieren' : 'Erstellen'}
               </button>
             </div>
           </form>

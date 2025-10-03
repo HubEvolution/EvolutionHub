@@ -1,6 +1,6 @@
 /**
  * Logout-Endpunkt (Service-Layer-Version)
- * 
+ *
  * Diese Datei implementiert den Logout-Endpunkt unter Verwendung der neuen Service-Layer.
  * Im Vergleich zur ursprünglichen Version bietet diese Implementierung:
  * - Bessere Trennung von Concerns (Geschäftslogik in Services)
@@ -28,67 +28,79 @@ const handleLogoutV2 = async (context: APIContext) => {
     const rateLimitResponse = await standardApiLimiter(context);
     if (rateLimitResponse) {
       // Bei Rate-Limit werfen wir einen ServiceError mit Typ RATE_LIMIT
-      logSecurityEvent('RATE_LIMIT_EXCEEDED', {
-        reason: 'rate_limit',
-        path: '/api/user/logout'
-      }, {
-        ipAddress: context.clientAddress,
-        targetResource: '/api/user/logout'
-      });
-      
+      logSecurityEvent(
+        'RATE_LIMIT_EXCEEDED',
+        {
+          reason: 'rate_limit',
+          path: '/api/user/logout',
+        },
+        {
+          ipAddress: context.clientAddress,
+          targetResource: '/api/user/logout',
+        }
+      );
+
       // Session-Cookie löschen bevor wir weiterleiten
       context.cookies.delete('session_id', { path: '/' });
       return createSecureRedirect('/login?error=TooManyRequests');
     }
 
     const sessionId = context.cookies.get('session_id')?.value ?? null;
-    
+
     // Wenn keine Runtime verfügbar ist, trotzdem Cookie löschen und weiterleiten
     if (!context.locals.runtime) {
       if (sessionId) {
         context.cookies.delete('session_id', { path: '/' });
       }
-      
-      logSecurityEvent('AUTH_FAILURE', {
-        reason: 'missing_runtime',
-        path: '/api/user/logout'
-      }, {
-        ipAddress: context.clientAddress
-      });
-      
+
+      logSecurityEvent(
+        'AUTH_FAILURE',
+        {
+          reason: 'missing_runtime',
+          path: '/api/user/logout',
+        },
+        {
+          ipAddress: context.clientAddress,
+        }
+      );
+
       // Bei fehlender Runtime leiten wir zur Startseite ohne Fehlermeldung weiter
       return createSecureRedirect('/');
     }
-    
+
     // AuthService erstellen
     const authService = createAuthService({
       db: context.locals.runtime.env.DB,
-      isDevelopment: import.meta.env.DEV
+      isDevelopment: import.meta.env.DEV,
     });
-    
+
     if (sessionId) {
       try {
         // Service-Layer für Logout aufrufen
         await authService.logout(sessionId);
-        
+
         // Cookie löschen
         context.cookies.delete('session_id', { path: '/' });
       } catch (serviceError) {
         // Bei Fehlern im Service trotzdem Cookie löschen und weiterleiten
         console.error('Logout service error:', serviceError);
         context.cookies.delete('session_id', { path: '/' });
-        
+
         // Fehler für Logging extrahieren
         const errorCode = getErrorCode(serviceError);
-        logSecurityEvent('AUTH_FAILURE', {
-          reason: 'logout_error',
-          errorCode,
-          sessionId: sessionId,
-          path: '/api/user/logout-v2',
-          error: serviceError instanceof Error ? serviceError.message : String(serviceError)
-        }, {
-          ipAddress: context.clientAddress
-        });
+        logSecurityEvent(
+          'AUTH_FAILURE',
+          {
+            reason: 'logout_error',
+            errorCode,
+            sessionId: sessionId,
+            path: '/api/user/logout-v2',
+            error: serviceError instanceof Error ? serviceError.message : String(serviceError),
+          },
+          {
+            ipAddress: context.clientAddress,
+          }
+        );
       }
     } else {
       // Logout ohne aktive Session über Service protokollieren
@@ -98,25 +110,28 @@ const handleLogoutV2 = async (context: APIContext) => {
 
     // Redirect zur Startseite unabhängig vom Ergebnis
     return createSecureRedirect('/');
-    
   } catch (error) {
     const sessionId = context.cookies.get('session_id')?.value ?? null;
-    
+
     // Fehler protokollieren mit standardisiertem Fehlercode
     const errorCode = getErrorCode(error);
-    logSecurityEvent('AUTH_FAILURE', {
-      reason: 'logout_error',
-      sessionId: sessionId,
-      errorCode: errorCode,
-      path: '/api/user/logout-v2',
-      error: error instanceof Error ? error.message : String(error)
-    }, {
-      ipAddress: context.clientAddress
-    });
-    
+    logSecurityEvent(
+      'AUTH_FAILURE',
+      {
+        reason: 'logout_error',
+        sessionId: sessionId,
+        errorCode: errorCode,
+        path: '/api/user/logout-v2',
+        error: error instanceof Error ? error.message : String(error),
+      },
+      {
+        ipAddress: context.clientAddress,
+      }
+    );
+
     // Bei Fehlern trotzdem Cookie löschen und weiterleiten
     context.cookies.delete('session_id', { path: '/' });
-    
+
     // Bei Logout immer zur Startseite weiterleiten, unabhängig vom Fehler
     return createSecureRedirect('/');
   }

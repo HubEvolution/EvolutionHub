@@ -15,7 +15,7 @@ export class ContentService<T extends CollectionEntry<'blog'>> {
       limit: 10,
       offset: 0,
       includeDrafts: import.meta.env.DEV,
-      ...defaultOptions
+      ...defaultOptions,
     };
   }
 
@@ -26,36 +26,41 @@ export class ContentService<T extends CollectionEntry<'blog'>> {
     const mergedOptions = { ...this.defaultOptions, ...options };
     const { limit, offset, includeDrafts, ...filters } = mergedOptions;
 
-    let entries = await getCollection(this.collectionName as 'blog', (entry: CollectionEntry<'blog'>) => {
-      // Filter out drafts unless explicitly included
-      if (entry.data.draft && !includeDrafts) {
-        return false;
-      }
-
-      // Apply additional filters
-      return Object.entries(filters).every(([key, value]) => {
-        if (value === undefined) return true;
-
-        const entryData = entry.data as Record<string, unknown>;
-        const entryValue = entryData[key];
-        if (entryValue === undefined) return true;
-
-        // Handle array values (e.g., tags)
-        if (Array.isArray(entryValue)) {
-          return entryValue.includes(value);
+    let entries = await getCollection(
+      this.collectionName as 'blog',
+      (entry: CollectionEntry<'blog'>) => {
+        // Filter out drafts unless explicitly included
+        if (entry.data.draft && !includeDrafts) {
+          return false;
         }
 
-        // Handle direct comparison
-        return entryValue === value;
-      });
-    });
+        // Apply additional filters
+        return Object.entries(filters).every(([key, value]) => {
+          if (value === undefined) return true;
+
+          const entryData = entry.data as Record<string, unknown>;
+          const entryValue = entryData[key];
+          if (entryValue === undefined) return true;
+
+          // Handle array values (e.g., tags)
+          if (Array.isArray(entryValue)) {
+            return entryValue.includes(value);
+          }
+
+          // Handle direct comparison
+          return entryValue === value;
+        });
+      }
+    );
 
     // Sort by publication date (newest first)
-    entries = entries.sort((a: CollectionEntry<'blog'>, b: CollectionEntry<'blog'>) => {
-      const dateA = new Date(a.data.pubDate as Date | string).getTime();
-      const dateB = new Date(b.data.pubDate as Date | string).getTime();
-      return dateA - dateB;
-    }).reverse();
+    entries = entries
+      .sort((a: CollectionEntry<'blog'>, b: CollectionEntry<'blog'>) => {
+        const dateA = new Date(a.data.pubDate as Date | string).getTime();
+        const dateB = new Date(b.data.pubDate as Date | string).getTime();
+        return dateA - dateB;
+      })
+      .reverse();
 
     // Apply pagination
     if (offset !== undefined) {
@@ -77,7 +82,7 @@ export class ContentService<T extends CollectionEntry<'blog'>> {
     const allEntries = await this.getAllEntries({
       ...options,
       limit: perPage,
-      offset
+      offset,
     });
 
     const total = await this.getTotalCount(options);
@@ -90,7 +95,7 @@ export class ContentService<T extends CollectionEntry<'blog'>> {
       perPage,
       totalPages,
       hasNext: page < totalPages,
-      hasPrevious: page > 1
+      hasPrevious: page > 1,
     };
   }
 
@@ -101,7 +106,7 @@ export class ContentService<T extends CollectionEntry<'blog'>> {
     const entries = await this.getAllEntries({
       ...filters,
       limit: undefined,
-      offset: undefined
+      offset: undefined,
     });
     return entries.length;
   }
@@ -110,8 +115,10 @@ export class ContentService<T extends CollectionEntry<'blog'>> {
    * Get a single entry by slug
    */
   async getEntryBySlug(slug: string): Promise<T | undefined> {
-    const entries = await getCollection(this.collectionName as 'blog', (entry: CollectionEntry<'blog'>) => 
-      entry.slug === slug && (!entry.data.draft || this.defaultOptions.includeDrafts)
+    const entries = await getCollection(
+      this.collectionName as 'blog',
+      (entry: CollectionEntry<'blog'>) =>
+        entry.slug === slug && (!entry.data.draft || this.defaultOptions.includeDrafts)
     );
     return entries[0] as unknown as T;
   }
@@ -137,10 +144,10 @@ export class ContentService<T extends CollectionEntry<'blog'>> {
         const entryTags = entryData.tags || [];
         const tagMatches = entryTags.filter((tag: string) => tags.includes(tag)).length;
         const categoryMatch = entryData.category === category ? 1 : 0;
-      
+
         return {
           entry,
-          score: (tagMatches * 2) + categoryMatch // Weight tags more than category
+          score: tagMatches * 2 + categoryMatch, // Weight tags more than category
         };
       });
 

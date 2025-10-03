@@ -39,9 +39,7 @@ export async function requireAuth(context: {
 }): Promise<AuthenticatedUser> {
   // Extrahiere Session-ID aus Cookie
   const cookieHeader =
-    context.req?.header?.('Cookie') ||
-    context.request?.headers.get('Cookie') ||
-    null;
+    context.req?.header?.('Cookie') || context.request?.headers.get('Cookie') || null;
 
   const sessionId = extractSessionId(cookieHeader);
 
@@ -64,7 +62,9 @@ export async function requireAuth(context: {
 
   // Hole User-Role aus DB (auth-v2 lädt role nicht standardmäßig)
   const userWithRole = await db
-    .prepare('SELECT id, email, name, username, image, role, email_verified, plan FROM users WHERE id = ?')
+    .prepare(
+      'SELECT id, email, name, username, image, role, email_verified, plan FROM users WHERE id = ?'
+    )
     .bind(user.id)
     .first<{
       id: string;

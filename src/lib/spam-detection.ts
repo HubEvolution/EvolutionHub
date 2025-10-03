@@ -16,34 +16,78 @@ export interface SpamCheckResult {
  */
 const SPAM_KEYWORDS = [
   // Kommerziell
-  'buy now', 'click here', 'limited time', 'act now', 'order now',
-  'special offer', 'best price', 'lowest price', 'free shipping',
-  'money back', 'guarantee', 'risk free', 'no obligation',
+  'buy now',
+  'click here',
+  'limited time',
+  'act now',
+  'order now',
+  'special offer',
+  'best price',
+  'lowest price',
+  'free shipping',
+  'money back',
+  'guarantee',
+  'risk free',
+  'no obligation',
 
   // Pharma & Health
-  'viagra', 'cialis', 'pharmacy', 'prescription', 'weight loss',
-  'lose weight', 'diet pills', 'miracle cure', 'anti aging',
+  'viagra',
+  'cialis',
+  'pharmacy',
+  'prescription',
+  'weight loss',
+  'lose weight',
+  'diet pills',
+  'miracle cure',
+  'anti aging',
 
   // Casino & Gambling
-  'casino', 'poker', 'lottery', 'jackpot', 'betting', 'odds',
+  'casino',
+  'poker',
+  'lottery',
+  'jackpot',
+  'betting',
+  'odds',
 
   // MLM & Pyramid
-  'mlm', 'multi level', 'pyramid', 'home based business',
-  'work from home', 'earn money fast', 'get rich', 'passive income',
+  'mlm',
+  'multi level',
+  'pyramid',
+  'home based business',
+  'work from home',
+  'earn money fast',
+  'get rich',
+  'passive income',
 
   // Finance
-  'credit card', 'loan approval', 'cash advance', 'debt relief',
-  'consolidate debt', 'refinance', 'foreclosure',
+  'credit card',
+  'loan approval',
+  'cash advance',
+  'debt relief',
+  'consolidate debt',
+  'refinance',
+  'foreclosure',
 
   // Adult Content
-  'xxx', 'adult content', 'dating site', 'hookup',
+  'xxx',
+  'adult content',
+  'dating site',
+  'hookup',
 
   // Generic Spam
-  'congratulations', 'youve won', 'claim your prize', 'winner',
-  'free trial', 'limited spots', 'exclusive access',
+  'congratulations',
+  'youve won',
+  'claim your prize',
+  'winner',
+  'free trial',
+  'limited spots',
+  'exclusive access',
 
   // SEO Spam
-  'seo services', 'backlinks', 'page rank', 'traffic boost',
+  'seo services',
+  'backlinks',
+  'page rank',
+  'traffic boost',
 ];
 
 /**
@@ -156,16 +200,11 @@ export function checkSpam(
 /**
  * Prüft auf Spam-Keywords
  */
-function checkKeywords(
-  content: string,
-  customKeywords?: string[]
-): { found: string[] } {
+function checkKeywords(content: string, customKeywords?: string[]): { found: string[] } {
   const lowerContent = content.toLowerCase();
   const allKeywords = [...SPAM_KEYWORDS, ...(customKeywords || [])];
 
-  const found = allKeywords.filter(keyword =>
-    lowerContent.includes(keyword.toLowerCase())
-  );
+  const found = allKeywords.filter((keyword) => lowerContent.includes(keyword.toLowerCase()));
 
   return { found };
 }
@@ -205,16 +244,18 @@ function checkLinks(content: string): {
   const urlMatches = content.match(/https?:\/\/[^\s]+/gi) || [];
   const count = urlMatches.length;
 
-  const domains = urlMatches.map(url => {
-    try {
-      return new URL(url).hostname;
-    } catch {
-      return '';
-    }
-  }).filter(Boolean);
+  const domains = urlMatches
+    .map((url) => {
+      try {
+        return new URL(url).hostname;
+      } catch {
+        return '';
+      }
+    })
+    .filter(Boolean);
 
-  const hasBlacklistedDomains = domains.some(domain =>
-    BLACKLISTED_DOMAINS.some(pattern => pattern.test(domain))
+  const hasBlacklistedDomains = domains.some((domain) =>
+    BLACKLISTED_DOMAINS.some((pattern) => pattern.test(domain))
   );
 
   return { count, hasBlacklistedDomains, domains };
@@ -231,7 +272,8 @@ function checkRepetition(content: string): { score: number; reasons: string[] } 
 
   // Zähle Wortwiederholungen
   for (const word of words) {
-    if (word.length > 3) { // Nur Wörter > 3 Zeichen
+    if (word.length > 3) {
+      // Nur Wörter > 3 Zeichen
       wordCounts.set(word, (wordCounts.get(word) || 0) + 1);
     }
   }
@@ -285,9 +327,7 @@ function checkCapsLock(content: string): { percentage: number } {
   const letters = content.match(/[a-zA-Z]/g) || [];
   const upperLetters = content.match(/[A-Z]/g) || [];
 
-  const percentage = letters.length > 0
-    ? upperLetters.length / letters.length
-    : 0;
+  const percentage = letters.length > 0 ? upperLetters.length / letters.length : 0;
 
   return { percentage };
 }
@@ -295,9 +335,7 @@ function checkCapsLock(content: string): { percentage: number } {
 /**
  * Bestimmt die primäre Spam-Kategorie
  */
-function determinePrimaryCategory(
-  reasons: string[]
-): SpamCheckResult['category'] {
+function determinePrimaryCategory(reasons: string[]): SpamCheckResult['category'] {
   const reasonText = reasons.join(' ').toLowerCase();
 
   if (reasonText.includes('keyword')) return 'keyword';

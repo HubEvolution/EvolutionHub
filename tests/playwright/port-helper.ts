@@ -9,7 +9,7 @@ async function findRunningServerPort(): Promise<number> {
   const FIXED_PORT = 4322;
   console.log(`Verwende festen Port: ${FIXED_PORT}`);
   return FIXED_PORT;
-  
+
   /*
   // Alternativer Code für die Port-Erkennung (deaktiviert, aber als Referenz behalten)
   try {
@@ -64,10 +64,12 @@ async function findRunningServerPort(): Promise<number> {
  * Navigiert zu einer URL unter Verwendung des erkannten Ports
  */
 async function navigateWithPortDetection(page: Page, path: string) {
-  const port = await findRunningServerPort() || 4322; // Fallback auf Standard-Port
+  const port = (await findRunningServerPort()) || 4322; // Fallback auf Standard-Port
   const baseURL = `http://localhost:${port}`;
-  const url = path.startsWith('http') ? path : `${baseURL}${path.startsWith('/') ? '' : '/'}${path}`;
-  
+  const url = path.startsWith('http')
+    ? path
+    : `${baseURL}${path.startsWith('/') ? '' : '/'}${path}`;
+
   console.log(`Navigiere zu: ${url}`);
   await page.goto(url);
   return url;

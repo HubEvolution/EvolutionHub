@@ -34,8 +34,14 @@ export function detectImageMimeFromBytes(bytes: ArrayBuffer | Uint8Array): Image
   // WebP: need at least 12 bytes: 'RIFF'....'WEBP'
   if (view.length >= 12) {
     if (
-      view[0] === 0x52 && view[1] === 0x49 && view[2] === 0x46 && view[3] === 0x46 &&
-      view[8] === 0x57 && view[9] === 0x45 && view[10] === 0x42 && view[11] === 0x50
+      view[0] === 0x52 &&
+      view[1] === 0x49 &&
+      view[2] === 0x46 &&
+      view[3] === 0x46 &&
+      view[8] === 0x57 &&
+      view[9] === 0x45 &&
+      view[10] === 0x42 &&
+      view[11] === 0x50
     ) {
       return 'image/webp';
     }
@@ -44,7 +50,10 @@ export function detectImageMimeFromBytes(bytes: ArrayBuffer | Uint8Array): Image
   return null;
 }
 
-export function isAllowedImageBuffer(bytes: ArrayBuffer | Uint8Array, allowed: readonly string[]): boolean {
+export function isAllowedImageBuffer(
+  bytes: ArrayBuffer | Uint8Array,
+  allowed: readonly string[]
+): boolean {
   const detected = detectImageMimeFromBytes(bytes);
   if (!detected) return false;
   return allowed.includes(detected);

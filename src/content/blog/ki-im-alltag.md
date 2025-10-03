@@ -6,6 +6,7 @@ author: 'Evolution Hub'
 category: 'Technologie'
 tags: ['KI', 'Künstliche Intelligenz', 'Technologie', 'Produktivität']
 ---
+
 image: { src: '/src/content/blog/images/ai-everyday-life.webp', width: 1200, height: 675 }
 imageAlt: 'KI integriert in alltägliche Geräte wie Smartphone und Smart Speaker'
 
@@ -37,9 +38,9 @@ Moderne Smartphone-Kameras nutzen KI, um automatisch die besten Einstellungen f�
 
 Neben den großen, integrierten Systemen gibt es eine wachsende Zahl an **Produktivitäts-Apps**, die gezielt KI nutzen, um dir das Leben leichter zu machen:
 
-*   **Schreibassistenten:** Tools wie Grammarly oder die deutsche Alternative LanguageTool helfen dir, fehlerfreie Texte zu schreiben, indem sie Grammatik, Stil und Tonalität in Echtzeit prüfen.
-*   **Übersetzungs-Apps:** Dienste wie DeepL oder Google Translate ermöglichen es dir, sekundenschnell Texte oder sogar gesprochene Sprache in Dutzende Sprachen zu übersetzen. Die Qualität hat sich dank KI in den letzten Jahren enorm verbessert.
-*   **Automatisierte Notizen:** Apps wie Otter.ai können Meetings aufzeichnen und das Gesprochene automatisch in Text umwandeln. So kannst du dich voll auf das Gespräch konzentrieren und hast trotzdem ein perfektes Protokoll.
+- **Schreibassistenten:** Tools wie Grammarly oder die deutsche Alternative LanguageTool helfen dir, fehlerfreie Texte zu schreiben, indem sie Grammatik, Stil und Tonalität in Echtzeit prüfen.
+- **Übersetzungs-Apps:** Dienste wie DeepL oder Google Translate ermöglichen es dir, sekundenschnell Texte oder sogar gesprochene Sprache in Dutzende Sprachen zu übersetzen. Die Qualität hat sich dank KI in den letzten Jahren enorm verbessert.
+- **Automatisierte Notizen:** Apps wie Otter.ai können Meetings aufzeichnen und das Gesprochene automatisch in Text umwandeln. So kannst du dich voll auf das Gespräch konzentrieren und hast trotzdem ein perfektes Protokoll.
 
 ## Fazit: KI ist dein persönlicher Alltagshelfer
 

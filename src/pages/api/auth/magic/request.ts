@@ -1,9 +1,16 @@
 import type { APIContext } from 'astro';
-import { withApiMiddleware, type ApiHandler, createApiError, createApiSuccess } from '@/lib/api-middleware';
+import {
+  withApiMiddleware,
+  type ApiHandler,
+  createApiError,
+  createApiSuccess,
+} from '@/lib/api-middleware';
 import { authLimiter } from '@/lib/rate-limiter';
 import { stytchMagicLinkLoginOrCreate, StytchError } from '@/lib/stytch';
 
-const parseBody = async (request: Request): Promise<{ email?: string; r?: string; name?: string; username?: string; locale?: string }> => {
+const parseBody = async (
+  request: Request
+): Promise<{ email?: string; r?: string; name?: string; username?: string; locale?: string }> => {
   const ct = request.headers.get('content-type') || '';
   if (ct.includes('application/json')) {
     try {
@@ -74,11 +81,16 @@ const handler: ApiHandler = async (context: APIContext) => {
 
   // In Remote Dev, request.url.origin is *.workers.dev. To keep local UX and
   // avoid whitelisting workers.dev in Stytch, prefer BASE_URL in development.
-  const cfEnv = (context.locals as unknown as { runtime?: { env?: Record<string, string> } })?.runtime?.env || {};
-  const isDev = (cfEnv.ENVIRONMENT || (cfEnv as Record<string, string> | undefined)?.NODE_ENV) === 'development';
-  const origin = isDev && typeof cfEnv.BASE_URL === 'string' && cfEnv.BASE_URL
-    ? (cfEnv.BASE_URL as string)
-    : new URL(request.url).origin;
+  const cfEnv =
+    (context.locals as unknown as { runtime?: { env?: Record<string, string> } })?.runtime?.env ||
+    {};
+  const isDev =
+    (cfEnv.ENVIRONMENT || (cfEnv as Record<string, string> | undefined)?.NODE_ENV) ===
+    'development';
+  const origin =
+    isDev && typeof cfEnv.BASE_URL === 'string' && cfEnv.BASE_URL
+      ? (cfEnv.BASE_URL as string)
+      : new URL(request.url).origin;
   // Do NOT include dynamic r in the Stytch redirect URL, Stytch validates query params strictly.
   const callbackUrl = `${origin}/api/auth/callback`;
 
@@ -125,7 +137,8 @@ const handler: ApiHandler = async (context: APIContext) => {
     });
   }
 
-  const devEnv = ((context.locals as any)?.runtime?.env?.ENVIRONMENT || 'development') === 'development';
+  const devEnv =
+    ((context.locals as any)?.runtime?.env?.ENVIRONMENT || 'development') === 'development';
   const startedAt = Date.now();
   try {
     if (devEnv) {
@@ -176,7 +189,7 @@ const handler: ApiHandler = async (context: APIContext) => {
   try {
     const accept = request.headers.get('accept') || '';
     if (/\btext\/html\b/i.test(accept)) {
-      const loc = (locale === 'de' || locale === 'en') ? locale : 'en';
+      const loc = locale === 'de' || locale === 'en' ? locale : 'en';
       const target = loc === 'de' ? '/de/login?success=magic_sent' : '/en/login?success=magic_sent';
       return new Response(null, {
         status: 303,

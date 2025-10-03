@@ -12,15 +12,18 @@ const app = new Hono<{ Bindings: { DB: D1Database } }>();
 
 // Middleware
 app.use('*', logger());
-app.use('*', cors({
-  origin: (origin) => {
-    if (!origin || origin.includes('localhost') || origin.endsWith('.vercel.app')) {
-      return origin;
-    }
-    return null;
-  },
-  credentials: true,
-}));
+app.use(
+  '*',
+  cors({
+    origin: (origin) => {
+      if (!origin || origin.includes('localhost') || origin.endsWith('.vercel.app')) {
+        return origin;
+      }
+      return null;
+    },
+    credentials: true,
+  })
+);
 
 // CSRF protection for mutating moderation route
 app.use('/', createCsrfMiddleware());
@@ -35,22 +38,33 @@ app.post('/', async (c) => {
       env: { DB: c.env.DB },
     });
 
-    const body = await c.req.json<ModerateCommentRequest & {
-      commentId: string;
-      csrfToken: string;
-    }>();
+    const body = await c.req.json<
+      ModerateCommentRequest & {
+        commentId: string;
+        csrfToken: string;
+      }
+    >();
 
     const { commentId, csrfToken, ...moderationData } = body;
 
     if (!commentId || !csrfToken) {
-      return c.json({ success: false, error: { type: 'validation_error', message: 'Comment ID and CSRF token required' } }, 400);
+      return c.json(
+        {
+          success: false,
+          error: { type: 'validation_error', message: 'Comment ID and CSRF token required' },
+        },
+        400
+      );
     }
 
     // Validate CSRF token
     const { validateCsrfToken } = await import('../../../lib/security/csrf');
     const isValidCsrf = await validateCsrfToken(csrfToken);
     if (!isValidCsrf) {
-      return c.json({ success: false, error: { type: 'validation_error', message: 'Invalid CSRF token' } }, 400);
+      return c.json(
+        { success: false, error: { type: 'validation_error', message: 'Invalid CSRF token' } },
+        400
+      );
     }
 
     const commentService = new CommentService(c.env.DB);
@@ -67,14 +81,23 @@ app.post('/', async (c) => {
 
     if (error instanceof Error) {
       if (error.message.includes('CSRF') || error.message.includes('not found')) {
-        return c.json({ success: false, error: { type: 'validation_error', message: error.message } }, 400);
+        return c.json(
+          { success: false, error: { type: 'validation_error', message: error.message } },
+          400
+        );
       }
       if (error.message.includes('Authentication')) {
-        return c.json({ success: false, error: { type: 'auth_error', message: error.message } }, 401);
+        return c.json(
+          { success: false, error: { type: 'auth_error', message: error.message } },
+          401
+        );
       }
     }
 
-    return c.json({ success: false, error: { type: 'server_error', message: 'Failed to moderate comment' } }, 500);
+    return c.json(
+      { success: false, error: { type: 'server_error', message: 'Failed to moderate comment' } },
+      500
+    );
   }
 });
 
@@ -99,7 +122,13 @@ app.get('/queue', async (c) => {
       return c.json({ success: false, error: { type: 'auth_error', message: error.message } }, 401);
     }
 
-    return c.json({ success: false, error: { type: 'server_error', message: 'Failed to fetch moderation queue' } }, 500);
+    return c.json(
+      {
+        success: false,
+        error: { type: 'server_error', message: 'Failed to fetch moderation queue' },
+      },
+      500
+    );
   }
 });
 
@@ -123,7 +152,10 @@ app.get('/stats', async (c) => {
     if (error instanceof Error && error.message.includes('Authentication')) {
       return c.json({ success: false, error: { type: 'auth_error', message: error.message } }, 401);
     }
-    return c.json({ success: false, error: { type: 'server_error', message: 'Failed to fetch comment stats' } }, 500);
+    return c.json(
+      { success: false, error: { type: 'server_error', message: 'Failed to fetch comment stats' } },
+      500
+    );
   }
 });
 
@@ -139,15 +171,24 @@ export const POST = async (context: APIContext) => {
     // Require moderator or admin
     const user = await requireModerator({ request: context.request, env: { DB: db } });
 
-    const body = (await context.request.json()) as (ModerateCommentRequest & { commentId?: string; csrfToken?: string });
+    const body = (await context.request.json()) as ModerateCommentRequest & {
+      commentId?: string;
+      csrfToken?: string;
+    };
     const token = body?.csrfToken || context.request.headers.get('x-csrf-token') || '';
     const cookie = context.request.headers.get('cookie') || undefined;
     const ok = await validateCsrfToken(token, cookie);
     if (!ok) {
-      return new Response(JSON.stringify({ success: false, error: { type: 'csrf_error', message: 'Invalid CSRF token' } }), {
-        status: 403,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: { type: 'csrf_error', message: 'Invalid CSRF token' },
+        }),
+        {
+          status: 403,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
     }
 
     const commentId = body.commentId;
@@ -161,10 +202,13 @@ export const POST = async (context: APIContext) => {
     const msg = err instanceof Error ? err.message : String(err);
     if (msg.includes('Authentication')) return createApiError('auth_error', msg);
     if (msg.toLowerCase().includes('csrf')) {
-      return new Response(JSON.stringify({ success: false, error: { type: 'csrf_error', message: msg } }), {
-        status: 403,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      return new Response(
+        JSON.stringify({ success: false, error: { type: 'csrf_error', message: msg } }),
+        {
+          status: 403,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
     }
     return createApiError('server_error', msg);
   }

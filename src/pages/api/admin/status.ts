@@ -15,13 +15,12 @@ export const GET = withAuthApiMiddleware(async (context) => {
   }
 
   const db = env.DB;
-  const kv = (env as any).KV_AI_ENHANCER as { get: (k: string) => Promise<string | null> } | undefined;
+  const kv = (env as any).KV_AI_ENHANCER as
+    | { get: (k: string) => Promise<string | null> }
+    | undefined;
 
   // Fetch plan from users (source of truth)
-  const row = await db
-    .prepare('SELECT plan FROM users WHERE id = ?')
-    .bind(user.id)
-    .first();
+  const row = await db.prepare('SELECT plan FROM users WHERE id = ?').bind(user.id).first();
   const plan = ((row as any)?.plan ?? 'free') as 'free' | 'pro' | 'premium' | 'enterprise';
 
   // Fetch credits if KV bound

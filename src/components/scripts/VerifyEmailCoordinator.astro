@@ -2,6 +2,7 @@
 // VerifyEmailCoordinator.astro
 // Importfreie Inline-Implementierung; exponiert Cleanup global
 ---
+
 <script is:inline nonce={Astro.locals.cspNonce}>
   (function () {
     console.log('[VerifyEmailCoordinator] loading');
@@ -13,7 +14,7 @@
       autoHideTimeout: null,
       abortCtrl: null,
       lastFocus: null,
-      defaultLabel: ''
+      defaultLabel: '',
     };
 
     function initialize() {
@@ -25,7 +26,9 @@
 
         if (!resendBtn) {
           console.warn('[VerifyEmailCoordinator] #resend-btn not found, nothing to init');
-          try { window['verifyEmailCleanup'] = function () {}; } catch (_) {}
+          try {
+            window['verifyEmailCleanup'] = function () {};
+          } catch (_) {}
           return;
         }
 
@@ -34,8 +37,10 @@
         var ds = resendBtn.dataset || {};
         var msgSuccess = ds.msgSuccess || 'Email sent successfully.';
         var msgError = ds.msgError || 'Failed to send email. Please try again later.';
-        var msgMissingEmail = ds.msgMissingEmail || 'Email address unavailable. Please register again.';
-        var msgUnexpected = ds.msgUnexpected || 'An unexpected error occurred. Please try again later.';
+        var msgMissingEmail =
+          ds.msgMissingEmail || 'Email address unavailable. Please register again.';
+        var msgUnexpected =
+          ds.msgUnexpected || 'An unexpected error occurred. Please try again later.';
         var labelSending = ds.labelSending || '⏳ Sending...';
         var labelCountdownTemplate = ds.labelCountdown || '⏳ Resend ({s}s)';
 
@@ -77,7 +82,7 @@
           resendBtn.disabled = busy;
           resendBtn.setAttribute('aria-busy', String(busy));
           resendBtn.setAttribute('aria-disabled', String(busy));
-          resendBtn.textContent = busy ? (labelWhenBusy || labelSending) : state.defaultLabel;
+          resendBtn.textContent = busy ? labelWhenBusy || labelSending : state.defaultLabel;
         }
 
         function clearCountdown() {
@@ -120,14 +125,16 @@
 
           try {
             if (state.abortCtrl && typeof state.abortCtrl.abort === 'function') {
-              try { state.abortCtrl.abort(); } catch (_) {}
+              try {
+                state.abortCtrl.abort();
+              } catch (_) {}
             }
-            state.abortCtrl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+            state.abortCtrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
 
             var fetchOptions = {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ email: email })
+              body: JSON.stringify({ email: email }),
             };
             if (state.abortCtrl) fetchOptions.signal = state.abortCtrl.signal;
             try {
@@ -160,21 +167,34 @@
 
         resendBtn.addEventListener('click', onClick);
         hideMessages();
-        if (state.autoHideTimeout != null) { clearTimeout(state.autoHideTimeout); }
+        if (state.autoHideTimeout != null) {
+          clearTimeout(state.autoHideTimeout);
+        }
         state.autoHideTimeout = window.setTimeout(autoHide, 10000);
 
         cleanupFn = function () {
-          try { resendBtn.removeEventListener('click', onClick); } catch (_) {}
-          if (state.autoHideTimeout != null) { clearTimeout(state.autoHideTimeout); state.autoHideTimeout = null; }
+          try {
+            resendBtn.removeEventListener('click', onClick);
+          } catch (_) {}
+          if (state.autoHideTimeout != null) {
+            clearTimeout(state.autoHideTimeout);
+            state.autoHideTimeout = null;
+          }
           clearCountdown();
-          if (state.abortCtrl && typeof state.abortCtrl.abort === 'function') { try { state.abortCtrl.abort(); } catch (_) {} }
+          if (state.abortCtrl && typeof state.abortCtrl.abort === 'function') {
+            try {
+              state.abortCtrl.abort();
+            } catch (_) {}
+          }
           resendBtn.textContent = state.defaultLabel;
           resendBtn.disabled = false;
           resendBtn.setAttribute('aria-busy', 'false');
           resendBtn.setAttribute('aria-disabled', 'false');
         };
 
-        try { window['verifyEmailCleanup'] = cleanupFn; } catch (_) {}
+        try {
+          window['verifyEmailCleanup'] = cleanupFn;
+        } catch (_) {}
         console.log('[VerifyEmailCoordinator] initialized');
       } catch (e) {
         console.error('[VerifyEmailCoordinator] init error:', e);
@@ -183,7 +203,9 @@
 
     function cleanup() {
       if (typeof cleanupFn === 'function') {
-        try { cleanupFn(); } catch (e) {}
+        try {
+          cleanupFn();
+        } catch (e) {}
       }
       cleanupFn = null;
     }

@@ -21,17 +21,18 @@ function Harness() {
   useEffect(() => {
     if (!containerRef.current) return;
     const el = containerRef.current as HTMLDivElement & { getBoundingClientRect: () => DOMRect };
-    el.getBoundingClientRect = () => ({
-      x: 0,
-      y: 0,
-      left: 0,
-      top: 0,
-      width: 500,
-      height: 400,
-      right: 500,
-      bottom: 400,
-      toJSON: () => ({}),
-    } as unknown as DOMRect);
+    el.getBoundingClientRect = () =>
+      ({
+        x: 0,
+        y: 0,
+        left: 0,
+        top: 0,
+        width: 500,
+        height: 400,
+        right: 500,
+        bottom: 400,
+        toJSON: () => ({}),
+      }) as unknown as DOMRect;
   }, []);
 
   const hook = useCompareInteractions({
@@ -62,14 +63,15 @@ function Harness() {
   return (
     <div>
       <div ref={containerRef} data-testid="container" />
-      <div data-testid="state"
-           data-slider={sliderPos}
-           data-zoom={zoom}
-           data-pan-x={pan.x}
-           data-pan-y={pan.y}
-           data-loupe-enabled={loupeEnabled ? '1' : '0'}
-           data-loupe-pos={loupePos ? `${loupePos.x},${loupePos.y}` : ''}
-           data-loupe-hint={loupeUiHint || ''}
+      <div
+        data-testid="state"
+        data-slider={sliderPos}
+        data-zoom={zoom}
+        data-pan-x={pan.x}
+        data-pan-y={pan.y}
+        data-loupe-enabled={loupeEnabled ? '1' : '0'}
+        data-loupe-pos={loupePos ? `${loupePos.x},${loupePos.y}` : ''}
+        data-loupe-hint={loupeUiHint || ''}
       />
     </div>
   );
@@ -92,12 +94,20 @@ describe('useCompareInteractions', () => {
     const preventDefault = vi.fn();
 
     // Move right by default step (5)
-    api.onHandleKeyDown({ key: 'ArrowRight', shiftKey: false, preventDefault } as unknown as React.KeyboardEvent);
+    api.onHandleKeyDown({
+      key: 'ArrowRight',
+      shiftKey: false,
+      preventDefault,
+    } as unknown as React.KeyboardEvent);
     const state = await screen.findByTestId('state');
     await waitFor(() => expect(Number(state.getAttribute('data-slider'))).toBe(55));
 
     // Move left by default step (5)
-    api.onHandleKeyDown({ key: 'ArrowLeft', shiftKey: false, preventDefault } as unknown as React.KeyboardEvent);
+    api.onHandleKeyDown({
+      key: 'ArrowLeft',
+      shiftKey: false,
+      preventDefault,
+    } as unknown as React.KeyboardEvent);
     await waitFor(() => expect(Number(state.getAttribute('data-slider'))).toBe(50));
   });
 

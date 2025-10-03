@@ -90,7 +90,11 @@ export const CommentMobile: React.FC<CommentMobileProps> = ({
       </div>
 
       {/* Floating Action Button for new comment */}
-      <MobileCommentFAB onNewComment={() => {/* Handle new comment */}} />
+      <MobileCommentFAB
+        onNewComment={() => {
+          /* Handle new comment */
+        }}
+      />
     </div>
   );
 };
@@ -161,7 +165,7 @@ const MobileCommentItem: React.FC<MobileCommentItemProps> = ({
       return date.toLocaleDateString('de-DE', {
         day: '2-digit',
         month: '2-digit',
-        year: 'numeric'
+        year: 'numeric',
       });
     }
   };
@@ -178,7 +182,9 @@ const MobileCommentItem: React.FC<MobileCommentItemProps> = ({
     const badge = badges[status] || badges.pending;
 
     return (
-      <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${badge.className}`}>
+      <span
+        className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${badge.className}`}
+      >
         {badge.text}
       </span>
     );
@@ -224,9 +230,7 @@ const MobileCommentItem: React.FC<MobileCommentItemProps> = ({
             </div>
 
             {/* Status Badge */}
-            <div className="flex-shrink-0">
-              {getStatusBadge(comment.status)}
-            </div>
+            <div className="flex-shrink-0">{getStatusBadge(comment.status)}</div>
           </div>
 
           {/* Comment Content */}
@@ -257,7 +261,9 @@ const MobileCommentItem: React.FC<MobileCommentItemProps> = ({
           {/* Comment Stats */}
           {comment.replies && comment.replies.length > 0 && (
             <div className="flex items-center space-x-4 mb-2 text-xs text-gray-500 dark:text-gray-400">
-              <span>{comment.replies.length} Antwort{comment.replies.length !== 1 ? 'en' : ''}</span>
+              <span>
+                {comment.replies.length} Antwort{comment.replies.length !== 1 ? 'en' : ''}
+              </span>
               {comment.reportCount > 0 && (
                 <span className="text-orange-600 dark:text-orange-400">
                   {comment.reportCount} Meldung{comment.reportCount !== 1 ? 'en' : ''}
@@ -436,8 +442,8 @@ interface MobileCommentFormProps {
 export const MobileCommentForm: React.FC<MobileCommentFormProps> = ({
   onSubmit,
   onCancel,
-  placeholder = "Schreibe einen Kommentar...",
-  submitText = "Kommentar posten",
+  placeholder = 'Schreibe einen Kommentar...',
+  submitText = 'Kommentar posten',
   showCancel = false,
   autoFocus = false,
 }) => {
@@ -484,7 +490,10 @@ export const MobileCommentForm: React.FC<MobileCommentFormProps> = ({
 
   return (
     <div className={`mobile-comment-form ${isKeyboardVisible ? 'keyboard-active' : ''}`}>
-      <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4"
+      >
         <div className="mb-3">
           <textarea
             value={content}
@@ -499,9 +508,7 @@ export const MobileCommentForm: React.FC<MobileCommentFormProps> = ({
               {content.length}/2000 Zeichen
             </span>
             {content.length > 1800 && (
-              <span className="text-xs text-orange-600 dark:text-orange-400">
-                Fast voll
-              </span>
+              <span className="text-xs text-orange-600 dark:text-orange-400">Fast voll</span>
             )}
           </div>
         </div>

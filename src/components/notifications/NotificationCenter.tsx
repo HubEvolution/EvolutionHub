@@ -3,7 +3,7 @@ import { Bell, Check, CheckCheck, Settings, X } from 'lucide-react';
 import type {
   Notification,
   NotificationFilters,
-  NotificationStats
+  NotificationStats,
 } from '../../lib/types/notifications';
 
 interface NotificationCenterProps {
@@ -97,8 +97,8 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
         });
 
         if (response.ok) {
-          setNotifications(prev =>
-            prev.map(n =>
+          setNotifications((prev) =>
+            prev.map((n) =>
               n.id === notification.id
                 ? { ...n, isRead: true, readAt: Math.floor(Date.now() / 1000) }
                 : n
@@ -106,7 +106,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
           );
 
           if (stats) {
-            setStats(prev => prev ? { ...prev, unread: Math.max(0, prev.unread - 1) } : null);
+            setStats((prev) => (prev ? { ...prev, unread: Math.max(0, prev.unread - 1) } : null));
           }
         }
       } catch (err) {
@@ -127,12 +127,12 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
       });
 
       if (response.ok) {
-        setNotifications(prev =>
-          prev.map(n => ({ ...n, isRead: true, readAt: Math.floor(Date.now() / 1000) }))
+        setNotifications((prev) =>
+          prev.map((n) => ({ ...n, isRead: true, readAt: Math.floor(Date.now() / 1000) }))
         );
 
         if (stats) {
-          setStats(prev => prev ? { ...prev, unread: 0 } : null);
+          setStats((prev) => (prev ? { ...prev, unread: 0 } : null));
         }
       }
     } catch (err) {
@@ -156,11 +156,16 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
   // Get priority color
   const getPriorityColor = (priority: string): string => {
     switch (priority) {
-      case 'urgent': return 'text-red-600 bg-red-50 border-red-200';
-      case 'high': return 'text-orange-600 bg-orange-50 border-orange-200';
-      case 'normal': return 'text-blue-600 bg-blue-50 border-blue-200';
-      case 'low': return 'text-gray-600 bg-gray-50 border-gray-200';
-      default: return 'text-gray-600 bg-gray-50 border-gray-200';
+      case 'urgent':
+        return 'text-red-600 bg-red-50 border-red-200';
+      case 'high':
+        return 'text-orange-600 bg-orange-50 border-orange-200';
+      case 'normal':
+        return 'text-blue-600 bg-blue-50 border-blue-200';
+      case 'low':
+        return 'text-gray-600 bg-gray-50 border-gray-200';
+      default:
+        return 'text-gray-600 bg-gray-50 border-gray-200';
     }
   };
 
@@ -184,18 +189,13 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
       {isOpen && (
         <>
           {/* Backdrop */}
-          <div
-            className="fixed inset-0 z-10"
-            onClick={() => setIsOpen(false)}
-          />
+          <div className="fixed inset-0 z-10" onClick={() => setIsOpen(false)} />
 
           {/* Notification Panel */}
           <div className="absolute right-0 mt-2 w-96 max-h-96 bg-white border border-gray-200 rounded-lg shadow-lg z-20">
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900">
-                Benachrichtigungen
-              </h3>
+              <h3 className="text-lg font-semibold text-gray-900">Benachrichtigungen</h3>
               <div className="flex items-center space-x-2">
                 {stats && stats.unread > 0 && (
                   <button
@@ -219,21 +219,13 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
             {/* Content */}
             <div className="max-h-80 overflow-y-auto">
               {loading && (
-                <div className="p-4 text-center text-gray-500">
-                  Lade Benachrichtigungen...
-                </div>
+                <div className="p-4 text-center text-gray-500">Lade Benachrichtigungen...</div>
               )}
 
-              {error && (
-                <div className="p-4 text-center text-red-500">
-                  Fehler: {error}
-                </div>
-              )}
+              {error && <div className="p-4 text-center text-red-500">Fehler: {error}</div>}
 
               {!loading && !error && notifications.length === 0 && (
-                <div className="p-4 text-center text-gray-500">
-                  Keine Benachrichtigungen
-                </div>
+                <div className="p-4 text-center text-gray-500">Keine Benachrichtigungen</div>
               )}
 
               {!loading && !error && notifications.length > 0 && (
@@ -249,18 +241,24 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
                       <div className="flex items-start justify-between">
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center space-x-2 mb-1">
-                            <p className={`text-sm font-medium ${
-                              !notification.isRead ? 'text-gray-900' : 'text-gray-700'
-                            }`}>
+                            <p
+                              className={`text-sm font-medium ${
+                                !notification.isRead ? 'text-gray-900' : 'text-gray-700'
+                              }`}
+                            >
                               {notification.title}
                             </p>
-                            <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${getPriorityColor(notification.priority)}`}>
+                            <span
+                              className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${getPriorityColor(notification.priority)}`}
+                            >
                               {notification.priority}
                             </span>
                           </div>
-                          <p className={`text-sm ${
-                            !notification.isRead ? 'text-gray-700' : 'text-gray-500'
-                          }`}>
+                          <p
+                            className={`text-sm ${
+                              !notification.isRead ? 'text-gray-700' : 'text-gray-500'
+                            }`}
+                          >
                             {notification.message}
                           </p>
                           <p className="text-xs text-gray-400 mt-1">

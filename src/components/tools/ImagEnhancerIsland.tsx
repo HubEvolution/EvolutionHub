@@ -24,6 +24,7 @@ import { useRateLimit } from './imag-enhancer/hooks/useRateLimit';
 import { useEnhance } from './imag-enhancer/hooks/useEnhance';
 import { ModelControls } from './imag-enhancer/ModelControls';
 import { useCompareInteractions } from './imag-enhancer/hooks/useCompareInteractions';
+import { clientLogger } from '@/lib/client-logger';
 
 // Types now come from imag-enhancer/types.ts
 
@@ -85,7 +86,6 @@ interface ImagEnhancerIslandProps {
 }
 
 export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps) {
-
   const [model, setModel] = useState<string>(ALLOWED_MODELS[0]?.slug || '');
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -110,9 +110,11 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
   const [selectError, setSelectError] = useState<string | null>(null);
   const [isResultLoading, setIsResultLoading] = useState<boolean>(false);
   // Baseline settings captured on last successful enhance to compute dirty state
-  const [baselineSettings, setBaselineSettings] = useState<
-    { model: string; scale: 2 | 4; faceEnhance: boolean } | null
-  >(null);
+  const [baselineSettings, setBaselineSettings] = useState<{
+    model: string;
+    scale: 2 | 4;
+    faceEnhance: boolean;
+  } | null>(null);
 
   // Resolve selected model to access capability flags
   const selectedModel = useMemo(() => ALLOWED_MODELS.find((m) => m.slug === model), [model]);
@@ -124,7 +126,9 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
       if (import.meta.env.DEV) {
         console.log('[ImagEnhancer]', evt, payload);
       }
-    } catch {}
+    } catch {
+      /* noop */
+    }
   }, []);
 
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -169,7 +173,7 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
     // Initial measure
     setActionsHeight(el.getBoundingClientRect().height | 0);
     return () => ro.disconnect();
-  }, [actionsRef.current]);
+  }, []);
 
   useEffect(() => {
     // Measure the height of the content just above the image container (e.g. settings summary)
@@ -185,7 +189,7 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
     ro.observe(el);
     setTopReserveHeight((el.getBoundingClientRect().height | 0) + 4);
     return () => ro.disconnect();
-  }, [topReserveRef.current]);
+  }, []);
 
   useEffect(() => {
     // Try to read iOS safe-area inset bottom via computed style trick
@@ -236,7 +240,15 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
   })();
 
   const { containerRef, boxSize, onResultImageLoad, onPreviewImageLoad } = useImageBoxSize(
-    [resultUrl, previewUrl, isMobile, isFullscreen, actionsHeight, safeAreaBottom, topReserveHeight],
+    [
+      resultUrl,
+      previewUrl,
+      isMobile,
+      isFullscreen,
+      actionsHeight,
+      safeAreaBottom,
+      topReserveHeight,
+    ],
     sizingOptions
   );
   const [isHeld, setIsHeld] = useState(false); // Press-and-Hold A/B state
@@ -253,23 +265,29 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
 
   // Image metadata (dimensions)
   const [imageDims, setImageDims] = useState<{ w: number; h: number } | null>(null);
-  const onPreviewImageLoadCombined = useCallback((e: React.SyntheticEvent<HTMLImageElement>) => {
-    onPreviewImageLoad(e);
-    const img = e.currentTarget;
-    if (img.naturalWidth && img.naturalHeight) {
-      setImageDims({ w: img.naturalWidth, h: img.naturalHeight });
-    }
-    setIsPreviewLoading(false);
-  }, [onPreviewImageLoad]);
+  const onPreviewImageLoadCombined = useCallback(
+    (e: React.SyntheticEvent<HTMLImageElement>) => {
+      onPreviewImageLoad(e);
+      const img = e.currentTarget;
+      if (img.naturalWidth && img.naturalHeight) {
+        setImageDims({ w: img.naturalWidth, h: img.naturalHeight });
+      }
+      setIsPreviewLoading(false);
+    },
+    [onPreviewImageLoad]
+  );
 
-  const onResultImageLoadCombined = useCallback((e: React.SyntheticEvent<HTMLImageElement>) => {
-    onResultImageLoad(e);
-    const img = e.currentTarget;
-    if (img.naturalWidth && img.naturalHeight) {
-      setResultDims({ w: img.naturalWidth, h: img.naturalHeight });
-    }
-    setIsResultLoading(false);
-  }, [onResultImageLoad]);
+  const onResultImageLoadCombined = useCallback(
+    (e: React.SyntheticEvent<HTMLImageElement>) => {
+      onResultImageLoad(e);
+      const img = e.currentTarget;
+      if (img.naturalWidth && img.naturalHeight) {
+        setResultDims({ w: img.naturalWidth, h: img.naturalHeight });
+      }
+      setIsResultLoading(false);
+    },
+    [onResultImageLoad]
+  );
 
   // Defensive fallback to avoid runtime errors if `strings.toasts` is missing
   const toasts = useMemo(
@@ -313,7 +331,10 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
   useEffect(() => {
     if (!strings?.toasts) {
       // Helps diagnose locale/runtime mismatches without breaking the UI
-      console.warn('ImagEnhancerIsland: strings.toasts is missing. Falling back to defaults.', strings);
+      console.warn(
+        'ImagEnhancerIsland: strings.toasts is missing. Falling back to defaults.',
+        strings
+      );
     }
   }, [strings]);
 
@@ -530,9 +551,24 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
 
   const onEnhance = useCallback(async () => {
     if (!file || !model) return;
+
+    clientLogger.info('Image enhancer started', {
+      component: 'ImagEnhancerIsland',
+      action: 'enhance_requested',
+      model,
+      scale,
+      faceEnhance,
+      fileType: file.type,
+      fileSize: file.size,
+    });
+
     // Abort previous enhance
     if (generateAbortRef.current) {
-      try { generateAbortRef.current.abort(); } catch {}
+      try {
+        generateAbortRef.current.abort();
+      } catch {
+        /* noop */
+      }
     }
     const ac = new AbortController();
     generateAbortRef.current = ac;
@@ -550,6 +586,11 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
       });
       if (resp instanceof Response) {
         if (resp.status === 429) {
+          clientLogger.warn('Image enhancer rate-limited', {
+            component: 'ImagEnhancerIsland',
+            error: 'rate_limit_429',
+            status: 429,
+          });
           await handle429Response(resp);
           toast.error('Rate limit reached. Please retry shortly.');
           setIsResultLoading(false);
@@ -560,33 +601,76 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
 
       const json = resp as ApiSuccess<GenerateResponseData> | ApiErrorBody;
       if ('success' in json && json.success) {
+        const t1 = typeof performance !== 'undefined' ? performance.now() : Date.now();
+        const latency = Math.max(0, Math.round((t1 as number) - (t0 as number)));
+
+        clientLogger.info('Image enhanced successfully', {
+          component: 'ImagEnhancerIsland',
+          action: 'enhance_success',
+          model,
+          scale,
+          faceEnhance,
+          latency,
+        });
+
         setIsResultLoading(true);
         setResultUrl(json.data.imageUrl);
         setLastOriginalUrl(json.data.originalUrl);
         setSliderPos(50);
         setBaselineSettings({ model, scale, faceEnhance });
-        const t1 = typeof performance !== 'undefined' ? performance.now() : Date.now();
-        setLastProcessMs(Math.max(0, Math.round((t1 as number) - (t0 as number))));
+        setLastProcessMs(latency);
         toast.success(toasts.successEnhanced);
         // Update usage info asynchronously after success
-        try { await refreshUsage(); } catch {}
+        try {
+          await refreshUsage();
+        } catch {
+          /* noop */
+        }
         requestAnimationFrame(() => {
           // jsdom: scrollIntoView may be undefined in tests
           containerRef.current?.scrollIntoView?.({ behavior: 'smooth', block: 'center' });
         });
       } else {
         const msg = json.error?.message || toasts.processingFailed;
+        clientLogger.error('Image enhancer returned error', {
+          component: 'ImagEnhancerIsland',
+          error: json.error?.type || 'api_error',
+          message: msg,
+        });
         toast.error(msg);
         setIsResultLoading(false);
       }
     } catch (err: unknown) {
-      if ((err as any)?.name === 'AbortError') return;
+      if ((err as any)?.name === 'AbortError') {
+        clientLogger.info('Image enhancement aborted', {
+          component: 'ImagEnhancerIsland',
+          action: 'enhance_aborted',
+        });
+        return;
+      }
+      clientLogger.error('Image enhancer error', {
+        component: 'ImagEnhancerIsland',
+        error: 'network',
+        message: err instanceof Error ? err.message : String(err),
+      });
       toast.error(toasts.processingFailed);
       setIsResultLoading(false);
     } finally {
       setLoading(false);
     }
-  }, [enhance, file, model, scale, faceEnhance, selectedModel, toasts.processingFailed, toasts.successEnhanced, refreshUsage]);
+  }, [
+    enhance,
+    file,
+    model,
+    scale,
+    faceEnhance,
+    selectedModel,
+    toasts.processingFailed,
+    toasts.successEnhanced,
+    refreshUsage,
+    handle429Response,
+    containerRef,
+  ]);
 
   // Retry-After via useRateLimit()
   // Already destructured above: retryUntil, retryActive, retryRemainingSec
@@ -675,14 +759,20 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
   // CTA refinement based on plan gating
   const featureBlockedByPlan = useMemo(() => {
     if (!gatingEnabled || !entitlements) return false;
-    if (modelSupportsScale && typeof scale === 'number' && entitlements.maxUpscale && scale > entitlements.maxUpscale) return true;
+    if (
+      modelSupportsScale &&
+      typeof scale === 'number' &&
+      entitlements.maxUpscale &&
+      scale > entitlements.maxUpscale
+    )
+      return true;
     if (modelSupportsFace && faceEnhance && !entitlements.faceEnhance) return true;
     return false;
   }, [gatingEnabled, entitlements, modelSupportsScale, modelSupportsFace, scale, faceEnhance]);
   const ctaReason = useMemo(() => {
     if (ownerType === 'guest') return 'guest';
     if (plan === 'free') return 'plan_free';
-    if (isUsageCritical || !!usage && usage.used >= usage.limit) return 'quota';
+    if (isUsageCritical || (!!usage && usage.used >= usage.limit)) return 'quota';
     if (featureBlockedByPlan) return 'feature';
     if (usagePercent >= 90) return 'high_usage';
     return null as null | string;
@@ -691,7 +781,12 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
 
   useEffect(() => {
     if (!showUpgradeCta) return;
-    trackEvent('enhancer_cta_impression', { reason: ctaReason || '', plan: plan || '', ownerType: ownerType || '', model });
+    trackEvent('enhancer_cta_impression', {
+      reason: ctaReason || '',
+      plan: plan || '',
+      ownerType: ownerType || '',
+      model,
+    });
   }, [showUpgradeCta, ctaReason, plan, ownerType, model, trackEvent]);
 
   // Safety clamp: if gating is enabled and current selections exceed entitlements, adjust UI state
@@ -705,7 +800,9 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
       if (selectedModel?.supportsFaceEnhance) {
         if (faceEnhance && !entitlements.faceEnhance) setFaceEnhance(false);
       }
-    } catch {}
+    } catch {
+      /* noop */
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gatingEnabled, entitlements, selectedModel]);
 
@@ -755,49 +852,69 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
       }
       const ls = localStorage.getItem('ws_id');
       if (ls && ls.trim()) return ls;
-    } catch {}
+    } catch {
+      /* noop */
+    }
     return 'default';
   }, []);
 
   const [buying, setBuying] = useState<false | 200 | 1000>(false);
-  const createCreditsCheckout = useCallback(async (pack: 200 | 1000) => {
-    try {
-      setBuying(pack);
-      const csrf = ensureCsrfToken();
-      const res = await postCredits(pack, getWorkspaceId(), csrf);
-      if (res.status === 401) {
-        window.location.href = '/login';
-        return;
+  const createCreditsCheckout = useCallback(
+    async (pack: 200 | 1000) => {
+      try {
+        setBuying(pack);
+        const csrf = ensureCsrfToken();
+        const res = await postCredits(pack, getWorkspaceId(), csrf);
+        if (res.status === 401) {
+          window.location.href = '/login';
+          return;
+        }
+        if (!res.ok) {
+          const text = await res.text().catch(() => '');
+          toast.error('Checkout failed: ' + (text || res.status));
+          return;
+        }
+        const dataUnknown: unknown = await res.json().catch(() => null);
+        const url =
+          dataUnknown && typeof (dataUnknown as any).url === 'string'
+            ? (dataUnknown as any).url
+            : undefined;
+        if (url) {
+          window.location.href = url;
+        } else {
+          toast.error('Checkout failed: Invalid response');
+        }
+      } catch {
+        toast.error('Checkout failed');
+      } finally {
+        setBuying(false);
       }
-      if (!res.ok) {
-        const text = await res.text().catch(() => '');
-        toast.error('Checkout failed: ' + (text || res.status));
-        return;
-      }
-      const dataUnknown: unknown = await res.json().catch(() => null);
-      const url = dataUnknown && typeof (dataUnknown as any).url === 'string' ? (dataUnknown as any).url : undefined;
-      if (url) {
-        window.location.href = url;
-      } else {
-        toast.error('Checkout failed: Invalid response');
-      }
-    } catch {
-      toast.error('Checkout failed');
-    } finally {
-      setBuying(false);
-    }
-  }, [getWorkspaceId]);
-
-  const helpLabels = useMemo(() => ({
-    title: sanitizeUiLabel(strings?.ui?.help?.title as string | undefined, 'How to use'),
-    close: sanitizeUiLabel(strings?.ui?.help?.close as string | undefined, 'Close'),
-    sections: {
-      upload: sanitizeUiLabel(strings?.ui?.help?.sections?.upload as string | undefined, 'Upload'),
-      models: sanitizeUiLabel(strings?.ui?.help?.sections?.models as string | undefined, 'Models'),
-      compare: sanitizeUiLabel(strings?.ui?.help?.sections?.compare as string | undefined, 'Compare & Inspect'),
-      quota: sanitizeUiLabel(strings?.ui?.help?.sections?.quota as string | undefined, 'Quota'),
     },
-  }), [strings]);
+    [getWorkspaceId]
+  );
+
+  const helpLabels = useMemo(
+    () => ({
+      title: sanitizeUiLabel(strings?.ui?.help?.title as string | undefined, 'How to use'),
+      close: sanitizeUiLabel(strings?.ui?.help?.close as string | undefined, 'Close'),
+      sections: {
+        upload: sanitizeUiLabel(
+          strings?.ui?.help?.sections?.upload as string | undefined,
+          'Upload'
+        ),
+        models: sanitizeUiLabel(
+          strings?.ui?.help?.sections?.models as string | undefined,
+          'Models'
+        ),
+        compare: sanitizeUiLabel(
+          strings?.ui?.help?.sections?.compare as string | undefined,
+          'Compare & Inspect'
+        ),
+        quota: sanitizeUiLabel(strings?.ui?.help?.sections?.quota as string | undefined, 'Quota'),
+      },
+    }),
+    [strings]
+  );
 
   // Exit fullscreen on ESC
   useEffect(() => {
@@ -811,8 +928,10 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
 
   const rootClasses = [
     'p-0 bg-transparent',
-    isFullscreen ? 'fixed inset-0 z-[999] bg-white dark:bg-slate-900 overflow-hidden' : ''
-  ].filter(Boolean).join(' ');
+    isFullscreen ? 'fixed inset-0 z-[999] bg-white dark:bg-slate-900 overflow-hidden' : '',
+  ]
+    .filter(Boolean)
+    .join(' ');
 
   return (
     <div className={rootClasses}>
@@ -824,7 +943,10 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
           >
             {resultUrl ? (
               <>
-                <div ref={topReserveRef} className="mb-1 text-[11px] text-gray-600 dark:text-gray-300 text-center">
+                <div
+                  ref={topReserveRef}
+                  className="mb-1 text-[11px] text-gray-600 dark:text-gray-300 text-center"
+                >
                   {settingsSummary}
                 </div>
                 <div className="relative">
@@ -843,11 +965,17 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
                     onResultImageLoad={onResultImageLoadCombined}
                     onPreviewImageLoad={onPreviewImageLoadCombined}
                     onResultError={() => {
-                      console.warn('ImagEnhancerIsland: failed to load result image URL', resultUrl);
+                      console.warn(
+                        'ImagEnhancerIsland: failed to load result image URL',
+                        resultUrl
+                      );
                       toast.error(toasts.loadError);
                     }}
                     onPreviewError={() => {
-                      console.warn('ImagEnhancerIsland: failed to load preview image URL', previewUrl);
+                      console.warn(
+                        'ImagEnhancerIsland: failed to load preview image URL',
+                        previewUrl
+                      );
                       toast.error('Failed to load original preview');
                     }}
                     zoom={zoom}
@@ -873,16 +1001,37 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
                   {(loading || isResultLoading) && (
                     <div className="absolute inset-0 z-50 grid place-items-center bg-white/60 dark:bg-slate-900/50 backdrop-blur-sm">
                       <div className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-200">
-                        <svg className="h-5 w-5 animate-spin text-cyan-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden>
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                        <svg
+                          className="h-5 w-5 animate-spin text-cyan-500"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          aria-hidden
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                          ></circle>
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                          ></path>
                         </svg>
                         <span>{strings.processing}</span>
                       </div>
                     </div>
                   )}
                   <div className="sr-only" aria-live="polite">
-                    {loading ? 'Processing image…' : retryActive ? `Please wait ${retryRemainingSec} seconds before retrying.` : ''}
+                    {loading
+                      ? 'Processing image…'
+                      : retryActive
+                        ? `Please wait ${retryRemainingSec} seconds before retrying.`
+                        : ''}
                   </div>
                 </div>
                 {(resultDims || lastProcessMs) && (
@@ -906,13 +1055,19 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
                   onSelectFile={onSelectFile}
                   onPreviewImageLoad={onPreviewImageLoadCombined}
                   onPreviewError={() => {
-                    console.warn('ImagEnhancerIsland: failed to load preview image URL', previewUrl);
+                    console.warn(
+                      'ImagEnhancerIsland: failed to load preview image URL',
+                      previewUrl
+                    );
                     toast.error('Failed to load original preview');
                   }}
                 />
                 {isPreviewLoading && (
                   <div className="absolute inset-0 z-30 grid place-items-center bg-white/60 dark:bg-slate-900/50 backdrop-blur-sm">
-                    <div className="h-8 w-8 rounded-full border-2 border-cyan-400/60 border-t-transparent animate-spin" aria-hidden />
+                    <div
+                      className="h-8 w-8 rounded-full border-2 border-cyan-400/60 border-t-transparent animate-spin"
+                      aria-hidden
+                    />
                   </div>
                 )}
               </div>
@@ -936,7 +1091,7 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
             className={[
               isFullscreen
                 ? 'fixed inset-x-0 bottom-0 z-40 bg-white/70 dark:bg-slate-900/60 backdrop-blur px-3 py-2'
-                : 'mt-3 md:mt-4 md:static sticky bottom-0 z-40 bg-white/70 dark:bg-slate-900/60 backdrop-blur px-3 py-2 rounded-t-md ring-1 ring-white/10 md:bg-transparent md:dark:bg-transparent md:backdrop-blur-0 md:ring-0'
+                : 'mt-3 md:mt-4 md:static sticky bottom-0 z-40 bg-white/70 dark:bg-slate-900/60 backdrop-blur px-3 py-2 rounded-t-md ring-1 ring-white/10 md:bg-transparent md:dark:bg-transparent md:backdrop-blur-0 md:ring-0',
             ].join(' ')}
             aria-label="Enhancer actions toolbar"
           >
@@ -946,70 +1101,71 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
               models={ALLOWED_MODELS}
               onChangeModel={(v) => setModel(v)}
               modelControlsSlot={
-                (
-                  <div className="flex flex-wrap items-center gap-2 sm:gap-3 min-w-0">
-                    {resultUrl && !showModelControls ? (
-                      <button
-                        type="button"
-                        onClick={() => setShowModelControls(true)}
-                        className="text-xs px-3 py-1 rounded-full bg-white/10 dark:bg-slate-900/40 ring-1 ring-cyan-400/20 text-gray-700 dark:text-gray-200 hover:ring-cyan-400/40"
+                <div className="flex flex-wrap items-center gap-2 sm:gap-3 min-w-0">
+                  {resultUrl && !showModelControls ? (
+                    <button
+                      type="button"
+                      onClick={() => setShowModelControls(true)}
+                      className="text-xs px-3 py-1 rounded-full bg-white/10 dark:bg-slate-900/40 ring-1 ring-cyan-400/20 text-gray-700 dark:text-gray-200 hover:ring-cyan-400/40"
+                    >
+                      {changeModelLabel}
+                    </button>
+                  ) : (
+                    <>
+                      <label
+                        className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                        htmlFor="model"
                       >
-                        {changeModelLabel}
-                      </button>
-                    ) : (
-                      <>
-                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300" htmlFor="model">
-                          {modelLabel}
-                        </label>
-                        <select
-                          id="model"
-                          value={model}
-                          onChange={(e) => setModel(e.target.value)}
-                          className="w-full sm:w-auto sm:min-w-[200px] rounded-md border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 text-sm"
+                        {modelLabel}
+                      </label>
+                      <select
+                        id="model"
+                        value={model}
+                        onChange={(e) => setModel(e.target.value)}
+                        className="w-full sm:w-auto sm:min-w-[200px] rounded-md border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 text-sm"
+                      >
+                        {ALLOWED_MODELS.map((opt) => (
+                          <option key={opt.slug} value={opt.slug}>
+                            {opt.label}
+                          </option>
+                        ))}
+                      </select>
+                      {(selectedModel?.supportsScale || selectedModel?.supportsFaceEnhance) && (
+                        <ModelControls
+                          supportsScale={Boolean(selectedModel?.supportsScale)}
+                          allowedScales={allowedScales}
+                          selectedScale={scale}
+                          onScale={(s) => setScale(s)}
+                          supportsFaceEnhance={Boolean(selectedModel?.supportsFaceEnhance)}
+                          canUseFaceEnhance={canUseFaceEnhance}
+                          faceEnhance={faceEnhance}
+                          onToggleFace={(next) => setFaceEnhance(next)}
+                          faceEnhanceLabel={faceEnhanceLabel}
+                          upgradeLabel={strings?.ui?.upgrade || 'Upgrade'}
+                          gatingEnabled={gatingEnabled}
+                          onBlocked={(payload) =>
+                            trackEvent('enhancer_control_blocked_plan', {
+                              ...payload,
+                              max: entitlements?.maxUpscale || null,
+                              plan,
+                              ownerType,
+                              model,
+                            })
+                          }
+                        />
+                      )}
+                      {resultUrl && (
+                        <button
+                          type="button"
+                          onClick={() => setShowModelControls(false)}
+                          className="text-xs px-3 py-2 min-h-[44px] sm:px-2 sm:py-1 rounded-md bg-white/5 dark:bg-slate-900/30 ring-1 ring-gray-400/20 text-gray-600 dark:text-gray-300"
                         >
-                          {ALLOWED_MODELS.map((opt) => (
-                            <option key={opt.slug} value={opt.slug}>
-                              {opt.label}
-                            </option>
-                          ))}
-                        </select>
-                        {(selectedModel?.supportsScale || selectedModel?.supportsFaceEnhance) && (
-                          <ModelControls
-                            supportsScale={Boolean(selectedModel?.supportsScale)}
-                            allowedScales={allowedScales}
-                            selectedScale={scale}
-                            onScale={(s) => setScale(s)}
-                            supportsFaceEnhance={Boolean(selectedModel?.supportsFaceEnhance)}
-                            canUseFaceEnhance={canUseFaceEnhance}
-                            faceEnhance={faceEnhance}
-                            onToggleFace={(next) => setFaceEnhance(next)}
-                            faceEnhanceLabel={faceEnhanceLabel}
-                            upgradeLabel={strings?.ui?.upgrade || 'Upgrade'}
-                            gatingEnabled={gatingEnabled}
-                            onBlocked={(payload) =>
-                              trackEvent('enhancer_control_blocked_plan', {
-                                ...payload,
-                                max: entitlements?.maxUpscale || null,
-                                plan,
-                                ownerType,
-                                model,
-                              })
-                            }
-                          />
-                        )}
-                        {resultUrl && (
-                          <button
-                            type="button"
-                            onClick={() => setShowModelControls(false)}
-                            className="text-xs px-3 py-2 min-h-[44px] sm:px-2 sm:py-1 rounded-md bg-white/5 dark:bg-slate-900/30 ring-1 ring-gray-400/20 text-gray-600 dark:text-gray-300"
-                          >
-                            {doneLabel}
-                          </button>
-                        )}
-                      </>
-                    )}
-                  </div>
-                )
+                          {doneLabel}
+                        </button>
+                      )}
+                    </>
+                  )}
+                </div>
               }
               enhanceLabel={enhanceLabel}
               processingLabel={strings.processing}
@@ -1031,7 +1187,11 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
               startOverLabel={startOverLabel}
               onStartOver={() => {
                 if (generateAbortRef.current) {
-                  try { generateAbortRef.current.abort(); } catch {}
+                  try {
+                    generateAbortRef.current.abort();
+                  } catch {
+                    /* noop */
+                  }
                   generateAbortRef.current = null;
                 }
                 setIsHeld(false);
@@ -1102,7 +1262,14 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
                     <a
                       href={pricingHref}
                       className="inline-flex items-center rounded-md px-2 py-1 text-[11px] ring-1 ring-amber-400/30 bg-amber-500/10 text-amber-700 dark:text-amber-200 hover:ring-amber-400/60"
-                      onClick={() => trackEvent('enhancer_cta_click', { reason: ctaReason || '', plan: plan || '', ownerType: ownerType || '', model })}
+                      onClick={() =>
+                        trackEvent('enhancer_cta_click', {
+                          reason: ctaReason || '',
+                          plan: plan || '',
+                          ownerType: ownerType || '',
+                          model,
+                        })
+                      }
                     >
                       {upgradeLabel}
                     </a>

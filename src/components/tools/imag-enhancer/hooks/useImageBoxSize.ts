@@ -59,8 +59,8 @@ export function useImageBoxSize(
     const maxHeight = Math.max(minHeightPx, Math.floor(vh * maxViewportHeightFraction));
     const ratio = imgRatio ?? (imgNatural ? imgNatural.w / imgNatural.h : 1);
     // If a fixed height is specified explicitly or mode is 'fixed', use that (clamped by viewport fraction)
-    const targetH = (mode === 'fixed' ? fixedHeightPx ?? maxHeight : fixedHeightPx)
-      ? Math.min(maxHeight, Math.max(minHeightPx, Math.floor((fixedHeightPx ?? maxHeight))))
+    const targetH = (mode === 'fixed' ? (fixedHeightPx ?? maxHeight) : fixedHeightPx)
+      ? Math.min(maxHeight, Math.max(minHeightPx, Math.floor(fixedHeightPx ?? maxHeight)))
       : undefined;
     if (targetH) {
       const widthByFixed = Math.floor(targetH * ratio);
@@ -70,7 +70,8 @@ export function useImageBoxSize(
     }
     // Fit-to-viewport mode: ensure the image box + reserved spaces fit without scrolling
     if (mode === 'fitViewport') {
-      const reserves = Math.max(0, reservedTopPx) + Math.max(0, reservedBottomPx) + Math.max(0, safeAreaBottomPx);
+      const reserves =
+        Math.max(0, reservedTopPx) + Math.max(0, reservedBottomPx) + Math.max(0, safeAreaBottomPx);
       const availableByViewport = Math.max(minHeightPx, vh - reserves);
       const capByFraction = Math.max(minHeightPx, Math.floor(vh * maxViewportHeightFraction));
       const fitMax = Math.max(minHeightPx, Math.min(capByFraction, availableByViewport));
@@ -85,7 +86,17 @@ export function useImageBoxSize(
     const targetW = Math.min(parentWidth, widthByHeight);
     const autoH = Math.floor(targetW / ratio);
     setBoxSize({ w: targetW, h: autoH });
-  }, [imgRatio, imgNatural, maxViewportHeightFraction, minHeightPx, fixedHeightPx, mode, reservedTopPx, reservedBottomPx, safeAreaBottomPx]);
+  }, [
+    imgRatio,
+    imgNatural,
+    maxViewportHeightFraction,
+    minHeightPx,
+    fixedHeightPx,
+    mode,
+    reservedTopPx,
+    reservedBottomPx,
+    safeAreaBottomPx,
+  ]);
 
   // Recompute on image ratio/natural change and on resize
   useEffect(() => {

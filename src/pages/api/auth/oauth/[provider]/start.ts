@@ -18,7 +18,10 @@ export const GET: APIRoute = withRedirectMiddleware(async (context) => {
     // Unknown provider → back to login
     const locale = (cookies.get('post_auth_locale')?.value || 'en') as 'en' | 'de';
     const prefix = locale === 'de' ? '/de' : '/en';
-    return Response.redirect(new URL(`${prefix}/login?magic_error=InvalidProvider`, request.url), 302);
+    return Response.redirect(
+      new URL(`${prefix}/login?magic_error=InvalidProvider`, request.url),
+      302
+    );
   }
 
   const url = new URL(request.url);
@@ -83,7 +86,11 @@ export const GET: APIRoute = withRedirectMiddleware(async (context) => {
   const rParam = url.searchParams.get('r') || '';
   if (isAllowedRelativePath(rParam)) {
     cookies.set('post_auth_redirect', rParam, {
-      path: '/', httpOnly: true, sameSite: 'lax', secure: url.protocol === 'https:', maxAge: 60 * 10,
+      path: '/',
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: url.protocol === 'https:',
+      maxAge: 60 * 10,
     });
   }
 

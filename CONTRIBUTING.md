@@ -94,6 +94,7 @@ Folge diesen Konventionen für Branch-Namen:
 - Füge bei Bedarf die Issue-Nummer hinzu
 
 Beispiele:
+
 - `feature/user-authentication`
 - `bugfix/form-validation-123` (für Issue #123)
 - `hotfix/security-header-fix`
@@ -159,14 +160,17 @@ Fixes #123
 
 ### PR-Vorlage
 
-```markdown
+````markdown
 ## Beschreibung
+
 [Beschreibe die Änderungen und den Kontext]
 
 ## Verknüpfte Issues
+
 [Verlinke relevante Issues, z.B. "Closes #123"]
 
 ## Typ der Änderung
+
 - [ ] Bugfix
 - [ ] Feature
 - [ ] Performance-Verbesserung
@@ -175,9 +179,11 @@ Fixes #123
 - [ ] Andere (bitte spezifizieren)
 
 ## Wie wurde getestet?
+
 [Beschreibe die Testmethoden]
 
 ## Checkliste
+
 - [ ] Mein Code folgt den Coding-Standards des Projekts
 - [ ] Ich habe Tests für meine Änderungen geschrieben
 - [ ] Ich habe die Dokumentation aktualisiert
@@ -266,6 +272,7 @@ npm run test:e2e
 # Testabdeckung generieren
 npm run test:coverage
 ```
+````
 
 ---
 

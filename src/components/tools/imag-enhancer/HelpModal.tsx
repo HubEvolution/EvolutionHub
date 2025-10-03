@@ -25,7 +25,17 @@ export interface HelpModalProps {
 }
 
 export function HelpModal(props: HelpModalProps) {
-  const { open, onClose, labels, allowedTypesText, maxMb, modelLabels, keyboardHint, usage, returnFocusRef } = props;
+  const {
+    open,
+    onClose,
+    labels,
+    allowedTypesText,
+    maxMb,
+    modelLabels,
+    keyboardHint,
+    usage,
+    returnFocusRef,
+  } = props;
   const dialogRef = useRef<HTMLDivElement | null>(null);
   const closeBtnRef = useRef<HTMLButtonElement | null>(null);
   const prevFocusedRef = useRef<HTMLElement | null>(null);
@@ -80,7 +90,9 @@ export function HelpModal(props: HelpModalProps) {
       window.removeEventListener('keydown', onKey);
       // Restore focus to opener if available, else to previously focused element
       const target = returnFocusRef?.current ?? prevFocusedRef.current;
-      try { target?.focus(); } catch {}
+      try {
+        target?.focus();
+      } catch {}
     };
   }, [open, onClose]);
 
@@ -103,7 +115,10 @@ export function HelpModal(props: HelpModalProps) {
         className="absolute inset-x-4 sm:inset-x-auto sm:right-6 top-10 sm:top-16 max-w-lg mx-auto rounded-lg bg-white dark:bg-slate-900 ring-1 ring-black/10 dark:ring-white/10 shadow-xl overflow-hidden"
       >
         <div className="px-4 py-3 border-b border-black/5 dark:border-white/10 flex items-center justify-between">
-          <h2 id="help-modal-title" className="text-base font-semibold text-gray-900 dark:text-white">
+          <h2
+            id="help-modal-title"
+            className="text-base font-semibold text-gray-900 dark:text-white"
+          >
             {labels.title}
           </h2>
           <button
@@ -120,15 +135,9 @@ export function HelpModal(props: HelpModalProps) {
           <section>
             <h3 className="text-sm font-semibold mb-1">{labels.sections.upload}</h3>
             <ul className="list-disc ml-5 space-y-1">
-              <li>
-                {allowedTypesText}
-              </li>
-              <li>
-                Max. {maxMb} MB
-              </li>
-              <li>
-                Drag & drop, click, or paste (Cmd/Ctrl+V) an image.
-              </li>
+              <li>{allowedTypesText}</li>
+              <li>Max. {maxMb} MB</li>
+              <li>Drag & drop, click, or paste (Cmd/Ctrl+V) an image.</li>
             </ul>
           </section>
           <section>

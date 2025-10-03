@@ -29,7 +29,11 @@ interface CommentStore {
   // Actions
   fetchComments: (filters?: CommentFilters, append?: boolean) => Promise<void>;
   createComment: (data: CreateCommentRequest, csrfToken?: string | null) => Promise<Comment>;
-  updateComment: (commentId: string, data: UpdateCommentRequest, csrfToken: string) => Promise<Comment>;
+  updateComment: (
+    commentId: string,
+    data: UpdateCommentRequest,
+    csrfToken: string
+  ) => Promise<Comment>;
   deleteComment: (commentId: string, csrfToken: string) => Promise<void>;
   fetchStats: () => Promise<void>;
   clearError: () => void;
@@ -85,20 +89,30 @@ export const useCommentStore = create<CommentStore>()(
             throw new Error(errorData.error?.message || `HTTP ${response.status}`);
           }
 
-          const data = await response.json() as ApiResult<CommentListResponse>;
+          const data = (await response.json()) as ApiResult<CommentListResponse>;
 
           if (data.success) {
-            const nextComments = append ? [...get().comments, ...data.data.comments] : data.data.comments;
+            const nextComments = append
+              ? [...get().comments, ...data.data.comments]
+              : data.data.comments;
             set({
               comments: nextComments,
-              stats: data.data.total !== undefined ? {
-                total: data.data.total,
-                approved: data.data.comments.filter((c: Comment) => c.status === 'approved').length,
-                pending: data.data.comments.filter((c: Comment) => c.status === 'pending').length,
-                rejected: data.data.comments.filter((c: Comment) => c.status === 'rejected').length,
-                flagged: data.data.comments.filter((c: Comment) => c.status === 'flagged').length,
-                hidden: data.data.comments.filter((c: Comment) => c.status === 'hidden').length,
-              } : null,
+              stats:
+                data.data.total !== undefined
+                  ? {
+                      total: data.data.total,
+                      approved: data.data.comments.filter((c: Comment) => c.status === 'approved')
+                        .length,
+                      pending: data.data.comments.filter((c: Comment) => c.status === 'pending')
+                        .length,
+                      rejected: data.data.comments.filter((c: Comment) => c.status === 'rejected')
+                        .length,
+                      flagged: data.data.comments.filter((c: Comment) => c.status === 'flagged')
+                        .length,
+                      hidden: data.data.comments.filter((c: Comment) => c.status === 'hidden')
+                        .length,
+                    }
+                  : null,
               hasMore: data.data.hasMore,
               isLoading: false,
             });
@@ -138,7 +152,7 @@ export const useCommentStore = create<CommentStore>()(
           reportCount: 0,
         };
 
-        set(state => ({
+        set((state) => ({
           comments: [optimisticComment, ...state.comments],
         }));
 
@@ -160,18 +174,16 @@ export const useCommentStore = create<CommentStore>()(
           });
 
           if (!response.ok) {
-            const err = await response.json().catch(() => null) as ApiError | null;
+            const err = (await response.json().catch(() => null)) as ApiError | null;
             throw new Error(err?.error?.message || `HTTP ${response.status}`);
           }
 
-          const result = await response.json() as ApiResult<Comment>;
+          const result = (await response.json()) as ApiResult<Comment>;
 
           if (result.success) {
             // 3. Replace temporary comment with real one from server
-            set(state => ({
-              comments: state.comments.map(c =>
-                c.id === tempId ? result.data : c
-              ),
+            set((state) => ({
+              comments: state.comments.map((c) => (c.id === tempId ? result.data : c)),
               isLoading: false,
             }));
             return result.data;
@@ -180,8 +192,8 @@ export const useCommentStore = create<CommentStore>()(
           }
         } catch (error) {
           // 4. Rollback on error: Remove optimistic comment
-          set(state => ({
-            comments: state.comments.filter(c => c.id !== tempId),
+          set((state) => ({
+            comments: state.comments.filter((c) => c.id !== tempId),
             isLoading: false,
             error: error instanceof Error ? error.message : 'Failed to create comment',
           }));
@@ -204,11 +216,11 @@ export const useCommentStore = create<CommentStore>()(
           });
 
           if (!response.ok) {
-            const err = await response.json().catch(() => null) as ApiError | null;
+            const err = (await response.json().catch(() => null)) as ApiError | null;
             throw new Error(err?.error?.message || `HTTP ${response.status}`);
           }
 
-          const result = await response.json() as ApiResult<Comment>;
+          const result = (await response.json()) as ApiResult<Comment>;
 
           if (result.success) {
             set({ isLoading: false });
@@ -240,16 +252,16 @@ export const useCommentStore = create<CommentStore>()(
           });
 
           if (!response.ok) {
-            const err = await response.json().catch(() => null) as ApiError | null;
+            const err = (await response.json().catch(() => null)) as ApiError | null;
             throw new Error(err?.error?.message || `HTTP ${response.status}`);
           }
 
-          const result = await response.json() as ApiResult<{ message: string }>;
+          const result = (await response.json()) as ApiResult<{ message: string }>;
 
           if (result.success) {
             // Remove comment from local state
             const currentComments = get().comments;
-            const updatedComments = currentComments.filter(c => c.id !== commentId);
+            const updatedComments = currentComments.filter((c) => c.id !== commentId);
             set({ comments: updatedComments, isLoading: false });
           } else {
             throw new Error(result.error?.message || 'Failed to delete comment');
@@ -276,11 +288,11 @@ export const useCommentStore = create<CommentStore>()(
           });
 
           if (!response.ok) {
-            const err = await response.json().catch(() => null) as ApiError | null;
+            const err = (await response.json().catch(() => null)) as ApiError | null;
             throw new Error(err?.error?.message || `HTTP ${response.status}`);
           }
 
-          const data = await response.json() as ApiResult<CommentStats>;
+          const data = (await response.json()) as ApiResult<CommentStats>;
 
           if (data.success) {
             set({ stats: data.data, isLoading: false });
@@ -316,13 +328,16 @@ export const useCommentStore = create<CommentStore>()(
       loadMoreComments: async (baseFilters: CommentFilters = {}) => {
         const state = get();
         if (!state.hasMore || state.isLoading) return;
-        await get().fetchComments({
-          ...baseFilters,
-          entityType: baseFilters.entityType,
-          entityId: baseFilters.entityId,
-          limit: state.pageSize,
-          offset: state.comments.length,
-        }, true);
+        await get().fetchComments(
+          {
+            ...baseFilters,
+            entityType: baseFilters.entityType,
+            entityId: baseFilters.entityId,
+            limit: state.pageSize,
+            offset: state.comments.length,
+          },
+          true
+        );
       },
 
       setPageSize: (size: number) => set({ pageSize: Math.max(1, size) }),

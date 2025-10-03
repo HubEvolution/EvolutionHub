@@ -21,7 +21,9 @@ const RESEND_API_BASE = 'https://api.resend.com';
 
 if (!API_KEY) {
   console.error('[resend-check] ERROR: RESEND_API_KEY is not set in your environment.');
-  console.error('  Export it first, e.g.\n    export RESEND_API_KEY=\"re_XXXXXXXXXXXXXXXXXXXXXXXX\"\n');
+  console.error(
+    '  Export it first, e.g.\n    export RESEND_API_KEY=\"re_XXXXXXXXXXXXXXXXXXXXXXXX\"\n'
+  );
   process.exit(1);
 }
 
@@ -62,7 +64,11 @@ function printDivider(title) {
 function fmt(val) {
   if (val === null || val === undefined) return '';
   if (typeof val === 'string') return val;
-  try { return JSON.stringify(val); } catch { return String(val); }
+  try {
+    return JSON.stringify(val);
+  } catch {
+    return String(val);
+  }
 }
 
 async function listDomains() {
@@ -73,7 +79,10 @@ async function listDomains() {
     const res = await resend.domains.list();
     domainsData = res?.data ?? res; // normalize
   } catch (e) {
-    console.warn('[resend-check] SDK list() failed, falling back to REST /domains:', e?.message || e);
+    console.warn(
+      '[resend-check] SDK list() failed, falling back to REST /domains:',
+      e?.message || e
+    );
     const rest = await restGet('/domains');
     domainsData = rest?.data ?? rest; // normalize
   }
@@ -85,7 +94,9 @@ async function listDomains() {
 
   for (const d of domainsData) {
     const id = d.id || d.domain_id || d.uuid || 'unknown-id';
-    console.log(`\n- name: ${fmt(d.name)}\n  id: ${fmt(id)}\n  status: ${fmt(d.status)}\n  region: ${fmt(d.region)}\n  created_at: ${fmt(d.created_at || d.createdAt)}\n  records:`);
+    console.log(
+      `\n- name: ${fmt(d.name)}\n  id: ${fmt(id)}\n  status: ${fmt(d.status)}\n  region: ${fmt(d.region)}\n  created_at: ${fmt(d.created_at || d.createdAt)}\n  records:`
+    );
 
     // Fetch detailed DNS records per domain (best-effort)
     try {
@@ -132,7 +143,9 @@ async function listEmails(limit = 20) {
       return;
     }
     for (const e of items) {
-      console.log(`\n- id: ${fmt(e.id)}\n  from: ${fmt(e.from)}\n  to: ${fmt(e.to)}\n  subject: ${fmt(e.subject)}\n  created_at: ${fmt(e.created_at || e.createdAt)}\n  status: ${fmt(e.status)}\n  last_event: ${fmt(e.last_event || e.event)}`);
+      console.log(
+        `\n- id: ${fmt(e.id)}\n  from: ${fmt(e.from)}\n  to: ${fmt(e.to)}\n  subject: ${fmt(e.subject)}\n  created_at: ${fmt(e.created_at || e.createdAt)}\n  status: ${fmt(e.status)}\n  last_event: ${fmt(e.last_event || e.event)}`
+      );
     }
     return;
   } catch (e) {
@@ -162,7 +175,9 @@ async function main() {
   const args = parseArgs(process.argv);
   const cmd = args._[0];
   if (!cmd || ['-h', '--help', 'help'].includes(cmd)) {
-    console.log('Usage:\n  node scripts/resend-check.mjs domains\n  node scripts/resend-check.mjs emails [--limit=20]\n  node scripts/resend-check.mjs email --id <message_id>');
+    console.log(
+      'Usage:\n  node scripts/resend-check.mjs domains\n  node scripts/resend-check.mjs emails [--limit=20]\n  node scripts/resend-check.mjs email --id <message_id>'
+    );
     process.exit(0);
   }
 

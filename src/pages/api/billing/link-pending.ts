@@ -39,7 +39,7 @@ export const GET = withRedirectMiddleware(async (context) => {
     if (customerId) {
       await db
         .prepare(
-          "INSERT INTO stripe_customers (user_id, customer_id) VALUES (?, ?) ON CONFLICT(user_id) DO UPDATE SET customer_id = excluded.customer_id"
+          'INSERT INTO stripe_customers (user_id, customer_id) VALUES (?, ?) ON CONFLICT(user_id) DO UPDATE SET customer_id = excluded.customer_id'
         )
         .bind(user.id, customerId)
         .run();

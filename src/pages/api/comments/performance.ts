@@ -10,10 +10,7 @@ import { rateLimiter } from 'hono-rate-limiter';
 import { drizzle } from 'drizzle-orm/d1';
 import { PerformanceService } from '../../../lib/services/performance-service';
 import { requireAuth } from '../../../lib/auth-helpers';
-import type {
-  PaginationOptions,
-  CommentSearchOptions,
-} from '../../../lib/types/performance';
+import type { PaginationOptions, CommentSearchOptions } from '../../../lib/types/performance';
 
 const app = new Hono<{
   Bindings: { DB: D1Database; JWT_SECRET: string };
@@ -23,16 +20,19 @@ const app = new Hono<{
 // Middleware
 app.use('/*', cors());
 app.use('/search', jwt({ secret: process.env.JWT_SECRET! }));
-app.use('/search', rateLimiter({
-  windowMs: 60 * 1000,
-  limit: 20, // 20 Suchen pro Minute
-  keyGenerator: (c) =>
-    c.req.header('CF-Connecting-IP') ||
-    c.req.header('cf-connecting-ip') ||
-    c.req.header('x-forwarded-for') ||
-    c.req.header('x-real-ip') ||
-    'anonymous',
-}));
+app.use(
+  '/search',
+  rateLimiter({
+    windowMs: 60 * 1000,
+    limit: 20, // 20 Suchen pro Minute
+    keyGenerator: (c) =>
+      c.req.header('CF-Connecting-IP') ||
+      c.req.header('cf-connecting-ip') ||
+      c.req.header('x-forwarded-for') ||
+      c.req.header('x-real-ip') ||
+      'anonymous',
+  })
+);
 app.use('/preload', jwt({ secret: process.env.JWT_SECRET! }));
 
 /**
@@ -77,13 +77,16 @@ app.get('/paginated/:postId', async (c) => {
     });
   } catch (error) {
     console.error('Error fetching paginated comments:', error);
-    return c.json({
-      success: false,
-      error: {
-        type: 'server_error',
-        message: 'Failed to fetch comments',
+    return c.json(
+      {
+        success: false,
+        error: {
+          type: 'server_error',
+          message: 'Failed to fetch comments',
+        },
       },
-    }, 500);
+      500
+    );
   }
 });
 
@@ -97,13 +100,16 @@ app.get('/search', async (c) => {
     await requireAuth(c);
 
     if (!query.q) {
-      return c.json({
-        success: false,
-        error: {
-          type: 'validation_error',
-          message: 'Search query is required',
+      return c.json(
+        {
+          success: false,
+          error: {
+            type: 'validation_error',
+            message: 'Search query is required',
+          },
         },
-      }, 400);
+        400
+      );
     }
 
     const searchOptions: CommentSearchOptions = {
@@ -116,7 +122,7 @@ app.get('/search', async (c) => {
       },
       filters: {
         status: query.status ? query.status.split(',') : ['approved'],
-        authorId: query.authorId ? query.authorId.split(',').map(id => parseInt(id)) : undefined,
+        authorId: query.authorId ? query.authorId.split(',').map((id) => parseInt(id)) : undefined,
         dateFrom: query.dateFrom ? parseInt(query.dateFrom) : undefined,
         dateTo: query.dateTo ? parseInt(query.dateTo) : undefined,
         hasReplies: query.hasReplies === 'true',
@@ -136,13 +142,16 @@ app.get('/search', async (c) => {
     });
   } catch (error) {
     console.error('Error searching comments:', error);
-    return c.json({
-      success: false,
-      error: {
-        type: 'server_error',
-        message: 'Search failed',
+    return c.json(
+      {
+        success: false,
+        error: {
+          type: 'server_error',
+          message: 'Search failed',
+        },
       },
-    }, 500);
+      500
+    );
   }
 });
 
@@ -170,13 +179,16 @@ app.post('/preload/:postId', async (c) => {
     });
   } catch (error) {
     console.error('Error preloading comments:', error);
-    return c.json({
-      success: false,
-      error: {
-        type: 'server_error',
-        message: 'Preloading failed',
+    return c.json(
+      {
+        success: false,
+        error: {
+          type: 'server_error',
+          message: 'Preloading failed',
+        },
       },
-    }, 500);
+      500
+    );
   }
 });
 
@@ -197,13 +209,16 @@ app.get('/cache/stats', async (c) => {
     });
   } catch (error) {
     console.error('Error fetching cache stats:', error);
-    return c.json({
-      success: false,
-      error: {
-        type: 'server_error',
-        message: 'Failed to fetch cache statistics',
+    return c.json(
+      {
+        success: false,
+        error: {
+          type: 'server_error',
+          message: 'Failed to fetch cache statistics',
+        },
       },
-    }, 500);
+      500
+    );
   }
 });
 
@@ -217,14 +232,18 @@ app.post('/cache/clear', async (c) => {
     const userId = Number(user.id);
 
     // Prüfe Admin-Berechtigung (vereinfacht)
-    if (userId !== 1) { // Annahme: User ID 1 ist Admin
-      return c.json({
-        success: false,
-        error: {
-          type: 'forbidden',
-          message: 'Admin access required',
+    if (userId !== 1) {
+      // Annahme: User ID 1 ist Admin
+      return c.json(
+        {
+          success: false,
+          error: {
+            type: 'forbidden',
+            message: 'Admin access required',
+          },
         },
-      }, 403);
+        403
+      );
     }
 
     const db = drizzle(c.env.DB);
@@ -241,13 +260,16 @@ app.post('/cache/clear', async (c) => {
     });
   } catch (error) {
     console.error('Error clearing cache:', error);
-    return c.json({
-      success: false,
-      error: {
-        type: 'server_error',
-        message: 'Failed to clear cache',
+    return c.json(
+      {
+        success: false,
+        error: {
+          type: 'server_error',
+          message: 'Failed to clear cache',
+        },
       },
-    }, 500);
+      500
+    );
   }
 });
 
@@ -268,13 +290,16 @@ app.get('/lazy-config', (c) => {
     });
   } catch (error) {
     console.error('Error fetching lazy config:', error);
-    return c.json({
-      success: false,
-      error: {
-        type: 'server_error',
-        message: 'Failed to fetch lazy loading configuration',
+    return c.json(
+      {
+        success: false,
+        error: {
+          type: 'server_error',
+          message: 'Failed to fetch lazy loading configuration',
+        },
       },
-    }, 500);
+      500
+    );
   }
 });
 
@@ -295,13 +320,16 @@ app.get('/metrics', async (c) => {
     });
   } catch (error) {
     console.error('Error fetching performance metrics:', error);
-    return c.json({
-      success: false,
-      error: {
-        type: 'server_error',
-        message: 'Failed to fetch performance metrics',
+    return c.json(
+      {
+        success: false,
+        error: {
+          type: 'server_error',
+          message: 'Failed to fetch performance metrics',
+        },
       },
-    }, 500);
+      500
+    );
   }
 });
 
@@ -316,13 +344,16 @@ app.post('/optimize', async (c) => {
 
     // Prüfe Admin-Berechtigung
     if (userId !== 1) {
-      return c.json({
-        success: false,
-        error: {
-          type: 'forbidden',
-          message: 'Admin access required',
+      return c.json(
+        {
+          success: false,
+          error: {
+            type: 'forbidden',
+            message: 'Admin access required',
+          },
         },
-      }, 403);
+        403
+      );
     }
 
     const db = drizzle(c.env.DB);
@@ -338,13 +369,16 @@ app.post('/optimize', async (c) => {
     });
   } catch (error) {
     console.error('Error optimizing database:', error);
-    return c.json({
-      success: false,
-      error: {
-        type: 'server_error',
-        message: 'Database optimization failed',
+    return c.json(
+      {
+        success: false,
+        error: {
+          type: 'server_error',
+          message: 'Database optimization failed',
+        },
       },
-    }, 500);
+      500
+    );
   }
 });
 
@@ -374,16 +408,19 @@ app.get('/batch/:postId', async (c) => {
         hasMore: false,
         nextOffset: batchOptions.offset + batchOptions.limit,
         batchSize: batchOptions.limit,
-      }
+      },
     });
   } catch (error) {
     console.error('Error fetching comment batch:', error);
-    return c.json({
-      success: false,
-      error: {
-        type: 'server_error',
-        message: 'Failed to fetch comment batch',
+    return c.json(
+      {
+        success: false,
+        error: {
+          type: 'server_error',
+          message: 'Failed to fetch comment batch',
+        },
       },
-    }, 500);
+      500
+    );
   }
 });

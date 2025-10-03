@@ -320,10 +320,7 @@ describe('CommentList', () => {
     await user.click(confirmButton);
 
     await waitFor(() => {
-      expect(mockProps.onDeleteComment).toHaveBeenCalledWith(
-        'comment-1',
-        'test-csrf-token'
-      );
+      expect(mockProps.onDeleteComment).toHaveBeenCalledWith('comment-1', 'test-csrf-token');
     });
   });
 
@@ -349,10 +346,10 @@ describe('CommentList', () => {
     await user.click(submitButton);
 
     await waitFor(() => {
-      expect(mockProps.onReportComment).toHaveBeenCalledWith(
-        'comment-1',
-        { reason: 'spam', description: '' }
-      );
+      expect(mockProps.onReportComment).toHaveBeenCalledWith('comment-1', {
+        reason: 'spam',
+        description: '',
+      });
     });
   });
 });

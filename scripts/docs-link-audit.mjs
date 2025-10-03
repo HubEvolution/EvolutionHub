@@ -12,14 +12,30 @@ const DOCS_DIR = path.join(ROOT, 'docs');
 // - forbid localhost:4321 (use 127.0.0.1:8787)
 // Allow: /api/auth/*
 const PATTERNS = [
-  { name: 'legacy_ui_auth_route', regex: /(^|[^\w/])\/auth\/(?!api\/)[a-z0-9\-_/]*/i, hint: "Use Magic Link flow '/login' or API routes under /api/auth/*" },
-  { name: 'ui_reset_password', regex: /(^|[^\w/])\/reset-password(?![\w-])/i, hint: "Reset-password UI was removed; reference 410 API only if needed" },
-  { name: 'localhost_4321', regex: /localhost:4321|http:\/\/localhost:4321/i, hint: "Use http://127.0.0.1:8787 for local dev/e2e" },
+  {
+    name: 'legacy_ui_auth_route',
+    regex: /(^|[^\w/])\/auth\/(?!api\/)[a-z0-9\-_/]*/i,
+    hint: "Use Magic Link flow '/login' or API routes under /api/auth/*",
+  },
+  {
+    name: 'ui_reset_password',
+    regex: /(^|[^\w/])\/reset-password(?![\w-])/i,
+    hint: 'Reset-password UI was removed; reference 410 API only if needed',
+  },
+  {
+    name: 'localhost_4321',
+    regex: /localhost:4321|http:\/\/localhost:4321/i,
+    hint: 'Use http://127.0.0.1:8787 for local dev/e2e',
+  },
 ];
 
 (async () => {
   try {
-    const files = await globby(['**/*.md', '**/*.mdx'], { cwd: DOCS_DIR, gitignore: true, absolute: true });
+    const files = await globby(['**/*.md', '**/*.mdx'], {
+      cwd: DOCS_DIR,
+      gitignore: true,
+      absolute: true,
+    });
     const problems = [];
 
     for (const file of files) {

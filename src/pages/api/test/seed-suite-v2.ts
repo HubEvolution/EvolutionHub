@@ -54,9 +54,7 @@ async function ensureUserSchema(db: D1Database) {
 
   // Ensure columns exist on remote DB (idempotent via PRAGMA checks)
   try {
-    const info = await db
-      .prepare("PRAGMA table_info('users')")
-      .all<{ name: string }>();
+    const info = await db.prepare("PRAGMA table_info('users')").all<{ name: string }>();
     const cols = new Set((info?.results || []).map((r) => r.name));
 
     if (!cols.has('password_hash')) {
@@ -64,15 +62,11 @@ async function ensureUserSchema(db: D1Database) {
     }
     if (!cols.has('email_verified')) {
       await db
-        .prepare(
-          'ALTER TABLE users ADD COLUMN email_verified INTEGER NOT NULL DEFAULT 0'
-        )
+        .prepare('ALTER TABLE users ADD COLUMN email_verified INTEGER NOT NULL DEFAULT 0')
         .run();
     }
     if (!cols.has('email_verified_at')) {
-      await db
-        .prepare('ALTER TABLE users ADD COLUMN email_verified_at INTEGER NULL')
-        .run();
+      await db.prepare('ALTER TABLE users ADD COLUMN email_verified_at INTEGER NULL').run();
     }
   } catch (e) {
     // Best-effort; if ALTER fails because columns exist or PRAGMA unsupported, continue.
@@ -91,7 +85,7 @@ async function seedSuiteV2Users(db: D1Database) {
       username: 'admin',
       full_name: 'Test Admin',
       email: 'admin@test-suite.local',
-      password: 'AdminPass123!'
+      password: 'AdminPass123!',
     },
     {
       id: 'e2e-user-0001',
@@ -99,7 +93,7 @@ async function seedSuiteV2Users(db: D1Database) {
       username: 'user',
       full_name: 'Test User',
       email: 'user@test-suite.local',
-      password: 'UserPass123!'
+      password: 'UserPass123!',
     },
     {
       id: 'e2e-premium-0001',
@@ -107,8 +101,8 @@ async function seedSuiteV2Users(db: D1Database) {
       username: 'premium',
       full_name: 'Test Premium',
       email: 'premium@test-suite.local',
-      password: 'PremiumPass123!'
-    }
+      password: 'PremiumPass123!',
+    },
   ];
 
   const results: { email: string; id: string }[] = [];
@@ -133,17 +127,7 @@ async function seedSuiteV2Users(db: D1Database) {
     );
 
     await stmt
-      .bind(
-        u.id,
-        u.name,
-        u.username,
-        u.full_name,
-        u.email,
-        null,
-        nowIso,
-        passwordHash,
-        nowUnix
-      )
+      .bind(u.id, u.name, u.username, u.full_name, u.email, null, nowIso, passwordHash, nowUnix)
       .run();
 
     results.push({ email: u.email, id: u.id });
@@ -157,7 +141,8 @@ function isAllowed(context: APIContext): boolean {
   const host = context.request.headers.get('host') || '';
   const isLocalhost = /^(localhost|127\.0\.0\.1)(:\d+)?$/.test(host);
   const isNodeTest = typeof process !== 'undefined' && process.env?.NODE_ENV === 'test';
-  const isDev = typeof import.meta !== 'undefined' && (import.meta.env.DEV || import.meta.env.MODE === 'test');
+  const isDev =
+    typeof import.meta !== 'undefined' && (import.meta.env.DEV || import.meta.env.MODE === 'test');
   const environment = context.locals.runtime?.env?.ENVIRONMENT;
   const isTestingEnv = environment === 'testing';
   const isCiHost = host === 'ci.hub-evolution.com';
@@ -187,10 +172,7 @@ async function handler(context: APIContext) {
 
     return createSecureJsonResponse({ success: true, seeded }, 200);
   } catch (e) {
-    return createSecureJsonResponse(
-      { error: 'Seed failed', detail: String(e) },
-      500
-    );
+    return createSecureJsonResponse({ error: 'Seed failed', detail: String(e) }, 500);
   }
 }
 

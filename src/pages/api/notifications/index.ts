@@ -8,22 +8,28 @@ import type { NotificationFilters } from '../../../lib/types/notifications';
 const app = new Hono<{ Bindings: { DB: D1Database; JWT_SECRET: string } }>();
 
 // Apply CORS middleware
-app.use('*', cors({
-  origin: (origin) => {
-    // Allow requests from the same origin and configured domains
-    const allowedOrigins = [
-      process.env.BASE_URL || 'http://localhost:3000',
-      'https://evolution-hub.pages.dev',
-    ];
-    return allowedOrigins.includes(origin) ? origin : null;
-  },
-  credentials: true,
-}));
+app.use(
+  '*',
+  cors({
+    origin: (origin) => {
+      // Allow requests from the same origin and configured domains
+      const allowedOrigins = [
+        process.env.BASE_URL || 'http://localhost:3000',
+        'https://evolution-hub.pages.dev',
+      ];
+      return allowedOrigins.includes(origin) ? origin : null;
+    },
+    credentials: true,
+  })
+);
 
 // JWT middleware for authentication
-app.use('/api/notifications/*', jwt({
-  secret: process.env.JWT_SECRET!,
-}));
+app.use(
+  '/api/notifications/*',
+  jwt({
+    secret: process.env.JWT_SECRET!,
+  })
+);
 
 // GET /api/notifications - List user notifications
 app.get('/', async (c) => {
@@ -58,10 +64,13 @@ app.get('/', async (c) => {
     });
   } catch (error) {
     console.error('Error fetching notifications:', error);
-    return c.json({
-      success: false,
-      error: { type: 'server', message: 'Internal server error' },
-    }, 500);
+    return c.json(
+      {
+        success: false,
+        error: { type: 'server', message: 'Internal server error' },
+      },
+      500
+    );
   }
 });
 
@@ -80,10 +89,13 @@ app.post('/mark-read', async (c) => {
     const { notificationId } = body;
 
     if (!notificationId) {
-      return c.json({
-        success: false,
-        error: { type: 'validation', message: 'notificationId is required' },
-      }, 400);
+      return c.json(
+        {
+          success: false,
+          error: { type: 'validation', message: 'notificationId is required' },
+        },
+        400
+      );
     }
 
     const notificationService = new NotificationService(c.env.DB);
@@ -96,10 +108,13 @@ app.post('/mark-read', async (c) => {
     });
   } catch (error) {
     console.error('Error marking notification as read:', error);
-    return c.json({
-      success: false,
-      error: { type: 'server', message: 'Internal server error' },
-    }, 500);
+    return c.json(
+      {
+        success: false,
+        error: { type: 'server', message: 'Internal server error' },
+      },
+      500
+    );
   }
 });
 
@@ -124,10 +139,13 @@ app.post('/mark-all-read', async (c) => {
     });
   } catch (error) {
     console.error('Error marking all notifications as read:', error);
-    return c.json({
-      success: false,
-      error: { type: 'server', message: 'Internal server error' },
-    }, 500);
+    return c.json(
+      {
+        success: false,
+        error: { type: 'server', message: 'Internal server error' },
+      },
+      500
+    );
   }
 });
 
@@ -154,10 +172,13 @@ app.delete('/:id', async (c) => {
     });
   } catch (error) {
     console.error('Error deleting notification:', error);
-    return c.json({
-      success: false,
-      error: { type: 'server', message: 'Internal server error' },
-    }, 500);
+    return c.json(
+      {
+        success: false,
+        error: { type: 'server', message: 'Internal server error' },
+      },
+      500
+    );
   }
 });
 
@@ -182,10 +203,13 @@ app.get('/stats', async (c) => {
     });
   } catch (error) {
     console.error('Error fetching notification stats:', error);
-    return c.json({
-      success: false,
-      error: { type: 'server', message: 'Internal server error' },
-    }, 500);
+    return c.json(
+      {
+        success: false,
+        error: { type: 'server', message: 'Internal server error' },
+      },
+      500
+    );
   }
 });
 

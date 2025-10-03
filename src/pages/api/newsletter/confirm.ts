@@ -9,7 +9,7 @@ const securityLogger = loggerFactory.createSecurityLogger();
 // Validation schema for confirmation request
 const confirmationSchema = z.object({
   token: z.string().min(32, 'Invalid token format'),
-  email: z.string().email('Invalid email format').optional()
+  email: z.string().email('Invalid email format').optional(),
 });
 
 // Mock database operations - replace with actual database calls
@@ -42,17 +42,20 @@ export const GET: APIRoute = async ({ request: _request, url }) => {
         metadata: {
           errors: validation.error.errors,
           hasToken: !!token,
-          email: email || undefined
+          email: email || undefined,
+        },
+      });
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: 'Invalid confirmation link',
+          details: validation.error.errors,
+        }),
+        {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
         }
-      });
-      return new Response(JSON.stringify({
-        success: false,
-        error: 'Invalid confirmation link',
-        details: validation.error.errors
-      }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' }
-      });
+      );
     }
 
     const { token: validToken } = validation.data;
@@ -63,15 +66,18 @@ export const GET: APIRoute = async ({ request: _request, url }) => {
       securityLogger.logSecurityEvent('USER_EVENT', {
         action: 'newsletter_confirmation_token_not_found',
         tokenHash: validToken.substring(0, 8) + '...',
-        email: email || undefined
+        email: email || undefined,
       });
-      return new Response(JSON.stringify({
-        success: false,
-        error: 'Confirmation link expired or invalid'
-      }), {
-        status: 404,
-        headers: { 'Content-Type': 'application/json' }
-      });
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: 'Confirmation link expired or invalid',
+        }),
+        {
+          status: 404,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
     }
 
     // Check if token is expired (24 hours)
@@ -84,18 +90,21 @@ export const GET: APIRoute = async ({ request: _request, url }) => {
         tokenHash: validToken.substring(0, 8) + '...',
         tokenAge: tokenAge,
         maxAge: maxAge,
-        email: pending.email
+        email: pending.email,
       });
       // Clean up expired token
       pendingSubscriptions.delete(validToken);
 
-      return new Response(JSON.stringify({
-        success: false,
-        error: 'Confirmation link has expired. Please subscribe again.'
-      }), {
-        status: 410,
-        headers: { 'Content-Type': 'application/json' }
-      });
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: 'Confirmation link has expired. Please subscribe again.',
+        }),
+        {
+          status: 410,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
     }
 
     // Validate email if provided
@@ -104,16 +113,19 @@ export const GET: APIRoute = async ({ request: _request, url }) => {
         metadata: {
           providedEmail: email,
           storedEmail: pending.email,
-          tokenHash: validToken.substring(0, 8) + '...'
+          tokenHash: validToken.substring(0, 8) + '...',
+        },
+      });
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: 'Email address does not match confirmation link',
+        }),
+        {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
         }
-      });
-      return new Response(JSON.stringify({
-        success: false,
-        error: 'Email address does not match confirmation link'
-      }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' }
-      });
+      );
     }
 
     // TODO: Save confirmed subscription to actual newsletter database
@@ -122,8 +134,8 @@ export const GET: APIRoute = async ({ request: _request, url }) => {
         email: pending.email,
         source: pending.source,
         consent: pending.consent,
-        tokenHash: validToken.substring(0, 8) + '...'
-      }
+        tokenHash: validToken.substring(0, 8) + '...',
+      },
     });
 
     // Analytics event tracking (stubbed for now)
@@ -133,41 +145,46 @@ export const GET: APIRoute = async ({ request: _request, url }) => {
         email: pending.email,
         source: pending.source || 'unknown',
         timestamp: new Date().toISOString(),
-        tokenHash: validToken.substring(0, 8) + '...'
-      }
+        tokenHash: validToken.substring(0, 8) + '...',
+      },
     });
 
     // Clean up confirmed token
     pendingSubscriptions.delete(validToken);
 
     // Return success response
-    return new Response(JSON.stringify({
-      success: true,
-      message: 'Email address confirmed successfully! You are now subscribed to our newsletter.',
-      email: pending.email,
-      subscription_date: new Date().toISOString()
-    }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' }
-    });
-
+    return new Response(
+      JSON.stringify({
+        success: true,
+        message: 'Email address confirmed successfully! You are now subscribed to our newsletter.',
+        email: pending.email,
+        subscription_date: new Date().toISOString(),
+      }),
+      {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
   } catch (error) {
     logger.error('Error confirming newsletter subscription', {
       metadata: {
         error: error instanceof Error ? error.message : String(error),
-        stack: error instanceof Error ? error.stack : undefined
-      }
+        stack: error instanceof Error ? error.stack : undefined,
+      },
     });
 
     // Generischer Server-Fehler
-    return new Response(JSON.stringify({
-      success: false,
-      error: 'Internal server error during confirmation',
-      message: 'Please try again later or contact support if the problem persists.'
-    }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    return new Response(
+      JSON.stringify({
+        success: false,
+        error: 'Internal server error during confirmation',
+        message: 'Please try again later or contact support if the problem persists.',
+      }),
+      {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
   }
 };
 
@@ -182,7 +199,7 @@ export function createPendingSubscription(email: string, source?: string): strin
     token,
     createdAt: new Date(),
     source: source || 'website',
-    consent: true
+    consent: true,
   };
 
   // Store pending subscription
@@ -192,7 +209,7 @@ export function createPendingSubscription(email: string, source?: string): strin
     action: 'newsletter_pending_subscription_created',
     email: email,
     tokenHash: token.substring(0, 8) + '...',
-    source: source || 'website'
+    source: source || 'website',
   });
 
   return token;
@@ -229,8 +246,8 @@ export function cleanupExpiredTokens(): number {
     metadata: {
       cleanedCount: cleanedCount,
       remainingTokens: pendingSubscriptions.size,
-      maxAgeHours: 24
-    }
+      maxAgeHours: 24,
+    },
   });
   return cleanedCount;
 }

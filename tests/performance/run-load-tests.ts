@@ -47,14 +47,16 @@ async function makeParallelRequests(
   requestFn: (index: number) => Promise<Response>
 ): Promise<LoadTestResult> {
   const startTime = Date.now();
-  const promises = Array(count).fill(null).map((_, index) => requestFn(index));
+  const promises = Array(count)
+    .fill(null)
+    .map((_, index) => requestFn(index));
   const responses = await Promise.allSettled(promises);
   const endTime = Date.now();
 
-  const successful = responses.filter(r => r.status === 'fulfilled').length;
-  const failed = responses.filter(r => r.status === 'rejected').length;
-  const rateLimited = responses.filter(r =>
-    r.status === 'fulfilled' && r.value.status === 429
+  const successful = responses.filter((r) => r.status === 'fulfilled').length;
+  const failed = responses.filter((r) => r.status === 'rejected').length;
+  const rateLimited = responses.filter(
+    (r) => r.status === 'fulfilled' && r.value.status === 429
   ).length;
 
   // Berechne durchschnittliche Antwortzeit (geschätzt)
@@ -73,7 +75,7 @@ async function makeParallelRequests(
     requestsPerSecond,
     totalDuration: endTime - startTime,
     timestamp: new Date().toISOString(),
-    success: failed === 0
+    success: failed === 0,
   };
 }
 
@@ -91,7 +93,9 @@ async function runRateLimitTests() {
     console.log(`📊 Teste ${apiName} Rate-Limiting...`);
 
     for (const scenario of apiConfig.testScenarios) {
-      console.log(`  └─ ${scenario.name}: ${scenario.requestsPerSecond} RPS für ${scenario.duration}s`);
+      console.log(
+        `  └─ ${scenario.name}: ${scenario.requestsPerSecond} RPS für ${scenario.duration}s`
+      );
 
       const result = await makeParallelRequests(
         baseUrl,
@@ -105,17 +109,17 @@ async function runRateLimitTests() {
               email: `loadtest${index}@example.com`,
               name: `Load Test User ${index}`,
               ...(apiConfig.endpoint.includes('lead-magnets') && {
-                magnetId: 'ki-tools-checkliste-2025'
-              })
+                magnetId: 'ki-tools-checkliste-2025',
+              }),
             });
 
             return fetch(`${baseUrl}${apiConfig.endpoint}`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
-                'Origin': baseUrl
+                Origin: baseUrl,
               },
-              body: formData.toString()
+              body: formData.toString(),
             });
           }
         }
@@ -124,14 +128,22 @@ async function runRateLimitTests() {
       results.push(result);
 
       // Prüfe Erwartungen
-      const expectedRateLimited = Math.round((scenario.expectedRateLimited / 100) * result.totalRequests);
+      const expectedRateLimited = Math.round(
+        (scenario.expectedRateLimited / 100) * result.totalRequests
+      );
       if (result.rateLimitedRequests >= expectedRateLimited * 0.8) {
-        console.log(`    ✅ Rate-Limiting funktioniert korrekt (${result.rateLimitedRequests}/${result.totalRequests} Rate-Limited)`);
+        console.log(
+          `    ✅ Rate-Limiting funktioniert korrekt (${result.rateLimitedRequests}/${result.totalRequests} Rate-Limited)`
+        );
       } else {
-        console.log(`    ⚠️  Rate-Limiting könnte zu permissiv sein (${result.rateLimitedRequests}/${result.totalRequests} Rate-Limited, erwartet: ${expectedRateLimited})`);
+        console.log(
+          `    ⚠️  Rate-Limiting könnte zu permissiv sein (${result.rateLimitedRequests}/${result.totalRequests} Rate-Limited, erwartet: ${expectedRateLimited})`
+        );
       }
 
-      console.log(`    📈 Performance: ${result.averageResponseTime.toFixed(2)}ms avg, ${result.requestsPerSecond.toFixed(2)} RPS\n`);
+      console.log(
+        `    📈 Performance: ${result.averageResponseTime.toFixed(2)}ms avg, ${result.requestsPerSecond.toFixed(2)} RPS\n`
+      );
     }
   }
 
@@ -152,7 +164,8 @@ async function runStressTests() {
     const burstResult = await makeParallelRequests(
       baseUrl,
       'burst-traffic',
-      config.stressTests.burstTraffic.requestsPerEndpoint * config.stressTests.burstTraffic.parallelEndpoints.length,
+      config.stressTests.burstTraffic.requestsPerEndpoint *
+        config.stressTests.burstTraffic.parallelEndpoints.length,
       async (index) => {
         const endpointIndex = index % config.stressTests.burstTraffic.parallelEndpoints.length;
         const testEndpoint = config.stressTests.burstTraffic.parallelEndpoints[endpointIndex];
@@ -161,16 +174,16 @@ async function runStressTests() {
           const formData = new URLSearchParams({
             email: `burst${index}@example.com`,
             name: `Burst Test User ${index}`,
-            magnetId: 'ki-tools-checkliste-2025'
+            magnetId: 'ki-tools-checkliste-2025',
           });
 
           return fetch(`${baseUrl}${testEndpoint}`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/x-www-form-urlencoded',
-              'Origin': baseUrl
+              Origin: baseUrl,
             },
-            body: formData.toString()
+            body: formData.toString(),
           });
         } else {
           return fetch(`${baseUrl}${testEndpoint}`);
@@ -179,7 +192,9 @@ async function runStressTests() {
     );
 
     results.push(burstResult);
-    console.log(`💥 Burst-Traffic: ${burstResult.requestsPerSecond.toFixed(2)} RPS, ${burstResult.rateLimitedRequests} Rate-Limited\n`);
+    console.log(
+      `💥 Burst-Traffic: ${burstResult.requestsPerSecond.toFixed(2)} RPS, ${burstResult.rateLimitedRequests} Rate-Limited\n`
+    );
   }
 
   return results;
@@ -207,9 +222,13 @@ async function runBenchmarks() {
   results.push(benchmarkResult);
 
   console.log(`📊 Benchmark-Ergebnisse:`);
-  console.log(`  Durchschnittliche Antwortzeit: ${benchmarkResult.averageResponseTime.toFixed(2)}ms`);
+  console.log(
+    `  Durchschnittliche Antwortzeit: ${benchmarkResult.averageResponseTime.toFixed(2)}ms`
+  );
   console.log(`  Requests pro Sekunde: ${benchmarkResult.requestsPerSecond.toFixed(2)}`);
-  console.log(`  Rate-Limited: ${benchmarkResult.rateLimitedRequests}/${benchmarkResult.totalRequests}`);
+  console.log(
+    `  Rate-Limited: ${benchmarkResult.rateLimitedRequests}/${benchmarkResult.totalRequests}`
+  );
 
   // Prüfe Performance-Thresholds
   const thresholds = config.performanceThresholds;
@@ -237,11 +256,13 @@ function saveResults(results: LoadTestResult[], testType: string) {
     timestamp: new Date().toISOString(),
     summary: {
       totalTests: results.length,
-      averageResponseTime: results.reduce((sum, r) => sum + r.averageResponseTime, 0) / results.length,
-      averageRequestsPerSecond: results.reduce((sum, r) => sum + r.requestsPerSecond, 0) / results.length,
-      totalRateLimitedRequests: results.reduce((sum, r) => sum + r.rateLimitedRequests, 0)
+      averageResponseTime:
+        results.reduce((sum, r) => sum + r.averageResponseTime, 0) / results.length,
+      averageRequestsPerSecond:
+        results.reduce((sum, r) => sum + r.requestsPerSecond, 0) / results.length,
+      totalRateLimitedRequests: results.reduce((sum, r) => sum + r.rateLimitedRequests, 0),
     },
-    results
+    results,
   };
 
   console.log(`💾 Ergebnisse gespeichert in: ${filename}`);
@@ -280,7 +301,7 @@ async function main() {
     const report = saveResults(results, testType);
 
     // Prüfe ob alle Tests erfolgreich waren
-    const allSuccessful = results.every(r => r.success);
+    const allSuccessful = results.every((r) => r.success);
     if (allSuccessful) {
       console.log(`✅ Alle Load-Tests erfolgreich`);
       process.exit(0);
@@ -288,7 +309,6 @@ async function main() {
       console.log(`❌ Einige Load-Tests fehlgeschlagen`);
       process.exit(1);
     }
-
   } catch (error) {
     console.error('❌ Fehler bei Load-Tests:', error);
     process.exit(1);

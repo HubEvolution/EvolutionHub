@@ -14,8 +14,8 @@ const title = 'Kommentarsystem Demo';
       <h1>{title}</h1>
 
       <p>
-        Dies ist eine Demo-Seite für das neue Kommentarsystem. Hier kannst du testen,
-        wie Kommentare erstellt, bearbeitet und moderiert werden können.
+        Dies ist eine Demo-Seite für das neue Kommentarsystem. Hier kannst du testen, wie Kommentare
+        erstellt, bearbeitet und moderiert werden können.
       </p>
 
       <h2>Features des Kommentarsystems</h2>
@@ -35,21 +35,24 @@ const title = 'Kommentarsystem Demo';
 
       <p>
         Das Kommentarsystem unterstützt sowohl authentifizierte als auch Gast-Nutzer.
-        Authentifizierte Nutzer können Kommentare sofort sehen, während Gast-Kommentare
-        zunächst moderiert werden müssen.
+        Authentifizierte Nutzer können Kommentare sofort sehen, während Gast-Kommentare zunächst
+        moderiert werden müssen.
       </p>
 
       <div class="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-400 p-4 my-6">
         <div class="flex">
           <div class="flex-shrink-0">
             <svg class="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+              <path
+                fill-rule="evenodd"
+                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                clip-rule="evenodd"></path>
             </svg>
           </div>
           <div class="ml-3">
             <p class="text-sm text-blue-700 dark:text-blue-300">
-              <strong>Hinweis:</strong> Dies ist eine Demo-Seite. Alle Kommentare werden
-              regelmäßig gelöscht und dienen nur zu Testzwecken.
+              <strong>Hinweis:</strong> Dies ist eine Demo-Seite. Alle Kommentare werden regelmäßig gelöscht
+              und dienen nur zu Testzwecken.
             </p>
           </div>
         </div>
@@ -58,12 +61,7 @@ const title = 'Kommentarsystem Demo';
       <h2>Kommentare</h2>
 
       <!-- Kommentarsektion -->
-      <CommentSection
-        entityType={entityType}
-        entityId={entityId}
-        title="Diskussion"
-        client:load
-      />
+      <CommentSection entityType={entityType} entityId={entityId} title="Diskussion" client:load />
     </article>
   </div>
 </BaseLayout>

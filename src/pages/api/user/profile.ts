@@ -8,7 +8,7 @@ import { logProfileUpdate } from '@/lib/security-logger';
  * Aktualisiert das Benutzerprofil mit validierten Daten.
  * Implementiert Username-Kollisionsprüfung, verbesserte Validierung,
  * Rate-Limiting, Security-Headers und Audit-Logging.
- * 
+ *
  * Verwendet die withAuthApiMiddleware für:
  * - Authentifizierungsprüfung
  * - Rate-Limiting
@@ -39,20 +39,22 @@ export const POST = withAuthApiMiddleware(async (context: APIContext) => {
   }
 
   const db = locals.runtime.env.DB;
-  
+
   // Prüfen auf Username-Kollision, aber nur wenn sich der Username geändert hat
   if (username !== locals.user.username) {
-    const existingUser = await db.prepare('SELECT id FROM users WHERE username = ? AND id != ?')
+    const existingUser = await db
+      .prepare('SELECT id FROM users WHERE username = ? AND id != ?')
       .bind(username, locals.user.id)
       .first();
-    
+
     if (existingUser) {
       throw new Error('Username already taken');
     }
   }
-  
+
   // Aktualisieren des Profils
-  await db.prepare('UPDATE users SET name = ?, username = ? WHERE id = ?')
+  await db
+    .prepare('UPDATE users SET name = ?, username = ? WHERE id = ?')
     .bind(name, username, locals.user.id)
     .run();
 
@@ -61,9 +63,9 @@ export const POST = withAuthApiMiddleware(async (context: APIContext) => {
     oldUsername: locals.user.username,
     newUsername: username,
     oldName: locals.user.name,
-    newName: name
+    newName: name,
   });
-  
+
   // Optionaler Redirect nach erfolgreicher Aktualisierung (HTML-Form Flow)
   const isAllowedRelativePath = (p: unknown): p is string => {
     return typeof p === 'string' && p.startsWith('/') && !p.startsWith('//');
@@ -78,7 +80,7 @@ export const POST = withAuthApiMiddleware(async (context: APIContext) => {
     user: {
       id: locals.user.id,
       name,
-      username
-    }
+      username,
+    },
   });
 });

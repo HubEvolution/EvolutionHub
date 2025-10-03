@@ -1,4 +1,13 @@
-import { ALLOWED_MODELS, ALLOWED_CONTENT_TYPES, MAX_UPLOAD_BYTES, AI_R2_PREFIX, FREE_LIMIT_GUEST, FREE_LIMIT_USER, type AllowedModel, type OwnerType } from '@/config/ai-image';
+import {
+  ALLOWED_MODELS,
+  ALLOWED_CONTENT_TYPES,
+  MAX_UPLOAD_BYTES,
+  AI_R2_PREFIX,
+  FREE_LIMIT_GUEST,
+  FREE_LIMIT_USER,
+  type AllowedModel,
+  type OwnerType,
+} from '@/config/ai-image';
 import { detectImageMimeFromBytes as sniffImageMimeFromBytes } from '@/lib/utils/mime';
 import { loggerFactory } from '@/server/utils/logger-factory';
 import { buildProviderError } from './provider-error';
@@ -89,7 +98,12 @@ export class AiImageService {
     return n;
   }
 
-  private async getMonthlyUsage(ownerType: OwnerType, ownerId: string, limit: number, ym: string): Promise<UsageInfo> {
+  private async getMonthlyUsage(
+    ownerType: OwnerType,
+    ownerId: string,
+    limit: number,
+    ym: string
+  ): Promise<UsageInfo> {
     const kv = this.env.KV_AI_ENHANCER;
     if (!kv) return { used: 0, limit, resetAt: null };
     const key = this.monthlyUsageKey(ownerType, ownerId, ym);
@@ -103,7 +117,12 @@ export class AiImageService {
     }
   }
 
-  private async incrementMonthlyUsage(ownerType: OwnerType, ownerId: string, limit: number, ym: string): Promise<UsageInfo> {
+  private async incrementMonthlyUsage(
+    ownerType: OwnerType,
+    ownerId: string,
+    limit: number,
+    ym: string
+  ): Promise<UsageInfo> {
     const kv = this.env.KV_AI_ENHANCER;
     if (!kv) return { used: 0, limit, resetAt: null };
     const key = this.monthlyUsageKey(ownerType, ownerId, ym);
@@ -150,7 +169,10 @@ export class AiImageService {
     if (!raw) {
       try {
         const mask = ownerId ? `…${ownerId.slice(-4)}(${ownerId.length})` : '';
-        this.log.debug('usage_get_empty', { action: 'usage_get_empty', metadata: { ownerType, ownerId: mask, key, limit } });
+        this.log.debug('usage_get_empty', {
+          action: 'usage_get_empty',
+          metadata: { ownerType, ownerId: mask, key, limit },
+        });
       } catch {
         // Ignore logging failures
       }
@@ -162,7 +184,17 @@ export class AiImageService {
       const resp = { used: parsed.count || 0, limit, resetAt: parsed.resetAt || null };
       try {
         const mask = ownerId ? `…${ownerId.slice(-4)}(${ownerId.length})` : '';
-        this.log.debug('usage_get_ok', { action: 'usage_get_ok', metadata: { ownerType, ownerId: mask, key, used: resp.used, limit: resp.limit, hasReset: !!resp.resetAt } });
+        this.log.debug('usage_get_ok', {
+          action: 'usage_get_ok',
+          metadata: {
+            ownerType,
+            ownerId: mask,
+            key,
+            used: resp.used,
+            limit: resp.limit,
+            hasReset: !!resp.resetAt,
+          },
+        });
       } catch {
         // Ignore logging failures
       }
@@ -170,7 +202,10 @@ export class AiImageService {
     } catch {
       try {
         const mask = ownerId ? `…${ownerId.slice(-4)}(${ownerId.length})` : '';
-        this.log.warn('usage_get_parse_failed', { action: 'usage_get_parse_failed', metadata: { ownerType, ownerId: mask, key } });
+        this.log.warn('usage_get_parse_failed', {
+          action: 'usage_get_parse_failed',
+          metadata: { ownerType, ownerId: mask, key },
+        });
       } catch {
         // Ignore logging failures
       }
@@ -178,7 +213,10 @@ export class AiImageService {
     }
   }
 
-  public async callCustomAssistant(prompt: string, assistantId: string): Promise<AssistantResponse> {
+  public async callCustomAssistant(
+    prompt: string,
+    assistantId: string
+  ): Promise<AssistantResponse> {
     const apiKey = this.env.OPENAI_API_KEY;
     if (!apiKey) {
       throw new Error('OPENAI_API_KEY not configured');
@@ -200,7 +238,10 @@ export class AiImageService {
       });
     } catch (error) {
       const msg = error instanceof Error ? error.message : String(error);
-      this.log.error('assistant_call_failed', { action: 'assistant_call_failed', metadata: { error: msg } });
+      this.log.error('assistant_call_failed', {
+        action: 'assistant_call_failed',
+        metadata: { error: msg },
+      });
       throw new Error('Failed to call assistant');
     }
 
@@ -222,11 +263,25 @@ export class AiImageService {
     if (!assistantMessage || !assistantMessage.content || assistantMessage.content.length === 0) {
       throw new Error('No response from assistant');
     }
-    const content = assistantMessage.content[0].type === 'text' ? assistantMessage.content[0].text.value : '';
+    const content =
+      assistantMessage.content[0].type === 'text' ? assistantMessage.content[0].text.value : '';
     return { content };
   }
 
-  async generate({ ownerType, ownerId, modelSlug, file, requestOrigin, scale, faceEnhance, assistantId, limitOverride, monthlyLimitOverride, maxUpscaleOverride, allowFaceEnhanceOverride }: GenerateParams): Promise<GenerateResult> {
+  async generate({
+    ownerType,
+    ownerId,
+    modelSlug,
+    file,
+    requestOrigin,
+    scale,
+    faceEnhance,
+    assistantId,
+    limitOverride,
+    monthlyLimitOverride,
+    maxUpscaleOverride,
+    allowFaceEnhanceOverride,
+  }: GenerateParams): Promise<GenerateResult> {
     // Validate input
     const model = this.getAllowedModel(modelSlug);
     if (!model) throw new Error('Unsupported model');
@@ -271,15 +326,24 @@ export class AiImageService {
       const response = await this.callCustomAssistant(assistantPrompt, assistantId);
       try {
         const suggested = JSON.parse(response.content);
-        if (typeof suggested.scale === 'number' && (suggested.scale === 2 || suggested.scale === 4)) {
+        if (
+          typeof suggested.scale === 'number' &&
+          (suggested.scale === 2 || suggested.scale === 4)
+        ) {
           scale = suggested.scale;
         }
         if (typeof suggested.faceEnhance === 'boolean') {
           faceEnhance = suggested.faceEnhance;
         }
-        this.log.debug('assistant_params_applied', { action: 'assistant_params_applied', metadata: { assistantId, suggested } });
+        this.log.debug('assistant_params_applied', {
+          action: 'assistant_params_applied',
+          metadata: { assistantId, suggested },
+        });
       } catch {
-        this.log.warn('assistant_suggestion_parse_failed', { action: 'assistant_suggestion_parse_failed', metadata: { assistantId } });
+        this.log.warn('assistant_suggestion_parse_failed', {
+          action: 'assistant_suggestion_parse_failed',
+          metadata: { assistantId },
+        });
       }
     }
 
@@ -304,8 +368,14 @@ export class AiImageService {
     });
 
     // Quota checks (monthly first, then daily burst), without increment yet
-    const dailyLimit = typeof limitOverride === 'number' ? limitOverride : (ownerType === 'user' ? FREE_LIMIT_USER : FREE_LIMIT_GUEST);
-    const monthlyLimit = typeof monthlyLimitOverride === 'number' ? monthlyLimitOverride : Number.POSITIVE_INFINITY;
+    const dailyLimit =
+      typeof limitOverride === 'number'
+        ? limitOverride
+        : ownerType === 'user'
+          ? FREE_LIMIT_USER
+          : FREE_LIMIT_GUEST;
+    const monthlyLimit =
+      typeof monthlyLimitOverride === 'number' ? monthlyLimitOverride : Number.POSITIVE_INFINITY;
 
     const now = new Date();
     const ym = `${now.getUTCFullYear()}${String(now.getUTCMonth() + 1).padStart(2, '0')}`;
@@ -328,7 +398,9 @@ export class AiImageService {
     const currentUsage = await this.getUsage(ownerType, ownerId, dailyLimit);
     if (currentUsage.used >= currentUsage.limit) {
       const resetInfo = currentUsage.resetAt ? new Date(currentUsage.resetAt).toISOString() : null;
-      const msg = `Quota exceeded. Used ${currentUsage.used}/${currentUsage.limit}` + (resetInfo ? `, resets at ${resetInfo}` : '');
+      const msg =
+        `Quota exceeded. Used ${currentUsage.used}/${currentUsage.limit}` +
+        (resetInfo ? `, resets at ${resetInfo}` : '');
       const err: any = new Error(msg);
       err.code = 'quota_exceeded';
       err.details = { scope: 'daily', ...currentUsage };
@@ -339,18 +411,25 @@ export class AiImageService {
     const bucket = this.env.R2_AI_IMAGES;
     if (!bucket) throw new Error('R2_AI_IMAGES bucket not configured');
 
-    const originalExt = this.extFromContentType(sniffed) || this.extFromFilename(file.name) || 'bin';
+    const originalExt =
+      this.extFromContentType(sniffed) || this.extFromFilename(file.name) || 'bin';
     const timestamp = Date.now();
     const baseKey = `${AI_R2_PREFIX}/uploads/${ownerType}/${ownerId}/${timestamp}`;
     const originalKey = `${baseKey}.${originalExt}`;
 
     const putOriginalStart = Date.now();
     await bucket.put(originalKey, fileBuffer, { httpMetadata: { contentType: sniffed } });
-    this.log.debug('r2_put_original_ms', { action: 'r2_put_original_ms', metadata: { reqId, ms: Date.now() - putOriginalStart } });
+    this.log.debug('r2_put_original_ms', {
+      action: 'r2_put_original_ms',
+      metadata: { reqId, ms: Date.now() - putOriginalStart },
+    });
 
     const originalUrl = this.buildPublicUrl(requestOrigin, originalKey);
 
-    this.log.debug('uploaded_original', { action: 'uploaded_original', metadata: { reqId, originalKey, originalUrl } });
+    this.log.debug('uploaded_original', {
+      action: 'uploaded_original',
+      metadata: { reqId, originalKey, originalUrl },
+    });
 
     // Call provider (Replicate) with the originalUrl
     let outputUrl: string;
@@ -359,12 +438,18 @@ export class AiImageService {
     // to avoid external dependencies in local/integration runs.
     const forceDevEcho = this.isDevelopment();
     if (forceDevEcho) {
-      this.log.warn('dev_echo_enabled', { action: 'dev_echo_enabled', metadata: { reqId, reason: 'development_environment' } });
+      this.log.warn('dev_echo_enabled', {
+        action: 'dev_echo_enabled',
+        metadata: { reqId, reason: 'development_environment' },
+      });
       outputUrl = originalUrl;
       devEcho = true;
     } else {
       try {
-        this.log.debug('replicate_call_start', { action: 'replicate_call_start', metadata: { reqId, model: model.slug, originalUrl, scale, faceEnhance } });
+        this.log.debug('replicate_call_start', {
+          action: 'replicate_call_start',
+          metadata: { reqId, model: model.slug, originalUrl, scale, faceEnhance },
+        });
         // Build provider input parameters safely per model
         const replicateInput: Record<string, unknown> = { image: originalUrl };
         if (typeof scale === 'number' && model.supportsScale) {
@@ -374,7 +459,10 @@ export class AiImageService {
           (replicateInput as any).face_enhance = faceEnhance;
         }
         outputUrl = await this.runReplicate(model, replicateInput);
-        this.log.debug('replicate_call_success', { action: 'replicate_call_success', metadata: { reqId, outputUrl } });
+        this.log.debug('replicate_call_success', {
+          action: 'replicate_call_success',
+          metadata: { reqId, outputUrl },
+        });
       } catch (err) {
         // Graceful dev fallback to unblock local UI testing: use original image
         // Applies in development when Replicate responds 404 (slug/version issues)
@@ -383,7 +471,14 @@ export class AiImageService {
         const is404 = /Replicate error\s+404/i.test(message);
         const missingToken = /Missing REPLICATE_API_TOKEN/i.test(message);
         if (this.isDevelopment() && (is404 || missingToken)) {
-          this.log.warn('dev_echo_enabled', { action: 'dev_echo_enabled', metadata: { reqId, reason: is404 ? 'provider_404' : 'missing_token', model: model.slug } });
+          this.log.warn('dev_echo_enabled', {
+            action: 'dev_echo_enabled',
+            metadata: {
+              reqId,
+              reason: is404 ? 'provider_404' : 'missing_token',
+              model: model.slug,
+            },
+          });
           outputUrl = originalUrl;
           devEcho = true;
         } else {
@@ -401,20 +496,35 @@ export class AiImageService {
       } else {
         await this.incrementMonthlyUsage(ownerType, ownerId, monthlyLimit, ym);
       }
-      this.log.debug('dev_echo_return', { action: 'dev_echo_return', metadata: { reqId, imageUrl: originalUrl, usage } });
+      this.log.debug('dev_echo_return', {
+        action: 'dev_echo_return',
+        metadata: { reqId, imageUrl: originalUrl, usage },
+      });
       return { model: model.slug, originalUrl, imageUrl: originalUrl, usage };
     }
 
     // Fetch output and store to R2
-    this.log.debug('fetch_output_start', { action: 'fetch_output_start', metadata: { reqId, outputUrl } });
+    this.log.debug('fetch_output_start', {
+      action: 'fetch_output_start',
+      metadata: { reqId, outputUrl },
+    });
     const { arrayBuffer, contentType } = await this.fetchBinary(outputUrl);
-    this.log.debug('fetch_output_done', { action: 'fetch_output_done', metadata: { reqId, contentType, bytes: arrayBuffer.byteLength } });
+    this.log.debug('fetch_output_done', {
+      action: 'fetch_output_done',
+      metadata: { reqId, contentType, bytes: arrayBuffer.byteLength },
+    });
     const resultExt = this.extFromContentType(contentType) || 'png';
     const resultKey = `${AI_R2_PREFIX}/results/${ownerType}/${ownerId}/${timestamp}.${resultExt}`;
     const putResultStart = Date.now();
     await bucket.put(resultKey, arrayBuffer, { httpMetadata: { contentType } });
-    this.log.debug('r2_put_result_ms', { action: 'r2_put_result_ms', metadata: { reqId, ms: Date.now() - putResultStart } });
-    this.log.debug('stored_result', { action: 'stored_result', metadata: { reqId, resultKey, contentType } });
+    this.log.debug('r2_put_result_ms', {
+      action: 'r2_put_result_ms',
+      metadata: { reqId, ms: Date.now() - putResultStart },
+    });
+    this.log.debug('stored_result', {
+      action: 'stored_result',
+      metadata: { reqId, resultKey, contentType },
+    });
 
     const imageUrl = this.buildPublicUrl(requestOrigin, resultKey);
 
@@ -425,7 +535,10 @@ export class AiImageService {
     } else {
       await this.incrementMonthlyUsage(ownerType, ownerId, monthlyLimit, ym);
     }
-    this.log.info('generate_success', { action: 'generate_success', metadata: { reqId, imageUrl, usage } });
+    this.log.info('generate_success', {
+      action: 'generate_success',
+      metadata: { reqId, imageUrl, usage },
+    });
 
     return { model: model.slug, originalUrl, imageUrl, usage };
   }
@@ -447,7 +560,11 @@ export class AiImageService {
     return `ai:credits:user:${userId}`;
   }
 
-  private async incrementUsage(ownerType: OwnerType, ownerId: string, limit: number): Promise<UsageInfo> {
+  private async incrementUsage(
+    ownerType: OwnerType,
+    ownerId: string,
+    limit: number
+  ): Promise<UsageInfo> {
     const kv = this.env.KV_AI_ENHANCER;
     if (!kv) return { used: 0, limit, resetAt: null };
 
@@ -479,10 +596,13 @@ export class AiImageService {
     const resp = { used: count, limit, resetAt };
     try {
       const mask = ownerId ? `…${ownerId.slice(-4)}(${ownerId.length})` : '';
-      this.log.debug('usage_increment', { action: 'usage_increment', metadata: { ownerType, ownerId: mask, key, used: resp.used, limit: resp.limit, expiration } });
+      this.log.debug('usage_increment', {
+        action: 'usage_increment',
+        metadata: { ownerType, ownerId: mask, key, used: resp.used, limit: resp.limit, expiration },
+      });
     } catch {
-        // Ignore logging failures
-      }
+      // Ignore logging failures
+    }
     return resp;
   }
 
@@ -516,14 +636,20 @@ export class AiImageService {
     }
   }
 
-  private async fetchBinary(url: string): Promise<{ arrayBuffer: ArrayBuffer; contentType: string }> {
+  private async fetchBinary(
+    url: string
+  ): Promise<{ arrayBuffer: ArrayBuffer; contentType: string }> {
     const started = Date.now();
     const res = await fetch(url);
     if (!res.ok) throw new Error(`Failed to fetch output ${res.status} from ${url}`);
     const ct = res.headers.get('content-type') || 'application/octet-stream';
     const buf = await res.arrayBuffer();
     if (this.isDevelopment()) {
-      console.debug('[AiImageService] fetchBinary(ms)', { ms: Date.now() - started, contentType: ct, bytes: buf.byteLength });
+      console.debug('[AiImageService] fetchBinary(ms)', {
+        ms: Date.now() - started,
+        contentType: ct,
+        bytes: buf.byteLength,
+      });
     }
     return { arrayBuffer: buf, contentType: ct };
   }
@@ -550,7 +676,10 @@ export class AiImageService {
     });
 
     const durationMs = Date.now() - started;
-    this.log.debug('replicate_duration_ms', { action: 'replicate_duration_ms', metadata: { model: model.slug, ms: durationMs } });
+    this.log.debug('replicate_duration_ms', {
+      action: 'replicate_duration_ms',
+      metadata: { model: model.slug, ms: durationMs },
+    });
 
     if (!res.ok) {
       const status = res.status;
@@ -558,7 +687,10 @@ export class AiImageService {
       // Build standardized provider error (typed for API middleware)
       const err = buildProviderError(status, 'replicate', text);
       // Avoid leaking provider payloads to clients; keep truncated snippet in logs only
-      this.log.warn('replicate_error', { action: 'replicate_error', metadata: { status, provider: 'replicate', snippet: text.slice(0, 200) } });
+      this.log.warn('replicate_error', {
+        action: 'replicate_error',
+        metadata: { status, provider: 'replicate', snippet: text.slice(0, 200) },
+      });
       throw err;
     }
 
@@ -574,6 +706,13 @@ export class AiImageService {
   private isDevelopment(): boolean {
     const env = (this.env.ENVIRONMENT || '').toLowerCase();
     // Treat only explicit dev/test/local as development-like
-    return env === 'development' || env === 'dev' || env === 'testing' || env === 'test' || env === 'local' || env === '';
+    return (
+      env === 'development' ||
+      env === 'dev' ||
+      env === 'testing' ||
+      env === 'test' ||
+      env === 'local' ||
+      env === ''
+    );
   }
 }

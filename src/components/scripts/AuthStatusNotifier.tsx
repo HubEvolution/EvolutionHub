@@ -9,6 +9,9 @@ type Mode =
   | 'register'
   | 'email-verified';
 
+type AuthLog = { via: string; t: number; note: string; data?: unknown };
+type WindowWithAuth = Window & { __authLogs?: AuthLog[] };
+
 function wait(ms: number) {
   return new Promise((r) => setTimeout(r, ms));
 }
@@ -28,23 +31,23 @@ export default function AuthStatusNotifier({ mode }: { mode: Mode }) {
     (async () => {
       try {
         const url = new URL(window.location.href);
-        const params = url.searchParams;
         const isGerman = window.location.pathname.startsWith('/de');
         const debug = /(?:^|[?&])debug_auth=1(?:&|$)/.test(url.search);
         const log = (note: string, data?: unknown) => {
           if (!debug) return;
           try {
-            (window as any).__authLogs = (window as any).__authLogs || [];
-            (window as any).__authLogs.push({ via: 'notifier', t: Date.now(), note, data });
+            const w = window as WindowWithAuth;
+            w.__authLogs = w.__authLogs || [];
+            w.__authLogs.push({ via: 'notifier', t: Date.now(), note, data });
             // keep console noise low but available when needed
              
             console.debug('[AuthStatusNotifier]', note, data ?? '');
-          } catch {}
+          } catch {
+            /* noop */
+          }
         };
-
-        const keys = mode === 'login'
-          ? ['loggedOut', 'success', 'error']
-          : ['success', 'error'];
+{{ ... }}
+        const keys = mode === 'login' ? ['loggedOut', 'success', 'error'] : ['success', 'error'];
 
         const hasAny = keys.some((k) => params.has(k));
         if (!hasAny) {
@@ -70,9 +73,16 @@ export default function AuthStatusNotifier({ mode }: { mode: Mode }) {
                 new CustomEvent('auth:changed', { detail: { state: 'logged_out', via: 'login' } })
               );
               try {
-                localStorage.setItem('auth:changed', JSON.stringify({ state: 'logged_out', t: Date.now(), via: 'login' }));
-              } catch {}
-            } catch {}
+                localStorage.setItem(
+                  'auth:changed',
+                  JSON.stringify({ state: 'logged_out', t: Date.now(), via: 'login' })
+                );
+              } catch {
+                /* noop */
+              }
+            } catch {
+              /* noop */
+            }
           }
           if (success) {
             const msg = isGerman
@@ -85,9 +95,16 @@ export default function AuthStatusNotifier({ mode }: { mode: Mode }) {
                 new CustomEvent('auth:changed', { detail: { state: 'logged_in', via: 'login' } })
               );
               try {
-                localStorage.setItem('auth:changed', JSON.stringify({ state: 'logged_in', t: Date.now(), via: 'login' }));
-              } catch {}
-            } catch {}
+                localStorage.setItem(
+                  'auth:changed',
+                  JSON.stringify({ state: 'logged_in', t: Date.now(), via: 'login' })
+                );
+              } catch {
+                /* noop */
+              }
+            } catch {
+              /* noop */
+            }
           }
           if (error) {
             const code = error;
@@ -106,7 +123,9 @@ export default function AuthStatusNotifier({ mode }: { mode: Mode }) {
           }
           if (error) {
             const code = error;
-            toast.error(isGerman ? `Versand fehlgeschlagen (${code}).` : `Sending failed (${code}).`);
+            toast.error(
+              isGerman ? `Versand fehlgeschlagen (${code}).` : `Sending failed (${code}).`
+            );
             log('toast-error', { mode, code });
           }
         } else if (mode === 'forgot-password') {
@@ -131,9 +150,7 @@ export default function AuthStatusNotifier({ mode }: { mode: Mode }) {
           const success = params.get('success');
           const error = params.get('error');
           if (success) {
-            toast.success(
-              isGerman ? 'Passwort wurde zurückgesetzt.' : 'Password has been reset.'
-            );
+            toast.success(isGerman ? 'Passwort wurde zurückgesetzt.' : 'Password has been reset.');
             log('toast-success', { mode, code: success });
           }
           if (error) {
@@ -149,18 +166,23 @@ export default function AuthStatusNotifier({ mode }: { mode: Mode }) {
           const success = params.get('success');
           const error = params.get('error');
           if (success) {
-            toast.success(
-              isGerman ? 'Registrierung erfolgreich.' : 'Registration successful.'
-            );
+            toast.success(isGerman ? 'Registrierung erfolgreich.' : 'Registration successful.');
             log('toast-success', { mode, code: success });
             try {
               window.dispatchEvent(
                 new CustomEvent('auth:changed', { detail: { state: 'logged_in', via: 'register' } })
               );
               try {
-                localStorage.setItem('auth:changed', JSON.stringify({ state: 'logged_in', t: Date.now(), via: 'register' }));
-              } catch {}
-            } catch {}
+                localStorage.setItem(
+                  'auth:changed',
+                  JSON.stringify({ state: 'logged_in', t: Date.now(), via: 'register' })
+                );
+              } catch {
+                /* noop */
+              }
+            } catch {
+              /* noop */
+            }
           }
           if (error) {
             const code = error;

@@ -1,17 +1,17 @@
 /**
  * Script Coordinator - Centralized Script Management System
- * 
+ *
  * Eliminates event listener conflicts and provides prioritized script initialization.
  * Ensures scripts load in correct order without interference.
  */
 
 // Script Priority Levels
 export const SCRIPT_PRIORITIES = {
-  CRITICAL: 0,    // Essential functionality (Header, Navigation)
-  HIGH: 1,        // Important features (Scroll effects, Theme)
-  MEDIUM: 2,      // Nice-to-have (Analytics, Animations)
-  LOW: 3,         // Optional (Settings page specific)
-  BACKGROUND: 4   // Background tasks (Cleanup, etc.)
+  CRITICAL: 0, // Essential functionality (Header, Navigation)
+  HIGH: 1, // Important features (Scroll effects, Theme)
+  MEDIUM: 2, // Nice-to-have (Analytics, Animations)
+  LOW: 3, // Optional (Settings page specific)
+  BACKGROUND: 4, // Background tasks (Cleanup, etc.)
 } as const;
 
 // Script Initialization Status
@@ -39,7 +39,7 @@ class ScriptCoordinator {
   register(module: ScriptModule): void {
     module.status = 'pending';
     this.modules.set(module.id, module);
-    
+
     console.log(`[ScriptCoordinator] Registered module: ${module.id}`, {
       priority: module.priority,
       hasDependencies: !!(module.dependencies && module.dependencies.length > 0),
@@ -47,9 +47,9 @@ class ScriptCoordinator {
       hasPageFilter: !!module.pageFilter,
       pageFilter: module.pageFilter ? module.pageFilter.toString() : 'none',
       hasCleanup: !!module.cleanup,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
-    
+
     // Auto-initialize if page is already ready
     if (this.isPageReady) {
       this.initializeModule(module.id);
@@ -61,10 +61,10 @@ class ScriptCoordinator {
    */
   async initializeAll(): Promise<void> {
     console.log('[ScriptCoordinator] Starting initialization of all modules');
-    
+
     // Get current page path for filtering
     const currentPath = window.location.pathname;
-    
+
     // Filter modules based on page requirements
     const applicableModules = Array.from(this.modules.entries())
       .filter(([, module]) => {
@@ -75,7 +75,9 @@ class ScriptCoordinator {
       })
       .sort(([, a], [, b]) => a.priority - b.priority);
 
-    console.log(`[ScriptCoordinator] Found ${applicableModules.length} applicable modules for path: ${currentPath}`);
+    console.log(
+      `[ScriptCoordinator] Found ${applicableModules.length} applicable modules for path: ${currentPath}`
+    );
 
     // Initialize modules in priority order
     for (const [moduleId] of applicableModules) {
@@ -108,7 +110,9 @@ class ScriptCoordinator {
     if (module.dependencies) {
       for (const depId of module.dependencies) {
         if (!this.readyModules.has(depId)) {
-          console.log(`[ScriptCoordinator] Waiting for dependency: ${depId} (required by ${moduleId})`);
+          console.log(
+            `[ScriptCoordinator] Waiting for dependency: ${depId} (required by ${moduleId})`
+          );
           await this.initializeModule(depId);
         }
       }
@@ -134,11 +138,11 @@ class ScriptCoordinator {
    */
   private async safeInitialize(module: ScriptModule): Promise<void> {
     console.log(`[ScriptCoordinator] Starting initialization of module: ${module.id}`);
-    
+
     try {
       console.log(`[ScriptCoordinator] Calling init() for module: ${module.id}`);
       const result = module.init();
-      
+
       if (result instanceof Promise) {
         console.log(`[ScriptCoordinator] Module ${module.id} returned Promise, awaiting...`);
         await result;
@@ -146,7 +150,7 @@ class ScriptCoordinator {
       } else {
         console.log(`[ScriptCoordinator] Module ${module.id} returned synchronously`);
       }
-      
+
       console.log(`[ScriptCoordinator] ✅ Module ${module.id} initialized successfully`);
     } catch (error) {
       console.error(`[ScriptCoordinator] ❌ Error initializing ${module.id}:`, error);
@@ -154,7 +158,7 @@ class ScriptCoordinator {
         message: error instanceof Error ? error.message : String(error),
         stack: error instanceof Error ? error.stack : undefined,
         moduleId: module.id,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
       throw error;
     }
@@ -165,7 +169,7 @@ class ScriptCoordinator {
    */
   cleanup(): void {
     console.log('[ScriptCoordinator] Cleaning up all modules');
-    
+
     for (const [moduleId, module] of this.modules.entries()) {
       if (module.cleanup && this.readyModules.has(moduleId)) {
         try {
@@ -223,7 +227,7 @@ document.addEventListener('astro:page-load', async () => {
     isInitialLoad = false;
     return; // Skip on initial load (already handled by DOMContentLoaded)
   }
-  
+
   console.log('[ScriptCoordinator] Astro page transition detected');
   coordinator.cleanup();
   await coordinator.initializeAll();

@@ -13,7 +13,9 @@ function Wrapper() {
   };
   return (
     <div>
-      <button ref={openerRef} onClick={() => setOpen(true)}>Open Help</button>
+      <button ref={openerRef} onClick={() => setOpen(true)}>
+        Open Help
+      </button>
       <HelpModal
         open={open}
         onClose={() => setOpen(false)}
@@ -21,7 +23,9 @@ function Wrapper() {
         allowedTypesText={'Allowed types: PNG, JPG, WEBP'}
         maxMb={10}
         modelLabels={['Real-ESRGAN', 'GFPGAN']}
-        keyboardHint={'Arrows move; 0 centers; +/- zoom; 1 resets; L toggles; hold Space shows Before.'}
+        keyboardHint={
+          'Arrows move; 0 centers; +/- zoom; 1 resets; L toggles; hold Space shows Before.'
+        }
         usage={{ used: 0, limit: 10 }}
         returnFocusRef={openerRef}
       />

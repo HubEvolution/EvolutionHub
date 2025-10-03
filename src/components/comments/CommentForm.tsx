@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Button } from '../ui/Button';
+import { clientLogger } from '@/lib/client-logger';
 
 interface CommentFormProps {
   onSubmit: (content: string, parentId?: string) => Promise<void>;
@@ -20,10 +21,10 @@ export const CommentForm: React.FC<CommentFormProps> = ({
   parentId,
   isLoading = false,
   currentUser,
-  placeholder = "Schreibe einen Kommentar...",
-  submitText = "Kommentar posten",
+  placeholder = 'Schreibe einen Kommentar...',
+  submitText = 'Kommentar posten',
   showCancel = false,
-  initialValue = "",
+  initialValue = '',
   isEdit = false,
 }) => {
   const [content, setContent] = useState(initialValue);
@@ -33,12 +34,29 @@ export const CommentForm: React.FC<CommentFormProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    clientLogger.info('Comment form submitted', {
+      component: 'CommentForm',
+      action: 'submit',
+      isEdit,
+      parentId,
+      contentLength: content.length,
+    });
+
     if (!content.trim()) {
+      clientLogger.warn('Comment validation failed: empty content', {
+        component: 'CommentForm',
+        error: 'empty_content',
+      });
       setError('Bitte gib einen Kommentar ein');
       return;
     }
 
     if (content.length > 2000) {
+      clientLogger.warn('Comment validation failed: content too long', {
+        component: 'CommentForm',
+        error: 'content_too_long',
+        length: content.length,
+      });
       setError('Kommentar darf maximal 2000 Zeichen lang sein');
       return;
     }
@@ -48,9 +66,20 @@ export const CommentForm: React.FC<CommentFormProps> = ({
 
     try {
       await onSubmit(content, parentId);
+      clientLogger.info('Comment posted successfully', {
+        component: 'CommentForm',
+        action: isEdit ? 'comment_edited' : 'comment_created',
+        parentId,
+      });
       setContent('');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Fehler beim Senden des Kommentars');
+      const errorMessage = err instanceof Error ? err.message : 'Fehler beim Senden des Kommentars';
+      clientLogger.error('Comment submission failed', {
+        component: 'CommentForm',
+        error: errorMessage,
+        parentId,
+      });
+      setError(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -91,9 +120,7 @@ export const CommentForm: React.FC<CommentFormProps> = ({
             </div>
           </div>
           <div>
-            <p className="text-sm font-medium text-gray-900 dark:text-white">
-              {currentUser.name}
-            </p>
+            <p className="text-sm font-medium text-gray-900 dark:text-white">{currentUser.name}</p>
             <p className="text-xs text-gray-500 dark:text-gray-400">
               Angemeldet als {currentUser.email}
             </p>
@@ -102,7 +129,11 @@ export const CommentForm: React.FC<CommentFormProps> = ({
       ) : (
         <div className="mb-3 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-md">
           <p className="text-sm text-yellow-800 dark:text-yellow-200">
-            Du kommentierst als Gast. <a href="/login" className="font-medium hover:underline">Melde dich an</a> für bessere Funktionen.
+            Du kommentierst als Gast.{' '}
+            <a href="/login" className="font-medium hover:underline">
+              Melde dich an
+            </a>{' '}
+            für bessere Funktionen.
           </p>
         </div>
       )}
@@ -135,9 +166,7 @@ export const CommentForm: React.FC<CommentFormProps> = ({
               {content.length}/2000 Zeichen
             </span>
             {content.length > 1800 && (
-              <span className="text-xs text-orange-600 dark:text-orange-400">
-                Fast voll
-              </span>
+              <span className="text-xs text-orange-600 dark:text-orange-400">Fast voll</span>
             )}
           </div>
         </div>

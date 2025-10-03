@@ -25,7 +25,10 @@ export const POST = async (context: APIContext) => {
     const ok = await validateCsrfToken(token, cookie);
     if (!ok) {
       return new Response(
-        JSON.stringify({ success: false, error: { type: 'csrf_error', message: 'Invalid CSRF token' } }),
+        JSON.stringify({
+          success: false,
+          error: { type: 'csrf_error', message: 'Invalid CSRF token' },
+        }),
         { status: 403, headers: { 'Content-Type': 'application/json' } }
       );
     }
@@ -48,7 +51,8 @@ export const POST = async (context: APIContext) => {
     return createApiSuccess(created, 201);
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    if (msg.toLowerCase().includes('rate limit')) return createApiError('rate_limit', 'Too many comments');
+    if (msg.toLowerCase().includes('rate limit'))
+      return createApiError('rate_limit', 'Too many comments');
     if (msg.toLowerCase().includes('spam') || msg.toLowerCase().includes('content')) {
       return createApiError('validation_error', msg);
     }

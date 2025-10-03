@@ -118,13 +118,13 @@ Dieses Dokument steuert Claude Code (Sonnet 4.5, Pro) bei allen Änderungen in d
 
 ## 12) Subagents (Profile)
 
-> **Nutzung:** Schreibe z. B. *use `Scout`* im Prompt, um das Profil zu aktivieren.
+> **Nutzung:** Schreibe z. B. _use `Scout`_ im Prompt, um das Profil zu aktivieren.
 > **Gemeinsame Defaults:** Keine Secrets anfassen; keine `cd`; Diffs > 300 Zeilen oder > 5 Dateien nur mit Plan & Review.
 
 ### A) **Scout** — Analyse & Planung
 
 - **Ziel:** Verständnis, Impact, Änderungsplan.
-- **Scope:** *read-only* (Code, Configs, Tests, Logs).
+- **Scope:** _read-only_ (Code, Configs, Tests, Logs).
 - **Aktionen:** Lesen, Suchen, Summaries; KEINE Schreib-/Install-/Git-Befehle.
 - **Output:** Liste oder Zusammenfassung (statt plan.md).
 - **Gate:** Plan muss bestätigt werden.

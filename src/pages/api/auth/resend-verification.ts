@@ -1,5 +1,5 @@
-import type { APIContext } from "astro";
-import { createDeprecatedGoneJson } from "@/lib/response-helpers";
+import type { APIContext } from 'astro';
+import { createDeprecatedGoneJson } from '@/lib/response-helpers';
 
 // Diese API-Route sollte nicht prerendered werden, da sie Request-Header benötigt
 export const prerender = false;
@@ -18,8 +18,8 @@ export const POST = async (context: APIContext) => {
 const methodNotAllowed = (context: APIContext) =>
   createDeprecatedGoneJson(
     context,
-    "This endpoint has been deprecated. Please migrate to the new authentication flow.",
-    { Allow: "POST" }
+    'This endpoint has been deprecated. Please migrate to the new authentication flow.',
+    { Allow: 'POST' }
   );
 
 export const GET = methodNotAllowed;

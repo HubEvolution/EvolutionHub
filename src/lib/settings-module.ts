@@ -1,6 +1,6 @@
 /**
  * Settings Module für Script Coordinator
- * 
+ *
  * Refactored aus public/scripts/settings.js um Event-Listener-Konflikte zu eliminieren.
  * Lädt nur auf Settings-Seiten und integriert sich in das Script-Koordinations-System.
  */
@@ -14,12 +14,16 @@ coordinator.register({
   priority: SCRIPT_PRIORITIES.LOW, // Settings haben niedrige Priorität
   pageFilter: (pathname: string) => {
     // Nur auf Settings-Seiten laden
-    return pathname.includes('/settings') || pathname.includes('/profile') || pathname.includes('/account');
+    return (
+      pathname.includes('/settings') ||
+      pathname.includes('/profile') ||
+      pathname.includes('/account')
+    );
   },
-  init: async function(this: any) {
+  init: async function (this: any) {
     console.log('[Settings] Initializing settings page handlers');
     // Notifications are handled via typed Sonner wrapper (see '@/lib/notify')
-    
+
     // URL-Status-Handling (Success/Error) + Cleanup
     (function handleStatusParams() {
       try {
@@ -33,12 +37,12 @@ coordinator.register({
 
         if (success) {
           const message = isEnglish
-            ? (success === 'PasswordChanged'
-                ? 'Password updated successfully.'
-                : 'Action completed successfully.')
-            : (success === 'PasswordChanged'
-                ? 'Passwort wurde erfolgreich aktualisiert.'
-                : 'Aktion erfolgreich abgeschlossen.');
+            ? success === 'PasswordChanged'
+              ? 'Password updated successfully.'
+              : 'Action completed successfully.'
+            : success === 'PasswordChanged'
+              ? 'Passwort wurde erfolgreich aktualisiert.'
+              : 'Aktion erfolgreich abgeschlossen.';
           notify.success(message);
         } else if (error) {
           const code = error;
@@ -66,32 +70,32 @@ coordinator.register({
         console.log('[Settings] Profile form not found - skipping');
         return;
       }
-      
+
       const submitHandler = async (e: Event) => {
         e.preventDefault();
-        
+
         const submitButton = form.querySelector('button[type="submit"]') as HTMLButtonElement;
         const originalButtonText = submitButton?.textContent || '';
-        
+
         try {
           // Show loading state
           if (submitButton) {
             submitButton.textContent = 'Saving...';
             submitButton.disabled = true;
           }
-          
+
           const formData = new FormData(form);
-          
+
           // Remove avatar field from profile update if it exists
           if (formData.has('avatar')) {
             formData.delete('avatar');
           }
-          
+
           const response = await fetch('/api/user/profile', {
             method: 'POST',
             body: formData,
           });
-          
+
           if (response.ok) {
             notify.success('Profile updated successfully!');
           } else {
@@ -100,7 +104,9 @@ coordinator.register({
           }
         } catch (error) {
           console.error('[Settings] Profile update error:', error);
-          notify.error(`Update failed: ${error instanceof Error ? error.message : 'Network error'}`);
+          notify.error(
+            `Update failed: ${error instanceof Error ? error.message : 'Network error'}`
+          );
         } finally {
           // Reset button state
           if (submitButton) {
@@ -109,15 +115,15 @@ coordinator.register({
           }
         }
       };
-      
+
       form.addEventListener('submit', submitHandler);
-      
+
       // Store cleanup function
       (this as any).profileFormCleanup = () => {
         form.removeEventListener('submit', submitHandler);
       };
     }
-    
+
     // Password Strength Checker
     function checkPasswordStrength(password: string): string {
       if (password.length < 8) return 'Too short (minimum 8 characters)';
@@ -127,29 +133,29 @@ coordinator.register({
       if (!/[^A-Za-z0-9]/.test(password)) return 'Add special character';
       return 'Strong password';
     }
-    
+
     // Password Form Handler
     function handlePasswordForm(this: any) {
       const form = document.getElementById('password-form') as HTMLFormElement;
       const strengthIndicator = document.getElementById('password-strength');
       const errorsContainer = document.getElementById('password-errors') as HTMLElement | null;
       const newPasswordInput = document.getElementById('new-password') as HTMLInputElement;
-      
+
       if (!form) {
         console.log('[Settings] Password form not found - skipping');
         return;
       }
-      
+
       let strengthHandler: ((e: Event) => void) | null = null;
       let submitHandler: ((e: Event) => void) | null = null;
-      
+
       // Password strength checking
       if (newPasswordInput && strengthIndicator) {
         strengthHandler = (e: Event) => {
           const target = e.target as HTMLInputElement;
           const strength = checkPasswordStrength(target.value);
           (strengthIndicator as HTMLElement).textContent = strength;
-          
+
           // Add color coding
           if (strength === 'Strong password') {
             (strengthIndicator as HTMLElement).className = 'text-green-600';
@@ -157,23 +163,23 @@ coordinator.register({
             (strengthIndicator as HTMLElement).className = 'text-yellow-600';
           }
         };
-        
+
         newPasswordInput.addEventListener('input', strengthHandler);
       }
-      
+
       // Form submission
       submitHandler = async (e: Event) => {
         e.preventDefault();
-        
+
         const submitButton = form.querySelector('button[type="submit"]') as HTMLButtonElement;
         const originalButtonText = submitButton?.textContent || '';
-        
+
         try {
           if (submitButton) {
             submitButton.textContent = 'Updating...';
             submitButton.disabled = true;
           }
-          
+
           // Clear previous errors
           if (errorsContainer) errorsContainer.textContent = '';
 
@@ -219,7 +225,9 @@ coordinator.register({
           }
         } catch (error) {
           console.error('[Settings] Password update error:', error);
-          notify.error(`Update failed: ${error instanceof Error ? error.message : 'Network error'}`);
+          notify.error(
+            `Update failed: ${error instanceof Error ? error.message : 'Network error'}`
+          );
         } finally {
           if (submitButton) {
             submitButton.textContent = originalButtonText;
@@ -227,9 +235,9 @@ coordinator.register({
           }
         }
       };
-      
+
       form.addEventListener('submit', submitHandler);
-      
+
       // Store cleanup functions
       (this as any).passwordFormCleanup = () => {
         if (submitHandler) form.removeEventListener('submit', submitHandler);
@@ -238,46 +246,46 @@ coordinator.register({
         }
       };
     }
-    
+
     // Avatar Upload Handler
     function handleAvatarUpload(this: any) {
       const uploadElement = document.getElementById('avatar-upload') as HTMLInputElement;
       const changeButton = document.getElementById('change-avatar-btn') as HTMLButtonElement;
-      
+
       if (!uploadElement || !changeButton) {
         console.log('[Settings] Avatar upload elements not found - skipping');
         return;
       }
-      
+
       let clickHandler: ((e: Event) => void) | null = null;
       let changeHandler: ((e: Event) => void) | null = null;
-      
+
       // Trigger file input when button is clicked
       clickHandler = () => {
         uploadElement.click();
       };
       changeButton.addEventListener('click', clickHandler);
-      
+
       // Handle file selection
       changeHandler = async (e: Event) => {
         const input = e.target as HTMLInputElement;
         if (!input.files || input.files.length === 0) return;
-        
+
         // Show loading indicator
         notify.info('Uploading avatar...');
         changeButton.textContent = 'Uploading...';
         changeButton.disabled = true;
-        
+
         const file = input.files[0];
         const formData = new FormData();
         formData.append('avatar', file);
-        
+
         try {
           const response = await fetch('/api/user/avatar', {
             method: 'POST',
             body: formData,
           });
-          
+
           if (response.ok) {
             const dataUnknown: unknown = await response.json().catch(() => null);
             const avatarPreview = document.getElementById('avatar-preview') as HTMLImageElement;
@@ -300,32 +308,34 @@ coordinator.register({
           }
         } catch (error) {
           console.error('[Settings] Avatar upload error:', error);
-          notify.error(`Upload failed: ${error instanceof Error ? error.message : 'Network error'}`);
+          notify.error(
+            `Upload failed: ${error instanceof Error ? error.message : 'Network error'}`
+          );
         } finally {
           // Reset button state
           changeButton.textContent = 'Change Picture';
           changeButton.disabled = false;
         }
       };
-      
+
       uploadElement.addEventListener('change', changeHandler);
-      
+
       // Store cleanup functions
       (this as any).avatarUploadCleanup = () => {
         if (clickHandler) changeButton.removeEventListener('click', clickHandler);
         if (changeHandler) uploadElement.removeEventListener('change', changeHandler);
       };
     }
-    
+
     // Initialize all handlers
     handleProfileForm.call(this);
     handlePasswordForm.call(this);
     handleAvatarUpload.call(this);
-    
+
     console.log('[Settings] All settings handlers initialized successfully');
   },
-  
-  cleanup: function(this: any) {
+
+  cleanup: function (this: any) {
     // Call all stored cleanup functions
     if ((this as any).profileFormCleanup) {
       (this as any).profileFormCleanup();
@@ -336,9 +346,9 @@ coordinator.register({
     if ((this as any).avatarUploadCleanup) {
       (this as any).avatarUploadCleanup();
     }
-    
+
     console.log('[Settings] Settings handlers cleaned up');
-  }
+  },
 });
 
 export default coordinator;

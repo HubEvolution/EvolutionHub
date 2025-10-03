@@ -13,29 +13,35 @@ const app = new Hono<{ Bindings: { DB: D1Database } }>();
 
 // Middleware
 app.use('*', logger());
-app.use('*', cors({
-  origin: (origin) => {
-    // Allow requests from the same origin and localhost for development
-    if (!origin || origin.includes('localhost') || origin.endsWith('.vercel.app')) {
-      return origin;
-    }
-    return null; // Reject other origins
-  },
-  credentials: true,
-}));
+app.use(
+  '*',
+  cors({
+    origin: (origin) => {
+      // Allow requests from the same origin and localhost for development
+      if (!origin || origin.includes('localhost') || origin.endsWith('.vercel.app')) {
+        return origin;
+      }
+      return null; // Reject other origins
+    },
+    credentials: true,
+  })
+);
 
 // Rate limiting for comment creation
-app.use('/create', rateLimiter({
-  windowMs: 60 * 1000, // 1 minute
-  limit: 5, // 5 comments per minute
-  keyGenerator: (c) =>
-    c.req.header('CF-Connecting-IP') ||
-    c.req.header('cf-connecting-ip') ||
-    c.req.header('x-forwarded-for') ||
-    c.req.header('x-real-ip') ||
-    'anonymous',
-  message: { success: false, error: { type: 'rate_limit', message: 'Too many comments' } },
-}));
+app.use(
+  '/create',
+  rateLimiter({
+    windowMs: 60 * 1000, // 1 minute
+    limit: 5, // 5 comments per minute
+    keyGenerator: (c) =>
+      c.req.header('CF-Connecting-IP') ||
+      c.req.header('cf-connecting-ip') ||
+      c.req.header('x-forwarded-for') ||
+      c.req.header('x-real-ip') ||
+      'anonymous',
+    message: { success: false, error: { type: 'rate_limit', message: 'Too many comments' } },
+  })
+);
 
 // CSRF protection for mutating route
 app.use('/create', createCsrfMiddleware());
@@ -62,7 +68,10 @@ app.get('/', async (c) => {
     return c.json({ success: true, data: result });
   } catch (error) {
     console.error('Error fetching comments:', error);
-    return c.json({ success: false, error: { type: 'server_error', message: 'Failed to fetch comments' } }, 500);
+    return c.json(
+      { success: false, error: { type: 'server_error', message: 'Failed to fetch comments' } },
+      500
+    );
   }
 });
 
@@ -84,7 +93,10 @@ app.post('/create', async (c) => {
 
     // Validate required fields
     if (!commentData.content || !commentData.entityType || !commentData.entityId) {
-      return c.json({ success: false, error: { type: 'validation_error', message: 'Missing required fields' } }, 400);
+      return c.json(
+        { success: false, error: { type: 'validation_error', message: 'Missing required fields' } },
+        400
+      );
     }
     const comment = await commentService.createComment(commentData, userId, csrfToken);
     return c.json({ success: true, data: comment }, 201);
@@ -93,13 +105,22 @@ app.post('/create', async (c) => {
 
     if (error instanceof Error) {
       if (error.message.includes('CSRF') || error.message.includes('rate limit')) {
-        return c.json({ success: false, error: { type: 'validation_error', message: error.message } }, 400);
+        return c.json(
+          { success: false, error: { type: 'validation_error', message: error.message } },
+          400
+        );
       }
       if (error.message.includes('prohibited content')) {
-        return c.json({ success: false, error: { type: 'validation_error', message: error.message } }, 400);
+        return c.json(
+          { success: false, error: { type: 'validation_error', message: error.message } },
+          400
+        );
       }
     }
-    return c.json({ success: false, error: { type: 'server_error', message: 'Failed to create comment' } }, 500);
+    return c.json(
+      { success: false, error: { type: 'server_error', message: 'Failed to create comment' } },
+      500
+    );
   }
 });
 

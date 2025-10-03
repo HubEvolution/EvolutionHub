@@ -6,6 +6,7 @@ author: 'Evolution Hub'
 category: 'New Work'
 tags: ['Gig Economy', 'Freelancer', 'Selbstständigkeit', 'Zukunft der Arbeit']
 ---
+
 image: { src: '/src/content/blog/images/gig-economy-flexibility.webp', width: 1200, height: 675 }
 imageAlt: 'Flexibles Arbeiten in der Gig Economy'
 
@@ -21,9 +22,9 @@ Der Begriff "Gig Economy" leitet sich vom englischen Wort "Gig" ab, das ursprün
 
 Mehrere Faktoren begünstigen den Vormarsch der projektbasierten Arbeit:
 
-* **Digitalisierung:** Online-Plattformen vernetzen Auftraggeber und Freelancer weltweit.
-* **Flexibilitätswunsch:** Viele Arbeitnehmer wünschen sich mehr Autonomie über ihre Zeit und ihren Arbeitsort.
-* **Wirtschaftlicher Wandel:** Unternehmen suchen nach agilen Lösungen und spezialisierten Fachkräften für zeitlich begrenzte Projekte.
+- **Digitalisierung:** Online-Plattformen vernetzen Auftraggeber und Freelancer weltweit.
+- **Flexibilitätswunsch:** Viele Arbeitnehmer wünschen sich mehr Autonomie über ihre Zeit und ihren Arbeitsort.
+- **Wirtschaftlicher Wandel:** Unternehmen suchen nach agilen Lösungen und spezialisierten Fachkräften für zeitlich begrenzte Projekte.
 
 ## Die Sonnenseite: Chancen der Gig Economy
 

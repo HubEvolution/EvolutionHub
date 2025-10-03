@@ -61,7 +61,9 @@ const CommentItem: React.FC<CommentItemProps> = ({
     const badge = badges[status] || badges.pending;
 
     return (
-      <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${badge.className}`}>
+      <span
+        className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${badge.className}`}
+      >
         {badge.text}
       </span>
     );
@@ -88,7 +90,9 @@ const CommentItem: React.FC<CommentItemProps> = ({
   }
 
   return (
-    <div className={`comment-item ${depth > 0 ? 'ml-6 border-l-2 border-gray-200 dark:border-gray-700 pl-4' : ''}`}>
+    <div
+      className={`comment-item ${depth > 0 ? 'ml-6 border-l-2 border-gray-200 dark:border-gray-700 pl-4' : ''}`}
+    >
       <div className="flex space-x-3">
         {/* Avatar */}
         <div className="flex-shrink-0">
@@ -108,9 +112,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
               {formatDate(comment.createdAt)}
             </span>
             {comment.isEdited && (
-              <span className="text-xs text-gray-500 dark:text-gray-400">
-                (bearbeitet)
-              </span>
+              <span className="text-xs text-gray-500 dark:text-gray-400">(bearbeitet)</span>
             )}
             {getStatusBadge(comment.status)}
           </div>
@@ -192,7 +194,8 @@ const CommentItem: React.FC<CommentItemProps> = ({
               onClick={() => setShowReplies(!showReplies)}
               className="text-xs text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-300 mb-2"
             >
-              {showReplies ? '▼' : '▶'} {comment.replies!.length} Antwort{comment.replies!.length !== 1 ? 'en' : ''}
+              {showReplies ? '▼' : '▶'} {comment.replies!.length} Antwort
+              {comment.replies!.length !== 1 ? 'en' : ''}
             </button>
           )}
         </div>
@@ -233,8 +236,19 @@ export const CommentList: React.FC<CommentListProps> = ({
       <div className="text-center py-8">
         <div className="inline-flex items-center px-4 py-2 font-semibold leading-6 text-sm shadow rounded-md text-gray-500 bg-white dark:bg-gray-800">
           <svg className="animate-spin -ml-1 mr-3 h-5 w-5" fill="none" viewBox="0 0 24 24">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+            ></circle>
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+            ></path>
           </svg>
           Kommentare werden geladen...
         </div>

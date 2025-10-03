@@ -137,7 +137,7 @@ const DebugPanel: React.FC = () => {
   const filteredLogs = logs.filter((log) => levelFilter.includes(log.level.toLowerCase()));
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg flex flex-col h-full">
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg flex flex-col h-full overflow-hidden">
       {/* Header */}
       <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
         <div className="flex justify-between items-center flex-wrap gap-2">
@@ -196,8 +196,8 @@ const DebugPanel: React.FC = () => {
         </div>
       </div>
 
-      {/* Logs */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-2 bg-gray-50 dark:bg-gray-900">
+      {/* Logs - mit explizitem overflow-y-auto und min-h-0 */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-2 bg-gray-50 dark:bg-gray-900 min-h-0">
         {filteredLogs.length === 0 ? (
           <p className="text-gray-500 dark:text-gray-400 text-sm">
             {logs.length === 0 ? 'Waiting for logs...' : 'No logs match current filter'}

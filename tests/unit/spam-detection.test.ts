@@ -37,9 +37,7 @@ describe('Spam Detection', () => {
     });
 
     it('should detect word repetition', () => {
-      const result = checkSpam(
-        'spam spam spam spam spam spam spam spam'
-      );
+      const result = checkSpam('spam spam spam spam spam spam spam spam');
       // This might not be flagged as spam alone, but should be detected
       expect(result.score).toBeGreaterThan(0);
       if (result.isSpam) {

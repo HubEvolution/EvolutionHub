@@ -8,7 +8,7 @@ import {
   emailTemplates,
   emailQueue,
   users,
-  comments
+  comments,
 } from '../db/schema';
 import type {
   Notification,
@@ -158,15 +158,7 @@ export class NotificationService {
     userId: number,
     filters: NotificationFilters = {}
   ): Promise<NotificationListResponse> {
-    const {
-      type,
-      isRead,
-      priority,
-      limit = 20,
-      offset = 0,
-      startDate,
-      endDate,
-    } = filters;
+    const { type, isRead, priority, limit = 20, offset = 0, startDate, endDate } = filters;
 
     let whereConditions = [eq(notifications.userId, userId)];
 
@@ -193,10 +185,7 @@ export class NotificationService {
     // Exclude expired notifications
     const now = Math.floor(Date.now() / 1000);
     whereConditions.push(
-      or(
-        sql`${notifications.expiresAt} IS NULL`,
-        gte(notifications.expiresAt, now)
-      )
+      or(sql`${notifications.expiresAt} IS NULL`, gte(notifications.expiresAt, now))
     );
 
     const baseWhere = and(...whereConditions);
@@ -213,14 +202,13 @@ export class NotificationService {
     const unreadResult = await this.db
       .select({ count: count() })
       .from(notifications)
-      .where(and(
-        eq(notifications.userId, userId),
-        eq(notifications.isRead, false),
-        or(
-          sql`${notifications.expiresAt} IS NULL`,
-          gte(notifications.expiresAt, now)
+      .where(
+        and(
+          eq(notifications.userId, userId),
+          eq(notifications.isRead, false),
+          or(sql`${notifications.expiresAt} IS NULL`, gte(notifications.expiresAt, now))
         )
-      ));
+      );
 
     const unreadCount = unreadResult[0]?.count || 0;
 
@@ -233,7 +221,7 @@ export class NotificationService {
       .limit(limit)
       .offset(offset);
 
-    const notificationsList: Notification[] = notificationResults.map(n => ({
+    const notificationsList: Notification[] = notificationResults.map((n) => ({
       id: n.id,
       userId: n.userId,
       type: n.type as NotificationType,
@@ -267,10 +255,7 @@ export class NotificationService {
         isRead: true,
         readAt: now,
       })
-      .where(and(
-        eq(notifications.id, notificationId),
-        eq(notifications.userId, userId)
-      ));
+      .where(and(eq(notifications.id, notificationId), eq(notifications.userId, userId)));
 
     return this.getNotificationById(notificationId);
   }
@@ -287,10 +272,7 @@ export class NotificationService {
         isRead: true,
         readAt: now,
       })
-      .where(and(
-        eq(notifications.userId, userId),
-        eq(notifications.isRead, false)
-      ));
+      .where(and(eq(notifications.userId, userId), eq(notifications.isRead, false)));
   }
 
   /**
@@ -299,10 +281,7 @@ export class NotificationService {
   async deleteNotification(notificationId: string, userId: number): Promise<void> {
     await this.db
       .delete(notifications)
-      .where(and(
-        eq(notifications.id, notificationId),
-        eq(notifications.userId, userId)
-      ));
+      .where(and(eq(notifications.id, notificationId), eq(notifications.userId, userId)));
   }
 
   /**
@@ -313,10 +292,7 @@ export class NotificationService {
 
     const result = await this.db
       .delete(notifications)
-      .where(and(
-        sql`${notifications.expiresAt} IS NOT NULL`,
-        lte(notifications.expiresAt, now)
-      ));
+      .where(and(sql`${notifications.expiresAt} IS NOT NULL`, lte(notifications.expiresAt, now)));
 
     return result.changes || 0;
   }
@@ -330,7 +306,7 @@ export class NotificationService {
       .from(notificationSettings)
       .where(eq(notificationSettings.userId, userId));
 
-    return settings.map(s => ({
+    return settings.map((s) => ({
       id: s.id,
       userId: s.userId,
       type: s.type as any,
@@ -355,11 +331,13 @@ export class NotificationService {
     const existing = await this.db
       .select()
       .from(notificationSettings)
-      .where(and(
-        eq(notificationSettings.userId, userId),
-        eq(notificationSettings.type, request.type),
-        eq(notificationSettings.channel, request.channel)
-      ))
+      .where(
+        and(
+          eq(notificationSettings.userId, userId),
+          eq(notificationSettings.type, request.type),
+          eq(notificationSettings.channel, request.channel)
+        )
+      )
       .limit(1);
 
     if (existing.length > 0) {
@@ -371,11 +349,13 @@ export class NotificationService {
           frequency: request.frequency || 'immediate',
           updatedAt: now,
         })
-        .where(and(
-          eq(notificationSettings.userId, userId),
-          eq(notificationSettings.type, request.type),
-          eq(notificationSettings.channel, request.channel)
-        ));
+        .where(
+          and(
+            eq(notificationSettings.userId, userId),
+            eq(notificationSettings.type, request.type),
+            eq(notificationSettings.channel, request.channel)
+          )
+        );
     } else {
       // Create new setting
       await this.db.insert(notificationSettings).values({
@@ -393,11 +373,13 @@ export class NotificationService {
     const updated = await this.db
       .select()
       .from(notificationSettings)
-      .where(and(
-        eq(notificationSettings.userId, userId),
-        eq(notificationSettings.type, request.type),
-        eq(notificationSettings.channel, request.channel)
-      ))
+      .where(
+        and(
+          eq(notificationSettings.userId, userId),
+          eq(notificationSettings.type, request.type),
+          eq(notificationSettings.channel, request.channel)
+        )
+      )
       .limit(1);
 
     return updated[0] as NotificationSetting;
@@ -416,8 +398,8 @@ export class NotificationService {
       'email_digest',
     ];
 
-    const defaultSettings = defaultTypes.flatMap(type =>
-      ['in_app', 'email'].map(channel => ({
+    const defaultSettings = defaultTypes.flatMap((type) =>
+      ['in_app', 'email'].map((channel) => ({
         userId,
         type,
         channel: channel as NotificationChannel,
@@ -439,14 +421,16 @@ export class NotificationService {
     type: NotificationType,
     channel: NotificationChannel
   ): boolean {
-    const setting = settings.find(s => s.type === type && s.channel === channel);
+    const setting = settings.find((s) => s.type === type && s.channel === channel);
     return setting?.enabled ?? false;
   }
 
   /**
    * Create email template
    */
-  async createEmailTemplate(template: Omit<EmailTemplate, 'id' | 'createdAt' | 'updatedAt'>): Promise<EmailTemplate> {
+  async createEmailTemplate(
+    template: Omit<EmailTemplate, 'id' | 'createdAt' | 'updatedAt'>
+  ): Promise<EmailTemplate> {
     const now = Math.floor(Date.now() / 1000);
     const templateId = generateId();
 
@@ -486,15 +470,20 @@ export class NotificationService {
   /**
    * Get email template by name and locale
    */
-  async getEmailTemplateByName(name: string, locale: 'de' | 'en' = 'de'): Promise<EmailTemplate | null> {
+  async getEmailTemplateByName(
+    name: string,
+    locale: 'de' | 'en' = 'de'
+  ): Promise<EmailTemplate | null> {
     const result = await this.db
       .select()
       .from(emailTemplates)
-      .where(and(
-        eq(emailTemplates.name, name),
-        eq(emailTemplates.locale, locale),
-        eq(emailTemplates.isActive, true)
-      ))
+      .where(
+        and(
+          eq(emailTemplates.name, name),
+          eq(emailTemplates.locale, locale),
+          eq(emailTemplates.isActive, true)
+        )
+      )
       .limit(1);
 
     return result.length > 0 ? (result[0] as EmailTemplate) : null;
@@ -515,7 +504,10 @@ export class NotificationService {
 
     // Check if user has email notifications enabled for this type
     const userSettings = await this.getUserNotificationSettingsFromEmail(request.to);
-    if (userSettings.length === 0 || !this.isNotificationTypeEnabled(userSettings, 'comment_reply', 'email')) {
+    if (
+      userSettings.length === 0 ||
+      !this.isNotificationTypeEnabled(userSettings, 'comment_reply', 'email')
+    ) {
       throw new Error('Email notifications are disabled for this user');
     }
 
@@ -539,12 +531,10 @@ export class NotificationService {
   /**
    * Get user notification settings from email (for email queue processing)
    */
-  private async getUserNotificationSettingsFromEmail(email: string): Promise<NotificationSetting[]> {
-    const userResult = await this.db
-      .select()
-      .from(users)
-      .where(eq(users.email, email))
-      .limit(1);
+  private async getUserNotificationSettingsFromEmail(
+    email: string
+  ): Promise<NotificationSetting[]> {
+    const userResult = await this.db.select().from(users).where(eq(users.email, email)).limit(1);
 
     if (userResult.length === 0) {
       return [];
@@ -579,14 +569,11 @@ export class NotificationService {
     const results = await this.db
       .select()
       .from(emailQueue)
-      .where(and(
-        eq(emailQueue.status, 'pending'),
-        lte(emailQueue.scheduledFor, now)
-      ))
+      .where(and(eq(emailQueue.status, 'pending'), lte(emailQueue.scheduledFor, now)))
       .orderBy(desc(emailQueue.priority), emailQueue.createdAt)
       .limit(limit);
 
-    return results.map(e => ({
+    return results.map((e) => ({
       id: e.id,
       to: e.to,
       templateId: e.templateId,
@@ -704,9 +691,6 @@ export class NotificationService {
         status: 'failed',
         lastError: 'Email processing timeout',
       })
-      .where(and(
-        eq(emailQueue.status, 'pending'),
-        lte(emailQueue.createdAt, now - maxAge)
-      ));
+      .where(and(eq(emailQueue.status, 'pending'), lte(emailQueue.createdAt, now - maxAge)));
   }
 }

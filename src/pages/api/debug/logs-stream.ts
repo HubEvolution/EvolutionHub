@@ -4,6 +4,7 @@ import {
   getEnvironmentInfo,
   registerSSEStream,
   unregisterSSEStream,
+  log,
 } from '@/server/utils/logger';
 import { logApiAccess } from '@/lib/security-logger';
 
@@ -33,21 +34,6 @@ export const GET = async (context: APIContext) => {
     });
     const envInfo = getEnvironmentInfo();
 
-    // If this is Astro dev environment, redirect to WebSocket
-    if (envInfo.isAstroDevEnvironment) {
-      return new Response(
-        JSON.stringify({
-          success: false,
-          error: 'Use WebSocket connection for Astro dev environment',
-          websocketUrl: 'ws://localhost:8081',
-        }),
-        {
-          status: 200,
-          headers: { 'Content-Type': 'application/json' },
-        }
-      );
-    }
-
     // Create SSE response headers
     const headers = new Headers({
       'Content-Type': 'text/event-stream',
@@ -69,9 +55,12 @@ export const GET = async (context: APIContext) => {
         // Register this controller for live log broadcasting
         registerSSEStream(controller);
 
+        // Log that stream has been registered
+        log('info', `Debug panel SSE stream registered (active: ${envInfo.activeStreams + 1})`);
+
         // Send initial logs from buffer
-        logs.forEach((log) => {
-          const sseData = `id: ${++id}\ndata: ${log}\n\n`;
+        logs.forEach((logEntry) => {
+          const sseData = `id: ${++id}\ndata: ${logEntry}\n\n`;
           controller.enqueue(encoder.encode(sseData));
         });
 

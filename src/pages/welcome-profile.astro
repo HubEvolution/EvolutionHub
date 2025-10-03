@@ -18,26 +18,61 @@ const nextSafe = isAllowedRelativePath(nextRaw) ? nextRaw : '/dashboard';
 const locale: Locale = getLocale(Astro.url.pathname);
 const t = getI18n(locale);
 ---
-<BaseLayout title={t('pages.welcomeProfile.title') ?? 'Complete your profile'} description={t('pages.welcomeProfile.description') ?? 'Set your name and username'} noIndex={true}>
+
+<BaseLayout
+  title={t('pages.welcomeProfile.title') ?? 'Complete your profile'}
+  description={t('pages.welcomeProfile.description') ?? 'Set your name and username'}
+  noIndex={true}
+>
   <section class="mx-auto max-w-md px-4 py-12">
-    <h1 class="text-xl font-semibold tracking-tight">{t('pages.welcomeProfile.heading') ?? 'Welcome! Complete your profile'}</h1>
+    <h1 class="text-xl font-semibold tracking-tight">
+      {t('pages.welcomeProfile.heading') ?? 'Welcome! Complete your profile'}
+    </h1>
     <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-      {t('pages.welcomeProfile.helper') ?? 'We created your account. You can adjust your public name and username now or do it later in settings.'}
+      {
+        t('pages.welcomeProfile.helper') ??
+          'We created your account. You can adjust your public name and username now or do it later in settings.'
+      }
     </p>
 
     <form method="POST" action="/api/user/profile" class="mt-6 space-y-4">
       <div>
         <FormLabel for="name">{t('pages.welcomeProfile.fields.name.label') ?? 'Name'}</FormLabel>
-        <Input id="name" name="name" type="text" minlength="2" maxlength="50" autocomplete="name" required />
+        <Input
+          id="name"
+          name="name"
+          type="text"
+          minlength="2"
+          maxlength="50"
+          autocomplete="name"
+          required
+        />
       </div>
       <div>
-        <FormLabel for="username">{t('pages.welcomeProfile.fields.username.label') ?? 'Username'}</FormLabel>
-        <Input id="username" name="username" type="text" minlength="3" maxlength="30" pattern="[a-zA-Z0-9_]+" autocomplete="username" required />
+        <FormLabel for="username"
+          >{t('pages.welcomeProfile.fields.username.label') ?? 'Username'}</FormLabel
+        >
+        <Input
+          id="username"
+          name="username"
+          type="text"
+          minlength="3"
+          maxlength="30"
+          pattern="[a-zA-Z0-9_]+"
+          autocomplete="username"
+          required
+        />
       </div>
       <input type="hidden" name="next" value={nextSafe} />
       <div class="flex items-center gap-3 pt-2">
-        <Button type="submit">{t('pages.welcomeProfile.buttons.saveContinue') ?? 'Save and continue'}</Button>
-        <a href={nextSafe} class="text-sm text-zinc-500 hover:text-zinc-300 underline underline-offset-4">{t('pages.welcomeProfile.buttons.skipNow') ?? 'Skip for now'}</a>
+        <Button type="submit"
+          >{t('pages.welcomeProfile.buttons.saveContinue') ?? 'Save and continue'}</Button
+        >
+        <a
+          href={nextSafe}
+          class="text-sm text-zinc-500 hover:text-zinc-300 underline underline-offset-4"
+          >{t('pages.welcomeProfile.buttons.skipNow') ?? 'Skip for now'}</a
+        >
       </div>
     </form>
   </section>

@@ -74,7 +74,16 @@ export function CompareSlider(props: CompareSliderProps) {
       <div
         ref={containerRef}
         className="relative w-full max-w-full overflow-hidden rounded-sm bg-transparent mx-auto"
-        style={boxSize ? { width: `${boxSize.w}px`, height: `${boxSize.h}px`, overscrollBehavior: 'contain', touchAction: props.zoom <= 1 ? 'pan-y' : 'none' } : { overscrollBehavior: 'contain', touchAction: props.zoom <= 1 ? 'pan-y' : 'none' }}
+        style={
+          boxSize
+            ? {
+                width: `${boxSize.w}px`,
+                height: `${boxSize.h}px`,
+                overscrollBehavior: 'contain',
+                touchAction: props.zoom <= 1 ? 'pan-y' : 'none',
+              }
+            : { overscrollBehavior: 'contain', touchAction: props.zoom <= 1 ? 'pan-y' : 'none' }
+        }
         onMouseDown={onMouseDown}
         onTouchStart={onTouchStart}
         onMouseMove={props.onMouseMove}
@@ -84,7 +93,11 @@ export function CompareSlider(props: CompareSliderProps) {
         {/* Scaled image layer (result + before overlay) */}
         <div
           className="absolute inset-0 z-0"
-          style={{ transform: `translate(${props.panX ?? 0}px, ${props.panY ?? 0}px) scale(${props.zoom})`, transformOrigin: 'center center', willChange: 'transform' }}
+          style={{
+            transform: `translate(${props.panX ?? 0}px, ${props.panY ?? 0}px) scale(${props.zoom})`,
+            transformOrigin: 'center center',
+            willChange: 'transform',
+          }}
         >
           {/* After image (result) as base layer */}
           <img
@@ -93,13 +106,17 @@ export function CompareSlider(props: CompareSliderProps) {
             className="pointer-events-none select-none absolute inset-0 w-full h-full object-contain"
             onLoad={onResultImageLoad}
             onError={onResultError}
-            style={isDemoResult ? { filter: 'contrast(1.2) saturate(1.15) brightness(1.05)' } : undefined}
+            style={
+              isDemoResult ? { filter: 'contrast(1.2) saturate(1.15) brightness(1.05)' } : undefined
+            }
           />
 
           {/* Before image (original) overlay clipped to slider position (no resize) */}
           <div
             className="absolute inset-0 pointer-events-none"
-            style={{ clipPath: `polygon(0 0, ${isHeld ? 100 : sliderPos}% 0, ${isHeld ? 100 : sliderPos}% 100%, 0 100%)` }}
+            style={{
+              clipPath: `polygon(0 0, ${isHeld ? 100 : sliderPos}% 0, ${isHeld ? 100 : sliderPos}% 100%, 0 100%)`,
+            }}
             aria-hidden
           >
             <img
@@ -143,7 +160,9 @@ export function CompareSlider(props: CompareSliderProps) {
               />
               <div
                 className="absolute inset-0 pointer-events-none"
-                style={{ clipPath: `polygon(0 0, ${isHeld ? 100 : sliderPos}% 0, ${isHeld ? 100 : sliderPos}% 100%, 0 100%)` }}
+                style={{
+                  clipPath: `polygon(0 0, ${isHeld ? 100 : sliderPos}% 0, ${isHeld ? 100 : sliderPos}% 100%, 0 100%)`,
+                }}
                 aria-hidden
               >
                 <img
@@ -161,7 +180,7 @@ export function CompareSlider(props: CompareSliderProps) {
           className="absolute top-0 h-full w-6 pointer-events-none z-20"
           style={{
             left: `calc(${sliderPos}% - 6px)`,
-            background: 'linear-gradient(90deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.0) 100%)'
+            background: 'linear-gradient(90deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.0) 100%)',
           }}
           aria-hidden
         />
@@ -208,7 +227,9 @@ export function CompareSlider(props: CompareSliderProps) {
           >
             −
           </button>
-          <span className="tabular-nums min-w-[3.5ch] text-center">{Math.round(props.zoom * 100)}%</span>
+          <span className="tabular-nums min-w-[3.5ch] text-center">
+            {Math.round(props.zoom * 100)}%
+          </span>
           <button
             type="button"
             aria-label="Zoom in"

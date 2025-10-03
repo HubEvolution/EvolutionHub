@@ -1,5 +1,11 @@
 import { describe, it, expect, vi, beforeEach, afterAll } from 'vitest';
-import { createSession, validateSession, invalidateSession, type User, type SessionRow } from '@/lib/auth-v2';
+import {
+  createSession,
+  validateSession,
+  invalidateSession,
+  type User,
+  type SessionRow,
+} from '@/lib/auth-v2';
 
 // Mock für die D1-Datenbank
 const mockDb = {
@@ -73,7 +79,7 @@ describe('Auth-Modul Tests', () => {
       const expiredSession: SessionRow = {
         id: 'expired-session',
         user_id: 'test-user-id',
-        expires_at: Math.floor((mockNow - 1000) / 1000) // 1 Sekunde in der Vergangenheit
+        expires_at: Math.floor((mockNow - 1000) / 1000), // 1 Sekunde in der Vergangenheit
       };
       mockDb.first.mockResolvedValueOnce(expiredSession);
 
@@ -91,12 +97,12 @@ describe('Auth-Modul Tests', () => {
       const validSession: SessionRow = {
         id: 'valid-session',
         user_id: 'test-user-id',
-        expires_at: Math.floor((mockNow + 1000000) / 1000) // in der Zukunft
+        expires_at: Math.floor((mockNow + 1000000) / 1000), // in der Zukunft
       };
-      
+
       mockDb.first
         .mockResolvedValueOnce(validSession) // Session gefunden
-        .mockResolvedValueOnce(null);        // Kein Benutzer gefunden
+        .mockResolvedValueOnce(null); // Kein Benutzer gefunden
 
       // Test ausführen
       const result = await validateSession(mockDb as any, 'valid-session');
@@ -115,21 +121,21 @@ describe('Auth-Modul Tests', () => {
       const validSession: SessionRow = {
         id: 'valid-session',
         user_id: 'test-user-id',
-        expires_at: Math.floor((mockNow + 1000000) / 1000) // in der Zukunft
+        expires_at: Math.floor((mockNow + 1000000) / 1000), // in der Zukunft
       };
-      
+
       const mockUser = {
         id: 'test-user-id',
         email: 'test@example.com',
         name: 'Test User',
         username: 'testuser',
         image: 'avatar.jpg',
-        email_verified: false
+        email_verified: false,
       };
-      
+
       mockDb.first
         .mockResolvedValueOnce(validSession) // Session gefunden
-        .mockResolvedValueOnce(mockUser);    // Benutzer gefunden
+        .mockResolvedValueOnce(mockUser); // Benutzer gefunden
 
       // Test ausführen
       const result = await validateSession(mockDb as any, 'valid-session');
@@ -139,9 +145,9 @@ describe('Auth-Modul Tests', () => {
         session: {
           id: 'valid-session',
           userId: 'test-user-id',
-          expiresAt: new Date(validSession.expires_at * 1000)
+          expiresAt: new Date(validSession.expires_at * 1000),
         },
-        user: mockUser
+        user: mockUser,
       });
     });
   });

@@ -10,7 +10,11 @@ import { AbstractBaseService } from './base-service';
 import type { AuthService, AuthResult, RegisterData, RegistrationResult } from './auth-service';
 import type { ServiceDependencies } from './types';
 import { ServiceError, ServiceErrorType } from './types';
-import { createSession, validateSession as validateSessionV2, invalidateSession } from '@/lib/auth-v2';
+import {
+  createSession,
+  validateSession as validateSessionV2,
+  invalidateSession,
+} from '@/lib/auth-v2';
 import type { User, Session } from '@/lib/auth-v2';
 import type { SafeUser } from '@/lib/db/types';
 import { loggerFactory } from '@/server/utils/logger-factory';
@@ -53,37 +57,42 @@ export class AuthServiceImpl extends AbstractBaseService implements AuthService 
   async login(email: string, password: string, ipAddress?: string): Promise<AuthResult> {
     return this.withTransaction(async (db) => {
       // Benutzer anhand der E-Mail-Adresse suchen
-      const existingUser = await db.prepare('SELECT * FROM users WHERE email = ?')
+      const existingUser = await db
+        .prepare('SELECT * FROM users WHERE email = ?')
         .bind(email)
         .first<User>();
 
       if (!existingUser) {
         // Fehlgeschlagene Anmeldung protokollieren
-        this.securityLogger.logAuthFailure({
-          reason: 'user_not_found',
-          email
-        }, {
-          ipAddress,
-          action: 'login_attempt'
-        });
-
-        throw new ServiceError(
-          'Ungültige Anmeldedaten',
-          ServiceErrorType.AUTHENTICATION,
-          { reason: 'invalid_credentials' }
+        this.securityLogger.logAuthFailure(
+          {
+            reason: 'user_not_found',
+            email,
+          },
+          {
+            ipAddress,
+            action: 'login_attempt',
+          }
         );
+
+        throw new ServiceError('Ungültige Anmeldedaten', ServiceErrorType.AUTHENTICATION, {
+          reason: 'invalid_credentials',
+        });
       }
 
       if (!existingUser.password_hash) {
         // Fehlgeschlagene Anmeldung protokollieren
-        this.securityLogger.logAuthFailure({
-          reason: 'missing_password_hash',
-          userId: existingUser.id
-        }, {
-          ipAddress,
-          userId: existingUser.id,
-          action: 'login_attempt'
-        });
+        this.securityLogger.logAuthFailure(
+          {
+            reason: 'missing_password_hash',
+            userId: existingUser.id,
+          },
+          {
+            ipAddress,
+            userId: existingUser.id,
+            action: 'login_attempt',
+          }
+        );
 
         throw new ServiceError(
           'Konto nicht vollständig eingerichtet',
@@ -96,34 +105,38 @@ export class AuthServiceImpl extends AbstractBaseService implements AuthService 
       const validPassword = await compare(password, existingUser.password_hash);
       if (!validPassword) {
         // Fehlgeschlagene Anmeldung protokollieren
-        this.securityLogger.logAuthFailure({
-          reason: 'invalid_password',
-          userId: existingUser.id
-        }, {
-          ipAddress,
-          userId: existingUser.id,
-          action: 'login_attempt'
-        });
-
-        throw new ServiceError(
-          'Ungültige Anmeldedaten',
-          ServiceErrorType.AUTHENTICATION,
-          { reason: 'invalid_credentials' }
+        this.securityLogger.logAuthFailure(
+          {
+            reason: 'invalid_password',
+            userId: existingUser.id,
+          },
+          {
+            ipAddress,
+            userId: existingUser.id,
+            action: 'login_attempt',
+          }
         );
+
+        throw new ServiceError('Ungültige Anmeldedaten', ServiceErrorType.AUTHENTICATION, {
+          reason: 'invalid_credentials',
+        });
       }
 
       // E-Mail-Verifikation prüfen (Double-Opt-in-Blockade)
       const emailVerified = Boolean((existingUser as any).email_verified);
       if (!emailVerified) {
-        this.securityLogger.logAuthFailure({
-          reason: 'email_not_verified',
-          userId: existingUser.id,
-          email: existingUser.email
-        }, {
-          ipAddress,
-          userId: existingUser.id,
-          action: 'login_attempt'
-        });
+        this.securityLogger.logAuthFailure(
+          {
+            reason: 'email_not_verified',
+            userId: existingUser.id,
+            email: existingUser.email,
+          },
+          {
+            ipAddress,
+            userId: existingUser.id,
+            action: 'login_attempt',
+          }
+        );
 
         throw new ServiceError(
           'E-Mail-Adresse nicht verifiziert',
@@ -136,15 +149,18 @@ export class AuthServiceImpl extends AbstractBaseService implements AuthService 
       const session = await createSession(db, existingUser.id);
 
       // Erfolgreiche Anmeldung protokollieren
-      this.securityLogger.logAuthSuccess({
-        action: 'login',
-        sessionId: session.id
-      }, {
-        userId: existingUser.id,
-        ipAddress,
-        sessionId: session.id,
-        action: 'login_success'
-      });
+      this.securityLogger.logAuthSuccess(
+        {
+          action: 'login',
+          sessionId: session.id,
+        },
+        {
+          userId: existingUser.id,
+          ipAddress,
+          sessionId: session.id,
+          action: 'login_success',
+        }
+      );
 
       // SafeUser-Objekt ohne sensible Daten erstellen
       const safeUser: SafeUser = {
@@ -153,13 +169,13 @@ export class AuthServiceImpl extends AbstractBaseService implements AuthService 
         name: existingUser.name,
         username: existingUser.username,
         image: existingUser.image,
-        created_at: (existingUser as any).created_at as string
+        created_at: (existingUser as any).created_at as string,
       };
 
       return {
         user: safeUser,
         session,
-        sessionId: session.id
+        sessionId: session.id,
       };
     });
   }
@@ -175,18 +191,22 @@ export class AuthServiceImpl extends AbstractBaseService implements AuthService 
   async register(data: RegisterData, ipAddress?: string): Promise<RegistrationResult> {
     return this.withTransaction(async (db) => {
       // Prüfen, ob die E-Mail-Adresse bereits verwendet wird
-      const existingUser = await db.prepare('SELECT id FROM users WHERE email = ?')
+      const existingUser = await db
+        .prepare('SELECT id FROM users WHERE email = ?')
         .bind(data.email)
         .first<{ id: string }>();
 
       if (existingUser) {
-        this.securityLogger.logAuthFailure({
-          reason: 'duplicate_user',
-          email: data.email
-        }, {
-          ipAddress,
-          action: 'register_attempt'
-        });
+        this.securityLogger.logAuthFailure(
+          {
+            reason: 'duplicate_user',
+            email: data.email,
+          },
+          {
+            ipAddress,
+            action: 'register_attempt',
+          }
+        );
 
         throw new ServiceError(
           'Ein Benutzer mit dieser E-Mail-Adresse existiert bereits',
@@ -196,18 +216,22 @@ export class AuthServiceImpl extends AbstractBaseService implements AuthService 
       }
 
       // Prüfen, ob der Benutzername bereits verwendet wird
-      const existingUsername = await db.prepare('SELECT id FROM users WHERE username = ?')
+      const existingUsername = await db
+        .prepare('SELECT id FROM users WHERE username = ?')
         .bind(data.username)
         .first<{ id: string }>();
 
       if (existingUsername) {
-        this.securityLogger.logAuthFailure({
-          reason: 'duplicate_username',
-          username: data.username
-        }, {
-          ipAddress,
-          action: 'register_attempt'
-        });
+        this.securityLogger.logAuthFailure(
+          {
+            reason: 'duplicate_username',
+            username: data.username,
+          },
+          {
+            ipAddress,
+            action: 'register_attempt',
+          }
+        );
 
         throw new ServiceError(
           'Dieser Benutzername ist bereits vergeben',
@@ -222,26 +246,32 @@ export class AuthServiceImpl extends AbstractBaseService implements AuthService 
       // Benutzer erstellen
       const userId = crypto.randomUUID();
       const createdAt = new Date().toISOString();
-      await db.prepare(
-        'INSERT INTO users (id, email, name, username, password_hash, created_at, image) VALUES (?, ?, ?, ?, ?, ?, ?)'
-      ).bind(
-        userId,
-        data.email,
-        data.name,
-        data.username,
-        passwordHash,
-        createdAt,
-        data.image || null
-      ).run();
+      await db
+        .prepare(
+          'INSERT INTO users (id, email, name, username, password_hash, created_at, image) VALUES (?, ?, ?, ?, ?, ?, ?)'
+        )
+        .bind(
+          userId,
+          data.email,
+          data.name,
+          data.username,
+          passwordHash,
+          createdAt,
+          data.image || null
+        )
+        .run();
 
       // Erfolgreiche Registrierung protokollieren (ohne Session)
-      this.securityLogger.logAuthSuccess({
-        action: 'register'
-      }, {
-        userId,
-        ipAddress,
-        action: 'register_success'
-      });
+      this.securityLogger.logAuthSuccess(
+        {
+          action: 'register',
+        },
+        {
+          userId,
+          ipAddress,
+          action: 'register_success',
+        }
+      );
 
       // SafeUser-Objekt ohne sensible Daten erstellen
       const safeUser: SafeUser = {
@@ -250,11 +280,11 @@ export class AuthServiceImpl extends AbstractBaseService implements AuthService 
         name: data.name,
         username: data.username,
         image: data.image,
-        created_at: createdAt
+        created_at: createdAt,
       };
 
       return {
-        user: safeUser
+        user: safeUser,
       };
     });
   }
@@ -276,7 +306,9 @@ export class AuthServiceImpl extends AbstractBaseService implements AuthService 
    * @param sessionId ID der zu überprüfenden Sitzung
    * @returns Sitzung und Benutzer oder null, falls ungültig
    */
-  async validateSession(sessionId: string): Promise<{ session: Session | null, user: SafeUser | null }> {
+  async validateSession(
+    sessionId: string
+  ): Promise<{ session: Session | null; user: SafeUser | null }> {
     return this.withTransaction(async (db) => {
       const result = await validateSessionV2(db, sessionId);
 
@@ -298,8 +330,8 @@ export class AuthServiceImpl extends AbstractBaseService implements AuthService 
           name: result.user.name,
           username: result.user.username,
           image: result.user.image,
-          created_at: createdRow?.created_at ?? new Date(0).toISOString()
-        }
+          created_at: createdRow?.created_at ?? new Date(0).toISOString(),
+        },
       };
     });
   }
@@ -314,7 +346,8 @@ export class AuthServiceImpl extends AbstractBaseService implements AuthService 
   async createPasswordResetToken(email: string, ipAddress?: string): Promise<boolean> {
     return this.withTransaction(async (db) => {
       // Benutzer anhand der E-Mail-Adresse suchen
-      const user = await db.prepare('SELECT id FROM users WHERE email = ?')
+      const user = await db
+        .prepare('SELECT id FROM users WHERE email = ?')
         .bind(email)
         .first<{ id: string }>();
 
@@ -325,32 +358,31 @@ export class AuthServiceImpl extends AbstractBaseService implements AuthService 
       }
 
       // Vorhandene Tokens für diesen Benutzer löschen
-      await db.prepare('DELETE FROM password_reset_tokens WHERE user_id = ?')
-        .bind(user.id)
-        .run();
+      await db.prepare('DELETE FROM password_reset_tokens WHERE user_id = ?').bind(user.id).run();
 
       // Neues Token generieren
       const token = crypto.randomUUID();
       const expiresAt = Math.floor(Date.now() / 1000) + PASSWORD_RESET_TOKEN_EXPIRES_IN_SECONDS;
 
       // Token in der Datenbank speichern
-      await db.prepare(
-        'INSERT INTO password_reset_tokens (id, user_id, expires_at) VALUES (?, ?, ?)'
-      ).bind(
-        token,
-        user.id,
-        expiresAt
-      ).run();
+      await db
+        .prepare('INSERT INTO password_reset_tokens (id, user_id, expires_at) VALUES (?, ?, ?)')
+        .bind(token, user.id, expiresAt)
+        .run();
 
       // Passwort-Reset-Event protokollieren
-      this.securityLogger.logSecurityEvent('PASSWORD_RESET', {
-        action: 'create_token',
-        tokenId: token.slice(0, 8)
-      }, {
-        userId: user.id,
-        ipAddress,
-        action: 'password_reset_token_created'
-      });
+      this.securityLogger.logSecurityEvent(
+        'PASSWORD_RESET',
+        {
+          action: 'create_token',
+          tokenId: token.slice(0, 8),
+        },
+        {
+          userId: user.id,
+          ipAddress,
+          action: 'password_reset_token_created',
+        }
+      );
 
       return true;
     });
@@ -364,10 +396,15 @@ export class AuthServiceImpl extends AbstractBaseService implements AuthService 
    */
   async validatePasswordResetToken(token: string): Promise<string | null> {
     return this.withTransaction(async (db) => {
-      const result = await db.prepare(`
+      const result = await db
+        .prepare(
+          `
         SELECT user_id, expires_at FROM password_reset_tokens
         WHERE id = ?
-      `).bind(token).first<{ user_id: string, expires_at: number }>();
+      `
+        )
+        .bind(token)
+        .first<{ user_id: string; expires_at: number }>();
 
       if (!result) {
         return null;
@@ -376,9 +413,7 @@ export class AuthServiceImpl extends AbstractBaseService implements AuthService 
       // Prüfen, ob das Token abgelaufen ist
       if (result.expires_at < Math.floor(Date.now() / 1000)) {
         // Abgelaufenes Token löschen
-        await db.prepare('DELETE FROM password_reset_tokens WHERE id = ?')
-          .bind(token)
-          .run();
+        await db.prepare('DELETE FROM password_reset_tokens WHERE id = ?').bind(token).run();
         return null;
       }
 
@@ -411,23 +446,26 @@ export class AuthServiceImpl extends AbstractBaseService implements AuthService 
       const passwordHash = await hash(newPassword, BCRYPT_COST);
 
       // Passwort aktualisieren
-      await db.prepare('UPDATE users SET password_hash = ? WHERE id = ?')
+      await db
+        .prepare('UPDATE users SET password_hash = ? WHERE id = ?')
         .bind(passwordHash, userId)
         .run();
 
       // Token nach erfolgreicher Verwendung löschen
-      await db.prepare('DELETE FROM password_reset_tokens WHERE id = ?')
-        .bind(token)
-        .run();
+      await db.prepare('DELETE FROM password_reset_tokens WHERE id = ?').bind(token).run();
 
       // Erfolgreichen Passwort-Reset protokollieren
-      this.securityLogger.logSecurityEvent('PASSWORD_RESET', {
-        action: 'reset_successful'
-      }, {
-        userId,
-        ipAddress,
-        action: 'password_reset_successful'
-      });
+      this.securityLogger.logSecurityEvent(
+        'PASSWORD_RESET',
+        {
+          action: 'reset_successful',
+        },
+        {
+          userId,
+          ipAddress,
+          action: 'password_reset_successful',
+        }
+      );
 
       return true;
     });
@@ -449,19 +487,23 @@ export class AuthServiceImpl extends AbstractBaseService implements AuthService 
     ipAddress?: string
   ): Promise<boolean> {
     return this.withTransaction(async (db) => {
-      const user = await db.prepare('SELECT id, password_hash, email, username FROM users WHERE id = ?')
+      const user = await db
+        .prepare('SELECT id, password_hash, email, username FROM users WHERE id = ?')
         .bind(userId)
         .first<User>();
 
       if (!user || !user.password_hash) {
-        this.securityLogger.logAuthFailure({
-          reason: 'user_not_found_or_no_password_hash',
-          userId
-        }, {
-          ipAddress,
-          userId,
-          action: 'change_password_attempt'
-        });
+        this.securityLogger.logAuthFailure(
+          {
+            reason: 'user_not_found_or_no_password_hash',
+            userId,
+          },
+          {
+            ipAddress,
+            userId,
+            action: 'change_password_attempt',
+          }
+        );
         throw new ServiceError(
           'Benutzer nicht gefunden oder Passwort nicht gesetzt',
           ServiceErrorType.AUTHENTICATION,
@@ -481,35 +523,40 @@ export class AuthServiceImpl extends AbstractBaseService implements AuthService 
       // Aktuelles Passwort verifizieren
       const valid = await compare(currentPassword, user.password_hash);
       if (!valid) {
-        this.securityLogger.logAuthFailure({
-          reason: 'invalid_current_password',
-          userId
-        }, {
-          ipAddress,
-          userId,
-          action: 'change_password_attempt'
-        });
-        throw new ServiceError(
-          'Aktuelles Passwort ist falsch',
-          ServiceErrorType.AUTHENTICATION,
-          { reason: 'invalid_current_password' }
+        this.securityLogger.logAuthFailure(
+          {
+            reason: 'invalid_current_password',
+            userId,
+          },
+          {
+            ipAddress,
+            userId,
+            action: 'change_password_attempt',
+          }
         );
+        throw new ServiceError('Aktuelles Passwort ist falsch', ServiceErrorType.AUTHENTICATION, {
+          reason: 'invalid_current_password',
+        });
       }
 
       // Neues Passwort hashen und aktualisieren
       const newHash = await hash(newPassword, BCRYPT_COST);
-      await db.prepare('UPDATE users SET password_hash = ? WHERE id = ?')
+      await db
+        .prepare('UPDATE users SET password_hash = ? WHERE id = ?')
         .bind(newHash, userId)
         .run();
 
       // Erfolgreiche Passwortänderung protokollieren
-      this.securityLogger.logAuthSuccess({
-        action: 'change_password'
-      }, {
-        userId,
-        ipAddress,
-        action: 'change_password_success'
-      });
+      this.securityLogger.logAuthSuccess(
+        {
+          action: 'change_password',
+        },
+        {
+          userId,
+          ipAddress,
+          action: 'change_password_success',
+        }
+      );
 
       return true;
     });

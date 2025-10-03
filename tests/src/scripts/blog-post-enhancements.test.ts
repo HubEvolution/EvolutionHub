@@ -14,7 +14,9 @@ import { init, cleanup as enhanceCleanup } from '@/scripts/blog-post-enhancement
 describe('blog-post-enhancements', () => {
   beforeEach(() => {
     // Reset module state between tests
-    try { enhanceCleanup(); } catch {}
+    try {
+      enhanceCleanup();
+    } catch {}
 
     // Reset DOM for each test
     document.body.innerHTML = `

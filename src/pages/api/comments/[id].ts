@@ -12,15 +12,18 @@ const app = new Hono<{ Bindings: { DB: D1Database } }>();
 
 // Middleware
 app.use('*', logger());
-app.use('*', cors({
-  origin: (origin) => {
-    if (!origin || origin.includes('localhost') || origin.endsWith('.vercel.app')) {
-      return origin;
-    }
-    return null;
-  },
-  credentials: true,
-}));
+app.use(
+  '*',
+  cors({
+    origin: (origin) => {
+      if (!origin || origin.includes('localhost') || origin.endsWith('.vercel.app')) {
+        return origin;
+      }
+      return null;
+    },
+    credentials: true,
+  })
+);
 
 // CSRF protection for mutating methods on /:id
 app.use('/:id', createCsrfMiddleware());
@@ -38,10 +41,16 @@ app.get('/:id', async (c) => {
     console.error('Error fetching comment:', error);
 
     if (error instanceof Error && error.message.includes('not found')) {
-      return c.json({ success: false, error: { type: 'not_found', message: 'Comment not found' } }, 404);
+      return c.json(
+        { success: false, error: { type: 'not_found', message: 'Comment not found' } },
+        404
+      );
     }
 
-    return c.json({ success: false, error: { type: 'server_error', message: 'Failed to fetch comment' } }, 500);
+    return c.json(
+      { success: false, error: { type: 'server_error', message: 'Failed to fetch comment' } },
+      500
+    );
   }
 });
 
@@ -59,7 +68,10 @@ app.put('/:id', async (c) => {
     const { csrfToken, ...updateData } = body;
 
     if (!csrfToken) {
-      return c.json({ success: false, error: { type: 'validation_error', message: 'CSRF token required' } }, 400);
+      return c.json(
+        { success: false, error: { type: 'validation_error', message: 'CSRF token required' } },
+        400
+      );
     }
 
     const commentService = new CommentService(c.env.DB);
@@ -77,14 +89,23 @@ app.put('/:id', async (c) => {
 
     if (error instanceof Error) {
       if (error.message.includes('CSRF') || error.message.includes('not found')) {
-        return c.json({ success: false, error: { type: 'validation_error', message: error.message } }, 400);
+        return c.json(
+          { success: false, error: { type: 'validation_error', message: error.message } },
+          400
+        );
       }
       if (error.message.includes('Authentication')) {
-        return c.json({ success: false, error: { type: 'auth_error', message: error.message } }, 401);
+        return c.json(
+          { success: false, error: { type: 'auth_error', message: error.message } },
+          401
+        );
       }
     }
 
-    return c.json({ success: false, error: { type: 'server_error', message: 'Failed to update comment' } }, 500);
+    return c.json(
+      { success: false, error: { type: 'server_error', message: 'Failed to update comment' } },
+      500
+    );
   }
 });
 
@@ -102,7 +123,10 @@ app.delete('/:id', async (c) => {
     const { csrfToken } = body;
 
     if (!csrfToken) {
-      return c.json({ success: false, error: { type: 'validation_error', message: 'CSRF token required' } }, 400);
+      return c.json(
+        { success: false, error: { type: 'validation_error', message: 'CSRF token required' } },
+        400
+      );
     }
 
     const commentService = new CommentService(c.env.DB);
@@ -115,13 +139,22 @@ app.delete('/:id', async (c) => {
 
     if (error instanceof Error) {
       if (error.message.includes('CSRF') || error.message.includes('not found')) {
-        return c.json({ success: false, error: { type: 'validation_error', message: error.message } }, 400);
+        return c.json(
+          { success: false, error: { type: 'validation_error', message: error.message } },
+          400
+        );
       }
       if (error.message.includes('Authentication')) {
-        return c.json({ success: false, error: { type: 'auth_error', message: error.message } }, 401);
+        return c.json(
+          { success: false, error: { type: 'auth_error', message: error.message } },
+          401
+        );
       }
     }
-    return c.json({ success: false, error: { type: 'server_error', message: 'Failed to delete comment' } }, 500);
+    return c.json(
+      { success: false, error: { type: 'server_error', message: 'Failed to delete comment' } },
+      500
+    );
   }
 });
 
@@ -168,10 +201,16 @@ export const PUT = async (context: APIContext) => {
     const cookie = context.request.headers.get('cookie') || undefined;
     const ok = await validateCsrfToken(token, cookie);
     if (!ok) {
-      return new Response(JSON.stringify({ success: false, error: { type: 'csrf_error', message: 'Invalid CSRF token' } }), {
-        status: 403,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: { type: 'csrf_error', message: 'Invalid CSRF token' },
+        }),
+        {
+          status: 403,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
     }
 
     const { csrfToken, ...updateData } = body;
@@ -183,10 +222,13 @@ export const PUT = async (context: APIContext) => {
     if (msg.includes('Authentication')) return createApiError('auth_error', msg);
     if (msg.includes('not found')) return createApiError('not_found', 'Comment not found');
     if (msg.toLowerCase().includes('csrf')) {
-      return new Response(JSON.stringify({ success: false, error: { type: 'csrf_error', message: msg } }), {
-        status: 403,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      return new Response(
+        JSON.stringify({ success: false, error: { type: 'csrf_error', message: msg } }),
+        {
+          status: 403,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
     }
     return createApiError('server_error', msg);
   }
@@ -208,10 +250,16 @@ export const DELETE = async (context: APIContext) => {
     const cookie = context.request.headers.get('cookie') || undefined;
     const ok = await validateCsrfToken(token, cookie);
     if (!ok) {
-      return new Response(JSON.stringify({ success: false, error: { type: 'csrf_error', message: 'Invalid CSRF token' } }), {
-        status: 403,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: { type: 'csrf_error', message: 'Invalid CSRF token' },
+        }),
+        {
+          status: 403,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
     }
 
     const service = new CommentService(db);
@@ -222,10 +270,13 @@ export const DELETE = async (context: APIContext) => {
     if (msg.includes('Authentication')) return createApiError('auth_error', msg);
     if (msg.includes('not found')) return createApiError('not_found', 'Comment not found');
     if (msg.toLowerCase().includes('csrf')) {
-      return new Response(JSON.stringify({ success: false, error: { type: 'csrf_error', message: msg } }), {
-        status: 403,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      return new Response(
+        JSON.stringify({ success: false, error: { type: 'csrf_error', message: msg } }),
+        {
+          status: 403,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
     }
     return createApiError('server_error', msg);
   }

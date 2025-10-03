@@ -3,8 +3,8 @@
  * Verwaltet Test-Datenbank-Setup, Cleanup und Mocking
  */
 
-import { testConfig } from "@/config/test-config";
-import { getTestLogger } from "./logger";
+import { testConfig } from '@/config/test-config';
+import { getTestLogger } from './logger';
 
 export interface TestDatabase {
   connection: any;
@@ -27,12 +27,10 @@ export async function setupTestDatabase(connection?: {
   end: () => Promise<void> | void;
 }): Promise<TestDatabase> {
   const logger = getTestLogger();
-  logger.info("Datenbank-Setup wird gestartet...");
+  logger.info('Datenbank-Setup wird gestartet...');
 
   try {
-    const dbName = `test_${Date.now()}_${Math.random()
-      .toString(36)
-      .substr(2, 9)}`;
+    const dbName = `test_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
     // Hier würde die eigentliche Datenbank-Initialisierung erfolgen
     // Für diese Demo simulieren wir die Datenbank-Verbindung, unterstützen aber Injection für Tests
@@ -43,7 +41,7 @@ export async function setupTestDatabase(connection?: {
             logger.database.query(sql);
             // Nur die tatsächlich übergebenen Argumente weiterleiten, um Tests zu erfüllen,
             // die eine einparametrige Query erwarten (ohne 'undefined' als 2. Argument)
-            if (typeof params === "undefined") {
+            if (typeof params === 'undefined') {
               return await injected.query(sql);
             }
             return await injected.query(sql, params);
@@ -87,9 +85,7 @@ export async function setupTestDatabase(connection?: {
 /**
  * Räumt die Test-Datenbank auf
  */
-export async function teardownTestDatabase(
-  database: TestDatabase
-): Promise<void> {
+export async function teardownTestDatabase(database: TestDatabase): Promise<void> {
   const logger = getTestLogger();
   logger.info(`Datenbank-Cleanup wird gestartet für: ${database.name}`);
 
@@ -164,9 +160,7 @@ async function initializeSchema(database: TestDatabase): Promise<void> {
   for (const query of schemaQueries) {
     try {
       await database.connection.query(query);
-      logger.debug(
-        `Schema-Query ausgeführt: ${query.split(" ").slice(0, 3).join(" ")}...`
-      );
+      logger.debug(`Schema-Query ausgeführt: ${query.split(' ').slice(0, 3).join(' ')}...`);
     } catch (error) {
       logger.database.error(`Fehler beim Ausführen von Schema-Query`, error);
       throw error;
@@ -185,20 +179,16 @@ async function loadFixtures(database: TestDatabase): Promise<void> {
     const users = [
       {
         email: testConfig.testData.users.admin.email,
-        password_hash: await hashPassword(
-          testConfig.testData.users.admin.password
-        ),
+        password_hash: await hashPassword(testConfig.testData.users.admin.password),
         // Tests erwarten firstName 'admin' an bestimmter Position
-        first_name: "admin",
+        first_name: 'admin',
         last_name: testConfig.testData.users.admin.lastName,
         role: testConfig.testData.users.admin.role,
         verified: testConfig.testData.users.admin.verified,
       },
       {
         email: testConfig.testData.users.regular.email,
-        password_hash: await hashPassword(
-          testConfig.testData.users.regular.password
-        ),
+        password_hash: await hashPassword(testConfig.testData.users.regular.password),
         first_name: testConfig.testData.users.regular.firstName,
         last_name: testConfig.testData.users.regular.lastName,
         role: testConfig.testData.users.regular.role,
@@ -206,9 +196,7 @@ async function loadFixtures(database: TestDatabase): Promise<void> {
       },
       {
         email: testConfig.testData.users.premium.email,
-        password_hash: await hashPassword(
-          testConfig.testData.users.premium.password
-        ),
+        password_hash: await hashPassword(testConfig.testData.users.premium.password),
         first_name: testConfig.testData.users.premium.firstName,
         last_name: testConfig.testData.users.premium.lastName,
         role: testConfig.testData.users.premium.role,
@@ -240,17 +228,13 @@ async function loadFixtures(database: TestDatabase): Promise<void> {
       await database.connection.query(
         `INSERT INTO newsletters (email, subscribed, preferences)
          VALUES ($1, $2, $3)`,
-        [
-          newsletter.email,
-          newsletter.subscribed,
-          JSON.stringify(newsletter.preferences),
-        ]
+        [newsletter.email, newsletter.subscribed, JSON.stringify(newsletter.preferences)]
       );
     }
 
-    logger.info("Test-Fixtures erfolgreich geladen");
+    logger.info('Test-Fixtures erfolgreich geladen');
   } catch (error) {
-    logger.database.error("Fehler beim Laden von Test-Fixtures", error);
+    logger.database.error('Fehler beim Laden von Test-Fixtures', error);
     throw error;
   }
 }
@@ -262,17 +246,17 @@ async function clearTestData(database: TestDatabase): Promise<void> {
   const logger = getTestLogger();
 
   const clearQueries = [
-    "DELETE FROM sessions",
-    "DELETE FROM projects",
-    "DELETE FROM newsletters",
-    "DELETE FROM users",
+    'DELETE FROM sessions',
+    'DELETE FROM projects',
+    'DELETE FROM newsletters',
+    'DELETE FROM users',
   ];
 
   for (const query of clearQueries) {
     await database.connection.query(query);
   }
 
-  logger.debug("Test-Daten erfolgreich gelöscht");
+  logger.debug('Test-Daten erfolgreich gelöscht');
 }
 
 /**
@@ -285,10 +269,10 @@ export async function createTransaction(database: TestDatabase): Promise<any> {
       return database.connection.query(sql, params);
     },
     commit: async () => {
-      getTestLogger().debug("Transaktion committed");
+      getTestLogger().debug('Transaktion committed');
     },
     rollback: async () => {
-      getTestLogger().debug("Transaktion rolled back");
+      getTestLogger().debug('Transaktion rolled back');
     },
   };
 }

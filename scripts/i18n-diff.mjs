@@ -39,7 +39,7 @@ function readJSON(p) {
           lastArr,
           lastClose,
           nextChar,
-          nextCode
+          nextCode,
         });
       }
       console.error(`[i18n-diff] Failed to parse JSON: ${p}`);
@@ -57,7 +57,7 @@ function cropToBalancedJSON(s) {
     const a = s.indexOf('{', i);
     const b = s.indexOf('[', i);
     if (a === -1 && b === -1) return null;
-    i = (a === -1) ? b : (b === -1 ? a : Math.min(a, b));
+    i = a === -1 ? b : b === -1 ? a : Math.min(a, b);
   }
   let inStr = false;
   let escape = false;
@@ -67,16 +67,35 @@ function cropToBalancedJSON(s) {
   for (let j = i; j < s.length; j++) {
     const ch = s[j];
     if (inStr) {
-      if (escape) { escape = false; continue; }
-      if (ch === '\\') { escape = true; continue; }
-      if (ch === '"') { inStr = false; continue; }
+      if (escape) {
+        escape = false;
+        continue;
+      }
+      if (ch === '\\') {
+        escape = true;
+        continue;
+      }
+      if (ch === '"') {
+        inStr = false;
+        continue;
+      }
       continue;
     }
-    if (ch === '"') { inStr = true; continue; }
-    if (ch === '{') { depthObj++; started = true; }
-    else if (ch === '}') { depthObj--; }
-    else if (ch === '[') { depthArr++; started = true; }
-    else if (ch === ']') { depthArr--; }
+    if (ch === '"') {
+      inStr = true;
+      continue;
+    }
+    if (ch === '{') {
+      depthObj++;
+      started = true;
+    } else if (ch === '}') {
+      depthObj--;
+    } else if (ch === '[') {
+      depthArr++;
+      started = true;
+    } else if (ch === ']') {
+      depthArr--;
+    }
     if (started && depthObj === 0 && depthArr === 0) {
       return s.slice(i, j + 1);
     }
@@ -102,8 +121,12 @@ const en = readJSON('src/locales/en.json');
 const deKeys = flatten(de);
 const enKeys = flatten(en);
 
-const missingInDe = Object.keys(enKeys).filter((k) => !deKeys[k]).sort();
-const missingInEn = Object.keys(deKeys).filter((k) => !enKeys[k]).sort();
+const missingInDe = Object.keys(enKeys)
+  .filter((k) => !deKeys[k])
+  .sort();
+const missingInEn = Object.keys(deKeys)
+  .filter((k) => !enKeys[k])
+  .sort();
 
 function print(title, arr) {
   console.log(`${title}: ${arr.length}`);
@@ -114,4 +137,3 @@ function print(title, arr) {
 
 print('Missing in de (present in en)', missingInDe);
 print('Missing in en (present in de)', missingInEn);
-

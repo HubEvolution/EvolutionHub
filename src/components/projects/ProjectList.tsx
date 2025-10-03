@@ -13,15 +13,8 @@ const ProjectList: React.FC<ProjectListProps> = ({
   onDeleteProject,
   className = '',
 }) => {
-  const {
-    projects,
-    loading,
-    error,
-    filters,
-    setFilters,
-    deleteProject,
-    getFilteredProjects,
-  } = useProjectStore();
+  const { projects, loading, error, filters, setFilters, deleteProject, getFilteredProjects } =
+    useProjectStore();
 
   const [showFilters, setShowFilters] = useState(false);
 
@@ -61,7 +54,7 @@ const ProjectList: React.FC<ProjectListProps> = ({
     return new Date(dateString).toLocaleDateString('de-DE', {
       month: 'short',
       day: 'numeric',
-      year: 'numeric'
+      year: 'numeric',
     });
   };
 
@@ -118,7 +111,12 @@ const ProjectList: React.FC<ProjectListProps> = ({
             className="text-sm text-primary hover:text-primary-light flex items-center gap-2"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
+              />
             </svg>
             Filter
           </button>
@@ -180,15 +178,24 @@ const ProjectList: React.FC<ProjectListProps> = ({
       {/* Projects Grid */}
       {filteredProjects.length === 0 ? (
         <div className="text-center py-12 text-gray-500 dark:text-gray-400">
-          <svg className="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+          <svg
+            className="mx-auto h-12 w-12 text-gray-400 mb-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+            />
           </svg>
           <p className="text-lg font-medium mb-2">Keine Projekte gefunden</p>
           <p className="text-sm">
             {Object.keys(filters).length > 0
               ? 'Versuchen Sie, die Filter anzupassen.'
-              : 'Erstellen Sie Ihr erstes Projekt, um loszulegen.'
-            }
+              : 'Erstellen Sie Ihr erstes Projekt, um loszulegen.'}
           </p>
         </div>
       ) : (
@@ -209,8 +216,18 @@ const ProjectList: React.FC<ProjectListProps> = ({
                         onClick={() => onEditProject(project)}
                         className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
                       >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                          />
                         </svg>
                       </button>
                     )}
@@ -219,8 +236,18 @@ const ProjectList: React.FC<ProjectListProps> = ({
                         onClick={() => handleDeleteClick(project)}
                         className="text-gray-400 hover:text-red-600 dark:text-gray-500 dark:hover:text-red-400"
                       >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                          />
                         </svg>
                       </button>
                     )}
@@ -234,13 +261,17 @@ const ProjectList: React.FC<ProjectListProps> = ({
                 <div className="space-y-3">
                   {/* Status and Priority */}
                   <div className="flex justify-between items-center">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(project.status)}`}>
+                    <span
+                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(project.status)}`}
+                    >
                       {project.status === 'active' && 'Aktiv'}
                       {project.status === 'completed' && 'Abgeschlossen'}
                       {project.status === 'on-hold' && 'Pausiert'}
                       {project.status === 'archived' && 'Archiviert'}
                     </span>
-                    <span className={`text-xs font-medium ${getPriorityColor(project.priority || 'medium')}`}>
+                    <span
+                      className={`text-xs font-medium ${getPriorityColor(project.priority || 'medium')}`}
+                    >
                       {project.priority === 'high' && 'Hoch'}
                       {project.priority === 'medium' && 'Mittel'}
                       {project.priority === 'low' && 'Niedrig'}

@@ -1,6 +1,6 @@
 /**
  * E-Mail-Verifikations-API-Endpunkt
- * 
+ *
  * Implementiert Double-Opt-in E-Mail-Verifikation für neue Benutzerregistrierungen.
  * Basiert auf dem bewährten Newsletter-Confirmation-Pattern.
  */
@@ -14,11 +14,11 @@ import { withRedirectMiddleware } from '@/lib/api-middleware';
 /**
  * GET /api/auth/verify-email
  * Verarbeitet E-Mail-Verifikations-Links von registrierten Benutzern
- * 
+ *
  * Query Parameter:
  * - token: Der Verifikations-Token (erforderlich)
  * - email: Die E-Mail-Adresse zur Validierung (optional)
- * 
+ *
  * Redirect-Ziele:
  * - Bei Erfolg: /email-verified (neue Seite)
  * - Bei Fehlern: /register mit entsprechendem error-Parameter
@@ -46,4 +46,3 @@ export const DELETE = withRedirectMiddleware(async (context) => methodNotAllowed
 export const OPTIONS = methodNotAllowed;
 export const HEAD = methodNotAllowed;
 // Utilities removed due to deprecation of this endpoint
-

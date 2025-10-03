@@ -21,17 +21,19 @@ if (!slug) {
 
 // Load user session for comment system
 const user = (Astro.locals as any)?.user || null;
-const initialUser = user ? {
-  id: Number(user.id),
-  name: user.name,
-  email: user.email
-} : null;
+const initialUser = user
+  ? {
+      id: Number(user.id),
+      name: user.name,
+      email: user.email,
+    }
+  : null;
 
 // Try to load the blog post
 let postData: ProcessedBlogPost | null = null;
 // To satisfy TypeScript, originalEntry should be typed as CollectionEntry<'blog'>.
 // We are importing this type from '../../lib/blog' as `BlogCollectionEntry` for this purpose.
-let originalEntry: BlogCollectionEntry | null = null; 
+let originalEntry: BlogCollectionEntry | null = null;
 try {
   // Use the imported blogService instance directly.
   // This call expects getPostBySlug in lib/blog.ts to return an object with 'entry' (of type BlogCollectionEntry) and 'processedData'.
@@ -61,23 +63,26 @@ const { Content } = await originalEntry.render();
 let relatedPosts: ProcessedBlogPost[] = [];
 
 // Check if postData is available before attempting to load related posts.
-if (postData) { 
+if (postData) {
   try {
     // Fetch related posts, ensuring originalEntry is non-null.
     // Using a non-null assertion `!` for originalEntry, as it's checked above.
-    const related = await blogService.getRelatedPosts(
-      originalEntry!, 
-      {
+    const related = await blogService.getRelatedPosts(originalEntry!, {
       limit: 3,
-      includeDrafts: import.meta.env.DEV
+      includeDrafts: import.meta.env.DEV,
     });
 
     // Process the related posts if the fetch was successful and returned an array.
     if (Array.isArray(related)) {
       // Filter the related posts to ensure they conform to ProcessedBlogPost structure.
-      relatedPosts = related.filter((p): p is ProcessedBlogPost =>
-        // Robust check for valid processed post structure
-        p && typeof p === 'object' && typeof p.data === 'object' && p.data !== null && 'title' in p.data
+      relatedPosts = related.filter(
+        (p): p is ProcessedBlogPost =>
+          // Robust check for valid processed post structure
+          p &&
+          typeof p === 'object' &&
+          typeof p.data === 'object' &&
+          p.data !== null &&
+          'title' in p.data
       );
     }
   } catch (error) {
@@ -111,23 +116,25 @@ const structuredData = {
   image: imageUrl,
   author: {
     '@type': 'Person',
-    name: Array.isArray(postData.data.author) ? postData.data.author[0] : postData.data.author?.name || 'EvolutionHub Team',
-    url: 'https://evolution-hub.de/team' // Placeholder URL, adjust if specific author URLs exist
+    name: Array.isArray(postData.data.author)
+      ? postData.data.author[0]
+      : postData.data.author?.name || 'EvolutionHub Team',
+    url: 'https://evolution-hub.de/team', // Placeholder URL, adjust if specific author URLs exist
   },
   publisher: {
     '@type': 'Organization',
     name: 'EvolutionHub',
     logo: {
       '@type': 'ImageObject',
-      url: new URL('/images/logo.png', Astro.site).toString()
-    }
+      url: new URL('/images/logo.png', Astro.site).toString(),
+    },
   },
   datePublished: datePublishedISO,
   dateModified: dateModifiedISO,
   mainEntityOfPage: {
     '@type': 'WebPage',
-    '@id': canonicalUrl.toString()
-  }
+    '@id': canonicalUrl.toString(),
+  },
 };
 // Blog-Enhancements werden importfrei inline initialisiert (kein Astro.resolve)
 ---
@@ -141,7 +148,9 @@ const structuredData = {
   type="article"
   publishedTime={datePublishedISO}
   modifiedTime={dateModifiedISO}
-  author={Array.isArray(postData.data.author) ? postData.data.author[0] : postData.data.author?.name || 'EvolutionHub Team'}
+  author={Array.isArray(postData.data.author)
+    ? postData.data.author[0]
+    : postData.data.author?.name || 'EvolutionHub Team'}
   section={postData.data.category}
   tags={postData.data.tags}
 >
@@ -154,7 +163,12 @@ const structuredData = {
         </BlogPostComponent>
 
         {/* Kommentarbereich */}
-        <CommentSection entityType="blog_post" entityId={slug} initialUser={initialUser} client:load />
+        <CommentSection
+          entityType="blog_post"
+          entityId={slug}
+          initialUser={initialUser}
+          client:load
+        />
       </div>
     </div>
   </article>
@@ -163,13 +177,28 @@ const structuredData = {
   <div class="bg-gray-50 dark:bg-gray-800 py-16">
     <div class="mx-auto max-w-7xl px-6 lg:px-8">
       <div class="mx-auto max-w-2xl text-center">
-        <h2 class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-3xl" data-aos="fade-up" data-aos-duration="650">
+        <h2
+          class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-3xl"
+          data-aos="fade-up"
+          data-aos-duration="650"
+        >
           Bleiben Sie auf dem Laufenden
         </h2>
-        <p class="mx-auto mt-4 max-w-xl text-gray-600 dark:text-gray-300" data-aos="fade-up" data-aos-delay="100" data-aos-duration="650">
-          Abonnieren Sie unseren Newsletter, um über neue Artikel, Tipps und Neuigkeiten informiert zu werden.
+        <p
+          class="mx-auto mt-4 max-w-xl text-gray-600 dark:text-gray-300"
+          data-aos="fade-up"
+          data-aos-delay="100"
+          data-aos-duration="650"
+        >
+          Abonnieren Sie unseren Newsletter, um über neue Artikel, Tipps und Neuigkeiten informiert
+          zu werden.
         </p>
-        <form class="mt-8 sm:mx-auto sm:flex sm:max-w-lg" data-aos="fade-up" data-aos-delay="150" data-aos-duration="650">
+        <form
+          class="mt-8 sm:mx-auto sm:flex sm:max-w-lg"
+          data-aos="fade-up"
+          data-aos-delay="150"
+          data-aos-duration="650"
+        >
           <div class="min-w-0 flex-1">
             <label for="email" class="sr-only">E-Mail-Adresse</label>
             <input
@@ -189,7 +218,12 @@ const structuredData = {
             </button>
           </div>
         </form>
-        <p class="mt-3 text-sm text-gray-500 dark:text-gray-400" data-aos="fade-up" data-aos-delay="250" data-aos-duration="600">
+        <p
+          class="mt-3 text-sm text-gray-500 dark:text-gray-400"
+          data-aos="fade-up"
+          data-aos-delay="250"
+          data-aos-duration="600"
+        >
           Wir geben Ihre Daten nicht weiter. Sie können sich jederzeit wieder abmelden.
         </p>
       </div>
@@ -211,7 +245,11 @@ const structuredData = {
             }
             img.setAttribute('loading', 'lazy');
           });
-        } catch (err) { try { console.warn('[BlogEnhancements] enhanceLazyImages failed', err); } catch (_) {} }
+        } catch (err) {
+          try {
+            console.warn('[BlogEnhancements] enhanceLazyImages failed', err);
+          } catch (_) {}
+        }
       }
 
       function enhanceFootnotes() {
@@ -221,9 +259,18 @@ const structuredData = {
             if (a.hasAttribute('data-footnote-enhanced')) return;
             a.setAttribute('data-footnote-enhanced', 'true');
             a.setAttribute('data-tooltip', 'Zum entsprechenden Absatz springen');
-            a.classList.add('underline', 'decoration-dotted', 'decoration-gray-400', 'underline-offset-4');
+            a.classList.add(
+              'underline',
+              'decoration-dotted',
+              'decoration-gray-400',
+              'underline-offset-4'
+            );
           });
-        } catch (err) { try { console.warn('[BlogEnhancements] enhanceFootnotes failed', err); } catch (_) {} }
+        } catch (err) {
+          try {
+            console.warn('[BlogEnhancements] enhanceFootnotes failed', err);
+          } catch (_) {}
+        }
       }
 
       function init() {
@@ -258,7 +305,9 @@ const structuredData = {
 
       // Cleanup vor Seitenwechsel
       window.addEventListener('beforeunload', () => {
-        try { cleanup(); } catch (_) {}
+        try {
+          cleanup();
+        } catch (_) {}
       });
     })();
   </script>

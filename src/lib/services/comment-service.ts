@@ -5,13 +5,7 @@ import { rateLimit } from '../rate-limiter';
 import { validateCsrfToken } from '../security/csrf';
 import { checkSpam } from '../spam-detection';
 import { sanitizeCommentContent } from '../security/sanitize';
-import {
-  comments,
-  commentModeration,
-  commentReports,
-  commentAuditLogs,
-  users
-} from '../db/schema';
+import { comments, commentModeration, commentReports, commentAuditLogs, users } from '../db/schema';
 import type {
   Comment,
   CreateCommentRequest,
@@ -27,7 +21,7 @@ import type {
   CommentAuditLog,
   AuditLogFilters,
   AuditLogListResponse,
-  AuditAction
+  AuditAction,
 } from '../types/comments';
 
 export class CommentService {
@@ -154,10 +148,7 @@ export class CommentService {
         editedAt: now,
         updatedAt: now,
       })
-      .where(and(
-        eq(comments.id, commentId),
-        eq(comments.authorId, userId)
-      ));
+      .where(and(eq(comments.id, commentId), eq(comments.authorId, userId)));
 
     return this.getCommentById(commentId);
   }
@@ -165,11 +156,7 @@ export class CommentService {
   /**
    * Delete a comment
    */
-  async deleteComment(
-    commentId: string,
-    userId: number,
-    csrfToken: string
-  ): Promise<void> {
+  async deleteComment(commentId: string, userId: number, csrfToken: string): Promise<void> {
     // CSRF validation
     const isValidCsrf = await validateCsrfToken(csrfToken);
     if (!isValidCsrf) {
@@ -183,10 +170,7 @@ export class CommentService {
         status: 'hidden',
         updatedAt: Math.floor(Date.now() / 1000),
       })
-      .where(and(
-        eq(comments.id, commentId),
-        eq(comments.authorId, userId)
-      ));
+      .where(and(eq(comments.id, commentId), eq(comments.authorId, userId)));
   }
 
   /**
@@ -201,7 +185,7 @@ export class CommentService {
           FROM ${commentReports}
           WHERE ${commentReports.commentId} = ${comments.id}
           AND ${commentReports.status} IN ('pending', 'reviewed')
-        )`
+        )`,
       })
       .from(comments)
       .leftJoin(commentReports, eq(commentReports.commentId, comments.id))
@@ -257,10 +241,7 @@ export class CommentService {
     const baseWhere = whereConditions.length > 0 ? and(...whereConditions) : undefined;
 
     // Get total count
-    const totalResult = await this.db
-      .select({ count: count() })
-      .from(comments)
-      .where(baseWhere);
+    const totalResult = await this.db.select({ count: count() }).from(comments).where(baseWhere);
 
     const total = totalResult[0]?.count || 0;
 
@@ -273,7 +254,7 @@ export class CommentService {
           FROM ${commentReports}
           WHERE ${commentReports.commentId} = ${comments.id}
           AND ${commentReports.status} IN ('pending', 'reviewed')
-        )`
+        )`,
       })
       .from(comments)
       .where(baseWhere)
@@ -288,7 +269,7 @@ export class CommentService {
 
     // Fetch replies if requested (batch-load to avoid N+1 problem)
     if (includeReplies && commentsWithReports.length > 0) {
-      const parentIds = commentsWithReports.map(c => c.id);
+      const parentIds = commentsWithReports.map((c) => c.id);
 
       // Load all replies in a single query
       const allRepliesResults = await this.db
@@ -299,13 +280,10 @@ export class CommentService {
             FROM ${commentReports}
             WHERE ${commentReports.commentId} = ${comments.id}
             AND ${commentReports.status} IN ('pending', 'reviewed')
-          )`
+          )`,
         })
         .from(comments)
-        .where(and(
-          inArray(comments.parentId, parentIds),
-          eq(comments.status, 'approved')
-        ))
+        .where(and(inArray(comments.parentId, parentIds), eq(comments.status, 'approved')))
         .orderBy(comments.createdAt);
 
       // Group replies by parent ID
@@ -346,13 +324,10 @@ export class CommentService {
           FROM ${commentReports}
           WHERE ${commentReports.commentId} = ${comments.id}
           AND ${commentReports.status} IN ('pending', 'reviewed')
-        )`
+        )`,
       })
       .from(comments)
-      .where(and(
-        eq(comments.parentId, parentId),
-        eq(comments.status, 'approved')
-      ))
+      .where(and(eq(comments.parentId, parentId), eq(comments.status, 'approved')))
       .orderBy(comments.createdAt);
 
     return replyResults.map(({ comment, reportCount }) => ({
@@ -372,13 +347,16 @@ export class CommentService {
     const now = Math.floor(Date.now() / 1000);
 
     // Insert moderation record
-    const moderationResult = await this.db.insert(commentModeration).values({
-      commentId,
-      moderatorId,
-      action: request.action,
-      reason: request.reason,
-      createdAt: now,
-    }).returning();
+    const moderationResult = await this.db
+      .insert(commentModeration)
+      .values({
+        commentId,
+        moderatorId,
+        action: request.action,
+        reason: request.reason,
+        createdAt: now,
+      })
+      .returning();
 
     // Update comment status based on action
     const newStatus = this.getStatusFromAction(request.action);
@@ -405,15 +383,18 @@ export class CommentService {
   ): Promise<CommentReport> {
     const now = Math.floor(Date.now() / 1000);
 
-    const reportResult = await this.db.insert(commentReports).values({
-      commentId,
-      reporterId: reporterId || null,
-      reporterEmail: request.reporterEmail,
-      reason: request.reason,
-      description: request.description,
-      status: 'pending',
-      createdAt: now,
-    }).returning();
+    const reportResult = await this.db
+      .insert(commentReports)
+      .values({
+        commentId,
+        reporterId: reporterId || null,
+        reporterEmail: request.reporterEmail,
+        reason: request.reason,
+        description: request.description,
+        status: 'pending',
+        createdAt: now,
+      })
+      .returning();
 
     // Auto-flag comment if it has multiple reports
     const reportCount = await this.getCommentReportCount(commentId);
@@ -509,7 +490,7 @@ export class CommentService {
           WHERE ${commentModeration.commentId} = ${comments.id}
           ORDER BY ${commentModeration.createdAt} DESC
           LIMIT 1
-        )`
+        )`,
       })
       .from(comments)
       .where(eq(comments.status, 'flagged'))
@@ -530,10 +511,7 @@ export class CommentService {
     const result = await this.db
       .select({ count: count() })
       .from(commentReports)
-      .where(and(
-        eq(commentReports.commentId, commentId),
-        eq(commentReports.status, 'pending')
-      ));
+      .where(and(eq(commentReports.commentId, commentId), eq(commentReports.status, 'pending')));
 
     return result[0]?.count || 0;
   }

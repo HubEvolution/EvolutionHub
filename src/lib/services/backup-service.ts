@@ -11,7 +11,7 @@ import type {
   BackupOptions,
   BackupProgress,
   SystemMaintenance,
-  MaintenanceType
+  MaintenanceType,
 } from '../types/data-management';
 
 export class BackupService {
@@ -24,10 +24,7 @@ export class BackupService {
   /**
    * Erstellt einen neuen Backup-Job
    */
-  async createBackupJob(
-    options: BackupOptions,
-    triggeredBy?: number
-  ): Promise<string> {
+  async createBackupJob(options: BackupOptions, triggeredBy?: number): Promise<string> {
     const jobId = crypto.randomUUID();
 
     await this.db.insert(backupJobs).values({
@@ -60,11 +57,7 @@ export class BackupService {
         .where(eq(backupJobs.id, jobId));
 
       // Hole Job-Details
-      const job = await this.db
-        .select()
-        .from(backupJobs)
-        .where(eq(backupJobs.id, jobId))
-        .limit(1);
+      const job = await this.db.select().from(backupJobs).where(eq(backupJobs.id, jobId)).limit(1);
 
       if (!job[0]) {
         throw new Error('Backup job not found');
@@ -90,7 +83,6 @@ export class BackupService {
           completedAt: Date.now(),
         })
         .where(eq(backupJobs.id, jobId));
-
     } catch (error) {
       console.error('Backup job failed:', error);
 
@@ -199,7 +191,7 @@ export class BackupService {
     let hash = 0;
     for (let i = 0; i < content.length; i++) {
       const char = content.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
+      hash = (hash << 5) - hash + char;
       hash = hash & hash; // Convert to 32-bit integer
     }
     return Math.abs(hash).toString(16);
@@ -219,11 +211,7 @@ export class BackupService {
    * Holt Backup-Job-Details
    */
   async getBackupJob(jobId: string): Promise<BackupJob | null> {
-    const jobs = await this.db
-      .select()
-      .from(backupJobs)
-      .where(eq(backupJobs.id, jobId))
-      .limit(1);
+    const jobs = await this.db.select().from(backupJobs).where(eq(backupJobs.id, jobId)).limit(1);
 
     return jobs[0] || null;
   }
@@ -232,11 +220,7 @@ export class BackupService {
    * Holt alle Backup-Jobs
    */
   async getBackupJobs(limit = 50): Promise<BackupJob[]> {
-    return await this.db
-      .select()
-      .from(backupJobs)
-      .orderBy(desc(backupJobs.startedAt))
-      .limit(limit);
+    return await this.db.select().from(backupJobs).orderBy(desc(backupJobs.startedAt)).limit(limit);
   }
 
   /**
@@ -266,10 +250,13 @@ export class BackupService {
     console.log(`Scheduled automated backup: ${type} with cron: ${cronExpression}`);
 
     // Für jetzt simulieren wir einen sofortigen Backup
-    await this.createBackupJob({
-      type: type as any,
-      incremental: type === 'incremental',
-    }, undefined);
+    await this.createBackupJob(
+      {
+        type: type as any,
+        incremental: type === 'incremental',
+      },
+      undefined
+    );
   }
 
   /**
@@ -333,7 +320,6 @@ export class BackupService {
           completedAt: Date.now(),
         })
         .where(eq(systemMaintenance.id, maintenanceId));
-
     } catch (error) {
       console.error('Maintenance failed:', error);
 
@@ -380,20 +366,20 @@ export class BackupService {
    */
   private async performCleanup(): Promise<void> {
     // Lösche alte, abgelaufene Export-Jobs
-    const deletedExports = await this.db
-      .delete(backupJobs)
-      .where(and(
+    const deletedExports = await this.db.delete(backupJobs).where(
+      and(
         eq(backupJobs.status, 'completed'),
-        lte(backupJobs.completedAt, Date.now() - (30 * 24 * 60 * 60 * 1000)) // 30 Tage alt
-      ));
+        lte(backupJobs.completedAt, Date.now() - 30 * 24 * 60 * 60 * 1000) // 30 Tage alt
+      )
+    );
 
     // Lösche alte Benachrichtigungen
-    await this.db
-      .delete(notifications)
-      .where(and(
+    await this.db.delete(notifications).where(
+      and(
         eq(notifications.isRead, true),
-        lte(notifications.readAt, Date.now() - (90 * 24 * 60 * 60 * 1000)) // 90 Tage alt
-      ));
+        lte(notifications.readAt, Date.now() - 90 * 24 * 60 * 60 * 1000) // 90 Tage alt
+      )
+    );
 
     console.log('Cleanup completed');
   }
@@ -470,14 +456,11 @@ export class BackupService {
    * Löscht alte Backup-Jobs
    */
   async cleanupOldBackups(retentionDays = 30): Promise<number> {
-    const cutoffDate = Date.now() - (retentionDays * 24 * 60 * 60 * 1000);
+    const cutoffDate = Date.now() - retentionDays * 24 * 60 * 60 * 1000;
 
     const deletedJobs = await this.db
       .delete(backupJobs)
-      .where(and(
-        eq(backupJobs.status, 'completed'),
-        lte(backupJobs.completedAt, cutoffDate)
-      ));
+      .where(and(eq(backupJobs.status, 'completed'), lte(backupJobs.completedAt, cutoffDate)));
 
     return deletedJobs.length || 0;
   }

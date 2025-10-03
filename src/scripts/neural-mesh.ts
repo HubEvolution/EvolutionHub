@@ -263,10 +263,7 @@ class NeuralMesh {
 
         if (distance < this.MAX_DISTANCE) {
           const opacity = 1 - distance / this.MAX_DISTANCE;
-          this.ctx.strokeStyle = colors.line.replace(
-            /[\d.]+\)$/,
-            `${opacity * 0.3})`
-          );
+          this.ctx.strokeStyle = colors.line.replace(/[\d.]+\)$/, `${opacity * 0.3})`);
 
           this.ctx.beginPath();
           this.ctx.moveTo(this.particles[i].x, this.particles[i].y);
@@ -275,10 +272,7 @@ class NeuralMesh {
 
           // Add accent glow for very close particles
           if (distance < this.MAX_DISTANCE * 0.5) {
-            this.ctx.strokeStyle = colors.accent.replace(
-              /[\d.]+\)$/,
-              `${opacity * 0.6})`
-            );
+            this.ctx.strokeStyle = colors.accent.replace(/[\d.]+\)$/, `${opacity * 0.6})`);
             this.ctx.lineWidth = 2;
             this.ctx.stroke();
             this.ctx.lineWidth = 1;

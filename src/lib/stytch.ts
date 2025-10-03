@@ -66,18 +66,26 @@ function resolveBaseUrl(projectId: string): string {
 }
 
 function readStytchConfig(context: APIContext): StytchConfig {
-  const env = (context.locals as unknown as { runtime?: { env?: Record<string, string> } })?.runtime?.env || {};
+  const env =
+    (context.locals as unknown as { runtime?: { env?: Record<string, string> } })?.runtime?.env ||
+    {};
   const projectId = (env as Record<string, string>).STYTCH_PROJECT_ID;
   const secret = (env as Record<string, string>).STYTCH_SECRET;
   if (!projectId || !secret) {
     // Mark as provider config error to allow structured mapping at API boundary
-    throw new StytchError(500, 'config_error', 'Missing STYTCH_PROJECT_ID/STYTCH_SECRET in environment');
+    throw new StytchError(
+      500,
+      'config_error',
+      'Missing STYTCH_PROJECT_ID/STYTCH_SECRET in environment'
+    );
   }
   return { projectId, secret };
 }
 
 function isE2EFake(context: APIContext): boolean {
-  const env = (context.locals as unknown as { runtime?: { env?: Record<string, string> } })?.runtime?.env || {};
+  const env =
+    (context.locals as unknown as { runtime?: { env?: Record<string, string> } })?.runtime?.env ||
+    {};
   const val = (env as Record<string, string>).E2E_FAKE_STYTCH;
   return val === '1' || val === 'true';
 }
@@ -92,7 +100,7 @@ export async function stytchMagicLinkLoginOrCreate(
       user_id: 'fake-user-id',
       user: {
         user_id: 'fake-user-id',
-        emails: [{ email: req.email, verified: true }]
+        emails: [{ email: req.email, verified: true }],
       },
       status_code: 200,
     };
@@ -103,7 +111,7 @@ export async function stytchMagicLinkLoginOrCreate(
   const res = await fetch(url, {
     method: 'POST',
     headers: {
-      'Authorization': toBasicAuth(projectId, secret),
+      Authorization: toBasicAuth(projectId, secret),
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(req),
@@ -112,7 +120,11 @@ export async function stytchMagicLinkLoginOrCreate(
   if (!res.ok) {
     const et = (json as any)?.error_type || 'unknown_error';
     const em = (json as any)?.error_message || (json as any)?.message || '';
-    throw new StytchError(res.status, et, `Stytch login_or_create failed: ${res.status} ${et}${em ? ` - ${em}` : ''}`);
+    throw new StytchError(
+      res.status,
+      et,
+      `Stytch login_or_create failed: ${res.status} ${et}${em ? ` - ${em}` : ''}`
+    );
   }
   return json;
 }
@@ -144,7 +156,7 @@ export async function stytchOAuthAuthenticate(
   const res = await fetch(url, {
     method: 'POST',
     headers: {
-      'Authorization': toBasicAuth(projectId, secret),
+      Authorization: toBasicAuth(projectId, secret),
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({ token }),
@@ -153,7 +165,11 @@ export async function stytchOAuthAuthenticate(
   if (!res.ok) {
     const et = (json as any)?.error_type || 'unknown_error';
     const em = (json as any)?.error_message || (json as any)?.message || '';
-    throw new StytchError(res.status, et, `Stytch OAuth authenticate failed: ${res.status} ${et}${em ? ` - ${em}` : ''}`);
+    throw new StytchError(
+      res.status,
+      et,
+      `Stytch OAuth authenticate failed: ${res.status} ${et}${em ? ` - ${em}` : ''}`
+    );
   }
   return json;
 }
@@ -187,7 +203,7 @@ export async function stytchMagicLinkAuthenticate(
       user_id: 'fake-user-id',
       user: {
         user_id: 'fake-user-id',
-        emails: [{ email, verified: true }]
+        emails: [{ email, verified: true }],
       },
       status_code: 200,
     };
@@ -198,7 +214,7 @@ export async function stytchMagicLinkAuthenticate(
   const res = await fetch(url, {
     method: 'POST',
     headers: {
-      'Authorization': toBasicAuth(projectId, secret),
+      Authorization: toBasicAuth(projectId, secret),
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({ token }),
@@ -207,7 +223,11 @@ export async function stytchMagicLinkAuthenticate(
   if (!res.ok) {
     const et = (json as any)?.error_type || 'unknown_error';
     const em = (json as any)?.error_message || (json as any)?.message || '';
-    throw new StytchError(res.status, et, `Stytch authenticate failed: ${res.status} ${et}${em ? ` - ${em}` : ''}`);
+    throw new StytchError(
+      res.status,
+      et,
+      `Stytch authenticate failed: ${res.status} ${et}${em ? ` - ${em}` : ''}`
+    );
   }
   return json;
 }

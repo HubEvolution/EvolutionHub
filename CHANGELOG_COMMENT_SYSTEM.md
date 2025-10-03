@@ -11,6 +11,7 @@ Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/).
 ### ✅ Kritische Bugfixes
 
 #### Fixed
+
 - **SQL-Query-Fehler behoben** (`src/lib/services/comment-service.ts:236-237`)
   - Verschachteltes `and()` in `whereConditions` entfernt
   - Fehler bei entity_type/entity_id-Filtern behoben
@@ -24,6 +25,7 @@ Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/).
 ### ⚡ Quick-Wins (Performance & Security)
 
 #### Added
+
 - **XSS-Schutz mit DOMPurify** (`src/lib/security/sanitize.ts`)
   - Neue Datei: `src/lib/security/sanitize.ts` mit `sanitizeCommentContent()` und `stripHtml()`
   - Integration in `src/lib/services/comment-service.ts` (createComment + updateComment)
@@ -47,6 +49,7 @@ Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/).
   - **Impact:** Bessere Accessibility (WCAG 2.1 AA Teilkonformität)
 
 #### Changed
+
 - **N+1 Query-Problem behoben** (`src/lib/services/comment-service.ts:290-328`)
   - Replies werden jetzt in **einem** Query geladen (Batch-Loading)
   - `inArray()` statt Loop für Parent-IDs
@@ -63,29 +66,32 @@ Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/).
 ### 📦 Dependencies
 
 #### Added
+
 - `isomorphic-dompurify` - XSS-Schutz für User-Generated Content
 
 ### 📊 Metriken (Vorher/Nachher)
 
-| Metrik | Vorher | Nachher | Verbesserung |
-|--------|--------|---------|--------------|
-| User-Erkennung | ❌ "Gast" | ✅ Eingeloggt | 100% |
-| SQL-Query Fehler | ❌ Fehler | ✅ Funktioniert | Kritisch behoben |
-| XSS-Schutz | ❌ Keine | ✅ DOMPurify | Security ⭐⭐⭐⭐⭐ |
-| DB-Queries (Replies) | 50 Queries | 1 Query | Performance +98% |
-| UI-Response-Zeit | 500ms+ | Sofort | UX ⭐⭐⭐⭐⭐ |
-| Keyboard-Navigation | ❌ Keine | ✅ Strg+Enter | Accessibility ⭐⭐⭐⭐ |
-| Error-Handling | ❌ Weiße Seite | ✅ Fallback-UI | Resilience ⭐⭐⭐⭐⭐ |
+| Metrik               | Vorher         | Nachher         | Verbesserung           |
+| -------------------- | -------------- | --------------- | ---------------------- |
+| User-Erkennung       | ❌ "Gast"      | ✅ Eingeloggt   | 100%                   |
+| SQL-Query Fehler     | ❌ Fehler      | ✅ Funktioniert | Kritisch behoben       |
+| XSS-Schutz           | ❌ Keine       | ✅ DOMPurify    | Security ⭐⭐⭐⭐⭐    |
+| DB-Queries (Replies) | 50 Queries     | 1 Query         | Performance +98%       |
+| UI-Response-Zeit     | 500ms+         | Sofort          | UX ⭐⭐⭐⭐⭐          |
+| Keyboard-Navigation  | ❌ Keine       | ✅ Strg+Enter   | Accessibility ⭐⭐⭐⭐ |
+| Error-Handling       | ❌ Weiße Seite | ✅ Fallback-UI  | Resilience ⭐⭐⭐⭐⭐  |
 
 ### 📚 Dokumentation
 
 #### Changed
+
 - `docs/development/comment-system-implementation.md` - Sprint 1 Änderungen dokumentiert
 - `docs/COMMENT_SYSTEM_OPTIMIZATION_PLAN.md` - Quick-Wins als abgeschlossen markiert, Scores aktualisiert
 
 ### 🎯 Nächste Schritte (Sprint 2)
 
 Siehe `docs/COMMENT_SYSTEM_OPTIMIZATION_PLAN.md`:
+
 - Phase 1: KV-basiertes Rate-Limiting (kritisch für Production)
 - Phase 1: CSRF-Token mit TTL + Rotation
 - Phase 2: Cache-Layer mit Cloudflare KV
@@ -96,6 +102,7 @@ Siehe `docs/COMMENT_SYSTEM_OPTIMIZATION_PLAN.md`:
 ## [Unreleased]
 
 Noch nicht implementierte Features aus dem Optimierungsplan:
+
 - Real-time Updates (WebSocket/SSE)
 - Rich-Text-Editor (Markdown)
 - Reactions/Voting-System
@@ -244,13 +251,13 @@ Detaillierte Sprint-Planung: **[docs/COMMENT_SYSTEM_SPRINT_PLAN.md](./docs/COMME
 
 ### Gesamt-Roadmap
 
-| Meilenstein | Completion | Features | Score |
-|-------------|-----------|----------|-------|
-| ✅ Sprint 1 | 2025-10-02 | Quick-Wins + Bugfixes | 7.5/10 |
-| 📋 Sprint 2 | 2025-11-15 | KV + Cache + Performance | 8.5/10 |
-| 📋 Sprint 3 | 2025-12-06 | WCAG 2.1 AA Compliance | 9/10 |
-| 📋 Sprint 4 | 2026-01-17 | Reactions + Markdown + Real-time | 9.5/10 |
-| 📋 Sprint 5 | 2026-02-14 | AI-Moderation + Analytics | **10/10** 🏆 |
+| Meilenstein | Completion | Features                         | Score        |
+| ----------- | ---------- | -------------------------------- | ------------ |
+| ✅ Sprint 1 | 2025-10-02 | Quick-Wins + Bugfixes            | 7.5/10       |
+| 📋 Sprint 2 | 2025-11-15 | KV + Cache + Performance         | 8.5/10       |
+| 📋 Sprint 3 | 2025-12-06 | WCAG 2.1 AA Compliance           | 9/10         |
+| 📋 Sprint 4 | 2026-01-17 | Reactions + Markdown + Real-time | 9.5/10       |
+| 📋 Sprint 5 | 2026-02-14 | AI-Moderation + Analytics        | **10/10** 🏆 |
 
 **Gesamt-Aufwand:** 20 Wochen | 186 Story Points
 

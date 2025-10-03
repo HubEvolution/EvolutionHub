@@ -20,38 +20,52 @@ const {
   showCompanyField = false,
   showNameFields = true,
   variant = 'inline',
-  size = 'md'
+  size = 'md',
 } = Astro.props;
 
 const locale = getLocale(Astro.url.pathname);
 
 // Variant-spezifische Styles
 const variantStyles = {
-  modal: 'bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700',
-  inline: 'bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-lg border border-gray-200 dark:border-gray-700',
-  sidebar: 'bg-emerald-50 dark:bg-gray-800 rounded-lg border-l-4 border-emerald-500'
+  modal:
+    'bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700',
+  inline:
+    'bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-lg border border-gray-200 dark:border-gray-700',
+  sidebar: 'bg-emerald-50 dark:bg-gray-800 rounded-lg border-l-4 border-emerald-500',
 };
 
 const sizeStyles = {
   sm: 'p-4',
   md: 'p-6',
-  lg: 'p-8'
+  lg: 'p-8',
 };
 
 // Unique form ID für Multiple Forms auf einer Seite
 const formId = `lead-magnet-form-${leadMagnetId}-${Math.random().toString(36).slice(2, 7)}`;
 ---
 
-<div 
+<div
   class={`lead-magnet-form ${variantStyles[variant]} ${sizeStyles[size]} transition-all duration-300`}
   data-lead-magnet-id={leadMagnetId}
   data-variant={variant}
 >
   <!-- Header -->
   <div class="text-center mb-6">
-    <div class="inline-flex items-center justify-center w-12 h-12 bg-emerald-100 dark:bg-emerald-900/30 rounded-full mb-4">
-      <svg class="w-6 h-6 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+    <div
+      class="inline-flex items-center justify-center w-12 h-12 bg-emerald-100 dark:bg-emerald-900/30 rounded-full mb-4"
+    >
+      <svg
+        class="w-6 h-6 text-emerald-600 dark:text-emerald-400"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+        ></path>
       </svg>
     </div>
     <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">
@@ -63,46 +77,53 @@ const formId = `lead-magnet-form-${leadMagnetId}-${Math.random().toString(36).sl
   </div>
 
   <!-- Form -->
-  <form 
-    id={formId}
-    class="lead-magnet-form-element space-y-4"
-    data-lead-magnet-id={leadMagnetId}
-  >
+  <form id={formId} class="lead-magnet-form-element space-y-4" data-lead-magnet-id={leadMagnetId}>
     <!-- Name Fields (optional) -->
-    {showNameFields && (
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label for={`${formId}-firstName`} class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Vorname
-          </label>
-          <input
-            type="text"
-            id={`${formId}-firstName`}
-            name="firstName"
-            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
-            placeholder="Max"
-            autocomplete="given-name"
-          />
+    {
+      showNameFields && (
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label
+              for={`${formId}-firstName`}
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            >
+              Vorname
+            </label>
+            <input
+              type="text"
+              id={`${formId}-firstName`}
+              name="firstName"
+              class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
+              placeholder="Max"
+              autocomplete="given-name"
+            />
+          </div>
+          <div>
+            <label
+              for={`${formId}-lastName`}
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            >
+              Nachname
+            </label>
+            <input
+              type="text"
+              id={`${formId}-lastName`}
+              name="lastName"
+              class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
+              placeholder="Mustermann"
+              autocomplete="family-name"
+            />
+          </div>
         </div>
-        <div>
-          <label for={`${formId}-lastName`} class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Nachname
-          </label>
-          <input
-            type="text"
-            id={`${formId}-lastName`}
-            name="lastName"
-            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
-            placeholder="Mustermann"
-            autocomplete="family-name"
-          />
-        </div>
-      </div>
-    )}
+      )
+    }
 
     <!-- Email Field (required) -->
     <div>
-      <label for={`${formId}-email`} class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+      <label
+        for={`${formId}-email`}
+        class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+      >
         E-Mail-Adresse <span class="text-red-500">*</span>
       </label>
       <div class="relative">
@@ -117,28 +138,38 @@ const formId = `lead-magnet-form-${leadMagnetId}-${Math.random().toString(36).sl
         />
         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
           <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"></path>
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"
+            ></path>
           </svg>
         </div>
       </div>
     </div>
 
     <!-- Company Field (optional) -->
-    {showCompanyField && (
-      <div>
-        <label for={`${formId}-company`} class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          Unternehmen
-        </label>
-        <input
-          type="text"
-          id={`${formId}-company`}
-          name="company"
-          class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
-          placeholder="Ihr Unternehmen"
-          autocomplete="organization"
-        />
-      </div>
-    )}
+    {
+      showCompanyField && (
+        <div>
+          <label
+            for={`${formId}-company`}
+            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+          >
+            Unternehmen
+          </label>
+          <input
+            type="text"
+            id={`${formId}-company`}
+            name="company"
+            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
+            placeholder="Ihr Unternehmen"
+            autocomplete="organization"
+          />
+        </div>
+      )
+    }
 
     <!-- Hidden Fields für Tracking -->
     <input type="hidden" name="leadMagnetId" value={leadMagnetId} />
@@ -154,18 +185,32 @@ const formId = `lead-magnet-form-${leadMagnetId}-${Math.random().toString(36).sl
       data-submit-text={submitText}
     >
       <span class="submit-text">{submitText}</span>
-      <svg class="w-4 h-4 ml-2 loading-spinner hidden animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4V2m0 20v-2m8-8h-2M4 12H2m15.364-7.364l-1.414 1.414M6.05 17.95l-1.414 1.414m12.728 0l-1.414-1.414M6.05 6.05L4.636 4.636"></path>
+      <svg
+        class="w-4 h-4 ml-2 loading-spinner hidden animate-spin"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M12 4V2m0 20v-2m8-8h-2M4 12H2m15.364-7.364l-1.414 1.414M6.05 17.95l-1.414 1.414m12.728 0l-1.414-1.414M6.05 6.05L4.636 4.636"
+        ></path>
       </svg>
     </button>
 
     <!-- Privacy Notice -->
     <div class="text-center">
       <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
-        Mit dem Absenden erklären Sie sich mit unserer 
-        <a href={`/${locale}/datenschutz`} class="text-emerald-600 dark:text-emerald-400 hover:underline" target="_blank">
+        Mit dem Absenden erklären Sie sich mit unserer
+        <a
+          href={`/${locale}/datenschutz`}
+          class="text-emerald-600 dark:text-emerald-400 hover:underline"
+          target="_blank"
+        >
           Datenschutzerklärung
-        </a> 
+        </a>
         einverstanden. Sie können sich jederzeit abmelden.
       </p>
     </div>
@@ -173,63 +218,83 @@ const formId = `lead-magnet-form-${leadMagnetId}-${Math.random().toString(36).sl
 
   <!-- Success Message (initially hidden) -->
   <div class="success-message hidden text-center p-6">
-    <div class="inline-flex items-center justify-center w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full mb-4">
-      <svg class="w-8 h-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+    <div
+      class="inline-flex items-center justify-center w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full mb-4"
+    >
+      <svg
+        class="w-8 h-8 text-green-600 dark:text-green-400"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"
+        ></path>
       </svg>
     </div>
-    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-      Download gestartet!
-    </h3>
+    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Download gestartet!</h3>
     <p class="text-sm text-gray-600 dark:text-gray-300 mb-4">
       Vielen Dank! Sie erhalten eine E-Mail mit dem Download-Link.
     </p>
-    <a 
-      href="#" 
+    <a
+      href="#"
       class="download-link inline-flex items-center px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors duration-200"
       download
     >
       <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+        ></path>
       </svg>
       Direkt herunterladen
     </a>
   </div>
 
   <!-- Error Message (initially hidden) -->
-  <div class="error-message hidden text-center p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+  <div
+    class="error-message hidden text-center p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg"
+  >
     <div class="flex items-center justify-center mb-2">
-      <svg class="w-5 h-5 text-red-600 dark:text-red-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      <svg
+        class="w-5 h-5 text-red-600 dark:text-red-400 mr-2"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
       </svg>
-      <h4 class="text-sm font-medium text-red-800 dark:text-red-200">
-        Ein Fehler ist aufgetreten
-      </h4>
+      <h4 class="text-sm font-medium text-red-800 dark:text-red-200">Ein Fehler ist aufgetreten</h4>
     </div>
     <p class="text-sm text-red-700 dark:text-red-300 error-text">
       Bitte versuchen Sie es später erneut.
     </p>
-    <button 
-      type="button" 
+    <button
+      type="button"
       class="retry-button mt-2 text-sm text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-200 underline"
     >
       Erneut versuchen
     </button>
   </div>
- </div>
+</div>
 
 <script is:inline nonce={Astro.locals.cspNonce}>
   // Lead Magnet Form Handler (pure JS, no TS syntax)
   document.addEventListener('DOMContentLoaded', () => {
     const forms = document.querySelectorAll('.lead-magnet-form-element');
-    
+
     forms.forEach((form) => {
       if (!(form instanceof HTMLFormElement)) return;
       const formElement = form;
       const leadMagnetId = formElement.dataset.leadMagnetId;
       const container = formElement.closest('.lead-magnet-form');
       if (!container) return; // Skip if container not found
-      
+
       const submitButton = formElement.querySelector('button[type="submit"]');
       const submitText = formElement.querySelector('.submit-text');
       const loadingSpinner = formElement.querySelector('.loading-spinner');
@@ -238,125 +303,124 @@ const formId = `lead-magnet-form-${leadMagnetId}-${Math.random().toString(36).sl
       const errorText = container.querySelector('.error-text');
       const retryButton = container.querySelector('.retry-button');
       const downloadLink = container.querySelector('.download-link');
-      
+
       // UTM Parameter aus URL extrahieren
       const urlParams = new URLSearchParams(window.location.search);
       const utmSource = urlParams.get('utm_source') || '';
       const utmMedium = urlParams.get('utm_medium') || '';
       const utmCampaign = urlParams.get('utm_campaign') || '';
       const source = document.referrer || 'direct';
-      
+
       // Hidden Fields befüllen
       const sourceField = formElement.querySelector('[name="source"]');
       const utmSourceField = formElement.querySelector('[name="utmSource"]');
       const utmMediumField = formElement.querySelector('[name="utmMedium"]');
       const utmCampaignField = formElement.querySelector('[name="utmCampaign"]');
-      
+
       if (sourceField && 'value' in sourceField) sourceField.value = source;
       if (utmSourceField && 'value' in utmSourceField) utmSourceField.value = utmSource;
       if (utmMediumField && 'value' in utmMediumField) utmMediumField.value = utmMedium;
       if (utmCampaignField && 'value' in utmCampaignField) utmCampaignField.value = utmCampaign;
-      
+
       // Form Submit Handler
       formElement.addEventListener('submit', async (e) => {
         e.preventDefault();
-        
+
         // Button-State: Loading
         if (submitButton) {
           submitButton.disabled = true;
           if (submitText) submitText.textContent = 'Wird verarbeitet...';
           if (loadingSpinner) loadingSpinner.classList.remove('hidden');
         }
-        
+
         // Error-Message verstecken
         if (errorMessage) errorMessage.classList.add('hidden');
-        
+
         try {
           // Form-Daten sammeln
           const formData = new FormData(formElement);
           const data = Object.fromEntries(formData.entries());
-          
+
           // Analytics-Event senden
           if (typeof window !== 'undefined' && typeof window.gtag === 'function') {
             window.gtag('event', 'lead_magnet_form_submit', {
-              'lead_magnet_id': leadMagnetId,
-              'form_location': window.location.href,
-              'event_category': 'Lead Generation'
+              lead_magnet_id: leadMagnetId,
+              form_location: window.location.href,
+              event_category: 'Lead Generation',
             });
           }
-          
+
           // API-Request
           const response = await fetch('/api/lead-magnets/download', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify(data)
+            body: JSON.stringify(data),
           });
-          
+
           const result = await response.json();
-          
+
           if (result && result.success) {
             // Success: Form verstecken, Success-Message zeigen
             if (formElement && formElement.style) formElement.style.display = 'none';
             if (successMessage) successMessage.classList.remove('hidden');
-            
+
             // Download-Link setzen
             if (result.downloadUrl && downloadLink) {
               downloadLink.href = result.downloadUrl;
               downloadLink.download = result.fileName || 'download.pdf';
             }
-            
+
             // Success-Analytics
             if (typeof window !== 'undefined' && typeof window.gtag === 'function') {
               window.gtag('event', 'lead_magnet_download_success', {
-                'lead_magnet_id': leadMagnetId,
-                'lead_id': result.leadId,
-                'event_category': 'Lead Generation'
+                lead_magnet_id: leadMagnetId,
+                lead_id: result.leadId,
+                event_category: 'Lead Generation',
               });
             }
-            
+
             // Console-Log für Development
             console.log('✅ Lead Magnet Success:', result);
-            
           } else {
             throw new Error((result && result.error) || 'Unbekannter Fehler');
           }
-          
         } catch (error) {
           console.error('❌ Lead Magnet Form Error:', error);
-          
+
           // Error-Message anzeigen
           if (errorMessage) {
             errorMessage.classList.remove('hidden');
             if (errorText) {
-              const errorMsg = error instanceof Error ? error.message : 'Ein unerwarteter Fehler ist aufgetreten.';
+              const errorMsg =
+                error instanceof Error ? error.message : 'Ein unerwarteter Fehler ist aufgetreten.';
               errorText.textContent = errorMsg;
             }
           }
-          
+
           // Error-Analytics
           if (typeof window !== 'undefined' && typeof window.gtag === 'function') {
             const errorMsg = error instanceof Error ? error.message : 'Unknown error';
             window.gtag('event', 'lead_magnet_form_error', {
-              'lead_magnet_id': leadMagnetId,
-              'error_message': errorMsg,
-              'event_category': 'Lead Generation'
+              lead_magnet_id: leadMagnetId,
+              error_message: errorMsg,
+              event_category: 'Lead Generation',
             });
           }
-          
         } finally {
           // Button-State zurücksetzen
           if (submitButton) {
             submitButton.disabled = false;
             if (submitText) {
-              submitText.textContent = (submitButton.dataset && submitButton.dataset.submitText) || 'Herunterladen';
+              submitText.textContent =
+                (submitButton.dataset && submitButton.dataset.submitText) || 'Herunterladen';
             }
             if (loadingSpinner) loadingSpinner.classList.add('hidden');
           }
         }
       });
-      
+
       // Retry Button Handler
       if (retryButton) {
         retryButton.addEventListener('click', () => {
@@ -365,25 +429,28 @@ const formId = `lead-magnet-form-${leadMagnetId}-${Math.random().toString(36).sl
           if (successMessage) successMessage.classList.add('hidden');
         });
       }
-      
+
       // Form-Impression-Tracking
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            if (typeof window !== 'undefined' && typeof window.gtag === 'function') {
-              window.gtag('event', 'lead_magnet_form_impression', {
-                'lead_magnet_id': leadMagnetId,
-                'form_location': window.location.href
-              });
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              if (typeof window !== 'undefined' && typeof window.gtag === 'function') {
+                window.gtag('event', 'lead_magnet_form_impression', {
+                  lead_magnet_id: leadMagnetId,
+                  form_location: window.location.href,
+                });
+              }
+              observer.unobserve(entry.target);
             }
-            observer.unobserve(entry.target);
-          }
-        });
-      }, {
-        threshold: 0.5,
-        rootMargin: '0px 0px -100px 0px'
-      });
-      
+          });
+        },
+        {
+          threshold: 0.5,
+          rootMargin: '0px 0px -100px 0px',
+        }
+      );
+
       observer.observe(container);
     });
   });
@@ -391,20 +458,26 @@ const formId = `lead-magnet-form-${leadMagnetId}-${Math.random().toString(36).sl
 
 <style>
   .lead-magnet-form {
-    background-image: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+    background-image: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.1) 0%,
+      rgba(255, 255, 255, 0.05) 100%
+    );
     backdrop-filter: blur(10px);
   }
-  
+
   .lead-magnet-form:hover {
     transform: translateY(-2px);
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    box-shadow:
+      0 20px 25px -5px rgba(0, 0, 0, 0.1),
+      0 10px 10px -5px rgba(0, 0, 0, 0.04);
   }
-  
+
   .lead-magnet-form input:focus,
   .lead-magnet-form textarea:focus {
     box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
   }
-  
+
   @media (prefers-reduced-motion: reduce) {
     .lead-magnet-form,
     .lead-magnet-form button,

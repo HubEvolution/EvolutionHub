@@ -82,9 +82,7 @@ async function readJSON(filePath) {
 
 async function main() {
   try {
-    const [en, de] = await Promise.all(
-      FILES.map((f) => readJSON(path.join(LOCALES_DIR, f)))
-    );
+    const [en, de] = await Promise.all(FILES.map((f) => readJSON(path.join(LOCALES_DIR, f))));
 
     const problems = [];
 
@@ -106,17 +104,19 @@ async function main() {
 
       const { missingInB, missingInA, typeMismatches } = diffSchemas(enSchema, deSchema);
       if (missingInB.length) {
-        problems.push(`DE: Fehlende Schlüssel relativ zu EN unter ${base} ->\n  - ` + missingInB.join('\n  - '));
+        problems.push(
+          `DE: Fehlende Schlüssel relativ zu EN unter ${base} ->\n  - ` + missingInB.join('\n  - ')
+        );
       }
       if (missingInA.length) {
-        problems.push(`EN: Fehlende Schlüssel relativ zu DE unter ${base} ->\n  - ` + missingInA.join('\n  - '));
+        problems.push(
+          `EN: Fehlende Schlüssel relativ zu DE unter ${base} ->\n  - ` + missingInA.join('\n  - ')
+        );
       }
       if (typeMismatches.length) {
         problems.push(
           `Typkonflikte unter ${base}:\n` +
-            typeMismatches
-              .map((m) => `  - ${m.key}: EN=${m.a} vs DE=${m.b}`)
-              .join('\n')
+            typeMismatches.map((m) => `  - ${m.key}: EN=${m.a} vs DE=${m.b}`).join('\n')
         );
       }
     }

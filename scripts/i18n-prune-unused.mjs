@@ -20,8 +20,12 @@ function parseArgs() {
   const opts = { dryRun: true, locales: ['en', 'de'], keys: [] };
   for (let i = 0; i < args.length; i++) {
     const a = args[i];
-    if (a === '--keys') opts.keys = args[++i].split(',').map(s => s.trim()).filter(Boolean);
-    else if (a === '--locales') opts.locales = args[++i].split(',').map(s => s.trim());
+    if (a === '--keys')
+      opts.keys = args[++i]
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean);
+    else if (a === '--locales') opts.locales = args[++i].split(',').map((s) => s.trim());
     else if (a === '--apply') opts.dryRun = false;
     else if (a === '--dry-run') opts.dryRun = true;
   }
@@ -32,9 +36,15 @@ function parseArgs() {
   return opts;
 }
 
-function ensureDir(dir) { fs.mkdirSync(dir, { recursive: true }); }
-function readJson(file) { return JSON.parse(fs.readFileSync(file, 'utf8')); }
-function writeJson(file, data) { fs.writeFileSync(file, JSON.stringify(data, null, 2) + '\n', 'utf8'); }
+function ensureDir(dir) {
+  fs.mkdirSync(dir, { recursive: true });
+}
+function readJson(file) {
+  return JSON.parse(fs.readFileSync(file, 'utf8'));
+}
+function writeJson(file, data) {
+  fs.writeFileSync(file, JSON.stringify(data, null, 2) + '\n', 'utf8');
+}
 
 function getByPath(obj, p) {
   const parts = p.split('.');
@@ -101,13 +111,18 @@ function main() {
 
   for (const loc of opts.locales) {
     const localeFile = path.join(LOCALES_DIR, `${loc}.json`);
-    if (!fs.existsSync(localeFile)) { console.warn(`Missing: ${localeFile}`); continue; }
+    if (!fs.existsSync(localeFile)) {
+      console.warn(`Missing: ${localeFile}`);
+      continue;
+    }
 
     const removed = pruneLocale(localeFile, opts.keys, opts.dryRun);
 
     if (!opts.dryRun && Object.keys(removed).length) {
       const archivedPath = archive(loc, removed);
-      console.log(`[${path.basename(localeFile)}] Archived ${Object.keys(removed).length} keys -> ${archivedPath}`);
+      console.log(
+        `[${path.basename(localeFile)}] Archived ${Object.keys(removed).length} keys -> ${archivedPath}`
+      );
     }
   }
   console.log('Done.');

@@ -39,7 +39,7 @@ export const CommentKeyboardNav: React.FC<CommentKeyboardNavProps> = ({
     const result: Comment[] = [];
 
     const flatten = (commentList: Comment[], depth = 0) => {
-      commentList.forEach(comment => {
+      commentList.forEach((comment) => {
         result.push(comment);
         if (comment.replies && comment.replies.length > 0) {
           flatten(comment.replies, depth + 1);
@@ -54,167 +54,189 @@ export const CommentKeyboardNav: React.FC<CommentKeyboardNavProps> = ({
   const flatComments = flattenedComments();
 
   // Find comment index in flattened array
-  const findCommentIndex = useCallback((commentId: string): number => {
-    return flatComments.findIndex(comment => comment.id === commentId);
-  }, [flatComments]);
+  const findCommentIndex = useCallback(
+    (commentId: string): number => {
+      return flatComments.findIndex((comment) => comment.id === commentId);
+    },
+    [flatComments]
+  );
 
   // Navigate to next/previous comment
-  const navigateComments = useCallback((direction: 'up' | 'down') => {
-    if (!navState.focusedCommentId || !navState.isInNavigationMode) return;
+  const navigateComments = useCallback(
+    (direction: 'up' | 'down') => {
+      if (!navState.focusedCommentId || !navState.isInNavigationMode) return;
 
-    const currentIndex = findCommentIndex(navState.focusedCommentId);
-    if (currentIndex === -1) return;
+      const currentIndex = findCommentIndex(navState.focusedCommentId);
+      if (currentIndex === -1) return;
 
-    let nextIndex;
-    if (direction === 'up') {
-      nextIndex = currentIndex > 0 ? currentIndex - 1 : flatComments.length - 1;
-    } else {
-      nextIndex = currentIndex < flatComments.length - 1 ? currentIndex + 1 : 0;
-    }
+      let nextIndex;
+      if (direction === 'up') {
+        nextIndex = currentIndex > 0 ? currentIndex - 1 : flatComments.length - 1;
+      } else {
+        nextIndex = currentIndex < flatComments.length - 1 ? currentIndex + 1 : 0;
+      }
 
-    const nextComment = flatComments[nextIndex];
-    if (nextComment) {
-      setNavState(prev => ({
-        ...prev,
-        focusedCommentId: nextComment.id,
-        selectedCommentId: nextComment.id,
-      }));
+      const nextComment = flatComments[nextIndex];
+      if (nextComment) {
+        setNavState((prev) => ({
+          ...prev,
+          focusedCommentId: nextComment.id,
+          selectedCommentId: nextComment.id,
+        }));
 
-      onCommentFocus?.(nextComment.id);
+        onCommentFocus?.(nextComment.id);
 
-      // Scroll to comment
-      const commentElement = document.querySelector(`[data-comment-id="${nextComment.id}"]`);
-      commentElement?.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center',
-      });
-    }
-  }, [navState.focusedCommentId, navState.isInNavigationMode, findCommentIndex, flatComments, onCommentFocus]);
+        // Scroll to comment
+        const commentElement = document.querySelector(`[data-comment-id="${nextComment.id}"]`);
+        commentElement?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+        });
+      }
+    },
+    [
+      navState.focusedCommentId,
+      navState.isInNavigationMode,
+      findCommentIndex,
+      flatComments,
+      onCommentFocus,
+    ]
+  );
 
   // Handle keyboard actions
-  const handleKeyboardAction = useCallback((action: string, commentId: string) => {
-    const comment = flatComments.find(c => c.id === commentId);
-    if (!comment) return;
+  const handleKeyboardAction = useCallback(
+    (action: string, commentId: string) => {
+      const comment = flatComments.find((c) => c.id === commentId);
+      if (!comment) return;
 
-    switch (action) {
-      case 'reply':
-        if (comment && currentUser) {
-          onReply?.(commentId);
-        }
-        break;
-      case 'edit':
-        if (comment && currentUser?.id === comment.authorId) {
-          onEdit?.(commentId);
-        }
-        break;
-      case 'delete':
-        if (comment && currentUser?.id === comment.authorId) {
-          onDelete?.(commentId);
-        }
-        break;
-      case 'select':
-        setNavState(prev => ({
-          ...prev,
-          selectedCommentId: commentId,
-        }));
-        onCommentSelect?.(commentId);
-        break;
-    }
-  }, [flatComments, currentUser, onReply, onEdit, onDelete, onCommentSelect]);
+      switch (action) {
+        case 'reply':
+          if (comment && currentUser) {
+            onReply?.(commentId);
+          }
+          break;
+        case 'edit':
+          if (comment && currentUser?.id === comment.authorId) {
+            onEdit?.(commentId);
+          }
+          break;
+        case 'delete':
+          if (comment && currentUser?.id === comment.authorId) {
+            onDelete?.(commentId);
+          }
+          break;
+        case 'select':
+          setNavState((prev) => ({
+            ...prev,
+            selectedCommentId: commentId,
+          }));
+          onCommentSelect?.(commentId);
+          break;
+      }
+    },
+    [flatComments, currentUser, onReply, onEdit, onDelete, onCommentSelect]
+  );
 
   // Main keyboard event handler
-  const handleKeyDown = useCallback((event: KeyboardEvent) => {
-    if (!enabled) return;
+  const handleKeyDown = useCallback(
+    (event: KeyboardEvent) => {
+      if (!enabled) return;
 
-    // Don't interfere with form inputs
-    const target = event.target as HTMLElement;
-    if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.contentEditable === 'true') {
-      return;
-    }
+      // Don't interfere with form inputs
+      const target = event.target as HTMLElement;
+      if (
+        target.tagName === 'INPUT' ||
+        target.tagName === 'TEXTAREA' ||
+        target.contentEditable === 'true'
+      ) {
+        return;
+      }
 
-    const { key, ctrlKey, metaKey, shiftKey, altKey } = event;
+      const { key, ctrlKey, metaKey, shiftKey, altKey } = event;
 
-    switch (key) {
-      case 'j':
-      case 'ArrowDown':
-        event.preventDefault();
-        if (navState.isInNavigationMode) {
-          navigateComments('down');
-        } else {
-          // Start navigation mode and focus first comment
-          const firstComment = flatComments[0];
-          if (firstComment) {
-            setNavState({
-              focusedCommentId: firstComment.id,
-              selectedCommentId: firstComment.id,
-              isInNavigationMode: true,
-            });
-            onCommentFocus?.(firstComment.id);
+      switch (key) {
+        case 'j':
+        case 'ArrowDown':
+          event.preventDefault();
+          if (navState.isInNavigationMode) {
+            navigateComments('down');
+          } else {
+            // Start navigation mode and focus first comment
+            const firstComment = flatComments[0];
+            if (firstComment) {
+              setNavState({
+                focusedCommentId: firstComment.id,
+                selectedCommentId: firstComment.id,
+                isInNavigationMode: true,
+              });
+              onCommentFocus?.(firstComment.id);
+            }
           }
-        }
-        break;
+          break;
 
-      case 'k':
-      case 'ArrowUp':
-        event.preventDefault();
-        if (navState.isInNavigationMode) {
-          navigateComments('up');
-        }
-        break;
+        case 'k':
+        case 'ArrowUp':
+          event.preventDefault();
+          if (navState.isInNavigationMode) {
+            navigateComments('up');
+          }
+          break;
 
-      case 'Escape':
-        event.preventDefault();
-        setNavState({
-          focusedCommentId: null,
-          selectedCommentId: null,
-          isInNavigationMode: false,
-        });
-        break;
+        case 'Escape':
+          event.preventDefault();
+          setNavState({
+            focusedCommentId: null,
+            selectedCommentId: null,
+            isInNavigationMode: false,
+          });
+          break;
 
-      case 'Enter':
-        event.preventDefault();
-        if (navState.isInNavigationMode && navState.focusedCommentId) {
-          handleKeyboardAction('select', navState.focusedCommentId);
-        }
-        break;
-
-      case 'r':
-        if (ctrlKey || metaKey) {
+        case 'Enter':
           event.preventDefault();
           if (navState.isInNavigationMode && navState.focusedCommentId) {
-            handleKeyboardAction('reply', navState.focusedCommentId);
+            handleKeyboardAction('select', navState.focusedCommentId);
           }
-        }
-        break;
+          break;
 
-      case 'e':
-        if (ctrlKey || metaKey) {
-          event.preventDefault();
-          if (navState.isInNavigationMode && navState.focusedCommentId) {
-            handleKeyboardAction('edit', navState.focusedCommentId);
+        case 'r':
+          if (ctrlKey || metaKey) {
+            event.preventDefault();
+            if (navState.isInNavigationMode && navState.focusedCommentId) {
+              handleKeyboardAction('reply', navState.focusedCommentId);
+            }
           }
-        }
-        break;
+          break;
 
-      case 'Delete':
-      case 'd':
-        if (ctrlKey || metaKey) {
-          event.preventDefault();
-          if (navState.isInNavigationMode && navState.focusedCommentId) {
-            handleKeyboardAction('delete', navState.focusedCommentId);
+        case 'e':
+          if (ctrlKey || metaKey) {
+            event.preventDefault();
+            if (navState.isInNavigationMode && navState.focusedCommentId) {
+              handleKeyboardAction('edit', navState.focusedCommentId);
+            }
           }
-        }
-        break;
+          break;
 
-      case '?':
-        if (shiftKey) {
-          event.preventDefault();
-          // Show keyboard shortcuts help
-          showKeyboardHelp();
-        }
-        break;
-    }
-  }, [enabled, navState, navigateComments, flatComments, onCommentFocus, handleKeyboardAction]);
+        case 'Delete':
+        case 'd':
+          if (ctrlKey || metaKey) {
+            event.preventDefault();
+            if (navState.isInNavigationMode && navState.focusedCommentId) {
+              handleKeyboardAction('delete', navState.focusedCommentId);
+            }
+          }
+          break;
+
+        case '?':
+          if (shiftKey) {
+            event.preventDefault();
+            // Show keyboard shortcuts help
+            showKeyboardHelp();
+          }
+          break;
+      }
+    },
+    [enabled, navState, navigateComments, flatComments, onCommentFocus, handleKeyboardAction]
+  );
 
   // Show keyboard shortcuts help
   const showKeyboardHelp = () => {
@@ -239,7 +261,12 @@ export const CommentKeyboardNav: React.FC<CommentKeyboardNavProps> = ({
         <div className="fixed top-4 right-4 z-50 bg-blue-600 text-white px-3 py-2 rounded-lg shadow-lg text-sm">
           <div className="flex items-center space-x-2">
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+              />
             </svg>
             <span>Kommentar-Navigation aktiv</span>
           </div>
@@ -251,10 +278,10 @@ export const CommentKeyboardNav: React.FC<CommentKeyboardNavProps> = ({
         {/* Focused comment indicator */}
         {navState.focusedCommentId && (
           <style jsx>{`
-            [data-comment-id="${navState.focusedCommentId}"] {
+            [data-comment-id='${navState.focusedCommentId}'] {
               position: relative;
             }
-            [data-comment-id="${navState.focusedCommentId}"]::before {
+            [data-comment-id='${navState.focusedCommentId}']::before {
               content: '';
               position: absolute;
               top: -2px;
@@ -395,7 +422,8 @@ export const KeyboardCommentItem: React.FC<KeyboardCommentItemProps> = ({
   const { isFocused, focusProps } = useCommentKeyboardInteraction(comment.id, {
     onReply: onReply ? () => onReply(comment.id) : undefined,
     onEdit: onEdit && currentUser?.id === comment.authorId ? () => onEdit(comment.id) : undefined,
-    onDelete: onDelete && currentUser?.id === comment.authorId ? () => onDelete(comment.id) : undefined,
+    onDelete:
+      onDelete && currentUser?.id === comment.authorId ? () => onDelete(comment.id) : undefined,
     onSelect: onSelect ? () => onSelect(comment.id) : undefined,
     isAuthor: currentUser?.id === comment.authorId,
   });
@@ -426,9 +454,7 @@ export const KeyboardCommentItem: React.FC<KeyboardCommentItemProps> = ({
             {comment.authorName.charAt(0).toUpperCase()}
           </div>
           <div>
-            <span className="font-medium text-gray-900 dark:text-white">
-              {comment.authorName}
-            </span>
+            <span className="font-medium text-gray-900 dark:text-white">{comment.authorName}</span>
             <span className="text-sm text-gray-500 dark:text-gray-400 ml-2">
               {formatDate(comment.createdAt)}
             </span>
@@ -436,25 +462,26 @@ export const KeyboardCommentItem: React.FC<KeyboardCommentItemProps> = ({
         </div>
 
         {/* Status Badge */}
-        <span className={`px-2 py-1 text-xs rounded-full ${
-          comment.status === 'approved' ? 'bg-green-100 text-green-800' :
-          comment.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-          comment.status === 'rejected' ? 'bg-red-100 text-red-800' :
-          'bg-gray-100 text-gray-800'
-        }`}>
+        <span
+          className={`px-2 py-1 text-xs rounded-full ${
+            comment.status === 'approved'
+              ? 'bg-green-100 text-green-800'
+              : comment.status === 'pending'
+                ? 'bg-yellow-100 text-yellow-800'
+                : comment.status === 'rejected'
+                  ? 'bg-red-100 text-red-800'
+                  : 'bg-gray-100 text-gray-800'
+          }`}
+        >
           {comment.status}
         </span>
       </div>
 
       {/* Comment Content */}
       <div className="mb-3">
-        <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
-          {comment.content}
-        </p>
+        <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{comment.content}</p>
         {comment.isEdited && (
-          <span className="text-xs text-gray-500 dark:text-gray-400 block mt-1">
-            (bearbeitet)
-          </span>
+          <span className="text-xs text-gray-500 dark:text-gray-400 block mt-1">(bearbeitet)</span>
         )}
       </div>
 
@@ -559,7 +586,12 @@ export const KeyboardShortcutsHelp: React.FC<{ isOpen: boolean; onClose: () => v
             className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
           >
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </button>
         </div>
@@ -588,7 +620,9 @@ export const KeyboardShortcutsHelp: React.FC<{ isOpen: boolean; onClose: () => v
 
         <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
           <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
-            Drücke <kbd className="px-1 py-0.5 bg-gray-100 dark:bg-gray-700 rounded text-xs">Esc</kbd> um zu schließen
+            Drücke{' '}
+            <kbd className="px-1 py-0.5 bg-gray-100 dark:bg-gray-700 rounded text-xs">Esc</kbd> um
+            zu schließen
           </p>
         </div>
       </div>
@@ -616,7 +650,7 @@ export const useKeyboardNavigation = () => {
   }, []);
 
   const toggleHelp = useCallback(() => {
-    setShowHelp(prev => !prev);
+    setShowHelp((prev) => !prev);
   }, []);
 
   return {

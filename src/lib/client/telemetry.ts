@@ -32,10 +32,7 @@ interface TelemetryEnvelope<TProps> {
   props: TProps;
 }
 
-async function postTelemetry<TProps>(
-  eventName: TelemetryEventName,
-  props: TProps
-): Promise<void> {
+async function postTelemetry<TProps>(eventName: TelemetryEventName, props: TProps): Promise<void> {
   if (TELEMETRY_FLAG === 'false') return; // gated off
   try {
     const body: TelemetryEnvelope<TProps> = {

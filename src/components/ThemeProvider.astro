@@ -2,6 +2,7 @@
 // This component initializes the theme and listens for theme change events
 // It works with ThemeToggle to manage the theme state
 ---
+
 <script is:inline nonce={Astro.locals.cspNonce}>
   const getTheme = () => {
     // Check for a saved theme in localStorage, otherwise check system preference
@@ -34,7 +35,7 @@
   const theme = getTheme();
   applyTheme(theme);
   syncPressedAttr();
-  
+
   // Save the initial theme to localStorage
   if (typeof localStorage !== 'undefined') {
     localStorage.setItem('theme', theme);
@@ -43,25 +44,25 @@
   const handleToggleClick = () => {
     // Toggle the 'dark' class on the html element
     const element = document.documentElement;
-    element.classList.toggle("dark");
+    element.classList.toggle('dark');
 
     // Check if the 'dark' class is now present and update localStorage
-    const isDark = element.classList.contains("dark");
+    const isDark = element.classList.contains('dark');
     if (typeof localStorage !== 'undefined') {
-      localStorage.setItem("theme", isDark ? "dark" : "light");
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
     }
     syncPressedAttr();
-  }
+  };
 
   const addClickListener = () => {
-      // Find the theme toggle button and add a click event listener
-      const themeToggle = document.querySelector('.theme-toggle');
+    // Find the theme toggle button and add a click event listener
+    const themeToggle = document.querySelector('.theme-toggle');
 
-      if (themeToggle) {
-          themeToggle.addEventListener('click', handleToggleClick);
-          syncPressedAttr();
-      }
-  }
+    if (themeToggle) {
+      themeToggle.addEventListener('click', handleToggleClick);
+      syncPressedAttr();
+    }
+  };
 
   // Add the click listener on initial page load
   document.addEventListener('DOMContentLoaded', addClickListener);

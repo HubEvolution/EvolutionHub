@@ -6,7 +6,11 @@
   - Exposes CSRF header builder and token utility
 */
 
-export const TEST_URL = (process.env.TEST_BASE_URL || process.env.BASE_URL || 'http://127.0.0.1:8787').replace(/\/$/, '');
+export const TEST_URL = (
+  process.env.TEST_BASE_URL ||
+  process.env.BASE_URL ||
+  'http://127.0.0.1:8787'
+).replace(/\/$/, '');
 
 export function hex32(): string {
   const bytes = new Uint8Array(16);
@@ -23,9 +27,15 @@ export function csrfHeaders(token: string): Record<string, string> {
   };
 }
 
-export async function getJson(path: string): Promise<{ res: Response; json: any }>
-export async function getJson(input: RequestInfo, init?: RequestInit): Promise<{ res: Response; json: any }>
-export async function getJson(input: string | RequestInfo, init: RequestInit = {}): Promise<{ res: Response; json: any }> {
+export async function getJson(path: string): Promise<{ res: Response; json: any }>;
+export async function getJson(
+  input: RequestInfo,
+  init?: RequestInit
+): Promise<{ res: Response; json: any }>;
+export async function getJson(
+  input: string | RequestInfo,
+  init: RequestInit = {}
+): Promise<{ res: Response; json: any }> {
   const url = typeof input === 'string' ? `${TEST_URL}${input}` : input;
   const res = await fetch(url as RequestInfo, {
     method: 'GET',

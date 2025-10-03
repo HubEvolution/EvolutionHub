@@ -1,6 +1,6 @@
 /**
  * Auth Service Interface und Implementierung
- * 
+ *
  * Verantwortlich für alle Authentifizierungsoperationen wie Login, Registrierung,
  * Passwort-Reset und Session-Management. Kapselt Datenbankzugriffe und Sicherheitslogik.
  */
@@ -46,7 +46,7 @@ export interface RegisterData {
 export interface AuthService extends BaseService {
   /**
    * Authentifiziert einen Benutzer mit E-Mail und Passwort
-   * 
+   *
    * @param email E-Mail-Adresse des Benutzers
    * @param password Passwort des Benutzers
    * @returns Authentifizierungsergebnis bei Erfolg
@@ -55,7 +55,7 @@ export interface AuthService extends BaseService {
 
   /**
    * Registriert einen neuen Benutzer
-   * 
+   *
    * @param data Registrierungsdaten
    * @returns Registrierungsergebnis (ohne Session)
    */
@@ -63,22 +63,22 @@ export interface AuthService extends BaseService {
 
   /**
    * Beendet eine Benutzersitzung
-   * 
+   *
    * @param sessionId ID der zu beendenden Sitzung
    */
   logout(sessionId: string): Promise<void>;
 
   /**
    * Überprüft eine Benutzersitzung auf Gültigkeit
-   * 
+   *
    * @param sessionId ID der zu überprüfenden Sitzung
    * @returns Sitzung und Benutzer oder null, falls ungültig
    */
-  validateSession(sessionId: string): Promise<{ session: Session | null, user: SafeUser | null }>;
+  validateSession(sessionId: string): Promise<{ session: Session | null; user: SafeUser | null }>;
 
   /**
    * Erstellt ein Token für das Zurücksetzen eines Passworts
-   * 
+   *
    * @param email E-Mail-Adresse des Benutzers
    * @returns true, wenn ein Token erstellt wurde (auch wenn der Benutzer nicht existiert)
    */
@@ -86,7 +86,7 @@ export interface AuthService extends BaseService {
 
   /**
    * Überprüft ein Passwort-Reset-Token
-   * 
+   *
    * @param token Das zu überprüfende Token
    * @returns Die Benutzer-ID, falls das Token gültig ist, sonst null
    */
@@ -94,7 +94,7 @@ export interface AuthService extends BaseService {
 
   /**
    * Setzt ein Passwort mit einem gültigen Token zurück
-   * 
+   *
    * @param token Das Passwort-Reset-Token
    * @param newPassword Das neue Passwort
    * @returns true, wenn erfolgreich

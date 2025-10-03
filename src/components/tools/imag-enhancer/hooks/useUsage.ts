@@ -61,11 +61,25 @@ export function useUsage(): UseUsageResult {
 
   // Auto-refresh on focus/visibility/auth-change/storage/pageshow
   useEffect(() => {
-    const onFocus = () => { void refresh(); };
-    const onVisibility = () => { if (document.visibilityState === 'visible') { void refresh(); } };
-    const onAuthChanged = () => { void refresh(); };
-    const onStorage = (e: StorageEvent) => { if (e.key === 'auth:changed') { void refresh(); } };
-    const onPageShow = () => { void refresh(); };
+    const onFocus = () => {
+      void refresh();
+    };
+    const onVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        void refresh();
+      }
+    };
+    const onAuthChanged = () => {
+      void refresh();
+    };
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === 'auth:changed') {
+        void refresh();
+      }
+    };
+    const onPageShow = () => {
+      void refresh();
+    };
 
     window.addEventListener('focus', onFocus);
     document.addEventListener('visibilitychange', onVisibility);

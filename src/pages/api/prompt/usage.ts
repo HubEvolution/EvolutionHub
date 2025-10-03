@@ -1,5 +1,10 @@
 import type { APIContext } from 'astro';
-import { withApiMiddleware, createApiError, createApiSuccess, createMethodNotAllowed } from '@/lib/api-middleware';
+import {
+  withApiMiddleware,
+  createApiError,
+  createApiSuccess,
+  createMethodNotAllowed,
+} from '@/lib/api-middleware';
 import type { OwnerType, Plan } from '@/config/ai-image';
 import { FREE_LIMIT_GUEST, FREE_LIMIT_USER } from '@/config/ai-image';
 import { getEntitlementsFor } from '@/config/ai-image/entitlements';
@@ -15,7 +20,7 @@ function ensureGuestIdCookie(context: APIContext): string {
     httpOnly: true,
     sameSite: 'lax',
     secure: url.protocol === 'https:',
-    maxAge: 60 * 60 * 24 * 180 // 180 days
+    maxAge: 60 * 60 * 24 * 180, // 180 days
   });
   return id;
 }
@@ -26,10 +31,14 @@ export const GET = withApiMiddleware(async (context) => {
   const isDebug = url.searchParams.get('debug') === '1';
 
   const ownerType: OwnerType = locals.user?.id ? 'user' : 'guest';
-  const ownerId = ownerType === 'user' ? (locals.user as { id: string }).id : ensureGuestIdCookie(context);
+  const ownerId =
+    ownerType === 'user' ? (locals.user as { id: string }).id : ensureGuestIdCookie(context);
 
   // Reuse existing plan/entitlement mapping from ai-image for now
-  const plan = ownerType === 'user' ? ((locals.user as { plan?: Plan } | null)?.plan ?? 'free') as Plan : undefined;
+  const plan =
+    ownerType === 'user'
+      ? (((locals.user as { plan?: Plan } | null)?.plan ?? 'free') as Plan)
+      : undefined;
   const ent = getEntitlementsFor(ownerType, plan);
 
   try {
@@ -39,22 +48,26 @@ export const GET = withApiMiddleware(async (context) => {
       usage,
       limits: {
         user: FREE_LIMIT_USER,
-        guest: FREE_LIMIT_GUEST
+        guest: FREE_LIMIT_GUEST,
       },
       plan: ownerType === 'user' ? (plan ?? 'free') : undefined,
       entitlements: ent,
       ...(isDebug
         ? {
             debug: {
-              ownerId: (() => { try { return ownerId ? `…${ownerId.slice(-4)}(${ownerId.length})` : ''; } catch {
-                // Ignore string slicing errors
-                return '';
-              } })(),
+              ownerId: (() => {
+                try {
+                  return ownerId ? `…${ownerId.slice(-4)}(${ownerId.length})` : '';
+                } catch {
+                  // Ignore string slicing errors
+                  return '';
+                }
+              })(),
               limitResolved: ent.dailyBurstCap,
-              env: String(locals.runtime?.env?.ENVIRONMENT || '')
-            }
+              env: String(locals.runtime?.env?.ENVIRONMENT || ''),
+            },
           }
-        : {})
+        : {}),
     });
     try {
       resp.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');

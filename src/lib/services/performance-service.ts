@@ -17,7 +17,7 @@ import type {
   CommentSearchOptions,
   SearchResult,
   PerformanceConfig,
-  LazyLoadOptions
+  LazyLoadOptions,
 } from '../types/performance';
 
 export class PerformanceService {
@@ -112,7 +112,7 @@ export class PerformanceService {
           limit: validatedOptions.limit,
           total,
           totalPages: Math.ceil(total / validatedOptions.limit),
-          hasNext: (validatedOptions.page * validatedOptions.limit) < total,
+          hasNext: validatedOptions.page * validatedOptions.limit < total,
           hasPrev: validatedOptions.page > 1,
         },
         metadata: {
@@ -211,17 +211,23 @@ export class PerformanceService {
         updatedAt: comments.updatedAt,
       })
       .from(comments)
-      .where(and(
-        eq(comments.entityId, entityId),
-        eq(comments.status, 'approved'),
-        options.includeReplies ? undefined : eq(comments.parentId, null)
-      ))
+      .where(
+        and(
+          eq(comments.entityId, entityId),
+          eq(comments.status, 'approved'),
+          options.includeReplies ? undefined : eq(comments.parentId, null)
+        )
+      )
       .orderBy(
-        options.sortBy === 'createdAt' ?
-          (options.sortOrder === 'desc' ? desc(comments.createdAt) : asc(comments.createdAt)) :
-        options.sortBy === 'updatedAt' ?
-          (options.sortOrder === 'desc' ? desc(comments.updatedAt) : asc(comments.updatedAt)) :
-          desc(comments.createdAt)
+        options.sortBy === 'createdAt'
+          ? options.sortOrder === 'desc'
+            ? desc(comments.createdAt)
+            : asc(comments.createdAt)
+          : options.sortBy === 'updatedAt'
+            ? options.sortOrder === 'desc'
+              ? desc(comments.updatedAt)
+              : asc(comments.updatedAt)
+            : desc(comments.createdAt)
       )
       .limit(options.limit)
       .offset(offset);
@@ -232,11 +238,13 @@ export class PerformanceService {
     const countQuery = this.db
       .select({ count: sql<number>`count(*)` })
       .from(comments)
-      .where(and(
-        eq(comments.entityId, entityId),
-        eq(comments.status, 'approved'),
-        options.includeReplies ? undefined : eq(comments.parentId, null)
-      ));
+      .where(
+        and(
+          eq(comments.entityId, entityId),
+          eq(comments.status, 'approved'),
+          options.includeReplies ? undefined : eq(comments.parentId, null)
+        )
+      );
 
     const totalResult = await countQuery;
     const total = totalResult[0]?.count || 0;
@@ -320,14 +328,14 @@ export class PerformanceService {
 
     // Status-Filter
     if (filters?.status?.length) {
-      whereConditions.push(or(...filters.status.map(status => eq(comments.status, status))));
+      whereConditions.push(or(...filters.status.map((status) => eq(comments.status, status))));
     } else {
       whereConditions.push(eq(comments.status, 'approved'));
     }
 
     // Autor-Filter
     if (filters?.authorId?.length) {
-      whereConditions.push(or(...filters.authorId.map(id => eq(comments.authorId, id))));
+      whereConditions.push(or(...filters.authorId.map((id) => eq(comments.authorId, id))));
     }
 
     // Datum-Filter
@@ -384,7 +392,10 @@ export class PerformanceService {
    */
   private generateHighlights(comments: unknown[], query: string): Record<string, string[]> {
     const highlights: Record<string, string[]> = {};
-    const searchTerms = query.toLowerCase().split(' ').filter(term => term.length > 2);
+    const searchTerms = query
+      .toLowerCase()
+      .split(' ')
+      .filter((term) => term.length > 2);
 
     for (const comment of comments) {
       const content = comment.content.toLowerCase();
@@ -410,7 +421,10 @@ export class PerformanceService {
   /**
    * Fügt Like-Status hinzu
    */
-  private async addLikeStatus(commentsMap: Map<string, CommentWithReplies>, userId: number): Promise<void> {
+  private async addLikeStatus(
+    commentsMap: Map<string, CommentWithReplies>,
+    userId: number
+  ): Promise<void> {
     // In einer echten Implementierung würde hier eine Like-Tabelle abgefragt
     // Für jetzt simulieren wir den Status
     for (const comment of commentsMap.values()) {
@@ -423,7 +437,10 @@ export class PerformanceService {
   /**
    * Fügt Berechtigungen hinzu
    */
-  private async addPermissions(commentsMap: Map<string, CommentWithReplies>, userId?: number): Promise<void> {
+  private async addPermissions(
+    commentsMap: Map<string, CommentWithReplies>,
+    userId?: number
+  ): Promise<void> {
     if (!userId) return;
 
     for (const comment of commentsMap.values()) {
@@ -481,8 +498,9 @@ export class PerformanceService {
 
   private evictCache(): void {
     // Einfache LRU-Eviction: Lösche älteste Einträge
-    const entries = Array.from(this.cache.entries())
-      .sort((a, b) => a[1].timestamp - b[1].timestamp);
+    const entries = Array.from(this.cache.entries()).sort(
+      (a, b) => a[1].timestamp - b[1].timestamp
+    );
 
     const toRemove = Math.ceil(this.cache.size * 0.3); // Entferne 30%
     for (let i = 0; i < toRemove; i++) {
@@ -496,7 +514,7 @@ export class PerformanceService {
   private generateCacheKey(type: string, params: Record<string, unknown>): string {
     const sortedParams = Object.keys(params)
       .sort()
-      .map(key => `${key}:${params[key]}`)
+      .map((key) => `${key}:${params[key]}`)
       .join('|');
 
     return `${type}:${sortedParams}`;

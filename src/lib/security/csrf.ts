@@ -9,12 +9,16 @@ export function ensureCsrfToken(): string {
     if (m && m[1]) return decodeURIComponent(m[1]);
     const buf = new Uint8Array(16);
     (globalThis.crypto || window.crypto).getRandomValues(buf);
-    const token = Array.from(buf).map((b) => b.toString(16).padStart(2, '0')).join('');
+    const token = Array.from(buf)
+      .map((b) => b.toString(16).padStart(2, '0'))
+      .join('');
     const attrs = [
       'Path=/',
       'SameSite=Lax',
-      (typeof location !== 'undefined' && location.protocol === 'https:') ? 'Secure' : ''
-    ].filter(Boolean).join('; ');
+      typeof location !== 'undefined' && location.protocol === 'https:' ? 'Secure' : '',
+    ]
+      .filter(Boolean)
+      .join('; ');
     document.cookie = `csrf_token=${encodeURIComponent(token)}; ${attrs}`;
     return token;
   } catch {
@@ -30,10 +34,7 @@ export function ensureCsrfToken(): string {
  * @param cookieHeader - Cookie-Header-String aus Request
  * @returns true wenn Token gültig, false sonst
  */
-export async function validateCsrfToken(
-  token: string,
-  cookieHeader?: string
-): Promise<boolean> {
+export async function validateCsrfToken(token: string, cookieHeader?: string): Promise<boolean> {
   if (!token) {
     return false;
   }

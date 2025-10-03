@@ -4,7 +4,7 @@ import type {
   ProjectCard,
   CreateProjectRequest,
   UpdateProjectRequest,
-  ProjectFilters
+  ProjectFilters,
 } from '@/types/dashboard';
 
 interface ProjectState {
@@ -76,7 +76,7 @@ export const useProjectStore = create<ProjectStore>()(
           console.error('Error fetching projects:', error);
           set({
             error: error instanceof Error ? error.message : 'Unknown error',
-            loading: false
+            loading: false,
           });
         }
       },
@@ -98,12 +98,10 @@ export const useProjectStore = create<ProjectStore>()(
           const result = await response.json();
 
           if (result.success) {
-            set(state => ({
+            set((state) => ({
               selectedProject: result.data,
-              projects: state.projects.map(p =>
-                p.id === id ? result.data : p
-              ),
-              loading: false
+              projects: state.projects.map((p) => (p.id === id ? result.data : p)),
+              loading: false,
             }));
           } else {
             throw new Error(result.error?.message || 'Failed to fetch project');
@@ -112,7 +110,7 @@ export const useProjectStore = create<ProjectStore>()(
           console.error('Error fetching project:', error);
           set({
             error: error instanceof Error ? error.message : 'Unknown error',
-            loading: false
+            loading: false,
           });
         }
       },
@@ -138,9 +136,9 @@ export const useProjectStore = create<ProjectStore>()(
           const result = await response.json();
 
           if (result.success) {
-            set(state => ({
+            set((state) => ({
               projects: [result.data, ...state.projects],
-              loading: false
+              loading: false,
             }));
           } else {
             throw new Error(result.error?.message || 'Failed to create project');
@@ -149,7 +147,7 @@ export const useProjectStore = create<ProjectStore>()(
           console.error('Error creating project:', error);
           set({
             error: error instanceof Error ? error.message : 'Unknown error',
-            loading: false
+            loading: false,
           });
         }
       },
@@ -175,14 +173,11 @@ export const useProjectStore = create<ProjectStore>()(
           const result = await response.json();
 
           if (result.success) {
-            set(state => ({
-              projects: state.projects.map(p =>
-                p.id === data.id ? result.data : p
-              ),
-              selectedProject: state.selectedProject?.id === data.id
-                ? result.data
-                : state.selectedProject,
-              loading: false
+            set((state) => ({
+              projects: state.projects.map((p) => (p.id === data.id ? result.data : p)),
+              selectedProject:
+                state.selectedProject?.id === data.id ? result.data : state.selectedProject,
+              loading: false,
             }));
           } else {
             throw new Error(result.error?.message || 'Failed to update project');
@@ -191,7 +186,7 @@ export const useProjectStore = create<ProjectStore>()(
           console.error('Error updating project:', error);
           set({
             error: error instanceof Error ? error.message : 'Unknown error',
-            loading: false
+            loading: false,
           });
         }
       },
@@ -216,12 +211,10 @@ export const useProjectStore = create<ProjectStore>()(
           const result = await response.json();
 
           if (result.success) {
-            set(state => ({
-              projects: state.projects.filter(p => p.id !== id),
-              selectedProject: state.selectedProject?.id === id
-                ? null
-                : state.selectedProject,
-              loading: false
+            set((state) => ({
+              projects: state.projects.filter((p) => p.id !== id),
+              selectedProject: state.selectedProject?.id === id ? null : state.selectedProject,
+              loading: false,
             }));
           } else {
             throw new Error(result.error?.message || 'Failed to delete project');
@@ -230,7 +223,7 @@ export const useProjectStore = create<ProjectStore>()(
           console.error('Error deleting project:', error);
           set({
             error: error instanceof Error ? error.message : 'Unknown error',
-            loading: false
+            loading: false,
           });
         }
       },
@@ -256,25 +249,23 @@ export const useProjectStore = create<ProjectStore>()(
         let filtered = projects;
 
         if (filters.status) {
-          filtered = filtered.filter(p => p.status === filters.status);
+          filtered = filtered.filter((p) => p.status === filters.status);
         }
 
         if (filters.priority) {
-          filtered = filtered.filter(p => p.priority === filters.priority);
+          filtered = filtered.filter((p) => p.priority === filters.priority);
         }
 
         if (filters.search) {
           const search = filters.search.toLowerCase();
-          filtered = filtered.filter(p =>
-            p.title.toLowerCase().includes(search) ||
-            p.description.toLowerCase().includes(search)
+          filtered = filtered.filter(
+            (p) =>
+              p.title.toLowerCase().includes(search) || p.description.toLowerCase().includes(search)
           );
         }
 
         if (filters.tags && filters.tags.length > 0) {
-          filtered = filtered.filter(p =>
-            p.tags?.some(tag => filters.tags?.includes(tag))
-          );
+          filtered = filtered.filter((p) => p.tags?.some((tag) => filters.tags?.includes(tag)));
         }
 
         return filtered;
@@ -282,7 +273,7 @@ export const useProjectStore = create<ProjectStore>()(
 
       getProjectById: (id: string) => {
         const { projects } = get();
-        return projects.find(p => p.id === id);
+        return projects.find((p) => p.id === id);
       },
     }),
     {
@@ -295,7 +286,7 @@ export const useProjectStore = create<ProjectStore>()(
 function getCsrfToken(): string {
   const token = document.cookie
     .split('; ')
-    .find(row => row.startsWith('csrf_token='))
+    .find((row) => row.startsWith('csrf_token='))
     ?.split('=')[1];
 
   return token || '';

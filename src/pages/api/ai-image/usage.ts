@@ -1,5 +1,10 @@
 import type { APIContext } from 'astro';
-import { withApiMiddleware, createApiError, createApiSuccess, createMethodNotAllowed } from '@/lib/api-middleware';
+import {
+  withApiMiddleware,
+  createApiError,
+  createApiSuccess,
+  createMethodNotAllowed,
+} from '@/lib/api-middleware';
 import { AiImageService } from '@/lib/services/ai-image-service';
 import { FREE_LIMIT_GUEST, FREE_LIMIT_USER, type OwnerType, type Plan } from '@/config/ai-image';
 import { getEntitlementsFor } from '@/config/ai-image/entitlements';
@@ -15,7 +20,7 @@ function ensureGuestIdCookie(context: APIContext): string {
     httpOnly: true,
     sameSite: 'lax',
     secure: url.protocol === 'https:',
-    maxAge: 60 * 60 * 24 * 180 // 180 days
+    maxAge: 60 * 60 * 24 * 180, // 180 days
   });
   return id;
 }
@@ -27,24 +32,30 @@ export const GET = withApiMiddleware(async (context) => {
 
   // Owner detection
   const ownerType: OwnerType = locals.user?.id ? 'user' : 'guest';
-  const ownerId = ownerType === 'user' ? (locals.user as { id: string }).id : ensureGuestIdCookie(context);
+  const ownerId =
+    ownerType === 'user' ? (locals.user as { id: string }).id : ensureGuestIdCookie(context);
 
   const env = locals.runtime?.env ?? {};
   const service = new AiImageService({
     R2_AI_IMAGES: env.R2_AI_IMAGES,
     KV_AI_ENHANCER: env.KV_AI_ENHANCER,
     REPLICATE_API_TOKEN: env.REPLICATE_API_TOKEN,
-    ENVIRONMENT: env.ENVIRONMENT
+    ENVIRONMENT: env.ENVIRONMENT,
   });
 
   try {
-    const plan = ownerType === 'user' ? ((locals.user as { plan?: Plan } | null)?.plan ?? 'free') as Plan : undefined;
+    const plan =
+      ownerType === 'user'
+        ? (((locals.user as { plan?: Plan } | null)?.plan ?? 'free') as Plan)
+        : undefined;
     const ent = getEntitlementsFor(ownerType, plan);
     const usage = await service.getUsage(ownerType, ownerId, ent.dailyBurstCap);
 
     const debugOwnerId = (() => {
       // Avoid leaking IDs; expose only last 4 chars and length
-      try { return ownerId ? `…${ownerId.slice(-4)}(${ownerId.length})` : ''; } catch {
+      try {
+        return ownerId ? `…${ownerId.slice(-4)}(${ownerId.length})` : '';
+      } catch {
         // Ignore string slicing errors - return empty string
         return '';
       }
@@ -65,9 +76,9 @@ export const GET = withApiMiddleware(async (context) => {
               ownerId: debugOwnerId,
               limitResolved: ent.dailyBurstCap,
               env: String(env.ENVIRONMENT || ''),
-            }
+            },
           }
-        : {})
+        : {}),
     });
     try {
       resp.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');

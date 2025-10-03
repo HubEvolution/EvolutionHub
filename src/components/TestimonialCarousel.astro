@@ -5,30 +5,65 @@ interface Testimonial {
   role: string;
   avatar?: string;
 }
-const { testimonials = [], id = `testimonial-carousel-${Math.random().toString(36).slice(2)}`, interval = 5000 } = Astro.props as { testimonials?: Testimonial[]; id?: string; interval?: number };
+const {
+  testimonials = [],
+  id = `testimonial-carousel-${Math.random().toString(36).slice(2)}`,
+  interval = 5000,
+} = Astro.props as { testimonials?: Testimonial[]; id?: string; interval?: number };
 ---
 
-<div id={id} data-role="testimonial-carousel" data-interval={String(interval)} class="max-w-4xl mx-auto flex flex-col md:flex-row items-center gap-8">
+<div
+  id={id}
+  data-role="testimonial-carousel"
+  data-interval={String(interval)}
+  class="max-w-4xl mx-auto flex flex-col md:flex-row items-center gap-8"
+>
   <div class="w-full md:w-3/5 order-2 md:order-1">
     <div class="relative testimonial-items-wrapper min-h-[6rem]">
-      {testimonials.map((item, i) => (
-        <div class={"testimonial-item transition-opacity duration-500 " + (i === 0 ? "opacity-100 relative" : "opacity-0 pointer-events-none absolute inset-0")} data-index={i} aria-hidden={i === 0 ? "false" : "true"}>
-          <p class="text-lg italic text-gray-700 dark:text-gray-200 mb-4">"{item.quote}"</p>
-          <p class="font-bold text-gray-900 dark:text-white">- {item.author}</p>
-          <p class="text-sm text-gray-500 dark:text-gray-400">{item.role}</p>
-        </div>
-      ))}
+      {
+        testimonials.map((item, i) => (
+          <div
+            class={
+              'testimonial-item transition-opacity duration-500 ' +
+              (i === 0 ? 'opacity-100 relative' : 'opacity-0 pointer-events-none absolute inset-0')
+            }
+            data-index={i}
+            aria-hidden={i === 0 ? 'false' : 'true'}
+          >
+            <p class="text-lg italic text-gray-700 dark:text-gray-200 mb-4">"{item.quote}"</p>
+            <p class="font-bold text-gray-900 dark:text-white">- {item.author}</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400">{item.role}</p>
+          </div>
+        ))
+      }
     </div>
-    {testimonials.length > 1 && (
-      <div class="mt-4 flex justify-center md:justify-start space-x-2" data-testid="testimonial-dots">
-        {testimonials.map((_, i) => (
-          <button type="button" class={"w-3 h-3 rounded-full transition-colors " + (i === 0 ? "bg-emerald-500" : "bg-gray-300 dark:bg-gray-600")} data-dot-index={i} aria-label={`Show testimonial ${i + 1}`}></button>
-        ))}
-      </div>
-    )}
+    {
+      testimonials.length > 1 && (
+        <div
+          class="mt-4 flex justify-center md:justify-start space-x-2"
+          data-testid="testimonial-dots"
+        >
+          {testimonials.map((_, i) => (
+            <button
+              type="button"
+              class={
+                'w-3 h-3 rounded-full transition-colors ' +
+                (i === 0 ? 'bg-emerald-500' : 'bg-gray-300 dark:bg-gray-600')
+              }
+              data-dot-index={i}
+              aria-label={`Show testimonial ${i + 1}`}
+            />
+          ))}
+        </div>
+      )
+    }
   </div>
   <div class="md:w-2/5 flex justify-center md:justify-end order-1 md:order-2">
-    <img src={testimonials[0]?.avatar ?? "/images/generic-avatar.svg"} alt="User Avatar" class="w-32 h-32 rounded-full border-4 border-primary shadow-lg" />
+    <img
+      src={testimonials[0]?.avatar ?? '/images/generic-avatar.svg'}
+      alt="User Avatar"
+      class="w-32 h-32 rounded-full border-4 border-primary shadow-lg"
+    />
   </div>
 </div>
 
@@ -38,7 +73,8 @@ const { testimonials = [], id = `testimonial-carousel-${Math.random().toString(3
     console.log('[TestimonialCarousel] Initializing...');
 
     const scriptEl = document.currentScript;
-    const root = scriptEl && scriptEl.previousElementSibling ? scriptEl.previousElementSibling : null;
+    const root =
+      scriptEl && scriptEl.previousElementSibling ? scriptEl.previousElementSibling : null;
     if (!root) return;
 
     // Prevent multiple initializations
@@ -107,7 +143,9 @@ const { testimonials = [], id = `testimonial-carousel-${Math.random().toString(3
           current = idx;
           show(current);
         } else {
-          console.error(`[TestimonialCarousel] Invalid dot index: ${d.getAttribute('data-dot-index')}`);
+          console.error(
+            `[TestimonialCarousel] Invalid dot index: ${d.getAttribute('data-dot-index')}`
+          );
         }
       });
     });
@@ -143,10 +181,14 @@ const { testimonials = [], id = `testimonial-carousel-${Math.random().toString(3
     }
 
     // Recompute on load/resize to keep wrapper height stable across layout changes
-    window.addEventListener('load', () => {
-      console.log('[TestimonialCarousel] Window load event, recomputing height');
-      computeMinHeight();
-    }, { once: true });
+    window.addEventListener(
+      'load',
+      () => {
+        console.log('[TestimonialCarousel] Window load event, recomputing height');
+        computeMinHeight();
+      },
+      { once: true }
+    );
     window.addEventListener('resize', () => {
       console.log('[TestimonialCarousel] Window resize event, recomputing height');
       computeMinHeight();

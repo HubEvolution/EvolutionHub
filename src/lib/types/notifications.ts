@@ -1,6 +1,11 @@
 // Notification system types
 
-export type NotificationType = 'comment_reply' | 'comment_mention' | 'comment_approved' | 'comment_rejected' | 'system';
+export type NotificationType =
+  | 'comment_reply'
+  | 'comment_mention'
+  | 'comment_approved'
+  | 'comment_rejected'
+  | 'system';
 export type NotificationPriority = 'low' | 'normal' | 'high' | 'urgent';
 export type NotificationChannel = 'in_app' | 'email' | 'push';
 export type NotificationFrequency = 'immediate' | 'daily' | 'weekly' | 'never';

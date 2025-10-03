@@ -2,10 +2,10 @@ import type { MouseEvent } from 'react';
 
 /**
  * Props für die ActionsGroup-Komponente im Image Enhancer Tool.
- * 
+ *
  * Diese Komponente rendert Aktions-Buttons für das Erhöhen, Zurücksetzen und Herunterladen
  * von Bildern. Sie unterstützt Ladezustände, Quota-Überprüfungen und optionale Start-Over-Funktion.
- * 
+ *
  * @interface ActionsGroupProps
  * @property {string} enhanceLabel - Label für den Enhance-Button (z.B. "Enhance").
  * @property {string} processingLabel - Label während des Ladevorgangs (z.B. "Processing...").
@@ -50,10 +50,10 @@ interface ActionsGroupProps {
 
 /**
  * ActionsGroup-Komponente für das Image Enhancer Tool.
- * 
+ *
  * Rendert eine Gruppe von Aktions-Buttons basierend auf dem aktuellen Zustand (Laden, Ergebnis vorhanden).
  * Unterstützt bedingte Deaktivierung durch Quota oder ungültige Eingabe.
- * 
+ *
  * @param props Die Props für die Komponente.
  * @returns Die gerenderte Komponente.
  */
@@ -96,7 +96,14 @@ export function ActionsGroup({
               viewBox="0 0 24 24"
               aria-hidden
             >
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              ></circle>
               <path
                 className="opacity-75"
                 fill="currentColor"

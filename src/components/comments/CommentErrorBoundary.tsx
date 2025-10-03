@@ -66,9 +66,7 @@ export class CommentErrorBoundary extends Component<Props, State> {
                     <summary className="cursor-pointer font-medium">
                       Technische Details (Dev-Mode)
                     </summary>
-                    <pre className="mt-2 text-xs overflow-auto">
-                      {this.state.error.stack}
-                    </pre>
+                    <pre className="mt-2 text-xs overflow-auto">{this.state.error.stack}</pre>
                     {this.state.errorInfo && (
                       <pre className="mt-2 text-xs overflow-auto">
                         {this.state.errorInfo.componentStack}

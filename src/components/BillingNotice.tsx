@@ -5,7 +5,9 @@ function getLocaleFromPath(pathname: string): 'de' | 'en' {
   try {
     if (pathname.startsWith('/de/')) return 'de';
     if (pathname === '/de') return 'de';
-  } catch {}
+  } catch {
+    /* noop */
+  }
   return 'en';
 }
 
@@ -74,7 +76,7 @@ export default function BillingNotice() {
       const newUrl = `${url.pathname}${url.search}${url.hash}`;
       window.history.replaceState({}, document.title, newUrl);
     } catch {
-      // ignore
+      /* noop */
     }
   }, []);
 

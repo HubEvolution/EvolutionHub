@@ -11,22 +11,28 @@ import type { UpdateNotificationSettingsRequest } from '../../../lib/types/notif
 const app = new Hono<{ Bindings: { DB: D1Database; JWT_SECRET: string } }>();
 
 // Apply CORS middleware
-app.use('*', cors({
-  origin: (origin) => {
-    // Allow requests from the same origin and configured domains
-    const allowedOrigins = [
-      process.env.BASE_URL || 'http://localhost:3000',
-      'https://evolution-hub.pages.dev',
-    ];
-    return allowedOrigins.includes(origin) ? origin : null;
-  },
-  credentials: true,
-}));
+app.use(
+  '*',
+  cors({
+    origin: (origin) => {
+      // Allow requests from the same origin and configured domains
+      const allowedOrigins = [
+        process.env.BASE_URL || 'http://localhost:3000',
+        'https://evolution-hub.pages.dev',
+      ];
+      return allowedOrigins.includes(origin) ? origin : null;
+    },
+    credentials: true,
+  })
+);
 
 // JWT middleware for authentication
-app.use('/api/notifications/*', jwt({
-  secret: process.env.JWT_SECRET!,
-}));
+app.use(
+  '/api/notifications/*',
+  jwt({
+    secret: process.env.JWT_SECRET!,
+  })
+);
 
 // GET /api/notifications/settings - Get user notification settings
 app.get('/', async (c) => {
@@ -49,10 +55,13 @@ app.get('/', async (c) => {
     });
   } catch (error) {
     console.error('Error fetching notification settings:', error);
-    return c.json({
-      success: false,
-      error: { type: 'server', message: 'Internal server error' },
-    }, 500);
+    return c.json(
+      {
+        success: false,
+        error: { type: 'server', message: 'Internal server error' },
+      },
+      500
+    );
   }
 });
 
@@ -72,48 +81,67 @@ app.post('/', async (c) => {
 
     // Validate required fields
     if (!type || !channel) {
-      return c.json({
-        success: false,
-        error: {
-          type: 'validation',
-          message: 'type and channel are required'
+      return c.json(
+        {
+          success: false,
+          error: {
+            type: 'validation',
+            message: 'type and channel are required',
+          },
         },
-      }, 400);
+        400
+      );
     }
 
     // Validate enums
-    const validTypes = ['comment_reply', 'comment_mention', 'comment_approved', 'comment_rejected', 'system', 'email_digest'];
+    const validTypes = [
+      'comment_reply',
+      'comment_mention',
+      'comment_approved',
+      'comment_rejected',
+      'system',
+      'email_digest',
+    ];
     const validChannels = ['in_app', 'email', 'push'];
     const validFrequencies = ['immediate', 'daily', 'weekly', 'never'];
 
     if (!validTypes.includes(type)) {
-      return c.json({
-        success: false,
-        error: {
-          type: 'validation',
-          message: 'Invalid notification type'
+      return c.json(
+        {
+          success: false,
+          error: {
+            type: 'validation',
+            message: 'Invalid notification type',
+          },
         },
-      }, 400);
+        400
+      );
     }
 
     if (!validChannels.includes(channel)) {
-      return c.json({
-        success: false,
-        error: {
-          type: 'validation',
-          message: 'Invalid notification channel'
+      return c.json(
+        {
+          success: false,
+          error: {
+            type: 'validation',
+            message: 'Invalid notification channel',
+          },
         },
-      }, 400);
+        400
+      );
     }
 
     if (frequency && !validFrequencies.includes(frequency)) {
-      return c.json({
-        success: false,
-        error: {
-          type: 'validation',
-          message: 'Invalid notification frequency'
+      return c.json(
+        {
+          success: false,
+          error: {
+            type: 'validation',
+            message: 'Invalid notification frequency',
+          },
         },
-      }, 400);
+        400
+      );
     }
 
     const request: UpdateNotificationSettingsRequest = {
@@ -132,10 +160,13 @@ app.post('/', async (c) => {
     });
   } catch (error) {
     console.error('Error updating notification settings:', error);
-    return c.json({
-      success: false,
-      error: { type: 'server', message: 'Internal server error' },
-    }, 500);
+    return c.json(
+      {
+        success: false,
+        error: { type: 'server', message: 'Internal server error' },
+      },
+      500
+    );
   }
 });
 
@@ -162,10 +193,13 @@ app.post('/initialize', async (c) => {
     });
   } catch (error) {
     console.error('Error initializing notification settings:', error);
-    return c.json({
-      success: false,
-      error: { type: 'server', message: 'Internal server error' },
-    }, 500);
+    return c.json(
+      {
+        success: false,
+        error: { type: 'server', message: 'Internal server error' },
+      },
+      500
+    );
   }
 });
 
@@ -197,10 +231,13 @@ app.post('/reset', async (c) => {
     });
   } catch (error) {
     console.error('Error resetting notification settings:', error);
-    return c.json({
-      success: false,
-      error: { type: 'server', message: 'Internal server error' },
-    }, 500);
+    return c.json(
+      {
+        success: false,
+        error: { type: 'server', message: 'Internal server error' },
+      },
+      500
+    );
   }
 });
 

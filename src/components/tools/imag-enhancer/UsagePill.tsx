@@ -2,7 +2,7 @@ import type { UsageInfo } from './types';
 
 /**
  * Props für die UsagePill-Komponente.
- * 
+ *
  * @interface UsagePillProps
  * @property {string} label - Hauptlabel (z.B. i18n.usage).
  * @property {string} loadingLabel - Label während Laden (z.B. i18n.loading).
@@ -22,13 +22,20 @@ interface UsagePillProps {
 
 /**
  * UsagePill-Komponente für das Image Enhancer Tool.
- * 
+ *
  * Zeigt Quota-Verbrauch als Pill mit Progress-Bar an, unterstützt Ladezustand und kritische Warnung.
- * 
+ *
  * @param props Die Props für die Komponente.
  * @returns Die gerenderte Komponente.
  */
-export function UsagePill({ label, loadingLabel, usage, ownerType, percent, critical }: UsagePillProps) {
+export function UsagePill({
+  label,
+  loadingLabel,
+  usage,
+  ownerType,
+  percent,
+  critical,
+}: UsagePillProps) {
   // Build a concise tooltip string without adding new props
   const tooltip = (() => {
     if (!usage) return loadingLabel;
@@ -40,21 +47,23 @@ export function UsagePill({ label, loadingLabel, usage, ownerType, percent, crit
         // Prefer locale-aware formatting where available, fallback to stable ISO-like
         let ts = '';
         try {
-          const locale = (typeof navigator !== 'undefined' && navigator.language) ? navigator.language : 'en-US';
-          ts = d.toLocaleString(locale, { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+          const locale =
+            typeof navigator !== 'undefined' && navigator.language ? navigator.language : 'en-US';
+          ts = d.toLocaleString(locale, {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+          });
         } catch {
           // ignore, will fallback below
         }
         if (!ts) {
-          ts = `${d.getFullYear()}-${(d.getMonth() + 1)
-            .toString()
-            .padStart(2, '0')}-${d
+          ts = `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d
             .getDate()
             .toString()
-            .padStart(2, '0')} ${d
-            .getHours()
-            .toString()
-            .padStart(2, '0')}:${d
+            .padStart(2, '0')} ${d.getHours().toString().padStart(2, '0')}:${d
             .getMinutes()
             .toString()
             .padStart(2, '0')}`;

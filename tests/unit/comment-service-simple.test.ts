@@ -14,11 +14,7 @@ describe('Comment Service - Simple Validation Tests', () => {
     });
 
     it('should validate email format', () => {
-      const validEmails = [
-        'test@example.com',
-        'user.name@domain.co.uk',
-        'user+tag@example.org'
-      ];
+      const validEmails = ['test@example.com', 'user.name@domain.co.uk', 'user+tag@example.org'];
 
       const invalidEmails = [
         'invalid-email',
@@ -26,14 +22,14 @@ describe('Comment Service - Simple Validation Tests', () => {
         'test@',
         'test@.com',
         'test@example',
-        ''
+        '',
       ];
 
-      validEmails.forEach(email => {
+      validEmails.forEach((email) => {
         expect(email).toMatch(/^[^\s@]+@[^\s@]+\.[^\s@]+$/);
       });
 
-      invalidEmails.forEach(email => {
+      invalidEmails.forEach((email) => {
         expect(email).not.toMatch(/^[^\s@]+@[^\s@]+\.[^\s@]+$/);
       });
     });
@@ -42,11 +38,11 @@ describe('Comment Service - Simple Validation Tests', () => {
       const validStatuses = ['pending', 'approved', 'rejected', 'flagged', 'hidden'];
       const invalidStatuses = ['active', 'inactive', 'published'];
 
-      validStatuses.forEach(status => {
+      validStatuses.forEach((status) => {
         expect(['pending', 'approved', 'rejected', 'flagged', 'hidden']).toContain(status);
       });
 
-      invalidStatuses.forEach(status => {
+      invalidStatuses.forEach((status) => {
         expect(['pending', 'approved', 'rejected', 'flagged', 'hidden']).not.toContain(status);
       });
     });
@@ -67,7 +63,7 @@ describe('Comment Service - Simple Validation Tests', () => {
         windowMs: 60 * 1000, // 1 minute
         maxRequests: 5,
         skipSuccessfulRequests: false,
-        skipFailedRequests: false
+        skipFailedRequests: false,
       };
 
       expect(config.windowMs).toBe(60000);
@@ -83,14 +79,14 @@ describe('Comment Service - Simple Validation Tests', () => {
       const errorMessages = [
         'Comment content is required',
         'Rate limit exceeded',
-        'Database connection failed'
+        'Database connection failed',
       ];
 
-      errorTypes.forEach(type => {
+      errorTypes.forEach((type) => {
         expect(['validation_error', 'forbidden', 'server_error']).toContain(type);
       });
 
-      errorMessages.forEach(message => {
+      errorMessages.forEach((message) => {
         expect(message.length).toBeGreaterThan(0);
       });
     });
@@ -101,8 +97,8 @@ describe('Comment Service - Simple Validation Tests', () => {
         error: {
           type: 'validation_error',
           message: 'Invalid input',
-          details: { field: 'content' }
-        }
+          details: { field: 'content' },
+        },
       };
 
       expect(errorResponse.success).toBe(false);
@@ -123,15 +119,10 @@ describe('Comment Service - Simple Validation Tests', () => {
 
     it('should validate CSRF token format', () => {
       const validToken = 'csrf_1234567890abcdef';
-      const invalidTokens = [
-        '',
-        'invalid',
-        '123',
-        'no_csrf_prefix'
-      ];
+      const invalidTokens = ['', 'invalid', '123', 'no_csrf_prefix'];
 
       expect(validToken).toMatch(/^csrf_[a-zA-Z0-9]{16,}$/);
-      invalidTokens.forEach(token => {
+      invalidTokens.forEach((token) => {
         expect(token).not.toMatch(/^csrf_[a-zA-Z0-9]{16,}$/);
       });
     });
@@ -154,7 +145,7 @@ describe('Comment Service - Simple Validation Tests', () => {
           '>': '>',
           '"': '"',
           "'": '&#x27;',
-          '&': '&'
+          '&': '&',
         };
         return escapeMap[match];
       });

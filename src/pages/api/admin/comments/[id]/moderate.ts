@@ -7,16 +7,19 @@ const app = new Hono<{ Bindings: { DB: D1Database } }>();
 
 // Middleware
 app.use('*', logger());
-app.use('*', cors({
-  origin: (origin) => {
-    // Allow requests from the same origin and localhost for development
-    if (!origin || origin.includes('localhost') || origin.endsWith('.vercel.app')) {
-      return origin;
-    }
-    return null; // Reject other origins
-  },
-  credentials: true,
-}));
+app.use(
+  '*',
+  cors({
+    origin: (origin) => {
+      // Allow requests from the same origin and localhost for development
+      if (!origin || origin.includes('localhost') || origin.endsWith('.vercel.app')) {
+        return origin;
+      }
+      return null; // Reject other origins
+    },
+    credentials: true,
+  })
+);
 
 // POST /api/admin/comments/[id]/moderate - Moderate a specific comment
 app.post('/moderate', async (c) => {
@@ -31,7 +34,10 @@ app.post('/moderate', async (c) => {
     const commentId = c.req.param('id');
 
     if (!commentId) {
-      return c.json({ success: false, error: { type: 'validation_error', message: 'Comment ID required' } }, 400);
+      return c.json(
+        { success: false, error: { type: 'validation_error', message: 'Comment ID required' } },
+        400
+      );
     }
 
     const body = await c.req.json<{
@@ -43,7 +49,10 @@ app.post('/moderate', async (c) => {
     const { action, reason, notifyUser = false } = body;
 
     if (!['approve', 'reject', 'flag', 'hide'].includes(action)) {
-      return c.json({ success: false, error: { type: 'validation_error', message: 'Invalid action' } }, 400);
+      return c.json(
+        { success: false, error: { type: 'validation_error', message: 'Invalid action' } },
+        400
+      );
     }
 
     const commentService = new CommentService(c.env.DB);
@@ -51,7 +60,10 @@ app.post('/moderate', async (c) => {
     // Get comment details before moderation for potential notifications
     const comment = await commentService.getCommentById(commentId);
     if (!comment) {
-      return c.json({ success: false, error: { type: 'validation_error', message: 'Comment not found' } }, 404);
+      return c.json(
+        { success: false, error: { type: 'validation_error', message: 'Comment not found' } },
+        404
+      );
     }
 
     // Perform moderation
@@ -80,22 +92,31 @@ app.post('/moderate', async (c) => {
           entityId: comment.entityId,
           createdAt: comment.createdAt,
           updatedAt: comment.updatedAt,
-        }
-      }
+        },
+      },
     });
   } catch (error) {
     console.error('Error moderating comment:', error);
 
     if (error instanceof Error) {
       if (error.message.includes('not found')) {
-        return c.json({ success: false, error: { type: 'validation_error', message: error.message } }, 404);
+        return c.json(
+          { success: false, error: { type: 'validation_error', message: error.message } },
+          404
+        );
       }
       if (error.message.includes('Authentication')) {
-        return c.json({ success: false, error: { type: 'auth_error', message: error.message } }, 401);
+        return c.json(
+          { success: false, error: { type: 'auth_error', message: error.message } },
+          401
+        );
       }
     }
 
-    return c.json({ success: false, error: { type: 'server_error', message: 'Failed to moderate comment' } }, 500);
+    return c.json(
+      { success: false, error: { type: 'server_error', message: 'Failed to moderate comment' } },
+      500
+    );
   }
 });
 
@@ -113,7 +134,10 @@ app.get('/', async (c) => {
     const commentId = c.req.param('id');
 
     if (!commentId) {
-      return c.json({ success: false, error: { type: 'validation_error', message: 'Comment ID required' } }, 400);
+      return c.json(
+        { success: false, error: { type: 'validation_error', message: 'Comment ID required' } },
+        400
+      );
     }
 
     const commentService = new CommentService(c.env.DB);
@@ -121,7 +145,10 @@ app.get('/', async (c) => {
     const comment = await commentService.getCommentById(commentId);
 
     if (!comment) {
-      return c.json({ success: false, error: { type: 'validation_error', message: 'Comment not found' } }, 404);
+      return c.json(
+        { success: false, error: { type: 'validation_error', message: 'Comment not found' } },
+        404
+      );
     }
 
     return c.json({
@@ -132,8 +159,8 @@ app.get('/', async (c) => {
           canEdit: true,
           canDelete: true,
           isAuthor: comment.authorId === Number(user.id),
-        }
-      }
+        },
+      },
     });
   } catch (error) {
     console.error('Error fetching comment details:', error);
@@ -142,7 +169,13 @@ app.get('/', async (c) => {
       return c.json({ success: false, error: { type: 'auth_error', message: error.message } }, 401);
     }
 
-    return c.json({ success: false, error: { type: 'server_error', message: 'Failed to fetch comment details' } }, 500);
+    return c.json(
+      {
+        success: false,
+        error: { type: 'server_error', message: 'Failed to fetch comment details' },
+      },
+      500
+    );
   }
 });
 
@@ -160,7 +193,10 @@ app.delete('/', async (c) => {
     const commentId = c.req.param('id');
 
     if (!commentId) {
-      return c.json({ success: false, error: { type: 'validation_error', message: 'Comment ID required' } }, 400);
+      return c.json(
+        { success: false, error: { type: 'validation_error', message: 'Comment ID required' } },
+        400
+      );
     }
 
     const body = await c.req.json<{
@@ -175,7 +211,10 @@ app.delete('/', async (c) => {
     // Get comment details before deletion for potential notifications
     const comment = await commentService.getCommentById(commentId);
     if (!comment) {
-      return c.json({ success: false, error: { type: 'validation_error', message: 'Comment not found' } }, 404);
+      return c.json(
+        { success: false, error: { type: 'validation_error', message: 'Comment not found' } },
+        404
+      );
     }
 
     // Soft delete the comment by setting status to 'hidden'
@@ -196,14 +235,23 @@ app.delete('/', async (c) => {
 
     if (error instanceof Error) {
       if (error.message.includes('not found')) {
-        return c.json({ success: false, error: { type: 'validation_error', message: error.message } }, 404);
+        return c.json(
+          { success: false, error: { type: 'validation_error', message: error.message } },
+          404
+        );
       }
       if (error.message.includes('Authentication')) {
-        return c.json({ success: false, error: { type: 'auth_error', message: error.message } }, 401);
+        return c.json(
+          { success: false, error: { type: 'auth_error', message: error.message } },
+          401
+        );
       }
     }
 
-    return c.json({ success: false, error: { type: 'server_error', message: 'Failed to delete comment' } }, 500);
+    return c.json(
+      { success: false, error: { type: 'server_error', message: 'Failed to delete comment' } },
+      500
+    );
   }
 });
 

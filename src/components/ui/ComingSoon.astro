@@ -18,34 +18,62 @@ const {
   primaryCtaHref = null,
   secondaryCtaKey = 'comingSoon.cta.secondary',
   secondaryCtaHref = null,
-  dismissible = false
+  dismissible = false,
 } = Astro.props as Props;
 const locale = getLocale(Astro.url.pathname);
 const t = getI18n(locale);
 const primaryHref = primaryCtaHref || localizePath(locale, '/');
-const secondaryHref = secondaryCtaHref || (secondaryCtaKey ? localizePath(locale, '/kontakt') : null);
+const secondaryHref =
+  secondaryCtaHref || (secondaryCtaKey ? localizePath(locale, '/kontakt') : null);
 const ariaLabel = t('comingSoon.ariaLabel') || t(titleKey);
 ---
 
-<div id="coming-soon-overlay" data-dismissible={dismissible ? 'true' : 'false'} class="fixed inset-0 z-[9999] grid place-items-center bg-black/60 backdrop-blur-sm p-4" role="dialog" aria-modal="true" aria-label={ariaLabel}>
-  <div class="relative max-w-lg w-full bg-white dark:bg-slate-800 rounded-xl shadow-xl p-8 text-center pointer-events-auto">
-    {dismissible && (
-      <button class="cs-close absolute top-3 right-3 p-2 rounded-md text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700" aria-label={t('comingSoon.cta.close') || 'Close'}>
-        <span aria-hidden="true">✕</span>
-      </button>
-    )}
-    <h2 id="coming-soon-title" class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100">{t(titleKey)}</h2>
+<div
+  id="coming-soon-overlay"
+  data-dismissible={dismissible ? 'true' : 'false'}
+  class="fixed inset-0 z-[9999] grid place-items-center bg-black/60 backdrop-blur-sm p-4"
+  role="dialog"
+  aria-modal="true"
+  aria-label={ariaLabel}
+>
+  <div
+    class="relative max-w-lg w-full bg-white dark:bg-slate-800 rounded-xl shadow-xl p-8 text-center pointer-events-auto"
+  >
+    {
+      dismissible && (
+        <button
+          class="cs-close absolute top-3 right-3 p-2 rounded-md text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700"
+          aria-label={t('comingSoon.cta.close') || 'Close'}
+        >
+          <span aria-hidden="true">✕</span>
+        </button>
+      )
+    }
+    <h2
+      id="coming-soon-title"
+      class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100"
+    >
+      {t(titleKey)}
+    </h2>
     <p class="mt-3 text-slate-600 dark:text-slate-300">{t(descriptionKey)}</p>
     <div class="mt-6 flex justify-center gap-3 buttons">
-      <a data-cs-primary href={primaryHref} class="inline-flex items-center justify-center font-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-colors duration-200 bg-gradient-to-r from-emerald-500 to-cyan-500 text-white hover:from-emerald-600 hover:to-cyan-600 px-6 py-3 text-lg">
+      <a
+        data-cs-primary
+        href={primaryHref}
+        class="inline-flex items-center justify-center font-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-colors duration-200 bg-gradient-to-r from-emerald-500 to-cyan-500 text-white hover:from-emerald-600 hover:to-cyan-600 px-6 py-3 text-lg"
+      >
         {t(primaryCtaKey)}
       </a>
-      {secondaryCtaKey && secondaryHref && (
-        <a href={secondaryHref} class="inline-flex items-center justify-center font-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-colors duration-200 outline border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 px-4 py-2 text-base">
-          {t(secondaryCtaKey)}
-        </a>
-      )}
+      {
+        secondaryCtaKey && secondaryHref && (
+          <a
+            href={secondaryHref}
+            class="inline-flex items-center justify-center font-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-colors duration-200 outline border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 px-4 py-2 text-base"
+          >
+            {t(secondaryCtaKey)}
+          </a>
+        )
+      }
     </div>
   </div>
 </div>
-

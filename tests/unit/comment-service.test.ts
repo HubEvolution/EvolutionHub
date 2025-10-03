@@ -8,8 +8,8 @@ vi.mock('../../src/lib/db/helpers', () => ({
   getDb: vi.fn(() => ({
     insert: vi.fn(() => ({
       values: vi.fn(() => ({
-        returning: vi.fn(() => Promise.resolve([]))
-      }))
+        returning: vi.fn(() => Promise.resolve([])),
+      })),
     })),
     select: vi.fn(() => ({
       from: vi.fn(() => ({
@@ -18,21 +18,21 @@ vi.mock('../../src/lib/db/helpers', () => ({
             groupBy: vi.fn(() => ({
               orderBy: vi.fn(() => ({
                 limit: vi.fn(() => ({
-                  offset: vi.fn(() => Promise.resolve([]))
-                }))
-              }))
-            }))
-          }))
-        }))
-      }))
+                  offset: vi.fn(() => Promise.resolve([])),
+                })),
+              })),
+            })),
+          })),
+        })),
+      })),
     })),
     update: vi.fn(() => ({
       set: vi.fn(() => ({
-        where: vi.fn(() => Promise.resolve([]))
-      }))
+        where: vi.fn(() => Promise.resolve([])),
+      })),
     })),
     delete: vi.fn(() => ({
-      where: vi.fn(() => Promise.resolve([]))
+      where: vi.fn(() => Promise.resolve([])),
     })),
   })),
 }));
@@ -73,17 +73,15 @@ describe('CommentService', () => {
       const mockSelect = mockDb.select as any;
       mockSelect.mockReturnValueOnce({
         from: vi.fn().mockReturnValue({
-          where: vi.fn().mockResolvedValue([
-            { name: 'Test User', email: 'test@example.com' }
-          ])
-        })
+          where: vi.fn().mockResolvedValue([{ name: 'Test User', email: 'test@example.com' }]),
+        }),
       });
 
       const mockInsert = mockDb.insert as any;
       mockInsert.mockReturnValue({
         values: vi.fn().mockReturnValue({
-          returning: vi.fn().mockResolvedValue([{ id: 'test-id-123' }])
-        })
+          returning: vi.fn().mockResolvedValue([{ id: 'test-id-123' }]),
+        }),
       });
 
       const result = await commentService.createComment(request, 1);
@@ -105,8 +103,8 @@ describe('CommentService', () => {
       const mockInsert = mockDb.insert as any;
       mockInsert.mockReturnValue({
         values: vi.fn().mockReturnValue({
-          returning: vi.fn().mockResolvedValue([{ id: 'test-id-123' }])
-        })
+          returning: vi.fn().mockResolvedValue([{ id: 'test-id-123' }]),
+        }),
       });
 
       const result = await commentService.createComment(request);
@@ -216,9 +214,7 @@ describe('CommentService', () => {
         updatedAt: Math.floor(Date.now() / 1000),
       };
 
-      mockDb.select.mockResolvedValueOnce([
-        { comment: mockComment, reportCount: 0 }
-      ]);
+      mockDb.select.mockResolvedValueOnce([{ comment: mockComment, reportCount: 0 }]);
 
       const result = await commentService.getCommentById('test-id-123');
 
@@ -290,7 +286,7 @@ describe('CommentService', () => {
             action: 'approve',
             reason: 'Good content',
             createdAt: Math.floor(Date.now() / 1000),
-          }
+          },
         ]),
       });
 
@@ -300,11 +296,7 @@ describe('CommentService', () => {
         }),
       });
 
-      const result = await commentService.moderateComment(
-        'test-id-123',
-        moderationRequest,
-        1
-      );
+      const result = await commentService.moderateComment('test-id-123', moderationRequest, 1);
 
       expect(result).toBeDefined();
       expect(result.action).toBe('approve');
@@ -329,7 +321,7 @@ describe('CommentService', () => {
             description: 'This is spam content',
             status: 'pending',
             createdAt: Math.floor(Date.now() / 1000),
-          }
+          },
         ]),
       });
 

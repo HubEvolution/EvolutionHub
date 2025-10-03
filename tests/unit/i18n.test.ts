@@ -4,7 +4,7 @@ import { getLocale } from '@/lib/i18n';
 
 // Mock getLocale for consistent testing
 vi.mock('@/lib/i18n', () => ({
-  getLocale: vi.fn().mockReturnValue('de')
+  getLocale: vi.fn().mockReturnValue('de'),
 }));
 
 describe('i18n Utils', () => {

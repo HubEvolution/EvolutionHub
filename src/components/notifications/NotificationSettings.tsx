@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Save, RefreshCw } from 'lucide-react';
 import type {
   NotificationSetting,
-  UpdateNotificationSettingsRequest
+  UpdateNotificationSettingsRequest,
 } from '../../lib/types/notifications';
 
 interface NotificationSettingsProps {
@@ -57,7 +57,12 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({
   }, []);
 
   // Update setting
-  const updateSetting = async (type: string, channel: string, enabled: boolean, frequency: string = 'immediate') => {
+  const updateSetting = async (
+    type: string,
+    channel: string,
+    enabled: boolean,
+    frequency: string = 'immediate'
+  ) => {
     try {
       setSaving(`${type}-${channel}`);
       setError(null);
@@ -87,8 +92,8 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({
 
       if (result.success) {
         // Update local state
-        setSettings(prev =>
-          prev.map(setting =>
+        setSettings((prev) =>
+          prev.map((setting) =>
             setting.type === type && setting.channel === channel
               ? { ...setting, enabled, frequency, updatedAt: Math.floor(Date.now() / 1000) }
               : setting
@@ -137,13 +142,16 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({
   };
 
   // Group settings by type
-  const groupedSettings = settings.reduce((acc, setting) => {
-    if (!acc[setting.type]) {
-      acc[setting.type] = [];
-    }
-    acc[setting.type].push(setting);
-    return acc;
-  }, {} as Record<string, NotificationSetting[]>);
+  const groupedSettings = settings.reduce(
+    (acc, setting) => {
+      if (!acc[setting.type]) {
+        acc[setting.type] = [];
+      }
+      acc[setting.type].push(setting);
+      return acc;
+    },
+    {} as Record<string, NotificationSetting[]>
+  );
 
   // Get localized type names
   const getTypeName = (type: string): string => {
@@ -195,9 +203,7 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({
       {/* Header */}
       <div className="px-6 py-4 border-b border-gray-200">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-gray-900">
-            Benachrichtigungs-Einstellungen
-          </h2>
+          <h2 className="text-lg font-semibold text-gray-900">Benachrichtigungs-Einstellungen</h2>
           <button
             onClick={resetToDefaults}
             className="inline-flex items-center px-3 py-1 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded"
@@ -229,20 +235,28 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({
       <div className="p-6 space-y-6">
         {Object.entries(groupedSettings).map(([type, typeSettings]) => (
           <div key={type} className="border border-gray-200 rounded-lg p-4">
-            <h3 className="text-md font-medium text-gray-900 mb-3">
-              {getTypeName(type)}
-            </h3>
+            <h3 className="text-md font-medium text-gray-900 mb-3">{getTypeName(type)}</h3>
 
             <div className="space-y-3">
               {typeSettings.map((setting) => (
-                <div key={`${setting.type}-${setting.channel}`} className="flex items-center justify-between">
+                <div
+                  key={`${setting.type}-${setting.channel}`}
+                  className="flex items-center justify-between"
+                >
                   <div className="flex-1">
                     <div className="flex items-center space-x-3">
                       <label className="relative inline-flex items-center cursor-pointer">
                         <input
                           type="checkbox"
                           checked={setting.enabled}
-                          onChange={(e) => updateSetting(setting.type, setting.channel, e.target.checked, setting.frequency)}
+                          onChange={(e) =>
+                            updateSetting(
+                              setting.type,
+                              setting.channel,
+                              e.target.checked,
+                              setting.frequency
+                            )
+                          }
                           disabled={saving === `${setting.type}-${setting.channel}`}
                           className="sr-only peer"
                         />
@@ -265,7 +279,9 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({
                   {setting.enabled && (
                     <select
                       value={setting.frequency}
-                      onChange={(e) => updateSetting(setting.type, setting.channel, true, e.target.value)}
+                      onChange={(e) =>
+                        updateSetting(setting.type, setting.channel, true, e.target.value)
+                      }
                       disabled={saving === `${setting.type}-${setting.channel}`}
                       className="text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                     >

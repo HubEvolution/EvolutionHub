@@ -6,6 +6,7 @@ author: 'Evolution Hub'
 category: 'Persönliche Entwicklung'
 tags: ['Gewohnheiten', 'Ziele', 'Selbstoptimierung', 'Veränderung']
 ---
+
 image: { src: '/src/content/blog/images/goal-to-habit-microsteps.webp', width: 1200, height: 675 }
 imageAlt: 'Berg mit kleinen Fußspuren, die zum Gipfel führen, symbolisiert Mikro-Schritte zum Ziel'
 
@@ -21,7 +22,7 @@ Die **Verhaltensänderung** scheitert, weil wir uns zu sehr auf das Ergebnis und
 
 ## Die Lösung: Mikro-Gewohnheiten für die persönliche Entwicklung
 
-Die Mikro-Schritte-Methode bricht überwältigende Ziele in winzige, fast lächerlich einfache Aktionen herunter. Eine Mikro-Gewohnheit ist so klein, dass es praktisch unmöglich ist, sie *nicht* zu tun.
+Die Mikro-Schritte-Methode bricht überwältigende Ziele in winzige, fast lächerlich einfache Aktionen herunter. Eine Mikro-Gewohnheit ist so klein, dass es praktisch unmöglich ist, sie _nicht_ zu tun.
 
 ### Wie funktioniert es?
 
@@ -32,10 +33,10 @@ Die Mikro-Schritte-Methode bricht überwältigende Ziele in winzige, fast läche
 
 ### Beispiele für Mikro-Gewohnheiten:
 
-*   **Ziel:** Ein Buch schreiben -> **Mikro-Gewohnheit:** Einen Satz pro Tag schreiben.
-*   **Ziel:** Täglich meditieren -> **Mikro-Gewohnheit:** Eine Minute lang bewusst atmen.
-*   **Ziel:** Mehr lesen -> **Mikro-Gewohnheit:** Eine Seite in einem Buch lesen.
-*   **Ziel:** Ordnung halten -> **Mikro-Gewohnheit:** Einen Gegenstand an seinen Platz zurücklegen.
+- **Ziel:** Ein Buch schreiben -> **Mikro-Gewohnheit:** Einen Satz pro Tag schreiben.
+- **Ziel:** Täglich meditieren -> **Mikro-Gewohnheit:** Eine Minute lang bewusst atmen.
+- **Ziel:** Mehr lesen -> **Mikro-Gewohnheit:** Eine Seite in einem Buch lesen.
+- **Ziel:** Ordnung halten -> **Mikro-Gewohnheit:** Einen Gegenstand an seinen Platz zurücklegen.
 
 ## Warum Mikro-Schritte so wirkungsvoll sind
 

@@ -20,15 +20,18 @@ const app = new Hono<{
 // Middleware
 app.use('/*', cors());
 app.use('/*', jwt({ secret: process.env.JWT_SECRET! }));
-app.use('/*', rateLimiter({
-  windowMs: 60 * 1000,
-  limit: 10,
-  keyGenerator: (c) =>
-    c.req.header('cf-connecting-ip') ||
-    c.req.header('x-forwarded-for') ||
-    c.req.header('x-real-ip') ||
-    'anonymous'
-})); // 10 pro Minute für Admins
+app.use(
+  '/*',
+  rateLimiter({
+    windowMs: 60 * 1000,
+    limit: 10,
+    keyGenerator: (c) =>
+      c.req.header('cf-connecting-ip') ||
+      c.req.header('x-forwarded-for') ||
+      c.req.header('x-real-ip') ||
+      'anonymous',
+  })
+); // 10 pro Minute für Admins
 app.use('/*', async (c, next) => {
   try {
     const user = await requireAdmin({
@@ -39,10 +42,13 @@ app.use('/*', async (c, next) => {
     c.set('userId', Number(user.id));
     await next();
   } catch {
-    return c.json({
-      success: false,
-      error: { type: 'auth_error', message: 'Unauthorized' },
-    }, 401);
+    return c.json(
+      {
+        success: false,
+        error: { type: 'auth_error', message: 'Unauthorized' },
+      },
+      401
+    );
   }
 });
 
@@ -64,16 +70,16 @@ app.get('/jobs', async (c) => {
 
     // Filter anwenden wenn spezifiziert
     if (status) {
-      jobs = jobs.filter(job => job.status === status);
+      jobs = jobs.filter((job) => job.status === status);
     }
 
     if (type) {
-      jobs = jobs.filter(job => job.type === type);
+      jobs = jobs.filter((job) => job.type === type);
     }
 
     return c.json({
       success: true,
-      data: jobs.map(job => ({
+      data: jobs.map((job) => ({
         id: job.id,
         type: job.type,
         status: job.status,
@@ -90,13 +96,16 @@ app.get('/jobs', async (c) => {
     });
   } catch (error) {
     console.error('Error fetching backup jobs:', error);
-    return c.json({
-      success: false,
-      error: {
-        type: 'server_error',
-        message: 'Failed to fetch backup jobs',
+    return c.json(
+      {
+        success: false,
+        error: {
+          type: 'server_error',
+          message: 'Failed to fetch backup jobs',
+        },
       },
-    }, 500);
+      500
+    );
   }
 });
 
@@ -113,13 +122,16 @@ app.get('/jobs/:id', async (c) => {
     const job = await backupService.getBackupJob(jobId);
 
     if (!job) {
-      return c.json({
-        success: false,
-        error: {
-          type: 'not_found',
-          message: 'Backup job not found',
+      return c.json(
+        {
+          success: false,
+          error: {
+            type: 'not_found',
+            message: 'Backup job not found',
+          },
         },
-      }, 404);
+        404
+      );
     }
 
     return c.json({
@@ -142,13 +154,16 @@ app.get('/jobs/:id', async (c) => {
     });
   } catch (error) {
     console.error('Error fetching backup job:', error);
-    return c.json({
-      success: false,
-      error: {
-        type: 'server_error',
-        message: 'Failed to fetch backup job',
+    return c.json(
+      {
+        success: false,
+        error: {
+          type: 'server_error',
+          message: 'Failed to fetch backup job',
+        },
       },
-    }, 500);
+      500
+    );
   }
 });
 
@@ -165,13 +180,16 @@ app.get('/jobs/:id/progress', async (c) => {
     const progress = await backupService.getBackupProgress(jobId);
 
     if (!progress) {
-      return c.json({
-        success: false,
-        error: {
-          type: 'not_found',
-          message: 'Backup job not found',
+      return c.json(
+        {
+          success: false,
+          error: {
+            type: 'not_found',
+            message: 'Backup job not found',
+          },
         },
-      }, 404);
+        404
+      );
     }
 
     return c.json({
@@ -180,13 +198,16 @@ app.get('/jobs/:id/progress', async (c) => {
     });
   } catch (error) {
     console.error('Error fetching backup progress:', error);
-    return c.json({
-      success: false,
-      error: {
-        type: 'server_error',
-        message: 'Failed to fetch backup progress',
+    return c.json(
+      {
+        success: false,
+        error: {
+          type: 'server_error',
+          message: 'Failed to fetch backup progress',
+        },
       },
-    }, 500);
+      500
+    );
   }
 });
 
@@ -203,24 +224,30 @@ app.post('/create', async (c) => {
 
     // Validierung
     if (!body.type) {
-      return c.json({
-        success: false,
-        error: {
-          type: 'validation_error',
-          message: 'Backup type is required',
+      return c.json(
+        {
+          success: false,
+          error: {
+            type: 'validation_error',
+            message: 'Backup type is required',
+          },
         },
-      }, 400);
+        400
+      );
     }
 
     const allowedTypes = ['full', 'comments', 'users', 'incremental'];
     if (!allowedTypes.includes(body.type)) {
-      return c.json({
-        success: false,
-        error: {
-          type: 'validation_error',
-          message: 'Invalid backup type',
+      return c.json(
+        {
+          success: false,
+          error: {
+            type: 'validation_error',
+            message: 'Invalid backup type',
+          },
         },
-      }, 400);
+        400
+      );
     }
 
     const jobId = await backupService.createBackupJob(body, adminId);
@@ -234,13 +261,16 @@ app.post('/create', async (c) => {
     });
   } catch (error) {
     console.error('Error creating backup job:', error);
-    return c.json({
-      success: false,
-      error: {
-        type: 'server_error',
-        message: 'Failed to create backup job',
+    return c.json(
+      {
+        success: false,
+        error: {
+          type: 'server_error',
+          message: 'Failed to create backup job',
+        },
       },
-    }, 500);
+      500
+    );
   }
 });
 
@@ -258,13 +288,16 @@ app.post('/schedule', async (c) => {
     }>();
 
     if (!body.type || !body.cronExpression) {
-      return c.json({
-        success: false,
-        error: {
-          type: 'validation_error',
-          message: 'Backup type and cron expression are required',
+      return c.json(
+        {
+          success: false,
+          error: {
+            type: 'validation_error',
+            message: 'Backup type and cron expression are required',
+          },
         },
-      }, 400);
+        400
+      );
     }
 
     const db = drizzle(c.env.DB);
@@ -280,13 +313,16 @@ app.post('/schedule', async (c) => {
     });
   } catch (error) {
     console.error('Error scheduling backup:', error);
-    return c.json({
-      success: false,
-      error: {
-        type: 'server_error',
-        message: 'Failed to schedule backup',
+    return c.json(
+      {
+        success: false,
+        error: {
+          type: 'server_error',
+          message: 'Failed to schedule backup',
+        },
       },
-    }, 500);
+      500
+    );
   }
 });
 
@@ -303,24 +339,30 @@ app.post('/maintenance/perform', async (c) => {
     }>();
 
     if (!body.type || !body.description) {
-      return c.json({
-        success: false,
-        error: {
-          type: 'validation_error',
-          message: 'Maintenance type and description are required',
+      return c.json(
+        {
+          success: false,
+          error: {
+            type: 'validation_error',
+            message: 'Maintenance type and description are required',
+          },
         },
-      }, 400);
+        400
+      );
     }
 
     const allowedTypes = ['cleanup', 'optimization', 'migration', 'repair'];
     if (!allowedTypes.includes(body.type)) {
-      return c.json({
-        success: false,
-        error: {
-          type: 'validation_error',
-          message: 'Invalid maintenance type',
+      return c.json(
+        {
+          success: false,
+          error: {
+            type: 'validation_error',
+            message: 'Invalid maintenance type',
+          },
         },
-      }, 400);
+        400
+      );
     }
 
     const db = drizzle(c.env.DB);
@@ -341,13 +383,16 @@ app.post('/maintenance/perform', async (c) => {
     });
   } catch (error) {
     console.error('Error starting maintenance:', error);
-    return c.json({
-      success: false,
-      error: {
-        type: 'server_error',
-        message: 'Failed to start maintenance',
+    return c.json(
+      {
+        success: false,
+        error: {
+          type: 'server_error',
+          message: 'Failed to start maintenance',
+        },
       },
-    }, 500);
+      500
+    );
   }
 });
 
@@ -367,7 +412,7 @@ app.get('/maintenance/jobs', async (c) => {
 
     return c.json({
       success: true,
-      data: jobs.map(job => ({
+      data: jobs.map((job) => ({
         id: job.id,
         type: job.type,
         status: job.status,
@@ -383,13 +428,16 @@ app.get('/maintenance/jobs', async (c) => {
     });
   } catch (error) {
     console.error('Error fetching maintenance jobs:', error);
-    return c.json({
-      success: false,
-      error: {
-        type: 'server_error',
-        message: 'Failed to fetch maintenance jobs',
+    return c.json(
+      {
+        success: false,
+        error: {
+          type: 'server_error',
+          message: 'Failed to fetch maintenance jobs',
+        },
       },
-    }, 500);
+      500
+    );
   }
 });
 
@@ -406,13 +454,16 @@ app.get('/maintenance/jobs/:id', async (c) => {
     const job = await backupService.getMaintenanceJob(jobId);
 
     if (!job) {
-      return c.json({
-        success: false,
-        error: {
-          type: 'not_found',
-          message: 'Maintenance job not found',
+      return c.json(
+        {
+          success: false,
+          error: {
+            type: 'not_found',
+            message: 'Maintenance job not found',
+          },
         },
-      }, 404);
+        404
+      );
     }
 
     return c.json({
@@ -433,13 +484,16 @@ app.get('/maintenance/jobs/:id', async (c) => {
     });
   } catch (error) {
     console.error('Error fetching maintenance job:', error);
-    return c.json({
-      success: false,
-      error: {
-        type: 'server_error',
-        message: 'Failed to fetch maintenance job',
+    return c.json(
+      {
+        success: false,
+        error: {
+          type: 'server_error',
+          message: 'Failed to fetch maintenance job',
+        },
       },
-    }, 500);
+      500
+    );
   }
 });
 
@@ -467,13 +521,16 @@ app.post('/cleanup', async (c) => {
     });
   } catch (error) {
     console.error('Error during cleanup:', error);
-    return c.json({
-      success: false,
-      error: {
-        type: 'server_error',
-        message: 'Failed to cleanup old backups',
+    return c.json(
+      {
+        success: false,
+        error: {
+          type: 'server_error',
+          message: 'Failed to cleanup old backups',
+        },
       },
-    }, 500);
+      500
+    );
   }
 });
 
@@ -498,13 +555,16 @@ app.post('/verify/:id', async (c) => {
     });
   } catch (error) {
     console.error('Error verifying backup:', error);
-    return c.json({
-      success: false,
-      error: {
-        type: 'server_error',
-        message: 'Failed to verify backup integrity',
+    return c.json(
+      {
+        success: false,
+        error: {
+          type: 'server_error',
+          message: 'Failed to verify backup integrity',
+        },
       },
-    }, 500);
+      500
+    );
   }
 });
 
@@ -522,27 +582,27 @@ app.get('/stats', async (c) => {
 
     const stats = {
       totalJobs: jobs.length,
-      completedJobs: jobs.filter(job => job.status === 'completed').length,
-      failedJobs: jobs.filter(job => job.status === 'failed').length,
-      runningJobs: jobs.filter(job => job.status === 'running').length,
+      completedJobs: jobs.filter((job) => job.status === 'completed').length,
+      failedJobs: jobs.filter((job) => job.status === 'failed').length,
+      runningJobs: jobs.filter((job) => job.status === 'running').length,
       totalSize: jobs
-        .filter(job => job.fileSize)
+        .filter((job) => job.fileSize)
         .reduce((sum, job) => sum + (job.fileSize || 0), 0),
       averageSize: 0,
       lastBackup: jobs
-        .filter(job => job.completedAt)
+        .filter((job) => job.completedAt)
         .sort((a, b) => (b.completedAt || 0) - (a.completedAt || 0))[0]?.completedAt,
       jobsByType: {} as Record<string, number>,
     };
 
     // Berechne Durchschnittsgröße
-    const completedJobs = jobs.filter(job => job.status === 'completed' && job.fileSize);
+    const completedJobs = jobs.filter((job) => job.status === 'completed' && job.fileSize);
     if (completedJobs.length > 0) {
       stats.averageSize = Math.round(stats.totalSize / completedJobs.length);
     }
 
     // Gruppiere nach Typ
-    jobs.forEach(job => {
+    jobs.forEach((job) => {
       stats.jobsByType[job.type] = (stats.jobsByType[job.type] || 0) + 1;
     });
 
@@ -552,13 +612,16 @@ app.get('/stats', async (c) => {
     });
   } catch (error) {
     console.error('Error fetching backup stats:', error);
-    return c.json({
-      success: false,
-      error: {
-        type: 'server_error',
-        message: 'Failed to fetch backup statistics',
+    return c.json(
+      {
+        success: false,
+        error: {
+          type: 'server_error',
+          message: 'Failed to fetch backup statistics',
+        },
       },
-    }, 500);
+      500
+    );
   }
 });
 

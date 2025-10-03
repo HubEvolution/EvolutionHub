@@ -45,7 +45,10 @@ export function validateFiles(files: File[]): { ok: boolean; reason?: string } {
   return { ok: true };
 }
 
-export async function buildAttachmentContext(files: File[], options: PrepareOptions = {}): Promise<PreparedAttachments> {
+export async function buildAttachmentContext(
+  files: File[],
+  options: PrepareOptions = {}
+): Promise<PreparedAttachments> {
   const maxChars = options.maxTextCharsPerFile ?? 6000;
   const texts: TextSnippet[] = [];
   const images: ImageInput[] = [];
@@ -78,7 +81,15 @@ export async function buildAttachmentContext(files: File[], options: PrepareOpti
 
 // Upload PDFs to OpenAI Files API for use with Responses API (file_search)
 // Mutates the given context.pdfs to include fileId.
-export async function uploadPdfFilesToProvider(openai: import('openai').default, ctx: PreparedAttachments, log?: { info?: (event: string, data?: unknown) => void; warn?: (event: string, data?: unknown) => void; error?: (event: string, data?: unknown) => void; }): Promise<void> {
+export async function uploadPdfFilesToProvider(
+  openai: import('openai').default,
+  ctx: PreparedAttachments,
+  log?: {
+    info?: (event: string, data?: unknown) => void;
+    warn?: (event: string, data?: unknown) => void;
+    error?: (event: string, data?: unknown) => void;
+  }
+): Promise<void> {
   if (!ctx.pdfs.length) return;
   for (const pdf of ctx.pdfs) {
     if (pdf.fileId || !pdf.file) continue;
@@ -87,7 +98,8 @@ export async function uploadPdfFilesToProvider(openai: import('openai').default,
       pdf.fileId = created.id;
       if (log?.info) log.info('pdf_uploaded', { filename: pdf.filename, bytes: pdf.size });
     } catch (err) {
-      if (log?.warn) log.warn('pdf_upload_failed', { filename: pdf.filename, error: (err as Error).message });
+      if (log?.warn)
+        log.warn('pdf_upload_failed', { filename: pdf.filename, error: (err as Error).message });
       // Do not throw: keep flow resilient; caller can decide to fallback
     }
   }

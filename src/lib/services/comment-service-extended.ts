@@ -3,13 +3,7 @@ import { drizzle } from 'drizzle-orm/d1';
 import { generateId } from '../utils/id-generator';
 import { rateLimit } from '../rate-limiter';
 import { validateCsrfToken } from '../security/csrf';
-import {
-  comments,
-  commentModeration,
-  commentReports,
-  commentAuditLogs,
-  users
-} from '../db/schema';
+import { comments, commentModeration, commentReports, commentAuditLogs, users } from '../db/schema';
 import type {
   Comment,
   CreateCommentRequest,
@@ -25,7 +19,7 @@ import type {
   CommentAuditLog,
   AuditLogFilters,
   AuditLogListResponse,
-  AuditAction
+  AuditAction,
 } from '../types/comments';
 
 export class CommentService {
@@ -66,7 +60,7 @@ export class CommentService {
     // Basic spam detection
     const spamKeywords = ['spam', 'click here', 'buy now'];
     const lowerContent = request.content.toLowerCase();
-    if (spamKeywords.some(keyword => lowerContent.includes(keyword))) {
+    if (spamKeywords.some((keyword) => lowerContent.includes(keyword))) {
       throw new Error('Comment contains prohibited content');
     }
 
@@ -107,22 +101,16 @@ export class CommentService {
     });
 
     // Create audit log for comment creation
-    await this.createAuditLog(
-      commentId,
-      userId,
-      'create',
-      undefined,
-      {
-        content: request.content.trim(),
-        authorId: userId || 0,
-        authorName,
-        authorEmail,
-        parentId: request.parentId,
-        entityType: request.entityType,
-        entityId: request.entityId,
-        status: userId ? 'approved' : 'pending',
-      }
-    );
+    await this.createAuditLog(commentId, userId, 'create', undefined, {
+      content: request.content.trim(),
+      authorId: userId || 0,
+      authorName,
+      authorEmail,
+      parentId: request.parentId,
+      entityType: request.entityType,
+      entityId: request.entityId,
+      status: userId ? 'approved' : 'pending',
+    });
 
     // Fetch and return the created comment
     return this.getCommentById(commentId);
@@ -166,10 +154,7 @@ export class CommentService {
         editedAt: now,
         updatedAt: now,
       })
-      .where(and(
-        eq(comments.id, commentId),
-        eq(comments.authorId, userId)
-      ));
+      .where(and(eq(comments.id, commentId), eq(comments.authorId, userId)));
 
     // Create audit log for comment update
     await this.createAuditLog(
@@ -194,11 +179,7 @@ export class CommentService {
   /**
    * Delete a comment
    */
-  async deleteComment(
-    commentId: string,
-    userId: number,
-    csrfToken: string
-  ): Promise<void> {
+  async deleteComment(commentId: string, userId: number, csrfToken: string): Promise<void> {
     // CSRF validation
     const isValidCsrf = await validateCsrfToken(csrfToken);
     if (!isValidCsrf) {
@@ -215,10 +196,7 @@ export class CommentService {
         status: 'hidden',
         updatedAt: Math.floor(Date.now() / 1000),
       })
-      .where(and(
-        eq(comments.id, commentId),
-        eq(comments.authorId, userId)
-      ));
+      .where(and(eq(comments.id, commentId), eq(comments.authorId, userId)));
 
     // Create audit log for comment deletion
     await this.createAuditLog(
@@ -246,7 +224,7 @@ export class CommentService {
           FROM ${commentReports}
           WHERE ${commentReports.commentId} = ${comments.id}
           AND ${commentReports.status} IN ('pending', 'reviewed')
-        )`
+        )`,
       })
       .from(comments)
       .leftJoin(commentReports, eq(commentReports.commentId, comments.id))
@@ -286,10 +264,7 @@ export class CommentService {
 
     if (entityType && entityId) {
       whereConditions.push(
-        and(
-          eq(comments.entityType, entityType),
-          eq(comments.entityId, entityId)
-        )
+        and(eq(comments.entityType, entityType), eq(comments.entityId, entityId))
       );
     }
 
@@ -306,10 +281,7 @@ export class CommentService {
     const baseWhere = whereConditions.length > 0 ? and(...whereConditions) : undefined;
 
     // Get total count
-    const totalResult = await this.db
-      .select({ count: count() })
-      .from(comments)
-      .where(baseWhere);
+    const totalResult = await this.db.select({ count: count() }).from(comments).where(baseWhere);
 
     const total = totalResult[0]?.count || 0;
 
@@ -322,7 +294,7 @@ export class CommentService {
           FROM ${commentReports}
           WHERE ${commentReports.commentId} = ${comments.id}
           AND ${commentReports.status} IN ('pending', 'reviewed')
-        )`
+        )`,
       })
       .from(comments)
       .where(baseWhere)
@@ -361,13 +333,10 @@ export class CommentService {
           FROM ${commentReports}
           WHERE ${commentReports.commentId} = ${comments.id}
           AND ${commentReports.status} IN ('pending', 'reviewed')
-        )`
+        )`,
       })
       .from(comments)
-      .where(and(
-        eq(comments.parentId, parentId),
-        eq(comments.status, 'approved')
-      ))
+      .where(and(eq(comments.parentId, parentId), eq(comments.status, 'approved')))
       .orderBy(comments.createdAt);
 
     return replyResults.map(({ comment, reportCount }) => ({
@@ -390,13 +359,16 @@ export class CommentService {
     const currentComment = await this.getCommentById(commentId);
 
     // Insert moderation record
-    const moderationResult = await this.db.insert(commentModeration).values({
-      commentId,
-      moderatorId,
-      action: request.action,
-      reason: request.reason,
-      createdAt: now,
-    }).returning();
+    const moderationResult = await this.db
+      .insert(commentModeration)
+      .values({
+        commentId,
+        moderatorId,
+        action: request.action,
+        reason: request.reason,
+        createdAt: now,
+      })
+      .returning();
 
     // Update comment status based on action
     const newStatus = this.getStatusFromAction(request.action);
@@ -440,15 +412,18 @@ export class CommentService {
   ): Promise<CommentReport> {
     const now = Math.floor(Date.now() / 1000);
 
-    const reportResult = await this.db.insert(commentReports).values({
-      commentId,
-      reporterId: reporterId || null,
-      reporterEmail: request.reporterEmail,
-      reason: request.reason,
-      description: request.description,
-      status: 'pending',
-      createdAt: now,
-    }).returning();
+    const reportResult = await this.db
+      .insert(commentReports)
+      .values({
+        commentId,
+        reporterId: reporterId || null,
+        reporterEmail: request.reporterEmail,
+        reason: request.reason,
+        description: request.description,
+        status: 'pending',
+        createdAt: now,
+      })
+      .returning();
 
     // Auto-flag comment if it has multiple reports
     const reportCount = await this.getCommentReportCount(commentId);
@@ -558,7 +533,7 @@ export class CommentService {
           WHERE ${commentModeration.commentId} = ${comments.id}
           ORDER BY ${commentModeration.createdAt} DESC
           LIMIT 1
-        )`
+        )`,
       })
       .from(comments)
       .where(eq(comments.status, 'flagged'))
@@ -579,10 +554,7 @@ export class CommentService {
     const result = await this.db
       .select({ count: count() })
       .from(commentReports)
-      .where(and(
-        eq(commentReports.commentId, commentId),
-        eq(commentReports.status, 'pending')
-      ));
+      .where(and(eq(commentReports.commentId, commentId), eq(commentReports.status, 'pending')));
 
     return result[0]?.count || 0;
   }
@@ -655,15 +627,7 @@ export class CommentService {
    * Get audit logs with filtering and pagination
    */
   async getAuditLogs(filters: AuditLogFilters = {}): Promise<AuditLogListResponse> {
-    const {
-      commentId,
-      userId,
-      action,
-      limit = 50,
-      offset = 0,
-      startDate,
-      endDate,
-    } = filters;
+    const { commentId, userId, action, limit = 50, offset = 0, startDate, endDate } = filters;
 
     let whereConditions = [];
 
@@ -706,7 +670,7 @@ export class CommentService {
       .limit(limit)
       .offset(offset);
 
-    const logs: CommentAuditLog[] = logResults.map(log => ({
+    const logs: CommentAuditLog[] = logResults.map((log) => ({
       id: log.id,
       commentId: log.commentId,
       userId: log.userId || undefined,

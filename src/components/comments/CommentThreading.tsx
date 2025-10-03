@@ -59,20 +59,21 @@ export const CommentThreading: React.FC<CommentThreadingProps> = ({
     // Apply search filter
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(comment =>
-        comment.content.toLowerCase().includes(query) ||
-        comment.authorName.toLowerCase().includes(query)
+      filtered = filtered.filter(
+        (comment) =>
+          comment.content.toLowerCase().includes(query) ||
+          comment.authorName.toLowerCase().includes(query)
       );
     }
 
     // Apply status filter
     if (activeFilters.status) {
-      filtered = filtered.filter(comment => comment.status === activeFilters.status);
+      filtered = filtered.filter((comment) => comment.status === activeFilters.status);
     }
 
     // Apply author filter
     if (activeFilters.author) {
-      filtered = filtered.filter(comment =>
+      filtered = filtered.filter((comment) =>
         comment.authorName.toLowerCase().includes(activeFilters.author!.toLowerCase())
       );
     }
@@ -86,15 +87,17 @@ export const CommentThreading: React.FC<CommentThreadingProps> = ({
         month: 30 * 24 * 60 * 60,
       };
 
-      filtered = filtered.filter(comment =>
-        (now - comment.createdAt) <= ranges[activeFilters.dateRange!]
+      filtered = filtered.filter(
+        (comment) => now - comment.createdAt <= ranges[activeFilters.dateRange!]
       );
     }
 
     // Apply replies filter
     if (activeFilters.hasReplies !== undefined) {
-      filtered = filtered.filter(comment =>
-        activeFilters.hasReplies ? (comment.replies?.length || 0) > 0 : (comment.replies?.length || 0) === 0
+      filtered = filtered.filter((comment) =>
+        activeFilters.hasReplies
+          ? (comment.replies?.length || 0) > 0
+          : (comment.replies?.length || 0) === 0
       );
     }
 
@@ -200,9 +203,7 @@ const ThreadNavigation: React.FC<ThreadNavigationProps> = ({
       <div className="flex flex-col sm:flex-row gap-4 mb-4">
         {/* View Toggle */}
         <div className="flex items-center space-x-2">
-          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-            Ansicht:
-          </span>
+          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Ansicht:</span>
           <div className="flex bg-white dark:bg-gray-700 rounded-md p-1">
             <button
               onClick={() => onViewChange('threaded')}
@@ -238,8 +239,18 @@ const ThreadNavigation: React.FC<ThreadNavigationProps> = ({
               className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
             />
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <svg className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              <svg
+                className="h-4 w-4 text-gray-400"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
               </svg>
             </div>
           </div>
@@ -254,8 +265,18 @@ const ThreadNavigation: React.FC<ThreadNavigationProps> = ({
               : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600'
           }`}
         >
-          <svg className="h-4 w-4 inline mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+          <svg
+            className="h-4 w-4 inline mr-1"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
+            />
           </svg>
           Filter
         </button>
@@ -291,10 +312,10 @@ const ThreadNavigation: React.FC<ThreadNavigationProps> = ({
 
         {/* Stats */}
         <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-400">
-          <span>{totalComments} Kommentar{totalComments !== 1 ? 'e' : ''}</span>
-          {searchQuery && (
-            <span>• Suche: "{searchQuery}"</span>
-          )}
+          <span>
+            {totalComments} Kommentar{totalComments !== 1 ? 'e' : ''}
+          </span>
+          {searchQuery && <span>• Suche: "{searchQuery}"</span>}
           {Object.keys(activeFilters).length > 0 && (
             <button
               onClick={() => onFiltersChange({})}
@@ -389,7 +410,10 @@ const CommentFiltersPanel: React.FC<CommentFiltersPanelProps> = ({
             value={filters.hasReplies === undefined ? '' : filters.hasReplies ? 'with' : 'without'}
             onChange={(e) => {
               const value = e.target.value;
-              updateFilter('hasReplies', value === 'with' ? true : value === 'without' ? false : undefined);
+              updateFilter(
+                'hasReplies',
+                value === 'with' ? true : value === 'without' ? false : undefined
+              );
             }}
             className="w-full text-sm border border-gray-300 dark:border-gray-600 rounded px-2 py-1 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
           >
@@ -443,15 +467,18 @@ const FlatCommentView: React.FC<FlatCommentViewProps> = ({
                 <span className="text-sm text-gray-500 dark:text-gray-400">
                   {new Date(comment.createdAt * 1000).toLocaleDateString('de-DE')}
                 </span>
-                {comment.isEdited && (
-                  <span className="text-xs text-gray-500">(bearbeitet)</span>
-                )}
-                <span className={`px-2 py-1 text-xs rounded-full ${
-                  comment.status === 'approved' ? 'bg-green-100 text-green-800' :
-                  comment.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                  comment.status === 'rejected' ? 'bg-red-100 text-red-800' :
-                  'bg-gray-100 text-gray-800'
-                }`}>
+                {comment.isEdited && <span className="text-xs text-gray-500">(bearbeitet)</span>}
+                <span
+                  className={`px-2 py-1 text-xs rounded-full ${
+                    comment.status === 'approved'
+                      ? 'bg-green-100 text-green-800'
+                      : comment.status === 'pending'
+                        ? 'bg-yellow-100 text-yellow-800'
+                        : comment.status === 'rejected'
+                          ? 'bg-red-100 text-red-800'
+                          : 'bg-gray-100 text-gray-800'
+                  }`}
+                >
                   {comment.status}
                 </span>
               </div>
@@ -473,7 +500,9 @@ const FlatCommentView: React.FC<FlatCommentViewProps> = ({
                 {currentUser?.id === comment.authorId && (
                   <>
                     <button
-                      onClick={() => {/* Edit logic */}}
+                      onClick={() => {
+                        /* Edit logic */
+                      }}
                       className="text-sm text-gray-600 hover:text-gray-800 dark:text-gray-400"
                     >
                       Bearbeiten
@@ -520,9 +549,9 @@ interface CommentFormProps {
 const CommentForm: React.FC<CommentFormProps> = ({
   onSubmit,
   onCancel,
-  submitText = "Senden",
+  submitText = 'Senden',
   showCancel = false,
-  placeholder = "Schreibe einen Kommentar...",
+  placeholder = 'Schreibe einen Kommentar...',
 }) => {
   const [content, setContent] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -554,9 +583,7 @@ const CommentForm: React.FC<CommentFormProps> = ({
         maxLength={2000}
       />
       <div className="flex items-center justify-between">
-        <span className="text-xs text-gray-500">
-          {content.length}/2000 Zeichen
-        </span>
+        <span className="text-xs text-gray-500">{content.length}/2000 Zeichen</span>
         <div className="flex space-x-2">
           {showCancel && (
             <button
