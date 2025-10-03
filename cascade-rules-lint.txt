@@ -1,0 +1,1 @@
+Run `npm run lint` (caps warnings at 280 per `package.json`) and `npm run format:check` before shipping the Windsurf ruleset. Vitest coverage remains enforced at 70% thresholds via `vitest.config.ts`; e2e smoke can be triggered with `npm run test:e2e` if the Worker dev server is available.
