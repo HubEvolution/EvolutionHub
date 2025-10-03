@@ -51,5 +51,16 @@ export default tseslint.config(
         },
       },
     },
+  },
+  // Stepwise rollout: enforce no-console only on migrated files
+  {
+    files: [
+      'src/pages/api/admin/backup.ts',
+      'src/pages/api/comments/performance.ts',
+      'src/pages/api/data-export/index.ts',
+    ],
+    rules: {
+      'no-console': ['error', { allow: [] }],
+    },
   }
 );

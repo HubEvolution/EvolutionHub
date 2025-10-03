@@ -9,15 +9,22 @@ import { jwt } from 'hono/jwt';
 import { rateLimiter } from 'hono-rate-limiter';
 import { drizzle } from 'drizzle-orm/d1';
 import { BackupService } from '../../../lib/services/backup-service';
+import { log, generateRequestId } from '../../../server/utils/logger';
 import { requireAdmin } from '../../../lib/auth-helpers';
 import type { BackupOptions } from '../../../lib/types/data-management';
 
 const app = new Hono<{
   Bindings: { DB: D1Database; JWT_SECRET: string };
-  Variables: { userId: number };
+  Variables: { userId: number; requestId: string };
 }>();
 
 // Middleware
+// Attach a per-request id for structured logging
+app.use('/*', async (c, next) => {
+  const rid = generateRequestId();
+  c.set('requestId', rid);
+  await next();
+});
 app.use('/*', cors());
 app.use('/*', jwt({ secret: process.env.JWT_SECRET! }));
 app.use(
@@ -95,7 +102,13 @@ app.get('/jobs', async (c) => {
       })),
     });
   } catch (error) {
-    console.error('Error fetching backup jobs:', error);
+    log('error', 'Error fetching backup jobs', {
+      requestId: c.get('requestId'),
+      endpoint: '/api/admin/backup/jobs',
+      method: 'GET',
+      userId: String(c.get('userId') ?? 'anonymous'),
+      errorMessage: error instanceof Error ? error.message : String(error),
+    });
     return c.json(
       {
         success: false,
@@ -153,7 +166,14 @@ app.get('/jobs/:id', async (c) => {
       },
     });
   } catch (error) {
-    console.error('Error fetching backup job:', error);
+    log('error', 'Error fetching backup job', {
+      requestId: c.get('requestId'),
+      endpoint: '/api/admin/backup/jobs/:id',
+      method: 'GET',
+      userId: String(c.get('userId') ?? 'anonymous'),
+      jobId: c.req.param('id'),
+      errorMessage: error instanceof Error ? error.message : String(error),
+    });
     return c.json(
       {
         success: false,
@@ -197,7 +217,14 @@ app.get('/jobs/:id/progress', async (c) => {
       data: progress,
     });
   } catch (error) {
-    console.error('Error fetching backup progress:', error);
+    log('error', 'Error fetching backup progress', {
+      requestId: c.get('requestId'),
+      endpoint: '/api/admin/backup/jobs/:id/progress',
+      method: 'GET',
+      userId: String(c.get('userId') ?? 'anonymous'),
+      jobId: c.req.param('id'),
+      errorMessage: error instanceof Error ? error.message : String(error),
+    });
     return c.json(
       {
         success: false,
@@ -260,7 +287,13 @@ app.post('/create', async (c) => {
       },
     });
   } catch (error) {
-    console.error('Error creating backup job:', error);
+    log('error', 'Error creating backup job', {
+      requestId: c.get('requestId'),
+      endpoint: '/api/admin/backup/create',
+      method: 'POST',
+      userId: String(c.get('userId') ?? 'anonymous'),
+      errorMessage: error instanceof Error ? error.message : String(error),
+    });
     return c.json(
       {
         success: false,
@@ -312,7 +345,13 @@ app.post('/schedule', async (c) => {
       },
     });
   } catch (error) {
-    console.error('Error scheduling backup:', error);
+    log('error', 'Error scheduling backup', {
+      requestId: c.get('requestId'),
+      endpoint: '/api/admin/backup/schedule',
+      method: 'POST',
+      userId: String(c.get('userId') ?? 'anonymous'),
+      errorMessage: error instanceof Error ? error.message : String(error),
+    });
     return c.json(
       {
         success: false,
@@ -382,7 +421,13 @@ app.post('/maintenance/perform', async (c) => {
       },
     });
   } catch (error) {
-    console.error('Error starting maintenance:', error);
+    log('error', 'Error starting maintenance', {
+      requestId: c.get('requestId'),
+      endpoint: '/api/admin/maintenance/perform',
+      method: 'POST',
+      userId: String(c.get('userId') ?? 'anonymous'),
+      errorMessage: error instanceof Error ? error.message : String(error),
+    });
     return c.json(
       {
         success: false,
@@ -427,7 +472,13 @@ app.get('/maintenance/jobs', async (c) => {
       })),
     });
   } catch (error) {
-    console.error('Error fetching maintenance jobs:', error);
+    log('error', 'Error fetching maintenance jobs', {
+      requestId: c.get('requestId'),
+      endpoint: '/api/admin/maintenance/jobs',
+      method: 'GET',
+      userId: String(c.get('userId') ?? 'anonymous'),
+      errorMessage: error instanceof Error ? error.message : String(error),
+    });
     return c.json(
       {
         success: false,
@@ -483,7 +534,14 @@ app.get('/maintenance/jobs/:id', async (c) => {
       },
     });
   } catch (error) {
-    console.error('Error fetching maintenance job:', error);
+    log('error', 'Error fetching maintenance job', {
+      requestId: c.get('requestId'),
+      endpoint: '/api/admin/maintenance/jobs/:id',
+      method: 'GET',
+      userId: String(c.get('userId') ?? 'anonymous'),
+      jobId: c.req.param('id'),
+      errorMessage: error instanceof Error ? error.message : String(error),
+    });
     return c.json(
       {
         success: false,
@@ -520,7 +578,13 @@ app.post('/cleanup', async (c) => {
       },
     });
   } catch (error) {
-    console.error('Error during cleanup:', error);
+    log('error', 'Error during backup cleanup', {
+      requestId: c.get('requestId'),
+      endpoint: '/api/admin/backup/cleanup',
+      method: 'POST',
+      userId: String(c.get('userId') ?? 'anonymous'),
+      errorMessage: error instanceof Error ? error.message : String(error),
+    });
     return c.json(
       {
         success: false,
@@ -554,7 +618,14 @@ app.post('/verify/:id', async (c) => {
       },
     });
   } catch (error) {
-    console.error('Error verifying backup:', error);
+    log('error', 'Error verifying backup', {
+      requestId: c.get('requestId'),
+      endpoint: '/api/admin/backup/verify/:id',
+      method: 'POST',
+      userId: String(c.get('userId') ?? 'anonymous'),
+      jobId: c.req.param('id'),
+      errorMessage: error instanceof Error ? error.message : String(error),
+    });
     return c.json(
       {
         success: false,
@@ -611,7 +682,13 @@ app.get('/stats', async (c) => {
       data: stats,
     });
   } catch (error) {
-    console.error('Error fetching backup stats:', error);
+    log('error', 'Error fetching backup statistics', {
+      requestId: c.get('requestId'),
+      endpoint: '/api/admin/backup/stats',
+      method: 'GET',
+      userId: String(c.get('userId') ?? 'anonymous'),
+      errorMessage: error instanceof Error ? error.message : String(error),
+    });
     return c.json(
       {
         success: false,

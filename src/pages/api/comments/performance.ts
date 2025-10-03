@@ -9,15 +9,21 @@ import { jwt } from 'hono/jwt';
 import { rateLimiter } from 'hono-rate-limiter';
 import { drizzle } from 'drizzle-orm/d1';
 import { PerformanceService } from '../../../lib/services/performance-service';
+import { log, generateRequestId } from '../../../server/utils/logger';
 import { requireAuth } from '../../../lib/auth-helpers';
 import type { PaginationOptions, CommentSearchOptions } from '../../../lib/types/performance';
 
 const app = new Hono<{
   Bindings: { DB: D1Database; JWT_SECRET: string };
-  Variables: { userId: number };
+  Variables: { userId: number; requestId: string };
 }>();
 
 // Middleware
+// Attach requestId for structured logging
+app.use('/*', async (c, next) => {
+  c.set('requestId', generateRequestId());
+  await next();
+});
 app.use('/*', cors());
 app.use('/search', jwt({ secret: process.env.JWT_SECRET! }));
 app.use(
@@ -76,7 +82,13 @@ app.get('/paginated/:postId', async (c) => {
       data: result,
     });
   } catch (error) {
-    console.error('Error fetching paginated comments:', error);
+    log('error', 'Error fetching paginated comments', {
+      requestId: c.get('requestId'),
+      endpoint: '/api/comments/performance/paginated/:postId',
+      method: 'GET',
+      postId: c.req.param('postId'),
+      errorMessage: error instanceof Error ? error.message : String(error),
+    });
     return c.json(
       {
         success: false,
@@ -141,7 +153,12 @@ app.get('/search', async (c) => {
       data: result,
     });
   } catch (error) {
-    console.error('Error searching comments:', error);
+    log('error', 'Error searching comments', {
+      requestId: c.get('requestId'),
+      endpoint: '/api/comments/performance/search',
+      method: 'GET',
+      errorMessage: error instanceof Error ? error.message : String(error),
+    });
     return c.json(
       {
         success: false,
@@ -178,7 +195,13 @@ app.post('/preload/:postId', async (c) => {
       },
     });
   } catch (error) {
-    console.error('Error preloading comments:', error);
+    log('error', 'Error preloading comments', {
+      requestId: c.get('requestId'),
+      endpoint: '/api/comments/performance/preload/:postId',
+      method: 'POST',
+      postId: c.req.param('postId'),
+      errorMessage: error instanceof Error ? error.message : String(error),
+    });
     return c.json(
       {
         success: false,
@@ -208,7 +231,12 @@ app.get('/cache/stats', async (c) => {
       data: stats,
     });
   } catch (error) {
-    console.error('Error fetching cache stats:', error);
+    log('error', 'Error fetching cache stats', {
+      requestId: c.get('requestId'),
+      endpoint: '/api/comments/performance/cache/stats',
+      method: 'GET',
+      errorMessage: error instanceof Error ? error.message : String(error),
+    });
     return c.json(
       {
         success: false,
@@ -259,7 +287,12 @@ app.post('/cache/clear', async (c) => {
       },
     });
   } catch (error) {
-    console.error('Error clearing cache:', error);
+    log('error', 'Error clearing cache', {
+      requestId: c.get('requestId'),
+      endpoint: '/api/comments/performance/cache/clear',
+      method: 'POST',
+      errorMessage: error instanceof Error ? error.message : String(error),
+    });
     return c.json(
       {
         success: false,
@@ -289,7 +322,12 @@ app.get('/lazy-config', (c) => {
       data: config,
     });
   } catch (error) {
-    console.error('Error fetching lazy config:', error);
+    log('error', 'Error fetching lazy config', {
+      requestId: c.get('requestId'),
+      endpoint: '/api/comments/performance/lazy-config',
+      method: 'GET',
+      errorMessage: error instanceof Error ? error.message : String(error),
+    });
     return c.json(
       {
         success: false,
@@ -319,7 +357,12 @@ app.get('/metrics', async (c) => {
       data: metrics,
     });
   } catch (error) {
-    console.error('Error fetching performance metrics:', error);
+    log('error', 'Error fetching performance metrics', {
+      requestId: c.get('requestId'),
+      endpoint: '/api/comments/performance/metrics',
+      method: 'GET',
+      errorMessage: error instanceof Error ? error.message : String(error),
+    });
     return c.json(
       {
         success: false,
@@ -368,7 +411,12 @@ app.post('/optimize', async (c) => {
       },
     });
   } catch (error) {
-    console.error('Error optimizing database:', error);
+    log('error', 'Error optimizing database', {
+      requestId: c.get('requestId'),
+      endpoint: '/api/comments/performance/optimize',
+      method: 'POST',
+      errorMessage: error instanceof Error ? error.message : String(error),
+    });
     return c.json(
       {
         success: false,
@@ -411,7 +459,12 @@ app.get('/batch/:postId', async (c) => {
       },
     });
   } catch (error) {
-    console.error('Error fetching comment batch:', error);
+    log('error', 'Error fetching comment batch', {
+      requestId: c.get('requestId'),
+      endpoint: '/api/comments/performance/batch/:postId',
+      method: 'GET',
+      errorMessage: error instanceof Error ? error.message : String(error),
+    });
     return c.json(
       {
         success: false,

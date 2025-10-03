@@ -13,15 +13,36 @@ import { DataExportService } from '../../../lib/services/data-export-service';
 import { requireAuth } from '../../../lib/auth-helpers';
 import { dataExportJobs } from '../../../lib/db/schema';
 import type { ExportOptions } from '../../../lib/types/data-management';
+import { log, generateRequestId } from '../../../server/utils/logger';
 
-const app = new Hono<{ Bindings: { DB: D1Database; JWT_SECRET: string } }>();
+const app = new Hono<{ Bindings: { DB: D1Database; JWT_SECRET: string }, Variables: { requestId: string } }>();
 
 // Middleware
+// Attach requestId for structured logging
+app.use('/*', async (c, next) => { c.set('requestId', generateRequestId()); await next(); });
 app.use('/*', cors());
 app.use('/create', jwt({ secret: process.env.JWT_SECRET! }));
-app.use('/create', rateLimiter({ windowMs: 60 * 1000, limit: 5 })); // 5 pro Minute
+app.use('/create', rateLimiter({
+  windowMs: 60 * 1000,
+  limit: 5,
+  keyGenerator: (c) =>
+    c.req.header('CF-Connecting-IP') ||
+    c.req.header('cf-connecting-ip') ||
+    c.req.header('x-forwarded-for') ||
+    c.req.header('x-real-ip') ||
+    'anonymous',
+})); // 5 pro Minute
 app.use('/delete', jwt({ secret: process.env.JWT_SECRET! }));
-app.use('/delete', rateLimiter({ windowMs: 60 * 1000, limit: 3 })); // 3 pro Minute
+app.use('/delete', rateLimiter({
+  windowMs: 60 * 1000,
+  limit: 3,
+  keyGenerator: (c) =>
+    c.req.header('CF-Connecting-IP') ||
+    c.req.header('cf-connecting-ip') ||
+    c.req.header('x-forwarded-for') ||
+    c.req.header('x-real-ip') ||
+    'anonymous',
+})); // 3 pro Minute
 
 /**
  * GET /api/data-export/jobs
@@ -52,7 +73,12 @@ app.get('/jobs', async (c) => {
       })),
     });
   } catch (error) {
-    console.error('Error fetching export jobs:', error);
+    log('error', 'Error fetching export jobs', {
+      requestId: c.get('requestId'),
+      endpoint: '/api/data-export/jobs',
+      method: 'GET',
+      errorMessage: error instanceof Error ? error.message : String(error),
+    });
     return c.json(
       {
         success: false,
@@ -111,7 +137,13 @@ app.get('/jobs/:id', async (c) => {
       },
     });
   } catch (error) {
-    console.error('Error fetching export job:', error);
+    log('error', 'Error fetching export job', {
+      requestId: c.get('requestId'),
+      endpoint: '/api/data-export/jobs/:id',
+      method: 'GET',
+      jobId: c.req.param('id'),
+      errorMessage: error instanceof Error ? error.message : String(error),
+    });
     return c.json(
       {
         success: false,
@@ -160,7 +192,13 @@ app.get('/jobs/:id/progress', async (c) => {
       data: progress,
     });
   } catch (error) {
-    console.error('Error fetching export progress:', error);
+    log('error', 'Error fetching export progress', {
+      requestId: c.get('requestId'),
+      endpoint: '/api/data-export/jobs/:id/progress',
+      method: 'GET',
+      jobId: c.req.param('id'),
+      errorMessage: error instanceof Error ? error.message : String(error),
+    });
     return c.json(
       {
         success: false,
@@ -239,7 +277,12 @@ app.post('/create', async (c) => {
       },
     });
   } catch (error) {
-    console.error('Error creating export job:', error);
+    log('error', 'Error creating export job', {
+      requestId: c.get('requestId'),
+      endpoint: '/api/data-export/create',
+      method: 'POST',
+      errorMessage: error instanceof Error ? error.message : String(error),
+    });
     return c.json(
       {
         success: false,
@@ -331,7 +374,13 @@ app.get('/download/:id', async (c) => {
       'Content-Disposition': `attachment; filename="export-${jobId}.${getFileExtension(job.format)}"`,
     });
   } catch (error) {
-    console.error('Error downloading export:', error);
+    log('error', 'Error downloading export', {
+      requestId: c.get('requestId'),
+      endpoint: '/api/data-export/download/:id',
+      method: 'GET',
+      jobId: c.req.param('id'),
+      errorMessage: error instanceof Error ? error.message : String(error),
+    });
     return c.json(
       {
         success: false,
@@ -367,7 +416,12 @@ app.post('/delete-request', async (c) => {
       },
     });
   } catch (error) {
-    console.error('Error creating deletion request:', error);
+    log('error', 'Error creating deletion request', {
+      requestId: c.get('requestId'),
+      endpoint: '/api/data-export/delete-request',
+      method: 'POST',
+      errorMessage: error instanceof Error ? error.message : String(error),
+    });
     return c.json(
       {
         success: false,
@@ -433,7 +487,12 @@ app.post('/verify-deletion', async (c) => {
       },
     });
   } catch (error) {
-    console.error('Error processing deletion request:', error);
+    log('error', 'Error processing deletion request', {
+      requestId: c.get('requestId'),
+      endpoint: '/api/data-export/verify-deletion',
+      method: 'POST',
+      errorMessage: error instanceof Error ? error.message : String(error),
+    });
     return c.json(
       {
         success: false,
