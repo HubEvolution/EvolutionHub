@@ -94,7 +94,7 @@ You must deliver your findings in this exact structure:
 
 **High Priority** (should fix before release):
 
-- [List important but non-blocking issues]
+  [List important but non-blocking issues]
 
 **Low Priority** (technical debt):
 

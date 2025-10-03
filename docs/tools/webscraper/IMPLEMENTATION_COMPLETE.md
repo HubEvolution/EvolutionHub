@@ -141,7 +141,8 @@ The Webscraper Tool has been successfully implemented as a full-stack MVP featur
 ## 📊 Test Results
 
 ### Unit Tests
-```
+
+```plain
 ✓ WebscraperService > URL Validation > should reject non-HTTP(S) URLs
 ✓ WebscraperService > URL Validation > should reject blocked domains
 ✓ WebscraperService > URL Validation > should reject too long URLs
@@ -159,7 +160,8 @@ Duration: 715ms
 ```
 
 ### Build Status
-```
+
+```plain
 ✓ Build successful
 ✓ WebscraperIsland.CSCim3ls.js: 12.89 kB
 ✓ No TypeScript errors in webscraper files
@@ -173,11 +175,13 @@ Duration: 715ms
 ### Prerequisites
 
 1. **Install Dependencies**
+
    ```bash
    npm install
    ```
 
 2. **Create KV Namespaces** (Production)
+
    ```bash
    # Development
    wrangler kv:namespace create KV_WEBSCRAPER --env development
@@ -191,6 +195,7 @@ Duration: 715ms
    - Current config uses temporary IDs: `webscraper-dev-local`, `webscraper-production`
 
 4. **Run Database Migration**
+
    ```bash
    # Apply migration manually via Cloudflare dashboard or wrangler
    wrangler d1 execute evolution-hub-main --file=migrations/0022_create_scraping_jobs_table.sql
@@ -198,6 +203,7 @@ Duration: 715ms
 
 5. **Enable Feature Flag** (Optional)
    - Add to wrangler.toml under `[env.development.vars]` and `[env.production.vars]`:
+
    ```toml
    PUBLIC_WEBSCRAPER_V1 = "true"
    ```
@@ -205,16 +211,18 @@ Duration: 715ms
 ### Testing Locally
 
 1. **Start Development Server**
+
    ```bash
    npm run dev:remote
    ```
 
 2. **Access Tool**
-   - German: http://127.0.0.1:8787/de/tools/webscraper/app
-   - English: http://127.0.0.1:8787/en/tools/webscraper/app
-   - Fallback: http://127.0.0.1:8787/tools/webscraper/app
+   - German: <http://127.0.0.1:8787/de/tools/webscraper/app>
+   - English: <http://127.0.0.1:8787/en/tools/webscraper/app>
+   - Fallback: <http://127.0.0.1:8787/tools/webscraper/app>
 
 3. **Run Tests**
+
    ```bash
    # Unit tests
    npm run test:unit:run -- tests/unit/services/webscraper-service.test.ts
@@ -226,11 +234,13 @@ Duration: 715ms
 ### Production Deployment
 
 1. **Build**
+
    ```bash
    npm run build:worker
    ```
 
 2. **Deploy**
+
    ```bash
    wrangler deploy --env production
    ```
@@ -247,6 +257,7 @@ Duration: 715ms
 ### POST /api/webscraper/extract
 
 **Request:**
+
 ```json
 {
   "url": "https://example.com"
@@ -254,6 +265,7 @@ Duration: 715ms
 ```
 
 **Success Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -283,6 +295,7 @@ Duration: 715ms
 ```
 
 **Error Response (400 Bad Request):**
+
 ```json
 {
   "success": false,
@@ -294,6 +307,7 @@ Duration: 715ms
 ```
 
 **Error Response (403 Forbidden):**
+
 ```json
 {
   "success": false,
@@ -344,6 +358,7 @@ Duration: 715ms
 ## 🎓 Usage Examples
 
 ### Basic Scraping
+
 ```typescript
 const response = await fetch('/api/webscraper/extract', {
   method: 'POST',
@@ -361,6 +376,7 @@ console.log(data.data.result.title); // "Example Domain"
 ```
 
 ### Check Quota
+
 ```typescript
 const { usage } = data.data;
 console.log(`Used: ${usage.used}/${usage.limit}`);
@@ -417,6 +433,8 @@ console.log(`Resets: ${new Date(usage.resetAt)}`);
 
 ---
 
-**Implementation completed successfully! 🎉**
+Implementation completed successfully! 🎉
+
+---
 
 The Webscraper Tool is now ready for production deployment and can be accessed at `/tools/webscraper/app`.

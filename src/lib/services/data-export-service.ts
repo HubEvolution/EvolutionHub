@@ -3,7 +3,7 @@
  * Unterstützt verschiedene Export-Formate und Datenkategorien
  */
 
-import { eq, and, gte, lte, desc, sql } from 'drizzle-orm';
+import { eq, and, gte, lte, desc } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/d1';
 import { dataExportJobs, dataDeletionRequests, users, comments, notifications } from '../db/schema';
 import { log } from '@/server/utils/logger';
@@ -14,6 +14,7 @@ import type {
   ExportJobType,
   ExportFormat,
   ExportProgress,
+  ExportJobStatus,
 } from '../types/data-management';
 
 export class DataExportService {
@@ -35,7 +36,7 @@ export class DataExportService {
       type: options.type,
       status: 'pending',
       format: options.format,
-      requestedAt: Date.now(),
+      requestedAt: new Date(),
       downloadCount: 0,
     });
 
@@ -97,8 +98,8 @@ export class DataExportService {
           filePath,
           fileSize: fileContent.length,
           downloadUrl,
-          expiresAt: Date.now() + 7 * 24 * 60 * 60 * 1000, // 7 Tage gültig
-          completedAt: Date.now(),
+          expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 Tage gültig
+          completedAt: new Date(),
         })
         .where(eq(dataExportJobs.id, jobId));
     } catch (error) {
@@ -113,7 +114,7 @@ export class DataExportService {
         .set({
           status: 'failed',
           errorMessage: error instanceof Error ? error.message : 'Unknown error',
-          completedAt: Date.now(),
+          completedAt: new Date(),
         })
         .where(eq(dataExportJobs.id, jobId));
     }
@@ -155,7 +156,13 @@ export class DataExportService {
         .limit(1);
 
       if (userData[0]) {
-        exportData.user = userData[0];
+        exportData.user = {
+          id: userData[0].id,
+          email: userData[0].email,
+          name: userData[0].name || undefined,
+          createdAt: (userData[0].createdAt as unknown as Date).getTime?.()
+            ?? Number(userData[0].createdAt),
+        };
       }
     }
 
@@ -165,7 +172,7 @@ export class DataExportService {
         .select({
           id: comments.id,
           content: comments.content,
-          postId: comments.postId,
+          postId: comments.entityId,
           status: comments.status,
           createdAt: comments.createdAt,
           updatedAt: comments.updatedAt,
@@ -174,8 +181,17 @@ export class DataExportService {
         .from(comments)
         .where(eq(comments.authorId, userId));
 
-      exportData.comments = commentsData.map((comment) => ({
-        ...comment,
+      exportData.comments = commentsData.map((c) => ({
+        id: c.id,
+        content: c.content,
+        postId: c.postId || undefined,
+        status: String(c.status),
+        createdAt: (c.createdAt as unknown as Date).getTime?.() ?? Number(c.createdAt),
+        updatedAt:
+          c.updatedAt != null
+            ? (c.updatedAt as unknown as Date).getTime?.() ?? Number(c.updatedAt)
+            : undefined,
+        parentId: c.parentId || undefined,
         author: { id: userId, name: exportData.user?.name },
       }));
     }
@@ -187,7 +203,18 @@ export class DataExportService {
         .from(notifications)
         .where(eq(notifications.userId, userId));
 
-      exportData.notifications = notificationsData;
+      exportData.notifications = notificationsData.map((n) => ({
+        id: n.id,
+        type: String(n.type),
+        title: n.title,
+        message: n.message,
+        isRead: Boolean(n.isRead),
+        createdAt: (n.createdAt as unknown as Date).getTime?.() ?? Number(n.createdAt),
+        readAt:
+          n.readAt != null
+            ? (n.readAt as unknown as Date).getTime?.() ?? Number(n.readAt)
+            : undefined,
+      }));
     }
 
     return exportData;
@@ -342,7 +369,7 @@ export class DataExportService {
   /**
    * Erstellt temporäre Download-URL
    */
-  private async generateDownloadUrl(jobId: string, filePath: string): Promise<string> {
+  private async generateDownloadUrl(jobId: string, _filePath: string): Promise<string> {
     // In einer echten Implementierung würde hier eine signierte URL erstellt
     const baseUrl = process.env.BASE_URL || 'http://localhost:8787';
     const expires = Date.now() + 7 * 24 * 60 * 60 * 1000; // 7 Tage
@@ -359,18 +386,55 @@ export class DataExportService {
       .where(eq(dataExportJobs.id, jobId))
       .limit(1);
 
-    return jobs[0] || null;
+    const row = jobs[0];
+    if (!row) return null;
+    return {
+      id: row.id,
+      userId: row.userId,
+      type: row.type as ExportJobType,
+      status: (row.status ?? 'pending') as ExportJobStatus,
+      format: (row.format ?? 'json') as ExportFormat,
+      filePath: row.filePath ?? undefined,
+      fileSize: row.fileSize ?? undefined,
+      downloadUrl: row.downloadUrl ?? undefined,
+      expiresAt: row.expiresAt ? (row.expiresAt as unknown as Date).getTime?.() ?? Number(row.expiresAt) : undefined,
+      errorMessage: row.errorMessage ?? undefined,
+      requestedAt: (row.requestedAt as unknown as Date).getTime?.() ?? Number(row.requestedAt),
+      completedAt:
+        row.completedAt != null
+          ? (row.completedAt as unknown as Date).getTime?.() ?? Number(row.completedAt)
+          : undefined,
+      downloadCount: row.downloadCount ?? 0,
+    };
   }
 
   /**
    * Holt alle Export-Jobs für einen Benutzer
    */
   async getUserExportJobs(userId: number): Promise<DataExportJob[]> {
-    return await this.db
+    const rows = await this.db
       .select()
       .from(dataExportJobs)
       .where(eq(dataExportJobs.userId, userId))
       .orderBy(desc(dataExportJobs.requestedAt));
+    return rows.map((row) => ({
+      id: row.id,
+      userId: row.userId,
+      type: row.type as ExportJobType,
+      status: (row.status ?? 'pending') as ExportJobStatus,
+      format: (row.format ?? 'json') as ExportFormat,
+      filePath: row.filePath ?? undefined,
+      fileSize: row.fileSize ?? undefined,
+      downloadUrl: row.downloadUrl ?? undefined,
+      expiresAt: row.expiresAt ? (row.expiresAt as unknown as Date).getTime?.() ?? Number(row.expiresAt) : undefined,
+      errorMessage: row.errorMessage ?? undefined,
+      requestedAt: (row.requestedAt as unknown as Date).getTime?.() ?? Number(row.requestedAt),
+      completedAt:
+        row.completedAt != null
+          ? (row.completedAt as unknown as Date).getTime?.() ?? Number(row.completedAt)
+          : undefined,
+      downloadCount: row.downloadCount ?? 0,
+    }));
   }
 
   /**
@@ -398,7 +462,7 @@ export class DataExportService {
       .select()
       .from(dataExportJobs)
       .where(
-        and(eq(dataExportJobs.status, 'completed'), lte(dataExportJobs.expiresAt, Date.now()))
+        and(eq(dataExportJobs.status, 'completed'), lte(dataExportJobs.expiresAt, new Date()))
       );
 
     if (expiredJobs.length === 0) return 0;
@@ -407,7 +471,7 @@ export class DataExportService {
     await this.db
       .delete(dataExportJobs)
       .where(
-        and(eq(dataExportJobs.status, 'completed'), lte(dataExportJobs.expiresAt, Date.now()))
+        and(eq(dataExportJobs.status, 'completed'), lte(dataExportJobs.expiresAt, new Date()))
       );
 
     return expiredJobs.length;
@@ -427,8 +491,8 @@ export class DataExportService {
       status: 'pending',
       reason,
       verificationToken,
-      expiresAt: Date.now() + 30 * 24 * 60 * 60 * 1000, // 30 Tage gültig
-      createdAt: Date.now(),
+      expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 Tage gültig
+      createdAt: new Date(),
     });
 
     return requestId;
@@ -446,7 +510,7 @@ export class DataExportService {
           eq(dataDeletionRequests.id, requestId),
           eq(dataDeletionRequests.verificationToken, verificationToken),
           eq(dataDeletionRequests.status, 'pending'),
-          gte(dataDeletionRequests.expiresAt, Date.now())
+          gte(dataDeletionRequests.expiresAt, new Date())
         )
       )
       .limit(1);
@@ -491,7 +555,7 @@ export class DataExportService {
         .update(users)
         .set({
           email: `deleted-${userId}@deleted.local`,
-          name: null,
+          name: 'Deleted User',
         })
         .where(eq(users.id, userId));
 
@@ -500,7 +564,7 @@ export class DataExportService {
         .update(dataDeletionRequests)
         .set({
           status: 'completed',
-          processedAt: Date.now(),
+          processedAt: new Date(),
         })
         .where(eq(dataDeletionRequests.id, requestId));
     } catch (error) {
@@ -515,7 +579,7 @@ export class DataExportService {
         .update(dataDeletionRequests)
         .set({
           status: 'failed',
-          processedAt: Date.now(),
+          processedAt: new Date(),
         })
         .where(eq(dataDeletionRequests.id, requestId));
     }

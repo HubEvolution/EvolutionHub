@@ -41,12 +41,12 @@ const DebugPanel: React.FC = () => {
     }
   });
   const [levelFilter, setLevelFilter] = useState<string[]>(() => {
-    if (typeof window === 'undefined') return ['error', 'warn', 'info', 'log'];
+    if (typeof window === 'undefined') return ['error', 'warn', 'info', 'debug', 'log'];
     try {
       const stored = localStorage.getItem('debugPanel.levelFilter');
-      return stored ? JSON.parse(stored) : ['error', 'warn', 'info', 'log']; // default excludes 'debug'
+      return stored ? JSON.parse(stored) : ['error', 'warn', 'info', 'debug', 'log'];
     } catch {
-      return ['error', 'warn', 'info', 'log'];
+      return ['error', 'warn', 'info', 'debug', 'log'];
     }
   });
   const [sourceFilters, setSourceFilters] = useState<
@@ -71,9 +71,53 @@ const DebugPanel: React.FC = () => {
       return '';
     }
   });
+  const [muteIsRegex, setMuteIsRegex] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    try {
+      return localStorage.getItem('debugPanel.muteIsRegex') === 'true';
+    } catch {
+      return false;
+    }
+  });
   const logsEndRef = useRef<HTMLDivElement>(null);
+  const pollTimerRef = useRef<number | null>(null);
+  type FilterSnapshot = {
+    levelFilter: string[];
+    sourceFilters: Record<'server' | 'client' | 'console' | 'network', boolean>;
+    mutePatterns: string;
+    muteIsRegex: boolean;
+  };
+  const filterHistoryRef = useRef<FilterSnapshot[]>([]);
+  const [historySize, setHistorySize] = useState(0);
 
   useEffect(() => {
+    const startPolling = () => {
+      if (pollTimerRef.current != null) return;
+      const poll = async () => {
+        try {
+          const res = await fetch('/api/debug/logs-stream', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+          if (!res.ok) throw new Error('poll failed');
+          const payload: any = await res.json().catch(() => null);
+          const items: unknown[] = payload?.data?.logs || [];
+          for (const raw of items) {
+            try {
+              const data = typeof raw === 'string' ? JSON.parse(raw) : raw;
+              if (!data) continue;
+              if (data.type === 'log' && data.timestamp && data.level && typeof data.message === 'string') {
+                addLog({ timestamp: data.timestamp, level: String(data.level), message: data.message, source: data.source });
+              }
+            } catch {}
+          }
+          setStatus('connected');
+        } catch {
+          setStatus('error');
+        }
+      };
+      setStatus('connecting');
+      void poll();
+      pollTimerRef.current = window.setInterval(poll, 2000);
+    };
+
     const eventSource = new EventSource('/api/debug/logs-stream');
 
     eventSource.onopen = () => {
@@ -123,11 +167,19 @@ const DebugPanel: React.FC = () => {
       addLog({
         timestamp: new Date().toISOString(),
         level: 'error',
-        message: 'Connection error - retrying...',
+        message: 'Connection error - switching to polling...',
       });
+      try { eventSource.close(); } catch {}
+      startPolling();
     };
 
-    return () => eventSource.close();
+    return () => {
+      try { eventSource.close(); } catch {}
+      if (pollTimerRef.current != null) {
+        clearInterval(pollTimerRef.current);
+        pollTimerRef.current = null;
+      }
+    };
   }, []);
 
   // Persist groupRepeats
@@ -154,6 +206,13 @@ const DebugPanel: React.FC = () => {
       /* noop */
     }
   }, [mutePatterns]);
+  useEffect(() => {
+    try {
+      localStorage.setItem('debugPanel.muteIsRegex', String(muteIsRegex));
+    } catch {
+      /* noop */
+    }
+  }, [muteIsRegex]);
 
   const addLog = useCallback((log: LogEntry) => {
     setLogs((prev) => {
@@ -183,6 +242,41 @@ const DebugPanel: React.FC = () => {
     setLevelFilter((prev) =>
       prev.includes(level) ? prev.filter((l) => l !== level) : [...prev, level]
     );
+  }, []);
+
+  const addMutePattern = useCallback((pattern: string) => {
+    setMutePatterns((prev) => {
+      const list = prev
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean);
+      const has = list.map((s) => s.toLowerCase()).includes(pattern.toLowerCase());
+      if (has) return prev;
+      if (list.length === 0) return pattern;
+      return `${prev}${prev.trim().endsWith(',') ? '' : ','} ${pattern}`;
+    });
+  }, []);
+  const pushFilterSnapshot = useCallback(() => {
+    const snap: FilterSnapshot = {
+      levelFilter: [...levelFilter],
+      sourceFilters: { ...sourceFilters },
+      mutePatterns,
+      muteIsRegex,
+    };
+    const arr = filterHistoryRef.current;
+    arr.push(snap);
+    if (arr.length > 20) arr.shift();
+    setHistorySize(arr.length);
+  }, [levelFilter, sourceFilters, mutePatterns, muteIsRegex]);
+  const undoLastApply = useCallback(() => {
+    const arr = filterHistoryRef.current;
+    if (!arr.length) return;
+    const snap = arr.pop()!;
+    setLevelFilter(snap.levelFilter);
+    setSourceFilters(snap.sourceFilters);
+    setMutePatterns(snap.mutePatterns);
+    setMuteIsRegex(snap.muteIsRegex);
+    setHistorySize(arr.length);
   }, []);
 
   // Persist levelFilter
@@ -233,14 +327,31 @@ const DebugPanel: React.FC = () => {
         .map((s) => s.toLowerCase()),
     [mutePatterns]
   );
+  const muteRegexes = useMemo(() => {
+    if (!muteIsRegex) return [] as RegExp[];
+    const out: RegExp[] = [];
+    for (const raw of mutePatterns.split(',').map((s) => s.trim()).filter(Boolean)) {
+      try {
+        out.push(new RegExp(raw, 'i'));
+      } catch {
+        // ignore invalid regex
+      }
+    }
+    return out;
+  }, [mutePatterns, muteIsRegex]);
 
   const filteredLogs = logs.filter((log) => {
     if (!levelFilter.includes(log.level.toLowerCase())) return false;
     const src = resolveSource(log);
     if (!sourceFilters[src]) return false;
     if (muteList.length) {
-      const hay = `${log.level} ${log.message}`.toLowerCase();
-      if (muteList.some((needle) => hay.includes(needle))) return false;
+      const hay = `${log.level} ${log.message}`;
+      const hayLower = hay.toLowerCase();
+      if (muteIsRegex) {
+        if (muteRegexes.length && muteRegexes.some((re) => re.test(hay))) return false;
+      } else {
+        if (muteList.some((needle) => hayLower.includes(needle))) return false;
+      }
     }
     return true;
   });
@@ -288,6 +399,118 @@ const DebugPanel: React.FC = () => {
     }
     return acc;
   }, [filteredLogs]);
+
+  type Suggestion = { type: 'mute' | 'source' | 'level'; value: string; label: string };
+  const suggestions: Suggestion[] = useMemo(() => {
+    const recent = logs.slice(-300);
+    const total = recent.length || 1;
+    const bySource: Record<'server' | 'client' | 'console' | 'network', number> = {
+      server: 0,
+      client: 0,
+      console: 0,
+      network: 0,
+    };
+    const pathCounts = new Map<string, number>();
+    const msgCounts = new Map<string, number>();
+    const levelCountsAll: Record<string, number> = {};
+
+    const pathRegex = /(\/[^\s\?\"]+)(?:[\?\s]|$)/g;
+
+    for (const l of recent) {
+      // source tally
+      const src = resolveSource(l);
+      bySource[src]++;
+      // level tally
+      const lvl = l.level.toLowerCase();
+      levelCountsAll[lvl] = (levelCountsAll[lvl] || 0) + 1;
+      // paths
+      let m: RegExpExecArray | null;
+      const text = l.message || '';
+      pathRegex.lastIndex = 0;
+      while ((m = pathRegex.exec(text))) {
+        const raw = (m[1] || '').split('?')[0];
+        if (!raw) continue;
+        const base = raw;
+        pathCounts.set(base, (pathCounts.get(base) || 0) + 1);
+      }
+      // message heads (first 80 chars)
+      const head = (text.slice(0, 80) || '').trim();
+      if (head.length >= 10) {
+        msgCounts.set(head, (msgCounts.get(head) || 0) + 1);
+      }
+    }
+
+    const out: Suggestion[] = [];
+    // Suggest muting top paths not already muted
+    const muted = new Set(
+      mutePatterns
+        .split(',')
+        .map((s) => s.trim().toLowerCase())
+        .filter(Boolean)
+    );
+    const topPaths = Array.from(pathCounts.entries())
+      .filter(([p]) => p.length > 3 && !muted.has(p.toLowerCase()))
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3);
+    for (const [p, c] of topPaths) {
+      if (c / total < 0.05) continue; // only if at least 5% of recent logs
+      out.push({ type: 'mute', value: p, label: `Mute ${p} (${c})` });
+    }
+
+    // Suggest muting frequent message heads
+    const topMsgs = Array.from(msgCounts.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 2);
+    for (const [h, c] of topMsgs) {
+      const key = h.toLowerCase();
+      if (muted.has(key)) continue;
+      if (c >= 3) out.push({ type: 'mute', value: h, label: `Mute "${h}" (${c})` });
+    }
+
+    // Suggest hiding overrepresented source
+    (['network', 'console', 'client', 'server'] as const).forEach((s) => {
+      const ratio = bySource[s] / total;
+      if (ratio >= 0.6 && sourceFilters[s]) {
+        out.push({ type: 'source', value: s, label: `Hide ${s.toUpperCase()} (${Math.round(ratio * 100)}%)` });
+      }
+    });
+
+    // Suggest hiding DEBUG if too chatty
+    const dbg = levelCountsAll['debug'] || 0;
+    if (dbg / total >= 0.5 && levelFilter.includes('debug')) {
+      out.push({ type: 'level', value: 'debug', label: 'Hide DEBUG (noisy)' });
+    }
+
+    return out;
+  }, [logs, mutePatterns, sourceFilters, levelFilter]);
+
+  const applySuggestion = useCallback(
+    (s: Suggestion) => {
+      pushFilterSnapshot();
+      if (s.type === 'mute') {
+        addMutePattern(s.value);
+      } else if (s.type === 'source') {
+        setSourceFilters((p) => ({
+          ...p,
+          [s.value as 'server' | 'client' | 'console' | 'network']: false,
+        }));
+      } else if (s.type === 'level') {
+        setLevelFilter((prev) => prev.filter((l) => l !== s.value));
+      }
+    },
+    [addMutePattern, pushFilterSnapshot]
+  );
+
+  const applyAllSuggestions = useCallback(() => {
+    pushFilterSnapshot();
+    const seen = new Set<string>();
+    for (const s of suggestions) {
+      const k = `${s.type}|${s.value.toLowerCase()}`;
+      if (seen.has(k)) continue;
+      seen.add(k);
+      applySuggestion(s);
+    }
+  }, [suggestions, applySuggestion, pushFilterSnapshot]);
 
   const exportLogs = useCallback(() => {
     const items = showAll
@@ -423,6 +646,33 @@ const DebugPanel: React.FC = () => {
             >
               Copy JSON
             </button>
+            <button
+              onClick={async () => {
+                try { console.error('Self-test: console.error'); } catch {}
+                try { await fetch('/__debug-self-test-404'); } catch {}
+                try {
+                  const x = new XMLHttpRequest();
+                  x.open('GET', '/__debug-self-test-xhr-404');
+                  x.send();
+                } catch {}
+                try {
+                  if (typeof navigator !== 'undefined' && typeof (navigator as any).sendBeacon === 'function') {
+                    (navigator as any).sendBeacon('/__debug-self-test-beacon', 'x=1');
+                  }
+                } catch {}
+                try {
+                  await fetch('/api/debug/client-log', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-Debug-Log': '1' },
+                    body: JSON.stringify({ level: 'info', message: 'Self-test: client-log' })
+                  });
+                } catch {}
+              }}
+              className="px-2 py-1 bg-emerald-600 text-white text-xs rounded hover:bg-emerald-700 transition-colors"
+              title="Emit sample console, network, XHR, beacon and client-log events"
+            >
+              Self-test
+            </button>
             <label className="flex items-center gap-1 text-xs text-gray-700 dark:text-gray-300 cursor-pointer">
               <input
                 type="checkbox"
@@ -557,9 +807,63 @@ const DebugPanel: React.FC = () => {
                 Clear mutes
               </button>
             )}
+            <label className="flex items-center gap-1 text-xs text-gray-700 dark:text-gray-300 cursor-pointer ml-2">
+              <input
+                type="checkbox"
+                checked={muteIsRegex}
+                onChange={(e) => setMuteIsRegex(e.target.checked)}
+                className="rounded"
+              />
+              Regex mutes
+            </label>
           </div>
         </div>
       </div>
+      {/* Suggested filters */}
+      {suggestions.length > 0 && (
+        <div className="px-4 py-2 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">Suggested filters:</span>
+            {suggestions.slice(0, 6).map((s, idx) => (
+              <button
+                key={`${s.type}-${idx}-${s.value}`}
+                onClick={() => applySuggestion(s)}
+                className={
+                  s.type === 'mute'
+                    ? 'px-2 py-0.5 rounded text-[11px] bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600'
+                    : s.type === 'source'
+                      ? 'px-2 py-0.5 rounded text-[11px] bg-teal-100 dark:bg-teal-900/30 text-teal-800 dark:text-teal-300 hover:bg-teal-200 dark:hover:bg-teal-800'
+                      : 'px-2 py-0.5 rounded text-[11px] bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 hover:bg-purple-200 dark:hover:bg-purple-800'
+                }
+                title={`Apply: ${s.label}`}
+              >
+                {s.label}
+              </button>
+            ))}
+            {suggestions.length > 1 && (
+              <button
+                onClick={applyAllSuggestions}
+                className="ml-2 px-2 py-0.5 rounded text-[11px] bg-blue-600 text-white hover:bg-blue-700"
+                title="Apply all suggestions"
+              >
+                Apply all
+              </button>
+            )}
+            <button
+              onClick={undoLastApply}
+              disabled={historySize === 0}
+              className={`px-2 py-0.5 rounded text-[11px] ${
+                historySize === 0
+                  ? 'bg-gray-200 dark:bg-gray-700 text-gray-400 cursor-not-allowed'
+                  : 'bg-gray-600 text-white hover:bg-gray-700'
+              }`}
+              title="Undo last filter change"
+            >
+              Undo
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Logs - windowed rendering for performance */}
       <div className="flex-1 overflow-y-auto overscroll-contain p-4 space-y-2 bg-gray-50 dark:bg-gray-900 min-h-0">

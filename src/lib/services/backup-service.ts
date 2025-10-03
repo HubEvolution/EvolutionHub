@@ -3,7 +3,7 @@
  * Unterstützt verschiedene Backup-Typen und Wiederherstellungsfunktionen
  */
 
-import { eq, and, gte, lte, desc, sql } from 'drizzle-orm';
+import { eq, and, lte, desc, sql } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/d1';
 import { backupJobs, systemMaintenance, users, comments, notifications } from '../db/schema';
 import { log } from '@/server/utils/logger';
@@ -35,7 +35,7 @@ export class BackupService {
       tablesIncluded: options.tables ? JSON.stringify(options.tables) : undefined,
       triggeredBy,
       isAutomated: false,
-      startedAt: Date.now(),
+      startedAt: new Date(),
     });
 
     // Starte asynchrone Backup-Verarbeitung
@@ -86,7 +86,7 @@ export class BackupService {
           fileSize: backupResult.fileSize,
           checksum: backupResult.checksum,
           recordCount: backupResult.recordCount,
-          completedAt: Date.now(),
+          completedAt: new Date(),
         })
         .where(eq(backupJobs.id, jobId));
     } catch (error) {
@@ -101,7 +101,7 @@ export class BackupService {
         .set({
           status: 'failed',
           errorMessage: error instanceof Error ? error.message : 'Unknown error',
-          completedAt: Date.now(),
+          completedAt: new Date(),
         })
         .where(eq(backupJobs.id, jobId));
     }
@@ -222,14 +222,61 @@ export class BackupService {
   async getBackupJob(jobId: string): Promise<BackupJob | null> {
     const jobs = await this.db.select().from(backupJobs).where(eq(backupJobs.id, jobId)).limit(1);
 
-    return jobs[0] || null;
+    const row = jobs[0];
+    if (!row) return null;
+    return {
+      id: row.id,
+      type: row.type as any,
+      status: (row.status ?? 'pending') as any,
+      filePath: row.filePath ?? undefined,
+      fileSize: row.fileSize ?? undefined,
+      checksum: row.checksum ?? undefined,
+      tablesIncluded: row.tablesIncluded ? JSON.parse(row.tablesIncluded) : undefined,
+      recordCount: row.recordCount ?? undefined,
+      errorMessage: row.errorMessage ?? undefined,
+      startedAt:
+        row.startedAt != null
+          ? (row.startedAt as unknown as Date).getTime?.() ?? Number(row.startedAt)
+          : undefined,
+      completedAt:
+        row.completedAt != null
+          ? (row.completedAt as unknown as Date).getTime?.() ?? Number(row.completedAt)
+          : undefined,
+      triggeredBy: row.triggeredBy ?? undefined,
+      isAutomated: Boolean(row.isAutomated),
+    };
   }
 
   /**
    * Holt alle Backup-Jobs
    */
   async getBackupJobs(limit = 50): Promise<BackupJob[]> {
-    return await this.db.select().from(backupJobs).orderBy(desc(backupJobs.startedAt)).limit(limit);
+    const rows = await this.db
+      .select()
+      .from(backupJobs)
+      .orderBy(desc(backupJobs.startedAt))
+      .limit(limit);
+    return rows.map((row) => ({
+      id: row.id,
+      type: row.type as any,
+      status: (row.status ?? 'pending') as any,
+      filePath: row.filePath ?? undefined,
+      fileSize: row.fileSize ?? undefined,
+      checksum: row.checksum ?? undefined,
+      tablesIncluded: row.tablesIncluded ? JSON.parse(row.tablesIncluded) : undefined,
+      recordCount: row.recordCount ?? undefined,
+      errorMessage: row.errorMessage ?? undefined,
+      startedAt:
+        row.startedAt != null
+          ? (row.startedAt as unknown as Date).getTime?.() ?? Number(row.startedAt)
+          : undefined,
+      completedAt:
+        row.completedAt != null
+          ? (row.completedAt as unknown as Date).getTime?.() ?? Number(row.completedAt)
+          : undefined,
+      triggeredBy: row.triggeredBy ?? undefined,
+      isAutomated: Boolean(row.isAutomated),
+    }));
   }
 
   /**
@@ -285,7 +332,7 @@ export class BackupService {
       description,
       triggeredBy,
       isAutomated: false,
-      startedAt: Date.now(),
+      startedAt: new Date(),
     });
 
     // Starte asynchrone Wartung
@@ -319,14 +366,35 @@ export class BackupService {
       }
 
       // Führe Wartung basierend auf Typ durch
-      await this.executeMaintenance(maintenance[0]);
+      const m = maintenance[0];
+      const mapped: SystemMaintenance = {
+        id: m.id,
+        type: m.type as any,
+        status: (m.status ?? 'pending') as any,
+        description: m.description,
+        affectedTables: m.affectedTables ? JSON.parse(m.affectedTables) : undefined,
+        parameters: m.parameters ? JSON.parse(m.parameters) : undefined,
+        logOutput: m.logOutput ?? undefined,
+        startedAt:
+          m.startedAt != null
+            ? (m.startedAt as unknown as Date).getTime?.() ?? Number(m.startedAt)
+            : undefined,
+        completedAt:
+          m.completedAt != null
+            ? (m.completedAt as unknown as Date).getTime?.() ?? Number(m.completedAt)
+            : undefined,
+        triggeredBy: m.triggeredBy ?? undefined,
+        isAutomated: Boolean(m.isAutomated),
+      };
+
+      await this.executeMaintenance(mapped);
 
       // Update maintenance mit Ergebnis
       await this.db
         .update(systemMaintenance)
         .set({
           status: 'completed',
-          completedAt: Date.now(),
+          completedAt: new Date(),
         })
         .where(eq(systemMaintenance.id, maintenanceId));
     } catch (error) {
@@ -341,7 +409,7 @@ export class BackupService {
         .set({
           status: 'failed',
           logOutput: error instanceof Error ? error.message : 'Unknown error',
-          completedAt: Date.now(),
+          completedAt: new Date(),
         })
         .where(eq(systemMaintenance.id, maintenanceId));
     }
@@ -378,10 +446,10 @@ export class BackupService {
    */
   private async performCleanup(): Promise<void> {
     // Lösche alte, abgelaufene Export-Jobs
-    const deletedExports = await this.db.delete(backupJobs).where(
+    await this.db.delete(backupJobs).where(
       and(
         eq(backupJobs.status, 'completed'),
-        lte(backupJobs.completedAt, Date.now() - 30 * 24 * 60 * 60 * 1000) // 30 Tage alt
+        lte(backupJobs.completedAt, new Date(Date.now() - 30 * 24 * 60 * 60 * 1000))
       )
     );
 
@@ -389,7 +457,7 @@ export class BackupService {
     await this.db.delete(notifications).where(
       and(
         eq(notifications.isRead, true),
-        lte(notifications.readAt, Date.now() - 90 * 24 * 60 * 60 * 1000) // 90 Tage alt
+        lte(notifications.readAt, new Date(Date.now() - 90 * 24 * 60 * 60 * 1000))
       )
     );
 
@@ -444,11 +512,30 @@ export class BackupService {
    * Holt Wartungsjobs
    */
   async getMaintenanceJobs(limit = 50): Promise<SystemMaintenance[]> {
-    return await this.db
+    const rows = await this.db
       .select()
       .from(systemMaintenance)
       .orderBy(desc(systemMaintenance.startedAt))
       .limit(limit);
+    return rows.map((m) => ({
+      id: m.id,
+      type: m.type as any,
+      status: (m.status ?? 'pending') as any,
+      description: m.description,
+      affectedTables: m.affectedTables ? JSON.parse(m.affectedTables) : undefined,
+      parameters: m.parameters ? JSON.parse(m.parameters) : undefined,
+      logOutput: m.logOutput ?? undefined,
+      startedAt:
+        m.startedAt != null
+          ? (m.startedAt as unknown as Date).getTime?.() ?? Number(m.startedAt)
+          : undefined,
+      completedAt:
+        m.completedAt != null
+          ? (m.completedAt as unknown as Date).getTime?.() ?? Number(m.completedAt)
+          : undefined,
+      triggeredBy: m.triggeredBy ?? undefined,
+      isAutomated: Boolean(m.isAutomated),
+    }));
   }
 
   /**
@@ -461,20 +548,48 @@ export class BackupService {
       .where(eq(systemMaintenance.id, jobId))
       .limit(1);
 
-    return jobs[0] || null;
+    const m = jobs[0];
+    if (!m) return null;
+    return {
+      id: m.id,
+      type: m.type as any,
+      status: (m.status ?? 'pending') as any,
+      description: m.description,
+      affectedTables: m.affectedTables ? JSON.parse(m.affectedTables) : undefined,
+      parameters: m.parameters ? JSON.parse(m.parameters) : undefined,
+      logOutput: m.logOutput ?? undefined,
+      startedAt:
+        m.startedAt != null
+          ? (m.startedAt as unknown as Date).getTime?.() ?? Number(m.startedAt)
+          : undefined,
+      completedAt:
+        m.completedAt != null
+          ? (m.completedAt as unknown as Date).getTime?.() ?? Number(m.completedAt)
+          : undefined,
+      triggeredBy: m.triggeredBy ?? undefined,
+      isAutomated: Boolean(m.isAutomated),
+    };
   }
 
   /**
    * Löscht alte Backup-Jobs
    */
   async cleanupOldBackups(retentionDays = 30): Promise<number> {
-    const cutoffDate = Date.now() - retentionDays * 24 * 60 * 60 * 1000;
+    const cutoffMs = Date.now() - retentionDays * 24 * 60 * 60 * 1000;
+    const cutoff = new Date(cutoffMs);
 
-    const deletedJobs = await this.db
+    const candidates = await this.db
+      .select({ id: backupJobs.id })
+      .from(backupJobs)
+      .where(and(eq(backupJobs.status, 'completed'), lte(backupJobs.completedAt, cutoff)));
+
+    if (candidates.length === 0) return 0;
+
+    await this.db
       .delete(backupJobs)
-      .where(and(eq(backupJobs.status, 'completed'), lte(backupJobs.completedAt, cutoffDate)));
+      .where(and(eq(backupJobs.status, 'completed'), lte(backupJobs.completedAt, cutoff)));
 
-    return deletedJobs.length || 0;
+    return candidates.length;
   }
 
   /**

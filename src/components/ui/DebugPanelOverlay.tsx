@@ -34,6 +34,9 @@ const DebugPanelOverlay: React.FC = () => {
     if (typeof window === 'undefined') return false;
     try {
       const v = getLS('isOpen');
+      // allow force-open via query param
+      const force = new URLSearchParams(window.location.search).get('debugPanel') === '1';
+      if (force) return true;
       return v === 'true';
     } catch {
       return false;
@@ -44,7 +47,8 @@ const DebugPanelOverlay: React.FC = () => {
     if (typeof window === 'undefined') return DEFAULT_WIDTH;
     try {
       const saved = getLS('width');
-      return saved ? parseInt(saved, 10) : DEFAULT_WIDTH;
+      const n = saved ? parseInt(saved, 10) : NaN;
+      return Number.isFinite(n) && n >= MIN_WIDTH && n <= MAX_WIDTH ? n : DEFAULT_WIDTH;
     } catch {
       return DEFAULT_WIDTH;
     }
@@ -54,7 +58,9 @@ const DebugPanelOverlay: React.FC = () => {
     if (typeof window === 'undefined') return DEFAULT_HEIGHT;
     try {
       const saved = getLS('height');
-      return saved ? parseInt(saved, 10) : DEFAULT_HEIGHT;
+      const n = saved ? parseInt(saved, 10) : NaN;
+      // clamp to viewport later; here only ensure a sane default
+      return Number.isFinite(n) && n >= MIN_HEIGHT ? n : DEFAULT_HEIGHT;
     } catch {
       return DEFAULT_HEIGHT;
     }
@@ -76,7 +82,7 @@ const DebugPanelOverlay: React.FC = () => {
       const saved = getLS('right');
       if (!saved) return 16;
       const n = parseInt(saved, 10);
-      return Number.isFinite(n) ? n : 16;
+      return Number.isFinite(n) && n >= 0 ? n : 16;
     } catch {
       return 16;
     }
@@ -87,7 +93,7 @@ const DebugPanelOverlay: React.FC = () => {
       const saved = getLS('bottom');
       if (!saved) return 16;
       const n = parseInt(saved, 10);
-      return Number.isFinite(n) ? n : 16;
+      return Number.isFinite(n) && n >= 0 ? n : 16;
     } catch {
       return 16;
     }
@@ -120,6 +126,18 @@ const DebugPanelOverlay: React.FC = () => {
       return newState;
     });
   }, []);
+
+  // Force-open via localStorage flag (e.g., set by console) or query param
+  useEffect(() => {
+    try {
+      const forceLS = localStorage.getItem(keyPrefix + 'force') === '1' || localStorage.getItem('debugPanel.force') === '1';
+      const forceQP = new URLSearchParams(window.location.search).get('debugPanel') === '1';
+      if ((forceLS || forceQP) && !isOpen) {
+        setIsOpen(true);
+        setLS('isOpen', 'true');
+      }
+    } catch {}
+  }, [isOpen]);
 
   // Avoid overlapping common fixed/sticky CTAs by nudging panel away
   const avoidOverlap = useCallback(
@@ -619,7 +637,7 @@ const DebugPanelOverlay: React.FC = () => {
       {/* Panel Container - lower-right, resizable */}
       <div
         ref={containerRef}
-        className="fixed z-[9999] flex flex-col focus:outline-none overscroll-contain"
+        className="fixed z-[100001] flex flex-col focus:outline-none overscroll-contain"
         role="dialog"
         aria-label="Debug Logs"
         tabIndex={-1}

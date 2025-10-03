@@ -215,6 +215,7 @@ npm run test
 
 ## 📚 Dokumentation
 
+- [Repository Guidelines](./AGENTS.md)
 - [API-Dokumentation](./docs/api/)
 - [API Quickstart](./docs/api/README.md)
 - [Architektur](./docs/architecture/)
