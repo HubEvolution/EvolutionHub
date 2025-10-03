@@ -1,5 +1,6 @@
 ---
 trigger: always_on
+priority: 100
 ---
 
 # API & Security Rules

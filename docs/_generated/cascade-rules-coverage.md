@@ -1,4 +1,4 @@
-# Cascade Rules Coverage — Stand: 2025-10-03 19:01:32+02:00
+# Cascade Rules Coverage — Stand: 2025-10-03T17:44:32.660Z
 
 ## Regeln: Scope-Globs, Treffer, Activation, Priority
 
@@ -12,26 +12,33 @@
 | api-and-security.md | always_on | n/a | `src/middleware.ts` | 1 |
 | project-structure.md | always_on | n/a | `src/pages/api/**` | 68 |
 | project-structure.md | always_on | n/a | `src/pages/r2/**` | 1 |
-| project-structure.md | always_on | n/a | `src/content/**` | 17 |
+| project-structure.md | always_on | n/a | `src/pages/r2-ai/**` | 1 |
+| project-structure.md | always_on | n/a | `src/content/**` | 16 |
 | project-structure.md | always_on | n/a | `src/locales/**` | 7 |
 | project-structure.md | always_on | n/a | `src/styles/**` | 3 |
-| project-structure.md | always_on | n/a | `scripts/**` | 37 |
+| project-structure.md | always_on | n/a | `scripts/**` | 39 |
 | project-structure.md | always_on | n/a | `migrations/**` | 23 |
-| project-structure.md | always_on | n/a | `tests/e2e/**` | 0 (NO MATCH) |
-| project-structure.md | always_on | n/a | `test-suite-v2/**` | 79 |
+| project-structure.md | always_on | n/a | `tests/playwright/**` | 8 |
+| project-structure.md | always_on | n/a | `test-suite-v2/**` | 42 |
 | project-structure.md | always_on | n/a | `src/**/*.{test,spec}.{ts,tsx}` | 6 |
-| project-structure.md | always_on | n/a | `tests/unit/**` | 20 |
+| project-structure.md | always_on | n/a | `tests/unit/**` | 15 |
 | project-structure.md | always_on | n/a | `tests/integration/**` | 19 |
-| project-structure.md | always_on | n/a | `dist/**` | 328 |
-| project-structure.md | always_on | n/a | `public/**` | 58 |
+| project-structure.md | always_on | n/a | `tests/integration/setup/**` | 1 |
+| project-structure.md | always_on | n/a | `dist/**` | 0 (NO MATCH) |
+| project-structure.md | always_on | n/a | `public/**` | 55 |
 | testing-and-ci.md | always_on | n/a | `src/**/*.{ts,tsx}` | 228 |
-| testing-and-ci.md | always_on | n/a | `tests/unit/**` | 20 |
+| testing-and-ci.md | always_on | n/a | `tests/unit/**` | 15 |
 | testing-and-ci.md | always_on | n/a | `tests/integration/**` | 19 |
-| testing-and-ci.md | always_on | n/a | `playwright-report/**` | 54 |
+| testing-and-ci.md | always_on | n/a | `playwright-report/**` | 0 (NO MATCH) |
+| testing-and-ci.md | always_on | n/a | `test-suite-v2/reports/playwright-html-report/**` | 0 (NO MATCH) |
 | tooling-and-style.md | always_on | n/a | `tsconfig.json` | 1 |
 | tooling-and-style.md | always_on | n/a | `eslint.config.js` | 1 |
 | tooling-and-style.md | always_on | n/a | `.prettierrc.json` | 1 |
 | tooling-and-style.md | always_on | n/a | `AGENTS.md` | 1 |
+| tooling-and-style.md | always_on | n/a | `.prettierignore` | 1 |
+| tooling-and-style.md | always_on | n/a | `.markdownlint.jsonc` | 1 |
+| tooling-and-style.md | always_on | n/a | `.lintstagedrc.json` | 1 |
+| tooling-and-style.md | always_on | n/a | `eslint.config.dev.js` | 1 |
 
 Hinweis: Globs wurden aus den jeweiligen Regeltexten abgeleitet. 0-Treffer sind explizit markiert.
 
@@ -58,9 +65,9 @@ Hinweis: Globs wurden aus den jeweiligen Regeltexten abgeleitet. 0-Treffer sind 
 | format | ja |
 | format:check | ja |
 | lint | ja |
-| markdown linter (lint:md) | ja |
-| markdown linter fix (lint:md:fix) | ja |
-| docs generatoren (docs:*) | ja |
+| lint:md | ja |
+| lint:md:fix | ja |
+| docs:* | ja |
 
 Quelle:
 - Regeln: `.windsurf/rules/*.md`
