@@ -19,12 +19,13 @@ interface HealthResponse {
   errors?: string[];
 }
 
-async function checkHealth(baseUrl: string, retries = 3, timeout = 10000): Promise<boolean> {
+async function checkHealth(baseUrl: string, retries = 3, timeout = 10000, envLabel?: string): Promise<boolean> {
   const url = `${baseUrl}/api/health`;
 
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
-      console.log(`[Attempt ${attempt}/${retries}] Checking health: ${url}`);
+      const prefix = envLabel ? `[${envLabel}] ` : '';
+      console.log(`${prefix}[Attempt ${attempt}/${retries}] Checking health: ${url}`);
 
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), timeout);
@@ -39,35 +40,41 @@ async function checkHealth(baseUrl: string, retries = 3, timeout = 10000): Promi
 
       clearTimeout(timeoutId);
 
-      const data = (await response.json()) as HealthResponse;
+      const body = (await response.json()) as any;
+
+      // Support wrapped API shape: { success, data: { status, services, version } }
+      const statusVal: string | undefined = body?.status ?? body?.data?.status;
+      const servicesVal: HealthResponse['services'] | undefined = body?.services ?? body?.data?.services;
+      const versionVal: string | undefined = body?.version ?? body?.data?.version;
 
       console.log(`  Status: ${response.status}`);
-      console.log(`  Response: ${JSON.stringify(data, null, 2)}`);
+      console.log(`  Response: ${JSON.stringify(body, null, 2)}`);
 
-      if (response.status === 200 && data.status === 'ok') {
-        console.log('✅ Health check passed!');
-        if (data.services) {
-          console.log(`  D1: ${data.services.d1 ? '✓' : '✗'}`);
-          console.log(`  KV: ${data.services.kv ? '✓' : '✗'}`);
-          console.log(`  R2: ${data.services.r2 ? '✓' : '✗'}`);
+      if (response.status === 200 && statusVal === 'ok') {
+        console.log(`${envLabel ? `[${envLabel}] ` : ''}✅ Health check passed!`);
+        if (servicesVal) {
+          console.log(`  D1: ${servicesVal.d1 ? '✓' : '✗'}`);
+          console.log(`  KV: ${servicesVal.kv ? '✓' : '✗'}`);
+          console.log(`  R2: ${servicesVal.r2 ? '✓' : '✗'}`);
+        }
+        if (versionVal) {
+          console.log(`  Version: ${versionVal}`);
         }
         return true;
       }
-
       if (response.status === 503) {
-        console.warn(`⚠️  Services degraded (attempt ${attempt}/${retries})`);
-        if (data.errors) {
-          console.warn(`  Errors: ${data.errors.join(', ')}`);
-        }
+        console.warn(`${envLabel ? `[${envLabel}] ` : ''}⚠️  Services degraded (attempt ${attempt}/${retries})`);
+        const errors = body?.errors ?? body?.data?.errors;
+        if (errors && Array.isArray(errors)) console.warn(`  Errors: ${errors.join(', ')}`);
       } else {
-        console.error(`❌ Unexpected status: ${response.status}`);
+        console.error(`${envLabel ? `[${envLabel}] ` : ''}❌ Unexpected status: ${response.status}`);
       }
     } catch (err) {
       if (err instanceof Error) {
         if (err.name === 'AbortError') {
-          console.error(`❌ Request timeout after ${timeout}ms (attempt ${attempt}/${retries})`);
+          console.error(`${envLabel ? `[${envLabel}] ` : ''}❌ Request timeout after ${timeout}ms (attempt ${attempt}/${retries})`);
         } else {
-          console.error(`❌ Health check failed (attempt ${attempt}/${retries}): ${err.message}`);
+          console.error(`${envLabel ? `[${envLabel}] ` : ''}❌ Health check failed (attempt ${attempt}/${retries}): ${err.message}`);
         }
       }
     }
@@ -86,11 +93,15 @@ async function checkHealth(baseUrl: string, retries = 3, timeout = 10000): Promi
 async function main() {
   const args = process.argv.slice(2);
   let baseUrl = process.env.BASE_URL || '';
+  let envLabel: string | undefined;
 
   // Parse command-line arguments
   for (let i = 0; i < args.length; i++) {
     if (args[i] === '--url' && args[i + 1]) {
       baseUrl = args[i + 1];
+      i++;
+    } else if (args[i] === '--env' && args[i + 1]) {
+      envLabel = args[i + 1];
       i++;
     }
   }
@@ -108,7 +119,7 @@ async function main() {
   console.log(`🔍 Starting health check for: ${baseUrl}`);
   console.log('');
 
-  const success = await checkHealth(baseUrl);
+  const success = await checkHealth(baseUrl, 3, 10000, envLabel);
 
   process.exit(success ? 0 : 1);
 }
