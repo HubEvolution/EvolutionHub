@@ -245,7 +245,7 @@ const DebugPanelOverlay: React.FC = () => {
     <>
       {/* Panel Container - lower-right, resizable */}
       <div
-        className="fixed z-[9999] flex flex-col relative"
+        className="fixed z-[9999] flex flex-col"
         style={{
           width: `${width}px`,
           height: `${height}px`,
@@ -259,7 +259,7 @@ const DebugPanelOverlay: React.FC = () => {
         <div
           ref={resizeVerticalRef}
           onMouseDown={handleVerticalMouseDown}
-          className="absolute -top-2 left-0 right-0 h-4 cursor-ns-resize select-none hover:bg-blue-500/40 active:bg-blue-600/60 transition-colors flex items-center justify-center group z-[10000]"
+          className="absolute -top-2 left-0 right-0 h-6 cursor-ns-resize select-none hover:bg-blue-500/40 active:bg-blue-600/60 transition-colors flex items-center justify-center group z-[10000]"
           title="Drag to resize height"
         >
           <div className="h-1 w-12 bg-gray-400 dark:bg-gray-600 rounded-full group-hover:bg-blue-500" />
@@ -271,7 +271,7 @@ const DebugPanelOverlay: React.FC = () => {
           <div
             ref={resizeRef}
             onMouseDown={handleMouseDown}
-            className="w-2 h-full cursor-ew-resize select-none hover:bg-blue-500/40 active:bg-blue-600/60 transition-colors flex items-center justify-center group"
+            className="w-4 h-full cursor-ew-resize select-none hover:bg-blue-500/40 active:bg-blue-600/60 transition-colors flex items-center justify-center group"
             title="Drag to resize width"
           >
             <div className="w-1 h-12 bg-gray-400 dark:bg-gray-600 rounded-full group-hover:bg-blue-500" />

@@ -37,6 +37,23 @@ const DebugPanel: React.FC = () => {
     'debug',
     'log',
   ]);
+  const [sourceFilters, setSourceFilters] = useState<Record<'server'|'client'|'console'|'network', boolean>>(() => {
+    if (typeof window === 'undefined') return { server: true, client: true, console: true, network: true };
+    try {
+      const stored = localStorage.getItem('debugPanel.sourceFilters');
+      return stored ? JSON.parse(stored) : { server: true, client: true, console: true, network: true };
+    } catch {
+      return { server: true, client: true, console: true, network: true };
+    }
+  });
+  const [mutePatterns, setMutePatterns] = useState<string>(() => {
+    if (typeof window === 'undefined') return '';
+    try {
+      return localStorage.getItem('debugPanel.mutePatterns') || '';
+    } catch {
+      return '';
+    }
+  });
   const logsEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -101,6 +118,18 @@ const DebugPanel: React.FC = () => {
     }
   }, [groupRepeats]);
 
+  // Persist sourceFilters & mutePatterns
+  useEffect(() => {
+    try {
+      localStorage.setItem('debugPanel.sourceFilters', JSON.stringify(sourceFilters));
+    } catch {/* noop */}
+  }, [sourceFilters]);
+  useEffect(() => {
+    try {
+      localStorage.setItem('debugPanel.mutePatterns', mutePatterns);
+    } catch {/* noop */}
+  }, [mutePatterns]);
+
   const addLog = useCallback((log: LogEntry) => {
     setLogs((prev) => {
       const newLogs = [...prev, log].slice(-MAX_STORED_LOGS);
@@ -151,7 +180,33 @@ const DebugPanel: React.FC = () => {
     }
   };
 
-  const filteredLogs = logs.filter((log) => levelFilter.includes(log.level.toLowerCase()));
+  const resolveSource = (log: LogEntry): 'server'|'client'|'console'|'network' => {
+    const msg = log.message || '';
+    if (msg.includes('[NETWORK]')) return 'network';
+    if (msg.includes('[CONSOLE]')) return 'console';
+    if (msg.includes('[CLIENT]')) return 'client';
+    return 'server';
+  };
+
+  const muteList = useMemo(() =>
+    mutePatterns
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .map((s) => s.toLowerCase()),
+    [mutePatterns]
+  );
+
+  const filteredLogs = logs.filter((log) => {
+    if (!levelFilter.includes(log.level.toLowerCase())) return false;
+    const src = resolveSource(log);
+    if (!sourceFilters[src]) return false;
+    if (muteList.length) {
+      const hay = `${log.level} ${log.message}`.toLowerCase();
+      if (muteList.some((needle) => hay.includes(needle))) return false;
+    }
+    return true;
+  });
 
   type DisplayLog = LogEntry & { count?: number };
 
@@ -227,7 +282,7 @@ const DebugPanel: React.FC = () => {
           </div>
         </div>
         {/* Filter Buttons */}
-        <div className="flex gap-2 mt-2">
+        <div className="flex flex-wrap items-center gap-2 mt-2">
           {['error', 'warn', 'info', 'debug', 'log'].map((level) => (
             <button
               key={level}
@@ -241,6 +296,47 @@ const DebugPanel: React.FC = () => {
               {level.toUpperCase()}
             </button>
           ))}
+          {/* Source Filters */}
+          {(
+            [
+              ['server','SERVER'],
+              ['client','CLIENT'],
+              ['console','CONSOLE'],
+              ['network','NETWORK'],
+            ] as const
+          ).map(([key,label]) => (
+            <button
+              key={key}
+              onClick={() => setSourceFilters((p) => ({ ...p, [key]: !p[key] }))}
+              className={`px-2 py-1 rounded text-xs font-semibold transition-all ${
+                sourceFilters[key]
+                  ? 'bg-teal-100 text-teal-800 dark:bg-teal-900/30 dark:text-teal-300'
+                  : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 opacity-50'
+              }`}
+              title={`Toggle ${label}`}
+            >
+              {label}
+            </button>
+          ))}
+          {/* Mute patterns input */}
+          <div className="flex items-center gap-1 ml-auto">
+            <input
+              value={mutePatterns}
+              onChange={(e) => setMutePatterns(e.target.value)}
+              placeholder="mute patterns (comma-separated)"
+              className="px-2 py-1 text-xs rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100"
+              style={{ minWidth: 220 }}
+            />
+            {mutePatterns && (
+              <button
+                onClick={() => setMutePatterns('')}
+                className="px-2 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 text-xs rounded"
+                title="Clear mute patterns"
+              >
+                Clear mutes
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
