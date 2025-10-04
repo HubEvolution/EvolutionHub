@@ -481,16 +481,65 @@ tests/
 │   ├── hooks/           # React Hooks Tests
 │   ├── services/        # Service-Layer Tests
 │   └── utils/           # Utility Tests
-├── integration/         # Vitest Integration Tests
-│   ├── setup/
-│   │   └── global-setup.ts  # Bootstrap (Z. 62)
-│   └── *.test.ts
-└── e2e/                 # Legacy Playwright
+└── integration/         # Vitest Integration Tests
+    ├── setup/
+    │   └── global-setup.ts  # Bootstrap (Z. 62)
+    └── *.test.ts
 
 test-suite-v2/
+├── fixtures/
+│   └── auth-helpers.ts  # Auth Test Helpers (v1.7.2)
 ├── src/
-│   └── e2e/             # Playwright E2E Tests (v2)
+│   ├── e2e/
+│   │   ├── auth/        # Auth E2E Tests (NEW v1.7.2)
+│   │   │   ├── oauth/   # OAuth Tests (GitHub, Cookie Security, Errors, Welcome)
+│   │   │   ├── magic-link-flow.spec.ts
+│   │   │   ├── session-management.spec.ts
+│   │   │   ├── auth-middleware.spec.ts
+│   │   │   └── README.md  # Comprehensive Auth Test Guide
+│   │   ├── dashboard-flow.spec.ts
+│   │   ├── comment-system.spec.ts
+│   │   ├── pricing-checkout-smoke.spec.ts
+│   │   └── prod-auth-smoke.spec.ts
+│   ├── integration/     # Integration Tests (Vitest)
+│   └── unit/            # Unit Tests (Vitest)
 └── playwright.config.ts
+```
+
+### Auth E2E Test Suite (NEW v1.7.2)
+
+**Location:** `test-suite-v2/src/e2e/auth/`
+
+**Coverage:** ~85% (48 test cases)
+
+| Test Suite | Coverage | Tests | Description |
+|------------|----------|-------|-------------|
+| **OAuth** | 90% | 18 | GitHub OAuth flow, cookie security, errors, welcome-profile |
+| **Magic Link** | 80% | 4 | Magic Link request/callback (EN/DE) |
+| **Session** | 85% | 14 | Session lifecycle, persistence, logout, security |
+| **Middleware** | 75% | 12 | Protected routes, redirects, locale handling |
+
+**Key Test Files:**
+- `oauth/github-oauth-flow.spec.ts` (270 lines) - OAuth happy path (EN/DE)
+- `oauth/oauth-cookie-security.spec.ts` (320 lines) - Cookie tests (HTTP/HTTPS, v1.7.2 fixes)
+- `oauth/oauth-error-handling.spec.ts` (210 lines) - Error scenarios
+- `oauth/oauth-welcome-profile.spec.ts` (230 lines) - First-time user flow
+- `session-management.spec.ts` (280 lines) - Session lifecycle
+- `auth-middleware.spec.ts` (230 lines) - Protected route enforcement
+
+**Test Helpers:** `fixtures/auth-helpers.ts` (390 lines)
+- OAuth/Magic Link flow completion
+- Cookie assertions (HTTP vs HTTPS)
+- Session management helpers
+- Locale-aware redirects
+
+**Docs:** `test-suite-v2/src/e2e/auth/README.md` - Full auth test guide
+
+**Run Auth Tests:**
+```bash
+npm run test:e2e -- src/e2e/auth/           # All auth tests
+npm run test:e2e -- src/e2e/auth/oauth/     # OAuth only
+npm run test:e2e:ui -- src/e2e/auth/        # Interactive UI mode
 ```
 
 ### Coverage-Gates (vitest.config.ts:12-32)
@@ -845,6 +894,8 @@ npm run db:migrate, npm run db:generate
 | **.prettierrc.json** | Format-Regeln | Z. 2-8 (Core), Z. 10-18 (Astro) |
 | **vitest.config.ts** | Test-Config | Z. 26-32 (Coverage-Gates) |
 | **test-suite-v2/playwright.config.ts** | E2E-Config | Z. 8 (BASE_URL), Z. 71-82 (WebServer) |
+| **test-suite-v2/fixtures/auth-helpers.ts** | Auth Test Helpers | 390 Zeilen (OAuth/Magic/Session Helpers) |
+| **test-suite-v2/src/e2e/auth/README.md** | Auth E2E Guide | Comprehensive auth test documentation |
 | **.github/workflows/unit-tests.yml** | CI-Tests | Z. 51-228 (Jobs) |
 | **.github/workflows/deploy.yml** | Deployment | Z. 38-52 (Gates), Z. 53-149 (Flow) |
 | **src/middleware.ts** | Request-Middleware | Z. 1-80 (Security, Auth, Logging) |
