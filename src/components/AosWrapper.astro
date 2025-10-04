@@ -1,0 +1,85 @@
+---
+/**
+ * AosWrapper.astro - Centralized AOS Animation Wrapper
+ *
+ * Purpose: DRY principle for repetitive data-aos attributes
+ * Replaces 48 inline data-aos occurrences with a single reusable component
+ *
+ * Usage:
+ * <AosWrapper>
+ *   <h1>My Title</h1>
+ * </AosWrapper>
+ *
+ * <AosWrapper delay={100} duration={650}>
+ *   <p>My paragraph</p>
+ * </AosWrapper>
+ *
+ * <AosWrapper animation="fade-left" delay={200}>
+ *   <div>Custom animation</div>
+ * </AosWrapper>
+ *
+ * @see src/lib/aos.ts for aosDelayForIndex() helper
+ */
+
+interface Props {
+  /**
+   * AOS animation type
+   * @default 'fade-up'
+   */
+  animation?: string;
+
+  /**
+   * Animation delay in milliseconds
+   * @default 0
+   */
+  delay?: number;
+
+  /**
+   * Animation duration in milliseconds
+   * @default 700
+   */
+  duration?: number;
+
+  /**
+   * Additional CSS classes
+   */
+  class?: string;
+
+  /**
+   * HTML tag to render
+   * @default 'div'
+   */
+  tag?: string;
+
+  /**
+   * Disable AOS animation (renders plain wrapper)
+   * @default false
+   */
+  disableAos?: boolean;
+}
+
+const {
+  animation = 'fade-up',
+  delay = 0,
+  duration = 700,
+  class: className,
+  tag = 'div',
+  disableAos = false,
+} = Astro.props;
+
+// Build AOS attributes conditionally
+const aosAttrs = disableAos
+  ? {}
+  : {
+      'data-aos': animation,
+      'data-aos-duration': String(duration),
+      ...(delay > 0 ? { 'data-aos-delay': String(delay) } : {}),
+    };
+
+// Dynamically render the specified tag
+const Tag = tag;
+---
+
+<Tag class={className} {...aosAttrs}>
+  <slot />
+</Tag>

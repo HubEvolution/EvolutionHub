@@ -97,15 +97,16 @@
     }
   }
 
-  // Check AOS availability with timeout
+  // Check AOS availability with timeout (optimized promise-based approach)
   function checkAOSAvailability(resolve, reject, attempts) {
+    const __DEV__ =
+      typeof location !== 'undefined' &&
+      (location.hostname === 'localhost' || location.hostname === '127.0.0.1');
+    const dlog = (...args) => {
+      if (__DEV__) console.log(...args);
+    };
+
     if (window.AOS) {
-      const __DEV__ =
-        typeof location !== 'undefined' &&
-        (location.hostname === 'localhost' || location.hostname === '127.0.0.1');
-      const dlog = (...args) => {
-        if (__DEV__) console.log(...args);
-      };
       dlog('[AOS] ⚙️  Initializing AOS with config:', AOS_CONFIG);
       window.AOS.init(AOS_CONFIG);
       setupAOSHandlers();
@@ -116,13 +117,10 @@
       dlog('[AOS] ✅ Animation library initialized successfully');
       resolve();
     } else if (attempts < 50) {
-      // 5 second timeout
+      // 5 second timeout (50 attempts × 100ms)
       setTimeout(() => checkAOSAvailability(resolve, reject, attempts + 1), 100);
     } else {
-      if (
-        typeof location !== 'undefined' &&
-        (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
-      ) {
+      if (__DEV__) {
         console.error('[AOS] ❌ Timeout waiting for AOS to become available');
       }
       reject(new Error('AOS initialization timeout'));
@@ -299,12 +297,8 @@
     initializeCoordinator();
   });
 
-  // Cleanup on page unload
-  window.addEventListener('beforeunload', () => {
-    if (window.aosCoordinatorCleanup) {
-      window.aosCoordinatorCleanup();
-    }
-  });
+  // Note: beforeunload cleanup removed (unreliable, not guaranteed to execute)
+  // AOS cleanup happens automatically via astro:page-load event
 
   (function () {
     const __DEV__ =

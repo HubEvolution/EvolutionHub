@@ -141,7 +141,21 @@
        }
      </script>
  
-     {enableAOS && <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" />}
+     {enableAOS && (
+      <>
+        <!-- Preload AOS CSS for faster FCP (First Contentful Paint) -->
+        <link
+          rel="preload"
+          href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css"
+          as="style"
+          onload="this.onload=null;this.rel='stylesheet'"
+        />
+        <!-- Fallback for browsers with JavaScript disabled -->
+        <noscript>
+          <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" />
+        </noscript>
+      </>
+    )}
  
      <!-- Global CSS via explicit global style import (SSR/dev-stabil) -->
      <style is:global>

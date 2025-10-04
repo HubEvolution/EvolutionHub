@@ -370,6 +370,48 @@ Evolution Hub verwendet subtile Animationen und Übergänge, um das Benutzererle
 </div>
 ```
 
+### Scroll-Animationen (AOS - Animate On Scroll)
+
+**Seit v1.7.3** verwenden wir die `AosWrapper`-Komponente für konsistente Scroll-Animationen:
+
+```astro
+---
+import AosWrapper from '@/components/AosWrapper.astro';
+---
+
+<!-- Standard fade-up Animation -->
+<AosWrapper tag="div" class="card">
+  <h2>Card Title</h2>
+  <p>Card content</p>
+</AosWrapper>
+
+<!-- Mit Delay für gestaffelte Animationen -->
+<AosWrapper delay={100} duration={650}>
+  <div>Second element (100ms delay)</div>
+</AosWrapper>
+
+<!-- Custom Animation Type -->
+<AosWrapper animation="fade-left" delay={200}>
+  <div>Slides in from left</div>
+</AosWrapper>
+```
+
+**Verfügbare Animationen:**
+- `fade-up`, `fade-down`, `fade-left`, `fade-right`
+- `zoom-in`, `zoom-out`
+- `slide-up`, `slide-down`, `slide-left`, `slide-right`
+
+**Standard-Konfiguration:**
+- **Duration**: 700ms (überschreibbar via `duration` Prop)
+- **Delay**: 0ms (überschreibbar via `delay` Prop)
+- **Easing**: ease-out
+- **Once**: true (Animation nur einmal abspielen)
+
+**Wichtig:**
+- Automatische Berücksichtigung von `prefers-reduced-motion`
+- Für Listen: `aosDelayForIndex()` für dynamische Delays verwenden
+- Siehe [AOS Coordinator Dokumentation](./aos-coordinator.md) für Details
+
 ### Lottie-Animationen
 
 Für komplexere Animationen verwendet Evolution Hub die Lottie-Bibliothek:
