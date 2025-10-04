@@ -72,8 +72,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build Worker
-        run: npm run build:worker
+      - name: Build Worker (Staging Mode)
+        run: npm run build:worker:staging
 
       - name: Deploy to Cloudflare (Staging)
         uses: cloudflare/wrangler-action@v3

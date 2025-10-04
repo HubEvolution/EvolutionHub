@@ -50,3 +50,21 @@ Dieses Dokument beschreibt die erweiterten Filter-Funktionen des Debug Panels.
 
 - Keine Vorschläge sichtbar: Es müssen aktuelle Logs im Panel eintreffen; ggf. Self‑Test‑Button verwenden.
 - Zu viele Treffer im Regex-Modus: Muster verfeinern (Anchors, Gruppen, Quantifier), oder Regex-Modus deaktivieren.
+
+## Build‑Modus & ENV (lokale Entwicklung)
+
+- Der Debug‑Stream und die Interceptors sind buildzeitlich über `PUBLIC_ENABLE_DEBUG_PANEL` gated.
+- Für lokale Worker‑Entwicklung muss im **Development‑Mode** gebaut werden, damit `.env.development` (mit `PUBLIC_ENABLE_DEBUG_PANEL=true`) greift.
+- Verwende die aktualisierten Scripts in `package.json`:
+  - `npm run dev:worker` bzw. `dev:worker:dev` bauen jetzt mit `astro build --mode development` über `build:worker:dev` und starten anschließend Wrangler.
+  - Produktions‑Builds (CI/Deploy) nutzen weiterhin `build:worker` (ohne `--mode development`) und respektieren `.env.production` (Panel aus).
+- Quick‑Check:
+  - EventSource auf `GET /api/debug/logs-stream` sollte 200 liefern; bei deaktiviertem Panel kommt 404 gemäß `src/pages/api/debug/logs-stream.ts`.
+  - Query‑Param `?debugPanel=1` oder LocalStorage‑Flag `debugPanel.force=1` kann das Overlay zusätzlich erzwingen.
+
+## Staging‑Policy
+
+- In Staging ist das Debug Panel bewusst **aktiv**.
+- `.env.staging` enthält `PUBLIC_ENABLE_DEBUG_PANEL=true`.
+- Der Staging‑Deploy verwendet `npm run build:worker:staging` (Astro `--mode staging`), siehe `.github/workflows/deploy.yml`.
+- Production bleibt unverändert: `build:worker` (ohne `--mode staging`) respektiert `.env.production` → Panel aus.

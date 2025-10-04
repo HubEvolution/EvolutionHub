@@ -1,4 +1,4 @@
-# Cascade Rules Coverage — Stand: 2025-10-03T20:14:32.339Z
+# Cascade Rules Coverage — Stand: 2025-10-03T21:18:37.535Z
 
 ## Regeln: Scope-Globs, Treffer, Activation, Priority
 

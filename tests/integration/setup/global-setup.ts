@@ -62,11 +62,11 @@ export default async function () {
     p.on('exit', (code) => (code === 0 ? resolve() : reject(new Error(`db:setup exited ${code}`))));
   });
 
-  // 2) Always (re)build worker to ensure latest route changes are included
+  // 2) Always (re)build worker to ensure latest route changes are included (dev mode for debug panel)
   await new Promise<void>((resolve, reject) => {
-    const p = spawn('npm', ['run', 'build:worker'], { cwd: rootDir, stdio: 'inherit' });
+    const p = spawn('npm', ['run', 'build:worker:dev'], { cwd: rootDir, stdio: 'inherit' });
     p.on('exit', (code) =>
-      code === 0 ? resolve() : reject(new Error(`build:worker exited ${code}`))
+      code === 0 ? resolve() : reject(new Error(`build:worker:dev exited ${code}`))
     );
   });
 
