@@ -152,13 +152,16 @@ const getHandler: ApiHandler = async (context: APIContext) => {
       secure: isHttps,
       maxAge,
     });
-    context.cookies.set('__Host-session', session.id, {
-      path: '/',
-      httpOnly: true,
-      sameSite: 'strict',
-      secure: isHttps,
-      maxAge,
-    });
+    // __Host-session requires HTTPS (secure: true), so only set it on HTTPS connections
+    if (isHttps) {
+      context.cookies.set('__Host-session', session.id, {
+        path: '/',
+        httpOnly: true,
+        sameSite: 'strict',
+        secure: true,
+        maxAge,
+      });
+    }
   } catch (_err) {
     // Ignore cookie setting failures; session will be retried on next request
   }
@@ -203,21 +206,38 @@ const getHandler: ApiHandler = async (context: APIContext) => {
     // Ignore locale processing failures
   }
 
-  // If this is a first-time user and no explicit profile data was provided,
-  // guide them through a lightweight profile completion step.
+  // Build redirect response with cookies in headers
+  let redirectTarget = target;
   const hasProfileFromRequest = Boolean(desiredName) || Boolean(desiredUsername);
   if (upsert.isNew && !hasProfileFromRequest) {
     const nextParam = encodeURIComponent(target);
-    if (devEnv) {
-      console.log('[auth][magic][callback] redirect first-time to welcome-profile', { target });
+    // Extract locale from target path to ensure welcome-profile is localized
+    let welcomePath = '/welcome-profile';
+    if (target.startsWith('/en/')) {
+      welcomePath = '/en/welcome-profile';
+    } else if (target.startsWith('/de/')) {
+      welcomePath = '/de/welcome-profile';
     }
-    return createSecureRedirect(`/welcome-profile?next=${nextParam}`);
+    redirectTarget = `${welcomePath}?next=${nextParam}`;
+    if (devEnv) {
+      console.log('[auth][magic][callback] redirect first-time to welcome-profile', { target, welcomePath });
+    }
+  } else {
+    if (devEnv) {
+      console.log('[auth][magic][callback] redirect to target', { target });
+    }
   }
+
+  // Create redirect with explicit Set-Cookie headers
+  const cookieValue = `session_id=${session.id}; Path=/; HttpOnly; SameSite=Lax${isHttps ? '; Secure' : ''}; Max-Age=${maxAge}`;
+  const response = createSecureRedirect(redirectTarget);
+  response.headers.append('Set-Cookie', cookieValue);
+
   if (devEnv) {
-    console.log('[auth][magic][callback] redirect to target', { target });
+    console.log('[auth][magic][callback] response headers Set-Cookie', { cookie: cookieValue });
   }
-  // Direct redirect to target (simplified flow; no cross-tab broadcast)
-  return createSecureRedirect(target);
+
+  return response;
 };
 
 export const GET = withRedirectMiddleware(getHandler);

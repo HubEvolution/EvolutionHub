@@ -854,6 +854,40 @@ npm run db:migrate, npm run db:generate
 
 ---
 
+## 🐛 Bekannte Probleme & Lösungen
+
+### OAuth/Stytch Login-Probleme (Lokal)
+
+**Problem:** OAuth erfolgreich, aber User wird zu `/login` zurückgeleitet statt zum Dashboard
+
+**Ursache:** Session-Cookies werden nicht korrekt über `context.cookies.set()` gesetzt bei HTTP (localhost)
+
+**Lösung:** (implementiert in v1.7.1)
+- Cookies explizit im `Set-Cookie` Response-Header setzen
+- `__Host-session` nur auf HTTPS verwenden
+- Siehe: [docs/ops/stytch-custom-domains.md](docs/ops/stytch-custom-domains.md#9-troubleshooting)
+
+**Code-Pattern:**
+```typescript
+// Statt nur context.cookies.set():
+const cookieValue = `session_id=${sessionId}; Path=/; HttpOnly; SameSite=Lax${isHttps ? '; Secure' : ''}; Max-Age=${maxAge}`;
+const response = createSecureRedirect(target);
+response.headers.append('Set-Cookie', cookieValue);
+return response;
+```
+
+**Betroffene Dateien:**
+- `src/pages/api/auth/oauth/[provider]/callback.ts:239-242`
+- `src/pages/api/auth/callback.ts:231-234`
+
+**Debugging-Tipps:**
+1. Check Terminal-Logs: `[auth][oauth][callback] session_id cookie set`
+2. Check Response-Headers im Browser: `Set-Cookie: session_id=...`
+3. Check Browser-Cookies: Application Tab → Cookies → `session_id` vorhanden?
+4. Check Middleware-Logs: `[Middleware] Session ID from cookie { present: true }`
+
+---
+
 ## 🔗 Weitere Ressourcen
 
 ### Dokumentation
@@ -864,6 +898,7 @@ npm run db:migrate, npm run db:generate
 - **Architecture**: [docs/architecture/system-overview.md](docs/architecture/system-overview.md)
 - **API Docs**: [docs/api/](docs/api/)
 - **Auth Flow**: [docs/architecture/auth-flow.md](docs/architecture/auth-flow.md)
+- **Stytch Setup & Troubleshooting**: [docs/ops/stytch-custom-domains.md](docs/ops/stytch-custom-domains.md)
 
 ### Contributing
 

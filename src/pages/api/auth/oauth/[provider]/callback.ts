@@ -140,6 +140,13 @@ const getHandler: ApiHandler = async (context: APIContext) => {
 
   const isHttps = url.protocol === 'https:';
   const maxAge = 60 * 60 * 24 * 30; // 30 days
+  if (devEnv) {
+    console.log('[auth][oauth][callback] setting session cookies', {
+      sessionId: session.id,
+      isHttps,
+      protocol: url.protocol,
+    });
+  }
   try {
     context.cookies.set('session_id', session.id, {
       path: '/',
@@ -148,15 +155,26 @@ const getHandler: ApiHandler = async (context: APIContext) => {
       secure: isHttps,
       maxAge,
     });
-    context.cookies.set('__Host-session', session.id, {
-      path: '/',
-      httpOnly: true,
-      sameSite: 'strict',
-      secure: isHttps,
-      maxAge,
-    });
-  } catch {
-    // Ignore cookie setting failures
+    if (devEnv) {
+      console.log('[auth][oauth][callback] session_id cookie set');
+    }
+    // __Host-session requires HTTPS (secure: true), so only set it on HTTPS connections
+    if (isHttps) {
+      context.cookies.set('__Host-session', session.id, {
+        path: '/',
+        httpOnly: true,
+        sameSite: 'strict',
+        secure: true,
+        maxAge,
+      });
+      if (devEnv) {
+        console.log('[auth][oauth][callback] __Host-session cookie set');
+      }
+    }
+  } catch (err) {
+    if (devEnv) {
+      console.warn('[auth][oauth][callback] failed to set cookies', { error: err });
+    }
   }
 
   // Resolve redirect target
@@ -197,6 +215,8 @@ const getHandler: ApiHandler = async (context: APIContext) => {
     // Ignore locale processing failures
   }
 
+  // Build redirect response with cookies in headers
+  let redirectTarget = target;
   if (upsert.isNew && !(desiredName || desiredUsername)) {
     const nextParam = encodeURIComponent(target);
     // Extract locale from target path to ensure welcome-profile is localized
@@ -206,15 +226,26 @@ const getHandler: ApiHandler = async (context: APIContext) => {
     } else if (target.startsWith('/de/')) {
       welcomePath = '/de/welcome-profile';
     }
+    redirectTarget = `${welcomePath}?next=${nextParam}`;
     if (devEnv) {
       console.log('[auth][oauth][callback] redirect first-time to welcome-profile', { target, welcomePath });
     }
-    return createSecureRedirect(`${welcomePath}?next=${nextParam}`);
+  } else {
+    if (devEnv) {
+      console.log('[auth][oauth][callback] redirect to target', { target });
+    }
   }
+
+  // Create redirect with explicit Set-Cookie headers
+  const cookieValue = `session_id=${session.id}; Path=/; HttpOnly; SameSite=Lax${isHttps ? '; Secure' : ''}; Max-Age=${maxAge}`;
+  const response = createSecureRedirect(redirectTarget);
+  response.headers.append('Set-Cookie', cookieValue);
+
   if (devEnv) {
-    console.log('[auth][oauth][callback] redirect to target', { target });
+    console.log('[auth][oauth][callback] response headers Set-Cookie', { cookie: cookieValue });
   }
-  return createSecureRedirect(target);
+
+  return response;
 };
 
 export const GET = withRedirectMiddleware(getHandler);

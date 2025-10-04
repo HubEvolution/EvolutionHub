@@ -164,13 +164,54 @@ Weitere Flow-Details:
 
 ## 9. Troubleshooting
 
-### OAuth funktioniert nicht
+### OAuth funktioniert nicht (ServerConfig-Fehler)
 
 **Symptom:** "ServerConfig"-Fehler beim Klick auf Social-Login-Button
 
 **Ursache:** `STYTCH_PUBLIC_TOKEN` fehlt
 
-**Lösung:** Public Token aus Dashboard holen und setzen (siehe Phase 2)
+**Lösung:** Public Token aus Dashboard holen und setzen:
+1. Stytch Dashboard → API Keys → Public tokens
+2. Token kopieren
+3. Zur `.env` hinzufügen: `STYTCH_PUBLIC_TOKEN="public-token-test-..."`
+4. Server neu starten
+
+### OAuth erfolgreich, aber Redirect zu Login
+
+**Symptom:** OAuth-Flow erfolgreich (Token akzeptiert), aber User wird zu `/login` zurückgeleitet statt zum Dashboard
+
+**Ursache:** Session-Cookies werden nicht korrekt gesetzt (häufig bei lokalem HTTP-Development)
+
+**Root Cause:**
+- `context.cookies.set()` in Astro setzt Cookies nicht sofort für Follow-up-Requests
+- `__Host-session` Cookie erfordert HTTPS (schlägt auf HTTP fehl)
+
+**Lösung:** (bereits implementiert in v1.7.1)
+1. Cookies explizit im `Set-Cookie` Response-Header setzen
+2. `__Host-session` nur auf HTTPS setzen
+3. Für lokales HTTP: nur `session_id` Cookie verwenden
+
+**Code-Fix:**
+```typescript
+// OAuth Callback: Explicit Set-Cookie header
+const cookieValue = `session_id=${session.id}; Path=/; HttpOnly; SameSite=Lax${isHttps ? '; Secure' : ''}; Max-Age=${maxAge}`;
+const response = createSecureRedirect(redirectTarget);
+response.headers.append('Set-Cookie', cookieValue);
+```
+
+### Lokale Entwicklung: Custom Domain Probleme
+
+**Symptom:** OAuth-Callback wird nie erreicht (keine Logs)
+
+**Ursache:** `STYTCH_CUSTOM_DOMAIN` in lokaler Entwicklung aktiv, aber GitHub redirected zu `127.0.0.1`
+
+**Lösung:**
+1. In `wrangler.toml` für `[env.development]`: `STYTCH_CUSTOM_DOMAIN` auskommentieren
+2. Redirect-URLs im Stytch Dashboard whitelisten:
+   - `http://127.0.0.1:8787/api/auth/callback` (Magic Link)
+   - `http://127.0.0.1:8787/api/auth/oauth/github/callback` (OAuth)
+   - `http://localhost:8787/api/auth/callback` (Alternative)
+   - `http://localhost:8787/api/auth/oauth/github/callback` (Alternative)
 
 ### 400 no_login_redirect_urls_set
 
@@ -194,6 +235,16 @@ Weitere Flow-Details:
 2. Stytch Dashboard: Custom Domain verifiziert?
 3. Environment-Variable gesetzt? `wrangler secret list --env production`
 
+### Welcome-Profile 404-Fehler
+
+**Symptom:** Nach erfolgreichem OAuth-Login → 404 auf `/welcome-profile`
+
+**Ursache:** Lokalisierte Welcome-Profile-Seiten fehlen
+
+**Lösung:** (bereits implementiert in v1.7.1)
+- Erstelle `/en/welcome-profile.astro` und `/de/welcome-profile.astro`
+- OAuth-Callback redirected jetzt zu `/[locale]/welcome-profile?next=...`
+
 ---
 
-**Status:** Aktualisiert am 2025-10-01T08:21:00+02:00
+**Status:** Aktualisiert am 2025-10-04T16:45:00+02:00
