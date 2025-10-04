@@ -1,4 +1,5 @@
 ---
+import AosWrapper from '@/components/AosWrapper.astro';
 import { aosDelayForIndex } from '@/lib/aos';
 import { getLocale } from '@/lib/i18n';
 import { getI18n, getI18nArray } from '@/utils/i18n';
@@ -97,9 +98,8 @@ const plans: Plan[] = [
 
 <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mt-6">
   {plans.map((plan, idx) => (
-    <div
-      data-aos="fade-up"
-      data-aos-delay={String(aosDelayForIndex(idx, { step: 100, max: 300 }))}
+    <AosWrapper
+      delay={aosDelayForIndex(idx, { step: 100, max: 300 })}
       class={`relative flex flex-col p-8 rounded-2xl bg-white dark:bg-gray-800 shadow-lg ${
         plan.featured ? 'ring-2 ring-blue-500 transform md:-translate-y-4' : ''
       }`}
@@ -375,6 +375,6 @@ const plans: Plan[] = [
           </a>
         )
       }
-    </div>
+    </AosWrapper>
   ))}
 </div>

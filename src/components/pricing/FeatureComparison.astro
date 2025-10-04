@@ -1,4 +1,5 @@
 ---
+import AosWrapper from '@/components/AosWrapper.astro';
 import { localizePath } from '@/lib/locale-path';
 import { getLocale } from '@/lib/i18n';
 import { aosDelayForIndex } from '@/lib/aos';
@@ -87,7 +88,7 @@ const features = [
 ];
 ---
 
-<div class="mt-16" data-aos="fade-up">
+<AosWrapper class="mt-16">
   <h2 class="text-2xl font-bold text-center mb-8">{heading}</h2>
 
   <div class="overflow-x-auto">
@@ -114,10 +115,10 @@ const features = [
       <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
         {
           features.map((feature, idx) => (
-            <tr
+            <AosWrapper
+              tag="tr"
+              delay={aosDelayForIndex(idx, { step: 50, max: 400 })}
               class="hover:bg-gray-50 dark:hover:bg-gray-800"
-              data-aos="fade-up"
-              data-aos-delay={String(aosDelayForIndex(idx, { step: 50, max: 400 }))}
             >
               <td class="py-4 px-6 font-medium">{feature.name}</td>
               <td class="py-4 px-6 text-center">{feature.starter}</td>
@@ -128,7 +129,7 @@ const features = [
                 {(feature as any).premium}
               </td>
               <td class="py-4 px-6 text-center">{feature.enterprise}</td>
-            </tr>
+            </AosWrapper>
           ))
         }
       </tbody>
@@ -145,4 +146,4 @@ const features = [
       >
     </p>
   </div>
-</div>
+</AosWrapper>

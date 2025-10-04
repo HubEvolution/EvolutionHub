@@ -1,6 +1,7 @@
 ---
 import type { ProcessedBlogPost } from '@/content/types';
 import BlogCard from './BlogCard.astro';
+import AosWrapper from '@/components/AosWrapper.astro';
 import { aosDelayForIndex } from '@/lib/aos';
 
 // Define the shape of the component props
@@ -24,22 +25,13 @@ const remainingPosts = showFeatured && posts.length > 0 ? posts.slice(1) : posts
   {
     title && (
       <div class="text-center">
-        <h2
-          class="text-3xl font-bold text-gray-900 dark:text-white sm:text-4xl"
-          data-aos="fade-up"
-          data-aos-duration="650"
-        >
+        <AosWrapper tag="h2" duration={650} class="text-3xl font-bold text-gray-900 dark:text-white sm:text-4xl">
           {title}
-        </h2>
+        </AosWrapper>
         {description && (
-          <p
-            class="mx-auto mt-3 max-w-2xl text-xl text-gray-500 dark:text-gray-300 sm:mt-4"
-            data-aos="fade-up"
-            data-aos-delay="100"
-            data-aos-duration="650"
-          >
+          <AosWrapper tag="p" delay={100} duration={650} class="mx-auto mt-3 max-w-2xl text-xl text-gray-500 dark:text-gray-300 sm:mt-4">
             {description}
-          </p>
+          </AosWrapper>
         )}
       </div>
     )
@@ -48,13 +40,9 @@ const remainingPosts = showFeatured && posts.length > 0 ? posts.slice(1) : posts
   {
     featuredPost && (
       <div class="mb-12">
-        <h3
-          class="mb-6 text-xl font-semibold text-gray-900 dark:text-white"
-          data-aos="fade-up"
-          data-aos-duration="600"
-        >
+        <AosWrapper tag="h3" duration={600} class="mb-6 text-xl font-semibold text-gray-900 dark:text-white">
           Featured Post
-        </h3>
+        </AosWrapper>
         <BlogCard post={featuredPost} featured={true} className="h-full" aosDelay={0} />
       </div>
     )
@@ -76,16 +64,12 @@ const remainingPosts = showFeatured && posts.length > 0 ? posts.slice(1) : posts
 
   {
     posts.length === 0 && (
-      <div
-        class="rounded-lg bg-gray-50 p-8 text-center dark:bg-gray-800/50"
-        data-aos="fade-up"
-        data-aos-duration="600"
-      >
+      <AosWrapper duration={600} class="rounded-lg bg-gray-50 p-8 text-center dark:bg-gray-800/50">
         <h3 class="text-lg font-medium text-gray-900 dark:text-white">Keine Beiträge gefunden</h3>
         <p class="mt-2 text-gray-600 dark:text-gray-300">
           Es wurden keine Blog-Beiträge gefunden, die den Suchkriterien entsprechen.
         </p>
-      </div>
+      </AosWrapper>
     )
   }
 </div>
