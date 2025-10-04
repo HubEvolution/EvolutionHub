@@ -1,55 +1,96 @@
 # Evolution Hub – AGENTS Leitfaden
 
-## Ziel & Scope
+## Projekt-Überblick
 
-- Arbeite auf dem Astro 5 + Cloudflare Workers Stack mit React-Inseln und Tailwind als beschriebenes Produktfundament; alle Entscheidungen sollten sich am dokumentierten Feature-Set orientieren (`README.md:27-36`).
-- Nutze die vorhandene Projekt-Dokumentation als primäre Quelle bevor du neue Anforderungen definierst oder rätst (`docs/README.md:1-43`).
-- Halte Beiträge klein und überprüfbar – das Agent-Setup erwartet assistiert-autonome Änderungen in begrenztem Umfang (`CLAUDE.md:318-335`).
+- Evolution Hub ist eine moderne Full-Stack-Webanwendung für Developer-Tools mit KI-gestützten Features (`CLAUDE.md:8-18`).
+- Hauptfeatures: AI Image Enhancer (Real-ESRGAN, GFPGAN), Prompt Enhancer, Tool-Sammlung, Stytch Magic-Link-Auth, i18n DE/EN (`CLAUDE.md:12-18`).
+- Live-Umgebungen: Production `hub-evolution.com`, Staging `staging.hub-evolution.com`, Testing/CI `ci.hub-evolution.com` (`CLAUDE.md:20-24`).
 
-## Build/Run/Test-Laufzettel
+## Tech Stack
 
-- Lokales Setup inkl. Datenbank: `npm run setup:local` (ruft `scripts/setup-local-dev.ts`) und `npm run db:migrate` falls nötig (`package.json:15`,`package.json:49-50`).
-- Cloudflare Worker-Dev: `npm run dev:worker` baut zuerst den Worker und startet Wrangler auf Port 8787; `npm run dev:worker:dev` erzwingt das Development-Env (`package.json:9-12`).
-- Astro-Only Preview: `npm run dev:astro` für reine UI-Iterationen ohne Wrangler (`package.json:13`).
-- Build-Artefakte: `npm run build` für den Standard-Build, `npm run build:worker` erzwingt `ASTRO_DEPLOY_TARGET=worker` und kopiert die Assets in `dist/` (`package.json:18-21`).
-- Tests (Vitest): `npm run test`, `npm run test:once`, `npm run test:coverage`, sowie fokussierte Läufe wie `npm run test:unit` und `npm run test:integration` (`package.json:24-31`).
-- Playwright E2E: Standard über `npm run test:e2e`/`test:e2e:v2`; verwende `test:e2e:chromium|firefox|webkit|mobile` für projektspezifische Läufe (`package.json:32-41`).
-- Coverage-Gate: Vitest erzwingt ≥70 % für Statements/Branches/Functions/Lines (`vitest.config.ts:25-33`).
-- Lint & Format: `npm run lint` (ESLint) + `npm run format:check` bzw. `npm run format` für Prettier; Markdownlint verfügbar via `npm run lint:md` (`package.json:43-45`,`package.json:61-62`).
-- Type-Checks laufen in CI via `npx astro check --tsconfig tsconfig.astro.json`; führe lokal denselben Befehl, um Pipeline-Fehler zu vermeiden (`.github/workflows/unit-tests.yml:142-158`).
+- Frontend: Astro 5 (Islands, SSR/SSG), React 18, TypeScript 5 strict, Tailwind CSS 3 (`CLAUDE.md:28-35`).
+- Backend & Infrastructure: Cloudflare Workers, D1, R2, KV (`CLAUDE.md:37-42`).
+- Quality Tooling: Vitest, Playwright, ESLint, Prettier, Husky (Hooks derzeit deaktiviert) (`CLAUDE.md:44-49`).
 
-## Arbeitsregeln
+## Arbeitsmodus & Grenzen
 
-- Beginne jede Aufgabe mit Analyse und Plan (Scout-Rolle) und dokumentiere Pfad-/Zeilenbelege, bevor du schreibst (`docs/meta/registry.json:461-505`).
-- Folge dem in `CONTRIBUTING` beschriebenen Workflow: Issue wählen, Branch von `main`, implementieren, testen, PR erstellen (`CONTRIBUTING.md:65-74`).
-- Fokusbereiche stimmen mit dem TypeScript-Include überein: arbeite primär in `src/**` und `tests/**` (`tsconfig.json:34-35`).
-- Behalte Repo-Dokumentation und Konfigurationen als Referenz offen; viele Workflows sind in `docs/development/README.md` hinterlegt (`docs/development/README.md:7-116`).
+- Starte jede Aufgabe mit Analyse → Plan → Edit; liefere Pfad-/Zeilenbelege bevor du schreibst (`CLAUDE.md:53-62`).
+- Pflicht-Kontext: `package.json`, `tsconfig.json`, `eslint.config.js`, `.prettierrc.json`, `astro.config.mjs`, `wrangler.toml`, `vitest.config.ts`, `test-suite-v2/playwright.config.ts`, `README.md`, `docs/`, `.windsurf/rules/*.md` (`CLAUDE.md:63-69`).
+- Selbständig erlaubt: Änderungen <300 Zeilen & <5 Dateien, Bugfixes, Test-Updates, Doku-Patches (`CLAUDE.md:71-78`).
+- Rückfrage nötig bei API-/Schema-, Security- oder DB-Anpassungen, neuen Dependencies, CI/Build-Änderungen, großen Diffs (`CLAUDE.md:80-88`).
+- Navigation: kein `cd`, absolute Pfade nutzen; große Dateien segmentiert lesen; keine Binärdateien öffnen; Fokus auf `src/`, `tests/`, `docs/`, `scripts/`, `migrations/` (`CLAUDE.md:89-112`).
 
-## Code-Qualität
+## Build/Run/Test Quick Reference
 
-- TypeScript läuft im Strict-Mode, inklusive `noUnusedLocals` und `noUnusedParameters`; Respektiere diese Guards (`tsconfig.json:23-32`).
-- ESLint-Regeln erzwingen u. a. Alias-Nutzung (`@/*`), React-Hooks-Checks und `prettier/prettier` Warnungen – halte dich daran (`eslint.config.js:13-46`).
-- Prettier formatiert mit `singleQuote`, `semi`, `printWidth 100`; nutze dieselben Optionen (`.prettierrc.json:2-18`).
-- Pre-commit läuft über lint-staged (`eslint --fix` + `prettier --write`), also commite nur saubere Dateien (`.lintstagedrc.json:1-4`).
-- CI erwartet `npm audit --audit-level=moderate`, Astro-Typecheck, Lint und Tests – gleiche Checks sind in der Deploy-Pipeline obligatorisch (`.github/workflows/unit-tests.yml:66-175`,`.github/workflows/deploy.yml:38-52`).
-- Keine PII oder Secrets loggen; maskiere insbesondere E-Mails und Token wie im Auth-Dokument gefordert (`docs/architecture/auth-migration-stytch.md:63-94`).
+| Befehl | Zweck | Referenz |
+|--------|-------|----------|
+| `npm run setup:local` | Lokale Datenbank einrichten | `CLAUDE.md:119-122` |
+| `npm run dev` | Standard Worker-Dev (Port 8787) | `CLAUDE.md:119-129` |
+| `npm run dev:astro` | Astro-only UI Iteration | `CLAUDE.md:123-126` |
+| `npm run build` | Standard Astro Build | `CLAUDE.md:127-129` |
+| `npm run build:worker` | Worker-Build inkl. Asset-Kopie (`ASTRO_DEPLOY_TARGET=worker`) | `CLAUDE.md:131-141` |
+| `npm test` / `npm run test:once` | Vitest Watch / Single Run | `CLAUDE.md:145-155` |
+| `npm run test:coverage` | Coverage ≥70 % Gate | `CLAUDE.md:157-166` |
+| `npm run test:e2e*` | Playwright Suiten (v2 Standard, Browser-spezifisch) | `CLAUDE.md:169-199` |
 
-## Cloudflare Workers
+## Quality & Tooling
 
-- Worker-Builds setzen `ASTRO_DEPLOY_TARGET=worker` und legen Assets in `dist/`; halte dazu `npm run build:worker` aktuell (`package.json:20`).
-- D1-Datenbank steht als `DB` zur Verfügung, mit separaten IDs je Environment (`wrangler.toml:18-47`,`wrangler.toml:185-229`).
-- R2-Buckets (`R2_AVATARS`, `R2_LEADMAGNETS`, `R2_AI_IMAGES`) und KV-Namespaces (`SESSION`, `KV_AI_ENHANCER`, `KV_WEBSCRAPER`) sind pro Env definiert – binde sie exakt nach Config ein (`wrangler.toml:48-116`,`wrangler.toml:200-254`,`wrangler.toml:256-309`).
-- Secrets gehören in Wrangler-Variablen/Secrets, nicht in den Code (`wrangler.toml:125-147`).
+- `npm run lint`, `npm run format`, `npm run format:check`, `npx astro check`, `npm audit --audit-level=moderate` decken CI-Gates ab (`CLAUDE.md:201-239`).
+- ESLint verbietet `~/*`-Imports und erzwingt `@/*`; `no-console` scharf für auditrelevante Dateien (`CLAUDE.md:211-238`).
+- Prettier: `semi`, `singleQuote`, `printWidth 100`, `arrowParens "always"` (`CLAUDE.md:240-251`).
+- Markdown/OpenAPI/DB-Skripte: `npm run lint:md`, `npm run lint:md:fix`, `npm run openapi:validate`, `npm run db:generate`, `npm run db:migrate`, `npm run db:setup` (`CLAUDE.md:254-268`).
 
-## Rollen
+## Cloudflare Workers & Deploy
 
-- **Reviewer**: Prüfe Branch-Konvention, PR-Inhalt und dass Lint, Tests, Coverage und Audit laufen; orientiere dich an den PR-Anforderungen in `CONTRIBUTING` (`CONTRIBUTING.md:150-190`) und den Pflicht-Jobs in CI (`.github/workflows/unit-tests.yml:66-175`).
-- **Debugger**: Halte das Debug-Panel aktiv (Astro: 4322, Worker: 8787), überwache Log-Levels und nutze die beschriebenen Troubleshooting-Schritte (`docs/development/debug-panel-usage.md:1-169`).
+- Environments vollständig in `wrangler.toml` pflegen; keine Top-Level-Vererbung (`CLAUDE.md:272-303`).
+- D1, R2 und KV-Bindings pro Environment dokumentiert (`CLAUDE.md:305-330`).
+- Dev-Variablen in `[env.development.vars]`, Secrets via `npm run secrets:dev` setzen; niemals Secrets im Code (`CLAUDE.md:332-361`).
+- Assets: Worker dient aus `dist/`, `.assetsignore` enthält `_worker.js` (`CLAUDE.md:363-377`).
 
-## PR-Flow
+## Code-Standards
 
-- Branch-Namen folgen dem Schema `feature/*`, `bugfix/*`, `hotfix/*`, `release/*`; nutze Kleinbuchstaben und Bindestriche (`CONTRIBUTING.md:79-101`).
-- Commit-Messages nutzen Conventional Commits (`CONTRIBUTING.md:104-126`).
-- PR-Bodies müssen Änderungen, Tests, Screenshots (falls nötig) und Verknüpfungen dokumentieren; verwende die bereitgestellte Checkliste (`CONTRIBUTING.md:150-190`).
-- Stelle vor dem PR sicher, dass lokale Runs `lint`, `format:check`, `test:coverage`, `test:e2e` (falls betroffen) und `npx astro check` bestehen – sie sind Blocking-Gates in CI/Deploy (`.github/workflows/unit-tests.yml:66-175`,`.github/workflows/deploy.yml:38-125`).
-- Deployment-PRs respektieren die Staging→Production-Abfolge inklusive Health-Checks und manuellem Approval (`.github/workflows/deploy.yml:54-148`).
+- TypeScript strict, Pfad-Aliase `@/*` nutzen; `~/` ist verboten (`CLAUDE.md:381-424`).
+- Naming: camelCase Funktionen/Variablen, PascalCase Komponenten/Klassen, UPPER_CASE Konstanten; Funktionen kurz & fokussiert halten (`CLAUDE.md:425-449`).
+- Imports gruppiert oben, keine ungetypten `any`; Husky Hooks in `.husky/pre-commit` aktuell deaktiviert (`CLAUDE.md:450-471`).
+
+## Testing-Guidelines
+
+- Teststruktur: `tests/` für Vitest (unit/integration), `test-suite-v2/` für E2E (`CLAUDE.md:474-507`).
+- Auth-E2E-Suite deckt OAuth, Magic-Link, Session, Middleware (~85 % Coverage) ab; nutze `npm run test:e2e -- src/e2e/auth/...` für Teilbereiche (`CLAUDE.md:509-543`).
+- Coverage-Reporter `v8` mit Schwellenwerten 70 % (keine per-file Plicht) (`CLAUDE.md:545-565`).
+
+## CI/CD & Health
+
+- Pre-Deploy-Gates: Lint, Format-Check, Astro Check, `test:coverage`, `npm audit --audit-level=moderate` (`CLAUDE.md:569-590`).
+- Deploy-Flow: Tag-Trigger `v*.*.*`, `workflow_dispatch` mit Staging→Production + Approval, anschließend GitHub Release (`CLAUDE.md:593-619`).
+- Health-Check: `GET /api/health`, ausführbar via `npm run health-check -- --url <URL>`; Rollback über `wrangler rollback` oder Git Tag Redeploy (`CLAUDE.md:621-665`).
+
+## Security
+
+- Rate Limiter: `authLimiter` 10/min, `standardApiLimiter` 50/min, `sensitiveActionLimiter` 5/h; 429 Response enthält `retryAfter` (`CLAUDE.md:669-688`).
+- Middleware setzt CSP, HSTS preload, X-Frame-Options DENY, COOP/COEP etc.; Audit-Logging maskiert PII (`CLAUDE.md:690-711`).
+- API Responses über `withApiMiddleware` sollten `createApiSuccess`/`createApiError` nutzen (`CLAUDE.md:712-755`).
+
+## Rollen & Workflows
+
+- Scout-Workflow: Analyse → Plan → Begründung → Edit; Beispielplan siehe `CLAUDE.md:759-784`.
+- Reviewer: prüfe Branchschema, Conventional Commits, lokale Quality-Checks (`lint`, `format:check`, `astro check`, `test:coverage`) und stelle sicher, dass CI-Gates grün sind (`CLAUDE.md:786-804`).
+- Plan→Patch→Commit Prozess inkl. strikter Typisierung und Conventional Commits bleibt verbindlich (`CLAUDE.md:807-848`).
+
+## Terminal-Nutzung
+
+- Ohne Rückfrage: lese Befehle (`ls`, `git status` etc.), Tests (`npm test`, `npm run test:coverage`), Qualität (`npm run lint`, `npm run format:check`, `npx astro check`) (`CLAUDE.md:852-865`).
+- Rückfrage nötig: `npm install`, `npm audit fix`, schreibende Git-Befehle, Deploy-Builds, DB-Befehle (`CLAUDE.md:867-881`).
+
+## Referenz-Dateien
+
+- Kritische Konfigs und Workflows: `package.json`, `tsconfig.json`, `astro.config.mjs`, `wrangler.toml`, `eslint.config.js`, `.prettierrc.json`, `vitest.config.ts`, `test-suite-v2/playwright.config.ts`, `test-suite-v2/fixtures/auth-helpers.ts`, `.github/workflows/unit-tests.yml`, `.github/workflows/deploy.yml`, `src/middleware.ts`, `src/lib/api-middleware.ts`, `src/lib/rate-limiter.ts`, `.windsurf/rules/*.md` (`CLAUDE.md:885-904`).
+
+## Bekannte Probleme
+
+- OAuth/Stytch-Lokallogin: Session-Cookies nur über `Set-Cookie` Header setzen; prüfe `src/pages/api/auth/oauth/[provider]/callback.ts` und `src/pages/api/auth/callback.ts` bei Redirect-Issues (`CLAUDE.md:908-939`).
+
+## Ressourcen
+
+- Primäre Dokumentation: `README.md`, `docs/development/ci-cd.md`, `docs/SECURITY.md`, `docs/architecture/system-overview.md`, `docs/api/`, `docs/architecture/auth-flow.md`, `docs/ops/stytch-custom-domains.md` (`CLAUDE.md:942-952`).
+- Contributing & Cascade-Regeln: `CONTRIBUTING.md`, `AGENTS.md`, `.windsurf/rules/project-structure.md`, `.windsurf/rules/api-and-security.md`, `.windsurf/rules/testing-and-ci.md`, `.windsurf/rules/tooling-and-style.md` (`CLAUDE.md:954-964`).

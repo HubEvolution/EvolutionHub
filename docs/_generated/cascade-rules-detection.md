@@ -1,6 +1,7 @@
 # Cascade Rules Detection Summary
 
 ## Source Signals Reviewed
+
 - `AGENTS.md` — repository guidelines outlining structure, naming, and workflow specifics.
 - `package.json` — scripts for development, testing, linting, and build automation plus dependency stack (Astro, Cloudflare adapter, Vitest, Playwright).
 - `tsconfig.json` — strict compiler configuration and path aliases.
@@ -14,6 +15,7 @@
 - `src/config/coming-soon.ts` — overlay patterns, exclusions, and ENV overrides.
 
 ## Verified Findings
+
 - Astro 5 with Cloudflare directory adapter handles server output while `build:worker` copies assets into `dist/assets` and writes `.assetsignore` (`astro.config.mjs`, `package.json`).
 - Development flows center on Wrangler-backed scripts (`dev:worker`, `dev:worker:dev`, `dev:e2e`) and Astro preview/build commands (`package.json`).
 - TypeScript operates in strict mode with bundler resolution, React JSX runtime, and alias coverage for `@/*` namespaces (`tsconfig.json`).
@@ -26,6 +28,7 @@
 - Coming Soon overlay protects `/datenschutz*` and honors env override `COMING_SOON` while applying default patterns to `/docs`, `/kontakt`, `/agb`, `/impressum` (`src/config/coming-soon.ts`).
 
 ## Output Artifacts
+
 - Generated `.windsurf/global_rules.md` capturing the consolidated ruleset above.
 - Authored `.windsurf/rules/project-structure.md`, `tooling-and-style.md`, `api-and-security.md`, and `testing-and-ci.md` with evidence-backed constraints.
 - Logged lint guidance in `cascade-rules-lint.txt` (see repository root).
