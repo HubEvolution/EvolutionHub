@@ -20,12 +20,17 @@ und dieser Projekt haftet an [Semantic Versioning](https://semver.org/spec/v2.0.
 - docs(frontend/imag-enhancer-ui-upgrade): Hinweis ergänzt, dass TEST_BASE_URL den laufenden Dev-Port widerspiegeln muss
 - docs(development/ci-cd): Abschnitt „Geplant: Enhancer E2E Smoke (EN+DE)“ mit Lauf- und Artefaktdetails ergänzt
 - Imag‑Enhancer: Tastatur‑Hinweis (i18n) erweitert – Pfeile/Shift+Pfeile, Home/End, 0, +/−, 1, L, Space (Hold)
+- dev(worker): Lokale Worker-Entwicklung nutzt jetzt `build:worker:dev` (Astro `--mode development`), damit `.env.development` greift und das Debug Panel aktiv ist (siehe `docs/tools/debug-panel.md`).
+- test(vitest): Projekte in `vitest.config.ts` benannt (`unit`, `integration`) und `package.json`-Skripte angepasst, sodass `--project=integration` zuverlässig funktioniert.
 
 ### Deprecated
 
 ### Removed
 
 ### Fixed
+
+- debug-panel: In Dev war das Panel deaktiviert, da vorher ein Prod-Build `.env.production` erzwang (`PUBLIC_ENABLE_DEBUG_PANEL=false`). Dev-Build-Skript korrigiert.
+- tests/integration: Startfehler „No projects matched the filter \"integration\"“ behoben durch korrektes Setzen von `projects[].test.name`.
 
 ### Security
 
