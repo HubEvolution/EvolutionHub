@@ -57,6 +57,9 @@
 
 - Teststruktur: `tests/` für Vitest (unit/integration), `test-suite-v2/` für E2E (`CLAUDE.md:474-507`).
 - Auth-E2E-Suite deckt OAuth, Magic-Link, Session, Middleware (~85 % Coverage) ab; nutze `npm run test:e2e -- src/e2e/auth/...` für Teilbereiche (`CLAUDE.md:509-543`).
+- E2E v2 Struktur: `test-suite-v2/src/e2e/{auth,features,tools,smoke}`. Gemeinsame Fixtures: `test-suite-v2/fixtures/{auth-helpers.ts, common-helpers.ts, tool-helpers.ts}`. Beispiel-Läufe:
+  - `npm run test:e2e:chromium -- src/e2e/tools`
+  - `npm run test:e2e -- src/e2e/smoke/pricing-checkout-smoke.spec.ts`
 - Coverage-Reporter `v8` mit Schwellenwerten 70 % (keine per-file Plicht) (`CLAUDE.md:545-565`).
 
 ## CI/CD & Health
@@ -84,7 +87,7 @@
 
 ## Referenz-Dateien
 
-- Kritische Konfigs und Workflows: `package.json`, `tsconfig.json`, `astro.config.mjs`, `wrangler.toml`, `eslint.config.js`, `.prettierrc.json`, `vitest.config.ts`, `test-suite-v2/playwright.config.ts`, `test-suite-v2/fixtures/auth-helpers.ts`, `.github/workflows/unit-tests.yml`, `.github/workflows/deploy.yml`, `src/middleware.ts`, `src/lib/api-middleware.ts`, `src/lib/rate-limiter.ts`, `.windsurf/rules/*.md` (`CLAUDE.md:885-904`).
+- Kritische Konfigs und Workflows: `package.json`, `tsconfig.json`, `astro.config.mjs`, `wrangler.toml`, `eslint.config.js`, `.prettierrc.json`, `vitest.config.ts`, `test-suite-v2/playwright.config.ts`, `test-suite-v2/fixtures/auth-helpers.ts`, `test-suite-v2/fixtures/common-helpers.ts`, `test-suite-v2/fixtures/tool-helpers.ts`, `.github/workflows/unit-tests.yml`, `.github/workflows/deploy.yml`, `src/middleware.ts`, `src/lib/api-middleware.ts`, `src/lib/rate-limiter.ts`, `.windsurf/rules/*.md` (`CLAUDE.md:885-904`).
 
 ## Bekannte Probleme
 

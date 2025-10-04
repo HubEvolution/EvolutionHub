@@ -19,7 +19,7 @@ Diese Dokumentation beschreibt die vollständig automatisierte Continuous Integr
 
 ## Überblick
 
-Die CI/CD-Pipeline implementiert alle Anforderungen aus [CLAUDE.md](../../CLAUDE.md#6-testing--cicd):
+Die CI/CD-Pipeline implementiert alle Anforderungen aus [CLAUDE.md](../../CLAUDE.md#testing):
 
 ✅ **CI-Gates (alle müssen grün sein):**
 
@@ -103,10 +103,21 @@ npx vitest run --coverage
 #### D) `e2e` — E2E Tests
 
 ```bash
-npm run test:e2e -- --base-url=https://ci.hub-evolution.com
+# Testing-Environment (Chromium-only example)
+TEST_BASE_URL=https://ci.hub-evolution.com npm run test:e2e:chromium -- src/e2e/smoke
+
+# Lokal (auto-startet Dev-Worker auf 127.0.0.1:8787)
+npm run test:e2e -- src/e2e/tools
 ```
 
-Playwright gegen Testing-Environment.
+Struktur E2E v2 (`test-suite-v2/src/e2e/`):
+
+- `auth/` – OAuth, Magic Link, Session, Middleware
+- `features/` – App-Features (z. B. Dashboard, Kommentare)
+- `tools/` – Tools wie Prompt- und Image-Enhancer
+- `smoke/` – Leichte Smokes für CI/Staging/Prod
+
+Konfiguration: `test-suite-v2/playwright.config.ts` (Projects, Retries, Reports, Auto-WebServer, Origin-Header)
 
 #### E) `check` — TypeScript Check
 

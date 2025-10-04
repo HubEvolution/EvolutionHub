@@ -89,7 +89,7 @@ export default defineConfig({
     },
   },
 
-  // Reuse existing setup/teardown from the root tests
-  globalSetup: path.join(__dirname, '../tests/e2e/config/setup.ts'),
-  globalTeardown: path.join(__dirname, '../tests/e2e/config/test-teardown.ts'),
+  // E2E v2 local setup/teardown (no-op by default)
+  globalSetup: path.join(__dirname, './config/playwright-global-setup.ts'),
+  globalTeardown: path.join(__dirname, './config/playwright-global-teardown.ts'),
 });
