@@ -37,6 +37,7 @@ export default defineConfig({
       {
         plugins: [react(), tsconfigPaths({ projects: ['./tsconfig.json'] })],
         test: {
+          name: 'unit',
           environment: 'jsdom',
           setupFiles: ['./src/setupTests.ts'],
           // Note: removed deprecated deps.inline; tests run fine without explicit inlining
@@ -56,6 +57,7 @@ export default defineConfig({
       {
         plugins: [tsconfigPaths({ projects: ['./tsconfig.json'] })],
         test: {
+          name: 'integration',
           include: ['tests/integration/**/*.{test,spec}.{ts,tsx}'],
           environment: 'node',
           testTimeout: 180000,
