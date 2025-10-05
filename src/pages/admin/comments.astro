@@ -59,6 +59,13 @@ async function fetchComments() {
 }
 
 const commentsResult: FetchCommentsResult = await fetchComments();
+// Normalize admin comments list: API returns data.comments as either Array or { comments, total, hasMore }
+const adminCommentsList: any[] =
+  commentsResult.ok && commentsResult.data?.success
+    ? (Array.isArray((commentsResult.data as any).data?.comments)
+        ? ((commentsResult.data as any).data.comments as any[])
+        : (((commentsResult.data as any).data?.comments?.comments as any[]) || []))
+    : [];
 ---
 
 <BaseLayout title="Kommentar-Moderation" description="Admin-Interface für Kommentar-Moderation">
@@ -130,7 +137,7 @@ const commentsResult: FetchCommentsResult = await fetchComments();
                 <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Kommentare</h2>
               </div>
 
-              {commentsResult.data.data.comments.length > 0 ? (
+              {adminCommentsList.length > 0 ? (
                 <div class="overflow-x-auto">
                   <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                     <thead class="bg-gray-50 dark:bg-gray-700">
@@ -156,7 +163,7 @@ const commentsResult: FetchCommentsResult = await fetchComments();
                       </tr>
                     </thead>
                     <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                      {commentsResult.data.data.comments.map((comment: any) => (
+                      {adminCommentsList.map((comment: any) => (
                         <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
                           <td class="px-6 py-4">
                             <div class="max-w-xs">
@@ -230,14 +237,14 @@ const commentsResult: FetchCommentsResult = await fetchComments();
                                 <>
                                   <button
                                     class="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300"
-                                    onclick={`moderateComment('${comment.id}', 'approved')`}
+                                    onclick={`moderateComment('${comment.id}', 'approve')`}
                                     title="Freigeben"
                                   >
                                     ✓
                                   </button>
                                   <button
                                     class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
-                                    onclick={`moderateComment('${comment.id}', 'rejected')`}
+                                    onclick={`moderateComment('${comment.id}', 'reject')`}
                                     title="Ablehnen"
                                   >
                                     ✗
@@ -281,14 +288,15 @@ const commentsResult: FetchCommentsResult = await fetchComments();
   </main>
 
   <script>
-    function moderateComment(commentId: string, action: 'approved' | 'rejected') {
-      if (confirm(`Kommentar wirklich ${action === 'approved' ? 'freigeben' : 'ablehnen'}?`)) {
+    function moderateComment(commentId: string, action: 'approve' | 'reject') {
+      const isApprove = action === 'approve';
+      if (confirm(`Kommentar wirklich ${isApprove ? 'freigeben' : 'ablehnen'}?`)) {
         fetch(`/api/admin/comments/${commentId}/moderate`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ status: action }),
+          body: JSON.stringify({ action }),
           credentials: 'same-origin',
         })
           .then((response) => response.json())

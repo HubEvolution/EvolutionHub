@@ -6,6 +6,8 @@ import { validateCsrfToken } from '../security/csrf';
 import { checkSpam } from '../spam-detection';
 import { sanitizeCommentContent } from '../security/sanitize';
 import { comments, commentModeration, commentReports, commentAuditLogs, users } from '../db/schema';
+import { NotificationService } from './notification-service';
+import type { NotificationContext, CommentNotificationData } from '../types/notifications';
 import type {
   Comment,
   CreateCommentRequest,
@@ -26,8 +28,10 @@ import type {
 
 export class CommentService {
   private db: ReturnType<typeof drizzle>;
+  private rawDb: D1Database;
 
   constructor(db: D1Database) {
+    this.rawDb = db;
     this.db = drizzle(db);
   }
 
@@ -105,6 +109,51 @@ export class CommentService {
       createdAt: now,
       updatedAt: now,
     });
+
+    // Notifications: if this is a reply, notify parent author (in-app + email queue)
+    try {
+      if (request.parentId) {
+        // Load parent comment to get recipient info
+        const parent = await this.getCommentById(request.parentId);
+        if (parent && parent.authorId && parent.authorEmail) {
+          const notificationService = new NotificationService(this.rawDb);
+          const context: NotificationContext = {
+            userId: parent.authorId,
+            locale: 'de',
+            baseUrl: '',
+          };
+          const data: CommentNotificationData = {
+            commentId,
+            commentContent: sanitizedContent,
+            authorName,
+            entityType: request.entityType,
+            entityId: request.entityId,
+            parentCommentId: parent.id,
+            parentAuthorName: parent.authorName,
+          };
+
+          // In-app notification (ignore if disabled)
+          try {
+            await notificationService.createCommentNotification(context, 'comment_reply', data);
+          } catch {}
+
+          // Email queue (ignore if disabled)
+          try {
+            await notificationService.sendEmail({
+              to: parent.authorEmail,
+              templateName: 'reply-notification',
+              variables: {
+                userName: parent.authorName || 'User',
+                baseUrl: '',
+                notification: data,
+              },
+            });
+          } catch {}
+        }
+      }
+    } catch {
+      // Do not block comment creation on notification errors
+    }
 
     // Fetch and return the created comment
     return this.getCommentById(commentId);
@@ -368,6 +417,47 @@ export class CommentService {
           updatedAt: now,
         })
         .where(eq(comments.id, commentId));
+    }
+
+    // After status update, notify comment author (approved/rejected)
+    try {
+      const updatedComment = await this.getCommentById(commentId);
+      if (updatedComment && updatedComment.authorId && updatedComment.authorEmail) {
+        const notificationService = new NotificationService(this.rawDb);
+        const context: NotificationContext = {
+          userId: updatedComment.authorId,
+          locale: 'de',
+          baseUrl: '',
+        };
+        const actionType = request.action === 'approve' ? 'comment_approved' : request.action === 'reject' ? 'comment_rejected' : null;
+        if (actionType) {
+          const data: CommentNotificationData = {
+            commentId: updatedComment.id,
+            commentContent: updatedComment.content,
+            authorName: String(moderatorId),
+            entityType: updatedComment.entityType,
+            entityId: updatedComment.entityId,
+          };
+          // In-app
+          try {
+            await notificationService.createCommentNotification(context, actionType, data as any);
+          } catch {}
+          // Email
+          try {
+            await notificationService.sendEmail({
+              to: updatedComment.authorEmail,
+              templateName: actionType === 'comment_approved' ? 'moderation-decision' : 'moderation-decision',
+              variables: {
+                userName: updatedComment.authorName || 'User',
+                baseUrl: '',
+                notification: data,
+              },
+            });
+          } catch {}
+        }
+      }
+    } catch {
+      // ignore notification errors
     }
 
     return moderationResult[0] as CommentModeration;

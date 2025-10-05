@@ -6,11 +6,19 @@
 
 **Geschätzter Aufwand**: 3-5 Tage (1-2 Entwickler)
 
----
+## Fortschritt (Stand: laufend)
 
-## Phase 1: Kritische Blocker (MUST-HAVE) - 1-2 Tage
-
-### 1.1 Comment-System: Email-Benachrichtigungen
+- ✅ Feature-Branch erstellt: `feat/blog-comments-phase1`
+- ✅ Admin-UI Mismatch behoben: `src/pages/admin/comments.astro`
+  - Normalisierung der API-Response (`adminCommentsList`)
+  - Moderations-Request sendet `{ action: 'approve'|'reject' }`
+- ✅ Notifications-Hooks ergänzt: `src/lib/services/comment-service.ts`
+  - Reply → In-App + E-Mail-Queue
+  - Moderation (approve/reject) → In-App + E-Mail-Queue
+- ✅ Queue-Processor-API: `POST /api/notifications/queue/process` (mit `withAuthApiMiddleware`)
+- ✅ Seed-Migration für E-Mail-Templates: `migrations/0022_seed_email_templates_comments.sql`
+- ✅ Plan-Doc aktualisiert (Security/Middleware, Secrets, Deployment)
+- ✅ Comment-Count Endpoint: `GET /api/comments/count` + Badge in `src/components/BlogCard.astro`
 
 **Problem**: Keine Email-Benachrichtigungen bei neuen Replies oder Moderation-Entscheidungen.
 
@@ -372,7 +380,13 @@
    wrangler secret put BASE_URL --env staging
    ```
 
-3. Deploy: `npm run deploy:staging`
+3. Build & Deploy:
+
+   ```bash
+   npm run build:worker:staging
+   wrangler deploy --env staging
+   ```
+
 4. Smoke-Tests: `/blog`, `/admin/comments`, RSS-Feed
 
 ### Production-Deployment
@@ -386,13 +400,11 @@
    wrangler secret put BASE_URL --env production
    ```
 
-  
-  3. Deploy mit Manual Approval (GitHub Actions)
+3. Deploy mit Manual Approval (GitHub Actions)
 4. Health-Check: `npm run health-check -- --url https://hub-evolution.com`
 5. Monitoring 24h (Cloudflare Analytics, Error-Logs)
 
 ---
-
 **Falls kritische Fehler:**
 
 1. Cloudflare Rollback: `wrangler rollback --env production`

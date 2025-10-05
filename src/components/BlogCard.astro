@@ -11,7 +11,8 @@ interface Props {
 
 const { post, featured = false, className = '', aosDelay } = Astro.props;
 
-const { title, description, image, imageAlt, category } = post.data;
+const data: any = post.data;
+const { title, description, image, imageAlt, category } = data;
 
 const { url, formattedPubDate, readingTime } = post;
 ---
@@ -79,9 +80,9 @@ const { url, formattedPubDate, readingTime } = post;
 
       <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-3">
         <time
-          datetime={post.data.pubDate instanceof Date
-            ? post.data.pubDate.toISOString()
-            : new Date(post.data.pubDate).toISOString()}
+          datetime={data.pubDate instanceof Date
+            ? data.pubDate.toISOString()
+            : new Date(data.pubDate as any).toISOString()}
           class="whitespace-nowrap"
           data-itemprop="datePublished"
         >
@@ -95,6 +96,12 @@ const { url, formattedPubDate, readingTime } = post;
             </>
           )
         }
+        <span class="mx-1">•</span>
+        <a href={`${url}#comments`} class="inline-flex items-center gap-1 text-gray-600 hover:text-emerald-600 dark:text-gray-300 dark:hover:text-emerald-400 transition-colors" aria-label="Kommentare ansehen">
+          <span aria-hidden="true">💬</span>
+          <span id={`cc-${post.slug}`} data-entity-type="blog_post" data-entity-id={post.slug}>0</span>
+          <span>Kommentare</span>
+        </a>
       </div>
 
       {
@@ -118,3 +125,24 @@ const { url, formattedPubDate, readingTime } = post;
     </div>
   </div>
 </article>
+
+<script>
+  try {
+    const nodes = document.querySelectorAll('[id^="cc-"][data-entity-type][data-entity-id]');
+    nodes.forEach((el) => {
+      const entityType = el.getAttribute('data-entity-type') || 'blog_post';
+      const entityId = el.getAttribute('data-entity-id');
+      if (!entityId) return;
+      const endpoint = `/api/comments/count?entityType=${encodeURIComponent(entityType)}&entityId=${encodeURIComponent(entityId)}`;
+      fetch(endpoint)
+        .then((r) => (r.ok ? r.json() : Promise.reject(new Error('bad response'))))
+        .then((json: any) => {
+          const c = json?.data?.count ?? 0;
+          el.textContent = String(c);
+        })
+        .catch(() => {
+          // keep default on failure
+        });
+    });
+  } catch {}
+  </script>
