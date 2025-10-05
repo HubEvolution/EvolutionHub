@@ -22,6 +22,14 @@
 - ✅ Admin-UI erweitert: Filter, Pagination, Auswahl-Checkboxen, Bulk-Actions (`/api/admin/comments/bulk-moderate`)
 - ✅ RSS-Feed implementiert: `GET /rss.xml` (ohne zusätzliche Dependencies)
 
+### Phase 1 Status
+
+- ✅ Phase 1 abgeschlossen: Notifications (Queue + Gating + Templates), Admin-UI (Filter/Pagination/Bulk/Details), Comment-Count, RSS.
+- Nächste Schritte (Staging & CI-Domain):
+  - Staging Migrations & Deploy durchführen
+  - Smoke-Tests: `/blog`, `/admin/comments`, `/rss.xml`
+  - CI-Domain `https://ci.hub-evolution.com` Smoke-Check
+
 **Problem**: Keine Email-Benachrichtigungen bei neuen Replies oder Moderation-Entscheidungen.
 
 **Lösung**:

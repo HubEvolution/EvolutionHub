@@ -401,9 +401,38 @@ const adminOffset = Number(new URL(Astro.url).searchParams.get('offset') || '0')
       }
     }
 
-    function viewCommentDetails(commentId: string) {
-      // TODO: Implementiere Kommentar-Details Modal
-      alert('Details-Ansicht für Kommentar ' + commentId + ' wird in einem späteren Schritt implementiert');
+    async function viewCommentDetails(commentId: string) {
+      try {
+        const res = await fetch(`/api/admin/comments/${commentId}`, { credentials: 'same-origin' });
+        const json: any = await res.json();
+        if (!res.ok || !json?.success) {
+          alert('Konnte Details nicht laden');
+          return;
+        }
+        const data = json.data || {};
+        const c = data.comment || {};
+        const contentEl = document.getElementById('comment-details-content');
+        if (contentEl) {
+          contentEl.innerHTML = `
+            <div class="space-y-2 text-sm">
+              <div><span class="font-semibold">ID:</span> ${c.id || commentId}</div>
+              <div><span class="font-semibold">Status:</span> ${c.status || ''}</div>
+              <div><span class="font-semibold">Autor ID:</span> ${c.authorId ?? ''}</div>
+              <div><span class="font-semibold">Entity:</span> ${c.entityType || ''} / ${c.entityId || ''}</div>
+              <div class="mt-2"><span class="font-semibold">Inhalt:</span><div class="mt-1 whitespace-pre-wrap">${(c.content || '').toString().replace(/</g,'&lt;')}</div></div>
+            </div>
+          `;
+        }
+        const modalEl = document.getElementById('comment-details-modal');
+        if (modalEl && (modalEl as any).showModal) {
+          (modalEl as any).showModal();
+        } else if (modalEl instanceof HTMLElement) {
+          modalEl.classList.remove('hidden');
+        }
+      } catch (e) {
+        console.error(e);
+        alert('Fehler beim Laden der Details');
+      }
     }
 
     // Expose handlers globally for inline onclick usage
@@ -418,4 +447,15 @@ const adminOffset = Number(new URL(Astro.url).searchParams.get('offset') || '0')
       location.reload();
     });
   </script>
+  
+  <!-- Details Modal -->
+  <dialog id="comment-details-modal" class="backdrop:bg-black/50 rounded-lg p-0 w-full max-w-2xl">
+    <form method="dialog">
+      <div class="border-b px-4 py-3 flex items-center justify-between bg-gray-50 dark:bg-gray-800">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Kommentar-Details</h3>
+        <button class="px-3 py-1 rounded bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100">Schließen</button>
+      </div>
+    </form>
+    <div id="comment-details-content" class="p-4 text-gray-800 dark:text-gray-100"></div>
+  </dialog>
 </BaseLayout>
