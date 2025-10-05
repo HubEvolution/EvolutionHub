@@ -19,6 +19,8 @@
 - ✅ Seed-Migration für E-Mail-Templates: `migrations/0022_seed_email_templates_comments.sql`
 - ✅ Plan-Doc aktualisiert (Security/Middleware, Secrets, Deployment)
 - ✅ Comment-Count Endpoint: `GET /api/comments/count` + Badge in `src/components/BlogCard.astro`
+- ✅ Admin-UI erweitert: Filter, Pagination, Auswahl-Checkboxen, Bulk-Actions (`/api/admin/comments/bulk-moderate`)
+- ✅ RSS-Feed implementiert: `GET /rss.xml` (ohne zusätzliche Dependencies)
 
 **Problem**: Keine Email-Benachrichtigungen bei neuen Replies oder Moderation-Entscheidungen.
 
@@ -387,7 +389,7 @@
    wrangler deploy --env staging
    ```
 
-4. Smoke-Tests: `/blog`, `/admin/comments`, RSS-Feed
+4. Smoke-Tests: `/blog`, `/admin/comments`, `/rss.xml`
 
 ### Production-Deployment
 

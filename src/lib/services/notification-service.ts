@@ -502,12 +502,24 @@ export class NotificationService {
       throw new Error(`Email template '${request.templateName}' not found`);
     }
 
-    // Check if user has email notifications enabled for this type
+    // Check if user has email notifications enabled for this template's semantic type
     const userSettings = await this.getUserNotificationSettingsFromEmail(request.to);
-    if (
-      userSettings.length === 0 ||
-      !this.isNotificationTypeEnabled(userSettings, 'comment_reply', 'email')
-    ) {
+    if (userSettings.length === 0) {
+      throw new Error('Email notifications are disabled for this user');
+    }
+    // Map templateName -> allowed types
+    let allowed = false;
+    if (request.templateName === 'reply-notification') {
+      allowed = this.isNotificationTypeEnabled(userSettings, 'comment_reply', 'email');
+    } else if (request.templateName === 'moderation-decision') {
+      allowed =
+        this.isNotificationTypeEnabled(userSettings, 'comment_approved', 'email') ||
+        this.isNotificationTypeEnabled(userSettings, 'comment_rejected', 'email');
+    } else {
+      // Unknown template: allow by default (fallback)
+      allowed = true;
+    }
+    if (!allowed) {
       throw new Error('Email notifications are disabled for this user');
     }
 

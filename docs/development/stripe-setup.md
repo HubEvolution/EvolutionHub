@@ -89,7 +89,6 @@ stripe listen --forward-to http://127.0.0.1:8787/api/billing/stripe-webhook
 ### Dashboard (Staging/Prod)
 
 - Go to Developers → Webhooks → Add endpoint
-- URL: https://<your-domain>/api/billing/stripe-webhook
 - Events to enable:
   - `checkout.session.completed`
   - `customer.subscription.created`
@@ -102,7 +101,7 @@ stripe listen --forward-to http://127.0.0.1:8787/api/billing/stripe-webhook
 ```bash
 # Create a permanent webhook endpoint pointing to your staging/prod URL
 stripe webhook_endpoints create \
-  -d url=https://<your-domain>/api/billing/stripe-webhook \
+  -d url="https://your-domain/api/billing/stripe-webhook" \
   -d "enabled_events[]=checkout.session.completed" \
   -d "enabled_events[]=customer.subscription.created" \
   -d "enabled_events[]=customer.subscription.updated" \
