@@ -9,7 +9,7 @@ import { getAuthUser } from '@/lib/auth-helpers';
 import { createCsrfMiddleware } from '@/lib/security/csrf';
 import type { CreateCommentRequest, CommentFilters } from '@/lib/types/comments';
 
-const app = new Hono<{ Bindings: { DB: D1Database } }>();
+const app = new Hono<{ Bindings: { DB: D1Database; KV_COMMENTS?: KVNamespace } }>();
 
 // Middleware
 app.use('*', logger());
@@ -49,7 +49,7 @@ app.use('/create', createCsrfMiddleware());
 // GET /api/comments - List comments with filtering
 app.get('/', async (c) => {
   try {
-    const commentService = new CommentService(c.env.DB);
+    const commentService = new CommentService(c.env.DB, c.env.KV_COMMENTS);
 
     const query = c.req.query();
 
@@ -127,7 +127,7 @@ app.post('/create', async (c) => {
 // Named export for GET /api/comments (required by file-based router)
 export const GET = withApiMiddleware(async (context: APIContext) => {
   try {
-    const env = (context.locals as any).runtime?.env as { DB: D1Database } | undefined;
+    const env = (context.locals as any).runtime?.env as { DB: D1Database; KV_COMMENTS?: KVNamespace } | undefined;
     const db = env?.DB || (context as any).locals?.env?.DB;
     if (!db) return createApiError('server_error', 'Database binding missing');
 
@@ -143,7 +143,8 @@ export const GET = withApiMiddleware(async (context: APIContext) => {
       includeReplies: q.get('includeReplies') !== 'false',
     };
 
-    const service = new CommentService(db);
+    const kv = env?.KV_COMMENTS || (context as any).locals?.env?.KV_COMMENTS;
+    const service = new CommentService(db, kv);
     const result = await service.listComments(filters);
     return createApiSuccess(result);
   } catch (err) {

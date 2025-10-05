@@ -1,11 +1,13 @@
 ---
-// Prerender deaktiviert, da Astro.request.headers im Code verwendet wird
-export const prerender = false;
+// SSG + ISR aktivieren (Phase 2.1)
+export const prerender = true;
+export const revalidate = 300; // Sekunden
 // Import BaseLayout using a relative path.
 import BaseLayout from '@/layouts/BaseLayout.astro';
 // Import blogService from its module. We no longer need to import BlogCollectionEntry from here
 // as we are importing CollectionEntry directly from 'astro:content'.
 import { blogService, type BlogCollectionEntry } from '@/lib/blog';
+import { getCollection } from 'astro:content';
 import BlogPostComponent from '@/components/BlogPost.astro';
 import type { ProcessedBlogPost } from '../../content/types';
 // Import CommentSection with a named import
@@ -94,19 +96,17 @@ if (postData) {
 }
 
 // SEO Metadaten
-const title = postData.data.title;
-const description = postData.data.description || '';
+const data: any = postData.data;
+const title = String(data.title);
+const description = String(data.description || '');
 const canonicalUrl = new URL(Astro.url.pathname, Astro.site);
 // Ensure imageUrl is correctly formed
-const imageUrl = postData.data.image?.src
-  ? new URL(postData.data.image.src, Astro.site).toString()
-  : new URL('/images/blog/default-og.jpg', Astro.site).toString();
+const imageSrc = (data.image && (data.image as any).src) ? (data.image as any).src : '/images/blog/default-og.jpg';
+const imageUrl = new URL(imageSrc, Astro.site).toString();
 
 // Refactored logic for dateModified
-const datePublishedISO = new Date(postData.data.pubDate).toISOString();
-const dateModifiedISO = postData.data.updatedDate
-  ? new Date(postData.data.updatedDate).toISOString()
-  : datePublishedISO; // Use publishedDate if updatedDate is missing
+const datePublishedISO = new Date(data.pubDate as any).toISOString();
+const dateModifiedISO = data.updatedDate ? new Date(data.updatedDate as any).toISOString() : datePublishedISO;
 
 // Strukturierte Daten für SEO (Schema.org)
 const structuredData = {
@@ -117,9 +117,7 @@ const structuredData = {
   image: imageUrl,
   author: {
     '@type': 'Person',
-    name: Array.isArray(postData.data.author)
-      ? postData.data.author[0]
-      : postData.data.author?.name || 'EvolutionHub Team',
+    name: Array.isArray(data.author) ? data.author[0] : (data.author?.name || 'EvolutionHub Team'),
     url: 'https://evolution-hub.de/team', // Placeholder URL, adjust if specific author URLs exist
   },
   publisher: {
@@ -138,8 +136,12 @@ const structuredData = {
   },
 };
 // Blog-Enhancements werden importfrei inline initialisiert (kein Astro.resolve)
+// Static paths für SSG generieren
+export async function getStaticPaths() {
+  const posts = await getCollection('blog');
+  return posts.map((p: any) => ({ params: { slug: String(p.slug) } }));
+}
 ---
-
 <BaseLayout
   title={title}
   description={description}
@@ -149,11 +151,9 @@ const structuredData = {
   type="article"
   publishedTime={datePublishedISO}
   modifiedTime={dateModifiedISO}
-  author={Array.isArray(postData.data.author)
-    ? postData.data.author[0]
-    : postData.data.author?.name || 'EvolutionHub Team'}
-  section={postData.data.category}
-  tags={postData.data.tags}
+  author={Array.isArray(data.author) ? data.author[0] : (data.author?.name || 'EvolutionHub Team')}
+  section={data.category}
+  tags={data.tags}
 >
   <article class="bg-white dark:bg-gray-900 py-12 sm:py-16">
     <div class="mx-auto max-w-7xl px-6 lg:px-8">

@@ -8,7 +8,7 @@ import { requireModerator } from '@/lib/auth-helpers';
 import { createCsrfMiddleware, validateCsrfToken } from '@/lib/security/csrf';
 import type { ModerateCommentRequest } from '@/lib/types/comments';
 
-const app = new Hono<{ Bindings: { DB: D1Database } }>();
+const app = new Hono<{ Bindings: { DB: D1Database; KV_COMMENTS?: KVNamespace } }>();
 
 // Middleware
 app.use('*', logger());
@@ -67,7 +67,7 @@ app.post('/', async (c) => {
       );
     }
 
-    const commentService = new CommentService(c.env.DB);
+    const commentService = new CommentService(c.env.DB, c.env.KV_COMMENTS);
 
     const moderation = await commentService.moderateComment(
       commentId,
@@ -164,7 +164,7 @@ app.get('/stats', async (c) => {
 // Named POST handler for /api/comments/moderate
 export const POST = async (context: APIContext) => {
   try {
-    const env = (context.locals as any).runtime?.env as { DB: D1Database } | undefined;
+    const env = (context.locals as any).runtime?.env as { DB: D1Database; KV_COMMENTS?: KVNamespace } | undefined;
     const db = env?.DB || (context as any).locals?.env?.DB;
     if (!db) return createApiError('server_error', 'Database binding missing');
 
@@ -195,7 +195,8 @@ export const POST = async (context: APIContext) => {
     if (!commentId) return createApiError('validation_error', 'Comment ID required');
 
     const { csrfToken, commentId: _omit, ...moderationData } = body as any;
-    const service = new CommentService(db);
+    const kv = env?.KV_COMMENTS || (context as any).locals?.env?.KV_COMMENTS;
+    const service = new CommentService(db, kv);
     const res = await service.moderateComment(commentId, moderationData, Number(user.id));
     return createApiSuccess(res);
   } catch (err) {

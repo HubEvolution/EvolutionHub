@@ -29,10 +29,51 @@ import type {
 export class CommentService {
   private db: ReturnType<typeof drizzle>;
   private rawDb: D1Database;
+  private kv?: KVNamespace;
+  private cacheTTLSeconds: number;
 
-  constructor(db: D1Database) {
+  constructor(db: D1Database, kv?: KVNamespace, options?: { cacheTTLSeconds?: number }) {
     this.rawDb = db;
     this.db = drizzle(db);
+    this.kv = kv;
+    this.cacheTTLSeconds = options?.cacheTTLSeconds ?? 300;
+  }
+
+  private cacheKeyForList(filters: CommentFilters): string | null {
+    const { entityType, entityId, limit = 20, offset = 0, includeReplies = true, status } = filters || {} as any;
+    if (!entityType || !entityId) return null;
+    return `comments:list:${entityType}:${entityId}:l=${limit}:o=${offset}:r=${includeReplies ? 1 : 0}:s=${status ?? 'any'}`;
+  }
+
+  private async tryGetCache<T>(key: string): Promise<T | null> {
+    if (!this.kv) return null;
+    try {
+      const raw = await this.kv.get(key);
+      if (!raw) return null;
+      return JSON.parse(raw) as T;
+    } catch {
+      return null;
+    }
+  }
+
+  private async setCache<T>(key: string, value: T): Promise<void> {
+    if (!this.kv) return;
+    try {
+      await this.kv.put(key, JSON.stringify(value), { expirationTtl: this.cacheTTLSeconds });
+    } catch {
+      // ignore cache write errors
+    }
+  }
+
+  private async invalidateEntityCache(entityType: string | undefined, entityId: string | undefined): Promise<void> {
+    if (!this.kv || !entityType || !entityId) return;
+    try {
+      const prefix = `comments:list:${entityType}:${entityId}:`;
+      const list = await this.kv.list({ prefix });
+      await Promise.all(list.keys.map((k) => this.kv!.delete(k.name)));
+    } catch {
+      // ignore cache invalidation errors
+    }
   }
 
   /**
@@ -155,6 +196,9 @@ export class CommentService {
       // Do not block comment creation on notification errors
     }
 
+    // Invalidate cache for the entity
+    await this.invalidateEntityCache(request.entityType, request.entityId);
+
     // Fetch and return the created comment
     return this.getCommentById(commentId);
   }
@@ -220,6 +264,11 @@ export class CommentService {
         updatedAt: Math.floor(Date.now() / 1000),
       })
       .where(and(eq(comments.id, commentId), eq(comments.authorId, userId)));
+
+    try {
+      const updated = await this.getCommentById(commentId);
+      await this.invalidateEntityCache(updated.entityType, updated.entityId);
+    } catch {}
   }
 
   /**
@@ -289,6 +338,22 @@ export class CommentService {
 
     const baseWhere = whereConditions.length > 0 ? and(...whereConditions) : undefined;
 
+    // KV cache (optional): only cache entity-scoped lists with small pages
+    const canCache = !!this.kv && !!entityType && !!entityId && limit <= 50 && offset <= 100;
+    const cacheKey = this.cacheKeyForList({
+      status,
+      entityType,
+      entityId,
+      authorId,
+      limit,
+      offset,
+      includeReplies,
+    });
+    if (canCache && cacheKey) {
+      const cached = await this.tryGetCache<CommentListResponse>(cacheKey);
+      if (cached) return cached;
+    }
+
     // Get total count
     const totalResult = await this.db.select({ count: count() }).from(comments).where(baseWhere);
 
@@ -354,11 +419,17 @@ export class CommentService {
       }
     }
 
-    return {
+    const response: CommentListResponse = {
       comments: commentsWithReports,
       total,
       hasMore: offset + limit < total,
     };
+
+    if (canCache && cacheKey) {
+      await this.setCache<CommentListResponse>(cacheKey, response);
+    }
+
+    return response;
   }
 
   /**
@@ -460,6 +531,11 @@ export class CommentService {
       // ignore notification errors
     }
 
+    try {
+      const updated = await this.getCommentById(commentId);
+      await this.invalidateEntityCache(updated.entityType, updated.entityId);
+    } catch {}
+
     return moderationResult[0] as CommentModeration;
   }
 
@@ -497,6 +573,11 @@ export class CommentService {
         })
         .where(eq(comments.id, commentId));
     }
+
+    try {
+      const updated = await this.getCommentById(commentId);
+      await this.invalidateEntityCache(updated.entityType, updated.entityId);
+    } catch {}
 
     return reportResult[0] as CommentReport;
   }

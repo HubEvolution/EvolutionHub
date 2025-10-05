@@ -8,7 +8,7 @@ import { requireAuth } from '@/lib/auth-helpers';
 import { createCsrfMiddleware, validateCsrfToken } from '@/lib/security/csrf';
 import type { UpdateCommentRequest } from '@/lib/types/comments';
 
-const app = new Hono<{ Bindings: { DB: D1Database } }>();
+const app = new Hono<{ Bindings: { DB: D1Database; KV_COMMENTS?: KVNamespace } }>();
 
 // Middleware
 app.use('*', logger());
@@ -32,7 +32,7 @@ app.use('/:id', createCsrfMiddleware());
 app.get('/:id', async (c) => {
   try {
     const commentId = c.req.param('id');
-    const commentService = new CommentService(c.env.DB);
+    const commentService = new CommentService(c.env.DB, c.env.KV_COMMENTS);
 
     const comment = await commentService.getCommentById(commentId);
 
@@ -163,14 +163,15 @@ app.delete('/:id', async (c) => {
 // Named handlers for file-based router
 export const GET = async (context: APIContext) => {
   try {
-    const env = (context.locals as any).runtime?.env as { DB: D1Database } | undefined;
+    const env = (context.locals as any).runtime?.env as { DB: D1Database; KV_COMMENTS?: KVNamespace } | undefined;
     const db = env?.DB || (context as any).locals?.env?.DB;
     if (!db) return createApiError('server_error', 'Database binding missing');
 
     const id = context.params.id as string | undefined;
     if (!id) return createApiError('validation_error', 'Comment ID required');
 
-    const service = new CommentService(db);
+    const kv = env?.KV_COMMENTS || (context as any).locals?.env?.KV_COMMENTS;
+    const service = new CommentService(db, kv);
     const comment = await service.getCommentById(id);
     return createApiSuccess(comment);
   } catch (err) {
@@ -182,7 +183,7 @@ export const GET = async (context: APIContext) => {
 
 export const PUT = async (context: APIContext) => {
   try {
-    const env = (context.locals as any).runtime?.env as { DB: D1Database } | undefined;
+    const env = (context.locals as any).runtime?.env as { DB: D1Database; KV_COMMENTS?: KVNamespace } | undefined;
     const db = env?.DB || (context as any).locals?.env?.DB;
     if (!db) return createApiError('server_error', 'Database binding missing');
 
@@ -214,7 +215,8 @@ export const PUT = async (context: APIContext) => {
     }
 
     const { csrfToken, ...updateData } = body;
-    const service = new CommentService(db);
+    const kv = env?.KV_COMMENTS || (context as any).locals?.env?.KV_COMMENTS;
+    const service = new CommentService(db, kv);
     const updated = await service.updateComment(id, updateData, Number(user.id), token);
     return createApiSuccess(updated);
   } catch (err) {
@@ -236,7 +238,7 @@ export const PUT = async (context: APIContext) => {
 
 export const DELETE = async (context: APIContext) => {
   try {
-    const env = (context.locals as any).runtime?.env as { DB: D1Database } | undefined;
+    const env = (context.locals as any).runtime?.env as { DB: D1Database; KV_COMMENTS?: KVNamespace } | undefined;
     const db = env?.DB || (context as any).locals?.env?.DB;
     if (!db) return createApiError('server_error', 'Database binding missing');
 
@@ -262,7 +264,8 @@ export const DELETE = async (context: APIContext) => {
       );
     }
 
-    const service = new CommentService(db);
+    const kv = env?.KV_COMMENTS || (context as any).locals?.env?.KV_COMMENTS;
+    const service = new CommentService(db, kv);
     await service.deleteComment(id, Number(user.id), token);
     return createApiSuccess({ message: 'Comment deleted successfully' });
   } catch (err) {

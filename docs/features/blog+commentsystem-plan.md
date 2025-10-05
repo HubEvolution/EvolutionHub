@@ -22,13 +22,19 @@
 - ✅ Admin-UI erweitert: Filter, Pagination, Auswahl-Checkboxen, Bulk-Actions (`/api/admin/comments/bulk-moderate`)
 - ✅ RSS-Feed implementiert: `GET /rss.xml` (ohne zusätzliche Dependencies)
 
+**Aktualisierung (Staging/CI):**
+
+- ✅ Seeds verifiziert: `email_templates` vorhanden; `reply-notification`, `moderation-decision` aktiv (DE)
+- ✅ Secrets gesetzt: `EMAIL_FROM = noreply@hub-evolution.com` (Testing & Staging)
+- ✅ Deploys live: Testing (`ci.hub-evolution.com`) & Staging (`staging.hub-evolution.com`)
+- ✅ Smoke: `/rss.xml` 200; `/blog` gated (302 → `/welcome?next=...`)
+
 ### Phase 1 Status
 
 - ✅ Phase 1 abgeschlossen: Notifications (Queue + Gating + Templates), Admin-UI (Filter/Pagination/Bulk/Details), Comment-Count, RSS.
 - Nächste Schritte (Staging & CI-Domain):
-  - Staging Migrations & Deploy durchführen
-  - Smoke-Tests: `/blog`, `/admin/comments`, `/rss.xml`
-  - CI-Domain `https://ci.hub-evolution.com` Smoke-Check
+  - ✅ Staging Deploy & Smoke-Tests: `/blog`, `/rss.xml`
+  - ℹ️ Admin-UI Smoke folgt nach Abschluss Phase 2.2 (KV-Caching)
 
 **Problem**: Keine Email-Benachrichtigungen bei neuen Replies oder Moderation-Entscheidungen.
 
@@ -173,7 +179,7 @@
 
 ## Phase 2: Performance-Optimierungen (SHOULD-HAVE) - 1 Tag
 
-### 2.1 Blog-System: SSG/ISR aktivieren
+### 2.1 Blog-System: SSG/ISR aktivieren — Status: ✅ abgeschlossen
 
 **Problem**: Blog-Posts nutzen SSR statt SSG (langsamer).
 
@@ -194,9 +200,11 @@
 - ✅ Build-Zeit < 30s für 20 Posts
 - ✅ CDN-Cache-Hit-Rate > 90%
 
+Hinweis: Build-Warnungen zu `Astro.request.headers` auf SSG-Seiten wurden beobachtet; falls nötig, entfernen/absichern wir Header-Zugriffe in `[...slug].astro` in einem Folge-Refactor.
+
 ---
 
-### 2.2 Comment-System: KV-Caching
+### 2.2 Comment-System: KV-Caching — Status: ⏳ in Arbeit
 
 **Problem**: Jeder Comment-Load = DB-Query (keine Caching-Layer).
 
@@ -208,8 +216,16 @@
 
 **Dateien**:
 
-- `src/lib/services/comment-service.ts` (UPDATE: Cache-Layer)
-- `wrangler.toml` (UPDATE: KV-Binding `KV_COMMENTS` falls nötig)
+- `src/lib/services/comment-service.ts` (UPDATE: Cache-Layer mit TTL 5m, Invalidation bei Mutationen)
+- `wrangler.toml` (UPDATE: KV-Binding `KV_COMMENTS` pro Env)
+
+Umsetzungsstand:
+
+- ✅ KV Namespaces erstellt:
+  - Testing `KV_COMMENTS`: `41475ea385094b3f9b13c12e06954dd5`
+  - Staging `KV_COMMENTS`: `61878c1a1cd3402499476e7804ccc8ef`
+- ✅ Testing wiring: API-Handler übergeben `KV_COMMENTS` an `CommentService`
+- ⏳ Staging wiring: Binding im Deploy-Output noch nicht sichtbar → `wrangler.toml` Position/Block finalisieren und redeployen
 
 **Akzeptanzkriterien**:
 
@@ -463,9 +479,13 @@
 
 ## Nächste Schritte
 
-1. **Jetzt**: Plan-Review & Priorisierung
-2. **Tag 1-2**: Phase 1 (Kritische Blocker)
-3. **Tag 3**: Phase 2 (Performance)
-4. **Tag 4**: Phase 3 (Testing)
-5. **Tag 5**: Staging-Deployment & Smoke-Tests
-6. **Tag 6**: Production-Deployment (mit Monitoring)
+1. Phase 2.2 finalisieren (KV-Caching)
+   - Staging: `KV_COMMENTS` Binding im `wrangler.toml` prüfen/fixieren → redeploy
+   - Kurztest (Testing & Staging): zweimaliger GET auf identische Entity → Cache-Hit
+   - Logging optional: Cache-Hit/Miss im `CommentService` (debug-level)
+2. Phase 2.3 umsetzen (Image-Optimierung)
+   - `src/components/BlogCard.astro` und `src/components/BlogPost.astro` auf `<Image>` + `srcset` + WebP
+   - Build & Smoke; Light-Perf-Check
+3. Phase 3 vorbereiten (Testing & Monitoring)
+   - E2E: Moderation-Flows, Notifications (Mock), Load-Szenarien
+   - Analytics-Events für Comments
