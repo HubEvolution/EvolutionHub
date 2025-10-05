@@ -1,6 +1,7 @@
 ---
 import type { ProcessedBlogPost } from '@/content/types';
 import ArrowRightCircleIcon from 'astro-heroicons/solid/ArrowRightCircle.astro';
+import { Image } from 'astro:assets';
 
 interface Props {
   post: ProcessedBlogPost;
@@ -38,14 +39,14 @@ const { url, formattedPubDate, readingTime } = post;
           aria-label={`Bild für ${title}`}
           tabindex="-1"
         >
-          <img
+          <Image
             src={image.src}
             alt={imageAlt ? imageAlt : title}
             class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
             loading="lazy"
-            width={featured ? 400 : 800}
-            height={featured ? 300 : 600}
-            decoding="async"
+            widths={[480, 640, 768, 1024, 1280]}
+            sizes={featured ? '(min-width: 768px) 33vw, 100vw' : '100vw'}
+            formats={["webp", "jpeg"]}
           />
         </a>
       </div>
