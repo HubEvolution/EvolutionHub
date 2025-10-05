@@ -20,8 +20,308 @@ Alle öffentlichen API-Endpunkte sind mit folgenden Sicherheitsmaßnahmen ausges
 
 ## 1. Kommentare API
 
-Status: **Nicht implementiert.**
-Dieses Dokument ist veraltet und bezieht sich auf eine nicht implementierte API.
+Status: **✅ Vollständig implementiert** (Production-Ready 80%)
+
+Das Kommentarsystem bietet vollständige CRUD-Operationen, Moderation und Reporting.
+
+### 1.1. Kommentare abrufen
+
+Ruft Kommentare mit Filterung und Pagination ab.
+
+* **HTTP-Methode:** `GET`
+* **Pfad:** `/api/comments`
+* **Implementierung:** `src/pages/api/comments/index.ts` (Hono + Astro)
+* **Security:** Rate-Limiting (50/min), Security-Headers, Audit-Logging
+* **Authentifizierung:** Nicht erforderlich
+
+#### Query-Parameter
+
+| Parameter | Typ | Beschreibung | Standard |
+|-----------|-----|--------------|----------|
+| `entityType` | string | Entity-Typ (`blog_post`, `project`, `general`) | - |
+| `entityId` | string | Entity-ID/Slug | - |
+| `status` | string | Comment-Status (`approved`, `pending`, `flagged`, `hidden`) | `approved` |
+| `authorId` | number | Filter nach Autor-ID | - |
+| `limit` | number | Anzahl der Comments | 20 |
+| `offset` | number | Offset für Pagination | 0 |
+| `includeReplies` | boolean | Nested Replies inkludieren | true |
+
+#### Erfolgreiche Antwort (200 OK)
+
+```json
+{
+  "success": true,
+  "data": {
+    "comments": [
+      {
+        "id": "abc123",
+        "content": "Great article!",
+        "authorId": 42,
+        "authorName": "John Doe",
+        "authorEmail": "john@example.com",
+        "parentId": null,
+        "entityType": "blog_post",
+        "entityId": "digital-detox-kreativitaet",
+        "status": "approved",
+        "isEdited": false,
+        "createdAt": 1704067200,
+        "updatedAt": 1704067200,
+        "replies": [
+          {
+            "id": "def456",
+            "parentId": "abc123",
+            "content": "Thanks!",
+            ...
+          }
+        ],
+        "reportCount": 0
+      }
+    ],
+    "total": 42,
+    "hasMore": true
+  }
+}
+```
+
+### 1.2. Kommentar erstellen
+
+Erstellt einen neuen Kommentar (Guest oder Auth User).
+
+* **HTTP-Methode:** `POST`
+* **Pfad:** `/api/comments/create`
+* **Implementierung:** `src/pages/api/comments/index.ts`
+* **Security:** Rate-Limiting (5/min), CSRF-Protection, Spam-Detection, XSS-Sanitization
+* **Authentifizierung:** Optional (Guest-Modus möglich)
+
+#### Request-Header
+
+- `Content-Type: application/json`
+- `X-CSRF-Token: <token>` (**erforderlich**)
+
+#### Request-Body
+
+**Auth User:**
+
+```json
+{
+  "content": "This is my comment",
+  "entityType": "blog_post",
+  "entityId": "digital-detox-kreativitaet",
+  "parentId": "abc123"  // Optional (für Replies)
+}
+```
+
+**Guest User:**
+
+```json
+{
+  "content": "This is my comment",
+  "entityType": "blog_post",
+  "entityId": "digital-detox-kreativitaet",
+  "authorName": "Guest User",
+  "authorEmail": "guest@example.com"
+}
+```
+
+#### Erfolgreiche Antwort (201 Created)
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "xyz789",
+    "content": "This is my comment",
+    "authorName": "Guest User",
+    "status": "pending",  // 'approved' für auth users
+    "createdAt": 1704067200,
+    ...
+  }
+}
+```
+
+#### Fehler-Responses
+
+**Validation-Fehler (400 Bad Request):**
+
+```json
+{
+  "success": false,
+  "error": {
+    "type": "validation_error",
+    "message": "Comment content must be at least 3 characters long"
+  }
+}
+```
+
+**Spam-Detection (400 Bad Request):**
+
+```json
+{
+  "success": false,
+  "error": {
+    "type": "validation_error",
+    "message": "Comment rejected due to spam detection. Reasons: Excessive links, Suspicious keywords"
+  }
+}
+```
+
+**Rate-Limit (429 Too Many Requests):**
+
+```json
+{
+  "success": false,
+  "error": {
+    "type": "rate_limit",
+    "message": "Too many comments. Please wait 45 seconds."
+  }
+}
+```
+
+**CSRF-Fehler (400 Bad Request):**
+
+```json
+{
+  "success": false,
+  "error": {
+    "type": "validation_error",
+    "message": "Invalid CSRF token"
+  }
+}
+```
+
+### 1.3. Kommentar aktualisieren
+
+Aktualisiert einen existierenden Kommentar (nur durch Autor).
+
+* **HTTP-Methode:** `PUT`
+* **Pfad:** `/api/comments/[id]`
+* **Implementierung:** `src/pages/api/comments/[id].ts`
+* **Security:** Rate-Limiting (50/min), CSRF-Protection, XSS-Sanitization
+* **Authentifizierung:** **Erforderlich** (nur eigene Comments)
+
+#### Request-Body
+
+```json
+{
+  "content": "Updated comment text",
+  "csrfToken": "abc123..."
+}
+```
+
+#### Erfolgreiche Antwort (200 OK)
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "xyz789",
+    "content": "Updated comment text",
+    "isEdited": true,
+    "editedAt": 1704067500,
+    ...
+  }
+}
+```
+
+### 1.4. Kommentar löschen
+
+Löscht einen Kommentar (Soft-Delete → Status: `hidden`).
+
+* **HTTP-Methode:** `DELETE`
+* **Pfad:** `/api/comments/[id]`
+* **Implementierung:** `src/pages/api/comments/[id].ts`
+* **Security:** Rate-Limiting (50/min), CSRF-Protection
+* **Authentifizierung:** **Erforderlich** (nur eigene Comments)
+
+#### Request-Body
+
+```json
+{
+  "csrfToken": "abc123..."
+}
+```
+
+#### Erfolgreiche Antwort (200 OK)
+
+```json
+{
+  "success": true,
+  "data": {
+    "message": "Comment deleted successfully"
+  }
+}
+```
+
+### 1.5. Kommentar moderieren
+
+Moderiert einen Kommentar (nur Admin/Moderator).
+
+* **HTTP-Methode:** `POST`
+* **Pfad:** `/api/comments/moderate`
+* **Implementierung:** `src/pages/api/comments/moderate.ts`
+* **Security:** Rate-Limiting (50/min), CSRF-Protection
+* **Authentifizierung:** **Erforderlich** (Admin/Moderator-Rolle)
+
+#### Request-Body
+
+```json
+{
+  "commentId": "xyz789",
+  "action": "approve",  // 'approve', 'reject', 'flag', 'hide', 'unhide'
+  "reason": "Spam detected"  // Optional
+}
+```
+
+#### Erfolgreiche Antwort (200 OK)
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": 123,
+    "commentId": "xyz789",
+    "moderatorId": 42,
+    "action": "approve",
+    "reason": "Spam detected",
+    "createdAt": 1704067200
+  }
+}
+```
+
+### 1.6. Security-Features
+
+Das Kommentarsystem implementiert mehrere Sicherheitsebenen:
+
+#### XSS-Protection
+
+- **DOMPurify-Sanitization** für alle User-Inputs
+- Erlaubte Tags: `p`, `br`, `strong`, `em`, `u`, `a`, `code`, `pre`
+- Verbotene Tags: `script`, `iframe`, `object`, `embed`
+- Verbotene Attributes: `onclick`, `onerror`, `onload`
+
+#### Spam-Detection
+
+- **Multi-Heuristik-System** mit Score-basierter Erkennung
+- Checks: Keywords, Links, Caps-Lock, Wiederholungen, Länge, Patterns
+- Strictness-Levels: `low`, `medium`, `high`
+- Auto-Flag bei Score > 40, Auto-Reject bei Score > 60
+
+#### Rate-Limiting
+
+- **Dual-Layer**: Hono-Middleware + Service-Layer
+- Comment-Creation: **5 req/min** pro IP/User
+- Other Endpoints: **50 req/min**
+
+#### CSRF-Protection
+
+- **Double-Submit Token**: Cookie `csrf_token` == Header `X-CSRF-Token`
+- Enforced für alle mutierenden Operationen (POST, PUT, DELETE)
+
+#### Audit-Logging
+
+- Alle Aktionen in `comment_audit_logs` protokolliert
+- Anonymized IP-Logging (letzte Oktett/Hextet → 0)
+- Details: Action, User-ID, IP, User-Agent, Timestamp
 
 ---
 

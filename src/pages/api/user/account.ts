@@ -1,5 +1,6 @@
 import { withAuthApiMiddleware, createApiError } from '@/lib/api-middleware';
 import { logUserEvent } from '@/lib/security-logger';
+import Stripe from 'stripe';
 
 /**
  * DELETE /api/user/account
@@ -27,11 +28,13 @@ export const DELETE = withAuthApiMiddleware(
 
     // Optional: Bestätigung einfordern und validieren
     let confirmDelete = false;
+    let cancelSubscription = false;
     try {
       const body = (await request.json().catch(() => null)) as unknown;
-      if (body && typeof body === 'object' && 'confirm' in body) {
-        const anyBody = body as Record<string, unknown>;
-        confirmDelete = Boolean(anyBody.confirm);
+      if (body && typeof body === 'object') {
+        const requestObj = body as Record<string, unknown>;
+        confirmDelete = Boolean(requestObj.confirm);
+        cancelSubscription = Boolean(requestObj.cancelSubscription);
       }
     } catch (_error) {
       // JSON parsing error ignorieren, confirmDelete bleibt false
@@ -43,6 +46,90 @@ export const DELETE = withAuthApiMiddleware(
         ipAddress: clientAddress,
       });
       return createApiError('validation_error', 'Confirmation required to delete account');
+    }
+
+    type SubscriptionRow = {
+      id: string;
+      plan: 'free' | 'pro' | 'premium' | 'enterprise';
+      status: string;
+      current_period_end: number | null;
+      cancel_at_period_end: number | null;
+    };
+
+    const activeSubscriptions = await db
+      .prepare(
+        `SELECT id, plan, status, current_period_end, cancel_at_period_end
+         FROM subscriptions
+         WHERE user_id = ?1
+           AND status IN ('active', 'trialing', 'past_due')
+           AND (cancel_at_period_end IS NULL OR cancel_at_period_end = 0)
+         ORDER BY datetime(updated_at) DESC`
+      )
+      .bind(user.id)
+      .all<SubscriptionRow>();
+
+    if (activeSubscriptions.length > 0) {
+      const activeSubscriptionIds = activeSubscriptions.map((subscription) => subscription.id);
+
+      if (!cancelSubscription) {
+        logUserEvent(user.id, 'account_deletion_blocked_subscription', {
+          subscriptionIds: activeSubscriptionIds,
+          plans: activeSubscriptions.map((subscription) => subscription.plan),
+          statuses: activeSubscriptions.map((subscription) => subscription.status),
+          ipAddress: clientAddress,
+        });
+
+        return createApiError(
+          'subscription_active',
+          'Active subscription must be cancelled before deleting the account.',
+          {
+            subscriptions: activeSubscriptions.map((subscription) => ({
+              id: subscription.id,
+              plan: subscription.plan,
+              status: subscription.status,
+              currentPeriodEnd: subscription.current_period_end,
+            })),
+          }
+        );
+      }
+
+      if (!env.STRIPE_SECRET) {
+        return createApiError('server_error', 'Stripe not configured');
+      }
+
+      const stripe = new Stripe(env.STRIPE_SECRET);
+
+      for (const subscription of activeSubscriptions) {
+        try {
+          await stripe.subscriptions.update(subscription.id, {
+            cancel_at_period_end: true,
+          });
+
+          await db
+            .prepare(
+              `UPDATE subscriptions
+               SET cancel_at_period_end = 1,
+                   updated_at = CURRENT_TIMESTAMP
+               WHERE id = ?1`
+            )
+            .bind(subscription.id)
+            .run();
+
+          logUserEvent(user.id, 'subscription_cancelled_via_account_delete', {
+            subscriptionId: subscription.id,
+            plan: subscription.plan,
+            ipAddress: clientAddress,
+          });
+        } catch (error) {
+          logUserEvent(user.id, 'subscription_cancel_error_account_delete', {
+            subscriptionId: subscription.id,
+            error: error instanceof Error ? error.message : String(error),
+            ipAddress: clientAddress,
+          });
+
+          return createApiError('server_error', 'Unable to cancel active subscription');
+        }
+      }
     }
 
     try {

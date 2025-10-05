@@ -130,6 +130,126 @@ curl -X POST http://127.0.0.1:8787/api/ai-image/jobs/JOB_ID/cancel \
   -H "X-CSRF-Token: 123" -H "Cookie: csrf_token=123" -H "Origin: http://127.0.0.1:8787"
 ```
 
+## Comments API
+
+**Status:** ✅ Vollständig implementiert (Production-Ready 80%)
+
+Das Kommentarsystem bietet CRUD-Operationen, Moderation, Spam-Detection und XSS-Protection.
+
+### POST `/api/comments/create`
+
+Erstellt einen neuen Kommentar (Guest oder Auth).
+
+- **Security:** Rate-Limiting (5/min), CSRF-Protection, Spam-Detection, XSS-Sanitization
+- **Auth:** Optional (Guest-Modus verfügbar)
+
+**Request-Body (Auth User):**
+
+```json
+{
+  "content": "Great article!",
+  "entityType": "blog_post",
+  "entityId": "digital-detox-kreativitaet",
+  "parentId": "abc123"  // Optional (für Replies)
+}
+```
+
+**Request-Body (Guest):**
+
+```json
+{
+  "content": "Great article!",
+  "entityType": "blog_post",
+  "entityId": "digital-detox-kreativitaet",
+  "authorName": "Guest User",
+  "authorEmail": "guest@example.com"
+}
+```
+
+**Beispiel (curl):**
+
+```bash
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -H "X-CSRF-Token: 123" \
+  -H "Cookie: csrf_token=123" \
+  -H "Origin: http://127.0.0.1:8787" \
+  -d '{
+    "content": "Great article!",
+    "entityType": "blog_post",
+    "entityId": "test-post",
+    "authorName": "Guest User",
+    "authorEmail": "guest@example.com"
+  }' \
+  http://127.0.0.1:8787/api/comments/create
+```
+
+**Erfolg (201 Created):**
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "xyz789",
+    "content": "Great article!",
+    "status": "pending",  // 'approved' für auth users
+    ...
+  }
+}
+```
+
+### GET `/api/comments`
+
+Ruft Kommentare ab mit Filterung und Pagination.
+
+**Query-Parameter:**
+- `entityType`: `blog_post` | `project` | `general`
+- `entityId`: ID/Slug des Entities
+- `status`: `approved` | `pending` | `flagged` | `hidden` (Standard: `approved`)
+- `limit`: Anzahl (Standard: 20)
+- `offset`: Offset (Standard: 0)
+- `includeReplies`: true | false (Standard: true)
+
+**Beispiel:**
+
+```bash
+curl "http://127.0.0.1:8787/api/comments?entityType=blog_post&entityId=test-post&limit=10"
+```
+
+### PUT `/api/comments/[id]`
+
+Aktualisiert einen Kommentar (nur durch Autor).
+
+**Beispiel:**
+
+```bash
+curl -X PUT \
+  -H "Content-Type: application/json" \
+  -H "X-CSRF-Token: 123" \
+  -H "Cookie: csrf_token=123" \
+  -d '{"content":"Updated text","csrfToken":"123"}' \
+  http://127.0.0.1:8787/api/comments/xyz789
+```
+
+### DELETE `/api/comments/[id]`
+
+Löscht einen Kommentar (Soft-Delete → Status: `hidden`).
+
+**Beispiel:**
+
+```bash
+curl -X DELETE \
+  -H "Content-Type: application/json" \
+  -H "X-CSRF-Token: 123" \
+  -H "Cookie: csrf_token=123" \
+  -d '{"csrfToken":"123"}' \
+  http://127.0.0.1:8787/api/comments/xyz789
+```
+
+**Vollständige Dokumentation:** [`docs/api/public_api.md#1-kommentare-api`](./public_api.md#1-kommentare-api)
+
+---
+
 ## Auth & Sessions
 
 - Magic‑Link (Stytch). Registrierung implizit beim ersten Callback, Passwörter entfallen.

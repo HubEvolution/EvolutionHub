@@ -15,6 +15,8 @@ import Icon from '@/components/ui/Icon';
  * @typedef {Object} NotificationsProps
  * @property {Notification[]} [initialNotifications]
  * @property {string} [title]
+ * @property {string} [emptyLabel]
+ * @property {('en'|'de')} [locale]
  */
 
 /**
@@ -23,9 +25,12 @@ import Icon from '@/components/ui/Icon';
  */
 const Notifications = ({
   initialNotifications = [],
-  title = 'Notifications'
+  title = 'Notifications',
+  emptyLabel = 'No new notifications',
+  locale = 'en'
 }) => {
   const { notifications, setNotifications } = useNotificationStore();
+  const resolvedLocale = locale === 'de' ? 'de-DE' : 'en-US';
   
   // Beim ersten Rendern die Benachrichtigungen laden
   useEffect(() => {
@@ -56,7 +61,7 @@ const Notifications = ({
       <div className="space-y-4">
         {notifications.length === 0 ? (
           <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-            <p>No new notifications</p>
+            <p>{emptyLabel}</p>
           </div>
         ) : (
           notifications.map((notification) => (
@@ -67,7 +72,7 @@ const Notifications = ({
               <div className="flex-1">
                 <p className="text-sm text-gray-800 dark:text-gray-200">{notification.message}</p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  {new Date(notification.timestamp).toLocaleString()}
+                  {new Date(notification.timestamp).toLocaleString(resolvedLocale)}
                 </p>
               </div>
             </div>

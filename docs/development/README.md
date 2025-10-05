@@ -72,6 +72,17 @@ Siehe auch: [../SETUP.md](../SETUP.md) für Schnellstart-Anleitung
 
 - **[Auth Flow Audit Phase 1](./auth-flow-audit-phase1.md)** — Audit-Dokumentation des Authentifizierungsflows
 - **[Bugfix: Session Cookie Fallback](./bugfix-session-cookie-fallback.md)** — Session-Cookie-Fallback-Implementierung
+- **Kontolöschung mit Abo-Schutz** — `DELETE /api/user/account` blockiert aktive Stripe-Abonnements (Status `active`, `trialing`, `past_due`). Die API liefert den Fehlercode `subscription_active` inklusive Plan-Details; Nutzer:innen können entweder zur Abrechnung wechseln oder die Kündigung automatisch zum Periodenende terminieren lassen.
+
+### Dashboard Updates (2025-09)
+
+- Neues Dashboard-Layout mit Karten für **Billing & Plan**, **Werkzeuge im Schnellzugriff**, **Newsletter-Einstellungen** und **Empfehlungen**.
+- APIs:
+  - `GET /api/dashboard/billing-summary` liefert Plan-, Status- und Credit-Daten aus `subscriptions` + KV.
+  - `POST /api/billing/cancel` markiert aktive Stripe-Subscriptions für eine Kündigung zum Periodenende.
+  - `POST /api/newsletter/unsubscribe` ermöglicht opt-out, optional erneutes Opt-in via bestehender Subscribe-Route.
+  - `GET /api/dashboard/recommendations` gibt Tool- und Dokumenten-Empfehlungen abhängig von der Locale zurück.
+- UI-Komponenten: `BillingCard`, `NewsletterPreferencesCard`, `ToolShortcutsCard`, `RecommendationsCard` (siehe `src/components/dashboard/`).
 
 ## Pull Requests
 

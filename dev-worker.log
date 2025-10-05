@@ -1,0 +1,444 @@
+
+> evolution-hub@0.0.1 dev:worker:dev
+> npm run build:worker:dev && wrangler dev --env development --port 8787
+
+
+> evolution-hub@0.0.1 build:worker:dev
+> ASTRO_DEPLOY_TARGET=worker astro build --mode development && node -e "const fs=require('fs'); fs.mkdirSync('dist',{recursive:true}); fs.writeFileSync('dist/.assetsignore','_worker.js\n'); if (fs.existsSync('dist/_worker.js/assets')) { fs.mkdirSync('dist/assets',{recursive:true}); fs.cpSync('dist/_worker.js/assets','dist/assets',{recursive:true}); }"
+
+03:11:58 [@astrojs/cloudflare] Enabling sessions with Cloudflare KV with the "SESSION" KV binding.
+03:11:58 [@astrojs/cloudflare] If you see the error "Invalid binding `SESSION`" in your build output, you need to add the binding to your wrangler config file.
+03:11:58 [WARN] [adapter] Cloudflare does not support sharp at runtime. However, you can configure `imageService: "compile"` to optimize images with sharp on prerendered pages during build time.
+03:11:59 [content] Syncing content
+03:11:59 [content] Synced content
+03:11:59 [types] Generated 743ms
+03:11:59 [build] output: "server"
+03:11:59 [build] mode: "server"
+03:11:59 [build] directory: /Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/dist/
+03:11:59 [build] adapter: @astrojs/cloudflare
+03:11:59 [build] Collecting build info...
+03:11:59 [build] ✓ Completed in 853ms.
+03:11:59 [build] Building server entrypoints...
+03:11:59 [vite] vite v6.3.6 building SSR bundle for development...
+03:11:59 [vite] transforming...
+03:12:07 [vite] ✓ 2100 modules transformed.
+03:12:08 [vite] rendering chunks...
+03:12:08 [vite] dist/_worker.js/_astro/evolutionhub-logo.YJAYBZ1T.svg                 1.05 kB
+03:12:08 [vite] dist/_worker.js/_astro/login.8VHW6-t5.css                             0.23 kB
+03:12:08 [vite] dist/_worker.js/_astro/comments-demo.CsC_zul1.css                     0.68 kB
+03:12:08 [vite] dist/_worker.js/_astro/index.DAk9CKNy.css                             0.82 kB
+03:12:08 [vite] dist/_worker.js/_astro/index.BcTp4DYQ.css                             1.96 kB
+03:12:08 [vite] dist/_worker.js/_astro/_slug_.B0oTrIDI.css                            4.80 kB
+03:12:08 [vite] dist/_worker.js/_astro/index.x-J_zhyW.css                             5.05 kB
+03:12:08 [vite] dist/_worker.js/_astro/password-reset-sent.AALHuDtk.css               5.11 kB
+03:12:08 [vite] dist/_worker.js/_astro/settings.DbGSTu1F.css                        129.24 kB
+03:12:08 [vite] dist/_worker.js/chunks/astro_yc9Rcjec.mjs                             0.10 kB
+03:12:08 [vite] dist/_worker.js/_noop-actions.mjs                                     0.10 kB
+03:12:08 [vite] dist/_worker.js/chunks/content-assets_XqCgPAV2.mjs                    0.13 kB
+03:12:08 [vite] dist/_worker.js/chunks/content-modules_Bvq7llv8.mjs                   0.13 kB
+03:12:08 [vite] dist/_worker.js/renderers.mjs                                         0.13 kB
+03:12:08 [vite] dist/_worker.js/_@astrojs-ssr-adapter.mjs                             0.14 kB
+03:12:08 [vite] dist/_worker.js/pages/faq.astro.mjs                                   0.24 kB
+03:12:08 [vite] dist/_worker.js/pages/blog.astro.mjs                                  0.24 kB
+03:12:08 [vite] dist/_worker.js/pages/de.astro.mjs                                    0.24 kB
+03:12:08 [vite] dist/_worker.js/pages/docs.astro.mjs                                  0.24 kB
+03:12:08 [vite] dist/_worker.js/pages/kontakt.astro.mjs                               0.24 kB
+03:12:08 [vite] dist/_worker.js/pages/pricing.astro.mjs                               0.24 kB
+03:12:08 [vite] dist/_worker.js/pages/blog/_---slug_.astro.mjs                        0.25 kB
+03:12:08 [vite] dist/_worker.js/pages/de/datenschutz.astro.mjs                        0.25 kB
+03:12:08 [vite] dist/_worker.js/pages/api/newsletter/confirm.astro.mjs                0.25 kB
+03:12:08 [vite] dist/_worker.js/pages/cookie-einstellungen.astro.mjs                  0.25 kB
+03:12:08 [vite] dist/_worker.js/chunks/aos_B9vsZ-mO.mjs                               0.31 kB
+03:12:08 [vite] dist/_worker.js/chunks/noop-middleware_DHq3jFKa.mjs                   0.33 kB
+03:12:08 [vite] dist/_worker.js/chunks/id-generator_DHMr9z3k.mjs                      0.34 kB
+03:12:08 [vite] dist/_worker.js/chunks/i18n_Ed3xXvnu.mjs                              0.34 kB
+03:12:08 [vite] dist/_worker.js/chunks/consts_C49WwYgi.mjs                            0.55 kB
+03:12:08 [vite] dist/_worker.js/chunks/provider-error_DIb6_7sV.mjs                    0.67 kB
+03:12:08 [vite] dist/_worker.js/chunks/mime_fIduxd7A.mjs                              0.80 kB
+03:12:08 [vite] dist/_worker.js/chunks/prompt-enhancer_CCBQ_-Lt.mjs                   0.80 kB
+03:12:08 [vite] dist/_worker.js/chunks/locale-path_CpH__A1G.mjs                       0.81 kB
+03:12:08 [vite] dist/_worker.js/pages/api/user/settings.astro.mjs                     0.89 kB
+03:12:08 [vite] dist/_worker.js/chunks/seo_dH6MdAkt.mjs                               0.90 kB
+03:12:08 [vite] dist/_worker.js/chunks/Alert_DveOfDdP.mjs                             0.93 kB
+03:12:08 [vite] dist/_worker.js/chunks/Button_DD7kx0FN.mjs                            0.96 kB
+03:12:08 [vite] dist/_worker.js/chunks/Icon_Pra-Cmsf.mjs                              0.97 kB
+03:12:08 [vite] dist/_worker.js/pages/api/auth/change-password.astro.mjs              0.98 kB
+03:12:08 [vite] dist/_worker.js/pages/api/auth/register.astro.mjs                     0.98 kB
+03:12:08 [vite] dist/_worker.js/pages/api/auth/reset-password.astro.mjs               0.98 kB
+03:12:08 [vite] dist/_worker.js/pages/api/auth/resend-verification.astro.mjs          0.98 kB
+03:12:08 [vite] dist/_worker.js/pages/index.astro.mjs                                 0.98 kB
+03:12:08 [vite] dist/_worker.js/chunks/entitlements_DOAaBIUB.mjs                      0.99 kB
+03:12:08 [vite] dist/_worker.js/pages/de/faq.astro.mjs                                0.99 kB
+03:12:08 [vite] dist/_worker.js/pages/en/faq.astro.mjs                                0.99 kB
+03:12:08 [vite] dist/_worker.js/pages/en/blog.astro.mjs                               1.01 kB
+03:12:08 [vite] dist/_worker.js/pages/en/docs.astro.mjs                               1.01 kB
+03:12:08 [vite] dist/_worker.js/pages/api/auth/forgot-password.astro.mjs              1.01 kB
+03:12:08 [vite] dist/_worker.js/pages/en/pricing.astro.mjs                            1.02 kB
+03:12:08 [vite] dist/_worker.js/pages/api/auth/login.astro.mjs                        1.02 kB
+03:12:08 [vite] dist/_worker.js/pages/en/blog/_---slug_.astro.mjs                     1.03 kB
+03:12:08 [vite] dist/_worker.js/pages/en/kontakt.astro.mjs                            1.03 kB
+03:12:08 [vite] dist/_worker.js/pages/datenschutz.astro.mjs                           1.04 kB
+03:12:08 [vite] dist/_worker.js/pages/api/user/password.astro.mjs                     1.04 kB
+03:12:08 [vite] dist/_worker.js/chunks/AuthLayout_DTuErt7i.mjs                        1.08 kB
+03:12:08 [vite] dist/_worker.js/pages/tools/prompt-enhancer.astro.mjs                 1.09 kB
+03:12:08 [vite] dist/_worker.js/pages/en/account/settings.astro.mjs                   1.09 kB
+03:12:08 [vite] dist/_worker.js/pages/en/cookie-settings.astro.mjs                    1.10 kB
+03:12:08 [vite] dist/_worker.js/pages/de/tools/prompt-enhancer.astro.mjs              1.11 kB
+03:12:08 [vite] dist/_worker.js/pages/en/tools/prompt-enhancer.astro.mjs              1.11 kB
+03:12:08 [vite] dist/_worker.js/chunks/AosWrapper_6IGQryh9.mjs                        1.12 kB
+03:12:08 [vite] dist/_worker.js/pages/de/cookie-einstellungen.astro.mjs               1.12 kB
+03:12:08 [vite] dist/_worker.js/pages/api/dashboard/quick-actions.astro.mjs           1.22 kB
+03:12:08 [vite] dist/_worker.js/pages/api/auth/verify-email.astro.mjs                 1.27 kB
+03:12:08 [vite] dist/_worker.js/pages/api/auth/logout.astro.mjs                       1.28 kB
+03:12:08 [vite] dist/_worker.js/pages/account/settings.astro.mjs                      1.32 kB
+03:12:08 [vite] dist/_worker.js/pages/auth/notify.astro.mjs                           1.36 kB
+03:12:08 [vite] dist/_worker.js/chunks/global-error-interceptor_BP_HcKwE.mjs          1.36 kB
+03:12:08 [vite] dist/_worker.js/pages/api/user/me.astro.mjs                           1.40 kB
+03:12:08 [vite] dist/_worker.js/pages/r2/_---path_.astro.mjs                          1.47 kB
+03:12:08 [vite] dist/_worker.js/chunks/client-logger_xDAsXhir.mjs                     1.51 kB
+03:12:08 [vite] dist/_worker.js/chunks/beacon-interceptor_BUdrrZKy.mjs                1.52 kB
+03:12:08 [vite] dist/_worker.js/chunks/ai-image_CqZoxTkr.mjs                          1.53 kB
+03:12:08 [vite] dist/_worker.js/pages/sitemap.xml.astro.mjs                           1.54 kB
+03:12:08 [vite] dist/_worker.js/pages/api/billing/sync-callback.astro.mjs             1.60 kB
+03:12:08 [vite] dist/_worker.js/pages/api/dashboard/notifications.astro.mjs           1.68 kB
+03:12:08 [vite] dist/_worker.js/pages/auth/password-reset-success.astro.mjs           1.74 kB
+03:12:08 [vite] dist/_worker.js/pages/api/newsletter/unsubscribe.astro.mjs            1.75 kB
+03:12:08 [vite] dist/_worker.js/pages/api/admin/status.astro.mjs                      1.76 kB
+03:12:08 [vite] dist/_worker.js/chunks/auth-v2_B1lpH811.mjs                           1.82 kB
+03:12:08 [vite] dist/_worker.js/pages/api/templates.astro.mjs                         1.89 kB
+03:12:08 [vite] dist/_worker.js/pages/api/tools.astro.mjs                             1.91 kB
+03:12:08 [vite] dist/_worker.js/pages/auth/password-reset-sent.astro.mjs              1.91 kB
+03:12:08 [vite] dist/_worker.js/chunks/console-interceptor_C7AYgbSu.mjs               1.96 kB
+03:12:08 [vite] dist/_worker.js/pages/api/dashboard/recommendations.astro.mjs         1.99 kB
+03:12:08 [vite] dist/_worker.js/chunks/Input_1oLTbXdD.mjs                             2.03 kB
+03:12:08 [vite] dist/_worker.js/chunks/auth-helpers_D1rbG-Wq.mjs                      2.07 kB
+03:12:08 [vite] dist/_worker.js/pages/api/dashboard/activity.astro.mjs                2.08 kB
+03:12:08 [vite] dist/_worker.js/chunks/index_Ci55B3Iz.mjs                             2.11 kB
+03:12:08 [vite] dist/_worker.js/pages/api/dashboard/projects.astro.mjs                2.16 kB
+03:12:08 [vite] dist/_worker.js/chunks/path_Oj0iLohx.mjs                              2.23 kB
+03:12:08 [vite] dist/_worker.js/chunks/csrf_CdF0KqdJ.mjs                              2.24 kB
+03:12:08 [vite] dist/_worker.js/chunks/Button_BdFYcWsw.mjs                            2.28 kB
+03:12:08 [vite] dist/_worker.js/pages/api/user/profile.astro.mjs                      2.31 kB
+03:12:08 [vite] dist/_worker.js/pages/api/dashboard/stats.astro.mjs                   2.32 kB
+03:12:08 [vite] dist/_worker.js/pages/tools/webscraper/app.astro.mjs                  2.33 kB
+03:12:08 [vite] dist/_worker.js/pages/en/tools/webscraper/app.astro.mjs               2.35 kB
+03:12:08 [vite] dist/_worker.js/pages/tools/prompt-enhancer/app.astro.mjs             2.36 kB
+03:12:08 [vite] dist/_worker.js/pages/en/tools/prompt-enhancer/app.astro.mjs          2.38 kB
+03:12:08 [vite] dist/_worker.js/pages/de/tools/prompt-enhancer/app.astro.mjs          2.39 kB
+03:12:08 [vite] dist/_worker.js/pages/api/debug/client-log.astro.mjs                  2.39 kB
+03:12:08 [vite] dist/_worker.js/pages/de/tools/webscraper/app.astro.mjs               2.42 kB
+03:12:08 [vite] dist/_worker.js/pages/api/dashboard/billing-summary.astro.mjs         2.43 kB
+03:12:08 [vite] dist/_worker.js/pages/api/internal/users/sync.astro.mjs               2.49 kB
+03:12:08 [vite] dist/_worker.js/pages/api/billing/credits.astro.mjs                   2.52 kB
+03:12:08 [vite] dist/_worker.js/chunks/security-logger_CiNRPQ3G.mjs                   2.54 kB
+03:12:08 [vite] dist/_worker.js/pages/api/comments/create.astro.mjs                   2.54 kB
+03:12:08 [vite] dist/_worker.js/pages/api/user/logout.astro.mjs                       2.69 kB
+03:12:08 [vite] dist/_worker.js/pages/api/ai-image/jobs/_id_/cancel.astro.mjs         2.70 kB
+03:12:08 [vite] dist/_worker.js/pages/api/billing/link-pending.astro.mjs              2.72 kB
+03:12:08 [vite] dist/_worker.js/pages/api/telemetry.astro.mjs                         2.75 kB
+03:12:08 [vite] dist/_worker.js/pages/api/billing/cancel.astro.mjs                    2.76 kB
+03:12:08 [vite] dist/_worker.js/pages/api/user/avatar.astro.mjs                       2.84 kB
+03:12:08 [vite] dist/_worker.js/chunks/cloudflare-kv-binding_DMly_2Gl.mjs             3.01 kB
+03:12:08 [vite] dist/_worker.js/pages/welcome.astro.mjs                               3.03 kB
+03:12:08 [vite] dist/_worker.js/chunks/sharp_CuvM6vuj.mjs                             3.07 kB
+03:12:08 [vite] dist/_worker.js/pages/api/health.astro.mjs                            3.09 kB
+03:12:08 [vite] dist/_worker.js/pages/api/ai-image/jobs/_id_.astro.mjs                3.15 kB
+03:12:08 [vite] dist/_worker.js/pages/api/csp-report.astro.mjs                        3.18 kB
+03:12:08 [vite] dist/_worker.js/pages/register.astro.mjs                              3.21 kB
+03:12:08 [vite] dist/_worker.js/pages/api/test/seed-email-token.astro.mjs             3.23 kB
+03:12:08 [vite] dist/_worker.js/pages/_image.astro.mjs                                3.23 kB
+03:12:08 [vite] dist/_worker.js/pages/en/register.astro.mjs                           3.25 kB
+03:12:08 [vite] dist/_worker.js/pages/api/projects.astro.mjs                          3.27 kB
+03:12:08 [vite] dist/_worker.js/pages/de/register.astro.mjs                           3.27 kB
+03:12:08 [vite] dist/_worker.js/chunks/index.esm_B6YxiGL2.mjs                         3.44 kB
+03:12:08 [vite] dist/_worker.js/pages/api/prompt/usage.astro.mjs                      3.46 kB
+03:12:08 [vite] dist/_worker.js/chunks/rate-limiter_mD3kD5dq.mjs                      3.51 kB
+03:12:08 [vite] dist/_worker.js/pages/api/billing/session.astro.mjs                   3.53 kB
+03:12:08 [vite] dist/_worker.js/chunks/logger_CJH_6FXb.mjs                            3.62 kB
+03:12:08 [vite] dist/_worker.js/pages/api/dashboard/perform-action.astro.mjs          3.65 kB
+03:12:08 [vite] dist/_worker.js/chunks/base-service_DfHemTO5.mjs                      3.65 kB
+03:12:08 [vite] dist/_worker.js/chunks/tools-data_DVAQynlA.mjs                        3.81 kB
+03:12:08 [vite] dist/_worker.js/pages/welcome-profile.astro.mjs                       3.87 kB
+03:12:08 [vite] dist/_worker.js/pages/de/welcome-profile.astro.mjs                    3.90 kB
+03:12:08 [vite] dist/_worker.js/pages/en/welcome-profile.astro.mjs                    3.90 kB
+03:12:08 [vite] dist/_worker.js/pages/en/login.astro.mjs                              3.90 kB
+03:12:08 [vite] dist/_worker.js/pages/login.astro.mjs                                 3.94 kB
+03:12:08 [vite] dist/_worker.js/pages/r2-ai/_---path_.astro.mjs                       3.98 kB
+03:12:08 [vite] dist/_worker.js/pages/agb.astro.mjs                                   4.01 kB
+03:12:08 [vite] dist/_worker.js/pages/api/ai-image/jobs.astro.mjs                     4.01 kB
+03:12:08 [vite] dist/_worker.js/pages/de/agb.astro.mjs                                4.04 kB
+03:12:08 [vite] dist/_worker.js/pages/de/login.astro.mjs                              4.05 kB
+03:12:08 [vite] dist/_worker.js/pages/api/auth/oauth/_provider_/start.astro.mjs       4.11 kB
+03:12:08 [vite] dist/_worker.js/pages/api/debug/logs-stream.astro.mjs                 4.11 kB
+03:12:08 [vite] dist/_worker.js/pages/blog/comments-demo.astro.mjs                    4.13 kB
+03:12:08 [vite] dist/_worker.js/pages/api/ai-image/usage.astro.mjs                    4.17 kB
+03:12:08 [vite] dist/_worker.js/chunks/index_BdX9RYfc.mjs                             4.25 kB
+03:12:08 [vite] dist/_worker.js/pages/en/agb.astro.mjs                                4.25 kB
+03:12:08 [vite] dist/_worker.js/chunks/response-helpers_D51fQZwO.mjs                  4.75 kB
+03:12:08 [vite] dist/_worker.js/chunks/stytch_CshVWJh3.mjs                            4.76 kB
+03:12:08 [vite] dist/_worker.js/pages/api/test/seed-suite-v2.astro.mjs                4.85 kB
+03:12:08 [vite] dist/_worker.js/pages/api/comments.astro.mjs                          4.86 kB
+03:12:08 [vite] dist/_worker.js/chunks/xhr-interceptor_Co79Th61.mjs                   4.87 kB
+03:12:08 [vite] dist/_worker.js/pages/api/billing/sync.astro.mjs                      4.88 kB
+03:12:08 [vite] dist/_worker.js/pages/admin/status.astro.mjs                          5.08 kB
+03:12:08 [vite] dist/_worker.js/pages/api/ai-image/generate.astro.mjs                 5.23 kB
+03:12:08 [vite] dist/_worker.js/pages/api/notifications.astro.mjs                     5.48 kB
+03:12:08 [vite] dist/_worker.js/pages/api/admin/comments.astro.mjs                    5.51 kB
+03:12:08 [vite] dist/_worker.js/pages/api/notifications/settings.astro.mjs            5.86 kB
+03:12:08 [vite] dist/_worker.js/pages/api/debug-login.astro.mjs                       5.90 kB
+03:12:08 [vite] dist/_worker.js/pages/api/user/account.astro.mjs                      6.05 kB
+03:12:08 [vite] dist/_worker.js/pages/en/tools.astro.mjs                              6.07 kB
+03:12:08 [vite] dist/_worker.js/pages/tools.astro.mjs                                 6.10 kB
+03:12:08 [vite] dist/_worker.js/pages/api/comments/moderate.astro.mjs                 6.20 kB
+03:12:08 [vite] dist/_worker.js/chunks/network-interceptor_KkyqnTvp.mjs               6.29 kB
+03:12:08 [vite] dist/_worker.js/chunks/confirm_BHvjjnmw.mjs                           6.37 kB
+03:12:08 [vite] dist/_worker.js/pages/api/admin/comments/_id_/moderate.astro.mjs      6.46 kB
+03:12:08 [vite] dist/_worker.js/pages/en/verify-email.astro.mjs                       6.59 kB
+03:12:08 [vite] dist/_worker.js/pages/verify-email.astro.mjs                          6.79 kB
+03:12:08 [vite] dist/_worker.js/chunks/AuthStatusNotifier_FlcqTTr5.mjs                6.83 kB
+03:12:08 [vite] dist/_worker.js/pages/api/auth/magic/request.astro.mjs                6.84 kB
+03:12:08 [vite] dist/_worker.js/pages/tools/imag-enhancer.astro.mjs                   6.96 kB
+03:12:08 [vite] dist/_worker.js/pages/api/newsletter/subscribe.astro.mjs              7.02 kB
+03:12:08 [vite] dist/_worker.js/pages/en/tools/imag-enhancer.astro.mjs                7.31 kB
+03:12:08 [vite] dist/_worker.js/chunks/ToolFilter_CIqUNV2v.mjs                        7.42 kB
+03:12:08 [vite] dist/_worker.js/pages/api/auth/callback.astro.mjs                     7.45 kB
+03:12:08 [vite] dist/_worker.js/pages/en/tools/imag-enhancer/app.astro.mjs            7.60 kB
+03:12:08 [vite] dist/_worker.js/chunks/parse_yL_293SP.mjs                             7.78 kB
+03:12:08 [vite] dist/_worker.js/pages/api/auth/oauth/_provider_/callback.astro.mjs    7.85 kB
+03:12:08 [vite] dist/_worker.js/pages/en/dashboard.astro.mjs                          8.23 kB
+03:12:08 [vite] dist/_worker.js/chunks/logger-factory_CQkDV6FL.mjs                    8.42 kB
+03:12:08 [vite] dist/_worker.js/pages/api/billing/stripe-webhook.astro.mjs            8.48 kB
+03:12:08 [vite] dist/_worker.js/pages/tools/imag-enhancer/app.astro.mjs               8.49 kB
+03:12:08 [vite] dist/_worker.js/chunks/VerifyEmailCoordinator_JblrQn-N.mjs            8.51 kB
+03:12:08 [vite] dist/_worker.js/pages/api/comments/_id_.astro.mjs                     8.88 kB
+03:12:08 [vite] dist/_worker.js/pages/admin/comments.astro.mjs                        9.22 kB
+03:12:08 [vite] dist/_worker.js/pages/dashboard.astro.mjs                             9.53 kB
+03:12:08 [vite] dist/_worker.js/pages/api/lead-magnets/download.astro.mjs             9.70 kB
+03:12:08 [vite] dist/_worker.js/pages/en/new.astro.mjs                                9.76 kB
+03:12:08 [vite] dist/_worker.js/pages/new.astro.mjs                                   9.82 kB
+03:12:08 [vite] dist/_worker.js/pages/en/datenschutz.astro.mjs                        9.87 kB
+03:12:08 [vite] dist/_worker.js/chunks/datenschutz_BZINs40P.mjs                      10.17 kB
+03:12:08 [vite] dist/_worker.js/chunks/MagicLinkForm_CDpG4DG_.mjs                    10.40 kB
+03:12:08 [vite] dist/_worker.js/pages/en/email-verified.astro.mjs                    11.06 kB
+03:12:08 [vite] dist/_worker.js/chunks/index_BxYn-t09.mjs                            11.21 kB
+03:12:08 [vite] dist/_worker.js/pages/en.astro.mjs                                   11.40 kB
+03:12:08 [vite] dist/_worker.js/pages/email-verified.astro.mjs                       11.50 kB
+03:12:08 [vite] dist/_worker.js/chunks/api-middleware_BGWbL4LV.mjs                   11.55 kB
+03:12:08 [vite] dist/_worker.js/chunks/kontakt_BvIODgEK.mjs                          11.99 kB
+03:12:08 [vite] dist/_worker.js/pages/newsletter/confirm.astro.mjs                   12.04 kB
+03:12:08 [vite] dist/_worker.js/pages/impressum.astro.mjs                            12.28 kB
+03:12:08 [vite] dist/_worker.js/pages/de/impressum.astro.mjs                         12.70 kB
+03:12:08 [vite] dist/_worker.js/pages/en/impressum.astro.mjs                         13.05 kB
+03:12:08 [vite] dist/_worker.js/chunks/faq_DGyn1qeM.mjs                              13.37 kB
+03:12:08 [vite] dist/_worker.js/chunks/cookie-einstellungen_DwHHau9M.mjs             14.80 kB
+03:12:08 [vite] dist/_worker.js/chunks/notification-service_CQFw7suK.mjs             15.53 kB
+03:12:08 [vite] dist/_worker.js/chunks/Icon_CMm8_UYD.mjs                             15.69 kB
+03:12:08 [vite] dist/_worker.js/chunks/ai-jobs-service_BMEkqj-7.mjs                  16.70 kB
+03:12:08 [vite] dist/_worker.js/pages/api/user/logout-v2.astro.mjs                   17.13 kB
+03:12:08 [vite] dist/_worker.js/chunks/browser_GCk4HToL.mjs                          17.51 kB
+03:12:08 [vite] dist/_worker.js/_astro-internal_middleware.mjs                       17.74 kB
+03:12:08 [vite] dist/_worker.js/index.js                                             18.37 kB
+03:12:08 [vite] dist/_worker.js/chunks/TestimonialCarousel_CbsjNngd.mjs              19.30 kB
+03:12:08 [vite] dist/_worker.js/chunks/ai-image-service_DM__n1Y-.mjs                 19.87 kB
+03:12:08 [vite] dist/_worker.js/chunks/jwt_CqJbSfwA.mjs                              20.94 kB
+03:12:08 [vite] dist/_worker.js/pages/api/comments/performance.astro.mjs             24.86 kB
+03:12:08 [vite] dist/_worker.js/chunks/index_B1SGhfYW.mjs                            25.73 kB
+03:12:08 [vite] dist/_worker.js/pages/api/prompt-enhance.astro.mjs                   28.18 kB
+03:12:08 [vite] dist/_worker.js/pages/api/data-export.astro.mjs                      28.70 kB
+03:12:08 [vite] dist/_worker.js/chunks/index_OaG_42Nk.mjs                            29.53 kB
+03:12:08 [vite] dist/_worker.js/chunks/EnhancerForm_AUKPfh4p.mjs                     30.62 kB
+03:12:08 [vite] dist/_worker.js/pages/api/admin/backup.astro.mjs                     30.88 kB
+03:12:08 [vite] dist/_worker.js/chunks/WebscraperIsland_CVWTL9Jp.mjs                 31.20 kB
+03:12:08 [vite] dist/_worker.js/chunks/pricing_CkNgjptX.mjs                          33.90 kB
+03:12:08 [vite] dist/_worker.js/chunks/_@astrojs-ssr-adapter_CWrKP6HB.mjs            35.58 kB
+03:12:08 [vite] dist/_worker.js/chunks/astro-designed-error-pages_Bgb0-MP7.mjs       41.91 kB
+03:12:08 [vite] dist/_worker.js/chunks/index_CPhaCwG5.mjs                            47.34 kB
+03:12:08 [vite] dist/_worker.js/chunks/AccountSettingsSection_CEL7ccTe.mjs           54.37 kB
+03:12:08 [vite] dist/_worker.js/chunks/_...slug__DfMGRaT2.mjs                        54.63 kB
+03:12:08 [vite] dist/_worker.js/chunks/_astro_assets_T9Vs-Uzy.mjs                    60.57 kB
+03:12:08 [vite] dist/_worker.js/chunks/comment-service_Dk6LZBQn.mjs                  84.11 kB
+03:12:08 [vite] dist/_worker.js/chunks/_@astro-renderers_CMpd5w_W.mjs                87.89 kB
+03:12:08 [vite] dist/_worker.js/chunks/CommentSection_CYlUgOjD.mjs                   93.03 kB
+03:12:08 [vite] dist/_worker.js/chunks/i18n_Duw2Hqme.mjs                             96.66 kB
+03:12:08 [vite] dist/_worker.js/chunks/ImagEnhancerIsland_Jz50uflC.mjs              103.16 kB
+03:12:08 [vite] dist/_worker.js/chunks/index_BQHtS1P5.mjs                           103.26 kB
+03:12:08 [vite] dist/_worker.js/chunks/BlogCard_buWUJUTZ.mjs                        114.82 kB
+03:12:08 [vite] dist/_worker.js/chunks/_astro_data-layer-content_Bz8iMAns.mjs       139.90 kB
+03:12:08 [vite] dist/_worker.js/chunks/schema_Bo9WA0LT.mjs                          158.25 kB
+03:12:08 [vite] dist/_worker.js/chunks/astro/server_CD1qSJdv.mjs                    255.55 kB
+03:12:08 [vite] dist/_worker.js/chunks/client_CZfqaZx_.mjs                          275.70 kB
+03:12:08 [vite] dist/_worker.js/chunks/stripe.esm.worker_RkVUOn8V.mjs               290.25 kB
+03:12:08 [vite] dist/_worker.js/chunks/BaseLayout_C0wsu4yH.mjs                      400.50 kB
+03:12:08 [vite] dist/_worker.js/pages/api/webscraper/extract.astro.mjs              641.23 kB
+03:12:08 [vite] ✓ built in 9.66s
+03:12:08 [build] ✓ Completed in 9.70s.
+
+ building client (vite) 
+03:12:08 [vite] vite v6.3.6 building SSR bundle for development...
+03:12:08 [vite] transforming...
+03:12:15 [vite] ✓ 958 modules transformed.
+03:12:15 [WARN] [vite] Generated an empty chunk: "comments.astro_astro_type_script_index_0_lang".
+03:12:15 [WARN] [vite] Generated an empty chunk: "email-verified.astro_astro_type_script_index_0_lang".
+03:12:15 [WARN] [vite] Generated an empty chunk: "email-verified.astro_astro_type_script_index_1_lang".
+03:12:15 [WARN] [vite] Generated an empty chunk: "email-verified.astro_astro_type_script_index_0_lang".
+03:12:15 [WARN] [vite] Generated an empty chunk: "email-verified.astro_astro_type_script_index_1_lang".
+03:12:15 [WARN] [vite] Generated an empty chunk: "index.astro_astro_type_script_index_0_lang".
+03:12:15 [WARN] [vite] Generated an empty chunk: "faq.astro_astro_type_script_index_0_lang".
+03:12:15 [WARN] [vite] Generated an empty chunk: "kontakt.astro_astro_type_script_index_0_lang".
+03:12:15 [WARN] [vite] Generated an empty chunk: "index.astro_astro_type_script_index_0_lang".
+03:12:15 [WARN] [vite] Generated an empty chunk: "confirm.astro_astro_type_script_index_0_lang".
+03:12:15 [WARN] [vite] Generated an empty chunk: "ClientRouter.astro_astro_type_script_index_0_lang".
+03:12:15 [WARN] [vite] Generated an empty chunk: "SettingsScript.astro_astro_type_script_index_0_lang".
+03:12:15 [WARN] [vite] Generated an empty chunk: "Newsletter.astro_astro_type_script_index_0_lang".
+03:12:15 [WARN] [vite] Generated an empty chunk: "BlogCTA.astro_astro_type_script_index_0_lang".
+03:12:15 [WARN] [vite] Generated an empty chunk: "LeadMagnetCTA.astro_astro_type_script_index_0_lang".
+03:12:15 [vite] rendering chunks...
+03:12:15 [vite] dist/_astro/comments.astro_astro_type_script_index_0_lang.l0sNRNKZ.js          0.00 kB
+03:12:15 [vite] dist/_astro/email-verified.astro_astro_type_script_index_0_lang.l0sNRNKZ.js    0.00 kB
+03:12:15 [vite] dist/_astro/email-verified.astro_astro_type_script_index_1_lang.l0sNRNKZ.js    0.00 kB
+03:12:15 [vite] dist/_astro/email-verified.astro_astro_type_script_index_0_lang.DP2rzg_V.js    0.00 kB
+03:12:15 [vite] dist/_astro/email-verified.astro_astro_type_script_index_1_lang.DP2rzg_V.js    0.00 kB
+03:12:15 [vite] dist/_astro/index.astro_astro_type_script_index_0_lang.l0sNRNKZ.js             0.00 kB
+03:12:15 [vite] dist/_astro/faq.astro_astro_type_script_index_0_lang.l0sNRNKZ.js               0.00 kB
+03:12:15 [vite] dist/_astro/kontakt.astro_astro_type_script_index_0_lang.l0sNRNKZ.js           0.00 kB
+03:12:15 [vite] dist/_astro/index.astro_astro_type_script_index_0_lang.DP2rzg_V.js             0.00 kB
+03:12:15 [vite] dist/_astro/confirm.astro_astro_type_script_index_0_lang.l0sNRNKZ.js           0.00 kB
+03:12:15 [vite] dist/_astro/ClientRouter.astro_astro_type_script_index_0_lang.l0sNRNKZ.js      0.00 kB
+03:12:15 [vite] dist/_astro/SettingsScript.astro_astro_type_script_index_0_lang.l0sNRNKZ.js    0.00 kB
+03:12:15 [vite] dist/_astro/Newsletter.astro_astro_type_script_index_0_lang.l0sNRNKZ.js        0.00 kB
+03:12:15 [vite] dist/_astro/BlogCTA.astro_astro_type_script_index_0_lang.l0sNRNKZ.js           0.00 kB
+03:12:15 [vite] dist/_astro/LeadMagnetCTA.astro_astro_type_script_index_0_lang.l0sNRNKZ.js     0.00 kB
+03:12:15 [vite] dist/_astro/CommentSection.BPe0_aCG.js                                         0.23 kB
+03:12:15 [vite] dist/_astro/Toaster.DhRcZrrT.js                                                0.38 kB
+03:12:15 [vite] dist/_astro/csrf.huY-CY1u.js                                                   0.72 kB
+03:12:15 [vite] dist/_astro/Alert.DKXzFeWi.js                                                  0.87 kB
+03:12:15 [vite] dist/_astro/CardReact.D2ME7TAZ.js                                              0.87 kB
+03:12:15 [vite] dist/_astro/Button.CenR3HxC.js                                                 0.91 kB
+03:12:15 [vite] dist/_astro/DebugInterceptors.DLanETsK.js                                      1.04 kB
+03:12:15 [vite] dist/_astro/global-error-interceptor.ChH-UWW4.js                               1.30 kB
+03:12:15 [vite] dist/_astro/client-logger.DNF-EnGl.js                                          1.45 kB
+03:12:15 [vite] dist/_astro/beacon-interceptor.D0VQxaXz.js                                     1.47 kB
+03:12:15 [vite] dist/_astro/jsx-runtime.DoMIn2k1.js                                            1.66 kB
+03:12:15 [vite] dist/_astro/console-interceptor.BmdFIbZq.js                                    1.90 kB
+03:12:15 [vite] dist/_astro/NewsletterPreferencesCard.BHqFZu4k.js                              2.33 kB
+03:12:15 [vite] dist/_astro/BillingNotice.jo6KAk_J.js                                          2.62 kB
+03:12:15 [vite] dist/_astro/client.BDY58BDe.js                                                 4.00 kB
+03:12:15 [vite] dist/_astro/xhr-interceptor.CrBw68hY.js                                        4.81 kB
+03:12:15 [vite] dist/_astro/BillingCard.BpzFtruo.js                                            5.35 kB
+03:12:15 [vite] dist/_astro/MagicLinkFormEnhancer.Cm37Zc82.js                                  5.78 kB
+03:12:15 [vite] dist/_astro/network-interceptor.CSNbmO0N.js                                    6.23 kB
+03:12:15 [vite] dist/_astro/AuthStatusNotifier.CiauQ2TR.js                                     6.79 kB
+03:12:15 [vite] dist/_astro/index.BhDmsCEb.js                                                  8.27 kB
+03:12:15 [vite] dist/_astro/WebscraperIsland.De-ff7DO.js                                      31.20 kB
+03:12:15 [vite] dist/_astro/DebugPanelOverlay.Dwrt2Dwn.js                                     62.32 kB
+03:12:15 [vite] dist/_astro/index.BbujsYYD.js                                                 64.54 kB
+03:12:15 [vite] dist/_astro/ImagEnhancerIsland.W3-_wbvw.js                                   104.30 kB
+03:12:15 [vite] dist/_astro/CommentSection.Bu-UJuvJ.js                                       122.18 kB
+03:12:15 [vite] dist/_astro/EnhancerForm.BRTpZRX3.js                                         126.77 kB
+03:12:15 [vite] dist/_astro/index.Cp_RaV_H.js                                                139.44 kB
+03:12:15 [vite] ✓ built in 6.74s
+
+ prerendering static routes 
+03:12:15 ✓ Completed in 33ms.
+
+03:12:15 [build] Rearranging server assets...
+03:12:15 [build] Server built in 17.46s
+03:12:15 [build] Complete!
+
+ ⛅️ wrangler 4.37.0 (update available 4.42.0)
+─────────────────────────────────────────────
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProcessing wrangler.toml configuration:[0m
+
+  
+    - "env.development" environment configuration
+      - "vars.PROMPT_REWRITE_V1" exists at the top level, but not on "env.development.vars".
+        This is not what you probably want, since "vars" configuration is not inherited by environments.
+        Please add "vars.PROMPT_REWRITE_V1" to "env.development".
+      - "vars.PROMPT_TEXT_MODEL" exists at the top level, but not on "env.development.vars".
+        This is not what you probably want, since "vars" configuration is not inherited by environments.
+        Please add "vars.PROMPT_TEXT_MODEL" to "env.development".
+      - "vars.PROMPT_VISION_MODEL" exists at the top level, but not on "env.development.vars".
+        This is not what you probably want, since "vars" configuration is not inherited by environments.
+        Please add "vars.PROMPT_VISION_MODEL" to "env.development".
+      - "vars.PROMPT_MAX_FILES" exists at the top level, but not on "env.development.vars".
+        This is not what you probably want, since "vars" configuration is not inherited by environments.
+        Please add "vars.PROMPT_MAX_FILES" to "env.development".
+      - "vars.PROMPT_MAX_FILE_BYTES" exists at the top level, but not on "env.development.vars".
+        This is not what you probably want, since "vars" configuration is not inherited by environments.
+        Please add "vars.PROMPT_MAX_FILE_BYTES" to "env.development".
+      - "vars.PROMPT_ALLOWED_TYPES" exists at the top level, but not on "env.development.vars".
+        This is not what you probably want, since "vars" configuration is not inherited by environments.
+        Please add "vars.PROMPT_ALLOWED_TYPES" to "env.development".
+      - "vars.PROMPT_OUTPUT_TOKENS_MAX" exists at the top level, but not on "env.development.vars".
+        This is not what you probably want, since "vars" configuration is not inherited by environments.
+        Please add "vars.PROMPT_OUTPUT_TOKENS_MAX" to "env.development".
+      - "vars.PROMPT_TEMPERATURE" exists at the top level, but not on "env.development.vars".
+        This is not what you probably want, since "vars" configuration is not inherited by environments.
+        Please add "vars.PROMPT_TEMPERATURE" to "env.development".
+      - "vars.PROMPT_TOP_P" exists at the top level, but not on "env.development.vars".
+        This is not what you probably want, since "vars" configuration is not inherited by environments.
+        Please add "vars.PROMPT_TOP_P" to "env.development".
+
+
+Using vars defined in .env
+Using vars defined in .env.development
+Your Worker has access to the following bindings:
+Binding                                                                        Resource                  Mode
+env.SESSION (bc180c72cdbe4701a221ab8002f2de72)                                 KV Namespace              local
+env.KV_AI_ENHANCER (30356dfa83e342c48103609bce4f3320)                          KV Namespace              local
+env.KV_WEBSCRAPER (c9814079ac344b979b58278d055ca457)                           KV Namespace              local
+env.DB (35bd5d4c-718a-43ea-935c-b5d62a686ec2)                                  D1 Database               local
+env.R2_AVATARS (evolution-hub-avatars-local)                                   R2 Bucket                 local
+env.R2_LEADMAGNETS (evolution-hub-lead-magnets-dev)                            R2 Bucket                 local
+env.R2_AI_IMAGES (evolution-hub-ai-images-local)                               R2 Bucket                 local
+env.ASSETS                                                                     Assets                    local
+env.ENVIRONMENT ("development")                                                Environment Variable      local
+env.BASE_URL ("http://127.0.0.1:8787")                                         Environment Variable      local
+env.APP_ORIGIN ("http://127.0.0.1:8787")                                       Environment Variable      local
+env.LEADMAGNET_SOURCE ("public")                                               Environment Variable      local
+env.AUTH_PROVIDER ("stytch")                                                   Environment Variable      local
+env.AUTH_REDIRECT ("/dashboard")                                               Environment Variable      local
+env.STYTCH_BYPASS ("0")                                                        Environment Variable      local
+env.E2E_FAKE_STYTCH ("0")                                                      Environment Variable      local
+env.CONTENTFUL_SPACE_ID ("(hidden)")                                           Environment Variable      local
+env.CONTENTFUL_ACCESS_TOKEN ("(hidden)")                                       Environment Variable      local
+env.CONTENTFUL_ENVIRONMENT ("(hidden)")                                        Environment Variable      local
+env.CONTENTFUL_MANAGEMENT_TOKEN ("(hidden)")                                   Environment Variable      local
+env.DATABASE_URL ("(hidden)")                                                  Environment Variable      local
+env.RESEND_API_KEY ("(hidden)")                                                Environment Variable      local
+env.REDIS_URL ("(hidden)")                                                     Environment Variable      local
+env.REPLICATE_API_TOKEN ("(hidden)")                                           Environment Variable      local
+env.STYTCH_PUBLIC_TOKEN ("(hidden)")                                           Environment Variable      local
+env.STYTCH_PROJECT_ID ("(hidden)")                                             Environment Variable      local
+env.STYTCH_SECRET ("(hidden)")                                                 Environment Variable      local
+env.OPENAI_API_KEY ("(hidden)")                                                Environment Variable      local
+env.PUBLIC_ENABLE_DEBUG_PANEL ("(hidden)")                                     Environment Variable      local
+env.STRIPE_SECRET ("(hidden)")                                                 Environment Variable      local
+env.STRIPE_WEBHOOK_SECRET ("(hidden)")                                         Environment Variable      local
+env.PRICING_TABLE ("(hidden)")                                                 Environment Variable      local
+env.PUBLIC_ENHANCER_PLAN_GATING_V1 ("(hidden)")                                Environment Variable      local
+env.PROMPT_REWRITE_V1 ("(hidden)")                                             Environment Variable      local
+env.PROMPT_TEXT_MODEL ("(hidden)")                                             Environment Variable      local
+env.PROMPT_VISION_MODEL ("(hidden)")                                           Environment Variable      local
+env.PROMPT_MAX_FILES ("(hidden)")                                              Environment Variable      local
+env.PROMPT_MAX_FILE_BYTES ("(hidden)")                                         Environment Variable      local
+env.PROMPT_ALLOWED_TYPES ("(hidden)")                                          Environment Variable      local
+env.PROMPT_OUTPUT_TOKENS_MAX ("(hidden)")                                      Environment Variable      local
+env.PROMPT_TEMPERATURE ("(hidden)")                                            Environment Variable      local
+env.PROMPT_TOP_P ("(hidden)")                                                  Environment Variable      local
+
+[31m✘ [41;31m[[41;97mERROR[41;31m][0m [1m*** Fatal uncaught kj::Exception: kj/async-io-unix.c++:945: failed: ::bind(sockfd, &addr.generic, addrlen): Address already in use; toString() = 127.0.0.1:8787[0m
+
+
+[31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mstack: 1048bc05f 1048bbe43 1048ba9db 1023434a3 102343d4b 10234469f 102345117 1022ce6d3 1048e4f7f 1048e5293 1048e3cb7 1048e3a13 1022bc7bb 18e6c5d53[0m
+
+
+
+[31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mThe Workers runtime failed to start. There is likely additional logging output above.[0m
+
+
+[32mIf you think this is a bug then please create an issue at https://github.com/cloudflare/workers-sdk/issues/new/choose[0m
+Note that there is a newer version of Wrangler available (4.42.0). Consider checking whether upgrading resolves this error.
+? Would you like to report this error to Cloudflare? Wrangler's output and the error details will be shared with the Wrangler team to help us diagnose and fix the issue.
+🤖 Using fallback value in non-interactive context: no
+🪵  Logs were written to "/Users/lucas/Library/Preferences/.wrangler/logs/wrangler-2025-10-05_01-12-16_269.log"

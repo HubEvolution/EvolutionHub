@@ -69,6 +69,34 @@ export function CompareSlider(props: CompareSliderProps) {
     onPreviewError,
   } = props;
 
+  // Force a layout reflow after an image finishes loading to avoid rare paint glitches
+  // seen in some browsers where absolutely positioned layers don't repaint until a resize.
+  const forceReflow = () => {
+    try {
+      const el = containerRef?.current as HTMLDivElement | null;
+      if (!el) return;
+      // Read + write cycle to trigger paint
+      void el.offsetHeight;
+      const prevWillChange = el.style.willChange;
+      const prevTransform = el.style.transform;
+      el.style.willChange = 'transform';
+      el.style.transform = 'translateZ(0)';
+      requestAnimationFrame(() => {
+        el.style.transform = prevTransform;
+        el.style.willChange = prevWillChange;
+      });
+    } catch {
+      /* noop */
+    }
+  };
+
+  const handleResultLoad: React.ReactEventHandler<HTMLImageElement> = (e) => {
+    try { onResultImageLoad?.(e); } finally { forceReflow(); }
+  };
+  const handlePreviewLoad: React.ReactEventHandler<HTMLImageElement> = (e) => {
+    try { onPreviewImageLoad?.(e); } finally { forceReflow(); }
+  };
+
   return (
     <figure className="m-0 p-0 bg-transparent">
       <div
@@ -89,6 +117,7 @@ export function CompareSlider(props: CompareSliderProps) {
         onMouseMove={props.onMouseMove}
         onMouseLeave={props.onMouseLeave}
         aria-label={compareStrings.sliderLabel}
+        data-testid="compare-container"
       >
         {/* Scaled image layer (result + before overlay) */}
         <div
@@ -104,7 +133,7 @@ export function CompareSlider(props: CompareSliderProps) {
             src={resultUrl}
             alt={compareStrings.after}
             className="pointer-events-none select-none absolute inset-0 w-full h-full object-contain"
-            onLoad={onResultImageLoad}
+            onLoad={handleResultLoad}
             onError={onResultError}
             style={
               isDemoResult ? { filter: 'contrast(1.2) saturate(1.15) brightness(1.05)' } : undefined
@@ -123,7 +152,7 @@ export function CompareSlider(props: CompareSliderProps) {
               src={previewUrl}
               alt={compareStrings.before}
               className="pointer-events-none select-none absolute inset-0 w-full h-full object-contain"
-              onLoad={onPreviewImageLoad}
+              onLoad={handlePreviewLoad}
               onError={onPreviewError}
             />
           </div>
@@ -209,10 +238,10 @@ export function CompareSlider(props: CompareSliderProps) {
         </div>
 
         {/* Corner labels */}
-        <div className="pointer-events-none absolute left-2 top-2 text-[11px] px-1.5 py-0.5 rounded bg-black/40 text-white/90 z-50">
+        <div className="pointer-events-none absolute left-2 top-2 text-[11px] px-1.5 py-0.5 rounded bg-black/40 text-white/90 z-50" data-testid="compare-before-label">
           {compareStrings.before}
         </div>
-        <div className="pointer-events-none absolute right-2 top-2 text-[11px] px-1.5 py-0.5 rounded bg-black/40 text-white/90 z-50">
+        <div className="pointer-events-none absolute right-2 top-2 text-[11px] px-1.5 py-0.5 rounded bg-black/40 text-white/90 z-50" data-testid="compare-after-label">
           {compareStrings.after}
         </div>
       </div>

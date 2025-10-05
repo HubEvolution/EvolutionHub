@@ -52,6 +52,11 @@ function setLocaleHref(target: 'de' | 'en'): string {
 <header
   id="site-header"
   data-testid="site-header"
+  data-aos="fade-down"
+  data-aos-duration="600"
+  data-aos-once="true"
+  data-aos-anchor-placement="top-top"
+  data-aos-easing="ease-out"
   class="sticky top-0 z-50 mx-4 md:mx-8 rounded-2xl glass-header header-visible"
 >
   <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" aria-label="Main navigation">
@@ -483,8 +488,20 @@ function setLocaleHref(target: 'de' | 'en'): string {
     pointer-events: none;
   }
 
-  /* Add smooth transitions for the header - wichtig: Will-change für Performance */
+  /* === OPTIMIZATION 2: Smooth CSS transitions === */
   #site-header {
+    /* Explicit transitions for show/hide animations */
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                background-color 0.3s ease-out,
+                backdrop-filter 0.3s ease-out,
+                box-shadow 0.3s ease-out,
+                border-color 0.3s ease-out;
+  }
+
+  /* === OPTIMIZATION 3: will-change only on interaction === */
+  #site-header:hover,
+  #site-header.header-transitioning {
     will-change: transform, opacity;
   }
 

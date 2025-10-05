@@ -219,14 +219,21 @@ Tastenkürzel (im Vergleichsmodus):
 - E2E (Playwright v2-Suite):
   - Terminal A: `npm run dev:worker:dev`
   - Terminal B (volle Suite): `TEST_BASE_URL=http://127.0.0.1:8787 npm run test:e2e:v2`
-  - Enhancer-only (fokussiert, mit Artefakten):
-    - Config: `test-suite-v2/playwright.enhancer.config.ts` (Screenshots/Video on)
-    - Spec: `test-suite-v2/src/e2e/imag-enhancer.spec.ts`
-    - Lauf: `TEST_BASE_URL=http://127.0.0.1:8787 npx playwright test -c test-suite-v2/playwright.enhancer.config.ts test-suite-v2/src/e2e/imag-enhancer.spec.ts`
-    - EN+DE parallel (Projekte `chromium-en` und `chromium-de`)
-    - HTML-Report öffnen: `npx playwright show-report test-suite-v2/reports/playwright-html-report`
+  - Enhancer-only (fokussiert, Artefakte via E2E_RECORD):
+    - Config: `test-suite-v2/playwright.enhancer.config.ts` (steuert Artefakte über `E2E_RECORD`)
+    - Spec: `test-suite-v2/src/e2e/tools/image-enhancer.spec.ts`
+    - Lauf (lokal): `TEST_BASE_URL=http://127.0.0.1:8787 npx playwright test -c test-suite-v2/playwright.enhancer.config.ts test-suite-v2/src/e2e/tools/image-enhancer.spec.ts`
+    - EN+DE optional (Projects); Standard ist EN (`chromium-en`)
+    - HTML-Report: `npx playwright show-report test-suite-v2/reports/playwright-html-report`
 
-  Hinweis: `TEST_BASE_URL` muss immer den aktuell laufenden Port des Dev-Servers widerspiegeln (z. B. 8787 für den Standard-Dev-Worker, 8789 für die dedizierte Enhancer-Config, falls dort der Server läuft).
+  Stabilisierung (Flake-Reduktion) in der Spec umgesetzt:
+
+  - Warte nach dem Navigieren explizit auf `GET /api/ai-image/usage` (Usage-Preflight), bevor der Enhance-Button geklickt wird.
+  - Warte nach Klick auf Enhance auf die Antwort von `POST /api/ai-image/generate` und prüfe auf Erfolg, bevor der Slider erwartet wird.
+  - Der Helper `ImageEnhancer.clickEnhance()` wartet bis zu 60s, bis der Button wirklich enabled ist (Upload/Model/Rate‑Limit berücksichtigt).
+  - Nach `setInputFiles()` wird best‑effort auf ein sichtbares Preview in der Dropzone gewartet.
+
+  Hinweis: `TEST_BASE_URL` muss den aktuell laufenden Port des Dev‑Workers widerspiegeln (Standard: `http://127.0.0.1:8787`). Die dedizierte Enhancer‑Config hat inzwischen den gleichen Fallback.
 
 #### Warum `TEST_BASE_URL`=localhost und nicht `ci.hub-evolution.com`?
 

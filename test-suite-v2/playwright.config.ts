@@ -73,7 +73,7 @@ export default defineConfig({
           command: 'npm --prefix .. run dev:e2e',
           url: BASE_URL,
           // Always stop the server after tests to avoid hanging processes
-          reuseExistingServer: false,
+          reuseExistingServer: true,
           timeout: 120 * 1000,
           env: {
             E2E_FAKE_STYTCH: '1',

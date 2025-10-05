@@ -12,7 +12,6 @@ export interface Tool {
   isPopular?: boolean;
   comingSoon?: boolean;
 }
-
 import { getI18n } from '@/utils/i18n';
 import type { Locale } from '@/lib/i18n';
 
@@ -103,6 +102,17 @@ export function getAllTools(locale: Locale): Tool[] {
       iconKey: 'edit',
       color: 'bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200',
       url: '/tools/prompt-enhancer/app',
+      isNew: true,
+      comingSoon: false,
+    },
+    {
+      id: 'webscraper',
+      name: t('pages.tools.items.webscraper.name'),
+      description: t('pages.tools.items.webscraper.description'),
+      category: ['productivity', 'development'],
+      iconKey: 'search',
+      color: 'bg-teal-100 dark:bg-teal-900 text-teal-800 dark:text-teal-200',
+      url: '/tools/webscraper/app',
       isNew: true,
       comingSoon: false,
     },

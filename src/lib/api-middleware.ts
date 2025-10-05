@@ -258,7 +258,8 @@ export type ApiErrorType =
   | 'server_error'
   | 'db_error'
   | 'forbidden'
-  | 'method_not_allowed';
+  | 'method_not_allowed'
+  | 'subscription_active';
 
 /**
  * Standard-Fehlermeldungen für verschiedene Fehlertypen
@@ -272,6 +273,7 @@ const errorMessages: Record<ApiErrorType, string> = {
   db_error: 'Datenbankfehler',
   forbidden: 'Zugriff verweigert',
   method_not_allowed: 'Methode nicht erlaubt',
+  subscription_active: 'Aktives Abonnement verhindert die Aktion',
 };
 
 /**
@@ -286,6 +288,7 @@ const errorStatusCodes: Record<ApiErrorType, number> = {
   db_error: 500,
   forbidden: 403,
   method_not_allowed: 405,
+  subscription_active: 400,
 };
 
 /**

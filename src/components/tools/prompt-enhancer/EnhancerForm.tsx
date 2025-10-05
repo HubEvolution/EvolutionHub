@@ -50,11 +50,13 @@ const EnhancerForm: React.FC<EnhancerFormProps> = ({ initialMode = 'creative' })
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const copyTimerRef = useRef<number | null>(null);
   const [copied, setCopied] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
 
   const locale = getLocale(typeof window !== 'undefined' ? window.location.pathname : '/');
   const t = getI18n(locale);
 
   useEffect(() => {
+    setHydrated(true);
     return () => {
       if (copyTimerRef.current) {
         window.clearTimeout(copyTimerRef.current);
@@ -407,7 +409,7 @@ const EnhancerForm: React.FC<EnhancerFormProps> = ({ initialMode = 'creative' })
 
   return (
     <Card className="max-w-4xl mx-auto p-6">
-      <form className="space-y-6">
+      <form className="space-y-6" data-testid="enhancer-form" data-hydrated={hydrated ? 'true' : 'false'}>
         <div>
           <label
             htmlFor="inputText"
@@ -425,6 +427,7 @@ const EnhancerForm: React.FC<EnhancerFormProps> = ({ initialMode = 'creative' })
             aria-describedby="inputError"
             disabled={isLoading}
             maxLength={1000}
+            data-testid="input-text"
           />
           <div className="mt-1 text-sm text-gray-500 dark:text-gray-400">
             {inputText.length}/1000
@@ -561,6 +564,7 @@ const EnhancerForm: React.FC<EnhancerFormProps> = ({ initialMode = 'creative' })
             role="group"
             aria-label={t('pages.tools.prompt-enhancer.form.modeLabel')}
             className="inline-flex shadow-sm"
+            data-testid="mode-group"
           >
             {modes.map((m, idx) => {
               const selected = mode === (m.value as 'creative' | 'professional' | 'concise');
@@ -577,6 +581,7 @@ const EnhancerForm: React.FC<EnhancerFormProps> = ({ initialMode = 'creative' })
                   variant={selected ? 'primary' : 'secondary'}
                   className={`rounded-none ${radius} ${spacing}`}
                   size="sm"
+                  data-testid={`mode-${m.value}`}
                 >
                   {m.label}
                 </Button>
@@ -591,6 +596,7 @@ const EnhancerForm: React.FC<EnhancerFormProps> = ({ initialMode = 'creative' })
           disabled={isLoading || retryActive || !inputText.trim()}
           className="w-full"
           aria-label={t('pages.tools.prompt-enhancer.form.enhanceButton')}
+          data-testid="enhance-button"
         >
           {isLoading
             ? t('pages.tools.prompt-enhancer.form.enhancing')
@@ -635,6 +641,7 @@ const EnhancerForm: React.FC<EnhancerFormProps> = ({ initialMode = 'creative' })
             readOnly
             className="w-full h-32 p-3 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-gray-50 dark:bg-gray-600 dark:text-white"
             aria-label={t('pages.tools.prompt-enhancer.form.outputLabel')}
+            data-testid="output-text"
           />
         </div>
       )}

@@ -9,6 +9,9 @@ import CardReact from '@/components/ui/CardReact.jsx';
  * @property {import('../../types/dashboard').ActivityItem[]} [initialActivities]
  * @property {string} [title]
  * @property {number} [maxItems]
+ * @property {string} [emptyLabel]
+ * @property {string} [viewAllLabel]
+ * @property {('en'|'de')} [locale]
  */
 
 /**
@@ -18,9 +21,13 @@ import CardReact from '@/components/ui/CardReact.jsx';
 const ActivityFeed = ({ 
   initialActivities = [],
   title = 'Recent Activity',
-  maxItems = 5
+  maxItems = 5,
+  emptyLabel = 'No recent activity',
+  viewAllLabel = 'View all activity',
+  locale = 'en'
 }) => {
   const { activities, setActivities } = useActivityStore();
+  const resolvedLocale = locale === 'de' ? 'de-DE' : 'en-US';
   
   // Beim ersten Rendern die Aktivitäten laden
   useEffect(() => {
@@ -35,7 +42,7 @@ const ActivityFeed = ({
    */
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    return new Intl.DateTimeFormat('de-DE', {
+    return new Intl.DateTimeFormat(resolvedLocale, {
       month: 'short',
       day: 'numeric',
       hour: '2-digit',
@@ -48,7 +55,7 @@ const ActivityFeed = ({
       <div className="space-y-4">
         {activities.length === 0 ? (
           <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-            <p>Keine aktuellen Aktivitäten</p>
+            <p>{emptyLabel}</p>
           </div>
         ) : (
           activities.slice(0, maxItems).map((activity) => (
@@ -73,7 +80,7 @@ const ActivityFeed = ({
         {activities.length > maxItems && (
           <div className="pt-2 text-center">
             <button className="text-sm text-primary hover:text-primary-light transition-colors">
-              Alle Aktivitäten anzeigen
+              {viewAllLabel}
             </button>
           </div>
         )}

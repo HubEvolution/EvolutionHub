@@ -96,17 +96,55 @@
     header.classList.add('header-visible');
     header.classList.remove('header-hidden');
 
-    function applyHeaderBackground(y) {
-      try {
-        const scrolled = (typeof y === 'number' ? y : window.scrollY) > 10;
-        if (scrolled) {
-          header.classList.add('header-solid');
-        } else {
-          header.classList.remove('header-solid');
+    // === OPTIMIZATION 1: Intersection Observer für header-solid state ===
+    // Modernere API statt scroll-basierter Background-Update
+    let observer = null;
+    if ('IntersectionObserver' in window) {
+      // Sentinel-Element am Seitenanfang für Background-Toggle
+      const sentinel = document.createElement('div');
+      sentinel.style.position = 'absolute';
+      sentinel.style.top = '10px';
+      sentinel.style.height = '1px';
+      sentinel.style.width = '100%';
+      sentinel.style.pointerEvents = 'none';
+      sentinel.setAttribute('data-header-sentinel', 'true');
+      document.body.prepend(sentinel);
+
+      observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            // Wenn Sentinel nicht sichtbar = User hat gescrollt → header-solid
+            const scrolled = !entry.isIntersecting;
+            if (scrolled) {
+              header.classList.add('header-solid');
+              dtrace('[HeaderScroll] 🔍 Intersection Observer: header-solid applied');
+            } else {
+              header.classList.remove('header-solid');
+              dtrace('[HeaderScroll] 🔍 Intersection Observer: header-solid removed');
+            }
+          });
+        },
+        { threshold: [0], rootMargin: '0px' }
+      );
+      observer.observe(sentinel);
+      dinfo('[HeaderScroll] ✅ Intersection Observer initialized for header-solid state');
+    } else {
+      // Fallback für alte Browser
+      dwarn('[HeaderScroll] ⚠️ IntersectionObserver not supported, using scroll fallback');
+      function applyHeaderBackground(y) {
+        try {
+          const scrolled = (typeof y === 'number' ? y : window.scrollY) > 10;
+          if (scrolled) {
+            header.classList.add('header-solid');
+          } else {
+            header.classList.remove('header-solid');
+          }
+        } catch (e) {
+          dwarn('[HeaderScroll] ⚠️ Failed to apply header background state:', e);
         }
-      } catch (e) {
-        dwarn('[HeaderScroll] ⚠️ Failed to apply header background state:', e);
       }
+      // Initial ausführen für Fallback
+      applyHeaderBackground();
     }
 
     function handleScroll() {
@@ -124,8 +162,11 @@
         isAboveThreshold: currentScrollY <= scrollThreshold,
         isDeltaSignificant: Math.abs(scrollDelta) >= scrollDeltaThreshold,
       });
-      // Update header background state based on scroll position
-      applyHeaderBackground(currentScrollY);
+
+      // Fallback for browsers without IntersectionObserver
+      if (!observer && typeof applyHeaderBackground === 'function') {
+        applyHeaderBackground(currentScrollY);
+      }
 
       // Oberhalb des Thresholds oder am Seitenanfang - Header immer sichtbar
       if (currentScrollY <= scrollThreshold) {
@@ -192,7 +233,10 @@
           header.classList.add('header-visible');
           header.classList.remove('header-hidden');
           isVisible = true;
-          applyHeaderBackground();
+          // Fallback only if IntersectionObserver not available
+          if (!observer && typeof applyHeaderBackground === 'function') {
+            applyHeaderBackground();
+          }
           dinfo('[HeaderScroll] ✅ Header shown');
         } else {
           // keep classes but avoid logging when already visible
@@ -257,7 +301,7 @@
       timestamp: new Date().toISOString(),
     });
 
-    // Cleanup für Event-Listener global verfügbar machen
+    // Cleanup für Event-Listener und Observer global verfügbar machen
     window.headerScrollCleanup = function () {
       if (scrollHandler) {
         window.removeEventListener('scroll', scrollHandler);
@@ -267,6 +311,15 @@
       }
       if (hideTimeout) {
         clearTimeout(hideTimeout);
+      }
+      if (observer) {
+        observer.disconnect();
+        dinfo('[HeaderScroll] Intersection Observer disconnected');
+      }
+      // Remove sentinel element
+      const sentinel = document.querySelector('[data-header-sentinel]');
+      if (sentinel) {
+        sentinel.remove();
       }
       dinfo('[HeaderScroll] Scroll effect cleaned up');
     };

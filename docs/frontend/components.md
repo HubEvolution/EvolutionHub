@@ -577,6 +577,220 @@ Die Komponenten sind nach folgenden Prinzipien organisiert:
 
 ---
 
+## Kommentar-Komponenten
+
+Komponenten für das Kommentarsystem (React-basiert mit Zustand State Management).
+
+### CommentSection
+
+**Datei:** `src/components/comments/CommentSection.tsx`
+
+Haupt-Container für Kommentare mit Mobile/Desktop-Detection und Error-Boundary.
+
+**Props:**
+
+- `entityType`: `'blog_post' | 'project' | 'general'` - Typ des kommentierten Entities
+- `entityId`: `string` - ID/Slug des Entities
+- `title`: `string` - Titel der Section (Standard: `'Kommentare'`)
+- `className`: `string` - Zusätzliche CSS-Klassen (optional)
+- `initialUser`: `{ id: number, name: string, email: string } | null` - Server-Side User-Context
+
+**Features:**
+
+- Automatische Mobile/Desktop-Detection (< 768px)
+- Separate Komponenten für Mobile (CommentMobile) und Desktop (CommentList)
+- Error-Boundary für resilientes Error-Handling
+- Zustand-Store-Integration
+
+**Beispiel:**
+
+```astro
+---
+const user = Astro.locals.user || null;
+const initialUser = user ? {
+  id: Number(user.id),
+  name: user.name,
+  email: user.email
+} : null;
+---
+
+<CommentSection
+  entityType="blog_post"
+  entityId={slug}
+  initialUser={initialUser}
+  client:load
+/>
+```
+
+### CommentForm
+
+**Datei:** `src/components/comments/CommentForm.tsx`
+
+Formular für Comment-Eingabe mit Keyboard-Navigation.
+
+**Features:**
+
+- Auth-Mode: Nur Content-Field (User aus Session)
+- Guest-Mode: Content + Name + Email-Fields
+- Keyboard-Shortcuts: `Ctrl+Enter` (Submit), `Escape` (Cancel)
+- ARIA-Labels für Accessibility
+- Auto-Resize Textarea
+
+**Beispiel:**
+
+```tsx
+<CommentForm
+  onSubmit={handleCreateComment}
+  isLoading={isLoading}
+  currentUser={currentUser}
+  placeholder="Schreibe einen Kommentar..."
+/>
+```
+
+### CommentList
+
+**Datei:** `src/components/comments/CommentList.tsx`
+
+Threaded Comment-Display mit rekursivem Rendering.
+
+**Features:**
+
+- Nested Comments (Parent/Child bis Depth 3)
+- Edit/Delete/Reply-Actions
+- Status-Badges (Pending, Approved, Flagged)
+- Load More Pagination
+- Optimistic UI Updates
+
+**Beispiel:**
+
+```tsx
+<CommentList
+  comments={comments}
+  onUpdateComment={handleUpdateComment}
+  onDeleteComment={handleDeleteComment}
+  onReply={handleCreateComment}
+  currentUser={currentUser}
+  isLoading={isLoading}
+/>
+```
+
+### CommentMobile
+
+**Datei:** `src/components/comments/CommentMobile.tsx`
+
+Mobile-optimierte Kommentar-Ansicht.
+
+**Features:**
+
+- Touch-Friendly Button-Größen
+- Optional: Swipe-to-Delete-Actions
+- Responsive Typography
+- Simplified Layout für kleine Screens
+
+**Beispiel:**
+
+```tsx
+<CommentMobile
+  comments={comments}
+  onUpdateComment={handleUpdateComment}
+  onDeleteComment={handleDeleteComment}
+  onReply={handleCreateComment}
+  currentUser={currentUser}
+  maxDepth={3}
+  enableSwipeActions={true}
+/>
+```
+
+### CommentStats
+
+**Datei:** `src/components/comments/CommentStats.tsx`
+
+Zeigt Comment-Statistiken an (Total/Approved/Pending).
+
+**Beispiel:**
+
+```tsx
+<CommentStats stats={stats} />
+```
+
+### CommentErrorBoundary
+
+**Datei:** `src/components/comments/CommentErrorBoundary.tsx`
+
+Error-Boundary für Graceful Error-Handling.
+
+**Features:**
+
+- Fallback-UI mit "Retry"-Button
+- Dev-Mode: Stacktrace-Display
+- Production: User-Friendly Error-Message
+
+**Beispiel:**
+
+```tsx
+<CommentErrorBoundary>
+  <CommentSection {...props} />
+</CommentErrorBoundary>
+```
+
+### useCommentStore (Zustand)
+
+**Datei:** `src/stores/comment-store.ts`
+
+State-Management für Kommentare mit Zustand.
+
+**State:**
+
+```typescript
+{
+  comments: Comment[]
+  stats: CommentStats | null
+  currentUser: { id, name, email } | null
+  csrfToken: string | null
+  isLoading: boolean
+  error: string | null
+  hasMore: boolean
+  pageSize: number
+}
+```
+
+**Actions:**
+
+- `fetchComments(filters?, append?)`: Fetch Comments
+- `createComment(data, csrfToken?)`: Create Comment (Optimistic UI)
+- `updateComment(id, data, csrfToken)`: Update Comment
+- `deleteComment(id, csrfToken)`: Delete Comment (Soft-Delete)
+- `loadMoreComments(baseFilters?)`: Load More Pagination
+- `initializeCsrfToken()`: Initialize CSRF Token
+
+**Beispiel:**
+
+```tsx
+import { useCommentStore } from '@/stores/comment-store';
+
+export function MyComponent() {
+  const { comments, createComment, isLoading } = useCommentStore();
+
+  const handleSubmit = async (content: string) => {
+    await createComment({
+      content,
+      entityType: 'blog_post',
+      entityId: 'my-post'
+    }, csrfToken);
+  };
+
+  return (
+    <div>
+      {comments.map(comment => (
+        <div key={comment.id}>{comment.content}</div>
+      ))}
+    </div>
+  );
+}
+```
+
+---
+
 ## Globale Mounts & Integrationen
 
 Zentrale, global gemountete Komponenten und Integrationen. Details siehe verlinkte Dokumente.

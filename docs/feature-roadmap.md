@@ -71,7 +71,9 @@ Diese Features erweitern die Kernfunktionalität und verbessern das Nutzererlebn
 - **Beschreibung**: Vollständige Implementierung des Kommentarsystems mit Moderation und Notifications
 - **Nutzen**: Verbesserte Kollaboration
 - **Geschätzter Aufwand**: Mittel (4-6 Tage)
-- **Status**: API-Grundstruktur vorhanden
+- **Status**: ✅ **Implementiert (80% Production-Ready)** - Siehe [docs/features/comment-system.md](./features/comment-system.md)
+  - ✅ CRUD-Operationen (Guest + Auth), Threaded Comments, Moderation, Spam-Detection, XSS-Protection, CSRF, Rate-Limiting, Optimistic UI, Mobile-Optimierung, E2E-Tests (85%)
+  - ⚠️ **Fehlend**: Email-Benachrichtigungen, Admin-Panel UI, Comment-Count Display
 - **Abhängigkeiten**: 1.4 Frontend-Backend-Integration
 
 ## Priorität 3: Plattform-Optimierung (Q1-2026)

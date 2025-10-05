@@ -15,6 +15,7 @@ try {
 } catch {
   IS_REMOTE_TARGET = false;
 }
+const RECORD = process.env.E2E_RECORD === '1';
 
 export default defineConfig({
   testDir: './tests/e2e/specs',
@@ -28,13 +29,12 @@ export default defineConfig({
   ],
   use: {
     baseURL: BASE_URL,
-    // Ensure POSTs include same-origin Origin header for Astro/Workers CSRF protection
     extraHTTPHeaders: {
       Origin: BASE_URL,
     },
-    trace: 'on-first-retry',
-    screenshot: 'only-on-failure',
-    video: 'on-first-retry',
+    trace: RECORD ? 'on' : 'retain-on-failure',
+    screenshot: RECORD ? 'on' : 'only-on-failure',
+    video: RECORD ? 'retain-on-failure' : 'off',
   },
 
   projects: [

@@ -116,6 +116,14 @@ export async function uploadFile(
     await fileInputAfterClick.waitFor({ state: 'attached', timeout: 2000 });
     await fileInputAfterClick.setInputFiles(resolvedPath);
   }
+
+  // Best-effort: wait until preview image shows up in dropzone (confirms state updated)
+  try {
+    const preview = page.locator(`${dropzoneSelector} img`).first();
+    await preview.waitFor({ state: 'visible', timeout: 3000 });
+  } catch {
+    // ignore if not visible yet; subsequent steps will still proceed
+  }
 }
 
 /**
@@ -392,7 +400,25 @@ export const PromptEnhancer = {
    * Select mode
    */
   async selectMode(page: Page, mode: 'creative' | 'technical' | 'concise'): Promise<void> {
-    await selectOption(page, '#mode, [data-testid="mode-select"]', mode);
+    // Prefer segmented buttons; wait briefly for group to attach
+    const group = page.locator('[data-testid="mode-group"]').first();
+    const groupAttached = await group.waitFor({ state: 'attached', timeout: 1000 }).then(() => true).catch(() => false);
+    if (groupAttached) {
+      const btn = page.locator(`[data-testid="mode-${mode}"]`).first();
+      const btnAttached = await btn.waitFor({ state: 'attached', timeout: 1000 }).then(() => true).catch(() => false);
+      if (btnAttached) {
+        await btn.click();
+        return;
+      }
+    }
+    // Fallback to select element
+    const select = page.locator('#mode, [data-testid="mode-select"]').first();
+    const hasSelect = await select.waitFor({ state: 'attached', timeout: 1500 }).then(() => true).catch(() => false);
+    if (hasSelect) {
+      await selectOption(page, '#mode, [data-testid="mode-select"]', mode);
+      return;
+    }
+    throw new Error('PromptEnhancer.selectMode: neither mode buttons nor select found');
   },
 
   /**
@@ -456,6 +482,9 @@ export const ImageEnhancer = {
     const enhanceButton = page.locator(
       'button:has-text("Enhance"), [data-testid="enhance-button"]'
     ).first();
+    // Wait until enabled to avoid flakiness (requires file selected and not rate-limited)
+    await enhanceButton.waitFor({ state: 'attached', timeout: 5000 });
+    await expect(enhanceButton).toBeEnabled({ timeout: 60000 });
     await enhanceButton.click();
   },
 

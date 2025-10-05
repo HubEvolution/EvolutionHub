@@ -5,6 +5,46 @@
 > Die aktuelle und vollständige Dokumentation des Datenbankschemas ist unter [db_schema_update.md](../db_schema_update.md) verfügbar.
 > Bitte verwenden Sie ausschließlich die aktuelle Dokumentation für alle Entwicklungsarbeiten.
 
+## Wichtige Ergänzungen (2025-10-05)
+
+### Kommentarsystem-Tabellen
+
+Das Kommentarsystem wurde vollständig implementiert mit folgenden Tabellen:
+
+- **`comments`**: Haupttabelle für Comments (Migration `0013_create_comment_system.sql`)
+  - Felder: id, content, author_id, author_name, author_email, parent_id, entity_type, entity_id, status, is_edited, edited_at, created_at, updated_at
+  - Unterstützt Threaded Comments (Parent/Child via `parent_id`)
+  - Entity-Types: `blog_post`, `project`, `general`
+  - Status: `pending`, `approved`, `rejected`, `flagged`, `hidden`
+
+- **`comment_moderation`**: Moderations-Historie
+  - Felder: id, comment_id, moderator_id, action, reason, created_at
+  - Actions: `approve`, `reject`, `flag`, `hide`, `unhide`
+
+- **`comment_reports`**: User-Reports
+  - Felder: id, comment_id, reporter_id, reporter_email, reason, description, status, created_at, reviewed_at, reviewed_by
+  - Reasons: `spam`, `harassment`, `inappropriate`, `off_topic`, `other`
+
+- **`comment_audit_logs`**: Audit-Trail
+  - Felder: id, comment_id, user_id, action, details, ip_address, user_agent, created_at
+  - Actions: `create`, `update`, `delete`, `moderate`, `report`
+
+**Performance-Indizes** (Migration `0020_comments_performance_indexes.sql`):
+- `idx_comments_entity_status` (entity_type, entity_id, status)
+- `idx_comments_flagged_created` (status, created_at DESC) WHERE status IN ('flagged', 'pending')
+- `idx_comments_parent_status` (parent_id, status, created_at) WHERE parent_id IS NOT NULL
+
+**Dokumentation**: Siehe [docs/features/comment-system.md](../../features/comment-system.md) und [docs/development/comment-system-implementation.md](../../development/comment-system-implementation.md)
+
+### Blog-Content
+
+Blog-Content wird **nicht in D1** gespeichert, sondern als Markdown-Dateien in `src/content/blog/` verwaltet (Astro Content Collections).
+
+**Schema-Validierung**: `src/content/config.ts` (Zod-basiert)
+**Dokumentation**: Siehe [docs/features/blog-system.md](../../features/blog-system.md)
+
+---
+
 ## Historische Dokumentation
 
 Die folgende Dokumentation wird nur zu Referenzzwecken beibehalten und sollte nicht mehr für aktive Entwicklung verwendet werden.

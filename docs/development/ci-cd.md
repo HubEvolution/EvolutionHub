@@ -213,15 +213,32 @@ Loggt Fehlerdetails bei Deployment-Failure.
 
 ---
 
+#### E2E v2 – Selektoren & Artefakte
+
+- **Stabile Selektoren:** Verwende `data-testid` statt textbasierter/i18n-abhängiger Selektoren. Beispiel: `input-text`, `enhance-button`, `compare-before-label`.
+- **Keine visuellen Snapshots standardmäßig:** Playwright-Snapshots (`toMatchSnapshot`) sind in E2E v2 deaktiviert. Stattdessen werden **Screenshots/Videos als Artefakte** angehängt (Reports).
+- **Determinismus:** Für Happy-Path-Tests Tool-APIs stubben (z. B. `/api/prompt-enhance`) und deterministische Antworten liefern.
+- **Gating & Validierung:**
+  - Plan/Entitlements: wenn Optionen gesperrt sind, **`toBeDisabled()`** statt Interaktion erzwingen.
+  - Clientseitige Limits (z. B. `maxLength`): Server‑Regeln, die dadurch nicht erreichbar sind, im E2E **skippen** und auf Unit/Integration verschieben.
+- **Hydration/Timing:** Keine harten Checks auf Hydrationsmarker; warte auf interaktive Controls (z. B. Button enabled) vor Interaktion.
+- **Lokaler Dev‑Server:** `reuseExistingServer: true` in `test-suite-v2/playwright.config.ts`, um Portkonflikte lokal zu vermeiden.
+
 ### 4. **Smoke-Tests** (gezielte Überwachung)
 
 #### **enhancer-e2e-smoke.yml**
 
 - **Trigger:** PRs zu `main`, manuell
-- **Zweck:** Schneller UI-Smoke für Image Enhancer (EN + DE)
-- **Browser:** Chromium-only
-- **Target:** Lokaler Dev-Worker (`http://127.0.0.1:8787`)
-- **Optimierung:** Browser-Caching, Preflight-Diagnostik
+- **Zweck:** Schneller UI-Smoke für Image Enhancer (EN, optional DE)
+- **Browser:** Chromium-only (Caches `~/.cache/ms-playwright`)
+- **Target:** Lokaler Dev-Worker (`http://127.0.0.1:8787`), Fallback in Enhancer-Config identisch
+- **Preflight:** `GET /en/tools/imag-enhancer/app` und `GET /api/ai-image/usage` (Diagnostik)
+- **Spec/Config:** `test-suite-v2/src/e2e/tools/image-enhancer.spec.ts` mit `test-suite-v2/playwright.enhancer.config.ts`
+- **Artefakte:** via `E2E_RECORD` gesteuert (CI default: `0` → Trace nur bei Fail, Screenshots only-on-failure)
+- **Stabilisierung in der Spec:**
+  - Warte auf `GET /api/ai-image/usage` nach Navigation (Usage-Preflight)
+  - Warte nach Klick auf Enhance auf `POST /api/ai-image/generate` (Erfolg prüfen)
+  - Enhance-Button-Enable-Wartezeit bis 60s; nach Upload best‑effort auf Preview
 
 #### **prompt-enhancer-e2e-smoke.yml**
 

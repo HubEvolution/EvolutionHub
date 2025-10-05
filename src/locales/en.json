@@ -9,21 +9,26 @@
     "de": "Deutsch",
     "en": "English"
   },
-
   "pages": {
     "login": {
       "title": "Login",
       "form": {
         "heading": "Login to your Account",
         "fields": {
-          "email": { "label": "Email" },
-          "password": { "label": "Password" }
+          "email": {
+            "label": "Email"
+          },
+          "password": {
+            "label": "Password"
+          }
         },
         "or": "or",
         "forgot_password_link": "Forgot your password?",
         "submit_button": "Login",
         "magic_button": "Continue with Magic Link",
-        "oauth": { "github": "Continue with GitHub" },
+        "oauth": {
+          "github": "Continue with GitHub"
+        },
         "no_account_prompt": "Don't have an account yet?",
         "register_link": "Register"
       }
@@ -115,6 +120,10 @@
         "Prompt-Enhancer": {
           "name": "Prompt Enhancer",
           "description": "AI-powered prompt optimizer for better results in AI chats and applications."
+        },
+        "webscraper": {
+          "name": "Webscraper",
+          "description": "Extract structured data from web pages and APIs with flexible selectors and export formats."
         }
       },
       "details": {
@@ -323,7 +332,11 @@
         "get_started_button": "Get started",
         "documentation_link": "View documentation",
         "tools_link": "Browse our tools",
-        "typewriter": ["Imag‑Enhancer", "Automated tests", "Smart debugging"]
+        "typewriter": [
+          "Imag‑Enhancer",
+          "Automated tests",
+          "Smart debugging"
+        ]
       }
     },
     "blog": {
@@ -882,7 +895,8 @@
         "success": "Prüfe deine E‑Mails auf den Anmelde‑Link.",
         "error": "Der Link konnte nicht gesendet werden. Bitte versuche es erneut.",
         "cooldown": "Erneut senden in {s}s"
-      }
+      },
+      "login": "Login"
     },
     "welcomeProfile": {
       "title": "Complete your profile",
@@ -890,8 +904,12 @@
       "heading": "Welcome! Complete your profile",
       "helper": "We created your account. You can adjust your public name and username now or do it later in settings.",
       "fields": {
-        "name": { "label": "Name" },
-        "username": { "label": "Username" }
+        "name": {
+          "label": "Name"
+        },
+        "username": {
+          "label": "Username"
+        }
       },
       "buttons": {
         "saveContinue": "Save and continue",
@@ -1009,6 +1027,119 @@
         "countdown": "Resend in ({s}s)",
         "unexpected": "An unexpected error occurred. Please try again later."
       }
+    },
+    "dashboard": {
+      "title": "Dashboard",
+      "profile": {
+        "planLabels": {
+          "free": "Free",
+          "pro": "Pro",
+          "premium": "Premium",
+          "enterprise": "Enterprise"
+        },
+        "pulse": "Your workspace runs completely passwordless – magic links sync straight to your inbox and OAuth keeps identities verified.",
+        "planTooltip": "Current plan: {plan}",
+        "settings": "Edit settings",
+        "upgrade": "Upgrade",
+        "logout": "Logout",
+        "actionsTitle": "Account actions",
+        "avatarAlt": "User avatar"
+      },
+      "billing": {
+        "title": "Subscription & Plan",
+        "currentPlan": "Current plan",
+        "statusLabel": "Status",
+        "noSubscription": "No active subscription",
+        "renewal": "Renews on",
+        "credits": "Remaining AI credits",
+        "actions": {
+          "manage": "Open billing",
+          "cancel": "Cancel subscription",
+          "cancelled": "Cancellation scheduled"
+        },
+        "statusMap": {
+          "active": "Active",
+          "trialing": "Trialing",
+          "past_due": "Past due",
+          "canceled": "Canceled",
+          "unpaid": "Unpaid",
+          "incomplete": "Incomplete",
+          "incomplete_expired": "Incomplete expired",
+          "paused": "Paused",
+          "unknown": "Unknown"
+        }
+      },
+      "toolShortcuts": {
+        "title": "Quick access tools",
+        "description": "Jump into your key workflows.",
+        "open": "Open tool"
+      },
+      "newsletter": {
+        "title": "Newsletter preferences",
+        "subscribed": "You currently receive product updates.",
+        "unsubscribed": "No newsletters subscribed at the moment.",
+        "unsubscribe": "Unsubscribe",
+        "resubscribe": "Subscribe again",
+        "processing": "Updating preferences…",
+        "success": "Preferences saved",
+        "error": "Could not update preferences. Please try again."
+      },
+      "recommendations": {
+        "title": "Recommendations for you",
+        "tools": "Tools",
+        "docs": "Guides",
+        "empty": "No recommendations available right now."
+      },
+      "stats": {
+        "projects": "Projects",
+        "tasks": "Tasks",
+        "teamMembers": "Team members"
+      },
+      "quickActions": {
+        "title": "Quick actions",
+        "empty": "No quick actions available",
+        "actions": {
+          "newProject": {
+            "title": "New project",
+            "description": "Start a new project"
+          },
+          "newTask": {
+            "title": "New task",
+            "description": "Create a new task"
+          },
+          "inviteTeam": {
+            "title": "Invite team",
+            "description": "Invite a new team member"
+          },
+          "viewDocs": {
+            "title": "Open documentation",
+            "description": "Read the documentation"
+          }
+        }
+      },
+      "projects": {
+        "title": "Your projects",
+        "empty": "No projects found",
+        "createFirst": "Create your first project",
+        "retry": "Try again",
+        "progress": "Progress",
+        "add": "+ Add new project",
+        "updated": "Updated {date}"
+      },
+      "notifications": {
+        "title": "Notifications",
+        "empty": "No new notifications",
+        "samples": {
+          "comment": "You have a new comment on your project \"{project}\".",
+          "mention": "{user} mentioned you in \"{item}\".",
+          "task_completed": "Task \"{task}\" was completed."
+        }
+      },
+      "activity": {
+        "title": "Recent activity",
+        "empty": "No recent activity",
+        "viewAll": "View all activity"
+      }
     }
   },
   "common": {
@@ -1042,7 +1173,34 @@
       "email_placeholder": "E-Mail-Adresse"
     },
     "loading": "Loading...",
-    "import": "Import"
+    "import": "Import",
+    "account": {
+      "settings": {
+        "danger": {
+          "title": "Delete account",
+          "description": "Deleting your account anonymises data and logs you out everywhere. This action cannot be undone.",
+          "button": "Delete account",
+          "confirmTitle": "Confirm deletion",
+          "confirm": "Are you sure you want to permanently delete your account?",
+          "processing": "Deleting account…",
+          "success": "Your account was deleted successfully. You will be signed out.",
+          "error": "We couldn’t delete your account. Please try again or contact support.",
+          "subscriptionTitle": "Active subscription detected",
+          "subscriptionWarning": "We found active subscriptions in your account. Cancel them in billing first or schedule automatic cancellation at the current period end by deleting your account.",
+          "subscriptionPeriodEnd": "Renews on {date}",
+          "subscriptionIndefinite": "Renews automatically until cancelled",
+          "subscriptionConfirm": "Proceed and schedule automatic cancellation?",
+          "actions": {
+            "cancel": "Cancel",
+            "confirm": "Delete account",
+            "goToBilling": "Go to billing",
+            "deleteAnyway": "Delete anyway",
+            "close": "Close",
+            "back": "Back"
+          }
+        }
+      }
+    }
   },
   "cta": {
     "headline": "Bereit loszulegen?",

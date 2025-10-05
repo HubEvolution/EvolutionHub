@@ -79,9 +79,10 @@ Die API-Schicht ist mit Astro API-Routen implementiert und in mehrere Bereiche u
   - Benachrichtigungen
 
 - **Public-APIs**: Öffentliche APIs
-  - Kommentare
-  - Tools
-  - Blog-Inhalte
+  - Blog-Content (Astro Content Collections)
+  - Kommentare (CRUD, Moderation, Reporting)
+  - Tools (AI Image Enhancer, Prompt Enhancer)
+  - Newsletter & Lead-Magnets
 
 ### 3. Service-Layer
 
@@ -90,8 +91,9 @@ Die Service-Schicht enthält die Geschäftslogik und Dienstleistungen:
 - **Auth-Service**: Authentifizierung und Autorisierung
 - **User-Service**: Benutzerverwaltung
 - **Project-Service**: Projektverwaltung
-- **Content-Service**: Content-Management
-- **Security-Services**: Rate-Limiting, Security-Headers, Audit-Logging
+- **Content-Service**: Content-Management (BlogService, ContentService)
+- **Comment-Service**: Kommentarverwaltung (CRUD, Moderation, Spam-Detection)
+- **Security-Services**: Rate-Limiting, Security-Headers, Audit-Logging, XSS-Sanitization
 
 ### 4. Daten-Layer
 
@@ -101,7 +103,12 @@ Die Datenschicht ist mit Cloudflare D1 implementiert:
 - **Sitzungen**: Aktive Benutzersitzungen
 - **Projekte**: Projektdaten und Metadaten
 - **Aktivitäten**: Benutzeraktivitäten und Ereignisse
-- **Kommentare**: Benutzerkommentare
+- **Kommentare**:
+  - `comments` (Haupttabelle)
+  - `comment_moderation` (Moderations-Historie)
+  - `comment_reports` (User-Reports)
+  - `comment_audit_logs` (Audit-Trail)
+- **Blog-Content**: Markdown-Dateien (Astro Content Collections, nicht in D1)
 - **Tools**: Tool-Definitionen und Metadaten
 
 ---
@@ -131,7 +138,8 @@ graph TD
         AuthService["Auth Service"]
         UserService["User Service"]
         ProjectService["Project Service"]
-        ContentService["Content Service"]
+        ContentService["Content Service (Blog)"]
+        CommentService["Comment Service"]
         SecurityServices["Security Services"]
     end
 
@@ -156,7 +164,9 @@ graph TD
     DashboardAPI --> ProjectService
     DashboardAPI --> UserService
     PublicAPI --> ContentService
-    
+    PublicAPI --> CommentService
+
+    CommentService --> SecurityServices
     AuthAPI --> SecurityServices
     UserAPI --> SecurityServices
     ProjectAPI --> SecurityServices
@@ -167,6 +177,7 @@ graph TD
     UserService --> D1Database
     ProjectService --> D1Database
     ContentService --> D1Database
+    CommentService --> D1Database
     SecurityServices --> D1Database
 ```
 

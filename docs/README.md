@@ -44,6 +44,11 @@ Willkommen zur Evolution Hub Dokumentation. Diese Dokumentation bietet umfassend
   - OpenAPI-Spezifikation
   - Known Issues und Verbesserungspotentiale
   - Auth (Magic Link): [Auth API](./api/auth_api.md)
+  - Comments API: [Public API - Comments](./api/public_api.md#1-kommentare-api)
+
+- **[Features](./features/)** — Feature-spezifische Dokumentation
+  - [Blog-System](./features/blog-system.md) — Content Collections, BlogService, CTA-Integration (Production-Ready 75%)
+  - [Comment-System](./features/comment-system.md) — CRUD, Moderation, Security (Production-Ready 80%)
 
 ### Operational Documentation
 

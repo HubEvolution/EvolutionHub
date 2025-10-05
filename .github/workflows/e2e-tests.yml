@@ -133,6 +133,16 @@ jobs:
       env:
         TEST_BASE_URL: ${{ vars.TEST_BASE_URL }}
 
+    - name: "Preflight: GET /en/tools/imag-enhancer/app (status + headers)"
+      run: |
+        set -o pipefail
+        curl -i "${{ vars.TEST_BASE_URL }}/en/tools/imag-enhancer/app" | sed -n '1,20p'
+
+    - name: "Preflight: GET /api/ai-image/usage?debug=1"
+      run: |
+        set -o pipefail
+        curl -i "${{ vars.TEST_BASE_URL }}/api/ai-image/usage?debug=1" | sed -n '1,30p'
+
     - name: Export optional STYTCH_TEST_EMAIL
       env:
         STYTCH_TEST_EMAIL_RAW: ${{ secrets.STYTCH_TEST_EMAIL }}

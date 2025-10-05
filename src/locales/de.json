@@ -9,6 +9,33 @@
       "generic": "Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.",
       "upload_failed_prefix": "Fehler beim Hochladen:"
     },
+    "account": {
+      "settings": {
+        "danger": {
+          "title": "Gefahrenbereich",
+          "description": "Das Löschen deines Kontos entfernt dauerhaft dein Profil, deine Aktivitäts-Historie und gespeicherte Automationen. Diese Aktion kann nicht rückgängig gemacht werden.",
+          "button": "Konto löschen",
+          "confirmTitle": "Konto wirklich löschen?",
+          "confirm": "Bist du sicher, dass du dein Konto löschen möchtest? Diese Aktion kann nicht rückgängig gemacht werden.",
+          "processing": "Konto wird gelöscht…",
+          "success": "Dein Konto wurde gelöscht. Du wirst abgemeldet.",
+          "error": "Das Konto konnte nicht gelöscht werden. Bitte versuche es erneut oder kontaktiere den Support.",
+          "subscriptionTitle": "Aktives Abonnement erkannt",
+          "subscriptionWarning": "Wir haben aktive Abonnements in deinem Konto gefunden. Kündige sie zuerst in der Abrechnung oder lösche dein Konto, um die Kündigung automatisch zum aktuellen Laufzeitende zu planen.",
+          "subscriptionPeriodEnd": "Verlängert sich am {date}",
+          "subscriptionIndefinite": "Verlängert sich automatisch bis zur Kündigung",
+          "subscriptionConfirm": "Fortfahren und Abonnement automatisch kündigen?",
+          "actions": {
+            "cancel": "Abbrechen",
+            "confirm": "Konto löschen",
+            "goToBilling": "Zur Abrechnung wechseln",
+            "deleteAnyway": "Trotzdem löschen",
+            "close": "Schließen",
+            "back": "Zurück"
+          }
+        }
+      }
+    },
     "upload": {
       "invalid_type": "Bitte wähle ein Bild im Format JPG, PNG oder GIF",
       "too_large": "Die Datei ist zu groß. Maximale Größe ist 2MB"
@@ -48,7 +75,12 @@
     "button_text": "Kostenloses Konto erstellen"
   },
   "auth": {
-    "login": "Anmelden"
+    "login": "Anmelden",
+    "magic": {
+      "cooldown": "Bitte warte {seconds}s, bevor du es erneut versuchst.",
+      "error": "Magischer Link konnte nicht gesendet werden. Bitte erneut versuchen.",
+      "success": "Wir haben dir einen magischen Link geschickt. Bitte prüfe dein Postfach."
+    }
   },
   "pages": {
     "home": {
@@ -114,7 +146,11 @@
         "get_started_button": "Jetzt loslegen",
         "documentation_link": "Dokumentation anzeigen",
         "tools_link": "Zu unseren Tools",
-        "typewriter": ["IMAG'-Enhancer", "Automatisierte Tests", "Intelligente Fehlerbehebung"]
+        "typewriter": [
+          "IMAG'-Enhancer",
+          "Automatisierte Tests",
+          "Intelligente Fehlerbehebung"
+        ]
       }
     },
     "blog": {
@@ -538,13 +574,26 @@
       "form": {
         "heading": "Senden Sie uns eine Nachricht",
         "fields": {
-          "first_name": { "label": "Vorname" },
-          "last_name": { "label": "Nachname" },
-          "email": { "label": "E-Mail" },
-          "subject": { "label": "Betreff" },
-          "message": { "label": "Ihre Nachricht", "placeholder": "Beschreiben Sie Ihr Anliegen..." }
+          "first_name": {
+            "label": "Vorname"
+          },
+          "last_name": {
+            "label": "Nachname"
+          },
+          "email": {
+            "label": "E-Mail"
+          },
+          "subject": {
+            "label": "Betreff"
+          },
+          "message": {
+            "label": "Ihre Nachricht",
+            "placeholder": "Beschreiben Sie Ihr Anliegen..."
+          }
         },
-        "privacy_policy": { "link_text": "Datenschutzerklärung" },
+        "privacy_policy": {
+          "link_text": "Datenschutzerklärung"
+        },
         "submit_button": "Nachricht senden"
       },
       "info": {
@@ -573,7 +622,10 @@
           "email": "kontakt@example.com",
           "website": "https://example.com"
         },
-        "represented_by": { "headline": "Vertreten durch", "managing_directors": "Noch anzugeben" },
+        "represented_by": {
+          "headline": "Vertreten durch",
+          "managing_directors": "Noch anzugeben"
+        },
         "registration": {
           "headline": "Handelsregister",
           "register_entry": "Noch anzugeben",
@@ -626,19 +678,138 @@
       "source_name": "e-recht24.de",
       "source_attribution": "e-recht24.de"
     },
+    "dashboard": {
+      "title": "Dashboard",
+      "stats": {
+        "projects": "Projekte",
+        "tasks": "Aufgaben",
+        "teamMembers": "Teammitglieder"
+      },
+      "quickActions": {
+        "title": "Schnellaktionen",
+        "empty": "Keine Schnellaktionen verfügbar",
+        "actions": {
+          "newProject": {
+            "title": "Neues Projekt",
+            "description": "Starte ein neues Projekt"
+          },
+          "newTask": {
+            "title": "Neue Aufgabe",
+            "description": "Erstelle eine neue Aufgabe"
+          },
+          "inviteTeam": {
+            "title": "Team einladen",
+            "description": "Lade ein neues Teammitglied ein"
+          },
+          "viewDocs": {
+            "title": "Dokumentation öffnen",
+            "description": "Lies die Dokumentation"
+          }
+        }
+      },
+      "projects": {
+        "title": "Deine Projekte",
+        "empty": "Keine Projekte gefunden",
+        "createFirst": "Erstelle dein erstes Projekt",
+        "retry": "Erneut versuchen",
+        "progress": "Fortschritt",
+        "add": "+ Neues Projekt hinzufügen",
+        "updated": "Aktualisiert {date}"
+      },
+      "notifications": {
+        "title": "Benachrichtigungen",
+        "empty": "Keine neuen Benachrichtigungen",
+        "samples": {
+          "comment": "Du hast einen neuen Kommentar zu deinem Projekt \"{project}\".",
+          "mention": "{user} hat dich in \"{item}\" erwähnt.",
+          "task_completed": "Aufgabe \"{task}\" wurde abgeschlossen."
+        }
+      },
+      "activity": {
+        "title": "Aktuelle Aktivitäten",
+        "empty": "Keine aktuellen Aktivitäten",
+        "viewAll": "Alle Aktivitäten anzeigen"
+      },
+      "profile": {
+        "avatarAlt": "Benutzer-Avatar",
+        "actionsTitle": "Konto-Aktionen",
+        "settings": "Einstellungen bearbeiten",
+        "upgrade": "Upgrade",
+        "logout": "Abmelden",
+        "planTooltip": "Aktueller Plan: {plan}",
+        "planLabels": {
+          "free": "Starter",
+          "pro": "Pro",
+          "premium": "Premium",
+          "enterprise": "Enterprise"
+        },
+        "pulse": "Dein Workspace funktioniert vollständig passwortlos – Magic Links kommen direkt in deinem Postfach an und OAuth hält Identitäten verifiziert."
+      },
+      "billing": {
+        "title": "Abonnement & Plan",
+        "currentPlan": "Aktueller Plan",
+        "statusLabel": "Status",
+        "noSubscription": "Kein aktives Abonnement",
+        "renewal": "Verlängert sich am",
+        "credits": "Verbleibende AI-Credits",
+        "actions": {
+          "manage": "Abrechnung öffnen",
+          "cancel": "Abo kündigen",
+          "cancelled": "Kündigung vorgemerkt"
+        },
+        "statusMap": {
+          "active": "Aktiv",
+          "trialing": "Testphase",
+          "past_due": "Überfällig",
+          "canceled": "Gekündigt",
+          "unpaid": "Unbezahlt",
+          "incomplete": "Unvollständig",
+          "incomplete_expired": "Abgelaufen",
+          "paused": "Pausiert",
+          "unknown": "Unbekannt"
+        }
+      },
+      "toolShortcuts": {
+        "title": "Werkzeuge im Schnellzugriff",
+        "description": "Greife direkt auf deine wichtigsten Workflows zu.",
+        "open": "Tool öffnen"
+      },
+      "newsletter": {
+        "title": "Newsletter-Einstellungen",
+        "subscribed": "Du erhältst derzeit Produkt-Updates.",
+        "unsubscribed": "Aktuell keine Newsletter abonniert.",
+        "unsubscribe": "Newsletter abbestellen",
+        "resubscribe": "Erneut abonnieren",
+        "processing": "Einstellungen werden aktualisiert...",
+        "success": "Einstellungen gespeichert",
+        "error": "Einstellungen konnten nicht aktualisiert werden. Bitte erneut versuchen."
+      },
+      "recommendations": {
+        "title": "Empfehlungen für dich",
+        "tools": "Tools",
+        "docs": "Guides",
+        "empty": "Derzeit keine Empfehlungen verfügbar."
+      }
+    },
     "login": {
       "title": "Anmelden",
       "form": {
         "heading": "Melden Sie sich bei Ihrem Konto an",
         "fields": {
-          "email": { "label": "E-Mail" },
-          "password": { "label": "Passwort" }
+          "email": {
+            "label": "E-Mail"
+          },
+          "password": {
+            "label": "Passwort"
+          }
         },
         "or": "oder",
         "forgot_password_link": "Passwort vergessen?",
         "submit_button": "Anmelden",
         "magic_button": "Mit Magic Link fortfahren",
-        "oauth": { "github": "Mit GitHub anmelden" },
+        "oauth": {
+          "github": "Mit GitHub anmelden"
+        },
         "no_account_prompt": "Sie haben noch kein Konto?",
         "register_link": "Registrieren"
       }
@@ -649,13 +820,20 @@
         "heading": "Erstellen Sie Ihr Konto",
         "subheading": "Wir senden dir einen Anmelde‑Link per E‑Mail. Nach dem Absenden siehst du eine Bestätigungs‑Antwort.",
         "fields": {
-          "name": { "label": "Name", "help": "2–50 Zeichen." },
+          "name": {
+            "label": "Name",
+            "help": "2–50 Zeichen."
+          },
           "username": {
             "label": "Benutzername",
             "help": "3–30 Zeichen; Buchstaben, Zahlen, Unterstrich."
           },
-          "email": { "label": "E-Mail" },
-          "password": { "label": "Passwort" }
+          "email": {
+            "label": "E-Mail"
+          },
+          "password": {
+            "label": "Passwort"
+          }
         },
         "submit_button": "Konto erstellen",
         "already_have_account_prompt": "Sie haben bereits ein Konto?",
@@ -676,8 +854,12 @@
       "heading": "Willkommen! Profil vervollständigen",
       "helper": "Wir haben dein Konto erstellt. Du kannst jetzt deinen öffentlichen Namen und Benutzernamen festlegen oder dies später in den Einstellungen erledigen.",
       "fields": {
-        "name": { "label": "Name" },
-        "username": { "label": "Benutzername" }
+        "name": {
+          "label": "Name"
+        },
+        "username": {
+          "label": "Benutzername"
+        }
       },
       "buttons": {
         "saveContinue": "Speichern und weiter",
@@ -688,7 +870,11 @@
       "title": "Passwort vergessen",
       "form": {
         "heading": "Passwort vergessen",
-        "fields": { "email": { "label": "E-Mail" } },
+        "fields": {
+          "email": {
+            "label": "E-Mail"
+          }
+        },
         "submit_button": "Link zum Zurücksetzen senden"
       }
     },
@@ -704,7 +890,11 @@
       "title": "Passwort zurücksetzen",
       "form": {
         "heading": "Neues Passwort erstellen",
-        "fields": { "password": { "label": "Neues Passwort" } },
+        "fields": {
+          "password": {
+            "label": "Neues Passwort"
+          }
+        },
         "submit_button": "Passwort zurücksetzen"
       }
     },
@@ -963,6 +1153,10 @@
         "Prompt-Enhancer": {
           "name": "Prompt-Enhancer",
           "description": "KI-gestützter Prompt-Optimierer für bessere Ergebnisse in KI-Chats und -Anwendungen."
+        },
+        "webscraper": {
+          "name": "Webscraper",
+          "description": "Extrahiert Inhalte von Webseiten automatisch."
         }
       },
       "details": {

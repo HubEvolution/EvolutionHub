@@ -5,20 +5,43 @@ import CardReact from '@/components/ui/CardReact.jsx';
 /* @type {import('../../types/dashboard').ProjectCard} */
 
 /**
+ * @typedef {Object} ProjectsPanelStrings
+ * @property {string} [empty]
+ * @property {string} [createFirst]
+ * @property {string} [retry]
+ * @property {string} [progressLabel]
+ * @property {string} [add]
+ * @property {string} [updated]
+ *
  * @typedef {Object} ProjectsPanelProps
  * @property {import('../../types/dashboard').ProjectCard[]} [initialProjects]
  * @property {string} [title]
+ * @property {string} [locale]
+ * @property {ProjectsPanelStrings} [strings]
  */
 
 /**
  * @param {ProjectsPanelProps} props
  * @returns {React.ReactElement}
  */
+const defaultStrings = {
+  empty: 'No projects yet',
+  createFirst: 'Create your first project',
+  retry: 'Retry',
+  progressLabel: 'Progress',
+  add: '+ Add new project',
+  updated: 'Updated {date}',
+};
+
 const ProjectsPanel = ({ 
   initialProjects = [],
-  title = 'Your Projects'
+  title = 'Your Projects',
+  locale = 'en',
+  strings = {}
 }) => {
   const { projects, loading, error, fetchProjects, createProject } = useProjectStore();
+  const resolvedLocale = locale === 'de' ? 'de-DE' : 'en-US';
+  const mergedStrings = { ...defaultStrings, ...strings };
   
   // Beim ersten Rendern die Projekte abrufen, falls keine initialProjects vorhanden sind
   useEffect(() => {
@@ -50,7 +73,7 @@ const ProjectsPanel = ({
   };
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('de-DE', {
+    return new Date(dateString).toLocaleDateString(resolvedLocale, {
       month: 'short',
       day: 'numeric',
       year: 'numeric'
@@ -71,17 +94,17 @@ const ProjectsPanel = ({
               onClick={fetchProjects}
               className="mt-2 text-primary hover:text-primary-light text-sm font-medium"
             >
-              Retry
+              {mergedStrings.retry}
             </button>
           </div>
         ) : projects.length === 0 ? (
           <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-            <p>Keine Projekte gefunden</p>
+            <p>{mergedStrings.empty}</p>
             <button 
               onClick={createProject}
               className="mt-2 text-primary hover:text-primary-light text-sm font-medium"
             >
-              Erstelle dein erstes Projekt
+              {mergedStrings.createFirst}
             </button>
           </div>
         ) : (
@@ -104,7 +127,7 @@ const ProjectsPanel = ({
                 
                 <div className="mt-3">
                   <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mb-1">
-                    <span>Fortschritt</span>
+                    <span>{mergedStrings.progressLabel}</span>
                     <span>{project.progress}%</span>
                   </div>
                   <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
@@ -128,7 +151,7 @@ const ProjectsPanel = ({
                     ))}
                   </div>
                   <span className="text-xs text-gray-500 dark:text-gray-400">
-                    Aktualisiert {formatDate(project.lastUpdated)}
+                    {mergedStrings.updated.replace('{date}', formatDate(project.lastUpdated))}
                   </span>
                 </div>
               </div>
@@ -142,7 +165,7 @@ const ProjectsPanel = ({
               onClick={createProject}
               className="w-full py-2 text-sm text-center text-primary hover:text-primary-light transition-colors rounded-lg border border-dashed border-gray-300 dark:border-gray-600 hover:border-primary/50"
             >
-              + Neues Projekt hinzufügen
+              {mergedStrings.add}
             </button>
           </div>
         )}

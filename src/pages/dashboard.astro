@@ -1,12 +1,14 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import UserProfile from '@/components/dashboard/UserProfile.astro';
-import StatsCard from '@/components/dashboard/StatsCard.astro';
-import ProjectsPanel from '@/components/dashboard/ProjectsPanel.jsx';
-import Notifications from '@/components/dashboard/Notifications.jsx';
-import ActivityFeed from '@/components/dashboard/ActivityFeed.jsx';
-import QuickActions from '@/components/dashboard/QuickActions.jsx';
-import type { QuickAction, Notification } from '../types/dashboard';
+import BillingCard, { type BillingSummary } from '@/components/dashboard/BillingCard';
+import NewsletterPreferencesCard from '@/components/dashboard/NewsletterPreferencesCard';
+import ToolShortcutsCard from '@/components/dashboard/ToolShortcutsCard.astro';
+import RecommendationsCard from '@/components/dashboard/RecommendationsCard.astro';
+import AccountSettingsSection from '@/components/dashboard/AccountSettingsSection.astro';
+import { getLocale } from '@/lib/i18n';
+import { getI18n } from '@/utils/i18n';
+import { getAllTools } from '@/lib/tools-data';
 
 const locals = Astro.locals as any;
 if (!locals.user) {
@@ -14,117 +16,282 @@ if (!locals.user) {
 }
 
 const user = locals.user;
+const locale = getLocale(Astro.url.pathname);
+const t = getI18n(locale);
 
-// Fetch data for the dashboard components
-const db = locals.runtime.env.DB;
+const origin = new URL(Astro.request.url).origin;
+const cookieHeader = Astro.request.headers.get('cookie') ?? '';
 
-// Fetch projects, activities, and stats in parallel
-const activitiesStmt = db
-  .prepare('SELECT * FROM activities WHERE user_id = ? ORDER BY created_at DESC LIMIT 10')
-  .bind(user.id);
-const projectsCountStmt = db
-  .prepare('SELECT count(*) as count FROM projects WHERE user_id = ?')
-  .bind(user.id);
-const tasksCountStmt = db
-  .prepare('SELECT count(*) as count FROM tasks WHERE user_id = ?')
-  .bind(user.id);
-const teamMembersCountStmt = db.prepare('SELECT count(*) as count FROM users').bind(); // As per original logic
+async function fetchApi<T>(path: string): Promise<T | null> {
+  try {
+    const res = await fetch(`${origin}${path}`, {
+      headers: {
+        cookie: cookieHeader,
+      },
+    });
+    if (!res.ok) return null;
+    const json = await res.json();
+    return json?.data ?? null;
+  } catch {
+    return null;
+  }
+}
 
-// Mock notifications fetch
-const notifications: Notification[] = [
+const billingSummary = await fetchApi<BillingSummary>('/api/dashboard/billing-summary');
+const recommendationsData = await fetchApi<{ tools: any[]; docs: any[] }>(
+  `/api/dashboard/recommendations?locale=${locale}`
+);
+
+const toolShortcuts = [
   {
-    id: '1',
-    message: 'You have a new comment on your project "Website Redesign".',
-    type: 'comment',
-    timestamp: new Date().toISOString(),
-    read: false,
+    id: 'imag-enhancer',
+    name: t('pages.tools.items.Imag-Enhancer.name'),
+    description: t('pages.tools.items.Imag-Enhancer.description'),
+    url: '/tools/imag-enhancer/app',
   },
   {
-    id: '2',
-    message: '@jane mentioned you in the task "Update Documentation".',
-    type: 'mention',
-    timestamp: new Date(Date.now() - 1000 * 60 * 5).toISOString(),
-    read: false,
+    id: 'prompt-enhancer',
+    name: t('pages.tools.items.prompt-enhancer.name'),
+    description: t('pages.tools.items.prompt-enhancer.description'),
+    url: '/tools/prompt-enhancer/app',
   },
-  {
-    id: '3',
-    message: 'Task "Deploy to Staging" was completed.',
-    type: 'task_completed',
-    timestamp: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
-    read: true,
-  },
+  ...getAllTools(locale)
+    .filter((tool) => tool.id !== 'Imag-Enhancer' && tool.id !== 'prompt-enhancer')
+    .slice(0, 1)
+    .map((tool) => ({
+      id: tool.id,
+      name: tool.name,
+      description: tool.description,
+      url: tool.url,
+    })),
 ];
 
-const [activitiesResponse, projectsCountResult, tasksCountResult, teamMembersCountResult] =
-  await Promise.all([
-    activitiesStmt.all(),
-    projectsCountStmt.first(),
-    tasksCountStmt.first(),
-    teamMembersCountStmt.first(),
-  ]);
-
-const activities = activitiesResponse.results || [];
-const stats = {
-  projects: projectsCountResult?.count || 0,
-  tasks: tasksCountResult?.count || 0,
-  teamMembers: teamMembersCountResult?.count || 0,
+const billingStrings = {
+  title: t('pages.dashboard.billing.title'),
+  currentPlan: t('pages.dashboard.billing.currentPlan'),
+  statusLabel: t('pages.dashboard.billing.statusLabel'),
+  noSubscription: t('pages.dashboard.billing.noSubscription'),
+  renewal: t('pages.dashboard.billing.renewal'),
+  credits: t('pages.dashboard.billing.credits'),
+  actions: {
+    manage: t('pages.dashboard.billing.actions.manage'),
+    cancel: t('pages.dashboard.billing.actions.cancel'),
+    cancelled: t('pages.dashboard.billing.actions.cancelled'),
+  },
+  statusMap: t('pages.dashboard.billing.statusMap') as Record<string, string>,
+  planLabels: t('pages.dashboard.profile.planLabels') as Record<
+    'free' | 'pro' | 'premium' | 'enterprise',
+    string
+  >,
 };
 
-const quickActions: QuickAction[] = [
-  {
-    id: 'new-project',
-    title: 'New Project',
-    description: 'Start a new project',
-    icon: '/icons/project.svg',
-    action: 'create_project',
-    variant: 'primary',
+const toolShortcutStrings = {
+  title: t('pages.dashboard.toolShortcuts.title'),
+  description: t('pages.dashboard.toolShortcuts.description'),
+  open: t('pages.dashboard.toolShortcuts.open'),
+};
+
+const newsletterStrings = {
+  title: t('pages.dashboard.newsletter.title'),
+  subscribed: t('pages.dashboard.newsletter.subscribed'),
+  unsubscribed: t('pages.dashboard.newsletter.unsubscribed'),
+  unsubscribe: t('pages.dashboard.newsletter.unsubscribe'),
+  resubscribe: t('pages.dashboard.newsletter.resubscribe'),
+  processing: t('pages.dashboard.newsletter.processing'),
+  success: t('pages.dashboard.newsletter.success'),
+  error: t('pages.dashboard.newsletter.error'),
+};
+
+const recommendationStrings = {
+  title: t('pages.dashboard.recommendations.title'),
+  tools: t('pages.dashboard.recommendations.tools'),
+  docs: t('pages.dashboard.recommendations.docs'),
+  empty: t('pages.dashboard.recommendations.empty'),
+};
+
+const recommendedTools = recommendationsData?.tools ?? [];
+const recommendedDocs = recommendationsData?.docs ?? [];
+
+const initialNewsletterSubscribed = true;
+
+const accountI18nSettings = {
+  upload: {
+    invalid_type: t('common.upload.invalid_type'),
+    too_large: t('common.upload.too_large'),
   },
-  {
-    id: 'new-task',
-    title: 'New Task',
-    description: 'Create a new task',
-    icon: '/icons/task.svg',
-    action: 'create_task',
-    variant: 'success',
+  status: {
+    uploading: t('common.status.uploading'),
   },
-  {
-    id: 'invite-team',
-    title: 'Invite Team',
-    description: 'Invite a new team member',
-    icon: '/icons/team.svg',
-    action: 'invite_member',
-    variant: 'secondary',
+  actions: {
+    upload: t('common.actions.upload'),
   },
-  {
-    id: 'view-docs',
-    title: 'View Docs',
-    description: 'Read the documentation',
-    icon: '/icons/docs.svg',
-    action: 'view_docs',
-    variant: 'secondary',
+  success: {
+    avatar_updated: t('common.success.avatar_updated'),
   },
-];
+  errors: {
+    upload_failed_prefix: t('common.errors.upload_failed_prefix'),
+  },
+};
+
+const baseDashboardPath = locale === 'de' ? '/de/dashboard' : locale === 'en' ? '/en/dashboard' : '/dashboard';
+const redirectUrl = locale === 'de' ? '/de/login' : locale === 'en' ? '/en/login' : '/login';
+const billingUrl = `${baseDashboardPath}#billing`;
+
+const dangerStrings = locale === 'de'
+  ? {
+      title: 'Konto löschen',
+      description: 'Das Entfernen deines Kontos anonymisiert deine Daten und beendet aktive Sitzungen. Diese Aktion kann nicht rückgängig gemacht werden.',
+      button: 'Konto löschen',
+      close: 'Schließen',
+      confirm: {
+        title: 'Löschung bestätigen',
+        description: 'Bist du sicher, dass du dein Konto dauerhaft löschen möchtest?',
+        confirmCta: 'Jetzt löschen',
+        cancelCta: 'Abbrechen',
+      },
+      subscription: {
+        title: 'Aktives Abonnement erkannt',
+        description: 'Wir haben aktive Abonnements gefunden. Du kannst zur Abrechnung wechseln oder die Kündigung automatisch zum aktuellen Laufzeitende einplanen.',
+        periodEnd: 'Verlängert sich am {date}',
+        indefinite: 'Verlängert sich automatisch bis zur Kündigung',
+        goToBilling: 'Zur Abrechnung wechseln',
+        deleteAnyway: 'Trotzdem löschen',
+        back: 'Zurück',
+      },
+      messages: {
+        processing: 'Konto wird gelöscht…',
+        success: 'Dein Konto wurde gelöscht. Du wirst abgemeldet.',
+        error: 'Das Konto konnte nicht gelöscht werden. Bitte versuche es erneut.',
+      },
+    }
+  : {
+      title: 'Delete account',
+      description: 'Deleting your account anonymises data and logs you out everywhere. This action cannot be undone.',
+      button: 'Delete account',
+      close: 'Close',
+      confirm: {
+        title: 'Confirm deletion',
+        description: 'Are you sure you want to permanently delete your account?',
+        confirmCta: 'Delete now',
+        cancelCta: 'Cancel',
+      },
+      subscription: {
+        title: 'Active subscription detected',
+        description: 'We found active subscriptions. You can jump to billing or schedule cancellation at the current period end.',
+        periodEnd: 'Renews on {date}',
+        indefinite: 'Renews automatically until cancelled',
+        goToBilling: 'Go to billing',
+        deleteAnyway: 'Delete anyway',
+        back: 'Back',
+      },
+      messages: {
+        processing: 'Deleting account…',
+        success: 'Your account was deleted successfully. You will be signed out.',
+        error: 'We couldn’t delete your account. Please try again or contact support.',
+      },
+    };
+
+const profileCopy = locale === 'de'
+  ? {
+      title: 'Öffentliches Profil',
+      description: 'Aktualisiere, wie du in Evolution Hub erscheinst – für Kommentare, Dashboards und Team-Arbeitsbereiche.',
+      nameLabel: 'Name',
+      usernameLabel: 'Benutzername',
+      emailLabel: 'E-Mail',
+      changeEmailHint: 'E-Mail-Änderungen erfordern eine erneute Verifizierung über den Support.',
+      changeEmailCta: 'E-Mail ändern (bald verfügbar)',
+      saveCta: 'Änderungen speichern',
+      hybridTitle: 'Passwortlos per Design',
+      hybridDescription: 'Anmeldung erfolgt über Magic Links und OAuth-Anbieter – keine Passwörter, kein Reset-Stress.',
+      supportTitle: 'Hilfe benötigt?',
+      supportDescription: 'Das Auth-Playbook erklärt Sessions, Gerätevertrauen und Recovery-Schritte im Detail.',
+      supportCta: 'Guide öffnen',
+      supportHref: '/docs/architecture/auth-architecture',
+    }
+  : {
+      title: 'Public profile',
+      description: 'Control how your identity appears across Evolution Hub workspaces and automations.',
+      nameLabel: 'Name',
+      usernameLabel: 'Username',
+      emailLabel: 'Email',
+      changeEmailHint: 'Email changes require a re-verification workflow handled by support.',
+      changeEmailCta: 'Change email (coming soon)',
+      saveCta: 'Save changes',
+      hybridTitle: 'Passwordless by design',
+      hybridDescription: 'Authentication relies on secure magic links and OAuth providers. Nothing to rotate or forget.',
+      supportTitle: 'Need help?',
+      supportDescription: 'Review the authentication playbook for session management, recovery, and device trust.',
+      supportCta: 'Open guide',
+      supportHref: '/docs/architecture/auth-architecture',
+    };
 ---
 
-<BaseLayout title="Dashboard">
-  <div class="container mx-auto p-4 sm:p-6 lg:p-8">
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <!-- Left Column (1/3) -->
-      <div class="lg:col-span-1 flex flex-col gap-6">
+<BaseLayout title={t('pages.dashboard.title') ?? 'Dashboard'}>
+  <!-- Futuristic gradient background -->
+  <div class="relative min-h-screen overflow-hidden">
+    <div class="absolute inset-0 -z-10 bg-gradient-to-br from-slate-950 via-indigo-950/40 to-violet-950/30 dark:from-slate-950 dark:via-purple-950/30 dark:to-cyan-950/20"></div>
+    <div class="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-pink-500/10 via-transparent to-transparent"></div>
+
+    <div class="container mx-auto p-4 lg:p-6">
+      <!-- Modern CSS Grid Layout: responsive columns -->
+      <div class="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-6 xl:grid-cols-3">
+
+        <!-- User Profile Card -->
         <UserProfile user={user} />
-        <QuickActions initialActions={quickActions} />
-      </div>
 
-      <!-- Middle Column (1/3) -->
-      <div class="lg:col-span-1 flex flex-col gap-6">
-        <StatsCard stats={stats} />
-        <ProjectsPanel />
-      </div>
+        <!-- Account Settings - Spans 2 columns on XL -->
+        <div class="xl:col-span-2">
+          <AccountSettingsSection
+            user={user}
+            planLabels={billingStrings.planLabels}
+            billingUrl={billingUrl}
+            redirectUrl={redirectUrl}
+            dangerStrings={dangerStrings}
+            profileCopy={profileCopy}
+            i18nSettings={accountI18nSettings}
+          />
+        </div>
 
-      <!-- Right Column (1/3) -->
-      <div class="lg:col-span-1 flex flex-col gap-6">
-        <Notifications initialNotifications={notifications} />
-        <ActivityFeed initialActivities={activities} />
+        <!-- Pulse Card - Compact callout -->
+        <div class="group relative overflow-hidden rounded-xl border border-indigo-500/20 bg-gradient-to-br from-indigo-950/50 via-slate-900/60 to-violet-950/50 p-5 shadow-xl backdrop-blur-sm transition-all hover:border-indigo-400/30 hover:shadow-indigo-500/20">
+          <div class="absolute inset-0 -z-10 bg-gradient-to-br from-indigo-500/5 to-transparent opacity-0 transition-opacity group-hover:opacity-100"></div>
+          <h3 class="text-xs font-bold uppercase tracking-wider text-indigo-300/90">Pulse</h3>
+          <p class="mt-2 text-sm leading-relaxed text-slate-300/80">
+            {t('pages.dashboard.profile.pulse', {
+              default: 'Your workspace runs completely passwordless – magic links sync straight to your inbox and OAuth keeps identities verified.'
+            })}
+          </p>
+        </div>
+
+        <!-- Newsletter Card -->
+        <NewsletterPreferencesCard
+          client:load
+          email={user.email}
+          initiallySubscribed={initialNewsletterSubscribed}
+          strings={newsletterStrings}
+        />
+
+        <!-- Billing Card -->
+        <div class="group relative overflow-hidden rounded-xl border border-white/10 bg-white/5 p-4 shadow-lg backdrop-blur-md transition-all hover:border-white/20 hover:shadow-xl dark:bg-slate-900/40">
+          <BillingCard client:load summary={billingSummary} strings={billingStrings} />
+        </div>
+
+        <!-- Tool Shortcuts -->
+        <div class="group relative overflow-hidden rounded-xl border border-cyan-500/20 bg-gradient-to-br from-cyan-950/40 via-slate-900/50 to-blue-950/40 p-4 shadow-lg backdrop-blur-sm transition-all hover:border-cyan-400/30 hover:shadow-cyan-500/20">
+          <ToolShortcutsCard tools={toolShortcuts} strings={toolShortcutStrings} />
+        </div>
+
+        <!-- Recommendations - Full width on smaller screens -->
+        <div class="lg:col-span-2 xl:col-span-3">
+          <div class="group relative overflow-hidden rounded-xl border border-violet-500/20 bg-gradient-to-br from-violet-950/40 via-slate-900/50 to-fuchsia-950/30 p-5 shadow-xl backdrop-blur-sm transition-all hover:border-violet-400/30 hover:shadow-violet-500/20">
+            <RecommendationsCard
+              tools={recommendedTools}
+              docs={recommendedDocs}
+              strings={recommendationStrings}
+            />
+          </div>
+        </div>
+
       </div>
     </div>
   </div>

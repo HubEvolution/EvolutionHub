@@ -7,18 +7,25 @@ interface Stats {
   teamMembers: number;
 }
 
-interface Props {
-  stats: Stats;
+interface StatsLabels {
+  projects: string;
+  tasks: string;
+  teamMembers: string;
 }
 
-const { stats } = Astro.props;
+interface Props {
+  stats: Stats;
+  labels?: StatsLabels;
+}
+
+const { stats, labels } = Astro.props as Props;
 const loading = !stats;
 
 const statsMap = !loading
   ? [
-      { label: 'Projects', value: stats.projects },
-      { label: 'Tasks', value: stats.tasks },
-      { label: 'Team Members', value: stats.teamMembers },
+      { label: labels?.projects ?? 'Projects', value: stats.projects },
+      { label: labels?.tasks ?? 'Tasks', value: stats.tasks },
+      { label: labels?.teamMembers ?? 'Team Members', value: stats.teamMembers },
     ]
   : [];
 ---
@@ -38,7 +45,7 @@ const statsMap = !loading
             class:list={[
               'p-6 flex items-center',
               {
-                'border-r border-gray-200 dark:border-white/10':
+                'md:border-r md:border-gray-200 md:dark:border-white/10':
                   index < statsMap.length - 1 && index % 3 !== 2,
               },
             ]}

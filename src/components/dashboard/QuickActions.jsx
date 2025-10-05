@@ -15,6 +15,7 @@ import CardReact from '@/components/ui/CardReact.jsx';
  * @typedef {Object} QuickActionsProps
  * @property {QuickAction[]} [initialActions]
  * @property {string} [title]
+ * @property {string} [emptyLabel]
  */
 
 /**
@@ -23,7 +24,8 @@ import CardReact from '@/components/ui/CardReact.jsx';
  */
 const QuickActions = ({ 
   initialActions = [],
-  title = 'Quick Actions'
+  title = 'Quick Actions',
+  emptyLabel = 'No quick actions available'
 }) => {
   const { actions, setActions, executeAction } = useQuickActionStore();
   
@@ -58,10 +60,10 @@ const QuickActions = ({
 
   return (
     <CardReact title={title}>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {actions.length === 0 ? (
           <div className="col-span-full text-center py-4 text-gray-500 dark:text-gray-400">
-            <p>No quick actions available</p>
+            <p>{emptyLabel}</p>
           </div>
         ) : (
           actions.map((action) => (
