@@ -6,6 +6,7 @@ import NewsletterPreferencesCard from '@/components/dashboard/NewsletterPreferen
 import ToolShortcutsCard from '@/components/dashboard/ToolShortcutsCard.astro';
 import RecommendationsCard from '@/components/dashboard/RecommendationsCard.astro';
 import AccountSettingsSection from '@/components/dashboard/AccountSettingsSection.astro';
+import RecentCommentsCard from '@/components/dashboard/RecentCommentsCard';
 import { getI18n } from '@/utils/i18n';
 import { getAllTools } from '@/lib/tools-data';
 
@@ -36,7 +37,9 @@ async function fetchApi<T>(path: string): Promise<T | null> {
 }
 
 const billingSummary = await fetchApi<BillingSummary>('/api/dashboard/billing-summary');
-const recommendationsData = await fetchApi<{ tools: any[]; docs: any[] }>('/api/dashboard/recommendations?locale=en');
+const recommendationsData = await fetchApi<{ tools: any[]; docs: any[] }>(
+  '/api/dashboard/recommendations?locale=en'
+);
 
 const toolShortcuts = [
   {
@@ -62,36 +65,43 @@ const toolShortcuts = [
     })),
 ];
 
-  const billingStrings = {
-    title: t('pages.dashboard.billing.title'),
-    currentPlan: t('pages.dashboard.billing.currentPlan'),
-    statusLabel: t('pages.dashboard.billing.statusLabel'),
-    noSubscription: t('pages.dashboard.billing.noSubscription'),
-    renewal: t('pages.dashboard.billing.renewal'),
-    credits: t('pages.dashboard.billing.credits'),
-    actions: {
-      manage: t('pages.dashboard.billing.actions.manage'),
-      cancel: t('pages.dashboard.billing.actions.cancel'),
-      cancelled: t('pages.dashboard.billing.actions.cancelled'),
-    },
-    statusMap: {
-      active: t('pages.dashboard.billing.statusMap.active'),
-      trialing: t('pages.dashboard.billing.statusMap.trialing'),
-      past_due: t('pages.dashboard.billing.statusMap.past_due'),
-      canceled: t('pages.dashboard.billing.statusMap.canceled'),
-      unpaid: t('pages.dashboard.billing.statusMap.unpaid'),
-      incomplete: t('pages.dashboard.billing.statusMap.incomplete'),
-      incomplete_expired: t('pages.dashboard.billing.statusMap.incomplete_expired'),
-      paused: t('pages.dashboard.billing.statusMap.paused'),
-      unknown: t('pages.dashboard.billing.statusMap.unknown'),
-    },
-    planLabels: {
-      free: t('pages.dashboard.profile.planLabels.free'),
-      pro: t('pages.dashboard.profile.planLabels.pro'),
-      premium: t('pages.dashboard.profile.planLabels.premium'),
-      enterprise: t('pages.dashboard.profile.planLabels.enterprise'),
-    },
-  };
+const billingStrings = {
+  title: t('pages.dashboard.billing.title'),
+  currentPlan: t('pages.dashboard.billing.currentPlan'),
+  statusLabel: t('pages.dashboard.billing.statusLabel'),
+  noSubscription: t('pages.dashboard.billing.noSubscription'),
+  renewal: t('pages.dashboard.billing.renewal'),
+  credits: t('pages.dashboard.billing.credits'),
+  actions: {
+    manage: t('pages.dashboard.billing.actions.manage'),
+    cancel: t('pages.dashboard.billing.actions.cancel'),
+    cancelled: t('pages.dashboard.billing.actions.cancelled'),
+  },
+  statusMap: {
+    active: t('pages.dashboard.billing.statusMap.active'),
+    trialing: t('pages.dashboard.billing.statusMap.trialing'),
+    past_due: t('pages.dashboard.billing.statusMap.past_due'),
+    canceled: t('pages.dashboard.billing.statusMap.canceled'),
+    unpaid: t('pages.dashboard.billing.statusMap.unpaid'),
+    incomplete: t('pages.dashboard.billing.statusMap.incomplete'),
+    incomplete_expired: t('pages.dashboard.billing.statusMap.incomplete_expired'),
+    paused: t('pages.dashboard.billing.statusMap.paused'),
+    unknown: t('pages.dashboard.billing.statusMap.unknown'),
+  },
+  planLabels: {
+    free: t('pages.dashboard.profile.planLabels.free'),
+    pro: t('pages.dashboard.profile.planLabels.pro'),
+    premium: t('pages.dashboard.profile.planLabels.premium'),
+    enterprise: t('pages.dashboard.profile.planLabels.enterprise'),
+  },
+};
+
+const recentCommentsStrings = {
+  title: 'My recent comments',
+  empty: "You haven't commented yet — explore our blog and join the discussion!",
+  error: 'Failed to load your comments.',
+  openBlogCta: 'Open Blog',
+};
 
 const toolShortcutStrings = {
   title: t('pages.dashboard.toolShortcuts.title'),
@@ -143,7 +153,8 @@ const accountI18nSettings = {
 
 const dangerStrings = {
   title: 'Delete account',
-  description: 'Deleting your account anonymises data and logs you out everywhere. This action cannot be undone.',
+  description:
+    'Deleting your account anonymises data and logs you out everywhere. This action cannot be undone.',
   button: 'Delete account',
   close: 'Close',
   confirm: {
@@ -154,7 +165,8 @@ const dangerStrings = {
   },
   subscription: {
     title: 'Active subscription detected',
-    description: 'We found active subscriptions. You can jump to billing or schedule cancellation at the current period end.',
+    description:
+      'We found active subscriptions. You can jump to billing or schedule cancellation at the current period end.',
     periodEnd: 'Renews on {date}',
     indefinite: 'Renews automatically until cancelled',
     goToBilling: 'Go to billing',
@@ -178,9 +190,11 @@ const profileCopy = {
   changeEmailCta: 'Change email (coming soon)',
   saveCta: 'Save changes',
   hybridTitle: 'Passwordless by design',
-  hybridDescription: 'Authentication relies on secure magic links and OAuth providers. Nothing to rotate or forget.',
+  hybridDescription:
+    'Authentication relies on secure magic links and OAuth providers. Nothing to rotate or forget.',
   supportTitle: 'Need help?',
-  supportDescription: 'Review the authentication playbook for session management, recovery, and device trust.',
+  supportDescription:
+    'Review the authentication playbook for session management, recovery, and device trust.',
   supportCta: 'Open guide',
   supportHref: '/docs/architecture/auth-architecture',
 };
@@ -189,13 +203,18 @@ const profileCopy = {
 <BaseLayout title={t('pages.dashboard.title') ?? 'Dashboard'}>
   <!-- Futuristic gradient background -->
   <div class="relative min-h-screen overflow-hidden">
-    <div class="absolute inset-0 -z-10 bg-gradient-to-br from-slate-950 via-indigo-950/40 to-violet-950/30 dark:from-slate-950 dark:via-purple-950/30 dark:to-cyan-950/20"></div>
-    <div class="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-pink-500/10 via-transparent to-transparent"></div>
+    <div
+      class="absolute inset-0 -z-10 bg-gradient-to-br from-slate-950 via-indigo-950/40 to-violet-950/30 dark:from-slate-950 dark:via-purple-950/30 dark:to-cyan-950/20"
+    >
+    </div>
+    <div
+      class="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-pink-500/10 via-transparent to-transparent"
+    >
+    </div>
 
     <div class="container mx-auto p-4 lg:p-6">
       <!-- Modern CSS Grid Layout: responsive columns -->
       <div class="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-6 xl:grid-cols-3">
-
         <!-- User Profile Card -->
         <UserProfile user={user} />
 
@@ -213,13 +232,21 @@ const profileCopy = {
         </div>
 
         <!-- Pulse Card - Compact callout -->
-        <div class="group relative overflow-hidden rounded-xl border border-indigo-500/20 bg-gradient-to-br from-indigo-950/50 via-slate-900/60 to-violet-950/50 p-5 shadow-xl backdrop-blur-sm transition-all hover:border-indigo-400/30 hover:shadow-indigo-500/20">
-          <div class="absolute inset-0 -z-10 bg-gradient-to-br from-indigo-500/5 to-transparent opacity-0 transition-opacity group-hover:opacity-100"></div>
+        <div
+          class="group relative overflow-hidden rounded-xl border border-indigo-500/20 bg-gradient-to-br from-indigo-950/50 via-slate-900/60 to-violet-950/50 p-5 shadow-xl backdrop-blur-sm transition-all hover:border-indigo-400/30 hover:shadow-indigo-500/20"
+        >
+          <div
+            class="absolute inset-0 -z-10 bg-gradient-to-br from-indigo-500/5 to-transparent opacity-0 transition-opacity group-hover:opacity-100"
+          >
+          </div>
           <h3 class="text-xs font-bold uppercase tracking-wider text-indigo-300/90">Pulse</h3>
           <p class="mt-2 text-sm leading-relaxed text-slate-300/80">
-            {t('pages.dashboard.profile.pulse', {
-              default: 'Your workspace runs completely passwordless – magic links sync straight to your inbox and OAuth keeps identities verified.'
-            })}
+            {
+              t('pages.dashboard.profile.pulse', {
+                default:
+                  'Your workspace runs completely passwordless – magic links sync straight to your inbox and OAuth keeps identities verified.',
+              })
+            }
           </p>
         </div>
 
@@ -232,18 +259,31 @@ const profileCopy = {
         />
 
         <!-- Billing Card -->
-        <div class="group relative overflow-hidden rounded-xl border border-white/10 bg-white/5 p-4 shadow-lg backdrop-blur-md transition-all hover:border-white/20 hover:shadow-xl dark:bg-slate-900/40">
+        <div
+          class="group relative overflow-hidden rounded-xl border border-white/10 bg-white/5 p-4 shadow-lg backdrop-blur-md transition-all hover:border-white/20 hover:shadow-xl dark:bg-slate-900/40"
+        >
           <BillingCard client:load summary={billingSummary} strings={billingStrings} />
         </div>
 
         <!-- Tool Shortcuts -->
-        <div class="group relative overflow-hidden rounded-xl border border-cyan-500/20 bg-gradient-to-br from-cyan-950/40 via-slate-900/50 to-blue-950/40 p-4 shadow-lg backdrop-blur-sm transition-all hover:border-cyan-400/30 hover:shadow-cyan-500/20">
+        <div
+          class="group relative overflow-hidden rounded-xl border border-cyan-500/20 bg-gradient-to-br from-cyan-950/40 via-slate-900/50 to-blue-950/40 p-4 shadow-lg backdrop-blur-sm transition-all hover:border-cyan-400/30 hover:shadow-cyan-500/20"
+        >
           <ToolShortcutsCard tools={toolShortcuts} strings={toolShortcutStrings} />
+        </div>
+
+        <!-- Recent Comments -->
+        <div
+          class="group relative overflow-hidden rounded-xl border border-emerald-500/20 bg-gradient-to-br from-emerald-950/40 via-slate-900/50 to-teal-950/40 p-4 shadow-lg backdrop-blur-sm transition-all hover:border-emerald-400/30 hover:shadow-emerald-500/20"
+        >
+          <RecentCommentsCard client:load strings={recentCommentsStrings} />
         </div>
 
         <!-- Recommendations - Full width on smaller screens -->
         <div class="lg:col-span-2 xl:col-span-3">
-          <div class="group relative overflow-hidden rounded-xl border border-violet-500/20 bg-gradient-to-br from-violet-950/40 via-slate-900/50 to-fuchsia-950/30 p-5 shadow-xl backdrop-blur-sm transition-all hover:border-violet-400/30 hover:shadow-violet-500/20">
+          <div
+            class="group relative overflow-hidden rounded-xl border border-violet-500/20 bg-gradient-to-br from-violet-950/40 via-slate-900/50 to-fuchsia-950/30 p-5 shadow-xl backdrop-blur-sm transition-all hover:border-violet-400/30 hover:shadow-violet-500/20"
+          >
             <RecommendationsCard
               tools={recommendedTools}
               docs={recommendedDocs}
@@ -251,7 +291,6 @@ const profileCopy = {
             />
           </div>
         </div>
-
       </div>
     </div>
   </div>

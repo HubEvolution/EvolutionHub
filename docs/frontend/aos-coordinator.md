@@ -64,6 +64,7 @@ import AosWrapper from '@/components/AosWrapper.astro';
 ```
 
 **Props:**
+
 - `animation` (string, default: `'fade-up'`) – AOS animation type
 - `delay` (number, default: `0`) – Animation delay in ms
 - `duration` (number, default: `700`) – Animation duration in ms
@@ -82,6 +83,7 @@ Für spezielle Fälle können weiterhin direkte Attribute verwendet werden:
 ```
 
 **Hinweis:** Die `AosWrapper`-Komponente wird empfohlen, da sie:
+
 - TypeScript-Typsicherheit bietet
 - Konsistente Defaults erzwingt
 - Wartbarkeit verbessert (DRY-Prinzip)
@@ -122,6 +124,7 @@ const attrs = getAosAttributes({ animation: 'fade-left', delay: 100 });
 ## Performance-Optimierungen (v1.7.3)
 
 ### Preload CSS
+
 AOS-CSS wird mit `<link rel="preload">` geladen für ~50-100ms schnelleren FCP:
 
 ```astro
@@ -138,9 +141,11 @@ AOS-CSS wird mit `<link rel="preload">` geladen für ~50-100ms schnelleren FCP:
 ```
 
 ### Optimierter Timeout
+
 Promise-basiertes Warten auf AOS-Verfügbarkeit (statt ineffizientem Polling).
 
 ### Code-Reduktion
+
 - **-70% data-aos Vorkommen** (48 → <15) durch `AosWrapper`-Komponente
 - **-150 LOC** in Pages durch DRY-Prinzip
 
@@ -152,6 +157,7 @@ Promise-basiertes Warten auf AOS-Verfügbarkeit (statt ineffizientem Polling).
 - Build-Fehler mit ESM-Imports: Die Integration nutzt CDN-Skripte, keine ESM-Imports –
   kompatibel mit SSR und Worker-Build.
 - TypeScript-Fehler bei AosWrapper: Importiere Typen aus `@/lib/aos`:
+
   ```typescript
   import type { AosWrapperProps } from '@/lib/aos';
   ```
@@ -159,6 +165,7 @@ Promise-basiertes Warten auf AOS-Verfügbarkeit (statt ineffizientem Polling).
 ## Migration von Legacy zu AosWrapper
 
 ### Vorher (Legacy)
+
 ```astro
 <h1 data-aos="fade-up" data-aos-duration="700">Title</h1>
 <p data-aos="fade-up" data-aos-delay="100" data-aos-duration="650">Text</p>
@@ -166,6 +173,7 @@ Promise-basiertes Warten auf AOS-Verfügbarkeit (statt ineffizientem Polling).
 ```
 
 ### Nachher (v1.7.3+)
+
 ```astro
 ---
 import AosWrapper from '@/components/AosWrapper.astro';
@@ -177,6 +185,7 @@ import AosWrapper from '@/components/AosWrapper.astro';
 ```
 
 **Vorteile:**
+
 - -60% weniger Code
 - Type-Safety
 - Konsistente Defaults

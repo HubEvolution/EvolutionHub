@@ -36,7 +36,7 @@ const limitStores: Record<string, RateLimitStore> = {};
  */
 function getRateLimitKey(context: {
   clientAddress?: string;
-  locals?: { user?: { id?: string } };
+  locals?: { user?: ({ id?: string } | null) };
 }): string {
   // In einer echten Umgebung würde man die IP-Adresse und optional die User-ID verwenden
   const clientIp = context.clientAddress || '0.0.0.0';
@@ -75,7 +75,7 @@ export function createRateLimiter(config: RateLimitConfig) {
   // Die eigentliche Rate-Limiting-Middleware
   return async function rateLimitMiddleware(context: {
     clientAddress?: string;
-    locals?: { user?: { id?: string } };
+    locals?: { user?: ({ id?: string } | null) };
     request: Request;
   }) {
     const key = getRateLimitKey(context);

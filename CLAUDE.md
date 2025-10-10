@@ -372,7 +372,7 @@ run_worker_first = ["/r2-ai/*", "/api/*"]  # Worker-Routen zuerst
 
 **`.assetsignore`** (erstellt von `build:worker`, `package.json:20`):
 
-```
+```text
 _worker.js
 ```
 
@@ -475,7 +475,7 @@ import something from '~/lib/module';
 
 ### Test-Struktur
 
-```
+```text
 tests/
 ├── unit/                 # Vitest Unit Tests
 │   ├── hooks/           # React Hooks Tests
@@ -520,6 +520,7 @@ test-suite-v2/
 | **Middleware** | 75% | 12 | Protected routes, redirects, locale handling |
 
 **Key Test Files:**
+
 - `oauth/github-oauth-flow.spec.ts` (270 lines) - OAuth happy path (EN/DE)
 - `oauth/oauth-cookie-security.spec.ts` (320 lines) - Cookie tests (HTTP/HTTPS, v1.7.2 fixes)
 - `oauth/oauth-error-handling.spec.ts` (210 lines) - Error scenarios
@@ -528,6 +529,7 @@ test-suite-v2/
 - `auth-middleware.spec.ts` (230 lines) - Protected route enforcement
 
 **Test Helpers:** `fixtures/auth-helpers.ts` (390 lines)
+
 - OAuth/Magic Link flow completion
 - Cookie assertions (HTTP vs HTTPS)
 - Session management helpers
@@ -536,6 +538,7 @@ test-suite-v2/
 **Docs:** `test-suite-v2/src/e2e/auth/README.md` - Full auth test guide
 
 **Run Auth Tests:**
+
 ```bash
 npm run test:e2e -- src/e2e/auth/           # All auth tests
 npm run test:e2e -- src/e2e/auth/oauth/     # OAuth only
@@ -622,7 +625,7 @@ on:
 
 **Endpoint:**
 
-```
+```text
 GET /api/health
 ```
 
@@ -650,13 +653,13 @@ npm run health-check -- --url <URL>
 
 ### Rollback-Strategien
 
-**Option 1: Cloudflare Rollback**
+#### Option 1: Cloudflare Rollback
 
 ```bash
 npx wrangler rollback --env production
 ```
 
-**Option 2: Git Tag Rollback**
+#### Option 2: Git Tag Rollback
 
 ```bash
 git checkout v1.7.0
@@ -914,11 +917,13 @@ npm run db:migrate, npm run db:generate
 **Ursache:** Session-Cookies werden nicht korrekt über `context.cookies.set()` gesetzt bei HTTP (localhost)
 
 **Lösung:** (implementiert in v1.7.1)
+
 - Cookies explizit im `Set-Cookie` Response-Header setzen
 - `__Host-session` nur auf HTTPS verwenden
 - Siehe: [docs/ops/stytch-custom-domains.md](docs/ops/stytch-custom-domains.md#9-troubleshooting)
 
 **Code-Pattern:**
+
 ```typescript
 // Statt nur context.cookies.set():
 const cookieValue = `session_id=${sessionId}; Path=/; HttpOnly; SameSite=Lax${isHttps ? '; Secure' : ''}; Max-Age=${maxAge}`;
@@ -928,10 +933,12 @@ return response;
 ```
 
 **Betroffene Dateien:**
+
 - `src/pages/api/auth/oauth/[provider]/callback.ts:239-242`
 - `src/pages/api/auth/callback.ts:231-234`
 
 **Debugging-Tipps:**
+
 1. Check Terminal-Logs: `[auth][oauth][callback] session_id cookie set`
 2. Check Response-Headers im Browser: `Set-Cookie: session_id=...`
 3. Check Browser-Cookies: Application Tab → Cookies → `session_id` vorhanden?
@@ -965,6 +972,6 @@ return response;
 
 ---
 
-**Ende des CLAUDE.md-Leitfadens**
+### Ende des CLAUDE.md-Leitfadens
 
 > Dieses Dokument ist die vollständige Referenz für KI-Agenten (Claude Code) zur Arbeit im Evolution Hub Projekt. Alle Instruktionen basieren auf tatsächlichen Pfaden, Zeilennummern und Code-Belegen aus dem Repository.

@@ -130,7 +130,9 @@ const DebugPanelOverlay: React.FC = () => {
   // Force-open via localStorage flag (e.g., set by console) or query param
   useEffect(() => {
     try {
-      const forceLS = localStorage.getItem(keyPrefix + 'force') === '1' || localStorage.getItem('debugPanel.force') === '1';
+      const forceLS =
+        localStorage.getItem(keyPrefix + 'force') === '1' ||
+        localStorage.getItem('debugPanel.force') === '1';
       const forceQP = new URLSearchParams(window.location.search).get('debugPanel') === '1';
       if ((forceLS || forceQP) && !isOpen) {
         setIsOpen(true);

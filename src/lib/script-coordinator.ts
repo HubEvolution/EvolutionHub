@@ -113,9 +113,7 @@ class ScriptCoordinator {
     if (module.dependencies) {
       for (const depId of module.dependencies) {
         if (!this.readyModules.has(depId)) {
-          dlog(
-            `[ScriptCoordinator] Waiting for dependency: ${depId} (required by ${moduleId})`
-          );
+          dlog(`[ScriptCoordinator] Waiting for dependency: ${depId} (required by ${moduleId})`);
           await this.initializeModule(depId);
         }
       }
@@ -251,16 +249,32 @@ export type { ScriptModule };
 
 // Debug flag helpers (client-only)
 function getLoggers() {
-  const isDev = typeof location !== 'undefined' && (location.hostname === 'localhost' || location.hostname === '127.0.0.1');
+  const isDev =
+    typeof location !== 'undefined' &&
+    (location.hostname === 'localhost' || location.hostname === '127.0.0.1');
   const verbose = (() => {
     try {
-      return isDev && (localStorage.getItem('debug.scriptCoordinator') === '1' || new URLSearchParams(location.search).has('debugScripts'));
-    } catch { return false; }
+      return (
+        isDev &&
+        (localStorage.getItem('debug.scriptCoordinator') === '1' ||
+          new URLSearchParams(location.search).has('debugScripts'))
+      );
+    } catch {
+      return false;
+    }
   })();
   const trace = (() => {
-    try { return isDev && localStorage.getItem('debug.scriptCoordinatorTrace') === '1'; } catch { return false; }
+    try {
+      return isDev && localStorage.getItem('debug.scriptCoordinatorTrace') === '1';
+    } catch {
+      return false;
+    }
   })();
-  const dlog = (...args: unknown[]) => { if (verbose) console.debug(...args); };
-  const dtrace = (...args: unknown[]) => { if (trace) console.debug(...args); };
+  const dlog = (...args: unknown[]) => {
+    if (verbose) console.debug(...args);
+  };
+  const dtrace = (...args: unknown[]) => {
+    if (trace) console.debug(...args);
+  };
   return { dlog, dtrace };
 }

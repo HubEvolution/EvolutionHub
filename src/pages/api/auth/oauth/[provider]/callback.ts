@@ -228,7 +228,10 @@ const getHandler: ApiHandler = async (context: APIContext) => {
     }
     redirectTarget = `${welcomePath}?next=${nextParam}`;
     if (devEnv) {
-      console.log('[auth][oauth][callback] redirect first-time to welcome-profile', { target, welcomePath });
+      console.log('[auth][oauth][callback] redirect first-time to welcome-profile', {
+        target,
+        welcomePath,
+      });
     }
   } else {
     if (devEnv) {

@@ -2,6 +2,27 @@ import { withAuthApiMiddleware, createApiError } from '@/lib/api-middleware';
 import { logUserEvent } from '@/lib/security-logger';
 import { createSecureJsonResponse } from '@/lib/response-helpers';
 
+type DashboardEnv = {
+  DB: D1Database;
+};
+
+type ActivityRow = {
+  id: string | number;
+  action: string;
+  created_at: string;
+  user: string | null;
+  user_image: string | null;
+};
+
+type ActivityFeedItem = {
+  id: string;
+  user: string | null;
+  action: string;
+  timestamp: string;
+  icon: string;
+  color: string;
+};
+
 /**
  * GET /api/dashboard/activity
  * Ruft die Aktivitäten des authentifizierten Benutzers ab.
@@ -14,7 +35,7 @@ import { createSecureJsonResponse } from '@/lib/response-helpers';
 export const GET = withAuthApiMiddleware(
   async (context) => {
     const { locals } = context;
-    const { env } = locals.runtime;
+    const runtimeEnv = locals.runtime?.env as Partial<DashboardEnv> | undefined;
     const user = locals.user;
 
     if (!user) {
@@ -22,8 +43,14 @@ export const GET = withAuthApiMiddleware(
     }
     const userId = user.id;
 
-    const { results } = await env.DB.prepare(
-      `
+    const db = runtimeEnv?.DB;
+    if (!db) {
+      return createApiError('server_error', 'Database unavailable');
+    }
+
+    const { results = [] } = await db
+      .prepare(
+        `
       SELECT a.id, a.action, a.created_at, u.name as user, u.image as user_image
       FROM activities a
       JOIN users u ON a.user_id = u.id
@@ -31,13 +58,13 @@ export const GET = withAuthApiMiddleware(
       ORDER BY a.created_at DESC
       LIMIT 10
   `
-    )
+      )
       .bind(userId)
-      .all();
+      .all<ActivityRow>();
 
     // Map to frontend expected format
-    const activityFeed = results.map((item: any) => ({
-      id: item.id,
+    const activityFeed: ActivityFeedItem[] = results.map((item) => ({
+      id: String(item.id),
       user: item.user,
       action: item.action,
       timestamp: item.created_at,

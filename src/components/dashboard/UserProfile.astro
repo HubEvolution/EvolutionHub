@@ -33,8 +33,13 @@ const planClasses =
         : 'bg-amber-50 text-amber-700 ring-1 ring-amber-200 dark:bg-amber-900/20 dark:text-amber-300 dark:ring-amber-800/40';
 ---
 
-<div class="group relative overflow-hidden rounded-xl border border-emerald-500/20 bg-gradient-to-br from-emerald-950/40 via-teal-950/30 to-cyan-950/40 p-5 shadow-xl backdrop-blur-sm transition-all hover:border-emerald-400/30 hover:shadow-emerald-500/20">
-  <div class="absolute inset-0 -z-10 bg-gradient-to-br from-emerald-500/10 to-cyan-500/10 opacity-50"></div>
+<div
+  class="group relative overflow-hidden rounded-xl border border-emerald-500/20 bg-gradient-to-br from-emerald-950/40 via-teal-950/30 to-cyan-950/40 p-5 shadow-xl backdrop-blur-sm transition-all hover:border-emerald-400/30 hover:shadow-emerald-500/20"
+>
+  <div
+    class="absolute inset-0 -z-10 bg-gradient-to-br from-emerald-500/10 to-cyan-500/10 opacity-50"
+  >
+  </div>
 
   <div class="flex items-center gap-4">
     <div class="relative">
@@ -43,7 +48,10 @@ const planClasses =
         src={user.image || '/assets/svg/logo.svg'}
         alt={t('pages.dashboard.profile.avatarAlt') ?? 'User avatar'}
       />
-      <div class="absolute -bottom-1 -right-1 h-4 w-4 rounded-full border-2 border-emerald-950 bg-emerald-400"></div>
+      <div
+        class="absolute -bottom-1 -right-1 h-4 w-4 rounded-full border-2 border-emerald-950 bg-emerald-400"
+      >
+      </div>
     </div>
     <div class="flex-1 min-w-0">
       <div class="flex items-center gap-2">

@@ -218,7 +218,10 @@ export const onRequest = defineMiddleware(async (context, next) => {
     if (match) {
       cookieLocale = match[1].toLowerCase() as Locale;
       if (import.meta.env.DEV) {
-        log('debug', '[Middleware] Fallback parsed pref_locale from raw header', { requestId, cookieLocale });
+        log('debug', '[Middleware] Fallback parsed pref_locale from raw header', {
+          requestId,
+          cookieLocale,
+        });
       }
     }
   }
@@ -322,11 +325,15 @@ export const onRequest = defineMiddleware(async (context, next) => {
         const fallbackPath = targetLocale === 'en' ? '/en/' : '/';
         effectiveNext = new URL(fallbackPath, url.origin);
         if (import.meta.env.DEV) {
-          log('debug', '[Middleware] set_locale loop-guard activated; next pointed to welcome, using fallback', {
-            requestId,
-            fallbackPath,
-            targetLocale,
-          });
+          log(
+            'debug',
+            '[Middleware] set_locale loop-guard activated; next pointed to welcome, using fallback',
+            {
+              requestId,
+              fallbackPath,
+              targetLocale,
+            }
+          );
         }
       }
     } catch (e) {
@@ -356,7 +363,10 @@ export const onRequest = defineMiddleware(async (context, next) => {
         maxAge: 60 * 60 * 24 * 180,
       });
       if (import.meta.env.DEV) {
-        log('debug', '[Middleware] pref_locale cookie synced to URL locale', { requestId, existingLocale });
+        log('debug', '[Middleware] pref_locale cookie synced to URL locale', {
+          requestId,
+          existingLocale,
+        });
       }
     } catch (e) {
       log('warn', '[Middleware] Failed to sync pref_locale cookie with URL locale', {
@@ -416,7 +426,11 @@ export const onRequest = defineMiddleware(async (context, next) => {
     headers.set('Content-Language', 'en');
     headers.set('Vary', 'Cookie, Accept-Language');
     if (import.meta.env.DEV) {
-      log('debug', '[Middleware] Early neutral -> referer suggests EN (no cookie), redirect to EN', { requestId, location });
+      log(
+        'debug',
+        '[Middleware] Early neutral -> referer suggests EN (no cookie), redirect to EN',
+        { requestId, location }
+      );
     }
     return new Response(null, { status: 302, headers });
   }
@@ -444,17 +458,25 @@ export const onRequest = defineMiddleware(async (context, next) => {
         secure: url.protocol === 'https:',
       });
       if (import.meta.env.DEV) {
-        log('debug', '[Middleware] Session splash gate -> set session_welcome_seen cookie', { requestId });
+        log('debug', '[Middleware] Session splash gate -> set session_welcome_seen cookie', {
+          requestId,
+        });
       }
     } catch (e) {
-      log('warn', '[Middleware] Failed to set session splash cookie', { requestId, errorMessage: e instanceof Error ? e.message : String(e) });
+      log('warn', '[Middleware] Failed to set session splash cookie', {
+        requestId,
+        errorMessage: e instanceof Error ? e.message : String(e),
+      });
     }
     const location = `${url.origin}/welcome?next=${encodeURIComponent(url.toString())}`;
     const headers = new Headers();
     headers.set('Location', location);
     headers.set('Vary', 'Cookie, Accept-Language');
     if (import.meta.env.DEV) {
-      log('debug', '[Middleware] First visible visit this session -> redirect to welcome', { requestId, location });
+      log('debug', '[Middleware] First visible visit this session -> redirect to welcome', {
+        requestId,
+        location,
+      });
     }
     return new Response(null, { status: 302, headers });
   }
@@ -518,7 +540,10 @@ export const onRequest = defineMiddleware(async (context, next) => {
     headers.set('Content-Language', 'en');
     headers.set('Vary', 'Cookie, Accept-Language');
     if (import.meta.env.DEV) {
-      log('debug', '[Middleware] Neutral path -> cookie=en, redirect to EN', { requestId, location });
+      log('debug', '[Middleware] Neutral path -> cookie=en, redirect to EN', {
+        requestId,
+        location,
+      });
     }
     return new Response(null, { status: 302, headers });
   }
@@ -548,13 +573,20 @@ export const onRequest = defineMiddleware(async (context, next) => {
       try {
         const { session, user } = await validateSession(context.locals.runtime.env.DB, sessionId);
         if (import.meta.env.DEV) {
-          log('debug', '[Middleware] Session validation result', { requestId, sessionValid: !!session, userValid: !!user });
+          log('debug', '[Middleware] Session validation result', {
+            requestId,
+            sessionValid: !!session,
+            userValid: !!user,
+          });
         }
 
         context.locals.session = session;
         context.locals.user = user;
       } catch (error) {
-        log('error', '[Middleware] Error during session validation', { requestId, errorMessage: error instanceof Error ? error.message : String(error) });
+        log('error', '[Middleware] Error during session validation', {
+          requestId,
+          errorMessage: error instanceof Error ? error.message : String(error),
+        });
         context.locals.session = null;
         context.locals.user = null;
       }
@@ -588,7 +620,10 @@ export const onRequest = defineMiddleware(async (context, next) => {
       headers.set('Vary', 'Cookie, Accept-Language');
       headers.set('Content-Language', targetLocale);
       if (import.meta.env.DEV) {
-        log('debug', '[Middleware] Unverified user -> redirect to verify-email', { requestId, location });
+        log('debug', '[Middleware] Unverified user -> redirect to verify-email', {
+          requestId,
+          location,
+        });
       }
       return new Response(null, { status: 302, headers });
     }
@@ -628,7 +663,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
   } else if (path.endsWith('.js')) {
     response.headers.set('Content-Type', 'application/javascript');
     if (import.meta.env.DEV) {
-      log('debug', '[Middleware] Set Content-Type to application/javascript for JS file', { requestId });
+      log('debug', '[Middleware] Set Content-Type to application/javascript for JS file', {
+        requestId,
+      });
     }
   } else if (path.endsWith('.svg')) {
     response.headers.set('Content-Type', 'image/svg+xml');

@@ -48,7 +48,7 @@ Das Evolution Hub Kommentarsystem ist ein **vollständig funktionales, produktio
 
 ### Datenfluss
 
-```
+```text
 User Action (Comment Submit)
     ↓
 CommentSection Component (React)
@@ -107,6 +107,7 @@ CREATE TABLE comments (
 ```
 
 **Indizes**:
+
 - `idx_comments_entity` (entity_type, entity_id)
 - `idx_comments_status` (status)
 - `idx_comments_author` (author_id)
@@ -200,7 +201,7 @@ Fetch comments with filtering and pagination.
 
 **Query Parameters**:
 
-```
+```text
 ?entityType=blog_post
 &entityId=digital-detox-kreativitaet
 &status=approved
@@ -259,6 +260,7 @@ Create a new comment.
 ```
 
 **Headers**:
+
 - `X-CSRF-Token`: Required (from cookie `csrf_token`)
 
 **Response** (201 Created):
@@ -280,6 +282,7 @@ Create a new comment.
 **Error Responses**:
 
 - **400 Bad Request** (Validation):
+
   ```json
   {
     "success": false,
@@ -291,6 +294,7 @@ Create a new comment.
   ```
 
 - **400 Bad Request** (Spam):
+
   ```json
   {
     "success": false,
@@ -302,6 +306,7 @@ Create a new comment.
   ```
 
 - **429 Too Many Requests**:
+
   ```json
   {
     "success": false,
@@ -488,6 +493,7 @@ export function sanitizeCommentContent(content: string): string {
 ```
 
 Angewendet in:
+
 - `createComment()` (comment-service.ts:91)
 - `updateComment()` (comment-service.ts:140)
 
@@ -517,11 +523,13 @@ checkSpam(content: string, { strictness: 'low' | 'medium' | 'high' }): SpamCheck
 | **Patterns** | 5 | Phone-Numbers, Suspicious Patterns |
 
 **Strictness-Levels**:
+
 - `low`: Score > 60 → Spam (Schwellwert)
 - `medium`: Score > 40 → Spam (Standard)
 - `high`: Score > 20 → Spam (Streng)
 
 **Auto-Actions**:
+
 - Score 40-60: Auto-Flag (Moderation-Queue)
 - Score 60+: Auto-Reject mit Error-Message
 
@@ -530,6 +538,7 @@ checkSpam(content: string, { strictness: 'low' | 'medium' | 'high' }): SpamCheck
 **Dual-Layer**:
 
 1. **Hono-Middleware** (API-Layer):
+
    ```typescript
    rateLimiter({
      windowMs: 60 * 1000,  // 1 min
@@ -539,11 +548,13 @@ checkSpam(content: string, { strictness: 'low' | 'medium' | 'high' }): SpamCheck
    ```
 
 2. **Service-Layer** (comment-service.ts:51):
+
    ```typescript
    await rateLimit(`comment:${userId || 'guest'}:create`, 5, 60);
    ```
 
 **Response** (429):
+
 ```json
 {
   "success": false,
@@ -572,6 +583,7 @@ validateCsrfToken(headerToken);
 ```
 
 **Middleware** (Hono):
+
 ```typescript
 app.use('/create', createCsrfMiddleware());
 ```
@@ -591,6 +603,7 @@ app.use('/create', createCsrfMiddleware());
 ```
 
 **Anonymized IP-Logging**:
+
 - IPv4: `192.168.1.0` (letzte Oktett → 0)
 - IPv6: `2001:db8::0` (letzte Hextet → 0)
 

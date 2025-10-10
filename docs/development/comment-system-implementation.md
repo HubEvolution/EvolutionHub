@@ -58,6 +58,7 @@ Diese Seite wurde überarbeitet. Veraltete Abschnitte weiter unten sind als Lega
 ### Sprint 1: Kritische Bugfixes & Quick-Wins (Abgeschlossen)
 
 **Kritische Fixes:**
+
 - **SQL-Query-Fehler behoben** (`src/lib/services/comment-service.ts:236-237`):
   - Verschachteltes `and()` in `whereConditions` entfernt → flache Conditions.
   - Fehler "Failed query" bei entity_type/entity_id-Filtern behoben.
@@ -66,6 +67,7 @@ Diese Seite wurde überarbeitet. Veraltete Abschnitte weiter unten sind als Lega
   - "Du kommentierst als Gast"-Problem behoben → User wird korrekt erkannt.
 
 **Quick-Wins (Performance & Security):**
+
 - **XSS-Schutz implementiert** (`src/lib/security/sanitize.ts`):
   - DOMPurify-Integration für User-Generated Content.
   - Sanitization in `createComment()` und `updateComment()`.
@@ -87,6 +89,7 @@ Diese Seite wurde überarbeitet. Veraltete Abschnitte weiter unten sind als Lega
   - Dev-Mode zeigt Stacktrace.
 
 **Frühere Änderungen:**
+
 - **Schema-Guards aktualisiert** (`scripts/setup-local-dev.ts`):
   - Legt modernes `comments`-Schema an und migriert Legacy‑Spalten (`postId`, `author`, `createdAt`).
   - Erstellt idempotent: `comment_reports`, `comment_moderation`, `comment_audit_logs` inkl. Indizes.

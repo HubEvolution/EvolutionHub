@@ -73,11 +73,7 @@ function createMockDb(options: {
   };
 }
 
-function createContext(params: {
-  body: Record<string, unknown>;
-  db: any;
-  stripeSecret?: string;
-}) {
+function createContext(params: { body: Record<string, unknown>; db: any; stripeSecret?: string }) {
   return {
     clientAddress: '127.0.0.1',
     request: createRequest(params.body),

@@ -203,6 +203,7 @@ curl -X POST \
 Ruft Kommentare ab mit Filterung und Pagination.
 
 **Query-Parameter:**
+
 - `entityType`: `blog_post` | `project` | `general`
 - `entityId`: ID/Slug des Entities
 - `status`: `approved` | `pending` | `flagged` | `hidden` (Standard: `approved`)

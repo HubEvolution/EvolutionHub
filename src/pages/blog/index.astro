@@ -80,12 +80,20 @@ baseUrlForPagination.searchParams.delete('page');
   <div class="bg-white dark:bg-gray-900 py-12 sm:py-16">
     <div class="mx-auto max-w-7xl px-6 lg:px-8">
       <div class="mx-auto max-w-2xl lg:mx-0">
-        <AosWrapper tag="h1" class="text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-4xl">
+        <AosWrapper
+          tag="h1"
+          class="text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-4xl"
+        >
           {title}
         </AosWrapper>
-        <AosWrapper tag="p" delay={100} duration={650} class="mt-2 text-lg leading-8 text-gray-700 dark:text-gray-300">
+        <AosWrapper
+          tag="p"
+          delay={100}
+          duration={650}
+          class="mt-2 text-lg leading-8 text-gray-700 dark:text-gray-300"
+        >
           {description}
-        </p>
+        </AosWrapper>
       </div>
 
       <div class="mt-12 grid grid-cols-1 gap-8 lg:grid-cols-4">

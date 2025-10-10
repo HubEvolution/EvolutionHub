@@ -71,7 +71,6 @@ Status: Deprecated — 410 Gone
 - Hinweise
   - Passwortbasierter Login ist entfernt. Aktiver Flow ist Magic Link (siehe `docs/architecture/auth-migration-stytch.md`).
 
-
 - Eingaben (FormData)
   - `email: string` (email-format, ≤255)
   - `password: string` (6–100)

@@ -22,16 +22,16 @@
 
 ## Build/Run/Test Quick Reference
 
-| Befehl | Zweck | Referenz |
-|--------|-------|----------|
-| `npm run setup:local` | Lokale Datenbank einrichten | `CLAUDE.md:119-122` |
-| `npm run dev` | Standard Worker-Dev (Port 8787) | `CLAUDE.md:119-129` |
-| `npm run dev:astro` | Astro-only UI Iteration | `CLAUDE.md:123-126` |
-| `npm run build` | Standard Astro Build | `CLAUDE.md:127-129` |
-| `npm run build:worker` | Worker-Build inkl. Asset-Kopie (`ASTRO_DEPLOY_TARGET=worker`) | `CLAUDE.md:131-141` |
-| `npm test` / `npm run test:once` | Vitest Watch / Single Run | `CLAUDE.md:145-155` |
-| `npm run test:coverage` | Coverage ≥70 % Gate | `CLAUDE.md:157-166` |
-| `npm run test:e2e*` | Playwright Suiten (v2 Standard, Browser-spezifisch) | `CLAUDE.md:169-199` |
+| Befehl                           | Zweck                                                         | Referenz            |
+| -------------------------------- | ------------------------------------------------------------- | ------------------- |
+| `npm run setup:local`            | Lokale Datenbank einrichten                                   | `CLAUDE.md:119-122` |
+| `npm run dev`                    | Standard Worker-Dev (Port 8787)                               | `CLAUDE.md:119-129` |
+| `npm run dev:astro`              | Astro-only UI Iteration                                       | `CLAUDE.md:123-126` |
+| `npm run build`                  | Standard Astro Build                                          | `CLAUDE.md:127-129` |
+| `npm run build:worker`           | Worker-Build inkl. Asset-Kopie (`ASTRO_DEPLOY_TARGET=worker`) | `CLAUDE.md:131-141` |
+| `npm test` / `npm run test:once` | Vitest Watch / Single Run                                     | `CLAUDE.md:145-155` |
+| `npm run test:coverage`          | Coverage ≥70 % Gate                                           | `CLAUDE.md:157-166` |
+| `npm run test:e2e*`              | Playwright Suiten (v2 Standard, Browser-spezifisch)           | `CLAUDE.md:169-199` |
 
 ## Quality & Tooling
 

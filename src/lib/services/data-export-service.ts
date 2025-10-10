@@ -160,8 +160,8 @@ export class DataExportService {
           id: userData[0].id,
           email: userData[0].email,
           name: userData[0].name || undefined,
-          createdAt: (userData[0].createdAt as unknown as Date).getTime?.()
-            ?? Number(userData[0].createdAt),
+          createdAt:
+            (userData[0].createdAt as unknown as Date).getTime?.() ?? Number(userData[0].createdAt),
         };
       }
     }
@@ -189,7 +189,7 @@ export class DataExportService {
         createdAt: (c.createdAt as unknown as Date).getTime?.() ?? Number(c.createdAt),
         updatedAt:
           c.updatedAt != null
-            ? (c.updatedAt as unknown as Date).getTime?.() ?? Number(c.updatedAt)
+            ? ((c.updatedAt as unknown as Date).getTime?.() ?? Number(c.updatedAt))
             : undefined,
         parentId: c.parentId || undefined,
         author: { id: userId, name: exportData.user?.name },
@@ -212,7 +212,7 @@ export class DataExportService {
         createdAt: (n.createdAt as unknown as Date).getTime?.() ?? Number(n.createdAt),
         readAt:
           n.readAt != null
-            ? (n.readAt as unknown as Date).getTime?.() ?? Number(n.readAt)
+            ? ((n.readAt as unknown as Date).getTime?.() ?? Number(n.readAt))
             : undefined,
       }));
     }
@@ -397,12 +397,14 @@ export class DataExportService {
       filePath: row.filePath ?? undefined,
       fileSize: row.fileSize ?? undefined,
       downloadUrl: row.downloadUrl ?? undefined,
-      expiresAt: row.expiresAt ? (row.expiresAt as unknown as Date).getTime?.() ?? Number(row.expiresAt) : undefined,
+      expiresAt: row.expiresAt
+        ? ((row.expiresAt as unknown as Date).getTime?.() ?? Number(row.expiresAt))
+        : undefined,
       errorMessage: row.errorMessage ?? undefined,
       requestedAt: (row.requestedAt as unknown as Date).getTime?.() ?? Number(row.requestedAt),
       completedAt:
         row.completedAt != null
-          ? (row.completedAt as unknown as Date).getTime?.() ?? Number(row.completedAt)
+          ? ((row.completedAt as unknown as Date).getTime?.() ?? Number(row.completedAt))
           : undefined,
       downloadCount: row.downloadCount ?? 0,
     };
@@ -426,12 +428,14 @@ export class DataExportService {
       filePath: row.filePath ?? undefined,
       fileSize: row.fileSize ?? undefined,
       downloadUrl: row.downloadUrl ?? undefined,
-      expiresAt: row.expiresAt ? (row.expiresAt as unknown as Date).getTime?.() ?? Number(row.expiresAt) : undefined,
+      expiresAt: row.expiresAt
+        ? ((row.expiresAt as unknown as Date).getTime?.() ?? Number(row.expiresAt))
+        : undefined,
       errorMessage: row.errorMessage ?? undefined,
       requestedAt: (row.requestedAt as unknown as Date).getTime?.() ?? Number(row.requestedAt),
       completedAt:
         row.completedAt != null
-          ? (row.completedAt as unknown as Date).getTime?.() ?? Number(row.completedAt)
+          ? ((row.completedAt as unknown as Date).getTime?.() ?? Number(row.completedAt))
           : undefined,
       downloadCount: row.downloadCount ?? 0,
     }));

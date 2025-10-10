@@ -14,6 +14,12 @@
  * <script src="@/scripts/orchestrate-entrance.ts"></script>
  */
 
+declare global {
+  interface Window {
+    __entranceOrchestrator?: EntranceOrchestrator;
+  }
+}
+
 interface AnimationConfig {
   duration: number;
   easing: string;
@@ -50,8 +56,8 @@ class EntranceOrchestrator {
     this.prefersReducedMotion = mediaQuery.matches;
 
     // Listen for changes to reduced motion preference
-    mediaQuery.addEventListener('change', (e) => {
-      this.prefersReducedMotion = e.matches;
+    mediaQuery.addEventListener('change', (event) => {
+      this.prefersReducedMotion = event.matches;
     });
 
     this.init();
@@ -69,6 +75,11 @@ class EntranceOrchestrator {
   }
 
   private setupObserver(): void {
+    if (typeof IntersectionObserver === 'undefined') {
+      this.showAllInstantly();
+      return;
+    }
+
     this.observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -175,7 +186,7 @@ if (typeof window !== 'undefined') {
     orchestrator = new EntranceOrchestrator();
 
     // Expose refresh method globally for dynamic content
-    (window as any).__entranceOrchestrator = orchestrator;
+    window.__entranceOrchestrator = orchestrator;
   };
 
   if (document.readyState === 'loading') {

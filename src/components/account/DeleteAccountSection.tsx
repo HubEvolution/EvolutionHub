@@ -78,7 +78,10 @@ const DeleteAccountSection = ({
   const [subscriptions, setSubscriptions] = useState<SubscriptionDetail[]>([]);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const exitTarget = useMemo(() => redirectUrl ?? strings.redirectUrl ?? '/logout', [redirectUrl, strings.redirectUrl]);
+  const exitTarget = useMemo(
+    () => redirectUrl ?? strings.redirectUrl ?? '/logout',
+    [redirectUrl, strings.redirectUrl]
+  );
 
   const resetState = useCallback(() => {
     setModalStep('confirm');
@@ -128,7 +131,10 @@ const DeleteAccountSection = ({
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ confirm: true, ...(opts?.cancelSubscription ? { cancelSubscription: true } : {}) }),
+          body: JSON.stringify({
+            confirm: true,
+            ...(opts?.cancelSubscription ? { cancelSubscription: true } : {}),
+          }),
         });
 
         if (response.status === 204) {
@@ -209,7 +215,10 @@ const DeleteAccountSection = ({
           <div className="w-full max-w-md rounded-2xl bg-white dark:bg-slate-900 shadow-xl">
             <div className="flex items-start justify-between border-b border-slate-200 dark:border-slate-700 px-6 py-4">
               <div>
-                <h4 id="delete-account-modal-title" className="text-lg font-semibold text-slate-900 dark:text-white">
+                <h4
+                  id="delete-account-modal-title"
+                  className="text-lg font-semibold text-slate-900 dark:text-white"
+                >
                   {modalStep === 'confirm' ? strings.confirm.title : strings.subscription.title}
                 </h4>
               </div>
@@ -240,7 +249,10 @@ const DeleteAccountSection = ({
                       {subscriptions.map((subscription) => {
                         const label = planLabels[subscription.plan] ?? subscription.plan;
                         const periodLabel = subscription.currentPeriodEnd
-                          ? formatPeriodLabel(strings.subscription.periodEnd, subscription.currentPeriodEnd)
+                          ? formatPeriodLabel(
+                              strings.subscription.periodEnd,
+                              subscription.currentPeriodEnd
+                            )
                           : strings.subscription.indefinite;
                         return (
                           <li
@@ -249,10 +261,14 @@ const DeleteAccountSection = ({
                           >
                             <p className="font-semibold text-slate-900 dark:text-white">{label}</p>
                             {subscription.status && (
-                              <p className="text-xs text-slate-500 dark:text-slate-400">{subscription.status}</p>
+                              <p className="text-xs text-slate-500 dark:text-slate-400">
+                                {subscription.status}
+                              </p>
                             )}
                             {periodLabel && (
-                              <p className="text-xs text-slate-500 dark:text-slate-400">{periodLabel}</p>
+                              <p className="text-xs text-slate-500 dark:text-slate-400">
+                                {periodLabel}
+                              </p>
                             )}
                           </li>
                         );

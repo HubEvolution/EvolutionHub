@@ -61,7 +61,7 @@ export default tseslint.config(
       'src/middleware.ts',
     ],
     rules: {
-      'no-console': ['error', { allow: [] }],
+      'no-console': ['error'],
     },
   }
 );

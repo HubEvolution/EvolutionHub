@@ -46,7 +46,7 @@ const { url, formattedPubDate, readingTime } = post;
             loading="lazy"
             widths={[480, 640, 768, 1024, 1280]}
             sizes={featured ? '(min-width: 768px) 33vw, 100vw' : '100vw'}
-            formats={["webp", "jpeg"]}
+            formats={['webp', 'jpeg']}
           />
         </a>
       </div>
@@ -98,9 +98,15 @@ const { url, formattedPubDate, readingTime } = post;
           )
         }
         <span class="mx-1">•</span>
-        <a href={`${url}#comments`} class="inline-flex items-center gap-1 text-gray-600 hover:text-emerald-600 dark:text-gray-300 dark:hover:text-emerald-400 transition-colors" aria-label="Kommentare ansehen">
+        <a
+          href={`${url}#comments`}
+          class="inline-flex items-center gap-1 text-gray-600 hover:text-emerald-600 dark:text-gray-300 dark:hover:text-emerald-400 transition-colors"
+          aria-label="Kommentare ansehen"
+        >
           <span aria-hidden="true">💬</span>
-          <span id={`cc-${post.slug}`} data-entity-type="blog_post" data-entity-id={post.slug}>0</span>
+          <span id={`cc-${post.slug}`} data-entity-type="blog_post" data-entity-id={post.slug}
+            >0</span
+          >
           <span>Kommentare</span>
         </a>
       </div>
@@ -146,4 +152,4 @@ const { url, formattedPubDate, readingTime } = post;
         });
     });
   } catch {}
-  </script>
+</script>

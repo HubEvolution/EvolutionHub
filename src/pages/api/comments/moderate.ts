@@ -8,6 +8,72 @@ import { requireModerator } from '@/lib/auth-helpers';
 import { createCsrfMiddleware, validateCsrfToken } from '@/lib/security/csrf';
 import type { ModerateCommentRequest } from '@/lib/types/comments';
 
+type CommentModerationEnv = {
+  DB: D1Database;
+  KV_COMMENTS?: KVNamespace;
+};
+
+interface ModerateRequestPayload extends ModerateCommentRequest {
+  commentId: string;
+  csrfToken?: string;
+}
+
+function resolveModerationEnv(context: APIContext): CommentModerationEnv {
+  const runtimeEnv = (context.locals as { runtime?: { env?: CommentModerationEnv } })?.runtime?.env;
+  const legacyEnv = (context as { locals?: { env?: CommentModerationEnv } }).locals?.env;
+  const env = runtimeEnv ?? legacyEnv;
+
+  if (!env?.DB) {
+    throw new Error('Database binding missing');
+  }
+
+  return env;
+}
+
+function toModeratorId(value: unknown): number {
+  const numericId = Number.parseInt(String(value), 10);
+  if (!Number.isFinite(numericId)) {
+    throw new Error('Authentication error: invalid moderator id');
+  }
+  return numericId;
+}
+
+function isModerateRequestPayload(value: unknown): value is ModerateRequestPayload {
+  if (!value || typeof value !== 'object') {
+    return false;
+  }
+
+  const candidate = value as Record<string, unknown>;
+  if (typeof candidate.commentId !== 'string' || candidate.commentId.trim().length === 0) {
+    return false;
+  }
+
+  const { action, reason, notifyUser } = candidate;
+  if (typeof action !== 'string') {
+    return false;
+  }
+  if (reason !== undefined && typeof reason !== 'string') {
+    return false;
+  }
+  if (notifyUser !== undefined && typeof notifyUser !== 'boolean') {
+    return false;
+  }
+
+  if (candidate.csrfToken !== undefined && typeof candidate.csrfToken !== 'string') {
+    return false;
+  }
+
+  return true;
+}
+
+async function readModerateRequest(request: Request): Promise<ModerateRequestPayload> {
+  const body = await request.json().catch(() => undefined);
+  if (!isModerateRequestPayload(body)) {
+    throw new Error('validation_error: Invalid moderation payload');
+  }
+  return body;
+}
+
 const app = new Hono<{ Bindings: { DB: D1Database; KV_COMMENTS?: KVNamespace } }>();
 
 // Middleware
@@ -58,7 +124,6 @@ app.post('/', async (c) => {
     }
 
     // Validate CSRF token
-    const { validateCsrfToken } = await import('../../../lib/security/csrf');
     const isValidCsrf = await validateCsrfToken(csrfToken);
     if (!isValidCsrf) {
       return c.json(
@@ -164,53 +229,46 @@ app.get('/stats', async (c) => {
 // Named POST handler for /api/comments/moderate
 export const POST = async (context: APIContext) => {
   try {
-    const env = (context.locals as any).runtime?.env as { DB: D1Database; KV_COMMENTS?: KVNamespace } | undefined;
-    const db = env?.DB || (context as any).locals?.env?.DB;
-    if (!db) return createApiError('server_error', 'Database binding missing');
+    const env = resolveModerationEnv(context);
+    const moderator = await requireModerator({ request: context.request, env: { DB: env.DB } });
+    const payload = await readModerateRequest(context.request);
 
-    // Require moderator or admin
-    const user = await requireModerator({ request: context.request, env: { DB: db } });
-
-    const body = (await context.request.json()) as ModerateCommentRequest & {
-      commentId?: string;
-      csrfToken?: string;
-    };
-    const token = body?.csrfToken || context.request.headers.get('x-csrf-token') || '';
-    const cookie = context.request.headers.get('cookie') || undefined;
-    const ok = await validateCsrfToken(token, cookie);
-    if (!ok) {
-      return new Response(
-        JSON.stringify({
-          success: false,
-          error: { type: 'csrf_error', message: 'Invalid CSRF token' },
-        }),
-        {
-          status: 403,
-          headers: { 'Content-Type': 'application/json' },
-        }
-      );
+    const csrfToken = payload.csrfToken ?? context.request.headers.get('x-csrf-token') ?? undefined;
+    if (!csrfToken) {
+      return createApiError('forbidden', 'CSRF token required');
     }
 
-    const commentId = body.commentId;
-    if (!commentId) return createApiError('validation_error', 'Comment ID required');
-
-    const { csrfToken, commentId: _omit, ...moderationData } = body as any;
-    const kv = env?.KV_COMMENTS || (context as any).locals?.env?.KV_COMMENTS;
-    const service = new CommentService(db, kv);
-    const res = await service.moderateComment(commentId, moderationData, Number(user.id));
-    return createApiSuccess(res);
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    if (msg.includes('Authentication')) return createApiError('auth_error', msg);
-    if (msg.toLowerCase().includes('csrf')) {
-      return new Response(
-        JSON.stringify({ success: false, error: { type: 'csrf_error', message: msg } }),
-        {
-          status: 403,
-          headers: { 'Content-Type': 'application/json' },
-        }
-      );
+    const cookie = context.request.headers.get('cookie') ?? undefined;
+    const csrfValid = await validateCsrfToken(csrfToken, cookie);
+    if (!csrfValid) {
+      return createApiError('forbidden', 'Invalid CSRF token');
     }
-    return createApiError('server_error', msg);
+
+    const { commentId, csrfToken: _csrf, ...moderationData } = payload;
+    const service = new CommentService(env.DB, env.KV_COMMENTS);
+    const result = await service.moderateComment(
+      commentId,
+      moderationData,
+      toModeratorId((moderator as { id?: number | string }).id)
+    );
+
+    return createApiSuccess(result);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+
+    if (message.startsWith('validation_error:')) {
+      const [, detail] = message.split(':', 2);
+      return createApiError('validation_error', (detail ?? '').trim() || message);
+    }
+
+    if (message.toLowerCase().includes('authentication')) {
+      return createApiError('auth_error', message);
+    }
+
+    if (message.toLowerCase().includes('csrf')) {
+      return createApiError('forbidden', message);
+    }
+
+    return createApiError('server_error', message);
   }
 };

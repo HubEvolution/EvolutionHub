@@ -4,7 +4,6 @@ import { generateId } from '../utils/id-generator';
 import { rateLimit } from '../rate-limiter';
 import { validateCsrfToken } from '../security/csrf';
 import { checkSpam } from '../spam-detection';
-import { sanitizeCommentContent } from '../security/sanitize';
 import { comments, commentModeration, commentReports, commentAuditLogs, users } from '../db/schema';
 import { NotificationService } from './notification-service';
 import type { NotificationContext, CommentNotificationData } from '../types/notifications';
@@ -31,16 +30,130 @@ export class CommentService {
   private rawDb: D1Database;
   private kv?: KVNamespace;
   private cacheTTLSeconds: number;
+  private schemaDetection?: { isLegacy: boolean };
 
   constructor(db: D1Database, kv?: KVNamespace, options?: { cacheTTLSeconds?: number }) {
     this.rawDb = db;
     this.db = drizzle(db);
     this.kv = kv;
     this.cacheTTLSeconds = options?.cacheTTLSeconds ?? 300;
+    this.schemaDetection = undefined;
+  }
+
+  /**
+   * Detect if the deployed DB uses the older, legacy comments schema
+   * with columns: postId, author, approved, createdAt (TEXT), etc.
+   */
+  private async isLegacyCommentsSchema(): Promise<boolean> {
+    if (this.schemaDetection) return this.schemaDetection.isLegacy;
+    try {
+      const info = await this.rawDb.prepare("PRAGMA table_info('comments')").all();
+      // D1 returns rows with a 'name' field for column name
+      const cols = new Set<string>(
+        (info?.results as any[] | undefined)?.map((r: any) => String(r.name)) || []
+      );
+      const legacy =
+        cols.has('postId') &&
+        cols.has('approved') &&
+        cols.has('createdAt') &&
+        !cols.has('entity_type');
+      this.schemaDetection = { isLegacy: legacy };
+      return legacy;
+    } catch {
+      // If PRAGMA fails, assume modern schema and let errors surface
+      this.schemaDetection = { isLegacy: false };
+      return false;
+    }
+  }
+
+  /**
+   * Legacy fallback for listing comments using the old schema shape.
+   */
+  private async listCommentsLegacy(filters: CommentFilters = {}): Promise<CommentListResponse> {
+    const { entityType, entityId, limit = 20, offset = 0, authorId } = filters;
+
+    // Legacy table only supported blog posts via postId; if missing, return empty
+    if (!entityId) {
+      return { comments: [], total: 0, hasMore: false };
+    }
+
+    // Build WHERE
+    // Only approved when not author scoped (legacy had boolean approved)
+    const whereParts: string[] = ['postId = ?']; // entityType ignored in legacy
+    const params: any[] = [entityId];
+    if (!authorId) {
+      whereParts.push('approved = 1');
+    }
+    const whereSql = whereParts.length ? `WHERE ${whereParts.join(' AND ')}` : '';
+
+    // Total count
+    const totalStmt = this.rawDb
+      .prepare(`SELECT COUNT(*) as cnt FROM comments ${whereSql}`)
+      .bind(...params);
+    const totalRes = await totalStmt.all();
+    const total = Number((totalRes.results as any[])[0]?.cnt || 0);
+
+    // Page results
+    const pageStmt = this.rawDb
+      .prepare(
+        `SELECT 
+            id,
+            content,
+            0 as authorId,
+            author as authorName,
+            '' as authorEmail,
+            NULL as parentId,
+            'blog_post' as entityType,
+            postId as entityId,
+            CASE approved WHEN 1 THEN 'approved' ELSE 'pending' END as status,
+            0 as isEdited,
+            NULL as editedAt,
+            -- legacy createdAt stored as TEXT timestamp; try to coerce to epoch seconds if numeric, else leave as-is
+            CAST(strftime('%s', createdAt) AS INTEGER) as createdAt,
+            CAST(strftime('%s', createdAt) AS INTEGER) as updatedAt
+         FROM comments 
+         ${whereSql}
+         ORDER BY createdAt DESC
+         LIMIT ? OFFSET ?`
+      )
+      .bind(...params, limit, offset);
+    const pageRes = await pageStmt.all();
+    const rows = (pageRes.results as any[]) || [];
+
+    const items = rows.map((r) => ({
+      id: String(r.id),
+      content: String(r.content),
+      authorId: Number(r.authorId) || 0,
+      authorName: String(r.authorName || 'Anonymous'),
+      authorEmail: String(r.authorEmail || ''),
+      parentId: r.parentId ? String(r.parentId) : null,
+      entityType: 'blog_post',
+      entityId: String(r.entityId),
+      status: (r.status as any) || 'approved',
+      isEdited: Boolean(r.isEdited),
+      editedAt: r.editedAt ? Number(r.editedAt) : null,
+      createdAt: r.createdAt ? Number(r.createdAt) : Math.floor(Date.now() / 1000),
+      updatedAt: r.updatedAt ? Number(r.updatedAt) : Math.floor(Date.now() / 1000),
+      reportCount: 0,
+      replies: [],
+    })) as Comment[];
+
+    return {
+      comments: items,
+      total,
+      hasMore: offset + limit < total,
+    };
   }
 
   private cacheKeyForList(filters: CommentFilters): string | null {
-    const { entityType, entityId, limit = 20, offset = 0, includeReplies = true, status } = filters || {} as any;
+    const {
+      entityType,
+      entityId,
+      limit = 20,
+      offset = 0,
+      includeReplies = true,
+      status,
+    } = filters || ({} as any);
     if (!entityType || !entityId) return null;
     return `comments:list:${entityType}:${entityId}:l=${limit}:o=${offset}:r=${includeReplies ? 1 : 0}:s=${status ?? 'any'}`;
   }
@@ -65,7 +178,10 @@ export class CommentService {
     }
   }
 
-  private async invalidateEntityCache(entityType: string | undefined, entityId: string | undefined): Promise<void> {
+  private async invalidateEntityCache(
+    entityType: string | undefined,
+    entityId: string | undefined
+  ): Promise<void> {
     if (!this.kv || !entityType || !entityId) return;
     try {
       const prefix = `comments:list:${entityType}:${entityId}:`;
@@ -132,8 +248,22 @@ export class CommentService {
       }
     }
 
-    // Sanitize content to prevent XSS attacks
-    const sanitizedContent = sanitizeCommentContent(request.content.trim());
+    // Sanitize content to prevent XSS attacks (lazy import to avoid DOM dependency in Workers for GET routes)
+    const sanitizedContent = await (async () => {
+      try {
+        const mod = await import('../security/sanitize');
+        return (mod as any).sanitizeCommentContent(request.content.trim());
+      } catch {
+        // Minimal fallback: escape critical chars
+        return request.content
+          .trim()
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+    })();
 
     // Insert comment
     await this.db.insert(comments).values({
@@ -229,8 +359,21 @@ export class CommentService {
 
     const now = Math.floor(Date.now() / 1000);
 
-    // Sanitize content to prevent XSS attacks
-    const sanitizedContent = sanitizeCommentContent(request.content.trim());
+    // Sanitize content to prevent XSS attacks (lazy import to avoid DOM dependency)
+    const sanitizedContent = await (async () => {
+      try {
+        const mod = await import('../security/sanitize');
+        return (mod as any).sanitizeCommentContent(request.content.trim());
+      } catch {
+        return request.content
+          .trim()
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/\"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+    })();
 
     // Update comment
     await this.db
@@ -305,6 +448,10 @@ export class CommentService {
    * List comments with filtering and pagination
    */
   async listComments(filters: CommentFilters = {}): Promise<CommentListResponse> {
+    // Compatibility: use legacy path if old columns are present
+    if (await this.isLegacyCommentsSchema()) {
+      return this.listCommentsLegacy(filters);
+    }
     const {
       status,
       entityType,
@@ -500,7 +647,12 @@ export class CommentService {
           locale: 'de',
           baseUrl: '',
         };
-        const actionType = request.action === 'approve' ? 'comment_approved' : request.action === 'reject' ? 'comment_rejected' : null;
+        const actionType =
+          request.action === 'approve'
+            ? 'comment_approved'
+            : request.action === 'reject'
+              ? 'comment_rejected'
+              : null;
         if (actionType) {
           const data: CommentNotificationData = {
             commentId: updatedComment.id,
@@ -517,7 +669,8 @@ export class CommentService {
           try {
             await notificationService.sendEmail({
               to: updatedComment.authorEmail,
-              templateName: actionType === 'comment_approved' ? 'moderation-decision' : 'moderation-decision',
+              templateName:
+                actionType === 'comment_approved' ? 'moderation-decision' : 'moderation-decision',
               variables: {
                 userName: updatedComment.authorName || 'User',
                 baseUrl: '',

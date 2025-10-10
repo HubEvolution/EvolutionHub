@@ -171,6 +171,7 @@ Weitere Flow-Details:
 **Ursache:** `STYTCH_PUBLIC_TOKEN` fehlt
 
 **Lösung:** Public Token aus Dashboard holen und setzen:
+
 1. Stytch Dashboard → API Keys → Public tokens
 2. Token kopieren
 3. Zur `.env` hinzufügen: `STYTCH_PUBLIC_TOKEN="public-token-test-..."`
@@ -183,15 +184,18 @@ Weitere Flow-Details:
 **Ursache:** Session-Cookies werden nicht korrekt gesetzt (häufig bei lokalem HTTP-Development)
 
 **Root Cause:**
+
 - `context.cookies.set()` in Astro setzt Cookies nicht sofort für Follow-up-Requests
 - `__Host-session` Cookie erfordert HTTPS (schlägt auf HTTP fehl)
 
 **Lösung:** (bereits implementiert in v1.7.1)
+
 1. Cookies explizit im `Set-Cookie` Response-Header setzen
 2. `__Host-session` nur auf HTTPS setzen
 3. Für lokales HTTP: nur `session_id` Cookie verwenden
 
 **Code-Fix:**
+
 ```typescript
 // OAuth Callback: Explicit Set-Cookie header
 const cookieValue = `session_id=${session.id}; Path=/; HttpOnly; SameSite=Lax${isHttps ? '; Secure' : ''}; Max-Age=${maxAge}`;
@@ -206,6 +210,7 @@ response.headers.append('Set-Cookie', cookieValue);
 **Ursache:** `STYTCH_CUSTOM_DOMAIN` in lokaler Entwicklung aktiv, aber GitHub redirected zu `127.0.0.1`
 
 **Lösung:**
+
 1. In `wrangler.toml` für `[env.development]`: `STYTCH_CUSTOM_DOMAIN` auskommentieren
 2. Redirect-URLs im Stytch Dashboard whitelisten:
    - `http://127.0.0.1:8787/api/auth/callback` (Magic Link)
@@ -242,6 +247,7 @@ response.headers.append('Set-Cookie', cookieValue);
 **Ursache:** Lokalisierte Welcome-Profile-Seiten fehlen
 
 **Lösung:** (bereits implementiert in v1.7.1)
+
 - Erstelle `/en/welcome-profile.astro` und `/de/welcome-profile.astro`
 - OAuth-Callback redirected jetzt zu `/[locale]/welcome-profile?next=...`
 

@@ -68,22 +68,69 @@ async function fetchComments() {
   }
 }
 
+const q = new URL(Astro.url).searchParams;
 const commentsResult: FetchCommentsResult = await fetchComments();
 // Normalize admin comments list: API returns data.comments as either Array or { comments, total, hasMore }
 const adminCommentsList: any[] =
   commentsResult.ok && commentsResult.data?.success
-    ? (Array.isArray((commentsResult.data as any).data?.comments)
-        ? ((commentsResult.data as any).data.comments as any[])
-        : (((commentsResult.data as any).data?.comments?.comments as any[]) || []))
+    ? Array.isArray((commentsResult.data as any).data?.comments)
+      ? ((commentsResult.data as any).data.comments as any[])
+      : ((commentsResult.data as any).data?.comments?.comments as any[]) || []
     : [];
 const adminMeta =
   commentsResult.ok && commentsResult.data?.success
-    ? (Array.isArray((commentsResult.data as any).data?.comments)
-        ? { total: ((commentsResult.data as any).data?.comments?.length || 0), hasMore: false }
-        : { total: (commentsResult.data as any).data?.comments?.total || 0, hasMore: (commentsResult.data as any).data?.comments?.hasMore || false })
+    ? Array.isArray((commentsResult.data as any).data?.comments)
+      ? { total: (commentsResult.data as any).data?.comments?.length || 0, hasMore: false }
+      : {
+          total: (commentsResult.data as any).data?.comments?.total || 0,
+          hasMore: (commentsResult.data as any).data?.comments?.hasMore || false,
+        }
     : { total: 0, hasMore: false };
-const adminLimit = Number(new URL(Astro.url).searchParams.get('limit') || '50');
-const adminOffset = Number(new URL(Astro.url).searchParams.get('offset') || '0');
+const adminLimit = Number(q.get('limit') || '50');
+const adminOffset = Number(q.get('offset') || '0');
+
+// Optional: fetch approved count for current filter (entityType + single entityId)
+async function fetchApprovedCount() {
+  try {
+    const q = new URL(Astro.url).searchParams;
+    const entityType = q.get('entityType');
+    const entityId = q.get('entityId');
+    if (!entityType || !entityId) return null;
+    const url = new URL('/api/comments/count', Astro.url);
+    url.searchParams.set('entityType', entityType);
+    url.searchParams.append('entityId', entityId);
+    const res = await fetch(url.toString(), { cache: 'no-store' });
+    if (!res.ok) return null;
+    const json: any = await res.json();
+    // expected: { success: true, data: { entityId, count } } OR batched shape
+    const c = json?.data?.count ?? null;
+    return typeof c === 'number' ? c : null;
+  } catch {
+    return null;
+  }
+}
+const approvedCountForFilter = await fetchApprovedCount();
+
+// Optional: fetch schema diagnostics (legacy vs modern) for admin awareness
+async function fetchSchemaDiag() {
+  try {
+    const url = new URL('/api/comments', Astro.url);
+    url.searchParams.set('debug', '1');
+    const res = await fetch(url.toString(), { cache: 'no-store' });
+    if (!res.ok) return null;
+    const json: any = await res.json();
+    return json?.data?.diag || null;
+  } catch {
+    return null;
+  }
+}
+const schemaDiag = await fetchSchemaDiag();
+
+// Stabilize types for stats rendering to satisfy TS in Astro context
+const stats =
+  commentsResult.ok && commentsResult.data?.success
+    ? (commentsResult.data as any).data?.stats
+    : { total: 0, pending: 0, approved: 0, rejected: 0, flagged: 0 };
 ---
 
 <BaseLayout title="Kommentar-Moderation" description="Admin-Interface für Kommentar-Moderation">
@@ -91,7 +138,32 @@ const adminOffset = Number(new URL(Astro.url).searchParams.get('offset') || '0')
     <div class="max-w-7xl mx-auto">
       <div class="flex items-center justify-between mb-8">
         <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Kommentar-Moderation</h1>
-        <div class="flex gap-4">
+        <div class="flex gap-2 sm:gap-3 flex-wrap justify-end">
+          <a
+            href={new URL('/api/comments', Astro.url).toString() + '?debug=1'}
+            target="_blank"
+            rel="noopener"
+            class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-700 bg-white hover:bg-gray-50"
+          >
+            Schema-Diagnose
+          </a>
+          {
+            q.get('entityType') && q.get('entityId') && (
+              <a
+                href={(function () {
+                  const u = new URL('/api/comments/count', Astro.url);
+                  u.searchParams.set('entityType', q.get('entityType')!);
+                  u.searchParams.append('entityId', q.get('entityId')!);
+                  return u.toString();
+                })()}
+                target="_blank"
+                rel="noopener"
+                class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-700 bg-white hover:bg-gray-50"
+              >
+                Approved-Count prüfen
+              </a>
+            )
+          }
           <BulkActions client:idle />
           <button
             id="refresh-btn"
@@ -113,8 +185,15 @@ const adminOffset = Number(new URL(Astro.url).searchParams.get('offset') || '0')
       <section class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
         <form method="get" class="grid grid-cols-1 md:grid-cols-5 gap-4">
           <div>
-            <label for="status" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Status</label>
-            <select id="status" name="status" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 shadow-sm focus:border-emerald-500 focus:ring-emerald-500">
+            <label for="status" class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+              >Status</label
+            >
+            <select
+              id="status"
+              name="status"
+              value={q.get('status') || ''}
+              class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 shadow-sm focus:border-emerald-500 focus:ring-emerald-500"
+            >
               <option value="">Alle</option>
               <option value="pending">Pending</option>
               <option value="approved">Approved</option>
@@ -123,8 +202,16 @@ const adminOffset = Number(new URL(Astro.url).searchParams.get('offset') || '0')
             </select>
           </div>
           <div>
-            <label for="entityType" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Entity Type</label>
-            <select id="entityType" name="entityType" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 shadow-sm focus:border-emerald-500 focus:ring-emerald-500">
+            <label
+              for="entityType"
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300">Entity Type</label
+            >
+            <select
+              id="entityType"
+              name="entityType"
+              value={q.get('entityType') || ''}
+              class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 shadow-sm focus:border-emerald-500 focus:ring-emerald-500"
+            >
               <option value="">Alle</option>
               <option value="blog_post">Blog</option>
               <option value="project">Project</option>
@@ -132,15 +219,35 @@ const adminOffset = Number(new URL(Astro.url).searchParams.get('offset') || '0')
             </select>
           </div>
           <div>
-            <label for="entityId" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Entity ID</label>
-            <input id="entityId" name="entityId" type="text" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 shadow-sm focus:border-emerald-500 focus:ring-emerald-500" />
+            <label for="entityId" class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+              >Entity ID</label
+            >
+            <input
+              id="entityId"
+              name="entityId"
+              type="text"
+              value={q.get('entityId') || ''}
+              class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 shadow-sm focus:border-emerald-500 focus:ring-emerald-500"
+            />
           </div>
           <div>
-            <label for="authorId" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Autor ID</label>
-            <input id="authorId" name="authorId" type="number" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 shadow-sm focus:border-emerald-500 focus:ring-emerald-500" />
+            <label for="authorId" class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+              >Autor ID</label
+            >
+            <input
+              id="authorId"
+              name="authorId"
+              type="number"
+              value={q.get('authorId') || ''}
+              class="mt-1 block w-full rounded-md border-gray-300 dark:border-emerald-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 shadow-sm focus:border-emerald-500 focus:ring-emerald-500"
+            />
           </div>
           <div class="flex items-end">
-            <button type="submit" class="inline-flex items-center px-4 py-2 rounded-md bg-emerald-600 text-white hover:bg-emerald-700">Filtern</button>
+            <button
+              type="submit"
+              class="inline-flex items-center px-4 py-2 rounded-md bg-emerald-600 text-white hover:bg-emerald-700"
+              >Filtern</button
+            >
           </div>
         </form>
       </section>
@@ -150,38 +257,43 @@ const adminOffset = Number(new URL(Astro.url).searchParams.get('offset') || '0')
           <div class="space-y-8">
             {/* Statistiken */}
             <section class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-              <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Übersicht</h2>
+              <div class="mb-4 flex items-center justify-between">
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Übersicht</h2>
+                {schemaDiag && schemaDiag.schema && (
+                  <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200">
+                    Schema: {schemaDiag.schema}
+                  </span>
+                )}
+              </div>
               <div class="grid grid-cols-2 sm:grid-cols-5 gap-4 text-sm">
                 <div class="text-center">
-                  <div class="text-2xl font-bold text-gray-900 dark:text-white">
-                    {commentsResult.data.data.stats.total}
-                  </div>
+                  <div class="text-2xl font-bold text-gray-900 dark:text-white">{stats.total}</div>
                   <div class="text-gray-500 dark:text-gray-400">Gesamt</div>
                 </div>
                 <div class="text-center">
-                  <div class="text-2xl font-bold text-yellow-600">
-                    {commentsResult.data.data.stats.pending}
-                  </div>
+                  <div class="text-2xl font-bold text-yellow-600">{stats.pending}</div>
                   <div class="text-gray-500 dark:text-gray-400">Ausstehend</div>
                 </div>
                 <div class="text-center">
-                  <div class="text-2xl font-bold text-green-600">
-                    {commentsResult.data.data.stats.approved}
-                  </div>
+                  <div class="text-2xl font-bold text-green-600">{stats.approved}</div>
                   <div class="text-gray-500 dark:text-gray-400">Freigegeben</div>
                 </div>
                 <div class="text-center">
-                  <div class="text-2xl font-bold text-red-600">
-                    {commentsResult.data.data.stats.rejected}
-                  </div>
+                  <div class="text-2xl font-bold text-red-600">{stats.rejected}</div>
                   <div class="text-gray-500 dark:text-gray-400">Abgelehnt</div>
                 </div>
                 <div class="text-center">
-                  <div class="text-2xl font-bold text-orange-600">
-                    {commentsResult.data.data.stats.flagged}
-                  </div>
+                  <div class="text-2xl font-bold text-orange-600">{stats.flagged}</div>
                   <div class="text-gray-500 dark:text-gray-400">Markiert</div>
                 </div>
+                {approvedCountForFilter !== null && (
+                  <div class="text-center col-span-2 sm:col-span-5">
+                    <div class="text-sm text-gray-700 dark:text-gray-300">
+                      Genehmigte Kommentare für aktuellen Filter:{' '}
+                      <span class="font-semibold">{approvedCountForFilter}</span>
+                    </div>
+                  </div>
+                )}
               </div>
             </section>
 
@@ -197,7 +309,11 @@ const adminOffset = Number(new URL(Astro.url).searchParams.get('offset') || '0')
                     <thead class="bg-gray-50 dark:bg-gray-700">
                       <tr>
                         <th class="px-6 py-3">
-                          <input id="select-all" type="checkbox" class="h-4 w-4 text-emerald-600 border-gray-300 rounded" />
+                          <input
+                            id="select-all"
+                            type="checkbox"
+                            class="h-4 w-4 text-emerald-600 border-gray-300 rounded"
+                          />
                         </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                           Kommentar
@@ -223,7 +339,11 @@ const adminOffset = Number(new URL(Astro.url).searchParams.get('offset') || '0')
                       {adminCommentsList.map((comment: any) => (
                         <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
                           <td class="px-6 py-4">
-                            <input type="checkbox" class="comment-select h-4 w-4 text-emerald-600 border-gray-300 rounded" data-comment-id={comment.id} />
+                            <input
+                              type="checkbox"
+                              class="comment-select h-4 w-4 text-emerald-600 border-gray-300 rounded"
+                              data-comment-id={comment.id}
+                            />
                           </td>
                           <td class="px-6 py-4">
                             <div class="max-w-xs">
@@ -333,20 +453,36 @@ const adminOffset = Number(new URL(Astro.url).searchParams.get('offset') || '0')
             </section>
 
             <section class="mt-6 flex items-center justify-between text-sm text-gray-600 dark:text-gray-300">
-              <div>
-                Gesamt: {adminMeta.total}
-              </div>
+              <div>Gesamt: {adminMeta.total}</div>
               <div class="flex gap-2">
-                {
-                  adminOffset > 0 && (
-                    <a href={(function(){ const u = new URL(Astro.url); const prev = Math.max(0, adminOffset - adminLimit); u.searchParams.set('offset', String(prev)); u.searchParams.set('limit', String(adminLimit)); return u.toString(); })()} class="px-3 py-1 rounded border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700">Vorherige</a>
-                  )
-                }
-                {
-                  adminMeta.hasMore && (
-                    <a href={(function(){ const u = new URL(Astro.url); const next = adminOffset + adminLimit; u.searchParams.set('offset', String(next)); u.searchParams.set('limit', String(adminLimit)); return u.toString(); })()} class="px-3 py-1 rounded border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700">Nächste</a>
-                  )
-                }
+                {adminOffset > 0 && (
+                  <a
+                    href={(function () {
+                      const u = new URL(Astro.url);
+                      const prev = Math.max(0, adminOffset - adminLimit);
+                      u.searchParams.set('offset', String(prev));
+                      u.searchParams.set('limit', String(adminLimit));
+                      return u.toString();
+                    })()}
+                    class="px-3 py-1 rounded border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
+                  >
+                    Vorherige
+                  </a>
+                )}
+                {adminMeta.hasMore && (
+                  <a
+                    href={(function () {
+                      const u = new URL(Astro.url);
+                      const next = adminOffset + adminLimit;
+                      u.searchParams.set('offset', String(next));
+                      u.searchParams.set('limit', String(adminLimit));
+                      return u.toString();
+                    })()}
+                    class="px-3 py-1 rounded border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
+                  >
+                    Nächste
+                  </a>
+                )}
               </div>
             </section>
           </div>
@@ -367,14 +503,16 @@ const adminOffset = Number(new URL(Astro.url).searchParams.get('offset') || '0')
 
   <script>
     // Select-all behavior
-    document.getElementById('select-all')?.addEventListener('change', (ev: any) => {
+    document.getElementById('select-all')?.addEventListener('change', (ev) => {
       const checked = Boolean(ev?.target?.checked);
-      document.querySelectorAll<HTMLInputElement>('input.comment-select').forEach((el) => {
-        el.checked = checked;
+      document.querySelectorAll('input.comment-select').forEach((el) => {
+        if (el instanceof HTMLInputElement) {
+          el.checked = checked;
+        }
       });
     });
 
-    function moderateComment(commentId: string, action: 'approve' | 'reject') {
+    function moderateComment(commentId, action) {
       const isApprove = action === 'approve';
       const reason = prompt('Grund (optional):', '') ?? '';
       if (confirm(`Kommentar wirklich ${isApprove ? 'freigeben' : 'ablehnen'}?`)) {
@@ -401,10 +539,10 @@ const adminOffset = Number(new URL(Astro.url).searchParams.get('offset') || '0')
       }
     }
 
-    async function viewCommentDetails(commentId: string) {
+    async function viewCommentDetails(commentId) {
       try {
         const res = await fetch(`/api/admin/comments/${commentId}`, { credentials: 'same-origin' });
-        const json: any = await res.json();
+        const json = await res.json();
         if (!res.ok || !json?.success) {
           alert('Konnte Details nicht laden');
           return;
@@ -419,14 +557,14 @@ const adminOffset = Number(new URL(Astro.url).searchParams.get('offset') || '0')
               <div><span class="font-semibold">Status:</span> ${c.status || ''}</div>
               <div><span class="font-semibold">Autor ID:</span> ${c.authorId ?? ''}</div>
               <div><span class="font-semibold">Entity:</span> ${c.entityType || ''} / ${c.entityId || ''}</div>
-              <div class="mt-2"><span class="font-semibold">Inhalt:</span><div class="mt-1 whitespace-pre-wrap">${(c.content || '').toString().replace(/</g,'&lt;')}</div></div>
+              <div class="mt-2"><span class="font-semibold">Inhalt:</span><div class="mt-1 whitespace-pre-wrap">${(c.content || '').toString().replace(/</g, '&lt;')}</div></div>
             </div>
           `;
         }
         const modalEl = document.getElementById('comment-details-modal');
-        if (modalEl && (modalEl as any).showModal) {
-          (modalEl as any).showModal();
-        } else if (modalEl instanceof HTMLElement) {
+        if (modalEl && typeof modalEl.showModal === 'function') {
+          modalEl.showModal();
+        } else if (modalEl && modalEl.classList) {
           modalEl.classList.remove('hidden');
         }
       } catch (e) {
@@ -436,24 +574,24 @@ const adminOffset = Number(new URL(Astro.url).searchParams.get('offset') || '0')
     }
 
     // Expose handlers globally for inline onclick usage
-    (window as any).moderateComment = moderateComment;
-    (window as any).viewCommentDetails = viewCommentDetails;
-    // Mark as used for TS noUnusedLocals
-    void moderateComment;
-    void viewCommentDetails;
+    window['moderateComment'] = moderateComment;
+    window['viewCommentDetails'] = viewCommentDetails;
 
     // Refresh-Button Funktionalität
     document.getElementById('refresh-btn')?.addEventListener('click', () => {
       location.reload();
     });
   </script>
-  
+
   <!-- Details Modal -->
   <dialog id="comment-details-modal" class="backdrop:bg-black/50 rounded-lg p-0 w-full max-w-2xl">
     <form method="dialog">
       <div class="border-b px-4 py-3 flex items-center justify-between bg-gray-50 dark:bg-gray-800">
         <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Kommentar-Details</h3>
-        <button class="px-3 py-1 rounded bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100">Schließen</button>
+        <button
+          class="px-3 py-1 rounded bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+          >Schließen</button
+        >
       </div>
     </form>
     <div id="comment-details-content" class="p-4 text-gray-800 dark:text-gray-100"></div>

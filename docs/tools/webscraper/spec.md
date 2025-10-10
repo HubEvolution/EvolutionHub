@@ -172,14 +172,14 @@ interface ScrapingResult {
 
 ### Hauptinterface
 
-**Dashboard-Layout**
+#### Dashboard-Layout
 
 - URL-Eingabefeld mit Validierung
 - Konfigurationspanel (akkordeon-artig)
 - Live-Preview während der Extraktion
 - Ergebnis-Darstellung mit Export-Optionen
 
-**Ergebnisseite**
+#### Ergebnisseite
 
 - Strukturierte Darstellung der extrahierten Daten
 - Interaktive Entitäten-Hervorhebung
@@ -196,19 +196,19 @@ interface ScrapingResult {
 
 ### Compliance
 
-**Robots.txt-Respektierung**
+#### Robots.txt-Respektierung
 
 - Automatische Erkennung und Einhaltung
 - User-Override mit Warnhinweisen
 - Logging von Compliance-Verstößen
 
-**Rate Limiting**
+#### Rate Limiting
 
 - Adaptive Verzögerungen basierend auf robots.txt
 - User-Agent-Rotation
 - Automatische Backoff-Strategie
 
-**Content-Filter**
+#### Content-Filter
 
 - Erkennung von sensiblen Inhalten
 - PII-Detektion und -maskierung
@@ -216,7 +216,7 @@ interface ScrapingResult {
 
 ### Datenschutz
 
-**Minimale Datenpersistierung**
+#### Minimale Datenpersistierung
 
 - Temporäre Speicherung während Verarbeitung
 - Automatische Bereinigung nach Export
@@ -226,19 +226,19 @@ interface ScrapingResult {
 
 ### Synergien
 
-**Image Enhancer Integration**
+#### Image Enhancer Integration
 
 - Automatische Bildextraktion von Webseiten
 - Batch-Verarbeitung für Bildergalerien
 - Metadaten-Transfer zwischen Tools
 
-**Prompt Enhancer Integration**
+#### Prompt Enhancer Integration
 
 - Web-Content als Prompt-Eingabe
 - Extrahierte Entitäten für Prompt-Anreicherung
 - Cross-Tool-Content-Pipeline
 
-**Content Generator Integration**
+#### Content Generator Integration
 
 - Research-Material aus dem Web
 - Automatische Quellen-Zitation
@@ -248,13 +248,13 @@ interface ScrapingResult {
 
 ### Cloudflare-Integration
 
-**Workers-Funktionen**
+#### Workers-Funktionen
 
 - Verteilte Scraping-Jobs
 - Edge-nahe Verarbeitung
 - Globale Proxy-Verteilung
 
-**Storage-Strategie**
+#### Storage-Strategie
 
 - D1 für Job-Metadaten
 - R2 für temporäre Assets
@@ -262,13 +262,13 @@ interface ScrapingResult {
 
 ### Skalierungsaspekte
 
-**Horizontale Skalierung**
+#### Horizontale Skalierung
 
 - Worker-Instance-Management
 - Load-Balancing für große Jobs
 - Queue-System für Batch-Operationen
 
-**Performance-Optimierung**
+#### Performance-Optimierung
 
 - Browser-Pooling
 - Intelligente Caching-Strategie

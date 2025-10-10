@@ -46,7 +46,7 @@ Das Evolution Hub Blog-System basiert auf **Astro Content Collections** mit eine
 
 ### Datenfluss
 
-```
+```text
 User Request
     ↓
 Astro Page (index.astro / [slug].astro)
@@ -296,6 +296,7 @@ await blogService.getRelatedPosts(currentPost, {
 ### Performance-Optimierungen
 
 1. **Prerender aktivieren** für statische Posts:
+
    ```astro
    ---
    export const prerender = true;  // In [slug].astro
@@ -303,12 +304,14 @@ await blogService.getRelatedPosts(currentPost, {
    ```
 
 2. **ISR nutzen** (Astro 5):
+
    ```javascript
    export const prerender = 'on-demand';
    export const revalidate = 3600;  // 1h Cache
    ```
 
 3. **CDN-Caching** für Posts (Cloudflare):
+
    ```javascript
    context.setHeader('Cache-Control', 'public, max-age=3600');
    ```

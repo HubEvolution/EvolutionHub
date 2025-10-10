@@ -41,7 +41,14 @@ async function ensureDeclarations() {
     return;
   }
   console.log('[ae-run] Building TypeScript declarations...');
-  await runCommand('npx', ['tsc', '--project', tsConfigPath, '--emitDeclarationOnly', '--declarationDir', typesOutDir]);
+  await runCommand('npx', [
+    'tsc',
+    '--project',
+    tsConfigPath,
+    '--emitDeclarationOnly',
+    '--declarationDir',
+    typesOutDir,
+  ]);
 }
 
 async function createAggregator() {
@@ -52,7 +59,9 @@ async function createAggregator() {
     await fs.writeFile(resolve(typesOutDir, 'index.d.ts'), 'export {};\n');
     return;
   }
-  const files = (await collectDeclarationFiles(srcDir)).filter((file) => !file.includes('__tests__'));
+  const files = (await collectDeclarationFiles(srcDir)).filter(
+    (file) => !file.includes('__tests__')
+  );
   files.sort();
   const exports = files
     .filter((file) => file !== 'index.d.ts' && !file.endsWith('.test.d.ts'))
@@ -73,12 +82,26 @@ async function verifyConfig() {
 
 async function runExtractor() {
   console.log('[ae-run] Running API Extractor...');
-  await runCommand('npx', ['@microsoft/api-extractor', 'run', '--local', '--verbose', '--config', configPath]);
+  await runCommand('npx', [
+    '@microsoft/api-extractor',
+    'run',
+    '--local',
+    '--verbose',
+    '--config',
+    configPath,
+  ]);
 }
 
 async function runDocumenter() {
   console.log('[ae-run] Generating Markdown reference via API Documenter...');
-  await runCommand('npx', ['@microsoft/api-documenter', 'markdown', '--input-folder', tempDir, '--output-folder', docOutputDir]);
+  await runCommand('npx', [
+    '@microsoft/api-documenter',
+    'markdown',
+    '--input-folder',
+    tempDir,
+    '--output-folder',
+    docOutputDir,
+  ]);
 }
 
 function runCommand(command, args) {

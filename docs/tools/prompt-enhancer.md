@@ -31,7 +31,7 @@ Der **Prompt Enhancer** transformiert einfache Text-Eingaben in strukturierte, a
 
 ### Komponenten-Stack
 
-```
+```text
 src/components/tools/prompt-enhancer/
 ├── EnhancerForm.tsx              # Haupt-UI-Komponente (670 Zeilen)
 ├── types.ts                      # TypeScript-Interfaces
@@ -318,7 +318,7 @@ await emitPromptEnhancerFailed({
 
 ### 1. Einfache Text-Eingabe
 
-```
+```text
 Input: "Write a blog post about AI"
 
 Enhanced Prompt (Creative Mode):
@@ -348,7 +348,7 @@ Write a blog post about AI
 
 ### 2. Mit Bildern (Vision)
 
-```
+```text
 Input: "Analyze this chart and explain the trends"
 Files: [sales-chart.png]
 
@@ -358,7 +358,7 @@ Files: [sales-chart.png]
 
 ### 3. Mit PDFs (File Search)
 
-```
+```text
 Input: "Summarize the key findings from this research paper"
 Files: [research-paper.pdf]
 
@@ -369,7 +369,7 @@ Files: [research-paper.pdf]
 
 ### 4. URL-Import
 
-```
+```text
 URL: https://example.com/docs/api-spec.md
 Input: "Create unit tests for this API spec"
 
@@ -400,7 +400,7 @@ Input: "Create unit tests for this API spec"
 
 **Request (Multipart/Form-Data)**:
 
-```
+```text
 text: "Analyze this document"
 mode: professional
 files[]: [file1.pdf]
@@ -450,7 +450,7 @@ files[]: [image.png]
 
 **Response (Error - Rate-Limit)**:
 
-```
+```text
 HTTP 429 Too Many Requests
 Retry-After: 45
 
@@ -594,7 +594,7 @@ PROMPT_VISION_MODEL = "gpt-4o-mini" // Muss Vision-fähig sein
 
 ### KV-Keys-Schema
 
-```
+```text
 prompt:usage:user:<user-id>:<YYYY-MM-DD> → { count: number }
 prompt:usage:guest:<guest-id>:<YYYY-MM-DD> → { count: number }
 prompt:metrics:path:<llm_text|llm_vision|llm_file_search>:<YYYY-MM-DD> → { count: number }
@@ -635,7 +635,7 @@ prompt:metrics:path:<llm_text|llm_vision|llm_file_search>:<YYYY-MM-DD> → { cou
 
 ---
 
-**Ende der Prompt Enhancer Dokumentation**
+### Ende der Prompt Enhancer Dokumentation
 
 > Letzte Aktualisierung: 2025-01-15
 > Version: 1.7.x

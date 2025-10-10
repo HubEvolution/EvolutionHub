@@ -30,6 +30,7 @@ Das Kommentarsystem wurde vollständig implementiert mit folgenden Tabellen:
   - Actions: `create`, `update`, `delete`, `moderate`, `report`
 
 **Performance-Indizes** (Migration `0020_comments_performance_indexes.sql`):
+
 - `idx_comments_entity_status` (entity_type, entity_id, status)
 - `idx_comments_flagged_created` (status, created_at DESC) WHERE status IN ('flagged', 'pending')
 - `idx_comments_parent_status` (parent_id, status, created_at) WHERE parent_id IS NOT NULL

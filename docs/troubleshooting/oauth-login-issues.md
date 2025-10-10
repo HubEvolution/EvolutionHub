@@ -14,6 +14,7 @@ Dieses Dokument beschreibt häufige OAuth-Login-Probleme und ihre Lösungen für
 ### 1. "ServerConfig"-Fehler beim OAuth-Button
 
 **Symptom:**
+
 - User klickt auf "Continue with GitHub"
 - Browser redirected zu `/login?magic_error=ServerConfig`
 - Keine Server-Logs für OAuth-Callback
@@ -24,22 +25,26 @@ Dieses Dokument beschreibt häufige OAuth-Login-Probleme und ihre Lösungen für
 **Lösung:**
 
 1. **Token aus Stytch Dashboard holen:**
+
    ```bash
    # Stytch Dashboard → API Keys → Public tokens
    # Kopiere den Token für dein Environment (Test/Live)
    ```
 
 2. **Zur `.env` hinzufügen:**
+
    ```bash
    STYTCH_PUBLIC_TOKEN="public-token-test-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
    ```
 
 3. **Server neu starten:**
+
    ```bash
    npm run dev:worker:dev
    ```
 
 **Verifizierung:**
+
 ```bash
 # Terminal-Log sollte zeigen:
 [auth][oauth][start] redirecting to provider {
@@ -54,6 +59,7 @@ Dieses Dokument beschreibt häufige OAuth-Login-Probleme und ihre Lösungen für
 ### 2. OAuth erfolgreich, aber Redirect zu `/login`
 
 **Symptom:**
+
 - OAuth-Flow scheinbar erfolgreich
 - Terminal-Log zeigt: `[auth][oauth][callback] provider accepted`
 - User wird trotzdem zu `/login` zurückgeleitet statt zum Dashboard
@@ -63,6 +69,7 @@ Dieses Dokument beschreibt häufige OAuth-Login-Probleme und ihre Lösungen für
 Session-Cookies werden nicht korrekt gesetzt. `context.cookies.set()` in Astro/Wrangler setzt Cookies nicht sofort für Follow-up-Requests.
 
 **Root Cause (technisch):**
+
 1. OAuth-Callback setzt Cookies mit `context.cookies.set()`
 2. Redirect zu `/dashboard` erfolgt
 3. Dashboard-Request hat **keine Cookies** (weil Response noch nicht abgeschlossen)
@@ -83,6 +90,7 @@ return response;
 **Verifizierung:**
 
 1. **Terminal-Logs prüfen:**
+
    ```bash
    [auth][oauth][callback] session_id cookie set
    [auth][oauth][callback] response headers Set-Cookie { cookie: 'session_id=...' }
@@ -96,6 +104,7 @@ return response;
    - Application Tab → Cookies → `session_id` vorhanden?
 
 3. **Middleware-Logs prüfen:**
+
    ```bash
    [Middleware] Session ID from cookie { requestId: '...', present: true }
    [Middleware] Session validation result { sessionValid: true, userValid: true }
@@ -106,12 +115,14 @@ return response;
 ### 3. `__Host-session` Cookie-Fehler (lokale Entwicklung)
 
 **Symptom:**
+
 - Cookie-Setting schlägt still fehl
 - Browser zeigt kein `__Host-session` Cookie
 - Nur `session_id` Cookie ist vorhanden
 
 **Ursache:**
 `__Host-` Cookie-Präfix erfordert:
+
 - `Secure: true` (nur HTTPS)
 - `Path: /`
 - Keine `Domain`-Attribut
@@ -149,6 +160,7 @@ const sessionId =
 ### 4. OAuth-Callback wird nie erreicht
 
 **Symptom:**
+
 - User klickt auf "Continue with GitHub"
 - GitHub-Authorization-Seite erscheint
 - User authorisiert die App
@@ -157,6 +169,7 @@ const sessionId =
 
 **Ursache:**
 `STYTCH_CUSTOM_DOMAIN` ist in lokaler Entwicklung aktiv, aber:
+
 1. Stytch redirected zu Custom Domain
 2. GitHub redirected zurück zu Custom Domain
 3. Custom Domain redirected zu deiner App
@@ -165,6 +178,7 @@ const sessionId =
 **Lösung:**
 
 1. **`wrangler.toml` anpassen:**
+
    ```toml
    [env.development.vars]
    # STYTCH_CUSTOM_DOMAIN = "login-test.hub-evolution.com"  # Auskommentiert!
@@ -179,11 +193,13 @@ const sessionId =
      - `http://localhost:8787/api/auth/oauth/github/callback` (Alternative)
 
 3. **Server neu starten:**
+
    ```bash
    npm run dev:worker:dev
    ```
 
 **Verifizierung:**
+
 ```bash
 # Terminal-Log sollte zeigen:
 [auth][oauth][start] redirecting to provider {
@@ -197,6 +213,7 @@ const sessionId =
 ### 5. 404 auf `/welcome-profile` nach OAuth-Login
 
 **Symptom:**
+
 - OAuth erfolgreich
 - Terminal-Log: `[auth][oauth][callback] redirect first-time to welcome-profile`
 - Browser zeigt 404: `/welcome-profile` nicht gefunden
@@ -211,6 +228,7 @@ Lokalisierte Welcome-Profile-Seiten fehlen. OAuth-Callback redirected zu `/welco
    - `src/pages/de/welcome-profile.astro`
 
 2. **Callback lokalisiert Redirect:**
+
    ```typescript
    let welcomePath = '/welcome-profile';
    if (target.startsWith('/en/')) {
@@ -221,6 +239,7 @@ Lokalisierte Welcome-Profile-Seiten fehlen. OAuth-Callback redirected zu `/welco
    ```
 
 **Verifizierung:**
+
 ```bash
 [auth][oauth][callback] redirect first-time to welcome-profile {
   target: '/en/dashboard',
@@ -248,11 +267,13 @@ npm run dev:worker:dev
 ### 2. Browser Dev-Tools
 
 **Network Tab:**
+
 - Filter: `oauth` oder `callback`
 - Check Status Codes: `302` (Redirect) → `200` (Success)
 - Check Response Headers: `Set-Cookie` vorhanden?
 
 **Application Tab:**
+
 - Cookies → `http://127.0.0.1:8787`
 - Erwartete Cookies:
   - `session_id` (immer)
@@ -260,6 +281,7 @@ npm run dev:worker:dev
   - `__Host-session` (nur auf HTTPS)
 
 **Console Tab:**
+
 - Fehler bei Redirects?
 - CORS-Fehler?
 

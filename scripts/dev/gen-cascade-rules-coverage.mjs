@@ -81,7 +81,13 @@ async function countForGlob(pattern) {
     const exists = fs.existsSync(path.join(root, pattern));
     return exists ? 1 : 0;
   }
-  const matches = await globby(pattern, { cwd: root, dot: false, gitignore: true, onlyFiles: true, followSymbolicLinks: true });
+  const matches = await globby(pattern, {
+    cwd: root,
+    dot: false,
+    gitignore: true,
+    onlyFiles: true,
+    followSymbolicLinks: true,
+  });
   return matches.length;
 }
 
@@ -90,7 +96,13 @@ async function buildCoverageRows() {
   for (const entry of rulesGlobs) {
     for (const g of entry.globs) {
       const count = await countForGlob(g);
-      rows.push({ file: entry.file, activation: entry.activation, priority: entry.priority, glob: g, count });
+      rows.push({
+        file: entry.file,
+        activation: entry.activation,
+        priority: entry.priority,
+        glob: g,
+        count,
+      });
     }
   }
   return rows;
@@ -126,9 +138,19 @@ function deriveScriptsFromGlobalRulesMd(content) {
 
 async function buildScriptsTable() {
   const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
-  const globalRulesPath = path.join(root, '..', '..', '.codeium', 'windsurf', 'memories', 'global_rules.md');
+  const globalRulesPath = path.join(
+    root,
+    '..',
+    '..',
+    '.codeium',
+    'windsurf',
+    'memories',
+    'global_rules.md'
+  );
   let globalRulesContent = '';
-  try { globalRulesContent = fs.readFileSync(globalRulesPath, 'utf8'); } catch {}
+  try {
+    globalRulesContent = fs.readFileSync(globalRulesPath, 'utf8');
+  } catch {}
   const { scripts, wantsDocsWildcard } = deriveScriptsFromGlobalRulesMd(globalRulesContent);
   const rows = [];
   for (const s of scripts) {
@@ -156,10 +178,14 @@ async function main() {
   lines.push('|---|---|---|---|---:|');
   for (const r of rows) {
     const mark = r.count === 0 ? ' (NO MATCH)' : '';
-    lines.push(`| ${r.file} | ${r.activation} | ${r.priority} | \`${r.glob}\` | ${r.count}${mark} |`);
+    lines.push(
+      `| ${r.file} | ${r.activation} | ${r.priority} | \`${r.glob}\` | ${r.count}${mark} |`
+    );
   }
   lines.push('');
-  lines.push('Hinweis: Globs wurden aus den jeweiligen Regeltexten abgeleitet. 0-Treffer sind explizit markiert.');
+  lines.push(
+    'Hinweis: Globs wurden aus den jeweiligen Regeltexten abgeleitet. 0-Treffer sind explizit markiert.'
+  );
   lines.push('');
   lines.push('## Script-Check gegenüber global_rules.md');
   lines.push('');
@@ -171,7 +197,7 @@ async function main() {
   lines.push('');
   lines.push('Quelle:');
   lines.push('');
-  lines.push("- Regeln: `.windsurf/rules/*.md`");
+  lines.push('- Regeln: `.windsurf/rules/*.md`');
   lines.push('- Skripte: `package.json`');
   lines.push('- Referenz: `global_rules.md`');
   lines.push('');

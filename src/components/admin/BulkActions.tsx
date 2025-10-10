@@ -1,9 +1,9 @@
-import React from 'react';
-
 export default function BulkActions() {
   async function perform(action: 'approve' | 'reject' | 'flag' | 'hide') {
     try {
-      const boxes = Array.from(document.querySelectorAll<HTMLInputElement>('input.comment-select:checked'));
+      const boxes = Array.from(
+        document.querySelectorAll<HTMLInputElement>('input.comment-select:checked')
+      );
       const ids = boxes.map((b) => b.getAttribute('data-comment-id')).filter(Boolean) as string[];
       if (ids.length === 0) {
         alert('Bitte mindestens einen Kommentar auswählen.');
@@ -11,7 +11,11 @@ export default function BulkActions() {
       }
       const defaultReason = action === 'approve' ? '' : '';
       const reason = prompt('Grund (optional):', defaultReason) ?? '';
-      if (!confirm(`Wirklich ${ids.length} Kommentar(e) ${action === 'approve' ? 'freigeben' : action === 'reject' ? 'ablehnen' : action === 'flag' ? 'markieren' : 'verstecken'}?`)) {
+      if (
+        !confirm(
+          `Wirklich ${ids.length} Kommentar(e) ${action === 'approve' ? 'freigeben' : action === 'reject' ? 'ablehnen' : action === 'flag' ? 'markieren' : 'verstecken'}?`
+        )
+      ) {
         return;
       }
       const res = await fetch('/api/admin/comments/bulk-moderate', {
@@ -20,7 +24,7 @@ export default function BulkActions() {
         credentials: 'same-origin',
         body: JSON.stringify({ commentIds: ids, action, reason }),
       });
-      const json = await res.json();
+      const json: { success?: boolean; error?: { message?: string } } = await res.json();
       if (!res.ok || !json?.success) {
         alert('Bulk-Aktion fehlgeschlagen');
         return;

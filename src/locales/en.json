@@ -332,11 +332,7 @@
         "get_started_button": "Get started",
         "documentation_link": "View documentation",
         "tools_link": "Browse our tools",
-        "typewriter": [
-          "Imag‑Enhancer",
-          "Automated tests",
-          "Smart debugging"
-        ]
+        "typewriter": ["Imag‑Enhancer", "Automated tests", "Smart debugging"]
       }
     },
     "blog": {

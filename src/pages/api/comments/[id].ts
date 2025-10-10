@@ -163,7 +163,9 @@ app.delete('/:id', async (c) => {
 // Named handlers for file-based router
 export const GET = async (context: APIContext) => {
   try {
-    const env = (context.locals as any).runtime?.env as { DB: D1Database; KV_COMMENTS?: KVNamespace } | undefined;
+    const env = (context.locals as any).runtime?.env as
+      | { DB: D1Database; KV_COMMENTS?: KVNamespace }
+      | undefined;
     const db = env?.DB || (context as any).locals?.env?.DB;
     if (!db) return createApiError('server_error', 'Database binding missing');
 
@@ -183,7 +185,9 @@ export const GET = async (context: APIContext) => {
 
 export const PUT = async (context: APIContext) => {
   try {
-    const env = (context.locals as any).runtime?.env as { DB: D1Database; KV_COMMENTS?: KVNamespace } | undefined;
+    const env = (context.locals as any).runtime?.env as
+      | { DB: D1Database; KV_COMMENTS?: KVNamespace }
+      | undefined;
     const db = env?.DB || (context as any).locals?.env?.DB;
     if (!db) return createApiError('server_error', 'Database binding missing');
 
@@ -238,7 +242,9 @@ export const PUT = async (context: APIContext) => {
 
 export const DELETE = async (context: APIContext) => {
   try {
-    const env = (context.locals as any).runtime?.env as { DB: D1Database; KV_COMMENTS?: KVNamespace } | undefined;
+    const env = (context.locals as any).runtime?.env as
+      | { DB: D1Database; KV_COMMENTS?: KVNamespace }
+      | undefined;
     const db = env?.DB || (context as any).locals?.env?.DB;
     if (!db) return createApiError('server_error', 'Database binding missing');
 

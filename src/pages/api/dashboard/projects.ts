@@ -15,19 +15,42 @@ import { createSecureJsonResponse } from '@/lib/response-helpers';
 export const GET = withAuthApiMiddleware(
   async (context) => {
     const { locals, clientAddress } = context;
-    const { env } = (locals as any).runtime || {};
-    const user = (locals as any).user || (locals as any).runtime?.user;
+    const env = (locals.runtime?.env ?? {}) as Partial<{ DB: D1Database }>;
+    const user = locals.user;
 
-    const userId: string = (user?.id as string) ?? (user?.sub as string);
+    const userId: string | undefined = user?.id as string | undefined;
+    if (!userId) {
+      return createApiError('auth_error', 'Unauthorized');
+    }
 
-    const { results } = await env.DB.prepare(
-      `SELECT id, title, description, progress, status, updated_at as lastUpdated FROM projects WHERE user_id = ?1 ORDER BY updated_at DESC`
-    )
+    const db = env.DB;
+    if (!db) {
+      return createApiError('server_error', 'Database unavailable');
+    }
+
+    type Row = {
+      id: string;
+      title: string;
+      description: string;
+      progress: number;
+      status: ProjectCard['status'];
+      lastUpdated: string;
+    };
+
+    const { results } = await db
+      .prepare(
+        `SELECT id, title, description, progress, status, updated_at as lastUpdated FROM projects WHERE user_id = ?1 ORDER BY updated_at DESC`
+      )
       .bind(userId)
-      .all();
+      .all<Row>();
 
-    const projects: ProjectCard[] = (results as any[]).map((p) => ({
-      ...p,
+    const projects: ProjectCard[] = (results ?? []).map((p) => ({
+      id: p.id,
+      title: p.title,
+      description: p.description,
+      progress: Number(p.progress) || 0,
+      status: p.status,
+      lastUpdated: p.lastUpdated,
       members: [], // members are not stored in the current schema
     }));
 

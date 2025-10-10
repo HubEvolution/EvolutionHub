@@ -117,7 +117,10 @@ const DebugPanel: React.FC = () => {
       if (pollTimerRef.current != null) return;
       const poll = async () => {
         try {
-          const res = await fetch('/api/debug/logs-stream', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+          const res = await fetch('/api/debug/logs-stream', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+          });
           if (!res.ok) throw new Error('poll failed');
           const payload: any = await res.json().catch(() => null);
           const items: unknown[] = payload?.data?.logs || [];
@@ -126,7 +129,12 @@ const DebugPanel: React.FC = () => {
             try {
               const data = typeof raw === 'string' ? JSON.parse(raw) : raw;
               if (!data) continue;
-              if (data.type === 'log' && data.timestamp && data.level && typeof data.message === 'string') {
+              if (
+                data.type === 'log' &&
+                data.timestamp &&
+                data.level &&
+                typeof data.message === 'string'
+              ) {
                 entries.push({
                   timestamp: data.timestamp,
                   level: String(data.level),
@@ -200,12 +208,16 @@ const DebugPanel: React.FC = () => {
         level: 'error',
         message: 'Connection error - switching to polling...',
       });
-      try { eventSource.close(); } catch {}
+      try {
+        eventSource.close();
+      } catch {}
       startPolling();
     };
 
     return () => {
-      try { eventSource.close(); } catch {}
+      try {
+        eventSource.close();
+      } catch {}
       if (pollTimerRef.current != null) {
         clearInterval(pollTimerRef.current);
         pollTimerRef.current = null;
@@ -282,9 +294,12 @@ const DebugPanel: React.FC = () => {
     });
   }, []);
 
-  const addLog = useCallback((log: LogEntry) => {
-    mergeLogs([log]);
-  }, [mergeLogs]);
+  const addLog = useCallback(
+    (log: LogEntry) => {
+      mergeLogs([log]);
+    },
+    [mergeLogs]
+  );
 
   const clearLogs = useCallback(() => {
     setLogs([]);
@@ -390,7 +405,10 @@ const DebugPanel: React.FC = () => {
   const muteRegexes = useMemo(() => {
     if (!muteIsRegex) return [] as RegExp[];
     const out: RegExp[] = [];
-    for (const raw of mutePatterns.split(',').map((s) => s.trim()).filter(Boolean)) {
+    for (const raw of mutePatterns
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean)) {
       try {
         out.push(new RegExp(raw, 'i'));
       } catch {
@@ -531,7 +549,11 @@ const DebugPanel: React.FC = () => {
     (['network', 'console', 'client', 'server'] as const).forEach((s) => {
       const ratio = bySource[s] / total;
       if (ratio >= 0.6 && sourceFilters[s]) {
-        out.push({ type: 'source', value: s, label: `Hide ${s.toUpperCase()} (${Math.round(ratio * 100)}%)` });
+        out.push({
+          type: 'source',
+          value: s,
+          label: `Hide ${s.toUpperCase()} (${Math.round(ratio * 100)}%)`,
+        });
       }
     });
 
@@ -702,15 +724,22 @@ const DebugPanel: React.FC = () => {
             </button>
             <button
               onClick={async () => {
-                try { console.error('Self-test: console.error'); } catch {}
-                try { await fetch('/__debug-self-test-404'); } catch {}
+                try {
+                  console.error('Self-test: console.error');
+                } catch {}
+                try {
+                  await fetch('/__debug-self-test-404');
+                } catch {}
                 try {
                   const x = new XMLHttpRequest();
                   x.open('GET', '/__debug-self-test-xhr-404');
                   x.send();
                 } catch {}
                 try {
-                  if (typeof navigator !== 'undefined' && typeof (navigator as any).sendBeacon === 'function') {
+                  if (
+                    typeof navigator !== 'undefined' &&
+                    typeof (navigator as any).sendBeacon === 'function'
+                  ) {
                     (navigator as any).sendBeacon('/__debug-self-test-beacon', 'x=1');
                   }
                 } catch {}
@@ -718,7 +747,7 @@ const DebugPanel: React.FC = () => {
                   await fetch('/api/debug/client-log', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'X-Debug-Log': '1' },
-                    body: JSON.stringify({ level: 'info', message: 'Self-test: client-log' })
+                    body: JSON.stringify({ level: 'info', message: 'Self-test: client-log' }),
                   });
                 } catch {}
               }}
@@ -877,7 +906,9 @@ const DebugPanel: React.FC = () => {
       {suggestions.length > 0 && (
         <div className="px-4 py-2 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">Suggested filters:</span>
+            <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+              Suggested filters:
+            </span>
             {suggestions.slice(0, 6).map((s, idx) => (
               <button
                 key={`${s.type}-${idx}-${s.value}`}

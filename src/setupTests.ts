@@ -82,7 +82,8 @@ try {
   // Ignore polyfill setup failures
 }
 
-// Ensure React Testing Library cleans up between tests to avoid duplicate nodes
+// Ensure React Testing Library cleans up between tests and mocks reset
 afterEach(() => {
+  vi.restoreAllMocks();
   cleanup();
 });

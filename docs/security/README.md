@@ -5,6 +5,7 @@ Diese Dokumentation beschreibt die Sicherheits-Features, Best Practices und impl
 ## Übersicht
 
 Evolution Hub implementiert mehrschichtige Sicherheitsmaßnahmen:
+
 - **Authentication**: Stytch Magic Link (passwortlos)
 - **Rate Limiting**: IP-basiert für alle kritischen Endpunkte
 - **Security Headers**: CSP, HSTS, CORS, etc.
@@ -42,6 +43,7 @@ Siehe auch: [../SECURITY.md](../SECURITY.md) für Security-Policy und Vulnerabil
 ### Authentication
 
 Die Authentifizierung basiert auf Stytch Magic Link:
+
 - **Passwortlos**: Keine Passwort-Speicherung
 - **Session-basiert**: HttpOnly, Secure, SameSite=Strict Cookies
 - **Token-Validierung**: Server-seitige Validierung aller Tokens
@@ -74,6 +76,7 @@ import { sensitiveActionLimiter } from '@/lib/rate-limiter';
 ## Security Headers
 
 Alle API-Responses beinhalten:
+
 - `Content-Security-Policy`
 - `X-Frame-Options: DENY`
 - `X-Content-Type-Options: nosniff`
@@ -101,6 +104,7 @@ logRateLimitExceeded(ip, endpoint, { limit, window });
 ```
 
 Event-Typen:
+
 - `AUTH_SUCCESS` / `AUTH_FAILURE`
 - `PASSWORD_RESET`
 - `PROFILE_UPDATE`
@@ -139,6 +143,7 @@ return secureErrorResponse('Not authenticated', 401);
 ## Known Security Issues
 
 Bekannte Verbesserungspotentiale in den APIs finden Sie in:
+
 - [../api/known-issues.md](../api/known-issues.md)
 
 ## Security Testing

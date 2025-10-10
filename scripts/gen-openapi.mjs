@@ -6,7 +6,10 @@ import { spawn } from 'node:child_process';
 const cwd = process.cwd();
 const source = resolve(cwd, process.env.OPENAPI_SOURCE ?? 'openapi.yaml');
 const htmlOutput = resolve(cwd, process.env.OPENAPI_HTML_OUTPUT ?? 'docs/reference/api/index.html');
-const summaryOutput = resolve(cwd, process.env.OPENAPI_SUMMARY_OUTPUT ?? 'docs/reference/api/overview.md');
+const summaryOutput = resolve(
+  cwd,
+  process.env.OPENAPI_SUMMARY_OUTPUT ?? 'docs/reference/api/overview.md'
+);
 
 function stripQuotes(value) {
   return value?.replace(/^['"](.+)['"]$/, '$1') ?? '';
@@ -19,7 +22,8 @@ async function buildHtml() {
     await runCommand('npx', ['@redocly/cli', 'build-docs', source, '--output', htmlOutput]);
   } catch (error) {
     console.warn(`[gen-openapi] Unable to generate HTML with Redocly CLI: ${error.message}`);
-    const fallback = '<!doctype html><html><body><h1>OpenAPI documentation unavailable</h1><p>The Redocly CLI is required to generate the HTML reference.</p></body></html>\n';
+    const fallback =
+      '<!doctype html><html><body><h1>OpenAPI documentation unavailable</h1><p>The Redocly CLI is required to generate the HTML reference.</p></body></html>\n';
     await fs.writeFile(htmlOutput, fallback, 'utf8');
   }
 }
@@ -45,7 +49,7 @@ function collectOperationsFromYaml(raw) {
         summary: summary.trim(),
         description: description.trim(),
         operationId: stripQuotes(operationId),
-        tags: tags.length ? tags : ['_untagged']
+        tags: tags.length ? tags : ['_untagged'],
       });
     }
   }

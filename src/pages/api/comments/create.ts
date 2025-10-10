@@ -8,7 +8,9 @@ import type { CreateCommentRequest } from '@/lib/types/comments';
 // POST /api/comments/create
 export const POST = async (context: APIContext) => {
   try {
-    const env = (context.locals as any).runtime?.env as { DB: D1Database; KV_COMMENTS?: KVNamespace } | undefined;
+    const env = (context.locals as any).runtime?.env as
+      | { DB: D1Database; KV_COMMENTS?: KVNamespace }
+      | undefined;
     const db = env?.DB || (context as any).locals?.env?.DB;
     if (!db) return createApiError('server_error', 'Database binding missing');
 

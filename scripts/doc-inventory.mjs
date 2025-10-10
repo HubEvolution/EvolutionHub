@@ -15,7 +15,7 @@ const FORMAT_MAP = new Map([
   ['.md', 'markdown'],
   ['.mdx', 'mdx'],
   ['.adoc', 'asciidoc'],
-  ['.txt', 'text']
+  ['.txt', 'text'],
 ]);
 
 function toPosix(p) {
@@ -108,7 +108,7 @@ async function readDocument(file) {
     size: raw.length,
     headings,
     frontMatter,
-    lastModified: stat.mtime.toISOString()
+    lastModified: stat.mtime.toISOString(),
   };
 }
 
@@ -121,7 +121,7 @@ const IGNORED_PATTERNS = [
   /^temp\//,
   /^\.types\//,
   /^docs\/reference\/ts\//,
-  /^docs\/reference\/api\//
+  /^docs\/reference\/api\//,
 ];
 
 async function listFiles(dir = '.') {
@@ -164,13 +164,15 @@ async function main() {
     generatedAt: new Date().toISOString(),
     generatedBy: 'scripts/doc-inventory.mjs',
     sourceRoot: cwd,
-    documents
+    documents,
   };
 
   await fs.mkdir(dirname(outputPath), { recursive: true });
   await fs.writeFile(outputPath, JSON.stringify(registry, null, 2));
 
-  console.log(`Documentation registry generated for ${documents.length} files at ${toPosix(relative(cwd, outputPath))}`);
+  console.log(
+    `Documentation registry generated for ${documents.length} files at ${toPosix(relative(cwd, outputPath))}`
+  );
 }
 
 main().catch((error) => {

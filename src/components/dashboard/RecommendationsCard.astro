@@ -11,47 +11,62 @@ const { tools, docs, strings } = Astro.props as {
 };
 const hasContent = tools.length > 0 || docs.length > 0;
 ---
+
 <div class="space-y-4">
   <h3 class="text-lg font-bold text-violet-200">{strings.title}</h3>
-  {hasContent ? (
-    <div class="grid gap-4 md:grid-cols-2">
-      {tools.length > 0 && (
-        <div>
-          <h4 class="mb-2 text-sm font-bold uppercase tracking-wide text-violet-300/80">{strings.tools}</h4>
-          <ul class="space-y-2">
-            {tools.map((tool) => (
-              <li key={tool.id} class="group rounded-lg border border-white/10 bg-white/5 p-3 backdrop-blur-sm transition-all hover:border-violet-400/30 hover:bg-white/10">
-                <a href={tool.url} class="text-sm font-semibold text-violet-300 transition group-hover:text-violet-200">
-                  {tool.name}
-                </a>
-                <p class="mt-1 text-sm text-slate-400">{tool.description}</p>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-      {docs.length > 0 && (
-        <div>
-          <h4 class="mb-2 text-sm font-bold uppercase tracking-wide text-violet-300/80">{strings.docs}</h4>
-          <div class="space-y-2">
-            {docs.map((doc) => (
-              <a
-                key={doc.url}
-                href={doc.url}
-                class="group block rounded-lg border border-white/10 bg-white/5 p-3 backdrop-blur-sm transition-all hover:border-fuchsia-400/30 hover:bg-white/10"
-              >
-                <span class="inline-flex items-center rounded-full border border-fuchsia-400/30 bg-fuchsia-500/20 px-2 py-0.5 text-xs font-bold text-fuchsia-300">
-                  {doc.tag}
-                </span>
-                <p class="mt-2 text-sm font-semibold text-white transition group-hover:text-fuchsia-200">{doc.title}</p>
-                <p class="mt-1 text-sm text-slate-400">{doc.description}</p>
-              </a>
-            ))}
+  {
+    hasContent ? (
+      <div class="grid gap-4 md:grid-cols-2">
+        {tools.length > 0 && (
+          <div>
+            <h4 class="mb-2 text-sm font-bold uppercase tracking-wide text-violet-300/80">
+              {strings.tools}
+            </h4>
+            <ul class="space-y-2">
+              {tools.map((tool) => (
+                <li
+                  key={tool.id}
+                  class="group rounded-lg border border-white/10 bg-white/5 p-3 backdrop-blur-sm transition-all hover:border-violet-400/30 hover:bg-white/10"
+                >
+                  <a
+                    href={tool.url}
+                    class="text-sm font-semibold text-violet-300 transition group-hover:text-violet-200"
+                  >
+                    {tool.name}
+                  </a>
+                  <p class="mt-1 text-sm text-slate-400">{tool.description}</p>
+                </li>
+              ))}
+            </ul>
           </div>
-        </div>
-      )}
-    </div>
-  ) : (
-    <p class="text-sm text-slate-400">{strings.empty}</p>
-  )}
+        )}
+        {docs.length > 0 && (
+          <div>
+            <h4 class="mb-2 text-sm font-bold uppercase tracking-wide text-violet-300/80">
+              {strings.docs}
+            </h4>
+            <div class="space-y-2">
+              {docs.map((doc) => (
+                <a
+                  key={doc.url}
+                  href={doc.url}
+                  class="group block rounded-lg border border-white/10 bg-white/5 p-3 backdrop-blur-sm transition-all hover:border-fuchsia-400/30 hover:bg-white/10"
+                >
+                  <span class="inline-flex items-center rounded-full border border-fuchsia-400/30 bg-fuchsia-500/20 px-2 py-0.5 text-xs font-bold text-fuchsia-300">
+                    {doc.tag}
+                  </span>
+                  <p class="mt-2 text-sm font-semibold text-white transition group-hover:text-fuchsia-200">
+                    {doc.title}
+                  </p>
+                  <p class="mt-1 text-sm text-slate-400">{doc.description}</p>
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    ) : (
+      <p class="text-sm text-slate-400">{strings.empty}</p>
+    )
+  }
 </div>

@@ -5,6 +5,7 @@ Diese Dokumentation beschreibt die technische Architektur von Evolution Hub, ein
 ## Übersicht
 
 Evolution Hub ist eine moderne Full-Stack-Webanwendung basierend auf:
+
 - **Frontend**: Astro mit React Islands
 - **Backend**: Cloudflare Workers
 - **Datenbank**: Cloudflare D1 (SQLite)

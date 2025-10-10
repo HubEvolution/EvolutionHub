@@ -409,7 +409,11 @@ const EnhancerForm: React.FC<EnhancerFormProps> = ({ initialMode = 'creative' })
 
   return (
     <Card className="max-w-4xl mx-auto p-6">
-      <form className="space-y-6" data-testid="enhancer-form" data-hydrated={hydrated ? 'true' : 'false'}>
+      <form
+        className="space-y-6"
+        data-testid="enhancer-form"
+        data-hydrated={hydrated ? 'true' : 'false'}
+      >
         <div>
           <label
             htmlFor="inputText"

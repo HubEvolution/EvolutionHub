@@ -1,6 +1,6 @@
 # Webscraper Tool
 
-**Automatische Web-Content-Extraktion mit robots.txt Compliance**
+Automatische Web-Content-Extraktion mit robots.txt Compliance
 
 ---
 
@@ -58,7 +58,7 @@ curl -X POST http://127.0.0.1:8787/api/webscraper/extract \
 
 ## 🏗 Architektur
 
-```
+```text
 Webscraper Tool
 ├── Backend
 │   ├── Config (src/config/webscraper.ts)
@@ -135,6 +135,7 @@ id = "webscraper-production"
 ### POST /api/webscraper/extract
 
 **Request:**
+
 ```json
 {
   "url": "https://example.com"
@@ -142,6 +143,7 @@ id = "webscraper-production"
 ```
 
 **Response (Success):**
+
 ```json
 {
   "success": true,
@@ -167,6 +169,7 @@ id = "webscraper-production"
 ```
 
 **Response (Error):**
+
 ```json
 {
   "success": false,

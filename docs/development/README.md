@@ -5,6 +5,7 @@ Diese Dokumentation beschreibt Entwicklungs-Workflows, Tools, Setup-Anleitungen 
 ## Übersicht
 
 Evolution Hub nutzt moderne Entwicklungs-Tools und -Workflows:
+
 - **Local Development**: Wrangler Dev + Astro Dev-Server
 - **CI/CD**: GitHub Actions mit vollautomatischen Deployments
 - **Testing**: Vitest (Unit), Playwright (E2E)

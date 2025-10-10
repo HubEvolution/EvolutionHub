@@ -5,6 +5,7 @@ Diese Dokumentation beschreibt die Teststrategie, Coverage-Ziele, Testorganisati
 ## Übersicht
 
 Evolution Hub nutzt einen umfassenden Testing-Ansatz:
+
 - **Testing Framework**: Vitest für Unit- und Integrationstests
 - **E2E Framework**: Playwright (gegen Wrangler Dev oder Staging)
 - **Coverage-Ziel**: Minimum 70% (Projektvorgabe), Langfristziel 95%
@@ -47,9 +48,11 @@ Siehe auch: [../development/testing-guidelines.md](../development/testing-guidel
 ### Testebenen
 
 #### 1. Unit-Tests
+
 Unit-Tests prüfen einzelne Funktionen, Methoden oder Klassen in Isolation.
 
 **Fokus:**
+
 - Geschäftslogik in Services und Utilities
 - Helper-Funktionen
 - Einzelne Komponenten (ohne externe Abhängigkeiten)
@@ -57,9 +60,11 @@ Unit-Tests prüfen einzelne Funktionen, Methoden oder Klassen in Isolation.
 **Ziel-Coverage:** 60% aller Tests
 
 #### 2. Integrationstests
+
 Integrationstests prüfen die Interaktion zwischen verschiedenen Komponenten oder Systemen.
 
 **Fokus:**
+
 - API-Endpunkte
 - Datenbankinteraktionen (D1 via Drizzle)
 - Service-Interaktionen
@@ -68,9 +73,11 @@ Integrationstests prüfen die Interaktion zwischen verschiedenen Komponenten ode
 **Ziel-Coverage:** 30% aller Tests
 
 #### 3. End-to-End Tests (E2E)
+
 E2E-Tests prüfen das gesamte System aus Benutzerperspektive.
 
 **Fokus:**
+
 - Benutzerflows (Login, Registrierung, Tool-Nutzung)
 - Seitennavigation
 - Formularinteraktionen
@@ -81,11 +88,13 @@ E2E-Tests prüfen das gesamte System aus Benutzerperspektive.
 ### Testwerkzeuge
 
 #### Vitest
+
 Haupttestwerkzeug für Unit- und Integrationstests.
 
 **Konfiguration:** `vitest.config.ts`, `vitest.workspace.ts`
 
 **Wichtige Kommandos:**
+
 ```bash
 npm test                  # Watch-Modus
 npm run test:once         # Einzelner Run
@@ -93,11 +102,13 @@ npm run test:coverage     # Mit Coverage-Report
 ```
 
 #### Playwright
+
 E2E-Testing gegen Cloudflare Wrangler Dev oder Staging.
 
 **Konfiguration:** `tests/e2e/config/playwright.config.ts`
 
 **Wichtige Kommandos:**
+
 ```bash
 npm run test:e2e          # Alle E2E-Tests
 npm run test:e2e:ui       # Mit UI-Test-Runner
@@ -107,6 +118,7 @@ export BASE_URL="..." && npm run test:e2e  # Gegen Remote-Server
 **BASE_URL:** Steuert Ziel-Environment (`http://127.0.0.1:8787` Standard, oder `https://staging.example.com`)
 
 #### MSW (Mock Service Worker)
+
 API-Mocking für Tests ohne echte Backend-Aufrufe.
 
 **Verwendung:** `test/mocks/handlers.ts` für zentrale Mock-Definitionen
@@ -114,17 +126,20 @@ API-Mocking für Tests ohne echte Backend-Aufrufe.
 ## Coverage-Ziele
 
 ### Aktuelle Coverage (Baseline)
+
 - **Statements:** 2.71%
 - **Branches:** 68.29%
 - **Functions:** 50.61%
 - **Lines:** 2.71%
 
 ### Projektregeln (Minimum)
+
 - **Gesamt:** ≥70%
 - **Kritische Module:** ≥90% (Auth, API, Security)
 - **UI-Komponenten:** ≥70%
 
 ### Langfristziel (Coverage Roadmap)
+
 - **Alle Metriken:** 95%
 - **Umsetzung:** 5 Phasen über 4-6 Wochen
 
@@ -133,7 +148,8 @@ Siehe: [coverage-roadmap-to-95.md](./coverage-roadmap-to-95.md) für detailliert
 ## Testorganisation
 
 ### Verzeichnisstruktur
-```
+
+```text
 evolution-hub/
 ├── src/
 │   ├── components/
@@ -151,6 +167,7 @@ evolution-hub/
 ```
 
 ### Benennungskonventionen
+
 - **Unit-Tests:** `*.test.ts` oder `*.spec.ts` neben der zu testenden Datei
 - **Integrationstests:** `*.test.ts` oder `*.integration.test.ts`
 - **E2E-Tests:** `*.spec.ts` im Verzeichnis `tests/e2e/`
@@ -160,11 +177,13 @@ evolution-hub/
 Tests sind vollständig in die CI/CD-Pipeline integriert:
 
 ### GitHub Actions Workflows
+
 - **Unit Tests:** `.github/workflows/unit-tests.yml` (Vitest)
 - **E2E Tests:** `.github/workflows/e2e-tests.yml` (Playwright)
 - **Coverage Gates:** Automatisches Fail bei Coverage < Threshold
 
 ### CI-Gates (alle müssen grün sein)
+
 - Lint/Format (ESLint, Prettier)
 - TypeScript-Check (`astro check`)
 - Unit/Integration-Tests
@@ -176,17 +195,20 @@ Siehe: [../development/ci-cd.md](../development/ci-cd.md) für vollständige CI/
 ## Best Practices
 
 ### Mocking-Strategien
+
 - **Minimales Mocking:** Bevorzuge echte Integrationstests via Wrangler
 - **Cloudflare-Bindings:** `vi.mock` für D1/R2/KV in Unit-Tests
 - **API-Mocks:** MSW für externe API-Aufrufe
 - **Test-Isolation:** `afterEach(() => vi.restoreAllMocks())`
 
 ### Test-Daten
+
 - **Fest codierte Daten:** Für einfache Tests
 - **Factories:** Für komplexe Testdaten mit Variationen (`test/factories/`)
 - **Fixtures:** Für wiederverwendbare Testdaten (`test/fixtures/*.json`)
 
 ### Debugging
+
 ```bash
 # Debug-Ausgabe aktivieren
 DEBUG=true npm test
@@ -207,6 +229,7 @@ npm run test:debug
 ## Schnellreferenzen
 
 ### Wichtige Testkommandos
+
 ```bash
 # Unit & Integration Tests
 npm test                  # Watch-Modus
@@ -224,6 +247,7 @@ npm run test:e2e -- --debug  # E2E-Tests mit Debugger
 ```
 
 ### Test-Template (AAA-Pattern)
+
 ```typescript
 import { describe, it, expect, vi, afterEach } from 'vitest';
 
@@ -247,6 +271,7 @@ describe('Modul XYZ', () => {
 ```
 
 ### Coverage-Threshold (vitest.config.ts)
+
 ```typescript
 coverage: {
   reporter: ['text', 'json', 'html'],

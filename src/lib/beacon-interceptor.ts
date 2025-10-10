@@ -17,7 +17,7 @@ export function installBeaconInterceptor() {
 
   const original = nav.sendBeacon.bind(nav);
   try {
-    nav.sendBeacon = function(url: string, data?: any) {
+    nav.sendBeacon = function (url: string, data?: any) {
       try {
         const safeUrl = (() => {
           try {
@@ -28,13 +28,20 @@ export function installBeaconInterceptor() {
               return masked.toString();
             }
             return u.toString();
-          } catch { return String(url); }
+          } catch {
+            return String(url);
+          }
         })();
         const len = typeof data === 'string' ? data.length : (data?.size ?? undefined);
         clientLogger.info(`[NETWORK][BEACON] ${safeUrl} [REDACTED]`, {
-          source: 'network', action: 'beacon_send', url: safeUrl, length: len
+          source: 'network',
+          action: 'beacon_send',
+          url: safeUrl,
+          length: len,
         });
-      } catch {/* noop */}
+      } catch {
+        /* noop */
+      }
       try {
         return original(url, data);
       } catch (err) {
@@ -43,5 +50,7 @@ export function installBeaconInterceptor() {
       }
     };
     installed = true;
-  } catch {/* noop */}
+  } catch {
+    /* noop */
+  }
 }

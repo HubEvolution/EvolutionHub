@@ -2,26 +2,59 @@
 // ESM-kompatible Import-Syntax
 import notify from '@/lib/notify';
 
+type ApiSuccess<T> = {
+  success: true;
+  data: T;
+};
+
+type ApiError = {
+  success: false;
+  error: { message: string };
+};
+
+type ApiResponse<T> = ApiSuccess<T> | ApiError;
+
+type AvatarResponse = {
+  imageUrl: string;
+};
+
+const parseJsonResponse = async <T>(response: Response): Promise<ApiResponse<T> | null> => {
+  const contentType = response.headers.get('content-type');
+  if (!contentType || !contentType.toLowerCase().includes('application/json')) {
+    return null;
+  }
+  try {
+    return (await response.json()) as ApiResponse<T>;
+  } catch {
+    return null;
+  }
+};
+
+const setButtonState = (button: HTMLButtonElement, label: string, disabled: boolean): void => {
+  button.textContent = label;
+  button.disabled = disabled;
+};
+
 export const handleProfileForm = () => {
-  const form = document.getElementById('profile-form') as HTMLFormElement;
-  if (!form) return;
+  const formElement = document.getElementById('profile-form');
+  if (!(formElement instanceof HTMLFormElement)) return;
+
+  const submitButton = formElement.querySelector('button[type="submit"]');
+  if (!(submitButton instanceof HTMLButtonElement)) return;
+
+  const originalButtonText = submitButton.textContent ?? 'Save';
 
   // Ensure the form doesn't submit normally
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    const submitButton = form.querySelector('button[type="submit"]') as HTMLButtonElement;
-    const originalButtonText = submitButton.textContent;
+  formElement.addEventListener('submit', async (event) => {
+    event.preventDefault();
 
     try {
       // Show loading state
-      submitButton.textContent = 'Saving...';
-      submitButton.disabled = true;
+      setButtonState(submitButton, 'Saving...', true);
 
-      const formData = new FormData(form);
+      const formData = new FormData(formElement);
 
-      // Remove avatar field from profile update if it exists
-      // (avatar is handled separately)
+      // Remove avatar field from profile update if it exists (handled separately)
       if (formData.has('avatar')) {
         formData.delete('avatar');
       }
@@ -29,22 +62,23 @@ export const handleProfileForm = () => {
       const response = await fetch('/api/user/profile', {
         method: 'POST',
         body: formData,
+        credentials: 'same-origin',
       });
 
       if (response.ok) {
         notify.success('Profile updated successfully!');
-      } else {
-        const errorText = await response.text();
-        notify.error(`Error: ${errorText}`);
+        return;
       }
+
+      const errorText = await response.text();
+      notify.error(`Error: ${errorText}`);
     } catch (error: unknown) {
       console.error('Profile update error:', error);
       const message = error instanceof Error ? error.message : 'Network error';
       notify.error(`Update failed: ${message}`);
     } finally {
       // Reset button state
-      submitButton.textContent = originalButtonText;
-      submitButton.disabled = false;
+      setButtonState(submitButton, originalButtonText, false);
     }
   });
 };
@@ -76,24 +110,34 @@ const checkPasswordStrength = (password: string): { score: number; text: string 
 };
 
 export const handlePasswordForm = () => {
-  const form = document.getElementById('password-form') as HTMLFormElement;
-  if (!form) return;
+  const formElement = document.getElementById('password-form');
+  if (!(formElement instanceof HTMLFormElement)) return;
 
-  const newPasswordInput = document.getElementById('new-password') as HTMLInputElement;
-  const confirmPasswordInput = document.getElementById('confirm-password') as HTMLInputElement;
+  const newPasswordInput = document.getElementById('new-password');
+  const confirmPasswordInput = document.getElementById('confirm-password');
   const strengthIndicator = document.getElementById('password-strength');
   const errorContainer = document.getElementById('password-errors');
 
-  if (newPasswordInput && strengthIndicator) {
+  if (newPasswordInput instanceof HTMLInputElement && strengthIndicator) {
     newPasswordInput.addEventListener('input', () => {
       const { text } = checkPasswordStrength(newPasswordInput.value);
       strengthIndicator.textContent = `Password Strength: ${text}`;
     });
   }
 
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
+  formElement.addEventListener('submit', async (event) => {
+    event.preventDefault();
     if (errorContainer) errorContainer.textContent = '';
+
+    if (!(newPasswordInput instanceof HTMLInputElement)) {
+      notify.error('Password field is missing');
+      return;
+    }
+
+    if (!(confirmPasswordInput instanceof HTMLInputElement)) {
+      notify.error('Confirm password field is missing');
+      return;
+    }
 
     const newPassword = newPasswordInput.value;
     const confirmPassword = confirmPasswordInput.value;
@@ -105,25 +149,34 @@ export const handlePasswordForm = () => {
     }
 
     if (score < 3) {
-      if (errorContainer)
+      if (errorContainer) {
         errorContainer.textContent = 'Password is too weak. Please use a stronger password.';
+      }
       return;
     }
 
-    const formData = new FormData(form);
+    const formData = new FormData(formElement);
 
-    const response = await fetch('/api/user/password', {
-      method: 'POST',
-      body: formData,
-    });
+    try {
+      const response = await fetch('/api/user/password', {
+        method: 'POST',
+        body: formData,
+        credentials: 'same-origin',
+      });
 
-    if (response.ok) {
-      notify.success('Password updated successfully!');
-      form.reset();
-      if (strengthIndicator) strengthIndicator.textContent = '';
-    } else {
+      if (response.ok) {
+        notify.success('Password updated successfully!');
+        formElement.reset();
+        if (strengthIndicator) strengthIndicator.textContent = '';
+        return;
+      }
+
       const errorText = await response.text();
       notify.error(`Error: ${errorText}`);
+    } catch (error: unknown) {
+      console.error('Password update error:', error);
+      const message = error instanceof Error ? error.message : 'Network error';
+      notify.error(`Update failed: ${message}`);
     }
   });
 };
@@ -131,23 +184,25 @@ export const handlePasswordForm = () => {
 export const handleAvatarUpload = () => {
   const uploadElement = document.getElementById('avatar-upload');
   const changeButton = document.getElementById('change-avatar-btn');
-  if (!uploadElement || !changeButton) return;
+  const previewElement = document.getElementById('avatar-preview');
+  if (!(uploadElement instanceof HTMLInputElement)) return;
+  if (!(changeButton instanceof HTMLButtonElement)) return;
+  if (previewElement && !(previewElement instanceof HTMLImageElement)) return;
 
   // Trigger file input when the button is clicked
   changeButton.addEventListener('click', () => {
-    (uploadElement as HTMLInputElement).click();
+    uploadElement.click();
   });
 
-  (uploadElement as HTMLInputElement).addEventListener('change', async (e) => {
-    const input = e.target as HTMLInputElement;
+  uploadElement.addEventListener('change', async (event) => {
+    const input = event.target as HTMLInputElement;
     if (!input.files || input.files.length === 0) {
       return;
     }
 
     // Show loading indicator
     notify.info('Uploading avatar...');
-    (changeButton as HTMLButtonElement).textContent = 'Uploading...';
-    (changeButton as HTMLButtonElement).setAttribute('disabled', 'true');
+    setButtonState(changeButton, 'Uploading...', true);
 
     const file = input.files[0];
     const formData = new FormData();
@@ -157,21 +212,23 @@ export const handleAvatarUpload = () => {
       const response = await fetch('/api/user/avatar', {
         method: 'POST',
         body: formData,
+        credentials: 'same-origin',
       });
 
-      if (response.ok) {
-        const json: unknown = await response.json();
-        if (json && typeof json === 'object' && 'imageUrl' in json) {
-          (document.getElementById('avatar-preview') as HTMLImageElement).src = String(
-            (json as any).imageUrl
-          );
-          notify.success('Avatar updated successfully!');
-        } else {
-          notify.error('Unexpected response from server while updating avatar');
-        }
-      } else {
+      if (!response.ok) {
         const errorText = await response.text();
         notify.error(`Error: ${errorText}`);
+        return;
+      }
+
+      const parsed = await parseJsonResponse<AvatarResponse>(response);
+      const imageUrl = parsed?.success ? parsed.data.imageUrl : null;
+
+      if (imageUrl && previewElement instanceof HTMLImageElement) {
+        previewElement.src = imageUrl;
+        notify.success('Avatar updated successfully!');
+      } else {
+        notify.error('Unexpected response from server while updating avatar');
       }
     } catch (error: unknown) {
       console.error('Avatar upload error:', error);
@@ -179,8 +236,7 @@ export const handleAvatarUpload = () => {
       notify.error(`Upload failed: ${message}`);
     } finally {
       // Reset button state
-      (changeButton as HTMLButtonElement).textContent = 'Change Picture';
-      (changeButton as HTMLButtonElement).removeAttribute('disabled');
+      setButtonState(changeButton, 'Change Picture', false);
     }
   });
 };

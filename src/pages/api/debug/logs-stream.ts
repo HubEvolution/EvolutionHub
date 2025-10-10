@@ -8,6 +8,37 @@ import {
 } from '@/server/utils/logger';
 import { logApiAccess } from '@/lib/security-logger';
 
+type SSEController = ReadableStreamDefaultController<Uint8Array>;
+
+const DEBUG_ENDPOINT = '/api/debug/logs-stream';
+
+function isDebugPanelEnabled(): boolean {
+  return import.meta.env.PUBLIC_ENABLE_DEBUG_PANEL === 'true';
+}
+
+function createJsonResponse(payload: unknown, status: number): Response {
+  return new Response(JSON.stringify(payload), {
+    status,
+    headers: { 'Content-Type': 'application/json' },
+  });
+}
+
+function logEndpointAccess(context: APIContext, method: 'GET' | 'POST', mode: 'sse' | 'polling') {
+  logApiAccess('anonymous', context.clientAddress || 'unknown', {
+    endpoint: DEBUG_ENDPOINT,
+    method,
+    action: method === 'GET' ? 'debug_logs_stream_accessed' : 'debug_logs_polled',
+    streaming: mode,
+  });
+}
+
+function toErrorMessage(error: unknown): string {
+  if (error instanceof Error) {
+    return error.message;
+  }
+  return String(error);
+}
+
 /**
  * GET /api/debug/logs-stream
  * Server-Sent Events (SSE) endpoint for streaming logs in Wrangler/Cloudflare environments
@@ -25,17 +56,11 @@ import { logApiAccess } from '@/lib/security-logger';
  */
 export const GET = async (context: APIContext) => {
   try {
-    // Gate by env flag to avoid exposing debug stream when disabled
-    if (import.meta.env.PUBLIC_ENABLE_DEBUG_PANEL !== 'true') {
+    if (!isDebugPanelEnabled()) {
       return new Response('Not found', { status: 404 });
     }
-    // Manual logging instead of middleware
-    logApiAccess('anonymous', context.clientAddress || 'unknown', {
-      endpoint: '/api/debug/logs-stream',
-      method: 'GET',
-      action: 'debug_logs_stream_accessed',
-      streaming: 'sse',
-    });
+
+    logEndpointAccess(context, 'GET', 'sse');
     const envInfo = getEnvironmentInfo();
 
     // Create SSE response headers
@@ -54,9 +79,8 @@ export const GET = async (context: APIContext) => {
     const encoder = new TextEncoder();
     let id = 0;
 
-    const stream = new ReadableStream({
-      start(controller) {
-        // Register this controller for live log broadcasting
+    const stream = new ReadableStream<Uint8Array>({
+      start(controller: SSEController) {
         registerSSEStream(controller);
 
         // Log that stream has been registered
@@ -77,49 +101,70 @@ export const GET = async (context: APIContext) => {
         controller.enqueue(encoder.encode(envData));
 
         // Heartbeat interval to keep connection alive (Cloudflare Workers requirement)
-        const heartbeatInterval = setInterval(() => {
+        let heartbeatInterval: ReturnType<typeof setInterval> | null = setInterval(() => {
           try {
             const keepAlive = `id: ${++id}\ndata: ${JSON.stringify({
               type: 'keep-alive',
               timestamp: new Date().toISOString(),
             })}\n\n`;
             controller.enqueue(encoder.encode(keepAlive));
-          } catch (err) {
-            clearInterval(heartbeatInterval);
+          } catch (_err) {
+            if (heartbeatInterval) {
+              clearInterval(heartbeatInterval);
+              heartbeatInterval = null;
+            }
             unregisterSSEStream(controller);
           }
         }, 5000); // Every 5 seconds
 
         // Auto-close after 5 minutes to prevent indefinite connections
-        void setTimeout(() => {
-          clearInterval(heartbeatInterval);
+        const autoClose = setTimeout(() => {
+          if (heartbeatInterval) {
+            clearInterval(heartbeatInterval);
+            heartbeatInterval = null;
+          }
           unregisterSSEStream(controller);
           controller.close();
         }, 300000); // 5 minutes
 
-        // Note: Cannot directly listen to abort signal in this context
-        // Client will auto-reconnect if connection drops
+        const signal = context.request.signal;
+        if (signal.aborted) {
+          if (heartbeatInterval) {
+            clearInterval(heartbeatInterval);
+          }
+          clearTimeout(autoClose);
+          unregisterSSEStream(controller);
+          controller.close();
+          return;
+        }
+
+        const onAbort = () => {
+          if (heartbeatInterval) {
+            clearInterval(heartbeatInterval);
+            heartbeatInterval = null;
+          }
+          clearTimeout(autoClose);
+          unregisterSSEStream(controller);
+          controller.close();
+        };
+
+        signal.addEventListener('abort', onAbort, { once: true });
       },
-      cancel(controller) {
-        // Cleanup when client closes connection
+      cancel(controller: SSEController) {
         unregisterSSEStream(controller);
       },
     });
 
     return new Response(stream, { headers });
-  } catch (error: any) {
-    // Error handling without middleware
+  } catch (error: unknown) {
     console.error('SSE endpoint error:', error);
-    return new Response(
-      JSON.stringify({
+    return createJsonResponse(
+      {
         success: false,
         error: 'Internal server error in SSE endpoint',
-        message: error.message,
-      }),
-      {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
-      }
+        message: toErrorMessage(error),
+      },
+      500
     );
   }
 };
@@ -130,25 +175,16 @@ export const GET = async (context: APIContext) => {
  */
 export const POST = async (context: APIContext) => {
   try {
-    // Gate by env flag to avoid exposing debug polling when disabled
-    if (import.meta.env.PUBLIC_ENABLE_DEBUG_PANEL !== 'true') {
-      return new Response(JSON.stringify({ success: false, error: 'Debug panel disabled' }), {
-        status: 404,
-        headers: { 'Content-Type': 'application/json' },
-      });
+    if (!isDebugPanelEnabled()) {
+      return createJsonResponse({ success: false, error: 'Debug panel disabled' }, 404);
     }
-    // Manual logging instead of middleware
-    logApiAccess('anonymous', context.clientAddress || 'unknown', {
-      endpoint: '/api/debug/logs-stream',
-      method: 'POST',
-      action: 'debug_logs_polled',
-      transport: 'polling',
-    });
+
+    logEndpointAccess(context, 'POST', 'polling');
     const envInfo = getEnvironmentInfo();
     const logs = getLogBuffer();
 
-    return new Response(
-      JSON.stringify({
+    return createJsonResponse(
+      {
         success: true,
         data: {
           logs: logs.slice(-50), // Last 50 logs
@@ -156,28 +192,18 @@ export const POST = async (context: APIContext) => {
           timestamp: new Date().toISOString(),
           bufferSize: logs.length,
         },
-      }),
-      {
-        status: 200,
-        headers: {
-          'Content-Type': 'application/json',
-          'Cache-Control': 'no-cache',
-        },
-      }
+      },
+      200
     );
-  } catch (error: any) {
-    // Error handling without middleware
+  } catch (error: unknown) {
     console.error('Polling endpoint error:', error);
-    return new Response(
-      JSON.stringify({
+    return createJsonResponse(
+      {
         success: false,
         error: 'Internal server error in polling endpoint',
-        message: error.message,
-      }),
-      {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
-      }
+        message: toErrorMessage(error),
+      },
+      500
     );
   }
 };
