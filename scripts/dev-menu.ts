@@ -188,7 +188,10 @@ const mainMenuOptions: MenuOption[] = [
   { key: '6', label: 'Tests ausführen (Vitest/Playwright)', action: 'test-menu' },
   { key: '7', label: 'Health-Check (Quick diagnostics)', action: 'health-check' },
   { key: '8', label: 'Einstellungen (Theme & Animation)', action: 'settings-menu' },
-  { key: '9', label: 'Qualität & Docs', action: 'docs-menu' },
+  { key: '9', label: 'Port 8787 Prozess beenden', action: 'kill-port-8787' },
+  { key: '10', label: 'Qualität & Docs', action: 'docs-menu' },
+  { key: '11', label: 'Cloudflare API Token unset', action: 'unset-cf-token' },
+  { key: '12', label: 'Wrangler Login (OAuth)', action: 'wrangler-login' },
   { key: '0', label: 'Beenden', action: 'exit' },
 ];
 
@@ -238,12 +241,15 @@ const buildMenuOptions: MenuOption[] = [
 
 // Deployment-Menü-Optionen
 const deployMenuOptions: MenuOption[] = [
-  { key: '1', label: 'Deploy zu Staging', action: 'deploy-staging' },
-  { key: '2', label: 'Deploy zu Production (mit Bestätigung)', action: 'deploy-production' },
-  { key: '3', label: 'Logs ansehen (Staging)', action: 'tail:staging' },
-  { key: '4', label: 'Logs ansehen (Production)', action: 'tail:prod' },
-  { key: '5', label: 'Staging öffnen', action: 'open-staging' },
-  { key: '6', label: 'Production öffnen', action: 'open-production' },
+  { key: '1', label: 'Deploy zu Testing', action: 'deploy-testing' },
+  { key: '2', label: 'Deploy zu Staging', action: 'deploy-staging' },
+  { key: '3', label: 'Deploy zu Production (mit Bestätigung)', action: 'deploy-production' },
+  { key: '4', label: 'Logs ansehen (Testing)', action: 'tail-testing' },
+  { key: '5', label: 'Logs ansehen (Staging)', action: 'tail:staging' },
+  { key: '6', label: 'Logs ansehen (Production)', action: 'tail:prod' },
+  { key: '7', label: 'Testing öffnen', action: 'open-testing' },
+  { key: '8', label: 'Staging öffnen', action: 'open-staging' },
+  { key: '9', label: 'Production öffnen', action: 'open-production' },
   { key: '0', label: 'Zurück zum Build & Deployment', action: 'build-menu' },
 ];
 
@@ -527,6 +533,8 @@ function startStatusAutoRefresh() {
 async function interactiveSelect(options: MenuOption[], title: string): Promise<MenuOption | null> {
   await getWranglerVersion(); // warm cache, non-blocking next renders
   let index = 0;
+  let digitBuffer = '';
+  let digitTimer: NodeJS.Timeout | null = null;
   readline.emitKeypressEvents(process.stdin);
   if (process.stdin.isTTY) process.stdin.setRawMode(true);
 
@@ -545,11 +553,25 @@ async function interactiveSelect(options: MenuOption[], title: string): Promise<
         cleanup();
         resolve({ key: '0', label: 'Beenden', action: 'exit' });
       } else if (/^[0-9]$/.test(str)) {
-        const opt = options.find((o) => o.key === str);
-        if (opt) {
+        digitBuffer += str;
+        // exact match?
+        const exact = options.find((o) => o.key === digitBuffer);
+        if (exact) {
           cleanup();
-          resolve(opt);
+          resolve(exact);
+          return;
         }
+        // prefix of any key? allow 1s to continue typing
+        const hasPrefix = options.some((o) => o.key.startsWith(digitBuffer));
+        if (!hasPrefix) {
+          // reset if invalid sequence
+          digitBuffer = '';
+          return;
+        }
+        if (digitTimer) clearTimeout(digitTimer);
+        digitTimer = setTimeout(() => {
+          digitBuffer = '';
+        }, 1000);
       } else if (str === 'b') {
         // back to main
         cleanup();
@@ -570,6 +592,7 @@ async function interactiveSelect(options: MenuOption[], title: string): Promise<
     function cleanup() {
       process.stdin.off('keypress', onKey);
       if (process.stdin.isTTY) process.stdin.setRawMode(false);
+      if (digitTimer) clearTimeout(digitTimer as NodeJS.Timeout);
     }
 
     function render() {
@@ -835,7 +858,110 @@ async function runHealthCheck() {
   }
 }
 
-async function deployToEnv(env: 'staging' | 'production') {
+async function killPort(port: number) {
+  // optional confirmation unless --yes
+  if (!ARGS.yes && !IS_DIRECT_ACTION) {
+    const confirm = await ask(`Prozess auf Port ${port} beenden? (y/N)`, 'N');
+    if (!/^y(es)?$/i.test(confirm)) {
+      console.log(chalk.yellow('Abgebrochen.'));
+      setTimeout(displayMainMenu, 800);
+      return;
+    }
+  }
+  console.clear();
+  console.log(chalk.yellow(`Versuche, Prozesse auf Port ${port} zu beenden...`));
+  console.log(chalk.gray('-------------------------------------'));
+  try {
+    if (process.platform === 'win32') {
+      // Use PowerShell to kill processes bound to the port
+      const cmd = `powershell -NoProfile -Command "Get-NetTCPConnection -LocalPort ${port} -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess | Sort-Object -Unique | ForEach-Object { if ($_ -gt 0) { Stop-Process -Id $_ -Force -ErrorAction SilentlyContinue } }"`;
+      await execaCommand(cmd, { stdio: 'inherit', shell: true });
+    } else {
+      // Try lsof first
+      const { stdout } = await execa('bash', ['-lc', `lsof -ti :${port} || true`]);
+      const pids = stdout
+        .split(/\s+/)
+        .map((s) => s.trim())
+        .filter(Boolean);
+      if (pids.length > 0) {
+        await execa('bash', ['-lc', `kill -9 ${pids.join(' ')} || true`], { stdio: 'inherit' });
+      } else {
+        // fallback: fuser
+        await execa('bash', ['-lc', `command -v fuser >/dev/null 2>&1 && fuser -k ${port}/tcp || true`], {
+          stdio: 'inherit',
+        });
+      }
+    }
+    console.log(chalk.green('✓ Port-Bereinigung abgeschlossen.'));
+  } catch (err) {
+    console.error(chalk.red(`✗ Konnte Prozess(e) nicht beenden: ${String(err)}`));
+  }
+  console.log('');
+  console.log(chalk.gray('-------------------------------------'));
+  if (IS_DIRECT_ACTION) {
+    process.exit(0);
+  } else {
+    rl.question(chalk.yellow('Drücken Sie Enter, um fortzufahren...'), () => displayMainMenu());
+  }
+}
+
+async function unsetCloudflareApiToken() {
+  // Confirm action unless forced
+  if (!ARGS.yes && !IS_DIRECT_ACTION) {
+    const confirm = await ask('Cloudflare API Token wirklich entfernen? (y/N)', 'N');
+    if (!/^y(es)?$/i.test(confirm)) {
+      console.log(chalk.yellow('Abgebrochen.'));
+      setTimeout(displayMainMenu, 800);
+      return;
+    }
+  }
+  console.clear();
+  console.log(chalk.yellow('Entferne Cloudflare API Token aus Laufzeit und .env Dateien...'));
+  console.log(chalk.gray('-------------------------------------'));
+
+  const keys = ['CLOUDFLARE_API_TOKEN', 'CF_API_TOKEN', 'CLOUDFLARE_API_KEY', 'CLOUDFLARE_EMAIL'];
+  // Unset from current process
+  for (const k of keys) delete (process.env as any)[k];
+
+  // Update .env files
+  const envFiles = [path.join(__dirname, '..', '.env'), path.join(__dirname, '..', '.env.development')];
+  for (const file of envFiles) {
+    try {
+      if (!fs.existsSync(file)) continue;
+      const src = fs.readFileSync(file, 'utf-8');
+      const lines = src.split(/\r?\n/);
+      const out = lines.map((line) => {
+        for (const k of keys) {
+          if (line.match(new RegExp(`^\s*${k}\s*=`))) return `${k}=`; // blank value
+        }
+        return line;
+      });
+      if (out.join('\n') !== src) {
+        fs.writeFileSync(file, out.join('\n'));
+        console.log(chalk.green(`✓ Bereinigt: ${path.basename(file)}`));
+      }
+    } catch (err) {
+      console.log(chalk.red(`Konnte ${path.basename(file)} nicht anpassen: ${String(err)}`));
+    }
+  }
+
+  // Try wrangler logout (OAuth/session cleanup)
+  try {
+    await execa('npx', ['--no-install', 'wrangler', 'logout'], { stdio: 'inherit' });
+  } catch (_err) {
+    // ignore if not logged in
+  }
+
+  console.log(chalk.green('✓ Cloudflare Anmeldeinformationen bereinigt.'));
+  console.log(chalk.gray('-------------------------------------'));
+  if (IS_DIRECT_ACTION) {
+    process.exit(0);
+  } else {
+    rl.question(chalk.yellow('Drücken Sie Enter, um fortzufahren...'), () => displayMainMenu());
+  }
+}
+
+async function deployToEnv(env: 'testing' | 'staging' | 'production') {
   console.clear();
   console.log(chalk.yellow(`Starte Deployment für ${env.toUpperCase()}...`));
   console.log(chalk.gray('-------------------------------------'));
@@ -873,7 +999,7 @@ function confirmProductionDeploy(onConfirm: () => void) {
   });
 }
 
-async function tailEnv(env: 'staging' | 'production') {
+async function tailEnv(env: 'testing' | 'staging' | 'production') {
   console.clear();
   console.log(chalk.yellow(`Starte Log Tail für ${env.toUpperCase()}... (Beenden mit Ctrl+C)`));
   console.log(chalk.gray('-------------------------------------'));
@@ -1001,7 +1127,7 @@ async function applyLatestMigrationToEnv(env: 'staging' | 'production') {
   rl.question(chalk.yellow('Enter zum Zurückkehren...'), () => displayRemoteMigrationsMenu());
 }
 
-function getDbNameForEnv(env: 'staging' | 'production') {
+function getDbNameForEnv(env: 'testing' | 'staging' | 'production') {
   // Basierend auf wrangler.toml Konfiguration
   return env === 'production' ? 'evolution-hub-main' : 'evolution-hub-main-local';
 }
@@ -1222,17 +1348,26 @@ function handleMenuSelection(answer: string, options: MenuOption[]) {
     case 'deploy-menu':
       displayDeployMenu();
       break;
+    case 'deploy-testing':
+      deployToEnv('testing');
+      break;
     case 'deploy-staging':
       deployToEnv('staging');
       break;
     case 'deploy-production':
       confirmProductionDeploy(() => deployToEnv('production'));
       break;
+    case 'tail-testing':
+      tailEnv('testing');
+      break;
     case 'tail-staging':
       tailEnv('staging');
       break;
     case 'tail-production':
       tailEnv('production');
+      break;
+    case 'open-testing':
+      openUrl('https://ci.hub-evolution.com');
       break;
     case 'open-staging':
       openUrl('https://staging.hub-evolution.com');
@@ -1263,6 +1398,15 @@ function handleMenuSelection(answer: string, options: MenuOption[]) {
       break;
     case 'health-check':
       runHealthCheck();
+      break;
+    case 'unset-cf-token':
+      unsetCloudflareApiToken();
+      break;
+    case 'wrangler-login':
+      runCommand('npx --no-install wrangler login');
+      break;
+    case 'kill-port-8787':
+      killPort(8787);
       break;
     case 'settings-theme': {
       const themeNames = Object.keys(THEMES) as ThemeName[];

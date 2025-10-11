@@ -816,6 +816,25 @@ Für eilige Commits:
 git commit --no-verify -m "WIP: Your message"
 ```
 
+#### Pre-Push Hook (lokal)
+
+Der Pre-Push Hook führt schnelle Gates aus, ohne lokal einen neuen Dev‑Server zu starten (vermeidet Port‑Konflikte auf 8787):
+
+```bash
+# .husky/pre-push (Kurzfassung)
+npm run test:once                 # Vitest Single-Run
+npm run -s security:scan          # Leichter Secret-Scan (repo‑weit)
+export PW_NO_SERVER=1             # Playwright startet keinen lokalen Server
+# E2E-Smoke nur wenn TEST_BASE_URL erreichbar ist
+curl -sf -m 2 "$TEST_BASE_URL" && npm run test:e2e:chromium -- src/e2e/auth/welcome-redirect.spec.ts
+```
+
+Hinweise:
+
+- Setze optional `TEST_BASE_URL` auf eine Remote‑URL (z. B. `https://ci.hub-evolution.com`), um die E2E‑Smoke gegen Remote auszuführen.
+- Wenn kein Server erreichbar ist, wird die E2E‑Smoke übersprungen; die CI führt weiterhin vollständige E2E‑Tests aus.
+- Der Secret‑Scan blockiert Pushes bei offensichtlichen Schlüsseln (z. B. `sk_live_...`).
+
 ### Verfügbare Qualitätsprüfungen
 
 | Befehl | Zweck | Dauer | Wann verwenden |

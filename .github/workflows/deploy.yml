@@ -35,6 +35,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Security Scan (secrets)
+        run: npm run -s security:scan
+
       - name: Run Lint
         run: npm run lint
 

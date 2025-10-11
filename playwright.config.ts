@@ -15,6 +15,8 @@ try {
 } catch {
   IS_REMOTE_TARGET = false;
 }
+// Allow disabling local webServer startup (e.g., in git hooks) via PW_NO_SERVER=1
+const DISABLE_LOCAL_SERVER = process.env.PW_NO_SERVER === '1';
 const RECORD = process.env.E2E_RECORD === '1';
 
 export default defineConfig({
@@ -57,7 +59,7 @@ export default defineConfig({
   ],
 
   // Start the Cloudflare Worker dev server (wrangler dev) only for local targets
-  ...(IS_REMOTE_TARGET
+  ...((IS_REMOTE_TARGET || DISABLE_LOCAL_SERVER)
     ? {}
     : {
         webServer: {

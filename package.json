@@ -74,6 +74,7 @@
     "blog:images:generate": "tsx ./scripts/blog-images-generate.ts",
     "docs:build": "run-s docs:clean docs:ref:types docs:ref:openapi docs:ref:env docs:toc docs:lint docs:links docs:inventory",
     "health-check": "tsx scripts/health-check.ts",
+    "security:scan": "node ./scripts/security/scan-secrets.mjs",
     "prepare": "husky"
   },
   "dependencies": {

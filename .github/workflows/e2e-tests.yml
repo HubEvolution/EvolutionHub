@@ -53,6 +53,9 @@ jobs:
     - name: Install dependencies
       run: npm ci
 
+    - name: Security Scan (secrets)
+      run: npm run -s security:scan
+
     - name: Astro Type Check
       run: |
         # Prefer a dedicated tsconfig to relax only noUnused diagnostics for astro check

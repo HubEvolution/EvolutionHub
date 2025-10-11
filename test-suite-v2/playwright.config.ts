@@ -14,6 +14,8 @@ try {
 } catch {
   IS_REMOTE_TARGET = false;
 }
+// Allow disabling local webServer startup (e.g., in git hooks) via PW_NO_SERVER=1
+const DISABLE_LOCAL_SERVER = process.env.PW_NO_SERVER === '1';
 
 export default defineConfig({
   testDir: './src/e2e',
@@ -65,7 +67,7 @@ export default defineConfig({
     },
   ],
 
-  ...(IS_REMOTE_TARGET
+  ...((IS_REMOTE_TARGET || DISABLE_LOCAL_SERVER)
     ? {}
     : {
         webServer: {
