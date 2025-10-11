@@ -2,10 +2,7 @@
   "mcpServers": {
     "puppeteer": {
       "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-puppeteer"
-      ],
+      "args": ["-y", "@modelcontextprotocol/server-puppeteer"],
       "alwaysAllow": [
         "puppeteer_navigate",
         "puppeteer_screenshot",
@@ -18,11 +15,11 @@
     },
     "stripe": {
       "command": "npx",
-      "args": [
-        "-y",
-        "@stripe/mcp",
-        "--tools=all"
-      ]
+      "args": ["-y", "@stripe/mcp", "--tools=all"]
+    },
+    "genkit": {
+      "command": "npm",
+      "args": ["install", "@genkit-ai/mcp"]
     }
   }
 }

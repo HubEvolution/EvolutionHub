@@ -9,11 +9,31 @@ import path from 'path';
 
 const ROOT = process.cwd();
 const IGNORE_DIRS = new Set([
-  'node_modules', '.git', 'dist', '.wrangler', '.vite', '.cache', 'playwright-report',
-  'test-suite-v2/reports', 'reports', '.types', 'temp'
+  'node_modules',
+  '.git',
+  'dist',
+  '.wrangler',
+  '.vite',
+  '.cache',
+  'playwright-report',
+  'test-suite-v2/reports',
+  'reports',
+  '.types',
+  'temp',
 ]);
 const TEXT_EXTS = new Set([
-  '.js', '.mjs', '.cjs', '.ts', '.tsx', '.astro', '.json', '.md', '.yml', '.yaml', '.sh', '.mjs'
+  '.js',
+  '.mjs',
+  '.cjs',
+  '.ts',
+  '.tsx',
+  '.astro',
+  '.json',
+  '.md',
+  '.yml',
+  '.yaml',
+  '.sh',
+  '.mjs',
 ]);
 
 // Patterns: Stripe, AWS-ish, generic API keys, bearer tokens

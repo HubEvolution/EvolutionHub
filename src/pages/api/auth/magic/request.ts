@@ -10,7 +10,14 @@ import { stytchMagicLinkLoginOrCreate, StytchError } from '@/lib/stytch';
 
 const parseBody = async (
   request: Request
-): Promise<{ email?: string; r?: string; name?: string; username?: string; locale?: string }> => {
+): Promise<{
+  email?: string;
+  r?: string;
+  name?: string;
+  username?: string;
+  locale?: string;
+  turnstileToken?: string;
+}> => {
   const ct = request.headers.get('content-type') || '';
   if (ct.includes('application/json')) {
     try {
@@ -22,7 +29,13 @@ const parseBody = async (
           r: typeof anyJson.r === 'string' ? anyJson.r : undefined,
           name: typeof anyJson.name === 'string' ? anyJson.name : undefined,
           username: typeof anyJson.username === 'string' ? anyJson.username : undefined,
-          locale: typeof anyJson.locale === 'string' ? anyJson.locale : undefined,
+          locale: typeof anyJson.locale === 'string' ? (anyJson.locale as string) : undefined,
+          turnstileToken:
+            typeof anyJson['cf-turnstile-response'] === 'string'
+              ? (anyJson['cf-turnstile-response'] as string)
+              : typeof anyJson.turnstileToken === 'string'
+                ? (anyJson.turnstileToken as string)
+                : undefined,
         };
       }
       return {};
@@ -43,6 +56,10 @@ const parseBody = async (
         name: typeof nameVal === 'string' ? nameVal : undefined,
         username: typeof usernameVal === 'string' ? usernameVal : undefined,
         locale: typeof form.get('locale') === 'string' ? (form.get('locale') as string) : undefined,
+        turnstileToken:
+          typeof form.get('cf-turnstile-response') === 'string'
+            ? (form.get('cf-turnstile-response') as string)
+            : undefined,
       };
     } catch {
       return {};
@@ -74,7 +91,7 @@ function isValidUsername(username: string | undefined): username is string {
 
 const handler: ApiHandler = async (context: APIContext) => {
   const { request } = context;
-  const { email, r, name, username, locale } = await parseBody(request);
+  const { email, r, name, username, locale, turnstileToken } = await parseBody(request);
   if (!email || !isValidEmail(email)) {
     return createApiError('validation_error', 'Ungültige E-Mail-Adresse');
   }
@@ -84,6 +101,33 @@ const handler: ApiHandler = async (context: APIContext) => {
   const cfEnv =
     (context.locals as unknown as { runtime?: { env?: Record<string, string> } })?.runtime?.env ||
     {};
+  const turnstileSecret = (cfEnv as Record<string, string> | undefined)?.TURNSTILE_SECRET_KEY;
+  if (turnstileSecret) {
+    if (!turnstileToken || typeof turnstileToken !== 'string' || turnstileToken.length < 10) {
+      return createApiError('validation_error', 'Turnstile verification required');
+    }
+    const cfConnectingIp = request.headers.get('cf-connecting-ip') || '';
+    const xff = request.headers.get('x-forwarded-for') || '';
+    const ip = cfConnectingIp || (xff.split(',')[0] || '').trim();
+    try {
+      const verifyRes = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+          secret: turnstileSecret,
+          response: turnstileToken,
+          remoteip: ip,
+        }),
+      });
+      const verifyJson = (await verifyRes.json()) as { success?: boolean; 'error-codes'?: unknown };
+      const ok = verifyRes.ok && verifyJson && verifyJson.success === true;
+      if (!ok) {
+        return createApiError('validation_error', 'Turnstile verification failed');
+      }
+    } catch {
+      return createApiError('server_error', 'Turnstile verification unavailable');
+    }
+  }
   const isDev =
     (cfEnv.ENVIRONMENT || (cfEnv as Record<string, string> | undefined)?.NODE_ENV) ===
     'development';

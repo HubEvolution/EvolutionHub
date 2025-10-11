@@ -250,6 +250,7 @@ const deployMenuOptions: MenuOption[] = [
   { key: '7', label: 'Testing öffnen', action: 'open-testing' },
   { key: '8', label: 'Staging öffnen', action: 'open-staging' },
   { key: '9', label: 'Production öffnen', action: 'open-production' },
+  { key: '10', label: 'Wrangler whoami (Account)', action: 'wrangler whoami' },
   { key: '0', label: 'Zurück zum Build & Deployment', action: 'build-menu' },
 ];
 
@@ -304,6 +305,13 @@ const docsMenuOptions: MenuOption[] = [
   { key: '3', label: 'Format anwenden (Prettier)', action: 'format' },
   { key: '4', label: 'OpenAPI validieren', action: 'openapi:validate' },
   { key: '5', label: 'Docs bauen', action: 'docs:build' },
+  { key: '6', label: 'Windsurf Rules aktualisieren', action: 'rules:update' },
+  { key: '7', label: 'Rules Coverage generieren', action: 'rules:coverage' },
+  { key: '8', label: 'Memory Index generieren', action: 'mem:index' },
+  { key: '9', label: 'Ordner öffnen: .windsurf/rules', action: 'open-rules-dir' },
+  { key: '10', label: 'Ordner öffnen: docs/_generated', action: 'open-generated-dir' },
+  { key: '11', label: 'Memory Audit generieren', action: 'mem:audit' },
+  { key: '12', label: 'Memory Audit öffnen', action: 'open-memory-audit' },
   { key: '0', label: 'Zurück zum Hauptmenü', action: 'main-menu' },
 ];
 
@@ -887,9 +895,13 @@ async function killPort(port: number) {
         await execa('bash', ['-lc', `kill -9 ${pids.join(' ')} || true`], { stdio: 'inherit' });
       } else {
         // fallback: fuser
-        await execa('bash', ['-lc', `command -v fuser >/dev/null 2>&1 && fuser -k ${port}/tcp || true`], {
-          stdio: 'inherit',
-        });
+        await execa(
+          'bash',
+          ['-lc', `command -v fuser >/dev/null 2>&1 && fuser -k ${port}/tcp || true`],
+          {
+            stdio: 'inherit',
+          }
+        );
       }
     }
     console.log(chalk.green('✓ Port-Bereinigung abgeschlossen.'));
@@ -924,7 +936,10 @@ async function unsetCloudflareApiToken() {
   for (const k of keys) delete (process.env as any)[k];
 
   // Update .env files
-  const envFiles = [path.join(__dirname, '..', '.env'), path.join(__dirname, '..', '.env.development')];
+  const envFiles = [
+    path.join(__dirname, '..', '.env'),
+    path.join(__dirname, '..', '.env.development'),
+  ];
   for (const file of envFiles) {
     try {
       if (!fs.existsSync(file)) continue;
@@ -932,7 +947,8 @@ async function unsetCloudflareApiToken() {
       const lines = src.split(/\r?\n/);
       const out = lines.map((line) => {
         for (const k of keys) {
-          if (line.match(new RegExp(`^\s*${k}\s*=`))) return `${k}=`; // blank value
+          // Match lines like "KEY=..." with optional leading/trailing spaces around KEY and before '='
+          if (line.match(new RegExp(`^[ \t]*${k}[ \t]*=`))) return `${k}=`; // blank value
         }
         return line;
       });
@@ -1380,6 +1396,15 @@ function handleMenuSelection(answer: string, options: MenuOption[]) {
       break;
     case 'open-report-v1':
       openUrl('playwright-report/index.html');
+      break;
+    case 'open-rules-dir':
+      openUrl(path.join(__dirname, '..', '.windsurf', 'rules'));
+      break;
+    case 'open-generated-dir':
+      openUrl(path.join(__dirname, '..', 'docs', '_generated'));
+      break;
+    case 'open-memory-audit':
+      openUrl(path.join(__dirname, '..', 'docs', '_generated', 'memory-audit.md'));
       break;
     case 'remote-migrations-menu':
       displayRemoteMigrationsMenu();

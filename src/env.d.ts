@@ -6,6 +6,7 @@ type ImportMetaEnv = {
   PROD?: boolean;
   PRICING_LINKS?: string | Record<string, string>;
   PRICING_LINKS_ANNUAL?: string | Record<string, string>;
+  PUBLIC_TURNSTILE_SITE_KEY?: string;
 } & Record<string, string | boolean | undefined>;
 
 interface ImportMeta {
@@ -27,7 +28,7 @@ declare namespace App {
     runtime: {
       env: {
         DB: import('@cloudflare/workers-types').D1Database;
-        // Turnstile-Secret-Key entfernt
+        TURNSTILE_SECRET_KEY?: string;
         RESEND_API_KEY: string;
         // R2 Buckets
         R2_AVATARS?: import('@cloudflare/workers-types').R2Bucket;

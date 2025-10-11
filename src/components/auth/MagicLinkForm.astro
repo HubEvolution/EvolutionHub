@@ -112,6 +112,15 @@ const cooldownLabel =
     >
     <Input type="email" id="email-magic" name="email" required autocomplete="email" />
   </div>
+  {
+    import.meta.env.PUBLIC_TURNSTILE_SITE_KEY && (
+      <div
+        class="cf-turnstile"
+        data-sitekey={import.meta.env.PUBLIC_TURNSTILE_SITE_KEY as string}
+        data-theme="auto"
+      />
+    )
+  }
   {safeR && <input type="hidden" name="r" value={safeR} />}
   <input type="hidden" name="locale" value={locale} />
   <Button type="submit" className="w-full"
