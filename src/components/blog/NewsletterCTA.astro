@@ -1,171 +1,185 @@
 ---
- // Newsletter CTA for Blog Articles
- interface Props {
-   variant?: 'inline' | 'card' | 'banner';
-   position?: 'top' | 'middle' | 'bottom';
-   title?: string;
-   description?: string;
-   incentive?: string; // Special offer or incentive text
-   showBenefits?: boolean;
- }
+// Newsletter CTA for Blog Articles
+interface Props {
+  variant?: 'inline' | 'card' | 'banner';
+  position?: 'top' | 'middle' | 'bottom';
+  title?: string;
+  description?: string;
+  incentive?: string; // Special offer or incentive text
+  showBenefits?: boolean;
+}
 
- import { getLocale } from '@/lib/i18n';
- import { getI18n } from '@/utils/i18n';
- import Icon from '@/components/ui/Icon.astro';
+import { getLocale } from '@/lib/i18n';
+import { getI18n } from '@/utils/i18n';
+import Icon from '@/components/ui/Icon.astro';
 
- const { 
-   variant = 'card',
-   position = 'bottom',
-   title,
-   description,
-   incentive,
-   showBenefits = false
- } = Astro.props;
+const {
+  variant = 'card',
+  position = 'bottom',
+  title,
+  description,
+  incentive,
+  showBenefits = false,
+} = Astro.props;
 
- // Localized strings for client-side alerts and form texts (minimal subset)
- const locale = getLocale(Astro.url.pathname);
- const t = getI18n(locale);
- const i18nNewsletter = {
-   forms: {
-     email_placeholder: t('common.forms.email_placeholder'),
-   },
-   actions: {
-     subscribe: t('common.actions.subscribe'),
-   },
-   status: {
-     sending: t('common.status.sending'),
-   },
-   success: {
-     newsletter_confirmation_sent: t('common.success.newsletter_confirmation_sent'),
-   },
-   errors: {
-     generic: t('common.errors.generic'),
-   },
- };
+// Localized strings for client-side alerts and form texts (minimal subset)
+const locale = getLocale(Astro.url.pathname);
+const t = getI18n(locale);
+const i18nNewsletter = {
+  forms: {
+    email_placeholder: t('common.forms.email_placeholder'),
+  },
+  actions: {
+    subscribe: t('common.actions.subscribe'),
+  },
+  status: {
+    sending: t('common.status.sending'),
+  },
+  success: {
+    newsletter_confirmation_sent: t('common.success.newsletter_confirmation_sent'),
+  },
+  errors: {
+    generic: t('common.errors.generic'),
+  },
+};
 
- // No-op read to mark as used for TS in frontmatter (template also uses it)
- JSON.stringify(i18nNewsletter);
+// No-op read to mark as used for TS in frontmatter (template also uses it)
+JSON.stringify(i18nNewsletter);
 
- // Default content based on position and context
- const defaultContent = {
-   title: title || (
-     position === 'top' 
-       ? 'Bleiben Sie informiert!' 
-       : position === 'middle'
-       ? 'Gefällt Ihnen dieser Artikel?'
-       : 'Verpassen Sie keine Updates!'
-   ),
-   description: description || (
-     position === 'top'
-       ? 'Erhalten Sie die neuesten Insights direkt in Ihr Postfach.'
-       : position === 'middle'
-       ? 'Dann abonnieren Sie unseren Newsletter für mehr solcher Inhalte.'
-       : 'Abonnieren Sie unseren Newsletter für regelmäßige Insights und Tipps.'
-   )
- };
+// Default content based on position and context
+const defaultContent = {
+  title:
+    title ||
+    (position === 'top'
+      ? 'Bleiben Sie informiert!'
+      : position === 'middle'
+        ? 'Gefällt Ihnen dieser Artikel?'
+        : 'Verpassen Sie keine Updates!'),
+  description:
+    description ||
+    (position === 'top'
+      ? 'Erhalten Sie die neuesten Insights direkt in Ihr Postfach.'
+      : position === 'middle'
+        ? 'Dann abonnieren Sie unseren Newsletter für mehr solcher Inhalte.'
+        : 'Abonnieren Sie unseren Newsletter für regelmäßige Insights und Tipps.'),
+};
 
- const benefits = [
-   { icon: 'rocket', text: 'Neueste Trends und Best Practices' },
-   { icon: 'lightbulb', text: 'Exklusive Tipps und Strategien' },
-   { icon: 'book', text: 'Kostenlose Resources und Guides' },
-   { icon: 'target', text: 'Praxisnahe Case Studies' }
- ];
+const benefits = [
+  { icon: 'rocket', text: 'Neueste Trends und Best Practices' },
+  { icon: 'lightbulb', text: 'Exklusive Tipps und Strategien' },
+  { icon: 'book', text: 'Kostenlose Resources und Guides' },
+  { icon: 'target', text: 'Praxisnahe Case Studies' },
+];
 
- const isCard = variant === 'card';
- const isInline = variant === 'inline';
- const isBanner = variant === 'banner';
+const isCard = variant === 'card';
+const isInline = variant === 'inline';
+const isBanner = variant === 'banner';
 ---
- 
+
 <div class={`newsletter-cta ${variant} ${position} not-prose my-8`}>
-  <!-- Page-scoped i18n for this CTA instance -->
-  <script is:inline type="application/json" data-role="i18n-newsletter-cta">{JSON.stringify(i18nNewsletter)}</script>
-  {isCard && (
-    <div class="bg-gradient-to-br from-emerald-50 to-cyan-50 dark:from-emerald-900/20 dark:to-cyan-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-6 text-center">
-      <div class="max-w-md mx-auto">
-        <!-- Icon -->
-        <div class="w-12 h-12 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-full flex items-center justify-center mx-auto mb-4">
-          <Icon name="mail" class="w-6 h-6 text-white" ariaLabel="Newsletter" />
-        </div>
-        
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-          {defaultContent.title}
-        </h3>
-        
-        <p class="text-sm text-gray-600 dark:text-gray-300 mb-4">
-          {defaultContent.description}
-        </p>
-        
-        {incentive && (
-          <div class="bg-emerald-100 dark:bg-emerald-900/30 border border-emerald-300 dark:border-emerald-700 rounded-lg p-3 mb-4">
-            <p class="text-sm font-medium text-emerald-800 dark:text-emerald-200 inline-flex items-center gap-2">
-              <Icon name="gift" class="w-4 h-4 text-emerald-800 dark:text-emerald-200 inline-block" ariaLabel="Gift" />
-              {incentive}
-            </p>
+  <!-- Page-scoped i18n for this CTA instance (store JSON in data attribute to satisfy Prettier) -->
+  <div
+    data-role="i18n-newsletter-cta"
+    data-json={JSON.stringify(i18nNewsletter)}
+    style="display:none"
+  >
+  </div>
+  {
+    isCard && (
+      <div class="bg-gradient-to-br from-emerald-50 to-cyan-50 dark:from-emerald-900/20 dark:to-cyan-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-6 text-center">
+        <div class="max-w-md mx-auto">
+          <div class="w-12 h-12 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Icon name="mail" class="w-6 h-6 text-white" ariaLabel="Newsletter" />
           </div>
-        )}
-        
-        {showBenefits && (
-          <div class="text-left mb-4">
-            <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">Sie erhalten:</p>
-            <div class="grid grid-cols-1 gap-1">
-              {benefits.map((benefit) => (
-                <p class="text-xs text-gray-600 dark:text-gray-300">
-                  <span class="inline-flex items-center gap-2">
-                    <Icon name={benefit.icon} class="w-4 h-4 text-gray-700 dark:text-gray-300 inline-block" ariaLabel={benefit.text} />
-                    <span>{benefit.text}</span>
-                  </span>
-                </p>
-              ))}
-            </div>
-          </div>
-        )}
-        
-        <!-- Newsletter Form (Compact) -->
-        <div class="newsletter-form-container">
-          <!-- This will be dynamically replaced with Newsletter component -->
-        </div>
-      </div>
-    </div>
-  )}
-  
-  {isBanner && (
-    <div class="bg-gradient-to-r from-emerald-500 to-cyan-500 text-white rounded-lg p-4 text-center">
-      <div class="max-w-2xl mx-auto flex flex-col sm:flex-row items-center gap-4">
-        <div class="flex-1 text-left">
-          <h3 class="font-semibold text-lg mb-1">{defaultContent.title}</h3>
-          <p class="text-emerald-100 text-sm">{defaultContent.description}</p>
-          {incentive && <p class="text-xs font-medium text-emerald-200 mt-1"><Icon name="gift" class="w-4 h-4 inline-block mr-2" ariaLabel="Gift" />{incentive}</p>}
-        </div>
-        
-        <div class="newsletter-form-container flex-shrink-0">
-          <!-- Newsletter form will be inserted here -->
-        </div>
-      </div>
-    </div>
-  )}
-  
-  {isInline && (
-    <div class="border-l-4 border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20 p-4 rounded-r-lg">
-      <div class="flex items-start gap-3">
-        <div class="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center flex-shrink-0">
-          <Icon name="mail" class="w-4 h-4 text-white" ariaLabel="Newsletter" />
-        </div>
-        
-        <div class="flex-1 min-w-0">
-          <h4 class="font-medium text-emerald-900 dark:text-emerald-100 text-sm mb-1">
+
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">
             {defaultContent.title}
-          </h4>
-          <p class="text-emerald-700 dark:text-emerald-300 text-xs mb-3">
-            {defaultContent.description}
-          </p>
-          
-          <div class="newsletter-form-container">
-            <!-- Newsletter form will be inserted here -->
+          </h3>
+
+          <p class="text-sm text-gray-600 dark:text-gray-300 mb-4">{defaultContent.description}</p>
+
+          {incentive && (
+            <div class="bg-emerald-100 dark:bg-emerald-900/30 border border-emerald-300 dark:border-emerald-700 rounded-lg p-3 mb-4">
+              <p class="text-sm font-medium text-emerald-800 dark:text-emerald-200 inline-flex items-center gap-2">
+                <Icon
+                  name="gift"
+                  class="w-4 h-4 text-emerald-800 dark:text-emerald-200 inline-block"
+                  ariaLabel="Gift"
+                />
+                {incentive}
+              </p>
+            </div>
+          )}
+
+          {showBenefits && (
+            <div class="text-left mb-4">
+              <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">Sie erhalten:</p>
+              <div class="grid grid-cols-1 gap-1">
+                {benefits.map((benefit) => (
+                  <p class="text-xs text-gray-600 dark:text-gray-300">
+                    <span class="inline-flex items-center gap-2">
+                      <Icon
+                        name={benefit.icon}
+                        class="w-4 h-4 text-gray-700 dark:text-gray-300 inline-block"
+                        ariaLabel={benefit.text}
+                      />
+                      <span>{benefit.text}</span>
+                    </span>
+                  </p>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div class="newsletter-form-container" />
+        </div>
+      </div>
+    )
+  }
+
+  {
+    isBanner && (
+      <div class="bg-gradient-to-r from-emerald-500 to-cyan-500 text-white rounded-lg p-4 text-center">
+        <div class="max-w-2xl mx-auto flex flex-col sm:flex-row items-center gap-4">
+          <div class="flex-1 text-left">
+            <h3 class="font-semibold text-lg mb-1">{defaultContent.title}</h3>
+            <p class="text-emerald-100 text-sm">{defaultContent.description}</p>
+            {incentive && (
+              <p class="text-xs font-medium text-emerald-200 mt-1">
+                <Icon name="gift" class="w-4 h-4 inline-block mr-2" ariaLabel="Gift" />
+                {incentive}
+              </p>
+            )}
+          </div>
+
+          <div class="newsletter-form-container flex-shrink-0" />
+        </div>
+      </div>
+    )
+  }
+
+  {
+    isInline && (
+      <div class="border-l-4 border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20 p-4 rounded-r-lg">
+        <div class="flex items-start gap-3">
+          <div class="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center flex-shrink-0">
+            <Icon name="mail" class="w-4 h-4 text-white" ariaLabel="Newsletter" />
+          </div>
+
+          <div class="flex-1 min-w-0">
+            <h4 class="font-medium text-emerald-900 dark:text-emerald-100 text-sm mb-1">
+              {defaultContent.title}
+            </h4>
+            <p class="text-emerald-700 dark:text-emerald-300 text-xs mb-3">
+              {defaultContent.description}
+            </p>
+
+            <div class="newsletter-form-container" />
           </div>
         </div>
       </div>
-    </div>
-  )}
+    )
+  }
 </div>
 
 <script is:inline nonce={Astro.locals.cspNonce}>
@@ -182,34 +196,34 @@
   // Newsletter CTA functionality
   document.addEventListener('DOMContentLoaded', () => {
     const ctaElements = document.querySelectorAll('.newsletter-cta');
-    
+
     ctaElements.forEach((cta) => {
-      const variant = Array.from(cta.classList).find(cls => 
-        ['card', 'banner', 'inline'].includes(cls)
-      ) || 'card';
-      const position = Array.from(cta.classList).find(cls => 
-        ['top', 'middle', 'bottom'].includes(cls)
-      ) || 'bottom';
-      
+      const variant =
+        Array.from(cta.classList).find((cls) => ['card', 'banner', 'inline'].includes(cls)) ||
+        'card';
+      const position =
+        Array.from(cta.classList).find((cls) => ['top', 'middle', 'bottom'].includes(cls)) ||
+        'bottom';
+
       // Read localized messages for this CTA
-      const i18nEl = cta.querySelector('script[data-role="i18n-newsletter-cta"]');
-      const I18N = i18nEl ? JSON.parse(i18nEl.textContent || '{}') : {};
+      const i18nEl = cta.querySelector('[data-role="i18n-newsletter-cta"]');
+      const I18N = i18nEl ? JSON.parse(i18nEl.getAttribute('data-json') || '{}') : {};
 
       // Create and insert newsletter form
       const formContainer = cta.querySelector('.newsletter-form-container');
       if (formContainer) {
         // Create a compact newsletter form
         const source = `blog_newsletter_cta_${position}`;
-        
+
         // Insert Newsletter component dynamically
         insertNewsletterForm(formContainer, source, I18N);
-        
+
         // Track CTA view
         console.log(`[Analytics] Newsletter CTA view: ${variant} ${position} ${source}`);
       }
     });
   });
-  
+
   function insertNewsletterForm(container, source, I18N) {
     // Create newsletter form HTML (simplified version of Newsletter component)
     const formHTML = `
@@ -228,28 +242,28 @@
         </button>
       </form>
     `;
-    
+
     container.innerHTML = formHTML;
-    
+
     // Add form submission handler
     const form = container.querySelector('form');
     if (form) {
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
-        
+
         const emailInput = form.querySelector('input[type="email"]');
         const submitButton = form.querySelector('button[type="submit"]');
         const email = emailInput && 'value' in emailInput ? (emailInput.value || '').trim() : '';
-        
+
         if (!email) return;
-        
+
         // Set loading state
         const originalText = submitButton && submitButton.textContent;
         if (submitButton) {
           submitButton.textContent = (I18N && I18N.status && I18N.status.sending) || 'Sending...';
           submitButton.disabled = true;
         }
-        
+
         try {
           // Submit to newsletter API
           const response = await fetch('/api/newsletter/subscribe', {
@@ -258,12 +272,12 @@
             body: JSON.stringify({
               email: email,
               consent: true,
-              source: source
-            })
+              source: source,
+            }),
           });
-          
+
           const result = await response.json();
-          
+
           if (result.success) {
             // Replace form with success message
             container.innerHTML = `
@@ -274,7 +288,7 @@
                 <p class="text-xs text-white/90">${(I18N && I18N.success && I18N.success.newsletter_confirmation_sent) || 'Confirmation email sent!'}</p>
               </div>
             `;
-            
+
             // Track success
             trackSignup(source);
           } else {
@@ -282,18 +296,23 @@
           }
         } catch (error) {
           console.error('Newsletter CTA subscription error:', error);
-          
+
           // Reset button
           if (submitButton) {
             submitButton.textContent = originalText || '';
             submitButton.disabled = false;
           }
-          
+
           // Show error (could be enhanced with proper error UI)
-          alert((I18N && I18N.errors && I18N.errors.generic) || 'An error occurred. Please try again later.');
-          
+          alert(
+            (I18N && I18N.errors && I18N.errors.generic) ||
+              'An error occurred. Please try again later.'
+          );
+
           // Track error
-          console.log(`[Analytics] Newsletter CTA error: ${error instanceof Error ? error.message : 'unknown'}`);
+          console.log(
+            `[Analytics] Newsletter CTA error: ${error instanceof Error ? error.message : 'unknown'}`
+          );
         }
       });
     }
@@ -304,21 +323,21 @@
   .newsletter-cta.banner .newsletter-cta-form input {
     @apply bg-white/20 border-white/30 text-white placeholder-white/70;
   }
-  
+
   .newsletter-cta.banner .newsletter-cta-form input:focus {
     @apply ring-white/50;
   }
-  
+
   .newsletter-cta.card .newsletter-cta-form,
   .newsletter-cta.inline .newsletter-cta-form {
     @apply max-w-xs;
   }
-  
+
   .newsletter-cta.card .newsletter-cta-form input,
   .newsletter-cta.inline .newsletter-cta-form input {
     @apply bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-500;
   }
-  
+
   .newsletter-cta.card .newsletter-cta-form button,
   .newsletter-cta.inline .newsletter-cta-form button {
     @apply bg-gradient-to-r from-emerald-500 to-cyan-500 text-white hover:from-emerald-600 hover:to-cyan-600;

@@ -25,7 +25,7 @@ const parseLinks = (v: unknown): Record<string, string> => {
   if (typeof v === 'string') {
     try {
       const parsed = JSON.parse(v);
-      return typeof parsed === 'object' && parsed ? parsed as Record<string, string> : {};
+      return typeof parsed === 'object' && parsed ? (parsed as Record<string, string>) : {};
     } catch {
       return {};
     }
@@ -86,38 +86,30 @@ const plans: Plan[] = [
     id="interval-monthly"
     class="px-3 py-1.5 text-sm rounded-l-md ring-1 ring-gray-300 dark:ring-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 data-[active='1']:bg-emerald-600 data-[active='1']:text-white"
     data-active="1"
-    type="button"
-  >Monthly</button>
+    type="button">Monthly</button
+  >
   <button
     id="interval-annual"
     class="px-3 py-1.5 text-sm rounded-r-md ring-1 ring-gray-300 dark:ring-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 data-[active='1']:bg-emerald-600 data-[active='1']:text-white"
     data-active="0"
-    type="button"
-  >Annual</button>
+    type="button">Annual</button
+  >
 </div>
-
-<div class="grid grid-cols-1 md:grid-cols-4 gap-8 mt-6">
-  {plans.map((plan, idx) => (
-    <AosWrapper
-      delay={aosDelayForIndex(idx, { step: 100, max: 300 })}
-      class={`relative flex flex-col p-8 rounded-2xl bg-white dark:bg-gray-800 shadow-lg ${
-        plan.featured ? 'ring-2 ring-blue-500 transform md:-translate-y-4' : ''
-      }`}
-      data-pro-card={plan.featured ? 'true' : undefined}
-    >
-      {plan.featured && (
-        <div class="absolute top-0 right-0 -mt-3 -mr-3 px-3 py-1 bg-blue-500 text-white text-sm font-semibold rounded-full">
-          {t('pages.pricing.table.featured_badge')}
-        </div>
 
 <script is:inline nonce={Astro.locals.cspNonce}>
   (function () {
-    var pricingInterval = (function(){
-      try { return localStorage.getItem('pricing_interval') === 'annual' ? 'annual' : 'monthly'; } catch { return 'monthly'; }
+    var pricingInterval = (function () {
+      try {
+        return localStorage.getItem('pricing_interval') === 'annual' ? 'annual' : 'monthly';
+      } catch {
+        return 'monthly';
+      }
     })();
 
     function readCookie(name) {
-      const m = document.cookie.match(new RegExp('(?:^|; )' + name.replace(/[.$?*|{}()\[\]\\/+^]/g, '\\$&') + '=([^;]*)'));
+      const m = document.cookie.match(
+        new RegExp('(?:^|; )' + name.replace(/[.$?*|{}()\[\]\\/+^]/g, '\\$&') + '=([^;]*)')
+      );
       return m ? decodeURIComponent(m[1]) : null;
     }
     function ensureCsrfToken() {
@@ -126,12 +118,16 @@ const plans: Plan[] = [
         try {
           const buf = new Uint8Array(16);
           (globalThis.crypto || window.crypto).getRandomValues(buf);
-          token = Array.from(buf).map((b) => b.toString(16).padStart(2, '0')).join('');
+          token = Array.from(buf)
+            .map((b) => b.toString(16).padStart(2, '0'))
+            .join('');
           const attrs = [
             'Path=/',
             'SameSite=Lax',
-            (typeof location !== 'undefined' && location.protocol === 'https:') ? 'Secure' : ''
-          ].filter(Boolean).join('; ');
+            typeof location !== 'undefined' && location.protocol === 'https:' ? 'Secure' : '',
+          ]
+            .filter(Boolean)
+            .join('; ');
           document.cookie = `csrf_token=${encodeURIComponent(token)}; ${attrs}`;
         } catch {}
       }
@@ -173,13 +169,12 @@ const plans: Plan[] = [
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-CSRF-Token': csrf
+          'X-CSRF-Token': csrf,
         },
         body: JSON.stringify(body),
-        credentials: 'include'
+        credentials: 'include',
       });
       if (res.status === 401) {
-        // Not logged in → redirect to login
         window.location.href = '/login';
         return;
       }
@@ -201,10 +196,21 @@ const plans: Plan[] = [
         var m = document.getElementById('interval-monthly');
         var a = document.getElementById('interval-annual');
         if (m && a) {
-          m.addEventListener('click', function(){ pricingInterval = 'monthly'; try { localStorage.setItem('pricing_interval', 'monthly'); } catch {}; setIntervalButtons(); });
-          a.addEventListener('click', function(){ pricingInterval = 'annual'; try { localStorage.setItem('pricing_interval', 'annual'); } catch {}; setIntervalButtons(); });
+          m.addEventListener('click', function () {
+            pricingInterval = 'monthly';
+            try {
+              localStorage.setItem('pricing_interval', 'monthly');
+            } catch {}
+            setIntervalButtons();
+          });
+          a.addEventListener('click', function () {
+            pricingInterval = 'annual';
+            try {
+              localStorage.setItem('pricing_interval', 'annual');
+            } catch {}
+            setIntervalButtons();
+          });
           setIntervalButtons();
-          // Swap displayed prices for Pro & Premium (stable selectors)
           var proAmt = document.querySelector('span[data-plan="pro"][data-role="amount"]');
           var proPer = document.querySelector('span[data-plan="pro"][data-role="period"]');
           var premAmt = document.querySelector('span[data-plan="premium"][data-role="amount"]');
@@ -216,16 +222,16 @@ const plans: Plan[] = [
                 var pa = proAmt.getAttribute('data-annual');
                 var lm = proPer.getAttribute('data-monthly');
                 var la = proPer.getAttribute('data-annual');
-                proAmt.textContent = pricingInterval === 'annual' ? (pa || '') : (pm || '');
-                proPer.textContent = pricingInterval === 'annual' ? (la || '') : (lm || '');
+                proAmt.textContent = pricingInterval === 'annual' ? pa || '' : pm || '';
+                proPer.textContent = pricingInterval === 'annual' ? la || '' : lm || '';
               }
               if (premAmt && premPer) {
                 var pmm = premAmt.getAttribute('data-monthly');
                 var pma = premAmt.getAttribute('data-annual');
                 var lmm = premPer.getAttribute('data-monthly');
                 var laa = premPer.getAttribute('data-annual');
-                premAmt.textContent = pricingInterval === 'annual' ? (pma || '') : (pmm || '');
-                premPer.textContent = pricingInterval === 'annual' ? (laa || '') : (lmm || '');
+                premAmt.textContent = pricingInterval === 'annual' ? pma || '' : pmm || '';
+                premPer.textContent = pricingInterval === 'annual' ? laa || '' : lmm || '';
               }
             } catch {}
           }
@@ -236,13 +242,12 @@ const plans: Plan[] = [
       } catch {}
       const proBtn = document.getElementById('buy-pro-cta');
       if (proBtn) {
-        // use dataset flag to avoid duplicate wiring
         if (!proBtn.dataset || !proBtn.dataset.wired) {
           const monthly = proBtn.getAttribute('data-payment-monthly') || '';
           const annual = proBtn.getAttribute('data-payment-annual') || '';
           proBtn.addEventListener('click', () => {
             try {
-              const link = (pricingInterval === 'annual' ? annual : monthly);
+              const link = pricingInterval === 'annual' ? annual : monthly;
               if (link && /^https?:\/\//.test(link)) {
                 console.log('[pricing] redirecting to payment link (pro, ' + pricingInterval + ')');
                 window.location.href = link;
@@ -263,9 +268,11 @@ const plans: Plan[] = [
           const annual = premiumBtn.getAttribute('data-payment-annual') || '';
           premiumBtn.addEventListener('click', () => {
             try {
-              const link = (pricingInterval === 'annual' ? annual : monthly);
+              const link = pricingInterval === 'annual' ? annual : monthly;
               if (link && /^https?:\/\//.test(link)) {
-                console.log('[pricing] redirecting to payment link (premium, ' + pricingInterval + ')');
+                console.log(
+                  '[pricing] redirecting to payment link (premium, ' + pricingInterval + ')'
+                );
                 window.location.href = link;
                 return;
               }
@@ -278,10 +285,10 @@ const plans: Plan[] = [
         wired = true;
       }
       if (!wired) {
-        // Fallback: legacy markup where Pro CTA is still an anchor to /register
         try {
           const proCard = document.querySelector('[data-pro-card="true"]');
-          const proAnchor = proCard && proCard.querySelector ? proCard.querySelector('a[href*="/register"]') : null;
+          const proAnchor =
+            proCard && proCard.querySelector ? proCard.querySelector('a[href*="/register"]') : null;
           if (proAnchor && proAnchor instanceof HTMLAnchorElement) {
             const already = proAnchor.dataset && proAnchor.dataset.wired;
             if (!already) {
@@ -291,15 +298,11 @@ const plans: Plan[] = [
                 createCheckout('pro');
               });
               if (proAnchor.dataset) proAnchor.dataset.wired = '1';
-              wired = true;
             }
           }
         } catch (e) {
           console.warn('[pricing] wiring error', e);
         }
-      }
-      if (!wired) {
-        console.log('[pricing] pro CTA not found to wire');
       }
     }
     if (document.readyState === 'loading') {
@@ -309,72 +312,107 @@ const plans: Plan[] = [
     }
   })();
 </script>
-      )}
-      
-      <h3 class="text-2xl font-bold">{plan.name}</h3>
-      <p class="mt-2 text-gray-600 dark:text-gray-300">{plan.description}</p>
-      
-      <div class="mt-6">
-        <span
-          class="text-4xl font-extrabold"
-          data-plan={idx === 1 ? 'pro' : (idx === 2 ? 'premium' : undefined)}
-          data-role="amount"
-          data-monthly={idx === 1 ? '€14.99' : (idx === 2 ? '€24.99' : '')}
-          data-annual={idx === 1 ? '€149.90' : (idx === 2 ? '€249.90' : '')}
-        >{plan.price}</span>
-        {plan.price !== t('pages.pricing.table.free') && plan.price !== t('pages.pricing.table.custom') && (
-          <span
-            class="text-gray-500 dark:text-gray-400"
-            data-plan={idx === 1 ? 'pro' : (idx === 2 ? 'premium' : undefined)}
-            data-role="period"
-            data-monthly={perMonthLabel}
-            data-annual={perYearLabel}
-          >{perMonthLabel}</span>
+
+<div class="grid grid-cols-1 md:grid-cols-4 gap-8 mt-6">
+  {
+    plans.map((plan, idx) => (
+      <AosWrapper
+        delay={aosDelayForIndex(idx, { step: 100, max: 300 })}
+        class={`relative flex flex-col p-8 rounded-2xl bg-white dark:bg-gray-800 shadow-lg ${
+          plan.featured ? 'ring-2 ring-blue-500 transform md:-translate-y-4' : ''
+        }`}
+        data-pro-card={plan.featured ? 'true' : undefined}
+      >
+        {plan.featured && (
+          <div class="absolute top-0 right-0 -mt-3 -mr-3 px-3 py-1 bg-blue-500 text-white text-sm font-semibold rounded-full">
+            {t('pages.pricing.table.featured_badge')}
+          </div>
         )}
-      </div>
-      
-      <ul class="mt-8 space-y-3">
-        {plan.features.map((feature) => (
-          <li class="flex items-center">
-            <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-            </svg>
-            {feature}
-          </li>
-        ))}
-      </ul>
-      
-      {
-        // Render buttons for Pro and Premium (checkout), links for Starter (register) and Enterprise (contact)
-        plan.name === t('pages.pricing.table.plans.pro.name') ? (
-          <button
-            id="buy-pro-cta"
-            type="button"
-            data-payment-monthly={paymentLinksMonthly['pro']}
-            data-payment-annual={paymentLinksAnnual['pro']}
-            class={`mt-8 px-6 py-3 text-center font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2`}
+
+        <h3 class="text-2xl font-bold">{plan.name}</h3>
+        <p class="mt-2 text-gray-600 dark:text-gray-300">{plan.description}</p>
+
+        <div class="mt-6">
+          <span
+            class="text-4xl font-extrabold"
+            data-plan={idx === 1 ? 'pro' : idx === 2 ? 'premium' : undefined}
+            data-role="amount"
+            data-monthly={idx === 1 ? '€14.99' : idx === 2 ? '€24.99' : ''}
+            data-annual={idx === 1 ? '€149.90' : idx === 2 ? '€249.90' : ''}
           >
-            {plan.cta}
-          </button>
-        ) : plan.name === t('pages.pricing.table.plans.premium.name') ? (
-          <button
-            id="buy-premium-cta"
-            type="button"
-            data-payment-monthly={paymentLinksMonthly['premium']}
-            data-payment-annual={paymentLinksAnnual['premium']}
-            class={`mt-8 px-6 py-3 text-center font-medium rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2`}
-          >
-            {plan.cta}
-          </button>
-        ) : (
-          <a
-            href={plan.name === t('pages.pricing.table.plans.enterprise.name') ? localizePath(locale, '/kontakt') : localizePath(locale, '/register')}
-            class={`mt-8 px-6 py-3 text-center font-medium rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2`}
-          >
-            {plan.cta}
-          </a>
-        )
-      }
-    </AosWrapper>
-  ))}
+            {plan.price}
+          </span>
+          {plan.price !== t('pages.pricing.table.free') &&
+            plan.price !== t('pages.pricing.table.custom') && (
+              <span
+                class="text-gray-500 dark:text-gray-400"
+                data-plan={idx === 1 ? 'pro' : idx === 2 ? 'premium' : undefined}
+                data-role="period"
+                data-monthly={perMonthLabel}
+                data-annual={perYearLabel}
+              >
+                {perMonthLabel}
+              </span>
+            )}
+        </div>
+
+        <ul class="mt-8 space-y-3">
+          {plan.features.map((feature) => (
+            <li class="flex items-center">
+              <svg
+                class="w-5 h-5 text-green-500 mr-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+              {feature}
+            </li>
+          ))}
+        </ul>
+
+        {
+          // Render buttons for Pro and Premium (checkout), links for Starter (register) and Enterprise (contact)
+          plan.name === t('pages.pricing.table.plans.pro.name') ? (
+            <button
+              id="buy-pro-cta"
+              type="button"
+              data-payment-monthly={paymentLinksMonthly['pro']}
+              data-payment-annual={paymentLinksAnnual['pro']}
+              class={`mt-8 px-6 py-3 text-center font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2`}
+            >
+              {plan.cta}
+            </button>
+          ) : plan.name === t('pages.pricing.table.plans.premium.name') ? (
+            <button
+              id="buy-premium-cta"
+              type="button"
+              data-payment-monthly={paymentLinksMonthly['premium']}
+              data-payment-annual={paymentLinksAnnual['premium']}
+              class={`mt-8 px-6 py-3 text-center font-medium rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2`}
+            >
+              {plan.cta}
+            </button>
+          ) : (
+            <a
+              href={
+                plan.name === t('pages.pricing.table.plans.enterprise.name')
+                  ? localizePath(locale, '/kontakt')
+                  : localizePath(locale, '/register')
+              }
+              class={`mt-8 px-6 py-3 text-center font-medium rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2`}
+            >
+              {plan.cta}
+            </a>
+          )
+        }
+      </AosWrapper>
+    ))
+  }
 </div>

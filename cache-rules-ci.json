@@ -1,0 +1,33 @@
+{
+  "description": "CI cache rules (session, login/dashboard, api, manual no_cache)",
+  "rules": [
+    {
+      "description": "Bypass cache when session cookie is present",
+      "enabled": true,
+      "action": "set_cache_settings",
+      "action_parameters": { "cache": false },
+      "expression": "(http.host eq \"ci.hub-evolution.com\") and (http.request.cookies[\"session_id\"] ne \"\" or http.request.cookies[\"__Host-session\"] ne \"\")"
+    },
+    {
+      "description": "Bypass login/dashboard/welcome pages",
+      "enabled": true,
+      "action": "set_cache_settings",
+      "action_parameters": { "cache": false },
+      "expression": "(http.host eq \"ci.hub-evolution.com\") and ((http.request.uri.path matches \"^/(en|de)/login($|/)\") or starts_with(http.request.uri.path, \"/dashboard\") or starts_with(http.request.uri.path, \"/welcome\") or starts_with(http.request.uri.path, \"/welcome-profile\"))"
+    },
+    {
+      "description": "Bypass API",
+      "enabled": true,
+      "action": "set_cache_settings",
+      "action_parameters": { "cache": false },
+      "expression": "(http.host eq \"ci.hub-evolution.com\") and starts_with(http.request.uri.path, \"/api/\")"
+    },
+    {
+      "description": "Manual bypass via ?__no_cache=1",
+      "enabled": true,
+      "action": "set_cache_settings",
+      "action_parameters": { "cache": false },
+      "expression": "(http.host eq \"ci.hub-evolution.com\") and (http.request.uri.query contains \"__no_cache\")"
+    }
+  ]
+}

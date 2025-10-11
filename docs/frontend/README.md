@@ -5,6 +5,7 @@ Diese Dokumentation beschreibt die Frontend-Architektur, UI/UX-Design, Komponent
 ## Übersicht
 
 Evolution Hub nutzt einen modernen Frontend-Stack:
+
 - **Framework**: Astro 5 mit React Islands
 - **Styling**: Tailwind CSS 3
 - **Animations**: AOS (Animate On Scroll), Lottie Web
@@ -52,7 +53,7 @@ Siehe auch: [../architecture/adrs/0003-astro-frontend-architecture.md](../archit
 
 ## Component Structure
 
-```
+```text
 src/components/
 ├── ui/              # Basis-UI-Komponenten (Button, Input, etc.)
 ├── layout/          # Layout-Komponenten (Header, Footer, etc.)
@@ -74,6 +75,7 @@ src/components/
 ### CSS Custom Properties
 
 Definiert in `src/styles/global.css`:
+
 - `--color-primary-*`: Primärfarben
 - `--color-background-*`: Hintergrundfarben
 - `--spacing-*`: Spacing-Scale

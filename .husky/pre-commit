@@ -1,1 +1,2 @@
-# npx lint-staged  # Disabled for development - use manual quality checks instead
+# Run prettier+eslint on staged files via lint-staged
+npx lint-staged

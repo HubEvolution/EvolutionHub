@@ -14,8 +14,8 @@ const IS_WORKER_BUILD = Boolean(
 // Dev-only CSP policy for static HTML (middleware is bypassed for prerendered assets)
 const DEV_CSP = [
   "default-src 'self' data: blob:",
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: data: https://cdn.jsdelivr.net https://www.googletagmanager.com https://plausible.io",
-  "script-src-elem 'self' 'unsafe-inline' 'unsafe-eval' blob: data: https://cdn.jsdelivr.net https://www.googletagmanager.com https://plausible.io",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: data: https://cdn.jsdelivr.net https://www.googletagmanager.com https://plausible.io https://static.cloudflareinsights.com",
+  "script-src-elem 'self' 'unsafe-inline' 'unsafe-eval' blob: data: https://cdn.jsdelivr.net https://www.googletagmanager.com https://plausible.io https://static.cloudflareinsights.com",
   "connect-src 'self' ws: http: https:",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net",
   "img-src 'self' data: blob: https:",

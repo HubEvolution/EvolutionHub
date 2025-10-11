@@ -43,3 +43,7 @@ openapi.yaml
 favicon_package/
 *.min.js
 *.min.css
+
+# Non-JSON test artifact
+webhook.testing.json
+routes.md

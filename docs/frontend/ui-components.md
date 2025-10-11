@@ -86,3 +86,19 @@ Hinweis: Die Komponente `EnhancerForm.tsx` nutzt diese Keys direkt über `getI18
 - **Keine Logik in UI‑Atomen** – nur Darstellung/Markup.
 - **Utility‑First** – Tailwind‑Klassen bewusst einsetzen; Tokens nur sparsam.
 - **A11y zuerst** – Rollen, Labels, Fokus, Dark‑Mode immer berücksichtigen.
+
+## Blog UI Konventionen (Astro)
+
+- **Bilder in Blog-Komponenten**
+  - Nutze konsequent Astros `<Image>`-Komponente in `src/components/BlogPost.astro` und `src/components/BlogCard.astro`.
+  - Typisiere Frontmatter-Bilder als `ImageMetadata` (import aus `astro`) und prüfe Felder defensiv (`src`, `width`, `height`).
+  - Alt-Texte strikt auf `string` normalisieren (z. B. `imageAltText`) und Captions nur rendern, wenn `typeof imageAlt === 'string'`.
+
+- **Share-URLs**
+  - Konstruiere die absolute URL mit `new URL(post.url, Astro.site?.origin || 'http://127.0.0.1:8787')`.
+  - Titel vor dem Einbetten mit `encodeURIComponent(String(title))` kodieren.
+
+- **CTA-Varianten**
+  - `BlogCTA` akzeptiert Branding-Varianten: `'primary' | 'secondary' | 'subtle'` (`src/components/blog/BlogCTA.astro`).
+  - `LeadMagnetCTA` erwartet Layout-Varianten: `'card' | 'inline' | 'banner'` (`src/components/blog/LeadMagnetCTA.astro`).
+  - Mapping in `src/components/BlogPost.astro`: `primary → banner`, `secondary → inline`, `subtle → card` (Helper `mapLeadMagnetVariant`).

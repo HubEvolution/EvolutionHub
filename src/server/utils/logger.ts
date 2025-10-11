@@ -26,6 +26,22 @@ export interface LogContext {
   duration?: number;
 }
 
+type LogLevel = 'info' | 'warn' | 'error' | 'debug' | (string & {});
+
+type LogContextPayload = LogContext & {
+  source?: string;
+  [key: string]: unknown;
+};
+
+interface LogEvent {
+  type: 'log';
+  timestamp: string;
+  level: LogLevel;
+  message: string;
+  source: string;
+  context?: LogContextPayload;
+}
+
 /**
  * Generate a unique request ID for tracing
  */
@@ -42,7 +58,7 @@ export function generateRequestId(): string {
  * @param message - The log message.
  * @param contextObject - An optional object containing additional context.
  */
-export const log = (level: string, message: string, contextObject?: Record<string, any>): void => {
+export const log = (level: LogLevel, message: string, contextObject?: LogContextPayload): void => {
   const timestamp = new Date().toISOString();
 
   // Extract special context fields for structured logging
@@ -81,12 +97,12 @@ export const log = (level: string, message: string, contextObject?: Record<strin
   }
 
   // Prepare JSON event payload for SSE/buffer
-  const event = {
-    type: 'log' as const,
+  const event: LogEvent = {
+    type: 'log',
     timestamp,
     level,
     message,
-    source: (contextObject as any)?.source || 'server',
+    source: typeof contextObject?.source === 'string' ? contextObject.source : 'server',
     context: contextObject ? contextObject : undefined,
   };
   const eventJson = JSON.stringify(event);
@@ -181,8 +197,11 @@ function broadcastLogToStreams(logEntry: string): void {
     }
     try {
       // Guard against unexpected ctrl state in dev runtime
-      if (typeof (item.ctrl as any)?.enqueue === 'function') {
-        item.ctrl.enqueue(encodedData);
+      if (
+        typeof (item.ctrl as unknown as { enqueue?: (chunk: Uint8Array) => void }).enqueue ===
+        'function'
+      ) {
+        (item.ctrl as unknown as { enqueue: (chunk: Uint8Array) => void }).enqueue(encodedData);
       } else {
         activeSSEStreams.delete(item);
       }

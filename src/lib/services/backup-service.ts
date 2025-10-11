@@ -236,11 +236,11 @@ export class BackupService {
       errorMessage: row.errorMessage ?? undefined,
       startedAt:
         row.startedAt != null
-          ? (row.startedAt as unknown as Date).getTime?.() ?? Number(row.startedAt)
+          ? ((row.startedAt as unknown as Date).getTime?.() ?? Number(row.startedAt))
           : undefined,
       completedAt:
         row.completedAt != null
-          ? (row.completedAt as unknown as Date).getTime?.() ?? Number(row.completedAt)
+          ? ((row.completedAt as unknown as Date).getTime?.() ?? Number(row.completedAt))
           : undefined,
       triggeredBy: row.triggeredBy ?? undefined,
       isAutomated: Boolean(row.isAutomated),
@@ -268,11 +268,11 @@ export class BackupService {
       errorMessage: row.errorMessage ?? undefined,
       startedAt:
         row.startedAt != null
-          ? (row.startedAt as unknown as Date).getTime?.() ?? Number(row.startedAt)
+          ? ((row.startedAt as unknown as Date).getTime?.() ?? Number(row.startedAt))
           : undefined,
       completedAt:
         row.completedAt != null
-          ? (row.completedAt as unknown as Date).getTime?.() ?? Number(row.completedAt)
+          ? ((row.completedAt as unknown as Date).getTime?.() ?? Number(row.completedAt))
           : undefined,
       triggeredBy: row.triggeredBy ?? undefined,
       isAutomated: Boolean(row.isAutomated),
@@ -377,11 +377,11 @@ export class BackupService {
         logOutput: m.logOutput ?? undefined,
         startedAt:
           m.startedAt != null
-            ? (m.startedAt as unknown as Date).getTime?.() ?? Number(m.startedAt)
+            ? ((m.startedAt as unknown as Date).getTime?.() ?? Number(m.startedAt))
             : undefined,
         completedAt:
           m.completedAt != null
-            ? (m.completedAt as unknown as Date).getTime?.() ?? Number(m.completedAt)
+            ? ((m.completedAt as unknown as Date).getTime?.() ?? Number(m.completedAt))
             : undefined,
         triggeredBy: m.triggeredBy ?? undefined,
         isAutomated: Boolean(m.isAutomated),
@@ -446,20 +446,24 @@ export class BackupService {
    */
   private async performCleanup(): Promise<void> {
     // Lösche alte, abgelaufene Export-Jobs
-    await this.db.delete(backupJobs).where(
-      and(
-        eq(backupJobs.status, 'completed'),
-        lte(backupJobs.completedAt, new Date(Date.now() - 30 * 24 * 60 * 60 * 1000))
-      )
-    );
+    await this.db
+      .delete(backupJobs)
+      .where(
+        and(
+          eq(backupJobs.status, 'completed'),
+          lte(backupJobs.completedAt, new Date(Date.now() - 30 * 24 * 60 * 60 * 1000))
+        )
+      );
 
     // Lösche alte Benachrichtigungen
-    await this.db.delete(notifications).where(
-      and(
-        eq(notifications.isRead, true),
-        lte(notifications.readAt, new Date(Date.now() - 90 * 24 * 60 * 60 * 1000))
-      )
-    );
+    await this.db
+      .delete(notifications)
+      .where(
+        and(
+          eq(notifications.isRead, true),
+          lte(notifications.readAt, new Date(Date.now() - 90 * 24 * 60 * 60 * 1000))
+        )
+      );
 
     log('info', 'Cleanup completed');
   }
@@ -527,11 +531,11 @@ export class BackupService {
       logOutput: m.logOutput ?? undefined,
       startedAt:
         m.startedAt != null
-          ? (m.startedAt as unknown as Date).getTime?.() ?? Number(m.startedAt)
+          ? ((m.startedAt as unknown as Date).getTime?.() ?? Number(m.startedAt))
           : undefined,
       completedAt:
         m.completedAt != null
-          ? (m.completedAt as unknown as Date).getTime?.() ?? Number(m.completedAt)
+          ? ((m.completedAt as unknown as Date).getTime?.() ?? Number(m.completedAt))
           : undefined,
       triggeredBy: m.triggeredBy ?? undefined,
       isAutomated: Boolean(m.isAutomated),
@@ -560,11 +564,11 @@ export class BackupService {
       logOutput: m.logOutput ?? undefined,
       startedAt:
         m.startedAt != null
-          ? (m.startedAt as unknown as Date).getTime?.() ?? Number(m.startedAt)
+          ? ((m.startedAt as unknown as Date).getTime?.() ?? Number(m.startedAt))
           : undefined,
       completedAt:
         m.completedAt != null
-          ? (m.completedAt as unknown as Date).getTime?.() ?? Number(m.completedAt)
+          ? ((m.completedAt as unknown as Date).getTime?.() ?? Number(m.completedAt))
           : undefined,
       triggeredBy: m.triggeredBy ?? undefined,
       isAutomated: Boolean(m.isAutomated),

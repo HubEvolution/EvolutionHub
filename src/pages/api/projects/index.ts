@@ -2,6 +2,38 @@ import { withAuthApiMiddleware, createApiError } from '@/lib/api-middleware';
 import { logAuthFailure } from '@/lib/security-logger';
 import { createSecureJsonResponse } from '@/lib/response-helpers';
 
+interface CreateProjectRequestBody {
+  title?: string;
+  description?: string;
+}
+
+type RuntimeWithOptionalUser = App.Locals['runtime'] & {
+  user?: { id?: string; sub?: string | null } | null;
+};
+
+function resolveUserIdFromLocals(locals: App.Locals): string | null {
+  if (locals.user?.id) {
+    return locals.user.id;
+  }
+
+  const runtime = locals.runtime as RuntimeWithOptionalUser | undefined;
+  const runtimeUser = runtime?.user;
+  if (runtimeUser) {
+    if (typeof runtimeUser.id === 'string' && runtimeUser.id.length > 0) {
+      return runtimeUser.id;
+    }
+    if (
+      'sub' in runtimeUser &&
+      typeof runtimeUser?.sub === 'string' &&
+      runtimeUser.sub.length > 0
+    ) {
+      return runtimeUser.sub;
+    }
+  }
+
+  return null;
+}
+
 /**
  * POST /api/projects
  * Erstellt ein neues Projekt für den authentifizierten Benutzer.
@@ -14,22 +46,36 @@ import { createSecureJsonResponse } from '@/lib/response-helpers';
 export const POST = withAuthApiMiddleware(
   async (context) => {
     const { request, locals } = context;
-    const { env } = (locals as any).runtime;
-    const user = (locals as any).user || (locals as any).runtime?.user;
+    const typedLocals = locals as App.Locals;
+    const runtime = typedLocals.runtime as RuntimeWithOptionalUser | undefined;
+    const env = runtime?.env;
+    const userId = resolveUserIdFromLocals(typedLocals);
+    if (!userId) {
+      return createApiError('auth_error', 'Authentication required');
+    }
 
-    const userId: string = (user?.id as string) ?? (user?.sub as string);
-    let title: string | undefined;
-    let description: string | undefined;
+    if (!env?.DB) {
+      logAuthFailure(userId, {
+        reason: 'server_error',
+        endpoint: '/api/projects',
+        error: 'Database binding missing',
+      });
+      return createApiError('server_error', 'Database binding missing');
+    }
+
+    let requestBody: CreateProjectRequestBody | null = null;
     try {
-      const bodyUnknown: unknown = await request.json();
-      if (bodyUnknown && typeof bodyUnknown === 'object') {
-        const anyBody = bodyUnknown as Record<string, unknown>;
-        if (typeof anyBody.title === 'string') title = anyBody.title;
-        if (typeof anyBody.description === 'string') description = anyBody.description;
+      const parsed = (await request.json()) as unknown;
+      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+        requestBody = parsed as CreateProjectRequestBody;
       }
     } catch {
-      // ignore parse errors, will be handled by validation below
+      requestBody = null;
     }
+
+    const title = typeof requestBody?.title === 'string' ? requestBody.title : undefined;
+    const description =
+      typeof requestBody?.description === 'string' ? requestBody.description : undefined;
 
     // Eingabe validieren
     if (!title) {
@@ -96,8 +142,8 @@ export const POST = withAuthApiMiddleware(
     logMetadata: { action: 'project_created' },
     onError: (context, _error) => {
       const { clientAddress: _clientAddress, locals } = context;
-      const user = (locals as any).user || (locals as any).runtime?.user;
-      const userId: string | undefined = (user?.id as string) ?? (user?.sub as string);
+      const typedLocals = locals as App.Locals;
+      const userId = resolveUserIdFromLocals(typedLocals) ?? undefined;
 
       if (userId) {
         // Tests erwarten logAuthFailure mit reason 'server_error'

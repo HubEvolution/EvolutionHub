@@ -4,19 +4,172 @@
  */
 
 import { Hono } from 'hono';
+import type { Context } from 'hono';
 import { cors } from 'hono/cors';
 import { jwt } from 'hono/jwt';
 import { rateLimiter } from 'hono-rate-limiter';
 import { drizzle } from 'drizzle-orm/d1';
 import { PerformanceService } from '../../../lib/services/performance-service';
 import { log, generateRequestId } from '../../../server/utils/logger';
-import { requireAuth } from '../../../lib/auth-helpers';
+import { requireAuth, getAuthUser } from '../../../lib/auth-helpers';
 import type { PaginationOptions, CommentSearchOptions } from '../../../lib/types/performance';
 
-const app = new Hono<{
-  Bindings: { DB: D1Database; JWT_SECRET: string };
-  Variables: { userId: number; requestId: string };
-}>();
+type CommentsBindings = {
+  DB: D1Database;
+  JWT_SECRET: string;
+};
+
+type CommentsVariables = {
+  userId: number;
+  requestId: string;
+};
+
+type CommentsContext = Context<{ Bindings: CommentsBindings; Variables: CommentsVariables }>;
+
+const app = new Hono<{ Bindings: CommentsBindings; Variables: CommentsVariables }>();
+
+const SORT_FIELDS: ReadonlyArray<NonNullable<PaginationOptions['sortBy']>> = [
+  'createdAt',
+  'updatedAt',
+  'likes',
+  'replies',
+];
+
+const SORT_ORDERS: ReadonlyArray<NonNullable<PaginationOptions['sortOrder']>> = ['asc', 'desc'];
+
+function clampNumber(value: number, { min, max }: { min?: number; max?: number } = {}): number {
+  let result = value;
+  if (typeof min === 'number') {
+    result = Math.max(min, result);
+  }
+  if (typeof max === 'number') {
+    result = Math.min(max, result);
+  }
+  return result;
+}
+
+function parseInteger(
+  value: string | undefined,
+  fallback: number,
+  bounds?: { min?: number; max?: number }
+): number {
+  const parsed = Number.parseInt(value ?? '', 10);
+  if (!Number.isFinite(parsed)) {
+    return fallback;
+  }
+  return clampNumber(parsed, bounds ?? {});
+}
+
+function parseSortField(value: string | undefined): PaginationOptions['sortBy'] {
+  const candidate = value as PaginationOptions['sortBy'] | undefined;
+  return candidate && SORT_FIELDS.includes(candidate) ? candidate : 'createdAt';
+}
+
+function parseSortOrder(value: string | undefined): PaginationOptions['sortOrder'] {
+  const candidate = value as PaginationOptions['sortOrder'] | undefined;
+  return candidate && SORT_ORDERS.includes(candidate) ? candidate : 'desc';
+}
+
+function parseBoolean(value: string | undefined): boolean {
+  return value === 'true';
+}
+
+function buildPaginationOptions(query: Record<string, string | undefined>): PaginationOptions {
+  return {
+    page: parseInteger(query.page, 1, { min: 1 }),
+    limit: parseInteger(query.limit, 20, { min: 1, max: 100 }),
+    sortBy: parseSortField(query.sortBy),
+    sortOrder: parseSortOrder(query.sortOrder),
+    includeReplies: parseBoolean(query.includeReplies),
+    maxDepth: parseInteger(query.maxDepth, 5, { min: 1 }),
+  };
+}
+
+function buildSearchOptions(query: Record<string, string | undefined>): CommentSearchOptions {
+  const status = query.status
+    ?.split(',')
+    .map((value) => value.trim())
+    .filter(Boolean);
+  const authorId = query.authorId
+    ?.split(',')
+    .map((id) => Number.parseInt(id, 10))
+    .filter((id) => Number.isFinite(id)) as number[] | undefined;
+  const dateFrom = Number.isFinite(Number(query.dateFrom))
+    ? Number.parseInt(query.dateFrom!, 10)
+    : undefined;
+  const dateTo = Number.isFinite(Number(query.dateTo))
+    ? Number.parseInt(query.dateTo!, 10)
+    : undefined;
+  const minLikes = Number.isFinite(Number(query.minLikes))
+    ? Number.parseInt(query.minLikes!, 10)
+    : undefined;
+  const hasReplies = query.hasReplies ? parseBoolean(query.hasReplies) : undefined;
+
+  return {
+    query: query.q ?? '',
+    pagination: {
+      page: parseInteger(query.page, 1, { min: 1 }),
+      limit: parseInteger(query.limit, 20, { min: 1, max: 50 }),
+      sortBy: 'createdAt',
+      sortOrder: 'desc',
+    },
+    filters: {
+      status: status && status.length > 0 ? status : ['approved'],
+      authorId,
+      dateFrom,
+      dateTo,
+      hasReplies,
+      minLikes,
+    },
+    highlight: true,
+  };
+}
+
+function decodeBearerUserId(header: string | null): number | undefined {
+  if (!header?.startsWith('Bearer ')) {
+    return undefined;
+  }
+
+  const [, payload] = header.split('.');
+  if (!payload) {
+    return undefined;
+  }
+
+  try {
+    const atobFn =
+      globalThis.atob || ((input: string) => Buffer.from(input, 'base64').toString('binary'));
+    const json = JSON.parse(atobFn(payload)) as { userId?: unknown };
+    const id = json.userId;
+    return typeof id === 'number' ? id : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+async function resolveOptionalUserId(c: CommentsContext): Promise<number | undefined> {
+  const user = await getAuthUser(adaptRequest(c));
+  if (user) {
+    const numericId = Number.parseInt(user.id, 10);
+    return Number.isFinite(numericId) ? numericId : undefined;
+  }
+
+  const authHeader = c.req.header('Authorization') ?? c.req.header('authorization');
+  return decodeBearerUserId(authHeader ?? null);
+}
+
+function toNumericId(value: string): number {
+  const parsed = Number.parseInt(value, 10);
+  if (!Number.isFinite(parsed)) {
+    throw new Error('Invalid numeric identifier');
+  }
+  return parsed;
+}
+
+const adaptRequest = (c: CommentsContext) => ({
+  req: { header: (name: string) => c.req.header(name) },
+  request: c.req.raw,
+  env: { DB: c.env.DB } as { DB: D1Database },
+});
 
 // Middleware
 // Attach requestId for structured logging
@@ -25,21 +178,24 @@ app.use('/*', async (c, next) => {
   await next();
 });
 app.use('/*', cors());
-app.use('/search', jwt({ secret: process.env.JWT_SECRET! }));
+app.use('/search', async (c, next) => {
+  const secret = c.env.JWT_SECRET;
+  return jwt({ secret })(c, next);
+});
 app.use(
   '/search',
   rateLimiter({
     windowMs: 60 * 1000,
     limit: 20, // 20 Suchen pro Minute
-    keyGenerator: (c) =>
-      c.req.header('CF-Connecting-IP') ||
-      c.req.header('cf-connecting-ip') ||
-      c.req.header('x-forwarded-for') ||
-      c.req.header('x-real-ip') ||
+    keyGenerator: (ctx) =>
+      ctx.req.header('CF-Connecting-IP') ||
+      ctx.req.header('cf-connecting-ip') ||
+      ctx.req.header('x-forwarded-for') ||
+      ctx.req.header('x-real-ip') ||
       'anonymous',
   })
 );
-app.use('/preload', jwt({ secret: process.env.JWT_SECRET! }));
+app.use('/preload', async (c, next) => jwt({ secret: c.env.JWT_SECRET })(c, next));
 
 /**
  * GET /api/comments/performance/paginated/:postId
@@ -49,28 +205,8 @@ app.get('/paginated/:postId', async (c) => {
   try {
     const postId = c.req.param('postId');
     const query = c.req.query();
-
-    // Parse Query-Parameter
-    const options: PaginationOptions = {
-      page: parseInt(query.page || '1'),
-      limit: Math.min(parseInt(query.limit || '20'), 100),
-      sortBy: (query.sortBy as any) || 'createdAt',
-      sortOrder: (query.sortOrder as any) || 'desc',
-      includeReplies: query.includeReplies === 'true',
-      maxDepth: parseInt(query.maxDepth || '5'),
-    };
-
-    // Hole User-ID wenn authentifiziert
-    let userId: number | undefined;
-    const authHeader = c.req.header('Authorization');
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-      try {
-        const payload = JSON.parse(atob(authHeader.split('.')[1]));
-        userId = payload.userId;
-      } catch (error) {
-        // Nicht authentifiziert - trotzdem OK für öffentliche Kommentare
-      }
-    }
+    const options = buildPaginationOptions(query);
+    const userId = await resolveOptionalUserId(c);
 
     const db = drizzle(c.env.DB);
     const performanceService = new PerformanceService(db);
@@ -109,7 +245,7 @@ app.get('/paginated/:postId', async (c) => {
 app.get('/search', async (c) => {
   try {
     const query = c.req.query();
-    await requireAuth(c);
+    await requireAuth(adaptRequest(c));
 
     if (!query.q) {
       return c.json(
@@ -124,24 +260,7 @@ app.get('/search', async (c) => {
       );
     }
 
-    const searchOptions: CommentSearchOptions = {
-      query: query.q,
-      pagination: {
-        page: parseInt(query.page || '1'),
-        limit: Math.min(parseInt(query.limit || '20'), 50),
-        sortBy: 'createdAt',
-        sortOrder: 'desc',
-      },
-      filters: {
-        status: query.status ? query.status.split(',') : ['approved'],
-        authorId: query.authorId ? query.authorId.split(',').map((id) => parseInt(id)) : undefined,
-        dateFrom: query.dateFrom ? parseInt(query.dateFrom) : undefined,
-        dateTo: query.dateTo ? parseInt(query.dateTo) : undefined,
-        hasReplies: query.hasReplies === 'true',
-        minLikes: query.minLikes ? parseInt(query.minLikes) : undefined,
-      },
-      highlight: true,
-    };
+    const searchOptions = buildSearchOptions(query);
 
     const db = drizzle(c.env.DB);
     const performanceService = new PerformanceService(db);
@@ -179,8 +298,8 @@ app.get('/search', async (c) => {
 app.post('/preload/:postId', async (c) => {
   try {
     const postId = c.req.param('postId');
-    const user = await requireAuth(c);
-    const userId = Number(user.id);
+    const user = await requireAuth(adaptRequest(c));
+    const userId = toNumericId(user.id);
 
     const db = drizzle(c.env.DB);
     const performanceService = new PerformanceService(db);
@@ -256,8 +375,8 @@ app.get('/cache/stats', async (c) => {
  */
 app.post('/cache/clear', async (c) => {
   try {
-    const user = await requireAuth(c);
-    const userId = Number(user.id);
+    const user = await requireAuth(adaptRequest(c));
+    const userId = toNumericId(user.id);
 
     // Prüfe Admin-Berechtigung (vereinfacht)
     if (userId !== 1) {
@@ -382,8 +501,8 @@ app.get('/metrics', async (c) => {
  */
 app.post('/optimize', async (c) => {
   try {
-    const user = await requireAuth(c);
-    const userId = Number(user.id);
+    const user = await requireAuth(adaptRequest(c));
+    const userId = toNumericId(user.id);
 
     // Prüfe Admin-Berechtigung
     if (userId !== 1) {

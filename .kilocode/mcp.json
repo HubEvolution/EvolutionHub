@@ -15,6 +15,14 @@
         "puppeteer_hover",
         "puppeteer_select"
       ]
+    },
+    "stripe": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@stripe/mcp",
+        "--tools=all"
+      ]
     }
   }
 }

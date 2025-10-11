@@ -108,7 +108,7 @@ logger.info('Scraping job started', {
 });
 ```
 
-**Fehlerbehandlung**
+##### Fehlerbehandlung
 
 - **Graceful Degradation**: Fallbacks für fehlgeschlagene Operationen
 - **User-Friendly Messages**: Klare Fehlermeldungen für Endbenutzer
@@ -178,19 +178,19 @@ npm run wrangler:tails
 
 ### ⚡ Best Practices für KI-gestützte Entwicklung
 
-**Prompt Engineering**
+#### Prompt Engineering
 
 - **Spezifische Anweisungen**: Seien Sie explizit in Ihren Anforderungen
 - **Kontext-Bereitstellung**: Stellen Sie relevante Code-Beispiele zur Verfügung
 - **Iterative Verfeinerung**: Bauen Sie auf vorherigen Ergebnissen auf
 
-**Code-Review**
+#### Code-Review
 
 - **Selbstkritik**: Hinterfragen Sie generierten Code kritisch
 - **Sicherheitsprüfung**: Überprüfen Sie generierten Code auf Sicherheitslücken
 - **Performance-Analyse**: Bewerten Sie die Effizienz des Codes
 
-**Testing**
+#### Testing
 
 - **Edge-Case-Coverage**: Testen Sie ungewöhnliche Szenarien
 - **Error-Scenario-Testing**: Validieren Sie Fehlerbehandlung

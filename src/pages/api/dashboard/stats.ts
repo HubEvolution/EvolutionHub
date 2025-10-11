@@ -13,7 +13,7 @@ import { logUserEvent } from '@/lib/security-logger';
 export const GET = withAuthApiMiddleware(
   async (context) => {
     const { locals, clientAddress } = context;
-    const { env } = locals.runtime;
+    const env = (locals.runtime?.env ?? {}) as Partial<{ DB: D1Database }>;
     const user = locals.user;
 
     if (!user) {
@@ -21,6 +21,9 @@ export const GET = withAuthApiMiddleware(
     }
     const userId = user.id;
     const db = env.DB;
+    if (!db) {
+      return createApiError('server_error', 'Database unavailable');
+    }
 
     const projectsQuery = db
       .prepare('SELECT count(*) as count FROM projects WHERE user_id = ?')
@@ -32,9 +35,9 @@ export const GET = withAuthApiMiddleware(
     const teamMembersQuery = db.prepare('SELECT count(*) as count FROM users').bind();
 
     const [projectsResult, tasksResult, teamMembersResult] = await Promise.all([
-      projectsQuery.first(),
-      tasksQuery.first(),
-      teamMembersQuery.first(),
+      projectsQuery.first<{ count: number }>(),
+      tasksQuery.first<{ count: number }>(),
+      teamMembersQuery.first<{ count: number }>(),
     ]);
 
     const stats = {

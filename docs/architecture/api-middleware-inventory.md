@@ -1,6 +1,6 @@
 # API- & Middleware-Inventar (EvolutionHub)
 
-> Hinweis (Stand Stytch-Migration): Legacy Passwort-basierte Flows (`register`, `forgot-password`, `reset-password`, `change-password`, `verify-email`, `logout`) sind deprecatet und liefern 410 Gone. Die aktuelle Authentifizierung verwendet ausschließlich Stytch Magic Link mit dem Session-Cookie `__Host-session` (HttpOnly, Secure, SameSite=Strict, Path=/). Details siehe `docs/architecture/auth-migration-stytch.md` und `routes.md`.
+> Hinweis (Stand Stytch-Migration): Legacy Passwort-basierte Flows (`register`, `forgot-password`, `reset-password`, `change-password`, `verify-email`, `logout`) sind deprecatet und liefern 410 Gone. Die aktuelle Authentifizierung verwendet ausschließlich Stytch Magic Link mit dem Session-Cookie `__Host-session` (HttpOnly, Secure, SameSite=Strict, Path=/). Details siehe die konsolidierte Doku und `routes.md`.
 
 Stand: 2025-08-22 05:56 CEST
 Scope Phase 1 – Bestandsaufnahme und Analyse ohne Codeänderungen.
@@ -69,8 +69,7 @@ Status: Deprecated — 410 Gone
   - `POST` → 410 Gone (HTML)
   - Andere Methoden → 410 Gone (JSON) mit `details.Allow: "POST"`
 - Hinweise
-  - Passwortbasierter Login ist entfernt. Aktiver Flow ist Magic Link (siehe `docs/architecture/auth-migration-stytch.md`).
-
+  - Passwortbasierter Login ist entfernt. Aktiver Flow ist Magic Link (siehe konsolidierte Doku unter Development).
 
 - Eingaben (FormData)
   - `email: string` (email-format, ≤255)
@@ -120,7 +119,7 @@ Status: Deprecated — 410 Gone
   - `POST` → 410 Gone (HTML)
   - Andere Methoden → 410 Gone (JSON) mit `details.Allow: "POST"`
 - Hinweise
-  - Passwort-Reset per UI/Server wird nicht mehr unterstützt (Magic Link only). Siehe `docs/architecture/auth-migration-stytch.md`.
+  - Passwort-Reset per UI/Server wird nicht mehr unterstützt (Magic Link only). Siehe konsolidierte Doku unter Development.
 
 ### 4.4 POST `/api/auth/logout` → `src/pages/api/auth/logout.ts`
 
@@ -163,7 +162,7 @@ Status: Deprecated — 410 Gone
   - `POST` → 410 Gone (HTML)
   - Andere Methoden → 410 Gone (JSON) mit `details.Allow: "POST"`
 - Hinweise
-  - Passwort-Reset-Flows sind abgeschaltet (Magic Link only). Siehe `docs/architecture/auth-migration-stytch.md`.
+  - Passwort-Reset-Flows sind abgeschaltet (Magic Link only). Siehe konsolidierte Doku unter Development.
 
 ### 4.7 POST `/api/auth/resend-verification` → `src/pages/api/auth/resend-verification.ts`
 

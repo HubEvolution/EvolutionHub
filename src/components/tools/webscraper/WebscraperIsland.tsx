@@ -116,9 +116,7 @@ export default function WebscraperIsland({ strings }: WebscraperIslandProps) {
     <div className="mx-auto max-w-5xl space-y-6">
       {/* Header */}
       <div className="text-center">
-        <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-3">
-          {strings.title}
-        </h1>
+        <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-3">{strings.title}</h1>
         <p className="text-lg text-gray-600 dark:text-gray-300">{strings.description}</p>
       </div>
 
@@ -166,7 +164,9 @@ export default function WebscraperIsland({ strings }: WebscraperIslandProps) {
                     <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">
                       {usage.used}
                     </span>
-                    <span className="text-sm text-gray-500 dark:text-gray-400">/ {usage.limit}</span>
+                    <span className="text-sm text-gray-500 dark:text-gray-400">
+                      / {usage.limit}
+                    </span>
                   </div>
                 </div>
               </div>

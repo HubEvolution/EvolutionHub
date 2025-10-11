@@ -92,15 +92,8 @@ export const blogCollection = defineCollection({
           .max(10, 'Maximal 10 Tags erlaubt')
           .default([]),
 
-        // Medien
-        image: image()
-          .refine((img) => img.width >= 1200, {
-            message: 'Bild muss mindestens 1200px breit sein',
-          })
-          .refine((img) => img.width / img.height >= 1.5 && img.width / img.height <= 2, {
-            message: 'Bildseitenverhältnis sollte zwischen 1.5:1 und 2:1 liegen',
-          })
-          .optional(),
+        // Medien (Akzeptiere alle Dimensionen; UI/CI prüft Qualität separat)
+        image: image().optional(),
 
         imageAlt: z.string().max(200, 'Alt-Text darf maximal 200 Zeichen lang sein').optional(),
 

@@ -7,13 +7,21 @@ interface Props {
   className?: string;
 }
 
+import { getLocale } from '@/lib/i18n';
+import { localizePath } from '@/lib/locale-path';
+
+const locale = getLocale(Astro.url.pathname);
+
 const {
   categories = [],
   selectedCategory,
-  baseUrl = '/blog',
+  baseUrl: baseUrlProp,
   showAllOption = true,
   className = '',
-} = Astro.props;
+} = Astro.props as Props;
+
+// Locale-bewusster Default für baseUrl, falls nicht explizit übergeben
+const baseUrl = baseUrlProp ?? localizePath(locale, '/blog');
 
 // Sortiere Kategorien nach Name
 const sortedCategories = [...categories].sort((a, b) => a.name.localeCompare(b.name, 'de'));

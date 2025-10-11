@@ -53,12 +53,26 @@ export function installXHRInterceptor() {
       private __url: string = '';
       private __start: number = 0;
 
-      open(method: string, url: string, async?: boolean, username?: string | null, password?: string | null) {
+      open(
+        method: string,
+        url: string,
+        async?: boolean,
+        username?: string | null,
+        password?: string | null
+      ) {
         try {
           this.__method = (method || 'GET').toUpperCase();
           this.__url = url || '';
-        } catch { /* noop */ }
-        return super.open(method as any, url as any, async as any, username as any, password as any);
+        } catch {
+          /* noop */
+        }
+        return super.open(
+          method as any,
+          url as any,
+          async as any,
+          username as any,
+          password as any
+        );
       }
 
       send(body?: Document | BodyInit | null) {
@@ -75,45 +89,84 @@ export function installXHRInterceptor() {
               try {
                 const json = JSON.parse(body);
                 if (json && typeof json === 'object' && !Array.isArray(json)) {
-                  bodyMeta = { type: 'json', length: body.length, keys: Object.keys(json).slice(0, 50) };
+                  bodyMeta = {
+                    type: 'json',
+                    length: body.length,
+                    keys: Object.keys(json).slice(0, 50),
+                  };
                 }
-              } catch {/* not json */}
+              } catch {
+                /* not json */
+              }
             } else if (body instanceof URLSearchParams) {
               const keys: string[] = [];
-              body.forEach((_v, k) => { if (!keys.includes(k)) keys.push(k); });
+              body.forEach((_v, k) => {
+                if (!keys.includes(k)) keys.push(k);
+              });
               bodyMeta = { type: 'urlencoded', keys };
             } else if (typeof FormData !== 'undefined' && body instanceof FormData) {
               const keys: string[] = [];
-              (body as FormData).forEach((_v, k) => { if (!keys.includes(k)) keys.push(k); });
+              (body as FormData).forEach((_v, k) => {
+                if (!keys.includes(k)) keys.push(k);
+              });
               bodyMeta = { type: 'formdata', keys };
             } else if (body) {
               bodyMeta = { type: (body as any)?.constructor?.name || 'object' };
             }
-          } catch {/* noop */}
+          } catch {
+            /* noop */
+          }
 
           clientLogger.info(`[NETWORK][XHR] ${method} ${safeUrl} [REDACTED]`, {
-            source: 'network', action: 'xhr_request_start', method, url: safeUrl, request: { body: bodyMeta }
+            source: 'network',
+            action: 'xhr_request_start',
+            method,
+            url: safeUrl,
+            request: { body: bodyMeta },
           });
 
           const onLoadEnd = () => {
             try {
-              const duration = Math.round(((performance?.now?.() as number) || Date.now()) - this.__start);
+              const duration = Math.round(
+                ((performance?.now?.() as number) || Date.now()) - this.__start
+              );
               const sizeHeader = this.getResponseHeader('content-length');
               const size = sizeHeader ? formatBytes(parseInt(sizeHeader, 10)) : 'unknown';
               clientLogger.info(
                 `[NETWORK][XHR] ${method} ${safeUrl} → ${this.status} (${duration}ms, ${size}) [REDACTED]`,
-                { source: 'network', action: 'xhr_request_complete', method, url: safeUrl, status: this.status, duration, size }
+                {
+                  source: 'network',
+                  action: 'xhr_request_complete',
+                  method,
+                  url: safeUrl,
+                  status: this.status,
+                  duration,
+                  size,
+                }
               );
-            } catch {/* noop */}
+            } catch {
+              /* noop */
+            }
           };
           const onError = (label: string) => () => {
             try {
-              const duration = Math.round(((performance?.now?.() as number) || Date.now()) - this.__start);
+              const duration = Math.round(
+                ((performance?.now?.() as number) || Date.now()) - this.__start
+              );
               clientLogger.error(
                 `[NETWORK][XHR] ${method} ${safeUrl} ${label} (${duration}ms) [REDACTED]`,
-                { source: 'network', action: 'xhr_request_failed', method, url: safeUrl, label, duration }
+                {
+                  source: 'network',
+                  action: 'xhr_request_failed',
+                  method,
+                  url: safeUrl,
+                  label,
+                  duration,
+                }
               );
-            } catch {/* noop */}
+            } catch {
+              /* noop */
+            }
           };
 
           this.addEventListener('load', onLoadEnd);

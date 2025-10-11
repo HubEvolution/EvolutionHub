@@ -69,22 +69,26 @@ seo:
 ### Content Best Practices
 
 **Title:**
+
 - 5-120 characters
 - Include primary keyword
 - Actionable and compelling
 
 **Description:**
+
 - 20-200 characters
 - Unique for each post
 - Include call-to-action or value proposition
 
 **Tags:**
+
 - Minimum 2 characters each
 - Maximum 10 tags per post
 - Use existing tags when possible (see tag cloud)
 - Lowercase preferred
 
 **Images:**
+
 - Minimum width: 1200px
 - Aspect ratio: 1.5:1 to 2:1 (recommended: 1.778:1 - 1200x675)
 - Format: WebP preferred, JPEG/PNG acceptable
@@ -92,6 +96,7 @@ seo:
 - File naming: `kebab-case-description.webp`
 
 **Content Structure:**
+
 - Use H2 for main sections
 - Use H3 for subsections
 - Keep paragraphs concise (max 3-4 sentences)
@@ -104,6 +109,7 @@ seo:
 Blog posts can integrate with the conversion funnel through CTAs:
 
 **Automatic Category Mapping:**
+
 - "New Work" → `new-work-guide` Lead Magnet
 - "Technologie" → `ki-tools-checkliste` Lead Magnet
 - "Produktivität" → `produktivitaets-masterclass` Lead Magnet
@@ -122,6 +128,7 @@ ctas:
 ```
 
 **CTA Types:**
+
 - `newsletter`: Newsletter sign-up
 - `leadmagnet`: Lead magnet download
 - `consultation`: Booking/consultation CTA
@@ -164,22 +171,26 @@ When adding new interactive elements, ensure they include appropriate ARIA label
 ## SEO Guidelines for Blog Posts
 
 **Title Tags:**
+
 - 50-60 characters (avoid truncation)
 - Include primary keyword near beginning
 - Brand name optional at end
 
 **Meta Descriptions:**
+
 - 150-160 characters
 - Include primary keyword naturally
 - Compelling call-to-action
 - Unique for each post
 
 **Schema.org Markup:**
+
 - BlogPosting type automatically applied
 - Author, datePublished, dateModified included
 - Image with proper dimensions
 
 **Internal Linking:**
+
 - Link to related posts (3-5 per post)
 - Use descriptive anchor text
 - Link to relevant tool/landing pages

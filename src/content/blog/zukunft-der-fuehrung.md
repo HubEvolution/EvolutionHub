@@ -5,10 +5,9 @@ pubDate: '2025-07-20'
 author: 'Evolution Hub'
 category: 'Führung'
 tags: ['Führung', 'Empathie', 'Zukunft der Arbeit', 'Leadership']
----
-
-image: { src: '/src/content/blog/images/future-of-leadership-empathy.webp', width: 1200, height: 675 }
+image: ./images/zukunft-der-fuehrung.webp
 imageAlt: 'Führungskraft zeigt Empathie gegenüber einem Team'
+---
 
 # Die Zukunft der Führung: Warum Empathie die wichtigste Fähigkeit für Leader von morgen ist
 

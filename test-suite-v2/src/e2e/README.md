@@ -4,7 +4,7 @@ This folder hosts the Playwright E2E suite for Evolution Hub.
 
 ## Structure
 
-```
+```text
 src/e2e/
 ├── auth/            # v1.7.2 comprehensive auth suite (OAuth, Magic Link, Session, Middleware)
 ├── features/        # App feature flows (e.g., dashboard, comment system)
@@ -14,6 +14,7 @@ src/e2e/
 ```
 
 Shared fixtures live in `test-suite-v2/fixtures/`:
+
 - `auth-helpers.ts`
 - `common-helpers.ts`
 - `tool-helpers.ts`

@@ -10,7 +10,7 @@ vi.mock('stripe', () => ({
   },
 }));
 
-import { DELETE } from '@/pages/api/user/account.ts';
+import { DELETE } from '@/pages/api/user/account';
 
 function createRequest(body: Record<string, unknown>) {
   return new Request('https://example.com/api/user/account', {
@@ -73,11 +73,7 @@ function createMockDb(options: {
   };
 }
 
-function createContext(params: {
-  body: Record<string, unknown>;
-  db: any;
-  stripeSecret?: string;
-}) {
+function createContext(params: { body: Record<string, unknown>; db: any; stripeSecret?: string }) {
   return {
     clientAddress: '127.0.0.1',
     request: createRequest(params.body),
@@ -119,7 +115,7 @@ describe('DELETE /api/user/account', () => {
     );
 
     expect(response.status).toBe(400);
-    const payload = await response.json();
+    const payload: any = await response.json();
     expect(payload.success).toBe(false);
     expect(payload.error.type).toBe('subscription_active');
     expect(payload.error.details.subscriptions[0].id).toBe('sub_123');

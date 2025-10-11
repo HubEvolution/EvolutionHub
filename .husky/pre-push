@@ -1,0 +1,9 @@
+# Fast gates before pushing: unit tests + focused E2E auth smoke
+
+echo "[pre-push] Running unit tests (Vitest)..."
+npm run test:once || exit 1
+
+echo "[pre-push] Running Playwright auth redirect smoke (chromium)..."
+npm run test:e2e:chromium -- src/e2e/auth/welcome-redirect.spec.ts || exit 1
+
+echo "[pre-push] OK"

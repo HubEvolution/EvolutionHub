@@ -146,11 +146,7 @@
         "get_started_button": "Jetzt loslegen",
         "documentation_link": "Dokumentation anzeigen",
         "tools_link": "Zu unseren Tools",
-        "typewriter": [
-          "IMAG'-Enhancer",
-          "Automatisierte Tests",
-          "Intelligente Fehlerbehebung"
-        ]
+        "typewriter": ["IMAG'-Enhancer", "Automatisierte Tests", "Intelligente Fehlerbehebung"]
       }
     },
     "blog": {

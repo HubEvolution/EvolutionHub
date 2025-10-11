@@ -3,7 +3,7 @@ import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
 import { CommentService } from '../../../../../lib/services/comment-service';
 import { requireModerator } from '../../../../../lib/auth-helpers';
-const app = new Hono<{ Bindings: { DB: D1Database } }>();
+const app = new Hono<{ Bindings: { DB: D1Database; KV_COMMENTS?: KVNamespace } }>();
 
 // Middleware
 app.use('*', logger());
@@ -55,7 +55,7 @@ app.post('/moderate', async (c) => {
       );
     }
 
-    const commentService = new CommentService(c.env.DB);
+    const commentService = new CommentService(c.env.DB, c.env.KV_COMMENTS);
 
     // Get comment details before moderation for potential notifications
     const comment = await commentService.getCommentById(commentId);

@@ -22,37 +22,36 @@ const logger = loggerFactory.createLogger('api-middleware');
  * @returns Die Response mit angewendeten Sicherheitsheadern
  */
 export function applySecurityHeaders(response: Response): Response {
-  // Erstelle eine neue Response mit den gleichen Daten und Status
-  const secureResponse = new Response(response.body, response);
+  // Some framework-generated responses (e.g., redirects) may have immutable headers.
+  // Clone headers, set security headers on the clone, and return a new Response preserving body/status.
+  const headers = new Headers(response.headers);
 
   // Hinweis: CSP wird zentral in der globalen Middleware (src/middleware.ts) gesetzt.
   // API-Antworten (JSON) benötigen keine CSP und sollten diese nicht überschreiben.
 
   // X-Content-Type-Options
-  secureResponse.headers.set('X-Content-Type-Options', 'nosniff');
+  headers.set('X-Content-Type-Options', 'nosniff');
 
   // X-Frame-Options
-  secureResponse.headers.set('X-Frame-Options', 'DENY');
+  headers.set('X-Frame-Options', 'DENY');
 
   // X-XSS-Protection
-  secureResponse.headers.set('X-XSS-Protection', '1; mode=block');
+  headers.set('X-XSS-Protection', '1; mode=block');
 
   // Referrer-Policy
-  secureResponse.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
 
   // Strict-Transport-Security (with preload to match global middleware)
-  secureResponse.headers.set(
-    'Strict-Transport-Security',
-    'max-age=31536000; includeSubDomains; preload'
-  );
+  headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
 
   // Permissions-Policy
-  secureResponse.headers.set(
-    'Permissions-Policy',
-    'camera=(), microphone=(), geolocation=(), interest-cohort=()'
-  );
+  headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), interest-cohort=()');
 
-  return secureResponse;
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
 }
 
 /**

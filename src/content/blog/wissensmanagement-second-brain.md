@@ -5,10 +5,9 @@ pubDate: '2025-07-20'
 author: 'Evolution Hub'
 category: 'Produktivität'
 tags: ['Second Brain', 'Wissensmanagement', 'Notizen', 'Produktivität']
----
-
-image: { src: '/src/content/blog/images/second-brain-organization.webp', width: 1200, height: 675 }
+image: ./images/wissensmanagement-second-brain.webp
 imageAlt: 'Grafik, die das Gehirn mit einem digitalen "Second Brain" verbindet'
+---
 
 # Wissensmanagement für Vergessliche: Wie du dein Gehirn mit einem "Second Brain" entlastest
 

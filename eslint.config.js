@@ -61,7 +61,21 @@ export default tseslint.config(
       'src/middleware.ts',
     ],
     rules: {
-      'no-console': ['error', { allow: [] }],
+      'no-console': ['error'],
+    },
+  },
+  // Tests: allow require() in test files to support tooling patterns
+  {
+    files: [
+      '**/*.{test,spec}.ts',
+      '**/*.{test,spec}.tsx',
+      'tests/**/*.ts',
+      'tests/**/*.tsx',
+      'test-suite-v2/**/*.ts',
+      'test-suite-v2/**/*.tsx',
+    ],
+    rules: {
+      '@typescript-eslint/no-require-imports': 'off',
     },
   }
 );

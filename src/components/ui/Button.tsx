@@ -6,6 +6,7 @@ export type ButtonSize = 'sm' | 'md';
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
   size?: ButtonSize;
+  isLoading?: boolean;
 }
 
 const base =
@@ -25,10 +26,22 @@ export const Button: React.FC<ButtonProps> = ({
   variant = 'primary',
   size = 'md',
   className = '',
-  ...props
+  isLoading = false,
+  disabled,
+  children,
+  ...rest
 }) => {
+  const computedDisabled = Boolean(disabled || isLoading);
+
   return (
-    <button className={`${base} ${sizes[size]} ${variants[variant]} ${className}`} {...props} />
+    <button
+      className={`${base} ${sizes[size]} ${variants[variant]} ${className}`}
+      disabled={computedDisabled}
+      aria-busy={isLoading || undefined}
+      {...rest}
+    >
+      {children}
+    </button>
   );
 };
 

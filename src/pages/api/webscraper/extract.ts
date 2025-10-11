@@ -7,6 +7,7 @@
  */
 
 import type { APIRoute } from 'astro';
+import type { KVNamespace } from '@cloudflare/workers-types';
 import {
   withApiMiddleware,
   createApiSuccess,
@@ -16,6 +17,24 @@ import {
 import { WebscraperService } from '@/lib/services/webscraper-service';
 import { createRateLimiter } from '@/lib/rate-limiter';
 import type { ScrapeInput, ScrapeResult } from '@/types/webscraper';
+
+interface WebscraperEnv {
+  KV_WEBSCRAPER?: KVNamespace;
+  ENVIRONMENT?: string;
+  PUBLIC_WEBSCRAPER_V1?: string;
+  WEBSCRAPER_GUEST_LIMIT?: string;
+  WEBSCRAPER_USER_LIMIT?: string;
+}
+
+interface ScrapeRequestPayload {
+  url?: unknown;
+  options?: Record<string, unknown>;
+}
+
+interface WebscraperError extends Error {
+  code?: string;
+  details?: unknown;
+}
 
 const webscraperLimiter = createRateLimiter({
   maxRequests: 10,
@@ -52,7 +71,7 @@ export const POST = withApiMiddleware(
       if (!bodyUnknown || typeof bodyUnknown !== 'object') {
         return createApiError('validation_error', 'Invalid JSON body');
       }
-      const body = bodyUnknown as Record<string, any>;
+      const body = bodyUnknown as ScrapeRequestPayload;
 
       const url = typeof body.url === 'string' ? body.url.trim() : '';
       if (!url) {
@@ -61,7 +80,7 @@ export const POST = withApiMiddleware(
 
       input = {
         url,
-        options: body.options || {},
+        options: body.options ?? {},
       };
     } catch {
       return createApiError('validation_error', 'Invalid JSON body');
@@ -72,7 +91,20 @@ export const POST = withApiMiddleware(
     const ownerId = user?.id || ensureGuestIdCookie(context);
 
     // Init service with flag check
-    const env = (locals.runtime?.env as any) ?? {};
+    const rawEnv = (locals.runtime?.env ?? {}) as Record<string, unknown>;
+    const env: WebscraperEnv = {
+      KV_WEBSCRAPER: rawEnv.KV_WEBSCRAPER as KVNamespace | undefined,
+      ENVIRONMENT: typeof rawEnv.ENVIRONMENT === 'string' ? rawEnv.ENVIRONMENT : undefined,
+      PUBLIC_WEBSCRAPER_V1:
+        typeof rawEnv.PUBLIC_WEBSCRAPER_V1 === 'string' ? rawEnv.PUBLIC_WEBSCRAPER_V1 : undefined,
+      WEBSCRAPER_GUEST_LIMIT:
+        typeof rawEnv.WEBSCRAPER_GUEST_LIMIT === 'string'
+          ? rawEnv.WEBSCRAPER_GUEST_LIMIT
+          : undefined,
+      WEBSCRAPER_USER_LIMIT:
+        typeof rawEnv.WEBSCRAPER_USER_LIMIT === 'string' ? rawEnv.WEBSCRAPER_USER_LIMIT : undefined,
+    };
+
     if (env.PUBLIC_WEBSCRAPER_V1 === 'false') {
       return createApiError('forbidden', 'Feature not enabled');
     }
@@ -93,25 +125,35 @@ export const POST = withApiMiddleware(
         usage: result.usage,
       });
     } catch (err) {
-      if (err instanceof Error && err.message.includes('quota exceeded')) {
-        return createApiError('forbidden', err.message, (err as any).details);
+      const typedErr = err as WebscraperError;
+      if (typedErr instanceof Error && typedErr.message.includes('quota exceeded')) {
+        const detailsRecord =
+          typedErr.details &&
+          typeof typedErr.details === 'object' &&
+          !Array.isArray(typedErr.details)
+            ? (typedErr.details as Record<string, unknown>)
+            : undefined;
+        return createApiError('forbidden', typedErr.message, detailsRecord);
       }
-      if (err instanceof Error && (err as any).code === 'feature_disabled') {
-        return createApiError('forbidden', err.message);
+      if (typedErr instanceof Error && typedErr.code === 'feature_disabled') {
+        return createApiError('forbidden', typedErr.message);
       }
-      if (err instanceof Error && (err as any).code === 'validation_error') {
-        return createApiError('validation_error', err.message);
+      if (typedErr instanceof Error && typedErr.code === 'validation_error') {
+        return createApiError('validation_error', typedErr.message);
       }
-      if (err instanceof Error && (err as any).code === 'robots_txt_blocked') {
-        return createApiError('forbidden', err.message);
+      if (typedErr instanceof Error && typedErr.code === 'robots_txt_blocked') {
+        return createApiError('forbidden', typedErr.message);
       }
-      if (err instanceof Error && (err as any).code === 'fetch_error') {
-        return createApiError('server_error', err.message);
+      if (typedErr instanceof Error && typedErr.code === 'fetch_error') {
+        return createApiError('server_error', typedErr.message);
       }
-      if (err instanceof Error && (err as any).code === 'parse_error') {
-        return createApiError('server_error', err.message);
+      if (typedErr instanceof Error && typedErr.code === 'parse_error') {
+        return createApiError('server_error', typedErr.message);
       }
-      return createApiError('server_error', err instanceof Error ? err.message : 'Unknown error');
+      return createApiError(
+        'server_error',
+        typedErr instanceof Error ? typedErr.message : 'Unknown error'
+      );
     }
   },
   {

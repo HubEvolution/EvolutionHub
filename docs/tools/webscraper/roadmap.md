@@ -137,24 +137,24 @@
 
 ### Technische Risiken
 
-**Anti-Scraping-Mechanismen**
+#### Anti-Scraping-Mechanismen
 
 - Mitigation: Adaptive Browser-Fingerprints
 - Fallback: Alternative Extraktionsmethoden
 
-**JavaScript-lastige Seiten**
+#### JavaScript-lastige Seiten
 
 - Mitigation: Vollständiges Browser-Rendering
 - Fallback: Hybride Parsing-Ansätze
 
 ### Rechtliche Risiken
 
-**Copyright-Inhalte**
+#### Copyright-Inhalte
 
 - Mitigation: Faire-Nutzung-Prüfung
 - User-Education: Richtlinien und Warnhinweise
 
-**Datenschutz**
+#### Datenschutz
 
 - Mitigation: PII-Detektion und -entfernung
 - Compliance: GDPR-konforme Verarbeitung

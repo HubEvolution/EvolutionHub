@@ -99,29 +99,35 @@ export default function BillingCard({ summary, strings, manageLink = '/pricing' 
 
       <div className="space-y-3">
         <div className="flex flex-col gap-1">
-          <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">{strings.currentPlan}</span>
+          <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+            {strings.currentPlan}
+          </span>
           <span className="text-lg font-bold text-white">
             {strings.planLabels[state?.plan ?? 'free']}
           </span>
         </div>
 
         <div className="flex flex-col gap-1">
-          <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">{strings.statusLabel}</span>
+          <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+            {strings.statusLabel}
+          </span>
           <span className="text-sm font-medium text-slate-300">{statusLabel}</span>
         </div>
 
         {state?.creditsRemaining !== null && (
           <div className="flex flex-col gap-1">
-            <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">{strings.credits}</span>
-            <span className="text-sm font-medium text-slate-300">
-              {state.creditsRemaining}
+            <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+              {strings.credits}
             </span>
+            <span className="text-sm font-medium text-slate-300">{state.creditsRemaining}</span>
           </div>
         )}
 
         {renewalDate && (
           <div className="flex flex-col gap-1">
-            <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">{strings.renewal}</span>
+            <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+              {strings.renewal}
+            </span>
             <span className="text-sm text-slate-300">{renewalDate}</span>
           </div>
         )}

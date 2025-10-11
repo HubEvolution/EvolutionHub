@@ -20,10 +20,8 @@ Hinweis: Quellen sind als Links zur Ursprungsdatei angegeben; HTTP Methoden wurd
 - /cookie-einstellungen — [`src/pages/cookie-einstellungen.astro`](src/pages/cookie-einstellungen.astro)
 - /dashboard — [`src/pages/dashboard.astro`](src/pages/dashboard.astro)
 - /datenschutz — [`src/pages/datenschutz.astro`](src/pages/datenschutz.astro)
-- /debug — [`src/pages/debug.astro`](src/pages/debug.astro)
 - /email-verified — [`src/pages/email-verified.astro`](src/pages/email-verified.astro)
 - /faq — [`src/pages/faq.astro`](src/pages/faq.astro)
-- /forgot-password — [`src/pages/forgot-password.astro`](src/pages/forgot-password.astro)
 - /impressum — [`src/pages/impressum.astro`](src/pages/impressum.astro)
 - /kontakt — [`src/pages/kontakt.astro`](src/pages/kontakt.astro)
 - /login — [`src/pages/login.astro`](src/pages/login.astro)
@@ -47,7 +45,6 @@ Hinweis: Quellen sind als Links zur Ursprungsdatei angegeben; HTTP Methoden wurd
 - /de/cookie-einstellungen — [`src/pages/de/cookie-einstellungen.astro`](src/pages/de/cookie-einstellungen.astro)
 - /de/datenschutz — [`src/pages/de/datenschutz.astro`](src/pages/de/datenschutz.astro)
 - /de/faq — [`src/pages/de/faq.astro`](src/pages/de/faq.astro)
-- /de/forgot-password — [`src/pages/de/forgot-password.astro`](src/pages/de/forgot-password.astro)
 - /de/impressum — [`src/pages/de/impressum.astro`](src/pages/de/impressum.astro)
 - /de/login — [`src/pages/de/login.astro`](src/pages/de/login.astro)
 - /de/register — [`src/pages/de/register.astro`](src/pages/de/register.astro)
@@ -59,7 +56,6 @@ Hinweis: Quellen sind als Links zur Ursprungsdatei angegeben; HTTP Methoden wurd
 - /en/datenschutz — [`src/pages/en/datenschutz.astro`](src/pages/en/datenschutz.astro)
 - /en/email-verified — [`src/pages/en/email-verified.astro`](src/pages/en/email-verified.astro)
 - /en/faq — [`src/pages/en/faq.astro`](src/pages/en/faq.astro)
-- /en/forgot-password — [`src/pages/en/forgot-password.astro`](src/pages/en/forgot-password.astro)
 - /en/impressum — [`src/pages/en/impressum.astro`](src/pages/en/impressum.astro)
 - /en/kontakt — [`src/pages/en/kontakt.astro`](src/pages/en/kontakt.astro)
 - /en/login — [`src/pages/en/login.astro`](src/pages/en/login.astro)
@@ -501,7 +497,9 @@ graph TD
 
 - Register-Seiten (`/register`, `/:locale/register`): Magic‑Link‑Formular mit E‑Mail und optionalen Profildaten (Name, Benutzername). Diese werden serverseitig in einem kurzlebigen HttpOnly‑Cookie `post_auth_profile` (10 Min) gespeichert und beim Callback für das erstmalige Anlegen des Users genutzt (Username‑Kollisionen werden wie gehabt mit Suffix aufgelöst).
 
-- Redirect‑Policy: Ein optionaler Weiterleitungs‑Pfad `r` (nur relative Pfade, kein `//`) wird als HttpOnly‑Cookie `post_auth_redirect` gesetzt. Im Callback hat dieses Cookie Vorrang vor einem Query‑`r`. Nach der Verwendung werden die Cookies gelöscht.
+- Redirect‑Policy (aktualisiert): Priorität der Zielbestimmung im Callback ist `post_auth_redirect` (HttpOnly‑Cookie, nur relative gleiche‑Origin‑Pfade) → Query `r` (relativ) → Fallback `/dashboard`. Locale wird bevorzugt aus `post_auth_locale`, ansonsten aus `pref_locale` (vom Middleware‑Locale‑Cookie oder aus Pfadpräfix) übernommen; falls Ziel nicht lokalisiert ist, wird es entsprechend lokalisiert.
+
+- Welcome‑Logik: Ist keine Locale bekannt (weder Pfadpräfix noch Cookie), wird einmalig auf `/_welcome?next=…` geleitet (Sprachauswahl, automatische Fortsetzung bei erkennbarer Sprache). Bei Erst‑Login ohne Profildaten erfolgt eine Weiterleitung auf die locale‑spezifische `/<locale>/welcome-profile?next=…`. Andernfalls wird direkt zum Ziel (z. B. `/(en/)?dashboard`) weitergeleitet. `/_welcome` ist mit `noindex` versehen.
 
 - Response auf `POST /api/auth/magic/request`: JSON `{ "success": true, "data": { "sent": true } }`. Die UI weist darauf hin, dass nach Absenden eine Bestätigungs‑Antwort angezeigt wird.
 

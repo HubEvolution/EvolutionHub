@@ -220,7 +220,9 @@ npm run test
 - [API Quickstart](./docs/api/README.md)
 - [Architektur](./docs/architecture/)
 - [Sicherheit](./docs/security/)
+- [Cloudflare Cache Rules (CI & Staging)](./docs/ops/cloudflare-cache-rules.md)
 - [UI-Komponenten Leitfaden](./docs/frontend/ui-components.md)
+- [Blog + Comments — Single Source of Truth](./docs/features/blog+commentsystem-plan.md#single-source-of-truth--aktueller-stand-blog--comments)
 
 ## 🤝 Mitwirken
 

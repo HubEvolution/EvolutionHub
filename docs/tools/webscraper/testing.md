@@ -6,7 +6,7 @@ Umfassende Testing-Strategie für höchste Code-Qualität und Systemstabilität 
 
 ## Unit-Tests
 
-#### Parser-Tests
+### Parser-Tests
 
 - Verschiedene HTML-Strukturen testen
 - Edge-Cases und Fehlerbehandlung validieren

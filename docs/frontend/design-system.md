@@ -397,17 +397,20 @@ import AosWrapper from '@/components/AosWrapper.astro';
 ```
 
 **Verfügbare Animationen:**
+
 - `fade-up`, `fade-down`, `fade-left`, `fade-right`
 - `zoom-in`, `zoom-out`
 - `slide-up`, `slide-down`, `slide-left`, `slide-right`
 
 **Standard-Konfiguration:**
+
 - **Duration**: 700ms (überschreibbar via `duration` Prop)
 - **Delay**: 0ms (überschreibbar via `delay` Prop)
 - **Easing**: ease-out
 - **Once**: true (Animation nur einmal abspielen)
 
 **Wichtig:**
+
 - Automatische Berücksichtigung von `prefers-reduced-motion`
 - Für Listen: `aosDelayForIndex()` für dynamische Delays verwenden
 - Siehe [AOS Coordinator Dokumentation](./aos-coordinator.md) für Details

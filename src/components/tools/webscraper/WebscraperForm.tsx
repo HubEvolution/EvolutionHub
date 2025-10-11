@@ -70,12 +70,7 @@ export function WebscraperForm({
       </div>
 
       <div className="flex items-center gap-3">
-        <Button
-          type="submit"
-          disabled={loading || !url.trim()}
-          className="flex-1"
-          size="lg"
-        >
+        <Button type="submit" disabled={loading || !url.trim()} className="flex-1" size="lg">
           {loading ? (
             <>
               <svg
@@ -121,13 +116,7 @@ export function WebscraperForm({
         </Button>
 
         {url && !loading && (
-          <Button
-            type="button"
-            onClick={onClear}
-            variant="secondary"
-            size="lg"
-            className="px-4"
-          >
+          <Button type="button" onClick={onClear} variant="secondary" size="lg" className="px-4">
             <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"

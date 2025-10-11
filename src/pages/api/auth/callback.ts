@@ -69,6 +69,12 @@ const getHandler: ApiHandler = async (context: APIContext) => {
   const devEnv =
     ((context.locals as any)?.runtime?.env?.ENVIRONMENT || 'development') === 'development';
   const startedAt = Date.now();
+  // Server-Timing instrumentation
+  const t0 = startedAt;
+  let durAuth = 0;
+  let durUpsert = 0;
+  let durSession = 0;
+  let durRedirect = 0;
   if (devEnv) {
     console.log('[auth][magic][callback] received', { hasToken: Boolean(token) });
   }
@@ -89,9 +95,11 @@ const getHandler: ApiHandler = async (context: APIContext) => {
     }
   } else {
     try {
+      const _tAuth = Date.now();
       const authRes = await stytchMagicLinkAuthenticate(context, token);
       const emails = authRes.user?.emails || [];
       stytchEmail = emails.find((e) => e.verified)?.email || emails[0]?.email;
+      durAuth = Date.now() - _tAuth;
       if (devEnv) {
         console.log('[auth][magic][callback] provider accepted', {
           ms: Date.now() - startedAt,
@@ -135,7 +143,9 @@ const getHandler: ApiHandler = async (context: APIContext) => {
     // Ignore profile cookie parsing failures
   }
 
+  const _tUpsert = Date.now();
   const upsert = await upsertUser(db, email, desiredName, desiredUsername);
+  durUpsert = Date.now() - _tUpsert;
 
   // Create app session
   const session = await createSession(db, upsert.id);
@@ -144,6 +154,7 @@ const getHandler: ApiHandler = async (context: APIContext) => {
   const maxAge = 60 * 60 * 24 * 30; // 30 days
 
   // Transitional: set both legacy and target cookie
+  const _tSession = Date.now();
   try {
     context.cookies.set('session_id', session.id, {
       path: '/',
@@ -165,6 +176,7 @@ const getHandler: ApiHandler = async (context: APIContext) => {
   } catch (_err) {
     // Ignore cookie setting failures; session will be retried on next request
   }
+  durSession = Date.now() - _tSession;
 
   // Determine redirect target: prefer cookie set during request phase over query param
   const rCookie = context.cookies.get('post_auth_redirect')?.value || '';
@@ -189,13 +201,21 @@ const getHandler: ApiHandler = async (context: APIContext) => {
     target = r;
   }
 
-  // Localize target based on locale hint cookie (only if target is not already localized)
+  // Localize target based on locale cookies (prefer post_auth_locale, fallback to pref_locale)
+  let effectiveLocale: Locale | undefined;
   try {
-    const localeCookie = context.cookies.get('post_auth_locale')?.value as Locale | undefined;
-    if (localeCookie === 'de' || localeCookie === 'en') {
-      if (!isLocalizedPath(target)) {
-        target = localizePath(localeCookie, target);
-      }
+    const postAuthLocale = context.cookies.get('post_auth_locale')?.value as Locale | undefined;
+    const prefLocale = context.cookies.get('pref_locale')?.value as Locale | undefined;
+    effectiveLocale =
+      postAuthLocale === 'de' || postAuthLocale === 'en'
+        ? postAuthLocale
+        : prefLocale === 'de' || prefLocale === 'en'
+          ? prefLocale
+          : undefined;
+    if (effectiveLocale && !isLocalizedPath(target)) {
+      target = localizePath(effectiveLocale, target);
+    }
+    if (postAuthLocale === 'de' || postAuthLocale === 'en') {
       try {
         context.cookies.delete('post_auth_locale', { path: '/' });
       } catch (_err) {
@@ -207,20 +227,32 @@ const getHandler: ApiHandler = async (context: APIContext) => {
   }
 
   // Build redirect response with cookies in headers
+  const _tRedirect = Date.now();
   let redirectTarget = target;
   const hasProfileFromRequest = Boolean(desiredName) || Boolean(desiredUsername);
-  if (upsert.isNew && !hasProfileFromRequest) {
+  const hasLocale = isLocalizedPath(target) || !!effectiveLocale;
+  if (!hasLocale) {
+    // Locale unknown – route once through welcome locale picker
     const nextParam = encodeURIComponent(target);
-    // Extract locale from target path to ensure welcome-profile is localized
-    let welcomePath = '/welcome-profile';
-    if (target.startsWith('/en/')) {
-      welcomePath = '/en/welcome-profile';
-    } else if (target.startsWith('/de/')) {
-      welcomePath = '/de/welcome-profile';
+    redirectTarget = `/welcome?next=${nextParam}`;
+    if (devEnv) {
+      console.log('[auth][magic][callback] redirect to welcome (no locale known)', { target });
+    }
+  } else if (upsert.isNew && !hasProfileFromRequest) {
+    // First-time user without profile → locale-specific welcome-profile
+    const nextParam = encodeURIComponent(target);
+    // Prefer effectiveLocale if available; fallback to target prefix; default neutral (de)
+    let welcomePath = effectiveLocale === 'en' ? '/en/welcome-profile' : '/welcome-profile';
+    if (!effectiveLocale) {
+      if (target.startsWith('/en/')) welcomePath = '/en/welcome-profile';
+      else if (target.startsWith('/de/')) welcomePath = '/de/welcome-profile';
     }
     redirectTarget = `${welcomePath}?next=${nextParam}`;
     if (devEnv) {
-      console.log('[auth][magic][callback] redirect first-time to welcome-profile', { target, welcomePath });
+      console.log('[auth][magic][callback] redirect first-time to welcome-profile', {
+        target,
+        welcomePath,
+      });
     }
   } else {
     if (devEnv) {
@@ -232,6 +264,20 @@ const getHandler: ApiHandler = async (context: APIContext) => {
   const cookieValue = `session_id=${session.id}; Path=/; HttpOnly; SameSite=Lax${isHttps ? '; Secure' : ''}; Max-Age=${maxAge}`;
   const response = createSecureRedirect(redirectTarget);
   response.headers.append('Set-Cookie', cookieValue);
+  durRedirect = Date.now() - _tRedirect;
+
+  // Append Server-Timing header
+  try {
+    const total = Date.now() - t0;
+    const parts = [
+      `stytch_auth;dur=${durAuth}`,
+      `db_upsert;dur=${durUpsert}`,
+      `session_cookie;dur=${durSession}`,
+      `redirect_build;dur=${durRedirect}`,
+      `total;dur=${total}`,
+    ];
+    response.headers.set('Server-Timing', parts.join(', '));
+  } catch {}
 
   if (devEnv) {
     console.log('[auth][magic][callback] response headers Set-Cookie', { cookie: cookieValue });

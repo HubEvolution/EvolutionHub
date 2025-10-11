@@ -8,9 +8,143 @@
 
 ---
 
-## Phase 1: Kritische Blocker (MUST-HAVE) - 1-2 Tage
+<!-- markdownlint-disable-next-line MD033 -->
 
-### 1.1 Comment-System: Email-Benachrichtigungen
+<a id="ssot-blog-comments"></a>
+
+## Single Source of Truth – Aktueller Stand (Blog + Comments)
+
+Diese Seite dient als zentrale Referenz für die aktuelle Blog- und Comments-Implementierung. Ergänzend zu den Phasen/Tasks unten werden hier die verbindlichen Konventionen, Komponenten und Schnittstellen festgehalten.
+
+### Komponenten & Konventionen (Astro)
+
+- **BlogPost Rendering** ([`src/components/BlogPost.astro`](../../src/components/BlogPost.astro))
+  - Bilder über Astro `<Image>`; Frontmatter-Bilder als `ImageMetadata` getypt (defensive Guards für `src/width/height`).
+  - Alt-Text strikt normalisiert (`imageAltText: string`); Caption nur bei `typeof imageAlt === 'string'`.
+  - Share-URLs mit `new URL(post.url, Astro.site?.origin || 'http://127.0.0.1:8787')` und `encodeURIComponent(String(title))`.
+  - CTA-Konfiguration: Branding-Varianten (`primary|secondary|subtle`) werden für `LeadMagnetCTA` auf Layout-Varianten gemappt (`primary→banner`, `secondary→inline`, `subtle→card`).
+  - Kategorie-Handling: Normalisierung auf `categoryStr` für URL/Label.
+
+- **CTAs**
+  - `BlogCTA` ([`src/components/blog/BlogCTA.astro`](../../src/components/blog/BlogCTA.astro)): akzeptiert Branding-Varianten (`'primary'|'secondary'|'subtle'`).
+  - `LeadMagnetCTA` ([`src/components/blog/LeadMagnetCTA.astro`](../../src/components/blog/LeadMagnetCTA.astro)): erwartet Layout-Varianten (`'card'|'inline'|'banner'`).
+
+- **BlogCard** ([`src/components/BlogCard.astro`](../../src/components/BlogCard.astro))
+  - Zeigt Comment-Count-Badge (über `/api/comments/count`).
+  - Bilddarstellung konsistent mit Astro `<Image>` (siehe Phase 2.3 – Status: in Arbeit/teils umgesetzt).
+
+#### Locale-bewusste Links (SSoT)
+
+- Alle internen Blog-Links müssen locale-bewusst erzeugt werden: `localizePath(getLocale(Astro.url.pathname), href)`.
+- Begründung: Die Middleware normalisiert neutrale Pfade abhängig von Cookies/Referer und verursacht sonst 30x-Redirects (weißes Redirect-Zwischendokument). Refs: `src/middleware.ts:332-356`, `src/middleware.ts:447-469`.
+- Umsetzung:
+  - Beitragstitel/Bilder/„Weiterlesen“ in `BlogCard` verwenden lokalisierte URL.
+  - Kategorie-/Tag-Links in `BlogPost` lokalisieren.
+  - Blog-Index (Such-Action, Tag-Links, Reset, CategoryFilter-Base) lokalisieren.
+  - CategoryFilter hat einen locale-bewussten Default, falls `baseUrl` nicht gesetzt ist.
+- Refs: `src/components/BlogCard.astro`, `src/components/BlogPost.astro`, `src/pages/blog/index.astro`, `src/components/CategoryFilter.astro`, `src/lib/locale-path.ts`.
+
+Weitere UI-Details sind in [`docs/frontend/ui-components.md`](../frontend/ui-components.md) festgehalten (Abschnitt „Blog UI Konventionen (Astro)“).
+
+### API & Security Integration
+
+- Alle API-Routen werden über `withApiMiddleware` bzw. `withAuthApiMiddleware` gehärtet ([`src/lib/api-middleware.ts`](../../src/lib/api-middleware.ts)): Security-Header, Same-Origin-Checks für unsichere Methoden, Rate Limiting.
+- Einheitliche JSON-Shapes via `createApiSuccess`/`createApiError` und `createMethodNotAllowed` (405 mit Allow-Header).
+- Comments-Endpoints (u. a. `GET /api/comments/count`, Moderation/Performance/Admin) folgen diesen Regeln; siehe Implementierungen unter [`src/pages/api/comments/`](../../src/pages/api/comments/).
+- KV-Caching für Comments (Phase 2.2): `KV_COMMENTS` Binding in `wrangler.toml`, TTL 5 min, Invalidation bei Mutationen.
+
+### Relevante Dateien (Auszug)
+
+- Blog Rendering: [`src/components/BlogPost.astro`](../../src/components/BlogPost.astro), [`src/pages/blog/[...slug].astro`](../../src/pages/blog/%5B...slug%5D.astro)
+- CTAs: [`src/components/blog/BlogCTA.astro`](../../src/components/blog/BlogCTA.astro), [`src/components/blog/LeadMagnetCTA.astro`](../../src/components/blog/LeadMagnetCTA.astro)
+- Comment-UI/Badge: [`src/components/BlogCard.astro`](../../src/components/BlogCard.astro)
+- Admin UI: [`src/pages/admin/comments.astro`](../../src/pages/admin/comments.astro)
+- Comments Services/APIs: [`src/lib/services/comment-service.ts`](../../src/lib/services/comment-service.ts), [`src/pages/api/comments/`](../../src/pages/api/comments/), [`src/pages/api/admin/comments/`](../../src/pages/api/admin/comments/)
+- Notifications: [`src/lib/services/notification-service.ts`](../../src/lib/services/notification-service.ts), [`src/pages/api/notifications/queue/process.ts`](../../src/pages/api/notifications/queue/process.ts), [`migrations/0022_seed_email_templates_comments.sql`](../../migrations/0022_seed_email_templates_comments.sql)
+- Regeln/Leitlinien: [API & Security](../../.windsurf/rules/api-and-security.md), [Project Structure](../../.windsurf/rules/project-structure.md), [Testing & CI](../../.windsurf/rules/testing-and-ci.md), [Tooling & Style](../../.windsurf/rules/tooling-and-style.md), sowie [`docs/frontend/ui-components.md`](../frontend/ui-components.md)
+
+## Fortschritt (Stand: laufend)
+
+- ✅ Feature-Branch erstellt: `feat/blog-comments-phase1`
+- ✅ Admin-UI Mismatch behoben: `src/pages/admin/comments.astro`
+  - Normalisierung der API-Response (`adminCommentsList`)
+  - Moderations-Request sendet `{ action: 'approve'|'reject' }`
+- ✅ Notifications-Hooks ergänzt: `src/lib/services/comment-service.ts`
+  - Reply → In-App + E-Mail-Queue
+  - Moderation (approve/reject) → In-App + E-Mail-Queue
+- ✅ Queue-Processor-API: `POST /api/notifications/queue/process` (mit `withAuthApiMiddleware`)
+- ✅ Seed-Migration für E-Mail-Templates: `migrations/0022_seed_email_templates_comments.sql`
+- ✅ Plan-Doc aktualisiert (Security/Middleware, Secrets, Deployment)
+- ✅ Comment-Count Endpoint: `GET /api/comments/count` + Badge in `src/components/BlogCard.astro`
+- ✅ Admin-UI erweitert: Filter, Pagination, Auswahl-Checkboxen, Bulk-Actions (`/api/admin/comments/bulk-moderate`)
+- ✅ RSS-Feed implementiert: `GET /rss.xml` (ohne zusätzliche Dependencies)
+- ✅ Comments- & Dashboard-API-Cluster gehärtet (`src/pages/api/comments/{moderate,performance}.ts`, `src/pages/api/dashboard/activity.ts`, `src/pages/api/dashboard/billing-summary.ts`, `src/pages/api/debug/{client-log,debug-login}.ts`, `src/pages/api/templates.ts`, `src/pages/api/user/{me,profile}.ts`)
+
+**Aktualisierung (Staging/CI):**
+
+- ✅ Seeds verifiziert: `email_templates` vorhanden; `reply-notification`, `moderation-decision` aktiv (DE)
+- ✅ Secrets gesetzt: `EMAIL_FROM = noreply@hub-evolution.com` (Testing & Staging)
+- ✅ Deploys live: Testing (`ci.hub-evolution.com`) & Staging (`staging.hub-evolution.com`)
+- ✅ Smoke: `/rss.xml` 200; `/blog` gated (302 → `/welcome?next=...`)
+- ✅ Comments-APIs stabil: 500er behoben; Diagnose liefert `schema: "legacy"`
+- ✅ Admin-UI erweitert: Schema-Diagnose-Badge & Approved-Count in Übersicht
+- ✅ Blog-Detail 404s gefixt (`src/pages/blog/[...slug].astro`, `wrangler.toml`)
+  - Catch-All-Slug normalisiert (`getStaticPaths` → String) und Worker-Assets auf `auto-trailing-slash`
+  - `dist/blog/<slug>/index.html` wird im Build erzeugt
+- ✅ Integration-Suiten ergänzt: `tests/integration/routing/blog-routes.test.ts`, `tests/integration/api/comments-routes.test.ts`
+  - Smoke prüft `/blog/` + Detailseiten inkl. Redirects (Welcome-Gate tolerant)
+  - Comments-APIs (`/api/comments`, `/api/comments/count`) werden auf Shape/Diag validiert
+- ✅ Integration-Suites laufen grün (`npm run test:integration -- tests/integration/routing/blog-routes.test.ts tests/integration/api/comments-routes.test.ts`)
+  - Wrangler-Dev-Server liefert 200er für Blog-Detailseiten; Comments-API-Responses bestehen Shape-Checks
+- ⚠️ `npx astro check` schlägt an: Altbestand an Unit-Tests (`tests/unit/**`) enthält TypeScript-Fehler (z.B. fehlende Exporte, veraltete Imports)
+- ✅ Lint-Setup bereinigt:
+  - `npm install -D eslint-plugin-prettier@^5.1.3`
+  - `npm install -D eslint-plugin-react-hooks@^6.1.1`
+  - `npm install -D prettier-plugin-astro@^0.13.0`
+- ⚠️ Lint-Ausgabe 2025-10-09: `npm run lint` liefert 10 Errors / 550 Warnings (v. a. `no-useless-escape` + Format in `src/pages/rss.xml.ts`, viele `@typescript-eslint/no-explicit-any` Treffer, diverse Prettier-Hinweise)
+- ✅ Kurzfristige ToDos (Lint/Format) – erledigt 2025-10-10:
+  1. `src/pages/rss.xml.ts` vollständig Prettier-konform, keine Format-Warnungen mehr
+  2. `src/pages/api/projects/index.ts` nutzt typisierte Locals + Request-Parsen ohne `any`
+  3. `src/pages/api/prompt-enhance.ts` mit strikt typisierten JSON-/Env-Helpern & Error-Handling
+  4. `src/pages/api/webscraper/extract.ts` typisiert (Payload/Env/Error), keine `any`
+  5. `src/server/utils/logger.ts` ersetzt `Record<string, any>` durch `LogContextPayload`
+  6. Nach jedem Fix: `npx eslint <file>` + `npm run lint -- --max-warnings=280`
+- ⏳ Mittelfristig (`any`-Bereinigung Runde 2):
+  - `src/pages/api/templates.ts`
+  - `src/pages/api/user/me.ts`, `src/pages/api/user/profile.ts`
+  - `src/pages/api/test/seed-email-token.ts`
+  - `src/server/utils/logger-factory.ts`
+  - `src/pages/api/debug/*` (after logs-stream cleanup bleiben `client-log.ts`, `debug-login.ts`)
+- 🛠️ Nächste Priorität (Q4 2025 Sprint):
+  - ✅ `src/pages/api/notifications/index.ts` jetzt mit typisiertem Query-Parsing & Env-Zugriff
+  - ✅ `src/pages/api/notifications/queue/process.ts` strikte Env-/Template-Typen
+  - ✅ `src/pages/api/debug/logs-stream.ts` SSE/Polling Typing + Abort-Handhabung
+  - ➡️ Fokus verschiebt sich auf `src/pages/api/comments/moderate.ts`, `src/pages/api/comments/performance.ts`, `src/pages/api/csp-report.ts`, `src/pages/api/dashboard/**` (siehe Lint-Ausgabe 2025-10-10)
+- 📊 Lint-Status 2025-10-10 (`npm run lint -- --max-warnings=280`):
+  - 8 Errors / 329 Warnings verbleibend (hauptsächlich `@typescript-eslint/no-explicit-any`)
+  - Cluster (nach Abschluss Step 3 – Scripts/Stores/Tests/API):
+    - Scripts gehärtet: `src/scripts/orchestrate-entrance.ts`, `src/scripts/settings.ts`
+    - Stores verfeinert: `src/stores/projectStore.ts`, `src/stores/quickActionStore.ts`
+    - Tests ergänzt: `tests/unit/dashboard/{projectStore.test.ts,quickActionStore.test.ts}`; Setup säubert Mocks (`src/setupTests.ts`)
+    - Dashboard-APIs angepasst: `src/pages/api/dashboard/{perform-action,projects,stats}.ts` (Env-Guards, Typen, Response-Shape)
+- 💡 Zwischenexkurs: Dashboard-Komponente "Meine letzten Kommentare"
+  - Ziel: Im User-Dashboard ein Widget (`DashboardRecentComments`) bereitstellen, das die zuletzt verfassten Kommentare des Nutzers (z. B. die letzten fünf) mit Blogpost-Titel, Auszug, Status (`published | pending | rejected`) und Zeitstempel darstellt.
+  - Backend: Neuer Endpoint `GET /api/comments/recent?limit=5` (mit `withAuthApiMiddleware`) nutzt eine `CommentService.getRecentCommentsByUser(userId, limit)`-Hilfsfunktion, die auf bestehenden Moderationsqueries aufsetzt.
+  - Frontend: React-Island `src/components/dashboard/RecentCommentsCard.tsx`, lädt Daten via SWR/Fetch, zeigt Skeleton- und Error-State, verlinkt jeden Eintrag zu `/blog/<slug>#comments`.
+  - Empty State: "Noch keine Kommentare – entdecke unseren Blog und diskutiere mit!" inkl. CTA-Button `Zum Blog` (`/blog`).
+  - Tracking: Optionales Event `dashboard_recent_comments_opened` zur Nutzungsmessung.
+- 🪜 Langfristig (Cleanup / Test-Infrastruktur):
+  - `src/setupTests.ts`
+  - `src/scripts/orchestrate-entrance.ts`, `src/scripts/settings.ts`
+  - `src/stores/projectStore.ts`, `src/stores/quickActionStore.ts`
+  - Konsolidierte Error-Mapping-Helper (`WebscraperService`, `PromptEnhancerService`) prüfen
+
+### Phase 1 Status
+
+- ✅ Phase 1 abgeschlossen: Notifications (Queue + Gating + Templates), Admin-UI (Filter/Pagination/Bulk/Details), Comment-Count, RSS.
+- Nächste Schritte (Staging & CI-Domain):
+  - ✅ Staging Deploy & Smoke-Tests: `/blog`, `/rss.xml`
+  - ℹ️ Admin-UI Smoke folgt nach Abschluss Phase 2.2 (KV-Caching)
 
 **Problem**: Keine Email-Benachrichtigungen bei neuen Replies oder Moderation-Entscheidungen.
 
@@ -155,7 +289,7 @@
 
 ## Phase 2: Performance-Optimierungen (SHOULD-HAVE) - 1 Tag
 
-### 2.1 Blog-System: SSG/ISR aktivieren
+### 2.1 Blog-System: SSG/ISR aktivieren — Status: ✅ abgeschlossen
 
 **Problem**: Blog-Posts nutzen SSR statt SSG (langsamer).
 
@@ -176,9 +310,11 @@
 - ✅ Build-Zeit < 30s für 20 Posts
 - ✅ CDN-Cache-Hit-Rate > 90%
 
+Hinweis: Build-Warnungen zu `Astro.request.headers` auf SSG-Seiten wurden beobachtet; falls nötig, entfernen/absichern wir Header-Zugriffe in `[...slug].astro` in einem Folge-Refactor.
+
 ---
 
-### 2.2 Comment-System: KV-Caching
+### 2.2 Comment-System: KV-Caching — Status: ⏳ in Arbeit
 
 **Problem**: Jeder Comment-Load = DB-Query (keine Caching-Layer).
 
@@ -190,8 +326,16 @@
 
 **Dateien**:
 
-- `src/lib/services/comment-service.ts` (UPDATE: Cache-Layer)
-- `wrangler.toml` (UPDATE: KV-Binding `KV_COMMENTS` falls nötig)
+- `src/lib/services/comment-service.ts` (UPDATE: Cache-Layer mit TTL 5m, Invalidation bei Mutationen)
+- `wrangler.toml` (UPDATE: KV-Binding `KV_COMMENTS` pro Env)
+
+Umsetzungsstand:
+
+- ✅ KV Namespaces erstellt:
+  - Testing `KV_COMMENTS`: `41475ea385094b3f9b13c12e06954dd5`
+  - Staging `KV_COMMENTS`: `61878c1a1cd3402499476e7804ccc8ef`
+- ✅ Testing wiring: API-Handler übergeben `KV_COMMENTS` an `CommentService`
+- ✅ Staging wiring: Binding vorhanden und genutzt (siehe Deploy-Output `env.KV_COMMENTS`)
 
 **Akzeptanzkriterien**:
 
@@ -213,12 +357,12 @@
 
 **Dateien**:
 
-- `src/components/BlogCard.astro` (UPDATE: <Image> statt <img>)
-- `src/components/BlogPost.astro` (UPDATE: <Image> Component)
+- `src/components/BlogCard.astro` (UPDATE: `<Image>` statt `<img>`)
+- `src/components/BlogPost.astro` (UPDATE: `<Image>` Component)
 
 **Akzeptanzkriterien**:
 
-- ✅ Alle Blog-Images nutzen Astro <Image>
+- ✅ Alle Blog-Images nutzen Astro `<Image>`
 - ✅ Responsive srcset generiert (min 3 Größen)
 - ✅ WebP-Format bevorzugt (Fallback zu JPEG/PNG)
 
@@ -372,8 +516,14 @@
    wrangler secret put BASE_URL --env staging
    ```
 
-3. Deploy: `npm run deploy:staging`
-4. Smoke-Tests: `/blog`, `/admin/comments`, RSS-Feed
+3. Build & Deploy:
+
+   ```bash
+   npm run build:worker:staging
+   wrangler deploy --env staging
+   ```
+
+4. Smoke-Tests: `/blog`, `/admin/comments`, `/rss.xml`
 
 ### Production-Deployment
 
@@ -386,8 +536,7 @@
    wrangler secret put BASE_URL --env production
    ```
 
-  
-  3. Deploy mit Manual Approval (GitHub Actions)
+3. Deploy mit Manual Approval (GitHub Actions)
 4. Health-Check: `npm run health-check -- --url https://hub-evolution.com`
 5. Monitoring 24h (Cloudflare Analytics, Error-Logs)
 
@@ -429,21 +578,25 @@
 
 ## Geschätzter Zeitplan
 
-| Phase | Aufwand | Dauer |
-|-------|---------|-------|
-| Phase 1 (Kritische Blocker) | Hoch | 1-2 Tage |
-| Phase 2 (Performance) | Mittel | 1 Tag |
-| Phase 3 (Testing & Monitoring) | Mittel | 1 Tag |
-| Phase 4 (Nice-to-Have) | Niedrig | 1 Tag (optional) |
-| **Gesamt** | **3-5 Tage** | **1-2 Entwickler** |
+| Phase                          | Aufwand      | Dauer              |
+| ------------------------------ | ------------ | ------------------ |
+| Phase 1 (Kritische Blocker)    | Hoch         | 1-2 Tage           |
+| Phase 2 (Performance)          | Mittel       | 1 Tag              |
+| Phase 3 (Testing & Monitoring) | Mittel       | 1 Tag              |
+| Phase 4 (Nice-to-Have)         | Niedrig      | 1 Tag (optional)   |
+| **Gesamt**                     | **3-5 Tage** | **1-2 Entwickler** |
 
 ---
 
 ## Nächste Schritte
 
-1. **Jetzt**: Plan-Review & Priorisierung
-2. **Tag 1-2**: Phase 1 (Kritische Blocker)
-3. **Tag 3**: Phase 2 (Performance)
-4. **Tag 4**: Phase 3 (Testing)
-5. **Tag 5**: Staging-Deployment & Smoke-Tests
-6. **Tag 6**: Production-Deployment (mit Monitoring)
+1. Phase 2.2 finalisieren (KV-Caching)
+   - Staging: `KV_COMMENTS` Binding im `wrangler.toml` prüfen/fixieren → redeploy
+   - Kurztest (Testing & Staging): zweimaliger GET auf identische Entity → Cache-Hit
+   - Logging optional: Cache-Hit/Miss im `CommentService` (debug-level)
+2. Phase 2.3 umsetzen (Image-Optimierung)
+   - `src/components/BlogCard.astro` und `src/components/BlogPost.astro` auf `<Image>` + `srcset` + WebP
+   - Build & Smoke; Light-Perf-Check
+3. Step 3 abgeschlossen (Scripts/Stores/Tests/API)
+   - Scripts/Stores gehärtet, Unit-Tests für Stores ergänzt, Dashboard-APIs angepasst (Env-Guards/Typen)
+   - Optional: weitere Integrationstests für Dashboard-APIs hinzufügen

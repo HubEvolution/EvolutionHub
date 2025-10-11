@@ -1,21 +1,24 @@
 ---
-// Prerender deaktiviert, da Astro.request.headers im Code verwendet wird
-export const prerender = false;
+// SSG + ISR aktivieren (Phase 2.1)
+export const prerender = true;
+export const revalidate = 300; // Sekunden
 // Import BaseLayout using a relative path.
 import BaseLayout from '@/layouts/BaseLayout.astro';
 // Import blogService from its module. We no longer need to import BlogCollectionEntry from here
 // as we are importing CollectionEntry directly from 'astro:content'.
 import { blogService, type BlogCollectionEntry } from '@/lib/blog';
+import { getCollection } from 'astro:content';
 import BlogPostComponent from '@/components/BlogPost.astro';
 import type { ProcessedBlogPost } from '../../content/types';
 // Import CommentSection with a named import
 import { CommentSection } from '@/components/comments/CommentSection';
 import AosWrapper from '@/components/AosWrapper.astro';
 
-// Get slug from URL parameters
-const { slug } = Astro.params;
+// Get slug from URL parameters (catch-all -> array of segments)
+const slugParamRaw = (Astro.params as any)?.slug as string | string[] | undefined;
+const slugParam = Array.isArray(slugParamRaw) ? slugParamRaw.join('/') : slugParamRaw;
 
-if (!slug) {
+if (!slugParam) {
   // It's better to return a 404 response directly if slug is missing.
   return new Response(null, { status: 404, statusText: 'Not Found' });
 }
@@ -38,7 +41,7 @@ let originalEntry: BlogCollectionEntry | null = null;
 try {
   // Use the imported blogService instance directly.
   // This call expects getPostBySlug in lib/blog.ts to return an object with 'entry' (of type BlogCollectionEntry) and 'processedData'.
-  const result = await blogService.getPostBySlug(slug);
+  const result = await blogService.getPostBySlug(slugParam);
   if (result) {
     originalEntry = result.entry;
     postData = result.processedData; // Use processed data for component props
@@ -94,19 +97,20 @@ if (postData) {
 }
 
 // SEO Metadaten
-const title = postData.data.title;
-const description = postData.data.description || '';
+const data: any = postData.data;
+const title = String(data.title);
+const description = String(data.description || '');
 const canonicalUrl = new URL(Astro.url.pathname, Astro.site);
 // Ensure imageUrl is correctly formed
-const imageUrl = postData.data.image?.src
-  ? new URL(postData.data.image.src, Astro.site).toString()
-  : new URL('/images/blog/default-og.jpg', Astro.site).toString();
+const imageSrc =
+  data.image && (data.image as any).src ? (data.image as any).src : '/images/blog/default-og.jpg';
+const imageUrl = new URL(imageSrc, Astro.site).toString();
 
 // Refactored logic for dateModified
-const datePublishedISO = new Date(postData.data.pubDate).toISOString();
-const dateModifiedISO = postData.data.updatedDate
-  ? new Date(postData.data.updatedDate).toISOString()
-  : datePublishedISO; // Use publishedDate if updatedDate is missing
+const datePublishedISO = new Date(data.pubDate as any).toISOString();
+const dateModifiedISO = data.updatedDate
+  ? new Date(data.updatedDate as any).toISOString()
+  : datePublishedISO;
 
 // Strukturierte Daten für SEO (Schema.org)
 const structuredData = {
@@ -117,9 +121,7 @@ const structuredData = {
   image: imageUrl,
   author: {
     '@type': 'Person',
-    name: Array.isArray(postData.data.author)
-      ? postData.data.author[0]
-      : postData.data.author?.name || 'EvolutionHub Team',
+    name: Array.isArray(data.author) ? data.author[0] : data.author?.name || 'EvolutionHub Team',
     url: 'https://evolution-hub.de/team', // Placeholder URL, adjust if specific author URLs exist
   },
   publisher: {
@@ -138,6 +140,12 @@ const structuredData = {
   },
 };
 // Blog-Enhancements werden importfrei inline initialisiert (kein Astro.resolve)
+// Static paths für SSG generieren
+export async function getStaticPaths() {
+  const posts = await getCollection('blog');
+  // For catch-all [...slug], Astro expects a string param; slashes denote segments
+  return posts.map((p: any) => ({ params: { slug: String(p.slug) } }));
+}
 ---
 
 <BaseLayout
@@ -149,11 +157,9 @@ const structuredData = {
   type="article"
   publishedTime={datePublishedISO}
   modifiedTime={dateModifiedISO}
-  author={Array.isArray(postData.data.author)
-    ? postData.data.author[0]
-    : postData.data.author?.name || 'EvolutionHub Team'}
-  section={postData.data.category}
-  tags={postData.data.tags}
+  author={Array.isArray(data.author) ? data.author[0] : data.author?.name || 'EvolutionHub Team'}
+  section={data.category}
+  tags={data.tags}
 >
   <article class="bg-white dark:bg-gray-900 py-12 sm:py-16">
     <div class="mx-auto max-w-7xl px-6 lg:px-8">
@@ -166,11 +172,11 @@ const structuredData = {
         {/* Kommentarbereich */}
         <CommentSection
           entityType="blog_post"
-          entityId={slug}
+          entityId={slugParam}
           initialUser={initialUser}
           client:load
         />
-      </div>
+      </AosWrapper>
     </div>
   </article>
 
@@ -178,14 +184,28 @@ const structuredData = {
   <div class="bg-gray-50 dark:bg-gray-800 py-16">
     <div class="mx-auto max-w-7xl px-6 lg:px-8">
       <div class="mx-auto max-w-2xl text-center">
-        <AosWrapper tag="h2" duration={650} class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-3xl">
+        <AosWrapper
+          tag="h2"
+          duration={650}
+          class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-3xl"
+        >
           Bleiben Sie auf dem Laufenden
         </AosWrapper>
-        <AosWrapper tag="p" delay={100} duration={650} class="mx-auto mt-4 max-w-xl text-gray-600 dark:text-gray-300">
+        <AosWrapper
+          tag="p"
+          delay={100}
+          duration={650}
+          class="mx-auto mt-4 max-w-xl text-gray-600 dark:text-gray-300"
+        >
           Abonnieren Sie unseren Newsletter, um über neue Artikel, Tipps und Neuigkeiten informiert
           zu werden.
         </AosWrapper>
-        <AosWrapper tag="form" delay={150} duration={650} class="mt-8 sm:mx-auto sm:flex sm:max-w-lg">
+        <AosWrapper
+          tag="form"
+          delay={150}
+          duration={650}
+          class="mt-8 sm:mx-auto sm:flex sm:max-w-lg"
+        >
           <div class="min-w-0 flex-1">
             <label for="email" class="sr-only">E-Mail-Adresse</label>
             <input
@@ -204,8 +224,13 @@ const structuredData = {
               Jetzt anmelden
             </button>
           </div>
-        </form>
-        <AosWrapper tag="p" delay={250} duration={600} class="mt-3 text-sm text-gray-500 dark:text-gray-400">
+        </AosWrapper>
+        <AosWrapper
+          tag="p"
+          delay={250}
+          duration={600}
+          class="mt-3 text-sm text-gray-500 dark:text-gray-400"
+        >
           Wir geben Ihre Daten nicht weiter. Sie können sich jederzeit wieder abmelden.
         </AosWrapper>
       </div>

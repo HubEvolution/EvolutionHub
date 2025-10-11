@@ -81,86 +81,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
     log('warn', `URL parse error for redirect check: ${e}`, { requestId });
   }
 
-  // HTTP Basic Auth Check für temporären Produktionsschutz
-  // Ausnahmen: API-Routen, Assets und Health-Checks sollen passwortfrei bleiben
-  const requestUrl = new URL(context.request.url);
-  // Umgebung ermitteln (nur in echter Produktion schützen)
-  const runtimeEnv = (context.locals as unknown as { runtime?: { env?: Record<string, string> } })
-    ?.runtime?.env;
-  const environment =
-    runtimeEnv?.ENVIRONMENT ||
-    (runtimeEnv as Record<string, string> | undefined)?.NODE_ENV ||
-    'development';
-  const isProductionEnv = environment === 'production';
-  const isProductionHost = requestUrl.hostname === 'hub-evolution.com';
-  const isApiRoute = requestUrl.pathname.startsWith('/api/');
-  // Treat R2 proxy route as an asset-like route: must never be redirected or gated
-  // This ensures URLs like /r2-ai/ai-enhancer/uploads/... are always directly served
-  const isR2ProxyRoute = requestUrl.pathname.startsWith('/r2-ai/');
-  const isAssetFile =
-    /\.(css|js|mjs|map|svg|png|jpe?g|webp|gif|ico|json|xml|txt|woff2?|ttf|webmanifest)$/i.test(
-      requestUrl.pathname
-    ) ||
-    requestUrl.pathname === '/favicon.ico' ||
-    requestUrl.pathname.startsWith('/_astro/') ||
-    requestUrl.pathname.startsWith('/assets/') ||
-    requestUrl.pathname.startsWith('/icons/') ||
-    requestUrl.pathname.startsWith('/images/') ||
-    requestUrl.pathname.startsWith('/favicons/');
-
-  // Feature-Flag: Basic Auth nur aktivieren, wenn explizit erlaubt (default: true für Backwards-Kompatibilität)
-  const siteAuthEnabledRaw = (context.locals.runtime?.env as any)?.SITE_AUTH_ENABLED as
-    | string
-    | undefined;
-  const siteAuthEnabled = siteAuthEnabledRaw ? /^(1|true|yes|on)$/i.test(siteAuthEnabledRaw) : true;
-
-  // Nur in echter Produktion auf Hauptdomain schützen, nicht APIs/Assets
-  if (
-    isProductionEnv &&
-    isProductionHost &&
-    !isApiRoute &&
-    !isAssetFile &&
-    !isR2ProxyRoute &&
-    siteAuthEnabled
-  ) {
-    const correctUsername = 'admin';
-    const correctPassword = (context.locals.runtime?.env as any)?.SITE_PASSWORD as
-      | string
-      | undefined;
-
-    if (!correctPassword) {
-      if (import.meta.env.DEV) {
-        log('warn', '[Middleware] SITE_PASSWORD missing in production environment', { requestId });
-      }
-      return new Response('Service temporarily unavailable', {
-        status: 503,
-        headers: { 'Cache-Control': 'no-store' },
-      });
-    }
-
-    const auth = context.request.headers.get('Authorization');
-    const challengeHeaders = new Headers();
-    challengeHeaders.set('WWW-Authenticate', 'Basic realm="Evolution Hub", charset="UTF-8"');
-    challengeHeaders.set('Cache-Control', 'no-store');
-    challengeHeaders.set('Content-Type', 'text/html; charset=utf-8');
-
-    if (!auth || !auth.startsWith('Basic ')) {
-      return new Response('Authentication required', { status: 401, headers: challengeHeaders });
-    }
-
-    try {
-      const decoded = atob(auth.slice(6));
-      const sepIdx = decoded.indexOf(':');
-      const username = sepIdx >= 0 ? decoded.slice(0, sepIdx) : '';
-      const password = sepIdx >= 0 ? decoded.slice(sepIdx + 1) : '';
-
-      if (username !== correctUsername || password !== correctPassword) {
-        return new Response('Invalid credentials', { status: 401, headers: challengeHeaders });
-      }
-    } catch (error) {
-      return new Response('Invalid authentication', { status: 401, headers: challengeHeaders });
-    }
-  }
+  // Basic Auth gate removed (was previously here guarding production HTML pages)
 
   // WWW -> Apex Redirect handled earlier (before Basic Auth)
 
@@ -218,7 +139,10 @@ export const onRequest = defineMiddleware(async (context, next) => {
     if (match) {
       cookieLocale = match[1].toLowerCase() as Locale;
       if (import.meta.env.DEV) {
-        log('debug', '[Middleware] Fallback parsed pref_locale from raw header', { requestId, cookieLocale });
+        log('debug', '[Middleware] Fallback parsed pref_locale from raw header', {
+          requestId,
+          cookieLocale,
+        });
       }
     }
   }
@@ -322,11 +246,15 @@ export const onRequest = defineMiddleware(async (context, next) => {
         const fallbackPath = targetLocale === 'en' ? '/en/' : '/';
         effectiveNext = new URL(fallbackPath, url.origin);
         if (import.meta.env.DEV) {
-          log('debug', '[Middleware] set_locale loop-guard activated; next pointed to welcome, using fallback', {
-            requestId,
-            fallbackPath,
-            targetLocale,
-          });
+          log(
+            'debug',
+            '[Middleware] set_locale loop-guard activated; next pointed to welcome, using fallback',
+            {
+              requestId,
+              fallbackPath,
+              targetLocale,
+            }
+          );
         }
       }
     } catch (e) {
@@ -356,7 +284,10 @@ export const onRequest = defineMiddleware(async (context, next) => {
         maxAge: 60 * 60 * 24 * 180,
       });
       if (import.meta.env.DEV) {
-        log('debug', '[Middleware] pref_locale cookie synced to URL locale', { requestId, existingLocale });
+        log('debug', '[Middleware] pref_locale cookie synced to URL locale', {
+          requestId,
+          existingLocale,
+        });
       }
     } catch (e) {
       log('warn', '[Middleware] Failed to sync pref_locale cookie with URL locale', {
@@ -394,7 +325,10 @@ export const onRequest = defineMiddleware(async (context, next) => {
     }
   } catch (e) {
     if (import.meta.env.DEV) {
-      console.warn('[Middleware] Failed to parse referer header:', e);
+      log('warn', '[Middleware] Failed to parse referer header', {
+        requestId,
+        errorMessage: e instanceof Error ? e.message : String(e),
+      });
     }
   }
 
@@ -416,7 +350,11 @@ export const onRequest = defineMiddleware(async (context, next) => {
     headers.set('Content-Language', 'en');
     headers.set('Vary', 'Cookie, Accept-Language');
     if (import.meta.env.DEV) {
-      log('debug', '[Middleware] Early neutral -> referer suggests EN (no cookie), redirect to EN', { requestId, location });
+      log(
+        'debug',
+        '[Middleware] Early neutral -> referer suggests EN (no cookie), redirect to EN',
+        { requestId, location }
+      );
     }
     return new Response(null, { status: 302, headers });
   }
@@ -444,17 +382,25 @@ export const onRequest = defineMiddleware(async (context, next) => {
         secure: url.protocol === 'https:',
       });
       if (import.meta.env.DEV) {
-        log('debug', '[Middleware] Session splash gate -> set session_welcome_seen cookie', { requestId });
+        log('debug', '[Middleware] Session splash gate -> set session_welcome_seen cookie', {
+          requestId,
+        });
       }
     } catch (e) {
-      log('warn', '[Middleware] Failed to set session splash cookie', { requestId, errorMessage: e instanceof Error ? e.message : String(e) });
+      log('warn', '[Middleware] Failed to set session splash cookie', {
+        requestId,
+        errorMessage: e instanceof Error ? e.message : String(e),
+      });
     }
     const location = `${url.origin}/welcome?next=${encodeURIComponent(url.toString())}`;
     const headers = new Headers();
     headers.set('Location', location);
     headers.set('Vary', 'Cookie, Accept-Language');
     if (import.meta.env.DEV) {
-      log('debug', '[Middleware] First visible visit this session -> redirect to welcome', { requestId, location });
+      log('debug', '[Middleware] First visible visit this session -> redirect to welcome', {
+        requestId,
+        location,
+      });
     }
     return new Response(null, { status: 302, headers });
   }
@@ -518,7 +464,10 @@ export const onRequest = defineMiddleware(async (context, next) => {
     headers.set('Content-Language', 'en');
     headers.set('Vary', 'Cookie, Accept-Language');
     if (import.meta.env.DEV) {
-      log('debug', '[Middleware] Neutral path -> cookie=en, redirect to EN', { requestId, location });
+      log('debug', '[Middleware] Neutral path -> cookie=en, redirect to EN', {
+        requestId,
+        location,
+      });
     }
     return new Response(null, { status: 302, headers });
   }
@@ -548,13 +497,20 @@ export const onRequest = defineMiddleware(async (context, next) => {
       try {
         const { session, user } = await validateSession(context.locals.runtime.env.DB, sessionId);
         if (import.meta.env.DEV) {
-          log('debug', '[Middleware] Session validation result', { requestId, sessionValid: !!session, userValid: !!user });
+          log('debug', '[Middleware] Session validation result', {
+            requestId,
+            sessionValid: !!session,
+            userValid: !!user,
+          });
         }
 
         context.locals.session = session;
         context.locals.user = user;
       } catch (error) {
-        log('error', '[Middleware] Error during session validation', { requestId, errorMessage: error instanceof Error ? error.message : String(error) });
+        log('error', '[Middleware] Error during session validation', {
+          requestId,
+          errorMessage: error instanceof Error ? error.message : String(error),
+        });
         context.locals.session = null;
         context.locals.user = null;
       }
@@ -588,7 +544,10 @@ export const onRequest = defineMiddleware(async (context, next) => {
       headers.set('Vary', 'Cookie, Accept-Language');
       headers.set('Content-Language', targetLocale);
       if (import.meta.env.DEV) {
-        log('debug', '[Middleware] Unverified user -> redirect to verify-email', { requestId, location });
+        log('debug', '[Middleware] Unverified user -> redirect to verify-email', {
+          requestId,
+          location,
+        });
       }
       return new Response(null, { status: 302, headers });
     }
@@ -600,7 +559,20 @@ export const onRequest = defineMiddleware(async (context, next) => {
   }
 
   // Führe den nächsten Middleware-Schritt aus
-  const response = await next();
+  let response = await next();
+
+  // Ensure mutable headers: some response objects (e.g., redirects) can have immutable headers.
+  // Clone headers and re-wrap the response so all subsequent `headers.set` calls succeed.
+  try {
+    const cloned = new Headers(response.headers);
+    response = new Response(response.body, {
+      status: response.status,
+      statusText: response.statusText,
+      headers: cloned,
+    });
+  } catch {
+    // Best-effort: if cloning fails, continue; subsequent header sets may throw in rare cases.
+  }
 
   // Detailliertes Response-Logging (nur DEV), mit Redaction
   if (import.meta.env.DEV) {
@@ -628,7 +600,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
   } else if (path.endsWith('.js')) {
     response.headers.set('Content-Type', 'application/javascript');
     if (import.meta.env.DEV) {
-      log('debug', '[Middleware] Set Content-Type to application/javascript for JS file', { requestId });
+      log('debug', '[Middleware] Set Content-Type to application/javascript for JS file', {
+        requestId,
+      });
     }
   } else if (path.endsWith('.svg')) {
     response.headers.set('Content-Type', 'image/svg+xml');

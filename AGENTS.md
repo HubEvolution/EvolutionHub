@@ -1,99 +1,123 @@
-# Evolution Hub – AGENTS Leitfaden
+# Evolution Hub — AGENTS.md
 
-## Projekt-Überblick
+## Stack & Deployment
 
-- Evolution Hub ist eine moderne Full-Stack-Webanwendung für Developer-Tools mit KI-gestützten Features (`CLAUDE.md:8-18`).
-- Hauptfeatures: AI Image Enhancer (Real-ESRGAN, GFPGAN), Prompt Enhancer, Tool-Sammlung, Stytch Magic-Link-Auth, i18n DE/EN (`CLAUDE.md:12-18`).
-- Live-Umgebungen: Production `hub-evolution.com`, Staging `staging.hub-evolution.com`, Testing/CI `ci.hub-evolution.com` (`CLAUDE.md:20-24`).
+- Astro 5 with Cloudflare directory adapter; static asset headers set in `astro.config.mjs` including DEV CSP.
+- Cloudflare Workers use D1, R2, KV via `wrangler.toml`; environment‑specific bindings for `DB`, `R2_AI_IMAGES`, `SESSION`, etc.
+- Build output is `server` with Worker entry `dist/_worker.js/index.js`; Wrangler serves static assets from `dist` with `.assetsignore` to skip `_worker.js`.
 
-## Tech Stack
+## Repository Layout
 
-- Frontend: Astro 5 (Islands, SSR/SSG), React 18, TypeScript 5 strict, Tailwind CSS 3 (`CLAUDE.md:28-35`).
-- Backend & Infrastructure: Cloudflare Workers, D1, R2, KV (`CLAUDE.md:37-42`).
-- Quality Tooling: Vitest, Playwright, ESLint, Prettier, Husky (Hooks derzeit deaktiviert) (`CLAUDE.md:44-49`).
+- Runtime code in `src/`:
+  - UI in `src/components`, `src/layouts`, pages in `src/pages` (Astro + API).
+  - Shared logic in `src/lib`, `src/config`, `src/utils`.
+  - Global middleware at `src/middleware.ts`.
+- R2 proxy routes: `src/pages/r2/**` and `src/pages/r2-ai/**`; keep `/r2-ai/**` publicly accessible and exempt from gates.
+- Content in `src/content/`, locales in `src/locales/`, styles in `src/styles/`.
+- Tooling: scripts in `scripts/`, migrations in `migrations/`.
 
-## Arbeitsmodus & Grenzen
+## Tooling & Conventions
 
-- Starte jede Aufgabe mit Analyse → Plan → Edit; liefere Pfad-/Zeilenbelege bevor du schreibst (`CLAUDE.md:53-62`).
-- Pflicht-Kontext: `package.json`, `tsconfig.json`, `eslint.config.js`, `.prettierrc.json`, `astro.config.mjs`, `wrangler.toml`, `vitest.config.ts`, `test-suite-v2/playwright.config.ts`, `README.md`, `docs/`, `.windsurf/rules/*.md` (`CLAUDE.md:63-69`).
-- Selbständig erlaubt: Änderungen <300 Zeilen & <5 Dateien, Bugfixes, Test-Updates, Doku-Patches (`CLAUDE.md:71-78`).
-- Rückfrage nötig bei API-/Schema-, Security- oder DB-Anpassungen, neuen Dependencies, CI/Build-Änderungen, großen Diffs (`CLAUDE.md:80-88`).
-- Navigation: kein `cd`, absolute Pfade nutzen; große Dateien segmentiert lesen; keine Binärdateien öffnen; Fokus auf `src/`, `tests/`, `docs/`, `scripts/`, `migrations/` (`CLAUDE.md:89-112`).
+- TypeScript strict with path aliases in `tsconfig.json` (`@/*`, `@api/*`, `@components/*`).
+- ESLint:
+  - Forbids `~/*` imports (use `@/*` instead).
+  - React Hooks rules enabled.
+  - Selective `no-console` only on explicitly listed files.
+- Prettier: 2 spaces, single quotes, `printWidth 100`, `semi: true`, Astro plugin.
+- Naming: PascalCase for components/stores, camelCase for utilities.
 
-## Build/Run/Test Quick Reference
+## Commands & Automation
 
-| Befehl | Zweck | Referenz |
-|--------|-------|----------|
-| `npm run setup:local` | Lokale Datenbank einrichten | `CLAUDE.md:119-122` |
-| `npm run dev` | Standard Worker-Dev (Port 8787) | `CLAUDE.md:119-129` |
-| `npm run dev:astro` | Astro-only UI Iteration | `CLAUDE.md:123-126` |
-| `npm run build` | Standard Astro Build | `CLAUDE.md:127-129` |
-| `npm run build:worker` | Worker-Build inkl. Asset-Kopie (`ASTRO_DEPLOY_TARGET=worker`) | `CLAUDE.md:131-141` |
-| `npm test` / `npm run test:once` | Vitest Watch / Single Run | `CLAUDE.md:145-155` |
-| `npm run test:coverage` | Coverage ≥70 % Gate | `CLAUDE.md:157-166` |
-| `npm run test:e2e*` | Playwright Suiten (v2 Standard, Browser-spezifisch) | `CLAUDE.md:169-199` |
+- Dev:
+  - `npm run dev` (Worker dev), `npm run dev:worker`, `npm run dev:worker:dev`, `npm run dev:astro` (UI only).
+  - `npm run dev:e2e` boots DB setup and dev worker for E2E.
+- Build/Preview:
+  - `npm run build`, `npm run preview`.
+  - `npm run build:worker`, `build:worker:dev`, `build:worker:staging` copy `_worker.js/assets` to `dist/assets` and write `dist/.assetsignore`.
+- Tests:
+  - `npm run test`, `test:once`, `test:watch`, `test:coverage`.
+  - Scoped: `test:unit`, `test:integration`.
+  - E2E: `test:e2e` (v2), `test:e2e:v1` (root), browser‑specific variants present.
+- Docs/Quality:
+  - `npm run format`, `format:check`, `lint`, `lint:md`, `lint:md:fix`.
+  - `npm run openapi:validate`.
+  - `npm run docs:routes:normalize` (normalizes links in `routes.md`).
 
-## Quality & Tooling
+## Testing Gates & Configuration
 
-- `npm run lint`, `npm run format`, `npm run format:check`, `npx astro check`, `npm audit --audit-level=moderate` decken CI-Gates ab (`CLAUDE.md:201-239`).
-- ESLint verbietet `~/*`-Imports und erzwingt `@/*`; `no-console` scharf für auditrelevante Dateien (`CLAUDE.md:211-238`).
-- Prettier: `semi`, `singleQuote`, `printWidth 100`, `arrowParens "always"` (`CLAUDE.md:240-251`).
-- Markdown/OpenAPI/DB-Skripte: `npm run lint:md`, `npm run lint:md:fix`, `npm run openapi:validate`, `npm run db:generate`, `npm run db:migrate`, `npm run db:setup` (`CLAUDE.md:254-268`).
+- Vitest
+  - Global coverage thresholds 70% (V8). Unit tests in `jsdom` with `src/setupTests.ts`, integration tests in Node.
+- Playwright (root)
+  - Tests in `tests/e2e/specs`, auto‑start local dev unless remote target.
+  - Reporter: HTML to `playwright-report` (playwright.config.ts:27).
+- Playwright (v2)
+  - Tests in `test-suite-v2/src/e2e`, auto‑start dev worker via root project.
+  - Reporters: HTML to `test-suite-v2/reports/playwright-html-report` (test-suite-v2/playwright.config.ts:28), plus JSON/JUnit.
+- All E2E inject `Origin` header to satisfy same‑origin checks.
 
-## Cloudflare Workers & Deploy
+## Security & Middleware Expectations
 
-- Environments vollständig in `wrangler.toml` pflegen; keine Top-Level-Vererbung (`CLAUDE.md:272-303`).
-- D1, R2 und KV-Bindings pro Environment dokumentiert (`CLAUDE.md:305-330`).
-- Dev-Variablen in `[env.development.vars]`, Secrets via `npm run secrets:dev` setzen; niemals Secrets im Code (`CLAUDE.md:332-361`).
-- Assets: Worker dient aus `dist/`, `.assetsignore` enthält `_worker.js` (`CLAUDE.md:363-377`).
+- Global Middleware (`src/middleware.ts`)
+  - Logs each request with `requestId`; canonicalizes `www`→apex.
+  - CSP nonce generation; locale redirects; PII‑redacted headers.
+  - Security headers on HTML responses:
+    - CSP (DEV relaxed; PROD nonce‑based), HSTS preload, COOP `same-origin`, X‑Frame‑Options `DENY`, X‑Content‑Type‑Options `nosniff`, strict `Permissions-Policy`.
+  - Note: Basic‑Auth gate has been removed.
+  - `/r2-ai/**` remains outside gates.
+- API Middleware (`src/lib/api-middleware.ts`)
+  - Use `withApiMiddleware` / `withAuthApiMiddleware` for:
+    - Rate limiting (default `apiRateLimiter` 30/min).
+    - Security headers on responses.
+    - Unified JSON shapes (`createApiSuccess`/`createApiError`).
+    - 405 via `createMethodNotAllowed` with `Allow`.
+  - Same‑origin enforced for unsafe methods by default; optional Double‑Submit CSRF via `enforceCsrfToken: true` matching `X-CSRF-Token` to `csrf_token` cookie.
+  - Allowed origins can be configured via env (comma‑separated) in addition to request origin and `options.allowedOrigins`:
+    - `ALLOWED_ORIGINS`, `ALLOW_ORIGINS`, `APP_ORIGIN`, `PUBLIC_APP_ORIGIN` (src/lib/api-middleware.ts:120–151).
+- Redirect Endpoints
+  - Use `withRedirectMiddleware` to apply rate limiting, CSRF/Origin checks, and security headers without forcing JSON shapes (e.g., OAuth callbacks).
 
-## Code-Standards
+## Rate Limiting
 
-- TypeScript strict, Pfad-Aliase `@/*` nutzen; `~/` ist verboten (`CLAUDE.md:381-424`).
-- Naming: camelCase Funktionen/Variablen, PascalCase Komponenten/Klassen, UPPER_CASE Konstanten; Funktionen kurz & fokussiert halten (`CLAUDE.md:425-449`).
-- Imports gruppiert oben, keine ungetypten `any`; Husky Hooks in `.husky/pre-commit` aktuell deaktiviert (`CLAUDE.md:450-471`).
+- Presets in `src/lib/rate-limiter.ts`:
+  - `standardApiLimiter`: 50/min
+  - `authLimiter`: 10/min
+  - `sensitiveActionLimiter`: 5/hour
+  - `apiRateLimiter` (default for APIs): 30/min
+  - `aiJobsLimiter`: 10/min
+  - `aiGenerateLimiter`: 15/min
+- 429 responses include `Retry-After` seconds.
 
-## Testing-Guidelines
+## CSRF
 
-- Teststruktur: `tests/` für Vitest (unit/integration), `test-suite-v2/` für E2E (`CLAUDE.md:474-507`).
-- Auth-E2E-Suite deckt OAuth, Magic-Link, Session, Middleware (~85 % Coverage) ab; nutze `npm run test:e2e -- src/e2e/auth/...` für Teilbereiche (`CLAUDE.md:509-543`).
-- E2E v2 Struktur: `test-suite-v2/src/e2e/{auth,features,tools,smoke}`. Gemeinsame Fixtures: `test-suite-v2/fixtures/{auth-helpers.ts, common-helpers.ts, tool-helpers.ts}`. Beispiel-Läufe:
-  - `npm run test:e2e:chromium -- src/e2e/tools`
-  - `npm run test:e2e -- src/e2e/smoke/pricing-checkout-smoke.spec.ts`
-- Coverage-Reporter `v8` mit Schwellenwerten 70 % (keine per-file Plicht) (`CLAUDE.md:545-565`).
+- Client helpers at `src/lib/security/csrf.ts` can create a `csrf_token` cookie (Lax).
+- Server validation in middleware:
+  - Same‑origin checks for unsafe methods.
+  - Optional Double‑Submit (header matches cookie) when `enforceCsrfToken: true`.
 
-## CI/CD & Health
+## Feature Flags & Content Controls
 
-- Pre-Deploy-Gates: Lint, Format-Check, Astro Check, `test:coverage`, `npm audit --audit-level=moderate` (`CLAUDE.md:569-590`).
-- Deploy-Flow: Tag-Trigger `v*.*.*`, `workflow_dispatch` mit Staging→Production + Approval, anschließend GitHub Release (`CLAUDE.md:593-619`).
-- Health-Check: `GET /api/health`, ausführbar via `npm run health-check -- --url <URL>`; Rollback über `wrangler rollback` oder Git Tag Redeploy (`CLAUDE.md:621-665`).
+- Coming Soon overlay config in `src/config/coming-soon.ts`:
+  - Default patterns: `/docs`, `/kontakt`, `/agb`, `/impressum`.
+  - Hard exclude: `/datenschutz*`.
+  - Precedence: Exclusions > frontmatter `comingSoon` field > global `COMING_SOON` env > patterns.
 
-## Security
+## Observability & Debugging
 
-- Rate Limiter: `authLimiter` 10/min, `standardApiLimiter` 50/min, `sensitiveActionLimiter` 5/h; 429 Response enthält `retryAfter` (`CLAUDE.md:669-688`).
-- Middleware setzt CSP, HSTS preload, X-Frame-Options DENY, COOP/COEP etc.; Audit-Logging maskiert PII (`CLAUDE.md:690-711`).
-- API Responses über `withApiMiddleware` sollten `createApiSuccess`/`createApiError` nutzen (`CLAUDE.md:712-755`).
+- Client logs batched to `/api/debug/client-log` when `PUBLIC_ENABLE_DEBUG_PANEL = 'true'`.
+- Security logging funnels through server loggers; request/response summaries include requestId and timing.
 
-## Rollen & Workflows
+## Cloudflare & Build Details
 
-- Scout-Workflow: Analyse → Plan → Begründung → Edit; Beispielplan siehe `CLAUDE.md:759-784`.
-- Reviewer: prüfe Branchschema, Conventional Commits, lokale Quality-Checks (`lint`, `format:check`, `astro check`, `test:coverage`) und stelle sicher, dass CI-Gates grün sind (`CLAUDE.md:786-804`).
-- Plan→Patch→Commit Prozess inkl. strikter Typisierung und Conventional Commits bleibt verbindlich (`CLAUDE.md:807-848`).
+- `wrangler.toml` configures Worker entry, assets, and env‑scoped bindings for D1, KV, R2.
+- Adapter `staticAssetHeaders` in `astro.config.mjs` sets content types and long‑term cache for CSS/JS/SVG, and injects DEV CSP for prerendered/static HTML pages too.
+- DEV CSP sources match middleware allowances:
+  - Includes `https://cdn.jsdelivr.net`, `https://www.googletagmanager.com`, `https://plausible.io`, and `https://static.cloudflareinsights.com`.
 
-## Terminal-Nutzung
+## Playwright Report Paths (Both Families)
 
-- Ohne Rückfrage: lese Befehle (`ls`, `git status` etc.), Tests (`npm test`, `npm run test:coverage`), Qualität (`npm run lint`, `npm run format:check`, `npx astro check`) (`CLAUDE.md:852-865`).
-- Rückfrage nötig: `npm install`, `npm audit fix`, schreibende Git-Befehle, Deploy-Builds, DB-Befehle (`CLAUDE.md:867-881`).
+- Root HTML reports: `playwright-report` (playwright.config.ts:27).
+- v2 HTML reports: `test-suite-v2/reports/playwright-html-report` (test-suite-v2/playwright.config.ts:28).
 
-## Referenz-Dateien
+## Notes on Generated/Build Folders
 
-- Kritische Konfigs und Workflows: `package.json`, `tsconfig.json`, `astro.config.mjs`, `wrangler.toml`, `eslint.config.js`, `.prettierrc.json`, `vitest.config.ts`, `test-suite-v2/playwright.config.ts`, `test-suite-v2/fixtures/auth-helpers.ts`, `test-suite-v2/fixtures/common-helpers.ts`, `test-suite-v2/fixtures/tool-helpers.ts`, `.github/workflows/unit-tests.yml`, `.github/workflows/deploy.yml`, `src/middleware.ts`, `src/lib/api-middleware.ts`, `src/lib/rate-limiter.ts`, `.windsurf/rules/*.md` (`CLAUDE.md:885-904`).
-
-## Bekannte Probleme
-
-- OAuth/Stytch-Lokallogin: Session-Cookies nur über `Set-Cookie` Header setzen; prüfe `src/pages/api/auth/oauth/[provider]/callback.ts` und `src/pages/api/auth/callback.ts` bei Redirect-Issues (`CLAUDE.md:908-939`).
-
-## Ressourcen
-
-- Primäre Dokumentation: `README.md`, `docs/development/ci-cd.md`, `docs/SECURITY.md`, `docs/architecture/system-overview.md`, `docs/api/`, `docs/architecture/auth-flow.md`, `docs/ops/stytch-custom-domains.md` (`CLAUDE.md:942-952`).
-- Contributing & Cascade-Regeln: `CONTRIBUTING.md`, `AGENTS.md`, `.windsurf/rules/project-structure.md`, `.windsurf/rules/api-and-security.md`, `.windsurf/rules/testing-and-ci.md`, `.windsurf/rules/tooling-and-style.md` (`CLAUDE.md:954-964`).
+- Some cascaded globs may show “NO MATCH” for build artifacts (e.g., `dist/**`, report folders) when not present locally; this is expected and not a rule drift.

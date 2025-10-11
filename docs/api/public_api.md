@@ -95,8 +95,8 @@ Erstellt einen neuen Kommentar (Guest oder Auth User).
 
 #### Request-Header
 
-- `Content-Type: application/json`
-- `X-CSRF-Token: <token>` (**erforderlich**)
+* `Content-Type: application/json`
+* `X-CSRF-Token: <token>` (**erforderlich**)
 
 #### Request-Body
 
@@ -294,34 +294,34 @@ Das Kommentarsystem implementiert mehrere Sicherheitsebenen:
 
 #### XSS-Protection
 
-- **DOMPurify-Sanitization** für alle User-Inputs
-- Erlaubte Tags: `p`, `br`, `strong`, `em`, `u`, `a`, `code`, `pre`
-- Verbotene Tags: `script`, `iframe`, `object`, `embed`
-- Verbotene Attributes: `onclick`, `onerror`, `onload`
+* **DOMPurify-Sanitization** für alle User-Inputs
+* Erlaubte Tags: `p`, `br`, `strong`, `em`, `u`, `a`, `code`, `pre`
+* Verbotene Tags: `script`, `iframe`, `object`, `embed`
+* Verbotene Attributes: `onclick`, `onerror`, `onload`
 
 #### Spam-Detection
 
-- **Multi-Heuristik-System** mit Score-basierter Erkennung
-- Checks: Keywords, Links, Caps-Lock, Wiederholungen, Länge, Patterns
-- Strictness-Levels: `low`, `medium`, `high`
-- Auto-Flag bei Score > 40, Auto-Reject bei Score > 60
+* **Multi-Heuristik-System** mit Score-basierter Erkennung
+* Checks: Keywords, Links, Caps-Lock, Wiederholungen, Länge, Patterns
+* Strictness-Levels: `low`, `medium`, `high`
+* Auto-Flag bei Score > 40, Auto-Reject bei Score > 60
 
 #### Rate-Limiting
 
-- **Dual-Layer**: Hono-Middleware + Service-Layer
-- Comment-Creation: **5 req/min** pro IP/User
-- Other Endpoints: **50 req/min**
+* **Dual-Layer**: Hono-Middleware + Service-Layer
+* Comment-Creation: **5 req/min** pro IP/User
+* Other Endpoints: **50 req/min**
 
 #### CSRF-Protection
 
-- **Double-Submit Token**: Cookie `csrf_token` == Header `X-CSRF-Token`
-- Enforced für alle mutierenden Operationen (POST, PUT, DELETE)
+* **Double-Submit Token**: Cookie `csrf_token` == Header `X-CSRF-Token`
+* Enforced für alle mutierenden Operationen (POST, PUT, DELETE)
 
 #### Audit-Logging
 
-- Alle Aktionen in `comment_audit_logs` protokolliert
-- Anonymized IP-Logging (letzte Oktett/Hextet → 0)
-- Details: Action, User-ID, IP, User-Agent, Timestamp
+* Alle Aktionen in `comment_audit_logs` protokolliert
+* Anonymized IP-Logging (letzte Oktett/Hextet → 0)
+* Details: Action, User-ID, IP, User-Agent, Timestamp
 
 ---
 

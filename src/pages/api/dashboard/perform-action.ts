@@ -13,9 +13,18 @@ import { logUserEvent } from '@/lib/security-logger';
 export const POST = withAuthApiMiddleware(
   async (context) => {
     const { request, locals, clientAddress } = context;
-    const { env } = locals.runtime;
-    const user = locals.user as { id: string };
+    const env = (locals.runtime?.env ?? {}) as Partial<{ DB: D1Database }>;
+    const user = locals.user as { id: string } | undefined;
+
+    if (!user) {
+      return createApiError('auth_error', 'Unauthorized');
+    }
     const userId = user.id;
+
+    const db = env.DB;
+    if (!db) {
+      return createApiError('server_error', 'Database unavailable');
+    }
 
     let requestData: unknown;
     try {
@@ -30,16 +39,11 @@ export const POST = withAuthApiMiddleware(
       return createApiError('validation_error', 'Invalid JSON in request body');
     }
 
-    if (
-      !requestData ||
-      typeof requestData !== 'object' ||
-      !('action' in requestData) ||
-      typeof (requestData as any).action !== 'string'
-    ) {
+    type ActionRequest = { action: string };
+    if (!requestData || typeof requestData !== 'object' || !('action' in requestData)) {
       return createApiError('validation_error', 'Missing or invalid action');
     }
-    const { action } = requestData as { action: string };
-    const db = env.DB;
+    const { action } = requestData as ActionRequest;
 
     let result;
 

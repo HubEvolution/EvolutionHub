@@ -75,20 +75,20 @@ describe('getAosAttributes', () => {
   });
 
   it('should use custom animation type', () => {
-    const attrs = getAosAttributes({ animation: 'fade-left' });
+    const attrs = getAosAttributes({ animation: 'fade-left' }) as Record<string, string>;
     expect(attrs['data-aos']).toBe('fade-left');
   });
 
   it('should use custom duration', () => {
-    const attrs = getAosAttributes({ duration: 600 });
+    const attrs = getAosAttributes({ duration: 600 }) as Record<string, string>;
     expect(attrs['data-aos-duration']).toBe('600');
   });
 
   it('should include delay only when > 0', () => {
-    const attrs1 = getAosAttributes({ delay: 0 });
+    const attrs1 = getAosAttributes({ delay: 0 }) as Record<string, string>;
     expect(attrs1).not.toHaveProperty('data-aos-delay');
 
-    const attrs2 = getAosAttributes({ delay: 100 });
+    const attrs2 = getAosAttributes({ delay: 100 }) as Record<string, string>;
     expect(attrs2).toHaveProperty('data-aos-delay', '100');
   });
 
@@ -97,7 +97,7 @@ describe('getAosAttributes', () => {
       animation: 'zoom-in',
       delay: 200,
       duration: 500,
-    });
+    }) as Record<string, string>;
     expect(attrs).toEqual({
       'data-aos': 'zoom-in',
       'data-aos-delay': '200',
@@ -111,18 +111,18 @@ describe('getAosAttributes', () => {
       delay: 100,
       duration: 700,
       disableAos: true,
-    });
+    }) as Record<string, string>;
     expect(attrs).toEqual({});
   });
 
   it('should handle partial props correctly', () => {
-    const attrs1 = getAosAttributes({ animation: 'slide-up' });
+    const attrs1 = getAosAttributes({ animation: 'slide-up' }) as Record<string, string>;
     expect(attrs1).toEqual({
       'data-aos': 'slide-up',
       'data-aos-duration': '700',
     });
 
-    const attrs2 = getAosAttributes({ delay: 150 });
+    const attrs2 = getAosAttributes({ delay: 150 }) as Record<string, string>;
     expect(attrs2).toEqual({
       'data-aos': 'fade-up',
       'data-aos-delay': '150',
@@ -131,7 +131,7 @@ describe('getAosAttributes', () => {
   });
 
   it('should convert numeric values to strings', () => {
-    const attrs = getAosAttributes({ delay: 100, duration: 600 });
+    const attrs = getAosAttributes({ delay: 100, duration: 600 }) as Record<string, string>;
     expect(typeof attrs['data-aos-delay']).toBe('string');
     expect(typeof attrs['data-aos-duration']).toBe('string');
   });

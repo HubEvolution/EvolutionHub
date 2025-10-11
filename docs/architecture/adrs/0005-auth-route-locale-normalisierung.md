@@ -45,6 +45,12 @@ Negativ/Trade-offs:
 - Nutzer mit EN-Präferenz sehen bei direktem Aufruf einer DE-Auth-Route deutsche Texte (intended by design).
 - Mehr Verantwortung in Routing-Konventionen (URL-Prefix als „single source of truth“ für Locale auf Auth-Seiten).
 
+### Hinweis: Blog-Routen und UI-Links
+
+- Um zusätzliche Normalisierungs-Redirects zu vermeiden, müssen Blog-Links in der UI stets locale-bewusst erzeugt werden (via `localizePath(getLocale(Astro.url.pathname), href)`).
+- Dadurch entfallen neutrale → `/en/*` Redirects der Middleware beim Navigieren aus `/en/*` heraus.
+- Refs: `src/lib/locale-path.ts`, `src/components/BlogCard.astro`, `src/components/BlogPost.astro`, `src/pages/blog/index.astro`, Middleware-Regeln `src/middleware.ts:332-356`, `447-469`.
+
 ## Alternativen
 
 - Weiterhin Normalisierung erzwingen und Tests tolerant gegenüber EN/DE gestalten.

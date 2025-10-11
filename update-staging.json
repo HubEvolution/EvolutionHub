@@ -1,0 +1,94 @@
+{
+  "result": {
+    "description": "",
+    "id": "6b767a1cbf6b471e83c59e1eb4cff044",
+    "kind": "zone",
+    "last_updated": "2025-10-10T17:57:46.927106Z",
+    "name": "ci-cache-rules",
+    "phase": "http_request_cache_settings",
+    "rules": [
+      {
+        "action": "set_cache_settings",
+        "action_parameters": {
+          "cache": false
+        },
+        "description": "Bypass cache when session cookie is present",
+        "enabled": true,
+        "expression": "(http.host eq \"ci.hub-evolution.com\") and ((http.cookie contains \"session_id=\") or (http.cookie contains \"__Host-session=\"))",
+        "id": "ba2ade56a54d4d2bbf06df55b0b81ce3",
+        "last_updated": "2025-10-10T17:23:34.941554Z",
+        "ref": "ba2ade56a54d4d2bbf06df55b0b81ce3",
+        "version": "1"
+      },
+      {
+        "action": "set_cache_settings",
+        "action_parameters": {
+          "cache": false
+        },
+        "description": "Bypass login/dashboard/welcome pages",
+        "enabled": true,
+        "expression": "(http.host eq \"ci.hub-evolution.com\") and ((http.request.uri.path eq \"/en/login\" or starts_with(http.request.uri.path, \"/en/login/\") or http.request.uri.path eq \"/de/login\" or starts_with(http.request.uri.path, \"/de/login/\")) or starts_with(http.request.uri.path, \"/dashboard\") or starts_with(http.request.uri.path, \"/welcome\") or starts_with(http.request.uri.path, \"/welcome-profile\"))",
+        "id": "b470167465d74bab870b444bea243a3e",
+        "last_updated": "2025-10-10T17:23:34.941554Z",
+        "ref": "b470167465d74bab870b444bea243a3e",
+        "version": "1"
+      },
+      {
+        "action": "set_cache_settings",
+        "action_parameters": {
+          "cache": false
+        },
+        "description": "Bypass API",
+        "enabled": true,
+        "expression": "(http.host eq \"ci.hub-evolution.com\") and starts_with(http.request.uri.path, \"/api/\")",
+        "id": "714e42b652c54389822a200cad0adc5a",
+        "last_updated": "2025-10-10T17:23:34.941554Z",
+        "ref": "714e42b652c54389822a200cad0adc5a",
+        "version": "1"
+      },
+      {
+        "action": "set_cache_settings",
+        "action_parameters": {
+          "cache": false
+        },
+        "description": "Manual bypass via ?__no_cache=1",
+        "enabled": true,
+        "expression": "(http.host eq \"ci.hub-evolution.com\") and (http.request.uri.query contains \"__no_cache\")",
+        "id": "db4eb12c37104e8a822f11922ba14d6b",
+        "last_updated": "2025-10-10T17:23:34.941554Z",
+        "ref": "db4eb12c37104e8a822f11922ba14d6b",
+        "version": "1"
+      },
+      {
+        "action": "set_cache_settings",
+        "action_parameters": {
+          "cache": false
+        },
+        "description": "Staging: API bypass",
+        "enabled": true,
+        "expression": "(http.host eq \"staging.hub-evolution.com\") and starts_with(http.request.uri.path, \"/api/\")",
+        "id": "9d696b118fb44ad1a955240e35ef3fa8",
+        "last_updated": "2025-10-10T17:57:46.927106Z",
+        "ref": "9d696b118fb44ad1a955240e35ef3fa8",
+        "version": "1"
+      },
+      {
+        "action": "set_cache_settings",
+        "action_parameters": {
+          "cache": false
+        },
+        "description": "Staging: __no_cache query bypass",
+        "enabled": true,
+        "expression": "(http.host eq \"staging.hub-evolution.com\") and (http.request.uri.query contains \"__no_cache\")",
+        "id": "729d6a7a8a924576979b036c63071f2f",
+        "last_updated": "2025-10-10T17:57:46.927106Z",
+        "ref": "729d6a7a8a924576979b036c63071f2f",
+        "version": "1"
+      }
+    ],
+    "version": "2"
+  },
+  "success": true,
+  "errors": [],
+  "messages": []
+}

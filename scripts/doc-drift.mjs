@@ -8,7 +8,9 @@ if (allow === '1' || allow === 'true') {
 }
 
 function run(cmd) {
-  return execSync(cmd, { stdio: ['ignore', 'pipe', 'pipe'] }).toString().trim();
+  return execSync(cmd, { stdio: ['ignore', 'pipe', 'pipe'] })
+    .toString()
+    .trim();
 }
 
 function determineBaseRef() {
@@ -54,7 +56,7 @@ const codeMatchers = [
   /^scripts\//,
   /^migrations?\//,
   /^config\//,
-  /\.([tj]sx?|astro|vue|svelte|css|scss|less|json)$/
+  /\.([tj]sx?|astro|vue|svelte|css|scss|less|json)$/,
 ];
 
 const docChanges = changedFiles.filter((file) => docMatchers.some((regex) => regex.test(file)));
@@ -66,7 +68,9 @@ if (codeChanges.length && !docChanges.length) {
   for (const file of codeChanges) {
     console.error(`  - ${file}`);
   }
-  console.error('Add documentation updates (docs/, README, CHANGELOG, or OpenAPI) or set ALLOW_DOCS_DRIFT=true to override.');
+  console.error(
+    'Add documentation updates (docs/, README, CHANGELOG, or OpenAPI) or set ALLOW_DOCS_DRIFT=true to override.'
+  );
   process.exit(1);
 }
 

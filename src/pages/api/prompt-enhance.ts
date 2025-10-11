@@ -7,6 +7,7 @@
  */
 
 import type { APIRoute } from 'astro';
+import type { KVNamespace } from '@cloudflare/workers-types';
 import {
   withApiMiddleware,
   createApiSuccess,
@@ -22,6 +23,32 @@ import type {
   EnhanceResult,
 } from '@/lib/services/prompt-enhancer-service';
 import { validateFiles, buildAttachmentContext } from '@/lib/services/prompt-attachments';
+
+interface PromptEnhancerEnv {
+  KV_PROMPT_ENHANCER?: KVNamespace;
+  ENVIRONMENT?: string;
+  PUBLIC_PROMPT_ENHANCER_V1?: string;
+  OPENAI_API_KEY?: string;
+  PROMPT_REWRITE_V1?: string;
+  PROMPT_TEXT_MODEL?: string;
+  PROMPT_VISION_MODEL?: string;
+  PROMPT_OUTPUT_TOKENS_MAX?: string;
+  PROMPT_TEMPERATURE?: string;
+  PROMPT_TOP_P?: string;
+}
+
+interface JsonPromptRequest {
+  text?: unknown;
+  input?: { text?: unknown };
+  options?: Partial<EnhanceOptions> & Record<string, unknown>;
+  mode?: unknown;
+}
+
+interface PromptEnhancerResultError extends Error {
+  apiErrorType?: 'forbidden' | 'validation_error' | 'server_error';
+  code?: string;
+  details?: unknown;
+}
 
 const promptEnhanceLimiter = createRateLimiter({
   maxRequests: 15,
@@ -84,17 +111,21 @@ export const POST = withApiMiddleware(
         if (!bodyUnknown || typeof bodyUnknown !== 'object') {
           return createApiError('validation_error', 'Invalid JSON body');
         }
-        const body = bodyUnknown as Record<string, any>;
+        const body = bodyUnknown as JsonPromptRequest;
         const directText = typeof body.text === 'string' ? body.text : undefined;
-        const inputText = typeof body?.input?.text === 'string' ? body.input.text : directText;
+        const inputText =
+          body.input && typeof body.input.text === 'string' ? body.input.text : directText;
         input = { text: inputText } as EnhanceInput;
         if (!input.text || typeof input.text !== 'string' || input.text.trim().length === 0) {
           return createApiError('validation_error', 'Input text is required');
         }
-        const bodyOptions = (body?.options ?? {}) as Record<string, any>;
+        const bodyOptions = body.options ?? {};
         const legacyMode = typeof body.mode === 'string' ? body.mode : undefined;
         options = {
-          mode: typeof bodyOptions.mode === 'string' ? bodyOptions.mode : legacyMode || 'agent',
+          mode:
+            bodyOptions.mode && typeof bodyOptions.mode === 'string'
+              ? bodyOptions.mode
+              : legacyMode || 'agent',
           safety: bodyOptions.safety !== false,
           includeScores: Boolean(bodyOptions.includeScores),
           outputFormat:
@@ -110,7 +141,29 @@ export const POST = withApiMiddleware(
     const ownerId = user?.id || ensureGuestIdCookie(context);
 
     // Init service with flag check
-    const env = (locals.runtime?.env as any) ?? {};
+    const rawEnv = (locals.runtime?.env ?? {}) as Record<string, unknown>;
+    const env: PromptEnhancerEnv = {
+      KV_PROMPT_ENHANCER: rawEnv.KV_PROMPT_ENHANCER as KVNamespace | undefined,
+      ENVIRONMENT: typeof rawEnv.ENVIRONMENT === 'string' ? rawEnv.ENVIRONMENT : undefined,
+      PUBLIC_PROMPT_ENHANCER_V1:
+        typeof rawEnv.PUBLIC_PROMPT_ENHANCER_V1 === 'string'
+          ? rawEnv.PUBLIC_PROMPT_ENHANCER_V1
+          : undefined,
+      OPENAI_API_KEY: typeof rawEnv.OPENAI_API_KEY === 'string' ? rawEnv.OPENAI_API_KEY : undefined,
+      PROMPT_REWRITE_V1:
+        typeof rawEnv.PROMPT_REWRITE_V1 === 'string' ? rawEnv.PROMPT_REWRITE_V1 : undefined,
+      PROMPT_TEXT_MODEL:
+        typeof rawEnv.PROMPT_TEXT_MODEL === 'string' ? rawEnv.PROMPT_TEXT_MODEL : undefined,
+      PROMPT_VISION_MODEL:
+        typeof rawEnv.PROMPT_VISION_MODEL === 'string' ? rawEnv.PROMPT_VISION_MODEL : undefined,
+      PROMPT_OUTPUT_TOKENS_MAX:
+        typeof rawEnv.PROMPT_OUTPUT_TOKENS_MAX === 'string'
+          ? rawEnv.PROMPT_OUTPUT_TOKENS_MAX
+          : undefined,
+      PROMPT_TEMPERATURE:
+        typeof rawEnv.PROMPT_TEMPERATURE === 'string' ? rawEnv.PROMPT_TEMPERATURE : undefined,
+      PROMPT_TOP_P: typeof rawEnv.PROMPT_TOP_P === 'string' ? rawEnv.PROMPT_TOP_P : undefined,
+    };
     if (env.PUBLIC_PROMPT_ENHANCER_V1 === 'false') {
       return createApiError('forbidden', 'Feature not enabled');
     }
@@ -167,13 +220,20 @@ export const POST = withApiMiddleware(
       });
     } catch (err) {
       if (err instanceof Error && err.message.includes('quota exceeded')) {
-        return createApiError('forbidden', err.message, (err as any).details);
+        const typedErr = err as PromptEnhancerResultError;
+        const detailsRecord =
+          typedErr.details &&
+          typeof typedErr.details === 'object' &&
+          !Array.isArray(typedErr.details)
+            ? (typedErr.details as Record<string, unknown>)
+            : undefined;
+        return createApiError('forbidden', err.message, detailsRecord); // preserve quota details
       }
-      if (err instanceof Error && (err as any).code === 'feature_disabled') {
+      if (err instanceof Error && (err as PromptEnhancerResultError).code === 'feature_disabled') {
         return createApiError('forbidden', err.message);
       }
-      if (err instanceof Error && (err as any).apiErrorType) {
-        const type = (err as any).apiErrorType as 'forbidden' | 'validation_error' | 'server_error';
+      if (err instanceof Error && (err as PromptEnhancerResultError).apiErrorType) {
+        const type = (err as PromptEnhancerResultError).apiErrorType ?? 'server_error';
         return createApiError(type, err.message);
       }
       return createApiError('server_error', err instanceof Error ? err.message : 'Unknown error');

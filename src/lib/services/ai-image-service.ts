@@ -225,17 +225,29 @@ export class AiImageService {
     const openai = new OpenAI({ apiKey });
 
     // Step 1: Create thread, add user message, create run (wrap network errors)
-    let thread: { id: string };
-    let run: { id: string; status: string };
+    let threadId: string;
+    let runId: string;
+    let runStatusValue: string;
     try {
-      thread = await openai.beta.threads.create();
-      await openai.beta.threads.messages.create(thread.id, {
+      const thread = await openai.beta.threads.create();
+      if (!thread || !(thread as any).id) {
+        throw new Error('Thread creation returned no id');
+      }
+      threadId = (thread as any).id as string;
+
+      await openai.beta.threads.messages.create(threadId, {
         role: 'user',
         content: prompt,
       });
-      run = await openai.beta.threads.runs.create(thread.id, {
+
+      const run = await openai.beta.threads.runs.create(threadId, {
         assistant_id: assistantId,
       });
+      if (!run || !(run as any).id) {
+        throw new Error('Run creation returned no id');
+      }
+      runId = (run as any).id as string;
+      runStatusValue = (run as any).status as string;
     } catch (error) {
       const msg = error instanceof Error ? error.message : String(error);
       this.log.error('assistant_call_failed', {
@@ -246,26 +258,41 @@ export class AiImageService {
     }
 
     // Step 2: Poll run status (bubble failures with specific message)
-    let status = run.status;
-    while (status !== 'completed' && status !== 'failed' && status !== 'cancelled') {
-      // Keep this short for tests; real systems can lengthen via backoff
-      await new Promise((resolve) => setTimeout(resolve, 50));
-      const runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id as any);
-      status = (runStatus as any).status;
-    }
-    if (status !== 'completed') {
-      throw new Error(`Run failed with status: ${status}`);
-    }
+    try {
+      let status = runStatusValue;
+      while (status !== 'completed' && status !== 'failed' && status !== 'cancelled') {
+        await new Promise((resolve) => setTimeout(resolve, 50));
+        const runStatus = await openai.beta.threads.runs.retrieve(threadId, runId as any);
+        status = (runStatus as any).status;
+      }
+      if (status !== 'completed') {
+        throw new Error(`Run failed with status: ${status}`);
+      }
 
-    // Step 3: Fetch messages, ensure assistant response exists (bubble specific error)
-    const messages = await openai.beta.threads.messages.list(thread.id);
-    const assistantMessage = (messages as any).data.find((m: any) => m.role === 'assistant');
-    if (!assistantMessage || !assistantMessage.content || assistantMessage.content.length === 0) {
-      throw new Error('No response from assistant');
+      // Step 3: Fetch messages, ensure assistant response exists (bubble specific error)
+      const messages = await openai.beta.threads.messages.list(threadId);
+      const assistantMessage = (messages as any).data.find((m: any) => m.role === 'assistant');
+      if (!assistantMessage || !assistantMessage.content || assistantMessage.content.length === 0) {
+        throw new Error('No response from assistant');
+      }
+      const content =
+        assistantMessage.content[0].type === 'text' ? assistantMessage.content[0].text.value : '';
+      return { content };
+    } catch (error) {
+      // Ensure we surface a consistent error while allowing specific message assertions in tests
+      if (error instanceof Error && /Run failed with status:/.test(error.message)) {
+        throw error;
+      }
+      if (error instanceof Error && /No response from assistant/.test(error.message)) {
+        throw error;
+      }
+      const msg = error instanceof Error ? error.message : String(error);
+      this.log.error('assistant_call_failed', {
+        action: 'assistant_call_failed',
+        metadata: { error: msg },
+      });
+      throw new Error('Failed to call assistant');
     }
-    const content =
-      assistantMessage.content[0].type === 'text' ? assistantMessage.content[0].text.value : '';
-    return { content };
   }
 
   async generate({

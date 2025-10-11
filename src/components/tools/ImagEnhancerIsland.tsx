@@ -121,7 +121,8 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
   // Feature flag to guard plan-aware UI gating
   const gatingEnabled = import.meta.env.PUBLIC_ENHANCER_PLAN_GATING_V1 === '1';
   // Feature flag for Credits CTA: enabled in development by default, opt-in in production via PUBLIC_ENABLE_CREDITS_CTA=1
-  const creditsCtaEnabled = import.meta.env.DEV || import.meta.env.PUBLIC_ENABLE_CREDITS_CTA === '1';
+  const creditsCtaEnabled =
+    import.meta.env.DEV || import.meta.env.PUBLIC_ENABLE_CREDITS_CTA === '1';
   // Lightweight telemetry
   const trackEvent = useCallback((evt: string, payload: Record<string, unknown> = {}) => {
     try {

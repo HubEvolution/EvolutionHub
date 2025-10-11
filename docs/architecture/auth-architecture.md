@@ -54,6 +54,29 @@ Feature-Flag: `AUTH_PROVIDER=legacy|stytch` für Rollout/Rollback. Domains: prod
 - **GET `/api/auth/oauth/:provider/callback`**: Code-Exchange bei Stytch, Session erzeugen, Redirect.
 - Account-Linking: E-Mail-Abgleich; optional expliziter Flow.
 
+### Redirect- und Locale-Policy (aktualisiert)
+
+- **Ziel-Priorität (Callback):**
+  1. `post_auth_redirect` (HttpOnly-Cookie; nur relative gleiche-Origin-Pfade)
+  2. Query `r` (nur relativ)
+  3. Fallback `AUTH_REDIRECT` (Standard: `/dashboard`)
+
+- **Locale-Ermittlung:**
+  - Bevorzugt `post_auth_locale` (kurzlebiger Cookie), danach `pref_locale` (Middleware‑Cookie), andernfalls aus Pfadpräfix.
+  - Wenn das Ziel nicht lokalisiert ist, wird es anhand der ermittelten Locale gemappt (`/` → `/en/` etc.).
+
+- **Welcome / Splash:**
+  - Ist beim Callback keine Locale bekannt (weder Pfadpräfix noch Cookies), erfolgt einmalig ein Redirect zu `/welcome?next=…`.
+  - Die Seite `src/pages/welcome.astro` löst eine kurze Auto‑Weiterleitung basierend auf `navigator.language` aus (Opt‑out: `?noauto=1`).
+  - `/_welcome` ist per Meta und Header `noindex` und damit ausgeschlossen.
+
+- **Erst-Login ohne Profildaten:**
+  - Neue Nutzer ohne übermittelte Profildaten werden auf die locale‑spezifische `/<locale>/welcome-profile?next=…` geleitet.
+  - Die Locale wird dabei anhand `post_auth_locale`/`pref_locale` ermittelt; Fallback ist das Pfadpräfix des Ziels.
+
+- **Hinweis (Entfernung BroadcastChannel):**
+  - Der frühere `/auth/notify` BroadcastChannel‑Zwischenschritt wurde entfernt. Der Callback leitet jetzt direkt weiter; Login‑Seiten lauschen nicht mehr darauf.
+
 ## Sicherheitsmaßnahmen
 
 - **Rate-Limiting**: Schutz vor Brute-Force/Abuse auf Auth-APIs und global in der Middleware (siehe [api-middleware-inventory.md](api-middleware-inventory.md)).
@@ -125,21 +148,27 @@ export const onRequest = defineMiddleware(async (context, next) => {
 export function requireRole(roles) {
   return async ({ request, env, next }) => {
     if (!request.user) {
-      return new Response(JSON.stringify({
-        error: 'Unauthorized',
-        message: 'Authentication required'
-      }), { status: 401 });
+      return new Response(
+        JSON.stringify({
+          error: 'Unauthorized',
+          message: 'Authentication required',
+        }),
+        { status: 401 }
+      );
     }
-    
-    const hasRequiredRole = roles.some(role => request.user.roles.includes(role));
-    
+
+    const hasRequiredRole = roles.some((role) => request.user.roles.includes(role));
+
     if (!hasRequiredRole) {
-      return new Response(JSON.stringify({
-        error: 'Forbidden',
-        message: 'Insufficient permissions'
-      }), { status: 403 });
+      return new Response(
+        JSON.stringify({
+          error: 'Forbidden',
+          message: 'Insufficient permissions',
+        }),
+        { status: 403 }
+      );
     }
-    
+
     return next();
   };
 }

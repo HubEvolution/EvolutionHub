@@ -25,11 +25,20 @@ const remainingPosts = showFeatured && posts.length > 0 ? posts.slice(1) : posts
   {
     title && (
       <div class="text-center">
-        <AosWrapper tag="h2" duration={650} class="text-3xl font-bold text-gray-900 dark:text-white sm:text-4xl">
+        <AosWrapper
+          tag="h2"
+          duration={650}
+          class="text-3xl font-bold text-gray-900 dark:text-white sm:text-4xl"
+        >
           {title}
         </AosWrapper>
         {description && (
-          <AosWrapper tag="p" delay={100} duration={650} class="mx-auto mt-3 max-w-2xl text-xl text-gray-500 dark:text-gray-300 sm:mt-4">
+          <AosWrapper
+            tag="p"
+            delay={100}
+            duration={650}
+            class="mx-auto mt-3 max-w-2xl text-xl text-gray-500 dark:text-gray-300 sm:mt-4"
+          >
             {description}
           </AosWrapper>
         )}
@@ -40,7 +49,11 @@ const remainingPosts = showFeatured && posts.length > 0 ? posts.slice(1) : posts
   {
     featuredPost && (
       <div class="mb-12">
-        <AosWrapper tag="h3" duration={600} class="mb-6 text-xl font-semibold text-gray-900 dark:text-white">
+        <AosWrapper
+          tag="h3"
+          duration={600}
+          class="mb-6 text-xl font-semibold text-gray-900 dark:text-white"
+        >
           Featured Post
         </AosWrapper>
         <BlogCard post={featuredPost} featured={true} className="h-full" aosDelay={0} />

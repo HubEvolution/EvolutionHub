@@ -76,6 +76,12 @@ const getHandler: ApiHandler = async (context: APIContext) => {
   const devEnv =
     ((context.locals as any)?.runtime?.env?.ENVIRONMENT || 'development') === 'development';
   const startedAt = Date.now();
+  // Server-Timing instrumentation
+  const t0 = startedAt;
+  let durAuth = 0;
+  let durUpsert = 0;
+  let durSession = 0;
+  let durRedirect = 0;
   if (devEnv) {
     console.log('[auth][oauth][callback] received', {
       provider,
@@ -90,9 +96,11 @@ const getHandler: ApiHandler = async (context: APIContext) => {
   // Authenticate token with Stytch
   let stytchEmail: string | undefined;
   try {
+    const _tAuth = Date.now();
     const authRes = await stytchOAuthAuthenticate(context, token);
     const emails = authRes.user?.emails || [];
     stytchEmail = emails.find((e) => e.verified)?.email || emails[0]?.email;
+    durAuth = Date.now() - _tAuth;
     if (devEnv) {
       console.log('[auth][oauth][callback] provider accepted', {
         ms: Date.now() - startedAt,
@@ -133,7 +141,9 @@ const getHandler: ApiHandler = async (context: APIContext) => {
     return createSecureRedirect('/en/login?magic_error=MissingEmail');
   }
 
+  const _tUpsert = Date.now();
   const upsert = await upsertUser(db, email, desiredName, desiredUsername);
+  durUpsert = Date.now() - _tUpsert;
 
   // Create session
   const session = await createSession(db, upsert.id);
@@ -147,6 +157,7 @@ const getHandler: ApiHandler = async (context: APIContext) => {
       protocol: url.protocol,
     });
   }
+  const _tSession = Date.now();
   try {
     context.cookies.set('session_id', session.id, {
       path: '/',
@@ -176,6 +187,7 @@ const getHandler: ApiHandler = async (context: APIContext) => {
       console.warn('[auth][oauth][callback] failed to set cookies', { error: err });
     }
   }
+  durSession = Date.now() - _tSession;
 
   // Resolve redirect target
   const rCookie = context.cookies.get('post_auth_redirect')?.value || '';
@@ -198,13 +210,21 @@ const getHandler: ApiHandler = async (context: APIContext) => {
     target = r;
   }
 
-  // Localize target if possible
+  // Localize target if possible (prefer post_auth_locale, fallback to pref_locale)
+  let effectiveLocale: Locale | undefined;
   try {
-    const localeCookie = context.cookies.get('post_auth_locale')?.value as Locale | undefined;
-    if (localeCookie === 'de' || localeCookie === 'en') {
-      if (!isLocalizedPath(target)) {
-        target = localizePath(localeCookie, target);
-      }
+    const postAuthLocale = context.cookies.get('post_auth_locale')?.value as Locale | undefined;
+    const prefLocale = context.cookies.get('pref_locale')?.value as Locale | undefined;
+    effectiveLocale =
+      postAuthLocale === 'de' || postAuthLocale === 'en'
+        ? postAuthLocale
+        : prefLocale === 'de' || prefLocale === 'en'
+          ? prefLocale
+          : undefined;
+    if (effectiveLocale && !isLocalizedPath(target)) {
+      target = localizePath(effectiveLocale, target);
+    }
+    if (postAuthLocale === 'de' || postAuthLocale === 'en') {
       try {
         context.cookies.delete('post_auth_locale', { path: '/' });
       } catch (_err) {
@@ -216,19 +236,32 @@ const getHandler: ApiHandler = async (context: APIContext) => {
   }
 
   // Build redirect response with cookies in headers
+  const _tRedirect = Date.now();
   let redirectTarget = target;
-  if (upsert.isNew && !(desiredName || desiredUsername)) {
+  const hasProfileFromRequest = Boolean(desiredName) || Boolean(desiredUsername);
+  const hasLocale = isLocalizedPath(target) || !!effectiveLocale;
+  if (!hasLocale) {
+    // Locale not determinable yet – route once through welcome (locale picker)
     const nextParam = encodeURIComponent(target);
-    // Extract locale from target path to ensure welcome-profile is localized
-    let welcomePath = '/welcome-profile';
-    if (target.startsWith('/en/')) {
-      welcomePath = '/en/welcome-profile';
-    } else if (target.startsWith('/de/')) {
-      welcomePath = '/de/welcome-profile';
+    redirectTarget = `/welcome?next=${nextParam}`;
+    if (devEnv) {
+      console.log('[auth][oauth][callback] redirect to welcome (no locale known)', { target });
+    }
+  } else if (upsert.isNew && !hasProfileFromRequest) {
+    // First-time user and no profile data provided – route to locale-specific welcome-profile
+    const nextParam = encodeURIComponent(target);
+    // Prefer effectiveLocale if available; fallback to target prefix check; default neutral (de)
+    let welcomePath = effectiveLocale === 'en' ? '/en/welcome-profile' : '/welcome-profile';
+    if (!effectiveLocale) {
+      if (target.startsWith('/en/')) welcomePath = '/en/welcome-profile';
+      else if (target.startsWith('/de/')) welcomePath = '/de/welcome-profile';
     }
     redirectTarget = `${welcomePath}?next=${nextParam}`;
     if (devEnv) {
-      console.log('[auth][oauth][callback] redirect first-time to welcome-profile', { target, welcomePath });
+      console.log('[auth][oauth][callback] redirect first-time to welcome-profile', {
+        target,
+        welcomePath,
+      });
     }
   } else {
     if (devEnv) {
@@ -240,6 +273,20 @@ const getHandler: ApiHandler = async (context: APIContext) => {
   const cookieValue = `session_id=${session.id}; Path=/; HttpOnly; SameSite=Lax${isHttps ? '; Secure' : ''}; Max-Age=${maxAge}`;
   const response = createSecureRedirect(redirectTarget);
   response.headers.append('Set-Cookie', cookieValue);
+  durRedirect = Date.now() - _tRedirect;
+
+  // Append Server-Timing header
+  try {
+    const total = Date.now() - t0;
+    const parts = [
+      `stytch_auth;dur=${durAuth}`,
+      `db_upsert;dur=${durUpsert}`,
+      `session_cookie;dur=${durSession}`,
+      `redirect_build;dur=${durRedirect}`,
+      `total;dur=${total}`,
+    ];
+    response.headers.set('Server-Timing', parts.join(', '));
+  } catch {}
 
   if (devEnv) {
     console.log('[auth][oauth][callback] response headers Set-Cookie', { cookie: cookieValue });

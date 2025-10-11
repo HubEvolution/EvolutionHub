@@ -129,5 +129,6 @@ Die Cloudflare-Architektur wird wie folgt implementiert:
 - [Cloudflare Pages Documentation](https://developers.cloudflare.com/pages)
 - [Cloudflare D1 Documentation](https://developers.cloudflare.com/d1)
 - [Cloudflare Workers Documentation](https://developers.cloudflare.com/workers)
+- [Cloudflare Cache Rules (CI & Staging)](../../ops/cloudflare-cache-rules.md)
 - [Astro Documentation](https://docs.astro.build)
 - [Edge Computing Best Practices](https://www.cloudflare.com/learning/serverless/glossary/what-is-edge-computing/)

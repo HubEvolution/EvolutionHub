@@ -8,6 +8,11 @@ This document describes the locale selection splash page at `/welcome` and the m
 - First-time human visitors without a locale cookie and without a locale in the URL are redirected to `/welcome` to explicitly choose their language.
 - Bots and assets/APIs are never redirected to the splash page.
 
+### Auto-Continue and One-Time Gate
+
+- The welcome page (`src/pages/welcome.astro`) includes a short client-side auto-continue: it chooses `?set_locale=de|en` based on `navigator.language` and then follows `next`. Opt-out: `?noauto=1`.
+- The middleware sets a session-scoped cookie to show the splash only once per browser session (`session_welcome_seen`); subsequent navigations skip `/welcome`.
+
 ## Cookie
 
 - Name: `pref_locale`
@@ -24,12 +29,12 @@ This document describes the locale selection splash page at `/welcome` and the m
 - Neutral path with cookie `en` (not API/asset, not `/welcome`) → 302 to `/en/...` equivalent.
 - `/de/...` visited while cookie `en` → 308 redirect to `/en/...` equivalent of the same path (preference for user’s cookie on DE-prefixed paths).
 - Bots (no cookie, no locale in URL) → skip splash; redirect neutrals to `/en/...` if `Accept-Language` indicates EN; otherwise keep neutral (DE).
+- Early neutral redirect: when no cookie is present, a recent referer from `/en/*` may trigger a one-time redirect to `/en/*` for better continuity.
 
 ## SEO
 
 - `src/pages/welcome.astro` includes: `<meta name="robots" content="noindex, nofollow, noarchive" />`.
 - `public/robots.txt` disallows `/welcome`.
-- `public/sitemap.xml` contains only localized roots (`/de/` and `/en/`).
 - `src/middleware.ts` setzt zusätzlich HTTP `X-Robots-Tag: noindex, nofollow, noarchive` für `/welcome`.
 
 ## Security & Headers

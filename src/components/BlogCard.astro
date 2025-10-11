@@ -1,6 +1,9 @@
 ---
 import type { ProcessedBlogPost } from '@/content/types';
+import { getLocale } from '@/lib/i18n';
+import { localizePath } from '@/lib/locale-path';
 import ArrowRightCircleIcon from 'astro-heroicons/solid/ArrowRightCircle.astro';
+import { Image } from 'astro:assets';
 
 interface Props {
   post: ProcessedBlogPost;
@@ -11,9 +14,12 @@ interface Props {
 
 const { post, featured = false, className = '', aosDelay } = Astro.props;
 
-const { title, description, image, imageAlt, category } = post.data;
+const data: any = post.data;
+const { title, description, image, imageAlt, category } = data;
 
 const { url, formattedPubDate, readingTime } = post;
+const locale = getLocale(Astro.url.pathname);
+const localizedUrl = localizePath(locale, url);
 ---
 
 <article
@@ -32,19 +38,19 @@ const { url, formattedPubDate, readingTime } = post;
     image && (
       <div class={featured ? 'md:w-1/3' : 'w-full'}>
         <a
-          href={url}
+          href={localizedUrl}
           class="block aspect-video overflow-hidden"
           aria-label={`Bild für ${title}`}
           tabindex="-1"
         >
-          <img
+          <Image
             src={image.src}
             alt={imageAlt ? imageAlt : title}
             class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
             loading="lazy"
-            width={featured ? 400 : 800}
-            height={featured ? 300 : 600}
-            decoding="async"
+            widths={[480, 640, 768, 1024, 1280]}
+            sizes={featured ? '(min-width: 768px) 33vw, 100vw' : '100vw'}
+            formats={['webp', 'jpeg']}
           />
         </a>
       </div>
@@ -57,7 +63,10 @@ const { url, formattedPubDate, readingTime } = post;
         category && (
           <div class="mb-2">
             <a
-              href={`/blog/kategorie/${typeof category === 'string' ? category.toLowerCase() : 'allgemein'}`}
+              href={localizePath(
+                locale,
+                `/blog/kategorie/${typeof category === 'string' ? category.toLowerCase() : 'allgemein'}`
+              )}
               class="relative z-10 inline-flex items-center px-3 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-400 hover:bg-indigo-200 dark:hover:bg-indigo-800/50 transition-colors"
               data-itemprop="articleSection"
             >
@@ -69,7 +78,7 @@ const { url, formattedPubDate, readingTime } = post;
 
       <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-2">
         <a
-          href={url}
+          href={localizedUrl}
           class="relative z-10 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
         >
           <span class="absolute inset-0" aria-hidden="true"></span>
@@ -79,9 +88,9 @@ const { url, formattedPubDate, readingTime } = post;
 
       <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-3">
         <time
-          datetime={post.data.pubDate instanceof Date
-            ? post.data.pubDate.toISOString()
-            : new Date(post.data.pubDate).toISOString()}
+          datetime={data.pubDate instanceof Date
+            ? data.pubDate.toISOString()
+            : new Date(data.pubDate as any).toISOString()}
           class="whitespace-nowrap"
           data-itemprop="datePublished"
         >
@@ -95,6 +104,18 @@ const { url, formattedPubDate, readingTime } = post;
             </>
           )
         }
+        <span class="mx-1">•</span>
+        <a
+          href={`${localizedUrl}#comments`}
+          class="inline-flex items-center gap-1 text-gray-600 hover:text-emerald-600 dark:text-gray-300 dark:hover:text-emerald-400 transition-colors"
+          aria-label="Kommentare ansehen"
+        >
+          <span aria-hidden="true">💬</span>
+          <span id={`cc-${post.slug}`} data-entity-type="blog_post" data-entity-id={post.slug}
+            >0</span
+          >
+          <span>Kommentare</span>
+        </a>
       </div>
 
       {
@@ -106,7 +127,7 @@ const { url, formattedPubDate, readingTime } = post;
 
     <div class="mt-auto pt-2">
       <a
-        href={url}
+        href={localizedUrl}
         class="relative z-10 inline-flex items-center font-semibold text-emerald-600 hover:text-emerald-500 dark:text-emerald-400 dark:hover:text-emerald-300 transition-colors group/readmore"
         aria-label={`Weiterlesen: ${title}`}
       >
@@ -118,3 +139,24 @@ const { url, formattedPubDate, readingTime } = post;
     </div>
   </div>
 </article>
+
+<script>
+  try {
+    const nodes = document.querySelectorAll('[id^="cc-"][data-entity-type][data-entity-id]');
+    nodes.forEach((el) => {
+      const entityType = el.getAttribute('data-entity-type') || 'blog_post';
+      const entityId = el.getAttribute('data-entity-id');
+      if (!entityId) return;
+      const endpoint = `/api/comments/count?entityType=${encodeURIComponent(entityType)}&entityId=${encodeURIComponent(entityId)}`;
+      fetch(endpoint)
+        .then((r) => (r.ok ? r.json() : Promise.reject(new Error('bad response'))))
+        .then((json: any) => {
+          const c = json?.data?.count ?? 0;
+          el.textContent = String(c);
+        })
+        .catch(() => {
+          // keep default on failure
+        });
+    });
+  } catch {}
+</script>

@@ -3,7 +3,62 @@ import { cors } from 'hono/cors';
 import { jwt } from 'hono/jwt';
 import { rateLimit } from '../../../lib/rate-limiter';
 import { NotificationService } from '../../../lib/services/notification-service';
-import type { NotificationFilters } from '../../../lib/types/notifications';
+import type {
+  NotificationFilters,
+  NotificationPriority,
+  NotificationType,
+} from '../../../lib/types/notifications';
+
+const NOTIFICATION_TYPES: readonly NotificationType[] = [
+  'comment_reply',
+  'comment_mention',
+  'comment_approved',
+  'comment_rejected',
+  'system',
+];
+
+const NOTIFICATION_PRIORITIES: readonly NotificationPriority[] = [
+  'low',
+  'normal',
+  'high',
+  'urgent',
+];
+
+function parseNotificationType(value: string | undefined | null): NotificationType | undefined {
+  if (!value) return undefined;
+  return NOTIFICATION_TYPES.includes(value as NotificationType)
+    ? (value as NotificationType)
+    : undefined;
+}
+
+function parseNotificationPriority(
+  value: string | undefined | null
+): NotificationPriority | undefined {
+  if (!value) return undefined;
+  return NOTIFICATION_PRIORITIES.includes(value as NotificationPriority)
+    ? (value as NotificationPriority)
+    : undefined;
+}
+
+function parseBooleanFlag(value: string | undefined | null): boolean | undefined {
+  if (value === 'true') return true;
+  if (value === 'false') return false;
+  return undefined;
+}
+
+function parseInteger(value: string | undefined | null, fallback: number): number {
+  if (!value) return fallback;
+  const parsed = Number.parseInt(value, 10);
+  return Number.isFinite(parsed) ? parsed : fallback;
+}
+
+function ensureNumericUserId(rawId: unknown): number {
+  const numericId = typeof rawId === 'string' ? Number.parseInt(rawId, 10) : Number(rawId);
+  if (!Number.isInteger(numericId) || numericId <= 0) {
+    throw new Error('Unauthorized');
+  }
+  return numericId;
+}
 
 const app = new Hono<{ Bindings: { DB: D1Database; JWT_SECRET: string } }>();
 
@@ -34,7 +89,8 @@ app.use(
 // GET /api/notifications - List user notifications
 app.get('/', async (c) => {
   try {
-    const userId = c.get('jwtPayload')?.id;
+    const rawUserId = c.get('jwtPayload')?.id;
+    const userId = ensureNumericUserId(rawUserId);
     if (!userId) {
       return c.json({ success: false, error: { type: 'auth', message: 'Unauthorized' } }, 401);
     }
@@ -47,13 +103,13 @@ app.get('/', async (c) => {
     // Parse query parameters
     const query = c.req.query();
     const filters: NotificationFilters = {
-      type: query.type as any,
-      isRead: query.isRead === 'true' ? true : query.isRead === 'false' ? false : undefined,
-      priority: query.priority as any,
-      limit: query.limit ? parseInt(query.limit) : 20,
-      offset: query.offset ? parseInt(query.offset) : 0,
-      startDate: query.startDate ? parseInt(query.startDate) : undefined,
-      endDate: query.endDate ? parseInt(query.endDate) : undefined,
+      type: parseNotificationType(query.type),
+      isRead: parseBooleanFlag(query.isRead),
+      priority: parseNotificationPriority(query.priority),
+      limit: Math.max(1, Math.min(100, parseInteger(query.limit, 20))),
+      offset: Math.max(0, parseInteger(query.offset, 0)),
+      startDate: query.startDate ? parseInteger(query.startDate, NaN) || undefined : undefined,
+      endDate: query.endDate ? parseInteger(query.endDate, NaN) || undefined : undefined,
     };
 
     const result = await notificationService.listNotifications(userId, filters);
@@ -77,7 +133,8 @@ app.get('/', async (c) => {
 // POST /api/notifications/mark-read - Mark notification as read
 app.post('/mark-read', async (c) => {
   try {
-    const userId = c.get('jwtPayload')?.id;
+    const rawUserId = c.get('jwtPayload')?.id;
+    const userId = ensureNumericUserId(rawUserId);
     if (!userId) {
       return c.json({ success: false, error: { type: 'auth', message: 'Unauthorized' } }, 401);
     }
@@ -85,8 +142,9 @@ app.post('/mark-read', async (c) => {
     // Rate limiting: 20 requests per minute
     await rateLimit(`notifications:mark-read:${userId}`, 20, 60);
 
-    const body = await c.req.json();
-    const { notificationId } = body;
+    const body = (await c.req.json().catch(() => null)) as { notificationId?: unknown } | null;
+    const notificationId =
+      typeof body?.notificationId === 'string' ? body.notificationId : undefined;
 
     if (!notificationId) {
       return c.json(
@@ -121,7 +179,8 @@ app.post('/mark-read', async (c) => {
 // POST /api/notifications/mark-all-read - Mark all notifications as read
 app.post('/mark-all-read', async (c) => {
   try {
-    const userId = c.get('jwtPayload')?.id;
+    const rawUserId = c.get('jwtPayload')?.id;
+    const userId = ensureNumericUserId(rawUserId);
     if (!userId) {
       return c.json({ success: false, error: { type: 'auth', message: 'Unauthorized' } }, 401);
     }
@@ -152,7 +211,8 @@ app.post('/mark-all-read', async (c) => {
 // DELETE /api/notifications/:id - Delete a notification
 app.delete('/:id', async (c) => {
   try {
-    const userId = c.get('jwtPayload')?.id;
+    const rawUserId = c.get('jwtPayload')?.id;
+    const userId = ensureNumericUserId(rawUserId);
     if (!userId) {
       return c.json({ success: false, error: { type: 'auth', message: 'Unauthorized' } }, 401);
     }
@@ -185,7 +245,8 @@ app.delete('/:id', async (c) => {
 // GET /api/notifications/stats - Get notification statistics
 app.get('/stats', async (c) => {
   try {
-    const userId = c.get('jwtPayload')?.id;
+    const rawUserId = c.get('jwtPayload')?.id;
+    const userId = ensureNumericUserId(rawUserId);
     if (!userId) {
       return c.json({ success: false, error: { type: 'auth', message: 'Unauthorized' } }, 401);
     }

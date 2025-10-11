@@ -3,7 +3,7 @@ import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
 import { CommentService } from '../../../../lib/services/comment-service';
 import { requireAdmin } from '../../../../lib/auth-helpers';
-const app = new Hono<{ Bindings: { DB: D1Database } }>();
+const app = new Hono<{ Bindings: { DB: D1Database; KV_COMMENTS?: KVNamespace } }>();
 
 // Middleware
 app.use('*', logger());
@@ -31,7 +31,7 @@ app.get('/', async (c) => {
       env: { DB: c.env.DB },
     });
 
-    const commentService = new CommentService(c.env.DB);
+    const commentService = new CommentService(c.env.DB, c.env.KV_COMMENTS);
 
     const query = c.req.query();
 

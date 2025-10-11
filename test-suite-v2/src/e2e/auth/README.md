@@ -4,7 +4,6 @@ Comprehensive E2E tests for all authentication flows in Evolution Hub.
 
 ## 📁 Test Structure
 
-```
 auth/
 ├── oauth/
 │   ├── github-oauth-flow.spec.ts          # GitHub OAuth happy path tests
@@ -16,13 +15,13 @@ auth/
 ├── session-management.spec.ts             # Session lifecycle tests
 ├── auth-middleware.spec.ts                # Middleware redirect tests
 └── README.md                              # This file
-```
 
 ## 🎯 Test Coverage
 
 ### OAuth Tests (NEW - v1.7.2)
 
 **`oauth/github-oauth-flow.spec.ts`** (270 lines)
+
 - OAuth button visibility (EN/DE)
 - OAuth start endpoint
 - Complete OAuth flow (local dev with E2E_FAKE_STYTCH)
@@ -31,6 +30,7 @@ auth/
 - Helper function usage
 
 **`oauth/oauth-cookie-security.spec.ts`** (320 lines)
+
 - HTTP cookie behavior (`session_id` only, no `__Host-session`)
 - HTTPS cookie behavior (both `session_id` and `__Host-session`)
 - Cookie attributes (HttpOnly, Secure, SameSite, Path)
@@ -39,6 +39,7 @@ auth/
 - Helper function assertions
 
 **`oauth/oauth-error-handling.spec.ts`** (210 lines)
+
 - Missing token → MissingToken error
 - Invalid token → InvalidOrExpired error
 - Locale preservation in error redirects
@@ -46,6 +47,7 @@ auth/
 - Error recovery (retry after error)
 
 **`oauth/oauth-welcome-profile.spec.ts`** (230 lines)
+
 - New user → redirect to `/welcome-profile` (with locale)
 - Returning user → skip welcome-profile
 - Profile form validation
@@ -55,17 +57,20 @@ auth/
 ### Magic Link Tests (EXISTING - Kept)
 
 **`magic-link-flow.spec.ts`** (115 lines)
+
 - Magic Link request
 - `post_auth_redirect` cookie
 - Dev bypass callback (local dev)
 - Dashboard redirect
 
 **`magic-link-flow-de.spec.ts`** (98 lines)
+
 - German locale variant of Magic Link tests
 
 ### Session Management Tests (NEW)
 
 **`session-management.spec.ts`** (280 lines)
+
 - Session creation (OAuth, Magic Link)
 - Session persistence (navigations, reloads)
 - Session validation (middleware checks)
@@ -76,6 +81,7 @@ auth/
 ### Auth Middleware Tests (NEW)
 
 **`auth-middleware.spec.ts`** (230 lines)
+
 - Protected routes require auth
 - Unauthenticated → redirect to login
 - Authenticated → allow access
@@ -171,6 +177,7 @@ STYTCH_TEST_EMAIL=test@example.com      # Test email for Magic Link
 ```
 
 **Requirements:**
+
 - `npm run dev:worker:dev` running
 - E2E_FAKE_STYTCH=1 in wrangler.toml or env
 - OAuth and Magic Link flows are mocked for E2E
@@ -185,6 +192,7 @@ STYTCH_TEST_EMAIL=<your-verified-email>
 ```
 
 **Limitations:**
+
 - OAuth flows cannot be completed (requires real Stytch interaction)
 - Only OAuth start and error handling tests will run
 - Magic Link tests will be skipped
@@ -199,6 +207,7 @@ STYTCH_TEST_EMAIL=<your-verified-email>
 ```
 
 **Only runs:**
+
 - `/api/auth/magic/request` response validation
 - Security header checks
 - Error redirect validation
@@ -220,6 +229,7 @@ STYTCH_TEST_EMAIL=<your-verified-email>
 **Problem:** Most OAuth and session tests are skipped
 
 **Solution:**
+
 ```bash
 # Set E2E_FAKE_STYTCH=1 in wrangler.toml
 [env.development.vars]
@@ -253,9 +263,11 @@ npm run dev:worker:dev
 **Problem:** Tests hang or timeout
 
 **Solution:**
+
 - Check dev server is running (`npm run dev:worker:dev`)
 - Check BASE_URL matches dev server port (default: 8787)
 - Increase timeout in test file if needed:
+
   ```typescript
   test.setTimeout(60000); // 60 seconds
   ```
@@ -306,9 +318,8 @@ test('OAuth flow (DE)', async ({ browser }) => {
 
 ## 🔗 Related Documentation
 
-- [OAuth Login Issues Troubleshooting](../../../../../docs/troubleshooting/oauth-login-issues.md)
-- [Stytch Custom Domains](../../../../../docs/ops/stytch-custom-domains.md)
-- [Auth Flow Architecture](../../../../../docs/architecture/auth-flow.md)
+- OAuth Login Issues Troubleshooting — siehe konsolidierte Entwicklungsdokumentation (Stytch OAuth & Magic Link)
+- Stytch Custom Domains — siehe konsolidierte Entwicklungsdokumentation (Stytch OAuth & Magic Link)
 - [Test Suite v2 README](../../../../README.md)
 
 ## ✅ Test Checklist (PR Review)

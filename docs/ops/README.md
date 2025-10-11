@@ -5,6 +5,7 @@ Diese Dokumentation beschreibt operative Aspekte und Statusberichte für Evoluti
 ## Übersicht
 
 Operative Dokumentation umfasst:
+
 - Integration-Status von Third-Party-Services
 - Custom-Domain-Konfigurationen
 - Deployment-spezifische Setups
@@ -13,12 +14,7 @@ Operative Dokumentation umfasst:
 
 ### Stytch Integration
 
-- **[Stytch Custom Domains](./stytch-custom-domains.md)** — Stytch-Integration und Custom-Domain-Status
-  - Magic Link Implementierungsstatus (✅ Aktiv)
-  - OAuth Status (✅ Aktiv, GitHub verifiziert)
-  - Custom Domain Setup (Testing: `login-test.hub-evolution.com`, Production: `login.hub-evolution.com`)
-  - Umgebungsspezifische Callback-URLs
-  - DNS-Konfiguration und Verifizierung
+- Stytch-Integration und Custom-Domain-Status sind in der konsolidierten Entwicklungsdokumentation beschrieben.
 
 ## Verwandte Dokumentation
 

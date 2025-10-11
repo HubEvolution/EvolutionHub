@@ -36,7 +36,7 @@ Der **AI Image Enhancer** verbessert Bildqualität mittels State-of-the-Art KI-M
 
 ### Komponenten-Stack
 
-```
+```text
 src/components/tools/imag-enhancer/
 ├── CompareSlider.tsx             # Before/After-Vergleich mit Slider
 ├── Dropzone.tsx                  # Drag & Drop Upload
@@ -338,7 +338,7 @@ await downloadImage(enhancedUrl, 'enhanced-image.jpg');
 
 **KV-Keys-Schema**:
 
-```
+```text
 ai:usage:user:<user-id>:YYYY-MM-DD → { count: number, resetAt: timestamp }
 ai:usage:guest:<guest-id>:YYYY-MM-DD → { count: number, resetAt: timestamp }
 ai:monthly:user:<user-id>:YYYY-MM → { count: number }
@@ -386,7 +386,7 @@ ai:credits:user:<user-id> → { balance: number }
 
 **Debug-Headers** (`src/pages/api/ai-image/usage.ts:88-96`):
 
-```
+```text
 X-Usage-OwnerType: user
 X-Usage-Plan: pro
 X-Usage-Limit: 40
@@ -408,7 +408,7 @@ export const aiGenerateLimiter = createRateLimiter({
 
 **Response bei Limit** (429):
 
-```
+```text
 HTTP 429 Too Many Requests
 Retry-After: 45
 
@@ -481,7 +481,7 @@ const { containerRef, boxSize } = useImageBoxSize();
 
 ### 1. Einfaches Upscaling (Real-ESRGAN)
 
-```
+```text
 Input: low-res-photo.jpg (640×480)
 Model: Real-ESRGAN 4x
 Scale: 4x
@@ -493,7 +493,7 @@ Face Enhance: Off
 
 ### 2. Porträt-Verbesserung (GFPGAN)
 
-```
+```text
 Input: portrait.png (1024×1024)
 Model: GFPGAN
 Scale: N/A (nicht unterstützt)
@@ -505,7 +505,7 @@ Face Enhance: N/A (nativ)
 
 ### 3. Alte Fotos restaurieren (CodeFormer)
 
-```
+```text
 Input: vintage-photo.jpg (800×600, stark verpixelt)
 Model: CodeFormer
 Scale: N/A
@@ -517,7 +517,7 @@ Face Enhance: N/A
 
 ### 4. Kombiniert (Real-ESRGAN + Face Enhance)
 
-```
+```text
 Input: group-photo.jpg (1200×800)
 Model: Real-ESRGAN 4x
 Scale: 2x
@@ -866,7 +866,7 @@ cwebp input.webp -o output.png
 
 ### KV-Keys-Schema (Detail)
 
-```
+```text
 # Daily Usage (24h Rolling Window)
 ai:usage:user:<user-id>:YYYY-MM-DD → JSON { count: 13, resetAt: 1705334400000 }
 ai:usage:guest:<guest-id>:YYYY-MM-DD → JSON { count: 2, resetAt: 1705334400000 }
@@ -980,7 +980,7 @@ const url = await R2_AI_IMAGES.createMultipartUpload(key, {
 
 ---
 
-**Ende der AI Image Enhancer Dokumentation**
+### Ende der AI Image Enhancer Dokumentation
 
 > Letzte Aktualisierung: 2025-01-15
 > Version: 1.7.x

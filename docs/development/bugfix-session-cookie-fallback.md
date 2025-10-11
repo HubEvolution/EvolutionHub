@@ -9,6 +9,7 @@ Nach dem Login (Dashboard) zeigte der Plan-Badge "Starter" an, aber beim Navigie
 Die Middleware (`src/middleware.ts`) las nur das `session_id`-Cookie (SameSite=Lax), aber nicht das `__Host-session`-Cookie (SameSite=Strict).
 
 Beim Auth-Callback werden **beide Cookies** gesetzt:
+
 - `session_id`: SameSite=Lax, für Cross-Site-Navigation
 - `__Host-session`: SameSite=Strict, sicherer, aber nur Same-Site
 
@@ -17,12 +18,14 @@ Bei bestimmten Navigationen (z.B. Client-Side-Navigation oder nach Redirects) ko
 ## Lösung
 
 **Middleware** (`src/middleware.ts`, Zeile 455):
+
 ```typescript
 // Try __Host-session first (stricter, SameSite=Strict), fallback to session_id (SameSite=Lax)
 const sessionId = context.cookies.get('__Host-session')?.value ?? context.cookies.get('session_id')?.value ?? null;
 ```
 
 Die Middleware prüft jetzt **beide Cookie-Namen** mit Fallback-Logik:
+
 1. Erst `__Host-session` (bevorzugt, da sicherer)
 2. Falls nicht vorhanden, `session_id` (Fallback für Kompatibilität)
 

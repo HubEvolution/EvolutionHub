@@ -54,9 +54,9 @@ describe('AiImageService', () => {
     service = new AiImageService(mockEnv);
     // Ensure File.prototype.arrayBuffer exists in test env
     if (!(File as any).prototype.arrayBuffer) {
-      (File as any).prototype.arrayBuffer = vi.fn(async function (): Promise<ArrayBuffer> {
-        const text = (this as File).size > 0 ? 'x'.repeat((this as File).size) : 'x';
-        return new TextEncoder().encode(text).buffer;
+      (File as any).prototype.arrayBuffer = vi.fn(async function (this: File): Promise<ArrayBuffer> {
+        const text = this.size > 0 ? 'x'.repeat(this.size) : 'x';
+        return (new TextEncoder().encode(text).buffer as ArrayBuffer);
       });
     }
     // reset R2/KV mocks
@@ -164,7 +164,7 @@ describe('AiImageService', () => {
         expect.stringContaining(`Suggest optimal enhancement parameters for an image using model ${params.modelSlug}`),
         params.assistantId
       );
-      expect(service.runReplicate).toHaveBeenCalledWith(expect.any(Object), expect.objectContaining({
+      expect((service as any).runReplicate).toHaveBeenCalledWith(expect.any(Object), expect.objectContaining({
         image: expect.any(String),
         scale: 2,
         face_enhance: true
@@ -178,7 +178,7 @@ describe('AiImageService', () => {
       const params: GenerateParams = { ...baseParams, scale: 4, faceEnhance: false };
       await service.generate(params);
 
-      expect(service.runReplicate).toHaveBeenCalledWith(expect.any(Object), expect.objectContaining({
+      expect((service as any).runReplicate).toHaveBeenCalledWith(expect.any(Object), expect.objectContaining({
         scale: 4,
         face_enhance: false
       }));
@@ -191,7 +191,7 @@ describe('AiImageService', () => {
       const params: GenerateParams = { ...baseParams, scale: 4, faceEnhance: false };
       await service.generate(params);
 
-      expect(service.runReplicate).toHaveBeenCalledWith(expect.any(Object), expect.objectContaining({
+      expect((service as any).runReplicate).toHaveBeenCalledWith(expect.any(Object), expect.objectContaining({
         scale: 4, // Not applied
         face_enhance: true // Applied
       }));

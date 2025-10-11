@@ -20,6 +20,8 @@ ctas:
     description: 'Erhalten Sie wöchentlich die neuesten Trends und Best Practices direkt in Ihr Postfach.'
 
 leadMagnets: ['new-work-guide']
+image: ./images/new-work-ist-eine-haltung.webp
+imageAlt: 'Person gestaltet aktiv ihre Arbeitszukunft mit New Work Haltung'
 
 funnel:
   stage: 'consideration'
@@ -34,9 +36,6 @@ funnelSeo:
   secondaryKeywords: ['New Work Haltung', 'Unternehmenskultur wandeln', 'Zukunft der Arbeit']
   searchVolume: 1200
 ---
-
-image: { src: '/src/content/blog/images/new-work-mindset.webp', width: 1200, height: 675 }
-imageAlt: 'Person gestaltet aktiv ihre Arbeitszukunft mit New Work Haltung'
 
 # New Work ist kein Ort, sondern eine Haltung: Gestalte deine Arbeitszukunft selbst
 

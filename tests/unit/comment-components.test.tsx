@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { CommentSection } from '../../src/components/comments/CommentSection';
 import { CommentForm } from '../../src/components/comments/CommentForm';
@@ -45,8 +45,8 @@ vi.mock('../../src/components/comments/hooks/useRateLimit', () => ({
 }));
 
 describe('CommentSection', () => {
-  const mockProps = {
-    entityType: 'blog_post',
+  const sectionProps = {
+    entityType: 'blog_post' as const,
     entityId: 'test-post-123',
     title: 'Test Blog Post',
   };
@@ -56,7 +56,7 @@ describe('CommentSection', () => {
   });
 
   it('should render comment section with title', () => {
-    render(<CommentSection {...mockProps} />);
+    render(<CommentSection {...sectionProps} />);
 
     expect(screen.getByText('Kommentare')).toBeInTheDocument();
     expect(screen.getByText('Test Blog Post')).toBeInTheDocument();
@@ -76,7 +76,7 @@ describe('CommentSection', () => {
       clearError: vi.fn(),
     });
 
-    render(<CommentSection {...mockProps} />);
+    render(<CommentSection {...sectionProps} />);
 
     expect(screen.getByText('Lade Kommentare...')).toBeInTheDocument();
   });
@@ -102,10 +102,8 @@ describe('CommentSection', () => {
 });
 
 describe('CommentForm', () => {
-  const mockProps = {
-    entityType: 'blog_post',
-    entityId: 'test-post-123',
-    onCommentAdded: vi.fn(),
+  const formProps = {
+    onSubmit: vi.fn(async (_content: string) => {}),
   };
 
   beforeEach(() => {
@@ -113,7 +111,7 @@ describe('CommentForm', () => {
   });
 
   it('should render comment form for authenticated user', () => {
-    render(<CommentForm {...mockProps} />);
+    render(<CommentForm {...formProps} />);
 
     expect(screen.getByPlaceholderText('Schreibe einen Kommentar...')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Kommentar posten' })).toBeInTheDocument();
@@ -126,7 +124,7 @@ describe('CommentForm', () => {
       isAuthenticated: false,
     });
 
-    render(<CommentForm {...mockProps} />);
+    render(<CommentForm {...formProps} />);
 
     expect(screen.getByPlaceholderText('Schreibe einen Kommentar...')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('Dein Name')).toBeInTheDocument();
@@ -259,14 +257,28 @@ describe('CommentList', () => {
   });
 
   it('should render comments list', () => {
-    render(<CommentList {...mockProps} />);
+    render(
+      <CommentList
+        onReply={function (content: string, parentId?: string): Promise<void> {
+          throw new Error('Function not implemented.');
+        }}
+        {...mockProps}
+      />
+    );
 
     expect(screen.getByText('This is the first comment')).toBeInTheDocument();
     expect(screen.getByText('This is a reply')).toBeInTheDocument();
   });
 
   it('should show comment actions for own comments', () => {
-    render(<CommentList {...mockProps} />);
+    render(
+      <CommentList
+        onReply={function (content: string, parentId?: string): Promise<void> {
+          throw new Error('Function not implemented.');
+        }}
+        {...mockProps}
+      />
+    );
 
     expect(screen.getByText('Bearbeiten')).toBeInTheDocument();
     expect(screen.getByText('Löschen')).toBeInTheDocument();
@@ -278,14 +290,28 @@ describe('CommentList', () => {
       currentUserId: 999, // Different user ID
     };
 
-    render(<CommentList {...propsWithDifferentUser} />);
+    render(
+      <CommentList
+        onReply={function (content: string, parentId?: string): Promise<void> {
+          throw new Error('Function not implemented.');
+        }}
+        {...propsWithDifferentUser}
+      />
+    );
 
     expect(screen.getByText('Melden')).toBeInTheDocument();
   });
 
   it('should handle comment editing', async () => {
     const user = userEvent.setup();
-    render(<CommentList {...mockProps} />);
+    render(
+      <CommentList
+        onReply={function (content: string, parentId?: string): Promise<void> {
+          throw new Error('Function not implemented.');
+        }}
+        {...mockProps}
+      />
+    );
 
     const editButton = screen.getByText('Bearbeiten');
     await user.click(editButton);
@@ -308,7 +334,14 @@ describe('CommentList', () => {
 
   it('should handle comment deletion', async () => {
     const user = userEvent.setup();
-    render(<CommentList {...mockProps} />);
+    render(
+      <CommentList
+        onReply={function (content: string, parentId?: string): Promise<void> {
+          throw new Error('Function not implemented.');
+        }}
+        {...mockProps}
+      />
+    );
 
     const deleteButton = screen.getByText('Löschen');
     await user.click(deleteButton);
@@ -331,7 +364,14 @@ describe('CommentList', () => {
     };
 
     const user = userEvent.setup();
-    render(<CommentList {...propsWithDifferentUser} />);
+    render(
+      <CommentList
+        onReply={function (content: string, parentId?: string): Promise<void> {
+          throw new Error('Function not implemented.');
+        }}
+        {...propsWithDifferentUser}
+      />
+    );
 
     const reportButton = screen.getByText('Melden');
     await user.click(reportButton);

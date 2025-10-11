@@ -27,7 +27,7 @@ const hrefEn = `/welcome?set_locale=en&next=${encodeURIComponent(nextRaw)}`;
   hideFooter={true}
   noIndex={true}
 >
-  <section class="min-h-screen min-h-[100svh] px-4 flex flex-col items-center justify-center">
+  <section class="min-h-[100svh] px-4 flex flex-col items-center justify-center">
     <img
       src="/favicons/favicon-32x32.png"
       alt="Evolution Hub"
@@ -51,4 +51,21 @@ const hrefEn = `/welcome?set_locale=en&next=${encodeURIComponent(nextRaw)}`;
       </a>
     </div>
   </section>
+  <script is:inline nonce={Astro.locals.cspNonce} define:vars={{ hrefDe, hrefEn }}>
+    (function () {
+      try {
+        const params = new URLSearchParams(location.search);
+        if (params.get('noauto') === '1') return;
+        const lang = (navigator.language || '').toLowerCase();
+        const toDe = /(^|,|;|\s)de(\-|$)/.test(lang);
+        const target = toDe ? hrefDe : hrefEn;
+        // Small delay to allow visual context and let back button remain meaningful
+        setTimeout(() => {
+          try {
+            window.location.href = target;
+          } catch {}
+        }, 400);
+      } catch {}
+    })();
+  </script>
 </BaseLayout>

@@ -1,351 +1,405 @@
 ---
- // src/layouts/BaseLayout.astro
- import Header from '@/components/Header.astro';
- // Global CSS wird weiter unten via <style is:global> importiert
- import { getLocale } from '@/lib/i18n';
- import { getSEOData, getAlternateUrls } from '@/lib/seo';
- import SkipLink from '@/components/SkipLink.astro';
- import Footer from '@/components/Footer.astro';
- import ThemeProvider from '@/components/ThemeProvider.astro';
- import AOSCoordinator from '@/components/scripts/AOSCoordinator.astro';
- import AnalyticsCoordinator from '@/components/scripts/AnalyticsCoordinator.astro';
- import Toaster from '@/components/Toaster';
- import BillingNotice from '@/components/BillingNotice';
- import DebugPanelIsland from '@/components/DebugPanelIsland.astro';
- import DebugPanelOverlay from '@/components/ui/DebugPanelOverlay';
- import DebugInterceptors from '@/components/scripts/DebugInterceptors';
- import { ClientRouter } from 'astro:transitions';
- import ComingSoon from '@/components/ui/ComingSoon.astro';
- import { isComingSoon } from '@/config/coming-soon';
- import SpriteDefs from '@/components/ui/icons/SpriteDefs.astro';
- 
- interface Props {
-   title: string;
-   description?: string;
-   ogImage?: string;
-   canonical?: string;
-   structuredData?: any;
-   image?: string;
-   type?: string;
-   publishedTime?: string;
-   modifiedTime?: string;
-   author?: string;
-   section?: string;
-   tags?: string[];
-   hideNewsletter?: boolean;
-   hideHeader?: boolean;
-   hideFooter?: boolean;
-   enableAOS?: boolean;
-   enableAnalytics?: boolean;
-   noIndex?: boolean;
-   comingSoon?: boolean;
-   disableGlobalBg?: boolean; // optional: globalen Hintergrund deaktivieren
- }
- 
- const props = Astro.props as Props;
+// src/layouts/BaseLayout.astro
+import Header from '@/components/Header.astro';
+// Global CSS wird weiter unten via <style is:global> importiert
+import { getLocale } from '@/lib/i18n';
+import { getSEOData, getAlternateUrls } from '@/lib/seo';
+import SkipLink from '@/components/SkipLink.astro';
+import Footer from '@/components/Footer.astro';
+import ThemeProvider from '@/components/ThemeProvider.astro';
+import AOSCoordinator from '@/components/scripts/AOSCoordinator.astro';
+import AnalyticsCoordinator from '@/components/scripts/AnalyticsCoordinator.astro';
+import Toaster from '@/components/Toaster';
+import BillingNotice from '@/components/BillingNotice';
+import DebugPanelIsland from '@/components/DebugPanelIsland.astro';
+import DebugPanelOverlay from '@/components/ui/DebugPanelOverlay';
+import DebugInterceptors from '@/components/scripts/DebugInterceptors';
+import { ClientRouter } from 'astro:transitions';
+import ComingSoon from '@/components/ui/ComingSoon.astro';
+import { isComingSoon } from '@/config/coming-soon';
+import SpriteDefs from '@/components/ui/icons/SpriteDefs.astro';
 
- const {
-   title: customTitle,
-   description: customDescription,
-   ogImage: customOgImage,
-   hideNewsletter
- } = props;
- 
- const { enableAOS = true, enableAnalytics = true } = props;
- const { hideHeader = false, hideFooter = false } = props;
- const { noIndex = false } = props;
- const { disableGlobalBg = false } = props;
- 
- // Get locale from URL
- const locale = getLocale(Astro.url.pathname);
- 
- // Get SEO data for the current locale
- const seoData = getSEOData(locale);
- 
- // Use custom props if provided, otherwise use SEO data
- const title = customTitle || seoData.title;
- const description = customDescription || seoData.description;
- const ogImage = customOgImage || seoData.ogImage;
- // Compute whether to show Coming Soon overlay
- const pageFrontmatter = props as unknown as Record<string, unknown>;
- const showComingSoon = isComingSoon(Astro.url.pathname, pageFrontmatter);
- const bodyClass = `min-h-screen bg-sky-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 flex flex-col overflow-x-hidden ${showComingSoon ? 'coming-soon-open' : ''}`;
- ---
- 
- <!DOCTYPE html>
- <html lang={locale} class="h-full">
-   <head>
-     <meta charset="UTF-8" />
-     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-     <meta name="description" content={description} />
-     {noIndex && <meta name="robots" content="noindex, nofollow, noarchive" />}
- 
-     <!-- Open Graph / Facebook -->
-     <meta property="og:type" content="website" />
-     <meta property="og:url" content={Astro.url.href} />
-     <meta property="og:title" content={`${title} | Evolution Hub`} />
-     <meta property="og:description" content={description} />
-     <meta property="og:image" content={ogImage} />
-     
-     <!-- Twitter Card -->
-     <meta name="twitter:card" content="summary_large_image" />
-     <meta name="twitter:title" content={`${title} | Evolution Hub`} />
-     <meta name="twitter:description" content={description} />
-     <meta name="twitter:image" content={ogImage} />
-     
-     <link rel="canonical" href={props.canonical || `${Astro.url.origin}${(locale === 'en' ? getAlternateUrls(Astro.url.pathname).en : getAlternateUrls(Astro.url.pathname).de)}`} />
-     
-     <!-- hreflang links for SEO -->
-     <link rel="alternate" hreflang="de" href={`${Astro.url.origin}${getAlternateUrls(Astro.url.pathname).de}`} />
-     <link rel="alternate" hreflang="en" href={`${Astro.url.origin}${getAlternateUrls(Astro.url.pathname).en}`} />
-     <link rel="alternate" hreflang="x-default" href={`${Astro.url.origin}${getAlternateUrls(Astro.url.pathname).de}`} />
- 
-     <title>{title} | Evolution Hub</title>
- 
-     <!-- Favicons -->
-     <link rel="apple-touch-icon" sizes="180x180" href="/favicons/apple-touch-icon.png" />
-     <link rel="icon" type="image/png" sizes="32x32" href="/favicons/favicon-32x32.png" />
-     <link rel="icon" type="image/png" sizes="16x16" href="/favicons/favicon-16x16.png" />
-     <link rel="manifest" href="/site.webmanifest" />
-     <!-- Optional: mask icon for Safari pinned tabs (add file to public/favicons if used) -->
-     <!-- <link rel="mask-icon" href="/favicons/safari-pinned-tab.svg" color="#5bbad5" /> -->
-     <link rel="shortcut icon" href="/favicon.ico" />
-     <meta name="theme-color" content="#ffffff" />
- 
-     <!-- Scripts -->
- 
-     <!-- Google Fonts -->
-     <link rel="preconnect" href="https://fonts.googleapis.com">
-     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-     
-     <!-- Preload critical CSS -->
-     <!-- Global CSS wird über @import in style-Block geladen -->
-     <!-- AOS CSS wird über NPM-Import geladen -->
-     <link rel="preload" href="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.css" as="style">
- 
-     <!-- AOS Animation Library wird über NPM und script-coordinator geladen -->
- 
- 
-     <!-- Cookie Consent CSS -->
-     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.css">
- 
-     <!-- JSON-LD Schema -->
-    <script is:inline type="application/ld+json" nonce={Astro.locals.cspNonce}>
-       {
-         "@context": "https://schema.org",
-         "@type": "WebPage",
-         "name": `${title} | Evolution Hub`,
-         "description": description,
-         "inLanguage": locale
-       }
-     </script>
- 
-     {enableAOS && (
-      <>
-        <!-- Preload AOS CSS for faster FCP (First Contentful Paint) -->
-        <link
-          rel="preload"
-          href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css"
-          as="style"
-          onload="this.onload=null;this.rel='stylesheet'"
-        />
-        <!-- Fallback for browsers with JavaScript disabled -->
-        <noscript>
-          <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" />
-        </noscript>
-      </>
-    )}
- 
-     <!-- Global CSS via explicit global style import (SSR/dev-stabil) -->
-     <style is:global>
-       @import '@/styles/global.css';
-     </style>
-     {showComingSoon && (
-       <style is:global>
-         @import '@/styles/coming-soon.css';
-       </style>
-     )}
-     
-     <!-- Astro View Transitions for SPA-like navigation -->
-     <ClientRouter />
-   </head>
- 
-   <body class={bodyClass}>
-       {/* Inline SVG sprite definitions once, available site-wide */}
-       <SpriteDefs />
-       <ThemeProvider />
-       <SkipLink />
+interface Props {
+  title: string;
+  description?: string;
+  ogImage?: string;
+  canonical?: string;
+  structuredData?: any;
+  image?: string;
+  type?: string;
+  publishedTime?: string;
+  modifiedTime?: string;
+  author?: string;
+  section?: string;
+  tags?: string[];
+  hideNewsletter?: boolean;
+  hideHeader?: boolean;
+  hideFooter?: boolean;
+  enableAOS?: boolean;
+  enableAnalytics?: boolean;
+  noIndex?: boolean;
+  comingSoon?: boolean;
+  disableGlobalBg?: boolean; // optional: globalen Hintergrund deaktivieren
+}
 
-       {/* Globaler technischer Hintergrund (Light/Dark), hinter Header + Content */}
-       {!disableGlobalBg && (
-         <div id="global-bg" aria-hidden="true" class="fixed inset-0 -z-10 pointer-events-none overflow-hidden">
-           <div class="absolute inset-0 bg-gradient-to-br from-primary/20 to-purple-500/20 dark:from-primary/10 dark:to-purple-500/10"></div>
-           <!-- Top left -->
-           <div class="absolute -top-16 -left-16 w-[36rem] h-[36rem] rounded-full bg-emerald-400/90 dark:bg-emerald-500/45 blur-3xl mix-blend-overlay dark:mix-blend-screen saturate-200 brightness-160 dark:saturate-100 dark:brightness-90 animate-blob-1"></div>
-           <!-- Bottom right -->
-           <div class="absolute -bottom-20 -right-10 w-[40rem] h-[40rem] rounded-full bg-cyan-400/90 dark:bg-cyan-500/45 blur-3xl mix-blend-overlay dark:mix-blend-screen saturate-200 brightness-160 dark:saturate-100 dark:brightness-90 animate-blob-2"></div>
-           <!-- Center -->
-           <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[28rem] h-[28rem] rounded-full bg-purple-400/80 dark:bg-purple-500/40 blur-3xl mix-blend-overlay dark:mix-blend-screen saturate-200 brightness-160 dark:saturate-100 dark:brightness-90 animate-blob-3"></div>
-         </div>
-       )}
-       
-       {!hideHeader && <Header />}
-       <main id="main-content" class="flex-grow focus:outline-none" tabindex="-1">
-         <slot />
-       </main>
- 
-       {!hideFooter && <Footer locale={locale} hideNewsletter={hideNewsletter} />}
-       {enableAOS && <AOSCoordinator />}
- {showComingSoon && <ComingSoon />}
-       {enableAnalytics && <AnalyticsCoordinator />}
-       <Toaster client:load />
-       <BillingNotice client:load />
+const props = Astro.props as Props;
 
-       {/* Debug Panel Overlay - nur in DEV */}
-       <DebugPanelIsland>
-         <DebugPanelOverlay client:load />
-       </DebugPanelIsland>
-       {/* Initialize Debug Interceptors as a client island (CSP-safe) */}
-       <DebugInterceptors client:load />
+const {
+  title: customTitle,
+  description: customDescription,
+  ogImage: customOgImage,
+  hideNewsletter,
+} = props;
 
-     {showComingSoon && <script is:inline src="/assets/coming-soon-client.js" defer nonce={Astro.locals.cspNonce}></script>}
- 
-     <script is:inline nonce={Astro.locals.cspNonce}>
-       const initSmoothScrolling = () => {
-         document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
-           anchor.addEventListener('click', (e) => {
-             e.preventDefault();
- 
-             const targetId = anchor.getAttribute('href');
-             if (!targetId) return;
- 
-             const targetElement = document.querySelector(targetId);
-             if (!targetElement) return;
- 
-             targetElement.scrollIntoView({
-               behavior: 'smooth',
-               block: 'start'
-             });
- 
-             if (history.pushState) {
-               history.pushState(null, '', targetId);
-             } else {
-               location.hash = targetId;
-             }
-           });
-         });
-       };
- 
-       const initLibraries = () => {
-         // No third-party init here. Sonner Toaster is mounted as a React Island.
-       };
- 
-       const initApp = () => {
-         initSmoothScrolling();
-         initLibraries();
-       };
- 
-       // Verwende DOMContentLoaded statt astro:page-load zur Vermeidung des 'Astro is not defined' Fehlers
-       document.addEventListener('DOMContentLoaded', initApp);
-     </script>
- 
-     <!-- Cookie Consent JS -->
-     <script is:inline src="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.js" defer nonce={Astro.locals.cspNonce}></script>
-     <!-- Cookie Consent Configuration -->
-     <script is:inline define:vars={{ locale }} nonce={Astro.locals.cspNonce}>
-       // CookieConsent-Integration mit Event-Bridge: 'cookieconsent:userpreferencesset'
-       document.addEventListener('DOMContentLoaded', function() {
-         function getConsentPreferences() {
-           try {
-             if (window.CookieConsent && typeof window.CookieConsent.getUserPreferences === 'function') {
-               const prefs = window.CookieConsent.getUserPreferences();
-               const analytics = !!(prefs?.analytics || (prefs?.accepted && Array.isArray(prefs.accepted) && prefs.accepted.includes('analytics')));
-               const marketing = !!(prefs?.marketing || (prefs?.accepted && Array.isArray(prefs.accepted) && prefs.accepted.includes('marketing')));
-               return { necessary: true, analytics, marketing };
-             }
-           } catch (e) {
-             console.warn('[CookieConsent] getUserPreferences fehlgeschlagen:', e);
-           }
-           try {
-             const status = localStorage.getItem('cookieconsent_status');
-             if (status === 'accept') return { necessary: true, analytics: true, marketing: true };
-             if (status === 'accept_specific') {
-               const raw = localStorage.getItem('cookieconsent_preferences');
-               const parsed = raw ? JSON.parse(raw) : null;
-               return parsed || { necessary: true, analytics: false, marketing: false };
-             }
-           } catch {}
-           return { necessary: true, analytics: false, marketing: false };
-         }
- 
-         let lastKey = '';
-         function dispatchIfChanged() {
-           try {
-             const detail = getConsentPreferences();
-             const key = `${Number(!!detail.analytics)}|${Number(!!detail.marketing)}`;
-             if (key !== lastKey) {
-               document.dispatchEvent(new CustomEvent('cookieconsent:userpreferencesset', { detail }));
-               lastKey = key;
-               if (console && console.debug) console.debug('[CookieConsent] 📣 Consent-Event dispatcht:', detail);
-             }
-           } catch (e) {
-             console.warn('[CookieConsent] Konnte Consent-Event nicht dispatchen:', e);
-           }
-         }
- 
-         function initCookieConsent() {
-           if (window.CookieConsent) {
-             window.CookieConsent.run({
-               language: locale,
-               categories: {
-                 necessary: {
-                   label: 'Notwendig',
-                   description: 'Diese Cookies sind für den Betrieb der Webseite essenziell.',
-                   checked: true,
-                 },
-                 analytics: {
-                   label: 'Analyse',
-                   description: 'Diese Cookies ermöglichen uns, die Seitennutzung zu analysieren, um Ihr Erlebnis zu verbessern.',
-                   checked: false,
-                 },
-                 marketing: {
-                   label: 'Marketing',
-                   description: 'Diese Cookies werden verwendet, um personalisierte Werbung basierend auf Ihren Interessen anzuzeigen.',
-                   checked: false,
-                 },
-               },
-               gui_options: {
-                 consent_modal: { position: 'bottom left', delay: 500, position_scroll: false },
-               },
-               theme: {
-                 primary: '#10b981',
-                 secondary: '#6b7280',
-                 accept: '#059669',
-                 reject: '#6b7280',
-                 background: '#ffffff',
-                 text: '#1f2937',
-                 link: '#10b981',
-                 consentButton: '#3b82f6',
-                 secondaryButton: '#6b7280',
-                 border1: '#e5e7eb',
-               },
-               onFirstAction: dispatchIfChanged,
-               onAccept: dispatchIfChanged,
-               onChange: dispatchIfChanged,
-               onFirstConsent: dispatchIfChanged,
-               onConsent: dispatchIfChanged,
-             });
-           } else {
-             setTimeout(initCookieConsent, 100);
-           }
-         }
- 
-         // Initiales Event & Start
-         dispatchIfChanged();
-         initCookieConsent();
-       });
-     </script>
-     <!-- Analytics Runtime is loaded via <AnalyticsCoordinator /> -->
-   </body>
- </html>
+const { enableAOS = true, enableAnalytics = true } = props;
+const { hideHeader = false, hideFooter = false } = props;
+const { noIndex = false } = props;
+const { disableGlobalBg = false } = props;
+
+// Get locale from URL
+const locale = getLocale(Astro.url.pathname);
+
+// Get SEO data for the current locale
+const seoData = getSEOData(locale);
+
+// Use custom props if provided, otherwise use SEO data
+const title = customTitle || seoData.title;
+const description = customDescription || seoData.description;
+const ogImage = customOgImage || seoData.ogImage;
+// Compute whether to show Coming Soon overlay
+const pageFrontmatter = props as unknown as Record<string, unknown>;
+const showComingSoon = isComingSoon(Astro.url.pathname, pageFrontmatter);
+const bodyClass = `min-h-screen bg-sky-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 flex flex-col overflow-x-hidden ${showComingSoon ? 'coming-soon-open' : ''}`;
+---
+
+<!doctype html>
+<html lang={locale} class="h-full">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    {noIndex && <meta name="robots" content="noindex, nofollow, noarchive" />}
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={Astro.url.href} />
+    <meta property="og:title" content={`${title} | Evolution Hub`} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage} />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={`${title} | Evolution Hub`} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <link
+      rel="canonical"
+      href={props.canonical ||
+        `${Astro.url.origin}${locale === 'en' ? getAlternateUrls(Astro.url.pathname).en : getAlternateUrls(Astro.url.pathname).de}`}
+    />
+
+    <!-- hreflang links for SEO -->
+    <link
+      rel="alternate"
+      hreflang="de"
+      href={`${Astro.url.origin}${getAlternateUrls(Astro.url.pathname).de}`}
+    />
+    <link
+      rel="alternate"
+      hreflang="en"
+      href={`${Astro.url.origin}${getAlternateUrls(Astro.url.pathname).en}`}
+    />
+    <link
+      rel="alternate"
+      hreflang="x-default"
+      href={`${Astro.url.origin}${getAlternateUrls(Astro.url.pathname).de}`}
+    />
+
+    <title>{title} | Evolution Hub</title>
+
+    <!-- Favicons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicons/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicons/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicons/favicon-16x16.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <!-- Optional: mask icon for Safari pinned tabs (add file to public/favicons if used) -->
+    <!-- <link rel="mask-icon" href="/favicons/safari-pinned-tab.svg" color="#5bbad5" /> -->
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <meta name="theme-color" content="#ffffff" />
+
+    <!-- Scripts -->
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Preload critical CSS -->
+    <!-- Global CSS wird über @import in style-Block geladen -->
+    <!-- AOS CSS wird über NPM-Import geladen -->
+    <link
+      rel="preload"
+      href="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.css"
+      as="style"
+    />
+
+    <!-- AOS Animation Library wird über NPM und script-coordinator geladen -->
+
+    <!-- Cookie Consent CSS -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.css"
+    />
+
+    <!-- JSON-LD Schema -->
+    <script
+      is:inline
+      type="application/ld+json"
+      nonce={Astro.locals.cspNonce}
+      set:html={JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'WebPage',
+        name: `${title} | Evolution Hub`,
+        inLanguage: locale,
+      })}
+    />
+
+    {
+      enableAOS ? (
+        <>
+          <link
+            rel="preload"
+            href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css"
+            as="style"
+            onload="this.onload=null;this.rel='stylesheet'"
+          />
+          <noscript>
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" />
+          </noscript>
+        </>
+      ) : null
+    }
+
+    <style is:global>
+      @import '@/styles/global.css';
+    </style>
+    {showComingSoon && <style is:global>@import '@/styles/coming-soon.css';</style>}
+
+    <!-- Astro View Transitions for SPA-like navigation -->
+    <ClientRouter />
+  </head>
+
+  <body class={bodyClass}>
+    {/* Inline SVG sprite definitions once, available site-wide */}
+    <SpriteDefs />
+    <ThemeProvider />
+    <SkipLink />
+
+    {/* Globaler technischer Hintergrund (Light/Dark), hinter Header + Content */}
+    {
+      !disableGlobalBg && (
+        <div
+          id="global-bg"
+          aria-hidden="true"
+          class="fixed inset-0 -z-10 pointer-events-none overflow-hidden"
+        >
+          <div class="absolute inset-0 bg-gradient-to-br from-primary/20 to-purple-500/20 dark:from-primary/10 dark:to-purple-500/10" />
+          {/* Top left */}
+          <div class="absolute -top-16 -left-16 w-[36rem] h-[36rem] rounded-full bg-emerald-400/90 dark:bg-emerald-500/45 blur-3xl mix-blend-overlay dark:mix-blend-screen saturate-200 brightness-160 dark:saturate-100 dark:brightness-90 animate-blob-1" />
+          {/* Bottom right */}
+          <div class="absolute -bottom-20 -right-10 w-[40rem] h-[40rem] rounded-full bg-cyan-400/90 dark:bg-cyan-500/45 blur-3xl mix-blend-overlay dark:mix-blend-screen saturate-200 brightness-160 dark:saturate-100 dark:brightness-90 animate-blob-2" />
+          {/* Center */}
+          <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[28rem] h-[28rem] rounded-full bg-purple-400/80 dark:bg-purple-500/40 blur-3xl mix-blend-overlay dark:mix-blend-screen saturate-200 brightness-160 dark:saturate-100 dark:brightness-90 animate-blob-3" />
+        </div>
+      )
+    }
+
+    {!hideHeader && <Header />}
+    <main id="main-content" class="flex-grow focus:outline-none" tabindex="-1">
+      <slot />
+    </main>
+
+    {!hideFooter && <Footer locale={locale} hideNewsletter={hideNewsletter} />}
+    {enableAOS && <AOSCoordinator />}
+    {showComingSoon && <ComingSoon />}
+    {enableAnalytics && <AnalyticsCoordinator />}
+    <Toaster client:load />
+    <BillingNotice client:load />
+
+    {/* Debug Panel Overlay - nur in DEV */}
+    <DebugPanelIsland>
+      <DebugPanelOverlay client:load />
+    </DebugPanelIsland>
+    {/* Initialize Debug Interceptors as a client island (CSP-safe) */}
+    <DebugInterceptors client:load />
+
+    {
+      showComingSoon && (
+        <script is:inline src="/assets/coming-soon-client.js" defer nonce={Astro.locals.cspNonce} />
+      )
+    }
+
+    <script is:inline nonce={Astro.locals.cspNonce}>
+      const initSmoothScrolling = () => {
+        document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+          anchor.addEventListener('click', (e) => {
+            e.preventDefault();
+
+            const targetId = anchor.getAttribute('href');
+            if (!targetId) return;
+
+            const targetElement = document.querySelector(targetId);
+            if (!targetElement) return;
+
+            targetElement.scrollIntoView({
+              behavior: 'smooth',
+              block: 'start',
+            });
+
+            if (history.pushState) {
+              history.pushState(null, '', targetId);
+            } else {
+              location.hash = targetId;
+            }
+          });
+        });
+      };
+
+      const initLibraries = () => {
+        // No third-party init here. Sonner Toaster is mounted as a React Island.
+      };
+
+      const initApp = () => {
+        initSmoothScrolling();
+        initLibraries();
+      };
+
+      // Verwende DOMContentLoaded statt astro:page-load zur Vermeidung des 'Astro is not defined' Fehlers
+      document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+
+    <!-- Cookie Consent JS -->
+    <script
+      is:inline
+      src="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.js"
+      defer
+      nonce={Astro.locals.cspNonce}></script>
+    <!-- Cookie Consent Configuration -->
+    <script is:inline define:vars={{ locale }} nonce={Astro.locals.cspNonce}>
+      // CookieConsent-Integration mit Event-Bridge: 'cookieconsent:userpreferencesset'
+      document.addEventListener('DOMContentLoaded', function () {
+        function getConsentPreferences() {
+          try {
+            if (
+              window.CookieConsent &&
+              typeof window.CookieConsent.getUserPreferences === 'function'
+            ) {
+              const prefs = window.CookieConsent.getUserPreferences();
+              const analytics = !!(
+                prefs?.analytics ||
+                (prefs?.accepted &&
+                  Array.isArray(prefs.accepted) &&
+                  prefs.accepted.includes('analytics'))
+              );
+              const marketing = !!(
+                prefs?.marketing ||
+                (prefs?.accepted &&
+                  Array.isArray(prefs.accepted) &&
+                  prefs.accepted.includes('marketing'))
+              );
+              return { necessary: true, analytics, marketing };
+            }
+          } catch (e) {
+            console.warn('[CookieConsent] getUserPreferences fehlgeschlagen:', e);
+          }
+          try {
+            const status = localStorage.getItem('cookieconsent_status');
+            if (status === 'accept') return { necessary: true, analytics: true, marketing: true };
+            if (status === 'accept_specific') {
+              const raw = localStorage.getItem('cookieconsent_preferences');
+              const parsed = raw ? JSON.parse(raw) : null;
+              return parsed || { necessary: true, analytics: false, marketing: false };
+            }
+          } catch {}
+          return { necessary: true, analytics: false, marketing: false };
+        }
+
+        let lastKey = '';
+        function dispatchIfChanged() {
+          try {
+            const detail = getConsentPreferences();
+            const key = `${Number(!!detail.analytics)}|${Number(!!detail.marketing)}`;
+            if (key !== lastKey) {
+              document.dispatchEvent(
+                new CustomEvent('cookieconsent:userpreferencesset', { detail })
+              );
+              lastKey = key;
+              if (console && console.debug)
+                console.debug('[CookieConsent] 📣 Consent-Event dispatcht:', detail);
+            }
+          } catch (e) {
+            console.warn('[CookieConsent] Konnte Consent-Event nicht dispatchen:', e);
+          }
+        }
+
+        function initCookieConsent() {
+          if (window.CookieConsent) {
+            window.CookieConsent.run({
+              language: locale,
+              categories: {
+                necessary: {
+                  label: 'Notwendig',
+                  description: 'Diese Cookies sind für den Betrieb der Webseite essenziell.',
+                  checked: true,
+                },
+                analytics: {
+                  label: 'Analyse',
+                  description:
+                    'Diese Cookies ermöglichen uns, die Seitennutzung zu analysieren, um Ihr Erlebnis zu verbessern.',
+                  checked: false,
+                },
+                marketing: {
+                  label: 'Marketing',
+                  description:
+                    'Diese Cookies werden verwendet, um personalisierte Werbung basierend auf Ihren Interessen anzuzeigen.',
+                  checked: false,
+                },
+              },
+              gui_options: {
+                consent_modal: { position: 'bottom left', delay: 500, position_scroll: false },
+              },
+              theme: {
+                primary: '#10b981',
+                secondary: '#6b7280',
+                accept: '#059669',
+                reject: '#6b7280',
+                background: '#ffffff',
+                text: '#1f2937',
+                link: '#10b981',
+                consentButton: '#3b82f6',
+                secondaryButton: '#6b7280',
+                border1: '#e5e7eb',
+              },
+              onFirstAction: dispatchIfChanged,
+              onAccept: dispatchIfChanged,
+              onChange: dispatchIfChanged,
+              onFirstConsent: dispatchIfChanged,
+              onConsent: dispatchIfChanged,
+            });
+          } else {
+            setTimeout(initCookieConsent, 100);
+          }
+        }
+
+        // Initiales Event & Start
+        dispatchIfChanged();
+        initCookieConsent();
+      });
+    </script>
+    <!-- Analytics Runtime is loaded via <AnalyticsCoordinator /> -->
+  </body>
+</html>

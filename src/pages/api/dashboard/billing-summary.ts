@@ -25,18 +25,21 @@ export const GET = withAuthApiMiddleware(
       return createApiError('server_error', 'Database unavailable');
     }
 
-    const subscription = (await db
-      .prepare(
-        `SELECT id, plan, status, current_period_end, cancel_at_period_end, updated_at
+    const subscription =
+      (await db
+        .prepare(
+          `SELECT id, plan, status, current_period_end, cancel_at_period_end, updated_at
          FROM subscriptions
          WHERE user_id = ?1
          ORDER BY datetime(updated_at) DESC
          LIMIT 1`
-      )
-      .bind(user.id)
-      .first<SubscriptionRow>()) ?? null;
+        )
+        .bind(user.id)
+        .first<SubscriptionRow>()) ?? null;
 
-    const creditsKv = env.KV_AI_ENHANCER as import('@cloudflare/workers-types').KVNamespace | undefined;
+    const creditsKv = env.KV_AI_ENHANCER as
+      | import('@cloudflare/workers-types').KVNamespace
+      | undefined;
     let creditsRemaining: number | null = null;
     if (creditsKv) {
       try {
@@ -54,7 +57,10 @@ export const GET = withAuthApiMiddleware(
     }
 
     const result = {
-      plan: subscription?.plan ?? (user.plan as 'free' | 'pro' | 'premium' | 'enterprise' | undefined) ?? 'free',
+      plan:
+        subscription?.plan ??
+        (user.plan as 'free' | 'pro' | 'premium' | 'enterprise' | undefined) ??
+        'free',
       status: subscription?.status ?? 'inactive',
       subscriptionId: subscription?.id ?? null,
       currentPeriodEnd: subscription?.current_period_end ?? null,

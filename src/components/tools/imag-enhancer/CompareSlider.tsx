@@ -91,10 +91,18 @@ export function CompareSlider(props: CompareSliderProps) {
   };
 
   const handleResultLoad: React.ReactEventHandler<HTMLImageElement> = (e) => {
-    try { onResultImageLoad?.(e); } finally { forceReflow(); }
+    try {
+      onResultImageLoad?.(e);
+    } finally {
+      forceReflow();
+    }
   };
   const handlePreviewLoad: React.ReactEventHandler<HTMLImageElement> = (e) => {
-    try { onPreviewImageLoad?.(e); } finally { forceReflow(); }
+    try {
+      onPreviewImageLoad?.(e);
+    } finally {
+      forceReflow();
+    }
   };
 
   return (
@@ -238,10 +246,16 @@ export function CompareSlider(props: CompareSliderProps) {
         </div>
 
         {/* Corner labels */}
-        <div className="pointer-events-none absolute left-2 top-2 text-[11px] px-1.5 py-0.5 rounded bg-black/40 text-white/90 z-50" data-testid="compare-before-label">
+        <div
+          className="pointer-events-none absolute left-2 top-2 text-[11px] px-1.5 py-0.5 rounded bg-black/40 text-white/90 z-50"
+          data-testid="compare-before-label"
+        >
           {compareStrings.before}
         </div>
-        <div className="pointer-events-none absolute right-2 top-2 text-[11px] px-1.5 py-0.5 rounded bg-black/40 text-white/90 z-50" data-testid="compare-after-label">
+        <div
+          className="pointer-events-none absolute right-2 top-2 text-[11px] px-1.5 py-0.5 rounded bg-black/40 text-white/90 z-50"
+          data-testid="compare-after-label"
+        >
           {compareStrings.after}
         </div>
       </div>

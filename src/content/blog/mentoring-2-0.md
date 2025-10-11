@@ -5,10 +5,9 @@ pubDate: '2025-07-20'
 author: 'Evolution Hub'
 category: 'Karriere'
 tags: ['Mentoring', 'Karriere', 'Netzwerk', 'Entwicklung']
----
-
-image: { src: '/src/content/blog/images/mentoring-2-0.webp', width: 1200, height: 675 }
+image: ./images/mentoring-2-0.webp
 imageAlt: 'Mentoring-Beziehung zwischen erfahrenem Mentor und Protegé'
+---
 
 # Mentoring 2.0: Wie du den perfekten Mentor findest (oder selbst einer wirst)
 

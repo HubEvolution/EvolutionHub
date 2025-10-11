@@ -39,7 +39,7 @@ function parse(content) {
     records.push({
       name: key.trim(),
       defaultValue: value || undefined,
-      description
+      description,
     });
     commentBuffer = [];
   }
@@ -48,7 +48,8 @@ function parse(content) {
 
 function renderMarkdown(vars) {
   const header = `---\ntitle: Environment variables\ndescription: Reference of configuration sourced from ${sourceLabel}\n---\n\n`;
-  const intro = 'This reference is generated from the `.env.example` template and lists every environment variable consumed by the application.\n\n';
+  const intro =
+    'This reference is generated from the `.env.example` template and lists every environment variable consumed by the application.\n\n';
   if (!vars.length) {
     return `${header}${intro}_No environment variables were discovered._\n`;
   }

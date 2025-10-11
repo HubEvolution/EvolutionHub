@@ -4,8 +4,9 @@ import { generateId } from '../utils/id-generator';
 import { rateLimit } from '../rate-limiter';
 import { validateCsrfToken } from '../security/csrf';
 import { checkSpam } from '../spam-detection';
-import { sanitizeCommentContent } from '../security/sanitize';
 import { comments, commentModeration, commentReports, commentAuditLogs, users } from '../db/schema';
+import { NotificationService } from './notification-service';
+import type { NotificationContext, CommentNotificationData } from '../types/notifications';
 import type {
   Comment,
   CreateCommentRequest,
@@ -26,9 +27,169 @@ import type {
 
 export class CommentService {
   private db: ReturnType<typeof drizzle>;
+  private rawDb: D1Database;
+  private kv?: KVNamespace;
+  private cacheTTLSeconds: number;
+  private schemaDetection?: { isLegacy: boolean };
 
-  constructor(db: D1Database) {
+  constructor(db: D1Database, kv?: KVNamespace, options?: { cacheTTLSeconds?: number }) {
+    this.rawDb = db;
     this.db = drizzle(db);
+    this.kv = kv;
+    this.cacheTTLSeconds = options?.cacheTTLSeconds ?? 300;
+    this.schemaDetection = undefined;
+  }
+
+  /**
+   * Detect if the deployed DB uses the older, legacy comments schema
+   * with columns: postId, author, approved, createdAt (TEXT), etc.
+   */
+  private async isLegacyCommentsSchema(): Promise<boolean> {
+    if (this.schemaDetection) return this.schemaDetection.isLegacy;
+    try {
+      const info = await this.rawDb.prepare("PRAGMA table_info('comments')").all();
+      // D1 returns rows with a 'name' field for column name
+      const cols = new Set<string>(
+        (info?.results as any[] | undefined)?.map((r: any) => String(r.name)) || []
+      );
+      const legacy =
+        cols.has('postId') &&
+        cols.has('approved') &&
+        cols.has('createdAt') &&
+        !cols.has('entity_type');
+      this.schemaDetection = { isLegacy: legacy };
+      return legacy;
+    } catch {
+      // If PRAGMA fails, assume modern schema and let errors surface
+      this.schemaDetection = { isLegacy: false };
+      return false;
+    }
+  }
+
+  /**
+   * Legacy fallback for listing comments using the old schema shape.
+   */
+  private async listCommentsLegacy(filters: CommentFilters = {}): Promise<CommentListResponse> {
+    const { entityType, entityId, limit = 20, offset = 0, authorId } = filters;
+
+    // Legacy table only supported blog posts via postId; if missing, return empty
+    if (!entityId) {
+      return { comments: [], total: 0, hasMore: false };
+    }
+
+    // Build WHERE
+    // Only approved when not author scoped (legacy had boolean approved)
+    const whereParts: string[] = ['postId = ?']; // entityType ignored in legacy
+    const params: any[] = [entityId];
+    if (!authorId) {
+      whereParts.push('approved = 1');
+    }
+    const whereSql = whereParts.length ? `WHERE ${whereParts.join(' AND ')}` : '';
+
+    // Total count
+    const totalStmt = this.rawDb
+      .prepare(`SELECT COUNT(*) as cnt FROM comments ${whereSql}`)
+      .bind(...params);
+    const totalRes = await totalStmt.all();
+    const total = Number((totalRes.results as any[])[0]?.cnt || 0);
+
+    // Page results
+    const pageStmt = this.rawDb
+      .prepare(
+        `SELECT 
+            id,
+            content,
+            0 as authorId,
+            author as authorName,
+            '' as authorEmail,
+            NULL as parentId,
+            'blog_post' as entityType,
+            postId as entityId,
+            CASE approved WHEN 1 THEN 'approved' ELSE 'pending' END as status,
+            0 as isEdited,
+            NULL as editedAt,
+            -- legacy createdAt stored as TEXT timestamp; try to coerce to epoch seconds if numeric, else leave as-is
+            CAST(strftime('%s', createdAt) AS INTEGER) as createdAt,
+            CAST(strftime('%s', createdAt) AS INTEGER) as updatedAt
+         FROM comments 
+         ${whereSql}
+         ORDER BY createdAt DESC
+         LIMIT ? OFFSET ?`
+      )
+      .bind(...params, limit, offset);
+    const pageRes = await pageStmt.all();
+    const rows = (pageRes.results as any[]) || [];
+
+    const items = rows.map((r) => ({
+      id: String(r.id),
+      content: String(r.content),
+      authorId: Number(r.authorId) || 0,
+      authorName: String(r.authorName || 'Anonymous'),
+      authorEmail: String(r.authorEmail || ''),
+      parentId: r.parentId ? String(r.parentId) : null,
+      entityType: 'blog_post',
+      entityId: String(r.entityId),
+      status: (r.status as any) || 'approved',
+      isEdited: Boolean(r.isEdited),
+      editedAt: r.editedAt ? Number(r.editedAt) : null,
+      createdAt: r.createdAt ? Number(r.createdAt) : Math.floor(Date.now() / 1000),
+      updatedAt: r.updatedAt ? Number(r.updatedAt) : Math.floor(Date.now() / 1000),
+      reportCount: 0,
+      replies: [],
+    })) as Comment[];
+
+    return {
+      comments: items,
+      total,
+      hasMore: offset + limit < total,
+    };
+  }
+
+  private cacheKeyForList(filters: CommentFilters): string | null {
+    const {
+      entityType,
+      entityId,
+      limit = 20,
+      offset = 0,
+      includeReplies = true,
+      status,
+    } = filters || ({} as any);
+    if (!entityType || !entityId) return null;
+    return `comments:list:${entityType}:${entityId}:l=${limit}:o=${offset}:r=${includeReplies ? 1 : 0}:s=${status ?? 'any'}`;
+  }
+
+  private async tryGetCache<T>(key: string): Promise<T | null> {
+    if (!this.kv) return null;
+    try {
+      const raw = await this.kv.get(key);
+      if (!raw) return null;
+      return JSON.parse(raw) as T;
+    } catch {
+      return null;
+    }
+  }
+
+  private async setCache<T>(key: string, value: T): Promise<void> {
+    if (!this.kv) return;
+    try {
+      await this.kv.put(key, JSON.stringify(value), { expirationTtl: this.cacheTTLSeconds });
+    } catch {
+      // ignore cache write errors
+    }
+  }
+
+  private async invalidateEntityCache(
+    entityType: string | undefined,
+    entityId: string | undefined
+  ): Promise<void> {
+    if (!this.kv || !entityType || !entityId) return;
+    try {
+      const prefix = `comments:list:${entityType}:${entityId}:`;
+      const list = await this.kv.list({ prefix });
+      await Promise.all(list.keys.map((k) => this.kv!.delete(k.name)));
+    } catch {
+      // ignore cache invalidation errors
+    }
   }
 
   /**
@@ -87,8 +248,22 @@ export class CommentService {
       }
     }
 
-    // Sanitize content to prevent XSS attacks
-    const sanitizedContent = sanitizeCommentContent(request.content.trim());
+    // Sanitize content to prevent XSS attacks (lazy import to avoid DOM dependency in Workers for GET routes)
+    const sanitizedContent = await (async () => {
+      try {
+        const mod = await import('../security/sanitize');
+        return (mod as any).sanitizeCommentContent(request.content.trim());
+      } catch {
+        // Minimal fallback: escape critical chars
+        return request.content
+          .trim()
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+    })();
 
     // Insert comment
     await this.db.insert(comments).values({
@@ -105,6 +280,54 @@ export class CommentService {
       createdAt: now,
       updatedAt: now,
     });
+
+    // Notifications: if this is a reply, notify parent author (in-app + email queue)
+    try {
+      if (request.parentId) {
+        // Load parent comment to get recipient info
+        const parent = await this.getCommentById(request.parentId);
+        if (parent && parent.authorId && parent.authorEmail) {
+          const notificationService = new NotificationService(this.rawDb);
+          const context: NotificationContext = {
+            userId: parent.authorId,
+            locale: 'de',
+            baseUrl: '',
+          };
+          const data: CommentNotificationData = {
+            commentId,
+            commentContent: sanitizedContent,
+            authorName,
+            entityType: request.entityType,
+            entityId: request.entityId,
+            parentCommentId: parent.id,
+            parentAuthorName: parent.authorName,
+          };
+
+          // In-app notification (ignore if disabled)
+          try {
+            await notificationService.createCommentNotification(context, 'comment_reply', data);
+          } catch {}
+
+          // Email queue (ignore if disabled)
+          try {
+            await notificationService.sendEmail({
+              to: parent.authorEmail,
+              templateName: 'reply-notification',
+              variables: {
+                userName: parent.authorName || 'User',
+                baseUrl: '',
+                notification: data,
+              },
+            });
+          } catch {}
+        }
+      }
+    } catch {
+      // Do not block comment creation on notification errors
+    }
+
+    // Invalidate cache for the entity
+    await this.invalidateEntityCache(request.entityType, request.entityId);
 
     // Fetch and return the created comment
     return this.getCommentById(commentId);
@@ -136,8 +359,21 @@ export class CommentService {
 
     const now = Math.floor(Date.now() / 1000);
 
-    // Sanitize content to prevent XSS attacks
-    const sanitizedContent = sanitizeCommentContent(request.content.trim());
+    // Sanitize content to prevent XSS attacks (lazy import to avoid DOM dependency)
+    const sanitizedContent = await (async () => {
+      try {
+        const mod = await import('../security/sanitize');
+        return (mod as any).sanitizeCommentContent(request.content.trim());
+      } catch {
+        return request.content
+          .trim()
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/\"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+    })();
 
     // Update comment
     await this.db
@@ -171,6 +407,11 @@ export class CommentService {
         updatedAt: Math.floor(Date.now() / 1000),
       })
       .where(and(eq(comments.id, commentId), eq(comments.authorId, userId)));
+
+    try {
+      const updated = await this.getCommentById(commentId);
+      await this.invalidateEntityCache(updated.entityType, updated.entityId);
+    } catch {}
   }
 
   /**
@@ -207,6 +448,10 @@ export class CommentService {
    * List comments with filtering and pagination
    */
   async listComments(filters: CommentFilters = {}): Promise<CommentListResponse> {
+    // Compatibility: use legacy path if old columns are present
+    if (await this.isLegacyCommentsSchema()) {
+      return this.listCommentsLegacy(filters);
+    }
     const {
       status,
       entityType,
@@ -239,6 +484,22 @@ export class CommentService {
     }
 
     const baseWhere = whereConditions.length > 0 ? and(...whereConditions) : undefined;
+
+    // KV cache (optional): only cache entity-scoped lists with small pages
+    const canCache = !!this.kv && !!entityType && !!entityId && limit <= 50 && offset <= 100;
+    const cacheKey = this.cacheKeyForList({
+      status,
+      entityType,
+      entityId,
+      authorId,
+      limit,
+      offset,
+      includeReplies,
+    });
+    if (canCache && cacheKey) {
+      const cached = await this.tryGetCache<CommentListResponse>(cacheKey);
+      if (cached) return cached;
+    }
 
     // Get total count
     const totalResult = await this.db.select({ count: count() }).from(comments).where(baseWhere);
@@ -305,11 +566,17 @@ export class CommentService {
       }
     }
 
-    return {
+    const response: CommentListResponse = {
       comments: commentsWithReports,
       total,
       hasMore: offset + limit < total,
     };
+
+    if (canCache && cacheKey) {
+      await this.setCache<CommentListResponse>(cacheKey, response);
+    }
+
+    return response;
   }
 
   /**
@@ -370,6 +637,58 @@ export class CommentService {
         .where(eq(comments.id, commentId));
     }
 
+    // After status update, notify comment author (approved/rejected)
+    try {
+      const updatedComment = await this.getCommentById(commentId);
+      if (updatedComment && updatedComment.authorId && updatedComment.authorEmail) {
+        const notificationService = new NotificationService(this.rawDb);
+        const context: NotificationContext = {
+          userId: updatedComment.authorId,
+          locale: 'de',
+          baseUrl: '',
+        };
+        const actionType =
+          request.action === 'approve'
+            ? 'comment_approved'
+            : request.action === 'reject'
+              ? 'comment_rejected'
+              : null;
+        if (actionType) {
+          const data: CommentNotificationData = {
+            commentId: updatedComment.id,
+            commentContent: updatedComment.content,
+            authorName: String(moderatorId),
+            entityType: updatedComment.entityType,
+            entityId: updatedComment.entityId,
+          };
+          // In-app
+          try {
+            await notificationService.createCommentNotification(context, actionType, data as any);
+          } catch {}
+          // Email
+          try {
+            await notificationService.sendEmail({
+              to: updatedComment.authorEmail,
+              templateName:
+                actionType === 'comment_approved' ? 'moderation-decision' : 'moderation-decision',
+              variables: {
+                userName: updatedComment.authorName || 'User',
+                baseUrl: '',
+                notification: data,
+              },
+            });
+          } catch {}
+        }
+      }
+    } catch {
+      // ignore notification errors
+    }
+
+    try {
+      const updated = await this.getCommentById(commentId);
+      await this.invalidateEntityCache(updated.entityType, updated.entityId);
+    } catch {}
+
     return moderationResult[0] as CommentModeration;
   }
 
@@ -407,6 +726,11 @@ export class CommentService {
         })
         .where(eq(comments.id, commentId));
     }
+
+    try {
+      const updated = await this.getCommentById(commentId);
+      await this.invalidateEntityCache(updated.entityType, updated.entityId);
+    } catch {}
 
     return reportResult[0] as CommentReport;
   }
