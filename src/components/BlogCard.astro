@@ -43,8 +43,9 @@ const localizedUrl = localizePath(locale, url);
           aria-label={`Bild für ${title}`}
           tabindex="-1"
         >
+          {/* Use ImageMetadata from content directly to avoid runtime errors */}
           <Image
-            src={image.src}
+            src={image}
             alt={imageAlt ? imageAlt : title}
             class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
             loading="lazy"

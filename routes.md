@@ -74,6 +74,9 @@ Hinweis: Quellen sind als Links zur Ursprungsdatei angegeben; HTTP Methoden wurd
 - POST /api/debug-login — [`src/pages/api/debug-login.ts`](src/pages/api/debug-login.ts)
 - GET  /api/tools — [`src/pages/api/tools.ts`](src/pages/api/tools.ts)
 
+- POST /api/voice/transcribe — [`src/pages/api/voice/transcribe.ts`](src/pages/api/voice/transcribe.ts)
+- GET  /api/voice/usage — [`src/pages/api/voice/usage.ts`](src/pages/api/voice/usage.ts)
+
 - GET  /api/comments — [`src/pages/api/comments/index.ts`](src/pages/api/comments/index.ts)
 - POST /api/comments/create — [`src/pages/api/comments/index.ts`](src/pages/api/comments/index.ts)
 - GET  /api/comments/:id — [`src/pages/api/comments/[id].ts`](src/pages/api/comments/[id].ts)
@@ -344,6 +347,9 @@ graph TD
   api --> api_csp[/api/csp-report POST]
   api --> api_debug_login[/api/debug-login POST]
   api --> api_tools[/api/tools GET]
+  api --> api_voice[/api/voice]
+  api_voice --> api_voice_transcribe[/api/voice/transcribe POST]
+  api_voice --> api_voice_usage[/api/voice/usage GET]
   api --> api_comments[/api/comments GET]
   api --> api_comments_create[/api/comments/create POST]
   api --> api_comments_id[/api/comments/:id GET PUT DELETE]
@@ -449,6 +455,8 @@ graph TD
   { "path": "/api/csp-report", "source": "src/pages/api/csp-report.ts", "type": "api", "methods": ["POST"] },
   { "path": "/api/debug-login", "source": "src/pages/api/debug-login.ts", "type": "api", "methods": ["POST"] },
   { "path": "/api/tools", "source": "src/pages/api/tools.ts", "type": "api", "methods": ["GET"] },
+  { "path": "/api/voice/transcribe", "source": "src/pages/api/voice/transcribe.ts", "type": "api", "methods": ["POST"] },
+  { "path": "/api/voice/usage", "source": "src/pages/api/voice/usage.ts", "type": "api", "methods": ["GET"] },
   { "path": "/api/auth/change-password", "source": "src/pages/api/auth/change-password.ts", "type": "api", "methods": ["POST"] },
   { "path": "/api/auth/forgot-password", "source": "src/pages/api/auth/forgot-password.ts", "type": "api", "methods": ["POST"] },
   { "path": "/api/auth/login", "source": "src/pages/api/auth/login.ts", "type": "api", "methods": ["POST"] },

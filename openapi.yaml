@@ -938,261 +938,372 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiErrorResponse'
-components:
-  schemas:
-    GenericResponse:
-      type: object
-      properties:
-        success:
-          type: boolean
-        message:
-          type: string
-    Tool:
-      type: object
-      properties:
-        id:
-          type: string
-        name:
-          type: string
-        description:
-          type: string
-    Activity:
-      type: object
-      properties:
-        id:
-          type: string
-        user:
-          type: string
-        action:
-          type: string
-        timestamp:
-          type: string
-    Notification:
-      type: object
-      properties:
-        id:
-          type: string
-        title:
-          type: string
-        body:
-          type: string
-    Project:
-      type: object
-      properties:
-        id:
-          type: string
-        title:
-          type: string
-        description:
-          type: string
-    QuickAction:
-      type: object
-      properties:
-        id:
-          type: string
-        title:
-          type: string
-        description:
-          type: string
-    Stats:
-      type: object
-      properties:
-        projects:
-          type: integer
-        tasks:
-          type: integer
-        teamMembers:
-          type: integer
-    DebugPollingResponse:
-      type: object
-      properties:
-        success:
-          type: boolean
-        data:
-          type: object
-    LeadMagnetMetadata:
-      type: object
-      properties:
-        id:
-          type: string
-        title:
-          type: string
-        description:
-          type: string
-        fileName:
-          type: string
-        requiresEmail:
-          type: boolean
-    LeadMagnetRequestResponse:
-      type: object
-      properties:
-        success:
-          type: boolean
-        leadId:
-          type: string
-        downloadUrl:
-          type: string
-    UserSafe:
-      type: object
-      properties:
-        id:
-          type: string
-        email:
-          type: string
-        name:
-          type: string
-        username:
-          type: string
-    ApiError:
-      type: object
-      properties:
-        type:
-          type: string
-        message:
-          type: string
-        details:
-          type: object
-          additionalProperties: true
-    ApiErrorResponse:
-      type: object
-      properties:
-        success:
-          type: boolean
-          enum: [false]
-        error:
-          $ref: '#/components/schemas/ApiError'
-      required:
-        - success
-        - error
-    AiJobStatus:
-      type: string
-      enum: [queued, processing, succeeded, failed, canceled]
-    AiJobInput:
-      type: object
-      nullable: true
-      properties:
-        key:
-          type: string
-        url:
-          type: string
-          nullable: true
-        contentType:
-          type: string
-          nullable: true
-        size:
-          type: integer
-          format: int64
-          nullable: true
-    AiJobOutput:
-      type: object
-      nullable: true
-      properties:
-        key:
-          type: string
-        url:
-          type: string
-          nullable: true
-    UsageInfo:
-      type: object
-      nullable: true
-      properties:
-        used:
-          type: integer
-        limit:
-          type: integer
-        resetAt:
-          type: integer
-          format: int64
-          nullable: true
-    AiJob:
-      type: object
-      properties:
-        id:
-          type: string
-        status:
-          $ref: '#/components/schemas/AiJobStatus'
-        provider:
-          type: string
-          enum: [replicate]
-        model:
-          type: string
-          nullable: true
-        input:
-          $ref: '#/components/schemas/AiJobInput'
-        output:
-          $ref: '#/components/schemas/AiJobOutput'
-        error:
-          type: string
-          nullable: true
-        createdAt:
-          type: string
-          format: date-time
-        updatedAt:
-          type: string
-          format: date-time
-        usage:
-          $ref: '#/components/schemas/UsageInfo'
-    AiJobSuccessResponse:
-      type: object
-      properties:
-        success:
-          type: boolean
-          enum: [true]
-        data:
-          $ref: '#/components/schemas/AiJob'
-      required:
-        - success
-        - data
-    AiGenerateData:
-      type: object
-      properties:
-        model:
-          type: string
-        originalUrl:
-          type: string
-        imageUrl:
-          type: string
-        usage:
-          $ref: '#/components/schemas/UsageInfo'
-        limits:
-          type: object
-          properties:
-            user:
-              type: integer
-            guest:
-              type: integer
-    AiGenerateSuccessResponse:
-      type: object
-      properties:
-        success:
-          type: boolean
-          enum: [true]
-        data:
-          $ref: '#/components/schemas/AiGenerateData'
-      required:
-        - success
-        - data
-    UsageSuccessResponse:
-      type: object
-      properties:
-        success:
-          type: boolean
-          enum: [true]
-        data:
-          type: object
-          properties:
-            ownerType:
-              type: string
-              enum: [user, guest]
-            usage:
-              $ref: '#/components/schemas/UsageInfo'
-            limits:
+  /api/voice/transcribe:
+    post:
+      summary: Voice transcription (audio chunk)
+      description: |
+        Nimmt ein Audio-Chunk (Opus WebM/OGG) als multipart/form-data entgegen und liefert das Transkript
+        zusammen mit aktuellen Limits/Usage zurück. Provider-Fehler werden vereinheitlicht gemappt –
+        401/403 → forbidden, 4xx → validation_error, 5xx → server_error. CSRF/Origin ist aktiviert.
+      x-source: src/pages/api/voice/transcribe.ts
+      operationId: postVoiceTranscribe
+      parameters:
+        - name: X-CSRF-Token
+          in: header
+          required: true
+          description: CSRF-Token; muss mit Cookie 'csrf_token' übereinstimmen (Double-Submit-Pattern)
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
               type: object
               properties:
-                user:
-                  type: integer
-                guest:
-                  type: integer
-      required:
-        - success
-        - data
+                chunk:
+                  type: string
+                  format: binary
+                sessionId:
+                  type: string
+                lang:
+                  type: string
+              required:
+                - chunk
+                - sessionId
+      responses:
+        "200":
+          description: Erfolg – Transkript und Limits
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VoiceTranscribeSuccessResponse'
+        "400":
+          description: Validierungsfehler
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        "403":
+          description: Verboten (CSRF/Origin)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        "429":
+          description: Rate limit exceeded
+          headers:
+            Retry-After:
+              description: Seconds until the limit resets
+              schema:
+                type: integer
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        "500":
+          description: Serverfehler
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+  /api/voice/usage:
+    get:
+      summary: Voice-Nutzung/Limits abrufen
+      description: |
+        Liefert den aktuellen Usage-Stand und Limits (24h Fenster) für den aktuellen Besitzer (User oder Gast mit `guest_id`-Cookie).
+        Hinweis: usage.limit ist maßgeblich für UI und Validierungen. `data.plan` kann optional enthalten sein.
+      x-source: src/pages/api/voice/usage.ts
+      operationId: getVoiceUsage
+      responses:
+        "200":
+          description: Usage/Limits
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsageSuccessResponse'
+        "500":
+          description: Serverfehler
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+components:
+    schemas:
+      GenericResponse:
+        type: object
+        properties:
+          success:
+            type: boolean
+      Tool:
+        type: object
+        properties:
+          id:
+            type: string
+          name:
+            type: string
+          description:
+            type: string
+      Activity:
+        type: object
+        properties:
+          id:
+            type: string
+          user:
+            type: string
+          action:
+            type: string
+          timestamp:
+            type: string
+      Notification:
+        type: object
+        properties:
+          id:
+            type: string
+          title:
+            type: string
+          body:
+            type: string
+      Project:
+        type: object
+        properties:
+          id:
+            type: string
+          title:
+            type: string
+          description:
+            type: string
+      QuickAction:
+        type: object
+        properties:
+          id:
+            type: string
+          title:
+            type: string
+          description:
+            type: string
+      Stats:
+        type: object
+        properties:
+          projects:
+            type: integer
+          tasks:
+            type: integer
+          teamMembers:
+            type: integer
+      DebugPollingResponse:
+        type: object
+        properties:
+          success:
+            type: boolean
+          data:
+            type: object
+      LeadMagnetMetadata:
+        type: object
+        properties:
+          id:
+            type: string
+          title:
+            type: string
+          description:
+            type: string
+          fileName:
+            type: string
+          requiresEmail:
+            type: boolean
+      LeadMagnetRequestResponse:
+        type: object
+        properties:
+          success:
+            type: boolean
+          leadId:
+            type: string
+          downloadUrl:
+            type: string
+      UserSafe:
+        type: object
+        properties:
+          id:
+            type: string
+          email:
+            type: string
+          name:
+            type: string
+          username:
+            type: string
+      ApiError:
+        type: object
+        properties:
+          type:
+            type: string
+          message:
+            type: string
+          details:
+            type: object
+            additionalProperties: true
+      ApiErrorResponse:
+        type: object
+        properties:
+          success:
+            type: boolean
+            enum: [false]
+          error:
+            $ref: '#/components/schemas/ApiError'
+        required:
+          - success
+          - error
+      AiJobStatus:
+        type: string
+        enum: [queued, processing, succeeded, failed, canceled]
+      AiJobInput:
+        type: object
+        nullable: true
+        properties:
+          key:
+            type: string
+          url:
+            type: string
+            nullable: true
+          contentType:
+            type: string
+            nullable: true
+          size:
+            type: integer
+            format: int64
+            nullable: true
+      AiJobOutput:
+        type: object
+        nullable: true
+        properties:
+          key:
+            type: string
+          url:
+            type: string
+            nullable: true
+      UsageInfo:
+        type: object
+        nullable: true
+        properties:
+          used:
+            type: integer
+          limit:
+            type: integer
+          resetAt:
+            type: integer
+            format: int64
+            nullable: true
+      AiJob:
+        type: object
+        properties:
+          id:
+            type: string
+          status:
+            $ref: '#/components/schemas/AiJobStatus'
+          provider:
+            type: string
+            enum: [replicate]
+          model:
+            type: string
+            nullable: true
+          input:
+            $ref: '#/components/schemas/AiJobInput'
+          output:
+            $ref: '#/components/schemas/AiJobOutput'
+          error:
+            type: string
+            nullable: true
+          createdAt:
+            type: string
+            format: date-time
+          updatedAt:
+            type: string
+            format: date-time
+          usage:
+            $ref: '#/components/schemas/UsageInfo'
+      AiJobSuccessResponse:
+        type: object
+        properties:
+          success:
+            type: boolean
+            enum: [true]
+          data:
+            $ref: '#/components/schemas/AiJob'
+      AiGenerateData:
+        type: object
+        properties:
+          model:
+            type: string
+          originalUrl:
+            type: string
+          imageUrl:
+            type: string
+          usage:
+            $ref: '#/components/schemas/UsageInfo'
+          limits:
+            type: object
+            properties:
+              user:
+                type: integer
+              guest:
+                type: integer
+      AiGenerateSuccessResponse:
+        type: object
+        properties:
+          success:
+            type: boolean
+            enum: [true]
+          data:
+            $ref: '#/components/schemas/AiGenerateData'
+        required:
+          - success
+          - data
+      UsageSuccessResponse:
+        type: object
+        properties:
+          success:
+            type: boolean
+            enum: [true]
+          data:
+            type: object
+            properties:
+              ownerType:
+                type: string
+                enum: [user, guest]
+              usage:
+                $ref: '#/components/schemas/UsageInfo'
+              limits:
+                type: object
+                properties:
+                  user:
+                    type: integer
+                  guest:
+                    type: integer
+        required:
+          - success
+          - data
+      VoiceTranscribeData:
+        type: object
+        properties:
+          sessionId:
+            type: string
+          text:
+            type: string
+          isFinal:
+            type: boolean
+          usage:
+            $ref: '#/components/schemas/UsageInfo'
+          limits:
+            type: object
+            properties:
+              user:
+                type: integer
+              guest:
+                type: integer
+      VoiceTranscribeSuccessResponse:
+        type: object
+        properties:
+          success:
+            type: boolean
+            enum: [true]
+          data:
+            $ref: '#/components/schemas/VoiceTranscribeData'

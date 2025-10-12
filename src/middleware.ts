@@ -699,8 +699,8 @@ export const onRequest = defineMiddleware(async (context, next) => {
           ]
         : [
             "default-src 'self' data: blob:",
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: data: https://cdn.jsdelivr.net https://www.googletagmanager.com https://plausible.io https://static.cloudflareinsights.com",
-            "script-src-elem 'self' 'unsafe-inline' 'unsafe-eval' blob: data: https://cdn.jsdelivr.net https://www.googletagmanager.com https://plausible.io https://static.cloudflareinsights.com",
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: data: https://cdn.jsdelivr.net https://www.googletagmanager.com https://plausible.io https://static.cloudflareinsights.com https://challenges.cloudflare.com",
+            "script-src-elem 'self' 'unsafe-inline' 'unsafe-eval' blob: data: https://cdn.jsdelivr.net https://www.googletagmanager.com https://plausible.io https://static.cloudflareinsights.com https://challenges.cloudflare.com",
             "connect-src 'self' ws: http: https:",
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net",
             "img-src 'self' data: blob: https:",
@@ -723,6 +723,19 @@ export const onRequest = defineMiddleware(async (context, next) => {
     'Permissions-Policy',
     'camera=(), microphone=(), geolocation=(), interest-cohort=()'
   );
+  // Route-scoped override: allow microphone on voice-visualizer tool pages only
+  try {
+    const voicePaths = /^\/(?:de|en)?\/tools\/voice-visualizer(?:\/app)?\/?$/;
+    if (voicePaths.test(path)) {
+      const base = response.headers.get('Permissions-Policy') || '';
+      response.headers.set(
+        'Permissions-Policy',
+        base.replace(/microphone=\(\)/, 'microphone=(self)')
+      );
+    }
+  } catch {
+    // Ignore header setting failures
+  }
   // Referrer-Policy nur auf Reset-Passwort-Seiten erzwingen (keine Weitergabe sensibler Token über Referrer)
   const isResetPasswordPath =
     path === '/reset-password' ||

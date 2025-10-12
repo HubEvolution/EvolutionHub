@@ -184,6 +184,13 @@ export const aiGenerateLimiter = createRateLimiter({
   name: 'aiGenerate',
 });
 
+// Für Voice-Transkription (15 Anfragen pro Minute)
+export const voiceTranscribeLimiter = createRateLimiter({
+  maxRequests: 15,
+  windowMs: 60 * 1000, // 1 Minute
+  name: 'voiceTranscribe',
+});
+
 /**
  * Einfache Rate-Limiting-Funktion für Service-Layer
  * Nutzt die bestehende Store-Infrastruktur ohne Request-Kontext

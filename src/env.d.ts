@@ -33,10 +33,17 @@ declare namespace App {
         // R2 Buckets
         R2_AVATARS?: import('@cloudflare/workers-types').R2Bucket;
         R2_AI_IMAGES?: import('@cloudflare/workers-types').R2Bucket;
+        // Optional R2 bucket for voice archival (not required for MVP)
+        R2_VOICE?: import('@cloudflare/workers-types').R2Bucket;
         // KV Namespace for AI Enhancer guest quotas/metadata (optional in dev)
         KV_AI_ENHANCER?: import('@cloudflare/workers-types').KVNamespace;
+        // KV Namespace for Voice Transcriber quotas/metadata (optional in dev)
+        KV_VOICE_TRANSCRIBE?: import('@cloudflare/workers-types').KVNamespace;
         // External provider token
         REPLICATE_API_TOKEN?: string;
+        // OpenAI API and Whisper model selection
+        OPENAI_API_KEY?: string;
+        WHISPER_MODEL?: string;
         // Name der Laufzeitumgebung (z. B. 'staging', 'production')
         ENVIRONMENT?: string;
         // Stripe

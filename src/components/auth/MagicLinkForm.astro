@@ -51,6 +51,10 @@ const errorText =
     : "We couldn't send the link. Please try again.");
 const cooldownLabel =
   t('pages.auth.magic.cooldown') ?? (locale === 'de' ? 'Erneut senden in {s}s' : 'Resend in {s}s');
+const publicTurnstileSiteKey =
+  (import.meta.env.PUBLIC_TURNSTILE_SITE_KEY as string | undefined) ??
+  ((Astro.locals as unknown as { runtime?: { env?: Record<string, string> } })?.runtime?.env
+    ?.PUBLIC_TURNSTILE_SITE_KEY as string | undefined);
 ---
 
 <form
@@ -113,12 +117,8 @@ const cooldownLabel =
     <Input type="email" id="email-magic" name="email" required autocomplete="email" />
   </div>
   {
-    import.meta.env.PUBLIC_TURNSTILE_SITE_KEY && (
-      <div
-        class="cf-turnstile"
-        data-sitekey={import.meta.env.PUBLIC_TURNSTILE_SITE_KEY as string}
-        data-theme="auto"
-      />
+    publicTurnstileSiteKey && (
+      <div class="cf-turnstile" data-sitekey={publicTurnstileSiteKey} data-theme="auto" />
     )
   }
   {safeR && <input type="hidden" name="r" value={safeR} />}
