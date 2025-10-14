@@ -39,6 +39,10 @@ Generated on 2025-10-11T04:28:03.951Z. This index links canonical rules and rela
 - **testing-guidelines** — docs/development/testing-guidelines.md
 - **typescript-integration** — docs/development/typescript-integration.md
 
+## Project Memories
+
+- `.windsurf/memories/project.json` — Seeded project-scoped facts and doc sync status.
+
 ## How to regenerate
 
 ```sh

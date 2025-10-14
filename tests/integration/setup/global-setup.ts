@@ -1,7 +1,7 @@
 import { spawn } from 'child_process';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
-import { existsSync } from 'fs';
+import { rmSync } from 'fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -91,7 +91,11 @@ export default async function () {
     p.on('exit', (code) => (code === 0 ? resolve() : reject(new Error(`db:setup exited ${code}`))));
   });
 
-  // 2) Always rebuild worker to ensure latest code is served
+  // 2) Clean dist to avoid stale worker, then rebuild to ensure latest code is served
+  try {
+    rmSync(join(rootDir, 'dist'), { recursive: true, force: true });
+    console.log('[setup] Cleaned dist/ folder');
+  } catch {}
   await new Promise<void>((resolve, reject) => {
     const p = spawn('npm', ['run', 'build:worker:dev'], {
       cwd: rootDir,
