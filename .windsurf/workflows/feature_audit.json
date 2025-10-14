@@ -1,0 +1,12 @@
+{
+  "description": "Audit feature codemap + rules + knowledge + docs; produce risk report",
+  "params": {
+    "featureName": { "type": "string" },
+    "checkDocs": { "type": "boolean", "default": true }
+  },
+  "steps": [
+    { "name": "Show codemap", "action": "read", "path": ".windsurf/codemaps/${featureName}.md" },
+    { "name": "List rules", "action": "read", "path": ".windsurf/rules.pending/${featureName}.md" },
+    { "name": "Docs index", "action": "read", "path": ".windsurf/context/docs_index.json" }
+  ]
+}

@@ -46,6 +46,11 @@ declare namespace App {
         WHISPER_MODEL?: string;
         // Name der Laufzeitumgebung (z. B. 'staging', 'production')
         ENVIRONMENT?: string;
+        // Voice feature flags
+        VOICE_STREAM_SSE?: string;
+        VOICE_STREAM_POLL?: string;
+        VOICE_R2_ARCHIVE?: string;
+        VOICE_DEV_ECHO?: string;
         // Stripe
         STRIPE_SECRET?: string;
         STRIPE_WEBHOOK_SECRET?: string;

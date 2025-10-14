@@ -1,0 +1,26 @@
+{
+  "name": "Evolution Hub — Project Memory (seed)",
+  "version": 1,
+  "facts": {
+    "codemaps_created": [
+      "EH :: Global :: Codemap v1",
+      "EH :: Auth + OAuth :: Codemap v1",
+      "EH :: Image Enhancer :: Codemap v1",
+      "EH :: Prompt Enhancer :: Codemap v1",
+      "EH :: WebScraper :: Codemap v1",
+      "EH :: Transcriptor (Whisper) :: Codemap v1",
+      "EH :: Pricing & Stripe :: Codemap v1",
+      "EH :: Content :: Codemap v1",
+      "EH :: Infra (Workers/Router/Bindings) :: Codemap v1"
+    ],
+    "feature_rules_staged_in": ".windsurf/rules.pending/"
+  },
+  "doc_sync_status": {
+    "README.md": "ok",
+    "CONTRIBUTING.md": "ok",
+    "docs/architecture/ai-image-enhancer.md": "ok",
+    "docs/architecture/voice-visualizer-transcriptor.md": "mismatch",
+    "docs/development/ci-cd.md": "ok",
+    "ADR/": "missing"
+  }
+}

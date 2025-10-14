@@ -1,6 +1,7 @@
 import { spawn } from 'child_process';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import { existsSync } from 'fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -11,6 +12,34 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 async function wait(ms: number) {
   return new Promise((r) => setTimeout(r, ms));
+}
+
+async function killProcessOnPort(port: number): Promise<void> {
+  // Best-effort: find PIDs listening on the port and terminate them
+  await new Promise<void>((resolve) => {
+    const p = spawn('lsof', ['-ti', `tcp:${port}`], {
+      stdio: ['ignore', 'pipe', 'ignore'],
+    });
+    let out = '';
+    p.stdout?.on('data', (d) => (out += String(d)));
+    p.on('close', () => {
+      const pids = out
+        .split(/\s+/)
+        .map((s) => s.trim())
+        .filter(Boolean)
+        .map((s) => Number(s))
+        .filter((n) => Number.isFinite(n) && n > 0);
+      for (const pid of pids) {
+        try {
+          process.kill(pid, 'SIGKILL');
+          console.log(`[setup] Killed PID ${pid} on port ${port}`);
+        } catch {
+          // ignore failures
+        }
+      }
+      resolve();
+    });
+  });
 }
 
 async function probeForUrl(candidate: string): Promise<boolean> {
@@ -62,20 +91,39 @@ export default async function () {
     p.on('exit', (code) => (code === 0 ? resolve() : reject(new Error(`db:setup exited ${code}`))));
   });
 
-  // 2) Always (re)build worker to ensure latest route changes are included (dev mode for debug panel)
+  // 2) Always rebuild worker to ensure latest code is served
   await new Promise<void>((resolve, reject) => {
-    const p = spawn('npm', ['run', 'build:worker:dev'], { cwd: rootDir, stdio: 'inherit' });
+    const p = spawn('npm', ['run', 'build:worker:dev'], {
+      cwd: rootDir,
+      stdio: 'inherit',
+      env: { ...process.env },
+    });
     p.on('exit', (code) =>
-      code === 0 ? resolve() : reject(new Error(`build:worker:dev exited ${code}`))
+      code === 0 ? resolve() : reject(new Error(`build:worker exited ${code}`))
     );
   });
 
-  // 3) Start wrangler dev after rebuilding (serve freshly built worker)
-  serverProcess = spawn('npm', ['run', 'dev:worker'], {
-    cwd: rootDir,
-    env: { ...process.env, NODE_ENV: 'test', CI: '1', npm_config_yes: 'true' },
-    detached: false,
-  });
+  // 3) Ensure 8787 is free, then start wrangler dev on 8787 (canonical test origin)
+  await killProcessOnPort(8787);
+  await wait(300);
+  serverProcess = spawn(
+    'wrangler',
+    ['dev', 'dist/_worker.js/index.js', '--port', '8787', '--config', 'wrangler.ci.toml'],
+    {
+      cwd: rootDir,
+      env: {
+        ...process.env,
+        NODE_ENV: 'test',
+        CI: '1',
+        npm_config_yes: 'true',
+        WRANGLER_CONFIG: 'wrangler.ci.toml',
+        OPENAI_API_KEY: '',
+        VOICE_DEV_ECHO: '1',
+      },
+      detached: false,
+      stdio: ['ignore', 'pipe', 'pipe'],
+    }
+  );
 
   let logs = '';
   const detectUrl = (chunk: Buffer | string) => {
@@ -86,10 +134,19 @@ export default async function () {
     // Otherwise, choose whatever is available (including default http://localhost:8787).
     const httpsMatches = logs.match(/https:\/\/(localhost|127\.0\.0\.1):\d+/g) || [];
     const httpMatches = logs.match(/http:\/\/(localhost|127\.0\.0\.1):\d+/g) || [];
-    const httpsLocalhost = httpsMatches.find((u) => u.includes('https://localhost:'));
-    const httpLocalhost = httpMatches.find((u) => u.includes('http://localhost:'));
-    const httpsLoopback = httpsMatches.find((u) => u.includes('https://127.0.0.1:'));
-    const httpLoopback = httpMatches.find((u) => u.includes('http://127.0.0.1:'));
+    // Prefer our target dev port 8787 when present
+    const httpsLocalhost =
+      [...httpsMatches].reverse().find((u) => u.includes('https://localhost:8787')) ||
+      [...httpsMatches].reverse().find((u) => u.includes('https://localhost:'));
+    const httpLocalhost =
+      [...httpMatches].reverse().find((u) => u.includes('http://localhost:8787')) ||
+      [...httpMatches].reverse().find((u) => u.includes('http://localhost:'));
+    const httpsLoopback =
+      [...httpsMatches].reverse().find((u) => u.includes('https://127.0.0.1:8787')) ||
+      [...httpsMatches].reverse().find((u) => u.includes('https://127.0.0.1:'));
+    const httpLoopback =
+      [...httpMatches].reverse().find((u) => u.includes('http://127.0.0.1:8787')) ||
+      [...httpMatches].reverse().find((u) => u.includes('http://127.0.0.1:'));
     if (httpsLocalhost) TEST_URL = httpsLocalhost;
     else if (httpLocalhost) TEST_URL = httpLocalhost;
     else if (httpsLoopback) TEST_URL = httpsLoopback;

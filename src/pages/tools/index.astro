@@ -26,14 +26,19 @@ const filteredTools = allTools.filter((tool) => {
 
 // Get categories for filter (localized)
 const categories: { id: ToolCategory; name: string }[] = getToolCategories(locale);
-// Ensure Imag-Enhancer is shown first while preserving other order
+// Ensure specific ordering at the top: 1) Imag-Enhancer 2) Prompt Enhancer 3) Webscraper 4) Voice Transcriptor
 const displayTools = filteredTools.slice().sort((a, b) => {
-  const order = (tool: { id: string }) => {
-    if (tool.id === 'Imag-Enhancer') return 0;
-    if (tool.id === 'prompt-enhancer') return 1;
-    return 2;
-  };
-  return order(a) - order(b);
+  const rank = (id: string) =>
+    id === 'Imag-Enhancer'
+      ? 0
+      : id === 'prompt-enhancer'
+        ? 1
+        : id === 'webscraper'
+          ? 2
+          : id === 'voice-visualizer'
+            ? 3
+            : 99;
+  return rank(a.id) - rank(b.id);
 });
 ---
 

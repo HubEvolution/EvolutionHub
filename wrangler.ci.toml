@@ -1,0 +1,71 @@
+# Minimal Wrangler config for CI/integration tests
+# Removes assets.run_worker_first assertion while keeping required bindings
+
+name = "evolution-hub-ci"
+account_id = "39434b5635d8beb4bde93e1792b628d7"
+compatibility_date = "2025-07-26"
+compatibility_flags = ["nodejs_compat"]
+main = "dist/_worker.js/index.js"
+preview_urls = false
+logpush = false
+
+[assets]
+directory = "./dist"
+html_handling = "auto-trailing-slash"
+binding = "ASSETS"
+# Intentionally no run_worker_first in CI to avoid Wrangler validation during script arg mode
+
+# D1 database (local preview db id mirrors dev)
+[[d1_databases]]
+binding = "DB"
+database_name = "evolution-hub-main-dev"
+database_id = "35bd5d4c-718a-43ea-935c-b5d62a686ec2"
+preview_database_id = "35bd5d4c-718a-43ea-935c-b5d62a686ec2"
+
+# R2 buckets commonly referenced
+[[r2_buckets]]
+binding = "R2_AVATARS"
+bucket_name = "evolution-hub-avatars-local"
+preview_bucket_name = "evolution-hub-avatars-local"
+
+[[r2_buckets]]
+binding = "R2_LEADMAGNETS"
+bucket_name = "evolution-hub-lead-magnets-dev"
+preview_bucket_name = "evolution-hub-lead-magnets-dev"
+
+[[r2_buckets]]
+binding = "R2_AI_IMAGES"
+bucket_name = "evolution-hub-ai-images-local"
+preview_bucket_name = "evolution-hub-ai-images-local"
+
+# KV namespaces used across APIs
+[[kv_namespaces]]
+binding = "SESSION"
+id = "bc180c72cdbe4701a221ab8002f2de72"
+preview_id = "bc180c72cdbe4701a221ab8002f2de72"
+
+[[kv_namespaces]]
+binding = "KV_AI_ENHANCER"
+id = "30356dfa83e342c48103609bce4f3320"
+preview_id = "30356dfa83e342c48103609bce4f3320"
+
+[[kv_namespaces]]
+binding = "KV_WEBSCRAPER"
+id = "c9814079ac344b979b58278d055ca457"
+preview_id = "c9814079ac344b979b58278d055ca457"
+
+[[kv_namespaces]]
+binding = "KV_VOICE_TRANSCRIBE"
+id = "6593f5bc9f174e60a8c09bb16b36672c"
+preview_id = "6593f5bc9f174e60a8c09bb16b36672c"
+
+[vars]
+ENVIRONMENT = "development"
+BASE_URL = "http://127.0.0.1:8787"
+APP_ORIGIN = "http://127.0.0.1:8787"
+PUBLIC_TURNSTILE_SITE_KEY = "0x4AAAAAAB5-m2IDaeVetM7Q"
+E2E_FAKE_STYTCH = "1"
+VOICE_STREAM_SSE = "1"
+VOICE_STREAM_POLL = "1"
+VOICE_R2_ARCHIVE = "0"
+VOICE_DEV_ECHO = "1"

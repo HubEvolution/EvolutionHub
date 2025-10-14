@@ -6,10 +6,10 @@
   "scripts": {
     "dev": "npm run dev:worker",
     "dev:e2e": "npm run db:setup && npm run dev:worker:dev",
-    "dev:worker": "npm run build:worker:dev && wrangler dev --port 8787",
-    "dev:worker:dev": "npm run build:worker:dev && wrangler dev --env development --port 8787",
-    "dev:worker:nobuild": "wrangler dev --port 8787",
-    "dev:open": "npm run build:worker:dev && ( (until curl -sSf http://127.0.0.1:8787 >/dev/null 2>&1; do sleep 0.5; done; open http://127.0.0.1:8787) & ) && wrangler dev --env development --port 8787",
+    "dev:worker": "npm run build:worker:dev && wrangler dev dist/_worker.js/index.js --port 8787 --config wrangler.toml --compatibility-date 2025-07-26 --compatibility-flags nodejs_compat",
+    "dev:worker:dev": "npm run build:worker:dev && wrangler dev dist/_worker.js/index.js --env development --port 8787 --config wrangler.toml --compatibility-date 2025-07-26 --compatibility-flags nodejs_compat",
+    "dev:worker:nobuild": "wrangler dev dist/_worker.js/index.js --port 8787 --config wrangler.toml --compatibility-date 2025-07-26 --compatibility-flags nodejs_compat",
+    "dev:open": "npm run build:worker:dev && ( (until curl -sSf http://127.0.0.1:8787 >/dev/null 2>&1; do sleep 0.5; done; open http://127.0.0.1:8787) & ) && wrangler dev dist/_worker.js/index.js --env development --port 8787 --config wrangler.toml --compatibility-date 2025-07-26 --compatibility-flags nodejs_compat",
     "dev:astro": "astro dev",
     "dev:pages-fallback": "npm run build:worker:dev && cp -r ./dist/_worker.js/assets ./dist/ && wrangler pages dev ./dist --d1=DB --r2=R2_AVATARS --kv=SESSION",
     "setup:local": "TS_NODE_TRANSPILE_ONLY=1 node --loader ts-node/esm ./scripts/setup-local-dev.ts",
@@ -20,6 +20,7 @@
     "build:worker": "ASTRO_DEPLOY_TARGET=worker astro build && node -e \"const fs=require('fs'); fs.mkdirSync('dist',{recursive:true}); fs.writeFileSync('dist/.assetsignore','_worker.js\\n'); if (fs.existsSync('dist/_worker.js/assets')) { fs.mkdirSync('dist/assets',{recursive:true}); fs.cpSync('dist/_worker.js/assets','dist/assets',{recursive:true}); }\"",
     "build:worker:dev": "ASTRO_DEPLOY_TARGET=worker astro build --mode development && node -e \"const fs=require('fs'); fs.mkdirSync('dist',{recursive:true}); fs.writeFileSync('dist/.assetsignore','_worker.js\\n'); if (fs.existsSync('dist/_worker.js/assets')) { fs.mkdirSync('dist/assets',{recursive:true}); fs.cpSync('dist/_worker.js/assets','dist/assets',{recursive:true}); }\"",
     "build:worker:staging": "ASTRO_DEPLOY_TARGET=worker astro build --mode staging && node -e \"const fs=require('fs'); fs.mkdirSync('dist',{recursive:true}); fs.writeFileSync('dist/.assetsignore','_worker.js\\n'); if (fs.existsSync('dist/_worker.js/assets')) { fs.mkdirSync('dist/assets',{recursive:true}); fs.cpSync('dist/_worker.js/assets','dist/assets',{recursive:true}); }\"",
+    "build:worker:ci": "WRANGLER_CONFIG=wrangler.ci.toml ASTRO_DEPLOY_TARGET=worker astro build && node -e \"const fs=require('fs'); fs.mkdirSync('dist',{recursive:true}); fs.writeFileSync('dist/.assetsignore','_worker.js\\n'); if (fs.existsSync('dist/_worker.js/assets')) { fs.mkdirSync('dist/assets',{recursive:true}); fs.cpSync('dist/_worker.js/assets','dist/assets',{recursive:true}); }\"",
     "build:watch": "astro build --watch",
     "preview": "astro preview",
     "astro": "astro",
@@ -177,7 +178,7 @@
     "typescript-eslint": "8.38.0",
     "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^3.2.4",
-    "wrangler": "^4.33.2",
+    "wrangler": "^4.42.2",
     "yaml": "^2.6.0"
   }
 }

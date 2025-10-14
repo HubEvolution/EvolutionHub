@@ -36,6 +36,7 @@ Für einen High-Level-Überblick siehe: [../architecture.md](../architecture.md)
 ### Features
 
 - **[AI Image Enhancer](./ai-image-enhancer.md)** — Architektur des AI-basierten Bildverbesserungs-Features
+- **[Voice Visualizer + Transcriptor](./voice-visualizer-transcriptor.md)** — Aufnahme/Visualizer, segmentierter Upload, serverseitige Normalisierung & Transkription (Whisper), Limits/Quoten, Security
 
 ## Architecture Decision Records (ADRs)
 

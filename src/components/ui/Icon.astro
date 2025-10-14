@@ -715,6 +715,41 @@ const ariaHidden = !ariaLabel;
   )
 }
 
+{/* Microphone */}
+{
+  name === 'microphone' && (
+    <svg
+      class={svgClass}
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      aria-hidden={ariaHidden}
+      role={ariaLabel ? 'img' : undefined}
+      aria-label={ariaLabel}
+    >
+      <rect
+        x="9"
+        y="4"
+        width="6"
+        height="10"
+        rx="3"
+        stroke="currentColor"
+        stroke-width="1.5"
+        fill="none"
+      />
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="1.5"
+        d="M6 11a6 6 0 0012 0"
+      />
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 17v3" />
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 20h6" />
+    </svg>
+  )
+}
+
 {/* Fallback: generic circle */}
 {
   ![
@@ -746,6 +781,7 @@ const ariaHidden = !ariaLabel;
     'chat',
     'statusDot',
     'mouse',
+    'microphone',
   ].includes(name) && (
     <svg
       class={svgClass}

@@ -8,6 +8,9 @@ import {
 import { voiceTranscribeLimiter } from '@/lib/rate-limiter';
 import { VoiceTranscribeService } from '@/lib/services/voice-transcribe-service';
 import { VOICE_FREE_LIMIT_USER, VOICE_FREE_LIMIT_GUEST } from '@/config/voice';
+import { VoiceStreamAggregator } from '@/lib/services/voice-stream-aggregator';
+import { getVoiceEntitlementsFor } from '@/config/voice/entitlements';
+import type { Plan } from '@/config/ai-image/entitlements';
 
 function ensureGuestIdCookie(context: Parameters<APIRoute>[0]): string {
   const cookies = context.cookies;
@@ -32,6 +35,8 @@ export const POST: APIRoute = withApiMiddleware(
     const file = form.get('chunk');
     const sessionId = String(form.get('sessionId') || '').trim();
     const lang = form.get('lang') ? String(form.get('lang')) : undefined;
+    const jobIdForm = String(form.get('jobId') || '').trim();
+    const isLastChunk = String(form.get('isLastChunk') || '').trim() === 'true';
     if (!(file instanceof File) || !sessionId) {
       return createApiError('validation_error', 'Missing chunk or sessionId');
     }
@@ -40,19 +45,48 @@ export const POST: APIRoute = withApiMiddleware(
     const ownerId = locals.user?.id || ensureGuestIdCookie({ request, locals, cookies } as any);
 
     const env = locals.runtime?.env ?? {};
+    const openaiKey = env.VOICE_DEV_ECHO === '1' ? undefined : env.OPENAI_API_KEY;
     const service = new VoiceTranscribeService({
       KV_VOICE_TRANSCRIBE: env.KV_VOICE_TRANSCRIBE,
-      OPENAI_API_KEY: env.OPENAI_API_KEY,
+      OPENAI_API_KEY: openaiKey,
       WHISPER_MODEL: env.WHISPER_MODEL,
       ENVIRONMENT: env.ENVIRONMENT,
+      R2_VOICE: env.R2_VOICE,
+      VOICE_R2_ARCHIVE: env.VOICE_R2_ARCHIVE,
+      VOICE_DEV_ECHO: env.VOICE_DEV_ECHO,
     });
+    const aggregator = new VoiceStreamAggregator(env.KV_VOICE_TRANSCRIBE);
+    const jobId = jobIdForm || (crypto.randomUUID?.() ?? Math.random().toString(36).slice(2));
+    await aggregator.ensure(jobId);
 
     try {
-      const out = await service.transcribeChunk(ownerType as any, ownerId, sessionId, file, lang);
+      const plan: Plan | undefined =
+        ownerType === 'user' ? ((locals.user?.plan as Plan | undefined) ?? 'free') : undefined;
+      const ent = getVoiceEntitlementsFor(ownerType as any, plan);
+      const out = await service.transcribeChunk(
+        ownerType as any,
+        ownerId,
+        sessionId,
+        file,
+        lang,
+        ent.dailyBurstCap
+      );
+      // Aggregator-Update für Streaming/Polling
+      if (out.text) {
+        if (out.isFinal || isLastChunk) {
+          await aggregator.setFinal(jobId, out.text);
+        } else {
+          await aggregator.appendPartial(jobId, out.text);
+        }
+      }
+      if (out.usage) {
+        await aggregator.setUsage(jobId, out.usage as any);
+      }
       return createApiSuccess({
         sessionId,
+        jobId,
         text: out.text,
-        isFinal: out.isFinal,
+        isFinal: out.isFinal || isLastChunk,
         usage: out.usage,
         limits: { user: VOICE_FREE_LIMIT_USER, guest: VOICE_FREE_LIMIT_GUEST },
       });

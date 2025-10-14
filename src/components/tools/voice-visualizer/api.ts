@@ -10,6 +10,7 @@ export interface VoiceTranscribeResponse {
   success: boolean;
   data?: {
     sessionId: string;
+    jobId?: string;
     text: string;
     isFinal?: boolean;
     usage: VoiceUsageInfo;
@@ -21,15 +22,32 @@ export interface VoiceTranscribeResponse {
 export async function postTranscribeChunk(
   blob: Blob,
   sessionId: string,
-  lang?: string
+  lang?: string,
+  jobId?: string,
+  isLastChunk?: boolean
 ): Promise<VoiceTranscribeResponse & { retryAfter?: number }> {
   const token = ensureCsrfToken();
   const fd = new FormData();
-  const fileName = blob.type.includes('ogg') ? 'chunk.ogg' : 'chunk.webm';
-  const file = new File([blob], fileName, { type: blob.type || 'audio/webm' });
+  const fileName = blob.type.includes('mp4')
+    ? 'chunk.mp4'
+    : blob.type.includes('ogg')
+      ? 'chunk.ogg'
+      : blob.type.includes('webm')
+        ? 'chunk.webm'
+        : 'chunk.webm';
+  const fallbackType =
+    blob.type ||
+    (fileName.endsWith('.mp4')
+      ? 'audio/mp4'
+      : fileName.endsWith('.ogg')
+        ? 'audio/ogg'
+        : 'audio/webm');
+  const file = new File([blob], fileName, { type: fallbackType });
   fd.append('chunk', file);
   fd.append('sessionId', sessionId);
   if (lang) fd.append('lang', lang);
+  if (jobId) fd.append('jobId', jobId);
+  if (typeof isLastChunk === 'boolean') fd.append('isLastChunk', String(isLastChunk));
 
   const res = await fetch('/api/voice/transcribe', {
     method: 'POST',

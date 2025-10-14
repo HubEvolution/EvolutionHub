@@ -752,6 +752,72 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiErrorResponse'
+  /api/voice/stream:
+    get:
+      summary: Voice transcription stream (SSE)
+      description: |
+        Server‑Sent Events Stream für Transkriptions‑Feedback. Liefert u. a. ein
+        `connected`‑Event mit `jobId` sowie ggf. `partial`, `final` und `usage` Events.
+        Deaktivierbar über Flag `VOICE_STREAM_SSE`.
+      x-source: src/pages/api/voice/stream.ts
+      operationId: getVoiceStream
+      responses:
+        "200":
+          description: SSE stream
+          content:
+            text/event-stream:
+              schema:
+                type: string
+              examples:
+                connected:
+                  summary: Connected event with jobId
+                  value: |
+                    event: connected
+                    data: {"jobId":"<uuid>"}
+                    
+                heartbeat:
+                  summary: Heartbeat comment to keep connection alive
+                  value: |
+                    :keep-alive
+                    
+        "404":
+          description: Streaming disabled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+  /api/voice/poll:
+    get:
+      summary: Voice job state polling
+      description: |
+        Pollt den aktuellen Zustand eines Voice‑Jobs. Deaktivierbar über Flag `VOICE_STREAM_POLL`.
+      x-source: src/pages/api/voice/poll.ts
+      operationId: getVoicePoll
+      parameters:
+        - name: jobId
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Aktueller Zustand
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VoicePollSuccessResponse'
+        "400":
+          description: Validierungsfehler
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        "404":
+          description: Polling disabled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
   /api/ai-image/usage:
     get:
       summary: AI-Image-Nutzung/Limits abrufen
@@ -1192,6 +1258,30 @@ components:
             type: integer
             format: int64
             nullable: true
+      VoicePollSuccessResponse:
+        type: object
+        properties:
+          success:
+            type: boolean
+            enum: [true]
+          data:
+            type: object
+            properties:
+              status:
+                type: string
+                enum: [active, done, error, not_found]
+              partials:
+                type: array
+                items:
+                  type: string
+              final:
+                type: string
+                nullable: true
+              usage:
+                $ref: '#/components/schemas/UsageInfo'
+              updatedAt:
+                type: integer
+                format: int64
       AiJob:
         type: object
         properties:

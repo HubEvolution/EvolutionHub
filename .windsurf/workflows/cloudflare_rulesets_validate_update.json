@@ -1,0 +1,32 @@
+{
+  "description": "Validate and update Cloudflare rulesets JSON safely (operators constrained, jq-verified)",
+  "docs": ".windsurf/workflows/validate-update-cloudflare-rulesetsJSON-safely.md",
+  "params": { "apply": { "type": "boolean", "default": false } },
+  "steps": [
+    {
+      "name": "Inventory",
+      "shell": "ls -1 *.json | grep -E '(^|/)(rules|ruleset|cache-rules|staging).*\\.json$' || true",
+      "auto": true
+    },
+    {
+      "name": "Validate JSON",
+      "shell": "for f in staging-rules.json ruleset-current-staging.json rulesets-staging-list.json rulesets-list.json existing-rules.json combined-rules.json cache-rules-*.json cf-create-ruleset.json 2>/dev/null; do [ -f \"$f\" ] || continue; echo checking: $f; jq empty \"$f\" || exit 1; done",
+      "auto": true
+    },
+    {
+      "name": "Extract expressions",
+      "shell": "for f in staging-rules.json ruleset-current-staging.json rulesets-staging-list.json rulesets-list.json existing-rules.json combined-rules.json cache-rules-*.json cf-create-ruleset.json 2>/dev/null; do [ -f \"$f\" ] || continue; echo; echo '# '$f; jq -r '..|objects|select(has(\"expression\"))|.expression' \"$f\" | sed 's/^/  expr: /'; done",
+      "auto": true
+    },
+    {
+      "name": "Enforce operators",
+      "shell": "disallowed=0; for f in staging-rules.json ruleset-current-staging.json rulesets-staging-list.json rulesets-list.json existing-rules.json combined-rules.json cache-rules-*.json cf-create-ruleset.json 2>/dev/null; do [ -f \"$f\" ] || continue; while IFS= read -r expr; do [ -z \"$expr\" ] && continue; echo \"$expr\" | grep -Eq \\\"\\\\b(eq|starts_with|contains)\\\\b\\\" || { echo 'DISALLOWED in '$f': '$expr; disallowed=1; }; done < <(jq -r '..|.expression? // empty' \"$f\"); done; exit $disallowed",
+      "auto": true
+    },
+    {
+      "name": "Commit (if apply)",
+      "shell": "if [ \"${apply}\" = \"true\" ]; then git add -A && git commit -m 'chore(cf): validate/update Cloudflare rulesets (operators constrained, jq-verified)'; else echo 'Dry run only'; fi",
+      "auto": false
+    }
+  ]
+}

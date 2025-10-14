@@ -10,12 +10,16 @@ import {
   DEFAULT_WHISPER_MODEL,
   type VoiceOwnerType,
 } from '@/config/voice';
+import type { R2Bucket } from '@cloudflare/workers-types';
 
 interface RuntimeEnv {
   KV_VOICE_TRANSCRIBE?: KVNamespace;
   OPENAI_API_KEY?: string;
   WHISPER_MODEL?: string;
   ENVIRONMENT?: string;
+  R2_VOICE?: R2Bucket;
+  VOICE_R2_ARCHIVE?: string;
+  VOICE_DEV_ECHO?: string;
 }
 
 export interface VoiceUsageInfo {
@@ -119,6 +123,7 @@ export class VoiceTranscribeService {
     lang?: string,
     limitOverride?: number
   ): Promise<{ text: string; isFinal?: boolean; usage: VoiceUsageInfo }> {
+    const t0 = Date.now();
     // Validate file
     if (!(file instanceof File)) throw new Error('Invalid file');
     if (file.size > VOICE_MAX_CHUNK_BYTES)
@@ -144,7 +149,24 @@ export class VoiceTranscribeService {
       const err: any = new Error(`Quota exceeded. Used ${current.used}/${current.limit}`);
       err.code = 'quota_exceeded';
       err.details = { scope: 'daily', ...current };
+      try {
+        this.log.info('voice_limit', {
+          action: 'voice_limit',
+          metadata: {
+            ownerType,
+            ownerMasked: ownerId ? `…${ownerId.slice(-4)}` : '',
+            used: current.used,
+            limit: current.limit,
+          },
+        });
+      } catch {}
       throw err;
+    }
+
+    // Optional dev-echo bypass for integration/dev runs
+    if (this.env.VOICE_DEV_ECHO === '1') {
+      const usage = await this.incrementUsage(ownerType, ownerId, dailyLimit);
+      return { text: '[dev] transcription placeholder', isFinal: true, usage };
     }
 
     // Provider call
@@ -162,8 +184,56 @@ export class VoiceTranscribeService {
 
     let text = '';
     try {
+      let normalized = file;
+      try {
+        const t = (file.type || '').toLowerCase();
+        const baseType = t.includes('webm')
+          ? 'audio/webm'
+          : t.includes('ogg')
+            ? 'audio/ogg'
+            : t.includes('mp4')
+              ? 'audio/mp4'
+              : 'audio/webm';
+        const n = (file.name || '').toLowerCase();
+        const hasExt = n.endsWith('.webm') || n.endsWith('.ogg') || n.endsWith('.mp4');
+        const name = hasExt
+          ? file.name
+          : baseType === 'audio/ogg'
+            ? 'chunk.ogg'
+            : baseType === 'audio/mp4'
+              ? 'chunk.mp4'
+              : 'chunk.webm';
+        const buf = await file.arrayBuffer();
+        normalized = new File([buf], name, { type: baseType });
+      } catch {}
+      try {
+        if (this.env.VOICE_R2_ARCHIVE === '1' && this.env.R2_VOICE) {
+          const tt = (normalized.type || '').toLowerCase();
+          const ext = tt.includes('ogg') ? 'ogg' : tt.includes('mp4') ? 'mp4' : 'webm';
+          const key = `voice/sess-${sessionId}/${Date.now()}.${ext}`;
+          const ab = await normalized.arrayBuffer();
+          await this.env.R2_VOICE.put(key, new Uint8Array(ab), {
+            httpMetadata: { contentType: normalized.type || 'application/octet-stream' },
+          });
+        }
+      } catch {}
+      try {
+        if (this.isDevelopment()) {
+          this.log.debug('transcribe_chunk_meta', {
+            action: 'transcribe_chunk_meta',
+            metadata: {
+              providedType: file.type || 'unknown',
+              providedName: (file as any).name || 'unknown',
+              providedSize: file.size,
+              normalizedType: normalized.type || 'unknown',
+              normalizedName: (normalized as any).name || 'unknown',
+              normalizedSize: normalized.size,
+            },
+          });
+        }
+      } catch {}
       const res: any = await (client as any).audio.transcriptions.create({
-        file,
+        file: normalized,
         model,
         language: lang,
       });
@@ -179,18 +249,34 @@ export class VoiceTranscribeService {
         'openai',
         (anyErr?.message || '').slice(0, 200)
       );
-      this.log.warn('whisper_error', {
-        action: 'whisper_error',
-        metadata: { status: status ?? 'unknown', message: (anyErr?.message || '').slice(0, 200) },
-      });
+      try {
+        this.log.warn('whisper_error', {
+          action: 'whisper_error',
+          metadata: {
+            status: status ?? 'unknown',
+            message: (anyErr?.message || '').slice(0, 200),
+            ownerType,
+            ownerMasked: ownerId ? `…${ownerId.slice(-4)}` : '',
+          },
+        });
+      } catch {}
       throw mapped;
     }
 
     const usage = await this.incrementUsage(ownerType, ownerId, dailyLimit);
-    this.log.info('transcribe_success', {
-      action: 'transcribe_success',
-      metadata: { sessionId, ownerType, ownerMasked: ownerId ? `…${ownerId.slice(-4)}` : '' },
-    });
+    try {
+      const dt = Date.now() - t0;
+      this.log.info('transcribe_success', {
+        action: 'transcribe_success',
+        metadata: {
+          sessionId,
+          ownerType,
+          ownerMasked: ownerId ? `…${ownerId.slice(-4)}` : '',
+          latencyMs: dt,
+          sizeBytes: file.size,
+        },
+      });
+    } catch {}
     return { text, isFinal: true, usage };
   }
 }

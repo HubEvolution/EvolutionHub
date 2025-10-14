@@ -106,6 +106,17 @@ export function getAllTools(locale: Locale): Tool[] {
       comingSoon: false,
     },
     {
+      id: 'voice-visualizer',
+      name: t('pages.tools.items.voice-visualizer.name'),
+      description: t('pages.tools.items.voice-visualizer.description'),
+      category: ['ai', 'productivity'],
+      iconKey: 'microphone',
+      color: 'bg-sky-100 dark:bg-sky-900 text-sky-800 dark:text-sky-200',
+      url: '/tools/voice-visualizer/app',
+      isNew: true,
+      comingSoon: false,
+    },
+    {
       id: 'webscraper',
       name: t('pages.tools.items.webscraper.name'),
       description: t('pages.tools.items.webscraper.description'),

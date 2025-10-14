@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { VOICE_MIN_CHUNK_BYTES } from '@/config/voice';
 import Card from '@/components/ui/Card';
 import { useMicrophone } from './hooks/useMicrophone';
 import VisualizerCanvas from './VisualizerCanvas';
 import { getVoiceUsage, postTranscribeChunk, type VoiceUsageInfo } from './api';
+import { useTranscribeStream } from './hooks/useTranscribeStream';
 
 interface Strings {
   title: string;
@@ -33,7 +35,7 @@ export default function VoiceVisualizerIsland({ strings, langHint }: Props) {
     error: micError,
     onData,
   } = useMicrophone({
-    timesliceMs: 2000,
+    timesliceMs: 3000,
   });
   const [usage, setUsage] = useState<VoiceUsageInfo | null>(null);
   const [ownerType, setOwnerType] = useState<'user' | 'guest' | null>(null);
@@ -43,11 +45,20 @@ export default function VoiceVisualizerIsland({ strings, langHint }: Props) {
   const queueRef = useRef<Blob[]>([]);
   const processingRef = useRef(false);
   const backoffUntilRef = useRef<number>(0);
+  const streamCtl = useTranscribeStream();
 
   const usagePercent = useMemo(() => {
     if (!usage) return 0;
     return Math.min(100, (usage.used / Math.max(1, usage.limit)) * 100);
   }, [usage]);
+
+  const liveText = useMemo(() => {
+    const parts = streamCtl.state.partials?.length ? streamCtl.state.partials.join('\n') : '';
+    const final = streamCtl.state.final || '';
+    const streamOut = final || parts;
+    if (streamOut && transcript) return `${transcript}\n${streamOut}`;
+    return streamOut || transcript;
+  }, [streamCtl.state.partials, streamCtl.state.final, transcript]);
 
   const refreshUsage = useCallback(async () => {
     try {
@@ -70,7 +81,12 @@ export default function VoiceVisualizerIsland({ strings, langHint }: Props) {
         }
         const blob = queueRef.current.shift()!;
         setBusy(true);
-        const res = await postTranscribeChunk(blob, sessionId, langHint);
+        const res = await postTranscribeChunk(
+          blob,
+          sessionId,
+          langHint,
+          streamCtl.state.jobId || undefined
+        );
         if (!res.success) {
           const msg = res.error?.message || strings.error;
           setErr(msg);
@@ -96,12 +112,66 @@ export default function VoiceVisualizerIsland({ strings, langHint }: Props) {
   const handleStart = useCallback(async () => {
     setErr(null);
     await refreshUsage();
+    try {
+      await streamCtl.ensure();
+    } catch {}
     await start();
   }, [refreshUsage, start]);
 
   const handleStop = useCallback(() => {
     stop();
   }, [stop]);
+
+  const handleTestSpeech = useCallback(async () => {
+    setErr(null);
+    try {
+      try {
+        await streamCtl.ensure();
+      } catch {}
+      const media = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mime = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+        ? 'audio/webm;codecs=opus'
+        : 'audio/webm';
+      const chunks: BlobPart[] = [];
+      const rec = new MediaRecorder(media, { mimeType: mime });
+      await new Promise<void>((resolve) => {
+        rec.ondataavailable = (e) => {
+          if (e.data && e.data.size) chunks.push(e.data);
+        };
+        rec.onstop = () => resolve();
+        rec.start(100);
+        setTimeout(() => {
+          try {
+            rec.stop();
+          } catch {}
+        }, 1400);
+      });
+      const blob = new Blob(chunks, { type: mime });
+      setBusy(true);
+      const res = await postTranscribeChunk(
+        blob,
+        sessionId,
+        langHint,
+        streamCtl.state.jobId || undefined,
+        true
+      );
+      if (!res.success) {
+        const msg = res.error?.message || strings.error;
+        setErr(msg);
+        if (res.retryAfter && Number.isFinite(res.retryAfter)) {
+          backoffUntilRef.current = Date.now() + res.retryAfter * 1000;
+        }
+      } else if (res.data) {
+        setUsage(res.data.usage);
+        setTranscript((t) => (t ? `${t}\n${res.data!.text}` : res.data!.text));
+      }
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setErr(msg || strings.error);
+    } finally {
+      setBusy(false);
+    }
+  }, [langHint, sessionId, streamCtl.state.jobId, streamCtl.ensure, strings.error]);
 
   useEffect(() => {
     refreshUsage();
@@ -111,6 +181,8 @@ export default function VoiceVisualizerIsland({ strings, langHint }: Props) {
     onData((blob) => {
       // Skip if currently in explicit backoff window
       if (Date.now() < backoffUntilRef.current) return;
+      // Ignore tiny chunks (<VOICE_MIN_CHUNK_BYTES) which providers may reject as invalid
+      if (!blob || blob.size < VOICE_MIN_CHUNK_BYTES) return;
       queueRef.current.push(blob);
       processQueue();
     });
@@ -157,6 +229,17 @@ export default function VoiceVisualizerIsland({ strings, langHint }: Props) {
               )}
             </div>
           </div>
+          {import.meta.env.MODE !== 'production' && (
+            <div className="flex items-center gap-3">
+              <button
+                onClick={handleTestSpeech}
+                className={`inline-flex items-center gap-2 rounded-md px-3 py-2 text-xs font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 bg-emerald-600 hover:bg-emerald-700 text-white focus:ring-emerald-500`}
+                disabled={busy}
+              >
+                Record 1s Speech (Test)
+              </button>
+            </div>
+          )}
         </div>
 
         <VisualizerCanvas
@@ -177,7 +260,7 @@ export default function VoiceVisualizerIsland({ strings, langHint }: Props) {
       <Card className="p-6">
         <h2 className="text-lg font-semibold mb-2">{strings.transcript}</h2>
         <div className="min-h-[120px] whitespace-pre-wrap text-gray-800 dark:text-gray-100">
-          {transcript || '…'}
+          {liveText || '…'}
         </div>
       </Card>
     </div>

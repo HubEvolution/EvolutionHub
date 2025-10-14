@@ -5,7 +5,7 @@ import BlogCTA from './blog/BlogCTA.astro';
 import LeadMagnetCTA from './blog/LeadMagnetCTA.astro';
 import NewsletterCTA from './blog/NewsletterCTA.astro';
 // Import the Image component from Astro's built-in assets handling.
-import { Image } from 'astro:assets';
+// Avoid astro:assets Image on Worker SSR; render native <img>
 import type { ImageMetadata } from 'astro';
 import { getLocale } from '@/lib/i18n';
 import { localizePath } from '@/lib/locale-path';
@@ -292,7 +292,7 @@ const finalBottomCTA =
       safeImage && (
         <div class="mt-8">
           <div class="aspect-w-16 aspect-h-9 overflow-hidden rounded-lg">
-            <Image
+            <img
               src={safeImage.src}
               alt={imageAltText}
               class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"

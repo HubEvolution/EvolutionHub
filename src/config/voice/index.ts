@@ -6,9 +6,13 @@ export const VOICE_ALLOWED_CONTENT_TYPES = [
   // lenient fallbacks accepted by some browsers/providers
   'audio/webm',
   'audio/ogg',
+  // MP4 container fallbacks
+  'audio/mp4; codecs=mp4a.40.2',
+  'audio/mp4',
 ] as const;
 
 export const VOICE_MAX_CHUNK_BYTES = 1_200_000; // ~1.2MB per chunk (MVP)
+export const VOICE_MIN_CHUNK_BYTES = 8 * 1024; // 8KB client-side floor
 
 export const VOICE_FREE_LIMIT_GUEST = 60; // chunks/day (~60s @1s cadence)
 export const VOICE_FREE_LIMIT_USER = 300; // chunks/day (~5min)

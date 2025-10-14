@@ -7,6 +7,8 @@ import {
 } from '@/lib/api-middleware';
 import { VoiceTranscribeService } from '@/lib/services/voice-transcribe-service';
 import { VOICE_FREE_LIMIT_GUEST, VOICE_FREE_LIMIT_USER } from '@/config/voice';
+import { getVoiceEntitlementsFor } from '@/config/voice/entitlements';
+import type { Plan } from '@/config/ai-image/entitlements';
 
 function ensureGuestIdCookie(context: Parameters<APIRoute>[0]): string {
   const cookies = context.cookies;
@@ -40,13 +42,17 @@ export const GET: APIRoute = withApiMiddleware(async (context) => {
   });
 
   try {
-    const limit = ownerType === 'user' ? VOICE_FREE_LIMIT_USER : VOICE_FREE_LIMIT_GUEST;
+    const plan: Plan | undefined =
+      ownerType === 'user' ? ((locals.user?.plan as Plan | undefined) ?? 'free') : undefined;
+    const ent = getVoiceEntitlementsFor(ownerType as any, plan);
+    const limit = ent.dailyBurstCap;
     const usage = await service.getUsage(ownerType as any, ownerId, limit);
     const resp = createApiSuccess({
       ownerType,
       usage,
       limits: { user: VOICE_FREE_LIMIT_USER, guest: VOICE_FREE_LIMIT_GUEST },
       plan: locals.user?.plan || 'free',
+      entitlements: ent,
     });
     try {
       resp.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');

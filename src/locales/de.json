@@ -8,6 +8,39 @@
     "errors": {
       "generic": "Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.",
       "upload_failed_prefix": "Fehler beim Hochladen:"
+    }
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "tools": "Tools",
+    "pricing": "Preise",
+    "blog": "Blog"
+  },
+  "nav_language": {
+    "de": "Deutsch",
+    "en": "English"
+  },
+  "cta": {
+    "headline": "Bereit loszulegen?",
+    "subtitle": "Werden Sie Teil der Tausenden von Entwicklern, die bereits Evolution Hub nutzen, um erstaunliche Anwendungen zu erstellen.",
+    "button_text": "Kostenloses Konto erstellen"
+  },
+  "auth": {
+    "login": "Anmelden",
+    "magic": {
+      "cooldown": "Bitte warte {seconds}s, bevor du es erneut versuchst.",
+      "error": "Magischer Link konnte nicht gesendet werden. Bitte erneut versuchen.",
+      "success": "Wir haben dir einen magischen Link geschickt. Bitte prüfe dein Postfach."
+    }
+  },
+  "pages": {
+    "tools": {
+      "items": {
+        "voice-visualizer": {
+          "name": "Voice Transcriptor",
+          "description": "Stimme aufnehmen, Pegel visualisieren und Sprache nahezu in Echtzeit transkribieren."
+        }
+      }
     },
     "account": {
       "settings": {

@@ -1,0 +1,15 @@
+{
+  "description": "Preview refactor patch without applying (dry run)",
+  "params": {
+    "featureName": { "type": "string" },
+    "apply": { "type": "boolean", "default": false }
+  },
+  "steps": [
+    {
+      "name": "Plan diff",
+      "action": "analyze",
+      "inputs": [".windsurf/rules.pending/${featureName}.md"]
+    },
+    { "name": "Dry run", "action": "dryrun", "apply": false }
+  ]
+}

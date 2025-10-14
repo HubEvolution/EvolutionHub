@@ -1,0 +1,18 @@
+{
+  "description": "Generate test stubs (Vitest + Playwright smoke) without writing",
+  "params": { "featureName": { "type": "string" } },
+  "steps": [
+    {
+      "name": "Suggest unit stubs",
+      "action": "suggest",
+      "kind": "vitest",
+      "feature": "${featureName}"
+    },
+    {
+      "name": "Suggest e2e smoke",
+      "action": "suggest",
+      "kind": "playwright",
+      "feature": "${featureName}"
+    }
+  ]
+}

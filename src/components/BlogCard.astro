@@ -3,7 +3,7 @@ import type { ProcessedBlogPost } from '@/content/types';
 import { getLocale } from '@/lib/i18n';
 import { localizePath } from '@/lib/locale-path';
 import ArrowRightCircleIcon from 'astro-heroicons/solid/ArrowRightCircle.astro';
-import { Image } from 'astro:assets';
+// Use native <img> to avoid runtime Image endpoint on Workers
 
 interface Props {
   post: ProcessedBlogPost;
@@ -43,15 +43,13 @@ const localizedUrl = localizePath(locale, url);
           aria-label={`Bild für ${title}`}
           tabindex="-1"
         >
-          {/* Use ImageMetadata from content directly to avoid runtime errors */}
-          <Image
-            src={image}
+          <img
+            src={(image as any).src || ''}
             alt={imageAlt ? imageAlt : title}
             class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
             loading="lazy"
-            widths={[480, 640, 768, 1024, 1280]}
-            sizes={featured ? '(min-width: 768px) 33vw, 100vw' : '100vw'}
-            formats={['webp', 'jpeg']}
+            width={(image as any).width}
+            height={(image as any).height}
           />
         </a>
       </div>

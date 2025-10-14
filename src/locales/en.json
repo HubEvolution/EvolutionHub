@@ -121,6 +121,10 @@
           "name": "Prompt Enhancer",
           "description": "AI-powered prompt optimizer for better results in AI chats and applications."
         },
+        "voice-visualizer": {
+          "name": "Voice Transcriptor",
+          "description": "Record your voice, visualize levels, and transcribe speech in near‑real time."
+        },
         "webscraper": {
           "name": "Webscraper",
           "description": "Extract structured data from web pages and APIs with flexible selectors and export formats."
