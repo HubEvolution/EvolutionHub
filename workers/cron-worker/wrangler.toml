@@ -20,11 +20,6 @@ BASE_URL = "http://127.0.0.1:8787"
 BASE_URL = "https://ci.hub-evolution.com"
 E2E_PROD_AUTH_SMOKE = "1"
 
-[env.testing.triggers]
-crons = [
-  "* * * * *"
-]
-
 [[env.testing.kv_namespaces]]
 binding = "KV_CRON_STATUS"
 id = "8843007f9bcb4a25b930a511566f0239"
@@ -40,8 +35,7 @@ BASE_URL = "https://staging.hub-evolution.com"
 [env.staging.triggers]
 crons = [
   "0 2 * * *",
-  "0 4 * * *",
-  "0 5 * * 1"
+  "0 4 * * *"
 ]
 
 [[env.staging.kv_namespaces]]
@@ -60,8 +54,7 @@ E2E_PROD_AUTH_SMOKE = "1"
 [env.production.triggers]
 crons = [
   "0 2 * * *",
-  "0 4 * * *",
-  "0 5 * * 1"
+  "0 4 * * *"
 ]
 
 [[env.production.kv_namespaces]]

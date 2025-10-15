@@ -1,4 +1,20 @@
 {
-  "generatedAt": null,
-  "entries": []
+  "generatedAt": "2025-10-15T11:40:00.000Z",
+  "entries": [
+    {
+      "file": "AGENTS.md",
+      "fence": "sync:codex",
+      "status": "ok"
+    },
+    {
+      "file": "CLAUDE.md",
+      "fence": "sync:claude",
+      "status": "ok"
+    },
+    {
+      "file": ".kilocode/rules/template_arbeitsbereich_regeln.md",
+      "fence": "sync:kilocode:template_arbeitsbereich_regeln.md",
+      "status": "ok"
+    }
+  ]
 }

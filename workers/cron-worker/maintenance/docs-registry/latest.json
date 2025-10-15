@@ -1,0 +1,799 @@
+{
+  "generatedAt": "2025-10-15T12:24:13.419Z",
+  "ok": true,
+  "status": 200,
+  "count": 144,
+  "files": [
+    {
+      "path": "docs/AUDIT.md",
+      "sha": "42a6d81c9cdd49ee060771c5aff992ca4e42af32",
+      "type": "blob",
+      "size": 8745
+    },
+    {
+      "path": "docs/README.md",
+      "sha": "f9268bf2c85189cf963345720946fd7fddef371a",
+      "type": "blob",
+      "size": 9168
+    },
+    {
+      "path": "docs/SECURITY.md",
+      "sha": "f93010b333d9e25009d4f819d50b2f90cb84bcc2",
+      "type": "blob",
+      "size": 12323
+    },
+    {
+      "path": "docs/SETUP.md",
+      "sha": "d66ce157709a7f852fce711bf58504996931cb0d",
+      "type": "blob",
+      "size": 13283
+    },
+    {
+      "path": "docs/_generated",
+      "sha": "d483d934e6b5afb0fa9854a90539df0be51b3e3f",
+      "type": "tree"
+    },
+    {
+      "path": "docs/_generated/cascade-rules-coverage.md",
+      "sha": "8e065db0bf413d0b9c8d3a3c9e6df2b75ac60a04",
+      "type": "blob",
+      "size": 5934
+    },
+    {
+      "path": "docs/_generated/cascade-rules-detection.md",
+      "sha": "2e5a7559aab2d5b97c0cc25b009d439ced38e7c2",
+      "type": "blob",
+      "size": 3485
+    },
+    {
+      "path": "docs/_generated/codemap.md",
+      "sha": "602c4b6f603dd4ae417b35b76ff3f8f9c1bbb2cc",
+      "type": "blob",
+      "size": 11992
+    },
+    {
+      "path": "docs/_generated/memory-audit.md",
+      "sha": "ef9e3daab02634ec42a11899b4f0b8040427f441",
+      "type": "blob",
+      "size": 2382
+    },
+    {
+      "path": "docs/_generated/memory-index.md",
+      "sha": "0b4cc06d04e82488095e0c9fe2be36959b51f817",
+      "type": "blob",
+      "size": 2204
+    },
+    {
+      "path": "docs/animation.md",
+      "sha": "1a78226a4908a4ae55e6dd8fcb3fe4ecc14062fc",
+      "type": "blob",
+      "size": 3620
+    },
+    { "path": "docs/api", "sha": "33985695bfe47f6d5c30c87066ded8c625f56d2f", "type": "tree" },
+    {
+      "path": "docs/api/README.md",
+      "sha": "baf6975ba731e8115238c74e47d12c2adcf0f32c",
+      "type": "blob",
+      "size": 9032
+    },
+    {
+      "path": "docs/api/auth_api.md",
+      "sha": "cd1641525adf167ca3bfa31c5f27c7bb159fe105",
+      "type": "blob",
+      "size": 5332
+    },
+    {
+      "path": "docs/api/dashboard_api.md",
+      "sha": "fac91023bd887647429da3a4ba78a2aee6fa96e9",
+      "type": "blob",
+      "size": 4646
+    },
+    {
+      "path": "docs/api/known-issues.md",
+      "sha": "b13a3839c15009df5ea8e1f03182c856132f3043",
+      "type": "blob",
+      "size": 3016
+    },
+    {
+      "path": "docs/api/openapi.yaml",
+      "sha": "6a2a34f1bacbc5a38fef083585d3d8d1af0cb0c6",
+      "type": "blob",
+      "size": 30213
+    },
+    {
+      "path": "docs/api/openapi",
+      "sha": "517e2654b693b7ab2fb8a20927cc9271679dee2b",
+      "type": "tree"
+    },
+    {
+      "path": "docs/api/openapi/paths",
+      "sha": "c4f1008e879186bcda094787306331e04cb80e25",
+      "type": "tree"
+    },
+    {
+      "path": "docs/api/openapi/paths/auth-logout.yaml",
+      "sha": "adab4337472bb61c01c9b02c31e2e36cf12e44f8",
+      "type": "blob",
+      "size": 1058
+    },
+    {
+      "path": "docs/api/openapi/paths/comments-id.yaml",
+      "sha": "98f5bf7dd5525ec70a89fa8d934ce72038575f0d",
+      "type": "blob",
+      "size": 2861
+    },
+    {
+      "path": "docs/api/openapi/paths/projects-id-comments.yaml",
+      "sha": "bebc3dde17a490d9f878dd3e9b822e5b401cfc71",
+      "type": "blob",
+      "size": 4132
+    },
+    {
+      "path": "docs/api/openapi/paths/projects-id.yaml",
+      "sha": "30968c407c4a7c82d5462eea5c85aa26f41dc109",
+      "type": "blob",
+      "size": 4480
+    },
+    {
+      "path": "docs/api/openapi/paths/projects.yaml",
+      "sha": "bf4a53856effc10a5a51409fa6a0ac862ece4e35",
+      "type": "blob",
+      "size": 1423
+    },
+    {
+      "path": "docs/api/openapi/paths/tools-id.yaml",
+      "sha": "5c205190c8d9e3689103266bafe5c9affbcfdc0a",
+      "type": "blob",
+      "size": 3772
+    },
+    {
+      "path": "docs/api/openapi/paths/tools.yaml",
+      "sha": "4f29af2637cf06fd3a59ea1920778972cc7c1f6b",
+      "type": "blob",
+      "size": 2871
+    },
+    {
+      "path": "docs/api/openapi/paths/user-me.yaml",
+      "sha": "43e1188dcb1d526449529eca7416cce2f2c223d6",
+      "type": "blob",
+      "size": 1094
+    },
+    {
+      "path": "docs/api/openapi/paths/user-profile.yaml",
+      "sha": "cbe5a8100da8e21d140cb8aa37b20d8d5ccd1db2",
+      "type": "blob",
+      "size": 1301
+    },
+    {
+      "path": "docs/api/openapi/schemas.yaml",
+      "sha": "56511ade069f185e1eb329cabcacaf6e0ce3d55a",
+      "type": "blob",
+      "size": 5360
+    },
+    {
+      "path": "docs/api/projects_api.md",
+      "sha": "29c1732519c0d2fe13771afa0c079f14c5f528ea",
+      "type": "blob",
+      "size": 6935
+    },
+    {
+      "path": "docs/api/public_api.md",
+      "sha": "0ca5a14bb87ff29e8631303c65fbf76f3228de53",
+      "type": "blob",
+      "size": 17583
+    },
+    {
+      "path": "docs/api/user_api.md",
+      "sha": "6392df41a09a472ee13594a92204306eeadb2cd9",
+      "type": "blob",
+      "size": 7549
+    },
+    {
+      "path": "docs/architecture.md",
+      "sha": "369f69c9309d650dd9fb67b13d988e643d9922c8",
+      "type": "blob",
+      "size": 7169
+    },
+    {
+      "path": "docs/architecture",
+      "sha": "39492767dacab00e0d75438f6c3c0b252e71890f",
+      "type": "tree"
+    },
+    {
+      "path": "docs/architecture/README.md",
+      "sha": "ad852e47176e2621f1d45ff9903d13bf77b611f5",
+      "type": "blob",
+      "size": 3401
+    },
+    {
+      "path": "docs/architecture/adr",
+      "sha": "d564d0bc3dd917926892c55e3706cc116d5b165e",
+      "type": "tree"
+    },
+    {
+      "path": "docs/architecture/adr/.gitkeep",
+      "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "type": "blob",
+      "size": 0
+    },
+    {
+      "path": "docs/architecture/adrs",
+      "sha": "0a735a0c5cc3b2d684378cc0f7bab8ef8c28692b",
+      "type": "tree"
+    },
+    {
+      "path": "docs/architecture/adrs/0000-adr-template.md",
+      "sha": "a45ccb8ea528aef8f96d41aead772c08938ad03d",
+      "type": "blob",
+      "size": 1124
+    },
+    {
+      "path": "docs/architecture/adrs/0001-astro-cloudflare-stack.md",
+      "sha": "981248aea81b95ddf9875abb4cd328cb8bae61fe",
+      "type": "blob",
+      "size": 4805
+    },
+    {
+      "path": "docs/architecture/adrs/0002-cloudflare-architecture.md",
+      "sha": "cc5a98bf1abe610725dc0fb78113233c40eb592a",
+      "type": "blob",
+      "size": 5490
+    },
+    {
+      "path": "docs/architecture/adrs/0003-astro-frontend-architecture.md",
+      "sha": "ad58dd7e8b663a8c20da32cc994c4521e1276148",
+      "type": "blob",
+      "size": 6029
+    },
+    {
+      "path": "docs/architecture/adrs/0004-database-schema.md",
+      "sha": "28a4a8ad63596b2f6ea62da672e44fdb21fd4748",
+      "type": "blob",
+      "size": 8120
+    },
+    {
+      "path": "docs/architecture/adrs/0005-auth-route-locale-normalisierung.md",
+      "sha": "a2326cefdedc09bce5cac9153f7a7eaab4f8c20a",
+      "type": "blob",
+      "size": 3929
+    },
+    {
+      "path": "docs/architecture/adrs/0006-dev-echo-non-prod.md",
+      "sha": "121c419e921b3fe7591cdee68d74e4b38dae4164",
+      "type": "blob",
+      "size": 3039
+    },
+    {
+      "path": "docs/architecture/adrs/deprecated",
+      "sha": "27c6cf6ea95f77c45fce4c1b8cb5fd7d14f3a261",
+      "type": "tree"
+    },
+    {
+      "path": "docs/architecture/adrs/deprecated/0001-jwt-authentication.md",
+      "sha": "3fe733ea918f8d072393a5d5b4ee3624f0d16e21",
+      "type": "blob",
+      "size": 5181
+    },
+    {
+      "path": "docs/architecture/adrs/deprecated/0002-jwt-authentication.md",
+      "sha": "3afda4bbd54145057f329e1fd27bf8f6b523d8c0",
+      "type": "blob",
+      "size": 5259
+    },
+    {
+      "path": "docs/architecture/adrs/deprecated/0003-database-schema.md",
+      "sha": "ee542078770bf7e3848da5be812952e82d87f751",
+      "type": "blob",
+      "size": 5581
+    },
+    {
+      "path": "docs/architecture/ai-image-enhancer.md",
+      "sha": "eb09ba670d6f66f3723fc7a94af9a4ffe9dabb9c",
+      "type": "blob",
+      "size": 24957
+    },
+    {
+      "path": "docs/architecture/api-middleware-inventory.md",
+      "sha": "9569f9534ce5436ddb34a76f127406ea0a26ef65",
+      "type": "blob",
+      "size": 27709
+    },
+    {
+      "path": "docs/architecture/auth-architecture.md",
+      "sha": "5657545cd2202b50a66e0e186090cd2c2e078699",
+      "type": "blob",
+      "size": 13715
+    },
+    {
+      "path": "docs/architecture/auth-flow.md",
+      "sha": "2876f897be51d34c5e240f93c185c9590e8b7067",
+      "type": "blob",
+      "size": 4835
+    },
+    {
+      "path": "docs/architecture/data-flow.md",
+      "sha": "d4b55633fced669a034c4cb19b98044c3923a729",
+      "type": "blob",
+      "size": 13430
+    },
+    {
+      "path": "docs/architecture/database-schema.md",
+      "sha": "2987fb53f4112abe017fc2019e64d1ad534a45e6",
+      "type": "blob",
+      "size": 22318
+    },
+    {
+      "path": "docs/architecture/locale-middleware.md",
+      "sha": "ac796708acd499559a6001823e248825c7adcd8c",
+      "type": "blob",
+      "size": 5670
+    },
+    {
+      "path": "docs/architecture/reviews",
+      "sha": "33da6160e7fd5028b8cf468a4a0cac79e28e74f9",
+      "type": "tree"
+    },
+    {
+      "path": "docs/architecture/reviews/BEWERTUNG_LOGIKREVIEW_IMAGE-ENHANCER_USAGE-PILL_PLANANZEIGE.md",
+      "sha": "300b38480cc58ccc9b06e3f3cb00533a04e33091",
+      "type": "blob",
+      "size": 19908
+    },
+    {
+      "path": "docs/architecture/system-overview.md",
+      "sha": "62b67b7bf5396bf5387e24e14692c8c1a72b5e8c",
+      "type": "blob",
+      "size": 8147
+    },
+    {
+      "path": "docs/architecture/voice-visualizer-transcriptor.md",
+      "sha": "08231832ed056cbb9804bb131ed2e24cd6606567",
+      "type": "blob",
+      "size": 13380
+    },
+    { "path": "docs/archive", "sha": "6dbefb0404192ec1487938fe053a9b0dab43b0d3", "type": "tree" },
+    {
+      "path": "docs/archive/README.md",
+      "sha": "9d9524977735f185631255483fd8d0c2ba3a62da",
+      "type": "blob",
+      "size": 1932
+    },
+    {
+      "path": "docs/archive/documentation-gap-analysis.md",
+      "sha": "ebd241b21f8062da730edb50430f0cdcc4c42956",
+      "type": "blob",
+      "size": 9359
+    },
+    {
+      "path": "docs/archive/migration_pages_zu_worker.md",
+      "sha": "0ceaac645fb6daa5e84063086308581dd88d6493",
+      "type": "blob",
+      "size": 32714
+    },
+    {
+      "path": "docs/archive/status-assessment.md",
+      "sha": "d6e67f5d92c943aaf0fbb638be9168c7b5118f5e",
+      "type": "blob",
+      "size": 6018
+    },
+    {
+      "path": "docs/cheat-sheet.md",
+      "sha": "3f7e117ec244e18a0e04883b169876e4cb96b794",
+      "type": "blob",
+      "size": 2440
+    },
+    {
+      "path": "docs/content.md",
+      "sha": "4ae37f072c9e51918dc1a1afdf41dbab60dd8f05",
+      "type": "blob",
+      "size": 5118
+    },
+    {
+      "path": "docs/db_schema_update.md",
+      "sha": "577eee8860398ff9c0e35b723a7ca02ea4c3c6b8",
+      "type": "blob",
+      "size": 7391
+    },
+    {
+      "path": "docs/development",
+      "sha": "8451302afea555e88da35a6609987c5984e972e1",
+      "type": "tree"
+    },
+    {
+      "path": "docs/development/README.md",
+      "sha": "76e25fce614cba38a98b8da38b781ddfadff51cd",
+      "type": "blob",
+      "size": 5614
+    },
+    {
+      "path": "docs/development/bugfix-session-cookie-fallback.md",
+      "sha": "3750188058c7f955ec769cef815cf6a7014412c4",
+      "type": "blob",
+      "size": 2179
+    },
+    {
+      "path": "docs/development/ci-cd.md",
+      "sha": "ac41aeccf85959649640ec20e2f02429764103e5",
+      "type": "blob",
+      "size": 24618
+    },
+    {
+      "path": "docs/development/debug-panel-usage.md",
+      "sha": "e7b1535cd752bc5bc44b76f56c9da8641ec1fb6d",
+      "type": "blob",
+      "size": 3736
+    },
+    {
+      "path": "docs/development/docs-style-guide.md",
+      "sha": "3f4a5fca9739dfcfe54b1c4b32a32a75d0738306",
+      "type": "blob",
+      "size": 1824
+    },
+    {
+      "path": "docs/development/hybrid-logging-system.md",
+      "sha": "07dcebeee4125b543a71ec98e0b53815a92c9a65",
+      "type": "blob",
+      "size": 15039
+    },
+    {
+      "path": "docs/development/icon-guidelines.md",
+      "sha": "278d8009a72124789c798265f4384b5811ace069",
+      "type": "blob",
+      "size": 2380
+    },
+    {
+      "path": "docs/development/inline-ts-refactor.md",
+      "sha": "94984ddbda0617b87b5ec1363423206d0ff0974f",
+      "type": "blob",
+      "size": 10796
+    },
+    {
+      "path": "docs/development/local-development.md",
+      "sha": "466df9744fc8db1e51183da52e62d6de1b984d77",
+      "type": "blob",
+      "size": 13023
+    },
+    {
+      "path": "docs/development/prs",
+      "sha": "dbe66127d23330c847b10d63b73aa1c9ccf96195",
+      "type": "tree"
+    },
+    {
+      "path": "docs/development/prs/coming-soon-pr-template.md",
+      "sha": "460f41fb5af63ef228ce99854b7a1aee944509e2",
+      "type": "blob",
+      "size": 3480
+    },
+    {
+      "path": "docs/development/prs/imag-enhancer-help-ui.md",
+      "sha": "9e19c509a56988a42be96776b97c77b176620c0a",
+      "type": "blob",
+      "size": 2482
+    },
+    {
+      "path": "docs/development/stripe-setup.md",
+      "sha": "8a561a80b5763c108cfa2db1b142bdcadd233994",
+      "type": "blob",
+      "size": 5276
+    },
+    {
+      "path": "docs/development/stytch-oauth-dev-guide.md",
+      "sha": "caa9b8cdafba4a42c0340554cf62cfa634a320d3",
+      "type": "blob",
+      "size": 5953
+    },
+    {
+      "path": "docs/development/testing-guidelines.md",
+      "sha": "a5663982a57641abbfa42ed72cb2e5f506504492",
+      "type": "blob",
+      "size": 5127
+    },
+    {
+      "path": "docs/development/typescript-integration.md",
+      "sha": "e137bf0749d51cae3d137df1fc9e0aeab94944ff",
+      "type": "blob",
+      "size": 5786
+    },
+    {
+      "path": "docs/feature-roadmap.md",
+      "sha": "91da2c97934073242c3767673805436f73d6c810",
+      "type": "blob",
+      "size": 9378
+    },
+    { "path": "docs/features", "sha": "1b5227ce2822517d1e3fe960e83803465f5436db", "type": "tree" },
+    {
+      "path": "docs/features/blog+commentsystem-plan.md",
+      "sha": "8dc0c5a1e8e404942bf0d569bc4c0d1da7d89485",
+      "type": "blob",
+      "size": 26431
+    },
+    {
+      "path": "docs/features/pricing-system.md",
+      "sha": "ecc115e2e2bcd77e7955aaa1bbe0082ca63efd21",
+      "type": "blob",
+      "size": 12043
+    },
+    { "path": "docs/frontend", "sha": "2334a67e4f6786cc2771893f9b7bd23a1c48851f", "type": "tree" },
+    {
+      "path": "docs/frontend/README.md",
+      "sha": "48e5c20638f51e25d194af613e713beeaaa59820",
+      "type": "blob",
+      "size": 4020
+    },
+    {
+      "path": "docs/frontend/aos-coordinator.md",
+      "sha": "65e3632658a9ca0440b5b39a286fd775efb30033",
+      "type": "blob",
+      "size": 6203
+    },
+    {
+      "path": "docs/frontend/card-components.md",
+      "sha": "a8eac6865f53e58f005df3bf3c0e8f8502dbfe75",
+      "type": "blob",
+      "size": 3264
+    },
+    {
+      "path": "docs/frontend/coming-soon.md",
+      "sha": "91c57edc083bdb1f930db8c44e0d4519b8f5d1bc",
+      "type": "blob",
+      "size": 5669
+    },
+    {
+      "path": "docs/frontend/components.md",
+      "sha": "47667c3b76d6a32d89ccdddd0c1eb995c2a76ca4",
+      "type": "blob",
+      "size": 17446
+    },
+    {
+      "path": "docs/frontend/design-system.md",
+      "sha": "86681eed64db14da25cb5f3eef9fb1f9c8263758",
+      "type": "blob",
+      "size": 16729
+    },
+    {
+      "path": "docs/frontend/entitlements-ui-gating.md",
+      "sha": "321d9c9080b7f298bf5270f8423bdf41f05dd736",
+      "type": "blob",
+      "size": 2429
+    },
+    {
+      "path": "docs/frontend/header-scroll-animation.md",
+      "sha": "b68ffc970f9037bd52b84d93be5980940ed2520b",
+      "type": "blob",
+      "size": 2125
+    },
+    {
+      "path": "docs/frontend/imag-enhancer-ui-upgrade.md",
+      "sha": "a5c41967ac9005ebc5509be1884f453d290081e0",
+      "type": "blob",
+      "size": 22484
+    },
+    {
+      "path": "docs/frontend/toast-notifications.md",
+      "sha": "0514997e3a23ee9e3009af38ca39fee06f4a8b07",
+      "type": "blob",
+      "size": 3152
+    },
+    {
+      "path": "docs/frontend/ui-components.md",
+      "sha": "2af7a6b7d6b2c74cc143bbb36ce9839ba0354079",
+      "type": "blob",
+      "size": 4048
+    },
+    {
+      "path": "docs/frontend/ui-ux.md",
+      "sha": "6d4dcccaf4b0829ba435633683fa35a0d7427808",
+      "type": "blob",
+      "size": 15636
+    },
+    { "path": "docs/guides", "sha": "d564d0bc3dd917926892c55e3706cc116d5b165e", "type": "tree" },
+    {
+      "path": "docs/guides/.gitkeep",
+      "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "type": "blob",
+      "size": 0
+    },
+    {
+      "path": "docs/i18n.md",
+      "sha": "8998118a2a46ff335516303e023c437889192b34",
+      "type": "blob",
+      "size": 7170
+    },
+    {
+      "path": "docs/lead-magnets",
+      "sha": "426ad6c9a120cc740f45866660bd20718630f063",
+      "type": "tree"
+    },
+    {
+      "path": "docs/lead-magnets/README.md",
+      "sha": "d414aa71c7a37e2f94265a36bd00db1d10b1ce6a",
+      "type": "blob",
+      "size": 1136
+    },
+    {
+      "path": "docs/lead-magnets/content-prompts.md",
+      "sha": "d5d141e1d5d2e19936ccf0f3917ada989224ef4e",
+      "type": "blob",
+      "size": 6215
+    },
+    {
+      "path": "docs/lead-magnets/prompts.md",
+      "sha": "1abe048f3078738afcb6eba187e033941fd28f31",
+      "type": "blob",
+      "size": 4944
+    },
+    {
+      "path": "docs/lead-magnets/r2-optimization-plan.md",
+      "sha": "4488e20e01561940a2d279d3181e4ae0c8cb8be7",
+      "type": "blob",
+      "size": 4524
+    },
+    { "path": "docs/meta", "sha": "44ecc2fd4e5eceeb8ae9f37e14bebf54449e6d96", "type": "tree" },
+    {
+      "path": "docs/meta/registry.json",
+      "sha": "a78ae25c7d77eb41722916025de46f32dbaab552",
+      "type": "blob",
+      "size": 364105
+    },
+    {
+      "path": "docs/meta/schema.json",
+      "sha": "0c7a6abf9225494b1bf8325077a74e6facd04323",
+      "type": "blob",
+      "size": 3286
+    },
+    { "path": "docs/ops", "sha": "33497ff6cc16c7febd9474fb01cf4642c7c6bb3c", "type": "tree" },
+    {
+      "path": "docs/ops/README.md",
+      "sha": "176c253d475db1b2037ac725f77b56708f992f13",
+      "type": "blob",
+      "size": 730
+    },
+    {
+      "path": "docs/ops/cloudflare-cache-rules.md",
+      "sha": "106e94d510470ccbedd1f4c17fea6abcf527278a",
+      "type": "blob",
+      "size": 4137
+    },
+    {
+      "path": "docs/ops/prod-readiness-ai-image-enhancer.md",
+      "sha": "16a03ee52e2d808ae58ce0c46d7e62fe691a673d",
+      "type": "blob",
+      "size": 7032
+    },
+    {
+      "path": "docs/ops/runbooks",
+      "sha": "d564d0bc3dd917926892c55e3706cc116d5b165e",
+      "type": "tree"
+    },
+    {
+      "path": "docs/ops/runbooks/.gitkeep",
+      "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "type": "blob",
+      "size": 0
+    },
+    { "path": "docs/process", "sha": "d564d0bc3dd917926892c55e3706cc116d5b165e", "type": "tree" },
+    {
+      "path": "docs/process/.gitkeep",
+      "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "type": "blob",
+      "size": 0
+    },
+    { "path": "docs/reference", "sha": "4fe08388c3c04bf4a3f2b460d36eae2023b01bf1", "type": "tree" },
+    {
+      "path": "docs/reference/environment.md",
+      "sha": "43dfa54f576ab367c85493f375ab7f47284ffcee",
+      "type": "blob",
+      "size": 1618
+    },
+    { "path": "docs/security", "sha": "9c43fcccfef96d9eb616f466469a24af6f774896", "type": "tree" },
+    {
+      "path": "docs/security/README.md",
+      "sha": "25f4d507fcedb2ea20d88e1f50585e46e2fa9829",
+      "type": "blob",
+      "size": 5079
+    },
+    {
+      "path": "docs/security/improvements.md",
+      "sha": "ee868c6c8e9b4001bc682d4e81b57e14506f499e",
+      "type": "blob",
+      "size": 7598
+    },
+    {
+      "path": "docs/security/rate_limiting.md",
+      "sha": "1d4f34c9c4a26a846fe70592a228381bd3162d1d",
+      "type": "blob",
+      "size": 5396
+    },
+    {
+      "path": "docs/security/security_headers.md",
+      "sha": "6e757f47322e7319a598b5d468b098a4627e9151",
+      "type": "blob",
+      "size": 8707
+    },
+    {
+      "path": "docs/seo.md",
+      "sha": "4e9e706ff6dea34d4f77e5a6415d8e947e2994cb",
+      "type": "blob",
+      "size": 2916
+    },
+    { "path": "docs/testing", "sha": "e2871a83c42b499e64a5f29aea287d1ee90c3f1a", "type": "tree" },
+    {
+      "path": "docs/testing/README.md",
+      "sha": "af987e0482ff5118fed924c6b5768f4070c5d756",
+      "type": "blob",
+      "size": 7656
+    },
+    {
+      "path": "docs/testing/coverage-roadmap-to-95.md",
+      "sha": "8cadb4fc7f20c656998e695930d74f2eb0ff9d81",
+      "type": "blob",
+      "size": 12935
+    },
+    {
+      "path": "docs/testing/testing-strategy.md",
+      "sha": "6e9952fca7c05f11baef2fa17eca68e119d1a845",
+      "type": "blob",
+      "size": 17365
+    },
+    { "path": "docs/tools", "sha": "49d64ef254f7f685b82b924ae5c3193a78bfd033", "type": "tree" },
+    {
+      "path": "docs/tools/debug-panel.md",
+      "sha": "e3af3ec8426fa3aef0ad041cdca569b652dc29b1",
+      "type": "blob",
+      "size": 3849
+    },
+    {
+      "path": "docs/tools/image-enhancer.md",
+      "sha": "1bdb745a33c06cc086db9dd2db09cac272d35df9",
+      "type": "blob",
+      "size": 25279
+    },
+    {
+      "path": "docs/tools/prompt-enhancer.md",
+      "sha": "9897521f38f910d833e06e66498638682fca8791",
+      "type": "blob",
+      "size": 15055
+    },
+    {
+      "path": "docs/tools/webscraper",
+      "sha": "c59b4a7370f5c56cda53600f910bf251cb7c8d45",
+      "type": "tree"
+    },
+    {
+      "path": "docs/tools/webscraper/IMPLEMENTATION_COMPLETE.md",
+      "sha": "b6bc8d6d9c6599fa41c65b2c14a3d66fc0e22067",
+      "type": "blob",
+      "size": 13358
+    },
+    {
+      "path": "docs/tools/webscraper/README.md",
+      "sha": "7218f04f8182cb80b869b34a8a055864be37453f",
+      "type": "blob",
+      "size": 5906
+    },
+    {
+      "path": "docs/tools/webscraper/guidelines.md",
+      "sha": "1dab8edb6694bca9cc1fe1eb4ad028b9f1df9211",
+      "type": "blob",
+      "size": 7153
+    },
+    {
+      "path": "docs/tools/webscraper/roadmap.md",
+      "sha": "a7ab9f2297c6c531aef08c5cb850046e735b9943",
+      "type": "blob",
+      "size": 4715
+    },
+    {
+      "path": "docs/tools/webscraper/spec.md",
+      "sha": "3caf040631c55028534f3dbaac213fdc5530eaf6",
+      "type": "blob",
+      "size": 7107
+    },
+    {
+      "path": "docs/tools/webscraper/testing.md",
+      "sha": "25a3b22a88016eea23003e208a21e31ddf9822fd",
+      "type": "blob",
+      "size": 3608
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "generatedAt": "2025-10-15T11:45:00.000Z",
+  "maps": [
+    {
+      "mapName": "EH __ Global __ Codemap v1",
+      "lastRebuildISO": "2025-10-15T11:45:00.000Z",
+      "scopePaths": []
+    },
+    {
+      "mapName": "EH __ Auth + OAuth __ Codemap v1",
+      "lastRebuildISO": "2025-10-15T11:45:00.000Z",
+      "scopePaths": []
+    },
+    {
+      "mapName": "EH __ Image Enhancer __ Codemap v1",
+      "lastRebuildISO": "2025-10-15T11:45:00.000Z",
+      "scopePaths": []
+    },
+    {
+      "mapName": "EH __ Prompt Enhancer __ Codemap v1",
+      "lastRebuildISO": "2025-10-15T11:45:00.000Z",
+      "scopePaths": []
+    },
+    {
+      "mapName": "EH __ WebScraper __ Codemap v1",
+      "lastRebuildISO": "2025-10-15T11:45:00.000Z",
+      "scopePaths": []
+    },
+    {
+      "mapName": "EH __ Transcriptor (Whisper) __ Codemap v1",
+      "lastRebuildISO": "2025-10-15T11:45:00.000Z",
+      "scopePaths": []
+    },
+    {
+      "mapName": "EH __ Pricing & Stripe __ Codemap v1",
+      "lastRebuildISO": "2025-10-15T11:45:00.000Z",
+      "scopePaths": []
+    },
+    {
+      "mapName": "EH __ Content __ Codemap v1",
+      "lastRebuildISO": "2025-10-15T11:45:00.000Z",
+      "scopePaths": []
+    },
+    {
+      "mapName": "EH __ Infra (Workers-Router-Bindings) __ Codemap v1",
+      "lastRebuildISO": "2025-10-15T11:45:00.000Z",
+      "scopePaths": []
+    },
+    {
+      "mapName": "EH __ Locale & Welcome __ Codemap v1",
+      "lastRebuildISO": "2025-10-15T11:45:00.000Z",
+      "scopePaths": []
+    }
+  ]
+}

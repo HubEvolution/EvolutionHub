@@ -3,7 +3,7 @@
 ## Overview
 
 - **Ziel**: Sprachaufnahmen im Browser (Visualizer + Pegel), segmentiertes Uploaden, serverseitige Normalisierung und Transkription via Whisper‑Provider; Rückgabe von Teil‑Transkripten und Usage/Limits für UI‑Feedback.
-- **Status**: Chunk‑basiert plus Streaming (SSE/Poll) hinter Flags (`VOICE_STREAM_SSE`, `VOICE_STREAM_POLL`), Tages‑Quoten (Gast/User), Rate‑Limit, MIME‑Validierung, CSRF/Origin; optional Dev‑Echo (`VOICE_DEV_ECHO=1`) ohne Provider‑Call; optionale R2‑Archivierung (`VOICE_R2_ARCHIVE`).
+- **Status**: Chunk‑basiert implementiert; Streaming (SSE/Poll) ist Phase 2 (geplant, Flags reserviert), Tages‑Quoten (Gast/User), Rate‑Limit, MIME‑Validierung, CSRF/Origin; optional Dev‑Echo (`VOICE_DEV_ECHO=1`) ohne Provider‑Call; optionale R2‑Archivierung (Flag reserviert).
 
 ## Architektur
 
@@ -64,9 +64,9 @@ sequenceDiagram
 
 Zusätzliche Flags/Funktionalität:
 
-- `VOICE_STREAM_SSE` ("1"/"0"): aktiviert/deaktiviert `GET /api/voice/stream` SSE‑Streaming.
-- `VOICE_STREAM_POLL` ("1"/"0"): aktiviert/deaktiviert `GET /api/voice/poll` Polling‑Endpoint.
-- `VOICE_R2_ARCHIVE` ("1"/"0"): optionale Roh‑Audio‑Archivierung nach R2 (keine PII im Key).
+- `VOICE_STREAM_SSE` ("1"/"0"): reserviert; `GET /api/voice/stream` (SSE) ist geplant, Endpunkt derzeit nicht implementiert.
+- `VOICE_STREAM_POLL` ("1"/"0"): reserviert; `GET /api/voice/poll` (Polling) ist geplant, Endpunkt derzeit nicht implementiert.
+- `VOICE_R2_ARCHIVE` ("1"/"0"): optionale Roh‑Audio‑Archivierung nach R2 (keine PII im Key; Rollout noch offen).
 - `VOICE_DEV_ECHO` ("1"/"0"): Dev‑Echo‑Bypass für Provider‑Call (nützlich in Integration/CI).
 
 Hinweise DEV:
@@ -172,12 +172,12 @@ Referenzen: Workers Limits/Streams/EventSource, KV How it works/FAQ/Write, R2 Pr
 
 - `GET /api/voice/stream` — SSE‑Stream für Feedback‑Events (z. B. `connected` mit `jobId`, später `partial`/`final`/`usage`).
   - Flag‑Gate: `VOICE_STREAM_SSE` (1=an, 0=aus)
-  - Quelle: `src/pages/api/voice/stream.ts`
+  - Quelle (geplant): `src/pages/api/voice/stream.ts` (TBD)
 - `GET /api/voice/poll?jobId=…` — Polling des Job‑Zustands (Snapshot mit `status`, `partials`, optional `final`, `usage`).
   - Flag‑Gate: `VOICE_STREAM_POLL` (1=an, 0=aus)
-  - Quelle: `src/pages/api/voice/poll.ts`
+  - Quelle (geplant): `src/pages/api/voice/poll.ts` (TBD)
 - Aggregator: `src/lib/services/voice-stream-aggregator.ts` (KV‑State: `voice:job:{id}`)
-- Upload‑Pfad aktualisiert: `POST /api/voice/transcribe` verarbeitet optional `jobId`/`isLastChunk` und aktualisiert Aggregator.
+- Upload‑Pfad: `POST /api/voice/transcribe` wird optional `jobId`/`isLastChunk` verarbeiten und den Aggregator aktualisieren (geplant).
 
 ### Lokaler Testablauf (Happy‑Path)
 
@@ -215,8 +215,8 @@ curl -i "http://127.0.0.1:8787/api/voice/poll?jobId=$JOB"                     # 
 
 ## Readiness
 
-- **Implementierungsstand**: SSE/Poll + Aggregator live; Client‑Hook integriert; API‑Client sendet `jobId`/`isLastChunk`; Aggregator KV‑optional gehärtet; Neutral‑Route (DE) vorhanden; Permissions‑Policy deckt neutral/EN ab; SSE/Poll lokal verifiziert.
-- **Datenpunkte vorhanden**: Ja, für Integration‑Tests, Observability (minimal), UI‑Polish. Für R2‑Archivierung fehlen konkrete Bucket/Retention‑Entscheidungen. Für Entitlements ggf. Bestätigung der Zahlen.
+- **Implementierungsstand**: Chunk‑basierte Transkription implementiert (`POST /api/voice/transcribe`, `GET /api/voice/usage`). SSE/Poll + Aggregator sind geplant (Phase 2), noch nicht implementiert; Flags sind reserviert. Neutral‑Route (DE) vorhanden; Permissions‑Policy deckt neutral/EN ab.
+- **Datenpunkte**: Basis vorhanden für Integration‑Tests (Transcribe/Usage) und minimale Observability. Für R2‑Archivierung fehlen konkrete Bucket/Retention‑Entscheidungen. Entitlements ggf. zu bestätigen.
 
 ## Referenzen
 

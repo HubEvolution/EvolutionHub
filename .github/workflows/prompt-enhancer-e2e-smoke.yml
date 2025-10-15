@@ -2,7 +2,7 @@ name: Prompt Enhancer E2E Smoke (All Browsers)
 
 on:
   pull_request:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:
 
 jobs:
@@ -40,18 +40,18 @@ jobs:
           # Let the Playwright config start the local dev worker automatically
           ENVIRONMENT: development
         run: |
-          npx playwright test -c tests/e2e/config/playwright.config.ts tests/e2e/specs/prompt-enhancer.spec.ts
+          npx playwright test -c test-suite-v2/playwright.config.ts test-suite-v2/src/e2e/tools/prompt-enhancer-flow.spec.ts
 
       - name: Upload Playwright HTML report
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: prompt-enhancer-playwright-report
-          path: playwright-report/**
+          path: test-suite-v2/reports/playwright-html-report/**
 
       - name: Upload JUnit results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: prompt-enhancer-junit
-          path: test-results/e2e/results.xml
+          path: test-suite-v2/reports/playwright-junit.xml
