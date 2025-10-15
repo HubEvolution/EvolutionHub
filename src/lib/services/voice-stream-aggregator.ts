@@ -20,6 +20,7 @@ export class VoiceStreamAggregator {
   }
 
   async get(jobId: string): Promise<VoiceJobState | null> {
+    if (!this.kv) return null;
     const v = await this.kv.get(this.key(jobId), { type: 'json' } as any);
     return (v as VoiceJobState) ?? null;
   }
@@ -28,6 +29,7 @@ export class VoiceStreamAggregator {
     const now = Date.now();
     const cur = await this.get(jobId);
     if (cur) return cur;
+    if (!this.kv) return { status: 'active', partials: [], updatedAt: now };
     const init: VoiceJobState = { status: 'active', partials: [], updatedAt: now };
     await this.kv.put(this.key(jobId), JSON.stringify(init), {
       expirationTtl: this.ttlSeconds,
@@ -40,9 +42,11 @@ export class VoiceStreamAggregator {
     const cur = (await this.get(jobId)) ?? { status: 'active', partials: [], updatedAt: now };
     const partials = [...(cur.partials || []), text];
     const next: VoiceJobState = { ...cur, partials, updatedAt: now };
-    await this.kv.put(this.key(jobId), JSON.stringify(next), {
-      expirationTtl: this.ttlSeconds,
-    } as any);
+    if (this.kv) {
+      await this.kv.put(this.key(jobId), JSON.stringify(next), {
+        expirationTtl: this.ttlSeconds,
+      } as any);
+    }
     return next;
   }
 
@@ -50,9 +54,11 @@ export class VoiceStreamAggregator {
     const now = Date.now();
     const cur = (await this.get(jobId)) ?? { status: 'active', partials: [], updatedAt: now };
     const next: VoiceJobState = { ...cur, final: text, status: 'done', updatedAt: now };
-    await this.kv.put(this.key(jobId), JSON.stringify(next), {
-      expirationTtl: this.ttlSeconds,
-    } as any);
+    if (this.kv) {
+      await this.kv.put(this.key(jobId), JSON.stringify(next), {
+        expirationTtl: this.ttlSeconds,
+      } as any);
+    }
     return next;
   }
 
@@ -60,9 +66,11 @@ export class VoiceStreamAggregator {
     const now = Date.now();
     const cur = (await this.get(jobId)) ?? { status: 'active', partials: [], updatedAt: now };
     const next: VoiceJobState = { ...cur, usage, updatedAt: now };
-    await this.kv.put(this.key(jobId), JSON.stringify(next), {
-      expirationTtl: this.ttlSeconds,
-    } as any);
+    if (this.kv) {
+      await this.kv.put(this.key(jobId), JSON.stringify(next), {
+        expirationTtl: this.ttlSeconds,
+      } as any);
+    }
     return next;
   }
 }

@@ -1,0 +1,24 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import VoiceVisualizerIsland from '@/components/tools/voice-visualizer/VoiceVisualizerIsland';
+---
+
+<BaseLayout title="Voice Visualizer & Transkriptor">
+  <div class="py-10">
+    <VoiceVisualizerIsland
+      client:load
+      strings={{
+        title: 'Voice Visualizer & Transkriptor',
+        description: 'Sprache aufnehmen, Live‑Wellenform sehen und sofort transkribieren.',
+        start: 'Aufnahme starten',
+        stop: 'Stopp',
+        usage: 'Verbrauch',
+        loading: 'lädt…',
+        transcript: 'Transkript',
+        error: 'Ein Fehler ist aufgetreten',
+        rateLimited: (s: number) => `Rate‑Limit erreicht. In ${s}s erneut…`,
+      }}
+      langHint="de"
+    />
+  </div>
+</BaseLayout>

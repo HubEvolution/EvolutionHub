@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import { withRedirectMiddleware, createApiError } from '@/lib/api-middleware';
 import { VoiceStreamAggregator } from '@/lib/services/voice-stream-aggregator';
+import { loggerFactory } from '@/server/utils/logger-factory';
 
 function sseHeaders(): Headers {
   const h = new Headers();
@@ -16,7 +17,14 @@ export const GET: APIRoute = withRedirectMiddleware(async ({ request, locals }) 
     url.searchParams.get('jobId') || crypto.randomUUID?.() || Math.random().toString(36).slice(2);
 
   const env = (locals as any)?.runtime?.env ?? {};
+  const log = loggerFactory.createLogger('voice-stream-api');
   if (String(env.VOICE_STREAM_SSE) !== '1') {
+    try {
+      log.warn('voice_stream_disabled', {
+        action: 'voice_stream_disabled',
+        metadata: { jobId: jobId || null },
+      });
+    } catch {}
     return createApiError('not_found', 'Streaming disabled');
   }
   const kv = env.KV_VOICE_TRANSCRIBE;
@@ -34,6 +42,12 @@ export const GET: APIRoute = withRedirectMiddleware(async ({ request, locals }) 
       write(`retry: 2000\n\n`);
       write(`event: connected\n`);
       write(`data: ${JSON.stringify({ jobId })}\n\n`);
+      try {
+        log.info('voice_stream_connected', {
+          action: 'voice_stream_connected',
+          metadata: { jobId },
+        });
+      } catch {}
 
       // Heartbeats every ~25s to keep connections alive through proxies
       timer = setInterval(() => {
@@ -42,6 +56,12 @@ export const GET: APIRoute = withRedirectMiddleware(async ({ request, locals }) 
     },
     cancel() {
       if (timer) clearInterval(timer);
+      try {
+        log.debug('voice_stream_disconnected', {
+          action: 'voice_stream_disconnected',
+          metadata: { jobId },
+        });
+      } catch {}
     },
   });
 

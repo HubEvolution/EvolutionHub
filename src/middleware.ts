@@ -725,7 +725,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
   );
   // Route-scoped override: allow microphone on voice-visualizer tool pages only
   try {
-    const voicePaths = /^\/(?:de|en)?\/tools\/voice-visualizer(?:\/app)?\/?$/;
+    const voicePaths = /^\/(?:(?:de|en)\/)?tools\/voice-visualizer(?:\/app)?\/?$/;
     if (voicePaths.test(path)) {
       const base = response.headers.get('Permissions-Policy') || '';
       response.headers.set(

@@ -60,6 +60,14 @@ export default function VoiceVisualizerIsland({ strings, langHint }: Props) {
     return streamOut || transcript;
   }, [streamCtl.state.partials, streamCtl.state.final, transcript]);
 
+  const [tick, setTick] = useState(0);
+  useEffect(() => {
+    const inBackoff = Date.now() < backoffUntilRef.current;
+    if (!inBackoff) return;
+    const id = window.setInterval(() => setTick((t) => t + 1), 1000);
+    return () => window.clearInterval(id);
+  }, [tick]);
+
   const refreshUsage = useCallback(async () => {
     try {
       const res = await getVoiceUsage();
@@ -229,8 +237,27 @@ export default function VoiceVisualizerIsland({ strings, langHint }: Props) {
               )}
             </div>
           </div>
-          {import.meta.env.MODE !== 'production' && (
-            <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <span
+              className={`text-xs px-2 py-1 rounded ${
+                streamCtl.state.connected
+                  ? 'bg-emerald-100 text-emerald-700'
+                  : 'bg-gray-200 text-gray-700'
+              }`}
+            >
+              {streamCtl.state.connected ? 'Connected' : 'Disconnected'}
+            </span>
+            {Date.now() < backoffUntilRef.current && (
+              <span className="text-xs px-2 py-1 rounded bg-yellow-100 text-yellow-700">
+                Backoff {Math.max(0, Math.ceil((backoffUntilRef.current - Date.now()) / 1000))}s
+              </span>
+            )}
+            {streamCtl.state.jobId && (
+              <span className="text-xs px-2 py-1 rounded bg-blue-100 text-blue-700">
+                Job {streamCtl.state.jobId.slice(0, 8)}
+              </span>
+            )}
+            {import.meta.env.MODE !== 'production' && (
               <button
                 onClick={handleTestSpeech}
                 className={`inline-flex items-center gap-2 rounded-md px-3 py-2 text-xs font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 bg-emerald-600 hover:bg-emerald-700 text-white focus:ring-emerald-500`}
@@ -238,8 +265,8 @@ export default function VoiceVisualizerIsland({ strings, langHint }: Props) {
               >
                 Record 1s Speech (Test)
               </button>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
         <VisualizerCanvas
@@ -258,9 +285,20 @@ export default function VoiceVisualizerIsland({ strings, langHint }: Props) {
       </Card>
 
       <Card className="p-6">
-        <h2 className="text-lg font-semibold mb-2">{strings.transcript}</h2>
-        <div className="min-h-[120px] whitespace-pre-wrap text-gray-800 dark:text-gray-100">
-          {liveText || '…'}
+        <h2 className="text-lg font-semibold mb-3">{strings.transcript}</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-1">
+            <div className="text-sm font-semibold text-gray-700 dark:text-gray-300">Final</div>
+            <div className="min-h-[100px] whitespace-pre-wrap text-gray-900 dark:text-gray-100 border rounded-md p-3 border-gray-200 dark:border-gray-700">
+              {streamCtl.state.final || transcript || '…'}
+            </div>
+          </div>
+          <div className="space-y-1">
+            <div className="text-sm font-semibold text-gray-700 dark:text-gray-300">Live</div>
+            <div className="min-h-[100px] whitespace-pre-wrap text-gray-700 dark:text-gray-300 border rounded-md p-3 border-gray-200 dark:border-gray-700">
+              {streamCtl.state.partials?.length ? streamCtl.state.partials.join('\n') : '…'}
+            </div>
+          </div>
         </div>
       </Card>
     </div>

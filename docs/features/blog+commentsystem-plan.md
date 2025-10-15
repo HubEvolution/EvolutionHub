@@ -12,6 +12,8 @@
 
 <a id="ssot-blog-comments"></a>
 
+<!-- markdownlint-enable MD033 -->
+
 ## Single Source of Truth – Aktueller Stand (Blog + Comments)
 
 Diese Seite dient als zentrale Referenz für die aktuelle Blog- und Comments-Implementierung. Ergänzend zu den Phasen/Tasks unten werden hier die verbindlichen Konventionen, Komponenten und Schnittstellen festgehalten.
