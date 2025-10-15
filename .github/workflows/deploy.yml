@@ -47,6 +47,9 @@ jobs:
       - name: Run TypeScript Check
         run: npx astro check --tsconfig tsconfig.astro.json || npx astro check
 
+      - name: OpenAPI Validate
+        run: npm run openapi:validate
+
       - name: Run Unit Tests with Coverage
         run: npm run test:coverage
 
@@ -90,10 +93,61 @@ jobs:
           sleep 10
           npm run health-check -- --url https://staging.hub-evolution.com
 
+  staging-smokes:
+    name: Staging Smokes (Gate)
+    runs-on: ubuntu-latest
+    needs: deploy-staging
+    if: |
+      (github.event_name == 'workflow_dispatch' && inputs.environment == 'production') ||
+      (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v'))
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+
+      - name: 'Preflight: GET /en/tools/imag-enhancer/app (status + headers)'
+        run: |
+          set -o pipefail
+          curl -sf -i "https://staging.hub-evolution.com/en/tools/imag-enhancer/app" | sed -n '1,20p'
+
+      - name: 'Preflight: GET /api/ai-image/usage?debug=1'
+        run: |
+          set -o pipefail
+          curl -sf -i "https://staging.hub-evolution.com/api/ai-image/usage?debug=1" | sed -n '1,30p'
+
+      - name: 'Preflight: POST /api/auth/magic/request (staging)'
+        env:
+          STYTCH_TEST_EMAIL: ${{ secrets.STYTCH_TEST_EMAIL }}
+        run: |
+          set -o pipefail
+          if [ -z "${STYTCH_TEST_EMAIL}" ]; then
+            echo "STYTCH_TEST_EMAIL not set, skipping auth preflight";
+          else
+            curl -sf -i -X POST "https://staging.hub-evolution.com/api/auth/magic/request" \
+              -H "Origin: https://staging.hub-evolution.com" \
+              -H "Content-Type: application/json" \
+              --data "{\"email\":\"${STYTCH_TEST_EMAIL}\",\"r\":\"/dashboard\",\"locale\":\"en\"}" | sed -n '1,30p';
+          fi
+
+      - name: Run Playwright Smoke (chromium)
+        env:
+          TEST_BASE_URL: https://staging.hub-evolution.com
+        run: |
+          npx playwright test -c test-suite-v2/playwright.config.ts test-suite-v2/src/e2e/tools/image-enhancer.spec.ts --project=chromium --reporter=list
+
   deploy-production:
     name: Deploy to Production
     runs-on: ubuntu-latest
-    needs: [pre-deploy, deploy-staging]
+    needs: [pre-deploy, deploy-staging, staging-smokes]
     if: |
       (github.event_name == 'workflow_dispatch' && inputs.environment == 'production') ||
       (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v'))
