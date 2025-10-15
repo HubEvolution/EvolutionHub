@@ -74,7 +74,7 @@ jobs:
             TEST_BASE_URL="https://ci.hub-evolution.com"
           fi
           echo "Using TEST_BASE_URL=$TEST_BASE_URL"
-          TEST_BASE_URL="$TEST_BASE_URL" npm run test:e2e:pricing
+          TEST_BASE_URL="$TEST_BASE_URL" npx playwright test -c playwright.config.ts src/e2e/smoke/pricing-checkout-smoke.spec.ts --project=chromium
 
       - name: Upload Playwright artifacts
         if: always()
