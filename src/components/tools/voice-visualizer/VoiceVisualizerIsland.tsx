@@ -213,7 +213,7 @@ export default function VoiceVisualizerIsland({ strings, langHint }: Props) {
                   ? 'bg-red-600 hover:bg-red-700 text-white focus:ring-red-500'
                   : 'bg-blue-600 hover:bg-blue-700 text-white focus:ring-blue-500'
               }`}
-              disabled={busy}
+              disabled={busy && !isRecording}
             >
               {isRecording ? strings.stop : strings.start}
             </button>
