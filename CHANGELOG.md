@@ -13,6 +13,9 @@ und dieser Projekt haftet an [Semantic Versioning](https://semver.org/spec/v2.0.
 - Imag‑Enhancer: Hilfe‑Modal mit Fokus‑Falle (A11y)
 - Imag‑Enhancer: Unit‑Test für Fokus‑Falle & Tastaturbedienung
 - feat: implement prompt enhancer v1.0.0 with ai-parsing, ui, tests
+- locale/welcome: q‑Value‑basierte Accept‑Language‑Erkennung (best‑match `de|en`)
+- locale/welcome: `?lang=de|en` als Alias zu `?set_locale=` (gleiches Guarding)
+- tests(integration): `locale-routing`, `lang-alias`, `headers`, `seo-hreflang`
 
 ### Changed
 
@@ -22,6 +25,8 @@ und dieser Projekt haftet an [Semantic Versioning](https://semver.org/spec/v2.0.
 - Imag‑Enhancer: Tastatur‑Hinweis (i18n) erweitert – Pfeile/Shift+Pfeile, Home/End, 0, +/−, 1, L, Space (Hold)
 - dev(worker): Lokale Worker-Entwicklung nutzt jetzt `build:worker:dev` (Astro `--mode development`), damit `.env.development` greift und das Debug Panel aktiv ist (siehe `docs/tools/debug-panel.md`).
 - test(vitest): Projekte in `vitest.config.ts` benannt (`unit`, `integration`) und `package.json`-Skripte angepasst, sodass `--project=integration` zuverlässig funktioniert.
+- docs(architecture/locale-middleware): q‑Values, `?lang` Alias, Flags `PUBLIC_WELCOME_AUTO_DELAY_MS`/`WELCOME_BYPASS_SPLASH` dokumentiert
+- routes.md: `?lang` Alias und Flags für Welcome vermerkt
 
 ### Deprecated
 

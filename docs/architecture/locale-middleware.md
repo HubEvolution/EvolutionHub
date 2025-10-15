@@ -21,6 +21,7 @@ This document describes the locale selection splash page at `/welcome` and the m
 - Set when:
   - The user visits a URL with explicit `?set_locale=de|en`.
   - A user browses a locale-prefixed URL (e.g., `/en/...`) and the cookie differs; middleware syncs the cookie to match URL locale.
+- Manual override: `?lang=de|en` is an alias to `?set_locale=de|en` and uses the same same‑origin `next` guard and welcome loop‑guard.
 
 ## Redirect Rules (simplified)
 
@@ -30,6 +31,12 @@ This document describes the locale selection splash page at `/welcome` and the m
 - `/de/...` visited while cookie `en` → 308 redirect to `/en/...` equivalent of the same path (preference for user’s cookie on DE-prefixed paths).
 - Bots (no cookie, no locale in URL) → skip splash; redirect neutrals to `/en/...` if `Accept-Language` indicates EN; otherwise keep neutral (DE).
 - Early neutral redirect: when no cookie is present, a recent referer from `/en/*` may trigger a one-time redirect to `/en/*` for better continuity.
+
+## Accept-Language q-values
+
+- The middleware selects the best supported language (`de|en`) using q‑values from the `Accept-Language` header. Example: `en-GB;q=0.9, de;q=0.8` picks EN.
+- Fallback is `de` when the header is missing or unsupported.
+- Referer‑based EN hint remains in effect when no cookie is present.
 
 ## SEO
 
@@ -42,6 +49,11 @@ This document describes the locale selection splash page at `/welcome` and the m
 - `Content-Language` and `Vary: Cookie, Accept-Language` set on responses.
 - Security headers applied: CSP, HSTS, COOP, X-Frame-Options, etc.
 - Splash canonical link is emitted only for same-origin `next` URLs.
+
+## Flags
+
+- `PUBLIC_WELCOME_AUTO_DELAY_MS` (client): controls the auto-continue delay on `src/pages/welcome.astro`. Default `400`.
+- `WELCOME_BYPASS_SPLASH` (server): when `"1"` or `"true"`, and for first neutral visits without cookie/URL-locale and outside exempt routes, the middleware sets `pref_locale` using `Accept-Language` best-match and redirects directly to the localized route, skipping `/welcome`.
 
 ## Testing Locally
 

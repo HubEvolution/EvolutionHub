@@ -508,6 +508,8 @@ graph TD
 - Redirect‑Policy (aktualisiert): Priorität der Zielbestimmung im Callback ist `post_auth_redirect` (HttpOnly‑Cookie, nur relative gleiche‑Origin‑Pfade) → Query `r` (relativ) → Fallback `/dashboard`. Locale wird bevorzugt aus `post_auth_locale`, ansonsten aus `pref_locale` (vom Middleware‑Locale‑Cookie oder aus Pfadpräfix) übernommen; falls Ziel nicht lokalisiert ist, wird es entsprechend lokalisiert.
 
 - Welcome‑Logik: Ist keine Locale bekannt (weder Pfadpräfix noch Cookie), wird einmalig auf `/_welcome?next=…` geleitet (Sprachauswahl, automatische Fortsetzung bei erkennbarer Sprache). Bei Erst‑Login ohne Profildaten erfolgt eine Weiterleitung auf die locale‑spezifische `/<locale>/welcome-profile?next=…`. Andernfalls wird direkt zum Ziel (z. B. `/(en/)?dashboard`) weitergeleitet. `/_welcome` ist mit `noindex` versehen.
+- Locale‑Override: `?set_locale=de|en` setzt das `pref_locale` Cookie und mapped auf den `next`‑Pfad; Alias: `?lang=de|en` (gleiches Verhalten). Same‑Origin‑Guard für `next` und Welcome‑Loop‑Guard aktiv.
+- Flags: `PUBLIC_WELCOME_AUTO_DELAY_MS` steuert die Auto‑Fortsetzung in `src/pages/welcome.astro`; `WELCOME_BYPASS_SPLASH` (Server) überspringt die Welcome‑Seite bei Erstbesuch und redirectet direkt basierend auf `Accept-Language`.
 
 - Response auf `POST /api/auth/magic/request`: JSON `{ "success": true, "data": { "sent": true } }`. Die UI weist darauf hin, dass nach Absenden eine Bestätigungs‑Antwort angezeigt wird.
 
