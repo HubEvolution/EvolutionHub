@@ -11,8 +11,6 @@ Ensure Cloudflare ruleset JSON files are valid, use only allowed operators (eq, 
 
 ## Files in scope
 
-Ï
-
 1. Root JSON files like:
    - `staging-rules.json`
    - `ruleset-current-staging.json`

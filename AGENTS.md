@@ -1,5 +1,7 @@
 # Evolution Hub — AGENTS.md
 
+## Intro
+
 ## Stack & Deployment
 
 - Astro 5 with Cloudflare directory adapter; static asset headers set in `astro.config.mjs` including DEV CSP.
@@ -121,3 +123,16 @@
 ## Notes on Generated/Build Folders
 
 - Some cascaded globs may show “NO MATCH” for build artifacts (e.g., `dist/**`, report folders) when not present locally; this is expected and not a rule drift.
+
+<!-- ownership: mixed -->
+
+## Sync (auto)
+
+```sync:codex
+# (auto-managed)
+# Inhalte werden vom Workflow geschrieben:
+# - Betroffene Features + kurze Deltas
+# - Active Entry Points (aus Codemap)
+# - Links zu .windsurf/rules/<feature>.md
+# - Refs auf docs/** und ADR/**
+```

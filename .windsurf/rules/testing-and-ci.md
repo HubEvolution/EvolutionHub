@@ -1,6 +1,5 @@
 ---
 trigger: always_on
-priority: 70
 ---
 
 # Testing & CI Rules
@@ -17,3 +16,23 @@ priority: 70
 - Keep docs in sync; regenerate with `npm run docs:build` when API or env docs change.
 - E2E config honors `TEST_BASE_URL`; local runs default to `http://127.0.0.1:8787`. For auth smokes, `E2E_FAKE_STYTCH=1` enables the fake provider in dev.
 - Playwright suites live in `tests/playwright` and `test-suite-v2`.
+
+## Cron-Worker Monitoring (Testing)
+
+- App-Worker internal health:
+  - `GET /api/health/auth` with `X-Internal-Health: $INTERNAL_HEALTH_TOKEN` (file: [src/pages/api/health/auth.ts](cci:7://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/pages/api/health/auth.ts:0:0-0:0))
+- Cron-Worker manual triggers (Testing):
+  - Auth health (writes `KV_CRON_STATUS: prod-auth:last`):
+    - `curl -s "https://evolution-hub-cron-testing.<account>.workers.dev/__cron/run/auth" -H "X-Internal-Health: $INTERNAL_HEALTH_TOKEN"`
+  - Docs registry (writes `docs-registry:last` and R2 artifacts):
+    - `curl -s "https://evolution-hub-cron-testing.<account>.workers.dev/__cron/run/docs" -H "X-Internal-Health: $INTERNAL_HEALTH_TOKEN"`
+  - Status snapshot (reads KV):
+    - `curl -s "https://evolution-hub-cron-testing.<account>.workers.dev/__cron/run/status" -H "X-Internal-Health: $INTERNAL_HEALTH_TOKEN" | jq .`
+- KV verification (from `workers/cron-worker/`):
+  - `npx wrangler kv key list --env testing --binding=KV_CRON_STATUS --config wrangler.toml --remote --prefix prod-auth:`
+  - `npx wrangler kv key get  --env testing --binding=KV_CRON_STATUS --config wrangler.toml --remote "prod-auth:last" | cat`
+  - `npx wrangler kv key get  --env testing --binding=KV_CRON_STATUS --config wrangler.toml --remote "docs-registry:last" | cat`
+- Gate for auth job in Testing:
+  - `E2E_PROD_AUTH_SMOKE="1"` set in [workers/cron-worker/wrangler.toml](cci:7://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/workers/cron-worker/wrangler.toml:0:0-0:0) under `[env.testing.vars]`.
+- Operations guidance:
+  - Keep GH schedules for 2 weeks in parallel; compare parity using the status endpoint and KV/R2 artifacts.Ï

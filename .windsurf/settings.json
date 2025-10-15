@@ -1,3 +1,9 @@
 {
-  "context": { "autoRulesForCodemap": true }
+  "context": {
+    "autoRulesForCodemap": true,
+    "autoLinkKnowledge": true
+  },
+  "display": {
+    "showLogs": true
+  }
 }

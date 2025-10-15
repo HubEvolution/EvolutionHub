@@ -10,8 +10,8 @@ This folder contains local tooling configuration used by developer assistants (M
   - Shell env: `export STRIPE_API_KEY=sk_live_...`
   - Or use a `.env` entry loaded by your MCP runner (never commit `.env`).
 - If a secret was accidentally committed:
-  1) Rotate it immediately in the Stripe dashboard.
-  2) Remove it from all branches/commits to satisfy GitHub push protection.
+  1. Rotate it immediately in the Stripe dashboard.
+  2. Remove it from all branches/commits to satisfy GitHub push protection.
 
 ## Local Safety Checks
 
@@ -28,3 +28,9 @@ This folder contains local tooling configuration used by developer assistants (M
 ## Contact
 
 If you encounter issues with MCP servers or push protection, remove any inline secrets and prefer environment-based configuration.
+
+## Sync (auto)
+
+```sync:kilocode:<filename>
+# deltas/naming/interfaces/pfade für dieses Kilocode-Modul
+```

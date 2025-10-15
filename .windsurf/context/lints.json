@@ -1,0 +1,8 @@
+{
+  "maxLineChars": 100,
+  "forbidPatterns": ["(?i)api[-_ ]key", "(?i)secret", "TODO:", "WIP:"],
+  "requireAnchors": {
+    "AGENTS.md": ["## Intro", "## Sync (auto)"],
+    "CLAUDE.md": ["## Intro", "## Sync (auto)"]
+  }
+}

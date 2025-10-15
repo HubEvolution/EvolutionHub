@@ -1,5 +1,7 @@
 # CLAUDE.md — Evolution Hub Project Guide
 
+## Intro
+
 > Leitfaden für KI‑Agenten (Claude Code)
 > Last Updated: 2025-10-10
 
@@ -142,4 +144,15 @@ Hinweis Worker‑Build: `build:worker*` kopiert `dist/_worker.js/assets` nach `d
 
 ---
 
+<!-- ownership: mixed -->
+
+## Sync (auto)
+
+```sync:claude
+# (auto-managed)
+# Inhalte werden vom Workflow geschrieben:
+# - Kurz-Rationales (1–3 Zeilen) zu geänderten Bereichen
+# - Do/Don't Bullets je Feature
+# - Refs auf Rules + relevante Docs/ADRs
 Ende
+```

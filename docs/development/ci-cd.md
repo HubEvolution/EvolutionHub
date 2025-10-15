@@ -166,8 +166,7 @@ environment:
   name: staging
   url: https://staging.hub-evolution.com
 
-steps:
-  1. npm run build:worker
+steps: 1. npm run build:worker
   2. wrangler deploy --env staging
   3. Health Check (3 Retries, 10s Timeout)
 ```
@@ -185,8 +184,7 @@ protection_rules:
   - Required reviewers: 1
   - Deployment branches: main + v*
 
-steps:
-  1. ⏸️ Warte auf manuelle Approval
+steps: 1. ⏸️ Warte auf manuelle Approval
   2. npm run build:worker
   3. wrangler deploy --env production
   4. Health Check
@@ -475,9 +473,7 @@ curl https://hub-evolution.com/api/health | jq
     "kv": false,
     "r2": true
   },
-  "errors": [
-    "KV: Could not read/write test key"
-  ],
+  "errors": ["KV: Could not read/write test key"],
   "duration": "102ms",
   "timestamp": "2025-01-15T10:30:00.000Z",
   "version": "production"
@@ -503,18 +499,66 @@ npm run health-check -- --url https://hub-evolution.com
 
 ---
 
+## Cron-Worker Monitoring & Manuelle Trigger (Testing)
+
+Der Cron-Worker überwacht Pricing, Auth-Health und Docs-Registry. Für das Testing-Environment stehen manuelle Trigger und KV-Überprüfung bereit.
+
+### Voraussetzungen
+
+- App-Worker (Testing) Secret gesetzt: `INTERNAL_HEALTH_TOKEN`
+- Cron-Worker (Testing) Env-Var: `E2E_PROD_AUTH_SMOKE="1"` (aktiviert Auth-Job)
+
+#### App Health (intern)
+
+```bash
+curl -sS -i "https://ci.hub-evolution.com/api/health/auth" \
+  -H "X-Internal-Health: $INTERNAL_HEALTH_TOKEN"
+```
+
+#### Cron-Worker manuell ausführen (Testing)
+
+```bash
+# Auth-Health Job (schreibt KV: prod-auth:last)
+curl -s "https://evolution-hub-cron-testing.<account>.workers.dev/__cron/run/auth" \
+  -H "X-Internal-Health: $INTERNAL_HEALTH_TOKEN"
+
+# Docs-Registry (schreibt KV: docs-registry:last und R2 artifacts)
+curl -s "https://evolution-hub-cron-testing.<account>.workers.dev/__cron/run/docs" \
+  -H "X-Internal-Health: $INTERNAL_HEALTH_TOKEN"
+
+# Status-Snapshot (liest KV)
+curl -s "https://evolution-hub-cron-testing.<account>.workers.dev/__cron/run/status" \
+  -H "X-Internal-Health: $INTERNAL_HEALTH_TOKEN" | jq .
+```
+
+#### KV prüfen (remote)
+
+```bash
+# aus workers/cron-worker/
+npx wrangler kv key list --env testing --binding=KV_CRON_STATUS --config wrangler.toml --remote --prefix prod-auth:
+npx wrangler kv key get  --env testing --binding=KV_CRON_STATUS --config wrangler.toml --remote "prod-auth:last" | cat
+npx wrangler kv key get  --env testing --binding=KV_CRON_STATUS --config wrangler.toml --remote "docs-registry:last" | cat
+```
+
+Hinweise:
+
+- Keys mit Doppelpunkten immer in Anführungszeichen setzen (z. B. `"prod-auth:last"`).
+- R2-Artefakte liegen unter `evolution-hub-maintenance` (z. B. `maintenance/prod-auth/YYYY-MM-DD/...`).
+
+---
+
 ## Secrets & Konfiguration
 
 ### GitHub Secrets
 
 **Settings** → **Secrets and variables** → **Actions** → **New repository secret**
 
-| Secret Name | Beschreibung | Erforderlich für |
-|-------------|--------------|------------------|
-| `CLOUDFLARE_API_TOKEN` | Cloudflare API Token (Workers:Edit) | Deployment |
-| `CLOUDFLARE_ACCOUNT_ID` | Cloudflare Account-ID (`39434b5635d8beb4bde93e1792b628d7`) | Deployment |
-| `E2E_PROD_AUTH_SMOKE` | Gate für Prod-Auth-Smoke (`1` oder `true`) | Prod-Smoke-Tests |
-| `STYTCH_TEST_EMAIL` | E-Mail für Auth-E2E-Tests | Prod-Smoke-Tests |
+| Secret Name             | Beschreibung                                               | Erforderlich für |
+| ----------------------- | ---------------------------------------------------------- | ---------------- |
+| `CLOUDFLARE_API_TOKEN`  | Cloudflare API Token (Workers:Edit)                        | Deployment       |
+| `CLOUDFLARE_ACCOUNT_ID` | Cloudflare Account-ID (`39434b5635d8beb4bde93e1792b628d7`) | Deployment       |
+| `E2E_PROD_AUTH_SMOKE`   | Gate für Prod-Auth-Smoke (`1` oder `true`)                 | Prod-Smoke-Tests |
+| `STYTCH_TEST_EMAIL`     | E-Mail für Auth-E2E-Tests                                  | Prod-Smoke-Tests |
 
 ### GitHub Environments
 
@@ -742,6 +786,7 @@ gh run watch  # Live-Monitoring
 ```
 
 ---
+
 ---
 
 ## Entwicklungs-Workflow
@@ -837,13 +882,13 @@ Hinweise:
 
 ### Verfügbare Qualitätsprüfungen
 
-| Befehl | Zweck | Dauer | Wann verwenden |
-|--------|-------|-------|---------------|
-| `npm run lint` | Grundlegende Linting | ~10s | Täglich |
-| `npm run format` | Code formatieren | ~5s | Bei Bedarf |
-| `npx astro check` | TypeScript prüfen | ~15s | Vor PR |
-| `npm run test:coverage` | Tests + Coverage | ~30s | Vor PR |
-| `npm audit` | Sicherheitslücken | ~10s | Vor Release |
+| Befehl                  | Zweck                | Dauer | Wann verwenden |
+| ----------------------- | -------------------- | ----- | -------------- |
+| `npm run lint`          | Grundlegende Linting | ~10s  | Täglich        |
+| `npm run format`        | Code formatieren     | ~5s   | Bei Bedarf     |
+| `npx astro check`       | TypeScript prüfen    | ~15s  | Vor PR         |
+| `npm run test:coverage` | Tests + Coverage     | ~30s  | Vor PR         |
+| `npm audit`             | Sicherheitslücken    | ~10s  | Vor Release    |
 
 ### IDE-Integration
 
