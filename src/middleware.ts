@@ -774,6 +774,10 @@ export const onRequest = defineMiddleware(async (context, next) => {
   } catch {
     // Ignore header setting failures
   }
+  const ct = response.headers.get('Content-Type') || '';
+  if (ct.includes('text/html') && !response.headers.has('Referrer-Policy')) {
+    response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  }
   // Referrer-Policy nur auf Reset-Passwort-Seiten erzwingen (keine Weitergabe sensibler Token über Referrer)
   const isResetPasswordPath =
     path === '/reset-password' ||
