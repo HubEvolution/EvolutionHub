@@ -1,0 +1,73 @@
+name = "evolution-hub-cron"
+main = "src/index.ts"
+compatibility_date = "2025-07-26"
+compatibility_flags = ["nodejs_compat"]
+account_id = "39434b5635d8beb4bde93e1792b628d7"
+
+# Bindings (to be created and wired by you)
+# R2 bucket to store artifacts (JSON)
+[[r2_buckets]]
+binding = "R2_MAINTENANCE"
+bucket_name = "evolution-hub-maintenance"
+
+# Default vars for local dev (optional)
+[vars]
+BASE_URL = "http://127.0.0.1:8787"
+
+# Environments
+[env.testing]
+[env.testing.vars]
+BASE_URL = "https://ci.hub-evolution.com"
+E2E_PROD_AUTH_SMOKE = "1"
+
+[env.testing.triggers]
+crons = [
+  "* * * * *"
+]
+
+[[env.testing.kv_namespaces]]
+binding = "KV_CRON_STATUS"
+id = "8843007f9bcb4a25b930a511566f0239"
+
+[[env.testing.r2_buckets]]
+binding = "R2_MAINTENANCE"
+bucket_name = "evolution-hub-maintenance"
+
+[env.staging]
+[env.staging.vars]
+BASE_URL = "https://staging.hub-evolution.com"
+
+[env.staging.triggers]
+crons = [
+  "0 2 * * *",
+  "0 4 * * *",
+  "0 5 * * 1"
+]
+
+[[env.staging.kv_namespaces]]
+binding = "KV_CRON_STATUS"
+id = "433aad6c0adf4887a1d9e472b609f98b"
+
+[[env.staging.r2_buckets]]
+binding = "R2_MAINTENANCE"
+bucket_name = "evolution-hub-maintenance"
+
+[env.production]
+[env.production.vars]
+BASE_URL = "https://hub-evolution.com"
+E2E_PROD_AUTH_SMOKE = "1"
+
+[env.production.triggers]
+crons = [
+  "0 2 * * *",
+  "0 4 * * *",
+  "0 5 * * 1"
+]
+
+[[env.production.kv_namespaces]]
+binding = "KV_CRON_STATUS"
+id = "35a9ee6301ed4c7a9022a3e8744e251a"
+
+[[env.production.r2_buckets]]
+binding = "R2_MAINTENANCE"
+bucket_name = "evolution-hub-maintenance"
