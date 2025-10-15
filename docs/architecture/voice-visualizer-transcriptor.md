@@ -45,6 +45,8 @@ sequenceDiagram
   - **CSRF/Same‑Origin**: Standard aktiviert; Double‑Submit optional via `X-CSRF-Token` ↔ `csrf_token`.
   - **Security‑Headers**: HSTS, X‑Frame‑Options `DENY`, `nosniff`, strikte `Permissions-Policy`.
 - **Permissions‑Policy (Mikrofon)**: Tools‑Route erhält eine Route‑Ausnahme für `microphone=()`, damit die Seite den Zugriff explizit anfragt (siehe `src/middleware.ts`).
+  - Regex deckt neutrale und lokalisierte Pfade ab: `^\/(?:(?:de|en)\/)?tools\/voice-visualizer(?:\/app)?\/?$`.
+  - DE ist neutral (kein `/de`‑Prefix), EN lebt unter `/en/...`.
 
 ## Limits & Quoten
 
@@ -66,6 +68,10 @@ Zusätzliche Flags/Funktionalität:
 - `VOICE_STREAM_POLL` ("1"/"0"): aktiviert/deaktiviert `GET /api/voice/poll` Polling‑Endpoint.
 - `VOICE_R2_ARCHIVE` ("1"/"0"): optionale Roh‑Audio‑Archivierung nach R2 (keine PII im Key).
 - `VOICE_DEV_ECHO` ("1"/"0"): Dev‑Echo‑Bypass für Provider‑Call (nützlich in Integration/CI).
+
+Hinweise DEV:
+
+- Aggregator (`VoiceStreamAggregator`) ist KV‑optional gehärtet → in lokaler DEV ohne KV keine Exceptions; Snapshot wird best‑effort gehalten.
 
 ## Formate & Validierung (Client/Server)
 
@@ -108,17 +114,27 @@ Siehe vollständige Schemas/Fehlerfälle in `openapi.yaml` (`/api/voice/transcri
 - `hooks/useMicrophone.ts`: Geräte‑Zugriff, Visualizer‑Daten, 3s‑Chunking.
 - `api.ts`: Upload (multipart), CSRF‑Header via `ensureCsrfToken()`.
 - UI‑Island: Start/Stop, Pegel‑Visualizer, Status/Fehler, Anzeige von Usage/Limits.
+  - UI‑Polish: Partials (Live) und Final separat, Status‑Chips (Connected/Backoff/JobId), Dev‑Test‑Button nur in DEV.
+
+## Routing & i18n
+
+- DE neutral: `src/pages/tools/voice-visualizer/app.astro` (Pfad `/tools/voice-visualizer/app`).
+- EN lokalisiert: `src/pages/en/tools/voice-visualizer/app.astro` (Pfad `/en/tools/voice-visualizer/app`).
+- Locale‑Switch hält DE neutral; EN benutzt `/en/...` (`src/lib/locale-path.ts`).
 
 ## Observability & Debugging
 
 - Requests werden in Middleware geloggt (requestId, Dauer). Client‑Logs optional via Debug‑Panel (`/api/debug/client-log`).
-- Typische Fehler: kein Mikrofon, MIME nicht erlaubt, Chunk zu klein/groß, 429 (Rate‑Limit), 403 (Origin/CSRF), Provider‑Fehler (mapping siehe oben).
+- Typische Fehler: kein Mikrofon, MIME nicht erlaubt, Chunk zu klein/groß, 429 (Rate‑Limit), 403 (Origin/CSRF), Provider‑Fehler (Mapping siehe oben).
 
-Implementierte Voice‑Events (minimal):
+Aktuelle strukturierte Voice‑Events (Server):
 
-- `voice_limit` (Quota erreicht; enthält `used`, `limit`, maskierte Owner‑ID)
-- `whisper_error` (Provider‑Fehler mit Status/Message, maskierte Owner‑ID)
-- `transcribe_success` (Latenz und Chunk‑Größe als Kennzahlen)
+- `transcribe_api_success` (Kennzahlen: `latencyMs`, `sizeBytes`, `ownerType`, `isFinal`, `sessionId`, `jobId`)
+- `transcribe_api_error` (Feldern: `errorType`, `message`, `latencyMs`, `sessionId`, `jobId`)
+- `voice_stream_connected` | `voice_stream_disconnected` | `voice_stream_disabled`
+- `voice_poll_success` | `voice_poll_not_found` | `voice_poll_disabled`
+
+Hinweis: Frühere Eventnamen (`voice_limit`, `whisper_error`, `transcribe_success`) können in älteren Logs erscheinen; neue Namen oben sind maßgeblich.
 
 Test‑Flags in CI: `wrangler.ci.toml` setzt `VOICE_STREAM_SSE=1`, `VOICE_STREAM_POLL=1`, `VOICE_R2_ARCHIVE=0`, `VOICE_DEV_ECHO=1`.
 
@@ -171,14 +187,22 @@ Referenzen: Workers Limits/Streams/EventSource, KV How it works/FAQ/Write, R2 Pr
 4. Poll: `GET /api/voice/poll?jobId=…` liefert `usage`‑Anstieg und (je nach Provider) `final`‑Text.
 5. Flags: `VOICE_STREAM_SSE=1`, `VOICE_STREAM_POLL=1`, `VOICE_R2_ARCHIVE=0` (Backout: Flags auf 0 setzen).
 
+Schnell‑Verifikation per curl (DEV):
+
+```sh
+JOB="job-$(date +%s)"
+curl -i -N --max-time 3 "http://127.0.0.1:8787/api/voice/stream?jobId=$JOB"  # erwartet: 200 + event: connected
+curl -i "http://127.0.0.1:8787/api/voice/poll?jobId=$JOB"                     # erwartet: 200 + { status: "active"|snapshot }
+```
+
 ## Nächste Umsetzungsschritte (konkret)
 
-- **Integration‑Test** `tests/integration`: `POST /api/voice/transcribe` verarbeitet 1–2 s Sample → Aggregator `setFinal()` und `setUsage()`; `GET /api/voice/poll` spiegelt Status/Usage` (bei Dev‑Echo ohne externen Provider).`
-- **Observability** Events/Counter in `src/lib/services/voice-transcribe-service.ts` und `src/pages/api/voice/*` (mind. `voice:error`, `voice:limit`, `voice:disconnect`); Response‑Debug‑Header prüfen.
-- **Optionale R2‑Archivierung** Flag `VOICE_R2_ARCHIVE` → Roh‑Audio optional in R2, presigned Read (kurze TTL), Retention‑Policy.
-- **UI‑Polish** `VoiceVisualizerIsland.tsx`: Partials separat vom Final anzeigen; Connected/Backoff/JobId‑Hinweise klein im Header; Dev‑Test‑Button nur in DEV.
-- **Harness‑Stabilisierung**: Vor Build `dist/` leeren, um Flag‑Änderungen sicher zu übernehmen; ggf. Mini‑Debuglog in Service, um aktive Flag‑Pfade (z. B. `VOICE_DEV_ECHO`) sichtbar zu machen.
-- **Sample‑Fixture**: Für Nicht‑Echo‑Runs kurzes valides WebM/Opus‑Sample in `tests/fixtures/` nutzen, um Formatfehler zu vermeiden.
+- **Integration‑Test** `tests/integration`: `POST /api/voice/transcribe` → Aggregator `setFinal()`/`setUsage()`; `GET /api/voice/poll` spiegelt Snapshot (Dev‑Echo möglich). Priorität: hoch. (Siehe `tests/integration/api/voice/transcribe-and-poll.test.ts`).
+- **Observability v1**: strukturierte Logs + einfache Counter/Latenz‑Buckets in `voice-transcribe-service.ts` und `/api/voice/*`. Priorität: hoch. (Aktuelle Events siehe oben.)
+- **OpenAPI ergänzen**: `/api/voice/stream` (SSE) + `/api/voice/poll` dokumentieren (Snap‑Schema). Priorität: mittel.
+- **R2‑Archiv‑Entscheidung**: Binding `R2_VOICE`, Key‑Schema (ohne PII), Retention/TTL; erst danach Flag aktivieren. Priorität: mittel.
+- **Entitlements finalisieren**: Tageskappen je Plan bestätigen/angleichen. Priorität: mittel.
+- **E2E‑Test (SSE/Poll)**: einfacher Smoke für Connected‑Event + Poll‑Snapshot. Priorität: mittel. (Siehe `test-suite-v2/src/e2e/voice/stream-and-poll.spec.ts`.)
 
 ## Offene Entscheidungsfragen
 
@@ -191,7 +215,7 @@ Referenzen: Workers Limits/Streams/EventSource, KV How it works/FAQ/Write, R2 Pr
 
 ## Readiness
 
-- **Implementierungsstand**: SSE/Poll + Aggregator live; Client‑Hook integriert; API‑Client sendet `jobId`/`isLastChunk`; OpenAPI erweitert/validiert; Unit/E2E‑Smoke grün.
+- **Implementierungsstand**: SSE/Poll + Aggregator live; Client‑Hook integriert; API‑Client sendet `jobId`/`isLastChunk`; Aggregator KV‑optional gehärtet; Neutral‑Route (DE) vorhanden; Permissions‑Policy deckt neutral/EN ab; SSE/Poll lokal verifiziert.
 - **Datenpunkte vorhanden**: Ja, für Integration‑Tests, Observability (minimal), UI‑Polish. Für R2‑Archivierung fehlen konkrete Bucket/Retention‑Entscheidungen. Für Entitlements ggf. Bestätigung der Zahlen.
 
 ## Referenzen

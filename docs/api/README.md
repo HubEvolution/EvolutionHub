@@ -150,7 +150,7 @@ Erstellt einen neuen Kommentar (Guest oder Auth).
   "content": "Great article!",
   "entityType": "blog_post",
   "entityId": "digital-detox-kreativitaet",
-  "parentId": "abc123"  // Optional (für Replies)
+  "parentId": "abc123" // Optional (für Replies)
 }
 ```
 
@@ -328,3 +328,10 @@ curl -X POST \
 
 - Lokaler Start: `npm run dev` (Wrangler Dev, D1/R2 lokal)
 - Integrationstests: `RUN_PDF_TEST=1` für PDF‑Pfad (OpenAI‑Key erforderlich).
+
+---
+
+## Voice — Visualizer & Transcriptor
+
+- **Architektur & API**: Siehe `docs/architecture/voice-visualizer-transcriptor.md` (SSE/Poll Endpunkte, Flags, Security, Quoten, Observability).
+- **E2E Smoke (SSE/Poll)**: `test-suite-v2/src/e2e/voice/stream-and-poll.spec.ts` (verbindet SSE mit explizitem `jobId` und prüft Poll‑Snapshot).
