@@ -4,11 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       run:
-        description: "Run prod auth smoke against hub-evolution.com"
+        description: 'Run prod auth smoke against hub-evolution.com'
         required: false
-        default: "false"
-  schedule:
-    - cron: '0 4 * * *'  # optional daily run at 04:00 UTC
+        default: 'false'
 
 jobs:
   prod-auth-smoke:
@@ -39,7 +37,7 @@ jobs:
           npm ci
           # For this smoke we use only the Playwright request fixture, no browsers needed
 
-      - name: "Preflight: POST /api/auth/magic/request (log status + body)"
+      - name: 'Preflight: POST /api/auth/magic/request (log status + body)'
         run: |
           echo "POSTing to ${TEST_BASE_URL}/api/auth/magic/request with STYTCH_TEST_EMAIL=${STYTCH_TEST_EMAIL}"
           set -o pipefail

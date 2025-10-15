@@ -65,7 +65,7 @@ jobs:
       - name: Run Playwright Auth Smoke (Chromium)
         env:
           TEST_BASE_URL: http://127.0.0.1:8787
-        run: npm run test:e2e:chromium -- src/e2e/auth/welcome-redirect.spec.ts
+        run: npm run test:e2e:chromium -- test-suite-v2/src/e2e/auth/welcome-redirect.spec.ts
 
       - name: Upload Playwright report
         if: always()

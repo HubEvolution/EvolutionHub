@@ -4,25 +4,22 @@ on:
   workflow_dispatch:
     inputs:
       test_base_url:
-        description: "Optional: Remote TEST_BASE_URL (e.g. https://ci.hub-evolution.com). If empty, runs against local dev server."
+        description: 'Optional: Remote TEST_BASE_URL (e.g. https://ci.hub-evolution.com). If empty, runs against local dev server.'
         required: false
-        default: ""
+        default: ''
   push:
-    branches: [ main ]
+    branches: [main]
     paths:
       - 'src/components/pricing/**'
       - 'src/pages/**pricing**'
       - 'test-suite-v2/**'
       - '.github/workflows/pricing-smoke.yml'
   pull_request:
-    branches: [ main ]
+    branches: [main]
     paths:
       - 'src/components/pricing/**'
       - 'src/pages/**pricing**'
       - 'test-suite-v2/**'
-  schedule:
-    # Täglich um 02:00 UTC (Nightly)
-    - cron: '0 2 * * *'
 
 jobs:
   smoke:
@@ -61,7 +58,7 @@ jobs:
         working-directory: ./test-suite-v2
         run: npx playwright install --with-deps chromium
 
-      - name: "Preflight: GET /en/pricing (log status + headers)"
+      - name: 'Preflight: GET /en/pricing (log status + headers)'
         run: |
           set -o pipefail
           BASE_URL="$TEST_BASE_URL"
