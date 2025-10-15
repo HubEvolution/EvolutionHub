@@ -16,6 +16,7 @@ try {
 
 const hrefDe = `/welcome?set_locale=de&next=${encodeURIComponent(nextRaw)}`;
 const hrefEn = `/welcome?set_locale=en&next=${encodeURIComponent(nextRaw)}`;
+const autoDelay = Number(import.meta.env.PUBLIC_WELCOME_AUTO_DELAY_MS ?? '400') || 400;
 ---
 
 <BaseLayout
@@ -51,7 +52,7 @@ const hrefEn = `/welcome?set_locale=en&next=${encodeURIComponent(nextRaw)}`;
       </a>
     </div>
   </section>
-  <script is:inline nonce={Astro.locals.cspNonce} define:vars={{ hrefDe, hrefEn }}>
+  <script is:inline nonce={Astro.locals.cspNonce} define:vars={{ hrefDe, hrefEn, autoDelay }}>
     (function () {
       try {
         const params = new URLSearchParams(location.search);
@@ -59,12 +60,11 @@ const hrefEn = `/welcome?set_locale=en&next=${encodeURIComponent(nextRaw)}`;
         const lang = (navigator.language || '').toLowerCase();
         const toDe = /(^|,|;|\s)de(\-|$)/.test(lang);
         const target = toDe ? hrefDe : hrefEn;
-        // Small delay to allow visual context and let back button remain meaningful
         setTimeout(() => {
           try {
             window.location.href = target;
           } catch {}
-        }, 400);
+        }, autoDelay);
       } catch {}
     })();
   </script>

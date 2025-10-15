@@ -2,6 +2,7 @@ import { defineMiddleware } from 'astro:middleware';
 import type { Locale } from '@/lib/i18n';
 import { validateSession } from '@/lib/auth-v2';
 import { log, generateRequestId } from '@/server/utils/logger';
+import { pickBestLanguage } from '@/lib/i18n/accept-language';
 
 // Helper: redact sensitive headers and anonymize IPs for logs
 function anonymizeIp(value: string): string {
@@ -152,10 +153,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
   const sessionWelcomeSeen = context.cookies.get(sessionGateCookie)?.value === '1';
 
   function detectFromAcceptLanguage(header: string | null): Locale {
-    const h = (header || '').toLowerCase();
-    if (/(^|,|;|\s)de(-[a-z]{2})?/.test(h)) return 'de';
-    if (/(^|,|;|\s)en(-[a-z]{2})?/.test(h)) return 'en';
-    return 'de';
+    return pickBestLanguage(header, 'de') as Locale;
   }
   // Einfache Bot-/Crawler-Erkennung anhand des User-Agent
   function isBot(userAgent: string | null): boolean {
@@ -216,7 +214,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
   }
 
   // Explizite Locale-Auswahl via ?set_locale=de|en -> Cookie setzen und redirect zu gemapptem next
-  const setLocaleParam = url.searchParams.get('set_locale');
+  const setLocaleParam = url.searchParams.get('set_locale') ?? url.searchParams.get('lang');
   if (setLocaleParam === 'de' || setLocaleParam === 'en') {
     const targetLocale = setLocaleParam as Locale;
     try {
@@ -356,6 +354,46 @@ export const onRequest = defineMiddleware(async (context, next) => {
         { requestId, location }
       );
     }
+    return new Response(null, { status: 302, headers });
+  }
+
+  const bypassSplash = (() => {
+    try {
+      const v = (cfEnv && (cfEnv as Record<string, string>)['WELCOME_BYPASS_SPLASH']) || '';
+      return v === '1' || v === 'true';
+    } catch {
+      return false;
+    }
+  })();
+
+  if (
+    bypassSplash &&
+    !sessionWelcomeSeen &&
+    !cookieLocale &&
+    !isApi &&
+    !isAsset &&
+    !isR2Proxy &&
+    !bot &&
+    !path.startsWith('/welcome') &&
+    !isAuthRoute(path) &&
+    !isGuestAccessibleToolRoute(path) &&
+    !existingLocale
+  ) {
+    const best = detectFromAcceptLanguage(context.request.headers.get('accept-language'));
+    try {
+      context.cookies.set(cookieName, best, {
+        path: '/',
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: url.protocol === 'https:',
+        maxAge: 60 * 60 * 24 * 180,
+      });
+    } catch {}
+    const location = `${originForRedirects}${mapPathToLocale(best, url)}`;
+    const headers = new Headers();
+    headers.set('Location', location);
+    headers.set('Content-Language', best);
+    headers.set('Vary', 'Cookie, Accept-Language');
     return new Response(null, { status: 302, headers });
   }
 
