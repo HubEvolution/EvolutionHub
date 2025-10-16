@@ -118,7 +118,12 @@ const publicTurnstileSiteKey =
   </div>
   {
     publicTurnstileSiteKey && (
-      <div class="cf-turnstile" data-sitekey={publicTurnstileSiteKey} data-theme="auto" />
+      <div
+        class="cf-turnstile"
+        data-sitekey={publicTurnstileSiteKey}
+        data-theme="auto"
+        data-error-callback="onTurnstileError"
+      />
     )
   }
   {safeR && <input type="hidden" name="r" value={safeR} />}

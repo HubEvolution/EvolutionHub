@@ -28,6 +28,28 @@ async function waitForToaster(timeout = 150): Promise<boolean> {
 export default function AuthStatusNotifier({ mode }: { mode: Mode }) {
   useEffect(() => {
     let cancelled = false;
+    const notifyHandler = (e: Event) => {
+      try {
+        const detail = (e as CustomEvent).detail as { type?: string; message?: string } | undefined;
+        const t = (detail?.type || 'info').toLowerCase();
+        const msg = detail?.message || '';
+        if (!msg) return;
+        if (t === 'error') toast.error(msg);
+        else if (t === 'success') toast.success(msg);
+        else if (t === 'warning' || t === 'warn') toast(msg);
+        else toast(msg);
+      } catch {}
+    };
+    window.addEventListener('notify', notifyHandler as EventListener);
+    (window as any).onTurnstileError = function () {
+      try {
+        const isGerman = window.location.pathname.startsWith('/de');
+        const message = isGerman
+          ? 'Turnstile konnte nicht geladen werden. Bitte Seite neu laden oder anderes Netzwerk versuchen.'
+          : 'Turnstile failed to load. Please reload the page or try a different network.';
+        window.dispatchEvent(new CustomEvent('notify', { detail: { type: 'error', message } }));
+      } catch {}
+    };
     (async () => {
       try {
         const url = new URL(window.location.href);
@@ -216,6 +238,7 @@ export default function AuthStatusNotifier({ mode }: { mode: Mode }) {
 
     return () => {
       cancelled = true;
+      window.removeEventListener('notify', notifyHandler as EventListener);
     };
   }, [mode]);
 
