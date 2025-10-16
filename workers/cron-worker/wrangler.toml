@@ -1,0 +1,32 @@
+name = "evolution-hub-cron"
+account_id = "39434b5635d8beb4bde93e1792b628d7"
+compatibility_date = "2025-07-26"
+compatibility_flags = ["nodejs_compat"]
+main = "src/index.ts"
+
+[triggers]
+crons = [
+  "0 2 * * *",   # pricing
+  "0 4 * * *",   # prod auth health
+  "0 5 * * 1"    # docs inventory (weekly)
+]
+
+[[r2_buckets]]
+binding = "R2_MAINTENANCE"
+bucket_name = "evolution-hub-maintenance"
+
+[[kv_namespaces]]
+binding = "KV_CRON_STATUS"
+# Using production KV for global status; keys are namespaced per host
+id = "35a9ee6301ed4c7a9022a3e8744e251a"
+
+[vars]
+# Fan-out targets; adjust as needed
+BASE_URLS = "[\"https://hub-evolution.com\",\"https://staging.hub-evolution.com\",\"https://ci.hub-evolution.com\"]"
+# Gate for prod auth health check task
+E2E_PROD_AUTH_SMOKE = "1"
+
+# Secrets to set separately (do NOT commit actual values):
+#   wrangler secret put INTERNAL_HEALTH_TOKEN
+# Optional for higher GitHub rate-limit:
+#   wrangler secret put GITHUB_TOKEN

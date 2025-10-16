@@ -119,54 +119,64 @@ export async function validateSession(
   db: D1Database,
   sessionId: string
 ): Promise<{ session: Session | null; user: App.Locals['user'] }> {
-  const sessionResult = await db
-    .prepare('SELECT * FROM sessions WHERE id = ?')
+  // One roundtrip: fetch session + safe user fields via JOIN
+  const row = await db
+    .prepare(
+      `SELECT 
+         s.id              AS s_id,
+         s.user_id         AS s_user_id,
+         s.expires_at      AS s_expires_at,
+         u.id              AS u_id,
+         u.email           AS u_email,
+         u.name            AS u_name,
+         u.username        AS u_username,
+         u.image           AS u_image,
+         u.email_verified  AS u_email_verified,
+         u.email_verified_at AS u_email_verified_at,
+         u.plan            AS u_plan
+       FROM sessions s
+       JOIN users u ON u.id = s.user_id
+       WHERE s.id = ?`
+    )
     .bind(sessionId)
-    .first<SessionRow>();
-  if (!sessionResult) {
+    .first<{
+      s_id: string;
+      s_user_id: string;
+      s_expires_at: number | string;
+      u_id: string;
+      u_email: string;
+      u_name: string;
+      u_username: string;
+      u_image?: string | null;
+      u_email_verified?: number | boolean | null;
+      u_email_verified_at?: number | null;
+      u_plan?: string | null;
+    }>();
+
+  if (!row) {
     return { session: null, user: null };
   }
 
   const session: Session = {
-    id: sessionResult.id,
-    userId: sessionResult.user_id,
-    expiresAt: new Date(Number(sessionResult.expires_at) * 1000),
+    id: row.s_id,
+    userId: row.s_user_id,
+    expiresAt: new Date(Number(row.s_expires_at) * 1000),
   };
 
+  // Expired? Clean up and return null (preserves previous behavior)
   if (session.expiresAt.getTime() < Date.now()) {
     await db.prepare('DELETE FROM sessions WHERE id = ?').bind(sessionId).run();
     return { session: null, user: null };
   }
 
-  // Nur sichere Benutzerfelder laden (kein password_hash o.ä.)
-  const userResult = await db
-    .prepare(
-      'SELECT id, email, name, username, image, email_verified, email_verified_at, plan FROM users WHERE id = ?'
-    )
-    .bind(session.userId)
-    .first<{
-      id: string;
-      email: string;
-      name: string;
-      username: string;
-      image?: string;
-      email_verified?: number | boolean;
-      email_verified_at?: number | null;
-      plan?: string | null;
-    }>();
-
-  if (!userResult) {
-    return { session: null, user: null };
-  }
-
   const user = {
-    id: userResult.id,
-    email: userResult.email,
-    name: userResult.name,
-    username: userResult.username,
-    image: userResult.image,
-    email_verified: Boolean(userResult.email_verified),
-    plan: userResult.plan ?? 'free',
+    id: row.u_id,
+    email: row.u_email,
+    name: row.u_name,
+    username: row.u_username,
+    image: row.u_image ?? undefined,
+    email_verified: Boolean(row.u_email_verified),
+    plan: row.u_plan ?? 'free',
   } as unknown as App.Locals['user'];
 
   return { session, user };

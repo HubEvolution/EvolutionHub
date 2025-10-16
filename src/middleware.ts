@@ -555,6 +555,30 @@ export const onRequest = defineMiddleware(async (context, next) => {
     }
   }
 
+  // Early redirect (after session validation): if user exists and path is a login route, redirect to dashboard
+  try {
+    const user = context.locals.user;
+    const isLoginRoute = (p: string): boolean => {
+      const LOGIN_RE = /^\/(?:(?:de|en)\/)?login(?:\/?|$)/;
+      return LOGIN_RE.test(p);
+    };
+    if (user && isLoginRoute(path)) {
+      const targetLocale: Locale = existingLocale ?? preferredLocale;
+      const base = targetLocale === 'en' ? '/en/dashboard' : '/dashboard';
+      const location = `${originForRedirects}${base}`;
+      const headers = new Headers();
+      headers.set('Location', location);
+      headers.set('Vary', 'Cookie, Accept-Language');
+      headers.set('Content-Language', targetLocale);
+      return new Response(null, { status: 302, headers });
+    }
+  } catch (e) {
+    log('warn', '[Middleware] Early login redirect check failed', {
+      requestId,
+      errorMessage: e instanceof Error ? e.message : String(e),
+    });
+  }
+
   // Verification gate: redirect unverifizierte Nutzer vom Dashboard zu /verify-email
   try {
     const user = context.locals.user;

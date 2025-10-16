@@ -1,0 +1,377 @@
+# Dies ist die Konfigurationsdatei für die lokale Entwicklung mit Wrangler.
+# Sie wird nicht für das Deployment über GitHub benötigt, ermöglicht aber
+# dem lokalen 'astro dev --remote' Befehl, sich mit Ihren Live-Ressourcen zu verbinden.
+
+name = "evolution-hub"
+account_id = "39434b5635d8beb4bde93e1792b628d7"
+compatibility_date = "2025-07-26"
+compatibility_flags = ["nodejs_compat"]
+main = "dist/_worker.js/index.js"
+preview_urls = true
+logpush = false
+
+# wrangler.toml (wrangler v3.88.0^)
+[observability.logs]
+enabled = false
+
+# D1 Datenbank-Binding
+[[d1_databases]]
+binding = "DB" # Dies muss mit dem Code übereinstimmen (z.B. context.locals.runtime.env.DB)
+database_name = "evolution-hub-main"
+database_id = "cadc96d1-712a-4873-8f3d-da87a936f3be"
+# Lokale Entwicklungsdatenbank (für Wrangler Pages Dev)
+preview_database_id = "evolution-hub-main-local"
+
+# Explizite lokale D1-Datenbank-Konfiguration für direkte Wrangler-Befehle wurde
+# in die Entwicklungs-Umgebung verschoben (siehe [env.development]).
+
+# Entwicklungs-Umgebung
+[env.development]
+name = "evolution-hub"
+
+[env.development.vars]
+ENVIRONMENT = "development"
+BASE_URL = "http://127.0.0.1:8787"
+APP_ORIGIN = "http://127.0.0.1:8787"
+LEADMAGNET_SOURCE = "public"
+AUTH_PROVIDER = "stytch"
+AUTH_REDIRECT = "/dashboard"
+STYTCH_BYPASS = "1"
+E2E_FAKE_STYTCH = "1"
+STYTCH_CUSTOM_DOMAIN = "login-test.hub-evolution.com"
+PROMPT_REWRITE_V1 = "true"
+PROMPT_TEXT_MODEL = "gpt-4o-mini"
+PROMPT_VISION_MODEL = "gpt-4o-mini"
+PROMPT_MAX_FILE_BYTES = "5242880"
+PROMPT_MAX_FILES = "3"
+PROMPT_ALLOWED_TYPES = "image/jpeg,image/png,image/webp,application/pdf,text/plain,text/markdown"
+PROMPT_OUTPUT_TOKENS_MAX = "400"
+PROMPT_TEMPERATURE = "0.2"
+PROMPT_TOP_P = "0.9"
+VOICE_STREAM_SSE = "1"
+VOICE_STREAM_POLL = "1"
+VOICE_R2_ARCHIVE = "0"
+
+[[env.development.d1_databases]]
+binding = "DB"
+database_name = "evolution-hub-main-dev"
+database_id = "35bd5d4c-718a-43ea-935c-b5d62a686ec2"
+preview_database_id = "35bd5d4c-718a-43ea-935c-b5d62a686ec2"
+
+[[env.development.r2_buckets]]
+binding = "R2_AVATARS"
+bucket_name = "evolution-hub-avatars-local"
+preview_bucket_name = "evolution-hub-avatars-local"
+
+[[env.development.r2_buckets]]
+binding = "R2_LEADMAGNETS"
+bucket_name = "evolution-hub-lead-magnets-dev"
+preview_bucket_name = "evolution-hub-lead-magnets-dev"
+
+[[env.development.r2_buckets]]
+binding = "R2_AI_IMAGES"
+bucket_name = "evolution-hub-ai-images-local"
+preview_bucket_name = "evolution-hub-ai-images-local"
+
+[[env.development.r2_buckets]]
+binding = "R2_VOICE"
+bucket_name = "evolution-hub-voice-local"
+preview_bucket_name = "evolution-hub-voice-local"
+
+[[env.development.kv_namespaces]]
+binding = "SESSION"
+id = "bc180c72cdbe4701a221ab8002f2de72"
+preview_id = "bc180c72cdbe4701a221ab8002f2de72"
+
+[[env.development.kv_namespaces]]
+binding = "KV_AI_ENHANCER"
+id = "30356dfa83e342c48103609bce4f3320"
+preview_id = "30356dfa83e342c48103609bce4f3320"
+
+[[env.development.kv_namespaces]]
+binding = "KV_WEBSCRAPER"
+id = "c9814079ac344b979b58278d055ca457"
+preview_id = "c9814079ac344b979b58278d055ca457"
+
+[[env.development.kv_namespaces]]
+binding = "KV_VOICE_TRANSCRIBE"
+id = "6593f5bc9f174e60a8c09bb16b36672c"
+preview_id = "6593f5bc9f174e60a8c09bb16b36672c"
+
+# R2 Bucket-Binding
+[[r2_buckets]]
+binding = "R2_AVATARS" # Wählen Sie einen passenden Binding-Namen
+bucket_name = "evolution-hub-avatars"
+# Lokaler Entwicklungs-Bucket
+preview_bucket_name = "evolution-hub-avatars-local"
+
+# R2 Bucket-Binding (Lead Magnets)
+[[r2_buckets]]
+binding = "R2_LEADMAGNETS"
+bucket_name = "evolution-hub-lead-magnets"
+# Lokaler Entwicklungs-Bucket
+preview_bucket_name = "evolution-hub-lead-magnets-dev"
+
+# R2 Bucket-Binding (AI Images)
+[[r2_buckets]]
+binding = "R2_AI_IMAGES"
+bucket_name = "evolution-hub-ai-images"
+# Lokaler Entwicklungs-Bucket
+preview_bucket_name = "evolution-hub-ai-images-local"
+
+[[r2_buckets]]
+binding = "R2_VOICE"
+bucket_name = "evolution-hub-voice"
+# Lokaler Entwicklungs-Bucket
+preview_bucket_name = "evolution-hub-voice-local"
+
+# KV Namespace-Binding
+[[kv_namespaces]]
+binding = "SESSION" # Binding-Name entspricht dem Namespace-Titel
+id = "0a9b6b94e5664025a223d4d15ae13cd3"
+# Lokaler Entwicklungs-Namespace (für Preview denselben Namespace verwenden)
+preview_id = "0a9b6b94e5664025a223d4d15ae13cd3"
+
+# KV Namespace-Binding (AI Enhancer Usage)
+[[kv_namespaces]]
+binding = "KV_AI_ENHANCER"
+id = "53afc42009cb4ba9ab2b95af5a4105a4"
+preview_id = "53afc42009cb4ba9ab2b95af5a4105a4"
+
+# KV Namespace-Binding (Webscraper Usage)
+[[kv_namespaces]]
+binding = "KV_WEBSCRAPER"
+id = "a63a1fd516d942e9a892f226f2cc11c6"
+preview_id = "a63a1fd516d942e9a892f226f2cc11c6"
+
+# Assets (Static Files for Worker)
+[assets]
+directory = "./dist" # serve all static assets from dist; .assetsignore excludes _worker.js at dist root
+html_handling = "auto-trailing-slash"
+binding = "ASSETS"
+run_worker_first = ["/r2-ai/*", "/api/*"]
+
+# Secrets / Umgebungsvariablen
+[vars]
+ENVIRONMENT = "development" # Wird für lokale Entwicklung auf 'development' gesetzt, in Produktion auf 'production'
+# Quelle für Lead-Magnets: 'public' (aus /dist) oder 'r2' (aus R2)
+LEADMAGNET_SOURCE = "public"
+
+# Prompt Enhancer (non-secret defaults for local dev)
+PROMPT_REWRITE_V1 = "true"
+PROMPT_TEXT_MODEL = "gpt-4o-mini"
+PROMPT_VISION_MODEL = "gpt-4o-mini"
+PROMPT_MAX_FILE_BYTES = "5242880" # 5 MB
+PROMPT_MAX_FILES = "3"
+PROMPT_ALLOWED_TYPES = "image/jpeg,image/png,image/webp,application/pdf,text/plain,text/markdown"
+PROMPT_OUTPUT_TOKENS_MAX = "400"
+PROMPT_TEMPERATURE = "0.2"
+PROMPT_TOP_P = "0.9"
+
+# Ressourcen-Bindings für Staging (nicht von Top-Level geerbt)
+[[env.staging.d1_databases]]
+binding = "DB"
+database_name = "evolution-hub-main-local"
+database_id = "11c6dad1-b35b-488e-a5f3-1d2e707afa65"
+preview_database_id = "11c6dad1-b35b-488e-a5f3-1d2e707afa65"
+
+[[env.staging.r2_buckets]]
+binding = "R2_AVATARS"
+bucket_name = "evolution-hub-avatars-local"
+preview_bucket_name = "evolution-hub-avatars-local"
+
+[[env.staging.r2_buckets]]
+binding = "R2_LEADMAGNETS"
+bucket_name = "evolution-hub-lead-magnets-dev"
+preview_bucket_name = "evolution-hub-lead-magnets-dev"
+
+[[env.staging.r2_buckets]]
+binding = "R2_AI_IMAGES"
+bucket_name = "evolution-hub-ai-images-local"
+preview_bucket_name = "evolution-hub-ai-images-local"
+
+[[env.staging.r2_buckets]]
+binding = "R2_VOICE"
+bucket_name = "evolution-hub-voice-local"
+preview_bucket_name = "evolution-hub-voice-local"
+
+[[env.staging.kv_namespaces]]
+binding = "SESSION"
+id = "bc180c72cdbe4701a221ab8002f2de72"
+preview_id = "79810af7adff409a9a7fed6cb849b845"
+
+[[env.staging.kv_namespaces]]
+binding = "KV_AI_ENHANCER"
+id = "30356dfa83e342c48103609bce4f3320"
+
+[[env.staging.kv_namespaces]]
+binding = "KV_COMMENTS"
+id = "61878c1a1cd3402499476e7804ccc8ef"
+
+# Add missing KV_WEBSCRAPER binding to mirror top-level binding
+[[env.staging.kv_namespaces]]
+binding = "KV_WEBSCRAPER"
+id = "a63a1fd516d942e9a892f226f2cc11c6"
+# Produktionsumgebung: Variablen nur bei --env production aktiv
+[env.production.vars]
+ENVIRONMENT = "production"
+# Produktionsbasis-URL für Stripe-Redirects
+BASE_URL = "https://hub-evolution.com"
+LEADMAGNET_SOURCE = "r2"
+ 
+PRICING_TABLE = '{"free":"","pro":"price_1S7NR3HdpdQAtOQBldQRKby5","premium":"price_1S7NTtHdpdQAtOQB7QHmF9Js","enterprise":""}'
+PRICING_TABLE_ANNUAL = '{"free":"","pro":"price_1S7NTZHdpdQAtOQBwmchvm92","premium":"price_1S7NU4HdpdQAtOQBOZ9jW06J","enterprise":""}'
+PRICING_LINKS = '{"pro":"https://buy.stripe.com/5kQ6oH7d11nv2vC5pJ1VK06","premium":"https://buy.stripe.com/eVqeVd7d14zH3zG05p1VK08"}'
+PRICING_LINKS_ANNUAL = '{"pro":"https://buy.stripe.com/5kQ7sL9l9c296LS4lF1VK01","premium":"https://buy.stripe.com/cNi8wPdBp2rzdag4lF1VK07"}'
+AUTH_PROVIDER = "stytch"
+PUBLIC_TURNSTILE_SITE_KEY = "0x4AAAAAAB5-m2IDaeVetM7Q"
+
+# Prompt Enhancer (non-secret defaults; override per env if needed)
+PROMPT_REWRITE_V1 = "true"
+PROMPT_TEXT_MODEL = "gpt-4o-mini"
+PROMPT_VISION_MODEL = "gpt-4o-mini"
+PROMPT_MAX_FILES = "3"
+PROMPT_MAX_FILE_BYTES = "5242880"
+PROMPT_ALLOWED_TYPES = "image/jpeg,image/png,image/webp,application/pdf,text/plain,text/markdown"
+PROMPT_OUTPUT_TOKENS_MAX = "400"
+PROMPT_TEMPERATURE = "0.2"
+PROMPT_TOP_P = "0.9"
+PROMPT_METRICS_V1 = "true"
+VOICE_STREAM_SSE = "0"
+VOICE_STREAM_POLL = "0"
+VOICE_R2_ARCHIVE = "0"
+
+[env.production]
+
+[[env.production.routes]]
+pattern = "hub-evolution.com/*"
+zone_name = "hub-evolution.com"
+[[env.production.routes]]
+pattern = "www.hub-evolution.com/*" 
+zone_name = "hub-evolution.com"
+
+[[env.production.r2_buckets]]
+binding = "R2_AVATARS"
+bucket_name = "evolution-hub-avatars"
+
+[[env.production.r2_buckets]]
+binding = "R2_LEADMAGNETS"
+bucket_name = "evolution-hub-lead-magnets"
+
+[[env.production.r2_buckets]]
+binding = "R2_AI_IMAGES"
+bucket_name = "evolution-hub-ai-images"
+
+[[env.production.r2_buckets]]
+binding = "R2_VOICE"
+bucket_name = "evolution-hub-voice"
+
+[[env.production.kv_namespaces]]
+binding = "SESSION"
+id = "0a9b6b94e5664025a223d4d15ae13cd3"
+
+[[env.production.kv_namespaces]]
+binding = "KV_AI_ENHANCER"
+id = "fd1523f570c84ea8bc42cbd397cfdec3"
+
+[[env.production.kv_namespaces]]
+binding = "KV_WEBSCRAPER"
+id = "a63a1fd516d942e9a892f226f2cc11c6"
+
+[[env.production.d1_databases]]
+binding = "DB"
+database_name = "evolution-hub-main"
+database_id = "cadc96d1-712a-4873-8f3d-da87a936f3be"
+
+
+[[env.testing.routes]]
+pattern = "ci.hub-evolution.com/*"
+zone_name = "hub-evolution.com"
+[env.testing.vars]
+ENVIRONMENT = "testing"
+BASE_URL = "https://ci.hub-evolution.com"
+LEADMAGNET_SOURCE = "r2"
+AUTH_PROVIDER = "stytch"
+STYTCH_CUSTOM_DOMAIN = "login-test.hub-evolution.com"
+PRICING_TABLE = '{"free":"","pro":"price_1S792lHr57WJCQliypEVllOm","premium":"price_1S793YHr57WJCQli3PHQVl4F","enterprise":"price_1S78fzHr57WJCQliS1xzpjhn"}'
+PRICING_TABLE_ANNUAL = '{"free":"","pro":"price_1S795tHr57WJCQli0xzvzWYh","premium":"price_1S796lHr57WJCQlivfgidNkx","enterprise":""}'
+CREDITS_PRICING_TABLE = '{"200":"price_1S79IaHr57WJCQliDVSRm21g","1000":"price_1S79JXHr57WJCQliJ30yk0rS"}'
+PUBLIC_TURNSTILE_SITE_KEY = "0x4AAAAAAB5-m2IDaeVetM7Q"
+PROMPT_REWRITE_V1 = "true"
+PROMPT_TEXT_MODEL = "gpt-4o-mini"
+PROMPT_VISION_MODEL = "gpt-4o-mini"
+PROMPT_MAX_FILES = "3"
+PROMPT_MAX_FILE_BYTES = "5242880"
+PROMPT_ALLOWED_TYPES = "image/jpeg,image/png,image/webp,application/pdf,text/plain,text/markdown"
+PROMPT_OUTPUT_TOKENS_MAX = "400"
+PROMPT_TEMPERATURE = "0.2"
+PROMPT_TOP_P = "0.9"
+ VOICE_STREAM_SSE = "1"
+ VOICE_STREAM_POLL = "1"
+
+[[env.testing.d1_databases]]
+binding = "DB"
+database_name = "evolution-hub-main-local"
+database_id = "11c6dad1-b35b-488e-a5f3-1d2e707afa65"
+preview_database_id = "11c6dad1-b35b-488e-a5f3-1d2e707afa65"
+
+[[env.testing.r2_buckets]]
+binding = "R2_AVATARS"
+bucket_name = "evolution-hub-avatars-local"
+preview_bucket_name = "evolution-hub-avatars-local"
+
+[[env.testing.r2_buckets]]
+binding = "R2_VOICE"
+bucket_name = "evolution-hub-voice-local"
+preview_bucket_name = "evolution-hub-voice-local"
+
+[[env.testing.r2_buckets]]
+binding = "R2_LEADMAGNETS"
+bucket_name = "evolution-hub-lead-magnets-dev"
+preview_bucket_name = "evolution-hub-lead-magnets-dev"
+
+[[env.testing.r2_buckets]]
+binding = "R2_AI_IMAGES"
+bucket_name = "evolution-hub-ai-images-local"
+preview_bucket_name = "evolution-hub-ai-images-local"
+
+[[env.testing.kv_namespaces]]
+binding = "SESSION"
+id = "bc180c72cdbe4701a221ab8002f2de72"
+preview_id = "79810af7adff409a9a7fed6cb849b845"
+
+[[env.testing.kv_namespaces]]
+binding = "KV_AI_ENHANCER"
+id = "30356dfa83e342c48103609bce4f3320"
+preview_id = "30356dfa83e342c48103609bce4f3320"
+
+[[env.testing.kv_namespaces]]
+binding = "KV_COMMENTS"
+id = "41475ea385094b3f9b13c12e06954dd5"
+
+[[env.testing.kv_namespaces]]
+binding = "KV_WEBSCRAPER"
+id = "a63a1fd516d942e9a892f226f2cc11c6"
+preview_id = "a63a1fd516d942e9a892f226f2cc11c6"
+
+# Staging-Umgebung
+[env.staging]
+[[env.staging.routes]]
+pattern = "staging.hub-evolution.com/*"
+zone_name = "hub-evolution.com"
+
+[env.staging.vars]
+ENVIRONMENT = "staging"
+BASE_URL = "https://staging.hub-evolution.com"
+LEADMAGNET_SOURCE = "r2"
+PRICING_TABLE = '{"free":"","pro":"price_1S76fgHdpdQAtOQBejlie3Ly","premium":"price_1S76fyHdpdQAtOQBq9ISqQ0c","enterprise":"price_1S76gEHdpdQAtOQBl8z2E5Qs"}'
+
+# Prompt Enhancer (non-secret defaults for staging)
+PROMPT_REWRITE_V1 = "true"
+PROMPT_TEXT_MODEL = "gpt-4o-mini"
+PROMPT_VISION_MODEL = "gpt-4o-mini"
+PROMPT_MAX_FILES = "3"
+PROMPT_MAX_FILE_BYTES = "5242880"
+PROMPT_ALLOWED_TYPES = "image/jpeg,image/png,image/webp,application/pdf,text/plain,text/markdown"
+PROMPT_OUTPUT_TOKENS_MAX = "400"
+PUBLIC_TURNSTILE_SITE_KEY = "0x4AAAAAAB5-m2IDaeVetM7Q"

@@ -29,7 +29,7 @@ pnpm-debug.log*
 # Local secrets
 .dev.vars
 
-wrangler.toml
+
 # Environment Variables
 # Ignore all .env files
 .env*
