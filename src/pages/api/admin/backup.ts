@@ -15,7 +15,7 @@ import type { BackupOptions } from '../../../lib/types/data-management';
 
 const app = new Hono<{
   Bindings: { DB: D1Database; JWT_SECRET: string };
-  Variables: { userId: number; requestId: string };
+  Variables: { userId: string; requestId: string };
 }>();
 
 // Middleware
@@ -46,7 +46,7 @@ app.use('/*', async (c, next) => {
       request: c.req.raw,
       env: { DB: c.env.DB },
     });
-    c.set('userId', Number(user.id));
+    c.set('userId', String(user.id));
     await next();
   } catch {
     return c.json(
@@ -244,7 +244,7 @@ app.get('/jobs/:id/progress', async (c) => {
  */
 app.post('/create', async (c) => {
   try {
-    const adminId = c.get('userId') as number;
+    const adminId = c.get('userId') as string;
     const body = await c.req.json<BackupOptions & { description?: string }>();
     const db = drizzle(c.env.DB);
     const backupService = new BackupService(db);
@@ -313,7 +313,7 @@ app.post('/create', async (c) => {
  */
 app.post('/schedule', async (c) => {
   try {
-    const adminId = c.get('userId') as number;
+    const adminId = c.get('userId') as string;
     const body = await c.req.json<{
       type: string;
       cronExpression: string;
@@ -371,7 +371,7 @@ app.post('/schedule', async (c) => {
  */
 app.post('/maintenance/perform', async (c) => {
   try {
-    const adminId = c.get('userId') as number;
+    const adminId = c.get('userId') as string;
     const body = await c.req.json<{
       type: 'cleanup' | 'optimization' | 'migration' | 'repair';
       description: string;
@@ -561,7 +561,7 @@ app.get('/maintenance/jobs/:id', async (c) => {
  */
 app.post('/cleanup', async (c) => {
   try {
-    const adminId = c.get('userId') as number;
+    const _adminId = c.get('userId') as string;
     const body = await c.req.json<{ retentionDays?: number }>();
     const retentionDays = body.retentionDays || 30;
 

@@ -9,10 +9,10 @@ export type AuditAction = 'create' | 'update' | 'delete' | 'moderate' | 'report'
 export interface Comment {
   id: string;
   content: string;
-  authorId: number;
+  authorId: string | null;
   authorName: string;
   authorEmail: string;
-  parentId?: string;
+  parentId?: string | null;
   entityType: CommentEntityType;
   entityId: string;
   status: CommentStatus;
@@ -42,7 +42,7 @@ export interface UpdateCommentRequest {
 export interface CommentModeration {
   id: number;
   commentId: string;
-  moderatorId?: number;
+  moderatorId?: string | null;
   action: ModerationAction;
   reason?: string;
   createdAt: number;
@@ -51,14 +51,14 @@ export interface CommentModeration {
 export interface CommentReport {
   id: number;
   commentId: string;
-  reporterId?: number;
+  reporterId?: string | null;
   reporterEmail?: string;
   reason: ReportReason;
   description?: string;
   status: ReportStatus;
   createdAt: number;
   reviewedAt?: number;
-  reviewedBy?: number;
+  reviewedBy?: string | null;
 }
 
 export interface CommentListResponse {
@@ -91,7 +91,7 @@ export interface CommentFilters {
   status?: CommentStatus;
   entityType?: CommentEntityType;
   entityId?: string;
-  authorId?: number;
+  authorId?: string;
   limit?: number;
   offset?: number;
   includeReplies?: boolean;
@@ -107,7 +107,7 @@ export interface ModerationQueueItem {
 export interface CommentAuditLog {
   id: number;
   commentId: string;
-  userId?: number;
+  userId?: string | null;
   action: AuditAction;
   oldValues?: string; // JSON string of previous state (for updates)
   newValues?: string; // JSON string of new state (for updates)
@@ -120,7 +120,7 @@ export interface CommentAuditLog {
 
 export interface AuditLogFilters {
   commentId?: string;
-  userId?: number;
+  userId?: string;
   action?: AuditAction;
   limit?: number;
   offset?: number;

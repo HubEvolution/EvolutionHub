@@ -63,7 +63,7 @@ app.use(
 app.get('/jobs', async (c) => {
   try {
     const user = await requireAuth(c);
-    const userId = Number(user.id);
+    const userId = String(user.id);
     const db = drizzle(c.env.DB);
     const exportService = new DataExportService(db);
 
@@ -111,7 +111,7 @@ app.get('/jobs', async (c) => {
 app.get('/jobs/:id', async (c) => {
   try {
     const user = await requireAuth(c);
-    const userId = Number(user.id);
+    const userId = String(user.id);
     const jobId = c.req.param('id');
     const db = drizzle(c.env.DB);
     const exportService = new DataExportService(db);
@@ -176,7 +176,7 @@ app.get('/jobs/:id', async (c) => {
 app.get('/jobs/:id/progress', async (c) => {
   try {
     const user = await requireAuth(c);
-    const userId = Number(user.id);
+    const userId = String(user.id);
     const jobId = c.req.param('id');
     const db = drizzle(c.env.DB);
     const exportService = new DataExportService(db);
@@ -231,7 +231,7 @@ app.get('/jobs/:id/progress', async (c) => {
 app.post('/create', async (c) => {
   try {
     const user = await requireAuth(c);
-    const userId = Number(user.id);
+    const userId = String(user.id);
     const body = await c.req.json<ExportOptions>();
     const db = drizzle(c.env.DB);
     const exportService = new DataExportService(db);
@@ -315,7 +315,7 @@ app.post('/create', async (c) => {
 app.get('/download/:id', async (c) => {
   try {
     const user = await requireAuth(c);
-    const userId = Number(user.id);
+    const userId = String(user.id);
     const jobId = c.req.param('id');
     const db = drizzle(c.env.DB);
     const exportService = new DataExportService(db);
@@ -413,7 +413,7 @@ app.get('/download/:id', async (c) => {
 app.post('/delete-request', async (c) => {
   try {
     const user = await requireAuth(c);
-    const userId = Number(user.id);
+    const userId = String(user.id);
     const body = await c.req.json<{ reason?: string }>();
     const db = drizzle(c.env.DB);
     const exportService = new DataExportService(db);

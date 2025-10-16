@@ -18,7 +18,7 @@ export type MaintenanceStatus = 'pending' | 'running' | 'completed' | 'failed' |
 
 export interface DataExportJob {
   id: string;
-  userId: number;
+  userId: string;
   type: ExportJobType;
   status: ExportJobStatus;
   format: ExportFormat;
@@ -34,7 +34,7 @@ export interface DataExportJob {
 
 export interface DataDeletionRequest {
   id: string;
-  userId: number;
+  userId: string;
   requestType: DeletionRequestType;
   status: DeletionRequestStatus;
   reason?: string;
@@ -42,7 +42,7 @@ export interface DataDeletionRequest {
   verificationToken: string;
   expiresAt: number;
   processedAt?: number;
-  processedBy?: number;
+  processedBy?: string;
   createdAt: number;
 }
 
@@ -58,7 +58,7 @@ export interface BackupJob {
   errorMessage?: string;
   startedAt?: number;
   completedAt?: number;
-  triggeredBy?: number;
+  triggeredBy?: string;
   isAutomated: boolean;
 }
 
@@ -72,21 +72,21 @@ export interface SystemMaintenance {
   logOutput?: string;
   startedAt?: number;
   completedAt?: number;
-  triggeredBy?: number;
+  triggeredBy?: string;
   isAutomated: boolean;
 }
 
 export interface ExportData {
   metadata: {
     exportId: string;
-    userId: number;
+    userId: string;
     exportType: ExportJobType;
     format: ExportFormat;
     generatedAt: number;
     version: string;
   };
   user?: {
-    id: number;
+    id: string;
     email: string;
     name?: string;
     createdAt: number;
@@ -102,7 +102,7 @@ export interface ExportData {
     updatedAt?: number;
     parentId?: string;
     author: {
-      id: number;
+      id: string;
       name?: string;
     };
   }>;

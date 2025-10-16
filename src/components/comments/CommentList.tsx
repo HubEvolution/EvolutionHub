@@ -10,7 +10,7 @@ interface CommentListProps {
   onUpdateComment: (commentId: string, content: string) => Promise<void>;
   onDeleteComment: (commentId: string) => Promise<void>;
   onReply: (content: string, parentId?: string) => Promise<void>;
-  currentUser?: { id: number; name: string; email: string } | null;
+  currentUser?: { id: string; name: string; email: string } | null;
   isLoading?: boolean;
   maxDepth?: number;
 }
@@ -22,7 +22,7 @@ interface CommentItemProps {
   onUpdateComment: (commentId: string, content: string) => Promise<void>;
   onDeleteComment: (commentId: string) => Promise<void>;
   onReply: (content: string, parentId?: string) => Promise<void>;
-  currentUser?: { id: number; name: string; email: string } | null;
+  currentUser?: { id: string; name: string; email: string } | null;
 }
 
 const CommentItem: React.FC<CommentItemProps> = ({
@@ -166,7 +166,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
                 </>
               )}
 
-              {comment.reportCount > 0 && (
+              {(comment.reportCount ?? 0) > 0 && (
                 <span className="text-xs text-orange-600 dark:text-orange-400">
                   {comment.reportCount} Meldung{comment.reportCount !== 1 ? 'en' : ''}
                 </span>

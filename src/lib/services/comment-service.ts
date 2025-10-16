@@ -4,7 +4,7 @@ import { generateId } from '../utils/id-generator';
 import { rateLimit } from '../rate-limiter';
 import { validateCsrfToken } from '../security/csrf';
 import { checkSpam } from '../spam-detection';
-import { comments, commentModeration, commentReports, commentAuditLogs, users } from '../db/schema';
+import { comments, commentModeration, commentReports } from '../db/schema';
 import { NotificationService } from './notification-service';
 import type { NotificationContext, CommentNotificationData } from '../types/notifications';
 import type {
@@ -19,10 +19,6 @@ import type {
   ModerateCommentRequest,
   ReportCommentRequest,
   ModerationQueueItem,
-  CommentAuditLog,
-  AuditLogFilters,
-  AuditLogListResponse,
-  AuditAction,
 } from '../types/comments';
 
 export class CommentService {
@@ -99,7 +95,7 @@ export class CommentService {
         `SELECT 
             id,
             content,
-            0 as authorId,
+            NULL as authorId,
             author as authorName,
             '' as authorEmail,
             NULL as parentId,
@@ -123,7 +119,7 @@ export class CommentService {
     const items = rows.map((r) => ({
       id: String(r.id),
       content: String(r.content),
-      authorId: Number(r.authorId) || 0,
+      authorId: r.authorId == null ? null : String(r.authorId),
       authorName: String(r.authorName || 'Anonymous'),
       authorEmail: String(r.authorEmail || ''),
       parentId: r.parentId ? String(r.parentId) : null,
@@ -197,7 +193,7 @@ export class CommentService {
    */
   async createComment(
     request: CreateCommentRequest,
-    userId?: number,
+    userId?: string,
     csrfToken?: string
   ): Promise<Comment> {
     // CSRF validation for authenticated users
@@ -236,16 +232,16 @@ export class CommentService {
     let authorEmail = request.authorEmail || '';
 
     if (userId) {
-      const user = await this.db
-        .select({ name: users.name, email: users.email })
-        .from(users)
-        .where(eq(users.id, userId))
-        .limit(1);
-
-      if (user.length > 0) {
-        authorName = user[0].name;
-        authorEmail = user[0].email;
-      }
+      try {
+        const res = await this.rawDb
+          .prepare('SELECT name, email FROM users WHERE id = ? LIMIT 1')
+          .bind(userId)
+          .first<{ name: string; email: string }>();
+        if (res) {
+          authorName = res.name;
+          authorEmail = res.email;
+        }
+      } catch {}
     }
 
     // Sanitize content to prevent XSS attacks (lazy import to avoid DOM dependency in Workers for GET routes)
@@ -269,7 +265,7 @@ export class CommentService {
     await this.db.insert(comments).values({
       id: commentId,
       content: sanitizedContent,
-      authorId: userId || 0, // 0 for guest users
+      authorId: userId ?? null, // null for guest users
       authorName,
       authorEmail,
       parentId: request.parentId,
@@ -339,7 +335,7 @@ export class CommentService {
   async updateComment(
     commentId: string,
     request: UpdateCommentRequest,
-    userId: number,
+    userId: string,
     csrfToken: string
   ): Promise<Comment> {
     // CSRF validation
@@ -392,7 +388,7 @@ export class CommentService {
   /**
    * Delete a comment
    */
-  async deleteComment(commentId: string, userId: number, csrfToken: string): Promise<void> {
+  async deleteComment(commentId: string, userId: string, csrfToken: string): Promise<void> {
     // CSRF validation
     const isValidCsrf = await validateCsrfToken(csrfToken);
     if (!isValidCsrf) {
@@ -609,7 +605,7 @@ export class CommentService {
   async moderateComment(
     commentId: string,
     request: ModerateCommentRequest,
-    moderatorId: number
+    moderatorId: string
   ): Promise<CommentModeration> {
     const now = Math.floor(Date.now() / 1000);
 
@@ -698,7 +694,7 @@ export class CommentService {
   async reportComment(
     commentId: string,
     request: ReportCommentRequest,
-    reporterId?: number
+    reporterId?: string
   ): Promise<CommentReport> {
     const now = Math.floor(Date.now() / 1000);
 

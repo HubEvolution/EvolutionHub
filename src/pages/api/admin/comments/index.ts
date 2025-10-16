@@ -40,7 +40,7 @@ app.get('/', async (c) => {
       status: query.status as any,
       entityType: query.entityType as any,
       entityId: query.entityId,
-      authorId: query.authorId ? parseInt(query.authorId) : undefined,
+      authorId: query.authorId || undefined,
       limit: query.limit ? parseInt(query.limit) : 50, // Higher default for admin
       offset: query.offset ? parseInt(query.offset) : 0,
       includeReplies: query.includeReplies !== 'false',
@@ -177,7 +177,7 @@ app.post('/bulk-moderate', async (c) => {
         const moderation = await commentService.moderateComment(
           commentId,
           { action, reason },
-          Number(user.id)
+          String(user.id)
         );
         results.push({ commentId, success: true, moderation });
       } catch (error) {

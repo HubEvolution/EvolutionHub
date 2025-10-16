@@ -34,7 +34,23 @@ describe('quickActionStore', () => {
   it('executeAction redirect navigates to URL', async () => {
     setupActions();
 
-    const hrefSpy = vi.spyOn(window.location, 'href', 'set');
+    // Provide a configurable window.location mock for jsdom
+    const originalLocation = window.location;
+    const locationMock: any = {
+      ...originalLocation,
+      href: originalLocation.href,
+      assign: vi.fn((url: string) => {
+        locationMock.href = url;
+      }),
+      replace: vi.fn((url: string) => {
+        locationMock.href = url;
+      }),
+    };
+    Object.defineProperty(window, 'location', {
+      value: locationMock,
+      writable: true,
+      configurable: true,
+    });
 
     vi.spyOn(global, 'fetch').mockResolvedValueOnce(
       new Response(JSON.stringify({ redirect: '/docs' }), {
@@ -45,7 +61,14 @@ describe('quickActionStore', () => {
 
     await useQuickActionStore.getState().executeAction('view_docs');
 
-    expect(hrefSpy).toHaveBeenCalledWith('/docs');
+    expect(window.location.href).toBe('/docs');
+
+    // Restore original location; keep configurable to appease jsdom teardown
+    Object.defineProperty(window, 'location', {
+      value: originalLocation,
+      writable: false,
+      configurable: true,
+    });
   });
 
   it('executeAction server error sets error and status error', async () => {

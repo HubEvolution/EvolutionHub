@@ -87,6 +87,7 @@ This document captures the audit scope, concrete workstreams, exact patch points
   - Commit: `git add -A && git commit -m "chore(security): add global Referrer-Policy for HTML" && git push -u origin chore/referrer-policy-html`
 - Validation:
   - HTML responses include policy; APIs unchanged.
+- Status: Completed — PR #60 <https://github.com/HubEvolution/EvolutionHub/pull/60>
 
 ### W5. CI Gate: Staging Smokes before Production
 
@@ -101,6 +102,7 @@ This document captures the audit scope, concrete workstreams, exact patch points
   - Commit: `git add .github/workflows/deploy.yml && git commit -m "ci: gate production on staging smokes + openapi validate" && git push -u origin ci/staging-smokes-gate`
 - Validation:
   - Prod job waits for staging smokes to pass.
+- Status: Completed — PR #61 <https://github.com/HubEvolution/EvolutionHub/pull/61>
 
 ### W6. Secrets & Bindings Audit
 
@@ -193,7 +195,7 @@ This document captures the audit scope, concrete workstreams, exact patch points
 
 To verify OpenAPI before wiring CI gate:
 
-```
+```plain
 npm run openapi:validate
 ```
 

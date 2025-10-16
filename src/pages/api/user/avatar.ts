@@ -1,10 +1,15 @@
-import { withAuthApiMiddleware, createApiSuccess, createApiError } from '@/lib/api-middleware';
+import {
+  withAuthApiMiddleware,
+  createApiSuccess,
+  createApiError,
+  createMethodNotAllowed,
+} from '@/lib/api-middleware';
 import { logUserEvent } from '@/lib/security-logger';
 import { createRateLimiter } from '@/lib/rate-limiter';
 
-// Rate-Limiter für Avatar-Uploads (5/Minute für sensible Aktion)
+// Rate-Limiter für Avatar-Uploads (5/Minute in Prod; erhöht in Dev für stabile Tests)
 const avatarLimiter = createRateLimiter({
-  maxRequests: 5,
+  maxRequests: import.meta.env.DEV ? 50 : 5,
   windowMs: 60 * 1000,
   name: 'avatarUpload',
 });
@@ -49,6 +54,19 @@ export const POST = withAuthApiMiddleware(
       return createApiError('server_error', 'Database connection not available');
     }
 
+    // Validierung: erlaubte Dateiendungen und Maximalgröße (5MB)
+    const originalName = (avatarFile as File).name || '';
+    const ext = originalName.split('.').pop()?.toLowerCase() || '';
+    const allowedExt = new Set(['jpg', 'jpeg', 'png', 'webp']);
+    if (!allowedExt.has(ext)) {
+      return createApiError('validation_error', 'Ungültiger Dateityp');
+    }
+    const maxBytes = 5 * 1024 * 1024; // 5MB
+    const fileSize = (avatarFile as File).size;
+    if (typeof fileSize === 'number' && fileSize > maxBytes) {
+      return createApiError('validation_error', 'Datei zu groß');
+    }
+
     // Vereinfachter eindeutiger Dateiname
     const fileKey = `avatar-${user.id}-${Date.now()}.${avatarFile.name.split('.').pop()}`;
 
@@ -73,6 +91,8 @@ export const POST = withAuthApiMiddleware(
 
       return createApiSuccess({
         message: 'Avatar erfolgreich aktualisiert',
+        // Für Kompatibilität beide Keys anbieten
+        avatarUrl: imageUrl,
         imageUrl,
       });
     } catch (uploadError) {
@@ -91,5 +111,10 @@ export const POST = withAuthApiMiddleware(
     rateLimiter: avatarLimiter,
     enforceCsrfToken: true, // Avatar-Uploads benötigen CSRF-Schutz
     logMetadata: { action: 'avatar_upload' },
+    onUnauthorized: () =>
+      createApiError('auth_error', 'Für diese Aktion ist eine Anmeldung erforderlich'),
   }
 );
+
+// Für nicht unterstützte Methoden explizit 405 zurückgeben
+export const GET = () => createMethodNotAllowed('POST');

@@ -14,6 +14,7 @@ export interface Env {
   R2_MAINTENANCE: R2Bucket;
   KV_CRON_STATUS: KVNamespace;
   BASE_URL: string;
+  BASE_URLS?: string;
   GITHUB_TOKEN?: string;
   INTERNAL_HEALTH_TOKEN?: string;
   E2E_PROD_AUTH_SMOKE?: string;
@@ -55,9 +56,34 @@ async function putStatusKV(env: Env, key: string, data: unknown) {
   }
 }
 
-async function runPricingSmoke(env: Env) {
+function parseTargets(env: Env): Array<{ url: string; host: string }> {
+  const list: string[] = (() => {
+    const raw = env.BASE_URLS || '';
+    if (raw) {
+      try {
+        const arr = JSON.parse(raw);
+        if (Array.isArray(arr)) return arr.filter((v) => typeof v === 'string');
+      } catch {}
+    }
+    const single = env.BASE_URL || '';
+    return single ? [single] : [];
+  })();
+  return list
+    .map((u) => {
+      try {
+        const url = u.replace(/\/$/, '');
+        const host = new URL(url).host;
+        return { url, host };
+      } catch {
+        return null;
+      }
+    })
+    .filter((x): x is { url: string; host: string } => !!x);
+}
+
+async function runPricingSmokeFor(env: Env, baseUrl: string, host: string) {
   const start = Date.now();
-  const url = `${env.BASE_URL.replace(/\/$/, '')}/en/pricing`;
+  const url = `${baseUrl}/en/pricing`;
   let ok = false;
   let status = 0;
   let sample = '';
@@ -72,17 +98,24 @@ async function runPricingSmoke(env: Env) {
     sample = String(e);
   }
   const ms = Date.now() - start;
-  const payload = { kind: 'pricing-smoke', ok, status, ms, url, sample, at: nowIso() };
-  const key = `maintenance/pricing/${dateKey()}/${Date.now()}.json`;
+  const payload = { kind: 'pricing-smoke', ok, status, ms, url, sample, at: nowIso(), host };
+  const key = `maintenance/pricing/${host}/${dateKey()}/${Date.now()}.json`;
   await putJsonR2(env, key, payload);
-  await putStatusKV(env, 'pricing:last', { ok, status, ms, at: payload.at });
+  await putStatusKV(env, `pricing:last:${host}`, { ok, status, ms, at: payload.at });
 }
 
-async function runProdAuthHealth(env: Env) {
+async function runPricingSmokeAll(env: Env, onlyHost?: string) {
+  const targets = parseTargets(env).filter((t) => (!onlyHost ? true : t.host === onlyHost));
+  for (const t of targets) {
+    await runPricingSmokeFor(env, t.url, t.host);
+  }
+}
+
+async function runProdAuthHealthFor(env: Env, baseUrl: string, host: string) {
   const gate = String(env.E2E_PROD_AUTH_SMOKE || '').toLowerCase();
   if (!(gate === '1' || gate === 'true')) return;
   const start = Date.now();
-  const url = `${env.BASE_URL.replace(/\/$/, '')}/api/health/auth`;
+  const url = `${baseUrl}/api/health/auth`;
   let ok = false;
   let status = 0;
   let data: unknown = null;
@@ -102,10 +135,17 @@ async function runProdAuthHealth(env: Env) {
     data = { error: String(e) };
   }
   const ms = Date.now() - start;
-  const payload = { kind: 'prod-auth-health', ok, status, ms, url, data, at: nowIso() };
-  const key = `maintenance/prod-auth/${dateKey()}/${Date.now()}.json`;
+  const payload = { kind: 'prod-auth-health', ok, status, ms, url, data, at: nowIso(), host };
+  const key = `maintenance/prod-auth/${host}/${dateKey()}/${Date.now()}.json`;
   await putJsonR2(env, key, payload);
-  await putStatusKV(env, 'prod-auth:last', { ok, status, ms, at: payload.at });
+  await putStatusKV(env, `prod-auth:last:${host}`, { ok, status, ms, at: payload.at });
+}
+
+async function runProdAuthHealthAll(env: Env, onlyHost?: string) {
+  const targets = parseTargets(env).filter((t) => (!onlyHost ? true : t.host === onlyHost));
+  for (const t of targets) {
+    await runProdAuthHealthFor(env, t.url, t.host);
+  }
 }
 
 async function runDocsInventory(env: Env) {
@@ -156,16 +196,25 @@ export default {
         });
       }
       const target = url.pathname.replace('/__cron/run/', '');
+      const hostFilter = url.searchParams.get('host') || undefined;
       try {
         if (target === 'pricing') {
-          await runPricingSmoke(env);
-          return new Response(JSON.stringify({ ok: true, ran: 'pricing' }), {
+          if (hostFilter) {
+            await runPricingSmokeAll(env, hostFilter);
+          } else {
+            await runPricingSmokeAll(env);
+          }
+          return new Response(JSON.stringify({ ok: true, ran: 'pricing', host: hostFilter || 'all' }), {
             headers: { 'Content-Type': 'application/json' },
           });
         }
         if (target === 'auth') {
-          await runProdAuthHealth(env);
-          return new Response(JSON.stringify({ ok: true, ran: 'auth' }), {
+          if (hostFilter) {
+            await runProdAuthHealthAll(env, hostFilter);
+          } else {
+            await runProdAuthHealthAll(env);
+          }
+          return new Response(JSON.stringify({ ok: true, ran: 'auth', host: hostFilter || 'all' }), {
             headers: { 'Content-Type': 'application/json' },
           });
         }
@@ -177,8 +226,8 @@ export default {
         }
         if (target === 'status') {
           const [pricing, auth, docs] = await Promise.all([
-            env.KV_CRON_STATUS.get('pricing:last').catch(() => null),
-            env.KV_CRON_STATUS.get('prod-auth:last').catch(() => null),
+            env.KV_CRON_STATUS.get('pricing:last:' + (hostFilter || '')).catch(() => null),
+            env.KV_CRON_STATUS.get('prod-auth:last:' + (hostFilter || '')).catch(() => null),
             env.KV_CRON_STATUS.get('docs-registry:last').catch(() => null),
           ]);
           return new Response(
@@ -207,14 +256,14 @@ export default {
   async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext) {
     console.log('[cron-worker] scheduled fired', event.cron, nowIso());
     if (event.cron === '0 2 * * *') {
-      ctx.waitUntil(runPricingSmoke(env));
+      ctx.waitUntil(runPricingSmokeAll(env));
     } else if (event.cron === '0 4 * * *') {
-      ctx.waitUntil(runProdAuthHealth(env));
+      ctx.waitUntil(runProdAuthHealthAll(env));
     } else if (event.cron === '0 5 * * 1') {
       ctx.waitUntil(runDocsInventory(env));
     } else {
       // Fallback for per-env overrides (e.g., testing with "* * * * *")
-      ctx.waitUntil(runPricingSmoke(env));
+      ctx.waitUntil(runPricingSmokeAll(env));
     }
   },
 };

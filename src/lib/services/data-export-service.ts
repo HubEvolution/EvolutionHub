@@ -27,7 +27,7 @@ export class DataExportService {
   /**
    * Erstellt einen neuen Datenexport-Job
    */
-  async createExportJob(userId: number, options: ExportOptions): Promise<string> {
+  async createExportJob(userId: string, options: ExportOptions): Promise<string> {
     const jobId = crypto.randomUUID();
 
     await this.db.insert(dataExportJobs).values({
@@ -124,7 +124,7 @@ export class DataExportService {
    * Sammelt Daten für Export basierend auf Typ und Optionen
    */
   private async collectExportData(
-    userId: number,
+    userId: string,
     options: { type: ExportJobType; format: ExportFormat }
   ): Promise<ExportData> {
     const exportData: ExportData = {
@@ -413,7 +413,7 @@ export class DataExportService {
   /**
    * Holt alle Export-Jobs für einen Benutzer
    */
-  async getUserExportJobs(userId: number): Promise<DataExportJob[]> {
+  async getUserExportJobs(userId: string): Promise<DataExportJob[]> {
     const rows = await this.db
       .select()
       .from(dataExportJobs)
@@ -484,7 +484,7 @@ export class DataExportService {
   /**
    * Erstellt Datenlösch-Anfrage (GDPR Right to Erasure)
    */
-  async createDeletionRequest(userId: number, reason?: string): Promise<string> {
+  async createDeletionRequest(userId: string, reason?: string): Promise<string> {
     const requestId = crypto.randomUUID();
     const verificationToken = crypto.randomUUID();
 
@@ -540,7 +540,7 @@ export class DataExportService {
   /**
    * Führt tatsächliche Datenlöschung durch
    */
-  private async performDataDeletion(userId: number, requestId: string): Promise<void> {
+  private async performDataDeletion(userId: string, requestId: string): Promise<void> {
     try {
       // Update request status
       await this.db

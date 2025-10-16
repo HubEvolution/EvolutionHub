@@ -46,7 +46,7 @@ export const POST = async (context: APIContext) => {
 
     // Optional auth
     const user = await getAuthUser({ request: context.request, env: { DB: db } });
-    const userId = user ? Number(user.id) : undefined;
+    const userId = user ? String(user.id) : undefined;
 
     const kv = env?.KV_COMMENTS || (context as any).locals?.env?.KV_COMMENTS;
     const service = new CommentService(db, kv);

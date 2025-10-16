@@ -2,7 +2,7 @@ import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core';
 
 // Base tables
 export const users = sqliteTable('users', {
-  id: integer('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
+  id: text('id').primaryKey(),
   name: text('name').notNull(),
   email: text('email').notNull().unique(),
   password: text('password').notNull(),
@@ -29,8 +29,7 @@ export const blogPosts = sqliteTable('blog_posts', {
 const comments = sqliteTable('comments', {
   id: text('id').primaryKey(),
   content: text('content').notNull(),
-  authorId: integer('author_id')
-    .notNull()
+  authorId: text('author_id')
     .references(() => users.id, { onDelete: 'cascade' }),
   authorName: text('author_name').notNull(),
   authorEmail: text('author_email').notNull(),
@@ -41,9 +40,9 @@ const comments = sqliteTable('comments', {
     .notNull()
     .default('pending'),
   isEdited: integer('is_edited', { mode: 'boolean' }).default(false),
-  editedAt: integer('edited_at', { mode: 'timestamp' }),
-  createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
-  updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull(),
+  editedAt: integer('edited_at', { mode: 'number' }),
+  createdAt: integer('created_at', { mode: 'number' }).notNull(),
+  updatedAt: integer('updated_at', { mode: 'number' }).notNull(),
 });
 
 export { comments };
@@ -53,10 +52,10 @@ export const commentModeration = sqliteTable('comment_moderation', {
   commentId: text('comment_id')
     .notNull()
     .references(() => comments.id, { onDelete: 'cascade' }),
-  moderatorId: integer('moderator_id').references(() => users.id, { onDelete: 'set null' }),
+  moderatorId: text('moderator_id').references(() => users.id, { onDelete: 'set null' }),
   action: text('action', { enum: ['approve', 'reject', 'flag', 'hide', 'unhide'] }).notNull(),
   reason: text('reason'),
-  createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
+  createdAt: integer('created_at', { mode: 'number' }).notNull(),
 });
 
 export const commentReports = sqliteTable('comment_reports', {
@@ -64,7 +63,7 @@ export const commentReports = sqliteTable('comment_reports', {
   commentId: text('comment_id')
     .notNull()
     .references(() => comments.id, { onDelete: 'cascade' }),
-  reporterId: integer('reporter_id').references(() => users.id, { onDelete: 'set null' }),
+  reporterId: text('reporter_id').references(() => users.id, { onDelete: 'set null' }),
   reporterEmail: text('reporter_email'),
   reason: text('reason', {
     enum: ['spam', 'harassment', 'inappropriate', 'off_topic', 'other'],
@@ -73,9 +72,9 @@ export const commentReports = sqliteTable('comment_reports', {
   status: text('status', { enum: ['pending', 'reviewed', 'resolved', 'dismissed'] })
     .notNull()
     .default('pending'),
-  createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
-  reviewedAt: integer('reviewed_at', { mode: 'timestamp' }),
-  reviewedBy: integer('reviewed_by').references(() => users.id, { onDelete: 'set null' }),
+  createdAt: integer('created_at', { mode: 'number' }).notNull(),
+  reviewedAt: integer('reviewed_at', { mode: 'number' }),
+  reviewedBy: text('reviewed_by').references(() => users.id, { onDelete: 'set null' }),
 });
 
 export const commentAuditLogs = sqliteTable('comment_audit_logs', {
@@ -83,7 +82,7 @@ export const commentAuditLogs = sqliteTable('comment_audit_logs', {
   commentId: text('comment_id')
     .notNull()
     .references(() => comments.id, { onDelete: 'cascade' }),
-  userId: integer('user_id').references(() => users.id, { onDelete: 'set null' }),
+  userId: text('user_id').references(() => users.id, { onDelete: 'set null' }),
   action: text('action', {
     enum: ['create', 'update', 'delete', 'moderate', 'report', 'view'],
   }).notNull(),
@@ -93,13 +92,13 @@ export const commentAuditLogs = sqliteTable('comment_audit_logs', {
   ipAddress: text('ip_address'), // Anonymized IP address
   userAgent: text('user_agent'), // User agent string (truncated)
   metadata: text('metadata'), // Additional context data as JSON
-  createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
+  createdAt: integer('created_at', { mode: 'number' }).notNull(),
 });
 
 // Notification system tables
 export const notifications = sqliteTable('notifications', {
   id: text('id').primaryKey(),
-  userId: integer('user_id')
+  userId: text('user_id')
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
   type: text('type', {
@@ -109,15 +108,15 @@ export const notifications = sqliteTable('notifications', {
   message: text('message').notNull(),
   data: text('data'), // JSON string with additional context (comment_id, entity_type, etc.)
   isRead: integer('is_read', { mode: 'boolean' }).default(false),
-  readAt: integer('read_at', { mode: 'timestamp' }),
+  readAt: integer('read_at', { mode: 'number' }),
   priority: text('priority', { enum: ['low', 'normal', 'high', 'urgent'] }).default('normal'),
-  expiresAt: integer('expires_at', { mode: 'timestamp' }), // Auto-delete after this time
-  createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
+  expiresAt: integer('expires_at', { mode: 'number' }), // Auto-delete after this time
+  createdAt: integer('created_at', { mode: 'number' }).notNull(),
 });
 
 export const notificationSettings = sqliteTable('notification_settings', {
   id: integer('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
-  userId: integer('user_id')
+  userId: text('user_id')
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
   type: text('type', {
@@ -135,8 +134,8 @@ export const notificationSettings = sqliteTable('notification_settings', {
   frequency: text('frequency', { enum: ['immediate', 'daily', 'weekly', 'never'] }).default(
     'immediate'
   ),
-  createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
-  updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull(),
+  createdAt: integer('created_at', { mode: 'number' }).notNull(),
+  updatedAt: integer('updated_at', { mode: 'number' }).notNull(),
   // Unique constraint: one setting per user per type per channel
 });
 
@@ -175,7 +174,7 @@ export const emailQueue = sqliteTable('email_queue', {
 // Data export and backup system tables
 export const dataExportJobs = sqliteTable('data_export_jobs', {
   id: text('id').primaryKey(),
-  userId: integer('user_id')
+  userId: text('user_id')
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
   type: text('type', { enum: ['user_data', 'comments', 'notifications', 'full_export'] }).notNull(),
@@ -195,7 +194,7 @@ export const dataExportJobs = sqliteTable('data_export_jobs', {
 
 export const dataDeletionRequests = sqliteTable('data_deletion_requests', {
   id: text('id').primaryKey(),
-  userId: integer('user_id')
+  userId: text('user_id')
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
   requestType: text('request_type', {
@@ -209,7 +208,7 @@ export const dataDeletionRequests = sqliteTable('data_deletion_requests', {
   verificationToken: text('verification_token').notNull(),
   expiresAt: integer('expires_at', { mode: 'timestamp' }).notNull(),
   processedAt: integer('processed_at', { mode: 'timestamp' }),
-  processedBy: integer('processed_by').references(() => users.id, { onDelete: 'set null' }),
+  processedBy: text('processed_by').references(() => users.id, { onDelete: 'set null' }),
   createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
 });
 
@@ -227,7 +226,7 @@ export const backupJobs = sqliteTable('backup_jobs', {
   errorMessage: text('error_message'),
   startedAt: integer('started_at', { mode: 'timestamp' }),
   completedAt: integer('completed_at', { mode: 'timestamp' }),
-  triggeredBy: integer('triggered_by').references(() => users.id, { onDelete: 'set null' }),
+  triggeredBy: text('triggered_by').references(() => users.id, { onDelete: 'set null' }),
   isAutomated: integer('is_automated', { mode: 'boolean' }).default(false),
 });
 
@@ -243,7 +242,7 @@ export const systemMaintenance = sqliteTable('system_maintenance', {
   logOutput: text('log_output'), // Detailed log of the operation
   startedAt: integer('started_at', { mode: 'timestamp' }),
   completedAt: integer('completed_at', { mode: 'timestamp' }),
-  triggeredBy: integer('triggered_by').references(() => users.id, { onDelete: 'set null' }),
+  triggeredBy: text('triggered_by').references(() => users.id, { onDelete: 'set null' }),
   isAutomated: integer('is_automated', { mode: 'boolean' }).default(false),
 });
 

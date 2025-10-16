@@ -27,7 +27,7 @@ if (!slugParam) {
 const user = (Astro.locals as any)?.user || null;
 const initialUser = user
   ? {
-      id: Number(user.id),
+      id: String(user.id),
       name: user.name,
       email: user.email,
     }

@@ -7,6 +7,7 @@ import {
 } from '@/lib/api-middleware';
 import { authLimiter } from '@/lib/rate-limiter';
 import { stytchMagicLinkLoginOrCreate, StytchError } from '@/lib/stytch';
+import { logMetricCounter } from '@/lib/security-logger';
 
 const parseBody = async (
   request: Request
@@ -104,6 +105,7 @@ const handler: ApiHandler = async (context: APIContext) => {
   const turnstileSecret = (cfEnv as Record<string, string> | undefined)?.TURNSTILE_SECRET_KEY;
   if (turnstileSecret) {
     if (!turnstileToken || typeof turnstileToken !== 'string' || turnstileToken.length < 10) {
+      logMetricCounter('turnstile_verify_failed', 1, { source: 'magic_request', reason: 'missing_token' });
       return createApiError('validation_error', 'Turnstile verification required');
     }
     const cfConnectingIp = request.headers.get('cf-connecting-ip') || '';
@@ -122,11 +124,14 @@ const handler: ApiHandler = async (context: APIContext) => {
       const verifyJson = (await verifyRes.json()) as { success?: boolean; 'error-codes'?: unknown };
       const ok = verifyRes.ok && verifyJson && verifyJson.success === true;
       if (!ok) {
+        logMetricCounter('turnstile_verify_failed', 1, { source: 'magic_request', reason: 'bad_token' });
         return createApiError('validation_error', 'Turnstile verification failed');
       }
     } catch {
+      logMetricCounter('turnstile_verify_unavailable', 1, { source: 'magic_request' });
       return createApiError('server_error', 'Turnstile verification unavailable');
     }
+    logMetricCounter('turnstile_verify_success', 1, { source: 'magic_request' });
   }
   const isDev =
     (cfEnv.ENVIRONMENT || (cfEnv as Record<string, string> | undefined)?.NODE_ENV) ===
@@ -196,10 +201,12 @@ const handler: ApiHandler = async (context: APIContext) => {
       login_magic_link_url: callbackUrl,
       signup_magic_link_url: callbackUrl,
     });
+    logMetricCounter('auth_magic_request_success', 1, { source: 'magic_request' });
     if (devEnv) {
       console.log('[auth][magic][request] provider accepted', { ms: Date.now() - startedAt });
     }
   } catch (err) {
+    logMetricCounter('auth_magic_request_error', 1, { source: 'magic_request' });
     if (devEnv) {
       const e = err as any;
       const payload = {

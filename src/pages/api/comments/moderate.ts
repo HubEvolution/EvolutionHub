@@ -30,12 +30,10 @@ function resolveModerationEnv(context: APIContext): CommentModerationEnv {
   return env;
 }
 
-function toModeratorId(value: unknown): number {
-  const numericId = Number.parseInt(String(value), 10);
-  if (!Number.isFinite(numericId)) {
-    throw new Error('Authentication error: invalid moderator id');
-  }
-  return numericId;
+function toModeratorId(value: unknown): string {
+  const id = String(value ?? '').trim();
+  if (!id) throw new Error('Authentication error: invalid moderator id');
+  return id;
 }
 
 function isModerateRequestPayload(value: unknown): value is ModerateRequestPayload {
@@ -137,7 +135,7 @@ app.post('/', async (c) => {
     const moderation = await commentService.moderateComment(
       commentId,
       moderationData,
-      Number(user.id)
+      String(user.id)
     );
 
     return c.json({ success: true, data: moderation });

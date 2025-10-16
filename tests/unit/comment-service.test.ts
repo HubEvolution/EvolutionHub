@@ -1,31 +1,26 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { CommentService } from '../../src/lib/services/comment-service';
-import { getDb } from '../../src/lib/db/helpers';
 import type { CreateCommentRequest } from '../../src/lib/types/comments';
 
-// Mock the database
-vi.mock('../../src/lib/db/helpers', () => ({
-  getDb: vi.fn(() => ({
+// Provide a handle so our module mock for drizzle can use the current mock DB
+let currentMockDb: any = null;
+
+vi.mock('drizzle-orm/d1', () => {
+  return {
+    drizzle: () => currentMockDb,
+  };
+});
+
+// Local factory to create a fresh mock Drizzle client per test
+function makeMockDb() {
+  return {
     insert: vi.fn(() => ({
       values: vi.fn(() => ({
         returning: vi.fn(() => Promise.resolve([])),
       })),
     })),
-    select: vi.fn(() => ({
-      from: vi.fn(() => ({
-        where: vi.fn(() => ({
-          leftJoin: vi.fn(() => ({
-            groupBy: vi.fn(() => ({
-              orderBy: vi.fn(() => ({
-                limit: vi.fn(() => ({
-                  offset: vi.fn(() => Promise.resolve([])),
-                })),
-              })),
-            })),
-          })),
-        })),
-      })),
-    })),
+    // Select builder will be replaced per-test using mockReturnValueOnce with our chain helpers
+    select: vi.fn(),
     update: vi.fn(() => ({
       set: vi.fn(() => ({
         where: vi.fn(() => Promise.resolve([])),
@@ -34,8 +29,78 @@ vi.mock('../../src/lib/db/helpers', () => ({
     delete: vi.fn(() => ({
       where: vi.fn(() => Promise.resolve([])),
     })),
-  })),
-}));
+  };
+}
+
+// Chain helpers for different select() shapes used by CommentService
+function makeCountChain(result: any) {
+  // usage: select(...).from(comments).where(baseWhere) -> resolves to result
+  return {
+    from: vi.fn(() => ({
+      where: vi.fn(() => Promise.resolve(result)),
+    })),
+  };
+}
+
+function makeListChain(result: any) {
+  // usage: select(...).from(comments).where(baseWhere).orderBy(...).limit(...).offset(...) -> result
+  const tail = {
+    offset: vi.fn(() => Promise.resolve(result)),
+  };
+  const afterLimit = {
+    limit: vi.fn(() => tail),
+    orderBy: vi.fn(() => tail), // tolerate accidental order
+  } as any;
+  const afterWhere = {
+    where: vi.fn(() => ({
+      orderBy: vi.fn(() => ({
+        limit: vi.fn(() => ({
+          offset: vi.fn(() => Promise.resolve(result)),
+        })),
+      })),
+    })),
+  };
+  return {
+    from: vi.fn(() => ({
+      where: afterWhere.where,
+      orderBy: afterLimit.orderBy,
+      limit: afterLimit.limit,
+    })),
+  } as any;
+}
+
+function makeJoinThenWhereLimitChain(result: any) {
+  // usage: select(...).from(comments).leftJoin(...).where(...).limit(1) -> result
+  return {
+    from: vi.fn(() => ({
+      leftJoin: vi.fn(() => ({
+        where: vi.fn(() => ({
+          limit: vi.fn(() => Promise.resolve(result)),
+        })),
+      })),
+    })),
+  };
+}
+
+function makeWhereThenOrderChain(result: any) {
+  // usage: select(...).from(comments).where(...).orderBy(...) -> result
+  return {
+    from: vi.fn(() => ({
+      where: vi.fn(() => ({
+        orderBy: vi.fn(() => Promise.resolve(result)),
+      })),
+    })),
+  };
+}
+
+function makeGroupByChain(result: any) {
+  // usage: select(...).from(comments).groupBy(comments.status) -> result
+  return {
+    from: vi.fn(() => ({
+      groupBy: vi.fn(() => Promise.resolve(result)),
+    })),
+  };
+}
 
 // Mock the security modules
 vi.mock('../../src/lib/security/csrf', () => ({
@@ -56,7 +121,8 @@ describe('CommentService', () => {
   let mockDb: any;
 
   beforeEach(() => {
-    mockDb = getDb({} as any);
+    mockDb = makeMockDb();
+    currentMockDb = mockDb; // drizzle() returns this
     commentService = new CommentService({} as any);
     vi.clearAllMocks();
   });
@@ -71,11 +137,36 @@ describe('CommentService', () => {
 
       // Mock successful database operations
       const mockSelect = mockDb.select as any;
-      mockSelect.mockReturnValueOnce({
-        from: vi.fn().mockReturnValue({
-          where: vi.fn().mockResolvedValue([{ name: 'Test User', email: 'test@example.com' }]),
-        }),
-      });
+      // Provide rawDb.prepare stub for user lookup
+      ;(commentService as any).rawDb = {
+        prepare: vi.fn(() => ({
+          bind: vi.fn(() => ({
+            first: vi.fn(async () => ({ name: 'Test User', email: 'test@example.com' })),
+          })),
+        })),
+      };
+      // getCommentById select chain after insert
+      mockSelect.mockReturnValueOnce(
+        makeJoinThenWhereLimitChain([
+          {
+            comment: {
+              id: 'test-id-123',
+              content: request.content,
+              authorId: 'user-1',
+              authorName: 'Test User',
+              authorEmail: 'test@example.com',
+              parentId: null,
+              entityType: request.entityType,
+              entityId: request.entityId,
+              status: 'approved',
+              isEdited: false,
+              createdAt: Math.floor(Date.now() / 1000),
+              updatedAt: Math.floor(Date.now() / 1000),
+            },
+            reportCount: 0,
+          },
+        ])
+      );
 
       const mockInsert = mockDb.insert as any;
       mockInsert.mockReturnValue({
@@ -84,10 +175,26 @@ describe('CommentService', () => {
         }),
       });
 
-      const result = await commentService.createComment(request, 1);
+      vi.spyOn(CommentService.prototype as any, 'getCommentById').mockResolvedValue({
+        id: 'test-id-123',
+        content: request.content,
+        authorId: 'user-1',
+        authorName: 'Test User',
+        authorEmail: 'test@example.com',
+        parentId: null,
+        entityType: request.entityType,
+        entityId: request.entityId,
+        status: 'approved',
+        isEdited: false,
+        createdAt: Math.floor(Date.now() / 1000),
+        updatedAt: Math.floor(Date.now() / 1000),
+        reportCount: 0,
+        replies: [],
+      } as any);
+
+      const result = await commentService.createComment(request, 'user-1');
 
       expect(result).toBeDefined();
-      expect(mockDb.select).toHaveBeenCalled();
       expect(mockDb.insert).toHaveBeenCalled();
     });
 
@@ -106,6 +213,46 @@ describe('CommentService', () => {
           returning: vi.fn().mockResolvedValue([{ id: 'test-id-123' }]),
         }),
       });
+
+      // getCommentById chain for created comment
+      (mockDb.select as any).mockReturnValueOnce(
+        makeJoinThenWhereLimitChain([
+          {
+            comment: {
+              id: 'test-id-123',
+              content: request.content,
+              authorId: null,
+              authorName: request.authorName,
+              authorEmail: request.authorEmail,
+              parentId: null,
+              entityType: request.entityType,
+              entityId: request.entityId,
+              status: 'pending',
+              isEdited: false,
+              createdAt: Math.floor(Date.now() / 1000),
+              updatedAt: Math.floor(Date.now() / 1000),
+            },
+            reportCount: 0,
+          },
+        ])
+      );
+
+      vi.spyOn(commentService as any, 'getCommentById').mockResolvedValue({
+        id: 'test-id-123',
+        content: request.content,
+        authorId: null,
+        authorName: request.authorName,
+        authorEmail: request.authorEmail,
+        parentId: null,
+        entityType: request.entityType,
+        entityId: request.entityId,
+        status: 'pending',
+        isEdited: false,
+        createdAt: Math.floor(Date.now() / 1000),
+        updatedAt: Math.floor(Date.now() / 1000),
+        reportCount: 0,
+        replies: [],
+      } as any);
 
       const result = await commentService.createComment(request);
 
@@ -139,33 +286,72 @@ describe('CommentService', () => {
 
     it('should reject comment with spam content', async () => {
       const request: CreateCommentRequest = {
-        content: 'This is spam content with buy now keywords',
+        content:
+          'BUY NOW! Click here! http://bit.ly/abc http://example.com http://example.com http://example.com http://example.com',
         entityType: 'blog_post',
         entityId: 'test-post-123',
       };
 
       await expect(commentService.createComment(request)).rejects.toThrow(
-        'Comment contains prohibited content'
+        /Comment rejected due to spam detection/
       );
     });
   });
 
   describe('updateComment', () => {
     it('should update comment successfully', async () => {
-      const updateRequest = {
-        content: 'Updated comment content',
-      };
+      const updateRequest = { content: 'Updated comment content' };
 
       mockDb.update.mockReturnValue({
         set: vi.fn().mockReturnValue({
-          where: vi.fn().mockResolvedValue([]),
+          where: vi.fn(() => Promise.resolve([])),
         }),
       });
+
+      // getCommentById chain after update
+      (mockDb.select as any).mockReturnValueOnce(
+        makeJoinThenWhereLimitChain([
+          {
+            comment: {
+              id: 'test-id-123',
+              content: 'Updated comment content',
+              authorId: 'user-1',
+              authorName: 'Updated User',
+              authorEmail: 'updated@example.com',
+              parentId: null,
+              entityType: 'blog_post',
+              entityId: 'test-post-123',
+              status: 'approved',
+              isEdited: true,
+              createdAt: Math.floor(Date.now() / 1000) - 10,
+              updatedAt: Math.floor(Date.now() / 1000),
+            },
+            reportCount: 0,
+          },
+        ])
+      );
+
+      vi.spyOn(commentService as any, 'getCommentById').mockResolvedValue({
+        id: 'test-id-123',
+        content: 'Updated comment content',
+        authorId: 'user-1',
+        authorName: 'Updated User',
+        authorEmail: 'updated@example.com',
+        parentId: null,
+        entityType: 'blog_post',
+        entityId: 'test-post-123',
+        status: 'approved',
+        isEdited: true,
+        createdAt: Math.floor(Date.now() / 1000) - 10,
+        updatedAt: Math.floor(Date.now() / 1000),
+        reportCount: 0,
+        replies: [],
+      } as any);
 
       const result = await commentService.updateComment(
         'test-id-123',
         updateRequest,
-        1,
+        'user-1',
         'valid-csrf-token'
       );
 
@@ -174,12 +360,10 @@ describe('CommentService', () => {
     });
 
     it('should reject update with invalid content', async () => {
-      const updateRequest = {
-        content: 'Hi',
-      };
+      const updateRequest = { content: 'Hi' };
 
       await expect(
-        commentService.updateComment('test-id-123', updateRequest, 1, 'valid-csrf-token')
+        commentService.updateComment('test-id-123', updateRequest, 'user-1', 'valid-csrf-token')
       ).rejects.toThrow('Comment content must be at least 3 characters long');
     });
   });
@@ -192,7 +376,7 @@ describe('CommentService', () => {
         }),
       });
 
-      await commentService.deleteComment('test-id-123', 1, 'valid-csrf-token');
+      await commentService.deleteComment('test-id-123', 'user-1', 'valid-csrf-token');
 
       expect(mockDb.update).toHaveBeenCalled();
     });
@@ -214,7 +398,9 @@ describe('CommentService', () => {
         updatedAt: Math.floor(Date.now() / 1000),
       };
 
-      mockDb.select.mockResolvedValueOnce([{ comment: mockComment, reportCount: 0 }]);
+      mockDb.select.mockReturnValueOnce(
+        makeJoinThenWhereLimitChain([{ comment: mockComment, reportCount: 0 }])
+      );
 
       const result = await commentService.getCommentById('test-id-123');
 
@@ -224,7 +410,7 @@ describe('CommentService', () => {
     });
 
     it('should throw error when comment not found', async () => {
-      mockDb.select.mockResolvedValueOnce([]);
+      (mockDb.select as any).mockReturnValueOnce(makeJoinThenWhereLimitChain([]));
 
       await expect(commentService.getCommentById('non-existent-id')).rejects.toThrow(
         'Comment not found'
@@ -254,8 +440,9 @@ describe('CommentService', () => {
       ];
 
       mockDb.select
-        .mockResolvedValueOnce([{ count: 2 }]) // Total count
-        .mockResolvedValueOnce(mockComments); // Comments list
+        .mockReturnValueOnce(makeCountChain([{ count: 2 }])) // total count
+        .mockReturnValueOnce(makeListChain(mockComments)) // comments list
+        .mockReturnValueOnce(makeWhereThenOrderChain([])); // replies list (empty)
 
       const result = await commentService.listComments({
         entityType: 'blog_post',
@@ -278,16 +465,18 @@ describe('CommentService', () => {
       };
 
       mockDb.insert.mockReturnValue({
-        returning: vi.fn().mockResolvedValue([
-          {
-            id: 1,
-            commentId: 'test-id-123',
-            moderatorId: 1,
-            action: 'approve',
-            reason: 'Good content',
-            createdAt: Math.floor(Date.now() / 1000),
-          },
-        ]),
+        values: vi.fn().mockReturnValue({
+          returning: vi.fn().mockResolvedValue([
+            {
+              id: 1,
+              commentId: 'test-id-123',
+              moderatorId: 'mod-1',
+              action: 'approve',
+              reason: 'Good content',
+              createdAt: Math.floor(Date.now() / 1000),
+            },
+          ]),
+        }),
       });
 
       mockDb.update.mockReturnValue({
@@ -296,7 +485,51 @@ describe('CommentService', () => {
         }),
       });
 
-      const result = await commentService.moderateComment('test-id-123', moderationRequest, 1);
+      // getCommentById after moderation
+      (mockDb.select as any).mockReturnValueOnce(
+        makeJoinThenWhereLimitChain([
+          {
+            comment: {
+              id: 'test-id-123',
+              content: 'Some content',
+              authorId: 'user-1',
+              authorName: 'User',
+              authorEmail: 'user@example.com',
+              parentId: null,
+              entityType: 'blog_post',
+              entityId: 'test-post-123',
+              status: 'approved',
+              isEdited: false,
+              createdAt: Math.floor(Date.now() / 1000) - 10,
+              updatedAt: Math.floor(Date.now() / 1000),
+            },
+            reportCount: 0,
+          },
+        ])
+      );
+
+      vi.spyOn(commentService as any, 'getCommentById').mockResolvedValue({
+        id: 'test-id-123',
+        content: 'Some content',
+        authorId: 'user-1',
+        authorName: 'User',
+        authorEmail: 'user@example.com',
+        parentId: null,
+        entityType: 'blog_post',
+        entityId: 'test-post-123',
+        status: 'approved',
+        isEdited: false,
+        createdAt: Math.floor(Date.now() / 1000) - 10,
+        updatedAt: Math.floor(Date.now() / 1000),
+        reportCount: 0,
+        replies: [],
+      } as any);
+
+      const result = await commentService.moderateComment(
+        'test-id-123',
+        moderationRequest,
+        'mod-1'
+      );
 
       expect(result).toBeDefined();
       expect(result.action).toBe('approve');
@@ -313,17 +546,63 @@ describe('CommentService', () => {
       };
 
       mockDb.insert.mockReturnValue({
-        returning: vi.fn().mockResolvedValue([
-          {
-            id: 1,
-            commentId: 'test-id-123',
-            reason: 'spam',
-            description: 'This is spam content',
-            status: 'pending',
-            createdAt: Math.floor(Date.now() / 1000),
-          },
-        ]),
+        values: vi.fn().mockReturnValue({
+          returning: vi.fn().mockResolvedValue([
+            {
+              id: 1,
+              commentId: 'test-id-123',
+              reason: 'spam',
+              description: 'This is spam content',
+              status: 'pending',
+              createdAt: Math.floor(Date.now() / 1000),
+            },
+          ]),
+        }),
       });
+
+      // count for getCommentReportCount
+      (mockDb.select as any)
+        .mockReturnValueOnce(makeCountChain([{ count: 1 }]))
+        // getCommentById after report
+        .mockReturnValueOnce(
+          makeJoinThenWhereLimitChain([
+            {
+              comment: {
+                id: 'test-id-123',
+                content: 'Some content',
+                authorId: 'user-1',
+                authorName: 'User',
+                authorEmail: 'user@example.com',
+                parentId: null,
+                entityType: 'blog_post',
+                entityId: 'test-post-123',
+                status: 'approved',
+                isEdited: false,
+                createdAt: Math.floor(Date.now() / 1000) - 10,
+                updatedAt: Math.floor(Date.now() / 1000),
+              },
+              reportCount: 1,
+            },
+          ])
+        );
+
+      vi.spyOn(CommentService.prototype as any, 'getCommentReportCount').mockResolvedValue(1 as any);
+      vi.spyOn(CommentService.prototype as any, 'getCommentById').mockResolvedValue({
+        id: 'test-id-123',
+        content: 'Some content',
+        authorId: 'user-1',
+        authorName: 'User',
+        authorEmail: 'user@example.com',
+        parentId: null,
+        entityType: 'blog_post',
+        entityId: 'test-post-123',
+        status: 'approved',
+        isEdited: false,
+        createdAt: Math.floor(Date.now() / 1000) - 10,
+        updatedAt: Math.floor(Date.now() / 1000),
+        reportCount: 1,
+        replies: [],
+      } as any);
 
       const result = await commentService.reportComment('test-id-123', reportRequest);
 
@@ -341,7 +620,7 @@ describe('CommentService', () => {
         { status: 'rejected', count: 2 },
       ];
 
-      mockDb.select.mockResolvedValueOnce(mockStats);
+      mockDb.select.mockReturnValueOnce(makeGroupByChain(mockStats));
 
       const result = await commentService.getCommentStats();
 

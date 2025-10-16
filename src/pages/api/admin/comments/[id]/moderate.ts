@@ -70,11 +70,11 @@ app.post('/moderate', async (c) => {
     const moderation = await commentService.moderateComment(
       commentId,
       { action, reason },
-      Number(user.id)
+      String(user.id)
     );
 
     // TODO: Send notification to comment author if requested
-    if (notifyUser && comment.authorId !== Number(user.id)) {
+    if (notifyUser && comment.authorId !== String(user.id)) {
       // This would be implemented in Phase 2: Benachrichtigungs-System
       console.log(`Notification requested for comment ${commentId} moderation`);
     }
@@ -158,7 +158,7 @@ app.get('/', async (c) => {
         adminData: {
           canEdit: true,
           canDelete: true,
-          isAuthor: comment.authorId === Number(user.id),
+          isAuthor: comment.authorId === String(user.id),
         },
       },
     });
@@ -221,11 +221,11 @@ app.delete('/', async (c) => {
     const moderation = await commentService.moderateComment(
       commentId,
       { action: 'hide', reason },
-      Number(user.id)
+      String(user.id)
     );
 
     // TODO: Send notification to comment author if requested
-    if (notifyUser && comment.authorId !== Number(user.id)) {
+    if (notifyUser && comment.authorId !== String(user.id)) {
       console.log(`Notification requested for comment ${commentId} deletion`);
     }
 

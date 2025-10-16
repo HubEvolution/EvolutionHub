@@ -25,7 +25,7 @@ export class BackupService {
   /**
    * Erstellt einen neuen Backup-Job
    */
-  async createBackupJob(options: BackupOptions, triggeredBy?: number): Promise<string> {
+  async createBackupJob(options: BackupOptions, triggeredBy?: string): Promise<string> {
     const jobId = crypto.randomUUID();
 
     await this.db.insert(backupJobs).values({
@@ -33,7 +33,7 @@ export class BackupService {
       type: options.type,
       status: 'pending',
       tablesIncluded: options.tables ? JSON.stringify(options.tables) : undefined,
-      triggeredBy,
+      triggeredBy: triggeredBy ?? null,
       isAutomated: false,
       startedAt: new Date(),
     });
@@ -274,7 +274,7 @@ export class BackupService {
         row.completedAt != null
           ? ((row.completedAt as unknown as Date).getTime?.() ?? Number(row.completedAt))
           : undefined,
-      triggeredBy: row.triggeredBy ?? undefined,
+      triggeredBy: row.triggeredBy != null ? String(row.triggeredBy) : undefined,
       isAutomated: Boolean(row.isAutomated),
     }));
   }
@@ -321,7 +321,7 @@ export class BackupService {
   async performMaintenance(
     type: MaintenanceType,
     description: string,
-    triggeredBy?: number
+    triggeredBy?: string
   ): Promise<string> {
     const maintenanceId = crypto.randomUUID();
 
@@ -330,7 +330,7 @@ export class BackupService {
       type,
       status: 'pending',
       description,
-      triggeredBy,
+      triggeredBy: triggeredBy ?? null,
       isAutomated: false,
       startedAt: new Date(),
     });
@@ -383,7 +383,7 @@ export class BackupService {
           m.completedAt != null
             ? ((m.completedAt as unknown as Date).getTime?.() ?? Number(m.completedAt))
             : undefined,
-        triggeredBy: m.triggeredBy ?? undefined,
+        triggeredBy: m.triggeredBy != null ? String(m.triggeredBy) : undefined,
         isAutomated: Boolean(m.isAutomated),
       };
 
@@ -456,14 +456,10 @@ export class BackupService {
       );
 
     // Lösche alte Benachrichtigungen
+    const cutoffSeconds = Math.floor(Date.now() / 1000) - 90 * 24 * 60 * 60;
     await this.db
       .delete(notifications)
-      .where(
-        and(
-          eq(notifications.isRead, true),
-          lte(notifications.readAt, new Date(Date.now() - 90 * 24 * 60 * 60 * 1000))
-        )
-      );
+      .where(and(eq(notifications.isRead, true), lte(notifications.readAt, cutoffSeconds)));
 
     log('info', 'Cleanup completed');
   }
@@ -537,7 +533,7 @@ export class BackupService {
         m.completedAt != null
           ? ((m.completedAt as unknown as Date).getTime?.() ?? Number(m.completedAt))
           : undefined,
-      triggeredBy: m.triggeredBy ?? undefined,
+      triggeredBy: m.triggeredBy != null ? String(m.triggeredBy) : undefined,
       isAutomated: Boolean(m.isAutomated),
     }));
   }
@@ -570,7 +566,7 @@ export class BackupService {
         m.completedAt != null
           ? ((m.completedAt as unknown as Date).getTime?.() ?? Number(m.completedAt))
           : undefined,
-      triggeredBy: m.triggeredBy ?? undefined,
+      triggeredBy: m.triggeredBy != null ? String(m.triggeredBy) : undefined,
       isAutomated: Boolean(m.isAutomated),
     };
   }

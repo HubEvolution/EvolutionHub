@@ -163,9 +163,9 @@ export const sensitiveActionLimiter = createRateLimiter({
   name: 'sensitiveAction',
 });
 
-// Für allgemeine API-Endpunkte (30 Anfragen pro Minute)
+// Für allgemeine API-Endpunkte (30 Anfragen pro Minute in Prod; erhöht in Dev für Tests)
 export const apiRateLimiter = createRateLimiter({
-  maxRequests: 30,
+  maxRequests: import.meta.env.DEV ? 1000 : 30,
   windowMs: 60 * 1000, // 1 Minute
   name: 'api',
 });

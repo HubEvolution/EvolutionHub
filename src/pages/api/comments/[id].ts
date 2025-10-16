@@ -79,7 +79,7 @@ app.put('/:id', async (c) => {
     const updatedComment = await commentService.updateComment(
       commentId,
       updateData,
-      Number(user.id),
+      String(user.id),
       csrfToken
     );
 
@@ -131,7 +131,7 @@ app.delete('/:id', async (c) => {
 
     const commentService = new CommentService(c.env.DB);
 
-    await commentService.deleteComment(commentId, Number(user.id), csrfToken);
+    await commentService.deleteComment(commentId, String(user.id), csrfToken);
 
     return c.json({ success: true, data: { message: 'Comment deleted successfully' } });
   } catch (error) {
@@ -221,7 +221,7 @@ export const PUT = async (context: APIContext) => {
     const { csrfToken, ...updateData } = body;
     const kv = env?.KV_COMMENTS || (context as any).locals?.env?.KV_COMMENTS;
     const service = new CommentService(db, kv);
-    const updated = await service.updateComment(id, updateData, Number(user.id), token);
+    const updated = await service.updateComment(id, updateData, String(user.id), token);
     return createApiSuccess(updated);
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
@@ -272,7 +272,7 @@ export const DELETE = async (context: APIContext) => {
 
     const kv = env?.KV_COMMENTS || (context as any).locals?.env?.KV_COMMENTS;
     const service = new CommentService(db, kv);
-    await service.deleteComment(id, Number(user.id), token);
+    await service.deleteComment(id, String(user.id), token);
     return createApiSuccess({ message: 'Comment deleted successfully' });
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
