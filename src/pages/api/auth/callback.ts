@@ -52,7 +52,11 @@ async function upsertUser(
       .first<{ 1: number }>();
     if (!taken) break;
     suffix += 1;
-    username = `${usernameBase}_${suffix}`.slice(0, 30);
+    if (suffix >= 2) {
+      username = `${usernameBase}_${id.slice(0, 6)}`.slice(0, 30);
+    } else {
+      username = `${usernameBase}_${suffix}`.slice(0, 30);
+    }
   }
   await db
     .prepare(

@@ -65,6 +65,16 @@ function resolveBaseUrl(projectId: string): string {
   return 'https://test.stytch.com';
 }
 
+async function fetchWithTimeout(input: RequestInfo | URL, init: RequestInit, timeoutMs: number) {
+  const controller = new AbortController();
+  const t = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(input, { ...init, signal: controller.signal });
+  } finally {
+    clearTimeout(t);
+  }
+}
+
 function readStytchConfig(context: APIContext): StytchConfig {
   const env =
     (context.locals as unknown as { runtime?: { env?: Record<string, string> } })?.runtime?.env ||
@@ -153,25 +163,36 @@ export async function stytchOAuthAuthenticate(
   const { projectId, secret } = readStytchConfig(context);
   const base = resolveBaseUrl(projectId);
   const url = `${base}/v1/oauth/authenticate`;
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: {
-      Authorization: toBasicAuth(projectId, secret),
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ token }),
-  });
-  const json = (await res.json()) as OAuthAuthenticateResponse;
-  if (!res.ok) {
-    const et = (json as any)?.error_type || 'unknown_error';
-    const em = (json as any)?.error_message || (json as any)?.message || '';
-    throw new StytchError(
-      res.status,
-      et,
-      `Stytch OAuth authenticate failed: ${res.status} ${et}${em ? ` - ${em}` : ''}`
+  const doAttempt = async () => {
+    const res = await fetchWithTimeout(
+      url,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: toBasicAuth(projectId, secret),
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ token }),
+      },
+      5000
     );
+    const json = (await res.json()) as OAuthAuthenticateResponse;
+    if (!res.ok) {
+      const et = (json as any)?.error_type || 'unknown_error';
+      const em = (json as any)?.error_message || (json as any)?.message || '';
+      throw new StytchError(
+        res.status,
+        et,
+        `Stytch OAuth authenticate failed: ${res.status} ${et}${em ? ` - ${em}` : ''}`
+      );
+    }
+    return json;
+  };
+  try {
+    return await doAttempt();
+  } catch (_e) {
+    return await doAttempt();
   }
-  return json;
 }
 
 export async function stytchMagicLinkAuthenticate(
@@ -211,23 +232,34 @@ export async function stytchMagicLinkAuthenticate(
   const { projectId, secret } = readStytchConfig(context);
   const base = resolveBaseUrl(projectId);
   const url = `${base}/v1/magic_links/authenticate`;
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: {
-      Authorization: toBasicAuth(projectId, secret),
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ token }),
-  });
-  const json = (await res.json()) as MagicLinkAuthenticateResponse;
-  if (!res.ok) {
-    const et = (json as any)?.error_type || 'unknown_error';
-    const em = (json as any)?.error_message || (json as any)?.message || '';
-    throw new StytchError(
-      res.status,
-      et,
-      `Stytch authenticate failed: ${res.status} ${et}${em ? ` - ${em}` : ''}`
+  const doAttempt = async () => {
+    const res = await fetchWithTimeout(
+      url,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: toBasicAuth(projectId, secret),
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ token }),
+      },
+      5000
     );
+    const json = (await res.json()) as MagicLinkAuthenticateResponse;
+    if (!res.ok) {
+      const et = (json as any)?.error_type || 'unknown_error';
+      const em = (json as any)?.error_message || (json as any)?.message || '';
+      throw new StytchError(
+        res.status,
+        et,
+        `Stytch authenticate failed: ${res.status} ${et}${em ? ` - ${em}` : ''}`
+      );
+    }
+    return json;
+  };
+  try {
+    return await doAttempt();
+  } catch (_e) {
+    return await doAttempt();
   }
-  return json;
 }
