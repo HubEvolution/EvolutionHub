@@ -5,7 +5,7 @@ pubDate: '2025-07-20'
 author: 'Evolution Hub'
 category: 'Technologie'
 tags: ['KI', 'Künstliche Intelligenz', 'Technologie', 'Produktivität']
-image: ./images/ki-im-alltag.webp
+image: ./images/ki-im-alltag-1.webp.png
 imageAlt: 'KI integriert in alltägliche Geräte wie Smartphone und Smart Speaker'
 ---
 

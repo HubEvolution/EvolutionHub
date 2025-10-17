@@ -20,7 +20,7 @@ ctas:
     description: 'Erhalten Sie wöchentlich die neuesten Trends und Best Practices direkt in Ihr Postfach.'
 
 leadMagnets: ['new-work-guide']
-image: ./images/new-work-ist-eine-haltung.webp
+image: ./images/new-work-ist-eine-haltung-1.webp.png
 imageAlt: 'Person gestaltet aktiv ihre Arbeitszukunft mit New Work Haltung'
 
 funnel:

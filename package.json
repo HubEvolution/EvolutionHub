@@ -56,6 +56,8 @@
     "i18n:identical": "node scripts/i18n-identical.mjs",
     "i18n:fill": "node scripts/i18n-fill-missing.mjs",
     "i18n:report": "node scripts/i18n-empty-report.mjs",
+    "i18n:validate": "node scripts/i18n-validate.mjs",
+    "i18n:audit": "npm run i18n:report && npm run i18n:validate && npm run i18n:diff",
     "i18n:migrate": "node scripts/i18n-migrate-paths.mjs",
     "i18n:prune": "node scripts/i18n-prune-unused.mjs",
     "tail:staging": "wrangler tail --env staging --format=pretty",

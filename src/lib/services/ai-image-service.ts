@@ -468,6 +468,12 @@ export class AiImageService {
       action: 'uploaded_original',
       metadata: { reqId, originalKey, originalUrl },
     });
+    try {
+      const envName = (this.env.ENVIRONMENT || '').toLowerCase();
+      if (envName !== 'production') {
+        console.log('[uploaded_original]', { originalUrl });
+      }
+    } catch {}
 
     // Call provider (Replicate) with the originalUrl
     let outputUrl: string;
@@ -489,9 +495,17 @@ export class AiImageService {
           metadata: { reqId, model: model.slug, originalUrl, scale, faceEnhance },
         });
         // Build provider input parameters safely per model
-        const replicateInput: Record<string, unknown> = { image: originalUrl };
+        const replicateInput: Record<string, unknown> = {};
+        if (
+          model.slug.startsWith('tencentarc/gfpgan') ||
+          model.slug.startsWith('sczhou/codeformer')
+        ) {
+          (replicateInput as any).img = originalUrl;
+        } else {
+          (replicateInput as any).image = originalUrl;
+        }
         if (typeof scale === 'number' && model.supportsScale) {
-          replicateInput.scale = scale;
+          (replicateInput as any).scale = scale;
         }
         if (typeof faceEnhance === 'boolean' && model.supportsFaceEnhance) {
           (replicateInput as any).face_enhance = faceEnhance;
@@ -730,6 +744,17 @@ export class AiImageService {
         action: 'replicate_error',
         metadata: { status, provider: 'replicate', snippet: text.slice(0, 200) },
       });
+      // Ensure visibility on Wrangler tail for non-production envs
+      try {
+        const envName = (this.env.ENVIRONMENT || '').toLowerCase();
+        if (envName !== 'production') {
+          console.warn('[replicate_error]', {
+            status,
+            provider: 'replicate',
+            snippet: String(text).slice(0, 200),
+          });
+        }
+      } catch {}
       throw err;
     }
 

@@ -10,50 +10,50 @@
       "upload_failed_prefix": "Fehler beim Hochladen:"
     },
     "upload": {
-      "invalid_type": "",
-      "too_large": ""
+      "invalid_type": "Ungültiger Dateityp.",
+      "too_large": "Datei ist zu groß."
     },
     "status": {
-      "uploading": "",
-      "sending": ""
+      "uploading": "Wird hochgeladen…",
+      "sending": "Wird gesendet…"
     },
     "actions": {
-      "upload": "",
-      "subscribe": ""
+      "upload": "Hochladen",
+      "subscribe": "Abonnieren"
     },
-    "upgrade": "",
+    "upgrade": "Upgrade",
     "success": {
-      "avatar_updated": "",
-      "newsletter_confirmation_sent": ""
+      "avatar_updated": "Avatar wurde aktualisiert.",
+      "newsletter_confirmation_sent": "Bestätigung für den Newsletter wurde gesendet."
     },
     "forms": {
-      "email_placeholder": ""
+      "email_placeholder": "E-Mail-Adresse"
     },
-    "loading": "",
-    "import": "",
+    "loading": "Laden…",
+    "import": "Importieren",
     "account": {
       "settings": {
         "danger": {
-          "title": "",
-          "description": "",
-          "button": "",
-          "confirmTitle": "",
-          "confirm": "",
-          "processing": "",
-          "success": "",
-          "error": "",
-          "subscriptionTitle": "",
-          "subscriptionWarning": "",
-          "subscriptionPeriodEnd": "",
-          "subscriptionIndefinite": "",
-          "subscriptionConfirm": "",
+          "title": "Gefahrenbereich",
+          "description": "Kritische Aktionen für Ihr Konto. Bitte mit Vorsicht verwenden.",
+          "button": "Konto löschen",
+          "confirmTitle": "Löschen bestätigen",
+          "confirm": "Ja, endgültig löschen",
+          "processing": "Wird verarbeitet…",
+          "success": "Aktion erfolgreich abgeschlossen.",
+          "error": "Aktion fehlgeschlagen. Bitte erneut versuchen.",
+          "subscriptionTitle": "Abonnement kündigen",
+          "subscriptionWarning": "Die Kündigung wird am Ende des aktuellen Abrechnungszeitraums wirksam.",
+          "subscriptionPeriodEnd": "Läuft bis {date}",
+          "subscriptionIndefinite": "Unbefristet",
+          "subscriptionConfirm": "Ja, Abonnement kündigen",
           "actions": {
-            "cancel": "",
-            "confirm": "",
-            "goToBilling": "",
-            "deleteAnyway": "",
-            "close": "",
-            "back": ""
+            "cancel": "Abbrechen",
+            "confirm": "Bestätigen",
+            "goToBilling": "Zum Abrechnungsbereich",
+            "deleteAnyway": "Dennoch löschen",
+            "close": "Schließen",
+            "back": "Zurück"
           }
         }
       }
@@ -1155,8 +1155,8 @@
           "description": "Extrahiert Inhalte von Webseiten automatisch."
         },
         "voice-visualizer": {
-          "name": "",
-          "description": ""
+          "name": "Sprach-Transkriptor",
+          "description": "Nimm deine Stimme auf, visualisiere Pegel und transkribiere Sprache nahezu in Echtzeit."
         }
       },
       "details": {

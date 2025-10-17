@@ -25,8 +25,15 @@ export interface AllowedModel {
 
 export const ALLOWED_MODELS: readonly AllowedModel[] = [
   {
-    slug: 'nightmareai/real-esrgan:f0992969a94014d73864d08e6d9a39286868328e4263d9ce2da6fc4049d01a1a', // Pinned Real-ESRGAN version: https://replicate.com/nightmareai/real-esrgan/versions/f0992969a94014d73864d08e6d9a39286868328e4263d9ce2da6fc4049d01a1a
+    slug: 'nightmareai/real-esrgan:42fed1c4974146d4d2414e2be2c5277c7fcf05fcc3a73abf41610695738c1d7b',
     label: 'Real-ESRGAN 4x',
+    provider: 'replicate',
+    supportsScale: true,
+    supportsFaceEnhance: true,
+  },
+  {
+    slug: 'nightmareai/real-esrgan:f0992969a94014d73864d08e6d9a39286868328e4263d9ce2da6fc4049d01a1a',
+    label: 'Real-ESRGAN 4x (legacy)',
     provider: 'replicate',
     supportsScale: true,
     supportsFaceEnhance: true,

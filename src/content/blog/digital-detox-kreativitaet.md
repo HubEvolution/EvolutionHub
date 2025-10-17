@@ -5,7 +5,7 @@ pubDate: '2025-07-20'
 author: 'Evolution Hub'
 category: 'Mentale Gesundheit'
 tags: ['Digital Detox', 'Achtsamkeit', 'Kreativität', 'Produktivität']
-image: ./images/digital-detox-kreativitaet.webp
+image: ./images/digital-detox-kreativitaet-1.webp.png
 imageAlt: 'Person meditiert unter Baum, Smartphone wird von Vögeln davongetragen'
 ---
 

@@ -5,7 +5,7 @@ pubDate: '2025-07-20'
 author: 'Evolution Hub'
 category: 'New Work'
 tags: ['Gig Economy', 'Freelancer', 'Selbstständigkeit', 'Zukunft der Arbeit']
-image: ./images/gig-economy-chancen-risiken.webp
+image: ./images/gig-economy-chancen-risiken-1.webp.png
 imageAlt: 'Flexibles Arbeiten in der Gig Economy'
 ---
 

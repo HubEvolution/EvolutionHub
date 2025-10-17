@@ -5,7 +5,7 @@ pubDate: '2025-07-20'
 author: 'Evolution Hub'
 category: 'Produktivität'
 tags: ['Pomodoro-Technik', 'Produktivität', 'Home-Office', 'Zeitmanagement']
-image: ./images/pomodoro-technik-home-office.webp
+image: ./images/pomodoro-technik-home-office-1.webp.png
 imageAlt: 'Pomodoro-Technik für verbesserte Konzentration im Home-Office'
 ---
 

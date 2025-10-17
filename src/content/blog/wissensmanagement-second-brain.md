@@ -5,7 +5,7 @@ pubDate: '2025-07-20'
 author: 'Evolution Hub'
 category: 'Produktivität'
 tags: ['Second Brain', 'Wissensmanagement', 'Notizen', 'Produktivität']
-image: ./images/wissensmanagement-second-brain.webp
+image: ./images/wissensmanagement-second-brain-1.webp.png
 imageAlt: 'Grafik, die das Gehirn mit einem digitalen "Second Brain" verbindet'
 ---
 

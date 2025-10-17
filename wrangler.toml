@@ -218,6 +218,7 @@ ENVIRONMENT = "production"
 # Produktionsbasis-URL für Stripe-Redirects
 BASE_URL = "https://hub-evolution.com"
 LEADMAGNET_SOURCE = "r2"
+USAGE_KV_V2 = "1"
  
 PRICING_TABLE = '{"free":"","pro":"price_1S7NR3HdpdQAtOQBldQRKby5","premium":"price_1S7NTtHdpdQAtOQB7QHmF9Js","enterprise":""}'
 PRICING_TABLE_ANNUAL = '{"free":"","pro":"price_1S7NTZHdpdQAtOQBwmchvm92","premium":"price_1S7NU4HdpdQAtOQBOZ9jW06J","enterprise":""}'

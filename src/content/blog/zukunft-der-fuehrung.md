@@ -5,7 +5,7 @@ pubDate: '2025-07-20'
 author: 'Evolution Hub'
 category: 'Führung'
 tags: ['Führung', 'Empathie', 'Zukunft der Arbeit', 'Leadership']
-image: ./images/zukunft-der-fuehrung.webp
+image: ./images/zukunft-der-fuehrung-1.webp.png
 imageAlt: 'Führungskraft zeigt Empathie gegenüber einem Team'
 ---
 

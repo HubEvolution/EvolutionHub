@@ -5,7 +5,7 @@ pubDate: '2025-07-20'
 author: 'Evolution Hub'
 category: 'Persönliche Entwicklung'
 tags: ['Gewohnheiten', 'Ziele', 'Selbstoptimierung', 'Veränderung']
-image: ./images/vom-ziel-zur-gewohnheit.webp
+image: ./images/vom-ziel-zur-gewohnheit-1.webp.png
 imageAlt: 'Berg mit kleinen Fußspuren, die zum Gipfel führen, symbolisiert Mikro-Schritte zum Ziel'
 ---
 

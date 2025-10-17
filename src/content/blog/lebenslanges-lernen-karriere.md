@@ -5,7 +5,7 @@ pubDate: '2025-07-20'
 author: 'Evolution Hub'
 category: 'Karriere'
 tags: ['Lernen', 'Karriere', 'Entwicklung', 'Future Skills']
-image: ./images/lebenslanges-lernen-karriere.webp
+image: ./images/lebenslanges-lernen-karriere-1.webp.png
 imageAlt: 'Person mit Hut aus Büchern, der auf einer Treppe aus Fähigkeiten steht'
 ---
 

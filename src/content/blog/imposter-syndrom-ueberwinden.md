@@ -5,7 +5,7 @@ pubDate: '2025-07-20'
 author: 'Evolution Hub'
 category: 'Mentale Gesundheit'
 tags: ['Imposter-Syndrom', 'Selbstvertrauen', 'Karriere', 'Mentale Gesundheit']
-image: ./images/imposter-syndrom-ueberwinden.webp
+image: ./images/imposter-syndrom-ueberwinden-1.webp.png
 imageAlt: 'Person überwindet Imposter-Syndrom und zeigt Selbstvertrauen'
 ---
 

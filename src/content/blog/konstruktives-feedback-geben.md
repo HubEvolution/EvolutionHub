@@ -5,7 +5,7 @@ pubDate: '2025-07-20'
 author: 'Evolution Hub'
 category: 'Kommunikation'
 tags: ['Feedback', 'Kommunikation', 'Teamkultur', 'Wachstum']
-image: ./images/konstruktives-feedback-geben.webp
+image: ./images/konstruktives-feedback-geben-1.webp.png
 imageAlt: 'Zwei Personen im Gespräch, die Feedback geben und empfangen, symbolisiert Wachstum'
 ---
 

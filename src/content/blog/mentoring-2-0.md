@@ -5,7 +5,7 @@ pubDate: '2025-07-20'
 author: 'Evolution Hub'
 category: 'Karriere'
 tags: ['Mentoring', 'Karriere', 'Netzwerk', 'Entwicklung']
-image: ./images/mentoring-2-0.webp
+image: ./images/mentoring-2-0-1.webp.png
 imageAlt: 'Mentoring-Beziehung zwischen erfahrenem Mentor und Protegé'
 ---
 
