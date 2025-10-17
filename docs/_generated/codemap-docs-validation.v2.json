@@ -1,0 +1,91 @@
+{
+  "generatedAt": "2025-10-17T09:00:41.385Z",
+  "method": {
+    "linkGraph": "full crawl of markdown links across docs/** with anchor validation",
+    "codeRefs": "validated against src/lib/api-middleware.ts and .windsurf/rules/api-and-security.md"
+  },
+  "mostBrokenDocs": [
+    {
+      "path": "docs/api/README.md",
+      "status": "fixed",
+      "fixes": [
+        "Aligned CSRF/Origin section with middleware rules (Same-Origin; optional Double-Submit; allowed origin envs)."
+      ]
+    },
+    {
+      "path": "docs/architecture.md",
+      "status": "fixed",
+      "fixes": [
+        "Clarified jose/JWT not used for session auth; sessions are cookie-based (__Host-session).",
+        "Kept canonical pointer to docs/architecture/README.md."
+      ]
+    },
+    {
+      "path": "docs/architecture/api-middleware-inventory.md",
+      "status": "fixed",
+      "fixes": [
+        "Updated date and added primary references to .windsurf/rules/api-and-security.md and src/lib/api-middleware.ts.",
+        "Added notes about logout redirect flows and 405 export consistency."
+      ]
+    }
+  ],
+  "duplicates": [
+    {
+      "type": "dual-architecture-index",
+      "items": ["docs/architecture.md", "docs/architecture/README.md"],
+      "resolution": "Keep category index canonical; parent file contains a canonical-note only (applied)."
+    },
+    {
+      "type": "directory-name-duplication",
+      "items": ["docs/architecture/adr/", "docs/architecture/adrs/"],
+      "resolution": "Proposed deletion of empty docs/architecture/adr/ (pending)."
+    }
+  ],
+  "orphans": {
+    "exact": [
+      "AUDIT.md",
+      "_generated/cascade-rules-coverage.md",
+      "_generated/cascade-rules-detection.md",
+      "_generated/codemap.md",
+      "_generated/memory-audit.md",
+      "_generated/memory-index.md",
+      "api/dashboard_api.md",
+      "api/projects_api.md",
+      "api/user_api.md",
+      "architecture/adrs/0000-adr-template.md",
+      "architecture/adrs/deprecated/0002-jwt-authentication.md",
+      "architecture/adrs/deprecated/0003-database-schema.md",
+      "archive/documentation-gap-analysis.md",
+      "archive/migration_pages_zu_worker.md",
+      "archive/status-assessment.md",
+      "development/docs-style-guide.md",
+      "development/prs/coming-soon-pr-template.md",
+      "development/stytch-oauth-dev-guide.md",
+      "features/blog+commentsystem-plan.md",
+      "features/pricing-system.md",
+      "ops/prod-readiness-ai-image-enhancer.md",
+      "ops/production-readiness-checklist.md",
+      "reference/environment.md",
+      "tools/debug-panel.md",
+      "tools/image-enhancer.md",
+      "tools/prompt-enhancer.md",
+      "tools/webscraper/README.md"
+    ],
+    "count": 27
+  },
+  "additionalChanges": [
+    {
+      "path": "docs/architecture/data-flow.md",
+      "change": "Added Stytch Magic Link sequence diagram"
+    },
+    {
+      "path": "docs/architecture/system-overview.md",
+      "change": "Switched to Stytch + __Host-session; removed password/JWT references"
+    },
+    {
+      "path": "docs/api/dashboard_api.md",
+      "change": "Added response-envelope consistency note (target: createApiSuccess)"
+    }
+  ],
+  "invalidAnchors": []
+}

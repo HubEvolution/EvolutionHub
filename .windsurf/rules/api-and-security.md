@@ -17,3 +17,5 @@ priority: 100
 - Redirect endpoints should use `withRedirectMiddleware` to apply rate limiting, CSRF/Origin checks, and security headers without forcing JSON shapes (e.g., OAuth callback handlers) (`src/lib/api-middleware.ts:505-558`, example import in `src/pages/api/auth/oauth/[provider]/callback.ts`).
 - Observability: client logs are batched to `src/pages/api/debug/client-log.ts` (headers redacted, rate-limited). Enable the Debug Panel via `PUBLIC_ENABLE_DEBUG_PANEL`; see `src/components/ui/DebugPanel.tsx`.
 - AI Image Enhancer entitlements: server enforces plan-based quotas; UI reflects `allowedScales`/`canUseFaceEnhance`. Plans propagate via Stripe webhook; guests have separate KV-based limits.
+- Observability: auth callbacks include `X-Stytch-Request-Id` in responses. Capture/log this ID for provider support.
+- PKCE cookie: `pkce_verifier` is HttpOnly, SameSite=Lax, TTL 10 minutes; created by `POST /api/auth/magic/request` when `STYTCH_PKCE` is enabled and deleted by `GET /api/auth/callback` after use.

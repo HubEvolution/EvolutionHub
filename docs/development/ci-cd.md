@@ -222,6 +222,12 @@ Loggt Fehlerdetails bei Deployment-Failure.
 - **Hydration/Timing:** Keine harten Checks auf Hydrationsmarker; warte auf interaktive Controls (z. B. Button enabled) vor Interaktion.
 - **Lokaler Dev‑Server:** `reuseExistingServer: true` in `test-suite-v2/playwright.config.ts`, um Portkonflikte lokal zu vermeiden.
 
+#### CSRF-Schutz in E2E-Tests (Astro/Cloudflare Workers)
+
+- **Same‑Origin**: Unsichere Methoden (POST/PUT/PATCH/DELETE) erfordern `Origin`/`Referer` und müssen mit der erlaubten Origin übereinstimmen. Playwright‑Configs injizieren standardmäßig den `Origin`‑Header für Requests.
+- **Double‑Submit (optional)**: Wenn Endpunkte `enforceCsrfToken: true` nutzen, muss `X‑CSRF‑Token` dem `csrf_token`‑Cookie entsprechen. In E2E kann der Cookie via Setup gesetzt und der Header pro Request mitgegeben werden.
+- **Empfehlung**: Verwende die Request‑API von Playwright für API‑Tests und setze explizit `Origin`/`X‑CSRF‑Token`, wenn der Endpoint dies verlangt. Siehe Server‑Middleware in `src/lib/api-middleware.ts`.
+
 ### 4. **Smoke-Tests** (gezielte Überwachung)
 
 #### **enhancer-e2e-smoke.yml**

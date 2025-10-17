@@ -1,5 +1,6 @@
 ---
-Title: Prompt Enhancer Rules
+trigger: always_on
+priority: 60
 ---
 
 # Prompt Enhancer Rules

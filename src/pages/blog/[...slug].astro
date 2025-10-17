@@ -100,11 +100,11 @@ if (postData) {
 const data: any = postData.data;
 const title = String(data.title);
 const description = String(data.description || '');
-const canonicalUrl = new URL(Astro.url.pathname, Astro.site);
+const canonicalUrl = new URL(Astro.url.pathname, Astro.url.origin);
 // Ensure imageUrl is correctly formed
 const imageSrc =
   data.image && (data.image as any).src ? (data.image as any).src : '/images/blog/default-og.jpg';
-const imageUrl = new URL(imageSrc, Astro.site).toString();
+const imageUrl = new URL(imageSrc, Astro.url.origin).toString();
 
 // Refactored logic for dateModified
 const datePublishedISO = new Date(data.pubDate as any).toISOString();
@@ -129,7 +129,7 @@ const structuredData = {
     name: 'EvolutionHub',
     logo: {
       '@type': 'ImageObject',
-      url: new URL('/images/logo.png', Astro.site).toString(),
+      url: new URL('/images/logo.png', Astro.url.origin).toString(),
     },
   },
   datePublished: datePublishedISO,

@@ -2,6 +2,7 @@ import OpenAI from 'openai';
 import { loggerFactory } from '@/server/utils/logger-factory';
 import type { KVNamespace } from '@cloudflare/workers-types';
 import { buildProviderError } from '@/lib/services/provider-error';
+import { getUsage as kvGetUsage, incrementDailyRolling, rollingDailyKey } from '@/lib/kv/usage';
 import {
   VOICE_ALLOWED_CONTENT_TYPES,
   VOICE_MAX_CHUNK_BYTES,
@@ -20,6 +21,7 @@ interface RuntimeEnv {
   R2_VOICE?: R2Bucket;
   VOICE_R2_ARCHIVE?: string;
   VOICE_DEV_ECHO?: string;
+  USAGE_KV_V2?: string;
 }
 
 export interface VoiceUsageInfo {
@@ -59,6 +61,13 @@ export class VoiceTranscribeService {
   ): Promise<VoiceUsageInfo> {
     const kv = this.env.KV_VOICE_TRANSCRIBE;
     if (!kv) return { used: 0, limit, resetAt: null };
+    const useV2 = this.env.USAGE_KV_V2 === '1';
+    if (useV2) {
+      const keyV2 = rollingDailyKey('voice', ownerType, ownerId);
+      const usage = await kvGetUsage(kv as any, keyV2);
+      if (!usage) return { used: 0, limit, resetAt: null };
+      return { used: usage.count, limit, resetAt: usage.resetAt ? usage.resetAt * 1000 : null };
+    }
     const key = this.usageKey(ownerType, ownerId);
     const raw = await kv.get(key);
     if (!raw) return { used: 0, limit, resetAt: null };
@@ -77,9 +86,14 @@ export class VoiceTranscribeService {
   ): Promise<VoiceUsageInfo> {
     const kv = this.env.KV_VOICE_TRANSCRIBE;
     if (!kv) return { used: 0, limit, resetAt: null };
+    const useV2 = this.env.USAGE_KV_V2 === '1';
+    if (useV2) {
+      const res = await incrementDailyRolling(kv as any, 'voice', ownerType, ownerId, limit);
+      return { used: res.usage.count, limit, resetAt: res.usage.resetAt * 1000 };
+    }
     const key = this.usageKey(ownerType, ownerId);
     const now = Date.now();
-    const windowMs = 24 * 60 * 60 * 1000; // 24h
+    const windowMs = 24 * 60 * 60 * 1000;
 
     let count = 0;
     let resetAt = now + windowMs;
@@ -92,9 +106,7 @@ export class VoiceTranscribeService {
           count = parsed.count || 0;
           resetAt = parsed.resetAt;
         }
-      } catch {
-        // ignore parse failures
-      }
+      } catch {}
     }
 
     count += 1;
@@ -108,9 +120,7 @@ export class VoiceTranscribeService {
         action: 'usage_increment',
         metadata: { ownerType, ownerId: mask, key, used: count, limit, expiration },
       });
-    } catch {
-      // ignore log failures
-    }
+    } catch {}
 
     return { used: count, limit, resetAt };
   }

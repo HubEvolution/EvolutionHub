@@ -26,13 +26,13 @@ Der **AI Image Enhancer** verbessert Bildqualität mittels State-of-the-Art KI-M
 
 ### API-Endpunkte
 
-| Endpunkt | Methode | Beschreibung | Referenz |
-|----------|---------|-------------|----------|
-| `/api/ai-image/generate` | POST | Bild hochladen & enhancen | `src/pages/api/ai-image/generate.ts:30` |
-| `/api/ai-image/usage` | GET | Usage/Limits/Entitlements abfragen | `src/pages/api/ai-image/usage.ts:28` |
-| `/api/ai-image/jobs` | GET | Alle Jobs des Users abrufen | `src/pages/api/ai-image/jobs/index.ts` |
-| `/api/ai-image/jobs/[id]` | GET | Job-Status abfragen | `src/pages/api/ai-image/jobs/[id].ts` |
-| `/api/ai-image/jobs/[id]/cancel` | POST | Job abbrechen | `src/pages/api/ai-image/jobs/[id]/cancel.ts` |
+| Endpunkt                         | Methode | Beschreibung                       | Referenz                                     |
+| -------------------------------- | ------- | ---------------------------------- | -------------------------------------------- |
+| `/api/ai-image/generate`         | POST    | Bild hochladen & enhancen          | `src/pages/api/ai-image/generate.ts:30`      |
+| `/api/ai-image/usage`            | GET     | Usage/Limits/Entitlements abfragen | `src/pages/api/ai-image/usage.ts:28`         |
+| `/api/ai-image/jobs`             | GET     | Alle Jobs des Users abrufen        | `src/pages/api/ai-image/jobs/index.ts`       |
+| `/api/ai-image/jobs/[id]`        | GET     | Job-Status abfragen                | `src/pages/api/ai-image/jobs/[id].ts`        |
+| `/api/ai-image/jobs/[id]/cancel` | POST    | Job abbrechen                      | `src/pages/api/ai-image/jobs/[id]/cancel.ts` |
 
 ### Komponenten-Stack
 
@@ -77,14 +77,14 @@ src/components/tools/imag-enhancer/
 
 **`src/config/ai-image.ts`**:
 
-| Variable | Default | Beschreibung | Zeile |
-|----------|---------|-------------|-------|
-| `REPLICATE_API_TOKEN` | - | Replicate API-Key (Secret) | - |
-| `FREE_LIMIT_GUEST` | `3` | Guest Daily Limit | Z. 51 |
-| `FREE_LIMIT_USER` | `20` | User Daily Limit (Free Plan) | Z. 52 |
-| `MAX_UPLOAD_BYTES` | `10 MB` | Max. Upload-Größe | Z. 74 |
-| `ALLOWED_CONTENT_TYPES` | `['image/jpeg', 'image/png', 'image/webp']` | Erlaubte MIME-Types | Z. 75 |
-| `AI_R2_PREFIX` | `'ai-enhancer'` | R2-Key-Präfix | Z. 78 |
+| Variable                | Default                                     | Beschreibung                 | Zeile |
+| ----------------------- | ------------------------------------------- | ---------------------------- | ----- |
+| `REPLICATE_API_TOKEN`   | -                                           | Replicate API-Key (Secret)   | -     |
+| `FREE_LIMIT_GUEST`      | `3`                                         | Guest Daily Limit            | Z. 51 |
+| `FREE_LIMIT_USER`       | `20`                                        | User Daily Limit (Free Plan) | Z. 52 |
+| `MAX_UPLOAD_BYTES`      | `10 MB`                                     | Max. Upload-Größe            | Z. 74 |
+| `ALLOWED_CONTENT_TYPES` | `['image/jpeg', 'image/png', 'image/webp']` | Erlaubte MIME-Types          | Z. 75 |
+| `AI_R2_PREFIX`          | `'ai-enhancer'`                             | R2-Key-Präfix                | Z. 78 |
 
 #### Feature-Flag: Credits-CTA
 
@@ -102,14 +102,14 @@ export const ALLOWED_MODELS: readonly AllowedModel[] = [
     slug: 'nightmareai/real-esrgan:f099296...', // Pinned Version
     label: 'Real-ESRGAN 4x',
     provider: 'replicate',
-    supportsScale: true,        // 2x/4x Upscaling
-    supportsFaceEnhance: true,  // GFPGAN-Integration
+    supportsScale: true, // 2x/4x Upscaling
+    supportsFaceEnhance: true, // GFPGAN-Integration
   },
   {
     slug: 'tencentarc/gfpgan:0fbacf7...',
     label: 'GFPGAN',
     provider: 'replicate',
-    supportsScale: false,       // Kein Scale-Parameter
+    supportsScale: false, // Kein Scale-Parameter
     supportsFaceEnhance: false, // Natives Face-Enhancement
   },
   {
@@ -124,13 +124,13 @@ export const ALLOWED_MODELS: readonly AllowedModel[] = [
 
 ### Plan-Entitlements (`src/config/ai-image/entitlements.ts:22-47`)
 
-| Plan | Monatliche Bilder | Daily Burst | Max Upscale | Face Enhance |
-|------|------------------|-------------|-------------|--------------|
-| **Guest** | 90 (3/Tag × 30) | 3 | 2x | ❌ |
-| **Free** | 450 | 15 | 2x | ❌ |
-| **Pro** | 400 | 40 | 4x | ✅ |
-| **Premium** | 1200 | 120 | 6x | ✅ |
-| **Enterprise** | 5000 | 500 | 8x | ✅ |
+| Plan           | Monatliche Bilder | Daily Burst | Max Upscale | Face Enhance |
+| -------------- | ----------------- | ----------- | ----------- | ------------ |
+| **Guest**      | 90 (3/Tag × 30)   | 3           | 2x          | ❌           |
+| **Free**       | 450               | 15          | 2x          | ❌           |
+| **Pro**        | 400               | 40          | 4x          | ✅           |
+| **Premium**    | 1200              | 120         | 6x          | ✅           |
+| **Enterprise** | 5000              | 500         | 8x          | ✅           |
 
 **Gating-Logik** (`src/components/tools/imag-enhancer/gating.ts`):
 
@@ -249,7 +249,7 @@ const result = await service.generate({
   requestOrigin: origin,
   scale,
   faceEnhance,
-  limitOverride: effectiveLimit,        // Plan-basiert
+  limitOverride: effectiveLimit, // Plan-basiert
   monthlyLimitOverride: ent.monthlyImages,
   maxUpscaleOverride: ent.maxUpscale,
   allowFaceEnhanceOverride: ent.faceEnhance,
@@ -284,7 +284,7 @@ while (prediction.status !== 'succeeded') {
 }
 
 // 4. Enhanced Image von Replicate holen & zu R2 uploaden
-const enhancedBlob = await fetch(prediction.output).then(r => r.blob());
+const enhancedBlob = await fetch(prediction.output).then((r) => r.blob());
 const enhancedKey = `${AI_R2_PREFIX}/${ownerId}/${timestamp}-enhanced.jpg`;
 await R2_AI_IMAGES.put(enhancedKey, enhancedBlob);
 ```
@@ -400,8 +400,8 @@ X-Debug-User: 1
 
 ```typescript
 export const aiGenerateLimiter = createRateLimiter({
-  maxRequests: 10,        // 10 Enhances
-  windowMs: 60 * 1000,    // pro Minute
+  maxRequests: 10, // 10 Enhances
+  windowMs: 60 * 1000, // pro Minute
   name: 'aiGenerate',
 });
 ```
@@ -843,12 +843,12 @@ cwebp input.webp -o output.png
 
 ### Plan-Empfehlungen
 
-| Use-Case | Plan | Begründung |
-|----------|------|------------|
-| Casual User (1-2 Bilder/Tag) | **Free** | 15/Tag ausreichend |
-| Fotograf (Batch-Processing) | **Pro** | 40/Tag + 4x Upscale |
-| Content Creator (täglich) | **Premium** | 120/Tag + Face-Enhance |
-| Agency/Business | **Enterprise** | 500/Tag + Priority Queue |
+| Use-Case                     | Plan           | Begründung               |
+| ---------------------------- | -------------- | ------------------------ |
+| Casual User (1-2 Bilder/Tag) | **Free**       | 15/Tag ausreichend       |
+| Fotograf (Batch-Processing)  | **Pro**        | 40/Tag + 4x Upscale      |
+| Content Creator (täglich)    | **Premium**    | 120/Tag + Face-Enhance   |
+| Agency/Business              | **Enterprise** | 500/Tag + Priority Queue |
 
 ---
 
@@ -856,9 +856,9 @@ cwebp input.webp -o output.png
 
 - **System-Architektur**: [docs/architecture/ai-image-enhancer.md](../architecture/ai-image-enhancer.md)
 - **API-Middleware**: [docs/architecture/api-middleware.md](../architecture/api-middleware.md)
-- **Entitlements-System**: [docs/architecture/entitlements.md](../architecture/entitlements.md) *(falls vorhanden)*
-- **R2-Storage**: [docs/infrastructure/cloudflare-r2.md](../infrastructure/cloudflare-r2.md) *(falls vorhanden)*
-- **Rate-Limiting**: [docs/SECURITY.md](../SECURITY.md#rate-limiting)
+- **Entitlements-System**: [docs/architecture/entitlements.md](../architecture/entitlements.md) _(falls vorhanden)_
+- **R2-Storage**: [docs/infrastructure/cloudflare-r2.md](../infrastructure/cloudflare-r2.md) _(falls vorhanden)_
+- **Rate-Limiting**: [docs/SECURITY.md](../SECURITY.md#1-rate-limiting)
 
 ---
 
@@ -890,9 +890,9 @@ ai:job:<job-id> → JSON { userId, status, predictionId, createdAt, modelSlug }
 ```json
 {
   "services": {
-    "kv": true,         // KV_AI_ENHANCER verfügbar
-    "r2": true,         // R2_AI_IMAGES verfügbar
-    "replicate": true   // REPLICATE_API_TOKEN gültig
+    "kv": true, // KV_AI_ENHANCER verfügbar
+    "r2": true, // R2_AI_IMAGES verfügbar
+    "replicate": true // REPLICATE_API_TOKEN gültig
   }
 }
 ```
@@ -917,13 +917,13 @@ curl https://api.replicate.com/v1/account \
 
 **Monatliche Schätzung**:
 
-| Plan | Enhances/Monat | Kosten (100% Real-ESRGAN) | Kosten (gemischt) |
-|------|----------------|---------------------------|-------------------|
-| Guest | 90 | $0.27 | $0.22 |
-| Free | 450 | $1.35 | $1.10 |
-| Pro | 400 | $1.20 | $0.98 |
-| Premium | 1200 | $3.60 | $2.94 |
-| Enterprise | 5000 | $15.00 | $12.25 |
+| Plan       | Enhances/Monat | Kosten (100% Real-ESRGAN) | Kosten (gemischt) |
+| ---------- | -------------- | ------------------------- | ----------------- |
+| Guest      | 90             | $0.27                     | $0.22             |
+| Free       | 450            | $1.35                     | $1.10             |
+| Pro        | 400            | $1.20                     | $0.98             |
+| Premium    | 1200           | $3.60                     | $2.94             |
+| Enterprise | 5000           | $15.00                    | $12.25            |
 
 **R2-Storage**:
 

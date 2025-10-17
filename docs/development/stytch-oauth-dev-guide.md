@@ -46,6 +46,10 @@ Erforderlich:
 - `STYTCH_PUBLIC_TOKEN`
 - `STYTCH_CUSTOM_DOMAIN` (host-only)
 
+### Feature Flags
+
+- `STYTCH_PKCE` ("0"/"1"): Aktiviert PKCE für Magic Links. Bei Aktivierung setzt der Request-Endpunkt einen kurzlebigen HttpOnly-Cookie `pkce_verifier` (10 Min, SameSite=Lax) und sendet `pkce_code_challenge` an Stytch. Der Callback übermittelt dann `pkce_code_verifier`. Für Mobile-Webviews deaktivieren (PoP kann dort brechen).
+
 Empfohlene Zuordnung:
 
 - Dev/Testing → TEST-Projekt + `login-test.hub-evolution.com`
@@ -86,6 +90,7 @@ wrangler secret put STYTCH_CUSTOM_DOMAIN --env production
 - Magic Link
   - `POST /api/auth/magic/request` → Stytch antriggern
   - `GET  /api/auth/callback` → Token validieren, Session erzeugen, Redirect
+  - Wenn `STYTCH_PKCE=1`: Request setzt `pkce_verifier`-Cookie; Callback liest ihn und übergibt `pkce_code_verifier`.
 - OAuth Social
   - `GET /api/auth/oauth/:provider/start` → 302 zu Stytch (Custom Domain)
   - `GET /api/auth/oauth/:provider/callback` → Code-Exchange bei Stytch, Session erzeugen, Redirect
@@ -147,6 +152,11 @@ curl -sI "https://hub-evolution.com/api/auth/oauth/github/start" | sed -n '1p;/^
 - 400 `no_login_redirect_urls_set` → Callback-URL in Stytch whitelisten.
 - "ServerConfig" Redirect → `STYTCH_PUBLIC_TOKEN` fehlt.
 - Dev-Callback wird nicht erreicht → Dev Custom Domain entfernen oder HTTPS nutzen.
+- `pkce_expected_code_verifier` bei Magic Link: Tritt auf, wenn der Flow in einer anderen Browserumgebung endet als er begonnen wurde (z. B. Mobile Webview → nativer Browser). Lösung: `STYTCH_PKCE` für Webviews deaktivieren oder alternativen Faktor nutzen.
+
+### Observability
+
+- Die Auth-Callbacks (Magic Link + OAuth) setzen `X-Stytch-Request-Id` im Response-Header. Bei Support-Fällen diese ID mitsenden.
 
 ---
 

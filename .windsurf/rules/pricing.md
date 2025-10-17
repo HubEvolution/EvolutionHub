@@ -1,5 +1,6 @@
 ---
-Title: Pricing & Stripe Rules
+trigger: always_on
+priority: 60
 ---
 
 # Pricing & Stripe Rules

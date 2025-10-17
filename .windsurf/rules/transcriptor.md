@@ -1,5 +1,6 @@
 ---
-Title: Transcriptor (Whisper) Rules
+trigger: always_on
+priority: 60
 ---
 
 # Transcriptor (Whisper) Rules

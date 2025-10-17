@@ -7,11 +7,13 @@ import type { APIContext } from 'astro';
 export class StytchError extends Error {
   status: number;
   providerType: string;
-  constructor(status: number, providerType: string, message: string) {
+  requestId?: string;
+  constructor(status: number, providerType: string, message: string, requestId?: string) {
     super(message);
     this.name = 'StytchError';
     this.status = status;
     this.providerType = providerType;
+    this.requestId = requestId;
   }
 }
 
@@ -22,9 +24,10 @@ interface StytchConfig {
 
 interface MagicLinkLoginOrCreateRequest {
   email: string;
-  // Stytch expects magic_link_url fields for email magic links
+
   login_magic_link_url: string;
   signup_magic_link_url: string;
+  pkce_code_challenge?: string;
 }
 
 interface StytchUser {
@@ -133,7 +136,8 @@ export async function stytchMagicLinkLoginOrCreate(
     throw new StytchError(
       res.status,
       et,
-      `Stytch login_or_create failed: ${res.status} ${et}${em ? ` - ${em}` : ''}`
+      `Stytch login_or_create failed: ${res.status} ${et}${em ? ` - ${em}` : ''}`,
+      (json as any)?.request_id
     );
   }
   return json;
@@ -183,21 +187,26 @@ export async function stytchOAuthAuthenticate(
       throw new StytchError(
         res.status,
         et,
-        `Stytch OAuth authenticate failed: ${res.status} ${et}${em ? ` - ${em}` : ''}`
+        `Stytch OAuth authenticate failed: ${res.status} ${et}${em ? ` - ${em}` : ''}`,
+        (json as any)?.request_id
       );
     }
     return json;
   };
   try {
     return await doAttempt();
-  } catch (_e) {
+  } catch (e) {
+    if (e instanceof StytchError) {
+      throw e;
+    }
     return await doAttempt();
   }
 }
 
 export async function stytchMagicLinkAuthenticate(
   context: APIContext,
-  token: string
+  token: string,
+  pkceCodeVerifier?: string
 ): Promise<MagicLinkAuthenticateResponse> {
   if (isE2EFake(context)) {
     // Allow tests to control the email so they can simulate first-time users
@@ -241,7 +250,9 @@ export async function stytchMagicLinkAuthenticate(
           Authorization: toBasicAuth(projectId, secret),
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ token }),
+        body: JSON.stringify(
+          pkceCodeVerifier ? { token, pkce_code_verifier: pkceCodeVerifier } : { token }
+        ),
       },
       5000
     );
@@ -252,7 +263,8 @@ export async function stytchMagicLinkAuthenticate(
       throw new StytchError(
         res.status,
         et,
-        `Stytch authenticate failed: ${res.status} ${et}${em ? ` - ${em}` : ''}`
+        `Stytch authenticate failed: ${res.status} ${et}${em ? ` - ${em}` : ''}`,
+        (json as any)?.request_id
       );
     }
     return json;

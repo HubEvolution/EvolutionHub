@@ -1,6 +1,6 @@
 ---
 description: Build & update a compact project dashboard (status.md) from codemaps, knowledge, docs, memories and workflows (affected-only)
-auto_execution_mode: 1
+auto_execution_mode: 3
 ---
 
 /name: status_refresh

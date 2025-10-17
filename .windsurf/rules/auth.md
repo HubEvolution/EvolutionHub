@@ -1,5 +1,6 @@
 ---
-Title: Auth & OAuth Rules
+trigger: always_on
+priority: 60
 ---
 
 # Auth & OAuth Rules
@@ -23,6 +24,8 @@ Title: Auth & OAuth Rules
 - CSRF + Same-Origin for unsafe methods.
 - Cookies: `__Host-session` semantics per docs.
 - Do not gate `/r2-ai/**` via auth.
+- PKCE (feature-flagged): When `STYTCH_PKCE` is enabled, `POST /api/auth/magic/request` sets a short‑lived HttpOnly cookie `pkce_verifier` (SameSite=Lax, TTL 10 min) and includes a `pkce_code_challenge` in the Stytch request. `GET /api/auth/callback` must present `pkce_code_verifier`; the cookie is deleted after consumption. Disable PKCE for mobile webviews to avoid context-switch failures.
+- Observability: Auth callbacks (Magic Link and OAuth) set `X-Stytch-Request-Id` on responses to aid provider support correlation.
 
 ## Related Codemap
 

@@ -1,5 +1,6 @@
 ---
-Title: Infra (Workers/Router/Bindings) Rules
+trigger: always_on
+priority: 60
 ---
 
 # Infra (Workers/Router/Bindings) Rules

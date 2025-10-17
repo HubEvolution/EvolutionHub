@@ -124,6 +124,37 @@ sequenceDiagram
     AuthAPI->>Client: HTTP Response mit HttpOnly-Cookie
 ```
 
+#### Aktueller Magic‑Link (Stytch) — Sequenz
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant AuthAPI as Auth API (/api/auth/magic)
+    participant Stytch as Stytch
+    participant Callback as Auth Callback (/api/auth/callback)
+    participant Middleware as Global Middleware
+    participant D1 as D1 (sessions)
+
+    %% 1) Magic Link anfordern
+    Client->>AuthAPI: POST /api/auth/magic/request (email)
+    AuthAPI->>Stytch: login_or_create(email)
+    Stytch-->>Client: E‑Mail mit Magic‑Link
+
+    %% 2) Nutzer klickt Link
+    Client->>Callback: GET /api/auth/callback?token=...
+    Callback->>Stytch: authenticate(token)
+    Stytch-->>Callback: user/session ok
+    Callback->>D1: create session(user_id)
+    Callback->>Client: Set‑Cookie __Host-session=...; Path=/; Secure; HttpOnly; SameSite=Strict
+    Callback->>Client: 302 Redirect → /dashboard (locale‑aware)
+
+    %% 3) Nachgelagerte Requests
+    Client->>Middleware: GET /dashboard (mit __Host-session)
+    Middleware->>D1: validateSession(session_id)
+    D1-->>Middleware: session,user
+    Middleware-->>Client: Response mit Security‑Headern (CSP/HSTS/…)
+```
+
 ### Projektverwaltung
 
 Der Datenfluss für die Projektverwaltung umfasst das Erstellen, Abrufen, Aktualisieren und Löschen von Projekten:
@@ -167,24 +198,24 @@ sequenceDiagram
     Client->>DashboardAPI: GET /api/dashboard
     DashboardAPI->>DashboardAPI: Autorisiere Benutzer
     DashboardAPI->>DashboardService: getDashboardData(userId)
-    
+
     par Parallele Datenabrufe
         DashboardService->>UserService: getUserProfile(userId)
         UserService->>Database: SELECT * FROM users WHERE id = ?
         Database->>UserService: User-Daten
         UserService->>DashboardService: User-Profil
-        
+
         DashboardService->>ProjectService: getUserProjects(userId)
         ProjectService->>Database: SELECT * FROM projects WHERE user_id = ?
         Database->>ProjectService: Projekt-Daten
         ProjectService->>DashboardService: Projekt-Liste
-        
+
         DashboardService->>ActivityService: getRecentActivities(userId)
         ActivityService->>Database: SELECT * FROM activities WHERE user_id = ? ORDER BY created_at DESC LIMIT 10
         Database->>ActivityService: Aktivitäts-Daten
         ActivityService->>DashboardService: Aktivitäts-Liste
     end
-    
+
     DashboardService->>DashboardAPI: Aggregierte Dashboard-Daten
     DashboardAPI->>Client: HTTP Response mit Dashboard-Daten
 ```
@@ -247,19 +278,19 @@ function validateCreateProjectRequest(req: any): CreateProjectRequest {
   if (!req.name || typeof req.name !== 'string' || req.name.length < 3) {
     throw new ValidationError('Name must be at least 3 characters');
   }
-  
+
   if (req.description && typeof req.description !== 'string') {
     throw new ValidationError('Description must be a string');
   }
-  
+
   if (typeof req.isPublic !== 'boolean') {
     throw new ValidationError('isPublic must be a boolean');
   }
-  
+
   return {
     name: req.name,
     description: req.description || '',
-    isPublic: req.isPublic
+    isPublic: req.isPublic,
   };
 }
 
@@ -282,7 +313,7 @@ function createProjectEntity(dto: CreateProjectRequest, userId: string): Project
     isPublic: dto.isPublic,
     userId,
     createdAt: now,
-    updatedAt: now
+    updatedAt: now,
   };
 }
 ```
@@ -315,14 +346,14 @@ graph TD
     ErrorType -->|ConflictError| Status409[HTTP 409 Conflict]
     ErrorType -->|DatabaseError| Status500[HTTP 500 Internal Server Error]
     ErrorType -->|InternalError| Status500
-    
+
     Status400 --> Response[Fehlerantwort generieren]
     Status401 --> Response
     Status403 --> Response
     Status404 --> Response
     Status409 --> Response
     Status500 --> Response
-    
+
     Response --> Log[Fehler loggen]
     Log --> Client[Antwort an Client senden]
 ```
@@ -334,37 +365,46 @@ try {
   // API-Operation
 } catch (error) {
   if (error instanceof ValidationError) {
-    return new Response(JSON.stringify({
-      error: 'Validation Error',
-      message: error.message,
-      details: error.details
-    }), {
-      status: 400,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    return new Response(
+      JSON.stringify({
+        error: 'Validation Error',
+        message: error.message,
+        details: error.details,
+      }),
+      {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
   }
-  
+
   if (error instanceof AuthenticationError) {
-    return new Response(JSON.stringify({
-      error: 'Authentication Error',
-      message: error.message
-    }), {
-      status: 401,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    return new Response(
+      JSON.stringify({
+        error: 'Authentication Error',
+        message: error.message,
+      }),
+      {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
   }
-  
+
   // Weitere Fehlertypen...
-  
+
   // Unbekannter Fehler
   console.error('Unhandled error:', error);
-  return new Response(JSON.stringify({
-    error: 'Internal Server Error',
-    message: 'An unexpected error occurred'
-  }), {
-    status: 500,
-    headers: { 'Content-Type': 'application/json' }
-  });
+  return new Response(
+    JSON.stringify({
+      error: 'Internal Server Error',
+      message: 'An unexpected error occurred',
+    }),
+    {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    }
+  );
 }
 ```
 
@@ -392,17 +432,17 @@ Evolution Hub implementiert mehrere Caching-Strategien zur Leistungsoptimierung:
 // Edge-Caching für öffentliche API-Antworten
 export async function onRequest(context) {
   const { request, env } = context;
-  
+
   // Nur GET-Anfragen cachen
   if (request.method !== 'GET') {
     return await handleRequest(context);
   }
-  
+
   const url = new URL(request.url);
-  
+
   // Caching-Strategie basierend auf dem Pfad
   let cacheControl = 'no-cache';
-  
+
   if (url.pathname.startsWith('/api/public/')) {
     // Öffentliche Daten für 1 Stunde cachen
     cacheControl = 'public, max-age=3600';
@@ -410,12 +450,12 @@ export async function onRequest(context) {
     // Kommentare für 5 Minuten cachen
     cacheControl = 'public, max-age=300';
   }
-  
+
   const response = await handleRequest(context);
-  
+
   // Cache-Control-Header hinzufügen
   response.headers.set('Cache-Control', cacheControl);
-  
+
   return response;
 }
 ```

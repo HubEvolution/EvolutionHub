@@ -1,5 +1,7 @@
 # Evolution Hub - Technologie-Stack und Architektur
 
+> Hinweis: Der kanonische Einstiegspunkt für die Architektur-Dokumentation ist `docs/architecture/README.md`. Verwende primär die Dokumente im Verzeichnis `docs/architecture/` (Kategorie-Index, Unterseiten, ADRs).
+
 ## Technologie‑Stack (aktuell)
 
 ### Frontend
@@ -23,7 +25,7 @@
 
 ### Authentifizierung & Sicherheit
 
-- **jose v6.0.12** (JWT, siehe [`package.json`](package.json:73))
+- **jose v6.0.12** (JWT, siehe [`package.json`](package.json:73)) – Hinweis: Nicht für Session‑Auth im Einsatz; Sessions sind Cookie‑basiert (`__Host-session`).
 - **cookie v1.0.2** (siehe [`package.json`](package.json:66))
 - Zentrale Security‑Implementierungen:
   - Rate‑Limiting: [`src/lib/rate-limiter.ts`](src/lib/rate-limiter.ts:1)
@@ -83,7 +85,7 @@ Die DB‑Tabellen spiegeln die Migrations in `/migrations`:
 - `projects` — Projekt‑Metadaten
 - `comments`
 - `subscriptions`
-(Konkret: siehe `/migrations/*.sql`)
+  (Konkret: siehe `/migrations/*.sql`)
 
 ### Frontend‑Architektur
 

@@ -2,7 +2,7 @@
 
 > Hinweis (Stand Stytch-Migration): Legacy Passwort-basierte Flows (`register`, `forgot-password`, `reset-password`, `change-password`, `verify-email`, `logout`) sind deprecatet und liefern 410 Gone. Die aktuelle Authentifizierung verwendet ausschließlich Stytch Magic Link mit dem Session-Cookie `__Host-session` (HttpOnly, Secure, SameSite=Strict, Path=/). Details siehe die konsolidierte Doku und `routes.md`.
 
-Stand: 2025-08-22 05:56 CEST
+Stand: 2025-10-17 09:40 CEST
 Scope Phase 1 – Bestandsaufnahme und Analyse ohne Codeänderungen.
 
 ---
@@ -23,6 +23,11 @@ Scope Phase 1 – Bestandsaufnahme und Analyse ohne Codeänderungen.
   - Auth Batch 2: `src/pages/api/auth/{change-password.ts, forgot-password.ts, resend-verification.ts, verify-email.ts}`
   - User Batch 3: `src/pages/api/user/{me.ts, profile.ts, password.ts, settings.ts, account.ts, avatar.ts, logout-v2.ts}`
 - Analyse-Kriterien: Zweck, Pipeline-Position, Ein-/Ausgaben, Abhängigkeiten, Fehler-/Sicherheitsaspekte, Konsistenz.
+
+### Primäre Referenzen
+
+- `.windsurf/rules/api-and-security.md` (kanonische Sicherheits-/Middleware-Regeln)
+- `src/lib/api-middleware.ts` (Allowed-Origins, Same-Origin/CSRF-Optionen, Rate-Limits, 405/Allow)
 
 ---
 
@@ -59,7 +64,7 @@ Scope Phase 1 – Bestandsaufnahme und Analyse ohne Codeänderungen.
 
 ## 4) API-Inventar (bisher erfasst)
 
-Hinweis: Auth-Endpunkte setzen auf Redirect-Flows; JSON wird primär für 405-Fehler verwendet.
+Hinweis: Auth-Endpunkte setzen auf Redirect-Flows; JSON wird primär für 405-Fehler verwendet. Logout-Routen geben bewusst Redirects (keinen JSON-Envelope) zurück und nutzen `createSecureRedirect()`. 405-Handler sollten je Route explizit exportiert werden, um Konsistenz sicherzustellen.
 
 ### 4.1 POST `/api/auth/login` → `src/pages/api/auth/login.ts`
 

@@ -20,6 +20,7 @@ import {
   TOP_P,
 } from '@/config/prompt-enhancer';
 import { uploadPdfFilesToProvider } from '@/lib/services/prompt-attachments';
+import { getUsage as kvGetUsage, incrementDailyRolling, rollingDailyKey } from '@/lib/kv/usage';
 
 export interface EnhanceInput {
   text: string;
@@ -81,6 +82,7 @@ interface RuntimeEnv {
   PROMPT_TEMPERATURE?: string;
   PROMPT_TOP_P?: string;
   PROMPT_METRICS_V1?: string;
+  USAGE_KV_V2?: string;
 }
 
 export class PromptEnhancerService {
@@ -171,6 +173,13 @@ export class PromptEnhancerService {
     const limit = ownerType === 'user' ? userLimit : guestLimit;
     const kv = this.env.KV_PROMPT_ENHANCER;
     if (!kv) return { used: 0, limit, resetAt: null };
+    const useV2 = this.env.USAGE_KV_V2 === '1';
+    if (useV2) {
+      const keyV2 = rollingDailyKey('prompt', ownerType, ownerId);
+      const usage = await kvGetUsage(kv as any, keyV2);
+      if (!usage) return { used: 0, limit, resetAt: null };
+      return { used: usage.count, limit, resetAt: usage.resetAt ? usage.resetAt * 1000 : null };
+    }
 
     const key = `prompt:usage:${ownerType}:${ownerId}`;
     const raw = await kv.get(key);
@@ -191,6 +200,11 @@ export class PromptEnhancerService {
   ): Promise<UsageInfo> {
     const kv = this.env.KV_PROMPT_ENHANCER;
     if (!kv) return { used: 1, limit, resetAt: null };
+    const useV2 = this.env.USAGE_KV_V2 === '1';
+    if (useV2) {
+      const res = await incrementDailyRolling(kv as any, 'prompt', ownerType, ownerId, limit);
+      return { used: res.usage.count, limit, resetAt: res.usage.resetAt * 1000 };
+    }
 
     const key = `prompt:usage:${ownerType}:${ownerId}`;
     const now = Date.now();

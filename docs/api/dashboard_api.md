@@ -10,11 +10,13 @@ Alle Endpunkte erfordern eine Authentifizierung über eine Server-Session (HttpO
 
 Alle Dashboard-API-Endpunkte sind mit folgenden Sicherheitsmaßnahmen ausgestattet:
 
-* **Rate-Limiting:** 50 Anfragen pro Minute (`standardApiLimiter`)
-* **Security-Headers:** Alle Standard-Security-Headers werden angewendet
-* **Audit-Logging:** Alle API-Zugriffe werden protokolliert
-* **Input-Validierung:** Alle Eingabeparameter werden validiert und sanitisiert
-* **Benutzer-Filterung:** Daten werden nur für den authentifizierten Benutzer zurückgegeben
+- **Rate-Limiting:** 50 Anfragen pro Minute (`standardApiLimiter`)
+- **Security-Headers:** Alle Standard-Security-Headers werden angewendet
+- **Audit-Logging:** Alle API-Zugriffe werden protokolliert
+- **Input-Validierung:** Alle Eingabeparameter werden validiert und sanitisiert
+- **Benutzer-Filterung:** Daten werden nur für den authentifizierten Benutzer zurückgegeben
+
+> Hinweis (Response-Format): Ziel ist ein einheitlicher JSON-Envelope via `createApiSuccess(...)`. Einige Dashboard-Routen liefern aktuell noch ein Plain-Array zurück; dies wird schrittweise vereinheitlicht.
 
 ---
 
@@ -24,10 +26,11 @@ Alle Dashboard-API-Endpunkte sind mit folgenden Sicherheitsmaßnahmen ausgestatt
 
 Ruft eine Liste aller Projekte ab, die dem authentifizierten Benutzer zugeordnet sind.
 
-* **HTTP-Methode:** `GET`
-* **Pfad:** `/api/dashboard/projects`
-* **Handler-Funktion:** GET-Handler in `dashboard/projects.ts`
-* **Security:** Rate-Limiting (50/min über `standardApiLimiter`), Security-Headers, Audit-Logging, Benutzer-Filterung
+- **HTTP-Methode:** `GET`
+- **Pfad:** `/api/dashboard/projects`
+- **Handler-Funktion:** GET-Handler in `dashboard/projects.ts`
+- **Antwort-Envelope:** `createApiSuccess(data)` (siehe `src/lib/api-middleware.ts`)
+- **Security:** Rate-Limiting (50/min über `standardApiLimiter`), Security-Headers, Audit-Logging, Benutzer-Filterung
 
 ### Beispielhafte Antwort (`200 OK`)
 
@@ -57,10 +60,11 @@ Ruft eine Liste aller Projekte ab, die dem authentifizierten Benutzer zugeordnet
 
 Ruft eine Liste der letzten Aktivitäten des authentifizierten Benutzers ab.
 
-* **HTTP-Methode:** `GET`
-* **Pfad:** `/api/dashboard/activity`
-* **Handler-Funktion:** GET-Handler in `activity.ts`
-* **Security:** Rate-Limiting (50/min über `standardApiLimiter`), Security-Headers, Audit-Logging, Benutzer-Filterung
+- **HTTP-Methode:** `GET`
+- **Pfad:** `/api/dashboard/activity`
+- **Handler-Funktion:** GET-Handler in `activity.ts`
+- **Antwort-Envelope:** `createApiSuccess(data)` (siehe `src/lib/api-middleware.ts`)
+- **Security:** Rate-Limiting (50/min über `standardApiLimiter`), Security-Headers, Audit-Logging, Benutzer-Filterung
 
 ### Beispielhafte Antwort (`200 OK`)
 
@@ -86,10 +90,11 @@ Ruft eine Liste der letzten Aktivitäten des authentifizierten Benutzers ab.
 
 Ruft aggregierte Dashboard-Statistiken ab.
 
-* **HTTP-Methode:** `GET`
-* **Pfad:** `/api/dashboard/stats`
-* **Handler-Funktion:** GET-Handler in `stats.ts`
-* **Security:** Rate-Limiting (50/min über `standardApiLimiter`), Security-Headers, Audit-Logging, Benutzer-Filterung
+- **HTTP-Methode:** `GET`
+- **Pfad:** `/api/dashboard/stats`
+- **Handler-Funktion:** GET-Handler in `stats.ts`
+- **Antwort-Envelope:** `createApiSuccess(data)` (siehe `src/lib/api-middleware.ts`)
+- **Security:** Rate-Limiting (50/min über `standardApiLimiter`), Security-Headers, Audit-Logging, Benutzer-Filterung
 
 ### Beispielhafte Antwort (`200 OK`)
 
@@ -106,10 +111,11 @@ Ruft aggregierte Dashboard-Statistiken ab.
 
 Ruft die letzten Benachrichtigungen des authentifizierten Benutzers ab (max. 10).
 
-* **HTTP-Methode:** `GET`
-* **Pfad:** `/api/dashboard/notifications`
-* **Handler-Funktion:** GET-Handler in `notifications.ts`
-* **Security:** Rate-Limiting (50/min über `standardApiLimiter`), Security-Headers, Audit-Logging, Benutzer-Filterung
+- **HTTP-Methode:** `GET`
+- **Pfad:** `/api/dashboard/notifications`
+- **Handler-Funktion:** GET-Handler in `notifications.ts`
+- **Antwort-Envelope:** `createApiSuccess(data)` (siehe `src/lib/api-middleware.ts`)
+- **Security:** Rate-Limiting (50/min über `standardApiLimiter`), Security-Headers, Audit-Logging, Benutzer-Filterung
 
 Hinweis: Die Antwort enthält die letzten Einträge aus der Tabelle `notifications` als Array in `data`. Feldnamen entsprechen dem Datenbankschema.
 
@@ -119,11 +125,12 @@ Hinweis: Die Antwort enthält die letzten Einträge aus der Tabelle `notificatio
 
 Liefert die verfügbaren Quick Actions. Keine Authentifizierung erforderlich.
 
-* **HTTP-Methode:** `GET`
-* **Pfad:** `/api/dashboard/quick-actions`
-* **Handler-Funktion:** GET-Handler in `quick-actions.ts`
-* **Security:** Rate-Limiting (50/min über `standardApiLimiter`), Security-Headers, Audit-Logging
-* **Authentifizierung:** nicht erforderlich
+- **HTTP-Methode:** `GET`
+- **Pfad:** `/api/dashboard/quick-actions`
+- **Handler-Funktion:** GET-Handler in `quick-actions.ts`
+- **Antwort-Envelope:** `createApiSuccess(data)` (siehe `src/lib/api-middleware.ts`)
+- **Security:** Rate-Limiting (50/min über `standardApiLimiter`), Security-Headers, Audit-Logging
+- **Authentifizierung:** nicht erforderlich
 
 ### Beispielhafte Antwort (`200 OK`)
 
@@ -131,7 +138,14 @@ Liefert die verfügbaren Quick Actions. Keine Authentifizierung erforderlich.
 {
   "success": true,
   "data": [
-    { "id": "qa1", "title": "New Post", "description": "Write a new blog article.", "icon": "✍️", "variant": "primary", "action": "createPost" }
+    {
+      "id": "qa1",
+      "title": "New Post",
+      "description": "Write a new blog article.",
+      "icon": "✍️",
+      "variant": "primary",
+      "action": "createPost"
+    }
   ]
 }
 ```
@@ -142,10 +156,11 @@ Liefert die verfügbaren Quick Actions. Keine Authentifizierung erforderlich.
 
 Führt eine Dashboard-Aktion aus.
 
-* **HTTP-Methode:** `POST`
-* **Pfad:** `/api/dashboard/perform-action`
-* **Handler-Funktion:** POST-Handler in `perform-action.ts`
-* **Security:** Rate-Limiting (50/min über `standardApiLimiter`), Security-Headers, Audit-Logging, Benutzer-Filterung, Input-Validierung
+- **HTTP-Methode:** `POST`
+- **Pfad:** `/api/dashboard/perform-action`
+- **Handler-Funktion:** POST-Handler in `perform-action.ts`
+- **Antwort-Envelope:** `createApiSuccess(data)` (siehe `src/lib/api-middleware.ts`)
+- **Security:** Rate-Limiting (50/min über `standardApiLimiter`), Security-Headers, Audit-Logging, Benutzer-Filterung, Input-Validierung
 
 ### Request-Body (JSON)
 
@@ -165,3 +180,4 @@ Unterstützte Aktionen: `create_project`, `create_task`, `invite_member`, `view_
 
 ```json
 { "success": false, "error": { "type": "validation_error", "message": "Invalid action: <action>" } }
+```

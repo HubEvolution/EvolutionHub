@@ -66,7 +66,7 @@ const description = category
     : 'Aktuelle Artikel, Tutorials und Neuigkeiten aus der Welt der Webentwicklung';
 
 // Kanonische URL für SEO
-const canonicalUrl = new URL('/blog/', Astro.site);
+const canonicalUrl = new URL('/blog/', Astro.url.origin);
 if (category) canonicalUrl.searchParams.set('kategorie', category);
 if (tag) canonicalUrl.searchParams.set('tag', tag);
 if (searchQuery) canonicalUrl.searchParams.set('suche', searchQuery);

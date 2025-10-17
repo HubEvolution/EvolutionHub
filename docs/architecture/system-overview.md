@@ -59,9 +59,9 @@ Die Benutzeroberfläche ist mit Astro und React implementiert und folgt dem Isla
 Die API-Schicht ist mit Astro API-Routen implementiert und in mehrere Bereiche unterteilt:
 
 - **Auth-APIs**: Authentifizierung und Autorisierung
-  - Login, Registrierung, Passwort-Reset, Logout
-  - JWT-basierte Sitzungsverwaltung
-  - Zwei-Faktor-Authentifizierung
+  - Magic Link (Stytch): `POST /api/auth/magic/request`, `GET /api/auth/callback` (Redirect-only)
+  - OAuth (Stytch, z. B. GitHub): `GET /api/auth/oauth/*` (Redirect/Middleware)
+  - Session-Cookies: `__Host-session` (HttpOnly, Secure, SameSite=Strict, Path=/); kein Passwortfluss
 
 - **User-APIs**: Benutzerverwaltung
   - Profilinformationen
@@ -149,7 +149,7 @@ graph TD
 
     Browser --> StaticPages
     Browser --> ReactComponents
-    
+
     StaticPages --> AuthAPI
     StaticPages --> PublicAPI
     ReactComponents --> AuthAPI
@@ -157,7 +157,7 @@ graph TD
     ReactComponents --> ProjectAPI
     ReactComponents --> DashboardAPI
     ReactComponents --> PublicAPI
-    
+
     AuthAPI --> AuthService
     UserAPI --> UserService
     ProjectAPI --> ProjectService
@@ -172,7 +172,7 @@ graph TD
     ProjectAPI --> SecurityServices
     DashboardAPI --> SecurityServices
     PublicAPI --> SecurityServices
-    
+
     AuthService --> D1Database
     UserService --> D1Database
     ProjectService --> D1Database
@@ -242,8 +242,8 @@ Evolution Hub implementiert mehrere Sicherheitsschichten:
 
 ### Authentifizierung und Autorisierung
 
-- **JWT-basierte Authentifizierung**: Sichere, zustandslose Authentifizierung
-- **HttpOnly-Cookies**: Schutz vor XSS-Angriffen
+- **Stytch Magic Link & OAuth**: Keine Passwortspeicherung im System
+- **Session-Cookies (`__Host-session`)**: HttpOnly, Secure, SameSite=Strict, Path=/
 - **CSRF-Schutz**: Cross-Site Request Forgery Prävention
 - **Rollenbasierte Zugriffskontrolle**: Differenzierte Berechtigungen
 
@@ -256,9 +256,16 @@ Evolution Hub implementiert mehrere Sicherheitsschichten:
 
 ### Datensicherheit
 
-- **Passwort-Hashing**: Sichere Speicherung von Passwörtern
-- **Datenminimierung**: Nur notwendige Daten werden gespeichert
+- **Keine Passwörter im System**: Authentifizierung via Stytch Magic Link/OAuth
+- **Datenfilterung**: Sensible Daten werden vor der Rückgabe gefiltert
+- **Vermeidung von User-Enumeration**: Konsistente Antworten unabhängig vom Benutzerexistenz-Status
 - **Verschlüsselte Übertragung**: HTTPS für alle Verbindungen
 - **Datenvalidierung**: Strenge Typisierung und Validierung
 
-Weitere Details zur Sicherheitsarchitektur finden sich in der [SECURITY.md](../../SECURITY.md) Dokumentation.
+Weitere Details zur Sicherheitsarchitektur finden sich in der [SECURITY.md](../SECURITY.md) Dokumentation.
+
+## External Services
+
+- OpenAI (Prompt Enhancer, Voice Transcriptor): Modelle, Token‑Limits, Kosten. Env: `OPENAI_API_KEY`, Standard‑Modelle per Feature‑Config.
+- Replicate (AI Image Enhancer): Versionierte Modelle, asynchrone Predictions. Steuerung via Service‑Layer; R2 für Upload/Ergebnisablage.
+- Cloudflare Platform: R2 (Objektspeicher), D1 (Datenbank), KV (Quotas/Caches), Workers/Pages (Runtime/Assets), optional Insights (CSP‑abhängig in Prod).

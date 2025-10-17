@@ -87,6 +87,7 @@ Feature-Flag: `AUTH_PROVIDER=legacy|stytch` für Rollout/Rollback. Domains: prod
 - **CORS**: Nur eigene Origins (prod/staging/test/dev).
 - **CSP**: OAuth-Redirects/Popups nicht blockieren; Nonce aktiv.
 - **Turnstile**: Optional in Prod erzwingen.
+- **PKCE (feature‑flagged)**: Wenn `STYTCH_PKCE` aktiviert ist, setzt `POST /api/auth/magic/request` einen kurzlebigen HttpOnly‑Cookie `pkce_verifier` (SameSite=Lax, 10 Min) und sendet einen `pkce_code_challenge` an Stytch. `GET /api/auth/callback` muss dann den `pkce_code_verifier` übergeben; der Cookie wird danach gelöscht. Für Mobile‑Webviews deaktivieren, da Context‑Switch den Verifier verhindern kann.
 
 ## Fehlerbehandlung
 
@@ -196,6 +197,7 @@ Protokoll:
 ## Endpunkte
 
 - **Magic Link**: `/api/auth/magic/request` (POST), `/api/auth/callback` (GET).
+  - Wenn `STYTCH_PKCE=1`: Request setzt `pkce_verifier`; Callback übermittelt `pkce_code_verifier` und antwortet zusätzlich mit `X-Stytch-Request-Id` zur Support‑Korrelation.
 - **Logout**: `/api/auth/logout` (POST).
 - **OAuth**: `/api/auth/oauth/:provider/start` (GET), `/api/auth/oauth/:provider/callback` (GET).
 - Entfernt (410 Gone): 410 Gone mit JSON/HTML, Cache-Control: no-store.

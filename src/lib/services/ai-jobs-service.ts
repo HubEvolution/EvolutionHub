@@ -15,12 +15,19 @@ import { loggerFactory } from '@/server/utils/logger-factory';
 import type { ExtendedLogger } from '@/types/logger';
 import type { ServiceDependencies } from './types';
 import type { KVNamespace, R2Bucket } from '@cloudflare/workers-types';
+import {
+  getUsage as kvGetUsage,
+  incrementDailyRolling,
+  incrementMonthlyNoTtl,
+  rollingDailyKey,
+} from '@/lib/kv/usage';
 
 interface RuntimeEnv {
   R2_AI_IMAGES?: R2Bucket;
   KV_AI_ENHANCER?: KVNamespace;
   REPLICATE_API_TOKEN?: string;
   ENVIRONMENT?: string;
+  USAGE_KV_V2?: string;
 }
 
 export type AiJobStatus = 'queued' | 'processing' | 'succeeded' | 'failed' | 'canceled';
@@ -146,6 +153,11 @@ export class AiJobsService extends AbstractBaseService {
   ): Promise<UsageInfo> {
     const kv = this.env.KV_AI_ENHANCER;
     if (!kv) return { used: 0, limit, resetAt: null };
+    const useV2 = this.env.USAGE_KV_V2 === '1';
+    if (useV2) {
+      const res = await incrementMonthlyNoTtl(kv, 'ai', ownerType, ownerId, limit);
+      return { used: res.usage.count, limit, resetAt: null };
+    }
     const key = this.monthlyUsageKey(ownerType, ownerId, ym);
     const raw = await kv.get(key);
     let count = 0;
@@ -153,9 +165,7 @@ export class AiJobsService extends AbstractBaseService {
       try {
         const parsed = JSON.parse(raw) as { count: number };
         count = parsed.count || 0;
-      } catch {
-        // Invalid JSON - keep count at 0
-      }
+      } catch {}
     }
     count += 1;
     await kv.put(key, JSON.stringify({ count }));
@@ -582,6 +592,13 @@ export class AiJobsService extends AbstractBaseService {
   async getUsage(ownerType: OwnerType, ownerId: string, limit: number): Promise<UsageInfo> {
     const kv = this.env.KV_AI_ENHANCER;
     if (!kv) return { used: 0, limit, resetAt: null };
+    const useV2 = this.env.USAGE_KV_V2 === '1';
+    if (useV2) {
+      const keyV2 = rollingDailyKey('ai', ownerType, ownerId);
+      const usage = await kvGetUsage(kv, keyV2);
+      if (!usage) return { used: 0, limit, resetAt: null };
+      return { used: usage.count, limit, resetAt: usage.resetAt ? usage.resetAt * 1000 : null };
+    }
 
     const key = this.usageKey(ownerType, ownerId);
     const raw = await kv.get(key);
@@ -602,10 +619,15 @@ export class AiJobsService extends AbstractBaseService {
   ): Promise<UsageInfo> {
     const kv = this.env.KV_AI_ENHANCER;
     if (!kv) return { used: 0, limit, resetAt: null };
+    const useV2 = this.env.USAGE_KV_V2 === '1';
+    if (useV2) {
+      const res = await incrementDailyRolling(kv, 'ai', ownerType, ownerId, limit);
+      return { used: res.usage.count, limit, resetAt: res.usage.resetAt * 1000 };
+    }
 
     const key = this.usageKey(ownerType, ownerId);
     const now = Date.now();
-    const windowMs = 24 * 60 * 60 * 1000; // 24h
+    const windowMs = 24 * 60 * 60 * 1000;
 
     const raw = await kv.get(key);
     let count = 0;
@@ -618,9 +640,7 @@ export class AiJobsService extends AbstractBaseService {
           count = parsed.count || 0;
           resetAt = parsed.resetAt;
         }
-      } catch {
-        // ignore
-      }
+      } catch {}
     }
 
     count += 1;

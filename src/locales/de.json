@@ -8,89 +8,56 @@
     "errors": {
       "generic": "Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.",
       "upload_failed_prefix": "Fehler beim Hochladen:"
-    }
-  },
-  "nav": {
-    "dashboard": "Dashboard",
-    "tools": "Tools",
-    "pricing": "Preise",
-    "blog": "Blog"
-  },
-  "nav_language": {
-    "de": "Deutsch",
-    "en": "English"
-  },
-  "cta": {
-    "headline": "Bereit loszulegen?",
-    "subtitle": "Werden Sie Teil der Tausenden von Entwicklern, die bereits Evolution Hub nutzen, um erstaunliche Anwendungen zu erstellen.",
-    "button_text": "Kostenloses Konto erstellen"
-  },
-  "auth": {
-    "login": "Anmelden",
-    "magic": {
-      "cooldown": "Bitte warte {seconds}s, bevor du es erneut versuchst.",
-      "error": "Magischer Link konnte nicht gesendet werden. Bitte erneut versuchen.",
-      "success": "Wir haben dir einen magischen Link geschickt. Bitte prüfe dein Postfach."
-    }
-  },
-  "pages": {
-    "tools": {
-      "items": {
-        "voice-visualizer": {
-          "name": "Voice Transcriptor",
-          "description": "Stimme aufnehmen, Pegel visualisieren und Sprache nahezu in Echtzeit transkribieren."
-        }
-      }
     },
+    "upload": {
+      "invalid_type": "",
+      "too_large": ""
+    },
+    "status": {
+      "uploading": "",
+      "sending": ""
+    },
+    "actions": {
+      "upload": "",
+      "subscribe": ""
+    },
+    "upgrade": "",
+    "success": {
+      "avatar_updated": "",
+      "newsletter_confirmation_sent": ""
+    },
+    "forms": {
+      "email_placeholder": ""
+    },
+    "loading": "",
+    "import": "",
     "account": {
       "settings": {
         "danger": {
-          "title": "Gefahrenbereich",
-          "description": "Das Löschen deines Kontos entfernt dauerhaft dein Profil, deine Aktivitäts-Historie und gespeicherte Automationen. Diese Aktion kann nicht rückgängig gemacht werden.",
-          "button": "Konto löschen",
-          "confirmTitle": "Konto wirklich löschen?",
-          "confirm": "Bist du sicher, dass du dein Konto löschen möchtest? Diese Aktion kann nicht rückgängig gemacht werden.",
-          "processing": "Konto wird gelöscht…",
-          "success": "Dein Konto wurde gelöscht. Du wirst abgemeldet.",
-          "error": "Das Konto konnte nicht gelöscht werden. Bitte versuche es erneut oder kontaktiere den Support.",
-          "subscriptionTitle": "Aktives Abonnement erkannt",
-          "subscriptionWarning": "Wir haben aktive Abonnements in deinem Konto gefunden. Kündige sie zuerst in der Abrechnung oder lösche dein Konto, um die Kündigung automatisch zum aktuellen Laufzeitende zu planen.",
-          "subscriptionPeriodEnd": "Verlängert sich am {date}",
-          "subscriptionIndefinite": "Verlängert sich automatisch bis zur Kündigung",
-          "subscriptionConfirm": "Fortfahren und Abonnement automatisch kündigen?",
+          "title": "",
+          "description": "",
+          "button": "",
+          "confirmTitle": "",
+          "confirm": "",
+          "processing": "",
+          "success": "",
+          "error": "",
+          "subscriptionTitle": "",
+          "subscriptionWarning": "",
+          "subscriptionPeriodEnd": "",
+          "subscriptionIndefinite": "",
+          "subscriptionConfirm": "",
           "actions": {
-            "cancel": "Abbrechen",
-            "confirm": "Konto löschen",
-            "goToBilling": "Zur Abrechnung wechseln",
-            "deleteAnyway": "Trotzdem löschen",
-            "close": "Schließen",
-            "back": "Zurück"
+            "cancel": "",
+            "confirm": "",
+            "goToBilling": "",
+            "deleteAnyway": "",
+            "close": "",
+            "back": ""
           }
         }
       }
-    },
-    "upload": {
-      "invalid_type": "Bitte wähle ein Bild im Format JPG, PNG oder GIF",
-      "too_large": "Die Datei ist zu groß. Maximale Größe ist 2MB"
-    },
-    "status": {
-      "uploading": "Wird hochgeladen...",
-      "sending": "Wird gesendet..."
-    },
-    "actions": {
-      "upload": "Hochladen",
-      "subscribe": "Abonnieren"
-    },
-    "upgrade": "Upgrade",
-    "success": {
-      "avatar_updated": "Profilbild erfolgreich aktualisiert!",
-      "newsletter_confirmation_sent": "Bestätigungs-E-Mail gesendet!"
-    },
-    "forms": {
-      "email_placeholder": "E-Mail-Adresse"
-    },
-    "loading": "Laden...",
-    "import": "Importieren"
+    }
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -1186,6 +1153,10 @@
         "webscraper": {
           "name": "Webscraper",
           "description": "Extrahiert Inhalte von Webseiten automatisch."
+        },
+        "voice-visualizer": {
+          "name": "",
+          "description": ""
         }
       },
       "details": {

@@ -1,5 +1,6 @@
 ---
-Title: Image Enhancer Rules
+trigger: always_on
+priority: 60
 ---
 
 # Image Enhancer Rules

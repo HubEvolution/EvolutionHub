@@ -9,6 +9,24 @@ import { authLimiter } from '@/lib/rate-limiter';
 import { stytchMagicLinkLoginOrCreate, StytchError } from '@/lib/stytch';
 import { logMetricCounter } from '@/lib/security-logger';
 
+async function sha256(input: string): Promise<Uint8Array> {
+  const data = new TextEncoder().encode(input);
+  const hash = await crypto.subtle.digest('SHA-256', data);
+  return new Uint8Array(hash);
+}
+
+function base64url(bytes: Uint8Array): string {
+  let str = '';
+  for (let i = 0; i < bytes.length; i++) str += String.fromCharCode(bytes[i]);
+  return btoa(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
+}
+
+function randomVerifier(): string {
+  const bytes = new Uint8Array(32);
+  crypto.getRandomValues(bytes);
+  return base64url(bytes);
+}
+
 const parseBody = async (
   request: Request
 ): Promise<{
@@ -105,7 +123,10 @@ const handler: ApiHandler = async (context: APIContext) => {
   const turnstileSecret = (cfEnv as Record<string, string> | undefined)?.TURNSTILE_SECRET_KEY;
   if (turnstileSecret) {
     if (!turnstileToken || typeof turnstileToken !== 'string' || turnstileToken.length < 10) {
-      logMetricCounter('turnstile_verify_failed', 1, { source: 'magic_request', reason: 'missing_token' });
+      logMetricCounter('turnstile_verify_failed', 1, {
+        source: 'magic_request',
+        reason: 'missing_token',
+      });
       return createApiError('validation_error', 'Turnstile verification required');
     }
     const cfConnectingIp = request.headers.get('cf-connecting-ip') || '';
@@ -124,7 +145,10 @@ const handler: ApiHandler = async (context: APIContext) => {
       const verifyJson = (await verifyRes.json()) as { success?: boolean; 'error-codes'?: unknown };
       const ok = verifyRes.ok && verifyJson && verifyJson.success === true;
       if (!ok) {
-        logMetricCounter('turnstile_verify_failed', 1, { source: 'magic_request', reason: 'bad_token' });
+        logMetricCounter('turnstile_verify_failed', 1, {
+          source: 'magic_request',
+          reason: 'bad_token',
+        });
         return createApiError('validation_error', 'Turnstile verification failed');
       }
     } catch {
@@ -189,6 +213,23 @@ const handler: ApiHandler = async (context: APIContext) => {
   const devEnv =
     ((context.locals as any)?.runtime?.env?.ENVIRONMENT || 'development') === 'development';
   const startedAt = Date.now();
+  let pkceChallenge: string | undefined;
+  const usePkce =
+    (cfEnv as Record<string, string>)?.STYTCH_PKCE === '1' ||
+    (cfEnv as Record<string, string>)?.STYTCH_PKCE === 'true';
+  if (usePkce) {
+    const verifier = randomVerifier();
+    const hash = await sha256(verifier);
+    pkceChallenge = base64url(hash);
+    const isHttps = origin.startsWith('https://');
+    context.cookies.set('pkce_verifier', verifier, {
+      path: '/',
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: isHttps,
+      maxAge: 10 * 60,
+    });
+  }
   try {
     if (devEnv) {
       console.log('[auth][magic][request] sending to provider', {
@@ -200,6 +241,7 @@ const handler: ApiHandler = async (context: APIContext) => {
       email,
       login_magic_link_url: callbackUrl,
       signup_magic_link_url: callbackUrl,
+      ...(pkceChallenge ? { pkce_code_challenge: pkceChallenge } : {}),
     });
     logMetricCounter('auth_magic_request_success', 1, { source: 'magic_request' });
     if (devEnv) {

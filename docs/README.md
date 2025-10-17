@@ -12,7 +12,7 @@ Willkommen zur Evolution Hub Dokumentation. Diese Dokumentation bietet umfassend
   - Architecture Decision Records (ADRs)
   - Code-Reviews und Analysen
 
-- **[Development](./development/.)** — Entwicklungs-Workflows, Tools, Setup
+- **[Development](./development/)** — Entwicklungs-Workflows, Tools, Setup
   - Lokale Entwicklungsumgebung
   - CI/CD-Pipeline und Deployment
   - Testing-Guidelines

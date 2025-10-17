@@ -96,7 +96,10 @@ export const onRequest = defineMiddleware(async (context, next) => {
   const isDevEnv =
     (cfEnv?.ENVIRONMENT || (cfEnv as Record<string, string> | undefined)?.NODE_ENV) ===
     'development';
-  const originForRedirects = isDevEnv && cfEnv?.BASE_URL ? cfEnv.BASE_URL : url.origin;
+  const isLoopback =
+    url.hostname === '127.0.0.1' || url.hostname === 'localhost' || url.hostname === '::1';
+  const originForRedirects =
+    !isLoopback && isDevEnv && cfEnv?.BASE_URL ? cfEnv.BASE_URL : url.origin;
 
   // Direkt-Weiterleitung: /favicon.ico -> /favicon.svg
   // Auskommentiert, damit favicon.ico aus public/ ausgeliefert werden kann.
@@ -150,7 +153,19 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   // Session-basierte Splash-Gate: einmal pro Browser-Session anzeigen
   const sessionGateCookie = 'session_welcome_seen';
-  const sessionWelcomeSeen = context.cookies.get(sessionGateCookie)?.value === '1';
+  let sessionWelcomeSeen = context.cookies.get(sessionGateCookie)?.value === '1';
+  if (!sessionWelcomeSeen) {
+    const raw = context.request.headers.get('cookie') || '';
+    const m = raw.match(/(?:^|;\s*)session_welcome_seen=([^;]+)/i);
+    if (m && m[1] === '1') {
+      sessionWelcomeSeen = true;
+      if (import.meta.env.DEV) {
+        log('debug', '[Middleware] Fallback parsed session_welcome_seen from raw header', {
+          requestId,
+        });
+      }
+    }
+  }
 
   function detectFromAcceptLanguage(header: string | null): Locale {
     return pickBestLanguage(header, 'de') as Locale;
@@ -180,6 +195,15 @@ export const onRequest = defineMiddleware(async (context, next) => {
     const TOOL_RE = /^\/(?:(?:de|en)\/)?tools\/imag-enhancer(?:\/app)?(?:\/?$)/;
     return TOOL_RE.test(p);
   }
+
+  function isBlogRoute(p: string): boolean {
+    const BLOG_RE = /^\/(?:(?:de|en)\/)?blog(?:\/|$)/;
+    return BLOG_RE.test(p);
+  }
+
+  // Central guard: routes that should never be gated by the welcome splash
+  // Placeholder; actual value assigned after dependencies are declared (isApi, isAsset, isR2Proxy, bot)
+  let skipSplash = false;
 
   const preferredLocale: Locale =
     existingLocale ??
@@ -225,6 +249,13 @@ export const onRequest = defineMiddleware(async (context, next) => {
         secure: url.protocol === 'https:',
         maxAge: 60 * 60 * 24 * 180, // 180 Tage
       });
+      // Mark welcome as seen to avoid immediate splash redirects after explicit locale selection
+      context.cookies.set('session_welcome_seen', '1', {
+        path: '/',
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: url.protocol === 'https:',
+      });
       if (import.meta.env.DEV) {
         log('debug', '[Middleware] pref_locale cookie explicitly set', { requestId, targetLocale });
       }
@@ -263,7 +294,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
         });
       }
     }
-    const location = `${originForRedirects}${mapPathToLocale(targetLocale, effectiveNext)}`;
+    const location = `${mapPathToLocale(targetLocale, effectiveNext)}`;
     const headers = new Headers();
     headers.set('Location', location);
     headers.set('Content-Language', targetLocale);
@@ -311,6 +342,17 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   const bot = isBot(context.request.headers.get('user-agent'));
 
+  // Now that dependencies are declared, compute the central guard
+  skipSplash =
+    isApi ||
+    isAsset ||
+    isR2Proxy ||
+    bot ||
+    path.startsWith('/welcome') ||
+    isAuthRoute(path) ||
+    isGuestAccessibleToolRoute(path) ||
+    isBlogRoute(path);
+
   // Referer-basiertes Fallback-Signal: wenn vorherige Seite /en/... war, präferiere EN
   let refererSuggestsEn = false;
   try {
@@ -342,7 +384,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
     !isAuthRoute(path)
   ) {
     const target = path === '/' ? '/en/' : `/en${path}`;
-    const location = `${originForRedirects}${target}${url.search}${url.hash}`;
+    const location = `${target}${url.search}${url.hash}`;
     const headers = new Headers();
     headers.set('Location', location);
     headers.set('Content-Language', 'en');
@@ -366,19 +408,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
     }
   })();
 
-  if (
-    bypassSplash &&
-    !sessionWelcomeSeen &&
-    !cookieLocale &&
-    !isApi &&
-    !isAsset &&
-    !isR2Proxy &&
-    !bot &&
-    !path.startsWith('/welcome') &&
-    !isAuthRoute(path) &&
-    !isGuestAccessibleToolRoute(path) &&
-    !existingLocale
-  ) {
+  if (bypassSplash && !skipSplash && !sessionWelcomeSeen && !cookieLocale && !existingLocale) {
     const best = detectFromAcceptLanguage(context.request.headers.get('accept-language'));
     try {
       context.cookies.set(cookieName, best, {
@@ -389,7 +419,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
         maxAge: 60 * 60 * 24 * 180,
       });
     } catch {}
-    const location = `${originForRedirects}${mapPathToLocale(best, url)}`;
+    const location = `${mapPathToLocale(best, url)}`;
     const headers = new Headers();
     headers.set('Location', location);
     headers.set('Content-Language', best);
@@ -399,18 +429,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   // Zeige Splash/Welcome beim ersten sichtbaren Besuch dieser Session
   // Überspringe Splash, wenn bereits ein Locale-Cookie vorhanden ist
-  if (
-    !sessionWelcomeSeen &&
-    !cookieLocale &&
-    !isApi &&
-    !isAsset &&
-    !isR2Proxy &&
-    !bot &&
-    !path.startsWith('/welcome') &&
-    !isAuthRoute(path) &&
-    !isGuestAccessibleToolRoute(path) &&
-    !existingLocale
-  ) {
+  if (!skipSplash && !sessionWelcomeSeen && !cookieLocale && !existingLocale) {
     try {
       // Session-Cookie (kein maxAge) setzen, damit Splash nur einmal pro Session erscheint
       context.cookies.set(sessionGateCookie, '1', {
@@ -430,7 +449,8 @@ export const onRequest = defineMiddleware(async (context, next) => {
         errorMessage: e instanceof Error ? e.message : String(e),
       });
     }
-    const location = `${url.origin}/welcome?next=${encodeURIComponent(url.toString())}`;
+    const nextParam = `${url.pathname}${url.search}${url.hash}`;
+    const location = `/welcome?next=${encodeURIComponent(nextParam)}`;
     const headers = new Headers();
     headers.set('Location', location);
     headers.set('Vary', 'Cookie, Accept-Language');
@@ -473,7 +493,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
     const botLocale = detectFromAcceptLanguage(context.request.headers.get('accept-language'));
     if (botLocale === 'en') {
       const target = path === '/' ? '/en/' : `/en${path}`;
-      const location = `${originForRedirects}${target}${url.search}${url.hash}`;
+      const location = `${target}${url.search}${url.hash}`;
       const headers = new Headers();
       headers.set('Location', location);
       headers.set('Content-Language', 'en');
@@ -565,7 +585,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
     if (user && isLoginRoute(path)) {
       const targetLocale: Locale = existingLocale ?? preferredLocale;
       const base = targetLocale === 'en' ? '/en/dashboard' : '/dashboard';
-      const location = `${originForRedirects}${base}`;
+      const location = `${base}`;
       const headers = new Headers();
       headers.set('Location', location);
       headers.set('Vary', 'Cookie, Accept-Language');
@@ -600,7 +620,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
       const base = targetLocale === 'en' ? '/en/verify-email' : '/verify-email';
       const params = new URLSearchParams();
       if (user.email) params.set('email', user.email);
-      const location = `${originForRedirects}${base}${params.toString() ? `?${params.toString()}` : ''}`;
+      const location = `${base}${params.toString() ? `?${params.toString()}` : ''}`;
       const headers = new Headers();
       headers.set('Location', location);
       headers.set('Vary', 'Cookie, Accept-Language');

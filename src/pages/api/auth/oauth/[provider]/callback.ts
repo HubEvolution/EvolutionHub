@@ -86,6 +86,7 @@ const getHandler: ApiHandler = async (context: APIContext) => {
   let durUpsert = 0;
   let durSession = 0;
   let durRedirect = 0;
+  let stytchRequestId: string | undefined;
   if (devEnv) {
     console.log('[auth][oauth][callback] received', {
       provider,
@@ -104,11 +105,13 @@ const getHandler: ApiHandler = async (context: APIContext) => {
     const authRes = await stytchOAuthAuthenticate(context, token);
     const emails = authRes.user?.emails || [];
     stytchEmail = emails.find((e) => e.verified)?.email || emails[0]?.email;
+    stytchRequestId = (authRes as any)?.request_id as string | undefined;
     durAuth = Date.now() - _tAuth;
     if (devEnv) {
       console.log('[auth][oauth][callback] provider accepted', {
         ms: Date.now() - startedAt,
         hasEmail: Boolean(stytchEmail),
+        requestId: stytchRequestId || null,
       });
     }
   } catch (_e) {
@@ -277,6 +280,11 @@ const getHandler: ApiHandler = async (context: APIContext) => {
   const cookieValue = `session_id=${session.id}; Path=/; HttpOnly; SameSite=Lax${isHttps ? '; Secure' : ''}; Max-Age=${maxAge}`;
   const response = createSecureRedirect(redirectTarget);
   response.headers.append('Set-Cookie', cookieValue);
+  if (stytchRequestId) {
+    try {
+      response.headers.set('X-Stytch-Request-Id', stytchRequestId);
+    } catch {}
+  }
   durRedirect = Date.now() - _tRedirect;
 
   // Append Server-Timing header

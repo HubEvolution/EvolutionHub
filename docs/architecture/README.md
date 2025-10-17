@@ -12,8 +12,6 @@ Evolution Hub ist eine moderne Full-Stack-Webanwendung basierend auf:
 - **Storage**: Cloudflare R2
 - **KV Store**: Cloudflare KV
 
-Für einen High-Level-Überblick siehe: [../architecture.md](../architecture.md)
-
 ## System-Architektur
 
 ### Kern-Dokumentation

@@ -15,10 +15,10 @@ Diese Übersicht beschreibt die wichtigsten HTTP‑APIs von Evolution Hub, inkl.
 }
 ```
 
-- CSRF‑Schutz: POST‑/mutierende Requests erwarten einen Token‑Header und ein Cookie.
-  - Header: `X-CSRF-Token: <token>`
-  - Cookie: `csrf_token=<token>`
-  - Zusätzlich ist eine passende `Origin`/`Referer` empfohlen.
+- CSRF/Origin:
+  - Unsichere Methoden (POST/PUT/PATCH/DELETE) erfordern Same‑Origin; dies wird durch die API‑Middleware erzwungen.
+  - Optionaler Double‑Submit‑CSRF über `enforceCsrfToken: true` (Header `X-CSRF-Token` muss dem Cookie `csrf_token` entsprechen).
+  - Allowed Origins können zusätzlich per Env (`ALLOWED_ORIGINS`, `ALLOW_ORIGINS`, `APP_ORIGIN`, `PUBLIC_APP_ORIGIN`) erweitert werden.
 
 - Rate Limiting: Kritische Endpunkte sind limitiert (z. B. AI‑Enhancer). Antworten mit 429 enthalten i. d. R. `Retry-After`.
 

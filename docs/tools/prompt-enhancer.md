@@ -24,10 +24,10 @@ Der **Prompt Enhancer** transformiert einfache Text-Eingaben in strukturierte, a
 
 ### API-Endpunkte
 
-| Endpunkt | Methode | Beschreibung | Referenz |
-|----------|---------|-------------|----------|
-| `/api/prompt-enhance` | POST | Text → Enhanced Prompt | `src/pages/api/prompt-enhance.ts:49` |
-| `/api/prompt/usage` | GET | Usage/Limits abfragen | `src/pages/api/prompt/usage.ts:1` |
+| Endpunkt              | Methode | Beschreibung           | Referenz                             |
+| --------------------- | ------- | ---------------------- | ------------------------------------ |
+| `/api/prompt-enhance` | POST    | Text → Enhanced Prompt | `src/pages/api/prompt-enhance.ts:49` |
+| `/api/prompt/usage`   | GET     | Usage/Limits abfragen  | `src/pages/api/prompt/usage.ts:1`    |
 
 ### Komponenten-Stack
 
@@ -57,18 +57,18 @@ src/components/tools/prompt-enhancer/
 
 ### Environment-Variablen (`src/config/prompt-enhancer.ts`)
 
-| Variable | Default | Beschreibung | Zeile |
-|----------|---------|-------------|-------|
-| `PUBLIC_PROMPT_ENHANCER_V1` | `"true"` | Feature-Flag | - |
-| `PROMPT_TEXT_MODEL` | `"gpt-4o-mini"` | Text-only Modell | Z. 6 |
-| `PROMPT_VISION_MODEL` | `"gpt-4o-mini"` | Vision Modell | Z. 7-8 |
-| `PROMPT_MAX_FILES` | `3` | Max. Dateien pro Request | Z. 10 |
-| `PROMPT_MAX_FILE_BYTES` | `5 MB` | Max. Dateigröße | Z. 11 |
-| `PROMPT_OUTPUT_TOKENS_MAX` | `400` | Max. Output-Tokens | Z. 13 |
-| `PROMPT_TEMPERATURE` | `0.2` | LLM-Temperatur | Z. 14 |
-| `PROMPT_TOP_P` | `0.9` | LLM-Top-P | Z. 15 |
-| `PROMPT_REWRITE_V1` | `"true"` | LLM-Rewrite aktivieren | - |
-| `ENABLE_PROMPT_SAFETY` | `"true"` | PII-Maskierung aktivieren | - |
+| Variable                    | Default         | Beschreibung              | Zeile  |
+| --------------------------- | --------------- | ------------------------- | ------ |
+| `PUBLIC_PROMPT_ENHANCER_V1` | `"true"`        | Feature-Flag              | -      |
+| `PROMPT_TEXT_MODEL`         | `"gpt-4o-mini"` | Text-only Modell          | Z. 6   |
+| `PROMPT_VISION_MODEL`       | `"gpt-4o-mini"` | Vision Modell             | Z. 7-8 |
+| `PROMPT_MAX_FILES`          | `3`             | Max. Dateien pro Request  | Z. 10  |
+| `PROMPT_MAX_FILE_BYTES`     | `5 MB`          | Max. Dateigröße           | Z. 11  |
+| `PROMPT_OUTPUT_TOKENS_MAX`  | `400`           | Max. Output-Tokens        | Z. 13  |
+| `PROMPT_TEMPERATURE`        | `0.2`           | LLM-Temperatur            | Z. 14  |
+| `PROMPT_TOP_P`              | `0.9`           | LLM-Top-P                 | Z. 15  |
+| `PROMPT_REWRITE_V1`         | `"true"`        | LLM-Rewrite aktivieren    | -      |
+| `ENABLE_PROMPT_SAFETY`      | `"true"`        | PII-Maskierung aktivieren | -      |
 
 ### Quota-Limits
 
@@ -93,11 +93,11 @@ const promptEnhanceLimiter = createRateLimiter({
 
 ### Modes
 
-| Mode | Beschreibung | Use-Case |
-|------|-------------|----------|
-| **Creative** | Ausführliche, explorative Prompts | Brainstorming, Content-Generierung |
-| **Professional** | Strukturiert, business-fokussiert | Geschäftsdokumente, Reports |
-| **Concise** | Kompakt, auf das Wesentliche reduziert | Schnelle Anfragen, Prototyping |
+| Mode             | Beschreibung                           | Use-Case                           |
+| ---------------- | -------------------------------------- | ---------------------------------- |
+| **Creative**     | Ausführliche, explorative Prompts      | Brainstorming, Content-Generierung |
+| **Professional** | Strukturiert, business-fokussiert      | Geschäftsdokumente, Reports        |
+| **Concise**      | Kompakt, auf das Wesentliche reduziert | Schnelle Anfragen, Prototyping     |
 
 ### Output-Struktur (Markdown)
 
@@ -105,23 +105,29 @@ const promptEnhanceLimiter = createRateLimiter({
 
 ```markdown
 # Role
+
 [AI-Agent-Rolle, z.B. "You are an expert technical writer"]
 
 ## Objective
+
 [Hauptziel der Aufgabe]
 
 ## Constraints
+
 [Rahmenbedingungen, Limitierungen]
 
 ## Steps
+
 - [Schritt 1]
 - [Schritt 2]
 - [...]
 
 ## Examples
+
 - [Few-Shot-Beispiele, falls relevant]
 
 ## Original (sanitized)
+
 [Ursprünglicher Input nach PII-Maskierung]
 ```
 
@@ -136,11 +142,11 @@ const promptEnhanceLimiter = createRateLimiter({
 
 ### Unterstützte Dateitypen (`src/config/prompt-enhancer.ts:20-30`)
 
-| Typ | MIME-Types | Max. Größe | Verwendung |
-|-----|-----------|-----------|------------|
-| **Bilder** | `image/jpeg`, `image/png`, `image/webp` | 5 MB | Vision-Modell (OCR, Kontext) |
-| **PDFs** | `application/pdf` | 5 MB | OpenAI File Search API |
-| **Text** | `text/plain`, `text/markdown` | 5 MB | Direkter Kontext |
+| Typ        | MIME-Types                              | Max. Größe | Verwendung                   |
+| ---------- | --------------------------------------- | ---------- | ---------------------------- |
+| **Bilder** | `image/jpeg`, `image/png`, `image/webp` | 5 MB       | Vision-Modell (OCR, Kontext) |
+| **PDFs**   | `application/pdf`                       | 5 MB       | OpenAI File Search API       |
+| **Text**   | `text/plain`, `text/markdown`           | 5 MB       | Direkter Kontext             |
 
 ### Verarbeitung
 
@@ -234,9 +240,7 @@ const validateInput = (text: string): string | null => {
 **Character-Counter**:
 
 ```jsx
-<div className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-  {inputText.length}/1000
-</div>
+<div className="mt-1 text-sm text-gray-500 dark:text-gray-400">{inputText.length}/1000</div>
 ```
 
 **Error-Scopes** (Z. 40, 435-437):
@@ -298,7 +302,7 @@ await emitPromptEnhancerSucceeded({
 // Nach Fehler
 await emitPromptEnhancerFailed({
   errorKind: 'rate_limited',
-  httpStatus: 429
+  httpStatus: 429,
 });
 ```
 
@@ -550,7 +554,7 @@ npm run dev:worker
 **Vision-Modell-Check** (`src/config/prompt-enhancer.ts:7-8`):
 
 ```typescript
-PROMPT_VISION_MODEL = "gpt-4o-mini" // Muss Vision-fähig sein
+PROMPT_VISION_MODEL = 'gpt-4o-mini'; // Muss Vision-fähig sein
 ```
 
 **Unterstützte Formate**:
@@ -584,7 +588,7 @@ PROMPT_VISION_MODEL = "gpt-4o-mini" // Muss Vision-fähig sein
 ## 🔗 Verwandte Dokumentation
 
 - **API-Middleware**: [docs/architecture/api-middleware.md](../architecture/api-middleware.md)
-- **Rate-Limiting**: [docs/SECURITY.md](../SECURITY.md#rate-limiting)
+- **Rate-Limiting**: [docs/SECURITY.md](../SECURITY.md#1-rate-limiting)
 - **OpenAI-Integration**: [docs/architecture/system-overview.md](../architecture/system-overview.md#external-services)
 - **Telemetry**: [docs/development/telemetry.md](../development/telemetry.md)
 

@@ -1,5 +1,6 @@
 ---
-Title: Content Rules
+trigger: always_on
+priority: 60
 ---
 
 # Content Rules

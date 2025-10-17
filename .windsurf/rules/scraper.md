@@ -1,5 +1,6 @@
 ---
-Title: WebScraper Rules
+trigger: always_on
+priority: 60
 ---
 
 # WebScraper Rules
