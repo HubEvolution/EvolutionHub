@@ -143,6 +143,13 @@ export class BlogService extends ContentService<BlogCollectionEntry> implements 
         ? allEntries.map((post) => this.processPost(post))
         : [];
 
+      // Sort by publication date (newest first) to ensure newest posts appear first on the index
+      processedPosts.sort((a, b) => {
+        const dateA = new Date((a.data.updatedDate ?? a.data.pubDate) as Date | string).getTime();
+        const dateB = new Date((b.data.updatedDate ?? b.data.pubDate) as Date | string).getTime();
+        return dateB - dateA; // newest first by updatedDate fallback to pubDate
+      });
+
       // Calculate categories with counts
       const categoryMap = new Map<string, number>();
       processedPosts.forEach((post) => {

@@ -58,6 +58,10 @@ interface ImagEnhancerStrings {
     keyboardHint: string;
     reset: string;
     loupeLabel?: string;
+    zoomOutLabel?: string;
+    zoomInLabel?: string;
+    zoomResetLabel?: string;
+    touchHintShort?: string;
   };
   ui?: {
     fullscreen: string;
@@ -100,6 +104,8 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
   const [faceEnhance, setFaceEnhance] = useState<boolean>(false);
   const [showModelControls, setShowModelControls] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const rootRef = useRef<HTMLDivElement | null>(null);
+  const prevFocusRef = useRef<HTMLElement | null>(null);
   // File/result metadata and processing time
   const [fileMeta, setFileMeta] = useState<{ type: string; sizeMB: number } | null>(null);
   const [resultDims, setResultDims] = useState<{ w: number; h: number } | null>(null);
@@ -325,6 +331,7 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
       zoomOutLabel: strings?.compare?.zoomOutLabel ?? 'Zoom out',
       zoomInLabel: strings?.compare?.zoomInLabel ?? 'Zoom in',
       zoomResetLabel: strings?.compare?.zoomResetLabel ?? 'Reset zoom',
+      touchHintShort: strings?.compare?.touchHintShort ?? 'Pinch to zoom, drag to pan',
     }),
     [strings]
   );
@@ -944,6 +951,63 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
     return () => window.removeEventListener('keydown', onKey);
   }, [isFullscreen]);
 
+  // Focus trap and restore for fullscreen dialog
+  useEffect(() => {
+    if (!isFullscreen) {
+      // restore focus when leaving
+      if (prevFocusRef.current) {
+        try {
+          prevFocusRef.current.focus();
+        } catch {}
+        prevFocusRef.current = null;
+      }
+      return;
+    }
+    try {
+      prevFocusRef.current = (document.activeElement as HTMLElement) || null;
+      const root = rootRef.current;
+      if (!root) return;
+      const focusables = Array.from(
+        root.querySelectorAll<HTMLElement>(
+          'a, button, input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        )
+      ).filter((el) => !el.hasAttribute('disabled') && el.tabIndex !== -1);
+      const focusFirst = () => {
+        if (focusables.length > 0) {
+          try {
+            focusables[0].focus();
+          } catch {}
+        } else {
+          root.setAttribute('tabindex', '-1');
+          root.focus();
+        }
+      };
+      const onKeyDown = (e: KeyboardEvent) => {
+        if (e.key !== 'Tab') return;
+        if (focusables.length === 0) return;
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        if (e.shiftKey) {
+          if (document.activeElement === first) {
+            e.preventDefault();
+            last.focus();
+          }
+        } else {
+          if (document.activeElement === last) {
+            e.preventDefault();
+            first.focus();
+          }
+        }
+      };
+      // Defer initial focus
+      setTimeout(focusFirst, 0);
+      root.addEventListener('keydown', onKeyDown);
+      return () => root.removeEventListener('keydown', onKeyDown);
+    } catch {
+      /* noop */
+    }
+  }, [isFullscreen]);
+
   const rootClasses = [
     'p-0 bg-transparent',
     isFullscreen ? 'fixed inset-0 z-[999] bg-white dark:bg-slate-900 overflow-hidden' : '',
@@ -952,7 +1016,11 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
     .join(' ');
 
   return (
-    <div className={rootClasses}>
+    <div
+      ref={rootRef}
+      className={rootClasses}
+      {...(isFullscreen ? { role: 'dialog', 'aria-modal': true } : {})}
+    >
       <div className="flex items-start gap-6">
         <div className="flex-1">
           <div

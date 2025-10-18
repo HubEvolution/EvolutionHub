@@ -53,14 +53,12 @@ export class ContentService<T extends CollectionEntry<'blog'>> {
       }
     );
 
-    // Sort by publication date (newest first)
-    entries = entries
-      .sort((a: CollectionEntry<'blog'>, b: CollectionEntry<'blog'>) => {
-        const dateA = new Date(a.data.pubDate as Date | string).getTime();
-        const dateB = new Date(b.data.pubDate as Date | string).getTime();
-        return dateA - dateB;
-      })
-      .reverse();
+    // Sort by updatedDate ?? pubDate in descending order (newest first)
+    entries = entries.sort((a: CollectionEntry<'blog'>, b: CollectionEntry<'blog'>) => {
+      const dateA = new Date((a.data.updatedDate ?? a.data.pubDate) as Date | string).getTime();
+      const dateB = new Date((b.data.updatedDate ?? b.data.pubDate) as Date | string).getTime();
+      return dateB - dateA; // newest first by updatedDate fallback to pubDate
+    });
 
     // Apply pagination
     if (offset !== undefined) {

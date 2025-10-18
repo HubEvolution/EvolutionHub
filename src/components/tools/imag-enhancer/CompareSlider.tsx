@@ -16,6 +16,7 @@ export interface CompareStrings {
   zoomOutLabel?: string;
   zoomInLabel?: string;
   zoomResetLabel?: string;
+  touchHintShort?: string;
 }
 
 export interface CompareSliderProps {
@@ -119,8 +120,13 @@ export function CompareSlider(props: CompareSliderProps) {
                 height: `${boxSize.h}px`,
                 overscrollBehavior: 'contain',
                 touchAction: props.zoom <= 1 ? 'pan-y' : 'none',
+                backfaceVisibility: 'hidden',
               }
-            : { overscrollBehavior: 'contain', touchAction: props.zoom <= 1 ? 'pan-y' : 'none' }
+            : {
+                overscrollBehavior: 'contain',
+                touchAction: props.zoom <= 1 ? 'pan-y' : 'none',
+                backfaceVisibility: 'hidden',
+              }
         }
         onMouseDown={onMouseDown}
         onTouchStart={onTouchStart}
@@ -136,6 +142,7 @@ export function CompareSlider(props: CompareSliderProps) {
             transform: `translate(${props.panX ?? 0}px, ${props.panY ?? 0}px) scale(${props.zoom})`,
             transformOrigin: 'top left',
             willChange: 'transform',
+            backfaceVisibility: 'hidden',
           }}
         >
           {/* After image (result) as base layer */}
@@ -281,16 +288,20 @@ export function CompareSlider(props: CompareSliderProps) {
         </div>
       </div>
       <figcaption className="mt-2 flex flex-wrap items-center justify-between gap-2 text-xs text-gray-500 dark:text-gray-400">
+        <span className="opacity-80 md:hidden whitespace-normal break-words max-w-full flex-1 min-w-0">
+          {compareStrings.touchHintShort ?? 'Pinch to zoom, drag to pan'}
+        </span>
         <span
-          className="opacity-80 whitespace-normal break-words max-w-full flex-1 min-w-0"
+          className="opacity-80 hidden md:inline whitespace-normal break-words max-w-full flex-1 min-w-0"
           id="compare-kbd-hint"
         >
           {compareStrings.keyboardHint}
         </span>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 w-full md:w-auto justify-center md:justify-start">
           <button
             type="button"
             aria-label={compareStrings.zoomOutLabel ?? 'Zoom out'}
+            title={compareStrings.zoomOutLabel ?? 'Zoom out'}
             className="px-3 py-2 min-w-[44px] min-h-[44px] rounded bg-white/40 dark:bg-slate-800/60 ring-1 ring-gray-400/30 text-gray-700 dark:text-gray-200 hover:ring-cyan-400/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
             onClick={props.onZoomOut}
           >
@@ -302,6 +313,7 @@ export function CompareSlider(props: CompareSliderProps) {
           <button
             type="button"
             aria-label={compareStrings.zoomInLabel ?? 'Zoom in'}
+            title={compareStrings.zoomInLabel ?? 'Zoom in'}
             className="px-3 py-2 min-w-[44px] min-h-[44px] rounded bg-white/40 dark:bg-slate-800/60 ring-1 ring-gray-400/30 text-gray-700 dark:text-gray-200 hover:ring-cyan-400/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
             onClick={props.onZoomIn}
           >
@@ -310,10 +322,11 @@ export function CompareSlider(props: CompareSliderProps) {
           <button
             type="button"
             aria-label={compareStrings.zoomResetLabel ?? 'Reset zoom'}
+            title={compareStrings.zoomResetLabel ?? compareStrings.reset}
             className="px-3 py-2 min-w-[44px] min-h-[44px] rounded bg-white/40 dark:bg-slate-800/60 ring-1 ring-gray-400/30 text-gray-700 dark:text-gray-200 hover:ring-cyan-400/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
             onClick={props.onZoomReset}
           >
-            100%
+            1:1
           </button>
         </div>
       </figcaption>

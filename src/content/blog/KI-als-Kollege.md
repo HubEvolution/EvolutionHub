@@ -2,6 +2,7 @@
 title: 'KI als Kollege: Wie Mensch-Maschine-Teams echte Wertschöpfung schaffen'
 description: 'Wie kollaborative KI Arbeit, Meetings und Lernen verändert – und welche Skills Teams jetzt brauchen.'
 pubDate: '2025-10-17'
+updatedDate: '2025-10-18'
 author: 'EvolutionHub Team'
 category: 'New Work'
 tags:
