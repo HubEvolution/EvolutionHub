@@ -321,7 +321,10 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
       handleAriaLabel: strings?.compare?.handleAriaLabel ?? 'Drag to compare',
       keyboardHint: strings?.compare?.keyboardHint ?? 'Use Left/Right to adjust; Home/End to reset',
       reset: strings?.compare?.reset ?? 'Reset',
-      loupeLabel: 'Loupe',
+      loupeLabel: strings?.compare?.loupeLabel ?? 'Loupe',
+      zoomOutLabel: strings?.compare?.zoomOutLabel ?? 'Zoom out',
+      zoomInLabel: strings?.compare?.zoomInLabel ?? 'Zoom in',
+      zoomResetLabel: strings?.compare?.zoomResetLabel ?? 'Reset zoom',
     }),
     [strings]
   );
@@ -346,7 +349,6 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
     onMouseDown,
     onTouchStart,
     onHandleKeyDown,
-    onWheelZoom,
     onZoomIn,
     onZoomOut,
     onZoomReset,
@@ -995,7 +997,6 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
                       toast.error('Failed to load original preview');
                     }}
                     zoom={zoom}
-                    onWheelZoom={onWheelZoom}
                     onZoomIn={onZoomIn}
                     onZoomOut={onZoomOut}
                     onZoomReset={onZoomReset}
@@ -1051,7 +1052,7 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
                   </div>
                 </div>
                 {(resultDims || lastProcessMs) && (
-                  <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                  <div className="mt-2 text-xs text-gray-500 dark:text-gray-400 hidden md:block">
                     {strings.result}: {resultDims ? `${resultDims.w}×${resultDims.h}px` : ''}
                     {lastProcessMs != null ? ` · ${lastProcessMs}ms` : ''}
                   </div>
@@ -1090,7 +1091,7 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
             )}
 
             {imageDims && (
-              <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+              <div className="mt-2 text-xs text-gray-500 dark:text-gray-400 hidden md:block">
                 {originalLabel}: {imageDims.w}×{imageDims.h}px
                 {fileMeta ? ` · ${fileMeta.type || 'unknown'} · ${fileMeta.sizeMB}MB` : ''}
               </div>
@@ -1296,7 +1297,14 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
           </div>
 
           <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-            {strings.allowedTypes}: {ALLOWED_CONTENT_TYPES.join(', ')} · {strings.max} {maxMb}MB
+            <span className="md:hidden">
+              {imageDims ? `${originalLabel}: ${imageDims.w}×${imageDims.h}px` : ''}
+              {fileMeta ? ` · ${fileMeta.type || 'unknown'} · ${fileMeta.sizeMB}MB` : ''}
+              {` · ${strings.allowedTypes}: ${ALLOWED_CONTENT_TYPES.join(', ')} · ${strings.max} ${maxMb}MB`}
+            </span>
+            <span className="hidden md:inline">
+              {strings.allowedTypes}: {ALLOWED_CONTENT_TYPES.join(', ')} · {strings.max} {maxMb}MB
+            </span>
           </div>
           {quotaExceeded && (
             <div className="mt-2 text-xs font-medium text-red-600 dark:text-red-400">

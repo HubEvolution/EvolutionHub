@@ -13,6 +13,9 @@ export interface CompareStrings {
   keyboardHint: string;
   reset: string;
   loupeLabel?: string;
+  zoomOutLabel?: string;
+  zoomInLabel?: string;
+  zoomResetLabel?: string;
 }
 
 export interface CompareSliderProps {
@@ -33,7 +36,6 @@ export interface CompareSliderProps {
   onPreviewError?: () => void;
   // Zoom support
   zoom: number; // 1.0 = 100%
-  onWheelZoom?: (e: React.WheelEvent<HTMLDivElement>) => void;
   onZoomIn?: () => void;
   onZoomOut?: () => void;
   onZoomReset?: () => void;
@@ -132,7 +134,7 @@ export function CompareSlider(props: CompareSliderProps) {
           className="absolute inset-0 z-0"
           style={{
             transform: `translate(${props.panX ?? 0}px, ${props.panY ?? 0}px) scale(${props.zoom})`,
-            transformOrigin: 'center center',
+            transformOrigin: 'top left',
             willChange: 'transform',
           }}
         >
@@ -177,7 +179,7 @@ export function CompareSlider(props: CompareSliderProps) {
               top: `${(props.loupePos.y - (props.loupeSize ?? 160) / 2) | 0}px`,
             }}
             role="img"
-            aria-label="Loupe magnifier"
+            aria-label={compareStrings.loupeLabel ?? 'Loupe'}
           >
             <div
               className="absolute top-0 left-0"
@@ -212,37 +214,56 @@ export function CompareSlider(props: CompareSliderProps) {
           </div>
         )}
 
-        {/* Edge gradient aligned with slider line */}
+        {/* Aligned overlay layer (divider/handle) that follows pan/zoom */}
         <div
-          className="absolute top-0 h-full w-6 pointer-events-none z-20"
+          className="absolute inset-0 z-30"
           style={{
-            left: `calc(${sliderPos}% - 6px)`,
-            background: 'linear-gradient(90deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.0) 100%)',
+            transform: `translate(${props.panX ?? 0}px, ${props.panY ?? 0}px) scale(${props.zoom})`,
+            transformOrigin: 'top left',
+            willChange: 'transform',
           }}
-          aria-hidden
-        />
-
-        {/* Vertical divider line */}
-        <div
-          className={`absolute top-0 bottom-0 w-[2px] bg-cyan-300/80 shadow-[0_0_14px_rgba(34,211,238,0.75)] ring-2 ring-cyan-200/30 z-30 ${isHeld ? 'opacity-0' : ''}`}
-          style={{ left: `calc(${sliderPos}% - 0.5px)` }}
-          aria-hidden
-        />
-
-        {/* Draggable handle */}
-        <div
-          role="slider"
-          aria-label={compareStrings.handleAriaLabel}
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-valuenow={sliderPos}
-          tabIndex={0}
-          onKeyDown={onHandleKeyDown}
-          className={`slider-handle absolute top-1/2 -translate-y-1/2 -translate-x-1/2 grid place-items-center h-11 w-11 md:h-8 md:w-8 rounded-full bg-white/70 dark:bg-slate-800/80 ring-2 ring-cyan-400/60 shadow-lg cursor-ew-resize z-40 ${isHeld ? 'opacity-0' : ''}`}
-          style={{ left: `${sliderPos}%` }}
         >
-          <span className="sr-only">{compareStrings.handleAriaLabel}</span>
-          <div className="h-4 w-0.5 bg-cyan-400/80" />
+          {/* Edge gradient aligned with slider line */}
+          <div
+            className="absolute top-0 h-full w-6 pointer-events-none"
+            style={{
+              left: `calc(${sliderPos}% - 6px)`,
+              background: 'linear-gradient(90deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.0) 100%)',
+            }}
+          />
+
+          {/* Vertical divider line */}
+          <div
+            className={`absolute top-0 bottom-0 w-[2px] bg-cyan-300/80 shadow-[0_0_14px_rgba(34,211,238,0.75)] ring-2 ring-cyan-200/30 ${isHeld ? 'opacity-0' : ''}`}
+            style={{ left: `calc(${sliderPos}% - 0.5px)` }}
+          />
+
+          {/* Draggable handle (counter-scaled to keep visual size constant) */}
+          <div
+            role="slider"
+            aria-label={compareStrings.handleAriaLabel}
+            aria-orientation="horizontal"
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={sliderPos}
+            aria-valuetext={`${sliderPos}%`}
+            aria-describedby="compare-kbd-hint"
+            tabIndex={0}
+            onKeyDown={onHandleKeyDown}
+            className="absolute top-1/2"
+            style={{ left: `${sliderPos}%` }}
+          >
+            <div
+              className={`slider-handle -translate-y-1/2 -translate-x-1/2 grid place-items-center h-11 w-11 md:h-8 md:w-8 rounded-full bg-white/70 dark:bg-slate-800/80 ring-2 ring-cyan-400/60 shadow-lg cursor-ew-resize ${isHeld ? 'opacity-0' : ''}`}
+              style={{
+                transform: `translate(-50%, -50%) scale(${1 / (props.zoom || 1)})`,
+                transformOrigin: 'center center',
+              }}
+            >
+              <span className="sr-only">{compareStrings.handleAriaLabel}</span>
+              <div className="h-4 w-0.5 bg-cyan-400/80" />
+            </div>
+          </div>
         </div>
 
         {/* Corner labels */}
@@ -259,12 +280,17 @@ export function CompareSlider(props: CompareSliderProps) {
           {compareStrings.after}
         </div>
       </div>
-      <figcaption className="mt-2 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
-        <span className="opacity-80">{compareStrings.keyboardHint}</span>
+      <figcaption className="mt-2 flex flex-wrap items-center justify-between gap-2 text-xs text-gray-500 dark:text-gray-400">
+        <span
+          className="opacity-80 whitespace-normal break-words max-w-full flex-1 min-w-0"
+          id="compare-kbd-hint"
+        >
+          {compareStrings.keyboardHint}
+        </span>
         <div className="flex items-center gap-2">
           <button
             type="button"
-            aria-label="Zoom out"
+            aria-label={compareStrings.zoomOutLabel ?? 'Zoom out'}
             className="px-3 py-2 min-w-[44px] min-h-[44px] rounded bg-white/40 dark:bg-slate-800/60 ring-1 ring-gray-400/30 text-gray-700 dark:text-gray-200 hover:ring-cyan-400/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
             onClick={props.onZoomOut}
           >
@@ -275,7 +301,7 @@ export function CompareSlider(props: CompareSliderProps) {
           </span>
           <button
             type="button"
-            aria-label="Zoom in"
+            aria-label={compareStrings.zoomInLabel ?? 'Zoom in'}
             className="px-3 py-2 min-w-[44px] min-h-[44px] rounded bg-white/40 dark:bg-slate-800/60 ring-1 ring-gray-400/30 text-gray-700 dark:text-gray-200 hover:ring-cyan-400/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
             onClick={props.onZoomIn}
           >
@@ -283,7 +309,7 @@ export function CompareSlider(props: CompareSliderProps) {
           </button>
           <button
             type="button"
-            aria-label="Reset zoom"
+            aria-label={compareStrings.zoomResetLabel ?? 'Reset zoom'}
             className="px-3 py-2 min-w-[44px] min-h-[44px] rounded bg-white/40 dark:bg-slate-800/60 ring-1 ring-gray-400/30 text-gray-700 dark:text-gray-200 hover:ring-cyan-400/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
             onClick={props.onZoomReset}
           >

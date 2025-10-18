@@ -34,7 +34,6 @@ export interface UseCompareInteractionsResult {
   onMouseDown: (e: React.MouseEvent) => void;
   onTouchStart: (e: React.TouchEvent) => void;
   onHandleKeyDown: (e: React.KeyboardEvent) => void;
-  onWheelZoom: (e: React.WheelEvent<HTMLDivElement>) => void;
   onZoomIn: () => void;
   onZoomOut: () => void;
   onZoomReset: () => void;
@@ -42,6 +41,19 @@ export interface UseCompareInteractionsResult {
   onMouseLeaveLoupe: () => void;
   onToggleLoupe: () => void;
 }
+
+// Interaction constants
+const SLIDER_STEP = 5;
+const SLIDER_STEP_SHIFT = 10;
+const ZOOM_STEP = 0.25;
+const ZOOM_MIN = 1;
+const ZOOM_MAX = 5;
+const LOUPE_SIZE_MIN = 120;
+const LOUPE_SIZE_MAX = 300;
+const LOUPE_SIZE_STEP = 10;
+const LOUPE_FACTOR_MIN = 1.5;
+const LOUPE_FACTOR_MAX = 4;
+const LOUPE_FACTOR_STEP = 0.1;
 
 export function useCompareInteractions(
   props: UseCompareInteractionsProps
@@ -72,8 +84,8 @@ export function useCompareInteractions(
     []
   );
   const clampRound = useCallback((z: number) => {
-    const v = Number.isFinite(z) ? z : 1;
-    return Math.min(5, Math.max(1, Math.round(v * 100) / 100));
+    const v = Number.isFinite(z) ? z : ZOOM_MIN;
+    return Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, Math.round(v * 100) / 100));
   }, []);
 
   const updateFromClientX = useCallback(
@@ -158,7 +170,7 @@ export function useCompareInteractions(
 
   const onHandleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
-      const fine = (e.shiftKey ? 10 : 5) as number;
+      const fine = (e.shiftKey ? SLIDER_STEP_SHIFT : SLIDER_STEP) as number;
       if (e.key === 'ArrowLeft') {
         e.preventDefault();
         setSliderPos((v) => clamp(v - fine, 0, 100));
@@ -186,12 +198,12 @@ export function useCompareInteractions(
       }
       if (e.key === '+' || e.key === '=') {
         e.preventDefault();
-        setZoom((z) => clampRound(z + 0.25));
+        setZoom((z) => clampRound(z + ZOOM_STEP));
         return;
       }
       if (e.key === '-' || e.key === '_') {
         e.preventDefault();
-        setZoom((z) => clampRound(z - 0.25));
+        setZoom((z) => clampRound(z - ZOOM_STEP));
         return;
       }
       if (e.key === '1') {
@@ -234,7 +246,7 @@ export function useCompareInteractions(
   const applyZoomAround = useCallback(
     (direction: 1 | -1, pivot: { x: number; y: number } | null) => {
       const s1 = zoomRef.current;
-      const s2 = clampRound(s1 + (direction === 1 ? 0.25 : -0.25));
+      const s2 = clampRound(s1 + (direction === 1 ? ZOOM_STEP : -ZOOM_STEP));
       if (s2 === s1) return;
       const T = panRef.current;
       const el = containerRef.current;
@@ -259,40 +271,6 @@ export function useCompareInteractions(
     setZoom(1);
   }, [setZoom]);
 
-  const onWheelZoom = useCallback(
-    (e: React.WheelEvent<HTMLDivElement>) => {
-      e.preventDefault();
-      if (e.shiftKey) {
-        setLoupeSize((prev) => {
-          const next = Math.max(120, Math.min(300, Math.round(prev + (e.deltaY < 0 ? 10 : -10))));
-          setLoupeUiHint(`Size: ${next}px`);
-          return next;
-        });
-        return;
-      }
-      if (e.altKey) {
-        setLoupeFactor((prev) => {
-          const next = Math.max(
-            1.5,
-            Math.min(4, Math.round((prev + (e.deltaY < 0 ? 0.1 : -0.1)) * 10) / 10)
-          );
-          setLoupeUiHint(`×${next.toFixed(1)}`);
-          return next;
-        });
-        return;
-      }
-      const delta = e.deltaY;
-      const el = containerRef.current;
-      const rect = el?.getBoundingClientRect();
-      const pivot = rect
-        ? { x: e.clientX - rect.left, y: e.clientY - rect.top }
-        : lastPointerRef.current;
-      if (delta < 0) applyZoomAround(1, pivot ?? null);
-      else if (delta > 0) applyZoomAround(-1, pivot ?? null);
-    },
-    [applyZoomAround, containerRef, setLoupeFactor, setLoupeSize, setLoupeUiHint]
-  );
-
   // Native wheel listener for non-passive control
   useEffect(() => {
     const el = containerRef.current;
@@ -301,7 +279,13 @@ export function useCompareInteractions(
       ev.preventDefault();
       if (ev.shiftKey) {
         setLoupeSize((prev) => {
-          const next = Math.max(120, Math.min(300, Math.round(prev + (ev.deltaY < 0 ? 10 : -10))));
+          const next = Math.max(
+            LOUPE_SIZE_MIN,
+            Math.min(
+              LOUPE_SIZE_MAX,
+              Math.round(prev + (ev.deltaY < 0 ? LOUPE_SIZE_STEP : -LOUPE_SIZE_STEP))
+            )
+          );
           setLoupeUiHint(`Size: ${next}px`);
           return next;
         });
@@ -310,8 +294,12 @@ export function useCompareInteractions(
       if (ev.altKey) {
         setLoupeFactor((prev) => {
           const next = Math.max(
-            1.5,
-            Math.min(4, Math.round((prev + (ev.deltaY < 0 ? 0.1 : -0.1)) * 10) / 10)
+            LOUPE_FACTOR_MIN,
+            Math.min(
+              LOUPE_FACTOR_MAX,
+              Math.round((prev + (ev.deltaY < 0 ? LOUPE_FACTOR_STEP : -LOUPE_FACTOR_STEP)) * 10) /
+                10
+            )
           );
           setLoupeUiHint(`×${next.toFixed(1)}`);
           return next;
@@ -508,7 +496,6 @@ export function useCompareInteractions(
     onMouseDown,
     onTouchStart,
     onHandleKeyDown,
-    onWheelZoom,
     onZoomIn,
     onZoomOut,
     onZoomReset,
