@@ -67,7 +67,11 @@
               "handleAriaLabel": "Drag to compare",
               "keyboardHint": "Arrows move; Shift+Arrows faster; Home/End to edges; 0 centers; +/− zoom; 1 resets zoom; L toggles loupe; hold Space shows 100% Before.",
               "reset": "Reset",
-              "loupe": "Loupe"
+              "loupe": "Loupe",
+              "touchHintShort": "Pinch to zoom, drag to pan",
+              "zoomOutLabel": "Zoom out",
+              "zoomInLabel": "Zoom in",
+              "zoomResetLabel": "Reset zoom"
             },
             "help": {
               "button": "Help",

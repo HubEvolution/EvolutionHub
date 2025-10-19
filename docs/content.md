@@ -12,40 +12,43 @@ All blog posts must adhere to the following frontmatter schema (validated via Zo
 
 ```yaml
 ---
-title: "Post Title (5-120 characters)"
-description: "Meta description (20-200 characters)"
-pubDate: "2025-01-15"
-author: "Evolution Hub Team"  # String or object {name, avatar, bio}
-category: "New Work"  # Enum: See categories below
-tags: ["Tag1", "Tag2"]  # Min 2 chars, max 10 tags
+title: 'Post Title (5-120 characters)'
+description: 'Meta description (20-200 characters)'
+pubDate: '2025-01-15'
+author: 'Evolution Hub Team' # String or object {name, avatar, bio}
+category: 'New Work' # Enum: See categories below
+tags: ['Tag1', 'Tag2'] # Min 2 chars, max 10 tags
 image:
-  src: "/src/content/blog/images/post-image.webp"
+  src: '/src/content/blog/images/post-image.webp'
   width: 1200
-  height: 675  # Aspect Ratio 1.5:1 - 2:1
-imageAlt: "Image description"
+  height: 675 # Aspect Ratio 1.5:1 - 2:1
+imageAlt: 'Image description'
 ---
 ```
 
 #### Optional Fields
 
 ```yaml
-updatedDate: "2025-01-20"  # Must be after pubDate
-featured: false  # Highlight on index page
-draft: false  # Hide in production build
+updatedDate: '2025-01-20' # Must be after pubDate
+featured: false # Highlight on index page
+draft: false # Hide in production build
+
+# Note: Blog index and taxonomy listings are ordered by (updatedDate ?? pubDate) descending.
+# If updatedDate is present, it takes precedence for sorting; otherwise pubDate is used.
 
 # Funnel Configuration
 ctas:
-  - type: "leadmagnet"
-    position: "top"
-    leadMagnet: "new-work-guide"
-    variant: "subtle"
-leadMagnets: ["new-work-guide"]  # Max 2
+  - type: 'leadmagnet'
+    position: 'top'
+    leadMagnet: 'new-work-guide'
+    variant: 'subtle'
+leadMagnets: ['new-work-guide'] # Max 2
 
 # SEO Override
 seo:
-  title: "SEO Title (max 60 chars)"
-  description: "SEO Description (max 160 chars)"
-  canonical: "https://hub-evolution.com/blog/post-slug"
+  title: 'SEO Title (max 60 chars)'
+  description: 'SEO Description (max 160 chars)'
+  canonical: 'https://hub-evolution.com/blog/post-slug'
 ```
 
 ### Available Categories
@@ -118,13 +121,13 @@ Blog posts can integrate with the conversion funnel through CTAs:
 
 ```yaml
 ctas:
-  - type: "newsletter"
-    position: "top"
-    variant: "banner"
-  - type: "leadmagnet"
-    position: "bottom"
-    leadMagnet: "custom-lead-magnet-id"
-    variant: "primary"
+  - type: 'newsletter'
+    position: 'top'
+    variant: 'banner'
+  - type: 'leadmagnet'
+    position: 'bottom'
+    leadMagnet: 'custom-lead-magnet-id'
+    variant: 'primary'
 ```
 
 **CTA Types:**

@@ -822,6 +822,14 @@ export const onRequest = defineMiddleware(async (context, next) => {
   if (ct.includes('text/html') && !response.headers.has('Referrer-Policy')) {
     response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
   }
+  // Global: Disable caching for HTML to avoid stale index pages (keep assets long-cacheable)
+  try {
+    if (ct.includes('text/html')) {
+      response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
+      response.headers.set('Pragma', 'no-cache');
+      response.headers.set('Expires', '0');
+    }
+  } catch {}
   // Referrer-Policy nur auf Reset-Passwort-Seiten erzwingen (keine Weitergabe sensibler Token über Referrer)
   const isResetPasswordPath =
     path === '/reset-password' ||

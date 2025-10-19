@@ -1,9 +1,34 @@
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import tsconfigPaths from 'vite-tsconfig-paths';
+import { fileURLToPath } from 'url';
+import { resolve as resolvePath } from 'path';
 
 export default defineConfig({
-  plugins: [react(), tsconfigPaths({ projects: ['./tsconfig.json'] })],
+  resolve: {
+    alias: [
+      {
+        find: /^astro:content$/,
+        replacement: fileURLToPath(new URL('./tests/mocks/astro-content.ts', import.meta.url)),
+      },
+    ],
+  },
+  plugins: [
+    // Ensure 'astro:content' resolves in Vitest by intercepting before import analysis
+    (function mockAstroContent() {
+      const replacement = fileURLToPath(new URL('./tests/mocks/astro-content.ts', import.meta.url));
+      return {
+        name: 'mock-astro-content',
+        enforce: 'pre' as const,
+        resolveId(id: string) {
+          if (id === 'astro:content') return replacement;
+          return null;
+        },
+      };
+    })(),
+    react(),
+    tsconfigPaths({ projects: ['./tsconfig.json'] }),
+  ],
   test: {
     // Shared defaults
     globals: true,
@@ -35,22 +60,31 @@ export default defineConfig({
     projects: [
       // Unit tests project
       {
-        plugins: [react(), tsconfigPaths({ projects: ['./tsconfig.json'] })],
+        plugins: [
+          (function mockAstroContent() {
+            const replacement = fileURLToPath(
+              new URL('./tests/mocks/astro-content.ts', import.meta.url)
+            );
+            return {
+              name: 'mock-astro-content',
+              enforce: 'pre' as const,
+              resolveId(id: string) {
+                if (id === 'astro:content') return replacement;
+                return null;
+              },
+            };
+          })(),
+          react(),
+          tsconfigPaths({ projects: ['./tsconfig.json'] }),
+        ],
         test: {
           name: 'unit',
           environment: 'jsdom',
           setupFiles: ['./src/setupTests.ts'],
           // Note: removed deprecated deps.inline; tests run fine without explicit inlining
           testTimeout: 10000,
-          include: [
-            'src/**/*.{test,spec}.{ts,tsx}',
-            'tests/unit/**/*.{test,spec,_test}.{ts,tsx}',
-          ],
-          exclude: [
-            'tests/src/**',
-            'tests/integration/**',
-            'test-suite-v2/**',
-          ],
+          include: ['src/**/*.{test,spec}.{ts,tsx}', 'tests/unit/**/*.{test,spec,_test}.{ts,tsx}'],
+          exclude: ['tests/src/**', 'tests/integration/**', 'test-suite-v2/**'],
         },
       },
       // Integration tests project

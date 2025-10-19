@@ -1121,7 +1121,11 @@
               "handleAriaLabel": "Zum Vergleichen ziehen",
               "keyboardHint": "Pfeiltasten bewegen; Shift+Pfeile schneller; Pos1/Ende zu den Rändern; 0 zentriert; +/− zoomt; 1 setzt Zoom zurück; L schaltet die Lupe; Leertaste halten zeigt 100% „Vorher“.",
               "reset": "Zurücksetzen",
-              "loupe": "Lupe"
+              "loupe": "Lupe",
+              "touchHintShort": "Zum Zoomen zusammenziehen, zum Verschieben ziehen",
+              "zoomOutLabel": "Herauszoomen",
+              "zoomInLabel": "Hineinzoomen",
+              "zoomResetLabel": "Zoom zurücksetzen"
             },
             "help": {
               "button": "Hilfe",

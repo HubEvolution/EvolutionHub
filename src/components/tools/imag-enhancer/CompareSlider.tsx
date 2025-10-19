@@ -20,7 +20,7 @@ export interface CompareStrings {
 }
 
 export interface CompareSliderProps {
-  containerRef: React.RefObject<HTMLDivElement>;
+  containerRef: React.RefObject<HTMLDivElement | null>;
   boxSize: Size | null;
   sliderPos: number;
   isHeld: boolean;
@@ -111,7 +111,9 @@ export function CompareSlider(props: CompareSliderProps) {
   return (
     <figure className="m-0 p-0 bg-transparent">
       <div
-        ref={containerRef}
+        ref={(el) => {
+          (containerRef as React.MutableRefObject<HTMLDivElement | null>).current = el;
+        }}
         className="relative w-full max-w-full overflow-hidden rounded-sm bg-transparent mx-auto"
         style={
           boxSize
@@ -182,8 +184,8 @@ export function CompareSlider(props: CompareSliderProps) {
             style={{
               width: `${props.loupeSize ?? 160}px`,
               height: `${props.loupeSize ?? 160}px`,
-              left: `${(props.loupePos.x - (props.loupeSize ?? 160) / 2) | 0}px`,
-              top: `${(props.loupePos.y - (props.loupeSize ?? 160) / 2) | 0}px`,
+              left: `${props.loupePos.x - (props.loupeSize ?? 160) / 2}px`,
+              top: `${props.loupePos.y - (props.loupeSize ?? 160) / 2}px`,
             }}
             role="img"
             aria-label={compareStrings.loupeLabel ?? 'Loupe'}
@@ -194,7 +196,7 @@ export function CompareSlider(props: CompareSliderProps) {
                 width: `${boxSize.w}px`,
                 height: `${boxSize.h}px`,
                 transformOrigin: 'top left',
-                transform: `translate(${-(props.loupePos.x - (props.loupeSize ?? 160) / 2)}px, ${-(props.loupePos.y - (props.loupeSize ?? 160) / 2)}px) translate(${props.panX ?? 0}px, ${props.panY ?? 0}px) scale(${props.zoom * (props.loupeFactor ?? 2)})`,
+                transform: `translate(${(props.loupeSize ?? 160) / 2 - props.loupePos.x}px, ${(props.loupeSize ?? 160) / 2 - props.loupePos.y}px) translate(${props.panX ?? 0}px, ${props.panY ?? 0}px) scale(${props.zoom}) translate(${props.loupePos.x}px, ${props.loupePos.y}px) scale(${props.loupeFactor ?? 2}) translate(${-props.loupePos.x}px, ${-props.loupePos.y}px)`,
                 willChange: 'transform',
               }}
             >
@@ -257,7 +259,7 @@ export function CompareSlider(props: CompareSliderProps) {
             aria-describedby="compare-kbd-hint"
             tabIndex={0}
             onKeyDown={onHandleKeyDown}
-            className="absolute top-1/2"
+            className={`absolute top-1/2 ${isHeld ? 'opacity-0' : ''}`}
             style={{ left: `${sliderPos}%` }}
           >
             <div

@@ -40,11 +40,13 @@ Kurz-Dokument als Single-Source-of-Truth für das UI-Upgrade. Änderungen erfolg
 
 ```ts
 function getCookie(name: string): string | null {
-  return document.cookie
-    .split(';')
-    .map((c) => c.trim())
-    .find((c) => c.startsWith(name + '='))
-    ?.split('=')[1] ?? null;
+  return (
+    document.cookie
+      .split(';')
+      .map((c) => c.trim())
+      .find((c) => c.startsWith(name + '='))
+      ?.split('=')[1] ?? null
+  );
 }
 
 export async function createAiJob(formData: FormData) {
@@ -227,7 +229,6 @@ Tastenkürzel (im Vergleichsmodus):
     - HTML-Report: `npx playwright show-report test-suite-v2/reports/playwright-html-report`
 
   Stabilisierung (Flake-Reduktion) in der Spec umgesetzt:
-
   - Warte nach dem Navigieren explizit auf `GET /api/ai-image/usage` (Usage-Preflight), bevor der Enhance-Button geklickt wird.
   - Warte nach Klick auf Enhance auf die Antwort von `POST /api/ai-image/generate` und prüfe auf Erfolg, bevor der Slider erwartet wird.
   - Der Helper `ImageEnhancer.clickEnhance()` wartet bis zu 60s, bis der Button wirklich enabled ist (Upload/Model/Rate‑Limit berücksichtigt).
@@ -371,11 +372,11 @@ Testing:
 
 Migrationsstrategie (inkrementell, risikoarm):
 
-1) Hooks extrahieren (DONE: `useDownload`, `useValidation`, `useImageBoxSize`).
-2) `CompareSlider` auslagern (DONE).
-3) `Dropzone` auslagern (DONE).
-4) `UsagePill` und `EnhancerActions` auslagern (DONE).
-5) Obsolete States/Effects im Container entfernen (FOLLOW-UP).
+1. Hooks extrahieren (DONE: `useDownload`, `useValidation`, `useImageBoxSize`).
+2. `CompareSlider` auslagern (DONE).
+3. `Dropzone` auslagern (DONE).
+4. `UsagePill` und `EnhancerActions` auslagern (DONE).
+5. Obsolete States/Effects im Container entfernen (FOLLOW-UP).
 
 Akzeptanzkriterien:
 
@@ -398,3 +399,24 @@ Akzeptanzkriterien:
   - Griff/Slider per Touch bewegbar; keine JS-Fehler in Konsole; Scroll-Verhalten bleibt erwartbar.
 - Nicht-Demo (wenn echtes Modell konfiguriert):
   - Kein CSS-Filter auf „After“; sichtbarer realer Unterschied zwischen Original/Result.
+
+## Changelog (2025-10-18) — Minimal-Split (selector-stable)
+
+- Presentational Komponenten extrahiert (DOM/ARIA/Selectors unverändert):
+  - `src/components/tools/imag-enhancer/UploadSection.tsx` (Dropzone + Overlay)
+  - `src/components/tools/imag-enhancer/HeaderBar.tsx` (Help, Loupe, Fullscreen, Plan-Badge/Usage, Upgrade-CTA)
+  - `src/components/tools/imag-enhancer/CreditsPanel.tsx` (Buy 200/1000 Credits)
+  - `src/components/tools/imag-enhancer/StatusUsagePill.tsx` (Plan-Badge + UsagePill)
+- Integration in `src/components/tools/ImagEnhancerIsland.tsx` ohne Wrapper-Änderungen. A11y/ARIA/`data-testid`/Klassen/visuelle Reihenfolge stabil gehalten.
+- Selektor-Anker bestätigt (keine Änderungen notwendig):
+  - Upload: `aria-label="Image upload dropzone"`, Label-Text für Dropzone
+  - Enhance: Button-Text „Enhance“ bzw. `[data-testid="enhance-button"]`
+  - Model Select: `select#model, [data-testid="model-select"]`
+  - Slider: `role="slider"`
+  - Toolbar-Scoping: `aria-label="Enhancer actions toolbar"`
+- E2E Anpassung: Gating-Spec Upgrade-CTA auf Toolbar gescoped, um Guest-Banner-CTA nicht zu matchen.
+- Tests:
+  - Unit: neue Tests für `UploadSection` und `CreditsPanel` hinzugefügt.
+  - E2E (Playwright v2): Core und Gating grün auf Chromium/Firefox/WebKit.
+  - Hinweis: lokale Läufe mit `--workers=1` zur Vermeidung von `/api/ai-image/usage` Rate-Limits.
+- Keine funktionalen Änderungen; reines Refactoring für bessere Wartbarkeit/Testbarkeit.
