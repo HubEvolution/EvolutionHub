@@ -6,6 +6,8 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Resolve BASE_URL similarly to the root E2E config
 const BASE_URL = process.env.TEST_BASE_URL || process.env.BASE_URL || 'http://127.0.0.1:8787';
+// Toggle artifact recording (screenshots/traces) via env
+const RECORD = process.env.E2E_RECORD === '1';
 // Determine if target is remote; if remote, don't auto-start local server
 let IS_REMOTE_TARGET = false;
 try {
@@ -30,18 +32,19 @@ export default defineConfig({
     ['html', { outputFolder: './reports/playwright-html-report' }],
     ['json', { outputFile: './reports/playwright-results.json' }],
     ['junit', { outputFile: './reports/playwright-junit.xml' }],
-    ['line']
+    ['line'],
   ],
 
   use: {
     baseURL: BASE_URL,
     // Ensure POSTs include an Origin header for CSRF protection in Astro middleware
     extraHTTPHeaders: { Origin: BASE_URL },
-    trace: 'on-first-retry',
-    screenshot: 'only-on-failure',
+    trace: RECORD ? 'on' : 'on-first-retry',
+    screenshot: RECORD ? 'on' : 'only-on-failure',
     video: 'retain-on-failure',
     actionTimeout: 10000,
     navigationTimeout: 30000,
+    colorScheme: 'dark',
   },
 
   projects: [
@@ -67,7 +70,7 @@ export default defineConfig({
     },
   ],
 
-  ...((IS_REMOTE_TARGET || DISABLE_LOCAL_SERVER)
+  ...(IS_REMOTE_TARGET || DISABLE_LOCAL_SERVER
     ? {}
     : {
         webServer: {

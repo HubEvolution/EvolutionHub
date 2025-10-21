@@ -263,7 +263,7 @@ export function CompareSlider(props: CompareSliderProps) {
             style={{ left: `${sliderPos}%` }}
           >
             <div
-              className={`slider-handle -translate-y-1/2 -translate-x-1/2 grid place-items-center h-11 w-11 md:h-8 md:w-8 rounded-full bg-white/70 dark:bg-slate-800/80 ring-2 ring-cyan-400/60 shadow-lg cursor-ew-resize ${isHeld ? 'opacity-0' : ''}`}
+              className={`slider-handle relative -translate-y-1/2 -translate-x-1/2 grid place-items-center h-11 w-11 md:h-8 md:w-8 rounded-full bg-white/70 dark:bg-slate-800/80 ring-2 ring-cyan-400/60 shadow-lg cursor-ew-resize ${isHeld ? 'opacity-0' : ''} after:content-[''] after:absolute after:-inset-3 md:after:-inset-2 after:rounded-full after:bg-transparent`}
               style={{
                 transform: `translate(-50%, -50%) scale(${1 / (props.zoom || 1)})`,
                 transformOrigin: 'center center',

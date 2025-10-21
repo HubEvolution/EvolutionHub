@@ -217,6 +217,38 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
 
   // Image metadata (dimensions)
   const [imageDims, setImageDims] = useState<{ w: number; h: number } | null>(null);
+  // Internal helpers (no UI changes): dedupe common reset patterns
+  const resetViewBasic = useCallback(() => {
+    setIsHeld(false);
+    setSliderPos(50);
+    setZoom(1);
+    setPan({ x: 0, y: 0 });
+  }, []);
+  const resetViewFull = useCallback(() => {
+    resetViewBasic();
+    setLoupeEnabled(false);
+    setLoupePos(null);
+  }, [resetViewBasic]);
+  const resetResultState = useCallback(() => {
+    setResultUrl(null);
+    setImageDims(null);
+    setResultDims(null);
+    setBaselineSettings(null);
+    setLastProcessMs(null);
+  }, []);
+  const revokePreviewUrl = useCallback(() => {
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+  }, [previewUrl]);
+  const clearEnhanceAbort = useCallback(() => {
+    if (generateAbortRef.current) {
+      try {
+        generateAbortRef.current.abort();
+      } catch {
+        /* noop */
+      }
+      generateAbortRef.current = null;
+    }
+  }, []);
   const onPreviewImageLoadCombined = useCallback(
     (e: React.SyntheticEvent<HTMLImageElement>) => {
       onPreviewImageLoad(e);
@@ -353,10 +385,7 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
   useGlobalShortcuts({
     enabled: !!resultUrl,
     onReset: () => {
-      setIsHeld(false);
-      setSliderPos(50);
-      setZoom(1);
-      setPan({ x: 0, y: 0 });
+      resetViewBasic();
     },
     onDownload: () => {
       try {
@@ -918,9 +947,10 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
             className={[
               isFullscreen
                 ? 'fixed inset-x-0 bottom-0 z-40 bg-white/70 dark:bg-slate-900/60 backdrop-blur px-3 py-2'
-                : 'mt-3 md:mt-4 md:static sticky bottom-0 z-40 bg-white/70 dark:bg-slate-900/60 backdrop-blur px-3 py-2 rounded-t-md ring-1 ring-white/10 md:bg-transparent md:dark:bg-transparent md:backdrop-blur-0 md:ring-0',
+                : 'mt-2 md:mt-4 md:static sticky bottom-0 z-40 bg-white/70 dark:bg-slate-900/60 backdrop-blur px-3 py-2 rounded-t-md ring-1 ring-white/10 md:bg-transparent md:dark:bg-transparent md:backdrop-blur-0 md:ring-0',
             ].join(' ')}
             aria-label="Enhancer actions toolbar"
+            style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
           >
             <EnhancerActions
               modelLabel={modelLabel}
@@ -928,12 +958,12 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
               models={ALLOWED_MODELS}
               onChangeModel={(v) => setModel(v)}
               modelControlsSlot={
-                <div className="flex flex-wrap items-center gap-2 sm:gap-3 min-w-0">
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-2 sm:gap-x-3 sm:gap-y-2 min-w-0">
                   {resultUrl && !showModelControls ? (
                     <button
                       type="button"
                       onClick={() => setShowModelControls(true)}
-                      className="text-xs px-3 py-1 rounded-full bg-white/10 dark:bg-slate-900/40 ring-1 ring-cyan-400/20 text-gray-700 dark:text-gray-200 hover:ring-cyan-400/40"
+                      className="text-sm sm:text-xs px-3 py-2 sm:py-1 min-h-[44px] sm:min-h-0 rounded-full bg-white/10 dark:bg-slate-900/40 ring-1 ring-cyan-400/20 text-gray-700 dark:text-gray-200 hover:ring-cyan-400/40"
                     >
                       {changeModelLabel}
                     </button>
@@ -1005,41 +1035,22 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
               resultUrl={resultUrl}
               onEnhance={onEnhance}
               onReset={() => {
-                setIsHeld(false);
-                setSliderPos(50);
-                setZoom(1);
-                setPan({ x: 0, y: 0 });
+                resetViewBasic();
               }}
               canReset={sliderPos !== 50 || zoom !== 1 || pan.x !== 0 || pan.y !== 0}
               startOverLabel={startOverLabel}
               onStartOver={() => {
-                if (generateAbortRef.current) {
-                  try {
-                    generateAbortRef.current.abort();
-                  } catch {
-                    /* noop */
-                  }
-                  generateAbortRef.current = null;
-                }
-                setIsHeld(false);
-                setSliderPos(50);
-                if (previewUrl) URL.revokeObjectURL(previewUrl);
+                clearEnhanceAbort();
+                resetViewFull();
+                revokePreviewUrl();
                 setFile(null);
                 setPreviewUrl(null);
-                setResultUrl(null);
-                setImageDims(null);
-                setResultDims(null);
-                setBaselineSettings(null);
-                setLastProcessMs(null);
-                setZoom(1);
-                setPan({ x: 0, y: 0 });
-                setLoupeEnabled(false);
-                setLoupePos(null);
+                resetResultState();
               }}
               onDownload={(e) => download(e as unknown as React.MouseEvent, resultUrl || undefined)}
               showEnhance={showEnhanceButton}
               rightSlot={
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3 sm:gap-2 flex-wrap">
                   {retryActive && (
                     <span className="inline-flex items-center rounded-md px-2 py-1 text-[11px] ring-1 ring-amber-400/30 bg-amber-500/10 text-amber-700 dark:text-amber-200">
                       Retry in {retryRemainingSec}s
@@ -1060,7 +1071,7 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
                     usageLabel={strings.usage}
                     loadingLabel={strings.loading}
                     usage={effectiveUsageForDisplay}
-                    ownerType={ownerType as 'user' | 'guest' | null}
+                    ownerType={ownerType}
                     percent={usagePercent}
                     critical={isUsageCritical}
                     showUpgradeCta={showUpgradeCta}
@@ -1082,7 +1093,7 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
 
           {!resultUrl && (
             <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-              <span className="md:hidden">
+              <span className="md:hidden text-pretty break-words px-2">
                 {imageDims ? `${originalLabel}: ${imageDims.w}×${imageDims.h}px` : ''}
                 {fileMeta ? ` · ${fileMeta.type || 'unknown'} · ${fileMeta.sizeMB}MB` : ''}
                 {` · ${strings.allowedTypes}: ${ALLOWED_CONTENT_TYPES.join(', ')} · ${strings.max} ${maxMb}MB`}

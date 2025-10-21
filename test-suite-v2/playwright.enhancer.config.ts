@@ -14,10 +14,7 @@ export default defineConfig({
   fullyParallel: true,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
-  reporter: [
-    ['html', { outputFolder: './reports/playwright-html-report' }],
-    ['line']
-  ],
+  reporter: [['html', { outputFolder: './reports/playwright-html-report' }], ['line']],
 
   use: {
     baseURL: BASE_URL,
@@ -25,6 +22,7 @@ export default defineConfig({
     trace: RECORD ? 'on' : 'retain-on-failure',
     screenshot: RECORD ? 'on' : 'only-on-failure',
     video: RECORD ? 'retain-on-failure' : 'off',
+    colorScheme: 'dark',
   },
 
   projects: [

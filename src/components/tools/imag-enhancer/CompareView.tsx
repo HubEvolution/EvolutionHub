@@ -78,14 +78,7 @@ export function CompareView(props: Props) {
       >
         {props.settingsSummary}
       </div>
-      <div
-        className="relative"
-        style={{
-          paddingBottom: props.isMobile
-            ? Math.max(0, props.actionsHeight + props.safeAreaBottom)
-            : 0,
-        }}
-      >
+      <div className="relative" style={{}}>
         <CompareSlider
           containerRef={props.containerRef}
           boxSize={props.boxSize}
@@ -117,7 +110,14 @@ export function CompareView(props: Props) {
           onMouseLeave={props.onMouseLeaveLoupe}
         />
         {props.loupeUiHint && (
-          <div className="pointer-events-none absolute bottom-2 left-2 z-50 text-[11px] px-2 py-1 rounded bg-black/40 text-white/90">
+          <div
+            className="pointer-events-none absolute left-2 z-50 text-[11px] px-2 py-1 rounded bg-black/40 text-white/90"
+            style={{
+              bottom: props.isMobile
+                ? `calc(0.5rem + ${typeof window !== 'undefined' ? 'env(safe-area-inset-bottom)' : '0px'})`
+                : '0.5rem',
+            }}
+          >
             {props.loupeUiHint}
           </div>
         )}
