@@ -1,6 +1,7 @@
 import { withAuthApiMiddleware } from '@/lib/api-middleware';
 import { createSecureErrorResponse, createSecureRedirect } from '@/lib/response-helpers';
 import Stripe from 'stripe';
+import { sanitizeReturnTo } from '@/utils/sanitizeReturnTo';
 
 function parsePricingTable(raw: unknown): Record<string, string> {
   try {
@@ -21,6 +22,7 @@ function invert<K extends string, V extends string>(obj: Record<K, V>): Record<V
   return out as Record<V, K>;
 }
 
+
 export const GET = withAuthApiMiddleware(
   async (context) => {
     const { locals, request } = context;
@@ -34,6 +36,7 @@ export const GET = withAuthApiMiddleware(
     const url = new URL(request.url);
     const sessionId = url.searchParams.get('session_id') || '';
     const ws = url.searchParams.get('ws') || 'default';
+    const returnToRaw = url.searchParams.get('return_to') || '';
 
     const requestUrl = new URL(context.request.url);
     const baseUrl: string = env.BASE_URL || `${requestUrl.protocol}//${requestUrl.host}`;
@@ -138,7 +141,11 @@ export const GET = withAuthApiMiddleware(
       }
     }
 
-    // Redirect to dashboard
+    // Redirect to original page if provided and valid; otherwise to dashboard
+    const safeReturnTo = sanitizeReturnTo(returnToRaw);
+    if (safeReturnTo) {
+      return createSecureRedirect(`${baseUrl}${safeReturnTo}`);
+    }
     return createSecureRedirect(`${baseUrl}/dashboard?ws=${encodeURIComponent(ws)}`);
   },
   {

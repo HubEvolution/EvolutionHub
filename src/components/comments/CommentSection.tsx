@@ -24,6 +24,7 @@ const CommentSectionInner: React.FC<CommentSectionProps> = ({
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
 
   // Detect if mobile device
   const isMobile = useIsMobile(768);
@@ -79,7 +80,7 @@ const CommentSectionInner: React.FC<CommentSectionProps> = ({
     if (!content.trim()) return;
 
     try {
-      await createComment(
+      const created = await createComment(
         {
           content: content.trim(),
           entityType,
@@ -89,8 +90,11 @@ const CommentSectionInner: React.FC<CommentSectionProps> = ({
         csrfToken
       );
 
-      // Reload comments to show the new one
-      await loadComments();
+      if (created && created.status === 'pending') {
+        setNotice('Dein Kommentar wurde eingereicht und erscheint nach Freigabe.');
+      } else {
+        await loadComments();
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Fehler beim Erstellen des Kommentars');
     }
@@ -145,6 +149,12 @@ const CommentSectionInner: React.FC<CommentSectionProps> = ({
           {stats && <CommentStats stats={stats} />}
         </div>
 
+        {notice && (
+          <div className="mb-4 p-4 bg-emerald-50 border border-emerald-200 rounded-md text-emerald-800">
+            <p className="text-sm">{notice}</p>
+          </div>
+        )}
+
         {error && (
           <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-md">
             <p className="text-sm text-red-800">{error}</p>
@@ -179,6 +189,25 @@ const CommentSectionInner: React.FC<CommentSectionProps> = ({
         {/* Comment Stats */}
         {stats && <CommentStats stats={stats} />}
       </div>
+
+      {notice && (
+        <div className="mb-4 p-4 bg-emerald-50 border border-emerald-200 rounded-md">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 text-emerald-500" viewBox="0 0 20 20" fill="currentColor">
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm-1-8V6a1 1 0 112 0v4a1 1 0 11-2 0zm1 5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <p className="text-sm text-emerald-800">{notice}</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Error Display */}
       {error && (

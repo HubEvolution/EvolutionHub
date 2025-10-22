@@ -1,3 +1,5 @@
+import type { KVNamespace } from '@cloudflare/workers-types';
+
 export interface UsageCounter {
   count: number;
   resetAt: number;
@@ -29,7 +31,7 @@ function endOfMonthTtlSeconds(): number {
 }
 
 export async function getUsage(kv: KVNamespace, key: string): Promise<UsageCounter | null> {
-  const json = await kv.get(key, { type: 'json' });
+  const json = await kv.get(key, 'json');
   if (!json || typeof json !== 'object') return null;
   const obj = json as any;
   const count = typeof obj.count === 'number' ? obj.count : 0;
@@ -160,10 +162,157 @@ export async function incrementMonthlyNoTtl(
   limit: number
 ): Promise<IncrementResult> {
   const key = legacyMonthlyKey(prefix, ownerType, ownerId);
-  const raw = await kv.get(key, { type: 'json' });
+  const raw = await kv.get(key, 'json');
   const obj = (raw && typeof raw === 'object' ? (raw as any) : null) || { count: 0 };
   const nextCount = (typeof obj.count === 'number' ? obj.count : 0) + 1;
   await kv.put(key, JSON.stringify({ count: nextCount }));
   const usage: UsageCounter = { count: nextCount, resetAt: endOfMonthUnixSeconds() };
   return { allowed: nextCount <= limit, usage };
+}
+
+// ---- Credit Packs (tenths-based), FIFO, expiry, idempotent consumption ----
+// We store packs as a single JSON array per user to avoid KV list operations.
+// Units are represented in tenths (1.0 credit == 10 tenths) to avoid float issues.
+export interface CreditPack {
+  id: string; // e.g., Stripe session id
+  unitsTenths: number; // remaining units in tenths
+  createdAt: number; // epoch ms
+  expiresAt: number; // epoch ms
+}
+
+export interface CreditConsumptionBreakdown {
+  packId: string;
+  usedTenths: number;
+}
+
+export interface CreditConsumptionResult {
+  totalRequestedTenths: number;
+  totalConsumedTenths: number;
+  remainingTenths: number; // total across all active packs after consumption
+  breakdown: CreditConsumptionBreakdown[];
+  idempotent: boolean; // true if an existing record was returned
+}
+
+function packsKey(userId: string): string {
+  return `ai:credits:user:${userId}:packs`;
+}
+
+function consumeRecordKey(userId: string, jobId: string): string {
+  return `ai:credits:consume:${userId}:${jobId}`;
+}
+
+function addMonthsWithGrace(startMs: number, months = 6, graceDays = 14): number {
+  const d = new Date(startMs);
+  const y = d.getUTCFullYear();
+  const m = d.getUTCMonth();
+  const day = d.getUTCDate();
+  const base = Date.UTC(y, m + months, day, d.getUTCHours(), d.getUTCMinutes(), d.getUTCSeconds(), d.getUTCMilliseconds());
+  const graceMs = graceDays * 24 * 60 * 60 * 1000;
+  return base + graceMs;
+}
+
+async function readPacks(kv: KVNamespace, userId: string): Promise<CreditPack[]> {
+  const raw = await kv.get(packsKey(userId));
+  if (!raw) return [];
+  try {
+    const arr = JSON.parse(raw);
+    return Array.isArray(arr) ? (arr as CreditPack[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+async function writePacks(kv: KVNamespace, userId: string, packs: CreditPack[]): Promise<void> {
+  await kv.put(packsKey(userId), JSON.stringify(packs));
+}
+
+export async function addCreditPackTenths(
+  kv: KVNamespace,
+  userId: string,
+  packId: string,
+  unitsTenths: number,
+  createdAtMs?: number
+): Promise<CreditPack[]> {
+  const createdAt = typeof createdAtMs === 'number' ? createdAtMs : Date.now();
+  const expiresAt = addMonthsWithGrace(createdAt, 6, 14);
+  const packs = await readPacks(kv, userId);
+  // idempotent on packId
+  if (!packs.some((p) => p.id === packId)) {
+    packs.push({ id: packId, unitsTenths: Math.max(0, Math.round(unitsTenths)), createdAt, expiresAt });
+    await writePacks(kv, userId, packs);
+  }
+  return packs;
+}
+
+export async function listActiveCreditPacksTenths(
+  kv: KVNamespace,
+  userId: string,
+  nowMs = Date.now()
+): Promise<CreditPack[]> {
+  const packs = await readPacks(kv, userId);
+  return packs.filter((p) => p.unitsTenths > 0 && p.expiresAt > nowMs).sort((a, b) => a.createdAt - b.createdAt);
+}
+
+export async function getCreditsBalanceTenths(
+  kv: KVNamespace,
+  userId: string,
+  nowMs = Date.now()
+): Promise<number> {
+  const packs = await listActiveCreditPacksTenths(kv, userId, nowMs);
+  return packs.reduce((sum, p) => sum + (p.unitsTenths || 0), 0);
+}
+
+export async function consumeCreditsTenths(
+  kv: KVNamespace,
+  userId: string,
+  amountTenths: number,
+  jobId: string,
+  nowMs = Date.now()
+): Promise<CreditConsumptionResult> {
+  const amt = Math.max(0, Math.round(amountTenths));
+  // Idempotency check
+  const recordKey = consumeRecordKey(userId, jobId);
+  const existing = await kv.get(recordKey);
+  if (existing) {
+    try {
+      const parsed = JSON.parse(existing) as CreditConsumptionResult;
+      return { ...parsed, idempotent: true };
+    } catch {
+      // fallthrough to recompute
+    }
+  }
+
+  let remainingToConsume = amt;
+  const packs = await listActiveCreditPacksTenths(kv, userId, nowMs);
+  const breakdown: CreditConsumptionBreakdown[] = [];
+
+  for (const p of packs) {
+    if (remainingToConsume <= 0) break;
+    const take = Math.min(p.unitsTenths, remainingToConsume);
+    if (take > 0) {
+      p.unitsTenths -= take;
+      remainingToConsume -= take;
+      breakdown.push({ packId: p.id, usedTenths: take });
+    }
+  }
+
+  // Persist updated packs
+  const fullList = await readPacks(kv, userId);
+  const updated = fullList.map((p) => {
+    const changed = breakdown.find((b) => b.packId === p.id);
+    return changed ? { ...p, unitsTenths: Math.max(0, p.unitsTenths - changed.usedTenths) } : p;
+  });
+  await writePacks(kv, userId, updated);
+
+  const totalConsumedTenths = amt - remainingToConsume;
+  const remainingTenths = await getCreditsBalanceTenths(kv, userId, nowMs);
+  const result: CreditConsumptionResult = {
+    totalRequestedTenths: amt,
+    totalConsumedTenths,
+    remainingTenths,
+    breakdown,
+    idempotent: false,
+  };
+  await kv.put(recordKey, JSON.stringify(result));
+  return result;
 }

@@ -27,7 +27,7 @@ export async function postGenerate(
 }
 
 export async function postCredits(
-  pack: 200 | 1000,
+  pack: number,
   workspaceId: string,
   csrf: string
 ): Promise<Response> {

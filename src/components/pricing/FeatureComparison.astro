@@ -86,6 +86,15 @@ const features = [
     enterprise: t('pages.pricing.comparison.rows.support.enterprise'),
   },
 ];
+
+// Remove placeholder rows (i18n uses an em dash "—" for placeholders)
+const isDash = (s: unknown) => typeof s === 'string' && s.trim() === '—';
+const rows = features.filter((f) => {
+  const p = f as any;
+  const allDashes = isDash(f.starter) && isDash(p.pro) && isDash(p.premium) && isDash(f.enterprise);
+  return !isDash(f.name) && !allDashes;
+});
+
 ---
 
 <AosWrapper class="mt-16">
@@ -95,40 +104,40 @@ const features = [
     <table class="w-full border-collapse">
       <thead>
         <tr class="border-b border-gray-200 dark:border-gray-700">
-          <th class="text-left py-4 px-6 font-medium text-gray-500 dark:text-gray-400"
+          <th class="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400"
             >{colFeature}</th
           >
-          <th class="text-center py-4 px-6 font-medium text-gray-500 dark:text-gray-400"
+          <th class="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400"
             >{colStarter}</th
           >
-          <th class="text-center py-4 px-6 font-medium text-blue-600 dark:text-blue-400"
+          <th class="text-center py-3 px-4 font-medium text-blue-600 dark:text-blue-400"
             >{colPro}</th
           >
-          <th class="text-center py-4 px-6 font-medium text-indigo-600 dark:text-indigo-400"
+          <th class="text-center py-3 px-4 font-medium text-indigo-600 dark:text-indigo-400"
             >{colPremium}</th
           >
-          <th class="text-center py-4 px-6 font-medium text-gray-500 dark:text-gray-400"
+          <th class="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400"
             >{colEnterprise}</th
           >
         </tr>
       </thead>
       <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
         {
-          features.map((feature, idx) => (
+          rows.map((feature, idx) => (
             <AosWrapper
               tag="tr"
               delay={aosDelayForIndex(idx, { step: 50, max: 400 })}
-              class="hover:bg-gray-50 dark:hover:bg-gray-800"
+              class="hover:bg-gray-50 dark:hover:bg-gray-800 odd:bg-transparent even:bg-gray-50 dark:even:bg-gray-800/50"
             >
-              <td class="py-4 px-6 font-medium">{feature.name}</td>
-              <td class="py-4 px-6 text-center">{feature.starter}</td>
-              <td class="py-4 px-6 text-center bg-blue-50 dark:bg-blue-900/30">
+              <td class="py-3 px-4 font-medium">{feature.name}</td>
+              <td class="py-3 px-4 text-center">{feature.starter}</td>
+              <td class="py-3 px-4 text-center bg-blue-50 dark:bg-blue-900/30">
                 {(feature as any).pro}
               </td>
-              <td class="py-4 px-6 text-center bg-indigo-50 dark:bg-indigo-900/30">
+              <td class="py-3 px-4 text-center bg-indigo-50 dark:bg-indigo-900/30">
                 {(feature as any).premium}
               </td>
-              <td class="py-4 px-6 text-center">{feature.enterprise}</td>
+              <td class="py-3 px-4 text-center">{feature.enterprise}</td>
             </AosWrapper>
           ))
         }
@@ -147,3 +156,4 @@ const features = [
     </p>
   </div>
 </AosWrapper>
+

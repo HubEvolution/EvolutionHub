@@ -21,26 +21,26 @@ const GUEST_ENTITLEMENTS: Readonly<PlanEntitlements> = Object.freeze({
 
 export const ENTITLEMENTS: Readonly<Record<Plan, PlanEntitlements>> = Object.freeze({
   free: {
-    monthlyImages: 450,
-    dailyBurstCap: 15,
+    monthlyImages: 30,
+    dailyBurstCap: 3,
     maxUpscale: 2,
     faceEnhance: false,
   },
   pro: {
-    monthlyImages: 400,
-    dailyBurstCap: 40,
+    monthlyImages: 300,
+    dailyBurstCap: 30,
     maxUpscale: 4,
     faceEnhance: true,
   },
   premium: {
-    monthlyImages: 1200,
-    dailyBurstCap: 120,
+    monthlyImages: 1000,
+    dailyBurstCap: 100,
     maxUpscale: 6,
     faceEnhance: true,
   },
   enterprise: {
-    monthlyImages: 5000,
-    dailyBurstCap: 500,
+    monthlyImages: 4000,
+    dailyBurstCap: 400,
     maxUpscale: 8,
     faceEnhance: true,
   },
@@ -48,9 +48,55 @@ export const ENTITLEMENTS: Readonly<Record<Plan, PlanEntitlements>> = Object.fre
 
 export function getEntitlementsFor(ownerType: 'user' | 'guest', plan?: Plan): PlanEntitlements {
   if (ownerType === 'guest') {
-    // Guests map to dedicated guest entitlements (aligned with FREE_LIMIT_GUEST)
     return GUEST_ENTITLEMENTS;
   }
   const p = plan ?? 'free';
   return ENTITLEMENTS[p];
+}
+
+// --- Enhancer cost model (decimal credits) ---
+// We measure costs in the same units as plan monthly quotas and paid credits.
+// Rounds to nearest 0.1 and enforces a minimum of 0.1 per job.
+export interface EnhancerCostInput {
+  modelSlug: string;
+  scale?: 2 | 4;
+  faceEnhance?: boolean;
+}
+
+// Base cost per model; unknown models fall back to 1.0
+const MODEL_BASE_COST: Record<string, number> = {
+  // Workers AI SDXL has a slightly higher base
+  '@cf/stabilityai/stable-diffusion-xl-base-1.0': 1.2,
+  // Default for others (e.g., SD 1.5 img2img, ESRGAN, CodeFormer/GFPGAN)
+  default: 1.0,
+};
+
+// Upscale add-on cost (2x is included, 4x adds +1.0)
+const UPSCALE_ADDON: Record<2 | 4, number> = {
+  2: 0,
+  4: 1.0,
+};
+
+// Face enhance add-on
+const FACE_ENHANCE_ADDON = 0.5;
+
+export function computeEnhancerCost(input: EnhancerCostInput): number {
+  const base = MODEL_BASE_COST[input.modelSlug] ?? MODEL_BASE_COST.default;
+  const upscaleAddon = input.scale ? UPSCALE_ADDON[input.scale] ?? 0 : 0;
+  const faceAddon = input.faceEnhance ? FACE_ENHANCE_ADDON : 0;
+  const raw = base + upscaleAddon + faceAddon;
+  return roundToTenth(Math.max(0.1, raw));
+}
+
+export function roundToTenth(n: number): number {
+  return Math.round(n * 10) / 10;
+}
+
+// Helpers to represent credits in tenths (integers) to avoid float drift.
+export function toTenths(n: number): number {
+  return Math.round(n * 10);
+}
+
+export function fromTenths(n: number): number {
+  return Math.round(n) / 10;
 }

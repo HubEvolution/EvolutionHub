@@ -25,10 +25,11 @@
   };
 
   const syncPressedAttr = () => {
-    const btn = document.querySelector('.theme-toggle');
-    if (!btn) return;
+    const buttons = document.querySelectorAll('.theme-toggle');
     const isDark = document.documentElement.classList.contains('dark');
-    btn.setAttribute('aria-pressed', isDark ? 'true' : 'false');
+    buttons.forEach((btn) => {
+      btn.setAttribute('aria-pressed', isDark ? 'true' : 'false');
+    });
   };
 
   // Get the initial theme and apply it
@@ -54,14 +55,23 @@
     syncPressedAttr();
   };
 
+  let themeDelegatedBound = false;
   const addClickListener = () => {
-    // Find the theme toggle button and add a click event listener
-    const themeToggle = document.querySelector('.theme-toggle');
-
-    if (themeToggle) {
-      themeToggle.addEventListener('click', handleToggleClick);
+    if (themeDelegatedBound) {
       syncPressedAttr();
+      return;
     }
+    document.addEventListener('click', (event) => {
+      const target = event.target;
+      if (target && typeof target.closest === 'function') {
+        const btn = target.closest('.theme-toggle');
+        if (btn) {
+          handleToggleClick();
+        }
+      }
+    });
+    themeDelegatedBound = true;
+    syncPressedAttr();
   };
 
   // Add the click listener on initial page load

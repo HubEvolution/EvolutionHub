@@ -12,13 +12,17 @@ import { detectImageMimeFromBytes as sniffImageMimeFromBytes } from '@/lib/utils
 import { loggerFactory } from '@/server/utils/logger-factory';
 import { buildProviderError } from './provider-error';
 import OpenAI from 'openai';
+import { computeEnhancerCost } from '@/config/ai-image/entitlements';
 import type { ExtendedLogger } from '@/types/logger';
 import type { R2Bucket, KVNamespace } from '@cloudflare/workers-types';
+import { buildWorkersAiPayload } from '@/lib/services/ai-image/providers/workers-ai';
 import {
   getUsage as kvGetUsage,
   incrementDailyRolling,
-  incrementMonthlyNoTtl,
   rollingDailyKey,
+  legacyMonthlyKey,
+  getCreditsBalanceTenths,
+  consumeCreditsTenths,
 } from '@/lib/kv/usage';
 
 interface RuntimeEnv {
@@ -28,6 +32,10 @@ interface RuntimeEnv {
   OPENAI_API_KEY?: string;
   ENVIRONMENT?: string;
   USAGE_KV_V2?: string;
+  AI?: any;
+  WORKERS_AI_ENABLED?: string;
+  TESTING_WORKERS_AI_ALLOW?: string;
+  TESTING_ALLOWED_CF_MODELS?: string;
 }
 
 export interface UsageInfo {
@@ -46,6 +54,11 @@ export interface GenerateParams {
   scale?: 2 | 4;
   faceEnhance?: boolean;
   assistantId?: string;
+  prompt?: string;
+  negativePrompt?: string;
+  strength?: number;
+  guidance?: number;
+  steps?: number;
   // Optional: override daily limit based on plan/entitlements resolved by API route
   limitOverride?: number;
   // Optional: plan-based constraints
@@ -57,8 +70,9 @@ export interface GenerateParams {
 export interface GenerateResult {
   model: string;
   originalUrl: string;
-  imageUrl: string; // public URL to the enhanced image
+  imageUrl: string;
   usage: UsageInfo;
+  charge?: { total: number; planPortion: number; creditsPortion: number };
 }
 
 export interface AssistantResponse {
@@ -74,35 +88,191 @@ export class AiImageService {
     this.log = loggerFactory.createLogger('ai-image-service');
   }
 
+  private async runWorkersAi(
+    model: AllowedModel,
+    input: Record<string, unknown>
+  ): Promise<{ arrayBuffer: ArrayBuffer; contentType: string }> {
+    const ai = (this.env as any).AI;
+    if (!ai) {
+      const err: any = new Error('Workers AI binding not configured');
+      err.apiErrorType = 'server_error';
+      throw err;
+    }
+    // Build payload via adapter (enforces image_b64 + param mapping)
+    const payload: Record<string, unknown> = buildWorkersAiPayload(model, input);
+    const chosen: 'b64' | null = 'b64';
+    try {
+      const t = typeof (payload as any).image_b64;
+      const s = t === 'string' ? String((payload as any).image_b64).slice(0, 60) : '';
+      this.log.info('workers_ai_payload_image', {
+        action: 'workers_ai_payload_image',
+        metadata: { type: t, snippet: s, model: model.slug, chosen, field: 'image_b64' },
+      });
+    } catch {}
+    const started = Date.now();
+    let out: any;
+    try {
+      out = await ai.run(model.slug, payload);
+    } catch (err) {
+      try {
+        const t = typeof (payload as any).image_b64;
+        const s = t === 'string' ? String((payload as any).image_b64).slice(0, 60) : '';
+        this.log.warn('workers_ai_run_failed', {
+          action: 'workers_ai_run_failed',
+          metadata: {
+            model: model.slug,
+            error: err instanceof Error ? err.message : String(err),
+            payloadKeys: Object.keys(payload as any),
+            imageType: t,
+            imageSnippet: s,
+          },
+        });
+      } catch {}
+      throw err;
+    }
+    let buf: ArrayBuffer | null = null;
+    let ct = 'image/png';
+    if (out && typeof out.arrayBuffer === 'function') {
+      const blob = out as Blob;
+      buf = await blob.arrayBuffer();
+      ct = (blob as any).type || ct;
+    } else if (out && typeof out.headers === 'object' && typeof out.arrayBuffer === 'function') {
+      const res = out as Response;
+      ct = res.headers.get('content-type') || ct;
+      buf = await res.arrayBuffer();
+    } else if (out instanceof ArrayBuffer) {
+      buf = out as ArrayBuffer;
+    } else if (out instanceof Uint8Array) {
+      buf = ((out as Uint8Array).buffer as unknown) as ArrayBuffer;
+    } else if (typeof out === 'string') {
+      // Some models may return a data URI or raw base64 string
+      const m = /^data:(.*?);base64,(.*)$/.exec(out);
+      if (m) {
+        ct = m[1] || ct;
+        buf = this.base64ToArrayBuffer(m[2]);
+      } else {
+        buf = this.base64ToArrayBuffer(out);
+      }
+    } else if (out && typeof out === 'object') {
+      // Some CF models return JSON with base64 fields
+      // Try common shapes: { image: base64 }, { images: [base64] }, { output: { image }, output: { images } }, { output: [base64] }, { result: ... }
+      let b64: string | undefined;
+      if (typeof (out as any).image === 'string') {
+        b64 = (out as any).image as string;
+      } else if (Array.isArray((out as any).images) && typeof (out as any).images[0] === 'string') {
+        b64 = (out as any).images[0] as string;
+      } else if ((out as any).image instanceof Uint8Array) {
+        buf = (((out as any).image as Uint8Array).buffer as unknown) as ArrayBuffer;
+      } else if (Array.isArray((out as any).images) && (out as any).images[0] instanceof Uint8Array) {
+        buf = (((out as any).images[0] as Uint8Array).buffer as unknown) as ArrayBuffer;
+      } else if ((out as any).output) {
+        const o = (out as any).output;
+        if (typeof o === 'string') {
+          b64 = o;
+        } else if (typeof o?.image === 'string') {
+          b64 = o.image as string;
+        } else if (Array.isArray(o?.images) && typeof o.images[0] === 'string') {
+          b64 = o.images[0] as string;
+        } else if (Array.isArray(o) && typeof o[0] === 'string') {
+          b64 = o[0] as string;
+        } else if (o instanceof Uint8Array) {
+          buf = ((o as Uint8Array).buffer as unknown) as ArrayBuffer;
+        } else if (o?.image instanceof Uint8Array) {
+          buf = ((o.image as Uint8Array).buffer as unknown) as ArrayBuffer;
+        } else if (Array.isArray(o?.images) && o.images[0] instanceof Uint8Array) {
+          buf = ((o.images[0] as Uint8Array).buffer as unknown) as ArrayBuffer;
+        }
+      } else if ((out as any).result) {
+        const r = (out as any).result;
+        if (typeof r === 'string') {
+          b64 = r;
+        } else if (typeof r?.image === 'string') {
+          b64 = r.image as string;
+        } else if (Array.isArray(r?.images) && typeof r.images[0] === 'string') {
+          b64 = r.images[0] as string;
+        } else if (Array.isArray(r) && typeof r[0] === 'string') {
+          b64 = r[0] as string;
+        } else if (r instanceof Uint8Array) {
+          buf = ((r as Uint8Array).buffer as unknown) as ArrayBuffer;
+        } else if (r?.image instanceof Uint8Array) {
+          buf = ((r.image as Uint8Array).buffer as unknown) as ArrayBuffer;
+        } else if (Array.isArray(r?.images) && r.images[0] instanceof Uint8Array) {
+          buf = ((r.images[0] as Uint8Array).buffer as unknown) as ArrayBuffer;
+        }
+      }
+      if (b64 && typeof b64 === 'string') {
+        try {
+          buf = this.base64ToArrayBuffer(b64);
+        } catch (e) {
+          this.log.warn('workers_ai_b64_decode_failed', {
+            action: 'workers_ai_b64_decode_failed',
+            metadata: { snippet: b64.slice(0, 40) },
+          });
+          throw new Error('Workers AI returned invalid base64 image');
+        }
+      } else if (buf) {
+        // buf was set from a Uint8Array path above; keep default ct
+      } else {
+        const jsonLike = JSON.stringify(out).slice(0, 120);
+        this.log.warn('workers_ai_unknown_output', {
+          action: 'workers_ai_unknown_output',
+          metadata: { snippet: jsonLike },
+        });
+        // Last-resort: attempt to coerce via Response wrapper (covers ReadableStream, ArrayBufferView, etc.)
+        try {
+          const res2 = new Response(out as any);
+          const ct2 = res2.headers.get('content-type');
+          if (ct2) ct = ct2;
+          buf = await res2.arrayBuffer();
+        } catch (e) {
+          throw new Error('Workers AI returned unsupported output');
+        }
+      }
+    } else {
+      const jsonLike = typeof out === 'object' ? JSON.stringify(out).slice(0, 120) : String(out);
+      this.log.warn('workers_ai_unknown_output', {
+        action: 'workers_ai_unknown_output',
+        metadata: { snippet: jsonLike },
+      });
+      throw new Error('Workers AI returned unsupported output');
+    }
+    this.log.debug('workers_ai_duration_ms', {
+      action: 'workers_ai_duration_ms',
+      metadata: { model: model.slug, ms: Date.now() - started },
+    });
+    if (!buf) {
+      throw new Error('Workers AI returned unsupported output');
+    }
+    return { arrayBuffer: buf as ArrayBuffer, contentType: ct };
+  }
+
+  // Encode ArrayBuffer to base64 string for Workers AI image_b64 input
+  private arrayBufferToBase64(buf: ArrayBuffer): string {
+    const bytes = new Uint8Array(buf);
+    let binary = '';
+    for (let i = 0; i < bytes.length; i++) {
+      binary += String.fromCharCode(bytes[i]);
+    }
+    return btoa(binary);
+  }
+
+  // Decode base64 (optionally data URI) to ArrayBuffer
+  private base64ToArrayBuffer(b64: string): ArrayBuffer {
+    const m = /^data:(.*?);base64,(.*)$/.exec(b64);
+    const data = m ? m[2] : b64;
+    const binary = atob(data);
+    const len = binary.length;
+    const bytes = new Uint8Array(len);
+    for (let i = 0; i < len; i++) {
+      bytes[i] = binary.charCodeAt(i);
+    }
+    return bytes.buffer;
+  }
+
   // For testability: expose a method that forwards to the shared MIME sniffer
   // so unit tests can spy on instance instead of module import.
   private detectImageMimeFromBytes(buffer: ArrayBuffer): string | null {
     return sniffImageMimeFromBytes(buffer) as any;
-  }
-
-  private async getCreditsBalance(userId: string): Promise<number> {
-    const kv = this.env.KV_AI_ENHANCER;
-    if (!kv) return 0;
-    const key = this.creditsKey(userId);
-    const raw = await kv.get(key);
-    if (!raw) return 0;
-    const n = parseInt(raw, 10);
-    return Number.isFinite(n) && n > 0 ? n : 0;
-  }
-
-  private async decrementCreditsBalance(userId: string): Promise<number> {
-    const kv = this.env.KV_AI_ENHANCER;
-    if (!kv) return 0;
-    const key = this.creditsKey(userId);
-    const raw = await kv.get(key);
-    let n = 0;
-    if (raw) {
-      const parsed = parseInt(raw, 10);
-      n = Number.isFinite(parsed) ? parsed : 0;
-    }
-    n = Math.max(0, n - 1);
-    await kv.put(key, String(n));
-    return n;
   }
 
   private async getMonthlyUsage(
@@ -113,6 +283,18 @@ export class AiImageService {
   ): Promise<UsageInfo> {
     const kv = this.env.KV_AI_ENHANCER;
     if (!kv) return { used: 0, limit, resetAt: null };
+    if (this.kvV2Enabled()) {
+      const keyV2 = legacyMonthlyKey('ai', ownerType, ownerId);
+      const rawV2 = await kv.get(keyV2);
+      if (!rawV2) return { used: 0, limit, resetAt: null };
+      try {
+        const obj = JSON.parse(rawV2) as { count?: number; countTenths?: number };
+        const used = typeof obj.countTenths === 'number' ? obj.countTenths / 10 : obj.count || 0;
+        return { used, limit, resetAt: null };
+      } catch {
+        return { used: 0, limit, resetAt: null };
+      }
+    }
     const key = this.monthlyUsageKey(ownerType, ownerId, ym);
     const raw = await kv.get(key);
     if (!raw) return { used: 0, limit, resetAt: null };
@@ -124,18 +306,32 @@ export class AiImageService {
     }
   }
 
-  private async incrementMonthlyUsage(
+  
+
+  private async incrementMonthlyBy(
     ownerType: OwnerType,
     ownerId: string,
     limit: number,
-    ym: string
+    ym: string,
+    delta: number
   ): Promise<UsageInfo> {
     const kv = this.env.KV_AI_ENHANCER;
     if (!kv) return { used: 0, limit, resetAt: null };
-    const useV2 = this.env.USAGE_KV_V2 === '1';
-    if (useV2) {
-      const res = await incrementMonthlyNoTtl(kv, 'ai', ownerType, ownerId, limit);
-      return { used: res.usage.count, limit, resetAt: null };
+    if (this.kvV2Enabled()) {
+      const keyV2 = legacyMonthlyKey('ai', ownerType, ownerId);
+      const raw = await kv.get(keyV2);
+      let countTenths = 0;
+      if (raw) {
+        try {
+          const obj = JSON.parse(raw) as { count?: number; countTenths?: number };
+          countTenths = typeof obj.countTenths === 'number' ? obj.countTenths : (obj.count || 0) * 10;
+        } catch {}
+      }
+      const addTenths = Math.max(0, Math.round((typeof delta === 'number' ? delta : 0) * 10));
+      countTenths += addTenths;
+      const count = Math.floor(countTenths / 10);
+      await kv.put(keyV2, JSON.stringify({ count, countTenths }));
+      return { used: countTenths / 10, limit, resetAt: null };
     }
     const key = this.monthlyUsageKey(ownerType, ownerId, ym);
     const raw = await kv.get(key);
@@ -146,9 +342,14 @@ export class AiImageService {
         count = parsed.count || 0;
       } catch {}
     }
-    count += 1;
+    count += typeof delta === 'number' ? delta : 0;
     await kv.put(key, JSON.stringify({ count }));
     return { used: count, limit, resetAt: null };
+  }
+
+  private kvV2Enabled(): boolean {
+    const v = (this.env.USAGE_KV_V2 || '').toString().toLowerCase();
+    return v === '1' || v === 'true';
   }
 
   private isLocalHost(origin: string): boolean {
@@ -173,7 +374,7 @@ export class AiImageService {
   async getUsage(ownerType: OwnerType, ownerId: string, limit: number): Promise<UsageInfo> {
     const kv = this.env.KV_AI_ENHANCER;
     if (!kv) return { used: 0, limit, resetAt: null };
-    const useV2 = this.env.USAGE_KV_V2 === '1';
+    const useV2 = this.kvV2Enabled();
     if (useV2) {
       const keyV2 = rollingDailyKey('ai', ownerType, ownerId);
       const usage = await kvGetUsage(kv, keyV2);
@@ -315,6 +516,11 @@ export class AiImageService {
     scale,
     faceEnhance,
     assistantId,
+    prompt,
+    negativePrompt,
+    strength,
+    guidance,
+    steps,
     limitOverride,
     monthlyLimitOverride,
     maxUpscaleOverride,
@@ -418,13 +624,13 @@ export class AiImageService {
     const now = new Date();
     const ym = `${now.getUTCFullYear()}${String(now.getUTCMonth() + 1).padStart(2, '0')}`;
     const monthly = await this.getMonthlyUsage(ownerType, ownerId, monthlyLimit, ym);
-    let usedCreditPack = false;
-    if (monthly.used >= monthly.limit) {
-      // Allow users (not guests) to consume credits if available
-      const credits = ownerType === 'user' ? await this.getCreditsBalance(ownerId) : 0;
-      if (credits > 0) {
-        usedCreditPack = true;
-      } else {
+    const cost = computeEnhancerCost({ modelSlug, scale, faceEnhance });
+    const monthlyRemaining = Math.max(0, monthly.limit - monthly.used);
+    let planPortion = Math.min(cost, monthlyRemaining);
+    const creditsPortion = Math.max(0, Math.round((cost - planPortion) * 10) / 10);
+    if (creditsPortion > 0 && ownerType === 'user') {
+      const tenths = await getCreditsBalanceTenths(this.env.KV_AI_ENHANCER as any, ownerId);
+      if (tenths < Math.round(creditsPortion * 10)) {
         const msgM = `Monthly quota exceeded. Used ${monthly.used}/${monthly.limit}`;
         const errM: any = new Error(msgM);
         errM.code = 'quota_exceeded';
@@ -475,124 +681,179 @@ export class AiImageService {
       }
     } catch {}
 
-    // Call provider (Replicate) with the originalUrl
-    let outputUrl: string;
-    let devEcho = false;
-    // In any non-production environment, prefer deterministic dev echo over provider calls
-    // to avoid external dependencies in local/integration runs.
-    const forceDevEcho = this.isDevelopment();
-    if (forceDevEcho) {
-      this.log.warn('dev_echo_enabled', {
-        action: 'dev_echo_enabled',
-        metadata: { reqId, reason: 'development_environment' },
-      });
-      outputUrl = originalUrl;
-      devEcho = true;
-    } else {
-      try {
-        this.log.debug('replicate_call_start', {
-          action: 'replicate_call_start',
-          metadata: { reqId, model: model.slug, originalUrl, scale, faceEnhance },
-        });
-        // Build provider input parameters safely per model
-        const replicateInput: Record<string, unknown> = {};
-        if (
-          model.slug.startsWith('tencentarc/gfpgan') ||
-          model.slug.startsWith('sczhou/codeformer')
-        ) {
-          (replicateInput as any).img = originalUrl;
-        } else {
-          (replicateInput as any).image = originalUrl;
-        }
-        if (typeof scale === 'number' && model.supportsScale) {
-          (replicateInput as any).scale = scale;
-        }
-        if (typeof faceEnhance === 'boolean' && model.supportsFaceEnhance) {
-          (replicateInput as any).face_enhance = faceEnhance;
-        }
-        outputUrl = await this.runReplicate(model, replicateInput);
-        this.log.debug('replicate_call_success', {
-          action: 'replicate_call_success',
-          metadata: { reqId, outputUrl },
-        });
-      } catch (err) {
-        // Graceful dev fallback to unblock local UI testing: use original image
-        // Applies in development when Replicate responds 404 (slug/version issues)
-        // OR when the token is missing locally.
-        const message = err instanceof Error ? err.message : String(err);
-        const is404 = /Replicate error\s+404/i.test(message);
-        const missingToken = /Missing REPLICATE_API_TOKEN/i.test(message);
-        if (this.isDevelopment() && (is404 || missingToken)) {
-          this.log.warn('dev_echo_enabled', {
-            action: 'dev_echo_enabled',
-            metadata: {
-              reqId,
-              reason: is404 ? 'provider_404' : 'missing_token',
-              model: model.slug,
-            },
-          });
-          outputUrl = originalUrl;
-          devEcho = true;
-        } else {
+    const envName = (this.env.ENVIRONMENT || '').toLowerCase();
+    let imageUrl: string;
+    if (envName === 'development' || envName === 'testing') {
+      if (model.provider === 'replicate') {
+        const err: any = new Error('Model not allowed in this environment');
+        err.apiErrorType = 'forbidden';
+        throw err;
+      }
+      if (model.provider === 'workers_ai') {
+        const enabled = this.env.WORKERS_AI_ENABLED === '1';
+        if (!enabled) {
+          const err: any = new Error('Workers AI disabled');
+          err.apiErrorType = 'forbidden';
           throw err;
         }
-      }
-    }
-
-    // In dev echo mode, skip fetching via HTTP and re-writing to R2 to avoid transient 404s
-    if (devEcho && this.isDevelopment() && outputUrl === originalUrl) {
-      const usage = await this.incrementUsage(ownerType, ownerId, dailyLimit);
-      if (usedCreditPack) {
-        // consume one credit instead of incrementing monthly
-        await this.decrementCreditsBalance(ownerId);
+        if (envName === 'testing') {
+          const allow = this.env.TESTING_WORKERS_AI_ALLOW === '1';
+          if (!allow) {
+            const err: any = new Error('Workers AI not allowed in testing');
+            err.apiErrorType = 'forbidden';
+            throw err;
+          }
+          let allowedList: string[] = [];
+          try {
+            const raw = this.env.TESTING_ALLOWED_CF_MODELS || '[]';
+            allowedList = JSON.parse(raw);
+          } catch {}
+          if (!allowedList.includes(model.slug)) {
+            const err: any = new Error('Model not allowed in testing');
+            err.apiErrorType = 'forbidden';
+            throw err;
+          }
+          if (typeof strength === 'number') strength = Math.min(0.6, Math.max(0.1, strength));
+          if (typeof guidance === 'number') guidance = Math.min(9, Math.max(3, guidance));
+          if (typeof steps === 'number' && ![10, 20, 30].includes(steps)) {
+            const err: any = new Error('Unsupported steps in testing');
+            err.apiErrorType = 'validation_error';
+            throw err;
+          }
+        }
+        const wa = await this.runWorkersAi(model, {
+          image_b64: this.arrayBufferToBase64(fileBuffer),
+          prompt,
+          negative_prompt: negativePrompt,
+          strength,
+          guidance,
+          steps,
+        });
+        const resultExt = this.extFromContentType(wa.contentType) || 'png';
+        const resultKey = `${AI_R2_PREFIX}/results/${ownerType}/${ownerId}/${timestamp}.${resultExt}`;
+        const putResultStart = Date.now();
+        await bucket.put(resultKey, wa.arrayBuffer, { httpMetadata: { contentType: wa.contentType } });
+        this.log.debug('r2_put_result_ms', {
+          action: 'r2_put_result_ms',
+          metadata: { reqId, ms: Date.now() - putResultStart },
+        });
+        this.log.debug('stored_result', {
+          action: 'stored_result',
+          metadata: { reqId, resultKey, contentType: wa.contentType },
+        });
+        imageUrl = this.buildPublicUrl(requestOrigin, resultKey);
       } else {
-        await this.incrementMonthlyUsage(ownerType, ownerId, monthlyLimit, ym);
+        const err: any = new Error('Unsupported provider');
+        err.apiErrorType = 'validation_error';
+        throw err;
       }
-      this.log.debug('dev_echo_return', {
-        action: 'dev_echo_return',
-        metadata: { reqId, imageUrl: originalUrl, usage },
-      });
-      return { model: model.slug, originalUrl, imageUrl: originalUrl, usage };
+    } else {
+      if (model.provider === 'workers_ai') {
+        const enabled = this.env.WORKERS_AI_ENABLED === '1';
+        if (!enabled) {
+          const err: any = new Error('Workers AI disabled');
+          err.apiErrorType = 'forbidden';
+          throw err;
+        }
+        const wa = await this.runWorkersAi(model, {
+          image_b64: this.arrayBufferToBase64(fileBuffer),
+          prompt,
+          negative_prompt: negativePrompt,
+          strength,
+          guidance,
+          steps,
+        });
+        const resultExt = this.extFromContentType(wa.contentType) || 'png';
+        const resultKey = `${AI_R2_PREFIX}/results/${ownerType}/${ownerId}/${timestamp}.${resultExt}`;
+        const putResultStart = Date.now();
+        await bucket.put(resultKey, wa.arrayBuffer, { httpMetadata: { contentType: wa.contentType } });
+        this.log.debug('r2_put_result_ms', {
+          action: 'r2_put_result_ms',
+          metadata: { reqId, ms: Date.now() - putResultStart },
+        });
+        this.log.debug('stored_result', {
+          action: 'stored_result',
+          metadata: { reqId, resultKey, contentType: wa.contentType },
+        });
+        imageUrl = this.buildPublicUrl(requestOrigin, resultKey);
+      } else {
+        let outputUrl: string;
+        try {
+          this.log.debug('replicate_call_start', {
+            action: 'replicate_call_start',
+            metadata: { reqId, model: model.slug, originalUrl, scale, faceEnhance },
+          });
+          const replicateInput: Record<string, unknown> = {};
+          if (
+            model.slug.startsWith('tencentarc/gfpgan') ||
+            model.slug.startsWith('sczhou/codeformer')
+          ) {
+            (replicateInput as any).img = originalUrl;
+          } else {
+            (replicateInput as any).image = originalUrl;
+          }
+          if (typeof scale === 'number' && model.supportsScale) {
+            (replicateInput as any).scale = scale;
+          }
+          if (typeof faceEnhance === 'boolean' && model.supportsFaceEnhance) {
+            (replicateInput as any).face_enhance = faceEnhance;
+          }
+          outputUrl = await this.runReplicate(model, replicateInput);
+          this.log.debug('replicate_call_success', {
+            action: 'replicate_call_success',
+            metadata: { reqId, outputUrl },
+          });
+        } catch (err) {
+          throw err;
+        }
+        this.log.debug('fetch_output_start', {
+          action: 'fetch_output_start',
+          metadata: { reqId, outputUrl },
+        });
+        const { arrayBuffer, contentType } = await this.fetchBinary(outputUrl);
+        this.log.debug('fetch_output_done', {
+          action: 'fetch_output_done',
+          metadata: { reqId, contentType, bytes: arrayBuffer.byteLength },
+        });
+        const resultExt = this.extFromContentType(contentType) || 'png';
+        const resultKey = `${AI_R2_PREFIX}/results/${ownerType}/${ownerId}/${timestamp}.${resultExt}`;
+        const putResultStart = Date.now();
+        await bucket.put(resultKey, arrayBuffer, { httpMetadata: { contentType } });
+        this.log.debug('r2_put_result_ms', {
+          action: 'r2_put_result_ms',
+          metadata: { reqId, ms: Date.now() - putResultStart },
+        });
+        this.log.debug('stored_result', {
+          action: 'stored_result',
+          metadata: { reqId, resultKey, contentType },
+        });
+        imageUrl = this.buildPublicUrl(requestOrigin, resultKey);
+      }
     }
-
-    // Fetch output and store to R2
-    this.log.debug('fetch_output_start', {
-      action: 'fetch_output_start',
-      metadata: { reqId, outputUrl },
-    });
-    const { arrayBuffer, contentType } = await this.fetchBinary(outputUrl);
-    this.log.debug('fetch_output_done', {
-      action: 'fetch_output_done',
-      metadata: { reqId, contentType, bytes: arrayBuffer.byteLength },
-    });
-    const resultExt = this.extFromContentType(contentType) || 'png';
-    const resultKey = `${AI_R2_PREFIX}/results/${ownerType}/${ownerId}/${timestamp}.${resultExt}`;
-    const putResultStart = Date.now();
-    await bucket.put(resultKey, arrayBuffer, { httpMetadata: { contentType } });
-    this.log.debug('r2_put_result_ms', {
-      action: 'r2_put_result_ms',
-      metadata: { reqId, ms: Date.now() - putResultStart },
-    });
-    this.log.debug('stored_result', {
-      action: 'stored_result',
-      metadata: { reqId, resultKey, contentType },
-    });
-
-    const imageUrl = this.buildPublicUrl(requestOrigin, resultKey);
 
     // Increment usage after success (both monthly and daily)
     const usage = await this.incrementUsage(ownerType, ownerId, dailyLimit);
-    if (usedCreditPack) {
-      await this.decrementCreditsBalance(ownerId);
-    } else {
-      await this.incrementMonthlyUsage(ownerType, ownerId, monthlyLimit, ym);
+    if (planPortion > 0) {
+      await this.incrementMonthlyBy(ownerType, ownerId, monthlyLimit, ym, planPortion);
+    }
+    if (ownerType === 'user') {
+      const cp = Math.max(0, Math.round((cost - planPortion) * 10));
+      if (cp > 0) {
+        await consumeCreditsTenths(this.env.KV_AI_ENHANCER as any, ownerId, cp, reqId);
+      }
     }
     this.log.info('generate_success', {
       action: 'generate_success',
       metadata: { reqId, imageUrl, usage },
     });
 
-    return { model: model.slug, originalUrl, imageUrl, usage };
+    return {
+      model: model.slug,
+      originalUrl,
+      imageUrl,
+      usage,
+      charge: { total: cost, planPortion, creditsPortion: Math.max(0, Math.round((cost - planPortion) * 10) / 10) },
+    };
   }
 
   // Internals
@@ -606,10 +867,6 @@ export class AiImageService {
 
   private monthlyUsageKey(ownerType: OwnerType, ownerId: string, ym: string): string {
     return `ai:usage:month:${ownerType}:${ownerId}:${ym}`;
-  }
-
-  private creditsKey(userId: string): string {
-    return `ai:credits:user:${userId}`;
   }
 
   private async incrementUsage(

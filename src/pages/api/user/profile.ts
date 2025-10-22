@@ -1,5 +1,5 @@
 import type { APIContext } from 'astro';
-import { withAuthApiMiddleware, createApiSuccess } from '@/lib/api-middleware';
+import { withAuthApiMiddleware, createApiSuccess, createApiError } from '@/lib/api-middleware';
 import { createSecureRedirect } from '@/lib/response-helpers';
 import { logProfileUpdate } from '@/lib/security-logger';
 
@@ -25,17 +25,20 @@ export const POST = withAuthApiMiddleware(async (context: APIContext) => {
 
   // Verbesserte Validierung mit Grenzen
   if (typeof name !== 'string' || name.length < 2 || name.length > 50) {
-    throw new Error('Name must be between 2 and 50 characters');
+    return createApiError('validation_error', 'Name must be between 2 and 50 characters');
   }
 
   if (typeof username !== 'string' || username.length < 3 || username.length > 30) {
-    throw new Error('Username must be between 3 and 30 characters');
+    return createApiError('validation_error', 'Username must be between 3 and 30 characters');
   }
 
   // Username-Format-Validierung mit RegEx
   const usernamePattern = /^[a-zA-Z0-9_]+$/;
   if (!usernamePattern.test(username)) {
-    throw new Error('Username may only contain letters, numbers and underscores');
+    return createApiError(
+      'validation_error',
+      'Username may only contain letters, numbers and underscores'
+    );
   }
 
   const db = locals.runtime.env.DB;
@@ -48,7 +51,7 @@ export const POST = withAuthApiMiddleware(async (context: APIContext) => {
       .first();
 
     if (existingUser) {
-      throw new Error('Username already taken');
+      return createApiError('validation_error', 'Username already taken');
     }
   }
 
@@ -66,13 +69,17 @@ export const POST = withAuthApiMiddleware(async (context: APIContext) => {
     newName: name,
   });
 
-  // Optionaler Redirect nach erfolgreicher Aktualisierung (HTML-Form Flow)
+  // Optionaler Redirect nach erfolgreicher Aktualisierung (nur für HTML-Form-Flow)
   const isAllowedRelativePath = (p: unknown): p is string => {
     return typeof p === 'string' && p.startsWith('/') && !p.startsWith('//');
   };
-  if (isAllowedRelativePath(nextRaw)) {
-    return createSecureRedirect(nextRaw, 303);
-  }
+  try {
+    const accept = context.request.headers.get('accept') || '';
+    const wantsHtml = /\btext\/html\b/i.test(accept);
+    if (wantsHtml && isAllowedRelativePath(nextRaw)) {
+      return createSecureRedirect(nextRaw, 303);
+    }
+  } catch {}
 
   // Erfolgreiche Aktualisierung mit aktualisierten Daten zurückgeben (JSON API)
   return createApiSuccess({

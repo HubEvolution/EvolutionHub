@@ -2,6 +2,7 @@ import Stripe from 'stripe';
 import { withApiMiddleware } from '@/lib/api-middleware';
 import { createRateLimiter } from '@/lib/rate-limiter';
 import { createSecureErrorResponse, createSecureJsonResponse } from '@/lib/response-helpers';
+import { addCreditPackTenths, getCreditsBalanceTenths } from '@/lib/kv/usage';
 // Minimal KV interface to avoid external type dependency
 type KV = {
   get(key: string): Promise<string | null>;
@@ -54,13 +55,19 @@ export const POST = withApiMiddleware(
     let event: Stripe.Event;
     try {
       const stripe = new Stripe(stripeSecret);
-      event = stripe.webhooks.constructEvent(rawBody, sig, webhookSecret);
-      // Minimal structured logging (no sensitive data)
+      event = await stripe.webhooks.constructEventAsync(rawBody, sig, webhookSecret);
       console.log('[stripe_webhook] received', {
         id: event.id,
         type: event.type,
       });
     } catch (err) {
+      try {
+        console.error('[stripe_webhook] signature_verify_failed', {
+          hasSig: !!sig,
+          sigLen: typeof sig === 'string' ? sig.length : 0,
+          err: err instanceof Error ? err.message : String(err),
+        });
+      } catch {}
       return createSecureErrorResponse('Invalid signature', 400);
     }
 
@@ -129,19 +136,18 @@ export const POST = withApiMiddleware(
           const userId = (meta.userId as string) || session.client_reference_id || '';
           // Handle credit packs (one-time payments)
           if (session.mode === 'payment' && (meta as any).purpose === 'credits' && kv) {
-            const packStr = (meta as any).pack as string | undefined;
-            const inc = packStr === '1000' ? 1000 : packStr === '200' ? 200 : 0;
-            if (userId && inc > 0) {
-              const key = `ai:credits:user:${userId}`;
-              const raw = await kv.get(key);
-              let n = 0;
-              if (raw) {
-                const parsed = parseInt(raw, 10);
-                n = Number.isFinite(parsed) ? parsed : 0;
-              }
-              n += inc;
-              await kv.put(key, String(n));
-              console.log('[stripe_webhook] credits_applied', { userId, inc, total: n });
+            const rawPack = (meta as any).pack as string | number | undefined;
+            const units = typeof rawPack === 'number' ? rawPack : rawPack ? Number(rawPack) : 0;
+            if (userId && Number.isFinite(units) && units > 0) {
+              const packId = session.id; // use Stripe session id for idempotency
+              // store as tenths and compute expiry internally
+              await addCreditPackTenths(kv as any, userId, packId, units * 10, (session as any).created ? (session as any).created * 1000 : Date.now());
+              // update legacy summary key for compatibility with existing UI
+              const totalTenths = await getCreditsBalanceTenths(kv as any, userId);
+              const legacyKey = `ai:credits:user:${userId}`;
+              const legacyInt = Math.floor(totalTenths / 10);
+              await kv.put(legacyKey, String(legacyInt));
+              console.log('[stripe_webhook] credits_pack_applied', { userId, packId, units, total: legacyInt });
             }
             break; // for credits we are done here
           }
@@ -191,7 +197,7 @@ export const POST = withApiMiddleware(
             plan = 'pro'; // safe default if metadata absent; will be corrected on subscription.updated
           }
 
-          await upsertCustomer(userId, customerId);
+          await upsertCustomer(resolvedUserId, customerId);
           if (subscriptionId) {
             await upsertSubscription({
               id: subscriptionId,

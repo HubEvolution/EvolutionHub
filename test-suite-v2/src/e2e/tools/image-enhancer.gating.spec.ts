@@ -76,24 +76,35 @@ test.describe('Image Enhancer — Gating & CTA', () => {
       await import('../../../fixtures/tool-helpers')
     ).ImageEnhancer.uploadImage(page, SAMPLE_IMAGE);
 
-    // Select a capable model
-    await selectOption(
-      page,
-      'select#model, [data-testid="model-select"]',
-      'nightmareai/real-esrgan:f0992969a94014d73864d08e6d9a39286868328e4263d9ce2da6fc4049d01a1a'
-    );
+    // Select Replicate ESRGAN when available; otherwise select Workers AI fallback
+    const replicateValue = 'nightmareai/real-esrgan:f0992969a94014d73864d08e6d9a39286868328e4263d9ce2da6fc4049d01a1a';
+    const cfFallbackValue = '@cf/runwayml/stable-diffusion-v1-5-img2img';
+    const forceCF = ((process.env.FORCE_CF_MODELS || '').toLowerCase() === '1') || ((process.env.FORCE_CF_MODELS || '').toLowerCase() === 'true');
+    const modelSelect = page.locator('select#model, [data-testid="model-select"]').first();
+    const replicateAvailable = (await modelSelect.locator(`option[value="${replicateValue}"]`).count()) > 0;
+    const useReplicate = replicateAvailable && !forceCF;
+    await selectOption(page, 'select#model, [data-testid="model-select"]', useReplicate ? replicateValue : cfFallbackValue);
 
     const x4 = page.getByRole('button', { name: /^x4$/ });
     const face = page.getByLabel(/Face enhance/i);
 
-    // When gated, x4 should show upgrade title and appear disabled-styled
-    await expect(x4).toHaveAttribute('title', /Upgrade/i);
-    await expect(x4).toHaveClass(/cursor-not-allowed|opacity-60/);
-
-    // Face enhance should be disabled
-    if (await face.isVisible().catch(() => false)) {
-      await expect(face).toBeDisabled();
-      await expect(face).toHaveAttribute('title', /Upgrade/i);
+    if (useReplicate) {
+      // When Replicate is present and user is gated, x4 shows Upgrade and disabled style
+      await expect(x4).toHaveAttribute('title', /Upgrade/i);
+      await expect(x4).toHaveClass(/cursor-not-allowed|opacity-60/);
+      if (await face.isVisible().catch(() => false)) {
+        await expect(face).toBeDisabled();
+        await expect(face).toHaveAttribute('title', /Upgrade/i);
+      }
+    } else {
+      // In testing/local (Workers AI only), these capabilities are not available at all
+      await expect(x4).toHaveCount(0);
+      if (await face.isVisible().catch(() => false)) {
+        await expect(face).toBeDisabled();
+      }
+      // Still show Upgrade CTA in toolbar (already validated in other tests)
+      const toolbar = page.getByLabel('Enhancer actions toolbar');
+      await expect(toolbar.getByRole('link', { name: /Upgrade/i })).toBeVisible();
     }
   });
 });

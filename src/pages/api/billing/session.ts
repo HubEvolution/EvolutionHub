@@ -1,6 +1,7 @@
 import { withAuthApiMiddleware, createApiSuccess, createApiError } from '@/lib/api-middleware';
 import Stripe from 'stripe';
 import { logUserEvent } from '@/lib/security-logger';
+import { sanitizeReturnTo } from '@/utils/sanitizeReturnTo';
 
 /**
  * POST /api/billing/session
@@ -46,10 +47,24 @@ export const POST = withAuthApiMiddleware(
       plan?: 'pro' | 'premium' | 'enterprise';
       workspaceId?: string;
       interval?: 'monthly' | 'annual';
+      returnTo?: string;
     } | null;
     if (!body || !body.plan || !body.workspaceId) {
       return createApiError('validation_error', 'plan and workspaceId are required');
     }
+
+    let refererPath = '';
+    try {
+      const ref = context.request.headers.get('referer') || '';
+      if (ref) {
+        const ru = new URL(ref);
+        const origin = `${requestUrl.protocol}//${requestUrl.host}`;
+        if (ru.origin === origin) {
+          refererPath = `${ru.pathname}${ru.search}`;
+        }
+      }
+    } catch {}
+    const safeReturnTo = sanitizeReturnTo(body.returnTo) || sanitizeReturnTo(refererPath);
 
     const interval = body.interval || 'monthly';
     const priceId = interval === 'annual' ? pricingTableAnnual[body.plan] : pricingTable[body.plan];
@@ -68,7 +83,7 @@ export const POST = withAuthApiMiddleware(
     const stripe = new Stripe(env.STRIPE_SECRET);
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
-      success_url: `${baseUrl}/api/billing/sync?session_id={CHECKOUT_SESSION_ID}&ws=${encodeURIComponent(body.workspaceId)}`,
+      success_url: `${baseUrl}/api/billing/sync?session_id={CHECKOUT_SESSION_ID}&ws=${encodeURIComponent(body.workspaceId)}${safeReturnTo ? `&return_to=${encodeURIComponent(safeReturnTo)}` : ''}`,
       cancel_url: `${baseUrl}/pricing`,
       allow_promotion_codes: true,
       line_items: [{ price: priceId, quantity: 1 }],

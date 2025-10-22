@@ -14,6 +14,10 @@ logpush = false
 [observability.logs]
 enabled = false
 
+# Cloudflare Workers AI binding (available to all envs)
+[ai]
+binding = "AI"
+
 # D1 Datenbank-Binding
 [[d1_databases]]
 binding = "DB" # Dies muss mit dem Code übereinstimmen (z.B. context.locals.runtime.env.DB)
@@ -40,6 +44,9 @@ STYTCH_BYPASS = "1"
 E2E_FAKE_STYTCH = "1"
 STYTCH_CUSTOM_DOMAIN = "login-test.hub-evolution.com"
 PROMPT_REWRITE_V1 = "true"
+
+[env.production.ai]
+binding = "AI"
 PROMPT_TEXT_MODEL = "gpt-4o-mini"
 PROMPT_VISION_MODEL = "gpt-4o-mini"
 PROMPT_MAX_FILE_BYTES = "5242880"
@@ -47,10 +54,17 @@ PROMPT_MAX_FILES = "3"
 PROMPT_ALLOWED_TYPES = "image/jpeg,image/png,image/webp,application/pdf,text/plain,text/markdown"
 PROMPT_OUTPUT_TOKENS_MAX = "400"
 PROMPT_TEMPERATURE = "0.2"
+
+[env.staging.ai]
+binding = "AI"
 PROMPT_TOP_P = "0.9"
 VOICE_STREAM_SSE = "1"
 VOICE_STREAM_POLL = "1"
+WORKERS_AI_ENABLED = "1"
 VOICE_R2_ARCHIVE = "0"
+
+[env.development.ai]
+binding = "AI"
 
 [[env.development.d1_databases]]
 binding = "DB"
@@ -219,11 +233,15 @@ ENVIRONMENT = "production"
 BASE_URL = "https://hub-evolution.com"
 LEADMAGNET_SOURCE = "r2"
 USAGE_KV_V2 = "1"
- 
-PRICING_TABLE = '{"free":"","pro":"price_1S7NR3HdpdQAtOQBldQRKby5","premium":"price_1S7NTtHdpdQAtOQB7QHmF9Js","enterprise":""}'
-PRICING_TABLE_ANNUAL = '{"free":"","pro":"price_1S7NTZHdpdQAtOQBwmchvm92","premium":"price_1S7NU4HdpdQAtOQBOZ9jW06J","enterprise":""}'
-PRICING_LINKS = '{"pro":"https://buy.stripe.com/5kQ6oH7d11nv2vC5pJ1VK06","premium":"https://buy.stripe.com/eVqeVd7d14zH3zG05p1VK08"}'
-PRICING_LINKS_ANNUAL = '{"pro":"https://buy.stripe.com/5kQ7sL9l9c296LS4lF1VK01","premium":"https://buy.stripe.com/cNi8wPdBp2rzdag4lF1VK07"}'
+WORKERS_AI_ENABLED = "1"
+PUBLIC_ENABLE_CREDITS_CTA = "1"
+# Live Stripe price IDs (plan -> price)
+PRICING_TABLE = '{"free":"","pro":"price_1SKjwqHdpdQAtOQBPUkZoavZ","premium":"price_1SKjx5HdpdQAtOQB5NLrDeSC","enterprise":"price_1SKjwaHdpdQAtOQBiEjoUpTK"}'
+PRICING_TABLE_ANNUAL = '{"free":"","pro":"price_1SKjwrHdpdQAtOQBWuyGjizw","premium":"price_1SKjx6HdpdQAtOQB8QTHxs0j","enterprise":"price_1SKjwbHdpdQAtOQBoR40Gesj"}'
+# Credit packs mapping (pack -> price)
+CREDITS_PRICING_TABLE = '{"100":"price_1SKZhaHdpdQAtOQBGJx2Hf0K","500":"price_1SKZi2HdpdQAtOQBRNrlB0Sw","1500":"price_1SKZiUHdpdQAtOQBM2Dgo5uq"}'
+PRICING_LINKS = '{"pro":"https://buy.stripe.com/5kQfZhbth3vD8U0g4n1VK09","premium":"https://buy.stripe.com/9B6aEXdBpeah4DK9FZ1VK0b","enterprise":"https://buy.stripe.com/28EaEX7d1d6d5HOf0j1VK0d"}'
+PRICING_LINKS_ANNUAL = '{"pro":"https://buy.stripe.com/7sYbJ140P9U1gms8BV1VK0a","premium":"https://buy.stripe.com/8x214n40Pfeleek8BV1VK0c","enterprise":"https://buy.stripe.com/bJe4gz9l9c299Y405p1VK0e"}'
 AUTH_PROVIDER = "stytch"
 PUBLIC_TURNSTILE_SITE_KEY = "0x4AAAAAAB5-m2IDaeVetM7Q"
 
@@ -309,6 +327,10 @@ PROMPT_TEMPERATURE = "0.2"
 PROMPT_TOP_P = "0.9"
  VOICE_STREAM_SSE = "1"
  VOICE_STREAM_POLL = "1"
+WORKERS_AI_ENABLED = "1"
+# Allow Workers AI only for specific free models in testing; keep Replicate disabled (no token).
+TESTING_WORKERS_AI_ALLOW = "1"
+TESTING_ALLOWED_CF_MODELS = '["@cf/runwayml/stable-diffusion-v1-5-img2img","@cf/stabilityai/stable-diffusion-xl-base-1.0"]'
 
 [[env.testing.d1_databases]]
 binding = "DB"
@@ -319,6 +341,9 @@ preview_database_id = "11c6dad1-b35b-488e-a5f3-1d2e707afa65"
 [[env.testing.r2_buckets]]
 binding = "R2_AVATARS"
 bucket_name = "evolution-hub-avatars-local"
+
+[env.testing.ai]
+binding = "AI"
 preview_bucket_name = "evolution-hub-avatars-local"
 
 [[env.testing.r2_buckets]]
@@ -343,8 +368,8 @@ preview_id = "79810af7adff409a9a7fed6cb849b845"
 
 [[env.testing.kv_namespaces]]
 binding = "KV_AI_ENHANCER"
-id = "30356dfa83e342c48103609bce4f3320"
-preview_id = "30356dfa83e342c48103609bce4f3320"
+id = "53afc42009cb4ba9ab2b95af5a4105a4"
+preview_id = "53afc42009cb4ba9ab2b95af5a4105a4"
 
 [[env.testing.kv_namespaces]]
 binding = "KV_COMMENTS"
@@ -365,7 +390,14 @@ zone_name = "hub-evolution.com"
 ENVIRONMENT = "staging"
 BASE_URL = "https://staging.hub-evolution.com"
 LEADMAGNET_SOURCE = "r2"
-PRICING_TABLE = '{"free":"","pro":"price_1S76fgHdpdQAtOQBejlie3Ly","premium":"price_1S76fyHdpdQAtOQBq9ISqQ0c","enterprise":"price_1S76gEHdpdQAtOQBl8z2E5Qs"}'
+PUBLIC_ENABLE_CREDITS_CTA = "1"
+# Staging pricing (test mode IDs)
+PRICING_TABLE = '{"free":"","pro":"price_1SKj5MHdpdQAtOQBAUpgOHiO","premium":"price_1SKj6wHdpdQAtOQB1ONFWXBD","enterprise":"price_1SKj3DHdpdQAtOQB4kUoLiLA"}'
+PRICING_TABLE_ANNUAL = '{"free":"","pro":"price_1SKj5sHdpdQAtOQBmwk497Se","premium":"price_1SKj7NHdpdQAtOQB4ZYoW84T","enterprise":"price_1SKj3kHdpdQAtOQBrzHdcSZk"}'
+PRICING_LINKS = '{"pro":"https://buy.stripe.com/5kQ6oH7d11nv2vC5pJ1VK06","premium":"https://buy.stripe.com/eVqeVd7d14zH3zG05pJ1VK08"}'
+PRICING_LINKS_ANNUAL = '{"pro":"https://buy.stripe.com/5kQ7sL9l9c296LS4lF1VK01","premium":"https://buy.stripe.com/cNi8wPdBp2rzdag4lF1VK07"}'
+CREDITS_PRICING_TABLE = '{"100":"price_1SKj8rHdpdQAtOQBx9Vz0Cl5","500":"price_1SKjA2HdpdQAtOQBt5vWqIcg","1500":"price_1SKjB6HdpdQAtOQBRkEKdrGy"}'
+WORKERS_AI_ENABLED = "1"
 
 # Prompt Enhancer (non-secret defaults for staging)
 PROMPT_REWRITE_V1 = "true"

@@ -114,7 +114,20 @@ const upgradeLabel =
             if (user) return null;
           } catch {}
           const loginHref = localizePath(locale, '/login');
-          const pricingHref = localizePath(locale, '/pricing');
+          const pricingHref = (() => {
+            try {
+              const base = localizePath(locale, '/pricing');
+              const u = new URL(base, 'http://x');
+              const cur = new URL(typeof window !== 'undefined' ? window.location.href : 'http://x');
+              const currentPath = cur.pathname + cur.search;
+              if (currentPath.startsWith('/')) {
+                u.searchParams.set('return_to', currentPath);
+              }
+              return u.pathname + u.search;
+            } catch {
+              return localizePath(locale, '/pricing');
+            }
+          })();
           return (
             <div
               id="guest-banner"

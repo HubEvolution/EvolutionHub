@@ -4,7 +4,7 @@ import { ensureCsrfToken } from '@/lib/security/csrf';
 import { postCredits } from '../api';
 
 export function useCreditsCheckout() {
-  const [buying, setBuying] = useState<false | 200 | 1000>(false);
+  const [buying, setBuying] = useState<false | 100 | 500 | 1500>(false);
 
   const getWorkspaceId = useCallback(() => {
     try {
@@ -23,7 +23,7 @@ export function useCreditsCheckout() {
   }, []);
 
   const createCreditsCheckout = useCallback(
-    async (pack: 200 | 1000) => {
+    async (pack: 100 | 500 | 1500) => {
       try {
         setBuying(pack);
         const csrf = ensureCsrfToken();

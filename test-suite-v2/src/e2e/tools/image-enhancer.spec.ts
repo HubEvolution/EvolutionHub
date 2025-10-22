@@ -28,24 +28,31 @@ test.describe('Image Enhancer', () => {
     // Upload sample image
     await ImageEnhancer.uploadImage(page, SAMPLE_IMAGE);
 
-    // Select a model that supports scale + face enhance (value depends on UI)
-    await selectOption(page, 'select#model, [data-testid="model-select"]', 'nightmareai/real-esrgan:f0992969a94014d73864d08e6d9a39286868328e4263d9ce2da6fc4049d01a1a');
+    // Select model, honoring FORCE_CF_MODELS to force Workers AI even if Replicate is present
+    const replicateValue = 'nightmareai/real-esrgan:f0992969a94014d73864d08e6d9a39286868328e4263d9ce2da6fc4049d01a1a';
+    const cfFallbackValue = '@cf/runwayml/stable-diffusion-v1-5-img2img';
+    const forceCF = ((process.env.FORCE_CF_MODELS || '').toLowerCase() === '1') || ((process.env.FORCE_CF_MODELS || '').toLowerCase() === 'true');
+    const modelSelect = page.locator('select#model, [data-testid="model-select"]').first();
+    const replicatePresent = (await modelSelect.locator(`option[value="${replicateValue}"]`).count()) > 0;
+    const useReplicate = replicatePresent && !forceCF;
+    await selectOption(page, 'select#model, [data-testid="model-select"]', useReplicate ? replicateValue : cfFallbackValue);
 
-    // Capability-driven controls: scale buttons visible
-    const scaleX2 = page.getByRole('button', { name: /^x2$/ });
-    const scaleX4 = page.getByRole('button', { name: /^x4$/ });
-    await expect(scaleX2).toBeVisible();
-    await expect(scaleX4).toBeVisible();
-    await scaleX2.click();
-    await scaleX4.click();
+    // Capability-driven controls only when Replicate model is used
+    if (useReplicate) {
+      const scaleX2 = page.getByRole('button', { name: /^x2$/ });
+      const scaleX4 = page.getByRole('button', { name: /^x4$/ });
+      await expect(scaleX2).toBeVisible();
+      await expect(scaleX4).toBeVisible();
+      await scaleX2.click();
+      await scaleX4.click();
 
-    // Capability-driven controls: face enhance visible
-    const faceEnhance = page.getByLabel(/Face enhance/i);
-    await expect(faceEnhance).toBeVisible();
-    if (await faceEnhance.isEnabled().catch(() => false)) {
-      await faceEnhance.check();
-    } else {
-      await expect(faceEnhance).toBeDisabled();
+      const faceEnhance = page.getByLabel(/Face enhance/i);
+      await expect(faceEnhance).toBeVisible();
+      if (await faceEnhance.isEnabled().catch(() => false)) {
+        await faceEnhance.check();
+      } else {
+        await expect(faceEnhance).toBeDisabled();
+      }
     }
 
     // Click Enhance (handle EN/DE labels)
@@ -141,15 +148,16 @@ test.describe('Image Enhancer', () => {
       // No hard assert on overlay
     }
 
-    // Switch to a model without capabilities and assert controls are hidden
-    // After result, the select is behind a small 'Change model' pill
-    const changeModel = page.getByRole('button', { name: /Change model/i });
-    if (await changeModel.isVisible().catch(() => false)) {
-      await changeModel.click();
+    // Switch to a model without capabilities (only when Replicate path is used)
+    if (useReplicate) {
+      const changeModel = page.getByRole('button', { name: /Change model/i });
+      if (await changeModel.isVisible().catch(() => false)) {
+        await changeModel.click();
+      }
+      await selectOption(page, 'select#model, [data-testid="model-select"]', 'tencentarc/gfpgan:0fbacf7afc6c144e5be9767cff80f25aff23e52b0708f17e20f9879b2f21516c');
+      await expect(page.getByRole('button', { name: /^x2$/ })).toHaveCount(0);
+      await expect(page.getByRole('button', { name: /^x4$/ })).toHaveCount(0);
     }
-    await selectOption(page, 'select#model, [data-testid="model-select"]', 'tencentarc/gfpgan:0fbacf7afc6c144e5be9767cff80f25aff23e52b0708f17e20f9879b2f21516c');
-    await expect(page.getByRole('button', { name: /^x2$/ })).toHaveCount(0);
-    await expect(page.getByRole('button', { name: /^x4$/ })).toHaveCount(0);
 
     // Attach a screenshot as artifact
     const png = await page.screenshot({ fullPage: true });
@@ -195,14 +203,22 @@ test.describe('Image Enhancer', () => {
       // Upload image
       await ImageEnhancer.uploadImage(page, SAMPLE_IMAGE);
 
-      // Select model and options
-      await selectOption(page, 'select#model, [data-testid="model-select"]', 'nightmareai/real-esrgan:f0992969a94014d73864d08e6d9a39286868328e4263d9ce2da6fc4049d01a1a');
-      const scaleX2 = page.getByRole('button', { name: /^x2$/ });
-      await scaleX2.click();
-      const faceEnhance = page.getByLabel(/Face enhance/i);
-      if (await faceEnhance.isEnabled().catch(() => false)) {
-        await faceEnhance.check();
-      } else {
+      // Select model and options (Replicate when available and not forced, otherwise Workers AI fallback)
+      const replicateValue2 = 'nightmareai/real-esrgan:f0992969a94014d73864d08e6d9a39286868328e4263d9ce2da6fc4049d01a1a';
+      const cfFallbackValue2 = '@cf/runwayml/stable-diffusion-v1-5-img2img';
+      const forceCF2 = ((process.env.FORCE_CF_MODELS || '').toLowerCase() === '1') || ((process.env.FORCE_CF_MODELS || '').toLowerCase() === 'true');
+      const modelSelect2 = page.locator('select#model, [data-testid="model-select"]').first();
+      const replicatePresent2 = (await modelSelect2.locator(`option[value="${replicateValue2}"]`).count()) > 0;
+      const useReplicate2 = replicatePresent2 && !forceCF2;
+      await selectOption(page, 'select#model, [data-testid="model-select"]', useReplicate2 ? replicateValue2 : cfFallbackValue2);
+      if (useReplicate2) {
+        const scaleX2 = page.getByRole('button', { name: /^x2$/ });
+        await scaleX2.click();
+        const faceEnhance = page.getByLabel(/Face enhance/i);
+        if (await faceEnhance.isEnabled().catch(() => false)) {
+          await faceEnhance.check();
+        } else {
+        }
       }
 
       // Enhance
@@ -252,7 +268,13 @@ test.describe('Image Enhancer', () => {
       });
       // Quick upload and enhance for DE
       await ImageEnhancer.uploadImage(page, SAMPLE_IMAGE);
-      await selectOption(page, 'select#model, [data-testid="model-select"]', 'nightmareai/real-esrgan:f0992969a94014d73864d08e6d9a39286868328e4263d9ce2da6fc4049d01a1a');
+      const replicateValueDe = 'nightmareai/real-esrgan:f0992969a94014d73864d08e6d9a39286868328e4263d9ce2da6fc4049d01a1a';
+      const cfFallbackValueDe = '@cf/runwayml/stable-diffusion-v1-5-img2img';
+      const forceCFDe = ((process.env.FORCE_CF_MODELS || '').toLowerCase() === '1') || ((process.env.FORCE_CF_MODELS || '').toLowerCase() === 'true');
+      const modelSelectDe = page.locator('select#model, [data-testid="model-select"]').first();
+      const replicatePresentDe = (await modelSelectDe.locator(`option[value="${replicateValueDe}"]`).count()) > 0;
+      const useReplicateDe = replicatePresentDe && !forceCFDe;
+      await selectOption(page, 'select#model, [data-testid="model-select"]', useReplicateDe ? replicateValueDe : cfFallbackValueDe);
       await ImageEnhancer.clickEnhance(page);
       await expect(slider).toBeVisible();
       await test.info().attach(`${vp.name}-de-after`, {

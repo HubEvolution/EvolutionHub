@@ -1,6 +1,7 @@
 import { withAuthApiMiddleware } from '@/lib/api-middleware';
 import Stripe from 'stripe';
 import { logUserEvent } from '@/lib/security-logger';
+import { sanitizeReturnTo } from '@/utils/sanitizeReturnTo';
 
 /**
  * POST /api/billing/credits
@@ -15,8 +16,9 @@ export const POST = withAuthApiMiddleware(async (context) => {
   const body = (await context.request.json().catch(() => null)) as {
     pack?: number;
     workspaceId?: string;
+    returnTo?: string;
   } | null;
-  if (!body || (body.pack !== 200 && body.pack !== 1000)) {
+  if (!body || typeof body.pack !== 'number') {
     return new Response(JSON.stringify({ error: 'invalid_pack' }), {
       status: 400,
       headers: { 'Content-Type': 'application/json' },
@@ -50,6 +52,8 @@ export const POST = withAuthApiMiddleware(async (context) => {
   const requestUrl = new URL(context.request.url);
   const baseUrl: string = env.BASE_URL || `${requestUrl.protocol}//${requestUrl.host}`;
 
+  const safeReturnTo = sanitizeReturnTo(body.returnTo);
+
   // Audit log
   logUserEvent(user?.id ?? 'anonymous', 'credits_checkout_session_created', {
     ipAddress: clientAddress,
@@ -57,9 +61,19 @@ export const POST = withAuthApiMiddleware(async (context) => {
   });
 
   const stripe = new Stripe(env.STRIPE_SECRET);
+  let successUrl = `${baseUrl}/dashboard?ws=${body.workspaceId || 'default'}&credits=1`;
+  try {
+    if (safeReturnTo) {
+      const u = new URL(`${baseUrl}${safeReturnTo}`);
+      u.searchParams.set('credits', '1');
+      successUrl = u.toString();
+    }
+  } catch {
+    // ignore malformed returnTo; fallback to dashboard successUrl
+  }
   const session = await stripe.checkout.sessions.create({
     mode: 'payment',
-    success_url: `${baseUrl}/dashboard?ws=${body.workspaceId || 'default'}&credits=1`,
+    success_url: successUrl,
     cancel_url: `${baseUrl}/pricing`,
     allow_promotion_codes: false,
     line_items: [{ price: priceId, quantity: 1 }],

@@ -136,7 +136,7 @@ export const prerender = false;
           {t('pages.home.features.subtitle')}
         </AosWrapper>
       </div>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-12">
         <AosWrapper
           duration={600}
           class="feature-card text-center p-6 bg-gray-50 dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md transition duration-300"
@@ -185,6 +185,23 @@ export const prerender = false;
           </h3>
           <p class="text-gray-600 dark:text-gray-300">
             {t('pages.home.features.feature3.description')}
+          </p>
+        </AosWrapper>
+        <AosWrapper
+          delay={300}
+          duration={600}
+          class="feature-card text-center p-6 bg-gray-50 dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md transition duration-300"
+        >
+          <Icon
+            name={t('pages.home.features.feature4.icon')}
+            class="w-12 h-12 text-emerald-500 mb-4 inline-block"
+            ariaLabel={t('pages.home.features.feature4.title')}
+          />
+          <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">
+            {t('pages.home.features.feature4.title')}
+          </h3>
+          <p class="text-gray-600 dark:text-gray-300">
+            {t('pages.home.features.feature4.description')}
           </p>
         </AosWrapper>
       </div>

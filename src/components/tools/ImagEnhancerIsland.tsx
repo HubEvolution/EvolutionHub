@@ -98,7 +98,26 @@ interface ImagEnhancerIslandProps {
 }
 
 export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps) {
-  const [model, setModel] = useState<string>(ALLOWED_MODELS[0]?.slug || '');
+  const [model, setModel] = useState<string>(() => {
+    try {
+      if (typeof window !== 'undefined') {
+        const host = window.location.hostname || '';
+        const isLocal =
+          host === 'localhost' ||
+          host === '127.0.0.1' ||
+          host.endsWith('.local') ||
+          /^192\.168\./.test(host) ||
+          /^10\./.test(host) ||
+          /^172\.(1[6-9]|2\d|3[0-1])\./.test(host);
+        const isTesting = host === 'ci.hub-evolution.com';
+        const list = (isLocal || isTesting)
+          ? ALLOWED_MODELS.filter((m) => (m as any).provider === 'workers_ai')
+          : ALLOWED_MODELS;
+        return list[0]?.slug || ALLOWED_MODELS[0]?.slug || '';
+      }
+    } catch {}
+    return ALLOWED_MODELS[0]?.slug || '';
+  });
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [resultUrl, setResultUrl] = useState<string | null>(null);
@@ -132,6 +151,34 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
 
   // Resolve selected model to access capability flags
   const selectedModel = useMemo(() => ALLOWED_MODELS.find((m) => m.slug === model), [model]);
+  // Visible models per environment (Localhost/Testing: CF only)
+  const visibleModels = useMemo(() => {
+    try {
+      if (typeof window !== 'undefined') {
+        const host = window.location.hostname || '';
+        const isLocal =
+          host === 'localhost' ||
+          host === '127.0.0.1' ||
+          host.endsWith('.local') ||
+          /^192\.168\./.test(host) ||
+          /^10\./.test(host) ||
+          /^172\.(1[6-9]|2\d|3[0-1])\./.test(host);
+        const isTesting = host === 'ci.hub-evolution.com';
+        if (isLocal || isTesting) {
+          return ALLOWED_MODELS.filter((m) => (m as any).provider === 'workers_ai');
+        }
+      }
+    } catch {}
+    return ALLOWED_MODELS;
+  }, []);
+
+  // Auto-switch to first visible model if current selection is not allowed in this env
+  useEffect(() => {
+    if (!visibleModels.some((m) => m.slug === model)) {
+      const next = visibleModels[0]?.slug;
+      if (next) setModel(next);
+    }
+  }, [visibleModels, model]);
   // Feature flag to guard plan-aware UI gating
   const gatingEnabled = import.meta.env.PUBLIC_ENHANCER_PLAN_GATING_V1 === '1';
   // Feature flag for Credits CTA: enabled in development by default, opt-in in production via PUBLIC_ENABLE_CREDITS_CTA=1
@@ -737,8 +784,17 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
   }, [resultUrl, showModelControls, settingsDirty]);
 
   const pricingHref = useMemo(() => {
-    const path = typeof window !== 'undefined' ? window.location.pathname : '';
-    return path.startsWith('/en/') ? '/en/pricing' : '/pricing';
+    try {
+      if (typeof window !== 'undefined') {
+        const current = window.location.pathname + window.location.search;
+        const isEn = window.location.pathname.startsWith('/en/');
+        const base = isEn ? '/en/pricing' : '/pricing';
+        const u = new URL(base, window.location.origin);
+        u.searchParams.set('return_to', current);
+        return u.pathname + u.search;
+      }
+    } catch {}
+    return '/pricing';
   }, []);
 
   // Buy Credits (in-app) — simple CTA when quota exceeded
@@ -955,7 +1011,7 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
             <EnhancerActions
               modelLabel={modelLabel}
               model={model}
-              models={ALLOWED_MODELS}
+              models={visibleModels}
               onChangeModel={(v) => setModel(v)}
               modelControlsSlot={
                 <div className="flex flex-wrap items-center gap-x-2 gap-y-2 sm:gap-x-3 sm:gap-y-2 min-w-0">
@@ -981,7 +1037,7 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
                         onChange={(e) => setModel(e.target.value)}
                         className="w-full sm:w-auto sm:min-w-[200px] rounded-md border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 text-sm"
                       >
-                        {ALLOWED_MODELS.map((opt) => (
+                        {visibleModels.map((opt) => (
                           <option key={opt.slug} value={opt.slug}>
                             {opt.label}
                           </option>
@@ -1124,7 +1180,7 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
           labels={helpLabels}
           allowedTypesText={`${strings.allowedTypes}: ${ALLOWED_CONTENT_TYPES.join(', ')}`}
           maxMb={maxMb}
-          modelLabels={ALLOWED_MODELS.map((m) => m.label)}
+          modelLabels={visibleModels.map((m) => m.label)}
           keyboardHint={compareStrings.keyboardHint}
           usage={usage}
           returnFocusRef={helpBtnRef}

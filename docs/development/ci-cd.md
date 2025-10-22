@@ -237,6 +237,7 @@ Loggt Fehlerdetails bei Deployment-Failure.
 - **Browser:** Chromium-only (Caches `~/.cache/ms-playwright`)
 - **Target:** Lokaler Dev-Worker (`http://127.0.0.1:8787`), Fallback in Enhancer-Config identisch
 - **Preflight:** `GET /en/tools/imag-enhancer/app` und `GET /api/ai-image/usage` (Diagnostik)
+- **Workers AI erzwingen (Staging/Local):** Setze `FORCE_CF_MODELS=1`, um bei Smokes ausschließlich die Cloudflare Workers AI Modelle zu verwenden (vermeidet Replicate-Abhängigkeit in Staging/Local).
 - **Spec/Config:** `test-suite-v2/src/e2e/tools/image-enhancer.spec.ts` mit `test-suite-v2/playwright.enhancer.config.ts`
 - **Artefakte:** via `E2E_RECORD` gesteuert (CI default: `0` → Trace nur bei Fail, Screenshots only-on-failure)
 - **Stabilisierung in der Spec:**
@@ -262,6 +263,15 @@ Loggt Fehlerdetails bei Deployment-Failure.
 - **Zweck:** Production Auth-Flow-Test gegen `hub-evolution.com`
 - **Gated:** `E2E_PROD_AUTH_SMOKE=1` + `STYTCH_TEST_EMAIL` erforderlich
 - **Optimierung:** Keine Browser-Installation (Playwright Request API)
+
+#### Production smokes (Health-only)
+
+- **Hinweis:** In Production sind Tool-Flows (z. B. Image Enhancer) durch Turnstile/Anti-Abuse geschützt; automatisierte Generations-Tests sind blockiert.
+- **Empfehlung:** Führe für Production nur Health-Checks aus.
+
+  ```bash
+  npm run health-check -- --url https://hub-evolution.com
+  ```
 
 ---
 

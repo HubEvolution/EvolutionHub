@@ -71,6 +71,21 @@ export async function createAiJob(formData: FormData) {
 
 Hinweis Dev-Fallback: In Entwicklung/Test kann der Service das Originalbild zurückgeben (Echo), wenn Upstream/Token fehlt oder generell in lokalen Dev-/Test-Umgebungen. UI kennzeichnet dies als Demo-Modus (siehe unten).
 
+## Hybrid Provider + Env Gating
+
+- **Providers:**
+  - Workers AI (img2img): `@cf/runwayml/stable-diffusion-v1-5-img2img`, `@cf/stabilityai/stable-diffusion-xl-base-1.0`
+  - Replicate (SR/Face): Real-ESRGAN (2x/4x, new/legacy), CodeFormer, GFPGAN
+- **Workers AI Parameter (UI Controls):**
+  - `strength` (Enhance Amount): 0.1–0.6 (Testing clamp)
+  - `guidance` (Detail Bias): 3–9 (Testing clamp)
+  - `steps` (Advanced): {10, 20, 30} (Testing clamp)
+- **Environment behavior:**
+  - Localhost/Testing: Replicate ist serverseitig gesperrt; UI blendet nur Workers‑AI‑Modelle ein.
+  - Staging/Production: Alle Modelle verfügbar (Workers AI + Replicate).
+  - Staging‑Smokes: `FORCE_CF_MODELS=1` erzwingt Workers‑AI‑Modelle für E2E, um externe Abhängigkeiten zu vermeiden.
+- **API Response Hinweis:** `POST /api/ai-image/generate` kann optional `data.charge` zurückliefern (Breakdown in `total`, `planPortion`, `creditsPortion`).
+
 ## Modell-Fähigkeiten (Capabilities)
 
 - Serverseitig definieren `ALLOWED_MODELS` die Fähigkeiten eines Modells (z. B. `supportsScale`, `supportsFaceEnhance`).

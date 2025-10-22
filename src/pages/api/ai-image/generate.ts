@@ -36,6 +36,11 @@ export const POST = withApiMiddleware(
     let modelSlug: string | null = null;
     let scale: 2 | 4 | undefined;
     let faceEnhance: boolean | undefined;
+    let prompt: string | undefined;
+    let negativePrompt: string | undefined;
+    let strength: number | undefined;
+    let guidance: number | undefined;
+    let steps: number | undefined;
 
     try {
       const form = await request.formData();
@@ -43,6 +48,11 @@ export const POST = withApiMiddleware(
       const m = form.get('model');
       const s = form.get('scale');
       const fe = form.get('face_enhance');
+      const pr = form.get('prompt');
+      const npr = form.get('negative_prompt');
+      const st = form.get('strength');
+      const gd = form.get('guidance');
+      const sp = form.get('steps');
       if (f instanceof File) imageFile = f;
       if (typeof m === 'string') modelSlug = m.trim();
       if (typeof s === 'string') {
@@ -53,6 +63,20 @@ export const POST = withApiMiddleware(
         const v = fe.trim().toLowerCase();
         if (v === 'true' || v === '1' || v === 'on' || v === 'yes') faceEnhance = true;
         else if (v === 'false' || v === '0' || v === 'off' || v === 'no') faceEnhance = false;
+      }
+      if (typeof pr === 'string' && pr.trim()) prompt = pr.trim();
+      if (typeof npr === 'string' && npr.trim()) negativePrompt = npr.trim();
+      if (typeof st === 'string') {
+        const n = Number(st);
+        if (Number.isFinite(n)) strength = n;
+      }
+      if (typeof gd === 'string') {
+        const n = Number(gd);
+        if (Number.isFinite(n)) guidance = n;
+      }
+      if (typeof sp === 'string') {
+        const n = Number(sp);
+        if (Number.isInteger(n)) steps = n;
       }
     } catch (_e) {
       return createApiError('validation_error', 'Ungültige Formulardaten');
@@ -83,6 +107,10 @@ export const POST = withApiMiddleware(
       KV_AI_ENHANCER: env.KV_AI_ENHANCER,
       REPLICATE_API_TOKEN: env.REPLICATE_API_TOKEN,
       ENVIRONMENT: env.ENVIRONMENT,
+      AI: (env as any).AI,
+      WORKERS_AI_ENABLED: (env as any).WORKERS_AI_ENABLED,
+      TESTING_WORKERS_AI_ALLOW: (env as any).TESTING_WORKERS_AI_ALLOW,
+      TESTING_ALLOWED_CF_MODELS: (env as any).TESTING_ALLOWED_CF_MODELS,
     });
 
     const origin = new URL(request.url).origin;
@@ -96,6 +124,11 @@ export const POST = withApiMiddleware(
         requestOrigin: origin,
         scale,
         faceEnhance,
+        prompt,
+        negativePrompt,
+        strength,
+        guidance,
+        steps,
         limitOverride: effectiveLimit,
         monthlyLimitOverride: ent.monthlyImages,
         maxUpscaleOverride: ent.maxUpscale,
@@ -113,6 +146,8 @@ export const POST = withApiMiddleware(
         },
         // expose plan entitlements so the UI can render upgrade hints if desired
         entitlements: ent,
+        // optional charge breakdown for UI visibility and billing reconciliation
+        charge: result.charge ?? undefined,
       });
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unbekannter Fehler';

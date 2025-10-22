@@ -3,6 +3,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import FormLabel from '@/components/ui/FormLabel.astro';
 import Input from '@/components/ui/Input.astro';
 import Button from '@/components/ui/Button.astro';
+import ProfileFormEnhancer from '@/components/scripts/ProfileFormEnhancer';
 import type { Locale } from '@/lib/i18n';
 import { getLocale } from '@/lib/i18n';
 import { getI18n } from '@/utils/i18n';
@@ -15,6 +16,7 @@ function isAllowedRelativePath(p: string): boolean {
 }
 
 const nextSafe = isAllowedRelativePath(nextRaw) ? nextRaw : '/dashboard';
+const formId = 'welcome-profile-form-en';
 const locale: Locale = getLocale(Astro.url.pathname);
 const t = getI18n(locale);
 ---
@@ -35,7 +37,7 @@ const t = getI18n(locale);
       }
     </p>
 
-    <form method="POST" action="/api/user/profile" class="mt-6 space-y-4">
+    <form id={formId} method="POST" action="/api/user/profile" class="mt-6 space-y-4">
       <div>
         <FormLabel for="name">{t('pages.welcomeProfile.fields.name.label') ?? 'Name'}</FormLabel>
         <Input
@@ -64,6 +66,7 @@ const t = getI18n(locale);
         />
       </div>
       <input type="hidden" name="next" value={nextSafe} />
+      <p id={`${formId}-status`} class="hidden text-sm"></p>
       <div class="flex items-center gap-3 pt-2">
         <Button type="submit"
           >{t('pages.welcomeProfile.buttons.saveContinue') ?? 'Save and continue'}</Button
@@ -77,3 +80,5 @@ const t = getI18n(locale);
     </form>
   </section>
 </BaseLayout>
+
+<ProfileFormEnhancer client:load formId={formId} />

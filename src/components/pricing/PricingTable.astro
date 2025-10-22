@@ -36,6 +36,7 @@ const parseLinks = (v: unknown): Record<string, string> => {
 const env = (Astro.locals && Astro.locals.runtime && Astro.locals.runtime.env) || undefined;
 const paymentLinksMonthly = parseLinks(env?.PRICING_LINKS);
 const paymentLinksAnnual = parseLinks(env?.PRICING_LINKS_ANNUAL);
+const ctaBuyEnterprise = t('pages.pricing.table.cta_buy_enterprise') || 'Buy Enterprise';
 
 // Simple sanitizer to avoid showing fallback tokens
 const sanitize = (s: string) => {
@@ -47,6 +48,7 @@ const sanitize = (s: string) => {
 };
 const perMonthLabel = t('pages.pricing.table.per_month');
 const perYearLabel = sanitize(t('pages.pricing.table.per_year')) || 'per year';
+const annualSavings = sanitize(t('pages.pricing.table.annual_savings')) || 'Pay for 10 months';
 
 const plans: Plan[] = [
   {
@@ -81,20 +83,110 @@ const plans: Plan[] = [
 ];
 ---
 
-<div class="mt-6 flex items-center justify-center gap-2">
-  <button
-    id="interval-monthly"
-    class="px-3 py-1.5 text-sm rounded-l-md ring-1 ring-gray-300 dark:ring-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 data-[active='1']:bg-emerald-600 data-[active='1']:text-white"
-    data-active="1"
-    type="button">Monthly</button
-  >
-  <button
-    id="interval-annual"
-    class="px-3 py-1.5 text-sm rounded-r-md ring-1 ring-gray-300 dark:ring-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 data-[active='1']:bg-emerald-600 data-[active='1']:text-white"
-    data-active="0"
-    type="button">Annual</button
-  >
-</div>
+<!-- Interval toggle moved to page header (pricing.astro). Keep IDs the same. -->
+
+<script is:inline nonce={Astro.locals.cspNonce}>
+  (function () {
+    function readCookie(name) {
+      const m = document.cookie.match(new RegExp('(?:^|; )' + name.replace(/[.$?*|{}()\[\]\\/+^]/g, '\\$&') + '=([^;]*)'));
+      return m ? decodeURIComponent(m[1]) : null;
+    }
+    function ensureCsrfToken() {
+      let token = readCookie('csrf_token');
+      if (!token) {
+        try {
+          const buf = new Uint8Array(16);
+          (globalThis.crypto || window.crypto).getRandomValues(buf);
+          token = Array.from(buf).map((b) => b.toString(16).padStart(2, '0')).join('');
+          const attrs = ['Path=/', 'SameSite=Lax', typeof location !== 'undefined' && location.protocol === 'https:' ? 'Secure' : ''].filter(Boolean).join('; ');
+          document.cookie = `csrf_token=${encodeURIComponent(token)}; ${attrs}`;
+        } catch {}
+      }
+      const entBtn = document.getElementById('buy-enterprise-cta');
+      if (entBtn) {
+        if (!entBtn.dataset || !entBtn.dataset.wired) {
+          const monthly = entBtn.getAttribute('data-payment-monthly') || '';
+          const annual = entBtn.getAttribute('data-payment-annual') || '';
+          entBtn.addEventListener('click', async () => {
+            try {
+              await createCheckout('enterprise');
+              return;
+            } catch (_e) {
+              try {
+                const link = pricingInterval === 'annual' ? annual : monthly;
+                if (link && /^https?:\/\//.test(link)) {
+                  console.log('[pricing] fallback to payment link (enterprise, ' + pricingInterval + ')');
+                  window.location.href = link;
+                  return;
+                }
+              } catch {}
+            }
+          });
+          if (entBtn.dataset) entBtn.dataset.wired = '1';
+        }
+        wired = true;
+      }
+      return token || '';
+    }
+    function getWorkspaceId() {
+      try {
+        const url = new URL(window.location.href);
+        const ws = url.searchParams.get('ws');
+        if (ws && ws.trim()) {
+          localStorage.setItem('ws_id', ws);
+          return ws;
+        }
+        const ls = localStorage.getItem('ws_id');
+        if (ls && ls.trim()) return ls;
+      } catch {}
+      return 'default';
+    }
+    async function createCreditsCheckout(pack) {
+      try {
+        const csrf = ensureCsrfToken();
+        const res = await fetch('/api/billing/credits', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
+          credentials: 'include',
+          body: JSON.stringify({ pack, workspaceId: getWorkspaceId(), returnTo: location.pathname + location.search }),
+        });
+        if (res.status === 401) {
+          window.location.href = '/login';
+          return;
+        }
+        if (!res.ok) {
+          const text = await res.text().catch(() => '');
+          alert('Checkout failed: ' + (text || res.status));
+          return;
+        }
+        const data = await res.json().catch(() => ({}));
+        if (data && data.url) {
+          window.location.href = data.url;
+        } else {
+          alert('Checkout failed: Invalid response');
+        }
+      } catch (e) {
+        console.warn('[credits] checkout error', e);
+        alert('Checkout failed');
+      }
+    }
+    function wireCredits() {
+      try {
+        var b100 = document.getElementById('buy-credits-100');
+        var b500 = document.getElementById('buy-credits-500');
+        var b1500 = document.getElementById('buy-credits-1500');
+        if (b100 && !b100.dataset.wired) { b100.addEventListener('click', function(){ createCreditsCheckout(100); }); b100.dataset.wired = '1'; }
+        if (b500 && !b500.dataset.wired) { b500.addEventListener('click', function(){ createCreditsCheckout(500); }); b500.dataset.wired = '1'; }
+        if (b1500 && !b1500.dataset.wired) { b1500.addEventListener('click', function(){ createCreditsCheckout(1500); }); b1500.dataset.wired = '1'; }
+      } catch {}
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', wireCredits, { once: true });
+    } else {
+      wireCredits();
+    }
+  })();
+</script>
 
 <script is:inline nonce={Astro.locals.cspNonce}>
   (function () {
@@ -146,25 +238,19 @@ const plans: Plan[] = [
       } catch {}
       return 'default';
     }
-    function setIntervalButtons() {
+    var explicitReturnTo = (function () {
       try {
-        var m = document.getElementById('interval-monthly');
-        var a = document.getElementById('interval-annual');
-        if (m && a) {
-          if (pricingInterval === 'annual') {
-            m.setAttribute('data-active', '0');
-            a.setAttribute('data-active', '1');
-          } else {
-            m.setAttribute('data-active', '1');
-            a.setAttribute('data-active', '0');
-          }
+        var u = new URL(window.location.href);
+        var r = u.searchParams.get('return_to') || '';
+        if (r && r.charAt(0) === '/' && !/^([a-zA-Z][a-zA-Z0-9+.-]*:|\/\/)/.test(r) && r.length <= 512 && !/\\|\r|\n/.test(r)) {
+          return r;
         }
       } catch {}
-    }
-
+      return '';
+    })();
     async function createCheckout(plan) {
       const csrf = ensureCsrfToken();
-      const body = { plan, workspaceId: getWorkspaceId(), interval: pricingInterval };
+      const body = { plan, workspaceId: getWorkspaceId(), interval: pricingInterval, returnTo: explicitReturnTo || (location.pathname + location.search) };
       const res = await fetch('/api/billing/session', {
         method: 'POST',
         headers: {
@@ -176,18 +262,68 @@ const plans: Plan[] = [
       });
       if (res.status === 401) {
         window.location.href = '/login';
-        return;
+        throw new Error('unauthorized');
       }
       if (!res.ok) {
         const text = await res.text().catch(() => '');
         alert('Checkout failed: ' + (text || res.status));
-        return;
+        throw new Error('checkout_failed');
       }
       const data = await res.json().catch(() => ({}));
       if (data && data.url) {
         window.location.href = data.url;
       } else {
         alert('Checkout failed: Invalid response');
+        throw new Error('invalid_response');
+      }
+    }
+    function setIntervalButtons() {
+      try {
+        var m = document.getElementById('interval-monthly');
+        var a = document.getElementById('interval-annual');
+        if (m && a) {
+          if (pricingInterval === 'annual') {
+            m.setAttribute('data-active', '0');
+            a.setAttribute('data-active', '1');
+            m.setAttribute('aria-pressed', 'false');
+            a.setAttribute('aria-pressed', 'true');
+          } else {
+            m.setAttribute('data-active', '1');
+            a.setAttribute('data-active', '0');
+            m.setAttribute('aria-pressed', 'true');
+            a.setAttribute('aria-pressed', 'false');
+          }
+        }
+      } catch {}
+    }
+
+    async function createCreditsCheckout(pack) {
+      try {
+        const csrf = ensureCsrfToken();
+        const res = await fetch('/api/billing/credits', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
+          credentials: 'include',
+          body: JSON.stringify({ pack, workspaceId: getWorkspaceId(), returnTo: explicitReturnTo || (location.pathname + location.search) }),
+        });
+        if (res.status === 401) {
+          window.location.href = '/login';
+          return;
+        }
+        if (!res.ok) {
+          const text = await res.text().catch(() => '');
+          alert('Checkout failed: ' + (text || res.status));
+          return;
+        }
+        const data = await res.json().catch(() => ({}));
+        if (data && data.url) {
+          window.location.href = data.url;
+        } else {
+          alert('Checkout failed: Invalid response');
+        }
+      } catch (e) {
+        console.warn('[credits] checkout error', e);
+        alert('Checkout failed');
       }
     }
     function wire() {
@@ -213,8 +349,13 @@ const plans: Plan[] = [
           setIntervalButtons();
           var proAmt = document.querySelector('span[data-plan="pro"][data-role="amount"]');
           var proPer = document.querySelector('span[data-plan="pro"][data-role="period"]');
-          var premAmt = document.querySelector('span[data-plan="premium"][data-role="amount"]');
-          var premPer = document.querySelector('span[data-plan="premium"][data-role="period"]');
+          var busAmt = document.querySelector('span[data-plan="premium"][data-role="amount"]');
+          var busPer = document.querySelector('span[data-plan="premium"][data-role="period"]');
+          var entAmt = document.querySelector('span[data-plan="enterprise"][data-role="amount"]');
+          var entPer = document.querySelector('span[data-plan="enterprise"][data-role="period"]');
+          var proBadge = document.querySelector('span[data-plan="pro"][data-role="badge"]');
+          var busBadge = document.querySelector('span[data-plan="premium"][data-role="badge"]');
+          var entBadge = document.querySelector('span[data-plan="enterprise"][data-role="badge"]');
           function applyPrices() {
             try {
               if (proAmt && proPer) {
@@ -225,13 +366,31 @@ const plans: Plan[] = [
                 proAmt.textContent = pricingInterval === 'annual' ? pa || '' : pm || '';
                 proPer.textContent = pricingInterval === 'annual' ? la || '' : lm || '';
               }
-              if (premAmt && premPer) {
-                var pmm = premAmt.getAttribute('data-monthly');
-                var pma = premAmt.getAttribute('data-annual');
-                var lmm = premPer.getAttribute('data-monthly');
-                var laa = premPer.getAttribute('data-annual');
-                premAmt.textContent = pricingInterval === 'annual' ? pma || '' : pmm || '';
-                premPer.textContent = pricingInterval === 'annual' ? laa || '' : lmm || '';
+              if (busAmt && busPer) {
+                var bmm = busAmt.getAttribute('data-monthly');
+                var bma = busAmt.getAttribute('data-annual');
+                var lmm = busPer.getAttribute('data-monthly');
+                var laa = busPer.getAttribute('data-annual');
+                busAmt.textContent = pricingInterval === 'annual' ? bma || '' : bmm || '';
+                busPer.textContent = pricingInterval === 'annual' ? laa || '' : lmm || '';
+              }
+              if (entAmt && entPer) {
+                var emm = entAmt.getAttribute('data-monthly');
+                var ema = entAmt.getAttribute('data-annual');
+                var lem = entPer.getAttribute('data-monthly');
+                var lea = entPer.getAttribute('data-annual');
+                entAmt.textContent = pricingInterval === 'annual' ? ema || '' : emm || '';
+                entPer.textContent = pricingInterval === 'annual' ? lea || '' : lem || '';
+              }
+              var vis = pricingInterval === 'annual' ? '1' : '0';
+              if (proBadge && proBadge.setAttribute) {
+                proBadge.setAttribute('data-visible', vis);
+              }
+              if (busBadge && busBadge.setAttribute) {
+                busBadge.setAttribute('data-visible', vis);
+              }
+              if (entBadge && entBadge.setAttribute) {
+                entBadge.setAttribute('data-visible', vis);
               }
             } catch {}
           }
@@ -246,41 +405,49 @@ const plans: Plan[] = [
           const monthly = proBtn.getAttribute('data-payment-monthly') || '';
           const annual = proBtn.getAttribute('data-payment-annual') || '';
           proBtn.addEventListener('click', () => {
-            try {
-              const link = pricingInterval === 'annual' ? annual : monthly;
-              if (link && /^https?:\/\//.test(link)) {
-                console.log('[pricing] redirecting to payment link (pro, ' + pricingInterval + ')');
-                window.location.href = link;
+            (async () => {
+              try {
+                await createCheckout('pro');
                 return;
+              } catch (_e) {
+                try {
+                  const link = pricingInterval === 'annual' ? annual : monthly;
+                  if (link && /^https?:\/\//.test(link)) {
+                    console.log('[pricing] fallback to payment link (pro, ' + pricingInterval + ')');
+                    window.location.href = link;
+                    return;
+                  }
+                } catch {}
               }
-            } catch {}
-            console.log('[pricing] payment link missing → fallback to server checkout (pro)');
-            createCheckout('pro');
+            })();
           });
           if (proBtn.dataset) proBtn.dataset.wired = '1';
         }
         wired = true;
       }
-      const premiumBtn = document.getElementById('buy-premium-cta');
-      if (premiumBtn) {
-        if (!premiumBtn.dataset || !premiumBtn.dataset.wired) {
-          const monthly = premiumBtn.getAttribute('data-payment-monthly') || '';
-          const annual = premiumBtn.getAttribute('data-payment-annual') || '';
-          premiumBtn.addEventListener('click', () => {
-            try {
-              const link = pricingInterval === 'annual' ? annual : monthly;
-              if (link && /^https?:\/\//.test(link)) {
-                console.log(
-                  '[pricing] redirecting to payment link (premium, ' + pricingInterval + ')'
-                );
-                window.location.href = link;
+      const busBtn = document.getElementById('buy-premium-cta');
+      if (busBtn) {
+        if (!busBtn.dataset || !busBtn.dataset.wired) {
+          const monthly = busBtn.getAttribute('data-payment-monthly') || '';
+          const annual = busBtn.getAttribute('data-payment-annual') || '';
+          busBtn.addEventListener('click', () => {
+            (async () => {
+              try {
+                await createCheckout('premium');
                 return;
+              } catch (_e) {
+                try {
+                  const link = pricingInterval === 'annual' ? annual : monthly;
+                  if (link && /^https?:\/\//.test(link)) {
+                    console.log('[pricing] fallback to payment link (premium, ' + pricingInterval + ')');
+                    window.location.href = link;
+                    return;
+                  }
+                } catch {}
               }
-            } catch {}
-            console.log('[pricing] payment link missing → fallback to server checkout (premium)');
-            createCheckout('premium');
+            })();
           });
-          if (premiumBtn.dataset) premiumBtn.dataset.wired = '1';
+          if (busBtn.dataset) busBtn.dataset.wired = '1';
         }
         wired = true;
       }
@@ -319,7 +486,7 @@ const plans: Plan[] = [
       <AosWrapper
         delay={aosDelayForIndex(idx, { step: 100, max: 300 })}
         class={`relative flex flex-col p-8 rounded-2xl bg-white dark:bg-gray-800 shadow-lg ${
-          plan.featured ? 'ring-2 ring-blue-500 transform md:-translate-y-4' : ''
+          plan.featured ? 'ring-2 ring-blue-500' : ''
         }`}
         data-pro-card={plan.featured ? 'true' : undefined}
       >
@@ -335,25 +502,39 @@ const plans: Plan[] = [
         <div class="mt-6">
           <span
             class="text-4xl font-extrabold"
-            data-plan={idx === 1 ? 'pro' : idx === 2 ? 'premium' : undefined}
+            data-plan={idx === 1 ? 'pro' : idx === 2 ? 'premium' : idx === 3 ? 'enterprise' : undefined}
             data-role="amount"
-            data-monthly={idx === 1 ? '€14.99' : idx === 2 ? '€24.99' : ''}
-            data-annual={idx === 1 ? '€149.90' : idx === 2 ? '€249.90' : ''}
+            data-monthly={idx === 1 ? '€12.00' : idx === 2 ? '€28.00' : idx === 3 ? '€99.00' : ''}
+            data-annual={idx === 1 ? '€120.00' : idx === 2 ? '€280.00' : idx === 3 ? '€990.00' : ''}
           >
             {plan.price}
           </span>
-          {plan.price !== t('pages.pricing.table.free') &&
-            plan.price !== t('pages.pricing.table.custom') && (
+          {
+            // Always render period span for Pro, Premium (Business), and Enterprise so the toggle can update it
+            (idx === 1 || idx === 2 || idx === 3) ? (
               <span
                 class="text-gray-500 dark:text-gray-400"
-                data-plan={idx === 1 ? 'pro' : idx === 2 ? 'premium' : undefined}
+                data-plan={idx === 1 ? 'pro' : idx === 2 ? 'premium' : 'enterprise'}
                 data-role="period"
                 data-monthly={perMonthLabel}
                 data-annual={perYearLabel}
               >
                 {perMonthLabel}
               </span>
-            )}
+            ) : null
+          }
+          {
+            (idx === 1 || idx === 2 || idx === 3) ? (
+              <span
+                class="ml-2 inline-flex items-center text-xs font-medium text-emerald-700 bg-emerald-100 dark:bg-emerald-900/30 dark:text-emerald-300 rounded-full px-2 py-0.5 data-[visible='0']:hidden"
+                data-plan={idx === 1 ? 'pro' : idx === 2 ? 'premium' : 'enterprise'}
+                data-role="badge"
+                data-visible="0"
+              >
+                {annualSavings}
+              </span>
+            ) : null
+          }
         </div>
 
         <ul class="mt-8 space-y-3">
@@ -378,7 +559,7 @@ const plans: Plan[] = [
         </ul>
 
         {
-          // Render buttons for Pro and Premium (checkout), links for Starter (register) and Enterprise (contact)
+          // Render buttons for Pro and Premium (checkout), Starter (register), Enterprise (buy)
           plan.name === t('pages.pricing.table.plans.pro.name') ? (
             <button
               id="buy-pro-cta"
@@ -399,13 +580,19 @@ const plans: Plan[] = [
             >
               {plan.cta}
             </button>
+          ) : plan.name === t('pages.pricing.table.plans.enterprise.name') ? (
+            <button
+              id="buy-enterprise-cta"
+              type="button"
+              data-payment-monthly={paymentLinksMonthly['enterprise']}
+              data-payment-annual={paymentLinksAnnual['enterprise']}
+              class={`mt-8 px-6 py-3 text-center font-medium rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2`}
+            >
+              {ctaBuyEnterprise}
+            </button>
           ) : (
             <a
-              href={
-                plan.name === t('pages.pricing.table.plans.enterprise.name')
-                  ? localizePath(locale, '/kontakt')
-                  : localizePath(locale, '/register')
-              }
+              href={localizePath(locale, '/register')}
               class={`mt-8 px-6 py-3 text-center font-medium rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2`}
             >
               {plan.cta}

@@ -14,7 +14,7 @@ const description = t('pages.pricing.description');
 ---
 
 <BaseLayout title={title} description={description} comingSoon={false}>
-  <main class="min-h-screen bg-gray-50 dark:bg-gray-900 py-16 px-4 sm:px-6 lg:px-8">
+  <main class="min-h-screen bg-gray-50 dark:bg-gray-900 py-10 px-4 sm:px-6 lg:px-8">
     <div class="max-w-7xl mx-auto">
       <div class="text-center">
         <h1
@@ -27,10 +27,71 @@ const description = t('pages.pricing.description');
         </p>
       </div>
 
-      <PricingTable />
-      <FeatureComparison />
+      <nav class="mt-4 flex items-center justify-center gap-6 text-sm text-gray-500 dark:text-gray-400">
+        <a href="#plans" class="hover:text-gray-900 dark:hover:text-gray-200">{t('pages.pricing.sections.plans') || 'Plans'}</a>
+        <span aria-hidden>·</span>
+        <a href="#comparison" class="hover:text-gray-900 dark:hover:text-gray-200">{t('pages.pricing.sections.comparison') || 'Comparison'}</a>
+        <span aria-hidden>·</span>
+        <a href="#faq" class="hover:text-gray-900 dark:hover:text-gray-200">{t('pages.pricing.sections.faq') || 'FAQ'}</a>
+      </nav>
 
-      <div class="mt-16 bg-white dark:bg-gray-800 shadow rounded-lg p-8">
+      
+
+      <div class="mt-8 mx-auto flex items-center justify-center text-center">
+        <div class="inline-flex rounded-full bg-gray-200/50 dark:bg-gray-700/50 p-1 ring-1 ring-gray-300 dark:ring-gray-600 shadow-sm" role="tablist" aria-label="Billing interval">
+          <button
+            id="interval-monthly"
+            class="min-w-[90px] px-3 py-1.5 text-sm rounded-full transition-all duration-150 ease-out scale-95 text-gray-700 dark:text-gray-100 data-[active='1']:bg-emerald-600 data-[active='1']:text-white data-[active='1']:scale-100 data-[active='1']:font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+            data-active="1"
+            aria-pressed="true"
+            type="button">{t('pages.pricing.interval.monthly') || 'Monthly'}</button>
+          <button
+            id="interval-annual"
+            class="min-w-[90px] px-3 py-1.5 text-sm rounded-full transition-all duration-150 ease-out scale-95 text-gray-700 dark:text-gray-100 data-[active='1']:bg-emerald-600 data-[active='1']:text-white data-[active='1']:scale-100 data-[active='1']:font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+            data-active="0"
+            aria-pressed="false"
+            type="button">{t('pages.pricing.interval.annual') || 'Annual'}</button>
+        </div>
+      </div>
+
+      <section id="plans" class="scroll-mt-24 mt-6 md:mt-8">
+        <PricingTable />
+      </section>
+
+      <section class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4" aria-label="Highlights">
+        <div class="rounded-lg bg-white dark:bg-gray-800 shadow p-4">
+          <h3 class="font-semibold text-gray-900 dark:text-white">{t('pages.pricing.highlights.tools_title') || 'All 4 tools included'}</h3>
+          <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">{t('pages.pricing.highlights.tools_desc') || 'Use Imag‑Enhancer, Prompt Enhancer, Voice Transcriptor, Webscraper'}</p>
+        </div>
+        <div class="rounded-lg bg-white dark:bg-gray-800 shadow p-4">
+          <h3 class="font-semibold text-gray-900 dark:text-white">{t('pages.pricing.highlights.commercial_title') || 'Commercial use allowed'}</h3>
+          <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">{t('pages.pricing.highlights.commercial_desc') || 'Pro, Business, and Enterprise include commercial usage rights'}</p>
+        </div>
+        <div class="rounded-lg bg-white dark:bg-gray-800 shadow p-4">
+          <h3 class="font-semibold text-gray-900 dark:text-white">{t('pages.pricing.highlights.credits_title') || 'Monthly credits + daily burst'}</h3>
+          <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">{t('pages.pricing.highlights.credits_desc') || 'Monthly resets with fair daily burst caps'}</p>
+        </div>
+      </section>
+
+      <section id="comparison" class="mt-12 scroll-mt-24">
+        <FeatureComparison />
+      </section>
+
+      <section class="mt-12 bg-white dark:bg-gray-800 shadow rounded-lg p-6">
+        <h2 class="text-xl font-bold text-gray-900 dark:text-white">
+          {t('pages.pricing.credits_explainer.title')}
+        </h2>
+        <p class="mt-2 text-gray-600 dark:text-gray-300">
+          {t('pages.pricing.credits_explainer.intro')}
+        </p>
+        <ul class="mt-4 list-disc pl-6 text-gray-700 dark:text-gray-200 space-y-1">
+          <li>{t('pages.pricing.credits_explainer.bullets.0')}</li>
+          <li>{t('pages.pricing.credits_explainer.bullets.1')}</li>
+          <li>{t('pages.pricing.credits_explainer.bullets.2')}</li>
+        </ul>
+      </section>
+
+      <div id="faq" class="mt-16 bg-white dark:bg-gray-800 shadow rounded-lg p-8 scroll-mt-24">
         <h2 class="text-2xl font-bold mb-4 text-gray-900 dark:text-white">
           {t('pages.pricing.faq.title')}
         </h2>

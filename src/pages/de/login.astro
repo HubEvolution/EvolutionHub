@@ -12,6 +12,10 @@ const locale = getLocale(Astro.url.pathname);
 const t = getI18n(locale);
 const locals = Astro.locals as any;
 
+const magicBanner = Astro.url.searchParams.get('success') === 'magic_sent';
+const magicText =
+  t('pages.auth.magic.success') ?? 'Prüfe deine E‑Mails auf den Anmelde‑Link.';
+
 // Weiterleitungspfad (nur relative Pfade erlauben) für Magic Link Flow
 const rParam = Astro.url.searchParams.get('r') ?? '';
 const safeR =
@@ -34,6 +38,12 @@ if (locals.user) {
     <h1 class="text-2xl font-bold text-center mb-6">
       {t('pages.login.form.heading') ?? 'Melden Sie sich bei Ihrem Konto an'}
     </h1>
+
+    {magicBanner && (
+      <div class="mb-4 rounded-md border border-emerald-200 bg-emerald-50 text-emerald-800 px-4 py-2 text-sm">
+        {magicText}
+      </div>
+    )}
 
     <MagicLinkForm locale={locale} mode="login" r={safeR} />
 

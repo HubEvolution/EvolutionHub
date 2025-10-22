@@ -1,9 +1,1229 @@
 {
   "$schema": "schema.json",
-  "generatedAt": "2025-10-10T07:00:15.027Z",
+  "generatedAt": "2025-10-21T17:09:58.306Z",
   "generatedBy": "scripts/doc-inventory.mjs",
   "sourceRoot": "/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub",
   "documents": [
+    {
+      "path": "._docs-new/api/README.md",
+      "title": "🔌 API Documentation",
+      "format": "markdown",
+      "hash": "bf4691e2afc99e8b283f0180e81d9dd3398a3d485d58f4135d3a1fda4dd6da1a",
+      "size": 6586,
+      "headings": [
+        {
+          "level": 1,
+          "value": "🔌 API Documentation"
+        },
+        {
+          "level": 2,
+          "value": "Übersicht"
+        },
+        {
+          "level": 2,
+          "value": "📚 Hauptthemen"
+        },
+        {
+          "level": 3,
+          "value": "API-Grundlagen"
+        },
+        {
+          "level": 3,
+          "value": "Core APIs"
+        },
+        {
+          "level": 3,
+          "value": "Integration APIs"
+        },
+        {
+          "level": 3,
+          "value": "Spezifikationen"
+        },
+        {
+          "level": 2,
+          "value": "🚀 Schnellstart"
+        },
+        {
+          "level": 3,
+          "value": "Basis-Setup"
+        },
+        {
+          "level": 3,
+          "value": "Häufige Endpunkte"
+        },
+        {
+          "level": 2,
+          "value": "📖 Verwandte Kategorien"
+        },
+        {
+          "level": 2,
+          "value": "🔍 Navigation"
+        },
+        {
+          "level": 3,
+          "value": "Nach API-Typ"
+        },
+        {
+          "level": 3,
+          "value": "Nach Dokument-Typ"
+        },
+        {
+          "level": 2,
+          "value": "📝 Standards"
+        },
+        {
+          "level": 3,
+          "value": "Request/Response-Format"
+        },
+        {
+          "level": 3,
+          "value": "Authentifizierung"
+        },
+        {
+          "level": 1,
+          "value": "Request Magic Link"
+        },
+        {
+          "level": 1,
+          "value": "Callback"
+        },
+        {
+          "level": 3,
+          "value": "Rate-Limiting"
+        },
+        {
+          "level": 2,
+          "value": "🔧 Testing"
+        },
+        {
+          "level": 3,
+          "value": "API-Test-Beispiele"
+        },
+        {
+          "level": 2,
+          "value": "🤝 Contribution"
+        },
+        {
+          "level": 2,
+          "value": "📚 Ressourcen"
+        }
+      ],
+      "lastModified": "2025-10-11T02:06:17.030Z"
+    },
+    {
+      "path": "._docs-new/architecture/README.md",
+      "title": "🏗️ Architecture Documentation",
+      "format": "markdown",
+      "hash": "bf5facc56d5ae5626126d7739045017c2341cdb4ab6702e2bd418e759a0ae93e",
+      "size": 4803,
+      "headings": [
+        {
+          "level": 1,
+          "value": "🏗️ Architecture Documentation"
+        },
+        {
+          "level": 2,
+          "value": "Übersicht"
+        },
+        {
+          "level": 2,
+          "value": "📚 Hauptthemen"
+        },
+        {
+          "level": 3,
+          "value": "System-Architektur"
+        },
+        {
+          "level": 3,
+          "value": "Authentifizierung & Sicherheit"
+        },
+        {
+          "level": 3,
+          "value": "KI & Tools"
+        },
+        {
+          "level": 3,
+          "value": "Architecture Decision Records (ADRs)"
+        },
+        {
+          "level": 2,
+          "value": "🚀 Schnellzugriff"
+        },
+        {
+          "level": 3,
+          "value": "Für Architekten"
+        },
+        {
+          "level": 3,
+          "value": "Für Entwickler"
+        },
+        {
+          "level": 2,
+          "value": "📖 Verwandte Kategorien"
+        },
+        {
+          "level": 2,
+          "value": "🔍 Navigation"
+        },
+        {
+          "level": 3,
+          "value": "Nach Architektur-Bereich"
+        },
+        {
+          "level": 3,
+          "value": "Nach Dokument-Typ"
+        },
+        {
+          "level": 2,
+          "value": "📝 Standards"
+        },
+        {
+          "level": 3,
+          "value": "Dokumentations-Konventionen"
+        },
+        {
+          "level": 3,
+          "value": "ADR-Format"
+        },
+        {
+          "level": 1,
+          "value": "ADR-XXX: [Titel]"
+        },
+        {
+          "level": 2,
+          "value": "Status"
+        },
+        {
+          "level": 2,
+          "value": "Kontext"
+        },
+        {
+          "level": 2,
+          "value": "Entscheidung"
+        },
+        {
+          "level": 2,
+          "value": "Konsequenzen"
+        },
+        {
+          "level": 2,
+          "value": "Alternativen"
+        },
+        {
+          "level": 2,
+          "value": "🤝 Contribution"
+        },
+        {
+          "level": 2,
+          "value": "📚 Ressourcen"
+        }
+      ],
+      "lastModified": "2025-10-11T02:06:17.037Z"
+    },
+    {
+      "path": "._docs-new/development/README.md",
+      "title": "💻 Development Documentation",
+      "format": "markdown",
+      "hash": "03abf8fa99e111460cff65f6396ef7bd1055581f5f330fb1c069afd266efeba3",
+      "size": 6341,
+      "headings": [
+        {
+          "level": 1,
+          "value": "💻 Development Documentation"
+        },
+        {
+          "level": 2,
+          "value": "Übersicht"
+        },
+        {
+          "level": 2,
+          "value": "📚 Hauptthemen"
+        },
+        {
+          "level": 3,
+          "value": "Lokale Entwicklung"
+        },
+        {
+          "level": 3,
+          "value": "CI/CD & Deployment"
+        },
+        {
+          "level": 3,
+          "value": "Third-Party Integrationen"
+        },
+        {
+          "level": 3,
+          "value": "Bugfixes & Features"
+        },
+        {
+          "level": 3,
+          "value": "Tools & Hilfsmittel"
+        },
+        {
+          "level": 2,
+          "value": "🚀 Schnellstart-Guides"
+        },
+        {
+          "level": 3,
+          "value": "Für neue Entwickler"
+        },
+        {
+          "level": 3,
+          "value": "Für erfahrene Entwickler"
+        },
+        {
+          "level": 2,
+          "value": "📖 Verwandte Kategorien"
+        },
+        {
+          "level": 2,
+          "value": "🔍 Navigation"
+        },
+        {
+          "level": 3,
+          "value": "Nach Entwicklungs-Phase"
+        },
+        {
+          "level": 3,
+          "value": "Nach Dokument-Typ"
+        },
+        {
+          "level": 2,
+          "value": "📝 Standards"
+        },
+        {
+          "level": 3,
+          "value": "Code-Standards"
+        },
+        {
+          "level": 3,
+          "value": "Entwicklungs-Workflow"
+        },
+        {
+          "level": 3,
+          "value": "Dokumentations-Standards"
+        },
+        {
+          "level": 2,
+          "value": "🔧 Wichtige Kommandos"
+        },
+        {
+          "level": 3,
+          "value": "Lokale Entwicklung"
+        },
+        {
+          "level": 1,
+          "value": "Zwei-Terminal-Setup"
+        },
+        {
+          "level": 1,
+          "value": "Alternative"
+        },
+        {
+          "level": 3,
+          "value": "Build & Deployment"
+        },
+        {
+          "level": 3,
+          "value": "Testing"
+        },
+        {
+          "level": 3,
+          "value": "Code Quality"
+        },
+        {
+          "level": 2,
+          "value": "🤝 Contribution"
+        },
+        {
+          "level": 2,
+          "value": "📚 Ressourcen"
+        }
+      ],
+      "lastModified": "2025-10-11T02:06:17.037Z"
+    },
+    {
+      "path": "._docs-new/frontend/README.md",
+      "title": "🎨 Frontend Documentation",
+      "format": "markdown",
+      "hash": "edba48b2728d1e54d343a4c4cf03252f6f32de1c22d2650538aa0e8b5b95cddf",
+      "size": 6316,
+      "headings": [
+        {
+          "level": 1,
+          "value": "🎨 Frontend Documentation"
+        },
+        {
+          "level": 2,
+          "value": "Übersicht"
+        },
+        {
+          "level": 2,
+          "value": "📚 Hauptthemen"
+        },
+        {
+          "level": 3,
+          "value": "Design System"
+        },
+        {
+          "level": 3,
+          "value": "Komponenten-Entwicklung"
+        },
+        {
+          "level": 3,
+          "value": "Animationen & Interaktionen"
+        },
+        {
+          "level": 3,
+          "value": "Feature-spezifisches UI"
+        },
+        {
+          "level": 2,
+          "value": "🚀 Schnellstart"
+        },
+        {
+          "level": 3,
+          "value": "Design-System verwenden"
+        },
+        {
+          "level": 2,
+          "value": "📖 Verwandte Kategorien"
+        },
+        {
+          "level": 2,
+          "value": "🔍 Navigation"
+        },
+        {
+          "level": 3,
+          "value": "Nach UI-Bereich"
+        },
+        {
+          "level": 3,
+          "value": "Nach Dokument-Typ"
+        },
+        {
+          "level": 2,
+          "value": "📝 Standards"
+        },
+        {
+          "level": 3,
+          "value": "Design-Prinzipien"
+        },
+        {
+          "level": 3,
+          "value": "Komponenten-Standards"
+        },
+        {
+          "level": 2,
+          "value": "🔧 Entwicklungstools"
+        },
+        {
+          "level": 3,
+          "value": "Design-Tools"
+        },
+        {
+          "level": 3,
+          "value": "Entwicklungs-Workflow"
+        },
+        {
+          "level": 1,
+          "value": "Frontend-Entwicklung"
+        },
+        {
+          "level": 1,
+          "value": "UI-Entwicklung"
+        },
+        {
+          "level": 1,
+          "value": "Quality-Checks"
+        },
+        {
+          "level": 2,
+          "value": "🤝 Contribution"
+        },
+        {
+          "level": 2,
+          "value": "📚 Ressourcen"
+        }
+      ],
+      "lastModified": "2025-10-11T02:06:17.037Z"
+    },
+    {
+      "path": "._docs-new/guides/README.md",
+      "title": "📋 Guides & Tutorials",
+      "format": "markdown",
+      "hash": "c0d07fb534b3d32a835db293cc3767421142c886d2d380aeb6a49e5d6769798d",
+      "size": 5675,
+      "headings": [
+        {
+          "level": 1,
+          "value": "📋 Guides & Tutorials"
+        },
+        {
+          "level": 2,
+          "value": "Übersicht"
+        },
+        {
+          "level": 2,
+          "value": "📚 Hauptthemen"
+        },
+        {
+          "level": 3,
+          "value": "Setup & Installation"
+        },
+        {
+          "level": 3,
+          "value": "Development Workflows"
+        },
+        {
+          "level": 3,
+          "value": "Testing & Quality"
+        },
+        {
+          "level": 3,
+          "value": "Troubleshooting"
+        },
+        {
+          "level": 2,
+          "value": "🚀 Schnellstart-Guides"
+        },
+        {
+          "level": 3,
+          "value": "Neue Entwickler"
+        },
+        {
+          "level": 3,
+          "value": "Erfahrene Entwickler"
+        },
+        {
+          "level": 2,
+          "value": "📖 Verwandte Kategorien"
+        },
+        {
+          "level": 2,
+          "value": "🔍 Navigation"
+        },
+        {
+          "level": 3,
+          "value": "Nach Zielgruppe"
+        },
+        {
+          "level": 3,
+          "value": "Nach Dokument-Typ"
+        },
+        {
+          "level": 2,
+          "value": "📝 Standards"
+        },
+        {
+          "level": 3,
+          "value": "Guide-Format"
+        },
+        {
+          "level": 1,
+          "value": "[Guide-Titel]"
+        },
+        {
+          "level": 2,
+          "value": "Übersicht"
+        },
+        {
+          "level": 2,
+          "value": "Voraussetzungen"
+        },
+        {
+          "level": 2,
+          "value": "Schritt-für-Schritt-Anleitung"
+        },
+        {
+          "level": 3,
+          "value": "Schritt 1: [Titel]"
+        },
+        {
+          "level": 3,
+          "value": "Schritt 2: [Titel]"
+        },
+        {
+          "level": 2,
+          "value": "Verifikation"
+        },
+        {
+          "level": 2,
+          "value": "Troubleshooting"
+        },
+        {
+          "level": 2,
+          "value": "Nächste Schritte"
+        },
+        {
+          "level": 3,
+          "value": "Code-Beispiele"
+        },
+        {
+          "level": 1,
+          "value": "Terminal-Befehle"
+        },
+        {
+          "level": 1,
+          "value": "Erwartete Ausgabe:"
+        },
+        {
+          "level": 1,
+          "value": "✓ Database setup completed"
+        },
+        {
+          "level": 1,
+          "value": "✓ Migrations applied"
+        },
+        {
+          "level": 1,
+          "value": "✓ Development server ready"
+        },
+        {
+          "level": 2,
+          "value": "🔧 Praktische Tools"
+        },
+        {
+          "level": 3,
+          "value": "Checklisten"
+        },
+        {
+          "level": 3,
+          "value": "Templates"
+        },
+        {
+          "level": 2,
+          "value": "🤝 Contribution"
+        },
+        {
+          "level": 2,
+          "value": "📚 Ressourcen"
+        }
+      ],
+      "lastModified": "2025-10-11T02:06:17.038Z"
+    },
+    {
+      "path": "._docs-new/operations/README.md",
+      "title": "⚙️ Operations Documentation",
+      "format": "markdown",
+      "hash": "11886503ed4c5cacc676a0f21b72d220083cb53b5d8a209f8ece12a267404771",
+      "size": 6822,
+      "headings": [
+        {
+          "level": 1,
+          "value": "⚙️ Operations Documentation"
+        },
+        {
+          "level": 2,
+          "value": "Übersicht"
+        },
+        {
+          "level": 2,
+          "value": "📚 Hauptthemen"
+        },
+        {
+          "level": 3,
+          "value": "Deployment & Release-Management"
+        },
+        {
+          "level": 3,
+          "value": "Monitoring & Observability"
+        },
+        {
+          "level": 3,
+          "value": "Incident-Response"
+        },
+        {
+          "level": 3,
+          "value": "Infrastruktur-Management"
+        },
+        {
+          "level": 2,
+          "value": "🚀 Schnellstart"
+        },
+        {
+          "level": 3,
+          "value": "Deployment durchführen"
+        },
+        {
+          "level": 1,
+          "value": "Staging-Deployment"
+        },
+        {
+          "level": 1,
+          "value": "Production-Deployment (nach erfolgreichem Staging)"
+        },
+        {
+          "level": 1,
+          "value": "Rollback auf vorherige Version"
+        },
+        {
+          "level": 3,
+          "value": "Monitoring prüfen"
+        },
+        {
+          "level": 1,
+          "value": "Erwartete Response:"
+        },
+        {
+          "level": 1,
+          "value": "{\"success\": true, \"data\": {\"status\": \"healthy\"}}"
+        },
+        {
+          "level": 1,
+          "value": "Cloudflare Workers Logs"
+        },
+        {
+          "level": 1,
+          "value": "Datenbank-Status"
+        },
+        {
+          "level": 2,
+          "value": "📖 Verwandte Kategorien"
+        },
+        {
+          "level": 2,
+          "value": "🔍 Navigation"
+        },
+        {
+          "level": 3,
+          "value": "Nach Operations-Bereich"
+        },
+        {
+          "level": 3,
+          "value": "Nach Dokument-Typ"
+        },
+        {
+          "level": 2,
+          "value": "📝 Standards"
+        },
+        {
+          "level": 3,
+          "value": "Deployment-Standards"
+        },
+        {
+          "level": 3,
+          "value": "Monitoring-Standards"
+        },
+        {
+          "level": 3,
+          "value": "Incident-Response-Standards"
+        },
+        {
+          "level": 2,
+          "value": "🔧 Operative Tools"
+        },
+        {
+          "level": 3,
+          "value": "Monitoring-Tools"
+        },
+        {
+          "level": 3,
+          "value": "Deployment-Tools"
+        },
+        {
+          "level": 3,
+          "value": "Incident-Tools"
+        },
+        {
+          "level": 2,
+          "value": "🤝 Contribution"
+        },
+        {
+          "level": 2,
+          "value": "📚 Ressourcen"
+        }
+      ],
+      "lastModified": "2025-10-11T02:06:17.039Z"
+    },
+    {
+      "path": "._docs-new/security/README.md",
+      "title": "🔒 Security Documentation",
+      "format": "markdown",
+      "hash": "bddacbebd0285e2613987064add5bce68bbeb67ff77ad2a0ace1135a70a8d252",
+      "size": 6643,
+      "headings": [
+        {
+          "level": 1,
+          "value": "🔒 Security Documentation"
+        },
+        {
+          "level": 2,
+          "value": "Übersicht"
+        },
+        {
+          "level": 2,
+          "value": "📚 Hauptthemen"
+        },
+        {
+          "level": 3,
+          "value": "Sicherheits-Übersicht"
+        },
+        {
+          "level": 3,
+          "value": "Rate-Limiting"
+        },
+        {
+          "level": 3,
+          "value": "Security-Headers"
+        },
+        {
+          "level": 3,
+          "value": "Audit & Logging"
+        },
+        {
+          "level": 3,
+          "value": "Input-Validierung"
+        },
+        {
+          "level": 2,
+          "value": "🚀 Schnellstart"
+        },
+        {
+          "level": 3,
+          "value": "Security-Header-Prüfung"
+        },
+        {
+          "level": 1,
+          "value": "Erwartete Header:"
+        },
+        {
+          "level": 1,
+          "value": "content-security-policy: default-src 'self'; ..."
+        },
+        {
+          "level": 1,
+          "value": "strict-transport-security: max-age=31536000; includeSubDomains; preload"
+        },
+        {
+          "level": 1,
+          "value": "x-frame-options: DENY"
+        },
+        {
+          "level": 1,
+          "value": "x-content-type-options: nosniff"
+        },
+        {
+          "level": 1,
+          "value": "referrer-policy: strict-origin-when-cross-origin"
+        },
+        {
+          "level": 3,
+          "value": "Rate-Limiting-Test"
+        },
+        {
+          "level": 1,
+          "value": "Mehrere Anfragen senden"
+        },
+        {
+          "level": 1,
+          "value": "429 Response nach Limit-Überschreitung erwarten"
+        },
+        {
+          "level": 2,
+          "value": "📖 Verwandte Kategorien"
+        },
+        {
+          "level": 2,
+          "value": "🔍 Navigation"
+        },
+        {
+          "level": 3,
+          "value": "Nach Sicherheits-Bereich"
+        },
+        {
+          "level": 3,
+          "value": "Nach Dokument-Typ"
+        },
+        {
+          "level": 2,
+          "value": "📝 Standards"
+        },
+        {
+          "level": 3,
+          "value": "Security-Header-Standards"
+        },
+        {
+          "level": 3,
+          "value": "Rate-Limiting-Standards"
+        },
+        {
+          "level": 3,
+          "value": "Audit-Logging-Standards"
+        },
+        {
+          "level": 2,
+          "value": "🔧 Security-Testing"
+        },
+        {
+          "level": 3,
+          "value": "Penetration-Testing-Checklist"
+        },
+        {
+          "level": 3,
+          "value": "Security-Test-Tools"
+        },
+        {
+          "level": 1,
+          "value": "Security-Scanning-Tools"
+        },
+        {
+          "level": 1,
+          "value": "OWASP ZAP                        # Web-App-Security-Scanner"
+        },
+        {
+          "level": 1,
+          "value": "Burp Suite                       # Penetration-Testing-Tool"
+        },
+        {
+          "level": 1,
+          "value": "sqlmap                           # SQL-Injection-Tests"
+        },
+        {
+          "level": 2,
+          "value": "🤝 Contribution"
+        },
+        {
+          "level": 2,
+          "value": "📚 Ressourcen"
+        }
+      ],
+      "lastModified": "2025-10-11T02:06:17.040Z"
+    },
+    {
+      "path": "._docs-new/templates/README.md",
+      "title": "📋 Dokumentations-Templates",
+      "format": "markdown",
+      "hash": "1dfc77241d21872dc278e6bf97fc45e15f97c2cf61a11115ceb380c485584ba5",
+      "size": 4611,
+      "headings": [
+        {
+          "level": 1,
+          "value": "📋 Dokumentations-Templates"
+        },
+        {
+          "level": 2,
+          "value": "Übersicht"
+        },
+        {
+          "level": 2,
+          "value": "📚 Template-Kategorien"
+        },
+        {
+          "level": 3,
+          "value": "Dokumentationstypen"
+        },
+        {
+          "level": 3,
+          "value": "Spezialisierte Templates"
+        },
+        {
+          "level": 2,
+          "value": "🚀 Schnellstart"
+        },
+        {
+          "level": 3,
+          "value": "Neues Dokument erstellen"
+        },
+        {
+          "level": 3,
+          "value": "Template-Struktur"
+        },
+        {
+          "level": 1,
+          "value": "[Dokument-Titel]"
+        },
+        {
+          "level": 2,
+          "value": "Übersicht"
+        },
+        {
+          "level": 2,
+          "value": "[Hauptabschnitt 1]"
+        },
+        {
+          "level": 3,
+          "value": "[Unterabschnitt 1.1]"
+        },
+        {
+          "level": 3,
+          "value": "[Unterabschnitt 1.2]"
+        },
+        {
+          "level": 2,
+          "value": "[Hauptabschnitt 2]"
+        },
+        {
+          "level": 2,
+          "value": "Beispiele"
+        },
+        {
+          "level": 2,
+          "value": "Troubleshooting"
+        },
+        {
+          "level": 2,
+          "value": "Verwandte Dokumentation"
+        },
+        {
+          "level": 2,
+          "value": "📖 Template-Details"
+        },
+        {
+          "level": 3,
+          "value": "Standard-Dokument-Template"
+        },
+        {
+          "level": 3,
+          "value": "API-Dokument-Template"
+        },
+        {
+          "level": 3,
+          "value": "Architektur-Dokument-Template"
+        },
+        {
+          "level": 2,
+          "value": "🔧 Anpassungsrichtlinien"
+        },
+        {
+          "level": 3,
+          "value": "Dokument-Metadaten"
+        },
+        {
+          "level": 3,
+          "value": "Code-Beispiele"
+        },
+        {
+          "level": 1,
+          "value": "Terminal-Befehle"
+        },
+        {
+          "level": 3,
+          "value": "Cross-Referenzen"
+        },
+        {
+          "level": 2,
+          "value": "🤝 Contribution"
+        },
+        {
+          "level": 2,
+          "value": "📚 Ressourcen"
+        }
+      ],
+      "lastModified": "2025-10-11T02:06:17.041Z"
+    },
+    {
+      "path": "._docs-new/testing/README.md",
+      "title": "🧪 Testing Documentation",
+      "format": "markdown",
+      "hash": "ded3fb0dc23a2507cda15679fc04a52cf22024af7d7a59d9d00bcfb2e8758cb8",
+      "size": 7041,
+      "headings": [
+        {
+          "level": 1,
+          "value": "🧪 Testing Documentation"
+        },
+        {
+          "level": 2,
+          "value": "Übersicht"
+        },
+        {
+          "level": 2,
+          "value": "📚 Hauptthemen"
+        },
+        {
+          "level": 3,
+          "value": "Test-Strategie"
+        },
+        {
+          "level": 3,
+          "value": "Unit-Tests (Vitest)"
+        },
+        {
+          "level": 3,
+          "value": "Integration-Tests"
+        },
+        {
+          "level": 3,
+          "value": "End-to-End-Tests (Playwright)"
+        },
+        {
+          "level": 3,
+          "value": "Test-Infrastruktur"
+        },
+        {
+          "level": 2,
+          "value": "🚀 Schnellstart"
+        },
+        {
+          "level": 3,
+          "value": "Test-Ausführung"
+        },
+        {
+          "level": 1,
+          "value": "Unit-Tests"
+        },
+        {
+          "level": 1,
+          "value": "E2E-Tests"
+        },
+        {
+          "level": 1,
+          "value": "Spezifische Tests"
+        },
+        {
+          "level": 3,
+          "value": "Test-Struktur"
+        },
+        {
+          "level": 2,
+          "value": "📖 Verwandte Kategorien"
+        },
+        {
+          "level": 2,
+          "value": "🔍 Navigation"
+        },
+        {
+          "level": 3,
+          "value": "Nach Test-Typ"
+        },
+        {
+          "level": 3,
+          "value": "Nach Feature-Bereich"
+        },
+        {
+          "level": 2,
+          "value": "📝 Standards"
+        },
+        {
+          "level": 3,
+          "value": "Test-Organisation"
+        },
+        {
+          "level": 3,
+          "value": "Test-Fixtures"
+        },
+        {
+          "level": 3,
+          "value": "Coverage-Anforderungen"
+        },
+        {
+          "level": 2,
+          "value": "🔧 Test-Utilities"
+        },
+        {
+          "level": 3,
+          "value": "Auth-Helpers"
+        },
+        {
+          "level": 3,
+          "value": "API-Test-Helpers"
+        },
+        {
+          "level": 2,
+          "value": "🤝 Contribution"
+        },
+        {
+          "level": 2,
+          "value": "📚 Ressourcen"
+        }
+      ],
+      "lastModified": "2025-10-11T02:06:17.041Z"
+    },
+    {
+      "path": "._docs-new/tools/README.md",
+      "title": "🛠️ Tools Documentation",
+      "format": "markdown",
+      "hash": "7b249266b9b2c45e85f36f9d0c56755fa5108b73da5a20db494ac407c8c215d9",
+      "size": 6139,
+      "headings": [
+        {
+          "level": 1,
+          "value": "🛠️ Tools Documentation"
+        },
+        {
+          "level": 2,
+          "value": "Übersicht"
+        },
+        {
+          "level": 2,
+          "value": "📚 Hauptthemen"
+        },
+        {
+          "level": 3,
+          "value": "KI-Tools"
+        },
+        {
+          "level": 3,
+          "value": "Web-Scraping"
+        },
+        {
+          "level": 3,
+          "value": "Business-Features"
+        },
+        {
+          "level": 2,
+          "value": "🚀 Schnellstart"
+        },
+        {
+          "level": 3,
+          "value": "KI-Tools verwenden"
+        },
+        {
+          "level": 3,
+          "value": "Web-Scraping verwenden"
+        },
+        {
+          "level": 2,
+          "value": "📖 Verwandte Kategorien"
+        },
+        {
+          "level": 2,
+          "value": "🔍 Navigation"
+        },
+        {
+          "level": 3,
+          "value": "Nach Tool-Typ"
+        },
+        {
+          "level": 3,
+          "value": "Nach Dokument-Typ"
+        },
+        {
+          "level": 2,
+          "value": "📝 Standards"
+        },
+        {
+          "level": 3,
+          "value": "Tool-Architektur"
+        },
+        {
+          "level": 3,
+          "value": "API-Standards für Tools"
+        },
+        {
+          "level": 2,
+          "value": "🔧 Tool-Konfiguration"
+        },
+        {
+          "level": 3,
+          "value": "KI-Tool-Konfiguration"
+        },
+        {
+          "level": 3,
+          "value": "Web-Scraping-Konfiguration"
+        },
+        {
+          "level": 2,
+          "value": "🤝 Contribution"
+        },
+        {
+          "level": 2,
+          "value": "📚 Ressourcen"
+        }
+      ],
+      "lastModified": "2025-10-11T02:06:17.041Z"
+    },
     {
       "path": ".backups/2025-10-02/CONTRIBUTING.md",
       "title": "Beitrag leisten",
@@ -263,83 +1483,511 @@
         "model": "sonnet",
         "color": "purple"
       },
-      "lastModified": "2025-10-05T05:28:37.675Z"
+      "lastModified": "2025-10-11T02:06:17.041Z"
     },
     {
-      "path": ".kilocode/KiloCode_PRIVATE_FRONTEND_AUDIT.md",
-      "title": "Kilo Code — Private Frontend Audit (Nur für Kilo Code)",
+      "path": ".github/ISSUE_TEMPLATE/bug_report.md",
+      "description": "**Describe the bug** **Steps to reproduce** **Expected behavior** **Environment (browser/OS)** **Logs / Screenshots**",
       "format": "markdown",
-      "hash": "37ae2b017b7471b3dde9bac43c1efc766e0ff16fac073672708e2c7d27aed07b",
-      "size": 7176,
+      "hash": "cd353ed0c10b3421ace3982dd598d7b856138fef5b27c9acc44339b88af77141",
+      "size": 198,
+      "headings": [],
+      "frontMatter": {
+        "name": "Bug report",
+        "about": "Help us improve by reporting a bug",
+        "labels": "bug"
+      },
+      "lastModified": "2025-10-14T15:32:05.356Z"
+    },
+    {
+      "path": ".github/ISSUE_TEMPLATE/feature_request.md",
+      "description": "**Problem / Use case** **Proposed solution** **Alternatives considered** **Additional context**",
+      "format": "markdown",
+      "hash": "4b9b6004184c2dac2a967b375244f05d032b8ae9b7a0a5534eef5710cd42a589",
+      "size": 187,
+      "headings": [],
+      "frontMatter": {
+        "name": "Feature request",
+        "about": "Suggest an idea for this project",
+        "labels": "enhancement"
+      },
+      "lastModified": "2025-10-14T15:32:05.356Z"
+    },
+    {
+      "path": ".github/PULL_REQUEST_TEMPLATE.md",
+      "title": "Summary",
+      "format": "markdown",
+      "hash": "21e0c57f13dae23e1ba6a56f9cd28511eb3e14c2c8b2c6a17c26eadf5b6c33da",
+      "size": 218,
+      "headings": [
+        {
+          "level": 2,
+          "value": "Summary"
+        },
+        {
+          "level": 2,
+          "value": "Checklist"
+        },
+        {
+          "level": 2,
+          "value": "Related"
+        }
+      ],
+      "lastModified": "2025-10-14T15:32:05.357Z"
+    },
+    {
+      "path": ".github/SECURITY.md",
+      "title": "Security Policy",
+      "format": "markdown",
+      "hash": "ac890435e1e15910acefa1ba44059b5365ec5d61e92674ffbcc4fac05007315d",
+      "size": 320,
       "headings": [
         {
           "level": 1,
-          "value": "Kilo Code — Private Frontend Audit (Nur für Kilo Code)"
+          "value": "Security Policy"
         },
         {
           "level": 2,
-          "value": "Kurzbewertung"
+          "value": "Supported Versions"
         },
         {
           "level": 2,
-          "value": "Wichtigste Quellen (zur Nachvollziehbarkeit)"
+          "value": "Reporting a Vulnerability"
+        }
+      ],
+      "lastModified": "2025-10-14T15:32:05.357Z"
+    },
+    {
+      "path": ".kilocode/README.md",
+      "title": "KiloCode MCP Configuration and Secrets Policy",
+      "format": "markdown",
+      "hash": "dbdd481d90c27bfbd1812dcccf1b36066b2ca9801f008e95d6eeeca4cda150e5",
+      "size": 1338,
+      "headings": [
+        {
+          "level": 1,
+          "value": "KiloCode MCP Configuration and Secrets Policy"
         },
         {
           "level": 2,
-          "value": "Inventar (Kurz)"
+          "value": "Stripe MCP Server — Do NOT Commit Secrets"
         },
         {
           "level": 2,
-          "value": "Zentrale Zusammenhänge / Abhängigkeiten (risikorelevant)"
+          "value": "Local Safety Checks"
         },
         {
           "level": 2,
-          "value": "Konkrete Findings (kritisch / hochprioritär)"
+          "value": "Playwright in Git Hooks"
         },
         {
           "level": 2,
-          "value": "REPORTING FORMAT (erforderlich)"
+          "value": "Contact"
         },
         {
           "level": 2,
-          "value": "Priorisierte To‑Do-Liste (konkret)"
+          "value": "Sync (auto)"
+        },
+        {
+          "level": 1,
+          "value": "deltas/naming/interfaces/pfade für dieses Kilocode-Modul"
+        }
+      ],
+      "lastModified": "2025-10-15T12:59:32.539Z"
+    },
+    {
+      "path": ".kilocode/rules/template_arbeitsbereich_regeln.md",
+      "title": "test.md",
+      "format": "markdown",
+      "hash": "41ab293a5b47e81ad89fffcf4d56384beb67d9b3e8e6c8a6e6c208a089490d14",
+      "size": 317,
+      "headings": [
+        {
+          "level": 1,
+          "value": "test.md"
         },
         {
           "level": 2,
-          "value": "Konkrete Kommandos (für Verifikation)"
+          "value": "Richtlinien"
         },
         {
           "level": 2,
-          "value": "Abschließendes Urteil"
+          "value": "Sync (auto)"
+        },
+        {
+          "level": 1,
+          "value": "(auto-managed)"
+        },
+        {
+          "level": 1,
+          "value": "Inhalte werden vom Workflow geschrieben:"
+        },
+        {
+          "level": 1,
+          "value": "- Contract-Deltas (Signaturen, Interfaces)"
+        },
+        {
+          "level": 1,
+          "value": "- Paths (modul-/dateipfade)"
+        },
+        {
+          "level": 1,
+          "value": "- Naming/Umbenennungen"
+        }
+      ],
+      "lastModified": "2025-10-15T12:59:32.539Z"
+    },
+    {
+      "path": ".kilocode/rules/validated_global_rules.md",
+      "title": "Validierte Globale Regeln für Evolution Hub",
+      "format": "markdown",
+      "hash": "30c9f6ec8f6a4ff5f7bf4f4981142d3168398162de47759e3af92dc2d18da7db",
+      "size": 7561,
+      "headings": [
+        {
+          "level": 1,
+          "value": "Validierte Globale Regeln für Evolution Hub"
         },
         {
           "level": 2,
+          "value": "Übersicht"
+        },
+        {
+          "level": 2,
+          "value": "Aktuelle Tech-Stack-Analyse"
+        },
+        {
+          "level": 2,
+          "value": "Testing-Workflows (Validiert gegen GitHub Actions)"
+        },
+        {
+          "level": 3,
+          "value": "Unit Tests - Vitest"
+        },
+        {
+          "level": 1,
+          "value": "Aus .github/workflows/unit-tests.yml"
+        },
+        {
+          "level": 3,
+          "value": "E2E Tests - Playwright"
+        },
+        {
+          "level": 1,
+          "value": "Aus .github/workflows/unit-tests.yml"
+        },
+        {
+          "level": 3,
+          "value": "Prompt Enhancer Tests"
+        },
+        {
+          "level": 1,
+          "value": "Aus .github/workflows/unit-tests.yml"
+        },
+        {
+          "level": 2,
+          "value": "CI/CD-Pipeline (Validiert gegen Deploy Workflow)"
+        },
+        {
+          "level": 3,
+          "value": "Pre-Deploy Gates"
+        },
+        {
+          "level": 1,
+          "value": "Aus .github/workflows/deploy.yml"
+        },
+        {
+          "level": 3,
+          "value": "Deployment-Flow"
+        },
+        {
+          "level": 1,
+          "value": "Aus .github/workflows/deploy.yml"
+        },
+        {
+          "level": 2,
+          "value": "Code-Standards (Validiert gegen tsconfig.json)"
+        },
+        {
+          "level": 3,
+          "value": "TypeScript-Konfiguration"
+        },
+        {
+          "level": 2,
+          "value": "Testing Best Practices (Validiert gegen bestehende Tests)"
+        },
+        {
+          "level": 3,
+          "value": "Unit Test Struktur"
+        },
+        {
+          "level": 3,
+          "value": "E2E Test Struktur"
+        },
+        {
+          "level": 3,
+          "value": "Test-Utilities (Validiert)"
+        },
+        {
+          "level": 2,
+          "value": "Performance-Standards (Validiert gegen bestehende Konfiguration)"
+        },
+        {
+          "level": 3,
+          "value": "Build-Optimierung"
+        },
+        {
+          "level": 3,
+          "value": "Cloudflare Workers Optimierung"
+        },
+        {
+          "level": 2,
+          "value": "Sicherheit (Validiert gegen bestehende Middleware)"
+        },
+        {
+          "level": 3,
+          "value": "Rate Limiting"
+        },
+        {
+          "level": 3,
+          "value": "Security Headers"
+        },
+        {
+          "level": 2,
+          "value": "Dokumentation (Validiert gegen docs/)"
+        },
+        {
+          "level": 3,
+          "value": "Dokumentations-Struktur"
+        },
+        {
+          "level": 3,
+          "value": "Quality Gates für Dokumentation"
+        },
+        {
+          "level": 2,
+          "value": "Migration zu Optimierten Regeln"
+        },
+        {
+          "level": 3,
+          "value": "Schritt-für-Schritt-Plan"
+        },
+        {
+          "level": 3,
           "value": "Nächste Schritte"
         },
         {
           "level": 2,
-          "value": "Referenzen (wichtig)"
+          "value": "Fazit"
         }
       ],
-      "lastModified": "2025-08-30T22:23:59.337Z"
+      "lastModified": "2025-10-11T02:06:17.045Z"
     },
     {
-      "path": ".kilocode/workflows/git-cloudflare-deploy-dev.md",
-      "title": "git-cloudflare-deploy-dev.md",
+      "path": ".kilocode/rules/validated_workspace_rules.md",
+      "title": "Validierte Arbeitsbereich-Regeln für Evolution Hub",
       "format": "markdown",
-      "hash": "0d055f12d8d4a03f23f59b7c9fd73d7510c4652f7cbd51928c8262f0820b56e3",
-      "size": 102,
+      "hash": "2487ec746b0cc14ba1d811d57601de9094f44db965d9705f9fc14f560c330c2d",
+      "size": 9177,
       "headings": [
         {
           "level": 1,
-          "value": "git-cloudflare-deploy-dev.md"
+          "value": "Validierte Arbeitsbereich-Regeln für Evolution Hub"
         },
         {
           "level": 2,
-          "value": "Schritte"
+          "value": "Übersicht"
+        },
+        {
+          "level": 2,
+          "value": "Projekt-spezifische Testing-Standards"
+        },
+        {
+          "level": 3,
+          "value": "Test-Organisation nach Features"
+        },
+        {
+          "level": 4,
+          "value": "AI Image Enhancer Tests"
+        },
+        {
+          "level": 4,
+          "value": "Prompt Enhancer Tests"
+        },
+        {
+          "level": 4,
+          "value": "Authentication Tests"
+        },
+        {
+          "level": 3,
+          "value": "Test-Fixtures und Helpers"
+        },
+        {
+          "level": 4,
+          "value": "Wiederverwendbare Fixtures"
+        },
+        {
+          "level": 4,
+          "value": "Best Practices für Fixtures"
+        },
+        {
+          "level": 2,
+          "value": "CI/CD-Optimierung für Evolution Hub"
+        },
+        {
+          "level": 3,
+          "value": "Aktuelle Pipeline-Performance"
+        },
+        {
+          "level": 4,
+          "value": "Parallelisierungsmöglichkeiten"
+        },
+        {
+          "level": 4,
+          "value": "Optimierungsvorschläge"
+        },
+        {
+          "level": 1,
+          "value": "Empfohlene Matrix-Strategie für Browser-Tests"
+        },
+        {
+          "level": 3,
+          "value": "Build-Optimierung"
+        },
+        {
+          "level": 4,
+          "value": "Worker-Build-Strategien"
+        },
+        {
+          "level": 4,
+          "value": "Empfohlene Caching-Strategie"
+        },
+        {
+          "level": 2,
+          "value": "Quality Gates für Evolution Hub"
+        },
+        {
+          "level": 3,
+          "value": "Erweiterte Quality Checks"
+        },
+        {
+          "level": 4,
+          "value": "Performance-Metriken"
+        },
+        {
+          "level": 4,
+          "value": "Sicherheits-Metriken"
+        },
+        {
+          "level": 3,
+          "value": "Dokumentations-Standards"
+        },
+        {
+          "level": 4,
+          "value": "Code-Dokumentation"
+        },
+        {
+          "level": 4,
+          "value": "Projekt-Dokumentation"
+        },
+        {
+          "level": 2,
+          "value": "Evolution Hub-spezifische Best Practices"
+        },
+        {
+          "level": 3,
+          "value": "Error Handling"
+        },
+        {
+          "level": 3,
+          "value": "State Management"
+        },
+        {
+          "level": 3,
+          "value": "Internationalisierung"
+        },
+        {
+          "level": 2,
+          "value": "Migration und Wartung"
+        },
+        {
+          "level": 3,
+          "value": "Test-Migration"
+        },
+        {
+          "level": 3,
+          "value": "Performance-Optimierung"
+        },
+        {
+          "level": 2,
+          "value": "Troubleshooting für Evolution Hub"
+        },
+        {
+          "level": 3,
+          "value": "Häufige Probleme und Lösungen"
+        },
+        {
+          "level": 4,
+          "value": "Testing Issues"
+        },
+        {
+          "level": 4,
+          "value": "Deployment Issues"
+        },
+        {
+          "level": 3,
+          "value": "Debug-Strategien"
+        },
+        {
+          "level": 4,
+          "value": "Lokale Entwicklung"
+        },
+        {
+          "level": 4,
+          "value": "Produktions-Debugging"
+        },
+        {
+          "level": 2,
+          "value": "Compliance und Standards"
+        },
+        {
+          "level": 3,
+          "value": "Datenschutz (GDPR)"
+        },
+        {
+          "level": 3,
+          "value": "Accessibility (WCAG)"
+        },
+        {
+          "level": 2,
+          "value": "Team-Workflows"
+        },
+        {
+          "level": 3,
+          "value": "Code Review Standards"
+        },
+        {
+          "level": 3,
+          "value": "Release Management"
+        },
+        {
+          "level": 2,
+          "value": "Ressourcen und Tools"
+        },
+        {
+          "level": 3,
+          "value": "Entwicklungsumgebung"
+        },
+        {
+          "level": 3,
+          "value": "Monitoring und Analytics"
+        },
+        {
+          "level": 2,
+          "value": "Fazit"
         }
       ],
-      "lastModified": "2025-07-24T12:40:57.188Z"
+      "lastModified": "2025-10-11T02:06:17.045Z"
     },
     {
       "path": ".logs/stripe-live-setup/20250914-230935/PROD_PRO.txt",
@@ -360,11 +2008,230 @@
       "lastModified": "2025-09-15T01:52:56.955Z"
     },
     {
+      "path": ".windsurf/codemaps/.CodeMap-Prompt.md",
+      "title": "CodeMap Prompts (Provisorisch)",
+      "format": "markdown",
+      "hash": "88053163c9a2ad1550eb3b1e9f51a89b6488da25b0d6e4cc3178aaaf54eadf9f",
+      "size": 29803,
+      "headings": [
+        {
+          "level": 1,
+          "value": "CodeMap Prompts (Provisorisch)"
+        },
+        {
+          "level": 2,
+          "value": "0) Globale Ausführungs‑Constraints (für alle Prompts)"
+        },
+        {
+          "level": 2,
+          "value": "Empfohlene Ausführungsreihenfolge"
+        },
+        {
+          "level": 2,
+          "value": "Panel‑Optimierte Eingabe‑Vorlagen (1–11, in empfohlener Reihenfolge)"
+        },
+        {
+          "level": 3,
+          "value": "Prompt 1: Repository‑weiter Modul‑Importgraph"
+        },
+        {
+          "level": 3,
+          "value": "Prompt 2: Globales Middleware‑Profil (src/middleware.ts)"
+        },
+        {
+          "level": 3,
+          "value": "Prompt 3: API‑Routen & Middleware‑Verwendung"
+        },
+        {
+          "level": 3,
+          "value": "Prompt 4: Storage & Data — DB + R2‑Proxies"
+        },
+        {
+          "level": 3,
+          "value": "Prompt 5: Auth + OAuth Domain (belegte Artefakte)"
+        },
+        {
+          "level": 3,
+          "value": "Prompt 6: Feature — Prompt Enhancer (Service‑Pipeline)"
+        },
+        {
+          "level": 3,
+          "value": "Prompt 7: Feature — Voice Visualizer + Transcriptor (SSE/Poll/Transcribe)"
+        },
+        {
+          "level": 3,
+          "value": "Prompt 8: Feature — AI Image Enhancer (Jobs/Generate/Usage)"
+        },
+        {
+          "level": 3,
+          "value": "Prompt 9: Blog + Kommentare (Domain‑Codemap)"
+        },
+        {
+          "level": 3,
+          "value": "Prompt 10: Astro Pages & Islands (UI‑Routing‑Graph)"
+        },
+        {
+          "level": 3,
+          "value": "Prompt 11: Tests‑Graph & Abdeckungssignale"
+        },
+        {
+          "level": 2,
+          "value": "1) Repository‑weiter Modul‑Importgraph (alias‑aufgelöst, evidenzbasiert)"
+        },
+        {
+          "level": 2,
+          "value": "2) Astro Pages & Islands (UI‑Routing‑Graph)"
+        },
+        {
+          "level": 2,
+          "value": "3) API‑Routen & Middleware‑Verwendung"
+        },
+        {
+          "level": 2,
+          "value": "4) Globales Middleware‑Profil (`src/middleware.ts`)"
+        },
+        {
+          "level": 2,
+          "value": "5) Auth + OAuth Domain (belegte Artefakte)"
+        },
+        {
+          "level": 2,
+          "value": "6) Feature: Prompt Enhancer (Service‑Pipeline)"
+        },
+        {
+          "level": 2,
+          "value": "7) Feature: Voice Visualizer + Transcriptor (SSE/Poll/Transcribe)"
+        },
+        {
+          "level": 2,
+          "value": "8) Feature: AI Image Enhancer (Jobs/Generate/Usage)"
+        },
+        {
+          "level": 2,
+          "value": "9) Storage & Data: DB + R2‑Proxies"
+        },
+        {
+          "level": 2,
+          "value": "10) Tests‑Graph & Abdeckungssignale"
+        },
+        {
+          "level": 2,
+          "value": "Optional: Follow‑up‑Prompt (Maßnahmen ableiten – separat)"
+        }
+      ],
+      "lastModified": "2025-10-17T13:41:04.151Z"
+    },
+    {
+      "path": ".windsurf/global_rules.md",
+      "title": "Global Rules (Authoritative Base)",
+      "description": "Global rules base for Evolution Hub",
+      "format": "markdown",
+      "hash": "ae5a6492bf3c11645b977b9f0098146344e97017488968be891c857d325f0391",
+      "size": 1086,
+      "headings": [
+        {
+          "level": 1,
+          "value": "Global Rules (Authoritative Base)"
+        },
+        {
+          "level": 2,
+          "value": "Feature Codemap Integration"
+        },
+        {
+          "level": 2,
+          "value": "Repository Layout & Locations"
+        },
+        {
+          "level": 2,
+          "value": "Style/Tooling Policy"
+        },
+        {
+          "level": 2,
+          "value": "Testing Policy"
+        }
+      ],
+      "frontMatter": {
+        "description": "Global rules base for Evolution Hub",
+        "version": "1"
+      },
+      "lastModified": "2025-10-14T15:32:05.641Z"
+    },
+    {
+      "path": ".windsurf/knowledge/architecture-foundations.knowledge.md",
+      "title": "Architekturgrundlagen — Evolution Hub",
+      "format": "markdown",
+      "hash": "8ce4d64ab3acd42e4b01475a21b8176b6a5368f4614c494e0970e41fc41709be",
+      "size": 3516,
+      "headings": [
+        {
+          "level": 1,
+          "value": "Architekturgrundlagen — Evolution Hub"
+        }
+      ],
+      "lastModified": "2025-10-17T07:50:15.426Z"
+    },
+    {
+      "path": ".windsurf/knowledge/domain-knowledge.knowledge.md",
+      "title": "Domänenwissen — Features & Cluster (belegt)",
+      "format": "markdown",
+      "hash": "ed26dc71d8784e708e3ee522d01ca7ce2c9da686d3c88a475795ccd2871d1b3e",
+      "size": 3474,
+      "headings": [
+        {
+          "level": 1,
+          "value": "Domänenwissen — Features & Cluster (belegt)"
+        }
+      ],
+      "lastModified": "2025-10-17T07:51:00.359Z"
+    },
+    {
+      "path": ".windsurf/knowledge/infrastructure-knowledge.knowledge.md",
+      "title": "Infrastrukturwissen — Workers, Bindings, API Middleware",
+      "format": "markdown",
+      "hash": "a5b364884b3e046ad95676b7cd32d7f59615f90c98869cd52ffe224cb9cf0eb3",
+      "size": 3380,
+      "headings": [
+        {
+          "level": 1,
+          "value": "Infrastrukturwissen — Workers, Bindings, API Middleware"
+        }
+      ],
+      "lastModified": "2025-10-17T07:24:41.701Z"
+    },
+    {
+      "path": ".windsurf/knowledge/service-knowledge.knowledge.md",
+      "title": "Service‑Wissen — src/lib/services/\\*\\*",
+      "format": "markdown",
+      "hash": "28ebb3647eb3d9c36025d4037e3f7c8785f1485b01e04485d62a88b06ec4cb2f",
+      "size": 5178,
+      "headings": [
+        {
+          "level": 1,
+          "value": "Service‑Wissen — src/lib/services/\\*\\*"
+        }
+      ],
+      "lastModified": "2025-10-17T13:41:04.285Z"
+    },
+    {
+      "path": ".windsurf/knowledge/testing-knowledge.knowledge.md",
+      "title": "Testwissen — Vitest, Playwright, E2E Bootstrap",
+      "format": "markdown",
+      "hash": "f1b9ffb5c8814b4e73a90663654dbe3973fea654aafaad6d5d91ad5505feabe4",
+      "size": 2618,
+      "headings": [
+        {
+          "level": 1,
+          "value": "Testwissen — Vitest, Playwright, E2E Bootstrap"
+        }
+      ],
+      "lastModified": "2025-10-17T07:23:50.984Z"
+    },
+    {
       "path": ".windsurf/rules/api-and-security.md",
       "title": "API & Security Rules",
       "format": "markdown",
-      "hash": "e6aaa7651dbba95c8cbc2e37356981a9cf762c7c579d69cad3e5765ea84aa2c5",
-      "size": 1606,
+      "hash": "43c90ef5a4005156cc7b9247ac80339369234d556424c7737af09eb77ab3a483",
+      "size": 2498,
       "headings": [
         {
           "level": 1,
@@ -375,14 +2242,224 @@
         "trigger": "always_on",
         "priority": "100"
       },
-      "lastModified": "2025-10-10T06:53:03.023Z"
+      "lastModified": "2025-10-17T04:49:35.384Z"
+    },
+    {
+      "path": ".windsurf/rules/auth.md",
+      "title": "Auth & OAuth Rules",
+      "format": "markdown",
+      "hash": "76ef2627acd01eafb71f29120d521b451ee0c0a742f8936fd0e683374d607337",
+      "size": 1395,
+      "headings": [
+        {
+          "level": 1,
+          "value": "Auth & OAuth Rules"
+        },
+        {
+          "level": 2,
+          "value": "Scope"
+        },
+        {
+          "level": 2,
+          "value": "Dependencies"
+        },
+        {
+          "level": 2,
+          "value": "Constraints"
+        },
+        {
+          "level": 2,
+          "value": "Security & Privacy"
+        },
+        {
+          "level": 2,
+          "value": "Related Codemap"
+        },
+        {
+          "level": 2,
+          "value": "Documentation Reference"
+        }
+      ],
+      "frontMatter": {
+        "trigger": "always_on",
+        "priority": "60"
+      },
+      "lastModified": "2025-10-17T13:41:04.337Z"
+    },
+    {
+      "path": ".windsurf/rules/content.md",
+      "title": "Content Rules",
+      "format": "markdown",
+      "hash": "4f73a232534d68867b0cb6efc409ddfb5df662abf3a469c66e1f38108216451c",
+      "size": 517,
+      "headings": [
+        {
+          "level": 1,
+          "value": "Content Rules"
+        },
+        {
+          "level": 2,
+          "value": "Scope"
+        },
+        {
+          "level": 2,
+          "value": "Dependencies"
+        },
+        {
+          "level": 2,
+          "value": "Constraints"
+        },
+        {
+          "level": 2,
+          "value": "Security & Privacy"
+        },
+        {
+          "level": 2,
+          "value": "Related Codemap"
+        },
+        {
+          "level": 2,
+          "value": "Documentation Reference"
+        }
+      ],
+      "frontMatter": {
+        "trigger": "always_on",
+        "priority": "60"
+      },
+      "lastModified": "2025-10-17T13:41:04.352Z"
+    },
+    {
+      "path": ".windsurf/rules/enhancer.md",
+      "title": "Image Enhancer Rules",
+      "format": "markdown",
+      "hash": "2be777ccbf2c7c3f4cc30a1e010c444c0f695345d97e125e94b4263a8b11496a",
+      "size": 841,
+      "headings": [
+        {
+          "level": 1,
+          "value": "Image Enhancer Rules"
+        },
+        {
+          "level": 2,
+          "value": "Scope"
+        },
+        {
+          "level": 2,
+          "value": "Dependencies"
+        },
+        {
+          "level": 2,
+          "value": "Constraints"
+        },
+        {
+          "level": 2,
+          "value": "Security & Privacy"
+        },
+        {
+          "level": 2,
+          "value": "Related Codemap"
+        },
+        {
+          "level": 2,
+          "value": "Documentation Reference"
+        }
+      ],
+      "frontMatter": {
+        "trigger": "always_on",
+        "priority": "60"
+      },
+      "lastModified": "2025-10-17T13:41:04.360Z"
+    },
+    {
+      "path": ".windsurf/rules/infra.md",
+      "title": "Infra (Workers/Router/Bindings) Rules",
+      "format": "markdown",
+      "hash": "fa7c15564a160aa7a03e593c78c3db2de768744ba83357409839277a9b3de5a3",
+      "size": 971,
+      "headings": [
+        {
+          "level": 1,
+          "value": "Infra (Workers/Router/Bindings) Rules"
+        },
+        {
+          "level": 2,
+          "value": "Scope"
+        },
+        {
+          "level": 2,
+          "value": "Dependencies"
+        },
+        {
+          "level": 2,
+          "value": "Constraints"
+        },
+        {
+          "level": 2,
+          "value": "Security & Privacy"
+        },
+        {
+          "level": 2,
+          "value": "Related Codemap"
+        },
+        {
+          "level": 2,
+          "value": "Documentation Reference"
+        }
+      ],
+      "frontMatter": {
+        "trigger": "always_on",
+        "priority": "60"
+      },
+      "lastModified": "2025-10-17T13:41:04.374Z"
+    },
+    {
+      "path": ".windsurf/rules/pricing.md",
+      "title": "Pricing & Stripe Rules",
+      "format": "markdown",
+      "hash": "4398dea15987e3a92bf7b6d7adf51ba2489e3d11245035d724460dd9aa00d9d0",
+      "size": 557,
+      "headings": [
+        {
+          "level": 1,
+          "value": "Pricing & Stripe Rules"
+        },
+        {
+          "level": 2,
+          "value": "Scope"
+        },
+        {
+          "level": 2,
+          "value": "Dependencies"
+        },
+        {
+          "level": 2,
+          "value": "Constraints"
+        },
+        {
+          "level": 2,
+          "value": "Security & Privacy"
+        },
+        {
+          "level": 2,
+          "value": "Related Codemap"
+        },
+        {
+          "level": 2,
+          "value": "Documentation Reference"
+        }
+      ],
+      "frontMatter": {
+        "trigger": "always_on",
+        "priority": "60"
+      },
+      "lastModified": "2025-10-17T13:41:04.383Z"
     },
     {
       "path": ".windsurf/rules/project-structure.md",
       "title": "Project Structure Rules",
       "format": "markdown",
-      "hash": "0b86001d5c09a687147a6706e5970b64ccc0d75a1c989ea55eaa23a86acd73c5",
-      "size": 1291,
+      "hash": "a273bbee9ed3925b58d33b3a73fba10459963382f250e34aa22d288254c9374d",
+      "size": 1317,
       "headings": [
         {
           "level": 1,
@@ -393,25 +2470,113 @@
         "trigger": "always_on",
         "priority": "90"
       },
-      "lastModified": "2025-10-03T21:18:36.732Z"
+      "lastModified": "2025-10-21T15:57:41.323Z"
+    },
+    {
+      "path": ".windsurf/rules/prompt.md",
+      "title": "Prompt Enhancer Rules",
+      "format": "markdown",
+      "hash": "b0167bfd93289ce4a83e697c1e1ae1e18d2e3cd0e615628d4865cf0d34589dfa",
+      "size": 638,
+      "headings": [
+        {
+          "level": 1,
+          "value": "Prompt Enhancer Rules"
+        },
+        {
+          "level": 2,
+          "value": "Scope"
+        },
+        {
+          "level": 2,
+          "value": "Dependencies"
+        },
+        {
+          "level": 2,
+          "value": "Constraints"
+        },
+        {
+          "level": 2,
+          "value": "Security & Privacy"
+        },
+        {
+          "level": 2,
+          "value": "Related Codemap"
+        },
+        {
+          "level": 2,
+          "value": "Documentation Reference"
+        }
+      ],
+      "frontMatter": {
+        "trigger": "always_on",
+        "priority": "60"
+      },
+      "lastModified": "2025-10-17T13:41:04.410Z"
+    },
+    {
+      "path": ".windsurf/rules/scraper.md",
+      "title": "WebScraper Rules",
+      "format": "markdown",
+      "hash": "405aa61a5c816b1f74c825187578b3a377a0b21011eba41ca605b61eeab3a126",
+      "size": 488,
+      "headings": [
+        {
+          "level": 1,
+          "value": "WebScraper Rules"
+        },
+        {
+          "level": 2,
+          "value": "Scope"
+        },
+        {
+          "level": 2,
+          "value": "Dependencies"
+        },
+        {
+          "level": 2,
+          "value": "Constraints"
+        },
+        {
+          "level": 2,
+          "value": "Security & Privacy"
+        },
+        {
+          "level": 2,
+          "value": "Related Codemap"
+        },
+        {
+          "level": 2,
+          "value": "Documentation Reference"
+        }
+      ],
+      "frontMatter": {
+        "trigger": "always_on",
+        "priority": "60"
+      },
+      "lastModified": "2025-10-17T13:41:04.424Z"
     },
     {
       "path": ".windsurf/rules/testing-and-ci.md",
       "title": "Testing & CI Rules",
       "format": "markdown",
-      "hash": "0d1abf873bcebc146239d03a2080d9e7946ff517d2b122e97990fadcb4caa3b7",
-      "size": 2066,
+      "hash": "fb4cf7f41ba6327c34e3ba6cb4f7aa74b58f198584d72db0bfda52c0031312d9",
+      "size": 4077,
       "headings": [
         {
           "level": 1,
           "value": "Testing & CI Rules"
+        },
+        {
+          "level": 2,
+          "value": "Cron-Worker Monitoring (Testing)"
         }
       ],
       "frontMatter": {
         "trigger": "always_on",
         "priority": "70"
       },
-      "lastModified": "2025-10-04T15:29:47.103Z"
+      "lastModified": "2025-10-21T17:09:57.349Z"
     },
     {
       "path": ".windsurf/rules/tooling-and-style.md",
@@ -432,78 +2597,368 @@
       "lastModified": "2025-10-03T17:44:32.311Z"
     },
     {
-      "path": "AGENTS.md",
-      "title": "Evolution Hub – AGENTS Leitfaden",
+      "path": ".windsurf/rules/transcriptor.md",
+      "title": "Transcriptor (Whisper) Rules",
       "format": "markdown",
-      "hash": "ace8d37d80c22c66a702136e5df4e39ab3c75faabf266dd024ac268c9479c29a",
-      "size": 8022,
+      "hash": "c46e789eec118e99008a2b39f4d00ec9895414002a03c0c243516d631eee14f0",
+      "size": 686,
       "headings": [
         {
           "level": 1,
-          "value": "Evolution Hub – AGENTS Leitfaden"
+          "value": "Transcriptor (Whisper) Rules"
         },
         {
           "level": 2,
-          "value": "Projekt-Überblick"
+          "value": "Scope"
         },
         {
           "level": 2,
-          "value": "Tech Stack"
+          "value": "Dependencies"
         },
         {
           "level": 2,
-          "value": "Arbeitsmodus & Grenzen"
+          "value": "Constraints"
         },
         {
           "level": 2,
-          "value": "Build/Run/Test Quick Reference"
+          "value": "Security & Privacy"
         },
         {
           "level": 2,
-          "value": "Quality & Tooling"
+          "value": "Related Codemap"
         },
         {
           "level": 2,
-          "value": "Cloudflare Workers & Deploy"
-        },
-        {
-          "level": 2,
-          "value": "Code-Standards"
-        },
-        {
-          "level": 2,
-          "value": "Testing-Guidelines"
-        },
-        {
-          "level": 2,
-          "value": "CI/CD & Health"
-        },
-        {
-          "level": 2,
-          "value": "Security"
-        },
-        {
-          "level": 2,
-          "value": "Rollen & Workflows"
-        },
-        {
-          "level": 2,
-          "value": "Terminal-Nutzung"
-        },
-        {
-          "level": 2,
-          "value": "Referenz-Dateien"
-        },
-        {
-          "level": 2,
-          "value": "Bekannte Probleme"
-        },
-        {
-          "level": 2,
-          "value": "Ressourcen"
+          "value": "Documentation Reference"
         }
       ],
-      "lastModified": "2025-10-10T06:29:23.748Z"
+      "frontMatter": {
+        "trigger": "always_on",
+        "priority": "60"
+      },
+      "lastModified": "2025-10-17T13:41:04.467Z"
+    },
+    {
+      "path": ".windsurf/workflows/agent_knowledge_sync_apply_full.md",
+      "title": "Workflow: agent_knowledge_sync_apply_full",
+      "description": "Affected-only sync for AGENTS.md (Codex), CLAUDE.md (Claude Code), and .kilocode/** with agent-specific formatting.",
+      "format": "markdown",
+      "hash": "b8e8814ae028336b1067cc9b09471728ec9c18c1ee84829b842accb03a76ebce",
+      "size": 375,
+      "headings": [
+        {
+          "level": 1,
+          "value": "Workflow: agent_knowledge_sync_apply_full"
+        }
+      ],
+      "frontMatter": {
+        "description": "Affected-only sync for AGENTS.md (Codex), CLAUDE.md (Claude Code), and .kilocode/** with agent-specific formatting.",
+        "auto_execution_mode": "1"
+      },
+      "lastModified": "2025-10-15T12:59:32.543Z"
+    },
+    {
+      "path": ".windsurf/workflows/agent_knowledge_sync.md",
+      "description": "Affected-only sync for AGENTS.md (Codex), CLAUDE.md (Claude Code), and .kilocode/** with agent-specific formatting.",
+      "format": "markdown",
+      "hash": "2ae8bb2de9710eb55e5df807b2291fd3989a52b8537f2f7eefa71481e4d1982e",
+      "size": 1543,
+      "headings": [],
+      "frontMatter": {
+        "description": "Affected-only sync for AGENTS.md (Codex), CLAUDE.md (Claude Code), and .kilocode/** with agent-specific formatting.",
+        "auto_execution_mode": "1"
+      },
+      "lastModified": "2025-10-15T12:59:32.543Z"
+    },
+    {
+      "path": ".windsurf/workflows/context_refresh_apply.md",
+      "title": "Workflow: context_refresh_apply",
+      "description": "Affected-only sync for Codemaps, Rules, Knowledge (AGENTS.md, CLAUDE.md, .kilocode/**), Docs and Memories.",
+      "format": "markdown",
+      "hash": "a8773c7260a738929f19c03a378e977497b2009baa60f29184e3e4d933fc3fbd",
+      "size": 294,
+      "headings": [
+        {
+          "level": 1,
+          "value": "Workflow: context_refresh_apply"
+        }
+      ],
+      "frontMatter": {
+        "description": "Affected-only sync for Codemaps, Rules, Knowledge (AGENTS.md, CLAUDE.md, .kilocode/**), Docs and Memories.",
+        "auto_execution_mode": "3"
+      },
+      "lastModified": "2025-10-17T03:59:58.038Z"
+    },
+    {
+      "path": ".windsurf/workflows/context_refresh.md",
+      "description": "",
+      "format": "markdown",
+      "hash": "11f9b48b1157a902fdc6ac46283c1412655d380d8bf0d6661713620b639620f3",
+      "size": 2471,
+      "headings": [],
+      "frontMatter": {
+        "description": "",
+        "auto_execution_mode": "1"
+      },
+      "lastModified": "2025-10-15T12:59:32.543Z"
+    },
+    {
+      "path": ".windsurf/workflows/health_check.md",
+      "title": "Workflow: health_check",
+      "description": "Validate project health (files, fences, rules count) without writes",
+      "format": "markdown",
+      "hash": "1baef6c1babaaf14dc629fec5e915b7f42baa3b0dd8a6b3233f0a1d8e5cfadfa",
+      "size": 1325,
+      "headings": [
+        {
+          "level": 1,
+          "value": "Workflow: health_check"
+        }
+      ],
+      "frontMatter": {
+        "description": "Validate project health (files, fences, rules count) without writes",
+        "auto_execution_mode": "1"
+      },
+      "lastModified": "2025-10-15T12:59:32.544Z"
+    },
+    {
+      "path": ".windsurf/workflows/i18n-audit.md",
+      "title": "i18n Audit",
+      "description": "i18n Audit – findet Fallback-Leaks (leere Werte, Parität, Marker) und prüft Kernrouten",
+      "format": "markdown",
+      "hash": "1edb909eaecb407c2bac38d093e4915680186a4afaf8196deaa1a1064de8b47f",
+      "size": 2041,
+      "headings": [
+        {
+          "level": 1,
+          "value": "i18n Audit"
+        }
+      ],
+      "frontMatter": {
+        "description": "i18n Audit – findet Fallback-Leaks (leere Werte, Parität, Marker) und prüft Kernrouten",
+        "auto_execution_mode": "3"
+      },
+      "lastModified": "2025-10-17T18:38:59.432Z"
+    },
+    {
+      "path": ".windsurf/workflows/refactor-internal-memories.md",
+      "title": "Refactor internal memories",
+      "description": "Refactor and consolidate internal memories",
+      "format": "markdown",
+      "hash": "7c251bc40341a24adccbadc2fb219885d36eb54e2db1370a00f7853e1eacf7b5",
+      "size": 1749,
+      "headings": [
+        {
+          "level": 1,
+          "value": "Refactor internal memories"
+        },
+        {
+          "level": 2,
+          "value": "Goal"
+        },
+        {
+          "level": 2,
+          "value": "Prerequisites"
+        },
+        {
+          "level": 2,
+          "value": "Steps"
+        },
+        {
+          "level": 2,
+          "value": "Notes"
+        }
+      ],
+      "frontMatter": {
+        "description": "Refactor and consolidate internal memories"
+      },
+      "lastModified": "2025-10-11T19:41:46.592Z"
+    },
+    {
+      "path": ".windsurf/workflows/status_refresh.md",
+      "description": "Build & update a compact project dashboard (status.md) from codemaps, knowledge, docs, memories and workflows (affected-only)",
+      "format": "markdown",
+      "hash": "140e9aa53e9403de271158540d57f5c04bcc922248b333a8d4edb187789e5510",
+      "size": 2033,
+      "headings": [],
+      "frontMatter": {
+        "description": "Build & update a compact project dashboard (status.md) from codemaps, knowledge, docs, memories and workflows (affected-only)",
+        "auto_execution_mode": "3"
+      },
+      "lastModified": "2025-10-17T13:41:04.498Z"
+    },
+    {
+      "path": ".windsurf/workflows/validate-update-cloudflare-rulesetsJSON-safely.md",
+      "title": "Global Cloudflare Rulesets Update",
+      "description": "Validate and update Cloudflare rulesets JSON safely",
+      "format": "markdown",
+      "hash": "89c1c9aa83a2e91ec7c7f200eb4613c92802b03197299e68ab02a448786785d4",
+      "size": 2885,
+      "headings": [
+        {
+          "level": 1,
+          "value": "Global Cloudflare Rulesets Update"
+        },
+        {
+          "level": 2,
+          "value": "Goal"
+        },
+        {
+          "level": 2,
+          "value": "Files in scope"
+        },
+        {
+          "level": 2,
+          "value": "Prerequisites"
+        },
+        {
+          "level": 2,
+          "value": "Steps"
+        },
+        {
+          "level": 3,
+          "value": "1. Inventory the ruleset files"
+        },
+        {
+          "level": 3,
+          "value": "2. Validate JSON syntax (fail fast)"
+        },
+        {
+          "level": 3,
+          "value": "3. Extract all expression strings (diagnostic)"
+        },
+        {
+          "level": 3,
+          "value": "4. Enforce allowed operators (eq|starts_with|contains)"
+        },
+        {
+          "level": 3,
+          "value": "5. Optional sanity checks"
+        },
+        {
+          "level": 3,
+          "value": "6. Document changes"
+        },
+        {
+          "level": 3,
+          "value": "7. Commit"
+        },
+        {
+          "level": 3,
+          "value": "8. Rollout (manual)"
+        }
+      ],
+      "frontMatter": {
+        "description": "Validate and update Cloudflare rulesets JSON safely",
+        "auto_execution_mode": "3"
+      },
+      "lastModified": "2025-10-15T12:59:32.545Z"
+    },
+    {
+      "path": "account_id.txt",
+      "format": "text",
+      "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0,
+      "headings": [],
+      "lastModified": "2025-10-11T02:06:17.049Z"
+    },
+    {
+      "path": "AGENTS.md",
+      "title": "Evolution Hub — AGENTS.md",
+      "format": "markdown",
+      "hash": "0be894222e4f3317ab965bc1e876f299a0f097f15f839cd592b99a2fbdb492fa",
+      "size": 6499,
+      "headings": [
+        {
+          "level": 1,
+          "value": "Evolution Hub — AGENTS.md"
+        },
+        {
+          "level": 2,
+          "value": "Intro"
+        },
+        {
+          "level": 2,
+          "value": "Stack & Deployment"
+        },
+        {
+          "level": 2,
+          "value": "Repository Layout"
+        },
+        {
+          "level": 2,
+          "value": "Tooling & Conventions"
+        },
+        {
+          "level": 2,
+          "value": "Commands & Automation"
+        },
+        {
+          "level": 2,
+          "value": "Testing Gates & Configuration"
+        },
+        {
+          "level": 2,
+          "value": "Security & Middleware Expectations"
+        },
+        {
+          "level": 2,
+          "value": "Rate Limiting"
+        },
+        {
+          "level": 2,
+          "value": "CSRF"
+        },
+        {
+          "level": 2,
+          "value": "Feature Flags & Content Controls"
+        },
+        {
+          "level": 2,
+          "value": "Observability & Debugging"
+        },
+        {
+          "level": 2,
+          "value": "Cloudflare & Build Details"
+        },
+        {
+          "level": 2,
+          "value": "Playwright Report Paths (Both Families)"
+        },
+        {
+          "level": 2,
+          "value": "Notes on Generated/Build Folders"
+        },
+        {
+          "level": 2,
+          "value": "Sync (auto)"
+        },
+        {
+          "level": 1,
+          "value": "(auto-managed)"
+        },
+        {
+          "level": 1,
+          "value": "Inhalte werden vom Workflow geschrieben:"
+        },
+        {
+          "level": 1,
+          "value": "- Betroffene Features + kurze Deltas"
+        },
+        {
+          "level": 1,
+          "value": "- Active Entry Points (aus Codemap)"
+        },
+        {
+          "level": 1,
+          "value": "- Links zu .windsurf/rules/<feature>.md"
+        },
+        {
+          "level": 1,
+          "value": "- Refs auf docs/** und ADR/**"
+        }
+      ],
+      "lastModified": "2025-10-15T12:59:32.545Z"
     },
     {
       "path": "cascade-rules-lint.txt",
@@ -624,8 +3079,8 @@
       "path": "CHANGELOG.md",
       "title": "Changelog",
       "format": "markdown",
-      "hash": "52c3c6c1d571e51509043cce99f47966c64cdc714605843e88a304a86c41a12d",
-      "size": 2086,
+      "hash": "02a31c7efc81cc677cd8e490094c91636e4242f7329325f0ac022535e01f6042",
+      "size": 2538,
       "headings": [
         {
           "level": 1,
@@ -672,14 +3127,14 @@
           "value": "Changed"
         }
       ],
-      "lastModified": "2025-10-04T18:10:36.337Z"
+      "lastModified": "2025-10-15T12:59:32.545Z"
     },
     {
       "path": "CLAUDE.md",
       "title": "CLAUDE.md — Evolution Hub Project Guide",
       "format": "markdown",
-      "hash": "f3386ba7a7ae43be2e0accdf8a3909d91544b189ce2ff0cc18b94da2df3686e6",
-      "size": 26929,
+      "hash": "b4b01b3f42c4d68499caba61e50c30b64d26fa60b9a8a6ae77eb7553b4ad8223",
+      "size": 6301,
       "headings": [
         {
           "level": 1,
@@ -687,314 +3142,88 @@
         },
         {
           "level": 2,
-          "value": "📋 Projekt-Übersicht"
-        },
-        {
-          "level": 3,
-          "value": "Hauptfeatures"
-        },
-        {
-          "level": 3,
-          "value": "Live URLs"
+          "value": "Intro"
         },
         {
           "level": 2,
-          "value": "🛠 Tech Stack"
-        },
-        {
-          "level": 3,
-          "value": "Frontend"
-        },
-        {
-          "level": 3,
-          "value": "Backend & Infrastructure"
-        },
-        {
-          "level": 3,
-          "value": "Testing & Quality"
+          "value": "Projekt-Übersicht"
         },
         {
           "level": 2,
-          "value": "🎯 Arbeitsmodus & Grenzen"
-        },
-        {
-          "level": 3,
-          "value": "Scout-Rolle (immer zuerst)"
-        },
-        {
-          "level": 3,
-          "value": "Assistiert-autonome Arbeitsweise"
-        },
-        {
-          "level": 3,
-          "value": "Navigation & Dateizugriff"
+          "value": "Tech Stack"
         },
         {
           "level": 2,
-          "value": "💻 Build/Run/Test/Lint – Exakte Scripts"
-        },
-        {
-          "level": 3,
-          "value": "Development"
-        },
-        {
-          "level": 3,
-          "value": "Testing"
-        },
-        {
-          "level": 4,
-          "value": "Vitest (Unit/Integration)"
-        },
-        {
-          "level": 4,
-          "value": "Playwright (E2E)"
-        },
-        {
-          "level": 3,
-          "value": "Code-Qualität"
-        },
-        {
-          "level": 3,
-          "value": "Docs & OpenAPI"
-        },
-        {
-          "level": 3,
-          "value": "Database"
+          "value": "Tooling & Konventionen"
         },
         {
           "level": 2,
-          "value": "☁️ Cloudflare Workers – Regeln & Bindings"
+          "value": "Commands (Scripts)"
         },
         {
-          "level": 3,
-          "value": "Environments (wrangler.toml)"
+          "level": 2,
+          "value": "Testing Gates & Konfiguration"
         },
         {
-          "level": 3,
-          "value": "Bindings – KEINE implizite Vererbung"
+          "level": 2,
+          "value": "Security & Middleware"
+        },
+        {
+          "level": 2,
+          "value": "Cloudflare & Build"
+        },
+        {
+          "level": 2,
+          "value": "Projektstruktur & Routen"
+        },
+        {
+          "level": 2,
+          "value": "Arbeitsweise (für Agenten)"
+        },
+        {
+          "level": 2,
+          "value": "Nützliche Referenzen"
+        },
+        {
+          "level": 2,
+          "value": "Sync (auto)"
         },
         {
           "level": 1,
-          "value": "Top-Level Bindings werden NICHT vererbt!"
+          "value": "(auto-managed)"
         },
         {
           "level": 1,
-          "value": "Jede Environment explizit definieren"
-        },
-        {
-          "level": 3,
-          "value": "Binding-Details"
-        },
-        {
-          "level": 4,
-          "value": "D1 (Database)"
-        },
-        {
-          "level": 4,
-          "value": "R2 (Object Storage)"
-        },
-        {
-          "level": 4,
-          "value": "KV (Key-Value)"
-        },
-        {
-          "level": 3,
-          "value": "Secrets & Vars (wrangler.toml)"
+          "value": "Inhalte werden vom Workflow geschrieben:"
         },
         {
           "level": 1,
-          "value": "→ wrangler secret put STYTCH_PROJECT_ID --env development"
+          "value": "- Kurz-Rationales (1–3 Zeilen) zu geänderten Bereichen"
         },
         {
           "level": 1,
-          "value": "→ wrangler secret put STYTCH_SECRET --env development"
-        },
-        {
-          "level": 3,
-          "value": "Assets (wrangler.toml Z. 119-123)"
-        },
-        {
-          "level": 2,
-          "value": "📐 Code-Qualität & Standards"
-        },
-        {
-          "level": 3,
-          "value": "TypeScript (tsconfig.json)"
-        },
-        {
-          "level": 3,
-          "value": "Code-Style"
-        },
-        {
-          "level": 3,
-          "value": "Pre-Commit Hooks (.husky/pre-commit)"
+          "value": "- Do/Don't Bullets je Feature"
         },
         {
           "level": 1,
-          "value": "npx lint-staged  # Disabled for development - use manual quality checks instead"
-        },
-        {
-          "level": 2,
-          "value": "🧪 Testing-Guidelines"
-        },
-        {
-          "level": 3,
-          "value": "Test-Struktur"
-        },
-        {
-          "level": 3,
-          "value": "Auth E2E Test Suite (NEW v1.7.2)"
-        },
-        {
-          "level": 3,
-          "value": "Coverage-Gates (vitest.config.ts:12-32)"
-        },
-        {
-          "level": 2,
-          "value": "🚀 CI/CD-Pipeline"
-        },
-        {
-          "level": 3,
-          "value": "Pre-Deploy Gates (.github/workflows/deploy.yml:24-52)"
-        },
-        {
-          "level": 3,
-          "value": "Deployment-Flow (.github/workflows/deploy.yml)"
-        },
-        {
-          "level": 3,
-          "value": "Health-Check"
-        },
-        {
-          "level": 3,
-          "value": "Rollback-Strategien"
-        },
-        {
-          "level": 4,
-          "value": "Option 1: Cloudflare Rollback"
-        },
-        {
-          "level": 4,
-          "value": "Option 2: Git Tag Rollback"
-        },
-        {
-          "level": 2,
-          "value": "🔒 Security-Regeln"
-        },
-        {
-          "level": 3,
-          "value": "Rate-Limiting (src/lib/rate-limiter.ts, docs/SECURITY.md:40-76)"
-        },
-        {
-          "level": 3,
-          "value": "Security Headers (middleware, docs/SECURITY.md:14)"
-        },
-        {
-          "level": 3,
-          "value": "Audit-Logging (middleware.ts:4,66-70)"
-        },
-        {
-          "level": 3,
-          "value": "API-Middleware (src/lib/api-middleware.ts)"
-        },
-        {
-          "level": 2,
-          "value": "🎭 Rollen-Hinweise"
-        },
-        {
-          "level": 3,
-          "value": "Scout-Rolle (vor jedem Edit)"
-        },
-        {
-          "level": 2,
-          "value": "Änderung: Neues Rate-Limit für Upload-API"
-        },
-        {
-          "level": 3,
-          "value": "Reviewer-Rolle (PR-Checks)"
-        },
-        {
-          "level": 2,
-          "value": "📋 Ergebnisform: Plan → Patch"
-        },
-        {
-          "level": 3,
-          "value": "Workflow"
-        },
-        {
-          "level": 3,
-          "value": "Code-Edit-Regeln"
-        },
-        {
-          "level": 3,
-          "value": "Commit-Format"
-        },
-        {
-          "level": 2,
-          "value": "🖥️ Terminal-Nutzung"
-        },
-        {
-          "level": 3,
-          "value": "✅ Automatisch erlaubt"
-        },
-        {
-          "level": 1,
-          "value": "Lesende Operationen"
-        },
-        {
-          "level": 1,
-          "value": "Tests"
-        },
-        {
-          "level": 1,
-          "value": "Qualität"
-        },
-        {
-          "level": 3,
-          "value": "⚠️ Bestätigung erforderlich"
-        },
-        {
-          "level": 1,
-          "value": "Dependencies"
-        },
-        {
-          "level": 1,
-          "value": "Git (schreibend)"
-        },
-        {
-          "level": 1,
-          "value": "Deployment"
-        },
-        {
-          "level": 1,
-          "value": "Database"
-        },
-        {
-          "level": 2,
-          "value": "📚 Wichtige Dateien – Referenz-Tabelle"
-        },
-        {
-          "level": 2,
-          "value": "🐛 Bekannte Probleme & Lösungen"
-        },
-        {
-          "level": 3,
-          "value": "OAuth/Stytch Login-Probleme (Lokal)"
-        },
-        {
-          "level": 3,
-          "value": "Contributing"
-        },
-        {
-          "level": 3,
-          "value": "Windsurf Cascade-Regeln"
-        },
-        {
-          "level": 3,
-          "value": "Ende des CLAUDE.md-Leitfadens"
+          "value": "- Refs auf Rules + relevante Docs/ADRs"
         }
       ],
-      "lastModified": "2025-10-10T06:32:07.725Z"
+      "lastModified": "2025-10-15T12:59:32.546Z"
+    },
+    {
+      "path": "CODE_OF_CONDUCT.md",
+      "title": "Code of Conduct",
+      "format": "markdown",
+      "hash": "6a832b4045abd6da2f8dc5d184c9adefba3df2366574d35b7b91dfdf8f3c9b7a",
+      "size": 176,
+      "headings": [
+        {
+          "level": 1,
+          "value": "Code of Conduct"
+        }
+      ],
+      "lastModified": "2025-10-14T15:32:05.357Z"
     },
     {
       "path": "CONTRIBUTING.md",
@@ -1188,14 +3417,14 @@
     },
     {
       "path": "docs/_generated/cascade-rules-coverage.md",
-      "title": "Cascade Rules Coverage — Stand: 2025-10-03T21:18:37.535Z",
+      "title": "Cascade Rules Coverage — Stand: 2025-10-21T15:58:19.981Z",
       "format": "markdown",
-      "hash": "d5c2bcc78ebffb6abb3d69cf2a8f8c38510d663238c29eaca6ddbef6e0902ef5",
-      "size": 3417,
+      "hash": "07f6b174ee6c94df6173452825f46645c7cfe7b96ceb1d35a20802330c720acb",
+      "size": 3429,
       "headings": [
         {
           "level": 1,
-          "value": "Cascade Rules Coverage — Stand: 2025-10-03T21:18:37.535Z"
+          "value": "Cascade Rules Coverage — Stand: 2025-10-21T15:58:19.981Z"
         },
         {
           "level": 2,
@@ -1206,7 +3435,7 @@
           "value": "Script-Check gegenüber global_rules.md"
         }
       ],
-      "lastModified": "2025-10-09T13:33:21.087Z"
+      "lastModified": "2025-10-21T15:58:19.984Z"
     },
     {
       "path": "docs/_generated/cascade-rules-detection.md",
@@ -1233,6 +3462,120 @@
         }
       ],
       "lastModified": "2025-10-04T18:13:36.172Z"
+    },
+    {
+      "path": "docs/_generated/codemap.md",
+      "title": "Evolution Hub Codemap (Deep Import Graph)",
+      "format": "markdown",
+      "hash": "584d86466ecc3976581929536a224c4acd1438e5945afd0d421f790135ef1c79",
+      "size": 11992,
+      "headings": [
+        {
+          "level": 1,
+          "value": "Evolution Hub Codemap (Deep Import Graph)"
+        },
+        {
+          "level": 2,
+          "value": "All-Edges Graph (Condensed)"
+        },
+        {
+          "level": 2,
+          "value": "Per-Feature Subgraphs"
+        },
+        {
+          "level": 3,
+          "value": "Voice Visualizer + Transcriptor"
+        },
+        {
+          "level": 3,
+          "value": "AI Image Enhancer"
+        },
+        {
+          "level": 3,
+          "value": "Prompt Enhancer"
+        },
+        {
+          "level": 2,
+          "value": "Alias Import Edges (Selected)"
+        },
+        {
+          "level": 2,
+          "value": "API Annotations and Middleware"
+        },
+        {
+          "level": 2,
+          "value": "Test Coverage Links"
+        },
+        {
+          "level": 2,
+          "value": "Notes"
+        }
+      ],
+      "lastModified": "2025-10-14T15:32:05.659Z"
+    },
+    {
+      "path": "docs/_generated/memory-audit.md",
+      "title": "Memory Audit",
+      "format": "markdown",
+      "hash": "02c4d6cda81e5272f964ea8a130332c58bebf58b13a7d19aafbdc103620d08d1",
+      "size": 2382,
+      "headings": [
+        {
+          "level": 1,
+          "value": "Memory Audit"
+        },
+        {
+          "level": 2,
+          "value": "Duplicate titles"
+        },
+        {
+          "level": 2,
+          "value": "Similar documents (content-based)"
+        },
+        {
+          "level": 2,
+          "value": "Orphans"
+        },
+        {
+          "level": 2,
+          "value": "Summary"
+        },
+        {
+          "level": 2,
+          "value": "Regenerate"
+        }
+      ],
+      "lastModified": "2025-10-11T19:41:46.629Z"
+    },
+    {
+      "path": "docs/_generated/memory-index.md",
+      "title": "Memory Index",
+      "format": "markdown",
+      "hash": "6f56277ddc6781fc395118d8e27a530f862721c149a3c54514daaa4fa1552d46",
+      "size": 2852,
+      "headings": [
+        {
+          "level": 1,
+          "value": "Memory Index"
+        },
+        {
+          "level": 2,
+          "value": "Canonical Rules (.windsurf/rules/)"
+        },
+        {
+          "level": 2,
+          "value": "Related Architecture Docs (docs/architecture/)"
+        },
+        {
+          "level": 2,
+          "value": "Related Development Docs (docs/development/)"
+        },
+        {
+          "level": 2,
+          "value": "How to regenerate"
+        }
+      ],
+      "lastModified": "2025-10-21T17:09:57.715Z"
     },
     {
       "path": "docs/animation.md",
@@ -1370,8 +3713,8 @@
       "path": "docs/api/dashboard_api.md",
       "title": "Dashboard API Endpunkte",
       "format": "markdown",
-      "hash": "02b4522cef5ffffab99cf512c4c20a677fed7bb71ffed830ef687020ab53a570",
-      "size": 4646,
+      "hash": "93942e4d3c308fcbe43de99147e32a42efb5fa2c59ac98cc629818eea9b72585",
+      "size": 5410,
       "headings": [
         {
           "level": 1,
@@ -1446,7 +3789,7 @@
           "value": "Fehlerhafte Antwort (`400 Bad Request`)"
         }
       ],
-      "lastModified": "2025-09-11T07:15:07.282Z"
+      "lastModified": "2025-10-17T13:41:04.707Z"
     },
     {
       "path": "docs/api/known-issues.md",
@@ -1860,14 +4203,14 @@
           "value": "9. Rate-Limiting & Fehlerformat"
         }
       ],
-      "lastModified": "2025-10-09T13:33:21.087Z"
+      "lastModified": "2025-10-11T02:06:17.055Z"
     },
     {
       "path": "docs/api/README.md",
       "title": "API README",
       "format": "markdown",
-      "hash": "5e4394a54582a587fcee045bbde3a1c98fdc2d78c877119913647c229e6df886",
-      "size": 8692,
+      "hash": "dddb24292a2d6a66179c18ddd1ff72d1990925d43a09457177cd5f32eae94612",
+      "size": 9216,
       "headings": [
         {
           "level": 1,
@@ -1940,9 +4283,13 @@
         {
           "level": 2,
           "value": "Hinweise für lokale Entwicklung"
+        },
+        {
+          "level": 2,
+          "value": "Voice — Visualizer & Transcriptor"
         }
       ],
-      "lastModified": "2025-10-09T13:33:21.087Z"
+      "lastModified": "2025-10-17T07:45:23.196Z"
     },
     {
       "path": "docs/api/user_api.md",
@@ -2106,8 +4453,8 @@
       "path": "docs/architecture.md",
       "title": "Evolution Hub - Technologie-Stack und Architektur",
       "format": "markdown",
-      "hash": "d9531ebed63853806e72d0345fc0b0a4edd0f4d177b6e4da92490f45b34944d4",
-      "size": 7169,
+      "hash": "871ce9c7802f17da4a4c1fbe773f17ab3effa74b112d6079d59d941d4cf0592e",
+      "size": 7490,
       "headings": [
         {
           "level": 1,
@@ -2182,7 +4529,7 @@
           "value": "Hinweise"
         }
       ],
-      "lastModified": "2025-10-01T07:14:40.596Z"
+      "lastModified": "2025-10-17T13:41:04.735Z"
     },
     {
       "path": "docs/architecture/adrs/0000-adr-template.md",
@@ -2284,8 +4631,8 @@
       "path": "docs/architecture/adrs/0002-cloudflare-architecture.md",
       "title": "ADR 0002: Cloudflare-basierte Architektur",
       "format": "markdown",
-      "hash": "313806e76baee10aaae6a9b20e545e4123e6a393f410a46e0447fbe730561757",
-      "size": 5411,
+      "hash": "b6b7b9c19e19c536c38832b1ef59fb98863ea4247e6bb6d3aa9e203309d90303",
+      "size": 5490,
       "headings": [
         {
           "level": 1,
@@ -2364,7 +4711,7 @@
           "value": "Referenzen"
         }
       ],
-      "lastModified": "2025-08-30T22:23:59.386Z"
+      "lastModified": "2025-10-11T02:06:17.058Z"
     },
     {
       "path": "docs/architecture/adrs/0003-astro-frontend-architecture.md",
@@ -2578,8 +4925,8 @@
       "path": "docs/architecture/adrs/0005-auth-route-locale-normalisierung.md",
       "title": "ADR-0005: Auth-Routen – Locale-Normalisierung (DE/EN)",
       "format": "markdown",
-      "hash": "ae7ce30713f764ccb5fe5da2486b8c0c99b5d8d5cd9c8de14318e451b6fd3e5d",
-      "size": 3417,
+      "hash": "cbd1dbeb9b402314f670f8f2fc1dc75b7085c24683d30cdb96e25211b018b712",
+      "size": 3929,
       "headings": [
         {
           "level": 1,
@@ -2602,6 +4949,10 @@
           "value": "Konsequenzen"
         },
         {
+          "level": 3,
+          "value": "Hinweis: Blog-Routen und UI-Links"
+        },
+        {
           "level": 2,
           "value": "Alternativen"
         },
@@ -2610,7 +4961,7 @@
           "value": "Referenzen"
         }
       ],
-      "lastModified": "2025-08-30T22:23:59.388Z"
+      "lastModified": "2025-10-11T02:06:17.059Z"
     },
     {
       "path": "docs/architecture/adrs/0006-dev-echo-non-prod.md",
@@ -3174,8 +5525,8 @@
       "path": "docs/architecture/api-middleware-inventory.md",
       "title": "API- & Middleware-Inventar (EvolutionHub)",
       "format": "markdown",
-      "hash": "23027d65d967baddb88a1deb8b145745ca592fe3b07fa5fc6209c2c0c8d760f7",
-      "size": 27709,
+      "hash": "4c95f0c32d4a7bbd3a7603b21527935b246e59f2b4074c7c6a8a54960c771481",
+      "size": 28112,
       "headings": [
         {
           "level": 1,
@@ -3188,6 +5539,10 @@
         {
           "level": 2,
           "value": "2) Methodik & Quellen"
+        },
+        {
+          "level": 3,
+          "value": "Primäre Referenzen"
         },
         {
           "level": 2,
@@ -3318,14 +5673,14 @@
           "value": "9) Offene Punkte zur Architektur-Übersicht (werden im Zuge der Batches gefüllt)"
         }
       ],
-      "lastModified": "2025-10-10T06:28:27.388Z"
+      "lastModified": "2025-10-17T07:46:08.296Z"
     },
     {
       "path": "docs/architecture/auth-architecture.md",
       "title": "Authentifizierungs-Architektur",
       "format": "markdown",
-      "hash": "43387e9c99fc19fcbf302dab88b2d8898129eab02a7d06991280b5ba5e2a2d98",
-      "size": 12282,
+      "hash": "b7084357b61f50b3f8d0d062d55c367d263668e95eeec2817c0ac2ca66e04a0f",
+      "size": 14317,
       "headings": [
         {
           "level": 1,
@@ -3354,6 +5709,10 @@
         {
           "level": 3,
           "value": "Social OAuth"
+        },
+        {
+          "level": 3,
+          "value": "Redirect- und Locale-Policy (aktualisiert)"
         },
         {
           "level": 2,
@@ -3416,7 +5775,7 @@
           "value": "E2E-Tests (Playwright)"
         }
       ],
-      "lastModified": "2025-10-01T07:16:39.349Z"
+      "lastModified": "2025-10-17T13:41:04.984Z"
     },
     {
       "path": "docs/architecture/auth-flow.md",
@@ -3468,8 +5827,8 @@
       "path": "docs/architecture/data-flow.md",
       "title": "Datenfluss-Dokumentation",
       "format": "markdown",
-      "hash": "df9a95b8fa42e4a1bd7b572f3ccc945b1bd5b56b9a440103b87956ffc7537558",
-      "size": 13430,
+      "hash": "2a52b7d67ceed49929b5c02d9806a994818c80759946802cdf3368827e94563b",
+      "size": 14619,
       "headings": [
         {
           "level": 1,
@@ -3510,6 +5869,10 @@
         {
           "level": 3,
           "value": "Benutzerauthentifizierung"
+        },
+        {
+          "level": 4,
+          "value": "Aktueller Magic‑Link (Stytch) — Sequenz"
         },
         {
           "level": 3,
@@ -3572,7 +5935,7 @@
           "value": "Beispiel für Caching-Implementierung"
         }
       ],
-      "lastModified": "2025-10-03T15:09:29.021Z"
+      "lastModified": "2025-10-17T13:41:05.065Z"
     },
     {
       "path": "docs/architecture/database-schema.md",
@@ -3870,14 +6233,14 @@
           "value": "Wartung"
         }
       ],
-      "lastModified": "2025-10-09T13:33:21.087Z"
+      "lastModified": "2025-10-11T02:06:17.061Z"
     },
     {
       "path": "docs/architecture/locale-middleware.md",
       "title": "Splash Page & Locale Middleware",
       "format": "markdown",
-      "hash": "c848e2fb81afe442c6515000fe7c0bcf7f6359f0ae17d92804dddad1d0434d11",
-      "size": 4326,
+      "hash": "e47c5785a608df4e08ff90c92484ebad31a9812c6c74076056487a54845150fd",
+      "size": 5670,
       "headings": [
         {
           "level": 1,
@@ -3886,6 +6249,10 @@
         {
           "level": 2,
           "value": "Overview"
+        },
+        {
+          "level": 3,
+          "value": "Auto-Continue and One-Time Gate"
         },
         {
           "level": 2,
@@ -3897,11 +6264,19 @@
         },
         {
           "level": 2,
+          "value": "Accept-Language q-values"
+        },
+        {
+          "level": 2,
           "value": "SEO"
         },
         {
           "level": 2,
           "value": "Security & Headers"
+        },
+        {
+          "level": 2,
+          "value": "Flags"
         },
         {
           "level": 2,
@@ -3944,14 +6319,14 @@
           "value": "Known Limitations / Notes"
         }
       ],
-      "lastModified": "2025-08-30T22:23:59.390Z"
+      "lastModified": "2025-10-15T12:59:32.547Z"
     },
     {
       "path": "docs/architecture/README.md",
       "title": "Architecture Documentation",
       "format": "markdown",
-      "hash": "0fb64417cf01d18379467fd36a2bdb67b7e1017a965bfbf1a8c99ae922745bca",
-      "size": 3198,
+      "hash": "92451583d96801db380a0a67440e2b49fe52bb617576eb2f260e840347290425",
+      "size": 3319,
       "headings": [
         {
           "level": 1,
@@ -4002,7 +6377,7 @@
           "value": "Weitere Dokumentation"
         }
       ],
-      "lastModified": "2025-10-09T13:33:21.086Z"
+      "lastModified": "2025-10-17T07:54:26.585Z"
     },
     {
       "path": "docs/architecture/reviews/BEWERTUNG_LOGIKREVIEW_IMAGE-ENHANCER_USAGE-PILL_PLANANZEIGE.md",
@@ -4114,8 +6489,8 @@
       "path": "docs/architecture/system-overview.md",
       "title": "Systemübersicht - Evolution Hub",
       "format": "markdown",
-      "hash": "83b1a8968f6c89753ce18ce9a849e1ac73038484433829b24048d149a0c84e27",
-      "size": 8147,
+      "hash": "cfa3dcfa9145229e25d5f802c763b304a3e28e28a0240d5dbed91d207a0e55b0",
+      "size": 8914,
       "headings": [
         {
           "level": 1,
@@ -4196,9 +6571,107 @@
         {
           "level": 3,
           "value": "Datensicherheit"
+        },
+        {
+          "level": 2,
+          "value": "External Services"
         }
       ],
-      "lastModified": "2025-10-05T03:54:48.423Z"
+      "lastModified": "2025-10-17T13:41:05.103Z"
+    },
+    {
+      "path": "docs/architecture/voice-visualizer-transcriptor.md",
+      "title": "Voice Visualizer + Transcriptor — Architektur",
+      "format": "markdown",
+      "hash": "89c6e0fa90044a3f0ac94cd4d91f000295afb0fe093e7af31e3cf2315e397113",
+      "size": 13380,
+      "headings": [
+        {
+          "level": 1,
+          "value": "Voice Visualizer + Transcriptor — Architektur"
+        },
+        {
+          "level": 2,
+          "value": "Overview"
+        },
+        {
+          "level": 2,
+          "value": "Architektur"
+        },
+        {
+          "level": 3,
+          "value": "Hauptbausteine"
+        },
+        {
+          "level": 2,
+          "value": "Security & Middleware"
+        },
+        {
+          "level": 2,
+          "value": "Limits & Quoten"
+        },
+        {
+          "level": 2,
+          "value": "Env & Bindings"
+        },
+        {
+          "level": 2,
+          "value": "Formate & Validierung (Client/Server)"
+        },
+        {
+          "level": 2,
+          "value": "API‑Verträge (gekürzt; Details in `openapi.yaml`)"
+        },
+        {
+          "level": 2,
+          "value": "Client‑Module"
+        },
+        {
+          "level": 2,
+          "value": "Routing & i18n"
+        },
+        {
+          "level": 2,
+          "value": "Observability & Debugging"
+        },
+        {
+          "level": 2,
+          "value": "Risiken & Mitigation"
+        },
+        {
+          "level": 2,
+          "value": "Backout‑Plan"
+        },
+        {
+          "level": 2,
+          "value": "Rollout & Next (Phase 2)"
+        },
+        {
+          "level": 3,
+          "value": "Streaming‑Endpunkte (Phase 2)"
+        },
+        {
+          "level": 3,
+          "value": "Lokaler Testablauf (Happy‑Path)"
+        },
+        {
+          "level": 2,
+          "value": "Nächste Umsetzungsschritte (konkret)"
+        },
+        {
+          "level": 2,
+          "value": "Offene Entscheidungsfragen"
+        },
+        {
+          "level": 2,
+          "value": "Readiness"
+        },
+        {
+          "level": 2,
+          "value": "Referenzen"
+        }
+      ],
+      "lastModified": "2025-10-15T12:58:44.427Z"
     },
     {
       "path": "docs/archive/documentation-gap-analysis.md",
@@ -4574,7 +7047,7 @@
           "value": "Hinweise"
         }
       ],
-      "lastModified": "2025-10-09T13:33:21.087Z"
+      "lastModified": "2025-10-11T02:06:17.062Z"
     },
     {
       "path": "docs/archive/status-assessment.md",
@@ -4854,7 +7327,7 @@
           "value": "10. Changelog"
         }
       ],
-      "lastModified": "2025-10-09T13:33:21.087Z"
+      "lastModified": "2025-10-11T02:06:17.052Z"
     },
     {
       "path": "docs/cheat-sheet.md",
@@ -5006,8 +7479,8 @@
       "path": "docs/content.md",
       "title": "Content Management Guidelines",
       "format": "markdown",
-      "hash": "7d2840745b9636a0f0033f7c6502057ff1eef0357b10f57df9a14e7d59af1079",
-      "size": 5118,
+      "hash": "d55deaba29704d1b7b0c28614ca9bda44357a983fb61f3a61703b851c6621c8b",
+      "size": 5293,
       "headings": [
         {
           "level": 1,
@@ -5028,6 +7501,14 @@
         {
           "level": 4,
           "value": "Optional Fields"
+        },
+        {
+          "level": 1,
+          "value": "Note: Blog index and taxonomy listings are ordered by (updatedDate ?? pubDate) descending."
+        },
+        {
+          "level": 1,
+          "value": "If updatedDate is present, it takes precedence for sorting; otherwise pubDate is used."
         },
         {
           "level": 1,
@@ -5074,7 +7555,7 @@
           "value": "Weiterführende Ressourcen"
         }
       ],
-      "lastModified": "2025-10-09T13:33:21.088Z"
+      "lastModified": "2025-10-19T03:40:04.620Z"
     },
     {
       "path": "docs/db_schema_update.md",
@@ -5182,14 +7663,14 @@
           "value": "Weitere Schritte"
         }
       ],
-      "lastModified": "2025-10-09T13:33:21.087Z"
+      "lastModified": "2025-10-11T02:06:17.064Z"
     },
     {
       "path": "docs/development/ci-cd.md",
       "title": "CI/CD-Pipeline - Evolution Hub",
       "format": "markdown",
-      "hash": "5e84a62d2a59730b0ecc436215a5713b89e0ba733d52210a01b4e5a4c3e5c908",
-      "size": 21573,
+      "hash": "475b63e40b02f4c2928af7700961630f52359c543e1169da0cd72fdd3c6be115",
+      "size": 25893,
       "headings": [
         {
           "level": 1,
@@ -5280,6 +7761,10 @@
           "value": "E2E v2 – Selektoren & Artefakte"
         },
         {
+          "level": 4,
+          "value": "CSRF-Schutz in E2E-Tests (Astro/Cloudflare Workers)"
+        },
+        {
           "level": 3,
           "value": "4. **Smoke-Tests** (gezielte Überwachung)"
         },
@@ -5298,6 +7783,10 @@
         {
           "level": 4,
           "value": "**prod-auth-smoke.yml**"
+        },
+        {
+          "level": 4,
+          "value": "Production smokes (Health-only)"
         },
         {
           "level": 3,
@@ -5406,6 +7895,42 @@
         {
           "level": 3,
           "value": "CLI-Script"
+        },
+        {
+          "level": 2,
+          "value": "Cron-Worker Monitoring & Manuelle Trigger (Testing)"
+        },
+        {
+          "level": 3,
+          "value": "Voraussetzungen"
+        },
+        {
+          "level": 4,
+          "value": "App Health (intern)"
+        },
+        {
+          "level": 4,
+          "value": "Cron-Worker manuell ausführen (Testing)"
+        },
+        {
+          "level": 1,
+          "value": "Auth-Health Job (schreibt KV: prod-auth:last)"
+        },
+        {
+          "level": 1,
+          "value": "Docs-Registry (schreibt KV: docs-registry:last und R2 artifacts)"
+        },
+        {
+          "level": 1,
+          "value": "Status-Snapshot (liest KV)"
+        },
+        {
+          "level": 4,
+          "value": "KV prüfen (remote)"
+        },
+        {
+          "level": 1,
+          "value": "aus workers/cron-worker/"
         },
         {
           "level": 2,
@@ -5724,6 +8249,18 @@
           "value": "Temporäres Überspringen von Hooks"
         },
         {
+          "level": 4,
+          "value": "Pre-Push Hook (lokal)"
+        },
+        {
+          "level": 1,
+          "value": ".husky/pre-push (Kurzfassung)"
+        },
+        {
+          "level": 1,
+          "value": "E2E-Smoke nur wenn TEST_BASE_URL erreichbar ist"
+        },
+        {
           "level": 3,
           "value": "Verfügbare Qualitätsprüfungen"
         },
@@ -5800,7 +8337,7 @@
           "value": "Nächste Schritte"
         }
       ],
-      "lastModified": "2025-10-05T02:05:15.074Z"
+      "lastModified": "2025-10-21T17:09:15.857Z"
     },
     {
       "path": "docs/development/debug-panel-usage.md",
@@ -6902,7 +9439,7 @@
           "value": "Database"
         }
       ],
-      "lastModified": "2025-10-09T13:33:21.087Z"
+      "lastModified": "2025-10-11T02:06:17.063Z"
     },
     {
       "path": "docs/development/stripe-setup.md",
@@ -7032,14 +9569,14 @@
           "value": "Troubleshooting"
         }
       ],
-      "lastModified": "2025-10-05T05:30:08.018Z"
+      "lastModified": "2025-10-11T02:06:17.064Z"
     },
     {
       "path": "docs/development/stytch-oauth-dev-guide.md",
       "title": "Stytch OAuth & Magic Link – Entwicklungsleitfaden (konsolidiert)",
       "format": "markdown",
-      "hash": "ede82bcdc82119cd266525ea84a10c9b78ecd0f534f1c0764b8d6bc127d6dc8b",
-      "size": 5953,
+      "hash": "c1877e4448d553b49f6ab003a5c4e43eed4b84c0380ff716958e63fcbd129b07",
+      "size": 6838,
       "headings": [
         {
           "level": 1,
@@ -7056,6 +9593,10 @@
         {
           "level": 2,
           "value": "3. Secrets pro Environment (Wrangler)"
+        },
+        {
+          "level": 3,
+          "value": "Feature Flags"
         },
         {
           "level": 1,
@@ -7098,6 +9639,10 @@
           "value": "8. Troubleshooting (kurz)"
         },
         {
+          "level": 3,
+          "value": "Observability"
+        },
+        {
           "level": 2,
           "value": "9. Referenzpfade (Code)"
         },
@@ -7110,7 +9655,7 @@
           "value": "11. Änderungshistorie"
         }
       ],
-      "lastModified": "2025-10-10T06:13:20.934Z"
+      "lastModified": "2025-10-17T04:38:30.702Z"
     },
     {
       "path": "docs/development/testing-guidelines.md",
@@ -7391,185 +9936,11 @@
       "lastModified": "2025-10-05T03:59:07.108Z"
     },
     {
-      "path": "docs/features/blog-system.md",
-      "title": "Blog-System – Evolution Hub",
-      "format": "markdown",
-      "hash": "c9626421ce899b123e74465f5ed841cb150005aa54c43bf620cee911de5cb867",
-      "size": 13771,
-      "headings": [
-        {
-          "level": 1,
-          "value": "Blog-System – Evolution Hub"
-        },
-        {
-          "level": 2,
-          "value": "Inhaltsverzeichnis"
-        },
-        {
-          "level": 2,
-          "value": "Übersicht"
-        },
-        {
-          "level": 2,
-          "value": "Architektur"
-        },
-        {
-          "level": 3,
-          "value": "Stack"
-        },
-        {
-          "level": 3,
-          "value": "Datenfluss"
-        },
-        {
-          "level": 2,
-          "value": "Content Management"
-        },
-        {
-          "level": 3,
-          "value": "Frontmatter Schema"
-        },
-        {
-          "level": 1,
-          "value": "Funnel-Konfiguration (optional)"
-        },
-        {
-          "level": 1,
-          "value": "SEO (optional)"
-        },
-        {
-          "level": 3,
-          "value": "Validierungsregeln"
-        },
-        {
-          "level": 3,
-          "value": "Kategorien"
-        },
-        {
-          "level": 2,
-          "value": "Komponenten"
-        },
-        {
-          "level": 3,
-          "value": "Astro-Komponenten"
-        },
-        {
-          "level": 3,
-          "value": "React-Komponenten"
-        },
-        {
-          "level": 3,
-          "value": "Features"
-        },
-        {
-          "level": 2,
-          "value": "Service Layer"
-        },
-        {
-          "level": 3,
-          "value": "BlogService-Klasse"
-        },
-        {
-          "level": 3,
-          "value": "Optimierungen"
-        },
-        {
-          "level": 3,
-          "value": "API-Methoden"
-        },
-        {
-          "level": 4,
-          "value": "getBlogIndexData()"
-        },
-        {
-          "level": 4,
-          "value": "getPostBySlug()"
-        },
-        {
-          "level": 4,
-          "value": "getRelatedPosts()"
-        },
-        {
-          "level": 2,
-          "value": "SEO & Performance"
-        },
-        {
-          "level": 3,
-          "value": "SEO-Features"
-        },
-        {
-          "level": 3,
-          "value": "Performance"
-        },
-        {
-          "level": 3,
-          "value": "Performance-Optimierungen"
-        },
-        {
-          "level": 2,
-          "value": "Funnel-Integration"
-        },
-        {
-          "level": 3,
-          "value": "CTA-System"
-        },
-        {
-          "level": 4,
-          "value": "Kategorie-Mapping"
-        },
-        {
-          "level": 4,
-          "value": "CTA-Typen"
-        },
-        {
-          "level": 4,
-          "value": "Frontmatter-Override"
-        },
-        {
-          "level": 2,
-          "value": "Produktionsbereitschaft"
-        },
-        {
-          "level": 3,
-          "value": "Production-Readiness Score: **75/100**"
-        },
-        {
-          "level": 3,
-          "value": "✅ Production-Ready"
-        },
-        {
-          "level": 3,
-          "value": "⚠️ Optimierungspotenzial"
-        },
-        {
-          "level": 3,
-          "value": "Pre-Production Checkliste"
-        },
-        {
-          "level": 4,
-          "value": "Must-Have (vor Launch)"
-        },
-        {
-          "level": 4,
-          "value": "Should-Have (vor Scaling)"
-        },
-        {
-          "level": 4,
-          "value": "Nice-to-Have (Post-Launch)"
-        },
-        {
-          "level": 2,
-          "value": "Weiterführende Ressourcen"
-        }
-      ],
-      "lastModified": "2025-10-09T13:33:59.360Z"
-    },
-    {
       "path": "docs/features/blog+commentsystem-plan.md",
       "title": "Production-Readiness-Plan: Blog & Comment-System",
       "format": "markdown",
-      "hash": "7df59c1116087939407ada78354eb58e40dff4776b827bd95bbe3a8cf7e2c304",
-      "size": 21284,
+      "hash": "39997d35d7bd4f66474996674ead418b42ebffbdd04baa262a7bd3cffe28e3de",
+      "size": 26431,
       "headings": [
         {
           "level": 1,
@@ -7578,6 +9949,26 @@
         {
           "level": 2,
           "value": "Übersicht"
+        },
+        {
+          "level": 2,
+          "value": "Single Source of Truth – Aktueller Stand (Blog + Comments)"
+        },
+        {
+          "level": 3,
+          "value": "Komponenten & Konventionen (Astro)"
+        },
+        {
+          "level": 4,
+          "value": "Locale-bewusste Links (SSoT)"
+        },
+        {
+          "level": 3,
+          "value": "API & Security Integration"
+        },
+        {
+          "level": 3,
+          "value": "Relevante Dateien (Auszug)"
         },
         {
           "level": 2,
@@ -7680,30 +10071,34 @@
           "value": "Nächste Schritte"
         }
       ],
-      "lastModified": "2025-10-10T02:35:55.895Z"
+      "lastModified": "2025-10-15T11:10:16.702Z"
     },
     {
-      "path": "docs/features/comment-system.md",
-      "title": "Kommentarsystem – Evolution Hub",
+      "path": "docs/features/pricing-system.md",
+      "title": "Pricing System Documentation",
       "format": "markdown",
-      "hash": "a0dd40ccff085d8fdcd7baec450de6f2e3c6363fb3e9bfde1cd6c8369880e3f6",
-      "size": 22343,
+      "hash": "f80d408f0e1e6d5d66936fa082676a23fa15b848a0636c71bb1399411d6e3f9f",
+      "size": 12043,
       "headings": [
         {
           "level": 1,
-          "value": "Kommentarsystem – Evolution Hub"
-        },
-        {
-          "level": 2,
-          "value": "Inhaltsverzeichnis"
+          "value": "Pricing System Documentation"
         },
         {
           "level": 2,
           "value": "Übersicht"
         },
         {
+          "level": 2,
+          "value": "Live-Status (Stand: 10. Oktober 2025)"
+        },
+        {
           "level": 3,
-          "value": "Hauptfeatures"
+          "value": "📊 **Aktuelle Kennzahlen**"
+        },
+        {
+          "level": 3,
+          "value": "💳 **Stripe-Integration**"
         },
         {
           "level": 2,
@@ -7711,67 +10106,11 @@
         },
         {
           "level": 3,
-          "value": "Stack-Übersicht"
+          "value": "System-Komponenten"
         },
         {
           "level": 3,
-          "value": "Datenfluss"
-        },
-        {
-          "level": 2,
-          "value": "Datenbank-Schema"
-        },
-        {
-          "level": 3,
-          "value": "Tabellen"
-        },
-        {
-          "level": 4,
-          "value": "1. `comments`"
-        },
-        {
-          "level": 4,
-          "value": "2. `comment_moderation`"
-        },
-        {
-          "level": 4,
-          "value": "3. `comment_reports`"
-        },
-        {
-          "level": 4,
-          "value": "4. `comment_audit_logs`"
-        },
-        {
-          "level": 3,
-          "value": "Performance-Optimierungen (Migration 0020)"
-        },
-        {
-          "level": 2,
-          "value": "API-Endpunkte"
-        },
-        {
-          "level": 3,
-          "value": "Übersicht"
-        },
-        {
-          "level": 3,
-          "value": "1. GET /api/comments"
-        },
-        {
-          "level": 3,
-          "value": "2. POST /api/comments/create"
-        },
-        {
-          "level": 3,
-          "value": "3. PUT /api/comments/[id]"
-        },
-        {
-          "level": 3,
-          "value": "4. DELETE /api/comments/[id]"
-        },
-        {
-          "level": 3,
-          "value": "5. POST /api/comments/moderate"
+          "value": "Technologie-Stack"
         },
         {
           "level": 2,
@@ -7779,43 +10118,119 @@
         },
         {
           "level": 3,
-          "value": "React-Komponenten"
+          "value": "PricingTable (`src/components/pricing/PricingTable.astro`)"
+        },
+        {
+          "level": 4,
+          "value": "✅ **Stärken**"
+        },
+        {
+          "level": 4,
+          "value": "⚠️ **Verbesserungspotenzial**"
         },
         {
           "level": 3,
-          "value": "Zustand State Management"
+          "value": "FeatureComparison (`src/components/pricing/FeatureComparison.astro`)"
         },
         {
-          "level": 3,
-          "value": "Verwendung"
-        },
-        {
-          "level": 3,
-          "value": "UX-Features"
+          "level": 4,
+          "value": "✅ **Stärken**"
         },
         {
           "level": 2,
-          "value": "Security-Features"
+          "value": "API-Endpunkte"
         },
         {
           "level": 3,
-          "value": "1. XSS-Protection"
+          "value": "`/api/billing/session` (`src/pages/api/billing/session.ts`)"
+        },
+        {
+          "level": 4,
+          "value": "✅ **Sicherheitsfeatures**"
+        },
+        {
+          "level": 4,
+          "value": "✅ **Funktionalität**"
         },
         {
           "level": 3,
-          "value": "2. Spam-Detection"
+          "value": "`/api/billing/credits` (`src/pages/api/billing/credits.ts`)"
+        },
+        {
+          "level": 4,
+          "value": "✅ **Sicherheitsfeatures**"
+        },
+        {
+          "level": 4,
+          "value": "✅ **Funktionalität**"
         },
         {
           "level": 3,
-          "value": "3. Rate-Limiting"
+          "value": "`/api/billing/stripe-webhook` (`src/pages/api/billing/stripe-webhook.ts`)"
+        },
+        {
+          "level": 4,
+          "value": "✅ **Sicherheitsfeatures**"
+        },
+        {
+          "level": 4,
+          "value": "✅ **Funktionalität**"
         },
         {
           "level": 3,
-          "value": "4. CSRF-Protection"
+          "value": "`/api/billing/sync` (`src/pages/api/billing/sync.ts`)"
+        },
+        {
+          "level": 4,
+          "value": "✅ **Sicherheitsfeatures**"
+        },
+        {
+          "level": 4,
+          "value": "✅ **Funktionalität**"
+        },
+        {
+          "level": 2,
+          "value": "Datenbankschema"
         },
         {
           "level": 3,
-          "value": "5. Audit-Logging"
+          "value": "`stripe_customers` Tabelle"
+        },
+        {
+          "level": 3,
+          "value": "`subscriptions` Tabelle"
+        },
+        {
+          "level": 3,
+          "value": "Optimierte Indizes"
+        },
+        {
+          "level": 2,
+          "value": "Sicherheit"
+        },
+        {
+          "level": 3,
+          "value": "Rate Limiting Konfiguration"
+        },
+        {
+          "level": 3,
+          "value": "Security Headers"
+        },
+        {
+          "level": 3,
+          "value": "CSRF-Schutz"
+        },
+        {
+          "level": 2,
+          "value": "Business-Modell"
+        },
+        {
+          "level": 3,
+          "value": "Preisstruktur"
+        },
+        {
+          "level": 3,
+          "value": "Credit-System"
         },
         {
           "level": 2,
@@ -7823,94 +10238,94 @@
         },
         {
           "level": 3,
-          "value": "E2E-Tests (Playwright)"
+          "value": "Aktuelle Test-Coverage"
         },
         {
           "level": 3,
-          "value": "Integration-Tests (Vitest)"
-        },
-        {
-          "level": 3,
-          "value": "Unit-Tests (Vitest)"
-        },
-        {
-          "level": 3,
-          "value": "Test-Kommandos"
-        },
-        {
-          "level": 1,
-          "value": "E2E-Tests (Comment-System)"
-        },
-        {
-          "level": 1,
-          "value": "Integration-Tests"
-        },
-        {
-          "level": 1,
-          "value": "Unit-Tests"
-        },
-        {
-          "level": 1,
-          "value": "Coverage"
+          "value": "Empfohlene Test-Ergänzungen"
         },
         {
           "level": 2,
-          "value": "Produktionsbereitschaft"
+          "value": "Performance"
         },
         {
           "level": 3,
-          "value": "Production-Readiness Score: **80/100**"
+          "value": "Aktuelle Metriken"
         },
         {
           "level": 3,
-          "value": "✅ Production-Ready"
-        },
-        {
-          "level": 3,
-          "value": "⚠️ Optimierungspotenzial"
-        },
-        {
-          "level": 4,
-          "value": "1. Fehlende Features (Hoch)"
-        },
-        {
-          "level": 4,
-          "value": "2. Testing (Mittel)"
-        },
-        {
-          "level": 4,
-          "value": "3. Monitoring (Mittel)"
-        },
-        {
-          "level": 4,
-          "value": "4. Performance (Niedrig)"
-        },
-        {
-          "level": 4,
-          "value": "5. UX-Kleinigkeiten (Niedrig)"
-        },
-        {
-          "level": 3,
-          "value": "Pre-Production Checkliste"
-        },
-        {
-          "level": 4,
-          "value": "Must-Have (vor Launch)"
-        },
-        {
-          "level": 4,
-          "value": "Should-Have (vor Scaling)"
-        },
-        {
-          "level": 4,
-          "value": "Nice-to-Have (Post-Launch)"
+          "value": "Optimierungspotenzial"
         },
         {
           "level": 2,
-          "value": "Weiterführende Ressourcen"
+          "value": "Compliance"
+        },
+        {
+          "level": 3,
+          "value": "GDPR-Konformität"
+        },
+        {
+          "level": 3,
+          "value": "Payment Security (PCI DSS)"
+        },
+        {
+          "level": 2,
+          "value": "Deployment & Monitoring"
+        },
+        {
+          "level": 3,
+          "value": "Umgebungen"
+        },
+        {
+          "level": 3,
+          "value": "Health Checks"
+        },
+        {
+          "level": 3,
+          "value": "Monitoring"
+        },
+        {
+          "level": 2,
+          "value": "Roadmap & Verbesserungen"
+        },
+        {
+          "level": 3,
+          "value": "Sofortmaßnahmen (P0)"
+        },
+        {
+          "level": 3,
+          "value": "Kurzfristig (P1 - 1 Monat)"
+        },
+        {
+          "level": 3,
+          "value": "Mittelfristig (P2 - 3 Monate)"
+        },
+        {
+          "level": 2,
+          "value": "Troubleshooting"
+        },
+        {
+          "level": 3,
+          "value": "Häufige Probleme"
+        },
+        {
+          "level": 3,
+          "value": "Debug-Strategien"
+        },
+        {
+          "level": 2,
+          "value": "Support & Maintenance"
+        },
+        {
+          "level": 3,
+          "value": "Kritische Kontakte"
+        },
+        {
+          "level": 3,
+          "value": "Backup-Strategien"
         }
       ],
-      "lastModified": "2025-10-09T13:34:46.294Z"
+      "lastModified": "2025-10-11T02:06:17.065Z"
     },
     {
       "path": "docs/frontend/aos-coordinator.md",
@@ -7992,7 +10407,7 @@
           "value": "Nachher (v1.7.3+)"
         }
       ],
-      "lastModified": "2025-10-09T13:33:21.087Z"
+      "lastModified": "2025-10-11T02:06:17.066Z"
     },
     {
       "path": "docs/frontend/card-components.md",
@@ -8452,14 +10867,14 @@
           "value": "Build-Kompatibilität"
         }
       ],
-      "lastModified": "2025-10-09T13:33:21.087Z"
+      "lastModified": "2025-10-11T02:06:17.067Z"
     },
     {
       "path": "docs/frontend/entitlements-ui-gating.md",
       "title": "Entitlements & UI‑Gating (AI Image Enhancer)",
       "format": "markdown",
-      "hash": "bef65f51c9fd11077ccad08d03efa44f52bb877f4e816db7de333a8f9801ee50",
-      "size": 2429,
+      "hash": "ec05d1800f4c5952066ec07505e22f9b5d2cfa7a755c38794e7f7caf0b6d2092",
+      "size": 3364,
       "headings": [
         {
           "level": 1,
@@ -8476,6 +10891,18 @@
         {
           "level": 2,
           "value": "Behavior"
+        },
+        {
+          "level": 3,
+          "value": "Plan Caps"
+        },
+        {
+          "level": 3,
+          "value": "Usage Semantics"
+        },
+        {
+          "level": 3,
+          "value": "Credit Packs"
         },
         {
           "level": 2,
@@ -8498,7 +10925,7 @@
           "value": "Acceptance Criteria"
         }
       ],
-      "lastModified": "2025-10-01T01:35:45.047Z"
+      "lastModified": "2025-10-21T17:08:35.274Z"
     },
     {
       "path": "docs/frontend/header-scroll-animation.md",
@@ -8542,8 +10969,8 @@
       "path": "docs/frontend/imag-enhancer-ui-upgrade.md",
       "title": "Imag Enhancer UI Upgrade (Glassmorphism + Pro-Compare)",
       "format": "markdown",
-      "hash": "772cd13d8d9ab66e471da63e37910468fd4e94edde764e47fc754b8ec2cb984d",
-      "size": 22484,
+      "hash": "40db4ee7158269857eb275c0b82cfbfab7bd877d71138f1ecfd34cb7c49008f5",
+      "size": 24233,
       "headings": [
         {
           "level": 1,
@@ -8560,6 +10987,10 @@
         {
           "level": 2,
           "value": "API-Sicherheitsintegration (CSRF, Rate Limits, Allowed Origins)"
+        },
+        {
+          "level": 2,
+          "value": "Hybrid Provider + Env Gating"
         },
         {
           "level": 2,
@@ -8656,9 +11087,13 @@
         {
           "level": 2,
           "value": "Manuelle QA-Checkliste"
+        },
+        {
+          "level": 2,
+          "value": "Changelog (2025-10-18) — Minimal-Split (selector-stable)"
         }
       ],
-      "lastModified": "2025-10-05T02:03:45.765Z"
+      "lastModified": "2025-10-21T17:07:52.840Z"
     },
     {
       "path": "docs/frontend/README.md",
@@ -8752,7 +11187,7 @@
           "value": "React Islands"
         }
       ],
-      "lastModified": "2025-10-09T13:34:53.965Z"
+      "lastModified": "2025-10-11T02:06:17.065Z"
     },
     {
       "path": "docs/frontend/toast-notifications.md",
@@ -8804,8 +11239,8 @@
       "path": "docs/frontend/ui-components.md",
       "title": "UI-Komponenten (schlank, Utility-First)",
       "format": "markdown",
-      "hash": "b9391da60827b73433de3d44ee026248b63648cca2fbc13cfd434f88e0e69b61",
-      "size": 2986,
+      "hash": "716d64c06b5011b144971d2a37b9369dc2e50e29a9aebb43b7f09c17b088c0b4",
+      "size": 4048,
       "headings": [
         {
           "level": 1,
@@ -8838,9 +11273,13 @@
         {
           "level": 2,
           "value": "Richtlinien"
+        },
+        {
+          "level": 2,
+          "value": "Blog UI Konventionen (Astro)"
         }
       ],
-      "lastModified": "2025-10-01T01:35:45.048Z"
+      "lastModified": "2025-10-11T02:06:17.067Z"
     },
     {
       "path": "docs/frontend/ui-ux.md",
@@ -9259,6 +11698,52 @@
       "lastModified": "2025-10-01T07:39:32.575Z"
     },
     {
+      "path": "docs/ops/cloudflare-cache-rules.md",
+      "title": "Cloudflare Cache Rules — CI & Staging",
+      "format": "markdown",
+      "hash": "ea92af1abd3d5692a4fdcb1591508a5a696d0af750be48a533ccbd03dbf67d91",
+      "size": 4137,
+      "headings": [
+        {
+          "level": 1,
+          "value": "Cloudflare Cache Rules — CI & Staging"
+        },
+        {
+          "level": 2,
+          "value": "Summary"
+        },
+        {
+          "level": 2,
+          "value": "CI Rules (active)"
+        },
+        {
+          "level": 2,
+          "value": "Staging Rules (Option A — active)"
+        },
+        {
+          "level": 2,
+          "value": "API Playbook"
+        },
+        {
+          "level": 2,
+          "value": "Verification"
+        },
+        {
+          "level": 1,
+          "value": "without manual bypass"
+        },
+        {
+          "level": 1,
+          "value": "with manual bypass"
+        },
+        {
+          "level": 2,
+          "value": "Notes & Constraints"
+        }
+      ],
+      "lastModified": "2025-10-11T02:06:17.070Z"
+    },
+    {
       "path": "docs/ops/prod-readiness-ai-image-enhancer.md",
       "title": "AI Image Enhancer – Production Readiness & Go‑Live Checklist",
       "format": "markdown",
@@ -9337,6 +11822,84 @@
       "lastModified": "2025-10-05T02:04:29.115Z"
     },
     {
+      "path": "docs/ops/production-readiness-checklist.md",
+      "title": "Evolution Hub — Production Readiness Audit & Implementation Plan",
+      "format": "markdown",
+      "hash": "836b658a0face6035dc54d7c435fc80266c106310e954b31006bd2bfcae4730a",
+      "size": 8891,
+      "headings": [
+        {
+          "level": 1,
+          "value": "Evolution Hub — Production Readiness Audit & Implementation Plan"
+        },
+        {
+          "level": 2,
+          "value": "Scope & Goals"
+        },
+        {
+          "level": 2,
+          "value": "Workstreams"
+        },
+        {
+          "level": 3,
+          "value": "W1. Distributed Rate Limiting (KV-backed)"
+        },
+        {
+          "level": 3,
+          "value": "W2. Turnstile-Enforcement for Magic Link"
+        },
+        {
+          "level": 3,
+          "value": "W3. Explicit Allowed Origins"
+        },
+        {
+          "level": 3,
+          "value": "W4. Global Referrer-Policy for HTML"
+        },
+        {
+          "level": 3,
+          "value": "W5. CI Gate: Staging Smokes before Production"
+        },
+        {
+          "level": 3,
+          "value": "W6. Secrets & Bindings Audit"
+        },
+        {
+          "level": 3,
+          "value": "W7. Monitoring & Runbooks"
+        },
+        {
+          "level": 3,
+          "value": "W8. Voice SSE Flags & Limits"
+        },
+        {
+          "level": 3,
+          "value": "W9. Stripe Prices & Plan Mapping"
+        },
+        {
+          "level": 3,
+          "value": "W10. Tests (Unit/Integration/E2E) — Additions"
+        },
+        {
+          "level": 2,
+          "value": "Environment Matrix (to verify)"
+        },
+        {
+          "level": 2,
+          "value": "Operational Runbook (Short)"
+        },
+        {
+          "level": 2,
+          "value": "Approval & Execution Order"
+        },
+        {
+          "level": 2,
+          "value": "Proposed First Command (no side-effects)"
+        }
+      ],
+      "lastModified": "2025-10-15T20:31:20.668Z"
+    },
+    {
       "path": "docs/ops/README.md",
       "title": "Operations Documentation",
       "format": "markdown",
@@ -9364,14 +11927,14 @@
           "value": "Verwandte Dokumentation"
         }
       ],
-      "lastModified": "2025-10-10T06:31:15.293Z"
+      "lastModified": "2025-10-11T02:06:17.070Z"
     },
     {
       "path": "docs/README.md",
       "title": "Evolution Hub Documentation",
       "format": "markdown",
-      "hash": "163c7ccf9afe47184e8040793dc658c7ac85dae8824831d9a079b74ba25a2c83",
-      "size": 9168,
+      "hash": "5f7e112db7e8acd72068f9b892647155cda95faf33d46863754550bbaa5bce7a",
+      "size": 9167,
       "headings": [
         {
           "level": 1,
@@ -9474,7 +12037,7 @@
           "value": "📚 Weitere Ressourcen"
         }
       ],
-      "lastModified": "2025-10-05T03:59:49.382Z"
+      "lastModified": "2025-10-17T07:16:03.354Z"
     },
     {
       "path": "docs/reference/environment.md",
@@ -9488,7 +12051,7 @@
         "title": "Environment variables",
         "description": "Reference of configuration sourced from .env.example"
       },
-      "lastModified": "2025-10-09T13:33:21.087Z"
+      "lastModified": "2025-10-11T02:06:17.070Z"
     },
     {
       "path": "docs/SECURITY.md",
@@ -9868,7 +12431,7 @@
           "value": "Zukünftige Verbesserungen"
         }
       ],
-      "lastModified": "2025-10-09T13:33:21.087Z"
+      "lastModified": "2025-10-11T02:06:17.071Z"
     },
     {
       "path": "docs/security/security_headers.md",
@@ -10458,7 +13021,7 @@
           "value": "Coverage-Threshold (vitest.config.ts)"
         }
       ],
-      "lastModified": "2025-10-09T13:35:03.122Z"
+      "lastModified": "2025-10-11T02:06:17.071Z"
     },
     {
       "path": "docs/testing/testing-strategy.md",
@@ -10736,8 +13299,8 @@
       "path": "docs/tools/image-enhancer.md",
       "title": "AI Image Enhancer – KI-gestützte Bildverbesserung",
       "format": "markdown",
-      "hash": "55fc969d6032d7b7cca9c606a4f5fb797d01d3480f2d14600f4644a947534e84",
-      "size": 25279,
+      "hash": "40a9778e93b28e5be9e74fdf061a17d7c67ca531ec440217ce45f5eb5d1e4707",
+      "size": 26548,
       "headings": [
         {
           "level": 1,
@@ -11020,14 +13583,14 @@
           "value": "Ende der AI Image Enhancer Dokumentation"
         }
       ],
-      "lastModified": "2025-10-09T13:37:25.341Z"
+      "lastModified": "2025-10-17T13:41:05.307Z"
     },
     {
       "path": "docs/tools/prompt-enhancer.md",
       "title": "Prompt Enhancer – KI-gestützte Prompt-Optimierung",
       "format": "markdown",
-      "hash": "03f7574e9bbff3899fac4762c4606328edd1406ce7e07f55309c5f81dcd3d25e",
-      "size": 15055,
+      "hash": "16b4668c8e05ddee859d52ad83dc4cf31c4ecb2b92ff60fbf8b9a5fd4822f46a",
+      "size": 15838,
       "headings": [
         {
           "level": 1,
@@ -11282,7 +13845,7 @@
           "value": "Ende der Prompt Enhancer Dokumentation"
         }
       ],
-      "lastModified": "2025-10-09T13:38:45.114Z"
+      "lastModified": "2025-10-17T13:41:05.370Z"
     },
     {
       "path": "docs/tools/webscraper/guidelines.md",
@@ -11456,7 +14019,7 @@
           "value": "Qualitätskritische Aspekte"
         }
       ],
-      "lastModified": "2025-10-09T13:39:03.146Z"
+      "lastModified": "2025-10-11T02:06:17.073Z"
     },
     {
       "path": "docs/tools/webscraper/IMPLEMENTATION_COMPLETE.md",
@@ -11728,7 +14291,7 @@
           "value": "📞 Support"
         }
       ],
-      "lastModified": "2025-10-09T13:39:19.228Z"
+      "lastModified": "2025-10-11T02:06:17.072Z"
     },
     {
       "path": "docs/tools/webscraper/roadmap.md",
@@ -11866,7 +14429,7 @@
           "value": "Datenschutz"
         }
       ],
-      "lastModified": "2025-10-09T13:39:29.190Z"
+      "lastModified": "2025-10-11T02:06:17.073Z"
     },
     {
       "path": "docs/tools/webscraper/spec.md",
@@ -12088,7 +14651,7 @@
           "value": "Nicht-funktionale Kriterien"
         }
       ],
-      "lastModified": "2025-10-09T13:39:46.661Z"
+      "lastModified": "2025-10-11T02:06:17.073Z"
     },
     {
       "path": "docs/tools/webscraper/testing.md",
@@ -12218,7 +14781,7 @@
           "value": "Nicht-funktionale Tests"
         }
       ],
-      "lastModified": "2025-10-05T05:24:49.656Z"
+      "lastModified": "2025-10-11T02:06:17.074Z"
     },
     {
       "path": "playwright-report/data/01c19239598e205d36387ef474ecc47d84cdda3c.md",
@@ -12513,8 +15076,8 @@
       "path": "README.md",
       "title": "Evolution Hub",
       "format": "markdown",
-      "hash": "30e7fa1aa72720eb060578d8c2f42dd64e335342aaab1ba21cfb2ce1f03b87fa",
-      "size": 7563,
+      "hash": "fc607cfc606f4c0ea0030fcba093d3c194d78becfa028b0e07cc20847b91b311",
+      "size": 8008,
       "headings": [
         {
           "level": 1,
@@ -12641,14 +15204,23 @@
           "value": "📞 Kontakt"
         }
       ],
-      "lastModified": "2025-10-03T15:13:18.487Z"
+      "lastModified": "2025-10-18T20:41:52.875Z"
+    },
+    {
+      "path": "rid.txt",
+      "description": "6b767a1cbf6b471e83c59e1eb4cff044",
+      "format": "text",
+      "hash": "e15724329f6fddb742888a48eee921733a38e8ca2d62e38ef1a7e632b5f66615",
+      "size": 33,
+      "headings": [],
+      "lastModified": "2025-10-11T02:06:17.081Z"
     },
     {
       "path": "routes.md",
       "title": "Routenübersicht",
       "format": "markdown",
-      "hash": "726c0cc4af7901bd1d979b084d0d31805d5645932383797e0b938607d595f02b",
-      "size": 28102,
+      "hash": "9ba6a57c396eba52715646e66e88e3b5fea31470bbdaa65c1678b7cdde3eaa26",
+      "size": 29383,
       "headings": [
         {
           "level": 1,
@@ -12699,77 +15271,303 @@
           "value": "Auth-Flow Hinweise (Login/Register UI)"
         }
       ],
-      "lastModified": "2025-10-03T15:09:29.040Z"
+      "lastModified": "2025-10-15T12:59:32.548Z"
     },
     {
-      "path": "src/content/blog/_bild-prompts-blogartikel-1-12.md",
-      "title": "Bild-Prompts für Blog-Artikel",
+      "path": "Scope_of_Interest_EvolutionHub.md",
+      "title": "Scope of Interest – Evolution Hub",
       "format": "markdown",
-      "hash": "d9fb5bbdcfa639f7e6f37387146832a086c4f961e23a22ee27c71291959f2cd5",
-      "size": 5163,
+      "hash": "e9f4be2613da6ea2a2562920b914ad0bca1a5c16847133ca3cee97a131581716",
+      "size": 29199,
       "headings": [
         {
           "level": 1,
-          "value": "Bild-Prompts für Blog-Artikel"
+          "value": "Scope of Interest – Evolution Hub"
         },
         {
           "level": 2,
-          "value": "1. Digital Detox"
+          "value": "1  Identität & Zugang"
         },
         {
           "level": 2,
-          "value": "2. Gig Economy"
+          "value": "2  Abos, Credits & Badges"
         },
         {
           "level": 2,
-          "value": "3. Imposter-Syndrom"
+          "value": "3  Credit- und Verbrauchssystem"
+        },
+        {
+          "level": 3,
+          "value": "3.1 Multiplikatoren innerhalb der Tools"
+        },
+        {
+          "level": 3,
+          "value": "3.2 Fehler- und Abbruchlogik"
+        },
+        {
+          "level": 3,
+          "value": "3.3 Konfiguration & Governance"
         },
         {
           "level": 2,
-          "value": "4. KI im Alltag"
+          "value": "4  Tool-Ökonomie und Kostenrelation"
         },
         {
           "level": 2,
-          "value": "5. Konstruktives Feedback"
+          "value": "5  Blog & Kommentare"
         },
         {
           "level": 2,
-          "value": "6. Lebenslanges Lernen"
+          "value": "6  Governance & Transparenz"
         },
         {
           "level": 2,
-          "value": "7. Mentoring 2.0"
+          "value": "7  Langfristige Vision"
         },
         {
           "level": 2,
-          "value": "8. New Work"
+          "value": "8  Tools im Hub"
+        },
+        {
+          "level": 3,
+          "value": "8.1 Image Enhancer"
+        },
+        {
+          "level": 3,
+          "value": "8.2 Prompt Enhancer"
+        },
+        {
+          "level": 3,
+          "value": "8.3 Voice Visualizer + Transcriptor"
+        },
+        {
+          "level": 3,
+          "value": "8.4 Webscraper"
         },
         {
           "level": 2,
-          "value": "9. Pomodoro-Technik"
+          "value": "9  Quellen und Technische Basis"
         },
         {
           "level": 2,
-          "value": "10. Vom Ziel zur Gewohnheit"
+          "value": "10  Blog – Community & Monetarisierung"
         },
         {
           "level": 2,
-          "value": "11. Second Brain"
+          "value": "11  User Dashboard – Zentrale Benutzeroberfläche"
+        },
+        {
+          "level": 3,
+          "value": "11.1 Kernfunktionen"
+        },
+        {
+          "level": 3,
+          "value": "11.2 Erweiterbare Bereiche (Zukunft)"
         },
         {
           "level": 2,
-          "value": "12. Zukunft der Führung"
+          "value": "12 Session & Cookie Policy"
+        },
+        {
+          "level": 2,
+          "value": "13 CSRF & Same-Origin Policy"
+        },
+        {
+          "level": 2,
+          "value": "14 API-Response & Fehlerkonventionen"
+        },
+        {
+          "level": 2,
+          "value": "15 Rate Limiting"
+        },
+        {
+          "level": 2,
+          "value": "16 Environment-Matrix & Feature-Flags"
+        },
+        {
+          "level": 2,
+          "value": "17 Datenlebenszyklus & Aufbewahrung"
+        },
+        {
+          "level": 2,
+          "value": "18 Image-Enhancer: Provider-Gating & Parameterkappen"
+        },
+        {
+          "level": 2,
+          "value": "19 R2-Proxy & Zugriffsrichtlinie"
+        },
+        {
+          "level": 2,
+          "value": "20 Observability & Logging"
+        },
+        {
+          "level": 2,
+          "value": "21 Cloudflare Caching & Rulesets"
+        },
+        {
+          "level": 2,
+          "value": "22 Content Security Policy (CSP)"
+        },
+        {
+          "level": 2,
+          "value": "23 OpenAPI-Governance"
+        },
+        {
+          "level": 2,
+          "value": "24 Billing-Pipeline & Stripe-Integration"
+        },
+        {
+          "level": 3,
+          "value": "25 Voice Streaming Architektur"
+        },
+        {
+          "level": 3,
+          "value": "26 Prompt-Enhancer Provider & Limits"
+        },
+        {
+          "level": 3,
+          "value": "27 Missbrauchsprävention & Bot-Abwehr"
+        },
+        {
+          "level": 3,
+          "value": "28 Cache-Control-Strategie"
+        },
+        {
+          "level": 3,
+          "value": "29 Support & Incident Response"
+        },
+        {
+          "level": 3,
+          "value": "30 QA-Gates & Release-Kriterien"
+        },
+        {
+          "level": 3,
+          "value": "31 Versionierung & Releases"
+        },
+        {
+          "level": 3,
+          "value": "32 Governance der Credit-Multiplikatoren"
+        },
+        {
+          "level": 3,
+          "value": "33 Datenschutz & Compliance"
+        },
+        {
+          "level": 3,
+          "value": "34 Backup & Disaster Recovery"
+        },
+        {
+          "level": 3,
+          "value": "35 Zugriffskontrollmodell (RBAC)"
+        },
+        {
+          "level": 3,
+          "value": "36 Kommerzielle Richtlinien (Credits/Refunds)"
+        },
+        {
+          "level": 3,
+          "value": "37 Datenresidenz & Regionen"
+        },
+        {
+          "level": 3,
+          "value": "38 Drittanbieter-Runbooks & Secrets-Management"
+        },
+        {
+          "level": 3,
+          "value": "39 API-Versionierung & Deprecation-Policy"
+        },
+        {
+          "level": 3,
+          "value": "40 Environment-Flag-Inventar"
+        },
+        {
+          "level": 3,
+          "value": "41 Provider-Error-Mapping & Retry-Matrix"
+        },
+        {
+          "level": 3,
+          "value": "42 Datenklassifikation & Redaction"
+        },
+        {
+          "level": 3,
+          "value": "43 Usage/Entitlements Spezifikation"
+        },
+        {
+          "level": 3,
+          "value": "44 Health-Endpoints & Monitoring"
+        },
+        {
+          "level": 3,
+          "value": "45 Security-Header Baseline & Change Management"
+        },
+        {
+          "level": 3,
+          "value": "46 Release & Rollback Playbook"
+        },
+        {
+          "level": 3,
+          "value": "47 Testmatrix & QA-Checkliste"
+        },
+        {
+          "level": 3,
+          "value": "48 Customer Support SLA & Eskalation"
+        },
+        {
+          "level": 3,
+          "value": "49 Compliance-Checkliste"
+        },
+        {
+          "level": 3,
+          "value": "50 Kosten-Governance"
         }
       ],
-      "lastModified": "2025-10-03T15:09:29.094Z"
+      "lastModified": "2025-10-21T13:49:02.237Z"
+    },
+    {
+      "path": "SETUP_GUIDE.md",
+      "title": "Evolution Hub — Setup Guide (Context System)",
+      "format": "markdown",
+      "hash": "f82ed66c338ab609ed86fcbb3e28aea4a8ef35a3dc24c55172ada57e02c4086d",
+      "size": 1943,
+      "headings": [
+        {
+          "level": 1,
+          "value": "Evolution Hub — Setup Guide (Context System)"
+        },
+        {
+          "level": 2,
+          "value": "What this adds"
+        },
+        {
+          "level": 2,
+          "value": "Files & Workflows"
+        },
+        {
+          "level": 2,
+          "value": "First run (recommended)"
+        },
+        {
+          "level": 2,
+          "value": "Health Check (no writes)"
+        },
+        {
+          "level": 2,
+          "value": "Rules promotion"
+        },
+        {
+          "level": 2,
+          "value": "Notes"
+        }
+      ],
+      "lastModified": "2025-10-15T12:59:32.546Z"
     },
     {
       "path": "src/content/blog/digital-detox-kreativitaet.md",
       "title": "'Digital Detox: Warum Offline-Zeiten deine Kreativität und Konzentration fördern.'",
       "description": "'Entdecken Sie, wie bewusste Pausen von der digitalen Welt Ihre mentale Gesundheit stärken und Ihre Kreativität auf ein neues Level heben können.'",
       "format": "markdown",
-      "hash": "0171d71d5f9861243b2a253a37c4f4d54bdf604ada5b48e206d0a8b924d9075a",
-      "size": 4031,
+      "hash": "e248f8e97fda970cf93eae217e3f51dbb766470ab06f0b30b2599c1a59d22525",
+      "size": 3990,
       "headings": [
         {
           "level": 1,
@@ -12802,17 +15600,19 @@
         "pubDate": "'2025-07-20'",
         "author": "'Evolution Hub'",
         "category": "'Mentale Gesundheit'",
-        "tags": "['Digital Detox', 'Achtsamkeit', 'Kreativität', 'Produktivität']"
+        "tags": "['Digital Detox', 'Achtsamkeit', 'Kreativität', 'Produktivität']",
+        "image": "./images/digital-detox-kreativitaet-1.webp.png",
+        "imageAlt": "'Person meditiert unter Baum, Smartphone wird von Vögeln davongetragen'"
       },
-      "lastModified": "2025-10-03T15:09:29.095Z"
+      "lastModified": "2025-10-17T13:52:33.724Z"
     },
     {
       "path": "src/content/blog/gig-economy-chancen-risiken.md",
       "title": "'Der Aufstieg der Gig Economy: Chancen und Risiken der projektbasierten Arbeit.'",
       "description": "Die Gig Economy boomt. Erfahre alles über die Chancen und Risiken der projektbasierten Arbeit für Freelancer und Selbstständige.",
       "format": "markdown",
-      "hash": "b2fdee6a52059e2183f0bfec34c7ca076a2ad907bea68ae3f66e29a7826a6cb4",
-      "size": 4951,
+      "hash": "b8bc607d4b53521b75d721c57df153ff367b9ec24b8992eb0d22460875448d55",
+      "size": 4907,
       "headings": [
         {
           "level": 1,
@@ -12869,17 +15669,19 @@
         "pubDate": "'2025-07-20'",
         "author": "'Evolution Hub'",
         "category": "'New Work'",
-        "tags": "['Gig Economy', 'Freelancer', 'Selbstständigkeit', 'Zukunft der Arbeit']"
+        "tags": "['Gig Economy', 'Freelancer', 'Selbstständigkeit', 'Zukunft der Arbeit']",
+        "image": "./images/gig-economy-chancen-risiken-1.webp.png",
+        "imageAlt": "'Flexibles Arbeiten in der Gig Economy'"
       },
-      "lastModified": "2025-10-03T15:09:29.095Z"
+      "lastModified": "2025-10-17T13:53:18.717Z"
     },
     {
       "path": "src/content/blog/imposter-syndrom-ueberwinden.md",
       "title": "'Das Imposter-Syndrom überwinden: 5 Strategien für mehr Selbstvertrauen im Job.'",
       "description": "'Fühlst du dich wie ein Hochstapler im Job? Du bist nicht allein. Lerne 5 bewährte Strategien, um das Imposter-Syndrom zu überwinden.'",
       "format": "markdown",
-      "hash": "d34d6389c77cbc51f28bc4c0796dcb02e2305fd3a8d3312242b2cfb8c8286a0f",
-      "size": 5000,
+      "hash": "950da25ed2f02966e66a62b0557e814f40c3d975a5ee1785d2970f4ffc8af323",
+      "size": 4952,
       "headings": [
         {
           "level": 1,
@@ -12924,17 +15726,114 @@
         "pubDate": "'2025-07-20'",
         "author": "'Evolution Hub'",
         "category": "'Mentale Gesundheit'",
-        "tags": "['Imposter-Syndrom', 'Selbstvertrauen', 'Karriere', 'Mentale Gesundheit']"
+        "tags": "['Imposter-Syndrom', 'Selbstvertrauen', 'Karriere', 'Mentale Gesundheit']",
+        "image": "./images/imposter-syndrom-ueberwinden-1.webp.png",
+        "imageAlt": "'Person überwindet Imposter-Syndrom und zeigt Selbstvertrauen'"
       },
-      "lastModified": "2025-10-03T15:09:29.095Z"
+      "lastModified": "2025-10-17T13:55:54.739Z"
+    },
+    {
+      "path": "src/content/blog/KI-als-Kollege.md",
+      "title": "'Wöchentliche EvolutionHub-Insights'",
+      "description": "'Trends, Tool-Tipps und Playbooks zu KI × Arbeit × Lernen – direkt in deine Inbox.'",
+      "format": "markdown",
+      "hash": "6b6f9d546bbc1ccdcaea2b0fd166dca71342262213a077c197dbe90aa02a3438",
+      "size": 4271,
+      "headings": [
+        {
+          "level": 1,
+          "value": "KI als Kollege: Wie Mensch-Maschine-Teams echte Wertschöpfung schaffen"
+        },
+        {
+          "level": 2,
+          "value": "Problem"
+        },
+        {
+          "level": 2,
+          "value": "Lösung"
+        },
+        {
+          "level": 2,
+          "value": "Praxisleitfaden: In 5 Schritten vom Pilot zur Wirkung"
+        },
+        {
+          "level": 2,
+          "value": "Mikro-Playbooks (sofort anwendbar)"
+        },
+        {
+          "level": 2,
+          "value": "Skillprofil: Was Teams jetzt wirklich brauchen"
+        },
+        {
+          "level": 2,
+          "value": "Governance & Sicherheit – Leitplanken statt Bremse"
+        },
+        {
+          "level": 2,
+          "value": "Tool-Stack-Denken (ohne Vendor-Lock-In)"
+        },
+        {
+          "level": 2,
+          "value": "KPIs, die zählen"
+        },
+        {
+          "level": 2,
+          "value": "30-/60-/90-Tage-Plan"
+        },
+        {
+          "level": 2,
+          "value": "Fallbeispiele (kompakt inspiriert aus der Praxis)"
+        },
+        {
+          "level": 2,
+          "value": "Risiken & Gegenmaßnahmen"
+        },
+        {
+          "level": 2,
+          "value": "Fazit"
+        }
+      ],
+      "frontMatter": {
+        "title": "'Wöchentliche EvolutionHub-Insights'",
+        "description": "'Trends, Tool-Tipps und Playbooks zu KI × Arbeit × Lernen – direkt in deine Inbox.'",
+        "pubDate": "'2025-10-17'",
+        "updatedDate": "'2025-10-18'",
+        "author": "'EvolutionHub Team'",
+        "category": "'New Work'",
+        "tags": "",
+        "image": "./images/ki-als-kollege-hero.png",
+        "imageAlt": "'Mensch und KI-Avatar arbeiten gemeinsam an einem digitalen Whiteboard mit Netzlinien und Post-its'",
+        "draft": "false",
+        "featured": "true",
+        "seo": "",
+        "canonical": "'https://hub-evolution.com/blog/ki-als-kollege'",
+        "noindex": "false",
+        "ctas": "",
+        "- type": "leadmagnet",
+        "position": "bottom",
+        "variant": "secondary",
+        "leadMagnet": "'new-work-guide'",
+        "leadMagnets": "",
+        "funnel": "",
+        "stage": "awareness",
+        "priority": "7",
+        "targetAudience": "['Team Leads', 'HR & L&D', 'Produkt- und Projektteams', 'SMB-Entscheider:innen']",
+        "conversionGoal": "newsletter",
+        "funnelSeo": "",
+        "intent": "informational",
+        "competitiveness": "high",
+        "primaryKeyword": "'KI am Arbeitsplatz'",
+        "secondaryKeywords": ""
+      },
+      "lastModified": "2025-10-18T14:30:05.845Z"
     },
     {
       "path": "src/content/blog/ki-im-alltag.md",
       "title": "'KI im Alltag: Wie künstliche Intelligenz schon heute dein Leben vereinfacht.'",
       "description": "'Entdecke praktische KI-Beispiele und Tools, die deinen Alltag einfacher machen – ganz ohne technisches Wissen. KI ist näher als du denkst!'",
       "format": "markdown",
-      "hash": "a1fb2588766c507c209fcd9dacd6dbca5cf5378dd898664260825679904f04b4",
-      "size": 4085,
+      "hash": "68180051df4e4b5035d2b1b913f7967abadfb741844fcee765bd1b579ae305e9",
+      "size": 4033,
       "headings": [
         {
           "level": 1,
@@ -12975,17 +15874,19 @@
         "pubDate": "'2025-07-20'",
         "author": "'Evolution Hub'",
         "category": "'Technologie'",
-        "tags": "['KI', 'Künstliche Intelligenz', 'Technologie', 'Produktivität']"
+        "tags": "['KI', 'Künstliche Intelligenz', 'Technologie', 'Produktivität']",
+        "image": "./images/ki-im-alltag-1.webp.png",
+        "imageAlt": "'KI integriert in alltägliche Geräte wie Smartphone und Smart Speaker'"
       },
-      "lastModified": "2025-10-03T15:09:29.096Z"
+      "lastModified": "2025-10-17T13:47:51.944Z"
     },
     {
       "path": "src/content/blog/konstruktives-feedback-geben.md",
       "title": "'Feedback ist ein Geschenk: Wie du konstruktive Kritik gibst und annimmst.'",
       "description": "'Lernen Sie, wie man konstruktives Feedback gibt und annimmt, um persönliches und berufliches Wachstum zu fördern. Praktische Tipps für eine bessere Teamkultur.'",
       "format": "markdown",
-      "hash": "c385e57011307e15ea24694ebf5fb2c195df41f32b690124246f8a1904b29677",
-      "size": 5912,
+      "hash": "1c541b90338f20e8db79d0ff57e95e82775db7891446e6fc368c0ff10fed0c65",
+      "size": 5864,
       "headings": [
         {
           "level": 1,
@@ -13030,17 +15931,19 @@
         "pubDate": "'2025-07-20'",
         "author": "'Evolution Hub'",
         "category": "'Kommunikation'",
-        "tags": "['Feedback', 'Kommunikation', 'Teamkultur', 'Wachstum']"
+        "tags": "['Feedback', 'Kommunikation', 'Teamkultur', 'Wachstum']",
+        "image": "./images/konstruktives-feedback-geben-1.webp.png",
+        "imageAlt": "'Zwei Personen im Gespräch, die Feedback geben und empfangen, symbolisiert Wachstum'"
       },
-      "lastModified": "2025-10-03T15:09:29.097Z"
+      "lastModified": "2025-10-17T13:54:03.957Z"
     },
     {
       "path": "src/content/blog/lebenslanges-lernen-karriere.md",
       "title": "'Lebenslanges Lernen als Superkraft: Warum Neugier deine Karriere beflügelt.'",
       "description": "'Entdecke, warum lebenslanges Lernen in der modernen Arbeitswelt wichtiger ist als jedes Zertifikat und wie Neugier deine Karriere transformieren kann.'",
       "format": "markdown",
-      "hash": "be09111b60237e8534dfb37ee3dcec966e5d65b485ab400e55c12553aedc0f7e",
-      "size": 4635,
+      "hash": "bdfe527f460f00f854d870e6010aebc2f62f931ec520861054192f229f4bebc1",
+      "size": 4591,
       "headings": [
         {
           "level": 1,
@@ -13081,17 +15984,19 @@
         "pubDate": "'2025-07-20'",
         "author": "'Evolution Hub'",
         "category": "'Karriere'",
-        "tags": "['Lernen', 'Karriere', 'Entwicklung', 'Future Skills']"
+        "tags": "['Lernen', 'Karriere', 'Entwicklung', 'Future Skills']",
+        "image": "./images/lebenslanges-lernen-karriere-1.webp.png",
+        "imageAlt": "'Person mit Hut aus Büchern, der auf einer Treppe aus Fähigkeiten steht'"
       },
-      "lastModified": "2025-10-03T15:09:29.097Z"
+      "lastModified": "2025-10-17T13:54:08.087Z"
     },
     {
       "path": "src/content/blog/mentoring-2-0.md",
       "title": "'Mentoring 2.0: Wie du den perfekten Mentor findest (oder selbst einer wirst).'",
       "description": "Finde den perfekten Mentor oder werde selbst einer. Entdecke Strategien für eine erfolgreiche Mentoring-Beziehung, die deine Karriere beflügelt.",
       "format": "markdown",
-      "hash": "ca0861d8f899fa1493247b9eaa0866088d49446035dd942f1b5d89b189e09ef0",
-      "size": 4646,
+      "hash": "e59722e72b3694326e234614068fa1d9c36de4a656d484652c3c56f5a9dfee00",
+      "size": 4598,
       "headings": [
         {
           "level": 1,
@@ -13140,17 +16045,19 @@
         "pubDate": "'2025-07-20'",
         "author": "'Evolution Hub'",
         "category": "'Karriere'",
-        "tags": "['Mentoring', 'Karriere', 'Netzwerk', 'Entwicklung']"
+        "tags": "['Mentoring', 'Karriere', 'Netzwerk', 'Entwicklung']",
+        "image": "./images/mentoring-2-0-1.webp.png",
+        "imageAlt": "'Mentoring-Beziehung zwischen erfahrenem Mentor und Protegé'"
       },
-      "lastModified": "2025-10-03T15:09:29.098Z"
+      "lastModified": "2025-10-17T13:54:10.571Z"
     },
     {
       "path": "src/content/blog/new-work-ist-eine-haltung.md",
       "title": "'Verpassen Sie keine New Work Insights'",
       "description": "'Erhalten Sie wöchentlich die neuesten Trends und Best Practices direkt in Ihr Postfach.'",
       "format": "markdown",
-      "hash": "66879169c282907f431180a9af5d04ee2b7bd46c838f789ac929b36ceca1bca1",
-      "size": 5629,
+      "hash": "d1a27611c68bd17dc246e5229e6fc19ebe772eee0c0531e964979a6b0b37f0af",
+      "size": 5590,
       "headings": [
         {
           "level": 1,
@@ -13194,6 +16101,8 @@
         "leadMagnet": "'new-work-guide'",
         "variant": "'primary'",
         "leadMagnets": "['new-work-guide']",
+        "image": "./images/new-work-ist-eine-haltung-1.webp.png",
+        "imageAlt": "'Person gestaltet aktiv ihre Arbeitszukunft mit New Work Haltung'",
         "funnel": "",
         "stage": "'consideration'",
         "priority": "8",
@@ -13206,15 +16115,15 @@
         "secondaryKeywords": "['New Work Haltung', 'Unternehmenskultur wandeln', 'Zukunft der Arbeit']",
         "searchVolume": "1200"
       },
-      "lastModified": "2025-10-03T15:09:29.099Z"
+      "lastModified": "2025-10-17T13:57:47.928Z"
     },
     {
       "path": "src/content/blog/pomodoro-technik-home-office.md",
       "title": "'Die Pomodoro-Technik 2.0: Wie du deine Produktivität im Home-Office verdoppelst'",
       "description": "'Entdecke die moderne Pomodoro-Technik, angepasst für die Herausforderungen der Remote-Arbeit, und steigere deine Produktivität nachhaltig.'",
       "format": "markdown",
-      "hash": "f23f7a67e3e5c2863ad15e00c7766699eddec0bcb2d327b6c07e74df6a9f925c",
-      "size": 4149,
+      "hash": "433d2459bc595d0f383e79f3d9b5b04ad4cb58e2f681e7b3496a8cbcbeb1b859",
+      "size": 4105,
       "headings": [
         {
           "level": 1,
@@ -13251,17 +16160,19 @@
         "pubDate": "'2025-07-20'",
         "author": "'Evolution Hub'",
         "category": "'Produktivität'",
-        "tags": "['Pomodoro-Technik', 'Produktivität', 'Home-Office', 'Zeitmanagement']"
+        "tags": "['Pomodoro-Technik', 'Produktivität', 'Home-Office', 'Zeitmanagement']",
+        "image": "./images/pomodoro-technik-home-office-1.webp.png",
+        "imageAlt": "'Pomodoro-Technik für verbesserte Konzentration im Home-Office'"
       },
-      "lastModified": "2025-10-03T15:09:29.101Z"
+      "lastModified": "2025-10-17T13:58:14.266Z"
     },
     {
       "path": "src/content/blog/vom-ziel-zur-gewohnheit.md",
       "title": "'Vom Ziel zur Gewohnheit: Die Macht der Mikro-Schritte für nachhaltige Veränderung.'",
       "description": "'Erfahren Sie, wie Sie durch die Methode der Mikro-Schritte große Ziele erreichen, indem Sie kleine, konsistente Gewohnheiten aufbauen und Überforderung vermeiden.'",
       "format": "markdown",
-      "hash": "939404d705d87933388acb5d574201cfc040948ffad0434ff06570a6afac826c",
-      "size": 4260,
+      "hash": "7df35cb9834e1e87397e3c98d281c1a41d64312f8dfa2ca7e2c18f6711315a5b",
+      "size": 4211,
       "headings": [
         {
           "level": 1,
@@ -13298,17 +16209,19 @@
         "pubDate": "'2025-07-20'",
         "author": "'Evolution Hub'",
         "category": "'Persönliche Entwicklung'",
-        "tags": "['Gewohnheiten', 'Ziele', 'Selbstoptimierung', 'Veränderung']"
+        "tags": "['Gewohnheiten', 'Ziele', 'Selbstoptimierung', 'Veränderung']",
+        "image": "./images/vom-ziel-zur-gewohnheit-1.webp.png",
+        "imageAlt": "'Berg mit kleinen Fußspuren, die zum Gipfel führen, symbolisiert Mikro-Schritte zum Ziel'"
       },
-      "lastModified": "2025-10-03T15:09:29.103Z"
+      "lastModified": "2025-10-17T13:58:42.366Z"
     },
     {
       "path": "src/content/blog/wissensmanagement-second-brain.md",
       "title": "'Wissensmanagement für Vergessliche: Wie du dein Gehirn mit einem \"Second Brain\" entlastest.'",
       "description": "'Entlaste dein Gehrin! Lerne, wie die \"Second Brain\"-Methode dir hilft, Wissen zu organisieren und deine Kreativität freizusetzen.'",
       "format": "markdown",
-      "hash": "a03f41fd4a6be091951474935a06ecb4b8e17e6215d784a3f624da0d4b995469",
-      "size": 4642,
+      "hash": "e7b93dcfca25c47d2c92873296aee0759b0393b904963c3c6a01fef03136f9be",
+      "size": 4599,
       "headings": [
         {
           "level": 1,
@@ -13353,17 +16266,19 @@
         "pubDate": "'2025-07-20'",
         "author": "'Evolution Hub'",
         "category": "'Produktivität'",
-        "tags": "['Second Brain', 'Wissensmanagement', 'Notizen', 'Produktivität']"
+        "tags": "['Second Brain', 'Wissensmanagement', 'Notizen', 'Produktivität']",
+        "image": "./images/wissensmanagement-second-brain-1.webp.png",
+        "imageAlt": "'Grafik, die das Gehirn mit einem digitalen \"Second Brain\" verbindet'"
       },
-      "lastModified": "2025-10-03T15:09:29.104Z"
+      "lastModified": "2025-10-17T13:59:17.028Z"
     },
     {
       "path": "src/content/blog/zukunft-der-fuehrung.md",
       "title": "'Die Zukunft der Führung: Warum Empathie die wichtigste Fähigkeit für Leader von morgen ist.'",
       "description": "Empathie ist mehr als ein Soft Skill. Erfahre, warum sie die entscheidende Kompetenz für die Führungskräfte der Zukunft ist.",
       "format": "markdown",
-      "hash": "c779acc2a6bb301b7d6e78e799af540ead2115f75a1f979a934c598419ed2872",
-      "size": 4912,
+      "hash": "03ce989795478372a689d17dcfdafe5a1e2a896f03d2201e2e6f9bb4b4820311",
+      "size": 4856,
       "headings": [
         {
           "level": 1,
@@ -13396,9 +16311,11 @@
         "pubDate": "'2025-07-20'",
         "author": "'Evolution Hub'",
         "category": "'Führung'",
-        "tags": "['Führung', 'Empathie', 'Zukunft der Arbeit', 'Leadership']"
+        "tags": "['Führung', 'Empathie', 'Zukunft der Arbeit', 'Leadership']",
+        "image": "./images/zukunft-der-fuehrung-1.webp.png",
+        "imageAlt": "'Führungskraft zeigt Empathie gegenüber einem Team'"
       },
-      "lastModified": "2025-10-03T15:09:29.105Z"
+      "lastModified": "2025-10-17T13:59:53.588Z"
     },
     {
       "path": "test-results/auth-Authentication-should-1dbe4-ror-for-invalid-credentials-firefox/error-context.md",
@@ -14297,6 +17214,146 @@
       "lastModified": "2025-08-30T22:23:59.814Z"
     },
     {
+      "path": "test-suite-v2/reports/playwright-html-report/data/4aac333d8e48abc889845f46a711f5f148e863d4.md",
+      "title": "Page snapshot",
+      "format": "markdown",
+      "hash": "8408bdcc32c644fb6d8891691bb8a49671334c575a8725d65b0f07a243a07e96",
+      "size": 9136,
+      "headings": [
+        {
+          "level": 1,
+          "value": "Page snapshot"
+        }
+      ],
+      "lastModified": "2025-10-21T16:03:38.671Z"
+    },
+    {
+      "path": "test-suite-v2/reports/playwright-html-report/data/71ec93506c0644542795940984dc49b1e69b63ea.md",
+      "title": "Page snapshot",
+      "format": "markdown",
+      "hash": "7d9658312fa860a8fd8edfd5e48655e54a31b897c8925c211e6bd2de7ee393c3",
+      "size": 8092,
+      "headings": [
+        {
+          "level": 1,
+          "value": "Page snapshot"
+        }
+      ],
+      "lastModified": "2025-10-21T16:03:38.675Z"
+    },
+    {
+      "path": "test-suite-v2/reports/playwright-html-report/data/bc9b756c6f56a06ecc04c1dcc1d2114702dc182b.md",
+      "title": "Page snapshot",
+      "format": "markdown",
+      "hash": "528dbb101c8052e17cc10658c972ccae59a4979137885a4374fc4481fc6c4f6f",
+      "size": 9136,
+      "headings": [
+        {
+          "level": 1,
+          "value": "Page snapshot"
+        }
+      ],
+      "lastModified": "2025-10-21T16:03:38.649Z"
+    },
+    {
+      "path": "test-suite-v2/reports/playwright-results/tools-image-enhancer-Image-35c1e-Enhancer-on-Mobile-viewport-chromium/error-context.md",
+      "title": "Page snapshot",
+      "format": "markdown",
+      "hash": "7d9658312fa860a8fd8edfd5e48655e54a31b897c8925c211e6bd2de7ee393c3",
+      "size": 8092,
+      "headings": [
+        {
+          "level": 1,
+          "value": "Page snapshot"
+        }
+      ],
+      "lastModified": "2025-10-21T16:03:38.547Z"
+    },
+    {
+      "path": "test-suite-v2/reports/playwright-results/tools-image-enhancer-Image-5e8e6-Enhancer-on-Tablet-viewport-chromium/error-context.md",
+      "title": "Page snapshot",
+      "format": "markdown",
+      "hash": "8408bdcc32c644fb6d8891691bb8a49671334c575a8725d65b0f07a243a07e96",
+      "size": 9136,
+      "headings": [
+        {
+          "level": 1,
+          "value": "Page snapshot"
+        }
+      ],
+      "lastModified": "2025-10-21T16:03:06.901Z"
+    },
+    {
+      "path": "test-suite-v2/reports/playwright-results/tools-image-enhancer-Image-9314a-nhance-→-compare-→-download-chromium/error-context.md",
+      "title": "Page snapshot",
+      "format": "markdown",
+      "hash": "8408bdcc32c644fb6d8891691bb8a49671334c575a8725d65b0f07a243a07e96",
+      "size": 9136,
+      "headings": [
+        {
+          "level": 1,
+          "value": "Page snapshot"
+        }
+      ],
+      "lastModified": "2025-10-21T16:02:04.872Z"
+    },
+    {
+      "path": "test-suite-v2/reports/playwright-results/tools-image-enhancer-Image-a405f-nhancer-on-Desktop-viewport-chromium/error-context.md",
+      "title": "Page snapshot",
+      "format": "markdown",
+      "hash": "8408bdcc32c644fb6d8891691bb8a49671334c575a8725d65b0f07a243a07e96",
+      "size": 9136,
+      "headings": [
+        {
+          "level": 1,
+          "value": "Page snapshot"
+        }
+      ],
+      "lastModified": "2025-10-21T16:02:35.869Z"
+    },
+    {
+      "path": "test-suite-v2/reports/playwright-results/tools-image-enhancer.gatin-1371b-4-and-FaceEnhance-are-gated-chromium/error-context.md",
+      "title": "Page snapshot",
+      "format": "markdown",
+      "hash": "8408bdcc32c644fb6d8891691bb8a49671334c575a8725d65b0f07a243a07e96",
+      "size": 9136,
+      "headings": [
+        {
+          "level": 1,
+          "value": "Page snapshot"
+        }
+      ],
+      "lastModified": "2025-10-21T16:01:33.639Z"
+    },
+    {
+      "path": "test-suite-v2/reports/playwright-results/tools-image-enhancer.gatin-8ac0d-a-reached-shows-Upgrade-CTA-chromium/error-context.md",
+      "title": "Page snapshot",
+      "format": "markdown",
+      "hash": "528dbb101c8052e17cc10658c972ccae59a4979137885a4374fc4481fc6c4f6f",
+      "size": 9136,
+      "headings": [
+        {
+          "level": 1,
+          "value": "Page snapshot"
+        }
+      ],
+      "lastModified": "2025-10-21T16:01:08.834Z"
+    },
+    {
+      "path": "test-suite-v2/reports/playwright-results/tools-image-enhancer.gatin-eea88--CTA-Guest-sees-Upgrade-CTA-chromium/error-context.md",
+      "title": "Page snapshot",
+      "format": "markdown",
+      "hash": "528dbb101c8052e17cc10658c972ccae59a4979137885a4374fc4481fc6c4f6f",
+      "size": 9136,
+      "headings": [
+        {
+          "level": 1,
+          "value": "Page snapshot"
+        }
+      ],
+      "lastModified": "2025-10-21T16:00:57.103Z"
+    },
+    {
       "path": "test-suite-v2/src/e2e/auth/README.md",
       "title": "Auth E2E Test Suite",
       "format": "markdown",
@@ -14472,7 +17529,7 @@
           "value": "✅ Test Checklist (PR Review)"
         }
       ],
-      "lastModified": "2025-10-10T06:58:29.860Z"
+      "lastModified": "2025-10-11T02:06:17.242Z"
     },
     {
       "path": "test-suite-v2/src/e2e/features/README.md",
@@ -14536,7 +17593,7 @@
           "value": "Category guides"
         }
       ],
-      "lastModified": "2025-10-09T13:53:41.310Z"
+      "lastModified": "2025-10-11T02:06:17.241Z"
     },
     {
       "path": "test-suite-v2/src/e2e/smoke/README.md",
@@ -14597,6 +17654,44 @@
         }
       ],
       "lastModified": "2025-10-04T18:28:57.536Z"
+    },
+    {
+      "path": "test-suite-v2/src/e2e/voice/README.md",
+      "title": "Voice E2E (SSE + Poll) — Smoke",
+      "format": "markdown",
+      "hash": "ccc7e424f2ecbab77a94f7ccb2b10159b8b424bab5ad1427bb0f5506863c0e50",
+      "size": 1447,
+      "headings": [
+        {
+          "level": 1,
+          "value": "Voice E2E (SSE + Poll) — Smoke"
+        },
+        {
+          "level": 2,
+          "value": "What it tests"
+        },
+        {
+          "level": 2,
+          "value": "Required flags (dev/CI)"
+        },
+        {
+          "level": 2,
+          "value": "How to run locally"
+        },
+        {
+          "level": 1,
+          "value": "Run only this smoke"
+        },
+        {
+          "level": 1,
+          "value": "Open the last HTML report"
+        },
+        {
+          "level": 2,
+          "value": "Notes"
+        }
+      ],
+      "lastModified": "2025-10-15T00:58:48.385Z"
     },
     {
       "path": "tests/fixtures/note.md",

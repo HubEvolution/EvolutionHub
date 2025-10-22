@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { notify } from '@/lib/notify';
 
 interface Props {
   formId: string;
@@ -162,6 +163,9 @@ export default function MagicLinkFormEnhancer({
             statusEl.classList.add('text-emerald-600');
             statusEl.setAttribute('role', 'status');
           }
+          try {
+            notify.success(successText);
+          } catch {}
           // keep the form visible; user may resend with another email
           log('success');
         } else {

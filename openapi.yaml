@@ -1327,6 +1327,16 @@ components:
             type: string
           imageUrl:
             type: string
+          charge:
+            type: object
+            nullable: true
+            properties:
+              total:
+                type: number
+              planPortion:
+                type: number
+              creditsPortion:
+                type: number
           usage:
             $ref: '#/components/schemas/UsageInfo'
           limits:

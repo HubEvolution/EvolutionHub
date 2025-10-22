@@ -23,6 +23,26 @@ This document explains how the Image Enhancer UI mirrors server‑side entitleme
 - Controls beyond plan are hidden or disabled with an Upgrade tooltip.
 - Upgrade CTA appears when quota exceeded or a requested feature is blocked by plan.
 
+### Plan Caps
+
+- `entitlements.monthlyImages` – Monthly image generation allowance (plan‑based)
+- `entitlements.dailyBurstCap` – Max per 24h rolling window
+- `entitlements.maxUpscale` – Highest allowed upscale (2 or 4)
+- `entitlements.faceEnhance` – Boolean flag to allow face restoration controls
+
+### Usage Semantics
+
+- UI displays `usage.used` against `usage.limit` (authoritative, plan‑adjusted)
+- Server still returns `limits.user/guest` for legacy/debug; may differ from `usage.limit`
+- 24h rolling window for daily usage; separate monthly usage for credit accounting
+
+### Credit Packs
+
+- Units are tenths (1.0 credit = 10 tenths) to allow fractional charging
+- FIFO consumption across multiple packs; oldest credits consumed first
+- Expiry: 6 months + 14 days grace; expired packs no longer available for charge
+- Idempotent ledger records by `jobId` (or server‑assigned id) to prevent double‑charge on retries
+
 ## Error Semantics
 
 - Provider errors are normalized by the backend:
