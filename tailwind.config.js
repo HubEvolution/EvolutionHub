@@ -42,6 +42,12 @@ module.exports = {
         },
         gray: colors.slate, // Changed from zinc to slate
         sky: colors.sky,
+        vanta: {
+          DEFAULT: '#050507',
+          950: '#030305',
+          900: '#08090B',
+          800: '#0D0F12',
+        },
       },
       boxShadow: {
         'glass': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',

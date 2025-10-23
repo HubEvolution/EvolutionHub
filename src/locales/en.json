@@ -304,9 +304,16 @@
           "description": "Extract structured data from web pages and APIs with flexible selectors and export formats."
         }
       },
+      "features_poetic": {
+        "feature1": { "description": "Turn noisy shadows into clear worlds." },
+        "feature2": { "description": "Let words take flight and ideas grow." },
+        "feature3": { "description": "Hear thoughts clearer than ever." },
+        "feature4": { "description": "Teach pages to speak in structure." }
+      },
       "testimonials": {
         "heading": "What users say about Imag‑Enhancer",
         "subtitle": "Short notes from people who really use Imag‑Enhancer — what helped them in practice.",
+        "trust_line": "Used by 1,200+ creators",
         "testimonial1": {
           "quote": "I often shoot in cafés with low light — ISO 3200 is normal. Imag‑Enhancer removed the noise without that waxy look. A touch more contrast and the files were with the client that evening.",
           "author": "Amira K.",
@@ -343,6 +350,7 @@
         "title_part1": "Evolution Hub",
         "title_part2": "The future of AI‑assisted development",
         "subtitle": "Discover the power of AI‑powered tools to optimize your workflow and boost productivity.",
+        "subtitle_poetic": "Where language becomes structure. Where data learns to dream.",
         "get_started_button": "Get started",
         "documentation_link": "View documentation",
         "tools_link": "Browse our tools",
@@ -383,6 +391,9 @@
           "one": "1 post",
           "other": "{count} posts"
         }
+      },
+      "comments": {
+        "pendingNotice": "Your comment was submitted and will appear after approval."
       },
       "cta": {
         "newsletter": {

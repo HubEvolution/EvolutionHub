@@ -6,6 +6,8 @@ import { CommentMobile, useIsMobile } from './CommentMobile';
 import { CommentErrorBoundary } from './CommentErrorBoundary';
 import { useCommentStore } from '../../stores/comment-store';
 import type { CommentEntityType } from '../../lib/types/comments';
+import { getI18n } from '@/utils/i18n';
+import { getLocale } from '@/lib/i18n';
 
 interface CommentSectionProps {
   entityType: CommentEntityType;
@@ -28,6 +30,10 @@ const CommentSectionInner: React.FC<CommentSectionProps> = ({
 
   // Detect if mobile device
   const isMobile = useIsMobile(768);
+
+  // i18n
+  const locale = getLocale(typeof window !== 'undefined' ? window.location.pathname : '/');
+  const t = getI18n(locale);
 
   const {
     comments,
@@ -91,7 +97,7 @@ const CommentSectionInner: React.FC<CommentSectionProps> = ({
       );
 
       if (created && created.status === 'pending') {
-        setNotice('Dein Kommentar wurde eingereicht und erscheint nach Freigabe.');
+        setNotice(t('pages.blog.comments.pendingNotice'));
       } else {
         await loadComments();
       }
