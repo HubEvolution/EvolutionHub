@@ -803,8 +803,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
     const ct0 = response.headers.get('Content-Type') || '';
     const hasStrictNonce = (response.headers.get('Content-Security-Policy') || '').includes("script-src 'self' 'nonce-");
     if (isProduction && ct0.includes('text/html') && hasStrictNonce) {
-      // Read body to compute hashes of inline <script> elements without nonce/src
-      const html = await response.text();
+      // Read body from a clone to avoid consuming the original response stream
+      const clonedForHash = response.clone();
+      const html = await clonedForHash.text();
 
       // Helper: compute sha256 base64
       async function sha256Base64(input: string): Promise<string> {
@@ -853,20 +854,13 @@ export const onRequest = defineMiddleware(async (context, next) => {
         nextCsp = appendToDirective(nextCsp, 'script-src');
         nextCsp = appendToDirective(nextCsp, 'script-src-elem');
 
-        // Rebuild response with same body and updated CSP
+        // Rebuild response with same HTML body and updated CSP
         const newHeaders = new Headers(response.headers);
         newHeaders.set('Content-Security-Policy', nextCsp);
         response = new Response(html, {
           status: response.status,
           statusText: response.statusText,
           headers: newHeaders,
-        });
-      } else {
-        // Re-wrap consumed body without changes
-        response = new Response(html, {
-          status: response.status,
-          statusText: response.statusText,
-          headers: response.headers,
         });
       }
     }
