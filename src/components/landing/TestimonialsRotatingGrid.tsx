@@ -32,7 +32,7 @@ function Card({ item, entering }: { item: TestimonialItem; entering?: boolean })
         {item.quote}
       </blockquote>
       <div className={`mt-6 flex items-center gap-3 ${entering ? 'animate-child-2' : ''}`}>
-        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-400/40 to-fuchsia-500/40 ring-1 ring-white/20" />
+        <div className="w-9 h-9 rounded-full bg-accent-soft ring-1 ring-white/20" />
         <div className="min-w-0">
           <div className="text-sm font-semibold text-white truncate">{item.author}</div>
           {item.role ? <div className="text-xs text-gray-300/80 truncate">{item.role}</div> : null}

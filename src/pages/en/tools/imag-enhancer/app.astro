@@ -5,6 +5,7 @@ import { getI18n } from '@/utils/i18n';
 import { localizePath } from '@/lib/locale-path';
 import Icon from '@/components/ui/Icon.astro';
 import ImagEnhancerIsland from '@/components/tools/ImagEnhancerIsland';
+import Card from '@/components/ui/Card';
 
 const locale = getLocale(Astro.url.pathname);
 const t = getI18n(locale);
@@ -155,7 +156,7 @@ const upgradeLabel =
         })()
       }
 
-      <section class="mt-8 sm:mt-10 bg-white dark:bg-gray-800 rounded-lg shadow p-4 sm:p-6">
+      <Card as="section" className="mt-8 sm:mt-10 p-4 sm:p-6">
         <h2 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">
           {t('pages.tools.items.Imag-Enhancer.name')} App
         </h2>
@@ -166,7 +167,7 @@ const upgradeLabel =
         >
           <ImagEnhancerIsland strings={strings} client:load />
         </div>
-      </section>
+      </Card>
     </div>
   </main>
 </BaseLayout>

@@ -44,6 +44,7 @@ STYTCH_BYPASS = "1"
 E2E_FAKE_STYTCH = "1"
 STYTCH_CUSTOM_DOMAIN = "login-test.hub-evolution.com"
 PROMPT_REWRITE_V1 = "true"
+AUTH_CSRF_RELAXED = "1"
 
 [env.production.ai]
 binding = "AI"
@@ -103,6 +104,11 @@ id = "30356dfa83e342c48103609bce4f3320"
 preview_id = "30356dfa83e342c48103609bce4f3320"
 
 [[env.development.kv_namespaces]]
+binding = "KV_PROMPT_ENHANCER"
+id = "30356dfa83e342c48103609bce4f3320"
+preview_id = "30356dfa83e342c48103609bce4f3320"
+
+[[env.development.kv_namespaces]]
 binding = "KV_WEBSCRAPER"
 id = "c9814079ac344b979b58278d055ca457"
 preview_id = "c9814079ac344b979b58278d055ca457"
@@ -152,6 +158,11 @@ binding = "KV_AI_ENHANCER"
 id = "53afc42009cb4ba9ab2b95af5a4105a4"
 preview_id = "53afc42009cb4ba9ab2b95af5a4105a4"
 
+[[kv_namespaces]]
+binding = "KV_PROMPT_ENHANCER"
+id = "53afc42009cb4ba9ab2b95af5a4105a4"
+preview_id = "53afc42009cb4ba9ab2b95af5a4105a4"
+
 # KV Namespace-Binding (Webscraper Usage)
 [[kv_namespaces]]
 binding = "KV_WEBSCRAPER"
@@ -181,6 +192,7 @@ PROMPT_ALLOWED_TYPES = "image/jpeg,image/png,image/webp,application/pdf,text/pla
 PROMPT_OUTPUT_TOKENS_MAX = "400"
 PROMPT_TEMPERATURE = "0.2"
 PROMPT_TOP_P = "0.9"
+PUBLIC_LANDING_BG_VARIANT = "techcells"
 
 # Ressourcen-Bindings für Staging (nicht von Top-Level geerbt)
 [[env.staging.d1_databases]]
@@ -219,6 +231,10 @@ binding = "KV_AI_ENHANCER"
 id = "30356dfa83e342c48103609bce4f3320"
 
 [[env.staging.kv_namespaces]]
+binding = "KV_PROMPT_ENHANCER"
+id = "30356dfa83e342c48103609bce4f3320"
+
+[[env.staging.kv_namespaces]]
 binding = "KV_COMMENTS"
 id = "61878c1a1cd3402499476e7804ccc8ef"
 
@@ -226,6 +242,7 @@ id = "61878c1a1cd3402499476e7804ccc8ef"
 [[env.staging.kv_namespaces]]
 binding = "KV_WEBSCRAPER"
 id = "a63a1fd516d942e9a892f226f2cc11c6"
+
 # Produktionsumgebung: Variablen nur bei --env production aktiv
 [env.production.vars]
 ENVIRONMENT = "production"
@@ -235,6 +252,7 @@ LEADMAGNET_SOURCE = "r2"
 USAGE_KV_V2 = "1"
 WORKERS_AI_ENABLED = "1"
 PUBLIC_ENABLE_CREDITS_CTA = "1"
+PUBLIC_LANDING_BG_VARIANT = "techcells"
 # Live Stripe price IDs (plan -> price)
 PRICING_TABLE = '{"free":"","pro":"price_1SKjwqHdpdQAtOQBPUkZoavZ","premium":"price_1SKjx5HdpdQAtOQB5NLrDeSC","enterprise":"price_1SKjwaHdpdQAtOQBiEjoUpTK"}'
 PRICING_TABLE_ANNUAL = '{"free":"","pro":"price_1SKjwrHdpdQAtOQBWuyGjizw","premium":"price_1SKjx6HdpdQAtOQB8QTHxs0j","enterprise":"price_1SKjwbHdpdQAtOQBoR40Gesj"}'
@@ -244,6 +262,7 @@ PRICING_LINKS = '{"pro":"https://buy.stripe.com/5kQfZhbth3vD8U0g4n1VK09","premiu
 PRICING_LINKS_ANNUAL = '{"pro":"https://buy.stripe.com/7sYbJ140P9U1gms8BV1VK0a","premium":"https://buy.stripe.com/8x214n40Pfeleek8BV1VK0c","enterprise":"https://buy.stripe.com/bJe4gz9l9c299Y405p1VK0e"}'
 AUTH_PROVIDER = "stytch"
 PUBLIC_TURNSTILE_SITE_KEY = "0x4AAAAAAB5-m2IDaeVetM7Q"
+STYTCH_PKCE = "1"
 
 # Prompt Enhancer (non-secret defaults; override per env if needed)
 PROMPT_REWRITE_V1 = "true"
@@ -291,6 +310,10 @@ id = "0a9b6b94e5664025a223d4d15ae13cd3"
 
 [[env.production.kv_namespaces]]
 binding = "KV_AI_ENHANCER"
+id = "fd1523f570c84ea8bc42cbd397cfdec3"
+
+[[env.production.kv_namespaces]]
+binding = "KV_PROMPT_ENHANCER"
 id = "fd1523f570c84ea8bc42cbd397cfdec3"
 
 [[env.production.kv_namespaces]]
@@ -372,6 +395,11 @@ id = "53afc42009cb4ba9ab2b95af5a4105a4"
 preview_id = "53afc42009cb4ba9ab2b95af5a4105a4"
 
 [[env.testing.kv_namespaces]]
+binding = "KV_PROMPT_ENHANCER"
+id = "53afc42009cb4ba9ab2b95af5a4105a4"
+preview_id = "53afc42009cb4ba9ab2b95af5a4105a4"
+
+[[env.testing.kv_namespaces]]
 binding = "KV_COMMENTS"
 id = "41475ea385094b3f9b13c12e06954dd5"
 
@@ -391,6 +419,7 @@ ENVIRONMENT = "staging"
 BASE_URL = "https://staging.hub-evolution.com"
 LEADMAGNET_SOURCE = "r2"
 PUBLIC_ENABLE_CREDITS_CTA = "1"
+PUBLIC_LANDING_BG_VARIANT = "techcells"
 # Staging pricing (test mode IDs)
 PRICING_TABLE = '{"free":"","pro":"price_1SKj5MHdpdQAtOQBAUpgOHiO","premium":"price_1SKj6wHdpdQAtOQB1ONFWXBD","enterprise":"price_1SKj3DHdpdQAtOQB4kUoLiLA"}'
 PRICING_TABLE_ANNUAL = '{"free":"","pro":"price_1SKj5sHdpdQAtOQBmwk497Se","premium":"price_1SKj7NHdpdQAtOQB4ZYoW84T","enterprise":"price_1SKj3kHdpdQAtOQBrzHdcSZk"}'
@@ -398,6 +427,7 @@ PRICING_LINKS = '{"pro":"https://buy.stripe.com/5kQ6oH7d11nv2vC5pJ1VK06","premiu
 PRICING_LINKS_ANNUAL = '{"pro":"https://buy.stripe.com/5kQ7sL9l9c296LS4lF1VK01","premium":"https://buy.stripe.com/cNi8wPdBp2rzdag4lF1VK07"}'
 CREDITS_PRICING_TABLE = '{"100":"price_1SKj8rHdpdQAtOQBx9Vz0Cl5","500":"price_1SKjA2HdpdQAtOQBt5vWqIcg","1500":"price_1SKjB6HdpdQAtOQBRkEKdrGy"}'
 WORKERS_AI_ENABLED = "1"
+STYTCH_PKCE = "1"
 
 # Prompt Enhancer (non-secret defaults for staging)
 PROMPT_REWRITE_V1 = "true"

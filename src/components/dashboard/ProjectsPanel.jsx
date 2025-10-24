@@ -81,7 +81,7 @@ const ProjectsPanel = ({
   };
 
   return (
-    <CardReact title={title} className="">
+    <CardReact variant="holo" title={title} className="">
       <div className="space-y-4">
         {loading ? (
           <div className="flex justify-center items-center h-48">

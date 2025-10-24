@@ -3,130 +3,98 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import { getI18n, getI18nArray } from '@/utils/i18n';
 import TypewriterComponent from '@/components/scripts/TypewriterComponent.astro';
 import TestimonialsRotatingGrid from '@/components/landing/TestimonialsRotatingGrid';
+import { getTestimonials } from '@/lib/content/testimonials';
 import AosWrapper from '@/components/AosWrapper.astro';
-import HeroNebula from '@/components/landing/HeroNebula';
-import { isLandingV2Enabled, getLandingBgVariant } from '@/utils/feature-flags';
+import { isLandingV2Enabled } from '@/utils/feature-flags';
 import HoloFeaturePanel from '@/components/landing/HoloFeaturePanel.astro';
 import CardGraph from '@/components/landing/CardGraph';
 import StarfieldBackdrop from '@/components/landing/StarfieldBackdrop';
 import ConnectionCTA from '@/components/landing/ConnectionCTA.astro';
-import LandingBackground from '@/components/landing/LandingBackground';
-import '@/styles/landing.css';
+import HeroStatusLights from '@/components/landing/HeroStatusLights';
+
+import EvolutionHubLogo from '@/components/brand/EvolutionHubWordmarkOutlined.astro';
 
 import { getLocale } from '@/lib/i18n';
 import { localizePath } from '@/lib/locale-path';
 const locale = getLocale(Astro.url.pathname);
 const t = getI18n(locale);
 const tArr = getI18nArray(locale);
-const heroTypewriterTexts = tArr('pages.home.hero.typewriter');
+const heroTypewriterTexts = tArr('pages.home.hero.typewriter_lines');
 const landingV2 = isLandingV2Enabled();
-const bgVariant = getLandingBgVariant();
 const heroSubtitle = landingV2
   ? t('pages.home.hero.subtitle_poetic') ?? t('pages.home.hero.subtitle')
   : t('pages.home.hero.subtitle');
-const testimonials = [
-  {
-    quote: t('pages.home.testimonials.testimonial1.quote'),
-    author: t('pages.home.testimonials.testimonial1.author'),
-    role: t('pages.home.testimonials.testimonial1.role'),
-  },
-  {
-    quote: t('pages.home.testimonials.testimonial2.quote'),
-    author: t('pages.home.testimonials.testimonial2.author'),
-    role: t('pages.home.testimonials.testimonial2.role'),
-  },
-  {
-    quote: t('pages.home.testimonials.testimonial3.quote'),
-    author: t('pages.home.testimonials.testimonial3.author'),
-    role: t('pages.home.testimonials.testimonial3.role'),
-  },
-  {
-    quote: t('pages.home.testimonials.testimonial4.quote'),
-    author: t('pages.home.testimonials.testimonial4.author'),
-    role: t('pages.home.testimonials.testimonial4.role'),
-  },
-  {
-    quote: t('pages.home.testimonials.testimonial5.quote'),
-    author: t('pages.home.testimonials.testimonial5.author'),
-    role: t('pages.home.testimonials.testimonial5.role'),
-  },
-];
-const heroTypewriterItems = heroTypewriterTexts.map((text) => ({ text }));
+const testimonials = await getTestimonials({ tools: ['imag', 'prompt', 'voice'], lang: 'de', limit: 6 });
+const heroTypewriterAll = [t('pages.home.hero.title_part2'), ...heroTypewriterTexts];
+const heroTypewriterItems = heroTypewriterAll.map((text) => ({ text, delay: 1100 }));
 ---
-<BaseLayout title={t('pages.home.title') ?? 'Evolution Hub'} disableGlobalBg={true}>
-  <div class="landing-v2">
-  <LandingBackground client:load variant={bgVariant} className="z-[-1]" />
+<BaseLayout title={t('pages.home.title') ?? 'Evolution Hub'}>
+  <div class="landing-v2 relative">
   <!-- Hero Section -->
-  <section class="relative py-20 md:py-32 bg-transparent overflow-hidden">
-    <div class="container mx-auto px-4 relative z-10">
-      <div class="max-w-5xl mx-auto text-center">
+  <section class="relative py-6 md:py-12 bg-transparent overflow-hidden">
+    <div class="mx-auto px-4 relative z-10">
+      <div class="max-w-[90rem] mx-auto text-center">
         <AosWrapper
           tag="h1"
-          class="text-5xl md:text-6xl lg:text-7xl font-extrabold mb-6 text-gray-900 dark:text-white leading-tight"
+          class="mb-4 text-gray-900 dark:text-white leading-tight"
         >
-          <span class="block">{t('pages.home.hero.title_part1')}</span>
-          <span
-            id="hero-typewriter"
-            aria-live="polite"
-            class="block min-h-[1.2em] whitespace-nowrap text-transparent bg-clip-text bg-gradient-to-br from-emerald-400 to-cyan-500 [text-shadow:_0_1px_0_rgb(255_255_255_/_0.6)] dark:[text-shadow:_0_1px_0_rgb(0_0_0_/_0.35)]"
-            >{t('pages.home.hero.title_part2')}</span
-          >
+          <span class="block leading-none">
+            <EvolutionHubLogo
+              class="relative z-20 block mx-auto py-3 md:py-4 w-full max-w-[22rem] sm:max-w-[26rem] h-auto md:w-auto md:max-w-none md:h-32 lg:h-36 xl:h-40 2xl:h-44 logo-glow pointer-events-none"
+              aria-label="Evolution Hub logo"
+              data-brand="wordmark-outlined"
+            />
+            <span class="sr-only">{t('pages.home.hero.title_part1')}</span>
+          </span>
         </AosWrapper>
         <AosWrapper
           tag="p"
           delay={100}
           duration={650}
-          class="text-xl md:text-2xl text-gray-700 dark:text-gray-300 mb-10 max-w-3xl mx-auto"
+          class="text-2xl md:text-4xl text-cyan-300 subtitle-glow mb-6 max-w-5xl mx-auto"
         >
-          {heroSubtitle}
+          <span
+            id="hero-typewriter-sub"
+            aria-live="polite"
+            class="block min-h-[1.2em] whitespace-nowrap text-accent-gradient [text-shadow:_0_1px_0_rgb(255_255_255_/_0.6)] dark:[text-shadow:_0_1px_0_rgb(0_0_0_/_0.35)]"
+            >{heroSubtitle}</span
+          >
         </AosWrapper>
         <TypewriterComponent
-          elementId="hero-typewriter"
+          elementId="hero-typewriter-sub"
           texts={heroTypewriterItems}
           defaultDelay={120}
+          smallScreenDelay={55}
+          smallScreenMaxWidth={768}
+          loop={true}
         />
         <AosWrapper
           delay={200}
           duration={650}
           class="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4"
         >
-          <a
-            href={localizePath(locale, '/register')}
-            class="inline-flex items-center px-8 py-4 rounded-xl font-bold text-white bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 shadow-lg hover:shadow-xl transition duration-300 focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:outline-none"
-          >
-            {t('pages.home.hero.get_started_button')}
-          </a>
-          <a
-            href={localizePath(locale, '/tools')}
-            class="inline-flex items-center px-8 py-4 rounded-xl font-bold text-gray-800 dark:text-white bg-white dark:bg-gray-700 border border-gray-400 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 shadow transition duration-300 focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:outline-none"
-          >
-            {t('pages.home.hero.tools_link')}
-          </a>
+          <HeroStatusLights
+            client:load
+            labels={{
+              infra: t('pages.home.hero.status_labels.infra'),
+              image: t('pages.home.features.feature1.title'),
+              prompt: t('pages.home.features.feature2.title'),
+              voice: t('pages.home.features.feature3.title'),
+              web: t('pages.home.features.feature4.title'),
+            }}
+            icons={{
+              infra: 'server',
+              image: t('pages.home.features.feature1.icon'),
+              prompt: t('pages.home.features.feature2.icon'),
+              voice: t('pages.home.features.feature3.icon'),
+              web: t('pages.home.features.feature4.icon'),
+            }}
+            iconsOnly={true}
+          />
         </AosWrapper>
       </div>
     </div>
-    <!-- Hintergrund: nur wenn globaler Background OFF ist -->
-    {bgVariant === 'off' ? (
-      landingV2 ? (
-        <HeroNebula client:load motionLevel={2} className="z-[-1]" />
-      ) : (
-        <div class="absolute inset-0 pointer-events-none z-[-1]" aria-hidden="true">
-          <div
-            class="absolute -top-16 -left-16 w-[36rem] h-[36rem] rounded-full bg-emerald-400/90 dark:bg-emerald-500/45 blur-3xl mix-blend-overlay dark:mix-blend-screen saturate-200 brightness-160 dark:saturate-100 dark:brightness-90 animate-blob-1"
-          >
-          </div>
-          <div
-            class="absolute -bottom-20 -right-10 w-[40rem] h-[40rem] rounded-full bg-cyan-400/90 dark:bg-cyan-500/45 blur-3xl mix-blend-overlay dark:mix-blend-screen saturate-200 brightness-160 dark:saturate-100 dark:brightness-90 animate-blob-2"
-          >
-          </div>
-          <div
-            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[28rem] h-[28rem] rounded-full bg-purple-400/80 dark:bg-purple-500/40 blur-3xl mix-blend-overlay dark:mix-blend-screen saturate-200 brightness-160 dark:saturate-100 dark:brightness-90 animate-blob-3"
-          >
-          </div>
-          <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-full h-64 bg-transparent"></div>
-        </div>
-      )
-    ) : null}
+    <!-- Kein seitenweiter Fallback‑Hintergrund; globaler Hintergrund rendert -->
     <div
       class="absolute inset-0 pointer-events-none z-0 landing-hero-overlay"
       aria-hidden="true"
@@ -134,9 +102,9 @@ const heroTypewriterItems = heroTypewriterTexts.map((text) => ({ text }));
   </section>
 
   <!-- Features Section -->
-  <section class="py-16 md:py-24 bg-transparent">
+  <section class="py-8 md:py-12 bg-transparent">
     <div class="container mx-auto px-4">
-      <div class="text-center mb-16">
+      <div class="text-center mb-12">
         <AosWrapper
           tag="h2"
           duration={650}
@@ -199,11 +167,11 @@ const heroTypewriterItems = heroTypewriterTexts.map((text) => ({ text }));
 
   <!-- Testimonials Section -->
   <section
-    class="relative overflow-hidden py-16 md:py-24 bg-transparent"
+    class="relative overflow-hidden py-12 md:py-20 bg-transparent"
   >
     <div class="container mx-auto px-4">
       <StarfieldBackdrop client:load className="z-0" density={360} fullBleed={true} />
-      <div class="text-center mb-16">
+      <div class="text-center mb-12">
         <div class="mb-3 text-sm font-medium text-emerald-300/90 tracking-wide">{t('pages.home.testimonials.trust_line') ?? 'Vertraut von 1.200+ Creators'}</div>
         <AosWrapper
           tag="h2"
@@ -237,3 +205,8 @@ const heroTypewriterItems = heroTypewriterTexts.map((text) => ({ text }));
   </section>
   </div>
 </BaseLayout>
+
+<style>
+  .logo-glow { filter: drop-shadow(0 0 10px rgba(6, 182, 212, 0.22)) drop-shadow(0 0 18px rgba(148, 163, 184, 0.16)); }
+  .subtitle-glow { text-shadow: 0 0 6px rgba(6, 182, 212, 0.28), 0 0 16px rgba(148, 163, 184, 0.18); }
+</style>

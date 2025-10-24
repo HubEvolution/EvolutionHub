@@ -161,7 +161,21 @@ function validateCsrfAndOrigin(
 
   const allowedOrigins = resolveAllowedOrigins(context, options);
   const headerOrigin = extractOriginFromHeaders(context.request);
+  // Allow development-time relaxation via runtime env AUTH_CSRF_RELAXED ("1"/"true")
+  let relaxSameOrigin = false;
+  try {
+    const env =
+      (context.locals as unknown as { runtime?: { env?: Record<string, string> } })?.runtime?.env ||
+      {};
+    const v = (env as Record<string, string>).AUTH_CSRF_RELAXED;
+    relaxSameOrigin = v === '1' || v === 'true';
+  } catch {
+    relaxSameOrigin = false;
+  }
   if (requireSame) {
+    if (relaxSameOrigin) {
+      return null;
+    }
     if (!headerOrigin) {
       return createApiError('forbidden', 'Missing Origin/Referer header');
     }

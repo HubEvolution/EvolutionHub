@@ -9,6 +9,7 @@ import AccountSettingsSection from '@/components/dashboard/AccountSettingsSectio
 import RecentCommentsCard from '@/components/dashboard/RecentCommentsCard';
 import { getI18n } from '@/utils/i18n';
 import { getAllTools } from '@/lib/tools-data';
+import Card from '@/components/ui/Card';
 
 const locals = Astro.locals as any;
 if (!locals.user) {
@@ -203,7 +204,7 @@ const managePricingLink = (() => {
   try {
     const base = '/en/pricing';
     const u = new URL(base, 'http://x');
-    const cur = new URL(Astro.url);
+    const cur = Astro.url;
     const currentPath = `${cur.pathname}${cur.search}`;
     if (currentPath.startsWith('/')) {
       u.searchParams.set('return_to', currentPath);
@@ -217,16 +218,10 @@ const managePricingLink = (() => {
 ---
 
 <BaseLayout title={t('pages.dashboard.title') ?? 'Dashboard'}>
-  <!-- Futuristic gradient background -->
+  <!-- Transparent background to match Landing look -->
   <div class="relative min-h-screen overflow-hidden">
-    <div
-      class="absolute inset-0 -z-10 bg-gradient-to-br from-slate-950 via-indigo-950/40 to-violet-950/30 dark:from-slate-950 dark:via-purple-950/30 dark:to-cyan-950/20"
-    >
-    </div>
-    <div
-      class="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-pink-500/10 via-transparent to-transparent"
-    >
-    </div>
+    <div class="hidden"></div>
+    <div class="hidden"></div>
 
     <div class="container mx-auto p-4 lg:p-6">
       <!-- Modern CSS Grid Layout: responsive columns -->
@@ -248,9 +243,7 @@ const managePricingLink = (() => {
         </div>
 
         <!-- Pulse Card - Compact callout -->
-        <div
-          class="group relative overflow-hidden rounded-xl border border-indigo-500/20 bg-gradient-to-br from-indigo-950/50 via-slate-900/60 to-violet-950/50 p-5 shadow-xl backdrop-blur-sm transition-all hover:border-indigo-400/30 hover:shadow-indigo-500/20"
-        >
+        <Card as="div" className="group p-5">
           <div
             class="absolute inset-0 -z-10 bg-gradient-to-br from-indigo-500/5 to-transparent opacity-0 transition-opacity group-hover:opacity-100"
           >
@@ -264,7 +257,7 @@ const managePricingLink = (() => {
               })
             }
           </p>
-        </div>
+        </Card>
 
         <!-- Newsletter Card -->
         <NewsletterPreferencesCard
@@ -275,37 +268,29 @@ const managePricingLink = (() => {
         />
 
         <!-- Billing Card -->
-        <div
-          class="group relative overflow-hidden rounded-xl border border-white/10 bg-white/5 p-4 shadow-lg backdrop-blur-md transition-all hover:border-white/20 hover:shadow-xl dark:bg-slate-900/40"
-        >
+        <Card as="div" className="group p-4">
           <BillingCard client:load summary={billingSummary} strings={billingStrings} manageLink={managePricingLink} />
-        </div>
+        </Card>
 
         <!-- Tool Shortcuts -->
-        <div
-          class="group relative overflow-hidden rounded-xl border border-cyan-500/20 bg-gradient-to-br from-cyan-950/40 via-slate-900/50 to-blue-950/40 p-4 shadow-lg backdrop-blur-sm transition-all hover:border-cyan-400/30 hover:shadow-cyan-500/20"
-        >
+        <Card as="div" className="group p-4">
           <ToolShortcutsCard tools={toolShortcuts} strings={toolShortcutStrings} />
-        </div>
+        </Card>
 
         <!-- Recent Comments -->
-        <div
-          class="group relative overflow-hidden rounded-xl border border-emerald-500/20 bg-gradient-to-br from-emerald-950/40 via-slate-900/50 to-teal-950/40 p-4 shadow-lg backdrop-blur-sm transition-all hover:border-emerald-400/30 hover:shadow-emerald-500/20"
-        >
+        <Card as="div" className="group p-4">
           <RecentCommentsCard client:load strings={recentCommentsStrings} />
-        </div>
+        </Card>
 
         <!-- Recommendations - Full width on smaller screens -->
         <div class="lg:col-span-2 xl:col-span-3">
-          <div
-            class="group relative overflow-hidden rounded-xl border border-violet-500/20 bg-gradient-to-br from-violet-950/40 via-slate-900/50 to-fuchsia-950/30 p-5 shadow-xl backdrop-blur-sm transition-all hover:border-violet-400/30 hover:shadow-violet-500/20"
-          >
+          <Card as="div" className="group p-5">
             <RecommendationsCard
               tools={recommendedTools}
               docs={recommendedDocs}
               strings={recommendationStrings}
             />
-          </div>
+          </Card>
         </div>
       </div>
     </div>

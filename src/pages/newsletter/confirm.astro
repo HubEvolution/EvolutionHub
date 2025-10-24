@@ -6,6 +6,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import Icon from '@/components/ui/Icon.astro';
 import { localizePath } from '@/lib/locale-path';
 import { getLocale } from '@/lib/i18n';
+import Card from '@/components/ui/Card';
 
 // Get query parameters
 const url = Astro.url;
@@ -55,14 +56,12 @@ const seoDescription = confirmationResult?.success
 ---
 
 <BaseLayout title={seoTitle} description={seoDescription}>
-  <main
-    class="min-h-screen bg-gradient-to-br from-emerald-50 to-cyan-50 dark:from-gray-900 dark:to-gray-800 py-12"
-  >
+  <main class="min-h-screen bg-transparent py-12">
     <div class="container mx-auto px-4 max-w-2xl">
       {/* Success State */}
       {
         confirmationResult?.success && (
-          <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-8 text-center">
+          <Card as="div" className="rounded-2xl p-8 text-center">
             {/* Success Icon */}
             <div class="w-20 h-20 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
               <svg
@@ -150,7 +149,7 @@ const seoDescription = confirmationResult?.success
             <div class="flex flex-col sm:flex-row gap-4 justify-center">
               <a
                 href={localizePath(locale, '/blog')}
-                class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-emerald-500 to-cyan-500 text-white font-semibold rounded-lg hover:from-emerald-600 hover:to-cyan-600 transition-all duration-300 transform hover:scale-105"
+                class="inline-flex items-center px-6 py-3 bg-accent-gradient text-white font-semibold rounded-lg hover:brightness-95 transition-all duration-300 transform hover:scale-105"
                 aria-label="Explore our blog"
               >
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -189,7 +188,7 @@ const seoDescription = confirmationResult?.success
             {/* Subscription Info */}
             <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-600">
               <p class="text-sm text-gray-500 dark:text-gray-400">
-                Bestätigt am:{' '}
+                Bestätigt am: 
                 {new Date(confirmationResult?.subscription_date ?? Date.now()).toLocaleDateString(
                   'de-DE',
                   {
@@ -197,19 +196,19 @@ const seoDescription = confirmationResult?.success
                     month: 'long',
                     day: 'numeric',
                     hour: '2-digit',
-                    minute: '2-digit',
+                    minute: '2-digit'
                   }
                 )}
               </p>
             </div>
-          </div>
+          </Card>
         )
       }
 
       {/* Error State */}
       {
         (error || (confirmationResult && !confirmationResult.success)) && (
-          <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-8 text-center">
+          <Card as="div" className="rounded-2xl p-8 text-center">
             {/* Error Icon */}
             <div class="w-20 h-20 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
               <svg
@@ -290,14 +289,14 @@ const seoDescription = confirmationResult?.success
                 Support kontaktieren
               </a>
             </div>
-          </div>
+          </Card>
         )
       }
 
       {/* No Token State */}
       {
         !token && (
-          <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-8 text-center">
+          <Card as="div" className="rounded-2xl p-8 text-center">
             {/* Info Icon */}
             <div class="w-20 h-20 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
               <svg
@@ -326,11 +325,11 @@ const seoDescription = confirmationResult?.success
 
             <a
               href={localizePath(locale, '/blog')}
-              class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-emerald-500 to-cyan-500 text-white font-semibold rounded-lg hover:from-emerald-600 hover:to-cyan-600 transition-all duration-300"
+              class="inline-flex items-center px-6 py-3 bg-accent-gradient text-white font-semibold rounded-lg hover:brightness-95 transition-all duration-300"
             >
               Zum Blog
             </a>
-          </div>
+          </Card>
         )
       }
     </div>
@@ -349,7 +348,7 @@ const seoDescription = confirmationResult?.success
       console.log('Analytics: newsletter_confirmation_page_visit', {
         token_present: true,
         email_present: !!email,
-        timestamp: new Date().toISOString(),
+        timestamp: new Date().toISOString()
       });
     }
   });

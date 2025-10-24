@@ -24,8 +24,12 @@ export interface AuthenticatedUser {
  */
 function extractSessionId(cookieHeader: string | null): string | null {
   if (!cookieHeader) return null;
-  const match = cookieHeader.match(/session_id=([^;]+)/);
-  return match ? match[1] : null;
+  // Prefer strict cookie used in production
+  const hostMatch = cookieHeader.match(/(?:^|;\s*)__Host-session=([^;]+)/);
+  if (hostMatch) return hostMatch[1];
+  // Fallback to legacy lax cookie during migration window
+  const legacyMatch = cookieHeader.match(/(?:^|;\s*)session_id=([^;]+)/);
+  return legacyMatch ? legacyMatch[1] : null;
 }
 
 /**

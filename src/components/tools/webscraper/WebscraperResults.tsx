@@ -60,7 +60,7 @@ export function WebscraperResults({ result, strings }: WebscraperResultsProps) {
       </div>
 
       {/* Title & Meta Card */}
-      <Card className="p-6">
+      <Card variant="holo" className="p-6">
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-3 mb-3">
@@ -158,7 +158,7 @@ export function WebscraperResults({ result, strings }: WebscraperResultsProps) {
 
       {/* Metadata */}
       {result.metadata && Object.values(result.metadata).some((v) => v) && (
-        <Card className="p-6">
+        <Card variant="holo" className="p-6">
           <button
             onClick={() => toggleSection('metadata')}
             className="flex items-center justify-between w-full text-left"
@@ -245,7 +245,7 @@ export function WebscraperResults({ result, strings }: WebscraperResultsProps) {
 
       {/* Links */}
       {result.links && result.links.length > 0 && (
-        <Card className="p-6">
+        <Card variant="holo" className="p-6">
           <button
             onClick={() => toggleSection('links')}
             className="flex items-center justify-between w-full text-left"
@@ -312,7 +312,7 @@ export function WebscraperResults({ result, strings }: WebscraperResultsProps) {
 
       {/* Images */}
       {result.images && result.images.length > 0 && (
-        <Card className="p-6">
+        <Card variant="holo" className="p-6">
           <button
             onClick={() => toggleSection('images')}
             className="flex items-center justify-between w-full text-left"

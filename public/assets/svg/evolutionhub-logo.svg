@@ -12,7 +12,7 @@
     <path fill-rule="evenodd" clip-rule="evenodd" d="M4 4H20L16 8H8V14H26V4H30V28H26V18H8V24H20L16 28H4V4Z" fill="url(#unifiedGradient)"/>
 
     <!-- Text "Evolution Hub" with the new unified gradient and custom font -->
-    <text x="44" y="16" dominant-baseline="middle" fill="url(#unifiedGradient)" font-family="'Exo 2', sans-serif" font-size="18" font-weight="700" letter-spacing="1.5" text-transform="uppercase">
+    <text x="48" y="16" dominant-baseline="middle" fill="url(#unifiedGradient)" font-family="'Exo 2', sans-serif" font-size="18" font-weight="700" letter-spacing="1.5" text-transform="uppercase">
         Evolution Hub
     </text>
 </svg>

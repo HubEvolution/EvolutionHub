@@ -87,11 +87,20 @@
   </div>
 </div>
 
-<script is:inline>
+<script is:inline nonce={Astro.locals.cspNonce}>
   console.log('AVATAR MODAL SCRIPT EXECUTED');
 
-  // Notification wrapper (Sonner)
-  import notify from '@/lib/notify';
+  // Notification wrapper (no module imports inside inline script)
+  const notify = {
+    success: (msg) => {
+      try { console.info('[notify:success]', msg); } catch {}
+      try { alert(String(msg)); } catch {}
+    },
+    error: (msg) => {
+      try { console.error('[notify:error]', msg); } catch {}
+      try { alert(String(msg)); } catch {}
+    }
+  };
 
   // Sichere Initialisierung ohne problematische astro:page-load Event
   document.addEventListener('DOMContentLoaded', initAvatarModal);

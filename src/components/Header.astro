@@ -6,7 +6,7 @@ import ThemeToggle from './ThemeToggle.astro';
 import { getLocale } from '@/lib/i18n';
 // Import der dedizierten Scroll-Effect Komponente
 import HeaderScroll from './scripts/HeaderScroll.astro';
-import EvolutionHubLogo from 'public/assets/svg/evolutionhub-logo.svg';
+import EvolutionHubLogo from 'public/assets/svg/evolutionhub-mark.svg';
 import { localizePath } from '@/lib/locale-path';
 
 // Get current locale for language switching
@@ -67,7 +67,7 @@ function setLocaleHref(target: 'de' | 'en'): string {
           href={localizePath(currentLocale, '/')}
           class="flex items-center space-x-3 group-hover:scale-105 transition-transform duration-300"
         >
-          <EvolutionHubLogo />
+          <EvolutionHubLogo class="w-9 h-9 md:w-10 md:h-10" />
         </a>
       </div>
 
@@ -87,9 +87,9 @@ function setLocaleHref(target: 'de' | 'en'): string {
             >
               {item.name}
               {isActiveLocalized(item.href) && (
-                <span class="absolute inset-x-1 -bottom-1 h-0.5 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-full" />
+                <span class="absolute inset-x-1 -bottom-1 h-0.5 bg-accent-gradient rounded-full" />
               )}
-              <span class="absolute inset-x-1 -bottom-1 h-0.5 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-full transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300" />
+              <span class="absolute inset-x-1 -bottom-1 h-0.5 bg-accent-gradient rounded-full transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300" />
               {isActiveLocalized(item.href) && <span class="sr-only">(current page)</span>}
             </a>
           ))

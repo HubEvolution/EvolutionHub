@@ -156,10 +156,26 @@
         "title_part2": "Die Zukunft der KI-gestützten Entwicklung",
         "subtitle": "Entdecken Sie die Leistung von KI-gestützten Tools zur Optimierung Ihres Workflows und zur Steigerung Ihrer Produktivität.",
         "subtitle_poetic": "Wo Sprache zu Struktur wird. Wo Daten träumen lernen.",
+        "typewriter_lines": [
+          "Wo Sprache zur Struktur wird.",
+          "Wo Daten träumen lernen.",
+          "Wo Ideen zu Systemen werden.",
+          "Wo Werkzeuge zu Partnern werden.",
+          "Wo Abläufe schneller werden.",
+          "Wo Kreativität auf Engineering trifft.",
+          "Wo kleine Teams Großes bauen."
+        ],
         "get_started_button": "Jetzt loslegen",
         "documentation_link": "Dokumentation anzeigen",
         "tools_link": "Zu unseren Tools",
-        "typewriter": ["Imag‑Enhancer", "Prompt Enhancer", "Voice Transcriptor", "Webscraper"]
+        "typewriter": ["Imag‑Enhancer", "Prompt Enhancer", "Voice Transcriptor", "Webscraper"],
+        "status_labels": {
+          "infra": "Infra",
+          "image": "Bild",
+          "prompt": "Prompt",
+          "voice": "Stimme",
+          "web": "Webscraper"
+        }
       }
     },
     "blog": {

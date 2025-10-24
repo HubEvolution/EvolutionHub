@@ -2,6 +2,7 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { getI18n } from '@/utils/i18n';
 import { getLocale } from '@/lib/i18n';
+import Card from '@/components/ui/Card';
 const locale = getLocale(Astro.url.pathname);
 const t = getI18n(locale);
 ---
@@ -23,13 +24,13 @@ const t = getI18n(locale);
     </div>
   </section>
 
-  <!-- Content Section -->
-  <section class="py-16 md:py-20 bg-white dark:bg-gray-900">
+  <!-- Content Section (transparent to show landing background) -->
+  <section class="py-16 md:py-20 bg-transparent">
     <div class="container mx-auto px-4">
       <div
         class="max-w-4xl mx-auto prose prose-lg dark:prose-invert prose-headings:text-gray-900 dark:prose-headings:text-white prose-a:text-emerald-600 dark:prose-a:text-emerald-400 hover:prose-a:text-emerald-500 dark:hover:prose-a:text-emerald-300"
       >
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 md:p-10">
+        <Card as="div" className="rounded-2xl p-8 md:p-10">
           <div class="prose dark:prose-invert max-w-none">
             <h2>{t('pages.agb.sections.1.title')}</h2>
             <p>
@@ -110,7 +111,7 @@ const t = getI18n(locale);
               </p>
             </div>
           </div>
-        </div>
+        </Card>
       </div>
     </div>
   </section>

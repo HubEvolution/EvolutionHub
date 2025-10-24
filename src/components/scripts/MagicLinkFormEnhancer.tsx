@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { ensureCsrfToken } from '@/lib/security/csrf';
 import { notify } from '@/lib/notify';
 
 interface Props {
@@ -139,10 +140,12 @@ export default function MagicLinkFormEnhancer({
         formEl.setAttribute('aria-busy', 'true');
 
         const formData = new FormData(formEl);
+        const token = ensureCsrfToken();
         const res = await fetch(formEl.action, {
           method: formEl.method || 'POST',
           body: formData,
           credentials: 'same-origin',
+          headers: token ? { 'X-CSRF-Token': token } : undefined,
         });
         const _ok = res.ok;
         let json: unknown;

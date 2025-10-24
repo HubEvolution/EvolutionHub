@@ -91,7 +91,7 @@ const getHandler: ApiHandler = async (context: APIContext) => {
   // Authenticate with Stytch (or dev bypass)
   let stytchEmail: string | undefined;
   const envBypass = (context.locals as any)?.runtime?.env?.STYTCH_BYPASS;
-  const isBypass = envBypass === '1' && token === 'dev-ok';
+  const isBypass = devEnv && (envBypass === '1' || envBypass === 'true') && token === 'dev-ok';
   if (isBypass) {
     // In Dev/Test, allow bypass with explicit email param
     stytchEmail = url.searchParams.get('email') || undefined;
@@ -237,7 +237,7 @@ const getHandler: ApiHandler = async (context: APIContext) => {
     // Ignore locale processing failures
   }
 
-  // Build redirect response with cookies in headers
+  // Create redirect with explicit Set-Cookie headers
   const _tRedirect = Date.now();
   let redirectTarget = target;
   const hasProfileFromRequest = Boolean(desiredName) || Boolean(desiredUsername);
@@ -275,6 +275,10 @@ const getHandler: ApiHandler = async (context: APIContext) => {
   const cookieValue = `session_id=${session.id}; Path=/; HttpOnly; SameSite=Lax${isHttps ? '; Secure' : ''}; Max-Age=${maxAge}`;
   const response = createSecureRedirect(redirectTarget);
   response.headers.append('Set-Cookie', cookieValue);
+  if (isHttps) {
+    const hostCookie = `__Host-session=${session.id}; Path=/; HttpOnly; SameSite=Strict; Secure; Max-Age=${maxAge}`;
+    response.headers.append('Set-Cookie', hostCookie);
+  }
   try {
     context.cookies.delete('pkce_verifier', { path: '/' });
   } catch {}

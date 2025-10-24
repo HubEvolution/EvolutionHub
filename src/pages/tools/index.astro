@@ -6,6 +6,7 @@ import { localizePath } from '@/lib/locale-path';
 import { getLocale } from '@/lib/i18n';
 import { getI18n } from '@/utils/i18n';
 import { getAllTools, getToolCategories, type ToolCategory } from '@/lib/tools-data';
+import Card from '@/components/ui/Card';
 
 // Get search params for filtering
 const searchParams = Astro.url.searchParams;
@@ -101,7 +102,7 @@ const displayTools = filteredTools.slice().sort((a, b) => {
               ))}
             </div>
           ) : (
-            <div class="text-center py-12 bg-white dark:bg-gray-800 rounded-lg shadow">
+            <Card as="div" className="text-center py-12">
               <svg
                 class="mx-auto h-12 w-12 text-gray-400"
                 fill="none"
@@ -121,7 +122,7 @@ const displayTools = filteredTools.slice().sort((a, b) => {
               <p class="mt-1 text-gray-500 dark:text-gray-400">
                 {t('pages.tools.empty.description')}
               </p>
-            </div>
+            </Card>
           )
         }
       </div>

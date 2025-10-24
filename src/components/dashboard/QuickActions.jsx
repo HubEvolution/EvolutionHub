@@ -59,7 +59,7 @@ const QuickActions = ({
   };
 
   return (
-    <CardReact title={title}>
+    <CardReact variant="holo" title={title}>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {actions.length === 0 ? (
           <div className="col-span-full text-center py-4 text-gray-500 dark:text-gray-400">

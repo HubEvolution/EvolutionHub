@@ -5,6 +5,7 @@ import FeatureComparison from '@/components/pricing/FeatureComparison.astro';
 import { getI18n } from '@/utils/i18n';
 import { getLocale } from '@/lib/i18n';
 import { localizePath } from '@/lib/locale-path';
+import Card from '@/components/ui/Card';
 
 // Set page metadata
 const locale = getLocale(Astro.url.pathname);
@@ -14,7 +15,7 @@ const description = t('pages.pricing.description');
 ---
 
 <BaseLayout title={title} description={description} comingSoon={false}>
-  <main class="min-h-screen bg-gray-50 dark:bg-gray-900 py-10 px-4 sm:px-6 lg:px-8">
+  <main class="min-h-screen bg-transparent py-10 px-4 sm:px-6 lg:px-8">
     <div class="max-w-7xl mx-auto">
       <div class="text-center">
         <h1
@@ -59,25 +60,25 @@ const description = t('pages.pricing.description');
       </section>
 
       <section class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4" aria-label="Highlights">
-        <div class="rounded-lg bg-white dark:bg-gray-800 shadow p-4">
+        <Card variant="holo" className="p-4 rounded-2xl">
           <h3 class="font-semibold text-gray-900 dark:text-white">{t('pages.pricing.highlights.tools_title') || 'All 4 tools included'}</h3>
           <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">{t('pages.pricing.highlights.tools_desc') || 'Use Imag‑Enhancer, Prompt Enhancer, Voice Transcriptor, Webscraper'}</p>
-        </div>
-        <div class="rounded-lg bg-white dark:bg-gray-800 shadow p-4">
+        </Card>
+        <Card variant="holo" className="p-4 rounded-2xl">
           <h3 class="font-semibold text-gray-900 dark:text-white">{t('pages.pricing.highlights.commercial_title') || 'Commercial use allowed'}</h3>
           <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">{t('pages.pricing.highlights.commercial_desc') || 'Pro, Business, and Enterprise include commercial usage rights'}</p>
-        </div>
-        <div class="rounded-lg bg-white dark:bg-gray-800 shadow p-4">
+        </Card>
+        <Card variant="holo" className="p-4 rounded-2xl">
           <h3 class="font-semibold text-gray-900 dark:text-white">{t('pages.pricing.highlights.credits_title') || 'Monthly credits + daily burst'}</h3>
           <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">{t('pages.pricing.highlights.credits_desc') || 'Monthly resets with fair daily burst caps'}</p>
-        </div>
+        </Card>
       </section>
 
       <section id="comparison" class="mt-12 scroll-mt-24">
         <FeatureComparison />
       </section>
 
-      <section class="mt-12 bg-white dark:bg-gray-800 shadow rounded-lg p-6">
+      <Card as="section" variant="holo" className="mt-12 rounded-2xl p-6">
         <h2 class="text-xl font-bold text-gray-900 dark:text-white">
           {t('pages.pricing.credits_explainer.title')}
         </h2>
@@ -89,9 +90,9 @@ const description = t('pages.pricing.description');
           <li>{t('pages.pricing.credits_explainer.bullets.1')}</li>
           <li>{t('pages.pricing.credits_explainer.bullets.2')}</li>
         </ul>
-      </section>
+      </Card>
 
-      <div id="faq" class="mt-16 bg-white dark:bg-gray-800 shadow rounded-lg p-8 scroll-mt-24">
+      <Card as="div" variant="holo" id="faq" className="mt-16 rounded-2xl p-8 scroll-mt-24">
         <h2 class="text-2xl font-bold mb-4 text-gray-900 dark:text-white">
           {t('pages.pricing.faq.title')}
         </h2>
@@ -135,7 +136,8 @@ const description = t('pages.pricing.description');
             >
           </p>
         </div>
-      </div>
+      </Card>
     </div>
   </main>
 </BaseLayout>
+

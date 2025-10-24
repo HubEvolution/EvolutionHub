@@ -767,7 +767,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
       isProduction
         ? [
             "default-src 'self'",
-            `script-src 'self' 'nonce-${cspNonce}' 'strict-dynamic' https://cdn.jsdelivr.net https://www.googletagmanager.com https://plausible.io https://challenges.cloudflare.com`,
+            `script-src 'self' 'nonce-${cspNonce}' https://cdn.jsdelivr.net https://www.googletagmanager.com https://plausible.io https://challenges.cloudflare.com`,
             `script-src-elem 'self' 'nonce-${cspNonce}' https://cdn.jsdelivr.net https://www.googletagmanager.com https://plausible.io https://challenges.cloudflare.com`,
             "connect-src 'self' https: wss:",
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net",
@@ -796,6 +796,84 @@ export const onRequest = defineMiddleware(async (context, next) => {
     ).join('; ');
     response.headers.set('Content-Security-Policy', csp);
   }
+  
+  // In Production: augment CSP with sha256-hashes of inline scripts (e.g., Astro runtime)
+  try {
+    const isProduction = !!(cfEnv && cfEnv.ENVIRONMENT === 'production');
+    const ct0 = response.headers.get('Content-Type') || '';
+    const hasStrictNonce = (response.headers.get('Content-Security-Policy') || '').includes("script-src 'self' 'nonce-");
+    if (isProduction && ct0.includes('text/html') && hasStrictNonce) {
+      // Read body to compute hashes of inline <script> elements without nonce/src
+      const html = await response.text();
+
+      // Helper: compute sha256 base64
+      async function sha256Base64(input: string): Promise<string> {
+        const enc = new TextEncoder().encode(input);
+        const digest = await crypto.subtle.digest('SHA-256', enc);
+        const bytes = new Uint8Array(digest);
+        let bin = '';
+        for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+        return btoa(bin);
+      }
+
+      // Extract inline scripts without nonce/src and non-JSON types
+      const hashes: string[] = [];
+      const re = /<script(?![^>]*\bsrc\b)([^>]*)>([\s\S]*?)<\/script>/gi;
+      let m: RegExpExecArray | null;
+      while ((m = re.exec(html))) {
+        const attrs = m[1] || '';
+        const hasNonce = /\bnonce\s*=/.test(attrs);
+        const typeMatch = attrs.match(/\btype\s*=\s*(["'])([^"']+)\1/i);
+        const type = typeMatch ? typeMatch[2].toLowerCase() : 'text/javascript';
+        if (hasNonce) continue;
+        if (type.startsWith('application/ld+json') || type.startsWith('application/json')) continue;
+        const code = m[2] || '';
+        if (!code) continue;
+        // Compute hash and collect
+        // eslint-disable-next-line no-await-in-loop
+        const h = await sha256Base64(code);
+        hashes.push(`'sha256-${h}'`);
+      }
+
+      if (hashes.length > 0) {
+        const current = response.headers.get('Content-Security-Policy') || '';
+        const appendToDirective = (csp: string, dir: string) => {
+          const parts = csp.split(';').map((s) => s.trim());
+          for (let i = 0; i < parts.length; i++) {
+            if (parts[i].toLowerCase().startsWith(dir + ' ')) {
+              const existing = parts[i];
+              const add = hashes.filter((h) => !existing.includes(h)).join(' ');
+              parts[i] = add ? existing + ' ' + add : existing;
+              break;
+            }
+          }
+          return parts.join('; ');
+        };
+        let nextCsp = current;
+        nextCsp = appendToDirective(nextCsp, 'script-src');
+        nextCsp = appendToDirective(nextCsp, 'script-src-elem');
+
+        // Rebuild response with same body and updated CSP
+        const newHeaders = new Headers(response.headers);
+        newHeaders.set('Content-Security-Policy', nextCsp);
+        response = new Response(html, {
+          status: response.status,
+          statusText: response.statusText,
+          headers: newHeaders,
+        });
+      } else {
+        // Re-wrap consumed body without changes
+        response = new Response(html, {
+          status: response.status,
+          statusText: response.statusText,
+          headers: response.headers,
+        });
+      }
+    }
+  } catch {
+    // Best-effort: if hashing fails, keep original response/CSP
+  }
+
   response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
   response.headers.set('Cross-Origin-Opener-Policy', 'same-origin');
   response.headers.set('X-Frame-Options', 'DENY');

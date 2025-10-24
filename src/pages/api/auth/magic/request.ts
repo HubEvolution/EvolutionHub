@@ -301,10 +301,7 @@ const handler: ApiHandler = async (context: APIContext) => {
 
 export const POST = withApiMiddleware(handler, {
   rateLimiter: authLimiter,
-  // In remote dev, the browser may omit Origin/Referer headers due to the proxy.
-  // Disable strict same-origin header check for this endpoint (still protected by
-  // short‑lived cookies and provider-side validation), to avoid false 403s locally.
-  requireSameOriginForUnsafeMethods: false,
+  enforceCsrfToken: true,
 });
 
 export const GET = () => createApiError('method_not_allowed', 'Method Not Allowed');

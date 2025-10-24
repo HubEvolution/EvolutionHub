@@ -2,6 +2,7 @@
 import AuthLayout from '@/layouts/AuthLayout.astro';
 import Button from '@/components/ui/Button.astro';
 import Icon from '@/components/ui/Icon.astro';
+import Card from '@/components/ui/Card';
 
 import { getLocale } from '@/lib/i18n';
 import { localizePath } from '@/lib/locale-path';
@@ -54,13 +55,13 @@ if (error) {
 >
   {
     pageState === 'success' && (
-      <div class="relative p-8 rounded-2xl overflow-hidden bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-white/10 shadow-sm max-w-lg mx-auto">
+      <Card as="div" className="relative p-8 rounded-2xl overflow-hidden max-w-lg mx-auto">
         {/* Success Animation Container */}
         <div class="text-center mb-8">
           {/* Animated Success Icon */}
           <div class="relative inline-flex items-center justify-center w-20 h-20 mb-6">
-            <div class="absolute inset-0 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-full animate-ping opacity-25" />
-            <div class="relative flex items-center justify-center w-20 h-20 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-full">
+            <div class="absolute inset-0 bg-accent-soft rounded-full animate-ping opacity-25" />
+            <div class="relative flex items-center justify-center w-20 h-20 bg-accent-gradient rounded-full">
               <svg
                 class="w-10 h-10 text-white"
                 fill="none"
@@ -83,7 +84,7 @@ if (error) {
                 name="celebration"
                 class="w-6 h-6 inline-block text-emerald-500"
                 ariaLabel="Willkommen"
-              />{' '}
+              />
               Willkommen bei EvolutionHub!
             </span>
           </h1>
@@ -94,7 +95,7 @@ if (error) {
 
           {user && (
             <p class="text-sm text-gray-500 dark:text-gray-400">
-              Hallo{' '}
+              Hallo 
               <span class="font-semibold text-emerald-600 dark:text-emerald-400">{user.name}</span>!
               Ihr Konto ist jetzt vollständig aktiviert.
             </p>
@@ -102,14 +103,14 @@ if (error) {
         </div>
 
         {/* Welcome Benefits */}
-        <div class="bg-gradient-to-r from-emerald-50 to-cyan-50 dark:from-emerald-900/20 dark:to-cyan-900/20 rounded-lg p-6 mb-8">
+        <div class="bg-accent-soft rounded-lg p-6 mb-8">
           <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 text-center">
             Das erwartet Sie in EvolutionHub:
           </h2>
 
           <div class="space-y-3">
             <div class="flex items-start">
-              <div class="flex-shrink-0 w-6 h-6 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-full flex items-center justify-center mr-3 mt-0.5">
+              <div class="flex-shrink-0 w-6 h-6 bg-accent-gradient rounded-full flex items-center justify-center mr-3 mt-0.5">
                 <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
                   <path
                     fill-rule="evenodd"
@@ -170,7 +171,7 @@ if (error) {
 
         {/* Call to Action */}
         <div class="text-center">
-          <Button className="w-full bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-700 hover:to-cyan-700 text-white font-semibold py-3 px-6 text-lg">
+          <Button className="w-full text-white font-semibold py-3 px-6 text-lg">
             <a href={localizePath(locale, '/dashboard')} class="block w-full h-full">
               <span class="inline-flex items-center gap-2">
                 <Icon name="rocket" class="w-5 h-5 inline-block" ariaLabel="Zum Dashboard" /> Zum
@@ -183,13 +184,13 @@ if (error) {
             Sie werden automatisch in <span id="countdown">10</span> Sekunden weitergeleitet
           </p>
         </div>
-      </div>
+      </Card>
     )
   }
 
   {
     pageState === 'error' && (
-      <div class="relative p-8 rounded-2xl overflow-hidden bg-white dark:bg-gray-800/50 border border-red-200 dark:border-red-800 shadow-sm max-w-lg mx-auto">
+      <Card as="div" className="relative p-8 rounded-2xl overflow-hidden max-w-lg mx-auto">
         {/* Error Icon */}
         <div class="text-center mb-6">
           <div class="inline-flex items-center justify-center w-16 h-16 bg-red-100 dark:bg-red-900/20 rounded-full mb-4">
@@ -220,7 +221,7 @@ if (error) {
           <Button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white">
             <a href={localizePath(locale, '/register')} class="block w-full h-full">
               <span class="inline-flex items-center gap-2">
-                <Icon name="refresh" class="w-5 h-5 inline-block" ariaLabel="Neue Registrierung" />{' '}
+                <Icon name="refresh" class="w-5 h-5 inline-block" ariaLabel="Neue Registrierung" />
                 Neue Registrierung
               </span>
             </a>
@@ -234,13 +235,13 @@ if (error) {
             </a>
           </Button>
         </div>
-      </div>
+      </Card>
     )
   }
 
   {
     pageState === 'no_session' && (
-      <div class="relative p-8 rounded-2xl overflow-hidden bg-white dark:bg-gray-800/50 border border-amber-200 dark:border-amber-800 shadow-sm max-w-lg mx-auto">
+      <Card as="div" className="relative p-8 rounded-2xl overflow-hidden max-w-lg mx-auto">
         {/* Warning Icon */}
         <div class="text-center mb-6">
           <div class="inline-flex items-center justify-center w-16 h-16 bg-amber-100 dark:bg-amber-900/20 rounded-full mb-4">
@@ -277,7 +278,7 @@ if (error) {
             </a>
           </Button>
         </div>
-      </div>
+      </Card>
     )
   }
 

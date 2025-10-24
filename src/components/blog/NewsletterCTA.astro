@@ -86,9 +86,9 @@ const isBanner = variant === 'banner';
   </div>
   {
     isCard && (
-      <div class="bg-gradient-to-br from-emerald-50 to-cyan-50 dark:from-emerald-900/20 dark:to-cyan-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-6 text-center">
+      <div class="bg-accent-soft border border-emerald-200/40 dark:border-emerald-800/40 rounded-xl p-6 text-center">
         <div class="max-w-md mx-auto">
-          <div class="w-12 h-12 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div class="w-12 h-12 bg-accent-gradient rounded-full flex items-center justify-center mx-auto mb-4">
             <Icon name="mail" class="w-6 h-6 text-white" ariaLabel="Newsletter" />
           </div>
 
@@ -139,7 +139,7 @@ const isBanner = variant === 'banner';
 
   {
     isBanner && (
-      <div class="bg-gradient-to-r from-emerald-500 to-cyan-500 text-white rounded-lg p-4 text-center">
+      <div class="bg-accent-gradient text-white rounded-lg p-4 text-center">
         <div class="max-w-2xl mx-auto flex flex-col sm:flex-row items-center gap-4">
           <div class="flex-1 text-left">
             <h3 class="font-semibold text-lg mb-1">{defaultContent.title}</h3>
@@ -160,9 +160,9 @@ const isBanner = variant === 'banner';
 
   {
     isInline && (
-      <div class="border-l-4 border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20 p-4 rounded-r-lg">
+      <div class="border-l-4 border-emerald-500 bg-accent-soft/40 dark:bg-accent-soft/30 p-4 rounded-r-lg">
         <div class="flex items-start gap-3">
-          <div class="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center flex-shrink-0">
+          <div class="w-8 h-8 bg-accent-gradient rounded-full flex items-center justify-center flex-shrink-0">
             <Icon name="mail" class="w-4 h-4 text-white" ariaLabel="Newsletter" />
           </div>
 
@@ -340,6 +340,6 @@ const isBanner = variant === 'banner';
 
   .newsletter-cta.card .newsletter-cta-form button,
   .newsletter-cta.inline .newsletter-cta-form button {
-    @apply bg-gradient-to-r from-emerald-500 to-cyan-500 text-white hover:from-emerald-600 hover:to-cyan-600;
+    @apply bg-accent-gradient text-white hover:brightness-95;
   }
 </style>

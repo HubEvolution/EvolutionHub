@@ -121,7 +121,7 @@ export default function WebscraperIsland({ strings }: WebscraperIslandProps) {
       </div>
 
       {/* Main Form Card */}
-      <Card className="p-6">
+      <Card variant="holo" className="p-6">
         <WebscraperForm
           url={url}
           onUrlChange={setUrl}
