@@ -125,10 +125,7 @@ export const POST = withApiMiddleware(
           return createApiError('validation_error', 'Input text is required');
         }
         if (input.text.trim().length > TEXT_LENGTH_MAX)
-          return createApiError(
-            'validation_error',
-            `Input text too long (max ${TEXT_LENGTH_MAX})`
-          );
+          return createApiError('validation_error', `Input text too long (max ${TEXT_LENGTH_MAX})`);
         const bodyOptions = body.options ?? {};
         const legacyMode = typeof body.mode === 'string' ? body.mode : undefined;
         options = {

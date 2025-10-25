@@ -119,7 +119,9 @@ const upgradeLabel =
             try {
               const base = localizePath(locale, '/pricing');
               const u = new URL(base, 'http://x');
-              const cur = new URL(typeof window !== 'undefined' ? window.location.href : 'http://x');
+              const cur = new URL(
+                typeof window !== 'undefined' ? window.location.href : 'http://x'
+              );
               const currentPath = cur.pathname + cur.search;
               if (currentPath.startsWith('/')) {
                 u.searchParams.set('return_to', currentPath);

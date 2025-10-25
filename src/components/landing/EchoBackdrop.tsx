@@ -14,9 +14,12 @@ export default function EchoBackdrop({ className = '', intensity = 1 }: Props) {
   useEffect(() => {
     const el = canvasRef.current;
     if (!el) return;
-    const io = new IntersectionObserver((entries) => {
-      setVisible(entries[0]?.isIntersecting ?? false);
-    }, { rootMargin: '100px' });
+    const io = new IntersectionObserver(
+      (entries) => {
+        setVisible(entries[0]?.isIntersecting ?? false);
+      },
+      { rootMargin: '100px' }
+    );
     io.observe(el);
     return () => io.disconnect();
   }, []);
@@ -51,7 +54,7 @@ export default function EchoBackdrop({ className = '', intensity = 1 }: Props) {
       // gentle parallax based on time and scroll; zeroed for reduced motion
       const motionK = prefersReduced ? 0 : 1;
       const ty = (Math.sin(t / 1600) * 10 + (scrollY % 300) * 0.03) * motionK;
-      const tx = (Math.cos(t / 2200) * 14) * motionK;
+      const tx = Math.cos(t / 2200) * 14 * motionK;
 
       const alpha = 0.04 + 0.03 * intensity;
       const centers = [
@@ -63,7 +66,8 @@ export default function EchoBackdrop({ className = '', intensity = 1 }: Props) {
         const baseR = Math.min(width, height) * (0.16 + 0.06 * intensity);
         const rings = 5;
         for (let k = 0; k < rings; k++) {
-          const wobble = Math.sin(t / 900 + i * 0.7 + k * 0.35) * (6 + 4 * intensity) * (prefersReduced ? 0 : 1);
+          const wobble =
+            Math.sin(t / 900 + i * 0.7 + k * 0.35) * (6 + 4 * intensity) * (prefersReduced ? 0 : 1);
           const r = baseR + k * (24 + 4 * intensity) + wobble;
           ctx!.beginPath();
           ctx!.arc(c.x, c.y, r, 0, Math.PI * 2);
@@ -100,7 +104,7 @@ export default function EchoBackdrop({ className = '', intensity = 1 }: Props) {
   }, [visible]);
 
   return (
-    <div className={"absolute inset-0 pointer-events-none " + className} aria-hidden="true">
+    <div className={'absolute inset-0 pointer-events-none ' + className} aria-hidden="true">
       <canvas ref={canvasRef} className="w-full h-full" />
     </div>
   );

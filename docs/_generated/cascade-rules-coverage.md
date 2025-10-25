@@ -74,4 +74,3 @@ Quelle:
 - Regeln: `.windsurf/rules/*.md`
 - Skripte: `package.json`
 - Referenz: `global_rules.md`
-

@@ -138,7 +138,7 @@ describe('CommentService', () => {
       // Mock successful database operations
       const mockSelect = mockDb.select as any;
       // Provide rawDb.prepare stub for user lookup
-      ;(commentService as any).rawDb = {
+      (commentService as any).rawDb = {
         prepare: vi.fn(() => ({
           bind: vi.fn(() => ({
             first: vi.fn(async () => ({ name: 'Test User', email: 'test@example.com' })),
@@ -586,7 +586,9 @@ describe('CommentService', () => {
           ])
         );
 
-      vi.spyOn(CommentService.prototype as any, 'getCommentReportCount').mockResolvedValue(1 as any);
+      vi.spyOn(CommentService.prototype as any, 'getCommentReportCount').mockResolvedValue(
+        1 as any
+      );
       vi.spyOn(CommentService.prototype as any, 'getCommentById').mockResolvedValue({
         id: 'test-id-123',
         content: 'Some content',

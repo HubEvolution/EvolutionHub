@@ -5,7 +5,13 @@ interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   variant?: 'default' | 'holo';
 }
 
-const Card: React.FC<CardProps> = ({ as = 'div', className = '', variant = 'holo', children, ...props }) => {
+const Card: React.FC<CardProps> = ({
+  as = 'div',
+  className = '',
+  variant = 'holo',
+  children,
+  ...props
+}) => {
   const Comp = as as any;
   if (variant === 'holo') {
     return (

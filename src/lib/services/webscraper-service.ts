@@ -88,6 +88,25 @@ export class WebscraperService {
     }
 
     const hostname = parsedUrl.hostname.toLowerCase();
+
+    // Block IP-literal hosts (IPv4/IPv6) and enforce port allowlist (80/443)
+    const isIPv4 = /^(?:\d{1,3}\.){3}\d{1,3}$/.test(hostname);
+    const isIPv6Like = hostname.includes(':'); // WHATWG URL strips brackets from hostname
+    if (isIPv4 || isIPv6Like) {
+      return { valid: false, error: 'IP literal hosts are not allowed' };
+    }
+
+    const port = parsedUrl.port;
+    if (port && port !== '80' && port !== '443') {
+      return { valid: false, error: 'Only ports 80/443 are allowed' };
+    }
+
+    // Block self-scraping of our own domains to avoid recursive fetches
+    const isOwnDomain = hostname === 'hub-evolution.com' || hostname.endsWith('.hub-evolution.com');
+    if (isOwnDomain) {
+      return { valid: false, error: 'Self-scraping this site is not supported' };
+    }
+
     if (BLOCKED_DOMAINS.some((blocked) => hostname.includes(blocked))) {
       return { valid: false, error: 'URL domain is blocked' };
     }
@@ -399,7 +418,8 @@ export class WebscraperService {
   public async scrape(
     input: ScrapeInput,
     ownerType: OwnerType = 'guest',
-    ownerId: string
+    ownerId: string,
+    limitOverride?: number
   ): Promise<ScrapeResult> {
     if (!this.publicFlag) {
       const err = new Error('feature_not_enabled');
@@ -410,13 +430,20 @@ export class WebscraperService {
 
     const startTime = Date.now();
     const reqId = `scrape-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
-    const guestLimit = parseInt(this.env.WEBSCRAPER_GUEST_LIMIT || '5', 10);
-    const userLimit = parseInt(this.env.WEBSCRAPER_USER_LIMIT || '20', 10);
-    const limit = ownerType === 'user' ? userLimit : guestLimit;
+    const envGuest = parseInt(this.env.WEBSCRAPER_GUEST_LIMIT || '5', 10);
+    const envUser = parseInt(this.env.WEBSCRAPER_USER_LIMIT || '20', 10);
+    const limit =
+      typeof limitOverride === 'number' ? limitOverride : ownerType === 'user' ? envUser : envGuest;
 
     this.logInfo('scrape_requested', {
       reqId,
-      url: input.url,
+      hostname: (() => {
+        try {
+          return new URL(input.url).hostname;
+        } catch {
+          return 'invalid-host';
+        }
+      })(),
       ownerType,
       ownerId: ownerId.slice(-4),
     });
@@ -512,5 +539,16 @@ export class WebscraperService {
     });
 
     return { result, usage };
+  }
+
+  /**
+   * Public accessor for current usage without incrementing.
+   */
+  public async getUsagePublic(
+    ownerType: OwnerType,
+    ownerId: string,
+    limit: number
+  ): Promise<UsageInfo> {
+    return this.getUsage(ownerType, ownerId, limit);
   }
 }

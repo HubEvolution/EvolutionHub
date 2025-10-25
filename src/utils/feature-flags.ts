@@ -9,9 +9,11 @@ export function isLandingV2Enabled(): boolean {
 export type LandingBgVariant = 'lattice' | 'techcells' | 'off';
 
 export function getLandingBgVariant(): LandingBgVariant {
-  const raw = (import.meta.env && 'PUBLIC_LANDING_BG_VARIANT' in import.meta.env
-    ? (import.meta.env as Record<string, string | undefined>).PUBLIC_LANDING_BG_VARIANT
-    : undefined) as string | undefined;
+  const raw = (
+    import.meta.env && 'PUBLIC_LANDING_BG_VARIANT' in import.meta.env
+      ? (import.meta.env as Record<string, string | undefined>).PUBLIC_LANDING_BG_VARIANT
+      : undefined
+  ) as string | undefined;
   if (!raw || typeof raw !== 'string') return 'techcells';
   const v = raw.toLowerCase().trim();
   if (v === 'techcells' || v === 'off' || v === 'lattice') return v as LandingBgVariant;

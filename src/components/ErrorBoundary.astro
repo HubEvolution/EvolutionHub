@@ -41,9 +41,7 @@ const { fallback } = Astro.props;
                 </p>
               </div>
               <div class="mt-4">
-                <button
-                  class="rounded-md bg-red-50 px-2 py-1.5 text-sm font-medium text-red-800 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 focus:ring-offset-red-50 dark:bg-red-900/30 dark:text-red-200 dark:hover:bg-red-900/50"
-                >
+                <button class="rounded-md bg-red-50 px-2 py-1.5 text-sm font-medium text-red-800 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 focus:ring-offset-red-50 dark:bg-red-900/30 dark:text-red-200 dark:hover:bg-red-900/50">
                   Erneut versuchen
                 </button>
               </div>
@@ -75,7 +73,9 @@ const { fallback } = Astro.props;
 
         // Error handler for the boundary
         const handleError = (error) => {
-          try { console.error('Error in ErrorBoundary:', error); } catch {}
+          try {
+            console.error('Error in ErrorBoundary:', error);
+          } catch {}
           errorBoundaryRoot.style.display = 'none';
           errorBoundaryFallback.classList.remove('hidden');
 

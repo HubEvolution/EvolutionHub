@@ -188,7 +188,7 @@ const seoDescription = confirmationResult?.success
             {/* Subscription Info */}
             <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-600">
               <p class="text-sm text-gray-500 dark:text-gray-400">
-                Bestätigt am: 
+                Bestätigt am:
                 {new Date(confirmationResult?.subscription_date ?? Date.now()).toLocaleDateString(
                   'de-DE',
                   {
@@ -196,7 +196,7 @@ const seoDescription = confirmationResult?.success
                     month: 'long',
                     day: 'numeric',
                     hour: '2-digit',
-                    minute: '2-digit'
+                    minute: '2-digit',
                   }
                 )}
               </p>
@@ -348,7 +348,7 @@ const seoDescription = confirmationResult?.success
       console.log('Analytics: newsletter_confirmation_page_visit', {
         token_present: true,
         email_present: !!email,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
     }
   });

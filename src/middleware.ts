@@ -62,6 +62,8 @@ export const onRequest = defineMiddleware(async (context, next) => {
   const requestId = generateRequestId();
   const startTime = Date.now();
   const url = new URL(context.request.url);
+  let tAfterSession = startTime;
+  let tAfterNext = startTime;
 
   // Log request start
   log('info', `${context.request.method} ${url.pathname}`, {
@@ -122,7 +124,6 @@ export const onRequest = defineMiddleware(async (context, next) => {
       });
     }
   }
-
   // Removed: notify normalization (simplified auth flow redirects directly from callback)
 
   const LOCALE_PREFIX_RE = /^\/(de|en)(\/|$)/;
@@ -575,6 +576,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
     }
   }
 
+  // mark end of session validation for Server-Timing
+  tAfterSession = Date.now();
+
   // Early redirect (after session validation): if user exists and path is a login route, redirect to dashboard
   try {
     const user = context.locals.user;
@@ -642,6 +646,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   // Führe den nächsten Middleware-Schritt aus
   let response = await next();
+  tAfterNext = Date.now();
 
   // Ensure mutable headers: some response objects (e.g., redirects) can have immutable headers.
   // Clone headers and re-wrap the response so all subsequent `headers.set` calls succeed.
@@ -796,12 +801,14 @@ export const onRequest = defineMiddleware(async (context, next) => {
     ).join('; ');
     response.headers.set('Content-Security-Policy', csp);
   }
-  
+
   // In Production: augment CSP with sha256-hashes of inline scripts (e.g., Astro runtime)
   try {
     const isProduction = !!(cfEnv && cfEnv.ENVIRONMENT === 'production');
     const ct0 = response.headers.get('Content-Type') || '';
-    const hasStrictNonce = (response.headers.get('Content-Security-Policy') || '').includes("script-src 'self' 'nonce-");
+    const hasStrictNonce = (response.headers.get('Content-Security-Policy') || '').includes(
+      "script-src 'self' 'nonce-"
+    );
     if (isProduction && ct0.includes('text/html') && hasStrictNonce) {
       // Read body from a clone to avoid consuming the original response stream
       const clonedForHash = response.clone();
@@ -913,6 +920,15 @@ export const onRequest = defineMiddleware(async (context, next) => {
   if (isResetPasswordPath) {
     response.headers.set('Referrer-Policy', 'no-referrer');
   }
+
+  try {
+    const durSession = Math.max(0, tAfterSession - startTime);
+    const durRender = Math.max(0, tAfterNext - tAfterSession);
+    const durTotal = Math.max(0, tAfterNext - startTime);
+    const existing = response.headers.get('Server-Timing');
+    const value = `session;dur=${durSession}, render;dur=${durRender}, total;dur=${durTotal}`;
+    response.headers.set('Server-Timing', existing ? `${existing}, ${value}` : value);
+  } catch {}
 
   // Log response with timing
   const duration = Date.now() - startTime;

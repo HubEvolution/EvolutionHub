@@ -12,6 +12,7 @@ interface SubscriptionRow {
 
 export const GET = withAuthApiMiddleware(
   async (context) => {
+    const opStart = Date.now();
     const { locals, clientAddress } = context;
     const user = locals.user;
     const env: any = locals.runtime?.env ?? {};
@@ -25,25 +26,35 @@ export const GET = withAuthApiMiddleware(
       return createApiError('server_error', 'Database unavailable');
     }
 
-    const subscription =
-      (await db
-        .prepare(
-          `SELECT id, plan, status, current_period_end, cancel_at_period_end, updated_at
+    const dbStart = Date.now();
+    const subscription = (await db
+      .prepare(
+        `SELECT id, plan, status, current_period_end, cancel_at_period_end, updated_at
          FROM subscriptions
          WHERE user_id = ?1
          ORDER BY datetime(updated_at) DESC
          LIMIT 1`
-        )
-        .bind(user.id)
-        .first<SubscriptionRow>()) ?? null;
+      )
+      .bind(user.id)
+      .first()) as SubscriptionRow | null;
+    const dbDur = Date.now() - dbStart;
 
     const creditsKv = env.KV_AI_ENHANCER as
       | import('@cloudflare/workers-types').KVNamespace
       | undefined;
     let creditsRemaining: number | null = null;
+    let kvDur = 0;
     if (creditsKv) {
       try {
-        const rawCredits = await creditsKv.get(`ai:credits:user:${user.id}`);
+        const kvStart = Date.now();
+        const timeoutMs = 250;
+        const key = `ai:credits:user:${user.id}`;
+        const result = await Promise.race<Promise<string | null> | string>([
+          creditsKv.get(key),
+          new Promise<string>((resolve) => setTimeout(() => resolve('__timeout__'), timeoutMs)),
+        ] as unknown as [Promise<string | null>, Promise<string>]);
+        kvDur = Date.now() - kvStart;
+        const rawCredits = result === '__timeout__' ? null : (result as string | null);
         if (rawCredits !== null) {
           const parsed = parseInt(rawCredits, 10);
           creditsRemaining = Number.isFinite(parsed) ? parsed : null;
@@ -75,7 +86,13 @@ export const GET = withAuthApiMiddleware(
       status: result.status,
     });
 
-    return createApiSuccess(result);
+    const resp = createApiSuccess(result);
+    try {
+      const total = Date.now() - opStart;
+      const timing = `db;dur=${dbDur}, kv;dur=${kvDur}, total;dur=${total}`;
+      resp.headers.set('Server-Timing', timing);
+    } catch {}
+    return resp;
   },
   {
     logMetadata: { action: 'billing_summary_accessed' },

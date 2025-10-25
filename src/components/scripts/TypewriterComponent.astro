@@ -28,7 +28,11 @@ const {
 ---
 
 <!-- Kein direktes Markup nötig, nur das Client-Script -->
-<script is:inline define:vars={{ elementId, texts, defaultDelay, loop, smallScreenDelay, smallScreenMaxWidth }} nonce={Astro.locals.cspNonce}>
+<script
+  is:inline
+  define:vars={{ elementId, texts, defaultDelay, loop, smallScreenDelay, smallScreenMaxWidth }}
+  nonce={Astro.locals.cspNonce}
+>
   // Typewriter-Funktion direkt hier definieren
   const runTypewriter = (targetElementId, textArray, baseDelay = 100, shouldLoop = true) => {
     const element = document.getElementById(targetElementId);
@@ -50,7 +54,9 @@ const {
     let typingTimeout;
 
     // Vor Start: SSR/Fallback-Text leeren, damit nur getypte Zeilen sichtbar sind
-    try { element.textContent = ''; } catch {}
+    try {
+      element.textContent = '';
+    } catch {}
 
     // Text-Zeichen für Zeichen anzeigen
     const type = () => {

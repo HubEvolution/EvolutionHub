@@ -137,4 +137,3 @@ export const PATCH = methodNotAllowed;
 export const DELETE = methodNotAllowed;
 export const OPTIONS = methodNotAllowed;
 export const HEAD = methodNotAllowed;
-

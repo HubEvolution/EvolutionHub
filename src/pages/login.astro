@@ -14,7 +14,8 @@ const t = getI18n(locale);
 
 const magicBanner = Astro.url.searchParams.get('success') === 'magic_sent';
 const magicText =
-  t('pages.auth.magic.success') ?? (locale === 'de'
+  t('pages.auth.magic.success') ??
+  (locale === 'de'
     ? 'Prüfe deine E‑Mails auf den Anmelde‑Link.'
     : 'Check your email for a sign‑in link.');
 
@@ -40,11 +41,13 @@ if (locals.user) {
       {t('pages.login.form.heading') ?? 'Login to your Account'}
     </h1>
 
-    {magicBanner && (
-      <div class="mb-4 rounded-md border border-emerald-200 bg-emerald-50 text-emerald-800 px-4 py-2 text-sm">
-        {magicText}
-      </div>
-    )}
+    {
+      magicBanner && (
+        <div class="mb-4 rounded-md border border-emerald-200 bg-emerald-50 text-emerald-800 px-4 py-2 text-sm">
+          {magicText}
+        </div>
+      )
+    }
 
     <MagicLinkForm locale={locale} mode="login" r={safeR} />
 

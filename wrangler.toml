@@ -262,7 +262,7 @@ PRICING_LINKS = '{"pro":"https://buy.stripe.com/5kQfZhbth3vD8U0g4n1VK09","premiu
 PRICING_LINKS_ANNUAL = '{"pro":"https://buy.stripe.com/7sYbJ140P9U1gms8BV1VK0a","premium":"https://buy.stripe.com/8x214n40Pfeleek8BV1VK0c","enterprise":"https://buy.stripe.com/bJe4gz9l9c299Y405p1VK0e"}'
 AUTH_PROVIDER = "stytch"
 PUBLIC_TURNSTILE_SITE_KEY = "0x4AAAAAAB5-m2IDaeVetM7Q"
-STYTCH_PKCE = "1"
+STYTCH_PKCE = "0"
 
 # Prompt Enhancer (non-secret defaults; override per env if needed)
 PROMPT_REWRITE_V1 = "true"

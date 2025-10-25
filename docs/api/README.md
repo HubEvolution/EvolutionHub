@@ -28,11 +28,28 @@ Diese Übersicht beschreibt die wichtigsten HTTP‑APIs von Evolution Hub, inkl.
 
 Enhance‑Endpoint für Text mit optionalen Anhängen (Bilder, Textdateien, PDF). Verwendet intern OpenAI (Chat Completions / Responses API mit `file_search`).
 
-- Content‑Type: `multipart/form-data`
+- Content‑Types:
+  - `application/json` (Text‑only)
+  - `multipart/form-data` (mit Dateien)
 - Felder:
-  - `text`: zu optimierender Prompt‑Text (string)
-  - `mode`: `creative` | `professional` | `concise` (optional, default `creative`)
+  - `text`: zu optimierender Prompt‑Text (string, max 1000 Zeichen)
+  - `mode`: `agent` | `concise` (optional; UI‑Labels `creative`/`professional` mappen auf `agent`)
   - `files[]`: 0..3 Dateien (`image/jpeg|png|webp`, `text/plain|markdown`, `application/pdf`)
+
+- Beispiel (curl, JSON):
+
+```bash
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -H "X-CSRF-Token: 123" \
+  -H "Cookie: csrf_token=123" \
+  -H "Origin: http://127.0.0.1:8787" \
+  -d '{
+    "text": "Bitte verbessere meinen Prompt.",
+    "mode": "agent"
+  }' \
+  http://127.0.0.1:8787/api/prompt-enhance
+```
 
 - Beispiel (curl):
 
@@ -54,8 +71,8 @@ curl -X POST \
   "success": true,
   "data": {
     "enhancedPrompt": "...",
-    "usage": { "used": 1, "limit": 5, "resetAt": null },
-    "safetyReport": { "masked": [], "types": [] }
+    "safetyReport": { "score": 0, "warnings": [] },
+    "usage": { "used": 1, "limit": 5, "resetAt": null }
   }
 }
 ```
@@ -66,6 +83,33 @@ curl -X POST \
 {
   "success": false,
   "error": { "type": "validation_error", "message": "..." }
+}
+```
+
+### GET `/api/prompt/usage`
+
+Liefert den aktuellen Usage‑Stand und Limits (24h Fenster) für den aktuellen Besitzer (User oder Gast mit `guest_id`‑Cookie). `usage.limit` ist maßgeblich; `limits.*` sind statische Defaults.
+
+- Beispiel (curl):
+
+```bash
+curl -i http://127.0.0.1:8787/api/prompt/usage
+```
+
+- Erwartete Header:
+  - `X-Usage-OwnerType: user|guest`
+  - `X-Usage-Limit: <zahl>`
+
+- Erfolg (200):
+
+```json
+{
+  "success": true,
+  "data": {
+    "ownerType": "guest",
+    "usage": { "used": 0, "limit": 5, "resetAt": null },
+    "limits": { "user": 20, "guest": 5 }
+  }
 }
 ```
 

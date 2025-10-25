@@ -258,6 +258,18 @@ const handler: ApiHandler = async (context: APIContext) => {
       };
       console.warn('[auth][magic][request] provider error', payload);
     }
+    try {
+      const e = err as any;
+      const status = typeof e?.status === 'number' ? e.status : undefined;
+      const providerType = typeof e?.providerType === 'string' ? e.providerType : undefined;
+      const requestId = typeof e?.requestId === 'string' ? e.requestId : undefined;
+      // Minimal structured log for production diagnostics (no sensitive data)
+      console.error('[auth][magic][request] provider_error', {
+        status,
+        providerType,
+        requestId,
+      });
+    } catch {}
     if (err instanceof StytchError) {
       const status = err.status;
       // Map provider status to our unified error types

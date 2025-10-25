@@ -22,7 +22,6 @@ function invert<K extends string, V extends string>(obj: Record<K, V>): Record<V
   return out as Record<V, K>;
 }
 
-
 export const GET = withAuthApiMiddleware(
   async (context) => {
     const { locals, request } = context;

@@ -5,13 +5,16 @@ import opentype from 'opentype.js';
 const ROOT = process.cwd();
 const FONT_PATH = path.join(ROOT, 'src', 'assets', 'fonts', 'Exo2-Bold.ttf');
 const OUT_SVG = path.join(ROOT, 'src', 'assets', 'svg', 'evolutionhub-wordmark-outlined.svg');
-const OUT_COMPONENT = path.join(ROOT, 'src', 'components', 'brand', 'EvolutionHubWordmarkOutlined.astro');
+const OUT_COMPONENT = path.join(
+  ROOT,
+  'src',
+  'components',
+  'brand',
+  'EvolutionHubWordmarkOutlined.astro'
+);
 
 async function ensureDirs() {
-  const dirs = [
-    path.dirname(OUT_SVG),
-    path.dirname(OUT_COMPONENT),
-  ];
+  const dirs = [path.dirname(OUT_SVG), path.dirname(OUT_COMPONENT)];
   for (const d of dirs) {
     fs.mkdirSync(d, { recursive: true });
   }
@@ -58,7 +61,7 @@ async function main() {
       x2: Math.max(acc.x2, gi.bbox.x2),
       y2: Math.max(acc.y2, gi.bbox.y2),
     }),
-    { x1: Infinity, y1: Infinity, x2: -Infinity, y2: -Infinity } as opentype.BoundingBox,
+    { x1: Infinity, y1: Infinity, x2: -Infinity, y2: -Infinity } as opentype.BoundingBox
   );
   const wordWidth = bbox.x2 - bbox.x1;
   const wordHeight = bbox.y2 - bbox.y1;
@@ -100,12 +103,15 @@ async function main() {
       `${gx1},${gy2}`,
       `${gx1},${gy1 + c}`,
     ].join(' ');
-    glyphDefs.push(`    <clipPath id="${clipId}" clipPathUnits="userSpaceOnUse"><polygon points="${poly}"/></clipPath>`);
+    glyphDefs.push(
+      `    <clipPath id="${clipId}" clipPathUnits="userSpaceOnUse"><polygon points="${poly}"/></clipPath>`
+    );
     baseLayer.push(`    <path d="${d}" fill="url(#wm_unifiedGradient)"/>`);
     shimmerLayer.push(`    <path d="${d}" fill="url(#wm_shimmerGradient)"/>`);
   });
 
-  const svg = `<?xml version="1.0" encoding="UTF-8"?>\n` +
+  const svg =
+    `<?xml version="1.0" encoding="UTF-8"?>\n` +
     `<svg width="${targetW}" height="${targetH}" viewBox="0 0 ${targetW} ${targetH}" fill="none" xmlns="http://www.w3.org/2000/svg">\n` +
     `  <defs>\n` +
     `    <linearGradient id="wm_unifiedGradient" x1="0%" y1="100%" x2="100%" y2="0%">\n` +
@@ -118,13 +124,16 @@ async function main() {
     `      <stop offset="60%" stop-color="#ffffff" stop-opacity="0" />\n` +
     `      <animateTransform attributeName="gradientTransform" type="translate" from="-${targetW} 0" to="${targetW} 0" dur="10s" repeatCount="indefinite" />\n` +
     `    </linearGradient>\n` +
-    glyphDefs.join('\n') + '\n' +
+    glyphDefs.join('\n') +
+    '\n' +
     `  </defs>\n` +
     `  <g transform="matrix(${s},0,0,${s},${tx},${ty})">\n` +
-    baseLayer.join('\n') + '\n' +
+    baseLayer.join('\n') +
+    '\n' +
     `  </g>\n` +
     `  <g aria-hidden="true" id="shimmerText" transform="matrix(${s},0,0,${s},${tx},${ty})">\n` +
-    shimmerLayer.join('\n') + '\n' +
+    shimmerLayer.join('\n') +
+    '\n' +
     `  </g>\n` +
     `  <style>\n` +
     `    @media (prefers-reduced-motion: reduce) {\n` +
@@ -135,11 +144,17 @@ async function main() {
 
   fs.writeFileSync(OUT_SVG, svg, 'utf8');
 
-  const astroComponent = `<svg viewBox=\"0 0 ${targetW} ${targetH}\" preserveAspectRatio=\"xMidYMid meet\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\" {...Astro.props}>\n  <defs>\n    <linearGradient id=\"wm_unifiedGradient\" x1=\"0%\" y1=\"100%\" x2=\"100%\" y2=\"0%\">\n      <stop offset=\"0%\" stop-color=\"#10b981\"/>\n      <stop offset=\"100%\" stop-color=\"#06b6d4\"/>\n    </linearGradient>\n    <linearGradient id=\"wm_shimmerGradient\" x1=\"0\" y1=\"0\" x2=\"${targetW}\" y2=\"0\" gradientUnits=\"userSpaceOnUse\">\n      <stop offset=\"40%\" stop-color=\"#ffffff\" stop-opacity=\"0\" />\n      <stop offset=\"50%\" stop-color=\"#ffffff\" stop-opacity=\"0.22\" />\n      <stop offset=\"60%\" stop-color=\"#ffffff\" stop-opacity=\"0\" />\n      <animateTransform attributeName=\"gradientTransform\" type=\"translate\" from=\"-${targetW} 0\" to=\"${targetW} 0\" dur=\"10s\" repeatCount=\"indefinite\" />\n    </linearGradient>\n` +
-    glyphDefs.join('') + `\n  </defs>\n` +
-    `  <g transform=\"matrix(${s},0,0,${s},${tx},${ty})\">` + baseLayer.join('') + `</g>\n` +
-    `  <g aria-hidden=\"true\" id=\"shimmerText\" transform=\"matrix(${s},0,0,${s},${tx},${ty})\">` + shimmerLayer.join('') + `</g>\n` +
-  `  <style>\n    @media (prefers-reduced-motion: reduce) {\n      #shimmerText { opacity: 0; }\n    }\n  </style>\n</svg>\n`;
+  const astroComponent =
+    `<svg viewBox=\"0 0 ${targetW} ${targetH}\" preserveAspectRatio=\"xMidYMid meet\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\" {...Astro.props}>\n  <defs>\n    <linearGradient id=\"wm_unifiedGradient\" x1=\"0%\" y1=\"100%\" x2=\"100%\" y2=\"0%\">\n      <stop offset=\"0%\" stop-color=\"#10b981\"/>\n      <stop offset=\"100%\" stop-color=\"#06b6d4\"/>\n    </linearGradient>\n    <linearGradient id=\"wm_shimmerGradient\" x1=\"0\" y1=\"0\" x2=\"${targetW}\" y2=\"0\" gradientUnits=\"userSpaceOnUse\">\n      <stop offset=\"40%\" stop-color=\"#ffffff\" stop-opacity=\"0\" />\n      <stop offset=\"50%\" stop-color=\"#ffffff\" stop-opacity=\"0.22\" />\n      <stop offset=\"60%\" stop-color=\"#ffffff\" stop-opacity=\"0\" />\n      <animateTransform attributeName=\"gradientTransform\" type=\"translate\" from=\"-${targetW} 0\" to=\"${targetW} 0\" dur=\"10s\" repeatCount=\"indefinite\" />\n    </linearGradient>\n` +
+    glyphDefs.join('') +
+    `\n  </defs>\n` +
+    `  <g transform=\"matrix(${s},0,0,${s},${tx},${ty})\">` +
+    baseLayer.join('') +
+    `</g>\n` +
+    `  <g aria-hidden=\"true\" id=\"shimmerText\" transform=\"matrix(${s},0,0,${s},${tx},${ty})\">` +
+    shimmerLayer.join('') +
+    `</g>\n` +
+    `  <style>\n    @media (prefers-reduced-motion: reduce) {\n      #shimmerText { opacity: 0; }\n    }\n  </style>\n</svg>\n`;
 
   fs.writeFileSync(OUT_COMPONENT, astroComponent, 'utf8');
 

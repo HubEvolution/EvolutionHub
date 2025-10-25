@@ -57,7 +57,10 @@ function pointAt(points: Pt[], t: number): Pt {
 export default function CardGraph({ className = '', fullBleed = false }: Props) {
   const svgRef = useRef<SVGSVGElement | null>(null);
   const [visible, setVisible] = useState(false);
-  const prefersReduced = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const prefersReduced =
+    typeof window !== 'undefined' &&
+    window.matchMedia &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const [hover, setHover] = useState(false);
   const starsRef = useRef<Star[] | null>(null);
   const edgesRef = useRef<Edge[] | null>(null);
@@ -86,7 +89,8 @@ export default function CardGraph({ className = '', fullBleed = false }: Props) 
 
   // Star helpers
   function createStratifiedStars(cols: number, rows: number, jitter = 0.5): Star[] {
-    const W = 1200, H = 600;
+    const W = 1200,
+      H = 600;
     const stars: Star[] = [];
     const cw = W / cols;
     const ch = H / rows;
@@ -99,7 +103,15 @@ export default function CardGraph({ className = '', fullBleed = false }: Props) 
         const r = Math.random() < 0.85 ? 1 : 1.8;
         const base = 0.16 + Math.random() * 0.16;
         const c = Math.random() < 0.8 ? '#7fffe0' : '#c389ff';
-        stars.push({ x, y, r, base, phase: Math.random() * Math.PI * 2, speed: 0.001 + Math.random() * 0.0025, c });
+        stars.push({
+          x,
+          y,
+          r,
+          base,
+          phase: Math.random() * Math.PI * 2,
+          speed: 0.001 + Math.random() * 0.0025,
+          c,
+        });
       }
     }
     return stars;
@@ -115,7 +127,15 @@ export default function CardGraph({ className = '', fullBleed = false }: Props) 
       const r = Math.random() < 0.8 ? 1 : 1.8;
       const base = 0.18 + Math.random() * 0.16;
       const c = Math.random() < 0.8 ? '#7fffe0' : '#c389ff';
-      return { x, y, r, base, phase: Math.random() * Math.PI * 2, speed: 0.001 + Math.random() * 0.0025, c } as Star;
+      return {
+        x,
+        y,
+        r,
+        base,
+        phase: Math.random() * Math.PI * 2,
+        speed: 0.001 + Math.random() * 0.0025,
+        c,
+      } as Star;
     });
   }
 
@@ -124,12 +144,22 @@ export default function CardGraph({ className = '', fullBleed = false }: Props) 
     // 24x12 ~= 288 base stars + some random extras to reach ~380
     const base = createStratifiedStars(24, 12, 0.7);
     const extras = Array.from({ length: 92 }).map(() => {
-      const W = 1200, H = 600;
-      const x = Math.random() * W, y = Math.random() * H;
+      const W = 1200,
+        H = 600;
+      const x = Math.random() * W,
+        y = Math.random() * H;
       const r = Math.random() < 0.85 ? 1 : 1.8;
       const base = 0.16 + Math.random() * 0.16;
       const c = Math.random() < 0.8 ? '#7fffe0' : '#c389ff';
-      return { x, y, r, base, phase: Math.random() * Math.PI * 2, speed: 0.001 + Math.random() * 0.0025, c } as Star;
+      return {
+        x,
+        y,
+        r,
+        base,
+        phase: Math.random() * Math.PI * 2,
+        speed: 0.001 + Math.random() * 0.0025,
+        c,
+      } as Star;
     });
     starsRef.current = [...base, ...extras];
   }
@@ -137,9 +167,12 @@ export default function CardGraph({ className = '', fullBleed = false }: Props) 
   useEffect(() => {
     const el = svgRef.current;
     if (!el) return;
-    const io = new IntersectionObserver((entries) => {
-      setVisible(entries[0]?.isIntersecting ?? false);
-    }, { rootMargin: '100px' });
+    const io = new IntersectionObserver(
+      (entries) => {
+        setVisible(entries[0]?.isIntersecting ?? false);
+      },
+      { rootMargin: '100px' }
+    );
     io.observe(el);
     return () => io.disconnect();
   }, []);
@@ -169,17 +202,17 @@ export default function CardGraph({ className = '', fullBleed = false }: Props) 
       // Determine layout: single column if horizontal spread is small
       const minX = Math.min(A.x, B.x, C.x, D.x);
       const maxX = Math.max(A.x, B.x, C.x, D.x);
-      const singleColumn = (maxX - minX) < 120;
+      const singleColumn = maxX - minX < 120;
       let routes: Pt[][];
       if (singleColumn) {
         // Vertical chain AB, BC, CD, and a long AD for a 4th edge
-        const elbow = (P: Pt, Q: Pt): Pt[] => [P, { x: P.x, y: (P.y + Q.y) / 2 }, { x: Q.x, y: (P.y + Q.y) / 2 }, Q];
-        routes = [
-          elbow(A, B),
-          elbow(B, C),
-          elbow(C, D),
-          elbow(A, D),
+        const elbow = (P: Pt, Q: Pt): Pt[] => [
+          P,
+          { x: P.x, y: (P.y + Q.y) / 2 },
+          { x: Q.x, y: (P.y + Q.y) / 2 },
+          Q,
         ];
+        routes = [elbow(A, B), elbow(B, C), elbow(C, D), elbow(A, D)];
       } else {
         routes = [
           [A, { x: (A.x + B.x) / 2, y: A.y }, { x: (A.x + B.x) / 2, y: B.y }, B],
@@ -213,12 +246,22 @@ export default function CardGraph({ className = '', fullBleed = false }: Props) 
       // Rebuild starfield to add clusters around cards atop stratified base
       const base = createStratifiedStars(24, 12, 0.7);
       const extras = Array.from({ length: 92 }).map(() => {
-        const W = 1200, H = 600;
-        const x = Math.random() * W, y = Math.random() * H;
+        const W = 1200,
+          H = 600;
+        const x = Math.random() * W,
+          y = Math.random() * H;
         const r = Math.random() < 0.85 ? 1 : 1.8;
         const base = 0.16 + Math.random() * 0.16;
         const c = Math.random() < 0.8 ? '#7fffe0' : '#c389ff';
-        return { x, y, r, base, phase: Math.random() * Math.PI * 2, speed: 0.001 + Math.random() * 0.0025, c } as Star;
+        return {
+          x,
+          y,
+          r,
+          base,
+          phase: Math.random() * Math.PI * 2,
+          speed: 0.001 + Math.random() * 0.0025,
+          c,
+        } as Star;
       });
       const clusters = [A, B, C, D].flatMap((pt) => createCluster(pt, 36, 100));
       starsRef.current = [...base, ...extras, ...clusters];
@@ -270,7 +313,9 @@ export default function CardGraph({ className = '', fullBleed = false }: Props) 
     };
 
     id = requestAnimationFrame(tick);
-    return () => { if (id) cancelAnimationFrame(id); };
+    return () => {
+      if (id) cancelAnimationFrame(id);
+    };
   }, [prefersReduced, visible, hover]);
 
   const basePos = fullBleed

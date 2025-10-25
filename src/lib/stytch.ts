@@ -100,7 +100,8 @@ function isE2EFake(context: APIContext): boolean {
     (context.locals as unknown as { runtime?: { env?: Record<string, string> } })?.runtime?.env ||
     {};
   const val = (env as Record<string, string>).E2E_FAKE_STYTCH;
-  const envMode = (env as Record<string, string>).ENVIRONMENT || (env as Record<string, string>).NODE_ENV;
+  const envMode =
+    (env as Record<string, string>).ENVIRONMENT || (env as Record<string, string>).NODE_ENV;
   const isDev = envMode === 'development';
   return isDev && (val === '1' || val === 'true');
 }

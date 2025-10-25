@@ -1,15 +1,12 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import { type BillingSummary } from '@/components/dashboard/BillingCard';
+import BillingCard from '@/components/dashboard/BillingCard';
 import UserProfile from '@/components/dashboard/UserProfile.astro';
-import BillingCard, { type BillingSummary } from '@/components/dashboard/BillingCard';
-import NewsletterPreferencesCard from '@/components/dashboard/NewsletterPreferencesCard';
-import ToolShortcutsCard from '@/components/dashboard/ToolShortcutsCard.astro';
-import RecommendationsCard from '@/components/dashboard/RecommendationsCard.astro';
 import AccountSettingsSection from '@/components/dashboard/AccountSettingsSection.astro';
-import RecentCommentsCard from '@/components/dashboard/RecentCommentsCard';
-import { getI18n } from '@/utils/i18n';
-import { getAllTools } from '@/lib/tools-data';
+import NewsletterPreferencesCard from '@/components/dashboard/NewsletterPreferencesCard';
 import Card from '@/components/ui/Card';
+import { getI18n } from '@/utils/i18n';
 
 const locals = Astro.locals as any;
 if (!locals.user) {
@@ -22,49 +19,29 @@ const t = getI18n('en');
 const origin = new URL(Astro.request.url).origin;
 const cookieHeader = Astro.request.headers.get('cookie') ?? '';
 
-async function fetchApi<T>(path: string): Promise<T | null> {
+async function fetchApi<T>(path: string, timeoutMs = 1200): Promise<T | null> {
+  const ac = new AbortController();
+  const timer = setTimeout(() => ac.abort('timeout'), timeoutMs);
   try {
     const res = await fetch(`${origin}${path}`, {
       headers: {
         cookie: cookieHeader,
       },
+      signal: ac.signal,
     });
     if (!res.ok) return null;
     const json = (await res.json()) as { data?: T } | null;
     return json && 'data' in (json as object) ? (json!.data ?? null) : null;
   } catch {
     return null;
+  } finally {
+    clearTimeout(timer);
   }
 }
 
 const billingSummary = await fetchApi<BillingSummary>('/api/dashboard/billing-summary');
-const recommendationsData = await fetchApi<{ tools: any[]; docs: any[] }>(
-  '/api/dashboard/recommendations?locale=en'
-);
 
-const toolShortcuts = [
-  {
-    id: 'imag-enhancer',
-    name: t('pages.tools.items.Imag-Enhancer.name'),
-    description: t('pages.tools.items.Imag-Enhancer.description'),
-    url: '/tools/imag-enhancer/app',
-  },
-  {
-    id: 'prompt-enhancer',
-    name: t('pages.tools.items.prompt-enhancer.name'),
-    description: t('pages.tools.items.prompt-enhancer.description'),
-    url: '/tools/prompt-enhancer/app',
-  },
-  ...getAllTools('en')
-    .filter((tool) => tool.id !== 'Imag-Enhancer' && tool.id !== 'prompt-enhancer')
-    .slice(0, 1)
-    .map((tool) => ({
-      id: tool.id,
-      name: tool.name,
-      description: tool.description,
-      url: tool.url,
-    })),
-];
+// shortcuts removed in Dashboard V2
 
 const billingStrings = {
   title: t('pages.dashboard.billing.title'),
@@ -97,19 +74,6 @@ const billingStrings = {
   },
 };
 
-const recentCommentsStrings = {
-  title: 'My recent comments',
-  empty: "You haven't commented yet — explore our blog and join the discussion!",
-  error: 'Failed to load your comments.',
-  openBlogCta: 'Open Blog',
-};
-
-const toolShortcutStrings = {
-  title: t('pages.dashboard.toolShortcuts.title'),
-  description: t('pages.dashboard.toolShortcuts.description'),
-  open: t('pages.dashboard.toolShortcuts.open'),
-};
-
 const newsletterStrings = {
   title: t('pages.dashboard.newsletter.title'),
   subscribed: t('pages.dashboard.newsletter.subscribed'),
@@ -121,15 +85,7 @@ const newsletterStrings = {
   error: t('pages.dashboard.newsletter.error'),
 };
 
-const recommendationStrings = {
-  title: t('pages.dashboard.recommendations.title'),
-  tools: t('pages.dashboard.recommendations.tools'),
-  docs: t('pages.dashboard.recommendations.docs'),
-  empty: t('pages.dashboard.recommendations.empty'),
-};
-
-const recommendedTools = recommendationsData?.tools ?? [];
-const recommendedDocs = recommendationsData?.docs ?? [];
+// recommendations removed in Dashboard V2
 
 const initialNewsletterSubscribed = true;
 
@@ -215,6 +171,7 @@ const managePricingLink = (() => {
   }
 })();
 
+const buyCreditsLink = managePricingLink;
 ---
 
 <BaseLayout title={t('pages.dashboard.title') ?? 'Dashboard'}>
@@ -224,72 +181,61 @@ const managePricingLink = (() => {
     <div class="hidden"></div>
 
     <div class="container mx-auto p-4 lg:p-6">
-      <!-- Modern CSS Grid Layout: responsive columns -->
-      <div class="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-6 xl:grid-cols-3">
-        <!-- User Profile Card -->
-        <UserProfile user={user} />
-
-        <!-- Account Settings - Spans 2 columns on XL -->
-        <div class="xl:col-span-2">
-          <AccountSettingsSection
-            user={user}
-            planLabels={billingStrings.planLabels}
-            billingUrl="/en/dashboard#billing"
-            redirectUrl="/en/login"
-            dangerStrings={dangerStrings}
-            profileCopy={profileCopy}
-            i18nSettings={accountI18nSettings}
-          />
+      <!-- Two columns with individual small cards -->
+      <div class="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-6">
+        <!-- Left column: profile header + settings blocks -->
+        <div class="space-y-4">
+          <UserProfile user={user} />
+          <div>
+            <AccountSettingsSection
+              user={user}
+              planLabels={billingStrings.planLabels}
+              billingUrl="/en/dashboard#billing"
+              redirectUrl="/en/login"
+              dangerStrings={dangerStrings}
+              profileCopy={profileCopy}
+              i18nSettings={accountI18nSettings}
+            />
+          </div>
         </div>
 
-        <!-- Pulse Card - Compact callout -->
-        <Card as="div" className="group p-5">
-          <div
-            class="absolute inset-0 -z-10 bg-gradient-to-br from-indigo-500/5 to-transparent opacity-0 transition-opacity group-hover:opacity-100"
-          >
-          </div>
-          <h3 class="text-xs font-bold uppercase tracking-wider text-indigo-300/90">Pulse</h3>
-          <p class="mt-2 text-sm leading-relaxed text-slate-300/80">
-            {
-              t('pages.dashboard.profile.pulse', {
-                default:
-                  'Your workspace runs completely passwordless – magic links sync straight to your inbox and OAuth keeps identities verified.',
-              })
-            }
-          </p>
-        </Card>
+        <!-- Right column: newsletter, billing, credits panel -->
+        <div class="space-y-4">
+          <NewsletterPreferencesCard
+            client:load
+            email={user.email}
+            initiallySubscribed={initialNewsletterSubscribed}
+            strings={newsletterStrings}
+          />
 
-        <!-- Newsletter Card -->
-        <NewsletterPreferencesCard
-          client:load
-          email={user.email}
-          initiallySubscribed={initialNewsletterSubscribed}
-          strings={newsletterStrings}
-        />
-
-        <!-- Billing Card -->
-        <Card as="div" className="group p-4">
-          <BillingCard client:load summary={billingSummary} strings={billingStrings} manageLink={managePricingLink} />
-        </Card>
-
-        <!-- Tool Shortcuts -->
-        <Card as="div" className="group p-4">
-          <ToolShortcutsCard tools={toolShortcuts} strings={toolShortcutStrings} />
-        </Card>
-
-        <!-- Recent Comments -->
-        <Card as="div" className="group p-4">
-          <RecentCommentsCard client:load strings={recentCommentsStrings} />
-        </Card>
-
-        <!-- Recommendations - Full width on smaller screens -->
-        <div class="lg:col-span-2 xl:col-span-3">
-          <Card as="div" className="group p-5">
-            <RecommendationsCard
-              tools={recommendedTools}
-              docs={recommendedDocs}
-              strings={recommendationStrings}
+          <Card as="div" className="group p-4">
+            <BillingCard
+              client:load
+              summary={billingSummary}
+              strings={billingStrings}
+              manageLink={managePricingLink}
             />
+          </Card>
+
+          <Card as="div" className="group p-4">
+            <div class="flex items-center justify-between gap-3">
+              <div class="flex items-baseline gap-2">
+                <span class="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                  {billingStrings.credits}
+                </span>
+                <span class="text-lg font-bold text-white">
+                  {typeof billingSummary?.creditsRemaining === 'number'
+                    ? billingSummary.creditsRemaining
+                    : '—'}
+                </span>
+              </div>
+              <a
+                href={buyCreditsLink}
+                class="inline-flex items-center rounded-md bg-gradient-to-r from-indigo-500 to-fuchsia-500 px-3 py-1.5 text-xs font-bold text-white shadow-sm shadow-indigo-500/30 transition hover:from-indigo-600 hover:to-fuchsia-600"
+              >
+                Buy credits
+              </a>
+            </div>
           </Card>
         </div>
       </div>

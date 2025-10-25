@@ -141,13 +141,24 @@ export const POST = withApiMiddleware(
             if (userId && Number.isFinite(units) && units > 0) {
               const packId = session.id; // use Stripe session id for idempotency
               // store as tenths and compute expiry internally
-              await addCreditPackTenths(kv as any, userId, packId, units * 10, (session as any).created ? (session as any).created * 1000 : Date.now());
+              await addCreditPackTenths(
+                kv as any,
+                userId,
+                packId,
+                units * 10,
+                (session as any).created ? (session as any).created * 1000 : Date.now()
+              );
               // update legacy summary key for compatibility with existing UI
               const totalTenths = await getCreditsBalanceTenths(kv as any, userId);
               const legacyKey = `ai:credits:user:${userId}`;
               const legacyInt = Math.floor(totalTenths / 10);
               await kv.put(legacyKey, String(legacyInt));
-              console.log('[stripe_webhook] credits_pack_applied', { userId, packId, units, total: legacyInt });
+              console.log('[stripe_webhook] credits_pack_applied', {
+                userId,
+                packId,
+                units,
+                total: legacyInt,
+              });
             }
             break; // for credits we are done here
           }

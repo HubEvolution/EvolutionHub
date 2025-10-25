@@ -29,8 +29,7 @@ export const blogPosts = sqliteTable('blog_posts', {
 const comments = sqliteTable('comments', {
   id: text('id').primaryKey(),
   content: text('content').notNull(),
-  authorId: text('author_id')
-    .references(() => users.id, { onDelete: 'cascade' }),
+  authorId: text('author_id').references(() => users.id, { onDelete: 'cascade' }),
   authorName: text('author_name').notNull(),
   authorEmail: text('author_email').notNull(),
   parentId: text('parent_id'),

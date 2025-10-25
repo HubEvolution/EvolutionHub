@@ -10,12 +10,16 @@ const { title, subtitle, buttonText, buttonHref } = Astro.props as Props;
 
 <section class="relative overflow-hidden rounded-3xl">
   <div class="absolute inset-0 -z-[1] landing-cta-bg" aria-hidden="true"></div>
-  <div class="relative flex flex-col items-center text-center px-6 py-16 md:py-20 rounded-3xl landing-cta-container border border-white/10 bg-white/5 dark:bg-white/5 backdrop-blur-xl">
+  <div
+    class="relative flex flex-col items-center text-center px-6 py-16 md:py-20 rounded-3xl landing-cta-container border border-white/10 bg-white/5 dark:bg-white/5 backdrop-blur-xl"
+  >
     <h2 class="text-4xl font-bold text-gray-900 dark:text-white mb-4">{title}</h2>
     <p class="text-lg text-gray-700 dark:text-gray-300 max-w-3xl mb-8">{subtitle}</p>
     <div class="flex justify-center">
-      <a href={buttonHref}
-        class="inline-flex items-center px-10 py-5 rounded-2xl font-bold text-white bg-accent-gradient shadow-lg/60 hover:shadow-xl transition duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2">
+      <a
+        href={buttonHref}
+        class="inline-flex items-center px-10 py-5 rounded-2xl font-bold text-white bg-accent-gradient shadow-lg/60 hover:shadow-xl transition duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2"
+      >
         {buttonText}
       </a>
     </div>

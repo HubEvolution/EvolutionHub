@@ -93,13 +93,21 @@
   // Notification wrapper (no module imports inside inline script)
   const notify = {
     success: (msg) => {
-      try { console.info('[notify:success]', msg); } catch {}
-      try { alert(String(msg)); } catch {}
+      try {
+        console.info('[notify:success]', msg);
+      } catch {}
+      try {
+        alert(String(msg));
+      } catch {}
     },
     error: (msg) => {
-      try { console.error('[notify:error]', msg); } catch {}
-      try { alert(String(msg)); } catch {}
-    }
+      try {
+        console.error('[notify:error]', msg);
+      } catch {}
+      try {
+        alert(String(msg));
+      } catch {}
+    },
   };
 
   // Sichere Initialisierung ohne problematische astro:page-load Event

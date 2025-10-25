@@ -21,7 +21,9 @@ async function main() {
 
   // Find the hidden file input in the dropzone and set the file
   console.log('[step] upload file:', filePath);
-  const fileInput = await page.waitForSelector('#imag-enhancer-root input[type="file"]', { timeout: 15000 });
+  const fileInput = await page.waitForSelector('#imag-enhancer-root input[type="file"]', {
+    timeout: 15000,
+  });
   await fileInput.setInputFiles(filePath);
 
   // Wait for preview to appear (blob URL image inside dropzone)
@@ -30,8 +32,10 @@ async function main() {
 
   // Choose a Cloudflare model (value starts with @cf/)
   const modelSelect = await page.waitForSelector('select#model', { timeout: 15000 });
-  const options = await modelSelect.evaluate((sel) => Array.from(sel.options).map(o => ({ value: o.value, label: o.textContent || '' })));
-  const cfOpt = options.find(o => o.value.startsWith('@cf/'));
+  const options = await modelSelect.evaluate((sel) =>
+    Array.from(sel.options).map((o) => ({ value: o.value, label: o.textContent || '' }))
+  );
+  const cfOpt = options.find((o) => o.value.startsWith('@cf/'));
   if (!cfOpt) {
     console.error('No Cloudflare model option found. Options:', options);
     process.exit(1);
@@ -42,7 +46,9 @@ async function main() {
   // Click Enhance
   const enhanceBtn = await page.waitForSelector('button:has-text("Enhance")', { timeout: 15000 });
   console.log('[step] click Enhance');
-  const apiWait = page.waitForResponse((res) => res.url().includes('/api/ai-image/generate'), { timeout: 180000 });
+  const apiWait = page.waitForResponse((res) => res.url().includes('/api/ai-image/generate'), {
+    timeout: 180000,
+  });
   await enhanceBtn.click();
   const apiResp = await apiWait;
   const status = apiResp.status();
@@ -59,7 +65,7 @@ async function main() {
 
   // Download the result via the Download button
   console.log('[step] click Download');
-  const [ download ] = await Promise.all([
+  const [download] = await Promise.all([
     page.waitForEvent('download', { timeout: 180000 }),
     page.click('a:has-text("Download")'),
   ]);

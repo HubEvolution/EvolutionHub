@@ -91,7 +91,9 @@ function main() {
 
   const registry = readJsonSafe(path.join(docsRoot, 'meta', 'registry.json'));
   const registryRefs = new Set(
-    Array.isArray(registry?.documents) ? registry.documents.map((d) => d.path.replace(/^\//, '')) : []
+    Array.isArray(registry?.documents)
+      ? registry.documents.map((d) => d.path.replace(/^\//, ''))
+      : []
   );
 
   const headingsByFile = new Map();
@@ -160,7 +162,9 @@ function main() {
   out.invalidAnchors = invalidAnchors;
 
   fs.writeFileSync(outFile, JSON.stringify(out, null, 2) + '\n');
-  console.log(`Updated ${relFromDocs(outFile)} with ${orphans.length} orphans and ${invalidAnchors.length} invalid anchors.`);
+  console.log(
+    `Updated ${relFromDocs(outFile)} with ${orphans.length} orphans and ${invalidAnchors.length} invalid anchors.`
+  );
 }
 
 main();

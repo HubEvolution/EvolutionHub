@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import type { ScrapingResult } from '@/types/webscraper';
@@ -7,6 +7,8 @@ interface WebscraperResultsProps {
   result: ScrapingResult;
   strings: {
     resultTitle: string;
+    download: string;
+    downloadJson: string;
   };
 }
 
@@ -18,6 +20,18 @@ export function WebscraperResults({ result, strings }: WebscraperResultsProps) {
     links: false,
     images: false,
   });
+  const [downloadOpen, setDownloadOpen] = useState(false);
+  const downloadMenuRef = useRef<HTMLDivElement | null>(null);
+
+  useMemo(() => {
+    const onClick = (e: MouseEvent) => {
+      if (!downloadMenuRef.current) return;
+      if (!(e.target instanceof Node)) return;
+      if (!downloadMenuRef.current.contains(e.target)) setDownloadOpen(false);
+    };
+    document.addEventListener('click', onClick);
+    return () => document.removeEventListener('click', onClick);
+  }, []);
 
   const handleCopy = async (text: string, section: string) => {
     try {
@@ -40,6 +54,28 @@ export function WebscraperResults({ result, strings }: WebscraperResultsProps) {
     } catch {
       return dateString;
     }
+  };
+
+  const downloadJson = () => {
+    const host = safeHostname(result.url);
+    const titlePart = slugify(result.title || 'page');
+    const ts = timestampSlug(new Date());
+    const base = `${host}--${titlePart}--${ts}`;
+    const suffix = '_scrapedwithhub-evolutioncom';
+    const filename = sanitizeFilename(`${base}${suffix}.json`);
+    const payload = {
+      _meta: {
+        watermark: `${base}${suffix}`,
+        exportedAt: new Date().toISOString(),
+        source: 'Evolution Hub – Webscraper',
+      },
+      ...result,
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], {
+      type: 'application/json;charset=utf-8',
+    });
+    triggerDownload(blob, filename);
+    setDownloadOpen(false);
   };
 
   return (
@@ -105,32 +141,62 @@ export function WebscraperResults({ result, strings }: WebscraperResultsProps) {
               </a>
             )}
           </div>
-          <Button
-            onClick={() => handleCopy(result.title, 'title')}
-            variant="secondary"
-            size="sm"
-            className="flex-shrink-0"
-          >
-            {copiedSection === 'title' ? (
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M5 13l4 4L19 7"
-                />
-              </svg>
-            ) : (
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
-                />
-              </svg>
-            )}
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              onClick={() => handleCopy(result.title, 'title')}
+              variant="secondary"
+              size="sm"
+              className="flex-shrink-0"
+            >
+              {copiedSection === 'title' ? (
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+              ) : (
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                  />
+                </svg>
+              )}
+            </Button>
+            <div className="relative" ref={downloadMenuRef}>
+              <Button onClick={() => setDownloadOpen((s) => !s)} variant="primary" size="sm">
+                {strings.download}
+                <svg
+                  className="w-4 h-4 ml-1 inline"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </Button>
+              {downloadOpen && (
+                <div className="absolute right-0 mt-2 w-44 rounded-md bg-white dark:bg-gray-800 shadow-lg ring-1 ring-black ring-opacity-5 z-10">
+                  <button
+                    onClick={downloadJson}
+                    className="w-full text-left px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"
+                  >
+                    {strings.downloadJson}
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
 
         {/* Robots.txt Status */}
@@ -383,4 +449,42 @@ export function WebscraperResults({ result, strings }: WebscraperResultsProps) {
       )}
     </div>
   );
+}
+
+function triggerDownload(blob: Blob, filename: string) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 0);
+}
+
+function slugify(input: string) {
+  return (
+    input
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .slice(0, 80) || 'page'
+  );
+}
+
+function sanitizeFilename(name: string) {
+  return name.replace(/[\\/:*?"<>|]+/g, '-');
+}
+
+function timestampSlug(d: Date) {
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;
+}
+
+function safeHostname(u: string) {
+  try {
+    return new URL(u).hostname.replace(/^www\./, '');
+  } catch {
+    return 'site';
+  }
 }

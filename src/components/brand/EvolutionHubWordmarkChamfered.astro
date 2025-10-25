@@ -1,27 +1,67 @@
 <svg width="230" height="32" viewBox="0 0 230 32" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <linearGradient id="unifiedGradient" x1="0%" y1="100%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#10b981"/>
-      <stop offset="100%" stop-color="#06b6d4"/>
+      <stop offset="0%" stop-color="#10b981"></stop>
+      <stop offset="100%" stop-color="#06b6d4"></stop>
     </linearGradient>
-    <linearGradient id="shimmerGradient" x1="0" y1="0" x2="230" y2="0" gradientUnits="userSpaceOnUse">
-      <stop offset="40%" stop-color="#ffffff" stop-opacity="0" />
-      <stop offset="50%" stop-color="#ffffff" stop-opacity="0.22" />
-      <stop offset="60%" stop-color="#ffffff" stop-opacity="0" />
-      <animateTransform attributeName="gradientTransform" type="translate" from="-230 0" to="230 0" dur="10s" repeatCount="indefinite" />
+    <linearGradient
+      id="shimmerGradient"
+      x1="0"
+      y1="0"
+      x2="230"
+      y2="0"
+      gradientUnits="userSpaceOnUse"
+    >
+      <stop offset="40%" stop-color="#ffffff" stop-opacity="0"></stop>
+      <stop offset="50%" stop-color="#ffffff" stop-opacity="0.22"></stop>
+      <stop offset="60%" stop-color="#ffffff" stop-opacity="0"></stop>
+      <animateTransform
+        attributeName="gradientTransform"
+        type="translate"
+        from="-230 0"
+        to="230 0"
+        dur="10s"
+        repeatCount="indefinite"></animateTransform>
     </linearGradient>
     <clipPath id="wordChamfer" clipPathUnits="objectBoundingBox">
       <!-- objectBoundingBox uses 0..1; chamfer ~0.028 (~6.5px of 230) horizontally and ~0.094 (~3px of 32) vertically -->
-      <polygon points="0.028 0, 1 0, 1 0.906, 0.972 1, 0 1, 0 0.094"/>
+      <polygon points="0.028 0, 1 0, 1 0.906, 0.972 1, 0 1, 0 0.094"></polygon>
     </clipPath>
   </defs>
   <g clip-path="url(#wordChamfer)">
-    <text x="115" y="16" text-anchor="middle" dominant-baseline="middle" fill="url(#unifiedGradient)" font-family="'Exo 2', sans-serif" font-size="18" font-weight="700" letter-spacing="1.5" text-transform="uppercase">Evolution Hub</text>
-    <text id="shimmerText" x="115" y="16" text-anchor="middle" dominant-baseline="middle" fill="url(#shimmerGradient)" font-family="'Exo 2', sans-serif" font-size="18" font-weight="700" letter-spacing="1.5" text-transform="uppercase" aria-hidden="true" style="pointer-events:none;">Evolution Hub</text>
+    <text
+      x="115"
+      y="16"
+      text-anchor="middle"
+      dominant-baseline="middle"
+      fill="url(#unifiedGradient)"
+      font-family="'Exo 2', sans-serif"
+      font-size="18"
+      font-weight="700"
+      letter-spacing="1.5"
+      text-transform="uppercase">Evolution Hub</text
+    >
+    <text
+      id="shimmerText"
+      x="115"
+      y="16"
+      text-anchor="middle"
+      dominant-baseline="middle"
+      fill="url(#shimmerGradient)"
+      font-family="'Exo 2', sans-serif"
+      font-size="18"
+      font-weight="700"
+      letter-spacing="1.5"
+      text-transform="uppercase"
+      aria-hidden="true"
+      style="pointer-events:none;">Evolution Hub</text
+    >
   </g>
   <style>
     @media (prefers-reduced-motion: reduce) {
-      #shimmerText { opacity: 0; }
+      #shimmerText {
+        opacity: 0;
+      }
     }
   </style>
 </svg>

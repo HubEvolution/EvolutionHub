@@ -13,7 +13,10 @@
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
 
   function parseRGBTriplet(v: string, def: [number, number, number]): [number, number, number] {
-    const parts = v.split(/\s+/).map(Number).filter((n) => Number.isFinite(n));
+    const parts = v
+      .split(/\s+/)
+      .map(Number)
+      .filter((n) => Number.isFinite(n));
     if (parts.length >= 3) return [parts[0], parts[1], parts[2]] as [number, number, number];
     return def;
   }
@@ -44,7 +47,11 @@
     canvas.style.height = ch + 'px';
   }
 
-  function drawLatticeFrame(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, scope: HTMLElement | null) {
+  function drawLatticeFrame(
+    ctx: CanvasRenderingContext2D,
+    canvas: HTMLCanvasElement,
+    scope: HTMLElement | null
+  ) {
     const W = canvas.width;
     const H = canvas.height;
     const accentA = parseRGBTriplet(readVar(scope, '--accent-a', '99 255 205'), [99, 255, 205]);
@@ -64,8 +71,14 @@
     ctx.strokeStyle = `rgb(${gridLine[0]}, ${gridLine[1]}, ${gridLine[2]})`;
     ctx.lineWidth = Math.max(1, Math.round(1 * dpr));
     ctx.beginPath();
-    for (let x = 0; x <= W; x += step) { ctx.moveTo(x + 0.5, 0); ctx.lineTo(x + 0.5, H); }
-    for (let y = 0; y <= H; y += step) { ctx.moveTo(0, y + 0.5); ctx.lineTo(W, y + 0.5); }
+    for (let x = 0; x <= W; x += step) {
+      ctx.moveTo(x + 0.5, 0);
+      ctx.lineTo(x + 0.5, H);
+    }
+    for (let y = 0; y <= H; y += step) {
+      ctx.moveTo(0, y + 0.5);
+      ctx.lineTo(W, y + 0.5);
+    }
     ctx.stroke();
     ctx.restore();
 
@@ -77,7 +90,7 @@
     ctx.fillRect(0, 0, W, glowHeight);
 
     const grad2 = ctx.createLinearGradient(0, 0, 0, glowHeight * 0.8);
-    grad2.addColorStop(0, `rgba(${accentB[0]}, ${accentB[1]}, ${accentB[2]}, ${0.10})`);
+    grad2.addColorStop(0, `rgba(${accentB[0]}, ${accentB[1]}, ${accentB[2]}, ${0.1})`);
     grad2.addColorStop(1, 'rgba(0,0,0,0)');
     ctx.fillStyle = grad2;
     ctx.fillRect(0, 0, W, glowHeight * 0.8);
@@ -96,13 +109,27 @@
     }
   }
 
-  function drawTechcellsFrame(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, scope: HTMLElement | null, phase: number) {
+  function drawTechcellsFrame(
+    ctx: CanvasRenderingContext2D,
+    canvas: HTMLCanvasElement,
+    scope: HTMLElement | null,
+    phase: number
+  ) {
     const W = canvas.width;
     const H = canvas.height;
     const bgTech = parseRGBTriplet(readVar(scope, '--bg-tech', '11 13 16'), [11, 13, 16]);
-    const gridPrimary = parseRGBTriplet(readVar(scope, '--grid-primary', '125 211 252'), [125, 211, 252]);
-    const gridAccent = parseRGBTriplet(readVar(scope, '--grid-accent', '56 189 248'), [56, 189, 248]);
-    const gridAccentWarm = parseRGBTriplet(readVar(scope, '--grid-accent-warm', '251 146 60'), [251, 146, 60]);
+    const gridPrimary = parseRGBTriplet(
+      readVar(scope, '--grid-primary', '125 211 252'),
+      [125, 211, 252]
+    );
+    const gridAccent = parseRGBTriplet(
+      readVar(scope, '--grid-accent', '56 189 248'),
+      [56, 189, 248]
+    );
+    const gridAccentWarm = parseRGBTriplet(
+      readVar(scope, '--grid-accent-warm', '251 146 60'),
+      [251, 146, 60]
+    );
 
     ctx.clearRect(0, 0, W, H);
     ctx.fillStyle = `rgb(${bgTech[0]}, ${bgTech[1]}, ${bgTech[2]})`;
@@ -130,13 +157,13 @@
     function pulseFactor(row: number, col: number) {
       const v = Math.sin(row * 12.9898 + col * 78.233) * 43758.5453;
       const r = v - Math.floor(v);
-      const local = ((phase / period) + r) % 1;
+      const local = (phase / period + r) % 1;
       const tri = 1 - Math.abs(local - 0.5) / width;
       return { f: Math.max(0, Math.min(1, tri)), warm: r < 0.5 };
     }
 
     function drawHex(cx: number, cy: number, row: number, col: number) {
-      const pts: Array<{x:number;y:number}> = [];
+      const pts: Array<{ x: number; y: number }> = [];
       for (let i = 0; i < 6; i++) {
         const angle = (Math.PI / 180) * (60 * i - 90);
         pts.push({ x: cx + s * Math.cos(angle), y: cy + s * Math.sin(angle) });
@@ -153,7 +180,7 @@
       const { f: pf, warm } = pulseFactor(row, col);
       if (pf > 0) {
         const c = warm ? gridAccentWarm : gridAccent;
-        const pulseAlpha = Math.min(0.10, alphaAccent + 0.03) * pf;
+        const pulseAlpha = Math.min(0.1, alphaAccent + 0.03) * pf;
         ctx.setLineDash([]);
         ctx.strokeStyle = `rgba(${c[0]}, ${c[1]}, ${c[2]}, ${pulseAlpha})`;
         ctx.beginPath();
@@ -169,7 +196,10 @@
         const b = pts[(i + 1) % 6];
         ctx.setLineDash([]);
         ctx.strokeStyle = `rgba(${gridAccent[0]}, ${gridAccent[1]}, ${gridAccent[2]}, ${alphaAccent})`;
-        ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(a.x, a.y);
+        ctx.lineTo(b.x, b.y);
+        ctx.stroke();
       }
     }
 
@@ -186,7 +216,10 @@
     ctx.restore();
 
     const mask = ctx.createLinearGradient(0, 0, 0, Math.min(H * 0.45, 520 * dpr));
-    const topMaskAlpha = Math.max(0, Math.min(1, parseFloat(readVar(scope, '--techcells-top-mask-alpha', '0.32')) || 0.32));
+    const topMaskAlpha = Math.max(
+      0,
+      Math.min(1, parseFloat(readVar(scope, '--techcells-top-mask-alpha', '0.32')) || 0.32)
+    );
     mask.addColorStop(0, `rgba(0,0,0,${topMaskAlpha})`);
     mask.addColorStop(1, 'rgba(0,0,0,0)');
     ctx.fillStyle = mask;
@@ -228,10 +261,15 @@
       }
     }
 
-    const onResize = () => { resizeToViewport(canvas!); drawFrame(); };
+    const onResize = () => {
+      resizeToViewport(canvas!);
+      drawFrame();
+    };
     window.addEventListener('resize', onResize);
 
-    const onVis = () => { if (!document.hidden) loop(); };
+    const onVis = () => {
+      if (!document.hidden) loop();
+    };
     document.addEventListener('visibilitychange', onVis);
 
     // initial draw + optional animation

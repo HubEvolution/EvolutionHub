@@ -82,7 +82,7 @@ const FACE_ENHANCE_ADDON = 0.5;
 
 export function computeEnhancerCost(input: EnhancerCostInput): number {
   const base = MODEL_BASE_COST[input.modelSlug] ?? MODEL_BASE_COST.default;
-  const upscaleAddon = input.scale ? UPSCALE_ADDON[input.scale] ?? 0 : 0;
+  const upscaleAddon = input.scale ? (UPSCALE_ADDON[input.scale] ?? 0) : 0;
   const faceAddon = input.faceEnhance ? FACE_ENHANCE_ADDON : 0;
   const raw = base + upscaleAddon + faceAddon;
   return roundToTenth(Math.max(0.1, raw));

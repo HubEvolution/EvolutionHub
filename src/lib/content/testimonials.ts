@@ -42,9 +42,7 @@ function sortByPriority(a: TestimonialEntry, b: TestimonialEntry): number {
  */
 function fairMix(entries: TestimonialEntry[], tools: string[], limit: number): TestimonialEntry[] {
   const buckets = tools.map((t) =>
-    entries
-      .filter((e) => e.data.tools.includes(t))
-      .sort(sortByPriority)
+    entries.filter((e) => e.data.tools.includes(t)).sort(sortByPriority)
   );
   const used = new Set<string>();
   const result: TestimonialEntry[] = [];

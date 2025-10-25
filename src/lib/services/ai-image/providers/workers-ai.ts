@@ -11,11 +11,14 @@ export function buildWorkersAiPayload(
   }
   (payload as any).image_b64 = b64;
 
-  const providedPrompt = typeof (input as any).prompt === 'string' ? (input as any).prompt : undefined;
+  const providedPrompt =
+    typeof (input as any).prompt === 'string' ? (input as any).prompt : undefined;
   const defaultPrompt = (model.defaultParams as any)?.prompt;
-  (payload as any).prompt = (providedPrompt && providedPrompt.trim()) || defaultPrompt || 'photo restoration';
+  (payload as any).prompt =
+    (providedPrompt && providedPrompt.trim()) || defaultPrompt || 'photo restoration';
 
-  const providedNeg = typeof (input as any).negative_prompt === 'string' ? (input as any).negative_prompt : undefined;
+  const providedNeg =
+    typeof (input as any).negative_prompt === 'string' ? (input as any).negative_prompt : undefined;
   const defaultNeg = (model.defaultParams as any)?.negative_prompt;
   if ((providedNeg && providedNeg.trim()) || defaultNeg) {
     (payload as any).negative_prompt = (providedNeg && providedNeg.trim()) || defaultNeg;

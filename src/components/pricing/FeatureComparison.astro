@@ -95,7 +95,6 @@ const rows = features.filter((f) => {
   const allDashes = isDash(f.starter) && isDash(p.pro) && isDash(p.premium) && isDash(f.enterprise);
   return !isDash(f.name) && !allDashes;
 });
-
 ---
 
 <AosWrapper class="mt-16">
@@ -146,7 +145,11 @@ const rows = features.filter((f) => {
     </table>
   </Card>
 
-  <Card as="div" variant="holo" className="mt-8 text-center text-sm text-gray-500 dark:text-gray-400 rounded-2xl p-4">
+  <Card
+    as="div"
+    variant="holo"
+    className="mt-8 text-center text-sm text-gray-500 dark:text-gray-400 rounded-2xl p-4"
+  >
     <p>
       {contactCta}
       <a
@@ -157,4 +160,3 @@ const rows = features.filter((f) => {
     </p>
   </Card>
 </AosWrapper>
-

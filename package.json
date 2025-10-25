@@ -83,6 +83,10 @@
     "docs:build": "run-s docs:clean docs:ref:types docs:ref:openapi docs:ref:env docs:toc docs:lint docs:links docs:inventory",
     "health-check": "tsx scripts/health-check.ts",
     "security:scan": "node ./scripts/security/scan-secrets.mjs",
+    "deploy": "tsx scripts/deploy.ts",
+    "deploy:production": "tsx scripts/deploy.ts --env production --url https://hub-evolution.com",
+    "deploy:staging": "tsx scripts/deploy.ts --env staging --url https://staging.hub-evolution.com",
+    "deploy:testing": "tsx scripts/deploy.ts --env testing --url https://ci.hub-evolution.com",
     "prepare": "husky"
   },
   "dependencies": {

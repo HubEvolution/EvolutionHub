@@ -5,35 +5,35 @@ Projektabsicht
 Evolution Hub ist eine plattformübergreifende Anwendung mit vier Kern-Tools, die über eine gemeinsame Nutzer-, Authentifizierungs- und Zahlungsinfrastruktur verbunden sind.
 Ziel ist ein konsistentes, intuitives Nutzererlebnis bei gleichzeitiger technischer und ökonomischer Fairness: einmal einloggen, überall Zugriff, klare Plan-Badges, transparente Kosten und nachvollziehbarer Verbrauch.
 
-## 1  Identität & Zugang
+## 1 Identität & Zugang
 
 - Login über Stytch (Magic Link + OAuth).
 - Einmal eingeloggt → Session ist plattformweit gültig (Single Sign-On).
 - Passender Account wird automatisch erkannt und dem richtigen Plan zugeordnet.
 - Rollenmodell: User und Admin (erweiterbar).
-Die Session wird vorzugsweise über `__Host-session` (HttpOnly, Secure, SameSite=Strict, Path=/) gehalten, mit `session_id` (SameSite=Lax) als Dev/Testing‑Fallback; Persistenz und Validierung erfolgen in D1, nicht in KV `SESSION`, während Stytch auf einer eigenen Custom‑Domain erreichbar sein kann (Cookie‑Domain bleibt die App‑Domain). <!-- refined -->
+  Die Session wird vorzugsweise über `__Host-session` (HttpOnly, Secure, SameSite=Strict, Path=/) gehalten, mit `session_id` (SameSite=Lax) als Dev/Testing‑Fallback; Persistenz und Validierung erfolgen in D1, nicht in KV `SESSION`, während Stytch auf einer eigenen Custom‑Domain erreichbar sein kann (Cookie‑Domain bleibt die App‑Domain). <!-- refined -->
 
-## 2  Abos, Credits & Badges
+## 2 Abos, Credits & Badges
 
 - Stripe verwaltet Abonnements und Zahlungen.
 - Zwei Bezahlpfade:
 
- 1. Abos (Plans) – wiederkehrende Zahlungen mit Plan-Limits.
- 2. Credits – einmaliger Kauf, nutzbar für einzelne Tools.
+1.  Abos (Plans) – wiederkehrende Zahlungen mit Plan-Limits.
+2.  Credits – einmaliger Kauf, nutzbar für einzelne Tools.
 
 - Verbrauchsreihenfolge: zuerst Abo, dann Credits.
 - Credits sind tool-agnostisch und verfallen 6 Monate nach Kauf (pro Charge).
 - Abo-Einheiten verfallen mit Abo-Ende.
 - Plan-Badges sind in allen Tools einheitlich in Design und Wording.
 - Ziel: Einheitliche Benutzeroberfläche, aber ökonomisch ehrliche Verrechnung.
-Bei unzureichender Abo‑Quota wird ein Job anteilig aus dem Plan und im Rest aus Credits beglichen (Split‑Charging) und transaktionssicher pro Job‑ID idempotent verbucht; der Credit‑Verfall erfolgt pro Charge nach 6 Monaten mit 14‑tägigem Kulanzfenster und ohne automatische Reaktivierung. <!-- refined -->
+  Bei unzureichender Abo‑Quota wird ein Job anteilig aus dem Plan und im Rest aus Credits beglichen (Split‑Charging) und transaktionssicher pro Job‑ID idempotent verbucht; der Credit‑Verfall erfolgt pro Charge nach 6 Monaten mit 14‑tägigem Kulanzfenster und ohne automatische Reaktivierung. <!-- refined -->
 
-## 3  Credit- und Verbrauchssystem
+## 3 Credit- und Verbrauchssystem
 
 Leitprinzip: Credits repräsentieren reale Rechen- und API-Kosten.
 Sie dienen der Kostenwahrheit und Nachhaltigkeit.
 
- Technische Kosten- und Preiskalkulation (Referenz 2025)
+Technische Kosten- und Preiskalkulation (Referenz 2025)
 
 Zweck:
 Dieser Abschnitt dokumentiert die realistische Kostengrundlage für Preisgestaltung, Ressourcenverbrauch und Margenplanung des Evolution Hub-Ökosystems.
@@ -62,10 +62,10 @@ Prompt Enhancer OpenAI GPT-4o mini 0.002 – 0.008 Tokens + LLM-Calls
 Webscraper Cloudflare Fetch + KV ≈ 0.0002 Bandwidth + Parsing
 
 Zielmargen und Preisstrategie
- • Ziel-Bruttomarge: ≥ 65 %
- • Marge nach Stripe: ~ 60 %
- • Preisanker: Pro Plan > 2,5× Gesamtkosten pro User.
- • Kalkulationslogik: Preis = (API-Kosten × Aufschlag × Nutzungsquote) + Fixkostenanteil.
+• Ziel-Bruttomarge: ≥ 65 %
+• Marge nach Stripe: ~ 60 %
+• Preisanker: Pro Plan > 2,5× Gesamtkosten pro User.
+• Kalkulationslogik: Preis = (API-Kosten × Aufschlag × Nutzungsquote) + Fixkostenanteil.
 
 Beispiel Break-Even (Beta 2025)
 
@@ -75,16 +75,17 @@ Business 28 € 9,8 € 65 %
 Enterprise 99 € 32 € 68 %
 
 Optimierungsschrauben
- 1. Replicate-Usage Caching: 20 – 25 % Kostensenkung durch Batch-Jobs.
- 2. Prompt Enhancer Model-Rotation: Switch zu GPT-4o mini → –30 % Tokenkosten.
- 3. Voice Compression & Chunking: kleinere Uploads → –15 % Traffickosten.
- 4. R2 Lifecycle-Rules: Auto-Deletion nach 90 Tagen → –10 € Speicher monatlich.
+
+1.  Replicate-Usage Caching: 20 – 25 % Kostensenkung durch Batch-Jobs.
+2.  Prompt Enhancer Model-Rotation: Switch zu GPT-4o mini → –30 % Tokenkosten.
+3.  Voice Compression & Chunking: kleinere Uploads → –15 % Traffickosten.
+4.  R2 Lifecycle-Rules: Auto-Deletion nach 90 Tagen → –10 € Speicher monatlich.
 
 Finanzielle Zielwerte (erste 12 Monate)
- • Break-Even: ≈ 60 aktive Zahl-User
- • Zielumsatz: 500 – 700 €/Monat
- • Wachstumsrate: + 10 % User monatlich
- • Gesamtkosten stabil ≤ 35 % vom Umsatz
+• Break-Even: ≈ 60 aktive Zahl-User
+• Zielumsatz: 500 – 700 €/Monat
+• Wachstumsrate: + 10 % User monatlich
+• Gesamtkosten stabil ≤ 35 % vom Umsatz
 
 ⸻
 
@@ -105,8 +106,8 @@ Dieses Modell verbindet reale Provider-Kosten mit skalierbaren Preispunkten, um 
 - Teilabzug (~50 %), wenn Ressourcen bereits verbraucht wurden, aber kein Ergebnis geliefert wurde.
 - Einmaliger kostenloser Retry pro Job möglich.
 - Alle Abzüge und Fehler werden pro Tool geloggt.
-Der Teilabzug greift nur, wenn Provider‑Ressourcen nachweislich konsumiert wurden (z. B. Inferenz gestartet/bytes written), und beträgt 50 % ±10 % je nach Fortschritt; kostenlose Retries werden pro Job‑ID gewährt und sind über Idempotency‑Schlüssel gegen Doppelbelastung abgesichert. <!-- refined -->
-Abrechnung erfolgt in 0,1‑Credit‑Schritten (mind.) mit kaufmännischem Runden auf zwei Dezimalstellen; bei kombinierten Faktoren gilt die Summe als Bemessungsgrundlage. <!-- refined -->
+  Der Teilabzug greift nur, wenn Provider‑Ressourcen nachweislich konsumiert wurden (z. B. Inferenz gestartet/bytes written), und beträgt 50 % ±10 % je nach Fortschritt; kostenlose Retries werden pro Job‑ID gewährt und sind über Idempotency‑Schlüssel gegen Doppelbelastung abgesichert. <!-- refined -->
+  Abrechnung erfolgt in 0,1‑Credit‑Schritten (mind.) mit kaufmännischem Runden auf zwei Dezimalstellen; bei kombinierten Faktoren gilt die Summe als Bemessungsgrundlage. <!-- refined -->
 
 ### 3.3 Konfiguration & Governance
 
@@ -117,7 +118,7 @@ Abrechnung erfolgt in 0,1‑Credit‑Schritten (mind.) mit kaufmännischem Runde
 
 Leitsatz: „Ein Credit entspricht realem Energie- und Ressourcenverbrauch.“
 
-## 4  Tool-Ökonomie und Kostenrelation
+## 4 Tool-Ökonomie und Kostenrelation
 
 Tool Rechenintensität Relative Kostenordnung
 Image Enhancer sehr hoch (GPU Inference + R2 I/O) 1
@@ -125,7 +126,7 @@ Voice Visualizer + Transcriptor mittel hoch (Whisper Chunks) 2
 Prompt Enhancer mittel (LLM Tokens) 3
 Webscraper niedrig (Netzwerk I/O) 4
 
-## 5  Blog & Kommentare
+## 5 Blog & Kommentare
 
 - Kommentarfunktion nur für eingeloggte Nutzer:innen.
 - Admin-Rolle prüft und gibt Kommentare frei, bevor sie veröffentlicht werden.
@@ -134,22 +135,22 @@ Webscraper niedrig (Netzwerk I/O) 4
 - z. B. Partnerlinks, gesponserte Artikel, Affiliate-Banner.
 - Werbung bleibt thematisch passend, klar gekennzeichnet und datenschutzkonform.
 - Kein Tracking ohne Einwilligung (DSGVO-konform).
-Moderation erlaubt Übergänge pending→approved/rejected/spam mit Audit‑Trail; nach Freigabe wird die Caching‑Schicht für betroffene Inhalte invalidiert, sodass öffentliche Listen nur freigegebene Kommentare zeigen. <!-- refined -->
-Analytics erfolgen nur nach Consent (Cookie‑Banner); zulässige Anbieter sind u. a. GTM/Plausible, während Cloudflare Insights in Produktion deaktiviert bleibt; Einwilligungen und Widerrufe werden nachvollziehbar protokolliert. <!-- refined -->
+  Moderation erlaubt Übergänge pending→approved/rejected/spam mit Audit‑Trail; nach Freigabe wird die Caching‑Schicht für betroffene Inhalte invalidiert, sodass öffentliche Listen nur freigegebene Kommentare zeigen. <!-- refined -->
+  Analytics erfolgen nur nach Consent (Cookie‑Banner); zulässige Anbieter sind u. a. GTM/Plausible, während Cloudflare Insights in Produktion deaktiviert bleibt; Einwilligungen und Widerrufe werden nachvollziehbar protokolliert. <!-- refined -->
 
-## 6  Governance & Transparenz
+## 6 Governance & Transparenz
 
 - Alle Änderungen an Credits, Entitlements und Multiplikatoren werden pro Tool protokolliert.
 - Nutzer:innen sehen im Dashboard ihre aktuellen Plan- und Credit-Statuswerte.
 - Ziel: ökonomische Nachvollziehbarkeit bei technischer Einfachheit.
 
-## 7  Langfristige Vision
+## 7 Langfristige Vision
 
 Ein Hub, vier Tools, eine Wahrheit:
 Echte Kosten werden sichtbar, ohne dass die Nutzer:innen komplexe Rechenmodelle verstehen müssen.
 Die Plattform bleibt transparent, skalierbar und fair – für Nutzer:innen und Entwickler:innen gleichermaßen.
 
-## 8  Tools im Hub
+## 8 Tools im Hub
 
 ### 8.1 Image Enhancer
 
@@ -160,7 +161,7 @@ Hybridbetrieb über Cloudflare Workers AI (SD 1.5 / SDXL) und Replicate (ESRGAN,
 - Compute: sehr hoch (GPU-basiert)
 - Speicher: mittlerer R2-Footprint (~ 10 MB / Bild)
 - Credit-Multiplikatoren: nach Modell (× 1 – × 4)
-Erzeugte Assets werden privat in R2 gespeichert und über Worker‑Proxys (`/r2-ai/**`) mit kontrollierten Cache‑Headern ausgeliefert; direkte öffentliche Buckets werden vermieden, und Lösch‑/Retention‑Regeln sind serverseitig erzwungen. <!-- refined -->
+  Erzeugte Assets werden privat in R2 gespeichert und über Worker‑Proxys (`/r2-ai/**`) mit kontrollierten Cache‑Headern ausgeliefert; direkte öffentliche Buckets werden vermieden, und Lösch‑/Retention‑Regeln sind serverseitig erzwungen. <!-- refined -->
 
 ### 8.2 Prompt Enhancer
 
@@ -177,7 +178,7 @@ Erfasst Audio im Browser, sendet Chunk-Uploads und transkribiert mit Whisper.
 - Einheit: audio_chunk
 - Compute: mittel bis hoch (~ 3–5 Credits/Minute)
 - Credit-Multiplikatoren: abhängig von Audioqualität und Transkriptionsmodus
-Abrechnung erfolgt pro verarbeiteten Chunk (Größen‑/Codec‑Allowlist) und wird für die Sitzung aggregiert; der Minutenwert ist ein Richtwert, die tatsächliche Belastung folgt dem Chunk‑Durchsatz. <!-- refined -->
+  Abrechnung erfolgt pro verarbeiteten Chunk (Größen‑/Codec‑Allowlist) und wird für die Sitzung aggregiert; der Minutenwert ist ein Richtwert, die tatsächliche Belastung folgt dem Chunk‑Durchsatz. <!-- refined -->
 
 ### 8.4 Webscraper
 
@@ -186,18 +187,18 @@ Extrahiert strukturiert Inhalte aus Webseiten (Titel, Text, Links, Meta).
 - Einheit: page_fetch
 - Compute: niedrig (Netzwerk / CPU)
 - Credit-Multiplikatoren: typischerweise × 1
-Crawler respektiert robots.txt und implementiert Host‑basierte Rate‑Limits sowie Allow/Deny‑Listen; rechtliche Grenzen (Nutzungsbedingungen) sind einzuhalten, Verstöße werden unterbunden. <!-- refined -->
+  Crawler respektiert robots.txt und implementiert Host‑basierte Rate‑Limits sowie Allow/Deny‑Listen; rechtliche Grenzen (Nutzungsbedingungen) sind einzuhalten, Verstöße werden unterbunden. <!-- refined -->
 
-## 9  Quellen und Technische Basis
+## 9 Quellen und Technische Basis
 
 - Tool-Configs unter src/config/<tool>/…
 - Laufzeitbindungen über Cloudflare D1, R2, KV, Workers AI
 - Authentifizierung über Stytch
 - Billing über Stripe
 - Rate Limits & Entitlements über zentrale Middleware
-Die zentrale Middleware ([src/middleware.ts](cci:7://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/middleware.ts:0:0-0:0)) setzt Sicherheits‑Header und CSP für HTML‑Antworten, während API‑Routen über [withApiMiddleware](cci:1://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/lib/api-middleware.ts:337:0-462:1) ([src/lib/api-middleware.ts](cci:7://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/lib/api-middleware.ts:0:0-0:0)) konsistente JSON‑Antworten, Rate‑Limits, CSRF/Origin‑Prüfungen und Security‑Header erhalten. <!-- refined -->
+  Die zentrale Middleware ([src/middleware.ts](cci:7://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/middleware.ts:0:0-0:0)) setzt Sicherheits‑Header und CSP für HTML‑Antworten, während API‑Routen über [withApiMiddleware](cci:1://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/lib/api-middleware.ts:337:0-462:1) ([src/lib/api-middleware.ts](cci:7://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/lib/api-middleware.ts:0:0-0:0)) konsistente JSON‑Antworten, Rate‑Limits, CSRF/Origin‑Prüfungen und Security‑Header erhalten. <!-- refined -->
 
-## 10  Blog – Community & Monetarisierung
+## 10 Blog – Community & Monetarisierung
 
 Der Blog dient als Kommunikationsplattform, Wissensarchiv und Marketingkanal.
 
@@ -206,7 +207,7 @@ Der Blog dient als Kommunikationsplattform, Wissensarchiv und Marketingkanal.
 - Ziel: relevante Inhalte statt Massenanzeigen
 - Datenschutz bleibt Vorrang
 
-## 11  User Dashboard – Zentrale Benutzeroberfläche
+## 11 User Dashboard – Zentrale Benutzeroberfläche
 
 Das Dashboard ist die persönliche Schaltzentrale für alle Nutzer:innen des Hubs.
 Es bündelt Authentifizierung, Plan-Verwaltung, Credits, Profilpflege und Aktivitäten.
@@ -224,7 +225,7 @@ Es bündelt Authentifizierung, Plan-Verwaltung, Credits, Profilpflege und Aktivi
 - Tool-Nutzung: Verbrauchsstatistik (Tag/Woche/Monat), pro Tool
 - Benachrichtigungen: Status, neue Features, Antworten
 - Support: Kontaktformular, Fehlerberichte
-Direktkäufe nutzen Preis‑IDs/Payment‑Links aus [wrangler.toml](cci:7://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/wrangler.toml:0:0-0:0) je Umgebung; Planwechsel/Abbrüche propagiert der Stripe‑Webhook serverseitig nach D1, Rückerstattungen erfolgen gemäß Stripe‑Richtlinien über das Dashboard, optional mit Customer‑Portal. <!-- refined -->
+  Direktkäufe nutzen Preis‑IDs/Payment‑Links aus [wrangler.toml](cci:7://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/wrangler.toml:0:0-0:0) je Umgebung; Planwechsel/Abbrüche propagiert der Stripe‑Webhook serverseitig nach D1, Rückerstattungen erfolgen gemäß Stripe‑Richtlinien über das Dashboard, optional mit Customer‑Portal. <!-- refined -->
 
 ### 11.2 Erweiterbare Bereiche (Zukunft)
 

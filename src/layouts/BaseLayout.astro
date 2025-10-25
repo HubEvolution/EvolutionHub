@@ -203,15 +203,13 @@ const landingBgVariant = getLandingBgVariant();
 
     {/* Globaler Hintergrund (Flag-gesteuert). Bei 'off' wird kein BG gerendert. */}
     {
-      !disableGlobalBg && (
-        landingBgVariant !== 'off' && (
-          <div
-            data-landing-bg
-            data-variant={landingBgVariant}
-            class="fixed inset-0 pointer-events-none w-screen h-screen z-0"
-            aria-hidden="true"
-          />
-        )
+      !disableGlobalBg && landingBgVariant !== 'off' && (
+        <div
+          data-landing-bg
+          data-variant={landingBgVariant}
+          class="fixed inset-0 pointer-events-none w-screen h-screen z-0"
+          aria-hidden="true"
+        />
       )
     }
 
