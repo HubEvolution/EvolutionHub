@@ -3,12 +3,21 @@
 // It works with ThemeToggle to manage the theme state
 ---
 
-<script is:inline nonce={Astro.locals.cspNonce}>
+<script is:inline nonce={Astro.locals.cspNonce} define:vars={{ isProd: import.meta.env.PROD }}>
   const getTheme = () => {
-    // Check for a saved theme in localStorage, otherwise check system preference
-    if (typeof localStorage !== 'undefined' && localStorage.getItem('theme')) {
-      return localStorage.getItem('theme');
+    // Prefer an explicit saved preference
+    try {
+      if (typeof localStorage !== 'undefined' && localStorage.getItem('theme')) {
+        return localStorage.getItem('theme');
+      }
+    } catch {}
+
+    // In production, default to dark when no preference exists
+    if (isProd) {
+      return 'dark';
     }
+
+    // Otherwise, follow system preference
     if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
       return 'dark';
     }

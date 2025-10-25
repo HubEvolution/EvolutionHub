@@ -1,24 +1,29 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import VoiceVisualizerIsland from '@/components/tools/voice-visualizer/VoiceVisualizerIsland';
+import Card from '@/components/ui/Card';
 ---
 
 <BaseLayout title="Voice Visualizer & Transcriber">
-  <div class="py-10">
-    <VoiceVisualizerIsland
-      client:load
-      strings={{
-        title: 'Voice Visualizer & Transcriber',
-        description: 'Record your voice, see a live waveform, and get instant transcriptions.',
-        start: 'Start Recording',
-        stop: 'Stop',
-        usage: 'Usage',
-        loading: 'loading…',
-        transcript: 'Transcript',
-        error: 'An error occurred',
-        rateLimited: (s: number) => `Rate limited. Retry in ${s}s…`,
-      }}
-      langHint="en"
-    />
-  </div>
+  <main class="min-h-screen bg-transparent py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-4xl mx-auto">
+      <Card as="div" className="p-4 sm:p-6">
+        <VoiceVisualizerIsland
+          client:load
+          strings={{
+            title: 'Voice Visualizer & Transcriber',
+            description: 'Record your voice, see a live waveform, and get instant transcriptions.',
+            start: 'Start Recording',
+            stop: 'Stop',
+            usage: 'Usage',
+            loading: 'loading…',
+            transcript: 'Transcript',
+            error: 'An error occurred',
+            rateLimited: (s: number) => `Rate limited. Retry in ${s}s…`,
+          }}
+          langHint="en"
+        />
+      </Card>
+    </div>
+  </main>
 </BaseLayout>

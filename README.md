@@ -19,8 +19,10 @@ Evolution Hub ist eine moderne Full-Stack-Webanwendung, die eine Sammlung von En
 ## ✨ Features
 
 - **Tool-Sammlung:** Zugriff auf eine wachsende Bibliothek von Online-Tools für Entwickler
-- **AI-Bildverbesserung:** KI-gestützte Bildverbesserung mit Modellen wie Real-ESRGAN und GFPGAN
+- **AI-Bildverbesserung:** Hybrid-Provider (Replicate + Cloudflare Workers AI). Unterstützt u. a. Real-ESRGAN (2x/4x), GFPGAN/CodeFormer (Gesichts-Restore) sowie CF-Modelle (SD 1.5/SDXL img2img)
 - **Prompt-Enhancer:** KI-gestützte Text-zu-Prompt-Optimierung für bessere AI-Ergebnisse
+- **Webscraper:** Extrahiert strukturierte Inhalte aus Webseiten (API + UI)
+- **Voice Visualizer (Transkriptor):** Audio-Transkription (Whisper), Quoten/Limits, sichere APIs
 - **Authentifizierung:** Stytch Magic Link (E-Mail). Registrierung implizit beim ersten erfolgreichen Callback. Kein Passwort/Reset mehr.
 - **Job-System:** Asynchrones Management für langlaufende AI-Operationen
 - **API-Sicherheit:** Umfassende Sicherheitsmaßnahmen mit Rate-Limiting und Audit-Logging
@@ -34,7 +36,7 @@ Evolution Hub ist eine moderne Full-Stack-Webanwendung, die eine Sammlung von En
 - **Datenbank:** [Cloudflare D1](https://developers.cloudflare.com/d1/)
 - **Speicher:** [Cloudflare R2](https://developers.cloudflare.com/r2/)
 - **Testing:** Playwright (E2E), Vitest (Unit)
-- **Authentifizierung:** Stytch Magic Link + Session-Cookies (`__Host-session`)
+- **Authentifizierung:** Stytch Magic Link + Session-Cookies (transitional: `session_id` + `__Host-session` bei HTTPS)
 
 ## 🧭 CI at a glance
 
@@ -71,7 +73,7 @@ Weitere Details und Trigger-Kommandos siehe: [`docs/development/ci-cd.md`](./doc
 3. Lokale Datenbank einrichten:
 
    ```bash
-   npx tsx scripts/setup-local-dev.ts
+   npm run setup:local
    ```
 
 4. Umgebungsvariablen konfigurieren:
@@ -82,21 +84,29 @@ Weitere Details und Trigger-Kommandos siehe: [`docs/development/ci-cd.md`](./doc
 
 ### Entwicklung
 
-Zwei Terminals benötigt:
+Du kannst mit einem oder zwei Terminals arbeiten:
 
-#### Terminal 1: Build-Prozess
-
-```bash
-npm run build:watch
-```
-
-#### Terminal 2: Entwicklungs-Server
+#### Option A: Ein Terminal (empfohlen)
 
 ```bash
 npm run dev
 ```
 
-Die Anwendung ist dann unter der von Wrangler angegebenen Adresse verfügbar (z.B. `http://127.0.0.1:8787`).
+#### Option B: Zwei Terminals
+
+Terminal 1 (Build):
+
+```bash
+npm run build:watch
+```
+
+Terminal 2 (Worker Dev):
+
+```bash
+npm run dev
+```
+
+Die Anwendung ist dann unter der von Wrangler angegebenen Adresse verfügbar (z. B. `http://127.0.0.1:8787`).
 
 ## 📦 Deployment
 
@@ -154,7 +164,7 @@ Für automatisches Deployment müssen folgende Secrets in GitHub hinterlegt werd
 | Secret Name             | Beschreibung                                  | Wo zu finden                                                   |
 | ----------------------- | --------------------------------------------- | -------------------------------------------------------------- |
 | `CLOUDFLARE_API_TOKEN`  | Cloudflare API Token mit Workers:Edit-Rechten | Cloudflare Dashboard → My Profile → API Tokens → Create Token  |
-| `CLOUDFLARE_ACCOUNT_ID` | Cloudflare Account-ID                         | Bereits in `wrangler.toml`: `39434b5635d8beb4bde93e1792b628d7` |
+| `CLOUDFLARE_ACCOUNT_ID` | Cloudflare Account-ID                         | Cloudflare Dashboard (Account Details)                         |
 
 **GitHub Environments einrichten** →
 **Settings** → **Environments** → **New environment**:
@@ -176,15 +186,18 @@ Response:
 
 ```json
 {
-  "status": "ok",
-  "services": {
-    "d1": true,
-    "kv": true,
-    "r2": true
-  },
-  "duration": "45ms",
-  "timestamp": "2025-01-15T10:30:00.000Z",
-  "version": "production"
+  "success": true,
+  "data": {
+    "status": "ok",
+    "services": {
+      "d1": true,
+      "kv": true,
+      "r2": true
+    },
+    "duration": "45ms",
+    "timestamp": "2025-01-15T10:30:00.000Z",
+    "version": "production"
+  }
 }
 ```
 
@@ -221,10 +234,8 @@ npm run test
 - [API-Dokumentation](./docs/api/)
 - [API Quickstart](./docs/api/README.md)
 - [Architektur](./docs/architecture/)
-- [Sicherheit](./docs/security/)
-- [Cloudflare Cache Rules (CI & Staging)](./docs/ops/cloudflare-cache-rules.md)
+- [API & Security Regeln](./.windsurf/rules/api-and-security.md)
 - [UI-Komponenten Leitfaden](./docs/frontend/ui-components.md)
-- [Blog + Comments — Single Source of Truth](./docs/features/blog+commentsystem-plan.md#single-source-of-truth--aktueller-stand-blog--comments)
 
 ## 🤝 Mitwirken
 

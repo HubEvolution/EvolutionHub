@@ -17,6 +17,8 @@ import {
 import { WebscraperService } from '@/lib/services/webscraper-service';
 import { createRateLimiter } from '@/lib/rate-limiter';
 import type { ScrapeInput, ScrapeResult } from '@/types/webscraper';
+import type { Plan } from '@/config/ai-image/entitlements';
+import { getWebscraperEntitlementsFor } from '@/config/webscraper/entitlements';
 
 interface WebscraperEnv {
   KV_WEBSCRAPER?: KVNamespace;
@@ -89,6 +91,10 @@ export const POST = withApiMiddleware(
     // Owner detection
     const ownerType = user ? 'user' : 'guest';
     const ownerId = user?.id || ensureGuestIdCookie(context);
+    const plan: Plan | undefined =
+      ownerType === 'user'
+        ? (((user as { plan?: Plan } | null)?.plan ?? 'free') as Plan)
+        : undefined;
 
     // Init service with flag check
     const rawEnv = (locals.runtime?.env ?? {}) as Record<string, unknown>;
@@ -118,7 +124,13 @@ export const POST = withApiMiddleware(
     });
 
     try {
-      const result: ScrapeResult = await service.scrape(input, ownerType, ownerId);
+      const ent = getWebscraperEntitlementsFor(ownerType, plan);
+      const result: ScrapeResult = await service.scrape(
+        input,
+        ownerType,
+        ownerId,
+        ent.dailyBurstCap
+      );
 
       return createApiSuccess({
         result: result.result,

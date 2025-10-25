@@ -192,8 +192,24 @@ export const blogCollection = defineCollection({
 });
 
 // Exportiere die Collections
+// Testimonials collection (PR5)
+export const testimonialsCollection = defineCollection({
+  type: 'content',
+  schema: z.object({
+    tools: z.array(z.string()).min(1),
+    lang: z.enum(['en', 'de']),
+    author: z.string().min(2),
+    role: z.string().min(2),
+    quote: z.string().min(12),
+    company: z.string().optional(),
+    weight: z.number().min(0).max(100).default(50).optional(),
+    featured: z.boolean().default(false).optional(),
+  }),
+});
+
 export const collections = {
   blog: blogCollection,
+  testimonials: testimonialsCollection,
 };
 
 // Hilfsfunktion zum Formatieren von Datumsangaben

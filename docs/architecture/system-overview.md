@@ -110,6 +110,18 @@ Die Datenschicht ist mit Cloudflare D1 implementiert:
   - `comment_audit_logs` (Audit-Trail)
 - **Blog-Content**: Markdown-Dateien (Astro Content Collections, nicht in D1)
 - **Tools**: Tool-Definitionen und Metadaten
+- **Benachrichtigungen** (Notifications-Subsystem):
+  - `notifications` (Endnutzer-Benachrichtigungen; TEXT-FKs, Read-Status, Priorität)
+  - `notification_settings` (pro Nutzer: Typ/Channel/Frequenz)
+  - `email_templates` (mehrsprachige Vorlagen, aktiv/inaktiv)
+  - `email_queue` (geplante/ausgehende E-Mails mit Status/Prio)
+- **Ops / Data-Management**:
+  - `data_export_jobs` (Nutzer-/Daten-Exporte inkl. Ablauf/Links)
+  - `data_deletion_requests` (DSGVO-Löschanfragen mit Verifikation/Status)
+  - `backup_jobs` (manuell/automatisiert, Pfad/Checksumme/Größe)
+  - `system_maintenance` (Housekeeping/Migration/Repair-Läufe)
+- **WebScraper**:
+  - `scraping_jobs` (URL, Status, Resultat/Fehler, Indizes für Status/URL/Datum)
 
 ---
 

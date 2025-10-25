@@ -1,0 +1,43 @@
+---
+import Card from '@/components/ui/Card';
+import UserProfile from '@/components/dashboard/UserProfile.astro';
+import AccountSettingsSection from '@/components/dashboard/AccountSettingsSection.astro';
+
+interface Props {
+  user: {
+    id: string;
+    email: string;
+    name: string;
+    username: string;
+    image?: string;
+    plan?: 'free' | 'pro' | 'premium' | 'enterprise';
+  };
+  planLabels: Record<'free' | 'pro' | 'premium' | 'enterprise', string>;
+  billingUrl: string;
+  redirectUrl: string;
+  dangerStrings: any;
+  profileCopy: any;
+  i18nSettings: any;
+}
+
+const { user, planLabels, billingUrl, redirectUrl, dangerStrings, profileCopy, i18nSettings } =
+  Astro.props as Props;
+---
+
+<Card as="section" className="group p-5">
+  <div class="space-y-5">
+    <UserProfile user={user} />
+
+    <div id="account-settings">
+      <AccountSettingsSection
+        user={user}
+        planLabels={planLabels}
+        billingUrl={billingUrl}
+        redirectUrl={redirectUrl}
+        dangerStrings={dangerStrings}
+        profileCopy={profileCopy}
+        i18nSettings={i18nSettings}
+      />
+    </div>
+  </div>
+</Card>

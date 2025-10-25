@@ -1,5 +1,6 @@
 ---
 // src/layouts/BaseLayout.astro
+import landingBgUrl from '@/scripts/landing-bg.js?url';
 import Header from '@/components/Header.astro';
 // Global CSS wird weiter unten via <style is:global> importiert
 import { getLocale } from '@/lib/i18n';
@@ -18,6 +19,7 @@ import { ClientRouter } from 'astro:transitions';
 import ComingSoon from '@/components/ui/ComingSoon.astro';
 import { isComingSoon } from '@/config/coming-soon';
 import SpriteDefs from '@/components/ui/icons/SpriteDefs.astro';
+import { getLandingBgVariant } from '@/utils/feature-flags';
 
 interface Props {
   title: string;
@@ -70,6 +72,7 @@ const ogImage = customOgImage || seoData.ogImage;
 const pageFrontmatter = props as unknown as Record<string, unknown>;
 const showComingSoon = isComingSoon(Astro.url.pathname, pageFrontmatter);
 const bodyClass = `min-h-screen bg-sky-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 flex flex-col overflow-x-hidden ${showComingSoon ? 'coming-soon-open' : ''}`;
+const landingBgVariant = getLandingBgVariant();
 ---
 
 <!doctype html>
@@ -175,11 +178,8 @@ const bodyClass = `min-h-screen bg-sky-50 dark:bg-slate-900 text-slate-800 dark:
             rel="preload"
             href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css"
             as="style"
-            onload="this.onload=null;this.rel='stylesheet'"
           />
-          <noscript>
-            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" />
-          </noscript>
+          <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" />
         </>
       ) : null
     }
@@ -187,6 +187,8 @@ const bodyClass = `min-h-screen bg-sky-50 dark:bg-slate-900 text-slate-800 dark:
     <style is:global>
       @import '@/styles/global.css';
     </style>
+    <!-- Landing background boot (plain JS module via URL import) -->
+    <script type="module" src={landingBgUrl} defer nonce={Astro.locals.cspNonce}></script>
     {showComingSoon && <style is:global>@import '@/styles/coming-soon.css';</style>}
 
     <!-- Astro View Transitions for SPA-like navigation -->
@@ -199,36 +201,31 @@ const bodyClass = `min-h-screen bg-sky-50 dark:bg-slate-900 text-slate-800 dark:
     <ThemeProvider />
     <SkipLink />
 
-    {/* Globaler technischer Hintergrund (Light/Dark), hinter Header + Content */}
+    {/* Globaler Hintergrund (Flag-gesteuert). Bei 'off' wird kein BG gerendert. */}
     {
-      !disableGlobalBg && (
+      !disableGlobalBg && landingBgVariant !== 'off' && (
         <div
-          id="global-bg"
+          data-landing-bg
+          data-variant={landingBgVariant}
+          class="fixed inset-0 pointer-events-none w-screen h-screen z-0"
           aria-hidden="true"
-          class="fixed inset-0 -z-10 pointer-events-none overflow-hidden"
-        >
-          <div class="absolute inset-0 bg-gradient-to-br from-primary/20 to-purple-500/20 dark:from-primary/10 dark:to-purple-500/10" />
-          {/* Top left */}
-          <div class="absolute -top-16 -left-16 w-[36rem] h-[36rem] rounded-full bg-emerald-400/90 dark:bg-emerald-500/45 blur-3xl mix-blend-overlay dark:mix-blend-screen saturate-200 brightness-160 dark:saturate-100 dark:brightness-90 animate-blob-1" />
-          {/* Bottom right */}
-          <div class="absolute -bottom-20 -right-10 w-[40rem] h-[40rem] rounded-full bg-cyan-400/90 dark:bg-cyan-500/45 blur-3xl mix-blend-overlay dark:mix-blend-screen saturate-200 brightness-160 dark:saturate-100 dark:brightness-90 animate-blob-2" />
-          {/* Center */}
-          <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[28rem] h-[28rem] rounded-full bg-purple-400/80 dark:bg-purple-500/40 blur-3xl mix-blend-overlay dark:mix-blend-screen saturate-200 brightness-160 dark:saturate-100 dark:brightness-90 animate-blob-3" />
-        </div>
+        />
       )
     }
 
-    {!hideHeader && <Header />}
-    <main id="main-content" class="flex-grow focus:outline-none" tabindex="-1">
-      <slot />
-    </main>
+    <div class="relative z-[2] flex min-h-screen flex-col">
+      {!hideHeader && <Header />}
+      <main id="main-content" class="landing-v2 flex-grow focus:outline-none" tabindex="-1">
+        <slot />
+      </main>
 
-    {!hideFooter && <Footer locale={locale} hideNewsletter={hideNewsletter} />}
-    {enableAOS && <AOSCoordinator />}
-    {showComingSoon && <ComingSoon />}
-    {enableAnalytics && <AnalyticsCoordinator />}
-    <Toaster client:load />
-    <BillingNotice client:load />
+      {!hideFooter && <Footer locale={locale} hideNewsletter={hideNewsletter} />}
+      {enableAOS && <AOSCoordinator />}
+      {showComingSoon && <ComingSoon />}
+      {enableAnalytics && <AnalyticsCoordinator />}
+      <Toaster client:load />
+      <BillingNotice client:load />
+    </div>
 
     {/* Debug Panel Overlay - nur in DEV */}
     <DebugPanelIsland>

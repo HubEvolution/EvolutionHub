@@ -110,9 +110,10 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
           /^10\./.test(host) ||
           /^172\.(1[6-9]|2\d|3[0-1])\./.test(host);
         const isTesting = host === 'ci.hub-evolution.com';
-        const list = (isLocal || isTesting)
-          ? ALLOWED_MODELS.filter((m) => (m as any).provider === 'workers_ai')
-          : ALLOWED_MODELS;
+        const list =
+          isLocal || isTesting
+            ? ALLOWED_MODELS.filter((m) => (m as any).provider === 'workers_ai')
+            : ALLOWED_MODELS;
         return list[0]?.slug || ALLOWED_MODELS[0]?.slug || '';
       }
     } catch {}

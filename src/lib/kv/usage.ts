@@ -206,7 +206,15 @@ function addMonthsWithGrace(startMs: number, months = 6, graceDays = 14): number
   const y = d.getUTCFullYear();
   const m = d.getUTCMonth();
   const day = d.getUTCDate();
-  const base = Date.UTC(y, m + months, day, d.getUTCHours(), d.getUTCMinutes(), d.getUTCSeconds(), d.getUTCMilliseconds());
+  const base = Date.UTC(
+    y,
+    m + months,
+    day,
+    d.getUTCHours(),
+    d.getUTCMinutes(),
+    d.getUTCSeconds(),
+    d.getUTCMilliseconds()
+  );
   const graceMs = graceDays * 24 * 60 * 60 * 1000;
   return base + graceMs;
 }
@@ -238,7 +246,12 @@ export async function addCreditPackTenths(
   const packs = await readPacks(kv, userId);
   // idempotent on packId
   if (!packs.some((p) => p.id === packId)) {
-    packs.push({ id: packId, unitsTenths: Math.max(0, Math.round(unitsTenths)), createdAt, expiresAt });
+    packs.push({
+      id: packId,
+      unitsTenths: Math.max(0, Math.round(unitsTenths)),
+      createdAt,
+      expiresAt,
+    });
     await writePacks(kv, userId, packs);
   }
   return packs;
@@ -250,7 +263,9 @@ export async function listActiveCreditPacksTenths(
   nowMs = Date.now()
 ): Promise<CreditPack[]> {
   const packs = await readPacks(kv, userId);
-  return packs.filter((p) => p.unitsTenths > 0 && p.expiresAt > nowMs).sort((a, b) => a.createdAt - b.createdAt);
+  return packs
+    .filter((p) => p.unitsTenths > 0 && p.expiresAt > nowMs)
+    .sort((a, b) => a.createdAt - b.createdAt);
 }
 
 export async function getCreditsBalanceTenths(

@@ -32,7 +32,7 @@ const { useAuthMock, useRateLimitMock, useCommentStoreMock } = vi.hoisted(() => 
 }));
 
 // Mock the comment store
-;(vi as any).mock(
+(vi as any).mock(
   '../../src/stores/comment-store',
   () => ({
     useCommentStore: useCommentStoreMock,
@@ -41,7 +41,7 @@ const { useAuthMock, useRateLimitMock, useCommentStoreMock } = vi.hoisted(() => 
 );
 
 // Mock the auth context (virtual module)
-;(vi as any).mock(
+(vi as any).mock(
   '../../src/contexts/AuthContext',
   () => ({
     useAuth: useAuthMock,
@@ -55,7 +55,7 @@ vi.mock('../../src/lib/security/csrf', () => ({
 }));
 
 // Mock the rate limiter hook (virtual module)
-;(vi as any).mock(
+(vi as any).mock(
   '../../src/components/comments/hooks/useRateLimit',
   () => ({
     useRateLimit: useRateLimitMock,

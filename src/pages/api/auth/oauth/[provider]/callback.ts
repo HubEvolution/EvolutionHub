@@ -280,6 +280,10 @@ const getHandler: ApiHandler = async (context: APIContext) => {
   const cookieValue = `session_id=${session.id}; Path=/; HttpOnly; SameSite=Lax${isHttps ? '; Secure' : ''}; Max-Age=${maxAge}`;
   const response = createSecureRedirect(redirectTarget);
   response.headers.append('Set-Cookie', cookieValue);
+  if (isHttps) {
+    const hostCookie = `__Host-session=${session.id}; Path=/; HttpOnly; SameSite=Strict; Secure; Max-Age=${maxAge}`;
+    response.headers.append('Set-Cookie', hostCookie);
+  }
   if (stytchRequestId) {
     try {
       response.headers.set('X-Stytch-Request-Id', stytchRequestId);

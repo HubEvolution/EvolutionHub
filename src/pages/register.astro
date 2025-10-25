@@ -5,6 +5,7 @@ import MagicLinkForm from '@/components/auth/MagicLinkForm.astro';
 import { getI18n } from '@/utils/i18n';
 import { getLocale } from '@/lib/i18n';
 import { localizePath } from '@/lib/locale-path';
+import Card from '@/components/ui/Card';
 
 const locale = getLocale(Astro.url.pathname);
 const t = getI18n(locale);
@@ -21,9 +22,7 @@ const safeR =
 ---
 
 <AuthLayout title={t('pages.register.title') ?? 'Create an Account'}>
-  <div
-    class="relative p-6 rounded-2xl overflow-hidden bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-white/10 shadow-sm"
-  >
+  <Card as="div" className="relative p-6 rounded-2xl overflow-hidden shadow-sm">
     <h1 class="text-2xl font-bold text-center mb-2">
       {t('pages.register.form.heading') ?? 'Create your Account'}
     </h1>
@@ -42,5 +41,5 @@ const safeR =
       >
     </p>
     <AuthStatusNotifier mode="register" client:load />
-  </div>
+  </Card>
 </AuthLayout>

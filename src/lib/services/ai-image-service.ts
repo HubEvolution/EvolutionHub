@@ -143,7 +143,7 @@ export class AiImageService {
     } else if (out instanceof ArrayBuffer) {
       buf = out as ArrayBuffer;
     } else if (out instanceof Uint8Array) {
-      buf = ((out as Uint8Array).buffer as unknown) as ArrayBuffer;
+      buf = (out as Uint8Array).buffer as unknown as ArrayBuffer;
     } else if (typeof out === 'string') {
       // Some models may return a data URI or raw base64 string
       const m = /^data:(.*?);base64,(.*)$/.exec(out);
@@ -162,9 +162,12 @@ export class AiImageService {
       } else if (Array.isArray((out as any).images) && typeof (out as any).images[0] === 'string') {
         b64 = (out as any).images[0] as string;
       } else if ((out as any).image instanceof Uint8Array) {
-        buf = (((out as any).image as Uint8Array).buffer as unknown) as ArrayBuffer;
-      } else if (Array.isArray((out as any).images) && (out as any).images[0] instanceof Uint8Array) {
-        buf = (((out as any).images[0] as Uint8Array).buffer as unknown) as ArrayBuffer;
+        buf = ((out as any).image as Uint8Array).buffer as unknown as ArrayBuffer;
+      } else if (
+        Array.isArray((out as any).images) &&
+        (out as any).images[0] instanceof Uint8Array
+      ) {
+        buf = ((out as any).images[0] as Uint8Array).buffer as unknown as ArrayBuffer;
       } else if ((out as any).output) {
         const o = (out as any).output;
         if (typeof o === 'string') {
@@ -176,11 +179,11 @@ export class AiImageService {
         } else if (Array.isArray(o) && typeof o[0] === 'string') {
           b64 = o[0] as string;
         } else if (o instanceof Uint8Array) {
-          buf = ((o as Uint8Array).buffer as unknown) as ArrayBuffer;
+          buf = (o as Uint8Array).buffer as unknown as ArrayBuffer;
         } else if (o?.image instanceof Uint8Array) {
-          buf = ((o.image as Uint8Array).buffer as unknown) as ArrayBuffer;
+          buf = (o.image as Uint8Array).buffer as unknown as ArrayBuffer;
         } else if (Array.isArray(o?.images) && o.images[0] instanceof Uint8Array) {
-          buf = ((o.images[0] as Uint8Array).buffer as unknown) as ArrayBuffer;
+          buf = (o.images[0] as Uint8Array).buffer as unknown as ArrayBuffer;
         }
       } else if ((out as any).result) {
         const r = (out as any).result;
@@ -193,11 +196,11 @@ export class AiImageService {
         } else if (Array.isArray(r) && typeof r[0] === 'string') {
           b64 = r[0] as string;
         } else if (r instanceof Uint8Array) {
-          buf = ((r as Uint8Array).buffer as unknown) as ArrayBuffer;
+          buf = (r as Uint8Array).buffer as unknown as ArrayBuffer;
         } else if (r?.image instanceof Uint8Array) {
-          buf = ((r.image as Uint8Array).buffer as unknown) as ArrayBuffer;
+          buf = (r.image as Uint8Array).buffer as unknown as ArrayBuffer;
         } else if (Array.isArray(r?.images) && r.images[0] instanceof Uint8Array) {
-          buf = ((r.images[0] as Uint8Array).buffer as unknown) as ArrayBuffer;
+          buf = (r.images[0] as Uint8Array).buffer as unknown as ArrayBuffer;
         }
       }
       if (b64 && typeof b64 === 'string') {
@@ -306,8 +309,6 @@ export class AiImageService {
     }
   }
 
-  
-
   private async incrementMonthlyBy(
     ownerType: OwnerType,
     ownerId: string,
@@ -324,7 +325,8 @@ export class AiImageService {
       if (raw) {
         try {
           const obj = JSON.parse(raw) as { count?: number; countTenths?: number };
-          countTenths = typeof obj.countTenths === 'number' ? obj.countTenths : (obj.count || 0) * 10;
+          countTenths =
+            typeof obj.countTenths === 'number' ? obj.countTenths : (obj.count || 0) * 10;
         } catch {}
       }
       const addTenths = Math.max(0, Math.round((typeof delta === 'number' ? delta : 0) * 10));
@@ -732,7 +734,9 @@ export class AiImageService {
         const resultExt = this.extFromContentType(wa.contentType) || 'png';
         const resultKey = `${AI_R2_PREFIX}/results/${ownerType}/${ownerId}/${timestamp}.${resultExt}`;
         const putResultStart = Date.now();
-        await bucket.put(resultKey, wa.arrayBuffer, { httpMetadata: { contentType: wa.contentType } });
+        await bucket.put(resultKey, wa.arrayBuffer, {
+          httpMetadata: { contentType: wa.contentType },
+        });
         this.log.debug('r2_put_result_ms', {
           action: 'r2_put_result_ms',
           metadata: { reqId, ms: Date.now() - putResultStart },
@@ -766,7 +770,9 @@ export class AiImageService {
         const resultExt = this.extFromContentType(wa.contentType) || 'png';
         const resultKey = `${AI_R2_PREFIX}/results/${ownerType}/${ownerId}/${timestamp}.${resultExt}`;
         const putResultStart = Date.now();
-        await bucket.put(resultKey, wa.arrayBuffer, { httpMetadata: { contentType: wa.contentType } });
+        await bucket.put(resultKey, wa.arrayBuffer, {
+          httpMetadata: { contentType: wa.contentType },
+        });
         this.log.debug('r2_put_result_ms', {
           action: 'r2_put_result_ms',
           metadata: { reqId, ms: Date.now() - putResultStart },
@@ -852,7 +858,11 @@ export class AiImageService {
       originalUrl,
       imageUrl,
       usage,
-      charge: { total: cost, planPortion, creditsPortion: Math.max(0, Math.round((cost - planPortion) * 10) / 10) },
+      charge: {
+        total: cost,
+        planPortion,
+        creditsPortion: Math.max(0, Math.round((cost - planPortion) * 10) / 10),
+      },
     };
   }
 

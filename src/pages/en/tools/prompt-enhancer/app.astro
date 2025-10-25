@@ -3,6 +3,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import { getLocale } from '@/lib/i18n';
 import { getI18n } from '@/utils/i18n';
 import EnhancerForm from '@/components/tools/prompt-enhancer/EnhancerForm';
+import Card from '@/components/ui/Card';
 
 const locale = getLocale(Astro.url.pathname);
 const t = getI18n(locale);
@@ -19,9 +20,9 @@ const t = getI18n(locale);
         {t('pages.tools.details.Prompt-Enhancer.privacy.text')}
       </div>
 
-      <div class="mt-8">
+      <Card as="div" className="mt-8 p-4 sm:p-6">
         <EnhancerForm client:load />
-      </div>
+      </Card>
     </div>
   </main>
 </BaseLayout>

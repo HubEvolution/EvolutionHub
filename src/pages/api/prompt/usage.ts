@@ -6,8 +6,9 @@ import {
   createMethodNotAllowed,
 } from '@/lib/api-middleware';
 import type { OwnerType, Plan } from '@/config/ai-image';
-import { FREE_LIMIT_GUEST, FREE_LIMIT_USER } from '@/config/ai-image';
 import { getEntitlementsFor } from '@/config/ai-image/entitlements';
+import type { KVNamespace } from '@cloudflare/workers-types';
+import { getUsage as kvGetUsage, rollingDailyKey } from '@/lib/kv/usage';
 
 function ensureGuestIdCookie(context: APIContext): string {
   const existing = context.cookies.get('guest_id')?.value;
@@ -42,13 +43,47 @@ export const GET = withApiMiddleware(async (context) => {
   const ent = getEntitlementsFor(ownerType, plan);
 
   try {
-    const usage = { used: 0, limit: ent.dailyBurstCap, resetAt: null };
+    // Resolve quotas from env (authoritative for Prompt Enhancer usage)
+    const rawEnv = (locals.runtime?.env ?? {}) as Record<string, unknown>;
+    const kv = rawEnv.KV_PROMPT_ENHANCER as KVNamespace | undefined;
+    const useV2 = String(rawEnv.USAGE_KV_V2 || '') === '1';
+    const limitUser = parseInt(String(rawEnv.PROMPT_USER_LIMIT || '20'), 10);
+    const limitGuest = parseInt(String(rawEnv.PROMPT_GUEST_LIMIT || '5'), 10);
+    const effectiveLimit = ownerType === 'user' ? limitUser : limitGuest;
+
+    // Read usage from KV (rolling 24h window when USAGE_KV_V2=1)
+    let used = 0;
+    let resetAt: number | null = null;
+    if (kv) {
+      if (useV2) {
+        const keyV2 = rollingDailyKey('prompt', ownerType, ownerId);
+        const usageV2 = await kvGetUsage(kv as any, keyV2);
+        if (usageV2) {
+          used = usageV2.count || 0;
+          resetAt = usageV2.resetAt ? usageV2.resetAt * 1000 : null;
+        }
+      } else {
+        const key = `prompt:usage:${ownerType}:${ownerId}`;
+        const raw = await kv.get(key);
+        if (raw) {
+          try {
+            const parsed = JSON.parse(raw) as { count?: number; resetAt?: number };
+            used = typeof parsed.count === 'number' ? parsed.count : 0;
+            resetAt = typeof parsed.resetAt === 'number' ? parsed.resetAt : null;
+          } catch {
+            // ignore parse errors
+          }
+        }
+      }
+    }
+
+    const usage = { used, limit: effectiveLimit, resetAt };
     const resp = createApiSuccess({
       ownerType,
       usage,
       limits: {
-        user: FREE_LIMIT_USER,
-        guest: FREE_LIMIT_GUEST,
+        user: limitUser,
+        guest: limitGuest,
       },
       plan: ownerType === 'user' ? (plan ?? 'free') : undefined,
       entitlements: ent,
@@ -63,8 +98,8 @@ export const GET = withApiMiddleware(async (context) => {
                   return '';
                 }
               })(),
-              limitResolved: ent.dailyBurstCap,
-              env: String(locals.runtime?.env?.ENVIRONMENT || ''),
+              limitResolved: effectiveLimit,
+              env: String(rawEnv.ENVIRONMENT || ''),
             },
           }
         : {}),
@@ -75,7 +110,7 @@ export const GET = withApiMiddleware(async (context) => {
       resp.headers.set('Expires', '0');
       resp.headers.set('X-Usage-OwnerType', ownerType);
       resp.headers.set('X-Usage-Plan', ownerType === 'user' ? (plan ?? 'free') : '');
-      resp.headers.set('X-Usage-Limit', String(ent.dailyBurstCap));
+      resp.headers.set('X-Usage-Limit', String(effectiveLimit));
     } catch {
       // Ignore header setting failures
     }

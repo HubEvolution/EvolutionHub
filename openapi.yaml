@@ -752,6 +752,92 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiErrorResponse'
+  /api/webscraper/extract:
+    post:
+      summary: Extract webpage content
+      description: |
+        Extracts structured content from a public webpage with robots.txt compliance and quotas.
+        Secured via Same‑Origin checks and Double‑Submit CSRF on POST. Rate limited (10/min).
+      x-source: src/pages/api/webscraper/extract.ts
+      operationId: postWebscraperExtract
+      parameters:
+        - name: X-CSRF-Token
+          in: header
+          required: true
+          description: CSRF-Token; must match cookie 'csrf_token' (Double‑Submit)
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                url:
+                  type: string
+                options:
+                  type: object
+                  additionalProperties: true
+              required:
+                - url
+      responses:
+        "200":
+          description: Success — extracted content and usage info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebscraperExtractSuccessResponse'
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        "403":
+          description: Forbidden (feature flag off, CSRF/Origin, robots.txt blocked)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        "429":
+          description: Rate limit exceeded
+          headers:
+            Retry-After:
+              description: Seconds until the limit resets
+              schema:
+                type: integer
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+  /api/webscraper/usage:
+    get:
+      summary: Webscraper usage/limits
+      description: |
+        Returns current 24h usage and effective plan‑based limit for the current owner (user or guest with guest_id cookie).
+        Note: usage.limit is authoritative; static limits are legacy/debug only.
+      x-source: src/pages/api/webscraper/usage.ts
+      operationId: getWebscraperUsage
+      responses:
+        "200":
+          description: Usage/Limits
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsageSuccessResponse'
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
   /api/voice/stream:
     get:
       summary: Voice transcription stream (SSE)
@@ -1094,6 +1180,120 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiErrorResponse'
+  /api/prompt-enhance:
+    post:
+      summary: Prompt Enhancer – Text verbessern
+      description: |
+        Nimmt Text (optional mit Dateien) entgegen und liefert einen verbesserten Prompt zurück, inkl. Safety-Report und Usage.
+        Hinweis: usage.limit ist maßgeblich; Felder limits.user/guest spiegeln die statischen Quoten für Debug wider.
+      x-source: src/pages/api/prompt-enhance.ts
+      operationId: postPromptEnhance
+      parameters:
+        - name: X-CSRF-Token
+          in: header
+          required: true
+          description: CSRF-Token; muss mit Cookie 'csrf_token' übereinstimmen (Double-Submit-Pattern)
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                text:
+                  type: string
+                  minLength: 1
+                  maxLength: 1000
+                input:
+                  type: object
+                  properties:
+                    text:
+                      type: string
+                      minLength: 1
+                      maxLength: 1000
+                options:
+                  type: object
+                  additionalProperties: true
+                mode:
+                  type: string
+                  description: Legacy mode field; prefer options.mode
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                text:
+                  type: string
+                  minLength: 1
+                  maxLength: 1000
+                mode:
+                  type: string
+                file:
+                  type: string
+                  format: binary
+                files[]:
+                  type: string
+                  format: binary
+              required:
+                - text
+      responses:
+        "200":
+          description: Erfolg – Verbesserter Prompt und Usage
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PromptEnhanceSuccessResponse'
+        "400":
+          description: Validierungsfehler
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        "403":
+          description: Verboten (Feature deaktiviert oder Quota überschritten)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        "429":
+          description: Rate limit exceeded
+          headers:
+            Retry-After:
+              description: Seconds until the limit resets
+              schema:
+                type: integer
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        "500":
+          description: Serverfehler
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+  /api/prompt/usage:
+    get:
+      summary: Prompt-Nutzung/Limits abrufen
+      description: |
+        Liefert den aktuellen Usage-Stand und Limits (24h Fenster) für den aktuellen Besitzer (User oder Gast mit `guest_id`-Cookie).
+        Hinweis: usage.limit ist maßgeblich für UI und Validierungen; limits.* sind statische Quoten.
+      x-source: src/pages/api/prompt/usage.ts
+      operationId: getPromptUsage
+      responses:
+        "200":
+          description: Usage/Limits
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsageSuccessResponse'
+        "500":
+          description: Serverfehler
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
 components:
     schemas:
       GenericResponse:
@@ -1354,6 +1554,114 @@ components:
             enum: [true]
           data:
             $ref: '#/components/schemas/AiGenerateData'
+        required:
+          - success
+          - data
+      PromptEnhanceData:
+        type: object
+        properties:
+          enhancedPrompt:
+            type: string
+          safetyReport:
+            type: object
+            nullable: true
+            properties:
+              score:
+                type: number
+              warnings:
+                type: array
+                items:
+                  type: string
+          usage:
+            $ref: '#/components/schemas/UsageInfo'
+          limits:
+            type: object
+            properties:
+              user:
+                type: integer
+              guest:
+                type: integer
+      PromptEnhanceSuccessResponse:
+        type: object
+        properties:
+          success:
+            type: boolean
+            enum: [true]
+          data:
+            $ref: '#/components/schemas/PromptEnhanceData'
+        required:
+          - success
+          - data
+      WebscraperResult:
+        type: object
+        properties:
+          url:
+            type: string
+          title:
+            type: string
+          description:
+            type: string
+            nullable: true
+          text:
+            type: string
+          metadata:
+            type: object
+            properties:
+              author:
+                type: string
+                nullable: true
+              publishDate:
+                type: string
+                nullable: true
+              language:
+                type: string
+                nullable: true
+              charset:
+                type: string
+                nullable: true
+              ogImage:
+                type: string
+                nullable: true
+              ogTitle:
+                type: string
+                nullable: true
+              ogDescription:
+                type: string
+                nullable: true
+              twitterCard:
+                type: string
+                nullable: true
+              canonical:
+                type: string
+                nullable: true
+          links:
+            type: array
+            items:
+              type: string
+          images:
+            type: array
+            items:
+              type: string
+          scrapedAt:
+            type: string
+            description: ISO timestamp
+          robotsTxtAllowed:
+            type: boolean
+      WebscraperExtractData:
+        type: object
+        properties:
+          result:
+            $ref: '#/components/schemas/WebscraperResult'
+          usage:
+            $ref: '#/components/schemas/UsageInfo'
+      WebscraperExtractSuccessResponse:
+        type: object
+        properties:
+          success:
+            type: boolean
+            enum: [true]
+          data:
+            $ref: '#/components/schemas/WebscraperExtractData'
         required:
           - success
           - data

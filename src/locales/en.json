@@ -351,10 +351,26 @@
         "title_part2": "The future of AI‑assisted development",
         "subtitle": "Discover the power of AI‑powered tools to optimize your workflow and boost productivity.",
         "subtitle_poetic": "Where language becomes structure. Where data learns to dream.",
+        "typewriter_lines": [
+          "Where language becomes structure.",
+          "Where data learns to dream.",
+          "Where ideas become systems.",
+          "Where tools become partners.",
+          "Where workflows accelerate.",
+          "Where creativity meets engineering.",
+          "Where small teams build big things."
+        ],
         "get_started_button": "Get started",
         "documentation_link": "View documentation",
         "tools_link": "Browse our tools",
-        "typewriter": ["Imag‑Enhancer", "Prompt Enhancer", "Voice Transcriptor", "Webscraper"]
+        "typewriter": ["Imag‑Enhancer", "Prompt Enhancer", "Voice Transcriptor", "Webscraper"],
+        "status_labels": {
+          "infra": "Infra",
+          "image": "Image",
+          "prompt": "Prompt",
+          "voice": "Voice",
+          "web": "Webscraper"
+        }
       }
     },
     "blog": {

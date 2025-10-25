@@ -62,9 +62,11 @@ export default function ProfileFormEnhancer({ formId }: Props) {
         } catch {}
 
         if (res.ok && isJsonResponse(data) && data.success) {
-          const next = (formEl.querySelector('input[name="next"]') as HTMLInputElement | null)?.value;
+          const next = (formEl.querySelector('input[name="next"]') as HTMLInputElement | null)
+            ?.value;
           notify.success(
-            (data as ApiSuccess<{ message?: string }>).data?.message || 'Profile updated successfully'
+            (data as ApiSuccess<{ message?: string }>).data?.message ||
+              'Profile updated successfully'
           );
           if (next && typeof next === 'string') {
             window.location.assign(next);

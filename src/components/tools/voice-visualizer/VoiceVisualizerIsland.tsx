@@ -203,7 +203,7 @@ export default function VoiceVisualizerIsland({ strings, langHint }: Props) {
         <p className="text-gray-600 dark:text-gray-300">{strings.description}</p>
       </div>
 
-      <Card className="p-6 space-y-4">
+      <Card variant="holo" className="p-6 space-y-4">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <button
@@ -284,7 +284,7 @@ export default function VoiceVisualizerIsland({ strings, langHint }: Props) {
         )}
       </Card>
 
-      <Card className="p-6">
+      <Card variant="holo" className="p-6">
         <h2 className="text-lg font-semibold mb-3">{strings.transcript}</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-1">

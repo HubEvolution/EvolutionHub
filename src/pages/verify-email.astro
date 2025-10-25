@@ -4,6 +4,7 @@ import { getLocale } from '@/lib/i18n';
 import { localizePath } from '@/lib/locale-path';
 import { getI18n } from '@/utils/i18n';
 import VerifyEmailCoordinator from '@/components/scripts/VerifyEmailCoordinator.astro';
+import Card from '@/components/ui/Card';
 
 // URL-Parameter auslesen
 const url = Astro.url;
@@ -36,9 +37,7 @@ const maskedEmail = maskEmail(email);
 ---
 
 <AuthLayout title={t('pages.verifyEmail.title')}>
-  <div
-    class="relative p-6 rounded-2xl overflow-hidden bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-white/10 shadow-sm max-w-md mx-auto"
-  >
+  <Card as="div" className="relative p-6 rounded-2xl overflow-hidden max-w-md mx-auto">
     <!-- Success Icon -->
     <div class="text-center mb-6">
       <div
@@ -164,7 +163,7 @@ const maskedEmail = maskEmail(email);
       tabindex="-1"
     >
     </div>
-  </div>
+  </Card>
 
   <!-- Support Info -->
   <div class="text-center mt-6">

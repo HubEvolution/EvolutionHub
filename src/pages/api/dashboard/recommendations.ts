@@ -34,10 +34,12 @@ const docRecommendations = {
 } as const;
 
 export const GET = withAuthApiMiddleware(async (context) => {
+  const opStart = Date.now();
   const url = new URL(context.request.url);
   const localeParam = (url.searchParams.get('locale') ?? '').toLowerCase();
   const locale: Locale = localeParam === 'de' ? 'de' : 'en';
 
+  const genStart = Date.now();
   const tools = getAllTools(locale)
     .filter((tool) => !tool.comingSoon)
     .slice(0, 3)
@@ -48,9 +50,16 @@ export const GET = withAuthApiMiddleware(async (context) => {
       url: tool.url,
       iconKey: tool.iconKey,
     }));
+  const genDur = Date.now() - genStart;
 
-  return createApiSuccess({
+  const resp = createApiSuccess({
     tools,
     docs: docRecommendations[locale],
   });
+  try {
+    const total = Date.now() - opStart;
+    const timing = `gen;dur=${genDur}, total;dur=${total}`;
+    resp.headers.set('Server-Timing', timing);
+  } catch {}
+  return resp;
 });

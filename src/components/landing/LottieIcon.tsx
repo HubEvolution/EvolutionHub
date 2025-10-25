@@ -10,7 +10,14 @@ type Props = {
   onErrorFallback?: () => JSX.Element;
 };
 
-export default function LottieIcon({ src, className = '', loop = true, autoplay = true, ariaLabel, onErrorFallback }: Props) {
+export default function LottieIcon({
+  src,
+  className = '',
+  loop = true,
+  autoplay = true,
+  ariaLabel,
+  onErrorFallback,
+}: Props) {
   const ref = useRef<HTMLDivElement | null>(null);
   const animRef = useRef<AnimationItem | null>(null);
   const [failed, setFailed] = useState(false);
@@ -20,9 +27,12 @@ export default function LottieIcon({ src, className = '', loop = true, autoplay 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const io = new IntersectionObserver((entries) => {
-      setVisible(entries[0]?.isIntersecting ?? false);
-    }, { rootMargin: '100px' });
+    const io = new IntersectionObserver(
+      (entries) => {
+        setVisible(entries[0]?.isIntersecting ?? false);
+      },
+      { rootMargin: '100px' }
+    );
     io.observe(el);
     return () => io.disconnect();
   }, []);
@@ -39,7 +49,7 @@ export default function LottieIcon({ src, className = '', loop = true, autoplay 
         if (!visible || reduced) return; // defer heavy work until visible
         const [{ default: lottie }, res] = await Promise.all([
           import('lottie-web/build/player/lottie_light'),
-          fetch(src)
+          fetch(src),
         ]);
         if (!res.ok) throw new Error('lottie fetch failed');
         const data = await res.json();
@@ -50,10 +60,12 @@ export default function LottieIcon({ src, className = '', loop = true, autoplay 
           loop: reduced ? false : loop,
           autoplay: reduced ? false : autoplay,
           animationData: data,
-          rendererSettings: { progressiveLoad: true }
+          rendererSettings: { progressiveLoad: true },
         });
         if (reduced && animRef.current) {
-          try { animRef.current.goToAndStop(0, true); } catch {}
+          try {
+            animRef.current.goToAndStop(0, true);
+          } catch {}
         }
       } catch (e) {
         setFailed(true);
@@ -72,7 +84,10 @@ export default function LottieIcon({ src, className = '', loop = true, autoplay 
 
   // Pause/resume on visibility change
   useEffect(() => {
-    const reduced = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const reduced =
+      typeof window !== 'undefined' &&
+      window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const anim = animRef.current;
     if (!anim) return;
     try {
@@ -88,5 +103,12 @@ export default function LottieIcon({ src, className = '', loop = true, autoplay 
     return onErrorFallback();
   }
 
-  return <div ref={ref} className={className} role={ariaLabel ? 'img' : undefined} aria-label={ariaLabel} />;
+  return (
+    <div
+      ref={ref}
+      className={className}
+      role={ariaLabel ? 'img' : undefined}
+      aria-label={ariaLabel}
+    />
+  );
 }

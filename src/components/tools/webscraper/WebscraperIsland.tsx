@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type React from 'react';
 import { toast } from 'sonner';
 import { ensureCsrfToken } from '@/lib/security/csrf';
@@ -15,6 +15,8 @@ interface WebscraperStrings {
   processing: string;
   result: string;
   usage: string;
+  download?: string;
+  downloadJson?: string;
   toasts: {
     quotaReached: string;
     invalidUrl: string;
@@ -37,6 +39,30 @@ export default function WebscraperIsland({ strings }: WebscraperIslandProps) {
   const [usage, setUsage] = useState<UsageInfo | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  // API response helpers
+  type ApiError = { success: false; error: { type: string; message: string; details?: unknown } };
+  type ApiSuccess<T> = { success: true; data: T };
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const resp = await fetch('/api/webscraper/usage');
+        const data = (await resp.json()) as
+          | ApiSuccess<{ ownerType: string; usage: UsageInfo }>
+          | ApiError;
+        if (!cancelled && resp.ok && 'success' in data && data.success) {
+          setUsage((data as ApiSuccess<{ ownerType: string; usage: UsageInfo }>).data.usage);
+        }
+      } catch {
+        // swallow usage errors; UI can still function without initial usage
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const handleClear = () => {
     setUrl('');
     setResult(null);
@@ -49,6 +75,12 @@ export default function WebscraperIsland({ strings }: WebscraperIslandProps) {
     if (!url.trim()) {
       toast.error(strings.toasts.invalidUrl);
       setError(strings.toasts.invalidUrl);
+      return;
+    }
+
+    if (usage && usage.used >= usage.limit) {
+      toast.error(strings.toasts.quotaReached);
+      setError(strings.toasts.quotaReached);
       return;
     }
 
@@ -72,10 +104,13 @@ export default function WebscraperIsland({ strings }: WebscraperIslandProps) {
         body: JSON.stringify({ url: url.trim() }),
       });
 
-      const data = await response.json();
+      const data = (await response.json()) as
+        | ApiSuccess<{ result: ScrapingResult; usage: UsageInfo }>
+        | ApiError;
 
-      if (!response.ok || !data.success) {
-        const errorMessage = data.error?.message || strings.toasts.error;
+      if (!response.ok || !('success' in data && data.success)) {
+        const errorMessage =
+          'error' in data && data.error?.message ? data.error.message : strings.toasts.error;
 
         if (errorMessage.includes('quota exceeded')) {
           toast.error(strings.toasts.quotaReached);
@@ -99,8 +134,8 @@ export default function WebscraperIsland({ strings }: WebscraperIslandProps) {
         return;
       }
 
-      setResult(data.data.result);
-      setUsage(data.data.usage);
+      setResult((data as ApiSuccess<{ result: ScrapingResult; usage: UsageInfo }>).data.result);
+      setUsage((data as ApiSuccess<{ result: ScrapingResult; usage: UsageInfo }>).data.usage);
       toast.success(strings.toasts.success);
     } catch (error) {
       console.error('Scraping error:', error);
@@ -121,7 +156,7 @@ export default function WebscraperIsland({ strings }: WebscraperIslandProps) {
       </div>
 
       {/* Main Form Card */}
-      <Card className="p-6">
+      <Card variant="holo" className="p-6">
         <WebscraperForm
           url={url}
           onUrlChange={setUrl}
@@ -196,7 +231,14 @@ export default function WebscraperIsland({ strings }: WebscraperIslandProps) {
       {/* Results */}
       {result && (
         <div className="animate-fade-in">
-          <WebscraperResults result={result} strings={{ resultTitle: strings.result }} />
+          <WebscraperResults
+            result={result}
+            strings={{
+              resultTitle: strings.result,
+              download: strings.download ?? 'Download',
+              downloadJson: strings.downloadJson ?? 'Download JSON',
+            }}
+          />
         </div>
       )}
     </div>

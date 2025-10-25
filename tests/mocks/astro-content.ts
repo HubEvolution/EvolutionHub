@@ -1,9 +1,16 @@
-// Minimal mock for 'astro:content' used in unit tests
+// Minimal but configurable mock for 'astro:content' used in unit tests
 export type CollectionEntry = any;
+
+const __store: Record<string, any[]> = {};
+
+export function __setCollectionData(collectionName: string, entries: any[]) {
+  __store[collectionName] = Array.isArray(entries) ? [...entries] : [];
+}
+
 export async function getCollection(
-  _collectionName: string,
+  collectionName: string,
   filter?: (entry: any) => boolean
 ): Promise<any[]> {
-  const data: any[] = [];
-  return typeof filter === 'function' ? data.filter(filter) : data;
+  const data: any[] = __store[collectionName] || [];
+  return typeof filter === 'function' ? data.filter(filter) : [...data];
 }

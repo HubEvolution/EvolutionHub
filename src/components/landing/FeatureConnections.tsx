@@ -7,9 +7,17 @@ type Props = {
   speedMs?: number;
 };
 
-export default function FeatureConnections({ className = '', stroke = '#22d3ee', opacity = 0.25, speedMs = 9000 }: Props) {
+export default function FeatureConnections({
+  className = '',
+  stroke = '#22d3ee',
+  opacity = 0.25,
+  speedMs = 9000,
+}: Props) {
   const ref = useRef<SVGSVGElement | null>(null);
-  const prefersReduced = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const prefersReduced =
+    typeof window !== 'undefined' &&
+    window.matchMedia &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const [visible, setVisible] = useState(false);
 
   const paths = useMemo(() => {
@@ -26,9 +34,12 @@ export default function FeatureConnections({ className = '', stroke = '#22d3ee',
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const io = new IntersectionObserver((entries) => {
-      setVisible(entries[0]?.isIntersecting ?? false);
-    }, { rootMargin: '100px' });
+    const io = new IntersectionObserver(
+      (entries) => {
+        setVisible(entries[0]?.isIntersecting ?? false);
+      },
+      { rootMargin: '100px' }
+    );
     io.observe(el);
     return () => io.disconnect();
   }, []);

@@ -41,10 +41,7 @@ const { fallback } = Astro.props;
                 </p>
               </div>
               <div class="mt-4">
-                <button
-                  onclick="document.getElementById('error-boundary-root').style.display = 'block'; document.getElementById('error-boundary-fallback').classList.add('hidden'); location.reload();"
-                  class="rounded-md bg-red-50 px-2 py-1.5 text-sm font-medium text-red-800 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 focus:ring-offset-red-50 dark:bg-red-900/30 dark:text-red-200 dark:hover:bg-red-900/50"
-                >
+                <button class="rounded-md bg-red-50 px-2 py-1.5 text-sm font-medium text-red-800 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 focus:ring-offset-red-50 dark:bg-red-900/30 dark:text-red-200 dark:hover:bg-red-900/50">
                   Erneut versuchen
                 </button>
               </div>
@@ -56,69 +53,78 @@ const { fallback } = Astro.props;
   </div>
 </Fragment>
 
-<script is:inline>
-  // Client-side error boundary implementation
-  const initErrorBoundary = () => {
-    const errorBoundaryRoot = document.getElementById('error-boundary-root');
-    const errorBoundaryFallback = document.getElementById('error-boundary-fallback');
-
-    if (!errorBoundaryRoot || !errorBoundaryFallback) return;
-
-    // Store the original content
-    const originalContent = errorBoundaryRoot.innerHTML;
-
-    // Error handler for the boundary
-    const handleError = (error) => {
-      console.error('Error in ErrorBoundary:', error);
-      errorBoundaryRoot.style.display = 'none';
-      errorBoundaryFallback.classList.remove('hidden');
-
-      // Report the error to your error tracking service
-      if (typeof window !== 'undefined' && window.Sentry) {
-        window.Sentry.captureException(error);
+<script is:inline nonce={Astro.locals.cspNonce}>
+  (function () {
+    try {
+      if (typeof window !== 'undefined') {
+        if (window.__errorBoundaryInitialized) return;
+        window.__errorBoundaryInitialized = true;
       }
-    };
 
-    // Add error event listeners
-    window.addEventListener('error', (event) => {
-      // Only handle errors that originate from within our boundary
-      if (event.target !== window && errorBoundaryRoot.contains(event.target)) {
-        handleError(event.error || new Error('Unknown error'));
-        event.preventDefault();
-      }
-    });
+      // Client-side error boundary implementation (scoped)
+      const initErrorBoundary = () => {
+        const errorBoundaryRoot = document.getElementById('error-boundary-root');
+        const errorBoundaryFallback = document.getElementById('error-boundary-fallback');
 
-    // Catch unhandled promise rejections
-    window.addEventListener('unhandledrejection', (event) => {
-      handleError(event.reason || new Error('Unhandled promise rejection'));
-      event.preventDefault();
-    });
+        if (!errorBoundaryRoot || !errorBoundaryFallback) return;
 
-    // Reset handler for the retry button
-    const resetBoundary = () => {
-      errorBoundaryRoot.style.display = 'block';
-      errorBoundaryRoot.innerHTML = originalContent;
-      errorBoundaryFallback.classList.add('hidden');
-    };
+        // Store the original content
+        const originalContent = errorBoundaryRoot.innerHTML;
 
-    const retryButton = errorBoundaryFallback.querySelector('button');
-    if (retryButton) {
-      retryButton.onclick = () => {
-        resetBoundary();
-        // Reload the page instead of trying to access Astro object
-        window.location.reload();
+        // Error handler for the boundary
+        const handleError = (error) => {
+          try {
+            console.error('Error in ErrorBoundary:', error);
+          } catch {}
+          errorBoundaryRoot.style.display = 'none';
+          errorBoundaryFallback.classList.remove('hidden');
+
+          // Report the error to your error tracking service
+          try {
+            if (typeof window !== 'undefined' && window.Sentry) {
+              window.Sentry.captureException(error);
+            }
+          } catch {}
+        };
+
+        // Add error event listeners
+        window.addEventListener('error', (event) => {
+          // Only handle errors that originate from within our boundary
+          if (event.target !== window && errorBoundaryRoot.contains(event.target)) {
+            handleError(event.error || new Error('Unknown error'));
+            event.preventDefault();
+          }
+        });
+
+        // Catch unhandled promise rejections
+        window.addEventListener('unhandledrejection', (event) => {
+          handleError(event.reason || new Error('Unhandled promise rejection'));
+          event.preventDefault();
+        });
+
+        // Reset handler for the retry button
+        const resetBoundary = () => {
+          errorBoundaryRoot.style.display = 'block';
+          errorBoundaryRoot.innerHTML = originalContent;
+          errorBoundaryFallback.classList.add('hidden');
+        };
+
+        const retryButton = errorBoundaryFallback.querySelector('button');
+        if (retryButton) {
+          retryButton.onclick = () => {
+            resetBoundary();
+            // Reload the page instead of trying to access Astro object
+            window.location.reload();
+          };
+        }
       };
-    }
-  };
 
-  // Initialize ErrorBoundary safely
-  document.addEventListener('DOMContentLoaded', initErrorBoundary);
-
-  // Also initialize immediately if DOM is already loaded
-  if (document.readyState === 'loading') {
-    // DOM still loading, event listener will handle it
-  } else {
-    // DOM already loaded, initialize immediately
-    initErrorBoundary();
-  }
+      // Initialize ErrorBoundary safely
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initErrorBoundary, { once: true });
+      } else {
+        initErrorBoundary();
+      }
+    } catch (_) {}
+  })();
 </script>

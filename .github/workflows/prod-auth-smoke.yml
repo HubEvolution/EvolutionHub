@@ -43,10 +43,29 @@ jobs:
         run: |
           echo "POSTing to ${TEST_BASE_URL}/api/auth/magic/request with STYTCH_TEST_EMAIL=${STYTCH_TEST_EMAIL}"
           set -o pipefail
+          TOKEN=$(openssl rand -hex 16)
           curl -i -X POST "${TEST_BASE_URL}/api/auth/magic/request" \
             -H "Origin: https://hub-evolution.com" \
+            -H "X-CSRF-Token: ${TOKEN}" \
+            -H "Cookie: csrf_token=${TOKEN}" \
             -H "Content-Type: application/json" \
             --data "{\"email\":\"${STYTCH_TEST_EMAIL}\",\"r\":\"/dashboard\",\"locale\":\"en\"}"
+
+      - name: "Preflight: GET /en/login (check OAuth link)"
+        run: |
+          set -o pipefail
+          HTML=$(curl -s "${TEST_BASE_URL}/en/login")
+          echo "$HTML" | sed -n '1,80p'
+          echo "$HTML" | grep -E "login-(test\.)?hub-evolution\.com|/api/auth/oauth/" >/dev/null || {
+            echo "Expected OAuth link not found on login page" >&2; exit 1; }
+
+      - name: "Smoke: OAuth callback with invalid token yields login error redirect"
+        run: |
+          set -o pipefail
+          RES=$(curl -i "${TEST_BASE_URL}/api/auth/oauth/github/callback?stytch_token_type=oauth&token=invalid-token" | sed -n '1,20p')
+          echo "$RES"
+          echo "$RES" | grep -E "^Location: .*/login\?magic_error=|^HTTP/.* 302" >/dev/null || {
+            echo "Expected 302 redirect to login with error from OAuth callback" >&2; exit 1; }
 
       - name: Run Prod Auth Smoke (hub-evolution.com) – chromium only
         run: |

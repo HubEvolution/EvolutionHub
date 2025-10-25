@@ -7,7 +7,9 @@ describe('Spam Detection', () => {
       const result = checkSpam('Buy now! Click here for free viagra!');
       expect(result.isSpam).toBe(true);
       expect(result.confidence).toBeGreaterThan(0.5);
-      const reasonsText = Array.isArray(result.reasons) ? result.reasons.join(' | ') : String(result.reasons);
+      const reasonsText = Array.isArray(result.reasons)
+        ? result.reasons.join(' | ')
+        : String(result.reasons);
       expect(reasonsText).toContain('Spam keywords');
     });
 
@@ -23,21 +25,27 @@ describe('Spam Detection', () => {
         { strictness: 'high' }
       );
       expect(result.isSpam).toBe(true);
-      const reasonsText = Array.isArray(result.reasons) ? result.reasons.join(' | ') : String(result.reasons);
+      const reasonsText = Array.isArray(result.reasons)
+        ? result.reasons.join(' | ')
+        : String(result.reasons);
       expect(reasonsText).toContain('Excessive links');
     });
 
     it('should detect blacklisted URL shorteners', () => {
       const result = checkSpam('Visit http://bit.ly/abc123 for more info', { strictness: 'high' });
       expect(result.isSpam).toBe(true);
-      const reasonsText = Array.isArray(result.reasons) ? result.reasons.join(' | ') : String(result.reasons);
+      const reasonsText = Array.isArray(result.reasons)
+        ? result.reasons.join(' | ')
+        : String(result.reasons);
       expect(reasonsText).toContain('Blacklisted URL');
     });
 
     it('should detect excessive caps lock', () => {
       const result = checkSpam('THIS IS ALL CAPS AND VERY SUSPICIOUS!!!', { strictness: 'high' });
       expect(result.isSpam).toBe(true);
-      const reasonsText = Array.isArray(result.reasons) ? result.reasons.join(' | ') : String(result.reasons);
+      const reasonsText = Array.isArray(result.reasons)
+        ? result.reasons.join(' | ')
+        : String(result.reasons);
       expect(reasonsText.toLowerCase()).toContain('caps lock');
     });
 

@@ -14,7 +14,6 @@ import {
   createApiError,
   createMethodNotAllowed,
 } from '@/lib/api-middleware';
-import { FREE_LIMIT_GUEST, FREE_LIMIT_USER } from '@/config/ai-image';
 import { PromptEnhancerService } from '@/lib/services/prompt-enhancer-service';
 import { createRateLimiter } from '@/lib/rate-limiter';
 import type {
@@ -23,6 +22,7 @@ import type {
   EnhanceResult,
 } from '@/lib/services/prompt-enhancer-service';
 import { validateFiles, buildAttachmentContext } from '@/lib/services/prompt-attachments';
+import { TEXT_LENGTH_MAX } from '@/config/prompt-enhancer';
 
 interface PromptEnhancerEnv {
   KV_PROMPT_ENHANCER?: KVNamespace;
@@ -35,6 +35,9 @@ interface PromptEnhancerEnv {
   PROMPT_OUTPUT_TOKENS_MAX?: string;
   PROMPT_TEMPERATURE?: string;
   PROMPT_TOP_P?: string;
+  PROMPT_USER_LIMIT?: string;
+  PROMPT_GUEST_LIMIT?: string;
+  USAGE_KV_V2?: string;
 }
 
 interface JsonPromptRequest {
@@ -87,6 +90,8 @@ export const POST = withApiMiddleware(
       const form = await request.formData();
       const text = String(form.get('text') || '').trim();
       if (!text) return createApiError('validation_error', 'Input text is required');
+      if (text.length > TEXT_LENGTH_MAX)
+        return createApiError('validation_error', `Input text too long (max ${TEXT_LENGTH_MAX})`);
       const modeRaw = String(form.get('mode') || 'agent');
       const files: File[] = [];
       for (const [key, val] of form.entries()) {
@@ -119,6 +124,8 @@ export const POST = withApiMiddleware(
         if (!input.text || typeof input.text !== 'string' || input.text.trim().length === 0) {
           return createApiError('validation_error', 'Input text is required');
         }
+        if (input.text.trim().length > TEXT_LENGTH_MAX)
+          return createApiError('validation_error', `Input text too long (max ${TEXT_LENGTH_MAX})`);
         const bodyOptions = body.options ?? {};
         const legacyMode = typeof body.mode === 'string' ? body.mode : undefined;
         options = {
@@ -163,6 +170,11 @@ export const POST = withApiMiddleware(
       PROMPT_TEMPERATURE:
         typeof rawEnv.PROMPT_TEMPERATURE === 'string' ? rawEnv.PROMPT_TEMPERATURE : undefined,
       PROMPT_TOP_P: typeof rawEnv.PROMPT_TOP_P === 'string' ? rawEnv.PROMPT_TOP_P : undefined,
+      PROMPT_USER_LIMIT:
+        typeof rawEnv.PROMPT_USER_LIMIT === 'string' ? rawEnv.PROMPT_USER_LIMIT : undefined,
+      PROMPT_GUEST_LIMIT:
+        typeof rawEnv.PROMPT_GUEST_LIMIT === 'string' ? rawEnv.PROMPT_GUEST_LIMIT : undefined,
+      USAGE_KV_V2: typeof rawEnv.USAGE_KV_V2 === 'string' ? rawEnv.USAGE_KV_V2 : undefined,
     };
     if (env.PUBLIC_PROMPT_ENHANCER_V1 === 'false') {
       return createApiError('forbidden', 'Feature not enabled');
@@ -178,6 +190,9 @@ export const POST = withApiMiddleware(
       PROMPT_OUTPUT_TOKENS_MAX: env.PROMPT_OUTPUT_TOKENS_MAX,
       PROMPT_TEMPERATURE: env.PROMPT_TEMPERATURE,
       PROMPT_TOP_P: env.PROMPT_TOP_P,
+      PROMPT_USER_LIMIT: env.PROMPT_USER_LIMIT,
+      PROMPT_GUEST_LIMIT: env.PROMPT_GUEST_LIMIT,
+      USAGE_KV_V2: env.USAGE_KV_V2,
     });
 
     try {
@@ -216,7 +231,10 @@ export const POST = withApiMiddleware(
           ? { score: 0, warnings: result.safetyReport.masked }
           : undefined,
         usage: result.usage,
-        limits: { user: FREE_LIMIT_USER, guest: FREE_LIMIT_GUEST },
+        limits: {
+          user: parseInt(String(rawEnv.PROMPT_USER_LIMIT || '20'), 10),
+          guest: parseInt(String(rawEnv.PROMPT_GUEST_LIMIT || '5'), 10),
+        },
       });
     } catch (err) {
       if (err instanceof Error && err.message.includes('quota exceeded')) {

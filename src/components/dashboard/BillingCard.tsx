@@ -114,7 +114,7 @@ export default function BillingCard({ summary, strings, manageLink = '/pricing' 
           <span className="text-sm font-medium text-slate-300">{statusLabel}</span>
         </div>
 
-        {state?.creditsRemaining !== null && (
+        {state && state.creditsRemaining !== null && (
           <div className="flex flex-col gap-1">
             <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">
               {strings.credits}

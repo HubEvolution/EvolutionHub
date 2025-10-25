@@ -79,7 +79,7 @@ const planClasses =
         {t('pages.dashboard.profile.settings') ?? 'Edit settings'}
       </a>
       {
-        plan === 'free' && (
+        plan === 'free' &&
           (() => {
             const base = localizePath(locale, '/pricing');
             let href = base;
@@ -101,7 +101,6 @@ const planClasses =
               </a>
             );
           })()
-        )
       }
       <a
         href="/api/user/logout"

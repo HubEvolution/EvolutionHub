@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import WebscraperIsland from '@/components/tools/webscraper/WebscraperIsland';
+import Card from '@/components/ui/Card';
 
 const strings = {
   title: 'Webscraper',
@@ -10,6 +11,8 @@ const strings = {
   processing: 'Processing...',
   result: 'Result',
   usage: 'Usage',
+  download: 'Download',
+  downloadJson: 'Download JSON',
   toasts: {
     quotaReached: 'Daily limit reached',
     invalidUrl: 'Invalid URL',
@@ -28,7 +31,9 @@ const strings = {
 >
   <main class="min-h-screen bg-transparent py-12 px-4 sm:px-6 lg:px-8">
     <div class="max-w-4xl mx-auto">
-      <WebscraperIsland client:load strings={strings} />
+      <Card as="div" className="p-4 sm:p-6">
+        <WebscraperIsland client:load strings={strings} />
+      </Card>
     </div>
   </main>
 </BaseLayout>

@@ -15,7 +15,7 @@ Der **Prompt Enhancer** transformiert einfache Text-Eingaben in strukturierte, a
 - 🎯 **Drei Modi**: Creative, Professional, Concise
 - 🔒 **PII-Safety**: Automatische Maskierung von sensiblen Daten (E-Mails, Telefonnummern)
 - 🌍 **i18n**: Mehrsprachig (DE/EN)
-- 📊 **Quota-System**: Guest (3/Tag) vs. User (20/Tag)
+- 📊 **Quota-System**: Guest (5/Tag) vs. User (20/Tag)
 - ⚡ **Rate-Limiting**: 15 Requests/Minute
 
 ---
@@ -72,9 +72,9 @@ src/components/tools/prompt-enhancer/
 
 ### Quota-Limits
 
-**Default-Limits** (überschreibbar via `FREE_LIMIT_USER`/`FREE_LIMIT_GUEST`):
+**Default-Limits** (überschreibbar via `PROMPT_USER_LIMIT`/`PROMPT_GUEST_LIMIT`):
 
-- **Guest**: 3 Enhances/Tag
+- **Guest**: 5 Enhances/Tag
 - **User**: 20 Enhances/Tag
 
 **Rate-Limit** (`src/pages/api/prompt-enhance.ts:26-30`):
@@ -388,6 +388,8 @@ Input: "Create unit tests for this API spec"
 
 ### POST `/api/prompt-enhance`
 
+Hinweis: Unsichere Methoden erfordern Same‑Origin und Double‑Submit CSRF (Header `X-CSRF-Token` muss dem Cookie `csrf_token` entsprechen).
+
 **Request (JSON)**:
 
 ```json
@@ -429,7 +431,7 @@ files[]: [image.png]
     },
     "limits": {
       "user": 20,
-      "guest": 3
+      "guest": 5
     }
   }
 }
@@ -587,10 +589,10 @@ PROMPT_VISION_MODEL = 'gpt-4o-mini'; // Muss Vision-fähig sein
 
 ## 🔗 Verwandte Dokumentation
 
-- **API-Middleware**: [docs/architecture/api-middleware.md](../architecture/api-middleware.md)
+- **API & Security (CSRF/Origin)**: [docs/api/README.md](../api/README.md)
 - **Rate-Limiting**: [docs/SECURITY.md](../SECURITY.md#1-rate-limiting)
 - **OpenAI-Integration**: [docs/architecture/system-overview.md](../architecture/system-overview.md#external-services)
-- **Telemetry**: [docs/development/telemetry.md](../development/telemetry.md)
+- **Telemetry (Prompt‑Enhancer)**: [docs/api/README.md](../api/README.md)
 
 ---
 

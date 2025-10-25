@@ -11,16 +11,30 @@ interface Props {
   elementId: string; // ID des DOM-Elements, das den Typewriter-Text anzeigen soll
   texts: TypewriterText[]; // Array von Texten und ggf. Delays
   defaultDelay?: number; // Standard-Delay für Animationen (wenn nicht pro Text definiert)
+  loop?: boolean; // Ob die Animation nach dem letzten Text neu beginnt
+  smallScreenDelay?: number;
+  smallScreenMaxWidth?: number;
 }
 
 // Props mit Standardwerten
-const { elementId = 'typewriter', texts = [], defaultDelay = 100 } = Astro.props;
+const {
+  elementId = 'typewriter',
+  texts = [],
+  defaultDelay = 100,
+  loop = true,
+  smallScreenDelay = undefined,
+  smallScreenMaxWidth = 768,
+} = Astro.props;
 ---
 
 <!-- Kein direktes Markup nötig, nur das Client-Script -->
-<script is:inline define:vars={{ elementId, texts, defaultDelay }} nonce={Astro.locals.cspNonce}>
+<script
+  is:inline
+  define:vars={{ elementId, texts, defaultDelay, loop, smallScreenDelay, smallScreenMaxWidth }}
+  nonce={Astro.locals.cspNonce}
+>
   // Typewriter-Funktion direkt hier definieren
-  const runTypewriter = (targetElementId, textArray, baseDelay = 100) => {
+  const runTypewriter = (targetElementId, textArray, baseDelay = 100, shouldLoop = true) => {
     const element = document.getElementById(targetElementId);
     if (!element) {
       console.error(`Element with ID "${targetElementId}" not found.`);
@@ -39,6 +53,11 @@ const { elementId = 'typewriter', texts = [], defaultDelay = 100 } = Astro.props
     let charIndex = 0;
     let typingTimeout;
 
+    // Vor Start: SSR/Fallback-Text leeren, damit nur getypte Zeilen sichtbar sind
+    try {
+      element.textContent = '';
+    } catch {}
+
     // Text-Zeichen für Zeichen anzeigen
     const type = () => {
       if (currentIndex < textArray.length) {
@@ -48,6 +67,10 @@ const { elementId = 'typewriter', texts = [], defaultDelay = 100 } = Astro.props
           charIndex++;
           typingTimeout = setTimeout(type, baseDelay);
         } else {
+          // Wenn letzter Text erreicht und nicht loopen: hier stoppen (nicht löschen)
+          if (currentIndex === textArray.length - 1 && !shouldLoop) {
+            return;
+          }
           // Nach dem Tippen eines Textes eine Weile warten, bevor gelöscht wird
           setTimeout(erase, textArray[currentIndex].delay || baseDelay * 5);
         }
@@ -64,7 +87,11 @@ const { elementId = 'typewriter', texts = [], defaultDelay = 100 } = Astro.props
         // Nach dem Löschen zum nächsten Text wechseln
         currentIndex++;
         if (currentIndex >= textArray.length) {
-          currentIndex = 0; // Zurück zum Anfang springen
+          if (shouldLoop) {
+            currentIndex = 0; // Zurück zum Anfang springen
+          } else {
+            return; // Nicht erneut starten
+          }
         }
         const nextDelay = textArray[currentIndex].delay || baseDelay;
         typingTimeout = setTimeout(type, nextDelay);
@@ -90,7 +117,14 @@ const { elementId = 'typewriter', texts = [], defaultDelay = 100 } = Astro.props
     } catch (e) {
       console.warn('[Typewriter] Cleanup failed or not set:', e);
     }
-    cleanup = runTypewriter(elementId, texts, defaultDelay);
+    let effDelay = defaultDelay;
+    try {
+      const w = window.innerWidth || document.documentElement.clientWidth || 0;
+      if (typeof smallScreenDelay === 'number' && w < (smallScreenMaxWidth || 768)) {
+        effDelay = smallScreenDelay;
+      }
+    } catch {}
+    cleanup = runTypewriter(elementId, texts, effDelay, loop);
   }
 
   if (document.readyState !== 'loading') {

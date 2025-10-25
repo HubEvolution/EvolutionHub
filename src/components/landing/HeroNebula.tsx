@@ -124,7 +124,7 @@ export default function HeroNebula({ className = '', motionLevel = 2 }: Props) {
   }, [motionLevel]);
 
   return (
-    <div className={"absolute inset-0 pointer-events-none " + className} aria-hidden="true">
+    <div className={'absolute inset-0 pointer-events-none ' + className} aria-hidden="true">
       <canvas ref={canvasRef} className="w-full h-full block" />
     </div>
   );
