@@ -1,47 +1,26 @@
+---
+description: 'Teststrategie, Coverage-Ziele, Testorganisation und Best Practices für Evolution Hub'
+owner: 'QA Team'
+priority: 'high'
+lastSync: '2025-10-27'
+codeRefs: 'vitest.config.ts, playwright.config.ts, tests/'
+testRefs: 'tests/unit, tests/integration, test-suite-v2'
+---
+
 # Testing Documentation
 
-Diese Dokumentation beschreibt die Teststrategie, Coverage-Ziele, Testorganisation und Best Practices für Evolution Hub.
+**Scope** — Diese Kategorie definiert die Teststrategie, Coverage-Ziele und Best Practices für Evolution Hub. Umfasst Unit-, Integration- und E2E-Tests sowie Testwerkzeuge (Vitest, Playwright). Zielgruppe sind QA-Ingenieure und Entwickler. Nicht enthalten: Produktionsmonitoring (→ Ops-Kategorie) oder UI/UX-Testing-Details (→ Frontend-Kategorie).
 
-## Übersicht
+## Primärdokumente
 
-Evolution Hub nutzt einen umfassenden Testing-Ansatz:
+- **[Testing Strategy](./testing-strategy.md)** — **Hauptdokument** für umfassende Teststrategie (Philosophie, Ebenen, Tools)
+- **[Coverage Roadmap](./coverage-roadmap-to-95.md)** — Strategischer Plan für 95% Coverage (Baseline, Phasen, Ressourcen)
 
-- **Testing Framework**: Vitest für Unit- und Integrationstests
-- **E2E Framework**: Playwright (gegen Wrangler Dev oder Staging)
-- **Coverage-Ziel**: Minimum 70% (Projektvorgabe), Langfristziel 95%
-- **Test-Pyramide**: 60% Unit, 30% Integration, 10% E2E
-- **CI/CD-Integration**: Automatische Tests in GitHub Actions
+## Sekundär-/Spezialdokumente
 
-Siehe auch: [../development/testing-guidelines.md](../development/testing-guidelines.md) für Entwicklungs-spezifische Richtlinien
-
-## Strategische Dokumentation
-
-### Test Strategy & Coverage
-
-- **[Testing Strategy](./testing-strategy.md)** — **Hauptdokument** für umfassende Teststrategie
-  - Testphilosophie (TDD, Automatisierung, Pyramidenansatz)
-  - Testebenen (Unit, Integration, E2E)
-  - Testwerkzeuge (Vitest, Playwright, MSW)
-  - Testabdeckungsziele (80% gesamt, 90% kritisch)
-  - Testorganisation und CI-Integration
-  - Testdaten-Management und Mocking-Strategien
-  - Fehlerbehebung und Debugging
-
-- **[Coverage Roadmap zu 95%](./coverage-roadmap-to-95.md)** — Strategischer Plan für Coverage-Verbesserung
-  - Baseline-Analyse (aktuell ~30%)
-  - Gap-Priorisierung (Hochrisiko: AI-Services, Mittel: UI, Niedrig: Utilities)
-  - 5-Phasen-Roadmap (AI/APIs → Auth/Dashboard → UI → Utilities → Optimierung)
-  - Ressourcen und Aufwandsschätzung (100-150 Stunden über 4-6 Wochen)
-  - Risiken und Fortschrittstracking
-  - CI-Threshold-Strategie
-
-## Praktische Richtlinien
-
-- **[Testing Guidelines](../development/testing-guidelines.md)** — Verbindliche Praktiken für Tests
-  - AAA-Muster (Arrange, Act, Assert)
-  - Namenskonventionen und Struktur
-  - Cleanup und Mock-Verwaltung
-  - Test-Layer-Definitionen
+- **[Testing Guidelines](../development/testing-guidelines.md)** — Verbindliche Praktiken (AAA-Muster, Namenskonventionen)
+- **[Test Setup](./test-setup.md)** — Konfiguration von Vitest, Playwright und Test-Utilities
+- **[Mocking Guidelines](./mocking-guidelines.md)** — Mocking-Strategien für Services und APIs
 
 ## Test-Strategie im Detail
 
@@ -122,6 +101,75 @@ export BASE_URL="..." && npm run test:e2e  # Gegen Remote-Server
 API-Mocking für Tests ohne echte Backend-Aufrufe.
 
 **Verwendung:** `test/mocks/handlers.ts` für zentrale Mock-Definitionen
+
+## Cross-Referenzen
+
+- **[Development](../development/)** — Testing-Guidelines und CI/CD-Integration
+- **[API](../api/)** — API-Test-Beispiele und Endpunkt-Validierung
+- **[Frontend](../frontend/)** — UI-Komponenten-Tests und Accessibility-Testing
+- **[Security](../security/)** — Security-Tests und Penetration-Testing
+
+## Ownership & Maintenance
+
+**Owner:** QA Team (Lead: QA Lead)
+**Update-Frequenz:** Monatlich oder bei Änderungen der Test-Tools/Konfiguration
+**Review-Prozess:** Peer-Review durch QA Team + Entwickler-Feedback
+**Eskalation:** Bei Test-Infrastruktur-Problemen → Tech Lead
+
+## Standards & Konventionen
+
+- **Test-Format:** AAA-Muster (Arrange, Act, Assert)
+- **Coverage-Ziel:** Global 70%, kritische Pfade 95%
+- **Test-Organisation:** Unit-Tests neben Source-Code, Integration in `tests/integration/`, E2E in `test-suite-v2/`
+- **Mocking:** MSW für API-Calls, Drizzle-Mocks für DB-Interaktionen
+- **Sprache:** Englisch für Test-Namen und Kommentare
+
+## Bekannte Lücken
+
+- [TODO] Visuelle Regressionstests für UI-Komponenten
+- [TODO] Performance-Tests für API-Endpunkte
+- [TODO] Accessibility-Tests (a11y) für Frontend-Komponenten
+
+## Übersicht
+
+Evolution Hub nutzt einen umfassenden Testing-Ansatz:
+
+- **Testing Framework**: Vitest für Unit- und Integrationstests
+- **E2E Framework**: Playwright (gegen Wrangler Dev oder Staging)
+- **Coverage-Ziel**: Minimum 70% (Projektvorgabe), Langfristziel 95%
+- **Test-Pyramide**: 60% Unit, 30% Integration, 10% E2E
+- **CI/CD-Integration**: Automatische Tests in GitHub Actions
+
+Siehe auch: [../development/testing-guidelines.md](../development/testing-guidelines.md) für Entwicklungs-spezifische Richtlinien
+
+## Strategische Dokumentation
+
+### Test Strategy & Coverage
+
+- **[Testing Strategy](./testing-strategy.md)** — **Hauptdokument** für umfassende Teststrategie
+  - Testphilosophie (TDD, Automatisierung, Pyramidenansatz)
+  - Testebenen (Unit, Integration, E2E)
+  - Testwerkzeuge (Vitest, Playwright, MSW)
+  - Testabdeckungsziele (80% gesamt, 90% kritisch)
+  - Testorganisation und CI-Integration
+  - Testdaten-Management und Mocking-Strategien
+  - Fehlerbehebung und Debugging
+
+- **[Coverage Roadmap zu 95%](./coverage-roadmap-to-95.md)** — Strategischer Plan für Coverage-Verbesserung
+  - Baseline-Analyse (aktuell ~30%)
+  - Gap-Priorisierung (Hochrisiko: AI-Services, Mittel: UI, Niedrig: Utilities)
+  - 5-Phasen-Roadmap (AI/APIs → Auth/Dashboard → UI → Utilities → Optimierung)
+  - Ressourcen und Aufwandsschätzung (100-150 Stunden über 4-6 Wochen)
+  - Risiken und Fortschrittstracking
+  - CI-Threshold-Strategie
+
+## Praktische Richtlinien
+
+- **[Testing Guidelines](../development/testing-guidelines.md)** — Verbindliche Praktiken für Tests
+  - AAA-Muster (Arrange, Act, Assert)
+  - Namenskonventionen und Struktur
+  - Cleanup und Mock-Verwaltung
+  - Test-Layer-Definitionen
 
 ## Coverage-Ziele
 

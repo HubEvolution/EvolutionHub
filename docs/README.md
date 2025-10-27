@@ -1,6 +1,27 @@
+---
+description: 'Hauptdokumentation für Evolution Hub - Architektur, Entwicklung, Deployment und Features'
+owner: 'Documentation Team'
+priority: 'high'
+lastSync: '2025-10-27'
+codeRefs: 'docs/, scripts/, package.json'
+testRefs: 'test-suite-v2/, tests/'
+---
+
 # Evolution Hub Documentation
 
-Willkommen zur Evolution Hub Dokumentation. Diese Dokumentation bietet umfassende Informationen zu Architektur, Entwicklung, Deployment, Testing und Sicherheit.
+**Scope** — Diese Hauptdokumentation bietet den zentralen Einstiegspunkt in alle Aspekte von Evolution Hub. Umfasst Architektur, Entwicklung, Testing, Security und operative Dokumentation. Zielgruppe sind alle Projektbeteiligten: Entwickler, Architekten, QA und Operations. Nicht enthalten: Code-Implementation-Details (→ spezifische Kategorien).
+
+## Primärdokumente
+
+- **[SETUP.md](./SETUP.md)** — **Hauptdokument** für Projekt-Setup und Schnellstart
+- **[Architecture Overview](./architecture.md)** — Technische Architektur und Tech-Stack
+- **[Development Guide](./development/README.md)** — Entwicklungs-Workflows und Best Practices
+
+## Sekundär-/Spezialdokumente
+
+- **[Cheat Sheet](./cheat-sheet.md)** — Schnellreferenz für Kommandos und Workflows
+- **[Content Management](./content.md)** — Content-Guidelines und SEO
+- **[i18n Guide](./i18n.md)** — Internationalisierung und Locale-Management
 
 ## 📚 Dokumentations-Kategorien
 
@@ -89,6 +110,33 @@ Willkommen zur Evolution Hub Dokumentation. Diese Dokumentation bietet umfassend
 2. **[Frontend: UI Components](./frontend/ui-components.md)** — Komponenten-Leitfaden
 3. **[Frontend: UI/UX Guidelines](./frontend/ui-ux.md)** — UX-Prinzipien und Best Practices
 4. **[Animation](./animation.md)** — Typewriter-Animation und Implementation
+
+## Cross-Referenzen
+
+- **[Features](./features/)** — Feature-spezifische Dokumentation
+- **[Tools](./tools/)** — Tool-spezifische Dokumentation (z. B. Webscraper)
+- **[Lead Magnets](./lead-magnets/)** — Marketing-Content und Lead-Generierung
+
+## Ownership & Maintenance
+
+**Owner:** Documentation Team (Lead: Technical Writer)
+**Update-Frequenz:** Bei strukturellen Änderungen oder neuen Kategorien
+**Review-Prozess:** Documentation-Review + Cross-Team-Feedback
+**Eskalation:** Bei Dokumentationskonflikten → Tech Lead
+
+## Standards & Konventionen
+
+- **Struktur:** Kategorien mit README-Index, Standard-Frontmatter
+- **Navigation:** Relative Links, keine Legacy-Routen
+- **Sprache:** Deutsch (technische Begriffe auf Englisch)
+- **Updates:** Bei Code-Änderungen entsprechende Dokumentation aktualisieren
+- **Tools:** Markdownlint, Prettier, automatisierte Link-Checks
+
+## Bekannte Lücken
+
+- [TODO] Vollständige Tool-Dokumentation (Webscraper, Voice Visualizer)
+- [TODO] Produktions-Readiness-Checklisten
+- [TODO] Multi-Language-Dokumentation (DE/EN)
 
 ## 📖 Wichtige Root-Dokumente
 
@@ -221,4 +269,4 @@ Bei Dokumentations-Verbesserungen:
 
 ---
 
-**Letzte Aktualisierung:** 2025-10-01 (Phase 6: Dokumentations-Refactoring)
+**Letzte Aktualisierung:** 2025-10-27 (Refakturierung abgeschlossen)

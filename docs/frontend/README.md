@@ -1,6 +1,90 @@
+---
+description: 'UI/UX-Design, Komponenten, Animationen und Design System für Evolution Hub'
+owner: 'Frontend Team'
+priority: 'high'
+lastSync: '2025-10-27'
+codeRefs: 'src/components, src/styles, src/layouts'
+testRefs: 'tests/unit/components, test-suite-v2/src/e2e'
+---
+
 # Frontend Documentation
 
-Diese Dokumentation beschreibt die Frontend-Architektur, UI/UX-Design, Komponenten und Animationen von Evolution Hub.
+**Scope** — Diese Kategorie dokumentiert das Frontend-Design-System, UI-Komponenten, Animationen und Feature-Upgrades für Evolution Hub. Umfasst Astro-Komponenten, React Islands, Styling und UX-Prinzipien. Zielgruppe sind Frontend-Entwickler und Designer. Nicht enthalten: Backend-Architektur (→ Architecture-Kategorie) oder Testing-Strategien (→ Testing-Kategorie).
+
+## Primärdokumente
+
+- **[Design System](./design-system.md)** — **Hauptdokument** für Design-Tokens, Farben, Typography und Spacing
+- **[UI Components](./ui-components.md)** — Komponenten-Leitfaden (Buttons, Forms, Cards, Layouts)
+- **[UI/UX Guidelines](./ui-ux.md)** — UX-Prinzipien, Accessibility und Best Practices
+
+## Sekundär-/Spezialdokumente
+
+- **[Animation System](./animation-system.md)** — Animations-Framework (AOS, Header-Scroll, Lottie)
+- **[Responsive Design](./responsive-design.md)** — Mobile-First-Ansatz und Breakpoints
+- **[Accessibility Guidelines](./a11y-guidelines.md)** — WCAG-Konformität und Screen-Reader-Optimierung
+
+## Design System
+
+### Core Design Documentation
+
+- **[Colors & Typography](./design-system.md#colors)** — Farbpalette und Schriftarten
+- **[Spacing System](./design-system.md#spacing)** — Konsistentes Spacing und Layout-Grids
+- **[Component Tokens](./design-system.md#tokens)** — Design-Token-Definitionen
+
+### Component Documentation
+
+#### Component Guides
+
+- **[Form Components](./ui-components.md#forms)** — Input-Felder, Buttons, Validation-States
+- **[Layout Components](./ui-components.md#layouts)** — Container, Grid, Flexbox-Patterns
+- **[Navigation Components](./ui-components.md#navigation)** — Header, Footer, Breadcrumbs
+
+#### Feature Components
+
+- **[Image Enhancer UI](./imag-enhancer-ui.md)** — Spezifische UI-Komponenten für AI Image Enhancer
+- **[Auth Components](./auth-components.md)** — Login/Registration-Forms und Flows
+- **[Dashboard Components](./dashboard-components.md)** — User Dashboard und Cards
+
+## Animations
+
+### Animation Systems
+
+- **[AOS Integration](./animation-system.md#aos)** — Animate on Scroll für Content-Animationen
+- **[Header Scroll](./animation-system.md#header)** — Header-Verhalten bei Scroll
+- **[Lottie Icons](./animation-system.md#lottie)** — Animierte Icons und Micro-Interactions
+
+### Feature Upgrades
+
+- **[Image Enhancer UI Upgrade](./imag-enhancer-ui-upgrade.md)** — UI-Verbesserungen und neue Features
+- **[Landing Page Animations](./landing-page-animations.md)** — Hero- und Feature-Animationen
+
+## Cross-Referenzen
+
+- **[Development](../development/)** — Frontend-Tooling und Build-Prozesse
+- **[Architecture](../architecture/)** — Frontend-Architekturentscheidungen (Astro, React Islands)
+- **[Testing](../testing/)** — Frontend-Tests und Accessibility-Testing
+- **[Security](../security/)** — CSP und Security-Headers für Frontend-Assets
+
+## Ownership & Maintenance
+
+**Owner:** Frontend Team (Lead: UI/UX Lead)
+**Update-Frequenz:** Bei Design-System-Änderungen oder neuen Komponenten
+**Review-Prozess:** Design-Review + Accessibility-Check
+**Eskalation:** Bei Design-Konflikten → Product Designer
+
+## Standards & Konventionen
+
+- **CSS-Methodology:** Utility-First mit Tailwind CSS
+- **Component-Naming:** PascalCase für Komponenten, camelCase für Utilities
+- **Accessibility:** WCAG 2.1 AA-Standard, regelmäßige a11y-Audits
+- **Responsive:** Mobile-First, Breakpoints: sm (640px), md (768px), lg (1024px), xl (1280px)
+- **Animationen:** Reduced-Motion-Fallbacks, Performance-optimierte Lottie-Dateien
+
+## Bekannte Lücken
+
+- [TODO] Vollständige Storybook-Dokumentation für alle Komponenten
+- [TODO] Design-System-Token-Automation
+- [TODO] Performance-Metriken für Frontend-Assets
 
 ## Übersicht
 

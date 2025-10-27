@@ -1,6 +1,75 @@
+---
+description: 'Entwicklungs-Workflows, Tools, Setup-Anleitungen und Best Practices für Evolution Hub'
+owner: 'Development Team'
+priority: 'high'
+lastSync: '2025-10-27'
+codeRefs: 'package.json, wrangler.toml, vitest.config.ts'
+testRefs: 'tests/unit, tests/integration, test-suite-v2'
+---
+
 # Development Documentation
 
-Diese Dokumentation beschreibt Entwicklungs-Workflows, Tools, Setup-Anleitungen und Best Practices für die Arbeit am Evolution Hub Projekt.
+**Scope** — Diese Kategorie umfasst alle Aspekte der Entwicklung für Evolution Hub: lokale Setup, CI/CD-Pipelines, Testing-Strategien, Code-Quality-Standards und Third-Party-Integrationen. Zielgruppe sind Entwickler, DevOps-Ingenieure und Contributors. Nicht enthalten: Produktions-Operationen (→ Ops-Kategorie) oder UI/UX-Design (→ Frontend-Kategorie).
+
+## Primärdokumente
+
+- **[Local Development](./local-development.md)** — **Hauptdokument** für lokale Entwicklungsumgebung (Setup, Tools, Workflows)
+- **[CI/CD Pipeline](./ci-cd.md)** — Vollständige CI/CD-Dokumentation (GitHub Actions, Gates, Deployment)
+- **[Testing Guidelines](./testing-guidelines.md)** — Verbindliche Praktiken für Unit-, Integration- und E2E-Tests
+
+## Sekundär-/Spezialdokumente
+
+- **[TypeScript Integration](./typescript-integration.md)** — TypeScript-Setup und Best Practices
+- **[Debug Panel Usage](./debug-panel-usage.md)** — Hybrid-Debug-Panel für Live-Log-Streaming
+- **[Hybrid Logging System](./hybrid-logging-system.md)** — WebSocket/SSE-basiertes Logging
+- **[Icon Guidelines](./icon-guidelines.md)** — Icon-Verwendung (Heroicons, Lottie)
+- **[Stripe Setup](./stripe-setup.md)** — Stripe-Integration für Payments
+
+## Feature-Dokumentation
+
+### Auth & Security
+
+- **[Auth Flow Audit Phase 1](./auth-flow-audit-phase1.md)** — Audit des Authentifizierungsflows
+- **[Bugfix: Session Cookie Fallback](./bugfix-session-cookie-fallback.md)** — Session-Cookie-Implementierung
+
+### Dashboard-Updates (2025-09)
+
+- **[Dashboard APIs](./dashboard-apis.md)** — Neue APIs für Billing, Newsletter, Recommendations
+- **[Dashboard Components](./dashboard-components.md)** — UI-Komponenten (BillingCard, ToolShortcutsCard)
+
+## Pull Request Dokumentation
+
+Dokumentierte PRs in [prs/](./prs/):
+
+- **[Image Enhancer Help UI](./prs/imag-enhancer-help-ui.md)** — PR-Dokumentation für Help-UI
+
+## Cross-Referenzen
+
+- **[Architecture](../architecture/)** — Systemarchitektur und Design-Entscheidungen
+- **[Testing](../testing/)** — Teststrategie und Coverage-Roadmap
+- **[Frontend](../frontend/)** — UI/UX-Entwicklung und Design-System
+- **[Security](../security/)** — Sicherheitsfeatures und Best Practices
+
+## Ownership & Maintenance
+
+**Owner:** Development Team (Lead: Tech Lead)
+**Update-Frequenz:** Wöchentlich (bei Script-/Config-Änderungen) oder bei neuen Features
+**Review-Prozess:** Peer-Review + automatisierte Checks (CI-Gates)
+**Eskalation:** Bei Tooling-Konflikten → Tech Lead
+
+## Standards & Konventionen
+
+- **Script-Dokumentation:** Inline-Kommentare + README pro Script
+- **Code-Sync:** Bei Änderungen in `package.json`, `wrangler.toml`, `vitest.config.ts` entsprechende Docs aktualisieren
+- **Testing:** Mindestens 70% Coverage, siehe [Testing Guidelines](./testing-guidelines.md)
+- **Sprache:** Deutsch mit englischen Fachbegriffen
+- **Beispiele:** Aktuelle Kommandozeilen-Befehle und Konfigurationen
+
+## Bekannte Lücken
+
+- [TODO] Vollständige Docker-Setup-Dokumentation
+- [TODO] Performance-Optimierung für lokale Entwicklung
+- [TODO] IDE-Integration (VS Code, Cursor) Guidelines
 
 ## Übersicht
 

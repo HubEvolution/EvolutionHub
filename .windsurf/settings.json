@@ -1,9 +1,0 @@
-{
-  "context": {
-    "autoRulesForCodemap": true,
-    "autoLinkKnowledge": true
-  },
-  "display": {
-    "showLogs": true
-  }
-}

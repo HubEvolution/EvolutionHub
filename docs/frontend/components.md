@@ -34,13 +34,9 @@ Eine flexible Button-Komponente mit verschiedenen Varianten, Größen und Zustä
 **Beispiel:**
 
 ```astro
-<Button variant="primary" size="lg">
-  Jetzt starten
-</Button>
+<Button variant="primary" size="lg"> Jetzt starten </Button>
 
-<Button variant="outline" disabled={isLoading}>
-  Abbrechen
-</Button>
+<Button variant="outline" disabled={isLoading}> Abbrechen </Button>
 ```
 
 ### CardReact
@@ -88,13 +84,7 @@ Eine Eingabefeld-Komponente für Formulare.
 **Beispiel:**
 
 ```astro
-<Input 
-  type="email" 
-  id="email" 
-  name="email" 
-  placeholder="E-Mail-Adresse eingeben" 
-  required 
-/>
+<Input type="email" id="email" name="email" placeholder="E-Mail-Adresse eingeben" required />
 ```
 
 ### FormLabel
@@ -140,51 +130,100 @@ Eine Skeleton-Loading-Komponente für Inhalte, die noch geladen werden.
 
 Layout-Komponenten definieren die Struktur und das Layout der Anwendung.
 
-### Header
+### Header (Option&nbsp;C — Produktionslayout)
 
 **Datei:** `src/components/Header.astro`
 
-Die Hauptnavigationsleiste der Anwendung.
+**Überblick:**
 
-**Features:**
+- Sticky, abgerundeter Glas-Header mit dunklem Verlauf, der nahtlos mit dem Footer harmoniert
+- Desktop-Navigation (Links zu Dashboard, Tools, Pricing, Blog) mit Active-State-Hervorhebung
+- Nutzerbereich (Avatar, Plan & Usage, ThemeToggle, Locale-Switch) innerhalb eines Dropdowns
+- Mobile Drawer inkl. Auth-abhängiger Abschnitte und persistenter Locale-Links
+- Scrollverhalten: transparent im Viewport, `HeaderScroll` setzt bei Solid-State Blur/Backdrop und Rand
 
-- Responsive Navigation
-- Dynamisches Menü basierend auf Authentifizierungsstatus
-- Dark/Light-Mode-Toggle
-- Mobile Navigation
+**Gestaltungsdetails:**
 
-**Beispiel:**
+- Hintergrund: `bg-gradient-to-b from-gray-900/10 to-transparent` (mobil) bzw. `from-gray-900/90 to-black/90` (>=md). Pattern Overlay aktiviert ab `md:` via Base64-SVG (`opacity-20`).
+- `glass-header` Utility entfernt Legacy-Masken; Blur wird erst ab `md` aktiv, um mobile Layouts klar zu halten.
+- Logo-Link leitet über `localizePath(currentLocale, '/')` immer zur lokalisierten Startseite.
+- Locale-Switch (`setLocaleHref`) hängt `?set_locale=<lang>&next=<encoded URL>` an den aktuellen Pfad und respektiert Query/Hash.
+- Navigationslinks prüfen mittels `isActiveLocalized` auch Sub-Routen (`/dashboard/*`). Active State erhält Gradient-Unterstrich, Screenreader-Markierung `(current page)`.
+- Dropdown enthält ThemeToggle, Plan/Usage-Placeholder (per JS befüllt) und Logout-Link (`/api/user/logout`).
+- Mobile Menü-Button steuert #mobile-menu; Icons werden über `#menu-icon` getauscht.
+- Header erfüllt `role=navigation`, `aria-label="Main navigation"`; Buttons/Links sind mit `aria-*` versehen.
+
+**Props & Integrationspunkte:**
+
+- Erwartet optional `user`-Prop (Name, Email, Image) für Auth-Zustände.
+- Nutzt `getLocale`, `localizePath` und `setLocaleHref` → Middleware redirectet anhand `set_locale`.
+- JS-Verhalten (Solid Header bei Scroll) über `HeaderScroll.astro`.
+
+**Beispiel-Einbindung:**
 
 ```astro
 ---
 import Header from '@/components/Header.astro';
 ---
 
-<Header />
+<Header user={Astro.locals.user} />
 ```
 
-### Footer
+### Footer (Sollzustand — Produktionslayout)
 
 **Datei:** `src/components/Footer.astro`
 
-Die Fußzeile der Anwendung mit Links, Copyright-Informationen und weiteren Ressourcen.
+**Überblick:**
 
-**Features:**
+- Glas-Footer mit identischem Gradient/Pattern wie Header (dunkler Verlauf + Base64-SVG)
+- 4- bzw. 5-Spalten-Layout: Brand, Quick Links, Rechtliches, Tools (dynamisch), Newsletter (optional)
+- Social-Media-Icons **in fixer Reihenfolge**: GitHub → X → Reddit → TikTok → Instagram → LinkedIn → Pinterest (nur gerenderte Links erscheinen)
+- Lokalisierte Navigation (DE neutral, EN mit `/en/`), Cookie-Settings-Link per `cookieSlug` Map
+- Newsletter-Sektion standardmäßig ausgeblendet (`hideNewsletter=true`)
 
-- Mehrspaltiges Layout
-- Social-Media-Links
-- Newsletter-Anmeldung
-- Copyright-Informationen
+**Props:**
 
-**Beispiel:**
+| Prop             | Typ       | Default | Beschreibung                                 |
+| ---------------- | --------- | ------- | -------------------------------------------- |
+| `locale`         | `Locale`  | `'de'`  | Steuert Übersetzungen, Pfade und Cookie-Slug |
+| `hideNewsletter` | `boolean` | `true`  | Newsletter-Sektion ein-/ausblenden           |
+
+**Gestaltungsdetails:**
+
+- Container nutzt `.glass-footer` (Tailwind Utility in `global.css`): `backdrop-blur-xl`, `bg-white/60` (light) / `bg-gray-900/50` (dark) + dezente Border.
+- Logo-Link verweist über `localizePath(locale, '/')` auf die lokalisierte Startseite, `aria-label="Evolution Hub Home"`.
+- Social Links erhalten `aria-label`, `target="_blank"`, `rel="noopener noreferrer"`; Icons sind `16px` und skalieren via `group-hover`.
+- Quick Links / Legal / Tools nutzen `localizePath` und `t('footer.*')` Übersetzungen; Items mit fehlendem Ziel (z. B. `comingSoon`) werden gefiltert.
+- Cookie-Link: `/cookie-einstellungen` (DE) vs. `/cookie-settings` (EN) via `cookieSlug` Mapping.
+- Newsletter-Form (wenn sichtbar) rendert `Newsletter.astro` inline.
+- Abschließende Copyright-Zeile bezieht Text aus i18n (`footer.copyright`).
+
+**Dynamische Tools-Liste:**
+
+- `getAllTools(locale)` liefert Tool-Metadaten.
+- Filtert `comingSoon === false` und sortiert anhand `rank(id)` (Imag Enhancer → Prompt Enhancer → Webscraper → Voice Visualizer → Rest).
+- Icons über `Icon`-Komponente oder Fallback-SVG; Links sind lokalisiert (`tool.url`).
+
+**Beispiel-Einbindung:**
 
 ```astro
 ---
 import Footer from '@/components/Footer.astro';
 ---
 
-<Footer />
+<Footer locale="de" hideNewsletter={false} />
 ```
+
+**Hinweise zur Internationalisierung:**
+
+- Deutsche Seiten nutzen den neutralen Pfad (`/kontakt`), englische Seiten leben unter `/en/...` (via `localizePath`).
+- Locale-Switch im Header respektiert bereits gesetzte `set_locale`-Cookies; Footer-Links bleiben konsistent.
+- Übersetzungen stammen aus `src/utils/i18n` (`t('footer.*')`).
+
+**Design-Referenzen:**
+
+- Gradienten-/Pattern-Assets in Header & Footer identisch (siehe Base64-SVG in beiden Komponenten).
+- Glass Utilities definiert in `src/styles/global.css` (`.glass-header`, `.glass-footer`).
 
 ### ThemeProvider & ThemeToggle
 
@@ -324,13 +363,7 @@ Zeigt Statistiken und Kennzahlen in Kartenform an.
 import StatsCard from '@/components/dashboard/StatsCard.astro';
 ---
 
-<StatsCard 
-  title="Aktive Projekte" 
-  value={12} 
-  icon="project" 
-  change={8.2} 
-  trend="up" 
-/>
+<StatsCard title="Aktive Projekte" value={12} icon="project" change={8.2} trend="up" />
 ```
 
 ### UserProfile
@@ -472,11 +505,7 @@ Komponente für die Seitennavigation in Listen.
 import Pagination from '@/components/Pagination.astro';
 ---
 
-<Pagination 
-  currentPage={currentPage} 
-  totalPages={totalPages} 
-  baseUrl="/blog/page/" 
-/>
+<Pagination currentPage={currentPage} totalPages={totalPages} baseUrl="/blog/page/" />
 ```
 
 ### Newsletter
@@ -497,9 +526,9 @@ Anmeldeformular für den Newsletter.
 import Newsletter from '@/components/Newsletter.astro';
 ---
 
-<Newsletter 
-  title="Bleib auf dem Laufenden" 
-  description="Erhalte die neuesten Updates direkt in dein Postfach." 
+<Newsletter
+  title="Bleib auf dem Laufenden"
+  description="Erhalte die neuesten Updates direkt in dein Postfach."
 />
 ```
 
@@ -522,10 +551,10 @@ Filter-Komponente für Kategorien oder Tags.
 import CategoryFilter from '@/components/CategoryFilter.astro';
 ---
 
-<CategoryFilter 
-  categories={allCategories} 
-  selectedCategory={currentCategory} 
-  baseUrl="/tools/category/" 
+<CategoryFilter
+  categories={allCategories}
+  selectedCategory={currentCategory}
+  baseUrl="/tools/category/"
 />
 ```
 
@@ -607,19 +636,16 @@ Haupt-Container für Kommentare mit Mobile/Desktop-Detection und Error-Boundary.
 ```astro
 ---
 const user = Astro.locals.user || null;
-const initialUser = user ? {
-  id: Number(user.id),
-  name: user.name,
-  email: user.email
-} : null;
+const initialUser = user
+  ? {
+      id: Number(user.id),
+      name: user.name,
+      email: user.email,
+    }
+  : null;
 ---
 
-<CommentSection
-  entityType="blog_post"
-  entityId={slug}
-  initialUser={initialUser}
-  client:load
-/>
+<CommentSection entityType="blog_post" entityId={slug} initialUser={initialUser} client:load />
 ```
 
 ### CommentForm
@@ -772,16 +798,19 @@ export function MyComponent() {
   const { comments, createComment, isLoading } = useCommentStore();
 
   const handleSubmit = async (content: string) => {
-    await createComment({
-      content,
-      entityType: 'blog_post',
-      entityId: 'my-post'
-    }, csrfToken);
+    await createComment(
+      {
+        content,
+        entityType: 'blog_post',
+        entityId: 'my-post',
+      },
+      csrfToken
+    );
   };
 
   return (
     <div>
-      {comments.map(comment => (
+      {comments.map((comment) => (
         <div key={comment.id}>{comment.content}</div>
       ))}
     </div>

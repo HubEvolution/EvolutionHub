@@ -826,54 +826,57 @@ components:
         - clarity
         - specificity
         - testability
-    UsageInfo:
+    VoiceUsage:
       type: object
       properties:
         used:
           type: integer
-          description: Number of enhancements used in current period.
+          description: Anzahl verarbeiteter Chunks im aktuellen 24h-Fenster.
         limit:
           type: integer
-          description: Daily limit (20 for users, 5 for guests).
+          description: Tageslimit für den aktuellen Nutzer-Typ.
         resetAt:
           type: integer
-          format: timestamp
-          description: Unix timestamp for quota reset (if applicable).
+          format: int64
+          nullable: true
+          description: Unix-Timestamp (ms) wann das Fenster zurückgesetzt wird.
       required:
         - used
         - limit
-    ApiError:
-      type: object
-      properties:
-        success:
-          type: boolean
-          enum: [false]
-        error:
-          type: string
-          description: Error message.
-        code:
-          type: string
-          description: Error code (e.g., 'validation_error', 'quota_exceeded').
-        details:
-          type: object
-          description: Additional error details (e.g., usage info).
-      required:
-        - success
-        - error
-    Limits:
+    VoiceLimits:
       type: object
       properties:
         user:
           type: integer
-          description: Tägliches Limit für authentifizierte Benutzer
-          example: 20
+          description: Tageslimit für authentifizierte Benutzer
         guest:
           type: integer
-          description: Tägliches Limit für Gäste
-          example: 3
+          description: Tageslimit für Gäste
       required:
         - user
         - guest
+
+    VoiceStreamState:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [active, done, error, not_found]
+        partials:
+          type: array
+          items:
+            type: string
+        final:
+          type: string
+          nullable: true
+        usage:
+          $ref: '#/components/schemas/VoiceUsage'
+        jobId:
+          type: string
+          description: Only present in SSE context.
+      required:
+        - status
+        - partials
     Entitlements:
       type: object
       properties:

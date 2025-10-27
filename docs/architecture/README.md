@@ -1,67 +1,70 @@
+---
+description: 'Systemarchitektur, Auth-Flow, ADRs und Code-Reviews für Evolution Hub'
+owner: 'Architecture Team'
+priority: 'high'
+lastSync: '2025-10-27'
+codeRefs: 'src/middleware, src/lib/auth, src/lib/api-middleware'
+testRefs: 'tests/integration, test-suite-v2/src/e2e/auth'
+---
+
 # Architecture Documentation
 
-Diese Dokumentation beschreibt die technische Architektur von Evolution Hub, einschließlich Systemdesign, Datenflüsse, Authentifizierung und wichtige Architekturentscheidungen.
+**Scope** — Diese Kategorie dokumentiert die technische Systemarchitektur von Evolution Hub, einschließlich Authentifizierung, Middleware, API-Design und Architecture Decision Records (ADRs). Zielgruppe sind Architekten, Lead-Entwickler und System-Integratoren. Nicht enthalten: UI/UX-Details (→ Frontend-Kategorie) oder operative Runbooks (→ Ops-Kategorie).
 
-## Übersicht
+## Primärdokumente
 
-Evolution Hub ist eine moderne Full-Stack-Webanwendung basierend auf:
+- **[System Overview](./system-overview.md)** — Umfassende Übersicht über Tech-Stack und Datenflüsse
+- **[Auth Architecture](./auth-architecture.md)** — Vollständige Authentifizierungsarchitektur (Stytch Magic Link)
+- **[Auth Flow](./auth-flow.md)** — Detaillierter Authentifizierungs- und Session-Management-Flow
+- **[API Middleware Inventory](./api-middleware-inventory.md)** — Übersicht über alle API-Middlewares und Security-Features
 
-- **Frontend**: Astro mit React Islands
-- **Backend**: Cloudflare Workers
-- **Datenbank**: Cloudflare D1 (SQLite)
-- **Storage**: Cloudflare R2
-- **KV Store**: Cloudflare KV
+## Sekundär-/Spezialdokumente
 
-## System-Architektur
-
-### Kern-Dokumentation
-
-- **[System Overview](./system-overview.md)** — Umfassender Überblick über die Systemarchitektur
 - **[Data Flow](./data-flow.md)** — Dokumentation der Datenflüsse durch das System
 - **[Database Schema](./database-schema.md)** — Datenbankstruktur und Tabellen-Design
-
-### Authentifizierung
-
-- **[Auth Architecture](./auth-architecture.md)** — Vollständige Authentifizierungsarchitektur (Stytch Magic Link)
-- **[Auth Flow](./auth-flow.md)** — Detaillierter Authentifizierungsflow
-- **[Auth Migration Stytch](./auth-migration-stytch.md)** — Migration von Passwort-Auth zu Stytch Magic Link
-
-### API & Middleware
-
-- **[API Middleware Inventory](./api-middleware-inventory.md)** — Übersicht über alle API-Middlewares
 - **[Locale Middleware](./locale-middleware.md)** — i18n-Middleware-Implementierung
-
-### Features
-
-- **[AI Image Enhancer](./ai-image-enhancer.md)** — Architektur des AI-basierten Bildverbesserungs-Features
-- **[Voice Visualizer + Transcriptor](./voice-visualizer-transcriptor.md)** — Aufnahme/Visualizer, segmentierter Upload, serverseitige Normalisierung & Transkription (Whisper), Limits/Quoten, Security
+- **[Feature-Architekturen](./ai-image-enhancer.md)** — Architektur spezifischer Features (z. B. AI Image Enhancer)
 
 ## Architecture Decision Records (ADRs)
 
-Dokumentierte Architekturentscheidungen finden Sie im [adrs/](./adrs/) Verzeichnis:
+Dokumentierte Architekturentscheidungen in [adrs/](./adrs/):
 
 ### Aktive ADRs
 
-- **[ADR-0001: Astro + Cloudflare Stack](./adrs/0001-astro-cloudflare-stack.md)** — Entscheidung für Astro und Cloudflare
-- **[ADR-0002: Cloudflare Architecture](./adrs/0002-cloudflare-architecture.md)** — Details zur Cloudflare-Architektur
-- **[ADR-0003: Astro Frontend Architecture](./adrs/0003-astro-frontend-architecture.md)** — Frontend-Architekturentscheidungen
-- **[ADR-0004: Database Schema](./adrs/0004-database-schema.md)** — Datenbank-Design-Entscheidungen
-- **[ADR-0005: Auth Route Locale Normalisierung](./adrs/0005-auth-route-locale-normalisierung.md)** — Locale-Handling in Auth-Routes
-- **[ADR-0006: Dev Echo in Nicht-Prod-Umgebungen](./adrs/0006-dev-echo-non-prod.md)** — Deterministisches Dev-Echo für AI Image Enhancer
+- **[ADR-0001: Astro + Cloudflare Stack](./adrs/0001-astro-cloudflare-stack.md)** — Grundlegende Tech-Stack-Entscheidung
+- **[ADR-0002: Cloudflare Architecture](./adrs/0002-cloudflare-architecture.md)** — Cloudflare-spezifische Architektur
+- **[ADR-0003: Frontend Architecture](./adrs/0003-astro-frontend-architecture.md)** — Frontend-Design-Entscheidungen
+- **[ADR-0005: Auth Route Locale](./adrs/0005-auth-route-locale-normalisierung.md)** — Locale-Handling in Auth-Routen
 
-### Deprecated ADRs
+### Code Reviews & Analysen
 
-Veraltete Architekturentscheidungen (z.B. JWT-Auth) befinden sich in [adrs/deprecated/](./adrs/deprecated/).
+Detaillierte Reviews in [reviews/](./reviews/):
 
-## Code Reviews
+- **[Image Enhancer Review](./reviews/BEWERTUNG_LOGIKREVIEW_IMAGE-ENHANCER_USAGE-PILL_PLANANZEIGE.md)** — UI-Upgrade-Analyse
 
-Detaillierte Code-Reviews und Analysen finden Sie in [reviews/](./reviews/):
+## Cross-Referenzen
 
-- **[Image Enhancer Usage Pill & Plan-Anzeige](./reviews/BEWERTUNG_LOGIKREVIEW_IMAGE-ENHANCER_USAGE-PILL_PLANANZEIGE.md)** — Review des Image Enhancer UI-Upgrades
+- **[Development](../development/)** — Implementierungsdetails und Workflows
+- **[Security](../security/)** — Sicherheitsarchitektur und Best Practices
+- **[Frontend](../frontend/)** — UI/UX-Architektur und Design-System
+- **[API](../api/)** — API-Design und Middleware-Integration
 
-## Weitere Dokumentation
+## Ownership & Maintenance
 
-- **[API Documentation](../api/)** — API-Endpunkte und OpenAPI-Spezifikation
-- **[Development Documentation](../development/)** — Entwicklungs-Workflows und Setup
-- **[Frontend Documentation](../frontend/)** — UI/UX-Komponenten und Design System
-- **[Security Documentation](../security/)** — Sicherheits-Features und Best Practices
+**Owner:** Architecture Team (Lead: System-Architekt)
+**Update-Frequenz:** Bei Code-Änderungen in betroffenen Bereichen (Middleware, Auth, API)
+**Review-Prozess:** Peer-Review durch Architecture Team + Security-Review bei Änderungen
+**Eskalation:** Bei Architekturkonflikten → Tech Lead oder ADR-Prozess
+
+## Standards & Konventionen
+
+- **ADR-Format:** Gemäß [ADR-Template](./adrs/0001-astro-cloudflare-stack.md)
+- **Code-Sync:** Dokumente müssen bei Änderungen in `src/middleware.ts`, `src/lib/auth-*`, `src/lib/api-middleware.ts` aktualisiert werden
+- **Sprache:** Deutsch (technische Begriffe auf Englisch)
+- **Diagramme:** Mermaid für Systemflüsse und Architekturdiagramme
+
+## Bekannte Lücken
+
+- [TODO] Middleware-Performance-Metriken und Optimierungen
+- [TODO] Disaster Recovery Architecture für Cloudflare-Setup
+- [TODO] API-Versioning-Strategie

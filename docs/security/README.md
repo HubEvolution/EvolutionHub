@@ -1,6 +1,82 @@
+---
+description: 'Sicherheits-Features, Best Practices und Security-Architektur für Evolution Hub'
+owner: 'Security Team'
+priority: 'high'
+lastSync: '2025-10-27'
+codeRefs: 'src/middleware.ts, src/lib/api-middleware.ts, src/lib/rate-limiter.ts'
+testRefs: 'tests/integration/security, test-suite-v2/src/e2e/security'
+---
+
 # Security Documentation
 
-Diese Dokumentation beschreibt die Sicherheits-Features, Best Practices und implementierte Schutzmaßnahmen von Evolution Hub.
+**Scope** — Diese Kategorie dokumentiert alle Sicherheits-Features, Best Practices und Security-Architektur von Evolution Hub. Umfasst Rate-Limiting, Security-Headers, Authentifizierung, Input-Validierung und Audit-Logging. Zielgruppe sind Security-Ingenieure, Entwickler und Compliance-Verantwortliche. Nicht enthalten: Operative Security (→ Ops-Kategorie) oder UI/UX-Security (→ Frontend-Kategorie).
+
+## Primärdokumente
+
+- **[Security Overview](./security-overview.md)** — **Hauptdokument** für umfassende Security-Architektur
+- **[Rate Limiting](./rate-limiting.md)** — Rate-Limiting-System und Konfiguration
+- **[Security Headers](./security-headers.md)** — HTTP-Security-Headers und CSP-Konfiguration
+
+## Sekundär-/Spezialdokumente
+
+- **[Authentication Security](./auth-security.md)** — Authentifizierungs- und Session-Security
+- **[API Security](./api-security.md)** — API-Sicherheit und Middleware-Features
+- **[Input Validation](./input-validation.md)** — Validierung und Sanitization
+- **[Audit Logging](./audit-logging.md)** — Logging und Monitoring für Security-Events
+
+## Security-Architektur
+
+### Core Security Systems
+
+- **[Middleware Security](./middleware-security.md)** — Globale und API-Middleware-Sicherheit
+- **[CSRF Protection](./csrf-protection.md)** — Double-Submit-CSRF-Implementierung
+- **[CORS Configuration](./cors-configuration.md)** — Cross-Origin-Request-Policies
+
+### Detailed Documentation
+
+- **[Content Security Policy](./csp.md)** — CSP-Header und Script-Policy-Details
+- **[Permissions Policy](./permissions-policy.md)** — Feature-Policy für Browser-APIs
+- **[HSTS Configuration](./hsts.md)** — HTTP-Strict-Transport-Security
+
+## Rate Limiting Configuration
+
+- **[Rate Limiter Presets](./rate-limiter-presets.md)** — Vordefinierte Rate-Limiting-Konfigurationen
+- **[API Rate Limiting](./api-rate-limiting.md)** — API-spezifische Limits und 429-Responses
+- **[Auth Rate Limiting](./auth-rate-limiting.md)** — Login- und Registrierungsschutz
+
+## Security Headers
+
+- **[Standard Headers](./standard-headers.md)** — X-Frame-Options, X-Content-Type-Options, etc.
+- **[CSP Headers](./csp-headers.md)** — Content-Security-Policy-Details
+- **[HSTS Headers](./hsts-headers.md)** — Strict-Transport-Security-Konfiguration
+
+## Cross-Referenzen
+
+- **[Architecture](../architecture/)** — Security-Architektur und Middleware-Integration
+- **[Development](../development/)** — Security-Tooling und CI-Security-Gates
+- **[API](../api/)** — API-Security und Middleware-Standards
+- **[Testing](../testing/)** — Security-Tests und Penetration-Testing
+
+## Ownership & Maintenance
+
+**Owner:** Security Team (Lead: Security Lead)
+**Update-Frequenz:** Bei Security-relevanten Code-Änderungen (Middleware, Auth, API)
+**Review-Prozess:** Security-Review + Code-Review durch Entwickler
+**Eskalation:** Bei Security-Vorfällen → Incident-Response-Team
+
+## Standards & Konventionen
+
+- **Security-First:** Alle neuen Features durchlaufen Security-Review
+- **Headers:** Automatisch via Middleware, keine manuellen Header-Sets
+- **Rate-Limiting:** Einheitliche Presets via `src/lib/rate-limiter.ts`
+- **Logging:** Strukturiert und PII-frei, siehe Audit-Logging-Dokumentation
+- **Updates:** OWASP-Top-10-Compliance, regelmäßige Security-Scans
+
+## Bekannte Lücken
+
+- [TODO] Vollständige Penetration-Test-Dokumentation
+- [TODO] Security-Incident-Response-Plan
+- [TODO] Compliance-Framework (GDPR, SOC2) Dokumentation
 
 ## Übersicht
 

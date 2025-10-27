@@ -38,7 +38,10 @@ Example:
 
 ```bash
 PRICING_TABLE='{"free":"","pro":"price_abc","premium":"price_def","enterprise":"price_ghi"}'
+PRICING_TABLE_ANNUAL='{"free":"","pro":"price_annual_pro","premium":"price_annual_premium","enterprise":"price_annual_enterprise"}'
 ```
+
+The app reads both variables at runtime and supports stringified JSON or pre-parsed objects. Invalid JSON is treated as an empty map, so keep the structure valid.
 
 ## 2) Configure Environment Variables
 
@@ -49,8 +52,16 @@ Local development (`.env`):
 STRIPE_SECRET=""
 # Webhook signing secret (whsec_...)
 STRIPE_WEBHOOK_SECRET=""
-# Plan → Price mapping (see step 1)
+# Plan → Price mapping (monthly)
 PRICING_TABLE='{"free":"","pro":"price_abc","premium":"price_def","enterprise":"price_ghi"}'
+# Plan → Price mapping (annual)
+PRICING_TABLE_ANNUAL='{"free":"","pro":"price_annual_pro","premium":"price_annual_premium","enterprise":"price_annual_enterprise"}'
+# Optional: product-independent payment links used as fallback when Checkout creation fails
+PRICING_LINKS='{"pro":"https://buy.stripe.com/...","premium":"https://buy.stripe.com/..."}'
+PRICING_LINKS_ANNUAL='{"pro":"https://buy.stripe.com/...","premium":"https://buy.stripe.com/..."}'
+
+# Credits Checkout mapping (see section below)
+CREDITS_PRICING_TABLE='{"100":"price_credit_100","500":"price_credit_500","1500":"price_credit_1500"}'
 ```
 
 Cloudflare (staging/production) via Wrangler:
@@ -69,7 +80,8 @@ wrangler secret put STRIPE_WEBHOOK_SECRET --env production
 Notes:
 
 - Never commit real secrets. Use Wrangler secrets for deployed environments.
-- `PRICING_TABLE` can be plain-text since it holds non-sensitive IDs.
+- `PRICING_TABLE*` and `CREDITS_PRICING_TABLE` can be plain-text since they hold non-sensitive Stripe price IDs.
+- The code gracefully handles stringified JSON. If you prefer storing plain JSON objects, Wrangler `vars` can hold those as well.
 
 ## 3) Webhook Setup
 
@@ -94,7 +106,7 @@ stripe listen --forward-to http://127.0.0.1:8787/api/billing/stripe-webhook
   - `customer.subscription.created`
   - `customer.subscription.updated`
   - `customer.subscription.deleted`
-- Copy the Signing secret (whsec_...) into the appropriate environment.
+- Copy the Signing secret (whsec\_...) into the appropriate environment.
 
 ### Permanent webhook via Stripe CLI (staging/prod)
 
