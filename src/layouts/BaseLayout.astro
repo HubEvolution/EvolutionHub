@@ -73,6 +73,8 @@ const pageFrontmatter = props as unknown as Record<string, unknown>;
 const showComingSoon = isComingSoon(Astro.url.pathname, pageFrontmatter);
 const bodyClass = `min-h-screen bg-sky-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 flex flex-col overflow-x-hidden ${showComingSoon ? 'coming-soon-open' : ''}`;
 const landingBgVariant = getLandingBgVariant();
+// Prefer Astro.site (set via BASE_URL in astro.config.mjs) to construct absolute URLs during prerender.
+const siteBase: URL = (Astro.site as URL) || new URL('http://127.0.0.1:8787');
 ---
 
 <!doctype html>
@@ -85,7 +87,10 @@ const landingBgVariant = getLandingBgVariant();
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
-    <meta property="og:url" content={Astro.url.href} />
+    <meta
+      property="og:url"
+      content={props.canonical || new URL(Astro.url.pathname, siteBase).toString()}
+    />
     <meta property="og:title" content={`${title} | Evolution Hub`} />
     <meta property="og:description" content={description} />
     <meta property="og:image" content={ogImage} />
@@ -98,25 +103,30 @@ const landingBgVariant = getLandingBgVariant();
 
     <link
       rel="canonical"
-      href={props.canonical ||
-        `${Astro.url.origin}${locale === 'en' ? getAlternateUrls(Astro.url.pathname).en : getAlternateUrls(Astro.url.pathname).de}`}
+      href={
+        props.canonical ||
+        new URL(
+          locale === 'en' ? getAlternateUrls(Astro.url.pathname).en : getAlternateUrls(Astro.url.pathname).de,
+          siteBase
+        ).toString()
+      }
     />
 
     <!-- hreflang links for SEO -->
     <link
       rel="alternate"
       hreflang="de"
-      href={`${Astro.url.origin}${getAlternateUrls(Astro.url.pathname).de}`}
+      href={new URL(getAlternateUrls(Astro.url.pathname).de, siteBase).toString()}
     />
     <link
       rel="alternate"
       hreflang="en"
-      href={`${Astro.url.origin}${getAlternateUrls(Astro.url.pathname).en}`}
+      href={new URL(getAlternateUrls(Astro.url.pathname).en, siteBase).toString()}
     />
     <link
       rel="alternate"
       hreflang="x-default"
-      href={`${Astro.url.origin}${getAlternateUrls(Astro.url.pathname).de}`}
+      href={new URL(getAlternateUrls(Astro.url.pathname).de, siteBase).toString()}
     />
 
     <title>{title} | Evolution Hub</title>
@@ -214,7 +224,7 @@ const landingBgVariant = getLandingBgVariant();
     }
 
     <div class="relative z-[2] flex min-h-screen flex-col">
-      {!hideHeader && <Header />}
+      {!hideHeader && <Header user={Astro.locals?.user} />}
       <main id="main-content" class="landing-v2 flex-grow focus:outline-none" tabindex="-1">
         <slot />
       </main>

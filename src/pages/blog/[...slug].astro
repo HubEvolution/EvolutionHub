@@ -1,6 +1,6 @@
 ---
 // SSG + ISR aktivieren (Phase 2.1)
-export const prerender = true;
+export const prerender = false;
 export const revalidate = 300; // Sekunden
 // Import BaseLayout using a relative path.
 import BaseLayout from '@/layouts/BaseLayout.astro';
@@ -30,6 +30,7 @@ const initialUser = user
       id: String(user.id),
       name: user.name,
       email: user.email,
+      image: user.image,
     }
   : null;
 
@@ -100,11 +101,12 @@ if (postData) {
 const data: any = postData.data;
 const title = String(data.title);
 const description = String(data.description || '');
-const canonicalUrl = new URL(Astro.url.pathname, Astro.url.origin);
+const siteBase: URL = (Astro.site as URL) || new URL('http://127.0.0.1:8787');
+const canonicalUrl = new URL(Astro.url.pathname, siteBase);
 // Ensure imageUrl is correctly formed
 const imageSrc =
   data.image && (data.image as any).src ? (data.image as any).src : '/images/blog/default-og.jpg';
-const imageUrl = new URL(imageSrc, Astro.url.origin).toString();
+const imageUrl = new URL(imageSrc, siteBase).toString();
 
 // Refactored logic for dateModified
 const datePublishedISO = new Date(data.pubDate as any).toISOString();
@@ -129,7 +131,7 @@ const structuredData = {
     name: 'EvolutionHub',
     logo: {
       '@type': 'ImageObject',
-      url: new URL('/images/logo.png', Astro.url.origin).toString(),
+      url: new URL('/images/logo.png', siteBase).toString(),
     },
   },
   datePublished: datePublishedISO,
@@ -164,18 +166,17 @@ export async function getStaticPaths() {
   <article class="bg-white dark:bg-gray-900 py-12 sm:py-16">
     <div class="mx-auto max-w-7xl px-6 lg:px-8">
       <AosWrapper class="mx-auto max-w-3xl">
-        {/* Blog-Post-Komponente rendern */}
+        {/* Blog-Post-Komponente mit Kommentarsektion im Slot */}
         <BlogPostComponent post={postData} relatedPosts={relatedPosts}>
           <Content />
+          <CommentSection
+            slot="comments"
+            entityType="blog_post"
+            entityId={slugParam}
+            initialUser={initialUser}
+            client:load
+          />
         </BlogPostComponent>
-
-        {/* Kommentarbereich */}
-        <CommentSection
-          entityType="blog_post"
-          entityId={slugParam}
-          initialUser={initialUser}
-          client:load
-        />
       </AosWrapper>
     </div>
   </article>

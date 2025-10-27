@@ -1,4 +1,4 @@
-import { eq, and, desc, count, sql, inArray } from 'drizzle-orm';
+import { eq, and, desc, count, sql, inArray, isNull } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/d1';
 import { generateId } from '../utils/id-generator';
 import { rateLimit } from '../rate-limiter';
@@ -66,7 +66,7 @@ export class CommentService {
    * Legacy fallback for listing comments using the old schema shape.
    */
   private async listCommentsLegacy(filters: CommentFilters = {}): Promise<CommentListResponse> {
-    const { entityType, entityId, limit = 20, offset = 0, authorId } = filters;
+    const { entityId, limit = 20, offset = 0, authorId } = filters;
 
     // Legacy table only supported blog posts via postId; if missing, return empty
     if (!entityId) {
@@ -285,7 +285,7 @@ export class CommentService {
         if (parent && parent.authorId && parent.authorEmail) {
           const notificationService = new NotificationService(this.rawDb);
           const context: NotificationContext = {
-            userId: parent.authorId,
+            userId: parent.authorId as any,
             locale: 'de',
             baseUrl: '',
           };
@@ -372,6 +372,19 @@ export class CommentService {
     })();
 
     // Update comment
+    let isAdmin = false;
+    try {
+      const actor = await this.rawDb
+        .prepare('SELECT email, role FROM users WHERE id = ? LIMIT 1')
+        .bind(userId)
+        .first<{ email: string; role?: string }>();
+      isAdmin = !!actor && (actor.email === 'admin@hub-evolution.com' || actor.role === 'admin');
+    } catch {}
+
+    const whereCond = isAdmin
+      ? eq(comments.id, commentId)
+      : and(eq(comments.id, commentId), eq(comments.authorId, userId));
+
     await this.db
       .update(comments)
       .set({
@@ -380,7 +393,7 @@ export class CommentService {
         editedAt: now,
         updatedAt: now,
       })
-      .where(and(eq(comments.id, commentId), eq(comments.authorId, userId)));
+      .where(whereCond);
 
     return this.getCommentById(commentId);
   }
@@ -396,13 +409,26 @@ export class CommentService {
     }
 
     // Delete comment (soft delete by hiding)
+    let isAdmin = false;
+    try {
+      const actor = await this.rawDb
+        .prepare('SELECT email, role FROM users WHERE id = ? LIMIT 1')
+        .bind(userId)
+        .first<{ email: string; role?: string }>();
+      isAdmin = !!actor && (actor.email === 'admin@hub-evolution.com' || actor.role === 'admin');
+    } catch {}
+
+    const whereCond = isAdmin
+      ? eq(comments.id, commentId)
+      : and(eq(comments.id, commentId), eq(comments.authorId, userId));
+
     await this.db
       .update(comments)
       .set({
         status: 'hidden',
         updatedAt: Math.floor(Date.now() / 1000),
       })
-      .where(and(eq(comments.id, commentId), eq(comments.authorId, userId)));
+      .where(whereCond);
 
     try {
       const updated = await this.getCommentById(commentId);
@@ -423,6 +449,9 @@ export class CommentService {
           WHERE ${commentReports.commentId} = ${comments.id}
           AND ${commentReports.status} IN ('pending', 'reviewed')
         )`,
+        authorImage: sql<string>`(
+          SELECT image FROM users WHERE users.id = ${comments.authorId} LIMIT 1
+        )`,
       })
       .from(comments)
       .leftJoin(commentReports, eq(commentReports.commentId, comments.id))
@@ -433,10 +462,11 @@ export class CommentService {
       throw new Error('Comment not found');
     }
 
-    const { comment, reportCount } = result[0];
+    const { comment, reportCount, authorImage } = result[0] as any;
     return {
       ...comment,
       reportCount: reportCount || 0,
+      authorImage: authorImage || null,
     } as Comment;
   }
 
@@ -512,16 +542,20 @@ export class CommentService {
           WHERE ${commentReports.commentId} = ${comments.id}
           AND ${commentReports.status} IN ('pending', 'reviewed')
         )`,
+        authorImage: sql<string>`(
+          SELECT image FROM users WHERE users.id = ${comments.authorId} LIMIT 1
+        )`,
       })
       .from(comments)
-      .where(baseWhere)
+      .where(baseWhere ? and(baseWhere, isNull(comments.parentId)) : isNull(comments.parentId))
       .orderBy(desc(comments.createdAt))
       .limit(limit)
       .offset(offset);
 
-    const commentsWithReports = commentResults.map(({ comment, reportCount }) => ({
+    const commentsWithReports = commentResults.map(({ comment, reportCount, authorImage }: any) => ({
       ...comment,
       reportCount: reportCount || 0,
+      authorImage: authorImage || null,
     })) as Comment[];
 
     // Fetch replies if requested (batch-load to avoid N+1 problem)
@@ -538,6 +572,9 @@ export class CommentService {
             WHERE ${commentReports.commentId} = ${comments.id}
             AND ${commentReports.status} IN ('pending', 'reviewed')
           )`,
+          authorImage: sql<string>`(
+            SELECT image FROM users WHERE users.id = ${comments.authorId} LIMIT 1
+          )`,
         })
         .from(comments)
         .where(and(inArray(comments.parentId, parentIds), eq(comments.status, 'approved')))
@@ -545,7 +582,7 @@ export class CommentService {
 
       // Group replies by parent ID
       const repliesByParent = new Map<string, Comment[]>();
-      allRepliesResults.forEach(({ comment, reportCount }) => {
+      allRepliesResults.forEach(({ comment, reportCount, authorImage }: any) => {
         const parentId = comment.parentId!;
         if (!repliesByParent.has(parentId)) {
           repliesByParent.set(parentId, []);
@@ -553,6 +590,7 @@ export class CommentService {
         repliesByParent.get(parentId)!.push({
           ...comment,
           reportCount: reportCount || 0,
+          authorImage: authorImage || null,
         } as Comment);
       });
 
@@ -578,26 +616,7 @@ export class CommentService {
   /**
    * Get replies for a comment
    */
-  private async getCommentReplies(parentId: string): Promise<Comment[]> {
-    const replyResults = await this.db
-      .select({
-        comment: comments,
-        reportCount: sql<number>`(
-          SELECT COUNT(*)
-          FROM ${commentReports}
-          WHERE ${commentReports.commentId} = ${comments.id}
-          AND ${commentReports.status} IN ('pending', 'reviewed')
-        )`,
-      })
-      .from(comments)
-      .where(and(eq(comments.parentId, parentId), eq(comments.status, 'approved')))
-      .orderBy(comments.createdAt);
-
-    return replyResults.map(({ comment, reportCount }) => ({
-      ...comment,
-      reportCount: reportCount || 0,
-    })) as Comment[];
-  }
+  // removed unused getCommentReplies (was private and not referenced)
 
   /**
    * Moderate a comment (approve, reject, flag, hide)
@@ -639,7 +658,7 @@ export class CommentService {
       if (updatedComment && updatedComment.authorId && updatedComment.authorEmail) {
         const notificationService = new NotificationService(this.rawDb);
         const context: NotificationContext = {
-          userId: updatedComment.authorId,
+          userId: updatedComment.authorId as any,
           locale: 'de',
           baseUrl: '',
         };
@@ -785,7 +804,7 @@ export class CommentService {
     const flaggedComments = await this.db
       .select({
         comment: comments,
-        reports: sql<CommentReport[]>`(
+        reports: sql<string>`(
           SELECT json_group_array(
             json_object(
               'id', ${commentReports.id},
@@ -799,7 +818,7 @@ export class CommentService {
           WHERE ${commentReports.commentId} = ${comments.id}
           AND ${commentReports.status} IN ('pending', 'reviewed')
         )`,
-        latestModeration: sql<CommentModeration>`(
+        latestModeration: sql<string>`(
           SELECT json_object(
             'id', ${commentModeration.id},
             'action', ${commentModeration.action},
@@ -816,12 +835,29 @@ export class CommentService {
       .where(eq(comments.status, 'flagged'))
       .orderBy(desc(comments.createdAt));
 
-    return flaggedComments.map(({ comment, reports, latestModeration }) => ({
-      comment,
-      reports: JSON.parse(reports || '[]'),
-      latestModeration: latestModeration ? JSON.parse(latestModeration) : undefined,
-      priority: this.calculatePriority(comment, JSON.parse(reports || '[]')),
-    }));
+    return flaggedComments.map(({ comment, reports, latestModeration }) => {
+      const reportsArr: CommentReport[] = (() => {
+        try {
+          return JSON.parse((reports as unknown as string) || '[]') as CommentReport[];
+        } catch {
+          return [];
+        }
+      })();
+      const latest: CommentModeration | undefined = (() => {
+        try {
+          return latestModeration ? (JSON.parse(latestModeration as unknown as string) as CommentModeration) : undefined;
+        } catch {
+          return undefined;
+        }
+      })();
+      const normalizedComment: Comment = { ...(comment as any), isEdited: Boolean((comment as any).isEdited) } as Comment;
+      return {
+        comment: normalizedComment,
+        reports: reportsArr,
+        latestModeration: latest,
+        priority: this.calculatePriority(normalizedComment, reportsArr),
+      };
+    });
   }
 
   /**

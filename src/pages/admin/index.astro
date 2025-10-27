@@ -1,0 +1,476 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Card from '@/components/ui/Card';
+import BulkActions from '@/components/admin/BulkActions';
+export const prerender = false;
+
+// Admin Status (server-side)
+type AdminStatusPayload = {
+  success: boolean;
+  data?: {
+    user: { id: string; email: string };
+    plan: 'free' | 'pro' | 'premium' | 'enterprise';
+    credits: number;
+    subscriptions: Array<{
+      id: string;
+      plan: 'free' | 'pro' | 'premium' | 'enterprise';
+      status: string;
+      current_period_end: number | null;
+      cancel_at_period_end: number | null;
+      created_at: string;
+      updated_at: string;
+    }>;
+  };
+};
+
+async function fetchAdminStatus(): Promise<AdminStatusPayload | null> {
+  const ac = new AbortController();
+  const timer = setTimeout(() => ac.abort('timeout'), 2500);
+  try {
+    const url = new URL('/api/admin/status', Astro.url).toString();
+    const res = await fetch(url, {
+      headers: { cookie: Astro.request.headers.get('cookie') ?? '' },
+      cache: 'no-store',
+      signal: ac.signal,
+    });
+    if (!res.ok) return null;
+    return (await res.json()) as AdminStatusPayload;
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+const adminStatus = await fetchAdminStatus();
+const adminCommentsList: any[] = [];
+const adminCommentsStats = { total: 0, pending: 0, approved: 0, rejected: 0, flagged: 0 };
+---
+
+<BaseLayout title={`Admin Dashboard`} description={`Zentrale Admin-Startseite`}>
+  <main class="min-h-screen bg-transparent py-12 px-4 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-6xl space-y-8">
+      <header class="flex items-center justify-between">
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Admin Dashboard</h1>
+      </header>
+
+      <section class="grid grid-cols-1 gap-6 md:grid-cols-2">
+        <!-- User Lookup -->
+        <Card as="section" className="p-6">
+          <h2 class="mb-4 text-xl font-semibold text-gray-900 dark:text-white">User Lookup</h2>
+          <form id="lookup-form" class="space-y-3" onsubmit="return false;">
+            <label class="block text-sm text-gray-300">
+              E-Mail oder User-ID
+              <input id="lookup-input" type="text" class="mt-1 w-full rounded-md border border-white/10 bg-white/5 p-2 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="admin@hub-evolution.com oder user_id" />
+            </label>
+            <div class="flex gap-2">
+              <button id="lookup-btn" type="button" class="rounded-md bg-emerald-600 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-700">Suchen</button>
+              <button id="lookup-clear" class="rounded-md border border-white/10 px-3 py-2 text-sm text-white/80 hover:bg-white/5" type="button">Zurücksetzen</button>
+            </div>
+          </form>
+          <div id="lookup-result" class="mt-4 hidden">
+            <div class="text-sm text-white/80">
+              <div><span class="text-white/50">ID:</span> <span id="lr-id"></span></div>
+              <div><span class="text-white/50">E‑Mail:</span> <span id="lr-email"></span></div>
+              <div><span class="text-white/50">Name:</span> <span id="lr-name"></span></div>
+              <div><span class="text-white/50">Plan:</span> <span id="lr-plan"></span></div>
+              <div><span class="text-white/50">Credits:</span> <span id="lr-credits"></span></div>
+              <div><span class="text-white/50">Subscription:</span> <span id="lr-sub"></span></div>
+            </div>
+          </div>
+          <div id="lookup-error" class="mt-3 hidden text-sm text-red-300"></div>
+        </Card>
+
+        <!-- Credits & Plan -->
+        <Card as="section" className="p-6">
+          <h2 class="mb-4 text-xl font-semibold text-gray-900 dark:text-white">Credits & Plan</h2>
+          <form id="grant-form" class="space-y-3" onsubmit="return false;">
+            <label class="block text-sm text-gray-300">
+              E-Mail
+              <input id="grant-email" type="email" class="mt-1 w-full rounded-md border border-white/10 bg-white/5 p-2 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="admin@hub-evolution.com" />
+            </label>
+            <label class="block text-sm text-gray-300">
+              Betrag (Credits)
+              <input id="grant-amount" type="number" min="1" step="1" value="1000" class="mt-1 w-full rounded-md border border-white/10 bg-white/5 p-2 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+            </label>
+            <div class="flex gap-2">
+              <button id="grant-btn" type="button" class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-700">Gutschreiben</button>
+              <button id="grant-fill-self" type="button" class="rounded-md border border-white/10 px-3 py-2 text-sm text-white/80 hover:bg-white/5">Meine E‑Mail einsetzen</button>
+              <span class="text-xs text-white/60">Erfordert Admin & aktives INTERNAL_CREDIT_GRANT</span>
+            </div>
+          </form>
+          <div id="grant-success" class="mt-3 hidden text-sm text-emerald-300"></div>
+          <div id="grant-error" class="mt-3 hidden text-sm text-red-300"></div>
+        </Card>
+
+        <!-- System Health -->
+        <Card as="section" className="p-6">
+          <h2 class="mb-4 text-xl font-semibold text-gray-900 dark:text-white">System Health</h2>
+          <div class="flex items-center gap-3">
+            <button id="health-btn" type="button" class="rounded-md bg-teal-600 px-3 py-2 text-sm font-semibold text-white hover:bg-teal-700">/api/health prüfen</button>
+            <div id="health-status" class="text-sm text-white/80"></div>
+          </div>
+        </Card>
+
+        <!-- Live‑Metriken -->
+        <Card as="section" className="p-6">
+          <h2 class="mb-4 text-xl font-semibold text-gray-900 dark:text-white">Live‑Metriken</h2>
+          <div class="grid grid-cols-2 gap-4 text-sm text-white/80 md:grid-cols-4">
+            <div class="rounded-md border border-white/10 p-3">
+              <div class="text-white/50">Aktive Sessions</div>
+              <div id="m-active-sessions" class="text-xl font-semibold">–</div>
+            </div>
+            <div class="rounded-md border border-white/10 p-3">
+              <div class="text-white/50">Aktive User</div>
+              <div id="m-active-users" class="text-xl font-semibold">–</div>
+            </div>
+            <div class="rounded-md border border-white/10 p-3">
+              <div class="text-white/50">User gesamt</div>
+              <div id="m-users-total" class="text-xl font-semibold">–</div>
+            </div>
+            <div class="rounded-md border border-white/10 p-3">
+              <div class="text-white/50">Neu (24h)</div>
+              <div id="m-users-new24h" class="text-xl font-semibold">–</div>
+            </div>
+          </div>
+        </Card>
+
+        <!-- Admin Status (embedded) -->
+        <Card as="section" className="p-6">
+          <h2 class="mb-4 text-xl font-semibold text-gray-900 dark:text-white">Admin Status</h2>
+          <div id="admin-status-container">
+            {
+              adminStatus?.success && adminStatus?.data ? (
+                <div class="grid grid-cols-1 gap-3 text-sm text-white/80 sm:grid-cols-2">
+                  <div><span class="text-white/50">User ID:</span> {adminStatus.data.user.id}</div>
+                  <div><span class="text-white/50">E‑Mail:</span> {adminStatus.data.user.email}</div>
+                  <div><span class="text-white/50">Plan:</span> {adminStatus.data.plan}</div>
+                  <div><span class="text-white/50">Credits:</span> {adminStatus.data.credits}</div>
+                  <div class="sm:col-span-2">
+                    <div class="text-white/50 mb-1">Letzte Subscriptions</div>
+                    <ul class="space-y-1">
+                      {adminStatus.data.subscriptions.slice(0,3).map((s) => (
+                        <li>
+                          <span class="text-white/70">{s.plan}</span>
+                          <span class="text-white/40"> • {s.status}</span>
+                          <span class="text-white/40"> • Ende: {s.current_period_end ? new Date(s.current_period_end * 1000).toLocaleString() : '—'}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              ) : (
+                <div class="text-sm text-red-300">Status konnte nicht geladen werden.</div>
+              )
+            }
+          </div>
+        </Card>
+
+        <!-- Kommentar-Moderation (embedded) -->
+        <Card as="section" className="p-6">
+          <h2 class="mb-4 text-xl font-semibold text-gray-900 dark:text-white">Kommentar‑Moderation</h2>
+          <div class="mb-3 text-sm text-white/70">
+            <span class="mr-3">Total: <span id="cstat-total">{adminCommentsStats.total}</span></span>
+            <span class="mr-3">Pending: <span id="cstat-pending">{adminCommentsStats.pending}</span></span>
+            <span class="mr-3">Approved: <span id="cstat-approved">{adminCommentsStats.approved}</span></span>
+            <span class="mr-3">Rejected: <span id="cstat-rejected">{adminCommentsStats.rejected}</span></span>
+            <span>Flagged: <span id="cstat-flagged">{adminCommentsStats.flagged}</span></span>
+          </div>
+          <div class="mb-3 flex items-center gap-3">
+            <label class="text-sm text-white/70 flex items-center gap-2">
+              Status
+              <select id="c-status" class="rounded-md border border-white/10 bg-white/5 px-2 py-1 text-white/90">
+                <option value="all">Alle</option>
+                <option value="pending">Pending</option>
+                <option value="approved">Approved</option>
+                <option value="rejected">Rejected</option>
+                <option value="flagged">Flagged</option>
+              </select>
+            </label>
+            <div class="ml-auto flex items-center gap-2">
+              <button id="c-prev" class="rounded-md border border-white/10 px-2 py-1 text-sm text-white/80 hover:bg-white/5" type="button">Zurück</button>
+              <span id="c-page" class="text-sm text-white/60">–</span>
+              <button id="c-next" class="rounded-md border border-white/10 px-2 py-1 text-sm text-white/80 hover:bg-white/5" type="button">Weiter</button>
+            </div>
+          </div>
+          <div class="overflow-x-auto max-h-[520px] overflow-y-auto">
+            <table class="min-w-full text-sm text-white/80">
+              <thead>
+                <tr class="text-left text-white/50">
+                  <th class="px-2 py-1"><input type="checkbox" id="check-all" /></th>
+                  <th class="px-2 py-1">ID</th>
+                  <th class="px-2 py-1">Autor</th>
+                  <th class="px-2 py-1">Entity</th>
+                  <th class="px-2 py-1">Status</th>
+                  <th class="px-2 py-1">Created</th>
+                </tr>
+              </thead>
+              <tbody id="comments-tbody">
+                {adminCommentsList.map((c) => (
+                  <tr class="border-t border-white/10">
+                    <td class="px-2 py-1"><input type="checkbox" class="comment-select" data-comment-id={c.id} /></td>
+                    <td class="px-2 py-1 whitespace-nowrap">{c.id}</td>
+                    <td class="px-2 py-1">{c.author?.email || '—'}</td>
+                    <td class="px-2 py-1">{c.entityType}:{c.entityId}</td>
+                    <td class="px-2 py-1">{c.status}</td>
+                    <td class="px-2 py-1 whitespace-nowrap">{c.createdAt}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <div class="mt-3">
+              <BulkActions client:load />
+            </div>
+          </div>
+        </Card>
+      </section>
+    </div>
+  </main>
+
+  <script type="module" nonce={Astro.locals.cspNonce}>
+    function ensureCsrfToken() {
+      try {
+        const cookie = document.cookie || '';
+        const m = cookie.match(/(?:^|; )csrf_token=([^;]+)/);
+        if (m && m[1]) return decodeURIComponent(m[1]);
+        const buf = new Uint8Array(16);
+        (globalThis.crypto || window.crypto).getRandomValues(buf);
+        const token = Array.from(buf)
+          .map((b) => b.toString(16).padStart(2, '0'))
+          .join('');
+        const attrs = [
+          'Path=/',
+          'SameSite=Lax',
+          typeof location !== 'undefined' && location.protocol === 'https:' ? 'Secure' : '',
+        ]
+          .filter(Boolean)
+          .join('; ');
+        document.cookie = `csrf_token=${encodeURIComponent(token)}; ${attrs}`;
+        return token;
+      } catch {
+        return '';
+      }
+    }
+
+    const $ = (id) => document.getElementById(id);
+    const show = (el) => el.classList.remove('hidden');
+    const hide = (el) => el.classList.add('hidden');
+
+    // User Lookup
+    const lookupInput = $('lookup-input');
+    const lookupBtn = $('lookup-btn');
+    const lookupClear = $('lookup-clear');
+    const lookupResult = $('lookup-result');
+    const lookupError = $('lookup-error');
+
+    lookupBtn?.addEventListener('click', async (e) => {
+      e?.preventDefault?.();
+      hide(lookupError); hide(lookupResult);
+      const v = (lookupInput?.value || '').trim();
+      if (!v) { lookupError.textContent = 'Bitte E‑Mail oder ID eingeben.'; show(lookupError); return; }
+      const p = new URLSearchParams();
+      if (v.includes('@')) p.set('email', v.toLowerCase()); else p.set('id', v);
+      const url = `/api/admin/users/summary?${p.toString()}`;
+      try {
+        const res = await fetch(url, { credentials: 'include', cache: 'no-store' });
+        const json = await res.json();
+        if (!res.ok || !json?.success) { lookupError.textContent = json?.error?.message || 'Lookup fehlgeschlagen'; show(lookupError); return; }
+        const d = json.data;
+        $('lr-id').textContent = d.user.id;
+        $('lr-email').textContent = d.user.email;
+        $('lr-name').textContent = d.user.name || '';
+        $('lr-plan').textContent = d.user.plan;
+        $('lr-credits').textContent = String(d.credits);
+        const sub = d.subscription;
+        $('lr-sub').textContent = sub ? `${sub.status} (Ende: ${sub.currentPeriodEnd ? new Date(sub.currentPeriodEnd * 1000).toLocaleString() : '—'})` : '—';
+        show(lookupResult);
+        // Prefill grant email
+        const ge = $('grant-email'); if (ge && !ge.value) ge.value = d.user.email;
+      } catch {
+        lookupError.textContent = 'Lookup fehlgeschlagen'; show(lookupError);
+      }
+    });
+
+    lookupClear?.addEventListener('click', () => {
+      if (lookupInput) lookupInput.value = '';
+      hide(lookupResult); hide(lookupError);
+    });
+
+    // Credits Grant
+    const grantBtn = $('grant-btn');
+    const grantEmail = $('grant-email');
+    const grantAmount = $('grant-amount');
+    const grantSuccess = $('grant-success');
+    const grantError = $('grant-error');
+    const grantFillSelf = $('grant-fill-self');
+
+    grantBtn?.addEventListener('click', async (e) => {
+      e?.preventDefault?.();
+      hide(grantSuccess); hide(grantError);
+      const email = (grantEmail?.value || '').trim().toLowerCase();
+      const amount = Math.max(1, parseInt(grantAmount?.value || '1000', 10) || 1000);
+      if (!email) { grantError.textContent = 'E‑Mail erforderlich'; show(grantError); return; }
+      try {
+        const csrf = ensureCsrfToken();
+        const res = await fetch('/api/admin/credits/grant', {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
+          body: JSON.stringify({ email, amount }),
+        });
+        const json = await res.json();
+        if (!res.ok || !json?.success) { grantError.textContent = json?.error?.message || 'Gutschrift fehlgeschlagen'; show(grantError); return; }
+        const d = json.data || {};
+        grantSuccess.textContent = `OK: ${d.granted} Credits gebucht. Neue Balance: ${d.balance}. Pack: ${d.packId}`;
+        show(grantSuccess);
+      } catch {
+        grantError.textContent = 'Gutschrift fehlgeschlagen'; show(grantError);
+      }
+    });
+
+    // Health
+    const healthBtn = $('health-btn');
+    const healthStatus = $('health-status');
+    healthBtn?.addEventListener('click', async (e) => {
+      e?.preventDefault?.();
+      if (healthStatus) healthStatus.textContent = '...';
+      const t0 = performance.now();
+      try {
+        const res = await fetch('/api/health', { cache: 'no-store' });
+        const ms = Math.round(performance.now() - t0);
+        if (healthStatus) healthStatus.textContent = `${res.status} • ${ms}ms`;
+      } catch {
+        if (healthStatus) healthStatus.textContent = 'Fehler';
+      }
+    });
+
+    // Admin Status client loader (fills card even if SSR timed out)
+    async function loadAdminStatus() {
+      const container = document.getElementById('admin-status-container');
+      if (!container) return;
+      try {
+        const res = await fetch('/api/admin/status', { credentials: 'include', cache: 'no-store' });
+        const j = await res.json();
+        if (!res.ok || !j?.data) return;
+        const d = j.data;
+        const subs = Array.isArray(d.subscriptions) ? d.subscriptions.slice(0, 3) : [];
+        container.innerHTML = `
+          <div class="grid grid-cols-1 gap-3 text-sm text-white/80 sm:grid-cols-2">
+            <div><span class="text-white/50">User ID:</span> ${d.user.id}</div>
+            <div><span class="text-white/50">E‑Mail:</span> ${d.user.email}</div>
+            <div><span class="text-white/50">Plan:</span> ${d.plan}</div>
+            <div><span class="text-white/50">Credits:</span> ${d.credits}</div>
+            <div class="sm:col-span-2">
+              <div class="text-white/50 mb-1">Letzte Subscriptions</div>
+              <ul class="space-y-1">
+                ${subs
+                  .map(
+                    (s) => `
+                      <li>
+                        <span class="text-white/70">${s.plan}</span>
+                        <span class="text-white/40"> • ${s.status}</span>
+                        <span class="text-white/40"> • Ende: ${s.current_period_end ? new Date(s.current_period_end * 1000).toLocaleString() : '—'}</span>
+                      </li>`
+                  )
+                  .join('')}
+              </ul>
+            </div>
+          </div>`;
+      } catch {}
+    }
+
+    // Fill own email
+    grantFillSelf?.addEventListener('click', async () => {
+      try {
+        const res = await fetch('/api/admin/status', { credentials: 'include', cache: 'no-store' });
+        const json = await res.json();
+        const email = json?.data?.user?.email || '';
+        if (email && grantEmail) {
+          grantEmail.value = email;
+        }
+      } catch {}
+    });
+
+    // Live metrics loader (client-side)
+    async function loadMetrics() {
+      try {
+        const res = await fetch('/api/admin/metrics', { credentials: 'include', cache: 'no-store' });
+        const j = await res.json();
+        const d = j?.data || {};
+        const set = (id, v) => { const el = $(id); if (el) el.textContent = String(v ?? '–'); };
+        set('m-active-sessions', d.activeSessions);
+        set('m-active-users', d.activeUsers);
+        set('m-users-total', d.usersTotal);
+        set('m-users-new24h', d.usersNew24h);
+      } catch {}
+    }
+
+    // Comments loader with pagination and filters (client-side)
+    const cStatus = $('c-status');
+    const cPrev = $('c-prev');
+    const cNext = $('c-next');
+    const cPage = $('c-page');
+    const PAGE_SIZE = 12;
+    let cOffset = 0;
+    let cStatusVal = 'all';
+
+    function setStats(stats) {
+      const set = (id, v) => { const el = $(id); if (el) el.textContent = String(v ?? 0); };
+      set('cstat-total', stats.total);
+      set('cstat-pending', stats.pending);
+      set('cstat-approved', stats.approved);
+      set('cstat-rejected', stats.rejected);
+      set('cstat-flagged', stats.flagged);
+    }
+
+    function setPaging(count, total) {
+      const from = total === 0 ? 0 : cOffset + 1;
+      const to = cOffset + count;
+      if (cPage) cPage.textContent = `${from}–${to} von ${total}`;
+      if (cPrev) cPrev.disabled = cOffset === 0;
+      if (cNext) cNext.disabled = cOffset + count >= total;
+    }
+
+    async function loadComments() {
+      try {
+        const params = new URLSearchParams();
+        params.set('limit', String(PAGE_SIZE));
+        params.set('offset', String(cOffset));
+        params.set('includeReports', 'true');
+        if (cStatusVal && cStatusVal !== 'all') params.set('status', cStatusVal);
+        const res = await fetch(`/api/admin/comments?${params.toString()}`, { credentials: 'include', cache: 'no-store' });
+        const j = await res.json();
+        const d = j?.data || {};
+        const stats = d.stats || { total: 0, pending: 0, approved: 0, rejected: 0, flagged: 0 };
+        setStats(stats);
+        const tbody = document.getElementById('comments-tbody');
+        if (tbody && Array.isArray(d.comments)) {
+          tbody.innerHTML = d.comments
+            .map((c) => `
+              <tr class="border-t border-white/10">
+                <td class="px-2 py-1"><input type="checkbox" class="comment-select" data-comment-id="${c.id}" /></td>
+                <td class="px-2 py-1 whitespace-nowrap">${c.id}</td>
+                <td class="px-2 py-1">${(c.author?.email || '—')}</td>
+                <td class="px-2 py-1">${c.entityType}:${c.entityId}</td>
+                <td class="px-2 py-1">${c.status}</td>
+                <td class="px-2 py-1 whitespace-nowrap">${c.createdAt}</td>
+              </tr>
+            `)
+            .join('');
+        }
+        const pageCount = d?.pagination?.count ?? (Array.isArray(d.comments) ? d.comments.length : 0);
+        const total = stats.total ?? 0;
+        setPaging(pageCount, total);
+      } catch {}
+    }
+
+    // Kick off client loaders after mount
+    window.addEventListener('DOMContentLoaded', () => {
+      if (cStatus) cStatus.addEventListener('change', () => { cStatusVal = cStatus.value; cOffset = 0; loadComments(); });
+      if (cPrev) cPrev.addEventListener('click', () => { cOffset = Math.max(0, cOffset - PAGE_SIZE); loadComments(); });
+      if (cNext) cNext.addEventListener('click', () => { cOffset = cOffset + PAGE_SIZE; loadComments(); });
+      loadMetrics();
+      loadAdminStatus();
+      loadComments();
+    });
+  </script>
+</BaseLayout>

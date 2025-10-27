@@ -3,7 +3,6 @@ import type { ProcessedBlogPost } from '@/content/types';
 import BlogCard from './BlogCard.astro';
 import BlogCTA from './blog/BlogCTA.astro';
 import LeadMagnetCTA from './blog/LeadMagnetCTA.astro';
-import NewsletterCTA from './blog/NewsletterCTA.astro';
 // Import the Image component from Astro's built-in assets handling.
 // Avoid astro:assets Image on Worker SSR; render native <img>
 import type { ImageMetadata } from 'astro';
@@ -87,7 +86,7 @@ const safeImage: ImageMetadata | null =
 const imageWidth: number | undefined = safeImage?.width ?? undefined;
 const imageHeight: number | undefined = safeImage?.height ?? undefined;
 // Normalize alt text string
-const imageAltText: string = typeof imageAlt === 'string' ? imageAlt : title;
+const imageAltText: string = typeof imageAlt === 'string' ? imageAlt : String(title);
 
 // Current locale for building localized internal links
 const locale = getLocale(Astro.url.pathname);
@@ -178,7 +177,7 @@ const finalBottomCTA =
           author && typeof author === 'object' && 'avatar' in author && author.avatar ? (
             <img
               class="h-10 w-10 rounded-full"
-              src={author.avatar}
+              src={String((author as any).avatar)}
               alt={'name' in author ? String((author as any).name) : 'Author'}
             />
           ) : (
@@ -338,34 +337,11 @@ const finalBottomCTA =
     <slot />
   </div>
 
-  <!-- Bottom CTA (nach Content, vor Footer) -->
   <div class="not-prose my-12">
-    <NewsletterCTA variant="card" />
+    <slot name="comments" />
   </div>
 
-  {
-    finalBottomCTA && (
-      <div class="not-prose my-12">
-        {finalBottomCTA.type === 'leadmagnet' && finalBottomCTA.leadMagnet ? (
-          <LeadMagnetCTA
-            leadMagnetId={finalBottomCTA.leadMagnet}
-            variant={mapLeadMagnetVariant(finalBottomCTA.variant)}
-            title={finalBottomCTA.title}
-            description={finalBottomCTA.description}
-          />
-        ) : (
-          <BlogCTA
-            type={finalBottomCTA.type}
-            position="bottom"
-            variant={finalBottomCTA.variant || 'primary'}
-            title={finalBottomCTA.title}
-            description={finalBottomCTA.description}
-            leadMagnet={finalBottomCTA.leadMagnet}
-          />
-        )}
-      </div>
-    )
-  }
+  
 
   {
     ((Array.isArray(tags) && tags.length > 0) || relatedPosts.length > 0) && (
@@ -400,6 +376,30 @@ const finalBottomCTA =
           </div>
         )}
       </footer>
+    )
+  }
+
+  {
+    finalBottomCTA && finalBottomCTA.type !== 'newsletter' && (
+      <div class="not-prose my-12">
+        {finalBottomCTA.type === 'leadmagnet' && finalBottomCTA.leadMagnet ? (
+          <LeadMagnetCTA
+            leadMagnetId={finalBottomCTA.leadMagnet}
+            variant={mapLeadMagnetVariant(finalBottomCTA.variant)}
+            title={finalBottomCTA.title}
+            description={finalBottomCTA.description}
+          />
+        ) : (
+          <BlogCTA
+            type={finalBottomCTA.type}
+            position="bottom"
+            variant={finalBottomCTA.variant || 'primary'}
+            title={finalBottomCTA.title}
+            description={finalBottomCTA.description}
+            leadMagnet={finalBottomCTA.leadMagnet}
+          />
+        )}
+      </div>
     )
   }
 </article>

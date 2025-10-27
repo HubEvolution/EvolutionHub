@@ -202,6 +202,12 @@ export const onRequest = defineMiddleware(async (context, next) => {
     return BLOG_RE.test(p);
   }
 
+  // Admin routes should not be locale-prefixed and must bypass gates
+  function isAdminRoute(p: string): boolean {
+    const ADMIN_RE = /^\/admin(\/|$)/;
+    return ADMIN_RE.test(p);
+  }
+
   // Central guard: routes that should never be gated by the welcome splash
   // Placeholder; actual value assigned after dependencies are declared (isApi, isAsset, isR2Proxy, bot)
   let skipSplash = false;
@@ -352,7 +358,8 @@ export const onRequest = defineMiddleware(async (context, next) => {
     path.startsWith('/welcome') ||
     isAuthRoute(path) ||
     isGuestAccessibleToolRoute(path) ||
-    isBlogRoute(path);
+    isBlogRoute(path) ||
+    isAdminRoute(path);
 
   // Referer-basiertes Fallback-Signal: wenn vorherige Seite /en/... war, präferiere EN
   let refererSuggestsEn = false;
@@ -382,7 +389,8 @@ export const onRequest = defineMiddleware(async (context, next) => {
     !isR2Proxy &&
     shouldPreferEnByReferer &&
     !path.startsWith('/welcome') &&
-    !isAuthRoute(path)
+    !isAuthRoute(path) &&
+    !isAdminRoute(path)
   ) {
     const target = path === '/' ? '/en/' : `/en${path}`;
     const location = `${target}${url.search}${url.hash}`;
@@ -472,12 +480,16 @@ export const onRequest = defineMiddleware(async (context, next) => {
   const isDePrefixed = path === '/de' || path.startsWith('/de/');
   if (isDePrefixed && !isApi && !isAsset && !isR2Proxy && !isAuthRoute(path)) {
     const pathWithoutDe = path.replace(/^\/de(\/|$)/, '/');
-    const target =
-      cookieLocale === 'en'
-        ? pathWithoutDe === '/'
-          ? '/en/'
-          : `/en${pathWithoutDe}`
-        : pathWithoutDe;
+    const target = (() => {
+      if (isAdminRoute(pathWithoutDe)) {
+        // Always keep admin route neutral
+        return pathWithoutDe;
+      }
+      if (cookieLocale === 'en') {
+        return pathWithoutDe === '/' ? '/en/' : `/en${pathWithoutDe}`;
+      }
+      return pathWithoutDe;
+    })();
     const location = `${originForRedirects}${target}${url.search}${url.hash}`;
     const headers = new Headers();
     headers.set('Location', location);
@@ -514,7 +526,8 @@ export const onRequest = defineMiddleware(async (context, next) => {
     !isR2Proxy &&
     cookieLocale === 'en' &&
     !path.startsWith('/welcome') &&
-    !isAuthRoute(path)
+    !isAuthRoute(path) &&
+    !isAdminRoute(path)
   ) {
     const target = path === '/' ? '/en/' : `/en${path}`;
     const location = `${originForRedirects}${target}${url.search}${url.hash}`;
@@ -578,6 +591,40 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   // mark end of session validation for Server-Timing
   tAfterSession = Date.now();
+
+  if (isAdminRoute(path)) {
+    const u = (context.locals as any).user;
+    if (!u) {
+      const targetLocale: Locale = existingLocale ?? preferredLocale;
+      const base = targetLocale === 'en' ? '/en/login' : '/login';
+      const nextParam = `${url.pathname}${url.search}${url.hash}`;
+      const headers = new Headers();
+      headers.set('Location', `${base}?next=${encodeURIComponent(nextParam)}`);
+      headers.set('Vary', 'Cookie, Accept-Language');
+      headers.set('Content-Language', targetLocale);
+      return new Response(null, { status: 302, headers });
+    }
+    try {
+      const db = (context.locals as any)?.runtime?.env?.DB;
+      let role = 'user';
+      if (db) {
+        const row = await db
+          .prepare('SELECT role FROM users WHERE id = ?')
+          .bind(u.id)
+          .first();
+        role = (row as any)?.role || 'user';
+      }
+      if (role !== 'admin') {
+        const targetLocale: Locale = existingLocale ?? preferredLocale;
+        const base = targetLocale === 'en' ? '/en/dashboard' : '/dashboard';
+        const headers = new Headers();
+        headers.set('Location', base);
+        headers.set('Vary', 'Cookie, Accept-Language');
+        headers.set('Content-Language', targetLocale);
+        return new Response(null, { status: 302, headers });
+      }
+    } catch {}
+  }
 
   // Early redirect (after session validation): if user exists and path is a login route, redirect to dashboard
   try {

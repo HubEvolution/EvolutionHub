@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Button } from '../ui/Button';
 import { clientLogger } from '@/lib/client-logger';
 
@@ -7,7 +7,7 @@ interface CommentFormProps {
   onCancel?: () => void;
   parentId?: string;
   isLoading?: boolean;
-  currentUser?: { id: number; name: string; email: string } | null;
+  currentUser?: { id: string; name: string; email: string; image?: string } | null;
   placeholder?: string;
   submitText?: string;
   showCancel?: boolean;
@@ -30,6 +30,13 @@ export const CommentForm: React.FC<CommentFormProps> = ({
   const [content, setContent] = useState(initialValue);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+
+  useEffect(() => {
+    const handler = () => textareaRef.current?.focus();
+    document.addEventListener('eh:comments:new', handler as any);
+    return () => document.removeEventListener('eh:comments:new', handler as any);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -115,9 +122,17 @@ export const CommentForm: React.FC<CommentFormProps> = ({
       {currentUser ? (
         <div className="mb-3 flex items-center space-x-3">
           <div className="flex-shrink-0">
-            <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-medium">
-              {currentUser.name.charAt(0).toUpperCase()}
-            </div>
+            {currentUser.image ? (
+              <img
+                src={currentUser.image}
+                alt="User avatar"
+                className="w-8 h-8 rounded-full object-cover"
+              />
+            ) : (
+              <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-medium">
+                {currentUser.name.charAt(0).toUpperCase()}
+              </div>
+            )}
           </div>
           <div>
             <p className="text-sm font-medium text-gray-900 dark:text-white">{currentUser.name}</p>
@@ -160,6 +175,7 @@ export const CommentForm: React.FC<CommentFormProps> = ({
             maxLength={2000}
             disabled={isLoading || isSubmitting}
             aria-label="Kommentar schreiben"
+            ref={textareaRef}
           />
           <div className="flex justify-between items-center mt-1">
             <span className="text-xs text-gray-500 dark:text-gray-400">

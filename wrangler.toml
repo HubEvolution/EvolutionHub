@@ -253,6 +253,8 @@ USAGE_KV_V2 = "1"
 WORKERS_AI_ENABLED = "1"
 PUBLIC_ENABLE_CREDITS_CTA = "1"
 PUBLIC_LANDING_BG_VARIANT = "techcells"
+# Temporär für Admin-Credit-Grants (UI in /admin). Nach Vergabe wieder auf "0" setzen.
+INTERNAL_CREDIT_GRANT = "1"
 # Live Stripe price IDs (plan -> price)
 PRICING_TABLE = '{"free":"","pro":"price_1SKjwqHdpdQAtOQBPUkZoavZ","premium":"price_1SKjx5HdpdQAtOQB5NLrDeSC","enterprise":"price_1SKjwaHdpdQAtOQBiEjoUpTK"}'
 PRICING_TABLE_ANNUAL = '{"free":"","pro":"price_1SKjwrHdpdQAtOQBWuyGjizw","premium":"price_1SKjx6HdpdQAtOQB8QTHxs0j","enterprise":"price_1SKjwbHdpdQAtOQBoR40Gesj"}'

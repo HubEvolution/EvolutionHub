@@ -68,9 +68,8 @@ export { LOGGING_CONFIG };
 
 // https://astro.build/config
 export default defineConfig({
-  // Provide a site URL for local development and for canonical tags
-  // when no other site is specified. Crucial for the URL constructor.
-  site: 'http://localhost:8787', // Match default Wrangler dev (http://localhost:8787)
+  // Provide a site URL for canonical tags. Use BASE_URL in production if set.
+  site: process.env.BASE_URL || 'http://localhost:8787',
   output: 'server',
   base: '/',
   trailingSlash: 'ignore',

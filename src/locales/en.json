@@ -9,6 +9,14 @@
     "de": "Deutsch",
     "en": "English"
   },
+  "footer": {
+    "claim": "The modern platform for developers to manage, share, and scale projects. Built by developers for developers.",
+    "quick": "Quick links",
+    "legal": "Legal",
+    "tools": "Tools",
+    "cookie_settings": "Cookie settings",
+    "copyright": "© 2025 Evolution Hub. All rights reserved."
+  },
   "pages": {
     "login": {
       "title": "Login",

@@ -9,6 +9,7 @@ import type {
   CommentStats,
   CommentListResponse,
 } from '../lib/types/comments';
+import type { ReportReason } from '../lib/types/comments';
 
 // Standardized API response shapes
 type ApiError = { success: false; error: { type: string; message: string } };
@@ -19,7 +20,7 @@ interface CommentStore {
   // State
   comments: Comment[];
   stats: CommentStats | null;
-  currentUser: { id: number; name: string; email: string } | null;
+  currentUser: { id: string; name: string; email: string; image?: string } | null;
   csrfToken: string | null;
   isLoading: boolean;
   error: string | null;
@@ -35,9 +36,10 @@ interface CommentStore {
     csrfToken: string
   ) => Promise<Comment>;
   deleteComment: (commentId: string, csrfToken: string) => Promise<void>;
+  reportComment: (commentId: string, reason: ReportReason, description?: string, csrfToken?: string | null) => Promise<void>;
   fetchStats: () => Promise<void>;
   clearError: () => void;
-  setCurrentUser: (user: { id: number; name: string; email: string } | null) => void;
+  setCurrentUser: (user: { id: string; name: string; email: string; image?: string } | null) => void;
   initializeCsrfToken: () => Promise<void>;
   loadMoreComments: (baseFilters?: CommentFilters) => Promise<void>;
   setPageSize: (size: number) => void;
@@ -92,13 +94,14 @@ export const useCommentStore = create<CommentStore>()(
           const data = (await response.json()) as ApiResult<CommentListResponse>;
 
           if (data.success) {
+            const isAdmin = get().currentUser?.email === 'admin@hub-evolution.com';
             const nextComments = append
               ? [...get().comments, ...data.data.comments]
               : data.data.comments;
             set({
               comments: nextComments,
               stats:
-                data.data.total !== undefined
+                isAdmin && data.data.total !== undefined
                   ? {
                       total: data.data.total,
                       approved: data.data.comments.filter((c: Comment) => c.status === 'approved')
@@ -137,9 +140,10 @@ export const useCommentStore = create<CommentStore>()(
         const optimisticComment: Comment = {
           id: tempId,
           content: data.content,
-          authorId: currentUser?.id || 0,
+          authorId: currentUser?.id ?? null,
           authorName: currentUser?.name || 'Du',
           authorEmail: currentUser?.email || '',
+          authorImage: currentUser?.image || null,
           parentId: data.parentId || undefined,
           entityType: data.entityType,
           entityId: data.entityId,
@@ -152,9 +156,69 @@ export const useCommentStore = create<CommentStore>()(
           reportCount: 0,
         };
 
-        set((state) => ({
-          comments: [optimisticComment, ...state.comments],
-        }));
+        // Immutable helpers for nested comment trees
+        const hasCommentById = (nodes: Comment[], id: string): boolean => {
+          for (const n of nodes) {
+            if (n.id === id) return true;
+            if (n.replies && n.replies.length && hasCommentById(n.replies, id)) return true;
+          }
+          return false;
+        };
+
+        const insertReply = (nodes: Comment[], parentId: string, reply: Comment): Comment[] => {
+          return nodes.map((n) => {
+            if (n.id === parentId) {
+              const nextReplies = n.replies ? [...n.replies, reply] : [reply];
+              return { ...n, replies: nextReplies };
+            }
+            if (n.replies && n.replies.length) {
+              const next = insertReply(n.replies, parentId, reply);
+              // Only spread if children actually changed; safe to always spread for simplicity
+              return { ...n, replies: next };
+            }
+            return n;
+          });
+        };
+
+        const replaceById = (nodes: Comment[], id: string, replacement: Comment): Comment[] => {
+          return nodes.map((n) => {
+            if (n.id === id) return replacement;
+            if (n.replies && n.replies.length) {
+              const next = replaceById(n.replies, id, replacement);
+              return next !== n.replies ? { ...n, replies: next } : n;
+            }
+            return n;
+          });
+        };
+
+        const removeById = (nodes: Comment[], id: string): Comment[] => {
+          let changed = false;
+          const filtered = nodes
+            .map((n) => {
+              if (n.replies && n.replies.length) {
+                const nextReplies = removeById(n.replies, id);
+                if (nextReplies !== n.replies) {
+                  changed = true;
+                  return { ...n, replies: nextReplies };
+                }
+              }
+              return n;
+            })
+            .filter((n) => {
+              const keep = n.id !== id;
+              if (!keep) changed = true;
+              return keep;
+            });
+          return changed ? filtered : nodes;
+        };
+
+        // Insert optimistically: reply under parent, otherwise top-level
+        set((state) => {
+          if (data.parentId && hasCommentById(state.comments, data.parentId)) {
+            return { comments: insertReply(state.comments, data.parentId, optimisticComment) };
+          }
+          return { comments: [optimisticComment, ...state.comments] };
+        });
 
         try {
           const token = csrfToken || get().csrfToken;
@@ -181,9 +245,9 @@ export const useCommentStore = create<CommentStore>()(
           const result = (await response.json()) as ApiResult<Comment>;
 
           if (result.success) {
-            // 3. Replace temporary comment with real one from server
+            // 3. Replace temporary comment with real one from server (nested-safe)
             set((state) => ({
-              comments: state.comments.map((c) => (c.id === tempId ? result.data : c)),
+              comments: replaceById(state.comments, tempId, result.data),
               isLoading: false,
             }));
             return result.data;
@@ -191,9 +255,9 @@ export const useCommentStore = create<CommentStore>()(
             throw new Error(result.error?.message || 'Failed to create comment');
           }
         } catch (error) {
-          // 4. Rollback on error: Remove optimistic comment
+          // 4. Rollback on error: Remove optimistic comment (nested-safe)
           set((state) => ({
-            comments: state.comments.filter((c) => c.id !== tempId),
+            comments: removeById(state.comments, tempId),
             isLoading: false,
             error: error instanceof Error ? error.message : 'Failed to create comment',
           }));

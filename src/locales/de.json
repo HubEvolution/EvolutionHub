@@ -69,6 +69,14 @@
     "de": "Deutsch",
     "en": "English"
   },
+  "footer": {
+    "claim": "Die moderne Plattform für Entwickler, um Projekte zu verwalten, zu teilen und zu skalieren. Entwickelt von Entwicklern für Entwickler.",
+    "quick": "Schnellzugriff",
+    "legal": "Rechtliches",
+    "tools": "Tools",
+    "cookie_settings": "Cookie-Einstellungen",
+    "copyright": "© 2025 Evolution Hub. Alle Rechte vorbehalten."
+  },
   "cta": {
     "headline": "Bereit loszulegen?",
     "subtitle": "Werden Sie Teil der Tausenden von Entwicklern, die bereits Evolution Hub nutzen, um erstaunliche Anwendungen zu erstellen.",

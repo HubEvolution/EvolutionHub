@@ -12,6 +12,7 @@ export interface Comment {
   authorId: string | null;
   authorName: string;
   authorEmail: string;
+  authorImage?: string | null;
   parentId?: string | null;
   entityType: CommentEntityType;
   entityId: string;

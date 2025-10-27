@@ -8,13 +8,14 @@ import { useCommentStore } from '../../stores/comment-store';
 import type { CommentEntityType } from '../../lib/types/comments';
 import { getI18n } from '@/utils/i18n';
 import { getLocale } from '@/lib/i18n';
+import { localizePath } from '@/lib/locale-path';
 
 interface CommentSectionProps {
   entityType: CommentEntityType;
   entityId: string;
   title?: string;
   className?: string;
-  initialUser?: { id: number; name: string; email: string } | null;
+  initialUser?: { id: string; name: string; email: string; image?: string } | null;
 }
 
 const CommentSectionInner: React.FC<CommentSectionProps> = ({
@@ -49,6 +50,7 @@ const CommentSectionInner: React.FC<CommentSectionProps> = ({
     loadMoreComments,
     setCurrentUser,
   } = useCommentStore();
+  const isAdmin = currentUser?.email === 'admin@hub-evolution.com';
   // Load comments on mount
   useEffect(() => {
     // Set user from server-side session if available
@@ -148,11 +150,11 @@ const CommentSectionInner: React.FC<CommentSectionProps> = ({
   // If mobile, use mobile-optimized component
   if (isMobile) {
     return (
-      <div className={`comment-section comment-section--mobile ${className}`}>
+      <div id="comments" className={`comment-section comment-section--mobile ${className}`}>
         <div className="mb-6">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">{title}</h2>
 
-          {stats && <CommentStats stats={stats} />}
+          {isAdmin && stats && <CommentStats stats={stats} />}
         </div>
 
         {notice && (
@@ -188,12 +190,12 @@ const CommentSectionInner: React.FC<CommentSectionProps> = ({
 
   // Desktop variant
   return (
-    <div className={`comment-section ${className}`}>
+    <div id="comments" className={`comment-section ${className}`}>
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">{title}</h2>
 
         {/* Comment Stats */}
-        {stats && <CommentStats stats={stats} />}
+        {isAdmin && stats && <CommentStats stats={stats} />}
       </div>
 
       {notice && (
@@ -243,12 +245,35 @@ const CommentSectionInner: React.FC<CommentSectionProps> = ({
 
       {/* Comment Form */}
       <div className="mb-8">
-        <CommentForm
-          onSubmit={handleCreateComment}
-          isLoading={isLoading}
-          currentUser={currentUser}
-          placeholder={`Schreibe einen Kommentar...`}
-        />
+        {currentUser ? (
+          <CommentForm
+            onSubmit={handleCreateComment}
+            isLoading={isLoading}
+            currentUser={currentUser}
+            placeholder={`Schreibe einen Kommentar...`}
+          />
+        ) : (
+          <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-md">
+            <p className="text-sm text-yellow-800 dark:text-yellow-200">
+              Du bist nicht angemeldet.{' '}
+              <a
+                href={
+                  (() => {
+                    const base = localizePath(locale, '/login');
+                    if (typeof window !== 'undefined') {
+                      return `${base}?returnTo=${encodeURIComponent(window.location.href + '#comments')}`;
+                    }
+                    return base;
+                  })()
+                }
+                className="font-medium hover:underline"
+              >
+                Anmelden zum Kommentieren
+              </a>
+              .
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Comments List */}

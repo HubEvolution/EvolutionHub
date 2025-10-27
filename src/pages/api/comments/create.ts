@@ -1,7 +1,7 @@
 import type { APIContext } from 'astro';
 import { createApiError, createApiSuccess } from '@/lib/api-middleware';
 import { CommentService } from '@/lib/services/comment-service';
-import { getAuthUser } from '@/lib/auth-helpers';
+import { requireAuth } from '@/lib/auth-helpers';
 import { validateCsrfToken } from '@/lib/security/csrf';
 import type { CreateCommentRequest } from '@/lib/types/comments';
 
@@ -44,13 +44,31 @@ export const POST = async (context: APIContext) => {
       return createApiError('validation_error', 'Missing required fields');
     }
 
-    // Optional auth
-    const user = await getAuthUser({ request: context.request, env: { DB: db } });
-    const userId = user ? String(user.id) : undefined;
+    // Require auth: guests dürfen nicht posten
+    let userId: string;
+    try {
+      const user = await requireAuth({ request: context.request, env: { DB: db } });
+      userId = String(user.id);
+    } catch {
+      return createApiError('auth_error', 'Für diese Aktion ist eine Anmeldung erforderlich');
+    }
 
     const kv = env?.KV_COMMENTS || (context as any).locals?.env?.KV_COMMENTS;
     const service = new CommentService(db, kv);
     const created = await service.createComment(commentData, userId, token);
+    try {
+      const log = {
+        at: Math.floor(Date.now() / 1000),
+        action: 'comment_create',
+        entityType: commentData.entityType,
+        entityId: commentData.entityId,
+        parentId: commentData.parentId || null,
+        status: created?.status,
+        userId,
+      };
+      // eslint-disable-next-line no-console
+      console.log('[comments:create]', JSON.stringify(log));
+    } catch {}
     return createApiSuccess(created, 201);
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);

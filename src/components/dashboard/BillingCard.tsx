@@ -1,5 +1,4 @@
-import { useMemo, useState } from 'react';
-import CardReact from '@/components/ui/CardReact.jsx';
+import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
 export type BillingSummary = {
@@ -51,6 +50,7 @@ export default function BillingCard({ summary, strings, manageLink = '/pricing' 
 
   const statusLabel = useMemo(() => {
     if (!state) return strings.noSubscription;
+    if (state.status === 'inactive') return strings.noSubscription;
     return strings.statusMap[state.status] ?? strings.statusMap.unknown;
   }, [state, strings]);
 
@@ -58,6 +58,24 @@ export default function BillingCard({ summary, strings, manageLink = '/pricing' 
     if (!state || !state.currentPeriodEnd) return null;
     return formatDate(new Date(state.currentPeriodEnd * 1000), locale);
   }, [state, locale]);
+
+  // Refresh summary on mount to ensure latest plan/status from API
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch('/api/dashboard/billing-summary', { method: 'GET' });
+        if (!res.ok) return;
+        const json: any = await res.json();
+        if (!cancelled && json && json.success !== false && json.data) {
+          setState(json.data as BillingSummary);
+        }
+      } catch {}
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const handleCancel = async () => {
     if (!state?.subscriptionId) return;

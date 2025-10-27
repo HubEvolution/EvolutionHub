@@ -191,6 +191,17 @@ steps: 1. ⏸️ Warte auf manuelle Approval
   5. GitHub Release erstellen (bei Tag-Push)
 ```
 
+#### E) Warmup nach Deploy
+
+Nach erfolgreichem Deploy wird ein leichtgewichtiger Warmup-Run gestartet:
+
+- Scope Pages: `/`, `/en/`, `/tools`, `/en/tools`, Tool-Apps (`/tools/*/app`, `en/*/app`), Blog-Index und top Blog-Posts via RSS.
+- Scope APIs (öffentlich/leicht): `/api/tools`, `/api/dashboard/quick-actions`, `/api/*/usage`, `/api/lead-magnets/download` (GET Metadaten).
+- Admin ist bewusst ausgeschlossen: `/admin` sowie `/api/admin/*` erfordern Auth und führen sonst zu 401/Timeouts. Admin-Seiten sind durch SSR optimiert und werden on-demand geladen.
+- Timeouts: 10s pro Request, geringer Retry (`RETRIES=1`).
+
+Siehe `scripts/warmup.ts` für Details.
+
 #### D) `notify-failure`
 
 Loggt Fehlerdetails bei Deployment-Failure.

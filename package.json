@@ -48,6 +48,7 @@
     "lint:md:fix": "markdownlint-cli2 --fix \"docs/**/*.md\"",
     "openapi:validate": "npx swagger-cli validate openapi.yaml",
     "openapi:redoc": "npx redoc-cli build openapi.yaml -o api-docs.html",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:setup": "npm run setup:local",

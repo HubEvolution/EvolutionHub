@@ -10,8 +10,7 @@ export interface Env {
   PRICING_TABLE: Record<string, string>;
 }
 
-const stripeFromEnv = (env: Env) =>
-  new Stripe(env.STRIPE_SECRET, { apiVersion: '2022-11-15' } as Stripe.StripeConfig);
+const stripeFromEnv = (env: Env) => new Stripe(env.STRIPE_SECRET);
 
 // Minimal context typing to avoid implicit any; Hono-like context is expected
 type JsonFn = (data: unknown, init?: number | ResponseInit) => Response;

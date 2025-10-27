@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { CommentForm } from './CommentForm';
 import { Button } from '../ui/Button';
-import type { Comment } from '../../lib/types/comments';
+import type { Comment, ReportReason } from '../../lib/types/comments';
+import { useCommentStore } from '../../stores/comment-store';
+import { getLocale } from '@/lib/i18n';
+import { localizePath } from '@/lib/locale-path';
 
 /**
  * Hook to detect if user is on mobile device
@@ -33,7 +37,7 @@ interface CommentMobileProps {
   onUpdateComment: (commentId: string, content: string) => Promise<void>;
   onDeleteComment: (commentId: string) => Promise<void>;
   onReply: (content: string, parentId?: string) => Promise<void>;
-  currentUser?: { id: number; name: string; email: string } | null;
+  currentUser?: { id: string; name: string; email: string; image?: string } | null;
   maxDepth?: number;
   enableSwipeActions?: boolean;
 }
@@ -44,7 +48,8 @@ interface MobileCommentItemProps {
   onUpdateComment: (commentId: string, content: string) => Promise<void>;
   onDeleteComment: (commentId: string) => Promise<void>;
   onReply: (content: string, parentId?: string) => Promise<void>;
-  currentUser?: { id: number; name: string; email: string } | null;
+  currentUser?: { id: string; name: string; email: string; image?: string } | null;
+  maxDepth?: number;
   enableSwipeActions?: boolean;
 }
 
@@ -84,6 +89,7 @@ export const CommentMobile: React.FC<CommentMobileProps> = ({
             onDeleteComment={onDeleteComment}
             onReply={onReply}
             currentUser={currentUser}
+            maxDepth={maxDepth}
             enableSwipeActions={enableSwipeActions}
           />
         ))}
@@ -91,8 +97,23 @@ export const CommentMobile: React.FC<CommentMobileProps> = ({
 
       {/* Floating Action Button for new comment */}
       <MobileCommentFAB
+        currentUser={currentUser ?? null}
         onNewComment={() => {
-          /* Handle new comment */
+          try {
+            const el = document.getElementById('comments');
+            if (el) {
+              el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else {
+              // Fallback to anchor
+              if (typeof window !== 'undefined') {
+                window.location.hash = '#comments';
+              }
+            }
+            // Optionally emit a custom event to focus a form when available
+            document.dispatchEvent(new CustomEvent('eh:comments:new'));
+          } catch {
+            /* no-op */
+          }
         }}
       />
     </div>
@@ -106,15 +127,47 @@ const MobileCommentItem: React.FC<MobileCommentItemProps> = ({
   onDeleteComment,
   onReply,
   currentUser,
+  maxDepth = 3,
   enableSwipeActions = true,
 }) => {
   const [isReplying, setIsReplying] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [showActions, setShowActions] = useState(false);
   const [swipeOffset, setSwipeOffset] = useState(0);
+  const [isReporting, setIsReporting] = useState(false);
+  const [reportReason, setReportReason] = useState<ReportReason>('spam');
+  const [reportDescription, setReportDescription] = useState('');
+  const [reported, setReported] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+
+  const { reportComment, csrfToken, initializeCsrfToken } = useCommentStore();
+  const loc = getLocale(typeof window !== 'undefined' ? window.location.pathname : '/');
+  const t = (k: string) => {
+    const deT: Record<string, string> = {
+      melden: 'Melden',
+      gemeldet: 'Gemeldet',
+      grund: 'Grund',
+      beschreibung: 'Beschreibung (optional)',
+      abbrechen: 'Abbrechen',
+      senden: 'Senden',
+      toast: 'Danke für deine Meldung',
+    };
+    const enT: Record<string, string> = {
+      melden: 'Report',
+      gemeldet: 'Reported',
+      grund: 'Reason',
+      beschreibung: 'Description (optional)',
+      abbrechen: 'Cancel',
+      senden: 'Submit',
+      toast: 'Thanks for your report',
+    };
+    return (loc === 'de' ? deT : enT)[k] || k;
+  };
 
   const isAuthor = currentUser?.id === comment.authorId;
-  const canReply = depth < 3;
+  const isAdmin = currentUser?.email === 'admin@hub-evolution.com';
+  const canEditDelete = isAuthor || !!isAdmin;
+  const canReply = depth < maxDepth;
 
   // Touch handlers for swipe actions
   const touchStartX = React.useRef<number>(0);
@@ -148,6 +201,21 @@ const MobileCommentItem: React.FC<MobileCommentItemProps> = ({
     }
 
     setSwipeOffset(0);
+  };
+
+  const openReport = () => {
+    if (!csrfToken) initializeCsrfToken();
+    setIsReporting(true);
+  };
+
+  const submitReport = async () => {
+    await reportComment(comment.id, reportReason, reportDescription, csrfToken || null);
+    setIsReporting(false);
+    setReportDescription('');
+    setReportReason('spam');
+    setReported(true);
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 3000);
   };
 
   const formatDate = (timestamp: number) => {
@@ -214,9 +282,23 @@ const MobileCommentItem: React.FC<MobileCommentItemProps> = ({
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center space-x-2">
               {/* Avatar */}
-              <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-medium flex-shrink-0">
-                {comment.authorName.charAt(0).toUpperCase()}
-              </div>
+              {comment.authorImage ? (
+                <img
+                  src={comment.authorImage}
+                  alt="User avatar"
+                  className="w-8 h-8 rounded-full object-cover flex-shrink-0"
+                />
+              ) : currentUser?.id === comment.authorId && currentUser?.image ? (
+                <img
+                  src={currentUser.image}
+                  alt="User avatar"
+                  className="w-8 h-8 rounded-full object-cover flex-shrink-0"
+                />
+              ) : (
+                <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-medium flex-shrink-0">
+                  {comment.authorName.charAt(0).toUpperCase()}
+                </div>
+              )}
 
               {/* Author and Date */}
               <div className="min-w-0 flex-1">
@@ -264,9 +346,9 @@ const MobileCommentItem: React.FC<MobileCommentItemProps> = ({
               <span>
                 {comment.replies.length} Antwort{comment.replies.length !== 1 ? 'en' : ''}
               </span>
-              {comment.reportCount > 0 && (
+              {(comment.reportCount ?? 0) > 0 && (
                 <span className="text-orange-600 dark:text-orange-400">
-                  {comment.reportCount} Meldung{comment.reportCount !== 1 ? 'en' : ''}
+                  {comment.reportCount ?? 0} Meldung{(comment.reportCount ?? 0) !== 1 ? 'en' : ''}
                 </span>
               )}
             </div>
@@ -276,7 +358,7 @@ const MobileCommentItem: React.FC<MobileCommentItemProps> = ({
           {!isEditing && (
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                {canReply && (
+                {canReply && currentUser && (
                   <button
                     onClick={() => setIsReplying(!isReplying)}
                     className="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
@@ -306,7 +388,7 @@ const MobileCommentItem: React.FC<MobileCommentItemProps> = ({
           <div className="border-t border-gray-200 dark:border-gray-700 px-3 py-2 bg-gray-50 dark:bg-gray-900">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
-                {isAuthor && (
+                {canEditDelete && (
                   <>
                     <button
                       onClick={() => {
@@ -330,9 +412,18 @@ const MobileCommentItem: React.FC<MobileCommentItemProps> = ({
                     </button>
                   </>
                 )}
-                <button className="text-xs text-orange-600 hover:text-orange-800 dark:text-orange-400 dark:hover:text-orange-300">
-                  Melden
-                </button>
+                {currentUser && (
+                  reported ? (
+                    <span className="text-xs text-orange-500 opacity-60">{t('gemeldet')}</span>
+                  ) : (
+                    <button
+                      className="text-xs text-orange-600 hover:text-orange-800 dark:text-orange-400 dark:hover:text-orange-300"
+                      onClick={openReport}
+                    >
+                      {t('melden')}
+                    </button>
+                  )
+                )}
               </div>
               <button
                 onClick={() => setShowActions(false)}
@@ -348,12 +439,13 @@ const MobileCommentItem: React.FC<MobileCommentItemProps> = ({
         {isReplying && (
           <div className="border-t border-gray-200 dark:border-gray-700 p-3">
             <CommentForm
-              onSubmit={(content) => {
-                onReply(content, comment.id);
+              onSubmit={async (content) => {
+                await onReply(content, comment.id);
                 setIsReplying(false);
               }}
               onCancel={() => setIsReplying(false)}
               parentId={comment.id}
+              currentUser={currentUser}
               submitText="Antwort senden"
               showCancel={true}
               placeholder="Schreibe eine Antwort..."
@@ -373,12 +465,79 @@ const MobileCommentItem: React.FC<MobileCommentItemProps> = ({
               onUpdateComment={onUpdateComment}
               onDeleteComment={onDeleteComment}
               onReply={onReply}
-              currentUser={currentUser}
+              currentUser={currentUser ?? null}
+              maxDepth={maxDepth}
               enableSwipeActions={enableSwipeActions}
             />
           ))}
         </div>
       )}
+
+      {isReporting && typeof window !== 'undefined' &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={`report-dialog-title-${comment.id}`}
+            onKeyDown={(e) => {
+              if (e.key === 'Escape') setIsReporting(false);
+            }}
+          >
+            <div className="absolute inset-0 bg-black/50" onClick={() => setIsReporting(false)} aria-hidden="true"></div>
+            <div className="relative bg-white dark:bg-gray-800 rounded-lg shadow-lg w-full max-w-sm p-4">
+              <h3 id={`report-dialog-title-${comment.id}`} className="text-sm font-medium mb-3 text-gray-900 dark:text-white">{t('melden')}</h3>
+              <div className="space-y-2 mb-3 text-sm">
+                <label className="block text-gray-700 dark:text-gray-300 mb-1">{t('grund')}</label>
+                <select
+                  className="w-full border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 p-2 text-sm"
+                  value={reportReason}
+                  onChange={(e) => setReportReason(e.target.value as ReportReason)}
+                >
+                  <option value="spam">Spam</option>
+                  <option value="harassment">Belästigung</option>
+                  <option value="inappropriate">Unangemessen</option>
+                  <option value="off_topic">Off-Topic</option>
+                  <option value="other">Andere</option>
+                </select>
+              </div>
+              <div className="mb-4 text-sm">
+                <label className="block text-gray-700 dark:text-gray-300 mb-1">{t('beschreibung')}</label>
+                <textarea
+                  className="w-full border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 p-2 text-sm"
+                  rows={3}
+                  value={reportDescription}
+                  onChange={(e) => setReportDescription(e.target.value)}
+                />
+              </div>
+              <div className="flex justify-end space-x-2">
+                <button
+                  className="px-3 py-1.5 text-sm rounded-md border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300"
+                  onClick={() => setIsReporting(false)}
+                >
+                  {t('abbrechen')}
+                </button>
+                <button
+                  className="px-3 py-1.5 text-sm rounded-md bg-orange-600 text-white hover:bg-orange-700"
+                  onClick={submitReport}
+                >
+                  {t('senden')}
+                </button>
+              </div>
+            </div>
+          </div>,
+          document.body
+        )
+      }
+
+      {showToast && typeof window !== 'undefined' &&
+        createPortal(
+          <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 bg-emerald-600 text-white text-sm px-4 py-2 rounded-full shadow-lg">
+            {t('toast')}
+          </div>,
+          document.body
+        )
+      }
     </div>
   );
 };
@@ -386,10 +545,18 @@ const MobileCommentItem: React.FC<MobileCommentItemProps> = ({
 // Floating Action Button for new comments
 interface MobileCommentFABProps {
   onNewComment: () => void;
+  currentUser: { id: string; name: string; email: string; image?: string } | null;
 }
 
-const MobileCommentFAB: React.FC<MobileCommentFABProps> = ({ onNewComment }) => {
+const MobileCommentFAB: React.FC<MobileCommentFABProps> = ({ onNewComment, currentUser }) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const locale = getLocale(typeof window !== 'undefined' ? window.location.pathname : '/');
+  const loginUrl =
+    localizePath(locale, '/login') +
+    (typeof window !== 'undefined'
+      ? `?returnTo=${encodeURIComponent(window.location.href + '#comments')}`
+      : '');
+  const menuId = 'mobile-fab-menu';
 
   return (
     <>
@@ -402,16 +569,41 @@ const MobileCommentFAB: React.FC<MobileCommentFABProps> = ({ onNewComment }) => 
       )}
 
       {/* FAB Container */}
-      <div className="fixed bottom-4 right-4 z-50 md:hidden">
+      <div
+        className="fixed bottom-4 right-4 z-50 md:hidden"
+        onKeyDown={(e) => {
+          if (e.key === 'Escape' && isExpanded) setIsExpanded(false);
+        }}
+      >
         {/* Expanded Menu */}
         {isExpanded && (
-          <div className="absolute bottom-16 right-0 mb-2 space-y-2">
-            <button className="block w-full px-4 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 text-sm font-medium">
-              Als Gast kommentieren
-            </button>
-            <button className="block w-full px-4 py-2 bg-blue-600 text-white rounded-lg shadow-lg text-sm font-medium">
-              Anmelden zum Kommentieren
-            </button>
+          <div
+            className="absolute bottom-16 right-0 mb-2 space-y-2"
+            id={menuId}
+            role="menu"
+            aria-label="Kommentar-Aktionen"
+          >
+            {currentUser ? (
+              <button
+                className="block w-full px-4 py-2 bg-blue-600 text-white rounded-lg shadow-lg text-sm font-medium"
+                role="menuitem"
+                onClick={() => {
+                  onNewComment();
+                  setIsExpanded(false);
+                }}
+              >
+                Kommentar schreiben
+              </button>
+            ) : (
+              <a
+                href={loginUrl}
+                className="block w-full px-4 py-2 bg-blue-600 text-white rounded-lg shadow-lg text-sm font-medium"
+                role="menuitem"
+                onClick={() => setIsExpanded(false)}
+              >
+                Anmelden zum Kommentieren
+              </a>
+            )}
           </div>
         )}
 
@@ -419,6 +611,10 @@ const MobileCommentFAB: React.FC<MobileCommentFABProps> = ({ onNewComment }) => 
         <button
           onClick={() => setIsExpanded(!isExpanded)}
           className="w-14 h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg flex items-center justify-center transition-all duration-200 hover:scale-105"
+          aria-haspopup="menu"
+          aria-expanded={isExpanded}
+          aria-controls={menuId}
+          aria-label="Kommentar-Aktionen"
         >
           <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />

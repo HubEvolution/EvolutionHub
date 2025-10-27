@@ -354,6 +354,63 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Stats'
+  /api/admin/status:
+    get:
+      summary: Admin status for current user
+      description: Returns current user's admin status snapshot including plan, credits and recent subscriptions. Requires admin.
+      x-source: src/pages/api/admin/status.ts
+      operationId: getAdminStatus
+      responses:
+        "200":
+          description: Admin status payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+  /api/admin/metrics:
+    get:
+      summary: Live admin metrics
+      description: Active sessions/users and user counters (24h). Requires admin.
+      x-source: src/pages/api/admin/metrics.ts
+      operationId: getAdminMetrics
+      responses:
+        "200":
+          description: Metrics object in GenericResponse wrapper
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+  /api/admin/comments:
+    get:
+      summary: Admin comments list (stub)
+      description: Returns comments and moderation stats. Currently returns an empty list quickly to keep /admin fast. Requires admin.
+      x-source: src/pages/api/admin/comments.ts
+      operationId: getAdminComments
+      responses:
+        "200":
+          description: Comments payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
   /api/debug/logs-stream:
     get:
       summary: Stream logs (SSE)
