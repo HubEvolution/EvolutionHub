@@ -394,9 +394,9 @@ paths:
                 $ref: '#/components/schemas/ApiErrorResponse'
   /api/admin/comments:
     get:
-      summary: Admin comments list (stub)
-      description: Returns comments and moderation stats. Currently returns an empty list quickly to keep /admin fast. Requires admin.
-      x-source: src/pages/api/admin/comments.ts
+      summary: Admin comments list
+      description: Returns comments and moderation stats with filters (status, entityType, entityId). Requires moderator or admin.
+      x-source: src/pages/api/admin/comments/index.ts
       operationId: getAdminComments
       responses:
         "200":
@@ -407,6 +407,182 @@ paths:
                 $ref: '#/components/schemas/GenericResponse'
         "401":
           description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+  /api/admin/comments/{id}:
+    get:
+      summary: Admin comment details
+      description: Returns details for a single comment with admin metadata. Requires moderator or admin.
+      x-source: src/pages/api/admin/comments/[id]/index.ts
+      operationId: getAdminCommentById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Comment details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+    delete:
+      summary: Soft‑delete (hide) comment
+      description: Hides a comment (soft delete). Requires moderator or admin.
+      x-source: src/pages/api/admin/comments/[id]/index.ts
+      operationId: deleteAdminCommentById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: X-CSRF-Token
+          in: header
+          required: true
+          description: Double‑Submit token; must match cookie 'csrf_token'
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason:
+                  type: string
+                notifyUser:
+                  type: boolean
+      responses:
+        "200":
+          description: Deleted (hidden)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        "403":
+          description: Forbidden (CSRF/Origin or insufficient permissions)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+  /api/admin/comments/{id}/moderate:
+    post:
+      summary: Moderate a comment
+      description: Approve, reject, flag or hide a comment. Requires moderator or admin.
+      x-source: src/pages/api/admin/comments/[id]/moderate.ts
+      operationId: postAdminCommentModerate
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: X-CSRF-Token
+          in: header
+          required: true
+          description: Double‑Submit token; must match cookie 'csrf_token'
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                action:
+                  type: string
+                  enum: [approve, reject, flag, hide]
+                reason:
+                  type: string
+                notifyUser:
+                  type: boolean
+              required:
+                - action
+      responses:
+        "200":
+          description: Moderation result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        "403":
+          description: Forbidden (CSRF/Origin or insufficient permissions)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+  /api/admin/comments/bulk-moderate:
+    post:
+      summary: Bulk moderate comments
+      description: Performs a bulk moderation action on multiple comments. Requires moderator or admin.
+      x-source: src/pages/api/admin/comments/bulk-moderate.ts
+      operationId: postAdminCommentsBulkModerate
+      parameters:
+        - name: X-CSRF-Token
+          in: header
+          required: true
+          description: Double‑Submit token; must match cookie 'csrf_token'
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                commentIds:
+                  type: array
+                  items:
+                    type: string
+                action:
+                  type: string
+                  enum: [approve, reject, flag, hide]
+                reason:
+                  type: string
+              required:
+                - commentIds
+                - action
+      responses:
+        "200":
+          description: Bulk results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        "403":
+          description: Forbidden (CSRF/Origin or insufficient permissions)
           content:
             application/json:
               schema:
