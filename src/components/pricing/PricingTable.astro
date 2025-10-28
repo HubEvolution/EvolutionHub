@@ -176,8 +176,9 @@ const plans: Plan[] = [
           return;
         }
         const data = await res.json().catch(() => ({}));
-        if (data && data.url) {
-          window.location.href = data.url;
+        const nextUrl = (data && (data.url || (data.data && data.data.url))) || '';
+        if (nextUrl) {
+          window.location.href = nextUrl;
         } else {
           alert('Checkout failed: Invalid response');
         }
@@ -312,8 +313,9 @@ const plans: Plan[] = [
         throw new Error('checkout_failed');
       }
       const data = await res.json().catch(() => ({}));
-      if (data && data.url) {
-        window.location.href = data.url;
+      const nextUrl = (data && (data.url || (data.data && data.data.url))) || '';
+      if (nextUrl) {
+        window.location.href = nextUrl;
       } else {
         alert('Checkout failed: Invalid response');
         throw new Error('invalid_response');
@@ -362,8 +364,9 @@ const plans: Plan[] = [
           return;
         }
         const data = await res.json().catch(() => ({}));
-        if (data && data.url) {
-          window.location.href = data.url;
+        const nextUrl = (data && (data.url || (data.data && data.data.url))) || '';
+        if (nextUrl) {
+          window.location.href = nextUrl;
         } else {
           alert('Checkout failed: Invalid response');
         }

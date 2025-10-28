@@ -69,7 +69,15 @@ export { LOGGING_CONFIG };
 // https://astro.build/config
 export default defineConfig({
   // Provide a site URL for canonical tags. Use BASE_URL in production if set.
-  site: process.env.BASE_URL || 'http://localhost:8787',
+  // Validate BASE_URL; fallback to local only if missing/invalid
+  site: (() => {
+    const s = process.env.BASE_URL;
+    try {
+      return s ? new URL(s).toString() : 'http://127.0.0.1:8787';
+    } catch {
+      return 'http://127.0.0.1:8787';
+    }
+  })(),
   output: 'server',
   base: '/',
   trailingSlash: 'ignore',

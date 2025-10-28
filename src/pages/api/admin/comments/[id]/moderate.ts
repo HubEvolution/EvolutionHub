@@ -1,258 +1,87 @@
-import { Hono } from 'hono';
-import { cors } from 'hono/cors';
-import { logger } from 'hono/logger';
-import { CommentService } from '../../../../../lib/services/comment-service';
-import { requireModerator } from '../../../../../lib/auth-helpers';
-const app = new Hono<{ Bindings: { DB: D1Database; KV_COMMENTS?: KVNamespace } }>();
+import type { APIContext } from 'astro';
+import {
+  withAuthApiMiddleware,
+  createApiError,
+  createApiSuccess,
+  createMethodNotAllowed,
+} from '@/lib/api-middleware';
+import type { D1Database } from '@cloudflare/workers-types';
+import { requireModerator } from '@/lib/auth-helpers';
+import { CommentService } from '@/lib/services/comment-service';
+import { sensitiveActionLimiter } from '@/lib/rate-limiter';
 
-// Middleware
-app.use('*', logger());
-app.use(
-  '*',
-  cors({
-    origin: (origin) => {
-      // Allow requests from the same origin and localhost for development
-      if (!origin || origin.includes('localhost') || origin.endsWith('.vercel.app')) {
-        return origin;
+// POST /api/admin/comments/[id]/moderate — Moderate a specific comment (approve/reject/flag/hide)
+export const POST = withAuthApiMiddleware(
+  async (context: APIContext) => {
+    const env = (context.locals?.runtime?.env || {}) as {
+      DB?: D1Database;
+      KV_COMMENTS?: KVNamespace;
+    };
+    const db = env.DB as D1Database | undefined;
+    if (!db) return createApiError('server_error', 'Database unavailable');
+
+    // RBAC
+    let user: { id: string | number };
+    try {
+      user = await requireModerator({
+        req: { header: (n: string) => context.request.headers.get(n) || undefined },
+        request: context.request,
+        env: { DB: db },
+      });
+    } catch {
+      return createApiError('forbidden', 'Insufficient permissions');
+    }
+
+    const commentId = context.params?.id?.toString().trim();
+    if (!commentId) return createApiError('validation_error', 'Comment ID required');
+
+    // Parse and validate body
+    let body: { action?: string; reason?: string; notifyUser?: boolean } = {};
+    try {
+      body = (await context.request.json()) as typeof body;
+    } catch {
+      return createApiError('validation_error', 'Invalid JSON');
+    }
+    const actionStr = String(body.action || '').toLowerCase();
+    const validActions = ['approve', 'reject', 'flag', 'hide'] as const;
+    if (!(validActions as readonly string[]).includes(actionStr)) {
+      return createApiError('validation_error', 'Invalid action');
+    }
+    const action = actionStr as (typeof validActions)[number];
+    const reason = (body.reason || '').trim();
+    const notifyUser = Boolean(body.notifyUser);
+
+    try {
+      const service = new CommentService(db, env.KV_COMMENTS);
+      const moderation = await service.moderateComment(
+        commentId,
+        { action, reason },
+        String(user.id)
+      );
+      const comment = await service.getCommentById(commentId);
+      // Optional, non-blocking notification hook can be added later
+      if (notifyUser && comment.authorId === String(user.id)) {
+        // no-op
       }
-      return null; // Reject other origins
-    },
-    credentials: true,
-  })
+      return createApiSuccess({ moderation, comment });
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'Failed to moderate comment';
+      if (msg.includes('not found')) return createApiError('not_found', 'Comment not found');
+      return createApiError('server_error', msg);
+    }
+  },
+  {
+    enforceCsrfToken: true,
+    rateLimiter: sensitiveActionLimiter,
+    logMetadata: { action: 'admin_comment_moderate' },
+  }
 );
 
-// POST /api/admin/comments/[id]/moderate - Moderate a specific comment
-app.post('/moderate', async (c) => {
-  try {
-    // Require moderator or admin role
-    const user = await requireModerator({
-      req: { header: (name: string) => c.req.header(name) },
-      request: c.req.raw,
-      env: { DB: c.env.DB },
-    });
-
-    const commentId = c.req.param('id');
-
-    if (!commentId) {
-      return c.json(
-        { success: false, error: { type: 'validation_error', message: 'Comment ID required' } },
-        400
-      );
-    }
-
-    const body = await c.req.json<{
-      action: 'approve' | 'reject' | 'flag' | 'hide';
-      reason?: string;
-      notifyUser?: boolean;
-    }>();
-
-    const { action, reason, notifyUser = false } = body;
-
-    if (!['approve', 'reject', 'flag', 'hide'].includes(action)) {
-      return c.json(
-        { success: false, error: { type: 'validation_error', message: 'Invalid action' } },
-        400
-      );
-    }
-
-    const commentService = new CommentService(c.env.DB, c.env.KV_COMMENTS);
-
-    // Get comment details before moderation for potential notifications
-    const comment = await commentService.getCommentById(commentId);
-    if (!comment) {
-      return c.json(
-        { success: false, error: { type: 'validation_error', message: 'Comment not found' } },
-        404
-      );
-    }
-
-    // Perform moderation
-    const moderation = await commentService.moderateComment(
-      commentId,
-      { action, reason },
-      String(user.id)
-    );
-
-    // TODO: Send notification to comment author if requested
-    if (notifyUser && comment.authorId !== String(user.id)) {
-      // This would be implemented in Phase 2: Benachrichtigungs-System
-      console.log(`Notification requested for comment ${commentId} moderation`);
-    }
-
-    return c.json({
-      success: true,
-      data: {
-        moderation,
-        comment: {
-          id: comment.id,
-          status: comment.status,
-          content: comment.content,
-          authorId: comment.authorId,
-          entityType: comment.entityType,
-          entityId: comment.entityId,
-          createdAt: comment.createdAt,
-          updatedAt: comment.updatedAt,
-        },
-      },
-    });
-  } catch (error) {
-    console.error('Error moderating comment:', error);
-
-    if (error instanceof Error) {
-      if (error.message.includes('not found')) {
-        return c.json(
-          { success: false, error: { type: 'validation_error', message: error.message } },
-          404
-        );
-      }
-      if (error.message.includes('Authentication')) {
-        return c.json(
-          { success: false, error: { type: 'auth_error', message: error.message } },
-          401
-        );
-      }
-    }
-
-    return c.json(
-      { success: false, error: { type: 'server_error', message: 'Failed to moderate comment' } },
-      500
-    );
-  }
-});
-
-// GET /api/admin/comments/[id] - Get detailed comment information for admin
-app.get('/', async (c) => {
-  try {
-    const user = await requireModerator({
-      req: { header: (name: string) => c.req.header(name) },
-      request: c.req.raw,
-      env: { DB: c.env.DB },
-    });
-
-    // TODO: Check if user has admin permissions
-
-    const commentId = c.req.param('id');
-
-    if (!commentId) {
-      return c.json(
-        { success: false, error: { type: 'validation_error', message: 'Comment ID required' } },
-        400
-      );
-    }
-
-    const commentService = new CommentService(c.env.DB);
-
-    const comment = await commentService.getCommentById(commentId);
-
-    if (!comment) {
-      return c.json(
-        { success: false, error: { type: 'validation_error', message: 'Comment not found' } },
-        404
-      );
-    }
-
-    return c.json({
-      success: true,
-      data: {
-        comment,
-        adminData: {
-          canEdit: true,
-          canDelete: true,
-          isAuthor: comment.authorId === String(user.id),
-        },
-      },
-    });
-  } catch (error) {
-    console.error('Error fetching comment details:', error);
-
-    if (error instanceof Error && error.message.includes('Authentication')) {
-      return c.json({ success: false, error: { type: 'auth_error', message: error.message } }, 401);
-    }
-
-    return c.json(
-      {
-        success: false,
-        error: { type: 'server_error', message: 'Failed to fetch comment details' },
-      },
-      500
-    );
-  }
-});
-
-// DELETE /api/admin/comments/[id] - Delete a comment (admin only)
-app.delete('/', async (c) => {
-  try {
-    const user = await requireModerator({
-      req: { header: (name: string) => c.req.header(name) },
-      request: c.req.raw,
-      env: { DB: c.env.DB },
-    });
-
-    // TODO: Check if user has admin permissions for deletion
-
-    const commentId = c.req.param('id');
-
-    if (!commentId) {
-      return c.json(
-        { success: false, error: { type: 'validation_error', message: 'Comment ID required' } },
-        400
-      );
-    }
-
-    const body = await c.req.json<{
-      reason?: string;
-      notifyUser?: boolean;
-    }>();
-
-    const { reason = 'Deleted by administrator', notifyUser = false } = body;
-
-    const commentService = new CommentService(c.env.DB);
-
-    // Get comment details before deletion for potential notifications
-    const comment = await commentService.getCommentById(commentId);
-    if (!comment) {
-      return c.json(
-        { success: false, error: { type: 'validation_error', message: 'Comment not found' } },
-        404
-      );
-    }
-
-    // Soft delete the comment by setting status to 'hidden'
-    const moderation = await commentService.moderateComment(
-      commentId,
-      { action: 'hide', reason },
-      String(user.id)
-    );
-
-    // TODO: Send notification to comment author if requested
-    if (notifyUser && comment.authorId !== String(user.id)) {
-      console.log(`Notification requested for comment ${commentId} deletion`);
-    }
-
-    return c.json({ success: true, data: { moderation, deleted: true } });
-  } catch (error) {
-    console.error('Error deleting comment:', error);
-
-    if (error instanceof Error) {
-      if (error.message.includes('not found')) {
-        return c.json(
-          { success: false, error: { type: 'validation_error', message: error.message } },
-          404
-        );
-      }
-      if (error.message.includes('Authentication')) {
-        return c.json(
-          { success: false, error: { type: 'auth_error', message: error.message } },
-          401
-        );
-      }
-    }
-
-    return c.json(
-      { success: false, error: { type: 'server_error', message: 'Failed to delete comment' } },
-      500
-    );
-  }
-});
-
-export default app;
+// 405 for unsupported methods
+const methodNotAllowed = () => createMethodNotAllowed('POST');
+export const GET = methodNotAllowed;
+export const PUT = methodNotAllowed;
+export const PATCH = methodNotAllowed;
+export const DELETE = methodNotAllowed;
+export const OPTIONS = methodNotAllowed;
+export const HEAD = methodNotAllowed;

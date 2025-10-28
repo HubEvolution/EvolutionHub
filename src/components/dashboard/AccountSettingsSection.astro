@@ -1,6 +1,7 @@
 ---
 import DeleteAccountSection from '@/components/account/DeleteAccountSection';
 import SettingsScript from '@/components/SettingsScript.astro';
+import ProfileFormEnhancer from '@/components/scripts/ProfileFormEnhancer';
 
 interface ProfileCopy {
   title: string;
@@ -86,7 +87,8 @@ const { user, planLabels, billingUrl, redirectUrl, dangerStrings, profileCopy, i
               Live
             </span>
           </div>
-          <form id="profile-form" method="post" class="mt-5 space-y-4">
+          <form id="profile-form" method="post" action="/api/user/profile" class="mt-5 space-y-4">
+            <input type="hidden" name="next" value={Astro.url.pathname} />
             <div class="flex items-center gap-4">
               <img
                 id="avatar-preview"
@@ -235,6 +237,7 @@ const { user, planLabels, billingUrl, redirectUrl, dangerStrings, profileCopy, i
   </div>
 
   <SettingsScript />
+  <ProfileFormEnhancer client:load formId="profile-form" />
   <div id="i18n-settings" data-json={JSON.stringify(i18nSettings)} style="display:none"></div>
 
   <div

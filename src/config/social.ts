@@ -6,6 +6,7 @@ export type SocialLinks = {
   instagram: string;
   linkedin: string;
   pinterest: string;
+  facebook: string;
 };
 
 /**
@@ -22,6 +23,7 @@ export function getSocialLinks(): SocialLinks {
     instagram: (import.meta as any).env.PUBLIC_SOCIAL_INSTAGRAM || '',
     linkedin: (import.meta as any).env.PUBLIC_SOCIAL_LINKEDIN || '',
     pinterest: (import.meta as any).env.PUBLIC_SOCIAL_PINTEREST || '',
+    facebook: (import.meta as any).env.PUBLIC_SOCIAL_FACEBOOK || '',
   };
 }
 
@@ -36,4 +38,5 @@ export const SOCIAL_ORDER: Array<keyof SocialLinks> = [
   'instagram',
   'linkedin',
   'pinterest',
+  'facebook',
 ];

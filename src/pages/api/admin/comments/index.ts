@@ -25,7 +25,7 @@ function clamp(n: number, min: number, max: number) {
 }
 
 export const GET = withAuthApiMiddleware(async (context: APIContext) => {
-  const env: any = (context.locals as any)?.runtime?.env ?? {};
+  const env = (context.locals?.runtime?.env || {}) as { DB?: D1Database };
   const db = env.DB as D1Database | undefined;
   if (!db) return createApiError('server_error', 'Database unavailable');
   // Require moderator or admin
@@ -53,7 +53,7 @@ export const GET = withAuthApiMiddleware(async (context: APIContext) => {
   const status = allowedStatuses.has(statusParam) ? statusParam : 'all';
 
   const whereParts: string[] = [];
-  const binds: any[] = [];
+  const binds: unknown[] = [];
   if (status !== 'all') {
     whereParts.push('c.status = ?');
     binds.push(status);
@@ -70,7 +70,7 @@ export const GET = withAuthApiMiddleware(async (context: APIContext) => {
 
   async function countByStatus(s?: string) {
     const parts: string[] = [];
-    const params: any[] = [];
+    const params: unknown[] = [];
     if (s) {
       parts.push('c.status = ?');
       params.push(s);
@@ -85,7 +85,7 @@ export const GET = withAuthApiMiddleware(async (context: APIContext) => {
     }
     const sql = `SELECT COUNT(*) as v FROM comments c ${parts.length ? 'WHERE ' + parts.join(' AND ') : ''}`;
     const row = await database.prepare(sql).bind(...params).first<{ v: number }>();
-    return (row as any)?.v ?? 0;
+    return row?.v ?? 0;
   }
 
   const [total, pending, approved, rejected, flagged] = await Promise.all([

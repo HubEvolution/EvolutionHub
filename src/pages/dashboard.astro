@@ -45,7 +45,13 @@ async function fetchApi<T>(path: string, timeoutMs = 1200): Promise<T | null> {
   }
 }
 
-const billingSummary = await fetchApi<BillingSummary>('/api/dashboard/billing-summary');
+type DashboardBillingSummary = BillingSummary & {
+  monthlyLimit: number;
+  monthlyUsed: number;
+  periodEndsAt: number;
+};
+
+const billingSummary = await fetchApi<DashboardBillingSummary>('/api/dashboard/billing-summary');
 
 // shortcuts removed in Dashboard V2
 
@@ -123,11 +129,9 @@ const baseDashboardPath =
 const redirectUrl = locale === 'de' ? '/de/login' : locale === 'en' ? '/en/login' : '/login';
 const billingUrl = `${baseDashboardPath}#billing`;
 
-const pricingBasePath =
-  locale === 'de' ? '/de/pricing' : locale === 'en' ? '/en/pricing' : '/pricing';
-const managePricingLink = (() => {
+const manageBillingLink = (() => {
   try {
-    const u = new URL(pricingBasePath, 'http://x');
+    const u = new URL('/api/billing/portal', 'http://x');
     const cur = Astro.url;
     const currentPath = `${cur.pathname}${cur.search}`;
     if (currentPath.startsWith('/')) {
@@ -135,11 +139,24 @@ const managePricingLink = (() => {
     }
     return u.pathname + u.search;
   } catch {
-    return pricingBasePath;
+    return '/api/billing/portal';
   }
 })();
 
-const buyCreditsLink = managePricingLink;
+const buyCreditsLink = (() => {
+  try {
+    const base = locale === 'de' ? '/de/pricing' : locale === 'en' ? '/en/pricing' : '/pricing';
+    const u = new URL(base, 'http://x');
+    const cur = Astro.url;
+    const currentPath = `${cur.pathname}${cur.search}`;
+    if (currentPath.startsWith('/')) {
+      u.searchParams.set('return_to', currentPath);
+    }
+    return u.pathname + u.search;
+  } catch {
+    return locale === 'de' ? '/de/pricing' : locale === 'en' ? '/en/pricing' : '/pricing';
+  }
+})();
 
 const dangerStrings =
   locale === 'de'
@@ -269,6 +286,18 @@ const profileCopy =
                     : '—'}
                 </span>
               </div>
+              <div class="flex items-baseline gap-2">
+                <span class="text-xs font-semibold uppercase tracking-wide text-slate-400">Monthly quota remaining</span>
+                <span id="quota-remaining" class="text-lg font-bold text-white">
+                  {(() => {
+                    const limit = Number(billingSummary?.monthlyLimit || 0);
+                    const used = Number(billingSummary?.monthlyUsed || 0);
+                    const rem = Math.max(0, limit - used);
+                    return rem > 0 ? rem : '—';
+                  })()}
+                </span>
+                <span id="quota-loading" class="text-[10px] font-semibold text-slate-400">Updating…</span>
+              </div>
               <a
                 href={buyCreditsLink}
                 class="inline-flex items-center rounded-md bg-gradient-to-r from-indigo-500 to-fuchsia-500 px-3 py-1.5 text-xs font-bold text-white shadow-sm shadow-indigo-500/30 transition hover:from-indigo-600 hover:to-fuchsia-600"
@@ -286,12 +315,10 @@ const profileCopy =
                 return (
                   <div class="mt-3 space-y-1.5">
                     <div class="h-2 w-full rounded-full bg-white/10 overflow-hidden">
-                      <div class="h-2 bg-gradient-to-r from-emerald-500 to-teal-500" style={`width: ${pct}%`} />
+                      <div id="quota-progress" class="h-2 bg-gradient-to-r from-emerald-500 to-teal-500" style={`width: ${pct}%`} />
                     </div>
                     <div class="flex items-center justify-between text-xs text-slate-400">
-                      <span>
-                        {used}/{limit} used
-                      </span>
+                      <span><span id="quota-used">{used}</span>/<span id="quota-limit">{limit}</span> used</span>
                       {daysLeft !== null && <span>resets in {daysLeft} day{daysLeft === 1 ? '' : 's'}</span>}
                     </div>
                   </div>
@@ -307,7 +334,7 @@ const profileCopy =
               client:load
               summary={billingSummary}
               strings={billingStrings}
-              manageLink={managePricingLink}
+              manageLink={manageBillingLink}
             />
           </Card>
         </div>
@@ -338,3 +365,35 @@ const profileCopy =
     </div>
   </div>
 </BaseLayout>
+
+<script is:inline nonce={Astro.locals.cspNonce}>
+  (function () {
+    try {
+      fetch('/api/dashboard/billing-summary')
+        .then((r) => (r.ok ? r.json() : Promise.reject(r)))
+        .then((json) => {
+          if (!json || typeof json !== 'object' || json === null) return;
+          if (!('data' in json) || !json['data']) return;
+          const data = json['data'];
+          const limit = Number(data.monthlyLimit || 0);
+          const used = Number(data.monthlyUsed || 0);
+          const rem = Math.max(0, limit - used);
+          const progress = limit > 0 ? Math.min(100, Math.max(0, Math.round((used / limit) * 100))) : 0;
+          const elRem = document.getElementById('quota-remaining');
+          if (elRem) elRem.textContent = rem > 0 ? String(rem) : '—';
+          const elUsed = document.getElementById('quota-used');
+          if (elUsed) elUsed.textContent = String(used);
+          const elLimit = document.getElementById('quota-limit');
+          if (elLimit) elLimit.textContent = String(limit);
+          const bar = document.getElementById('quota-progress');
+          if (bar && bar instanceof HTMLElement) bar.style.width = `${progress}%`;
+          const elLoading = document.getElementById('quota-loading');
+          if (elLoading && elLoading instanceof HTMLElement) elLoading.style.display = 'none';
+        })
+        .catch(() => {
+          const elLoading = document.getElementById('quota-loading');
+          if (elLoading && elLoading instanceof HTMLElement) elLoading.style.display = 'none';
+        });
+    } catch {}
+  })();
+</script>

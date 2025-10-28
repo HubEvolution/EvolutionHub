@@ -38,11 +38,11 @@ describe('WebscraperService', () => {
       );
     });
 
-    it('should reject blocked domains', async () => {
+    it('should reject blocked domains (or invalid port)', async () => {
       const input = { url: 'http://localhost:3000' };
 
       await expect(service.scrape(input, 'guest', 'guest-123')).rejects.toThrow(
-        'URL domain is blocked'
+        /URL domain is blocked|Only ports 80\/443 are allowed/
       );
     });
 

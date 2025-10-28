@@ -2,6 +2,7 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Card from '@/components/ui/Card';
 import BulkActions from '@/components/admin/BulkActions';
+import AdminClient from '@/components/admin/AdminClient';
 export const prerender = false;
 
 // Admin Status (server-side)
@@ -75,6 +76,15 @@ const adminCommentsStats = { total: 0, pending: 0, approved: 0, rejected: 0, fla
               <div><span class="text-white/50">Plan:</span> <span id="lr-plan"></span></div>
               <div><span class="text-white/50">Credits:</span> <span id="lr-credits"></span></div>
               <div><span class="text-white/50">Subscription:</span> <span id="lr-sub"></span></div>
+              <div class="mt-2 flex flex-wrap items-center gap-2">
+                <span class="text-white/50">Last seen:</span> <span id="lr-last-seen"></span>
+                <span class="text-white/50">• IP:</span> <span id="lr-last-ip"></span>
+                <button id="lr-ip-geo" class="rounded-md border border-white/10 px-2 py-1 text-xs text-white/80 hover:bg-white/5" type="button">Ort ermitteln</button>
+                <span id="lr-ip-geo-out" class="text-white/60"></span>
+              </div>
+              <div class="mt-2">
+                <button id="lr-apply-userid" class="rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700" type="button">ID in Credits übernehmen</button>
+              </div>
             </div>
           </div>
           <div id="lookup-error" class="mt-3 hidden text-sm text-red-300"></div>
@@ -165,6 +175,45 @@ const adminCommentsStats = { total: 0, pending: 0, approved: 0, rejected: 0, fla
           </div>
         </Card>
 
+        <!-- Audit Logs -->
+        <Card as="section" className="p-6">
+          <h2 class="mb-4 text-xl font-semibold text-gray-900 dark:text-white">Audit Logs</h2>
+          <div class="flex items-center gap-3">
+            <button id="audit-load" type="button" class="rounded-md bg-sky-600 px-3 py-2 text-sm font-semibold text-white hover:bg-sky-700">Letzte 10 laden</button>
+            <label class="text-sm text-white/70 hidden">
+              Typ
+              <select id="audit-type" class="rounded-md border border-white/10 bg-white/5 px-2 py-1 text-white/90">
+                <option value="">Alle</option>
+                <option value="API_ACCESS">API_ACCESS</option>
+                <option value="ADMIN_ACTION">ADMIN_ACTION</option>
+                <option value="SECURITY_EVENT">SECURITY_EVENT</option>
+              </select>
+            </label>
+          </div>
+          <div id="audit-error" class="mt-3 hidden text-sm text-red-300"></div>
+          <div id="audit-list" class="mt-4 max-h-[260px] overflow-y-auto text-sm text-white/80"></div>
+        </Card>
+
+        <!-- Sessions Management -->
+        <Card as="section" className="p-6">
+          <h2 class="mb-4 text-xl font-semibold text-gray-900 dark:text-white">Credits Usage</h2>
+          <div class="flex flex-wrap items-end gap-3">
+            <label class="block text-sm text-gray-300">
+              E‑Mail oder User‑ID
+              <input id="cu-userid" type="text" class="mt-1 w-full rounded-md border border-white/10 bg-white/5 p-2 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="user_id oder email@example.com" />
+            </label>
+            <button id="cu-balance" type="button" class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-700">Balance laden</button>
+            <button id="cu-packs" type="button" class="rounded-md bg-sky-600 px-3 py-2 text-sm font-semibold text-white hover:bg-sky-700">Packs laden</button>
+            <button id="cu-copy-balance" type="button" class="rounded-md border border-white/10 px-3 py-2 text-sm text-white/80 hover:bg-white/5">Copy cURL Balance</button>
+            <button id="cu-copy-packs" type="button" class="rounded-md border border-white/10 px-3 py-2 text-sm text-white/80 hover:bg-white/5">Copy cURL Packs</button>
+          </div>
+          <div id="cu-error" class="mt-3 hidden text-sm text-red-300"></div>
+          <div class="mt-4 text-sm text-white/80">
+            <div id="cu-balance-out" class="mb-3"></div>
+            <div id="cu-packs-list" class="max-h-[260px] overflow-y-auto"></div>
+          </div>
+        </Card>
+
         <!-- Kommentar-Moderation (embedded) -->
         <Card as="section" className="p-6">
           <h2 class="mb-4 text-xl font-semibold text-gray-900 dark:text-white">Kommentar‑Moderation</h2>
@@ -225,252 +274,5 @@ const adminCommentsStats = { total: 0, pending: 0, approved: 0, rejected: 0, fla
       </section>
     </div>
   </main>
-
-  <script type="module" nonce={Astro.locals.cspNonce}>
-    function ensureCsrfToken() {
-      try {
-        const cookie = document.cookie || '';
-        const m = cookie.match(/(?:^|; )csrf_token=([^;]+)/);
-        if (m && m[1]) return decodeURIComponent(m[1]);
-        const buf = new Uint8Array(16);
-        (globalThis.crypto || window.crypto).getRandomValues(buf);
-        const token = Array.from(buf)
-          .map((b) => b.toString(16).padStart(2, '0'))
-          .join('');
-        const attrs = [
-          'Path=/',
-          'SameSite=Lax',
-          typeof location !== 'undefined' && location.protocol === 'https:' ? 'Secure' : '',
-        ]
-          .filter(Boolean)
-          .join('; ');
-        document.cookie = `csrf_token=${encodeURIComponent(token)}; ${attrs}`;
-        return token;
-      } catch {
-        return '';
-      }
-    }
-
-    const $ = (id) => document.getElementById(id);
-    const show = (el) => el.classList.remove('hidden');
-    const hide = (el) => el.classList.add('hidden');
-
-    // User Lookup
-    const lookupInput = $('lookup-input');
-    const lookupBtn = $('lookup-btn');
-    const lookupClear = $('lookup-clear');
-    const lookupResult = $('lookup-result');
-    const lookupError = $('lookup-error');
-
-    lookupBtn?.addEventListener('click', async (e) => {
-      e?.preventDefault?.();
-      hide(lookupError); hide(lookupResult);
-      const v = (lookupInput?.value || '').trim();
-      if (!v) { lookupError.textContent = 'Bitte E‑Mail oder ID eingeben.'; show(lookupError); return; }
-      const p = new URLSearchParams();
-      if (v.includes('@')) p.set('email', v.toLowerCase()); else p.set('id', v);
-      const url = `/api/admin/users/summary?${p.toString()}`;
-      try {
-        const res = await fetch(url, { credentials: 'include', cache: 'no-store' });
-        const json = await res.json();
-        if (!res.ok || !json?.success) { lookupError.textContent = json?.error?.message || 'Lookup fehlgeschlagen'; show(lookupError); return; }
-        const d = json.data;
-        $('lr-id').textContent = d.user.id;
-        $('lr-email').textContent = d.user.email;
-        $('lr-name').textContent = d.user.name || '';
-        $('lr-plan').textContent = d.user.plan;
-        $('lr-credits').textContent = String(d.credits);
-        const sub = d.subscription;
-        $('lr-sub').textContent = sub ? `${sub.status} (Ende: ${sub.currentPeriodEnd ? new Date(sub.currentPeriodEnd * 1000).toLocaleString() : '—'})` : '—';
-        show(lookupResult);
-        // Prefill grant email
-        const ge = $('grant-email'); if (ge && !ge.value) ge.value = d.user.email;
-      } catch {
-        lookupError.textContent = 'Lookup fehlgeschlagen'; show(lookupError);
-      }
-    });
-
-    lookupClear?.addEventListener('click', () => {
-      if (lookupInput) lookupInput.value = '';
-      hide(lookupResult); hide(lookupError);
-    });
-
-    // Credits Grant
-    const grantBtn = $('grant-btn');
-    const grantEmail = $('grant-email');
-    const grantAmount = $('grant-amount');
-    const grantSuccess = $('grant-success');
-    const grantError = $('grant-error');
-    const grantFillSelf = $('grant-fill-self');
-
-    grantBtn?.addEventListener('click', async (e) => {
-      e?.preventDefault?.();
-      hide(grantSuccess); hide(grantError);
-      const email = (grantEmail?.value || '').trim().toLowerCase();
-      const amount = Math.max(1, parseInt(grantAmount?.value || '1000', 10) || 1000);
-      if (!email) { grantError.textContent = 'E‑Mail erforderlich'; show(grantError); return; }
-      try {
-        const csrf = ensureCsrfToken();
-        const res = await fetch('/api/admin/credits/grant', {
-          method: 'POST',
-          credentials: 'include',
-          headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
-          body: JSON.stringify({ email, amount }),
-        });
-        const json = await res.json();
-        if (!res.ok || !json?.success) { grantError.textContent = json?.error?.message || 'Gutschrift fehlgeschlagen'; show(grantError); return; }
-        const d = json.data || {};
-        grantSuccess.textContent = `OK: ${d.granted} Credits gebucht. Neue Balance: ${d.balance}. Pack: ${d.packId}`;
-        show(grantSuccess);
-      } catch {
-        grantError.textContent = 'Gutschrift fehlgeschlagen'; show(grantError);
-      }
-    });
-
-    // Health
-    const healthBtn = $('health-btn');
-    const healthStatus = $('health-status');
-    healthBtn?.addEventListener('click', async (e) => {
-      e?.preventDefault?.();
-      if (healthStatus) healthStatus.textContent = '...';
-      const t0 = performance.now();
-      try {
-        const res = await fetch('/api/health', { cache: 'no-store' });
-        const ms = Math.round(performance.now() - t0);
-        if (healthStatus) healthStatus.textContent = `${res.status} • ${ms}ms`;
-      } catch {
-        if (healthStatus) healthStatus.textContent = 'Fehler';
-      }
-    });
-
-    // Admin Status client loader (fills card even if SSR timed out)
-    async function loadAdminStatus() {
-      const container = document.getElementById('admin-status-container');
-      if (!container) return;
-      try {
-        const res = await fetch('/api/admin/status', { credentials: 'include', cache: 'no-store' });
-        const j = await res.json();
-        if (!res.ok || !j?.data) return;
-        const d = j.data;
-        const subs = Array.isArray(d.subscriptions) ? d.subscriptions.slice(0, 3) : [];
-        container.innerHTML = `
-          <div class="grid grid-cols-1 gap-3 text-sm text-white/80 sm:grid-cols-2">
-            <div><span class="text-white/50">User ID:</span> ${d.user.id}</div>
-            <div><span class="text-white/50">E‑Mail:</span> ${d.user.email}</div>
-            <div><span class="text-white/50">Plan:</span> ${d.plan}</div>
-            <div><span class="text-white/50">Credits:</span> ${d.credits}</div>
-            <div class="sm:col-span-2">
-              <div class="text-white/50 mb-1">Letzte Subscriptions</div>
-              <ul class="space-y-1">
-                ${subs
-                  .map(
-                    (s) => `
-                      <li>
-                        <span class="text-white/70">${s.plan}</span>
-                        <span class="text-white/40"> • ${s.status}</span>
-                        <span class="text-white/40"> • Ende: ${s.current_period_end ? new Date(s.current_period_end * 1000).toLocaleString() : '—'}</span>
-                      </li>`
-                  )
-                  .join('')}
-              </ul>
-            </div>
-          </div>`;
-      } catch {}
-    }
-
-    // Fill own email
-    grantFillSelf?.addEventListener('click', async () => {
-      try {
-        const res = await fetch('/api/admin/status', { credentials: 'include', cache: 'no-store' });
-        const json = await res.json();
-        const email = json?.data?.user?.email || '';
-        if (email && grantEmail) {
-          grantEmail.value = email;
-        }
-      } catch {}
-    });
-
-    // Live metrics loader (client-side)
-    async function loadMetrics() {
-      try {
-        const res = await fetch('/api/admin/metrics', { credentials: 'include', cache: 'no-store' });
-        const j = await res.json();
-        const d = j?.data || {};
-        const set = (id, v) => { const el = $(id); if (el) el.textContent = String(v ?? '–'); };
-        set('m-active-sessions', d.activeSessions);
-        set('m-active-users', d.activeUsers);
-        set('m-users-total', d.usersTotal);
-        set('m-users-new24h', d.usersNew24h);
-      } catch {}
-    }
-
-    // Comments loader with pagination and filters (client-side)
-    const cStatus = $('c-status');
-    const cPrev = $('c-prev');
-    const cNext = $('c-next');
-    const cPage = $('c-page');
-    const PAGE_SIZE = 12;
-    let cOffset = 0;
-    let cStatusVal = 'all';
-
-    function setStats(stats) {
-      const set = (id, v) => { const el = $(id); if (el) el.textContent = String(v ?? 0); };
-      set('cstat-total', stats.total);
-      set('cstat-pending', stats.pending);
-      set('cstat-approved', stats.approved);
-      set('cstat-rejected', stats.rejected);
-      set('cstat-flagged', stats.flagged);
-    }
-
-    function setPaging(count, total) {
-      const from = total === 0 ? 0 : cOffset + 1;
-      const to = cOffset + count;
-      if (cPage) cPage.textContent = `${from}–${to} von ${total}`;
-      if (cPrev) cPrev.disabled = cOffset === 0;
-      if (cNext) cNext.disabled = cOffset + count >= total;
-    }
-
-    async function loadComments() {
-      try {
-        const params = new URLSearchParams();
-        params.set('limit', String(PAGE_SIZE));
-        params.set('offset', String(cOffset));
-        params.set('includeReports', 'true');
-        if (cStatusVal && cStatusVal !== 'all') params.set('status', cStatusVal);
-        const res = await fetch(`/api/admin/comments?${params.toString()}`, { credentials: 'include', cache: 'no-store' });
-        const j = await res.json();
-        const d = j?.data || {};
-        const stats = d.stats || { total: 0, pending: 0, approved: 0, rejected: 0, flagged: 0 };
-        setStats(stats);
-        const tbody = document.getElementById('comments-tbody');
-        if (tbody && Array.isArray(d.comments)) {
-          tbody.innerHTML = d.comments
-            .map((c) => `
-              <tr class="border-t border-white/10">
-                <td class="px-2 py-1"><input type="checkbox" class="comment-select" data-comment-id="${c.id}" /></td>
-                <td class="px-2 py-1 whitespace-nowrap">${c.id}</td>
-                <td class="px-2 py-1">${(c.author?.email || '—')}</td>
-                <td class="px-2 py-1">${c.entityType}:${c.entityId}</td>
-                <td class="px-2 py-1">${c.status}</td>
-                <td class="px-2 py-1 whitespace-nowrap">${c.createdAt}</td>
-              </tr>
-            `)
-            .join('');
-        }
-        const pageCount = d?.pagination?.count ?? (Array.isArray(d.comments) ? d.comments.length : 0);
-        const total = stats.total ?? 0;
-        setPaging(pageCount, total);
-      } catch {}
-    }
-
-    // Kick off client loaders after mount
-    window.addEventListener('DOMContentLoaded', () => {
-      if (cStatus) cStatus.addEventListener('change', () => { cStatusVal = cStatus.value; cOffset = 0; loadComments(); });
-      if (cPrev) cPrev.addEventListener('click', () => { cOffset = Math.max(0, cOffset - PAGE_SIZE); loadComments(); });
-      if (cNext) cNext.addEventListener('click', () => { cOffset = cOffset + PAGE_SIZE; loadComments(); });
-      loadMetrics();
-      loadAdminStatus();
-      loadComments();
-    });
-  </script>
+  <AdminClient client:load />
 </BaseLayout>

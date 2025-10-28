@@ -52,6 +52,26 @@ export default tseslint.config(
       },
     },
   },
+  // Ignore noisy rules in compile-time shims/stubs only (do not affect production src files)
+  {
+    files: [
+      'src/types/ts-src-shims.d.ts',
+      'src/types/stubs/**/*',
+      'src/lib/services/provider-error.d.ts',
+      'src/lib/utils/id-generator.d.ts',
+      'src/lib/security/*.d.ts',
+      'src/lib/rate-limiter.d.ts',
+    ],
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-unused-vars': 'off',
+      '@typescript-eslint/no-empty-object-type': 'off',
+      'no-restricted-imports': 'off',
+      'react-hooks/rules-of-hooks': 'off',
+      'react-hooks/exhaustive-deps': 'off',
+      'prettier/prettier': 'off',
+    },
+  },
   // Stepwise rollout: enforce no-console only on migrated files
   {
     files: [

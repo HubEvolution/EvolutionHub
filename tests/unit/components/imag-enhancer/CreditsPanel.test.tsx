@@ -10,26 +10,28 @@ describe('CreditsPanel', () => {
 
     render(<CreditsPanel buying={false} createCreditsCheckout={create} />);
 
-    await user.click(screen.getByRole('button', { name: /Buy 200 credits/i }));
-    await user.click(screen.getByRole('button', { name: /Buy 1000 credits/i }));
+    await user.click(screen.getByRole('button', { name: /Buy 100 credits/i }));
+    await user.click(screen.getByRole('button', { name: /Buy 1500 credits/i }));
 
-    expect(create).toHaveBeenCalledWith(200);
-    expect(create).toHaveBeenCalledWith(1000);
+    expect(create).toHaveBeenCalledWith(100);
+    expect(create).toHaveBeenCalledWith(1500);
   });
 
   it('disables correct button based on buying state', () => {
     const create = vi.fn().mockResolvedValue(undefined);
 
-    const { rerender } = render(<CreditsPanel buying={200} createCreditsCheckout={create} />);
-    const [btn200_first, btn1000_first] = screen.getAllByRole('button');
-    expect(btn200_first).toBeDisabled();
-    expect(btn1000_first).not.toBeDisabled();
-    expect(btn1000_first).toHaveTextContent(/Buy 1000 credits/i);
+    const { rerender } = render(<CreditsPanel buying={100} createCreditsCheckout={create} />);
+    const [btn100_first, btn500_first, btn1500_first] = screen.getAllByRole('button');
+    expect(btn100_first).toBeDisabled();
+    expect(btn500_first).not.toBeDisabled();
+    expect(btn1500_first).not.toBeDisabled();
+    expect(btn1500_first).toHaveTextContent(/Buy 1500 credits/i);
 
-    rerender(<CreditsPanel buying={1000} createCreditsCheckout={create} />);
-    const [btn200_second, btn1000_second] = screen.getAllByRole('button');
-    expect(btn1000_second).toBeDisabled();
-    expect(btn200_second).not.toBeDisabled();
-    expect(btn200_second).toHaveTextContent(/Buy 200 credits/i);
+    rerender(<CreditsPanel buying={1500} createCreditsCheckout={create} />);
+    const [btn100_second, btn500_second, btn1500_second] = screen.getAllByRole('button');
+    expect(btn1500_second).toBeDisabled();
+    expect(btn100_second).not.toBeDisabled();
+    expect(btn500_second).not.toBeDisabled();
+    expect(btn100_second).toHaveTextContent(/Buy 100 credits/i);
   });
 });

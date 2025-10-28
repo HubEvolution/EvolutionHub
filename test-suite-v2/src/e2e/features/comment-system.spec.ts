@@ -1,28 +1,13 @@
 import { test, expect, Page } from '@playwright/test';
 import { getDb } from '../../../src/lib/db/helpers';
+import {
+  completeMagicLinkFlow,
+  completeWelcomeProfile,
+  generateUniqueEmail,
+} from '../../../fixtures/auth-helpers';
 
 test.describe('Comment System E2E Tests', () => {
   let testUserEmail: string;
-  let testUserPassword: string;
-
-  test.beforeEach(async ({ page }) => {
-    // Create test user for authenticated tests
-    testUserEmail = `testuser-${Date.now()}@example.com`;
-    testUserPassword = 'TestPassword123!';
-
-    // Navigate to registration page and create test user
-    await page.goto('/register');
-    await page.fill('input[name="email"]', testUserEmail);
-    await page.fill('input[name="password"]', testUserPassword);
-    await page.fill('input[name="confirmPassword"]', testUserPassword);
-    await page.click('button[type="submit"]');
-
-    // Wait for email verification or auto-login
-    await page.waitForURL('**/email-verified**');
-
-    // Navigate to comments demo page
-    await page.goto('/blog/comments-demo');
-  });
 
   test.describe('Guest User Comments', () => {
     test('should allow guest users to post comments', async ({ page }) => {
@@ -81,14 +66,17 @@ test.describe('Comment System E2E Tests', () => {
 
   test.describe('Authenticated User Comments', () => {
     test.beforeEach(async ({ page }) => {
-      // Login as test user
-      await page.goto('/login');
-      await page.fill('input[name="email"]', testUserEmail);
-      await page.fill('input[name="password"]', testUserPassword);
-      await page.click('button[type="submit"]');
+      // Create a unique test user and sign in via Magic Link (local E2E uses fake provider)
+      testUserEmail = generateUniqueEmail('comment-e2e');
+      await completeMagicLinkFlow(page, testUserEmail, { locale: 'en', targetAfterAuth: '/dashboard' });
 
-      // Wait for successful login
-      await page.waitForURL('**/dashboard**');
+      // If first-time login redirects to welcome-profile, complete it
+      if (/welcome-profile/.test(page.url())) {
+        await completeWelcomeProfile(page, {
+          name: 'Test User',
+          username: `test-${Date.now()}`,
+        });
+      }
 
       // Navigate to comments demo
       await page.goto('/blog/comments-demo');

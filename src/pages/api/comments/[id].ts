@@ -8,14 +8,14 @@ import { requireAuth } from '@/lib/auth-helpers';
 import { createCsrfMiddleware, validateCsrfToken } from '@/lib/security/csrf';
 import type { UpdateCommentRequest } from '@/lib/types/comments';
 
-const app = new Hono<{ Bindings: { DB: D1Database; KV_COMMENTS?: KVNamespace } }>();
+const app = new Hono();
 
 // Middleware
 app.use('*', logger());
 app.use(
   '*',
   cors({
-    origin: (origin) => {
+    origin: (origin: string | undefined) => {
       if (!origin || origin.includes('localhost') || origin.endsWith('.vercel.app')) {
         return origin;
       }
@@ -29,7 +29,7 @@ app.use(
 app.use('/:id', createCsrfMiddleware());
 
 // GET /api/comments/[id] - Get a specific comment
-app.get('/:id', async (c) => {
+app.get('/:id', async (c: any) => {
   try {
     const commentId = c.req.param('id');
     const commentService = new CommentService(c.env.DB, c.env.KV_COMMENTS);
@@ -55,7 +55,7 @@ app.get('/:id', async (c) => {
 });
 
 // PUT /api/comments/[id] - Update a comment
-app.put('/:id', async (c) => {
+app.put('/:id', async (c: any) => {
   try {
     const commentId = c.req.param('id');
     const user = await requireAuth({
@@ -64,7 +64,7 @@ app.put('/:id', async (c) => {
       env: { DB: c.env.DB },
     });
 
-    const body = await c.req.json<UpdateCommentRequest & { csrfToken: string }>();
+    const body = (await c.req.json()) as UpdateCommentRequest & { csrfToken: string };
     const { csrfToken, ...updateData } = body;
 
     if (!csrfToken) {
@@ -110,7 +110,7 @@ app.put('/:id', async (c) => {
 });
 
 // DELETE /api/comments/[id] - Delete (hide) a comment
-app.delete('/:id', async (c) => {
+app.delete('/:id', async (c: any) => {
   try {
     const commentId = c.req.param('id');
     const user = await requireAuth({
@@ -119,7 +119,7 @@ app.delete('/:id', async (c) => {
       env: { DB: c.env.DB },
     });
 
-    const body = await c.req.json<{ csrfToken: string }>();
+    const body = (await c.req.json()) as { csrfToken: string };
     const { csrfToken } = body;
 
     if (!csrfToken) {
@@ -163,16 +163,16 @@ app.delete('/:id', async (c) => {
 // Named handlers for file-based router
 export const GET = async (context: APIContext) => {
   try {
-    const env = (context.locals as any).runtime?.env as
-      | { DB: D1Database; KV_COMMENTS?: KVNamespace }
-      | undefined;
-    const db = env?.DB || (context as any).locals?.env?.DB;
+    const env = (context.locals?.runtime?.env || {}) as { DB?: any; KV_COMMENTS?: any } | undefined;
+    const db = env?.DB || (context as unknown as { locals?: { env?: { DB?: any } } }).locals?.env?.DB;
     if (!db) return createApiError('server_error', 'Database binding missing');
 
     const id = context.params.id as string | undefined;
     if (!id) return createApiError('validation_error', 'Comment ID required');
 
-    const kv = env?.KV_COMMENTS || (context as any).locals?.env?.KV_COMMENTS;
+    const kv =
+      env?.KV_COMMENTS ||
+      (context as unknown as { locals?: { env?: { KV_COMMENTS?: any } } }).locals?.env?.KV_COMMENTS;
     const service = new CommentService(db, kv);
     const comment = await service.getCommentById(id);
     return createApiSuccess(comment);
@@ -185,10 +185,8 @@ export const GET = async (context: APIContext) => {
 
 export const PUT = async (context: APIContext) => {
   try {
-    const env = (context.locals as any).runtime?.env as
-      | { DB: D1Database; KV_COMMENTS?: KVNamespace }
-      | undefined;
-    const db = env?.DB || (context as any).locals?.env?.DB;
+    const env = (context.locals?.runtime?.env || {}) as { DB?: any; KV_COMMENTS?: any } | undefined;
+    const db = env?.DB || (context as unknown as { locals?: { env?: { DB?: any } } }).locals?.env?.DB;
     if (!db) return createApiError('server_error', 'Database binding missing');
 
     const id = context.params.id as string | undefined;
@@ -219,7 +217,9 @@ export const PUT = async (context: APIContext) => {
     }
 
     const { csrfToken, ...updateData } = body;
-    const kv = env?.KV_COMMENTS || (context as any).locals?.env?.KV_COMMENTS;
+    const kv =
+      env?.KV_COMMENTS ||
+      (context as unknown as { locals?: { env?: { KV_COMMENTS?: any } } }).locals?.env?.KV_COMMENTS;
     const service = new CommentService(db, kv);
     const updated = await service.updateComment(id, updateData, String(user.id), token);
     return createApiSuccess(updated);
@@ -242,10 +242,8 @@ export const PUT = async (context: APIContext) => {
 
 export const DELETE = async (context: APIContext) => {
   try {
-    const env = (context.locals as any).runtime?.env as
-      | { DB: D1Database; KV_COMMENTS?: KVNamespace }
-      | undefined;
-    const db = env?.DB || (context as any).locals?.env?.DB;
+    const env = (context.locals?.runtime?.env || {}) as { DB?: any; KV_COMMENTS?: any } | undefined;
+    const db = env?.DB || (context as unknown as { locals?: { env?: { DB?: any } } }).locals?.env?.DB;
     if (!db) return createApiError('server_error', 'Database binding missing');
 
     const id = context.params.id as string | undefined;
@@ -270,7 +268,10 @@ export const DELETE = async (context: APIContext) => {
       );
     }
 
-    const kv = env?.KV_COMMENTS || (context as any).locals?.env?.KV_COMMENTS;
+    const kv =
+      env?.KV_COMMENTS ||
+      (context as unknown as { locals?: { env?: { KV_COMMENTS?: KVNamespace } } }).locals?.env
+        ?.KV_COMMENTS;
     const service = new CommentService(db, kv);
     await service.deleteComment(id, String(user.id), token);
     return createApiSuccess({ message: 'Comment deleted successfully' });

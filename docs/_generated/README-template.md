@@ -1,12 +1,12 @@
 ---
 # Standard-Template für Kategorie-READMEs
 # Frontmatter-Pflichtfelder (basierend auf Registry und Code-Governance)
-description: '[Kurzbeschreibung der Kategorie - Scope und Zweck]'
-owner: '[Owner/Team/Individual - aus Registry oder Rules zuweisen]'
-priority: '[high|medium|low - basierend auf Kritikalität]'
-lastSync: '[Datum der letzten Code-Doc-Synchronisation]'
-codeRefs: '[Relevante Code-Verzeichnisse, z.B. src/components, src/pages/api]'
-testRefs: '[Zugehörige Test-Suites, z.B. tests/unit, test-suite-v2]'
+description: '`<Kurzbeschreibung der Kategorie - Scope und Zweck>`'
+owner: '`<Owner/Team/Individual - aus Registry oder Rules zuweisen>`'
+priority: '`<high|medium|low - basierend auf Kritikalität>`'
+lastSync: '`<Datum der letzten Code-Doc-Synchronisation>`'
+codeRefs: '`<Relevante Code-Verzeichnisse, z.B. src/components, src/pages/api>`'
+testRefs: '`<Zugehörige Test-Suites, z.B. tests/unit, test-suite-v2>`'
 ---
 
 # Kategorie-Titel
@@ -30,19 +30,19 @@ testRefs: '[Zugehörige Test-Suites, z.B. tests/unit, test-suite-v2]'
 
 ## Ownership & Maintenance
 
-**Owner:** [Name/Team]
-**Update-Frequenz:** [Wöchentlich|Monatlich|Bei Code-Änderungen]
-**Review-Prozess:** [Peer-Review|Auto-Check|Expert-Review]
-**Eskalation:** [Bei Konflikten oder Unsicherheiten]
+**Owner:** `<Name/Team>`
+**Update-Frequenz:** `<Wöchentlich|Monatlich|Bei Code-Änderungen>`
+**Review-Prozess:** `<Peer-Review|Auto-Check|Expert-Review>`
+**Eskalation:** `<Bei Konflikten oder Unsicherheiten>`
 
 ## Standards & Konventionen
 
 - **Dokumentationsformat:** Markdown mit Frontmatter
 - **Link-Style:** Relative Pfade, keine Legacy-Routen
-- **Sprache:** [DE|EN|Mischung] — Konsistent innerhalb der Kategorie
-- **Code-Sync:** Dokumente müssen bei Änderungen in [betroffenen Verzeichnissen] aktualisiert werden
+- **Sprache:** `<DE|EN|Mischung>` — Konsistent innerhalb der Kategorie
+- **Code-Sync:** Dokumente müssen bei Änderungen in `<betroffenen Verzeichnissen>` aktualisiert werden
 
 ## Bekannte Lücken
 
-- [TODO-Liste für fehlende Dokumentation]
-- [Offene Architekturentscheidungen]
+- `<TODO-Liste für fehlende Dokumentation>`
+- `<Offene Architekturentscheidungen>`

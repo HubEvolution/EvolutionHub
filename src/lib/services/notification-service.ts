@@ -8,7 +8,6 @@ import {
   emailTemplates,
   emailQueue,
   users,
-  comments,
 } from '../db/schema';
 import type {
   Notification,
@@ -23,7 +22,6 @@ import type {
   NotificationStats,
   NotificationContext,
   CommentNotificationData,
-  EmailTemplateVariables,
   NotificationType,
   NotificationChannel,
   NotificationFrequency,
@@ -79,7 +77,7 @@ export class NotificationService {
     type: NotificationType,
     commentData: CommentNotificationData
   ): Promise<Notification> {
-    const templates = {
+    const templates: Record<NotificationType, { de: { title: string; message: string }; en: { title: string; message: string } }> = {
       comment_reply: {
         de: {
           title: 'Neue Antwort auf Ihren Kommentar',
@@ -120,6 +118,16 @@ export class NotificationService {
           message: 'Your comment was rejected by a moderator',
         },
       },
+      system: {
+        de: {
+          title: 'Systemnachricht',
+          message: 'Es gibt eine neue Systembenachrichtigung',
+        },
+        en: {
+          title: 'System message',
+          message: 'There is a new system notification',
+        },
+      },
     };
 
     const template = templates[type]?.[context.locale] || templates[type]?.de;
@@ -155,12 +163,12 @@ export class NotificationService {
    * List notifications for a user
    */
   async listNotifications(
-    userId: number,
+    userId: string,
     filters: NotificationFilters = {}
   ): Promise<NotificationListResponse> {
     const { type, isRead, priority, limit = 20, offset = 0, startDate, endDate } = filters;
 
-    let whereConditions = [eq(notifications.userId, userId)];
+    const whereConditions = [eq(notifications.userId, userId)];
 
     if (type) {
       whereConditions.push(eq(notifications.type, type));
@@ -191,10 +199,8 @@ export class NotificationService {
     const baseWhere = and(...whereConditions);
 
     // Get total count
-    const totalResult = await this.db
-      .select({ count: count() })
-      .from(notifications)
-      .where(baseWhere);
+    const totalQuery = this.db.select({ count: count() }).from(notifications);
+    const totalResult = await (baseWhere ? totalQuery.where(baseWhere) : totalQuery);
 
     const total = totalResult[0]?.count || 0;
 
@@ -221,7 +227,7 @@ export class NotificationService {
       .limit(limit)
       .offset(offset);
 
-    const notificationsList: Notification[] = notificationResults.map((n) => ({
+    const notificationsList: Notification[] = notificationResults.map((n: typeof notifications.$inferSelect) => ({
       id: n.id,
       userId: n.userId,
       type: n.type as NotificationType,
@@ -246,7 +252,7 @@ export class NotificationService {
   /**
    * Mark notification as read
    */
-  async markAsRead(notificationId: string, userId: number): Promise<Notification> {
+  async markAsRead(notificationId: string, userId: string): Promise<Notification> {
     const now = Math.floor(Date.now() / 1000);
 
     await this.db
@@ -263,7 +269,7 @@ export class NotificationService {
   /**
    * Mark all notifications as read for a user
    */
-  async markAllAsRead(userId: number): Promise<void> {
+  async markAllAsRead(userId: string): Promise<void> {
     const now = Math.floor(Date.now() / 1000);
 
     await this.db
@@ -278,7 +284,7 @@ export class NotificationService {
   /**
    * Delete a notification
    */
-  async deleteNotification(notificationId: string, userId: number): Promise<void> {
+  async deleteNotification(notificationId: string, userId: string): Promise<void> {
     await this.db
       .delete(notifications)
       .where(and(eq(notifications.id, notificationId), eq(notifications.userId, userId)));
@@ -290,23 +296,31 @@ export class NotificationService {
   async cleanupExpiredNotifications(): Promise<number> {
     const now = Math.floor(Date.now() / 1000);
 
-    const result = await this.db
-      .delete(notifications)
-      .where(and(sql`${notifications.expiresAt} IS NOT NULL`, lte(notifications.expiresAt, now)));
+    const whereExpr = and(
+      sql`${notifications.expiresAt} IS NOT NULL`,
+      lte(notifications.expiresAt, now)
+    );
 
-    return result.changes || 0;
+    const toDelete = await this.db
+      .select({ count: count() })
+      .from(notifications)
+      .where(whereExpr);
+
+    await this.db.delete(notifications).where(whereExpr);
+
+    return toDelete[0]?.count || 0;
   }
 
   /**
    * Get user notification settings
    */
-  async getUserNotificationSettings(userId: number): Promise<NotificationSetting[]> {
+  async getUserNotificationSettings(userId: string): Promise<NotificationSetting[]> {
     const settings = await this.db
       .select()
       .from(notificationSettings)
       .where(eq(notificationSettings.userId, userId));
 
-    return settings.map((s) => ({
+    return settings.map((s: typeof notificationSettings.$inferSelect) => ({
       id: s.id,
       userId: s.userId,
       type: s.type as any,
@@ -322,7 +336,7 @@ export class NotificationService {
    * Update user notification settings
    */
   async updateNotificationSettings(
-    userId: number,
+    userId: string,
     request: UpdateNotificationSettingsRequest
   ): Promise<NotificationSetting> {
     const now = Math.floor(Date.now() / 1000);
@@ -388,7 +402,7 @@ export class NotificationService {
   /**
    * Initialize default notification settings for a new user
    */
-  async initializeDefaultSettings(userId: number): Promise<void> {
+  async initializeDefaultSettings(userId: string): Promise<void> {
     const now = Math.floor(Date.now() / 1000);
     const defaultTypes: (NotificationType | 'email_digest')[] = [
       'comment_reply',
@@ -443,8 +457,8 @@ export class NotificationService {
       variables: template.variables,
       isActive: template.isActive,
       locale: template.locale,
-      createdAt: now,
-      updatedAt: now,
+      createdAt: new Date(now * 1000),
+      updatedAt: new Date(now * 1000),
     });
 
     return this.getEmailTemplateById(templateId);
@@ -464,7 +478,19 @@ export class NotificationService {
       throw new Error('Email template not found');
     }
 
-    return result[0] as EmailTemplate;
+    const r = result[0] as any;
+    return {
+      id: r.id,
+      name: r.name,
+      subject: r.subject,
+      htmlContent: r.htmlContent,
+      textContent: r.textContent,
+      variables: r.variables || undefined,
+      isActive: Boolean(r.isActive),
+      locale: r.locale,
+      createdAt: Math.floor((r.createdAt as Date).getTime() / 1000),
+      updatedAt: Math.floor((r.updatedAt as Date).getTime() / 1000),
+    } as EmailTemplate;
   }
 
   /**
@@ -486,7 +512,20 @@ export class NotificationService {
       )
       .limit(1);
 
-    return result.length > 0 ? (result[0] as EmailTemplate) : null;
+    if (result.length === 0) return null;
+    const r = result[0] as any;
+    return {
+      id: r.id,
+      name: r.name,
+      subject: r.subject,
+      htmlContent: r.htmlContent,
+      textContent: r.textContent,
+      variables: r.variables || undefined,
+      isActive: Boolean(r.isActive),
+      locale: r.locale,
+      createdAt: Math.floor((r.createdAt as Date).getTime() / 1000),
+      updatedAt: Math.floor((r.updatedAt as Date).getTime() / 1000),
+    } as EmailTemplate;
   }
 
   /**
@@ -531,10 +570,10 @@ export class NotificationService {
       variables: JSON.stringify(request.variables),
       status: 'pending',
       priority: request.priority || 0,
-      scheduledFor: request.scheduledFor || now,
+      scheduledFor: new Date((request.scheduledFor || now) * 1000),
       attempts: 0,
       maxAttempts: 3,
-      createdAt: now,
+      createdAt: new Date(now * 1000),
     });
 
     return this.getEmailQueueItemById(emailId);
@@ -569,7 +608,21 @@ export class NotificationService {
       throw new Error('Email queue item not found');
     }
 
-    return result[0] as EmailQueueItem;
+    const r = result[0] as any;
+    return {
+      id: r.id,
+      to: r.to,
+      templateId: r.templateId,
+      variables: r.variables,
+      status: r.status,
+      priority: Number(r.priority ?? 0),
+      scheduledFor: Math.floor(((r.scheduledFor as Date).getTime?.() ?? new Date(r.scheduledFor).getTime()) / 1000),
+      attempts: Number(r.attempts ?? 0),
+      maxAttempts: Number(r.maxAttempts ?? 0),
+      lastError: r.lastError || undefined,
+      sentAt: r.sentAt ? Math.floor(((r.sentAt as Date).getTime?.() ?? new Date(r.sentAt).getTime()) / 1000) : undefined,
+      createdAt: Math.floor(((r.createdAt as Date).getTime?.() ?? new Date(r.createdAt).getTime()) / 1000),
+    } as EmailQueueItem;
   }
 
   /**
@@ -581,23 +634,27 @@ export class NotificationService {
     const results = await this.db
       .select()
       .from(emailQueue)
-      .where(and(eq(emailQueue.status, 'pending'), lte(emailQueue.scheduledFor, now)))
+      .where(
+        and(eq(emailQueue.status, 'pending'), lte(emailQueue.scheduledFor, new Date(now * 1000)))
+      )
       .orderBy(desc(emailQueue.priority), emailQueue.createdAt)
       .limit(limit);
 
-    return results.map((e) => ({
+    return results.map((e: any) => ({
       id: e.id,
       to: e.to,
       templateId: e.templateId,
       variables: e.variables,
-      status: e.status as any,
-      priority: e.priority,
-      scheduledFor: e.scheduledFor,
-      attempts: e.attempts,
-      maxAttempts: e.maxAttempts,
+      status: e.status,
+      priority: Number(e.priority ?? 0),
+      scheduledFor: Math.floor(((e.scheduledFor as Date).getTime?.() ?? new Date(e.scheduledFor).getTime()) / 1000),
+      attempts: Number(e.attempts ?? 0),
+      maxAttempts: Number(e.maxAttempts ?? 0),
       lastError: e.lastError || undefined,
-      sentAt: e.sentAt || undefined,
-      createdAt: e.createdAt,
+      sentAt: e.sentAt
+        ? Math.floor(((e.sentAt as Date).getTime?.() ?? new Date(e.sentAt).getTime()) / 1000)
+        : undefined,
+      createdAt: Math.floor(((e.createdAt as Date).getTime?.() ?? new Date(e.createdAt).getTime()) / 1000),
     }));
   }
 
@@ -611,7 +668,7 @@ export class NotificationService {
       .update(emailQueue)
       .set({
         status: 'sent',
-        sentAt: now,
+        sentAt: new Date(now * 1000),
       })
       .where(eq(emailQueue.id, emailId));
   }
@@ -620,8 +677,6 @@ export class NotificationService {
    * Mark email as failed
    */
   async markEmailAsFailed(emailId: string, error: string): Promise<void> {
-    const now = Math.floor(Date.now() / 1000);
-
     await this.db
       .update(emailQueue)
       .set({
@@ -635,19 +690,25 @@ export class NotificationService {
   /**
    * Get notification statistics
    */
-  async getNotificationStats(userId?: number): Promise<NotificationStats> {
+  async getNotificationStats(userId?: string): Promise<NotificationStats> {
     const baseWhere = userId ? eq(notifications.userId, userId) : undefined;
 
-    const stats = await this.db
+    let statsQuery = this.db
       .select({
         type: notifications.type,
         priority: notifications.priority,
         isRead: notifications.isRead,
         count: count(),
       })
-      .from(notifications)
-      .where(baseWhere)
-      .groupBy(notifications.type, notifications.priority, notifications.isRead);
+      .from(notifications);
+    if (baseWhere) {
+      statsQuery = statsQuery.where(baseWhere);
+    }
+    const stats = await statsQuery.groupBy(
+      notifications.type,
+      notifications.priority,
+      notifications.isRead
+    );
 
     const result: NotificationStats = {
       total: 0,
@@ -681,8 +742,9 @@ export class NotificationService {
       }
 
       // Count by priority
-      if (stat.priority in result.byPriority) {
-        result.byPriority[stat.priority as keyof typeof result.byPriority] += count;
+      const pri = (stat.priority ?? 'normal') as keyof typeof result.byPriority;
+      if (pri in result.byPriority) {
+        result.byPriority[pri] += count;
       }
     }
 
@@ -703,6 +765,8 @@ export class NotificationService {
         status: 'failed',
         lastError: 'Email processing timeout',
       })
-      .where(and(eq(emailQueue.status, 'pending'), lte(emailQueue.createdAt, now - maxAge)));
+      .where(
+        and(eq(emailQueue.status, 'pending'), lte(emailQueue.createdAt, new Date((now - maxAge) * 1000)))
+      );
   }
 }

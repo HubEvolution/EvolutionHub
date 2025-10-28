@@ -8,17 +8,17 @@ import type { CreateCommentRequest } from '@/lib/types/comments';
 // POST /api/comments/create
 export const POST = async (context: APIContext) => {
   try {
-    const env = (context.locals as any).runtime?.env as
-      | { DB: D1Database; KV_COMMENTS?: KVNamespace }
-      | undefined;
-    const db = env?.DB || (context as any).locals?.env?.DB;
+    const env = (context.locals?.runtime?.env || {}) as { DB?: any; KV_COMMENTS?: any } | undefined;
+    const db = env?.DB || (context as unknown as { locals?: { env?: { DB?: any } } }).locals?.env?.DB;
     if (!db) return createApiError('server_error', 'Database binding missing');
 
     // CSRF validation (required for all callers)
     const cookie = context.request.headers.get('cookie') || undefined;
     let body: (CreateCommentRequest & { csrfToken?: string }) | null = null;
     try {
-      body = (await context.request.json()) as CreateCommentRequest & { csrfToken?: string };
+      const raw = (await context.request.json()) as unknown;
+      if (raw && typeof raw === 'object') body = raw as CreateCommentRequest & { csrfToken?: string };
+      else body = null;
     } catch {
       body = null;
     }
@@ -53,7 +53,9 @@ export const POST = async (context: APIContext) => {
       return createApiError('auth_error', 'Für diese Aktion ist eine Anmeldung erforderlich');
     }
 
-    const kv = env?.KV_COMMENTS || (context as any).locals?.env?.KV_COMMENTS;
+    const kv =
+      env?.KV_COMMENTS ||
+      (context as unknown as { locals?: { env?: { KV_COMMENTS?: any } } }).locals?.env?.KV_COMMENTS;
     const service = new CommentService(db, kv);
     const created = await service.createComment(commentData, userId, token);
     try {

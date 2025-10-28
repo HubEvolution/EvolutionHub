@@ -8,10 +8,8 @@ import type { ReportCommentRequest } from '@/lib/types/comments';
 // POST /api/comments/[id]/report
 export const POST = async (context: APIContext) => {
   try {
-    const env = (context.locals as any).runtime?.env as
-      | { DB: D1Database; KV_COMMENTS?: KVNamespace }
-      | undefined;
-    const db = env?.DB || (context as any).locals?.env?.DB;
+    const env = (context.locals?.runtime?.env || {}) as { DB?: any; KV_COMMENTS?: any } | undefined;
+    const db = env?.DB || (context as unknown as { locals?: { env?: { DB?: any } } }).locals?.env?.DB;
     if (!db) return createApiError('server_error', 'Database binding missing');
 
     const id = context.params.id as string | undefined;
@@ -21,9 +19,10 @@ export const POST = async (context: APIContext) => {
     const user = await requireAuth({ request: context.request, env: { DB: db } });
 
     // Body + CSRF
-    const body = (await context.request.json().catch(() => ({}))) as ReportCommentRequest & {
-      csrfToken?: string;
-    };
+    const raw = (await context.request.json().catch(() => ({}))) as unknown;
+    const body = (raw && typeof raw === 'object'
+      ? (raw as ReportCommentRequest & { csrfToken?: string })
+      : ({} as ReportCommentRequest & { csrfToken?: string }));
     const token = body?.csrfToken || context.request.headers.get('x-csrf-token') || '';
     const cookie = context.request.headers.get('cookie') || undefined;
     const ok = await validateCsrfToken(token, cookie);
@@ -42,7 +41,9 @@ export const POST = async (context: APIContext) => {
       return createApiError('validation_error', 'Missing reason');
     }
 
-    const kv = env?.KV_COMMENTS || (context as any).locals?.env?.KV_COMMENTS;
+    const kv =
+      env?.KV_COMMENTS ||
+      (context as unknown as { locals?: { env?: { KV_COMMENTS?: any } } }).locals?.env?.KV_COMMENTS;
     const service = new CommentService(db, kv);
 
     const { csrfToken, ...reportData } = body;

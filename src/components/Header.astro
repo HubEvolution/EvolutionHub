@@ -152,6 +152,10 @@ function setLocaleHref(target: 'de' | 'en'): string {
                   <span class="text-gray-600 dark:text-slate-300">Credits</span>
                   <span id="user-credits" class="font-medium text-gray-900 dark:text-white">—</span>
                 </div>
+                <div class="mt-1.5 flex items-center justify-between">
+                  <span class="text-gray-600 dark:text-slate-300">Monthly quota</span>
+                  <span id="user-quota" class="font-medium text-gray-900 dark:text-white">—</span>
+                </div>
               </div>
 
               <div class="my-2 h-px bg-gray-100 dark:bg-slate-800"></div>
@@ -382,6 +386,10 @@ function setLocaleHref(target: 'de' | 'en'): string {
                 <span class="text-gray-600 dark:text-slate-300">Credits</span>
                 <span id="user-credits-mobile" class="font-medium text-gray-900 dark:text-white">—</span>
               </div>
+              <div class="mt-1.5 flex items-center justify-between">
+                <span class="text-gray-600 dark:text-slate-300">Monthly quota remaining</span>
+                <span id="user-quota-mobile" class="font-medium text-gray-900 dark:text-white">—</span>
+              </div>
             </div>
           </div>
 
@@ -482,6 +490,7 @@ function setLocaleHref(target: 'de' | 'en'): string {
           if (!mobileInfoLoaded) {
             const planEl = document.getElementById('user-plan-mobile');
             const creditsEl = document.getElementById('user-credits-mobile');
+            const quotaElM = document.getElementById('user-quota-mobile');
             if (planEl || creditsEl) {
               fetch('/api/dashboard/billing-summary')
                 .then((r) => (r.ok ? r.json() : Promise.reject(r)))
@@ -492,13 +501,19 @@ function setLocaleHref(target: 'de' | 'en'): string {
                       typeof json.data.creditsRemaining === 'number'
                         ? String(json.data.creditsRemaining)
                         : '—';
+                    const limit = Number(json.data.monthlyLimit || 0);
+                    const used = Number(json.data.monthlyUsed || 0);
+                    const remaining = Math.max(0, limit - used);
                     if (planEl) planEl.textContent = plan;
                     if (creditsEl) creditsEl.textContent = credits;
+                    if (quotaElM) quotaElM.textContent = String(remaining);
                     // Defensive: update desktop placeholders if present and empty
                     const planDesktop = document.getElementById('user-plan');
                     const creditsDesktop = document.getElementById('user-credits');
+                    const quotaDesktop = document.getElementById('user-quota');
                     if (planDesktop && !planDesktop.textContent) planDesktop.textContent = plan;
                     if (creditsDesktop && !creditsDesktop.textContent) creditsDesktop.textContent = credits;
+                    if (quotaDesktop && !quotaDesktop.textContent) quotaDesktop.textContent = String(remaining);
                   }
                 })
                 .catch(() => {})
@@ -653,10 +668,17 @@ function setLocaleHref(target: 'de' | 'en'): string {
                 if (json && json.success && json.data) {
                   const planEl = document.getElementById('user-plan');
                   const creditsEl = document.getElementById('user-credits');
+                  const quotaEl = document.getElementById('user-quota');
                   if (planEl) planEl.textContent = String(json.data.plan ?? '—');
                   if (creditsEl)
                     creditsEl.textContent =
                       typeof json.data.creditsRemaining === 'number' ? String(json.data.creditsRemaining) : '—';
+                  if (quotaEl) {
+                    const limit = Number(json.data.monthlyLimit || 0);
+                    const used = Number(json.data.monthlyUsed || 0);
+                    const remaining = Math.max(0, limit - used);
+                    quotaEl.textContent = String(remaining);
+                  }
                 }
               })
               .catch(() => {})

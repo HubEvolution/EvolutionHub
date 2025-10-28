@@ -1,4 +1,3 @@
 User-agent: *
-Disallow: /welcome
 
 Sitemap: https://hub-evolution.com/sitemap.xml

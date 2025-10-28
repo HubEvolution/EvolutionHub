@@ -13,7 +13,7 @@ export type EmailQueueStatus = 'pending' | 'sending' | 'sent' | 'failed' | 'canc
 
 export interface Notification {
   id: string;
-  userId: number;
+  userId: string;
   type: NotificationType;
   title: string;
   message: string;
@@ -27,7 +27,7 @@ export interface Notification {
 
 export interface NotificationSetting {
   id: number;
-  userId: number;
+  userId: string;
   type: NotificationType | 'email_digest';
   channel: NotificationChannel;
   enabled: boolean;
@@ -66,7 +66,7 @@ export interface EmailQueueItem {
 
 // Request/Response types for API
 export interface CreateNotificationRequest {
-  userId: number;
+  userId: string;
   type: NotificationType;
   title: string;
   message: string;
@@ -146,7 +146,7 @@ export type TemplateVariables = Record<string, TemplateVariableValue>;
 
 // Notification creation helpers
 export interface NotificationContext {
-  userId: number;
+  userId: string;
   locale: 'de' | 'en';
   baseUrl: string;
   userName?: string;

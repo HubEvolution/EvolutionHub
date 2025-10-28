@@ -130,6 +130,11 @@ export default function BillingCard({ summary, strings, manageLink = '/pricing' 
             {strings.statusLabel}
           </span>
           <span className="text-sm font-medium text-slate-300">{statusLabel}</span>
+          {state && (state.status !== 'active' || state.cancelAtPeriodEnd) ? (
+            <a href={manageLink} className="mt-0.5 inline-block text-xs font-semibold text-emerald-400 hover:underline">
+              {strings.actions.manage}
+            </a>
+          ) : null}
         </div>
 
         {state && state.creditsRemaining !== null && (

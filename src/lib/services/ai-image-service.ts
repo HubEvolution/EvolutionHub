@@ -10,7 +10,6 @@ import {
 } from '@/config/ai-image';
 import { detectImageMimeFromBytes as sniffImageMimeFromBytes } from '@/lib/utils/mime';
 import { loggerFactory } from '@/server/utils/logger-factory';
-import { buildProviderError } from './provider-error';
 import OpenAI from 'openai';
 import { computeEnhancerCost } from '@/config/ai-image/entitlements';
 import type { ExtendedLogger } from '@/types/logger';
@@ -25,6 +24,12 @@ import {
   consumeCreditsTenths,
 } from '@/lib/kv/usage';
 
+function isAllowedContentType(
+  v: string
+): v is (typeof ALLOWED_CONTENT_TYPES)[number] {
+  return (ALLOWED_CONTENT_TYPES as readonly string[]).includes(v);
+}
+
 interface RuntimeEnv {
   R2_AI_IMAGES?: R2Bucket;
   KV_AI_ENHANCER?: KVNamespace;
@@ -32,7 +37,9 @@ interface RuntimeEnv {
   OPENAI_API_KEY?: string;
   ENVIRONMENT?: string;
   USAGE_KV_V2?: string;
-  AI?: any;
+  AI?: {
+    run: (model: string, payload: Record<string, unknown>) => Promise<unknown>;
+  };
   WORKERS_AI_ENABLED?: string;
   TESTING_WORKERS_AI_ALLOW?: string;
   TESTING_ALLOWED_CF_MODELS?: string;
@@ -92,7 +99,7 @@ export class AiImageService {
     model: AllowedModel,
     input: Record<string, unknown>
   ): Promise<{ arrayBuffer: ArrayBuffer; contentType: string }> {
-    const ai = (this.env as any).AI;
+    const ai = this.env.AI;
     if (!ai) {
       const err: any = new Error('Workers AI binding not configured');
       err.apiErrorType = 'server_error';
@@ -102,27 +109,29 @@ export class AiImageService {
     const payload: Record<string, unknown> = buildWorkersAiPayload(model, input);
     const chosen: 'b64' | null = 'b64';
     try {
-      const t = typeof (payload as any).image_b64;
-      const s = t === 'string' ? String((payload as any).image_b64).slice(0, 60) : '';
+      const img = (payload as Record<string, unknown>)['image_b64'];
+      const t = typeof img;
+      const s = t === 'string' ? String(img).slice(0, 60) : '';
       this.log.info('workers_ai_payload_image', {
         action: 'workers_ai_payload_image',
         metadata: { type: t, snippet: s, model: model.slug, chosen, field: 'image_b64' },
       });
     } catch {}
     const started = Date.now();
-    let out: any;
+    let out: unknown;
     try {
       out = await ai.run(model.slug, payload);
     } catch (err) {
       try {
-        const t = typeof (payload as any).image_b64;
-        const s = t === 'string' ? String((payload as any).image_b64).slice(0, 60) : '';
+        const img = (payload as Record<string, unknown>)['image_b64'];
+        const t = typeof img;
+        const s = t === 'string' ? String(img).slice(0, 60) : '';
         this.log.warn('workers_ai_run_failed', {
           action: 'workers_ai_run_failed',
           metadata: {
             model: model.slug,
             error: err instanceof Error ? err.message : String(err),
-            payloadKeys: Object.keys(payload as any),
+            payloadKeys: Object.keys(payload as Record<string, unknown>),
             imageType: t,
             imageSnippet: s,
           },
@@ -132,18 +141,19 @@ export class AiImageService {
     }
     let buf: ArrayBuffer | null = null;
     let ct = 'image/png';
-    if (out && typeof out.arrayBuffer === 'function') {
-      const blob = out as Blob;
+    if (out instanceof Blob) {
+      const blob = out;
       buf = await blob.arrayBuffer();
-      ct = (blob as any).type || ct;
-    } else if (out && typeof out.headers === 'object' && typeof out.arrayBuffer === 'function') {
-      const res = out as Response;
+      const maybeType = blob.type;
+      if (typeof maybeType === 'string') ct = maybeType;
+    } else if (out instanceof Response) {
+      const res = out;
       ct = res.headers.get('content-type') || ct;
       buf = await res.arrayBuffer();
     } else if (out instanceof ArrayBuffer) {
-      buf = out as ArrayBuffer;
+      buf = out;
     } else if (out instanceof Uint8Array) {
-      buf = (out as Uint8Array).buffer as unknown as ArrayBuffer;
+      buf = out.buffer as unknown as ArrayBuffer;
     } else if (typeof out === 'string') {
       // Some models may return a data URI or raw base64 string
       const m = /^data:(.*?);base64,(.*)$/.exec(out);
@@ -157,50 +167,64 @@ export class AiImageService {
       // Some CF models return JSON with base64 fields
       // Try common shapes: { image: base64 }, { images: [base64] }, { output: { image }, output: { images } }, { output: [base64] }, { result: ... }
       let b64: string | undefined;
-      if (typeof (out as any).image === 'string') {
-        b64 = (out as any).image as string;
-      } else if (Array.isArray((out as any).images) && typeof (out as any).images[0] === 'string') {
-        b64 = (out as any).images[0] as string;
-      } else if ((out as any).image instanceof Uint8Array) {
-        buf = ((out as any).image as Uint8Array).buffer as unknown as ArrayBuffer;
-      } else if (
-        Array.isArray((out as any).images) &&
-        (out as any).images[0] instanceof Uint8Array
-      ) {
-        buf = ((out as any).images[0] as Uint8Array).buffer as unknown as ArrayBuffer;
-      } else if ((out as any).output) {
-        const o = (out as any).output;
+      const orec = out as Record<string, unknown>;
+      if (typeof orec.image === 'string') {
+        b64 = orec.image as string;
+      } else if (Array.isArray(orec.images) && typeof (orec.images as unknown[])[0] === 'string') {
+        b64 = (orec.images as unknown[])[0] as string;
+      } else if (orec.image instanceof Uint8Array) {
+        buf = (orec.image as Uint8Array).buffer as unknown as ArrayBuffer;
+      } else if (Array.isArray(orec.images) && (orec.images as unknown[])[0] instanceof Uint8Array) {
+        buf = ((orec.images as unknown[])[0] as Uint8Array).buffer as unknown as ArrayBuffer;
+      } else if (orec.output) {
+        const o = orec.output as unknown;
         if (typeof o === 'string') {
           b64 = o;
-        } else if (typeof o?.image === 'string') {
-          b64 = o.image as string;
-        } else if (Array.isArray(o?.images) && typeof o.images[0] === 'string') {
-          b64 = o.images[0] as string;
-        } else if (Array.isArray(o) && typeof o[0] === 'string') {
-          b64 = o[0] as string;
+        } else if (
+          typeof (o as Record<string, unknown> | undefined)?.image === 'string'
+        ) {
+          b64 = (o as Record<string, unknown>).image as string;
+        } else if (
+          Array.isArray((o as Record<string, unknown> | undefined)?.images) &&
+          typeof ((o as Record<string, unknown>).images as unknown[])[0] === 'string'
+        ) {
+          b64 = ((o as Record<string, unknown>).images as unknown[])[0] as string;
+        } else if (Array.isArray(o) && typeof (o as unknown[])[0] === 'string') {
+          b64 = (o as unknown[])[0] as string;
         } else if (o instanceof Uint8Array) {
           buf = (o as Uint8Array).buffer as unknown as ArrayBuffer;
-        } else if (o?.image instanceof Uint8Array) {
-          buf = (o.image as Uint8Array).buffer as unknown as ArrayBuffer;
-        } else if (Array.isArray(o?.images) && o.images[0] instanceof Uint8Array) {
-          buf = (o.images[0] as Uint8Array).buffer as unknown as ArrayBuffer;
+        } else if ((o as Record<string, unknown> | undefined)?.image instanceof Uint8Array) {
+          buf = ((o as Record<string, unknown>).image as Uint8Array).buffer as unknown as ArrayBuffer;
+        } else if (
+          Array.isArray((o as Record<string, unknown> | undefined)?.images) &&
+          ((o as Record<string, unknown>).images as unknown[])[0] instanceof Uint8Array
+        ) {
+          buf = (((o as Record<string, unknown>).images as unknown[])[0] as Uint8Array).buffer as unknown as ArrayBuffer;
         }
-      } else if ((out as any).result) {
-        const r = (out as any).result;
+      } else if (orec.result) {
+        const r = orec.result as unknown;
         if (typeof r === 'string') {
           b64 = r;
-        } else if (typeof r?.image === 'string') {
-          b64 = r.image as string;
-        } else if (Array.isArray(r?.images) && typeof r.images[0] === 'string') {
-          b64 = r.images[0] as string;
-        } else if (Array.isArray(r) && typeof r[0] === 'string') {
-          b64 = r[0] as string;
+        } else if (
+          typeof (r as Record<string, unknown> | undefined)?.image === 'string'
+        ) {
+          b64 = (r as Record<string, unknown>).image as string;
+        } else if (
+          Array.isArray((r as Record<string, unknown> | undefined)?.images) &&
+          typeof ((r as Record<string, unknown>).images as unknown[])[0] === 'string'
+        ) {
+          b64 = ((r as Record<string, unknown>).images as unknown[])[0] as string;
+        } else if (Array.isArray(r) && typeof (r as unknown[])[0] === 'string') {
+          b64 = (r as unknown[])[0] as string;
         } else if (r instanceof Uint8Array) {
           buf = (r as Uint8Array).buffer as unknown as ArrayBuffer;
-        } else if (r?.image instanceof Uint8Array) {
-          buf = (r.image as Uint8Array).buffer as unknown as ArrayBuffer;
-        } else if (Array.isArray(r?.images) && r.images[0] instanceof Uint8Array) {
-          buf = (r.images[0] as Uint8Array).buffer as unknown as ArrayBuffer;
+        } else if ((r as Record<string, unknown> | undefined)?.image instanceof Uint8Array) {
+          buf = ((r as Record<string, unknown>).image as Uint8Array).buffer as unknown as ArrayBuffer;
+        } else if (
+          Array.isArray((r as Record<string, unknown> | undefined)?.images) &&
+          ((r as Record<string, unknown>).images as unknown[])[0] instanceof Uint8Array
+        ) {
+          buf = (((r as Record<string, unknown>).images as unknown[])[0] as Uint8Array).buffer as unknown as ArrayBuffer;
         }
       }
       if (b64 && typeof b64 === 'string') {
@@ -223,7 +247,7 @@ export class AiImageService {
         });
         // Last-resort: attempt to coerce via Response wrapper (covers ReadableStream, ArrayBufferView, etc.)
         try {
-          const res2 = new Response(out as any);
+          const res2 = new Response(out as unknown as BodyInit);
           const ct2 = res2.headers.get('content-type');
           if (ct2) ct = ct2;
           buf = await res2.arrayBuffer();
@@ -275,7 +299,7 @@ export class AiImageService {
   // For testability: expose a method that forwards to the shared MIME sniffer
   // so unit tests can spy on instance instead of module import.
   private detectImageMimeFromBytes(buffer: ArrayBuffer): string | null {
-    return sniffImageMimeFromBytes(buffer) as any;
+    return sniffImageMimeFromBytes(buffer);
   }
 
   private async getMonthlyUsage(
@@ -601,7 +625,7 @@ export class AiImageService {
     // Sniff MIME type from magic bytes (do not trust client-provided type)
     const fileBuffer = await file.arrayBuffer();
     const sniffed = this.detectImageMimeFromBytes(fileBuffer);
-    if (!sniffed || !ALLOWED_CONTENT_TYPES.includes(sniffed as any)) {
+    if (!sniffed || !isAllowedContentType(sniffed)) {
       const display = sniffed ?? (file.type || 'unknown');
       throw new Error(`Unsupported content type: ${display}`);
     }
@@ -628,10 +652,10 @@ export class AiImageService {
     const monthly = await this.getMonthlyUsage(ownerType, ownerId, monthlyLimit, ym);
     const cost = computeEnhancerCost({ modelSlug, scale, faceEnhance });
     const monthlyRemaining = Math.max(0, monthly.limit - monthly.used);
-    let planPortion = Math.min(cost, monthlyRemaining);
+    const planPortion = Math.min(cost, monthlyRemaining);
     const creditsPortion = Math.max(0, Math.round((cost - planPortion) * 10) / 10);
     if (creditsPortion > 0 && ownerType === 'user') {
-      const tenths = await getCreditsBalanceTenths(this.env.KV_AI_ENHANCER as any, ownerId);
+      const tenths = await getCreditsBalanceTenths(this.env.KV_AI_ENHANCER!, ownerId);
       if (tenths < Math.round(creditsPortion * 10)) {
         const msgM = `Monthly quota exceeded. Used ${monthly.used}/${monthly.limit}`;
         const errM: any = new Error(msgM);
@@ -783,35 +807,30 @@ export class AiImageService {
         });
         imageUrl = this.buildPublicUrl(requestOrigin, resultKey);
       } else {
-        let outputUrl: string;
-        try {
-          this.log.debug('replicate_call_start', {
-            action: 'replicate_call_start',
-            metadata: { reqId, model: model.slug, originalUrl, scale, faceEnhance },
-          });
-          const replicateInput: Record<string, unknown> = {};
-          if (
-            model.slug.startsWith('tencentarc/gfpgan') ||
-            model.slug.startsWith('sczhou/codeformer')
-          ) {
-            (replicateInput as any).img = originalUrl;
-          } else {
-            (replicateInput as any).image = originalUrl;
-          }
-          if (typeof scale === 'number' && model.supportsScale) {
-            (replicateInput as any).scale = scale;
-          }
-          if (typeof faceEnhance === 'boolean' && model.supportsFaceEnhance) {
-            (replicateInput as any).face_enhance = faceEnhance;
-          }
-          outputUrl = await this.runReplicate(model, replicateInput);
-          this.log.debug('replicate_call_success', {
-            action: 'replicate_call_success',
-            metadata: { reqId, outputUrl },
-          });
-        } catch (err) {
-          throw err;
+        this.log.debug('replicate_call_start', {
+          action: 'replicate_call_start',
+          metadata: { reqId, model: model.slug, originalUrl, scale, faceEnhance },
+        });
+        const replicateInput: Record<string, unknown> = {};
+        if (
+          model.slug.startsWith('tencentarc/gfpgan') ||
+          model.slug.startsWith('sczhou/codeformer')
+        ) {
+          replicateInput['img'] = originalUrl;
+        } else {
+          replicateInput['image'] = originalUrl;
         }
+        if (typeof scale === 'number' && model.supportsScale) {
+          replicateInput['scale'] = scale;
+        }
+        if (typeof faceEnhance === 'boolean' && model.supportsFaceEnhance) {
+          replicateInput['face_enhance'] = faceEnhance;
+        }
+        const outputUrl = await this.runReplicate(model, replicateInput);
+        this.log.debug('replicate_call_success', {
+          action: 'replicate_call_success',
+          metadata: { reqId, outputUrl },
+        });
         this.log.debug('fetch_output_start', {
           action: 'fetch_output_start',
           metadata: { reqId, outputUrl },
@@ -845,7 +864,7 @@ export class AiImageService {
     if (ownerType === 'user') {
       const cp = Math.max(0, Math.round((cost - planPortion) * 10));
       if (cp > 0) {
-        await consumeCreditsTenths(this.env.KV_AI_ENHANCER as any, ownerId, cp, reqId);
+        await consumeCreditsTenths(this.env.KV_AI_ENHANCER!, ownerId, cp, reqId);
       }
     }
     this.log.info('generate_success', {
@@ -1005,6 +1024,7 @@ export class AiImageService {
       const status = res.status;
       const text = await res.text();
       // Build standardized provider error (typed for API middleware)
+      const { buildProviderError } = await import('./' + 'provider-error');
       const err = buildProviderError(status, 'replicate', text);
       // Avoid leaking provider payloads to clients; keep truncated snippet in logs only
       this.log.warn('replicate_error', {

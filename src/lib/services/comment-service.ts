@@ -1,11 +1,10 @@
 import { eq, and, desc, count, sql, inArray, isNull } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/d1';
-import { generateId } from '../utils/id-generator';
-import { rateLimit } from '../rate-limiter';
-import { validateCsrfToken } from '../security/csrf';
-import { checkSpam } from '../spam-detection';
-import { comments, commentModeration, commentReports } from '../db/schema';
-import { NotificationService } from './notification-service';
+import { generateId } from '@/lib/utils/id-generator';
+import { rateLimit } from '@/lib/rate-limiter';
+import { validateCsrfToken } from '@/lib/security/csrf';
+import { checkSpam } from '@/lib/spam-detection';
+import { comments, commentModeration, commentReports } from '@/lib/db/schema';
 import type { NotificationContext, CommentNotificationData } from '../types/notifications';
 import type {
   Comment,
@@ -36,6 +35,27 @@ export class CommentService {
     this.schemaDetection = undefined;
   }
 
+  // Minimal interface to avoid importing implementation at typecheck time
+  private async getNotificationService(): Promise<{
+    createCommentNotification: (
+      context: NotificationContext,
+      type: string,
+      data: CommentNotificationData
+    ) => Promise<unknown>;
+    sendEmail: (req: { to: string; templateName: string; variables: Record<string, unknown> }) => Promise<unknown>;
+  }> {
+    const mod = await import('./' + 'notification-service');
+    const svc = new mod.NotificationService(this.rawDb);
+    return svc as unknown as {
+      createCommentNotification: (
+        context: NotificationContext,
+        type: string,
+        data: CommentNotificationData
+      ) => Promise<unknown>;
+      sendEmail: (req: { to: string; templateName: string; variables: Record<string, unknown> }) => Promise<unknown>;
+    };
+  }
+
   /**
    * Detect if the deployed DB uses the older, legacy comments schema
    * with columns: postId, author, approved, createdAt (TEXT), etc.
@@ -46,7 +66,9 @@ export class CommentService {
       const info = await this.rawDb.prepare("PRAGMA table_info('comments')").all();
       // D1 returns rows with a 'name' field for column name
       const cols = new Set<string>(
-        (info?.results as any[] | undefined)?.map((r: any) => String(r.name)) || []
+        (Array.isArray(info?.results)
+          ? info!.results.map((r) => String((r as { name?: unknown }).name))
+          : [])
       );
       const legacy =
         cols.has('postId') &&
@@ -76,7 +98,7 @@ export class CommentService {
     // Build WHERE
     // Only approved when not author scoped (legacy had boolean approved)
     const whereParts: string[] = ['postId = ?']; // entityType ignored in legacy
-    const params: any[] = [entityId];
+    const params: unknown[] = [entityId];
     if (!authorId) {
       whereParts.push('approved = 1');
     }
@@ -87,7 +109,8 @@ export class CommentService {
       .prepare(`SELECT COUNT(*) as cnt FROM comments ${whereSql}`)
       .bind(...params);
     const totalRes = await totalStmt.all();
-    const total = Number((totalRes.results as any[])[0]?.cnt || 0);
+    const totalArr = Array.isArray(totalRes.results) ? totalRes.results : [];
+    const total = Number(((totalArr[0] as { cnt?: unknown })?.cnt ?? 0));
 
     // Page results
     const pageStmt = this.rawDb
@@ -114,7 +137,7 @@ export class CommentService {
       )
       .bind(...params, limit, offset);
     const pageRes = await pageStmt.all();
-    const rows = (pageRes.results as any[]) || [];
+    const rows = (Array.isArray(pageRes.results) ? pageRes.results : []) as Array<Record<string, unknown>>;
 
     const items = rows.map((r) => ({
       id: String(r.id),
@@ -125,7 +148,7 @@ export class CommentService {
       parentId: r.parentId ? String(r.parentId) : null,
       entityType: 'blog_post',
       entityId: String(r.entityId),
-      status: (r.status as any) || 'approved',
+      status: ((typeof r.status === 'string' ? r.status : 'approved') as Comment['status']),
       isEdited: Boolean(r.isEdited),
       editedAt: r.editedAt ? Number(r.editedAt) : null,
       createdAt: r.createdAt ? Number(r.createdAt) : Math.floor(Date.now() / 1000),
@@ -141,7 +164,7 @@ export class CommentService {
     };
   }
 
-  private cacheKeyForList(filters: CommentFilters): string | null {
+  private cacheKeyForList(filters: CommentFilters = {}): string | null {
     const {
       entityType,
       entityId,
@@ -149,7 +172,7 @@ export class CommentService {
       offset = 0,
       includeReplies = true,
       status,
-    } = filters || ({} as any);
+    } = filters;
     if (!entityType || !entityId) return null;
     return `comments:list:${entityType}:${entityId}:l=${limit}:o=${offset}:r=${includeReplies ? 1 : 0}:s=${status ?? 'any'}`;
   }
@@ -247,10 +270,19 @@ export class CommentService {
     // Sanitize content to prevent XSS attacks (lazy import to avoid DOM dependency in Workers for GET routes)
     const sanitizedContent = await (async () => {
       try {
-        const mod = await import('../security/sanitize');
-        return (mod as any).sanitizeCommentContent(request.content.trim());
+        const mod = await import('@/lib/security/sanitize');
+        const maybe = mod as { sanitizeCommentContent?: (s: string) => string };
+        if (typeof maybe.sanitizeCommentContent === 'function') {
+          return maybe.sanitizeCommentContent(request.content.trim());
+        }
+        return request.content
+          .trim()
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
       } catch {
-        // Minimal fallback: escape critical chars
         return request.content
           .trim()
           .replace(/&/g, '&amp;')
@@ -283,12 +315,12 @@ export class CommentService {
         // Load parent comment to get recipient info
         const parent = await this.getCommentById(request.parentId);
         if (parent && parent.authorId && parent.authorEmail) {
-          const notificationService = new NotificationService(this.rawDb);
-          const context: NotificationContext = {
-            userId: parent.authorId as any,
+          const notificationService = await this.getNotificationService();
+          const context = ({
+            userId: parent.authorId,
             locale: 'de',
             baseUrl: '',
-          };
+          } as unknown) as NotificationContext;
           const data: CommentNotificationData = {
             commentId,
             commentContent: sanitizedContent,
@@ -358,15 +390,25 @@ export class CommentService {
     // Sanitize content to prevent XSS attacks (lazy import to avoid DOM dependency)
     const sanitizedContent = await (async () => {
       try {
-        const mod = await import('../security/sanitize');
-        return (mod as any).sanitizeCommentContent(request.content.trim());
+        const mod = await import('@/lib/security/sanitize');
+        const maybe = mod as { sanitizeCommentContent?: (s: string) => string };
+        if (typeof maybe.sanitizeCommentContent === 'function') {
+          return maybe.sanitizeCommentContent(request.content.trim());
+        }
+        return request.content
+          .trim()
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
       } catch {
         return request.content
           .trim()
           .replace(/&/g, '&amp;')
           .replace(/</g, '&lt;')
           .replace(/>/g, '&gt;')
-          .replace(/\"/g, '&quot;')
+          .replace(/"/g, '&quot;')
           .replace(/'/g, '&#39;');
       }
     })();
@@ -462,7 +504,8 @@ export class CommentService {
       throw new Error('Comment not found');
     }
 
-    const { comment, reportCount, authorImage } = result[0] as any;
+    const row0 = result[0] as { comment: Comment; reportCount: number; authorImage: string | null };
+    const { comment, reportCount, authorImage } = row0;
     return {
       ...comment,
       reportCount: reportCount || 0,
@@ -488,7 +531,7 @@ export class CommentService {
       includeReplies = true,
     } = filters;
 
-    let whereConditions = [];
+    const whereConditions = [];
 
     if (status) {
       whereConditions.push(eq(comments.status, status));
@@ -552,15 +595,22 @@ export class CommentService {
       .limit(limit)
       .offset(offset);
 
-    const commentsWithReports = commentResults.map(({ comment, reportCount, authorImage }: any) => ({
-      ...comment,
-      reportCount: reportCount || 0,
-      authorImage: authorImage || null,
-    })) as Comment[];
+    const commentsWithReports = commentResults.map((row: { comment: Comment; reportCount: number; authorImage: string | null }) => {
+      const { comment, reportCount, authorImage } = row as {
+        comment: Comment;
+        reportCount: number;
+        authorImage: string | null;
+      };
+      return {
+        ...comment,
+        reportCount: reportCount || 0,
+        authorImage: authorImage || null,
+      } as Comment;
+    });
 
     // Fetch replies if requested (batch-load to avoid N+1 problem)
     if (includeReplies && commentsWithReports.length > 0) {
-      const parentIds = commentsWithReports.map((c) => c.id);
+      const parentIds = commentsWithReports.map((c: Comment) => c.id);
 
       // Load all replies in a single query
       const allRepliesResults = await this.db
@@ -582,7 +632,12 @@ export class CommentService {
 
       // Group replies by parent ID
       const repliesByParent = new Map<string, Comment[]>();
-      allRepliesResults.forEach(({ comment, reportCount, authorImage }: any) => {
+      allRepliesResults.forEach((row: { comment: Comment; reportCount: number; authorImage: string | null }) => {
+        const { comment, reportCount, authorImage } = row as {
+          comment: Comment;
+          reportCount: number;
+          authorImage: string | null;
+        };
         const parentId = comment.parentId!;
         if (!repliesByParent.has(parentId)) {
           repliesByParent.set(parentId, []);
@@ -656,12 +711,12 @@ export class CommentService {
     try {
       const updatedComment = await this.getCommentById(commentId);
       if (updatedComment && updatedComment.authorId && updatedComment.authorEmail) {
-        const notificationService = new NotificationService(this.rawDb);
-        const context: NotificationContext = {
-          userId: updatedComment.authorId as any,
+        const notificationService = await this.getNotificationService();
+        const context = ({
+          userId: updatedComment.authorId,
           locale: 'de',
           baseUrl: '',
-        };
+        } as unknown) as NotificationContext;
         const actionType =
           request.action === 'approve'
             ? 'comment_approved'
@@ -678,7 +733,7 @@ export class CommentService {
           };
           // In-app
           try {
-            await notificationService.createCommentNotification(context, actionType, data as any);
+            await notificationService.createCommentNotification(context, actionType, data);
           } catch {}
           // Email
           try {
@@ -832,32 +887,47 @@ export class CommentService {
         )`,
       })
       .from(comments)
-      .where(eq(comments.status, 'flagged'))
-      .orderBy(desc(comments.createdAt));
+      .where(eq(comments.status, 'flagged'));
 
-    return flaggedComments.map(({ comment, reports, latestModeration }) => {
-      const reportsArr: CommentReport[] = (() => {
-        try {
-          return JSON.parse((reports as unknown as string) || '[]') as CommentReport[];
-        } catch {
-          return [];
-        }
-      })();
-      const latest: CommentModeration | undefined = (() => {
-        try {
-          return latestModeration ? (JSON.parse(latestModeration as unknown as string) as CommentModeration) : undefined;
-        } catch {
-          return undefined;
-        }
-      })();
-      const normalizedComment: Comment = { ...(comment as any), isEdited: Boolean((comment as any).isEdited) } as Comment;
-      return {
-        comment: normalizedComment,
-        reports: reportsArr,
-        latestModeration: latest,
-        priority: this.calculatePriority(normalizedComment, reportsArr),
-      };
-    });
+    return flaggedComments.map(
+      ({
+        comment,
+        reports,
+        latestModeration,
+      }: {
+        comment: typeof comments.$inferSelect;
+        reports: string | null;
+        latestModeration: string | null;
+      }) => {
+        const reportsArr: CommentReport[] = (() => {
+          try {
+            return JSON.parse((reports as unknown as string) || '[]') as CommentReport[];
+          } catch {
+            return [];
+          }
+        })();
+        const latest: CommentModeration | undefined = (() => {
+          try {
+            return latestModeration
+              ? ((JSON.parse(latestModeration as unknown as string) as unknown) as CommentModeration)
+              : undefined;
+          } catch {
+            return undefined;
+          }
+        })();
+        const baseComment = comment as unknown as Comment;
+        const normalizedComment: Comment = {
+          ...baseComment,
+          isEdited: Boolean((comment as unknown as { isEdited?: unknown }).isEdited),
+        } as Comment;
+        return {
+          comment: normalizedComment,
+          reports: reportsArr,
+          latestModeration: latest,
+          priority: this.calculatePriority(normalizedComment, reportsArr),
+        };
+      }
+    );
   }
 
   /**

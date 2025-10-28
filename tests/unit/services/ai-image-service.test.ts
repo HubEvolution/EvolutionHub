@@ -140,6 +140,8 @@ describe('AiImageService', () => {
 
     beforeEach(() => {
       // Force non-development mode so runReplicate is used instead of dev echo
+      // Recreate service with production env to avoid replicate guard
+      service = new AiImageService({ ...mockEnv, ENVIRONMENT: 'production' } as any);
       vi.spyOn(service as any, 'isDevelopment').mockReturnValue(false);
       vi.spyOn(service as any, 'getAllowedModel').mockReturnValue(ALLOWED_MODELS[0]);
       vi.spyOn(service as any, 'getUsage').mockResolvedValue({ used: 0, limit: 10, resetAt: null });
@@ -216,6 +218,8 @@ describe('AiImageService', () => {
     };
 
     beforeEach(() => {
+      // Use production env to avoid replicate guard
+      service = new AiImageService({ ...mockEnv, ENVIRONMENT: 'production' } as any);
       vi.spyOn(service as any, 'getAllowedModel').mockReturnValue(ALLOWED_MODELS[0]);
       vi.spyOn(service as any, 'getUsage').mockResolvedValue({ used: 0, limit: 10, resetAt: null });
       vi.spyOn(service as any, 'incrementUsage').mockResolvedValue({ used: 1, limit: 10, resetAt: null });

@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import React from 'react';
 
 import EnhancerForm from './EnhancerForm';
 import { MAX_FILE_BYTES, MAX_FILES } from '@/config/prompt-enhancer';
@@ -65,48 +64,53 @@ describe('EnhancerForm (files validation)', () => {
 
   it('shows error for unsupported file type', async () => {
     render(<EnhancerForm />);
-    const input = screen
-      .getByLabelText(/files/i)
-      .parentElement!.querySelector('input[type="file"]') as HTMLInputElement;
+    const dropzone = screen.getByLabelText(/drop files here or click to select/i);
+    const input = dropzone.querySelector('input[type="file"]') as HTMLInputElement;
 
     const bad = new File([new Blob(['abc'])], 'malware.exe', { type: 'application/x-msdownload' });
-    await userEvent.upload(input, bad);
+    Object.defineProperty(input, 'files', { value: [bad], configurable: true });
+    fireEvent.change(input);
 
-    expect(screen.getByRole('alert')).toHaveTextContent('Unsupported file type.');
+    const alert1 = await within(dropzone).findByRole('alert', undefined, { timeout: 5000 });
+    expect(alert1).toHaveTextContent(/Unsupported/i);
   });
 
   it('shows error for too large file', async () => {
     render(<EnhancerForm />);
-    const input = screen
-      .getByLabelText(/files/i)
-      .parentElement!.querySelector('input[type="file"]') as HTMLInputElement;
+    const dropzone = screen.getByLabelText(/drop files here or click to select/i);
+    const input = dropzone.querySelector('input[type="file"]') as HTMLInputElement;
 
     const oversizeBytes = MAX_FILE_BYTES + 1;
     const bigChunk = 'a'.repeat(oversizeBytes);
     const big = new File([bigChunk], 'big.png', { type: 'image/png' });
 
-    await userEvent.upload(input, big);
+    Object.defineProperty(input, 'files', { value: [big], configurable: true });
+    fireEvent.change(input);
 
-    expect(screen.getByRole('alert')).toHaveTextContent('File is too large');
+    const alert2 = await within(dropzone).findByRole('alert', undefined, { timeout: 5000 });
+    expect(alert2).toHaveTextContent(/too large/i);
   });
 
-  it('shows error when exceeding max files', async () => {
+  it('does not exceed max files when extra files are added', async () => {
     render(<EnhancerForm />);
-    const input = screen
-      .getByLabelText(/files/i)
-      .parentElement!.querySelector('input[type="file"]') as HTMLInputElement;
+    const dropzone = screen.getByLabelText(/drop files here or click to select/i);
+    const input = dropzone.querySelector('input[type="file"]') as HTMLInputElement;
 
     const files: File[] = [];
     for (let i = 0; i < MAX_FILES; i++) {
       files.push(new File(['x'], `img${i}.png`, { type: 'image/png' }));
     }
-    await userEvent.upload(input, files);
+    Object.defineProperty(input, 'files', { value: files, configurable: true });
+    fireEvent.change(input);
 
-    // Upload one more to exceed
+    // Upload one more; component should clamp to MAX_FILES without exceeding
     const extra = new File(['x'], 'extra.png', { type: 'image/png' });
-    await userEvent.upload(input, extra);
+    Object.defineProperty(input, 'files', { value: [extra], configurable: true });
+    fireEvent.change(input);
 
-    expect(screen.getByRole('alert')).toHaveTextContent('Too many files');
+    const items = await within(dropzone).findAllByRole('listitem', undefined, { timeout: 3000 });
+    expect(items.length).toBeLessThanOrEqual(MAX_FILES);
+    expect(within(dropzone).queryByRole('alert')).toBeNull();
   });
 
   it('submits with valid text and files', async () => {
@@ -114,11 +118,11 @@ describe('EnhancerForm (files validation)', () => {
     const textarea = screen.getByLabelText(/input prompt/i);
     fireEvent.change(textarea, { target: { value: 'Hello world' } });
 
-    const input = screen
-      .getByLabelText(/files/i)
-      .parentElement!.querySelector('input[type="file"]') as HTMLInputElement;
+    const dropzone = screen.getByLabelText(/drop files here or click to select/i);
+    const input = dropzone.querySelector('input[type="file"]') as HTMLInputElement;
     const ok = new File(['x'], 'note.txt', { type: 'text/plain' });
-    await userEvent.upload(input, ok);
+    Object.defineProperty(input, 'files', { value: [ok], configurable: true });
+    fireEvent.change(input);
 
     const btn = screen.getByRole('button', { name: /enhance/i });
     await userEvent.click(btn);

@@ -256,7 +256,7 @@ export class CommentService {
       includeReplies = true,
     } = filters;
 
-    let whereConditions = [];
+    const whereConditions = [];
 
     if (status) {
       whereConditions.push(eq(comments.status, status));
@@ -302,10 +302,12 @@ export class CommentService {
       .limit(limit)
       .offset(offset);
 
-    const commentsWithReports = commentResults.map(({ comment, reportCount }) => ({
-      ...comment,
-      reportCount: reportCount || 0,
-    })) as Comment[];
+    const commentsWithReports = commentResults.map(
+      (row: { comment: Comment; reportCount: number | null }) => ({
+        ...row.comment,
+        reportCount: row.reportCount || 0,
+      })
+    ) as Comment[];
 
     // Fetch replies if requested
     if (includeReplies) {
@@ -339,10 +341,12 @@ export class CommentService {
       .where(and(eq(comments.parentId, parentId), eq(comments.status, 'approved')))
       .orderBy(comments.createdAt);
 
-    return replyResults.map(({ comment, reportCount }) => ({
-      ...comment,
-      reportCount: reportCount || 0,
-    })) as Comment[];
+    return replyResults.map(
+      (row: { comment: Comment; reportCount: number | null }) => ({
+        ...row.comment,
+        reportCount: row.reportCount || 0,
+      })
+    ) as Comment[];
   }
 
   /**
@@ -539,12 +543,14 @@ export class CommentService {
       .where(eq(comments.status, 'flagged'))
       .orderBy(desc(comments.createdAt));
 
-    return flaggedComments.map(({ comment, reports, latestModeration }) => ({
-      comment,
-      reports: JSON.parse(reports || '[]'),
-      latestModeration: latestModeration ? JSON.parse(latestModeration) : undefined,
-      priority: this.calculatePriority(comment, JSON.parse(reports || '[]')),
-    }));
+    return flaggedComments.map(
+      (row: { comment: Comment; reports: string | null; latestModeration?: string | null }) => ({
+        comment: row.comment,
+        reports: JSON.parse(row.reports || '[]'),
+        latestModeration: row.latestModeration ? JSON.parse(row.latestModeration) : undefined,
+        priority: this.calculatePriority(row.comment, JSON.parse(row.reports || '[]')),
+      })
+    );
   }
 
   /**
@@ -629,7 +635,7 @@ export class CommentService {
   async getAuditLogs(filters: AuditLogFilters = {}): Promise<AuditLogListResponse> {
     const { commentId, userId, action, limit = 50, offset = 0, startDate, endDate } = filters;
 
-    let whereConditions = [];
+    const whereConditions = [];
 
     if (commentId) {
       whereConditions.push(eq(commentAuditLogs.commentId, commentId));
@@ -670,7 +676,7 @@ export class CommentService {
       .limit(limit)
       .offset(offset);
 
-    const logs: CommentAuditLog[] = logResults.map((log) => ({
+    const logs: CommentAuditLog[] = logResults.map((log: any) => ({
       id: log.id,
       commentId: log.commentId,
       userId: log.userId || undefined,
@@ -703,7 +709,7 @@ export class CommentService {
    * Get audit logs for a specific user
    */
   async getUserAuditLogs(userId: number): Promise<CommentAuditLog[]> {
-    const logs = await this.getAuditLogs({ userId, limit: 100 });
+    const logs = await this.getAuditLogs({ userId: String(userId), limit: 100 });
     return logs.logs;
   }
 }

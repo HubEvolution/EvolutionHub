@@ -3,9 +3,9 @@
  * Implementiert Pagination, Caching und Performance-Optimierungen
  */
 
-import { eq, and, gte, lte, desc, asc, sql, or, like } from 'drizzle-orm';
+import { eq, and, gte, lte, desc, sql, or } from 'drizzle-orm';
+import { comments } from '../db/schema';
 import { drizzle } from 'drizzle-orm/d1';
-import { comments, users } from '../db/schema';
 import type {
   PaginationOptions,
   PaginatedComments,
@@ -13,7 +13,6 @@ import type {
   CacheEntry,
   CacheStats,
   PerformanceMetrics,
-  CommentFilter,
   CommentSearchOptions,
   SearchResult,
   PerformanceConfig,
@@ -75,15 +74,15 @@ export class PerformanceService {
     // Prüfe Cache zuerst
     if (this.config.cache.enabled) {
       const cached = this.getFromCache(cacheKey);
-      if (cached) {
+      if (cached && 'pagination' in cached) {
         return {
-          ...cached,
+          ...(cached as PaginatedComments),
           metadata: {
-            ...cached.metadata,
+            ...(cached as PaginatedComments).metadata,
             cacheHit: true,
             cacheKey,
           },
-        };
+        } as PaginatedComments;
       }
     }
 
@@ -139,16 +138,19 @@ export class PerformanceService {
    */
   async searchComments(options: CommentSearchOptions): Promise<SearchResult> {
     const startTime = performance.now();
-    const cacheKey = this.generateCacheKey('search', options);
+    const cacheKey = this.generateCacheKey(
+      'search',
+      options as unknown as Record<string, unknown>
+    );
 
     // Prüfe Cache
     if (this.config.cache.enabled) {
       const cached = this.getFromCache(cacheKey);
-      if (cached) {
+      if (cached && 'highlights' in cached) {
         return {
-          ...cached,
+          ...(cached as SearchResult),
           searchTime: performance.now() - startTime,
-        };
+        } as SearchResult;
       }
     }
 
@@ -162,7 +164,10 @@ export class PerformanceService {
         options.filters?.authorId?.[0]
       );
 
-      const highlights = this.generateHighlights(searchResults, options.query);
+      const highlights = this.generateHighlights(
+        searchResults as Array<{ id: string; content: string }>,
+        options.query
+      );
 
       const result: SearchResult = {
         comments: commentsWithReplies,
@@ -189,7 +194,7 @@ export class PerformanceService {
   private async fetchCommentsWithPagination(
     entityId: string,
     options: PaginationOptions,
-    userId?: number
+    _userId?: number
   ): Promise<{ comments: unknown[]; total: number }> {
     const offset = (options.page - 1) * options.limit;
 
@@ -222,11 +227,11 @@ export class PerformanceService {
         options.sortBy === 'createdAt'
           ? options.sortOrder === 'desc'
             ? desc(comments.createdAt)
-            : asc(comments.createdAt)
+            : (sql`${comments.createdAt} ASC` as any)
           : options.sortBy === 'updatedAt'
             ? options.sortOrder === 'desc'
               ? desc(comments.updatedAt)
-              : asc(comments.updatedAt)
+              : (sql`${comments.updatedAt} ASC` as any)
             : desc(comments.createdAt)
       )
       .limit(options.limit)
@@ -256,7 +261,7 @@ export class PerformanceService {
    * Baut Kommentar-Tree mit Replies auf
    */
   private async buildCommentTree(
-    commentData: unknown[],
+    commentData: any[],
     options: PaginationOptions,
     userId?: number
   ): Promise<CommentWithReplies[]> {
@@ -265,8 +270,9 @@ export class PerformanceService {
 
     // Erstelle Map aller Kommentare
     for (const comment of commentData) {
+      const c = comment as any;
       const commentWithReplies: CommentWithReplies = {
-        ...comment,
+        ...(c as any),
         replies: [],
         depth: 0,
         isLiked: false,
@@ -275,9 +281,9 @@ export class PerformanceService {
         canDelete: false,
       };
 
-      commentsMap.set(comment.id, commentWithReplies);
+      commentsMap.set(c.id, commentWithReplies);
 
-      if (!comment.parentId) {
+      if (!c.parentId) {
         rootComments.push(commentWithReplies);
       }
     }
@@ -285,9 +291,10 @@ export class PerformanceService {
     // Baue Reply-Struktur auf
     if (options.includeReplies) {
       for (const comment of commentData) {
-        if (comment.parentId) {
-          const parent = commentsMap.get(comment.parentId);
-          const child = commentsMap.get(comment.id);
+        const c = comment as any;
+        if (c.parentId) {
+          const parent = commentsMap.get(c.parentId);
+          const child = commentsMap.get(c.id);
 
           if (parent && child) {
             child.depth = parent.depth + 1;
@@ -321,10 +328,10 @@ export class PerformanceService {
     const offset = (pagination.page - 1) * pagination.limit;
 
     // Baue WHERE-Bedingungen
-    const whereConditions = [];
+    const whereConditions = [] as any[];
 
     // Text-Suche
-    whereConditions.push(like(comments.content, `%${query}%`));
+    whereConditions.push(sql`${comments.content} LIKE ${'%' + query + '%'}` as any);
 
     // Status-Filter
     if (filters?.status?.length) {
@@ -368,7 +375,7 @@ export class PerformanceService {
         updatedAt: comments.updatedAt,
       })
       .from(comments)
-      .where(and(...whereConditions))
+      .where(and(...(whereConditions as any[])))
       .orderBy(desc(comments.createdAt))
       .limit(pagination.limit)
       .offset(offset);
@@ -379,7 +386,7 @@ export class PerformanceService {
     const countQuery = this.db
       .select({ count: sql<number>`count(*)` })
       .from(comments)
-      .where(and(...whereConditions));
+      .where(and(...(whereConditions as any[])));
 
     const totalResult = await countQuery;
     const total = totalResult[0]?.count || 0;
@@ -390,7 +397,10 @@ export class PerformanceService {
   /**
    * Generiert Such-Highlights
    */
-  private generateHighlights(comments: unknown[], query: string): Record<string, string[]> {
+  private generateHighlights(
+    comments: Array<{ id: string; content: string }>,
+    query: string
+  ): Record<string, string[]> {
     const highlights: Record<string, string[]> = {};
     const searchTerms = query
       .toLowerCase()
@@ -545,8 +555,8 @@ export class PerformanceService {
    */
   getCacheStats(): CacheStats {
     const entries = this.cache.size;
-    let hits = 0;
-    let misses = 0;
+    const hits = 0;
+    const misses = 0;
     let totalSize = 0;
 
     for (const entry of this.cache.values()) {

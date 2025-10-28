@@ -1,3 +1,5 @@
+import { ensureCsrfToken } from '@/lib/security/csrf';
+
 export default function BulkActions() {
   async function perform(action: 'approve' | 'reject' | 'flag' | 'hide') {
     try {
@@ -18,9 +20,10 @@ export default function BulkActions() {
       ) {
         return;
       }
+      const csrf = ensureCsrfToken();
       const res = await fetch('/api/admin/comments/bulk-moderate', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
         credentials: 'same-origin',
         body: JSON.stringify({ commentIds: ids, action, reason }),
       });

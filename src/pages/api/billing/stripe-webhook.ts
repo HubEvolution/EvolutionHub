@@ -1,13 +1,9 @@
 import Stripe from 'stripe';
+// Avoid strict KV typings in src-only typecheck scope
 import { withApiMiddleware } from '@/lib/api-middleware';
 import { createRateLimiter } from '@/lib/rate-limiter';
 import { createSecureErrorResponse, createSecureJsonResponse } from '@/lib/response-helpers';
 import { addCreditPackTenths, getCreditsBalanceTenths } from '@/lib/kv/usage';
-// Minimal KV interface to avoid external type dependency
-type KV = {
-  get(key: string): Promise<string | null>;
-  put(key: string, value: string): Promise<void>;
-};
 
 const stripeWebhookLimiter = createRateLimiter({
   maxRequests: 100,
@@ -40,10 +36,10 @@ function invert<K extends string, V extends string>(obj: Record<K, V>): Record<V
 }
 
 export const POST = withApiMiddleware(
-  async (context) => {
-    const env = (context.locals?.runtime?.env || {}) as App.Locals['runtime']['env'];
-    const stripeSecret = (env as any).STRIPE_SECRET as string | undefined;
-    const webhookSecret = (env as any).STRIPE_WEBHOOK_SECRET as string | undefined;
+  async (context: any) => {
+    const env = (context.locals?.runtime?.env || {}) as any;
+    const stripeSecret = (env as { STRIPE_SECRET?: string }).STRIPE_SECRET;
+    const webhookSecret = (env as { STRIPE_WEBHOOK_SECRET?: string }).STRIPE_WEBHOOK_SECRET;
 
     if (!stripeSecret || !webhookSecret) {
       return createSecureErrorResponse('Stripe not configured', 500);
@@ -52,7 +48,7 @@ export const POST = withApiMiddleware(
     const sig = context.request.headers.get('stripe-signature') || '';
     const rawBody = await context.request.text();
 
-    let event: Stripe.Event;
+    let event: any;
     try {
       const stripe = new Stripe(stripeSecret);
       event = await stripe.webhooks.constructEventAsync(rawBody, sig, webhookSecret);
@@ -72,7 +68,7 @@ export const POST = withApiMiddleware(
     }
 
     const db = env.DB;
-    const kv = (env as any).KV_AI_ENHANCER as KV | undefined;
+    const kv = (env as { KV_AI_ENHANCER?: any }).KV_AI_ENHANCER;
 
     // Helper: set user plan in users table
     async function setUserPlan(userId: string, plan: 'free' | 'pro' | 'premium' | 'enterprise') {
@@ -119,37 +115,41 @@ export const POST = withApiMiddleware(
     }
 
     // Map priceId -> plan via env tables (monthly + annual), where PRICING_TABLE* is plan->priceId
-    const monthlyMap = invert(parsePricingTable((env as any).PRICING_TABLE));
-    const annualMap = invert(parsePricingTable((env as any).PRICING_TABLE_ANNUAL));
-    const priceMap: Record<string, 'free' | 'pro' | 'premium' | 'enterprise'> = {
-      ...(monthlyMap as any),
-      ...(annualMap as any),
-    } as any;
+    const monthlyRaw = (env as { PRICING_TABLE?: unknown }).PRICING_TABLE;
+    const annualRaw = (env as { PRICING_TABLE_ANNUAL?: unknown }).PRICING_TABLE_ANNUAL;
+    const monthlyMap = invert(parsePricingTable(monthlyRaw));
+    const annualMap = invert(parsePricingTable(annualRaw));
+    const priceMap: Record<string, 'free' | 'pro' | 'premium' | 'enterprise'> = {};
+    const isPlan = (v: string): v is 'free' | 'pro' | 'premium' | 'enterprise' =>
+      v === 'free' || v === 'pro' || v === 'premium' || v === 'enterprise';
+    for (const [price, plan] of Object.entries({ ...monthlyMap, ...annualMap })) {
+      if (typeof plan === 'string' && isPlan(plan)) priceMap[price] = plan;
+    }
 
     try {
       switch (event.type) {
         case 'checkout.session.completed': {
-          const session = event.data.object as Stripe.Checkout.Session;
+          const session = event.data.object as any;
           const customerId = (session.customer as string) || '';
           const subscriptionId = (session.subscription as string) || '';
           const meta = session.metadata || {};
-          const userId = (meta.userId as string) || session.client_reference_id || '';
+          const userId = (meta['userId'] as string | undefined) || session.client_reference_id || '';
           // Handle credit packs (one-time payments)
-          if (session.mode === 'payment' && (meta as any).purpose === 'credits' && kv) {
-            const rawPack = (meta as any).pack as string | number | undefined;
-            const units = typeof rawPack === 'number' ? rawPack : rawPack ? Number(rawPack) : 0;
+          if (session.mode === 'payment' && meta['purpose'] === 'credits' && kv) {
+            const rawPack = meta['pack'] as string | undefined;
+            const units = rawPack ? Number(rawPack) : 0;
             if (userId && Number.isFinite(units) && units > 0) {
               const packId = session.id; // use Stripe session id for idempotency
               // store as tenths and compute expiry internally
               await addCreditPackTenths(
-                kv as any,
+                kv,
                 userId,
                 packId,
                 units * 10,
-                (session as any).created ? (session as any).created * 1000 : Date.now()
+                typeof session.created === 'number' ? session.created * 1000 : Date.now()
               );
               // update legacy summary key for compatibility with existing UI
-              const totalTenths = await getCreditsBalanceTenths(kv as any, userId);
+              const totalTenths = await getCreditsBalanceTenths(kv, userId);
               const legacyKey = `ai:credits:user:${userId}`;
               const legacyInt = Math.floor(totalTenths / 10);
               await kv.put(legacyKey, String(legacyInt));
@@ -169,10 +169,10 @@ export const POST = withApiMiddleware(
             (session.customer_details?.email as string | undefined) || undefined;
           if (!resolvedUserId && customerEmail) {
             try {
-              const row = await db
+              const row = (await db
                 .prepare('SELECT id FROM users WHERE lower(email) = lower(?) LIMIT 1')
                 .bind(customerEmail)
-                .first<{ id: string }>();
+                .first()) as any;
               if (row?.id) {
                 resolvedUserId = row.id;
               }
@@ -187,7 +187,7 @@ export const POST = withApiMiddleware(
               const payload = JSON.stringify({
                 customerId,
                 subscriptionId,
-                plan: (meta.plan as any) || 'pro',
+                plan: (meta['plan'] as 'free' | 'pro' | 'premium' | 'enterprise' | undefined) || 'pro',
                 ts: Date.now(),
                 reason: 'checkout_completed_no_user_context',
               });
@@ -201,7 +201,7 @@ export const POST = withApiMiddleware(
 
           // Determine plan from metadata or price mapping
           let plan =
-            (meta.plan as 'free' | 'pro' | 'premium' | 'enterprise' | undefined) || undefined;
+            (meta['plan'] as 'free' | 'pro' | 'premium' | 'enterprise' | undefined) || undefined;
           if (!plan) {
             // Try reading line items when available (not included by default in event)
             // Fallback to mapping by default price id from subscription when it arrives in a later event
@@ -214,19 +214,19 @@ export const POST = withApiMiddleware(
               id: subscriptionId,
               userId: resolvedUserId,
               customerId,
-              plan: (plan as any) || 'pro',
+              plan: plan || 'pro',
               status: 'active',
               currentPeriodEnd: null,
               cancelAtPeriodEnd: null,
             });
           }
           // Set user plan immediately for better UX
-          await setUserPlan(resolvedUserId, (plan as any) || 'pro');
+          await setUserPlan(resolvedUserId, plan || 'pro');
           console.log('[stripe_webhook] handled checkout.session.completed', {
             userId: resolvedUserId,
             customerId: customerId ? 'set' : 'missing',
             subscriptionId: subscriptionId ? 'set' : 'missing',
-            plan: (plan as any) || 'pro',
+            plan: plan || 'pro',
           });
           break;
         }
@@ -234,14 +234,14 @@ export const POST = withApiMiddleware(
         case 'customer.subscription.updated':
         case 'customer.subscription.created':
         case 'customer.subscription.deleted': {
-          const sub = event.data.object as Stripe.Subscription;
+          const sub = event.data.object as any;
           const customerId = (sub.customer as string) || '';
           if (!customerId) break;
           // Lookup user by customer
-          const row = await db
+          const row = (await db
             .prepare('SELECT user_id FROM stripe_customers WHERE customer_id = ?')
             .bind(customerId)
-            .first<{ user_id: string }>();
+            .first()) as { user_id: string } | null;
           const userId = row?.user_id;
           if (!userId) break;
 
@@ -250,9 +250,11 @@ export const POST = withApiMiddleware(
           const plan =
             (priceMap[priceId] as 'free' | 'pro' | 'premium' | 'enterprise' | undefined) || 'free';
           const status = sub.status as string;
-          const cpeRaw = (sub as any)?.current_period_end;
+          const subRec = sub as unknown as Record<string, unknown>;
+          const cpeRaw = subRec['current_period_end'];
           const currentPeriodEnd = typeof cpeRaw === 'number' ? cpeRaw : null;
-          const cancelAtPeriodEnd = !!(sub as any)?.cancel_at_period_end;
+          const capeRaw = subRec['cancel_at_period_end'];
+          const cancelAtPeriodEnd = !!capeRaw;
 
           await upsertSubscription({
             id: sub.id,
@@ -296,7 +298,7 @@ export const POST = withApiMiddleware(
   {
     rateLimiter: stripeWebhookLimiter,
     disableAutoLogging: false,
-    requireSameOriginForUnsafeMethods: false, // Stripe calls from external origin
-    enforceCsrfToken: false, // Signature validation is the CSRF equivalent
-  } as any
+    requireSameOriginForUnsafeMethods: false,
+    enforceCsrfToken: false,
+  }
 );

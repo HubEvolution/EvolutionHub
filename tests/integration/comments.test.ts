@@ -3,6 +3,9 @@ import { getDb } from '../../src/lib/db/helpers';
 import { commentService } from '../../src/lib/services/comment-service';
 import type { CreateCommentRequest, UpdateCommentRequest } from '../../src/lib/types/comments';
 
+const canRun = typeof getDb === 'function';
+const d = canRun ? describe : describe.skip;
+
 // Test database setup
 interface DBLike {
   run: (sql: string) => Promise<unknown>;
@@ -12,7 +15,7 @@ interface DBLike {
 
 let db!: DBLike;
 
-describe('Comment API Integration Tests', () => {
+d('Comment API Integration Tests', () => {
   beforeAll(async () => {
     // Initialize test database
     db = getDb({} as unknown as Parameters<typeof getDb>[0]) as unknown as DBLike;

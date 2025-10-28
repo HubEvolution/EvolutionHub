@@ -246,6 +246,7 @@ id = "a63a1fd516d942e9a892f226f2cc11c6"
 # Produktionsumgebung: Variablen nur bei --env production aktiv
 [env.production.vars]
 ENVIRONMENT = "production"
+PUBLIC_SITE_URL="https://hub-evolution.com"
 # Produktionsbasis-URL für Stripe-Redirects
 BASE_URL = "https://hub-evolution.com"
 LEADMAGNET_SOURCE = "r2"

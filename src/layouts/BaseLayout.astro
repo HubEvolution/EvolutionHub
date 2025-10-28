@@ -73,8 +73,11 @@ const pageFrontmatter = props as unknown as Record<string, unknown>;
 const showComingSoon = isComingSoon(Astro.url.pathname, pageFrontmatter);
 const bodyClass = `min-h-screen bg-sky-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 flex flex-col overflow-x-hidden ${showComingSoon ? 'coming-soon-open' : ''}`;
 const landingBgVariant = getLandingBgVariant();
-// Prefer Astro.site (set via BASE_URL in astro.config.mjs) to construct absolute URLs during prerender.
-const siteBase: URL = (Astro.site as URL) || new URL('http://127.0.0.1:8787');
+// Prefer PUBLIC_SITE_URL first, then Astro.url.origin for siteBase
+const siteBase: URL = (import.meta.env.PUBLIC_SITE_URL as string)
+  ? new URL(import.meta.env.PUBLIC_SITE_URL as string)
+  : new URL(Astro.url.origin);
+
 ---
 
 <!doctype html>

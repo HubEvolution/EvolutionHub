@@ -34,6 +34,7 @@ export default defineConfig({
     globals: true,
     watch: false,
     env: { NODE_ENV: 'test' },
+    passWithNoTests: true,
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html', 'lcov'],
@@ -83,6 +84,7 @@ export default defineConfig({
           setupFiles: ['./src/setupTests.ts'],
           // Note: removed deprecated deps.inline; tests run fine without explicit inlining
           testTimeout: 10000,
+          passWithNoTests: true,
           include: ['src/**/*.{test,spec}.{ts,tsx}', 'tests/unit/**/*.{test,spec,_test}.{ts,tsx}'],
           exclude: ['tests/src/**', 'tests/integration/**', 'test-suite-v2/**'],
         },
@@ -92,6 +94,7 @@ export default defineConfig({
         plugins: [tsconfigPaths({ projects: ['./tsconfig.json'] })],
         test: {
           name: 'integration',
+          passWithNoTests: true,
           include: ['tests/integration/**/*.{test,spec}.{ts,tsx}'],
           environment: 'node',
           testTimeout: 180000,

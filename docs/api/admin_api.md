@@ -148,7 +148,131 @@ GET `/api/admin/metrics`
 
 ---
 
+## Backup
+
+- Access: admin
+- Security: Same‑Origin for unsafe. CSRF required on POST (`X-CSRF-Token` must match `csrf_token` cookie).
+- Rate limiting: reads `apiRateLimiter` (30/min), writes `sensitiveActionLimiter` (5/hour).
+
+### Jobs
+
+GET `/api/admin/backup/jobs?limit=50`
+
+- Returns recent backup jobs (desc by `startedAt`).
+
+Example:
+
+```bash
+curl -i "https://hub-evolution.com/api/admin/backup/jobs?limit=50" \
+  -H 'Cookie: __Host-session=<token>'
+```
+
+GET `/api/admin/backup/jobs/{id}`
+
+- Returns a single job by ID.
+
+GET `/api/admin/backup/jobs/{id}/progress`
+
+- Returns a progress snapshot for a job.
+
+### Maintenance
+
+GET `/api/admin/backup/maintenance/jobs?limit=50`
+
+- Returns recent maintenance jobs (cleanup/optimization/migration/repair).
+
+GET `/api/admin/backup/maintenance/jobs/{id}`
+
+- Returns a single maintenance job by ID.
+
+### Stats
+
+GET `/api/admin/backup/stats`
+
+- Aggregated stats (totals, completed/failed/running counts, size, jobsByType).
+
+### Create
+
+POST `/api/admin/backup/create`
+
+- Body: `{ type: string, tables?: string[] }`
+- Headers: `X-CSRF-Token`, `Content-Type: application/json`
+
+Example:
+
+```bash
+CSRF=abc123
+curl -i -X POST https://hub-evolution.com/api/admin/backup/create \
+  -H 'Origin: https://hub-evolution.com' \
+  -H 'Content-Type: application/json' \
+  -H "X-CSRF-Token: $CSRF" \
+  -H "Cookie: csrf_token=$CSRF; __Host-session=<token>" \
+  --data '{"type":"full","tables":["users","comments"]}'
+```
+
+### Schedule
+
+POST `/api/admin/backup/schedule`
+
+- Body: `{ type: string, cronExpression: string }`
+- Headers: `X-CSRF-Token`, `Content-Type: application/json`
+
+### Perform Maintenance
+
+POST `/api/admin/backup/maintenance/perform`
+
+- Body: `{ type: "cleanup"|"optimization"|"migration"|"repair", description: string }`
+- Headers: `X-CSRF-Token`, `Content-Type: application/json`
+
+### Cleanup
+
+POST `/api/admin/backup/cleanup`
+
+- Body: `{ retentionDays?: number }` (default 30, max 365)
+- Headers: `X-CSRF-Token`, `Content-Type: application/json`
+
+### Verify
+
+POST `/api/admin/backup/verify/{id}`
+
+- Verifies checksum/integrity of a completed backup.
+- Headers: `X-CSRF-Token`
+
+## Users Summary
+
+GET `/api/admin/users/summary?email=<email>` or `?id=<userId>`
+
+- Returns user core info, latest subscription snapshot, and credits balance.
+- Access: admin
+
+Example:
+
+```bash
+curl -i "https://hub-evolution.com/api/admin/users/summary?email=someone@example.com" \
+  -H 'Cookie: __Host-session=<token>'
+```
+
+## Credits Grant
+
+POST `/api/admin/credits/grant`
+
+- Body: `{ email: string, amount?: number }` (credits; default 1000)
+- Headers: `X-CSRF-Token`, `Content-Type: application/json`
+- Access: admin; feature‑gated by `INTERNAL_CREDIT_GRANT`
+
+Example:
+
+```bash
+CSRF=abc123
+curl -i -X POST https://hub-evolution.com/api/admin/credits/grant \
+  -H 'Origin: https://hub-evolution.com' \
+  -H 'Content-Type: application/json' \
+  -H "X-CSRF-Token: $CSRF" \
+  -H "Cookie: csrf_token=$CSRF; __Host-session=<token>" \
+  --data '{"email":"someone@example.com","amount":1000}'
+```
+
 ## See also
 
 - `docs/api/api-guidelines.md` (middleware, headers, shapes)
-- `openapi.yaml` for machine‑readable specs
+- `openapi.yaml` for machine-readable specs

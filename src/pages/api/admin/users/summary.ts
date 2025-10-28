@@ -1,18 +1,45 @@
-import { withAuthApiMiddleware, createApiError, createApiSuccess, createMethodNotAllowed } from '@/lib/api-middleware';
+import {
+  withAuthApiMiddleware,
+  createApiError,
+  createApiSuccess,
+  createMethodNotAllowed,
+} from '@/lib/api-middleware';
 import type { D1Database } from '@cloudflare/workers-types';
 import { requireAdmin } from '@/lib/auth-helpers';
 import { getCreditsBalanceTenths } from '@/lib/kv/usage';
+import type { APIContext } from 'astro';
+import type { AdminBindings } from '@/lib/types/admin';
 
-export const GET = withAuthApiMiddleware(async (context) => {
-  const { locals, request } = context as any;
-  const env: any = locals?.runtime?.env ?? {};
+type UserRow = {
+  id: string;
+  email: string;
+  name?: string | null;
+  plan?: 'free' | 'pro' | 'premium' | 'enterprise' | null;
+  created_at?: string | number | null;
+};
+
+type SubRow = {
+  id: string;
+  plan: string;
+  status: string;
+  current_period_end: number | null;
+  updated_at: string;
+};
+
+export const GET = withAuthApiMiddleware(async (context: APIContext) => {
+  const { locals, request } = context;
+  const env = (locals?.runtime?.env ?? {}) as AdminBindings;
   const db = env.DB as D1Database | undefined;
-  const kv = env.KV_AI_ENHANCER as import('@cloudflare/workers-types').KVNamespace | undefined;
+  const kv = env.KV_AI_ENHANCER;
   if (!db) return createApiError('server_error', 'Database unavailable');
 
   try {
-    await requireAdmin({ req: { header: (n: string) => context.request.headers.get(n) || undefined }, request, env: { DB: db } });
-  } catch (e) {
+    await requireAdmin({
+      req: { header: (n: string) => context.request.headers.get(n) || undefined },
+      request,
+      env: { DB: db },
+    });
+  } catch {
     return createApiError('forbidden', 'Insufficient permissions');
   }
 
@@ -21,18 +48,20 @@ export const GET = withAuthApiMiddleware(async (context) => {
   const id = (url.searchParams.get('id') || '').trim();
   if (!email && !id) return createApiError('validation_error', 'email or id required');
 
-  let userRow: { id: string; email: string; name?: string; plan?: string; created_at?: string } | null = null;
+  let userRow: UserRow | null = null;
   try {
     if (email) {
       userRow = await db
-        .prepare('SELECT id, email, name, plan, created_at FROM users WHERE lower(email) = ?1 LIMIT 1')
+        .prepare(
+          'SELECT id, email, name, plan, created_at FROM users WHERE lower(email) = ?1 LIMIT 1'
+        )
         .bind(email)
-        .first();
+        .first<UserRow>();
     } else {
       userRow = await db
         .prepare('SELECT id, email, name, plan, created_at FROM users WHERE id = ?1 LIMIT 1')
         .bind(id)
-        .first();
+        .first<UserRow>();
     }
   } catch {
     return createApiError('server_error', 'Lookup failed');
@@ -42,14 +71,16 @@ export const GET = withAuthApiMiddleware(async (context) => {
   let credits = 0;
   if (kv) {
     try {
-      const tenths = await getCreditsBalanceTenths(kv as any, userRow.id);
+      const tenths = await getCreditsBalanceTenths(kv, userRow.id);
       credits = Math.floor((typeof tenths === 'number' ? tenths : 0) / 10);
     } catch {}
   }
 
-  let sub: { id: string; plan: string; status: string; current_period_end: number | null; updated_at: string } | null = null;
+  let sub: SubRow | null = null;
+  let lastIp: string | null = null;
+  let lastSeenAt: number | null = null;
   try {
-    sub = (await db
+    sub = await db
       .prepare(
         `SELECT id, plan, status, current_period_end, updated_at
          FROM subscriptions
@@ -58,7 +89,20 @@ export const GET = withAuthApiMiddleware(async (context) => {
          LIMIT 1`
       )
       .bind(userRow.id)
-      .first()) as any;
+      .first<SubRow>();
+  } catch {}
+
+  try {
+    const last = await db
+      .prepare(
+        `SELECT actor_ip, created_at FROM audit_logs WHERE actor_user_id = ?1 ORDER BY created_at DESC LIMIT 1`
+      )
+      .bind(userRow.id)
+      .first<{ actor_ip: string | null; created_at: number | null }>();
+    if (last) {
+      lastIp = (last.actor_ip || null) as string | null;
+      lastSeenAt = typeof last.created_at === 'number' ? last.created_at : null;
+    }
   } catch {}
 
   const data = {
@@ -66,10 +110,12 @@ export const GET = withAuthApiMiddleware(async (context) => {
       id: userRow.id,
       email: userRow.email,
       name: userRow.name || '',
-      plan: ((userRow.plan as any) || 'free') as 'free' | 'pro' | 'premium' | 'enterprise',
+      plan: (userRow.plan ?? 'free') as 'free' | 'pro' | 'premium' | 'enterprise',
       createdAt: userRow.created_at || null,
     },
     credits,
+    lastSeenAt,
+    lastIp,
     subscription: sub
       ? {
           id: sub.id,

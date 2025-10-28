@@ -240,7 +240,8 @@ describe('CommentList', () => {
     vi.clearAllMocks();
   });
 
-  it('should render comments list', () => {
+  it('should render comments list', async () => {
+    const user = userEvent.setup();
     render(
       <CommentList
         onReply={function (content: string, parentId?: string): Promise<void> {
@@ -251,6 +252,9 @@ describe('CommentList', () => {
     );
 
     expect(screen.getByText('This is the first comment')).toBeInTheDocument();
+    // Expand replies toggle before asserting reply content
+    const toggle = screen.getByRole('button', { name: /Antworten anzeigen/i });
+    await user.click(toggle);
     expect(screen.getByText('This is a reply')).toBeInTheDocument();
   });
 

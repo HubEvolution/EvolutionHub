@@ -14,10 +14,11 @@ class FakeKV {
   private store = new Map<string, { value: string; expirationTtl?: number }>();
   public lastPut?: { key: string; expirationTtl?: number };
 
-  async get(key: string, opts?: { type?: 'text' | 'json' | 'stream' }) {
+  async get(key: string, opts?: { type?: 'text' | 'json' | 'stream' } | 'text' | 'json' | 'stream') {
     const rec = this.store.get(key);
     if (!rec) return null as any;
-    if (opts?.type === 'json') return JSON.parse(rec.value);
+    const type = typeof opts === 'string' ? opts : opts?.type;
+    if (type === 'json') return JSON.parse(rec.value);
     return rec.value as any;
   }
 

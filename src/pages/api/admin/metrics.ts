@@ -1,4 +1,9 @@
-import { withAuthApiMiddleware, createApiSuccess, createApiError } from '@/lib/api-middleware';
+import {
+  withAuthApiMiddleware,
+  createApiSuccess,
+  createApiError,
+  createMethodNotAllowed,
+} from '@/lib/api-middleware';
 import type { D1Database } from '@cloudflare/workers-types';
 import type { APIContext } from 'astro';
 import { requireAdmin } from '@/lib/auth-helpers';
@@ -63,3 +68,12 @@ export const GET = withAuthApiMiddleware(async (context: APIContext) => {
     ts: Date.now(),
   });
 });
+
+// 405 for unsupported methods
+const methodNotAllowed = () => createMethodNotAllowed('GET');
+export const POST = methodNotAllowed;
+export const PUT = methodNotAllowed;
+export const PATCH = methodNotAllowed;
+export const DELETE = methodNotAllowed;
+export const OPTIONS = methodNotAllowed;
+export const HEAD = methodNotAllowed;

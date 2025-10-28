@@ -1,20 +1,27 @@
-import { withAuthApiMiddleware, createApiSuccess, createApiError } from '@/lib/api-middleware';
+import {
+  withAuthApiMiddleware,
+  createApiSuccess,
+  createApiError,
+  createMethodNotAllowed,
+} from '@/lib/api-middleware';
 import { getCreditsBalanceTenths } from '@/lib/kv/usage';
 import { requireAdmin } from '@/lib/auth-helpers';
+import type { AdminBindings } from '@/lib/types/admin';
+import type { APIContext } from 'astro';
 
 // Read-only admin status for the logged-in user
 // Response shape (consistent): { success: boolean, data?: T, error?: string }
-export const GET = withAuthApiMiddleware(async (context) => {
+export const GET = withAuthApiMiddleware(async (context: APIContext) => {
   const { locals } = context;
-  const user = locals.user;
-  const env: any = locals?.runtime?.env ?? {};
+  const user = locals.user as { id: string; email?: string } | undefined;
+  const env = (locals?.runtime?.env ?? {}) as AdminBindings;
 
   if (!user) {
     return createApiError('auth_error', 'Unauthorized');
   }
 
   const db = env.DB;
-  const kv = env.KV_AI_ENHANCER as import('@cloudflare/workers-types').KVNamespace | undefined;
+  const kv = env.KV_AI_ENHANCER;
 
   // Enforce admin-only access
   try {
@@ -28,14 +35,17 @@ export const GET = withAuthApiMiddleware(async (context) => {
   }
 
   // Fetch plan from users (source of truth)
-  const row = await db.prepare('SELECT plan FROM users WHERE id = ?').bind(user.id).first();
-  const plan = ((row as any)?.plan ?? 'free') as 'free' | 'pro' | 'premium' | 'enterprise';
+  const row = await db
+    .prepare('SELECT plan FROM users WHERE id = ?')
+    .bind(user.id)
+    .first<{ plan?: 'free' | 'pro' | 'premium' | 'enterprise' }>();
+  const plan = row?.plan ?? 'free';
 
   // Fetch credits using credit packs (tenths -> integer credits)
   let credits = 0;
   if (kv) {
     try {
-      const tenths = await getCreditsBalanceTenths(kv as any, user.id);
+      const tenths = await getCreditsBalanceTenths(kv, user.id);
       credits = Math.floor((typeof tenths === 'number' ? tenths : 0) / 10);
     } catch {}
   }
@@ -59,3 +69,12 @@ export const GET = withAuthApiMiddleware(async (context) => {
     subscriptions: subsRes?.results ?? [],
   });
 });
+
+// 405 for unsupported methods
+const methodNotAllowed = () => createMethodNotAllowed('GET');
+export const POST = methodNotAllowed;
+export const PUT = methodNotAllowed;
+export const PATCH = methodNotAllowed;
+export const DELETE = methodNotAllowed;
+export const OPTIONS = methodNotAllowed;
+export const HEAD = methodNotAllowed;

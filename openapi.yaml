@@ -29,6 +29,127 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GenericResponse'
+  /api/admin/users/summary:
+    get:
+      summary: Get user summary by email or id
+      description: Returns user profile/basic subscription and credits balance. Requires admin.
+      x-source: src/pages/api/admin/users/summary.ts
+      operationId: getAdminUsersSummary
+      parameters:
+        - name: email
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: id
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: User summary
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        "400":
+          description: Validation error (email or id required)
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden (not admin)
+        "404":
+          description: Not found
+  /api/admin/credits/history:
+    get:
+      summary: List active credit packs
+      description: Returns active credit packs for a user. Requires admin.
+      x-source: src/pages/api/admin/credits/history.ts
+      operationId: getAdminCreditsHistory
+      parameters:
+        - name: userId
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Packs list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        "400":
+          description: Validation error
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden (not admin)
+  /api/admin/credits/usage:
+    get:
+      summary: Get credits balance
+      description: Returns credits balance for a user. Requires admin.
+      x-source: src/pages/api/admin/credits/usage.ts
+      operationId: getAdminCreditsUsage
+      parameters:
+        - name: userId
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Balance
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        "400":
+          description: Validation error
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden (not admin)
+  /api/admin/credits/grant:
+    post:
+      summary: Grant credits to a user
+      description: Adds credits to a user by email. Requires admin. CSRF protected.
+      x-source: src/pages/api/admin/credits/grant.ts
+      operationId: postAdminCreditsGrant
+      parameters:
+        - name: X-CSRF-Token
+          in: header
+          required: true
+          description: Double‑Submit token; must match cookie 'csrf_token'
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email:
+                  type: string
+                amount:
+                  type: integer
+                  description: Credits to grant (default 1000)
+      responses:
+        "200":
+          description: Grant success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden (CSRF/Origin or not admin)
+        "404":
+          description: User not found
   /api/tools:
     get:
       summary: List available tools
@@ -483,6 +604,264 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiErrorResponse'
+  /api/admin/backup/jobs:
+    get:
+      summary: List backup jobs
+      description: Returns recent backup jobs ordered by startedAt desc. Requires admin.
+      x-source: src/pages/api/admin/backup/jobs/index.ts
+      operationId: getAdminBackupJobs
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 1000
+            default: 50
+      responses:
+        "200":
+          description: Jobs list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        "401":
+          description: Unauthorized
+  /api/admin/backup/jobs/{id}:
+    get:
+      summary: Get backup job
+      description: Returns details for a specific backup job. Requires admin.
+      x-source: src/pages/api/admin/backup/jobs/[id]/index.ts
+      operationId: getAdminBackupJob
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Job details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        "404":
+          description: Not found
+  /api/admin/backup/jobs/{id}/progress:
+    get:
+      summary: Get backup progress
+      description: Returns progress for a running or completed backup job. Requires admin.
+      x-source: src/pages/api/admin/backup/jobs/[id]/progress.ts
+      operationId: getAdminBackupJobProgress
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Progress object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        "404":
+          description: Not found
+  /api/admin/backup/maintenance/jobs:
+    get:
+      summary: List maintenance jobs
+      description: Returns recent maintenance jobs ordered by startedAt desc. Requires admin.
+      x-source: src/pages/api/admin/backup/maintenance/jobs/index.ts
+      operationId: getAdminMaintenanceJobs
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 1000
+            default: 50
+      responses:
+        "200":
+          description: Jobs list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+  /api/admin/backup/maintenance/jobs/{id}:
+    get:
+      summary: Get maintenance job
+      description: Returns details for a specific maintenance job. Requires admin.
+      x-source: src/pages/api/admin/backup/maintenance/jobs/[id].ts
+      operationId: getAdminMaintenanceJob
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Job details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        "404":
+          description: Not found
+  /api/admin/backup/stats:
+    get:
+      summary: Backup statistics
+      description: Aggregated statistics for backup jobs. Requires admin.
+      x-source: src/pages/api/admin/backup/stats.ts
+      operationId: getAdminBackupStats
+      responses:
+        "200":
+          description: Stats payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+  /api/admin/backup/create:
+    post:
+      summary: Create backup job
+      description: Creates a new backup job. Requires admin.
+      x-source: src/pages/api/admin/backup/create.ts
+      operationId: postAdminBackupCreate
+      parameters:
+        - name: X-CSRF-Token
+          in: header
+          required: true
+          description: Double‑Submit token; must match cookie 'csrf_token'
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                type:
+                  type: string
+                tables:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        "200":
+          description: Backup job created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        "403":
+          description: Forbidden (CSRF/Origin or insufficient permissions)
+  /api/admin/backup/schedule:
+    post:
+      summary: Schedule automated backup
+      description: Schedules an automated backup based on a cron expression. Requires admin.
+      x-source: src/pages/api/admin/backup/schedule.ts
+      operationId: postAdminBackupSchedule
+      parameters:
+        - name: X-CSRF-Token
+          in: header
+          required: true
+          description: Double‑Submit token; must match cookie 'csrf_token'
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                type:
+                  type: string
+                cronExpression:
+                  type: string
+      responses:
+        "200":
+          description: Scheduled
+  /api/admin/backup/maintenance/perform:
+    post:
+      summary: Perform system maintenance
+      description: Starts a maintenance job. Requires admin.
+      x-source: src/pages/api/admin/backup/maintenance/perform.ts
+      operationId: postAdminMaintenancePerform
+      parameters:
+        - name: X-CSRF-Token
+          in: header
+          required: true
+          description: Double‑Submit token; must match cookie 'csrf_token'
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                type:
+                  type: string
+                  enum: [cleanup, optimization, migration, repair]
+                description:
+                  type: string
+      responses:
+        "200":
+          description: Maintenance started
+  /api/admin/backup/cleanup:
+    post:
+      summary: Cleanup old backups
+      description: Deletes old completed backups based on retention policy. Requires admin.
+      x-source: src/pages/api/admin/backup/cleanup.ts
+      operationId: postAdminBackupCleanup
+      parameters:
+        - name: X-CSRF-Token
+          in: header
+          required: true
+          description: Double‑Submit token; must match cookie 'csrf_token'
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                retentionDays:
+                  type: integer
+      responses:
+        "200":
+          description: Cleanup result
+  /api/admin/backup/verify/{id}:
+    post:
+      summary: Verify backup integrity
+      description: Verifies integrity of a completed backup by ID. Requires admin.
+      x-source: src/pages/api/admin/backup/verify/[id].ts
+      operationId: postAdminBackupVerify
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: X-CSRF-Token
+          in: header
+          required: true
+          description: Double‑Submit token; must match cookie 'csrf_token'
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Verification result
         "404":
           description: Not found
           content:
@@ -581,12 +960,214 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GenericResponse'
+        "401":
+          description: Unauthorized
         "403":
-          description: Forbidden (CSRF/Origin or insufficient permissions)
+          description: Forbidden (not admin)
+  /api/admin/audit/logs:
+    get:
+      summary: List audit logs
+      description: Returns audit logs with optional filters and cursor-based pagination. Requires admin.
+      x-source: src/pages/api/admin/audit/logs/index.ts
+      operationId: getAdminAuditLogs
+      parameters:
+        - name: userId
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: eventType
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [API_ACCESS, ADMIN_ACTION, SECURITY_EVENT]
+        - name: from
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int64
+            description: Unix epoch milliseconds (inclusive)
+        - name: to
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int64
+            description: Unix epoch milliseconds (inclusive)
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 50
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Audit logs payload
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
+                $ref: '#/components/schemas/GenericResponse'
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden (not admin)
+  /api/admin/audit/logs/{id}:
+    get:
+      summary: Get audit log by id
+      description: Returns a single audit log entry. Requires admin.
+      x-source: src/pages/api/admin/audit/logs/[id].ts
+      operationId: getAdminAuditLogById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Audit log entry
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden (not admin)
+        "404":
+          description: Not found
+  /api/admin/users/sessions:
+    get:
+      summary: List sessions for a user
+      description: Returns sessions for the given userId. Requires admin.
+      x-source: src/pages/api/admin/users/sessions.ts
+      operationId: getAdminUserSessions
+      parameters:
+        - name: userId
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Sessions list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        "400":
+          description: Validation error
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden (not admin)
+  /api/admin/users/revoke-sessions:
+    post:
+      summary: Revoke sessions for a user or a specific session
+      description: Deletes sessions by userId or sessionId. Requires admin and CSRF protection.
+      x-source: src/pages/api/admin/users/revoke-sessions.ts
+      operationId: postAdminRevokeSessions
+      parameters:
+        - name: X-CSRF-Token
+          in: header
+          required: true
+          description: Double‑Submit token; must match cookie 'csrf_token'
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: string
+                sessionId:
+                  type: string
+      responses:
+        "200":
+          description: Revoke result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden (CSRF/Origin or not admin)
+        "400":
+          description: Validation error
+  /api/admin/rate-limits/state:
+    get:
+      summary: Get rate limiter state
+      description: Returns limiter entries for a given limiter name or all.
+      x-source: src/pages/api/admin/rate-limits/state.ts
+      operationId: getAdminRateLimitsState
+      parameters:
+        - name: name
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: State
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden (not admin)
+  /api/admin/rate-limits/reset:
+    post:
+      summary: Reset a limiter key
+      description: Resets a specific key in a named rate limiter. Requires admin and CSRF.
+      x-source: src/pages/api/admin/rate-limits/reset.ts
+      operationId: postAdminRateLimitsReset
+      parameters:
+        - name: X-CSRF-Token
+          in: header
+          required: true
+          description: Double‑Submit token; must match cookie 'csrf_token'
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, key]
+              properties:
+                name:
+                  type: string
+                key:
+                  type: string
+      responses:
+        "200":
+          description: Reset result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        "400":
+          description: Validation error
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden (CSRF/Origin or not admin)
   /api/debug/logs-stream:
     get:
       summary: Stream logs (SSE)

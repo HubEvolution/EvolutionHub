@@ -27,6 +27,7 @@ interface RateLimitStore {
 
 // In-Memory-Store für Rate-Limiting-Daten (in Produktion durch Redis o.ä. ersetzen)
 const limitStores: Record<string, RateLimitStore> = {};
+const limiterConfigs: Record<string, Required<RateLimitConfig>> = {};
 
 /**
  * Ermittelt einen eindeutigen Schlüssel für einen Benutzer/eine Anfrage basierend auf IP und User-ID
@@ -58,6 +59,13 @@ export function createRateLimiter(config: RateLimitConfig) {
   if (!limitStores[limiterName]) {
     limitStores[limiterName] = {};
   }
+
+  // Konfiguration für Introspection registrieren
+  limiterConfigs[limiterName] = {
+    name: limiterName,
+    maxRequests: config.maxRequests,
+    windowMs: config.windowMs,
+  };
 
   const store = limitStores[limiterName];
 
@@ -246,4 +254,40 @@ export async function rateLimit(
 
   // Zähler erhöhen
   entry.count += 1;
+}
+
+/**
+ * Liefert den Zustand aller oder eines spezifischen Limiters.
+ */
+export function getLimiterState(name?: string) {
+  const names = name ? [name] : Object.keys(limitStores);
+  const state = names.reduce((acc, n) => {
+    const cfg = limiterConfigs[n];
+    const store = limitStores[n] || {};
+    acc[n] = {
+      maxRequests: cfg?.maxRequests ?? 0,
+      windowMs: cfg?.windowMs ?? 0,
+      entries: Object.entries(store).map(([key, v]) => ({
+        key,
+        count: v.count,
+        resetAt: v.resetAt,
+      })),
+    };
+    return acc;
+  }, {} as Record<string, { maxRequests: number; windowMs: number; entries: Array<{ key: string; count: number; resetAt: number }> }>);
+  return state;
+}
+
+/**
+ * Setzt einen bestimmten Schlüssel eines Limiters zurück.
+ * Gibt true zurück, wenn der Schlüssel existierte und entfernt wurde.
+ */
+export function resetLimiterKey(name: string, key: string): boolean {
+  const store = limitStores[name];
+  if (!store) return false;
+  if (store[key]) {
+    delete store[key];
+    return true;
+  }
+  return false;
 }

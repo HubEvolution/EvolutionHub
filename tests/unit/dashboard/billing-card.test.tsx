@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import BillingCard, { type BillingSummary } from '@/components/dashboard/BillingCard';
 
@@ -59,26 +59,34 @@ describe('BillingCard', () => {
 
   it('schedules cancellation via API and updates UI', async () => {
     const user = userEvent.setup();
-    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
-      new Response(JSON.stringify({ success: true, data: { message: 'ok' } }), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' },
-      })
-    );
+    const fetchSpy = vi
+      .spyOn(globalThis, 'fetch')
+      .mockImplementation(async (input: RequestInfo | URL, init?: RequestInit) => {
+        const url = typeof input === 'string' ? input : input.toString();
+        if (url.endsWith('/api/dashboard/billing-summary')) {
+          return new Response(
+            JSON.stringify({ success: true, data: baseSummary }),
+            { status: 200, headers: { 'Content-Type': 'application/json' } }
+          ) as any;
+        }
+        if (url.endsWith('/api/billing/cancel')) {
+          return new Response(
+            JSON.stringify({ success: true, data: { message: 'ok' } }),
+            { status: 200, headers: { 'Content-Type': 'application/json' } }
+          ) as any;
+        }
+        return new Response(JSON.stringify({ success: false }), { status: 404 }) as any;
+      });
 
     render(<BillingCard summary={baseSummary} strings={strings} />);
 
     await user.click(screen.getByRole('button', { name: strings.actions.cancel }));
 
-    await waitFor(() => {
-      expect(screen.getByText(strings.actions.cancelled)).toBeInTheDocument();
-    });
+    expect(await screen.findByText(strings.actions.cancelled)).toBeInTheDocument();
 
     expect(fetchSpy).toHaveBeenCalledWith(
       '/api/billing/cancel',
-      expect.objectContaining({
-        method: 'POST',
-      })
+      expect.objectContaining({ method: 'POST' })
     );
   });
 });

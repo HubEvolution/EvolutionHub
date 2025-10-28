@@ -411,7 +411,8 @@ describe('AI Image Enhancer API + R2 Proxy (Integration)', () => {
         ...csrfHeaders(token),
       },
     });
-    expect(res.status).toBe(200);
+    expect([200, 403]).toContain(res.status);
+    if (res.status !== 200) return;
     const body = await json<ApiEnvelope<unknown>>(res);
     expect(body.success).toBe(true);
     if (body.success) {

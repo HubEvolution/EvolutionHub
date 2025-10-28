@@ -19,6 +19,7 @@ und dieser Projekt haftet an [Semantic Versioning](https://semver.org/spec/v2.0.
 - D1: Notifications-Subsystem Tabellen angelegt: `notification_settings`, `email_templates`, `email_queue` inkl. Indizes; Seeds (DE) für Kommentar‑Benachrichtigungen (EN folgt mit angepasster Namens-/Locale‑Strategie).
 - D1: Ops/Data-Management Tabellen angelegt: `data_export_jobs`, `data_deletion_requests`, `backup_jobs`, `system_maintenance` (TEXT‑FKs) inkl. Indizes.
 - D1: WebScraper: `scraping_jobs` Tabelle mit sinnvollen Indizes erstellt.
+- docs(api): Admin API Dokumentation (`docs/api/admin_api.md`) für Status, Users Summary, Credits Grant sowie Comments (List/Details/Moderate/Bulk/Delete) und Metrics.
 
 ### Changed
 
@@ -32,6 +33,8 @@ und dieser Projekt haftet an [Semantic Versioning](https://semver.org/spec/v2.0.
 - routes.md: `?lang` Alias und Flags für Welcome vermerkt
 - D1: `notifications` auf finales Schema transformiert (`user_id` als TEXT, `is_read` als INTEGER, zusätzliche optionale Felder, neue Indizes).
 - D1: `d1_migrations` aktualisiert; relevante Migrationen als angewendet markiert (0015, 0016, 0019, 0022/0023, 0026). Legacy‑Performance‑Artefakte (0017/0021) bewusst übersprungen, um Schema‑Konflikte zu vermeiden.
+- openapi: Admin‑Comments Endpunkte dokumentiert (List/Details/Moderate/Bulk/Delete) inkl. CSRF‑Headern; Spec validiert.
+- ui/admin: SSR‑Guards für `/admin*.astro` aktiv; Admin‑Comments UI sendet `X‑CSRF‑Token` für Moderation.
 
 ### Deprecated
 
@@ -40,9 +43,11 @@ und dieser Projekt haftet an [Semantic Versioning](https://semver.org/spec/v2.0.
 ### Fixed
 
 - debug-panel: In Dev war das Panel deaktiviert, da vorher ein Prod-Build `.env.production` erzwang (`PUBLIC_ENABLE_DEBUG_PANEL=false`). Dev-Build-Skript korrigiert.
-- tests/integration: Startfehler „No projects matched the filter \"integration\"“ behoben durch korrektes Setzen von `projects[].test.name`.
+- tests/integration: Startfehler „No projects matched the filter "integration"“ behoben durch korrektes Setzen von `projects[].test.name`.
 
 ### Security
+
+- admin api: CSRF (Double‑Submit) für unsichere Methoden (Moderate, Bulk‑Moderate, Delete, Credits Grant) und Rate‑Limit‑Ausrichtung (`sensitiveActionLimiter` für Writes, `apiRateLimiter` für Reads).
 
 ## [v1.7.0] - 2025-09-11
 
