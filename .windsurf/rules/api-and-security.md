@@ -1,3 +1,7 @@
+---
+trigger: always_on
+---
+
 # API & Security Rules
 
 ## Zweck

@@ -1,3 +1,7 @@
+---
+trigger: always_on
+---
+
 # Testing & CI Rules
 
 ## Zweck

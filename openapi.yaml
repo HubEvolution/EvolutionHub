@@ -2405,8 +2405,10 @@ components:
             format: email
           name:
             type: string
+            minLength: 1
           image:
             type: string
+            minLength: 1
         required:
           - id
           - email

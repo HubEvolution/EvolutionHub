@@ -1,3 +1,7 @@
+---
+trigger: always_on
+---
+
 # Zod ↔ OpenAPI (Hybrid)
 
 ## Ziel

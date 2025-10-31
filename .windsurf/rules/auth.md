@@ -1,3 +1,7 @@
+---
+trigger: always_on
+---
+
 # Auth & OAuth Rules
 
 ## Zweck

@@ -1,3 +1,7 @@
+---
+trigger: always_on
+---
+
 # Infra (Workers/Router/Bindings) Rules
 
 ## Zweck

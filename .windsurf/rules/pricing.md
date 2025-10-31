@@ -1,3 +1,7 @@
+---
+trigger: always_on
+---
+
 # Pricing & Stripe Rules
 
 ## Zweck

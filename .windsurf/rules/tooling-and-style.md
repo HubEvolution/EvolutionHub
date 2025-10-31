@@ -1,3 +1,7 @@
+---
+trigger: always_on
+---
+
 # Tooling & Style Rules
 
 ## Zweck

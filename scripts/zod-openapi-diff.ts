@@ -24,7 +24,11 @@ function normalize(node: any): any {
       return { type: 'integer', enum: uniqueSorted(ints) };
     }
     const out: Record<string, any> = {};
-    for (const k of Object.keys(node)) out[k] = normalize(node[k]);
+    for (const k of Object.keys(node)) {
+      // Ignore documentation-only fields
+      if (k === 'description' || k === 'example') continue;
+      out[k] = normalize(node[k]);
+    }
     if (Array.isArray(out.enum)) {
       out.enum = uniqueSorted(out.enum);
       const allNums = out.enum.every((v: any) => typeof v === 'number');

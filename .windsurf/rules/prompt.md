@@ -1,3 +1,7 @@
+---
+trigger: always_on
+---
+
 # Prompt Enhancer Rules
 
 ## Zweck
