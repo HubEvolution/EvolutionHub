@@ -35,9 +35,6 @@ export function applySecurityHeaders(response: Response): Response {
   // X-Frame-Options
   headers.set('X-Frame-Options', 'DENY');
 
-  // X-XSS-Protection
-  headers.set('X-XSS-Protection', '1; mode=block');
-
   // Referrer-Policy
   headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
 
@@ -504,10 +501,7 @@ export function withAuthApiMiddleware(
         if (options.onUnauthorized) {
           return options.onUnauthorized(context);
         }
-        return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-          status: 401,
-          headers: { 'Content-Type': 'application/json' },
-        });
+        return createApiError('auth_error', 'Unauthorized');
       }
 
       return handler(context);
