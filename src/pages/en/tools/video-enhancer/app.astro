@@ -1,0 +1,18 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import VideoEnhancerIsland from '@/components/tools/video-enhancer/VideoEnhancerIsland';
+import Card from '@/components/ui/Card';
+---
+
+<BaseLayout title="Video Enhancer – Evolution Hub" description="Upscale/Enhance videos with AI (Topaz).">
+  <main class="min-h-screen bg-transparent py-6 sm:py-10 lg:py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-5xl mx-auto">
+      <Card as="section" className="mt-8 sm:mt-10 p-4 sm:p-6">
+        <h2 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">Video‑Enhancer App</h2>
+        <div id="video-enhancer-root" class="mt-6" aria-label="Video Enhancer root">
+          <VideoEnhancerIsland client:load />
+        </div>
+      </Card>
+    </div>
+  </main>
+</BaseLayout>

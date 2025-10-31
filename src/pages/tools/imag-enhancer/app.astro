@@ -4,7 +4,7 @@ import { getLocale } from '@/lib/i18n';
 import { getI18n } from '@/utils/i18n';
 import { localizePath } from '@/lib/locale-path';
 import Icon from '@/components/ui/Icon.astro';
-import ImagEnhancerIsland from '@/components/tools/ImagEnhancerIsland';
+import ImagEnhancerRouter from '@/components/tools/imag-enhancer/mvp/ImagEnhancerRouter';
 
 const locale = getLocale(Astro.url.pathname);
 const t = getI18n(locale);
@@ -183,7 +183,7 @@ const upgradeLabel = 'Upgrade';
           class="mt-6 min-h-[200px] rounded-md p-0"
           aria-label={`${t('pages.tools.items.Imag-Enhancer.name')} root`}
         >
-          <ImagEnhancerIsland strings={strings} client:load />
+          <ImagEnhancerRouter strings={strings} legacyStrings={strings} client:load />
         </div>
       </section>
     </div>

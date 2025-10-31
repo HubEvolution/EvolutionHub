@@ -6,7 +6,7 @@
  * No auth required (MVP), supports guest/user via cookie/locals.
  */
 
-import type { APIRoute } from 'astro';
+import type { APIContext } from 'astro';
 import type { KVNamespace } from '@cloudflare/workers-types';
 import {
   withApiMiddleware,
@@ -22,7 +22,8 @@ import type {
   EnhanceResult,
 } from '@/lib/services/prompt-enhancer-service';
 import { validateFiles, buildAttachmentContext } from '@/lib/services/prompt-attachments';
-import { TEXT_LENGTH_MAX } from '@/config/prompt-enhancer';
+import { formatZodError } from '@/lib/validation';
+import { promptInputSchema } from '@/lib/validation/schemas/prompt';
 
 interface PromptEnhancerEnv {
   KV_PROMPT_ENHANCER?: KVNamespace;
@@ -59,7 +60,7 @@ const promptEnhanceLimiter = createRateLimiter({
   name: 'promptEnhance',
 });
 
-function ensureGuestIdCookie(context: Parameters<APIRoute>[0]): string {
+function ensureGuestIdCookie(context: APIContext): string {
   const cookies = context.cookies;
   let guestId = cookies.get('guest_id')?.value;
   if (!guestId) {
@@ -77,7 +78,7 @@ function ensureGuestIdCookie(context: Parameters<APIRoute>[0]): string {
 }
 
 export const POST = withApiMiddleware(
-  async (context) => {
+  async (context: APIContext) => {
     const { locals, request } = context;
     const user = locals.user;
 
@@ -88,11 +89,18 @@ export const POST = withApiMiddleware(
     const ct = request.headers.get('content-type') || '';
     if (ct.includes('multipart/form-data')) {
       const form = await request.formData();
-      const text = String(form.get('text') || '').trim();
-      if (!text) return createApiError('validation_error', 'Input text is required');
-      if (text.length > TEXT_LENGTH_MAX)
-        return createApiError('validation_error', `Input text too long (max ${TEXT_LENGTH_MAX})`);
-      const modeRaw = String(form.get('mode') || 'agent');
+      const textRaw = form.get('text');
+      const modeRaw = form.get('mode');
+      const parsed = promptInputSchema.safeParse({
+        text: typeof textRaw === 'string' ? textRaw.trim() : textRaw,
+        mode: typeof modeRaw === 'string' ? modeRaw.trim() : undefined,
+      });
+      if (!parsed.success) {
+        return createApiError('validation_error', 'Invalid form fields', {
+          details: formatZodError(parsed.error),
+        });
+      }
+      const text = parsed.data.text;
       const files: File[] = [];
       for (const [key, val] of form.entries()) {
         if (key === 'files[]' && val instanceof File) files.push(val);
@@ -105,7 +113,7 @@ export const POST = withApiMiddleware(
       }
       input = { text };
       options = {
-        mode: modeRaw === 'concise' ? 'concise' : 'agent',
+        mode: (parsed.data.mode ?? 'agent') as 'agent' | 'concise',
         safety: true,
         includeScores: false,
         outputFormat: 'markdown',
@@ -120,23 +128,30 @@ export const POST = withApiMiddleware(
         const directText = typeof body.text === 'string' ? body.text : undefined;
         const inputText =
           body.input && typeof body.input.text === 'string' ? body.input.text : directText;
-        input = { text: inputText } as EnhanceInput;
-        if (!input.text || typeof input.text !== 'string' || input.text.trim().length === 0) {
-          return createApiError('validation_error', 'Input text is required');
-        }
-        if (input.text.trim().length > TEXT_LENGTH_MAX)
-          return createApiError('validation_error', `Input text too long (max ${TEXT_LENGTH_MAX})`);
-        const bodyOptions = body.options ?? {};
+        const optionsObj =
+          body.options && typeof body.options === 'object'
+            ? (body.options as Record<string, unknown>)
+            : undefined;
         const legacyMode = typeof body.mode === 'string' ? body.mode : undefined;
+        const normalized: Record<string, unknown> = {
+          text: inputText,
+          mode: typeof optionsObj?.mode === 'string' ? (optionsObj.mode as string) : legacyMode,
+          safety: optionsObj?.safety,
+          includeScores: optionsObj?.includeScores,
+          outputFormat: optionsObj?.outputFormat,
+        };
+        const parsed = promptInputSchema.safeParse(normalized);
+        if (!parsed.success) {
+          return createApiError('validation_error', 'Invalid JSON body', {
+            details: formatZodError(parsed.error),
+          });
+        }
+        input = { text: parsed.data.text } as EnhanceInput;
         options = {
-          mode:
-            bodyOptions.mode && typeof bodyOptions.mode === 'string'
-              ? bodyOptions.mode
-              : legacyMode || 'agent',
-          safety: bodyOptions.safety !== false,
-          includeScores: Boolean(bodyOptions.includeScores),
-          outputFormat:
-            typeof bodyOptions.outputFormat === 'string' ? bodyOptions.outputFormat : 'markdown',
+          mode: (parsed.data.mode ?? 'agent') as 'agent' | 'concise',
+          safety: parsed.data.safety !== false,
+          includeScores: Boolean(parsed.data.includeScores),
+          outputFormat: (parsed.data.outputFormat as 'markdown' | 'json') ?? 'markdown',
         } as EnhanceOptions;
       } catch {
         return createApiError('validation_error', 'Invalid JSON body');

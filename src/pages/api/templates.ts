@@ -1,25 +1,23 @@
+import type { APIContext } from 'astro';
 import { withApiMiddleware, createApiError, createApiSuccess } from '@/lib/api-middleware';
+import { formatZodError } from '@/lib/validation';
+import { templateSaveSchema } from '@/lib/validation/schemas/templates';
 
 // Add to existing file, append after GET
 export const POST = withApiMiddleware(
-  async (context) => {
+  async (context: APIContext) => {
     const { locals, request } = context;
     const user = locals.user;
     if (!user) return createApiError('auth_error', 'Authentication required for saving templates');
 
-    const body: unknown = await request.json().catch(() => null);
-    if (!body || typeof body !== 'object') {
-      return createApiError('validation_error', 'Invalid JSON body');
+    const unknownBody: unknown = await request.json().catch(() => null);
+    const parsed = templateSaveSchema.safeParse(unknownBody);
+    if (!parsed.success) {
+      return createApiError('validation_error', 'Invalid JSON body', {
+        details: formatZodError(parsed.error),
+      });
     }
-    const anyBody = body as Record<string, unknown>;
-    const templateId = typeof anyBody.templateId === 'string' ? anyBody.templateId : undefined;
-    const prompt = typeof anyBody.prompt === 'string' ? anyBody.prompt : undefined;
-    const name = typeof anyBody.name === 'string' ? anyBody.name : undefined;
-    const description = typeof anyBody.description === 'string' ? anyBody.description : undefined;
-
-    if (!templateId || !prompt || !name || !description) {
-      return createApiError('validation_error', 'templateId, prompt, name, description required');
-    }
+    const { templateId, prompt, name, description } = parsed.data;
 
     const ownerId = user.id;
     const key = `prompt:templates:user:${ownerId}:${templateId}`;

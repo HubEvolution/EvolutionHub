@@ -24,24 +24,43 @@ export const GET = withAuthApiMiddleware(
       return createApiError('forbidden', 'Insufficient permissions');
     }
 
-    const ip = url.searchParams.get('ip')?.trim();
+    let ip = url.searchParams.get('ip')?.trim() || '';
+    if (!ip) {
+      ip = (request.headers.get('CF-Connecting-IP') || request.headers.get('X-Forwarded-For') || '').split(',')[0].trim();
+    }
     if (!ip || !isValidIp(ip)) {
-      return createApiError('validation_error', 'Invalid ip');
+      // Return safe success with empty location instead of hard 4xx to keep UI silent
+      return createApiSuccess({ city: '', country: '', display: '', ip: ip || '' });
     }
 
     try {
-      const providerUrl = `https://ipapi.co/${encodeURIComponent(ip)}/json/`;
-      const res = await fetch(providerUrl, { headers: { 'User-Agent': 'evolution-hub-ip-geo/1.0' } });
-      if (!res.ok) {
-        return createApiError('server_error', 'Geo lookup failed');
+      // Provider 1: ipapi.co
+      const p1 = `https://ipapi.co/${encodeURIComponent(ip)}/json/`;
+      const r1 = await fetch(p1, { headers: { 'User-Agent': 'evolution-hub-ip-geo/1.0' } });
+      if (r1.ok) {
+        const j = (await r1.json()) as any;
+        const city = j?.city || '';
+        const country = j?.country_name || j?.country || '';
+        const display = (city || country) ? `${city ? city + ', ' : ''}${country}` : '';
+        return createApiSuccess({ city, country, display, ip });
       }
-      const j = await res.json() as any;
-      const city = j?.city || '';
-      const country = j?.country_name || j?.country || '';
-      const display = (city || country) ? `${city ? city + ', ' : ''}${country}` : '';
-      return createApiSuccess({ city, country, display });
+
+      // Provider 2: ipwho.is (no key, JSON format)
+      const p2 = `https://ipwho.is/${encodeURIComponent(ip)}`;
+      const r2 = await fetch(p2, { headers: { 'User-Agent': 'evolution-hub-ip-geo/1.0' } });
+      if (r2.ok) {
+        const j2 = (await r2.json()) as any;
+        const city = j2?.city || '';
+        const country = j2?.country || '';
+        const display = (city || country) ? `${city ? city + ', ' : ''}${country}` : '';
+        return createApiSuccess({ city, country, display, ip });
+      }
+
+      // Fallback: succeed silently with empty display
+      return createApiSuccess({ city: '', country: '', display: '', ip });
     } catch {
-      return createApiError('server_error', 'Geo lookup failed');
+      // Fail-soft: succeed with empty display so UI shows '—' without a console 500
+      return createApiSuccess({ city: '', country: '', display: '', ip });
     }
   },
   {

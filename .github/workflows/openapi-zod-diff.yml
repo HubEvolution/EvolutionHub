@@ -1,0 +1,45 @@
+name: OpenAPI Zod Diff
+
+on:
+  pull_request:
+    paths:
+      - 'src/lib/validation/schemas/**'
+      - 'openapi.yaml'
+      - 'scripts/zod-openapi-*.ts'
+      - 'package.json'
+  workflow_dispatch:
+
+jobs:
+  zod-diff:
+    name: Zod/OpenAPI drift report
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install
+        run: npm ci
+
+      - name: Validate OpenAPI (non-blocking)
+        run: npm run openapi:validate
+
+      - name: Generate Zod→OpenAPI pilot components
+        run: npm run openapi:zod:pilot
+
+      - name: Diff pilot vs openapi.yaml components
+        run: npm run openapi:zod:diff
+
+      - name: Upload reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: zod-openapi-reports
+          path: |
+            reports/zod-openapi-*.json
+          if-no-files-found: ignore

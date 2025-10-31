@@ -102,8 +102,13 @@ const adminCommentsStats = { total: 0, pending: 0, approved: 0, rejected: 0, fla
               Betrag (Credits)
               <input id="grant-amount" type="number" min="1" step="1" value="1000" class="mt-1 w-full rounded-md border border-white/10 bg-white/5 p-2 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-emerald-500" />
             </label>
+            <label class="flex items-center gap-2 text-sm text-white/80">
+              <input id="grant-strict" type="checkbox" checked class="h-4 w-4 rounded border-white/20 bg-white/5" />
+              <span>Strikt: nicht mehr abziehen als vorhanden</span>
+            </label>
             <div class="flex gap-2">
               <button id="grant-btn" type="button" class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-700">Gutschreiben</button>
+              <button id="grant-deduct" type="button" class="rounded-md bg-rose-600 px-3 py-2 text-sm font-semibold text-white hover:bg-rose-700">Abziehen</button>
               <button id="grant-fill-self" type="button" class="rounded-md border border-white/10 px-3 py-2 text-sm text-white/80 hover:bg-white/5">Meine E‑Mail einsetzen</button>
               <span class="text-xs text-white/60">Erfordert Admin & aktives INTERNAL_CREDIT_GRANT</span>
             </div>

@@ -89,6 +89,7 @@ Erstellt einen neuen Kommentar oder Reply.
 #### Request-Headers
 
 **Erforderlich:**
+
 - `X-CSRF-Token`: CSRF-Token (Header oder Body)
 - `Cookie`: `csrf_token=<token>` (Double-Submit Validierung)
 
@@ -134,6 +135,7 @@ curl -X POST "http://127.0.0.1:8787/api/comments/create" \
 #### Error Responses
 
 **CSRF-Fehler (403):**
+
 ```json
 {
   "success": false,
@@ -145,6 +147,7 @@ curl -X POST "http://127.0.0.1:8787/api/comments/create" \
 ```
 
 **Spam erkannt (400):**
+
 ```json
 {
   "success": false,
@@ -156,6 +159,7 @@ curl -X POST "http://127.0.0.1:8787/api/comments/create" \
 ```
 
 **Rate-Limit erreicht (429):**
+
 ```json
 {
   "success": false,
@@ -431,11 +435,13 @@ curl "http://127.0.0.1:8787/api/comments/performance?period=week"
 ### CSRF-Schutz
 
 **Double-Submit Pattern:**
+
 - Cookie: `csrf_token=<token>` (HttpOnly, Lax)
 - Header: `X-CSRF-Token: <token>`
 - Validierung: Beide müssen übereinstimmen
 
 **Beispiel-Client-Integration:**
+
 ```javascript
 // CSRF-Token aus Cookie lesen
 const csrfToken = document.cookie
@@ -463,6 +469,7 @@ await fetch('/api/comments/create', {
 ### Spam-Detection
 
 **Automatische Erkennung:**
+
 - **Keyword-Filtering:** Verdächtige Wörter und Phrasen
 - **Pattern-Matching:** Spam-typische Muster
 - **Rate-Limiting:** Ungewöhnlich hohe Aktivität
@@ -470,6 +477,7 @@ await fetch('/api/comments/create', {
 - **Content-Analysis:** Textlänge und -qualität
 
 **Konfiguration:**
+
 - Anpassbare Spam-Score-Schwellen
 - Whitelist für vertrauenswürdige Domains
 - Blacklist für bekannte Spam-Patterns
@@ -477,11 +485,13 @@ await fetch('/api/comments/create', {
 ### XSS-Schutz
 
 **HTML-Sanitization:**
+
 - Erlaubt: **Bold**, *Italic*, `Code`, [Links](url)
 - Verboten: `<script>`, `<iframe>`, Event-Handler
 - Escaping: Sonderzeichen werden escaped
 
 **Input-Cleaning:**
+
 ```javascript
 // Beispiel-Transformation
 input:  "<script>alert('xss')</script>Hello **World**!"
@@ -491,6 +501,7 @@ output: "<script>alert(&#x27;xss&#x27;)</script>Hello <strong>World</strong>!"
 ### Rate-Limiting
 
 **Kommentar-spezifische Limits:**
+
 - **Standard:** 5 Kommentare/Minute
 - **Strenge Validierung:** Ungewöhnliche Muster werden stärker limitiert
 - **IP-basierte Limits:** Schutz vor verteilten Angriffen
@@ -510,6 +521,7 @@ output: "<script>alert(&#x27;xss&#x27;)</script>Hello <strong>World</strong>!"
 ### Moderations-API
 
 **Admin-spezifische Endpunkte:**
+
 - Kommentar-Status ändern
 - Spam-Marken verwalten
 - Moderationshistorie einsehen
@@ -520,11 +532,13 @@ output: "<script>alert(&#x27;xss&#x27;)</script>Hello <strong>World</strong>!"
 ### Optimierungen
 
 **Datenbank:**
+
 - **Indizes:** Optimierte Indizes für häufige Queries
 - **Caching:** KV-Namespace für häufig abgerufene Kommentare
 - **Pagination:** Effiziente Limit/Offset-Implementierung
 
 **Cache-Strategie:**
+
 - **Heiße Daten:** Kommentar-Listen werden 5 Minuten gecacht
 - **Zähler:** Kommentar-Anzahlen werden 1 Minute gecacht
 - **Invalidierung:** Automatische Cache-Invalidierung bei Änderungen
@@ -532,12 +546,14 @@ output: "<script>alert(&#x27;xss&#x27;)</script>Hello <strong>World</strong>!"
 ### Metriken
 
 **Durchschnittliche Response-Zeiten:**
+
 - **Create:** < 100ms
 - **Read:** < 50ms (gecached)
 - **Update/Delete:** < 80ms
 - **Count:** < 20ms
 
 **Cache-Effektivität:**
+
 - **Hit-Rate:** > 85% für Leseoperationen
 - **Speicherverbrauch:** < 10MB für aktive Kommentare
 - **TTL:** 5 Minuten für Listen, 1 Minute für Zähler
@@ -555,6 +571,7 @@ output: "<script>alert(&#x27;xss&#x27;)</script>Hello <strong>World</strong>!"
 ### Threading
 
 **Hierarchische Struktur:**
+
 - **Max. Tiefe:** 3 Ebenen (Kommentar → Reply → Reply)
 - **Sortierung:** Chronologisch (neueste zuerst)
 - **Darstellung:** Verschachtelte Anzeige mit Einrückung
@@ -564,6 +581,7 @@ output: "<script>alert(&#x27;xss&#x27;)</script>Hello <strong>World</strong>!"
 ### React-Komponenten
 
 **Verfügbare UI-Komponenten:**
+
 - `CommentSection` - Vollständige Kommentar-Sektion
 - `CommentForm` - Kommentar-Eingabeformular
 - `CommentList` - Kommentar-Liste mit Threading
@@ -603,6 +621,7 @@ if (result.success) {
 ### Unit-Tests
 
 **Abgedeckte Bereiche:**
+
 - **CommentService:** CRUD-Operationen und Business-Logik
 - **Spam-Detection:** Pattern-Matching und Scoring
 - **XSS-Schutz:** HTML-Sanitization und Escaping
@@ -611,6 +630,7 @@ if (result.success) {
 ### E2E-Tests
 
 **Test-Szenarien:**
+
 - **Gast-Kommentare:** Anonyme Kommentar-Erstellung
 - **Auth-Kommentare:** Registrierte Benutzer-Kommentare
 - **Threading:** Reply-Funktionalität
@@ -621,6 +641,7 @@ if (result.success) {
 ### Test-Daten
 
 **Fixtures:**
+
 - **Test-Kommentare:** Verschiedene Längen und Inhalte
 - **Spam-Beispiele:** Bekannte Spam-Patterns
 - **User-Daten:** Authentifizierte und Gast-Benutzer
@@ -631,21 +652,25 @@ if (result.success) {
 ### Häufige Probleme
 
 **"Invalid CSRF token":**
+
 - CSRF-Token ist abgelaufen oder ungültig
 - Stelle sicher, dass Cookie und Header übereinstimmen
 - Prüfe Same-Origin-Policy
 
 **"Spam detected":**
+
 - Kommentar wurde als Spam markiert
 - Überprüfe Inhalt auf verdächtige Muster
 - Warte 1 Stunde und versuche es erneut
 
 **"Too many comments":**
+
 - Rate-Limit erreicht (5/min)
 - Warte 1 Minute oder authentifiziere dich
 - Authentifizierte Benutzer haben höhere Limits
 
 **"Missing required fields":**
+
 - Erforderliche Felder fehlen: `content`, `entityType`, `entityId`
 - Prüfe Request-Body auf Vollständigkeit
 - Stelle sicher, dass Entity-Type gültig ist
@@ -653,6 +678,7 @@ if (result.success) {
 ### Debug-Informationen
 
 **Bei aktiviertem Debug-Panel:**
+
 - CSRF-Token-Validierungsschritte
 - Spam-Score-Berechnung
 - Cache-Treffer/Fehlschläge
@@ -664,12 +690,14 @@ if (result.success) {
 ### GDPR
 
 **Datenschutz-Features:**
+
 - **Anonymisierung:** Gast-Kommentare ohne personenbezogene Daten
 - **Löschung:** Soft-Delete mit Aufbewahrungsfrist
 - **Export:** Kommentar-Export für Benutzer
 - **Einwilligung:** Cookie-Consent für Tracking
 
 **Aufbewahrungsfristen:**
+
 - **Aktive Kommentare:** Unbegrenzt (bis zur Löschung)
 - **Gelöschte Kommentare:** 30 Tage
 - **Audit-Logs:** 90 Tage
@@ -678,6 +706,7 @@ if (result.success) {
 ### Barrierefreiheit
 
 **WCAG-Compliance:**
+
 - **Keyboard-Navigation:** Vollständige Tastatur-Unterstützung
 - **Screen-Reader:** ARIA-Labels und semantische Struktur
 - **Kontrast:** WCAG AA konforme Farbkontraste

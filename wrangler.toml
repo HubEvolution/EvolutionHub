@@ -45,6 +45,8 @@ E2E_FAKE_STYTCH = "1"
 STYTCH_CUSTOM_DOMAIN = "login-test.hub-evolution.com"
 PROMPT_REWRITE_V1 = "true"
 AUTH_CSRF_RELAXED = "1"
+PUBLIC_ENHANCER_MVP_MODE = "0"
+PUBLIC_ENHANCER_LEGACY_MODE = "1"
 
 [env.production.ai]
 binding = "AI"
@@ -247,6 +249,8 @@ id = "a63a1fd516d942e9a892f226f2cc11c6"
 [env.production.vars]
 ENVIRONMENT = "production"
 PUBLIC_SITE_URL="https://hub-evolution.com"
+PUBLIC_ENHANCER_MVP_MODE = "1"
+PUBLIC_ENHANCER_LEGACY_MODE = "0"
 # Produktionsbasis-URL für Stripe-Redirects
 BASE_URL = "https://hub-evolution.com"
 LEADMAGNET_SOURCE = "r2"
@@ -431,6 +435,8 @@ PRICING_LINKS_ANNUAL = '{"pro":"https://buy.stripe.com/5kQ7sL9l9c296LS4lF1VK01",
 CREDITS_PRICING_TABLE = '{"100":"price_1SKj8rHdpdQAtOQBx9Vz0Cl5","500":"price_1SKjA2HdpdQAtOQBt5vWqIcg","1500":"price_1SKjB6HdpdQAtOQBRkEKdrGy"}'
 WORKERS_AI_ENABLED = "1"
 STYTCH_PKCE = "1"
+PUBLIC_ENHANCER_MVP_MODE = "1"
+PUBLIC_ENHANCER_LEGACY_MODE = "1"
 
 # Prompt Enhancer (non-secret defaults for staging)
 PROMPT_REWRITE_V1 = "true"

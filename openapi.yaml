@@ -29,6 +29,62 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GenericResponse'
+  /api/newsletter/unsubscribe:
+    post:
+      summary: Unsubscribe from newsletter
+      description: Removes an email from newsletter subscription list
+      x-source: src/pages/api/newsletter/unsubscribe.ts
+      operationId: postNewsletterUnsubscribe
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewsletterUnsubscribeRequest'
+      responses:
+        "200":
+          description: Unsubscribed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+  /api/billing/cancel:
+    post:
+      summary: Schedule subscription cancellation
+      description: Marks the subscription to cancel at period end
+      x-source: src/pages/api/billing/cancel.ts
+      operationId: postBillingCancel
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BillingCancelRequest'
+      responses:
+        "200":
+          description: Cancellation scheduled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
   /api/admin/users/summary:
     get:
       summary: Get user summary by email or id
@@ -150,6 +206,50 @@ paths:
           description: Forbidden (CSRF/Origin or not admin)
         "404":
           description: User not found
+  /api/admin/credits/deduct:
+    post:
+      summary: Deduct credits from a user
+      description: Deducts credits from a user by email. Requires admin. CSRF protected. Defaults to strict mode (rejects overdraw) unless strict=false is sent.
+      x-source: src/pages/api/admin/credits/deduct.ts
+      operationId: postAdminCreditsDeduct
+      parameters:
+        - name: X-CSRF-Token
+          in: header
+          required: true
+          description: Double‑Submit token; must match cookie 'csrf_token'
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email:
+                  type: string
+                amount:
+                  type: integer
+                  description: Credits to deduct (default 1000)
+                strict:
+                  type: boolean
+                  description: If true, reject when amount exceeds current balance (default true)
+      responses:
+        "200":
+          description: Deduct success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden (CSRF/Origin or not admin)
+        "404":
+          description: User not found
+        "422":
+          description: Validation error (e.g., insufficient_credits in strict mode)
   /api/tools:
     get:
       summary: List available tools
@@ -425,6 +525,12 @@ paths:
       description: Executes various dashboard actions (create project, task, etc.)
       x-source: src/pages/api/dashboard/perform-action.ts
       operationId: postDashboardPerformAction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DashboardPerformActionRequest'
       responses:
         "200":
           description: Action result
@@ -1195,9 +1301,15 @@ paths:
       description: Internal user sync endpoint (trusted systems)
       x-source: src/pages/api/internal/users/sync.ts
       operationId: postInternalUsersSync
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InternalUserSyncRequest'
       responses:
         "200":
-          description: Sync success
+          description: User synced
           content:
             application/json:
               schema:
@@ -1250,9 +1362,27 @@ paths:
       description: Create pending subscription and send confirmation email
       x-source: src/pages/api/newsletter/subscribe.ts
       operationId: postNewsletterSubscribe
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewsletterSubscribeRequest'
       responses:
         "200":
           description: Pending subscription created
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
   /api/projects:
     post:
       summary: Create project
@@ -1586,15 +1716,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                url:
-                  type: string
-                options:
-                  type: object
-                  additionalProperties: true
-              required:
-                - url
+              $ref: '#/components/schemas/WebscraperRequest'
       responses:
         "200":
           description: Success — extracted content and usage info
@@ -1925,18 +2047,7 @@ paths:
         content:
           multipart/form-data:
             schema:
-              type: object
-              properties:
-                chunk:
-                  type: string
-                  format: binary
-                sessionId:
-                  type: string
-                lang:
-                  type: string
-              required:
-                - chunk
-                - sessionId
+              $ref: '#/components/schemas/VoiceTranscribeRequest'
       responses:
         "200":
           description: Erfolg – Transkript und Limits
@@ -2014,25 +2125,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                text:
-                  type: string
-                  minLength: 1
-                  maxLength: 1000
-                input:
-                  type: object
-                  properties:
-                    text:
-                      type: string
-                      minLength: 1
-                      maxLength: 1000
-                options:
-                  type: object
-                  additionalProperties: true
-                mode:
-                  type: string
-                  description: Legacy mode field; prefer options.mode
+              $ref: '#/components/schemas/PromptEnhanceRequest'
           multipart/form-data:
             schema:
               type: object
@@ -2087,6 +2180,92 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiErrorResponse'
+  /api/billing/credits:
+    post:
+      summary: Create Stripe Checkout session for credits
+      description: Creates a Stripe Checkout Session for one-time credit packs (200 / 1000 images)
+      x-source: src/pages/api/billing/credits.ts
+      operationId: postBillingCredits
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BillingCreditsRequest'
+      responses:
+        "200":
+          description: Session URL
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  url:
+                    type: string
+                required:
+                  - url
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+  /api/templates:
+    post:
+      summary: Save a prompt template
+      description: Saves a named prompt template for the authenticated user (KV-backed)
+      x-source: src/pages/api/templates.ts
+      operationId: postTemplates
+      parameters:
+        - name: X-CSRF-Token
+          in: header
+          required: true
+          description: CSRF-Token; must match cookie 'csrf_token' (Double‑Submit)
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TemplateSaveRequest'
+      responses:
+        "200":
+          description: Saved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemplateSaveSuccessResponse'
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
   /api/prompt/usage:
     get:
       summary: Prompt-Nutzung/Limits abrufen
@@ -2110,6 +2289,180 @@ paths:
                 $ref: '#/components/schemas/ApiErrorResponse'
 components:
     schemas:
+      NewsletterSubscribeRequest:
+        type: object
+        properties:
+          email:
+            type: string
+            format: email
+          firstName:
+            type: string
+            minLength: 1
+            maxLength: 100
+          consent:
+            type: boolean
+            enum: [true]
+          source:
+            type: string
+            minLength: 1
+            maxLength: 100
+        required:
+          - email
+          - consent
+      BillingCreditsRequest:
+        type: object
+        properties:
+          pack:
+            type: integer
+            enum: [200, 1000]
+          workspaceId:
+            type: string
+            minLength: 1
+            maxLength: 100
+          returnTo:
+            type: string
+            maxLength: 300
+        required:
+          - pack
+      TemplateSaveRequest:
+        type: object
+        properties:
+          templateId:
+            type: string
+            minLength: 1
+            maxLength: 100
+          name:
+            type: string
+            minLength: 1
+            maxLength: 200
+          description:
+            type: string
+            minLength: 1
+            maxLength: 500
+          prompt:
+            type: string
+            minLength: 1
+            maxLength: 5000
+        required:
+          - templateId
+          - name
+          - description
+          - prompt
+      TemplateSaveSuccessResponse:
+        type: object
+        properties:
+          success:
+            type: boolean
+          data:
+            type: object
+            properties:
+              message:
+                type: string
+              templateId:
+                type: string
+        required:
+          - success
+          - data
+      DashboardPerformActionRequest:
+        type: object
+        description: Discriminated action for dashboard operations
+        properties:
+          action:
+            type: string
+            enum:
+              - create_project
+              - create_task
+              - invite_member
+              - view_docs
+        required:
+          - action
+        additionalProperties: false
+      NewsletterUnsubscribeRequest:
+        type: object
+        properties:
+          email:
+            type: string
+            format: email
+        required:
+          - email
+      BillingCancelRequest:
+        type: object
+        properties:
+          subscriptionId:
+            type: string
+            minLength: 1
+        required:
+          - subscriptionId
+      InternalUserSyncRequest:
+        type: object
+        description: Minimal user payload for internal sync
+        properties:
+          id:
+            type: string
+            minLength: 1
+          email:
+            type: string
+            format: email
+          name:
+            type: string
+          image:
+            type: string
+        required:
+          - id
+          - email
+      WebscraperRequest:
+        type: object
+        description: Request for Webscraper extract. Server performs SSRF-safety checks (http/https only; localhost/private ranges blocked).
+        properties:
+          url:
+            type: string
+            minLength: 1
+            description: Must be http/https and not local/private.
+          options:
+            type: object
+            additionalProperties: true
+        required:
+          - url
+      VoiceTranscribeRequest:
+        type: object
+        description: Multipart form fields for voice transcription chunk upload.
+        properties:
+          chunk:
+            type: string
+            format: binary
+          sessionId:
+            type: string
+            minLength: 1
+          jobId:
+            type: string
+          lang:
+            type: string
+            maxLength: 10
+          isLastChunk:
+            type: boolean
+        required:
+          - chunk
+          - sessionId
+      PromptEnhanceRequest:
+        type: object
+        description: Normalized request for Prompt Enhancer. Legacy shapes (input.text, mode at top-level) are accepted by the server but this schema represents the canonical form.
+        properties:
+          text:
+            type: string
+            minLength: 1
+            maxLength: 1000
+          mode:
+            type: string
+            enum: [agent, concise]
+          safety:
+            type: boolean
+          includeScores:
+            type: boolean
+          outputFormat:
+            type: string
+            enum: [markdown, json]
+        required:
+          - text
       GenericResponse:
         type: object
         properties:

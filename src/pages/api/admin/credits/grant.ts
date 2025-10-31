@@ -70,6 +70,25 @@ export const POST = withAuthApiMiddleware(
 
     await addCreditPackTenths(kv, userId, packId, unitsTenths);
     const balanceTenths = await getCreditsBalanceTenths(kv, userId);
+    const ip = typeof (context as any).clientAddress === 'string' ? (context as any).clientAddress : null;
+    try {
+      await db
+        .prepare(
+          `INSERT INTO audit_logs (id, event_type, actor_user_id, actor_ip, resource, action, details, created_at)
+           VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)`
+        )
+        .bind(
+          crypto.randomUUID(),
+          'ADMIN_ACTION',
+          (locals as { user?: { id?: string } }).user?.id || null,
+          ip,
+          'credits',
+          'credit_grant',
+          JSON.stringify({ email: targetEmail, userId, amount, packId }),
+          Date.now()
+        )
+        .run();
+    } catch {}
     const balance = Math.floor(balanceTenths / 10);
 
     return createApiSuccess({

@@ -16,6 +16,7 @@ testRefs: 'tests/integration/api/error-handling'
 Alle API-Responses folgen einem einheitlichen Format, sowohl für erfolgreiche als auch fehlgeschlagene Anfragen:
 
 ### Erfolgs-Response
+
 ```json
 {
   "success": true,
@@ -26,6 +27,7 @@ Alle API-Responses folgen einem einheitlichen Format, sowohl für erfolgreiche a
 ```
 
 ### Fehler-Response
+
 ```json
 {
   "success": false,
@@ -77,6 +79,7 @@ Evolution Hub verwendet semantisch korrekte HTTP-Status-Codes:
 Jeder Fehler hat einen spezifischen `type`, der die Art des Fehlers kategorisiert:
 
 #### `validation_error` (400)
+
 Validierungsfehler in Benutzereingaben.
 
 ```json
@@ -95,12 +98,14 @@ Validierungsfehler in Benutzereingaben.
 ```
 
 **Verwendung:**
+
 - Fehlende erforderliche Felder
 - Falsche Datentypen
 - Werte außerhalb gültiger Bereiche
 - Format-Fehler (z.B. ungültige Email)
 
 #### `auth_error` (401)
+
 Authentifizierungsfehler.
 
 ```json
@@ -117,11 +122,13 @@ Authentifizierungsfehler.
 ```
 
 **Verwendung:**
+
 - Ungültige oder abgelaufene Session
 - Fehlende Authentifizierung
 - Ungültige Credentials
 
 #### `forbidden` (403)
+
 Zugriff verweigert.
 
 ```json
@@ -139,11 +146,13 @@ Zugriff verweigert.
 ```
 
 **Verwendung:**
+
 - Unzureichende Berechtigungen
 - Ressourcen-Zugriff verweigert
 - Feature nicht verfügbar für aktuellen Plan
 
 #### `not_found` (404)
+
 Ressource nicht gefunden.
 
 ```json
@@ -161,10 +170,12 @@ Ressource nicht gefunden.
 ```
 
 **Verwendung:**
+
 - Nicht existierende Ressourcen
 - Gelöschte oder verschobene Ressourcen
 
 #### `rate_limit` (429)
+
 Rate-Limit überschritten.
 
 ```json
@@ -184,10 +195,12 @@ Rate-Limit überschritten.
 ```
 
 **Verwendung:**
+
 - Zu viele Anfragen pro Zeitfenster
 - DDoS-Schutz aktiviert
 
 #### `method_not_allowed` (405)
+
 HTTP-Methode nicht unterstützt.
 
 ```json
@@ -204,10 +217,12 @@ HTTP-Methode nicht unterstützt.
 ```
 
 **Verwendung:**
+
 - Falsche HTTP-Methode für Endpunkt
 - Deaktivierte Methoden
 
 #### `server_error` (500)
+
 Interne Server-Fehler.
 
 ```json
@@ -225,11 +240,13 @@ Interne Server-Fehler.
 ```
 
 **Verwendung:**
+
 - Unerwartete Server-Fehler
 - Upstream-Service-Fehler
 - Datenbank-Verbindungsfehler
 
 #### `db_error` (500)
+
 Datenbank-spezifische Fehler.
 
 ```json
@@ -247,11 +264,13 @@ Datenbank-spezifische Fehler.
 ```
 
 **Verwendung:**
+
 - Datenbank-Verbindungsfehler
 - Constraint-Verletzungen
 - Query-Fehler
 
 #### `subscription_active` (400)
+
 Abonnement-bezogene Fehler.
 
 ```json
@@ -269,6 +288,7 @@ Abonnement-bezogene Fehler.
 ```
 
 **Verwendung:**
+
 - Abonnement-Änderungen blockiert
 - Plan-Downgrades verhindert
 
@@ -277,6 +297,7 @@ Abonnement-bezogene Fehler.
 ### Error-Handling in JavaScript/TypeScript
 
 #### Basis-Error-Klasse
+
 ```typescript
 export class ApiError extends Error {
   constructor(
@@ -325,6 +346,7 @@ export class ApiError extends Error {
 ```
 
 #### Error-Handler
+
 ```typescript
 async function handleApiResponse<T>(response: Response): Promise<T> {
   const data = await response.json();
@@ -374,6 +396,7 @@ async function enhancePrompt(text: string) {
 ### Retry-Logik
 
 #### Automatische Wiederholung
+
 ```typescript
 async function apiRequestWithRetry<T>(
   url: string,
@@ -409,6 +432,7 @@ async function apiRequestWithRetry<T>(
 ```
 
 #### Smart Retry mit Jitter
+
 ```typescript
 function calculateRetryDelay(attempt: number, baseDelay: number): number {
   const exponentialDelay = baseDelay * Math.pow(2, attempt);
@@ -444,6 +468,7 @@ async function retryWithJitter<T>(
 ### Error-Logging
 
 #### Client-seitiges Logging
+
 ```typescript
 function logApiError(error: ApiError, context: Record<string, any> = {}) {
   const errorInfo = {
@@ -478,6 +503,7 @@ function logApiError(error: ApiError, context: Record<string, any> = {}) {
 ### Error-Handler-Middleware
 
 #### Automatische Error-Verarbeitung
+
 ```typescript
 // src/lib/api-middleware.ts
 export function withApiMiddleware(
@@ -545,6 +571,7 @@ function handleError(
 ### Custom Error-Classes
 
 #### Business-Logic-Fehler
+
 ```typescript
 // src/lib/errors.ts
 export class ValidationError extends Error {
@@ -586,6 +613,7 @@ export class RateLimitError extends Error {
 ```
 
 #### Service-Layer-Fehler
+
 ```typescript
 // src/lib/services/prompt-enhancer.ts
 export async function enhancePrompt(input: PromptInput): Promise<EnhancedPrompt> {
@@ -637,6 +665,7 @@ export async function enhancePrompt(input: PromptInput): Promise<EnhancedPrompt>
 ### Error-Testing-Strategien
 
 #### Unit-Tests für Error-Handler
+
 ```typescript
 // tests/unit/api-middleware.test.ts
 import { describe, it, expect } from 'vitest';
@@ -666,6 +695,7 @@ describe('API Error Handling', () => {
 ```
 
 #### Integration-Tests für Error-Flows
+
 ```typescript
 // tests/integration/error-handling.test.ts
 describe('Error Handling Integration', () => {
@@ -729,6 +759,7 @@ describe('Error Handling Integration', () => {
 ### Error-Simulation
 
 #### Test-Utilities für Error-Simulation
+
 ```typescript
 // tests/utils/error-helpers.ts
 export function createMockErrorResponse(
@@ -785,6 +816,7 @@ export function createRateLimitError(retryAfter: number = 60): Response {
 ### Error-Metriken
 
 #### Server-seitige Metriken
+
 ```typescript
 // Error-Tracking
 interface ErrorMetrics {
@@ -832,6 +864,7 @@ class ErrorTracker {
 ```
 
 #### Client-seitige Metriken
+
 ```typescript
 // Client-Error-Tracking
 function trackClientError(error: ApiError, context: Record<string, any> = {}) {
@@ -871,6 +904,7 @@ function trackClientError(error: ApiError, context: Record<string, any> = {}) {
 ### Error-Debugging
 
 #### Request-Tracing
+
 ```typescript
 // Request-ID für bessere Nachverfolgung
 export const POST = withApiMiddleware(async (context) => {
@@ -906,6 +940,7 @@ export const POST = withApiMiddleware(async (context) => {
 ```
 
 #### Error-Context
+
 ```typescript
 // Detaillierter Error-Context
 function createErrorContext(context: APIContext, error: Error): Record<string, any> {
@@ -932,6 +967,7 @@ function createErrorContext(context: APIContext, error: Error): Record<string, a
 ### Error-Design
 
 #### 1. Aussagekräftige Fehlermeldungen
+
 ```typescript
 // ✅ Gute Fehlermeldung
 throw new ValidationError(
@@ -944,6 +980,7 @@ throw new Error('Invalid email');
 ```
 
 #### 2. Strukturierte Details
+
 ```typescript
 // ✅ Mit strukturierten Details
 throw new ValidationError(
@@ -967,6 +1004,7 @@ throw new ValidationError(
 ```
 
 #### 3. Lokalisierte Meldungen
+
 ```typescript
 // Lokalisierbare Error-Messages
 const ERROR_MESSAGES = {
@@ -988,6 +1026,7 @@ function createLocalizedError(type: ApiErrorType, locale: string = 'de'): string
 ### Client-Entwicklung
 
 #### 1. Graceful Degradation
+
 ```typescript
 // Fallback bei API-Fehlern
 async function enhancePromptWithFallback(text: string) {
@@ -1024,6 +1063,7 @@ async function enhancePromptWithFallback(text: string) {
 ```
 
 #### 2. User-Friendly Messages
+
 ```typescript
 // Benutzerfreundliche Fehlermeldungen
 function getUserFriendlyMessage(error: ApiError): string {
@@ -1055,6 +1095,7 @@ function getUserFriendlyMessage(error: ApiError): string {
 ### Security Considerations
 
 #### 1. Information Disclosure
+
 ```typescript
 // Vermeide sensible Informationen in Error-Messages
 export async function getUserData(userId: string) {
@@ -1083,6 +1124,7 @@ export async function getUserData(userId: string) {
 ```
 
 #### 2. Error-Rate-Monitoring
+
 ```typescript
 // Tracke Error-Rates für Security-Monitoring
 function trackErrorRate(error: ApiError, context: APIContext) {
@@ -1109,6 +1151,7 @@ function trackErrorRate(error: ApiError, context: APIContext) {
 ### Backwards Compatibility
 
 #### Error-Format-Versioning
+
 ```typescript
 // Support für ältere Error-Formate
 const ERROR_FORMAT_VERSION = '1.0';
@@ -1146,6 +1189,7 @@ export function createApiError(
 ### Error-Code-Dokumentation
 
 #### Automatische Dokumentation
+
 ```typescript
 // Generiere Error-Dokumentation aus Code
 interface ErrorDocumentation {
@@ -1174,6 +1218,7 @@ function generateErrorDocs(): ErrorDocumentation[] {
 ### Häufige Probleme
 
 #### Error-Types nicht konsistent
+
 ```typescript
 // Stelle sicher, dass Error-Types konsistent verwendet werden
 const ERROR_TYPE_MAP = {
@@ -1196,6 +1241,7 @@ function normalizeErrorType(error: any): ApiErrorType {
 ```
 
 #### Fehlende Error-Details
+
 ```typescript
 // Stelle sicher, dass alle Errors ausreichende Details haben
 function enhanceErrorDetails(error: Error, context: APIContext): Record<string, any> {
@@ -1219,6 +1265,7 @@ function enhanceErrorDetails(error: Error, context: APIContext): Record<string, 
 ```
 
 #### Performance-Impact von Error-Logging
+
 ```typescript
 // Optimiere Error-Logging für Performance
 const ERROR_LOG_CACHE = new Map<string, number>();
@@ -1242,6 +1289,7 @@ function shouldLogError(error: ApiError, context: APIContext): boolean {
 ### Debug-Tools
 
 #### Error-Response-Testing
+
 ```bash
 # Teste verschiedene Error-Szenarien
 curl -X POST \
@@ -1267,6 +1315,7 @@ curl -X POST \
 ```
 
 #### Error-Log-Analyse
+
 ```bash
 # Analysiere Error-Logs
 grep "error" logs/api.log | jq '.error.type' | sort | uniq -c
@@ -1283,6 +1332,7 @@ grep "auth_error" logs/api.log | cut -d' ' -f1-2 | uniq -c
 ### Security Standards
 
 #### OWASP Error-Handling
+
 Evolution Hub folgt OWASP-Richtlinien für sichere Error-Handling:
 
 - **Keine sensiblen Daten** in Error-Messages
@@ -1291,6 +1341,7 @@ Evolution Hub folgt OWASP-Richtlinien für sichere Error-Handling:
 - **Rate-Limiting** für Error-Responses
 
 #### GDPR Compliance
+
 ```typescript
 // Stelle sicher, dass Error-Logs GDPR-konform sind
 function sanitizeErrorDetails(details: Record<string, any>): Record<string, any> {
@@ -1314,16 +1365,19 @@ function sanitizeErrorDetails(details: Record<string, any>): Record<string, any>
 ## Ressourcen
 
 ### Weiterführende Dokumentation
+
 - **[API Overview](./api-overview.md)** - Allgemeine API-Architektur
 - **[API Guidelines](./api-guidelines.md)** - Best Practices für API-Entwicklung
 - **[Rate Limiting](./rate-limiting-api.md)** - Rate-Limiting-Strategien
 
 ### Tools & Libraries
+
 - **[API Middleware](../../lib/api-middleware.ts)** - Error-Handling-Implementierung
 - **[Error Types](../../lib/types/errors.ts)** - TypeScript-Error-Definitionen
 - **[Validation Utils](../../utils/validation.ts)** - Validierungshilfsmittel
 
 ### Standards
+
 - **[RFC 7231](https://tools.ietf.org/html/rfc7231)** - HTTP/1.1 Semantics and Content
 - **[OWASP Error Handling](https://owasp.org/www-community/Improper_Error_Handling)** - Security Best Practices
 - **[JSON:API Errors](https://jsonapi.org/format/#errors)** - Error Format Standards
@@ -1338,9 +1392,9 @@ function sanitizeErrorDetails(details: Record<string, any>): Record<string, any>
 
 ## Ownership & Maintenance
 
-**Owner**: API Team (Lead: API Lead)  
-**Update-Frequenz**: Bei Änderungen an Error-Handling-Logik oder neuen Error-Types  
-**Review-Prozess**: Security-Review + Code-Review  
+**Owner**: API Team (Lead: API Lead)
+**Update-Frequenz**: Bei Änderungen an Error-Handling-Logik oder neuen Error-Types
+**Review-Prozess**: Security-Review + Code-Review
 **Eskalation**: Bei Error-Handling-Security-Problemen → Security Team
 
 ---

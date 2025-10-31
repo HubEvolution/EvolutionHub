@@ -1,4 +1,7 @@
+import type { APIContext } from 'astro';
 import { withAuthApiMiddleware } from '@/lib/api-middleware';
+import { formatZodError } from '@/lib/validation';
+import { billingCreditsRequestSchema } from '@/lib/validation/schemas/billing';
 import Stripe from 'stripe';
 import { logUserEvent } from '@/lib/security-logger';
 import { sanitizeReturnTo } from '@/utils/sanitizeReturnTo';
@@ -8,22 +11,23 @@ import { sanitizeReturnTo } from '@/utils/sanitizeReturnTo';
  * Creates a Stripe Checkout Session for one-time credit packs (200 / 1000 images)
  * Body: { pack: 200 | 1000, workspaceId?: string }
  */
-export const POST = withAuthApiMiddleware(async (context) => {
+export const POST = withAuthApiMiddleware(async (context: APIContext) => {
   const { locals, clientAddress } = context;
   const user = locals.user;
 
   // Parse body
-  const body = (await context.request.json().catch(() => null)) as {
-    pack?: number;
-    workspaceId?: string;
-    returnTo?: string;
-  } | null;
-  if (!body || typeof body.pack !== 'number') {
-    return new Response(JSON.stringify({ error: 'invalid_pack' }), {
-      status: 400,
-      headers: { 'Content-Type': 'application/json' },
-    });
+  const unknownBody: unknown = await context.request.json().catch(() => null);
+  const parsed = billingCreditsRequestSchema.safeParse(unknownBody);
+  if (!parsed.success) {
+    return new Response(
+      JSON.stringify({
+        success: false,
+        error: { type: 'validation_error', message: 'Invalid JSON body', details: formatZodError(parsed.error) },
+      }),
+      { status: 400, headers: { 'Content-Type': 'application/json' } }
+    );
   }
+  const body = parsed.data;
 
   const env: any = locals?.runtime?.env ?? {};
   if (!env.STRIPE_SECRET) {

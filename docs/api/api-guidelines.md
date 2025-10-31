@@ -16,6 +16,7 @@ testRefs: 'tests/integration/api'
 ### 1. Einheitlichkeit (Consistency)
 
 #### Response-Format
+
 Alle APIs folgen dem standardisierten Response-Format:
 
 ```json
@@ -31,6 +32,7 @@ Alle APIs folgen dem standardisierten Response-Format:
 ```
 
 **✅ Do:**
+
 ```typescript
 // Verwende die standardisierten Helper-Funktionen
 import { createApiSuccess, createApiError } from '@/lib/api-middleware';
@@ -46,6 +48,7 @@ export async function GET() {
 ```
 
 **❌ Don't:**
+
 ```typescript
 // Vermeide benutzerdefinierte Response-Formate
 return new Response(JSON.stringify({ user: data }), {
@@ -54,6 +57,7 @@ return new Response(JSON.stringify({ user: data }), {
 ```
 
 #### HTTP-Status-Codes
+
 Verwende semantisch korrekte Status-Codes:
 
 - **200**: Erfolgreiche GET-Anfragen
@@ -70,6 +74,7 @@ Verwende semantisch korrekte Status-Codes:
 ### 2. Sicherheit (Security)
 
 #### Middleware-Nutzung
+
 Verwende immer die entsprechende Middleware für API-Endpunkte:
 
 ```typescript
@@ -94,6 +99,7 @@ export const POST = withAuthApiMiddleware(async (context) => {
 ```
 
 #### Rate-Limiting-Strategien
+
 Wähle den passenden Limiter basierend auf dem Endpunkt-Typ:
 
 ```typescript
@@ -115,6 +121,7 @@ export const POST = withApiMiddleware(async (context) => {
 ```
 
 #### CSRF-Schutz
+
 Für unsichere Methoden (POST, PUT, PATCH, DELETE):
 
 ```typescript
@@ -135,6 +142,7 @@ export const DELETE = withApiMiddleware(async (context) => {
 ### 3. Error-Handling
 
 #### Strukturierte Fehler
+
 Verwende typisierte Fehler mit aussagekräftigen Meldungen:
 
 ```typescript
@@ -172,6 +180,7 @@ export const POST = withApiMiddleware(async (context) => {
 ```
 
 #### Validierungsfehler
+
 Gib spezifische Validierungshinweise:
 
 ```typescript
@@ -207,6 +216,7 @@ function validatePromptEnhanceInput(input: unknown) {
 ### 4. Authentifizierung & Autorisierung
 
 #### Magic Link Flow
+
 Implementiere korrekte Authentifizierung:
 
 ```typescript
@@ -241,6 +251,7 @@ export const GET = withApiMiddleware(async (context) => {
 ```
 
 #### Guest-Mode
+
 Unterstütze anonyme Nutzung wo sinnvoll:
 
 ```typescript
@@ -262,6 +273,7 @@ export const POST = withApiMiddleware(async (context) => {
 ### 5. Performance & Skalierbarkeit
 
 #### Edge-Optimierung
+
 Nutze Cloudflare Workers Features:
 
 ```typescript
@@ -285,6 +297,7 @@ export const GET = withApiMiddleware(async (context) => {
 ```
 
 #### Datenbank-Optimierung
+
 Effiziente Queries für D1:
 
 ```typescript
@@ -309,6 +322,7 @@ export async function getUserComments(userId: string, limit: number = 20) {
 ### 6. Testing
 
 #### Unit-Tests
+
 Teste API-Handler isoliert:
 
 ```typescript
@@ -346,6 +360,7 @@ describe('/api/prompt-enhance', () => {
 ```
 
 #### Integration-Tests
+
 Teste vollständige API-Flows:
 
 ```typescript
@@ -378,6 +393,7 @@ describe('Prompt Enhance Integration', () => {
 ### 7. Dokumentation
 
 #### OpenAPI-Spezifikation
+
 Dokumentiere alle Endpunkte in der OpenAPI-Spec:
 
 ```yaml
@@ -416,6 +432,7 @@ Dokumentiere alle Endpunkte in der OpenAPI-Spec:
 ```
 
 #### Code-Kommentare
+
 Dokumentiere komplexe Business-Logik:
 
 ```typescript
@@ -440,6 +457,7 @@ export const POST = withApiMiddleware(async (context) => {
 ### 8. Monitoring & Logging
 
 #### Strukturiertes Logging
+
 Verwende strukturierte Logs für bessere Nachverfolgung:
 
 ```typescript
@@ -489,6 +507,7 @@ export const POST = withApiMiddleware(async (context) => {
 ```
 
 #### Metriken
+
 Tracke wichtige Metriken:
 
 ```typescript
@@ -514,6 +533,7 @@ await trackUsage({
 ### 9. Deployment & Versioning
 
 #### Environment-Konfiguration
+
 Verwende environment-spezifische Konfigurationen:
 
 ```typescript
@@ -543,6 +563,7 @@ export function getApiConfig() {
 ```
 
 #### Feature-Flags
+
 Implementiere Feature-Flags für kontrolliertes Rollout:
 
 ```typescript
@@ -563,6 +584,7 @@ export const POST = withApiMiddleware(async (context) => {
 ### 10. Client-Integration
 
 #### SDK-Patterns
+
 Entwirf APIs für einfache Client-Integration:
 
 ```typescript
@@ -609,6 +631,7 @@ export class ApiClient {
 ```
 
 #### Error-Handling für Clients
+
 Implementiere robustes Error-Handling:
 
 ```typescript
@@ -647,6 +670,7 @@ export class ApiError extends Error {
 ## Code-Style & Konventionen
 
 ### Datei-Organisation
+
 Organisiere API-Code logisch:
 
 ```
@@ -667,12 +691,14 @@ src/pages/api/
 ```
 
 ### Naming-Konventionen
+
 - **Dateien**: `kebab-case.ts` (z.B. `prompt-enhance.ts`)
 - **Funktionen**: `camelCase` (z.B. `enhancePrompt`)
 - **Typen**: `PascalCase` (z.B. `EnhancedPrompt`)
 - **Konstanten**: `SCREAMING_SNAKE_CASE` (z.B. `MAX_PROMPT_LENGTH`)
 
 ### Import-Organisation
+
 Gruppiere Imports logisch:
 
 ```typescript
@@ -696,6 +722,7 @@ import { validateInput } from '../utils/validation';
 ## Qualitätsstandards
 
 ### Code-Coverage
+
 Ziele für hohe Test-Coverage ab:
 
 ```json
@@ -710,6 +737,7 @@ Ziele für hohe Test-Coverage ab:
 ```
 
 ### Performance-Benchmarks
+
 Definiere Performance-Ziele:
 
 - **Response-Time**: <200ms für einfache APIs
@@ -718,6 +746,7 @@ Definiere Performance-Ziele:
 - **Uptime**: >99.9%
 
 ### Security-Review
+
 Führe Security-Reviews für neue APIs durch:
 
 - [ ] Input-Validierung implementiert
@@ -734,6 +763,7 @@ Führe Security-Reviews für neue APIs durch:
 ### Häufige Probleme
 
 #### Rate-Limiting zu streng
+
 ```typescript
 // Passe Rate-Limits an
 export const POST = withApiMiddleware(async (context) => {
@@ -751,6 +781,7 @@ export const POST = withApiMiddleware(async (context) => {
 ```
 
 #### CSRF-Fehler in Tests
+
 ```typescript
 // Test-Setup mit korrekten Headers
 const testContext = {
@@ -767,6 +798,7 @@ const testContext = {
 ```
 
 #### Performance-Probleme
+
 ```typescript
 // Performance-Optimierung
 export const GET = withApiMiddleware(async (context) => {
@@ -799,6 +831,7 @@ export const GET = withApiMiddleware(async (context) => {
 ## Migration & Wartung
 
 ### API-Deprecation
+
 Markiere veraltete APIs korrekt:
 
 ```typescript
@@ -819,6 +852,7 @@ export const POST = withApiMiddleware(async (context) => {
 ```
 
 ### Breaking Changes
+
 Dokumentiere Breaking Changes:
 
 ```typescript
@@ -833,17 +867,20 @@ Dokumentiere Breaking Changes:
 ## Ressourcen
 
 ### Weiterführende Dokumentation
+
 - **[API Overview](./api-overview.md)** - Architektur und Standards
 - **[Error Handling](./error-handling.md)** - Detaillierte Fehlerbehandlung
 - **[Rate Limiting](./rate-limiting-api.md)** - Rate-Limiting-Strategien
 - **[OpenAPI Spec](./openapi.yaml)** - Maschinenlesbare Spezifikation
 
 ### Tools & Libraries
+
 - **[API Middleware](../../lib/api-middleware.ts)** - Core Middleware-Implementierung
 - **[Rate Limiter](../../lib/rate-limiter.ts)** - Rate-Limiting-Implementierung
 - **[Validation Utils](../../utils/validation.ts)** - Validierungshilfsmittel
 
 ### Testing
+
 - **[API Test Utils](../../tests/utils/api-helpers.ts)** - Test-Hilfsmittel
 - **[Mock Context](../../tests/utils/mock-context.ts)** - Mock-Implementierungen
 
@@ -858,9 +895,9 @@ Dokumentiere Breaking Changes:
 
 ## Ownership & Maintenance
 
-**Owner**: API Team (Lead: API Lead)  
-**Update-Frequenz**: Bei API-Änderungen oder neuen Best Practices  
-**Review-Prozess**: Code-Review + Security-Review  
+**Owner**: API Team (Lead: API Lead)
+**Update-Frequenz**: Bei API-Änderungen oder neuen Best Practices
+**Review-Prozess**: Code-Review + Security-Review
 **Eskalation**: Bei Konflikten zwischen Guidelines → Architecture Team
 
 ---

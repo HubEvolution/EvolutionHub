@@ -1,5 +1,6 @@
 ---
 // Blog CTA Component - Flexible CTA-System für verschiedene Funnel-Stufen
+import { getLocale } from '@/lib/i18n';
 interface Props {
   type: 'newsletter' | 'leadmagnet' | 'consultation' | 'social';
   position?: 'top' | 'middle' | 'bottom';
@@ -22,37 +23,73 @@ const {
   variant = 'primary',
 } = Astro.props;
 
-// Standard-Texte basierend auf CTA-Typ
+// Current locale for i18n
+const locale = getLocale(Astro.url.pathname);
+
+// Standard-Texte basierend auf CTA-Typ (zweisprachig)
 const defaultContent = {
   newsletter: {
-    title: 'Bleiben Sie auf dem Laufenden',
-    description:
-      'Erhalten Sie wöchentlich die neuesten Insights zu New Work, KI und Produktivität direkt in Ihr Postfach.',
-    buttonText: 'Newsletter abonnieren',
+    de: {
+      title: 'Bleiben Sie auf dem Laufenden',
+      description:
+        'Erhalten Sie wöchentlich die neuesten Insights zu New Work, KI und Produktivität direkt in Ihr Postfach.',
+      buttonText: 'Newsletter abonnieren',
+    },
+    en: {
+      title: 'Stay up to date',
+      description:
+        'Get weekly insights on New Work, AI, and productivity delivered to your inbox.',
+      buttonText: 'Subscribe to newsletter',
+    },
   },
   leadmagnet: {
-    title: 'Kostenloses Experten-Material',
-    description:
-      'Laden Sie unser praxiserprobtes Material herunter und setzen Sie die Tipps sofort um.',
-    buttonText: 'Jetzt herunterladen',
+    de: {
+      title: 'Kostenloses Experten-Material',
+      description:
+        'Laden Sie unser praxiserprobtes Material herunter und setzen Sie die Tipps sofort um.',
+      buttonText: 'Jetzt herunterladen',
+    },
+    en: {
+      title: 'Free expert material',
+      description:
+        'Download our proven material and implement the tips immediately.',
+      buttonText: 'Download now',
+    },
   },
   consultation: {
-    title: 'Individuelle Beratung gewünscht?',
-    description:
-      'Lassen Sie uns in einem kostenlosen Gespräch Ihre spezifischen Herausforderungen besprechen.',
-    buttonText: 'Gespräch vereinbaren',
+    de: {
+      title: 'Individuelle Beratung gewünscht?',
+      description:
+        'Lassen Sie uns in einem kostenlosen Gespräch Ihre spezifischen Herausforderungen besprechen.',
+      buttonText: 'Gespräch vereinbaren',
+    },
+    en: {
+      title: 'Want individual consultation?',
+      description:
+        'Let us discuss your specific challenges in a free consultation call.',
+      buttonText: 'Schedule a call',
+    },
   },
   social: {
-    title: 'Teilen Sie diesen Artikel',
-    description: 'Helfen Sie anderen dabei, diese wertvollen Insights zu entdecken.',
-    buttonText: 'Artikel teilen',
+    de: {
+      title: 'Teilen Sie diesen Artikel',
+      description: 'Helfen Sie anderen dabei, diese wertvollen Insights zu entdecken.',
+      buttonText: 'Artikel teilen',
+    },
+    en: {
+      title: 'Share this article',
+      description: 'Help others discover these valuable insights.',
+      buttonText: 'Share article',
+    },
   },
 };
 
+const localeDefaults = defaultContent[type][locale] || defaultContent[type].de;
+
 const content = {
-  title: title || defaultContent[type].title,
-  description: description || defaultContent[type].description,
-  buttonText: buttonText || defaultContent[type].buttonText,
+  title: title || localeDefaults.title,
+  description: description || localeDefaults.description,
+  buttonText: buttonText || localeDefaults.buttonText,
 };
 
 // Styling-Varianten

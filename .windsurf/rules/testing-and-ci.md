@@ -1,6 +1,5 @@
 ---
 trigger: always_on
-priority: 70
 ---
 
 # Testing & CI Rules
@@ -36,4 +35,18 @@ priority: 70
 - Gate for auth job in Testing:
   - `E2E_PROD_AUTH_SMOKE="1"` set in [workers/cron-worker/wrangler.toml](cci:7://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/workers/cron-worker/wrangler.toml:0:0-0:0) under `[env.testing.vars]`.
 - Operations guidance:
-  - Keep GH schedules for 2 weeks in parallel; compare parity using the status endpoint and KV/R2 artifacts.Ï
+  - Keep GH schedules for 2 weeks in parallel; compare parity using the status endpoint and KV/R2 artifacts.
+
+
+## OpenAPI-Checks in CI
+
+- Pflicht: `npm run openapi:validate` und `npm run openapi:redoc` im CI ausführen.
+- Optional (non-blocking): Zod→OpenAPI-Pilot zur Drift-Erkennung
+  - `npm run openapi:zod:pilot` (generiert Components aus Zod)
+  - `npm run openapi:zod:diff` (Diff gegen [openapi.yaml](cci:7://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/openapi.yaml:0:0-0:0), Report unter `reports/zod-openapi-diff.json`)
+  - Artefakt im CI hochladen; kein automatisches Überschreiben der [openapi.yaml](cci:7://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/openapi.yaml:0:0-0:0).
+
+## Schema-Tests
+
+- Für jedes neue Zod-Schema mind. 1 positiver und 1 negativer Test (z. B. fehlende Pflichtfelder).
+- Ablage: `tests/unit/validation/*`.

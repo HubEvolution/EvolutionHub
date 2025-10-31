@@ -1,6 +1,9 @@
+import type { APIContext } from 'astro';
 import { withApiMiddleware, createApiError, createApiSuccess } from '@/lib/api-middleware';
 import { loggerFactory } from '@/server/utils/logger-factory';
 import { createRateLimiter } from '@/lib/rate-limiter';
+import { formatZodError } from '@/lib/validation';
+import { newsletterUnsubscribeSchema } from '@/lib/validation/schemas/newsletter';
 
 const logger = loggerFactory.createLogger('newsletter-unsubscribe');
 const securityLogger = loggerFactory.createSecurityLogger();
@@ -11,24 +14,17 @@ const unsubscribeLimiter = createRateLimiter({
   name: 'newsletterUnsubscribe',
 });
 
-interface UnsubscribeRequest {
-  email?: string;
-}
-
 export const POST = withApiMiddleware(
-  async (context) => {
+  async (context: APIContext) => {
     const { request } = context;
-    const body = (await request.json().catch(() => ({}))) as UnsubscribeRequest;
-
-    if (!body.email || typeof body.email !== 'string') {
-      return createApiError('validation_error', 'Email ist erforderlich');
+    const unknownBody: unknown = await request.json().catch(() => null);
+    const parsed = newsletterUnsubscribeSchema.safeParse(unknownBody);
+    if (!parsed.success) {
+      return createApiError('validation_error', 'Invalid JSON body', {
+        details: formatZodError(parsed.error),
+      });
     }
-
-    const email = body.email.trim().toLowerCase();
-
-    if (!email) {
-      return createApiError('validation_error', 'Email ist erforderlich');
-    }
+    const email = parsed.data.email.trim().toLowerCase();
 
     logger.info('Newsletter unsubscribe requested', {
       metadata: {

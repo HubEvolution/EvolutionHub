@@ -34,10 +34,12 @@ testRefs: 'tests/integration/api, test-suite-v2/src/e2e'
 ### AI-Tools APIs
 
 #### Prompt-Enhancer API
+
 - **POST** `/api/prompt-enhance` - KI-gestützte Prompt-Optimierung
 - **GET** `/api/prompt/usage` - Nutzungsstatistiken und Limits
 
 #### AI-Image Enhancer API
+
 - **POST** `/api/ai-image/generate` - Bildverbesserung via Replicate/Workers AI
 - **GET** `/api/ai-image/jobs/{id}` - Job-Status und Ergebnisse
 - **POST** `/api/ai-image/jobs/{id}/cancel` - Job-Abbruch
@@ -45,22 +47,26 @@ testRefs: 'tests/integration/api, test-suite-v2/src/e2e'
 ### Authentication & User APIs
 
 #### Magic Link Authentication
+
 - **POST** `/api/auth/magic/request` - Magic Link Request
 - **GET** `/api/auth/callback` - OAuth/Magic Link Callback
 - **GET** `/api/user/profile` - Benutzerprofil
 
 #### Session Management
+
 - **Cookies**: `__Host-session` (HttpOnly, Secure, SameSite=Strict)
 - **Guest Mode**: Automatische `guest_id` Generierung für Rate-Limiting
 
 ### Business APIs
 
 #### Billing & Subscription
+
 - **POST** `/api/billing/session` - Stripe-Checkout-Session
 - **GET** `/api/billing/sync` - Subscription-Synchronisation
 - **POST** `/api/billing/credits` - Credit-Paket-Kauf
 
 #### Comments System
+
 - **POST** `/api/comments/create` - Kommentar erstellen
 - **GET** `/api/comments` - Kommentare abrufen
 - **PUT** `/api/comments/{id}` - Kommentar aktualisieren
@@ -71,6 +77,7 @@ testRefs: 'tests/integration/api, test-suite-v2/src/e2e'
 ### Request/Response-Format
 
 #### Standard Response Format
+
 ```json
 {
   "success": true,
@@ -84,6 +91,7 @@ testRefs: 'tests/integration/api, test-suite-v2/src/e2e'
 ```
 
 #### HTTP-Status-Codes
+
 - **200**: Erfolgreiche Anfrage
 - **201**: Ressource erfolgreich erstellt
 - **400**: Validierungsfehler (Bad Request)
@@ -103,6 +111,7 @@ testRefs: 'tests/integration/api, test-suite-v2/src/e2e'
 ### Authentifizierung
 
 #### Magic Link Flow
+
 1. Client sendet Email an `/api/auth/magic/request`
 2. Server generiert Token und sendet Magic Link
 3. User klickt Link → `/api/auth/callback` verifiziert Token
@@ -110,6 +119,7 @@ testRefs: 'tests/integration/api, test-suite-v2/src/e2e'
 5. Redirect zu Zielseite
 
 #### Session-Cookies
+
 ```http
 Set-Cookie: __Host-session=eyJ...; Path=/; Secure; HttpOnly; SameSite=Strict
 ```
@@ -117,12 +127,14 @@ Set-Cookie: __Host-session=eyJ...; Path=/; Secure; HttpOnly; SameSite=Strict
 ### Rate-Limiting
 
 #### Standard-Limits
+
 - **API Endpoints**: 30/min (Standard)
 - **AI Generation**: 15/min (strenger)
 - **Auth Endpoints**: 10/min (Auth)
 - **Sensitive Actions**: 5/hour (kritisch)
 
 #### Rate-Limit-Header
+
 ```http
 X-RateLimit-Limit: 30
 X-RateLimit-Remaining: 25
@@ -130,6 +142,7 @@ X-RateLimit-Reset: 1634567890
 ```
 
 #### 429 Response
+
 ```json
 {
   "success": false,
@@ -139,16 +152,19 @@ X-RateLimit-Reset: 1634567890
   }
 }
 ```
+
 Header: `Retry-After: 60`
 
 ### Security
 
 #### CSRF-Schutz
+
 - **Same-Origin**: Automatische Validierung für unsichere Methoden
 - **Double-Submit**: Optional via `X-CSRF-Token` Header
 - **Cookie**: `csrf_token` (Lax, für Formulare)
 
 #### Security-Headers (automatisch)
+
 ```http
 X-Content-Type-Options: nosniff
 X-Frame-Options: DENY
@@ -159,6 +175,7 @@ Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=()
 ```
 
 #### Origin-Validierung
+
 - **Allowed Origins**: Konfigurierbar via Environment-Variablen
 - **Auto-Detection**: Request-Origin wird automatisch erlaubt
 - **Environment**: `ALLOWED_ORIGINS`, `ALLOW_ORIGINS`, `APP_ORIGIN`
@@ -168,6 +185,7 @@ Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=()
 ### Lokale Entwicklung
 
 #### Server-Start
+
 ```bash
 # Worker-Dev (empfohlen)
 npm run dev
@@ -180,6 +198,7 @@ npm run dev:worker
 ```
 
 #### API-Base-URLs
+
 - **Development**: `http://127.0.0.1:8787`
 - **Production**: `https://api.hub-evolution.com/v1`
 - **Staging**: `https://staging.hub-evolution.com/v1`
@@ -187,6 +206,7 @@ npm run dev:worker
 ### Testing
 
 #### API-Tests
+
 ```bash
 # Integration-Tests
 npm run test:integration
@@ -199,6 +219,7 @@ npm run test:coverage
 ```
 
 #### Test-Beispiele
+
 ```bash
 # Prompt-Enhance testen
 curl -X POST \
@@ -216,12 +237,14 @@ curl http://127.0.0.1:8787/api/prompt/usage
 ### OpenAPI-Spezifikation
 
 #### Vollständige Spezifikation
+
 - **Location**: [`./openapi.yaml`](./openapi.yaml)
 - **Version**: 1.0.0
 - **Format**: OpenAPI 3.0.0
 - **Tools**: Swagger UI, Postman, Insomnia kompatibel
 
 #### Schema-Validierung
+
 ```bash
 # OpenAPI validieren
 npm run openapi:validate
@@ -235,6 +258,7 @@ npx swagger-codegen validate -i docs/api/openapi.yaml
 ### Cloudflare Workers
 
 #### Environment-Konfiguration
+
 ```toml
 # wrangler.toml
 [env.production.vars]
@@ -253,6 +277,7 @@ binding = "R2_AI_IMAGES"
 ```
 
 #### Build & Deploy
+
 ```bash
 # Production-Build
 npm run build:worker
@@ -267,11 +292,13 @@ wrangler deploy --env production
 ### Monitoring & Observability
 
 #### Request-Logging
+
 - **Security Events**: Automatische Protokollierung verdächtiger Aktivitäten
 - **API Access**: Strukturierte Logs für alle API-Zugriffe
 - **Error Tracking**: Detaillierte Fehlerprotokollierung mit Stack-Traces
 
 #### Health Checks
+
 ```bash
 # API-Health
 curl https://api.hub-evolution.com/api/health
@@ -283,11 +310,13 @@ curl https://api.hub-evolution.com/api/health/auth
 ## Migration & Versioning
 
 ### API-Versioning
+
 - **Current**: v1 (kein Prefix in URLs)
 - **Breaking Changes**: Neue Version (z.B. `/api/v2/`)
 - **Backwards Compatibility**: Mindestens 6 Monate Support
 
 ### Feature-Flags
+
 - **Prompt-Enhancer**: `PUBLIC_PROMPT_ENHANCER_V1`
 - **Telemetry**: `PUBLIC_PROMPT_TELEMETRY_V1`
 - **Debug Panel**: `PUBLIC_ENABLE_DEBUG_PANEL`
@@ -297,6 +326,7 @@ curl https://api.hub-evolution.com/api/health/auth
 ### Client-Integration
 
 #### Error-Handling
+
 ```typescript
 // Empfohlene Error-Handling-Struktur
 try {
@@ -328,6 +358,7 @@ try {
 ```
 
 #### Rate-Limit-Handling
+
 ```typescript
 // Rate-Limit-Header auswerten
 const limit = response.headers.get('X-RateLimit-Limit');
@@ -343,6 +374,7 @@ if (remaining === '0') {
 ### Security-Considerations
 
 #### CSRF-Tokens
+
 ```typescript
 // Client-seitige CSRF-Token-Generierung
 function getCsrfToken(): string {
@@ -356,6 +388,7 @@ function getCsrfToken(): string {
 ```
 
 #### Origin-Validierung
+
 ```typescript
 // Automatische Origin-Ermittlung
 const allowedOrigins = [
@@ -370,6 +403,7 @@ const allowedOrigins = [
 ### Häufige Probleme
 
 #### Rate-Limit-Fehler
+
 ```bash
 # Rate-Limit-Status prüfen
 curl -I http://127.0.0.1:8787/api/prompt/usage
@@ -381,6 +415,7 @@ curl -I http://127.0.0.1:8787/api/prompt/usage
 ```
 
 #### CSRF-Fehler
+
 ```bash
 # CSRF-Token setzen
 curl -H "X-CSRF-Token: $(cat /tmp/csrf_token)" \
@@ -390,6 +425,7 @@ curl -H "X-CSRF-Token: $(cat /tmp/csrf_token)" \
 ```
 
 #### Authentication-Fehler
+
 ```bash
 # Session-Cookie prüfen
 curl -H "Cookie: __Host-session=..." \
@@ -399,6 +435,7 @@ curl -H "Cookie: __Host-session=..." \
 ### Debug-Modi
 
 #### Debug-Logging aktivieren
+
 ```bash
 # Environment-Variable setzen
 PUBLIC_ENABLE_DEBUG_PANEL=true
@@ -408,6 +445,7 @@ curl http://127.0.0.1:8787/api/debug/client-log
 ```
 
 #### Request-Tracing
+
 ```bash
 # Request-ID aus Response-Headern
 curl -v http://127.0.0.1:8787/api/prompt-enhance 2>&1 | grep -i "request-id"
@@ -419,20 +457,23 @@ curl -v http://127.0.0.1:8787/api/prompt-enhance 2>&1 | grep -i "request-id"
 ## Support & Community
 
 ### Documentation
+
 - **[OpenAPI Spec](./openapi.yaml)** - Maschinenlesbare API-Spezifikation
 - **[API Guidelines](./api-guidelines.md)** - Best Practices für API-Entwicklung
 - **[Error Handling](./error-handling.md)** - Detaillierte Fehlercodes und Lösungen
 - **[Rate Limiting](./rate-limiting-api.md)** - Rate-Limiting-Strategien und Header
 
 ### Testing
+
 - **[Postman Collection](./postman-collection.json)** - Vollständige API-Test-Suite
 - **[Curl Examples](./curl-examples.md)** - Kommandozeilen-API-Tests
 - **[Integration Tests](./integration-tests.md)** - Automatisierte API-Tests
 
 ### Community
+
 - **GitHub Issues**: Bug-Reports und Feature-Requests
 - **Discord**: Community-Diskussionen und Support
-- **Email**: api-support@hub-evolution.com
+- **Email**: <api-support@hub-evolution.com>
 
 ---
 
@@ -445,9 +486,9 @@ curl -v http://127.0.0.1:8787/api/prompt-enhance 2>&1 | grep -i "request-id"
 
 ## Ownership & Maintenance
 
-**Owner**: API Team (Lead: API Lead)  
-**Update-Frequenz**: Bei neuen Endpunkten oder API-Änderungen  
-**Review-Prozess**: API-Review + OpenAPI-Validierung  
+**Owner**: API Team (Lead: API Lead)
+**Update-Frequenz**: Bei neuen Endpunkten oder API-Änderungen
+**Review-Prozess**: API-Review + OpenAPI-Validierung
 **Eskalation**: Bei API-Design-Konflikten → Architecture Team
 
 ---

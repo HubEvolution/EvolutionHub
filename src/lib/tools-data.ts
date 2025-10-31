@@ -95,6 +95,17 @@ export function getAllTools(locale: Locale): Tool[] {
       comingSoon: false,
     },
     {
+      id: 'video-enhancer',
+      name: t('pages.tools.items.video-enhancer.name'),
+      description: t('pages.tools.items.video-enhancer.description'),
+      category: ['ai'],
+      iconKey: 'tool',
+      color: 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200',
+      url: '/tools/video-enhancer/app',
+      isNew: true,
+      comingSoon: false,
+    },
+    {
       id: 'prompt-enhancer',
       name: t('pages.tools.items.prompt-enhancer.name'),
       description: t('pages.tools.items.prompt-enhancer.description'),

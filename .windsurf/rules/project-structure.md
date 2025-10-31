@@ -1,6 +1,5 @@
 ---
 trigger: always_on
-priority: 90
 ---
 
 # Project Structure Rules
@@ -12,3 +11,13 @@ priority: 90
 - Keep Playwright suites in `tests/e2e/specs` (root config) and `test-suite-v2/src/e2e` (v2); Vitest specs sit beside sources (`src/**/*.{test,spec}`) and under `tests/unit`, `tests/integration` (`vitest.config.ts`).
 - Built assets go to `dist/` (worker output) and static files to `public/`; Wrangler serves `dist` with `.assetsignore` excluding `_worker.js` (`package.json` `build:worker`, `wrangler.toml`).
 - Worker build details: `ASTRO_DEPLOY_TARGET=worker` copies static assets to `dist/assets` and writes `.assetsignore` to exclude `_worker.js`; Wrangler serves from `dist` (see `package.json` `build:worker` and `wrangler.toml [assets]`).
+
+## Validierungs-Schemas & Artefakte
+
+- Zod-Schemas: `src/lib/validation/schemas/*`
+- Tests: `tests/unit/validation/*`
+- OpenAPI-Spezifikation: [openapi.yaml](cci:7://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/openapi.yaml:0:0-0:0) im Projekt-Root; bleibt die maßgebliche Spezifikation.
+- Zod→OpenAPI-Pilot-Artefakte: `reports/`
+  - `zod-openapi-pilot.components.json`
+  - `zod-openapi-diff.json`
+- Keine automatischen Overwrites der [openapi.yaml](cci:7://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/openapi.yaml:0:0-0:0) durch Skripte. Abweichungen bewusst manuell angleichen.

@@ -45,9 +45,10 @@ export const ALLOWED_MODELS: readonly AllowedModel[] = [
     supportsScale: false,
     supportsFaceEnhance: false,
   },
+  // Topaz Labs — Image Upscale (Replicate)
   {
-    slug: 'sczhou/codeformer:7de2ea26c616d5bf2245ad0d5e24f0ff9a6204578a5c876db53142edd9d2cd56', // Pinned CodeFormer version: https://replicate.com/sczhou/codeformer/versions/7de2ea26c616d5bf2245ad0d5e24f0ff9a6204578a5c876db53142edd9d2cd56
-    label: 'CodeFormer',
+    slug: 'topazlabs/image-upscale',
+    label: 'Topaz Image Upscale',
     provider: 'replicate',
     supportsScale: false,
     supportsFaceEnhance: false,

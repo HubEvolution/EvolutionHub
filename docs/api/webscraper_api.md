@@ -62,6 +62,7 @@ Extrahiert strukturierte Inhalte aus einer Webseite.
 **Content-Type:** `application/json`
 
 **Request-Body:**
+
 ```json
 {
   "url": "https://example.com/article",
@@ -76,12 +77,18 @@ Extrahiert strukturierte Inhalte aus einer Webseite.
 }
 ```
 
+Hinweis: Der kanonische Request ist in der OpenAPI‑Spezifikation als Komponente definiert:
+`#/components/schemas/WebscraperRequest`. Der Server führt zusätzlich SSRF‑Sicherheitsprüfungen
+(http/https only; localhost/private Netze blockiert) zur Laufzeit durch.
+
 #### Request-Parameter
 
 **Erforderlich:**
+
 - `url` (string): Die zu scrapende URL (muss mit http:// oder https:// beginnen)
 
 **Optional:**
+
 - `options` (object): Extraktionsoptionen
   - `extractImages` (boolean): Bilder extrahieren (Standard: true)
   - `extractLinks` (boolean): Links extrahieren (Standard: true)
@@ -158,6 +165,7 @@ curl -X POST "http://127.0.0.1:8787/api/webscraper/extract" \
 #### Error Responses
 
 **Feature deaktiviert (403):**
+
 ```json
 {
   "success": false,
@@ -169,6 +177,7 @@ curl -X POST "http://127.0.0.1:8787/api/webscraper/extract" \
 ```
 
 **robots.txt blockiert (403):**
+
 ```json
 {
   "success": false,
@@ -180,6 +189,7 @@ curl -X POST "http://127.0.0.1:8787/api/webscraper/extract" \
 ```
 
 **Quota überschritten (403):**
+
 ```json
 {
   "success": false,
@@ -196,6 +206,7 @@ curl -X POST "http://127.0.0.1:8787/api/webscraper/extract" \
 ```
 
 **URL ungültig (400):**
+
 ```json
 {
   "success": false,
@@ -219,17 +230,20 @@ curl -X POST "http://127.0.0.1:8787/api/webscraper/extract" \
 ### Entitlements
 
 **Gast-Benutzer:**
+
 - Täglich: 5 Scraping-Operationen
 - Max. Content-Length: 30.000 Zeichen
 - Timeout: 10 Sekunden
 
 **Registrierte Benutzer:**
+
 - Täglich: 50 Scraping-Operationen
 - Max. Content-Length: 100.000 Zeichen
 - Timeout: 15 Sekunden
 - Erweiterte Features: robots.txt Override für eigene Domains
 
 **Premium-Benutzer:**
+
 - Täglich: 500 Scraping-Operationen
 - Max. Content-Length: 500.000 Zeichen
 - Timeout: 30 Sekunden
@@ -240,6 +254,7 @@ curl -X POST "http://127.0.0.1:8787/api/webscraper/extract" \
 ### Unterstützte Elemente
 
 **Text-Content:**
+
 - Überschriften (H1-H6)
 - Paragraphen (P)
 - Listen (UL, OL, LI)
@@ -247,6 +262,7 @@ curl -X POST "http://127.0.0.1:8787/api/webscraper/extract" \
 - Artikel-Content (ARTICLE, SECTION)
 
 **Metadaten:**
+
 - Title (TITLE)
 - Meta Description
 - Meta Author
@@ -254,6 +270,7 @@ curl -X POST "http://127.0.0.1:8787/api/webscraper/extract" \
 - JSON-LD Schema
 
 **Medien:**
+
 - Bilder (IMG) mit Alt-Text und Dimensionen
 - Links (A) mit Text und Typ-Klassifizierung
 - Videos (VIDEO) mit Quellen
@@ -262,6 +279,7 @@ curl -X POST "http://127.0.0.1:8787/api/webscraper/extract" \
 ### Filter und Bereinigung
 
 **Automatische Bereinigung:**
+
 - Script-Tags werden entfernt
 - Style-Tags werden entfernt
 - Kommentare werden entfernt
@@ -269,6 +287,7 @@ curl -X POST "http://127.0.0.1:8787/api/webscraper/extract" \
 - Whitespace wird normalisiert
 
 **Content-Filter:**
+
 - Boilerplate-Content (Navigation, Footer, etc.)
 - Werbung und Tracking-Elemente
 - Social-Media-Widgets
@@ -279,6 +298,7 @@ curl -X POST "http://127.0.0.1:8787/api/webscraper/extract" \
 ### Standard-Limits
 
 **Webscraper-spezifisch:**
+
 - **10 Requests/Minute** für alle Benutzer
 - **Separate Limits** für User vs. Guest
 - **Domain-basierte Limits** (pro Domain zusätzliche Begrenzung)
@@ -287,11 +307,13 @@ curl -X POST "http://127.0.0.1:8787/api/webscraper/extract" \
 ### Domain-spezifische Limits
 
 **Pro Domain:**
+
 - Max. 3 Requests/Minute
 - Min. 2 Sekunden zwischen Requests
 - Max. 10 Requests/Stunde
 
 **Beispiel:**
+
 ```javascript
 // Domain: example.com
 const limits = {
@@ -307,12 +329,14 @@ const limits = {
 ### robots.txt Respektierung
 
 **Automatische Prüfung:**
+
 - HEAD-Request zu `/robots.txt` vor jedem Scraping
 - User-Agent: `EvolutionHub-Webscraper/1.0`
 - Cache: 1 Stunde für robots.txt Ergebnisse
 - Override: Premium-Benutzer können eigene Domains scrapen
 
 **Beispiel robots.txt:**
+
 ```txt
 User-agent: *
 Disallow: /admin
@@ -326,11 +350,13 @@ Allow: /
 ### User-Agent String
 
 **Standard:**
+
 ```
 EvolutionHub-Webscraper/1.0 (https://hub-evolution.com)
 ```
 
 **Erweiterte Informationen:**
+
 ```
 EvolutionHub-Webscraper/1.0 (https://hub-evolution.com; Contact: support@hub-evolution.com)
 ```
@@ -338,6 +364,7 @@ EvolutionHub-Webscraper/1.0 (https://hub-evolution.com; Contact: support@hub-evo
 ### Rate-Limiting Compliance
 
 **Respectvolle Delays:**
+
 - Min. 1 Sekunde zwischen Requests zur gleichen Domain
 - Max. 100 Requests/Stunde pro Domain
 - Exponential Backoff bei Fehlern
@@ -348,17 +375,20 @@ EvolutionHub-Webscraper/1.0 (https://hub-evolution.com; Contact: support@hub-evo
 ### Fehler-Kategorien
 
 **Netzwerk-Fehler:**
+
 - `fetch_error`: HTTP-Request fehlgeschlagen
 - `timeout_error`: Request-Timeout
 - `ssl_error`: SSL/TLS-Probleme
 - `dns_error`: DNS-Auflösung fehlgeschlagen
 
 **Content-Fehler:**
+
 - `parse_error`: HTML-Parsing fehlgeschlagen
 - `encoding_error`: Unbekannte Zeichenkodierung
 - `content_too_large`: Content überschreitet maxContentLength
 
 **Compliance-Fehler:**
+
 - `robots_txt_blocked`: robots.txt verbietet Scraping
 - `domain_blacklisted`: Domain ist blockiert
 - `rate_limit_exceeded`: Rate-Limit erreicht
@@ -366,16 +396,19 @@ EvolutionHub-Webscraper/1.0 (https://hub-evolution.com; Contact: support@hub-evo
 ### Retry-Strategie
 
 **Automatische Wiederholungen:**
+
 - Max. 3 Versuche pro Request
 - Exponential Backoff: 1s, 2s, 4s
 - Fehler nach 3 Versuchen → endgültiger Fehler
 
 **Wiederholbare Fehler:**
+
 - Netzwerk-Timeouts
 - Temporäre Server-Fehler (5xx)
 - Rate-Limiting (429)
 
 **Nicht wiederholbare Fehler:**
+
 - robots.txt Blocks
 - 4xx Client-Fehler
 - Content-Parsing-Fehler
@@ -385,12 +418,14 @@ EvolutionHub-Webscraper/1.0 (https://hub-evolution.com; Contact: support@hub-evo
 ### Optimierungen
 
 **Request-Optimierung:**
+
 - HEAD-Requests für robots.txt
 - Connection Reuse
 - Compression (gzip, deflate)
 - Keep-Alive Header
 
 **Content-Processing:**
+
 - Streaming-Parsing für große Dokumente
 - Parallele Verarbeitung (Images, Links, Text)
 - Intelligente Content-Filter
@@ -399,12 +434,14 @@ EvolutionHub-Webscraper/1.0 (https://hub-evolution.com; Contact: support@hub-evo
 ### Metriken
 
 **Durchschnittliche Performance:**
+
 - **Request-Time:** 500ms - 3s (je nach Website)
 - **Processing-Time:** 100ms - 1s (je nach Content-Größe)
 - **Success-Rate:** > 90% für öffentliche Websites
 - **Cache-Hit-Rate:** > 70% für wiederholte Requests
 
 **Ressourcenverbrauch:**
+
 - **Memory:** < 50MB pro Request
 - **CPU:** < 500ms pro Request
 - **Network:** Komprimiert, Connection Reuse
@@ -414,12 +451,14 @@ EvolutionHub-Webscraper/1.0 (https://hub-evolution.com; Contact: support@hub-evo
 ### Input-Validierung
 
 **URL-Validierung:**
+
 - Muss mit http:// oder https:// beginnen
 - Max. Länge: 2048 Zeichen
 - Erlaubte Zeichen: Alphanumerisch, Bindestriche, Punkte, Schrägstriche
 - Blockierte Schemas: javascript:, data:, file:
 
 **Options-Validierung:**
+
 - Bekannte Optionen nur erlaubt
 - Numerische Werte in gültigen Bereichen
 - Boolean-Werte korrekt formatiert
@@ -427,6 +466,7 @@ EvolutionHub-Webscraper/1.0 (https://hub-evolution.com; Contact: support@hub-evo
 ### CSRF-Schutz
 
 **Double-Submit Pattern:**
+
 - Cookie: `csrf_token=<token>`
 - Header: `X-CSRF-Token: <token>`
 - Validierung: Beide müssen übereinstimmen
@@ -434,6 +474,7 @@ EvolutionHub-Webscraper/1.0 (https://hub-evolution.com; Contact: support@hub-evo
 ### Rate-Limiting
 
 **Mehrstufige Limits:**
+
 - Global: 10/min für alle Benutzer
 - Per-User: Separate Limits für User/Guest
 - Per-Domain: Domain-spezifische Limits
@@ -444,12 +485,14 @@ EvolutionHub-Webscraper/1.0 (https://hub-evolution.com; Contact: support@hub-evo
 ### Unit-Tests
 
 **Service-Tests:**
+
 - Content-Extraction-Logik
 - robots.txt Parsing
 - Rate-Limiting-Validierung
 - Error-Handling
 
 **Integration-Tests:**
+
 - Vollständige Request-Pipeline
 - robots.txt Compliance
 - Rate-Limiting Enforcement
@@ -458,12 +501,14 @@ EvolutionHub-Webscraper/1.0 (https://hub-evolution.com; Contact: support@hub-evo
 ### E2E-Tests
 
 **Scraping-Workflows:**
+
 - Öffentliche Websites (Wikipedia, Blogs)
 - robots.txt Compliance
 - Rate-Limiting Tests
 - Error-Handling Szenarien
 
 **Test-Daten:**
+
 - Mock-HTML-Responses
 - robots.txt Beispiele
 - Verschiedene Content-Types
@@ -474,20 +519,24 @@ EvolutionHub-Webscraper/1.0 (https://hub-evolution.com; Contact: support@hub-evo
 ### Häufige Probleme
 
 **"Feature not enabled":**
+
 - Feature-Flag `PUBLIC_WEBSCRAPER_V1` ist `false`
 - Kontaktiere Administrator oder aktiviere Feature-Flag
 
 **"Scraping blocked by robots.txt":**
+
 - Website verbietet Scraping
 - Prüfe robots.txt der Zielwebsite
 - Verwende alternative Quellen oder kontaktiere Website-Besitzer
 
 **"Tägliches Scraping-Limit erreicht":**
+
 - Tägliches Limit überschritten
 - Warte bis zum Reset (24h) oder upgrade auf höheren Plan
 - Prüfe `usage` und `limits` in der Response
 
 **"robots.txt Check failed":**
+
 - robots.txt Request fehlgeschlagen
 - Website möglicherweise nicht erreichbar
 - Versuche es später erneut
@@ -495,6 +544,7 @@ EvolutionHub-Webscraper/1.0 (https://hub-evolution.com; Contact: support@hub-evo
 ### Debug-Informationen
 
 **Bei aktiviertem Debug-Panel:**
+
 - robots.txt Request/Response
 - HTML Fetching Details
 - Content-Extraction Steps
@@ -507,18 +557,21 @@ EvolutionHub-Webscraper/1.0 (https://hub-evolution.com; Contact: support@hub-evo
 ### Geplante Features
 
 **Erweiterte Extraction:**
+
 - **PDF-Scraping:** PDF-Dokumente extrahieren
 - **API-Detection:** Automatische API-Endpoint-Erkennung
 - **Schema.org:** Strukturierte Daten extrahieren
 - **Social-Media:** Social-Media-Content extrahieren
 
 **Intelligente Features:**
+
 - **Content-Summarization:** KI-basierte Zusammenfassungen
 - **Language-Detection:** Automatische Spracherkennung
 - **Content-Categorization:** Automatische Kategorisierung
 - **Duplicate-Detection:** Duplikat-Erkennung
 
 **Performance-Verbesserungen:**
+
 - **Parallel-Processing:** Mehrere URLs gleichzeitig
 - **Smart-Caching:** Intelligente Cache-Strategien
 - **CDN-Integration:** Globale Content-Delivery
@@ -527,12 +580,14 @@ EvolutionHub-Webscraper/1.0 (https://hub-evolution.com; Contact: support@hub-evo
 ### Compliance-Verbesserungen
 
 **Erweiterte robots.txt Unterstützung:**
+
 - Wildcard-Patterns
 - Crawl-Delay Respektierung
 - Sitemap-Integration
 - User-Agent-Spezifische Regeln
 
 **Privacy-Features:**
+
 - Cookie-Consent Respektierung
 - GDPR-konforme Datenverarbeitung
 - Privacy-Policy Detection
@@ -543,12 +598,14 @@ EvolutionHub-Webscraper/1.0 (https://hub-evolution.com; Contact: support@hub-evo
 ### Datenschutz (GDPR)
 
 **Privacy-by-Design:**
+
 - **Keine Speicherung:** Content wird nicht persistent gespeichert
 - **Anonymisierung:** Keine Verknüpfung mit personenbezogenen Daten
 - **Transparenz:** Klare Angaben über Scraping-Aktivitäten
 - **Löschung:** Temporäre Daten werden sofort gelöscht
 
 **User-Agent Transparenz:**
+
 ```
 EvolutionHub-Webscraper/1.0
 Contact: support@hub-evolution.com
@@ -558,6 +615,7 @@ Website: https://hub-evolution.com
 ### Ethik und Best Practices
 
 **Respectvolle Scraping-Praktiken:**
+
 - Rate-Limiting auf Domain-Ebene
 - robots.txt Compliance
 - Keine aggressiven Scraping-Patterns
@@ -565,6 +623,7 @@ Website: https://hub-evolution.com
 - Fehlerhafte Wiederholungen vermeiden
 
 **Website-Besitzer Rechte:**
+
 - robots.txt wird immer respektiert
 - Keine Umgehung von Anti-Scraping-Maßnahmen
 - Kontakt-Informationen in User-Agent

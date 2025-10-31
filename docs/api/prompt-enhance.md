@@ -27,6 +27,7 @@ Der Prompt-Enhancer nutzt OpenAI's Chat Completions API mit `file_search` für d
 ## HTTP-Anfrage
 
 ### Endpunkt
+
 ```
 POST /api/prompt-enhance
 ```
@@ -34,11 +35,13 @@ POST /api/prompt-enhance
 ### Content-Types
 
 #### JSON-Format (Text-only)
+
 ```http
 Content-Type: application/json
 ```
 
 #### Multipart-Format (mit Dateien)
+
 ```http
 Content-Type: multipart/form-data
 ```
@@ -46,6 +49,7 @@ Content-Type: multipart/form-data
 ### Header
 
 #### Erforderliche Header
+
 ```http
 X-CSRF-Token: <csrf-token>
 Cookie: csrf_token=<csrf-token>
@@ -53,6 +57,7 @@ Origin: http://127.0.0.1:8787
 ```
 
 #### Rate-Limit-Header (Response)
+
 ```http
 X-RateLimit-Limit: 15
 X-RateLimit-Remaining: 14
@@ -65,6 +70,7 @@ X-RateLimit-Reset-After: 60
 ### JSON-Format
 
 #### Minimale Anfrage
+
 ```json
 {
   "input": {
@@ -74,6 +80,7 @@ X-RateLimit-Reset-After: 60
 ```
 
 #### Vollständige Anfrage
+
 ```json
 {
   "input": {
@@ -87,6 +94,11 @@ X-RateLimit-Reset-After: 60
   }
 }
 ```
+
+Hinweis: Der kanonische JSON‑Request ist in der OpenAPI‑Spezifikation als Komponente definiert:
+`#/components/schemas/PromptEnhanceRequest`. Das Backend akzeptiert weiterhin Legacy‑Formate
+(`input.text` oder `text` + optionales `mode` auf Top‑Level), normalisiert diese jedoch vor der
+Validierung gegen das Schema.
 
 ### Multipart-Format (mit Dateien)
 
@@ -105,11 +117,13 @@ curl -X POST \
 ### Parameter-Details
 
 #### `input` (erforderlich)
+
 | Feld | Typ | Beschreibung | Einschränkungen |
 |------|-----|-------------|----------------|
 | `text` | `string` | Der zu optimierende Prompt-Text | 1-5000 Zeichen, erforderlich |
 
 #### `options` (optional)
+
 | Feld | Typ | Standard | Beschreibung |
 |------|-----|----------|-------------|
 | `mode` | `string` | `"agent"` | `"agent"` oder `"concise"` |
@@ -118,18 +132,21 @@ curl -X POST \
 | `outputFormat` | `string` | `"markdown"` | `"markdown"` oder `"json"` |
 
 #### `mode` Parameter
+
 - **`agent`**: Erstellt detaillierte, schrittweise Anleitungen (empfohlen für komplexe Aufgaben)
 - **`concise`**: Erstellt kürzere, prägnante Prompts (empfohlen für einfache Anfragen)
 
 ### Dateianhänge (Multipart only)
 
 #### Unterstützte Formate
+
 - **Bilder**: `image/jpeg`, `image/png`, `image/webp`
 - **Dokumente**: `text/plain`, `text/markdown`, `application/pdf`
 - **Maximale Anzahl**: 3 Dateien pro Anfrage
 - **Größenlimit**: Abhängig von OpenAI's Limits (typisch 20MB pro Datei)
 
 #### Form-Felder
+
 ```bash
 # Einzelne Datei
 -F "file=@document.pdf;type=application/pdf"
@@ -168,13 +185,16 @@ curl -X POST \
 ### Response-Felder
 
 #### `enhancedPrompt`
+
 **Typ**: `string`
 
 Der optimierte Prompt im angeforderten Format:
+
 - **Markdown**: Strukturierte Sektionen (Role, Objective, Constraints, Steps, Examples)
 - **Plain**: Einfacher Text (wenn LLM-Modus verwendet wird)
 
 #### `safetyReport`
+
 **Typ**: `object`
 
 | Feld | Typ | Beschreibung |
@@ -183,6 +203,7 @@ Der optimierte Prompt im angeforderten Format:
 | `warnings` | `array` | Liste maskierter PII-Elemente |
 
 #### `usage`
+
 **Typ**: `object`
 
 | Feld | Typ | Beschreibung |
@@ -192,6 +213,7 @@ Der optimierte Prompt im angeforderten Format:
 | `resetAt` | `number|null` | Unix-Timestamp für Limit-Reset |
 
 #### `limits`
+
 **Typ**: `object`
 
 | Feld | Typ | Beschreibung |
@@ -596,6 +618,7 @@ test.describe('Prompt Enhancer', () => {
 ### Client-seitige Optimierungen
 
 #### Request-Deduplication
+
 ```typescript
 class RequestDeduplicator {
   private pending = new Map<string, Promise<any>>();
@@ -616,6 +639,7 @@ class RequestDeduplicator {
 ```
 
 #### Progressive Enhancement
+
 ```typescript
 // Fallback für nicht unterstützte Features
 async function enhancePromptWithFallback(text: string): Promise<string> {
@@ -634,6 +658,7 @@ async function enhancePromptWithFallback(text: string): Promise<string> {
 ### Error-Handling
 
 #### Retry-Logic
+
 ```typescript
 async function enhanceWithRetry(text: string, maxRetries: number = 3): Promise<string> {
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
@@ -658,6 +683,7 @@ function isRetryableError(error: any): boolean {
 ```
 
 #### User-Friendly Error-Messages
+
 ```typescript
 function getUserFriendlyErrorMessage(error: any): string {
   switch (error.type) {
@@ -837,6 +863,7 @@ try {
 ### Häufige Probleme
 
 #### Rate-Limit-Fehler
+
 ```bash
 # Rate-Limit-Status prüfen
 curl -I http://127.0.0.1:8787/api/prompt/usage
@@ -848,6 +875,7 @@ curl -I http://127.0.0.1:8787/api/prompt/usage
 ```
 
 #### CSRF-Fehler
+
 ```bash
 # CSRF-Token setzen
 curl -H "X-CSRF-Token: $(cat /tmp/csrf_token)" \
@@ -858,6 +886,7 @@ curl -H "X-CSRF-Token: $(cat /tmp/csrf_token)" \
 ```
 
 #### Datei-Upload-Fehler
+
 ```bash
 # Multipart-Request mit korrekten Content-Type
 curl -X POST \
@@ -872,6 +901,7 @@ curl -X POST \
 ### Debug-Modi
 
 #### Development-Logging
+
 ```typescript
 // Erweiterte Logs in Development
 if (process.env.NODE_ENV === 'development') {
@@ -885,6 +915,7 @@ if (process.env.NODE_ENV === 'development') {
 ```
 
 #### Response-Debugging
+
 ```typescript
 // Detaillierte Response-Analyse
 async function debugEnhancement(text: string): Promise<void> {
@@ -914,6 +945,7 @@ async function debugEnhancement(text: string): Promise<void> {
 ### Backwards-Kompatibilität
 
 #### Legacy-Format-Unterstützung
+
 ```typescript
 // Alte API-Format-Unterstützung
 interface LegacyEnhanceRequest {
@@ -948,6 +980,7 @@ function normalizeRequest(body: unknown): EnhanceRequest {
 ### Feature-Flags
 
 #### Graduelles Rollout
+
 ```typescript
 // Feature-Flag für neue Funktionalität
 const ENABLE_ADVANCED_SAFETY = process.env.PUBLIC_ADVANCED_SAFETY === 'true';
@@ -966,22 +999,26 @@ export const POST = withApiMiddleware(async (context) => {
 ## Ressourcen
 
 ### Weiterführende Dokumentation
+
 - **[API Overview](./api-overview.md)** - Allgemeine API-Architektur
 - **[API Guidelines](./api-guidelines.md)** - Best Practices für API-Entwicklung
 - **[Error Handling](./error-handling.md)** - Fehlercodes und Response-Formate
 - **[Rate Limiting](./rate-limiting-api.md)** - Rate-Limiting-Strategien
 
 ### Tools & Libraries
+
 - **[Prompt Enhancer Service](../../lib/services/prompt-enhancer-service.ts)** - Core Service-Implementierung
 - **[File Validation](../../lib/services/prompt-attachments.ts)** - Datei-Validierung
 - **[Rate Limiter](../../lib/rate-limiter.ts)** - Rate-Limiting-Implementierung
 
 ### Testing
+
 - **[Integration Tests](../../tests/integration/prompt-enhance-multipart.test.ts)** - Multipart-Tests
 - **[E2E Tests](../../../test-suite-v2/src/e2e/prompt-enhancer.spec.ts)** - End-to-End-Tests
 - **[Unit Tests](../../tests/unit/hooks/useEnhance.test.tsx)** - Hook-Tests
 
 ### Standards
+
 - **[OpenAI File Search](https://platform.openai.com/docs/assistants/tools/file-search)** - OpenAI File Search API
 - **[RFC 7578](https://tools.ietf.org/html/rfc7578)** - Multipart Form Data
 - **[RFC 7231](https://tools.ietf.org/html/rfc7231)** - HTTP/1.1 Semantics
@@ -997,9 +1034,9 @@ export const POST = withApiMiddleware(async (context) => {
 
 ## Ownership & Maintenance
 
-**Owner**: API Team (Lead: API Lead)  
-**Update-Frequenz**: Bei API-Änderungen oder neuen Features  
-**Review-Prozess**: Code-Review + Integration-Tests  
+**Owner**: API Team (Lead: API Lead)
+**Update-Frequenz**: Bei API-Änderungen oder neuen Features
+**Review-Prozess**: Code-Review + Integration-Tests
 **Eskalation**: Bei Prompt-Enhancer-spezifischen Problemen → Product Team
 
 ---

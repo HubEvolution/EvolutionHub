@@ -6,7 +6,7 @@
  * No auth required (MVP), supports guest/user via cookie/locals.
  */
 
-import type { APIRoute } from 'astro';
+import type { APIContext } from 'astro';
 import type { KVNamespace } from '@cloudflare/workers-types';
 import {
   withApiMiddleware,
@@ -17,8 +17,10 @@ import {
 import { WebscraperService } from '@/lib/services/webscraper-service';
 import { createRateLimiter } from '@/lib/rate-limiter';
 import type { ScrapeInput, ScrapeResult } from '@/types/webscraper';
-import type { Plan } from '@/config/ai-image/entitlements';
+import type { Plan } from '@/config/ai-image';
 import { getWebscraperEntitlementsFor } from '@/config/webscraper/entitlements';
+import { webscraperRequestSchema } from '@/lib/validation/schemas/webscraper';
+import { formatZodError } from '@/lib/validation';
 
 interface WebscraperEnv {
   KV_WEBSCRAPER?: KVNamespace;
@@ -26,11 +28,6 @@ interface WebscraperEnv {
   PUBLIC_WEBSCRAPER_V1?: string;
   WEBSCRAPER_GUEST_LIMIT?: string;
   WEBSCRAPER_USER_LIMIT?: string;
-}
-
-interface ScrapeRequestPayload {
-  url?: unknown;
-  options?: Record<string, unknown>;
 }
 
 interface WebscraperError extends Error {
@@ -44,7 +41,7 @@ const webscraperLimiter = createRateLimiter({
   name: 'webscraper',
 });
 
-function ensureGuestIdCookie(context: Parameters<APIRoute>[0]): string {
+function ensureGuestIdCookie(context: APIContext): string {
   const cookies = context.cookies;
   let guestId = cookies.get('guest_id')?.value;
   if (!guestId) {
@@ -62,7 +59,7 @@ function ensureGuestIdCookie(context: Parameters<APIRoute>[0]): string {
 }
 
 export const POST = withApiMiddleware(
-  async (context) => {
+  async (context: APIContext) => {
     const { locals, request } = context;
     const user = locals.user;
 
@@ -73,17 +70,13 @@ export const POST = withApiMiddleware(
       if (!bodyUnknown || typeof bodyUnknown !== 'object') {
         return createApiError('validation_error', 'Invalid JSON body');
       }
-      const body = bodyUnknown as ScrapeRequestPayload;
-
-      const url = typeof body.url === 'string' ? body.url.trim() : '';
-      if (!url) {
-        return createApiError('validation_error', 'URL is required');
+      const parsed = webscraperRequestSchema.safeParse(bodyUnknown);
+      if (!parsed.success) {
+        return createApiError('validation_error', 'Invalid JSON body', {
+          details: formatZodError(parsed.error),
+        });
       }
-
-      input = {
-        url,
-        options: body.options ?? {},
-      };
+      input = { url: parsed.data.url, options: parsed.data.options ?? {} };
     } catch {
       return createApiError('validation_error', 'Invalid JSON body');
     }

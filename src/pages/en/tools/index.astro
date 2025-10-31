@@ -27,20 +27,12 @@ const filteredTools = allTools.filter((tool) => {
 
 // Get categories for filter (localized)
 const categories: { id: ToolCategory; name: string }[] = getToolCategories(locale);
-// Ensure specific ordering at the top: 1) Imag-Enhancer 2) Prompt Enhancer 3) Webscraper 4) Voice Transcriptor
-const displayTools = filteredTools.slice().sort((a, b) => {
-  const rank = (id: string) =>
-    id === 'Imag-Enhancer'
-      ? 0
-      : id === 'prompt-enhancer'
-        ? 1
-        : id === 'webscraper'
-          ? 2
-          : id === 'voice-visualizer'
-            ? 3
-            : 99;
-  return rank(a.id) - rank(b.id);
-});
+// Ensure deterministic ordering: 1) Imag-Enhancer 2) Video Enhancer, then others in original order
+const priority: string[] = ['Imag-Enhancer', 'video-enhancer'];
+const prioritized = filteredTools.filter((t) => priority.includes(t.id))
+  .sort((a, b) => priority.indexOf(a.id) - priority.indexOf(b.id));
+const rest = filteredTools.filter((t) => !priority.includes(t.id));
+const displayTools = [...prioritized, ...rest];
 ---
 
 <style is:global>

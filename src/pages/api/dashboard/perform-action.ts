@@ -1,4 +1,7 @@
+import type { APIContext } from 'astro';
 import { withAuthApiMiddleware, createApiSuccess, createApiError } from '@/lib/api-middleware';
+import { formatZodError } from '@/lib/validation';
+import { dashboardActionSchema } from '@/lib/validation/schemas/dashboard';
 import { logUserEvent } from '@/lib/security-logger';
 
 /**
@@ -11,7 +14,7 @@ import { logUserEvent } from '@/lib/security-logger';
  * - Audit-Logging: Protokolliert alle API-Zugriffe und Authentifizierungsfehler
  */
 export const POST = withAuthApiMiddleware(
-  async (context) => {
+  async (context: APIContext) => {
     const { request, locals, clientAddress } = context;
     const env = (locals.runtime?.env ?? {}) as Partial<{ DB: D1Database }>;
     const user = locals.user as { id: string } | undefined;
@@ -26,24 +29,19 @@ export const POST = withAuthApiMiddleware(
       return createApiError('server_error', 'Database unavailable');
     }
 
-    let requestData: unknown;
-    try {
-      requestData = await request.json();
-    } catch (_error) {
+    const unknownBody: unknown = await request.json().catch(() => null);
+    const parsed = dashboardActionSchema.safeParse(unknownBody);
+    if (!parsed.success) {
       // Fehlerhafte Anfrage protokollieren
       logUserEvent(userId, 'invalid_dashboard_request', {
         error: 'Invalid JSON in request body',
         ipAddress: clientAddress,
       });
-
-      return createApiError('validation_error', 'Invalid JSON in request body');
+      return createApiError('validation_error', 'Invalid JSON body', {
+        details: formatZodError(parsed.error),
+      });
     }
-
-    type ActionRequest = { action: string };
-    if (!requestData || typeof requestData !== 'object' || !('action' in requestData)) {
-      return createApiError('validation_error', 'Missing or invalid action');
-    }
-    const { action } = requestData as ActionRequest;
+    const { action } = parsed.data;
 
     let result;
 
@@ -126,7 +124,7 @@ export const POST = withAuthApiMiddleware(
     logMetadata: { action: 'perform_dashboard_action', method: 'POST' },
 
     // Spezielle Fehlerbehandlung für diesen Endpunkt
-    onError: (context, error) => {
+    onError: (context: APIContext, error: unknown) => {
       const { clientAddress, locals } = context;
       const user = locals.user;
 

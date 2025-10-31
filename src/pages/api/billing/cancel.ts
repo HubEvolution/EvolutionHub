@@ -1,15 +1,21 @@
+import type { APIContext } from 'astro';
 import { withAuthApiMiddleware, createApiError, createApiSuccess } from '@/lib/api-middleware';
+import { formatZodError } from '@/lib/validation';
+import { billingCancelRequestSchema } from '@/lib/validation/schemas/billing';
 import Stripe from 'stripe';
 import { logUserEvent } from '@/lib/security-logger';
 
-interface CancelRequest {
-  subscriptionId?: string;
-}
-
 export const POST = withAuthApiMiddleware(
-  async (context) => {
+  async (context: APIContext) => {
     const { request, locals, clientAddress } = context;
-    const body = (await request.json().catch(() => ({}))) as CancelRequest;
+    const unknownBody: unknown = await request.json().catch(() => null);
+    const parsed = billingCancelRequestSchema.safeParse(unknownBody);
+    if (!parsed.success) {
+      return createApiError('validation_error', 'Invalid JSON body', {
+        details: formatZodError(parsed.error),
+      });
+    }
+    const body = parsed.data;
     const env: any = locals.runtime?.env ?? {};
     const user = locals.user;
 
@@ -30,14 +36,18 @@ export const POST = withAuthApiMiddleware(
       return createApiError('server_error', 'Database unavailable');
     }
 
-    const subscription = await db
+    const subscriptionRaw = await db
       .prepare(
         `SELECT id, status, cancel_at_period_end
          FROM subscriptions
          WHERE id = ?1 AND user_id = ?2`
       )
       .bind(body.subscriptionId, user.id)
-      .first<{ id: string; status: string; cancel_at_period_end: number | null }>();
+      .first();
+
+    const subscription = subscriptionRaw as
+      | { id: string; status: string; cancel_at_period_end: number | null }
+      | null;
 
     if (!subscription) {
       return createApiError('not_found', 'Subscription not found');

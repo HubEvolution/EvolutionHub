@@ -1,5 +1,8 @@
+import type { APIContext } from 'astro';
 import { withApiMiddleware, createApiSuccess, createApiError } from '@/lib/api-middleware';
 import { logSecurityEvent, logUserEvent } from '@/lib/security-logger';
+import { internalUserSyncSchema } from '@/lib/validation/schemas/users';
+import { formatZodError } from '@/lib/validation';
 
 /**
  * POST /api/internal/users/sync
@@ -13,26 +16,25 @@ import { logSecurityEvent, logUserEvent } from '@/lib/security-logger';
  * - Audit-Logging: Protokolliert alle Synchronisierungsaktivitäten
  */
 export const POST = withApiMiddleware(
-  async (context) => {
+  async (context: APIContext) => {
     const { request, locals, clientAddress } = context;
     const { env } = locals.runtime;
 
-    const user = await request.json<{ id: string; name: string; email: string; image: string }>();
-
-    if (!user || !user.id || !user.email) {
+    const unknownBody: unknown = await request.json().catch(() => null);
+    const parsed = internalUserSyncSchema.safeParse(unknownBody);
+    if (!parsed.success) {
       // Fehlerhafte Anfrage protokollieren
       logSecurityEvent('API_ERROR', {
         reason: 'invalid_sync_request',
         ipAddress: clientAddress,
-        details: 'User ID and email are required for sync',
+        details: 'Invalid JSON body',
       });
-
-      return createApiError('validation_error', 'User ID and email are required', {
-        reason: 'invalid_sync_request',
+      return createApiError('validation_error', 'Invalid JSON body', {
+        details: formatZodError(parsed.error),
       });
     }
 
-    const { id, name, email, image } = user;
+    const { id, name, email, image } = parsed.data;
     const now = new Date().toISOString();
 
     const stmt = env.DB.prepare(`
@@ -61,7 +63,7 @@ export const POST = withApiMiddleware(
     requireAuth: false,
 
     // Spezielle Fehlerbehandlung für diesen Endpunkt
-    onError: (context, error) => {
+    onError: (context: APIContext, error: unknown) => {
       const { clientAddress } = context;
 
       // Serverfehler protokollieren

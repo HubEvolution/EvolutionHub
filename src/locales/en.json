@@ -140,6 +140,10 @@
         "webscraper": {
           "name": "Webscraper",
           "description": "Extract structured data from web pages and APIs with flexible selectors and export formats."
+        },
+        "video-enhancer": {
+          "name": "Video Enhancer",
+          "description": "Upscale and enhance videos with AI (Topaz video-upscale)."
         }
       },
       "details": {

@@ -1,6 +1,5 @@
 ---
 trigger: always_on
-priority: 80
 ---
 
 # Tooling & Style Rules
@@ -12,3 +11,15 @@ priority: 80
 - Format code via Prettier (`.prettierrc.json`) with 2-space indent, single quotes, 100 char width, Astro plugin, and `semi: true`.
 - Keep components and stores in PascalCase filenames and shared utilities camelCase as codified in `AGENTS.md`.
 - Ensure presence of `.prettierignore`, `.markdownlint.jsonc`, `.lintstagedrc.json`, and `eslint.config.dev.js`.
+
+## Validierungsstil
+
+- Keine manuelle Feldprüfung per if/else; stattdessen immer Zod-Schemas aus `src/lib/validation/schemas/*`.
+- In Routen/Handlern `z` und `formatZodError` aus `@/lib/validation` importieren (gemeinsamer Aggregator).
+- Handler immer mit `APIContext` annotieren.
+- Keine Generics auf untypisierten DB-Calls (z. B. nicht `.first<T>()` bei untypisierten Quellen).
+
+## Schema-Beschreibung (optional, empfohlen)
+
+- Einfache JSON-Schemas können via `.openapi({ description, example })` angereichert werden (kein Runtime-Impact).
+- Ziel: bessere generierte OpenAPI-Components bei Beibehaltung der Hybrid-Strategie.

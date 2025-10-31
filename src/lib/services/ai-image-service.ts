@@ -999,26 +999,135 @@ export class AiImageService {
 
     const payload = { input: { ...model.defaultParams, ...input } };
 
-    // Use the "run" endpoint with slug, which supports owner/model:tag
-    const url = `https://api.replicate.com/v1/run/${model.slug}`;
+    // Ensure slug contains a version for the /v1/run endpoint. If absent, resolve latest_version.
+    let resolvedSlug = model.slug;
+    if (!model.slug.includes(':')) {
+      try {
+        const [owner, name] = model.slug.split('/');
+        if (owner && name) {
+          const metaRes = await fetch(`https://api.replicate.com/v1/models/${owner}/${name}`, {
+            headers: { Authorization: `Token ${token}` },
+          });
+          if (metaRes.ok) {
+            const meta = (await metaRes.json()) as {
+              latest_version?: { id?: string };
+              versions?: Array<{ id?: string }>;
+            };
+            const latestId = meta?.latest_version?.id || meta?.versions?.[0]?.id;
+            if (typeof latestId === 'string' && latestId.length > 0) {
+              resolvedSlug = `${owner}/${name}:${latestId}`;
+            }
+          }
+        }
+      } catch {}
+    }
+
+    const preferPredictions = resolvedSlug.startsWith('topazlabs/');
+    const url = `https://api.replicate.com/v1/run/${resolvedSlug}`;
     if (this.isDevelopment()) {
-      console.debug('[AiImageService] Replicate POST', { url, model: model.slug });
+      console.debug('[AiImageService] Replicate POST', { url, model: model.slug, preferPredictions });
     }
     const started = Date.now();
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Token ${token}`,
-      },
-      body: JSON.stringify(payload),
-    });
+    let res: Response;
+    let usedPredictions = false;
+    if (!preferPredictions) {
+      res = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Token ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+    } else {
+      // Skip run for Topaz; go predictions path directly
+      res = new Response(null, { status: 404 });
+    }
+
+    // Fallback: some providers/models may not support the /v1/run endpoint.
+    // If we get a 404 from /v1/run, retry via /v1/predictions with explicit version id.
+    if (res.status === 404) {
+      try {
+        // Extract version id from resolved slug owner/name:version
+        let versionId: string | null = null;
+        const colonIdx = resolvedSlug.indexOf(':');
+        if (colonIdx > 0 && colonIdx < resolvedSlug.length - 1) {
+          versionId = resolvedSlug.slice(colonIdx + 1);
+        }
+        if (!versionId) {
+          const [owner, name] = model.slug.split('/');
+          if (owner && name) {
+            const metaRes = await fetch(`https://api.replicate.com/v1/models/${owner}/${name}`, {
+              headers: { Authorization: `Token ${token}` },
+            });
+            if (metaRes.ok) {
+              const meta = (await metaRes.json()) as {
+                latest_version?: { id?: string };
+                versions?: Array<{ id?: string }>;
+              };
+              versionId = meta?.latest_version?.id || meta?.versions?.[0]?.id || null;
+            }
+          }
+        }
+        if (versionId) {
+          const predUrl = 'https://api.replicate.com/v1/predictions';
+          const predBody = { version: versionId, input: { ...model.defaultParams, ...(input as any) } };
+          res = await fetch(predUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Token ${token}`,
+            },
+            body: JSON.stringify(predBody),
+          });
+          usedPredictions = true;
+        }
+      } catch {}
+    }
 
     const durationMs = Date.now() - started;
     this.log.debug('replicate_duration_ms', {
       action: 'replicate_duration_ms',
       metadata: { model: model.slug, ms: durationMs },
     });
+
+    // If we used the predictions API, poll until completion and return output
+    if (usedPredictions) {
+      type Pred = { id: string; status: string; output?: unknown; error?: unknown };
+      let data = (await res.json()) as Pred;
+      const startPoll = Date.now();
+      const maxMs = 60000; // 60s cap
+      const poll = async (id: string) => {
+        const getRes = await fetch(`https://api.replicate.com/v1/predictions/${id}`, {
+          headers: { Authorization: `Token ${token}` },
+        });
+        return (await getRes.json()) as Pred;
+      };
+      while (
+        data && data.status &&
+        data.status !== 'succeeded' &&
+        data.status !== 'failed' &&
+        data.status !== 'canceled' &&
+        Date.now() - startPoll < maxMs
+      ) {
+        await new Promise((r) => setTimeout(r, 600));
+        data = await poll(data.id);
+      }
+      if (data.status !== 'succeeded') {
+        const { buildProviderError } = await import('./' + 'provider-error');
+        // Treat as validation error if failed, otherwise server error
+        const mapped = data.status === 'failed' ? 422 : 500;
+        this.log.warn('replicate_error', {
+          action: 'replicate_error',
+          metadata: { status: mapped, provider: 'replicate', model: model.slug, snippet: String(data.error || data.status) },
+        });
+        throw buildProviderError(mapped, 'replicate', String(data.error || data.status));
+      }
+      const out = data.output as unknown;
+      if (typeof out === 'string') return out;
+      if (Array.isArray(out) && out.length > 0 && typeof out[0] === 'string') return out[0] as string;
+      throw new Error('Replicate response missing output');
+    }
 
     if (!res.ok) {
       const status = res.status;
@@ -1029,7 +1138,7 @@ export class AiImageService {
       // Avoid leaking provider payloads to clients; keep truncated snippet in logs only
       this.log.warn('replicate_error', {
         action: 'replicate_error',
-        metadata: { status, provider: 'replicate', snippet: text.slice(0, 200) },
+        metadata: { status, provider: 'replicate', model: model.slug, snippet: text.slice(0, 200) },
       });
       // Ensure visibility on Wrangler tail for non-production envs
       try {

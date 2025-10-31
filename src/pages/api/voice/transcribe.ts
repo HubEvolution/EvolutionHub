@@ -1,4 +1,4 @@
-import type { APIRoute } from 'astro';
+import type { APIContext } from 'astro';
 import {
   withApiMiddleware,
   createApiSuccess,
@@ -12,8 +12,24 @@ import { VoiceStreamAggregator } from '@/lib/services/voice-stream-aggregator';
 import { getVoiceEntitlementsFor } from '@/config/voice/entitlements';
 import type { Plan } from '@/config/ai-image/entitlements';
 import { loggerFactory } from '@/server/utils/logger-factory';
+import { formatZodError } from '@/lib/validation';
+import { voiceTranscribeParamsSchema } from '@/lib/validation/schemas/voice';
 
-function ensureGuestIdCookie(context: Parameters<APIRoute>[0]): string {
+type MaybeTypedError = {
+  apiErrorType?:
+    | 'validation_error'
+    | 'auth_error'
+    | 'not_found'
+    | 'rate_limit'
+    | 'server_error'
+    | 'db_error'
+    | 'forbidden'
+    | 'method_not_allowed';
+  message?: string;
+  details?: Record<string, unknown>;
+};
+
+function ensureGuestIdCookie(context: APIContext): string {
   const cookies = context.cookies;
   let guestId = cookies.get('guest_id')?.value;
   if (!guestId) {
@@ -30,16 +46,29 @@ function ensureGuestIdCookie(context: Parameters<APIRoute>[0]): string {
   return guestId;
 }
 
-export const POST: APIRoute = withApiMiddleware(
-  async ({ request, locals, cookies }) => {
+export const POST = withApiMiddleware(
+  async (context: APIContext) => {
+    const { request, locals } = context;
     const log = loggerFactory.createLogger('voice-transcribe-api');
     const t0 = Date.now();
     const form = await request.formData();
     const file = form.get('chunk');
-    const sessionId = String(form.get('sessionId') || '').trim();
-    const lang = form.get('lang') ? String(form.get('lang')) : undefined;
-    const jobIdForm = String(form.get('jobId') || '').trim();
-    const isLastChunk = String(form.get('isLastChunk') || '').trim() === 'true';
+
+    const parsed = voiceTranscribeParamsSchema.safeParse({
+      sessionId: form.get('sessionId'),
+      jobId: form.get('jobId'),
+      lang: form.get('lang'),
+      isLastChunk: form.get('isLastChunk'),
+    });
+    if (!parsed.success) {
+      return createApiError('validation_error', 'Invalid form fields', {
+        details: formatZodError(parsed.error),
+      });
+    }
+    const sessionId = parsed.data.sessionId;
+    const jobIdForm = parsed.data.jobId || '';
+    const lang = parsed.data.lang;
+    const isLastChunk = parsed.data.isLastChunk ?? false;
     try {
       log.debug('transcribe_api_received', {
         action: 'transcribe_api_received',
@@ -52,12 +81,12 @@ export const POST: APIRoute = withApiMiddleware(
         },
       });
     } catch {}
-    if (!(file instanceof File) || !sessionId) {
-      return createApiError('validation_error', 'Missing chunk or sessionId');
+    if (!(file instanceof File)) {
+      return createApiError('validation_error', 'Missing chunk file');
     }
 
-    const ownerType = locals.user?.id ? 'user' : 'guest';
-    const ownerId = locals.user?.id || ensureGuestIdCookie({ request, locals, cookies } as any);
+    const ownerType: 'user' | 'guest' = locals.user?.id ? 'user' : 'guest';
+    const ownerId = locals.user?.id || ensureGuestIdCookie(context);
 
     const env = locals.runtime?.env ?? {};
     const openaiKey = env.VOICE_DEV_ECHO === '1' ? undefined : env.OPENAI_API_KEY;
@@ -77,9 +106,9 @@ export const POST: APIRoute = withApiMiddleware(
     try {
       const plan: Plan | undefined =
         ownerType === 'user' ? ((locals.user?.plan as Plan | undefined) ?? 'free') : undefined;
-      const ent = getVoiceEntitlementsFor(ownerType as any, plan);
+      const ent = getVoiceEntitlementsFor(ownerType, plan);
       const out = await service.transcribeChunk(
-        ownerType as any,
+        ownerType,
         ownerId,
         sessionId,
         file,
@@ -95,7 +124,12 @@ export const POST: APIRoute = withApiMiddleware(
         }
       }
       if (out.usage) {
-        await aggregator.setUsage(jobId, out.usage as any);
+        const usage = {
+          count: out.usage.used,
+          limit: out.usage.limit,
+          window: out.usage.resetAt ? new Date(out.usage.resetAt).toISOString() : 'rolling-24h',
+        };
+        await aggregator.setUsage(jobId, usage);
       }
       try {
         const dt = Date.now() - t0;
@@ -120,7 +154,7 @@ export const POST: APIRoute = withApiMiddleware(
         limits: { user: VOICE_FREE_LIMIT_USER, guest: VOICE_FREE_LIMIT_GUEST },
       });
     } catch (e) {
-      const err = e as any;
+      const err = e as MaybeTypedError;
       const type = err.apiErrorType || 'server_error';
       try {
         const dt = Date.now() - t0;
@@ -135,7 +169,7 @@ export const POST: APIRoute = withApiMiddleware(
           },
         });
       } catch {}
-      return createApiError(type, err.message, err.details || undefined);
+      return createApiError(type, err.message || 'Unknown error', err.details || undefined);
     }
   },
   { rateLimiter: voiceTranscribeLimiter, enforceCsrfToken: true }

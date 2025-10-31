@@ -578,7 +578,7 @@ function setLocaleHref(target: 'de' | 'en'): string {
       const languageDropdown = document.getElementById('language-dropdown');
 
       if (!languageButton || !languageDropdown) {
-        console.error('[Header] ❌ Language selector elements not found', {
+        console.warn('[Header] ❌ Language selector elements not found', {
           button: !!languageButton,
           dropdown: !!languageDropdown,
         });

@@ -1157,8 +1157,8 @@
             "usage": "Nutzung",
             "result": "Ergebnis",
             "original": "Original",
-            "allowedTypes": "Erlaubte Typen",
-            "max": "Max.",
+            "allowedTypes": "Erlaubt: JPG, PNG, WEBP",
+            "max": "Max. Größe",
             "download": "Herunterladen",
             "loading": "Laden...",
             "quotaBanner": "Nutzungslimit erreicht. Versuche es später erneut oder melde dich an für höhere Limits.",
@@ -1219,6 +1219,10 @@
         "voice-visualizer": {
           "name": "Sprach-Transkriptor",
           "description": "Nimm deine Stimme auf, visualisiere Pegel und transkribiere Sprache nahezu in Echtzeit."
+        },
+        "video-enhancer": {
+          "name": "Video Enhancer",
+          "description": "Videos mit KI hochskalieren und verbessern (Topaz video‑upscale)."
         }
       },
       "details": {

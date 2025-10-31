@@ -4,11 +4,26 @@ import { getLocale } from '@/lib/i18n';
 import { getI18n } from '@/utils/i18n';
 import { localizePath } from '@/lib/locale-path';
 import Icon from '@/components/ui/Icon.astro';
-import ImagEnhancerIsland from '@/components/tools/ImagEnhancerIsland';
+import ImagEnhancerRouter from '@/components/tools/imag-enhancer/mvp/ImagEnhancerRouter';
 import Card from '@/components/ui/Card';
 
 const locale = getLocale(Astro.url.pathname);
 const t = getI18n(locale);
+// Fallback labels if auth/login or common/upgrade are not present in dictionary (must be defined before usage)
+const loginRaw = t('auth.login');
+const loginLabel =
+  typeof loginRaw === 'string' && !/\[.+_fallback_not_found\]/.test(loginRaw)
+    ? loginRaw
+    : locale === 'de'
+      ? 'Anmelden'
+      : 'Sign in';
+const upgradeRaw = t('common.upgrade');
+const upgradeLabel =
+  typeof upgradeRaw === 'string' && !/\[.+_fallback_not_found\]/.test(upgradeRaw)
+    ? upgradeRaw
+    : locale === 'de'
+      ? 'Upgrade'
+      : 'Upgrade';
 const strings = {
   dropText: t('pages.tools.items.Imag-Enhancer.app.dropText'),
   enhance: t('pages.tools.items.Imag-Enhancer.app.enhance'),
@@ -43,6 +58,10 @@ const strings = {
   ui: {
     fullscreen: t('pages.tools.items.Imag-Enhancer.app.fullscreen'),
     exitFullscreen: t('pages.tools.items.Imag-Enhancer.app.exitFullscreen'),
+    changeModel: t('pages.tools.items.Imag-Enhancer.app.changeModel'),
+    done: t('pages.tools.items.Imag-Enhancer.app.done'),
+    startOver: t('pages.tools.items.Imag-Enhancer.app.startOver'),
+    upgrade: upgradeLabel,
   },
 };
 
@@ -50,22 +69,6 @@ const tool = {
   id: 'Imag-Enhancer',
   icon: 'tool',
 };
-
-// Fallback labels if auth/login or common/upgrade are not present in dictionary
-const loginRaw = t('auth.login');
-const loginLabel =
-  typeof loginRaw === 'string' && !/\[.+_fallback_not_found\]/.test(loginRaw)
-    ? loginRaw
-    : locale === 'de'
-      ? 'Anmelden'
-      : 'Sign in';
-const upgradeRaw = t('common.upgrade');
-const upgradeLabel =
-  typeof upgradeRaw === 'string' && !/\[.+_fallback_not_found\]/.test(upgradeRaw)
-    ? upgradeRaw
-    : locale === 'de'
-      ? 'Upgrade'
-      : 'Upgrade';
 ---
 
 <BaseLayout
@@ -167,7 +170,7 @@ const upgradeLabel =
           class="mt-6 min-h-[200px] rounded-md p-0"
           aria-label={`${t('pages.tools.items.Imag-Enhancer.name')} root`}
         >
-          <ImagEnhancerIsland strings={strings} client:load />
+          <ImagEnhancerRouter strings={strings} legacyStrings={strings} client:load />
         </div>
       </Card>
     </div>

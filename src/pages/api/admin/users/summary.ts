@@ -105,6 +105,25 @@ export const GET = withAuthApiMiddleware(async (context: APIContext) => {
     }
   } catch {}
 
+  // Fallback: if no audit-based lastSeenAt, approximate from sessions table (expires_at - 30d)
+  if (!lastSeenAt) {
+    try {
+      const sess = await db
+        .prepare(
+          `SELECT expires_at FROM sessions WHERE user_id = ?1 ORDER BY expires_at DESC LIMIT 1`
+        )
+        .bind(userRow.id)
+        .first<{ expires_at: number | string }>();
+      if (sess && (sess as any).expires_at != null) {
+        const expSec = Number((sess as any).expires_at) || 0;
+        if (expSec > 0) {
+          const approxCreatedMs = expSec * 1000 - 30 * 24 * 60 * 60 * 1000; // 30 days TTL
+          lastSeenAt = Math.max(0, approxCreatedMs);
+        }
+      }
+    } catch {}
+  }
+
   const data = {
     user: {
       id: userRow.id,

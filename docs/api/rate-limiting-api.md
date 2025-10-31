@@ -18,26 +18,31 @@ Evolution Hub implementiert mehrere Rate-Limiting-Strategien, um die API-Perform
 ### Rate-Limiting-Typen
 
 #### 1. Standard-API-Limiter (`apiRateLimiter`)
+
 - **Limit**: 30 Anfragen pro Minute
 - **Verwendung**: Standardmäßige API-Endpunkte
 - **Beispiel**: GET `/api/user/profile`, POST `/api/comments/create`
 
 #### 2. AI-Generation-Limiter (`aiGenerateLimiter`)
+
 - **Limit**: 15 Anfragen pro Minute
 - **Verwendung**: KI-generative Endpunkte
 - **Beispiel**: POST `/api/prompt-enhance`, POST `/api/ai-image/generate`
 
 #### 3. Authentifizierung-Limiter (`authLimiter`)
+
 - **Limit**: 10 Anfragen pro Minute
 - **Verwendung**: Login, Registrierung, Passwort-Reset
 - **Beispiel**: POST `/api/auth/magic/request`, POST `/api/auth/login`
 
 #### 4. AI-Job-Management-Limiter (`aiJobsLimiter`)
+
 - **Limit**: 10 Anfragen pro Minute
 - **Verwendung**: Job-Status und -Management
 - **Beispiel**: GET `/api/ai-image/jobs/{id}`, POST `/api/ai-image/jobs/{id}/cancel`
 
 #### 5. Sensitive-Action-Limiter (`sensitiveActionLimiter`)
+
 - **Limit**: 5 Anfragen pro Stunde
 - **Verwendung**: Kritische administrative Aktionen
 - **Beispiel**: POST `/api/admin/credits/grant`, DELETE `/api/admin/users/{id}`
@@ -133,6 +138,7 @@ Auch erfolgreiche Responses enthalten Rate-Limiting-Informationen:
 ```
 
 Header:
+
 ```http
 X-RateLimit-Limit: 15
 X-RateLimit-Remaining: 14
@@ -144,6 +150,7 @@ X-RateLimit-Reset: 1634567890
 ### Header-Auswertung
 
 #### JavaScript/TypeScript
+
 ```typescript
 interface RateLimitInfo {
   limit: number;
@@ -181,6 +188,7 @@ async function makeApiRequest(url: string, options: RequestInit = {}) {
 ```
 
 #### cURL-Beispiele
+
 ```bash
 # Rate-Limit-Status prüfen
 curl -I http://127.0.0.1:8787/api/prompt/usage
@@ -205,6 +213,7 @@ curl -X POST \
 ### Retry-Logik
 
 #### Exponential Backoff
+
 ```typescript
 class ApiClient {
   private retryAttempts = 0;
@@ -247,6 +256,7 @@ class ApiClient {
 ```
 
 #### Smart Retry mit Jitter
+
 ```typescript
 function calculateRetryDelay(attempt: number, baseDelay: number = 1000): number {
   const exponentialDelay = baseDelay * Math.pow(2, attempt);
@@ -276,6 +286,7 @@ async function retryWithBackoff<T>(
 ### Rate-Limit-Monitoring
 
 #### Client-seitiges Monitoring
+
 ```typescript
 class RateLimitMonitor {
   private limits: Map<string, RateLimitInfo> = new Map();
@@ -321,6 +332,7 @@ class RateLimitMonitor {
 ### Rate-Limiter-Definitionen
 
 #### Standard-Limiter
+
 ```typescript
 // src/lib/rate-limiter.ts
 export const apiRateLimiter = rateLimit({
@@ -355,6 +367,7 @@ export const apiRateLimiter = rateLimit({
 ```
 
 #### AI-Generation-Limiter
+
 ```typescript
 export const aiGenerateLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute
@@ -386,6 +399,7 @@ export const aiGenerateLimiter = rateLimit({
 ### Middleware-Integration
 
 #### Automatische Rate-Limiting
+
 ```typescript
 // src/pages/api/prompt-enhance.ts
 import { withApiMiddleware } from '@/lib/api-middleware';
@@ -401,6 +415,7 @@ export const POST = withApiMiddleware(async (context) => {
 ```
 
 #### Custom Rate-Limiting-Logik
+
 ```typescript
 export const POST = withApiMiddleware(async (context) => {
   // Custom Rate-Limiting basierend auf Request-Content
@@ -424,6 +439,7 @@ export const POST = withApiMiddleware(async (context) => {
 ### Rate-Limiting-Tests
 
 #### Unit-Tests
+
 ```typescript
 // tests/unit/rate-limiter.test.ts
 import { describe, it, expect, beforeEach } from 'vitest';
@@ -463,6 +479,7 @@ describe('Rate Limiter', () => {
 ```
 
 #### Integration-Tests
+
 ```typescript
 // tests/integration/rate-limiting.test.ts
 describe('Rate Limiting Integration', () => {
@@ -527,6 +544,7 @@ describe('Rate Limiting Integration', () => {
 ### Load-Testing
 
 #### Artillery-Konfiguration
+
 ```yaml
 # artillery/rate-limiting.yml
 config:
@@ -552,6 +570,7 @@ scenarios:
 ```
 
 #### Load-Test-Ausführung
+
 ```bash
 # Load-Test mit Artillery
 npx artillery run artillery/rate-limiting.yml
@@ -565,6 +584,7 @@ k6 run --duration=60s --vus=10 k6/rate-limiting.js
 ### Metriken-Sammlung
 
 #### Server-seitige Metriken
+
 ```typescript
 // Rate-Limiting-Metriken tracken
 export const POST = withApiMiddleware(async (context) => {
@@ -599,6 +619,7 @@ export const POST = withApiMiddleware(async (context) => {
 ```
 
 #### Client-seitige Metriken
+
 ```typescript
 // Client-Metriken senden
 function trackRateLimitEvent(event: string, data: any) {
@@ -632,6 +653,7 @@ function onRateLimitWarning(endpoint: string, remaining: number, limit: number) 
 ### Dashboards & Alerts
 
 #### Rate-Limiting-Dashboard
+
 ```typescript
 // Metriken für Dashboard
 interface RateLimitMetrics {
@@ -656,6 +678,7 @@ function generateRateLimitReport(): RateLimitMetrics[] {
 ```
 
 #### Alerting-Regeln
+
 ```typescript
 // Alert wenn Rate-Limiting zu aggressiv
 if (rateLimitedRequests / totalRequests > 0.1) { // >10% rate limited
@@ -682,6 +705,7 @@ if (requestsFromSingleIP > 100) {
 ### Client-Entwicklung
 
 #### 1. Header-Auswertung
+
 ```typescript
 // Immer Rate-Limit-Header auswerten
 async function apiRequest<T>(url: string, options: RequestInit = {}): Promise<T> {
@@ -700,6 +724,7 @@ async function apiRequest<T>(url: string, options: RequestInit = {}): Promise<T>
 ```
 
 #### 2. Proaktive Throttling
+
 ```typescript
 // Throttle Requests basierend auf Rate-Limit-Status
 class ThrottledApiClient {
@@ -740,6 +765,7 @@ class ThrottledApiClient {
 ```
 
 #### 3. Graceful Degradation
+
 ```typescript
 // Fallback bei Rate-Limiting
 async function enhancePromptWithFallback(text: string) {
@@ -760,6 +786,7 @@ async function enhancePromptWithFallback(text: string) {
 ### Server-Entwicklung
 
 #### 1. Konsistente Konfiguration
+
 ```typescript
 // Zentrale Rate-Limiting-Konfiguration
 export const RATE_LIMITS = {
@@ -794,6 +821,7 @@ export function createRateLimiter(type: keyof typeof RATE_LIMITS) {
 ```
 
 #### 2. User-basierte Limits
+
 ```typescript
 // Intelligente Key-Generierung
 function getUserKey(request: APIContext): string {
@@ -828,6 +856,7 @@ export const STANDARD_LIMITS = {
 ### Häufige Probleme
 
 #### Rate-Limiting zu aggressiv
+
 ```typescript
 // Temporäres Erhöhen der Limits für Debugging
 export const DEBUG_LIMITS = {
@@ -842,6 +871,7 @@ const limits = isDevelopment ? DEBUG_LIMITS : PRODUCTION_LIMITS;
 ```
 
 #### False Positives
+
 ```typescript
 // Bessere Key-Generierung um False Positives zu vermeiden
 function getStableUserKey(request: APIContext): string {
@@ -862,6 +892,7 @@ function getStableUserKey(request: APIContext): string {
 ```
 
 #### Performance-Impact
+
 ```typescript
 // Rate-Limiting mit minimalem Performance-Impact
 export const lightweightLimiter = rateLimit({
@@ -881,6 +912,7 @@ export const lightweightLimiter = rateLimit({
 ### Debug-Tools
 
 #### Rate-Limit-Status prüfen
+
 ```bash
 # Aktuelle Rate-Limit-Status abrufen
 curl -H "Cookie: session=your-session-cookie" \
@@ -897,6 +929,7 @@ curl -H "Cookie: session=your-session-cookie" \
 ```
 
 #### Rate-Limiting-Logs analysieren
+
 ```bash
 # Cloudflare Workers Logs filtern
 # Rate-Limiting-Events haben spezifische Marker
@@ -907,6 +940,7 @@ grep "rate_limit" logs/client.log
 ```
 
 #### Load-Testing mit Rate-Limiting
+
 ```bash
 # Simuliere verschiedene User-Patterns
 for i in {1..50}; do
@@ -926,6 +960,7 @@ curl -s http://127.0.0.1:8787/api/prompt-enhance -w "%{http_code}" | grep 429 | 
 ## Compliance & Standards
 
 ### RFC 6585 Compliance
+
 Evolution Hub folgt RFC 6585 für 429-Responses:
 
 - **Status Code**: 429 Too Many Requests
@@ -935,6 +970,7 @@ Evolution Hub folgt RFC 6585 für 429-Responses:
 ### Security Considerations
 
 #### DDoS-Schutz
+
 Rate-Limiting dient auch als DDoS-Schutz:
 
 ```typescript
@@ -951,6 +987,7 @@ export const ddosProtectionLimiter = rateLimit({
 ```
 
 #### Brute-Force-Schutz
+
 ```typescript
 // Strenge Limits für Auth-Endpunkte
 export const bruteForceLimiter = rateLimit({
@@ -969,6 +1006,7 @@ export const bruteForceLimiter = rateLimit({
 ## Migration & Updates
 
 ### Version-Updates
+
 ```typescript
 // Backwards-kompatible Updates
 const CURRENT_VERSION = '1.0';
@@ -988,6 +1026,7 @@ export const POST = withApiMiddleware(async (context) => {
 ```
 
 ### Limit-Anpassungen
+
 ```typescript
 // Data-driven Limit-Anpassungen
 async function getDynamicLimits(userId: string) {
@@ -1017,16 +1056,19 @@ async function getDynamicLimits(userId: string) {
 ## Ressourcen
 
 ### Weiterführende Dokumentation
+
 - **[API Overview](./api-overview.md)** - Allgemeine API-Architektur
 - **[API Guidelines](./api-guidelines.md)** - Best Practices für API-Entwicklung
 - **[Error Handling](./error-handling.md)** - Fehlercodes und Response-Formate
 
 ### Tools & Libraries
+
 - **[Rate Limiter Source](../../lib/rate-limiter.ts)** - Rate-Limiting-Implementierung
 - **[API Middleware](../../lib/api-middleware.ts)** - Middleware-Implementierung
 - **[Test Utils](../../tests/utils/rate-limit-helpers.ts)** - Test-Hilfsmittel
 
 ### Standards
+
 - **[RFC 6585](https://tools.ietf.org/html/rfc6585)** - 429 Status Code Definition
 - **[Rate Limiting Best Practices](https://tools.ietf.org/id/draft-ietf-httpapi-ratelimit-headers)** - IETF Draft für Rate-Limit-Header
 
@@ -1040,9 +1082,9 @@ async function getDynamicLimits(userId: string) {
 
 ## Ownership & Maintenance
 
-**Owner**: API Team (Lead: API Lead)  
-**Update-Frequenz**: Bei Änderungen an Rate-Limiting-Logik oder neuen Endpunkten  
-**Review-Prozess**: Security-Review + Performance-Testing  
+**Owner**: API Team (Lead: API Lead)
+**Update-Frequenz**: Bei Änderungen an Rate-Limiting-Logik oder neuen Endpunkten
+**Review-Prozess**: Security-Review + Performance-Testing
 **Eskalation**: Bei Rate-Limiting-Problemen → Infrastructure Team
 
 ---

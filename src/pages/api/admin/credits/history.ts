@@ -9,6 +9,15 @@ import { apiRateLimiter } from '@/lib/rate-limiter';
 import { requireAdmin } from '@/lib/auth-helpers';
 import type { AdminBindings } from '@/lib/types/admin';
 import { listActiveCreditPacksTenths } from '@/lib/kv/usage';
+import { z, formatZodError } from '@/lib/validation';
+
+const querySchema = z
+  .object({
+    userId: z.string().min(1),
+    limit: z.coerce.number().int().min(1).max(100).optional(),
+    cursor: z.string().optional(),
+  })
+  .strict();
 
 export const GET = withAuthApiMiddleware(
   async (context: APIContext) => {
@@ -25,8 +34,11 @@ export const GET = withAuthApiMiddleware(
       return createApiError('forbidden', 'Insufficient permissions');
     }
 
-    const userId = (url.searchParams.get('userId') || '').trim();
-    if (!userId) return createApiError('validation_error', 'userId is required');
+    const q = querySchema.safeParse(Object.fromEntries(url.searchParams));
+    if (!q.success) {
+      return createApiError('validation_error', 'Invalid query', { details: formatZodError(q.error) });
+    }
+    const { userId } = q.data;
 
     const packs = await listActiveCreditPacksTenths(env.KV_AI_ENHANCER, userId);
     const items = packs.map((p: { id: string; unitsTenths: number; createdAt: number; expiresAt: number }) => ({
@@ -48,3 +60,4 @@ export const PATCH = methodNotAllowed;
 export const DELETE = methodNotAllowed;
 export const OPTIONS = methodNotAllowed;
 export const HEAD = methodNotAllowed;
+

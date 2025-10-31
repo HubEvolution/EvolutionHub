@@ -1,4 +1,5 @@
-import type { APIRoute } from 'astro';
+import type { APIContext } from 'astro';
+import type { R2Bucket, KVNamespace } from '@cloudflare/workers-types';
 import {
   withApiMiddleware,
   createApiError,
@@ -9,8 +10,35 @@ import { AiImageService } from '@/lib/services/ai-image-service';
 import { FREE_LIMIT_GUEST, FREE_LIMIT_USER, type OwnerType, type Plan } from '@/config/ai-image';
 import { getEntitlementsFor } from '@/config/ai-image/entitlements';
 import { aiGenerateLimiter } from '@/lib/rate-limiter';
+import { formatZodError } from '@/lib/validation';
+import { aiImageParamsSchema } from '@/lib/validation/schemas/ai-image';
 
-function ensureGuestIdCookie(context: Parameters<APIRoute>[0]): string {
+type AiEnvBindings = {
+  R2_AI_IMAGES?: R2Bucket;
+  KV_AI_ENHANCER?: KVNamespace;
+  REPLICATE_API_TOKEN?: string;
+  ENVIRONMENT?: string;
+  AI?: { run: (model: string, payload: Record<string, unknown>) => Promise<unknown> };
+  WORKERS_AI_ENABLED?: string;
+  TESTING_WORKERS_AI_ALLOW?: string;
+  TESTING_ALLOWED_CF_MODELS?: string;
+};
+
+type MaybeTypedError = {
+  apiErrorType?:
+    | 'validation_error'
+    | 'auth_error'
+    | 'not_found'
+    | 'rate_limit'
+    | 'server_error'
+    | 'db_error'
+    | 'forbidden'
+    | 'method_not_allowed';
+  code?: string;
+  details?: Record<string, unknown>;
+};
+
+function ensureGuestIdCookie(context: APIContext): string {
   const existing = context.cookies.get('guest_id')?.value;
   if (existing) return existing;
 
@@ -28,10 +56,10 @@ function ensureGuestIdCookie(context: Parameters<APIRoute>[0]): string {
 }
 
 export const POST = withApiMiddleware(
-  async (context) => {
+  async (context: APIContext) => {
     const { locals, request } = context;
 
-    // FormData parsing
+    // FormData parsing (file handled separately; other fields validated via Zod)
     let imageFile: File | null = null;
     let modelSlug: string | null = null;
     let scale: 2 | 4 | undefined;
@@ -45,39 +73,42 @@ export const POST = withApiMiddleware(
     try {
       const form = await request.formData();
       const f = form.get('image');
-      const m = form.get('model');
-      const s = form.get('scale');
-      const fe = form.get('face_enhance');
-      const pr = form.get('prompt');
-      const npr = form.get('negative_prompt');
-      const st = form.get('strength');
-      const gd = form.get('guidance');
-      const sp = form.get('steps');
       if (f instanceof File) imageFile = f;
-      if (typeof m === 'string') modelSlug = m.trim();
-      if (typeof s === 'string') {
+
+      // Normalize optional numeric fields so that '', null or 'NaN' are treated as undefined
+      const num = (v: FormDataEntryValue | null) => {
+        if (v === null || typeof v === 'undefined') return undefined;
+        const s = typeof v === 'string' ? v.trim() : String(v);
+        if (s === '' || s.toLowerCase() === 'nan') return undefined;
         const n = Number(s);
-        if (n === 2 || n === 4) scale = n;
+        return Number.isFinite(n) ? n : undefined;
+      };
+
+      const parsed = aiImageParamsSchema.safeParse({
+        model: form.get('model'),
+        scale: num(form.get('scale')),
+        face_enhance: form.get('face_enhance'),
+        prompt: form.get('prompt'),
+        negative_prompt: form.get('negative_prompt'),
+        strength: num(form.get('strength')),
+        guidance: num(form.get('guidance')),
+        steps: num(form.get('steps')),
+      });
+      if (!parsed.success) {
+        return createApiError('validation_error', 'Invalid parameters', {
+          details: formatZodError(parsed.error),
+        });
       }
-      if (typeof fe === 'string') {
-        const v = fe.trim().toLowerCase();
-        if (v === 'true' || v === '1' || v === 'on' || v === 'yes') faceEnhance = true;
-        else if (v === 'false' || v === '0' || v === 'off' || v === 'no') faceEnhance = false;
-      }
-      if (typeof pr === 'string' && pr.trim()) prompt = pr.trim();
-      if (typeof npr === 'string' && npr.trim()) negativePrompt = npr.trim();
-      if (typeof st === 'string') {
-        const n = Number(st);
-        if (Number.isFinite(n)) strength = n;
-      }
-      if (typeof gd === 'string') {
-        const n = Number(gd);
-        if (Number.isFinite(n)) guidance = n;
-      }
-      if (typeof sp === 'string') {
-        const n = Number(sp);
-        if (Number.isInteger(n)) steps = n;
-      }
+      const data = parsed.data;
+      modelSlug = data.model;
+      // cast is safe due to schema refine
+      scale = data.scale as 2 | 4 | undefined;
+      faceEnhance = data.face_enhance;
+      prompt = data.prompt;
+      negativePrompt = data.negative_prompt;
+      strength = data.strength;
+      guidance = data.guidance;
+      steps = data.steps;
     } catch (_e) {
       return createApiError('validation_error', 'Ungültige Formulardaten');
     }
@@ -101,16 +132,16 @@ export const POST = withApiMiddleware(
     const effectiveLimit = ent.dailyBurstCap;
 
     // Init service with runtime env
-    const env = locals.runtime?.env ?? {};
+    const env = (locals.runtime?.env ?? {}) as AiEnvBindings;
     const service = new AiImageService({
       R2_AI_IMAGES: env.R2_AI_IMAGES,
       KV_AI_ENHANCER: env.KV_AI_ENHANCER,
       REPLICATE_API_TOKEN: env.REPLICATE_API_TOKEN,
       ENVIRONMENT: env.ENVIRONMENT,
-      AI: (env as any).AI,
-      WORKERS_AI_ENABLED: (env as any).WORKERS_AI_ENABLED,
-      TESTING_WORKERS_AI_ALLOW: (env as any).TESTING_WORKERS_AI_ALLOW,
-      TESTING_ALLOWED_CF_MODELS: (env as any).TESTING_ALLOWED_CF_MODELS,
+      AI: env.AI,
+      WORKERS_AI_ENABLED: env.WORKERS_AI_ENABLED,
+      TESTING_WORKERS_AI_ALLOW: env.TESTING_WORKERS_AI_ALLOW,
+      TESTING_ALLOWED_CF_MODELS: env.TESTING_ALLOWED_CF_MODELS,
     });
 
     const origin = new URL(request.url).origin;
@@ -152,24 +183,15 @@ export const POST = withApiMiddleware(
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unbekannter Fehler';
       // Prefer typed errors coming from services (e.g., provider mapping)
-      const typed = (err as any)?.apiErrorType as
-        | 'validation_error'
-        | 'auth_error'
-        | 'not_found'
-        | 'rate_limit'
-        | 'server_error'
-        | 'db_error'
-        | 'forbidden'
-        | 'method_not_allowed'
-        | undefined;
-      if (typed) {
-        return createApiError(typed, message);
+      const e = err as MaybeTypedError;
+      if (e.apiErrorType) {
+        return createApiError(e.apiErrorType, message);
       }
-      if (typeof (err as any)?.code === 'string' && (err as any).code === 'quota_exceeded') {
+      if (typeof e.code === 'string' && e.code === 'quota_exceeded') {
         return createApiError(
           'forbidden',
           'Kostenloses Nutzungslimit erreicht',
-          (err as any).details || undefined
+          e.details || undefined
         );
       }
       // Map common validation failures

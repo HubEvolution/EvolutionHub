@@ -24,10 +24,12 @@ Startet eine neue Bildverbesserung mit umfassenden Konfigurationsoptionen.
 **Content-Type:** `multipart/form-data`
 
 **Erforderliche Felder:**
+
 - `image` - Bilddatei (JPEG, PNG, WebP, max. 10MB)
 - `model` - Modell-Slug (z.B. `real-esrgan`, `gfpgan`, `sdxl-img2img`)
 
 **Optionale Felder:**
+
 - `scale` - Upscaling-Faktor: `2` | `4` (nur für ESRGAN-Modelle)
 - `face_enhance` - Gesichtsverbesserung: `true` | `false` (GFPGAN/CodeFormer)
 - `prompt` - Prompt-Text für img2img-Modelle
@@ -39,6 +41,7 @@ Startet eine neue Bildverbesserung mit umfassenden Konfigurationsoptionen.
 #### Beispiel-Requests
 
 **Einfaches 4x Upscaling:**
+
 ```bash
 curl -X POST \
   -H "X-CSRF-Token: 123" \
@@ -51,6 +54,7 @@ curl -X POST \
 ```
 
 **Gesichtsverbesserung mit Prompt:**
+
 ```bash
 curl -X POST \
   -H "X-CSRF-Token: 123" \
@@ -100,6 +104,7 @@ curl -X POST \
 #### Error Responses
 
 **Validierungsfehler (400):**
+
 ```json
 {
   "success": false,
@@ -111,6 +116,7 @@ curl -X POST \
 ```
 
 **Quota überschritten (403):**
+
 ```json
 {
   "success": false,
@@ -133,6 +139,7 @@ Liefert den aktuellen Nutzungsstand und Limits für den authentifizierten Benutz
 #### Request Headers
 
 **Erforderlich:**
+
 - `X-Usage-OwnerType: user|guest` (wird automatisch gesetzt)
 
 #### Beispiel-Request
@@ -280,6 +287,7 @@ curl -X POST "http://127.0.0.1:8787/api/ai-image/jobs/job_abc123def456/cancel" \
 **Zweck:** Bild-Upscaling mit hoher Qualität
 **Scale-Optionen:** 2x, 4x
 **Besonderheiten:**
+
 - Bewahrt Details und Texturen
 - Reduziert Artefakte
 - Optimiert für Fotos und digitale Kunst
@@ -288,6 +296,7 @@ curl -X POST "http://127.0.0.1:8787/api/ai-image/jobs/job_abc123def456/cancel" \
 
 **Zweck:** Gesichtsverbesserung und -wiederherstellung
 **Besonderheiten:**
+
 - Augen- und Gesichtsverbesserung
 - Faltenreduktion
 - Verbesserte Hauttextur
@@ -297,6 +306,7 @@ curl -X POST "http://127.0.0.1:8787/api/ai-image/jobs/job_abc123def456/cancel" \
 
 **Zweck:** Kreative Bild-zu-Bild-Transformation
 **Besonderheiten:**
+
 - Prompt-basierte Transformation
 - Negative Prompts
 - Stärke- und Guidance-Kontrolle
@@ -376,16 +386,19 @@ stateDiagram-v2
 ### Häufige Probleme
 
 **"Quota exceeded":**
+
 - Tägliches Limit erreicht
 - Warte bis zum Reset (24h) oder upgrade
 - Prüfe `usage` und `limits` in der Response
 
 **"Unsupported model":**
+
 - Model-Slug ist ungültig
 - Prüfe verfügbare Modelle bei Providern
 - Kontaktiere Support falls Modell fehlt
 
 **"File too large":**
+
 - Bilddatei > 10MB
 - Komprimiere Bild vor Upload
 - Prüfe Dateigröße vor Versand

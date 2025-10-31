@@ -1,0 +1,169 @@
+{
+  "NewsletterSubscribeRequest": {
+    "type": "object",
+    "properties": {
+      "email": {
+        "type": "string",
+        "format": "email"
+      },
+      "firstName": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 100
+      },
+      "consent": {
+        "type": "boolean",
+        "enum": [
+          true
+        ]
+      },
+      "source": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 100
+      }
+    },
+    "required": [
+      "email",
+      "consent"
+    ],
+    "description": "Subscribe to newsletter with explicit consent and optional first name and source tag."
+  },
+  "NewsletterUnsubscribeRequest": {
+    "type": "object",
+    "properties": {
+      "email": {
+        "type": "string",
+        "format": "email"
+      }
+    },
+    "required": [
+      "email"
+    ],
+    "description": "Unsubscribe a user by email address."
+  },
+  "BillingCreditsRequest": {
+    "type": "object",
+    "properties": {
+      "pack": {
+        "anyOf": [
+          {
+            "type": "number",
+            "enum": [
+              200
+            ]
+          },
+          {
+            "type": "number",
+            "enum": [
+              1000
+            ]
+          }
+        ]
+      },
+      "workspaceId": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 100
+      },
+      "returnTo": {
+        "type": "string",
+        "maxLength": 300
+      }
+    },
+    "required": [
+      "pack"
+    ],
+    "description": "Purchase a credits pack and optionally link to a workspace and return URL."
+  },
+  "BillingCancelRequest": {
+    "type": "object",
+    "properties": {
+      "subscriptionId": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "required": [
+      "subscriptionId"
+    ],
+    "description": "Cancel a subscription by its Stripe subscriptionId."
+  },
+  "TemplateSaveRequest": {
+    "type": "object",
+    "properties": {
+      "templateId": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 100
+      },
+      "name": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 200
+      },
+      "description": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 500
+      },
+      "prompt": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 5000
+      }
+    },
+    "required": [
+      "templateId",
+      "name",
+      "description",
+      "prompt"
+    ],
+    "description": "Save or update a reusable prompt template."
+  },
+  "DashboardPerformActionRequest": {
+    "type": "object",
+    "properties": {
+      "action": {
+        "type": "string",
+        "enum": [
+          "create_project",
+          "create_task",
+          "invite_member",
+          "view_docs"
+        ]
+      }
+    },
+    "required": [
+      "action"
+    ],
+    "additionalProperties": false,
+    "description": "Discriminated action to perform in the dashboard (create project/task, invite member, view docs)."
+  },
+  "InternalUserSyncRequest": {
+    "type": "object",
+    "properties": {
+      "id": {
+        "type": "string",
+        "minLength": 1
+      },
+      "email": {
+        "type": "string",
+        "format": "email"
+      },
+      "name": {
+        "type": "string",
+        "minLength": 1
+      },
+      "image": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "required": [
+      "id",
+      "email"
+    ],
+    "description": "Minimal internal user payload used to sync id/email/name/image."
+  }
+}

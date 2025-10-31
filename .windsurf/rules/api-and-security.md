@@ -1,6 +1,5 @@
 ---
 trigger: always_on
-priority: 100
 ---
 
 # API & Security Rules
@@ -19,3 +18,28 @@ priority: 100
 - AI Image Enhancer entitlements: server enforces plan-based quotas; UI reflects `allowedScales`/`canUseFaceEnhance`. Plans propagate via Stripe webhook; guests have separate KV-based limits.
 - Observability: auth callbacks include `X-Stytch-Request-Id` in responses. Capture/log this ID for provider support.
 - PKCE cookie: `pkce_verifier` is HttpOnly, SameSite=Lax, TTL 10 minutes; created by `POST /api/auth/magic/request` when `STYTCH_PKCE` is enabled and deleted by `GET /api/auth/callback` after use.
+
+## Request-Validierung (Zod) — Verbindlich
+
+- Alle Astro API-Handler müssen Request-Daten (Body/Query/Params) mit Zod validieren.
+- Validierung: `const parsed = schema.safeParse(input)`. Bei Fehler:
+  - Antwort über `createApiError('validation_error', 'Invalid request', { details: formatZodError(parsed.error) })`.
+  - Keine manuellen if/else-Checks anstelle von Zod.
+
+## Handler-Typisierung & Middleware
+
+- Handler mit `APIContext` typisieren; keine impliziten `any`.
+- API-Routen weiterhin über `withApiMiddleware` oder `withAuthApiMiddleware` (Rate-Limits, Security-Header, Same-Origin/CSRF).
+- 405 nur über `createMethodNotAllowed` (setzt Allow-Header).
+
+## OpenAPI-Kopplung (Hybrid)
+
+- Jede Schema-Änderung in Zod muss in [openapi.yaml](cci:7://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/openapi.yaml:0:0-0:0) gespiegelt werden.
+- Einfache JSON-Requests: können mit Zod→OpenAPI-Pilot verifiziert werden (siehe zod-openapi.md).
+- Komplexe Endpunkte (Multipart, Header inkl. CSRF, SSRF-Hinweise): bleiben manuell kuratiert.
+- Für strikte Objekte (`z.object().strict()`): in OpenAPI `additionalProperties: false` setzen.
+
+## Fehlerschapes (Konsistenz)
+
+- Erfolg: `createApiSuccess({ data })`.
+- Fehler: `createApiError({ type, message, details? })`; Typen z. B. `validation_error | forbidden | server_error`.

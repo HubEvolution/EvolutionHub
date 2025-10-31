@@ -1,7 +1,10 @@
+import type { APIContext } from 'astro';
 import { withApiMiddleware, createApiSuccess, createApiError } from '@/lib/api-middleware';
 import { createPendingSubscription } from './confirm';
 import { loggerFactory } from '@/server/utils/logger-factory';
 import { createRateLimiter } from '@/lib/rate-limiter';
+import { formatZodError } from '@/lib/validation';
+import { newsletterSubscribeSchema } from '@/lib/validation/schemas/newsletter';
 
 // Tracking von Newsletter-Anmeldungen erfolgt clientseitig via window.evolutionAnalytics
 
@@ -15,13 +18,6 @@ const newsletterLimiter = createRateLimiter({
   name: 'newsletterSubscribe',
 });
 
-interface NewsletterSubscriptionRequest {
-  email: string;
-  firstName?: string;
-  consent: boolean;
-  source?: string; // Track where subscription came from
-}
-
 // Note: response typing is inferred from createApiSuccess/createApiError contracts
 
 /**
@@ -29,28 +25,16 @@ interface NewsletterSubscriptionRequest {
  * Handles email validation, consent verification, and triggers email automation
  */
 export const POST = withApiMiddleware(
-  async (context) => {
+  async (context: APIContext) => {
     const { request } = context;
-    const data: NewsletterSubscriptionRequest = await request.json();
-
-    // Validate required fields
-    if (!data.email) {
-      return createApiError('validation_error', 'E-Mail-Adresse ist erforderlich');
+    const unknownBody: unknown = await request.json().catch(() => null);
+    const parsed = newsletterSubscribeSchema.safeParse(unknownBody);
+    if (!parsed.success) {
+      return createApiError('validation_error', 'Invalid JSON body', {
+        details: formatZodError(parsed.error),
+      });
     }
-
-    // Email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(data.email)) {
-      return createApiError('validation_error', 'Bitte geben Sie eine gültige E-Mail-Adresse ein');
-    }
-
-    // Consent validation (GDPR compliance)
-    if (!data.consent) {
-      return createApiError(
-        'validation_error',
-        'Zustimmung zur Datenschutzerklärung ist erforderlich'
-      );
-    }
+    const data = parsed.data;
 
     // Create pending subscription with secure token
     const confirmationToken = createPendingSubscription(data.email, data.source || 'website');

@@ -47,7 +47,9 @@
     "lint:md": "markdownlint-cli2 \"docs/**/*.md\"",
     "lint:md:fix": "markdownlint-cli2 --fix \"docs/**/*.md\"",
     "openapi:validate": "npx swagger-cli validate openapi.yaml",
-    "openapi:redoc": "npx redoc-cli build openapi.yaml -o api-docs.html",
+    "openapi:redoc": "npx @redocly/cli build-docs openapi.yaml -o api-docs.html",
+    "openapi:zod:pilot": "tsx scripts/zod-openapi-pilot.ts",
+    "openapi:zod:diff": "tsx scripts/zod-openapi-diff.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "typecheck:src": "tsc -p tsconfig.src.json --noEmit",
     "db:generate": "drizzle-kit generate",
@@ -143,6 +145,8 @@
     "@mswjs/interceptors": "^0.39.6",
     "@playwright/test": "^1.54.2",
     "@redocly/cli": "^1.27.2",
+    "@asteasolutions/zod-to-openapi": "^7.1.0",
+    "yaml": "^2.6.0",
     "@tailwindcss/aspect-ratio": "^0.4.2",
     "@tailwindcss/forms": "^0.5.10",
     "@tailwindcss/typography": "^0.5.16",
@@ -189,7 +193,6 @@
     "typescript-eslint": "8.38.0",
     "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^3.2.4",
-    "wrangler": "^4.42.2",
-    "yaml": "^2.6.0"
+    "wrangler": "^4.42.2"
   }
 }

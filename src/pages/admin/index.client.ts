@@ -48,6 +48,31 @@ async function copy(text: string) {
   } catch {}
 }
 
+// Date formatting (absolute + relative in de-DE)
+function formatLastSeen(ms: number): string {
+  try {
+    const d = new Date(Number(ms));
+    const abs = new Intl.DateTimeFormat('de-DE', {
+      dateStyle: 'medium',
+      timeStyle: 'short',
+    }).format(d);
+    const sec = Math.round((Date.now() - d.getTime()) / 1000);
+    const rtf = new Intl.RelativeTimeFormat('de-DE', { numeric: 'auto' });
+    let rel = '';
+    if (isFinite(sec)) {
+      if (Math.abs(sec) < 60) rel = rtf.format(-sec, 'second');
+      else if (Math.abs(sec) < 3600) rel = rtf.format(-Math.round(sec / 60), 'minute');
+      else if (Math.abs(sec) < 86400) rel = rtf.format(-Math.round(sec / 3600), 'hour');
+      else if (Math.abs(sec) < 2592000) rel = rtf.format(-Math.round(sec / 86400), 'day');
+      else if (Math.abs(sec) < 31536000) rel = rtf.format(-Math.round(sec / 2592000), 'month');
+      else rel = rtf.format(-Math.round(sec / 31536000), 'year');
+    }
+    return rel ? `${abs} (${rel})` : abs;
+  } catch {
+    try { return new Date(ms).toLocaleString(); } catch { return '—'; }
+  }
+}
+
 // Types for API responses we use
 interface ApiSuccess<T> { success: true; data: T }
 interface ApiError { success?: false; error?: { message?: string } }
@@ -415,7 +440,7 @@ function start() {
       if (lrSub) lrSub.textContent = d.subscription ? `${d.subscription.status} (Ende: ${d.subscription.currentPeriodEnd ? new Date(d.subscription.currentPeriodEnd * 1000).toLocaleString() : '—'})` : '—';
       const lrLastIp = q('lr-last-ip'); const lrLastSeen = q('lr-last-seen');
       if (lrLastIp) lrLastIp.textContent = d.lastIp || '—';
-      if (lrLastSeen) lrLastSeen.textContent = d.lastSeenAt ? new Date(d.lastSeenAt).toLocaleString() : '—';
+      if (lrLastSeen) lrLastSeen.textContent = d.lastSeenAt ? formatLastSeen(d.lastSeenAt) : '—';
       show(lookupResult);
       // Prefill grant email
       const ge = q<HTMLInputElement>('grant-email'); if (ge && !ge.value) ge.value = d.user.email;
@@ -440,15 +465,20 @@ function start() {
   const lrIpGeoOut = q('lr-ip-geo-out');
   lrIpGeoBtn?.addEventListener('click', async () => {
     try {
-      const ip = q('lr-last-ip')?.textContent || '';
-      if (!ip) return;
-      const res = await fetch(`/api/admin/ip-geo?ip=${encodeURIComponent(ip)}`, { credentials: 'include', cache: 'no-store' });
+      let ip = (q('lr-last-ip')?.textContent || '').trim();
+      if (!ip || ip === '—') ip = '';
+      const isIpV4 = !!ip && /^(?:\d{1,3}\.){3}\d{1,3}$/.test(ip);
+      const isIpV6 = !!ip && ip.includes(':');
+      const url = ip && (isIpV4 || isIpV6) ? `/api/admin/ip-geo?ip=${encodeURIComponent(ip)}` : '/api/admin/ip-geo';
+      const res = await fetch(url, { credentials: 'include', cache: 'no-store' });
       const j = (await res.json()) as ApiResponse<{ city?: string; country?: string; display?: string }>;
       if (!res.ok || !isApiSuccess(j)) { if (lrIpGeoOut) lrIpGeoOut.textContent = '—'; return; }
       const city = j.data.city || '';
       const country = j.data.country || '';
-      const display = j.data.display || ((city || country) ? `${city ? city + ', ' : ''}${country}` : '—');
-      if (lrIpGeoOut) lrIpGeoOut.textContent = display;
+      const display = j.data.display || ((city || country) ? `${city ? city + ', ' : ''}${country}` : '');
+      const ipStr = (j as any)?.data?.ip || '';
+      const finalText = display ? (ipStr ? `${display} (${ipStr})` : display) : (ipStr || '—');
+      if (lrIpGeoOut) lrIpGeoOut.textContent = finalText;
     } catch {
       if (lrIpGeoOut) lrIpGeoOut.textContent = '—';
     }
@@ -456,8 +486,10 @@ function start() {
 
   // Grant
   const grantBtn = q<HTMLButtonElement>('grant-btn');
+  const grantDeduct = q<HTMLButtonElement>('grant-deduct');
   const grantEmail = q<HTMLInputElement>('grant-email');
   const grantAmount = q<HTMLInputElement>('grant-amount');
+  const grantStrict = q<HTMLInputElement>('grant-strict');
   const grantSuccess = q('grant-success');
   const grantError = q('grant-error');
   grantBtn?.addEventListener('click', async (e) => {
@@ -480,6 +512,34 @@ function start() {
       if (grantSuccess) { grantSuccess.textContent = `OK: ${d.granted} Credits gebucht. Neue Balance: ${d.balance}. Pack: ${d.packId}`; show(grantSuccess); }
     } catch {
       if (grantError) { grantError.textContent = 'Gutschrift fehlgeschlagen'; show(grantError); }
+    }
+  });
+
+  grantDeduct?.addEventListener('click', async (e) => {
+    e?.preventDefault?.();
+    hide(grantSuccess); hide(grantError);
+    const email = (grantEmail?.value || '').trim().toLowerCase();
+    const amount = Math.max(1, parseInt(grantAmount?.value || '1000', 10) || 1000);
+    if (!email) { if (grantError) { grantError.textContent = 'E‑Mail erforderlich'; show(grantError); } return; }
+    try {
+      const csrf = ensureCsrfToken();
+      const res = await fetch('/api/admin/credits/deduct', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
+        body: JSON.stringify({ email, amount, strict: grantStrict ? !!grantStrict.checked : true }),
+      });
+      const json = (await res.json()) as ApiResponse<{ deducted: number; balance: number }>;
+      if (!res.ok || !isApiSuccess(json)) { if (grantError) { grantError.textContent = (json as ApiError)?.error?.message || 'Abziehen fehlgeschlagen'; show(grantError); } return; }
+      const d = json.data || ({} as { deducted: number; balance: number });
+      if (grantSuccess) { grantSuccess.textContent = `OK: ${d.deducted} Credits abgezogen. Neue Balance: ${d.balance}.`; show(grantSuccess); }
+      const uidInput = q<HTMLInputElement>('cu-userid');
+      if (uidInput && uidInput.value) {
+        await loadCreditsBalanceForUser();
+        await loadCreditPacksForUser();
+      }
+    } catch {
+      if (grantError) { grantError.textContent = 'Abziehen fehlgeschlagen'; show(grantError); }
     }
   });
 
