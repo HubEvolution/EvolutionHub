@@ -1,6 +1,5 @@
 ---
 trigger: always_on
-priority: 60
 ---
 
 # Content Rules
@@ -20,10 +19,6 @@ priority: 60
 ## Security & Privacy
 
 - Ensure no secrets/PII in content.
-
-## Related Codemap
-
-- `/.windsurf/codemaps/EH __ Content __ Codemap v1.md`
 
 ## Documentation Reference
 

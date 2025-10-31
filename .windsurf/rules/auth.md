@@ -1,6 +1,5 @@
 ---
 trigger: always_on
-priority: 60
 ---
 
 # Auth & OAuth Rules
@@ -26,10 +25,6 @@ priority: 60
 - Do not gate `/r2-ai/**` via auth.
 - PKCE (feature-flagged): When `STYTCH_PKCE` is enabled, `POST /api/auth/magic/request` sets a short‑lived HttpOnly cookie `pkce_verifier` (SameSite=Lax, TTL 10 min) and includes a `pkce_code_challenge` in the Stytch request. `GET /api/auth/callback` must present `pkce_code_verifier`; the cookie is deleted after consumption. Disable PKCE for mobile webviews to avoid context-switch failures.
 - Observability: Auth callbacks (Magic Link and OAuth) set `X-Stytch-Request-Id` on responses to aid provider support correlation.
-
-## Related Codemap
-
-- `/.windsurf/codemaps/EH __ Auth + OAuth __ Codemap v1.md`
 
 ## Documentation Reference
 

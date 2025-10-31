@@ -1,23 +1,33 @@
----
-trigger: always_on
----
-
 # Project Structure Rules
 
-- Treat `src/` as the runtime root: UI lives in `src/components`, `src/pages`, and `src/layouts`, while shared logic sits in `src/lib`, `src/config`, and `src/utils` (`AGENTS.md`).
-- Server handlers are Astro API routes inside `src/pages/api/**`; R2 proxy routes reside in `src/pages/r2/**` and `src/pages/r2-ai/**` and must stay ungated by middleware (`AGENTS.md`, `src/middleware.ts`).
-- Persist content under `src/content/` and locales in `src/locales/`; styles belong in `src/styles/` (per `AGENTS.md`).
-- Automation scripts and migrations continue under `scripts/` and `migrations/` (`AGENTS.md`).
-- Keep Playwright suites in `tests/e2e/specs` (root config) and `test-suite-v2/src/e2e` (v2); Vitest specs sit beside sources (`src/**/*.{test,spec}`) and under `tests/unit`, `tests/integration` (`vitest.config.ts`).
-- Built assets go to `dist/` (worker output) and static files to `public/`; Wrangler serves `dist` with `.assetsignore` excluding `_worker.js` (`package.json` `build:worker`, `wrangler.toml`).
-- Worker build details: `ASTRO_DEPLOY_TARGET=worker` copies static assets to `dist/assets` and writes `.assetsignore` to exclude `_worker.js`; Wrangler serves from `dist` (see `package.json` `build:worker` and `wrangler.toml [assets]`).
+## Zweck
 
-## Validierungs-Schemas & Artefakte
+Klare Struktur für Laufzeitcode, Assets und Tests; eindeutige Pfade für Server/Proxy‑Routen.
 
-- Zod-Schemas: `src/lib/validation/schemas/*`
-- Tests: `tests/unit/validation/*`
-- OpenAPI-Spezifikation: [openapi.yaml](cci:7://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/openapi.yaml:0:0-0:0) im Projekt-Root; bleibt die maßgebliche Spezifikation.
-- Zod→OpenAPI-Pilot-Artefakte: `reports/`
-  - `zod-openapi-pilot.components.json`
-  - `zod-openapi-diff.json`
-- Keine automatischen Overwrites der [openapi.yaml](cci:7://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/openapi.yaml:0:0-0:0) durch Skripte. Abweichungen bewusst manuell angleichen.
+## Muss
+
+- `src/` ist Runtime‑Root.
+  - UI: `src/components`, `src/pages`, `src/layouts`.
+  - Shared: `src/lib`, `src/config`, `src/utils`.
+- Server‑Handler: `src/pages/api/**`.
+- R2‑Proxy: `src/pages/r2/**` und `src/pages/r2-ai/**` (müssen öffentlich/ungated bleiben).
+- Inhalte unter `src/content/`, Locales `src/locales/`, Styles `src/styles/`.
+- Tests: Vitest neben Quellen (`src/**/*.{test,spec}`) oder unter `tests/unit`, `tests/integration`.
+- E2E: `tests/e2e/specs` (root) und `test-suite-v2/src/e2e` (v2).
+- Build‑Artefakte: `dist/`; Wrangler dient aus `dist` und ignoriert `_worker.js` via `.assetsignore`.
+- Aliase: `@/*` verwenden (kein `~/*`).
+
+## Sollte
+
+- Worker‑Build: `ASTRO_DEPLOY_TARGET=worker` kopiert Assets nach `dist/assets` und erzeugt `.assetsignore`.
+
+## Code‑Anker
+
+- `astro.config.mjs`
+- `wrangler.toml`
+- `package.json` (build scripts)
+- `tsconfig.json`
+
+## Changelog
+
+- 2025‑10‑31: Struktur und R2‑Routen präzisiert; Aliase bestätigt.
