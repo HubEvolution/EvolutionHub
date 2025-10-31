@@ -1,25 +1,43 @@
----
-trigger: always_on
----
-
 # Tooling & Style Rules
 
-- Use the strict TypeScript configuration from `tsconfig.json`: ESNext modules, React JSX runtime, and aliases like `@/*`, `@api/*`, `@components/*`.
-- Respect compiler gates `strict`, `noUnusedLocals`, `noUnusedParameters`, and `preserveSymlinks`; the project compiles in bundler resolution mode (`tsconfig.json`).
-- Follow ESLint policies from `eslint.config.js`: forbid `~/*` imports, warn on `any` and `_`-prefixed unused vars only, allow intentional empty `catch`, and enforce React hook rules.
-- Honor the targeted `no-console` rollout for specific API files listed at the bottom of `eslint.config.js`; do not expand without deliberate config changes.
-- Format code via Prettier (`.prettierrc.json`) with 2-space indent, single quotes, 100 char width, Astro plugin, and `semi: true`.
-- Keep components and stores in PascalCase filenames and shared utilities camelCase as codified in `AGENTS.md`.
-- Ensure presence of `.prettierignore`, `.markdownlint.jsonc`, `.lintstagedrc.json`, and `eslint.config.dev.js`.
+## Zweck
+
+Konsistente Tooling‑Konfiguration und Typ‑Strenge für verlässliches Refactoring und CI‑Stabilität.
+
+## Muss
+
+- TypeScript strict per `tsconfig.json` (ESNext, JSX runtime, Aliase `@/*`).
+- ESLint: `no-explicit-any=error` in `src/**`; in `tests/**` bleibt es Warnung.
+- Prettier: 2 spaces, single quotes, width 100, `semi: true`, Astro‑Plugin.
+- `noUnusedLocals`/`noUnusedParameters` respektieren; Bundler‑Modulauflösung aktiv.
+
+## Sollte
+
+- React Hooks Rules einhalten; `no-console` nur dort, wo gezielt ausgerollt.
+- Intentional empty `catch` nur mit Kommentar.
+- Naming: Components/Stores PascalCase; Utilities camelCase.
 
 ## Validierungsstil
 
-- Keine manuelle Feldprüfung per if/else; stattdessen immer Zod-Schemas aus `src/lib/validation/schemas/*`.
-- In Routen/Handlern `z` und `formatZodError` aus `@/lib/validation` importieren (gemeinsamer Aggregator).
-- Handler immer mit `APIContext` annotieren.
-- Keine Generics auf untypisierten DB-Calls (z. B. nicht `.first<T>()` bei untypisierten Quellen).
+- Keine if/else‑Feldprüfung; stattdessen Zod‑Schemas aus `src/lib/validation/schemas/*`.
+- In Routen: `z` und `formatZodError` aus `@/lib/validation` importieren (Aggregator).
+- Keine Generics auf untypisierten DB‑Calls (z. B. nicht `.first<T>()` ohne Typquelle).
 
-## Schema-Beschreibung (optional, empfohlen)
+## Artefakte
 
-- Einfache JSON-Schemas können via `.openapi({ description, example })` angereichert werden (kein Runtime-Impact).
-- Ziel: bessere generierte OpenAPI-Components bei Beibehaltung der Hybrid-Strategie.
+- `.prettierignore`, `.markdownlint.jsonc`, `.lintstagedrc.json`, `eslint.config.dev.js` vorhanden halten.
+
+## Code‑Anker
+
+- `eslint.config.js`
+- `.prettierrc.json`
+- `tsconfig.json`
+
+## CI/Gates
+
+- `npm run lint`
+- `npm run format:check`
+
+## Changelog
+
+- 2025‑10‑31: `no-explicit-any=error` in `src/**` festgelegt; Tests warnend.

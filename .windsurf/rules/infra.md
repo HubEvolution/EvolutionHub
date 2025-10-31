@@ -1,35 +1,32 @@
----
-trigger: always_on
-priority: 60
----
-
 # Infra (Workers/Router/Bindings) Rules
 
-## Scope
+## Zweck
 
-- Worker runtime, middleware, bindings, build/deploy configuration.
+Saubere Worker‑Konfiguration, Bindings und Middleware‑Verhalten auf Edge‑Ebene.
 
-## Dependencies
+## Muss
 
-- `astro.config.mjs`, `wrangler.toml`, `src/middleware.ts`
+- `wrangler.toml` pro Environment vollständige Bindings (D1/KV/R2; optional `[ai] binding = "AI"`).
+- Middleware setzt Security‑Header; `/r2-ai/**` bleibt öffentlich (nicht gate’n).
+- CSRF/Origin‑Regeln aus API & Security gelten auch für Redirect‑Endpunkte (via `withRedirectMiddleware`).
+- Assets‑Serving aus `dist/`; `.assetsignore` schließt `_worker.js` aus.
 
-## Constraints
+## Sollte
 
-- Respect `.windsurf/rules/project-structure.md` for assets and build outputs.
-- Edge Rulesets: use workflow `.windsurf/workflows/cloudflare_rulesets_validate_update.json` (docs: `.windsurf/workflows/validate-update-cloudflare-rulesetsJSON-safely.md`).
+- DEV‑CSP in `astro.config.mjs` kompatibel zur Middleware‑CSP halten; PROD CSP nonce‑basiert ausschließlich, wenn `ENVIRONMENT === 'production'`.
+- Cloudflare Rulesets/Cache‑Bypass Workflows dokumentieren und versionieren.
 
-## Security & Privacy
+## Code‑Anker
 
-- Security headers via middleware; ensure `/r2-ai/**` remains public per policy.
-- CSRF/origin rules apply to APIs (see API & Security rules).
+- `astro.config.mjs`
+- `wrangler.toml`
+- `src/middleware.ts`
 
-## Related Codemap
+## Referenzen
 
-- `/.windsurf/codemaps/EH __ Infra (Workers-Router-Bindings) __ Codemap v1.md`
+- Global Rules (Security‑Header/CSP)
+- Project Structure Rules (Assets/Build)
 
-## Documentation Reference
+## Changelog
 
-- `.windsurf/rules/api-and-security.md`
-- `.windsurf/rules/project-structure.md`
-- `docs/architecture/system-overview.md`
-- `docs/archive/migration_pages_zu_worker.md`
+- 2025‑10‑31: Bindings + Assets‑Serving konkretisiert; `/r2-ai/**` öffentlich bekräftigt.

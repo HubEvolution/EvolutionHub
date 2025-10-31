@@ -1,45 +1,62 @@
----
-trigger: always_on
----
-
 # API & Security Rules
 
-- Wrap Astro API handlers with `withApiMiddleware`/`withAuthApiMiddleware` from `src/lib/api-middleware.ts` to inherit security headers, logging, and default `apiRateLimiter` (30 req/min) unless a different preset from `src/lib/rate-limiter.ts` is required.
-- Return JSON via `createApiSuccess({ data })` for success and `createApiError({ type, message, details? })` for errors to keep response shapes consistent (`src/lib/api-middleware.ts`).
-- Always supply 405 responses through `createMethodNotAllowed` so the `Allow` header is set (`src/lib/api-middleware.ts`).
-- Unsafe methods (POST/PUT/PATCH/DELETE) must satisfy same-origin checks; enable double-submit validation by passing `enforceCsrfToken: true` when endpoints rely on the `csrf_token` cookie (`src/lib/api-middleware.ts`, `src/lib/security/csrf.ts`).
+## Zweck
 
-- Allowed origin env variables: same-origin checks accept allowlists from `ALLOWED_ORIGINS`, `ALLOW_ORIGINS`, `APP_ORIGIN`, or `PUBLIC_APP_ORIGIN` (comma-separated), in addition to the request origin and any `allowedOrigins` passed to middleware (`src/lib/api-middleware.ts:120-151`).
-- Keep `/r2-ai/**` routes publicly accessible and exempt from overlays or auth, per middleware safeguards (`src/middleware.ts`).
-- Preserve security headers established by middleware and API helpers (HSTS preload, X-Frame-Options DENY, Permissions-Policy camera/microphone/geolocation empty) (`src/lib/api-middleware.ts`).
+Kurze, durchsetzbare Baseline für API‑Middleware, Sicherheitsheader, CSRF/Origin und JSON‑Fehlerformen.
 
-- Redirect endpoints should use `withRedirectMiddleware` to apply rate limiting, CSRF/Origin checks, and security headers without forcing JSON shapes (e.g., OAuth callback handlers) (`src/lib/api-middleware.ts:505-558`, example import in `src/pages/api/auth/oauth/[provider]/callback.ts`).
-- Observability: client logs are batched to `src/pages/api/debug/client-log.ts` (headers redacted, rate-limited). Enable the Debug Panel via `PUBLIC_ENABLE_DEBUG_PANEL`; see `src/components/ui/DebugPanel.tsx`.
-- AI Image Enhancer entitlements: server enforces plan-based quotas; UI reflects `allowedScales`/`canUseFaceEnhance`. Plans propagate via Stripe webhook; guests have separate KV-based limits.
-- Observability: auth callbacks include `X-Stytch-Request-Id` in responses. Capture/log this ID for provider support.
-- PKCE cookie: `pkce_verifier` is HttpOnly, SameSite=Lax, TTL 10 minutes; created by `POST /api/auth/magic/request` when `STYTCH_PKCE` is enabled and deleted by `GET /api/auth/callback` after use.
+## Muss
 
-## Request-Validierung (Zod) — Verbindlich
+- Wrap Astro API‑Handler mit `withApiMiddleware` oder `withAuthApiMiddleware` aus `src/lib/api-middleware.ts`.
+- Erfolgs-/Fehlerrückgaben einheitlich:
+  - Erfolg: `createApiSuccess(data)`.
+  - Fehler: `createApiError({ type, message, details? })`.
+- 405 nur über `createMethodNotAllowed('GET, POST')` (setzt `Allow`).
+- Unsafe Methods (POST/PUT/PATCH/DELETE): Same‑Origin Pflicht; bei sensiblen Endpunkten Double‑Submit CSRF aktivieren (`enforceCsrfToken: true`, Header `X-CSRF-Token` == Cookie `csrf_token`).
+- Sicherheitsheader auf API‑Responses:
+  - `Strict-Transport-Security: max-age=31536000; includeSubDomains; preload`
+  - `X-Frame-Options: DENY`
+  - `X-Content-Type-Options: nosniff`
+  - `Referrer-Policy: strict-origin-when-cross-origin`
+  - `Permissions-Policy: camera=(), microphone=(), geolocation=()`
+  - Hinweis: CSP wird in `src/middleware.ts` gesetzt (HTML). API‑JSON benötigt keine CSP.
+- `/r2-ai/**` bleibt öffentlich und ungated.
+- Allowed‑Origin Allowlist per Env zusätzlich zur Request‑Origin zulässig: `ALLOWED_ORIGINS`, `ALLOW_ORIGINS`, `APP_ORIGIN`, `PUBLIC_APP_ORIGIN` (Komma‑separiert).
 
-- Alle Astro API-Handler müssen Request-Daten (Body/Query/Params) mit Zod validieren.
-- Validierung: `const parsed = schema.safeParse(input)`. Bei Fehler:
-  - Antwort über `createApiError('validation_error', 'Invalid request', { details: formatZodError(parsed.error) })`.
-  - Keine manuellen if/else-Checks anstelle von Zod.
+## Sollte
 
-## Handler-Typisierung & Middleware
+- Unauthorized (401) im einheitlichen Schema: `createApiError('auth_error', 'Unauthorized')`.
+- `withRedirectMiddleware` für Redirect‑Flows (z. B. OAuth Callback) nutzen, um Rate‑Limit + CSRF ohne JSON‑Zwang anzuwenden.
+- Legacy: `X-XSS-Protection` wird von modernen Browsern ignoriert – nur dokumentarisch erwähnen, nicht erforderlich.
 
-- Handler mit `APIContext` typisieren; keine impliziten `any`.
-- API-Routen weiterhin über `withApiMiddleware` oder `withAuthApiMiddleware` (Rate-Limits, Security-Header, Same-Origin/CSRF).
-- 405 nur über `createMethodNotAllowed` (setzt Allow-Header).
+## Nicht
 
-## OpenAPI-Kopplung (Hybrid)
+- Keine manuellen 405‑Antworten ohne Helper.
+- Keine manuellen if/else‑Validierungen statt Zod.
 
-- Jede Schema-Änderung in Zod muss in [openapi.yaml](cci:7://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/openapi.yaml:0:0-0:0) gespiegelt werden.
-- Einfache JSON-Requests: können mit Zod→OpenAPI-Pilot verifiziert werden (siehe zod-openapi.md).
-- Komplexe Endpunkte (Multipart, Header inkl. CSRF, SSRF-Hinweise): bleiben manuell kuratiert.
-- Für strikte Objekte (`z.object().strict()`): in OpenAPI `additionalProperties: false` setzen.
+## Request‑Validierung (Zod)
 
-## Fehlerschapes (Konsistenz)
+- Eingaben (Body/Query/Params) mit Zod validieren: `const parsed = schema.safeParse(input)`.
+- Bei Fehler: `createApiError('validation_error', 'Invalid request', { details: formatZodError(parsed.error) })`.
+- Handler stets mit `APIContext` typisieren; keine impliziten `any`.
 
-- Erfolg: `createApiSuccess({ data })`.
-- Fehler: `createApiError({ type, message, details? })`; Typen z. B. `validation_error | forbidden | server_error`.
+## Observability
+
+- Client‑Logs: `/api/debug/client-log` (redacted, rate‑limited). Debug Panel via `PUBLIC_ENABLE_DEBUG_PANEL`.
+- Auth‑Callbacks (Magic Link/OAuth) setzen `X-Stytch-Request-Id` in Responses.
+
+## Code‑Anker
+
+- `src/lib/api-middleware.ts`
+- `src/middleware.ts`
+- `src/lib/validation/**`
+- `src/pages/r2-ai/**`
+
+## CI/Gates
+
+- `npm run openapi:validate`
+- `npm run test:integration` (API)
+- `npm run lint`
+
+## Changelog
+
+- 2025‑10‑31: Ausrichtung an aktueller Middleware, Headern, CSRF/Origin, JSON‑Shapes.
