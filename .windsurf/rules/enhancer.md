@@ -1,35 +1,56 @@
----
-trigger: always_on
-priority: 60
----
+# AI Image Enhancer Rules
 
-# Image Enhancer Rules
+## Zweck
 
-## Scope
+Klarer Rahmen für Hybrid‑Provider (Workers AI + Replicate), Env‑Gating, Quoten/Entitlements, public R2 und Fehler‑Mapping.
 
-- UI Enhancer pages and islands, ai-image APIs, jobs, R2 proxy.
+## Muss
 
-## Dependencies
+- Provider/Env‑Gating
+  - Testing/Local: Replicate serverseitig verboten (403); UI blendet Replicate aus.
+  - Staging/Prod: Beide Provider erlaubt; Workers AI via `[ai] binding = "AI"`.
+- R2‑Ablage: Ergebnisbilder werden in R2 gespeichert; `/r2-ai/**` ist öffentlich und darf nicht gegatet werden.
+- Quoten/Entitlements: Server erzwingt Limits (Plan/Gast); UI zeigt nur an (kein Enforce in UI).
+- Rate‑Limits: `aiGenerateLimiter` (15/min) und `aiJobsLimiter` (10/min) nutzen.
+- Validierung: Eingaben strikt über Zod; in Testing Parameterkappen (z. B. strength/guidance/steps) geltend machen.
+- Fehlerschapes: Provider‑Fehler auf `validation_error | forbidden | server_error` mappen.
 
-- `src/lib/services/ai-image-service.ts`, `src/lib/services/ai-jobs-service.ts`
+## Sollte
+
+- UI‑Gating: Controls abhängig von Modell‑Flags (`supportsScale`, `supportsFaceEnhance`) ein/ausblenden.
+- Telemetrie/Observability: Client Events sparsam, serverseitige Logs mit Redaction.
+
+## Nicht
+
+- Keine Provider‑Secrets im Client.
+- Keine Serverkosten in Testing/Local (Replicate hart geblockt).
+
+## Checkliste
+
+- [ ] Testing: Replicate 403 serverseitig; UI zeigt nur Workers AI Modelle.
+- [ ] R2‑Schreiben ok; `/r2-ai/**` öffentlich abrufbar.
+- [ ] Rate‑Limits aktiv; 429 enthält `Retry-After`.
+- [ ] Zod‑Validierung aktiv; Param‑Caps in Testing greifen.
+- [ ] Fehler‑Mapping korrekt (4xx→validation/forbidden, 5xx→server_error).
+
+## Code‑Anker
+
+- `src/lib/services/ai-image-service.ts`
 - `src/config/ai-image.ts`, `src/config/ai-image/entitlements.ts`
+- `src/pages/api/ai-image/**`
+- `src/pages/r2-ai/**`
 
-## Constraints
+## CI/Gates
 
-- Apply `.windsurf/rules/tooling-and-style.md`.
-- Testing: unit for hooks/components; E2E smoke per CI; see `.windsurf/rules/testing-and-ci.md`.
+- `npm run test:integration` (Enhancer APIs)
+- `npm run test:e2e` (Gating/Flows; ggf. `--workers=1`)
+- `npm run openapi:validate`
 
-## Security & Privacy
+## Referenzen
 
-- Server enforces quotas/entitlements; UI only mirrors.
-- Provider error mapping to `validation_error|forbidden|server_error`.
+- Global Rules, API & Security Rules
+- `.windsurf/rules/enhancer.md`
 
-## Related Codemap
+## Changelog
 
-- `/.windsurf/codemaps/EH __ Image Enhancer __ Codemap v1.md`
-
-## Documentation Reference
-
-- `.windsurf/rules/api-and-security.md`
-- `docs/architecture/ai-image-enhancer.md`
-- `docs/development/ci-cd.md`
+- 2025‑10‑31: Hybrid‑Gating/Quoten/R2/Rate‑Limits/Fehler‑Mapping festgelegt.

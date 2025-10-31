@@ -1,34 +1,54 @@
----
-trigger: always_on
-priority: 60
----
-
 # Prompt Enhancer Rules
 
-## Scope
+## Zweck
 
-- Prompt UI and `POST /api/prompt-enhance` backend.
+Konsistente und sichere Prompt‑Enhance‑API: strikte Validierung, Same‑Origin/CSRF, Quoten/Rate‑Limits, klare Fehlerformen.
 
-## Dependencies
+## Muss
 
-- `src/lib/services/prompt-enhancer-service.ts`
-- `src/config/prompt-enhancer.ts`
+- Middleware & Sicherheit
+  - Unsafe Methods: Same‑Origin Pflicht; Double‑Submit CSRF für Endpunkte mit `csrf_token`.
+  - Einheitliche JSON‑Antworten: `createApiSuccess` / `createApiError(type, message, details?)`.
+- Validierung
+  - Zod‑Schemas nutzen (z. B. `src/lib/validation/schemas/prompt.ts`), `safeParse` + `formatZodError` bei Fehlern.
+- Limits
+  - Rate‑Limit anwenden (Preset aus `src/lib/rate-limiter.ts`, z. B. `apiRateLimiter` oder strenger bei Bedarf).
+  - Quoten serverseitig prüfen (kein UI‑Enforce).
 
-## Constraints
+## Sollte
 
-- Style/Tooling rules apply.
-- Testing expectations per `.windsurf/rules/testing-and-ci.md`.
+- Inputs begrenzen (Länge/Token‑Budget) und explizite Verbote (PII/unsafe) in Validation aufnehmen.
+- Observability: minimale, redaktierte Logs; keine Prompts im Klartext persistieren.
 
-## Security & Privacy
+## Nicht
 
-- Same-origin, CSRF for POST; rate limiting.
+- Keine manuellen if/else‑Validierungen statt Zod.
+- Keine Provider‑Keys im Client.
 
-## Related Codemap
+## Checkliste
 
-- `/.windsurf/codemaps/EH __ Prompt Enhancer __ Codemap v1.md`
+- [ ] Same‑Origin/CSRF korrekt für POST?
+- [ ] Zod‑Schema aktiv; Fehler → `validation_error` mit Details.
+- [ ] Rate‑Limit aktiv; 429 mit `Retry-After`.
+- [ ] Quotenprüfung serverseitig vorhanden (falls Scope verlangt).
 
-## Documentation Reference
+## Code‑Anker
 
-- `.windsurf/rules/api-and-security.md`
-- `docs/development/testing-guidelines.md`
-- `docs/frontend/ui-components.md`
+- `src/lib/validation/schemas/prompt.ts`
+- `src/lib/rate-limiter.ts`
+- OpenAPI: `openapi.yaml`
+
+## CI/Gates
+
+- `npm run openapi:validate`
+- `npm run test:integration` (API)
+- `npm run lint`
+
+## Referenzen
+
+- Global Rules; API & Security Rules; Zod↔OpenAPI.
+- `.windsurf/rules/prompt.md`
+
+## Changelog
+
+- 2025‑10‑31: Baseline für Middleware/Validierung/Rate‑Limits/Quoten ergänzt.
