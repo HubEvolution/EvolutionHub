@@ -17,6 +17,13 @@ const files = [
   'infra.md',
   'testing-and-ci.md',
   'zod-openapi.md',
+  // Phase 2 feature rules
+  'auth.md',
+  'enhancer.md',
+  'prompt.md',
+  'scraper.md',
+  'transcriptor.md',
+  'pricing.md',
 ];
 
 async function main() {
