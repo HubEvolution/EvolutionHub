@@ -255,9 +255,13 @@ paths:
     post:
       summary: Set user plan (admin override)
       description: |
-        Manually sets a user's plan by email or userId.
+        Orchestrates Stripe subscription changes for a user (identified by email or userId).
         Requires admin and is CSRF protected.
-        Note: Active Stripe subscription events may later override the plan via webhook.
+        Behavior:
+        - For paid plans (pro/premium/enterprise): updates existing subscription item to the mapped price or creates a new subscription.
+        - For free: cancels the subscription. Default is to cancel at period end; immediate cancel can be requested explicitly.
+        - `interval` selects the price table (monthly|annual). `prorationBehavior` controls proration on updates (create_prorations|none).
+        Source of truth: Stripe webhook (`/api/billing/stripe-webhook`) eventually sets `users.plan` based on subscription status.
       x-source: src/pages/api/admin/users/set-plan.ts
       operationId: postAdminUsersSetPlan
       parameters:
@@ -2767,6 +2771,20 @@ components:
           reason:
             type: string
             maxLength: 500
+          interval:
+            type: string
+            description: Select price table for paid plans
+            enum: [monthly, annual]
+          prorationBehavior:
+            type: string
+            description: Stripe proration behavior when updating an existing subscription
+            enum: [create_prorations, none]
+          cancelAtPeriodEnd:
+            type: boolean
+            description: When downgrading to free, schedule cancel at period end (default behavior)
+          cancelImmediately:
+            type: boolean
+            description: When downgrading to free, cancel immediately instead of scheduling end-of-period
         oneOf:
           - required: [email, plan]
           - required: [userId, plan]

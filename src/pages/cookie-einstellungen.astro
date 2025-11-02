@@ -169,6 +169,13 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
             >
               Alle ablehnen
             </button>
+            <button
+              type="button"
+              id="reset-consent"
+              class="flex-1 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 px-6 py-3 rounded-lg font-medium hover:bg-yellow-200 dark:hover:bg-yellow-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-all duration-200"
+            >
+              Consent zurücksetzen
+            </button>
           </div>
         </form>
       </div>
@@ -199,7 +206,29 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
   </div>
 
   <script is:inline type="module" nonce={Astro.locals.cspNonce}>
-    import notify from '@/lib/notify';
+    const notify = (() => {
+      try {
+        const w = typeof window !== 'undefined' ? window : undefined;
+        if (w && w.notify && typeof w.notify.info === 'function') return w.notify;
+      } catch {}
+      return {
+        info: (m) => {
+          try {
+            console.info(m);
+          } catch {}
+        },
+        success: (m) => {
+          try {
+            console.log(m);
+          } catch {}
+        },
+        error: (m) => {
+          try {
+            console.error(m);
+          } catch {}
+        },
+      };
+    })();
     // Globale Deklarationen zur Vermeidung von TypeScript-Fehlern
     const CookieConsent =
       typeof window !== 'undefined' && window['CookieConsent'] ? window['CookieConsent'] : null;
@@ -208,6 +237,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
       const form = document.getElementById('cookie-preferences-form');
       const acceptAllBtn = document.getElementById('accept-all');
       const rejectAllBtn = document.getElementById('reject-all');
+      const resetBtn = document.getElementById('reset-consent');
       const analyticsCheckbox = document.getElementById('analytics');
       const marketingCheckbox = document.getElementById('marketing');
 
@@ -351,6 +381,22 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
         saveCookiePreferences(preferences);
         showNotification('Nur notwendige Cookies wurden zugelassen!', 'info');
       });
+
+      // Button: Consent zurücksetzen
+      if (resetBtn) {
+        resetBtn.addEventListener('click', function () {
+          try {
+            localStorage.removeItem('cookieconsent_status');
+            localStorage.removeItem('cookieconsent_preferences');
+            if (CookieConsent && typeof CookieConsent.reset === 'function') {
+              CookieConsent.reset();
+            } else if (CookieConsent && typeof CookieConsent.show === 'function') {
+              CookieConsent.show();
+            }
+          } catch {}
+          location.reload();
+        });
+      }
     });
   </script>
 </BaseLayout>

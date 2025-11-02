@@ -109,7 +109,12 @@ export const GET = withAuthApiMiddleware(async (context: APIContext) => {
       };
     };
     type CFAccountResp = {
-      viewer?: { accounts?: Array<{ browserInsightsAdaptiveGroups?: CFBIGroup[] }> };
+      viewer?: {
+        accounts?: Array<{
+          browserInsightsAdaptiveGroups?: CFBIGroup[];
+          httpRequestsAdaptiveGroups?: CFBIGroup[];
+        }>;
+      };
     };
 
     const json = (await resp.json()) as {
@@ -117,28 +122,75 @@ export const GET = withAuthApiMiddleware(async (context: APIContext) => {
       data?: unknown;
     };
 
-    if (!resp.ok || json.errors) {
-      const message =
-        json?.errors
-          ?.map((e) => e.message)
-          .filter(Boolean)
-          .join('; ') || 'Cloudflare GraphQL error';
-      return createApiError('server_error', message);
+    // Totals: try Browser Insights first, then fall back to httpRequestsAdaptiveGroups
+    let pageViews = 0;
+    let visits = 0;
+    let haveTotals = false;
+
+    if (resp.ok && !json.errors) {
+      const dataRoot = json.data as CFZoneResp & CFAccountResp;
+      const groupsBI = zoneId
+        ? dataRoot?.viewer?.zones?.[0]?.browserInsightsAdaptiveGroups
+        : dataRoot?.viewer?.accounts?.[0]?.browserInsightsAdaptiveGroups;
+      if (Array.isArray(groupsBI) && groupsBI.length > 0 && groupsBI[0]?.sum) {
+        const sumBI = groupsBI[0].sum as CFSum;
+        pageViews = Number(sumBI.pageViews || 0);
+        visits = Number(sumBI.visits || 0);
+        haveTotals = true;
+      }
     }
 
-    // Extract sums depending on scope
-    const dataRoot = json.data as CFZoneResp & CFAccountResp;
-    const groups = zoneId
-      ? dataRoot?.viewer?.zones?.[0]?.browserInsightsAdaptiveGroups
-      : dataRoot?.viewer?.accounts?.[0]?.browserInsightsAdaptiveGroups;
+    if (!haveTotals) {
+      const totalsQueryReq = zoneId
+        ? `
+          query TotalsReq($zoneTag: String!, $start: Time!, $end: Time!) {
+            viewer { zones(filter: { zoneTag: $zoneTag }) {
+              httpRequestsAdaptiveGroups(
+                limit: 1,
+                filter: { datetime_geq: $start, datetime_lt: $end }
+              ) { sum { requests, visits } }
+            } }
+          }
+        `
+        : `
+          query TotalsReqAccount($accountTag: String!, $start: Time!, $end: Time!) {
+            viewer { accounts(filter: { accountTag: $accountTag }) {
+              httpRequestsAdaptiveGroups(
+                limit: 1,
+                filter: { datetime_geq: $start, datetime_lt: $end }
+              ) { sum { requests, visits } }
+            } }
+          }
+        `;
+      const totalsBodyReq = zoneId
+        ? {
+            query: totalsQueryReq,
+            variables: { zoneTag: zoneId, start: datetimeStart, end: datetimeEnd },
+          }
+        : {
+            query: totalsQueryReq,
+            variables: { accountTag: accountId, start: datetimeStart, end: datetimeEnd },
+          };
 
-    const sum =
-      Array.isArray(groups) && groups.length > 0 && groups[0]?.sum
-        ? groups[0].sum
-        : { visits: 0, pageViews: 0 };
-
-    const pageViews = Number(sum.pageViews || 0);
-    const visits = Number(sum.visits || 0);
+      const r = await fetch(CF_GQL_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiToken}` },
+        body: JSON.stringify(totalsBodyReq),
+      });
+      const j = (await r.json()) as { errors?: Array<{ message?: string }>; data?: unknown };
+      if (r.ok && !j.errors) {
+        const dataReq = j.data as CFZoneResp & CFAccountResp;
+        const groupsReq = zoneId
+          ? dataReq?.viewer?.zones?.[0]?.httpRequestsAdaptiveGroups
+          : dataReq?.viewer?.accounts?.[0]?.httpRequestsAdaptiveGroups;
+        if (Array.isArray(groupsReq) && groupsReq.length > 0 && groupsReq[0]?.sum) {
+          const sumReq = groupsReq[0].sum as CFSum;
+          pageViews = Number(sumReq.requests || 0); // approximate pageviews
+          visits = Number(sumReq.visits || 0);
+          haveTotals = true;
+        }
+      }
+    }
 
     // Optionally fetch a 24-point series for sparkline
     let series: Array<{ t: string; pageViews?: number; visits?: number }> | undefined;
@@ -220,7 +272,7 @@ export const GET = withAuthApiMiddleware(async (context: APIContext) => {
                 filter: { datetimeHour_geq: $start, datetimeHour_lt: $end }
               ) {
                 dimensions { datetimeHour }
-                sum { requests }
+                sum { requests, visits }
               }
             } }
           }
@@ -236,11 +288,16 @@ export const GET = withAuthApiMiddleware(async (context: APIContext) => {
           series = groupsReq.map((g: CFBIGroup) => ({
             t: g?.dimensions?.datetimeHour || '',
             pageViews: Number(g?.sum?.requests || 0), // approximate
+            visits: Number(g?.sum?.visits || 0),
           }));
         }
       }
     }
 
+    if (!haveTotals && Array.isArray(series) && series.length > 0) {
+      pageViews = series.reduce((a, s) => a + Number(s.pageViews || 0), 0);
+      visits = series.reduce((a, s) => a + Number(s.visits || 0), 0);
+    }
     return createApiSuccess({ pageViews, visits, from: datetimeStart, to: datetimeEnd, series });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

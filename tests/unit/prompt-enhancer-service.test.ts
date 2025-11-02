@@ -18,12 +18,18 @@ describe('PromptEnhancerService', () => {
   let mockKV: {
     get: ReturnType<typeof vi.fn>;
     put: ReturnType<typeof vi.fn>;
+    list: ReturnType<typeof vi.fn>;
+    getWithMetadata: ReturnType<typeof vi.fn>;
+    delete: ReturnType<typeof vi.fn>;
   };
 
   beforeEach(() => {
     mockKV = {
       get: vi.fn(),
-      put: vi.fn()
+      put: vi.fn(),
+      list: vi.fn(async () => ({ keys: [], list_complete: true })),
+      getWithMetadata: vi.fn(async () => null),
+      delete: vi.fn(async () => undefined)
     };
     const mockEnv = {
       KV_PROMPT_ENHANCER: mockKV,
@@ -158,7 +164,7 @@ describe('PromptEnhancerService', () => {
 
       const result = await service.enhance(defaultInput, defaultOptions, 'guest', 'test-guest-id');
 
-      expect(result.enhanced.role).toBe('You are an expert content creator.');
+      expect(result.enhanced.role).toBe('You are an expert prompt engineer.');
       expect(result.enhanced.objective).toContain('Perform generate task');
       expect(result.usage.used).toBe(1);
       expect(result.usage.limit).toBe(5);

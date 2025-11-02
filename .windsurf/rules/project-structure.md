@@ -2,6 +2,10 @@
 trigger: always_on
 ---
 
+---
+trigger: always_on
+---
+
 # Project Structure Rules
 
 ## Zweck
@@ -20,6 +24,7 @@ Klare Struktur für Laufzeitcode, Assets und Tests; eindeutige Pfade für Server
 - E2E: `tests/e2e/specs` (root) und `test-suite-v2/src/e2e` (v2).
 - Build‑Artefakte: `dist/`; Wrangler dient aus `dist` und ignoriert `_worker.js` via `.assetsignore`.
 - Aliase: `@/*` verwenden (kein `~/*`).
+- BaseLayout lädt CookieConsent v3 (CDN) und dispatcht das Bridge‑Event `cookieconsent:userpreferencesset` (siehe Cookies & Consent Rules).
 
 ## Sollte
 
@@ -34,4 +39,5 @@ Klare Struktur für Laufzeitcode, Assets und Tests; eindeutige Pfade für Server
 
 ## Changelog
 
+- 2025‑11‑03: Hinweis zu CookieConsent‑Initialisierung im BaseLayout ergänzt.
 - 2025‑10‑31: Struktur und R2‑Routen präzisiert; Aliase bestätigt.

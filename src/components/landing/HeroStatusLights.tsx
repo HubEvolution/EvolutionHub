@@ -6,6 +6,7 @@ type Labels = {
   prompt: string;
   voice: string;
   web: string;
+  video: string;
 };
 
 type Props = {
@@ -21,6 +22,7 @@ type StatusMap = {
   prompt: boolean | null;
   voice: boolean | null;
   web: boolean | null;
+  video: boolean | null;
 };
 
 type ApiEnvelope = { success: boolean; data?: unknown };
@@ -55,6 +57,7 @@ export default function HeroStatusLights({
     prompt: null,
     voice: null,
     web: null,
+    video: null,
   });
 
   const endpoints = useMemo(() => {
@@ -67,6 +70,8 @@ export default function HeroStatusLights({
       voice: '/api/voice/usage',
       // Probe the tool app route for availability (UI-level liveness for Webscraper)
       web: `${prefix}/tools/webscraper/app`,
+      // Probe the tool app route for availability (UI-level liveness for Video Enhancer)
+      video: `${prefix}/tools/video-enhancer/app`,
     } as const;
   }, []);
 
@@ -74,32 +79,35 @@ export default function HeroStatusLights({
     let mounted = true;
     const fetchAll = async () => {
       try {
-        const [infraRes, imageRes, promptRes, voiceRes, webRes] = await Promise.allSettled([
-          fetch(endpoints.infra, { method: 'GET', credentials: 'same-origin' }),
-          fetch(endpoints.image, { method: 'GET', credentials: 'same-origin' }),
-          fetch(endpoints.prompt, { method: 'GET', credentials: 'same-origin' }),
-          fetch(endpoints.voice, { method: 'GET', credentials: 'same-origin' }),
-          fetch(endpoints.web, { method: 'GET', credentials: 'same-origin' }),
-        ]);
+        const [infraRes, imageRes, promptRes, voiceRes, webRes, videoRes] =
+          await Promise.allSettled([
+            fetch(endpoints.infra, { method: 'GET', credentials: 'same-origin' }),
+            fetch(endpoints.image, { method: 'GET', credentials: 'same-origin' }),
+            fetch(endpoints.prompt, { method: 'GET', credentials: 'same-origin' }),
+            fetch(endpoints.voice, { method: 'GET', credentials: 'same-origin' }),
+            fetch(endpoints.web, { method: 'GET', credentials: 'same-origin' }),
+            fetch(endpoints.video, { method: 'GET', credentials: 'same-origin' }),
+          ]);
 
         const toBoolWithKey = async (
           key: keyof typeof endpoints,
           r: PromiseSettledResult<Response>
         ) => {
           if (r.status !== 'fulfilled') return false;
-          if (key === 'web') {
+          if (key === 'web' || key === 'video') {
             // Webscraper probe is an HTML page; treat HTTP 200 as OK
             return r.value.ok;
           }
           return isOk(r.value);
         };
 
-        const [infraOk, imageOk, promptOk, voiceOk, webOk] = await Promise.all([
+        const [infraOk, imageOk, promptOk, voiceOk, webOk, videoOk] = await Promise.all([
           toBoolWithKey('infra', infraRes),
           toBoolWithKey('image', imageRes),
           toBoolWithKey('prompt', promptRes),
           toBoolWithKey('voice', voiceRes),
           toBoolWithKey('web', webRes),
+          toBoolWithKey('video', videoRes),
         ]);
 
         if (mounted)
@@ -109,10 +117,18 @@ export default function HeroStatusLights({
             prompt: promptOk,
             voice: voiceOk,
             web: webOk,
+            video: videoOk,
           });
       } catch {
         if (mounted)
-          setStatus({ infra: false, image: false, prompt: false, voice: false, web: false });
+          setStatus({
+            infra: false,
+            image: false,
+            prompt: false,
+            voice: false,
+            web: false,
+            video: false,
+          });
       }
     };
 
@@ -130,6 +146,7 @@ export default function HeroStatusLights({
     { key: 'prompt' as const, label: labels.prompt, value: status.prompt },
     { key: 'voice' as const, label: labels.voice, value: status.voice },
     { key: 'web' as const, label: labels.web, value: status.web },
+    { key: 'video' as const, label: labels.video, value: status.video },
   ];
 
   const colorClass = (v: boolean | null) => {
@@ -148,13 +165,14 @@ export default function HeroStatusLights({
     return 'text-gray-600 dark:text-gray-300';
   };
 
-  function getToolHref(name: 'infra' | 'image' | 'prompt' | 'voice' | 'web') {
+  function getToolHref(name: 'infra' | 'image' | 'prompt' | 'voice' | 'web' | 'video') {
     const prefix =
       typeof window !== 'undefined' && window.location.pathname.startsWith('/en/') ? '/en' : '';
     if (name === 'image') return `${prefix}/tools/imag-enhancer/app`;
     if (name === 'prompt') return `${prefix}/tools/prompt-enhancer/app`;
     if (name === 'voice') return `${prefix}/tools/voice-visualizer/app`;
     if (name === 'web') return `${prefix}/tools/webscraper/app`;
+    if (name === 'video') return `${prefix}/tools/video-enhancer/app`;
     return undefined;
   }
 
@@ -162,7 +180,7 @@ export default function HeroStatusLights({
     name,
     titleText,
   }: {
-    name: 'infra' | 'image' | 'prompt' | 'voice' | 'web';
+    name: 'infra' | 'image' | 'prompt' | 'voice' | 'web' | 'video';
     titleText?: string;
   }) {
     const cls = `w-[52px] h-[52px] opacity-95 icon-bright`;
@@ -194,6 +212,7 @@ export default function HeroStatusLights({
         known === 'search'
       )
         name = 'web';
+      else if (known.includes('video') || known === 'film' || known === 'play') name = 'video';
       else if (
         known.includes('infra') ||
         known.includes('server') ||
@@ -347,6 +366,31 @@ export default function HeroStatusLights({
         </svg>
       );
     }
+    if (name === 'video') {
+      return (
+        <svg
+          className={`${cls} text-fuchsia-300`}
+          width={52}
+          height={52}
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          aria-hidden="true"
+        >
+          {titleText ? <title>{titleText}</title> : null}
+          <rect x="3" y="6" width="14" height="12" rx="2" strokeWidth="1.85" />
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="1.85"
+            d="M17 10l4-3v10l-4-3z"
+          />
+          <circle cx="6" cy="9" r=".6" fill="currentColor" />
+          <circle cx="6" cy="12" r=".6" fill="currentColor" />
+          <circle cx="6" cy="15" r=".6" fill="currentColor" />
+        </svg>
+      );
+    }
     // infra (servers)
     return (
       <svg
@@ -374,7 +418,7 @@ export default function HeroStatusLights({
 
   return (
     <div className="w-full">
-      <div className="container mx-auto px-4 grid grid-cols-3 grid-rows-3 sm:grid-rows-1 sm:grid-cols-5 gap-1 sm:gap-6 md:gap-12 lg:gap-12">
+      <div className="container mx-auto px-4 grid grid-cols-3 grid-rows-3 sm:grid-rows-1 sm:grid-cols-5 lg:grid-cols-6 gap-1 sm:gap-6 md:gap-12 lg:gap-12">
         {items.map((it, idx) => {
           // Mobile X layout (3x3):
           // 0:(1,1)  1:(1,3)
@@ -386,6 +430,7 @@ export default function HeroStatusLights({
             'row-start-2 col-start-2 sm:row-auto sm:col-auto',
             'row-start-3 col-start-1 sm:row-auto sm:col-auto',
             'row-start-3 col-start-3 sm:row-auto sm:col-auto',
+            'row-start-2 col-start-1 sm:row-auto sm:col-auto',
           ];
           const posClass = mobileLayout[idx] || 'sm:row-auto sm:col-auto';
           const hexClip = 'polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)';

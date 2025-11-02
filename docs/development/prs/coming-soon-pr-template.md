@@ -6,41 +6,39 @@ Dieses Dokument enthält eine PR-Template-Vorlage, eine Checkliste für Reviewer
 
 Dateien, die relevant sind:
 
-- [`src/components/ui/ComingSoon.astro`](src/components/ui/ComingSoon.astro:1)
+- [`src/components/ui/ComingSoon.astro`](../../src/components/ui/ComingSoon.astro)
 
-- [`scripts/coming-soon-client.ts`](scripts/coming-soon-client.ts:1)
+- [`scripts/coming-soon-client.ts`](../../scripts/coming-soon-client.ts)
 
-- [`public/scripts/coming-soon-client.js`](public/scripts/coming-soon-client.js:1)
+- [`public/assets/coming-soon-client.js`](../../public/assets/coming-soon-client.js)
 
-- [`src/config/coming-soon.ts`](src/config/coming-soon.ts:1)
+- [`src/config/coming-soon.ts`](../../src/config/coming-soon.ts)
 
-- [`src/layouts/BaseLayout.astro`](src/layouts/BaseLayout.astro:1)
+- [`src/layouts/BaseLayout.astro`](../../src/layouts/BaseLayout.astro)
 
-- [`src/styles/coming-soon.css`](src/styles/coming-soon.css:1)
+- [`src/styles/coming-soon.css`](../../src/styles/coming-soon.css)
 
 PR-Checklist (für Autor)
 
 - [ ] Branch-Name nach Konvention: feature/coming-soon-*
 
-- [ ] Lokale Tests: `npm run dev` startet, Seite /pricing lädt mit Overlay wie erwartet
+- [ ] Lokale Tests: `npm run dev` startet; eine Seite mit `comingSoon={true}` zeigt Overlay wie erwartet
 
-- [ ] E2E: `npx playwright test tests/e2e/specs/coming-soon.spec.ts` läuft grün
+- [ ] E2E: optionaler Spec grün (falls vorhanden)
 
 - [ ] Accessibility: Fokus-Trap, Escape, aria-attributes überprüft
 
 - [ ] Styles: Dark Mode und Mobile geprüft
 
-- [ ] Lokalisierung: keys in [`src/locales/de.json`](src/locales/de.json:1) und [`src/locales/en.json`](src/locales/en.json:1) ergänzt
+- [ ] Lokalisierung: keys in [`src/locales/de.json`](../../src/locales/de.json) und [`src/locales/en.json`](../../src/locales/en.json) ergänzt
 
-- [ ] Env-Flag: Falls COMING_SOON verwendet wurde, dokumentiert wie es zu toggeln ist
-
-- [ ] Keine sensitive Daten in `public/scripts/coming-soon-client.js`
+- [ ] Keine sensiblen Daten in `public/assets/coming-soon-client.js`
 
 Reviewer-Checklist (für Reviewer)
 
-- [ ] Sind die Activation-Mechanismen korrekt implementiert? (ENV, Frontmatter, Patterns)
+- [ ] Ist die Aktivierung ausschließlich per Page-Prop (`comingSoon`) umgesetzt? (keine ENV-/Pattern-Aktivierung)
 
-- [ ] Wurde die Overlay-Komponente korrekt in [`src/layouts/BaseLayout.astro`](src/layouts/BaseLayout.astro:1) integriert?
+- [ ] Wurde die Overlay-Komponente korrekt in [`src/layouts/BaseLayout.astro`](../../src/layouts/BaseLayout.astro) integriert?
 
 - [ ] Wurde das Client-Script externalisiert und CSP-Compliance geprüft?
 
@@ -59,42 +57,38 @@ Implementiert ein wiederverwendbares Coming-Soon Overlay mit:
 
 - Serverseitiger Integration in BaseLayout
 
-- Externalisiertem Client-Script: [`public/scripts/coming-soon-client.js`](public/scripts/coming-soon-client.js:1) (Quelle: [`scripts/coming-soon-client.ts`](scripts/coming-soon-client.ts:1))
+- Externalisiertem Client-Script: [`public/assets/coming-soon-client.js`](../../public/assets/coming-soon-client.js) (Quelle: [`scripts/coming-soon-client.ts`](../../scripts/coming-soon-client.ts))
 
-- i18n-Keys in [`src/locales/de.json`](src/locales/de.json:1) und [`src/locales/en.json`](src/locales/en.json:1)
+- i18n-Keys in [`src/locales/de.json`](../../src/locales/de.json) und [`src/locales/en.json`](../../src/locales/en.json)
 
-- E2E Tests unter `tests/e2e/specs/coming-soon.spec.ts`
+- E2E Tests (optional) unter `tests/e2e/specs/coming-soon.spec.ts`
 
 Warum
-Die Pricing-Seite soll publiziert werden, aber vorläufig mit einem Overlay versehen werden. Das Overlay erlaubt schnelles Publizieren ohne unfertige Inhalte preiszugeben.
+Eine Seite soll publiziert werden, aber vorläufig mit einem Overlay versehen werden. Das Overlay erlaubt schnelles Publizieren ohne unfertige Inhalte preiszugeben.
 
 Wie getestet
 
-- Lokaler Dev-Server: `npm run dev` → Öffne /pricing
+- Lokaler Dev-Server: `npm run dev` → Seite mit `comingSoon={true}` geöffnet
 
-- E2E: `npx playwright test tests/e2e/specs/coming-soon.spec.ts`
+- E2E: `npx playwright test tests/e2e/specs/coming-soon.spec.ts` (falls vorhanden)
 
 - Accessibility: Manuelle Prüfung Fokus/Screenreader
 
 Rollout / Entfernen des Overlays
 
-- Entfernen `comingSoon` Frontmatter in betroffener Seite
-
-- Oder Eintrag aus `src/config/coming-soon.ts` entfernen
-
-- Oder ENV COMING_SOON entfernen
+- Entfernen `comingSoon` Frontmatter/Prop in der betroffenen Seite
 
 ```text
 
 Release-Notes / Kurzbeschreibung für Release
 
-- Temporäres Coming-Soon Overlay für nicht-finalisierte Seiten, gesteuert per Frontmatter, zentraler Config oder ENV-Flag. (Siehe [`docs/frontend/coming-soon.md`](docs/frontend/coming-soon.md:1))
+- Temporäres Coming-Soon Overlay für nicht-finalisierte Seiten, gesteuert ausschließlich per Frontmatter `comingSoon`. (Siehe [`docs/frontend/coming-soon.md`](../../docs/frontend/coming-soon.md))
 
 Troubleshooting
 
-- Wenn Overlay nicht erscheint: prüfe `COMING_SOON` ENV und `COMING_SOON_PATTERNS`
+- Wenn Overlay nicht erscheint: prüfe `comingSoon`‑Prop/Frontmatter auf der Seite
 
-- Wenn Skript nicht geladen wird: prüfe `/public/scripts/coming-soon-client.js` im gebauten Output und CSP
+- Wenn Skript nicht geladen wird: prüfe `/public/assets/coming-soon-client.js` im gebauten Output und CSP
 
 Ende
 

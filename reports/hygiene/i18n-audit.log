@@ -1,0 +1,23 @@
+[i18n:audit] $ npm run i18n:audit
+
+> evolution-hub@0.0.1 i18n:audit
+> npm run i18n:report && npm run i18n:validate && npm run i18n:diff
+
+
+> evolution-hub@0.0.1 i18n:report
+> node scripts/i18n-empty-report.mjs
+
+i18n empty strings report
+- en: 0 empty values
+- de: 0 empty values
+
+> evolution-hub@0.0.1 i18n:validate
+> node scripts/i18n-validate.mjs
+
+[i18n:validate] OK: Strukturen sind konsistent für nav, nav_language, cta, comingSoon, pages.home, pages.blog, pages.tools, pages.pricing, pages.kontakt, pages.verifyEmail, pages.impressum, pages.datenschutz
+
+> evolution-hub@0.0.1 i18n:diff
+> node scripts/i18n-diff.mjs
+
+Missing in de (present in en): 0
+Missing in en (present in de): 0

@@ -16,30 +16,28 @@ This workflow runs a fast auto-fix pass (Prettier + ESLint --fix) and then execu
 // turbo
 
 ```bash
-npm run format && \
-npx eslint 'src/**/*.{ts,astro}' --fix
+mkdir -p reports && rm -f reports/code-hygiene-last.log
+{ \
+  npm run format && \
+  npx eslint 'src/**/*.{ts,astro}' --fix --cache --cache-location .cache/eslint && \
+  npm run lint:md:fix && \
+  npm run docs:toc; \
+} 2>&1 | tee -a reports/code-hygiene-last.log
 ```
 
 ## 2) Core strict checks
 // turbo
 
 ```bash
-npm run format:check && \
-npm run lint -- --max-warnings=0 && \
-npm run typecheck:src
+run-s -c --print-label "format:check" "lint -- --max-warnings=0" "typecheck:src" 2>&1 | tee -a reports/code-hygiene-last.log
 ```
 
 ## 3) Validation suite
 // turbo
 
 ```bash
-npm run test:unit:run && \
-npm run test:integration:run && \
-npm run openapi:validate && \
-npm run docs:lint && \
-npm run lint:md && \
-npm run i18n:audit && \
-npm run security:scan
+run-s -c --print-label "test:unit:run" "test:integration:run" 2>&1 | tee -a reports/code-hygiene-last.log
+run-p -c --print-label "openapi:validate" "docs:lint" "lint:md" "docs:links" "docs:inventory" "i18n:audit" "security:scan" 2>&1 | tee -a reports/code-hygiene-last.log
 ```
 
 ## 4) Optional deep checks (manual)
@@ -47,6 +45,12 @@ npm run security:scan
 ```bash
 npm run astro:check:ui
 npm run test:e2e:chromium
+# Optional link check (external):
+# npx linkinator docs --silent --skip '.*(localhost|example\\.com).*'
+# Optional spell check for docs:
+# npx cspell --no-progress "docs/**/*.md"
+# Tipp: Zum Mitschreiben in die Log-Datei auch hier mit tee arbeiten, z. B.:
+# (npm run astro:check:ui; npm run test:e2e:chromium) 2>&1 | tee -a reports/code-hygiene-last.log
 ```
 
 ## 5) What to do with failures

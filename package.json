@@ -94,6 +94,10 @@
     "deploy:production": "tsx scripts/deploy.ts --env production --url https://hub-evolution.com",
     "deploy:staging": "tsx scripts/deploy.ts --env staging --url https://staging.hub-evolution.com",
     "deploy:testing": "tsx scripts/deploy.ts --env testing --url https://ci.hub-evolution.com",
+    "hygiene": "node scripts/run-hygiene.mjs",
+    "hygiene:report": "node scripts/hygiene-to-assistant.mjs",
+    "hygiene:full": "npm run hygiene && npm run hygiene:report",
+    "hygiene:handoff": "npm run hygiene:full && node scripts/hygiene-copy.mjs",
     "prepare": "husky"
   },
   "dependencies": {

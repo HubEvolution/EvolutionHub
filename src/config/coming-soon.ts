@@ -2,8 +2,8 @@
 /**
  * Central configuration for Coming Soon overlay
  *
- * - COMING_SOON_PATTERNS: array of patterns. Patterns may end with * for prefix matching.
- * - isComingSoon(pathname, frontmatter): resolves ENV override > frontmatter > patterns
+ * - COMING_SOON_PATTERNS: array of patterns (kept for reference/future use).
+ * - isComingSoon(pathname, frontmatter): explicit per-page ENABLE only; hard excludes always win.
  */
 export const COMING_SOON_PATTERNS: string[] = ['/docs', '/kontakt', '/agb', '/impressum'];
 
@@ -39,24 +39,6 @@ function matchPattern(path: string, pattern: string): boolean {
   return path === normalizePath(pat);
 }
 
-function isEnvEnabled(): boolean {
-  try {
-    // Vite/astro environment
-    const importMetaEnv =
-      typeof import.meta !== 'undefined' && 'env' in import.meta
-        ? (import.meta as { env?: Record<string, unknown> }).env
-        : undefined;
-    const v =
-      (importMetaEnv && importMetaEnv.COMING_SOON) ||
-      (typeof process !== 'undefined' && process.env && process.env.COMING_SOON);
-    if (!v) return false;
-    const val = String(v).toLowerCase();
-    return val === '1' || val === 'true' || val === 'yes';
-  } catch {
-    return false;
-  }
-}
-
 export function isComingSoon(pathname: string, frontmatter?: Record<string, unknown>): boolean {
   const path = normalizePath(pathname);
 
@@ -65,18 +47,11 @@ export function isComingSoon(pathname: string, frontmatter?: Record<string, unkn
     if (matchPattern(path, p)) return false;
   }
 
-  // 2) Per-page frontmatter explicitly set (true/false) overrides defaults and patterns
-  if (frontmatter && typeof frontmatter.comingSoon !== 'undefined') {
-    return Boolean(frontmatter.comingSoon);
+  // 2) Explicit per-page ENABLE only
+  if (frontmatter && (frontmatter as { comingSoon?: unknown }).comingSoon === true) {
+    return true;
   }
 
-  // 3) ENV override (global)
-  if (isEnvEnabled()) return true;
-
-  // 4) Central pattern matching
-  for (const p of COMING_SOON_PATTERNS) {
-    if (matchPattern(path, p)) return true;
-  }
-
+  // Default: disabled on all pages
   return false;
 }

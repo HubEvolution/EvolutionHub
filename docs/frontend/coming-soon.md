@@ -2,29 +2,30 @@
 
 # Coming Soon Overlay — Spezifikation, Implementierung und Betrieb (aktualisiert)
 
-Hinweis: Client-Behavior wurde externalisiert. Aktuell eingebundenes Produktions-JS wird unter /assets/coming-soon-client.js ausgeliefert; Entwicklungs-Quelle liegt in /scripts/coming-soon-client.ts. Das starke Overlay-Styling kommt aus src/styles/coming-soon.css und wird nur geladen, wenn das Overlay aktiv ist (konditioneller Import in BaseLayout).
+Hinweis: Client-Behavior wurde externalisiert. Aktuell eingebundenes Produktions-JS wird unter /public/assets/coming-soon-client.js ausgeliefert; Entwicklungs-Quelle liegt in /scripts/coming-soon-client.ts. Das starke Overlay-Styling kommt aus src/styles/coming-soon.css und wird nur geladen, wenn das Overlay aktiv ist (konditioneller Import in BaseLayout).
 
 ## Übersicht
 
-- Komponente: [src/components/ui/ComingSoon.astro](src/components/ui/ComingSoon.astro)
+- Komponente: [src/components/ui/ComingSoon.astro](../../src/components/ui/ComingSoon.astro)
 
-- Client script (TS source): [scripts/coming-soon-client.ts](scripts/coming-soon-client.ts)
+- Client script (TS source): [scripts/coming-soon-client.ts](../../scripts/coming-soon-client.ts)
 
-- Client script (prod, genutzt): [public/assets/coming-soon-client.js](public/assets/coming-soon-client.js)
+- Client script (prod, genutzt): [public/assets/coming-soon-client.js](../../public/assets/coming-soon-client.js)
 
-- Konfiguration: [src/config/coming-soon.ts](src/config/coming-soon.ts)
+- Konfiguration: [src/config/coming-soon.ts](../../src/config/coming-soon.ts)
 
-- Integration: [src/layouts/BaseLayout.astro](src/layouts/BaseLayout.astro)
+- Integration: [src/layouts/BaseLayout.astro](../../src/layouts/BaseLayout.astro)
 
-- Lokalisierung: [src/utils/i18n.ts](src/utils/i18n.ts)
+- Lokalisierung: [src/utils/i18n.ts](../../src/utils/i18n.ts)
 
 ## Akzeptanzkriterien
 
-1. Overlay wird angezeigt, wenn gilt: ENV override OR page frontmatter OR pattern match (siehe config).
+1. Overlay wird nur angezeigt, wenn es pro Seite explizit aktiviert ist (`comingSoon: true`).
+1. Harte Excludes (z. B. `/datenschutz*`) verhindern die Anzeige immer.
 1. Default: Overlay blockiert Interaktion mit Hintergrund (nicht schließbar), CTA führt zur Startseite.
-1. Overlay ist i18n-fähig; Texte stammen aus locale-keys (comingSoon.*).
-1. Styling passt zu Dark Mode; responsive auf mobile (centered, readable).
-1. Accessibility: role dialog, aria-modal true, aria-labelledby oder aria-label gesetzt. Bei dismissible=true Focus-Trap & Escape unterstützt.
+1. Overlay ist i18n‑fähig; Texte stammen aus locale‑keys (`comingSoon.*`).
+1. Styling passt zu Dark Mode; responsive auf mobile (zentriert, gut lesbar).
+1. Accessibility: `role="dialog"`, `aria-modal="true"`, sinnvolles Label. Bei `dismissible=true` Fokus‑Trap & Escape.
 
 ## Wichtige Frontmatter-Keys (konkret)
 
@@ -48,51 +49,18 @@ Hinweis: Client-Behavior wurde externalisiert. Aktuell eingebundenes Produktions
 
 Datei: [src/config/coming-soon.ts](src/config/coming-soon.ts)
 
-- COMING_SOON_PATTERNS: string[] — unterstützt Suffix '*' für Präfix-Matching, z. B. '/pricing*'.
+- `COMING_SOON_PATTERNS`: bleibt als Referenz im Code erhalten, wird aktuell nicht zur Aktivierung genutzt.
 
-- isComingSoon(pathname, frontmatter?): boolean — Priorität: ENV Override > frontmatter.comingSoon > pattern match.
+- `isComingSoon(pathname, frontmatter?)`:
+  - Harte Excludes haben Vorrang (z. B. `/datenschutz*`).
+  - Anzeige nur bei expliziter per‑Page‑Aktivierung (`comingSoon: true`).
+  - Keine ENV‑ oder Pattern‑Aktivierung mehr.
 
-### Aktive Pattern-Liste (locale‑agnostisch)
-
-Die folgenden Pfade zeigen aktuell das Coming‑Soon Overlay (wirken für `/[locale]/...` gleichermaßen):
-
-- /login
-
-- /register
-
-- /forgot-password
-
-- /verify-email
-
-- /email-verified
-
-- /auth/password-reset-sent
-
-- /auth/password-reset-success
-
-- /docs
-
-- /kontakt
-
-- /agb
-
-- /impressum
-
-- /dashboard
-
-- /tools
-
-- /pricing
-
-- /account/settings
-
-- /debug
-
-## Client-Script
+## Client‑Script
 
 - Quelle (TypeScript): [scripts/coming-soon-client.ts](../../scripts/coming-soon-client.ts)
 
-- Produktions-Datei (genutzt): [public/assets/coming-soon-client.js](../../public/assets/coming-soon-client.js)
+- Produktions‑Datei (genutzt): [public/assets/coming-soon-client.js](../../public/assets/coming-soon-client.js)
 
 - Wird nur eingebunden, wenn Overlay aktiv ist:
 
@@ -113,35 +81,23 @@ Die folgenden Pfade zeigen aktuell das Coming‑Soon Overlay (wirken für `/[loc
 
 - Inline-Scripts sind im Repo mit nonces verwendet, aber für prod empfehlen wir externes JS (public) plus strikte CSP (script-src 'self' 'nonce-...').
 
-- Falls Ihr CSP keine nonces erlaubt, muss [public/assets/coming-soon-client.js](public/assets/coming-soon-client.js) in der CSP erlaubt werden (z. B. script-src 'self').
+- Falls Ihr CSP keine nonces erlaubt, muss [public/assets/coming-soon-client.js](../../public/assets/coming-soon-client.js) in der CSP erlaubt werden (z. B. script-src 'self').
 
 ## Testanleitung (lokal)
 
 1. Development starten (Wrangler):
 
-   - npm run dev (<http://127.0.0.1:8787>)
+   - `npm run dev` (<http://127.0.0.1:8787>)
 
-1. Overlay auf ausgewählten Routen prüfen (Beispiele, jeweils DE/neutral und EN):
+2. Overlay gezielt prüfen:
 
-   - <http://127.0.0.1:8787/login> und <http://127.0.0.1:8787/en/login>
+   - Auf einer Seite, die `BaseLayout` nutzt, temporär `comingSoon={true}` setzen und Seite laden.
 
-   - <http://127.0.0.1:8787/docs> und <http://127.0.0.1:8787/en/docs>
+3. E2E/Playwright
 
-   - <http://127.0.0.1:8787/dashboard> und <http://127.0.0.1:8787/en/dashboard>
+   - Führe die existierenden E2E‑Tests aus (z. B. `npx playwright test`) und ergänze bei Bedarf einen Testfall für eine Seite mit `comingSoon={true}`.
 
-   - <http://127.0.0.1:8787/tools> und <http://127.0.0.1:8787/en/tools>
-
-   - <http://127.0.0.1:8787/pricing> und <http://127.0.0.1:8787/en/pricing>
-
-1. Optional: Globales Forcieren über ENV
-
-   - Setze COMING_SOON=true und öffne eine beliebige Seite (wirkt global).
-
-1. E2E/Playwright
-
-   - Führe die existierenden E2E-Tests aus (z. B. npx playwright test) und erweitere Tests bei Bedarf für die oben genannten Pfade.
-
-## PR-Checklist (Beispiel)
+## PR‑Checklist (Beispiel)
 
 - [ ] Wurde COMING_SOON deaktiviert für die Seite, bevor PR merged wird?
 
@@ -151,9 +107,9 @@ Die folgenden Pfade zeigen aktuell das Coming‑Soon Overlay (wirken für `/[loc
 
 - [ ] Wurde das externe Script ([public/assets/coming-soon-client.js](public/assets/coming-soon-client.js)) geprüft oder neu gebaut?
 
-## QA Checkliste (Kurz)
+## QA‑Checkliste (Kurz)
 
-- [ ] Overlay erscheint via ENV, Frontmatter, Pattern
+- [ ] Overlay erscheint ausschließlich via per‑Page‑Enable (`comingSoon`)
 
 - [ ] Kein Interaktionszugriff auf Hintergrund-Inhalte
 
@@ -169,11 +125,11 @@ Die folgenden Pfade zeigen aktuell das Coming‑Soon Overlay (wirken für `/[loc
 
 ## Rollback / Betrieb
 
-- Entfernen/Anpassen betroffener Pfade in COMING_SOON_PATTERNS oder Entfernen von comingSoon: true aus Frontmatter
+- Entferne `comingSoon={true}` aus der betroffenen Seite.
 
-- ENV COMING_SOON leeren, um globale Aktivierung zu deaktivieren
+- Harte Excludes (z. B. `/datenschutz*`) bleiben unberührt.
 
-- Bei Problemen: PR revert oder COMING_SOON_PATTERNS kurzfristig entschärfen
+- Bei Problemen: PR revert.
 
 ## Dateien zum Review
 

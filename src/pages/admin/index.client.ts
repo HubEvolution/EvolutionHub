@@ -939,8 +939,24 @@ function start() {
   const planTarget = q<HTMLInputElement>('plan-target');
   const planSelect = q<HTMLSelectElement>('plan-select');
   const planReason = q<HTMLInputElement>('plan-reason');
+  const planInterval = q<HTMLSelectElement>('plan-interval');
+  const planProration = q<HTMLSelectElement>('plan-proration');
+  const planCancelGroup = q('plan-cancel-group');
+  const planCancelImmediate = q<HTMLInputElement>('plan-cancel-immediate');
   const planSuccess = q('plan-success');
   const planError = q('plan-error');
+
+  // Toggle cancel options visibility depending on selected plan
+  const toggleCancelVisibility = () => {
+    const p = planSelect?.value || 'free';
+    if (planCancelGroup) {
+      if (p === 'free') planCancelGroup.classList.remove('hidden');
+      else planCancelGroup.classList.add('hidden');
+    }
+  };
+  planSelect?.addEventListener('change', toggleCancelVisibility);
+  // Initialize visibility on load
+  toggleCancelVisibility();
   planBtn?.addEventListener('click', async (e) => {
     e?.preventDefault?.();
     hide(planSuccess);
@@ -961,6 +977,16 @@ function start() {
       else body.userId = target;
       const reason = (planReason?.value || '').trim();
       if (reason) body.reason = reason;
+      // Include interval/proration. Keep defaults lightweight.
+      const intervalVal = planInterval?.value || 'monthly';
+      if (intervalVal) body.interval = intervalVal;
+      const prorationVal = planProration?.value || 'create_prorations';
+      if (prorationVal) body.prorationBehavior = prorationVal;
+      if (plan === 'free') {
+        const immediate = !!(planCancelImmediate && planCancelImmediate.checked);
+        if (immediate) body.cancelImmediately = true;
+        else body.cancelAtPeriodEnd = true; // explicit for clarity
+      }
       const res = await fetch('/api/admin/users/set-plan', {
         method: 'POST',
         credentials: 'include',

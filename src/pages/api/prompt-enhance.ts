@@ -114,8 +114,7 @@ export const POST = withApiMiddleware(
       }
       input = { text };
       const m = (parsed.data.mode ?? 'agent') as 'agent' | 'concise' | 'creative' | 'professional';
-      const mNorm: 'agent' | 'concise' =
-        m === 'creative' ? 'agent' : m === 'professional' ? 'concise' : (m as 'agent' | 'concise');
+      const mNorm: 'agent' | 'concise' = m === 'concise' ? 'concise' : 'agent';
       options = {
         mode: mNorm,
         safety: true,
@@ -156,12 +155,7 @@ export const POST = withApiMiddleware(
           | 'concise'
           | 'creative'
           | 'professional';
-        const m2Norm: 'agent' | 'concise' =
-          m2 === 'creative'
-            ? 'agent'
-            : m2 === 'professional'
-              ? 'concise'
-              : (m2 as 'agent' | 'concise');
+        const m2Norm: 'agent' | 'concise' = m2 === 'concise' ? 'concise' : 'agent';
         options = {
           mode: m2Norm,
           safety: parsed.data.safety !== false,

@@ -204,6 +204,34 @@ const adminCommentsStats = { total: 0, pending: 0, approved: 0, rejected: 0, fla
                     <option value="enterprise">enterprise</option>
                   </select>
                 </label>
+                <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  <label class="block text-sm text-gray-300">
+                    Intervall
+                    <select
+                      id="plan-interval"
+                      class="mt-1 w-full rounded-md border border-white/10 bg-white/5 p-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    >
+                      <option value="monthly" selected>monthly</option>
+                      <option value="annual">annual</option>
+                    </select>
+                  </label>
+                  <label class="block text-sm text-gray-300">
+                    Proration
+                    <select
+                      id="plan-proration"
+                      class="mt-1 w-full rounded-md border border-white/10 bg-white/5 p-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    >
+                      <option value="create_prorations" selected>create_prorations</option>
+                      <option value="none">none</option>
+                    </select>
+                  </label>
+                </div>
+                <div id="plan-cancel-group" class="hidden">
+                  <label class="inline-flex items-center gap-2 text-sm text-gray-300">
+                    <input id="plan-cancel-immediate" type="checkbox" class="h-4 w-4 rounded border-white/20 bg-white/5 text-emerald-600 focus:ring-emerald-500" />
+                    Sofort kündigen (statt zum Periodenende)
+                  </label>
+                </div>
                 <label class="block text-sm text-gray-300">
                   Grund (optional)
                   <input

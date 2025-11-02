@@ -259,7 +259,9 @@ async function main() {
 
     // Also output per-file summary in dry-run to help review
     if (!WRITE && (linkRewrites > 0 || aliasInjectedForFile > 0)) {
-      console.log(`~ ${file}: links→${linkRewrites}${aliasInjectedForFile ? `, aliases→${aliasInjectedForFile}` : ''}`);
+      console.log(
+        `~ ${file}: links→${linkRewrites}${aliasInjectedForFile ? `, aliases→${aliasInjectedForFile}` : ''}`
+      );
     }
   }
 

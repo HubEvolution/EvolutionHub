@@ -212,6 +212,7 @@ async function createSuiteV2TestUsers() {
         full_name: 'Test Admin',
         email: 'admin@test-suite.local',
         password: 'AdminPass123!',
+        role: 'admin' as const,
       },
       {
         id: 'e2e-user-0001',
@@ -220,6 +221,7 @@ async function createSuiteV2TestUsers() {
         full_name: 'Test User',
         email: 'user@test-suite.local',
         password: 'UserPass123!',
+        role: 'user' as const,
       },
       {
         id: 'e2e-premium-0001',
@@ -228,6 +230,7 @@ async function createSuiteV2TestUsers() {
         full_name: 'Test Premium',
         email: 'premium@test-suite.local',
         password: 'PremiumPass123!',
+        role: 'user' as const,
       },
     ];
 
@@ -268,8 +271,8 @@ async function createSuiteV2TestUsers() {
     let successCount = 0;
     for (const u of users) {
       const insertSQL = `
-        INSERT INTO users (id, name, username, full_name, email, image, created_at, email_verified, email_verified_at, plan)
-        VALUES ('${u.id}', '${u.name}', '${u.username}', '${u.full_name}', '${u.email}', NULL, '${nowIso}', 1, ${nowUnix}, 'free')
+        INSERT INTO users (id, name, username, full_name, email, image, created_at, email_verified, email_verified_at, plan, role)
+        VALUES ('${u.id}', '${u.name}', '${u.username}', '${u.full_name}', '${u.email}', NULL, '${nowIso}', 1, ${nowUnix}, 'free', '${u.role}')
         ON CONFLICT(email) DO UPDATE SET
           name=excluded.name,
           username=excluded.username,
@@ -278,7 +281,8 @@ async function createSuiteV2TestUsers() {
           created_at=excluded.created_at,
           email_verified=excluded.email_verified,
           email_verified_at=excluded.email_verified_at,
-          plan=excluded.plan;
+          plan=excluded.plan,
+          role=excluded.role;
       `;
 
       const tempSQLPath = path.join(os.tmpdir(), `suitev2_user_${u.username}_${Date.now()}.sql`);
@@ -308,6 +312,31 @@ async function createSuiteV2TestUsers() {
       console.log('  Premium : premium@test-suite.local / PremiumPass123!');
     } else {
       console.error('❌ Keine Test-Suite v2 Benutzer konnten erstellt werden.');
+    }
+
+    // Seed a persistent admin session for integration tests (Option C)
+    try {
+      const adminUserId = 'e2e-admin-0001';
+      const adminSessionId = 'e2e-admin-session-0001';
+      const expiresUnix = nowUnix + 7 * 24 * 60 * 60; // +7 days
+      const insertSessSQL = `
+        INSERT OR REPLACE INTO sessions (id, user_id, expires_at)
+        VALUES ('${adminSessionId}', '${adminUserId}', ${expiresUnix});
+      `;
+      const tmpSess = path.join(os.tmpdir(), `suitev2_admin_session_${Date.now()}.sql`);
+      fs.writeFileSync(tmpSess, insertSessSQL);
+      for (const dbPath of sqliteFiles) {
+        try {
+          execSync(`cat ${tmpSess} | sqlite3 ${dbPath}`, { stdio: 'inherit' });
+          console.log(`✅ Admin-Session ${adminSessionId} in ${dbPath} angelegt`);
+        } catch (error) {
+          console.error(`❌ Fehler beim Anlegen der Admin-Session in ${dbPath}:`, error);
+        }
+      }
+      fs.unlinkSync(tmpSess);
+      console.log(`ℹ️ TEST_ADMIN_COOKIE → session_id=${adminSessionId}`);
+    } catch (error) {
+      console.warn('⚠️ Konnte Admin-Session nicht seeden (Tests können X-Debug-Login nutzen).', error);
     }
   } catch (error) {
     console.error('❌ Fehler beim Erstellen der Test-Suite v2 Benutzer:', error);
@@ -617,6 +646,8 @@ try {
         addColumnIfMissing(dbPath, 'users', 'email_verified_at', 'INTEGER NULL');
         // users.plan (plan-based entitlements; default 'free')
         addColumnIfMissing(dbPath, 'users', 'plan', "TEXT NOT NULL DEFAULT 'free'");
+        // users.role (RBAC; default 'user')
+        addColumnIfMissing(dbPath, 'users', 'role', "TEXT NOT NULL DEFAULT 'user'");
 
         // email_verification_tokens table and indexes
         runSafeSQL(

@@ -85,6 +85,7 @@ export const prerender = false;
                 prompt: t('pages.home.features.feature2.title'),
                 voice: t('pages.home.features.feature3.title'),
                 web: t('pages.home.features.feature4.title'),
+                video: t('pages.home.features.feature5.title'),
               }}
               icons={{
                 infra: 'server',
@@ -92,6 +93,7 @@ export const prerender = false;
                 prompt: t('pages.home.features.feature2.icon'),
                 voice: t('pages.home.features.feature3.icon'),
                 web: t('pages.home.features.feature4.icon'),
+                video: 'video',
               }}
               iconsOnly={true}
             />
@@ -126,7 +128,7 @@ export const prerender = false;
         </div>
         <div class="relative">
           <CardGraph client:load className="z-0" fullBleed={true} />
-          <div class="grid grid-cols-1 md:grid-cols-4 gap-12 relative z-10">
+          <div class="grid grid-cols-1 md:grid-cols-5 gap-12 relative z-10">
             <AosWrapper duration={600} class="feature-card">
               <HoloFeaturePanel
                 iconName={t('pages.home.features.feature1.icon')}
@@ -165,6 +167,16 @@ export const prerender = false;
                   ? (t('pages.home.features_poetic.feature4.description') ??
                     t('pages.home.features.feature4.description'))
                   : t('pages.home.features.feature4.description')}
+              />
+            </AosWrapper>
+            <AosWrapper delay={400} duration={600} class="feature-card">
+              <HoloFeaturePanel
+                iconName={t('pages.home.features.feature5.icon')}
+                title={t('pages.home.features.feature5.title')}
+                description={landingV2
+                  ? (t('pages.home.features_poetic.feature5.description') ??
+                    t('pages.home.features.feature5.description'))
+                  : t('pages.home.features.feature5.description')}
               />
             </AosWrapper>
           </div>

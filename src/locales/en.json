@@ -295,7 +295,7 @@
       "title": "Welcome to Evolution Hub",
       "features": {
         "heading": "The future of AI‑assisted development",
-        "subtitle": "Discover our four core tools for real, everyday workflows.",
+        "subtitle": "Discover our core tools for real, everyday workflows.",
         "feature1": {
           "icon": "photo",
           "title": "Imag‑Enhancer",
@@ -315,13 +315,19 @@
           "icon": "search",
           "title": "Webscraper",
           "description": "Extract structured data from web pages and APIs with flexible selectors and export formats."
+        },
+        "feature5": {
+          "icon": "video",
+          "title": "Video Enhancer",
+          "description": "Upscale and enhance videos with AI — sharper details, reduced noise, clearer visuals."
         }
       },
       "features_poetic": {
         "feature1": { "description": "Turn noisy shadows into clear worlds." },
         "feature2": { "description": "Let words take flight and ideas grow." },
         "feature3": { "description": "Hear thoughts clearer than ever." },
-        "feature4": { "description": "Teach pages to speak in structure." }
+        "feature4": { "description": "Teach pages to speak in structure." },
+        "feature5": { "description": "Where frames learn to breathe again." }
       },
       "testimonials": {
         "heading": "What our users say about our tools",
@@ -382,7 +388,8 @@
           "image": "Image",
           "prompt": "Prompt",
           "voice": "Voice",
-          "web": "Webscraper"
+          "web": "Webscraper",
+          "video": "Video"
         }
       }
     },

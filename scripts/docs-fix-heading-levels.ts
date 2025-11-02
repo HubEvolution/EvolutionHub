@@ -35,7 +35,7 @@ function fixHeadingLevels(content: string) {
         const newLevel = prevLevel + 1;
         line = `${'#'.repeat(newLevel)} ${text}`;
       }
-      prevLevel = (line.match(/^#+/)?.[0]?.length) || level;
+      prevLevel = line.match(/^#+/)?.[0]?.length || level;
       out.push(line);
       continue;
     }

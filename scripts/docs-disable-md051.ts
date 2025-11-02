@@ -17,13 +17,7 @@ function injectDisable(content: string): { next: string; changed: boolean } {
   }
   const before = lines.slice(0, insertAt);
   const after = lines.slice(insertAt);
-  const injected = [
-    ...before,
-    '',
-    '<!-- markdownlint-disable MD051 -->',
-    '',
-    ...after,
-  ];
+  const injected = [...before, '', '<!-- markdownlint-disable MD051 -->', '', ...after];
   return { next: injected.join('\n'), changed: true };
 }
 

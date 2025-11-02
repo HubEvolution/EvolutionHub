@@ -1,0 +1,9 @@
+[md:fix] $ npm run lint:md:fix
+
+> evolution-hub@0.0.1 lint:md:fix
+> markdownlint-cli2 --fix "docs/**/*.md"
+
+markdownlint-cli2 v0.18.1 (markdownlint v0.38.0)
+Finding: docs/**/*.md
+Linting: 127 file(s)
+Summary: 0 error(s)

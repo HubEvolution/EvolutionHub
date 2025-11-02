@@ -131,6 +131,23 @@ export class PromptEnhancerService {
     }
   }
 
+  private detectLanguage(text: string): 'de' | 'en' {
+    try {
+      const t = text.toLowerCase();
+      const germanHits = (
+        t.match(
+          /\b(und|oder|nicht|ein|eine|erstellen|erstelle|spiel|schlange|konsole|ziel|anforderungen)\b|[äöüß]/g
+        ) || []
+      ).length;
+      const englishHits = (
+        t.match(/\b(and|or|not|create|build|game|snake|console|goal|requirements)\b/g) || []
+      ).length;
+      return germanHits > englishHits ? 'de' : 'en';
+    } catch {
+      return 'en';
+    }
+  }
+
   private getTextModel(): string {
     return this.env.PROMPT_TEXT_MODEL || DEFAULT_TEXT_MODEL;
   }
@@ -315,34 +332,55 @@ export class PromptEnhancerService {
     rawText: string
   ): EnhancedPrompt {
     const { intent, keywords, isComplex } = parsed;
-    const role =
-      intent === 'generate'
-        ? 'You are an expert content creator.'
-        : intent === 'analyze'
-          ? 'You are a precise analyst.'
-          : 'You are a helpful assistant.';
+    const isCode =
+      /\b(python|java|typescript|javascript|node|c\+\+|c#|go|rust|ruby|php|swift|kotlin|dart|bash|shell|script|programm|code|spiel|game|app|api|web|cli)\b/i.test(
+        rawText
+      );
+    const role = isCode
+      ? 'You are a senior software engineer and clean coder.'
+      : intent === 'analyze'
+        ? 'You are a precise analyst.'
+        : 'You are an expert prompt engineer.';
 
-    const objective = `Perform ${intent} task based on: ${keywords.slice(0, 5).join(', ') || rawText.substring(0, 100)}`;
+    const objective = isCode
+      ? `Design and implement a small, testable MVP for: ${
+          keywords.slice(0, 8).join(', ') || rawText.substring(0, 120)
+        }`
+      : `Perform ${intent} task based on: ${
+          keywords.slice(0, 8).join(', ') || rawText.substring(0, 120)
+        }`;
 
-    const constraints =
-      'Keep response clear and concise; cite sources if applicable; limit to 1000 words; mask any PII.';
+    const constraints = isCode
+      ? 'Small MVP; idiomatic code; no paid deps unless specified; clear module structure; input validation and error handling; reproducible setup; minimal comments; readable; mask any PII.'
+      : 'Keep response clear and concise; cite sources if applicable; limit to 1000 words; mask any PII.';
 
-    const outputFormat = 'Markdown with sections for key parts.';
+    const outputFormat =
+      'Markdown with sections: Role, Goal, Requirements, Constraints, Step-by-step Plan, Output Format, Acceptance Criteria.';
 
-    const steps: string[] | undefined = isComplex
+    const steps: string[] | undefined = isCode
       ? [
-          'Understand the input.',
-          'Plan the structure.',
-          'Generate content.',
-          'Review for accuracy.',
-          'Format output.',
+          'Define scope and constraints.',
+          'Plan modules and data structures.',
+          'Set up project scaffolding.',
+          'Implement core functionality.',
+          'Add input handling and errors.',
+          'Write a minimal test.',
+          'Provide run instructions.',
         ]
-      : undefined;
+      : isComplex
+        ? [
+            'Understand the input.',
+            'Plan the structure.',
+            'Generate content.',
+            'Review for accuracy.',
+            'Format output.',
+          ]
+        : undefined;
 
     const fewShotExamples: string[] | undefined = isComplex
       ? [
-          'Input: Write blog on AI. Output: Structured post with intro/body/conclusion.',
-          'Input: Analyze sales data. Output: Key insights in bullet points.',
+          'Example 1: Create a clear outline with sections (Intro, Key Points, Conclusion).',
+          'Example 2: Provide 3 bullet points summarizing the main ideas.',
         ]
       : undefined;
 
@@ -454,29 +492,33 @@ export class PromptEnhancerService {
     top_p: number;
   } {
     const systemParts: string[] = [];
+    const lang = this.detectLanguage(inputText);
     systemParts.push(
-      "You rewrite user prompts into clearer, more specific, policy-compliant prompts. Preserve the user's intent. Do not invent requirements. Respond in the same language as the input. Output only the enhanced prompt (no quotes, no lists, no explanations)."
+      "You are a prompt engineer. Rewrite the user's prompt into a high-quality, actionable prompt while preserving the original intent and constraints. Output only the enhanced prompt text in Markdown (no preamble). Prefer structured sections."
+    );
+    // Enforce explicit output language instead of implicit "same language"
+    systemParts.push(
+      lang === 'de' ? 'Antworte ausschließlich auf Deutsch.' : 'Respond in English only.'
     );
     if (
       attachment &&
       (attachment.texts.length || attachment.images.length || attachment.pdfs.length)
     ) {
       systemParts.push(
-        'Use attachments only to resolve ambiguity. Do not expose sensitive data or PII.'
+        'Use attachments only to resolve ambiguity. Never expose raw PII; summarize safely.'
       );
     }
     if (mode === 'concise') {
       systemParts.push(
-        'Be succinct and unambiguous; remove filler; target under ~120 words unless essential.'
+        'Produce a compact prompt under ~120 words with the minimal sections: Role, Goal, Requirements, Output.'
       );
     } else {
-      // agent mode maps to more elaborate but precise output
       systemParts.push(
-        'Use precise, actionable phrasing; add conservative clarifications; avoid adding new facts.'
+        'Produce a structured prompt with sections: Role, Goal, Context (optional), Requirements, Constraints, Step-by-step Plan, Output Format, Acceptance Criteria. When the task is about software/code, include language and version, libraries/constraints, I/O interface, error handling, testing requirements, and run instructions.'
       );
     }
 
-    const userTextHeader = 'Enhance this prompt. Reply with only the enhanced prompt:';
+    const userTextHeader = 'Enhance this prompt. Reply with only the enhanced prompt in Markdown:';
 
     const content: Array<
       { type: 'text'; text: string } | { type: 'image_url'; image_url: { url: string } }

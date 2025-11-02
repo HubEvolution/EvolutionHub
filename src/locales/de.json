@@ -95,7 +95,7 @@
       "title": "Willkommen bei Evolution Hub",
       "features": {
         "heading": "Die Zukunft der KI‑gestützten Entwicklung",
-        "subtitle": "Entdecke unsere vier Kern‑Tools für echte Alltags‑Workflows.",
+        "subtitle": "Entdecke unsere Kern‑Tools für echte Alltags‑Workflows.",
         "feature1": {
           "icon": "photo",
           "title": "Imag‑Enhancer",
@@ -115,13 +115,19 @@
           "icon": "search",
           "title": "Webscraper",
           "description": "Sicher Klartext aus Webseiten extrahieren. SSRF‑gehärtet, formatbewusst, mit Nutzungslimits und klaren Fehlermeldungen."
+        },
+        "feature5": {
+          "icon": "video",
+          "title": "Video‑Enhancer",
+          "description": "Skaliert und verbessert Videos mit KI – schärfere Details, weniger Rauschen, klarere Bilder."
         }
       },
       "features_poetic": {
         "feature1": { "description": "Verwandle verrauschte Schatten in klare Welten." },
         "feature2": { "description": "Lass Worte fliegen und Ideen wachsen." },
         "feature3": { "description": "Höre Gedanken klarer denn je." },
-        "feature4": { "description": "Lehre Seiten, in Strukturen zu sprechen." }
+        "feature4": { "description": "Lehre Seiten, in Strukturen zu sprechen." },
+        "feature5": { "description": "Wo Frames wieder atmen lernen." }
       },
       "testimonials": {
         "heading": "Was unsere Nutzer über unsere Tools sagen",
@@ -182,7 +188,8 @@
           "image": "Bild",
           "prompt": "Prompt",
           "voice": "Stimme",
-          "web": "Webscraper"
+          "web": "Webscraper",
+          "video": "Video"
         }
       }
     },

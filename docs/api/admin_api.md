@@ -37,26 +37,46 @@ curl -i https://hub-evolution.com/api/admin/status \
 
 POST `/api/admin/users/set-plan`
 
-- Body: `{ email?: string, userId?: string, plan: "free"|"pro"|"premium"|"enterprise", reason?: string }`
+- Body:
+  - Pflicht: genau eines von `email` oder `userId`, sowie `plan` (`free|pro|premium|enterprise`)
+  - Optional (Stripe‑Orchestrierung):
+    - `interval`: `monthly|annual` (wählt Price‑Tabelle für bezahlte Pläne)
+    - `prorationBehavior`: `create_prorations|none` (Proration bei Update)
+    - `cancelAtPeriodEnd`: boolean (Downgrade→free: zum Periodenende kündigen; Standard)
+    - `cancelImmediately`: boolean (Downgrade→free: sofort kündigen)
+  - Optional: `reason` (Audit‑Notiz)
 
-- Headers: `X-CSRF-Token`, `Content-Type: application/json`, Same‑Origin required
+- Verhalten:
+  - Paid→Paid: vorhandenes Abo wird auf neue Price (`interval`) umgestellt (Proration laut `prorationBehavior`), sonst neues Abo erstellt.
+  - Any→Free: Abo wird gekündigt. Standard: zum Periodenende (`cancel_at_period_end=true`), sofortige Kündigung nur bei `cancelImmediately=true`.
+  - Quelle der Wahrheit: Der Stripe‑Webhook (`/api/billing/stripe-webhook`) setzt `users.plan` final anhand des Subscription‑Status. Der Admin‑Endpoint schreibt nicht direkt den Plan.
+
+- Headers: `X-CSRF-Token`, `Content-Type: application/json`, Same‑Origin erforderlich
 
 - Role: admin; Rate‑Limit: sensitive (5/hour)
 
-- Audit: writes `ADMIN_ACTION` (resource `user`, action `set_plan`, `{ from, to, reason }`)
-
-- Hinweis: Aktive Stripe‑Subscription‑Webhooks können den Plan später überschreiben.
+- Audit: schreibt `ADMIN_ACTION` (resource `user`, action `set_plan`, `{ from, to, reason }`)
 
 Example:
 
 ```bash
+# Upgrade (monatlich) mit Proration
 CSRF=abc123
 curl -i -X POST https://hub-evolution.com/api/admin/users/set-plan \
   -H 'Origin: https://hub-evolution.com' \
   -H 'Content-Type: application/json' \
   -H "X-CSRF-Token: $CSRF" \
   -H "Cookie: csrf_token=$CSRF; __Host-session=<token>" \
-  --data '{"email":"user@example.com","plan":"pro","reason":"support override"}'
+  --data '{"email":"user@example.com","plan":"pro","interval":"monthly","prorationBehavior":"create_prorations","reason":"support override"}'
+
+# Downgrade auf free – sofortige Kündigung
+CSRF=abc123
+curl -i -X POST https://hub-evolution.com/api/admin/users/set-plan \
+  -H 'Origin: https://hub-evolution.com' \
+  -H 'Content-Type: application/json' \
+  -H "X-CSRF-Token: $CSRF" \
+  -H "Cookie: csrf_token=$CSRF; __Host-session=<token>" \
+  --data '{"userId":"<user-id>","plan":"free","cancelImmediately":true,"reason":"requested by user"}'
 ```
 
 ## Users — Summary Lookup

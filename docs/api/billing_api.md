@@ -401,6 +401,17 @@ sequenceDiagram
 
 - Manual Retry über Admin-Panel
 
+### Admin-Overrides (Set Plan) & Stripe-Konsistenz
+
+- Endpoint: POST `/api/admin/users/set-plan` (siehe [Admin API](./admin_api.md#users-%E2%80%94-set-plan-admin-override))
+- Zweck: Orchestriert Stripe-Subscription-Änderungen (Upgrade/Downgrade), anstatt `users.plan` direkt zu ändern.
+- Verhalten:
+  - Paid→Paid: Updatet bestehendes Subscription-Item auf den Price gemäß `interval` (`monthly|annual`); Proration via `prorationBehavior` (`create_prorations|none`).
+  - Any→Free: Kündigt die Subscription. Standard: `cancel_at_period_end=true`; sofortige Kündigung nur mit `cancelImmediately=true`.
+- Quelle der Wahrheit: `users.plan` wird final durch Stripe (`/api/billing/stripe-webhook`) bzw. `/api/billing/sync` gesetzt. Admin‑Overrides schreiben den Plan nicht direkt.
+- Env/Config: `STRIPE_SECRET`, `STRIPE_WEBHOOK_SECRET`, `PRICING_TABLE`, `PRICING_TABLE_ANNUAL` (plan→priceId Mapping; JSON‑String oder Objekt).
+- Tests: Integrationstests können optional mit vorseedeter Admin‑Session (`TEST_ADMIN_COOKIE`) ausgeführt werden.
+
 ## Sicherheit
 
 ### Payment-Sicherheit

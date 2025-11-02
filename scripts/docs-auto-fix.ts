@@ -4,7 +4,17 @@ import { globby } from 'globby';
 
 function detectFenceLang(block: string): string {
   const sample = block.slice(0, 400).toLowerCase();
-  const bashHints = ['npm ', 'pnpm ', 'yarn ', 'curl ', 'wrangler ', 'bash', 'sh ', 'node ', 'npx '];
+  const bashHints = [
+    'npm ',
+    'pnpm ',
+    'yarn ',
+    'curl ',
+    'wrangler ',
+    'bash',
+    'sh ',
+    'node ',
+    'npx ',
+  ];
   if (bashHints.some((h) => sample.includes(h))) return 'bash';
   const jsonHints = ['{', '"', '}', ']'];
   if (jsonHints.every((h) => sample.includes(h))) return 'json';
@@ -34,7 +44,8 @@ function fixMarkdown(content: string): string {
     if (/^```/.test(line)) {
       if (!inFence) {
         // opening fence: ensure language
-        if (/^```\s*$/.test(line)) line = '```' + detectFenceLang(lines.slice(i + 1, i + 20).join('\n'));
+        if (/^```\s*$/.test(line))
+          line = '```' + detectFenceLang(lines.slice(i + 1, i + 20).join('\n'));
         // ensure blank before fence
         if (out.length > 0 && out[out.length - 1].trim() !== '') pushLine('');
       }
@@ -71,7 +82,8 @@ function fixMarkdown(content: string): string {
     // Ordered list blocks: support "." and ")" markers; enforce 1/1/1 style
     if (/^\s*\d+[\.)]/.test(line)) {
       const blockIdxStart = i;
-      const block: { idx: number; indent: string; text: string; num: number; marker: string }[] = [];
+      const block: { idx: number; indent: string; text: string; num: number; marker: string }[] =
+        [];
       while (i < lines.length && /^\s*\d+[\.)]/.test(lines[i])) {
         const m = lines[i].match(/^(\s*)(\d+)([\.)])(\s+)(.*)$/);
         if (!m) break;

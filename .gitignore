@@ -54,3 +54,4 @@ tests/unit/hooks/useRateLimit.test.tsx
 tests/unit/hooks/useUsage.test.tsx
 tests/unit/services/ai-image-service.test.ts
 astro-build.log
+.DS_Store

@@ -59,6 +59,24 @@ const CF_BEACON_TOKEN =
       return s;
     }
 
+    function disableProviders() {
+      try {
+        // Remove external analytics scripts if present
+        const selectors = [
+          'script[src*="googletagmanager.com/gtag/js"]',
+          'script[src*="plausible.io/js/script"]',
+          'script[src*="static.cloudflareinsights.com/beacon"]',
+        ];
+        document.querySelectorAll(selectors.join(',')).forEach((el) => el.parentElement?.removeChild(el));
+        // Best-effort: drop globals
+        try { delete (window).gtag; } catch {}
+        try { delete (window).plausible; } catch {}
+        providersInitialized = false;
+      } catch (e) {
+        console.warn('[Analytics] disableProviders failed', e);
+      }
+    }
+
     function initProviders() {
       if (providersInitialized) return;
       try {
@@ -189,11 +207,18 @@ const CF_BEACON_TOKEN =
         if (detail.analytics) {
           hasAnalyticsConsent = true;
           initAfterConsent();
+        } else {
+          hasAnalyticsConsent = false;
+          disableProviders();
         }
         if (detail.marketing) {
           if ('fbq' in window && typeof window.fbq === 'function') {
             window.fbq('consent', 'grant');
             window.fbq('track', 'PageView');
+          }
+        } else {
+          if ('fbq' in window && typeof window.fbq === 'function') {
+            try { window.fbq('consent', 'revoke'); } catch {}
           }
         }
       } catch (e) {

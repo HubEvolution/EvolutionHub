@@ -67,6 +67,8 @@ testRefs: 'tests/integration/api, test-suite-v2/src/e2e'
 
 - **[GET /api/billing/sync](./billing_api.md)** — Subscription-Synchronisation
 
+- Hinweis: Admin‑Planwechsel werden über **[POST /api/admin/users/set-plan](./admin_api.md#users-%E2%80%94-set-plan-admin-override)** orchestriert (Interval/Proration/Cancel). Der finale `users.plan` wird über den Stripe‑Webhook gesetzt (siehe **[Billing Webhook](./billing_api.md#post-apibillingstripe-webhook)**).
+
 ## Spezifikationen
 
 - **[OpenAPI Schema](./openapi.yaml)** — Maschinenlesbare API-Spezifikation
