@@ -257,15 +257,13 @@ const CommentSectionInner: React.FC<CommentSectionProps> = ({
             <p className="text-sm text-yellow-800 dark:text-yellow-200">
               Du bist nicht angemeldet.{' '}
               <a
-                href={
-                  (() => {
-                    const base = localizePath(locale, '/login');
-                    if (typeof window !== 'undefined') {
-                      return `${base}?returnTo=${encodeURIComponent(window.location.href + '#comments')}`;
-                    }
-                    return base;
-                  })()
-                }
+                href={(() => {
+                  const base = localizePath(locale, '/login');
+                  if (typeof window !== 'undefined') {
+                    return `${base}?returnTo=${encodeURIComponent(window.location.href + '#comments')}`;
+                  }
+                  return base;
+                })()}
                 className="font-medium hover:underline"
               >
                 Anmelden zum Kommentieren

@@ -7,6 +7,8 @@ codeRefs: 'src/lib/api-middleware.ts, src/lib/rate-limiter.ts'
 testRefs: 'tests/integration/api'
 ---
 
+<!-- markdownlint-disable MD051 -->
+
 # API Guidelines
 
 **Best Practices** für die API-Entwicklung bei Evolution Hub. Dieses Dokument definiert Standards, Konventionen und bewährte Methoden für die Entwicklung robuster, sicherer und wartbarer APIs.
@@ -29,7 +31,8 @@ Alle APIs folgen dem standardisierten Response-Format:
     "details": {}
   }
 }
-```
+
+```text
 
 **✅ Do:**
 
@@ -54,21 +57,31 @@ export async function GET() {
 return new Response(JSON.stringify({ user: data }), {
   headers: { 'Content-Type': 'application/json' }
 });
-```
+
+```text
 
 #### HTTP-Status-Codes
 
 Verwende semantisch korrekte Status-Codes:
 
 - **200**: Erfolgreiche GET-Anfragen
+
 - **201**: Erfolgreiche POST-Anfragen (Ressource erstellt)
+
 - **204**: Erfolgreiche DELETE-Anfragen (kein Content)
+
 - **400**: Validierungsfehler
+
 - **401**: Nicht authentifiziert
+
 - **403**: Zugriff verweigert
+
 - **404**: Ressource nicht gefunden
+
 - **405**: Methode nicht erlaubt
+
 - **429**: Rate limit erreicht
+
 - **500**: Server-Fehler
 
 ### 2. Sicherheit (Security)
@@ -118,7 +131,8 @@ export const POST = withApiMiddleware(async (context) => {
   rateLimiter: aiGenerateLimiter,
   enforceCsrfToken: true,
 });
-```
+
+```text
 
 #### CSRF-Schutz
 
@@ -177,7 +191,8 @@ export const POST = withApiMiddleware(async (context) => {
     throw error;
   }
 });
-```
+
+```text
 
 #### Validierungsfehler
 
@@ -248,7 +263,8 @@ export const GET = withApiMiddleware(async (context) => {
 
   return createApiSuccess(data);
 });
-```
+
+```text
 
 #### Guest-Mode
 
@@ -294,7 +310,8 @@ export const GET = withApiMiddleware(async (context) => {
 
   return createApiSuccess(data);
 });
-```
+
+```text
 
 #### Datenbank-Optimierung
 
@@ -357,7 +374,8 @@ describe('/api/prompt-enhance', () => {
     expect(data.error.type).toBe('validation_error');
   });
 });
-```
+
+```text
 
 #### Integration-Tests
 
@@ -429,7 +447,8 @@ Dokumentiere alle Endpunkte in der OpenAPI-Spec:
                   properties:
                     enhanced:
                       $ref: '#/components/schemas/EnhancedPrompt'
-```
+
+```text
 
 #### Code-Kommentare
 
@@ -504,7 +523,8 @@ export const POST = withApiMiddleware(async (context) => {
     throw error;
   }
 });
-```
+
+```text
 
 #### Metriken
 
@@ -560,7 +580,8 @@ export function getApiConfig() {
   const env = process.env.NODE_ENV || 'development';
   return API_CONFIG[env] || API_CONFIG.development;
 }
-```
+
+```text
 
 #### Feature-Flags
 
@@ -628,7 +649,8 @@ export class ApiClient {
       ?.split('=')[1] || '';
   }
 }
-```
+
+```text
 
 #### Error-Handling für Clients
 
@@ -673,7 +695,7 @@ export class ApiError extends Error {
 
 Organisiere API-Code logisch:
 
-```
+```text
 src/pages/api/
 ├── auth/                    # Authentifizierung
 │   ├── magic/
@@ -693,8 +715,11 @@ src/pages/api/
 ### Naming-Konventionen
 
 - **Dateien**: `kebab-case.ts` (z.B. `prompt-enhance.ts`)
+
 - **Funktionen**: `camelCase` (z.B. `enhancePrompt`)
+
 - **Typen**: `PascalCase` (z.B. `EnhancedPrompt`)
+
 - **Konstanten**: `SCREAMING_SNAKE_CASE` (z.B. `MAX_PROMPT_LENGTH`)
 
 ### Import-Organisation
@@ -717,7 +742,8 @@ import { loggerFactory } from '@/server/utils/logger-factory';
 
 // 5. Local Utilities (relativ)
 import { validateInput } from '../utils/validation';
-```
+
+```text
 
 ## Qualitätsstandards
 
@@ -741,8 +767,11 @@ Ziele für hohe Test-Coverage ab:
 Definiere Performance-Ziele:
 
 - **Response-Time**: <200ms für einfache APIs
+
 - **AI-APIs**: <5s für Generierung
+
 - **Error-Rate**: <0.1%
+
 - **Uptime**: >99.9%
 
 ### Security-Review
@@ -750,12 +779,19 @@ Definiere Performance-Ziele:
 Führe Security-Reviews für neue APIs durch:
 
 - [ ] Input-Validierung implementiert
+
 - [ ] SQL-Injection-Schutz (D1 parameterized queries)
+
 - [ ] XSS-Schutz (Output-Encoding)
+
 - [ ] CSRF-Schutz aktiviert
+
 - [ ] Rate-Limiting konfiguriert
+
 - [ ] Authentifizierung korrekt
+
 - [ ] Logging implementiert
+
 - [ ] Secrets nicht hardcoded
 
 ## Troubleshooting
@@ -778,7 +814,8 @@ export const POST = withApiMiddleware(async (context) => {
     return apiRateLimiter(context); // 30/min
   }
 });
-```
+
+```text
 
 #### CSRF-Fehler in Tests
 
@@ -826,7 +863,8 @@ export const GET = withApiMiddleware(async (context) => {
   const result = combineData(data1, data2);
   return createApiSuccess(result);
 });
-```
+
+```text
 
 ## Migration & Wartung
 
@@ -857,31 +895,42 @@ Dokumentiere Breaking Changes:
 
 ```typescript
 /**
+
  * BREAKING CHANGE in v2.0:
+
  * - `mode` parameter is now required
+
  * - Response format changed from { enhanced: string } to { enhanced: { ... } }
+
  * - Rate limits increased from 10/min to 30/min
  */
-```
+
+```text
 
 ## Ressourcen
 
 ### Weiterführende Dokumentation
 
 - **[API Overview](./api-overview.md)** - Architektur und Standards
+
 - **[Error Handling](./error-handling.md)** - Detaillierte Fehlerbehandlung
+
 - **[Rate Limiting](./rate-limiting-api.md)** - Rate-Limiting-Strategien
+
 - **[OpenAPI Spec](./openapi.yaml)** - Maschinenlesbare Spezifikation
 
 ### Tools & Libraries
 
 - **[API Middleware](../../lib/api-middleware.ts)** - Core Middleware-Implementierung
+
 - **[Rate Limiter](../../lib/rate-limiter.ts)** - Rate-Limiting-Implementierung
+
 - **[Validation Utils](../../utils/validation.ts)** - Validierungshilfsmittel
 
 ### Testing
 
 - **[API Test Utils](../../tests/utils/api-helpers.ts)** - Test-Hilfsmittel
+
 - **[Mock Context](../../tests/utils/mock-context.ts)** - Mock-Implementierungen
 
 ---
@@ -889,8 +938,11 @@ Dokumentiere Breaking Changes:
 ## Cross-Referenzen
 
 - **[Architecture](../../architecture/)** - API-Middleware und Security-Architektur
+
 - **[Development](../../development/)** - API-Tooling und lokale Entwicklung
+
 - **[Security](../../security/)** - API-Security und Rate-Limiting
+
 - **[Testing](../../testing/)** - API-Tests und Integration-Testing
 
 ## Ownership & Maintenance
@@ -903,3 +955,5 @@ Dokumentiere Breaking Changes:
 ---
 
 *Zuletzt aktualisiert: 2025-10-27*
+
+```text

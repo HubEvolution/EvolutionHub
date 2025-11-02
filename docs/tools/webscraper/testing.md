@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD051 -->
+
 # Webscraper Tool - Testing-Strategie
 
 ## Übersicht
@@ -9,13 +11,17 @@ Umfassende Testing-Strategie für höchste Code-Qualität und Systemstabilität 
 ### Parser-Tests
 
 - Verschiedene HTML-Strukturen testen
+
 - Edge-Cases und Fehlerbehandlung validieren
+
 - Performance-Tests für große Dokumente
 
 #### AI-Komponenten-Tests
 
 - Sentiment-Analyse-Genauigkeit messen
+
 - Entitäten-Erkennung-Qualität bewerten
+
 - Zusammenfassungs-Qualitätsmetriken
 
 ### Beispiel-Teststruktur
@@ -28,20 +34,25 @@ describe('WebscraperService', () => {
     expect(result.data.title).toBeDefined();
   });
 });
-```
+
+```text
 
 ## Integration-Tests
 
 ### End-to-End-Scraping
 
 - Komplette Website-Extraktion testen
+
 - Multi-Page-Navigation validieren
+
 - JavaScript-lastige Anwendungen prüfen
 
 ### Cross-Tool-Integration
 
 - Datenfluss zwischen Tools testen
+
 - Format-Kompatibilität sicherstellen
+
 - Fehlerpropagation-Tests durchführen
 
 ## E2E-Tests
@@ -49,7 +60,9 @@ describe('WebscraperService', () => {
 ### User-Workflows
 
 - Komplette Scraping-Sessions testen
+
 - Export-Funktionalitäten validieren
+
 - Monitoring-Setup und -ausführung prüfen
 
 ### Test-Setup
@@ -71,13 +84,17 @@ test('should scrape and display results', async ({ page }) => {
 ### Last-Testing
 
 - Hohe Anzahl paralleler Anfragen
+
 - Große Datenmengen verarbeiten
+
 - Memory-Leak-Tests
 
 ### Cloudflare Workers Optimierung
 
 - Bundle-Size-Messungen (< 1MB Ziel)
+
 - Cold-Start-Zeit-Optimierung
+
 - Memory-Effizienz-Tests
 
 ## Sicherheits-Tests
@@ -85,13 +102,17 @@ test('should scrape and display results', async ({ page }) => {
 ### Penetration-Testing
 
 - SQL-Injection-Tests
+
 - XSS-Vulnerability-Scans
+
 - CSRF-Attacken-Simulation
 
 ### Compliance-Tests
 
 - PII-Detektion validieren
+
 - robots.txt-Compliance prüfen
+
 - Rate-Limiting testen
 
 ## Qualitätsmetriken
@@ -99,13 +120,17 @@ test('should scrape and display results', async ({ page }) => {
 ### Code-Coverage-Ziele
 
 - **Unit-Tests**: >80% Coverage
+
 - **Integration-Tests**: >70% Coverage
+
 - **E2E-Tests**: Kritische Pfade 100% abgedeckt
 
 ### Performance-KPIs
 
 - **Response-Time**: <3s für durchschnittliche Seiten
+
 - **Error-Rate**: <1% bei Standard-Webseiten
+
 - **Memory-Usage**: <128MB pro Worker-Instance
 
 ## Test-Automatisierung
@@ -113,13 +138,17 @@ test('should scrape and display results', async ({ page }) => {
 ### CI/CD-Integration
 
 - Automatische Test-Ausführung bei jedem Commit
+
 - Parallel-Test-Execution für schnellere Builds
+
 - Coverage-Reports und Artefakt-Generierung
 
 ### Test-Umgebungen
 
 - **Development**: Schnelle Tests mit Mock-Daten
+
 - **Staging**: Integration-Tests mit echten Services
+
 - **Production**: Smoke-Tests und Health-Checks
 
 ## Debugging & Monitoring
@@ -127,13 +156,17 @@ test('should scrape and display results', async ({ page }) => {
 ### Logging-Strategie
 
 - Strukturierte Logs für alle kritischen Pfade
+
 - Performance-Metriken sammeln
+
 - Error-Tracking mit Sentry-Integration
 
 ### Test-Daten-Management
 
 - Realistische Test-Daten-Sets
+
 - Edge-Case-Szenarien abdecken
+
 - Daten-Privacy beachten (keine echten PII)
 
 ## Akzeptanzkriterien
@@ -141,15 +174,21 @@ test('should scrape and display results', async ({ page }) => {
 ### Funktionale Tests
 
 - [ ] Alle Kernfunktionen haben Unit-Tests
+
 - [ ] Integration-Tests für API-Endpunkte
+
 - [ ] E2E-Tests für komplette Workflows
+
 - [ ] Fehlerbehandlung ist umfassend getestet
 
 ### Nicht-funktionale Tests
 
 - [ ] Performance-Tests bestehen
+
 - [ ] Sicherheits-Tests sind erfolgreich
+
 - [ ] Accessibility-Tests (WCAG 2.1 AA)
+
 - [ ] Cross-Browser-Compatibility
 
 ---

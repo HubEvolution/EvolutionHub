@@ -27,12 +27,18 @@ const filteredTools = allTools.filter((tool) => {
 
 // Get categories for filter (localized)
 const categories: { id: ToolCategory; name: string }[] = getToolCategories(locale);
-// Ensure deterministic ordering: 1) Imag-Enhancer 2) Video Enhancer, then others in original order
+// Order: all available tools first (comingSoon=false), then coming soon. Within available,
+// keep deterministic priority: 1) Imag-Enhancer 2) video-enhancer, then others in original order.
 const priority: string[] = ['Imag-Enhancer', 'video-enhancer'];
-const prioritized = filteredTools.filter((t) => priority.includes(t.id))
-  .sort((a, b) => priority.indexOf(a.id) - priority.indexOf(b.id));
-const rest = filteredTools.filter((t) => !priority.includes(t.id));
-const displayTools = [...prioritized, ...rest];
+const available = filteredTools.filter((t) => !t.comingSoon);
+const coming = filteredTools.filter((t) => t.comingSoon);
+const availablePrioritized = [
+  ...available
+    .filter((t) => priority.includes(t.id))
+    .sort((a, b) => priority.indexOf(a.id) - priority.indexOf(b.id)),
+  ...available.filter((t) => !priority.includes(t.id)),
+];
+const displayTools = [...availablePrioritized, ...coming];
 ---
 
 <style is:global>
@@ -77,7 +83,7 @@ const displayTools = [...prioritized, ...rest];
       <div id="tools-container">
         {
           filteredTools.length > 0 ? (
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 items-stretch gap-6 mt-8">
               {displayTools.map((tool) => (
                 <ToolCard
                   name={tool.name}

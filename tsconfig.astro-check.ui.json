@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noUnusedLocals": false,
+    "noUnusedParameters": false
+  },
+  "include": ["src/components", "src/lib", "src/content", "src/utils"],
+  "exclude": ["src/pages/api/**", "src/server/**", "src/scripts/**", "src/pages/**"]
+}

@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD051 -->
+
 # Lokale Entwicklungsumgebung - Evolution Hub
 
 Diese Anleitung beschreibt die Einrichtung und Verwendung der lokalen Entwicklungsumgebung für das Evolution Hub Projekt. Sie enthält detaillierte Informationen zu Tools, Workflows und Best Practices für die effiziente Entwicklung.
@@ -5,15 +7,15 @@ Diese Anleitung beschreibt die Einrichtung und Verwendung der lokalen Entwicklun
 ## Inhaltsverzeichnis
 
 1. [Voraussetzungen](#voraussetzungen)
-2. [Einrichtung](#einrichtung)
-3. [Entwicklungsserver](#entwicklungsserver)
-4. [Datenbank-Setup](#datenbank-setup)
-5. [Wrangler für Cloudflare-Entwicklung](#wrangler-für-cloudflare-entwicklung)
-6. [API-Dokumentation](#api-dokumentation)
-7. [Debugging](#debugging)
-8. [Häufige Probleme und Lösungen](#häufige-probleme-und-lösungen)
-9. [Entwicklungs-Workflows](#entwicklungs-workflows)
-10. [Performance-Optimierung](#performance-optimierung)
+1. [Einrichtung](#einrichtung)
+1. [Entwicklungsserver](#entwicklungsserver)
+1. [Datenbank-Setup](#datenbank-setup)
+1. [Wrangler für Cloudflare-Entwicklung](#wrangler-fur-cloudflare-entwicklung)
+1. [API-Dokumentation](#api-dokumentation)
+1. [Debugging](#debugging)
+1. [Häufige Probleme und Lösungen](#haufige-probleme-und-losungen)
+1. [Entwicklungs-Workflows](#entwicklungs-workflows)
+1. [Performance-Optimierung](#performance-optimierung)
 
 ---
 
@@ -67,10 +69,15 @@ Bevor du mit der Entwicklung beginnst, stelle sicher, dass du folgende Tools ins
 ### Empfohlene Tools
 
 - **Visual Studio Code**: Mit folgenden Erweiterungen:
+
   - ESLint
+
   - Prettier
+
   - Tailwind CSS IntelliSense
+
   - Astro
+
   - TypeScript Vue Plugin
 
 - **Postman** oder **Insomnia**: Zum Testen von API-Endpunkten
@@ -86,12 +93,16 @@ Folge diesen Schritten, um deine lokale Entwicklungsumgebung einzurichten:
 ### 1. Repository klonen
 
 ```bash
+
 # Klone das Repository
+
 git clone https://github.com/dein-username/evolution-hub.git
 
 # Wechsle in das Projektverzeichnis
+
 cd evolution-hub
-```
+
+```bash
 
 ### 2. Abhängigkeiten installieren
 
@@ -103,12 +114,16 @@ npm install
 ### 3. Umgebungsvariablen konfigurieren
 
 ```bash
+
 # Kopiere die Beispiel-Umgebungsvariablen
+
 cp .env.example .env
 
 # Bearbeite die .env-Datei mit deinen lokalen Konfigurationen
+
 nano .env
-```
+
+```text
 
 Wichtige Umgebungsvariablen:
 
@@ -122,9 +137,12 @@ D1_DATABASE=evolution-hub-local
 ### 4. Automatisches Setup (empfohlen)
 
 ```bash
+
 # Erstellt lokale D1-Datenbank, führt Migrationen aus und richtet R2/KV für Dev ein
+
 npm run setup:local
-```
+
+```bash
 
 ### 5. Datenbank-Migrationen manuell ausführen (optional)
 
@@ -142,12 +160,16 @@ npm run db:migrate
 Empfohlen ist ein Zwei-Terminal-Setup:
 
 ```bash
+
 # Terminal 1 – beobachtet Builds für den Worker-Ausgabeordner
+
 npm run build:watch
 
 # Terminal 2 – startet Wrangler Dev (inklusive Build) auf Port 8787
+
 npm run dev:worker
-```
+
+```bash
 
 Alternativ kannst du `npm run dev` verwenden, was denselben Worker-Flow startet. Für reine Astro-UI-Iterationen ohne Cloudflare-Bindings steht `npm run dev:astro` bereit.
 
@@ -156,7 +178,9 @@ Der vollständige Stack ist unter `http://127.0.0.1:8787` erreichbar.
 ### Entwicklungsserver-Features
 
 - **Hot Module Replacement (HMR)**: Änderungen werden sofort ohne vollständigen Reload angezeigt
+
 - **Error Overlay**: Fehler werden im Browser angezeigt
+
 - **Automatische TypeScript-Typprüfung**: Typfehler werden in der Konsole angezeigt
 
 ### Entwicklungsserver-Optionen
@@ -181,16 +205,24 @@ Evolution Hub verwendet Cloudflare D1 als Datenbank. Für die lokale Entwicklung
 ### Lokale D1-Datenbank
 
 ```bash
+
 # Erstelle eine lokale D1-Datenbank
+
 wrangler d1 create evolution-hub-local
 
 # Aktualisiere die wrangler.toml mit der Datenbank-ID
+
 # Füge folgende Zeile hinzu:
+
 # [[d1_databases]]
+
 # binding = "DB"
+
 # database_name = "evolution-hub-local"
+
 # database_id = "deine-datenbank-id"
-```
+
+```bash
 
 ### Migrationen
 
@@ -210,12 +242,16 @@ npm run db:migrate -- --name 20230101000000_add_new_table
 Wrangler bietet einen einfachen Datenbank-Explorer für D1:
 
 ```bash
+
 # Starte den D1-Explorer
+
 wrangler d1 execute evolution-hub-local --local
 
 # Führe SQL-Abfragen aus
+
 wrangler d1 execute evolution-hub-local --command "SELECT * FROM users" --local
-```
+
+```bash
 
 ---
 
@@ -240,12 +276,16 @@ npm run dev:worker:dev
 ### D1-Operationen
 
 ```bash
+
 # Führe SQL direkt aus
+
 wrangler d1 execute evolution-hub-local --command "SELECT * FROM users" --local
 
 # Importiere SQL-Datei
+
 wrangler d1 execute evolution-hub-local --file ./schema.sql --local
-```
+
+```text
 
 ---
 
@@ -258,19 +298,33 @@ Evolution Hub verwendet OpenAPI/Swagger für die Dokumentation aller API-Endpunk
 Die OpenAPI-Spezifikation befindet sich im Verzeichnis `docs/api/openapi/`. Die Hauptdatei ist `docs/api/openapi.yaml`, die auf verschiedene Komponenten in Unterdateien verweist:
 
 - `schemas.yaml`: Enthält alle Datenmodelle und Schemas
+
 - `paths/`: Verzeichnis mit allen API-Endpunkt-Definitionen
+
   - `auth-login.yaml`: Login-Endpunkt
+
   - `auth-register.yaml`: Registrierungs-Endpunkt
+
   - `auth-logout.yaml`: Logout-Endpunkt
+
   - `auth-forgot-password.yaml`: Passwort-Vergessen-Endpunkt
+
   - `auth-reset-password.yaml`: Passwort-Zurücksetzen-Endpunkt
+
   - `user-me.yaml`: Benutzerprofilendpunkt
+
   - `user-profile.yaml`: Benutzerprofilaktualisierungsendpunkt
+
   - `projects.yaml`: Projektlisten-Endpunkt
+
   - `projects-id.yaml`: Projekt-Detail-Endpunkt
+
   - `projects-id-comments.yaml`: Projektkommentar-Endpunkt
+
   - `comments-id.yaml`: Kommentar-Detail-Endpunkt
+
   - `tools.yaml`: Tool-Listen-Endpunkt
+
   - `tools-id.yaml`: Tool-Detail-Endpunkt
 
 ### Verwendung der API-Dokumentation
@@ -290,21 +344,25 @@ Die Dokumentation ist dann unter `http://localhost:8080` verfügbar.
 Bei der Entwicklung neuer API-Endpunkte solltest du folgende Schritte befolgen:
 
 1. **Spezifikation zuerst**: Definiere den neuen Endpunkt in der OpenAPI-Spezifikation, bevor du mit der Implementierung beginnst
-2. **Schema-Validierung**: Verwende die definierten Schemas zur Validierung von Anfragen und Antworten
-3. **Konsistente Fehlerbehandlung**: Folge den definierten Fehlerformaten in der Spezifikation
-4. **Sicherheitsanforderungen**: Beachte die definierten Sicherheitsanforderungen für jeden Endpunkt
+1. **Schema-Validierung**: Verwende die definierten Schemas zur Validierung von Anfragen und Antworten
+1. **Konsistente Fehlerbehandlung**: Folge den definierten Fehlerformaten in der Spezifikation
+1. **Sicherheitsanforderungen**: Beachte die definierten Sicherheitsanforderungen für jeden Endpunkt
 
 #### Testen mit der API-Dokumentation
 
 Die OpenAPI-Spezifikation kann auch für automatisierte Tests verwendet werden:
 
 ```bash
+
 # Installiere OpenAPI-Validator (falls noch nicht installiert)
+
 npm install -g openapi-validator
 
 # Validiere die API-Spezifikation
+
 openapi-validator docs/api/openapi.yaml
-```
+
+```text
 
 ---
 
@@ -313,13 +371,19 @@ openapi-validator docs/api/openapi.yaml
 ### Debugging des Frontends
 
 1. **Browser DevTools**:
+
    - Öffne die DevTools (F12 oder Rechtsklick > Untersuchen)
+
    - Verwende den Elements-Tab für DOM-Inspektion
+
    - Verwende den Console-Tab für JavaScript-Fehler
+
    - Verwende den Network-Tab für API-Anfragen
 
-2. **Astro Dev Tools**:
+1. **Astro Dev Tools**:
+
    - Installiere die Astro DevTools Browser-Erweiterung
+
    - Analysiere Astro-Komponenten und -Inseln
 
 ### Debugging des Backends
@@ -339,9 +403,13 @@ http://localhost:8787/debug  # (Wrangler dev)
 **Features:**
 
 - ✅ **Auto-Environment-Detection**: Automatische Verbindungsart-Erkennung
+
 - ✅ **WebSocket-Streaming**: Real-time Logs für `npm run dev` (Astro)
+
 - ✅ **SSE-Streaming**: Near real-time Logs für `npm run dev:wrangler` (Cloudflare)
+
 - ✅ **Security-Event-Integration**: Alle API-Aktivitäten live sichtbar
+
 - ✅ **Visual Connection-Status**: Connection-Mode-Badges (WEBSOCKET/SSE)
 
 #### 2. **Traditionelle Logging-Methoden**
@@ -349,9 +417,12 @@ http://localhost:8787/debug  # (Wrangler dev)
 **Wrangler-Logs**:
 
 ```bash
+
 # Zeige Logs an
+
 wrangler tail
-```
+
+```bash
 
 **Lokales Debugging**:
 
@@ -363,17 +434,22 @@ NODE_OPTIONS="--inspect" npm run dev
 **Konsolen-Debugging**:
 
 - Füge `console.log()` oder `console.error()` in deinen Code ein
+
 - Logs erscheinen sowohl in Terminal als auch im Debug Panel
 
 ### Debugging von Tests
 
 ```bash
+
 # Führe Tests im Debug-Modus aus
+
 npm run test:debug
 
 # Führe einen bestimmten Test aus
+
 npm run test -- -t "test name"
-```
+
+```bash
 
 ---
 
@@ -400,13 +476,18 @@ wrangler whoami
 **Lösung**:
 
 ```bash
+
 # Überprüfe die Datenbank-ID in wrangler.toml
+
 # Stelle sicher, dass die lokale Datenbank existiert
+
 wrangler d1 list
 
 # Erstelle die Datenbank neu, falls nötig
+
 wrangler d1 create evolution-hub-local
-```
+
+```bash
 
 ### 3. TypeScript-Fehler
 
@@ -429,13 +510,17 @@ npm install --save-dev @types/node@latest
 **Lösung**:
 
 ```bash
+
 # Lösche den Cache
+
 rm -rf .astro/
 rm -rf node_modules/.vite/
 
 # Installiere Abhängigkeiten neu
+
 npm ci
-```
+
+```bash
 
 ---
 
@@ -449,13 +534,17 @@ npm ci
    git checkout -b feature/neue-funktion
    ```
 
-2. **Lokale Entwicklung**:
+1. **Lokale Entwicklung**:
+
    - Implementiere die Funktion
+
    - Schreibe Tests
+
    - Führe Tests aus: `npm test`
+
    - Überprüfe Linting: `npm run lint`
 
-3. **Commit und Push**:
+1. **Commit und Push**:
 
    ```bash
    git add .
@@ -463,8 +552,10 @@ npm ci
    git push origin feature/neue-funktion
    ```
 
-4. **Pull Request erstellen**:
+1. **Pull Request erstellen**:
+
    - Erstelle einen PR auf GitHub
+
    - Warte auf CI-Checks und Code Review
 
 ### Bugfix-Workflow
@@ -475,15 +566,19 @@ npm ci
    git checkout -b bugfix/fehler-beheben
    ```
 
-2. **Fehler reproduzieren**:
+1. **Fehler reproduzieren**:
+
    - Schreibe einen Test, der den Fehler reproduziert
+
    - Überprüfe, dass der Test fehlschlägt
 
-3. **Fehler beheben**:
+1. **Fehler beheben**:
+
    - Implementiere die Fehlerbehebung
+
    - Stelle sicher, dass der Test erfolgreich ist
 
-4. **Commit und Push**:
+1. **Commit und Push**:
 
    ```bash
    git add .
@@ -498,30 +593,42 @@ npm ci
 ### Frontend-Optimierung
 
 1. **Komponenten-Analyse**:
+
    - Verwende die Astro Dev Tools zur Analyse der Komponenten-Performance
+
    - Identifiziere unnötige Hydration
 
-2. **Bundle-Analyse**:
+1. **Bundle-Analyse**:
 
    ```bash
    # Führe eine Bundle-Analyse durch
    npm run build -- --analyze
    ```
 
-3. **Lazy Loading**:
+1. **Lazy Loading**:
+
    - Verwende `import()` für dynamisches Laden von Komponenten
+
    - Verwende das `client:visible`-Direktiv für verzögerte Hydration
 
 ### Backend-Optimierung
 
 1. **Datenbank-Indizes**:
+
    - Füge Indizes für häufig abgefragte Felder hinzu
+
    - Analysiere langsame Abfragen
 
-2. **Caching**:
+1. **Caching**:
+
    - Implementiere Caching für häufig abgerufene Daten
+
    - Verwende Cloudflare Cache-APIs
 
-3. **Edge-Funktionen**:
+1. **Edge-Funktionen**:
+
    - Optimiere Code für Edge-Ausführung
+
    - Minimiere CPU-intensive Operationen
+
+```text

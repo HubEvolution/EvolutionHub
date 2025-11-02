@@ -58,7 +58,7 @@
     const accentB = parseRGBTriplet(readVar(scope, '--accent-b', '135 76 255'), [135, 76, 255]);
     const bg0 = parseRGBTriplet(readVar(scope, '--bg-0', '10 14 28'), [10, 14, 28]);
     const gridLine = parseRGBTriplet(readVar(scope, '--grid-line', '180 190 210'), [180, 190, 210]);
-    const scanlineAlpha = parseFloat(readVar(scope, '--scanline-alpha', '0.04')) || 0.04;
+    // scanline alpha no longer used; grid rendering simplified
     const grainAlpha = parseFloat(readVar(scope, '--grain-alpha', '0.015')) || 0.015;
 
     ctx.clearRect(0, 0, W, H);
@@ -245,7 +245,10 @@
     const scope = findLandingScope(container);
     resizeToViewport(canvas);
 
-    (window as any).__bg = { mounted: true, variant };
+    (window as unknown as { __bg?: { mounted: boolean; variant: string } }).__bg = {
+      mounted: true,
+      variant,
+    };
 
     let t = 0;
     function drawFrame() {

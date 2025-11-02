@@ -7,6 +7,7 @@
  */
 
 import { loggerFactory } from '@/server/utils/logger-factory';
+import type { ExtendedLogger } from '@/types/logger';
 import type { KVNamespace } from '@cloudflare/workers-types';
 import * as cheerio from 'cheerio';
 import {
@@ -34,7 +35,7 @@ interface RuntimeEnv {
 
 export class WebscraperService {
   private env: RuntimeEnv;
-  private log: any;
+  private log: ExtendedLogger;
   private publicFlag: boolean;
 
   constructor(env: RuntimeEnv) {
@@ -422,8 +423,8 @@ export class WebscraperService {
     limitOverride?: number
   ): Promise<ScrapeResult> {
     if (!this.publicFlag) {
-      const err = new Error('feature_not_enabled');
-      (err as any).code = 'feature_disabled';
+      const err = new Error('feature_not_enabled') as Error & { code?: string };
+      err.code = 'feature_disabled';
       this.logWarn('scrape_blocked_by_flag', { ownerType, ownerId: ownerId.slice(-4) });
       throw err;
     }
@@ -451,8 +452,8 @@ export class WebscraperService {
     // Validate URL
     const validation = this.validateUrl(input.url);
     if (!validation.valid) {
-      const err = new Error(validation.error);
-      (err as any).code = 'validation_error';
+      const err = new Error(validation.error) as Error & { code?: string };
+      err.code = 'validation_error';
       this.logError('scrape_failed', {
         reqId,
         errorKind: 'validation_error',
@@ -465,9 +466,12 @@ export class WebscraperService {
     // Quota check
     const currentUsage = await this.getUsage(ownerType, ownerId, limit);
     if (currentUsage.used >= currentUsage.limit) {
-      const err = new Error(`Quota exceeded. Used ${currentUsage.used}/${limit}`);
-      (err as any).code = 'quota_exceeded';
-      (err as any).details = currentUsage;
+      const err = new Error(`Quota exceeded. Used ${currentUsage.used}/${limit}`) as Error & {
+        code?: string;
+        details?: unknown;
+      };
+      err.code = 'quota_exceeded';
+      err.details = currentUsage;
       this.logError('scrape_failed', {
         reqId,
         errorKind: 'quota_exceeded',
@@ -481,8 +485,8 @@ export class WebscraperService {
     // Check robots.txt
     const robotsAllowed = await this.checkRobotsTxt(input.url);
     if (!robotsAllowed) {
-      const err = new Error('robots.txt disallows scraping this URL');
-      (err as any).code = 'robots_txt_blocked';
+      const err = new Error('robots.txt disallows scraping this URL') as Error & { code?: string };
+      err.code = 'robots_txt_blocked';
       this.logError('scrape_failed', {
         reqId,
         errorKind: 'robots_txt_blocked',
@@ -496,8 +500,10 @@ export class WebscraperService {
     try {
       html = await this.fetchHtml(input.url);
     } catch (error) {
-      const err = new Error(`Fetch failed: ${(error as Error).message}`);
-      (err as any).code = 'fetch_error';
+      const err = new Error(`Fetch failed: ${(error as Error).message}`) as Error & {
+        code?: string;
+      };
+      err.code = 'fetch_error';
       this.logError('scrape_failed', {
         reqId,
         errorKind: 'fetch_error',
@@ -513,8 +519,10 @@ export class WebscraperService {
       result = this.parseContent(html, input.url);
       result.robotsTxtAllowed = robotsAllowed;
     } catch (error) {
-      const err = new Error(`Parse failed: ${(error as Error).message}`);
-      (err as any).code = 'parse_error';
+      const err = new Error(`Parse failed: ${(error as Error).message}`) as Error & {
+        code?: string;
+      };
+      err.code = 'parse_error';
       this.logError('scrape_failed', {
         reqId,
         errorKind: 'parse_error',

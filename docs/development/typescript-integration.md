@@ -1,14 +1,16 @@
+<!-- markdownlint-disable MD051 -->
+
 # TypeScript-Integration im Evolution Hub
 
 Diese Dokumentation beschreibt die TypeScript-Integration im Evolution Hub Projekt, einschließlich Best Practices, Konfiguration und Build-Prozess.
 
 ## Inhaltsverzeichnis
 
-1. [Übersicht](#übersicht)
-2. [TypeScript-Konfiguration](#typescript-konfiguration)
-3. [Best Practices](#best-practices)
-4. [Build-Prozess](#build-prozess)
-5. [Troubleshooting](#troubleshooting)
+1. [Übersicht](#ubersicht)
+1. [TypeScript-Konfiguration](#typescript-konfiguration)
+1. [Best Practices](#best-practices)
+1. [Build-Prozess](#build-prozess)
+1. [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -19,8 +21,11 @@ Das Evolution Hub Projekt verwendet TypeScript für alle clientseitigen Skripte,
 ### Vorteile der TypeScript-Integration
 
 - **Typsicherheit**: Frühzeitige Erkennung von Fehlern während der Entwicklung
+
 - **Bessere IDE-Unterstützung**: Automatische Vervollständigung, Refactoring und Navigation
+
 - **Verbesserte Wartbarkeit**: Selbstdokumentierender Code durch Typdefinitionen
+
 - **Moderne JavaScript-Features**: Zugriff auf neueste ECMAScript-Features mit Abwärtskompatibilität
 
 ---
@@ -49,12 +54,15 @@ Die TypeScript-Konfiguration wird in der `tsconfig.json`-Datei im Wurzelverzeich
   "include": ["src/**/*.ts", "public/scripts/**/*.ts"],
   "exclude": ["node_modules"]
 }
-```
+
+```text
 
 ### Wichtige Einstellungen
 
 - **esModuleInterop**: Ermöglicht die Interoperabilität zwischen CommonJS- und ES-Modulen
+
 - **allowSyntheticDefaultImports**: Erlaubt Imports von Modulen ohne Default-Export
+
 - **strict**: Aktiviert alle strikten Typ-Prüfungen
 
 ---
@@ -64,33 +72,45 @@ Die TypeScript-Konfiguration wird in der `tsconfig.json`-Datei im Wurzelverzeich
 ### 1. Datei- und Codeorganisation
 
 - Alle TypeScript-Dateien haben die Erweiterung `.ts`
+
 - React-Komponenten mit JSX haben die Erweiterung `.tsx`
+
 - Verwende aussagekräftige Dateinamen, die den Inhalt beschreiben
+
 - Organisiere Code in logische Module und Verzeichnisse
 
 ### 2. Typisierung
 
 - Verwende explizite Typen für Funktionsparameter und Rückgabewerte
+
 - Nutze Interfaces für komplexe Datenstrukturen
+
 - Vermeide `any` wo möglich, verwende stattdessen `unknown` für unbekannte Typen
+
 - Nutze Generics für wiederverwendbare Typdefinitionen
 
 ### 3. Import/Export
 
 - Bevorzuge ES6-Module-Syntax (`import`/`export`)
+
 - Für CommonJS-Module (wie `toastr`) verwende die Syntax `import moduleName = require('module-name')`
+
 - Vermeide Default-Exports, bevorzuge benannte Exports für bessere Refaktorierbarkeit
 
 ### 4. DOM-Manipulation
 
 - Verwende Typ-Assertions (`as HTMLElement`) nur wenn nötig
+
 - Prüfe immer auf Existenz von DOM-Elementen vor der Manipulation
+
 - Verwende TypeScript-Event-Typen für Event-Handler
 
 ### 5. Build-Artefakte
 
 - Generierte JavaScript-Dateien (`.js`) werden nicht im Repository gespeichert
+
 - Die `.gitignore`-Datei enthält den Eintrag `public/scripts/**/*.js` um generierte JavaScript-Dateien auszuschließen
+
 - JavaScript-Dateien werden während des Build-Prozesses generiert
 
 ---
@@ -112,12 +132,16 @@ npx tsc path/to/file.ts --outDir path/to/output --esModuleInterop
 Der automatisierte Build-Prozess wird durch npm-Skripte gesteuert:
 
 ```bash
+
 # Entwicklungs-Build mit Watch-Modus
+
 npm run build:watch
 
 # Produktions-Build
+
 npm run build
-```
+
+```text
 
 ### TypeScript-Kompilierung im CI/CD-Prozess
 
@@ -168,7 +192,8 @@ elements.forEach(el => {
   const handler = handlers.get(el);
   if (handler) el.removeEventListener('click', handler);
 });
-```
+
+```text
 
 #### 3. Module not found
 
@@ -181,5 +206,9 @@ elements.forEach(el => {
 ## Weitere Ressourcen
 
 - [TypeScript-Dokumentation](https://www.typescriptlang.org/docs/)
+
 - [TypeScript Deep Dive](https://basarat.gitbook.io/typescript/)
+
 - [TypeScript-Styleguide](https://google.github.io/styleguide/tsguide.html)
+
+```text

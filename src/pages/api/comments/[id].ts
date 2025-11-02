@@ -1,4 +1,5 @@
 import { Hono } from 'hono';
+import type { Context } from 'hono';
 import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
 import type { APIContext } from 'astro';
@@ -7,6 +8,7 @@ import { CommentService } from '@/lib/services/comment-service';
 import { requireAuth } from '@/lib/auth-helpers';
 import { createCsrfMiddleware, validateCsrfToken } from '@/lib/security/csrf';
 import type { UpdateCommentRequest } from '@/lib/types/comments';
+import type { D1Database, KVNamespace } from '@cloudflare/workers-types';
 
 const app = new Hono();
 
@@ -29,7 +31,8 @@ app.use(
 app.use('/:id', createCsrfMiddleware());
 
 // GET /api/comments/[id] - Get a specific comment
-app.get('/:id', async (c: any) => {
+// Note: keep Context non-generic to match installed Hono types
+app.get('/:id', async (c: Context) => {
   try {
     const commentId = c.req.param('id');
     const commentService = new CommentService(c.env.DB, c.env.KV_COMMENTS);
@@ -55,7 +58,7 @@ app.get('/:id', async (c: any) => {
 });
 
 // PUT /api/comments/[id] - Update a comment
-app.put('/:id', async (c: any) => {
+app.put('/:id', async (c: Context) => {
   try {
     const commentId = c.req.param('id');
     const user = await requireAuth({
@@ -110,7 +113,7 @@ app.put('/:id', async (c: any) => {
 });
 
 // DELETE /api/comments/[id] - Delete (hide) a comment
-app.delete('/:id', async (c: any) => {
+app.delete('/:id', async (c: Context) => {
   try {
     const commentId = c.req.param('id');
     const user = await requireAuth({
@@ -163,17 +166,24 @@ app.delete('/:id', async (c: any) => {
 // Named handlers for file-based router
 export const GET = async (context: APIContext) => {
   try {
-    const env = (context.locals?.runtime?.env || {}) as { DB?: any; KV_COMMENTS?: any } | undefined;
-    const db = env?.DB || (context as unknown as { locals?: { env?: { DB?: any } } }).locals?.env?.DB;
-    if (!db) return createApiError('server_error', 'Database binding missing');
+    const env = (context.locals?.runtime?.env || {}) as
+      | { DB?: unknown; KV_COMMENTS?: unknown }
+      | undefined;
+    const dbUnknown =
+      env?.DB || (context as unknown as { locals?: { env?: { DB?: unknown } } }).locals?.env?.DB;
+    if (!dbUnknown) return createApiError('server_error', 'Database binding missing');
+    const hasPrepare = typeof (dbUnknown as { prepare?: unknown }).prepare === 'function';
+    if (!hasPrepare) return createApiError('server_error', 'Database binding invalid');
+    const db = dbUnknown as D1Database;
 
     const id = context.params.id as string | undefined;
     if (!id) return createApiError('validation_error', 'Comment ID required');
 
     const kv =
       env?.KV_COMMENTS ||
-      (context as unknown as { locals?: { env?: { KV_COMMENTS?: any } } }).locals?.env?.KV_COMMENTS;
-    const service = new CommentService(db, kv);
+      (context as unknown as { locals?: { env?: { KV_COMMENTS?: unknown } } }).locals?.env
+        ?.KV_COMMENTS;
+    const service = new CommentService(db, kv as KVNamespace | undefined);
     const comment = await service.getCommentById(id);
     return createApiSuccess(comment);
   } catch (err) {
@@ -185,9 +195,15 @@ export const GET = async (context: APIContext) => {
 
 export const PUT = async (context: APIContext) => {
   try {
-    const env = (context.locals?.runtime?.env || {}) as { DB?: any; KV_COMMENTS?: any } | undefined;
-    const db = env?.DB || (context as unknown as { locals?: { env?: { DB?: any } } }).locals?.env?.DB;
-    if (!db) return createApiError('server_error', 'Database binding missing');
+    const env = (context.locals?.runtime?.env || {}) as
+      | { DB?: unknown; KV_COMMENTS?: unknown }
+      | undefined;
+    const dbUnknown =
+      env?.DB || (context as unknown as { locals?: { env?: { DB?: unknown } } }).locals?.env?.DB;
+    if (!dbUnknown) return createApiError('server_error', 'Database binding missing');
+    const hasPrepare = typeof (dbUnknown as { prepare?: unknown }).prepare === 'function';
+    if (!hasPrepare) return createApiError('server_error', 'Database binding invalid');
+    const db = dbUnknown as D1Database;
 
     const id = context.params.id as string | undefined;
     if (!id) return createApiError('validation_error', 'Comment ID required');
@@ -216,11 +232,12 @@ export const PUT = async (context: APIContext) => {
       );
     }
 
-    const { csrfToken, ...updateData } = body;
+    const { csrfToken: _csrfToken, ...updateData } = body;
     const kv =
       env?.KV_COMMENTS ||
-      (context as unknown as { locals?: { env?: { KV_COMMENTS?: any } } }).locals?.env?.KV_COMMENTS;
-    const service = new CommentService(db, kv);
+      (context as unknown as { locals?: { env?: { KV_COMMENTS?: unknown } } }).locals?.env
+        ?.KV_COMMENTS;
+    const service = new CommentService(db, kv as KVNamespace | undefined);
     const updated = await service.updateComment(id, updateData, String(user.id), token);
     return createApiSuccess(updated);
   } catch (err) {
@@ -242,9 +259,15 @@ export const PUT = async (context: APIContext) => {
 
 export const DELETE = async (context: APIContext) => {
   try {
-    const env = (context.locals?.runtime?.env || {}) as { DB?: any; KV_COMMENTS?: any } | undefined;
-    const db = env?.DB || (context as unknown as { locals?: { env?: { DB?: any } } }).locals?.env?.DB;
-    if (!db) return createApiError('server_error', 'Database binding missing');
+    const env = (context.locals?.runtime?.env || {}) as
+      | { DB?: unknown; KV_COMMENTS?: unknown }
+      | undefined;
+    const dbUnknown =
+      env?.DB || (context as unknown as { locals?: { env?: { DB?: unknown } } }).locals?.env?.DB;
+    if (!dbUnknown) return createApiError('server_error', 'Database binding missing');
+    const hasPrepare = typeof (dbUnknown as { prepare?: unknown }).prepare === 'function';
+    if (!hasPrepare) return createApiError('server_error', 'Database binding invalid');
+    const db = dbUnknown as D1Database;
 
     const id = context.params.id as string | undefined;
     if (!id) return createApiError('validation_error', 'Comment ID required');
@@ -270,9 +293,9 @@ export const DELETE = async (context: APIContext) => {
 
     const kv =
       env?.KV_COMMENTS ||
-      (context as unknown as { locals?: { env?: { KV_COMMENTS?: KVNamespace } } }).locals?.env
+      (context as unknown as { locals?: { env?: { KV_COMMENTS?: unknown } } }).locals?.env
         ?.KV_COMMENTS;
-    const service = new CommentService(db, kv);
+    const service = new CommentService(db, kv as KVNamespace | undefined);
     await service.deleteComment(id, String(user.id), token);
     return createApiSuccess({ message: 'Comment deleted successfully' });
   } catch (err) {

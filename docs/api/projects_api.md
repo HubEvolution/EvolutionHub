@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD051 -->
+
 # Projekte API Endpunkte
 
 Dieses Dokument beschreibt die API-Endpunkte für die Projektverwaltung im Evolution Hub.
@@ -11,9 +13,13 @@ Alle Endpunkte erfordern eine Authentifizierung über eine Server-Session (HttpO
 Alle Projekt-API-Endpunkte sind mit folgenden Sicherheitsmaßnahmen ausgestattet:
 
 * **Rate-Limiting:** 50 Anfragen pro Minute (`standardApiLimiter`)
+
 * **Security-Headers:** Alle Standard-Security-Headers werden angewendet
+
 * **Audit-Logging:** Alle Projekt-Aktionen werden protokolliert
+
 * **Input-Validierung:** Alle Eingabeparameter werden validiert und sanitisiert
+
 * **Berechtigungsprüfung:** Zugriffskontrolle auf Projektebene (nur Eigentümer und berechtigte Benutzer)
 
 ---
@@ -23,8 +29,11 @@ Alle Projekt-API-Endpunkte sind mit folgenden Sicherheitsmaßnahmen ausgestattet
 Ruft alle Projekte ab, die dem authentifizierten Benutzer zugeordnet sind.
 
 * **HTTP-Methode:** `GET`
+
 * **Pfad:** `/api/dashboard/projects`
+
 * **Handler-Funktion:** GET-Handler in `dashboard/projects.ts`
+
 * **Security:** Rate-Limiting (50/min über `standardApiLimiter`), Security-Headers, Audit-Logging, Benutzer-spezifische Filterung
 
 ### Erfolgreiche Antwort (`200 OK`)
@@ -44,7 +53,8 @@ Ruft alle Projekte ab, die dem authentifizierten Benutzer zugeordnet sind.
     }
   ]
 }
-```
+
+```text
 
 ### Fehlerhafte Antwort (`401 Unauthorized`)
 
@@ -59,8 +69,11 @@ Ruft alle Projekte ab, die dem authentifizierten Benutzer zugeordnet sind.
 Erstellt ein neues Projekt für den authentifizierten Benutzer.
 
 * **HTTP-Methode:** `POST`
+
 * **Pfad:** `/api/projects`
+
 * **Handler-Funktion:** POST-Handler in `index.ts`
+
 * **Security:** Rate-Limiting (50/min über `standardApiLimiter`), Security-Headers, Audit-Logging, Input-Validierung
 
 ### Request-Body
@@ -71,7 +84,8 @@ Erstellt ein neues Projekt für den authentifizierten Benutzer.
   "description": "Dies ist eine Beschreibung für mein neues Projekt.",
   "status": "active"
 }
-```
+
+```text
 
 ### Erfolgreiche Antwort (`201 Created`)
 
@@ -95,7 +109,8 @@ Erstellt ein neues Projekt für den authentifizierten Benutzer.
 
 ```json
 { "success": false, "error": { "type": "validation_error", "message": "Title is required" } }
-```
+
+```text
 
 ---
 
@@ -107,8 +122,11 @@ Dieser Endpunkt ist derzeit nicht funktional und gibt bei Aufruf einen 404-Fehle
 Ruft die Details eines bestimmten Projekts ab.
 
 * **HTTP-Methode:** `GET`
+
 * **Pfad:** `/api/projects/:id`
+
 * **Hander-Datei:** Nicht vorhanden in `src/pages/api/projects/`.
+
 * **Security:** Theoretisch Rate-Limiting (50/min), Security-Headers, Audit-Logging, Eigentümer-Validierung
 
 ### Theoretische Erfolgreiche Antwort (`200 OK`)
@@ -152,7 +170,8 @@ Ruft die Details eines bestimmten Projekts ab.
   "error": "Projekt nicht gefunden",
   "success": false
 }
-```
+
+```text
 
 ---
 
@@ -164,8 +183,11 @@ Dieser Endpunkt ist derzeit nicht funktional und gibt bei Aufruf einen 404-Fehle
 Aktualisiert die Details eines bestimmten Projekts.
 
 * **HTTP-Methode:** `PUT`
+
 * **Pfad:** `/api/projects/:id`
+
 * **Handler-Datei:** Nicht vorhanden in `src/pages/api/projects/`.
+
 * **Security:** Theoretisch Rate-Limiting (5/min), Security-Headers, Audit-Logging, Input-Validierung, Eigentümer-Validierung
 
 ### Theoretischer Request-Body
@@ -179,7 +201,7 @@ Aktualisiert die Details eines bestimmten Projekts.
 }
 ```
 
-### Theoretische Erfolgreiche Antwort (`200 OK`)
+### Theoretische Erfolgreiche Antwort (`200 OK`) (2)
 
 ```json
 {
@@ -195,7 +217,8 @@ Aktualisiert die Details eines bestimmten Projekts.
     "updated_at": "2023-10-28T14:30:00Z"
   }
 }
-```
+
+```text
 
 ### Theoretische Fehlerhafte Antwort (`404 Not Found`)
 
@@ -216,20 +239,24 @@ Dieser Endpunkt ist derzeit nicht funktional und gibt bei Aufruf einen 404-Fehle
 Löscht ein bestimmtes Projekt.
 
 * **HTTP-Methode:** `DELETE`
+
 * **Pfad:** `/api/projects/:id`
+
 * **Handler-Datei:** Nicht vorhanden in `src/pages/api/projects/`.
+
 * **Security:** Theoretisch Rate-Limiting (5/min), Security-Headers, Audit-Logging, Eigentümer-Validierung
 
-### Theoretische Erfolgreiche Antwort (`200 OK`)
+### Theoretische Erfolgreiche Antwort (`200 OK`) (2) (2)
 
 ```json
 {
   "success": true,
   "message": "Projekt erfolgreich gelöscht"
 }
-```
 
-### Theoretische Fehlerhafte Antwort (`404 Not Found`)
+```text
+
+### Theoretische Fehlerhafte Antwort (`404 Not Found`) (2)
 
 ```json
 {
@@ -245,20 +272,29 @@ Löscht ein bestimmtes Projekt.
 ### Zugriffskontrolle
 
 * Projekte sind nur für den Eigentümer und explizit berechtigte Benutzer zugänglich
+
 * Alle Zugriffe werden protokolliert und auf Berechtigung geprüft
+
 * Keine Preisgabe von Projektdaten an unbefugte Benutzer
+
 * Konsistente Fehlerantworten ohne Informationslecks
 
 ### Datenschutz
 
 * Verschlüsselte Übertragung aller Projektdaten (HTTPS)
+
 * Sichere Speicherung in der Datenbank (Cloudflare D1)
+
 * Regelmäßige Backups der Projektdaten
+
 * Löschung inaktiver Projekte nach definiertem Zeitraum (optional)
 
 ### Audit-Trail
 
 * Protokollierung aller Projektänderungen
+
 * Nachverfolgbarkeit von Bearbeitungen und Löschungen
+
 * Zeitstempel für alle Aktionen
+
 * Benutzer-ID für alle Änderungen

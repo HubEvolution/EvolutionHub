@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD051 -->
+
 # AI-Image Enhancement API
 
 **Status:** ✅ Vollständig implementiert (Production-Ready)
@@ -8,9 +10,13 @@ Die AI-Image Enhancement API bietet umfassende Bildverbesserungsfunktionen mit H
 ## Übersicht
 
 - **Basis-URL:** `/api/ai-image`
+
 - **Authentifizierung:** Optional (User + Guest-Modus)
+
 - **Rate-Limiting:** 15/min (aiGenerateLimiter)
+
 - **Provider:** Hybrid (Replicate + Cloudflare Workers AI)
+
 - **Modelle:** Real-ESRGAN (2x/4x), GFPGAN/CodeFormer (Gesichts-Restore), SD 1.5/SDXL (img2img)
 
 ## Endpunkte
@@ -26,16 +32,23 @@ Startet eine neue Bildverbesserung mit umfassenden Konfigurationsoptionen.
 **Erforderliche Felder:**
 
 - `image` - Bilddatei (JPEG, PNG, WebP, max. 10MB)
+
 - `model` - Modell-Slug (z.B. `real-esrgan`, `gfpgan`, `sdxl-img2img`)
 
 **Optionale Felder:**
 
 - `scale` - Upscaling-Faktor: `2` | `4` (nur für ESRGAN-Modelle)
+
 - `face_enhance` - Gesichtsverbesserung: `true` | `false` (GFPGAN/CodeFormer)
+
 - `prompt` - Prompt-Text für img2img-Modelle
+
 - `negative_prompt` - Negativer Prompt für img2img-Modelle
+
 - `strength` - Stärke der Transformation (0.0-1.0)
+
 - `guidance` - Guidance-Scale für SD-Modelle (1.0-20.0)
+
 - `steps` - Anzahl der Inferenz-Schritte (10-50)
 
 #### Beispiel-Requests
@@ -51,7 +64,8 @@ curl -X POST \
   -F "scale=4" \
   -F "image=@mein-bild.jpg;type=image/jpeg" \
   http://127.0.0.1:8787/api/ai-image/generate
-```
+
+```bash
 
 **Gesichtsverbesserung mit Prompt:**
 
@@ -99,7 +113,8 @@ curl -X POST \
     }
   }
 }
-```
+
+```text
 
 #### Error Responses
 
@@ -130,7 +145,8 @@ curl -X POST \
     }
   }
 }
-```
+
+```bash
 
 ### GET `/api/ai-image/usage`
 
@@ -149,7 +165,7 @@ curl "http://127.0.0.1:8787/api/ai-image/usage" \
   -H "Cookie: guest_id=abc123"
 ```
 
-#### Success Response (200)
+#### Success Response (200) (2)
 
 ```json
 {
@@ -167,7 +183,8 @@ curl "http://127.0.0.1:8787/api/ai-image/usage" \
     }
   }
 }
-```
+
+```bash
 
 ### GET `/api/ai-image/jobs`
 
@@ -176,17 +193,19 @@ Listet alle AI-Jobs des aktuellen Benutzers/Gasts auf.
 #### Query-Parameter
 
 - `status` - Filter nach Status: `queued` | `processing` | `succeeded` | `failed` | `canceled`
+
 - `limit` - Anzahl der Ergebnisse (Standard: 20, Max: 100)
+
 - `offset` - Offset für Pagination (Standard: 0)
 
-#### Beispiel-Request
+#### Beispiel-Request (2)
 
 ```bash
 curl "http://127.0.0.1:8787/api/ai-image/jobs?status=succeeded&limit=10" \
   -H "Cookie: guest_id=abc123"
 ```
 
-#### Success Response (200)
+#### Success Response (200) (3)
 
 ```json
 {
@@ -207,7 +226,8 @@ curl "http://127.0.0.1:8787/api/ai-image/jobs?status=succeeded&limit=10" \
     "hasMore": false
   }
 }
-```
+
+```bash
 
 ### GET `/api/ai-image/jobs/{id}`
 
@@ -217,14 +237,14 @@ Ruft den Status und Details eines spezifischen Jobs ab.
 
 - `id` - Job-ID (z.B. `job_abc123def456`)
 
-#### Beispiel-Request
+#### Beispiel-Request (3)
 
 ```bash
 curl "http://127.0.0.1:8787/api/ai-image/jobs/job_abc123def456" \
   -H "Cookie: guest_id=abc123"
 ```
 
-#### Success Response (200)
+#### Success Response (200) (4)
 
 ```json
 {
@@ -248,17 +268,18 @@ curl "http://127.0.0.1:8787/api/ai-image/jobs/job_abc123def456" \
     "outputSize": 8192004
   }
 }
-```
+
+```bash
 
 ### POST `/api/ai-image/jobs/{id}/cancel`
 
 Bricht einen laufenden oder wartenden Job ab.
 
-#### Pfad-Parameter
+#### Pfad-Parameter (2)
 
 - `id` - Job-ID
 
-#### Beispiel-Request
+#### Beispiel-Request (4)
 
 ```bash
 curl -X POST "http://127.0.0.1:8787/api/ai-image/jobs/job_abc123def456/cancel" \
@@ -267,7 +288,7 @@ curl -X POST "http://127.0.0.1:8787/api/ai-image/jobs/job_abc123def456/cancel" \
   -H "Origin: http://127.0.0.1:8787"
 ```
 
-#### Success Response (200)
+#### Success Response (200) (5)
 
 ```json
 {
@@ -278,7 +299,8 @@ curl -X POST "http://127.0.0.1:8787/api/ai-image/jobs/job_abc123def456/cancel" \
     "canceledAt": "2025-01-15T10:35:00.000Z"
   }
 }
-```
+
+```text
 
 ## Modelle und Konfigurationen
 
@@ -289,7 +311,9 @@ curl -X POST "http://127.0.0.1:8787/api/ai-image/jobs/job_abc123def456/cancel" \
 **Besonderheiten:**
 
 - Bewahrt Details und Texturen
+
 - Reduziert Artefakte
+
 - Optimiert für Fotos und digitale Kunst
 
 ### GFPGAN/CodeFormer
@@ -298,8 +322,11 @@ curl -X POST "http://127.0.0.1:8787/api/ai-image/jobs/job_abc123def456/cancel" \
 **Besonderheiten:**
 
 - Augen- und Gesichtsverbesserung
+
 - Faltenreduktion
+
 - Verbesserte Hauttextur
+
 - Erhaltung der Identität
 
 ### Stable Diffusion (SDXL)
@@ -308,8 +335,11 @@ curl -X POST "http://127.0.0.1:8787/api/ai-image/jobs/job_abc123def456/cancel" \
 **Besonderheiten:**
 
 - Prompt-basierte Transformation
+
 - Negative Prompts
+
 - Stärke- und Guidance-Kontrolle
+
 - Inpainting-ähnliche Effekte
 
 ## Sicherheitsfeatures
@@ -317,20 +347,27 @@ curl -X POST "http://127.0.0.1:8787/api/ai-image/jobs/job_abc123def456/cancel" \
 ### Rate-Limiting
 
 - **aiGenerateLimiter:** 15 Anfragen/Minute
+
 - **Retry-After:** Header bei Überschreitung
+
 - **Owner-spezifisch:** Separate Limits für User/Guest
 
 ### Input-Validierung
 
 - **Dateigröße:** Max. 10MB
+
 - **Dateiformat:** JPEG, PNG, WebP
+
 - **Parameter-Validierung:** Typ- und Wertebereichs-Checks
+
 - **Model-Existenz:** Verifikation gegen Provider-Mapping
 
 ### Error-Handling
 
 - **Strukturierte Fehler:** Konsistente Error-Response-Formate
+
 - **Sensible Daten:** Keine Weitergabe interner Fehlerdetails
+
 - **Quota-Erkennung:** Automatische Erkennung und Mapping von Limit-Fehlern
 
 ## Kosten und Limits
@@ -345,8 +382,11 @@ curl -X POST "http://127.0.0.1:8787/api/ai-image/jobs/job_abc123def456/cancel" \
 ### Premium-Features
 
 - **Erhöhte Limits:** Bis zu 1000 Bilder/Monat
+
 - **Priority Processing:** Schnellere Verarbeitung
+
 - **Erweiterte Modelle:** Zusätzliche AI-Modelle
+
 - **Batch-Processing:** Mehrere Bilder gleichzeitig
 
 ## Architektur
@@ -379,7 +419,8 @@ stateDiagram-v2
     succeeded --> [*]
     failed --> [*]
     canceled --> [*]
-```
+
+```text
 
 ## Fehlerbehebung
 
@@ -388,19 +429,25 @@ stateDiagram-v2
 **"Quota exceeded":**
 
 - Tägliches Limit erreicht
+
 - Warte bis zum Reset (24h) oder upgrade
+
 - Prüfe `usage` und `limits` in der Response
 
 **"Unsupported model":**
 
 - Model-Slug ist ungültig
+
 - Prüfe verfügbare Modelle bei Providern
+
 - Kontaktiere Support falls Modell fehlt
 
 **"File too large":**
 
 - Bilddatei > 10MB
+
 - Komprimiere Bild vor Upload
+
 - Prüfe Dateigröße vor Versand
 
 ### Debug-Informationen
@@ -408,8 +455,11 @@ stateDiagram-v2
 Bei aktiviertem Debug-Panel (`PUBLIC_ENABLE_DEBUG_PANEL = 'true'`) werden alle AI-Image-Anfragen automatisch geloggt mit:
 
 - Request-Details (Model, Parameter, Dateigröße)
+
 - Provider-Response (Job-ID, Status, Dauer)
+
 - Error-Informationen (Stack-Traces, Provider-Fehler)
+
 - Performance-Metriken (Verarbeitungsdauer, Dateigrößen)
 
 ## Migration von Legacy-Versionen
@@ -417,14 +467,19 @@ Bei aktiviertem Debug-Panel (`PUBLIC_ENABLE_DEBUG_PANEL = 'true'`) werden alle A
 ### Änderungen v1.7.x
 
 - **Neue Modelle:** SDXL-Unterstützung hinzugefügt
+
 - **Erweiterte Parameter:** `guidance`, `steps`, `strength`
+
 - **Verbesserte Error-Messages:** Strukturierte Fehler mit Details
+
 - **Entitlements-System:** Plan-basierte Limits und Features
 
 ### Breaking Changes
 
 - **Response-Format:** `entitlements` und `charge` Felder hinzugefügt
+
 - **Error-Types:** Neue standardisierte Error-Codes
+
 - **Limits:** Monatliche Limits für User hinzugefügt
 
 ## Tests
@@ -432,19 +487,25 @@ Bei aktiviertem Debug-Panel (`PUBLIC_ENABLE_DEBUG_PANEL = 'true'`) werden alle A
 ### Unit-Tests
 
 - **Provider-Mapping:** `tests/unit/ai-jobs-provider-mapping.test.ts`
+
 - **Service-Logik:** AI-Image Service Unit-Tests
+
 - **Validation:** Input-Parameter-Tests
 
 ### E2E-Tests
 
 - **Image Enhancement Workflows:** `test-suite-v2/src/e2e/tools/image-enhancer.gating.spec.ts`
+
 - **Job-Management:** Vollständige Job-Lifecycle-Tests
+
 - **Error-Handling:** Rate-Limiting und Error-Response-Tests
 
 ### Test-Daten
 
 - **Test-Bilder:** `tests/fixtures/tiny.png` (kleines Testbild)
+
 - **Mock-Responses:** Provider-Mock für deterministische Tests
+
 - **Usage-Mock:** Limit- und Quota-Mocking
 
 ## Performance
@@ -452,15 +513,21 @@ Bei aktiviertem Debug-Panel (`PUBLIC_ENABLE_DEBUG_PANEL = 'true'`) werden alle A
 ### Optimierungen
 
 - **Async Processing:** Lange AI-Inferenzen blockieren nicht die Response
+
 - **R2-Storage:** Optimierte Bildspeicherung und -bereitstellung
+
 - **Caching:** Wiederholte Anfragen werden gecacht
+
 - **Provider-Failover:** Automatisches Wechseln zwischen Providern
 
 ### Metriken
 
 - **Response-Time:** < 2s für Request-Validation und Job-Erstellung
+
 - **Processing-Time:** 10-60s je nach Modell und Bildgröße
+
 - **Success-Rate:** > 95% für Standard-Modelle
+
 - **Storage-Effizienz:** Komprimierte Bildformate (WebP)
 
 ## Compliance
@@ -468,15 +535,21 @@ Bei aktiviertem Debug-Panel (`PUBLIC_ENABLE_DEBUG_PANEL = 'true'`) werden alle A
 ### Datenschutz (GDPR)
 
 - **Keine Speicherung:** Originalbilder werden nach Verarbeitung gelöscht
+
 - **Anonymisierung:** Keine Verknüpfung mit personenbezogenen Daten
+
 - **Aufbewahrung:** Ergebnisse 30 Tage, dann automatische Löschung
+
 - **Audit-Log:** Alle Zugriffe werden protokolliert
 
 ### Sicherheit
 
 - **Input-Sanitization:** XSS- und Injection-Schutz
+
 - **Rate-Limiting:** DoS-Schutz
+
 - **Origin-Checks:** CSRF-Schutz
+
 - **Secure-Headers:** Vollständiger Security-Header-Satz
 
 ## Roadmap
@@ -484,14 +557,23 @@ Bei aktiviertem Debug-Panel (`PUBLIC_ENABLE_DEBUG_PANEL = 'true'`) werden alle A
 ### Geplante Features
 
 - **Batch-Processing:** Mehrere Bilder gleichzeitig verarbeiten
+
 - **Custom-Modelle:** User-definierte AI-Modelle
+
 - **Video-Support:** AI-Videoverbesserung
+
 - **Real-time-Preview:** Live-Vorschau während der Bearbeitung
+
 - **Advanced-Editor:** In-Browser-Bildeditor-Integration
 
 ### Performance-Verbesserungen
 
 - **CDN-Integration:** Globale Bildbereitstellung
+
 - **Edge-Processing:** Cloudflare Workers AI für schnellere Verarbeitung
+
 - **Caching-Strategie:** Intelligente Cache-Verwaltung
+
 - **Background-Processing:** Parallele Job-Verarbeitung
+
+```text

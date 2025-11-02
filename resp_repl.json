@@ -1,0 +1,7 @@
+{
+  "success": false,
+  "error": {
+    "type": "validation_error",
+    "message": "Provider rejected the request (validation error)"
+  }
+}

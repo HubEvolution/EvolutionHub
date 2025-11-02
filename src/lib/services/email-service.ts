@@ -89,5 +89,5 @@ export enum EmailTemplateType {
 export interface EmailTemplateConfig {
   type: EmailTemplateType;
   subject: string;
-  generateHtml: (data: any) => string;
+  generateHtml: (data: Record<string, unknown>) => string;
 }

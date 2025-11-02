@@ -138,10 +138,7 @@ export class PerformanceService {
    */
   async searchComments(options: CommentSearchOptions): Promise<SearchResult> {
     const startTime = performance.now();
-    const cacheKey = this.generateCacheKey(
-      'search',
-      options as unknown as Record<string, unknown>
-    );
+    const cacheKey = this.generateCacheKey('search', options as unknown as Record<string, unknown>);
 
     // Prüfe Cache
     if (this.config.cache.enabled) {
@@ -227,11 +224,11 @@ export class PerformanceService {
         options.sortBy === 'createdAt'
           ? options.sortOrder === 'desc'
             ? desc(comments.createdAt)
-            : (sql`${comments.createdAt} ASC` as any)
+            : (sql`${comments.createdAt} ASC` as unknown as ReturnType<typeof desc>)
           : options.sortBy === 'updatedAt'
             ? options.sortOrder === 'desc'
               ? desc(comments.updatedAt)
-              : (sql`${comments.updatedAt} ASC` as any)
+              : (sql`${comments.updatedAt} ASC` as unknown as ReturnType<typeof desc>)
             : desc(comments.createdAt)
       )
       .limit(options.limit)
@@ -261,7 +258,7 @@ export class PerformanceService {
    * Baut Kommentar-Tree mit Replies auf
    */
   private async buildCommentTree(
-    commentData: any[],
+    commentData: unknown[],
     options: PaginationOptions,
     userId?: number
   ): Promise<CommentWithReplies[]> {
@@ -270,9 +267,9 @@ export class PerformanceService {
 
     // Erstelle Map aller Kommentare
     for (const comment of commentData) {
-      const c = comment as any;
+      const c = comment as { id: string; parentId?: string | null } & Record<string, unknown>;
       const commentWithReplies: CommentWithReplies = {
-        ...(c as any),
+        ...(c as unknown as CommentWithReplies),
         replies: [],
         depth: 0,
         isLiked: false,
@@ -291,7 +288,7 @@ export class PerformanceService {
     // Baue Reply-Struktur auf
     if (options.includeReplies) {
       for (const comment of commentData) {
-        const c = comment as any;
+        const c = comment as { id: string; parentId?: string | null };
         if (c.parentId) {
           const parent = commentsMap.get(c.parentId);
           const child = commentsMap.get(c.id);
@@ -328,10 +325,10 @@ export class PerformanceService {
     const offset = (pagination.page - 1) * pagination.limit;
 
     // Baue WHERE-Bedingungen
-    const whereConditions = [] as any[];
+    const whereConditions: unknown[] = [];
 
     // Text-Suche
-    whereConditions.push(sql`${comments.content} LIKE ${'%' + query + '%'}` as any);
+    whereConditions.push(sql`${comments.content} LIKE ${'%' + query + '%'}` as unknown);
 
     // Status-Filter
     if (filters?.status?.length) {
@@ -375,7 +372,7 @@ export class PerformanceService {
         updatedAt: comments.updatedAt,
       })
       .from(comments)
-      .where(and(...(whereConditions as any[])))
+      .where(and(...(whereConditions as Parameters<typeof and>[0][])))
       .orderBy(desc(comments.createdAt))
       .limit(pagination.limit)
       .offset(offset);
@@ -386,7 +383,7 @@ export class PerformanceService {
     const countQuery = this.db
       .select({ count: sql<number>`count(*)` })
       .from(comments)
-      .where(and(...(whereConditions as any[])));
+      .where(and(...(whereConditions as Parameters<typeof and>[0][])));
 
     const totalResult = await countQuery;
     const total = totalResult[0]?.count || 0;
@@ -433,7 +430,7 @@ export class PerformanceService {
    */
   private async addLikeStatus(
     commentsMap: Map<string, CommentWithReplies>,
-    userId: number
+    _userId: number
   ): Promise<void> {
     // In einer echten Implementierung würde hier eine Like-Tabelle abgefragt
     // Für jetzt simulieren wir den Status
@@ -449,14 +446,14 @@ export class PerformanceService {
    */
   private async addPermissions(
     commentsMap: Map<string, CommentWithReplies>,
-    userId?: number
+    _userId?: number
   ): Promise<void> {
-    if (!userId) return;
+    if (!_userId) return;
 
     for (const comment of commentsMap.values()) {
       // Autor kann eigenen Kommentar bearbeiten/löschen
-      comment.canEdit = comment.authorId === userId;
-      comment.canDelete = comment.authorId === userId;
+      comment.canEdit = comment.authorId === _userId;
+      comment.canDelete = comment.authorId === _userId;
 
       // Admins können alle Kommentare moderieren
       // In einer echten Implementierung würde hier die Admin-Rolle geprüft
@@ -593,7 +590,7 @@ export class PerformanceService {
    * Holt Performance-Metriken
    */
   async getPerformanceMetrics(): Promise<PerformanceMetrics> {
-    const cacheStats = this.getCacheStats();
+    const _cacheStats = this.getCacheStats();
 
     return {
       queryTime: 0, // Wird während Queries gemessen

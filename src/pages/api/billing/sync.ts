@@ -1,7 +1,9 @@
+import type { APIContext } from 'astro';
 import { withAuthApiMiddleware } from '@/lib/api-middleware';
 import { createSecureErrorResponse, createSecureRedirect } from '@/lib/response-helpers';
 import Stripe from 'stripe';
 import { sanitizeReturnTo } from '@/utils/sanitizeReturnTo';
+import type { Plan } from '@/config/ai-image/entitlements';
 
 function parsePricingTable(raw: unknown): Record<string, string> {
   try {
@@ -22,11 +24,16 @@ function invert<K extends string, V extends string>(obj: Record<K, V>): Record<V
   return out as Record<V, K>;
 }
 
+// Safe helper types for Stripe SDK return shapes without using the namespace as a type directly
+type StripeClient = InstanceType<typeof Stripe>;
+type CheckoutRetrieve = StripeClient['checkout']['sessions']['retrieve'];
+type StripeCheckoutSession = Awaited<ReturnType<CheckoutRetrieve>>;
+
 export const GET = withAuthApiMiddleware(
-  async (context) => {
+  async (context: APIContext) => {
     const { locals, request } = context;
     const user = locals.user;
-    const env: any = locals?.runtime?.env ?? {};
+    const rawEnv = (locals?.runtime?.env ?? {}) as Record<string, unknown>;
 
     if (!user) {
       return createSecureErrorResponse('Unauthorized', 401);
@@ -38,9 +45,13 @@ export const GET = withAuthApiMiddleware(
     const returnToRaw = url.searchParams.get('return_to') || '';
 
     const requestUrl = new URL(context.request.url);
-    const baseUrl: string = env.BASE_URL || `${requestUrl.protocol}//${requestUrl.host}`;
+    const baseUrl: string =
+      (typeof rawEnv.BASE_URL === 'string' ? (rawEnv.BASE_URL as string) : '') ||
+      `${requestUrl.protocol}//${requestUrl.host}`;
 
-    if (!env.STRIPE_SECRET) {
+    const stripeSecret =
+      typeof rawEnv.STRIPE_SECRET === 'string' ? (rawEnv.STRIPE_SECRET as string) : '';
+    if (!stripeSecret) {
       return createSecureRedirect(
         `${baseUrl}/dashboard?ws=${encodeURIComponent(ws)}&billing=stripe_not_configured`
       );
@@ -52,18 +63,19 @@ export const GET = withAuthApiMiddleware(
     }
 
     // Build priceId -> plan mapping (monthly + annual)
-    const monthlyMap = invert(parsePricingTable(env.PRICING_TABLE));
-    const annualMap = invert(parsePricingTable(env.PRICING_TABLE_ANNUAL));
-    const priceMap: Record<string, 'free' | 'pro' | 'premium' | 'enterprise'> = {
-      ...(monthlyMap as any),
-      ...(annualMap as any),
-    } as any;
+    const monthlyMap = invert(
+      parsePricingTable((rawEnv as { PRICING_TABLE?: unknown }).PRICING_TABLE)
+    );
+    const annualMap = invert(
+      parsePricingTable((rawEnv as { PRICING_TABLE_ANNUAL?: unknown }).PRICING_TABLE_ANNUAL)
+    );
+    const priceMap: Record<string, Plan> = { ...monthlyMap, ...annualMap } as Record<string, Plan>;
 
-    let session: Stripe.Checkout.Session;
+    let session: StripeCheckoutSession;
     try {
-      const stripe = new Stripe(env.STRIPE_SECRET);
+      const stripe = new Stripe(stripeSecret);
       session = await stripe.checkout.sessions.retrieve(sessionId, { expand: ['subscription'] });
-    } catch (err) {
+    } catch (_err) {
       return createSecureRedirect(
         `${baseUrl}/dashboard?ws=${encodeURIComponent(ws)}&billing=sync_error`
       );
@@ -79,17 +91,30 @@ export const GET = withAuthApiMiddleware(
     }
 
     const customerId = (session.customer as string) || '';
-    const sub = session.subscription as Stripe.Subscription | null;
+    const sub = (session as { subscription?: unknown }).subscription as
+      | {
+          id: string;
+          status?: string;
+          current_period_end?: number;
+          cancel_at_period_end?: boolean;
+          items?: { data?: Array<{ price?: { id?: string } | null | undefined }> };
+        }
+      | null
+      | undefined;
 
-    let plan: 'free' | 'pro' | 'premium' | 'enterprise' = (session.metadata?.plan as any) || 'pro';
-    if (sub && sub.items?.data?.[0]?.price?.id) {
-      const priceId = sub.items.data[0].price.id as string;
-      const mapped = priceMap[priceId] as any;
+    let plan: Plan = ((session.metadata?.plan as Plan | undefined) || 'pro') as Plan;
+    if (sub && sub.items?.data && sub.items.data[0]?.price?.id) {
+      const priceId = String(sub.items.data[0].price?.id || '');
+      const mapped = priceMap[priceId] as Plan | undefined;
       if (mapped) plan = mapped;
     }
 
     // DB handles
-    const db = env.DB;
+    const db = (rawEnv as { DB?: unknown }).DB as {
+      prepare: (sql: string) => {
+        bind: (...args: unknown[]) => { run: () => Promise<unknown> };
+      };
+    };
 
     // Upsert stripe_customers
     if (customerId) {
@@ -104,9 +129,9 @@ export const GET = withAuthApiMiddleware(
     // Upsert subscription row if available
     if (sub) {
       const status = sub.status as string;
-      const cpeRaw: any = (sub as any)?.current_period_end;
-      const currentPeriodEnd = typeof cpeRaw === 'number' ? cpeRaw : null;
-      const cancelAtPeriodEnd = !!(sub as any)?.cancel_at_period_end;
+      const currentPeriodEnd =
+        typeof sub.current_period_end === 'number' ? sub.current_period_end : null;
+      const cancelAtPeriodEnd = Boolean(sub.cancel_at_period_end);
       const cape = cancelAtPeriodEnd ? 1 : 0;
 
       await db
@@ -148,6 +173,7 @@ export const GET = withAuthApiMiddleware(
     return createSecureRedirect(`${baseUrl}/dashboard?ws=${encodeURIComponent(ws)}`);
   },
   {
-    onError: (_ctx, _err) => createSecureErrorResponse('sync_error', 500),
+    onError: (_ctx: APIContext, _err: unknown): Response =>
+      createSecureErrorResponse('sync_error', 500),
   }
 );

@@ -1,3 +1,4 @@
+import type { APIContext } from 'astro';
 import { withAuthApiMiddleware, createApiSuccess, createApiError } from '@/lib/api-middleware';
 import Stripe from 'stripe';
 import { logUserEvent } from '@/lib/security-logger';
@@ -9,7 +10,7 @@ import { sanitizeReturnTo } from '@/utils/sanitizeReturnTo';
  * Implementiert Rate-Limiting, Security-Headers und Audit-Logging
  */
 export const POST = withAuthApiMiddleware(
-  async (context) => {
+  async (context: APIContext) => {
     const { clientAddress, locals } = context;
     const user = locals.user;
 
@@ -19,17 +20,22 @@ export const POST = withAuthApiMiddleware(
       ipAddress: clientAddress,
     });
     // Stripe-Checkout mit Astro APIContext
-    const env: any = locals?.runtime?.env ?? {};
+    const rawEnv = (locals?.runtime?.env ?? {}) as Record<string, unknown>;
 
     // BASE_URL aus Env oder aus Request ableiten (Fallback)
     const requestUrl = new URL(context.request.url);
-    const baseUrl: string = env.BASE_URL || `${requestUrl.protocol}//${requestUrl.host}`;
+    const baseUrl: string =
+      (typeof rawEnv.BASE_URL === 'string' ? (rawEnv.BASE_URL as string) : '') ||
+      `${requestUrl.protocol}//${requestUrl.host}`;
 
     // PRICING_TABLE kann als JSON-String oder Objekt hinterlegt sein
     let pricingTable: Record<string, string> = {};
     try {
-      const pt = env.PRICING_TABLE;
-      pricingTable = typeof pt === 'string' ? JSON.parse(pt) : pt || {};
+      const pt = rawEnv.PRICING_TABLE as unknown;
+      pricingTable =
+        typeof pt === 'string'
+          ? (JSON.parse(pt) as Record<string, string>)
+          : (pt as Record<string, string>) || {};
     } catch {
       pricingTable = {};
     }
@@ -37,8 +43,11 @@ export const POST = withAuthApiMiddleware(
     // PRICING_TABLE_ANNUAL kann als JSON-String oder Objekt hinterlegt sein
     let pricingTableAnnual: Record<string, string> = {};
     try {
-      const pt = env.PRICING_TABLE_ANNUAL;
-      pricingTableAnnual = typeof pt === 'string' ? JSON.parse(pt) : pt || {};
+      const pt = rawEnv.PRICING_TABLE_ANNUAL as unknown;
+      pricingTableAnnual =
+        typeof pt === 'string'
+          ? (JSON.parse(pt) as Record<string, string>)
+          : (pt as Record<string, string>) || {};
     } catch {
       pricingTableAnnual = {};
     }
@@ -72,7 +81,9 @@ export const POST = withAuthApiMiddleware(
       return createApiError('validation_error', 'Unknown plan');
     }
 
-    if (!env.STRIPE_SECRET) {
+    const stripeSecret =
+      typeof rawEnv.STRIPE_SECRET === 'string' ? (rawEnv.STRIPE_SECRET as string) : '';
+    if (!stripeSecret) {
       return createApiError('server_error', 'Stripe not configured');
     }
 
@@ -80,7 +91,7 @@ export const POST = withAuthApiMiddleware(
       return createApiError('auth_error', 'Unauthorized');
     }
     // Do not pin apiVersion here to avoid TS literal mismatches; use package default
-    const stripe = new Stripe(env.STRIPE_SECRET);
+    const stripe = new Stripe(stripeSecret);
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
       success_url: `${baseUrl}/api/billing/sync?session_id={CHECKOUT_SESSION_ID}&ws=${encodeURIComponent(body.workspaceId)}${safeReturnTo ? `&return_to=${encodeURIComponent(safeReturnTo)}` : ''}`,
@@ -99,7 +110,7 @@ export const POST = withAuthApiMiddleware(
     logMetadata: { action: 'create_checkout_session' },
 
     // Spezielle Fehlerbehandlung für diesen Endpunkt
-    onError: (context, error) => {
+    onError: (context: APIContext, error: unknown) => {
       const { clientAddress, locals } = context;
       const user = locals.user;
 

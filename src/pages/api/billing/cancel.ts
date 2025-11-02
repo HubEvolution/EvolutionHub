@@ -16,7 +16,7 @@ export const POST = withAuthApiMiddleware(
       });
     }
     const body = parsed.data;
-    const env: any = locals.runtime?.env ?? {};
+    const rawEnv = (locals.runtime?.env ?? {}) as Record<string, unknown>;
     const user = locals.user;
 
     if (!user) {
@@ -27,14 +27,25 @@ export const POST = withAuthApiMiddleware(
       return createApiError('validation_error', 'subscriptionId is required');
     }
 
-    if (!env.STRIPE_SECRET) {
+    const stripeSecret =
+      typeof rawEnv.STRIPE_SECRET === 'string' ? (rawEnv.STRIPE_SECRET as string) : '';
+    if (!stripeSecret) {
       return createApiError('server_error', 'Stripe not configured');
     }
 
-    const db = env.DB;
-    if (!db) {
+    const dbUnknown = (rawEnv as { DB?: unknown }).DB;
+    const hasPrepare = typeof (dbUnknown as { prepare?: unknown })?.prepare === 'function';
+    if (!dbUnknown || !hasPrepare) {
       return createApiError('server_error', 'Database unavailable');
     }
+    type D1Stmt = {
+      bind: (...args: unknown[]) => {
+        first: () => Promise<unknown | null>;
+        run: () => Promise<unknown>;
+      };
+    };
+    type D1Like = { prepare: (sql: string) => D1Stmt };
+    const db = dbUnknown as D1Like;
 
     const subscriptionRaw = await db
       .prepare(
@@ -45,9 +56,11 @@ export const POST = withAuthApiMiddleware(
       .bind(body.subscriptionId, user.id)
       .first();
 
-    const subscription = subscriptionRaw as
-      | { id: string; status: string; cancel_at_period_end: number | null }
-      | null;
+    const subscription = subscriptionRaw as {
+      id: string;
+      status: string;
+      cancel_at_period_end: number | null;
+    } | null;
 
     if (!subscription) {
       return createApiError('not_found', 'Subscription not found');
@@ -59,7 +72,7 @@ export const POST = withAuthApiMiddleware(
       });
     }
 
-    const stripe = new Stripe(env.STRIPE_SECRET);
+    const stripe = new Stripe(stripeSecret);
 
     try {
       await stripe.subscriptions.update(body.subscriptionId, {

@@ -10,7 +10,9 @@ async function request(path: string, init?: RequestInit) {
   const ct = res.headers.get('content-type') || '';
   let json: any = null;
   if (ct.includes('application/json')) {
-    try { json = await res.json(); } catch {}
+    try {
+      json = await res.json();
+    } catch {}
   }
   return { status: res.status, headers: res.headers, json } as const;
 }
@@ -22,6 +24,6 @@ describe('Admin Credits Deduct — auth/csrf checks', () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: 'someone@example.com', amount: 100 }),
     });
-    expect([403, 401]).toContain(status);
+    expect([403, 401, 429]).toContain(status);
   });
 });

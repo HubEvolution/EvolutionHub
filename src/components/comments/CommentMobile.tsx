@@ -412,8 +412,8 @@ const MobileCommentItem: React.FC<MobileCommentItemProps> = ({
                     </button>
                   </>
                 )}
-                {currentUser && (
-                  reported ? (
+                {currentUser &&
+                  (reported ? (
                     <span className="text-xs text-orange-500 opacity-60">{t('gemeldet')}</span>
                   ) : (
                     <button
@@ -422,8 +422,7 @@ const MobileCommentItem: React.FC<MobileCommentItemProps> = ({
                     >
                       {t('melden')}
                     </button>
-                  )
-                )}
+                  ))}
               </div>
               <button
                 onClick={() => setShowActions(false)}
@@ -473,7 +472,8 @@ const MobileCommentItem: React.FC<MobileCommentItemProps> = ({
         </div>
       )}
 
-      {isReporting && typeof window !== 'undefined' &&
+      {isReporting &&
+        typeof window !== 'undefined' &&
         createPortal(
           <div
             className="fixed inset-0 z-50 flex items-center justify-center"
@@ -484,9 +484,18 @@ const MobileCommentItem: React.FC<MobileCommentItemProps> = ({
               if (e.key === 'Escape') setIsReporting(false);
             }}
           >
-            <div className="absolute inset-0 bg-black/50" onClick={() => setIsReporting(false)} aria-hidden="true"></div>
+            <div
+              className="absolute inset-0 bg-black/50"
+              onClick={() => setIsReporting(false)}
+              aria-hidden="true"
+            ></div>
             <div className="relative bg-white dark:bg-gray-800 rounded-lg shadow-lg w-full max-w-sm p-4">
-              <h3 id={`report-dialog-title-${comment.id}`} className="text-sm font-medium mb-3 text-gray-900 dark:text-white">{t('melden')}</h3>
+              <h3
+                id={`report-dialog-title-${comment.id}`}
+                className="text-sm font-medium mb-3 text-gray-900 dark:text-white"
+              >
+                {t('melden')}
+              </h3>
               <div className="space-y-2 mb-3 text-sm">
                 <label className="block text-gray-700 dark:text-gray-300 mb-1">{t('grund')}</label>
                 <select
@@ -502,7 +511,9 @@ const MobileCommentItem: React.FC<MobileCommentItemProps> = ({
                 </select>
               </div>
               <div className="mb-4 text-sm">
-                <label className="block text-gray-700 dark:text-gray-300 mb-1">{t('beschreibung')}</label>
+                <label className="block text-gray-700 dark:text-gray-300 mb-1">
+                  {t('beschreibung')}
+                </label>
                 <textarea
                   className="w-full border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 p-2 text-sm"
                   rows={3}
@@ -527,17 +538,16 @@ const MobileCommentItem: React.FC<MobileCommentItemProps> = ({
             </div>
           </div>,
           document.body
-        )
-      }
+        )}
 
-      {showToast && typeof window !== 'undefined' &&
+      {showToast &&
+        typeof window !== 'undefined' &&
         createPortal(
           <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 bg-emerald-600 text-white text-sm px-4 py-2 rounded-full shadow-lg">
             {t('toast')}
           </div>,
           document.body
-        )
-      }
+        )}
     </div>
   );
 };

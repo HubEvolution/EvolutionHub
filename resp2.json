@@ -1,0 +1,4 @@
+{
+  "success": false,
+  "error": { "type": "server_error", "message": "5006: Error: '/num_steps' must be <= 20" }
+}

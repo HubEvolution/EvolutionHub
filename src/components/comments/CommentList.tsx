@@ -271,7 +271,8 @@ const CommentItem: React.FC<CommentItemProps> = ({
               onClick={() => setShowReplies(!showReplies)}
               className="text-xs text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-300 mb-2"
             >
-              {showReplies ? '▼' : '▶'} {comment.replies!.length} {showReplies ? t('antwortenHide') : t('antwortenToggle')}
+              {showReplies ? '▼' : '▶'} {comment.replies!.length}{' '}
+              {showReplies ? t('antwortenHide') : t('antwortenToggle')}
             </button>
           )}
         </div>
@@ -295,12 +296,23 @@ const CommentItem: React.FC<CommentItemProps> = ({
         </div>
       )}
 
-      {isReporting && typeof window !== 'undefined' &&
+      {isReporting &&
+        typeof window !== 'undefined' &&
         createPortal(
-          <div className="fixed inset-0 z-50 flex items-center justify-center" role="dialog" aria-modal="true">
-            <div className="absolute inset-0 bg-black/50" aria-hidden="true" onClick={() => setIsReporting(false)}></div>
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center"
+            role="dialog"
+            aria-modal="true"
+          >
+            <div
+              className="absolute inset-0 bg-black/50"
+              aria-hidden="true"
+              onClick={() => setIsReporting(false)}
+            ></div>
             <div className="relative bg-white dark:bg-gray-800 rounded-lg shadow-lg w-full max-w-sm p-4">
-              <h3 className="text-sm font-medium mb-3 text-gray-900 dark:text-white">{t('melden')}</h3>
+              <h3 className="text-sm font-medium mb-3 text-gray-900 dark:text-white">
+                {t('melden')}
+              </h3>
               <div className="space-y-2 mb-3 text-sm">
                 <label className="block text-gray-700 dark:text-gray-300 mb-1">{t('grund')}</label>
                 <select
@@ -316,7 +328,9 @@ const CommentItem: React.FC<CommentItemProps> = ({
                 </select>
               </div>
               <div className="mb-4 text-sm">
-                <label className="block text-gray-700 dark:text-gray-300 mb-1">{t('beschreibung')}</label>
+                <label className="block text-gray-700 dark:text-gray-300 mb-1">
+                  {t('beschreibung')}
+                </label>
                 <textarea
                   className="w-full border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 p-2 text-sm"
                   rows={3}
@@ -341,17 +355,16 @@ const CommentItem: React.FC<CommentItemProps> = ({
             </div>
           </div>,
           document.body
-        )
-      }
+        )}
 
-      {showToast && typeof window !== 'undefined' &&
+      {showToast &&
+        typeof window !== 'undefined' &&
         createPortal(
           <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 bg-emerald-600 text-white text-sm px-4 py-2 rounded-full shadow-lg">
             {t('toast')}
           </div>,
           document.body
-        )
-      }
+        )}
     </div>
   );
 };

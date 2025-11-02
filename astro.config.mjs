@@ -2,6 +2,7 @@ import { defineConfig } from 'astro/config';
 import tailwind from '@astrojs/tailwind';
 import react from "@astrojs/react";
 import cloudflare from "@astrojs/cloudflare";
+import mdx from '@astrojs/mdx';
 
 // Determine build target (Worker vs Node dev) for conditional aliasing
 const IS_WORKER_BUILD = Boolean(
@@ -137,14 +138,15 @@ export default defineConfig({
       configFile: './tailwind.config.js',
       applyBaseStyles: true,
       nesting: true
-    })
-    // Custom i18n implementation via file structure:
+    }),
+    mdx()
+  ],
+  // Custom i18n implementation via file structure:
     // - src/pages/index.astro (default/root)
     // - src/pages/de/index.astro (German)
     // - src/pages/en/index.astro (English)
     // - src/lib/i18n.js (translation function)
     // - src/locales/*.json (translation files)
-  ],
   vite: {
     logLevel: 'info',
     build: {

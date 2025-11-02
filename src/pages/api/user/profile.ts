@@ -1,5 +1,6 @@
 import type { APIContext } from 'astro';
 import { withAuthApiMiddleware, createApiSuccess, createApiError } from '@/lib/api-middleware';
+import { createSecureRedirect } from '@/lib/response-helpers';
 import { logProfileUpdate } from '@/lib/security-logger';
 import { pickBestLanguage } from '@/lib/i18n/accept-language';
 import type { Locale } from '@/lib/i18n';
@@ -18,7 +19,7 @@ import { getI18n } from '@/utils/i18n';
  * - Einheitliche Fehlerbehandlung
  */
 export const POST = withAuthApiMiddleware(async (context: APIContext) => {
-  const locals = context.locals as any;
+  const locals = context.locals;
 
   const formData = await context.request.formData();
   const name = formData.get('name');
@@ -50,10 +51,9 @@ export const POST = withAuthApiMiddleware(async (context: APIContext) => {
   const db = locals.runtime.env.DB;
 
   // Cooldown config: default 30 days, env override via PROFILE_UPDATE_COOLDOWN_DAYS
-  const env: Record<string, string> =
-    ((locals as unknown as { runtime?: { env?: Record<string, string> } }).runtime?.env as
-      | Record<string, string>
-      | undefined) || {};
+  const env: Record<string, string> = ((
+    locals as unknown as { runtime?: { env?: Record<string, string> } }
+  ).runtime?.env || {}) as Record<string, string>;
   const parsedDays = Number.parseInt(env.PROFILE_UPDATE_COOLDOWN_DAYS || '', 10);
   const cooldownDays = Number.isFinite(parsedDays) && parsedDays > 0 ? parsedDays : 30;
   const cooldownMs = cooldownDays * 24 * 60 * 60 * 1000;
@@ -61,9 +61,7 @@ export const POST = withAuthApiMiddleware(async (context: APIContext) => {
 
   // Determine role and last profile update timestamp from DB (authoritative)
   const metaRowUnknown = await db
-    .prepare(
-      'SELECT role, profile_last_updated_at AS last FROM users WHERE id = ? LIMIT 1'
-    )
+    .prepare('SELECT role, profile_last_updated_at AS last FROM users WHERE id = ? LIMIT 1')
     .bind(locals.user.id)
     .first();
   const metaRow = (metaRowUnknown || {}) as { role?: string; last?: number };
@@ -102,8 +100,6 @@ export const POST = withAuthApiMiddleware(async (context: APIContext) => {
     headers.set('Retry-After', String(retryAfterSec));
     return new Response(base.body, { status: base.status, headers });
   }
-
-  
 
   // Prüfen auf Username-Kollision, aber nur wenn sich der Username geändert hat
   if (username !== locals.user.username) {

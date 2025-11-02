@@ -33,10 +33,14 @@ export function EnhancerActionsMVP(props: EnhancerActionsMVPProps): React.ReactE
     <div className="space-y-4">
       {/* Model Selection */}
       <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
-        <label className="text-sm font-medium text-gray-700 dark:text-gray-300 min-w-fit">
+        <label
+          htmlFor="model-select"
+          className="text-sm font-medium text-gray-700 dark:text-gray-300 min-w-fit"
+        >
           {strings.model}
         </label>
         <select
+          id="model-select"
           value={model}
           onChange={(e) => onChangeModel(e.target.value)}
           className="flex-1 sm:w-auto sm:min-w-[200px] rounded-md border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 text-sm"

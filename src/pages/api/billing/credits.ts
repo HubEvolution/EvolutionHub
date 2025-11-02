@@ -22,15 +22,21 @@ export const POST = withAuthApiMiddleware(async (context: APIContext) => {
     return new Response(
       JSON.stringify({
         success: false,
-        error: { type: 'validation_error', message: 'Invalid JSON body', details: formatZodError(parsed.error) },
+        error: {
+          type: 'validation_error',
+          message: 'Invalid JSON body',
+          details: formatZodError(parsed.error),
+        },
       }),
       { status: 400, headers: { 'Content-Type': 'application/json' } }
     );
   }
   const body = parsed.data;
 
-  const env: any = locals?.runtime?.env ?? {};
-  if (!env.STRIPE_SECRET) {
+  const rawEnv = (locals?.runtime?.env ?? {}) as Record<string, unknown>;
+  const stripeSecret =
+    typeof rawEnv.STRIPE_SECRET === 'string' ? (rawEnv.STRIPE_SECRET as string) : '';
+  if (!stripeSecret) {
     return new Response(JSON.stringify({ error: 'stripe_not_configured' }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
@@ -40,8 +46,11 @@ export const POST = withAuthApiMiddleware(async (context: APIContext) => {
   // Map pack -> price id via env
   let table: Record<string, string> = {};
   try {
-    const raw = env.CREDITS_PRICING_TABLE;
-    table = typeof raw === 'string' ? JSON.parse(raw) : raw || {};
+    const raw = rawEnv.CREDITS_PRICING_TABLE as unknown;
+    table =
+      typeof raw === 'string'
+        ? (JSON.parse(raw) as Record<string, string>)
+        : (raw as Record<string, string>) || {};
   } catch {
     table = {};
   }
@@ -54,7 +63,9 @@ export const POST = withAuthApiMiddleware(async (context: APIContext) => {
   }
 
   const requestUrl = new URL(context.request.url);
-  const baseUrl: string = env.BASE_URL || `${requestUrl.protocol}//${requestUrl.host}`;
+  const baseUrl: string =
+    (typeof rawEnv.BASE_URL === 'string' ? (rawEnv.BASE_URL as string) : '') ||
+    `${requestUrl.protocol}//${requestUrl.host}`;
 
   const safeReturnTo = sanitizeReturnTo(body.returnTo);
 
@@ -64,7 +75,7 @@ export const POST = withAuthApiMiddleware(async (context: APIContext) => {
     pack: String(body.pack),
   });
 
-  const stripe = new Stripe(env.STRIPE_SECRET);
+  const stripe = new Stripe(stripeSecret);
   let successUrl = `${baseUrl}/dashboard?ws=${body.workspaceId || 'default'}&credits=1`;
   try {
     if (safeReturnTo) {

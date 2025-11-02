@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD051 -->
+
 # Webscraper Tool - Hauptspezifikation
 
 ## Übersicht
@@ -7,8 +9,11 @@ Das Webscraper-Tool ist ein automatisiertes System zur intelligenten Extraktion,
 ## Ziele
 
 - **Intelligente Datensammlung**: Automatische Erkennung und Extraktion strukturierter und unstrukturierter Daten
+
 - **KI-gestützte Verarbeitung**: Verwendung von Machine Learning zur Content-Analyse und -aufbereitung
+
 - **Nahtlose Integration**: Kompatibilität mit bestehenden Tools (Image Enhancer, Prompt Enhancer)
+
 - **Compliance & Ethik**: Respektierung rechtlicher Rahmenbedingungen und Web-Standards
 
 ## Kernfunktionen
@@ -18,13 +23,17 @@ Das Webscraper-Tool ist ein automatisiertes System zur intelligenten Extraktion,
 #### Eingabe-Interface
 
 - Einzelne URL oder Batch-Verarbeitung
+
 - Unterstützung verschiedener Content-Types (Artikel, Produktseiten, Foren, etc.)
+
 - Konfigurierbare Tiefen für Multi-Page-Sites
 
 #### Extraktions-Engine
 
 - DOM-parsing mit struktureller Analyse
+
 - JavaScript-Rendering für dynamische Inhalte
+
 - Intelligente Content-Erkennung (Titel, Text, Metadaten)
 
 ### 2. KI-gestützte Verarbeitung
@@ -32,14 +41,19 @@ Das Webscraper-Tool ist ein automatisiertes System zur intelligenten Extraktion,
 #### Content-Analyse
 
 - Automatische Zusammenfassung langer Artikel
+
 - Sentiment-Analyse und Stimmungsbestimmung
+
 - Entitäten-Erkennung (Personen, Organisationen, Orte)
+
 - Thematische Kategorisierung
 
 #### Datenaufbereitung
 
 - Automatische Bereinigung von HTML-Artefakten
+
 - Duplikaterkennung und -entfernung
+
 - Strukturierte Datenausgabe (JSON, CSV, Markdown)
 
 ### 3. Monitoring & Alerts
@@ -47,13 +61,17 @@ Das Webscraper-Tool ist ein automatisiertes System zur intelligenten Extraktion,
 #### Änderungsüberwachung
 
 - Regelmäßige Überprüfung von Webseiten
+
 - Erkennung von Content-Updates
+
 - Konfigurierbare Benachrichtigungen
 
 #### Preis-Monitoring
 
 - E-Commerce-Preisverfolgung
+
 - Alert-System bei Preisänderungen
+
 - Historische Preisanalyse
 
 ## Technische Architektur
@@ -76,32 +94,41 @@ graph TB
     E --> K[ML Models]
     K --> L[Content Analyzer]
     L --> M[Entity Extractor]
-```
+
+```text
 
 ### Technologie-Stack
 
 #### Frontend
 
 - Astro Island für UI-Komponente
+
 - React/TypeScript für interaktive Elemente
+
 - Tailwind CSS für konsistentes Design
 
 #### Backend
 
 - Cloudflare Workers für verteilte Verarbeitung
+
 - Hono.js für API-Routen
+
 - Drizzle ORM für Datenpersistierung
 
 #### Scraping-Engine
 
 - Puppeteer für Headless-Browser-Funktionalität
+
 - Cheerio für DOM-Parsing
+
 - Custom Parser für strukturierte Daten
 
 #### AI-Komponenten
 
 - OpenAI GPT für Textverarbeitung
+
 - Custom Models für Entitäten-Erkennung
+
 - TensorFlow.js für client-seitige Analyse
 
 ## API-Design
@@ -166,7 +193,8 @@ interface ScrapingResult {
   images?: ImageData[];
   links: string[];
 }
-```
+
+```text
 
 ## UI/UX-Design
 
@@ -175,21 +203,29 @@ interface ScrapingResult {
 #### Dashboard-Layout
 
 - URL-Eingabefeld mit Validierung
+
 - Konfigurationspanel (akkordeon-artig)
+
 - Live-Preview während der Extraktion
+
 - Ergebnis-Darstellung mit Export-Optionen
 
 #### Ergebnisseite
 
 - Strukturierte Darstellung der extrahierten Daten
+
 - Interaktive Entitäten-Hervorhebung
+
 - Export-Interface für verschiedene Formate
+
 - Visualisierung von Sentiment und Themen
 
 ### Responsive Design
 
 - Mobile-first Ansatz
+
 - Tablet-Optimierung für Recherche-Workflows
+
 - Desktop-Erweiterungen für Power-User
 
 ## Sicherheitsaspekte
@@ -199,19 +235,25 @@ interface ScrapingResult {
 #### Robots.txt-Respektierung
 
 - Automatische Erkennung und Einhaltung
+
 - User-Override mit Warnhinweisen
+
 - Logging von Compliance-Verstößen
 
 #### Rate Limiting
 
 - Adaptive Verzögerungen basierend auf robots.txt
+
 - User-Agent-Rotation
+
 - Automatische Backoff-Strategie
 
 #### Content-Filter
 
 - Erkennung von sensiblen Inhalten
+
 - PII-Detektion und -maskierung
+
 - Rechtliche Content-Prüfung
 
 ### Datenschutz
@@ -219,7 +261,9 @@ interface ScrapingResult {
 #### Minimale Datenpersistierung
 
 - Temporäre Speicherung während Verarbeitung
+
 - Automatische Bereinigung nach Export
+
 - Opt-in für Langzeitspeicherung
 
 ## Integration mit bestehenden Tools
@@ -229,19 +273,25 @@ interface ScrapingResult {
 #### Image Enhancer Integration
 
 - Automatische Bildextraktion von Webseiten
+
 - Batch-Verarbeitung für Bildergalerien
+
 - Metadaten-Transfer zwischen Tools
 
 #### Prompt Enhancer Integration
 
 - Web-Content als Prompt-Eingabe
+
 - Extrahierte Entitäten für Prompt-Anreicherung
+
 - Cross-Tool-Content-Pipeline
 
 #### Content Generator Integration
 
 - Research-Material aus dem Web
+
 - Automatische Quellen-Zitation
+
 - Content-Validierung gegen Originale
 
 ## Deployment & Infrastruktur
@@ -251,13 +301,17 @@ interface ScrapingResult {
 #### Workers-Funktionen
 
 - Verteilte Scraping-Jobs
+
 - Edge-nahe Verarbeitung
+
 - Globale Proxy-Verteilung
 
 #### Storage-Strategie
 
 - D1 für Job-Metadaten
+
 - R2 für temporäre Assets
+
 - KV für Cache und Konfiguration
 
 ### Skalierungsaspekte
@@ -265,13 +319,17 @@ interface ScrapingResult {
 #### Horizontale Skalierung
 
 - Worker-Instance-Management
+
 - Load-Balancing für große Jobs
+
 - Queue-System für Batch-Operationen
 
 #### Performance-Optimierung
 
 - Browser-Pooling
+
 - Intelligente Caching-Strategie
+
 - Kompression für große Datenmengen
 
 ## Erfolgsmetriken
@@ -279,14 +337,19 @@ interface ScrapingResult {
 ### Technische KPIs
 
 - **Extraktionsgenauigkeit**: >95% für strukturierte Daten
+
 - **Verarbeitungsgeschwindigkeit**: <5s für durchschnittliche Seiten
+
 - **Systemverfügbarkeit**: >99.5% Uptime
+
 - **Fehlerrate**: <1% bei Standard-Webseiten
 
 ### User-Experience-KPIs
 
 - **Task-Completion-Rate**: >90% erfolgreiche Scraping-Operationen
+
 - **User-Satisfaction-Score**: >4.5/5
+
 - **Feature-Adoption**: >70% der aktiven User nutzen das Tool
 
 ## Akzeptanzkriterien
@@ -294,19 +357,29 @@ interface ScrapingResult {
 ### Funktionale Kriterien
 
 - [ ] Einzelne URL-Extraktion funktioniert zuverlässig
+
 - [ ] Batch-Verarbeitung für bis zu 10 URLs
+
 - [ ] Export in mindestens 3 Formaten
+
 - [ ] Grundlegende Sentiment-Analyse
+
 - [ ] Integration mit einem bestehenden Tool
 
 ### Nicht-funktionale Kriterien
 
 - [ ] Performance: <3s für durchschnittliche Seiten
+
 - [ ] Sicherheit: Bestanden Security-Audit
+
 - [ ] Accessibility: WCAG 2.1 AA-konform
+
 - [ ] Mobile: Vollständig responsive
+
 - [ ] Testing: >80% Test-Coverage
 
 ---
 
 *Siehe auch: [roadmap.md](roadmap.md), [guidelines.md](guidelines.md), [testing.md](testing.md)*
+
+```text

@@ -1,4 +1,4 @@
-import type { APIRoute } from 'astro';
+import type { APIContext } from 'astro';
 import {
   withApiMiddleware,
   createApiSuccess,
@@ -10,7 +10,7 @@ import { VOICE_FREE_LIMIT_GUEST, VOICE_FREE_LIMIT_USER } from '@/config/voice';
 import { getVoiceEntitlementsFor } from '@/config/voice/entitlements';
 import type { Plan } from '@/config/ai-image/entitlements';
 
-function ensureGuestIdCookie(context: Parameters<APIRoute>[0]): string {
+function ensureGuestIdCookie(context: APIContext): string {
   const cookies = context.cookies;
   let guestId = cookies.get('guest_id')?.value;
   if (!guestId) {
@@ -27,13 +27,19 @@ function ensureGuestIdCookie(context: Parameters<APIRoute>[0]): string {
   return guestId;
 }
 
-export const GET: APIRoute = withApiMiddleware(async (context) => {
-  const { locals } = context;
-  const ownerType = locals.user?.id ? 'user' : 'guest';
-  const ownerId =
-    ownerType === 'user' ? (locals.user as { id: string }).id : ensureGuestIdCookie(context);
+type VoiceEnv = {
+  KV_VOICE_TRANSCRIBE?: import('@cloudflare/workers-types').KVNamespace;
+  OPENAI_API_KEY?: string;
+  WHISPER_MODEL?: string;
+  ENVIRONMENT?: string;
+};
 
-  const env = locals.runtime?.env ?? {};
+export const GET = withApiMiddleware(async (context: APIContext) => {
+  const { locals } = context;
+  const ownerType: 'user' | 'guest' = locals.user?.id ? 'user' : 'guest';
+  const ownerId = ownerType === 'user' ? String(locals.user!.id) : ensureGuestIdCookie(context);
+
+  const env = (locals.runtime?.env ?? {}) as Partial<VoiceEnv>;
   const service = new VoiceTranscribeService({
     KV_VOICE_TRANSCRIBE: env.KV_VOICE_TRANSCRIBE,
     OPENAI_API_KEY: env.OPENAI_API_KEY,
@@ -44,9 +50,9 @@ export const GET: APIRoute = withApiMiddleware(async (context) => {
   try {
     const plan: Plan | undefined =
       ownerType === 'user' ? ((locals.user?.plan as Plan | undefined) ?? 'free') : undefined;
-    const ent = getVoiceEntitlementsFor(ownerType as any, plan);
+    const ent = getVoiceEntitlementsFor(ownerType, plan);
     const limit = ent.dailyBurstCap;
-    const usage = await service.getUsage(ownerType as any, ownerId, limit);
+    const usage = await service.getUsage(ownerType, ownerId, limit);
     const resp = createApiSuccess({
       ownerType,
       usage,

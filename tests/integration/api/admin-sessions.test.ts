@@ -41,7 +41,9 @@ describe('Admin Sessions API — authenticated (non-admin) → 403', () => {
       return;
     }
     const setCookie = login.headers.get('set-cookie') || '';
-    const { status } = await request('/api/admin/users/sessions?userId=test', { headers: { Cookie: setCookie } });
+    const { status } = await request('/api/admin/users/sessions?userId=test', {
+      headers: { Cookie: setCookie },
+    });
     expect(status).toBe(403);
   });
 });

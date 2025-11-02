@@ -41,6 +41,13 @@ export function useImageBoxSize(
   const [imgNatural, setImgNatural] = useState<{ w: number; h: number } | null>(null);
   const [imgRatio, setImgRatio] = useState<number | null>(null);
   const [boxSize, setBoxSize] = useState<Size | null>(null);
+  const depsKey = useMemo(() => {
+    try {
+      return JSON.stringify(deps);
+    } catch {
+      return String(deps.length);
+    }
+  }, [deps]);
 
   const compute = useCallback(() => {
     if ((!imgRatio && !imgNatural) || !containerRef.current) return;
@@ -109,7 +116,7 @@ export function useImageBoxSize(
   useEffect(() => {
     const id = requestAnimationFrame(compute);
     return () => cancelAnimationFrame(id);
-  }, [compute, ...deps]);
+  }, [compute, depsKey]);
 
   const onResultImageLoad = useCallback((e: React.SyntheticEvent<HTMLImageElement>) => {
     const img = e.currentTarget;

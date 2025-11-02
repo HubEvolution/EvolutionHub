@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD051 -->
+
 # Öffentliche API Endpunkte
 
 Dieses Dokument beschreibt die öffentlich zugänglichen API-Endpunkte im Evolution Hub.
@@ -11,9 +13,13 @@ Im Gegensatz zu anderen API-Endpunkten erfordern die öffentlichen APIs keine Au
 Alle öffentlichen API-Endpunkte sind mit folgenden Sicherheitsmaßnahmen ausgestattet:
 
 * **Rate-Limiting:** 50 Anfragen/Minute über `standardApiLimiter` für Endpunkte mit `withApiMiddleware` (aktuell: `/api/tools`, `/api/dashboard/quick-actions`, `/api/debug-login`, `/api/internal/users/sync`). Newsletter- und Lead-Magnets-Endpunkte verwenden derzeit kein Middleware-basiertes Rate-Limiting.
+
 * **Security-Headers:** Per Middleware gesetzt (nur bei Endpunkten mit `withApiMiddleware`). Details siehe Abschnitt „Sicherheitsheader“ unten.
+
 * **Audit-Logging:** Zentralisiert über Middleware für die o.g. Endpunkte; andere Endpunkte loggen lokal (Konsole).
+
 * **Input-Validierung:** Endpunkt-spezifisch (z. B. Newsletter- und Lead-Magnets-Validierung auf Server-Seite).
+
 * **CORS:** Für `POST /api/lead-magnets/download` explizit aktiviert (`Access-Control-Allow-Origin: *`).
 
 ---
@@ -29,9 +35,13 @@ Das Kommentarsystem bietet vollständige CRUD-Operationen, Moderation und Report
 Ruft Kommentare mit Filterung und Pagination ab.
 
 * **HTTP-Methode:** `GET`
+
 * **Pfad:** `/api/comments`
+
 * **Implementierung:** `src/pages/api/comments/index.ts` (Hono + Astro)
+
 * **Security:** Rate-Limiting (50/min), Security-Headers, Audit-Logging
+
 * **Authentifizierung:** Nicht erforderlich
 
 #### Query-Parameter
@@ -81,21 +91,27 @@ Ruft Kommentare mit Filterung und Pagination ab.
     "hasMore": true
   }
 }
-```
+
+```text
 
 ### 1.2. Kommentar erstellen
 
 Erstellt einen neuen Kommentar (Guest oder Auth User).
 
 * **HTTP-Methode:** `POST`
+
 * **Pfad:** `/api/comments/create`
+
 * **Implementierung:** `src/pages/api/comments/index.ts`
+
 * **Security:** Rate-Limiting (5/min), CSRF-Protection, Spam-Detection, XSS-Sanitization
+
 * **Authentifizierung:** Optional (Guest-Modus möglich)
 
 #### Request-Header
 
 * `Content-Type: application/json`
+
 * `X-CSRF-Token: <token>` (**erforderlich**)
 
 #### Request-Body
@@ -121,7 +137,8 @@ Erstellt einen neuen Kommentar (Guest oder Auth User).
   "authorName": "Guest User",
   "authorEmail": "guest@example.com"
 }
-```
+
+```text
 
 #### Erfolgreiche Antwort (201 Created)
 
@@ -151,7 +168,8 @@ Erstellt einen neuen Kommentar (Guest oder Auth User).
     "message": "Comment content must be at least 3 characters long"
   }
 }
-```
+
+```text
 
 **Spam-Detection (400 Bad Request):**
 
@@ -175,7 +193,8 @@ Erstellt einen neuen Kommentar (Guest oder Auth User).
     "message": "Too many comments. Please wait 45 seconds."
   }
 }
-```
+
+```text
 
 **CSRF-Fehler (400 Bad Request):**
 
@@ -194,21 +213,26 @@ Erstellt einen neuen Kommentar (Guest oder Auth User).
 Aktualisiert einen existierenden Kommentar (nur durch Autor).
 
 * **HTTP-Methode:** `PUT`
+
 * **Pfad:** `/api/comments/[id]`
+
 * **Implementierung:** `src/pages/api/comments/[id].ts`
+
 * **Security:** Rate-Limiting (50/min), CSRF-Protection, XSS-Sanitization
+
 * **Authentifizierung:** **Erforderlich** (nur eigene Comments)
 
-#### Request-Body
+#### Request-Body (2)
 
 ```json
 {
   "content": "Updated comment text",
   "csrfToken": "abc123..."
 }
-```
 
-#### Erfolgreiche Antwort (200 OK)
+```text
+
+#### Erfolgreiche Antwort (200 OK) (2)
 
 ```json
 {
@@ -228,20 +252,25 @@ Aktualisiert einen existierenden Kommentar (nur durch Autor).
 Löscht einen Kommentar (Soft-Delete → Status: `hidden`).
 
 * **HTTP-Methode:** `DELETE`
+
 * **Pfad:** `/api/comments/[id]`
+
 * **Implementierung:** `src/pages/api/comments/[id].ts`
+
 * **Security:** Rate-Limiting (50/min), CSRF-Protection
+
 * **Authentifizierung:** **Erforderlich** (nur eigene Comments)
 
-#### Request-Body
+#### Request-Body (2) (2)
 
 ```json
 {
   "csrfToken": "abc123..."
 }
-```
 
-#### Erfolgreiche Antwort (200 OK)
+```text
+
+#### Erfolgreiche Antwort (200 OK) (3)
 
 ```json
 {
@@ -257,12 +286,16 @@ Löscht einen Kommentar (Soft-Delete → Status: `hidden`).
 Moderiert einen Kommentar (nur Admin/Moderator).
 
 * **HTTP-Methode:** `POST`
+
 * **Pfad:** `/api/comments/moderate`
+
 * **Implementierung:** `src/pages/api/comments/moderate.ts`
+
 * **Security:** Rate-Limiting (50/min), CSRF-Protection
+
 * **Authentifizierung:** **Erforderlich** (Admin/Moderator-Rolle)
 
-#### Request-Body
+#### Request-Body (3)
 
 ```json
 {
@@ -270,9 +303,10 @@ Moderiert einen Kommentar (nur Admin/Moderator).
   "action": "approve",  // 'approve', 'reject', 'flag', 'hide', 'unhide'
   "reason": "Spam detected"  // Optional
 }
-```
 
-#### Erfolgreiche Antwort (200 OK)
+```text
+
+#### Erfolgreiche Antwort (200 OK) (4)
 
 ```json
 {
@@ -295,32 +329,43 @@ Das Kommentarsystem implementiert mehrere Sicherheitsebenen:
 #### XSS-Protection
 
 * **DOMPurify-Sanitization** für alle User-Inputs
+
 * Erlaubte Tags: `p`, `br`, `strong`, `em`, `u`, `a`, `code`, `pre`
+
 * Verbotene Tags: `script`, `iframe`, `object`, `embed`
+
 * Verbotene Attributes: `onclick`, `onerror`, `onload`
 
 #### Spam-Detection
 
 * **Multi-Heuristik-System** mit Score-basierter Erkennung
+
 * Checks: Keywords, Links, Caps-Lock, Wiederholungen, Länge, Patterns
+
 * Strictness-Levels: `low`, `medium`, `high`
+
 * Auto-Flag bei Score > 40, Auto-Reject bei Score > 60
 
 #### Rate-Limiting
 
 * **Dual-Layer**: Hono-Middleware + Service-Layer
+
 * Comment-Creation: **5 req/min** pro IP/User
+
 * Other Endpoints: **50 req/min**
 
 #### CSRF-Protection
 
 * **Double-Submit Token**: Cookie `csrf_token` == Header `X-CSRF-Token`
+
 * Enforced für alle mutierenden Operationen (POST, PUT, DELETE)
 
 #### Audit-Logging
 
 * Alle Aktionen in `comment_audit_logs` protokolliert
+
 * Anonymized IP-Logging (letzte Oktett/Hextet → 0)
+
 * Details: Action, User-ID, IP, User-Agent, Timestamp
 
 ---
@@ -332,12 +377,16 @@ Das Kommentarsystem implementiert mehrere Sicherheitsebenen:
 Ruft eine Liste aller verfügbaren Tools ab.
 
 * **HTTP-Methode:** `GET`
+
 * **Pfad:** `/api/tools`
+
 * **Implementierung:** `src/pages/api/tools.ts` (verwendet `withApiMiddleware` und ruft `listTools()` auf)
+
 * **Security:** Rate-Limiting (50/min), Security-Headers (über Middleware), Audit-Logging
+
 * **Authentifizierung:** Nicht erforderlich.
 
-#### Query-Parameter
+#### Query-Parameter (2)
 
 Keine. Filter, Paginierung und Sortierung werden derzeit nicht unterstützt.
 
@@ -353,7 +402,8 @@ Keine. Filter, Paginierung und Sortierung werden derzeit nicht unterstützt.
     "icon": "code"
   }
 ]
-```
+
+```text
 
 ### 2.2. Tool abrufen
 
@@ -367,22 +417,31 @@ Es existiert kein implementierter Endpunkt unter `src/pages/api/tools/:id`.
 ### Content-Sicherheit
 
 * Alle benutzergenerierten Inhalte werden gefiltert und sanitisiert
+
 * XSS-Schutz durch Entfernung potenziell gefährlicher HTML-Tags und Attribute
+
 * Keine Ausführung von JavaScript in benutzergenerierten Inhalten
+
 * Maximale Länge für Kommentare und andere Benutzereingaben
 
 ### Anti-Spam-Maßnahmen
 
 * Rate-Limiting für alle öffentlichen API-Endpunkte
+
 * CAPTCHA-Integration für Kommentarfunktionen (optional)
+
 * Automatische Erkennung und Blockierung von Spam-Mustern
+
 * Möglichkeit zur Meldung unangemessener Inhalte
 
 ### Datenschutz
 
 * Keine Preisgabe sensibler Benutzerinformationen
+
 * Minimale Benutzerinformationen in öffentlichen Antworten
+
 * Verschlüsselte Übertragung aller Daten (HTTPS)
+
 * Keine Speicherung von IP-Adressen oder Tracking-Daten ohne Einwilligung
 
 ### Sicherheitsheader
@@ -390,11 +449,17 @@ Es existiert kein implementierter Endpunkt unter `src/pages/api/tools/:id`.
 Die folgenden Header werden durch `applySecurityHeaders()` gesetzt (nur bei Endpunkten mit `withApiMiddleware`):
 
 * `Content-Security-Policy`: `default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: https://*; connect-src 'self' https://*.cloudflare.com; font-src 'self' https://cdn.jsdelivr.net;`
+
 * `X-Content-Type-Options`: `nosniff`
+
 * `X-Frame-Options`: `DENY`
+
 * `X-XSS-Protection`: `1; mode=block`
+
 * `Referrer-Policy`: `strict-origin-when-cross-origin`
+
 * `Strict-Transport-Security`: `max-age=31536000; includeSubDomains`
+
 * `Permissions-Policy`: `camera=(), microphone=(), geolocation=(), interest-cohort=()`
 
 ---
@@ -404,11 +469,14 @@ Die folgenden Header werden durch `applySecurityHeaders()` gesetzt (nur bei Endp
 Ruft die verfügbaren Quick Actions ab. Nutzt `withApiMiddleware`, benötigt keine Authentifizierung.
 
 * **HTTP-Methode:** `GET`
+
 * **Pfad:** `/api/dashboard/quick-actions`
+
 * **Implementierung:** `src/pages/api/dashboard/quick-actions.ts`
+
 * **Security:** Rate-Limiting (50/min), Security-Headers (über Middleware), Audit-Logging
 
-### Erfolgreiche Antwort (`200 OK`)
+### Erfolgreiche Antwort (`200 OK`) (2)
 
 ```json
 {
@@ -433,11 +501,14 @@ Ruft die verfügbaren Quick Actions ab. Nutzt `withApiMiddleware`, benötigt kei
 ### 5.1. Abonnieren (Double Opt-in)
 
 * **HTTP-Methode:** `POST`
+
 * **Pfad:** `/api/newsletter/subscribe`
+
 * **Implementierung:** `src/pages/api/newsletter/subscribe.ts` (ohne Middleware)
+
 * **Security:** Kein zentrales Rate-Limiting/Sicherheitsheader per Middleware; eigene Validierung.
 
-### Request-Body
+### Request-Body (4)
 
 ```json
 {
@@ -446,9 +517,10 @@ Ruft die verfügbaren Quick Actions ab. Nutzt `withApiMiddleware`, benötigt kei
   "consent": true,
   "source": "website"
 }
-```
 
-### Erfolgreiche Antwort (`200 OK`)
+```text
+
+### Erfolgreiche Antwort (`200 OK`) (3)
 
 ```json
 {
@@ -471,20 +543,24 @@ Ruft die verfügbaren Quick Actions ab. Nutzt `withApiMiddleware`, benötigt kei
 // 500 – Versandfehler/Serverfehler
 { "success": false, "error": "Failed to send confirmation email. Please try again." }
 { "success": false, "message": "Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut." }
-```
+
+```text
 
 ### 5.2. Bestätigung
 
 * **HTTP-Methode:** `GET`
+
 * **Pfad:** `/api/newsletter/confirm`
+
 * **Implementierung:** `src/pages/api/newsletter/confirm.ts` (ohne Middleware)
 
-#### Query-Parameter
+#### Query-Parameter (2) (2)
 
 * `token` (erforderlich)
+
 * `email` (optional, muss zum Token passen)
 
-#### Erfolgreiche Antwort (`200 OK`)
+#### Erfolgreiche Antwort (`200 OK`) (4)
 
 ```json
 {
@@ -495,7 +571,7 @@ Ruft die verfügbaren Quick Actions ab. Nutzt `withApiMiddleware`, benötigt kei
 }
 ```
 
-#### Fehlerhafte Antworten
+#### Fehlerhafte Antworten (2)
 
 ```json
 // 400 – Ungültiger Link / Email-Mismatch
@@ -510,7 +586,8 @@ Ruft die verfügbaren Quick Actions ab. Nutzt `withApiMiddleware`, benötigt kei
 
 // 500 – Serverfehler
 { "success": false, "error": "Internal server error during confirmation", "message": "Please try again later or contact support if the problem persists." }
-```
+
+```text
 
 ---
 
@@ -519,10 +596,12 @@ Ruft die verfügbaren Quick Actions ab. Nutzt `withApiMiddleware`, benötigt kei
 ### 6.1. Download anfordern (mit E-Mail-Gate)
 
 * **HTTP-Methode:** `POST`
+
 * **Pfad:** `/api/lead-magnets/download`
+
 * **Implementierung:** `src/pages/api/lead-magnets/download.ts` (ohne Middleware; CORS aktiviert)
 
-### Request-Body
+### Request-Body (3) (2)
 
 ```json
 {
@@ -534,7 +613,7 @@ Ruft die verfügbaren Quick Actions ab. Nutzt `withApiMiddleware`, benötigt kei
 }
 ```
 
-#### Erfolgreiche Antwort (`200 OK`)
+#### Erfolgreiche Antwort (`200 OK`) (2) (2)
 
 ```json
 {
@@ -545,9 +624,10 @@ Ruft die verfügbaren Quick Actions ab. Nutzt `withApiMiddleware`, benötigt kei
   "title": "New Work Transformation Guide",
   "message": "Lead-Magnet erfolgreich angefordert. Sie erhalten eine E-Mail mit dem Download-Link."
 }
-```
 
-#### Fehlerhafte Antworten
+```text
+
+#### Fehlerhafte Antworten (2) (2)
 
 ```json
 // 400 – Validierungsfehler
@@ -569,9 +649,10 @@ Zusätzlich wird ein CORS-Preflight über `OPTIONS /api/lead-magnets/download` u
 ### 6.2. Lead-Magnet Metadaten abrufen
 
 * **HTTP-Methode:** `GET`
+
 * **Pfad:** `/api/lead-magnets/download?id=<id>`
 
-#### Erfolgreiche Antwort (`200 OK`)
+#### Erfolgreiche Antwort (`200 OK`) (3) (2)
 
 ```json
 {
@@ -584,9 +665,10 @@ Zusätzlich wird ein CORS-Preflight über `OPTIONS /api/lead-magnets/download` u
     "requiresEmail": true
   }
 }
-```
 
-#### Fehlerhafte Antworten
+```text
+
+#### Fehlerhafte Antworten (3)
 
 ```json
 // 400 – fehlende ID
@@ -601,8 +683,11 @@ Zusätzlich wird ein CORS-Preflight über `OPTIONS /api/lead-magnets/download` u
 ## 7. Debug-Login (nur Entwicklung)
 
 * **HTTP-Methode:** `POST`
+
 * **Pfad:** `/api/debug-login`
+
 * **Implementierung:** `src/pages/api/debug-login.ts` (mit `withApiMiddleware`)
+
 * **Hinweis:** In Produktionsumgebungen blockiert (Antwort sollte `403 Forbidden` sein).
 
 ### Cookies
@@ -610,10 +695,15 @@ Zusätzlich wird ein CORS-Preflight über `OPTIONS /api/lead-magnets/download` u
 Der Endpunkt setzt bei Erfolg ein Session-Cookie mit folgenden Attributen:
 
 * Name: `__Host-session`
+
 * Pfad: `/`
+
 * Ablauf: 7 Tage
+
 * HttpOnly: `true`
+
 * SameSite: `strict`
+
 * Secure: `true`
 
 ### Erfolgreiche Antwort (Entwicklung)
@@ -627,7 +717,8 @@ Der Endpunkt setzt bei Erfolg ein Session-Cookie mit folgenden Attributen:
     "userId": "<uuid>"
   }
 }
-```
+
+```text
 
 ### Fehlerhafte Antwort (Produktion)
 
@@ -645,16 +736,19 @@ Der Endpunkt setzt bei Erfolg ein Session-Cookie mit folgenden Attributen:
 Synchronisiert Benutzerdaten in der internen Datenbank. Nur für vertrauenswürdige Systeme!
 
 * **HTTP-Methode:** `POST`
+
 * **Pfad:** `/api/internal/users/sync`
+
 * **Implementierung:** `src/pages/api/internal/users/sync.ts` (mit `withApiMiddleware`)
 
-### Request-Body
+### Request-Body (5)
 
 ```json
 { "id": "<uuid>", "name": "Max Mustermann", "email": "user@example.com", "image": "https://..." }
-```
 
-### Erfolgreiche Antwort (`200 OK`)
+```text
+
+### Erfolgreiche Antwort (`200 OK`) (5)
 
 ```json
 { "success": true, "data": { "message": "User synced successfully", "userId": "<uuid>" } }
@@ -664,7 +758,8 @@ Synchronisiert Benutzerdaten in der internen Datenbank. Nur für vertrauenswürd
 
 ```json
 { "success": false, "error": { "type": "validation_error", "message": "User ID and email are required" } }
-```
+
+```text
 
 ---
 

@@ -10,6 +10,8 @@ source_url:
   md: https://developers.cloudflare.com/workers/static-assets/migration-guides/migrate-from-pages/index.md
 ---
 
+<!-- markdownlint-disable MD051 -->
+
 ## Status der Migration: "pages zu worker"
 
 Die Migration von Cloudflare Pages zu Cloudflare Workers für das Projekt EvolutionHub ist derzeit noch nicht abgeschlossen. Die folgenden Abschnitte dokumentieren den aktuellen Stand, die offenen Fragen und die Entscheidungspunkte, die vor der eigentlichen Umsetzung der Migration geklärt und bearbeitet werden müssen.
@@ -21,51 +23,84 @@ Diese Ergänzung beschreibt die projektspezifische Vorbereitung für die Migrati
 ### Ist‑Zustand EvolutionHub (Referenz)
 
 * API‑Endpunkte unter `src/pages/api/`, zentrale Middleware in `src/lib/api-middleware.ts` (`withApiMiddleware()`, `withAuthApiMiddleware()`).
+
 * Rate‑Limiting: `standardApiLimiter` ≈ 50 req/min für Middleware‑geschützte Endpunkte.
+
 * Security‑Headers: `applySecurityHeaders()` in `src/lib/security-headers.ts` (CSP, HSTS, u. a.).
+
 * Ausnahmen/Spezialfälle:
+
   * Newsletter: `src/pages/api/newsletter/subscribe.ts`, `confirm.ts` (kein Middleware‑Wrapper; Double‑Opt‑in Flow).
+
   * Lead Magnets: `src/pages/api/lead-magnets/download.ts` (GET/POST/OPTIONS, CORS/Preflight explizit).
+
   * Debug‑Login: `src/pages/api/debug-login.ts` (nur Dev; setzt `session_id` Cookie; in Prod blockiert).
+
   * Logout v1/v2: `src/pages/api/user/logout*.ts` (Custom Handler, kein Middleware‑Wrapper).
+
   * Avatar: `src/pages/api/user/avatar.ts` (nutzt direkt `applySecurityHeaders()`).
 
 ### Pre‑Migration Checklist (Doc‑only)
 
 * Wrangler‑Konfiguration (Platzhalter, noch nicht ausführen/committen):
+
   * Name vereinheitlichen (z. B. `evolution-hub`).
+
   * Einheitliches `compatibility_date` festlegen (z. B. aktuelles Datum; endgültig bei Umsetzung).
+
   * `assets.directory` auf finalen Build‑Pfad setzen (typisch `./dist/client` bei Astro; prüfen).
+
   * Optional: `assets.run_worker_first = true`, falls Auth/Logging vor Assets nötig ist.
+
   * `preview_urls = true` für Previews; optional `workers_dev = true`.
+
 * Bindings inventarisieren (nur dokumentieren):
+
   * R2 (Avatar‑Upload): Binding für `R2_AVATARS` vorbereiten.
+
   * D1 (falls aktiv genutzt): `DB`‑Binding skizzieren (Name/ID TBD).
+
   * Weitere (KV/Queues/Service Bindings): aktuell keine verbindliche Nutzung – als TODO vormerken.
+
 * Routing/Serving:
+
   * SPA‑Verhalten vs. Custom‑404 (`not_found_handling`) festlegen.
+
   * `_headers`/`_redirects` in Asset‑Verzeichnis belassen.
+
   * Optional `assets.binding = "ASSETS"` benennen, falls im Worker benötigt.
+
 * Environments & Builds:
+
   * Workers Builds aktivieren; Non‑Prod Branch Builds und Preview‑URLs nutzen.
+
   * Optional: Access‑Schutz für Preview‑URLs dokumentieren.
+
 * Security & Rate‑Limiting:
+
   * Wenn `run_worker_first = true`, greifen Middleware‑Security‑Header/Rate‑Limit auch für Assets.
+
   * Wenn nicht, `_headers` für statische Assets pflegen; Rate‑Limit dann nur für API‑Handler.
 
 ### Beispiel: `wrangler.toml` Skeleton (Platzhalter/TODOs)
 
 ```toml
+
 # wrangler.toml (Beispiel – mit aktuellen/proj.spezifischen Werten)
+
 name = "evolution-hub"                    # TODO: finalen Namen bestätigen
 compatibility_date = "2025-08-12"        # Aktuelles Datum
 preview_urls = true
+
 # workers_dev = true                       # optional
 
 [assets]
 directory = "./dist/client"              # Standard für Astro-Builds, muss aber verifiziert werden
+
 # not_found_handling = "single-page-application"  # oder "404-page"
+
 # run_worker_first = true                  # falls Auth/Logging vor Assets gewünscht
+
 # binding = "ASSETS"                      # optionaler Assets‑Binding‑Name
 
 [placement]
@@ -74,29 +109,43 @@ mode = "smart"
 # compatibility_flags = ["nodejs_compat"] # nur falls notwendig
 
 ## R2 (z. B. Avatare) – nur dokumentiert
+
 ## [[r2_buckets]]
+
 ## binding = "R2_AVATARS"
+
 ## bucket_name = "evolutionhub-avatars"   # TODO: tatsächlichen Bucket-Namen eintragen
 
 ## D1 – nur dokumentiert
+
 ## [[d1_databases]]
+
 ## binding = "DB"
+
 ## database_name = "evolutionhub"         # TODO: tatsächlichen Namen eintragen
+
 ## database_id = "..."                    # TODO: tatsächliche ID eintragen
-```
+
+```text
 
 ### Entscheidungspunkte vor Umsetzung
 
 * Assets‑first vs. Worker‑first (Auswirkung auf Auth/Logging/Rate‑Limit für statische Antworten).
+
 * Einheitliches `compatibility_date` und ggf. `nodejs_compat` Bedarf.
+
 * Preview‑Strategie (Branch‑Builds, Access‑Schutz) und `workers_dev` Nutzung.
+
 * Beibehalt von `_headers`/`_redirects` vs. Header aus Worker (wenn Worker‑first).
 
 ### Offene Fragen (für die eigentliche Migration)
 
 * Finaler Build‑Output‑Pfad (Astro‑Konfiguration) und ggf. SSR‑Anteile.
+
 * Verbindliche Liste aktiver Bindings (R2/D1/KV/Queues) inkl. Namenskonventionen.
+
 * Genaue Abdeckung der Security‑Header für statische Antworten (Page Rules vs. Worker).
+
 * Eventuelle Konsolidierung Legacy vs. v2‑Auth im Zuge der Migration (Zeitpunkt/Scope).
 
 You can deploy full-stack applications, including front-end static assets and back-end APIs, as well as server-side rendered pages (SSR), with [Cloudflare Workers](https://developers.cloudflare.com/workers/static-assets/).
@@ -167,7 +216,6 @@ Now, with **Cloudflare Workers**:
   name = "my-worker"
   compatibility_date = "2025-04-01"
 
-
   [assets]
   directory = "./dist/client/"
   ```
@@ -199,7 +247,6 @@ For a Single Page Application (SPA):
   name = "my-worker"
   compatibility_date = "2025-04-01"
 
-
   [assets]
   directory = "./dist/client/"
   not_found_handling = "single-page-application"
@@ -225,7 +272,6 @@ For custom 404 pages:
   ```toml
   name = "my-worker"
   compatibility_date = "2025-04-01"
-
 
   [assets]
   directory = "./dist/client/"
@@ -254,7 +300,8 @@ If you use Pages Functions with an ["advanced mode" `_worker.js` file](https://d
 
 ```txt
 _worker.js
-```
+
+```text
 
 Then, update your configuration file's `main` field to point to the location of this Worker script:
 
@@ -277,7 +324,6 @@ Then, update your configuration file's `main` field to point to the location of 
   name = "my-worker"
   compatibility_date = "2025-04-01"
   main = "./dist/client/_worker.js"
-
 
   [assets]
   directory = "./dist/client/"
@@ -329,7 +375,6 @@ Once the Worker script has been compiled, you can update your configuration file
   compatibility_date = "2025-04-01"
   main = "./dist/worker/index.js"
 
-
   [assets]
   directory = "./dist/client/"
   ```
@@ -361,7 +406,6 @@ Workers, on the other hand, will default to serving static assets ahead of your 
   compatibility_date = "2025-04-01"
   main = "./dist/worker/index.js"
 
-
   [assets]
   directory = "./dist/client/"
   run_worker_first = true
@@ -376,7 +420,6 @@ If you wish to, you can start a new Worker script from scratch and take advantag
   ```js
   import { WorkerEntrypoint } from "cloudflare:workers";
 
-
   export default class extends WorkerEntrypoint {
     async fetch(request) {
       return new Response("Hello, world!");
@@ -388,7 +431,6 @@ If you wish to, you can start a new Worker script from scratch and take advantag
 
   ```ts
   import { WorkerEntrypoint } from "cloudflare:workers";
-
 
   export default class extends WorkerEntrypoint {
     async fetch(request: Request) {
@@ -416,7 +458,6 @@ If you wish to, you can start a new Worker script from scratch and take advantag
   name = "my-worker"
   compatibility_date = "2025-04-01"
   main = "./worker/index.ts"
-
 
   [assets]
   directory = "./dist/client/"
@@ -446,7 +487,6 @@ Pages automatically provided [an `ASSETS` binding](https://developers.cloudflare
   name = "my-worker"
   compatibility_date = "2025-04-01"
   main = "./worker/index.ts"
-
 
   [assets]
   directory = "./dist/client/"
@@ -483,10 +523,8 @@ If you had customized [placement](https://developers.cloudflare.com/workers/conf
   compatibility_flags = [ "nodejs_compat" ]
   main = "./worker/index.ts"
 
-
   [placement]
   mode = "smart"
-
 
   [assets]
   directory = "./dist/client/"
@@ -537,12 +575,11 @@ To get a similar experience in Workers, you must:
       main = "./worker/index.ts"
       preview_urls = true
 
-
       [assets]
       directory = "./dist/client/"
       ```
 
-2. [Enable non-production branch builds](https://developers.cloudflare.com/workers/ci-cd/builds/build-branches/#configure-non-production-branch-builds) in Workers Builds.
+1. [Enable non-production branch builds](https://developers.cloudflare.com/workers/ci-cd/builds/build-branches/#configure-non-production-branch-builds) in Workers Builds.
 
 Optionally, you can also [protect these preview URLs with Cloudflare Access](https://developers.cloudflare.com/workers/configuration/previews/#manage-access-to-preview-urls).
 
@@ -694,7 +731,7 @@ This compatibility matrix compares the features of Workers and Pages. Unless oth
 ## Footnotes
 
 1. Middleware can be configured via the [`run_worker_first`](https://developers.cloudflare.com/workers/static-assets/binding/#run_worker_first) option, but is charged as a normal Worker invocation. We plan to explore additional related options in the future. [↩](#footnotes)
-2. To [use Durable Objects with your Cloudflare Pages project](https://developers.cloudflare.com/pages/functions/bindings/#durable-objects), you must create a separate Worker with a Durable Object and then declare a binding to it in both your Production and Preview environments. Using Durable Objects with Workers is simpler and recommended. [↩](#footnotes)
-3. Workers Builds supports enabling [non-production branch builds](https://developers.cloudflare.com/workers/ci-cd/builds/build-branches/#configure-non-production-branch-builds), though does not yet have the same level of configurability as Pages does. [↩](#footnotes)
-4. Workers [supports popular frameworks](https://developers.cloudflare.com/workers/framework-guides/), many of which implement file-based routing. Additionally, you can use Wrangler to [compile your folder of `functions/`](#pages-functions-with-a-functions-folder) into a Worker to help ease the migration from Pages to Workers. [↩](#footnotes)
-5. As in 4, Wrangler can [compile your Pages Functions into a Worker](#pages-functions-with-a-functions-folder). Or if you are starting from scratch, everything that is possible with Pages Functions can also be achieved by adding code to your Worker or by using framework-specific plugins for relevant third party tools. [↩](#footnotes)
+1. To [use Durable Objects with your Cloudflare Pages project](https://developers.cloudflare.com/pages/functions/bindings/#durable-objects), you must create a separate Worker with a Durable Object and then declare a binding to it in both your Production and Preview environments. Using Durable Objects with Workers is simpler and recommended. [↩](#footnotes)
+1. Workers Builds supports enabling [non-production branch builds](https://developers.cloudflare.com/workers/ci-cd/builds/build-branches/#configure-non-production-branch-builds), though does not yet have the same level of configurability as Pages does. [↩](#footnotes)
+1. Workers [supports popular frameworks](https://developers.cloudflare.com/workers/framework-guides/), many of which implement file-based routing. Additionally, you can use Wrangler to [compile your folder of `functions/`](#pages-functions-with-a-functions-folder) into a Worker to help ease the migration from Pages to Workers. [↩](#footnotes)
+1. As in 4, Wrangler can [compile your Pages Functions into a Worker](#pages-functions-with-a-functions-folder). Or if you are starting from scratch, everything that is possible with Pages Functions can also be achieved by adding code to your Worker or by using framework-specific plugins for relevant third party tools. [↩](#footnotes)

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-export type TestimonialItem = { quote: string; author: string; role?: string };
+export type TestimonialItem = { quote: string; author: string; role?: string; tool?: string };
 
 type Props = {
   items: TestimonialItem[];
@@ -17,6 +17,28 @@ function VerifiedBadge() {
   return (
     <div className="ml-auto px-2 py-1 rounded-full text-[10px] font-medium bg-emerald-400/10 text-emerald-300 ring-1 ring-emerald-300/25">
       Verified
+    </div>
+  );
+}
+
+function toolLabel(tool?: string): string | null {
+  if (!tool) return null;
+  const map: Record<string, string> = {
+    imag: 'Imag‑Enhancer',
+    prompt: 'Prompt Enhancer',
+    voice: 'Voice Transcriptor',
+    web: 'Webscraper',
+    video: 'Video Enhancer',
+  };
+  return map[tool] ?? tool;
+}
+
+function ToolBadge({ tool }: { tool?: string }) {
+  const label = toolLabel(tool);
+  if (!label) return null;
+  return (
+    <div className="px-2 py-1 rounded-full text-[10px] font-medium bg-cyan-400/10 text-cyan-300 ring-1 ring-cyan-300/25">
+      {label}
     </div>
   );
 }
@@ -44,7 +66,10 @@ function Card({ item, entering }: { item: TestimonialItem; entering?: boolean })
           <div className="text-sm font-semibold text-white truncate">{item.author}</div>
           {item.role ? <div className="text-xs text-gray-300/80 truncate">{item.role}</div> : null}
         </div>
-        <VerifiedBadge />
+        <div className="ml-auto flex items-center gap-2">
+          <ToolBadge tool={item.tool} />
+          <VerifiedBadge />
+        </div>
       </div>
       <div
         className="absolute inset-0 pointer-events-none rounded-2xl gradient-border"

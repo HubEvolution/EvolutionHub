@@ -4,7 +4,11 @@ import { toast } from 'sonner';
 import { ensureCsrfToken } from '@/lib/security/csrf';
 import { WebscraperForm } from './WebscraperForm';
 import { WebscraperResults } from './WebscraperResults';
-import Card from '@/components/ui/Card';
+import {
+  containerCls,
+  usageBarBgCls,
+  usageBarFillCls,
+} from '@/components/tools/shared/islandStyles';
 import type { ScrapingResult, UsageInfo } from '@/types/webscraper';
 
 interface WebscraperStrings {
@@ -30,9 +34,10 @@ interface WebscraperStrings {
 
 interface WebscraperIslandProps {
   strings: WebscraperStrings;
+  showHeader?: boolean;
 }
 
-export default function WebscraperIsland({ strings }: WebscraperIslandProps) {
+export default function WebscraperIsland({ strings, showHeader = false }: WebscraperIslandProps) {
   const [url, setUrl] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<ScrapingResult | null>(null);
@@ -148,15 +153,17 @@ export default function WebscraperIsland({ strings }: WebscraperIslandProps) {
   };
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6">
-      {/* Header */}
-      <div className="text-center">
-        <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-3">{strings.title}</h1>
-        <p className="text-lg text-gray-600 dark:text-gray-300">{strings.description}</p>
-      </div>
+    <div className={containerCls}>
+      {/* Optional Header (disabled by default; page provides header) */}
+      {showHeader && (
+        <div className="text-center">
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-3">{strings.title}</h1>
+          <p className="text-lg text-gray-600 dark:text-gray-300">{strings.description}</p>
+        </div>
+      )}
 
-      {/* Main Form Card */}
-      <Card variant="holo" className="p-6">
+      {/* Main Form Container (flat) */}
+      <div>
         <WebscraperForm
           url={url}
           onUrlChange={setUrl}
@@ -173,7 +180,7 @@ export default function WebscraperIsland({ strings }: WebscraperIslandProps) {
 
         {/* Usage Info */}
         {usage && (
-          <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+          <div className="mt-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-2">
@@ -212,21 +219,17 @@ export default function WebscraperIsland({ strings }: WebscraperIslandProps) {
               )}
             </div>
             {/* Progress Bar */}
-            <div className="mt-3 w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-              <div
-                className={`h-2 rounded-full transition-all duration-300 ${
-                  (usage.used / usage.limit) * 100 > 80
-                    ? 'bg-red-500'
-                    : (usage.used / usage.limit) * 100 > 50
-                      ? 'bg-yellow-500'
-                      : 'bg-blue-500'
-                }`}
-                style={{ width: `${Math.min((usage.used / usage.limit) * 100, 100)}%` }}
-              />
-            </div>
+            {(() => {
+              const percent = Math.min((usage.used / usage.limit) * 100, 100);
+              return (
+                <div className={`mt-3 ${usageBarBgCls}`}>
+                  <div className={usageBarFillCls(percent)} style={{ width: `${percent}%` }} />
+                </div>
+              );
+            })()}
           </div>
         )}
-      </Card>
+      </div>
 
       {/* Results */}
       {result && (

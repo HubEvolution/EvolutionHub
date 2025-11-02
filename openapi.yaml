@@ -250,6 +250,60 @@ paths:
           description: User not found
         "422":
           description: Validation error (e.g., insufficient_credits in strict mode)
+
+  /api/admin/users/set-plan:
+    post:
+      summary: Set user plan (admin override)
+      description: |
+        Manually sets a user's plan by email or userId.
+        Requires admin and is CSRF protected.
+        Note: Active Stripe subscription events may later override the plan via webhook.
+      x-source: src/pages/api/admin/users/set-plan.ts
+      operationId: postAdminUsersSetPlan
+      parameters:
+        - name: X-CSRF-Token
+          in: header
+          required: true
+          description: Double‑Submit token; must match cookie 'csrf_token'
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminSetPlanRequest'
+      responses:
+        "200":
+          description: Plan set
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        "403":
+          description: Forbidden (CSRF/Origin or not admin)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        "404":
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        "422":
+          description: Validation error (invalid body)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
   /api/tools:
     get:
       summary: List available tools
@@ -265,6 +319,229 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Tool'
+  /api/analytics/views:
+    get:
+      summary: Get views count for a blog post
+      description: Returns current page view count for a given blog post slug. Security headers are applied by global API middleware.
+      x-source: src/pages/api/analytics/views.ts
+      operationId: getAnalyticsViews
+      parameters:
+        - name: slug
+          in: query
+          required: true
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 200
+      responses:
+        "200":
+          description: Current views count
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  success:
+                    type: boolean
+                    enum: [true]
+                  data:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      slug:
+                        type: string
+                      count:
+                        type: integer
+                        minimum: 0
+                      ts:
+                        type: integer
+                        description: Epoch milliseconds at server time
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+    post:
+      summary: Increment views count
+      description: >
+        Increments page view counter for the given slug. Security: Same-Origin required for unsafe methods per middleware; CSRF token not required for this non-sensitive endpoint. Security headers are applied by global API middleware.
+      x-source: src/pages/api/analytics/views.ts
+      operationId: postAnalyticsViews
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [slug]
+              properties:
+                slug:
+                  type: string
+                  minLength: 1
+                  maxLength: 200
+      responses:
+        "200":
+          description: Incremented views count
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  success:
+                    type: boolean
+                    enum: [true]
+                  data:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      slug:
+                        type: string
+                      count:
+                        type: integer
+                        minimum: 1
+                      ts:
+                        type: integer
+                        description: Epoch milliseconds at server time
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+  /api/ai-video/upload:
+    post:
+      summary: Upload source video for enhancement
+      description: Accepts a short video file and stores it to R2 for later processing.
+      x-source: src/pages/api/ai-video/upload.ts
+      operationId: postAiVideoUpload
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file, tier, durationMs]
+              properties:
+                file:
+                  type: string
+                  format: binary
+                tier:
+                  type: string
+                  enum: ["720p", "1080p"]
+                durationMs:
+                  type: integer
+      responses:
+        "200":
+          description: Upload succeeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+  /api/ai-video/generate:
+    post:
+      summary: Start video enhancement job
+      description: Starts a provider job for the uploaded video and charges credits or monthly quota.
+      x-source: src/pages/api/ai-video/generate.ts
+      operationId: postAiVideoGenerate
+      parameters:
+        - name: X-CSRF-Token
+          in: header
+          required: true
+          description: Double‑Submit token; must match cookie 'csrf_token'
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [key, tier]
+              additionalProperties: false
+              properties:
+                key:
+                  type: string
+                tier:
+                  type: string
+                  enum: ["720p", "1080p"]
+      responses:
+        "200":
+          description: Job started
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    enum: [true]
+                  data:
+                    type: object
+                    properties:
+                      jobId:
+                        type: string
+                      status:
+                        type: string
+                      charge:
+                        description: Either credits deducted or quota used
+                        oneOf:
+                          - type: object
+                            additionalProperties: false
+                            properties:
+                              credits:
+                                type: number
+                              balance:
+                                type: number
+                          - type: object
+                            additionalProperties: false
+                            properties:
+                              credits:
+                                type: number
+                                enum: [0]
+                              quota:
+                                type: boolean
+                                enum: [true]
+        "400":
+          description: Validation error (e.g., insufficient_credits | insufficient_quota)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+  /api/ai-video/jobs/{id}:
+    get:
+      summary: Poll video enhancement job status
+      description: Returns provider job status and, when succeeded, a public result URL.
+      x-source: src/pages/api/ai-video/jobs/[id].ts
+      operationId: getAiVideoJob
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Status payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
   /api/auth/change-password:
     post:
       summary: Change password (deprecated)
@@ -613,6 +890,65 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GenericResponse'
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+  /api/admin/traffic-24h:
+    get:
+      summary: Cloudflare traffic (last 24h)
+      description: Returns pageViews and unique visits for the last 24 hours. Optionally includes a 24-point series array for sparklines. Requires admin.
+      x-source: src/pages/api/admin/traffic-24h.ts
+      operationId: getAdminTraffic24h
+      parameters:
+        - name: series
+          in: query
+          required: false
+          schema:
+            type: boolean
+          description: When true, include a 24-point series array for sparkline rendering.
+      responses:
+        "200":
+          description: Traffic payload
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  success:
+                    type: boolean
+                    enum: [true]
+                  data:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      pageViews:
+                        type: integer
+                        minimum: 0
+                      visits:
+                        type: integer
+                        minimum: 0
+                      from:
+                        type: string
+                        format: date-time
+                      to:
+                        type: string
+                        format: date-time
+                      series:
+                        type: array
+                        items:
+                          type: object
+                          additionalProperties: false
+                          properties:
+                            t:
+                              type: string
+                            pageViews:
+                              type: integer
+                            visits:
+                              type: integer
         "401":
           description: Unauthorized
           content:
@@ -1657,6 +1993,27 @@ paths:
                   enum: [2, 4]
                 face_enhance:
                   type: boolean
+                prompt:
+                  type: string
+                  description: Optional text prompt (Workers AI img2img)
+                negative_prompt:
+                  type: string
+                  description: Optional negative prompt (Workers AI img2img)
+                strength:
+                  type: number
+                  format: float
+                  minimum: 0
+                  maximum: 1
+                  description: img2img influence (testing env caps may apply)
+                guidance:
+                  type: number
+                  format: float
+                  minimum: 0
+                  maximum: 12
+                  description: Classifier-free guidance (testing env caps may apply)
+                steps:
+                  type: integer
+                  description: Inference steps (testing env caps may apply)
               required:
                 - image
                 - model
@@ -2393,6 +2750,26 @@ components:
             minLength: 1
         required:
           - subscriptionId
+      AdminSetPlanRequest:
+        type: object
+        description: Admin override to set a user's plan. Exactly one of email or userId must be provided.
+        additionalProperties: false
+        properties:
+          email:
+            type: string
+            format: email
+          userId:
+            type: string
+            minLength: 1
+          plan:
+            type: string
+            enum: [free, pro, premium, enterprise]
+          reason:
+            type: string
+            maxLength: 500
+        oneOf:
+          - required: [email, plan]
+          - required: [userId, plan]
       InternalUserSyncRequest:
         type: object
         description: Minimal user payload for internal sync
@@ -2715,6 +3092,24 @@ components:
                 type: integer
               guest:
                 type: integer
+          entitlements:
+            $ref: '#/components/schemas/PlanEntitlements'
+            
+      PlanEntitlements:
+        type: object
+        additionalProperties: false
+        properties:
+          monthlyImages:
+            type: integer
+            description: Total images allowed per calendar month
+          dailyBurstCap:
+            type: integer
+            description: Max images per rolling 24h window
+          maxUpscale:
+            type: integer
+            enum: [2, 4, 6, 8]
+          faceEnhance:
+            type: boolean
       AiGenerateSuccessResponse:
         type: object
         properties:
@@ -2855,6 +3250,12 @@ components:
                     type: integer
                   guest:
                     type: integer
+              plan:
+                type: string
+                nullable: true
+                description: Optional current plan if ownerType is user (e.g., free, pro, premium)
+              entitlements:
+                $ref: '#/components/schemas/PlanEntitlements'
         required:
           - success
           - data

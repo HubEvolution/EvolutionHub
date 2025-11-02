@@ -29,7 +29,9 @@ describe('Blog i18n & SEO (integration)', () => {
     expect($('h1').length).toBe(1);
 
     // Related heading (DE)
-    expect($('h2').filter((_, el) => $(el).text().trim() === 'Ähnliche Artikel').length).toBeGreaterThan(0);
+    expect(
+      $('h2').filter((_, el) => $(el).text().trim() === 'Ähnliche Artikel').length
+    ).toBeGreaterThan(0);
   });
 
   it('EN: category uses /en/blog/category/, share links have prod origin, single H1, related heading present', async () => {
@@ -49,6 +51,8 @@ describe('Blog i18n & SEO (integration)', () => {
     expect($('h1').length).toBe(1);
 
     // Related heading (EN)
-    expect($('h2').filter((_, el) => $(el).text().trim() === 'Related Articles').length).toBeGreaterThan(0);
+    expect(
+      $('h2').filter((_, el) => $(el).text().trim() === 'Related Articles').length
+    ).toBeGreaterThan(0);
   });
 });

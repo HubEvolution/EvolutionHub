@@ -54,7 +54,7 @@ export function buildProviderError(
 
   // Attach a concise snippet for internal diagnostics only (callers may log)
   if (payloadSnippet) {
-    (err as any).snippet = String(payloadSnippet).slice(0, 500);
+    (err as ProviderError & { snippet?: string }).snippet = String(payloadSnippet).slice(0, 500);
   }
 
   return err;

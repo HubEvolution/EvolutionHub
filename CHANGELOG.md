@@ -20,6 +20,7 @@ und dieser Projekt haftet an [Semantic Versioning](https://semver.org/spec/v2.0.
 - D1: Ops/Data-Management Tabellen angelegt: `data_export_jobs`, `data_deletion_requests`, `backup_jobs`, `system_maintenance` (TEXT‑FKs) inkl. Indizes.
 - D1: WebScraper: `scraping_jobs` Tabelle mit sinnvollen Indizes erstellt.
 - docs(api): Admin API Dokumentation (`docs/api/admin_api.md`) für Status, Users Summary, Credits Grant sowie Comments (List/Details/Moderate/Bulk/Delete) und Metrics.
+- feat(admin): add POST /api/admin/users/set-plan (RBAC+CSRF+Zod)
 
 ### Changed
 

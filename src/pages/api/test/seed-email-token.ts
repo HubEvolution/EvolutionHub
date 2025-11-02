@@ -13,10 +13,11 @@ export const GET = async (context: APIContext) => {
   const isLocalhost = /^(localhost|127\.0\.0\.1)(:\d+)?$/.test(host);
   const isNodeTest =
     typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'test';
-  const isDev =
-    typeof import.meta !== 'undefined' &&
-    (import.meta as any).env &&
-    ((import.meta as any).env.DEV || (import.meta as any).env.MODE === 'test');
+  const metaEnv =
+    typeof import.meta !== 'undefined'
+      ? (import.meta as unknown as { env?: { DEV?: boolean; MODE?: string } }).env || {}
+      : {};
+  const isDev = metaEnv.DEV === true || metaEnv.MODE === 'test';
   if (!(hasHeader && (isNodeTest || isDev || isLocalhost))) {
     return createSecureJsonResponse({ error: 'Forbidden' }, 403);
   }

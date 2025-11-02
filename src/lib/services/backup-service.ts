@@ -11,8 +11,11 @@ import type {
   BackupJob,
   BackupOptions,
   BackupProgress,
+  BackupJobType,
+  BackupJobStatus,
   SystemMaintenance,
   MaintenanceType,
+  MaintenanceStatus,
 } from '../types/data-management';
 
 export class BackupService {
@@ -70,7 +73,7 @@ export class BackupService {
       }
 
       const options: BackupOptions = {
-        type: job[0].type as any,
+        type: job[0].type as BackupOptions['type'],
         tables: job[0].tablesIncluded ? JSON.parse(job[0].tablesIncluded) : undefined,
       };
 
@@ -226,8 +229,8 @@ export class BackupService {
     if (!row) return null;
     return {
       id: row.id,
-      type: row.type as any,
-      status: (row.status ?? 'pending') as any,
+      type: row.type as BackupJobType,
+      status: (row.status ?? 'pending') as BackupJobStatus,
       filePath: row.filePath ?? undefined,
       fileSize: row.fileSize ?? undefined,
       checksum: row.checksum ?? undefined,
@@ -256,10 +259,10 @@ export class BackupService {
       .from(backupJobs)
       .orderBy(desc(backupJobs.startedAt))
       .limit(limit);
-    return rows.map((row) => ({
+    return rows.map((row: typeof backupJobs.$inferSelect) => ({
       id: row.id,
-      type: row.type as any,
-      status: (row.status ?? 'pending') as any,
+      type: row.type as BackupJobType,
+      status: (row.status ?? 'pending') as BackupJobStatus,
       filePath: row.filePath ?? undefined,
       fileSize: row.fileSize ?? undefined,
       checksum: row.checksum ?? undefined,
@@ -301,14 +304,14 @@ export class BackupService {
   /**
    * Plant automatische Backups
    */
-  async scheduleAutomatedBackup(type: string, cronExpression: string): Promise<void> {
+  async scheduleAutomatedBackup(type: BackupJobType, cronExpression: string): Promise<void> {
     // In einer echten Implementierung würde hier ein Cron-Job geplant
     log('info', 'Scheduled automated backup', { type, cronExpression });
 
     // Für jetzt simulieren wir einen sofortigen Backup
     await this.createBackupJob(
       {
-        type: type as any,
+        type,
         incremental: type === 'incremental',
       },
       undefined
@@ -369,8 +372,8 @@ export class BackupService {
       const m = maintenance[0];
       const mapped: SystemMaintenance = {
         id: m.id,
-        type: m.type as any,
-        status: (m.status ?? 'pending') as any,
+        type: m.type as MaintenanceType,
+        status: (m.status ?? 'pending') as MaintenanceStatus,
         description: m.description,
         affectedTables: m.affectedTables ? JSON.parse(m.affectedTables) : undefined,
         parameters: m.parameters ? JSON.parse(m.parameters) : undefined,
@@ -512,15 +515,15 @@ export class BackupService {
    * Holt Wartungsjobs
    */
   async getMaintenanceJobs(limit = 50): Promise<SystemMaintenance[]> {
-    const rows = await this.db
+    const jobs = await this.db
       .select()
       .from(systemMaintenance)
       .orderBy(desc(systemMaintenance.startedAt))
       .limit(limit);
-    return rows.map((m) => ({
+    return jobs.map((m: typeof systemMaintenance.$inferSelect) => ({
       id: m.id,
-      type: m.type as any,
-      status: (m.status ?? 'pending') as any,
+      type: m.type as MaintenanceType,
+      status: (m.status ?? 'pending') as MaintenanceStatus,
       description: m.description,
       affectedTables: m.affectedTables ? JSON.parse(m.affectedTables) : undefined,
       parameters: m.parameters ? JSON.parse(m.parameters) : undefined,
@@ -552,8 +555,8 @@ export class BackupService {
     if (!m) return null;
     return {
       id: m.id,
-      type: m.type as any,
-      status: (m.status ?? 'pending') as any,
+      type: m.type as MaintenanceType,
+      status: (m.status ?? 'pending') as MaintenanceStatus,
       description: m.description,
       affectedTables: m.affectedTables ? JSON.parse(m.affectedTables) : undefined,
       parameters: m.parameters ? JSON.parse(m.parameters) : undefined,
@@ -595,7 +598,7 @@ export class BackupService {
   /**
    * Stellt Daten aus Backup wieder her (Vorsicht: destruktiv!)
    */
-  async restoreFromBackup(backupJobId: string, targetTables?: string[]): Promise<boolean> {
+  async restoreFromBackup(backupJobId: string, _targetTables?: string[]): Promise<boolean> {
     const backupJob = await this.getBackupJob(backupJobId);
     if (!backupJob || backupJob.status !== 'completed') {
       throw new Error('Invalid backup job for restore');

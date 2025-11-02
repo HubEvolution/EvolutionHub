@@ -7,6 +7,8 @@ codeRefs: 'src/lib/rate-limiter.ts, src/lib/api-middleware.ts'
 testRefs: 'tests/integration/api/rate-limiting'
 ---
 
+<!-- markdownlint-disable MD051 -->
+
 # Rate Limiting API
 
 **Detaillierte Dokumentation** für Rate-Limiting-Header, 429-Responses und Traffic-Management in Evolution Hub APIs. Dieses Dokument erklärt die verschiedenen Rate-Limiting-Strategien, Header-Formate und Client-Integration.
@@ -20,31 +22,41 @@ Evolution Hub implementiert mehrere Rate-Limiting-Strategien, um die API-Perform
 #### 1. Standard-API-Limiter (`apiRateLimiter`)
 
 - **Limit**: 30 Anfragen pro Minute
+
 - **Verwendung**: Standardmäßige API-Endpunkte
+
 - **Beispiel**: GET `/api/user/profile`, POST `/api/comments/create`
 
 #### 2. AI-Generation-Limiter (`aiGenerateLimiter`)
 
 - **Limit**: 15 Anfragen pro Minute
+
 - **Verwendung**: KI-generative Endpunkte
+
 - **Beispiel**: POST `/api/prompt-enhance`, POST `/api/ai-image/generate`
 
 #### 3. Authentifizierung-Limiter (`authLimiter`)
 
 - **Limit**: 10 Anfragen pro Minute
+
 - **Verwendung**: Login, Registrierung, Passwort-Reset
+
 - **Beispiel**: POST `/api/auth/magic/request`, POST `/api/auth/login`
 
 #### 4. AI-Job-Management-Limiter (`aiJobsLimiter`)
 
 - **Limit**: 10 Anfragen pro Minute
+
 - **Verwendung**: Job-Status und -Management
+
 - **Beispiel**: GET `/api/ai-image/jobs/{id}`, POST `/api/ai-image/jobs/{id}/cancel`
 
 #### 5. Sensitive-Action-Limiter (`sensitiveActionLimiter`)
 
 - **Limit**: 5 Anfragen pro Stunde
+
 - **Verwendung**: Kritische administrative Aktionen
+
 - **Beispiel**: POST `/api/admin/credits/grant`, DELETE `/api/admin/users/{id}`
 
 ## HTTP-Header
@@ -57,7 +69,8 @@ Jede API-Response enthält Rate-Limiting-Informationen in den HTTP-Headern:
 X-RateLimit-Limit: 30
 X-RateLimit-Remaining: 25
 X-RateLimit-Reset: 1634567890
-```
+
+```text
 
 #### Header-Beschreibungen
 
@@ -86,10 +99,13 @@ Der `Retry-After`-Header gibt an, wie viele Sekunden gewartet werden sollte:
 
 ```http
 Retry-After: 60
-```
+
+```text
 
 - **Format**: Sekunden (dezimal)
+
 - **Bereich**: 1-3600 Sekunden
+
 - **Genauigkeit**: ±1 Sekunde
 
 ## Response-Formate
@@ -135,7 +151,8 @@ Auch erfolgreiche Responses enthalten Rate-Limiting-Informationen:
     "usage": { "used": 1, "limit": 5, "resetAt": null }
   }
 }
-```
+
+```text
 
 Header:
 
@@ -185,7 +202,8 @@ async function makeApiRequest(url: string, options: RequestInit = {}) {
 
   return response.json();
 }
-```
+
+```bash
 
 #### cURL-Beispiele
 
@@ -253,7 +271,8 @@ class ApiClient {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 }
-```
+
+```text
 
 #### Smart Retry mit Jitter
 
@@ -325,7 +344,8 @@ class RateLimitMonitor {
     this.requestQueue[endpoint] = this.requestQueue[endpoint] || [];
   }
 }
-```
+
+```text
 
 ## Server-seitige Implementierung
 
@@ -394,7 +414,8 @@ export const aiGenerateLimiter = rateLimit({
     return `guest:${guestId}`;
   },
 });
-```
+
+```text
 
 ### Middleware-Integration
 
@@ -432,7 +453,8 @@ export const POST = withApiMiddleware(async (context) => {
   const result = await enhancePrompt(context);
   return createApiSuccess(result);
 });
-```
+
+```text
 
 ## Testing
 
@@ -539,7 +561,8 @@ describe('Rate Limiting Integration', () => {
     expect(response2.status).toBe(200);
   });
 });
-```
+
+```text
 
 ### Load-Testing
 
@@ -572,12 +595,16 @@ scenarios:
 #### Load-Test-Ausführung
 
 ```bash
+
 # Load-Test mit Artillery
+
 npx artillery run artillery/rate-limiting.yml
 
 # K6 Load-Test
+
 k6 run --duration=60s --vus=10 k6/rate-limiting.js
-```
+
+```text
 
 ## Monitoring & Analytics
 
@@ -648,7 +675,8 @@ function onRateLimitWarning(endpoint: string, remaining: number, limit: number) 
     percentage: (remaining / limit) * 100,
   });
 }
-```
+
+```text
 
 ### Dashboards & Alerts
 
@@ -698,7 +726,8 @@ if (requestsFromSingleIP > 100) {
     timeWindow: '1 minute',
   });
 }
-```
+
+```text
 
 ## Best Practices
 
@@ -762,7 +791,8 @@ class ThrottledApiClient {
     }
   }
 }
-```
+
+```text
 
 #### 3. Graceful Degradation
 
@@ -818,7 +848,8 @@ export function createRateLimiter(type: keyof typeof RATE_LIMITS) {
     keyGenerator: (req) => getUserKey(req),
   });
 }
-```
+
+```text
 
 #### 2. User-basierte Limits
 
@@ -868,7 +899,8 @@ export const DEBUG_LIMITS = {
 // In Development-Environment
 const isDevelopment = process.env.NODE_ENV === 'development';
 const limits = isDevelopment ? DEBUG_LIMITS : PRODUCTION_LIMITS;
-```
+
+```text
 
 #### False Positives
 
@@ -907,7 +939,8 @@ export const lightweightLimiter = rateLimit({
     return req.locals?.user?.id || req.clientAddress || 'unknown';
   },
 });
-```
+
+```bash
 
 ### Debug-Tools
 
@@ -931,13 +964,18 @@ curl -H "Cookie: session=your-session-cookie" \
 #### Rate-Limiting-Logs analysieren
 
 ```bash
+
 # Cloudflare Workers Logs filtern
+
 # Rate-Limiting-Events haben spezifische Marker
+
 grep "rate_limit\|429\|RateLimit" logs/worker.log
 
 # Client-seitige Rate-Limiting-Events
+
 grep "rate_limit" logs/client.log
-```
+
+```bash
 
 #### Load-Testing mit Rate-Limiting
 
@@ -964,7 +1002,9 @@ curl -s http://127.0.0.1:8787/api/prompt-enhance -w "%{http_code}" | grep 429 | 
 Evolution Hub folgt RFC 6585 für 429-Responses:
 
 - **Status Code**: 429 Too Many Requests
+
 - **Retry-After**: Empfohlene Wartezeit in Sekunden
+
 - **Rate-Limit-Header**: Standard-Header für Client-Information
 
 ### Security Considerations
@@ -984,7 +1024,8 @@ export const ddosProtectionLimiter = rateLimit({
   },
   keyGenerator: (req) => req.clientAddress || 'unknown',
 });
-```
+
+```text
 
 #### Brute-Force-Schutz
 
@@ -1023,7 +1064,8 @@ export const POST = withApiMiddleware(async (context) => {
   // Neue Version
   return handleCurrentRequest(context);
 });
-```
+
+```text
 
 ### Limit-Anpassungen
 
@@ -1058,18 +1100,23 @@ async function getDynamicLimits(userId: string) {
 ### Weiterführende Dokumentation
 
 - **[API Overview](./api-overview.md)** - Allgemeine API-Architektur
+
 - **[API Guidelines](./api-guidelines.md)** - Best Practices für API-Entwicklung
+
 - **[Error Handling](./error-handling.md)** - Fehlercodes und Response-Formate
 
 ### Tools & Libraries
 
 - **[Rate Limiter Source](../../lib/rate-limiter.ts)** - Rate-Limiting-Implementierung
+
 - **[API Middleware](../../lib/api-middleware.ts)** - Middleware-Implementierung
+
 - **[Test Utils](../../tests/utils/rate-limit-helpers.ts)** - Test-Hilfsmittel
 
 ### Standards
 
 - **[RFC 6585](https://tools.ietf.org/html/rfc6585)** - 429 Status Code Definition
+
 - **[Rate Limiting Best Practices](https://tools.ietf.org/id/draft-ietf-httpapi-ratelimit-headers)** - IETF Draft für Rate-Limit-Header
 
 ---
@@ -1077,7 +1124,9 @@ async function getDynamicLimits(userId: string) {
 ## Cross-Referenzen
 
 - **[Architecture](../../architecture/)** - Rate-Limiting in der System-Architektur
+
 - **[Security](../../security/)** - Security-Aspekte des Rate-Limiting
+
 - **[Testing](../../testing/)** - Rate-Limiting-Tests und Load-Testing
 
 ## Ownership & Maintenance
@@ -1089,4 +1138,4 @@ async function getDynamicLimits(userId: string) {
 
 ---
 
-*Zuletzt aktualisiert: 2025-10-27*
+Zuletzt aktualisiert: 2025-10-27

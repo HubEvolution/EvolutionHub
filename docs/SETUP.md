@@ -1,24 +1,32 @@
+<!-- markdownlint-disable MD051 -->
+
 # Setup Guide für Evolution Hub
 
 ## Inhaltsverzeichnis
 
 1. [Voraussetzungen](#voraussetzungen)
-2. [Projekt einrichten](#projekt-einrichten)
-3. [Datenbankkonfiguration](#datenbankkonfiguration)
-4. [Umgebungsvariablen](#umgebungsvariablen)
-5. [Lokale Entwicklung](#lokale-entwicklung)
-6. [Tests ausführen](#tests-ausführen)
-   - [Testarten und -struktur](#testarten-und--struktur)
+1. [Projekt einrichten](#projekt-einrichten)
+1. [Datenbankkonfiguration](#datenbankkonfiguration)
+1. [Umgebungsvariablen](#umgebungsvariablen)
+1. [Lokale Entwicklung](#lokale-entwicklung)
+1. [Tests ausführen](#tests-ausfuhren)
+
+   - [Testarten und -struktur](#testarten-und-struktur)
+
    - [Bekannte Testprobleme](#bekannte-testprobleme)
+
    - [Testabdeckung verbessern](#testabdeckung-verbessern)
-7. [Bereitstellung](#bereitstellung)
+
+1. [Bereitstellung](#bereitstellung)
 
 ## Voraussetzungen
 
 Bevor Sie mit der Einrichtung beginnen, stellen Sie sicher, dass folgende Software installiert ist:
 
 - [Node.js](https://nodejs.org/) (Version 20.x oder höher)
+
 - [npm](https://www.npmjs.com/) (wird mit Node.js installiert)
+
 - [Git](https://git-scm.com/)
 
 ## Projekt einrichten
@@ -30,13 +38,13 @@ Bevor Sie mit der Einrichtung beginnen, stellen Sie sicher, dass folgende Softwa
    cd evolution-hub
    ```
 
-2. Installieren Sie die Abhängigkeiten:
+1. Installieren Sie die Abhängigkeiten:
 
    ```bash
    npm install
    ```
 
-3. Erstellen Sie eine `.env`-Datei aus dem Beispiel:
+1. Erstellen Sie eine `.env`-Datei aus dem Beispiel:
 
    ```bash
    cp .env.example .env
@@ -46,7 +54,7 @@ Bevor Sie mit der Einrichtung beginnen, stellen Sie sicher, dass folgende Softwa
 
 Das Projekt verwendet Cloudflare D1 als Datenbank. Für die lokale Entwicklung benötigen Sie ein Cloudflare-Konto und müssen die Wrangler CLI installiert haben.
 
-### Datenbankkonfiguration
+### Datenbankkonfiguration (2)
 
 ### Automatische Einrichtung (empfohlen)
 
@@ -54,14 +62,19 @@ Verwenden Sie das Setup-Skript, um die lokale Entwicklungsumgebung automatisch e
 
 ```bash
 npm run setup:local
-```
+
+```text
 
 Dieses Skript führt folgende Aktionen aus:
 
 - Erstellt eine lokale D1-Datenbank (falls nicht vorhanden)
+
 - Führt alle Migrations-Dateien auf ALLE lokalen Datenbanken aus
+
 - Erstellt einen lokalen R2-Bucket (falls nicht vorhanden)
+
 - Erstellt einen lokalen KV-Namespace (falls nicht vorhanden)
+
 - Erstellt einen Test-Benutzer für die lokale Entwicklung
 
 ### Manuelle Einrichtung
@@ -72,13 +85,13 @@ Dieses Skript führt folgende Aktionen aus:
    npm install -g wrangler
    ```
 
-2. Erstellen Sie eine neue D1-Datenbank:
+1. Erstellen Sie eine neue D1-Datenbank:
 
    ```bash
    npx wrangler d1 create evolution-hub-main-local
    ```
 
-3. Führen Sie die Migrationen aus:
+1. Führen Sie die Migrationen aus:
 
    ```bash
    npx wrangler d1 execute evolution-hub-main-local --local --file=./migrations/0000_initial_schema.sql
@@ -104,7 +117,8 @@ Für die lokale Entwicklung können Sie den `AUTH_SECRET` mit folgendem Befehl g
 
 ```bash
 openssl rand -hex 32
-```
+
+```bash
 
 ## Lokale Entwicklung
 
@@ -121,7 +135,9 @@ npm run menu
   Wählen Sie "Lokale Entwicklung" und dann eine der folgenden Optionen:
 
 - **UI-Entwicklung**: Startet den Astro Dev-Server (schnell, ideal für Frontend-Entwicklung)
+
 - **Cloudflare-Entwicklung**: Startet den Wrangler Dev-Server (vollständige Cloudflare-Integration)
+
 - **Datenbank zurücksetzen & Migrationen anwenden**: Setzt die lokale Datenbank zurück
 
 ### Option 2: Direkte Befehle
@@ -130,7 +146,8 @@ npm run menu
 
 ```bash
 npm run dev:astro
-```
+
+```bash
 
 #### Wrangler Dev-Server (für Backend-Entwicklung)
 
@@ -142,7 +159,8 @@ npm run dev:worker
 
 ```bash
 npm run dev:remote
-```
+
+```text
 
 **Wichtig**: Bei Verwendung des `dev:remote`-Befehls werden alle Änderungen direkt auf den Produktionsressourcen vorgenommen. Verwenden Sie diesen Modus mit Vorsicht!
 
@@ -179,20 +197,29 @@ File                          | % Stmts | % Branch | % Funcs | % Lines | Uncover
 ------------------------------|---------|----------|---------|---------|-------------------
 All files                     |   14.76 |     87.5 |   77.77 |   14.76 |                   
 ------------------------------|---------|----------|---------|---------|-------------------
-```
+
+```text
 
 Hervorstechende Coverage-Ergebnisse:
 
 - **Vollständig getestete Module** (100% Coverage):
+
   - `src/lib/auth-v2.ts`
+
   - `src/pages/api/auth/login.ts`
+
   - `src/pages/api/auth/register.ts`
 
 - **Kritische Bereiche ohne Tests** (0% Coverage):
+
   - `src/server/utils/hashing.ts` (Passwort-Hashing)
+
   - `src/server/utils/jwt.ts` (Token-Management)
+
   - `src/pages/api/auth/forgot-password.ts`
+
   - `src/pages/api/auth/reset-password.ts`
+
   - `src/pages/api/user/logout.ts`
 
 ##### Implementierte Unit-Tests
@@ -200,20 +227,31 @@ Hervorstechende Coverage-Ergebnisse:
 Folgende Unit-Tests wurden bereits implementiert und können als Referenz für weitere Tests dienen:
 
 1. **Auth-Modul** (`src/lib/auth-v2.test.ts`)
+
    - Tests für `createSession`, `validateSession` und `invalidateSession`
+
    - Mocking der D1-Datenbank und zeitbezogener Funktionen
+
    - Überprüfung der Session-Lebensdauer und -Validierung
 
-2. **Login-API** (`src/pages/api/auth/login.test.ts`)
+1. **Login-API** (`src/pages/api/auth/login.test.ts`)
+
    - Vollständiges Testen aller Eingabevalidierungen
+
    - Überprüfung von Fehlerbedingungen (ungültige Anmeldedaten, fehlende Runtime)
+
    - Tests für erfolgreiche Anmeldung und Cookie-Setzung
+
    - Mocking der Astro APIContext, DB und bcrypt
 
-3. **Register-API** (`src/pages/api/auth/register.test.ts`)
+1. **Register-API** (`src/pages/api/auth/register.test.ts`)
+
    - Tests für Formularvalidierung aller Registrierungsfelder
+
    - Überprüfung der UNIQUE-Constraint-Fehlerbehandlung
+
    - Tests für erfolgreiche Registrierung und Cookie-Setzung
+
    - Mocking von crypto.randomUUID für deterministische Tests
 
 ##### D1-Datenbank-Mocking Beispiel
@@ -240,30 +278,40 @@ vi.mocked(mockDb.first)
 E2E-Tests werden mit Playwright ausgeführt und befinden sich im Verzeichnis `tests/e2e/specs`:
 
 ```bash
+
 # Alle E2E-Tests ausführen
+
 npm run test:e2e
 
 # Tests mit visueller UI ausführen
+
 npm run test:e2e:ui
 
 # Tests in bestimmten Browsern ausführen
+
 npm run test:e2e:chromium
 npm run test:e2e:firefox
 npm run test:e2e:webkit
 npm run test:e2e:mobile
 
 # Test-Snapshots aktualisieren
+
 npm run test:e2e:update-snapshots
 
 # Test-Report anzeigen
+
 npm run test:e2e:report
-```
+
+```text
 
 #### Teststruktur
 
 - **E2E-Tests**: Verwenden das Page-Object-Pattern zur Abstraktion der UI-Interaktionen
+
 - **Auth-Tests**: Testen Login-Formular, Fehlerbehandlung, erfolgreiche Anmeldung und OAuth-Flows
+
 - **Dashboard-Tests**: Überprüfen Funktionalität nach erfolgreicher Anmeldung
+
 - **Critical-Flow-Tests**: Testen kritische Benutzerflüsse durch die Anwendung
 
 ### Bekannte Testprobleme
@@ -295,14 +343,14 @@ Das Skript `test:integration` fehlt in der `package.json`. Um Integrationstests 
    "test:integration": "vitest run --config vitest.integration.config.ts"
    ```
 
-2. Erstellen Sie eine Konfigurationsdatei `vitest.integration.config.ts` für Integrationstests.
+1. Erstellen Sie eine Konfigurationsdatei `vitest.integration.config.ts` für Integrationstests.
 
 #### Statische Testdaten
 
 Die E2E-Tests verwenden statische Testdaten, die möglicherweise nicht in der Datenbank vorhanden sind. Lösung:
 
 1. Implementieren Sie einen Test-Setup-Mechanismus, der Testbenutzer erstellt
-2. Verwenden Sie eine separate Testdatenbank
+1. Verwenden Sie eine separate Testdatenbank
 
 ### Testabdeckung verbessern
 
@@ -311,18 +359,27 @@ Die E2E-Tests verwenden statische Testdaten, die möglicherweise nicht in der Da
 Zusätzlich zu den bereits implementierten Tests werden folgende weitere Tests empfohlen:
 
 1. **Weitere Auth-bezogene APIs**:
+
    - `/api/auth/forgot-password.ts`
+
    - `/api/auth/reset-password.ts`
+
    - `/api/auth/logout.ts`
 
-2. **Komponenten-Tests**:
+1. **Komponenten-Tests**:
+
    - Login-Formular-Komponente
+
    - Registrierungs-Formular-Komponente
+
    - Validierungslogik in UI-Komponenten
 
-3. **Datenbankinteraktionen**:
+1. **Datenbankinteraktionen**:
+
    - Komplexere Datenbankabfragen und -operationen
+
    - Fehlerbehandlung bei Datenbankausfällen
+
    - Performance-kritische Datenbankoperationen
 
 #### Erweiterte Mocking-Strategien
@@ -363,7 +420,8 @@ afterAll(() => {
   crypto.randomUUID = originalRandomUUID;
   vi.restoreAllMocks();
 });
-```
+
+```text
 
 ##### Externe Bibliotheken
 
@@ -382,17 +440,20 @@ Das Deployment erfolgt automatisch über **GitHub Actions** mit Tag-basiertem Wo
 ### Automatisches Deployment (Empfohlen)
 
 ```bash
+
 # Tag erstellen und pushen
+
 git tag v1.7.1 -m "Release v1.7.1"
 git push origin v1.7.1
-```
+
+```bash
 
 Dies startet automatisch:
 
 1. Pre-Deploy Checks (Lint, Tests, Security)
-2. Deploy zu Staging → Health Check
-3. Deploy zu Production (nach manueller Approval) → Health Check
-4. GitHub Release erstellen
+1. Deploy zu Staging → Health Check
+1. Deploy zu Production (nach manueller Approval) → Health Check
+1. GitHub Release erstellen
 
 Siehe [README.md Deployment-Sektion](../README.md#-deployment) für Details.
 
@@ -406,7 +467,7 @@ Für eine manuelle Bereitstellung:
    npm run build:worker
    ```
 
-2. Deployen Sie mit Wrangler:
+1. Deployen Sie mit Wrangler:
 
    ```bash
    npx wrangler deploy --env staging
@@ -414,7 +475,7 @@ Für eine manuelle Bereitstellung:
    npx wrangler deploy --env production
    ```
 
-3. Health Check ausführen:
+1. Health Check ausführen:
 
    ```bash
    npm run health-check -- --url https://staging.hub-evolution.com
@@ -434,7 +495,8 @@ npx wrangler r2 bucket create evolution-hub-avatars
 
 ```bash
 npx wrangler d1 migrations apply evolution-hub-main --remote
-```
+
+```text
 
 ---
 
@@ -449,10 +511,15 @@ Für detaillierte Informationen zu spezifischen Themen siehe:
 ### Sicherheit
 
 - **[Implementierte Sicherheitsverbesserungen](./security/improvements.md)** — Details zu User-API Sicherheit, Rate-Limiting, Security-Headers und Audit-Logging
+
 - **[Security-Richtlinien](./SECURITY.md)** — Allgemeine Sicherheitsrichtlinien
 
 ### Weitere Themen
 
 - **[Lokale Entwicklung](./development/local-development.md)** — Detaillierte Anleitung zur lokalen Entwicklungsumgebung
+
 - **[CI/CD-Pipeline](./development/ci-cd.md)** — Continuous Integration und Deployment
+
 - **[Testing-Strategie](./testing/testing-strategy.md)** — Umfassende Teststrategie und -richtlinien
+
+```text

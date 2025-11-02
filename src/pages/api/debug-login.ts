@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
+import type { APIContext } from 'astro';
 import { withApiMiddleware, createApiSuccess, createApiError } from '@/lib/api-middleware';
 import { logUserEvent, logSecurityEvent, logApiError } from '@/lib/security-logger';
 
@@ -14,14 +15,16 @@ import { logUserEvent, logSecurityEvent, logApiError } from '@/lib/security-logg
  * - Audit-Logging: Protokolliert alle Debug-Logins
  */
 export const POST = withApiMiddleware(
-  async (context) => {
+  async (context: APIContext) => {
     const { locals, clientAddress } = context;
     const { env } = locals.runtime;
+    const rawEnv = (locals.runtime?.env ?? {}) as Record<string, unknown>;
     const cookies = context.cookies;
     const ip = typeof clientAddress === 'string' ? clientAddress : undefined;
 
     // Restrict to development environment ONLY. This prevents usage in staging/production.
-    const environment = (env as any)?.ENVIRONMENT as string | undefined;
+    const environment =
+      typeof rawEnv.ENVIRONMENT === 'string' ? (rawEnv.ENVIRONMENT as string) : undefined;
     const isDevEnv = environment === 'development' || import.meta.env.DEV === true;
     if (!isDevEnv) {
       logSecurityEvent(
@@ -37,7 +40,10 @@ export const POST = withApiMiddleware(
     }
 
     // Optional additional protection: require a secret header if configured
-    const expectedToken = (env as any)?.DEBUG_LOGIN_TOKEN as string | undefined;
+    const expectedToken =
+      typeof rawEnv.DEBUG_LOGIN_TOKEN === 'string'
+        ? (rawEnv.DEBUG_LOGIN_TOKEN as string)
+        : undefined;
     if (expectedToken) {
       const provided =
         context.request?.headers?.get('x-debug-token') ||
@@ -61,16 +67,16 @@ export const POST = withApiMiddleware(
     const userTableName = 'users';
 
     // 1. Find or create the debug user
-    let user = await db
+    let user = (await db
       .prepare(`SELECT * FROM ${userTableName} WHERE email = ?`)
       .bind(debugEmail)
-      .first<{
-        id: string;
-        email: string;
-        name?: string;
-        username?: string;
-        created_at?: string;
-      }>();
+      .first()) as {
+      id: string;
+      email: string;
+      name?: string;
+      username?: string;
+      created_at?: string;
+    } | null;
 
     if (!user) {
       const newUser = {
@@ -124,7 +130,7 @@ export const POST = withApiMiddleware(
     requireAuth: false,
 
     // Spezielle Fehlerbehandlung für diesen Endpunkt
-    onError: (context, error) => {
+    onError: (context: APIContext, error: unknown) => {
       const { clientAddress } = context;
       const ip = typeof clientAddress === 'string' ? clientAddress : undefined;
       // Serverfehler protokollieren

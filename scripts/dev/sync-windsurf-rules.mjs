@@ -37,7 +37,9 @@ async function main() {
   }
   console.log('[sync] Completed rules sync:');
   for (const r of results) {
-    console.log(`- ${path.relative(repoRoot, r.src)} -> ${path.relative(repoRoot, r.dst)} (${r.bytes} bytes)`);
+    console.log(
+      `- ${path.relative(repoRoot, r.src)} -> ${path.relative(repoRoot, r.dst)} (${r.bytes} bytes)`
+    );
   }
 }
 

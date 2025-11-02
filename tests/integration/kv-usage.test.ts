@@ -5,6 +5,7 @@ import {
   incrementDailyRolling,
   incrementMonthlyNoTtl,
   rollingDailyKey,
+  legacyMonthlyKey,
 } from '@/lib/kv/usage';
 
 function makeInMemoryKV(): KVNamespace {
@@ -40,7 +41,7 @@ function makeInMemoryKV(): KVNamespace {
 describe('KV usage helpers (integration-ish with in-memory KV)', () => {
   it('getUsage returns null when key missing; incrementMonthlyNoTtl sets count and resetAt', async () => {
     const kv = makeInMemoryKV();
-    const key = 'ai:usage:month:user:U1:202510';
+    const key = legacyMonthlyKey('ai', 'user', 'U1');
 
     const initial = await getUsage(kv, key);
     expect(initial).toBeNull();

@@ -127,26 +127,27 @@
         },
         "prompt-enhancer": {
           "name": "Prompt Enhancer",
-          "description": "AI-powered prompt optimizer for better results in AI chats and applications."
+          "description": "Refine your prompts for clarity and impact. Choose styles like Creative, Professional or Concise and get high‑quality outputs."
         },
         "Prompt-Enhancer": {
           "name": "Prompt Enhancer",
-          "description": "AI-powered prompt optimizer for better results in AI chats and applications."
+          "description": "Refine your prompts for clarity and impact. Choose styles like Creative, Professional or Concise and get high‑quality outputs."
         },
         "voice-visualizer": {
-          "name": "Voice Transcriptor",
-          "description": "Record your voice, visualize levels, and transcribe speech in near‑real time."
+          "name": "Voice Visualizer & Transcriber",
+          "description": "Record audio, see a live waveform, and get instant transcriptions. Designed for speed, clarity and low friction."
         },
         "webscraper": {
           "name": "Webscraper",
-          "description": "Extract structured data from web pages and APIs with flexible selectors and export formats."
+          "description": "Extract clean text from web pages safely. SSRF‑hardened, format‑aware, with usage limits and clear error feedback."
         },
         "video-enhancer": {
           "name": "Video Enhancer",
-          "description": "Upscale and enhance videos with AI (Topaz video-upscale)."
+          "description": "Upscale and enhance your videos with AI. Sharper details, reduced noise, better clarity — fast and consistent."
         }
       },
       "details": {
+        "back": "Back to overview",
         "Imag-Enhancer": {
           "back": "Back to overview",
           "badge_new": "New",
@@ -323,8 +324,8 @@
         "feature4": { "description": "Teach pages to speak in structure." }
       },
       "testimonials": {
-        "heading": "What users say about Imag‑Enhancer",
-        "subtitle": "Short notes from people who really use Imag‑Enhancer — what helped them in practice.",
+        "heading": "What our users say about our tools",
+        "subtitle": "Short notes from people who really use our tools — what helped them in practice.",
         "trust_line": "Used by 1,200+ creators",
         "testimonial1": {
           "quote": "I often shoot in cafés with low light — ISO 3200 is normal. Imag‑Enhancer removed the noise without that waxy look. A touch more contrast and the files were with the client that evening.",
@@ -795,6 +796,10 @@
         "commercial_desc": "Pro, Business, and Enterprise include commercial usage rights",
         "credits_title": "Monthly credits + daily burst",
         "credits_desc": "Monthly resets with fair daily burst caps"
+      },
+      "credits_packs": {
+        "title": "Buy extra credits",
+        "subtitle": "One-time packs to top up your monthly quota."
       },
       "credits_explainer": {
         "title": "What are credits?",

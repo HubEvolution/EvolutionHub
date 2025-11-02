@@ -1,0 +1,7 @@
+{
+  "success": false,
+  "error": {
+    "type": "server_error",
+    "message": "3030: Model input is not valid: input tensor `image` is not present in the model"
+  }
+}

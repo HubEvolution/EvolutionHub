@@ -483,7 +483,11 @@ describe('Dashboard-API-Integration', () => {
       expect([200, 401]).toContain(projectsResponse.status);
       expect([200, 401]).toContain(activityResponse.status);
 
-      if (statsResponse.status !== 200 || projectsResponse.status !== 200 || activityResponse.status !== 200) {
+      if (
+        statsResponse.status !== 200 ||
+        projectsResponse.status !== 200 ||
+        activityResponse.status !== 200
+      ) {
         return; // skip deep consistency checks when unauthenticated
       }
 

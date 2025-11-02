@@ -38,7 +38,11 @@ export const GET = withAuthApiMiddleware(
 
     const userId = url.searchParams.get('userId') || undefined;
     const eventTypeParam = url.searchParams.get('eventType');
-    const eventType = eventTypeParam ? (isAuditEventType(eventTypeParam) ? eventTypeParam : undefined) : undefined;
+    const eventType = eventTypeParam
+      ? isAuditEventType(eventTypeParam)
+        ? eventTypeParam
+        : undefined
+      : undefined;
     if (eventTypeParam && !eventType) {
       return createApiError('validation_error', 'Invalid eventType');
     }

@@ -15,15 +15,16 @@ export type SocialLinks = {
  */
 export function getSocialLinks(): SocialLinks {
   // Use empty strings when not set; Footer renders links only when non-empty
+  const env = (import.meta as unknown as { env: Record<string, string | undefined> }).env;
   return {
-    github: (import.meta as any).env.PUBLIC_SOCIAL_GITHUB || '',
-    x: (import.meta as any).env.PUBLIC_SOCIAL_X || '',
-    reddit: (import.meta as any).env.PUBLIC_SOCIAL_REDDIT || '',
-    tiktok: (import.meta as any).env.PUBLIC_SOCIAL_TIKTOK || '',
-    instagram: (import.meta as any).env.PUBLIC_SOCIAL_INSTAGRAM || '',
-    linkedin: (import.meta as any).env.PUBLIC_SOCIAL_LINKEDIN || '',
-    pinterest: (import.meta as any).env.PUBLIC_SOCIAL_PINTEREST || '',
-    facebook: (import.meta as any).env.PUBLIC_SOCIAL_FACEBOOK || '',
+    github: env.PUBLIC_SOCIAL_GITHUB || '',
+    x: env.PUBLIC_SOCIAL_X || '',
+    reddit: env.PUBLIC_SOCIAL_REDDIT || '',
+    tiktok: env.PUBLIC_SOCIAL_TIKTOK || '',
+    instagram: env.PUBLIC_SOCIAL_INSTAGRAM || '',
+    linkedin: env.PUBLIC_SOCIAL_LINKEDIN || '',
+    pinterest: env.PUBLIC_SOCIAL_PINTEREST || '',
+    facebook: env.PUBLIC_SOCIAL_FACEBOOK || '',
   };
 }
 

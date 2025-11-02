@@ -1,19 +1,21 @@
+<!-- markdownlint-disable MD051 -->
+
 # CI/CD-Pipeline - Evolution Hub
 
 Diese Dokumentation beschreibt die vollständig automatisierte Continuous Integration und Continuous Deployment (CI/CD) Pipeline für Evolution Hub.
 
 ## Inhaltsverzeichnis
 
-1. [Überblick](#überblick)
-2. [GitHub Actions Workflows](#github-actions-workflows)
-3. [CI-Gates (Qualitätssicherung)](#ci-gates-qualitätssicherung)
-4. [Deployment-Prozess](#deployment-prozess)
-5. [Umgebungen](#umgebungen)
-6. [Health-Check-System](#health-check-system)
-7. [Secrets & Konfiguration](#secrets--konfiguration)
-8. [Rollback-Strategien](#rollback-strategien)
-9. [Fehlerbehebung](#fehlerbehebung)
-10. [Entwicklungs-Workflow](#entwicklungs-workflow)
+1. [Überblick](#uberblick)
+1. [GitHub Actions Workflows](#github-actions-workflows)
+1. [CI-Gates (Qualitätssicherung)](#ci-gates-qualitätssicherung)
+1. [Deployment-Prozess](#deployment-prozess)
+1. [Umgebungen](#umgebungen)
+1. [Health-Check-System](#health-check-system)
+1. [Secrets & Konfiguration](#secrets--konfiguration)
+1. [Rollback-Strategien](#rollback-strategien)
+1. [Fehlerbehebung](#fehlerbehebung)
+1. [Entwicklungs-Workflow](#entwicklungs-workflow)
 
 ---
 
@@ -24,15 +26,21 @@ Die CI/CD-Pipeline implementiert alle Anforderungen aus [CLAUDE.md](../../CLAUDE
 ✅ **CI-Gates (alle müssen grün sein):**
 
 - Lint/Format Check (ESLint + Prettier)
+
 - TypeScript Check (`astro check`)
+
 - Unit/Integration Tests (Coverage ≥70%)
+
 - E2E-Smoke-Tests
+
 - Security-Scan (`npm audit`)
 
 ✅ **Deployment:**
 
 - Automatisch via Git Tags oder manuell via GitHub Actions UI
+
 - Health-Check nach jedem Deployment
+
 - Production-Deployment erfordert manuelle Approval
 
 ### Pipeline-Übersicht
@@ -64,7 +72,8 @@ graph TD
     K --> L[Health Check Production]
     L -->|OK| M[✅ GitHub Release]
     L -->|Fehler| Z
-```
+
+```bash
 
 ---
 
@@ -87,7 +96,8 @@ npm run format:check      # Prettier Check
 
 ```bash
 npm audit --audit-level=moderate
-```
+
+```bash
 
 Schlägt fehl bei moderate/high/critical Vulnerabilities.
 
@@ -98,23 +108,31 @@ npx vitest run --coverage
 ```
 
 - Coverage-Threshold: **≥70%** (statements, branches, functions, lines)
+
 - Upload zu Codecov
 
 #### D) `e2e` — E2E Tests
 
 ```bash
+
 # Testing-Environment (Chromium-only example)
+
 TEST_BASE_URL=https://ci.hub-evolution.com npm run test:e2e:chromium -- src/e2e/smoke
 
 # Lokal (auto-startet Dev-Worker auf 127.0.0.1:8787)
+
 npm run test:e2e -- src/e2e/tools
-```
+
+```text
 
 Struktur E2E v2 (`test-suite-v2/src/e2e/`):
 
 - `auth/` – OAuth, Magic Link, Session, Middleware
+
 - `features/` – App-Features (z. B. Dashboard, Kommentare)
+
 - `tools/` – Tools wie Prompt- und Image-Enhancer
+
 - `smoke/` – Leichte Smokes für CI/Staging/Prod
 
 Konfiguration: `test-suite-v2/playwright.config.ts` (Projects, Retries, Reports, Auto-WebServer, Origin-Header)
@@ -130,11 +148,13 @@ npx astro check --tsconfig tsconfig.astro.json
 ```bash
 npx swagger-cli validate openapi.yaml
 npx redoc-cli build openapi.yaml -o api-docs.html
-```
+
+```text
 
 #### G) `prompt-enhancer-tests` — Spezielle Tests
 
 - Startet Dev-Worker (Background)
+
 - Unit + Integration Tests für Prompt-Enhancer
 
 ---
@@ -144,6 +164,7 @@ npx redoc-cli build openapi.yaml -o api-docs.html
 **Trigger:**
 
 - **Git Tags:** `v*.*.*` (z.B. `v1.7.1`)
+
 - **Manuell:** Actions UI → "Run workflow" → Environment wählen
 
 **Jobs:**
@@ -153,8 +174,11 @@ npx redoc-cli build openapi.yaml -o api-docs.html
 Führt parallel aus:
 
 - Lint + Format Check
+
 - TypeScript Check
+
 - Unit Tests mit Coverage (≥70%)
+
 - Security Audit
 
 **Nur wenn alle grün:** Weiter zu Deploy.
@@ -181,23 +205,29 @@ environment:
   url: https://hub-evolution.com
 
 protection_rules:
+
   - Required reviewers: 1
+
   - Deployment branches: main + v*
 
 steps: 1. ⏸️ Warte auf manuelle Approval
-  2. npm run build:worker
-  3. wrangler deploy --env production
-  4. Health Check
-  5. GitHub Release erstellen (bei Tag-Push)
-```
+  1. npm run build:worker
+  1. wrangler deploy --env production
+  1. Health Check
+  1. GitHub Release erstellen (bei Tag-Push)
+
+```text
 
 #### E) Warmup nach Deploy
 
 Nach erfolgreichem Deploy wird ein leichtgewichtiger Warmup-Run gestartet:
 
 - Scope Pages: `/`, `/en/`, `/tools`, `/en/tools`, Tool-Apps (`/tools/*/app`, `en/*/app`), Blog-Index und top Blog-Posts via RSS.
+
 - Scope APIs (öffentlich/leicht): `/api/tools`, `/api/dashboard/quick-actions`, `/api/*/usage`, `/api/lead-magnets/download` (GET Metadaten).
+
 - Admin ist bewusst ausgeschlossen: `/admin` sowie `/api/admin/*` erfordern Auth und führen sonst zu 401/Timeouts. Admin-Seiten sind durch SSR optimiert und werden on-demand geladen.
+
 - Timeouts: 10s pro Request, geringer Retry (`RETRIES=1`).
 
 Siehe `scripts/warmup.ts` für Details.
@@ -215,8 +245,8 @@ Loggt Fehlerdetails bei Deployment-Failure.
 **Jobs:**
 
 1. **unit** (Node 22): Astro Check, Vitest Coverage
-2. **integration** (benötigt `unit`): Vitest Integration gegen `vars.TEST_BASE_URL`
-3. **test** (benötigt `unit` + `integration`): Playwright E2E, i18n-Report
+1. **integration** (benötigt `unit`): Vitest Integration gegen `vars.TEST_BASE_URL`
+1. **test** (benötigt `unit` + `integration`): Playwright E2E, i18n-Report
 
 **Concurrency:** Cancelation bei neuen Pushes.
 
@@ -225,18 +255,27 @@ Loggt Fehlerdetails bei Deployment-Failure.
 #### E2E v2 – Selektoren & Artefakte
 
 - **Stabile Selektoren:** Verwende `data-testid` statt textbasierter/i18n-abhängiger Selektoren. Beispiel: `input-text`, `enhance-button`, `compare-before-label`.
+
 - **Keine visuellen Snapshots standardmäßig:** Playwright-Snapshots (`toMatchSnapshot`) sind in E2E v2 deaktiviert. Stattdessen werden **Screenshots/Videos als Artefakte** angehängt (Reports).
+
 - **Determinismus:** Für Happy-Path-Tests Tool-APIs stubben (z. B. `/api/prompt-enhance`) und deterministische Antworten liefern.
+
 - **Gating & Validierung:**
+
   - Plan/Entitlements: wenn Optionen gesperrt sind, **`toBeDisabled()`** statt Interaktion erzwingen.
+
   - Clientseitige Limits (z. B. `maxLength`): Server‑Regeln, die dadurch nicht erreichbar sind, im E2E **skippen** und auf Unit/Integration verschieben.
+
 - **Hydration/Timing:** Keine harten Checks auf Hydrationsmarker; warte auf interaktive Controls (z. B. Button enabled) vor Interaktion.
+
 - **Lokaler Dev‑Server:** `reuseExistingServer: true` in `test-suite-v2/playwright.config.ts`, um Portkonflikte lokal zu vermeiden.
 
 #### CSRF-Schutz in E2E-Tests (Astro/Cloudflare Workers)
 
 - **Same‑Origin**: Unsichere Methoden (POST/PUT/PATCH/DELETE) erfordern `Origin`/`Referer` und müssen mit der erlaubten Origin übereinstimmen. Playwright‑Configs injizieren standardmäßig den `Origin`‑Header für Requests.
+
 - **Double‑Submit (optional)**: Wenn Endpunkte `enforceCsrfToken: true` nutzen, muss `X‑CSRF‑Token` dem `csrf_token`‑Cookie entsprechen. In E2E kann der Cookie via Setup gesetzt und der Header pro Request mitgegeben werden.
+
 - **Empfehlung**: Verwende die Request‑API von Playwright für API‑Tests und setze explizit `Origin`/`X‑CSRF‑Token`, wenn der Endpoint dies verlangt. Siehe Server‑Middleware in `src/lib/api-middleware.ts`.
 
 ### 4. **Smoke-Tests** (gezielte Überwachung)
@@ -244,40 +283,59 @@ Loggt Fehlerdetails bei Deployment-Failure.
 #### **enhancer-e2e-smoke.yml**
 
 - **Trigger:** PRs zu `main`, manuell
+
 - **Zweck:** Schneller UI-Smoke für Image Enhancer (EN, optional DE)
+
 - **Browser:** Chromium-only (Caches `~/.cache/ms-playwright`)
+
 - **Target:** Lokaler Dev-Worker (`http://127.0.0.1:8787`), Fallback in Enhancer-Config identisch
+
 - **Preflight:** `GET /en/tools/imag-enhancer/app` und `GET /api/ai-image/usage` (Diagnostik)
+
 - **Workers AI erzwingen (Staging/Local):** Setze `FORCE_CF_MODELS=1`, um bei Smokes ausschließlich die Cloudflare Workers AI Modelle zu verwenden (vermeidet Replicate-Abhängigkeit in Staging/Local).
+
 - **Spec/Config:** `test-suite-v2/src/e2e/tools/image-enhancer.spec.ts` mit `test-suite-v2/playwright.enhancer.config.ts`
+
 - **Artefakte:** via `E2E_RECORD` gesteuert (CI default: `0` → Trace nur bei Fail, Screenshots only-on-failure)
+
 - **Stabilisierung in der Spec:**
+
   - Warte auf `GET /api/ai-image/usage` nach Navigation (Usage-Preflight)
+
   - Warte nach Klick auf Enhance auf `POST /api/ai-image/generate` (Erfolg prüfen)
+
   - Enhance-Button-Enable-Wartezeit bis 60s; nach Upload best‑effort auf Preview
 
 #### **prompt-enhancer-e2e-smoke.yml**
 
 - **Trigger:** PRs zu `main`, manuell
+
 - **Zweck:** Prompt-Enhancer E2E (Chromium, Firefox, WebKit)
+
 - **Target:** Lokaler Dev-Worker (Auto-Start via Playwright Config)
 
 #### **pricing-smoke.yml**
 
 - **Trigger:** PRs/Pushes (Pricing-Änderungen), täglich 02:00 UTC, manuell
+
 - **Zweck:** Pricing-Seite Smoke
+
 - **Target:** `TEST_BASE_URL` (Standard: `ci.hub-evolution.com`)
 
 #### **prod-auth-smoke.yml**
 
 - **Trigger:** Täglich 04:00 UTC, manuell (mit Gate)
+
 - **Zweck:** Production Auth-Flow-Test gegen `hub-evolution.com`
+
 - **Gated:** `E2E_PROD_AUTH_SMOKE=1` + `STYTCH_TEST_EMAIL` erforderlich
+
 - **Optimierung:** Keine Browser-Installation (Playwright Request API)
 
 #### Production smokes (Health-only)
 
 - **Hinweis:** In Production sind Tool-Flows (z. B. Image Enhancer) durch Turnstile/Anti-Abuse geschützt; automatisierte Generations-Tests sind blockiert.
+
 - **Empfehlung:** Führe für Production nur Health-Checks aus.
 
   ```bash
@@ -293,6 +351,7 @@ Loggt Fehlerdetails bei Deployment-Failure.
 **Jobs:**
 
 - Validiert i18n-Parity (EN/DE) via `scripts/i18n-validate.mjs`
+
 - Non-blocking Diff-Report
 
 ---
@@ -313,11 +372,13 @@ npm run format:check      # Prettier
 ```bash
 npm run format            # Auto-Fix
 npm run lint              # Check
-```
+
+```bash
 
 **Pre-Commit-Hook:** Husky führt automatisch aus:
 
 - `eslint --fix` auf geänderte `*.{ts,tsx,astro}`-Files
+
 - `prettier --write` auf geänderte Files
 
 ### 2. TypeScript Check ✅
@@ -330,13 +391,17 @@ npx astro check --tsconfig tsconfig.astro.json
 
 ```bash
 npm run test:coverage
-```
+
+```bash
 
 **Coverage-Thresholds (global):**
 
 - Statements: ≥70%
+
 - Branches: ≥70%
+
 - Functions: ≥70%
+
 - Lines: ≥70%
 
 **Lokal ausführen:**
@@ -351,12 +416,15 @@ npm run test:coverage     # Mit Coverage-Report
 
 ```bash
 npm audit --audit-level=moderate
-```
+
+```bash
 
 Schlägt fehl bei:
 
 - Moderate Vulnerabilities
+
 - High Vulnerabilities
+
 - Critical Vulnerabilities
 
 **Lokal ausführen:**
@@ -379,37 +447,41 @@ Playwright-Tests gegen Testing-Environment.
 #### **Via Git Tags** (Production + Staging)
 
 ```bash
+
 # 1. Erstelle Tag
+
 git tag v1.7.1 -m "Release v1.7.1"
 
 # 2. Push Tag (startet Workflow)
+
 git push origin v1.7.1
-```
+
+```text
 
 **Was passiert:**
 
 1. Pre-Deploy Checks (alle CI-Gates)
-2. Deploy Staging → Health Check
-3. ⏸️ Warte auf manuelle Approval
-4. Deploy Production → Health Check
-5. GitHub Release erstellen
+1. Deploy Staging → Health Check
+1. ⏸️ Warte auf manuelle Approval
+1. Deploy Production → Health Check
+1. GitHub Release erstellen
 
 #### **Via GitHub Actions UI** (Staging oder Production einzeln)
 
 1. Gehe zu **Actions** → **Deploy to Cloudflare**
-2. Klicke **"Run workflow"**
-3. Wähle Environment: `staging` oder `production`
-4. Klicke **"Run workflow"**
+1. Klicke **"Run workflow"**
+1. Wähle Environment: `staging` oder `production`
+1. Klicke **"Run workflow"**
 
 ### Production-Approval
 
 Sobald Staging erfolgreich deployed wurde:
 
 1. Gehe zu **Actions** → Laufender Workflow
-2. Klicke auf Job **"Deploy to Production"**
-3. Klicke **"Review deployments"**
-4. Wähle ☑️ `production`
-5. Klicke **"Approve and deploy"**
+1. Klicke auf Job **"Deploy to Production"**
+1. Klicke **"Review deployments"**
+1. Wähle ☑️ `production`
+1. Klicke **"Approve and deploy"**
 
 ### Manuelles Deployment (Fallback)
 
@@ -435,31 +507,45 @@ npm run health-check -- --url https://staging.hub-evolution.com
 ### 1. **Development** (Lokal)
 
 - **URL:** `http://127.0.0.1:8787`
+
 - **D1:** Lokale SQLite (`evolution-hub-main-local`)
+
 - **KV/R2:** Lokale Bindings
+
 - **Start:** `npm run dev:worker:dev`
 
 ### 2. **Testing/CI** (`env.testing`)
 
 - **URL:** `https://ci.hub-evolution.com`
+
 - **Zweck:** CI/E2E-Tests
+
 - **D1:** `evolution-hub-main-local` (separate Instanz)
+
 - **Deploy:** Automatisch via CI (nicht in deploy.yml)
 
 ### 3. **Staging** (`env.staging`)
 
 - **URL:** `https://staging.hub-evolution.com`
+
 - **Zweck:** Pre-Production Testing
+
 - **D1:** `evolution-hub-main-local`
+
 - **Deploy:** Automatisch via `deploy.yml` (bei Tag oder manuell)
+
 - **Protection:** Keine
 
 ### 4. **Production** (`env.production`)
 
 - **URL:** `https://hub-evolution.com` + `www.hub-evolution.com`
+
 - **Zweck:** Live-System
+
 - **D1:** `evolution-hub-main` (Production DB)
+
 - **Deploy:** Automatisch via `deploy.yml` (bei Tag oder manuell)
+
 - **Protection:** ✅ 1 Reviewer, nur `main` + Tags `v*`
 
 ---
@@ -472,7 +558,8 @@ Prüft Konnektivität zu allen kritischen Services:
 
 ```bash
 curl https://hub-evolution.com/api/health | jq
-```
+
+```text
 
 **Response (200 OK):**
 
@@ -505,7 +592,8 @@ curl https://hub-evolution.com/api/health | jq
   "timestamp": "2025-01-15T10:30:00.000Z",
   "version": "production"
 }
-```
+
+```bash
 
 ### CLI-Script
 
@@ -516,12 +604,15 @@ npm run health-check -- --url https://hub-evolution.com
 **Features:**
 
 - 3 Retries mit 5s Delay
+
 - 10s Timeout pro Request
+
 - Exit Code: 0 (OK), 1 (Fehler)
 
 **Verwendung in Deployment:**
 
 - Automatisch nach jedem Deploy
+
 - Schlägt Deployment fehl, wenn Health Check fehlschlägt
 
 ---
@@ -533,6 +624,7 @@ Der Cron-Worker überwacht Pricing, Auth-Health und Docs-Registry. Für das Test
 ### Voraussetzungen
 
 - App-Worker (Testing) Secret gesetzt: `INTERNAL_HEALTH_TOKEN`
+
 - Cron-Worker (Testing) Env-Var: `E2E_PROD_AUTH_SMOKE="1"` (aktiviert Auth-Job)
 
 #### App Health (intern)
@@ -540,7 +632,8 @@ Der Cron-Worker überwacht Pricing, Auth-Health und Docs-Registry. Für das Test
 ```bash
 curl -sS -i "https://ci.hub-evolution.com/api/health/auth" \
   -H "X-Internal-Health: $INTERNAL_HEALTH_TOKEN"
-```
+
+```bash
 
 #### Cron-Worker manuell ausführen (Testing)
 
@@ -561,15 +654,19 @@ curl -s "https://evolution-hub-cron-testing.<account>.workers.dev/__cron/run/sta
 #### KV prüfen (remote)
 
 ```bash
+
 # aus workers/cron-worker/
+
 npx wrangler kv key list --env testing --binding=KV_CRON_STATUS --config wrangler.toml --remote --prefix prod-auth:
 npx wrangler kv key get  --env testing --binding=KV_CRON_STATUS --config wrangler.toml --remote "prod-auth:last" | cat
 npx wrangler kv key get  --env testing --binding=KV_CRON_STATUS --config wrangler.toml --remote "docs-registry:last" | cat
-```
+
+```text
 
 Hinweise:
 
 - Keys mit Doppelpunkten immer in Anführungszeichen setzen (z. B. `"prod-auth:last"`).
+
 - R2-Artefakte liegen unter `evolution-hub-maintenance` (z. B. `maintenance/prod-auth/YYYY-MM-DD/...`).
 
 ---
@@ -594,25 +691,32 @@ Hinweise:
 #### **staging**
 
 - ❌ Keine Protection Rules
+
 - Automatisches Deployment ohne Approval
 
 #### **production**
 
 - ✅ **Required reviewers:** 1
+
 - ✅ **Deployment branches:** `main` + Pattern `v*`
+
 - Manuelle Approval erforderlich
 
 ### Cloudflare API Token erstellen
 
 1. **Cloudflare Dashboard** → **My Profile** → **API Tokens**
-2. **Create Token** → Vorlage: **"Edit Cloudflare Workers"**
-3. **Permissions:**
+1. **Create Token** → Vorlage: **"Edit Cloudflare Workers"**
+1. **Permissions:**
+
    - Account: `Workers Scripts:Edit`
+
    - Account: `Workers KV Storage:Edit` (optional)
+
    - Account: `Workers Routes:Edit` (optional)
-4. **Account Resources:** Wähle deinen Account
-5. **Continue to summary** → **Create Token**
-6. Kopiere Token und füge als GitHub Secret ein
+
+1. **Account Resources:** Wähle deinen Account
+1. **Continue to summary** → **Create Token**
+1. Kopiere Token und füge als GitHub Secret ein
 
 ---
 
@@ -635,15 +739,20 @@ npx wrangler rollback --env production
 Deploy vorherigen Tag:
 
 ```bash
+
 # 1. Checkout vorheriger Tag
+
 git checkout v1.7.0
 
 # 2. Deploy
+
 npx wrangler deploy --env production
 
 # 3. Health Check
+
 npm run health-check -- --url https://hub-evolution.com
-```
+
+```bash
 
 ### Option 3: Hotfix-Deployment
 
@@ -673,14 +782,18 @@ git push origin v1.7.1
 #### **Lint-Fehler**
 
 ```bash
+
 # Lokal fixen
+
 npm run format
 npm run lint
 
 # Commit
+
 git add .
 git commit -m "style: fix lint errors"
-```
+
+```bash
 
 #### **Test-Fehler**
 
@@ -698,15 +811,20 @@ npx vitest tests/unit/example.test.ts
 #### **Security-Fehler**
 
 ```bash
+
 # Vulnerabilities anzeigen
+
 npm audit
 
 # Auto-Fix (wenn möglich)
+
 npm audit fix
 
 # Manuelle Updates
+
 npm update <package>
-```
+
+```bash
 
 #### **TypeScript-Fehler**
 
@@ -723,23 +841,32 @@ npx astro check --tsconfig tsconfig.astro.json
 #### **Pre-Deploy Gates fehlgeschlagen**
 
 - Prüfe GitHub Actions Logs
+
 - Fixe fehlerhafte CI-Gates (siehe oben)
+
 - Push Fix → Workflow läuft erneut
 
 #### **Health Check fehlgeschlagen**
 
 ```bash
+
 # Manueller Health Check
+
 npm run health-check -- --url https://staging.hub-evolution.com
 
 # Logs anschauen
+
 npx wrangler tail --env staging
 
 # Häufige Ursachen:
+
 # - D1: Migration fehlgeschlagen → Prüfe `migrations/`
+
 # - KV: Binding fehlt → Prüfe `wrangler.toml`
+
 # - R2: Bucket nicht verfügbar → Prüfe Cloudflare Dashboard
-```
+
+```bash
 
 #### **Wrangler Deploy Error**
 
@@ -758,25 +885,35 @@ npx wrangler deployments list --env production
 ### Approval funktioniert nicht
 
 1. **Prüfe GitHub Environment Settings:**
+
    - Settings → Environments → `production`
+
    - Required reviewers muss konfiguriert sein
+
    - Du musst als Reviewer eingetragen sein
 
-2. **Prüfe Deployment Branches:**
+1. **Prüfe Deployment Branches:**
+
    - Pattern `v*` muss erlaubt sein
+
    - Oder: "All branches" aktivieren
 
 ### GitHub Actions hängt
 
 1. **Cancel laufenden Workflow:**
+
    - Actions → Laufender Workflow → "Cancel workflow"
 
-2. **Re-run:**
+1. **Re-run:**
+
    - Actions → Fehlgeschlagener Workflow → "Re-run failed jobs"
 
-3. **Logs prüfen:**
+1. **Logs prüfen:**
+
    - Klicke auf fehlgeschlagenen Job
+
    - Scroll zu roter Zeile
+
    - Lies Fehler-Message
 
 ---
@@ -784,8 +921,11 @@ npx wrangler deployments list --env production
 ## Weitere Dokumentation
 
 - **Setup:** [README.md](../../README.md#-deployment)
+
 - **Projektrichtlinien:** [CLAUDE.md](../../CLAUDE.md)
+
 - **Smoke-Tests:** Siehe jeweilige Workflow-Dateien in `.github/workflows/`
+
 - **CSRF-Schutz in Tests:** Siehe Abschnitt weiter oben
 
 ---
@@ -793,24 +933,30 @@ npx wrangler deployments list --env production
 ## Workflow-Trigger (Quick Reference)
 
 ```bash
+
 # Manuell via GitHub CLI
 
 # Deploy Staging
+
 gh workflow run deploy.yml -f environment=staging
 
 # Deploy Production
+
 gh workflow run deploy.yml -f environment=production
 
 # Smoke-Tests
+
 gh workflow run enhancer-e2e-smoke.yml
 gh workflow run prompt-enhancer-e2e-smoke.yml
 gh workflow run pricing-smoke.yml -f test_base_url=https://ci.hub-evolution.com
 gh workflow run prod-auth-smoke.yml -f run=true  # Erfordert Secrets
 
 # Workflow-Status prüfen
+
 gh run list --workflow=deploy.yml -L 5
 gh run watch  # Live-Monitoring
-```
+
+```bash
 
 ---
 
@@ -824,7 +970,7 @@ Für eine optimale Entwicklungserfahrung wurden die strengen Pre-commit Hooks an
 
 ### Aktuelle Konfiguration
 
-#### ✅ **Deaktivierte Pre-commit Hooks**
+### ✅ **Deaktivierte Pre-commit Hooks**
 
 ```bash
 # .husky/pre-commit
@@ -833,14 +979,19 @@ Für eine optimale Entwicklungserfahrung wurden die strengen Pre-commit Hooks an
 
 **Auswirkung:** Keine automatische Code-Formatierung oder Linting bei Commits mehr.
 
-#### ✅ **Entspannte ESLint-Konfiguration**
+### ✅ **Entspannte ESLint-Konfiguration**
 
 ```bash
+
 # eslint.config.dev.js verfügbar für Entwicklung
+
 # - @typescript-eslint/no-explicit-any: 'off'
+
 # - @typescript-eslint/no-unused-vars: 'off'
+
 # - Weitere Regeln als 'warn' statt 'error'
-```
+
+```bash
 
 ### Empfohlener Entwicklungs-Workflow
 
@@ -859,15 +1010,19 @@ npx astro check           # TypeScript Check
 #### **Vor PR-Erstellung:**
 
 ```bash
+
 # 1. Vollständige Qualitätsprüfung
+
 npm run format            # Formatierung korrigieren
 npm run lint              # Code-Qualität prüfen
 npx astro check           # TypeScript prüfen
 npm run test:coverage     # Tests mit Coverage
 
 # 2. Bei Bedarf: Strenge Prüfung
+
 npx eslint 'src/**/*.{ts,astro}' --fix --max-warnings=280
-```
+
+```bash
 
 #### **Für Releases:**
 
@@ -886,7 +1041,8 @@ Für eilige Commits:
 
 ```bash
 git commit --no-verify -m "WIP: Your message"
-```
+
+```bash
 
 #### Pre-Push Hook (lokal)
 
@@ -904,7 +1060,9 @@ curl -sf -m 2 "$TEST_BASE_URL" && npm run test:e2e:chromium -- src/e2e/auth/welc
 Hinweise:
 
 - Setze optional `TEST_BASE_URL` auf eine Remote‑URL (z. B. `https://ci.hub-evolution.com`), um die E2E‑Smoke gegen Remote auszuführen.
+
 - Wenn kein Server erreichbar ist, wird die E2E‑Smoke übersprungen; die CI führt weiterhin vollständige E2E‑Tests aus.
+
 - Der Secret‑Scan blockiert Pushes bei offensichtlichen Schlüsseln (z. B. `sk_live_...`).
 
 ### Verfügbare Qualitätsprüfungen
@@ -922,15 +1080,20 @@ Hinweise:
 #### **VS Code Empfehlungen:**
 
 - **ESLint Extension:** Echtzeit-Feedback (konfiguriere auf `eslint.config.dev.js`)
+
 - **Prettier Extension:** Automatische Formatierung bei Speichern
+
 - **Astro Extension:** TypeScript-Unterstützung
 
 #### **Andere Editoren:**
 
 ```bash
+
 # Verwende die entspannte Konfiguration
+
 npx eslint --config eslint.config.dev.js src/
-```
+
+```bash
 
 ### Troubleshooting
 
@@ -947,12 +1110,16 @@ npx eslint --config eslint.config.js src/
 #### **Formatierung inkonistent:**
 
 ```bash
+
 # Schnelle Korrektur
+
 npm run format
 
 # Einzelne Dateien
+
 npx prettier --write src/components/Example.tsx
-```
+
+```bash
 
 ### Migration von altem Workflow
 
@@ -969,7 +1136,9 @@ echo "npx lint-staged" > .husky/pre-commit
 #### **Für Team-Entwicklung:**
 
 - Pre-commit Hooks können pro Entwickler aktiviert werden
+
 - CI/CD Pipeline bleibt unverändert streng
+
 - Nur lokale Entwicklung wird entspannter
 
 ### Nächste Schritte
@@ -977,8 +1146,8 @@ echo "npx lint-staged" > .husky/pre-commit
 Nach der Entwicklungsphase kannst du:
 
 1. **Hooks wieder aktivieren:** Wenn das Team strengere lokale Prüfungen wünscht
-2. **Custom ESLint-Regeln:** Team-spezifische Regeln für bessere Balance
-3. **IDE-Settings:** Automatische Formatierung bei Speichern aktivieren
+1. **Custom ESLint-Regeln:** Team-spezifische Regeln für bessere Balance
+1. **IDE-Settings:** Automatische Formatierung bei Speichern aktivieren
 
 **Ergebnis:** Schnellere Entwicklung ohne Qualitätsverlust - die CI/CD Pipeline sichert weiterhin hohe Code-Qualität vor dem Merge.
 

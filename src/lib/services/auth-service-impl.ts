@@ -123,7 +123,7 @@ export class AuthServiceImpl extends AbstractBaseService implements AuthService 
       }
 
       // E-Mail-Verifikation prüfen (Double-Opt-in-Blockade)
-      const emailVerified = Boolean((existingUser as any).email_verified);
+      const emailVerified = !!(existingUser as { email_verified?: unknown }).email_verified;
       if (!emailVerified) {
         this.securityLogger.logAuthFailure(
           {
@@ -169,7 +169,7 @@ export class AuthServiceImpl extends AbstractBaseService implements AuthService 
         name: existingUser.name,
         username: existingUser.username,
         image: existingUser.image,
-        created_at: (existingUser as any).created_at as string,
+        created_at: (existingUser as { created_at?: unknown }).created_at as string,
       };
 
       return {

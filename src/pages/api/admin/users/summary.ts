@@ -113,9 +113,10 @@ export const GET = withAuthApiMiddleware(async (context: APIContext) => {
           `SELECT expires_at FROM sessions WHERE user_id = ?1 ORDER BY expires_at DESC LIMIT 1`
         )
         .bind(userRow.id)
-        .first<{ expires_at: number | string }>();
-      if (sess && (sess as any).expires_at != null) {
-        const expSec = Number((sess as any).expires_at) || 0;
+        .first<{ expires_at: number | string | null }>();
+      if (sess && sess.expires_at != null) {
+        const raw = sess.expires_at;
+        const expSec = typeof raw === 'number' ? raw : typeof raw === 'string' ? Number(raw) : 0;
         if (expSec > 0) {
           const approxCreatedMs = expSec * 1000 - 30 * 24 * 60 * 60 * 1000; // 30 days TTL
           lastSeenAt = Math.max(0, approxCreatedMs);

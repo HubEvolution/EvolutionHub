@@ -29,17 +29,16 @@ export const POST = async (context: APIContext) => {
       typeof v === 'string' && (validLevels as readonly string[]).includes(v);
 
     type Entry = { level: Level; message: string; context?: Record<string, unknown> };
+    const isPlainObject = (v: unknown): v is Record<string, unknown> =>
+      !!v && typeof v === 'object' && !Array.isArray(v);
     const isEntry = (v: unknown): v is Entry =>
-      !!v &&
-      typeof v === 'object' &&
-      isLevel((v as any).level) &&
-      typeof (v as any).message === 'string';
+      isPlainObject(v) && isLevel(v.level) && typeof v.message === 'string';
 
     let entries: Entry[] = [];
     if (Array.isArray(raw)) {
       entries = raw.filter(isEntry);
-    } else if (raw && typeof raw === 'object' && Array.isArray((raw as any).entries)) {
-      entries = ((raw as any).entries as unknown[]).filter(isEntry) as Entry[];
+    } else if (isPlainObject(raw) && Array.isArray(raw.entries)) {
+      entries = (raw.entries as unknown[]).filter(isEntry) as Entry[];
     } else if (isEntry(raw)) {
       entries = [raw];
     }
@@ -56,10 +55,9 @@ export const POST = async (context: APIContext) => {
 
     let count = 0;
     for (const { level, message, context: logContext } of entries) {
-      const enrichedContext = { ...(logContext || {}), source: 'client' } as Record<
-        string,
-        unknown
-      >;
+      const base: Record<string, unknown> =
+        logContext && isPlainObject(logContext) ? logContext : {};
+      const enrichedContext = { ...base, source: 'client' } as Record<string, unknown>;
       log(level, `[CLIENT] ${message}`, enrichedContext);
       count++;
     }
@@ -68,13 +66,14 @@ export const POST = async (context: APIContext) => {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : 'Failed to log message';
     return new Response(
       JSON.stringify({
         success: false,
         error: {
           type: 'server_error',
-          message: error.message || 'Failed to log message',
+          message: msg,
         },
       }),
       {

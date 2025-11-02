@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD051 -->
+
 # UI/UX-Richtlinien
 
 Diese Dokumentation beschreibt die UI/UX-Richtlinien für das Evolution Hub Projekt. Sie dient als Leitfaden für konsistente Benutzeroberflächen und Interaktionen in der gesamten Anwendung.
@@ -5,13 +7,13 @@ Diese Dokumentation beschreibt die UI/UX-Richtlinien für das Evolution Hub Proj
 ## Inhaltsverzeichnis
 
 1. [Designprinzipien](#designprinzipien)
-2. [Navigation und Information Architecture](#navigation-und-information-architecture)
-3. [Formulardesign](#formulardesign)
-4. [Feedback und Benachrichtigungen](#feedback-und-benachrichtigungen)
-5. [Barrierefreiheit](#barrierefreiheit)
-6. [Interaktionsmuster](#interaktionsmuster)
-7. [Content-Richtlinien](#content-richtlinien)
-8. [Performance-Optimierung](#performance-optimierung)
+1. [Navigation und Information Architecture](#navigation-und-information-architecture)
+1. [Formulardesign](#formulardesign)
+1. [Feedback und Benachrichtigungen](#feedback-und-benachrichtigungen)
+1. [Barrierefreiheit](#barrierefreiheit)
+1. [Interaktionsmuster](#interaktionsmuster)
+1. [Content-Richtlinien](#content-richtlinien)
+1. [Performance-Optimierung](#performance-optimierung)
 
 ---
 
@@ -22,31 +24,41 @@ Die folgenden Prinzipien leiten alle Design- und Entwicklungsentscheidungen im E
 ### 1. Klarheit
 
 - **Einfache Sprache**: Verwende klare, präzise Formulierungen ohne Fachjargon
+
 - **Visuelle Hierarchie**: Wichtige Elemente sollten visuell hervorgehoben sein
+
 - **Fokussierte Interfaces**: Jeder Bildschirm hat einen klaren Zweck und Hauptaktion
 
 ### 2. Konsistenz
 
 - **Einheitliche Komponenten**: Verwende die dokumentierten UI-Komponenten
+
 - **Konsistente Interaktionen**: Ähnliche Aktionen sollten ähnlich funktionieren
+
 - **Vorhersehbare Muster**: Nutze etablierte UX-Muster für bekannte Interaktionen
 
 ### 3. Effizienz
 
 - **Minimale Klicks**: Wichtige Aktionen sollten mit wenigen Klicks erreichbar sein
+
 - **Tastaturnavigation**: Alle Funktionen sollten per Tastatur bedienbar sein
+
 - **Kontextbezogene Aktionen**: Zeige relevante Aktionen im aktuellen Kontext an
 
 ### 4. Feedback
 
 - **Reaktionsfähigkeit**: Jede Benutzeraktion sollte sofortiges visuelles Feedback geben
+
 - **Status-Kommunikation**: System-Status klar kommunizieren (Laden, Erfolg, Fehler)
+
 - **Fortschrittsanzeige**: Bei längeren Prozessen Fortschritt anzeigen
 
 ### 5. Flexibilität
 
 - **Responsive Design**: Optimale Nutzung auf allen Geräten
+
 - **Personalisierung**: Wichtige Einstellungen anpassbar machen
+
 - **Skalierbarkeit**: Design soll mit wachsender Funktionalität skalieren
 
 ---
@@ -58,36 +70,55 @@ Die folgenden Prinzipien leiten alle Design- und Entwicklungsentscheidungen im E
 Die Navigation des Evolution Hub folgt einer klaren Hierarchie:
 
 1. **Hauptnavigation** (Header)
+
    - Logo (Link zur Startseite)
+
    - Primäre Navigation (Dashboard, Projekte, Tools, Blog)
+
    - Benutzermenü (Profil, Einstellungen, Logout)
+
    - Suche
+
    - Theme-Toggle
 
-2. **Sekundäre Navigation** (Seitenspezifisch)
+1. **Sekundäre Navigation** (Seitenspezifisch)
+
    - Tabs oder Segmented Controls für Unterabschnitte
+
    - Breadcrumbs für tiefere Hierarchieebenen
 
-3. **Utility-Navigation** (Footer)
+1. **Utility-Navigation** (Footer)
+
    - Rechtliche Informationen
+
    - Support-Links
+
    - Social Media
+
    - Newsletter-Anmeldung
 
 ### Navigationsrichtlinien
 
 - **Konsistente Positionierung**: Navigationselemente sollten immer an der gleichen Position sein
+
 - **Aktiver Zustand**: Der aktuelle Abschnitt sollte deutlich hervorgehoben sein
+
 - **Responsive Anpassung**: Auf mobilen Geräten Burger-Menü verwenden
+
 - **Zurück-Navigation**: Immer einen klaren Weg zurück anbieten
+
 - **Suchfunktion**: Globale Suche für schnellen Zugriff auf Inhalte
 
 ### Information Architecture
 
 - **Logische Gruppierung**: Zusammengehörige Inhalte gruppieren
+
 - **Progressive Disclosure**: Komplexe Informationen schrittweise offenbaren
+
 - **Konsistente Terminologie**: Gleiche Begriffe für gleiche Konzepte
+
 - **Klare Hierarchie**: Wichtige Informationen zuerst präsentieren
+
 - **Kontextuelle Hilfe**: Hilfe und Erklärungen im Kontext anbieten
 
 ---
@@ -97,17 +128,25 @@ Die Navigation des Evolution Hub folgt einer klaren Hierarchie:
 ### Formularstruktur
 
 - **Logische Gruppierung**: Zusammengehörige Felder gruppieren
+
 - **Einspaltiges Layout**: Bevorzuge einspaltiges Layout für einfache Scanbarkeit
+
 - **Fortschrittsanzeige**: Bei mehrstufigen Formularen Fortschritt anzeigen
+
 - **Konsistente Ausrichtung**: Labels und Eingabefelder konsistent ausrichten
+
 - **Responsive Anpassung**: Auf kleineren Bildschirmen stapeln statt verkleinern
 
 ### Formularelemente
 
 - **Labels**: Immer sichtbare Labels verwenden, keine Placeholder als Labels
+
 - **Hilfetext**: Kurze Hilfetexte unter Feldern für Kontext
+
 - **Fehlermeldungen**: Inline-Fehlermeldungen neben betroffenen Feldern
+
 - **Pflichtfelder**: Mit Sternchen (*) markieren, sparsam einsetzen
+
 - **Eingabevalidierung**: Live-Validierung nach Verlassen des Feldes
 
 ### Beispiel für Formularstruktur
@@ -150,7 +189,8 @@ Die Navigation des Evolution Hub folgt einer klaren Hierarchie:
     <Button type="submit">Absenden</Button>
   </div>
 </form>
-```
+
+```text
 
 ---
 
@@ -159,32 +199,49 @@ Die Navigation des Evolution Hub folgt einer klaren Hierarchie:
 ### Feedback-Typen
 
 1. **Inline-Feedback**
+
    - Direkt neben oder unter dem betroffenen Element
+
    - Für Formularvalidierung und kontextbezogene Hinweise
+
    - Farbcodierung: Rot für Fehler, Gelb für Warnungen, Grün für Erfolg
 
-2. **Toast-Benachrichtigungen**
+1. **Toast-Benachrichtigungen**
+
    - Kurzzeitige Benachrichtigungen am oberen oder unteren Bildschirmrand
+
    - Für temporäre Statusmeldungen (Erfolg, Info)
+
    - Automatisches Verschwinden nach 5 Sekunden
+
    - Möglichkeit zum manuellen Schließen
 
-3. **Modals/Dialoge**
+1. **Modals/Dialoge**
+
    - Für wichtige Meldungen, die Benutzerinteraktion erfordern
+
    - Fokus auf den Dialog lenken (Rest der Seite abdunkeln)
+
    - Klare Aktionsbuttons (Primär, Sekundär, Abbrechen)
 
-4. **Statusanzeigen**
+1. **Statusanzeigen**
+
    - Für laufende Prozesse (Laden, Speichern)
+
    - Fortschrittsbalken für längere Prozesse
+
    - Spinner für kurze Ladezeiten
 
 ### Feedback-Richtlinien
 
 - **Zeitnah**: Feedback sollte unmittelbar nach der Aktion erfolgen
+
 - **Klar**: Eindeutige Botschaft, was passiert ist oder was zu tun ist
+
 - **Hilfreich**: Konstruktive Hinweise zur Problemlösung bei Fehlern
+
 - **Nicht störend**: Feedback sollte den Arbeitsfluss nicht unterbrechen
+
 - **Konsistent**: Gleiche Arten von Feedback für ähnliche Situationen
 
 ### Beispiele für Feedback-Komponenten
@@ -238,34 +295,53 @@ Evolution Hub strebt WCAG 2.1 AA-Konformität an und folgt diesen Richtlinien:
 ### Grundprinzipien
 
 1. **Wahrnehmbar**
+
    - Textalternativen für Nicht-Text-Inhalte (Bilder, Icons)
+
    - Untertitel und Transkripte für Medien
+
    - Ausreichender Kontrast (mindestens 4.5:1 für normalen Text)
+
    - Responsive Layouts für verschiedene Bildschirmgrößen
 
-2. **Bedienbar**
+1. **Bedienbar**
+
    - Vollständige Tastaturzugänglichkeit
+
    - Ausreichend Zeit für Interaktionen
+
    - Keine blinkenden Inhalte, die Anfälle auslösen könnten
+
    - Klare Navigation und Orientierungshilfen
 
-3. **Verständlich**
+1. **Verständlich**
+
    - Konsistente Navigation und Bezeichnungen
+
    - Vorhersehbares Verhalten bei Interaktionen
+
    - Fehleridentifikation und -vorschläge
+
    - Klare Anweisungen und Hilfetexte
 
-4. **Robust**
+1. **Robust**
+
    - Kompatibilität mit aktuellen und zukünftigen Technologien
+
    - Valider HTML-Code
+
    - Korrekte ARIA-Attribute
 
 ### Praktische Umsetzung
 
 - **Semantisches HTML**: Korrekte HTML-Elemente für ihren Zweck verwenden
+
 - **ARIA-Attribute**: Nur wenn nötig, zur Ergänzung von semantischem HTML
+
 - **Fokus-Management**: Sichtbarer Fokus-Indikator, logische Tab-Reihenfolge
+
 - **Bildtexte**: Alt-Texte für alle Bilder, leere Alt-Texte für dekorative Bilder
+
 - **Skip-Links**: "Zum Inhalt springen"-Link für Tastaturbenutzer
 
 ### Beispiele für barrierefreie Komponenten
@@ -299,7 +375,8 @@ Evolution Hub strebt WCAG 2.1 AA-Konformität an und folgt diesen Richtlinien:
     Benutzername wird bereits verwendet.
   </div>
 </div>
-```
+
+```text
 
 ---
 
@@ -308,28 +385,39 @@ Evolution Hub strebt WCAG 2.1 AA-Konformität an und folgt diesen Richtlinien:
 ### Hover-Zustände
 
 - **Buttons**: Farbänderung, subtile Skalierung
+
 - **Karten**: Leichte Elevation (Schatten), subtile Skalierung
+
 - **Links**: Unterstreichung oder Farbänderung
+
 - **Interaktive Elemente**: Cursor-Änderung zu Pointer
 
 ### Fokus-Zustände
 
 - **Sichtbarer Fokus-Ring**: Für alle interaktiven Elemente
+
 - **Konsistente Farbe**: Emerald-500 für den Fokus-Ring
+
 - **Ausreichende Größe**: Mindestens 2px Breite für den Fokus-Ring
 
 ### Touch-Interaktionen
 
 - **Touch-Targets**: Mindestens 44x44px für Touch-Ziele
+
 - **Ausreichender Abstand**: Mindestens 8px zwischen Touch-Zielen
+
 - **Swipe-Gesten**: Für Listen und Karussells
+
 - **Pull-to-Refresh**: Für Listen mit aktualisierbaren Inhalten
 
 ### Drag & Drop
 
 - **Visuelles Feedback**: Element hebt sich beim Ziehen ab
+
 - **Drop-Zonen**: Deutlich hervorheben, wenn ein Element darüber schwebt
+
 - **Erfolgs-/Fehlerfeedback**: Nach dem Ablegen
+
 - **Tastatur-Alternative**: Für Drag & Drop-Funktionen
 
 ### Beispiele für Interaktionsmuster
@@ -362,29 +450,41 @@ Evolution Hub strebt WCAG 2.1 AA-Konformität an und folgt diesen Richtlinien:
 ### Tonalität und Sprache
 
 - **Freundlich und professionell**: Direkt, aber nicht zu informell
+
 - **Inklusiv**: Geschlechtsneutrale Sprache verwenden
+
 - **Präzise**: Klare, eindeutige Formulierungen
+
 - **Konsistent**: Gleiche Begriffe für gleiche Konzepte
 
 ### Textformatierung
 
 - **Überschriften**: Klare Hierarchie (H1 > H2 > H3)
+
 - **Absätze**: Kurz und fokussiert, maximal 3-4 Sätze
+
 - **Listen**: Für Aufzählungen und Schritte
+
 - **Hervorhebungen**: Sparsam einsetzen (fett, kursiv)
 
 ### Schreibstil
 
 - **Aktiv statt Passiv**: "Du kannst Projekte erstellen" statt "Projekte können erstellt werden"
+
 - **Direkte Ansprache**: "Du" statt "der Benutzer"
+
 - **Positiv formulieren**: Was möglich ist, nicht was nicht möglich ist
+
 - **Handlungsorientiert**: Klare Aktionsaufforderungen
 
 ### Fehlermeldungen
 
 - **Spezifisch**: Genau beschreiben, was falsch ist
+
 - **Lösungsorientiert**: Vorschläge zur Behebung anbieten
+
 - **Freundlich**: Nicht beschuldigend formulieren
+
 - **Kurz und prägnant**: Auf das Wesentliche konzentrieren
 
 ### Beispiele für Content-Richtlinien
@@ -407,7 +507,8 @@ Evolution Hub strebt WCAG 2.1 AA-Konformität an und folgt diesen Richtlinien:
 
 // Schlecht
 "Tools für das Projekt müssen ausgewählt werden."
-```
+
+```text
 
 ---
 
@@ -416,22 +517,31 @@ Evolution Hub strebt WCAG 2.1 AA-Konformität an und folgt diesen Richtlinien:
 ### Ladezeiten
 
 - **Lazy Loading**: Bilder und Komponenten erst laden, wenn sie sichtbar werden
+
 - **Code-Splitting**: JavaScript-Bundles aufteilen für schnelleres initiales Laden
+
 - **Preloading**: Kritische Ressourcen vorladen
+
 - **Caching**: Effektive Cache-Strategien für statische Assets
 
 ### Rendering-Optimierung
 
 - **Virtualisierung**: Für lange Listen nur sichtbare Elemente rendern
+
 - **Debouncing/Throttling**: Für häufige Events (Scroll, Resize, Input)
+
 - **Web Workers**: Rechenintensive Aufgaben in separaten Threads
+
 - **Memoization**: Ergebnisse teurer Berechnungen zwischenspeichern
 
 ### Wahrnehmbare Performance
 
 - **Skeleton Screens**: Statt Spinner für bessere wahrgenommene Ladezeit
+
 - **Optimistische UI-Updates**: UI sofort aktualisieren, bevor Server antwortet
+
 - **Progressive Enhancement**: Grundfunktionalität ohne JavaScript
+
 - **Mikro-Interaktionen**: Kleine Animationen für Feedback während des Wartens
 
 ### Beispiele für Performance-Optimierung

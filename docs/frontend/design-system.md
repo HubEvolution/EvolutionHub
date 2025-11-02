@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD051 -->
+
 # Design-System-Dokumentation
 
 Diese Dokumentation beschreibt das Design-System des Evolution Hub, einschließlich Farben, Typografie, Abstände und weiterer UI-Richtlinien. Das Design-System basiert auf Tailwind CSS und sorgt für ein konsistentes Erscheinungsbild in der gesamten Anwendung.
@@ -5,13 +7,13 @@ Diese Dokumentation beschreibt das Design-System des Evolution Hub, einschließl
 ## Inhaltsverzeichnis
 
 1. [Farbpalette](#farbpalette)
-2. [Typografie](#typografie)
-3. [Abstände und Größen](#abstände-und-größen)
-4. [Schatten und Elevation](#schatten-und-elevation)
-5. [Rundungen](#rundungen)
-6. [Dark Mode](#dark-mode)
-7. [Responsive Design](#responsive-design)
-8. [Animationen und Übergänge](#animationen-und-übergänge)
+1. [Typografie](#typografie)
+1. [Abstände und Größen](#abstande-und-groen)
+1. [Schatten und Elevation](#schatten-und-elevation)
+1. [Rundungen](#rundungen)
+1. [Dark Mode](#dark-mode)
+1. [Responsive Design](#responsive-design)
+1. [Animationen und Übergänge](#animationen-und-ubergange)
 
 ---
 
@@ -52,9 +54,13 @@ Das Evolution Hub verwendet eine konsistente Farbpalette, die auf Emerald und Cy
 ### Farbverwendung
 
 - **Primäre Aktionen**: Emerald 500 als Basisfarbe, Emerald 600 für Hover-Zustände
+
 - **Gradienten**: Verlauf von Emerald 500 zu Cyan 500 für hervorgehobene Elemente
+
 - **Text**: Gray 700 auf hellem Hintergrund, Gray 200 auf dunklem Hintergrund
+
 - **Überschriften**: Gray 800 auf hellem Hintergrund, Gray 50 auf dunklem Hintergrund
+
 - **Hintergründe**: Gray 50 oder White für Light Mode, Gray 900 für Dark Mode
 
 ---
@@ -129,7 +135,8 @@ Evolution Hub verwendet eine klare Typografie-Hierarchie für optimale Lesbarkei
 <p class="text-xs text-gray-500 dark:text-gray-400">
   Letzte Aktualisierung: 03.08.2025
 </p>
-```
+
+```text
 
 ---
 
@@ -168,9 +175,13 @@ Evolution Hub verwendet ein konsistentes Spacing-System basierend auf dem 4px-Gr
 ### Abstandsrichtlinien
 
 - **Zwischen Komponenten**: `my-6` (1.5rem) oder `my-8` (2rem)
+
 - **Zwischen Abschnitten**: `my-12` (3rem) oder `my-16` (4rem)
+
 - **Innenabstand in Karten**: `p-4` (1rem) für kleine Karten, `p-6` (1.5rem) für größere Karten
+
 - **Innenabstand in Buttons**: `px-4 py-2` für mittlere Buttons
+
 - **Seitenränder**: `px-4` auf mobilen Geräten, `px-6` oder mehr auf größeren Bildschirmen
 
 ---
@@ -227,9 +238,13 @@ Border-Radius wird konsistent angewendet, um die visuelle Identität zu stärken
 ### Rundungs-Richtlinien
 
 - **Buttons**: `rounded-lg` für rechteckige Buttons, `rounded-full` für Pills
+
 - **Karten**: `rounded-lg` für alle Karten
+
 - **Inputs**: `rounded-md` für Eingabefelder
+
 - **Avatare**: `rounded-full` für kreisförmige Avatare
+
 - **Badges**: `rounded-full` für Pills, `rounded` für kleine Badges
 
 ---
@@ -268,7 +283,8 @@ Die Anwendung verwendet Tailwind's Dark-Mode-Funktionalität mit der `dark:`-Var
     </button>
   </div>
 </div>
-```
+
+```text
 
 ---
 
@@ -289,8 +305,11 @@ Evolution Hub ist vollständig responsiv und passt sich verschiedenen Bildschirm
 ### Responsive-Design-Richtlinien
 
 - **Mobile-First-Ansatz**: Basis-Styles für mobile Geräte, dann Anpassungen für größere Bildschirme
+
 - **Flexible Layouts**: Verwendung von Flexbox und Grid für anpassungsfähige Layouts
+
 - **Responsive Typografie**: Anpassung der Schriftgrößen an verschiedene Bildschirmgrößen
+
 - **Versteckte/Sichtbare Elemente**: Verwendung von `hidden` und `block` für verschiedene Breakpoints
 
 ### Responsive-Design-Beispiel
@@ -368,7 +387,8 @@ Evolution Hub verwendet subtile Animationen und Übergänge, um das Benutzererle
 <div class="opacity-0 animate-fade-in">
   <!-- Inhalt, der eingeblendet wird -->
 </div>
-```
+
+```text
 
 ### Scroll-Animationen (AOS - Animate On Scroll)
 
@@ -399,20 +419,27 @@ import AosWrapper from '@/components/AosWrapper.astro';
 **Verfügbare Animationen:**
 
 - `fade-up`, `fade-down`, `fade-left`, `fade-right`
+
 - `zoom-in`, `zoom-out`
+
 - `slide-up`, `slide-down`, `slide-left`, `slide-right`
 
 **Standard-Konfiguration:**
 
 - **Duration**: 700ms (überschreibbar via `duration` Prop)
+
 - **Delay**: 0ms (überschreibbar via `delay` Prop)
+
 - **Easing**: ease-out
+
 - **Once**: true (Animation nur einmal abspielen)
 
 **Wichtig:**
 
 - Automatische Berücksichtigung von `prefers-reduced-motion`
+
 - Für Listen: `aosDelayForIndex()` für dynamische Delays verwenden
+
 - Siehe [AOS Coordinator Dokumentation](./aos-coordinator.md) für Details
 
 ### Lottie-Animationen
@@ -440,7 +467,8 @@ export default function LoadingAnimation() {
   
   return <div ref={container} className="w-24 h-24"></div>;
 }
-```
+
+```text
 
 ### AOS (Animate On Scroll)
 
@@ -449,10 +477,15 @@ AOS v2.3.4 wird für Scroll-Animationen verwendet und ist CDN-basiert integriert
 #### Integration & Architektur
 
 - Dedizierte Koordinator-Komponente: `src/components/scripts/AOSCoordinator.astro`
+
 - AOS-CSS wird im `<head>` nur geladen, wenn `enableAOS === true` (siehe `src/layouts/BaseLayout.astro`).
+
 - Das AOS-Script wird vom Coordinator per CDN geladen und initialisiert; keine ESM-Imports.
+
 - Respektiert automatisch `prefers-reduced-motion` (Animationen werden für Nutzer mit reduzierter Bewegung deaktiviert).
+
 - Reagiert auf Astro View Transitions und ruft `AOS.refreshHard()` auf.
+
 - Auth-Seiten deaktivieren AOS bewusst: `AuthLayout.astro` setzt `enableAOS={false}`.
 
 Weitere Details: `docs/frontend/aos-coordinator.md`.
@@ -481,13 +514,17 @@ Weitere Details: `docs/frontend/aos-coordinator.md`.
 >
   <!-- Inhalt -->
 </div>
-```
+
+```text
 
 #### Verfügbare Animationen
 
 - **Fade**: `fade-up`, `fade-down`, `fade-left`, `fade-right`
+
 - **Slide**: `slide-up`, `slide-down`, `slide-left`, `slide-right`
+
 - **Zoom**: `zoom-in`, `zoom-out`
+
 - **Flip**: `flip-left`, `flip-right`, `flip-up`, `flip-down`
 
 #### Build-Kompatibilität
@@ -495,5 +532,9 @@ Weitere Details: `docs/frontend/aos-coordinator.md`.
 ⚠️ **Wichtig**: AOS darf NICHT als NPM-Modul in Astro `<script>`-Blöcken importiert werden, da dies zu leeren JS-Chunks im Build führt. Die CDN-basierte Lösung gewährleistet Kompatibilität mit:
 
 - Astro-Standardserver (`npm run dev`)
+
 - Cloudflare Pages SSR (`npm run dev:wrangler`)
+
 - Produktions-Builds
+
+```text

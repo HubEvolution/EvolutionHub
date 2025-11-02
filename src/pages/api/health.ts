@@ -1,4 +1,10 @@
-import { withApiMiddleware, createApiSuccess, createApiError } from '@/lib/api-middleware';
+import type { APIContext } from 'astro';
+import {
+  withApiMiddleware,
+  createApiSuccess,
+  createApiError,
+  createMethodNotAllowed,
+} from '@/lib/api-middleware';
 
 /**
  * Health check endpoint for deployment verification
@@ -6,7 +12,7 @@ import { withApiMiddleware, createApiSuccess, createApiError } from '@/lib/api-m
  * Now includes basic security headers and structured logging
  */
 export const GET = withApiMiddleware(
-  async (context) => {
+  async (context: APIContext) => {
     const { locals } = context;
     const env = locals.runtime?.env;
     const startTime = Date.now();
@@ -102,3 +108,11 @@ export const GET = withApiMiddleware(
     logMetadata: { action: 'health_check' },
   }
 );
+
+const methodNotAllowed = () => createMethodNotAllowed('GET');
+export const POST = methodNotAllowed;
+export const PUT = methodNotAllowed;
+export const PATCH = methodNotAllowed;
+export const DELETE = methodNotAllowed;
+export const OPTIONS = methodNotAllowed;
+export const HEAD = methodNotAllowed;

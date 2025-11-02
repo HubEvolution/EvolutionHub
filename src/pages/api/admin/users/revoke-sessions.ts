@@ -49,7 +49,9 @@ export const POST = withAuthApiMiddleware(
       deleted += Number(res.meta.changes || 0);
     }
     if (userId) {
-      const res = await env.DB.prepare(`DELETE FROM sessions WHERE user_id = ?1`).bind(userId).run();
+      const res = await env.DB.prepare(`DELETE FROM sessions WHERE user_id = ?1`)
+        .bind(userId)
+        .run();
       deleted += Number(res.meta.changes || 0);
     }
 

@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD051 -->
+
 # Voice & Transcription API
 
 **Status:** ✅ Vollständig implementiert (Production-Ready)
@@ -8,11 +10,17 @@ Die Voice API bietet Real-time Audio-Transkription mit OpenAI Whisper. Unterstü
 ## Übersicht
 
 - **Basis-URL:** `/api/voice`
+
 - **Authentifizierung:** Optional (User + Guest-Modus)
+
 - **AI-Provider:** OpenAI Whisper (via API)
+
 - **Audio-Format:** WebM, MP3, WAV, FLAC, M4A
+
 - **Real-time:** Server-Sent Events + Polling
+
 - **Sprachen:** 50+ Sprachen (automatische Erkennung)
+
 - **Limits:** Plan-basierte Nutzungsgrenzen
 
 ## Architektur
@@ -28,7 +36,8 @@ graph TB
     E --> F[GET /api/voice/stream]
     F --> G[Real-time Updates]
     G --> H[Final Transcript]
-```
+
+```text
 
 ### Session-Management
 
@@ -57,12 +66,15 @@ Verarbeitet Audio-Chunks für Real-time Transkription.
 **Erforderliche Felder:**
 
 - `chunk` - Audio-Chunk (WebM, MP3, WAV, FLAC, M4A)
+
 - `sessionId` - Eindeutige Session-ID
 
 **Optionale Felder:**
 
 - `lang` - Zielsprache (ISO-Code, z.B. `de`, `en`)
+
 - `jobId` - Job-ID für Fortsetzung
+
 - `isLastChunk` - Letzter Chunk (`true`/`false`)
 
 #### Beispiel-Request
@@ -76,7 +88,8 @@ curl -X POST "http://127.0.0.1:8787/api/voice/transcribe" \
   -F "sessionId=session_abc123" \
   -F "lang=de" \
   -F "isLastChunk=false"
-```
+
+```text
 
 Hinweis: Der kanonische Multipart‑Request ist in der OpenAPI‑Spezifikation als Komponente definiert:
 `#/components/schemas/VoiceTranscribeRequest`. Serverseitig werden die Felder per Zod validiert
@@ -117,7 +130,8 @@ Hinweis: Der kanonische Multipart‑Request ist in der OpenAPI‑Spezifikation a
     "message": "Unsupported audio format"
   }
 }
-```
+
+```text
 
 **Quota überschritten (403):**
 
@@ -143,13 +157,15 @@ Server-Sent Events für Real-time Transkriptionsergebnisse.
 #### Query-Parameter
 
 - `jobId` (erforderlich): Job-ID aus Transkriptions-Request
+
 - `sessionId` (erforderlich): Session-ID
 
-#### Beispiel-Request
+#### Beispiel-Request (2)
 
 ```bash
 curl "http://127.0.0.1:8787/api/voice/stream?jobId=job_def456&sessionId=session_abc123"
-```
+
+```text
 
 #### SSE Events
 
@@ -174,7 +190,8 @@ data: {
   "language": "de",
   "duration": 5.2
 }
-```
+
+```text
 
 **Fehler:**
 
@@ -190,18 +207,20 @@ data: {
 
 Polling-Alternative zu SSE für Transkriptionsergebnisse.
 
-#### Query-Parameter
+#### Query-Parameter (2)
 
 - `jobId` (erforderlich): Job-ID
+
 - `lastUpdate` (optional): Timestamp der letzten Aktualisierung
 
-#### Beispiel-Request
+#### Beispiel-Request (3)
 
 ```bash
 curl "http://127.0.0.1:8787/api/voice/poll?jobId=job_def456&lastUpdate=1705312200000"
-```
 
-#### Success Response (200)
+```text
+
+#### Success Response (200) (2)
 
 ```json
 {
@@ -221,14 +240,15 @@ curl "http://127.0.0.1:8787/api/voice/poll?jobId=job_def456&lastUpdate=170531220
 
 Ruft die aktuellen Voice-Nutzungsstatistiken ab.
 
-#### Beispiel-Request
+#### Beispiel-Request (4)
 
 ```bash
 curl "http://127.0.0.1:8787/api/voice/usage" \
   -H "Cookie: guest_id=abc123"
-```
 
-#### Success Response (200)
+```text
+
+#### Success Response (200) (3)
 
 ```json
 {
@@ -265,8 +285,11 @@ curl "http://127.0.0.1:8787/api/voice/usage" \
 **Empfohlene Einstellungen:**
 
 - **Sample-Rate:** 16kHz (für Sprache optimal)
+
 - **Bitrate:** 64-128 kbps
+
 - **Kanäle:** Mono (für bessere Performance)
+
 - **Format:** WebM mit Opus-Codec
 
 **Beispiel-Client-Konfiguration:**
@@ -280,7 +303,8 @@ const stream = await navigator.mediaDevices.getUserMedia({
     noiseSuppression: true
   }
 });
-```
+
+```text
 
 ## Sprachunterstützung
 
@@ -289,18 +313,27 @@ const stream = await navigator.mediaDevices.getUserMedia({
 **Unterstützte Sprachen:**
 
 - **Deutsch** (de)
+
 - **Englisch** (en)
+
 - **Französisch** (fr)
+
 - **Spanisch** (es)
+
 - **Italienisch** (it)
+
 - **Portugiesisch** (pt)
+
 - **Niederländisch** (nl)
+
 - **50+ weitere Sprachen**
 
 **Spracherkennung:**
 
 - Automatische Erkennung ohne Sprach-Code
+
 - Explizite Sprachauswahl für bessere Genauigkeit
+
 - Fallback auf Englisch bei unbekannter Sprache
 
 ### Genauigkeit pro Sprache
@@ -319,8 +352,11 @@ const stream = await navigator.mediaDevices.getUserMedia({
 **Audio-Chunking:**
 
 - **Chunk-Größe:** 1-5 Sekunden Audio
+
 - **Overlap:** 250ms für bessere Genauigkeit
+
 - **Buffer:** 10 Sekunden Audio-Cache
+
 - **Streaming:** Echtzeit-Verarbeitung
 
 **Client-Implementierung:**
@@ -361,7 +397,8 @@ eventSource.addEventListener('final', (event) => {
   finalizeTranscript(data.text);
   eventSource.close();
 });
-```
+
+```text
 
 **Polling-Alternative:**
 
@@ -387,14 +424,19 @@ async function pollForUpdates(jobId, lastUpdate = 0) {
 **Input-Validierung:**
 
 - **Format-Prüfung:** Nur erlaubte Audio-Formate
+
 - **Größen-Limit:** Max. 25MB pro Chunk
+
 - **Dauer-Limit:** Max. 30 Minuten Gesamtdauer
+
 - **Content-Type:** Korrekte MIME-Type Validierung
 
 **Rate-Limiting:**
 
 - **Transkription:** 10/min für alle Benutzer
+
 - **Session-Erstellung:** 5/min pro User
+
 - **Audio-Upload:** 50MB/min pro User
 
 ### Datenschutz
@@ -402,8 +444,11 @@ async function pollForUpdates(jobId, lastUpdate = 0) {
 **Audio-Handling:**
 
 - **Temporäre Speicherung:** Audio wird nur während der Verarbeitung gespeichert
+
 - **Automatische Löschung:** Audio-Daten werden nach 1 Stunde gelöscht
+
 - **Keine Persistierung:** Transkripte werden nicht mit Audio verknüpft
+
 - **GDPR-Compliance:** Recht auf Datenlöschung
 
 ## Performance
@@ -413,15 +458,21 @@ async function pollForUpdates(jobId, lastUpdate = 0) {
 **Audio-Processing:**
 
 - **Chunked Upload:** Streaming-Verarbeitung ohne vollständiges Hochladen
+
 - **Parallel Processing:** Mehrere Chunks gleichzeitig
+
 - **Caching:** Wiederholte Phrasen werden gecacht
+
 - **Compression:** Audio-Kompression vor Verarbeitung
 
 **Real-time Performance:**
 
 - **Latency:** < 2s für erste Ergebnisse
+
 - **Throughput:** 10 parallele Sessions
+
 - **Memory:** < 100MB pro Session
+
 - **CPU:** Optimierte Whisper-Inferenz
 
 ### Metriken
@@ -429,8 +480,11 @@ async function pollForUpdates(jobId, lastUpdate = 0) {
 **Durchschnittliche Performance:**
 
 - **Erste Ergebnisse:** < 2 Sekunden
+
 - **Vollständige Transkription:** 1.5x Audio-Dauer
+
 - **Genauigkeit:** > 95% für klare Audio
+
 - **Verfügbarkeit:** > 99.5%
 
 ## Tests
@@ -440,15 +494,21 @@ async function pollForUpdates(jobId, lastUpdate = 0) {
 **Audio-Processing-Tests:**
 
 - Chunk-Validierung und -Processing
+
 - Audio-Format-Erkennung
+
 - Session-Management
+
 - Error-Handling
 
 **Service-Tests:**
 
 - Whisper-API-Integration
+
 - KV-Storage-Operationen
+
 - Rate-Limiting-Validierung
+
 - Entitlements-Prüfung
 
 ### E2E-Tests
@@ -456,15 +516,21 @@ async function pollForUpdates(jobId, lastUpdate = 0) {
 **Real-time Transkriptions-Tests:**
 
 - Vollständiger Audio-zu-Text Flow
+
 - SSE-Event-Verarbeitung
+
 - Polling-Mechanismus
+
 - Error-Recovery
 
 **Browser-Tests:**
 
 - MediaRecorder-Integration
+
 - Audio-Streaming
+
 - Real-time UI-Updates
+
 - Cross-Browser-Kompatibilität
 
 ### Test-Daten
@@ -472,8 +538,11 @@ async function pollForUpdates(jobId, lastUpdate = 0) {
 **Audio-Fixtures:**
 
 - **Kurze Clips:** 5-10 Sekunden Test-Audio
+
 - **Lange Audios:** 1-2 Minuten für Performance-Tests
+
 - **Mehrsprachig:** Deutsch, Englisch, Französisch
+
 - **Qualitätsvarianten:** Klar, Rauschend, Mit Akzent
 
 ## Fehlerbehebung
@@ -483,25 +552,33 @@ async function pollForUpdates(jobId, lastUpdate = 0) {
 **"Audio format not supported":**
 
 - Falsches Audio-Format oder Codec
+
 - Verwende WebM mit Opus oder MP3
+
 - Prüfe Browser-Unterstützung
 
 **"Session not found":**
 
 - SessionId ist ungültig oder abgelaufen
+
 - Erstelle neue Session mit eindeutiger ID
+
 - Sessions laufen nach 1 Stunde ab
 
 **"Quota exceeded":**
 
 - Tägliches Transkriptionslimit erreicht
+
 - Warte bis zum Reset (24h) oder upgrade
+
 - Prüfe `usage` und `limits` in der Response
 
 **"Connection lost during streaming":**
 
 - Netzwerkprobleme während der Transkription
+
 - EventSource-Verbindung ist unterbrochen
+
 - Starte neue Session oder verwende Polling
 
 ### Debug-Informationen
@@ -509,9 +586,13 @@ async function pollForUpdates(jobId, lastUpdate = 0) {
 **Bei aktiviertem Debug-Panel:**
 
 - Audio-Chunk-Metadaten
+
 - Whisper-API-Requests/Responses
+
 - Session-Status-Änderungen
+
 - Performance-Metriken
+
 - Error-Stack-Traces
 
 ## Client-Integration
@@ -534,7 +615,8 @@ const {
     console.log('Transcript:', text, 'Final:', isFinal);
   }
 });
-```
+
+```text
 
 **useAudioRecorder:**
 
@@ -619,7 +701,8 @@ class VoiceTranscriber {
     }
   }
 }
-```
+
+```text
 
 ## Compliance
 
@@ -628,14 +711,19 @@ class VoiceTranscriber {
 **Audio-Daten-Handling:**
 
 - **Keine Persistierung:** Audio wird nur temporär verarbeitet
+
 - **Automatische Löschung:** Nach 1 Stunde vollständige Entfernung
+
 - **Transkript-Trennung:** Keine Verknüpfung zwischen Audio und Text
+
 - **User-Consent:** Klare Einwilligung für Audio-Verarbeitung
 
 **Transkript-Speicherung:**
 
 - **Temporär:** Transkripte werden 24h aufbewahrt
+
 - **Anonymisierung:** Keine Verknüpfung mit Benutzerdaten
+
 - **Löschung:** Automatische Entfernung nach Aufbewahrungsfrist
 
 ### Ethik und Verantwortung
@@ -643,8 +731,11 @@ class VoiceTranscriber {
 **Verantwortungsvoller Einsatz:**
 
 - **Einwilligung:** Klare Benutzerzustimmung erforderlich
+
 - **Transparenz:** Offene Kommunikation über Audio-Verarbeitung
+
 - **Datensparsamkeit:** Nur notwendige Datenverarbeitung
+
 - **Sicherheit:** Höchste Standards für Audio-Daten
 
 ## Roadmap
@@ -654,22 +745,31 @@ class VoiceTranscriber {
 **Erweiterte Audio-Features:**
 
 - **Multi-Speaker Detection:** Erkennung verschiedener Sprecher
+
 - **Speaker Diarization:** Sprecher-Identifikation und -Trennung
+
 - **Emotion Recognition:** Stimmungsanalyse
+
 - **Background Noise Reduction:** Verbesserte Audio-Qualität
 
 **Real-time Features:**
 
 - **Live-Übersetzung:** Echtzeit-Übersetzung in andere Sprachen
+
 - **Keyword Spotting:** Echtzeit-Erkennung wichtiger Wörter
+
 - **Sentiment Analysis:** Stimmungsanalyse in Echtzeit
+
 - **Custom Vocabulary:** Branchenspezifisches Vokabular
 
 **Integrationen:**
 
 - **Meeting-Tools:** Zoom, Teams, Google Meet Integration
+
 - **Voicemail-Processing:** Automatische Voicemail-Transkription
+
 - **Podcast-Processing:** Automatische Podcast-Transkription
+
 - **Video-Audio-Extraction:** Audio aus Videos extrahieren
 
 ### Performance-Verbesserungen
@@ -677,13 +777,21 @@ class VoiceTranscriber {
 **Skalierbarkeit:**
 
 - **Batch-Processing:** Mehrere Audio-Sessions parallel
+
 - **CDN-Integration:** Globale Audio-Verarbeitung
+
 - **Edge-Processing:** Cloudflare Workers AI für schnellere Verarbeitung
+
 - **Caching:** Intelligente Cache-Strategien für wiederholte Phrasen
 
 **Genauigkeit:**
 
 - **Custom Models:** Branchenspezifische Whisper-Modelle
+
 - **Fine-tuning:** Anpassung an spezifische Anwendungsfälle
+
 - **Post-Processing:** KI-basierte Korrektur von Transkripten
+
 - **Confidence Scores:** Zuverlässigkeitsbewertung pro Wort
+
+```text

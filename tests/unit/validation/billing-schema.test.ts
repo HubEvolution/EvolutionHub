@@ -2,16 +2,16 @@ import { describe, it, expect } from 'vitest';
 import { billingCreditsRequestSchema } from '@/lib/validation/schemas/billing';
 
 describe('billingCreditsRequestSchema', () => {
-  it('accepts pack 200', () => {
-    const res = billingCreditsRequestSchema.safeParse({ pack: 200 });
+  it('accepts pack 100', () => {
+    const res = billingCreditsRequestSchema.safeParse({ pack: 100 });
     expect(res.success).toBe(true);
   });
 
-  it('accepts pack 1000 with optional fields', () => {
+  it('accepts pack 1500 with optional fields', () => {
     const res = billingCreditsRequestSchema.safeParse({
-      pack: 1000,
+      pack: 1500,
       workspaceId: 'ws_123',
-      returnTo: '/dashboard'
+      returnTo: '/dashboard',
     });
     expect(res.success).toBe(true);
   });

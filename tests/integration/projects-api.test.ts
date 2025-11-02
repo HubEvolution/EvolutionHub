@@ -361,7 +361,8 @@ describe('Projects-API-Integration', () => {
         expect(json?.success).toBe(true);
         expect(Array.isArray(json?.data)).toBe(true);
         const hasMatchingProject = (json?.data || []).some(
-          (project) => project.name.includes('Alpha') || (project.description || '').includes('Alpha')
+          (project) =>
+            project.name.includes('Alpha') || (project.description || '').includes('Alpha')
         );
         expect(hasMatchingProject).toBe(true);
       }
@@ -420,7 +421,9 @@ describe('Projects-API-Integration', () => {
       const responses = await Promise.all(requests);
 
       // Mindestens eine sollte rate-limited oder geblockt sein (429/403/401)
-      const guardedResponses = responses.filter((r) => r.status === 429 || r.status === 403 || r.status === 401);
+      const guardedResponses = responses.filter(
+        (r) => r.status === 429 || r.status === 403 || r.status === 401
+      );
       expect(guardedResponses.length).toBeGreaterThan(0);
 
       // Rate-Limit Response sollte Retry-After Header haben (nur prüfen, wenn 429 vorhanden)
@@ -483,7 +486,8 @@ describe('Projects-API-Integration', () => {
       const createResponse = await sendJson('/api/projects', projectData);
       expect([200, 401, 404]).toContain(createResponse.status);
       if (createResponse.status !== 200) return; // Ohne erfolgreiche Erstellung keine Konsistenzprüfung
-      const createdProject = (safeParseJson(createResponse.text) || {}).data?.project as ProjectItem;
+      const createdProject = (safeParseJson(createResponse.text) || {}).data
+        ?.project as ProjectItem;
 
       // Hole die Projektliste
       const listResponse = await fetchPage('/api/projects');

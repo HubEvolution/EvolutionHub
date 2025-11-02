@@ -71,7 +71,8 @@ const getHandler: ApiHandler = async (context: APIContext) => {
   const url = new URL(context.request.url);
   const token = url.searchParams.get('token') || '';
   const devEnv =
-    ((context.locals as any)?.runtime?.env?.ENVIRONMENT || 'development') === 'development';
+    ((context.locals as unknown as { runtime?: { env?: Record<string, string> } })?.runtime?.env
+      ?.ENVIRONMENT || 'development') === 'development';
   const startedAt = Date.now();
   // Server-Timing instrumentation
   const t0 = startedAt;
@@ -90,8 +91,11 @@ const getHandler: ApiHandler = async (context: APIContext) => {
 
   // Authenticate with Stytch (or dev bypass)
   let stytchEmail: string | undefined;
-  const envBypass = (context.locals as any)?.runtime?.env?.STYTCH_BYPASS;
-  const isBypass = devEnv && (envBypass === '1' || envBypass === 'true') && token === 'dev-ok';
+  const envRec = (context.locals as unknown as { runtime?: { env?: Record<string, unknown> } })
+    ?.runtime?.env;
+  const bypassStr =
+    typeof envRec?.STYTCH_BYPASS === 'string' ? (envRec.STYTCH_BYPASS as string) : undefined;
+  const isBypass = devEnv && (bypassStr === '1' || bypassStr === 'true') && token === 'dev-ok';
   if (isBypass) {
     // In Dev/Test, allow bypass with explicit email param
     stytchEmail = url.searchParams.get('email') || undefined;
@@ -109,7 +113,10 @@ const getHandler: ApiHandler = async (context: APIContext) => {
       const authRes = await stytchMagicLinkAuthenticate(context, token, pkceVerifier);
       const emails = authRes.user?.emails || [];
       stytchEmail = emails.find((e) => e.verified)?.email || emails[0]?.email;
-      stytchRequestId = (authRes as any)?.request_id as string | undefined;
+      {
+        const rid = (authRes as { request_id?: string } | null)?.request_id;
+        if (typeof rid === 'string') stytchRequestId = rid;
+      }
       durAuth = Date.now() - _tAuth;
       if (devEnv) {
         console.log('[auth][magic][callback] provider accepted', {
@@ -117,7 +124,7 @@ const getHandler: ApiHandler = async (context: APIContext) => {
           hasEmail: Boolean(stytchEmail),
         });
       }
-    } catch (e) {
+    } catch (_e) {
       if (devEnv) {
         console.warn('[auth][magic][callback] provider rejected', { ms: Date.now() - startedAt });
       }
@@ -126,9 +133,9 @@ const getHandler: ApiHandler = async (context: APIContext) => {
   }
 
   // Ensure user exists and is verified
-  const env = (context.locals as unknown as { runtime?: { env?: Record<string, any> } })?.runtime
-    ?.env;
-  const db: D1Database | undefined = env?.DB as unknown as D1Database;
+  const env = (context.locals as unknown as { runtime?: { env?: Record<string, unknown> } })
+    ?.runtime?.env;
+  const db: D1Database | undefined = (env?.DB as unknown as D1Database) || undefined;
   if (!db) {
     return createSecureRedirect('/en/login?magic_error=ServerConfig');
   }
@@ -146,7 +153,7 @@ const getHandler: ApiHandler = async (context: APIContext) => {
   try {
     const profCookie = context.cookies.get('post_auth_profile')?.value || '';
     if (profCookie) {
-      const data = JSON.parse(profCookie);
+      const data = JSON.parse(profCookie) as Record<string, unknown>;
       if (typeof data.name === 'string') desiredName = data.name;
       if (typeof data.username === 'string') desiredUsername = data.username;
     }

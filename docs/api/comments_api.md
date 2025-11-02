@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD051 -->
+
 # Comments API
 
 **Status:** ✅ Vollständig implementiert (Production-Ready 80%)
@@ -8,10 +10,15 @@ Die Comments API bietet ein vollständiges Kommentarsystem mit CRUD-Operationen,
 ## Übersicht
 
 - **Basis-URL:** `/api/comments`
+
 - **Authentifizierung:** Optional (User + Guest-Modus)
+
 - **Rate-Limiting:** 5/min (strenge Begrenzung für Spam-Schutz)
+
 - **Sicherheit:** CSRF, XSS-Schutz, Spam-Detection, Input-Sanitization
+
 - **Threading:** Hierarchische Kommentar-Struktur (Parent-Child)
+
 - **Moderation:** Mehrstufiges Status-System
 
 ## Datenmodell
@@ -33,7 +40,8 @@ interface Comment {
   updatedAt: string;
   children?: Comment[];
 }
-```
+
+```text
 
 ### Status-Workflow
 
@@ -57,9 +65,13 @@ Erstellt einen neuen Kommentar oder Reply.
 #### Security-Features
 
 - **CSRF-Schutz:** Double-Submit Cookie + Header Validierung
+
 - **Rate-Limiting:** 5/min (strenge Begrenzung)
+
 - **Spam-Detection:** Automatische Erkennung verdächtiger Inhalte
+
 - **XSS-Schutz:** HTML-Sanitization und Escaping
+
 - **Input-Validierung:** Umfassende Schema-Validierung
 
 #### Request-Body (Authentifizierte Benutzer)
@@ -71,7 +83,8 @@ Erstellt einen neuen Kommentar oder Reply.
   "entityId": "mein-blog-post-slug",
   "parentId": "optional-parent-comment-id"
 }
-```
+
+```text
 
 #### Request-Body (Gast-Benutzer)
 
@@ -91,6 +104,7 @@ Erstellt einen neuen Kommentar oder Reply.
 **Erforderlich:**
 
 - `X-CSRF-Token`: CSRF-Token (Header oder Body)
+
 - `Cookie`: `csrf_token=<token>` (Double-Submit Validierung)
 
 #### Beispiel-Request
@@ -108,7 +122,8 @@ curl -X POST "http://127.0.0.1:8787/api/comments/create" \
     "authorName": "Gast Benutzer",
     "authorEmail": "gast@example.com"
   }'
-```
+
+```text
 
 #### Success Response (201 Created)
 
@@ -144,7 +159,8 @@ curl -X POST "http://127.0.0.1:8787/api/comments/create" \
     "message": "Invalid CSRF token"
   }
 }
-```
+
+```text
 
 **Spam erkannt (400):**
 
@@ -168,7 +184,8 @@ curl -X POST "http://127.0.0.1:8787/api/comments/create" \
     "message": "Too many comments"
   }
 }
-```
+
+```text
 
 ### GET `/api/comments`
 
@@ -177,13 +194,18 @@ Ruft Kommentare für eine Entität ab mit Filterung und Pagination.
 #### Query-Parameter
 
 - `entityType` (erforderlich): `blog_post` | `project` | `general`
+
 - `entityId` (erforderlich): ID/Slug der Entität
+
 - `status` (optional): `approved` | `pending` | `flagged` | `hidden` (Standard: `approved`)
+
 - `limit` (optional): Anzahl der Ergebnisse (1-100, Standard: 20)
+
 - `offset` (optional): Offset für Pagination (Standard: 0)
+
 - `includeReplies` (optional): `true` | `false` (Standard: `true`)
 
-#### Beispiel-Request
+#### Beispiel-Request (2)
 
 ```bash
 curl "http://127.0.0.1:8787/api/comments?entityType=blog_post&entityId=mein-artikel&status=approved&limit=10" \
@@ -230,25 +252,28 @@ curl "http://127.0.0.1:8787/api/comments?entityType=blog_post&entityId=mein-arti
     }
   }
 }
-```
+
+```bash
 
 ### GET `/api/comments/count`
 
 Liefert die Anzahl von Kommentaren für eine Entität.
 
-#### Query-Parameter
+#### Query-Parameter (2)
 
 - `entityType` (erforderlich): `blog_post` | `project` | `general`
+
 - `entityId` (erforderlich): ID/Slug der Entität
+
 - `status` (optional): Status-Filter (Standard: `approved`)
 
-#### Beispiel-Request
+#### Beispiel-Request (3)
 
 ```bash
 curl "http://127.0.0.1:8787/api/comments/count?entityType=blog_post&entityId=mein-artikel"
 ```
 
-#### Success Response (200)
+#### Success Response (200) (2)
 
 ```json
 {
@@ -259,18 +284,20 @@ curl "http://127.0.0.1:8787/api/comments/count?entityType=blog_post&entityId=mei
     "entityId": "mein-artikel"
   }
 }
-```
+
+```bash
 
 ### GET `/api/comments/recent`
 
 Ruft die neuesten Kommentare über alle Entitäten hinweg ab.
 
-#### Query-Parameter
+#### Query-Parameter (3)
 
 - `limit` (optional): Anzahl der Ergebnisse (1-50, Standard: 10)
+
 - `status` (optional): Status-Filter (Standard: `approved`)
 
-#### Beispiel-Request
+#### Beispiel-Request (4)
 
 ```bash
 curl "http://127.0.0.1:8787/api/comments/recent?limit=5&status=approved"
@@ -291,9 +318,10 @@ Aktualisiert einen Kommentar (nur durch den Autor).
   "content": "Aktualisierter Kommentar-Text",
   "csrfToken": "abc123"
 }
-```
 
-#### Beispiel-Request
+```bash
+
+#### Beispiel-Request (5)
 
 ```bash
 curl -X PUT "http://127.0.0.1:8787/api/comments/comment_abc123def456" \
@@ -306,7 +334,7 @@ curl -X PUT "http://127.0.0.1:8787/api/comments/comment_abc123def456" \
   }'
 ```
 
-#### Success Response (200)
+#### Success Response (200) (3)
 
 ```json
 {
@@ -318,17 +346,18 @@ curl -X PUT "http://127.0.0.1:8787/api/comments/comment_abc123def456" \
     "updatedAt": "2025-01-15T11:00:00.000Z"
   }
 }
-```
+
+```json
 
 ### DELETE `/api/comments/[id]`
 
 Löscht einen Kommentar (Soft-Delete → Status: `hidden`).
 
-#### Pfad-Parameter
+#### Pfad-Parameter (2)
 
 - `id`: Kommentar-ID
 
-#### Request-Body
+#### Request-Body (2)
 
 ```json
 {
@@ -336,7 +365,7 @@ Löscht einen Kommentar (Soft-Delete → Status: `hidden`).
 }
 ```
 
-#### Beispiel-Request
+#### Beispiel-Request (2) (2)
 
 ```bash
 curl -X DELETE "http://127.0.0.1:8787/api/comments/comment_abc123def456" \
@@ -344,9 +373,10 @@ curl -X DELETE "http://127.0.0.1:8787/api/comments/comment_abc123def456" \
   -H "X-CSRF-Token: abc123" \
   -H "Cookie: csrf_token=abc123" \
   -d '{"csrfToken": "abc123"}'
-```
 
-#### Success Response (200)
+```text
+
+#### Success Response (200) (2) (2)
 
 ```json
 {
@@ -363,11 +393,11 @@ curl -X DELETE "http://127.0.0.1:8787/api/comments/comment_abc123def456" \
 
 Moderiert einen Kommentar (nur für Administratoren).
 
-#### Pfad-Parameter
+#### Pfad-Parameter (2) (2)
 
 - `id`: Kommentar-ID
 
-#### Request-Body
+#### Request-Body (2) (2)
 
 ```json
 {
@@ -375,9 +405,10 @@ Moderiert einen Kommentar (nur für Administratoren).
   "reason": "Optional: Begründung für die Moderation",
   "csrfToken": "abc123"
 }
-```
 
-#### Beispiel-Request
+```bash
+
+#### Beispiel-Request (6)
 
 ```bash
 curl -X POST "http://127.0.0.1:8787/api/comments/comment_abc123def456/moderate" \
@@ -395,17 +426,18 @@ curl -X POST "http://127.0.0.1:8787/api/comments/comment_abc123def456/moderate" 
 
 Liefert Performance-Metriken für das Kommentarsystem.
 
-#### Query-Parameter
+#### Query-Parameter (4)
 
 - `period`: Zeitraum: `day` | `week` | `month` (Standard: `day`)
 
-#### Beispiel-Request
+#### Beispiel-Request (3) (2)
 
 ```bash
 curl "http://127.0.0.1:8787/api/comments/performance?period=week"
-```
 
-#### Success Response (200)
+```text
+
+#### Success Response (200) (3) (2)
 
 ```json
 {
@@ -437,7 +469,9 @@ curl "http://127.0.0.1:8787/api/comments/performance?period=week"
 **Double-Submit Pattern:**
 
 - Cookie: `csrf_token=<token>` (HttpOnly, Lax)
+
 - Header: `X-CSRF-Token: <token>`
+
 - Validierung: Beide müssen übereinstimmen
 
 **Beispiel-Client-Integration:**
@@ -464,22 +498,29 @@ await fetch('/api/comments/create', {
     csrfToken: csrfToken
   })
 });
-```
+
+```text
 
 ### Spam-Detection
 
 **Automatische Erkennung:**
 
 - **Keyword-Filtering:** Verdächtige Wörter und Phrasen
+
 - **Pattern-Matching:** Spam-typische Muster
+
 - **Rate-Limiting:** Ungewöhnlich hohe Aktivität
+
 - **Link-Detection:** Verdächtige URL-Patterns
+
 - **Content-Analysis:** Textlänge und -qualität
 
 **Konfiguration:**
 
 - Anpassbare Spam-Score-Schwellen
+
 - Whitelist für vertrauenswürdige Domains
+
 - Blacklist für bekannte Spam-Patterns
 
 ### XSS-Schutz
@@ -487,7 +528,9 @@ await fetch('/api/comments/create', {
 **HTML-Sanitization:**
 
 - Erlaubt: **Bold**, *Italic*, `Code`, [Links](url)
+
 - Verboten: `<script>`, `<iframe>`, Event-Handler
+
 - Escaping: Sonderzeichen werden escaped
 
 **Input-Cleaning:**
@@ -503,8 +546,11 @@ output: "<script>alert(&#x27;xss&#x27;)</script>Hello <strong>World</strong>!"
 **Kommentar-spezifische Limits:**
 
 - **Standard:** 5 Kommentare/Minute
+
 - **Strenge Validierung:** Ungewöhnliche Muster werden stärker limitiert
+
 - **IP-basierte Limits:** Schutz vor verteilten Angriffen
+
 - **User-basierte Limits:** Separate Limits pro Benutzer/Gast
 
 ## Moderation
@@ -523,8 +569,11 @@ output: "<script>alert(&#x27;xss&#x27;)</script>Hello <strong>World</strong>!"
 **Admin-spezifische Endpunkte:**
 
 - Kommentar-Status ändern
+
 - Spam-Marken verwalten
+
 - Moderationshistorie einsehen
+
 - Bulk-Operationen für mehrere Kommentare
 
 ## Performance
@@ -534,13 +583,17 @@ output: "<script>alert(&#x27;xss&#x27;)</script>Hello <strong>World</strong>!"
 **Datenbank:**
 
 - **Indizes:** Optimierte Indizes für häufige Queries
+
 - **Caching:** KV-Namespace für häufig abgerufene Kommentare
+
 - **Pagination:** Effiziente Limit/Offset-Implementierung
 
 **Cache-Strategie:**
 
 - **Heiße Daten:** Kommentar-Listen werden 5 Minuten gecacht
+
 - **Zähler:** Kommentar-Anzahlen werden 1 Minute gecacht
+
 - **Invalidierung:** Automatische Cache-Invalidierung bei Änderungen
 
 ### Metriken
@@ -548,14 +601,19 @@ output: "<script>alert(&#x27;xss&#x27;)</script>Hello <strong>World</strong>!"
 **Durchschnittliche Response-Zeiten:**
 
 - **Create:** < 100ms
+
 - **Read:** < 50ms (gecached)
+
 - **Update/Delete:** < 80ms
+
 - **Count:** < 20ms
 
 **Cache-Effektivität:**
 
 - **Hit-Rate:** > 85% für Leseoperationen
+
 - **Speicherverbrauch:** < 10MB für aktive Kommentare
+
 - **TTL:** 5 Minuten für Listen, 1 Minute für Zähler
 
 ## Content-Types
@@ -573,7 +631,9 @@ output: "<script>alert(&#x27;xss&#x27;)</script>Hello <strong>World</strong>!"
 **Hierarchische Struktur:**
 
 - **Max. Tiefe:** 3 Ebenen (Kommentar → Reply → Reply)
+
 - **Sortierung:** Chronologisch (neueste zuerst)
+
 - **Darstellung:** Verschachtelte Anzeige mit Einrückung
 
 ## Client-Integration
@@ -583,8 +643,11 @@ output: "<script>alert(&#x27;xss&#x27;)</script>Hello <strong>World</strong>!"
 **Verfügbare UI-Komponenten:**
 
 - `CommentSection` - Vollständige Kommentar-Sektion
+
 - `CommentForm` - Kommentar-Eingabeformular
+
 - `CommentList` - Kommentar-Liste mit Threading
+
 - `CommentModerationPanel` - Admin-Moderationsoberfläche
 
 ### JavaScript-Client
@@ -614,7 +677,8 @@ if (result.success) {
 } else {
   console.error('Fehler:', result.error);
 }
-```
+
+```text
 
 ## Tests
 
@@ -623,8 +687,11 @@ if (result.success) {
 **Abgedeckte Bereiche:**
 
 - **CommentService:** CRUD-Operationen und Business-Logik
+
 - **Spam-Detection:** Pattern-Matching und Scoring
+
 - **XSS-Schutz:** HTML-Sanitization und Escaping
+
 - **Rate-Limiting:** Limit-Validierung und Enforcement
 
 ### E2E-Tests
@@ -632,10 +699,15 @@ if (result.success) {
 **Test-Szenarien:**
 
 - **Gast-Kommentare:** Anonyme Kommentar-Erstellung
+
 - **Auth-Kommentare:** Registrierte Benutzer-Kommentare
+
 - **Threading:** Reply-Funktionalität
+
 - **Moderation:** Admin-Workflows
+
 - **Spam-Schutz:** Erkennung und Behandlung
+
 - **Performance:** Ladezeiten und Cache-Effektivität
 
 ### Test-Daten
@@ -643,8 +715,11 @@ if (result.success) {
 **Fixtures:**
 
 - **Test-Kommentare:** Verschiedene Längen und Inhalte
+
 - **Spam-Beispiele:** Bekannte Spam-Patterns
+
 - **User-Daten:** Authentifizierte und Gast-Benutzer
+
 - **Entity-Daten:** Verschiedene Entity-Types
 
 ## Fehlerbehebung
@@ -654,25 +729,33 @@ if (result.success) {
 **"Invalid CSRF token":**
 
 - CSRF-Token ist abgelaufen oder ungültig
+
 - Stelle sicher, dass Cookie und Header übereinstimmen
+
 - Prüfe Same-Origin-Policy
 
 **"Spam detected":**
 
 - Kommentar wurde als Spam markiert
+
 - Überprüfe Inhalt auf verdächtige Muster
+
 - Warte 1 Stunde und versuche es erneut
 
 **"Too many comments":**
 
 - Rate-Limit erreicht (5/min)
+
 - Warte 1 Minute oder authentifiziere dich
+
 - Authentifizierte Benutzer haben höhere Limits
 
 **"Missing required fields":**
 
 - Erforderliche Felder fehlen: `content`, `entityType`, `entityId`
+
 - Prüfe Request-Body auf Vollständigkeit
+
 - Stelle sicher, dass Entity-Type gültig ist
 
 ### Debug-Informationen
@@ -680,9 +763,13 @@ if (result.success) {
 **Bei aktiviertem Debug-Panel:**
 
 - CSRF-Token-Validierungsschritte
+
 - Spam-Score-Berechnung
+
 - Cache-Treffer/Fehlschläge
+
 - SQL-Query-Performance
+
 - Moderationshistorie
 
 ## Compliance
@@ -692,15 +779,21 @@ if (result.success) {
 **Datenschutz-Features:**
 
 - **Anonymisierung:** Gast-Kommentare ohne personenbezogene Daten
+
 - **Löschung:** Soft-Delete mit Aufbewahrungsfrist
+
 - **Export:** Kommentar-Export für Benutzer
+
 - **Einwilligung:** Cookie-Consent für Tracking
 
 **Aufbewahrungsfristen:**
 
 - **Aktive Kommentare:** Unbegrenzt (bis zur Löschung)
+
 - **Gelöschte Kommentare:** 30 Tage
+
 - **Audit-Logs:** 90 Tage
+
 - **Cache-Daten:** 5 Minuten
 
 ### Barrierefreiheit
@@ -708,8 +801,11 @@ if (result.success) {
 **WCAG-Compliance:**
 
 - **Keyboard-Navigation:** Vollständige Tastatur-Unterstützung
+
 - **Screen-Reader:** ARIA-Labels und semantische Struktur
+
 - **Kontrast:** WCAG AA konforme Farbkontraste
+
 - **Focus-Management:** Sichtbare Focus-Indikatoren
 
 ## Roadmap
@@ -717,24 +813,39 @@ if (result.success) {
 ### Geplante Features
 
 - **Rich-Text-Editor:** Erweiterte Formatierungsoptionen
+
 - **@Mentions:** Benutzer-Erwähnungen in Kommentaren
+
 - **Reactions:** Like/Dislike-System
+
 - **Email-Benachrichtigungen:** Bei Replies und Mentions
+
 - **Mobile-Optimierung:** Verbesserte Mobile-Erfahrung
+
 - **Dark-Mode:** Theme-Unterstützung
 
 ### Performance-Verbesserungen
 
 - **Real-time Updates:** WebSocket-basierte Live-Kommentare
+
 - **Infinite Scroll:** Pagination-freies Laden
+
 - **Image-Upload:** Kommentar-Bilder
+
 - **Video-Support:** Video-Kommentare
+
 - **Voice-Kommentare:** Audio-Kommentare
 
 ### Moderations-Features
 
 - **Auto-Moderation:** KI-basierte Inhaltsanalyse
+
 - **Bulk-Moderation:** Mehrere Kommentare gleichzeitig moderieren
+
 - **Moderations-Queue:** Übersicht wartender Kommentare
+
 - **Appeal-System:** Kommentar-Appeal-Prozess
+
 - **User-Reporting:** Meldesystem für unangemessene Inhalte
+
+```text

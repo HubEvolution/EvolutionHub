@@ -132,18 +132,29 @@ export async function stytchMagicLinkLoginOrCreate(
     },
     body: JSON.stringify(req),
   });
-  const json = (await res.json()) as MagicLinkLoginOrCreateResponse;
+  const json = (await res.json()) as unknown;
   if (!res.ok) {
-    const et = (json as any)?.error_type || 'unknown_error';
-    const em = (json as any)?.error_message || (json as any)?.message || '';
+    const err = json as {
+      error_type?: string;
+      error_message?: string;
+      message?: string;
+      request_id?: string;
+    };
+    const et = typeof err.error_type === 'string' ? err.error_type : 'unknown_error';
+    const em =
+      typeof err.error_message === 'string'
+        ? err.error_message
+        : typeof err.message === 'string'
+          ? err.message
+          : '';
     throw new StytchError(
       res.status,
       et,
       `Stytch login_or_create failed: ${res.status} ${et}${em ? ` - ${em}` : ''}`,
-      (json as any)?.request_id
+      typeof err.request_id === 'string' ? err.request_id : undefined
     );
   }
-  return json;
+  return json as MagicLinkLoginOrCreateResponse;
 }
 
 export async function stytchOAuthAuthenticate(
@@ -183,18 +194,29 @@ export async function stytchOAuthAuthenticate(
       },
       5000
     );
-    const json = (await res.json()) as OAuthAuthenticateResponse;
+    const json = (await res.json()) as unknown;
     if (!res.ok) {
-      const et = (json as any)?.error_type || 'unknown_error';
-      const em = (json as any)?.error_message || (json as any)?.message || '';
+      const err = json as {
+        error_type?: string;
+        error_message?: string;
+        message?: string;
+        request_id?: string;
+      };
+      const et = typeof err.error_type === 'string' ? err.error_type : 'unknown_error';
+      const em =
+        typeof err.error_message === 'string'
+          ? err.error_message
+          : typeof err.message === 'string'
+            ? err.message
+            : '';
       throw new StytchError(
         res.status,
         et,
         `Stytch OAuth authenticate failed: ${res.status} ${et}${em ? ` - ${em}` : ''}`,
-        (json as any)?.request_id
+        typeof err.request_id === 'string' ? err.request_id : undefined
       );
     }
-    return json;
+    return json as OAuthAuthenticateResponse;
   };
   try {
     return await doAttempt();
@@ -259,18 +281,29 @@ export async function stytchMagicLinkAuthenticate(
       },
       5000
     );
-    const json = (await res.json()) as MagicLinkAuthenticateResponse;
+    const json = (await res.json()) as unknown;
     if (!res.ok) {
-      const et = (json as any)?.error_type || 'unknown_error';
-      const em = (json as any)?.error_message || (json as any)?.message || '';
+      const err = json as {
+        error_type?: string;
+        error_message?: string;
+        message?: string;
+        request_id?: string;
+      };
+      const et = typeof err.error_type === 'string' ? err.error_type : 'unknown_error';
+      const em =
+        typeof err.error_message === 'string'
+          ? err.error_message
+          : typeof err.message === 'string'
+            ? err.message
+            : '';
       throw new StytchError(
         res.status,
         et,
         `Stytch authenticate failed: ${res.status} ${et}${em ? ` - ${em}` : ''}`,
-        (json as any)?.request_id
+        typeof err.request_id === 'string' ? err.request_id : undefined
       );
     }
-    return json;
+    return json as MagicLinkAuthenticateResponse;
   };
   try {
     return await doAttempt();

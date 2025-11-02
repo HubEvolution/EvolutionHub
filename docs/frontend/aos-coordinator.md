@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD051 -->
+
 # AOS-Animationen (AOSCoordinator)
 
 Diese Dokumentation beschreibt die AOS-Integration über den `AOSCoordinator`, die
@@ -7,26 +9,38 @@ Diese Dokumentation beschreibt die AOS-Integration über den `AOSCoordinator`, d
 
 - AOS wird über CDN eingebunden, initialisiert und bei Navigationswechseln aktualisiert –
   umgesetzt in `src/components/scripts/AOSCoordinator.astro`.
+
 - **NEU (v1.7.3)**: `AosWrapper`-Komponente für DRY-Prinzip und konsistente Animationen
+
 - AOS-CSS wird mit Preload-Optimierung geladen für schnelleren FCP (siehe `src/layouts/BaseLayout.astro`).
+
 - Auth-Seiten deaktivieren AOS bewusst: `src/layouts/AuthLayout.astro` übergibt `enableAOS={false}`.
+
 - Nutzer mit `prefers-reduced-motion` erhalten automatisch keine Animationen.
 
 ## Relevante Dateien
 
 - `src/components/AosWrapper.astro` – **NEU**: Wrapper-Komponente für konsistente AOS-Nutzung
+
 - `src/lib/aos.ts` – **NEU**: Utilities (`aosDelayForIndex`, `getAosAttributes`)
+
 - `src/components/scripts/AOSCoordinator.astro` – Initialisierung, Refresh auf Page-Transitions
+
 - `src/layouts/BaseLayout.astro` – Preload-Optimierung + bedingte Einbindung von AOS-CSS
+
 - `src/layouts/AuthLayout.astro` – Deaktiviert AOS für Auth-Seiten
+
 - `tests/unit/lib/aos.test.ts` – **NEU**: Unit-Tests für AOS-Utilities
 
 ## Funktionsweise
 
 - AOS-CSS wird im `<head>` nur gesetzt, wenn `enableAOS === true`.
+
 - Der Coordinator lädt das AOS-Script via CDN, initialisiert AOS nach `DOMContentLoaded` und
   ruft bei Astro View Transitions einen `refreshHard()` auf, um neue DOM-Knoten zu animieren.
+
 - Sicherheits-Pass: Sichtbare Elemente bekommen initial keine „Pop-in“-Animation.
+
 - Cleanup entfernt Event-Listener bei Unmount.
 
 ## Verwendung
@@ -61,15 +75,21 @@ import AosWrapper from '@/components/AosWrapper.astro';
     <div>{item.name}</div>
   </AosWrapper>
 ))}
-```
+
+```text
 
 **Props:**
 
 - `animation` (string, default: `'fade-up'`) – AOS animation type
+
 - `delay` (number, default: `0`) – Animation delay in ms
+
 - `duration` (number, default: `700`) – Animation duration in ms
+
 - `class` (string) – Additional CSS classes
+
 - `tag` (string, default: `'div'`) – HTML tag to render
+
 - `disableAos` (boolean, default: `false`) – Disable animation
 
 ### Option 2: Direkte data-aos Attribute (Legacy)
@@ -85,8 +105,11 @@ Für spezielle Fälle können weiterhin direkte Attribute verwendet werden:
 **Hinweis:** Die `AosWrapper`-Komponente wird empfohlen, da sie:
 
 - TypeScript-Typsicherheit bietet
+
 - Konsistente Defaults erzwingt
+
 - Wartbarkeit verbessert (DRY-Prinzip)
+
 - Unit-Tests abdeckt
 
 ### AOS Utilities
@@ -100,7 +123,8 @@ const delay = aosDelayForIndex(2, { step: 100, max: 400 }); // 200ms
 // Programmatische AOS-Attribute generieren
 const attrs = getAosAttributes({ animation: 'fade-left', delay: 100 });
 // Returns: { 'data-aos': 'fade-left', 'data-aos-delay': '100', 'data-aos-duration': '700' }
-```
+
+```text
 
 - Reduzierte Bewegung respektieren: Es ist keine zusätzliche Arbeit nötig – Nutzerpräferenz wird automatisch erkannt.
 
@@ -138,7 +162,8 @@ AOS-CSS wird mit `<link rel="preload">` geladen für ~50-100ms schnelleren FCP:
 <noscript>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" />
 </noscript>
-```
+
+```text
 
 ### Optimierter Timeout
 
@@ -147,15 +172,19 @@ Promise-basiertes Warten auf AOS-Verfügbarkeit (statt ineffizientem Polling).
 ### Code-Reduktion
 
 - **-70% data-aos Vorkommen** (48 → <15) durch `AosWrapper`-Komponente
+
 - **-150 LOC** in Pages durch DRY-Prinzip
 
 ## Troubleshooting
 
 - Keine Animationen sichtbar: Prüfe `enableAOS`-Prop im verwendeten Layout.
+
 - Flackern beim Ersteindruck: Stelle sicher, dass der Coordinator erst nach `DOMContentLoaded`
   initialisiert und dass der Sicherheits-Pass aktiv ist.
+
 - Build-Fehler mit ESM-Imports: Die Integration nutzt CDN-Skripte, keine ESM-Imports –
   kompatibel mit SSR und Worker-Build.
+
 - TypeScript-Fehler bei AosWrapper: Importiere Typen aus `@/lib/aos`:
 
   ```typescript
@@ -182,11 +211,17 @@ import AosWrapper from '@/components/AosWrapper.astro';
 <AosWrapper tag="h1"><span>Title</span></AosWrapper>
 <AosWrapper tag="p" delay={100} duration={650}>Text</AosWrapper>
 <AosWrapper delay={200} duration={650}>Content</AosWrapper>
-```
+
+```text
 
 **Vorteile:**
 
 - -60% weniger Code
+
 - Type-Safety
+
 - Konsistente Defaults
+
 - Einfachere Wartung
+
+```text

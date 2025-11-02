@@ -64,7 +64,7 @@ export class VoiceTranscribeService {
     const useV2 = this.env.USAGE_KV_V2 === '1';
     if (useV2) {
       const keyV2 = rollingDailyKey('voice', ownerType, ownerId);
-      const usage = await kvGetUsage(kv as any, keyV2);
+      const usage = await kvGetUsage(kv, keyV2);
       if (!usage) return { used: 0, limit, resetAt: null };
       return { used: usage.count, limit, resetAt: usage.resetAt ? usage.resetAt * 1000 : null };
     }
@@ -88,7 +88,7 @@ export class VoiceTranscribeService {
     if (!kv) return { used: 0, limit, resetAt: null };
     const useV2 = this.env.USAGE_KV_V2 === '1';
     if (useV2) {
-      const res = await incrementDailyRolling(kv as any, 'voice', ownerType, ownerId, limit);
+      const res = await incrementDailyRolling(kv, 'voice', ownerType, ownerId, limit);
       return { used: res.usage.count, limit, resetAt: res.usage.resetAt * 1000 };
     }
     const key = this.usageKey(ownerType, ownerId);
@@ -134,8 +134,10 @@ export class VoiceTranscribeService {
     limitOverride?: number
   ): Promise<{ text: string; isFinal?: boolean; usage: VoiceUsageInfo }> {
     const t0 = Date.now();
-    // Validate file
-    if (!(file instanceof File)) throw new Error('Invalid file');
+    // Validate file (cross-realm safe)
+    const isFileLike = (v: unknown): v is File =>
+      !!v && typeof v === 'object' && typeof (v as { size?: unknown }).size === 'number';
+    if (!isFileLike(file)) throw new Error('Invalid file');
     if (file.size > VOICE_MAX_CHUNK_BYTES)
       throw new Error(`File too large. Max ${Math.round(VOICE_MAX_CHUNK_BYTES / 1024)} KB`);
 
@@ -156,7 +158,10 @@ export class VoiceTranscribeService {
           : VOICE_FREE_LIMIT_GUEST;
     const current = await this.getUsage(ownerType, ownerId, dailyLimit);
     if (current.used >= current.limit) {
-      const err: any = new Error(`Quota exceeded. Used ${current.used}/${current.limit}`);
+      const err = new Error(`Quota exceeded. Used ${current.used}/${current.limit}`) as Error & {
+        code?: string;
+        details?: unknown;
+      };
       err.code = 'quota_exceeded';
       err.details = { scope: 'daily', ...current };
       try {
@@ -194,7 +199,7 @@ export class VoiceTranscribeService {
 
     let text = '';
     try {
-      let normalized = file;
+      let normalized: File = file;
       try {
         const t = (file.type || '').toLowerCase();
         const baseType = t.includes('webm')
@@ -233,38 +238,50 @@ export class VoiceTranscribeService {
             action: 'transcribe_chunk_meta',
             metadata: {
               providedType: file.type || 'unknown',
-              providedName: (file as any).name || 'unknown',
+              providedName: file.name || 'unknown',
               providedSize: file.size,
               normalizedType: normalized.type || 'unknown',
-              normalizedName: (normalized as any).name || 'unknown',
+              normalizedName: normalized.name || 'unknown',
               normalizedSize: normalized.size,
             },
           });
         }
       } catch {}
-      const res: any = await (client as any).audio.transcriptions.create({
+      type TranscriptionsAPI = {
+        create: (args: { file: File; model: string; language?: string }) => Promise<unknown>;
+      };
+      type OpenAIClientSubset = { audio: { transcriptions: TranscriptionsAPI } };
+      const resUnknown = await (
+        client as unknown as OpenAIClientSubset
+      ).audio.transcriptions.create({
         file: normalized,
         model,
         language: lang,
       });
-      text = (res?.text || '').toString();
+      const maybe = resUnknown as { text?: unknown };
+      text = typeof maybe.text === 'string' ? maybe.text : String(maybe.text ?? '');
     } catch (e) {
-      const anyErr = e as any;
+      const errObj = e as {
+        status?: number;
+        statusCode?: number;
+        code?: unknown;
+        message?: unknown;
+      };
       const status: number | undefined =
-        anyErr?.status ||
-        anyErr?.statusCode ||
-        (typeof anyErr?.code === 'number' ? anyErr.code : undefined);
+        errObj?.status ||
+        errObj?.statusCode ||
+        (typeof errObj?.code === 'number' ? (errObj.code as number) : undefined);
       const mapped = buildProviderError(
         status ?? 500,
         'openai',
-        (anyErr?.message || '').slice(0, 200)
+        (typeof errObj?.message === 'string' ? errObj.message : '').slice(0, 200)
       );
       try {
         this.log.warn('whisper_error', {
           action: 'whisper_error',
           metadata: {
             status: status ?? 'unknown',
-            message: (anyErr?.message || '').slice(0, 200),
+            message: (typeof errObj?.message === 'string' ? errObj.message : '').slice(0, 200),
             ownerType,
             ownerMasked: ownerId ? `…${ownerId.slice(-4)}` : '',
           },

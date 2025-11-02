@@ -1,4 +1,3 @@
-
 ---
 // src/components/Header.astro
 
@@ -14,7 +13,9 @@ import { localizePath } from '@/lib/locale-path';
 // These variables should be defined in Markdown Frontmatter or accessible in the script.
 // Ensuring they are correctly defined and typed.
 const currentLocale = getLocale(Astro.url.pathname);
-const user = (Astro.props as any)?.user as { name?: string; email?: string; image?: string } | undefined;
+const user = (Astro.props as any)?.user as
+  | { name?: string; email?: string; image?: string }
+  | undefined;
 
 // Helper für aktive Navigation: vergleicht gegen lokalisierte Hrefs
 function isActiveLocalized(href: string): boolean {
@@ -63,9 +64,18 @@ function setLocaleHref(target: 'de' | 'en'): string {
   style="background: transparent; background-image: none;"
 >
   <!-- Background overlays to match Footer gradient/pattern -->
-  <div class="absolute inset-0 overflow-hidden rounded-2xl z-0 pointer-events-none" aria-hidden="true">
-    <div class="absolute inset-0 bg-gradient-to-b from-gray-900/10 to-transparent md:from-gray-900/90 md:to-black/90"></div>
-    <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB2aWV3Qm94PSIwIDAgMTAwIDEwMCIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJub25lIi8+CiAgPHBhdGggZD0iTTAgMEgxMDBWMTBIMFYwWk0wIDkwSDEwMFYxMDBIMFY5MFpNMCA0NUgxMDBWNTVIMFY0NVpNNDUgMEg1NVYxMEg0NVYwWk00NSA0NUg1NVY1NUg0NVY0NVpNNDUgOTBINTVWMTAwSDQ1VjkwWk0wIDIyLjVIMTAwVjMyLjVIMFYyMi41Wk0wIDY3LjVIMTAwVjc3LjVINlY2Ny41WiIgZmlsbD0icmdiYSgxNiwxODUsMTQ4LDAuMDUpIi8+Cjwvc3ZnPg==')] opacity-0 md:opacity-20"></div>
+  <div
+    class="absolute inset-0 overflow-hidden rounded-2xl z-0 pointer-events-none"
+    aria-hidden="true"
+  >
+    <div
+      class="absolute inset-0 bg-gradient-to-b from-gray-900/10 to-transparent md:from-gray-900/90 md:to-black/90"
+    >
+    </div>
+    <div
+      class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB2aWV3Qm94PSIwIDAgMTAwIDEwMCIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJub25lIi8+CiAgPHBhdGggZD0iTTAgMEgxMDBWMTBIMFYwWk0wIDkwSDEwMFYxMDBIMFY5MFpNMCA0NUgxMDBWNTVIMFY0NVpNNDUgMEg1NVYxMEg0NVYwWk00NSA0NUg1NVY1NUg0NVY0NVpNNDUgOTBINTVWMTAwSDQ1VjkwWk0wIDIyLjVIMTAwVjMyLjVIMFYyMi41Wk0wIDY3LjVIMTAwVjc3LjVINlY2Ny41WiIgZmlsbD0icmdiYSgxNiwxODUsMTQ4LDAuMDUpIi8+Cjwvc3ZnPg==')] opacity-0 md:opacity-20"
+    >
+    </div>
   </div>
 
   <nav class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" aria-label="Main navigation">
@@ -106,198 +116,259 @@ function setLocaleHref(target: 'de' | 'en'): string {
       </div>
 
       <div class="flex items-center space-x-3">
-
-        {user && (
-          <div class="hidden md:flex items-center">
-            <button
-              type="button"
-              id="user-menu-button"
-              class="inline-flex items-center gap-2 rounded-full bg-white/60 px-2.5 py-1.5 text-sm font-medium text-gray-800 shadow-sm ring-1 ring-gray-200 backdrop-blur-md transition hover:bg-white/80 dark:bg-slate-800/60 dark:text-slate-100 dark:ring-slate-700"
-              aria-haspopup="menu"
-              aria-expanded="false"
-              aria-controls="user-menu-dropdown"
-            >
-              <img
-                src={user.image || '/assets/svg/logo.svg'}
-                alt="User avatar"
-                class="h-7 w-7 rounded-full ring-2 ring-emerald-500/20"
-                data-avatar-img
-              />
-              <span class="max-w-[10rem] truncate hidden sm:block">{user.name || 'Account'}</span>
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 opacity-70" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clip-rule="evenodd" />
-              </svg>
-            </button>
-            <div
-              id="user-menu-dropdown"
-              role="menu"
-              aria-labelledby="user-menu-button"
-              class="absolute right-4 top-[4.5rem] w-64 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-gray-200 dark:border-slate-700 py-2 z-50 opacity-0 transform scale-95 transition-all duration-200 pointer-events-none"
-            >
-              <a
-                href={localizePath(currentLocale, '/dashboard')}
-                class="flex items-center gap-2 px-4 py-2 text-sm text-gray-800 dark:text-slate-100 hover:bg-gray-50 dark:hover:bg-slate-800/60"
-                role="menuitem"
+        {
+          user && (
+            <div class="hidden md:flex items-center">
+              <button
+                type="button"
+                id="user-menu-button"
+                class="inline-flex items-center gap-2 rounded-full bg-white/60 px-2.5 py-1.5 text-sm font-medium text-gray-800 shadow-sm ring-1 ring-gray-200 backdrop-blur-md transition hover:bg-white/80 dark:bg-slate-800/60 dark:text-slate-100 dark:ring-slate-700"
+                aria-haspopup="menu"
+                aria-expanded="false"
+                aria-controls="user-menu-dropdown"
               >
-                <span>Profil & Einstellungen</span>
-              </a>
-              <div class="my-2 h-px bg-gray-100 dark:bg-slate-800"></div>
-              <div class="px-4 py-2 text-xs text-gray-500 dark:text-slate-400">Plan & Usage</div>
-              <div class="px-4 pb-2 text-sm">
-                <div class="flex items-center justify-between">
-                  <span class="text-gray-600 dark:text-slate-300">Plan</span>
-                  <span id="user-plan" class="font-medium text-gray-900 dark:text-white">—</span>
-                </div>
-                <div class="mt-1.5 flex items-center justify-between">
-                  <span class="text-gray-600 dark:text-slate-300">Credits</span>
-                  <span id="user-credits" class="font-medium text-gray-900 dark:text-white">—</span>
-                </div>
-                <div class="mt-1.5 flex items-center justify-between">
-                  <span class="text-gray-600 dark:text-slate-300">Monthly quota</span>
-                  <span id="user-quota" class="font-medium text-gray-900 dark:text-white">—</span>
-                </div>
-              </div>
-
-              <div class="my-2 h-px bg-gray-100 dark:bg-slate-800"></div>
-              <div class="px-4 py-2 text-xs text-gray-500 dark:text-slate-400">Darstellung</div>
-              <div class="px-4 pb-2">
-                <ThemeToggle />
-              </div>
-
-              <div class="my-2 h-px bg-gray-100 dark:bg-slate-800"></div>
-              <div class="px-4 py-2 text-xs text-gray-500 dark:text-slate-400">Sprache</div>
-              <div class="px-2 pb-2">
-                <a
-                  href={setLocaleHref('de')}
-                  class={`flex items-center px-3 py-2 text-sm rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 ${
-                    currentLocale === 'de'
-                      ? 'text-emerald-600 dark:text-emerald-400 font-medium'
-                      : 'text-gray-700 dark:text-gray-300'
-                  }`}
-                  data-astro-reload
+                <img
+                  src={user.image || '/assets/svg/logo.svg'}
+                  alt="User avatar"
+                  class="h-7 w-7 rounded-full ring-2 ring-emerald-500/20"
+                  data-avatar-img
+                />
+                <span class="max-w-[10rem] truncate hidden sm:block">{user.name || 'Account'}</span>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-4 w-4 opacity-70"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
                 >
-                  Deutsch
-                  {currentLocale === 'de' && (
-                    <svg class="ml-auto w-4 h-4 text-emerald-500" fill="currentColor" viewBox="0 0 20 20">
-                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-                    </svg>
-                  )}
-                </a>
-                <a
-                  href={setLocaleHref('en')}
-                  class={`flex items-center px-3 py-2 text-sm rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 ${
-                    currentLocale === 'en'
-                      ? 'text-emerald-600 dark:text-emerald-400 font-medium'
-                      : 'text-gray-700 dark:text-gray-300'
-                  }`}
-                  data-astro-reload
-                >
-                  English
-                  {currentLocale === 'en' && (
-                    <svg class="ml-auto w-4 h-4 text-emerald-500" fill="currentColor" viewBox="0 0 20 20">
-                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-                    </svg>
-                  )}
-                </a>
-              </div>
-              <div class="my-2 h-px bg-gray-100 dark:bg-slate-800"></div>
-              <a
-                href="/api/user/logout"
-                class="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
-                role="menuitem"
+                  <path
+                    fill-rule="evenodd"
+                    d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+              </button>
+              <div
+                id="user-menu-dropdown"
+                role="menu"
+                aria-labelledby="user-menu-button"
+                class="absolute right-4 top-[4.5rem] w-64 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-gray-200 dark:border-slate-700 py-2 z-50 opacity-0 transform scale-95 transition-all duration-200 pointer-events-none"
               >
-                Abmelden
-              </a>
+                <a
+                  href={localizePath(currentLocale, '/dashboard')}
+                  class="flex items-center gap-2 px-4 py-2 text-sm text-gray-800 dark:text-slate-100 hover:bg-gray-50 dark:hover:bg-slate-800/60"
+                  role="menuitem"
+                >
+                  <span>Profil & Einstellungen</span>
+                </a>
+                <div class="my-2 h-px bg-gray-100 dark:bg-slate-800" />
+                <div class="px-4 py-2 text-xs text-gray-500 dark:text-slate-400">Plan & Usage</div>
+                <div class="px-4 pb-2 text-sm">
+                  <div class="flex items-center justify-between">
+                    <span class="text-gray-600 dark:text-slate-300">Plan</span>
+                    <span id="user-plan" class="font-medium text-gray-900 dark:text-white">
+                      —
+                    </span>
+                  </div>
+                  <div class="mt-1.5 flex items-center justify-between">
+                    <span class="text-gray-600 dark:text-slate-300">Credits</span>
+                    <span id="user-credits" class="font-medium text-gray-900 dark:text-white">
+                      —
+                    </span>
+                  </div>
+                  <div class="mt-1.5 flex items-center justify-between">
+                    <span class="text-gray-600 dark:text-slate-300">Monthly quota</span>
+                    <span id="user-quota" class="font-medium text-gray-900 dark:text-white">
+                      —
+                    </span>
+                  </div>
+                </div>
+
+                <div class="my-2 h-px bg-gray-100 dark:bg-slate-800" />
+                <div class="px-4 py-2 text-xs text-gray-500 dark:text-slate-400">Darstellung</div>
+                <div class="px-4 pb-2">
+                  <ThemeToggle />
+                </div>
+
+                <div class="my-2 h-px bg-gray-100 dark:bg-slate-800" />
+                <div class="px-4 py-2 text-xs text-gray-500 dark:text-slate-400">Sprache</div>
+                <div class="px-2 pb-2">
+                  <a
+                    href={setLocaleHref('de')}
+                    class={`flex items-center px-3 py-2 text-sm rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 ${
+                      currentLocale === 'de'
+                        ? 'text-emerald-600 dark:text-emerald-400 font-medium'
+                        : 'text-gray-700 dark:text-gray-300'
+                    }`}
+                    data-astro-reload
+                  >
+                    Deutsch
+                    {currentLocale === 'de' && (
+                      <svg
+                        class="ml-auto w-4 h-4 text-emerald-500"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fill-rule="evenodd"
+                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                          clip-rule="evenodd"
+                        />
+                      </svg>
+                    )}
+                  </a>
+                  <a
+                    href={setLocaleHref('en')}
+                    class={`flex items-center px-3 py-2 text-sm rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 ${
+                      currentLocale === 'en'
+                        ? 'text-emerald-600 dark:text-emerald-400 font-medium'
+                        : 'text-gray-700 dark:text-gray-300'
+                    }`}
+                    data-astro-reload
+                  >
+                    English
+                    {currentLocale === 'en' && (
+                      <svg
+                        class="ml-auto w-4 h-4 text-emerald-500"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fill-rule="evenodd"
+                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                          clip-rule="evenodd"
+                        />
+                      </svg>
+                    )}
+                  </a>
+                </div>
+                <div class="my-2 h-px bg-gray-100 dark:bg-slate-800" />
+                <a
+                  href="/api/user/logout"
+                  class="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
+                  role="menuitem"
+                >
+                  Abmelden
+                </a>
+              </div>
             </div>
-          </div>
-        )}
+          )
+        }
 
-        {!user && (
-          <div class="hidden md:flex items-center">
-            <button
-              type="button"
-              id="user-menu-button"
-              class="inline-flex items-center gap-2 rounded-full bg-white/60 px-2.5 py-1.5 text-sm font-medium text-gray-800 shadow-sm ring-1 ring-gray-200 backdrop-blur-md transition hover:bg-white/80 dark:bg-slate-800/60 dark:text-slate-100 dark:ring-slate-700"
-              title={currentLocale === 'de' ? 'Anmelden' : 'Login'}
-              aria-label={currentLocale === 'de' ? 'Anmelden' : 'Login'}
-              aria-haspopup="menu"
-              aria-expanded="false"
-              aria-controls="user-menu-dropdown"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                aria-hidden="true"
-                class="h-7 w-7 rounded-full ring-2 ring-emerald-500/20"
+        {
+          !user && (
+            <div class="hidden md:flex items-center">
+              <button
+                type="button"
+                id="user-menu-button"
+                class="inline-flex items-center gap-2 rounded-full bg-white/60 px-2.5 py-1.5 text-sm font-medium text-gray-800 shadow-sm ring-1 ring-gray-200 backdrop-blur-md transition hover:bg-white/80 dark:bg-slate-800/60 dark:text-slate-100 dark:ring-slate-700"
+                title={currentLocale === 'de' ? 'Anmelden' : 'Login'}
+                aria-label={currentLocale === 'de' ? 'Anmelden' : 'Login'}
+                aria-haspopup="menu"
+                aria-expanded="false"
+                aria-controls="user-menu-dropdown"
               >
-                <path d="M10 9a3 3 0 100-6 3 3 0 000 6z" />
-                <path d="M4 16a6 6 0 1112 0H4z" />
-              </svg>
-              <span class="max-w-[10rem] truncate hidden sm:block">{currentLocale === 'de' ? 'Anmelden' : 'Login'}</span>
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 opacity-70" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clip-rule="evenodd" />
-              </svg>
-            </button>
-            <div
-              id="user-menu-dropdown"
-              role="menu"
-              aria-labelledby="user-menu-button"
-              class="absolute right-4 top-[4.5rem] w-64 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-gray-200 dark:border-slate-700 py-2 z-50 opacity-0 transform scale-95 transition-all duration-200 pointer-events-none"
-            >
-              <div class="px-4 py-2 text-xs text-gray-500 dark:text-slate-400">Darstellung</div>
-              <div class="px-4 pb-2">
-                <ThemeToggle />
-              </div>
-
-              <div class="my-2 h-px bg-gray-100 dark:bg-slate-800"></div>
-              <div class="px-4 py-2 text-xs text-gray-500 dark:text-slate-400">Sprache</div>
-              <div class="px-2 pb-2">
-                <a
-                  href={setLocaleHref('de')}
-                  class={`flex items-center px-3 py-2 text-sm rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 ${
-                    currentLocale === 'de'
-                      ? 'text-emerald-600 dark:text-emerald-400 font-medium'
-                      : 'text-gray-700 dark:text-gray-300'
-                  }`}
-                  data-astro-reload
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  aria-hidden="true"
+                  class="h-7 w-7 rounded-full ring-2 ring-emerald-500/20"
                 >
-                  Deutsch
-                  {currentLocale === 'de' && (
-                    <svg class="ml-auto w-4 h-4 text-emerald-500" fill="currentColor" viewBox="0 0 20 20">
-                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-                    </svg>
-                  )}
-                </a>
-                <a
-                  href={setLocaleHref('en')}
-                  class={`flex items-center px-3 py-2 text-sm rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 ${
-                    currentLocale === 'en'
-                      ? 'text-emerald-600 dark:text-emerald-400 font-medium'
-                      : 'text-gray-700 dark:text-gray-300'
-                  }`}
-                  data-astro-reload
+                  <path d="M10 9a3 3 0 100-6 3 3 0 000 6z" />
+                  <path d="M4 16a6 6 0 1112 0H4z" />
+                </svg>
+                <span class="max-w-[10rem] truncate hidden sm:block">
+                  {currentLocale === 'de' ? 'Anmelden' : 'Login'}
+                </span>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-4 w-4 opacity-70"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
                 >
-                  English
-                  {currentLocale === 'en' && (
-                    <svg class="ml-auto w-4 h-4 text-emerald-500" fill="currentColor" viewBox="0 0 20 20">
-                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-                    </svg>
-                  )}
-                </a>
-              </div>
-
-              <div class="my-2 h-px bg-gray-100 dark:bg-slate-800"></div>
-              <a
-                href={localizePath(currentLocale, '/login')}
-                class="flex items-center gap-2 px-4 py-2 text-sm text-emerald-600 hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-900/20"
-                role="menuitem"
+                  <path
+                    fill-rule="evenodd"
+                    d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+              </button>
+              <div
+                id="user-menu-dropdown"
+                role="menu"
+                aria-labelledby="user-menu-button"
+                class="absolute right-4 top-[4.5rem] w-64 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-gray-200 dark:border-slate-700 py-2 z-50 opacity-0 transform scale-95 transition-all duration-200 pointer-events-none"
               >
-                {currentLocale === 'de' ? 'Anmelden' : 'Login'}
-              </a>
+                <div class="px-4 py-2 text-xs text-gray-500 dark:text-slate-400">Darstellung</div>
+                <div class="px-4 pb-2">
+                  <ThemeToggle />
+                </div>
+
+                <div class="my-2 h-px bg-gray-100 dark:bg-slate-800" />
+                <div class="px-4 py-2 text-xs text-gray-500 dark:text-slate-400">Sprache</div>
+                <div class="px-2 pb-2">
+                  <a
+                    href={setLocaleHref('de')}
+                    class={`flex items-center px-3 py-2 text-sm rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 ${
+                      currentLocale === 'de'
+                        ? 'text-emerald-600 dark:text-emerald-400 font-medium'
+                        : 'text-gray-700 dark:text-gray-300'
+                    }`}
+                    data-astro-reload
+                  >
+                    Deutsch
+                    {currentLocale === 'de' && (
+                      <svg
+                        class="ml-auto w-4 h-4 text-emerald-500"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fill-rule="evenodd"
+                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                          clip-rule="evenodd"
+                        />
+                      </svg>
+                    )}
+                  </a>
+                  <a
+                    href={setLocaleHref('en')}
+                    class={`flex items-center px-3 py-2 text-sm rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 ${
+                      currentLocale === 'en'
+                        ? 'text-emerald-600 dark:text-emerald-400 font-medium'
+                        : 'text-gray-700 dark:text-gray-300'
+                    }`}
+                    data-astro-reload
+                  >
+                    English
+                    {currentLocale === 'en' && (
+                      <svg
+                        class="ml-auto w-4 h-4 text-emerald-500"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fill-rule="evenodd"
+                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                          clip-rule="evenodd"
+                        />
+                      </svg>
+                    )}
+                  </a>
+                </div>
+
+                <div class="my-2 h-px bg-gray-100 dark:bg-slate-800" />
+                <a
+                  href={localizePath(currentLocale, '/login')}
+                  class="flex items-center gap-2 px-4 py-2 text-sm text-emerald-600 hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-900/20"
+                  role="menuitem"
+                >
+                  {currentLocale === 'de' ? 'Anmelden' : 'Login'}
+                </a>
+              </div>
             </div>
-          </div>
-        )}
+          )
+        }
 
         <!-- Language Switcher moved into user dropdown -->
 
@@ -353,58 +424,70 @@ function setLocaleHref(target: 'de' | 'en'): string {
         ))
       }
 
-      {user && (
-        <>
-          <div class="px-3 py-2 border-t border-gray-200 dark:border-gray-700 mt-3 pt-3">
-            <a
-              href={localizePath(currentLocale, '/dashboard')}
-              class="flex items-center gap-3"
-              aria-label="Account"
-            >
-              <img
-                src={user.image || '/assets/svg/logo.svg'}
-                alt="User avatar"
-                class="h-8 w-8 rounded-full ring-2 ring-emerald-500/20"
-                data-avatar-img
-              />
-              <div class="min-w-0">
-                <div class="text-base font-medium text-gray-900 dark:text-white truncate">{user.name || 'Account'}</div>
-                <div class="text-xs text-gray-500 dark:text-gray-400">Account</div>
-              </div>
-            </a>
-          </div>
+      {
+        user && (
+          <>
+            <div class="px-3 py-2 border-t border-gray-200 dark:border-gray-700 mt-3 pt-3">
+              <a
+                href={localizePath(currentLocale, '/dashboard')}
+                class="flex items-center gap-3"
+                aria-label="Account"
+              >
+                <img
+                  src={user.image || '/assets/svg/logo.svg'}
+                  alt="User avatar"
+                  class="h-8 w-8 rounded-full ring-2 ring-emerald-500/20"
+                  data-avatar-img
+                />
+                <div class="min-w-0">
+                  <div class="text-base font-medium text-gray-900 dark:text-white truncate">
+                    {user.name || 'Account'}
+                  </div>
+                  <div class="text-xs text-gray-500 dark:text-gray-400">Account</div>
+                </div>
+              </a>
+            </div>
 
-          <!-- Mobile: Plan & Usage (lazy-loaded on first menu open) -->
-          <div class="px-3 py-2 border-t border-gray-200 dark:border-gray-700">
-            <div class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Plan & Usage</div>
-            <div class="px-1 pb-1 text-base">
-              <div class="flex items-center justify-between">
-                <span class="text-gray-600 dark:text-slate-300">Plan</span>
-                <span id="user-plan-mobile" class="font-medium text-gray-900 dark:text-white">—</span>
+            {/* Mobile: Plan & Usage (lazy-loaded on first menu open) */}
+            <div class="px-3 py-2 border-t border-gray-200 dark:border-gray-700">
+              <div class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Plan & Usage
               </div>
-              <div class="mt-1.5 flex items-center justify-between">
-                <span class="text-gray-600 dark:text-slate-300">Credits</span>
-                <span id="user-credits-mobile" class="font-medium text-gray-900 dark:text-white">—</span>
-              </div>
-              <div class="mt-1.5 flex items-center justify-between">
-                <span class="text-gray-600 dark:text-slate-300">Monthly quota remaining</span>
-                <span id="user-quota-mobile" class="font-medium text-gray-900 dark:text-white">—</span>
+              <div class="px-1 pb-1 text-base">
+                <div class="flex items-center justify-between">
+                  <span class="text-gray-600 dark:text-slate-300">Plan</span>
+                  <span id="user-plan-mobile" class="font-medium text-gray-900 dark:text-white">
+                    —
+                  </span>
+                </div>
+                <div class="mt-1.5 flex items-center justify-between">
+                  <span class="text-gray-600 dark:text-slate-300">Credits</span>
+                  <span id="user-credits-mobile" class="font-medium text-gray-900 dark:text-white">
+                    —
+                  </span>
+                </div>
+                <div class="mt-1.5 flex items-center justify-between">
+                  <span class="text-gray-600 dark:text-slate-300">Monthly quota remaining</span>
+                  <span id="user-quota-mobile" class="font-medium text-gray-900 dark:text-white">
+                    —
+                  </span>
+                </div>
               </div>
             </div>
-          </div>
 
-          <!-- Mobile: Logout -->
-          <div class="px-3 py-2 border-t border-gray-200 dark:border-gray-700">
-            <a
-              href="/api/user/logout"
-              class="block px-3 py-2 text-base font-medium rounded-md text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
-              aria-label="Logout"
-            >
-              Abmelden
-            </a>
-          </div>
-        </>
-      )}
+            {/* Mobile: Logout */}
+            <div class="px-3 py-2 border-t border-gray-200 dark:border-gray-700">
+              <a
+                href="/api/user/logout"
+                class="block px-3 py-2 text-base font-medium rounded-md text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
+                aria-label="Logout"
+              >
+                Abmelden
+              </a>
+            </div>
+          </>
+        )
+      }
 
       <div class="px-3 py-2 border-t border-gray-200 dark:border-gray-700 mt-3 pt-3">
         <div class="flex items-center justify-between">
@@ -512,8 +595,10 @@ function setLocaleHref(target: 'de' | 'en'): string {
                     const creditsDesktop = document.getElementById('user-credits');
                     const quotaDesktop = document.getElementById('user-quota');
                     if (planDesktop && !planDesktop.textContent) planDesktop.textContent = plan;
-                    if (creditsDesktop && !creditsDesktop.textContent) creditsDesktop.textContent = credits;
-                    if (quotaDesktop && !quotaDesktop.textContent) quotaDesktop.textContent = String(remaining);
+                    if (creditsDesktop && !creditsDesktop.textContent)
+                      creditsDesktop.textContent = credits;
+                    if (quotaDesktop && !quotaDesktop.textContent)
+                      quotaDesktop.textContent = String(remaining);
                   }
                 })
                 .catch(() => {})
@@ -663,7 +748,7 @@ function setLocaleHref(target: 'de' | 'en'): string {
           if (!infoLoaded) {
             // Lazy-load plan & credits
             fetch('/api/dashboard/billing-summary')
-              .then((r) => r.ok ? r.json() : Promise.reject(r))
+              .then((r) => (r.ok ? r.json() : Promise.reject(r)))
               .then((json) => {
                 if (json && json.success && json.data) {
                   const planEl = document.getElementById('user-plan');
@@ -672,7 +757,9 @@ function setLocaleHref(target: 'de' | 'en'): string {
                   if (planEl) planEl.textContent = String(json.data.plan ?? '—');
                   if (creditsEl)
                     creditsEl.textContent =
-                      typeof json.data.creditsRemaining === 'number' ? String(json.data.creditsRemaining) : '—';
+                      typeof json.data.creditsRemaining === 'number'
+                        ? String(json.data.creditsRemaining)
+                        : '—';
                   if (quotaEl) {
                     const limit = Number(json.data.monthlyLimit || 0);
                     const used = Number(json.data.monthlyUsed || 0);

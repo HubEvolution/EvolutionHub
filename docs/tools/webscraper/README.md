@@ -7,6 +7,8 @@ codeRefs: 'src/config/webscraper, src/pages/api/webscraper'
 testRefs: 'tests/unit/webscraper, test-suite-v2/src/e2e/tools'
 ---
 
+<!-- markdownlint-disable MD051 -->
+
 # Webscraper Tool
 
 **Scope** — Diese Kategorie dokumentiert das Webscraper-Tool für Content-Extraktion und -Analyse in Evolution Hub. Umfasst API-Endpunkte, Konfiguration und Nutzungsrichtlinien. Zielgruppe sind Entwickler und Power-User. Nicht enthalten: Frontend-UI (→ Frontend-Kategorie) oder allgemeine Scraping-Tools (→ externe Dokumentation).
@@ -14,13 +16,17 @@ testRefs: 'tests/unit/webscraper, test-suite-v2/src/e2e/tools'
 ## Primärdokumente
 
 - **[Webscraper Overview](./webscraper-overview.md)** — **Hauptdokument** für Tool-Architektur und Features
+
 - **[API Documentation](./api.md)** — REST-API für Content-Extraktion
+
 - **[Configuration](./configuration.md)** — Setup und Konfigurationsoptionen
 
 ## Sekundär-/Spezialdokumente
 
 - **[Usage Examples](./usage-examples.md)** — Praktische Anwendungsbeispiele
+
 - **[Rate Limiting](./rate-limiting.md)** — Limits und Quota-Management
+
 - **[Security Guidelines](./security.md)** — Security-Aspekte und Best Practices
 
 ## Hauptfeatures
@@ -28,13 +34,17 @@ testRefs: 'tests/unit/webscraper, test-suite-v2/src/e2e/tools'
 ### Content-Extraktion
 
 - **Strukturierte Daten:** JSON/XML/HTML-Parsing
+
 - **Smart Extraction:** KI-gestützte Inhaltserkennung
+
 - **Multi-Format:** Verschiedene Output-Formate (JSON, CSV, XML)
 
 ### API-Endpunkte
 
 - **POST /api/webscraper/extract** — Haupt-Extraktions-Endpunkt
+
 - **GET /api/webscraper/usage** — Nutzungsstatistiken
+
 - **GET /api/webscraper/jobs/{id}** — Job-Status und Ergebnisse
 
 ## Dokumentation
@@ -42,19 +52,25 @@ testRefs: 'tests/unit/webscraper, test-suite-v2/src/e2e/tools'
 ### Setup & Konfiguration
 
 - **[Environment Setup](./setup.md)** — Umgebungs-Konfiguration
+
 - **[Dependencies](./dependencies.md)** — Erforderliche Services und APIs
+
 - **[Authentication](./auth.md)** — API-Authentifizierung
 
 ### Integration
 
 - **[Frontend Integration](./frontend.md)** — UI-Komponenten und Integration
+
 - **[Backend Integration](./backend.md)** — Server-seitige Integration
+
 - **[Testing](./testing.md)** — Unit- und Integration-Tests
 
 ## Cross-Referenzen
 
 - **[API](../api/)** — Allgemeine API-Dokumentation und Standards
+
 - **[Security](../security/)** — Webscraper-spezifische Security-Richtlinien
+
 - **[Development](../development/)** — Tool-Entwicklung und Testing
 
 ## Ownership & Maintenance
@@ -67,15 +83,21 @@ testRefs: 'tests/unit/webscraper, test-suite-v2/src/e2e/tools'
 ## Standards & Konventionen
 
 - **Rate-Limiting:** 10/min für Standard-User, höher für Enterprise
+
 - **Output-Format:** Strukturiert und validiert
+
 - **Security:** SSRF-Schutz, Rate-Limiting, Input-Validierung
+
 - **Monitoring:** Nutzungsmetriken und Error-Tracking
+
 - **Testing:** Unit-Tests für Parser, Integration-Tests für API
 
 ## Bekannte Lücken
 
 - [TODO] Vollständige Frontend-UI-Dokumentation
+
 - [TODO] Advanced Scraping-Features (JavaScript-Rendering)
+
 - [TODO] Enterprise-Feature-Dokumentation
 
 ## Übersicht
@@ -88,13 +110,18 @@ Automatische Web-Content-Extraktion mit robots.txt Compliance
 
 Das Webscraper-Tool ermöglicht es Nutzern, strukturierte Inhalte von Webseiten automatisch zu extrahieren. Es respektiert robots.txt-Regeln, implementiert Quota-Limits und bietet eine benutzerfreundliche UI.
 
-### Hauptfeatures
+### Hauptfeatures (2)
 
 - ✅ **URL-basierte Extraktion**: Titel, Meta-Daten, Text, Links, Bilder
+
 - ✅ **robots.txt Compliance**: Automatische Prüfung und Einhaltung
+
 - ✅ **Quota-System**: 5 Requests/Tag (Gast), 20 Requests/Tag (User)
+
 - ✅ **Sicherheit**: Rate-Limiting, CSRF-Schutz, Input-Validierung
+
 - ✅ **Internationalisierung**: Deutsch/Englisch
+
 - ✅ **Responsive UI**: Mobile-First Design mit Tailwind CSS
 
 ---
@@ -102,9 +129,13 @@ Das Webscraper-Tool ermöglicht es Nutzern, strukturierte Inhalte von Webseiten 
 ## 📋 Dokumentation
 
 - **[Specification](spec.md)** - Detaillierte Feature-Spezifikation
+
 - **[Roadmap](roadmap.md)** - 14-Wochen Entwicklungsplan (Phasen 1-4)
+
 - **[Guidelines](guidelines.md)** - Entwicklungsrichtlinien für Claude Code
+
 - **[Testing Strategy](testing.md)** - Test-Pyramide und Quality-Metriken
+
 - **[Implementation Complete](IMPLEMENTATION_COMPLETE.md)** - MVP-Status & Deployment-Guide
 
 ---
@@ -114,15 +145,20 @@ Das Webscraper-Tool ermöglicht es Nutzern, strukturierte Inhalte von Webseiten 
 ### Lokal testen
 
 ```bash
+
 # Dependencies installieren
+
 npm install
 
 # Development-Server starten
+
 npm run dev:remote
 
 # Tool aufrufen
+
 open http://127.0.0.1:8787/tools/webscraper/app
-```
+
+```bash
 
 ### API verwenden
 
@@ -157,7 +193,8 @@ Webscraper Tool
     ├── Unit (tests/unit/services/webscraper-service.test.ts)
     ├── Integration (tests/integration/api/webscraper.test.ts)
     └── E2E (test-suite-v2/tests/webscraper.spec.ts)
-```
+
+```text
 
 ---
 
@@ -197,16 +234,20 @@ WEBSCRAPER_MAX_SIZE=5242880 # Max Response-Größe (5MB)
 ### KV-Namespaces
 
 ```toml
+
 # Development
+
 [[env.development.kv_namespaces]]
 binding = "KV_WEBSCRAPER"
 id = "webscraper-dev-local"
 
 # Production
+
 [[kv_namespaces]]
 binding = "KV_WEBSCRAPER"
 id = "webscraper-production"
-```
+
+```text
 
 ---
 
@@ -246,7 +287,8 @@ id = "webscraper-production"
     }
   }
 }
-```
+
+```text
 
 **Response (Error):**
 
@@ -265,25 +307,30 @@ id = "webscraper-production"
 ## 🧪 Testing
 
 ```bash
+
 # Unit-Tests
+
 npm run test:unit:run -- tests/unit/services/webscraper-service.test.ts
 
 # Integration-Tests
+
 npm run test:integration:run -- tests/integration/api/webscraper.test.ts
 
 # E2E-Tests (benötigt laufenden Server)
+
 npm run test:e2e -- webscraper.spec.ts
-```
+
+```text
 
 ---
 
 ## 🐛 Bekannte Limitierungen (MVP)
 
 1. **Kein JavaScript-Rendering** - Nur statisches HTML
-2. **Kein Batch-Processing** - Eine URL pro Request
-3. **Keine KI-Analyse** - Keine Sentiment/Entity-Erkennung
-4. **Kein Monitoring** - Keine geplanten Scraping-Jobs
-5. **Keine Bild-Downloads** - Nur URLs, keine Speicherung
+1. **Kein Batch-Processing** - Eine URL pro Request
+1. **Keine KI-Analyse** - Keine Sentiment/Entity-Erkennung
+1. **Kein Monitoring** - Keine geplanten Scraping-Jobs
+1. **Keine Bild-Downloads** - Nur URLs, keine Speicherung
 
 → Siehe [Roadmap](roadmap.md) für geplante Features in Phase 2-4
 
@@ -294,23 +341,25 @@ npm run test:e2e -- webscraper.spec.ts
 ### Für Entwickler
 
 1. **robots.txt respektieren** - Das Tool lehnt automatisch blockierte URLs ab
-2. **Quotas beachten** - Gäste: 5/Tag, User: 20/Tag
-3. **Error-Handling** - Nutze strukturierte Fehler-Typen
-4. **Testing** - Alle neuen Features müssen getestet sein (≥70% Coverage)
+1. **Quotas beachten** - Gäste: 5/Tag, User: 20/Tag
+1. **Error-Handling** - Nutze strukturierte Fehler-Typen
+1. **Testing** - Alle neuen Features müssen getestet sein (≥70% Coverage)
 
 ### Für Nutzer
 
 1. **Verantwortungsvoller Einsatz** - Keine exzessiven Requests
-2. **Rechtliche Compliance** - Urheberrecht und Datenschutz beachten
-3. **robots.txt** - Wenn blockiert, respektiere die Entscheidung
-4. **Quota-Management** - Bei Limit-Überschreitung warten bis Reset
+1. **Rechtliche Compliance** - Urheberrecht und Datenschutz beachten
+1. **robots.txt** - Wenn blockiert, respektiere die Entscheidung
+1. **Quota-Management** - Bei Limit-Überschreitung warten bis Reset
 
 ---
 
 ## 📞 Support
 
 - **Issues**: GitHub Issues im Evolution Hub Repository
+
 - **Dokumentation**: Siehe [docs/tools/webscraper/](.)
+
 - **Tests**: Siehe [tests/](../../../tests/)
 
 ---
@@ -321,34 +370,43 @@ npm run test:e2e -- webscraper.spec.ts
 
 ---
 
-## 🎯 Überblick
+## 🎯 Überblick (2)
 
 Das Webscraper-Tool ermöglicht es Nutzern, strukturierte Inhalte von Webseiten automatisch zu extrahieren. Es respektiert robots.txt-Regeln, implementiert Quota-Limits und bietet eine benutzerfreundliche UI.
 
-### Hauptfeatures
+### Hauptfeatures (2) (2)
 
 - ✅ **URL-basierte Extraktion**: Titel, Meta-Daten, Text, Links, Bilder
+
 - ✅ **robots.txt Compliance**: Automatische Prüfung und Einhaltung
+
 - ✅ **Quota-System**: 5 Requests/Tag (Gast), 20 Requests/Tag (User)
+
 - ✅ **Sicherheit**: Rate-Limiting, CSRF-Schutz, Input-Validierung
+
 - ✅ **Internationalisierung**: Deutsch/Englisch
+
 - ✅ **Responsive UI**: Mobile-First Design mit Tailwind CSS
 
 ---
 
-## 📋 Dokumentation
+## 📋 Dokumentation (2)
 
 - **[Specification](spec.md)** - Detaillierte Feature-Spezifikation
+
 - **[Roadmap](roadmap.md)** - 14-Wochen Entwicklungsplan (Phasen 1-4)
+
 - **[Guidelines](guidelines.md)** - Entwicklungsrichtlinien für Claude Code
+
 - **[Testing Strategy](testing.md)** - Test-Pyramide und Quality-Metriken
+
 - **[Implementation Complete](IMPLEMENTATION_COMPLETE.md)** - MVP-Status & Deployment-Guide
 
 ---
 
-## 🚀 Quick Start
+## 🚀 Quick Start (2)
 
-### Lokal testen
+### Lokal testen (2)
 
 ```bash
 # Dependencies installieren
@@ -361,19 +419,22 @@ npm run dev:remote
 open http://127.0.0.1:8787/tools/webscraper/app
 ```
 
-### API verwenden
+### API verwenden (2)
 
 ```bash
+
 # URL scrapen
+
 curl -X POST http://127.0.0.1:8787/api/webscraper/extract \
   -H "Content-Type: application/json" \
   -H "X-CSRF-Token: YOUR_TOKEN" \
   -d '{"url": "https://example.com"}'
-```
+
+```text
 
 ---
 
-## 🏗 Architektur
+## 🏗 Architektur (2)
 
 ```text
 Webscraper Tool
@@ -398,7 +459,7 @@ Webscraper Tool
 
 ---
 
-## 📊 Status
+## 📊 Status (2)
 
 | Component         | Status      | Coverage |
 | ----------------- | ----------- | -------- |
@@ -412,26 +473,32 @@ Webscraper Tool
 
 ---
 
-## 🔧 Konfiguration
+## 🔧 Konfiguration (2)
 
-### Environment Variables
+### Environment Variables (2)
 
 ```bash
+
 # Feature-Flag (default: true)
+
 PUBLIC_WEBSCRAPER_V1=true
 
 # Quotas
+
 WEBSCRAPER_GUEST_LIMIT=5    # Requests/Tag für Gäste
 WEBSCRAPER_USER_LIMIT=20    # Requests/Tag für eingeloggte User
 
 # Timeouts
+
 WEBSCRAPER_TIMEOUT=10000    # Fetch-Timeout in ms
 
 # Limits
-WEBSCRAPER_MAX_SIZE=5242880 # Max Response-Größe (5MB)
-```
 
-### KV-Namespaces
+WEBSCRAPER_MAX_SIZE=5242880 # Max Response-Größe (5MB)
+
+```text
+
+### KV-Namespaces (2)
 
 ```toml
 # Development
@@ -447,9 +514,9 @@ id = "webscraper-production"
 
 ---
 
-## 📖 API-Referenz
+## 📖 API-Referenz (2)
 
-### POST /api/webscraper/extract
+### POST /api/webscraper/extract (2)
 
 **Request:**
 
@@ -457,7 +524,8 @@ id = "webscraper-production"
 {
   "url": "https://example.com"
 }
-```
+
+```json
 
 **Response (Success):**
 
@@ -495,11 +563,12 @@ id = "webscraper-production"
     "message": "Error description"
   }
 }
-```
+
+```bash
 
 ---
 
-## 🧪 Testing
+## 🧪 Testing (2)
 
 ```bash
 # Unit-Tests
@@ -514,40 +583,42 @@ npm run test:e2e -- webscraper.spec.ts
 
 ---
 
-## 🐛 Bekannte Limitierungen (MVP)
+## 🐛 Bekannte Limitierungen (MVP) (2)
 
 1. **Kein JavaScript-Rendering** - Nur statisches HTML
-2. **Kein Batch-Processing** - Eine URL pro Request
-3. **Keine KI-Analyse** - Keine Sentiment/Entity-Erkennung
-4. **Kein Monitoring** - Keine geplanten Scraping-Jobs
-5. **Keine Bild-Downloads** - Nur URLs, keine Speicherung
+1. **Kein Batch-Processing** - Eine URL pro Request
+1. **Keine KI-Analyse** - Keine Sentiment/Entity-Erkennung
+1. **Kein Monitoring** - Keine geplanten Scraping-Jobs
+1. **Keine Bild-Downloads** - Nur URLs, keine Speicherung
 
 → Siehe [Roadmap](roadmap.md) für geplante Features in Phase 2-4
 
 ---
 
-## 🎓 Best Practices
+## 🎓 Best Practices (2)
 
-### Für Entwickler
+### Für Entwickler (2)
 
 1. **robots.txt respektieren** - Das Tool lehnt automatisch blockierte URLs ab
-2. **Quotas beachten** - Gäste: 5/Tag, User: 20/Tag
-3. **Error-Handling** - Nutze strukturierte Fehler-Typen
-4. **Testing** - Alle neuen Features müssen getestet sein (≥70% Coverage)
+1. **Quotas beachten** - Gäste: 5/Tag, User: 20/Tag
+1. **Error-Handling** - Nutze strukturierte Fehler-Typen
+1. **Testing** - Alle neuen Features müssen getestet sein (≥70% Coverage)
 
-### Für Nutzer
+### Für Nutzer (2)
 
 1. **Verantwortungsvoller Einsatz** - Keine exzessiven Requests
-2. **Rechtliche Compliance** - Urheberrecht und Datenschutz beachten
-3. **robots.txt** - Wenn blockiert, respektiere die Entscheidung
-4. **Quota-Management** - Bei Limit-Überschreitung warten bis Reset
+1. **Rechtliche Compliance** - Urheberrecht und Datenschutz beachten
+1. **robots.txt** - Wenn blockiert, respektiere die Entscheidung
+1. **Quota-Management** - Bei Limit-Überschreitung warten bis Reset
 
 ---
 
-## 📞 Support
+## 📞 Support (2)
 
 - **Issues**: GitHub Issues im Evolution Hub Repository
+
 - **Dokumentation**: Siehe [docs/tools/webscraper/](.)
+
 - **Tests**: Siehe [tests/](../../../tests/)
 
 ---

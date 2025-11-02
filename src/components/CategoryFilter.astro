@@ -94,7 +94,7 @@ const nonce = (Astro.locals as any).cspNonce;
             'inline-flex items-center rounded-full px-3 py-1 text-sm font-medium',
             !selectedCategory
               ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400'
-              : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600',
+              : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-800/60 dark:text-gray-300 dark:hover:bg-gray-700',
           ].join(' ')}
         >
           Alle
@@ -110,7 +110,7 @@ const nonce = (Astro.locals as any).cspNonce;
             'inline-flex items-center rounded-full px-3 py-1 text-sm font-medium',
             selectedCategory === name
               ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400'
-              : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600',
+              : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-800/60 dark:text-gray-300 dark:hover:bg-gray-700',
           ].join(' ')}
         >
           {name}

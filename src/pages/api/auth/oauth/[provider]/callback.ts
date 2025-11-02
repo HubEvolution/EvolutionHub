@@ -78,7 +78,8 @@ const getHandler: ApiHandler = async (context: APIContext) => {
   const tokenType = url.searchParams.get('stytch_token_type') || '';
   const token = url.searchParams.get('token') || '';
   const devEnv =
-    ((context.locals as any)?.runtime?.env?.ENVIRONMENT || 'development') === 'development';
+    ((context.locals as unknown as { runtime?: { env?: Record<string, string> } })?.runtime?.env
+      ?.ENVIRONMENT || 'development') === 'development';
   const startedAt = Date.now();
   // Server-Timing instrumentation
   const t0 = startedAt;
@@ -105,7 +106,10 @@ const getHandler: ApiHandler = async (context: APIContext) => {
     const authRes = await stytchOAuthAuthenticate(context, token);
     const emails = authRes.user?.emails || [];
     stytchEmail = emails.find((e) => e.verified)?.email || emails[0]?.email;
-    stytchRequestId = (authRes as any)?.request_id as string | undefined;
+    {
+      const rid = (authRes as { request_id?: string } | null)?.request_id;
+      if (typeof rid === 'string') stytchRequestId = rid;
+    }
     durAuth = Date.now() - _tAuth;
     if (devEnv) {
       console.log('[auth][oauth][callback] provider accepted', {
@@ -122,9 +126,9 @@ const getHandler: ApiHandler = async (context: APIContext) => {
   }
 
   // Ensure user exists and is verified
-  const env = (context.locals as unknown as { runtime?: { env?: Record<string, any> } })?.runtime
-    ?.env;
-  const db: D1Database | undefined = env?.DB as unknown as D1Database;
+  const env = (context.locals as unknown as { runtime?: { env?: Record<string, unknown> } })
+    ?.runtime?.env;
+  const db: D1Database | undefined = (env?.DB as unknown as D1Database) || undefined;
   if (!db) {
     return createSecureRedirect('/en/login?magic_error=ServerConfig');
   }

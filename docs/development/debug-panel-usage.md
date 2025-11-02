@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD051 -->
+
 # Debug Panel - Benutzerhandbuch
 
 Das Evolution Hub Debug Panel bietet Live-Log-Streaming für optimale Entwicklungserfahrung.
@@ -7,12 +9,16 @@ Das Evolution Hub Debug Panel bietet Live-Log-Streaming für optimale Entwicklun
 ### URLs
 
 ```bash
+
 # Astro Development
+
 http://localhost:4322/debug
 
 # Wrangler Development  
+
 http://localhost:8787/debug
-```
+
+```text
 
 ## Interface-Überblick
 
@@ -32,19 +38,25 @@ Connected. Waiting for logs...
 ### Badges
 
 - **🟢 WEBSOCKET**: Real-time (Astro Dev) - <10ms Latenz
+
 - **🔵 SSE**: Near real-time (Wrangler Dev) - 100-500ms Latenz
+
 - **🟠 POLLING**: Fallback - 1-5s Latenz
 
 ### Live-Indicator
 
 - **● (pulsierend)**: Aktive Verbindung
+
 - **○ (statisch)**: Getrennt oder wird aufgebaut
 
 ## Log-Levels
 
 - **[DEBUG]** (grau): Entwicklungsdetails
+
 - **[INFO]** (blau): Normale Operationen
+
 - **[WARN]** (orange): Warnungen
+
 - **[ERROR]** (rot): Kritische Fehler
 
 ## Praktisches Debugging
@@ -56,7 +68,8 @@ Connected. Waiting for logs...
 06:02:21  [INFO]   Authentication successful: user-123
 06:02:21  [INFO]   Session created
 06:02:21  [INFO]   Request completed: 187ms
-```
+
+```text
 
 ### Security-Events
 
@@ -73,16 +86,21 @@ Connected. Waiting for logs...
 **Lösung:**
 
 ```bash
+
 # 1. Server-Status prüfen
+
 npm run dev          # Astro
 npm run dev:wrangler # Wrangler
 
 # 2. Port prüfen (Astro)
+
 netstat -an | grep 8081
 
 # 3. Browser-Cache leeren
+
 Ctrl+Shift+R
-```
+
+```bash
 
 ### Problem: Connection-Fehler
 
@@ -110,7 +128,8 @@ log('info', 'User action completed', {
 
 // ❌ Schlecht  
 console.log(`User ${user.id} updated profile`);
-```
+
+```text
 
 ### Security-bewusst
 
@@ -128,16 +147,23 @@ log('info', 'Reset', { password: newPassword }); // Niemals!
 ## Quick Reference
 
 ```bash
+
 # Integration
+
 import { log } from '@/server/utils/logger';
 log('info', 'Message', context);
 
 # Features
+
 - Auto-Scroll zu neuen Logs
+
 - Max 500 Entries (Memory-Management)
+
 - Real-time Updates ohne Reload
+
 - Automatic Connection-Recovery
-```
+
+```bash
 
 ### Lokale E2E mit Debug-Login (Kurzüberblick)
 
@@ -151,7 +177,8 @@ npm run dev:e2e
 
 ```bash
 npm run test:e2e:chromium -- tests/e2e/specs/en-login-auth-redirect.spec.ts --workers=1
-```
+
+```bash
 
 1. CSRF-Hinweis (wichtig für POST in Tests):
 

@@ -61,11 +61,25 @@ const adminCommentsStats = { total: 0, pending: 0, approved: 0, rejected: 0, fla
           <form id="lookup-form" class="space-y-3" onsubmit="return false;">
             <label class="block text-sm text-gray-300">
               E-Mail oder User-ID
-              <input id="lookup-input" type="text" class="mt-1 w-full rounded-md border border-white/10 bg-white/5 p-2 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="admin@hub-evolution.com oder user_id" />
+              <input
+                id="lookup-input"
+                type="text"
+                class="mt-1 w-full rounded-md border border-white/10 bg-white/5 p-2 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                placeholder="admin@hub-evolution.com oder user_id"
+              />
             </label>
             <div class="flex gap-2">
-              <button id="lookup-btn" type="button" class="rounded-md bg-emerald-600 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-700">Suchen</button>
-              <button id="lookup-clear" class="rounded-md border border-white/10 px-3 py-2 text-sm text-white/80 hover:bg-white/5" type="button">Zurücksetzen</button>
+              <button
+                id="lookup-btn"
+                type="button"
+                class="rounded-md bg-emerald-600 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
+                >Suchen</button
+              >
+              <button
+                id="lookup-clear"
+                class="rounded-md border border-white/10 px-3 py-2 text-sm text-white/80 hover:bg-white/5"
+                type="button">Zurücksetzen</button
+              >
             </div>
           </form>
           <div id="lookup-result" class="mt-4 hidden">
@@ -77,74 +91,208 @@ const adminCommentsStats = { total: 0, pending: 0, approved: 0, rejected: 0, fla
               <div><span class="text-white/50">Credits:</span> <span id="lr-credits"></span></div>
               <div><span class="text-white/50">Subscription:</span> <span id="lr-sub"></span></div>
               <div class="mt-2 flex flex-wrap items-center gap-2">
-                <span class="text-white/50">Last seen:</span> <span id="lr-last-seen"></span>
-                <span class="text-white/50">• IP:</span> <span id="lr-last-ip"></span>
-                <button id="lr-ip-geo" class="rounded-md border border-white/10 px-2 py-1 text-xs text-white/80 hover:bg-white/5" type="button">Ort ermitteln</button>
+                <span class="text-white/50">Last seen:</span>
+                <span id="lr-last-seen"></span>
+                <span class="text-white/50">• IP:</span>
+                <span id="lr-last-ip"></span>
+                <button
+                  id="lr-ip-geo"
+                  class="rounded-md border border-white/10 px-2 py-1 text-xs text-white/80 hover:bg-white/5"
+                  type="button">Ort ermitteln</button
+                >
                 <span id="lr-ip-geo-out" class="text-white/60"></span>
               </div>
               <div class="mt-2">
-                <button id="lr-apply-userid" class="rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700" type="button">ID in Credits übernehmen</button>
+                <button
+                  id="lr-apply-userid"
+                  class="rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700"
+                  type="button">ID in Credits übernehmen</button
+                >
               </div>
             </div>
           </div>
           <div id="lookup-error" class="mt-3 hidden text-sm text-red-300"></div>
         </Card>
 
-        <!-- Credits & Plan -->
-        <Card as="section" className="p-6">
+        <!-- Credits & Plan (merged with Plan ändern; spans two columns) -->
+        <Card as="section" className="p-6 md:col-span-2">
           <h2 class="mb-4 text-xl font-semibold text-gray-900 dark:text-white">Credits & Plan</h2>
-          <form id="grant-form" class="space-y-3" onsubmit="return false;">
-            <label class="block text-sm text-gray-300">
-              E-Mail
-              <input id="grant-email" type="email" class="mt-1 w-full rounded-md border border-white/10 bg-white/5 p-2 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="admin@hub-evolution.com" />
-            </label>
-            <label class="block text-sm text-gray-300">
-              Betrag (Credits)
-              <input id="grant-amount" type="number" min="1" step="1" value="1000" class="mt-1 w-full rounded-md border border-white/10 bg-white/5 p-2 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-emerald-500" />
-            </label>
-            <label class="flex items-center gap-2 text-sm text-white/80">
-              <input id="grant-strict" type="checkbox" checked class="h-4 w-4 rounded border-white/20 bg-white/5" />
-              <span>Strikt: nicht mehr abziehen als vorhanden</span>
-            </label>
-            <div class="flex gap-2">
-              <button id="grant-btn" type="button" class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-700">Gutschreiben</button>
-              <button id="grant-deduct" type="button" class="rounded-md bg-rose-600 px-3 py-2 text-sm font-semibold text-white hover:bg-rose-700">Abziehen</button>
-              <button id="grant-fill-self" type="button" class="rounded-md border border-white/10 px-3 py-2 text-sm text-white/80 hover:bg-white/5">Meine E‑Mail einsetzen</button>
-              <span class="text-xs text-white/60">Erfordert Admin & aktives INTERNAL_CREDIT_GRANT</span>
+          <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <!-- Credits -->
+            <div class="md:pr-6">
+              <h3 class="mb-2 text-lg font-medium text-white/90">Credits</h3>
+              <form id="grant-form" class="space-y-3" onsubmit="return false;">
+                <label class="block text-sm text-gray-300">
+                  E-Mail
+                  <input
+                    id="grant-email"
+                    type="email"
+                    class="mt-1 w-full rounded-md border border-white/10 bg-white/5 p-2 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    placeholder="admin@hub-evolution.com"
+                  />
+                </label>
+                <label class="block text-sm text-gray-300">
+                  Betrag (Credits)
+                  <input
+                    id="grant-amount"
+                    type="number"
+                    min="1"
+                    step="1"
+                    value="1000"
+                    class="mt-1 w-full rounded-md border border-white/10 bg-white/5 p-2 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  />
+                </label>
+                <label class="flex items-center gap-2 text-sm text-white/80">
+                  <input
+                    id="grant-strict"
+                    type="checkbox"
+                    checked
+                    class="h-4 w-4 rounded border-white/20 bg-white/5"
+                  />
+                  <span>Strikt: nicht mehr abziehen als vorhanden</span>
+                </label>
+                <div class="flex flex-wrap items-center gap-2">
+                  <button
+                    id="grant-btn"
+                    type="button"
+                    class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-700"
+                    >Gutschreiben</button
+                  >
+                  <button
+                    id="grant-deduct"
+                    type="button"
+                    class="rounded-md bg-rose-600 px-3 py-2 text-sm font-semibold text-white hover:bg-rose-700"
+                    >Abziehen</button
+                  >
+                  <button
+                    id="grant-fill-self"
+                    type="button"
+                    class="rounded-md border border-white/10 px-3 py-2 text-sm text-white/80 hover:bg-white/5"
+                    >Meine E‑Mail einsetzen</button
+                  >
+                  <span class="text-xs text-white/60"
+                    >Erfordert Admin & aktives INTERNAL_CREDIT_GRANT</span
+                  >
+                </div>
+              </form>
+              <div id="grant-success" class="mt-3 hidden text-sm text-emerald-300"></div>
+              <div id="grant-error" class="mt-3 hidden text-sm text-red-300"></div>
             </div>
-          </form>
-          <div id="grant-success" class="mt-3 hidden text-sm text-emerald-300"></div>
-          <div id="grant-error" class="mt-3 hidden text-sm text-red-300"></div>
+
+            <!-- Plan ändern -->
+            <div class="md:border-l md:border-white/10 md:pl-6">
+              <h3 class="mb-2 text-lg font-medium text-white/90">Plan ändern</h3>
+              <form id="plan-form" class="space-y-3" onsubmit="return false;">
+                <label class="block text-sm text-gray-300">
+                  E‑Mail oder User‑ID
+                  <input
+                    id="plan-target"
+                    type="text"
+                    class="mt-1 w-full rounded-md border border-white/10 bg-white/5 p-2 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    placeholder="email@example.com oder user_id"
+                  />
+                </label>
+                <label class="block text-sm text-gray-300">
+                  Neuer Plan
+                  <select
+                    id="plan-select"
+                    class="mt-1 w-full rounded-md border border-white/10 bg-white/5 p-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  >
+                    <option value="free">free</option>
+                    <option value="pro">pro</option>
+                    <option value="premium">premium</option>
+                    <option value="enterprise">enterprise</option>
+                  </select>
+                </label>
+                <label class="block text-sm text-gray-300">
+                  Grund (optional)
+                  <input
+                    id="plan-reason"
+                    type="text"
+                    class="mt-1 w-full rounded-md border border-white/10 bg-white/5 p-2 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    placeholder="warum wird der Plan gesetzt?"
+                  />
+                </label>
+                <div class="flex flex-wrap items-center gap-2">
+                  <button
+                    id="plan-set-btn"
+                    type="button"
+                    class="rounded-md bg-emerald-600 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
+                    >Plan setzen</button
+                  >
+                  <span class="text-xs text-white/60"
+                    >Nur für Admins. Achtung: Stripe‑Webhooks können Plan später überschreiben.</span
+                  >
+                </div>
+              </form>
+              <div id="plan-success" class="mt-3 hidden text-sm text-emerald-300"></div>
+              <div id="plan-error" class="mt-3 hidden text-sm text-red-300"></div>
+            </div>
+          </div>
         </Card>
 
         <!-- System Health -->
         <Card as="section" className="p-6">
           <h2 class="mb-4 text-xl font-semibold text-gray-900 dark:text-white">System Health</h2>
           <div class="flex items-center gap-3">
-            <button id="health-btn" type="button" class="rounded-md bg-teal-600 px-3 py-2 text-sm font-semibold text-white hover:bg-teal-700">/api/health prüfen</button>
+            <button
+              id="health-btn"
+              type="button"
+              class="rounded-md bg-teal-600 px-3 py-2 text-sm font-semibold text-white hover:bg-teal-700"
+              >/api/health prüfen</button
+            >
             <div id="health-status" class="text-sm text-white/80"></div>
           </div>
         </Card>
 
-        <!-- Live‑Metriken -->
-        <Card as="section" className="p-6">
-          <h2 class="mb-4 text-xl font-semibold text-gray-900 dark:text-white">Live‑Metriken</h2>
-          <div class="grid grid-cols-2 gap-4 text-sm text-white/80 md:grid-cols-4">
-            <div class="rounded-md border border-white/10 p-3">
-              <div class="text-white/50">Aktive Sessions</div>
-              <div id="m-active-sessions" class="text-xl font-semibold">–</div>
+        <!-- Live‑Metriken + Traffic (24h) merged; spans two columns) -->
+        <Card as="section" className="p-6 md:col-span-2">
+          <h2 class="mb-4 text-xl font-semibold text-gray-900 dark:text-white">
+            Live‑Metriken & Traffic (24h)
+          </h2>
+          <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <!-- Live‑Metriken -->
+            <div class="md:pr-6">
+              <h3 class="mb-2 text-lg font-medium text-white/90">Live‑Metriken</h3>
+              <div class="grid grid-cols-2 gap-4 text-sm text-white/80 md:grid-cols-2">
+                <div class="rounded-md border border-white/10 p-3">
+                  <div class="text-white/50">Aktive Sessions</div>
+                  <div id="m-active-sessions" class="text-xl font-semibold">–</div>
+                </div>
+                <div class="rounded-md border border-white/10 p-3">
+                  <div class="text-white/50">Aktive User</div>
+                  <div id="m-active-users" class="text-xl font-semibold">–</div>
+                </div>
+                <div class="rounded-md border border-white/10 p-3">
+                  <div class="text-white/50">User gesamt</div>
+                  <div id="m-users-total" class="text-xl font-semibold">–</div>
+                </div>
+                <div class="rounded-md border border-white/10 p-3">
+                  <div class="text-white/50">Neu (24h)</div>
+                  <div id="m-users-new24h" class="text-xl font-semibold">–</div>
+                </div>
+              </div>
             </div>
-            <div class="rounded-md border border-white/10 p-3">
-              <div class="text-white/50">Aktive User</div>
-              <div id="m-active-users" class="text-xl font-semibold">–</div>
-            </div>
-            <div class="rounded-md border border-white/10 p-3">
-              <div class="text-white/50">User gesamt</div>
-              <div id="m-users-total" class="text-xl font-semibold">–</div>
-            </div>
-            <div class="rounded-md border border-white/10 p-3">
-              <div class="text-white/50">Neu (24h)</div>
-              <div id="m-users-new24h" class="text-xl font-semibold">–</div>
+
+            <!-- Traffic (24h) -->
+            <div class="md:border-l md:border-white/10 md:pl-6">
+              <h3 class="mb-2 text-lg font-medium text-white/90">Traffic (24h)</h3>
+              <div class="grid grid-cols-2 gap-4 text-sm text-white/80">
+                <div class="rounded-md border border-white/10 p-3">
+                  <div class="text-white/50">Pageviews</div>
+                  <div id="traffic-pageviews" class="text-xl font-semibold">–</div>
+                </div>
+                <div class="rounded-md border border-white/10 p-3">
+                  <div class="text-white/50">Unique Visitors</div>
+                  <div id="traffic-visits" class="text-xl font-semibold">–</div>
+                </div>
+              </div>
+              <div class="mt-3">
+                <svg
+                  id="traffic-sparkline"
+                  viewBox="0 0 200 36"
+                  class="h-9 w-full text-emerald-400/90"></svg>
+              </div>
             </div>
           </div>
         </Card>
@@ -156,18 +304,32 @@ const adminCommentsStats = { total: 0, pending: 0, approved: 0, rejected: 0, fla
             {
               adminStatus?.success && adminStatus?.data ? (
                 <div class="grid grid-cols-1 gap-3 text-sm text-white/80 sm:grid-cols-2">
-                  <div><span class="text-white/50">User ID:</span> {adminStatus.data.user.id}</div>
-                  <div><span class="text-white/50">E‑Mail:</span> {adminStatus.data.user.email}</div>
-                  <div><span class="text-white/50">Plan:</span> {adminStatus.data.plan}</div>
-                  <div><span class="text-white/50">Credits:</span> {adminStatus.data.credits}</div>
+                  <div>
+                    <span class="text-white/50">User ID:</span> {adminStatus.data.user.id}
+                  </div>
+                  <div>
+                    <span class="text-white/50">E‑Mail:</span> {adminStatus.data.user.email}
+                  </div>
+                  <div>
+                    <span class="text-white/50">Plan:</span> {adminStatus.data.plan}
+                  </div>
+                  <div>
+                    <span class="text-white/50">Credits:</span> {adminStatus.data.credits}
+                  </div>
                   <div class="sm:col-span-2">
                     <div class="text-white/50 mb-1">Letzte Subscriptions</div>
                     <ul class="space-y-1">
-                      {adminStatus.data.subscriptions.slice(0,3).map((s) => (
+                      {adminStatus.data.subscriptions.slice(0, 3).map((s) => (
                         <li>
                           <span class="text-white/70">{s.plan}</span>
                           <span class="text-white/40"> • {s.status}</span>
-                          <span class="text-white/40"> • Ende: {s.current_period_end ? new Date(s.current_period_end * 1000).toLocaleString() : '—'}</span>
+                          <span class="text-white/40">
+                            {' '}
+                            • Ende:{' '}
+                            {s.current_period_end
+                              ? new Date(s.current_period_end * 1000).toLocaleString()
+                              : '—'}
+                          </span>
                         </li>
                       ))}
                     </ul>
@@ -184,10 +346,18 @@ const adminCommentsStats = { total: 0, pending: 0, approved: 0, rejected: 0, fla
         <Card as="section" className="p-6">
           <h2 class="mb-4 text-xl font-semibold text-gray-900 dark:text-white">Audit Logs</h2>
           <div class="flex items-center gap-3">
-            <button id="audit-load" type="button" class="rounded-md bg-sky-600 px-3 py-2 text-sm font-semibold text-white hover:bg-sky-700">Letzte 10 laden</button>
+            <button
+              id="audit-load"
+              type="button"
+              class="rounded-md bg-sky-600 px-3 py-2 text-sm font-semibold text-white hover:bg-sky-700"
+              >Letzte 10 laden</button
+            >
             <label class="text-sm text-white/70 hidden">
               Typ
-              <select id="audit-type" class="rounded-md border border-white/10 bg-white/5 px-2 py-1 text-white/90">
+              <select
+                id="audit-type"
+                class="rounded-md border border-white/10 bg-white/5 px-2 py-1 text-white/90"
+              >
                 <option value="">Alle</option>
                 <option value="API_ACCESS">API_ACCESS</option>
                 <option value="ADMIN_ACTION">ADMIN_ACTION</option>
@@ -196,7 +366,8 @@ const adminCommentsStats = { total: 0, pending: 0, approved: 0, rejected: 0, fla
             </label>
           </div>
           <div id="audit-error" class="mt-3 hidden text-sm text-red-300"></div>
-          <div id="audit-list" class="mt-4 max-h-[260px] overflow-y-auto text-sm text-white/80"></div>
+          <div id="audit-list" class="mt-4 max-h-[260px] overflow-y-auto text-sm text-white/80">
+          </div>
         </Card>
 
         <!-- Sessions Management -->
@@ -205,12 +376,37 @@ const adminCommentsStats = { total: 0, pending: 0, approved: 0, rejected: 0, fla
           <div class="flex flex-wrap items-end gap-3">
             <label class="block text-sm text-gray-300">
               E‑Mail oder User‑ID
-              <input id="cu-userid" type="text" class="mt-1 w-full rounded-md border border-white/10 bg-white/5 p-2 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="user_id oder email@example.com" />
+              <input
+                id="cu-userid"
+                type="text"
+                class="mt-1 w-full rounded-md border border-white/10 bg-white/5 p-2 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                placeholder="user_id oder email@example.com"
+              />
             </label>
-            <button id="cu-balance" type="button" class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-700">Balance laden</button>
-            <button id="cu-packs" type="button" class="rounded-md bg-sky-600 px-3 py-2 text-sm font-semibold text-white hover:bg-sky-700">Packs laden</button>
-            <button id="cu-copy-balance" type="button" class="rounded-md border border-white/10 px-3 py-2 text-sm text-white/80 hover:bg-white/5">Copy cURL Balance</button>
-            <button id="cu-copy-packs" type="button" class="rounded-md border border-white/10 px-3 py-2 text-sm text-white/80 hover:bg-white/5">Copy cURL Packs</button>
+            <button
+              id="cu-balance"
+              type="button"
+              class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-700"
+              >Balance laden</button
+            >
+            <button
+              id="cu-packs"
+              type="button"
+              class="rounded-md bg-sky-600 px-3 py-2 text-sm font-semibold text-white hover:bg-sky-700"
+              >Packs laden</button
+            >
+            <button
+              id="cu-copy-balance"
+              type="button"
+              class="rounded-md border border-white/10 px-3 py-2 text-sm text-white/80 hover:bg-white/5"
+              >Copy cURL Balance</button
+            >
+            <button
+              id="cu-copy-packs"
+              type="button"
+              class="rounded-md border border-white/10 px-3 py-2 text-sm text-white/80 hover:bg-white/5"
+              >Copy cURL Packs</button
+            >
           </div>
           <div id="cu-error" class="mt-3 hidden text-sm text-red-300"></div>
           <div class="mt-4 text-sm text-white/80">
@@ -220,19 +416,31 @@ const adminCommentsStats = { total: 0, pending: 0, approved: 0, rejected: 0, fla
         </Card>
 
         <!-- Kommentar-Moderation (embedded) -->
-        <Card as="section" className="p-6">
-          <h2 class="mb-4 text-xl font-semibold text-gray-900 dark:text-white">Kommentar‑Moderation</h2>
+        <Card as="section" className="p-6 md:col-span-2">
+          <h2 class="mb-4 text-xl font-semibold text-gray-900 dark:text-white">
+            Kommentar‑Moderation
+          </h2>
           <div class="mb-3 text-sm text-white/70">
-            <span class="mr-3">Total: <span id="cstat-total">{adminCommentsStats.total}</span></span>
-            <span class="mr-3">Pending: <span id="cstat-pending">{adminCommentsStats.pending}</span></span>
-            <span class="mr-3">Approved: <span id="cstat-approved">{adminCommentsStats.approved}</span></span>
-            <span class="mr-3">Rejected: <span id="cstat-rejected">{adminCommentsStats.rejected}</span></span>
+            <span class="mr-3">Total: <span id="cstat-total">{adminCommentsStats.total}</span></span
+            >
+            <span class="mr-3"
+              >Pending: <span id="cstat-pending">{adminCommentsStats.pending}</span></span
+            >
+            <span class="mr-3"
+              >Approved: <span id="cstat-approved">{adminCommentsStats.approved}</span></span
+            >
+            <span class="mr-3"
+              >Rejected: <span id="cstat-rejected">{adminCommentsStats.rejected}</span></span
+            >
             <span>Flagged: <span id="cstat-flagged">{adminCommentsStats.flagged}</span></span>
           </div>
           <div class="mb-3 flex items-center gap-3">
             <label class="text-sm text-white/70 flex items-center gap-2">
               Status
-              <select id="c-status" class="rounded-md border border-white/10 bg-white/5 px-2 py-1 text-white/90">
+              <select
+                id="c-status"
+                class="rounded-md border border-white/10 bg-white/5 px-2 py-1 text-white/90"
+              >
                 <option value="all">Alle</option>
                 <option value="pending">Pending</option>
                 <option value="approved">Approved</option>
@@ -241,9 +449,17 @@ const adminCommentsStats = { total: 0, pending: 0, approved: 0, rejected: 0, fla
               </select>
             </label>
             <div class="ml-auto flex items-center gap-2">
-              <button id="c-prev" class="rounded-md border border-white/10 px-2 py-1 text-sm text-white/80 hover:bg-white/5" type="button">Zurück</button>
+              <button
+                id="c-prev"
+                class="rounded-md border border-white/10 px-2 py-1 text-sm text-white/80 hover:bg-white/5"
+                type="button">Zurück</button
+              >
               <span id="c-page" class="text-sm text-white/60">–</span>
-              <button id="c-next" class="rounded-md border border-white/10 px-2 py-1 text-sm text-white/80 hover:bg-white/5" type="button">Weiter</button>
+              <button
+                id="c-next"
+                class="rounded-md border border-white/10 px-2 py-1 text-sm text-white/80 hover:bg-white/5"
+                type="button">Weiter</button
+              >
             </div>
           </div>
           <div class="overflow-x-auto max-h-[520px] overflow-y-auto">
@@ -259,16 +475,22 @@ const adminCommentsStats = { total: 0, pending: 0, approved: 0, rejected: 0, fla
                 </tr>
               </thead>
               <tbody id="comments-tbody">
-                {adminCommentsList.map((c) => (
-                  <tr class="border-t border-white/10">
-                    <td class="px-2 py-1"><input type="checkbox" class="comment-select" data-comment-id={c.id} /></td>
-                    <td class="px-2 py-1 whitespace-nowrap">{c.id}</td>
-                    <td class="px-2 py-1">{c.author?.email || '—'}</td>
-                    <td class="px-2 py-1">{c.entityType}:{c.entityId}</td>
-                    <td class="px-2 py-1">{c.status}</td>
-                    <td class="px-2 py-1 whitespace-nowrap">{c.createdAt}</td>
-                  </tr>
-                ))}
+                {
+                  adminCommentsList.map((c) => (
+                    <tr class="border-t border-white/10">
+                      <td class="px-2 py-1">
+                        <input type="checkbox" class="comment-select" data-comment-id={c.id} />
+                      </td>
+                      <td class="px-2 py-1 whitespace-nowrap">{c.id}</td>
+                      <td class="px-2 py-1">{c.author?.email || '—'}</td>
+                      <td class="px-2 py-1">
+                        {c.entityType}:{c.entityId}
+                      </td>
+                      <td class="px-2 py-1">{c.status}</td>
+                      <td class="px-2 py-1 whitespace-nowrap">{c.createdAt}</td>
+                    </tr>
+                  ))
+                }
               </tbody>
             </table>
             <div class="mt-3">

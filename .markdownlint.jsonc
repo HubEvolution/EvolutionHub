@@ -13,5 +13,7 @@
   "MD032": true,
 
   // Allow duplicate headings only if they are not siblings (different sections)
-  "MD024": { "siblings_only": true }
+  "MD024": { "siblings_only": true },
+  "MD051": true,
+  "MD036": true
 }

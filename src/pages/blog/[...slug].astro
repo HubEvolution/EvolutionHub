@@ -163,12 +163,12 @@ export async function getStaticPaths() {
   section={data.category}
   tags={data.tags}
 >
-  <article class="bg-white dark:bg-gray-900 py-12 sm:py-16">
+  <article class="bg-white dark:bg-gray-900 py-12 sm:py-16" data-slug={slugParam}>
     <div class="mx-auto max-w-7xl px-6 lg:px-8">
       <AosWrapper class="mx-auto max-w-3xl">
         {/* Blog-Post-Komponente mit Kommentarsektion im Slot */}
         <BlogPostComponent post={postData} relatedPosts={relatedPosts}>
-          <Content />
+          <Content components={{ h1: 'h2' }} />
           <CommentSection
             slot="comments"
             entityType="blog_post"
@@ -287,6 +287,30 @@ export async function getStaticPaths() {
         enhanceLazyImages();
         enhanceFootnotes();
         initialized = true;
+
+        // Increment page view counter (same-origin POST) with 12h per-browser throttle
+        try {
+          const root = document.querySelector('article[data-slug]');
+          const slug = root ? root.getAttribute('data-slug') || '' : '';
+          const key = `pv:${slug}`;
+          const now = Date.now();
+          const last = Number(localStorage.getItem(key) || '0');
+          const TWELVE_HOURS = 12 * 60 * 60 * 1000;
+          if (!last || now - last > TWELVE_HOURS) {
+            const payload = { slug };
+            fetch('/api/analytics/views', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload),
+            })
+              .then(() => {
+                try {
+                  localStorage.setItem(key, String(now));
+                } catch {}
+              })
+              .catch(() => {});
+          }
+        } catch (_) {}
       }
 
       function cleanup() {

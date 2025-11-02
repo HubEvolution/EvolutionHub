@@ -1,15 +1,22 @@
+import type { APIContext } from 'astro';
 import { withRedirectMiddleware } from '@/lib/api-middleware';
 import { createSecureRedirect } from '@/lib/response-helpers';
 
-export const GET = withRedirectMiddleware(async (context) => {
+export const GET = withRedirectMiddleware(async (context: APIContext) => {
   const { locals, request } = context;
-  const env: any = locals?.runtime?.env ?? {};
+  const rawEnv = (locals?.runtime?.env ?? {}) as Record<string, unknown>;
   const user = locals.user;
-  const db = env.DB;
-  const kv = env.KV_AI_ENHANCER as import('@cloudflare/workers-types').KVNamespace | undefined;
+  const db = (rawEnv as { DB?: unknown }).DB as {
+    prepare: (sql: string) => {
+      bind: (...args: unknown[]) => { run: () => Promise<unknown> };
+    };
+  };
+  const kv = rawEnv.KV_AI_ENHANCER as import('@cloudflare/workers-types').KVNamespace | undefined;
 
   const url = new URL(request.url);
-  const baseUrl: string = env.BASE_URL || `${url.protocol}//${url.host}`;
+  const baseUrl: string =
+    (typeof rawEnv.BASE_URL === 'string' ? (rawEnv.BASE_URL as string) : '') ||
+    `${url.protocol}//${url.host}`;
 
   if (!user) {
     return createSecureRedirect(`${baseUrl}/login`, 302);
@@ -34,7 +41,7 @@ export const GET = withRedirectMiddleware(async (context) => {
 
     const customerId = payload.customerId || '';
     const subscriptionId = payload.subscriptionId || '';
-    const plan = (payload.plan as any) || 'pro';
+    const plan = (payload.plan as 'free' | 'pro' | 'premium' | 'enterprise' | undefined) || 'pro';
 
     if (customerId) {
       await db

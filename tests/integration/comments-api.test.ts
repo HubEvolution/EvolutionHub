@@ -48,7 +48,7 @@ describe('Comments API (edge)', () => {
       { content: 'To be updated', entityType, entityId, csrfToken: token },
       { headers: csrfHeaders(token) }
     );
-    const cid = (created && created.data && created.data.id) ? created.data.id : hex32();
+    const cid = created && created.data && created.data.id ? created.data.id : hex32();
     const { res, json } = await sendJson(
       `/api/comments/${cid}`,
       { content: 'update try', csrfToken: token },
@@ -67,7 +67,7 @@ describe('Comments API (edge)', () => {
       { content: 'To be deleted', entityType, entityId, csrfToken: token },
       { headers: csrfHeaders(token) }
     );
-    const cid = (created && created.data && created.data.id) ? created.data.id : hex32();
+    const cid = created && created.data && created.data.id ? created.data.id : hex32();
     const { res, json } = await sendJson(
       `/api/comments/${cid}`,
       { csrfToken: token },

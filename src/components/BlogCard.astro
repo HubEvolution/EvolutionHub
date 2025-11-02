@@ -4,6 +4,7 @@ import { getLocale } from '@/lib/i18n';
 import { localizePath } from '@/lib/locale-path';
 import ArrowRightCircleIcon from 'astro-heroicons/solid/ArrowRightCircle.astro';
 // Use native <img> to avoid runtime Image endpoint on Workers
+import Card from '@/components/ui/Card';
 
 interface Props {
   post: ProcessedBlogPost;
@@ -12,9 +13,16 @@ interface Props {
   aosDelay?: number;
 }
 
-const { post, featured = false, className = '', aosDelay } = Astro.props;
+interface BlogFrontmatter {
+  title: string;
+  description?: string;
+  image?: { src: string; width: number; height: number };
+  imageAlt?: string;
+  category?: string;
+}
 
-const data: any = post.data;
+const { post, featured = false, className = '', aosDelay } = Astro.props as Props;
+const data = post.data as BlogFrontmatter;
 const { title, description, image, imageAlt, category } = data;
 
 const { url, formattedPubDate, readingTime } = post;
@@ -22,12 +30,14 @@ const locale = getLocale(Astro.url.pathname);
 const localizedUrl = localizePath(locale, url);
 ---
 
-<article
-  class:list={[
-    'group relative flex flex-col overflow-hidden rounded-lg bg-white shadow-lg transition-all duration-300 hover:shadow-xl dark:bg-gray-800 group-hover:-translate-y-1',
-    featured ? 'md:flex-row' : 'flex-col',
+<Card
+  as="article"
+  variant="holo"
+  className={[
+    'group relative flex flex-col overflow-hidden rounded-lg transition-all duration-300 group-hover:-translate-y-1',
+    featured ? 'md:flex-row ring-1 ring-white/10' : 'flex-col',
     className,
-  ]}
+  ].join(' ')}
   data-itemscope
   data-itemtype="http://schema.org/BlogPosting"
   data-aos="fade-up"
@@ -39,7 +49,12 @@ const localizedUrl = localizePath(locale, url);
       <div class={featured ? 'md:w-1/3' : 'w-full'}>
         <a
           href={localizedUrl}
-          class="block aspect-video overflow-hidden"
+          class:list={[
+            'block aspect-video overflow-hidden',
+            featured
+              ? 'rounded-t-lg md:rounded-l-lg md:rounded-tr-none md:rounded-br-none'
+              : 'rounded-t-lg',
+          ]}
           aria-label={`Bild für ${title}`}
           tabindex="-1"
         >
@@ -66,7 +81,7 @@ const localizedUrl = localizePath(locale, url);
                 locale,
                 `/blog/kategorie/${typeof category === 'string' ? category.toLowerCase() : 'allgemein'}`
               )}
-              class="relative z-10 inline-flex items-center px-3 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-400 hover:bg-indigo-200 dark:hover:bg-indigo-800/50 transition-colors"
+              class="relative z-10 inline-flex items-center px-3 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400 hover:bg-emerald-200 dark:hover:bg-emerald-800/50 transition-colors"
               data-itemprop="articleSection"
             >
               {category}
@@ -78,7 +93,7 @@ const localizedUrl = localizePath(locale, url);
       <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-2">
         <a
           href={localizedUrl}
-          class="relative z-10 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+          class="relative z-10 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 dark:focus-visible:ring-offset-slate-900"
         >
           <span class="absolute inset-0" aria-hidden="true"></span>
           {title}
@@ -115,6 +130,14 @@ const localizedUrl = localizePath(locale, url);
           >
           <span>Kommentare</span>
         </a>
+        <span class="mx-1">•</span>
+        <span
+          class="inline-flex items-center gap-1 text-gray-600 dark:text-gray-300"
+          aria-label="Aufrufe"
+        >
+          <span aria-hidden="true">👁️</span>
+          <span id={`pv-${post.slug}`} data-pv-slug={post.slug}>0</span>
+        </span>
       </div>
 
       {
@@ -137,7 +160,7 @@ const localizedUrl = localizePath(locale, url);
       </a>
     </div>
   </div>
-</article>
+</Card>
 
 <script>
   try {
@@ -155,6 +178,23 @@ const localizedUrl = localizePath(locale, url);
         })
         .catch(() => {
           // keep default on failure
+        });
+    });
+
+    // Fetch page view counts for cards
+    const pvNodes = document.querySelectorAll('[id^="pv-"][data-pv-slug]');
+    pvNodes.forEach((el) => {
+      const slug = el.getAttribute('data-pv-slug');
+      if (!slug) return;
+      const url = `/api/analytics/views?slug=${encodeURIComponent(slug)}`;
+      fetch(url)
+        .then((r) => (r.ok ? r.json() : Promise.reject(new Error('bad response'))))
+        .then((json: any) => {
+          const c = json?.data?.count ?? 0;
+          el.textContent = String(c);
+        })
+        .catch(() => {
+          // keep default 0 on failure
         });
     });
   } catch {}

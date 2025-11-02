@@ -1,5 +1,10 @@
 import type { APIContext } from 'astro';
-import { withAuthApiMiddleware, createApiError, createApiSuccess, createMethodNotAllowed } from '@/lib/api-middleware';
+import {
+  withAuthApiMiddleware,
+  createApiError,
+  createApiSuccess,
+  createMethodNotAllowed,
+} from '@/lib/api-middleware';
 import { sensitiveActionLimiter } from '@/lib/rate-limiter';
 import { consumeCreditsTenths, getCreditsBalanceTenths } from '@/lib/kv/usage';
 import { requireAdmin } from '@/lib/auth-helpers';
@@ -69,7 +74,9 @@ export const POST = withAuthApiMiddleware(
       }
     }
 
-    const idem = (body?.idempotencyKey || '').trim() || `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+    const idem =
+      (body?.idempotencyKey || '').trim() ||
+      `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
     const jobId = `admin-deduct-${idem}`;
 
     const result = await consumeCreditsTenths(kv, userId, reqTenths, jobId);
@@ -77,7 +84,7 @@ export const POST = withAuthApiMiddleware(
     const balance = Math.floor(balanceTenths / 10);
 
     // Audit log
-    const ip = typeof (context as any).clientAddress === 'string' ? (context as any).clientAddress : null;
+    const ip = typeof context.clientAddress === 'string' ? context.clientAddress : null;
     try {
       await db
         .prepare(
@@ -91,7 +98,14 @@ export const POST = withAuthApiMiddleware(
           ip,
           'credits',
           'credit_deduct',
-          JSON.stringify({ email: targetEmail, userId, requested: amount, deducted: Math.floor(result.totalConsumedTenths / 10), strict, jobId }),
+          JSON.stringify({
+            email: targetEmail,
+            userId,
+            requested: amount,
+            deducted: Math.floor(result.totalConsumedTenths / 10),
+            strict,
+            jobId,
+          }),
           Date.now()
         )
         .run();

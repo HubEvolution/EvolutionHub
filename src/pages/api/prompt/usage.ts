@@ -5,8 +5,8 @@ import {
   createApiSuccess,
   createMethodNotAllowed,
 } from '@/lib/api-middleware';
-import type { OwnerType, Plan } from '@/config/ai-image';
-import { getEntitlementsFor } from '@/config/ai-image/entitlements';
+import type { OwnerType } from '@/config/ai-image';
+import { getEntitlementsFor, type Plan } from '@/config/ai-image/entitlements';
 import type { KVNamespace } from '@cloudflare/workers-types';
 import { getUsage as kvGetUsage, rollingDailyKey } from '@/lib/kv/usage';
 
@@ -26,7 +26,7 @@ function ensureGuestIdCookie(context: APIContext): string {
   return id;
 }
 
-export const GET = withApiMiddleware(async (context) => {
+export const GET = withApiMiddleware(async (context: APIContext) => {
   const { locals } = context;
   const url = new URL(context.request.url);
   const isDebug = url.searchParams.get('debug') === '1';
@@ -57,7 +57,7 @@ export const GET = withApiMiddleware(async (context) => {
     if (kv) {
       if (useV2) {
         const keyV2 = rollingDailyKey('prompt', ownerType, ownerId);
-        const usageV2 = await kvGetUsage(kv as any, keyV2);
+        const usageV2 = await kvGetUsage(kv as KVNamespace, keyV2);
         if (usageV2) {
           used = usageV2.count || 0;
           resetAt = usageV2.resetAt ? usageV2.resetAt * 1000 : null;

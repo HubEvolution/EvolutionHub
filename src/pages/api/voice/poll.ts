@@ -1,12 +1,18 @@
-import type { APIRoute } from 'astro';
-import { withApiMiddleware, createApiError, createApiSuccess } from '@/lib/api-middleware';
+import type { APIContext } from 'astro';
+import {
+  withApiMiddleware,
+  createApiError,
+  createApiSuccess,
+  createMethodNotAllowed,
+} from '@/lib/api-middleware';
 import { VoiceStreamAggregator } from '@/lib/services/voice-stream-aggregator';
 import { loggerFactory } from '@/server/utils/logger-factory';
 
-export const GET: APIRoute = withApiMiddleware(async ({ request, locals }) => {
+export const GET = withApiMiddleware(async (context: APIContext) => {
+  const { request, locals } = context;
   const url = new URL(request.url);
   const jobId = url.searchParams.get('jobId')?.trim();
-  const env = (locals as any)?.runtime?.env ?? {};
+  const env = locals.runtime?.env ?? {};
   const log = loggerFactory.createLogger('voice-poll-api');
 
   if (String(env.VOICE_STREAM_POLL) !== '1') {
@@ -55,12 +61,16 @@ export const GET: APIRoute = withApiMiddleware(async ({ request, locals }) => {
       },
     });
   } catch {}
-  return createApiSuccess({ ...state });
+  const mapped = state.usage
+    ? { used: state.usage.count, limit: state.usage.limit, window: state.usage.window }
+    : undefined;
+  return createApiSuccess({ ...state, usage: mapped });
 });
 
-export const POST = undefined as unknown as APIRoute; // 405 via framework
-export const PUT = POST;
-export const PATCH = POST;
-export const DELETE = POST;
-export const OPTIONS = POST;
-export const HEAD = POST;
+const methodNotAllowed = () => createMethodNotAllowed('GET');
+export const POST = methodNotAllowed;
+export const PATCH = methodNotAllowed;
+export const PUT = methodNotAllowed;
+export const DELETE = methodNotAllowed;
+export const OPTIONS = methodNotAllowed;
+export const HEAD = methodNotAllowed;

@@ -35,7 +35,8 @@ function buildSanitizedRequestMeta(init?: RequestInit) {
     const sensitiveHeadersPresent: string[] = [];
     const SENSITIVE_HEADER_KEYS = ['authorization', 'cookie', 'set-cookie', 'x-api-key'];
     if (init?.headers) {
-      const h = init.headers instanceof Headers ? init.headers : new Headers(init.headers as any);
+      const h =
+        init.headers instanceof Headers ? init.headers : new Headers(init.headers as HeadersInit);
       h.forEach((value, key) => {
         const k = key.toLowerCase();
         presentHeaders.push(k);
@@ -52,7 +53,7 @@ function buildSanitizedRequestMeta(init?: RequestInit) {
     let bodySummary:
       | { type: string; length?: number; keys?: string[]; sensitiveKeys?: string[] }
       | undefined;
-    const b: any = (init as any)?.body;
+    const b = (init as RequestInit | undefined)?.body as unknown;
     if (typeof b === 'string') {
       bodySummary = { type: 'text', length: b.length };
       // attempt JSON keys only
@@ -91,7 +92,7 @@ function buildSanitizedRequestMeta(init?: RequestInit) {
       bodySummary = { type: 'formdata', keys };
     } else if (b && typeof b === 'object') {
       // Blob/ArrayBuffer/TypedArray: don't inspect; just state type
-      const typeName = b.constructor?.name || 'object';
+      const typeName = (b as { constructor?: { name?: string } }).constructor?.name || 'object';
       bodySummary = { type: typeName };
     }
 
@@ -131,7 +132,8 @@ export function installNetworkInterceptor() {
   const hasDebugHeader = (init?: RequestInit) => {
     try {
       if (!init?.headers) return false;
-      const h = init.headers instanceof Headers ? init.headers : new Headers(init.headers as any);
+      const h =
+        init.headers instanceof Headers ? init.headers : new Headers(init.headers as HeadersInit);
       return h.get('X-Debug-Log') === '1';
     } catch {
       return false;
@@ -151,7 +153,8 @@ export function installNetworkInterceptor() {
         url = resource.url;
       } else {
         // Fallback best effort
-        url = String((resource as any)?.url || resource);
+        const maybeUrl = (resource as { url?: unknown })?.url;
+        url = typeof maybeUrl === 'string' ? maybeUrl : String(resource as unknown);
       }
     } catch {
       url = '';

@@ -1,4 +1,9 @@
 ---
+import { localizePath } from '@/lib/locale-path';
+import { getLocale } from '@/lib/i18n';
+import { getI18n } from '@/utils/i18n';
+import Card from '@/components/ui/Card';
+
 interface Category {
   id: string;
   name: string;
@@ -11,11 +16,8 @@ interface Props {
   resultCount: number;
 }
 
-const { categories, activeCategory, searchQuery, resultCount } = Astro.props;
-import { localizePath } from '@/lib/locale-path';
-import { getLocale } from '@/lib/i18n';
+const { categories, activeCategory, searchQuery, resultCount } = Astro.props as Props;
 const locale = getLocale(Astro.url.pathname);
-import { getI18n } from '@/utils/i18n';
 const t = getI18n(locale);
 
 // Function to update URL with new search parameters
@@ -32,7 +34,7 @@ const updateSearchParams = (params: Record<string, string>) => {
 };
 ---
 
-<div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-8">
+<Card as="div" variant="holo" className="p-6 mb-8 rounded-xl">
   <form method="GET" class="space-y-4">
     {/* Search Input */}
     <div class="relative">
@@ -49,7 +51,7 @@ const updateSearchParams = (params: Record<string, string>) => {
         name="q"
         value={searchQuery}
         placeholder={t('pages.tools.filter.search_placeholder')}
-        class="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md leading-5 bg-white dark:bg-gray-700 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+        class="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md leading-5 bg-white dark:bg-gray-700 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"
         hx-get={localizePath(
           locale,
           activeCategory && activeCategory !== 'all'
@@ -74,7 +76,7 @@ const updateSearchParams = (params: Record<string, string>) => {
             })}
             class={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
               activeCategory === category.id
-                ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100'
+                ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400'
                 : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'
             }`}
             data-category={category.id}
@@ -99,4 +101,4 @@ const updateSearchParams = (params: Record<string, string>) => {
     {resultCount === 1 ? t('pages.tools.results.singular') : t('pages.tools.results.plural')}
     {t('pages.tools.results.found_suffix')}
   </div>
-</div>
+</Card>

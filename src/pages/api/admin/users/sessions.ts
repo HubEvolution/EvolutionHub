@@ -35,8 +35,9 @@ export const GET = withAuthApiMiddleware(
     const userId = (url.searchParams.get('userId') || '').trim();
     if (!userId) return createApiError('validation_error', 'userId is required');
 
-    const res = await env.DB
-      .prepare(`SELECT id, user_id, expires_at FROM sessions WHERE user_id = ?1 ORDER BY expires_at DESC LIMIT 200`)
+    const res = await env.DB.prepare(
+      `SELECT id, user_id, expires_at FROM sessions WHERE user_id = ?1 ORDER BY expires_at DESC LIMIT 200`
+    )
       .bind(userId)
       .all<{ id: string; user_id: string; expires_at: string }>();
 

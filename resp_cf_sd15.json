@@ -1,0 +1,17 @@
+{
+  "success": true,
+  "data": {
+    "model": "@cf/runwayml/stable-diffusion-v1-5-img2img",
+    "imageUrl": "https://hub-evolution.com/r2-ai/ai-enhancer/results/guest/74526af8-42d9-4bbf-81b2-9bc308dd7a18/1761899091772.png",
+    "originalUrl": "https://hub-evolution.com/r2-ai/ai-enhancer/uploads/guest/74526af8-42d9-4bbf-81b2-9bc308dd7a18/1761899091772.jpg",
+    "usage": { "used": 1, "limit": 3, "resetAt": 1761985494790 },
+    "limits": { "user": 20, "guest": 3 },
+    "entitlements": {
+      "monthlyImages": 90,
+      "dailyBurstCap": 3,
+      "maxUpscale": 2,
+      "faceEnhance": false
+    },
+    "charge": { "total": 1, "planPortion": 1, "creditsPortion": 0 }
+  }
+}

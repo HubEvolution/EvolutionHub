@@ -163,18 +163,24 @@ describe('Newsletter-API-Integration', () => {
 
   describe('POST /api/newsletter/subscribe', () => {
     it('sollte erfolgreich Newsletter-Abonnement verarbeiten', async () => {
-      const formData = {
-        email: 'test@example.com',
-        name: 'Test User',
-      };
+      const response = await fetch(`${TEST_URL}/api/newsletter/subscribe`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Origin: TEST_URL,
+        },
+        body: JSON.stringify({ email: 'test@example.com', consent: true, firstName: 'Test' }),
+        redirect: 'manual',
+      });
 
-      const response = await submitForm('/api/newsletter/subscribe', formData);
+      const contentType = response.headers.get('content-type');
+      const text = response.status !== 302 ? await response.text() : '';
 
       expect([200, 500]).toContain(response.status);
-      if (response.status === 200 && (response.contentType || '').includes('application/json')) {
-        const json = safeParseJson(response.text);
+      if (response.status === 200 && (contentType || '').includes('application/json')) {
+        const json = safeParseJson(text);
         expect(json?.success).toBe(true);
-        expect((json?.data?.message || '')).toContain('success');
+        expect(json?.data?.message || '').toContain('confirm');
       }
     });
 

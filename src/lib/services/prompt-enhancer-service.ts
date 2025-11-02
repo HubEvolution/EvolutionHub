@@ -8,6 +8,7 @@
  */
 
 import { loggerFactory } from '@/server/utils/logger-factory';
+import type { ExtendedLogger } from '@/types/logger';
 import type { KVNamespace } from '@cloudflare/workers-types';
 import OpenAI from 'openai';
 import { buildProviderError } from '@/lib/services/provider-error';
@@ -87,7 +88,7 @@ interface RuntimeEnv {
 
 export class PromptEnhancerService {
   private env: RuntimeEnv;
-  private log: any;
+  private log: ExtendedLogger;
   private enableSafety: boolean;
   private publicFlag: boolean;
   private rewriteEnabled: boolean;
@@ -176,7 +177,7 @@ export class PromptEnhancerService {
     const useV2 = this.env.USAGE_KV_V2 === '1';
     if (useV2) {
       const keyV2 = rollingDailyKey('prompt', ownerType, ownerId);
-      const usage = await kvGetUsage(kv as any, keyV2);
+      const usage = await kvGetUsage(kv, keyV2);
       if (!usage) return { used: 0, limit, resetAt: null };
       return { used: usage.count, limit, resetAt: usage.resetAt ? usage.resetAt * 1000 : null };
     }
@@ -202,7 +203,7 @@ export class PromptEnhancerService {
     if (!kv) return { used: 1, limit, resetAt: null };
     const useV2 = this.env.USAGE_KV_V2 === '1';
     if (useV2) {
-      const res = await incrementDailyRolling(kv as any, 'prompt', ownerType, ownerId, limit);
+      const res = await incrementDailyRolling(kv, 'prompt', ownerType, ownerId, limit);
       return { used: res.usage.count, limit, resetAt: res.usage.resetAt * 1000 };
     }
 
@@ -268,11 +269,19 @@ export class PromptEnhancerService {
           messages: [{ role: 'user', content: prompt }],
           max_tokens: 20,
         });
-        const isChatCompletion = (v: unknown): v is OpenAI.Chat.Completions.ChatCompletion => {
-          return !!v && typeof v === 'object' && 'choices' in (v as any);
+        type ChatCompletionLike = { choices?: Array<{ message?: { content?: string } | null }> };
+        const isChatCompletion = (v: unknown): v is ChatCompletionLike => {
+          return (
+            !!v &&
+            typeof v === 'object' &&
+            v !== null &&
+            'choices' in (v as Record<string, unknown>)
+          );
         };
         const response = isChatCompletion(completion)
-          ? completion.choices[0]?.message?.content?.trim()
+          ? Array.isArray(completion.choices) && completion.choices.length > 0
+            ? completion.choices[0]?.message?.content?.trim()
+            : ''
           : '';
         if (response) {
           const parsed = JSON.parse(response);
@@ -437,7 +446,13 @@ export class PromptEnhancerService {
     inputText: string,
     mode: 'agent' | 'concise',
     attachment: AttachmentContext | null
-  ): Parameters<OpenAI.Chat.Completions['create']>[0] {
+  ): {
+    model: string;
+    messages: Array<{ role: 'system' | 'user'; content: unknown }>;
+    max_tokens: number;
+    temperature: number;
+    top_p: number;
+  } {
     const systemParts: string[] = [];
     systemParts.push(
       "You rewrite user prompts into clearer, more specific, policy-compliant prompts. Preserve the user's intent. Do not invent requirements. Respond in the same language as the input. Output only the enhanced prompt (no quotes, no lists, no explanations)."
@@ -512,7 +527,19 @@ export class PromptEnhancerService {
       const hasImages = !!(attachment && attachment.images && attachment.images.length);
       if (hasPdfs && !hasImages) {
         // Upload PDFs first (idempotent if fileId already set)
-        await uploadPdfFilesToProvider(client as any, attachment as any, this.log);
+        await uploadPdfFilesToProvider(
+          {
+            files: (
+              client as unknown as {
+                files: {
+                  create: (args: { file: File; purpose: string }) => Promise<{ id: string }>;
+                };
+              }
+            ).files,
+          },
+          attachment as import('@/lib/services/prompt-attachments').PreparedAttachments,
+          this.log
+        );
 
         const systemParts: string[] = [];
         systemParts.push(
@@ -544,7 +571,8 @@ export class PromptEnhancerService {
             attachments.push({ file_id: pdf.fileId, tools: [{ type: 'file_search' }] });
         }
 
-        const resp = await (client as any).responses.create({
+        type ResponsesClient = { responses: { create: (args: unknown) => Promise<unknown> } };
+        const resp = await (client as unknown as ResponsesClient).responses.create({
           model: this.getTextModel(),
           input: [
             {
@@ -563,19 +591,35 @@ export class PromptEnhancerService {
           tools: [{ type: 'file_search' }],
         });
 
-        const out: any = resp as any;
-        const tryOutputText = out?.output_text as string | undefined;
+        const out = resp as unknown as Record<string, unknown>;
+        const tryOutputText =
+          typeof out.output_text === 'string' ? (out.output_text as string) : undefined;
         if (tryOutputText && typeof tryOutputText === 'string')
           return { text: tryOutputText.trim(), pathType: 'llm_file_search' };
         // Fallback parse for nested output format
         const maybeText = (() => {
-          const output = out?.output;
+          const output = (out as { output?: unknown }).output;
           if (Array.isArray(output) && output.length > 0) {
-            const c0 = output[0]?.content;
+            const c0 = (output[0] as { content?: unknown }).content as unknown;
             if (Array.isArray(c0) && c0.length > 0) {
-              const t = c0.find((c: any) => c?.type === 'output_text' || c?.type === 'text');
-              if (t?.text?.value) return t.text.value as string;
-              if (typeof t?.text === 'string') return t.text as string;
+              const t = (c0 as unknown[]).find(
+                (c) =>
+                  typeof c === 'object' &&
+                  c !== null &&
+                  'type' in (c as Record<string, unknown>) &&
+                  ((c as Record<string, unknown>).type === 'output_text' ||
+                    (c as Record<string, unknown>).type === 'text')
+              ) as { text?: unknown } | undefined;
+              if (
+                t &&
+                typeof (t as { text?: { value?: unknown } }).text === 'object' &&
+                t.text !== null &&
+                'value' in (t.text as Record<string, unknown>)
+              ) {
+                const v = (t.text as { value?: unknown }).value;
+                if (typeof v === 'string') return v;
+              }
+              if (t && typeof t.text === 'string') return t.text as string;
             }
           }
           return '';
@@ -585,14 +629,30 @@ export class PromptEnhancerService {
 
       // Default path (no PDFs or images present): chat.completions (with optional images via composeRewriteMessages)
       const params = this.composeRewriteMessages(inputText, mode, attachment);
-      const completion = await client.chat.completions.create(params);
+      const completion = await client.chat.completions.create(
+        params as unknown as {
+          model: string;
+          messages: unknown;
+          max_tokens: number;
+          temperature: number;
+          top_p: number;
+        }
+      );
       // Type guard: ChatCompletion vs Stream
-      const isChatCompletion = (v: unknown): v is OpenAI.Chat.Completions.ChatCompletion => {
-        return !!v && typeof v === 'object' && 'choices' in (v as any);
+      type ChatCompletionLike = { choices?: Array<{ message?: { content?: string } | null }> };
+      const isChatCompletion = (v: unknown): v is ChatCompletionLike => {
+        return (
+          !!v && typeof v === 'object' && v !== null && 'choices' in (v as Record<string, unknown>)
+        );
       };
       let raw = '';
-      if (isChatCompletion(completion)) {
-        raw = completion.choices?.[0]?.message?.content || '';
+      if (
+        isChatCompletion(completion) &&
+        Array.isArray(completion.choices) &&
+        completion.choices.length > 0
+      ) {
+        const txt = completion.choices[0]?.message?.content;
+        raw = typeof txt === 'string' ? txt : '';
       }
       const text = (raw || '').trim();
       const pathType: 'llm_text' | 'llm_vision' =
@@ -600,15 +660,20 @@ export class PromptEnhancerService {
       return { text, pathType };
     } catch (err) {
       // Map provider errors to standardized errors
-      const anyErr = err as any;
+      const errObj = err as {
+        status?: number;
+        statusCode?: number;
+        code?: unknown;
+        message?: unknown;
+      };
       const status: number | undefined =
-        anyErr?.status ||
-        anyErr?.statusCode ||
-        (typeof anyErr?.code === 'number' ? anyErr.code : undefined);
+        errObj?.status ||
+        errObj?.statusCode ||
+        (typeof errObj?.code === 'number' ? (errObj.code as number) : undefined);
       const mapped = buildProviderError(
         status ?? 500,
         'openai',
-        (anyErr?.message || '').slice(0, 200)
+        (typeof errObj?.message === 'string' ? errObj.message : '').slice(0, 200)
       );
       this.logError('rewrite_llm_failed', {
         message: (err as Error).message,
@@ -631,8 +696,8 @@ export class PromptEnhancerService {
     attachments: AttachmentContext | null = null
   ): Promise<EnhanceResult> {
     if (!this.publicFlag) {
-      const err = new Error('feature_not_enabled');
-      (err as any).code = 'feature_disabled';
+      const err = new Error('feature_not_enabled') as Error & { code?: string };
+      err.code = 'feature_disabled';
       this.logWarn('enhance_blocked_by_flag', {
         reqId: 'init',
         ownerType,
@@ -659,9 +724,12 @@ export class PromptEnhancerService {
     // Quota check
     const currentUsage = await this.getUsage(ownerType, ownerId, userLimit, guestLimit);
     if (currentUsage.used >= currentUsage.limit) {
-      const err = new Error(`Quota exceeded. Used ${currentUsage.used}/${limit}`);
-      (err as any).code = 'quota_exceeded';
-      (err as any).details = currentUsage;
+      const err = new Error(`Quota exceeded. Used ${currentUsage.used}/${limit}`) as Error & {
+        code?: string;
+        details?: unknown;
+      };
+      err.code = 'quota_exceeded';
+      err.details = currentUsage;
       this.logError('enhance_failed', {
         reqId,
         errorKind: 'quota_exceeded',

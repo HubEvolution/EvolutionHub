@@ -1,4 +1,4 @@
-import type { APIRoute } from 'astro';
+import type { APIContext } from 'astro';
 import {
   withApiMiddleware,
   createApiError,
@@ -7,10 +7,11 @@ import {
 } from '@/lib/api-middleware';
 import { aiJobsLimiter } from '@/lib/rate-limiter';
 import { AiJobsService } from '@/lib/services/ai-jobs-service';
-import { type OwnerType, type Plan } from '@/config/ai-image';
-import { getEntitlementsFor } from '@/config/ai-image/entitlements';
+import type { OwnerType } from '@/config/ai-image';
+import { getEntitlementsFor, type Plan } from '@/config/ai-image/entitlements';
+import type { D1Database, R2Bucket, KVNamespace } from '@cloudflare/workers-types';
 
-function ensureGuestIdCookie(context: Parameters<APIRoute>[0]): string {
+function ensureGuestIdCookie(context: APIContext): string {
   const existing = context.cookies.get('guest_id')?.value;
   if (existing) return existing;
 
@@ -27,7 +28,7 @@ function ensureGuestIdCookie(context: Parameters<APIRoute>[0]): string {
 }
 
 export const POST = withApiMiddleware(
-  async (context) => {
+  async (context: APIContext) => {
     const { locals, request } = context;
 
     // FormData parsing
@@ -62,13 +63,16 @@ export const POST = withApiMiddleware(
     const ent = getEntitlementsFor(ownerType, plan);
     const effectiveLimit = ent.dailyBurstCap;
 
-    const env = locals.runtime?.env ?? ({} as any);
-    const deps = { db: env.DB, isDevelopment: env.ENVIRONMENT !== 'production' };
+    const rawEnv = (locals.runtime?.env ?? {}) as Record<string, unknown>;
+    const deps = {
+      db: (rawEnv as { DB?: D1Database }).DB as D1Database,
+      isDevelopment: ((rawEnv as { ENVIRONMENT?: string }).ENVIRONMENT || '') !== 'production',
+    };
     const service = new AiJobsService(deps, {
-      R2_AI_IMAGES: env.R2_AI_IMAGES,
-      KV_AI_ENHANCER: env.KV_AI_ENHANCER,
-      REPLICATE_API_TOKEN: env.REPLICATE_API_TOKEN,
-      ENVIRONMENT: env.ENVIRONMENT,
+      R2_AI_IMAGES: (rawEnv as { R2_AI_IMAGES?: R2Bucket }).R2_AI_IMAGES,
+      KV_AI_ENHANCER: (rawEnv as { KV_AI_ENHANCER?: KVNamespace }).KV_AI_ENHANCER,
+      REPLICATE_API_TOKEN: (rawEnv as { REPLICATE_API_TOKEN?: string }).REPLICATE_API_TOKEN,
+      ENVIRONMENT: (rawEnv as { ENVIRONMENT?: string }).ENVIRONMENT,
     });
 
     const origin = new URL(request.url).origin;
@@ -88,11 +92,12 @@ export const POST = withApiMiddleware(
       return createApiSuccess(job, 202);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unbekannter Fehler';
-      if (typeof (err as any)?.code === 'string' && (err as any).code === 'quota_exceeded') {
+      const e = err as { code?: string; details?: Record<string, unknown> };
+      if (typeof e?.code === 'string' && e.code === 'quota_exceeded') {
         return createApiError(
           'forbidden',
           'Kostenloses Nutzungslimit erreicht',
-          (err as any).details || undefined
+          e.details || undefined
         );
       }
       if (

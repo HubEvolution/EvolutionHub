@@ -47,7 +47,8 @@ export const GET = withAuthApiMiddleware(async (context: APIContext) => {
   const statusParam = (url.searchParams.get('status') || 'all').toLowerCase();
   const entityType = (url.searchParams.get('entityType') || '').trim();
   const entityId = (url.searchParams.get('entityId') || '').trim();
-  const includeReports = (url.searchParams.get('includeReports') || 'false').toLowerCase() === 'true';
+  const includeReports =
+    (url.searchParams.get('includeReports') || 'false').toLowerCase() === 'true';
 
   const allowedStatuses = new Set(['pending', 'approved', 'rejected', 'flagged', 'hidden', 'all']);
   const status = allowedStatuses.has(statusParam) ? statusParam : 'all';
@@ -84,7 +85,10 @@ export const GET = withAuthApiMiddleware(async (context: APIContext) => {
       params.push(entityId);
     }
     const sql = `SELECT COUNT(*) as v FROM comments c ${parts.length ? 'WHERE ' + parts.join(' AND ') : ''}`;
-    const row = await database.prepare(sql).bind(...params).first<{ v: number }>();
+    const row = await database
+      .prepare(sql)
+      .bind(...params)
+      .first<{ v: number }>();
     return row?.v ?? 0;
   }
 
@@ -118,10 +122,12 @@ export const GET = withAuthApiMiddleware(async (context: APIContext) => {
     ORDER BY c.created_at DESC
     LIMIT ? OFFSET ?`;
 
-  const rows = (await database
-    .prepare(listSql)
-    .bind(...binds, limit, offset)
-    .all<CommentRow>()).results as CommentRow[];
+  const rows = (
+    await database
+      .prepare(listSql)
+      .bind(...binds, limit, offset)
+      .all<CommentRow>()
+  ).results as CommentRow[];
 
   const toIso = (t?: number | null) => {
     if (!t || Number.isNaN(t)) return undefined;

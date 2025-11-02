@@ -43,7 +43,11 @@ export const POST = withAuthApiMiddleware(
     const ok = resetLimiterKey(name, key);
     return createApiSuccess({ ok });
   },
-  { enforceCsrfToken: true, rateLimiter: sensitiveActionLimiter, logMetadata: { action: 'admin_rate_limits_reset' } }
+  {
+    enforceCsrfToken: true,
+    rateLimiter: sensitiveActionLimiter,
+    logMetadata: { action: 'admin_rate_limits_reset' },
+  }
 );
 
 const methodNotAllowed = () => createMethodNotAllowed('POST');

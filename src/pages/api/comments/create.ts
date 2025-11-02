@@ -8,16 +8,23 @@ import type { CreateCommentRequest } from '@/lib/types/comments';
 // POST /api/comments/create
 export const POST = async (context: APIContext) => {
   try {
-    const env = (context.locals?.runtime?.env || {}) as { DB?: any; KV_COMMENTS?: any } | undefined;
-    const db = env?.DB || (context as unknown as { locals?: { env?: { DB?: any } } }).locals?.env?.DB;
-    if (!db) return createApiError('server_error', 'Database binding missing');
+    const env = (context.locals?.runtime?.env || {}) as
+      | { DB?: unknown; KV_COMMENTS?: KVNamespace }
+      | undefined;
+    const dbUnknown =
+      env?.DB || (context as unknown as { locals?: { env?: { DB?: unknown } } }).locals?.env?.DB;
+    if (!dbUnknown) return createApiError('server_error', 'Database binding missing');
+    const hasPrepare = typeof (dbUnknown as { prepare?: unknown }).prepare === 'function';
+    if (!hasPrepare) return createApiError('server_error', 'Database binding invalid');
+    const db = dbUnknown as D1Database;
 
     // CSRF validation (required for all callers)
     const cookie = context.request.headers.get('cookie') || undefined;
     let body: (CreateCommentRequest & { csrfToken?: string }) | null = null;
     try {
       const raw = (await context.request.json()) as unknown;
-      if (raw && typeof raw === 'object') body = raw as CreateCommentRequest & { csrfToken?: string };
+      if (raw && typeof raw === 'object')
+        body = raw as CreateCommentRequest & { csrfToken?: string };
       else body = null;
     } catch {
       body = null;
@@ -39,7 +46,7 @@ export const POST = async (context: APIContext) => {
       return createApiError('validation_error', 'Missing JSON body');
     }
 
-    const { csrfToken, ...commentData } = body;
+    const { csrfToken: _csrfToken, ...commentData } = body;
     if (!commentData.content || !commentData.entityType || !commentData.entityId) {
       return createApiError('validation_error', 'Missing required fields');
     }
@@ -55,7 +62,8 @@ export const POST = async (context: APIContext) => {
 
     const kv =
       env?.KV_COMMENTS ||
-      (context as unknown as { locals?: { env?: { KV_COMMENTS?: any } } }).locals?.env?.KV_COMMENTS;
+      (context as unknown as { locals?: { env?: { KV_COMMENTS?: KVNamespace } } }).locals?.env
+        ?.KV_COMMENTS;
     const service = new CommentService(db, kv);
     const created = await service.createComment(commentData, userId, token);
     try {
@@ -68,7 +76,7 @@ export const POST = async (context: APIContext) => {
         status: created?.status,
         userId,
       };
-      // eslint-disable-next-line no-console
+
       console.log('[comments:create]', JSON.stringify(log));
     } catch {}
     return createApiSuccess(created, 201);

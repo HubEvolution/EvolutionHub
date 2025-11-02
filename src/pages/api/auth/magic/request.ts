@@ -211,7 +211,10 @@ const handler: ApiHandler = async (context: APIContext) => {
   }
 
   const devEnv =
-    ((context.locals as any)?.runtime?.env?.ENVIRONMENT || 'development') === 'development';
+    ((
+      ((context.locals as unknown as { runtime?: { env?: Record<string, string> } })?.runtime
+        ?.env || {}) as Record<string, string>
+    ).ENVIRONMENT || 'development') === 'development';
   const startedAt = Date.now();
   let pkceChallenge: string | undefined;
   const usePkce =
@@ -250,16 +253,15 @@ const handler: ApiHandler = async (context: APIContext) => {
   } catch (err) {
     logMetricCounter('auth_magic_request_error', 1, { source: 'magic_request' });
     if (devEnv) {
-      const e = err as any;
-      const payload = {
-        status: e?.status,
-        providerType: e?.providerType,
-        message: e?.message,
-      };
-      console.warn('[auth][magic][request] provider error', payload);
+      const e = err as { status?: number; providerType?: string; message?: string };
+      console.warn('[auth][magic][request] provider error', {
+        status: typeof e?.status === 'number' ? e.status : undefined,
+        providerType: typeof e?.providerType === 'string' ? e.providerType : undefined,
+        message: typeof e?.message === 'string' ? e.message : undefined,
+      });
     }
     try {
-      const e = err as any;
+      const e = err as { status?: number; providerType?: string; requestId?: string };
       const status = typeof e?.status === 'number' ? e.status : undefined;
       const providerType = typeof e?.providerType === 'string' ? e.providerType : undefined;
       const requestId = typeof e?.requestId === 'string' ? e.requestId : undefined;

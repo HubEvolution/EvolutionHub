@@ -77,7 +77,10 @@ export class NotificationService {
     type: NotificationType,
     commentData: CommentNotificationData
   ): Promise<Notification> {
-    const templates: Record<NotificationType, { de: { title: string; message: string }; en: { title: string; message: string } }> = {
+    const templates: Record<
+      NotificationType,
+      { de: { title: string; message: string }; en: { title: string; message: string } }
+    > = {
       comment_reply: {
         de: {
           title: 'Neue Antwort auf Ihren Kommentar',
@@ -137,7 +140,7 @@ export class NotificationService {
       type,
       title: template.title,
       message: template.message,
-      data: commentData,
+      data: commentData as unknown as import('../types/notifications').TemplateVariables,
       priority: type === 'comment_reply' ? 'high' : 'normal',
     });
   }
@@ -227,19 +230,21 @@ export class NotificationService {
       .limit(limit)
       .offset(offset);
 
-    const notificationsList: Notification[] = notificationResults.map((n: typeof notifications.$inferSelect) => ({
-      id: n.id,
-      userId: n.userId,
-      type: n.type as NotificationType,
-      title: n.title,
-      message: n.message,
-      data: n.data || undefined,
-      isRead: Boolean(n.isRead),
-      readAt: n.readAt || undefined,
-      priority: n.priority as any,
-      expiresAt: n.expiresAt || undefined,
-      createdAt: n.createdAt,
-    }));
+    const notificationsList: Notification[] = notificationResults.map(
+      (n: typeof notifications.$inferSelect) => ({
+        id: n.id,
+        userId: n.userId,
+        type: n.type as NotificationType,
+        title: n.title,
+        message: n.message,
+        data: n.data || undefined,
+        isRead: Boolean(n.isRead),
+        readAt: n.readAt || undefined,
+        priority: n.priority as import('../types/notifications').NotificationPriority,
+        expiresAt: n.expiresAt || undefined,
+        createdAt: n.createdAt,
+      })
+    );
 
     return {
       notifications: notificationsList,
@@ -301,10 +306,7 @@ export class NotificationService {
       lte(notifications.expiresAt, now)
     );
 
-    const toDelete = await this.db
-      .select({ count: count() })
-      .from(notifications)
-      .where(whereExpr);
+    const toDelete = await this.db.select({ count: count() }).from(notifications).where(whereExpr);
 
     await this.db.delete(notifications).where(whereExpr);
 
@@ -323,7 +325,7 @@ export class NotificationService {
     return settings.map((s: typeof notificationSettings.$inferSelect) => ({
       id: s.id,
       userId: s.userId,
-      type: s.type as any,
+      type: s.type as NotificationType | 'email_digest',
       channel: s.channel as NotificationChannel,
       enabled: Boolean(s.enabled),
       frequency: s.frequency as NotificationFrequency,
@@ -478,7 +480,7 @@ export class NotificationService {
       throw new Error('Email template not found');
     }
 
-    const r = result[0] as any;
+    const r = result[0] as typeof emailTemplates.$inferSelect;
     return {
       id: r.id,
       name: r.name,
@@ -513,7 +515,7 @@ export class NotificationService {
       .limit(1);
 
     if (result.length === 0) return null;
-    const r = result[0] as any;
+    const r = result[0] as typeof emailTemplates.$inferSelect;
     return {
       id: r.id,
       name: r.name,
@@ -608,7 +610,7 @@ export class NotificationService {
       throw new Error('Email queue item not found');
     }
 
-    const r = result[0] as any;
+    const r = result[0] as typeof emailQueue.$inferSelect;
     return {
       id: r.id,
       to: r.to,
@@ -616,12 +618,18 @@ export class NotificationService {
       variables: r.variables,
       status: r.status,
       priority: Number(r.priority ?? 0),
-      scheduledFor: Math.floor(((r.scheduledFor as Date).getTime?.() ?? new Date(r.scheduledFor).getTime()) / 1000),
+      scheduledFor: Math.floor(
+        ((r.scheduledFor as Date).getTime?.() ?? new Date(r.scheduledFor).getTime()) / 1000
+      ),
       attempts: Number(r.attempts ?? 0),
       maxAttempts: Number(r.maxAttempts ?? 0),
       lastError: r.lastError || undefined,
-      sentAt: r.sentAt ? Math.floor(((r.sentAt as Date).getTime?.() ?? new Date(r.sentAt).getTime()) / 1000) : undefined,
-      createdAt: Math.floor(((r.createdAt as Date).getTime?.() ?? new Date(r.createdAt).getTime()) / 1000),
+      sentAt: r.sentAt
+        ? Math.floor(((r.sentAt as Date).getTime?.() ?? new Date(r.sentAt).getTime()) / 1000)
+        : undefined,
+      createdAt: Math.floor(
+        ((r.createdAt as Date).getTime?.() ?? new Date(r.createdAt).getTime()) / 1000
+      ),
     } as EmailQueueItem;
   }
 
@@ -640,21 +648,25 @@ export class NotificationService {
       .orderBy(desc(emailQueue.priority), emailQueue.createdAt)
       .limit(limit);
 
-    return results.map((e: any) => ({
+    return results.map((e: typeof emailQueue.$inferSelect) => ({
       id: e.id,
       to: e.to,
       templateId: e.templateId,
       variables: e.variables,
       status: e.status,
       priority: Number(e.priority ?? 0),
-      scheduledFor: Math.floor(((e.scheduledFor as Date).getTime?.() ?? new Date(e.scheduledFor).getTime()) / 1000),
+      scheduledFor: Math.floor(
+        ((e.scheduledFor as Date).getTime?.() ?? new Date(e.scheduledFor).getTime()) / 1000
+      ),
       attempts: Number(e.attempts ?? 0),
       maxAttempts: Number(e.maxAttempts ?? 0),
       lastError: e.lastError || undefined,
       sentAt: e.sentAt
         ? Math.floor(((e.sentAt as Date).getTime?.() ?? new Date(e.sentAt).getTime()) / 1000)
         : undefined,
-      createdAt: Math.floor(((e.createdAt as Date).getTime?.() ?? new Date(e.createdAt).getTime()) / 1000),
+      createdAt: Math.floor(
+        ((e.createdAt as Date).getTime?.() ?? new Date(e.createdAt).getTime()) / 1000
+      ),
     }));
   }
 
@@ -766,7 +778,10 @@ export class NotificationService {
         lastError: 'Email processing timeout',
       })
       .where(
-        and(eq(emailQueue.status, 'pending'), lte(emailQueue.createdAt, new Date((now - maxAge) * 1000)))
+        and(
+          eq(emailQueue.status, 'pending'),
+          lte(emailQueue.createdAt, new Date((now - maxAge) * 1000))
+        )
       );
   }
 }

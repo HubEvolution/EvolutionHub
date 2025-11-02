@@ -10,7 +10,6 @@ import {
   MAX_FILES,
   TEXT_LENGTH_MAX,
 } from '@/config/prompt-enhancer';
-import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Alert from '@/components/ui/Alert';
 import UploadIcon from '@/components/ui/icons/Upload';
@@ -408,7 +407,7 @@ const EnhancerForm: React.FC<EnhancerFormProps> = ({ initialMode = 'creative' })
   ];
 
   return (
-    <Card className="max-w-4xl mx-auto p-6">
+    <div className="max-w-4xl mx-auto">
       <form
         className="space-y-6"
         data-testid="enhancer-form"
@@ -667,7 +666,7 @@ const EnhancerForm: React.FC<EnhancerFormProps> = ({ initialMode = 'creative' })
           </div>
         </div>
       )}
-    </Card>
+    </div>
   );
 };
 

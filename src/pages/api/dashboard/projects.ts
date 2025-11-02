@@ -1,4 +1,6 @@
 import type { ProjectCard } from '@/types/dashboard';
+import type { APIContext } from 'astro';
+import type { D1Database } from '@cloudflare/workers-types';
 import { withAuthApiMiddleware, createApiError } from '@/lib/api-middleware';
 import { logApiAccess, logAuthFailure } from '@/lib/security-logger';
 import { createSecureJsonResponse } from '@/lib/response-helpers';
@@ -13,7 +15,7 @@ import { createSecureJsonResponse } from '@/lib/response-helpers';
  * - Audit-Logging: Protokolliert alle API-Zugriffe und Authentifizierungsfehler
  */
 export const GET = withAuthApiMiddleware(
-  async (context) => {
+  async (context: APIContext) => {
     const { locals, clientAddress } = context;
     const env = (locals.runtime?.env ?? {}) as Partial<{ DB: D1Database }>;
     const user = locals.user;
@@ -70,10 +72,10 @@ export const GET = withAuthApiMiddleware(
     logMetadata: { action: 'projects_accessed' },
 
     // Spezielle Fehlerbehandlung für diesen Endpunkt
-    onError: (context, error) => {
+    onError: (context: APIContext, error: unknown) => {
       const { clientAddress, locals } = context;
-      const user = (locals as any).user || (locals as any).runtime?.user;
-      const userId: string | undefined = (user?.id as string) ?? (user?.sub as string);
+      const u = locals?.user as { id?: string; sub?: string } | undefined;
+      const userId: string | undefined = u?.id ?? u?.sub;
 
       if (userId) {
         logAuthFailure(userId, {

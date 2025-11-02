@@ -24,12 +24,12 @@ export default function ImagEnhancerRouter(props: ImagEnhancerRouterProps): Reac
     // MVP only mode
     return <ImagEnhancerMVP strings={strings} />;
   }
-  
+
   if (!isMVPMode && isLegacyMode) {
     // Legacy only mode
     return <ImagEnhancerIsland strings={legacyStrings} />;
   }
-  
+
   if (isMVPMode && isLegacyMode) {
     // Both enabled - prefer MVP for production, can show toggle for testing
     return <ImagEnhancerMVP strings={strings} />;

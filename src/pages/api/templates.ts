@@ -1,4 +1,5 @@
 import type { APIContext } from 'astro';
+import type { KVNamespace } from '@cloudflare/workers-types';
 import { withApiMiddleware, createApiError, createApiSuccess } from '@/lib/api-middleware';
 import { formatZodError } from '@/lib/validation';
 import { templateSaveSchema } from '@/lib/validation/schemas/templates';
@@ -22,8 +23,8 @@ export const POST = withApiMiddleware(
     const ownerId = user.id;
     const key = `prompt:templates:user:${ownerId}:${templateId}`;
 
-    const env = locals.runtime?.env ?? {};
-    const kv = (env as any).KV_PROMPT_ENHANCER as KVNamespace<string> | undefined;
+    const env = (locals.runtime?.env ?? {}) as Record<string, unknown>;
+    const kv = env.KV_PROMPT_ENHANCER as KVNamespace<string> | undefined;
     if (!kv) return createApiError('server_error', 'KV not available');
 
     await kv.put(key, JSON.stringify({ id: templateId, name, description, prompt }), {

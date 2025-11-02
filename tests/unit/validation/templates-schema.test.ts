@@ -7,7 +7,7 @@ describe('templateSaveSchema', () => {
       templateId: 't1',
       name: 'My Template',
       description: 'Some description',
-      prompt: 'Write a concise summary.'
+      prompt: 'Write a concise summary.',
     });
     expect(res.success).toBe(true);
   });
@@ -22,7 +22,7 @@ describe('templateSaveSchema', () => {
       templateId: '',
       name: '',
       description: '',
-      prompt: ''
+      prompt: '',
     });
     expect(res.success).toBe(false);
   });

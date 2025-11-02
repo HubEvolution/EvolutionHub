@@ -7,6 +7,8 @@ codeRefs: 'src/pages/api/prompt-enhance.ts, src/lib/services/prompt-enhancer-ser
 testRefs: 'tests/integration/prompt-enhance-multipart.test.ts'
 ---
 
+<!-- markdownlint-disable MD051 -->
+
 # POST /api/prompt-enhance
 
 **KI-gestützte Prompt-Optimierung** für Evolution Hub. Dieser Endpunkt transformiert rohe Texte in strukturierte, AI-ready Prompts mit optionaler Dateianhängen-Unterstützung.
@@ -18,17 +20,22 @@ Der Prompt-Enhancer nutzt OpenAI's Chat Completions API mit `file_search` für d
 ### Features
 
 - **Text-zu-Prompt Transformation**: Konvertiert einfache Texte in strukturierte AI-Prompts
+
 - **Dateianhänge**: Unterstützt Bilder, Textdateien und PDFs (bis zu 3 Dateien)
+
 - **Safety-Checks**: Automatische PII-Maskierung (Emails, Telefonnummern, Adressen)
+
 - **Modi**: `agent` (schrittweise Anleitung) oder `concise` (kurze Version)
+
 - **Quota-Management**: Unterschiedliche Limits für User und Gäste
+
 - **Feature-Flag**: Kann via `PUBLIC_PROMPT_ENHANCER_V1` aktiviert/deaktiviert werden
 
 ## HTTP-Anfrage
 
 ### Endpunkt
 
-```
+```text
 POST /api/prompt-enhance
 ```
 
@@ -38,7 +45,8 @@ POST /api/prompt-enhance
 
 ```http
 Content-Type: application/json
-```
+
+```text
 
 #### Multipart-Format (mit Dateien)
 
@@ -54,7 +62,8 @@ Content-Type: multipart/form-data
 X-CSRF-Token: <csrf-token>
 Cookie: csrf_token=<csrf-token>
 Origin: http://127.0.0.1:8787
-```
+
+```text
 
 #### Rate-Limit-Header (Response)
 
@@ -77,7 +86,8 @@ X-RateLimit-Reset-After: 60
     "text": "Erkläre mir Quantenphysik"
   }
 }
-```
+
+```text
 
 #### Vollständige Anfrage
 
@@ -100,7 +110,7 @@ Hinweis: Der kanonische JSON‑Request ist in der OpenAPI‑Spezifikation als Ko
 (`input.text` oder `text` + optionales `mode` auf Top‑Level), normalisiert diese jedoch vor der
 Validierung gegen das Schema.
 
-### Multipart-Format (mit Dateien)
+### Multipart-Format (mit Dateien) (2)
 
 ```bash
 curl -X POST \
@@ -112,7 +122,8 @@ curl -X POST \
   -F "files[]=@marketing-plan.pdf;type=application/pdf" \
   -F "files[]=@screenshot.png;type=image/png" \
   http://127.0.0.1:8787/api/prompt-enhance
-```
+
+```text
 
 ### Parameter-Details
 
@@ -134,6 +145,7 @@ curl -X POST \
 #### `mode` Parameter
 
 - **`agent`**: Erstellt detaillierte, schrittweise Anleitungen (empfohlen für komplexe Aufgaben)
+
 - **`concise`**: Erstellt kürzere, prägnante Prompts (empfohlen für einfache Anfragen)
 
 ### Dateianhänge (Multipart only)
@@ -141,8 +153,11 @@ curl -X POST \
 #### Unterstützte Formate
 
 - **Bilder**: `image/jpeg`, `image/png`, `image/webp`
+
 - **Dokumente**: `text/plain`, `text/markdown`, `application/pdf`
+
 - **Maximale Anzahl**: 3 Dateien pro Anfrage
+
 - **Größenlimit**: Abhängig von OpenAI's Limits (typisch 20MB pro Datei)
 
 #### Form-Felder
@@ -180,7 +195,8 @@ curl -X POST \
     }
   }
 }
-```
+
+```text
 
 ### Response-Felder
 
@@ -191,6 +207,7 @@ curl -X POST \
 Der optimierte Prompt im angeforderten Format:
 
 - **Markdown**: Strukturierte Sektionen (Role, Objective, Constraints, Steps, Examples)
+
 - **Plain**: Einfacher Text (wenn LLM-Modus verwendet wird)
 
 #### `safetyReport`
@@ -255,7 +272,8 @@ Der optimierte Prompt im angeforderten Format:
     }
   }
 }
-```
+
+```text
 
 ### Feature-Deaktiviert (403)
 
@@ -285,7 +303,8 @@ Der optimierte Prompt im angeforderten Format:
     }
   }
 }
-```
+
+```text
 
 ## Client-Implementierung
 
@@ -445,7 +464,8 @@ function createFormData(text: string, files?: File[]): FormData {
 
   return formData;
 }
-```
+
+```text
 
 ## Testing
 
@@ -560,7 +580,8 @@ describe('Prompt Enhance Multipart', () => {
     expect(data.error.message).toContain('Invalid files');
   });
 });
-```
+
+```json
 
 ### E2E-Tests
 
@@ -636,7 +657,8 @@ class RequestDeduplicator {
     return promise;
   }
 }
-```
+
+```text
 
 #### Progressive Enhancement
 
@@ -680,7 +702,8 @@ async function enhanceWithRetry(text: string, maxRetries: number = 3): Promise<s
 function isRetryableError(error: any): boolean {
   return error.type === 'rate_limit' || error.type === 'server_error';
 }
-```
+
+```text
 
 #### User-Friendly Error-Messages
 
@@ -730,7 +753,8 @@ class PromptCache {
     return `${options.mode}-${options.outputFormat}-${hash(text)}`;
   }
 }
-```
+
+```text
 
 ### Request-Optimierung
 
@@ -771,7 +795,8 @@ function sanitizeInput(text: string): string {
     .replace(/\s+/g, ' ')
     .trim();
 }
-```
+
+```text
 
 ### File-Validation
 
@@ -826,7 +851,8 @@ function trackEnhancement(
     timestamp: Date.now(),
   });
 }
-```
+
+```text
 
 ### Performance-Metriken
 
@@ -865,14 +891,20 @@ try {
 #### Rate-Limit-Fehler
 
 ```bash
+
 # Rate-Limit-Status prüfen
+
 curl -I http://127.0.0.1:8787/api/prompt/usage
 
 # Response:
+
 # X-RateLimit-Limit: 15
+
 # X-RateLimit-Remaining: 0
+
 # X-RateLimit-Reset-After: 60
-```
+
+```bash
 
 #### CSRF-Fehler
 
@@ -888,7 +920,9 @@ curl -H "X-CSRF-Token: $(cat /tmp/csrf_token)" \
 #### Datei-Upload-Fehler
 
 ```bash
+
 # Multipart-Request mit korrekten Content-Type
+
 curl -X POST \
   -H "X-CSRF-Token: 123" \
   -H "Cookie: csrf_token=123" \
@@ -896,7 +930,8 @@ curl -X POST \
   -F "text=Analyze this document" \
   -F "files[]=@document.pdf;type=application/pdf" \
   http://127.0.0.1:8787/api/prompt-enhance
-```
+
+```text
 
 ### Debug-Modi
 
@@ -938,7 +973,8 @@ async function debugEnhancement(text: string): Promise<void> {
   const data = await response.json();
   console.log('Response data:', data);
 }
-```
+
+```text
 
 ## Migration & Updates
 
@@ -994,33 +1030,43 @@ export const POST = withApiMiddleware(async (context) => {
 
   return createApiSuccess(result);
 });
-```
+
+```text
 
 ## Ressourcen
 
 ### Weiterführende Dokumentation
 
 - **[API Overview](./api-overview.md)** - Allgemeine API-Architektur
+
 - **[API Guidelines](./api-guidelines.md)** - Best Practices für API-Entwicklung
+
 - **[Error Handling](./error-handling.md)** - Fehlercodes und Response-Formate
+
 - **[Rate Limiting](./rate-limiting-api.md)** - Rate-Limiting-Strategien
 
 ### Tools & Libraries
 
 - **[Prompt Enhancer Service](../../lib/services/prompt-enhancer-service.ts)** - Core Service-Implementierung
+
 - **[File Validation](../../lib/services/prompt-attachments.ts)** - Datei-Validierung
+
 - **[Rate Limiter](../../lib/rate-limiter.ts)** - Rate-Limiting-Implementierung
 
-### Testing
+### Testing (2)
 
 - **[Integration Tests](../../tests/integration/prompt-enhance-multipart.test.ts)** - Multipart-Tests
+
 - **[E2E Tests](../../../test-suite-v2/src/e2e/prompt-enhancer.spec.ts)** - End-to-End-Tests
+
 - **[Unit Tests](../../tests/unit/hooks/useEnhance.test.tsx)** - Hook-Tests
 
 ### Standards
 
 - **[OpenAI File Search](https://platform.openai.com/docs/assistants/tools/file-search)** - OpenAI File Search API
+
 - **[RFC 7578](https://tools.ietf.org/html/rfc7578)** - Multipart Form Data
+
 - **[RFC 7231](https://tools.ietf.org/html/rfc7231)** - HTTP/1.1 Semantics
 
 ---
@@ -1028,8 +1074,11 @@ export const POST = withApiMiddleware(async (context) => {
 ## Cross-Referenzen
 
 - **[Architecture](../../architecture/prompt-enhancer.md)** - Prompt-Enhancer-Architektur
+
 - **[Development](../../development/)** - Entwicklung mit Prompt-Enhancer
+
 - **[Security](../../security/)** - Security-Aspekte des Prompt-Enhancer
+
 - **[Testing](../../testing/)** - Prompt-Enhancer-Tests
 
 ## Ownership & Maintenance
@@ -1042,3 +1091,5 @@ export const POST = withApiMiddleware(async (context) => {
 ---
 
 *Zuletzt aktualisiert: 2025-10-27*
+
+```text

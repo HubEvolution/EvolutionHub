@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD051 -->
+
 # Testing Guidelines
 
 Diese Richtlinien definieren verbindliche Praktiken für Unit-, Integrations- und E2E-Tests in EvolutionHub. Ziel ist robuste, wartbare Tests mit realistischen Szenarien und automatischen Quality-Gates.
@@ -7,8 +9,11 @@ Diese Richtlinien definieren verbindliche Praktiken für Unit-, Integrations- un
 ## Ziele und Grundsätze
 
 - **Stabilität**: deterministische Tests, keine Flakes
+
 - **Lesbarkeit**: AAA-Muster (Arrange, Act, Assert)
+
 - **Realismus**: so wenig Mocks wie möglich, echte Kantenfälle
+
 - **Automatisierte Qualität**: Coverage-Gates in `vitest.config.ts`
 
 ---
@@ -16,7 +21,9 @@ Diese Richtlinien definieren verbindliche Praktiken für Unit-, Integrations- un
 ## Test-Layer
 
 - **Unit**: reine Funktions-/Modultests (schnell, isoliert)
+
 - **Integration**: Zusammenspiel mehrerer Module/Schichten
+
 - **E2E (Playwright)**: Nutzerfluss gegen Staging (`TEST_BASE_URL`) oder lokal mit Wrangler-Fallback
 
 ---
@@ -24,9 +31,13 @@ Diese Richtlinien definieren verbindliche Praktiken für Unit-, Integrations- un
 ## Konventionen
 
 - **Dateinamen**: `*.test.ts` oder `*.spec.ts`
+
 - **Struktur**: `describe`-Blöcke mit sprechenden Namen; `it/test` für Fälle
+
 - **AAA**: Setup (Arrange), Ausführung (Act), Erwartungen (Assert)
+
 - **Erwartungen**: präzise, aber nicht über-spezifisch (z.B. Timestamps nicht exakt matchen)
+
 - **Cleanup**: `afterEach(() => vi.restoreAllMocks())` und ggf. `vi.clearAllMocks()`
 
 ```ts
@@ -45,15 +56,19 @@ describe('Modul XYZ', () => {
     // Assert
   });
 });
-```
+
+```text
 
 ---
 
 ## Spies & Mocks (Vitest)
 
 - **Console-Spies**: `vi.spyOn(console, 'info')` etc. und nach jedem Test zurücksetzen
+
 - **Modul-Mocks**: sparsam einsetzen; nur externe Effekte (Netzwerk, Zeit, Zufall)
+
 - **Timer**: `vi.useFakeTimers()` nur, wenn nötig – sonst reale Timer lassen
+
 - **Process/Exit**: via Spy/Mock kapseln, nie real beenden
 
 ```ts
@@ -71,9 +86,13 @@ Quellmodul: `test-suite-v2/utils/logger.ts`
 ### Signaturen und Erwartungen
 
 - `log(level, message, data?)` ruft `console[level](header, message, data|undefined)`
+
 - `logWithExtra(level, message, extra?, data?)` ruft `console[level](header, message, [extra], data|undefined)`
+
 - `header` enthält ISO-Timestamp und Level plus Emojis
+
   - Nicht exakt auf Timestamp asserten
+
   - Prüfe z.B. Level-Emoji (`ℹ️`, `⚠️`, `❌`, `🔍`) und ggf. Message-Emoji (`📨`, `📡`, `🗄️`, `🐌`, `🧠`, `⏭️`, `✅`, `🚀`)
 
 ```ts
@@ -127,12 +146,15 @@ describe('TestLogger', () => {
     );
   });
 });
-```
+
+```text
 
 Tipps:
 
 - Verwende `expect.any(String)`/`expect.stringContaining('ℹ️')` für Header
+
 - Prüfe Argumentanzahl/Position: `data` ist immer das letzte Argument (auch wenn `undefined`)
+
 - Für `logWithExtra(...)` wird `extra` an Position 3 eingeschoben (falls gesetzt)
 
 ---
@@ -140,7 +162,9 @@ Tipps:
 ## Coverage & Quality Gates
 
 - Thresholds in `vitest.config.ts` (global):
+
   - Branches ≥ 90%, Lines/Statements/Functions ≥ 95%, `perFile: false`
+
 - Ausführung lokal:
 
 ```bash
@@ -154,7 +178,9 @@ npm run test:coverage
 ## E2E-Tests (Kurz)
 
 - CI: `TEST_BASE_URL` muss gesetzt sein (Staging)
+
 - Lokal: Ohne `TEST_BASE_URL` über Global-Setup Wrangler-Dev starten (`npm run dev`)
+
 - Ziel: echte Cloudflare-Bindings für realistische Flows
 
 ---
@@ -162,6 +188,9 @@ npm run test:coverage
 ## Best Practices
 
 - Keine starren Zeit-Assertions (Timestamps, zufällige IDs)
+
 - Keine globalen Seiteneffekte zwischen Tests; Cleanup erzwingen
+
 - Aussagekräftige Testnamen, klare Fehlermeldungen
+
 - Bevorzuge kleine, fokussierte Tests über monolithische Fälle

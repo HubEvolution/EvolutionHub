@@ -176,7 +176,7 @@ describe('Lead-Magnet-API-Integration', () => {
         const json = safeParseJson(response.text);
         expect(json?.success).toBe(true);
         expect(json?.data?.downloadUrl).toBeDefined();
-        expect((json?.data?.downloadUrl || '')).toContain('r2');
+        expect(json?.data?.downloadUrl || '').toContain('r2');
       }
     });
 

@@ -69,10 +69,20 @@ class ConsoleLogger implements ExtendedLogger {
     const sanitizedContext = LogUtils.sanitizeObject(ctx);
 
     const consoleMethod = level === LOG_LEVELS.LOG ? 'log' : level;
-    (console as any)[consoleMethod](
-      `[${timestamp}] [${level.toUpperCase()}] ${message}`,
-      sanitizedContext
-    );
+    const method: 'log' | 'debug' | 'info' | 'warn' | 'error' =
+      consoleMethod === 'debug' ||
+      consoleMethod === 'info' ||
+      consoleMethod === 'warn' ||
+      consoleMethod === 'error'
+        ? consoleMethod
+        : 'log';
+    const fn = (
+      console as unknown as Record<
+        'log' | 'debug' | 'info' | 'warn' | 'error',
+        (...args: unknown[]) => void
+      >
+    )[method];
+    fn(`[${timestamp}] [${level.toUpperCase()}] ${message}`, sanitizedContext);
   }
 
   debug(message: string, context?: LogContext): void {

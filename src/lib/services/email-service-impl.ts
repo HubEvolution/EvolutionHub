@@ -95,14 +95,18 @@ export class ResendEmailService extends AbstractBaseService implements EmailServ
       });
 
       if (error) {
+        const em =
+          typeof (error as { message?: unknown }).message === 'string'
+            ? (error as { message: string }).message
+            : String(error);
         log('error', 'Resend API error (verification email)', {
-          errorMessage: (error as any)?.message || String(error),
+          errorMessage: em,
           to: maskEmail(request.email),
           kind: 'verification',
         });
         return {
           success: false,
-          error: error.message || 'Failed to send verification email',
+          error: em || 'Failed to send verification email',
         };
       }
 
@@ -151,14 +155,18 @@ export class ResendEmailService extends AbstractBaseService implements EmailServ
       });
 
       if (error) {
+        const em =
+          typeof (error as { message?: unknown }).message === 'string'
+            ? (error as { message: string }).message
+            : String(error);
         log('error', 'Resend API error (welcome email)', {
-          errorMessage: (error as any)?.message || String(error),
+          errorMessage: em,
           to: maskEmail(email),
           kind: 'welcome',
         });
         return {
           success: false,
-          error: error.message || 'Failed to send welcome email',
+          error: em || 'Failed to send welcome email',
         };
       }
 
@@ -204,14 +212,18 @@ export class ResendEmailService extends AbstractBaseService implements EmailServ
       });
 
       if (error) {
+        const em =
+          typeof (error as { message?: unknown }).message === 'string'
+            ? (error as { message: string }).message
+            : String(error);
         log('error', 'Resend API error (generic email)', {
-          errorMessage: (error as any)?.message || String(error),
+          errorMessage: em,
           to: (request.to || []).map(maskEmail).join(','),
           kind: 'generic',
         });
         return {
           success: false,
-          error: error.message || 'Failed to send email',
+          error: em || 'Failed to send email',
         };
       }
 

@@ -74,9 +74,10 @@ const q = new URL(Astro.url).searchParams;
 const commentsResult: FetchCommentsResult = await fetchComments();
 // Normalize admin comments list: API returns data.comments as either Array or { comments, total, hasMore }
 type AdminComment = CommentModerationData['data']['comments'][number];
-const rawComments: unknown = commentsResult.ok && commentsResult.data?.success
-  ? (commentsResult.data.data as unknown as Record<string, unknown>)?.comments
-  : undefined;
+const rawComments: unknown =
+  commentsResult.ok && commentsResult.data?.success
+    ? (commentsResult.data.data as unknown as Record<string, unknown>)?.comments
+    : undefined;
 let adminCommentsList: AdminComment[] = [];
 let adminMeta: { total: number; hasMore: boolean } = { total: 0, hasMore: false };
 if (Array.isArray(rawComments)) {
@@ -523,7 +524,7 @@ const stats =
   <script>
     // Select-all behavior
     document.getElementById('select-all')?.addEventListener('change', (ev) => {
-      const target = (ev?.target as HTMLInputElement | null);
+      const target = ev?.target as HTMLInputElement | null;
       const checked = !!(target && target.checked);
       document.querySelectorAll('input.comment-select').forEach((el) => {
         if (el instanceof HTMLInputElement) {
@@ -575,13 +576,18 @@ const stats =
         })
           .then((response) => response.json())
           .then((data: unknown) => {
-            const ok = !!(data && typeof data === 'object' && (data as { success?: boolean }).success);
+            const ok = !!(
+              data &&
+              typeof data === 'object' &&
+              (data as { success?: boolean }).success
+            );
             if (ok) {
               location.reload();
             } else {
               const msg =
                 data && typeof data === 'object'
-                  ? ((data as { error?: { message?: string } }).error?.message || 'Unbekannter Fehler')
+                  ? (data as { error?: { message?: string } }).error?.message ||
+                    'Unbekannter Fehler'
                   : 'Unbekannter Fehler';
               alert('Fehler bei der Moderation: ' + msg);
             }

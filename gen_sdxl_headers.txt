@@ -1,0 +1,21 @@
+HTTP/2 500 
+date: Fri, 31 Oct 2025 09:33:12 GMT
+content-type: application/json
+content-length: 142
+content-language: de
+x-frame-options: DENY
+strict-transport-security: max-age=31536000; includeSubDomains; preload
+vary: Cookie, Accept-Language, accept-encoding
+content-security-policy: default-src 'self'; script-src 'self' 'nonce-+pSoGibhCHwJHt9AwD6gqg==' https://cdn.jsdelivr.net https://www.googletagmanager.com https://plausible.io https://challenges.cloudflare.com; script-src-elem 'self' 'nonce-+pSoGibhCHwJHt9AwD6gqg==' https://cdn.jsdelivr.net https://www.googletagmanager.com https://plausible.io https://challenges.cloudflare.com; connect-src 'self' https: wss:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; img-src 'self' data: blob: https:; font-src 'self' https://fonts.gstatic.com; frame-src 'self' https://challenges.cloudflare.com; frame-ancestors 'self'; object-src 'none'; base-uri 'self'; report-uri /api/csp-report
+cross-origin-opener-policy: same-origin
+permissions-policy: camera=(), microphone=(), geolocation=(), interest-cohort=()
+referrer-policy: strict-origin-when-cross-origin
+server-timing: session;dur=0, render;dur=1727, total;dur=1727
+x-content-type-options: nosniff
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=mM8CWTaGi8wVN79hhgv38a1gVADDryfcy2g%2FnKUT6DdY%2FKiwAIJpjOlGQ%2BcplvnrTgimshO0%2Bbtvkpa1OwQCWZN3tTCEgKqWKU4C2rtDKD%2Fr"}]}
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+server: cloudflare
+set-cookie: guest_id=99c5c018-d6f5-4c27-b8fe-76fb285a15ae; HttpOnly; SameSite=Lax; Secure; Path=/; Max-Age=15552000
+cf-ray: 9972263c8f64a46a-DUS
+alt-svc: h3=":443"; ma=86400
+

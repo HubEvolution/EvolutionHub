@@ -6,6 +6,12 @@
  */
 
 import coordinator, { SCRIPT_PRIORITIES } from '@/lib/script-coordinator';
+
+type SettingsHandlerContext = {
+  profileFormCleanup?: () => void;
+  passwordFormCleanup?: () => void;
+  avatarUploadCleanup?: () => void;
+};
 import notify from '@/lib/notify';
 
 // Settings-Module Registration
@@ -20,7 +26,7 @@ coordinator.register({
       pathname.includes('/account')
     );
   },
-  init: async function (this: any) {
+  init: async function (this: SettingsHandlerContext) {
     console.log('[Settings] Initializing settings page handlers');
     // Notifications are handled via typed Sonner wrapper (see '@/lib/notify')
 
@@ -64,7 +70,7 @@ coordinator.register({
     })();
 
     // Profile Form Handler
-    function handleProfileForm(this: any) {
+    function handleProfileForm(this: SettingsHandlerContext) {
       const form = document.getElementById('profile-form') as HTMLFormElement;
       if (!form) {
         console.log('[Settings] Profile form not found - skipping');
@@ -119,7 +125,7 @@ coordinator.register({
       form.addEventListener('submit', submitHandler);
 
       // Store cleanup function
-      (this as any).profileFormCleanup = () => {
+      this.profileFormCleanup = () => {
         form.removeEventListener('submit', submitHandler);
       };
     }
@@ -135,7 +141,7 @@ coordinator.register({
     }
 
     // Password Form Handler
-    function handlePasswordForm(this: any) {
+    function handlePasswordForm(this: SettingsHandlerContext) {
       const form = document.getElementById('password-form') as HTMLFormElement;
       const strengthIndicator = document.getElementById('password-strength');
       const errorsContainer = document.getElementById('password-errors') as HTMLElement | null;
@@ -239,7 +245,7 @@ coordinator.register({
       form.addEventListener('submit', submitHandler);
 
       // Store cleanup functions
-      (this as any).passwordFormCleanup = () => {
+      this.passwordFormCleanup = () => {
         if (submitHandler) form.removeEventListener('submit', submitHandler);
         if (strengthHandler && newPasswordInput) {
           newPasswordInput.removeEventListener('input', strengthHandler);
@@ -248,7 +254,7 @@ coordinator.register({
     }
 
     // Avatar Upload Handler
-    function handleAvatarUpload(this: any) {
+    function handleAvatarUpload(this: SettingsHandlerContext) {
       const uploadElement = document.getElementById('avatar-upload') as HTMLInputElement;
       const changeButton = document.getElementById('change-avatar-btn') as HTMLButtonElement;
 
@@ -293,10 +299,10 @@ coordinator.register({
               dataUnknown &&
               typeof dataUnknown === 'object' &&
               'imageUrl' in dataUnknown &&
-              typeof (dataUnknown as any).imageUrl === 'string'
+              typeof (dataUnknown as { imageUrl?: unknown }).imageUrl === 'string'
             ) {
               if (avatarPreview) {
-                avatarPreview.src = (dataUnknown as any).imageUrl as string;
+                avatarPreview.src = (dataUnknown as { imageUrl: string }).imageUrl;
               }
               notify.success('Avatar updated successfully!');
             } else {
@@ -321,7 +327,7 @@ coordinator.register({
       uploadElement.addEventListener('change', changeHandler);
 
       // Store cleanup functions
-      (this as any).avatarUploadCleanup = () => {
+      this.avatarUploadCleanup = () => {
         if (clickHandler) changeButton.removeEventListener('click', clickHandler);
         if (changeHandler) uploadElement.removeEventListener('change', changeHandler);
       };
@@ -335,16 +341,16 @@ coordinator.register({
     console.log('[Settings] All settings handlers initialized successfully');
   },
 
-  cleanup: function (this: any) {
+  cleanup: function (this: SettingsHandlerContext) {
     // Call all stored cleanup functions
-    if ((this as any).profileFormCleanup) {
-      (this as any).profileFormCleanup();
+    if (this.profileFormCleanup) {
+      this.profileFormCleanup();
     }
-    if ((this as any).passwordFormCleanup) {
-      (this as any).passwordFormCleanup();
+    if (this.passwordFormCleanup) {
+      this.passwordFormCleanup();
     }
-    if ((this as any).avatarUploadCleanup) {
-      (this as any).avatarUploadCleanup();
+    if (this.avatarUploadCleanup) {
+      this.avatarUploadCleanup();
     }
 
     console.log('[Settings] Settings handlers cleaned up');

@@ -14,12 +14,15 @@ class FakeKV {
   private store = new Map<string, { value: string; expirationTtl?: number }>();
   public lastPut?: { key: string; expirationTtl?: number };
 
-  async get(key: string, opts?: { type?: 'text' | 'json' | 'stream' } | 'text' | 'json' | 'stream') {
+  async get(
+    key: string,
+    opts?: { type?: 'text' | 'json' | 'stream' } | 'text' | 'json' | 'stream'
+  ) {
     const rec = this.store.get(key);
-    if (!rec) return null as any;
+    if (!rec) return null;
     const type = typeof opts === 'string' ? opts : opts?.type;
     if (type === 'json') return JSON.parse(rec.value);
-    return rec.value as any;
+    return rec.value;
   }
 
   async put(key: string, value: string, options?: { expirationTtl?: number }) {
@@ -68,7 +71,8 @@ describe('kv/usage key builders', () => {
 
 describe('incrementDaily (EOD TTL semantics)', () => {
   it('sets resetAt to UTC EOD and TTL ~ seconds until EOD', async () => {
-    const kv = new FakeKV() as unknown as KVNamespace;
+    const kvImpl = new FakeKV();
+    const kv = kvImpl as unknown as KVNamespace;
     const before = nowSec();
     const res = await incrementDaily(kv, 'test', 'user', 'u1', 10);
     const after = nowSec();
@@ -78,7 +82,7 @@ describe('incrementDaily (EOD TTL semantics)', () => {
     expect(res.usage.resetAt).toBeGreaterThanOrEqual(eod - 2);
     expect(res.usage.resetAt).toBeLessThanOrEqual(eod + 2);
 
-    const ttl = (kv as any as FakeKV).lastPut?.expirationTtl ?? 0;
+    const ttl = kvImpl.lastPut?.expirationTtl ?? 0;
     const remainingLower = eod - after - 2;
     const remainingUpper = eod - before + 2;
     expect(ttl).toBeGreaterThanOrEqual(Math.max(1, remainingLower));
@@ -87,14 +91,15 @@ describe('incrementDaily (EOD TTL semantics)', () => {
     const res2 = await incrementDaily(kv, 'test', 'user', 'u1', 10);
     expect(res2.usage.count).toBe(2);
     expect(res2.usage.resetAt).toBe(res.usage.resetAt);
-    const ttl2 = (kv as any as FakeKV).lastPut?.expirationTtl ?? 0;
+    const ttl2 = kvImpl.lastPut?.expirationTtl ?? 0;
     expect(ttl2).toBeLessThanOrEqual(ttl);
   });
 });
 
 describe('incrementDailyRolling (rolling 24h semantics)', () => {
   it('starts new 24h window and keeps resetAt stable within window', async () => {
-    const kv = new FakeKV() as unknown as KVNamespace;
+    const kvImpl = new FakeKV();
+    const kv = kvImpl as unknown as KVNamespace;
     const start = nowSec();
     const res = await incrementDailyRolling(kv, 'prompt', 'guest', 'g1', 3);
     expect(res.usage.count).toBe(1);
@@ -104,7 +109,7 @@ describe('incrementDailyRolling (rolling 24h semantics)', () => {
     const res2 = await incrementDailyRolling(kv, 'prompt', 'guest', 'g1', 3);
     expect(res2.usage.count).toBe(2);
     expect(res2.usage.resetAt).toBe(res.usage.resetAt);
-    const ttl1 = (kv as any as FakeKV).lastPut?.expirationTtl ?? 0;
+    const ttl1 = kvImpl.lastPut?.expirationTtl ?? 0;
     expect(ttl1).toBeLessThanOrEqual(res.usage.resetAt - nowSec());
   });
 });

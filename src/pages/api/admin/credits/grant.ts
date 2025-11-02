@@ -70,7 +70,7 @@ export const POST = withAuthApiMiddleware(
 
     await addCreditPackTenths(kv, userId, packId, unitsTenths);
     const balanceTenths = await getCreditsBalanceTenths(kv, userId);
-    const ip = typeof (context as any).clientAddress === 'string' ? (context as any).clientAddress : null;
+    const ip = typeof context.clientAddress === 'string' ? context.clientAddress : null;
     try {
       await db
         .prepare(

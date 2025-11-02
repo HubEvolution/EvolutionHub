@@ -6,10 +6,12 @@ import { sanitizeReturnTo } from '@/utils/sanitizeReturnTo';
 import { loggerFactory } from '@/server/utils/logger-factory';
 
 export const GET = withRedirectMiddleware(async (context: APIContext) => {
-  const env: any = context.locals?.runtime?.env ?? {};
+  const rawEnv = (context.locals?.runtime?.env ?? {}) as Record<string, unknown>;
   const user = context.locals?.user as { id: string } | undefined;
   const reqUrl = new URL(context.request.url);
-  const baseUrl: string = env.BASE_URL || `${reqUrl.protocol}//${reqUrl.host}`;
+  const baseUrl: string =
+    (typeof rawEnv.BASE_URL === 'string' ? (rawEnv.BASE_URL as string) : '') ||
+    `${reqUrl.protocol}//${reqUrl.host}`;
 
   // Fallback to pricing when portal cannot be opened
   const pricingHref = '/pricing';
@@ -23,10 +25,16 @@ export const GET = withRedirectMiddleware(async (context: APIContext) => {
   };
 
   if (!user) return fallback('unauthorized');
-  if (!env.STRIPE_SECRET) return fallback('stripe_not_configured');
+  const stripeSecret =
+    typeof rawEnv.STRIPE_SECRET === 'string' ? (rawEnv.STRIPE_SECRET as string) : '';
+  if (!stripeSecret) return fallback('stripe_not_configured');
 
-  const db = env.DB;
-  if (!db) return fallback('db_unavailable');
+  const dbUnknown = (rawEnv as { DB?: unknown }).DB;
+  const hasPrepare = typeof (dbUnknown as { prepare?: unknown })?.prepare === 'function';
+  if (!dbUnknown || !hasPrepare) return fallback('db_unavailable');
+  type D1Stmt = { bind: (...args: unknown[]) => { first: () => Promise<unknown | null> } };
+  type D1Like = { prepare: (sql: string) => D1Stmt };
+  const db = dbUnknown as D1Like;
 
   try {
     const row = (await db
@@ -37,7 +45,7 @@ export const GET = withRedirectMiddleware(async (context: APIContext) => {
     const customerId = row?.customer_id || '';
     if (!customerId) return fallback('no_customer');
 
-    const stripe = new Stripe(env.STRIPE_SECRET);
+    const stripe = new Stripe(stripeSecret);
     const returnToRaw = reqUrl.searchParams.get('return_to') || '';
     const safeReturnTo = sanitizeReturnTo(returnToRaw) || '/dashboard';
     const session = await stripe.billingPortal.sessions.create({

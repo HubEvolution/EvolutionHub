@@ -94,11 +94,13 @@ export function logSecurityEvent(
   const logMessage = `Security Event: ${type}`;
 
   // Erstelle ein umfassendes Context-Objekt für den zentralen Log-Aufruf
+  const messageMaybe = (details as { message?: unknown }).message;
+  const userMessage = typeof messageMaybe === 'string' ? messageMaybe : undefined;
   const contextForLog = {
     ...options, // Beinhaltet userId, targetResource, ipAddress
     securityEventType: type, // Expliziter Typ für den Log-Eintrag
     originalDetails: details, // Die originalen Detail-Informationen
-    ...(details.message && { userMessage: details.message }), // Füge eine spezifische Nachricht hinzu, falls vorhanden
+    ...(userMessage ? { userMessage } : {}), // Füge eine spezifische Nachricht hinzu, falls vorhanden
     logLevel: logLevel, // Behalte das bestimmte Level bei, falls es im Kontext nützlich ist
     eventSnapshot: event, // vollständiger Ereignis-Snapshot zur Nachverfolgbarkeit
   };
@@ -181,7 +183,7 @@ export function logSuspiciousActivity(ipAddress: string, details: Record<string,
  */
 export function logApiError(
   targetResource: string,
-  details: Record<string, any> = {},
+  details: Record<string, unknown> = {},
   options: { userId?: string; ipAddress?: string } = {}
 ) {
   logSecurityEvent('API_ERROR', details, {
@@ -198,18 +200,25 @@ export function logApiError(
  * @param ipAddress IP-Adresse des anfragenden Clients
  * @param details Zusätzliche Details wie Endpunkt, Methode und andere relevante Daten
  */
-export function logApiAccess(userId: string, ipAddress: string, details: Record<string, any> = {}) {
+export function logApiAccess(
+  userId: string,
+  ipAddress: string,
+  details: Record<string, unknown> = {}
+) {
+  const d = details as { endpoint?: unknown; path?: unknown };
+  const endpoint = typeof d.endpoint === 'string' ? d.endpoint : undefined;
+  const path = typeof d.path === 'string' ? d.path : undefined;
   logSecurityEvent('API_ACCESS', details, {
     userId: userId || 'anonymous',
     ipAddress: ipAddress || 'unknown',
-    targetResource: details.endpoint || details.path || 'unknown',
+    targetResource: endpoint || path || 'unknown',
   });
 }
 
 /**
  * Hilfsfunktion für Authentifizierungsversuche
  */
-export function logAuthAttempt(ipAddress: string, details: Record<string, any> = {}) {
+export function logAuthAttempt(ipAddress: string, details: Record<string, unknown> = {}) {
   logSecurityEvent('AUTH_FAILURE', details, { ipAddress });
 }
 
@@ -223,14 +232,18 @@ export function logAuthAttempt(ipAddress: string, details: Record<string, any> =
  * @param eventType Typ des Ereignisses (für Details)
  * @param details Zusätzliche Details zum Ereignis
  */
-export function logUserEvent(userId: string, eventType: string, details: Record<string, any> = {}) {
+export function logUserEvent(
+  userId: string,
+  eventType: string,
+  details: Record<string, unknown> = {}
+) {
   logSecurityEvent('USER_EVENT', { eventType, ...details }, { userId });
 }
 
 /**
  * Metric-Helper (gebündelte Telemetrie über zentrale Log-Pipeline)
  */
-export function logMetricCounter(name: string, value = 1, dims?: Record<string, any>) {
+export function logMetricCounter(name: string, value = 1, dims?: Record<string, unknown>) {
   log('info', 'METRIC', {
     type: 'METRIC',
     metric: {
@@ -243,7 +256,7 @@ export function logMetricCounter(name: string, value = 1, dims?: Record<string, 
   });
 }
 
-export function logMetricGauge(name: string, value: number, dims?: Record<string, any>) {
+export function logMetricGauge(name: string, value: number, dims?: Record<string, unknown>) {
   log('info', 'METRIC', {
     type: 'METRIC',
     metric: {
@@ -256,7 +269,7 @@ export function logMetricGauge(name: string, value: number, dims?: Record<string
   });
 }
 
-export function logMetricTiming(name: string, ms: number, dims?: Record<string, any>) {
+export function logMetricTiming(name: string, ms: number, dims?: Record<string, unknown>) {
   log('info', 'METRIC', {
     type: 'METRIC',
     metric: {

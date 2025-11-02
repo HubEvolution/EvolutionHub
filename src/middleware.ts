@@ -593,7 +593,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
   tAfterSession = Date.now();
 
   if (isAdminRoute(path)) {
-    const u = (context.locals as any).user;
+    const u = (context.locals as { user?: { id: string } | null }).user;
     if (!u) {
       const targetLocale: Locale = existingLocale ?? preferredLocale;
       const base = targetLocale === 'en' ? '/en/login' : '/login';
@@ -605,14 +605,20 @@ export const onRequest = defineMiddleware(async (context, next) => {
       return new Response(null, { status: 302, headers });
     }
     try {
-      const db = (context.locals as any)?.runtime?.env?.DB;
+      type D1RowRole = { role?: string };
+      type D1DB = {
+        prepare: (sql: string) => {
+          bind: (...args: unknown[]) => { first: <T = unknown>() => Promise<T> };
+        };
+      };
+      const db = (context.locals?.runtime?.env as { DB?: D1DB } | undefined)?.DB;
       let role = 'user';
       if (db) {
         const row = await db
           .prepare('SELECT role FROM users WHERE id = ?')
           .bind(u.id)
-          .first();
-        role = (row as any)?.role || 'user';
+          .first<D1RowRole>();
+        role = row?.role || 'user';
       }
       if (role !== 'admin') {
         const targetLocale: Locale = existingLocale ?? preferredLocale;
@@ -782,7 +788,8 @@ export const onRequest = defineMiddleware(async (context, next) => {
   // cfEnv wurde weiter oben definiert
   const envFlagDev = !!(
     cfEnv &&
-    (cfEnv.ENVIRONMENT === 'development' || (cfEnv as any).NODE_ENV === 'development')
+    (cfEnv.ENVIRONMENT === 'development' ||
+      (cfEnv as Record<string, unknown>).NODE_ENV === 'development')
   );
   const __devLike =
     import.meta.env.DEV ||
@@ -819,8 +826,8 @@ export const onRequest = defineMiddleware(async (context, next) => {
       isProduction
         ? [
             "default-src 'self'",
-            `script-src 'self' 'nonce-${cspNonce}' https://cdn.jsdelivr.net https://www.googletagmanager.com https://plausible.io https://challenges.cloudflare.com`,
-            `script-src-elem 'self' 'nonce-${cspNonce}' https://cdn.jsdelivr.net https://www.googletagmanager.com https://plausible.io https://challenges.cloudflare.com`,
+            `script-src 'self' 'nonce-${cspNonce}' https://cdn.jsdelivr.net https://www.googletagmanager.com https://plausible.io https://static.cloudflareinsights.com https://challenges.cloudflare.com`,
+            `script-src-elem 'self' 'nonce-${cspNonce}' https://cdn.jsdelivr.net https://www.googletagmanager.com https://plausible.io https://static.cloudflareinsights.com https://challenges.cloudflare.com`,
             "connect-src 'self' https: wss:",
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net",
             "img-src 'self' data: blob: https:",
@@ -847,6 +854,37 @@ export const onRequest = defineMiddleware(async (context, next) => {
           ]
     ).join('; ');
     response.headers.set('Content-Security-Policy', csp);
+  }
+
+  // Route-scoped CSP relaxation for Video Enhancer: allow blob: media for client-side duration detection
+  try {
+    const vePaths = /^\/(?:(?:de|en)\/)?tools\/video-enhancer(?:\/app)?\/?$/;
+    if (vePaths.test(path)) {
+      const current = response.headers.get('Content-Security-Policy') || '';
+      const parts = current
+        .split(';')
+        .map((s) => s.trim())
+        .filter(Boolean);
+      let hasMedia = false;
+      for (let i = 0; i < parts.length; i++) {
+        if (parts[i].toLowerCase().startsWith('media-src ')) {
+          hasMedia = true;
+          if (!/\bblob:\b/.test(parts[i])) {
+            parts[i] = parts[i] + ' blob:';
+          }
+          if (!/\b'self'\b/.test(parts[i])) {
+            parts[i] = parts[i] + " 'self'";
+          }
+          break;
+        }
+      }
+      if (!hasMedia) {
+        parts.push("media-src 'self' blob:");
+      }
+      response.headers.set('Content-Security-Policy', parts.join('; '));
+    }
+  } catch {
+    // best-effort; keep original CSP if anything goes wrong
   }
 
   // In Production: augment CSP with sha256-hashes of inline scripts (e.g., Astro runtime)
@@ -885,7 +923,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
         const code = m[2] || '';
         if (!code) continue;
         // Compute hash and collect
-        // eslint-disable-next-line no-await-in-loop
+
         const h = await sha256Base64(code);
         hashes.push(`'sha256-${h}'`);
       }

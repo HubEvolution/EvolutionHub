@@ -18,6 +18,9 @@ export interface Env {
   GITHUB_TOKEN?: string;
   INTERNAL_HEALTH_TOKEN?: string;
   E2E_PROD_AUTH_SMOKE?: string;
+  HC_PRICING?: string;
+  HC_AUTH?: string;
+  HC_DOCS?: string;
 }
 
 function nowIso() {
@@ -54,6 +57,13 @@ async function putStatusKV(env: Env, key: string, data: unknown) {
     console.log('[cron-worker] KV put error', key, String(e));
     throw e;
   }
+}
+
+async function hcPing(url?: string, suffix?: string) {
+  if (!url) return;
+  try {
+    await fetch(url + (suffix || ''));
+  } catch {}
 }
 
 function parseTargets(env: Env): Array<{ url: string; host: string }> {
@@ -199,27 +209,48 @@ export default {
       const hostFilter = url.searchParams.get('host') || undefined;
       try {
         if (target === 'pricing') {
-          if (hostFilter) {
-            await runPricingSmokeAll(env, hostFilter);
-          } else {
-            await runPricingSmokeAll(env);
+          await hcPing(env.HC_PRICING, '/start');
+          try {
+            if (hostFilter) {
+              await runPricingSmokeAll(env, hostFilter);
+            } else {
+              await runPricingSmokeAll(env);
+            }
+            await hcPing(env.HC_PRICING);
+          } catch (e) {
+            await hcPing(env.HC_PRICING, '/fail');
+            throw e;
           }
           return new Response(JSON.stringify({ ok: true, ran: 'pricing', host: hostFilter || 'all' }), {
             headers: { 'Content-Type': 'application/json' },
           });
         }
         if (target === 'auth') {
-          if (hostFilter) {
-            await runProdAuthHealthAll(env, hostFilter);
-          } else {
-            await runProdAuthHealthAll(env);
+          await hcPing(env.HC_AUTH, '/start');
+          try {
+            if (hostFilter) {
+              await runProdAuthHealthAll(env, hostFilter);
+            } else {
+              await runProdAuthHealthAll(env);
+            }
+            await hcPing(env.HC_AUTH);
+          } catch (e) {
+            await hcPing(env.HC_AUTH, '/fail');
+            throw e;
           }
           return new Response(JSON.stringify({ ok: true, ran: 'auth', host: hostFilter || 'all' }), {
             headers: { 'Content-Type': 'application/json' },
           });
         }
         if (target === 'docs') {
-          await runDocsInventory(env);
+          await hcPing(env.HC_DOCS, '/start');
+          try {
+            await runDocsInventory(env);
+            await hcPing(env.HC_DOCS);
+          } catch (e) {
+            await hcPing(env.HC_DOCS, '/fail');
+            throw e;
+          }
           return new Response(JSON.stringify({ ok: true, ran: 'docs' }), {
             headers: { 'Content-Type': 'application/json' },
           });
@@ -256,14 +287,49 @@ export default {
   async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext) {
     console.log('[cron-worker] scheduled fired', event.cron, nowIso());
     if (event.cron === '0 2 * * *') {
-      ctx.waitUntil(runPricingSmokeAll(env));
+      ctx.waitUntil((async () => {
+        await hcPing(env.HC_PRICING, '/start');
+        try {
+          await runPricingSmokeAll(env);
+          await hcPing(env.HC_PRICING);
+        } catch (e) {
+          await hcPing(env.HC_PRICING, '/fail');
+          throw e;
+        }
+      })());
     } else if (event.cron === '0 4 * * *') {
-      ctx.waitUntil(runProdAuthHealthAll(env));
+      ctx.waitUntil((async () => {
+        await hcPing(env.HC_AUTH, '/start');
+        try {
+          await runProdAuthHealthAll(env);
+          await hcPing(env.HC_AUTH);
+        } catch (e) {
+          await hcPing(env.HC_AUTH, '/fail');
+          throw e;
+        }
+      })());
     } else if (event.cron === '0 5 * * 1') {
-      ctx.waitUntil(runDocsInventory(env));
+      ctx.waitUntil((async () => {
+        await hcPing(env.HC_DOCS, '/start');
+        try {
+          await runDocsInventory(env);
+          await hcPing(env.HC_DOCS);
+        } catch (e) {
+          await hcPing(env.HC_DOCS, '/fail');
+          throw e;
+        }
+      })());
     } else {
-      // Fallback for per-env overrides (e.g., testing with "* * * * *")
-      ctx.waitUntil(runPricingSmokeAll(env));
+      ctx.waitUntil((async () => {
+        await hcPing(env.HC_PRICING, '/start');
+        try {
+          await runPricingSmokeAll(env);
+          await hcPing(env.HC_PRICING);
+        } catch (e) {
+          await hcPing(env.HC_PRICING, '/fail');
+          throw e;
+        }
+      })());
     }
   },
 };

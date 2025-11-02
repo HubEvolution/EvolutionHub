@@ -73,7 +73,7 @@ export class ServiceError extends Error {
   constructor(
     message: string,
     public readonly type: ServiceErrorType,
-    public readonly details?: Record<string, any>
+    public readonly details?: Record<string, unknown>
   ) {
     super(message);
     this.name = 'ServiceError';
@@ -82,35 +82,35 @@ export class ServiceError extends Error {
   /**
    * Erstellt einen NOT_FOUND-Fehler
    */
-  static notFound(message: string, details?: Record<string, any>): ServiceError {
+  static notFound(message: string, details?: Record<string, unknown>): ServiceError {
     return new ServiceError(message, ServiceErrorType.NOT_FOUND, details);
   }
 
   /**
    * Erstellt einen VALIDATION-Fehler
    */
-  static validation(message: string, details?: Record<string, any>): ServiceError {
+  static validation(message: string, details?: Record<string, unknown>): ServiceError {
     return new ServiceError(message, ServiceErrorType.VALIDATION, details);
   }
 
   /**
    * Erstellt einen AUTHENTICATION-Fehler
    */
-  static authentication(message: string, details?: Record<string, any>): ServiceError {
+  static authentication(message: string, details?: Record<string, unknown>): ServiceError {
     return new ServiceError(message, ServiceErrorType.AUTHENTICATION, details);
   }
 
   /**
    * Erstellt einen AUTHORIZATION-Fehler
    */
-  static authorization(message: string, details?: Record<string, any>): ServiceError {
+  static authorization(message: string, details?: Record<string, unknown>): ServiceError {
     return new ServiceError(message, ServiceErrorType.AUTHORIZATION, details);
   }
 
   /**
    * Erstellt einen CONFLICT-Fehler (z.B. bei Duplikaten)
    */
-  static conflict(message: string, details?: Record<string, any>): ServiceError {
+  static conflict(message: string, details?: Record<string, unknown>): ServiceError {
     return new ServiceError(message, ServiceErrorType.CONFLICT, details);
   }
 }

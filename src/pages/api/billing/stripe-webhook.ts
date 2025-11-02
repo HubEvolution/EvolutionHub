@@ -1,9 +1,11 @@
+import type { APIContext } from 'astro';
 import Stripe from 'stripe';
 // Avoid strict KV typings in src-only typecheck scope
 import { withApiMiddleware } from '@/lib/api-middleware';
 import { createRateLimiter } from '@/lib/rate-limiter';
 import { createSecureErrorResponse, createSecureJsonResponse } from '@/lib/response-helpers';
 import { addCreditPackTenths, getCreditsBalanceTenths } from '@/lib/kv/usage';
+import type { D1Database, KVNamespace } from '@cloudflare/workers-types';
 
 const stripeWebhookLimiter = createRateLimiter({
   maxRequests: 100,
@@ -36,10 +38,16 @@ function invert<K extends string, V extends string>(obj: Record<K, V>): Record<V
 }
 
 export const POST = withApiMiddleware(
-  async (context: any) => {
-    const env = (context.locals?.runtime?.env || {}) as any;
-    const stripeSecret = (env as { STRIPE_SECRET?: string }).STRIPE_SECRET;
-    const webhookSecret = (env as { STRIPE_WEBHOOK_SECRET?: string }).STRIPE_WEBHOOK_SECRET;
+  async (context: APIContext) => {
+    const rawEnv = (context.locals?.runtime?.env || {}) as Record<string, unknown>;
+    const stripeSecret =
+      typeof (rawEnv as { STRIPE_SECRET?: string }).STRIPE_SECRET === 'string'
+        ? ((rawEnv as { STRIPE_SECRET?: string }).STRIPE_SECRET as string)
+        : '';
+    const webhookSecret =
+      typeof (rawEnv as { STRIPE_WEBHOOK_SECRET?: string }).STRIPE_WEBHOOK_SECRET === 'string'
+        ? ((rawEnv as { STRIPE_WEBHOOK_SECRET?: string }).STRIPE_WEBHOOK_SECRET as string)
+        : '';
 
     if (!stripeSecret || !webhookSecret) {
       return createSecureErrorResponse('Stripe not configured', 500);
@@ -48,7 +56,7 @@ export const POST = withApiMiddleware(
     const sig = context.request.headers.get('stripe-signature') || '';
     const rawBody = await context.request.text();
 
-    let event: any;
+    let event: { id: string; type: string; data: { object: unknown } };
     try {
       const stripe = new Stripe(stripeSecret);
       event = await stripe.webhooks.constructEventAsync(rawBody, sig, webhookSecret);
@@ -67,8 +75,14 @@ export const POST = withApiMiddleware(
       return createSecureErrorResponse('Invalid signature', 400);
     }
 
-    const db = env.DB;
-    const kv = (env as { KV_AI_ENHANCER?: any }).KV_AI_ENHANCER;
+    const dbMaybe = (rawEnv as { DB?: D1Database }).DB as D1Database | undefined;
+    const kv = (rawEnv as { KV_AI_ENHANCER?: KVNamespace }).KV_AI_ENHANCER as
+      | KVNamespace
+      | undefined;
+    if (!dbMaybe) {
+      return createSecureErrorResponse('Database unavailable', 500);
+    }
+    const db: D1Database = dbMaybe;
 
     // Helper: set user plan in users table
     async function setUserPlan(userId: string, plan: 'free' | 'pro' | 'premium' | 'enterprise') {
@@ -115,8 +129,8 @@ export const POST = withApiMiddleware(
     }
 
     // Map priceId -> plan via env tables (monthly + annual), where PRICING_TABLE* is plan->priceId
-    const monthlyRaw = (env as { PRICING_TABLE?: unknown }).PRICING_TABLE;
-    const annualRaw = (env as { PRICING_TABLE_ANNUAL?: unknown }).PRICING_TABLE_ANNUAL;
+    const monthlyRaw = (rawEnv as { PRICING_TABLE?: unknown }).PRICING_TABLE;
+    const annualRaw = (rawEnv as { PRICING_TABLE_ANNUAL?: unknown }).PRICING_TABLE_ANNUAL;
     const monthlyMap = invert(parsePricingTable(monthlyRaw));
     const annualMap = invert(parsePricingTable(annualRaw));
     const priceMap: Record<string, 'free' | 'pro' | 'premium' | 'enterprise'> = {};
@@ -129,17 +143,27 @@ export const POST = withApiMiddleware(
     try {
       switch (event.type) {
         case 'checkout.session.completed': {
-          const session = event.data.object as any;
+          const session = event.data.object as {
+            id?: string;
+            mode?: string;
+            customer?: unknown;
+            subscription?: unknown;
+            client_reference_id?: unknown;
+            customer_details?: { email?: unknown } | null;
+            metadata?: Record<string, unknown> | null;
+            created?: number;
+          };
           const customerId = (session.customer as string) || '';
           const subscriptionId = (session.subscription as string) || '';
-          const meta = session.metadata || {};
-          const userId = (meta['userId'] as string | undefined) || session.client_reference_id || '';
+          const meta = (session.metadata || {}) as Record<string, unknown>;
+          const userId =
+            (meta['userId'] as string | undefined) || (session.client_reference_id as string) || '';
           // Handle credit packs (one-time payments)
           if (session.mode === 'payment' && meta['purpose'] === 'credits' && kv) {
             const rawPack = meta['pack'] as string | undefined;
             const units = rawPack ? Number(rawPack) : 0;
             if (userId && Number.isFinite(units) && units > 0) {
-              const packId = session.id; // use Stripe session id for idempotency
+              const packId = session.id || `sess_${Date.now()}`; // idempotency key fallback
               // store as tenths and compute expiry internally
               await addCreditPackTenths(
                 kv,
@@ -169,12 +193,12 @@ export const POST = withApiMiddleware(
             (session.customer_details?.email as string | undefined) || undefined;
           if (!resolvedUserId && customerEmail) {
             try {
-              const row = (await db
+              const row = await db!
                 .prepare('SELECT id FROM users WHERE lower(email) = lower(?) LIMIT 1')
                 .bind(customerEmail)
-                .first()) as any;
-              if (row?.id) {
-                resolvedUserId = row.id;
+                .first<{ id: string }>();
+              if (row && row.id) {
+                resolvedUserId = row.id as string;
               }
             } catch (_err) {
               // Ignore database lookup failures; continue without resolved user
@@ -187,7 +211,8 @@ export const POST = withApiMiddleware(
               const payload = JSON.stringify({
                 customerId,
                 subscriptionId,
-                plan: (meta['plan'] as 'free' | 'pro' | 'premium' | 'enterprise' | undefined) || 'pro',
+                plan:
+                  (meta['plan'] as 'free' | 'pro' | 'premium' | 'enterprise' | undefined) || 'pro',
                 ts: Date.now(),
                 reason: 'checkout_completed_no_user_context',
               });
@@ -234,11 +259,18 @@ export const POST = withApiMiddleware(
         case 'customer.subscription.updated':
         case 'customer.subscription.created':
         case 'customer.subscription.deleted': {
-          const sub = event.data.object as any;
+          const sub = event.data.object as {
+            id: string;
+            customer?: unknown;
+            status?: string;
+            items?: { data?: Array<{ price?: { id?: unknown } | null }> };
+            current_period_end?: unknown;
+            cancel_at_period_end?: unknown;
+          };
           const customerId = (sub.customer as string) || '';
           if (!customerId) break;
           // Lookup user by customer
-          const row = (await db
+          const row = (await db!
             .prepare('SELECT user_id FROM stripe_customers WHERE customer_id = ?')
             .bind(customerId)
             .first()) as { user_id: string } | null;

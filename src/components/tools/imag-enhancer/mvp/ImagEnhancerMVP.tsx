@@ -1,23 +1,37 @@
-import { useState, useCallback, useRef, useMemo, type ChangeEvent, type KeyboardEvent } from 'react';
+import {
+  useState,
+  useCallback,
+  useRef,
+  useMemo,
+  type ChangeEvent,
+  type KeyboardEvent,
+} from 'react';
+import { toast } from 'sonner';
 import { SimpleResult } from './SimpleResult';
 import { EnhancerActionsMVP } from './EnhancerActionsMVP';
 import { useUploadMVP } from './hooks/useUploadMVP';
 import { useEnhanceMVP } from './hooks/useEnhanceMVP';
 import { useUsage } from '../hooks/useUsage';
 import { ALLOWED_MODELS } from '@/config/ai-image';
-import type { ImagEnhancerMVPProps, ApiSuccess, ApiErrorBody, GenerateResponseData, UsageData } from './types';
+import type {
+  ImagEnhancerMVPProps,
+  ApiSuccess,
+  ApiErrorBody,
+  GenerateResponseData,
+  UsageData,
+} from './types';
 import { clientLogger } from '@/lib/client-logger';
 
 /**
  * MVP Image Enhancer component with strict TypeScript typing.
  * Simplified flow: Upload → Select Model → Enhance → Download
- * 
+ *
  * @param props Component props with localized strings
  * @returns React element
  */
 export default function ImagEnhancerMVP(props: ImagEnhancerMVPProps): React.ReactElement {
   const { strings } = props;
-  
+
   // State management with explicit typing
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -25,32 +39,35 @@ export default function ImagEnhancerMVP(props: ImagEnhancerMVPProps): React.Reac
   const [loading, setLoading] = useState<boolean>(false);
   const [model, setModel] = useState<string>(() => {
     // Default to Topaz Image Upscale if available, else GFPGAN, else first allowed
-    const topaz = ALLOWED_MODELS.find(m => m.slug === 'topazlabs/image-upscale');
+    const topaz = ALLOWED_MODELS.find((m) => m.slug === 'topazlabs/image-upscale');
     if (topaz) return topaz.slug;
-    const gfpgan = ALLOWED_MODELS.find(m => m.slug.startsWith('tencentarc/gfpgan'));
+    const gfpgan = ALLOWED_MODELS.find((m) => m.slug.startsWith('tencentarc/gfpgan'));
     return gfpgan?.slug || ALLOWED_MODELS[0]?.slug || '';
   });
 
   // File selection handler (declare before handlers that reference it)
-  const handleFileSelect = useCallback((selectedFile: File | null) => {
-    // Cleanup previous preview
-    if (previewUrl) {
-      URL.revokeObjectURL(previewUrl);
-    }
+  const handleFileSelect = useCallback(
+    (selectedFile: File | null) => {
+      // Cleanup previous preview
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
 
-    if (!selectedFile) {
-      setFile(null);
-      setPreviewUrl(null);
-      setResultUrl(null);
-      return;
-    }
+      if (!selectedFile) {
+        setFile(null);
+        setPreviewUrl(null);
+        setResultUrl(null);
+        return;
+      }
 
-    // Create preview URL
-    const url = URL.createObjectURL(selectedFile);
-    setFile(selectedFile);
-    setPreviewUrl(url);
-    setResultUrl(null); // Reset result when new file is selected
-  }, [previewUrl]);
+      // Create preview URL
+      const url = URL.createObjectURL(selectedFile);
+      setFile(selectedFile);
+      setPreviewUrl(url);
+      setResultUrl(null); // Reset result when new file is selected
+    },
+    [previewUrl]
+  );
 
   const openFileDialog = useCallback(() => {
     fileInputRef.current?.click();
@@ -59,6 +76,8 @@ export default function ImagEnhancerMVP(props: ImagEnhancerMVPProps): React.Reac
   // Refs for abort controller and file input
   const abortRef = useRef<AbortController | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  // Guard against out-of-order responses
+  const runIdRef = useRef<number>(0);
 
   // Custom hooks
   const { enhance } = useEnhanceMVP();
@@ -93,9 +112,10 @@ export default function ImagEnhancerMVP(props: ImagEnhancerMVPProps): React.Reac
   // Map usage type to MVP UsageData (resetAt as ISO string)
   const usageForMVP = useMemo<UsageData | null>(() => {
     if (!usage) return null;
-    const reset = typeof usage.resetAt === 'number' && usage.resetAt
-      ? new Date(usage.resetAt).toISOString()
-      : (usage.resetAt as null);
+    const reset =
+      typeof usage.resetAt === 'number' && usage.resetAt
+        ? new Date(usage.resetAt).toISOString()
+        : (usage.resetAt as null);
     return { used: usage.used, limit: usage.limit, resetAt: reset };
   }, [usage]);
 
@@ -111,6 +131,7 @@ export default function ImagEnhancerMVP(props: ImagEnhancerMVPProps): React.Reac
     const abortController = new AbortController();
     abortRef.current = abortController;
     setLoading(true);
+    const myRunId = ++runIdRef.current;
 
     try {
       clientLogger.info('MVP Image enhancement started', {
@@ -132,17 +153,19 @@ export default function ImagEnhancerMVP(props: ImagEnhancerMVPProps): React.Reac
           component: 'ImagEnhancerMVP',
           status: 429,
         });
-        // TODO: Handle rate limit with retry logic
+        toast.error('Rate limit reached. Please retry shortly.');
         return;
       }
 
       const response = result as ApiSuccess<GenerateResponseData> | ApiErrorBody;
-      
+
       if ('success' in response && response.success) {
+        // Ignore late responses from previous runs
+        if (myRunId !== runIdRef.current) return;
         setResultUrl(response.data.imageUrl);
         // Refresh usage after successful enhancement
         await refreshUsage();
-        
+
         clientLogger.info('MVP Image enhanced successfully', {
           component: 'ImagEnhancerMVP',
           model,
@@ -155,7 +178,7 @@ export default function ImagEnhancerMVP(props: ImagEnhancerMVPProps): React.Reac
           error: response.error?.type || 'api_error',
           message: errorMessage,
         });
-        // TODO: Show error toast
+        toast.error(errorMessage);
       }
     } catch (error: unknown) {
       if (error instanceof Error && error.name === 'AbortError') {
@@ -169,7 +192,7 @@ export default function ImagEnhancerMVP(props: ImagEnhancerMVPProps): React.Reac
         component: 'ImagEnhancerMVP',
         error: error instanceof Error ? error.message : String(error),
       });
-      // TODO: Show error toast
+      toast.error(strings.toasts.processingFailed);
     } finally {
       setLoading(false);
       abortRef.current = null;
@@ -190,18 +213,38 @@ export default function ImagEnhancerMVP(props: ImagEnhancerMVPProps): React.Reac
 
   // Start over handler
   const handleStartOver = useCallback(() => {
+    // Abort any in-flight request
+    if (abortRef.current) {
+      try {
+        abortRef.current.abort();
+      } catch {}
+      abortRef.current = null;
+    }
+    // Clear file input value to avoid reusing a stale File reference
+    if (fileInputRef.current) {
+      try {
+        fileInputRef.current.value = '';
+      } catch {}
+    }
+    // Revoke existing preview URL
     if (previewUrl) {
       URL.revokeObjectURL(previewUrl);
     }
+    // Reset state
     setFile(null);
     setPreviewUrl(null);
     setResultUrl(null);
     setLoading(false);
+    // Bump run id so late responses are ignored
+    runIdRef.current++;
   }, [previewUrl]);
 
   // MVP: Show only Replicate Topaz Image Upscale and GFPGAN
-  const availableModels = ALLOWED_MODELS.filter(m =>
-    m.slug === 'topazlabs/image-upscale' || m.slug.startsWith('tencentarc/gfpgan')
+  const availableModels = ALLOWED_MODELS.filter(
+    (m) =>
+      m.slug === 'topazlabs/image-upscale' ||
+      m.slug.startsWith('tencentarc/gfpgan') ||
+      m.slug === '@cf/runwayml/stable-diffusion-v1-5-img2img'
   ) as typeof ALLOWED_MODELS;
 
   const quotaExceeded = Boolean(usageForMVP && usageForMVP.used >= usageForMVP.limit);
@@ -240,7 +283,8 @@ export default function ImagEnhancerMVP(props: ImagEnhancerMVPProps): React.Reac
                 className="max-w-full max-h-64 mx-auto rounded-lg object-cover"
               />
               <div className="text-sm text-gray-600 dark:text-gray-400">
-                {strings.allowedTypes}: {uploadHandlers.acceptAttr} · {strings.max} {uploadHandlers.maxMb}MB
+                {strings.allowedTypes}: {uploadHandlers.acceptAttr} · {strings.max}{' '}
+                {uploadHandlers.maxMb}MB
               </div>
             </div>
           ) : (
@@ -249,7 +293,8 @@ export default function ImagEnhancerMVP(props: ImagEnhancerMVPProps): React.Reac
                 {strings.dropText}
               </div>
               <div className="text-sm text-gray-600 dark:text-gray-400">
-                {strings.allowedTypes}: {uploadHandlers.acceptAttr} · {strings.max} {uploadHandlers.maxMb}MB
+                {strings.allowedTypes}: {uploadHandlers.acceptAttr} · {strings.max}{' '}
+                {uploadHandlers.maxMb}MB
               </div>
             </div>
           )}

@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD051 -->
+
 # Lead-Magnet Assets – Prompt-Sammlung
 
 Diese Datei enthält je Lead-Magnet einen hochwertigen Prompt zur Bildgenerierung für das Vorschaubild (WEBP).
@@ -10,7 +12,9 @@ Empfohlene Ausgabegröße: 1600×900 (16:9) für Blog-CTA. Export: WEBP, Qualit�
 Tipps für alle Modelle:
 
 - Keine Artefakte, keine Wasserzeichen, kein Clipart-Look.
+
 - Sauberes, realistisches Licht; moderne, ruhige Farbwelt.
+
 - Echte Schrift wird meist schlechter gerendert – Titel/Untertitel bitte in Figma/Canva nachträglich setzen.
 
 Midjourney (v6) Settings-Empfehlung: `--ar 16:9 --v 6 --style raw --s 200 --uplight`
@@ -75,14 +79,16 @@ Nachbearbeitung (Design): Titel, Unterzeile und ggf. „Masterclass“-Badge sau
 ## Workflow‑Empfehlung
 
 1. Prompt im Bildmodell (MJ/SDXL) ausführen, besten Seed sichern.
-2. Bestes Ergebnis auswählen, in 1600×900 exportieren.
-3. In Figma/Canva: Typografie, Jahr/Claim setzen; Logo optional; Kanten/Glow minimal nachschärfen.
-4. Export als WEBP (Qualität 80–90), Dateiname passend zu `public/images/lead-magnets/*-preview.webp`.
+1. Bestes Ergebnis auswählen, in 1600×900 exportieren.
+1. In Figma/Canva: Typografie, Jahr/Claim setzen; Logo optional; Kanten/Glow minimal nachschärfen.
+1. Export als WEBP (Qualität 80–90), Dateiname passend zu `public/images/lead-magnets/*-preview.webp`.
 
 ## Optional: Text‑Content‑Prompts für PDF/ZIP
 
 Wenn gewünscht, erstelle ich zusätzlich pro Lead‑Magnet einen strukturierten LLM‑Prompt für
 
 - Inhaltsverzeichnis, Schreibstil, Umfang pro Kapitel,
+
 - Grafiken/Tabellen‑Platzhalter,
+
 - Export‑Vorgaben (A4, 20–30 Seiten, CTA‑Seiten, Impressum).

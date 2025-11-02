@@ -261,20 +261,30 @@ export async function rateLimit(
  */
 export function getLimiterState(name?: string) {
   const names = name ? [name] : Object.keys(limitStores);
-  const state = names.reduce((acc, n) => {
-    const cfg = limiterConfigs[n];
-    const store = limitStores[n] || {};
-    acc[n] = {
-      maxRequests: cfg?.maxRequests ?? 0,
-      windowMs: cfg?.windowMs ?? 0,
-      entries: Object.entries(store).map(([key, v]) => ({
-        key,
-        count: v.count,
-        resetAt: v.resetAt,
-      })),
-    };
-    return acc;
-  }, {} as Record<string, { maxRequests: number; windowMs: number; entries: Array<{ key: string; count: number; resetAt: number }> }>);
+  const state = names.reduce(
+    (acc, n) => {
+      const cfg = limiterConfigs[n];
+      const store = limitStores[n] || {};
+      acc[n] = {
+        maxRequests: cfg?.maxRequests ?? 0,
+        windowMs: cfg?.windowMs ?? 0,
+        entries: Object.entries(store).map(([key, v]) => ({
+          key,
+          count: v.count,
+          resetAt: v.resetAt,
+        })),
+      };
+      return acc;
+    },
+    {} as Record<
+      string,
+      {
+        maxRequests: number;
+        windowMs: number;
+        entries: Array<{ key: string; count: number; resetAt: number }>;
+      }
+    >
+  );
   return state;
 }
 

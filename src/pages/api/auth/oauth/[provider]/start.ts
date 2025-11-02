@@ -1,4 +1,4 @@
-import type { APIRoute } from 'astro';
+import type { APIContext } from 'astro';
 import { withRedirectMiddleware } from '@/lib/api-middleware';
 
 function isAllowedRelativePath(path: string): boolean {
@@ -10,7 +10,7 @@ function resolveBaseUrl(projectId?: string): string {
   return 'https://test.stytch.com';
 }
 
-export const GET: APIRoute = withRedirectMiddleware(async (context) => {
+export const GET = withRedirectMiddleware(async (context: APIContext) => {
   const { request, params, cookies, locals } = context;
   const provider = String(params.provider || '').toLowerCase();
   const allowed = new Set(['github', 'google', 'apple', 'microsoft']);
@@ -25,9 +25,13 @@ export const GET: APIRoute = withRedirectMiddleware(async (context) => {
   }
 
   const url = new URL(request.url);
-  const env = (locals as any)?.runtime?.env || {};
-  const isDev = (env.ENVIRONMENT || env.NODE_ENV) === 'development';
-  const origin = isDev && env.BASE_URL ? (env.BASE_URL as string) : url.origin;
+  const rawEnv = (locals?.runtime?.env || {}) as Record<string, unknown>;
+  const envStr = (k: string) => {
+    const v = (rawEnv as Record<string, unknown>)[k];
+    return typeof v === 'string' ? v : undefined;
+  };
+  const isDev = (envStr('ENVIRONMENT') || envStr('NODE_ENV')) === 'development';
+  const origin = isDev && envStr('BASE_URL') ? (envStr('BASE_URL') as string) : url.origin;
 
   // Ensure locale hint is available for the callback localization.
   // Priority:
@@ -61,9 +65,9 @@ export const GET: APIRoute = withRedirectMiddleware(async (context) => {
     // Best effort only; proceed without locale cookie if anything goes wrong
   }
 
-  const projectId = env.STYTCH_PROJECT_ID as string | undefined;
-  const publicToken = env.STYTCH_PUBLIC_TOKEN as string | undefined;
-  const customDomain = (env.STYTCH_CUSTOM_DOMAIN as string | undefined)?.trim();
+  const projectId = envStr('STYTCH_PROJECT_ID');
+  const publicToken = envStr('STYTCH_PUBLIC_TOKEN');
+  const customDomain = envStr('STYTCH_CUSTOM_DOMAIN')?.trim();
   // Prefer custom domain for PUBLIC endpoints if provided, else fall back to Stytch test/api
   const base = customDomain ? `https://${customDomain}` : resolveBaseUrl(projectId);
 

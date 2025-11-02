@@ -64,16 +64,16 @@ describe('BillingCard', () => {
       .mockImplementation(async (input: RequestInfo | URL, init?: RequestInit) => {
         const url = typeof input === 'string' ? input : input.toString();
         if (url.endsWith('/api/dashboard/billing-summary')) {
-          return new Response(
-            JSON.stringify({ success: true, data: baseSummary }),
-            { status: 200, headers: { 'Content-Type': 'application/json' } }
-          ) as any;
+          return new Response(JSON.stringify({ success: true, data: baseSummary }), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' },
+          }) as any;
         }
         if (url.endsWith('/api/billing/cancel')) {
-          return new Response(
-            JSON.stringify({ success: true, data: { message: 'ok' } }),
-            { status: 200, headers: { 'Content-Type': 'application/json' } }
-          ) as any;
+          return new Response(JSON.stringify({ success: true, data: { message: 'ok' } }), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' },
+          }) as any;
         }
         return new Response(JSON.stringify({ success: false }), { status: 404 }) as any;
       });

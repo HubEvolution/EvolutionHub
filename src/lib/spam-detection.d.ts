@@ -1,1 +1,4 @@
-export declare function checkSpam(content: string, options?: any): { isSpam: boolean; reasons: string[] };
+export declare function checkSpam(
+  content: string,
+  options?: unknown
+): { isSpam: boolean; reasons: string[] };

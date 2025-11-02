@@ -114,7 +114,7 @@
         "feature4": {
           "icon": "search",
           "title": "Webscraper",
-          "description": "Strukturierte Daten aus Webseiten und APIs extrahieren – mit flexiblen Selektoren und Exportformaten."
+          "description": "Sicher Klartext aus Webseiten extrahieren. SSRF‑gehärtet, formatbewusst, mit Nutzungslimits und klaren Fehlermeldungen."
         }
       },
       "features_poetic": {
@@ -124,8 +124,8 @@
         "feature4": { "description": "Lehre Seiten, in Strukturen zu sprechen." }
       },
       "testimonials": {
-        "heading": "Was unsere Nutzer über Imag-Enhancer sagen",
-        "subtitle": "Kurze Notizen von Menschen, die Imag‑Enhancer wirklich einsetzen – was ihnen konkret geholfen hat.",
+        "heading": "Was unsere Nutzer über unsere Tools sagen",
+        "subtitle": "Kurze Notizen von Menschen, die unsere Tools wirklich einsetzen — was ihnen konkret geholfen hat.",
         "trust_line": "Vertraut von 1.200+ Creators",
         "testimonial1": {
           "quote": "Ich fotografiere oft in Cafés bei wenig Licht – ISO 3200 ist normal. Imag‑Enhancer hat das Rauschen entfernt, ohne diesen Wachs‑Look. Ein Tick mehr Kontrast und die Dateien waren abends beim Kunden.",
@@ -596,6 +596,10 @@
         "commercial_desc": "Pro, Business und Enterprise enthalten kommerzielle Nutzungsrechte",
         "credits_title": "Monatliche Credits + Tages‑Burst",
         "credits_desc": "Monatlicher Reset mit fairen Tages‑Burst‑Grenzen"
+      },
+      "credits_packs": {
+        "title": "Zusätzliche Credits kaufen",
+        "subtitle": "Einmalige Pakete zum Auffüllen deines monatlichen Kontingents."
       },
       "credits_explainer": {
         "title": "Was sind Credits?",
@@ -1206,26 +1210,27 @@
         },
         "prompt-enhancer": {
           "name": "Prompt-Enhancer",
-          "description": "KI-gestützter Prompt-Optimierer für bessere Ergebnisse in KI-Chats und -Anwendungen."
+          "description": "Prompts für Klarheit und Wirkung verfeinern. Wähle Stile wie Creative, Professional oder Concise und erhalte hochwertige Ergebnisse."
         },
         "Prompt-Enhancer": {
           "name": "Prompt-Enhancer",
-          "description": "KI-gestützter Prompt-Optimierer für bessere Ergebnisse in KI-Chats und -Anwendungen."
+          "description": "Prompts für Klarheit und Wirkung verfeinern. Wähle Stile wie Creative, Professional oder Concise und erhalte hochwertige Ergebnisse."
         },
         "webscraper": {
           "name": "Webscraper",
-          "description": "Extrahiert Inhalte von Webseiten automatisch."
+          "description": "Sicher Klartext aus Webseiten extrahieren. SSRF‑gehärtet, formatbewusst, mit Nutzungslimits und klaren Fehlermeldungen."
         },
         "voice-visualizer": {
-          "name": "Sprach-Transkriptor",
-          "description": "Nimm deine Stimme auf, visualisiere Pegel und transkribiere Sprache nahezu in Echtzeit."
+          "name": "Voice Visualizer & Transkriptor",
+          "description": "Audio aufnehmen, Live‑Wellenform sehen und sofort transkribieren. Auf Tempo, Klarheit und geringe Reibung optimiert."
         },
         "video-enhancer": {
-          "name": "Video Enhancer",
-          "description": "Videos mit KI hochskalieren und verbessern (Topaz video‑upscale)."
+          "name": "Video‑Enhancer",
+          "description": "Videos mit KI hochskalieren und verbessern. Mehr Schärfe, weniger Rauschen, klare Details — schnell und konsistent."
         }
       },
       "details": {
+        "back": "Zurück zur Übersicht",
         "Imag-Enhancer": {
           "back": "Zurück zur Übersicht",
           "badge_new": "Neu",

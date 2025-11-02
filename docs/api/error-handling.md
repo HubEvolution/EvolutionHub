@@ -7,6 +7,8 @@ codeRefs: 'src/lib/api-middleware.ts, src/lib/rate-limiter.ts'
 testRefs: 'tests/integration/api/error-handling'
 ---
 
+<!-- markdownlint-disable MD051 -->
+
 # Error Handling
 
 **Umfassende Dokumentation** für API-Fehlercodes, Response-Formate und Error-Handling-Strategien in Evolution Hub. Dieses Dokument erklärt die standardisierten Fehlerformate, HTTP-Status-Codes und bewährte Methoden für robuste Fehlerbehandlung.
@@ -24,7 +26,8 @@ Alle API-Responses folgen einem einheitlichen Format, sowohl für erfolgreiche a
     // Anfragespezifische Daten
   }
 }
-```
+
+```text
 
 ### Fehler-Response
 
@@ -95,13 +98,17 @@ Validierungsfehler in Benutzereingaben.
     }
   }
 }
-```
+
+```text
 
 **Verwendung:**
 
 - Fehlende erforderliche Felder
+
 - Falsche Datentypen
+
 - Werte außerhalb gültiger Bereiche
+
 - Format-Fehler (z.B. ungültige Email)
 
 #### `auth_error` (401)
@@ -124,7 +131,9 @@ Authentifizierungsfehler.
 **Verwendung:**
 
 - Ungültige oder abgelaufene Session
+
 - Fehlende Authentifizierung
+
 - Ungültige Credentials
 
 #### `forbidden` (403)
@@ -143,12 +152,15 @@ Zugriff verweigert.
     }
   }
 }
-```
+
+```text
 
 **Verwendung:**
 
 - Unzureichende Berechtigungen
+
 - Ressourcen-Zugriff verweigert
+
 - Feature nicht verfügbar für aktuellen Plan
 
 #### `not_found` (404)
@@ -172,6 +184,7 @@ Ressource nicht gefunden.
 **Verwendung:**
 
 - Nicht existierende Ressourcen
+
 - Gelöschte oder verschobene Ressourcen
 
 #### `rate_limit` (429)
@@ -192,11 +205,13 @@ Rate-Limit überschritten.
     }
   }
 }
-```
+
+```json
 
 **Verwendung:**
 
 - Zu viele Anfragen pro Zeitfenster
+
 - DDoS-Schutz aktiviert
 
 #### `method_not_allowed` (405)
@@ -219,6 +234,7 @@ HTTP-Methode nicht unterstützt.
 **Verwendung:**
 
 - Falsche HTTP-Methode für Endpunkt
+
 - Deaktivierte Methoden
 
 #### `server_error` (500)
@@ -237,12 +253,15 @@ Interne Server-Fehler.
     }
   }
 }
-```
+
+```text
 
 **Verwendung:**
 
 - Unerwartete Server-Fehler
+
 - Upstream-Service-Fehler
+
 - Datenbank-Verbindungsfehler
 
 #### `db_error` (500)
@@ -266,7 +285,9 @@ Datenbank-spezifische Fehler.
 **Verwendung:**
 
 - Datenbank-Verbindungsfehler
+
 - Constraint-Verletzungen
+
 - Query-Fehler
 
 #### `subscription_active` (400)
@@ -285,11 +306,13 @@ Abonnement-bezogene Fehler.
     }
   }
 }
-```
+
+```text
 
 **Verwendung:**
 
 - Abonnement-Änderungen blockiert
+
 - Plan-Downgrades verhindert
 
 ## Client-Integration
@@ -391,7 +414,8 @@ async function enhancePrompt(text: string) {
     throw error;
   }
 }
-```
+
+```text
 
 ### Retry-Logik
 
@@ -463,7 +487,8 @@ async function retryWithJitter<T>(
 
   throw lastError!;
 }
-```
+
+```text
 
 ### Error-Logging
 
@@ -566,7 +591,8 @@ function handleError(
 
   return applySecurityHeaders(createApiError(errorType, errorMessage));
 }
-```
+
+```text
 
 ### Custom Error-Classes
 
@@ -658,7 +684,8 @@ export async function enhancePrompt(input: PromptInput): Promise<EnhancedPrompt>
     throw new Error(`AI-Service-Fehler: ${error.message}`);
   }
 }
-```
+
+```text
 
 ## Testing
 
@@ -754,7 +781,8 @@ describe('Error Handling Integration', () => {
     expect(data.error.type).toBe('auth_error');
   });
 });
-```
+
+```text
 
 ### Error-Simulation
 
@@ -861,7 +889,8 @@ class ErrorTracker {
     });
   }
 }
-```
+
+```text
 
 #### Client-seitige Metriken
 
@@ -937,7 +966,8 @@ export const POST = withApiMiddleware(async (context) => {
     throw error;
   }
 });
-```
+
+```text
 
 #### Error-Context
 
@@ -977,7 +1007,8 @@ throw new ValidationError(
 
 // ❌ Schlechte Fehlermeldung
 throw new Error('Invalid email');
-```
+
+```text
 
 #### 2. Strukturierte Details
 
@@ -1021,7 +1052,8 @@ const ERROR_MESSAGES = {
 function createLocalizedError(type: ApiErrorType, locale: string = 'de'): string {
   return ERROR_MESSAGES[type]?.[locale] || ERROR_MESSAGES[type]?.de || type;
 }
-```
+
+```text
 
 ### Client-Entwicklung
 
@@ -1090,7 +1122,8 @@ function getUserFriendlyMessage(error: ApiError): string {
       return 'Ein unerwarteter Fehler ist aufgetreten.';
   }
 }
-```
+
+```text
 
 ### Security Considerations
 
@@ -1144,7 +1177,8 @@ function trackErrorRate(error: ApiError, context: APIContext) {
     });
   }
 }
-```
+
+```text
 
 ## Migration & Updates
 
@@ -1211,7 +1245,8 @@ function generateErrorDocs(): ErrorDocumentation[] {
     examples: generateErrorExamples(type),
   }));
 }
-```
+
+```text
 
 ## Troubleshooting
 
@@ -1262,7 +1297,8 @@ function enhanceErrorDetails(error: Error, context: APIContext): Record<string, 
 
   return baseDetails;
 }
-```
+
+```text
 
 #### Performance-Impact von Error-Logging
 
@@ -1291,7 +1327,9 @@ function shouldLogError(error: ApiError, context: APIContext): boolean {
 #### Error-Response-Testing
 
 ```bash
+
 # Teste verschiedene Error-Szenarien
+
 curl -X POST \
   -H "Content-Type: application/json" \
   -H "X-CSRF-Token: test" \
@@ -1301,18 +1339,30 @@ curl -X POST \
   http://127.0.0.1:8787/api/prompt-enhance
 
 # Response:
+
 # {
+
 #   "success": false,
+
 #   "error": {
+
 #     "type": "validation_error",
+
 #     "message": "Text field is required",
+
 #     "details": {
+
 #       "field": "text",
+
 #       "expected": "non-empty string"
+
 #     }
-#   }
-# }
-```
+
+#   } (2)
+
+# } (3)
+
+```bash
 
 #### Error-Log-Analyse
 
@@ -1336,8 +1386,11 @@ grep "auth_error" logs/api.log | cut -d' ' -f1-2 | uniq -c
 Evolution Hub folgt OWASP-Richtlinien für sichere Error-Handling:
 
 - **Keine sensiblen Daten** in Error-Messages
+
 - **Generische Messages** für unerwartete Fehler
+
 - **Strukturierte Logging** für Security-Events
+
 - **Rate-Limiting** für Error-Responses
 
 #### GDPR Compliance
@@ -1360,26 +1413,33 @@ function sanitizeErrorDetails(details: Record<string, any>): Record<string, any>
 
   return sanitized;
 }
-```
+
+```text
 
 ## Ressourcen
 
 ### Weiterführende Dokumentation
 
 - **[API Overview](./api-overview.md)** - Allgemeine API-Architektur
+
 - **[API Guidelines](./api-guidelines.md)** - Best Practices für API-Entwicklung
+
 - **[Rate Limiting](./rate-limiting-api.md)** - Rate-Limiting-Strategien
 
 ### Tools & Libraries
 
 - **[API Middleware](../../lib/api-middleware.ts)** - Error-Handling-Implementierung
+
 - **[Error Types](../../lib/types/errors.ts)** - TypeScript-Error-Definitionen
+
 - **[Validation Utils](../../utils/validation.ts)** - Validierungshilfsmittel
 
 ### Standards
 
 - **[RFC 7231](https://tools.ietf.org/html/rfc7231)** - HTTP/1.1 Semantics and Content
+
 - **[OWASP Error Handling](https://owasp.org/www-community/Improper_Error_Handling)** - Security Best Practices
+
 - **[JSON:API Errors](https://jsonapi.org/format/#errors)** - Error Format Standards
 
 ---
@@ -1387,7 +1447,9 @@ function sanitizeErrorDetails(details: Record<string, any>): Record<string, any>
 ## Cross-Referenzen
 
 - **[Architecture](../../architecture/)** - Error-Handling in der System-Architektur
+
 - **[Security](../../security/)** - Security-Aspekte der Error-Handling
+
 - **[Testing](../../testing/)** - Error-Testing und Edge-Case-Tests
 
 ## Ownership & Maintenance
@@ -1400,3 +1462,5 @@ function sanitizeErrorDetails(details: Record<string, any>): Record<string, any>
 ---
 
 *Zuletzt aktualisiert: 2025-10-27*
+
+```text

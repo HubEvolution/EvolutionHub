@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD051 -->
+
 # Datenfluss-Dokumentation
 
 Diese Dokumentation beschreibt die Datenflüsse innerhalb des Evolution Hub Systems, einschließlich der Interaktionen zwischen den verschiedenen Systemkomponenten und der Datenverarbeitung.
@@ -5,15 +7,20 @@ Diese Dokumentation beschreibt die Datenflüsse innerhalb des Evolution Hub Syst
 ## Inhaltsverzeichnis
 
 1. [Allgemeine Datenfluss-Architektur](#allgemeine-datenfluss-architektur)
-2. [API-Request-Lifecycle](#api-request-lifecycle)
-3. [Datenfluss-Diagramme](#datenfluss-diagramme)
+1. [API-Request-Lifecycle](#api-request-lifecycle)
+1. [Datenfluss-Diagramme](#datenfluss-diagramme)
+
    - [Benutzerauthentifizierung](#benutzerauthentifizierung)
+
    - [Projektverwaltung](#projektverwaltung)
+
    - [Dashboard-Daten](#dashboard-daten)
-   - [Öffentliche APIs](#öffentliche-apis)
-4. [Datenvalidierung und -transformation](#datenvalidierung-und--transformation)
-5. [Fehlerbehandlung](#fehlerbehandlung)
-6. [Caching-Strategien](#caching-strategien)
+
+   - [Öffentliche APIs](#offentliche-apis)
+
+1. [Datenvalidierung und -transformation](#datenvalidierung-und-transformation)
+1. [Fehlerbehandlung](#fehlerbehandlung)
+1. [Caching-Strategien](#caching-strategien)
 
 ---
 
@@ -31,17 +38,22 @@ graph TD
     DataLayer --> |Transformierte Daten| ServiceLayer
     ServiceLayer --> |Verarbeitete Daten| APILayer
     APILayer --> |HTTP Response| Client
-```
+
+```text
 
 ### Datenfluss-Prinzipien
 
 1. **Unidirektionaler Datenfluss**: Daten fließen in einer vorhersehbaren Richtung
-2. **Klare Schichtenverantwortlichkeiten**:
+1. **Klare Schichtenverantwortlichkeiten**:
+
    - API-Layer: Request/Response-Handling, Input-Validierung
+
    - Service-Layer: Geschäftslogik, Datenverarbeitung
+
    - Data-Layer: Datenbankoperationen, Datenmodellierung
-3. **Typsicherheit**: TypeScript-Typen für alle Datenstrukturen
-4. **Validierung an den Grenzen**: Eingehende Daten werden an den Systemgrenzen validiert
+
+1. **Typsicherheit**: TypeScript-Typen für alle Datenstrukturen
+1. **Validierung an den Grenzen**: Eingehende Daten werden an den Systemgrenzen validiert
 
 ---
 
@@ -52,18 +64,23 @@ Jede API-Anfrage durchläuft folgende Phasen:
 ### 1. Eingangsphase
 
 - **Middleware-Verarbeitung**: Authentifizierung, Rate-Limiting, Security-Headers
+
 - **Input-Validierung**: Überprüfung der Anfrageparameter und des Request-Body
+
 - **Autorisierung**: Überprüfung der Benutzerberechtigungen
 
 ### 2. Verarbeitungsphase
 
 - **Service-Aufruf**: Weiterleitung an den entsprechenden Service
+
 - **Geschäftslogik**: Anwendung der Geschäftsregeln
 
 ### 3. Antwortphase
 
 - **Datentransformation**: Umwandlung der internen Datenstrukturen in API-Antworten
+
 - **Fehlerbehandlung**: Umwandlung von Fehlern in konsistente API-Fehlerantworten
+
 - **Response-Generierung**: Erstellung der HTTP-Antwort mit
 
 ```mermaid
@@ -122,7 +139,8 @@ sequenceDiagram
     JWTService->>AuthService: JWT-Token
     AuthService->>AuthAPI: Session-Informationen
     AuthAPI->>Client: HTTP Response mit HttpOnly-Cookie
-```
+
+```text
 
 #### Aktueller Magic‑Link (Stytch) — Sequenz
 
@@ -179,7 +197,8 @@ sequenceDiagram
     ProjectRepository->>ProjectService: Gespeichertes Projekt
     ProjectService->>ProjectAPI: Projekt-Objekt
     ProjectAPI->>Client: HTTP Response mit Projekt-Daten
-```
+
+```text
 
 ### Dashboard-Daten
 
@@ -243,7 +262,8 @@ sequenceDiagram
     Repository->>ContentService: Kommentar-Liste
     ContentService->>PublicAPI: Verarbeitete Kommentare
     PublicAPI->>Client: HTTP Response mit Kommentaren
-```
+
+```text
 
 ---
 
@@ -254,13 +274,17 @@ Evolution Hub implementiert mehrere Schichten der Datenvalidierung und -transfor
 ### Eingangsvalidierung
 
 - **API-Ebene**: Validierung aller eingehenden Anfragen
+
 - **Typisierte Schemas**: Verwendung von TypeScript-Interfaces für Request/Response-Typen
+
 - **Validierungsregeln**: Spezifische Regeln für Felder (Länge, Format, Bereich)
 
 ### Datentransformation
 
 - **DTO-Muster**: Data Transfer Objects für die Kommunikation zwischen Schichten
+
 - **Mapping-Funktionen**: Umwandlung zwischen DTOs, Domain-Modellen und Datenbankentitäten
+
 - **Serialisierung/Deserialisierung**: Umwandlung zwischen JSON und Objekten
 
 ### Beispiel für Datenvalidierung und -transformation
@@ -327,11 +351,17 @@ Evolution Hub implementiert ein konsistentes Fehlerbehandlungssystem:
 ### Fehlertypen
 
 - **ValidationError**: Fehler bei der Eingabevalidierung
+
 - **AuthenticationError**: Fehler bei der Authentifizierung
+
 - **AuthorizationError**: Fehler bei der Autorisierung
+
 - **NotFoundError**: Ressource nicht gefunden
+
 - **ConflictError**: Konflikt mit bestehenden Daten
+
 - **DatabaseError**: Fehler bei Datenbankoperationen
+
 - **InternalError**: Interne Serverfehler
 
 ### Fehlerbehandlungs-Workflow
@@ -356,7 +386,8 @@ graph TD
 
     Response --> Log[Fehler loggen]
     Log --> Client[Antwort an Client senden]
-```
+
+```text
 
 ### Beispiel für Fehlerbehandlung
 
@@ -417,13 +448,17 @@ Evolution Hub implementiert mehrere Caching-Strategien zur Leistungsoptimierung:
 ### Edge-Caching
 
 - **Statische Assets**: Lange Cache-Lebensdauer für unveränderliche Ressourcen
+
 - **API-Antworten**: Selektives Caching für häufig abgerufene, selten geänderte Daten
+
 - **Cache-Control-Header**: Steuerung des Browser- und CDN-Cachings
 
 ### In-Memory-Caching
 
 - **Häufig abgerufene Daten**: Temporäres Caching im Worker-Kontext
+
 - **Konfigurationsdaten**: Caching von selten geänderten Konfigurationen
+
 - **Benutzerberechtigungen**: Caching von Berechtigungen für schnellere Autorisierung
 
 ### Beispiel für Caching-Implementierung
@@ -458,4 +493,7 @@ export async function onRequest(context) {
 
   return response;
 }
-```
+
+```text
+
+```text

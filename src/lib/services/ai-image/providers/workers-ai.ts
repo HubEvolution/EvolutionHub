@@ -28,20 +28,26 @@ export function buildWorkersAiPayload(
   payload.image_b64 = b64;
 
   // prompt
-  const providedPrompt = isRecord(input) && typeof input.prompt === 'string' ? input.prompt : undefined;
+  const providedPrompt =
+    isRecord(input) && typeof input.prompt === 'string' ? input.prompt : undefined;
   const defaultPrompt = typeof defaults.prompt === 'string' ? defaults.prompt : undefined;
-  payload.prompt = (providedPrompt && providedPrompt.trim()) || defaultPrompt || 'photo restoration';
+  payload.prompt =
+    (providedPrompt && providedPrompt.trim()) || defaultPrompt || 'photo restoration';
 
   // negative_prompt
   const providedNeg =
-    isRecord(input) && typeof input.negative_prompt === 'string' ? input.negative_prompt : undefined;
-  const defaultNeg = typeof defaults.negative_prompt === 'string' ? defaults.negative_prompt : undefined;
+    isRecord(input) && typeof input.negative_prompt === 'string'
+      ? input.negative_prompt
+      : undefined;
+  const defaultNeg =
+    typeof defaults.negative_prompt === 'string' ? defaults.negative_prompt : undefined;
   if ((providedNeg && providedNeg.trim()) || defaultNeg) {
     payload.negative_prompt = (providedNeg && providedNeg.trim()) || defaultNeg;
   }
 
   // strength
-  const providedStrength = isRecord(input) && typeof input.strength === 'number' ? input.strength : undefined;
+  const providedStrength =
+    isRecord(input) && typeof input.strength === 'number' ? input.strength : undefined;
   if (typeof providedStrength === 'number' && Number.isFinite(providedStrength)) {
     payload.strength = providedStrength;
   } else if (typeof defaults.strength === 'number') {
@@ -49,7 +55,8 @@ export function buildWorkersAiPayload(
   }
 
   // guidance
-  const providedGuidance = isRecord(input) && typeof input.guidance === 'number' ? input.guidance : undefined;
+  const providedGuidance =
+    isRecord(input) && typeof input.guidance === 'number' ? input.guidance : undefined;
   if (typeof providedGuidance === 'number' && Number.isFinite(providedGuidance)) {
     payload.guidance = providedGuidance;
   } else if (typeof defaults.guidance === 'number') {
@@ -57,7 +64,8 @@ export function buildWorkersAiPayload(
   }
 
   // steps -> num_steps
-  const providedSteps = isRecord(input) && typeof input.steps === 'number' ? input.steps : undefined;
+  const providedSteps =
+    isRecord(input) && typeof input.steps === 'number' ? input.steps : undefined;
   if (typeof providedSteps === 'number' && Number.isInteger(providedSteps)) {
     payload.num_steps = providedSteps;
   } else if (typeof defaults.num_steps === 'number') {

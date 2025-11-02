@@ -4,6 +4,7 @@
  */
 
 import { Hono } from 'hono';
+import type { Context, Next } from 'hono';
 import { cors } from 'hono/cors';
 import { jwt } from 'hono/jwt';
 import { rateLimiter } from 'hono-rate-limiter';
@@ -11,7 +12,11 @@ import { drizzle } from 'drizzle-orm/d1';
 import { BackupService } from '../../../lib/services/backup-service';
 import { log, generateRequestId } from '../../../server/utils/logger';
 import { requireAdmin } from '../../../lib/auth-helpers';
-import type { BackupOptions } from '../../../lib/types/data-management';
+import type {
+  BackupOptions,
+  BackupJobStatus,
+  BackupJobType,
+} from '../../../lib/types/data-management';
 
 const app = new Hono<{
   Bindings: { DB: D1Database; JWT_SECRET: string };
@@ -20,7 +25,7 @@ const app = new Hono<{
 
 // Middleware
 // Attach a per-request id for structured logging
-app.use('/*', async (c, next) => {
+app.use('/*', async (c: Context, next: Next) => {
   const rid = generateRequestId();
   c.set('requestId', rid);
   await next();
@@ -63,12 +68,12 @@ app.use('/*', async (c, next) => {
  * GET /api/admin/backup/jobs
  * Holt alle Backup-Jobs mit optionaler Filterung
  */
-app.get('/jobs', async (c) => {
+app.get('/jobs', async (c: Context) => {
   try {
     const query = c.req.query();
     const limit = parseInt(query.limit || '50');
-    const status = query.status as any;
-    const type = query.type as any;
+    const status = query.status as BackupJobStatus | undefined;
+    const type = query.type as BackupJobType | undefined;
 
     const db = drizzle(c.env.DB);
     const backupService = new BackupService(db);
@@ -126,7 +131,7 @@ app.get('/jobs', async (c) => {
  * GET /api/admin/backup/jobs/:id
  * Holt Details eines spezifischen Backup-Jobs
  */
-app.get('/jobs/:id', async (c) => {
+app.get('/jobs/:id', async (c: Context) => {
   try {
     const jobId = c.req.param('id');
     const db = drizzle(c.env.DB);
@@ -191,7 +196,7 @@ app.get('/jobs/:id', async (c) => {
  * GET /api/admin/backup/jobs/:id/progress
  * Holt Fortschritt eines laufenden Backup-Jobs
  */
-app.get('/jobs/:id/progress', async (c) => {
+app.get('/jobs/:id/progress', async (c: Context) => {
   try {
     const jobId = c.req.param('id');
     const db = drizzle(c.env.DB);
@@ -242,10 +247,11 @@ app.get('/jobs/:id/progress', async (c) => {
  * POST /api/admin/backup/create
  * Erstellt einen neuen Backup-Job
  */
-app.post('/create', async (c) => {
+app.post('/create', async (c: Context) => {
   try {
     const adminId = c.get('userId') as string;
-    const body = await c.req.json<BackupOptions & { description?: string }>();
+    const bodyUnknown = await c.req.json();
+    const body = bodyUnknown as BackupOptions & { description?: string };
     const db = drizzle(c.env.DB);
     const backupService = new BackupService(db);
 
@@ -311,14 +317,15 @@ app.post('/create', async (c) => {
  * POST /api/admin/backup/schedule
  * Plant einen automatischen Backup
  */
-app.post('/schedule', async (c) => {
+app.post('/schedule', async (c: Context) => {
   try {
-    const adminId = c.get('userId') as string;
-    const body = await c.req.json<{
+    const _adminId = c.get('userId') as string;
+    const bodyUnknown = await c.req.json();
+    const body = bodyUnknown as {
       type: string;
       cronExpression: string;
       description?: string;
-    }>();
+    };
 
     if (!body.type || !body.cronExpression) {
       return c.json(
@@ -369,13 +376,14 @@ app.post('/schedule', async (c) => {
  * POST /api/admin/maintenance/perform
  * Führt System-Wartung durch
  */
-app.post('/maintenance/perform', async (c) => {
+app.post('/maintenance/perform', async (c: Context) => {
   try {
     const adminId = c.get('userId') as string;
-    const body = await c.req.json<{
+    const bodyUnknown = await c.req.json();
+    const body = bodyUnknown as {
       type: 'cleanup' | 'optimization' | 'migration' | 'repair';
       description: string;
-    }>();
+    };
 
     if (!body.type || !body.description) {
       return c.json(
@@ -445,7 +453,7 @@ app.post('/maintenance/perform', async (c) => {
  * GET /api/admin/maintenance/jobs
  * Holt alle Wartungsjobs
  */
-app.get('/maintenance/jobs', async (c) => {
+app.get('/maintenance/jobs', async (c: Context) => {
   try {
     const query = c.req.query();
     const limit = parseInt(query.limit || '50');
@@ -496,7 +504,7 @@ app.get('/maintenance/jobs', async (c) => {
  * GET /api/admin/maintenance/jobs/:id
  * Holt Details eines spezifischen Wartungsjobs
  */
-app.get('/maintenance/jobs/:id', async (c) => {
+app.get('/maintenance/jobs/:id', async (c: Context) => {
   try {
     const jobId = c.req.param('id');
     const db = drizzle(c.env.DB);
@@ -559,10 +567,11 @@ app.get('/maintenance/jobs/:id', async (c) => {
  * POST /api/admin/backup/cleanup
  * Bereinigt alte Backups
  */
-app.post('/cleanup', async (c) => {
+app.post('/cleanup', async (c: Context) => {
   try {
     const _adminId = c.get('userId') as string;
-    const body = await c.req.json<{ retentionDays?: number }>();
+    const bodyUnknown = await c.req.json();
+    const body = bodyUnknown as { retentionDays?: number };
     const retentionDays = body.retentionDays || 30;
 
     const db = drizzle(c.env.DB);
@@ -602,7 +611,7 @@ app.post('/cleanup', async (c) => {
  * POST /api/admin/backup/verify/:id
  * Verifiziert Integrität eines Backups
  */
-app.post('/verify/:id', async (c) => {
+app.post('/verify/:id', async (c: Context) => {
   try {
     const jobId = c.req.param('id');
     const db = drizzle(c.env.DB);
@@ -643,7 +652,7 @@ app.post('/verify/:id', async (c) => {
  * GET /api/admin/backup/stats
  * Holt Backup-Statistiken
  */
-app.get('/stats', async (c) => {
+app.get('/stats', async (c: Context) => {
   try {
     const db = drizzle(c.env.DB);
     const backupService = new BackupService(db);

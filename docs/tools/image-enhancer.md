@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD051 -->
+
 # AI Image Enhancer – KI-gestützte Bildverbesserung
 
 Dieses Dokument beschreibt das AI Image Enhancer Tool der Evolution Hub Plattform.
@@ -11,13 +13,21 @@ Der **AI Image Enhancer** verbessert Bildqualität mittels State-of-the-Art KI-M
 ### Hauptfeatures
 
 - 🖼️ **3 KI-Modelle**: Real-ESRGAN (4x Upscale), GFPGAN (Gesichter), CodeFormer (Restaurierung)
+
 - 📈 **Upscaling**: 2x/4x Skalierung (planabhängig bis 8x)
+
 - 😊 **Face Enhancement**: GFPGAN-Integration für Porträts
+
 - 🎯 **Plan-System**: Free/Pro/Premium/Enterprise mit unterschiedlichen Limits
+
 - 🌍 **i18n**: Mehrsprachig (DE/EN)
+
 - 📊 **Quota-Tracking**: Guest (3/Tag) vs. User (15-500/Tag je nach Plan)
+
 - ⚡ **Rate-Limiting**: Dedizierter `aiGenerateLimiter`
+
 - 💾 **R2-Storage**: Cloudflare R2 für Original- und Enhanced-Bilder
+
 - 🔄 **Job-Tracking**: Asynchrone Verarbeitung mit Status-Polling
 
 ---
@@ -57,16 +67,21 @@ src/components/tools/imag-enhancer/
     ├── useValidation.ts         # Upload-Validierung
     ├── useImageBoxSize.ts       # Responsive Image-Container
     └── useCompareInteractions.ts # Slider-Interaktionen
-```
+
+```text
 
 ### Service-Layer
 
 **`AiImageService`** (`src/lib/services/ai-image-service.ts`)
 
 - **R2-Integration**: Upload Original/Enhanced zu `R2_AI_IMAGES`
+
 - **KV-Tracking**: Tägliche + monatliche Quotas via `KV_AI_ENHANCER`
+
 - **Replicate-API**: Asynchrone Job-Submission & Polling
+
 - **Credits-System**: Optionale Credit-basierte Abrechnung
+
 - **MIME-Sniffing**: Sichere Content-Type-Validierung
 
 ---
@@ -89,9 +104,13 @@ src/components/tools/imag-enhancer/
 #### Feature-Flag: Credits-CTA
 
 - `PUBLIC_ENABLE_CREDITS_CTA`
+
   - Steuert die Sichtbarkeit der "Buy Credits"-CTA im UI.
+
   - In Development standardmäßig aktiviert.
+
   - In Production standardmäßig deaktiviert – zum Aktivieren `PUBLIC_ENABLE_CREDITS_CTA=1` beim Build setzen.
+
   - Die CTA erscheint nur für eingeloggte User und wenn das Tageslimit überschritten ist.
 
 ### Modelle (`src/config/ai-image.ts:26-48`)
@@ -149,20 +168,25 @@ export function computeAllowedScales(
   if (4 <= max) arr.push(4);
   return arr;
 }
-```
+
+```text
 
 ### Cloudflare-Bindings (`wrangler.toml`)
 
 **R2 Bucket** (`R2_AI_IMAGES`):
 
 - **Development**: `evolution-hub-ai-images-local`
+
 - **Production**: `evolution-hub-ai-images`
+
 - **Verwendung**: Original + Enhanced Images
 
 **KV Namespace** (`KV_AI_ENHANCER`):
 
 - **Development**: `30356dfa83e342c48103609bce4f3320`
+
 - **Production**: `fd1523f570c84ea8bc42cbd397cfdec3`
+
 - **Keys**: `ai:usage:user:<id>:YYYY-MM-DD`, `ai:credits:user:<id>`
 
 ---
@@ -174,9 +198,13 @@ export function computeAllowedScales(
 **Dropzone** (`Dropzone.tsx`):
 
 - Drag & Drop + Click-to-Upload
+
 - Client-seitige Validierung:
+
   - Max. 10 MB
+
   - MIME-Types: `image/jpeg`, `image/png`, `image/webp`
+
   - Server-seitige MIME-Sniffing (Magic Bytes)
 
 **Validierungs-Hook** (`hooks/useValidation.ts`):
@@ -196,7 +224,9 @@ if (!result.valid) {
 **ModelControls** (`ModelControls.tsx`):
 
 - **Model-Dropdown**: Real-ESRGAN / GFPGAN / CodeFormer
+
 - **Scale-Buttons**: 2x / 4x (planbasiert deaktiviert)
+
 - **Face-Enhance-Toggle**: Nur wenn `entitlements.faceEnhance === true`
 
 **Plan-Gates** (`gating.ts:23-31`):
@@ -211,7 +241,8 @@ export function computeCanUseFaceEnhance(
   if (!gatingEnabled || !entitlements) return modelSupportsFaceEnhance;
   return Boolean(entitlements.faceEnhance);
 }
-```
+
+```text
 
 ### 3. Enhancement-Prozess
 
@@ -254,7 +285,8 @@ const result = await service.generate({
   maxUpscaleOverride: ent.maxUpscale,
   allowFaceEnhanceOverride: ent.faceEnhance,
 });
-```
+
+```text
 
 ### 4. Replicate-Integration
 
@@ -294,8 +326,11 @@ await R2_AI_IMAGES.put(enhancedKey, enhancedBlob);
 **CompareSlider** (`CompareSlider.tsx`):
 
 - **Before/After-Vergleich**: Horizontaler Slider
+
 - **Touch/Mouse-Support**: `useCompareInteractions` Hook
+
 - **Keyboard-Navigation**: Arrow-Keys (←/→)
+
 - **Responsive**: Mobile-optimiert
 
 **Interaktions-Hook** (`hooks/useCompareInteractions.ts`):
@@ -310,7 +345,8 @@ const {
 
 // Slider-Position: 0-100%
 <div style={{ left: `${sliderPosition}%` }} />
-```
+
+```text
 
 ### 6. Download & Actions
 
@@ -326,8 +362,11 @@ await downloadImage(enhancedUrl, 'enhanced-image.jpg');
 **EnhancerActions** (`EnhancerActions.tsx`):
 
 - **Download**: Enhanced Image speichern
+
 - **Reset**: Zurück zur Modell-Auswahl
+
 - **Share**: (Zukünftig) Social Media
+
 - **Fullscreen**: (Zukünftig) Vergleich im Vollbild
 
 ---
@@ -343,16 +382,19 @@ ai:usage:user:<user-id>:YYYY-MM-DD → { count: number, resetAt: timestamp }
 ai:usage:guest:<guest-id>:YYYY-MM-DD → { count: number, resetAt: timestamp }
 ai:monthly:user:<user-id>:YYYY-MM → { count: number }
 ai:credits:user:<user-id> → { balance: number }
-```
+
+```text
 
 **Daily Burst** (`src/config/ai-image/entitlements.ts:17`):
 
 - **24h Rolling Window** (nicht Kalender-Tag)
+
 - KV-TTL: 25 Stunden (automatische Cleanup)
 
 **Monthly Images** (Z. 4):
 
 - **Kalendermonate** (YYYY-MM)
+
 - Monatliches Reset
 
 ### Usage-Endpoint
@@ -392,7 +434,8 @@ X-Usage-Plan: pro
 X-Usage-Limit: 40
 X-Debug-Session: 1
 X-Debug-User: 1
-```
+
+```text
 
 ### Rate-Limiting
 
@@ -419,7 +462,8 @@ Retry-After: 45
     "message": "Too many requests. Retry in 45 seconds."
   }
 }
-```
+
+```text
 
 ---
 
@@ -440,7 +484,9 @@ Retry-After: 45
 **Farb-Kodierung**:
 
 - `used < 70%`: Grün/Blau
+
 - `70% ≤ used < 90%`: Gelb/Orange
+
 - `used ≥ 90%`: Rot
 
 ### HelpModal (`HelpModal.tsx`)
@@ -448,13 +494,17 @@ Retry-After: 45
 **Inhalt**:
 
 - Model-Beschreibungen
+
 - Scale/Face-Enhance-Erklärung
+
 - Plan-Comparison-Tabelle
+
 - FAQ
 
 **Trigger**:
 
 - `?`-Button neben Model-Auswahl
+
 - Keyboard-Shortcut: `Shift + ?`
 
 ### Responsiveness
@@ -467,12 +517,15 @@ const { containerRef, boxSize } = useImageBoxSize();
 // Berechnet optimale Container-Größe basierend auf Viewport
 // → Mobile: max-width 100vw
 // → Desktop: max-width 1200px
-```
+
+```text
 
 **Mobile-Optimierungen**:
 
 - Touch-freundliche Slider (min. 44px Target-Size)
+
 - Stack-Layout für Controls (vertical)
+
 - Reduced Animations für Performance
 
 ---
@@ -501,7 +554,8 @@ Face Enhance: N/A (nativ)
 
 → Output: enhanced-portrait.png (1024×1024)
 → Face Details: Schärfer, weniger Artefakte
-```
+
+```text
 
 ### 3. Alte Fotos restaurieren (CodeFormer)
 
@@ -525,7 +579,8 @@ Face Enhance: On (Pro-Plan erforderlich)
 
 → Output: enhanced-group-photo.jpg (2400×1600)
 → Gesichter zusätzlich mit GFPGAN nachbearbeitet
-```
+
+```bash
 
 ---
 
@@ -560,7 +615,8 @@ curl -X POST https://hub-evolution.com/api/ai-image/generate \
     }
   }
 }
-```
+
+```text
 
 **Response (Error - Quota)**:
 
@@ -589,7 +645,8 @@ curl -X POST https://hub-evolution.com/api/ai-image/generate \
     "message": "Bilddatei (field \"image\") ist erforderlich"
   }
 }
-```
+
+```text
 
 **Response (Error - Invalid File)**:
 
@@ -612,15 +669,21 @@ curl -X POST https://hub-evolution.com/api/ai-image/generate \
 **ModelControls** (`__tests__/ModelControls.test.tsx`):
 
 - Plan-basierte Scale-Disabling
+
 - Face-Enhance-Gating
+
 - Model-Switching
+
 - Entitlements-Integration
 
 **useCompareInteractions** (`__tests__/useCompareInteractions.test.tsx`):
 
 - Slider-Position-Berechnung
+
 - Touch/Mouse-Events
+
 - Keyboard-Navigation
+
 - Boundary-Handling (0-100%)
 
 **Gating-Logik** (`gating.test.ts`):
@@ -637,7 +700,8 @@ describe('computeAllowedScales', () => {
     expect(result).toEqual([2]);
   });
 });
-```
+
+```json
 
 ### E2E-Tests
 
@@ -670,7 +734,8 @@ test('enhances image with Real-ESRGAN 4x', async ({ page }) => {
 
 ```bash
 npm run test:e2e -- image-enhancer.spec.ts
-```
+
+```bash
 
 ---
 
@@ -689,13 +754,13 @@ npm run test:e2e -- image-enhancer.spec.ts
    # → Users-Tabelle → plan-Spalte = "pro"?
    ```
 
-2. **KV-Key löschen** (erzwingt Re-Fetch):
+1. **KV-Key löschen** (erzwingt Re-Fetch):
 
    ```bash
    wrangler kv:key delete --binding=KV_AI_ENHANCER "ai:usage:user:<user-id>:$(date +%Y-%m-%d)"
    ```
 
-3. **Session neu laden**:
+1. **Session neu laden**:
 
    ```javascript
    // Browser Console
@@ -708,6 +773,7 @@ npm run test:e2e -- image-enhancer.spec.ts
 **Timeouts** (`AiImageService`):
 
 - **Default**: 120 Sekunden
+
 - **Large Images**: Bis zu 300 Sekunden (Real-ESRGAN 4x)
 
 **Check-Job-Status**:
@@ -720,9 +786,13 @@ curl https://api.replicate.com/v1/predictions/<prediction-id> \
 **Mögliche Stati**:
 
 - `starting`: Modell lädt
+
 - `processing`: Enhancement läuft
+
 - `succeeded`: Fertig → `output` enthält URL
+
 - `failed`: Error → `error` enthält Message
+
 - `canceled`: Abgebrochen
 
 **Abbruch-Endpoint** (POST `/api/ai-image/jobs/[id]/cancel`):
@@ -730,7 +800,8 @@ curl https://api.replicate.com/v1/predictions/<prediction-id> \
 ```bash
 curl -X POST https://hub-evolution.com/api/ai-image/jobs/<job-id>/cancel \
   -H "X-CSRF-Token: <token>"
-```
+
+```bash
 
 ### Problem: R2-Bilder nicht erreichbar (404)
 
@@ -754,11 +825,13 @@ allowed_methods = ["GET", "HEAD"]
 allowed_headers = ["*"]
 expose_headers = ["ETag"]
 max_age = 3600
-```
+
+```bash
 
 **Custom Domain** (optional):
 
 - R2-Domain: `https://r2.hub-evolution.com`
+
 - Via Cloudflare Workers Route
 
 ### Problem: Face-Enhance-Toggle fehlt trotz Pro-Plan
@@ -774,14 +847,14 @@ max_age = 3600
    # Erwartung: { "faceEnhance": true, ... }
    ```
 
-2. **Gating-Flag** (`.env`):
+1. **Gating-Flag** (`.env`):
 
    ```bash
    # NICHT gesetzt = Gating aktiv
    PUBLIC_AI_IMAGE_GATING=false  # Deaktiviert Plan-Gates (Dev-Only)
    ```
 
-3. **Client-seitige State**:
+1. **Client-seitige State**:
 
    ```javascript
    // Browser Console (React DevTools)
@@ -793,9 +866,13 @@ max_age = 3600
 **MIME-Sniffing** (`AiImageService`):
 
 - **Magic Bytes Check**: Liest erste 12 Bytes
+
 - **Supported Signatures**:
+
   - JPEG: `FF D8 FF`
+
   - PNG: `89 50 4E 47`
+
   - WEBP: `52 49 46 46 ... 57 45 42 50`
 
 **Debugging**:
@@ -810,12 +887,16 @@ hexdump -C image.jpg | head -n 1
 **Workaround** (Re-Encode):
 
 ```bash
+
 # ImageMagick: Zu valider JPEG konvertieren
+
 convert broken.jpg -quality 95 fixed.jpg
 
 # Oder: WEBP → PNG
+
 cwebp input.webp -o output.png
-```
+
+```text
 
 ---
 
@@ -824,22 +905,29 @@ cwebp input.webp -o output.png
 ### Für Entwickler
 
 1. **R2-TTL setzen**: Alte Enhanced Images nach 30 Tagen löschen (Lifecycle-Rule)
-2. **KV-TTL nutzen**: Quota-Keys automatisch nach 25h cleanen
-3. **Replicate-Webhook**: Statt Polling → Webhook für schnellere Response
-4. **Image-Optimierung**: Original-Upload auf max. 4096×4096 clampen (Client-seitig)
-5. **Error-Boundary**: React Error Boundary um Enhancer-Komponenten
+1. **KV-TTL nutzen**: Quota-Keys automatisch nach 25h cleanen
+1. **Replicate-Webhook**: Statt Polling → Webhook für schnellere Response
+1. **Image-Optimierung**: Original-Upload auf max. 4096×4096 clampen (Client-seitig)
+1. **Error-Boundary**: React Error Boundary um Enhancer-Komponenten
 
 ### Für User
 
 1. **Model-Wahl**:
+
    - **Real-ESRGAN**: Allgemeine Upscaling (Fotos, Texturen)
+
    - **GFPGAN**: Porträts, Gesichter
+
    - **CodeFormer**: Alte/beschädigte Fotos
-2. **Scale-Faktor**:
+
+1. **Scale-Faktor**:
+
    - 2x: Schneller, moderate Verbesserung
+
    - 4x: Langsamer, maximale Qualität (Pro-Plan)
-3. **Face-Enhance nur bei Porträts**: Overhead bei Landschaften/Objekten
-4. **Upload-Größe minimieren**: Unter 5 MB → schnellere Uploads
+
+1. **Face-Enhance nur bei Porträts**: Overhead bei Landschaften/Objekten
+1. **Upload-Größe minimieren**: Unter 5 MB → schnellere Uploads
 
 ### Plan-Empfehlungen
 
@@ -855,9 +943,13 @@ cwebp input.webp -o output.png
 ## 🔗 Verwandte Dokumentation
 
 - **System-Architektur**: [docs/architecture/ai-image-enhancer.md](../architecture/ai-image-enhancer.md)
+
 - **API-Middleware**: [docs/architecture/api-middleware.md](../architecture/api-middleware.md)
+
 - **Entitlements-System**: [docs/architecture/entitlements.md](../architecture/entitlements.md) _(falls vorhanden)_
+
 - **R2-Storage**: [docs/infrastructure/cloudflare-r2.md](../infrastructure/cloudflare-r2.md) _(falls vorhanden)_
+
 - **Rate-Limiting**: [docs/SECURITY.md](../SECURITY.md#1-rate-limiting)
 
 ---
@@ -895,7 +987,8 @@ ai:job:<job-id> → JSON { userId, status, predictionId, createdAt, modelSlug }
     "replicate": true // REPLICATE_API_TOKEN gültig
   }
 }
-```
+
+```bash
 
 **Replicate-Status**:
 
@@ -912,7 +1005,9 @@ curl https://api.replicate.com/v1/account \
 **Pricing** (Stand 2025):
 
 - **Real-ESRGAN**: ~$0.003/Image (4x Upscale)
+
 - **GFPGAN**: ~$0.002/Image
+
 - **CodeFormer**: ~$0.0025/Image
 
 **Monatliche Schätzung**:
@@ -928,14 +1023,19 @@ curl https://api.replicate.com/v1/account \
 **R2-Storage**:
 
 - **Storage**: $0.015/GB/Monat
+
 - **Requests**: Class B (PUT): $4.50/Million
+
 - **Egress**: Cloudflare → Free (nur zu Internet kostenpflichtig)
 
 **Schätzung** (1000 Enhances/Monat):
 
 - **Original + Enhanced**: ~2 GB (je 1 MB/Bild)
+
 - **Storage**: $0.03/Monat
+
 - **Requests**: 2000 PUTs = $0.009
+
 - **Gesamt R2**: ~$0.04/Monat
 
 ---
@@ -947,13 +1047,14 @@ curl https://api.replicate.com/v1/account \
 **Multi-Layer-Checks** (`AiImageService.generate()`):
 
 1. **MIME-Type-Header**: `Content-Type` aus Request
-2. **Magic Bytes**: Erste 12 Bytes via `detectImageMimeFromBytes()`
-3. **File-Size**: Max. 10 MB (Server + Client)
-4. **Extension-Check**: Optional (`.jpg`, `.png`, `.webp`)
+1. **Magic Bytes**: Erste 12 Bytes via `detectImageMimeFromBytes()`
+1. **File-Size**: Max. 10 MB (Server + Client)
+1. **Extension-Check**: Optional (`.jpg`, `.png`, `.webp`)
 
 **SSRF-Schutz**:
 
 - Keine URL-Uploads (nur direkte File-Uploads)
+
 - Replicate-API signiert URLs (Public → Replicate nur, nicht zurück zum User-System)
 
 ### R2-Access-Control
@@ -961,11 +1062,13 @@ curl https://api.replicate.com/v1/account \
 **Public Paths** (`ai-enhancer/*`):
 
 - Original: `ai-enhancer/<user-id>/<timestamp>-original.jpg`
+
 - Enhanced: `ai-enhancer/<user-id>/<timestamp>-enhanced.jpg`
 
 **NICHT public**:
 
 - User-Metadata (separate KV-Stores)
+
 - Job-Logs (nur via API mit Auth)
 
 **URL-Expiry** (optional):
@@ -976,7 +1079,8 @@ const url = await R2_AI_IMAGES.createMultipartUpload(key, {
   httpMetadata: { contentType: 'image/jpeg' },
   customMetadata: { expiresAt: Date.now() + 1800000 },
 });
-```
+
+```text
 
 ---
 
@@ -985,3 +1089,5 @@ const url = await R2_AI_IMAGES.createMultipartUpload(key, {
 > Letzte Aktualisierung: 2025-01-15
 > Version: 1.7.x
 > Status: Production-Ready
+
+```text

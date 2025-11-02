@@ -3,6 +3,8 @@ title: Environment variables
 description: Reference of configuration sourced from .env.example
 ---
 
+<!-- markdownlint-disable MD051 -->
+
 This reference is generated from the `.env.example` template and lists every environment variable consumed by the application.
 
 | Name | Default | Description |

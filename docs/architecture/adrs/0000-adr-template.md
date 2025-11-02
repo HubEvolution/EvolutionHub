@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD051 -->
+
 # ADR-0000: Template für Architecture Decision Records
 
 ## Status

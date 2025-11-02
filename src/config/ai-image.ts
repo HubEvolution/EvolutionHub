@@ -70,22 +70,6 @@ export const ALLOWED_MODELS: readonly AllowedModel[] = [
       steps: 20,
     },
   },
-  {
-    slug: '@cf/stabilityai/stable-diffusion-xl-base-1.0',
-    label: 'Enhance XL (SDXL img2img)',
-    provider: 'workers_ai',
-    supportsScale: false,
-    supportsFaceEnhance: false,
-    defaultParams: {
-      prompt:
-        'photo restoration, high quality, detailed, natural, sharp focus, accurate colors, noise reduction',
-      negative_prompt:
-        'cartoon, anime, text, watermark, oversharpen, artifacts, deformed, painting, unrealistic',
-      strength: 0.25,
-      guidance: 6,
-      steps: 30,
-    },
-  },
 ] as const;
 
 // Quota (24h window)

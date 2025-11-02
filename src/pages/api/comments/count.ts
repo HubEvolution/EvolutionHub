@@ -6,11 +6,14 @@ import { comments } from '@/lib/db/schema';
 
 export const GET = withApiMiddleware(async (context: APIContext) => {
   try {
-    const env = (context.locals?.runtime?.env || {}) as { DB?: any };
-    const dbBinding = env?.DB || (context as unknown as { locals?: { env?: { DB?: any } } }).locals?.env?.DB;
-    if (!dbBinding) return createApiError('server_error', 'Database binding missing');
+    const env = (context.locals?.runtime?.env || {}) as { DB?: unknown };
+    const dbUnknown =
+      env?.DB || (context as unknown as { locals?: { env?: { DB?: unknown } } }).locals?.env?.DB;
+    if (!dbUnknown) return createApiError('server_error', 'Database binding missing');
+    const hasPrepare = typeof (dbUnknown as { prepare?: unknown }).prepare === 'function';
+    if (!hasPrepare) return createApiError('server_error', 'Database binding invalid');
+    const dbBinding = dbUnknown as D1Database;
     const db = drizzle(dbBinding);
-    const dbBindingAny = dbBinding as any;
 
     const url = new URL(context.request.url);
     const q = url.searchParams;
@@ -20,8 +23,10 @@ export const GET = withApiMiddleware(async (context: APIContext) => {
     // Debug diagnostics
     if (q.get('debug') === '1') {
       try {
-        const info = await dbBindingAny.prepare("PRAGMA table_info('comments')").all();
-        const rows = Array.isArray(info?.results) ? (info.results as Array<Record<string, unknown>>) : [];
+        const info = await dbBinding.prepare("PRAGMA table_info('comments')").all();
+        const rows = Array.isArray(info?.results)
+          ? (info.results as Array<Record<string, unknown>>)
+          : [];
         const cols = rows.map((r) => String((r as { name?: unknown }).name));
         const isLegacy =
           cols.includes('postId') &&
@@ -43,7 +48,9 @@ export const GET = withApiMiddleware(async (context: APIContext) => {
 
     // Detect legacy schema once
     const info = await dbBinding.prepare("PRAGMA table_info('comments')").all();
-    const colsRows = Array.isArray(info?.results) ? (info.results as Array<Record<string, unknown>>) : [];
+    const colsRows = Array.isArray(info?.results)
+      ? (info.results as Array<Record<string, unknown>>)
+      : [];
     const cols = new Set<string>(colsRows.map((r) => String((r as { name?: unknown }).name)));
     const isLegacy =
       cols.has('postId') &&
@@ -59,10 +66,7 @@ export const GET = withApiMiddleware(async (context: APIContext) => {
           .from(comments)
           .where(
             and(
-              eq(
-                comments.entityType,
-                (entityType as unknown as 'blog_post' | 'project' | 'general')
-              ),
+              eq(comments.entityType, entityType as unknown as 'blog_post' | 'project' | 'general'),
               eq(comments.entityId, entityIds[0]),
               eq(comments.status, 'approved')
             )
@@ -71,14 +75,14 @@ export const GET = withApiMiddleware(async (context: APIContext) => {
         return createApiSuccess({ entityId: entityIds[0], count: c });
       } else {
         // Legacy: entityType is ignored (only blog_post supported historically)
-        const stmt = dbBindingAny
+        const stmt = dbBinding
           .prepare('SELECT COUNT(*) as cnt FROM comments WHERE postId = ? AND approved = 1')
           .bind(entityIds[0]);
         const res = await stmt.all();
         const rrows = Array.isArray(res.results)
           ? (res.results as Array<Record<string, unknown>>)
           : [];
-        const cnt = Number(((rrows[0] as { cnt?: unknown })?.cnt ?? 0));
+        const cnt = Number((rrows[0] as { cnt?: unknown })?.cnt ?? 0);
         return createApiSuccess({ entityId: entityIds[0], count: cnt });
       }
     }
@@ -90,10 +94,7 @@ export const GET = withApiMiddleware(async (context: APIContext) => {
         .from(comments)
         .where(
           and(
-            eq(
-              comments.entityType,
-              (entityType as unknown as 'blog_post' | 'project' | 'general')
-            ),
+            eq(comments.entityType, entityType as unknown as 'blog_post' | 'project' | 'general'),
             inArray(comments.entityId, entityIds),
             eq(comments.status, 'approved')
           )
@@ -106,7 +107,7 @@ export const GET = withApiMiddleware(async (context: APIContext) => {
     } else {
       // Legacy batch
       const placeholders = entityIds.map(() => '?').join(',');
-      const stmt = dbBindingAny
+      const stmt = dbBinding
         .prepare(
           `SELECT postId as entityId, COUNT(*) as cnt FROM comments WHERE postId IN (${placeholders}) AND approved = 1 GROUP BY postId`
         )

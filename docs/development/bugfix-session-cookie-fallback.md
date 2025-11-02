@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD051 -->
+
 # Bugfix: Session Cookie Fallback (2025-10-01)
 
 ## Problem
@@ -11,6 +13,7 @@ Die Middleware (`src/middleware.ts`) las nur das `session_id`-Cookie (SameSite=L
 Beim Auth-Callback werden **beide Cookies** gesetzt:
 
 - `session_id`: SameSite=Lax, für Cross-Site-Navigation
+
 - `__Host-session`: SameSite=Strict, sicherer, aber nur Same-Site
 
 Bei bestimmten Navigationen (z.B. Client-Side-Navigation oder nach Redirects) konnte es vorkommen, dass nur `__Host-session` verfügbar war, aber die Middleware dieses nicht las → `locals.user` blieb `null` → API erkannte User als Guest.
@@ -22,29 +25,37 @@ Bei bestimmten Navigationen (z.B. Client-Side-Navigation oder nach Redirects) ko
 ```typescript
 // Try __Host-session first (stricter, SameSite=Strict), fallback to session_id (SameSite=Lax)
 const sessionId = context.cookies.get('__Host-session')?.value ?? context.cookies.get('session_id')?.value ?? null;
-```
+
+```text
 
 Die Middleware prüft jetzt **beide Cookie-Namen** mit Fallback-Logik:
 
 1. Erst `__Host-session` (bevorzugt, da sicherer)
-2. Falls nicht vorhanden, `session_id` (Fallback für Kompatibilität)
+1. Falls nicht vorhanden, `session_id` (Fallback für Kompatibilität)
 
 ## Betroffene Dateien
 
 - `src/middleware.ts`: Session-Cookie-Lesung mit Fallback
+
 - `src/pages/api/ai-image/usage.ts`: Keine Änderung nötig (nutzt `locals.user` korrekt)
 
 ## Testing
 
 1. **Login** via Magic Link oder OAuth
-2. **Navigiere zum Dashboard** → Plan-Badge sollte "Starter" (oder dein Plan) zeigen
-3. **Navigiere zum Image Enhancer** (`/en/tools/imag-enhancer`) → Plan-Badge sollte **gleich bleiben** (nicht "Guest")
-4. **Prüfe DevTools** → Network → `/api/ai-image/usage`:
+1. **Navigiere zum Dashboard** → Plan-Badge sollte "Starter" (oder dein Plan) zeigen
+1. **Navigiere zum Image Enhancer** (`/en/tools/imag-enhancer`) → Plan-Badge sollte **gleich bleiben** (nicht "Guest")
+1. **Prüfe DevTools** → Network → `/api/ai-image/usage`:
+
    - Response Header `X-Usage-OwnerType` sollte `user` sein
+
    - Response Header `X-Usage-Plan` sollte `free` (oder dein Plan) sein
 
 ## Weitere Schritte
 
 - [ ] Testen auf allen Umgebungen (Dev, Testing, Staging, Production)
+
 - [ ] Überlegen: Langfristig nur `__Host-session` nutzen (Migration)
+
 - [ ] Dokumentieren: Cookie-Strategie in `docs/architecture/auth-migration-stytch.md`
+
+```text

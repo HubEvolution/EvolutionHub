@@ -251,6 +251,8 @@ ENVIRONMENT = "production"
 PUBLIC_SITE_URL="https://hub-evolution.com"
 PUBLIC_ENHANCER_MVP_MODE = "1"
 PUBLIC_ENHANCER_LEGACY_MODE = "0"
+CLOUDFLARE_ZONE_ID = "14c984ebb05270de08cb82d316f1ba36"
+CLOUDFLARE_ACCOUNT_ID = "39434b5635d8beb4bde93e1792b628d7"
 # Produktionsbasis-URL für Stripe-Redirects
 BASE_URL = "https://hub-evolution.com"
 LEADMAGNET_SOURCE = "r2"
@@ -258,6 +260,7 @@ USAGE_KV_V2 = "1"
 WORKERS_AI_ENABLED = "1"
 PUBLIC_ENABLE_CREDITS_CTA = "1"
 PUBLIC_LANDING_BG_VARIANT = "techcells"
+PUBLIC_DISABLE_LEADMAGNETS = "1"
 # Temporär für Admin-Credit-Grants (UI in /admin). Nach Vergabe wieder auf "0" setzen.
 INTERNAL_CREDIT_GRANT = "1"
 # Live Stripe price IDs (plan -> price)

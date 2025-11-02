@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD051 -->
+
 # Prompt Enhancer – KI-gestützte Prompt-Optimierung
 
 Dieses Dokument beschreibt das Prompt Enhancer Tool der Evolution Hub Plattform.
@@ -11,11 +13,17 @@ Der **Prompt Enhancer** transformiert einfache Text-Eingaben in strukturierte, a
 ### Hauptfeatures
 
 - ✨ **KI-Rewriting**: Strukturierung via OpenAI GPT-4o-mini
+
 - 📎 **Multimodale Unterstützung**: Text, Bilder (JPG/PNG/WEBP), PDFs, Markdown
+
 - 🎯 **Drei Modi**: Creative, Professional, Concise
+
 - 🔒 **PII-Safety**: Automatische Maskierung von sensiblen Daten (E-Mails, Telefonnummern)
+
 - 🌍 **i18n**: Mehrsprachig (DE/EN)
+
 - 📊 **Quota-System**: Guest (5/Tag) vs. User (20/Tag)
+
 - ⚡ **Rate-Limiting**: 15 Requests/Minute
 
 ---
@@ -40,15 +48,19 @@ src/components/tools/prompt-enhancer/
     ├── useEnhance.ts            # Enhancement-Logik
     ├── useRateLimit.ts          # Rate-Limit-Handling
     └── useUsage.ts              # Quota-Tracking
-```
+
+```text
 
 ### Service-Layer
 
 **`PromptEnhancerService`** (`src/lib/services/prompt-enhancer-service.ts`)
 
 - **Pipeline**: Parse → Structure → Rewrite → Safety → Score
+
 - **KV-Tracking**: Tägliche Quotas via `KV_PROMPT_ENHANCER`
+
 - **LLM-Pfade**: Text-only, Vision (Bilder), File Search (PDFs)
+
 - **Safety**: PII-Maskierung (E-Mails, Telefonnummern, Adressen)
 
 ---
@@ -75,6 +87,7 @@ src/components/tools/prompt-enhancer/
 **Default-Limits** (überschreibbar via `PROMPT_USER_LIMIT`/`PROMPT_GUEST_LIMIT`):
 
 - **Guest**: 5 Enhances/Tag
+
 - **User**: 20 Enhances/Tag
 
 **Rate-Limit** (`src/pages/api/prompt-enhance.ts:26-30`):
@@ -104,6 +117,7 @@ const promptEnhanceLimiter = createRateLimiter({
 **Strukturierte Prompts** (`src/pages/api/prompt-enhance.ts:144-157`):
 
 ```markdown
+
 # Role
 
 [AI-Agent-Rolle, z.B. "You are an expert technical writer"]
@@ -119,7 +133,9 @@ const promptEnhanceLimiter = createRateLimiter({
 ## Steps
 
 - [Schritt 1]
+
 - [Schritt 2]
+
 - [...]
 
 ## Examples
@@ -129,11 +145,13 @@ const promptEnhanceLimiter = createRateLimiter({
 ## Original (sanitized)
 
 [Ursprünglicher Input nach PII-Maskierung]
-```
+
+```text
 
 **Plain-Format** (bei LLM-Rewrite):
 
 - Gesamter enhanced Text direkt im `objective`-Feld
+
 - `outputFormat: 'plain'`
 
 ---
@@ -153,18 +171,23 @@ const promptEnhanceLimiter = createRateLimiter({
 **Bilder** (`EnhancerForm.tsx:104-114`):
 
 - Base64-Encoding für Vision API
+
 - Text-Preview für UI (160 Zeichen)
+
 - Drag & Drop + URL-Import
 
 **PDFs** (`src/lib/services/prompt-attachments.ts`):
 
 - Upload zu OpenAI via `file.create(purpose: 'assistants')`
+
 - Verwendung mit `file_search` Tool
+
 - Automatische Cleanup nach Anfrage
 
 **Texte**:
 
 - Direktes Embedding in Prompt-Kontext
+
 - Clipping auf `TEXT_LENGTH_MAX` (1000 Zeichen)
 
 ### UI-Features
@@ -184,6 +207,7 @@ const onImportUrl = async () => {
 **Datei-Reihenfolge**:
 
 - Verschieben via `↑`/`↓`-Buttons
+
 - Wichtig für Kontext-Priorität bei LLM
 
 ---
@@ -195,8 +219,11 @@ const onImportUrl = async () => {
 **Erkannte Pattern** (`PromptEnhancerService`):
 
 - **E-Mails**: `example@domain.com` → `[EMAIL_REDACTED]`
+
 - **Telefonnummern**: `+49 123 456789` → `[PHONE_REDACTED]`
+
 - **Adressen**: Straßen, PLZ → `[ADDRESS_REDACTED]`
+
 - **IDs**: UUIDs, Kennzeichen → `[ID_REDACTED]`
 
 ### Safety-Report
@@ -213,12 +240,15 @@ const onImportUrl = async () => {
   "usage": { "used": 5, "limit": 20, "resetAt": 1705334400000 },
   "limits": { "user": 20, "guest": 3 }
 }
-```
+
+```text
 
 **UI-Anzeige** (`EnhancerForm.tsx:649-665`):
 
 - Gelbe Infobox unterhalb des Outputs
+
 - Liste der maskierten Elemente
+
 - Score (0-10, wobei 0 = keine Probleme)
 
 ---
@@ -241,18 +271,23 @@ const validateInput = (text: string): string | null => {
 
 ```jsx
 <div className="mt-1 text-sm text-gray-500 dark:text-gray-400">{inputText.length}/1000</div>
-```
+
+```text
 
 **Error-Scopes** (Z. 40, 435-437):
 
 - `'input'`: Validierungs-/Netzwerk-Fehler
+
 - `'files'`: Datei-Upload-Fehler
+
 - `null`: Generische Fehler
 
 **Loading-States**:
 
 - `isLoading`: Button-Text → "Enhancing…"
+
 - `urlLoading`: URL-Import-Button deaktiviert
+
 - `retryActive`: Rate-Limit-Retry-Timer
 
 **Copy-to-Clipboard** (Z. 222-232):
@@ -268,7 +303,9 @@ const handleCopy = async () => {
 ### Responsiveness
 
 - **Max-Width**: `max-w-4xl` (Card-Container)
+
 - **Textarea-Heights**: Input `h-32`, Output `h-32`
+
 - **Dark-Mode**: Vollständige Unterstützung via Tailwind `dark:` Varianten
 
 ---
@@ -304,16 +341,21 @@ await emitPromptEnhancerFailed({
   errorKind: 'rate_limited',
   httpStatus: 429,
 });
-```
+
+```text
 
 ### Server-seitige Logs (`PromptEnhancerService`)
 
 **Log-Events**:
 
 - `enhance_requested`: Input-Details
+
 - `llm_path_selected`: `text` | `vision` | `file_search`
+
 - `openai_api_call`: Model, Tokens, Latenz
+
 - `safety_check`: Maskierte Elemente
+
 - `quota_exceeded`: Limit erreicht
 
 ---
@@ -358,7 +400,8 @@ Files: [sales-chart.png]
 
 → Vision-Modell: Bildanalyse + Prompt-Strukturierung
 → Output: Detaillierte Chart-Beschreibung + Trend-Analyse-Prompt
-```
+
+```text
 
 ### 3. Mit PDFs (File Search)
 
@@ -380,7 +423,8 @@ Input: "Create unit tests for this API spec"
 → Fetch Markdown-Datei
 → Datei als Kontext hinzufügen
 → Enhanced Prompt für Test-Generierung
-```
+
+```text
 
 ---
 
@@ -411,7 +455,8 @@ text: "Analyze this document"
 mode: professional
 files[]: [file1.pdf]
 files[]: [image.png]
-```
+
+```json
 
 **Response (Success)**:
 
@@ -452,7 +497,8 @@ files[]: [image.png]
     }
   }
 }
-```
+
+```text
 
 **Response (Error - Rate-Limit)**:
 
@@ -478,15 +524,19 @@ Retry-After: 45
 **`EnhancerForm.test.tsx`** (`src/components/tools/prompt-enhancer/EnhancerForm.test.tsx`):
 
 - Input-Validierung
+
 - Modi-Umschaltung
+
 - Datei-Upload
+
 - Error-Handling
 
 **Service-Tests**:
 
 ```bash
 npm run test:unit -- prompt-enhancer-service
-```
+
+```bash
 
 ### E2E-Tests
 
@@ -499,10 +549,10 @@ npm run test:e2e -- prompt-enhancer-flow.spec.ts
 **Abgedeckte Flows**:
 
 1. Text-only Enhancement (alle Modi)
-2. Multimodale Eingaben (Bild + Text)
-3. Quota-Limit-Handling
-4. Rate-Limit-Retry
-5. Safety-Maskierung
+1. Multimodale Eingaben (Bild + Text)
+1. Quota-Limit-Handling
+1. Rate-Limit-Retry
+1. Safety-Maskierung
 
 ---
 
@@ -518,7 +568,7 @@ npm run test:e2e -- prompt-enhancer-flow.spec.ts
    wrangler kv:key get --binding=KV_PROMPT_ENHANCER "prompt:usage:user:<user-id>:YYYY-MM-DD"
    ```
 
-2. Manuelles Reset (Dev):
+1. Manuelles Reset (Dev):
 
    ```bash
    wrangler kv:key delete --binding=KV_PROMPT_ENHANCER "prompt:usage:user:<user-id>:YYYY-MM-DD"
@@ -531,6 +581,7 @@ npm run test:e2e -- prompt-enhancer-flow.spec.ts
 **Lösung**:
 
 - Browser-Reload
+
 - LocalStorage clearen: `localStorage.removeItem('promptEnhancer.retryAfter')`
 
 ### Problem: PDF-Upload funktioniert nicht
@@ -538,18 +589,21 @@ npm run test:e2e -- prompt-enhancer-flow.spec.ts
 **Checks**:
 
 1. `PROMPT_PDF_FILE_SEARCH_ENABLED=true` in `.env`
-2. `OPENAI_API_KEY` korrekt gesetzt
-3. Dateigröße < 5 MB
-4. MIME-Type = `application/pdf`
+1. `OPENAI_API_KEY` korrekt gesetzt
+1. Dateigröße < 5 MB
+1. MIME-Type = `application/pdf`
 
 **Logs**:
 
 ```bash
+
 # Server-Logs (Wrangler Dev)
+
 npm run dev:worker
 
 # Check für "file_search_enabled: true" im Log-Output
-```
+
+```text
 
 ### Problem: Bilder werden nicht verarbeitet
 
@@ -562,6 +616,7 @@ PROMPT_VISION_MODEL = 'gpt-4o-mini'; // Muss Vision-fähig sein
 **Unterstützte Formate**:
 
 - ✅ JPG, PNG, WEBP
+
 - ❌ GIF, BMP, SVG (nicht unterstützt)
 
 ---
@@ -571,27 +626,34 @@ PROMPT_VISION_MODEL = 'gpt-4o-mini'; // Muss Vision-fähig sein
 ### Für Entwickler
 
 1. **Immer Safety aktiviert lassen**: `ENABLE_PROMPT_SAFETY=true`
-2. **Output-Tokens konservativ**: `PROMPT_OUTPUT_TOKENS_MAX=400` (Balance: Qualität vs. Kosten)
-3. **Temperatur niedrig halten**: `PROMPT_TEMPERATURE=0.2` (konsistente Outputs)
-4. **KV-Monitoring**: Quota-Keys regelmäßig cleanen (TTL: 24h)
+1. **Output-Tokens konservativ**: `PROMPT_OUTPUT_TOKENS_MAX=400` (Balance: Qualität vs. Kosten)
+1. **Temperatur niedrig halten**: `PROMPT_TEMPERATURE=0.2` (konsistente Outputs)
+1. **KV-Monitoring**: Quota-Keys regelmäßig cleanen (TTL: 24h)
 
 ### Für User
 
 1. **Input-Qualität**: Klar formulierte Anfragen → bessere Prompts
-2. **Modi bewusst wählen**:
+1. **Modi bewusst wählen**:
+
    - Creative: Explorative Tasks
+
    - Professional: Business-Dokumente
+
    - Concise: Schnelle Prototypen
-3. **Datei-Reihenfolge**: Wichtigste Dateien zuerst (Kontext-Priorität)
-4. **URL-Import für Docs**: Statt manuellem Copy-Paste
+
+1. **Datei-Reihenfolge**: Wichtigste Dateien zuerst (Kontext-Priorität)
+1. **URL-Import für Docs**: Statt manuellem Copy-Paste
 
 ---
 
 ## 🔗 Verwandte Dokumentation
 
 - **API & Security (CSRF/Origin)**: [docs/api/README.md](../api/README.md)
+
 - **Rate-Limiting**: [docs/SECURITY.md](../SECURITY.md#1-rate-limiting)
+
 - **OpenAI-Integration**: [docs/architecture/system-overview.md](../architecture/system-overview.md#external-services)
+
 - **Telemetry (Prompt‑Enhancer)**: [docs/api/README.md](../api/README.md)
 
 ---
@@ -604,7 +666,8 @@ PROMPT_VISION_MODEL = 'gpt-4o-mini'; // Muss Vision-fähig sein
 prompt:usage:user:<user-id>:<YYYY-MM-DD> → { count: number }
 prompt:usage:guest:<guest-id>:<YYYY-MM-DD> → { count: number }
 prompt:metrics:path:<llm_text|llm_vision|llm_file_search>:<YYYY-MM-DD> → { count: number }
-```
+
+```text
 
 ### Health-Check
 
@@ -626,17 +689,21 @@ prompt:metrics:path:<llm_text|llm_vision|llm_file_search>:<YYYY-MM-DD> → { cou
 **Modell**: `gpt-4o-mini`
 
 - **Input**: ~$0.00015/1K tokens
+
 - **Output**: ~$0.0006/1K tokens
 
 **Durchschnittliche Kosten/Enhance**:
 
 - Text-only: ~$0.0002 (150 input + 400 output tokens)
+
 - Vision: ~$0.0005 (Bild-Token + Text)
+
 - File Search: ~$0.001 (Vector-Store + Completion)
 
 **Monatliche Schätzung** (1000 Enhances):
 
 - ~$0.50 (nur Text-Rewrite)
+
 - ~$1.00 (gemischter Workload)
 
 ---

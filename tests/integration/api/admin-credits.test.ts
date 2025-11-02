@@ -37,8 +37,12 @@ describe('Admin Credits API — authenticated (non-admin) → 403', () => {
       return;
     }
     const cookie = login.headers.get('set-cookie') || '';
-    const h = await request('/api/admin/credits/history?userId=test', { headers: { Cookie: cookie } });
-    const u = await request('/api/admin/credits/usage?userId=test', { headers: { Cookie: cookie } });
+    const h = await request('/api/admin/credits/history?userId=test', {
+      headers: { Cookie: cookie },
+    });
+    const u = await request('/api/admin/credits/usage?userId=test', {
+      headers: { Cookie: cookie },
+    });
     expect(h.status).toBe(403);
     expect(u.status).toBe(403);
   });

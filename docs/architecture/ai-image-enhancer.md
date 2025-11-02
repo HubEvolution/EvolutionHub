@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD051 -->
+
 # AI-Bildbearbeitung - Architektur und Implementierung
 
 ## Übersicht
@@ -11,7 +13,9 @@ Evolution Hub bietet KI-gestützte Bildbearbeitungsfunktionen, die es Benutzern 
 #### Bildbearbeitungs-Interface
 
 - **Tool-Seite**: `/tools/imag-enhancer/` - Hauptinterface für Bildbearbeitung
+
 - **App-Komponente**: Interaktive React-Komponente für Echtzeit-Vorschau
+
 - **Upload-Modal**: Sichere Datei-Upload-Funktionalität mit Validierung
 
 #### Technische Implementierung
@@ -22,7 +26,8 @@ Evolution Hub bietet KI-gestützte Bildbearbeitungsfunktionen, die es Benutzern 
 
 // src/pages/tools/imag-enhancer/app.astro
 // Interaktive Anwendung mit React-Integration
-```
+
+```text
 
 ### 2. API-Schicht
 
@@ -31,27 +36,40 @@ Evolution Hub bietet KI-gestützte Bildbearbeitungsfunktionen, die es Benutzern 
 Die API-Endpunkte sind in `/src/pages/api/ai-image/` organisiert:
 
 - **`/api/ai-image/generate`**: Bildgenerierung und -bearbeitung
+
 - **`/api/ai-image/usage`**: Nutzungsstatistiken und Limits
+
 - **`/api/ai-image/jobs/[id]`**: Job-Management (Status, Abbruch)
+
 - **`/api/ai-image/jobs/index`**: Job-Liste und Historie
+
 - **`/api/ai-image/jobs/[id]/cancel`**: Job-Abbruch
 
 #### Sicherheitsfeatures
 
 - Rate-Limiting: `aiGenerate` 15/min, `aiJobs` 10/min; sonst `api` 30/min
+
 - Input-Validierung: MIME-Type (JPEG/PNG/WebP) und Dateigröße (max. 10 MB); keine Inhaltsprüfung auf Server-Seite
+
 - Authentifizierung: optional. Gäste werden per `guest_id`-Cookie unterstützt; Owner-Gating auf Resultate via R2-Proxy
+
 - CSRF: Double-Submit-Token für POST-Routen (Header `X-CSRF-Token` muss mit Cookie `csrf_token` übereinstimmen)
+
 - Audit-/Security-Logging: Standardisierte Fehler- und Limit-Logs über Middleware/Security-Logger
 
 ##### Provider-Fehlermapping (Replicate → API-Error-Shape)
 
 - Quelle: `src/lib/services/ai-image-service.ts` (Erzeugung typisierter Fehler via `apiErrorType`),
   Durchleitung in `src/pages/api/ai-image/generate.ts` (bevor Message-Heuristiken greifen)
+
 - Mapping:
+
   - 401/403 → `forbidden`
+
   - 4xx (inkl. 404/422) → `validation_error`
+
   - 5xx → `server_error`
+
   - Einheitliches Response-Format: `{ success: false, error: { type, message, … } }`
 
 ### 3. Service-Schicht
@@ -77,7 +95,8 @@ export class AIJobsService {
   async updateJobStatus(jobId: string, status: JobStatus): Promise<void>
   async getUserJobs(userId: string): Promise<AIJob[]>
 }
-```
+
+```text
 
 ### 4. Datenmodell
 
@@ -108,6 +127,7 @@ CREATE TABLE ai_jobs (
 #### Migration
 
 - **0008_create_ai_jobs_table.sql**: Erstellt die ai_jobs-Tabelle
+
 - **0009_update_ai_jobs_guest_ownership.sql**: Fügt Gastbenutzer-Unterstützung hinzu
 
 ### 5. Cloudflare-Integration
@@ -115,21 +135,29 @@ CREATE TABLE ai_jobs (
 #### AI-Modelle
 
 - Verwendet Replicate als externen AI-Provider (HTTP API)
+
 - Unterstützte Modelle werden in `src/config/ai-image.ts` via `ALLOWED_MODELS` whitelisted
+
 - Beispiel: `nightmareai/real-esrgan:latest` (Upscaling, optional `scale` und `face_enhance`)
 
 #### R2-Speicher
 
 - Binding: `R2_AI_IMAGES` (siehe `env.d.ts`), optional `KV_AI_ENHANCER` für Quoten
+
 - Pfad-Präfix: `AI_R2_PREFIX = 'ai-enhancer'`
+
 - Struktur:
+
   - Uploads: `ai-enhancer/uploads/<ownerType>/<ownerId>/<file>` (öffentlich, damit Provider sie abrufen kann)
+
   - Ergebnisse: `ai-enhancer/results/<ownerType>/<ownerId>/<file>` (owner-gated via Proxy `src/pages/r2-ai/[...path].ts`)
 
 #### Worker-Integration
 
 ```toml
+
 # wrangler.toml (relevante Auszüge)
+
 [[r2_buckets]]
 binding = "R2_AI_IMAGES"
 bucket_name = "evolution-hub-ai-images"
@@ -137,7 +165,8 @@ bucket_name = "evolution-hub-ai-images"
 [[kv_namespaces]]
 binding = "KV_AI_ENHANCER"
 id = "<kv-id>"
-```
+
+```text
 
 ## Datenfluss
 
@@ -168,37 +197,53 @@ sequenceDiagram
 ### Input-Validierung
 
 - **Dateigröße**: Max. 10MB pro Bild
+
 - **Formate**: JPEG, PNG, WebP
+
 - **Inhaltsprüfung**: Automatische Filter für unangemessenen Content
+
 - **Rate-Limiting**: Pro-Benutzer und globale Limits
 
 ### Datenschutz
 
 - Verarbeitung über externen Provider (Replicate). Originale werden in R2 gespeichert; der Provider lädt von dort.
+
 - Dev-Fallback: In Entwicklung kann der Service das Originalbild zurückgeben (Echo), ohne externen Aufruf.
+
 - Zugriffssteuerung: Ergebnisse sind ausschließlich für den Owner abrufbar (Owner-Gating im Proxy)
 
 ### Monitoring
 
 - **Audit-Logs**: Alle AI-Operationen werden protokolliert
+
 - **Nutzungsstatistiken**: Tracking von API-Nutzung pro Benutzer
+
 - **Fehlerbehandlung**: Umfassende Fehlerprotokollierung und -behandlung
 
 #### Observability (Structured Logs)
 
 - Quelle: `src/lib/services/ai-image-service.ts` (Logger: `loggerFactory.createLogger('ai-image-service')`)
+
 - Ereignisse (Auszug):
+
   - `generate_start` (reqId, owner, model, datei-metadata)
+
   - `r2_put_original_ms`, `uploaded_original`
+
   - `replicate_call_start`, `replicate_call_success`, `replicate_duration_ms`, `replicate_error` (snippet redacted)
+
   - `dev_echo_enabled`, `dev_echo_return` (Deterministischer Echo-Mode in Nicht‑Prod)
+
   - `fetch_output_start`, `fetch_output_done`, `r2_put_result_ms`, `stored_result`
+
   - `generate_success`
+
 - Kontext: `reqId` je Request, Dauer in ms; sensible Inhalte werden nicht geloggt (nur gekürzte Snippets)
 
 #### Content Security Policy (CSP) – Status
 
 - Aktuell: Statische CSP in `applySecurityHeaders()` (`src/lib/security-headers.ts`), enthält u. a. `script-src 'self' 'unsafe-inline' …`.
+
 - Ziel: Nonce‑basierte CSP für HTML‑Responses; Inline‑Skripte ohne `unsafe-inline` (siehe Projektregeln). Umsetzung/ADR folgt.
 
 ## Performance-Optimierungen
@@ -206,19 +251,25 @@ sequenceDiagram
 ### Asynchrone Verarbeitung
 
 - Jobs werden asynchron erstellt (`POST /api/ai-image/jobs`) und beim ersten `GET /api/ai-image/jobs/{id}` verarbeitet (Polling)
+
 - Kein WebSocket/SSE im aktuellen Stand; Status-Updates erfolgen per Polling
+
 - DB-Status-Lifecycle: `queued → processing → succeeded|failed|canceled`
 
 ### Caching-Strategien
 
 - **CDN-Caching**: Verarbeitete Bilder werden über Cloudflare CDN ausgeliefert
+
 - **Browser-Caching**: Optimierte Cache-Header für statische Assets
+
 - **API-Response-Caching**: Kurzfristiges Caching für häufige Anfragen
 
 ### Optimierungen
 
 - **Bildkomprimierung**: Automatische Optimierung der Ausgabebilder
+
 - **Lazy-Loading**: Bilder werden nur bei Bedarf geladen
+
 - **Progressive Enhancement**: Funktionalität auch ohne JavaScript
 
 ## Testing-Strategie
@@ -236,7 +287,8 @@ describe('AIImageService', () => {
     // Test für Fehlerbehandlung
   })
 })
-```
+
+```text
 
 ### Integrationstests
 
@@ -252,7 +304,9 @@ describe('AI Image Enhancement Flow', () => {
 ### E2E-Tests
 
 - Playwright-Tests für die komplette Benutzeroberfläche
+
 - Test der Datei-Upload-Funktionalität
+
 - Validierung der Bildverarbeitungsergebnisse
 
 ## Monitoring und Wartung
@@ -260,15 +314,21 @@ describe('AI Image Enhancement Flow', () => {
 ### Metriken
 
 - **API-Latenz**: Durchschnittliche Verarbeitungszeiten
+
 - **Fehlerrate**: Prozentsatz fehlgeschlagener Jobs
+
 - **Nutzung**: Anzahl der verarbeiteten Bilder pro Tag
+
 - **Speicher**: R2-Bucket-Nutzung und -Kosten
 
 ### Wartungsaufgaben
 
 - **Regelmäßige Bereinigung**: Löschen alter Jobs und Bilder
+
 - **Modell-Updates**: Aktualisierung der AI-Modelle
+
 - **Performance-Monitoring**: Überwachung der Systemleistung
+
 - **Backup-Strategie**: Sicherung wichtiger Job-Daten
 
 ## Erweiterte Features (geplant)
@@ -276,17 +336,21 @@ describe('AI Image Enhancement Flow', () => {
 ### Batch-Verarbeitung
 
 - Mehrere Bilder gleichzeitig verarbeiten
+
 - Queue-Management für große Aufträge
 
 ### Custom-Modelle
 
 - Benutzerdefinierte KI-Modelle trainieren
+
 - Persönliche Stil-Profile
 
 ### Integrationen
 
 - Social-Media-Integration für Bild-Sharing
+
 - E-Commerce-Integration für Produktbilder
+
 - API für Drittanbieter-Integrationen
 
 ## Detaillierte Analyse und Bewertung (2025)
@@ -310,28 +374,34 @@ describe('AI Image Enhancement Flow', () => {
 **Technologische Überlegenheit:**
 
 - **Edge-first-Architektur**: Globale Performance durch Cloudflare Workers vs. traditionelle Cloud-Architekturen
+
 - **Entwicklerfreundlichkeit**: Vollständige API-Dokumentation, umfassende Tests, OpenAPI-Spezifikation
+
 - **Kosteneffizienz**: Günstigere Betriebskosten durch optimierte Infrastruktur
 
 **Sicherheits- und Compliance-Fokus:**
 
 - **EU-Datenschutz**: Deutsche Server vs. US-Tools mit Privacy-Shield-Unsicherheiten
+
 - **Enterprise-Sicherheit**: CSP, CSRF, Rate-Limiting, Audit-Logs als Standard
+
 - **Transparenz**: Klare Datenflüsse, Provider-Error-Mapping, strukturierte Logs
 
 **Benutzererfahrung:**
 
 - **Intuitive Bedienung**: Drag & Drop, Vergleichs-Slider, Loupe-Tool
+
 - **Keine Wartezeiten**: Echtzeit-Vorschau und progressive Enhancement
+
 - **Zugänglichkeit**: Screen-Reader-Unterstützung, Tastatur-Navigation
 
 #### Alleinstellungsmerkmale
 
 1. **Edge-first-Architektur**: Minimale Latenz durch globale Verteilung
-2. **Vergleichsfunktionen**: Side-by-Side-Comparison mit Zoom und Loupe
-3. **Entwickler-Toolkit**: Vollständige API mit Tests und Dokumentation
-4. **Sicherheitsstandards**: Enterprise-Level-Sicherheit für alle Benutzer
-5. **Kosteneffizienz**: Höheres Free-Tier vs. Wettbewerber
+1. **Vergleichsfunktionen**: Side-by-Side-Comparison mit Zoom und Loupe
+1. **Entwickler-Toolkit**: Vollständige API mit Tests und Dokumentation
+1. **Sicherheitsstandards**: Enterprise-Level-Sicherheit für alle Benutzer
+1. **Kosteneffizienz**: Höheres Free-Tier vs. Wettbewerber
 
 ### Sicherheits- und Entitlements-Mechanismen
 
@@ -350,7 +420,8 @@ const cspHeaders = {
     "connect-src 'self' https://api.replicate.com"
   ].join('; ')
 };
-```
+
+```text
 
 **CSRF-Schutz (Double-Submit-Pattern):**
 
@@ -375,7 +446,8 @@ export const aiGenerateLimiter = createLimiter({
   maxRequests: 15,     // 15 pro Minute
   keyGenerator: (ctx) => ctx.locals.user?.id || ctx.locals.guestId
 });
-```
+
+```text
 
 **Entitlements-System:**
 
@@ -395,13 +467,17 @@ export interface PlanEntitlements {
 **Datenfluss-Transparenz:**
 
 - **Upload**: Bilder → R2 Storage (EU) → Replicate (US) → R2 Results (EU)
+
 - **Provider-Kommunikation**: Klare Trennung zwischen Uploads (public) und Results (owner-gated)
+
 - **Logging**: Strukturierte Logs ohne PII, Request-IDs für Traceability
 
 **GDPR-Compliance:**
 
 - **Recht auf Vergessen**: User/Guest-Daten können vollständig entfernt werden
+
 - **Datenminimierung**: Nur notwendige Metadaten werden gespeichert
+
 - **Transparenz**: Klare Dokumentation aller Datenflüsse
 
 ### UX-Features und Benutzerfreundlichkeit
@@ -420,7 +496,8 @@ interface CompareSliderProps {
   loupeEnabled: boolean;  // Lupe aktiviert
   loupeSize: number;      // Lupe-Größe
 }
-```
+
+```text
 
 **Responsive Design:**
 
@@ -436,7 +513,9 @@ const sizingOptions = {
 **Bedienungshilfen:**
 
 - **Tastatur-Shortcuts**: R (Reset), Cmd+S (Download), L (Loupe)
+
 - **Screen-Reader**: ARIA-Labels und Live-Regions
+
 - **Touch-Optimierung**: Mobile-first Touch-Handling
 
 #### Progressive Enhancement
@@ -444,13 +523,17 @@ const sizingOptions = {
 **Ohne JavaScript:**
 
 - Grundlegende Upload-Funktionalität bleibt verfügbar
+
 - Fallback zu nativen Formularen
+
 - Graceful Degradation bei API-Ausfällen
 
 **Mit JavaScript:**
 
 - Echtzeit-Vorschau und Vergleich
+
 - Drag & Drop, Paste-Support
+
 - Erweiterte Interaktionen (Zoom, Pan, Loupe)
 
 ### Performance-Optimierungen und Caching
@@ -463,7 +546,8 @@ const sizingOptions = {
 // Cloudflare Workers weltweit verfügbar
 // Automatische Region-Auswahl basierend auf User-Origin
 // Sub-100ms Latenz für API-Aufrufe
-```
+
+```text
 
 **Intelligentes Caching:**
 
@@ -490,7 +574,8 @@ const cacheStrategy = {
 const usageKey = `ai:usage:${ownerType}:${ownerId}`;
 const monthlyKey = `ai:usage:month:${ownerType}:${ownerId}:${ym}`;
 const creditsKey = `ai:credits:user:${userId}`;
-```
+
+```text
 
 **R2-Optimierung:**
 
@@ -512,42 +597,42 @@ await bucket.put(key, buffer, {
 **UX-Verbesserungen:**
 
 1. **Dark Mode**: Standardmäßig aktivieren für bessere Augenfreundlichkeit
-2. **Mobile App**: React Native-App für native mobile Erfahrung
-3. **Social Features**: Teilen, Galerien, Community-Interaktionen
+1. **Mobile App**: React Native-App für native mobile Erfahrung
+1. **Social Features**: Teilen, Galerien, Community-Interaktionen
 
 **Performance-Optimierungen:**
 
 1. **Redis-Caching**: KV-Daten in Redis spiegeln für schnellere Zugriffe
-2. **CDN-Erweiterung**: Zusätzliche CDN-Provider für globale Abdeckung
-3. **Query-Optimierung**: Datenbank-Indizes und Abfrage-Optimierung
+1. **CDN-Erweiterung**: Zusätzliche CDN-Provider für globale Abdeckung
+1. **Query-Optimierung**: Datenbank-Indizes und Abfrage-Optimierung
 
 #### Mittelfristig (3-6 Monate)
 
 **Feature-Erweiterungen:**
 
 1. **Batch-Processing**: Mehrere Bilder gleichzeitig verarbeiten
-2. **Prompt-Enhancer-Integration**: Kombination mit Text-zu-Bild-Funktionen
-3. **Community-Features**: Öffentliche Galerien, Ratings, Collections
+1. **Prompt-Enhancer-Integration**: Kombination mit Text-zu-Bild-Funktionen
+1. **Community-Features**: Öffentliche Galerien, Ratings, Collections
 
 **Business-Entwicklung:**
 
 1. **API-Partner-Programm**: Drittanbieter-Zugang zu Enhancement-API
-2. **White-Label-Lösungen**: Custom-Branded-Versionen für Unternehmen
-3. **Erweiterte Analytics**: Detaillierte Nutzungsanalysen und A/B-Testing
+1. **White-Label-Lösungen**: Custom-Branded-Versionen für Unternehmen
+1. **Erweiterte Analytics**: Detaillierte Nutzungsanalysen und A/B-Testing
 
 #### Langfristig (6-12 Monate)
 
 **Plattform-Erweiterung:**
 
 1. **Mobile Apps**: Native iOS/Android-Apps mit Offline-Fähigkeiten
-2. **Desktop-Application**: Electron-App für professionelle Workflows
-3. **Plugin-System**: Integrationen für CMS und Design-Tools
+1. **Desktop-Application**: Electron-App für professionelle Workflows
+1. **Plugin-System**: Integrationen für CMS und Design-Tools
 
 **AI-Innovation:**
 
 1. **Custom-Model-Training**: Benutzerdefinierte Modelle für spezifische Anwendungsfälle
-2. **Style-Transfer**: Erweiterte Stil-Anpassungsfunktionen
-3. **Video-Enhancement**: Ausweitung auf Video-Inhalte
+1. **Style-Transfer**: Erweiterte Stil-Anpassungsfunktionen
+1. **Video-Enhancement**: Ausweitung auf Video-Inhalte
 
 #### Technische Roadmap
 
@@ -568,23 +653,31 @@ graph TD
     H --> I[Mobile/Desktop Apps]
     H --> J[Advanced AI Features]
     H --> K[Enterprise Solutions]
-```
+
+```text
 
 ### Gesamtbewertung: **9.2/10** ⭐
 
 #### Stärken (Score: 9.5/10)
 
 - **Technische Exzellenz**: Moderne Architektur, sauberer Code, umfassende Tests
+
 - **Sicherheit**: Enterprise-Level-Standards mit CSP, CSRF, Rate-Limiting
+
 - **UX/UI**: Intuitive Bedienung mit professionellen Vergleichsfeatures
+
 - **Performance**: Edge-first-Architektur mit intelligentem Caching
+
 - **Skalierbarkeit**: Cloudflare-basierte Infrastruktur für globale Performance
 
 #### Verbesserungspotenzial (Score: 8.5/10)
 
 - **Feature-Erweiterungen**: Batch-Processing, Social Features, Mobile Apps
+
 - **AI-Integration**: Prompt-Optimierung, Style Transfer, Inpainting
+
 - **Analytics**: Erweiterte Nutzungsanalysen und A/B-Testing
+
 - **Monetarisierung**: Zusätzliche Premium-Modelle und Features
 
 ### Fazit und Ausblick
@@ -594,9 +687,13 @@ Der ImagEnhancer ist eine **weltklasse AI-Bildverarbeitungsplattform**, die sich
 **Besonders hervorzuheben:**
 
 - ✅ **Edge-first-Architektur** für globale Performance
+
 - ✅ **Enterprise-Sicherheitsstandards** mit CSP, CSRF, Rate-Limiting
+
 - ✅ **Umfassende Testabdeckung** und Monitoring
+
 - ✅ **Intelligente Entitlements** und Plan-Gating
+
 - ✅ **Modulare, erweiterbare Codebasis**
 
 Das System ist bereit für signifikantes Wachstum und kann sich erfolgreich gegen etablierte Wettbewerber behaupten, während es gleichzeitig Raum für innovative Weiterentwicklungen bietet.
@@ -608,51 +705,77 @@ Das System ist bereit für signifikantes Wachstum und kann sich erfolgreich gege
 Ziel: Sicherheit, Konsistenz und Middleware-Standardisierung erhöhen; keine unnötigen neuen Dateien.
 
 - **Gesamtziele**
+
   - Einheitliche API-Fehlerformate inkl. 405
+
   - CSRF-Absicherung für POST-Endpunkte (Double-Submit-Token)
+
   - Konsistente Rate Limits passend zum Kosten-/Lastprofil
+
   - Verifiziertes Owner-Gating im R2-Proxy
+
   - Gast-Limits auf Produktionswert setzen
+
   - Doku, OpenAPI und Tests aktualisieren; Rollout über Staging mit Monitoring
 
 ### Phase 1 — Security & Konsistenz (0.5–1 PT)
 
 - **CSRF erzwingen bei POST**
+
   - Routen: `src/pages/api/ai-image/generate.ts`, `src/pages/api/ai-image/jobs/index.ts`, `src/pages/api/ai-image/jobs/[id]/cancel.ts`
+
   - Aktion: `withApiMiddleware` mit CSRF-Enforcement konfigurieren; Double-Submit-Token (Cookie `csrf_token`, Header `x-csrf-token`) validieren; bei Verstoß Security-Event `SUSPICIOUS_ACTIVITY` mit `details.reason='csrf_token_mismatch'`
+
 - **405 vereinheitlichen**
+
   - Routen: zusätzlich `src/pages/api/ai-image/usage.ts`, `src/pages/api/ai-image/jobs/[id].ts`
+
   - Aktion: Standardisiertes Schema via `createApiError('method_not_allowed', 'Method Not Allowed')` und `Allow`-Header
 
 Akzeptanzkriterien
 
 - Alle POST-Routen erfordern gültiges CSRF-Token; Fehler nutzen Standard-Error-Shape
+
 - Alle 405-Antworten folgen dem Standard-Error-Shape und enthalten `Allow`
 
 ### Phase 2 — Rate Limits & Limits (0.5 PT)
 
 - **Generate-Limiter anpassen**
+
   - Option A: `aiJobsLimiter` in `generate.ts`
+
   - Option B: neuer `aiGenerateLimiter` (z. B. 15/min) in `src/lib/rate-limiter.ts`
+
 - **Gast-Limit**
+
   - `FREE_LIMIT_GUEST` in `src/config/ai-image.ts` auf Prod-Wert (z. B. 3) setzen; optional dev/test-Override per Env
 
 Akzeptanzkriterien
 
 - `generate.ts` ist strenger limitiert als allgemeiner API-Limiter
+
 - Gast-Limit ist in Produktion 3; lokale/CI-Tests bleiben stabil
 
 ### Phase 3 — Tests (1–1.5 PT)
 
 - **Integrationstests**
+
   - CSRF: fehlend/falsch/korrekt
+
   - 405-Response-Shape
+
   - Rate-Limits für `generate.ts` und Jobs-Routen
+
 - **E2E (Playwright)**
+
   - Wrangler-Dev-Server via `TEST_BASE_URL`
+
   - R2-Proxy Owner-Gating: `results/user/<id>` und `results/guest/<guest_id>` nur für Owner; `uploads/*` public
+
   - Flow: Upload → Job → Polling → Ergebniszugriff
+
 - **Logging-Checks**
+
   - `SUSPICIOUS_ACTIVITY` bei CSRF-Verstößen
 
 Akzeptanzkriterien
@@ -662,38 +785,55 @@ Akzeptanzkriterien
 ### Phase 4 — Doku & OpenAPI (0.5 PT)
 
 - **.env.example**: Allowed-Origins (`ALLOWED_ORIGINS | ALLOW_ORIGINS | APP_ORIGIN | PUBLIC_APP_ORIGIN`), ggf. Flag `AI_JOBS_DEV_FALLBACK`
+
 - **Docs**: `docs/frontend/imag-enhancer-ui-upgrade.md` um CSRF, Rate-Limits, Gast-Limit erweitern
+
 - **OpenAPI**: `openapi.yaml` für `/api/ai-image/generate`, `/usage`, `/jobs`, `/jobs/{id}`, `/jobs/{id}/cancel` mit Standard-Response-Schema und CSRF-Hinweis
 
 ### Phase 5 — Optionale Dev-Fallback-Strategie (0.5 PT)
 
 - Entscheidung: Kein Dev-Fallback für Jobs ODER Feature-Flag `AI_JOBS_DEV_FALLBACK`
+
 - Implementierung (optional) im `AiJobsService`: Echo-Mode bei fehlendem Token in Dev; Tests für Flag an/aus
 
 ### Phase 6 — Rollout (0.5 PT)
 
 - **Staging**: Deploy, Smoke-Tests (CSRF, Limits, Owner-Gating), Monitoring (`SUSPICIOUS_ACTIVITY`, 403/405/429)
+
 - **Produktion**: Gast-Limit=3; Quick-Rollback-Plan (PR-Revert/Flag); Post-Deploy-Checks
 
 ### Betroffene Dateien
 
 - `src/pages/api/ai-image/generate.ts`
+
 - `src/pages/api/ai-image/usage.ts`
+
 - `src/pages/api/ai-image/jobs/index.ts`
+
 - `src/pages/api/ai-image/jobs/[id].ts`
+
 - `src/pages/api/ai-image/jobs/[id]/cancel.ts`
+
 - `src/lib/api-middleware.ts`, `src/lib/rate-limiter.ts`
+
 - `src/config/ai-image.ts`
+
 - `src/pages/r2-ai/[...path].ts`
+
 - `.env.example`, `docs/frontend/imag-enhancer-ui-upgrade.md`, `openapi.yaml`
+
 - `tests/integration/*`, `tests/e2e/*`
 
 ### Aufwand & Risiken
 
 - Aufwand: Phasen 1–2 (1–1.5 PT), Phase 3 (1–1.5 PT), Phase 4 (0.5 PT), Phase 5 (optional 0.5 PT), Phase 6 (0.5 PT)
+
 - Risiken: CSRF-Fehlalarme (mit Tests mitigieren), strengere Limits (UX-Kommunikation), Env-Misskonfiguration (Staging-Validierung)
 
 ### Nächste Schritte
 
 - Phase 1 umsetzen (CSRF + 405-Standardisierung); dann Phase 2 (Limiter/Limit)
+
 - Tests aktualisieren und über Wrangler-Dev prüfen; anschließend Doku/OpenAPI
+
+```text

@@ -5,12 +5,15 @@
 // IDs/Domain per ENV injizieren, Consent-gesteuert initialisieren
 const GA_MEASUREMENT_ID = import.meta.env.PUBLIC_GA_MEASUREMENT_ID;
 const PLAUSIBLE_DOMAIN = import.meta.env.PUBLIC_PLAUSIBLE_DOMAIN;
+const CF_BEACON_TOKEN =
+  import.meta.env.PUBLIC_CLOUDFLARE_WEB_ANALYTICS_TOKEN ||
+  import.meta.env.PUBLIC_CF_WEB_ANALYTICS_TOKEN;
 ---
 
 <script
   is:inline
   nonce={Astro.locals.cspNonce}
-  define:vars={{ GA_MEASUREMENT_ID, PLAUSIBLE_DOMAIN }}
+  define:vars={{ GA_MEASUREMENT_ID, PLAUSIBLE_DOMAIN, CF_BEACON_TOKEN }}
 >
   (function () {
     'use strict';
@@ -74,6 +77,15 @@ const PLAUSIBLE_DOMAIN = import.meta.env.PUBLIC_PLAUSIBLE_DOMAIN;
             'data-domain': PLAUSIBLE_DOMAIN,
           });
           console.log('✅ Plausible initialized:', PLAUSIBLE_DOMAIN);
+        }
+        if (CF_BEACON_TOKEN) {
+          // Cloudflare Web Analytics beacon (manual install)
+          // Loads only after analytics consent
+          loadScript('https://static.cloudflareinsights.com/beacon.min.js', {
+            defer: true,
+            'data-cf-beacon': JSON.stringify({ token: CF_BEACON_TOKEN }),
+          });
+          console.log('✅ Cloudflare Web Analytics initialized');
         }
         providersInitialized = true;
       } catch (e) {

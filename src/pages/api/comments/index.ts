@@ -2,12 +2,20 @@ import type { APIContext } from 'astro';
 import { withApiMiddleware, createApiError, createApiSuccess } from '@/lib/api-middleware';
 import type { CommentFilters } from '@/lib/types/comments';
 
+type D1ResultRow = Record<string, unknown>;
+type D1Result = { results?: D1ResultRow[] };
+type CommentsEnv = { DB?: unknown; KV_COMMENTS?: KVNamespace };
+
 // Named export for GET /api/comments (required by file-based router)
 export const GET = withApiMiddleware(async (context: APIContext) => {
   try {
-    const env = (context.locals?.runtime?.env || {}) as { DB?: any; KV_COMMENTS?: any };
-    const db = env?.DB || (context as unknown as { locals?: { env?: { DB?: any } } }).locals?.env?.DB;
-    if (!db) return createApiError('server_error', 'Database binding missing');
+    const env = (context.locals?.runtime?.env || {}) as CommentsEnv;
+    const dbUnknown =
+      env?.DB || (context as unknown as { locals?: { env?: { DB?: unknown } } }).locals?.env?.DB;
+    if (!dbUnknown) return createApiError('server_error', 'Database binding missing');
+    const hasPrepare = typeof (dbUnknown as { prepare?: unknown }).prepare === 'function';
+    if (!hasPrepare) return createApiError('server_error', 'Database binding invalid');
+    const db = dbUnknown as D1Database;
 
     const url = new URL(context.request.url);
     const q = url.searchParams;
@@ -16,8 +24,8 @@ export const GET = withApiMiddleware(async (context: APIContext) => {
     if (q.get('debug') === '1') {
       try {
         const info = await db.prepare("PRAGMA table_info('comments')").all();
-        const rows = Array.isArray(info?.results)
-          ? (info.results as Array<Record<string, unknown>>)
+        const rows = Array.isArray((info as D1Result)?.results)
+          ? ((info as D1Result).results as D1ResultRow[])
           : [];
         const cols = rows.map((r) => String((r as { name?: unknown }).name));
         const isLegacy =
@@ -28,8 +36,8 @@ export const GET = withApiMiddleware(async (context: APIContext) => {
         const tablesRaw = await db
           .prepare("SELECT name FROM sqlite_master WHERE type='table'")
           .all();
-        const trows = Array.isArray(tablesRaw?.results)
-          ? (tablesRaw.results as Array<Record<string, unknown>>)
+        const trows = Array.isArray((tablesRaw as D1Result)?.results)
+          ? ((tablesRaw as D1Result).results as D1ResultRow[])
           : [];
         const tables = trows.map((r) => String((r as { name?: unknown }).name));
         return createApiSuccess({
@@ -66,7 +74,8 @@ export const GET = withApiMiddleware(async (context: APIContext) => {
 
     const kv =
       env?.KV_COMMENTS ||
-      (context as unknown as { locals?: { env?: { KV_COMMENTS?: any } } }).locals?.env?.KV_COMMENTS;
+      (context as unknown as { locals?: { env?: { KV_COMMENTS?: KVNamespace } } }).locals?.env
+        ?.KV_COMMENTS;
     // Dynamic import to avoid loading heavy/transitive modules (notifications etc.) in debug path
     const { CommentService } = await import('@/lib/services/comment-service');
     const service = new CommentService(db, kv);

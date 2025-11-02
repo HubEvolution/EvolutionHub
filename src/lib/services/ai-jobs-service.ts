@@ -184,7 +184,7 @@ export class AiJobsService extends AbstractBaseService {
     }
     const fileBuffer = await file.arrayBuffer();
     const sniffed = detectImageMimeFromBytes(fileBuffer);
-    if (!sniffed || !ALLOWED_CONTENT_TYPES.includes(sniffed as any)) {
+    if (!sniffed || !ALLOWED_CONTENT_TYPES.includes(sniffed)) {
       const display = sniffed ?? (file.type || 'unknown');
       throw new Error(`Unsupported content type: ${display}`);
     }
@@ -239,10 +239,10 @@ export class AiJobsService extends AbstractBaseService {
     const currentUsage = await this.getUsage(ownerType, ownerId, dailyLimit);
     if (currentUsage.used >= currentUsage.limit) {
       const resetInfo = currentUsage.resetAt ? new Date(currentUsage.resetAt).toISOString() : null;
-      const err: any = new Error(
+      const err = new Error(
         `Quota exceeded. Used ${currentUsage.used}/${currentUsage.limit}` +
           (resetInfo ? `, resets at ${resetInfo}` : '')
-      );
+      ) as Error & { code?: string; details?: unknown };
       err.code = 'quota_exceeded';
       err.details = { scope: 'daily', ...currentUsage };
       throw err;

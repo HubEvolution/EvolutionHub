@@ -53,6 +53,54 @@ export function installXHRInterceptor() {
       private __url: string = '';
       private __start: number = 0;
 
+      // Minimal shape to log request body metadata without leaking content
+      private static toBodyMeta(
+        body?: Document | BodyInit | null
+      ):
+        | { type: 'text' | 'json'; length: number; keys?: string[] }
+        | { type: 'urlencoded'; keys: string[] }
+        | { type: 'formdata'; keys: string[] }
+        | { type: string }
+        | undefined {
+        try {
+          if (typeof body === 'string') {
+            const meta = { type: 'text' as const, length: body.length };
+            try {
+              const json = JSON.parse(body);
+              if (json && typeof json === 'object' && !Array.isArray(json)) {
+                return {
+                  type: 'json',
+                  length: body.length,
+                  keys: Object.keys(json as Record<string, unknown>).slice(0, 50),
+                };
+              }
+            } catch {
+              // not json
+            }
+            return meta;
+          } else if (body instanceof URLSearchParams) {
+            const keys: string[] = [];
+            body.forEach((_v, k) => {
+              if (!keys.includes(k)) keys.push(k);
+            });
+            return { type: 'urlencoded', keys };
+          } else if (typeof FormData !== 'undefined' && body instanceof FormData) {
+            const keys: string[] = [];
+            body.forEach((_v, k) => {
+              if (!keys.includes(k)) keys.push(k);
+            });
+            return { type: 'formdata', keys };
+          } else if (body) {
+            const ctorName = (body as unknown as { constructor?: { name?: string } })?.constructor
+              ?.name;
+            return { type: typeof ctorName === 'string' ? ctorName : 'object' };
+          }
+        } catch {
+          // ignore meta errors
+        }
+        return undefined;
+      }
+
       open(
         method: string,
         url: string,
@@ -66,56 +114,17 @@ export function installXHRInterceptor() {
         } catch {
           /* noop */
         }
-        return super.open(
-          method as any,
-          url as any,
-          async as any,
-          username as any,
-          password as any
-        );
+        return super.open(method, url, async ?? true, username ?? null, password ?? null);
       }
 
-      send(body?: Document | BodyInit | null) {
+      send(body?: Document | XMLHttpRequestBodyInit | null) {
         const url = this.__url;
         const method = this.__method;
         // Skip noisy endpoints
         if (!isDebugEndpoint(url) && !isStaticAsset(url)) {
           this.__start = (performance?.now?.() as number) || Date.now();
           const safeUrl = sanitizeUrl(url);
-          let bodyMeta: any;
-          try {
-            if (typeof body === 'string') {
-              bodyMeta = { type: 'text', length: body.length };
-              try {
-                const json = JSON.parse(body);
-                if (json && typeof json === 'object' && !Array.isArray(json)) {
-                  bodyMeta = {
-                    type: 'json',
-                    length: body.length,
-                    keys: Object.keys(json).slice(0, 50),
-                  };
-                }
-              } catch {
-                /* not json */
-              }
-            } else if (body instanceof URLSearchParams) {
-              const keys: string[] = [];
-              body.forEach((_v, k) => {
-                if (!keys.includes(k)) keys.push(k);
-              });
-              bodyMeta = { type: 'urlencoded', keys };
-            } else if (typeof FormData !== 'undefined' && body instanceof FormData) {
-              const keys: string[] = [];
-              (body as FormData).forEach((_v, k) => {
-                if (!keys.includes(k)) keys.push(k);
-              });
-              bodyMeta = { type: 'formdata', keys };
-            } else if (body) {
-              bodyMeta = { type: (body as any)?.constructor?.name || 'object' };
-            }
-          } catch {
-            /* noop */
-          }
+          const bodyMeta = XHRInterceptor.toBodyMeta(body);
 
           clientLogger.info(`[NETWORK][XHR] ${method} ${safeUrl} [REDACTED]`, {
             source: 'network',
@@ -175,11 +184,12 @@ export function installXHRInterceptor() {
           this.addEventListener('abort', onError('ABORTED'));
           this.addEventListener('timeout', onError('TIMEOUT'));
         }
-        return super.send(body as any);
+        return super.send(body ?? null);
       }
     }
 
-    (window as any).XMLHttpRequest = XHRInterceptor as any;
+    (window as unknown as { XMLHttpRequest: new () => XMLHttpRequest }).XMLHttpRequest =
+      XHRInterceptor as unknown as new () => XMLHttpRequest;
     installed = true;
   } catch {
     // If extending fails in some UA, do not break app.

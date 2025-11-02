@@ -65,13 +65,13 @@ describe('EnhancerActionsMVP', () => {
 
   it('renders model selection with Workers AI models only', () => {
     render(<EnhancerActionsMVP {...defaultProps} />);
-    
+
     expect(screen.getByLabelText('Model')).toBeInTheDocument();
-    
+
     // Should only show Workers AI models
     expect(screen.getByText('Enhance (SD 1.5 img2img)')).toBeInTheDocument();
     expect(screen.getByText('Enhance XL (SDXL img2img)')).toBeInTheDocument();
-    
+
     const select = screen.getByLabelText('Model');
     expect(select).toHaveValue('@cf/runwayml/stable-diffusion-v1-5-img2img');
   });
@@ -79,10 +79,10 @@ describe('EnhancerActionsMVP', () => {
   it('calls onChangeModel when model selection changes', async () => {
     const user = userEvent.setup();
     render(<EnhancerActionsMVP {...defaultProps} />);
-    
+
     const select = screen.getByLabelText('Model');
     await user.selectOptions(select, '@cf/stabilityai/stable-diffusion-xl-base-1.0');
-    
+
     expect(defaultProps.onChangeModel).toHaveBeenCalledWith(
       '@cf/stabilityai/stable-diffusion-xl-base-1.0'
     );
@@ -91,16 +91,16 @@ describe('EnhancerActionsMVP', () => {
   it('calls onEnhance when enhance button is clicked', async () => {
     const user = userEvent.setup();
     render(<EnhancerActionsMVP {...defaultProps} />);
-    
+
     const enhanceButton = screen.getByRole('button', { name: 'Enhance' });
     await user.click(enhanceButton);
-    
+
     expect(defaultProps.onEnhance).toHaveBeenCalledTimes(1);
   });
 
   it('shows processing state when loading', () => {
     render(<EnhancerActionsMVP {...defaultProps} loading={true} />);
-    
+
     const enhanceButton = screen.getByRole('button', { name: 'Processing…' });
     expect(enhanceButton).toBeDisabled();
   });
@@ -108,7 +108,7 @@ describe('EnhancerActionsMVP', () => {
   it('disables enhance button when cannot submit', () => {
     const propsDisabled = { ...defaultProps, canSubmit: false };
     render(<EnhancerActionsMVP {...propsDisabled} />);
-    
+
     const enhanceButton = screen.getByRole('button', { name: 'Enhance' });
     expect(enhanceButton).toBeDisabled();
   });
@@ -116,14 +116,14 @@ describe('EnhancerActionsMVP', () => {
   it('shows quota exceeded message when quota exceeded', () => {
     const propsQuotaExceeded = { ...defaultProps, quotaExceeded: true };
     render(<EnhancerActionsMVP {...propsQuotaExceeded} />);
-    
+
     expect(screen.getByText('Usage limit reached.')).toBeInTheDocument();
     expect(screen.getByText('Usage limit reached.')).toHaveClass('text-red-600');
   });
 
   it('shows normal usage when quota not exceeded', () => {
     render(<EnhancerActionsMVP {...defaultProps} />);
-    
+
     expect(screen.getByText('Usage: 5/20')).toBeInTheDocument();
     expect(screen.getByText('Usage: 5/20')).toHaveClass('text-gray-600');
   });
@@ -131,7 +131,7 @@ describe('EnhancerActionsMVP', () => {
   it('disables enhance button when quota exceeded', () => {
     const propsQuotaExceeded = { ...defaultProps, quotaExceeded: true };
     render(<EnhancerActionsMVP {...propsQuotaExceeded} />);
-    
+
     const enhanceButton = screen.getByRole('button', { name: 'Enhance' });
     expect(enhanceButton).toBeDisabled();
   });
@@ -139,7 +139,7 @@ describe('EnhancerActionsMVP', () => {
   it('does not display usage info when usage is null', () => {
     const propsWithoutUsage = { ...defaultProps, usage: null };
     render(<EnhancerActionsMVP {...propsWithoutUsage} />);
-    
+
     expect(screen.queryByText(/Usage:/)).not.toBeInTheDocument();
   });
 });

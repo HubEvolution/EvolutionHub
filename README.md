@@ -161,10 +161,10 @@ Für automatisches Deployment müssen folgende Secrets in GitHub hinterlegt werd
 
 **\*Repository Settings** → **Secrets and variables** → **Actions** → **New repository secret**
 
-| Secret Name             | Beschreibung                                  | Wo zu finden                                                   |
-| ----------------------- | --------------------------------------------- | -------------------------------------------------------------- |
-| `CLOUDFLARE_API_TOKEN`  | Cloudflare API Token mit Workers:Edit-Rechten | Cloudflare Dashboard → My Profile → API Tokens → Create Token  |
-| `CLOUDFLARE_ACCOUNT_ID` | Cloudflare Account-ID                         | Cloudflare Dashboard (Account Details)                         |
+| Secret Name             | Beschreibung                                  | Wo zu finden                                                  |
+| ----------------------- | --------------------------------------------- | ------------------------------------------------------------- |
+| `CLOUDFLARE_API_TOKEN`  | Cloudflare API Token mit Workers:Edit-Rechten | Cloudflare Dashboard → My Profile → API Tokens → Create Token |
+| `CLOUDFLARE_ACCOUNT_ID` | Cloudflare Account-ID                         | Cloudflare Dashboard (Account Details)                        |
 
 **GitHub Environments einrichten** →
 **Settings** → **Environments** → **New environment**:

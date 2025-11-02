@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD051 -->
+
 # Auth API Endpunkte
 
 Dieses Dokument beschreibt die API-Endpunkte für die Authentifizierung und Autorisierung im Evolution Hub.
@@ -7,9 +9,13 @@ Dieses Dokument beschreibt die API-Endpunkte für die Authentifizierung und Auto
 Alle Auth-API-Endpunkte sind mit folgenden Sicherheitsmaßnahmen ausgestattet:
 
 * **Rate-Limiting:** 50 Anfragen pro Minute (`standardApiLimiter`)
+
 * **Security-Headers:** Alle Standard-Security-Headers werden angewendet
+
 * **Audit-Logging:** Alle Authentifizierungsereignisse werden protokolliert
+
 * **Input-Validierung:** Alle Eingabeparameter werden validiert
+
 * **Anti-User-Enumeration:** Gleiches Redirect-Verhalten unabhängig vom Benutzerexistenz-Status
 
 Hinweis: Die Stytch-Auth verwendet JSON (Magic Link Request) und Redirect (Callback). Die Session wird im Callback mit einem HttpOnly-Cookie `__Host-session` gesetzt (Secure, SameSite=Strict, Path=/).
@@ -18,17 +24,29 @@ Hinweis: Die frühere Login-Variante `login-v2` wurde entfernt. Verwende ausschl
 ## Endpunkte (kanonisch)
 
 * Endpunkte (Stytch Magic Link):
+
   * `POST /api/auth/magic/request` — Fordert einen Magic Link an (JSON `{ success: true, data: { sent: true } }`)
+
   * `GET  /api/auth/callback` — Callback, setzt Session‑Cookies und leitet direkt zum Ziel weiter
+
   * `GET|POST /api/user/logout` — weiterhin aktiv (v2 bevorzugt)
+
 * Eigenschaften:
+
   * Stytch‑Integration in `src/lib/stytch.ts` (Fake‑Modus via `E2E_FAKE_STYTCH` für Tests)
+
   * Zentrale Fehlerbehandlung/Headers: `src/lib/api-middleware.ts`, `src/lib/response-helpers.ts`
+
   * Session‑Cookie: `__Host-session` (HttpOnly, Secure, SameSite=Strict, Path=/)
+
 * Verhalten:
+
   * `magic/request` antwortet
+
     * JSON `{ success: true, data: { sent: true } }` bei programmatic calls
+
     * HTML `303 See Other` Redirect zur lokalisierten Login-Seite mit `?success=magic_sent` bei klassischem Formular‑POST
+
   * `callback` antwortet mit direktem `302` Redirect zum Ziel (ggf. lokalisiert)
 
 ### Beispiele
@@ -41,7 +59,8 @@ curl -X POST \
   -H "Origin: http://127.0.0.1:8787" \
   -d '{"email":"user@example.com","r":"/dashboard","locale":"en"}' \
   http://127.0.0.1:8787/api/auth/magic/request
-```
+
+```text
 
 Erfolg (200):
 
@@ -57,7 +76,8 @@ curl -X POST \
   -H "Content-Type: application/x-www-form-urlencoded" \
   -d 'email=user@example.com&r=/dashboard&locale=en' \
   -i http://127.0.0.1:8787/api/auth/magic/request
-```
+
+```text
 
 Antwort (303):
 
@@ -70,7 +90,8 @@ Location: /en/login?success=magic_sent
 
 ```bash
 curl -i "http://127.0.0.1:8787/api/auth/callback?token=dev-ok&email=user@example.com&r=/dashboard"
-```
+
+```text
 
 Antwort (302):
 
@@ -83,13 +104,21 @@ Set-Cookie: __Host-session=...; Path=/; HttpOnly; SameSite=Strict; Secure; Max-A
 ### Production‑Hinweise (Stytch Live)
 
 * Redirect‑URLs in Stytch (Live) whitelisten:
+
   * `https://hub-evolution.com/api/auth/callback`
+
   * optional zusätzlich: `https://www.hub-evolution.com/api/auth/callback`
+
 * Erforderliche Secrets/Variablen (Wrangler, `--env production`):
+
   * `STYTCH_PROJECT_ID` (Live, beginnt mit `project-live-…`)
+
   * `STYTCH_SECRET`
+
   * `AUTH_PROVIDER=stytch`
+
 * CSRF/Origin: `POST /api/auth/magic/request` verlangt same‑origin `Origin`/`Referer`.
+
   * curl‑Beispiel: `-H 'Origin: https://hub-evolution.com'`
 
 ---
@@ -103,10 +132,15 @@ Beendet die aktuelle Benutzersitzung und löscht das Session-Cookie.
 ### Abmelden
 
 * **HTTP-Methoden:** `GET`, `POST`
+
 * **Pfade:**
+
   * `/api/user/logout`
+
   * `/api/user/logout-v2`
+
 * **Handler-Funktion:** GET/POST-Handler in `user/logout.ts` bzw. `user/logout-v2.ts`
+
 * **Security:** Rate-Limiting (50/min über `standardApiLimiter`), Security-Headers, Audit-Logging
 
 ### Erfolgreiche Antwort (Logout) (`302 Redirect`)
@@ -115,7 +149,8 @@ Beendet die aktuelle Benutzersitzung und löscht das Session-Cookie.
 HTTP/1.1 302 Found
 Location: /
 Set-Cookie: __Host-session=; Path=/; HttpOnly; SameSite=Strict; Secure; Max-Age=0
-```
+
+```text
 
 ### Fehlerhafte Antwort (Logout) (`302 Redirect`)
 
@@ -128,10 +163,13 @@ Location: /login?error=rate_limit
 ```
 
 ```http
+
 # v2: Rate-Limit überschritten
+
 HTTP/1.1 302 Found
 Location: /login?error=TooManyRequests
-```
+
+```text
 
 ---
 
@@ -140,18 +178,27 @@ Location: /login?error=TooManyRequests
 ### Session-Management
 
 * Session über HttpOnly-Cookie `__Host-session` (Secure, SameSite=Strict, Path=/)
+
 * Keine clientseitige Speicherung von Tokens im localStorage oder sessionStorage
+
 * Sichere Cookie-Attribute erzwungen; `session_id` wird nicht mehr verwendet
 
 ### Anti-Brute-Force-Maßnahmen
 
 * Rate-Limiting für alle Authentifizierungs-Endpunkte
+
 * Exponentielles Backoff: aktuell nicht implementiert
+
 * IP-basierte Blockierung: aktuell nicht implementiert
+
 * CAPTCHA-Integration: aktuell nicht implementiert
 
 ### Datenschutz
 
 * Keine Preisgabe von Benutzerexistenz bei Passwort-Vergessen-Anfragen
+
 * Gleiches Redirect-Verhalten unabhängig vom Benutzerexistenz-Status (Anti-Enumeration)
+
 * Verschlüsselte Übertragung (HTTPS)
+
+```text

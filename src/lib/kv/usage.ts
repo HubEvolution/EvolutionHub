@@ -33,9 +33,9 @@ function endOfMonthTtlSeconds(): number {
 export async function getUsage(kv: KVNamespace, key: string): Promise<UsageCounter | null> {
   const json = await kv.get(key, 'json');
   if (!json || typeof json !== 'object') return null;
-  const obj = json as any;
-  const count = typeof obj.count === 'number' ? obj.count : 0;
-  const resetAt = typeof obj.resetAt === 'number' ? obj.resetAt : 0;
+  const obj = json as Record<string, unknown>;
+  const count = typeof obj.count === 'number' ? (obj.count as number) : 0;
+  const resetAt = typeof obj.resetAt === 'number' ? (obj.resetAt as number) : 0;
   return { count, resetAt };
 }
 
@@ -163,8 +163,11 @@ export async function incrementMonthlyNoTtl(
 ): Promise<IncrementResult> {
   const key = legacyMonthlyKey(prefix, ownerType, ownerId);
   const raw = await kv.get(key, 'json');
-  const obj = (raw && typeof raw === 'object' ? (raw as any) : null) || { count: 0 };
-  const nextCount = (typeof obj.count === 'number' ? obj.count : 0) + 1;
+  const obj = (raw && typeof raw === 'object' ? (raw as Record<string, unknown>) : null) || {
+    count: 0,
+  };
+  const current = (obj as { count?: unknown }).count;
+  const nextCount = (typeof current === 'number' ? (current as number) : 0) + 1;
   await kv.put(key, JSON.stringify({ count: nextCount }));
   const usage: UsageCounter = { count: nextCount, resetAt: endOfMonthUnixSeconds() };
   return { allowed: nextCount <= limit, usage };
@@ -330,4 +333,61 @@ export async function consumeCreditsTenths(
   };
   await kv.put(recordKey, JSON.stringify(result));
   return result;
+}
+
+// ---- Video monthly quota (tenths-based) ----
+// We keep a separate counter per user and calendar month measured in tenths of a credit.
+// Idempotency is enforced via a tx key tied to the month and job id.
+
+function videoMonthlyQuotaKey(userId: string, ym: string): string {
+  // ym format: YYYYMM (UTC)
+  return `ai:quota:video:tenths:${userId}:${ym}`;
+}
+
+function videoMonthlyQuotaTxKey(userId: string, ym: string, txKey: string): string {
+  return `ai:quota:video:tx:${userId}:${ym}:${txKey}`;
+}
+
+export async function getVideoMonthlyQuotaRemainingTenths(
+  kv: KVNamespace,
+  userId: string,
+  limitTenths: number,
+  ym: string
+): Promise<number> {
+  const key = videoMonthlyQuotaKey(userId, ym);
+  const raw = await kv.get(key);
+  let used = 0;
+  if (raw) {
+    const n = parseInt(raw, 10);
+    used = Number.isFinite(n) && n > 0 ? n : 0;
+  }
+  return Math.max(0, limitTenths - used);
+}
+
+export async function consumeVideoMonthlyQuotaTenths(
+  kv: KVNamespace,
+  userId: string,
+  limitTenths: number,
+  amountTenths: number,
+  ym: string,
+  txKey: string
+): Promise<void> {
+  const tx = videoMonthlyQuotaTxKey(userId, ym, txKey);
+  const existing = await kv.get(tx);
+  if (existing) return; // idempotent
+
+  const key = videoMonthlyQuotaKey(userId, ym);
+  const raw = await kv.get(key);
+  let used = 0;
+  if (raw) {
+    const n = parseInt(raw, 10);
+    used = Number.isFinite(n) && n > 0 ? n : 0;
+  }
+  const amt = Math.max(0, Math.round(amountTenths));
+  const next = used + amt;
+  if (next > Math.max(0, Math.round(limitTenths))) {
+    throw new Error('insufficient_quota');
+  }
+  await kv.put(key, String(next));
+  await kv.put(tx, '1');
 }

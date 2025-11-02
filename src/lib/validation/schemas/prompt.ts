@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { TEXT_LENGTH_MAX } from '@/config/prompt-enhancer';
 
-export const promptModeSchema = z.enum(['agent', 'concise']);
+export const promptModeSchema = z.enum(['agent', 'concise', 'creative', 'professional']);
 
 export const promptInputSchema = z
   .object({

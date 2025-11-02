@@ -15,7 +15,7 @@ export function useEnhanceMVP() {
       const formData = new FormData();
       formData.set('image', args.file);
       formData.set('model', args.model);
-      
+
       const csrfToken = ensureCsrfToken();
       return postGenerate(formData, csrfToken, args.signal);
     },

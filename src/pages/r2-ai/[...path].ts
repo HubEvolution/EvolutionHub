@@ -1,5 +1,6 @@
 import type { APIContext } from 'astro';
 import { AI_R2_PREFIX, type OwnerType } from '@/config/ai-image';
+import { AI_VIDEO_R2_PREFIX } from '@/config/ai-video';
 
 function ensureGuestIdCookie(context: APIContext): string {
   const existing = context.cookies.get('guest_id')?.value;
@@ -40,20 +41,22 @@ export async function GET(context: APIContext) {
       return new Response('R2 bucket not configured', { status: 500 });
     }
 
-    // Basic prefix validation
-    if (!key || !key.startsWith(`${AI_R2_PREFIX}/`)) {
+    // Basic prefix validation: allow both image and video AI prefixes
+    const allowedPrefixes = [AI_R2_PREFIX, AI_VIDEO_R2_PREFIX];
+    const matchedPrefix = key && allowedPrefixes.find((p) => key.startsWith(`${p}/`));
+    if (!key || !matchedPrefix) {
       if (isDev)
         console.warn(`[R2Proxy][${reqId}] invalid prefix`, {
           key,
-          expectedPrefix: `${AI_R2_PREFIX}/`,
+          expectedPrefixes: allowedPrefixes.map((p) => `${p}/`),
         });
       return new Response('Not found', { status: 404 });
     }
 
     // Owner gating for results
     // Expected structures:
-    //  - ai-enhancer/uploads/<ownerType>/<ownerId>/<file>
-    //  - ai-enhancer/results/<ownerType>/<ownerId>/<file>
+    //  - <prefix>/uploads/<ownerType>/<ownerId>/<file>
+    //  - <prefix>/results/<ownerType>/<ownerId>/<file>
     const parts = key.split('/');
     const category = parts[1]; // 'uploads' | 'results'
     const pathOwnerType = parts[2] as OwnerType | undefined;
@@ -72,7 +75,10 @@ export async function GET(context: APIContext) {
         currentOwnerType === 'user'
           ? (locals.user as { id: string }).id
           : ensureGuestIdCookie(context);
-      const isOwner = currentOwnerType === pathOwnerType && currentOwnerId === pathOwnerId;
+      const guestCookie = context.cookies.get('guest_id')?.value || null;
+      const isOwner =
+        (currentOwnerType === pathOwnerType && currentOwnerId === pathOwnerId) ||
+        (pathOwnerType === 'guest' && !!guestCookie && guestCookie === pathOwnerId);
       if (isDev) {
         console.debug(`[R2Proxy][${reqId}] owner gate`, {
           currentOwnerType,

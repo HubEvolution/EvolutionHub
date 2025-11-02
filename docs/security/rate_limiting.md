@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD051 -->
+
 # Rate-Limiting-Dokumentation
 
 ## Überblick
@@ -13,18 +15,27 @@ Die Rate-Limiting-Funktionalität ist in `src/lib/rate-limiter.ts` implementiert
 Das System bietet drei vorkonfigurierte Limiter für verschiedene API-Typen:
 
 1. **standardApiLimiter**
+
    - **Limit:** 50 Anfragen pro Minute
+
    - **Verwendung:** Standard-APIs, öffentliche Endpunkte, Lesezugriffe
+
    - **Anwendungsbereich:** Dashboard-APIs, Projekt-APIs (GET), User-APIs (GET), öffentliche APIs
 
-2. **authLimiter**
+1. **authLimiter**
+
    - **Limit:** 10 Anfragen pro Minute
+
    - **Verwendung:** Authentifizierungs-Endpunkte
+
    - **Anwendungsbereich:** Login, Registrierung, Passwort vergessen, Passwort zurücksetzen
 
-3. **sensitiveActionLimiter**
+1. **sensitiveActionLimiter**
+
    - **Limit:** 5 Anfragen pro Stunde
+
    - **Verwendung:** Besonders sensible Aktionen
+
    - **Anwendungsbereich:** Profiländerungen, Passwortänderungen, Projekt-Erstellung/-Löschung
 
 ## Verwendung im Code
@@ -41,7 +52,8 @@ export const POST: APIRoute = async (context) => {
   
   // Normale API-Logik...
 }
-```
+
+```text
 
 ## Antwort bei überschrittenem Limit
 
@@ -61,7 +73,8 @@ Dazu werden entsprechende HTTP-Header gesetzt:
 Status: 429 Too Many Requests
 Content-Type: application/json
 Retry-After: 45
-```
+
+```text
 
 ## Konfigurationsoptionen
 
@@ -86,44 +99,63 @@ const customLimiter = createRateLimiter({
 ### Einschränkungen
 
 - Der aktuelle In-Memory-Store wird bei Worker-Neustarts zurückgesetzt
+
 - Keine Persistenz über mehrere Worker-Instanzen hinweg
+
 - Keine Berücksichtigung von IP-Proxies oder Load-Balancern
 
 ### Geplante Verbesserungen
 
 1. **Persistente Speicherung**
+
    - Implementierung eines persistenten Speichers mit Cloudflare KV oder D1
+
    - Beibehaltung der Rate-Limit-Daten über Worker-Neustarts hinweg
 
-2. **Erweiterte Identifikation**
+1. **Erweiterte Identifikation**
+
    - Berücksichtigung von X-Forwarded-For und ähnlichen Headers
+
    - Optionale Authentifizierungsbasierte Rate-Limits (pro Benutzer statt pro IP)
 
-3. **Dynamische Anpassung**
+1. **Dynamische Anpassung**
+
    - Automatische Anpassung der Limits basierend auf der Serverauslastung
+
    - Temporäre Erhöhung der Limits für vertrauenswürdige Benutzer
 
-4. **Monitoring und Benachrichtigungen**
+1. **Monitoring und Benachrichtigungen**
+
    - Echtzeit-Monitoring von Rate-Limit-Überschreitungen
+
    - Benachrichtigungen bei verdächtigen Mustern oder Angriffsversuchen
 
 ## Best Practices
 
 1. **Angemessene Limits setzen**
+
    - Limits sollten hoch genug sein, um normale Nutzung zu erlauben
+
    - Limits sollten niedrig genug sein, um Missbrauch zu verhindern
+
    - Unterschiedliche Limits für verschiedene Endpunkttypen verwenden
 
-2. **Benutzerfreundliche Fehlermeldungen**
+1. **Benutzerfreundliche Fehlermeldungen**
+
    - Klare Informationen über das Limit und die Wartezeit
+
    - Retry-After-Header für automatisierte Clients
 
-3. **Überwachung und Anpassung**
+1. **Überwachung und Anpassung**
+
    - Regelmäßige Überprüfung der Rate-Limit-Überschreitungen
+
    - Anpassung der Limits basierend auf realen Nutzungsmustern
 
-4. **Transparenz**
+1. **Transparenz**
+
    - Dokumentation der Rate-Limits in der API-Dokumentation
+
    - Optionale Header mit verbleibenden Anfragen (X-RateLimit-Remaining)
 
 ## Anwendung auf API-Endpunkte

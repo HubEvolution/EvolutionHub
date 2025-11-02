@@ -76,5 +76,6 @@ export async function getTestimonials(opts: GetTestimonialsOptions) {
     quote: e.data.quote,
     author: e.data.author,
     role: e.data.role + (e.data.company ? `, ${e.data.company}` : ''),
+    tool: e.data.tools[0] ?? undefined,
   }));
 }

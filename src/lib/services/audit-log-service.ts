@@ -28,7 +28,7 @@ export class AuditLogService {
       .bind(id)
       .first<AuditLogRow>();
     return row ? mapAuditRow(row) : null;
-    }
+  }
 
   async list(opts: AuditListOptions): Promise<AuditListResult> {
     const limit = Math.min(200, Math.max(1, Math.floor(opts.limit || 50)));
@@ -83,7 +83,10 @@ export class AuditLogService {
       LIMIT ${limit + 1}
     `;
 
-    const res = await this.db.prepare(sql).bind(...params).all<AuditLogRow>();
+    const res = await this.db
+      .prepare(sql)
+      .bind(...params)
+      .all<AuditLogRow>();
     const rows = res.results || [];
     const hasMore = rows.length > limit;
     const slice = rows.slice(0, limit).map(mapAuditRow);
@@ -91,7 +94,10 @@ export class AuditLogService {
     let nextCursor: string | undefined;
     if (hasMore && slice.length) {
       const last = slice[slice.length - 1];
-      nextCursor = Buffer.from(JSON.stringify({ createdAt: last.createdAt, id: last.id }), 'utf8').toString('base64');
+      nextCursor = Buffer.from(
+        JSON.stringify({ createdAt: last.createdAt, id: last.id }),
+        'utf8'
+      ).toString('base64');
     }
 
     return { items: slice, nextCursor };

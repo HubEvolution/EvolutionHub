@@ -36,17 +36,21 @@ export const GET = withAuthApiMiddleware(
 
     const q = querySchema.safeParse(Object.fromEntries(url.searchParams));
     if (!q.success) {
-      return createApiError('validation_error', 'Invalid query', { details: formatZodError(q.error) });
+      return createApiError('validation_error', 'Invalid query', {
+        details: formatZodError(q.error),
+      });
     }
     const { userId } = q.data;
 
     const packs = await listActiveCreditPacksTenths(env.KV_AI_ENHANCER, userId);
-    const items = packs.map((p: { id: string; unitsTenths: number; createdAt: number; expiresAt: number }) => ({
-      id: p.id,
-      unitsTenths: p.unitsTenths,
-      createdAt: p.createdAt,
-      expiresAt: p.expiresAt,
-    }));
+    const items = packs.map(
+      (p: { id: string; unitsTenths: number; createdAt: number; expiresAt: number }) => ({
+        id: p.id,
+        unitsTenths: p.unitsTenths,
+        createdAt: p.createdAt,
+        expiresAt: p.expiresAt,
+      })
+    );
 
     return createApiSuccess({ items });
   },
@@ -60,4 +64,3 @@ export const PATCH = methodNotAllowed;
 export const DELETE = methodNotAllowed;
 export const OPTIONS = methodNotAllowed;
 export const HEAD = methodNotAllowed;
-

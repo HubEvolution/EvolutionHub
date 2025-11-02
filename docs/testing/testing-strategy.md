@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD051 -->
+
 # Teststrategie - Evolution Hub
 
 Diese Dokumentation beschreibt die umfassende Teststrategie für das Evolution Hub Projekt. Sie bietet einen Überblick über die verschiedenen Testebenen, Werkzeuge und Best Practices, die im Projekt verwendet werden.
@@ -5,15 +7,15 @@ Diese Dokumentation beschreibt die umfassende Teststrategie für das Evolution H
 ## Inhaltsverzeichnis
 
 1. [Testphilosophie](#testphilosophie)
-2. [Testebenen](#testebenen)
-3. [Testwerkzeuge](#testwerkzeuge)
-4. [Testabdeckung](#testabdeckung)
-5. [Testorganisation](#testorganisation)
-6. [Continuous Integration](#continuous-integration)
-7. [Testdaten-Management](#testdaten-management)
-8. [Mocking-Strategien](#mocking-strategien)
-9. [Testdokumentation](#testdokumentation)
-10. [Fehlerbehebung](#fehlerbehebung)
+1. [Testebenen](#testebenen)
+1. [Testwerkzeuge](#testwerkzeuge)
+1. [Testabdeckung](#testabdeckung)
+1. [Testorganisation](#testorganisation)
+1. [Continuous Integration](#continuous-integration)
+1. [Testdaten-Management](#testdaten-management)
+1. [Mocking-Strategien](#mocking-strategien)
+1. [Testdokumentation](#testdokumentation)
+1. [Fehlerbehebung](#fehlerbehebung)
 
 ---
 
@@ -22,10 +24,10 @@ Diese Dokumentation beschreibt die umfassende Teststrategie für das Evolution H
 Die Teststrategie des Evolution Hub Projekts basiert auf folgenden Grundprinzipien:
 
 1. **Testgetriebene Entwicklung (TDD)**: Schreiben von Tests vor der Implementierung
-2. **Automatisierung**: Maximale Automatisierung von Tests für schnelles Feedback
-3. **Pyramidenansatz**: Mehr Unit-Tests als Integrationstests, mehr Integrationstests als E2E-Tests
-4. **Kontinuierliche Tests**: Tests als integraler Bestandteil des CI/CD-Prozesses
-5. **Qualitätssicherung**: Tests als Mittel zur Sicherstellung der Codequalität
+1. **Automatisierung**: Maximale Automatisierung von Tests für schnelles Feedback
+1. **Pyramidenansatz**: Mehr Unit-Tests als Integrationstests, mehr Integrationstests als E2E-Tests
+1. **Kontinuierliche Tests**: Tests als integraler Bestandteil des CI/CD-Prozesses
+1. **Qualitätssicherung**: Tests als Mittel zur Sicherstellung der Codequalität
 
 ### Testpyramide
 
@@ -35,12 +37,15 @@ pyramid-schema
     E2E-Tests: 10%
     Integrationstests: 30%
     Unit-Tests: 60%
-```
+
+```text
 
 Diese Pyramide veranschaulicht die Verteilung der verschiedenen Testtypen im Projekt:
 
 - **Unit-Tests**: Bilden die Basis mit der größten Anzahl an Tests
+
 - **Integrationstests**: Mittlere Ebene mit moderater Anzahl an Tests
+
 - **E2E-Tests**: Spitze der Pyramide mit der geringsten Anzahl an Tests
 
 ---
@@ -54,7 +59,9 @@ Unit-Tests prüfen einzelne Funktionen, Methoden oder Klassen in Isolation.
 **Fokus**:
 
 - Geschäftslogik in Services und Utilities
+
 - Helper-Funktionen und Utilities
+
 - Einzelne Komponenten (ohne externe Abhängigkeiten)
 
 **Beispiel**:
@@ -99,8 +106,11 @@ Integrationstests prüfen die Interaktion zwischen verschiedenen Komponenten ode
 **Fokus**:
 
 - API-Endpunkte
+
 - Datenbankinteraktionen
+
 - Service-Interaktionen
+
 - Middleware-Funktionalität
 
 **Beispiel**:
@@ -163,7 +173,8 @@ describe('Login API', () => {
     expect(response.headers.get('Set-Cookie')).toContain('auth-token=');
   });
 });
-```
+
+```text
 
 ### 3. End-to-End Tests (E2E)
 
@@ -172,8 +183,11 @@ E2E-Tests prüfen das gesamte System aus Benutzerperspektive.
 **Fokus**:
 
 - Benutzerflows (Login, Registrierung, etc.)
+
 - Seitennavigation
+
 - Formularinteraktionen
+
 - Visuelle Regression
 
 **Beispiel**:
@@ -237,7 +251,8 @@ export default defineConfig({
     }
   }
 });
-```
+
+```bash
 
 **Ausführung**:
 
@@ -293,7 +308,8 @@ export default defineConfig({
     reuseExistingServer: !process.env.CI
   }
 });
-```
+
+```bash
 
 **Ausführung**:
 
@@ -311,32 +327,44 @@ npm run test:e2e -- --ui
 #### E2E gegen Cloudflare Wrangler (empfohlen)
 
 - **Konfiguration**: `tests/e2e/config/playwright.config.ts`
+
 - **BASE_URL**: Steuert `use.baseURL` und den `Origin`-Header (für CSRF). Standard: `http://127.0.0.1:8787`.
+
 - **Dev-Server**: Playwright startet Wrangler automatisch über `webServer.command`:
+
   - `npm --prefix ../../.. run dev:e2e` → führt `db:setup` aus und startet `wrangler dev` (siehe `package.json`).
+
   - `webServer.url` ist `BASE_URL`. Mit `reuseExistingServer: !CI` wird ein bereits laufender Server wiederverwendet.
 
 Beispiele:
 
 ```bash
+
 # 1) Lokal mit automatisch gestarteten Wrangler-Dev (Standardport 8787)
+
 npm run test:e2e
 
 # 2) Gegen einen bereits laufenden Server (z. B. Remote/Staging)
+
 export BASE_URL="https://your-env.example.com"
 npm run test:e2e
 
 # 3) Nur Chromium
+
 npm run test:e2e -- --project=chromium
 
 # 4) Mit UI-Test-Runner
+
 npm run test:e2e:ui
-```
+
+```bash
 
 Hinweise:
 
 - Tests laufen gegen den Cloudflare-Worker (Wrangler), nicht den Astro-Dev-Server.
+
 - `BASE_URL` wird als `Origin`-Header gesetzt, damit POST-Requests die CSRF-Prüfung bestehen.
+
 - Wenn bereits ein Server unter `BASE_URL` erreichbar ist, wird dieser genutzt; andernfalls startet Playwright Wrangler automatisch.
 
 ### MSW (Mock Service Worker)
@@ -390,7 +418,8 @@ const server = setupServer(...handlers);
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
-```
+
+```bash
 
 ---
 
@@ -399,7 +428,9 @@ afterAll(() => server.close());
 Evolution Hub strebt eine hohe Testabdeckung an, mit folgenden Zielen:
 
 - **Gesamtabdeckung**: Mindestens 80%
+
 - **Kritische Module**: Mindestens 90% (Auth, API, Security)
+
 - **UI-Komponenten**: Mindestens 70%
 
 ### Abdeckungsbericht
@@ -417,17 +448,25 @@ Der Bericht wird im Verzeichnis `coverage/` generiert und enthält detaillierte 
 Folgende Bereiche werden als kritisch eingestuft und erfordern eine besonders hohe Testabdeckung:
 
 1. **Authentifizierung und Autorisierung**:
+
    - JWT-Token-Generierung und -Validierung
+
    - Passwort-Hashing
+
    - Zugriffskontrolle
 
-2. **Sicherheitsfeatures**:
+1. **Sicherheitsfeatures**:
+
    - Rate-Limiting
+
    - Security-Headers
+
    - Input-Validierung
 
-3. **Datenmanipulation**:
+1. **Datenmanipulation**:
+
    - Datenbank-Operationen
+
    - API-Endpunkte für Datenänderungen
 
 ---
@@ -451,12 +490,15 @@ evolution-hub/
 └── tests/
     ├── e2e/                        # E2E-Tests
     └── integration/                # Integrationstests
-```
+
+```text
 
 ### Benennungskonventionen
 
 - **Unit-Tests**: `*.test.ts` oder `*.spec.ts` neben der zu testenden Datei
+
 - **Integrationstests**: `*.test.ts` oder `*.integration.test.ts`
+
 - **E2E-Tests**: `*.spec.ts` im Verzeichnis `tests/e2e/`
 
 ### Test-Suites
@@ -502,19 +544,26 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
+
       - uses: actions/checkout@v3
+
       - uses: actions/setup-node@v3
         with:
           node-version: '18'
           cache: 'npm'
+
       - run: npm ci
+
       - run: npm test
+
       - run: npm run test:coverage
+
       - uses: actions/upload-artifact@v3
         with:
           name: coverage-report
           path: coverage/
-```
+
+```bash
 
 ### Pre-Commit-Hooks
 
@@ -536,8 +585,8 @@ npm run test:affected
 ### Testdatenquellen
 
 1. **Fest codierte Testdaten**: Für einfache Tests
-2. **Factories**: Für komplexe Testdaten mit Variationen
-3. **Fixtures**: Für wiederverwendbare Testdaten
+1. **Factories**: Für komplexe Testdaten mit Variationen
+1. **Fixtures**: Für wiederverwendbare Testdaten
 
 ### Testdaten-Factories
 
@@ -564,7 +613,8 @@ export function createAdmin(overrides = {}) {
     ...overrides
   });
 }
-```
+
+```text
 
 ### Fixtures
 
@@ -613,7 +663,8 @@ vi.mock('../../../lib/auth', () => ({
 
 // Mocking einer Funktion
 const mockFn = vi.fn().mockImplementation((arg) => arg * 2);
-```
+
+```text
 
 ### Mocking der Datenbank
 
@@ -651,7 +702,8 @@ const server = setupServer(
 beforeAll(() => server.listen());
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
-```
+
+```text
 
 ---
 
@@ -677,18 +729,26 @@ Komplexe Tests sollten dokumentiert werden:
 
 ```typescript
 /**
+
  * Tests the authentication flow with various edge cases.
+
  * 
+
  * This test suite covers:
+
  * - Valid login attempts
+
  * - Invalid credentials
+
  * - Rate limiting
+
  * - Token validation
  */
 describe('Authentication Flow', () => {
   // Test-Code
 });
-```
+
+```text
 
 ### Test-Tags
 
@@ -709,29 +769,40 @@ describe('Database Integration', () => {
 ### Häufige Testprobleme
 
 1. **Flaky Tests (unzuverlässige Tests)**:
+
    - Problem: Tests schlagen manchmal fehl, manchmal nicht
+
    - Lösung: Timeouts erhöhen, Async-Code verbessern, Race Conditions beheben
 
-2. **Langsame Tests**:
+1. **Langsame Tests**:
+
    - Problem: Tests dauern zu lange
+
    - Lösung: Mocking verwenden, Test-Suites aufteilen, parallele Ausführung
 
-3. **Isolationsprobleme**:
+1. **Isolationsprobleme**:
+
    - Problem: Tests beeinflussen sich gegenseitig
+
    - Lösung: `beforeEach`/`afterEach` für Zustandsrücksetzung verwenden
 
 ### Debugging von Tests
 
 ```bash
+
 # Debug-Ausgabe aktivieren
+
 DEBUG=true npm test
 
 # Einzelnen Test ausführen
+
 npm test -- -t "should validate user input"
 
 # Tests mit Breakpoints debuggen
+
 npm run test:debug
-```
+
+```bash
 
 ### Testprotokolle
 

@@ -160,7 +160,7 @@ export type UpdateTask = Partial<Pick<Task, 'title' | 'description' | 'status'>>
 /**
  * Standard D1 Query Result für SELECT-Operationen
  */
-export interface D1QueryResult<T = any> {
+export interface D1QueryResult<T = unknown> {
   results: T[];
   success: boolean;
   meta: {
@@ -202,7 +202,7 @@ export type D1FirstResult<T> = T | null;
 /**
  * Standard API Response mit typisiertem Data-Feld
  */
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   success: boolean;
   data?: T;
   error?: string;
@@ -212,7 +212,7 @@ export interface ApiResponse<T = any> {
 /**
  * Paginierte API Response
  */
-export interface PaginatedResponse<T = any> extends ApiResponse<T[]> {
+export interface PaginatedResponse<T = unknown> extends ApiResponse<T[]> {
   pagination: {
     page: number;
     limit: number;

@@ -31,7 +31,7 @@ export function installConsoleInterceptor() {
   isInstalled = true;
 
   // Helper to stringify arguments
-  const stringifyArgs = (...args: any[]): string => {
+  const stringifyArgs = (...args: unknown[]): string => {
     return args
       .map((arg) => {
         if (typeof arg === 'string') return arg;
@@ -50,32 +50,32 @@ export function installConsoleInterceptor() {
   };
 
   // Override console.log
-  console.log = (...args: any[]) => {
-    originalConsole.log(...args);
+  console.log = (...args: unknown[]) => {
+    originalConsole.log(...(args as unknown[]));
     clientLogger.log(`[CONSOLE] ${stringifyArgs(...args)}`, { source: 'console' });
   };
 
   // Override console.warn
-  console.warn = (...args: any[]) => {
-    originalConsole.warn(...args);
+  console.warn = (...args: unknown[]) => {
+    originalConsole.warn(...(args as unknown[]));
     clientLogger.warn(`[CONSOLE] ${stringifyArgs(...args)}`, { source: 'console' });
   };
 
   // Override console.error
-  console.error = (...args: any[]) => {
-    originalConsole.error(...args);
+  console.error = (...args: unknown[]) => {
+    originalConsole.error(...(args as unknown[]));
     clientLogger.error(`[CONSOLE] ${stringifyArgs(...args)}`, { source: 'console' });
   };
 
   // Override console.debug
-  console.debug = (...args: any[]) => {
-    originalConsole.debug(...args);
+  console.debug = (...args: unknown[]) => {
+    originalConsole.debug(...(args as unknown[]));
     clientLogger.debug(`[CONSOLE] ${stringifyArgs(...args)}`, { source: 'console' });
   };
 
   // Override console.info
-  console.info = (...args: any[]) => {
-    originalConsole.info(...args);
+  console.info = (...args: unknown[]) => {
+    originalConsole.info(...(args as unknown[]));
     clientLogger.info(`[CONSOLE] ${stringifyArgs(...args)}`, { source: 'console' });
   };
 }

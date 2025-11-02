@@ -91,9 +91,10 @@ export const POST = withApiMiddleware(
       const form = await request.formData();
       const textRaw = form.get('text');
       const modeRaw = form.get('mode');
+      const normalizedMode = typeof modeRaw === 'string' ? modeRaw.trim() : undefined;
       const parsed = promptInputSchema.safeParse({
         text: typeof textRaw === 'string' ? textRaw.trim() : textRaw,
-        mode: typeof modeRaw === 'string' ? modeRaw.trim() : undefined,
+        mode: normalizedMode,
       });
       if (!parsed.success) {
         return createApiError('validation_error', 'Invalid form fields', {
@@ -112,8 +113,11 @@ export const POST = withApiMiddleware(
         attachments = await buildAttachmentContext(files);
       }
       input = { text };
+      const m = (parsed.data.mode ?? 'agent') as 'agent' | 'concise' | 'creative' | 'professional';
+      const mNorm: 'agent' | 'concise' =
+        m === 'creative' ? 'agent' : m === 'professional' ? 'concise' : (m as 'agent' | 'concise');
       options = {
-        mode: (parsed.data.mode ?? 'agent') as 'agent' | 'concise',
+        mode: mNorm,
         safety: true,
         includeScores: false,
         outputFormat: 'markdown',
@@ -147,8 +151,19 @@ export const POST = withApiMiddleware(
           });
         }
         input = { text: parsed.data.text } as EnhanceInput;
+        const m2 = (parsed.data.mode ?? 'agent') as
+          | 'agent'
+          | 'concise'
+          | 'creative'
+          | 'professional';
+        const m2Norm: 'agent' | 'concise' =
+          m2 === 'creative'
+            ? 'agent'
+            : m2 === 'professional'
+              ? 'concise'
+              : (m2 as 'agent' | 'concise');
         options = {
-          mode: (parsed.data.mode ?? 'agent') as 'agent' | 'concise',
+          mode: m2Norm,
           safety: parsed.data.safety !== false,
           includeScores: Boolean(parsed.data.includeScores),
           outputFormat: (parsed.data.outputFormat as 'markdown' | 'json') ?? 'markdown',

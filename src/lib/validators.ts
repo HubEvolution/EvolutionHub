@@ -63,7 +63,7 @@ export function createValidator<T>(schema: ValidationSchema<T>): Validator<T> {
             required?: boolean;
             rules?: ValidationRule<unknown>[];
             type?: 'string' | 'number' | 'boolean' | 'object' | 'array';
-            nested?: ValidationSchema<any>;
+            nested?: ValidationSchema<unknown>;
           },
         ]
       >) {
@@ -128,7 +128,7 @@ export function createValidator<T>(schema: ValidationSchema<T>): Validator<T> {
 
         // Verschachtelte Validierung
         if (def.nested && typeof inputValue === 'object') {
-          const nestedValidator = createValidator(def.nested as ValidationSchema<any>);
+          const nestedValidator = createValidator(def.nested as ValidationSchema<unknown>);
           const nestedResult = nestedValidator.validate(inputValue);
 
           if (!nestedResult.valid) {

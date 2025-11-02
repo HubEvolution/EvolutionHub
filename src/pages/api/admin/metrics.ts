@@ -9,8 +9,9 @@ import type { APIContext } from 'astro';
 import { requireAdmin } from '@/lib/auth-helpers';
 
 export const GET = withAuthApiMiddleware(async (context: APIContext) => {
-  const env: any = (context.locals as any)?.runtime?.env ?? {};
-  const dbMaybe = env.DB as D1Database | undefined;
+  const rawEnv = ((context.locals as unknown as { runtime?: { env?: Record<string, unknown> } })
+    ?.runtime?.env || {}) as Record<string, unknown>;
+  const dbMaybe = (rawEnv as { DB?: D1Database }).DB as D1Database | undefined;
   if (!dbMaybe) return createApiError('server_error', 'Database unavailable');
   const db = dbMaybe as D1Database;
 
@@ -25,10 +26,13 @@ export const GET = withAuthApiMiddleware(async (context: APIContext) => {
   }
 
   // Helpers to run scalar queries safely
-  async function scalar<T = number>(sql: string, ...binds: any[]): Promise<T | null> {
+  async function scalar<T = number>(sql: string, ...binds: unknown[]): Promise<T | null> {
     try {
-      const row = await db.prepare(sql).bind(...binds).first<{ v: T }>();
-      return (row as any)?.v ?? null;
+      const row = await db
+        .prepare(sql)
+        .bind(...binds)
+        .first<{ v: T }>();
+      return row?.v ?? null;
     } catch {
       return null;
     }

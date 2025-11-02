@@ -1,7 +1,9 @@
+import type { APIContext } from 'astro';
+import type { KVNamespace } from '@cloudflare/workers-types';
 import { withAuthApiMiddleware, createApiError, createApiSuccess } from '@/lib/api-middleware';
 import { logUserEvent } from '@/lib/security-logger';
 import { getCreditsBalanceTenths, monthlyKey, legacyMonthlyKey } from '@/lib/kv/usage';
-import { getEntitlementsFor } from '@/config/ai-image/entitlements';
+import { getEntitlementsFor, type Plan } from '@/config/ai-image/entitlements';
 
 interface SubscriptionRow {
   id: string;
@@ -13,23 +15,30 @@ interface SubscriptionRow {
 }
 
 export const GET = withAuthApiMiddleware(
-  async (context) => {
+  async (context: APIContext) => {
     const opStart = Date.now();
     const { locals, clientAddress } = context;
     const user = locals.user;
-    const env: any = locals.runtime?.env ?? {};
+    const env = (locals.runtime?.env ?? {}) as Partial<{
+      DB: unknown;
+      KV_AI_ENHANCER: unknown;
+      USAGE_KV_V2: string;
+    }>;
 
     if (!user) {
       return createApiError('auth_error', 'Unauthorized');
     }
 
-    const db = env.DB;
+    const db = env.DB as unknown;
     if (!db) {
       return createApiError('server_error', 'Database unavailable');
     }
 
     const dbStart = Date.now();
-    const subscription = (await db
+    type D1Stmt<T = unknown> = { bind: (...args: unknown[]) => { first: () => Promise<T | null> } };
+    type D1Like = { prepare: (sql: string) => D1Stmt };
+    const d1 = db as unknown as D1Like;
+    const subRow = (await d1
       .prepare(
         `SELECT id, plan, status, current_period_end, cancel_at_period_end, updated_at
          FROM subscriptions
@@ -39,11 +48,10 @@ export const GET = withAuthApiMiddleware(
       )
       .bind(user.id)
       .first()) as SubscriptionRow | null;
+    const subscription = subRow;
     const dbDur = Date.now() - dbStart;
 
-    const creditsKv = env.KV_AI_ENHANCER as
-      | import('@cloudflare/workers-types').KVNamespace
-      | undefined;
+    const creditsKv = env.KV_AI_ENHANCER as unknown;
     let creditsRemaining: number | null = null;
     let kvDur = 0;
     if (creditsKv) {
@@ -51,14 +59,17 @@ export const GET = withAuthApiMiddleware(
         const kvStart = Date.now();
         const useV2 = String(env.USAGE_KV_V2 || '').trim() === '1';
         if (useV2) {
-          const tenths = await getCreditsBalanceTenths(creditsKv as any, user.id);
+          const tenths = await getCreditsBalanceTenths(
+            creditsKv as unknown as KVNamespace,
+            user.id
+          );
           creditsRemaining = Math.floor((typeof tenths === 'number' ? tenths : 0) / 10);
           kvDur = Date.now() - kvStart;
         } else {
           const timeoutMs = 250;
           const key = `ai:credits:user:${user.id}`;
           const result = await Promise.race<Promise<string | null> | string>([
-            creditsKv.get(key),
+            (creditsKv as KVNamespace).get(key),
             new Promise<string>((resolve) => setTimeout(() => resolve('__timeout__'), timeoutMs)),
           ] as unknown as [Promise<string | null>, Promise<string>]);
           kvDur = Date.now() - kvStart;
@@ -77,26 +88,20 @@ export const GET = withAuthApiMiddleware(
     }
 
     // Plan fallback: if no subscription and user.plan missing, read from users table
-    let planFallback: 'free' | 'pro' | 'premium' | 'enterprise' | undefined = (user as any)?.plan;
+    let planFallback: Plan | undefined = (user as unknown as { plan?: Plan })?.plan;
     if (!subscription && !planFallback) {
       try {
-        const row = await db
+        const row = (await (d1 as D1Like)
           .prepare(`SELECT plan FROM users WHERE id = ?1 LIMIT 1`)
           .bind(user.id)
-          .first<{ plan?: string }>();
-        const p = row?.plan as 'free' | 'pro' | 'premium' | 'enterprise' | undefined;
+          .first()) as { plan?: string } | null;
+        const p = (row?.plan as Plan | undefined) ?? undefined;
         planFallback = p;
       } catch {}
     }
 
     // Determine whether a subscription should be considered active for plan purposes
-    const activeStatuses = new Set([
-      'active',
-      'trialing',
-      'past_due',
-      'unpaid',
-      'paused',
-    ]);
+    const activeStatuses = new Set(['active', 'trialing', 'past_due', 'unpaid', 'paused']);
     const isActiveSub = Boolean(subscription && activeStatuses.has(subscription.status));
 
     // Resolve plan and base fields
@@ -114,28 +119,28 @@ export const GET = withAuthApiMiddleware(
     // Compute monthly usage/limit and period end for progress UI
     let monthlyLimit = 0;
     try {
-      monthlyLimit = getEntitlementsFor('user', result.plan as any).monthlyImages;
+      const plan = result.plan as Plan;
+      monthlyLimit = getEntitlementsFor('user', plan).monthlyImages;
     } catch {}
 
-    const creditsKv2 = env.KV_AI_ENHANCER as
-      | import('@cloudflare/workers-types').KVNamespace
-      | undefined;
+    const creditsKv2 = env.KV_AI_ENHANCER as unknown;
     let monthlyUsed = 0;
     if (creditsKv2) {
       try {
         const useV2 = String(env.USAGE_KV_V2 || '').trim() === '1';
         if (useV2) {
           const key = legacyMonthlyKey('ai', 'user', user.id);
-          const raw = await creditsKv2.get(key);
+          const raw = await (creditsKv2 as KVNamespace).get(key);
           if (raw) {
             try {
               const obj = JSON.parse(raw) as { count?: number; countTenths?: number };
-              monthlyUsed = typeof obj.countTenths === 'number' ? obj.countTenths / 10 : obj.count || 0;
+              monthlyUsed =
+                typeof obj.countTenths === 'number' ? obj.countTenths / 10 : obj.count || 0;
             } catch {}
           }
         } else {
           const key = monthlyKey('ai', 'user', user.id);
-          const raw = await creditsKv2.get(key);
+          const raw = await (creditsKv2 as KVNamespace).get(key);
           if (raw) {
             try {
               const obj = JSON.parse(raw) as { count?: number };

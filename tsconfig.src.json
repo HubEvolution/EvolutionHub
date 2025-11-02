@@ -27,9 +27,5 @@
     "src/pages/api/admin/comments/bulk-moderate.ts"
   ],
   "include": [],
-  "exclude": [
-    "node_modules",
-    "tests",
-    "test-suite-v2"
-  ]
+  "exclude": ["node_modules", "tests", "test-suite-v2"]
 }

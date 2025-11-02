@@ -24,6 +24,7 @@
     "build:watch": "astro build --watch",
     "preview": "astro preview",
     "astro": "astro",
+    "astro:check:ui": "astro check --tsconfig tsconfig.astro-check.ui.json",
     "test": "vitest -c vitest.config.ts",
     "test:once": "vitest run -c vitest.config.ts",
     "test:watch": "vitest watch -c vitest.config.ts",
@@ -44,7 +45,7 @@
     "test:e2e:update-snapshots": "playwright test -c test-suite-v2/playwright.config.ts --update-snapshots",
     "test:e2e:report": "playwright show-report test-suite-v2/reports/playwright-html-report",
     "lint": "eslint 'src/**/*.{ts,astro}' --max-warnings=280",
-    "lint:md": "markdownlint-cli2 \"docs/**/*.md\"",
+    "lint:md": "markdownlint-cli2 --config .markdownlint-cli2.jsonc \"docs/**/*.md\"",
     "lint:md:fix": "markdownlint-cli2 --fix \"docs/**/*.md\"",
     "openapi:validate": "npx swagger-cli validate openapi.yaml",
     "openapi:redoc": "npx @redocly/cli build-docs openapi.yaml -o api-docs.html",
@@ -74,7 +75,9 @@
     "docs:ref:openapi": "node ./scripts/gen-openapi.mjs",
     "docs:ref:env": "node ./scripts/gen-env-doc.mjs",
     "docs:toc": "doctoc docs --update-only --notitle",
-    "docs:lint": "markdownlint \"docs/**/*.md\"",
+    "docs:harmonize": "tsx scripts/docs-harmonize-anchors.ts",
+    "docs:harmonize:write": "tsx scripts/docs-harmonize-anchors.ts --write",
+    "docs:lint": "markdownlint -c .markdownlint.json \"docs/**/*.md\"",
     "docs:links": "node ./scripts/doc-links.mjs",
     "docs:inventory": "node ./scripts/doc-inventory.mjs",
     "brand:wordmark:gen": "tsx ./scripts/generate-wordmark-outlined.ts",
@@ -98,7 +101,7 @@
     "@astrojs/react": "^4.3.0",
     "@contentful/rich-text-from-markdown": "^16.1.1",
     "@contentful/rich-text-html-renderer": "^17.1.0",
-    "@genkit-ai/mcp": "^1.21.0",
+    "@genkit-ai/mcp": "^1.22.0",
     "@types/bcrypt": "^6.0.0",
     "@types/redis": "^4.0.11",
     "@types/uuid": "^10.0.0",
@@ -136,7 +139,9 @@
     "zustand": "^5.0.7"
   },
   "devDependencies": {
+    "@asteasolutions/zod-to-openapi": "^7.1.0",
     "@astrojs/cloudflare": "^12.6.3",
+    "@astrojs/mdx": "^4.3.9",
     "@astrojs/tailwind": "^6.0.2",
     "@cloudflare/workers-types": "^4.20250919.0",
     "@microsoft/api-documenter": "^7.26.4",
@@ -145,8 +150,6 @@
     "@mswjs/interceptors": "^0.39.6",
     "@playwright/test": "^1.54.2",
     "@redocly/cli": "^1.27.2",
-    "@asteasolutions/zod-to-openapi": "^7.1.0",
-    "yaml": "^2.6.0",
     "@tailwindcss/aspect-ratio": "^0.4.2",
     "@tailwindcss/forms": "^0.5.10",
     "@tailwindcss/typography": "^0.5.16",
@@ -174,6 +177,7 @@
     "eslint-plugin-prettier": "^5.5.4",
     "eslint-plugin-react-hooks": "^6.1.1",
     "execa": "^8.0.1",
+    "github-slugger": "^2.0.0",
     "husky": "^9.1.7",
     "jsdom": "^26.1.0",
     "lint-staged": "^15.3.0",
@@ -193,6 +197,7 @@
     "typescript-eslint": "8.38.0",
     "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^3.2.4",
-    "wrangler": "^4.42.2"
+    "wrangler": "^4.42.2",
+    "yaml": "^2.6.0"
   }
 }

@@ -11,7 +11,11 @@ function uniqueSorted<T>(arr: T[]): T[] {
 function isNumericEnumAnyOf(node: any): boolean {
   if (!node || typeof node !== 'object' || !Array.isArray(node.anyOf)) return false;
   return node.anyOf.every(
-    (alt: any) => alt && typeof alt === 'object' && (alt.type === 'number' || alt.type === 'integer') && Array.isArray(alt.enum)
+    (alt: any) =>
+      alt &&
+      typeof alt === 'object' &&
+      (alt.type === 'number' || alt.type === 'integer') &&
+      Array.isArray(alt.enum)
   );
 }
 
@@ -20,7 +24,9 @@ function normalize(node: any): any {
   if (node && typeof node === 'object') {
     if (isNumericEnumAnyOf(node)) {
       const values = node.anyOf.flatMap((alt: any) => alt.enum ?? []);
-      const ints = values.map((v: any) => (typeof v === 'number' ? (Number.isInteger(v) ? v : v) : v));
+      const ints = values.map((v: any) =>
+        typeof v === 'number' ? (Number.isInteger(v) ? v : v) : v
+      );
       return { type: 'integer', enum: uniqueSorted(ints) };
     }
     const out: Record<string, any> = {};
@@ -33,7 +39,8 @@ function normalize(node: any): any {
       out.enum = uniqueSorted(out.enum);
       const allNums = out.enum.every((v: any) => typeof v === 'number');
       const allInts = allNums && out.enum.every((v: number) => Number.isInteger(v));
-      if (allNums && (out.type === 'number' || out.type === 'integer' || !out.type)) out.type = allInts ? 'integer' : 'number';
+      if (allNums && (out.type === 'number' || out.type === 'integer' || !out.type))
+        out.type = allInts ? 'integer' : 'number';
     }
     return out;
   }

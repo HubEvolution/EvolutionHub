@@ -12,12 +12,14 @@ export function installBeaconInterceptor() {
   if (installed) return;
   if (typeof window === 'undefined') return;
   if (import.meta.env.PUBLIC_ENABLE_DEBUG_PANEL !== 'true') return;
-  const nav: any = typeof navigator !== 'undefined' ? navigator : undefined;
+  const nav = (typeof navigator !== 'undefined' ? navigator : undefined) as
+    | (Navigator & { sendBeacon?: (url: string, data?: BodyInit | null) => boolean })
+    | undefined;
   if (!nav || typeof nav.sendBeacon !== 'function') return;
 
   const original = nav.sendBeacon.bind(nav);
   try {
-    nav.sendBeacon = function (url: string, data?: any) {
+    nav.sendBeacon = function (url: string, data?: BodyInit | null) {
       try {
         const safeUrl = (() => {
           try {
@@ -32,7 +34,10 @@ export function installBeaconInterceptor() {
             return String(url);
           }
         })();
-        const len = typeof data === 'string' ? data.length : (data?.size ?? undefined);
+        const len =
+          typeof data === 'string'
+            ? data.length
+            : ((data as { size?: number } | null | undefined)?.size ?? undefined);
         clientLogger.info(`[NETWORK][BEACON] ${safeUrl} [REDACTED]`, {
           source: 'network',
           action: 'beacon_send',

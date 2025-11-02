@@ -1,0 +1,14 @@
+{
+  // markdownlint-cli2 configuration
+  // Apply the same markdownlint rules as .markdownlint.jsonc
+  "config": {
+    "default": true,
+    "MD013": false,
+    "MD009": { "br_spaces": 0, "list_item_empty_lines": false, "strict": true },
+    "MD031": true,
+    "MD032": true,
+    "MD024": { "siblings_only": true },
+    "MD051": false,
+    "MD036": true
+  }
+}

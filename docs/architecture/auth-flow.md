@@ -1,13 +1,15 @@
+<!-- markdownlint-disable MD051 -->
+
 # Authentifizierungsflow
 
 Diese Dokumentation beschreibt den vollständigen Authentifizierungsflow im Evolution Hub System, einschließlich der Benutzerregistrierung, Anmeldung, Sitzungsverwaltung und Sicherheitsmaßnahmen.
 
 ## Inhaltsverzeichnis
 
-1. [Überblick](#überblick)
-2. [Sicherheitsmaßnahmen](#sicherheitsmaßnahmen)
-3. [Fehlerbehandlung](#fehlerbehandlung)
-4. [Middleware-Integration](#middleware-integration)
+1. [Überblick](#uberblick)
+1. [Sicherheitsmaßnahmen](#sicherheitsmanahmen)
+1. [Fehlerbehandlung](#fehlerbehandlung)
+1. [Middleware-Integration](#middleware-integration)
 
 ---
 
@@ -18,6 +20,7 @@ Das Evolution Hub Authentifizierungssystem verwendet serverseitige Sitzungen mit
 Hinweis: Das System ist auf Stytch Magic Link migriert. Der Authentifizierungsfluss ist:
 
 - `POST /api/auth/magic/request` (JSON)
+
 - `GET /api/auth/callback` (setzt Session und leitet weiter)
 
 ...
@@ -25,9 +28,13 @@ Hinweis: Das System ist auf Stytch Magic Link migriert. Der Authentifizierungsfl
 ## Sicherheitsmaßnahmen
 
 - **Rate-Limiting**: Schutz vor Brute-Force/Abuse auf allen Auth-APIs und global in der Middleware.
+
 - **Security Headers**: Strenge Standard-Header inkl. CSP (in Produktion strikt), HSTS, Frame-/Referrer-Policies.
+
 - **CSRF/Origin-Checks**: CSRF-Token/Origin-Validierung an state-changing Endpunkten.
+
 - **Cookie-Härtung**: `__Host-session` als HttpOnly, Secure, SameSite=Strict, Path=/, serverseitige Lebensdauersteuerung.
+
 - **Audit-Logging**: Relevante Ereignisse (Login/Logout, Passwort-Reset) werden protokolliert.
 
 ---
@@ -36,8 +43,11 @@ Hinweis: Das System ist auf Stytch Magic Link migriert. Der Authentifizierungsfl
 
 - **Kanonischer Code: `InvalidCredentials`** für `ServiceErrorType.AUTHENTICATION` (z. B. falsche Login-Daten).
 <!-- Legacy Passwort-Reset-Fehlerfall entfernt: System nutzt keinen Passwort-Flow mehr. -->
+
 - **Rate-Limiting:** `TooManyRequests`.
+
 - **Unerwartete Fehler:** `ServerError`.
+
 - **Spezialfall E-Mail-Verifizierung:** Wenn der Service mit `details.reason = 'email_not_verified'`
   wirft, leitet `handleAuthError()` locale-aware auf `/verify-email` um und hängt – falls vorhanden –
   `email=<adresse>` an. Beispiel: `/verify-email?error=EmailNotVerified&email=user%40example.com`.
@@ -45,21 +55,28 @@ Hinweis: Das System ist auf Stytch Magic Link migriert. Der Authentifizierungsfl
 Technische Details
 
 - Zentraler Handler: `src/lib/error-handler.ts` (`getErrorCode()`, `handleAuthError()`).
+
 - Redirect-Basis-URL ist locale-aware, z. B. `'/en/login'`.
+
 - Kontext-Parameter (z. B. `token`) werden durchgereicht und in die Redirect-URL übernommen.
+
 - Die Reihenfolge von Query-Parametern ist unerheblich; Tests prüfen auf Vorhandensein, nicht auf
   die exakte Reihenfolge.
 
 Beispiele
 
 - Magic Link Request: `/api/auth/magic/request` → JSON `{ success: true }`.
+
 - Callback: `/api/auth/callback` → Redirect auf Ziel (z. B. `/dashboard`).
+
 - E-Mail nicht verifiziert: `/verify-email?error=EmailNotVerified&email=user%40example.com`.
 
 Referenzen
 
 - `src/lib/error-handler.ts`
+
 - `src/pages/api/auth/magic/request.ts`
+
 - `src/pages/api/auth/callback.ts`
 
 ---
@@ -96,7 +113,8 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   return next();
 });
-```
+
+```text
 
 ### Rollenbasierte Zugriffskontrolle
 

@@ -341,12 +341,10 @@ export class CommentService {
       .where(and(eq(comments.parentId, parentId), eq(comments.status, 'approved')))
       .orderBy(comments.createdAt);
 
-    return replyResults.map(
-      (row: { comment: Comment; reportCount: number | null }) => ({
-        ...row.comment,
-        reportCount: row.reportCount || 0,
-      })
-    ) as Comment[];
+    return replyResults.map((row: { comment: Comment; reportCount: number | null }) => ({
+      ...row.comment,
+      reportCount: row.reportCount || 0,
+    })) as Comment[];
   }
 
   /**
@@ -608,12 +606,21 @@ export class CommentService {
     commentId: string,
     userId: number | undefined,
     action: AuditAction,
-    oldValues?: Record<string, any>,
-    newValues?: Record<string, any>,
+    oldValues?: Record<string, unknown>,
+    newValues?: Record<string, unknown>,
     reason?: string,
-    metadata?: Record<string, any>
+    metadata?: Record<string, unknown>
   ): Promise<void> {
     const now = Math.floor(Date.now() / 1000);
+
+    const ipAddr =
+      metadata && typeof (metadata as { ipAddress?: unknown }).ipAddress === 'string'
+        ? (metadata as { ipAddress?: string }).ipAddress
+        : null;
+    const ua =
+      metadata && typeof (metadata as { userAgent?: unknown }).userAgent === 'string'
+        ? ((metadata as { userAgent?: string }).userAgent as string).substring(0, 500)
+        : null;
 
     await this.db.insert(commentAuditLogs).values({
       commentId,
@@ -622,8 +629,8 @@ export class CommentService {
       oldValues: oldValues ? JSON.stringify(oldValues) : null,
       newValues: newValues ? JSON.stringify(newValues) : null,
       reason,
-      ipAddress: metadata?.ipAddress || null,
-      userAgent: metadata?.userAgent ? metadata.userAgent.substring(0, 500) : null, // Truncate for storage
+      ipAddress: ipAddr,
+      userAgent: ua, // Truncate for storage
       metadata: metadata ? JSON.stringify(metadata) : null,
       createdAt: now,
     });
@@ -676,7 +683,7 @@ export class CommentService {
       .limit(limit)
       .offset(offset);
 
-    const logs: CommentAuditLog[] = logResults.map((log: any) => ({
+    const logs: CommentAuditLog[] = logResults.map((log: typeof commentAuditLogs.$inferSelect) => ({
       id: log.id,
       commentId: log.commentId,
       userId: log.userId || undefined,

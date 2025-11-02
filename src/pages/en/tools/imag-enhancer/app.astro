@@ -3,9 +3,9 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import { getLocale } from '@/lib/i18n';
 import { getI18n } from '@/utils/i18n';
 import { localizePath } from '@/lib/locale-path';
-import Icon from '@/components/ui/Icon.astro';
 import ImagEnhancerRouter from '@/components/tools/imag-enhancer/mvp/ImagEnhancerRouter';
 import Card from '@/components/ui/Card';
+import ToolPageHeader from '@/components/tools/shared/ToolPageHeader.astro';
 
 const locale = getLocale(Astro.url.pathname);
 const t = getI18n(locale);
@@ -78,37 +78,12 @@ const tool = {
 >
   <main class="min-h-screen bg-transparent py-6 sm:py-10 lg:py-12 px-4 sm:px-6 lg:px-8">
     <div class="max-w-5xl mx-auto">
-      <div class="flex items-start gap-6">
-        <div class="flex-shrink-0">
-          <div
-            class="w-16 h-16 rounded-lg flex items-center justify-center text-3xl bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200"
-          >
-            <Icon
-              name={tool.icon}
-              class="w-10 h-10 text-gray-800 dark:text-gray-200"
-              ariaLabel={t('pages.tools.items.Imag-Enhancer.name')}
-            />
-          </div>
-        </div>
-        <div>
-          <h1
-            class="text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white"
-          >
-            {t('pages.tools.items.Imag-Enhancer.name')}
-          </h1>
-          <div class="mt-2">
-            <a
-              href={localizePath(locale, '/tools/imag-enhancer')}
-              class="text-sm text-gray-500 dark:text-gray-400 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 rounded"
-            >
-              {t('pages.tools.details.Imag-Enhancer.back')}
-            </a>
-          </div>
-          <p class="mt-4 text-gray-600 dark:text-gray-300">
-            {t('pages.tools.items.Imag-Enhancer.description')}
-          </p>
-        </div>
-      </div>
+      <ToolPageHeader
+        icon={tool.icon}
+        titleKey="pages.tools.items.Imag-Enhancer.name"
+        descriptionKey="pages.tools.items.Imag-Enhancer.description"
+        backHref="/tools/imag-enhancer"
+      />
 
       {/* Guest Funnel Banner */}
       {

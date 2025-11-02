@@ -1,24 +1,35 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import VoiceVisualizerIsland from '@/components/tools/voice-visualizer/VoiceVisualizerIsland';
+import ToolPageHeader from '@/components/tools/shared/ToolPageHeader.astro';
 ---
 
 <BaseLayout title="Voice Visualizer & Transkriptor">
-  <div class="py-10">
-    <VoiceVisualizerIsland
-      client:load
-      strings={{
-        title: 'Voice Visualizer & Transkriptor',
-        description: 'Sprache aufnehmen, Live‑Wellenform sehen und sofort transkribieren.',
-        start: 'Aufnahme starten',
-        stop: 'Stopp',
-        usage: 'Verbrauch',
-        loading: 'lädt…',
-        transcript: 'Transkript',
-        error: 'Ein Fehler ist aufgetreten',
-        rateLimited: (s: number) => `Rate‑Limit erreicht. In ${s}s erneut…`,
-      }}
-      langHint="de"
-    />
-  </div>
+  <main class="min-h-screen bg-transparent py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-4xl mx-auto">
+      <ToolPageHeader
+        icon="microphone"
+        titleKey="pages.tools.items.voice-visualizer.name"
+        descriptionKey="pages.tools.items.voice-visualizer.description"
+        backHref="/tools"
+      />
+      <div class="py-10">
+        <VoiceVisualizerIsland
+          client:load
+          strings={{
+            title: 'Voice Visualizer & Transkriptor',
+            description: 'Sprache aufnehmen, Live‑Wellenform sehen und sofort transkribieren.',
+            start: 'Aufnahme starten',
+            stop: 'Stopp',
+            usage: 'Verbrauch',
+            loading: 'lädt…',
+            transcript: 'Transkript',
+            error: 'Ein Fehler ist aufgetreten',
+            rateLimited: (s: number) => `Rate‑Limit erreicht. In ${s}s erneut…`,
+          }}
+          langHint="de"
+        />
+      </div>
+    </div>
+  </main>
 </BaseLayout>

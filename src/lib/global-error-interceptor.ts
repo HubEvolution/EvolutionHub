@@ -21,9 +21,10 @@ export function installGlobalErrorInterceptor() {
       const src = event?.filename || 'unknown';
       const line = event?.lineno ?? 0;
       const col = event?.colno ?? 0;
+      const errUnknown = (event as { error?: unknown })?.error;
       const detail =
-        event?.error && typeof (event.error as any).stack === 'string'
-          ? (event.error as any).stack
+        errUnknown && typeof (errUnknown as { stack?: unknown }).stack === 'string'
+          ? ((errUnknown as { stack?: string }).stack as string)
           : undefined;
       clientLogger.error(
         `[GLOBAL-ERROR] ${msg} at ${src}:${line}:${col}` + (detail ? `\n${detail}` : ''),
@@ -37,9 +38,17 @@ export function installGlobalErrorInterceptor() {
   // unhandled promise rejection
   window.addEventListener('unhandledrejection', (event) => {
     try {
-      const reason: any = (event as any)?.reason;
-      const msg = typeof reason === 'string' ? reason : reason?.message || String(reason);
-      const stack = typeof reason?.stack === 'string' ? reason.stack : undefined;
+      const reasonUnknown = (event as { reason?: unknown })?.reason;
+      const msg =
+        typeof reasonUnknown === 'string'
+          ? reasonUnknown
+          : (reasonUnknown as { message?: unknown })?.message
+            ? String((reasonUnknown as { message?: unknown }).message)
+            : String(reasonUnknown);
+      const stack =
+        typeof (reasonUnknown as { stack?: unknown })?.stack === 'string'
+          ? ((reasonUnknown as { stack?: string }).stack as string)
+          : undefined;
       clientLogger.error(`[UNHANDLED-REJECTION] ${msg}` + (stack ? `\n${stack}` : ''), {
         source: 'client',
         action: 'unhandled_rejection',

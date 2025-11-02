@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD051 -->
+
 # Evolution Hub Security Documentation
 
 [![Security Status](https://img.shields.io/badge/Security-Enhanced-brightgreen)](https://github.com/LucasBonnerue/evolution-hub)
@@ -8,29 +10,43 @@ Diese Dokumentation bietet einen umfassenden Überblick über die Sicherheitsma�
 
 ## Inhaltsverzeichnis
 
-1. [Überblick](#überblick)
-2. [Implementierte Security-Features](#implementierte-security-features)
+1. [Überblick](#uberblick)
+1. [Implementierte Security-Features](#implementierte-security-features)
+
    - [Rate-Limiting](#1-rate-limiting)
+
    - [Security-Headers](#2-security-headers)
+
    - [Audit-Logging](#3-audit-logging)
+
    - [Input-Validierung](#4-input-validierung)
+
    - [Datenschutz](#5-datenschutz)
-3. [API-Endpunkte und Security-Features](#api-endpunkte-und-security-features)
+
+1. [API-Endpunkte und Security-Features](#api-endpunkte-und-security-features)
+
    - [Authentifizierungs-APIs](#authentifizierungs-apis)
+
    - [Benutzer-APIs](#benutzer-apis)
+
    - [Projekt-APIs](#projekt-apis)
+
    - [Dashboard-APIs](#dashboard-apis)
-   - [Öffentliche APIs](#öffentliche-apis)
-4. [Sicherheitsrichtlinien](#sicherheitsrichtlinien)
-5. [Bekannte Sicherheitsprobleme](#bekannte-sicherheitsprobleme)
-6. [Empfehlungen für zukünftige Verbesserungen](#empfehlungen-für-zukünftige-verbesserungen)
+
+   - [Öffentliche APIs](#offentliche-apis)
+
+1. [Sicherheitsrichtlinien](#sicherheitsrichtlinien)
+1. [Bekannte Sicherheitsprobleme](#bekannte-sicherheitsprobleme)
+1. [Empfehlungen für zukünftige Verbesserungen](#empfehlungen-fur-zukunftige-verbesserungen)
 
 ## Überblick
 
 Evolution Hub implementiert mehrschichtige Sicherheitsmaßnahmen, die auf bewährten Branchenstandards und Best Practices basieren. Die Sicherheitsarchitektur umfasst:
 
 - **Präventive Maßnahmen**: Rate-Limiting, Security-Headers, Input-Validierung
+
 - **Detektive Maßnahmen**: Umfassendes Audit-Logging, Fehlerprotokollierung
+
 - **Reaktive Maßnahmen**: Strukturierte Fehlerbehandlung, Benutzerbenachrichtigungen
 
 Alle API-Endpunkte wurden systematisch mit diesen Sicherheitsmaßnahmen ausgestattet und umfassend getestet.
@@ -44,10 +60,15 @@ Ein flexibles Rate-Limiting-System schützt die API vor Brute-Force- und DoS-Ang
 #### Technische Details
 
 - **Implementierung**: `src/lib/rate-limiter.ts`
+
 - **Speicherung**: In-Memory-Store mit konfigurierbaren Zeitfenstern und Anfragelimits
+
 - **Konfigurierbare Limiter**:
+
   - `standardApiLimiter`: 50 Anfragen/Minute für normale API-Endpunkte
+
   - `authLimiter`: 10 Anfragen/Minute für Authentifizierungs-Endpunkte
+
   - `sensitiveActionLimiter`: 5 Anfragen/Stunde für besonders sensible Aktionen
 
 #### Verwendung im Code
@@ -62,7 +83,8 @@ export const POST: APIRoute = async (context) => {
   
   // Normale API-Logik...
 }
-```
+
+```text
 
 #### Antwort bei überschrittenem Limit
 
@@ -81,30 +103,44 @@ Dazu werden entsprechende HTTP-Header gesetzt:
 Status: 429 Too Many Requests
 Content-Type: application/json
 Retry-After: 45
-```
+
+```text
 
 ### 2. Security-Headers
 
 Ein umfassendes System zur Anwendung von Sicherheits-HTTP-Headern minimiert gängige Web-Sicherheitsrisiken.
 
-#### Technische Details
+#### Technische Details (2)
 
 - **Implementierung**: `src/lib/security-headers.ts`
+
 - **Standardisierte Header-Sets**:
+
   - `standardSecurityHeaders`: Basis-Sicherheitsheader für alle Antworten
+
   - `apiSecurityHeaders`: Erweiterte Header speziell für API-Endpunkte
+
 - **Implementierte Header**:
+
   - Content-Security-Policy
+
   - X-Frame-Options
+
   - X-Content-Type-Options
+
   - X-XSS-Protection
+
   - Referrer-Policy
+
   - Strict-Transport-Security
+
   - Permissions-Policy
+
   - Cross-Origin-Opener-Policy
+
   - Cross-Origin-Embedder-Policy
 
-#### Verwendung im Code
+#### Verwendung im Code (2)
 
 ```typescript
 import { applySecurityHeaders } from '@/lib/security-headers';
@@ -124,30 +160,45 @@ export const GET: APIRoute = async (context) => {
 
 Ein **zentrales Hybrid-Logging-System** protokolliert sicherheitsrelevante Ereignisse einheitlich und bietet **Live-Streaming** für optimales Monitoring.
 
-#### Technische Details
+#### Technische Details (2) (2)
 
 - **Implementierung**:
+
   - `src/lib/security-logger.ts` - Security-spezifische Logging-Funktionen
+
   - `src/server/utils/logger.ts` - Zentraler Hybrid-Logger mit Environment-Detection
+
   - `src/components/ui/DebugPanel.tsx` - Live Debug Panel mit WebSocket/SSE-Streaming
+
   - `/api/debug/logs-stream` - SSE-Endpoint für Cloudflare-Umgebungen
 
 - **Hybrid-Architektur**:
+
   - **Astro Dev** (`npm run dev`): WebSocket Live-Streaming (Real-time)
+
   - **Wrangler Dev** (`npm run dev:wrangler`): SSE Live-Streaming (Near real-time)
+
   - **Production**: Console-Logging mit Cloudflare Analytics-Integration
 
 - **Event-Typen**:
+
   - AUTH_SUCCESS: Erfolgreiche Authentifizierung
+
   - AUTH_FAILURE: Fehlgeschlagene Authentifizierung
+
   - PROFILE_UPDATE: Profilaktualisierungen
+
   - PERMISSION_DENIED: Zugriffsverweigerungen
+
   - RATE_LIMIT_EXCEEDED: Überschrittene Rate-Limits
+
   - SUSPICIOUS_ACTIVITY: Verdächtige Aktivitäten
+
   - API_ERROR: API-Fehler mit Sicherheitsrelevanz
+
   - API_ACCESS: Allgemeine API-Zugriffe und Benutzeraktivitäten
 
-#### Verwendung im Code
+#### Verwendung im Code (2) (2)
 
 ```typescript
 import { logApiAccess, logAuthFailure } from '@/lib/security-logger';
@@ -175,19 +226,25 @@ export const POST: APIRoute = async (context) => {
     return errorResponse;
   }
 }
-```
+
+```text
 
 ### 4. Input-Validierung
 
 Strenge Input-Validation schützt vor Injection-Angriffen und Datenmanipulation.
 
-#### Technische Details
+#### Technische Details (3)
 
 - **Implementierung**: Kombiniert mit API-spezifischer Validierungslogik
+
 - **Validierungstypen**:
+
   - Typ-Validierung (TypeScript)
+
   - Schema-Validierung (JSON-Schema)
+
   - Sanitisierung von Benutzereingaben
+
   - Whitelist-Filterung für erlaubte Felder
 
 #### Beispiel für Whitelist-Filterung
@@ -209,10 +266,12 @@ return secureJsonResponse({ user: safeUser }, 200);
 
 Maßnahmen zum Schutz sensibler Benutzerdaten.
 
-#### Technische Details
+#### Technische Details (3) (2)
 
 - **Kein Passwort-Hashing**: System verwendet Stytch Magic Link, keine Passwörter im System
+
 - **Datenfilterung**: Sensible Daten werden vor der Rückgabe gefiltert
+
 - **Vermeidung von User-Enumeration**: Konsistente Antworten unabhängig vom Benutzerexistenz-Status
 
 ## API-Endpunkte und Security-Features
@@ -261,22 +320,31 @@ Maßnahmen zum Schutz sensibler Benutzerdaten.
 ### Session-Management
 
 - Session ausschließlich über HttpOnly-Cookie `__Host-session` (Secure, SameSite=Strict, Path=/)
+
 - Keine clientseitige Speicherung von Tokens im localStorage oder sessionStorage
+
 - Sichere Cookie-Attribute erzwungen
+
 - Session-Timeout-Strategie über Server-Seite konfiguriert
 
 ### Fehlerbehandlung
 
 - Keine sensiblen Informationen in Fehlermeldungen
+
 - Konsistente Fehlerstruktur für alle API-Endpunkte
+
 - Detaillierte interne Fehlerprotokolle
+
 - Generische Fehlermeldungen für Benutzer
 
 ### Datenschutz
 
 - Minimale Datenspeicherung (nur notwendige Daten)
+
 - Datenfilterung vor der Rückgabe an den Client
+
 - Verschlüsselte Übertragung (HTTPS)
+
 - Regelmäßige Datenlöschung für inaktive Konten
 
 ## Bekannte Sicherheitsprobleme
@@ -294,17 +362,17 @@ Maßnahmen zum Schutz sensibler Benutzerdaten.
 ### Kurzfristige Verbesserungen
 
 1. **Rate-Limiting-Persistenz**: Umstellung des In-Memory-Stores auf eine persistente Lösung (D1)
-2. **Erweiterte Logging-Analyse**: Implementierung eines Dashboards zur Überwachung von Sicherheitsereignissen
-3. **Spezifischere Fehlerbehandlung**: Verbesserung der Fehlerbehandlung für kritische APIs
+1. **Erweiterte Logging-Analyse**: Implementierung eines Dashboards zur Überwachung von Sicherheitsereignissen
+1. **Spezifischere Fehlerbehandlung**: Verbesserung der Fehlerbehandlung für kritische APIs
 
 ### Mittelfristige Verbesserungen
 
 1. **Zwei-Faktor-Authentifizierung**: Implementierung von 2FA für erhöhte Kontosicherheit
-2. **Geolocation-basiertes Blocking**: Blockieren von verdächtigen IP-Ranges und Regionen
-3. **Automatisierte Security-Scans**: Integration von OWASP ZAP oder ähnlichen Tools in die CI/CD-Pipeline
+1. **Geolocation-basiertes Blocking**: Blockieren von verdächtigen IP-Ranges und Regionen
+1. **Automatisierte Security-Scans**: Integration von OWASP ZAP oder ähnlichen Tools in die CI/CD-Pipeline
 
 ### Langfristige Verbesserungen
 
 1. **Security-Monitoring-System**: Echtzeit-Überwachung und Benachrichtigung bei verdächtigen Aktivitäten
-2. **Erweiterte Berechtigungsmodelle**: Feinkörnigere Zugriffskontrollen und Rollenbasierte Berechtigungen
-3. **Regelmäßige Penetrationstests**: Externe Sicherheitsüberprüfungen durch Experten
+1. **Erweiterte Berechtigungsmodelle**: Feinkörnigere Zugriffskontrollen und Rollenbasierte Berechtigungen
+1. **Regelmäßige Penetrationstests**: Externe Sicherheitsüberprüfungen durch Experten

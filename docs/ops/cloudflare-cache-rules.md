@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD051 -->
+
 # Cloudflare Cache Rules — CI & Staging
 
 ## Summary
@@ -5,12 +7,19 @@
 This document records the cache rules configured via Cloudflare Rulesets for our CI and Staging hosts. We use plan‑compatible expressions (no `matches` operator) and restrict rules by host to avoid impacting Production.
 
 - Host: `ci.hub-evolution.com`
+
   - Session bypass (cookies)
+
   - Login/Dashboard/Welcomes bypass
+
   - API bypass
+
   - Manual bypass via `__no_cache`
+
 - Host: `staging.hub-evolution.com`
+
   - API bypass
+
   - Manual bypass via `__no_cache`
 
 Ruleset Phase: `http_request_cache_settings`
@@ -23,7 +32,8 @@ Ruleset ID (current zone): see verify step below.
 ```text
 (http.host eq "ci.hub-evolution.com")
 and ((http.cookie contains "session_id=") or (http.cookie contains "__Host-session="))
-```
+
+```text
 
 Action: set_cache_settings → `{ cache: false }`
 
@@ -48,7 +58,8 @@ Action: `{ cache: false }`
 ```text
 (http.host eq "ci.hub-evolution.com")
 and starts_with(http.request.uri.path, "/api/")
-```
+
+```text
 
 Action: `{ cache: false }`
 
@@ -68,7 +79,8 @@ Action: `{ cache: false }`
 ```text
 (http.host eq "staging.hub-evolution.com")
 and starts_with(http.request.uri.path, "/api/")
-```
+
+```text
 
 Action: `{ cache: false }`
 
@@ -86,17 +98,23 @@ Action: `{ cache: false }`
 Prereqs:
 
 - API Token with permissions:
+
   - Zone → Cache Rules: Edit
+
   - Zone → Zone: Read
+
   - Account → Rulesets: Edit
+
   - Account → Filter Lists: Edit
+
 - Env:
 
 ```bash
 export TOKEN='...'
 export ZONE_ID='14c984ebb05270de08cb82d316f1ba36'
 BASE='https://api.cloudflare.com/client/v4'
-```
+
+```bash
 
 Resolve ruleset id:
 
@@ -113,7 +131,8 @@ List rules (compact):
 curl -fsS -H "Authorization: Bearer $TOKEN" \
   "$BASE/zones/$ZONE_ID/rulesets/$RID" \
   | jq '.result.rules | map({desc: .description, expr: .expression})'
-```
+
+```bash
 
 Update rules (append):
 
@@ -133,7 +152,8 @@ jq -s '{rules: (.[0] + .[1])}' existing-rules.json new-rules.json > update-paylo
 curl -sS -X PUT -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
   --data @update-payload.json "$BASE/zones/$ZONE_ID/rulesets/$RID" \
   | jq '.success,.errors'
-```
+
+```bash
 
 ## Verification
 
@@ -147,17 +167,27 @@ curl -sD - 'https://staging.hub-evolution.com/api/health' -o /dev/null \
 - Static asset (best shows CF-Cache-Status):
 
 ```bash
+
 # without manual bypass
+
 curl -sI 'https://staging.hub-evolution.com/favicon.ico' \
   | egrep -i 'HTTP/|cf-cache-status|age'
+
 # with manual bypass
+
 curl -sI 'https://staging.hub-evolution.com/favicon.ico?__no_cache=1' \
   | egrep -i 'HTTP/|cf-cache-status|age'
-```
+
+```text
 
 ## Notes & Constraints
 
 - Free plan does not permit `matches` operator; use `eq`/`starts_with`/`contains`.
+
 - Host scoping ensures Production remains unaffected.
+
 - For Worker/SSR responses, `CF-Cache-Status` may be absent even when a bypass rule exists; confirm via ruleset listing or test with static assets.
+
 - Rotate tokens after use.
+
+```text

@@ -17,31 +17,40 @@ export const aiImageParamsSchema = z
       .string()
       .min(1)
       .refine((v) => allowedSlugSet.has(v), 'Unsupported model'),
-    scale: z.preprocess((val) => {
-      const v = emptyToUndefined(val);
-      if (typeof v === 'string') {
-        const n = Number(v);
-        if (!Number.isFinite(n)) return undefined;
-        return n;
-      }
-      if (typeof v === 'number') {
-        if (!Number.isFinite(v)) return undefined;
+    scale: z.preprocess(
+      (val) => {
+        const v = emptyToUndefined(val);
+        if (typeof v === 'string') {
+          const n = Number(v);
+          if (!Number.isFinite(n)) return undefined;
+          return n;
+        }
+        if (typeof v === 'number') {
+          if (!Number.isFinite(v)) return undefined;
+          return v;
+        }
         return v;
-      }
-      return v;
-    }, z.union([z.undefined(), z.number().int().refine((n) => n === 2 || n === 4, "Unsupported value for 'scale'")])),
-    face_enhance: z.preprocess((val) => {
-      if (typeof val === 'string') {
-        const v = val.trim().toLowerCase();
-        if (v === 'true' || v === '1' || v === 'on' || v === 'yes') return true;
-        if (v === 'false' || v === '0' || v === 'off' || v === 'no') return false;
-      }
-      return emptyToUndefined(val);
-    }, z.union([z.undefined(), z.boolean()])),
-    prompt: z.preprocess(
-      emptyToUndefined,
-      z.union([z.undefined(), z.string().min(1).max(500)])
+      },
+      z.union([
+        z.undefined(),
+        z
+          .number()
+          .int()
+          .refine((n) => n === 2 || n === 4, "Unsupported value for 'scale'"),
+      ])
     ),
+    face_enhance: z.preprocess(
+      (val) => {
+        if (typeof val === 'string') {
+          const v = val.trim().toLowerCase();
+          if (v === 'true' || v === '1' || v === 'on' || v === 'yes') return true;
+          if (v === 'false' || v === '0' || v === 'off' || v === 'no') return false;
+        }
+        return emptyToUndefined(val);
+      },
+      z.union([z.undefined(), z.boolean()])
+    ),
+    prompt: z.preprocess(emptyToUndefined, z.union([z.undefined(), z.string().min(1).max(500)])),
     negative_prompt: z.preprocess(
       emptyToUndefined,
       z.union([z.undefined(), z.string().min(1).max(500)])

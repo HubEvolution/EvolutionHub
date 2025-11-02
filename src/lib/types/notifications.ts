@@ -70,7 +70,7 @@ export interface CreateNotificationRequest {
   type: NotificationType;
   title: string;
   message: string;
-  data?: Record<string, any>;
+  data?: TemplateVariables;
   priority?: NotificationPriority;
   expiresAt?: number;
 }
@@ -85,7 +85,7 @@ export interface UpdateNotificationSettingsRequest {
 export interface SendEmailRequest {
   to: string;
   templateName: string;
-  variables: Record<string, any>;
+  variables: TemplateVariables;
   priority?: number;
   scheduledFor?: number;
 }

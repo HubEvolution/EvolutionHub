@@ -9,7 +9,7 @@ type LogLevel = 'info' | 'warn' | 'error' | 'debug' | 'log';
 interface ClientLogContext {
   component?: string;
   action?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 interface QueuedEntry {
@@ -44,7 +44,7 @@ class ClientLogger {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-Debug-Log': '1' },
         body: JSON.stringify({ entries }),
-        keepalive: true as any, // tolerated; some environments ignore it
+        keepalive: true,
       });
     } catch {
       // Drop on failure; avoid loops/noise

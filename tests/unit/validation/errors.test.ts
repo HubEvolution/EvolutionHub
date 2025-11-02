@@ -4,10 +4,12 @@ import { formatZodError } from '@/lib/validation';
 
 describe('formatZodError', () => {
   it('formats field and form errors', () => {
-    const schema = z.object({
-      email: z.string().email(),
-      token: z.string().min(4),
-    }).refine(() => false, { message: 'form-level error' });
+    const schema = z
+      .object({
+        email: z.string().email(),
+        token: z.string().min(4),
+      })
+      .refine(() => false, { message: 'form-level error' });
 
     const parsed = schema.safeParse({ email: 'not-an-email', token: 'a' });
     expect(parsed.success).toBe(false);

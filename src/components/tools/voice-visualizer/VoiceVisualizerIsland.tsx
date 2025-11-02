@@ -1,6 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { VOICE_MIN_CHUNK_BYTES } from '@/config/voice';
-import Card from '@/components/ui/Card';
+import {
+  containerCls,
+  usageBarBgCls,
+  usageBarFillCls,
+  sectionTitleCls,
+} from '@/components/tools/shared/islandStyles';
 import { useMicrophone } from './hooks/useMicrophone';
 import VisualizerCanvas from './VisualizerCanvas';
 import { getVoiceUsage, postTranscribeChunk, type VoiceUsageInfo } from './api';
@@ -21,9 +26,10 @@ interface Strings {
 interface Props {
   strings: Strings;
   langHint?: string;
+  showHeader?: boolean;
 }
 
-export default function VoiceVisualizerIsland({ strings, langHint }: Props) {
+export default function VoiceVisualizerIsland({ strings, langHint, showHeader = false }: Props) {
   const [sessionId] = useState<string>(
     () => (crypto.randomUUID?.() ?? Math.random().toString(36).slice(2)) as string
   );
@@ -52,13 +58,7 @@ export default function VoiceVisualizerIsland({ strings, langHint }: Props) {
     return Math.min(100, (usage.used / Math.max(1, usage.limit)) * 100);
   }, [usage]);
 
-  const liveText = useMemo(() => {
-    const parts = streamCtl.state.partials?.length ? streamCtl.state.partials.join('\n') : '';
-    const final = streamCtl.state.final || '';
-    const streamOut = final || parts;
-    if (streamOut && transcript) return `${transcript}\n${streamOut}`;
-    return streamOut || transcript;
-  }, [streamCtl.state.partials, streamCtl.state.final, transcript]);
+  // removed unused liveText computation for lint cleanliness
 
   const [tick, setTick] = useState(0);
   useEffect(() => {
@@ -197,13 +197,15 @@ export default function VoiceVisualizerIsland({ strings, langHint }: Props) {
   }, [onData, processQueue]);
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6">
-      <div className="text-center">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{strings.title}</h1>
-        <p className="text-gray-600 dark:text-gray-300">{strings.description}</p>
-      </div>
+    <div className={containerCls}>
+      {showHeader && (
+        <div className="text-center">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{strings.title}</h1>
+          <p className="text-gray-600 dark:text-gray-300">{strings.description}</p>
+        </div>
+      )}
 
-      <Card variant="holo" className="p-6 space-y-4">
+      <div className="space-y-4 rounded-xl p-4 bg-white/70 dark:bg-slate-900/40 backdrop-blur-sm ring-1 ring-black/10 dark:ring-white/10">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <button
@@ -226,9 +228,9 @@ export default function VoiceVisualizerIsland({ strings, langHint }: Props) {
               <div className="text-blue-600 dark:text-blue-400 font-semibold">
                 {usage ? `${usage.used}/${usage.limit}` : strings.loading}
               </div>
-              <div className="w-28 h-2 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
+              <div className={usageBarBgCls}>
                 <div
-                  className={`h-full ${usagePercent > 80 ? 'bg-red-500' : usagePercent > 50 ? 'bg-yellow-500' : 'bg-blue-500'}`}
+                  className={usageBarFillCls(usagePercent)}
                   style={{ width: `${usagePercent}%` }}
                 />
               </div>
@@ -271,7 +273,7 @@ export default function VoiceVisualizerIsland({ strings, langHint }: Props) {
 
         <VisualizerCanvas
           stream={stream}
-          className="w-full rounded-md bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700"
+          className="w-full rounded-md bg-white/80 dark:bg-black/30"
         />
 
         {micError && <div className="text-sm text-red-600 dark:text-red-300">{micError}</div>}
@@ -282,25 +284,25 @@ export default function VoiceVisualizerIsland({ strings, langHint }: Props) {
               : err}
           </div>
         )}
-      </Card>
+      </div>
 
-      <Card variant="holo" className="p-6">
-        <h2 className="text-lg font-semibold mb-3">{strings.transcript}</h2>
+      <div className="rounded-xl p-4 bg-white/70 dark:bg-slate-900/40 backdrop-blur-sm ring-1 ring-black/10 dark:ring-white/10">
+        <h2 className={sectionTitleCls}>{strings.transcript}</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-1">
-            <div className="text-sm font-semibold text-gray-700 dark:text-gray-300">Final</div>
-            <div className="min-h-[100px] whitespace-pre-wrap text-gray-900 dark:text-gray-100 border rounded-md p-3 border-gray-200 dark:border-gray-700">
+            <div className="text-sm font-semibold text-gray-800 dark:text-gray-200">Final</div>
+            <div className="min-h-[100px] whitespace-pre-wrap text-gray-900 dark:text-gray-100 rounded-md p-3 bg-white/80 dark:bg-black/30">
               {streamCtl.state.final || transcript || '…'}
             </div>
           </div>
           <div className="space-y-1">
-            <div className="text-sm font-semibold text-gray-700 dark:text-gray-300">Live</div>
-            <div className="min-h-[100px] whitespace-pre-wrap text-gray-700 dark:text-gray-300 border rounded-md p-3 border-gray-200 dark:border-gray-700">
+            <div className="text-sm font-semibold text-gray-800 dark:text-gray-200">Live</div>
+            <div className="min-h-[100px] whitespace-pre-wrap text-gray-900 dark:text-gray-100 rounded-md p-3 bg-white/80 dark:bg-black/30">
               {streamCtl.state.partials?.length ? streamCtl.state.partials.join('\n') : '…'}
             </div>
           </div>
         </div>
-      </Card>
+      </div>
     </div>
   );
 }

@@ -43,10 +43,7 @@ const footerTools = allTools
 <footer class="relative glass-footer bg-transparent" role="contentinfo">
   <!-- Decorative elements -->
   <div class="absolute inset-0 overflow-hidden z-0">
-    <div
-      class="absolute inset-0 bg-gradient-to-b from-gray-900/90 to-black/90"
-      aria-hidden="true"
-    >
+    <div class="absolute inset-0 bg-gradient-to-b from-gray-900/90 to-black/90" aria-hidden="true">
     </div>
     <div
       class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB2aWV3Qm94PSIwIDAgMTAwIDEwMCIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJub25lIi8+CiAgPHBhdGggZD0iTTAgMEgxMDBWMTBIMFYwWk0wIDkwSDEwMFYxMDBIMFY5MFpNMCA0NUgxMDBWNTVIMFY0NVpNNDUgMEg1NVYxMEg0NVYwWk00NSA0NUg1NVY1NUg0NVY0NVpNNDUgOTBINTVWMTAwSDQ1VjkwWk0wIDIyLjVIMTAwVjMyLjVIMFYyMi41Wk0wIDY3LjVIMTAwVjc3LjVINlY2Ny41WiIgZmlsbD0icmdiYSgxNiwxODUsMTQ4LDAuMDUpIi8+Cjwvc3ZnPg==')] opacity-20"
@@ -73,52 +70,144 @@ const footerTools = allTools
 
         <!-- Social Links -->
         <div class="flex space-x-3 pt-2">
-          {socialLinks.github && (
-            <a href={socialLinks.github} class="text-current hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200" aria-label="GitHub" target="_blank" rel="noopener noreferrer">
-              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.699 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd"></path></svg>
-            </a>
-          )}
-          {socialLinks.x && (
-            <a href={socialLinks.x} class="text-current hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200" aria-label="X" target="_blank" rel="noopener noreferrer">
-              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 3H21l-6.52 7.46L22 21h-6.78l-4.24-5.19L5.9 21H3.14l7.06-8.07L2 3h6.86l3.84 4.73L18.24 3zm-1.19 16h1.63L7.04 5H5.35l11.71 14z"/></svg>
-            </a>
-          )}
-          {socialLinks.reddit && (
-            <a href={socialLinks.reddit} class="text-current hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200" aria-label="Reddit" target="_blank" rel="noopener noreferrer">
-              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M14.5 15.5c-.66 0-1.2-.54-1.2-1.2s.54-1.2 1.2-1.2 1.2.54 1.2 1.2-.54 1.2-1.2 1.2zm-5 0c-.66 0-1.2-.54-1.2-1.2s.54-1.2 1.2-1.2 1.2.54 1.2 1.2-.54 1.2-1.2 1.2z"/><path d="M22 12c0-1.1-.9-2-2-2-.6 0-1.13.26-1.5.67-1.15-.73-2.65-1.2-4.33-1.3l.73-3.43 2.38.5c.06.87.78 1.56 1.67 1.56.93 0 1.68-.75 1.68-1.68S20.88 4.62 19.95 4.62c-.6 0-1.13.31-1.43.78l-2.85-.6c-.19-.04-.38.09-.42.28l-.86 4.03c-1.76.02-3.36.49-4.56 1.23A2 2 0 004 10c-1.1 0-2 .9-2 2 0 .74.4 1.38 1 1.73-.02.18-.03.37-.03.56 0 2.49 3.13 4.51 7 4.51s7-2.02 7-4.51c0-.19-.01-.38-.03-.56.6-.35 1.03-.99 1.03-1.73zM8.5 17.2c1.02.68 2.47 1.11 4.08 1.11s3.06-.43 4.08-1.11c.17-.12.2-.34.08-.5a.36.36 0 00-.5-.08c-.9.6-2.2.98-3.66.98s-2.76-.38-3.66-.98a.36.36 0 00-.5.08c-.12.16-.09.38.08.5z"/></svg>
-            </a>
-          )}
-          {socialLinks.tiktok && (
-            <a href={socialLinks.tiktok} class="text-current hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200" aria-label="TikTok" target="_blank" rel="noopener noreferrer">
-              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 3h2.2c.25 1.6 1.28 2.97 2.7 3.7A7.6 7.6 0 0020 7.7v2.1a6.9 6.9 0 01-3.7-1.2v5.1c0 3.2-2.6 5.8-5.8 5.8S4.7 16.9 4.7 13.7s2.6-5.8 5.8-5.8c.3 0 .6 0 .9.1v2.3c-.3-.1-.6-.2-.9-.2-2 0-3.6 1.7-3.6 3.6s1.6 3.6 3.6 3.6 3.6-1.6 3.6-3.6V3z"/></svg>
-            </a>
-          )}
-          {socialLinks.instagram && (
-            <a href={socialLinks.instagram} class="text-current hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200" aria-label="Instagram" target="_blank" rel="noopener noreferrer">
-              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M7 2h10a5 5 0 015 5v10a5 5 0 01-5 5H7a5 5 0 01-5-5V7a5 5 0 015-5zm5 5a5 5 0 100 10 5 5 0 000-10zm6-1a1 1 0 100 2 1 1 0 000-2z"/></svg>
-            </a>
-          )}
-          {socialLinks.linkedin && (
-            <a href={socialLinks.linkedin} class="text-current hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200" aria-label="LinkedIn" target="_blank" rel="noopener noreferrer">
-              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M19 0H5C2.8 0 1 1.8 1 4v16c0 2.2 1.8 4 4 4h14c2.2 0 4-1.8 4-4V4c0-2.2-1.8-4-4-4zM8.3 19H5.6V9.3h2.7V19zM7 8.1c-.9 0-1.6-.8-1.6-1.7S6.1 4.7 7 4.7s1.6.8 1.6 1.7S7.9 8.1 7 8.1zM20 19h-2.7v-5.1c0-1.2-.4-2-1.5-2s-1.7.8-1.7 2V19h-2.7V9.3h2.6v1.3c.4-.8 1.5-1.4 2.6-1.4 2 0 3.4 1.3 3.4 4.1V19z"/></svg>
-            </a>
-          )}
-          {socialLinks.pinterest && (
-            <a href={socialLinks.pinterest} class="text-current hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200" aria-label="Pinterest" target="_blank" rel="noopener noreferrer">
-              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 00-3.6 19.3c-.1-.8-.2-2 .1-2.8.2-.8 1.5-5 1.5-5s-.4-.8-.4-2c0-1.9 1.1-3.2 2.4-3.2 1.2 0 1.9.9 1.9 2.1 0 1.3-.9 3.2-1.3 5-.4 1.5.7 2.8 2.2 2.8 2.7 0 4.8-2.8 4.8-6.9 0-3.6-2.6-6.1-6.3-6.1-4.3 0-6.8 3.2-6.8 6.4 0 1.3.5 2.7 1.1 3.5.1.1.1.1 0 .3-.1.3-.4 1-.5 1.1-.1.2-.2.3-.4.2-1.4-.6-2.3-2.6-2.3-4.2 0-3.5 2.5-6.8 7.6-6.8 4 0 7.2 2.8 7.2 6.7 0 4-2.5 7.2-6 7.2-1.2 0-2.3-.6-2.7-1.4 0 0-.6 2.4-.8 2.9-.3 1.1-1 2.2-1.6 3.1A10 10 0 1012 2z"/></svg>
-            </a>
-          )}
-          {socialLinks.facebook && (
-            <a href={socialLinks.facebook} class="text-current hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200" aria-label="Facebook" target="_blank" rel="noopener noreferrer">
-              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M22 12a10 10 0 10-11.56 9.87v-6.98H7.9V12h2.54V9.8c0-2.5 1.49-3.89 3.77-3.89 1.09 0 2.22.2 2.22.2v2.44h-1.25c-1.23 0-1.61.77-1.61 1.56V12h2.74l-.44 2.89h-2.3v6.98A10 10 0 0022 12z"/></svg>
-            </a>
-          )}
+          {
+            socialLinks.github && (
+              <a
+                href={socialLinks.github}
+                class="text-current hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200"
+                aria-label="GitHub"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                  <path
+                    fill-rule="evenodd"
+                    d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.699 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+              </a>
+            )
+          }
+          {
+            socialLinks.x && (
+              <a
+                href={socialLinks.x}
+                class="text-current hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200"
+                aria-label="X"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M18.244 3H21l-6.52 7.46L22 21h-6.78l-4.24-5.19L5.9 21H3.14l7.06-8.07L2 3h6.86l3.84 4.73L18.24 3zm-1.19 16h1.63L7.04 5H5.35l11.71 14z" />
+                </svg>
+              </a>
+            )
+          }
+          {
+            socialLinks.reddit && (
+              <a
+                href={socialLinks.reddit}
+                class="text-current hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200"
+                aria-label="Reddit"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                  <>
+                    <path d="M14.5 15.5c-.66 0-1.2-.54-1.2-1.2s.54-1.2 1.2-1.2 1.2.54 1.2 1.2-.54 1.2-1.2 1.2zm-5 0c-.66 0-1.2-.54-1.2-1.2s.54-1.2 1.2-1.2 1.2.54 1.2 1.2-.54 1.2-1.2 1.2z" />
+                    <path d="M22 12c0-1.1-.9-2-2-2-.6 0-1.13.26-1.5.67-1.15-.73-2.65-1.2-4.33-1.3l.73-3.43 2.38.5c.06.87.78 1.56 1.67 1.56.93 0 1.68-.75 1.68-1.68S20.88 4.62 19.95 4.62c-.6 0-1.13.31-1.43.78l-2.85-.6c-.19-.04-.38.09-.42.28l-.86 4.03c-1.76.02-3.36.49-4.56 1.23A2 2 0 004 10c-1.1 0-2 .9-2 2 0 .74.4 1.38 1 1.73-.02.18-.03.37-.03.56 0 2.49 3.13 4.51 7 4.51s7-2.02 7-4.51c0-.19-.01-.38-.03-.56.6-.35 1.03-.99 1.03-1.73zM8.5 17.2c1.02.68 2.47 1.11 4.08 1.11s3.06-.43 4.08-1.11c.17-.12.2-.34.08-.5a.36.36 0 00-.5-.08c-.9.6-2.2.98-3.66.98s-2.76-.38-3.66-.98a.36.36 0 00-.5.08c-.12.16-.09.38.08.5z" />
+                  </>
+                </svg>
+              </a>
+            )
+          }
+          {
+            socialLinks.tiktok && (
+              <a
+                href={socialLinks.tiktok}
+                class="text-current hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200"
+                aria-label="TikTok"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M13.5 3h2.2c.25 1.6 1.28 2.97 2.7 3.7A7.6 7.6 0 0020 7.7v2.1a6.9 6.9 0 01-3.7-1.2v5.1c0 3.2-2.6 5.8-5.8 5.8S4.7 16.9 4.7 13.7s2.6-5.8 5.8-5.8c.3 0 .6 0 .9.1v2.3c-.3-.1-.6-.2-.9-.2-2 0-3.6 1.7-3.6 3.6s1.6 3.6 3.6 3.6 3.6-1.6 3.6-3.6V3z" />
+                </svg>
+              </a>
+            )
+          }
+          {
+            socialLinks.instagram && (
+              <a
+                href={socialLinks.instagram}
+                class="text-current hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200"
+                aria-label="Instagram"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M7 2h10a5 5 0 015 5v10a5 5 0 01-5 5H7a5 5 0 01-5-5V7a5 5 0 015-5zm5 5a5 5 0 100 10 5 5 0 000-10zm6-1a1 1 0 100 2 1 1 0 000-2z" />
+                </svg>
+              </a>
+            )
+          }
+          {
+            socialLinks.linkedin && (
+              <a
+                href={socialLinks.linkedin}
+                class="text-current hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200"
+                aria-label="LinkedIn"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M19 0H5C2.8 0 1 1.8 1 4v16c0 2.2 1.8 4 4 4h14c2.2 0 4-1.8 4-4V4c0-2.2-1.8-4-4-4zM8.3 19H5.6V9.3h2.7V19zM7 8.1c-.9 0-1.6-.8-1.6-1.7S6.1 4.7 7 4.7s1.6.8 1.6 1.7S7.9 8.1 7 8.1zM20 19h-2.7v-5.1c0-1.2-.4-2-1.5-2s-1.7.8-1.7 2V19h-2.7V9.3h2.6v1.3c.4-.8 1.5-1.4 2.6-1.4 2 0 3.4 1.3 3.4 4.1V19z" />
+                </svg>
+              </a>
+            )
+          }
+          {
+            socialLinks.pinterest && (
+              <a
+                href={socialLinks.pinterest}
+                class="text-current hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200"
+                aria-label="Pinterest"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2a10 10 0 00-3.6 19.3c-.1-.8-.2-2 .1-2.8.2-.8 1.5-5 1.5-5s-.4-.8-.4-2c0-1.9 1.1-3.2 2.4-3.2 1.2 0 1.9.9 1.9 2.1 0 1.3-.9 3.2-1.3 5-.4 1.5.7 2.8 2.2 2.8 2.7 0 4.8-2.8 4.8-6.9 0-3.6-2.6-6.1-6.3-6.1-4.3 0-6.8 3.2-6.8 6.4 0 1.3.5 2.7 1.1 3.5.1.1.1.1 0 .3-.1.3-.4 1-.5 1.1-.1.2-.2.3-.4.2-1.4-.6-2.3-2.6-2.3-4.2 0-3.5 2.5-6.8 7.6-6.8 4 0 7.2 2.8 7.2 6.7 0 4-2.5 7.2-6 7.2-1.2 0-2.3-.6-2.7-1.4 0 0-.6 2.4-.8 2.9-.3 1.1-1 2.2-1.6 3.1A10 10 0 1012 2z" />
+                </svg>
+              </a>
+            )
+          }
+          {
+            socialLinks.facebook && (
+              <a
+                href={socialLinks.facebook}
+                class="text-current hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200"
+                aria-label="Facebook"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M22 12a10 10 0 10-11.56 9.87v-6.98H7.9V12h2.54V9.8c0-2.5 1.49-3.89 3.77-3.89 1.09 0 2.22.2 2.22.2v2.44h-1.25c-1.23 0-1.61.77-1.61 1.56V12h2.74l-.44 2.89h-2.3v6.98A10 10 0 0022 12z" />
+                </svg>
+              </a>
+            )
+          }
         </div>
       </div>
 
       <!-- Quick Links -->
       <nav aria-labelledby="footer-quick-links">
-        <h3 id="footer-quick-links" class="text-xs font-semibold text-gray-900 dark:text-white uppercase tracking-wider mb-2">{t('footer.quick')}</h3>
+        <h3
+          id="footer-quick-links"
+          class="text-xs font-semibold text-gray-900 dark:text-white uppercase tracking-wider mb-2"
+        >
+          {t('footer.quick')}
+        </h3>
         <ul class="space-y-3">
           <li>
             <a
@@ -237,7 +326,12 @@ const footerTools = allTools
 
       <!-- Rechtliches -->
       <nav aria-labelledby="footer-legal">
-        <h3 id="footer-legal" class="text-xs font-semibold text-gray-900 dark:text-white uppercase tracking-wider mb-2">{t('footer.legal')}</h3>
+        <h3
+          id="footer-legal"
+          class="text-xs font-semibold text-gray-900 dark:text-white uppercase tracking-wider mb-2"
+        >
+          {t('footer.legal')}
+        </h3>
         <ul class="space-y-3">
           <li>
             <a
@@ -322,7 +416,9 @@ const footerTools = allTools
                   stroke-width="2"
                   d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
               </svg>
-              <span class="group-hover:translate-x-1 transition-transform duration-200">{t('footer.cookie_settings')}</span>
+              <span class="group-hover:translate-x-1 transition-transform duration-200"
+                >{t('footer.cookie_settings')}</span
+              >
             </a>
           </li>
         </ul>

@@ -14,6 +14,14 @@ on:
           - staging
           - production
         default: 'staging'
+      skip_linters:
+        description: 'Temporarily skip lint and format checks (one-off release)'
+        required: false
+        type: choice
+        options:
+          - '0'
+          - '1'
+        default: '0'
 
 permissions:
   contents: write
@@ -39,9 +47,11 @@ jobs:
         run: npm run -s security:scan
 
       - name: Run Lint
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.skip_linters != '1' }}
         run: npm run lint
 
       - name: Run Format Check
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.skip_linters != '1' }}
         run: npm run format:check
 
       - name: Run TypeScript Check

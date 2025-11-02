@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD051 -->
+
 # Hybrid Logging System - Evolution Hub
 
 ![Logging Banner](../public/assets/svg/monitoring.svg)
@@ -9,16 +11,16 @@ Das Evolution Hub Hybrid-Logging-System bietet **umfassendes Live-Log-Streaming*
 
 ## Inhaltsverzeichnis
 
-1. [Überblick](#überblick)
-2. [Architektur](#architektur)
-3. [Komponenten](#komponenten)
-4. [Verwendung](#verwendung)
-5. [Environment-Unterstützung](#environment-unterstützung)
-6. [API-Integration](#api-integration)
-7. [Debug Panel](#debug-panel)
-8. [Konfiguration](#konfiguration)
-9. [Troubleshooting](#troubleshooting)
-10. [Best Practices](#best-practices)
+1. [Überblick](#uberblick)
+1. [Architektur](#architektur)
+1. [Komponenten](#komponenten)
+1. [Verwendung](#verwendung)
+1. [Environment-Unterstützung](#environment-unterstutzung)
+1. [API-Integration](#api-integration)
+1. [Debug Panel](#debug-panel)
+1. [Konfiguration](#konfiguration)
+1. [Troubleshooting](#troubleshooting)
+1. [Best Practices](#best-practices)
 
 ---
 
@@ -29,11 +31,17 @@ Das **Hybrid-Logging-System** von Evolution Hub ist eine **vollständig integrie
 ### Kernfeatures
 
 - ✅ **Environment-Adaptive Technologie**: Automatische Umgebungserkennung
+
 - ✅ **WebSocket Live-Streaming**: Real-time Logs für Astro Dev (`npm run dev`)
+
 - ✅ **SSE Live-Streaming**: Near real-time Logs für Wrangler Dev (`npm run dev:wrangler`)
+
 - ✅ **Centralized Logging**: Einheitliche Logging-API für alle Anwendungskomponenten
+
 - ✅ **Security Integration**: Vollständige Integration mit Security-Event-Logging
+
 - ✅ **Visual Debug Panel**: Live-Monitoring-Dashboard mit Connection-Status
+
 - ✅ **TypeScript-First**: Vollständig typisiert für maximale Entwicklerproduktivität
 
 ---
@@ -45,19 +53,25 @@ Das Hybrid-Logging-System basiert auf einer **dreischichtigen Architektur**:
 ### 1. Core Logger Layer
 
 - **`src/server/utils/logger.ts`**: Zentraler Logger mit Environment-Detection
+
 - **Dual-Mode Broadcasting**: WebSocket oder SSE basierend auf Umgebung
+
 - **Memory Management**: Effiziente Log-Buffer-Verwaltung für Edge Runtime
 
 ### 2. Transport Layer
 
 - **WebSocket Server**: `src/server/websocket/logServer.ts` (Port 8081)
+
 - **SSE API Endpoint**: `/api/debug/logs-stream` für Cloudflare-Umgebungen
+
 - **Polling Fallback**: POST-Endpoint für Environments ohne SSE-Support
 
 ### 3. Presentation Layer
 
 - **Debug Panel**: `src/components/ui/DebugPanel.tsx` mit Hybrid-Connection-Logic
+
 - **Auto-Connection**: Automatische Verbindungsart-Erkennung und Fallback
+
 - **Visual Status**: Real-time Connection-Status und Log-Level-Badges
 
 ---
@@ -76,7 +90,8 @@ log('info', 'User action completed', { userId: 123, action: 'profile_update' });
 log('error', 'Database connection failed', { error: error.message, retries: 3 });
 log('warn', 'High memory usage detected', { memoryUsage: '85%', threshold: '80%' });
 log('debug', 'Request processing started', { endpoint: '/api/user/profile', method: 'PUT' });
-```
+
+```bash
 
 **Environment-Detection:**
 
@@ -97,7 +112,8 @@ import { logAuthSuccess, logApiError, logPermissionDenied } from '@/lib/security
 logAuthSuccess('user-123', '192.168.1.100', { method: 'POST', endpoint: '/api/login' });
 logApiError('/api/users/profile', { statusCode: 404, message: 'User not found' });
 logPermissionDenied('user-789', '/admin/dashboard', { reason: 'Insufficient privileges' });
-```
+
+```text
 
 ### Debug Panel (`src/components/ui/DebugPanel.tsx`)
 
@@ -106,11 +122,17 @@ logPermissionDenied('user-789', '/admin/dashboard', { reason: 'Insufficient priv
 **Features:**
 
 - **Auto-Environment-Detection**: Erkennt automatisch Astro vs. Wrangler
+
 - **WebSocket-First-Strategie**: Versucht zuerst WebSocket, dann SSE-Fallback
+
 - **Visual Connection-Status**:
+
   - 🟢 **WEBSOCKET**: Grünes Badge für Real-time Streaming
+
   - 🔵 **SSE**: Blaues Badge für Near real-time Streaming
+
   - 🟠 **POLLING**: Orange Badge für Fallback-Modus
+
 - **Live Status Indicator**: Animierter grüner Punkt für aktive Verbindungen
 
 ---
@@ -160,7 +182,8 @@ export const POST: APIRoute = async (context) => {
     return new Response('Internal Server Error', { status: 500 });
   }
 };
-```
+
+```text
 
 ### 3. Security-Event-Integration
 
@@ -191,18 +214,25 @@ if (validCredentials) {
 **Connection-Modus:** WebSocket Real-time Streaming
 
 ```bash
+
 # Startet automatisch WebSocket Server auf Port 8081
+
 npm run dev
 
 # Debug Panel: http://localhost:4322/debug
+
 # Connection-Badge: 🟢 WEBSOCKET
+
 # Latenz: <10ms (Real-time)
-```
+
+```bash
 
 **Features:**
 
 - ✅ **Echter Real-time Stream**: WebSocket-basiert, <10ms Latenz
+
 - ✅ **Hot Module Replacement**: Logs während Code-Changes verfügbar
+
 - ✅ **Bidirektionale Kommunikation**: WebSocket ermöglicht erweiterte Funktionen
 
 ### Wrangler Development (`npm run dev:wrangler`)
@@ -221,7 +251,9 @@ npm run dev:wrangler
 **Features:**
 
 - ✅ **Cloudflare Edge-kompatibel**: Funktioniert in Workers/Pages Runtime
+
 - ✅ **Automatic Fallback**: Polling-Fallback für Environments ohne SSE
+
 - ✅ **Memory-efficient**: Log-Buffer mit Auto-Cleanup für Edge-Constraints
 
 ---
@@ -241,14 +273,19 @@ logAuthSuccess(user.id, clientAddress, loginContext);
 
 // Login-Fehler → Live-Stream ins Debug Panel  
 logAuthFailure(clientAddress, { reason: 'invalid_password', endpoint: '/api/auth/login' });
-```
+
+```text
 
 **Integrierte API-Categories:**
 
 - ✅ **Authentication APIs**: `/api/auth/*` (Login, Register, Password Reset)
+
 - ✅ **User Management APIs**: `/api/user/*` (Profile, Settings, Preferences)
+
 - ✅ **Dashboard APIs**: `/api/dashboard/*` (Stats, Activities, Notifications)
+
 - ✅ **Project APIs**: `/api/projects/*` (CRUD, Members, Settings)
+
 - ✅ **Public APIs**: `/api/public/*` (Comments, Tools, Blog Content)
 
 ### Live-Activity-Beispiele
@@ -275,7 +312,8 @@ Das Debug Panel bietet eine **intuitive Benutzeroberfläche** für Live-Log-Moni
 
 ```text
 🎛️ Debugging Panel                           🟢 WEBSOCKET ●
-```
+
+```text
 
 #### Log-Entry-Format
 
@@ -289,9 +327,13 @@ Das Debug Panel bietet eine **intuitive Benutzeroberfläche** für Live-Log-Moni
 #### Features
 
 - **Timestamp-Display**: Präzise Zeitstempel für jede Log-Entry
+
 - **Log-Level-Badges**: Farbkodierte Level-Anzeigen (INFO/WARN/ERROR/DEBUG)
+
 - **Auto-Scroll**: Automatisches Scrollen zu neuen Log-Entries
+
 - **Connection-Indicator**: Live-Status der Streaming-Verbindung
+
 - **Entry-Limit**: Maximale 500 Entries im Client (Memory-Management)
 
 ---
@@ -311,7 +353,8 @@ export default defineConfig({
     environment: 'development'
   }
 });
-```
+
+```text
 
 ### SSE-Endpoint-Konfiguration
 
@@ -327,17 +370,21 @@ const SSE_CONFIG = {
 ### Environment-Variables
 
 ```bash
+
 # .env - Development-Konfiguration
+
 NODE_ENV=development
 LOGGING_WEBSOCKET_PORT=8081
 LOGGING_WEBSOCKET_HOST=localhost
 LOGGING_MAX_BUFFER_SIZE=100
 
 # Wrangler-spezifische Variablen
+
 WRANGLER_REMOTE=false
 CF_PAGES_BRANCH=preview
 CLOUDFLARE_ENVIRONMENT=development
-```
+
+```bash
 
 ---
 
@@ -372,15 +419,19 @@ curl -N http://localhost:8787/api/debug/logs-stream
 **Lösung:**
 
 ```bash
+
 # Prüfe Port-Verfügbarkeit
+
 lsof -i :8081
 
 # Neu-Start der Development-Server
+
 npm run dev        # Für Astro
 npm run dev:wrangler   # Für Wrangler
 
 # Browser-Cache leeren und Debug Panel neu laden
-```
+
+```text
 
 #### 3. Logs erscheinen nur in Console, nicht im Panel
 
@@ -415,7 +466,8 @@ log('info', 'User profile updated', {
 
 // ❌ Schlecht - Unstrukturierte String-Nachrichten  
 log('info', `User ${user.id} updated profile with email ${user.email}`);
-```
+
+```text
 
 ### 2. Appropriate Log Levels
 
@@ -450,7 +502,8 @@ log('info', 'Password reset', {
   token: resetToken,           // ❌ Niemals Security-Token loggen  
   creditCard: user.creditCard  // ❌ Niemals Finanz-Daten loggen
 });
-```
+
+```text
 
 ### 4. Performance Considerations
 
@@ -490,7 +543,8 @@ try {
   
   throw error;  // Re-throw für höhere Schichten
 }
-```
+
+```bash
 
 ---
 
@@ -519,10 +573,13 @@ if (isProduction()) {
   // Logs gehen an Cloudflare Analytics statt Debug Panel
   log('info', 'Production event', context);
 }
-```
+
+```text
 
 ---
 
 **🎉 Das Evolution Hub Hybrid-Logging-System ist bereit für maximale Developer Productivity!**
 
 Für weitere Fragen oder Support, siehe die [lokale Entwicklungsdokumentation](./local-development.md) oder die [Sicherheitsdokumentation](../SECURITY.md).
+
+```text

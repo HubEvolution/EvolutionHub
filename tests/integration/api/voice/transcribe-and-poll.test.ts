@@ -42,6 +42,17 @@ describe('POST /api/voice/transcribe + GET /api/voice/poll', () => {
       redirect: 'manual',
     });
 
+    // Temporary debug aid: print error body when status != 200
+    if (res.status !== 200) {
+      try {
+        // eslint-disable-next-line no-console
+        console.log('voice transcribe body:', await res.text());
+      } catch (e: any) {
+        // eslint-disable-next-line no-console
+        console.log('voice transcribe body (read error):', e?.message || e);
+      }
+    }
+
     expect(res.status).toBe(200);
     const json = (await res.json()) as
       | ApiSuccess<{ jobId: string; text: string; usage: { used: number } }>

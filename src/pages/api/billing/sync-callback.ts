@@ -1,11 +1,12 @@
+import type { APIContext } from 'astro';
 import { withRedirectMiddleware } from '@/lib/api-middleware';
 import { createSecureRedirect, createSecureErrorResponse } from '@/lib/response-helpers';
 
 export const GET = withRedirectMiddleware(
-  async (context) => {
+  async (context: APIContext) => {
     const { locals, request, cookies } = context;
     const url = new URL(request.url);
-    const env: any = locals?.runtime?.env ?? {};
+    const rawEnv = (locals?.runtime?.env ?? {}) as Record<string, unknown>;
 
     // Accept either session_id or cs as parameter
     const sessionId = url.searchParams.get('session_id') || url.searchParams.get('cs') || '';
@@ -14,7 +15,10 @@ export const GET = withRedirectMiddleware(
     // If no sessionId is provided, we still proceed to link-pending flow
     // so unauthenticated checkouts can be associated via webhook-pending mapping.
 
-    const baseUrl: string = env.BASE_URL || `${url.protocol}//${url.host}`;
+    const baseUrl: string =
+      (typeof (rawEnv as { BASE_URL?: string }).BASE_URL === 'string'
+        ? ((rawEnv as { BASE_URL?: string }).BASE_URL as string)
+        : '') || `${url.protocol}//${url.host}`;
     const user = locals.user;
 
     const dest = sessionId

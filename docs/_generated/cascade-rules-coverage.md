@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD051 -->
+
 # Cascade Rules Coverage — Stand: 2025-10-21T17:09:59.108Z
 
 ## Regeln: Scope-Globs, Treffer, Activation, Priority
@@ -72,5 +74,7 @@ Hinweis: Globs wurden aus den jeweiligen Regeltexten abgeleitet. 0-Treffer sind 
 Quelle:
 
 - Regeln: `.windsurf/rules/*.md`
+
 - Skripte: `package.json`
+
 - Referenz: `global_rules.md`

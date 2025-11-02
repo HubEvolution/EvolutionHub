@@ -82,7 +82,7 @@ export async function buildAttachmentContext(
 // Upload PDFs to OpenAI Files API for use with Responses API (file_search)
 // Mutates the given context.pdfs to include fileId.
 export async function uploadPdfFilesToProvider(
-  openai: import('openai').default,
+  openai: { files: { create: (args: { file: File; purpose: string }) => Promise<{ id: string }> } },
   ctx: PreparedAttachments,
   log?: {
     info?: (event: string, data?: unknown) => void;
@@ -94,8 +94,8 @@ export async function uploadPdfFilesToProvider(
   for (const pdf of ctx.pdfs) {
     if (pdf.fileId || !pdf.file) continue;
     try {
-      const created = await openai.files.create({ file: pdf.file as any, purpose: 'assistants' });
-      pdf.fileId = created.id;
+      const created = await openai.files.create({ file: pdf.file, purpose: 'assistants' });
+      pdf.fileId = (created as { id: string }).id;
       if (log?.info) log.info('pdf_uploaded', { filename: pdf.filename, bytes: pdf.size });
     } catch (err) {
       if (log?.warn)

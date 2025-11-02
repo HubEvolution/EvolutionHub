@@ -26,12 +26,68 @@ function ensureCsrfToken(): string {
   }
 }
 
+async function loadTraffic24h() {
+  try {
+    const res = await fetch('/api/admin/traffic-24h?series=1', {
+      credentials: 'include',
+      cache: 'no-store',
+    });
+    const j = (await res.json()) as ApiResponse<{
+      pageViews: number;
+      visits: number;
+      series?: Array<{ t: string; pageViews?: number; visits?: number }>;
+    }>;
+    const d = isApiSuccess<{
+      pageViews: number;
+      visits: number;
+      series?: Array<{ t: string; pageViews?: number; visits?: number }>;
+    }>(j)
+      ? j.data
+      : { pageViews: undefined, visits: undefined, series: [] };
+    const set = (id: string, v: unknown) => {
+      const el = $(id);
+      if (el) el.textContent = String(v ?? '–');
+    };
+    set('traffic-pageviews', d.pageViews);
+    set('traffic-visits', d.visits);
+
+    const s = (Array.isArray(d.series) ? d.series : []).map((p) =>
+      typeof p.pageViews === 'number' ? p.pageViews : typeof p.visits === 'number' ? p.visits! : 0
+    );
+    drawSparkline('traffic-sparkline', s);
+  } catch {}
+}
+
+function drawSparkline(svgId: string, values: number[]) {
+  const svg = document.getElementById(svgId) as SVGSVGElement | null;
+  if (!svg) return;
+  const width =
+    svg.viewBox && svg.viewBox.baseVal ? svg.viewBox.baseVal.width : svg.clientWidth || 200;
+  const height =
+    svg.viewBox && svg.viewBox.baseVal ? svg.viewBox.baseVal.height : svg.clientHeight || 36;
+  if (!values || values.length === 0) {
+    svg.innerHTML = '';
+    return;
+  }
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const span = max - min || 1;
+  const n = values.length;
+  const step = n > 1 ? width / (n - 1) : width;
+  const points: Array<[number, number]> = values.map((v, i) => [
+    i * step,
+    height - ((v - min) / span) * height,
+  ]);
+  const d = points.map((p, i) => (i === 0 ? `M ${p[0]} ${p[1]}` : `L ${p[0]} ${p[1]}`)).join(' ');
+  svg.innerHTML = `<path d="${d}" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.9" />`;
+}
+
 function $(id: string): HTMLElement | null {
   return document.getElementById(id);
 }
 
 function q<T = HTMLElement>(id: string): T | null {
-  return (document.getElementById(id) as unknown) as T | null;
+  return document.getElementById(id) as unknown as T | null;
 }
 
 function show(el: Element | null) {
@@ -69,37 +125,70 @@ function formatLastSeen(ms: number): string {
     }
     return rel ? `${abs} (${rel})` : abs;
   } catch {
-    try { return new Date(ms).toLocaleString(); } catch { return '—'; }
+    try {
+      return new Date(ms).toLocaleString();
+    } catch {
+      return '—';
+    }
   }
 }
 
 // Types for API responses we use
-interface ApiSuccess<T> { success: true; data: T }
-interface ApiError { success?: false; error?: { message?: string } }
+interface ApiSuccess<T> {
+  success: true;
+  data: T;
+}
+interface ApiError {
+  success?: false;
+  error?: { message?: string };
+}
 type ApiResponse<T> = ApiSuccess<T> | ApiError;
 function isApiSuccess<T>(j: unknown): j is ApiSuccess<T> {
-  return !!j && (j as any).success === true;
+  return !!j && typeof j === 'object' && (j as { success?: unknown }).success === true;
 }
 
 type AdminStatus = ApiSuccess<{
   user: { id: string; email: string };
   plan: 'free' | 'pro' | 'premium' | 'enterprise';
   credits: number;
-  subscriptions: Array<{ id: string; plan: string; status: string; current_period_end: number | null; updated_at: string }>;
+  subscriptions: Array<{
+    id: string;
+    plan: string;
+    status: string;
+    current_period_end: number | null;
+    updated_at: string;
+  }>;
 }>;
 
 type UserSummary = ApiSuccess<{
-  user: { id: string; email: string; name?: string; plan: 'free' | 'pro' | 'premium' | 'enterprise' };
+  user: {
+    id: string;
+    email: string;
+    name?: string;
+    plan: 'free' | 'pro' | 'premium' | 'enterprise';
+  };
   credits: number;
   subscription: { status: string; currentPeriodEnd: number | null } | null;
   lastSeenAt?: number | null;
   lastIp?: string | null;
 }>;
 
-type MetricsData = { activeSessions?: number; activeUsers?: number; usersTotal?: number; usersNew24h?: number };
+type MetricsData = {
+  activeSessions?: number;
+  activeUsers?: number;
+  usersTotal?: number;
+  usersNew24h?: number;
+};
 
 type CommentsList = ApiSuccess<{
-  comments: Array<{ id: string; author?: { email?: string }; entityType: string; entityId: string; status: string; createdAt: string }>;
+  comments: Array<{
+    id: string;
+    author?: { email?: string };
+    entityType: string;
+    entityId: string;
+    status: string;
+    createdAt: string;
+  }>;
   stats: { total: number; pending: number; approved: number; rejected: number; flagged: number };
   pagination?: { count?: number };
 }>;
@@ -146,7 +235,10 @@ async function loadMetrics() {
     const res = await fetch('/api/admin/metrics', { credentials: 'include', cache: 'no-store' });
     const j = (await res.json()) as ApiResponse<MetricsData>;
     const d: Partial<MetricsData> = isApiSuccess<MetricsData>(j) ? j.data : {};
-    const set = (id: string, v: unknown) => { const el = $(id); if (el) el.textContent = String(v ?? '–'); };
+    const set = (id: string, v: unknown) => {
+      const el = $(id);
+      if (el) el.textContent = String(v ?? '–');
+    };
     set('m-active-sessions', d.activeSessions);
     set('m-active-users', d.activeUsers);
     set('m-users-total', d.usersTotal);
@@ -154,8 +246,17 @@ async function loadMetrics() {
   } catch {}
 }
 
-function setStats(stats: { total: number; pending: number; approved: number; rejected: number; flagged: number }) {
-  const set = (id: string, v: number) => { const el = $(id); if (el) el.textContent = String(v ?? 0); };
+function setStats(stats: {
+  total: number;
+  pending: number;
+  approved: number;
+  rejected: number;
+  flagged: number;
+}) {
+  const set = (id: string, v: number) => {
+    const el = $(id);
+    if (el) el.textContent = String(v ?? 0);
+  };
   set('cstat-total', stats.total);
   set('cstat-pending', stats.pending);
   set('cstat-approved', stats.approved);
@@ -185,29 +286,51 @@ async function loadComments() {
     params.set('offset', String(cOffset));
     params.set('includeReports', 'true');
     if (cStatusVal && cStatusVal !== 'all') params.set('status', cStatusVal);
-    const res = await fetch(`/api/admin/comments?${params.toString()}`, { credentials: 'include', cache: 'no-store' });
+    const res = await fetch(`/api/admin/comments?${params.toString()}`, {
+      credentials: 'include',
+      cache: 'no-store',
+    });
     const j = (await res.json()) as CommentsList | ApiError;
-    const d = ('success' in j && j.success)
-      ? j.data
-      : { comments: [], stats: { total: 0, pending: 0, approved: 0, rejected: 0, flagged: 0 } };
+    const d =
+      'success' in j && j.success
+        ? j.data
+        : { comments: [], stats: { total: 0, pending: 0, approved: 0, rejected: 0, flagged: 0 } };
     setStats(d.stats);
     const tbody = q<HTMLTableSectionElement>('comments-tbody');
     if (tbody && Array.isArray(d.comments)) {
-      const comments = d.comments as Array<{ id: string; author?: { email?: string }; entityType: string; entityId: string; status: string; createdAt: string }>;
+      const comments = d.comments as Array<{
+        id: string;
+        author?: { email?: string };
+        entityType: string;
+        entityId: string;
+        status: string;
+        createdAt: string;
+      }>;
       tbody.innerHTML = comments
-        .map((c: { id: string; author?: { email?: string }; entityType: string; entityId: string; status: string; createdAt: string }) => `
+        .map(
+          (c: {
+            id: string;
+            author?: { email?: string };
+            entityType: string;
+            entityId: string;
+            status: string;
+            createdAt: string;
+          }) => `
           <tr class="border-t border-white/10">
             <td class="px-2 py-1"><input type="checkbox" class="comment-select" data-comment-id="${c.id}" /></td>
             <td class="px-2 py-1 whitespace-nowrap">${c.id}</td>
-            <td class="px-2 py-1">${(c.author?.email || '—')}</td>
+            <td class="px-2 py-1">${c.author?.email || '—'}</td>
             <td class="px-2 py-1">${c.entityType}:${c.entityId}</td>
             <td class="px-2 py-1">${c.status}</td>
             <td class="px-2 py-1 whitespace-nowrap">${c.createdAt}</td>
           </tr>
-        `)
+        `
+        )
         .join('');
     }
-    const pageCount = (d as any)?.pagination?.count ?? (Array.isArray(d.comments) ? d.comments.length : 0);
+    const pageCount =
+      (d as { pagination?: { count?: number } }).pagination?.count ??
+      (Array.isArray(d.comments) ? d.comments.length : 0);
     const total = d.stats.total ?? 0;
     setPaging(pageCount, total);
   } catch {}
@@ -224,22 +347,44 @@ async function loadAuditLogs() {
     p.set('limit', '10');
     const t = (typeSel && typeSel.value) || '';
     if (t) p.set('eventType', t);
-    const res = await fetch(`/api/admin/audit/logs?${p.toString()}`, { credentials: 'include', cache: 'no-store' });
-    const j = (await res.json()) as ApiResponse<{ items: Array<{ id: string; createdAt: number; eventType: string; resource?: string; action?: string }> }>;
-    if (!res.ok || !isApiSuccess(j)) { if (err) { err.textContent = (j as ApiError)?.error?.message || 'Laden fehlgeschlagen'; err.classList.remove('hidden'); } return; }
+    const res = await fetch(`/api/admin/audit/logs?${p.toString()}`, {
+      credentials: 'include',
+      cache: 'no-store',
+    });
+    const j = (await res.json()) as ApiResponse<{
+      items: Array<{
+        id: string;
+        createdAt: number;
+        eventType: string;
+        resource?: string;
+        action?: string;
+      }>;
+    }>;
+    if (!res.ok || !isApiSuccess(j)) {
+      if (err) {
+        err.textContent = (j as ApiError)?.error?.message || 'Laden fehlgeschlagen';
+        err.classList.remove('hidden');
+      }
+      return;
+    }
     const items = j.data.items || [];
     if (list) {
       if (!items.length) {
         list.innerHTML = '<div class="text-white/50">Keine Einträge.</div>';
       } else {
-        list.innerHTML = items.map((it) => {
-          const d = new Date(it.createdAt).toLocaleString();
-          return `<div class="border-t border-white/10 py-2"><div class="text-white/70">${d} • ${it.eventType}</div><div class="text-white/50">${it.resource || ''} ${it.action || ''}</div></div>`;
-        }).join('');
+        list.innerHTML = items
+          .map((it) => {
+            const d = new Date(it.createdAt).toLocaleString();
+            return `<div class="border-t border-white/10 py-2"><div class="text-white/70">${d} • ${it.eventType}</div><div class="text-white/50">${it.resource || ''} ${it.action || ''}</div></div>`;
+          })
+          .join('');
       }
     }
   } catch {
-    if (err) { err.textContent = 'Laden fehlgeschlagen'; err.classList.remove('hidden'); }
+    if (err) {
+      err.textContent = 'Laden fehlgeschlagen';
+      err.classList.remove('hidden');
+    }
   }
 }
 
@@ -248,21 +393,44 @@ async function loadSessionsForUser() {
   const list = q('sess-list');
   const err = q('sess-error');
   if (err) err.classList.add('hidden');
-  if (!userIdEl || !userIdEl.value.trim()) { if (err) { err.textContent = 'userId erforderlich'; err.classList.remove('hidden'); } return; }
+  if (!userIdEl || !userIdEl.value.trim()) {
+    if (err) {
+      err.textContent = 'userId erforderlich';
+      err.classList.remove('hidden');
+    }
+    return;
+  }
   try {
-    const p = new URLSearchParams(); p.set('userId', userIdEl.value.trim());
-    const res = await fetch(`/api/admin/users/sessions?${p.toString()}`, { credentials: 'include', cache: 'no-store' });
-    const j = (await res.json()) as ApiResponse<{ items: Array<{ id: string; userId: string; expiresAt: number | null }> }>;
-    if (!res.ok || !isApiSuccess(j)) { if (err) { err.textContent = (j as ApiError)?.error?.message || 'Laden fehlgeschlagen'; err.classList.remove('hidden'); } return; }
+    const p = new URLSearchParams();
+    p.set('userId', userIdEl.value.trim());
+    const res = await fetch(`/api/admin/users/sessions?${p.toString()}`, {
+      credentials: 'include',
+      cache: 'no-store',
+    });
+    const j = (await res.json()) as ApiResponse<{
+      items: Array<{ id: string; userId: string; expiresAt: number | null }>;
+    }>;
+    if (!res.ok || !isApiSuccess(j)) {
+      if (err) {
+        err.textContent = (j as ApiError)?.error?.message || 'Laden fehlgeschlagen';
+        err.classList.remove('hidden');
+      }
+      return;
+    }
     const items = Array.isArray(j.data.items) ? j.data.items : [];
     if (list) {
-      list.innerHTML = items.map((s: { id: string; userId: string; expiresAt: number | null }) => {
-        const d = s.expiresAt ? new Date(s.expiresAt).toLocaleString() : '—';
-        return `<div class="border-t border-white/10 py-2"><div class="text-white/70">${s.id}</div><div class="text-white/50">Expires: ${d}</div></div>`;
-      }).join('');
+      list.innerHTML = items
+        .map((s: { id: string; userId: string; expiresAt: number | null }) => {
+          const d = s.expiresAt ? new Date(s.expiresAt).toLocaleString() : '—';
+          return `<div class="border-t border-white/10 py-2"><div class="text-white/70">${s.id}</div><div class="text-white/50">Expires: ${d}</div></div>`;
+        })
+        .join('');
     }
   } catch {
-    if (err) { err.textContent = 'Laden fehlgeschlagen'; err.classList.remove('hidden'); }
+    if (err) {
+      err.textContent = 'Laden fehlgeschlagen';
+      err.classList.remove('hidden');
+    }
   }
 }
 
@@ -270,7 +438,13 @@ async function revokeAllSessionsForUser() {
   const userIdEl = q<HTMLInputElement>('sess-userid');
   const err = q('sess-error');
   if (err) err.classList.add('hidden');
-  if (!userIdEl || !userIdEl.value.trim()) { if (err) { err.textContent = 'userId erforderlich'; err.classList.remove('hidden'); } return; }
+  if (!userIdEl || !userIdEl.value.trim()) {
+    if (err) {
+      err.textContent = 'userId erforderlich';
+      err.classList.remove('hidden');
+    }
+    return;
+  }
   try {
     const csrf = ensureCsrfToken();
     const res = await fetch('/api/admin/users/revoke-sessions', {
@@ -279,11 +453,21 @@ async function revokeAllSessionsForUser() {
       headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
       body: JSON.stringify({ userId: userIdEl.value.trim() }),
     });
+
     const j = (await res.json()) as ApiResponse<unknown>;
-    if (!res.ok || !isApiSuccess(j)) { if (err) { err.textContent = (j as ApiError)?.error?.message || 'Widerruf fehlgeschlagen'; err.classList.remove('hidden'); } return; }
+    if (!res.ok || !isApiSuccess(j)) {
+      if (err) {
+        err.textContent = (j as ApiError)?.error?.message || 'Widerruf fehlgeschlagen';
+        err.classList.remove('hidden');
+      }
+      return;
+    }
     await loadSessionsForUser();
   } catch {
-    if (err) { err.textContent = 'Widerruf fehlgeschlagen'; err.classList.remove('hidden'); }
+    if (err) {
+      err.textContent = 'Widerruf fehlgeschlagen';
+      err.classList.remove('hidden');
+    }
   }
 }
 
@@ -292,12 +476,18 @@ async function resolveUserId(raw: string): Promise<string | null> {
   if (!v) return null;
   if (v.includes('@')) {
     try {
-      const p = new URLSearchParams(); p.set('email', v.toLowerCase());
-      const res = await fetch(`/api/admin/users/summary?${p.toString()}`, { credentials: 'include', cache: 'no-store' });
+      const p = new URLSearchParams();
+      p.set('email', v.toLowerCase());
+      const res = await fetch(`/api/admin/users/summary?${p.toString()}`, {
+        credentials: 'include',
+        cache: 'no-store',
+      });
       const j = (await res.json()) as UserSummary | ApiError;
       const id = 'success' in j && j.success ? j.data.user.id : null;
       return res.ok && id ? String(id) : null;
-    } catch { return null; }
+    } catch {
+      return null;
+    }
   }
   return v;
 }
@@ -308,19 +498,46 @@ async function loadCreditsBalanceForUser() {
   const err = q('cu-error');
   if (err) err.classList.add('hidden');
   if (out) out.textContent = '';
-  if (!userIdEl || !userIdEl.value.trim()) { if (err) { err.textContent = 'E‑Mail oder userId erforderlich'; err.classList.remove('hidden'); } return; }
+  if (!userIdEl || !userIdEl.value.trim()) {
+    if (err) {
+      err.textContent = 'E‑Mail oder userId erforderlich';
+      err.classList.remove('hidden');
+    }
+    return;
+  }
   try {
     const resolved = await resolveUserId(userIdEl.value);
-    if (!resolved) { if (err) { err.textContent = 'Konnte userId nicht auflösen'; err.classList.remove('hidden'); } return; }
-    if (userIdEl && userIdEl.value !== resolved && !userIdEl.value.includes('@')) { userIdEl.value = resolved; }
-    const p = new URLSearchParams(); p.set('userId', resolved);
-    const res = await fetch(`/api/admin/credits/usage?${p.toString()}`, { credentials: 'include', cache: 'no-store' });
+    if (!resolved) {
+      if (err) {
+        err.textContent = 'Konnte userId nicht auflösen';
+        err.classList.remove('hidden');
+      }
+      return;
+    }
+    if (userIdEl && userIdEl.value !== resolved && !userIdEl.value.includes('@')) {
+      userIdEl.value = resolved;
+    }
+    const p = new URLSearchParams();
+    p.set('userId', resolved);
+    const res = await fetch(`/api/admin/credits/usage?${p.toString()}`, {
+      credentials: 'include',
+      cache: 'no-store',
+    });
     const j = (await res.json()) as ApiResponse<{ credits: number; tenths: number }>;
-    if (!res.ok || !isApiSuccess(j)) { if (err) { err.textContent = (j as ApiError)?.error?.message || 'Laden fehlgeschlagen'; err.classList.remove('hidden'); } return; }
+    if (!res.ok || !isApiSuccess(j)) {
+      if (err) {
+        err.textContent = (j as ApiError)?.error?.message || 'Laden fehlgeschlagen';
+        err.classList.remove('hidden');
+      }
+      return;
+    }
     const d = j.data;
     if (out) out.textContent = `Balance: ${d.credits} Credits (${d.tenths} tenth)`;
   } catch {
-    if (err) { err.textContent = 'Laden fehlgeschlagen'; err.classList.remove('hidden'); }
+    if (err) {
+      err.textContent = 'Laden fehlgeschlagen';
+      err.classList.remove('hidden');
+    }
   }
 }
 
@@ -330,25 +547,56 @@ async function loadCreditPacksForUser() {
   const err = q('cu-error');
   if (err) err.classList.add('hidden');
   if (list) list.innerHTML = '';
-  if (!userIdEl || !userIdEl.value.trim()) { if (err) { err.textContent = 'E‑Mail oder userId erforderlich'; err.classList.remove('hidden'); } return; }
+  if (!userIdEl || !userIdEl.value.trim()) {
+    if (err) {
+      err.textContent = 'E‑Mail oder userId erforderlich';
+      err.classList.remove('hidden');
+    }
+    return;
+  }
   try {
     const resolved = await resolveUserId(userIdEl.value);
-    if (!resolved) { if (err) { err.textContent = 'Konnte userId nicht auflösen'; err.classList.remove('hidden'); } return; }
-    if (userIdEl && userIdEl.value !== resolved && !userIdEl.value.includes('@')) { userIdEl.value = resolved; }
-    const p = new URLSearchParams(); p.set('userId', resolved);
-    const res = await fetch(`/api/admin/credits/history?${p.toString()}`, { credentials: 'include', cache: 'no-store' });
-    const j = (await res.json()) as ApiResponse<{ items: Array<{ id: string; unitsTenths: number; createdAt?: number; expiresAt?: number }> }>;
-    if (!res.ok || !isApiSuccess(j)) { if (err) { err.textContent = (j as ApiError)?.error?.message || 'Laden fehlgeschlagen'; err.classList.remove('hidden'); } return; }
+    if (!resolved) {
+      if (err) {
+        err.textContent = 'Konnte userId nicht auflösen';
+        err.classList.remove('hidden');
+      }
+      return;
+    }
+    if (userIdEl && userIdEl.value !== resolved && !userIdEl.value.includes('@')) {
+      userIdEl.value = resolved;
+    }
+    const p = new URLSearchParams();
+    p.set('userId', resolved);
+    const res = await fetch(`/api/admin/credits/history?${p.toString()}`, {
+      credentials: 'include',
+      cache: 'no-store',
+    });
+    const j = (await res.json()) as ApiResponse<{
+      items: Array<{ id: string; unitsTenths: number; createdAt?: number; expiresAt?: number }>;
+    }>;
+    if (!res.ok || !isApiSuccess(j)) {
+      if (err) {
+        err.textContent = (j as ApiError)?.error?.message || 'Laden fehlgeschlagen';
+        err.classList.remove('hidden');
+      }
+      return;
+    }
     const items = Array.isArray(j.data.items) ? j.data.items : [];
     if (list) {
-      list.innerHTML = items.map((p: { id: string; unitsTenths: number; createdAt?: number; expiresAt?: number }) => {
-        const created = p.createdAt ? new Date(p.createdAt).toLocaleString() : '—';
-        const expires = p.expiresAt ? new Date(p.expiresAt).toLocaleString() : '—';
-        return `<div class="border-t border-white/10 py-2"><div class="text-white/70">${p.id}</div><div class="text-white/50">Units (tenths): ${p.unitsTenths} • Created: ${created} • Expires: ${expires}</div></div>`;
-      }).join('');
+      list.innerHTML = items
+        .map((p: { id: string; unitsTenths: number; createdAt?: number; expiresAt?: number }) => {
+          const created = p.createdAt ? new Date(p.createdAt).toLocaleString() : '—';
+          const expires = p.expiresAt ? new Date(p.expiresAt).toLocaleString() : '—';
+          return `<div class="border-t border-white/10 py-2"><div class="text-white/70">${p.id}</div><div class="text-white/50">Units (tenths): ${p.unitsTenths} • Created: ${created} • Expires: ${expires}</div></div>`;
+        })
+        .join('');
     }
   } catch {
-    if (err) { err.textContent = 'Laden fehlgeschlagen'; err.classList.remove('hidden'); }
+    if (err) {
+      err.textContent = 'Laden fehlgeschlagen';
+      err.classList.remove('hidden');
+    }
   }
 }
 
@@ -362,23 +610,54 @@ async function loadRateLimiterState() {
     const p = new URLSearchParams();
     const name = (nameEl?.value || '').trim();
     if (name) p.set('name', name);
-    const url = p.toString() ? `/api/admin/rate-limits/state?${p.toString()}` : '/api/admin/rate-limits/state';
+    const url = p.toString()
+      ? `/api/admin/rate-limits/state?${p.toString()}`
+      : '/api/admin/rate-limits/state';
     const res = await fetch(url, { credentials: 'include', cache: 'no-store' });
-    const j = (await res.json()) as ApiResponse<{ state: Record<string, { maxRequests: number; windowMs: number; entries: Array<{ key: string; count: number; resetAt?: number }> }> }>;
-    if (!res.ok || !isApiSuccess(j)) { if (err) { err.textContent = (j as ApiError)?.error?.message || 'Laden fehlgeschlagen'; err.classList.remove('hidden'); } return; }
+    const j = (await res.json()) as ApiResponse<{
+      state: Record<
+        string,
+        {
+          maxRequests: number;
+          windowMs: number;
+          entries: Array<{ key: string; count: number; resetAt?: number }>;
+        }
+      >;
+    }>;
+    if (!res.ok || !isApiSuccess(j)) {
+      if (err) {
+        err.textContent = (j as ApiError)?.error?.message || 'Laden fehlgeschlagen';
+        err.classList.remove('hidden');
+      }
+      return;
+    }
     const state = j.data.state || {};
     if (stateEl) {
-      stateEl.innerHTML = Object.entries(state).map(([limName, info]) => {
-        const entries = Array.isArray((info as any).entries) ? (info as any).entries : [];
-        const maxRequests = (info as any).maxRequests;
-        const windowMs = (info as any).windowMs || 0;
-        return `<div class="mb-3"><div class="text-white/70 font-medium">${limName} • max ${maxRequests}/ ${Math.round(windowMs/1000)}s</div>${entries
-          .map((e: any) => `<div class="text-white/50">${e.key} • count ${e.count} • reset ${e.resetAt ? new Date(e.resetAt).toLocaleTimeString() : '—'}</div>`)
-          .join('')}</div>`;
-      }).join('');
+      type LimiterEntry = { key: string; count: number; resetAt?: number };
+      type LimiterInfo = { maxRequests: number; windowMs: number; entries: LimiterEntry[] };
+      const entriesHtml = Object.entries(state as Record<string, LimiterInfo>)
+        .map(([limName, info]) => {
+          const entries = Array.isArray(info.entries) ? info.entries : [];
+          const maxRequests = info.maxRequests;
+          const windowMs = info.windowMs || 0;
+          const rows = entries
+            .map(
+              (e) =>
+                `<div class="text-white/50">${e.key} • count ${e.count} • reset ${e.resetAt ? new Date(e.resetAt).toLocaleTimeString() : '—'}</div>`
+            )
+            .join('');
+          return `<div class="mb-3"><div class="text-white/70 font-medium">${limName} • max ${maxRequests}/ ${Math.round(
+            windowMs / 1000
+          )}s</div>${rows}</div>`;
+        })
+        .join('');
+      stateEl.innerHTML = entriesHtml;
     }
   } catch {
-    if (err) { err.textContent = 'Laden fehlgeschlagen'; err.classList.remove('hidden'); }
+    if (err) {
+      err.textContent = 'Laden fehlgeschlagen';
+      err.classList.remove('hidden');
+    }
   }
 }
 
@@ -391,7 +670,13 @@ async function resetRateLimiterKeyAction() {
   if (okEl) okEl.classList.add('hidden');
   const name = (nameEl?.value || '').trim();
   const key = (keyEl?.value || '').trim();
-  if (!name || !key) { if (err) { err.textContent = 'name und key erforderlich'; err.classList.remove('hidden'); } return; }
+  if (!name || !key) {
+    if (err) {
+      err.textContent = 'name und key erforderlich';
+      err.classList.remove('hidden');
+    }
+    return;
+  }
   try {
     const csrf = ensureCsrfToken();
     const res = await fetch('/api/admin/rate-limits/reset', {
@@ -401,11 +686,23 @@ async function resetRateLimiterKeyAction() {
       body: JSON.stringify({ name, key }),
     });
     const j = (await res.json()) as ApiResponse<unknown>;
-    if (!res.ok || !isApiSuccess(j)) { if (err) { err.textContent = (j as ApiError)?.error?.message || 'Reset fehlgeschlagen'; err.classList.remove('hidden'); } return; }
-    if (okEl) { okEl.textContent = 'OK: Reset durchgeführt'; okEl.classList.remove('hidden'); }
+    if (!res.ok || !isApiSuccess(j)) {
+      if (err) {
+        err.textContent = (j as ApiError)?.error?.message || 'Reset fehlgeschlagen';
+        err.classList.remove('hidden');
+      }
+      return;
+    }
+    if (okEl) {
+      okEl.textContent = 'OK: Reset durchgeführt';
+      okEl.classList.remove('hidden');
+    }
     await loadRateLimiterState();
   } catch {
-    if (err) { err.textContent = 'Reset fehlgeschlagen'; err.classList.remove('hidden'); }
+    if (err) {
+      err.textContent = 'Reset fehlgeschlagen';
+      err.classList.remove('hidden');
+    }
   }
 }
 
@@ -420,38 +717,66 @@ function start() {
 
   lookupBtn?.addEventListener('click', async (e) => {
     e?.preventDefault?.();
-    hide(lookupError); hide(lookupResult);
+    hide(lookupError);
+    hide(lookupResult);
     const v = (lookupInput?.value || '').trim();
-    if (!v) { if (lookupError) { lookupError.textContent = 'Bitte E‑Mail oder ID eingeben.'; show(lookupError); } return; }
+    if (!v) {
+      if (lookupError) {
+        lookupError.textContent = 'Bitte E‑Mail oder ID eingeben.';
+        show(lookupError);
+      }
+      return;
+    }
     const p = new URLSearchParams();
-    if (v.includes('@')) p.set('email', v.toLowerCase()); else p.set('id', v);
+    if (v.includes('@')) p.set('email', v.toLowerCase());
+    else p.set('id', v);
     const url = `/api/admin/users/summary?${p.toString()}`;
     try {
       const res = await fetch(url, { credentials: 'include', cache: 'no-store' });
       const json = (await res.json()) as UserSummary | ApiError;
-      if (!('success' in json) || !json.success) { if (lookupError) { lookupError.textContent = (json as any)?.error?.message || 'Lookup fehlgeschlagen'; show(lookupError); } return; }
+      if (!('success' in json) || !json.success) {
+        if (lookupError) {
+          lookupError.textContent = (json as ApiError)?.error?.message || 'Lookup fehlgeschlagen';
+          show(lookupError);
+        }
+        return;
+      }
       const d = json.data;
-      const lrId = q('lr-id'); const lrEmail = q('lr-email'); const lrName = q('lr-name'); const lrPlan = q('lr-plan'); const lrCredits = q('lr-credits'); const lrSub = q('lr-sub');
+      const lrId = q('lr-id');
+      const lrEmail = q('lr-email');
+      const lrName = q('lr-name');
+      const lrPlan = q('lr-plan');
+      const lrCredits = q('lr-credits');
+      const lrSub = q('lr-sub');
       if (lrId) lrId.textContent = d.user.id;
       if (lrEmail) lrEmail.textContent = d.user.email;
       if (lrName) lrName.textContent = d.user.name || '';
       if (lrPlan) lrPlan.textContent = d.user.plan;
       if (lrCredits) lrCredits.textContent = String(d.credits);
-      if (lrSub) lrSub.textContent = d.subscription ? `${d.subscription.status} (Ende: ${d.subscription.currentPeriodEnd ? new Date(d.subscription.currentPeriodEnd * 1000).toLocaleString() : '—'})` : '—';
-      const lrLastIp = q('lr-last-ip'); const lrLastSeen = q('lr-last-seen');
+      if (lrSub)
+        lrSub.textContent = d.subscription
+          ? `${d.subscription.status} (Ende: ${d.subscription.currentPeriodEnd ? new Date(d.subscription.currentPeriodEnd * 1000).toLocaleString() : '—'})`
+          : '—';
+      const lrLastIp = q('lr-last-ip');
+      const lrLastSeen = q('lr-last-seen');
       if (lrLastIp) lrLastIp.textContent = d.lastIp || '—';
       if (lrLastSeen) lrLastSeen.textContent = d.lastSeenAt ? formatLastSeen(d.lastSeenAt) : '—';
       show(lookupResult);
       // Prefill grant email
-      const ge = q<HTMLInputElement>('grant-email'); if (ge && !ge.value) ge.value = d.user.email;
+      const ge = q<HTMLInputElement>('grant-email');
+      if (ge && !ge.value) ge.value = d.user.email;
     } catch {
-      if (lookupError) { lookupError.textContent = 'Lookup fehlgeschlagen'; show(lookupError); }
+      if (lookupError) {
+        lookupError.textContent = 'Lookup fehlgeschlagen';
+        show(lookupError);
+      }
     }
   });
 
   lookupClear?.addEventListener('click', () => {
     if (lookupInput) lookupInput.value = '';
-    hide(lookupResult); hide(lookupError);
+    hide(lookupResult);
+    hide(lookupError);
   });
 
   const lrApply = q<HTMLButtonElement>('lr-apply-userid');
@@ -469,15 +794,26 @@ function start() {
       if (!ip || ip === '—') ip = '';
       const isIpV4 = !!ip && /^(?:\d{1,3}\.){3}\d{1,3}$/.test(ip);
       const isIpV6 = !!ip && ip.includes(':');
-      const url = ip && (isIpV4 || isIpV6) ? `/api/admin/ip-geo?ip=${encodeURIComponent(ip)}` : '/api/admin/ip-geo';
+      const url =
+        ip && (isIpV4 || isIpV6)
+          ? `/api/admin/ip-geo?ip=${encodeURIComponent(ip)}`
+          : '/api/admin/ip-geo';
       const res = await fetch(url, { credentials: 'include', cache: 'no-store' });
-      const j = (await res.json()) as ApiResponse<{ city?: string; country?: string; display?: string }>;
-      if (!res.ok || !isApiSuccess(j)) { if (lrIpGeoOut) lrIpGeoOut.textContent = '—'; return; }
+      const j = (await res.json()) as ApiResponse<{
+        city?: string;
+        country?: string;
+        display?: string;
+      }>;
+      if (!res.ok || !isApiSuccess(j)) {
+        if (lrIpGeoOut) lrIpGeoOut.textContent = '—';
+        return;
+      }
       const city = j.data.city || '';
       const country = j.data.country || '';
-      const display = j.data.display || ((city || country) ? `${city ? city + ', ' : ''}${country}` : '');
-      const ipStr = (j as any)?.data?.ip || '';
-      const finalText = display ? (ipStr ? `${display} (${ipStr})` : display) : (ipStr || '—');
+      const display =
+        j.data.display || (city || country ? `${city ? city + ', ' : ''}${country}` : '');
+      const ipStr = ('success' in j && j.success && (j.data as { ip?: string }).ip) || '';
+      const finalText = display ? (ipStr ? `${display} (${ipStr})` : display) : ipStr || '—';
       if (lrIpGeoOut) lrIpGeoOut.textContent = finalText;
     } catch {
       if (lrIpGeoOut) lrIpGeoOut.textContent = '—';
@@ -494,10 +830,17 @@ function start() {
   const grantError = q('grant-error');
   grantBtn?.addEventListener('click', async (e) => {
     e?.preventDefault?.();
-    hide(grantSuccess); hide(grantError);
+    hide(grantSuccess);
+    hide(grantError);
     const email = (grantEmail?.value || '').trim().toLowerCase();
     const amount = Math.max(1, parseInt(grantAmount?.value || '1000', 10) || 1000);
-    if (!email) { if (grantError) { grantError.textContent = 'E‑Mail erforderlich'; show(grantError); } return; }
+    if (!email) {
+      if (grantError) {
+        grantError.textContent = 'E‑Mail erforderlich';
+        show(grantError);
+      }
+      return;
+    }
     try {
       const csrf = ensureCsrfToken();
       const res = await fetch('/api/admin/credits/grant', {
@@ -506,21 +849,45 @@ function start() {
         headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
         body: JSON.stringify({ email, amount }),
       });
-      const json = (await res.json()) as ApiResponse<{ granted: number; balance: number; packId?: string }>;
-      if (!res.ok || !isApiSuccess(json)) { if (grantError) { grantError.textContent = (json as ApiError)?.error?.message || 'Gutschrift fehlgeschlagen'; show(grantError); } return; }
-      const d = json.data || {} as { granted: number; balance: number; packId?: string };
-      if (grantSuccess) { grantSuccess.textContent = `OK: ${d.granted} Credits gebucht. Neue Balance: ${d.balance}. Pack: ${d.packId}`; show(grantSuccess); }
+      const json = (await res.json()) as ApiResponse<{
+        granted: number;
+        balance: number;
+        packId?: string;
+      }>;
+      if (!res.ok || !isApiSuccess(json)) {
+        if (grantError) {
+          grantError.textContent =
+            (json as ApiError)?.error?.message || 'Gutschrift fehlgeschlagen';
+          show(grantError);
+        }
+        return;
+      }
+      const d = json.data || ({} as { granted: number; balance: number; packId?: string });
+      if (grantSuccess) {
+        grantSuccess.textContent = `OK: ${d.granted} Credits gebucht. Neue Balance: ${d.balance}. Pack: ${d.packId}`;
+        show(grantSuccess);
+      }
     } catch {
-      if (grantError) { grantError.textContent = 'Gutschrift fehlgeschlagen'; show(grantError); }
+      if (grantError) {
+        grantError.textContent = 'Gutschrift fehlgeschlagen';
+        show(grantError);
+      }
     }
   });
 
   grantDeduct?.addEventListener('click', async (e) => {
     e?.preventDefault?.();
-    hide(grantSuccess); hide(grantError);
+    hide(grantSuccess);
+    hide(grantError);
     const email = (grantEmail?.value || '').trim().toLowerCase();
     const amount = Math.max(1, parseInt(grantAmount?.value || '1000', 10) || 1000);
-    if (!email) { if (grantError) { grantError.textContent = 'E‑Mail erforderlich'; show(grantError); } return; }
+    if (!email) {
+      if (grantError) {
+        grantError.textContent = 'E‑Mail erforderlich';
+        show(grantError);
+      }
+      return;
+    }
     try {
       const csrf = ensureCsrfToken();
       const res = await fetch('/api/admin/credits/deduct', {
@@ -530,16 +897,28 @@ function start() {
         body: JSON.stringify({ email, amount, strict: grantStrict ? !!grantStrict.checked : true }),
       });
       const json = (await res.json()) as ApiResponse<{ deducted: number; balance: number }>;
-      if (!res.ok || !isApiSuccess(json)) { if (grantError) { grantError.textContent = (json as ApiError)?.error?.message || 'Abziehen fehlgeschlagen'; show(grantError); } return; }
+      if (!res.ok || !isApiSuccess(json)) {
+        if (grantError) {
+          grantError.textContent = (json as ApiError)?.error?.message || 'Abziehen fehlgeschlagen';
+          show(grantError);
+        }
+        return;
+      }
       const d = json.data || ({} as { deducted: number; balance: number });
-      if (grantSuccess) { grantSuccess.textContent = `OK: ${d.deducted} Credits abgezogen. Neue Balance: ${d.balance}.`; show(grantSuccess); }
+      if (grantSuccess) {
+        grantSuccess.textContent = `OK: ${d.deducted} Credits abgezogen. Neue Balance: ${d.balance}.`;
+        show(grantSuccess);
+      }
       const uidInput = q<HTMLInputElement>('cu-userid');
       if (uidInput && uidInput.value) {
         await loadCreditsBalanceForUser();
         await loadCreditPacksForUser();
       }
     } catch {
-      if (grantError) { grantError.textContent = 'Abziehen fehlgeschlagen'; show(grantError); }
+      if (grantError) {
+        grantError.textContent = 'Abziehen fehlgeschlagen';
+        show(grantError);
+      }
     }
   });
 
@@ -548,11 +927,68 @@ function start() {
     try {
       const res = await fetch('/api/admin/status', { credentials: 'include', cache: 'no-store' });
       const json = (await res.json()) as AdminStatus | ApiError;
-      const email = ('success' in json && json.success) ? json.data.user.email : '';
+      const email = 'success' in json && json.success ? json.data.user.email : '';
       if (email && grantEmail) {
         grantEmail.value = email;
       }
     } catch {}
+  });
+
+  // Plan setzen
+  const planBtn = q<HTMLButtonElement>('plan-set-btn');
+  const planTarget = q<HTMLInputElement>('plan-target');
+  const planSelect = q<HTMLSelectElement>('plan-select');
+  const planReason = q<HTMLInputElement>('plan-reason');
+  const planSuccess = q('plan-success');
+  const planError = q('plan-error');
+  planBtn?.addEventListener('click', async (e) => {
+    e?.preventDefault?.();
+    hide(planSuccess);
+    hide(planError);
+    const target = (planTarget?.value || '').trim();
+    const plan = planSelect?.value || 'free';
+    if (!target) {
+      if (planError) {
+        planError.textContent = 'E‑Mail oder userId erforderlich';
+        show(planError);
+      }
+      return;
+    }
+    try {
+      const csrf = ensureCsrfToken();
+      const body: Record<string, unknown> = { plan };
+      if (target.includes('@')) body.email = target.toLowerCase();
+      else body.userId = target;
+      const reason = (planReason?.value || '').trim();
+      if (reason) body.reason = reason;
+      const res = await fetch('/api/admin/users/set-plan', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
+        body: JSON.stringify(body),
+      });
+      const json = (await res.json()) as ApiResponse<{ userId: string; plan: string }>;
+      if (!res.ok || !isApiSuccess(json)) {
+        if (planError) {
+          planError.textContent =
+            (json as ApiError)?.error?.message || 'Plan setzen fehlgeschlagen';
+          show(planError);
+        }
+        return;
+      }
+      const d = json.data;
+      if (planSuccess) {
+        planSuccess.textContent = `OK: Plan gesetzt auf ${d.plan} (User ${d.userId})`;
+        show(planSuccess);
+      }
+      const lrPlan = q('lr-plan');
+      if (lrPlan) lrPlan.textContent = d.plan;
+    } catch {
+      if (planError) {
+        planError.textContent = 'Plan setzen fehlgeschlagen';
+        show(planError);
+      }
+    }
   });
 
   // Health
@@ -575,9 +1011,19 @@ function start() {
   const cStatus = q<HTMLSelectElement>('c-status');
   const cPrev = q<HTMLButtonElement>('c-prev');
   const cNext = q<HTMLButtonElement>('c-next');
-  cStatus?.addEventListener('change', () => { cStatusVal = cStatus.value; cOffset = 0; loadComments(); });
-  cPrev?.addEventListener('click', () => { cOffset = Math.max(0, cOffset - PAGE_SIZE); loadComments(); });
-  cNext?.addEventListener('click', () => { cOffset = cOffset + PAGE_SIZE; loadComments(); });
+  cStatus?.addEventListener('change', () => {
+    cStatusVal = cStatus.value;
+    cOffset = 0;
+    loadComments();
+  });
+  cPrev?.addEventListener('click', () => {
+    cOffset = Math.max(0, cOffset - PAGE_SIZE);
+    loadComments();
+  });
+  cNext?.addEventListener('click', () => {
+    cOffset = cOffset + PAGE_SIZE;
+    loadComments();
+  });
 
   // Sessions buttons
   const sessLoad = q<HTMLButtonElement>('sess-load');
@@ -618,7 +1064,9 @@ function start() {
   rlReset?.addEventListener('click', () => resetRateLimiterKeyAction());
   rlCopyGet?.addEventListener('click', async () => {
     const name = (q<HTMLInputElement>('rl-name')?.value || '').trim();
-    const url = name ? `${location.origin}/api/admin/rate-limits/state?name=${encodeURIComponent(name)}` : `${location.origin}/api/admin/rate-limits/state`;
+    const url = name
+      ? `${location.origin}/api/admin/rate-limits/state?name=${encodeURIComponent(name)}`
+      : `${location.origin}/api/admin/rate-limits/state`;
     const cmd = `curl -s -H 'Origin: ${location.origin}' '${url}'`;
     await copy(cmd);
   });
@@ -633,6 +1081,7 @@ function start() {
 
   // Kick off initial loads
   loadMetrics();
+  loadTraffic24h();
   loadAdminStatus();
   loadComments();
 
@@ -647,5 +1096,3 @@ if (document.readyState === 'loading') {
 } else {
   start();
 }
-
-export {};

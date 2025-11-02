@@ -42,7 +42,11 @@ export class CommentService {
       type: string,
       data: CommentNotificationData
     ) => Promise<unknown>;
-    sendEmail: (req: { to: string; templateName: string; variables: Record<string, unknown> }) => Promise<unknown>;
+    sendEmail: (req: {
+      to: string;
+      templateName: string;
+      variables: Record<string, unknown>;
+    }) => Promise<unknown>;
   }> {
     const mod = await import('./' + 'notification-service');
     const svc = new mod.NotificationService(this.rawDb);
@@ -52,7 +56,11 @@ export class CommentService {
         type: string,
         data: CommentNotificationData
       ) => Promise<unknown>;
-      sendEmail: (req: { to: string; templateName: string; variables: Record<string, unknown> }) => Promise<unknown>;
+      sendEmail: (req: {
+        to: string;
+        templateName: string;
+        variables: Record<string, unknown>;
+      }) => Promise<unknown>;
     };
   }
 
@@ -66,9 +74,9 @@ export class CommentService {
       const info = await this.rawDb.prepare("PRAGMA table_info('comments')").all();
       // D1 returns rows with a 'name' field for column name
       const cols = new Set<string>(
-        (Array.isArray(info?.results)
+        Array.isArray(info?.results)
           ? info!.results.map((r) => String((r as { name?: unknown }).name))
-          : [])
+          : []
       );
       const legacy =
         cols.has('postId') &&
@@ -110,7 +118,7 @@ export class CommentService {
       .bind(...params);
     const totalRes = await totalStmt.all();
     const totalArr = Array.isArray(totalRes.results) ? totalRes.results : [];
-    const total = Number(((totalArr[0] as { cnt?: unknown })?.cnt ?? 0));
+    const total = Number((totalArr[0] as { cnt?: unknown })?.cnt ?? 0);
 
     // Page results
     const pageStmt = this.rawDb
@@ -137,7 +145,9 @@ export class CommentService {
       )
       .bind(...params, limit, offset);
     const pageRes = await pageStmt.all();
-    const rows = (Array.isArray(pageRes.results) ? pageRes.results : []) as Array<Record<string, unknown>>;
+    const rows = (Array.isArray(pageRes.results) ? pageRes.results : []) as Array<
+      Record<string, unknown>
+    >;
 
     const items = rows.map((r) => ({
       id: String(r.id),
@@ -148,7 +158,7 @@ export class CommentService {
       parentId: r.parentId ? String(r.parentId) : null,
       entityType: 'blog_post',
       entityId: String(r.entityId),
-      status: ((typeof r.status === 'string' ? r.status : 'approved') as Comment['status']),
+      status: (typeof r.status === 'string' ? r.status : 'approved') as Comment['status'],
       isEdited: Boolean(r.isEdited),
       editedAt: r.editedAt ? Number(r.editedAt) : null,
       createdAt: r.createdAt ? Number(r.createdAt) : Math.floor(Date.now() / 1000),
@@ -165,14 +175,7 @@ export class CommentService {
   }
 
   private cacheKeyForList(filters: CommentFilters = {}): string | null {
-    const {
-      entityType,
-      entityId,
-      limit = 20,
-      offset = 0,
-      includeReplies = true,
-      status,
-    } = filters;
+    const { entityType, entityId, limit = 20, offset = 0, includeReplies = true, status } = filters;
     if (!entityType || !entityId) return null;
     return `comments:list:${entityType}:${entityId}:l=${limit}:o=${offset}:r=${includeReplies ? 1 : 0}:s=${status ?? 'any'}`;
   }
@@ -316,11 +319,11 @@ export class CommentService {
         const parent = await this.getCommentById(request.parentId);
         if (parent && parent.authorId && parent.authorEmail) {
           const notificationService = await this.getNotificationService();
-          const context = ({
+          const context = {
             userId: parent.authorId,
             locale: 'de',
             baseUrl: '',
-          } as unknown) as NotificationContext;
+          } as unknown as NotificationContext;
           const data: CommentNotificationData = {
             commentId,
             commentContent: sanitizedContent,
@@ -595,18 +598,20 @@ export class CommentService {
       .limit(limit)
       .offset(offset);
 
-    const commentsWithReports = commentResults.map((row: { comment: Comment; reportCount: number; authorImage: string | null }) => {
-      const { comment, reportCount, authorImage } = row as {
-        comment: Comment;
-        reportCount: number;
-        authorImage: string | null;
-      };
-      return {
-        ...comment,
-        reportCount: reportCount || 0,
-        authorImage: authorImage || null,
-      } as Comment;
-    });
+    const commentsWithReports = commentResults.map(
+      (row: { comment: Comment; reportCount: number; authorImage: string | null }) => {
+        const { comment, reportCount, authorImage } = row as {
+          comment: Comment;
+          reportCount: number;
+          authorImage: string | null;
+        };
+        return {
+          ...comment,
+          reportCount: reportCount || 0,
+          authorImage: authorImage || null,
+        } as Comment;
+      }
+    );
 
     // Fetch replies if requested (batch-load to avoid N+1 problem)
     if (includeReplies && commentsWithReports.length > 0) {
@@ -632,22 +637,24 @@ export class CommentService {
 
       // Group replies by parent ID
       const repliesByParent = new Map<string, Comment[]>();
-      allRepliesResults.forEach((row: { comment: Comment; reportCount: number; authorImage: string | null }) => {
-        const { comment, reportCount, authorImage } = row as {
-          comment: Comment;
-          reportCount: number;
-          authorImage: string | null;
-        };
-        const parentId = comment.parentId!;
-        if (!repliesByParent.has(parentId)) {
-          repliesByParent.set(parentId, []);
+      allRepliesResults.forEach(
+        (row: { comment: Comment; reportCount: number; authorImage: string | null }) => {
+          const { comment, reportCount, authorImage } = row as {
+            comment: Comment;
+            reportCount: number;
+            authorImage: string | null;
+          };
+          const parentId = comment.parentId!;
+          if (!repliesByParent.has(parentId)) {
+            repliesByParent.set(parentId, []);
+          }
+          repliesByParent.get(parentId)!.push({
+            ...comment,
+            reportCount: reportCount || 0,
+            authorImage: authorImage || null,
+          } as Comment);
         }
-        repliesByParent.get(parentId)!.push({
-          ...comment,
-          reportCount: reportCount || 0,
-          authorImage: authorImage || null,
-        } as Comment);
-      });
+      );
 
       // Attach replies to their parent comments
       for (const comment of commentsWithReports) {
@@ -712,11 +719,11 @@ export class CommentService {
       const updatedComment = await this.getCommentById(commentId);
       if (updatedComment && updatedComment.authorId && updatedComment.authorEmail) {
         const notificationService = await this.getNotificationService();
-        const context = ({
+        const context = {
           userId: updatedComment.authorId,
           locale: 'de',
           baseUrl: '',
-        } as unknown) as NotificationContext;
+        } as unknown as NotificationContext;
         const actionType =
           request.action === 'approve'
             ? 'comment_approved'
@@ -909,7 +916,7 @@ export class CommentService {
         const latest: CommentModeration | undefined = (() => {
           try {
             return latestModeration
-              ? ((JSON.parse(latestModeration as unknown as string) as unknown) as CommentModeration)
+              ? (JSON.parse(latestModeration as unknown as string) as unknown as CommentModeration)
               : undefined;
           } catch {
             return undefined;

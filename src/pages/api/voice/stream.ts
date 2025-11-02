@@ -1,5 +1,9 @@
-import type { APIRoute } from 'astro';
-import { withRedirectMiddleware, createApiError } from '@/lib/api-middleware';
+import type { APIContext } from 'astro';
+import {
+  withRedirectMiddleware,
+  createApiError,
+  createMethodNotAllowed,
+} from '@/lib/api-middleware';
 import { VoiceStreamAggregator } from '@/lib/services/voice-stream-aggregator';
 import { loggerFactory } from '@/server/utils/logger-factory';
 
@@ -11,12 +15,18 @@ function sseHeaders(): Headers {
   return h;
 }
 
-export const GET: APIRoute = withRedirectMiddleware(async ({ request, locals }) => {
+type VoiceEnv = {
+  KV_VOICE_TRANSCRIBE?: import('@cloudflare/workers-types').KVNamespace;
+  VOICE_STREAM_SSE?: string | number | boolean;
+};
+
+export const GET = withRedirectMiddleware(async (context: APIContext) => {
+  const { request, locals } = context;
   const url = new URL(request.url);
   const jobId =
     url.searchParams.get('jobId') || crypto.randomUUID?.() || Math.random().toString(36).slice(2);
 
-  const env = (locals as any)?.runtime?.env ?? {};
+  const env = (locals.runtime?.env ?? {}) as Partial<VoiceEnv>;
   const log = loggerFactory.createLogger('voice-stream-api');
   if (String(env.VOICE_STREAM_SSE) !== '1') {
     try {
@@ -32,7 +42,7 @@ export const GET: APIRoute = withRedirectMiddleware(async ({ request, locals }) 
   await aggregator.ensure(jobId);
 
   const encoder = new TextEncoder();
-  let timer: any;
+  let timer: ReturnType<typeof setInterval> | undefined;
 
   const stream = new ReadableStream<Uint8Array>({
     start(controller) {
@@ -68,9 +78,10 @@ export const GET: APIRoute = withRedirectMiddleware(async ({ request, locals }) 
   return new Response(stream, { status: 200, headers: sseHeaders() });
 });
 
-export const POST = undefined as unknown as APIRoute; // 405 via framework
-export const PUT = POST;
-export const PATCH = POST;
-export const DELETE = POST;
-export const OPTIONS = POST;
-export const HEAD = POST;
+const methodNotAllowed = () => createMethodNotAllowed('GET');
+export const POST = methodNotAllowed;
+export const PUT = methodNotAllowed;
+export const PATCH = methodNotAllowed;
+export const DELETE = methodNotAllowed;
+export const OPTIONS = methodNotAllowed;
+export const HEAD = methodNotAllowed;

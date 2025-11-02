@@ -67,19 +67,29 @@ export async function validateCsrfToken(token: string, cookieHeader?: string): P
  * app.use('*', createCsrfMiddleware());
  */
 export function createCsrfMiddleware() {
-  return async function csrfMiddleware(c: any, next: any) {
+  type HonoLikeContext = {
+    req: {
+      method: string;
+      header: (name: string) => string | null;
+      json: () => Promise<unknown>;
+    };
+    json: (body: unknown, status?: number) => Response;
+  };
+  type HonoLikeNext = () => Promise<Response | void>;
+  return async function csrfMiddleware(c: HonoLikeContext, next: HonoLikeNext) {
     const method = c.req.method;
 
     // Nur für mutierende Requests prüfen
     if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(method)) {
       // Token aus Header oder Body holen
-      const headerToken = c.req.header('X-CSRF-Token');
-      const cookie = c.req.header('Cookie');
+      const headerToken = c.req.header('X-CSRF-Token') ?? undefined;
+      const cookie = c.req.header('Cookie') ?? undefined;
 
       let bodyToken: string | undefined;
       try {
-        const body = await c.req.json();
-        bodyToken = body.csrfToken;
+        const bodyUnknown = await c.req.json();
+        const maybe = (bodyUnknown as { csrfToken?: unknown }).csrfToken;
+        bodyToken = typeof maybe === 'string' ? maybe : undefined;
       } catch {
         // Kein JSON-Body oder kein csrfToken-Feld
       }

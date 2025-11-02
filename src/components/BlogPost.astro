@@ -5,9 +5,11 @@ import BlogCTA from './blog/BlogCTA.astro';
 import LeadMagnetCTA from './blog/LeadMagnetCTA.astro';
 // Import the Image component from Astro's built-in assets handling.
 // Avoid astro:assets Image on Worker SSR; render native <img>
-import type { ImageMetadata } from 'astro';
 import { getLocale } from '@/lib/i18n';
 import { localizePath } from '@/lib/locale-path';
+
+// Minimal image metadata type for SSR-safe usage
+type SafeImage = { src: string; width?: number; height?: number };
 
 interface Props {
   post: ProcessedBlogPost;
@@ -71,7 +73,11 @@ const authorInitial =
 
 // Prepare the URL for sharing the article with a robust origin fallback
 // Prefer request origin; fallback to PUBLIC_APP_ORIGIN; then Astro.site; finally empty (dev fallback)
-const siteOrigin = Astro.url?.origin || import.meta.env.PUBLIC_APP_ORIGIN || (Astro.site && (Astro.site as URL).origin) || '';
+const siteOrigin =
+  Astro.url?.origin ||
+  import.meta.env.PUBLIC_APP_ORIGIN ||
+  (Astro.site && (Astro.site as URL).origin) ||
+  '';
 const postUrlForSharing = encodeURIComponent(new URL(post.url, siteOrigin).href);
 const encodedTitle = encodeURIComponent(String(title));
 
@@ -80,8 +86,8 @@ const linkedinShareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${
 const facebookShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${postUrlForSharing}`;
 
 // Ensure image properties are correctly typed and handled.
-const safeImage: ImageMetadata | null =
-  image && typeof (image as any)?.src === 'string' ? (image as ImageMetadata) : null;
+const safeImage: SafeImage | null =
+  image && typeof (image as any)?.src === 'string' ? (image as SafeImage) : null;
 // Use the width and height from the image data if available, otherwise let Astro handle it.
 const imageWidth: number | undefined = safeImage?.width ?? undefined;
 const imageHeight: number | undefined = safeImage?.height ?? undefined;
@@ -114,6 +120,12 @@ const mapLeadMagnetVariant = (
   v?: 'primary' | 'secondary' | 'subtle'
 ): 'card' | 'inline' | 'banner' | undefined =>
   v === 'primary' ? 'banner' : v === 'secondary' ? 'inline' : v === 'subtle' ? 'card' : undefined;
+
+// Global switch to disable lead magnets via env
+const DISABLE_LEADMAGNETS = (() => {
+  const v = String(import.meta.env.PUBLIC_DISABLE_LEADMAGNETS || '').toLowerCase();
+  return v === '1' || v === 'true';
+})();
 
 // Standard-CTA-Konfiguration basierend auf Artikel-Kategorie
 const getDefaultCTAForCategory = (category: string, position: 'top' | 'bottom') => {
@@ -233,7 +245,8 @@ const finalBottomCTA =
                       d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                     />
                   </svg>
-                  {locale === 'en' ? 'Updated on ' : 'Aktualisiert am '}{formattedUpdatedDate}
+                  {locale === 'en' ? 'Updated on ' : 'Aktualisiert am '}
+                  {formattedUpdatedDate}
                 </span>
               </>
             )
@@ -264,7 +277,9 @@ const finalBottomCTA =
           class="inline-flex items-center justify-center p-2 text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
           aria-label={locale === 'en' ? 'Share on Facebook' : 'Auf Facebook teilen'}
         >
-          <span class="sr-only">{locale === 'en' ? 'Share on Facebook' : 'Auf Facebook teilen'}</span>
+          <span class="sr-only"
+            >{locale === 'en' ? 'Share on Facebook' : 'Auf Facebook teilen'}</span
+          >
           <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
             <path
               fill-rule="evenodd"
@@ -280,7 +295,9 @@ const finalBottomCTA =
           class="inline-flex items-center justify-center p-2 text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
           aria-label={locale === 'en' ? 'Share on LinkedIn' : 'Auf LinkedIn teilen'}
         >
-          <span class="sr-only">{locale === 'en' ? 'Share on LinkedIn' : 'Auf LinkedIn teilen'}</span>
+          <span class="sr-only"
+            >{locale === 'en' ? 'Share on LinkedIn' : 'Auf LinkedIn teilen'}</span
+          >
           <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
             <path
               d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"
@@ -313,7 +330,7 @@ const finalBottomCTA =
 
   <!-- Top CTA (nach Header, vor Content) -->
   {
-    finalTopCTA && (
+    finalTopCTA && (!DISABLE_LEADMAGNETS || finalTopCTA.type !== 'leadmagnet') && (
       <div class="not-prose my-8">
         {finalTopCTA.type === 'leadmagnet' && finalTopCTA.leadMagnet ? (
           <LeadMagnetCTA
@@ -344,8 +361,6 @@ const finalBottomCTA =
     <slot name="comments" />
   </div>
 
-  
-
   {
     ((Array.isArray(tags) && tags.length > 0) || relatedPosts.length > 0) && (
       <footer class="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700">
@@ -370,9 +385,11 @@ const finalBottomCTA =
 
         {relatedPosts && relatedPosts.length > 0 && (
           <div class="mt-16">
-            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">{locale === 'en' ? 'Related Articles' : 'Ähnliche Artikel'}</h2>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+              {locale === 'en' ? 'Related Articles' : 'Ähnliche Artikel'}
+            </h2>
             <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {relatedPosts.map((relatedPost) => (
+              {relatedPosts.map((relatedPost: ProcessedBlogPost) => (
                 <BlogCard post={relatedPost} className="h-full" />
               ))}
             </div>
@@ -383,26 +400,28 @@ const finalBottomCTA =
   }
 
   {
-    finalBottomCTA && finalBottomCTA.type !== 'newsletter' && (
-      <div class="not-prose my-12">
-        {finalBottomCTA.type === 'leadmagnet' && finalBottomCTA.leadMagnet ? (
-          <LeadMagnetCTA
-            leadMagnetId={finalBottomCTA.leadMagnet}
-            variant={mapLeadMagnetVariant(finalBottomCTA.variant)}
-            title={finalBottomCTA.title}
-            description={finalBottomCTA.description}
-          />
-        ) : (
-          <BlogCTA
-            type={finalBottomCTA.type}
-            position="bottom"
-            variant={finalBottomCTA.variant || 'primary'}
-            title={finalBottomCTA.title}
-            description={finalBottomCTA.description}
-            leadMagnet={finalBottomCTA.leadMagnet}
-          />
-        )}
-      </div>
-    )
+    finalBottomCTA &&
+      finalBottomCTA.type !== 'newsletter' &&
+      (!DISABLE_LEADMAGNETS || finalBottomCTA.type !== 'leadmagnet') && (
+        <div class="not-prose my-12">
+          {finalBottomCTA.type === 'leadmagnet' && finalBottomCTA.leadMagnet ? (
+            <LeadMagnetCTA
+              leadMagnetId={finalBottomCTA.leadMagnet}
+              variant={mapLeadMagnetVariant(finalBottomCTA.variant)}
+              title={finalBottomCTA.title}
+              description={finalBottomCTA.description}
+            />
+          ) : (
+            <BlogCTA
+              type={finalBottomCTA.type}
+              position="bottom"
+              variant={finalBottomCTA.variant || 'primary'}
+              title={finalBottomCTA.title}
+              description={finalBottomCTA.description}
+              leadMagnet={finalBottomCTA.leadMagnet}
+            />
+          )}
+        </div>
+      )
   }
 </article>

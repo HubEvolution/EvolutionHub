@@ -143,20 +143,7 @@ const manageBillingLink = (() => {
   }
 })();
 
-const buyCreditsLink = (() => {
-  try {
-    const base = locale === 'de' ? '/de/pricing' : locale === 'en' ? '/en/pricing' : '/pricing';
-    const u = new URL(base, 'http://x');
-    const cur = Astro.url;
-    const currentPath = `${cur.pathname}${cur.search}`;
-    if (currentPath.startsWith('/')) {
-      u.searchParams.set('return_to', currentPath);
-    }
-    return u.pathname + u.search;
-  } catch {
-    return locale === 'de' ? '/de/pricing' : locale === 'en' ? '/en/pricing' : '/pricing';
-  }
-})();
+// removed buyCreditsLink: direct checkout UI implemented inline
 
 const dangerStrings =
   locale === 'de'
@@ -281,45 +268,78 @@ const profileCopy =
                   {billingStrings.credits}
                 </span>
                 <span class="text-lg font-bold text-white">
-                  {typeof billingSummary?.creditsRemaining === 'number'
-                    ? billingSummary.creditsRemaining
-                    : '—'}
+                  {
+                    typeof billingSummary?.creditsRemaining === 'number'
+                      ? billingSummary.creditsRemaining
+                      : '—'
+                  }
                 </span>
               </div>
               <div class="flex items-baseline gap-2">
-                <span class="text-xs font-semibold uppercase tracking-wide text-slate-400">Monthly quota remaining</span>
+                <span class="text-xs font-semibold uppercase tracking-wide text-slate-400"
+                  >Monthly quota remaining</span
+                >
                 <span id="quota-remaining" class="text-lg font-bold text-white">
-                  {(() => {
-                    const limit = Number(billingSummary?.monthlyLimit || 0);
-                    const used = Number(billingSummary?.monthlyUsed || 0);
-                    const rem = Math.max(0, limit - used);
-                    return rem > 0 ? rem : '—';
-                  })()}
+                  {
+                    (() => {
+                      const limit = Number(billingSummary?.monthlyLimit || 0);
+                      const used = Number(billingSummary?.monthlyUsed || 0);
+                      const rem = Math.max(0, limit - used);
+                      return rem > 0 ? rem : '—';
+                    })()
+                  }
                 </span>
-                <span id="quota-loading" class="text-[10px] font-semibold text-slate-400">Updating…</span>
+                <span id="quota-loading" class="text-[10px] font-semibold text-slate-400"
+                  >Updating…</span
+                >
               </div>
-              <a
-                href={buyCreditsLink}
-                class="inline-flex items-center rounded-md bg-gradient-to-r from-indigo-500 to-fuchsia-500 px-3 py-1.5 text-xs font-bold text-white shadow-sm shadow-indigo-500/30 transition hover:from-indigo-600 hover:to-fuchsia-600"
-              >
-                Buy credits
-              </a>
+              <div class="flex items-center gap-2">
+                <select
+                  id="credits-pack"
+                  class="rounded-md bg-white/10 text-white text-xs px-2 py-1 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                >
+                  <option value="100">100</option>
+                  <option value="500">500</option>
+                  <option value="1500">1500</option>
+                </select>
+                <button
+                  id="buy-credits-btn"
+                  type="button"
+                  data-login-href={redirectUrl}
+                  class="inline-flex items-center rounded-md bg-gradient-to-r from-indigo-500 to-fuchsia-500 px-3 py-1.5 text-xs font-bold text-white shadow-sm shadow-indigo-500/30 transition hover:from-indigo-600 hover:to-fuchsia-600 disabled:opacity-60"
+                >
+                  Buy credits
+                </button>
+              </div>
             </div>
             {
               (() => {
                 const limit = Number(billingSummary?.monthlyLimit || 0);
                 const used = Number(billingSummary?.monthlyUsed || 0);
-                const pct = limit > 0 ? Math.min(100, Math.max(0, Math.round((used / limit) * 100))) : 0;
+                const pct =
+                  limit > 0 ? Math.min(100, Math.max(0, Math.round((used / limit) * 100))) : 0;
                 const pe = Number(billingSummary?.periodEndsAt || 0);
-                const daysLeft = pe > 0 ? Math.max(0, Math.ceil((pe - Date.now()) / (1000 * 60 * 60 * 24))) : null;
+                const daysLeft =
+                  pe > 0 ? Math.max(0, Math.ceil((pe - Date.now()) / (1000 * 60 * 60 * 24))) : null;
                 return (
                   <div class="mt-3 space-y-1.5">
                     <div class="h-2 w-full rounded-full bg-white/10 overflow-hidden">
-                      <div id="quota-progress" class="h-2 bg-gradient-to-r from-emerald-500 to-teal-500" style={`width: ${pct}%`} />
+                      <div
+                        id="quota-progress"
+                        class="h-2 bg-gradient-to-r from-emerald-500 to-teal-500"
+                        style={`width: ${pct}%`}
+                      />
                     </div>
                     <div class="flex items-center justify-between text-xs text-slate-400">
-                      <span><span id="quota-used">{used}</span>/<span id="quota-limit">{limit}</span> used</span>
-                      {daysLeft !== null && <span>resets in {daysLeft} day{daysLeft === 1 ? '' : 's'}</span>}
+                      <span>
+                        <span id="quota-used">{used}</span>/<span id="quota-limit">{limit}</span>{' '}
+                        used
+                      </span>
+                      {daysLeft !== null && (
+                        <span>
+                          resets in {daysLeft} day{daysLeft === 1 ? '' : 's'}
+                        </span>
+                      )}
                     </div>
                   </div>
                 );
@@ -378,7 +398,8 @@ const profileCopy =
           const limit = Number(data.monthlyLimit || 0);
           const used = Number(data.monthlyUsed || 0);
           const rem = Math.max(0, limit - used);
-          const progress = limit > 0 ? Math.min(100, Math.max(0, Math.round((used / limit) * 100))) : 0;
+          const progress =
+            limit > 0 ? Math.min(100, Math.max(0, Math.round((used / limit) * 100))) : 0;
           const elRem = document.getElementById('quota-remaining');
           if (elRem) elRem.textContent = rem > 0 ? String(rem) : '—';
           const elUsed = document.getElementById('quota-used');
@@ -394,6 +415,103 @@ const profileCopy =
           const elLoading = document.getElementById('quota-loading');
           if (elLoading && elLoading instanceof HTMLElement) elLoading.style.display = 'none';
         });
+    } catch {}
+  })();
+</script>
+
+<script is:inline nonce={Astro.locals.cspNonce}>
+  (function () {
+    try {
+      var btn = document.getElementById('buy-credits-btn');
+      var sel = document.getElementById('credits-pack');
+      if (!btn || !sel) return;
+
+      var loginHref = (btn && btn.getAttribute('data-login-href')) || '/login';
+
+      function readCookie(name) {
+        var m = document.cookie.match(
+          new RegExp('(?:^|; )' + name.replace(/[.$?*|{}()\[\]\\/+^]/g, '\\$&') + '=([^;]*)')
+        );
+        return m ? decodeURIComponent(m[1]) : null;
+      }
+      function ensureCsrfToken() {
+        var token = readCookie('csrf_token');
+        if (!token) {
+          try {
+            var buf = new Uint8Array(16);
+            (globalThis.crypto || window.crypto).getRandomValues(buf);
+            token = Array.from(buf)
+              .map(function (b) {
+                return b.toString(16).padStart(2, '0');
+              })
+              .join('');
+            var attrs = ['Path=/', 'SameSite=Lax'];
+            if (typeof location !== 'undefined' && location.protocol === 'https:')
+              attrs.push('Secure');
+            document.cookie = 'csrf_token=' + encodeURIComponent(token) + '; ' + attrs.join('; ');
+          } catch {}
+        }
+        return token || '';
+      }
+      function getWorkspaceId() {
+        try {
+          var url = new URL(window.location.href);
+          var ws = url.searchParams.get('ws');
+          if (ws && ws.trim()) {
+            localStorage.setItem('ws_id', ws);
+            return ws;
+          }
+          var ls = localStorage.getItem('ws_id');
+          if (ls && ls.trim()) return ls;
+        } catch {}
+        return 'default';
+      }
+
+      btn.addEventListener('click', function () {
+        if (btn.disabled) return;
+        (async function () {
+          try {
+            btn.disabled = true;
+            var csrf = ensureCsrfToken();
+            var pack = Number((sel && sel.value) || '100');
+            var res = await fetch('/api/billing/credits', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
+              credentials: 'include',
+              body: JSON.stringify({
+                pack: pack,
+                workspaceId: getWorkspaceId(),
+                returnTo: location.pathname + location.search,
+              }),
+            });
+            if (res.status === 401) {
+              window.location.href = loginHref;
+              return;
+            }
+            if (!res.ok) {
+              var text = await res.text().catch(function () {
+                return '';
+              });
+              alert('Checkout failed: ' + (text || res.status));
+              return;
+            }
+            var data = await res.json().catch(function () {
+              return {};
+            });
+            var nextUrl = (data && (data.url || (data.data && data.data.url))) || '';
+            if (nextUrl) {
+              window.location.href = nextUrl;
+            } else {
+              alert('Checkout failed: Invalid response');
+            }
+          } catch (e) {
+            console.warn('[credits] checkout error', e);
+            alert('Checkout failed');
+          } finally {
+            btn.disabled = false;
+          }
+        })();
+      });
     } catch {}
   })();
 </script>

@@ -48,7 +48,7 @@ export const POST = withAuthApiMiddleware(
     try {
       const service = new BackupService(drizzle(db));
       const jobId = await service.createBackupJob(
-        { type: body.type as any, tables: body.tables },
+        { type: String(body.type), tables: body.tables },
         undefined
       );
       return createApiSuccess({ jobId, message: 'Backup job created successfully' });

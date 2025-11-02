@@ -68,8 +68,12 @@ export const onRequest = defineMiddleware(async (context, next) => {
   // HTTP Basic Auth Check für temporären Produktionsschutz
   const auth = context.request.headers.get('Authorization');
   const correctUsername = 'admin';
-  const correctPassword =
-    (context.locals.runtime?.env as any)?.SITE_PASSWORD || 'EvolutionHub2024!';
+  const correctPassword = (() => {
+    const rawEnv = (context.locals as unknown as { runtime?: { env?: Record<string, unknown> } })
+      ?.runtime?.env;
+    const v = (rawEnv as Record<string, unknown>)?.SITE_PASSWORD;
+    return typeof v === 'string' && v ? v : 'EvolutionHub2024!';
+  })();
 
   // Ausnahmen: API-Routen, Assets und Health-Checks sollen passwortfrei bleiben
   const requestUrl = new URL(context.request.url);
@@ -101,7 +105,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
           headers: { 'Content-Type': 'text/html; charset=utf-8' },
         });
       }
-    } catch (error) {
+    } catch (_err) {
       // Base64 decode Fehler
       return new Response('Ungültige Authentifizierung', {
         status: 401,

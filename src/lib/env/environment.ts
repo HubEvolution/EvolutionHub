@@ -70,14 +70,14 @@ export function isPreview(): boolean {
  * @param env Cloudflare-Umgebungsobjekt
  * @returns true, wenn lokale Umgebung, false wenn remote
  */
-export function isLocalEnvironment(env: Record<string, any>): boolean {
+export function isLocalEnvironment(env: Record<string, unknown>): boolean {
   // Prüfen auf explizite Remote-Flag
   if (typeof process !== 'undefined' && process.env.WRANGLER_REMOTE === 'true') {
     return false;
   }
 
   // Prüfen auf lokale Wrangler-Umgebung
-  if (env && env.ENVIRONMENT === 'development') {
+  if (env && (env as { ENVIRONMENT?: unknown }).ENVIRONMENT === 'development') {
     return true;
   }
 
@@ -106,7 +106,7 @@ export function getEnvironmentName(): string {
  * @param env Cloudflare-Umgebungsobjekt
  * @returns Beschreibung der aktuellen Umgebung
  */
-export function getEnvironmentDescription(env: Record<string, any>): string {
+export function getEnvironmentDescription(env: Record<string, unknown>): string {
   const envName = getEnvironmentName();
   const isLocal = isLocalEnvironment(env);
 

@@ -15,6 +15,24 @@ import { loggerFactory } from '@/server/utils/logger-factory';
 import { formatZodError } from '@/lib/validation';
 import { voiceTranscribeParamsSchema } from '@/lib/validation/schemas/voice';
 
+type FileLike = {
+  size: number;
+  type?: string;
+  name?: string;
+  arrayBuffer: () => Promise<ArrayBuffer>;
+  stream?: () => unknown;
+};
+
+type VoiceEnv = {
+  KV_VOICE_TRANSCRIBE?: import('@cloudflare/workers-types').KVNamespace;
+  OPENAI_API_KEY?: string;
+  WHISPER_MODEL?: string;
+  ENVIRONMENT?: string;
+  R2_VOICE?: import('@cloudflare/workers-types').R2Bucket;
+  VOICE_R2_ARCHIVE?: import('@cloudflare/workers-types').R2Bucket;
+  VOICE_DEV_ECHO?: string | number | boolean;
+};
+
 type MaybeTypedError = {
   apiErrorType?:
     | 'validation_error'
@@ -51,14 +69,42 @@ export const POST = withApiMiddleware(
     const { request, locals } = context;
     const log = loggerFactory.createLogger('voice-transcribe-api');
     const t0 = Date.now();
+    const env = (locals.runtime?.env ?? {}) as Partial<VoiceEnv>;
     const form = await request.formData();
-    const file = form.get('chunk');
+    const isFileLike = (v: unknown): v is FileLike =>
+      !!v &&
+      typeof v === 'object' &&
+      typeof (v as { size?: unknown }).size === 'number' &&
+      (typeof (v as { arrayBuffer?: unknown }).arrayBuffer === 'function' ||
+        typeof (v as { stream?: unknown }).stream === 'function');
+    let file: unknown = form.get('chunk');
+    if (!isFileLike(file)) file = form.get('file');
+    if (!isFileLike(file)) {
+      for (const [, val] of form.entries()) {
+        if (isFileLike(val)) {
+          file = val;
+          break;
+        }
+      }
+    }
+    // In dev echo mode we tolerate missing file by fabricating a tiny dummy audio blob
+    if (!isFileLike(file) && String(env.VOICE_DEV_ECHO) === '1') {
+      try {
+        const dummy = new Blob([new Uint8Array(16)], { type: 'audio/webm' });
+        const buf = await dummy.arrayBuffer();
+        file = new File([buf], 'chunk.webm', { type: 'audio/webm' });
+      } catch {}
+    }
 
+    const getField = (name: string) => {
+      const v = form.get(name);
+      return v === null ? undefined : v;
+    };
     const parsed = voiceTranscribeParamsSchema.safeParse({
-      sessionId: form.get('sessionId'),
-      jobId: form.get('jobId'),
-      lang: form.get('lang'),
-      isLastChunk: form.get('isLastChunk'),
+      sessionId: getField('sessionId'),
+      jobId: getField('jobId'),
+      lang: getField('lang'),
+      isLastChunk: getField('isLastChunk'),
     });
     if (!parsed.success) {
       return createApiError('validation_error', 'Invalid form fields', {
@@ -76,20 +122,19 @@ export const POST = withApiMiddleware(
           sessionId,
           jobId: jobIdForm || null,
           isLastChunk,
-          providedType: file instanceof File ? file.type || 'unknown' : 'none',
-          sizeBytes: file instanceof File ? file.size : 0,
+          providedType: isFileLike(file) ? file.type || 'unknown' : 'none',
+          sizeBytes: isFileLike(file) ? file.size : 0,
         },
       });
     } catch {}
-    if (!(file instanceof File)) {
+    if (!isFileLike(file)) {
       return createApiError('validation_error', 'Missing chunk file');
     }
 
     const ownerType: 'user' | 'guest' = locals.user?.id ? 'user' : 'guest';
     const ownerId = locals.user?.id || ensureGuestIdCookie(context);
 
-    const env = locals.runtime?.env ?? {};
-    const openaiKey = env.VOICE_DEV_ECHO === '1' ? undefined : env.OPENAI_API_KEY;
+    const openaiKey = String(env.VOICE_DEV_ECHO) === '1' ? undefined : env.OPENAI_API_KEY;
     const service = new VoiceTranscribeService({
       KV_VOICE_TRANSCRIBE: env.KV_VOICE_TRANSCRIBE,
       OPENAI_API_KEY: openaiKey,
@@ -111,7 +156,7 @@ export const POST = withApiMiddleware(
         ownerType,
         ownerId,
         sessionId,
-        file,
+        file as File,
         lang,
         ent.dailyBurstCap
       );
@@ -141,7 +186,7 @@ export const POST = withApiMiddleware(
             ownerType,
             isFinal: out.isFinal || isLastChunk,
             latencyMs: dt,
-            sizeBytes: (file as File).size,
+            sizeBytes: file.size,
           },
         });
       } catch {}

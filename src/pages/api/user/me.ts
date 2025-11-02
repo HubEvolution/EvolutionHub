@@ -1,3 +1,4 @@
+import type { APIContext } from 'astro';
 import { withAuthApiMiddleware, createApiSuccess, createApiError } from '@/lib/api-middleware';
 // Hinweis: standardApiLimiter wird dynamisch in der rateLimiter-Option importiert,
 // damit Vitest-Mocks zuverlässig greifen.
@@ -13,8 +14,8 @@ import { withAuthApiMiddleware, createApiSuccess, createApiError } from '@/lib/a
  * - Audit-Logging: Protokolliert alle API-Zugriffe und Authentifizierungsfehler
  */
 export const GET = withAuthApiMiddleware(
-  async (context) => {
-    const { locals } = context as any;
+  async (context: APIContext) => {
+    const { locals } = context;
     const user = locals.user as {
       id: string;
       email: string;
@@ -40,9 +41,9 @@ export const GET = withAuthApiMiddleware(
     // Zusätzliche Logging-Metadaten
     logMetadata: { action: 'user_info_request' },
     // Verwende in diesem Endpoint den Standard-API-Limiter; dynamischer Import für testbare Mocks
-    rateLimiter: async (ctx) => {
+    rateLimiter: async (ctx: APIContext) => {
       const { standardApiLimiter } = await import('@/lib/rate-limiter');
-      return standardApiLimiter(ctx as any);
+      return standardApiLimiter(ctx);
     },
     // Standardisierte Unauthorized-Antwort (Tests erwarten error.type = 'auth_error')
     onUnauthorized: (_context) => createApiError('auth_error', 'Unauthorized'),

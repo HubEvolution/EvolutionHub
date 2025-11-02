@@ -18,41 +18,44 @@ export const OPTIONS = methodNotAllowed;
 export const POST = async (context: APIContext) => {
   try {
     const ct = context.request.headers.get('content-type') || '';
-    const reports: Array<Record<string, any>> = [];
+    const reports: Array<Record<string, unknown>> = [];
+
+    const isPlainObject = (v: unknown): v is Record<string, unknown> =>
+      !!v && typeof v === 'object' && !Array.isArray(v);
+
+    const getStr = (obj: Record<string, unknown>, key: string): string | null => {
+      const v = obj[key];
+      return typeof v === 'string' ? v : null;
+    };
 
     if (ct.includes('application/csp-report')) {
       // Legacy: body is an object with { "csp-report": {...} }
       const jsonUnknown: unknown = await context.request.json().catch(() => null);
-      if (jsonUnknown && typeof jsonUnknown === 'object') {
-        const obj = jsonUnknown as Record<string, unknown>;
-        const repUnknown = obj['csp-report'] ?? obj['csp_report'] ?? obj;
-        if (repUnknown && typeof repUnknown === 'object') {
-          reports.push(repUnknown as Record<string, any>);
-        }
+      if (isPlainObject(jsonUnknown)) {
+        const repUnknown = jsonUnknown['csp-report'] ?? jsonUnknown['csp_report'] ?? jsonUnknown;
+        if (isPlainObject(repUnknown)) reports.push(repUnknown);
       }
     } else if (ct.includes('application/reports+json') || ct.includes('application/report')) {
       // Reporting API: array of { type, url, body, age, ... }
       const arr: unknown = await context.request.json().catch(() => null);
       if (Array.isArray(arr)) {
         for (const entry of arr) {
-          if (entry && typeof entry === 'object') {
-            const anyEntry = entry as Record<string, any>;
-            const body = anyEntry.body || anyEntry['csp-report'] || anyEntry['csp_report'] || {};
-            if (body && typeof body === 'object') {
-              reports.push(body as Record<string, any>);
-            }
+          if (isPlainObject(entry)) {
+            const body = entry.body ?? entry['csp-report'] ?? entry['csp_report'] ?? {};
+            if (isPlainObject(body)) reports.push(body);
           }
         }
       }
     } else {
       // Try best-effort JSON parse for unknown types (browsers can vary)
       const parsedUnknown: unknown = await context.request.json().catch(() => null);
-      if (parsedUnknown && typeof parsedUnknown === 'object') {
-        const obj = parsedUnknown as Record<string, any>;
-        const fallback = obj['csp-report'] || obj['csp_report'] || obj.body || obj;
-        if (fallback && typeof fallback === 'object') {
-          reports.push(fallback as Record<string, any>);
-        }
+      if (isPlainObject(parsedUnknown)) {
+        const fallback =
+          parsedUnknown['csp-report'] ||
+          parsedUnknown['csp_report'] ||
+          parsedUnknown.body ||
+          parsedUnknown;
+        if (isPlainObject(fallback)) reports.push(fallback);
       }
     }
 
@@ -60,15 +63,18 @@ export const POST = async (context: APIContext) => {
     for (const r of reports) {
       try {
         const directive =
-          r?.['effective-directive'] || r?.['violated-directive'] || r?.['directive'];
-        const blocked = r?.['blocked-uri'] || r?.['blockedURL'] || r?.['blocked'];
-        const documentUri = r?.['document-uri'] || r?.['documentURL'] || r?.['url'];
-        const disposition = r?.['disposition'];
+          getStr(r, 'effective-directive') ||
+          getStr(r, 'violated-directive') ||
+          getStr(r, 'directive');
+        const blocked = getStr(r, 'blocked-uri') || getStr(r, 'blockedURL') || getStr(r, 'blocked');
+        const documentUri =
+          getStr(r, 'document-uri') || getStr(r, 'documentURL') || getStr(r, 'url');
+        const disposition = getStr(r, 'disposition');
         log('info', 'CSP violation detected', {
-          directive: typeof directive === 'string' ? directive : String(directive || ''),
-          blocked: typeof blocked === 'string' ? blocked : String(blocked || ''),
-          document: typeof documentUri === 'string' ? documentUri : String(documentUri || ''),
-          disposition: typeof disposition === 'string' ? disposition : String(disposition || ''),
+          directive: directive ?? '',
+          blocked: blocked ?? '',
+          document: documentUri ?? '',
+          disposition: disposition ?? '',
           resource: '/api/csp-report',
           action: 'csp_violation_logged',
         });

@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD051 -->
+
 # Security-Headers-Dokumentation
 
 ## Überblick
@@ -12,17 +14,23 @@ Das Evolution Hub implementiert folgende Security-Headers für alle API-Antworte
 
 ```text
 Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: https://secure.gravatar.com; connect-src 'self'; font-src 'self'; object-src 'none'; media-src 'self'; frame-src 'none'; frame-ancestors 'none'; form-action 'self'; base-uri 'self';
-```
+
+```text
 
 **Zweck:** Schützt vor XSS-Angriffen, indem festgelegt wird, welche Ressourcen geladen werden dürfen.
 
 **Details:**
 
 - `default-src 'self'`: Standardmäßig dürfen Ressourcen nur von der eigenen Domain geladen werden
+
 - `script-src 'self'`: JavaScript darf nur von der eigenen Domain geladen werden
+
 - `style-src 'self'`: CSS darf nur von der eigenen Domain geladen werden
+
 - `img-src 'self' data: https://secure.gravatar.com`: Bilder dürfen von der eigenen Domain, als Data-URLs und von Gravatar geladen werden
+
 - `object-src 'none'`: Keine Plugins wie Flash oder Java erlaubt
+
 - `frame-ancestors 'none'`: Die Seite darf nicht in Frames eingebettet werden (ähnlich wie X-Frame-Options: DENY)
 
 ### 2. X-Content-Type-Options
@@ -36,19 +44,22 @@ X-Content-Type-Options: nosniff
 **Details:**
 
 - Schützt vor MIME-Type-Sniffing-Angriffen
+
 - Besonders wichtig für Dateien, die vom Benutzer hochgeladen werden
 
 ### 3. X-Frame-Options
 
 ```text
 X-Frame-Options: DENY
-```
+
+```text
 
 **Zweck:** Verhindert, dass die Seite in einem Frame, iframe oder object eingebettet wird.
 
 **Details:**
 
 - `DENY`: Verbietet jegliches Einbetten der Seite
+
 - Schützt vor Clickjacking-Angriffen
 
 ### 4. X-XSS-Protection
@@ -62,14 +73,17 @@ X-XSS-Protection: 1; mode=block
 **Details:**
 
 - `1`: Aktiviert den XSS-Filter
+
 - `mode=block`: Blockiert die gesamte Seite, wenn ein XSS-Angriff erkannt wird
+
 - Obwohl dieser Header in modernen Browsern als veraltet gilt (zugunsten von CSP), wird er für ältere Browser beibehalten
 
 ### 5. Referrer-Policy
 
 ```text
 Referrer-Policy: strict-origin-when-cross-origin
-```
+
+```text
 
 **Zweck:** Kontrolliert, welche Referrer-Informationen an andere Websites gesendet werden.
 
@@ -88,20 +102,24 @@ Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
 **Details:**
 
 - `max-age=31536000`: Der Browser sollte diese Domain für ein Jahr (in Sekunden) als HTTPS-only behandeln
+
 - `includeSubDomains`: Die Regel gilt auch für alle Subdomains
+
 - `preload`: Die Domain kann in die HSTS-Preload-Liste der Browser aufgenommen werden
 
 ### 7. Cache-Control
 
 ```text
 Cache-Control: no-store, max-age=0
-```
+
+```text
 
 **Zweck:** Verhindert das Caching sensibler Daten.
 
 **Details:**
 
 - `no-store`: Der Browser darf die Antwort nicht speichern
+
 - `max-age=0`: Die Antwort ist sofort veraltet
 
 ### 8. Permissions-Policy
@@ -115,6 +133,7 @@ Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=()
 **Details:**
 
 - Deaktiviert den Zugriff auf Kamera, Mikrofon, Geolocation und FLoC (Federated Learning of Cohorts)
+
 - Verhindert unerwünschten Zugriff auf Benutzergeräte und -daten
 
 ## Implementierung im Code
@@ -129,7 +148,8 @@ export const POST: APIRoute = async (context) => {
   const response = await handler(context);
   return applySecurityHeaders(response);
 }
-```
+
+```text
 
 Die `applySecurityHeaders`-Funktion fügt alle oben genannten Headers zu jeder API-Antwort hinzu:
 
@@ -181,39 +201,47 @@ export function applyCustomSecurityHeaders(response: Response, options: Security
     headers
   });
 }
-```
+
+```text
 
 ## Überprüfung und Validierung
 
 Die korrekte Implementierung der Security-Headers kann mit folgenden Tools überprüft werden:
 
 1. **Mozilla Observatory**: <https://observatory.mozilla.org/>
-2. **Security Headers**: <https://securityheaders.com/>
-3. **CSP Evaluator**: <https://csp-evaluator.withgoogle.com/>
+1. **Security Headers**: <https://securityheaders.com/>
+1. **CSP Evaluator**: <https://csp-evaluator.withgoogle.com/>
 
 ## Best Practices
 
 ### 1. Regelmäßige Überprüfung
 
 - Regelmäßige Überprüfung der Security-Headers mit den oben genannten Tools
+
 - Anpassung der Header basierend auf neuen Sicherheitsstandards und Bedrohungen
 
 ### 2. Content-Security-Policy
 
 - Beginnen Sie mit einer strengen CSP und lockern Sie sie nur bei Bedarf
+
 - Verwenden Sie `report-uri` oder `report-to`, um CSP-Verstöße zu protokollieren
+
 - Vermeiden Sie `unsafe-inline` und `unsafe-eval`, wenn möglich
 
 ### 3. HSTS
 
 - Beginnen Sie mit einer kurzen `max-age` und erhöhen Sie sie schrittweise
+
 - Testen Sie gründlich, bevor Sie `includeSubDomains` aktivieren
+
 - Fügen Sie die Domain zur HSTS-Preload-Liste hinzu, wenn Sie sicher sind
 
 ### 4. Caching-Kontrolle
 
 - Verwenden Sie `no-store` für sensible Daten
+
 - Verwenden Sie `private` für benutzerspezifische, aber nicht sensible Daten
+
 - Setzen Sie angemessene `max-age`-Werte für statische Ressourcen
 
 ## Anwendung auf API-Endpunkte
@@ -229,17 +257,27 @@ Die korrekte Implementierung der Security-Headers kann mit folgenden Tools über
 ## Zukünftige Verbesserungen
 
 1. **Report-Only-Modus**
+
    - Implementierung von `Content-Security-Policy-Report-Only` für neue CSP-Regeln
+
    - Sammlung von Verstößen, bevor strikte Regeln durchgesetzt werden
 
-2. **Subresource Integrity (SRI)**
+1. **Subresource Integrity (SRI)**
+
    - Hinzufügen von Integritätsprüfungen für externe Skripte und Stylesheets
+
    - Schutz vor kompromittierten CDNs
 
-3. **Feature-Policy/Permissions-Policy**
+1. **Feature-Policy/Permissions-Policy**
+
    - Erweiterung der Permissions-Policy um weitere Browser-Features
+
    - Feinere Kontrolle über erlaubte Features
 
-4. **Expect-CT**
+1. **Expect-CT**
+
    - Implementierung von Certificate Transparency
+
    - Erkennung von falsch ausgestellten SSL-Zertifikaten
+
+```text

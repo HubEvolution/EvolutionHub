@@ -36,10 +36,17 @@ interface CommentStore {
     csrfToken: string
   ) => Promise<Comment>;
   deleteComment: (commentId: string, csrfToken: string) => Promise<void>;
-  reportComment: (commentId: string, reason: ReportReason, description?: string, csrfToken?: string | null) => Promise<void>;
+  reportComment: (
+    commentId: string,
+    reason: ReportReason,
+    description?: string,
+    csrfToken?: string | null
+  ) => Promise<void>;
   fetchStats: () => Promise<void>;
   clearError: () => void;
-  setCurrentUser: (user: { id: string; name: string; email: string; image?: string } | null) => void;
+  setCurrentUser: (
+    user: { id: string; name: string; email: string; image?: string } | null
+  ) => void;
   initializeCsrfToken: () => Promise<void>;
   loadMoreComments: (baseFilters?: CommentFilters) => Promise<void>;
   setPageSize: (size: number) => void;

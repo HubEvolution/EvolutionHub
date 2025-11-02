@@ -77,7 +77,6 @@ const landingBgVariant = getLandingBgVariant();
 const siteBase: URL = (import.meta.env.PUBLIC_SITE_URL as string)
   ? new URL(import.meta.env.PUBLIC_SITE_URL as string)
   : new URL(Astro.url.origin);
-
 ---
 
 <!doctype html>
@@ -106,13 +105,13 @@ const siteBase: URL = (import.meta.env.PUBLIC_SITE_URL as string)
 
     <link
       rel="canonical"
-      href={
-        props.canonical ||
+      href={props.canonical ||
         new URL(
-          locale === 'en' ? getAlternateUrls(Astro.url.pathname).en : getAlternateUrls(Astro.url.pathname).de,
+          locale === 'en'
+            ? getAlternateUrls(Astro.url.pathname).en
+            : getAlternateUrls(Astro.url.pathname).de,
           siteBase
-        ).toString()
-      }
+        ).toString()}
     />
 
     <!-- hreflang links for SEO -->

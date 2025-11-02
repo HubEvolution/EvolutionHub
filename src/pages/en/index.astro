@@ -27,7 +27,7 @@ const heroSubtitle = landingV2
   ? (t('pages.home.hero.subtitle_poetic') ?? t('pages.home.hero.subtitle'))
   : t('pages.home.hero.subtitle');
 const testimonials = await getTestimonials({
-  tools: ['imag', 'prompt', 'voice'],
+  tools: ['imag', 'prompt', 'voice', 'web', 'video'],
   lang: 'en',
   limit: 6,
 });
