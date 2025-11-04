@@ -1,3 +1,11 @@
+---
+description: 'CI/CD-Pipeline, Workflows und Qualitäts-Gates für Evolution Hub'
+owner: 'Platform Team'
+priority: 'high'
+lastSync: '2025-11-03'
+codeRefs: '.github/workflows/**, scripts/**, docs/development/ci-cd.md'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # CI/CD-Pipeline - Evolution Hub
@@ -6,22 +14,22 @@ Diese Dokumentation beschreibt die vollständig automatisierte Continuous Integr
 
 ## Inhaltsverzeichnis
 
-1. [Überblick](#uberblick)
-1. [GitHub Actions Workflows](#github-actions-workflows)
-1. [CI-Gates (Qualitätssicherung)](#ci-gates-qualitätssicherung)
-1. [Deployment-Prozess](#deployment-prozess)
-1. [Umgebungen](#umgebungen)
-1. [Health-Check-System](#health-check-system)
-1. [Secrets & Konfiguration](#secrets--konfiguration)
-1. [Rollback-Strategien](#rollback-strategien)
-1. [Fehlerbehebung](#fehlerbehebung)
-1. [Entwicklungs-Workflow](#entwicklungs-workflow)
+- Überblick
+- GitHub Actions Workflows
+- CI-Gates (Qualitätssicherung)
+- Deployment-Prozess
+- Umgebungen
+- Health-Check-System
+- Secrets & Konfiguration
+- Rollback-Strategien
+- Fehlerbehebung
+- Entwicklungs-Workflow
 
 ---
 
-## Überblick
+## Überblick {#uberblick}
 
-Die CI/CD-Pipeline implementiert alle Anforderungen aus [CLAUDE.md](../../CLAUDE.md#testing):
+Die CI/CD-Pipeline implementiert alle Anforderungen aus [CLAUDE.md](../../CLAUDE.md):
 
 ✅ **CI-Gates (alle müssen grün sein):**
 
@@ -77,7 +85,7 @@ graph TD
 
 ---
 
-## GitHub Actions Workflows
+## GitHub Actions Workflows {#github-actions-workflows}
 
 ### 1. **Unit and E2E Tests** (`.github/workflows/unit-tests.yml`)
 
@@ -356,7 +364,7 @@ Loggt Fehlerdetails bei Deployment-Failure.
 
 ---
 
-## CI-Gates (Qualitätssicherung)
+## CI-Gates (Qualitätssicherung) {#ci-gates-qualitatssicherung}
 
 Alle Gates laufen **parallel** und müssen **grün** sein:
 
@@ -440,7 +448,7 @@ Playwright-Tests gegen Testing-Environment.
 
 ---
 
-## Deployment-Prozess
+## Deployment-Prozess {#deployment-prozess}
 
 ### Automatisches Deployment (Empfohlen)
 
@@ -502,7 +510,7 @@ npm run health-check -- --url https://staging.hub-evolution.com
 
 ---
 
-## Umgebungen
+## Umgebungen {#umgebungen}
 
 ### 1. **Development** (Lokal)
 
@@ -550,7 +558,7 @@ npm run health-check -- --url https://staging.hub-evolution.com
 
 ---
 
-## Health-Check-System
+## Health-Check-System {#health-check-system}
 
 ### Endpoint: `GET /api/health`
 
@@ -671,7 +679,7 @@ Hinweise:
 
 ---
 
-## Secrets & Konfiguration
+## Secrets & Konfiguration {#secrets-und-konfiguration}
 
 ### GitHub Secrets
 
@@ -720,7 +728,7 @@ Hinweise:
 
 ---
 
-## Rollback-Strategien
+## Rollback-Strategien {#rollback-strategien}
 
 ### Option 1: Cloudflare Rollback (Empfohlen)
 
@@ -775,7 +783,7 @@ git push origin v1.7.1
 
 ---
 
-## Fehlerbehebung
+## Fehlerbehebung {#fehlerbehebung}
 
 ### CI schlägt fehl
 
@@ -962,7 +970,7 @@ gh run watch  # Live-Monitoring
 
 ---
 
-## Entwicklungs-Workflow
+## Entwicklungs-Workflow {#entwicklungs-workflow}
 
 ### Übersicht
 

@@ -1,3 +1,11 @@
+---
+description: 'Stripe Billing- und Subscription-API Referenz für Evolution Hub'
+owner: 'Billing Team'
+priority: 'high'
+lastSync: '2025-11-03'
+codeRefs: 'src/pages/api/billing/**, src/lib/services/billing/**, docs/api/billing_api.md'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # Billing & Subscription API

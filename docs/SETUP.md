@@ -1,23 +1,27 @@
+---
+description: 'Setup-Anleitung für lokale Entwicklung und Deployment von Evolution Hub'
+owner: 'Platform Team'
+priority: 'medium'
+lastSync: '2025-11-03'
+codeRefs: 'README.md, docs/development/local-development.md, docs/SETUP.md'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # Setup Guide für Evolution Hub
 
 ## Inhaltsverzeichnis
 
-1. [Voraussetzungen](#voraussetzungen)
-1. [Projekt einrichten](#projekt-einrichten)
-1. [Datenbankkonfiguration](#datenbankkonfiguration)
-1. [Umgebungsvariablen](#umgebungsvariablen)
-1. [Lokale Entwicklung](#lokale-entwicklung)
-1. [Tests ausführen](#tests-ausfuhren)
-
-   - [Testarten und -struktur](#testarten-und-struktur)
-
-   - [Bekannte Testprobleme](#bekannte-testprobleme)
-
-   - [Testabdeckung verbessern](#testabdeckung-verbessern)
-
-1. [Bereitstellung](#bereitstellung)
+- Voraussetzungen
+- Projekt einrichten
+- Datenbankkonfiguration
+- Umgebungsvariablen
+- Lokale Entwicklung
+- Tests ausführen
+  - Testarten und -struktur
+  - Bekannte Testprobleme
+  - Testabdeckung verbessern
+- Bereitstellung
 
 ## Voraussetzungen
 

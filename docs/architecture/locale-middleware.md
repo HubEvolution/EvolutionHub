@@ -1,3 +1,11 @@
+---
+description: 'Funktionsweise der Locale-Middleware und URL-Normalisierung'
+owner: 'Platform Team'
+priority: 'medium'
+lastSync: '2025-11-03'
+codeRefs: 'src/middleware.ts, docs/architecture/auth-flow.md'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # Splash Page & Locale Middleware

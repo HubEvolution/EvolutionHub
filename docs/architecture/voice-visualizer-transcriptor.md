@@ -1,3 +1,11 @@
+---
+description: 'Architektur des Voice Visualizers & Transkriptionsdienstes'
+owner: 'Voice Team'
+priority: 'high'
+lastSync: '2025-11-03'
+codeRefs: 'src/lib/services/voice-transcribe-service.ts, src/pages/api/voice/**'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # Voice Visualizer + Transcriptor — Architektur

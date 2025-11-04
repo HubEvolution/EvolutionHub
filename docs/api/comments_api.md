@@ -1,3 +1,11 @@
+---
+description: 'API-Referenz für Kommentarsystem (Create, Moderate, List)'
+owner: 'Community Team'
+priority: 'high'
+lastSync: '2025-11-03'
+codeRefs: 'src/pages/api/comments/**, src/lib/services/comments/**, docs/api/comments_api.md'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # Comments API

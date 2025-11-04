@@ -1,3 +1,11 @@
+---
+description: 'Production Readiness Checklist für den AI Image Enhancer'
+owner: 'Operations Team'
+priority: 'high'
+lastSync: '2025-11-03'
+codeRefs: 'docs/ops/, src/lib/services/ai-image-service.ts, src/pages/api/ai-image/**'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # AI Image Enhancer – Production Readiness & Go‑Live Checklist

@@ -1,3 +1,11 @@
+---
+description: 'API-Referenz für Projektverwaltung und Dashboard-Projekte'
+owner: 'Dashboard Team'
+priority: 'high'
+lastSync: '2025-11-03'
+codeRefs: 'src/pages/api/dashboard/projects.ts, src/pages/api/projects/**, docs/api/projects_api.md'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # Projekte API Endpunkte

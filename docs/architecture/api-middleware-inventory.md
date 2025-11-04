@@ -1,3 +1,11 @@
+---
+description: 'Bestandsaufnahme der API-Middleware und ihrer Schutzmechanismen'
+owner: 'Platform Team'
+priority: 'high'
+lastSync: '2025-11-03'
+codeRefs: 'src/lib/api-middleware.ts, src/lib/rate-limiter.ts'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # API- & Middleware-Inventar (EvolutionHub)

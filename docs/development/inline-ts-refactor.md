@@ -1,3 +1,11 @@
+---
+description: 'Refactor-Plan für Inline TypeScript'
+owner: 'Platform Team'
+priority: 'low'
+lastSync: '2025-11-03'
+codeRefs: 'src/components/**, docs/development/typescript-integration.md'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # Inline TypeScript Refactor – Working Document

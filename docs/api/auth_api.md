@@ -1,3 +1,11 @@
+---
+description: 'API-Referenz für Authentifizierungs- und Session-Endpunkte'
+owner: 'Auth Team'
+priority: 'high'
+lastSync: '2025-11-03'
+codeRefs: 'src/pages/api/auth/**, src/lib/stytch.ts, src/lib/api-middleware.ts'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # Auth API Endpunkte

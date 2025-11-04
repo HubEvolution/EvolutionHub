@@ -1,3 +1,11 @@
+---
+description: 'Kurzübersicht mit Entwicklungs- und Deployment-Befehlen für Evolution Hub'
+owner: 'Platform Team'
+priority: 'low'
+lastSync: '2025-11-03'
+codeRefs: 'package.json, docs/cheat-sheet.md'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # Evolution Hub Cheat-Sheet

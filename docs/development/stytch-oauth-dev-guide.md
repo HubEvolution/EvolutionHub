@@ -1,3 +1,11 @@
+---
+description: 'Leitfaden für Stytch Magic Link & OAuth (Environments, Secrets, Flows)'
+owner: 'Auth Team'
+priority: 'high'
+lastSync: '2025-11-03'
+codeRefs: 'src/pages/api/auth/**, src/middleware.ts, docs/development/stytch-oauth-dev-guide.md'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # Stytch OAuth & Magic Link – Entwicklungsleitfaden (konsolidiert)

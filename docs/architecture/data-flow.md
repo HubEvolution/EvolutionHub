@@ -1,3 +1,11 @@
+---
+description: 'High-Level Datenfluss zwischen Frontend, Workers und D1'
+owner: 'Platform Team'
+priority: 'medium'
+lastSync: '2025-11-03'
+codeRefs: 'docs/architecture/system-overview.md, docs/architecture/database-schema.md'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # Datenfluss-Dokumentation

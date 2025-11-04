@@ -336,7 +336,10 @@ async function createSuiteV2TestUsers() {
       fs.unlinkSync(tmpSess);
       console.log(`ℹ️ TEST_ADMIN_COOKIE → session_id=${adminSessionId}`);
     } catch (error) {
-      console.warn('⚠️ Konnte Admin-Session nicht seeden (Tests können X-Debug-Login nutzen).', error);
+      console.warn(
+        '⚠️ Konnte Admin-Session nicht seeden (Tests können X-Debug-Login nutzen).',
+        error
+      );
     }
   } catch (error) {
     console.error('❌ Fehler beim Erstellen der Test-Suite v2 Benutzer:', error);

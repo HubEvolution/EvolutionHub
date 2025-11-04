@@ -1,3 +1,11 @@
+---
+description: 'Systemübersicht Evolution Hub (Workers, Pages, D1, R2, KV)'
+owner: 'Platform Team'
+priority: 'high'
+lastSync: '2025-11-03'
+codeRefs: 'docs/architecture/data-flow.md, docs/architecture/database-schema.md'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # Systemübersicht - Evolution Hub

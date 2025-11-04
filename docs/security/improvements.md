@@ -1,3 +1,11 @@
+---
+description: 'Implementierte Sicherheitsverbesserungen und Hardening-Maßnahmen'
+owner: 'Security Team'
+priority: 'high'
+lastSync: '2025-11-03'
+codeRefs: 'src/lib/api-middleware.ts, src/middleware.ts, docs/security/'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # Implementierte Sicherheitsverbesserungen

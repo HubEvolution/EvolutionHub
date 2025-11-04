@@ -1,3 +1,9 @@
+---
+status: deprecated
+date: '2023-11-10'
+supersededBy: 'docs/architecture/adrs/0004-database-schema.md'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # ADR-0003: Cloudflare D1 Datenbankschema und Migrationsansatz

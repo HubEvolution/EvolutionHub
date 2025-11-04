@@ -1,3 +1,11 @@
+---
+description: 'Nutzung und Implementierung des Debug Panels'
+owner: 'Platform Team'
+priority: 'medium'
+lastSync: '2025-11-03'
+codeRefs: 'src/components/ui/DebugPanel.tsx, docs/architecture/system-overview.md'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # Debug Panel - Benutzerhandbuch
@@ -51,13 +59,13 @@ Connected. Waiting for logs...
 
 ## Log-Levels
 
-- **[DEBUG]** (grau): Entwicklungsdetails
+- **`DEBUG`** (grau): Entwicklungsdetails
 
-- **[INFO]** (blau): Normale Operationen
+- **`INFO`** (blau): Normale Operationen
 
-- **[WARN]** (orange): Warnungen
+- **`WARN`** (orange): Warnungen
 
-- **[ERROR]** (rot): Kritische Fehler
+- **`ERROR`** (rot): Kritische Fehler
 
 ## Praktisches Debugging
 

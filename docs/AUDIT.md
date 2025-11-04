@@ -1,3 +1,11 @@
+---
+description: 'Komponenten- und Asset-Audit für die futuristische Landingpage'
+owner: 'Frontend Team'
+priority: 'low'
+lastSync: '2025-11-03'
+codeRefs: 'src/components/**, public/assets/**, docs/AUDIT.md'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # Evolution Hub - Component & Asset Audit

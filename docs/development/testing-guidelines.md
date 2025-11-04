@@ -1,3 +1,11 @@
+---
+description: 'Verbindliche Test-Richtlinien (Unit, Integration, E2E) für Evolution Hub'
+owner: 'Testing & CI Team'
+priority: 'high'
+lastSync: '2025-11-03'
+codeRefs: 'vitest.config.ts, test-suite-v2/**, docs/development/testing-guidelines.md'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # Testing Guidelines

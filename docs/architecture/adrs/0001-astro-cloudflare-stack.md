@@ -1,3 +1,9 @@
+---
+status: active
+date: '2025-11-03'
+supersededBy: ''
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # ADR-0001: Verwendung von Astro mit Cloudflare als Technologie-Stack

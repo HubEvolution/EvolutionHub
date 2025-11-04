@@ -67,10 +67,16 @@ const CF_BEACON_TOKEN =
           'script[src*="plausible.io/js/script"]',
           'script[src*="static.cloudflareinsights.com/beacon"]',
         ];
-        document.querySelectorAll(selectors.join(',')).forEach((el) => el.parentElement?.removeChild(el));
+        document
+          .querySelectorAll(selectors.join(','))
+          .forEach((el) => el.parentElement?.removeChild(el));
         // Best-effort: drop globals
-        try { delete (window).gtag; } catch {}
-        try { delete (window).plausible; } catch {}
+        try {
+          delete window.gtag;
+        } catch {}
+        try {
+          delete window.plausible;
+        } catch {}
         providersInitialized = false;
       } catch (e) {
         console.warn('[Analytics] disableProviders failed', e);
@@ -218,7 +224,9 @@ const CF_BEACON_TOKEN =
           }
         } else {
           if ('fbq' in window && typeof window.fbq === 'function') {
-            try { window.fbq('consent', 'revoke'); } catch {}
+            try {
+              window.fbq('consent', 'revoke');
+            } catch {}
           }
         }
       } catch (e) {

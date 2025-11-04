@@ -1,3 +1,11 @@
+---
+description: 'Dokumentation des D1-Datenbankschemas und Migrationsstrategie'
+owner: 'Database Team'
+priority: 'high'
+lastSync: '2025-11-03'
+codeRefs: 'migrations/, docs/architecture/adrs/0004-database-schema.md'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # Datenbank-Schema - Evolution Hub

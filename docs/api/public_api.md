@@ -1,3 +1,11 @@
+---
+description: 'Übersicht über öffentlich zugängliche API-Endpunkte und Sicherheit'
+owner: 'Platform Team'
+priority: 'medium'
+lastSync: '2025-11-03'
+codeRefs: 'docs/api/public_api.md, src/pages/api/**'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # Öffentliche API Endpunkte

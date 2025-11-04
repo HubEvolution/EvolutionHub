@@ -1,3 +1,9 @@
+---
+status: draft
+date: '2025-11-03'
+supersededBy: ''
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # ADR-0000: Template für Architecture Decision Records

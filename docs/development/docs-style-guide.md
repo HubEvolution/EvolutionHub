@@ -1,3 +1,11 @@
+---
+description: 'Styleguide für Dokumentationsstruktur, Frontmatter und CI-Checks'
+owner: 'Documentation Team'
+priority: 'high'
+lastSync: '2025-11-03'
+codeRefs: 'docs/, scripts/'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # Documentation Style Guide

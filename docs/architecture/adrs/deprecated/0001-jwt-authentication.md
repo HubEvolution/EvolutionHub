@@ -1,3 +1,9 @@
+---
+status: deprecated
+date: '2023-10-15'
+supersededBy: 'docs/architecture/auth-migration-stytch.md'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # ADR 0001: JWT-basierte Authentifizierung

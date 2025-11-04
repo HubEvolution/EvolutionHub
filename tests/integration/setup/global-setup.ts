@@ -93,7 +93,8 @@ export default async function () {
 
   // Provide admin test cookie/user for Option C (seeded by setup-local-dev.ts)
   // This is static and idempotent across runs.
-  process.env.TEST_ADMIN_COOKIE = process.env.TEST_ADMIN_COOKIE || 'session_id=e2e-admin-session-0001';
+  process.env.TEST_ADMIN_COOKIE =
+    process.env.TEST_ADMIN_COOKIE || 'session_id=e2e-admin-session-0001';
   process.env.TEST_ADMIN_USER_ID = process.env.TEST_ADMIN_USER_ID || 'e2e-admin-0001';
   process.env.TEST_ADMIN_EMAIL = process.env.TEST_ADMIN_EMAIL || 'admin@test-suite.local';
 

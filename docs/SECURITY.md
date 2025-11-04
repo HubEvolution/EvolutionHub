@@ -1,43 +1,38 @@
+---
+description: 'Sicherheitsmaßnahmen, Richtlinien und Best Practices für Evolution Hub'
+owner: 'Security Team'
+priority: 'high'
+lastSync: '2025-11-03'
+codeRefs: 'src/lib/api-middleware.ts, src/lib/rate-limiter.ts, docs/SECURITY.md'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # Evolution Hub Security Documentation
 
 [![Security Status](https://img.shields.io/badge/Security-Enhanced-brightgreen)](https://github.com/LucasBonnerue/evolution-hub)
 [![OWASP Compliant](https://img.shields.io/badge/OWASP-Compliant-blue)](https://owasp.org/www-project-top-ten/)
-[![Security Banner](../public/assets/svg/security.svg)](https://owasp.org/www-project-top-ten/)
 
 Diese Dokumentation bietet einen umfassenden Überblick über die Sicherheitsmaßnahmen, die im Evolution Hub implementiert wurden, um die Anwendung vor gängigen Bedrohungen zu schützen.
 
 ## Inhaltsverzeichnis
 
-1. [Überblick](#uberblick)
-1. [Implementierte Security-Features](#implementierte-security-features)
-
-   - [Rate-Limiting](#1-rate-limiting)
-
-   - [Security-Headers](#2-security-headers)
-
-   - [Audit-Logging](#3-audit-logging)
-
-   - [Input-Validierung](#4-input-validierung)
-
-   - [Datenschutz](#5-datenschutz)
-
-1. [API-Endpunkte und Security-Features](#api-endpunkte-und-security-features)
-
-   - [Authentifizierungs-APIs](#authentifizierungs-apis)
-
-   - [Benutzer-APIs](#benutzer-apis)
-
-   - [Projekt-APIs](#projekt-apis)
-
-   - [Dashboard-APIs](#dashboard-apis)
-
-   - [Öffentliche APIs](#offentliche-apis)
-
-1. [Sicherheitsrichtlinien](#sicherheitsrichtlinien)
-1. [Bekannte Sicherheitsprobleme](#bekannte-sicherheitsprobleme)
-1. [Empfehlungen für zukünftige Verbesserungen](#empfehlungen-fur-zukunftige-verbesserungen)
+- Überblick
+- Implementierte Security-Features
+  - Rate-Limiting
+  - Security-Headers
+  - Audit-Logging
+  - Input-Validierung
+  - Datenschutz
+- API-Endpunkte und Security-Features
+  - Authentifizierungs-APIs
+  - Benutzer-APIs
+  - Projekt-APIs
+  - Dashboard-APIs
+  - Öffentliche APIs
+- Sicherheitsrichtlinien
+- Bekannte Sicherheitsprobleme
+- Empfehlungen für zukünftige Verbesserungen
 
 ## Überblick
 

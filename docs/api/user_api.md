@@ -1,3 +1,11 @@
+---
+description: 'API-Referenz für Benutzerverwaltung und Sessions'
+owner: 'Account Team'
+priority: 'high'
+lastSync: '2025-11-03'
+codeRefs: 'src/pages/api/user/**, docs/api/user_api.md'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # User API Endpunkte

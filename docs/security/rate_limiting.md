@@ -1,3 +1,11 @@
+---
+description: 'Rate-Limiting-Strategien und Implementierungsdetails für Evolution Hub'
+owner: 'Security Team'
+priority: 'high'
+lastSync: '2025-11-03'
+codeRefs: 'src/lib/rate-limiter.ts, src/lib/api-middleware.ts, docs/security/'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # Rate-Limiting-Dokumentation

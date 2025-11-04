@@ -1,3 +1,11 @@
+---
+description: 'TypeScript-Integration – Konfiguration, Best Practices und Build-Prozess'
+owner: 'Platform Team'
+priority: 'medium'
+lastSync: '2025-11-03'
+codeRefs: 'tsconfig.json, src/**/*.ts, docs/development/typescript-integration.md'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # TypeScript-Integration im Evolution Hub
@@ -6,15 +14,15 @@ Diese Dokumentation beschreibt die TypeScript-Integration im Evolution Hub Proje
 
 ## Inhaltsverzeichnis
 
-1. [Übersicht](#ubersicht)
-1. [TypeScript-Konfiguration](#typescript-konfiguration)
-1. [Best Practices](#best-practices)
-1. [Build-Prozess](#build-prozess)
-1. [Troubleshooting](#troubleshooting)
+- Übersicht
+- TypeScript-Konfiguration
+- Best Practices
+- Build-Prozess
+- Troubleshooting
 
 ---
 
-## Übersicht
+## Übersicht {#overview}
 
 Das Evolution Hub Projekt verwendet TypeScript für alle clientseitigen Skripte, um Typsicherheit, bessere Entwicklererfahrung und zuverlässigeren Code zu gewährleisten. Alle JavaScript-Dateien wurden in TypeScript-Dateien umgewandelt, und neue Funktionalitäten sollten ausschließlich in TypeScript implementiert werden.
 
@@ -30,7 +38,7 @@ Das Evolution Hub Projekt verwendet TypeScript für alle clientseitigen Skripte,
 
 ---
 
-## TypeScript-Konfiguration
+## TypeScript-Konfiguration {#ts-config}
 
 Die TypeScript-Konfiguration wird in der `tsconfig.json`-Datei im Wurzelverzeichnis des Projekts definiert.
 
@@ -67,7 +75,7 @@ Die TypeScript-Konfiguration wird in der `tsconfig.json`-Datei im Wurzelverzeich
 
 ---
 
-## Best Practices
+## Best Practices {#ts-best-practices}
 
 ### 1. Datei- und Codeorganisation
 
@@ -115,7 +123,7 @@ Die TypeScript-Konfiguration wird in der `tsconfig.json`-Datei im Wurzelverzeich
 
 ---
 
-## Build-Prozess
+## Build-Prozess {#ts-build-process}
 
 Der Build-Prozess für TypeScript-Dateien ist in den allgemeinen Build-Prozess des Projekts integriert.
 
@@ -149,7 +157,7 @@ Im CI/CD-Prozess werden TypeScript-Dateien automatisch kompiliert. Die generiert
 
 ---
 
-## Troubleshooting
+## Troubleshooting {#ts-troubleshooting}
 
 ### Häufige Fehler und Lösungen
 

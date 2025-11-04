@@ -1,3 +1,9 @@
+---
+status: active
+date: '2023-10-25'
+supersededBy: ''
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # ADR 0003: Astro-basierte Frontend-Architektur

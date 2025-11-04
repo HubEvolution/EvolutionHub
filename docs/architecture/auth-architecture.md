@@ -1,3 +1,11 @@
+---
+description: 'Architektur der Authentifizierung (Stytch, Sessions, Middleware)'
+owner: 'Auth Team'
+priority: 'high'
+lastSync: '2025-11-03'
+codeRefs: 'src/lib/stytch.ts, src/pages/api/auth/**, docs/architecture/auth-migration-stytch.md'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # Authentifizierungs-Architektur
@@ -6,21 +14,21 @@ Stand: 2025-09-11 – Post-Refactoring Phase 1. Diese Dokumentation fasst den ak
 
 ## Inhaltsverzeichnis
 
-1. [Überblick](#uberblick)
-1. [Aktueller Authentifizierungsflow](#aktueller-authentifizierungsflow)
-1. [Sicherheitsmaßnahmen](#sicherheitsmanahmen)
-1. [Fehlerbehandlung](#fehlerbehandlung)
-1. [Middleware-Integration](#middleware-integration)
-1. [Migrationshistorie](#migrationshistorie)
-1. [Endpunkte](#endpunkte)
-1. [Datenfluss-Diagramm](#datenfluss-diagramm)
-1. [Phasenplan und Checkliste](#phasenplan-und-checkliste)
-1. [Environments und Secrets](#environments-und-secrets)
-1. [Testing](#testing)
+- Architekturüberblick
+- Aktueller Authentifizierungsflow
+- Sicherheitsmaßnahmen
+- Fehlerbehandlung
+- Middleware-Integration
+- Migrationshistorie
+- Endpunkte
+- Datenfluss-Diagramm
+- Phasenplan und Checkliste
+- Environments und Secrets
+- Testing
 
 ---
 
-## Überblick
+## Architekturüberblick {#architekturuberblick}
 
 Das Evolution Hub Authentifizierungssystem verwendet serverseitige Sitzungen mit einem sicheren HttpOnly-Cookie (`__Host-session`, Secure, SameSite=Strict, Path=/) und implementiert Best Practices für Webanwendungssicherheit. Es werden keine JWTs verwendet. Das System ist auf Stytch Magic Link migriert, ergänzt um Social OAuth (Google, GitHub, Apple, Microsoft). Entfernt (410 Gone) Passwort-Flows sind entfernt und liefern 410 Gone.
 
@@ -32,7 +40,7 @@ Der Flow basiert auf Redirects:
 
 Feature-Flag: `AUTH_PROVIDER=legacy|stytch` für Rollout/Rollback. Domains: prod (`https://hub-evolution.com`), staging (`https://staging.hub-evolution.com`), test (`https://test.hub-evolution.com`), dev (`http://localhost:8787`).
 
-## Aktueller Authentifizierungsflow
+## Aktueller Authentifizierungsflow {#aktueller-authentifizierungsflow}
 
 ### Magic Link
 
@@ -98,7 +106,7 @@ Feature-Flag: `AUTH_PROVIDER=legacy|stytch` für Rollout/Rollback. Domains: prod
 
   - Der frühere `/auth/notify` BroadcastChannel‑Zwischenschritt wurde entfernt. Der Callback leitet jetzt direkt weiter; Login‑Seiten lauschen nicht mehr darauf.
 
-## Sicherheitsmaßnahmen
+## Sicherheitsmaßnahmen {#sicherheitsmassnahmen}
 
 - **Rate-Limiting**: Schutz vor Brute-Force/Abuse auf Auth-APIs und global in der Middleware (siehe [api-middleware-inventory.md](api-middleware-inventory.md)).
 
@@ -118,7 +126,7 @@ Feature-Flag: `AUTH_PROVIDER=legacy|stytch` für Rollout/Rollback. Domains: prod
 
 - **PKCE (feature‑flagged)**: Wenn `STYTCH_PKCE` aktiviert ist, setzt `POST /api/auth/magic/request` einen kurzlebigen HttpOnly‑Cookie `pkce_verifier` (SameSite=Lax, 10 Min) und sendet einen `pkce_code_challenge` an Stytch. `GET /api/auth/callback` muss dann den `pkce_code_verifier` übergeben; der Cookie wird danach gelöscht. Für Mobile‑Webviews deaktivieren, da Context‑Switch den Verifier verhindern kann.
 
-## Fehlerbehandlung
+## Fehlerbehandlung {#fehlerbehandlung}
 
 - **Kanonischer Code**: `InvalidCredentials` für `ServiceErrorType.AUTHENTICATION`.
 
@@ -148,7 +156,7 @@ Referenzen:
 
 - `src/pages/api/auth/callback.ts`
 
-## Middleware-Integration
+## Middleware-Integration {#middleware-integration}
 
 Die Authentifizierung ist in die Middleware-Pipeline integriert (`src/middleware.ts`):
 
@@ -216,7 +224,7 @@ export function requireRole(roles) {
 
 Verwendung in API-Routen: `export const all = [requireRole(['admin'])];`.
 
-## Migrationshistorie
+## Migrationshistorie {#migrationshistorie}
 
 Die Migration von Entfernt (410 Gone) (E-Mail/Passwort mit Resend) zu Stytch Magic Link + Social erfolgte schrittweise:
 
@@ -240,7 +248,7 @@ Protokoll:
 
 - 2025-09-05: Login-Endpoint verifiziert (historisch).
 
-## Endpunkte
+## Endpunkte {#endpunkte}
 
 - **Magic Link**: `/api/auth/magic/request` (POST), `/api/auth/callback` (GET).
 
@@ -254,7 +262,7 @@ Protokoll:
 
 Sicherheit: Rate-Limits, Turnstile (Prod), CSRF für unsichere Methoden.
 
-## Datenfluss-Diagramm
+## Datenfluss-Diagramm {#datenfluss-diagramm}
 
 ```mermaid
 sequenceDiagram
@@ -278,7 +286,7 @@ sequenceDiagram
 
 ```text
 
-## Phasenplan und Checkliste
+## Phasenplan und Checkliste {#phasenplan-und-checkliste}
 
 ### Umsetzungs-Checkliste
 
@@ -306,7 +314,7 @@ sequenceDiagram
 1. CI aktualisieren (Coverage-Gates).
 1. Staging/Prod vorbereiten (Secrets, Smoke-Tests).
 
-## Environments und Secrets
+## Environments und Secrets {#environments-und-secrets}
 
 Envs: production, staging, testing, development.
 
@@ -334,7 +342,7 @@ Redirect-URIs (Stytch Whitelist):
 
 Stytch Dashboard: TEST-Umgebung für Dev/Testing/Staging; LIVE für Prod.
 
-## Testing
+## Testing {#testing}
 
 Die Authentifizierung wird durch schrittweise Tests validiert, inkl. Stytch-Wrapper, Endpunkte und Flows. Ziel: >70% Coverage, CI-Integration (Vitest, Playwright gegen Wrangler mit TEST_BASE_URL). ADR-Referenz: Tests decken Übergang von JWT zu Sessions ab (siehe [deprecated/0001-jwt-authentication.md](adrs/deprecated/0001-jwt-authentication.md)).
 

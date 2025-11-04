@@ -1,3 +1,11 @@
+---
+description: 'Lizenz- und Compliance-Anforderungen für den AI Image Enhancer'
+owner: 'Compliance Team'
+priority: 'medium'
+lastSync: '2025-11-03'
+codeRefs: 'docs/ops/prod-readiness-ai-image-enhancer.md, docs/ops/runbook-image-enhancer-go-live.md'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # AI Enhancer — Licensing & Compliance Notes

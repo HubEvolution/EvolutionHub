@@ -1,3 +1,9 @@
+---
+status: active
+date: '2024-03-12'
+supersededBy: ''
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # ADR-0005: Auth-Routen – Locale-Normalisierung (DE/EN)

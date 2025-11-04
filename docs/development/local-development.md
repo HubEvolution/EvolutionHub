@@ -1,3 +1,11 @@
+---
+description: 'Anleitung für lokale Entwicklung (Tooling, Wrangler, DB)'
+owner: 'Platform Team'
+priority: 'medium'
+lastSync: '2025-11-03'
+codeRefs: 'README.md, docs/development/ci-cd.md'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # Lokale Entwicklungsumgebung - Evolution Hub
@@ -6,16 +14,16 @@ Diese Anleitung beschreibt die Einrichtung und Verwendung der lokalen Entwicklun
 
 ## Inhaltsverzeichnis
 
-1. [Voraussetzungen](#voraussetzungen)
-1. [Einrichtung](#einrichtung)
-1. [Entwicklungsserver](#entwicklungsserver)
-1. [Datenbank-Setup](#datenbank-setup)
-1. [Wrangler für Cloudflare-Entwicklung](#wrangler-fur-cloudflare-entwicklung)
-1. [API-Dokumentation](#api-dokumentation)
-1. [Debugging](#debugging)
-1. [Häufige Probleme und Lösungen](#haufige-probleme-und-losungen)
-1. [Entwicklungs-Workflows](#entwicklungs-workflows)
-1. [Performance-Optimierung](#performance-optimierung)
+- Voraussetzungen
+- Einrichtung
+- Entwicklungsserver
+- Datenbank-Setup
+- Wrangler für Cloudflare-Entwicklung
+- API-Dokumentation
+- Debugging
+- Häufige Probleme und Lösungen
+- Entwicklungs-Workflows
+- Performance-Optimierung
 
 ---
 

@@ -1,3 +1,11 @@
+---
+description: 'Stripe-Konfiguration für Billing Phase 2 (Produkte, Webhooks, Env Vars)'
+owner: 'Billing Team'
+priority: 'high'
+lastSync: '2025-11-03'
+codeRefs: 'docs/development/stripe-setup.md, docs/api/billing_api.md, src/pages/api/billing/**'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # Stripe Setup (Billing Phase 2)

@@ -1,3 +1,11 @@
+---
+description: 'API-Referenz für Dashboard-Daten und Nutzerübersichten'
+owner: 'Dashboard Team'
+priority: 'high'
+lastSync: '2025-11-03'
+codeRefs: 'src/pages/api/dashboard/**, docs/api/dashboard_api.md'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # Dashboard API Endpunkte

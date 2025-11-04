@@ -1,6 +1,10 @@
 ---
 title: Environment variables
-description: Reference of configuration sourced from .env.example
+description: Referenz der Environment-Variablen (Cloudflare Worker & Astro)
+owner: Platform Team
+priority: medium
+lastSync: 2025-11-03
+codeRefs: .env.example, wrangler.toml, src/config/**
 ---
 
 <!-- markdownlint-disable MD051 -->

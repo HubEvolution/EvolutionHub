@@ -1,3 +1,9 @@
+---
+status: active
+date: '2023-10-20'
+supersededBy: ''
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # ADR 0002: Cloudflare-basierte Architektur

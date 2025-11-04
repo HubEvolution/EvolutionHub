@@ -1,3 +1,11 @@
+---
+description: 'Überblick über Technologie-Stack und Architektur von Evolution Hub'
+owner: 'Platform Team'
+priority: 'medium'
+lastSync: '2025-11-03'
+codeRefs: 'docs/architecture/**, src/lib/**, package.json'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # Evolution Hub - Technologie-Stack und Architektur

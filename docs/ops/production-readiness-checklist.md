@@ -1,3 +1,11 @@
+---
+description: 'Audit- und Maßnahmenplan zur Production Readiness von Evolution Hub'
+owner: 'Operations Team'
+priority: 'high'
+lastSync: '2025-11-03'
+codeRefs: 'docs/ops/, src/lib/api-middleware.ts, src/middleware.ts'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # Evolution Hub — Production Readiness Audit & Implementation Plan

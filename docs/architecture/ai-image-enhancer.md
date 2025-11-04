@@ -1,3 +1,11 @@
+---
+description: 'Architekturübersicht des AI Image Enhancers (Worker + R2 + Entitlements)'
+owner: 'AI Enhancer Team'
+priority: 'high'
+lastSync: '2025-11-03'
+codeRefs: 'src/lib/services/ai-image-service.ts, src/pages/api/ai-image/**'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # AI-Bildbearbeitung - Architektur und Implementierung

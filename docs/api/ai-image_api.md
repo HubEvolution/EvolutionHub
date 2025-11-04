@@ -1,3 +1,11 @@
+---
+description: 'API-Referenz für den AI Image Enhancer (Generate, Usage, Jobs)'
+owner: 'AI Enhancer Team'
+priority: 'high'
+lastSync: '2025-11-03'
+codeRefs: 'src/pages/api/ai-image/**, src/lib/services/ai-image-service.ts, docs/api/ai-image_api.md'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # AI-Image Enhancement API

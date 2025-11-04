@@ -1,3 +1,11 @@
+---
+description: 'Dokumentation der Cloudflare Cache Rules für CI- und Staging-Umgebungen'
+owner: 'Operations Team'
+priority: 'medium'
+lastSync: '2025-11-03'
+codeRefs: 'docs/ops/, scripts/, cloudflare ruleset config'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # Cloudflare Cache Rules — CI & Staging

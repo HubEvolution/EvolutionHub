@@ -1,3 +1,11 @@
+---
+description: 'Richtlinien für Content Management (Blog, UI-Texte, Collections)'
+owner: 'Content Team'
+priority: 'medium'
+lastSync: '2025-11-03'
+codeRefs: 'src/content/**, src/utils/i18n.ts, docs/content.md'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # Content Management Guidelines

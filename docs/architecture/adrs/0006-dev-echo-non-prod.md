@@ -1,3 +1,9 @@
+---
+status: active
+date: '2025-09-11'
+supersededBy: ''
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # ADR: Deterministischer Dev‑Echo in Nicht‑Production‑Umgebungen (AI Image Enhancer)

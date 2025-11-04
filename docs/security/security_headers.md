@@ -1,3 +1,11 @@
+---
+description: 'Übersicht und Richtlinien zu HTTP Security Headers in Evolution Hub'
+owner: 'Security Team'
+priority: 'high'
+lastSync: '2025-11-03'
+codeRefs: 'src/middleware.ts, src/lib/api-middleware.ts, docs/security/'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # Security-Headers-Dokumentation

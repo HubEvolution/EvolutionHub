@@ -1,3 +1,11 @@
+---
+description: 'Go-Live Runbook für den AI Image Enhancer (MVP)'
+owner: 'Operations Team'
+priority: 'high'
+lastSync: '2025-11-03'
+codeRefs: 'docs/ops/, src/lib/services/ai-image-service.ts, src/pages/api/ai-image/**'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # Image Enhancer — Go-Live Runbook (MVP)
@@ -8,7 +16,7 @@ Scope: Production readiness verification and emergency rollback for the Image En
 
 - Infra/env
 
-  - [ai] binding present (Cloudflare Workers AI)
+  - `[ai]` binding present (Cloudflare Workers AI)
 
   - R2 buckets: R2_AI_IMAGES; KV namespaces: KV_AI_ENHANCER
 

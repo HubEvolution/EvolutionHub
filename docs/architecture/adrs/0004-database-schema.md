@@ -1,3 +1,9 @@
+---
+status: active
+date: '2023-11-05'
+supersededBy: ''
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # ADR 0004: Datenbank-Schema-Design

@@ -1,3 +1,11 @@
+---
+description: 'Deployment-Checkliste und Runbooks für den AI Image Enhancer (MVP)'
+owner: 'Operations Team'
+priority: 'high'
+lastSync: '2025-11-03'
+codeRefs: 'docs/ops/runbook-image-enhancer-go-live.md, docs/ops/prod-readiness-ai-image-enhancer.md'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # Image Enhancer MVP - Deployment Guide

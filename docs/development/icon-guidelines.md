@@ -1,3 +1,11 @@
+---
+description: 'Richtlinien für Icon-Usage und Gestaltung'
+owner: 'Design Team'
+priority: 'low'
+lastSync: '2025-11-03'
+codeRefs: 'src/assets/svg/, docs/frontend/design-system.md'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # Icon-Nutzungsrichtlinie

@@ -1,3 +1,11 @@
+---
+description: 'Architektur des Prompt Enhancers (Service, Limits, UI)'
+owner: 'Prompt Team'
+priority: 'high'
+lastSync: '2025-11-03'
+codeRefs: 'src/lib/services/prompt-enhancer-service.ts, src/pages/api/prompt/**'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # Prompt Enhancer – Architecture

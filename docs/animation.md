@@ -1,3 +1,11 @@
+---
+description: 'Implementierungsnotizen zur Typewriter-Animation im Hero-Bereich'
+owner: 'Frontend Team'
+priority: 'low'
+lastSync: '2025-11-03'
+codeRefs: 'src/components/scripts/TypewriterComponent.astro, src/lib/typewriter.ts, src/lib/typewriter.js'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # Typewriter-Animation

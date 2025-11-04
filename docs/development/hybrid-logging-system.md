@@ -1,8 +1,16 @@
+---
+description: 'Konzept und Implementierung des Hybrid-Logging-Systems'
+owner: 'Platform Team'
+priority: 'medium'
+lastSync: '2025-11-03'
+codeRefs: 'src/lib/logging/**, docs/architecture/system-overview.md'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # Hybrid Logging System - Evolution Hub
 
-![Logging Banner](../public/assets/svg/monitoring.svg)
+![Logging Banner](../../public/assets/svg/monitoring.svg)
 
 [![Logging System](https://img.shields.io/badge/Logging-Hybrid_WebSocket%2FSSE-brightgreen)](https://github.com/LucasBonnerue/evolution-hub)
 [![Environment Support](https://img.shields.io/badge/Environment-Astro%2FWrangler-blue)](https://developers.cloudflare.com/)
@@ -24,7 +32,7 @@ Das Evolution Hub Hybrid-Logging-System bietet **umfassendes Live-Log-Streaming*
 
 ---
 
-## Überblick
+## Überblick {#uberblick}
 
 Das **Hybrid-Logging-System** von Evolution Hub ist eine **vollständig integrierte Logging-Lösung**, die sich automatisch an die jeweilige Entwicklungsumgebung anpasst und **Live-Log-Streaming** für optimale Developer Experience bietet.
 
@@ -137,7 +145,7 @@ logPermissionDenied('user-789', '/admin/dashboard', { reason: 'Insufficient priv
 
 ---
 
-## Verwendung
+## Verwendung {#verwendung}
 
 ### 1. Debug Panel öffnen
 
@@ -207,7 +215,7 @@ if (validCredentials) {
 
 ---
 
-## Environment-Unterstützung
+## Environment-Unterstützung {#environment-unterstutzung}
 
 ### Astro Development (`npm run dev`)
 
@@ -388,7 +396,7 @@ CLOUDFLARE_ENVIRONMENT=development
 
 ---
 
-## Troubleshooting
+## Troubleshooting {#troubleshooting}
 
 ### Häufige Probleme und Lösungen
 

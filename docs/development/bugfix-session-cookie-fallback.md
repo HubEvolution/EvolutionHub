@@ -1,3 +1,11 @@
+---
+description: 'Bugfix-Dokumentation zum Session-Cookie-Fallback'
+owner: 'Auth Team'
+priority: 'medium'
+lastSync: '2025-11-03'
+codeRefs: 'src/middleware.ts, docs/architecture/auth-architecture.md'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # Bugfix: Session Cookie Fallback (2025-10-01)

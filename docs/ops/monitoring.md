@@ -1,3 +1,11 @@
+---
+description: 'Monitoring-Baseline und Runbook für Evolution Hub'
+owner: 'Operations Team'
+priority: 'medium'
+lastSync: '2025-11-03'
+codeRefs: 'docs/ops/, scripts/, monitoring providers'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # Monitoring & Runbook

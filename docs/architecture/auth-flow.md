@@ -1,3 +1,11 @@
+---
+description: 'End-to-End Authentifizierungsfluss inkl. Magic Link und Redirects'
+owner: 'Auth Team'
+priority: 'high'
+lastSync: '2025-11-03'
+codeRefs: 'src/pages/api/auth/**, src/components/scripts/AuthStatusNotifier.tsx'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # Authentifizierungsflow
