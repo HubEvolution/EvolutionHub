@@ -14,242 +14,203 @@
 [![Prod Auth Smoke](https://github.com/HubEvolution/EvolutionHub/actions/workflows/prod-auth-smoke.yml/badge.svg?branch=main)](https://github.com/HubEvolution/EvolutionHub/actions/workflows/prod-auth-smoke.yml)
 [![Pricing Smoke](https://github.com/HubEvolution/EvolutionHub/actions/workflows/pricing-smoke.yml/badge.svg?branch=main)](https://github.com/HubEvolution/EvolutionHub/actions/workflows/pricing-smoke.yml)
 
-Evolution Hub ist eine moderne Full-Stack-Webanwendung, die eine Sammlung von Entwickler-Tools bereitstellt. Gebaut mit den neuesten Web-Technologien für maximale Performance und Benutzerfreundlichkeit.
+# Evolution Hub
+
+Entwickler‑Tool‑Suite mit AI‑Bild‑ und Video‑Verbesserung, Prompt‑Optimierung, Web‑Scraping und Transkription – gebaut auf Astro + Cloudflare Workers (D1/KV/R2), mit sicherer Magic‑Link‑Auth, Job‑System, Quoten/Limits und durchgängiger CI/CD.
 
 ## ✨ Features
 
-- **Tool-Sammlung:** Zugriff auf eine wachsende Bibliothek von Online-Tools für Entwickler
-- **AI-Bildverbesserung:** Hybrid-Provider (Replicate + Cloudflare Workers AI). Unterstützt u. a. Real-ESRGAN (2x/4x), GFPGAN/CodeFormer (Gesichts-Restore) sowie CF-Modelle (SD 1.5/SDXL img2img)
-- **Prompt-Enhancer:** KI-gestützte Text-zu-Prompt-Optimierung für bessere AI-Ergebnisse
-- **Webscraper:** Extrahiert strukturierte Inhalte aus Webseiten (API + UI)
-- **Voice Visualizer (Transkriptor):** Audio-Transkription (Whisper), Quoten/Limits, sichere APIs
-- **Authentifizierung:** Stytch Magic Link (E-Mail). Registrierung implizit beim ersten erfolgreichen Callback. Kein Passwort/Reset mehr.
-- **Job-System:** Asynchrones Management für langlaufende AI-Operationen
-- **API-Sicherheit:** Umfassende Sicherheitsmaßnahmen mit Rate-Limiting und Audit-Logging
-- **Mehrsprachig:** Unterstützung für Deutsch und Englisch
+- Tool‑Suite:
+  - Image Enhancer: Real‑ESRGAN (2×/4×), GFPGAN/CodeFormer, Cloudflare Workers AI (SD 1.5/SDXL img2img), Hybrid‑Provider (Replicate + Workers AI).
+  - Video Enhancer: KI‑basiertes Upscaling und Qualitätsverbesserung (Schärfe, Denoise, Klarheit) mit konsistenten Ergebnissen.
+  - Prompt‑Enhancer: KI‑gestützte Text‑zu‑Prompt‑Optimierung.
+  - Webscraper: Strukturierte Extraktion via API + UI.
+  - Voice Transcriber: Whisper‑basierte Transkription mit Quoten/Limits.
+- Sicherheit: Rate‑Limiting, Audit‑Logging, robuste API‑Guards.
+- Internationalisierung: Deutsch und Englisch.
 
-## 🛠 Tech Stack
+Siehe Live‑Tools‑Übersicht: https://hub-evolution.com/tools
 
-- **Framework:** [Astro](https://astro.build/)
-- **Styling:** [Tailwind CSS](https://tailwindcss.com/)
-- **Backend:** [Cloudflare Workers](https://workers.cloudflare.com/)
-- **Datenbank:** [Cloudflare D1](https://developers.cloudflare.com/d1/)
-- **Speicher:** [Cloudflare R2](https://developers.cloudflare.com/r2/)
-- **Testing:** Playwright (E2E), Vitest (Unit)
-- **Authentifizierung:** Stytch Magic Link + Session-Cookies (transitional: `session_id` + `__Host-session` bei HTTPS)
+## 🧱 Tech‑Stack
 
-## 🧭 CI at a glance
-
-Eine ausführliche Beschreibung befindet sich in `docs/development/ci-cd.md`. Wichtige Workflows:
-
-- Enhancer E2E Smoke: schneller UI-Smoke nur für den Image Enhancer, Chromium-only, mit Browser-Caching und Preflight-Diagnostik.
-- Prod Auth Smoke: produktionsnaher Magic-Link Smoke gegen hub-evolution.com, HTTP-basiert (ohne Browser-Download), mit Preflight POST.
-- Pricing Smoke: schneller Smoke der Pricing-Seite (gegen `TEST_BASE_URL` oder Fallback), Chromium-only, mit Browser-Caching und Preflight.
-
-Weitere Details und Trigger-Kommandos siehe: [`docs/development/ci-cd.md`](./docs/development/ci-cd.md)
+- Framework: Astro (mit React‑Komponenten)
+- Styling: Tailwind CSS
+- Backend: Cloudflare Workers
+- Datenbanken & Storage: Cloudflare D1 (SQL), KV, R2
+- Tests: Playwright (E2E), Vitest (Unit)
+- Authentifizierung: Stytch Magic Link + Session‑Cookies (session_id, __Host-session, via HTTPS)
 
 ## 🚀 Getting Started
 
 ### Voraussetzungen
-
-- Node.js (Version 20.x oder höher)
+- Node.js 20.x oder höher
 - npm
+- (Optional) Cloudflare Wrangler für lokale/prod Deployments
 
 ### Installation
-
 1. Repository klonen:
-
-   ```bash
    git clone <repository-url>
    cd evolution-hub
-   ```
 
 2. Abhängigkeiten installieren:
-
-   ```bash
    npm install
-   ```
 
 3. Lokale Datenbank einrichten:
-
-   ```bash
    npm run setup:local
-   ```
 
 4. Umgebungsvariablen konfigurieren:
-
-   ```bash
    cp .env.example .env
-   ```
+   # trage deine Tokens/Secrets gemäß „Env‑Variablen“ ein
 
 ### Entwicklung
 
-Du kannst mit einem oder zwei Terminals arbeiten:
+Option A: Ein Terminal (empfohlen)
+  npm run dev
 
-#### Option A: Ein Terminal (empfohlen)
+Option B: Zwei Terminals
+  # Terminal 1 (Build)
+  npm run build:watch
+  # Terminal 2 (Worker Dev)
+  npm run dev
 
-```bash
-npm run dev
-```
+Die App ist unter der von Wrangler ausgegebenen Adresse erreichbar, z. B. http://127.0.0.1:8787
 
-#### Option B: Zwei Terminals
+## 🔐 Env‑Variablen
 
-Terminal 1 (Build):
+Beispielwerte in .env.example; produktive Secrets in GitHub Actions hinterlegen.
 
-```bash
-npm run build:watch
-```
+- Cloudflare
+  - CLOUDFLARE_API_TOKEN (Workers:Edit)
+  - CLOUDFLARE_ACCOUNT_ID
+  - Bindings für D1/KV/R2 über wrangler.toml
 
-Terminal 2 (Worker Dev):
+- Auth (Stytch)
+  - STYTCH_PROJECT_ID
+  - STYTCH_SECRET
+  - STYTCH_ENV (test/live)
 
-```bash
-npm run dev
-```
+- AI‑Provider
+  - REPLICATE_API_TOKEN (falls Replicate genutzt)
+  - CF_ACCOUNT_ID / CF_API_TOKEN (Workers AI Zugriff)
+  - Modell‑Presets für Image/Video Enhancer
 
-Die Anwendung ist dann unter der von Wrangler angegebenen Adresse verfügbar (z. B. `http://127.0.0.1:8787`).
+- App
+  - BASE_URL
+  - SESSION_COOKIE_NAME, SESSION_SECRET
+  - QUOTA_LIMITS_* (Optionen für Limits/Bursts)
+
+## 🛠 Tools (Live)
+
+- Tools‑Hub: https://hub-evolution.com/tools
+- Video Enhancer: https://hub-evolution.com/tools/video-enhancer/app
+- Image Enhancer: https://hub-evolution.com/en/tools/imag-enhancer/app
+
+Weitere Produktseiten: Doku, FAQ, Pricing, Blog
+- Docs: https://hub-evolution.com/en/docs
+- FAQ:  https://hub-evolution.com/en/faq
+- Pricing: https://hub-evolution.com/en/pricing
+- Blog: https://hub-evolution.com/blog
 
 ## 📦 Deployment
 
-### Automatisches Deployment (Empfohlen)
+Automatisches Deployment via GitHub Actions mit CI‑Gates.
 
-Das Projekt nutzt GitHub Actions für automatisierte Deployments mit vollständigen CI-Gates:
+### Via Git Tags (Production + Staging)
+  # Tag erstellen und pushen
+  git tag v1.7.1
+  git push origin v1.7.1
 
-#### Via Git Tags (Production + Staging)
+Pipeline:
+1) Pre‑Deploy Checks (Lint, Tests, Security Audit)
+2) Deploy zu Staging
+3) Health Check (Staging)
+4) Deploy zu Production (manuelles Approval)
+5) Health Check (Production)
+6) GitHub Release erstellen
 
-```bash
-# Tag erstellen und pushen
-git tag v1.7.1
-git push origin v1.7.1
-```
-
-Dies startet automatisch:
-
-1. Pre-Deploy Checks (Lint, Tests, Security Audit)
-2. Deploy zu Staging
-3. Health Check (Staging)
-4. Deploy zu Production (erfordert manuelle Approval)
-5. Health Check (Production)
-6. GitHub Release erstellen
-
-#### Via GitHub Actions UI (Staging oder Production)
-
-1. Gehe zu **Actions** → **Deploy to Cloudflare**
-2. Klicke **Run workflow**
-3. Wähle Environment: `staging` oder `production`
-4. Klicke **Run workflow**
+### Via GitHub Actions UI
+- Actions → „Deploy to Cloudflare“ → „Run workflow“
+- Environment wählen: staging oder production
+- „Run workflow“
 
 ### Manuelles Deployment (Fallback)
+  # 1) Worker build
+  npm run build:worker
+  # 2) Deploy
+  npx wrangler deploy --env staging
+  # oder
+  npx wrangler deploy --env production
+  # 3) Health Check
+  npm run health-check -- --url https://staging.hub-evolution.com
 
-Falls GitHub Actions nicht verfügbar ist:
+### GitHub Secrets
+Repository → Settings → Secrets and variables → Actions → New repository secret
 
-```bash
-# 1. Build erstellen
-npm run build:worker
+- CLOUDFLARE_API_TOKEN
+- CLOUDFLARE_ACCOUNT_ID
 
-# 2. Deploy zu gewünschtem Environment
-npx wrangler deploy --env staging
-# oder
-npx wrangler deploy --env production
+Environments:
+- staging: keine Protection Rules
+- production: Required reviewers: 1; Deployment branches: main + Tags v*
 
-# 3. Health Check ausführen
-npm run health-check -- --url https://staging.hub-evolution.com
-```
+## 🩺 Health Check
 
-### Benötigte GitHub Secrets
+Endpoint:
+  curl https://hub-evolution.com/api/health
 
-Für automatisches Deployment müssen folgende Secrets in GitHub hinterlegt werden:
-
-**\*Repository Settings** → **Secrets and variables** → **Actions** → **New repository secret**
-
-| Secret Name             | Beschreibung                                  | Wo zu finden                                                  |
-| ----------------------- | --------------------------------------------- | ------------------------------------------------------------- |
-| `CLOUDFLARE_API_TOKEN`  | Cloudflare API Token mit Workers:Edit-Rechten | Cloudflare Dashboard → My Profile → API Tokens → Create Token |
-| `CLOUDFLARE_ACCOUNT_ID` | Cloudflare Account-ID                         | Cloudflare Dashboard (Account Details)                        |
-
-**GitHub Environments einrichten** →
-**Settings** → **Environments** → **New environment**:
-
-- **staging**: Keine Protection Rules
-- **production**:
-  - ✅ Required reviewers: 1
-  - ✅ Deployment branches: `main` + Tags `v*`
-
-### Health Check Endpoint
-
-Das Deployment prüft automatisch die Verfügbarkeit aller Services:
-
-```bash
-curl https://hub-evolution.com/api/health
-```
-
-Response:
-
-```json
+Beispiel‑Response:
 {
   "success": true,
   "data": {
     "status": "ok",
-    "services": {
-      "d1": true,
-      "kv": true,
-      "r2": true
-    },
+    "services": { "d1": true, "kv": true, "r2": true },
     "duration": "45ms",
     "timestamp": "2025-01-15T10:30:00.000Z",
     "version": "production"
   }
 }
-```
 
-### Rollback-Strategie
+## 🔄 Rollback‑Strategie
 
-Bei fehlgeschlagenem Deployment:
+Option 1: Cloudflare Rollback
+  npx wrangler rollback --env production
 
-```bash
-# Option 1: Cloudflare Rollback (automatisch gespeichert)
-npx wrangler rollback --env production
-
-# Option 2: Vorherigen Tag deployen
-git checkout v1.7.0
-npx wrangler deploy --env production
-```
-
-Für detaillierte Anweisungen siehe [docs/development/local-development.md](docs/development/local-development.md).
+Option 2: Vorherigen Tag deployen
+  git checkout v1.7.0
+  npx wrangler deploy --env production
 
 ## 🧪 Tests
 
-- **E2E-Tests:** Playwright für Benutzerflows
-- **Unit-Tests:** Vitest für Komponenten und Services
+- E2E: Playwright für zentrale User‑Flows und Smoke‑Checks
+- Unit: Vitest für Komponenten/Services
 
-Tests ausführen:
-
-```bash
-npm run test:e2e
-npm run test
-```
+Ausführen:
+  npm run test:e2e
+  npm run test
 
 ## 📚 Dokumentation
 
-- [Repository Guidelines](./AGENTS.md)
-- [API-Dokumentation](./docs/api/)
-- [API Quickstart](./docs/api/README.md)
-- [Architektur](./docs/architecture/)
-- [API & Security Regeln](./.windsurf/rules/api-and-security.md)
-- [UI-Komponenten Leitfaden](./docs/frontend/ui-components.md)
+- Repository Guidelines
+- API‑Dokumentation (inkl. Auth‑Flow, Rate Limits, Errors)
+- Architektur‑Übersicht (Worker‑Entry, Router, Job‑System)
+- Security‑Regeln (CORS, CSP, Cookies, Session‑Handling)
+- UI‑Komponenten‑Leitfaden
+
+Siehe /docs für Details.
 
 ## 🤝 Mitwirken
 
-Beiträge sind willkommen! Bitte erstelle einen Pull Request oder öffne ein Issue.
+Beiträge willkommen! Bitte Pull Request erstellen oder ein Issue öffnen. Beachte Contributing und Code of Conduct.
 
 ## 📄 Lizenz
 
-Dieses Projekt ist unter der MIT-Lizenz lizenziert.
+MIT
 
-## 🌐 Live-Demo
+## 🌐 Live‑Demo
 
-[hub-evolution.com](https://hub-evolution.com)
+https://hub-evolution.com
 
 ## 📞 Kontakt
 
-- **GitHub:** [LucasBonnerue](https://github.com/LucasBonnerue)
-- **X:** [@LucasBonnerue](https://twitter.com/LucasBonnerue)
+- GitHub: LucasBonnerue
+- X: @LucasBonnerue
