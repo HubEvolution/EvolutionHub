@@ -3,13 +3,8 @@ import { vi, afterEach, expect } from 'vitest';
 import { cleanup } from '@testing-library/react';
 import * as matchers from '@testing-library/jest-dom/matchers';
 
-// Extend Vitest's expect with jest-dom matchers
-Object.entries(matchers).forEach(([matcherName, matcher]) => {
-  if (matcherName !== 'default' && typeof matcher === 'function') {
-    // @ts-expect-error - Extend expect with each matcher
-    expect[matcherName] = matcher;
-  }
-});
+// Extend Vitest's expect runtime with jest-dom matchers
+expect.extend(matchers as unknown as Record<string, (...args: unknown[]) => unknown>);
 
 // Add custom matchers
 declare global {
@@ -38,6 +33,53 @@ Object.defineProperty(window, 'matchMedia', {
     dispatchEvent: vi.fn(),
   })),
 });
+
+// Mock requestAnimationFrame / cancelAnimationFrame
+if (!window.requestAnimationFrame) {
+  Object.defineProperty(window, 'requestAnimationFrame', {
+    writable: true,
+    value: vi.fn((callback: FrameRequestCallback) => {
+      return setTimeout(() => {
+        callback(performance.now());
+      }, 16);
+    }),
+  });
+}
+
+if (!window.cancelAnimationFrame) {
+  Object.defineProperty(window, 'cancelAnimationFrame', {
+    writable: true,
+    value: vi.fn((handle: number) => clearTimeout(handle)),
+  });
+}
+
+// Minimal ResizeObserver mock for layout-driven hooks
+if (typeof window.ResizeObserver === 'undefined') {
+  class ResizeObserver {
+    private readonly callback: ResizeObserverCallback;
+
+    constructor(callback: ResizeObserverCallback) {
+      this.callback = callback;
+    }
+
+    observe(target: Element): void {
+      this.callback([{ target } as ResizeObserverEntry], this);
+    }
+
+    unobserve(): void {
+      // noop
+    }
+
+    disconnect(): void {
+      // noop
+    }
+  }
+
+  Object.defineProperty(window, 'ResizeObserver', {
+    writable: true,
+    value: ResizeObserver,
+  });
+}
 
 // Ensure a base URL is available for code that constructs URLs in tests
 if (!process.env.BASE_URL) {

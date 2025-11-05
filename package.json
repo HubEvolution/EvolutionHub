@@ -181,6 +181,7 @@
     "eslint-plugin-prettier": "^5.5.4",
     "eslint-plugin-react-hooks": "^6.1.1",
     "execa": "^8.0.1",
+    "ffmpeg-static": "^5.2.0",
     "github-slugger": "^2.0.0",
     "husky": "^9.1.7",
     "jsdom": "^26.1.0",
