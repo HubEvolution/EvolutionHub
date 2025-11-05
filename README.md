@@ -1,213 +1,118 @@
 # Evolution Hub
 
-[![Lizenz: MIT](https://img.shields.io/badge/Lizenz-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-![Status: Aktiv](https://img.shields.io/badge/Status-Aktiv-brightgreen)
-[![Astro](https://img.shields.io/badge/Astro-BC52EE?logo=astro&logoColor=fff)](https://astro.build/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?logo=tailwind-css&logoColor=fff)](https://tailwindcss.com/)
-[![Cloudflare](https://img.shields.io/badge/Cloudflare-F38020?logo=cloudflare&logoColor=fff)](https://workers.cloudflare.com/)
-![React](https://img.shields.io/badge/react-%2361DAFB.svg?style=for-the-badge&logo=react&logoColor=black)
-![Contributions Welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=for-the-badge)
-
-<!-- CI Badges -->
+[![License: Proprietary](https://img.shields.io/badge/License-Proprietary-111111?style=for-the-badge)](./LICENSE)
+[![Status: Active](https://img.shields.io/badge/Status-Active-2ECC71?style=for-the-badge)](https://hub-evolution.com)
+[![Astro](https://img.shields.io/badge/Astro-BC52EE?logo=astro&logoColor=ffffff&style=for-the-badge)](https://astro.build/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?logo=tailwind-css&logoColor=ffffff&style=for-the-badge)](https://tailwindcss.com/)
+[![Cloudflare Workers](https://img.shields.io/badge/Cloudflare-FF7139?logo=cloudflare&logoColor=ffffff&style=for-the-badge)](https://workers.cloudflare.com/)
+[![React](https://img.shields.io/badge/React-61DAFB?logo=react&logoColor=000000&style=for-the-badge)](https://react.dev/)
+[![Contributions Welcome](https://img.shields.io/badge/Contributions-Welcome-4C8BF5?style=for-the-badge)](https://github.com/HubEvolution/EvolutionHub/issues)
 
 [![Enhancer E2E Smoke](https://github.com/HubEvolution/EvolutionHub/actions/workflows/enhancer-e2e-smoke.yml/badge.svg?branch=main)](https://github.com/HubEvolution/EvolutionHub/actions/workflows/enhancer-e2e-smoke.yml)
 [![Prod Auth Smoke](https://github.com/HubEvolution/EvolutionHub/actions/workflows/prod-auth-smoke.yml/badge.svg?branch=main)](https://github.com/HubEvolution/EvolutionHub/actions/workflows/prod-auth-smoke.yml)
 [![Pricing Smoke](https://github.com/HubEvolution/EvolutionHub/actions/workflows/pricing-smoke.yml/badge.svg?branch=main)](https://github.com/HubEvolution/EvolutionHub/actions/workflows/pricing-smoke.yml)
 
-# Evolution Hub
+> Interaktive AI-Tool-Suite für Bild- und Video-Enhancement, Prompt-Optimierung, Web-Scraping und Voice-Transkription – aufgebaut auf Astro + Cloudflare Workers mit sicherer Authentifizierung, Quoten- und Job-Systemen.
 
-Entwickler‑Tool‑Suite mit AI‑Bild‑ und Video‑Verbesserung, Prompt‑Optimierung, Web‑Scraping und Transkription – gebaut auf Astro + Cloudflare Workers (D1/KV/R2), mit sicherer Magic‑Link‑Auth, Job‑System, Quoten/Limits und durchgängiger CI/CD.
+## ✨ Tool Suite & Highlights
 
-## ✨ Features
+- **Image Enhancer** – Hybrid aus Cloudflare Workers AI (SD 1.5/SDXL img2img) und Replicate (Real-ESRGAN, CodeFormer, GFPGAN) mit planbasierten Quoten.
+- **Video Enhancer** – KI-basiertes Upscaling und Qualitätsverbesserung mit stabilen Voreinstellungen.
+- **Prompt Enhancer** – KI-gestützte Prompt-Optimierung inklusive Quota- und Rate-Limit-Governance.
+- **Webscraper** – Strukturierte Extraktion mit SSRF-Schutz, Entitlements und API/GUI.
+- **Voice Visualizer & Transcriptor** – Whisper-basierte Transkription mit SSE/Polling und Daily Caps.
 
-- Tool‑Suite:
-  - Image Enhancer: Real‑ESRGAN (2×/4×), GFPGAN/CodeFormer, Cloudflare Workers AI (SD 1.5/SDXL img2img), Hybrid‑Provider (Replicate + Workers AI).
-  - Video Enhancer: KI‑basiertes Upscaling und Qualitätsverbesserung (Schärfe, Denoise, Klarheit) mit konsistenten Ergebnissen.
-  - Prompt‑Enhancer: KI‑gestützte Text‑zu‑Prompt‑Optimierung.
-  - Webscraper: Strukturierte Extraktion via API + UI.
-  - Voice Transcriber: Whisper‑basierte Transkription mit Quoten/Limits.
-- Sicherheit: Rate‑Limiting, Audit‑Logging, robuste API‑Guards.
-- Internationalisierung: Deutsch und Englisch.
+Live-Tools: [hub-evolution.com/tools](https://hub-evolution.com/tools)
 
-Siehe Live‑Tools‑Übersicht: https://hub-evolution.com/tools
+- Image Enhancer: [DE](https://hub-evolution.com/tools/imag-enhancer/app) · [EN](https://hub-evolution.com/en/tools/imag-enhancer/app)
+- Video Enhancer: [DE](https://hub-evolution.com/tools/video-enhancer/app) · [EN](https://hub-evolution.com/en/tools/video-enhancer/app)
+- Prompt Enhancer: [DE](https://hub-evolution.com/tools/prompt-enhancer/app) · [EN](https://hub-evolution.com/en/tools/prompt-enhancer/app)
+- Webscraper: [DE](https://hub-evolution.com/tools/webscraper/app) · [EN](https://hub-evolution.com/en/tools/webscraper/app)
+- Voice Visualizer: [DE](https://hub-evolution.com/tools/voice-visualizer/app) · [EN](https://hub-evolution.com/en/tools/voice-visualizer/app)
 
-## 🧱 Tech‑Stack
+## 🧱 Architektur & Tech Stack
 
-- Framework: Astro (mit React‑Komponenten)
-- Styling: Tailwind CSS
-- Backend: Cloudflare Workers
-- Datenbanken & Storage: Cloudflare D1 (SQL), KV, R2
-- Tests: Playwright (E2E), Vitest (Unit)
-- Authentifizierung: Stytch Magic Link + Session‑Cookies (session_id, __Host-session, via HTTPS)
+- Astro + React-Inseln mit Tailwind CSS.
+- Cloudflare Workers mit Bindings für D1 (SQL), KV und R2 Storage.
+- Authentifizierung über Stytch Magic Link, Sessions & CSRF-Schutz.
+- Tests & QA: Vitest (Unit/Integration) und Playwright (E2E, Smokes).
+- Observability: strukturierte Logs & Health-Checks (`npm run health-check`).
 
-## 🚀 Getting Started
+## 🚀 Schnellstart
 
-### Voraussetzungen
-- Node.js 20.x oder höher
-- npm
-- (Optional) Cloudflare Wrangler für lokale/prod Deployments
+1. Repository klonen & wechseln
 
-### Installation
-1. Repository klonen:
-   git clone <repository-url>
+   ```bash
+   git clone <REPOSITORY_URL>
    cd evolution-hub
+   ```
 
-2. Abhängigkeiten installieren:
+2. Abhängigkeiten installieren
+
+   ```bash
    npm install
+   ```
 
-3. Lokale Datenbank einrichten:
+3. Lokale Ressourcen vorbereiten
+
+   ```bash
    npm run setup:local
-
-4. Umgebungsvariablen konfigurieren:
    cp .env.example .env
-   # trage deine Tokens/Secrets gemäß „Env‑Variablen“ ein
+   ```
 
-### Entwicklung
+   → `.env` gemäß Kommentaren ausfüllen (Auth, AI-Provider, Origins etc.).
 
-Option A: Ein Terminal (empfohlen)
-  npm run dev
+4. Entwicklung starten
 
-Option B: Zwei Terminals
-  # Terminal 1 (Build)
-  npm run build:watch
-  # Terminal 2 (Worker Dev)
-  npm run dev
+   ```bash
+   npm run dev
+   ```
 
-Die App ist unter der von Wrangler ausgegebenen Adresse erreichbar, z. B. http://127.0.0.1:8787
+   Die lokale Worker-Instanz läuft typischerweise unter [http://127.0.0.1:8787](http://127.0.0.1:8787).
 
-## 🔐 Env‑Variablen
+5. Optional: Browser automatisch öffnen
 
-Beispielwerte in .env.example; produktive Secrets in GitHub Actions hinterlegen.
+   ```bash
+   npm run dev:open
+   ```
 
-- Cloudflare
-  - CLOUDFLARE_API_TOKEN (Workers:Edit)
-  - CLOUDFLARE_ACCOUNT_ID
-  - Bindings für D1/KV/R2 über wrangler.toml
+## 🧰 Zentrale Skripte & Checks
 
-- Auth (Stytch)
-  - STYTCH_PROJECT_ID
-  - STYTCH_SECRET
-  - STYTCH_ENV (test/live)
+| Command                               | Zweck                                          |
+| ------------------------------------- | ---------------------------------------------- |
+| `npm run lint`                        | ESLint auf `src/**` (strict, no-explicit-any). |
+| `npm run format:check`                | Prettier-Konventionen validieren.              |
+| `npm run test`                        | Vitest Unit-Suite.                             |
+| `npm run test:integration`            | Vitest Integration (API/Services).             |
+| `npm run test:e2e`                    | Playwright E2E gegen Worker-Dev.               |
+| `npm run openapi:validate`            | OpenAPI-Schema prüfen.                         |
+| `npm run health-check -- --url <URL>` | Health-Endpunkt skriptgesteuert testen.        |
 
-- AI‑Provider
-  - REPLICATE_API_TOKEN (falls Replicate genutzt)
-  - CF_ACCOUNT_ID / CF_API_TOKEN (Workers AI Zugriff)
-  - Modell‑Presets für Image/Video Enhancer
+## ⚙️ Konfiguration & Bindings
 
-- App
-  - BASE_URL
-  - SESSION_COOKIE_NAME, SESSION_SECRET
-  - QUOTA_LIMITS_* (Optionen für Limits/Bursts)
+- `.env.example` dokumentiert lokale Flags (z. B. Debug Panel, Feature Flags, Provider Tokens).
+- `wrangler.toml` verwaltet Bindings für D1, KV, R2, AI und Environment-spezifische Variablen.
+- Security-Baseline: Allowed Origins, Same-Origin-Checks, Double-Submit-CSRF via Middleware.
 
-## 🛠 Tools (Live)
+## 🚢 CI/CD & Deployment
 
-- Tools‑Hub: https://hub-evolution.com/tools
-- Video Enhancer: https://hub-evolution.com/tools/video-enhancer/app
-- Image Enhancer: https://hub-evolution.com/en/tools/imag-enhancer/app
+- GitHub Actions Smokes: Enhancer E2E, Prod Auth, Pricing (Badges s. oben).
+- Deploy-Skripte: `npm run deploy:staging`, `npm run deploy:production`, `npm run deploy:testing` (Cloudflare API gesteuert).
+- Alternativ über Actions UI („Deploy to Cloudflare“) mit Auswahl von staging/production.
 
-Weitere Produktseiten: Doku, FAQ, Pricing, Blog
-- Docs: https://hub-evolution.com/en/docs
-- FAQ:  https://hub-evolution.com/en/faq
-- Pricing: https://hub-evolution.com/en/pricing
-- Blog: https://hub-evolution.com/blog
+## 🩺 Health & Monitoring
 
-## 📦 Deployment
+- Öffentlicher Endpoint: `GET /api/health` (prüft D1/KV/R2, loggt minimal).
+- Interner Endpoint: `GET /api/health/auth` (erfordert `X-Internal-Health` Token).
+- Skript `npm run health-check` unterstützt Retries & Logging.
 
-Automatisches Deployment via GitHub Actions mit CI‑Gates.
+## 📚 Dokumentation & Governance
 
-### Via Git Tags (Production + Staging)
-  # Tag erstellen und pushen
-  git tag v1.7.1
-  git push origin v1.7.1
+- Vollständige Dokumentation unter `/docs` (Architektur, API, Rulesets, CI/CD).
+- CONTRIBUTING und CODE_OF_CONDUCT regeln Beiträge & Community-Richtlinien.
 
-Pipeline:
-1) Pre‑Deploy Checks (Lint, Tests, Security Audit)
-2) Deploy zu Staging
-3) Health Check (Staging)
-4) Deploy zu Production (manuelles Approval)
-5) Health Check (Production)
-6) GitHub Release erstellen
+## 🤝 Mitwirken & Kontakt
 
-### Via GitHub Actions UI
-- Actions → „Deploy to Cloudflare“ → „Run workflow“
-- Environment wählen: staging oder production
-- „Run workflow“
-
-### Manuelles Deployment (Fallback)
-  # 1) Worker build
-  npm run build:worker
-  # 2) Deploy
-  npx wrangler deploy --env staging
-  # oder
-  npx wrangler deploy --env production
-  # 3) Health Check
-  npm run health-check -- --url https://staging.hub-evolution.com
-
-### GitHub Secrets
-Repository → Settings → Secrets and variables → Actions → New repository secret
-
-- CLOUDFLARE_API_TOKEN
-- CLOUDFLARE_ACCOUNT_ID
-
-Environments:
-- staging: keine Protection Rules
-- production: Required reviewers: 1; Deployment branches: main + Tags v*
-
-## 🩺 Health Check
-
-Endpoint:
-  curl https://hub-evolution.com/api/health
-
-Beispiel‑Response:
-{
-  "success": true,
-  "data": {
-    "status": "ok",
-    "services": { "d1": true, "kv": true, "r2": true },
-    "duration": "45ms",
-    "timestamp": "2025-01-15T10:30:00.000Z",
-    "version": "production"
-  }
-}
-
-## 🔄 Rollback‑Strategie
-
-Option 1: Cloudflare Rollback
-  npx wrangler rollback --env production
-
-Option 2: Vorherigen Tag deployen
-  git checkout v1.7.0
-  npx wrangler deploy --env production
-
-## 🧪 Tests
-
-- E2E: Playwright für zentrale User‑Flows und Smoke‑Checks
-- Unit: Vitest für Komponenten/Services
-
-Ausführen:
-  npm run test:e2e
-  npm run test
-
-## 📚 Dokumentation
-
-- Repository Guidelines
-- API‑Dokumentation (inkl. Auth‑Flow, Rate Limits, Errors)
-- Architektur‑Übersicht (Worker‑Entry, Router, Job‑System)
-- Security‑Regeln (CORS, CSP, Cookies, Session‑Handling)
-- UI‑Komponenten‑Leitfaden
-
-Siehe /docs für Details.
-
-## 🤝 Mitwirken
-
-Beiträge willkommen! Bitte Pull Request erstellen oder ein Issue öffnen. Beachte Contributing und Code of Conduct.
-
-
-## 🌐 Live‑Demo
-
-https://hub-evolution.com
-
-## 📞 Kontakt
-
-- GitHub: https://github.com/HubEvolution
-- X: @hub_evolution
+- Issues & Pull Requests willkommen: [github.com/HubEvolution/EvolutionHub](https://github.com/HubEvolution/EvolutionHub)
+- Live-Demo: [https://hub-evolution.com](https://hub-evolution.com)
+- Kontakt: GitHub [@HubEvolution](https://github.com/HubEvolution) · X [@hub_evolution](https://x.com/hub_evolution)
