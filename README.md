@@ -202,9 +202,6 @@ Siehe /docs für Details.
 
 Beiträge willkommen! Bitte Pull Request erstellen oder ein Issue öffnen. Beachte Contributing und Code of Conduct.
 
-## 📄 Lizenz
-
-MIT
 
 ## 🌐 Live‑Demo
 
@@ -212,5 +209,5 @@ https://hub-evolution.com
 
 ## 📞 Kontakt
 
-- GitHub: LucasBonnerue
-- X: @LucasBonnerue
+- GitHub: https://github.com/HubEvolution
+- X: @hub_evolution
