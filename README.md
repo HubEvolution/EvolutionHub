@@ -16,7 +16,9 @@
 
 > Interaktive AI-Tool-Suite für Bild- und Video-Enhancement, Prompt-Optimierung, Web-Scraping und Voice-Transkription – aufgebaut auf Astro + Cloudflare Workers mit sicherer Authentifizierung, Quoten- und Job-Systemen.
 
-📽️ **Doc-Teaser:** GIF kann unter `docs/media/evolution-hub-tools.gif` hinterlegt werden (siehe `ffmpeg`-Kommando unten). Bis zur Bereitstellung dient dieser Hinweis als Platzhalter.
+📸 **Doc-Teaser:**
+
+![Evolution Hub Tool Suite](./docs/media/evolution-hub-tools.png)
 
 ## ✨ Tool Suite & Highlights
 
@@ -34,7 +36,9 @@ Live-Tools: [hub-evolution.com/tools](https://hub-evolution.com/tools)
 - Webscraper: [DE](https://hub-evolution.com/tools/webscraper/app) · [EN](https://hub-evolution.com/en/tools/webscraper/app)
 - Voice Visualizer: [DE](https://hub-evolution.com/tools/voice-visualizer/app) · [EN](https://hub-evolution.com/en/tools/voice-visualizer/app)
 
-> ✨ **Animation:** Exportiere `public/assets/lottie/outline-photo.json` o. ä. als GIF (`docs/media/imag-enhancer-loop.gif`), um hier eine kurze Vorschau einzubinden.
+> ✨ **Animation:**
+>
+> ![Imag Enhancer Preview](./docs/media/imag-enhancer-preview.png)
 
 ## 🧱 Architektur & Tech Stack
 
