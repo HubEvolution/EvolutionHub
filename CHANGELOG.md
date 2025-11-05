@@ -31,7 +31,6 @@ und dieser Projekt haftet an [Semantic Versioning](https://semver.org/spec/v2.0.
 - dev(worker): Lokale Worker-Entwicklung nutzt jetzt `build:worker:dev` (Astro `--mode development`), damit `.env.development` greift und das Debug Panel aktiv ist (siehe `docs/tools/debug-panel.md`).
 - test(vitest): Projekte in `vitest.config.ts` benannt (`unit`, `integration`) und `package.json`-Skripte angepasst, sodass `--project=integration` zuverlässig funktioniert.
 - docs(architecture/locale-middleware): q‑Values, `?lang` Alias, Flags `PUBLIC_WELCOME_AUTO_DELAY_MS`/`WELCOME_BYPASS_SPLASH` dokumentiert
-- routes.md: `?lang` Alias und Flags für Welcome vermerkt
 - D1: `notifications` auf finales Schema transformiert (`user_id` als TEXT, `is_read` als INTEGER, zusätzliche optionale Felder, neue Indizes).
 - D1: `d1_migrations` aktualisiert; relevante Migrationen als angewendet markiert (0015, 0016, 0019, 0022/0023, 0026). Legacy‑Performance‑Artefakte (0017/0021) bewusst übersprungen, um Schema‑Konflikte zu vermeiden.
 - openapi: Admin‑Comments Endpunkte dokumentiert (List/Details/Moderate/Bulk/Delete) inkl. CSRF‑Headern; Spec validiert.

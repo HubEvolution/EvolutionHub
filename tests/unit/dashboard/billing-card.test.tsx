@@ -61,7 +61,7 @@ describe('BillingCard', () => {
     const user = userEvent.setup();
     const fetchSpy = vi
       .spyOn(globalThis, 'fetch')
-      .mockImplementation(async (input: RequestInfo | URL, init?: RequestInit) => {
+      .mockImplementation(async (input: RequestInfo | URL) => {
         const url = typeof input === 'string' ? input : input.toString();
         if (url.endsWith('/api/dashboard/billing-summary')) {
           return new Response(JSON.stringify({ success: true, data: baseSummary }), {

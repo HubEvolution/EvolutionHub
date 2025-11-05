@@ -1,7 +1,39 @@
-import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
+import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { POST } from '@/pages/api/user/profile';
-import * as apiMiddleware from '@/lib/api-middleware';
 import { mockRateLimitOnce } from '../../../helpers/rateLimiter';
+
+type PreparedStatementMock = {
+  bind: ReturnType<typeof vi.fn>;
+  run: ReturnType<typeof vi.fn>;
+  first: ReturnType<typeof vi.fn>;
+};
+
+type DbMock = {
+  prepare: ReturnType<typeof vi.fn>;
+};
+
+type MockContext = {
+  request: {
+    formData: ReturnType<typeof vi.fn>;
+    method: string;
+    url: string;
+  };
+  locals: {
+    user: {
+      id: string;
+      name: string;
+      username: string;
+    } | null;
+    runtime: {
+      env: {
+        DB: DbMock;
+      };
+    };
+  };
+  clientAddress: string;
+};
+
+type ViSpy = ReturnType<typeof vi.spyOn>;
 
 // --- Mocks ---
 vi.mock('@/lib/rate-limiter', () => ({
@@ -44,7 +76,7 @@ vi.mock('@/lib/security-logger', () => ({
 vi.mock('@/lib/api-middleware', () => ({
   withMiddleware: vi.fn((handler) => handler),
   // withAuthApiMiddleware wird so implementiert, dass es API-Fehler in strukturierte Response-Objekte umwandelt
-  withAuthApiMiddleware: vi.fn((handler) => async (context) => {
+  withAuthApiMiddleware: vi.fn((handler) => async (context: MockContext) => {
     // Zugriff auf die gemockten Funktionen
     const securityLogger = await import('@/lib/security-logger');
     const rateLimiter = await import('@/lib/rate-limiter');
@@ -158,17 +190,17 @@ vi.mock('@/lib/api-middleware', () => ({
       }
 
       // Standardfall: Handler ausführen
-      return await handler(context);
+      return await handler(context as any);
     } catch (error) {
       console.error('Unhandled error in middleware:', error);
 
       // Fehlerbehandlung basierend auf Fehlermeldung
-      if (
+      if (error instanceof Error && (
         error.message === 'Name must be between 2 and 50 characters' ||
         error.message === 'Username must be between 3 and 30 characters' ||
         error.message === 'Username contains invalid characters'
-      ) {
-        securityLogger.logSecurityEvent('API_VALIDATION_ERROR', {
+      )) {
+        securityLogger.logSecurityEvent('API_VALIDATION_ERROR' as any, {
           error: error.message,
           userId: context.locals?.user?.id,
         });
@@ -177,8 +209,9 @@ vi.mock('@/lib/api-middleware', () => ({
           headers: { 'Content-Type': 'application/json' },
         });
       } else {
-        securityLogger.logSecurityEvent('API_ERROR', {
-          error: error,
+        const payload = error instanceof Error ? error : new Error('Unknown error');
+        securityLogger.logSecurityEvent('API_ERROR' as any, {
+          error: payload,
           userId: context.locals?.user?.id,
         });
         return new Response(JSON.stringify({ error: 'Server error' }), {
@@ -204,78 +237,70 @@ vi.mock('@/lib/api-middleware', () => ({
 // Therefore, direct usage of logProfileUpdate, logApiError etc. within tests is fine.
 
 describe('User Profile API Tests', () => {
-  let mockDb;
-  let mockPreparedStatement;
-  let mockContext;
-  let consoleErrorSpy;
+  let mockDb!: DbMock;
+  let mockPreparedStatement!: PreparedStatementMock;
+  let mockContext!: MockContext;
+  let consoleErrorSpy!: ViSpy;
 
   // Spies für die API-Middleware und Security-Logger
-  let logSecurityEventSpy;
-  let logUserEventSpy;
-  let withMiddlewareSpy;
-  let createApiErrorSpy;
+  let logSecurityEventSpy!: ViSpy;
+  let logUserEventSpy!: ViSpy;
+
+  const buildMockContext = (overrides?: {
+    formData?: ReturnType<typeof vi.fn>;
+    method?: string;
+    url?: string;
+    user?: MockContext['locals']['user'];
+    clientAddress?: string;
+  }): MockContext => ({
+    request: {
+      formData:
+        overrides?.formData ??
+        vi.fn<[], Promise<FormData>>().mockResolvedValue(new FormData()),
+      method: overrides?.method ?? 'POST',
+      url: overrides?.url ?? 'http://localhost/api/user/profile',
+    },
+    locals: {
+      user:
+        overrides?.user === undefined
+          ? {
+              id: 'user-123',
+              name: 'Original Name',
+              username: 'original_username',
+            }
+          : overrides.user,
+      runtime: {
+        env: {
+          DB: mockDb,
+        },
+      },
+    },
+    clientAddress: overrides?.clientAddress ?? '127.0.0.1',
+  });
 
   beforeEach(async () => {
     // Erstellen von verschachtelten Mocks, die die DB-Chain richtig simulieren
     mockPreparedStatement = {
       bind: vi.fn().mockReturnThis(),
       run: vi.fn().mockResolvedValue({ success: true }),
-      first: vi.fn().mockResolvedValue(null), // Default mock for first()
+      first: vi.fn().mockResolvedValue(null),
     };
 
     mockDb = {
       prepare: vi.fn().mockReturnValue(mockPreparedStatement),
     };
 
-    mockContext = {
-      request: {
-        formData: vi.fn().mockResolvedValue(new FormData()),
-      },
-      locals: {
-        user: {
-          id: 'user-123',
-          name: 'Original Name',
-          username: 'original_username',
-        },
-        runtime: {
-          env: {
-            DB: mockDb,
-          },
-        },
-      },
-    };
-
-    // Mock for console.error
-    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-
-    // Spies für die API-Middleware und Security-Logger
-    const securityLogger = await import('@/lib/security-logger');
-    const apiMiddlewareModule = await import('@/lib/api-middleware');
-
-    logSecurityEventSpy = vi.spyOn(securityLogger, 'logSecurityEvent');
-    logUserEventSpy = vi.spyOn(securityLogger, 'logUserEvent');
-    withMiddlewareSpy = vi.spyOn(apiMiddlewareModule, 'withMiddleware');
-    createApiErrorSpy = vi.spyOn(apiMiddlewareModule, 'createApiError');
-  });
-
-  afterEach(() => {
-    vi.resetAllMocks();
-    consoleErrorSpy.mockRestore();
+    mockContext = buildMockContext();
   });
 
   it('sollte 401 mit JSON-Fehlermeldung zurückgeben, wenn kein Benutzer authentifiziert ist', async () => {
     // Context ohne authentifizierten Benutzer
-    const unauthenticatedContext = {
-      ...mockContext,
-      locals: { runtime: mockContext.locals.runtime }, // Ohne user Objekt
-      clientAddress: '192.168.1.1', // IP-Adresse für Security-Logging
-      request: {
-        formData: vi.fn().mockResolvedValueOnce(new FormData()), // Leeres FormData für Validierung
-      },
-    };
+    const unauthenticatedContext = buildMockContext({
+      clientAddress: '192.168.1.1',
+      formData: vi.fn<[], Promise<FormData>>().mockResolvedValueOnce(new FormData()),
+    });
+    unauthenticatedContext.locals.user = null;
 
-    // Explizit Error werfen in der API für nicht-authentifizierte Benutzer
-    mockContext.locals.user = null;
     const response = await POST(unauthenticatedContext as any);
 
     // User zurücksetzen für nachfolgende Tests
@@ -400,9 +425,9 @@ describe('User Profile API Tests', () => {
     // Mock für secureJsonResponse
     const securityHeadersModule = await import('@/lib/security-headers');
     const secureJsonResponseSpy = vi.spyOn(securityHeadersModule, 'secureJsonResponse');
-    secureJsonResponseSpy.mockImplementation((data, status = 200) => {
+    secureJsonResponseSpy.mockImplementation((data: unknown, status = 200) => {
       return new Response(JSON.stringify(data), {
-        status: 200,
+        status,
         headers: { 'Content-Type': 'application/json' },
       });
     });

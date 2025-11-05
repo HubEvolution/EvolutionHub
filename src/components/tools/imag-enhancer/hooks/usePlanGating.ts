@@ -8,8 +8,8 @@ interface UsePlanGatingParams {
   entitlements: PlanEntitlements | null;
   gatingEnabled: boolean;
   // current selections
-  scale: 2 | 4;
-  setScale: (s: 2 | 4) => void;
+  scale: 2 | 4 | null;
+  setScale: (s: 2 | 4 | null) => void;
   faceEnhance: boolean;
   setFaceEnhance: (next: boolean) => void;
 }

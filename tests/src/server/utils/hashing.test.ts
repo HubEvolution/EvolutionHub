@@ -2,10 +2,13 @@ import { describe, expect, it, vi, beforeAll, afterAll } from 'vitest';
 import { hashPassword, comparePasswords } from '@/server/utils/hashing';
 import * as bcryptjs from 'bcryptjs';
 
+const hashMock = vi.fn<(password: string, saltOrRounds: string | number) => Promise<string>>();
+const compareMock = vi.fn<(password: string, hash: string) => Promise<boolean>>();
+
 // Mock bcryptjs
 vi.mock('bcryptjs', () => ({
-  hash: vi.fn(),
-  compare: vi.fn(),
+  hash: hashMock,
+  compare: compareMock,
 }));
 
 describe('Hashing Utilities', () => {
@@ -14,8 +17,8 @@ describe('Hashing Utilities', () => {
 
   beforeAll(() => {
     // Setup default mock behaviors
-    vi.mocked(bcryptjs.hash).mockResolvedValue(testHashedPassword);
-    vi.mocked(bcryptjs.compare).mockResolvedValue(true);
+    hashMock.mockResolvedValue(testHashedPassword);
+    compareMock.mockResolvedValue(true);
   });
 
   afterAll(() => {
@@ -38,7 +41,7 @@ describe('Hashing Utilities', () => {
 
     it('sollte Fehler weiterleiten, wenn bcryptjs.hash fehlschlägt', async () => {
       const testError = new Error('Hashing error');
-      vi.mocked(bcryptjs.hash).mockRejectedValueOnce(testError);
+      hashMock.mockRejectedValueOnce(testError);
 
       await expect(hashPassword(testPassword)).rejects.toThrow(testError);
     });
@@ -53,7 +56,7 @@ describe('Hashing Utilities', () => {
     });
 
     it('sollte true zurückgeben, wenn das Passwort übereinstimmt', async () => {
-      vi.mocked(bcryptjs.compare).mockResolvedValueOnce(true);
+      compareMock.mockResolvedValueOnce(true);
 
       const result = await comparePasswords(testPassword, testHashedPassword);
 
@@ -61,7 +64,7 @@ describe('Hashing Utilities', () => {
     });
 
     it('sollte false zurückgeben, wenn das Passwort nicht übereinstimmt', async () => {
-      vi.mocked(bcryptjs.compare).mockResolvedValueOnce(false);
+      compareMock.mockResolvedValueOnce(false);
 
       const result = await comparePasswords(testPassword, testHashedPassword);
 
@@ -70,7 +73,7 @@ describe('Hashing Utilities', () => {
 
     it('sollte Fehler weiterleiten, wenn bcryptjs.compare fehlschlägt', async () => {
       const testError = new Error('Compare error');
-      vi.mocked(bcryptjs.compare).mockRejectedValueOnce(testError);
+      compareMock.mockRejectedValueOnce(testError);
 
       await expect(comparePasswords(testPassword, testHashedPassword)).rejects.toThrow(testError);
     });

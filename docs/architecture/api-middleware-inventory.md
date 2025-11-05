@@ -10,7 +10,7 @@ codeRefs: 'src/lib/api-middleware.ts, src/lib/rate-limiter.ts'
 
 # API- & Middleware-Inventar (EvolutionHub)
 
-> Hinweis (Stand Stytch-Migration): Legacy Passwort-basierte Flows (`register`, `forgot-password`, `reset-password`, `change-password`, `verify-email`, `logout`) sind deprecatet und liefern 410 Gone. Die aktuelle Authentifizierung verwendet ausschließlich Stytch Magic Link mit dem Session-Cookie `__Host-session` (HttpOnly, Secure, SameSite=Strict, Path=/). Details siehe die konsolidierte Doku und `routes.md`.
+> Hinweis (Stand Stytch-Migration): Legacy Passwort-basierte Flows (`register`, `forgot-password`, `reset-password`, `change-password`, `verify-email`, `logout`) sind deprecatet und liefern 410 Gone. Die aktuelle Authentifizierung verwendet ausschließlich Stytch Magic Link mit dem Session-Cookie `__Host-session` (HttpOnly, Secure, SameSite=Strict, Path=/). Details siehe die konsolidierte Doku, `docs/api/` sowie `openapi.yaml`.
 
 Stand: 2025-10-17 09:40 CEST
 Scope Phase 1 – Bestandsaufnahme und Analyse ohne Codeänderungen.

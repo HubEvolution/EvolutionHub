@@ -175,10 +175,6 @@ declare module '@/config/ai-image' {
   export const FREE_LIMIT_USER: any;
 }
 
-declare module '@/config/ai-image/entitlements' {
-  export const computeEnhancerCost: any;
-}
-
 declare module '@/types/logger' {
   export type ExtendedLogger = any;
 }
@@ -191,6 +187,13 @@ declare module '@/lib/kv/usage' {
   export const rollingDailyKey: any;
   export const legacyMonthlyKey: any;
   export const consumeCreditsTenths: any;
+}
+
+declare module '@/lib/response-helpers' {
+  export const createSecureErrorResponse: any;
+  export const createSecureJsonResponse: any;
+  export const createDeprecatedGoneHtml: any;
+  export const createDeprecatedGoneJson: any;
 }
 
 declare module './provider-error' {

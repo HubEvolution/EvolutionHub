@@ -56,9 +56,7 @@ This guide defines conventions for authoring and maintaining docs in Evolution H
 
 ## CI enforcement
 
-- `docs:routes:normalize` keeps `routes.md` link targets normalized.
-
-- `scripts/docs-link-audit.mjs` blocks disallowed legacy links and `localhost:4321`.
+- `scripts/docs-link-audit.mjs` blockiert verbotene Legacy-Links und `localhost:4321`.
 
 ## Template Standards
 

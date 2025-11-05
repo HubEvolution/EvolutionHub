@@ -31,6 +31,8 @@ const { useAuthMock, useRateLimitMock, useCommentStoreMock } = vi.hoisted(() => 
   })),
 }));
 
+const noopReply = vi.fn(async () => {});
+
 // Mock the comment store
 (vi as any).mock(
   '../../src/stores/comment-store',
@@ -243,12 +245,7 @@ describe('CommentList', () => {
   it('should render comments list', async () => {
     const user = userEvent.setup();
     render(
-      <CommentList
-        onReply={function (content: string, parentId?: string): Promise<void> {
-          throw new Error('Function not implemented.');
-        }}
-        {...mockProps}
-      />
+      <CommentList onReply={noopReply} {...mockProps} />
     );
 
     expect(screen.getByText('This is the first comment')).toBeInTheDocument();
@@ -260,13 +257,7 @@ describe('CommentList', () => {
 
   it('should show comment actions for own comments', () => {
     render(
-      <CommentList
-        onReply={function (content: string, parentId?: string): Promise<void> {
-          throw new Error('Function not implemented.');
-        }}
-        {...mockProps}
-        currentUser={{ id: '1', name: 'Test User 1', email: 'test1@example.com' }}
-      />
+      <CommentList onReply={noopReply} {...mockProps} currentUser={{ id: '1', name: 'Test User 1', email: 'test1@example.com' }} />
     );
 
     expect(screen.getByText('Bearbeiten')).toBeInTheDocument();
@@ -280,13 +271,7 @@ describe('CommentList', () => {
     };
 
     render(
-      <CommentList
-        onReply={function (content: string, parentId?: string): Promise<void> {
-          throw new Error('Function not implemented.');
-        }}
-        {...propsWithDifferentUser}
-        currentUser={{ id: '999', name: 'Other', email: 'other@example.com' }}
-      />
+      <CommentList onReply={noopReply} {...propsWithDifferentUser} currentUser={{ id: '999', name: 'Other', email: 'other@example.com' }} />
     );
     expect(screen.queryByText('Bearbeiten')).not.toBeInTheDocument();
     expect(screen.queryByText('Löschen')).not.toBeInTheDocument();
@@ -295,13 +280,7 @@ describe('CommentList', () => {
   it('should handle comment editing', async () => {
     const user = userEvent.setup();
     render(
-      <CommentList
-        onReply={function (content: string, parentId?: string): Promise<void> {
-          throw new Error('Function not implemented.');
-        }}
-        {...mockProps}
-        currentUser={{ id: '1', name: 'Test User 1', email: 'test1@example.com' }}
-      />
+      <CommentList onReply={noopReply} {...mockProps} currentUser={{ id: '1', name: 'Test User 1', email: 'test1@example.com' }} />
     );
 
     const editButton = screen.getByText('Bearbeiten');
@@ -324,15 +303,7 @@ describe('CommentList', () => {
 
   it('should handle comment deletion', async () => {
     const user = userEvent.setup();
-    render(
-      <CommentList
-        onReply={function (content: string, parentId?: string): Promise<void> {
-          throw new Error('Function not implemented.');
-        }}
-        {...mockProps}
-        currentUser={{ id: '1', name: 'Test User 1', email: 'test1@example.com' }}
-      />
-    );
+    render(<CommentList onReply={noopReply} {...mockProps} currentUser={{ id: '1', name: 'Test User 1', email: 'test1@example.com' }} />);
 
     const deleteButton = screen.getByText('Löschen');
     await user.click(deleteButton);

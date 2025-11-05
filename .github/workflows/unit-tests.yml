@@ -8,28 +8,6 @@ on:
   workflow_dispatch:
 
 jobs:
-  docs-routes-normalize:
-    name: Docs Routes Link Normalization
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v4
-
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: 20
-        cache: 'npm'
-
-    - name: Install dependencies
-      run: npm ci
-
-    - name: Normalize routes.md links
-      run: npm run docs:routes:normalize
-
-    - name: Fail if normalization changed files
-      run: |
-        git diff --quiet || (echo "routes.md was normalized. Please run 'npm run docs:routes:normalize' and commit the result." && exit 1)
-
   docs-link-audit:
     name: Docs Link Audit
     runs-on: ubuntu-latest
