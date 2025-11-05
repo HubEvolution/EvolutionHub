@@ -1,13 +1,7 @@
 import { renderHook, act } from '@testing-library/react';
-import { beforeEach, afterEach, vi, test, expect, describe } from 'vitest';
+import { beforeEach, afterEach, test, expect, describe } from 'vitest';
 import React, { useState } from 'react';
 import { useCompareInteractions } from '@/components/tools/imag-enhancer/hooks/useCompareInteractions';
-
-declare global {
-  var requestAnimationFrame: (cb: FrameRequestCallback) => number;
-
-  var cancelAnimationFrame: (id: number) => void;
-}
 
 function createContainer(w = 200, h = 200) {
   const el = document.createElement('div');
@@ -26,11 +20,11 @@ describe('useCompareInteractions', () => {
   beforeEach(() => {
     el = createContainer();
     // Run rAF immediately
-    (window as any).requestAnimationFrame = (cb: FrameRequestCallback) => {
+    window.requestAnimationFrame = ((cb: FrameRequestCallback) => {
       cb(0 as any);
       return 1;
-    };
-    (window as any).cancelAnimationFrame = () => {};
+    }) as typeof window.requestAnimationFrame;
+    window.cancelAnimationFrame = (() => {}) as typeof window.cancelAnimationFrame;
   });
 
   afterEach(() => {

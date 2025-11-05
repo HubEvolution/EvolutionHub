@@ -1,27 +1,12 @@
 // Vitest setup file
-import { vi, afterEach, expect } from 'vitest';
+import { vi, afterEach } from 'vitest';
 import { cleanup } from '@testing-library/react';
-import * as matchers from '@testing-library/jest-dom/matchers';
-
-// Extend Vitest's expect runtime with jest-dom matchers
-expect.extend(matchers as unknown as Record<string, (...args: unknown[]) => unknown>);
-
-// Add custom matchers
-declare global {
-  // eslint-disable-next-line @typescript-eslint/no-namespace
-  namespace Vi {
-    interface JestAssertion<T = any> {
-      toBeInTheDocument(): T;
-      toHaveTextContent(text: string | RegExp): T;
-      toHaveClass(...classNames: string[]): T;
-      toHaveAttribute(attr: string, value?: any): T;
-    }
-  }
-}
+import '@testing-library/jest-dom/vitest';
 
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
+  configurable: true,
   value: vi.fn().mockImplementation((query: string) => ({
     matches: false,
     media: query,
@@ -37,6 +22,7 @@ Object.defineProperty(window, 'matchMedia', {
 // Mock requestAnimationFrame / cancelAnimationFrame
 if (!window.requestAnimationFrame) {
   Object.defineProperty(window, 'requestAnimationFrame', {
+    configurable: true,
     writable: true,
     value: vi.fn((callback: FrameRequestCallback) => {
       return setTimeout(() => {
@@ -48,6 +34,7 @@ if (!window.requestAnimationFrame) {
 
 if (!window.cancelAnimationFrame) {
   Object.defineProperty(window, 'cancelAnimationFrame', {
+    configurable: true,
     writable: true,
     value: vi.fn((handle: number) => clearTimeout(handle)),
   });
@@ -76,6 +63,7 @@ if (typeof window.ResizeObserver === 'undefined') {
   }
 
   Object.defineProperty(window, 'ResizeObserver', {
+    configurable: true,
     writable: true,
     value: ResizeObserver,
   });

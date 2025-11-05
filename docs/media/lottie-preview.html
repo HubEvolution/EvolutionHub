@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Lottie Preview</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        background: transparent;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      #container {
+        width: 512px;
+        height: 512px;
+        background: transparent;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="container"></div>
+    <script src="../../node_modules/lottie-web/build/player/lottie.js"></script>
+    <script>
+      async function loadAnimation() {
+        const response = await fetch('../../public/assets/lottie/outline-photo.json');
+        if (!response.ok) {
+          console.error('Failed to load Lottie JSON');
+          return;
+        }
+        const animationData = await response.json();
+        window.lottie.loadAnimation({
+          container: document.getElementById('container'),
+          renderer: 'svg',
+          loop: true,
+          autoplay: true,
+          animationData,
+        });
+      }
+
+      loadAnimation();
+    </script>
+  </body>
+</html>
