@@ -11,7 +11,7 @@
 [![Enhancer E2E Smoke](https://github.com/HubEvolution/EvolutionHub/actions/workflows/enhancer-e2e-smoke.yml/badge.svg?branch=main)](https://github.com/HubEvolution/EvolutionHub/actions/workflows/enhancer-e2e-smoke.yml)
 [![Prod Auth Smoke](https://github.com/HubEvolution/EvolutionHub/actions/workflows/prod-auth-smoke.yml/badge.svg?branch=main)](https://github.com/HubEvolution/EvolutionHub/actions/workflows/prod-auth-smoke.yml)
 [![Pricing Smoke](https://github.com/HubEvolution/EvolutionHub/actions/workflows/pricing-smoke.yml/badge.svg?branch=main)](https://github.com/HubEvolution/EvolutionHub/actions/workflows/pricing-smoke.yml)
-[![Active Users 24h](https://img.shields.io/badge/Active%20Users-24h-blueviolet?style=for-the-badge)](https://hub-evolution.com/admin)
+[![Healthchecks.io](https://healthchecks.io/badge/c92ff926-b68c-4132-9ac7-ec9880/yTML69zO.svg)](https://healthchecks.io/projects/24c4fa7f-7316-451b-b973-382f80676a0b)
 [![Enhancer Jobs](https://img.shields.io/badge/Enhancer%20Jobs-Cloudflare%2BReplicate-BC52EE?style=for-the-badge)](https://hub-evolution.com/tools/imag-enhancer/app)
 
 > Interaktive AI-Tool-Suite für Bild- und Video-Enhancement, Prompt-Optimierung, Web-Scraping und Voice-Transkription – aufgebaut auf Astro + Cloudflare Workers mit sicherer Authentifizierung, Quoten- und Job-Systemen.

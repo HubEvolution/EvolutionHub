@@ -39,10 +39,10 @@ test('returns full allowed scales when gating disabled', () => {
 
 test('clamps scale when entitlements.maxUpscale=2 and scale=4', () => {
   const entitlements: PlanEntitlements = {
-    plan: 'free',
+    monthlyImages: 30,
+    dailyBurstCap: 3,
     maxUpscale: 2,
     faceEnhance: false,
-    dailyLimit: 10,
   };
   const { setScale } = setup({
     gatingEnabled: true,
@@ -57,10 +57,10 @@ test('clamps scale when entitlements.maxUpscale=2 and scale=4', () => {
 
 test('disables face enhance when not allowed', () => {
   const entitlements: PlanEntitlements = {
-    plan: 'free',
+    monthlyImages: 30,
+    dailyBurstCap: 3,
     maxUpscale: 4,
     faceEnhance: false,
-    dailyLimit: 10,
   };
   const { setFaceEnhance, result } = setup({
     gatingEnabled: true,
