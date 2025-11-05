@@ -1,0 +1,45 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import WebscraperIsland from '@/components/tools/webscraper/WebscraperIsland';
+import ToolPageHeader from '@/components/tools/shared/ToolPageHeader.astro';
+
+const strings = {
+  title: 'Webscraper',
+  description: 'Extract content from web pages automatically',
+  urlPlaceholder: 'https://example.com',
+  submitButton: 'Scrape',
+  processing: 'Processing...',
+  result: 'Result',
+  usage: 'Usage',
+  download: 'Download',
+  downloadJson: 'Download JSON',
+  toasts: {
+    quotaReached: 'Daily limit reached',
+    invalidUrl: 'Invalid URL',
+    robotsBlocked: 'This URL is blocked by robots.txt',
+    fetchError: 'Error fetching page',
+    parseError: 'Error parsing page',
+    success: 'Successfully scraped!',
+    error: 'An error occurred',
+  },
+};
+---
+
+<BaseLayout
+  title="Webscraper – Evolution Hub"
+  description="Extract content from web pages automatically with our Webscraper tool"
+>
+  <main class="min-h-screen bg-transparent py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-4xl mx-auto">
+      <ToolPageHeader
+        icon="search"
+        titleKey="pages.tools.items.webscraper.name"
+        descriptionKey="pages.tools.items.webscraper.description"
+        backHref="/tools"
+      />
+      <div class="mt-8">
+        <WebscraperIsland client:load strings={strings} />
+      </div>
+    </div>
+  </main>
+</BaseLayout>

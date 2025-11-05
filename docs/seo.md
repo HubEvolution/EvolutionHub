@@ -1,3 +1,11 @@
+---
+description: 'SEO – Meta-Daten, hreflang und Read-only Launch Setup'
+owner: 'SEO & Ops Team'
+priority: 'medium'
+lastSync: '2025-11-04'
+codeRefs: 'src/lib/seo.ts, src/layouts/BaseLayout.astro, docs/seo-readonly-launch-2025-10-28.md, tests/e2e/specs/seo.spec.ts'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # SEO Dokumentation
@@ -8,17 +16,17 @@ Diese Dokumentation beschreibt die Implementierung und Pflege der SEO‑Meta‑D
 
 ## Hauptimplementierung
 
-Die SEO‑Daten und Hilfsfunktionen befinden sich in [`src/lib/seo.ts:22`]. Dort sind die Funktionen
+Die SEO‑Daten und Hilfsfunktionen befinden sich in [`src/lib/seo.ts`](../src/lib/seo.ts). Dort sind die Funktionen
 
 - `getSEOData(locale)` — liefert Titel, Description und ogImage für ein Locale
 
 - `getAlternateUrls(pathname)` — erzeugt hreflang‑Alternativen für eine gegebene Route
 
-Integriert wird das in Layouts (z. B. [`src/layouts/BaseLayout.astro:44`]), die die Meta‑Tags setzen und die hreflang‑Links erzeugen.
+Integriert wird das in Layouts (z. B. [`src/layouts/BaseLayout.astro`](../src/layouts/BaseLayout.astro)), die die Meta‑Tags setzen und die hreflang‑Links erzeugen.
 
 ## Datenstruktur
 
-Für jedes Locale werden folgende Felder erwartet (siehe [`src/lib/seo.ts:9`]):
+Für jedes Locale werden folgende Felder erwartet (siehe [`src/lib/seo.ts`](../src/lib/seo.ts)):
 
 - `title` (string)
 
@@ -38,7 +46,7 @@ const seoData = {
 
 ## Verwendung (Beispiel)
 
-In einem Layout (siehe [`src/layouts/BaseLayout.astro:44`]):
+In einem Layout (siehe [`src/layouts/BaseLayout.astro`](../src/layouts/BaseLayout.astro)):
 
 ```astro
 ---
@@ -58,13 +66,13 @@ const alternates = getAlternateUrls(Astro.url.pathname);
 
 ## Hinzufügen / Aktualisieren von SEO‑Daten
 
-1. Fügen Sie ein neues Locale zum `Locale`‑Typ (`src/lib/i18n.ts:12`) hinzu, falls nötig.
-1. Ergänzen Sie die `seoData`‑Einträge in [`src/lib/seo.ts:9`].
-1. Passen Sie bei Bedarf das Layout (`src/layouts/BaseLayout.astro:44`) an, insbesondere Canonical/Hreflang‑Regeln.
+1. Fügen Sie ein neues Locale zum `Locale`‑Typ (`../src/lib/i18n.ts`) hinzu, falls nötig.
+1. Ergänzen Sie die `seoData`‑Einträge in [`src/lib/seo.ts`](../src/lib/seo.ts).
+1. Passen Sie bei Bedarf das Layout (`src/layouts/BaseLayout.astro`) an, insbesondere Canonical/Hreflang‑Regeln.
 
 ## Tests
 
-Die SEO‑Meta‑Tags werden in E2E‑Tests geprüft (z. B. `tests/e2e/specs/seo.spec.ts`). Starten Sie die Tests mit:
+Die SEO‑Meta‑Tags werden in Integrationstests geprüft (z. B. [`tests/integration/routing/seo-hreflang.test.ts`](../tests/integration/routing/seo-hreflang.test.ts)). Starten Sie die Tests mit:
 
 ```bash
 npm run test:e2e -- --grep "seo"
@@ -89,9 +97,9 @@ npm run test:e2e -- --grep "seo"
 
 ## Referenzen
 
-- Implementierung: [`src/lib/seo.ts:22`]
+- Implementierung: [`src/lib/seo.ts`](../src/lib/seo.ts)
 
-- Layout‑Integration: [`src/layouts/BaseLayout.astro:44`]
+- Layout‑Integration: [`src/layouts/BaseLayout.astro`](../src/layouts/BaseLayout.astro)
 
 Ende.
 

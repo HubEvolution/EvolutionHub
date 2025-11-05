@@ -1,3 +1,11 @@
+---
+description: 'Card-Komponenten: Spezial-Varianten in Astro und CardReact für interaktive UIs'
+owner: 'Frontend Team'
+priority: 'medium'
+lastSync: '2025-11-04'
+codeRefs: 'src/components/**/Card*.astro, src/components/ui/CardReact.tsx'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # Card-Komponenten in Evolution Hub

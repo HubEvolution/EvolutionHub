@@ -1,0 +1,94 @@
+---
+import Card from '@/components/ui/Card';
+import NewsletterPreferencesCard from '@/components/dashboard/NewsletterPreferencesCard';
+import BillingCard, { type BillingSummary } from '@/components/dashboard/BillingCard';
+
+interface NewsletterStrings {
+  title: string;
+  subscribed: string;
+  unsubscribed: string;
+  unsubscribe: string;
+  resubscribe: string;
+  processing: string;
+  success: string;
+  error: string;
+}
+
+interface BillingStrings {
+  title: string;
+  currentPlan: string;
+  statusLabel: string;
+  noSubscription: string;
+  renewal: string;
+  credits: string;
+  actions: { manage: string; cancel: string; cancelled: string };
+  statusMap: Record<string, string>;
+  planLabels: Record<'free' | 'pro' | 'premium' | 'enterprise', string>;
+}
+
+interface Props {
+  email: string;
+  initiallySubscribed: boolean;
+  newsletterStrings: NewsletterStrings;
+  billingSummary: BillingSummary | null;
+  billingStrings: BillingStrings;
+  manageLink: string;
+  buyCreditsHref: string;
+}
+
+const {
+  email,
+  initiallySubscribed,
+  newsletterStrings,
+  billingSummary,
+  billingStrings,
+  manageLink,
+  buyCreditsHref,
+} = Astro.props as Props;
+---
+
+<Card as="section" className="group p-5">
+  <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+    <div>
+      <NewsletterPreferencesCard
+        client:load
+        email={email}
+        initiallySubscribed={initiallySubscribed}
+        strings={newsletterStrings}
+      />
+    </div>
+    <div>
+      <Card as="div" className="group p-4">
+        <BillingCard
+          client:load
+          summary={billingSummary}
+          strings={billingStrings}
+          manageLink={manageLink}
+        />
+      </Card>
+    </div>
+  </div>
+
+  <div class="mt-5 rounded-lg border border-white/10 bg-white/5 p-4 backdrop-blur-sm">
+    <div class="flex items-center justify-between gap-3">
+      <div class="flex items-baseline gap-2">
+        <span class="text-xs font-semibold uppercase tracking-wide text-slate-400"
+          >{billingStrings.credits}</span
+        >
+        <span class="text-lg font-bold text-white"
+          >{
+            typeof billingSummary?.creditsRemaining === 'number'
+              ? billingSummary.creditsRemaining
+              : '—'
+          }</span
+        >
+      </div>
+      <a
+        href={buyCreditsHref}
+        class="inline-flex items-center rounded-md bg-gradient-to-r from-indigo-500 to-fuchsia-500 px-3 py-1.5 text-xs font-bold text-white shadow-sm shadow-indigo-500/30 transition hover:from-indigo-600 hover:to-fuchsia-600"
+      >
+        Buy credits
+      </a>
+    </div>
+  </div>
+</Card>

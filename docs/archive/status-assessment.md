@@ -1,3 +1,11 @@
+---
+description: 'Status-Assessment – Überblick über funktionale Lücken und Stärken'
+owner: 'Documentation Team'
+priority: 'medium'
+lastSync: '2025-11-04'
+codeRefs: 'docs/archive/status-assessment.md, docs/testing/testing-strategy.md, docs/security/headers.md'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # Evolution Hub - Status-Assessment

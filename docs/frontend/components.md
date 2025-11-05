@@ -1,3 +1,11 @@
+---
+description: 'Komponentenübersicht für Astro & React Frontend (UI, Layout, Dashboard, Blog)'
+owner: 'Frontend Team'
+priority: 'high'
+lastSync: '2025-11-04'
+codeRefs: 'src/components/**, docs/frontend/components.md'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # Komponenten-Dokumentation
@@ -6,11 +14,11 @@ Diese Dokumentation bietet einen Überblick über die Komponenten des Evolution 
 
 ## Inhaltsverzeichnis
 
-1. [UI-Basiskomponenten](#ui-basiskomponenten)
-1. [Layout-Komponenten](#layout-komponenten)
-1. [Dashboard-Komponenten](#dashboard-komponenten)
-1. [Blog-Komponenten](#blog-komponenten)
-1. [Spezialkomponenten](#spezialkomponenten)
+- UI-Basiskomponenten
+- Layout-Komponenten
+- Dashboard-Komponenten
+- Blog-Komponenten
+- Spezialkomponenten
 
 ---
 

@@ -1,3 +1,11 @@
+---
+description: 'UI/UX-Richtlinien – Designprinzipien, Navigation und Interaktionsmuster'
+owner: 'Frontend Team'
+priority: 'medium'
+lastSync: '2025-11-04'
+codeRefs: 'docs/frontend/ui-ux.md, src/components/Header.astro, src/components/ui/**, src/styles/**'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # UI/UX-Richtlinien
@@ -6,14 +14,14 @@ Diese Dokumentation beschreibt die UI/UX-Richtlinien für das Evolution Hub Proj
 
 ## Inhaltsverzeichnis
 
-1. [Designprinzipien](#designprinzipien)
-1. [Navigation und Information Architecture](#navigation-und-information-architecture)
-1. [Formulardesign](#formulardesign)
-1. [Feedback und Benachrichtigungen](#feedback-und-benachrichtigungen)
-1. [Barrierefreiheit](#barrierefreiheit)
-1. [Interaktionsmuster](#interaktionsmuster)
-1. [Content-Richtlinien](#content-richtlinien)
-1. [Performance-Optimierung](#performance-optimierung)
+- Designprinzipien
+- Navigation und Information Architecture
+- Formulardesign
+- Feedback und Benachrichtigungen
+- Barrierefreiheit
+- Interaktionsmuster
+- Content-Richtlinien
+- Performance-Optimierung
 
 ---
 

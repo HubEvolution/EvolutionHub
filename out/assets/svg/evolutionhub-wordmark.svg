@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="230" height="32" viewBox="0 0 230 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Brand base gradient -->
+    <linearGradient id="unifiedGradient" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#06b6d4"/>
+    </linearGradient>
+
+    <!-- Animated shimmer gradient sweeping horizontally inside glyphs -->
+    <linearGradient id="shimmerGradient" x1="0" y1="0" x2="230" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="40%" stop-color="#ffffff" stop-opacity="0" />
+      <stop offset="50%" stop-color="#ffffff" stop-opacity="0.22" />
+      <stop offset="60%" stop-color="#ffffff" stop-opacity="0" />
+      <animateTransform attributeName="gradientTransform" type="translate" from="-230 0" to="230 0" dur="10s" repeatCount="indefinite" />
+    </linearGradient>
+  </defs>
+
+  <!-- Base wordmark (always visible) -->
+  <text x="115" y="16" text-anchor="middle" dominant-baseline="middle" fill="url(#unifiedGradient)" font-family="'Exo 2', sans-serif" font-size="18" font-weight="700" letter-spacing="1.5" text-transform="uppercase">Evolution Hub</text>
+
+  <!-- Highlight sweep confined to glyphs (medium intensity) -->
+  <text id="shimmerText" x="115" y="16" text-anchor="middle" dominant-baseline="middle" fill="url(#shimmerGradient)" font-family="'Exo 2', sans-serif" font-size="18" font-weight="700" letter-spacing="1.5" text-transform="uppercase" aria-hidden="true" style="pointer-events:none;">Evolution Hub</text>
+
+  <style>
+    @media (prefers-reduced-motion: reduce) {
+      #shimmerText { opacity: 0; }
+    }
+  </style>
+</svg>

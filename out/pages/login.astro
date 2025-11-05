@@ -1,0 +1,77 @@
+---
+import AuthLayout from '@/layouts/AuthLayout.astro';
+import AuthStatusNotifier from '@/components/scripts/AuthStatusNotifier';
+import MagicLinkForm from '@/components/auth/MagicLinkForm.astro';
+import Button from '@/components/ui/Button.astro';
+import Icon from '@/components/ui/icons/Icon.astro';
+import { getI18n } from '@/utils/i18n';
+import { getLocale } from '@/lib/i18n';
+import { localizePath } from '@/lib/locale-path';
+import Card from '@/components/ui/Card';
+
+const locale = getLocale(Astro.url.pathname);
+const t = getI18n(locale);
+
+const magicBanner = Astro.url.searchParams.get('success') === 'magic_sent';
+const magicText =
+  t('pages.auth.magic.success') ??
+  (locale === 'de'
+    ? 'Prüfe deine E‑Mails auf den Anmelde‑Link.'
+    : 'Check your email for a sign‑in link.');
+
+// Allow passing a safe relative redirect target through to the Magic Link flow
+const rParam = Astro.url.searchParams.get('r') ?? '';
+const safeR =
+  typeof rParam === 'string' && rParam.startsWith('/') && !rParam.startsWith('//') ? rParam : '';
+
+// OAuth GitHub button label (single source of truth)
+const githubText =
+  t('pages.login.form.oauth.github') ??
+  (locale === 'de' ? 'Mit GitHub anmelden' : 'Continue with GitHub');
+
+const locals = Astro.locals as any;
+if (locals.user) {
+  return Astro.redirect(localizePath(locale, '/dashboard'));
+}
+---
+
+<AuthLayout title={t('pages.login.title') ?? 'Login'}>
+  <Card as="div" className="relative p-6 rounded-2xl overflow-hidden shadow-sm">
+    <h1 class="text-2xl font-bold text-center mb-6">
+      {t('pages.login.form.heading') ?? 'Login to your Account'}
+    </h1>
+
+    {
+      magicBanner && (
+        <div class="mb-4 rounded-md border border-emerald-200 bg-emerald-50 text-emerald-800 px-4 py-2 text-sm">
+          {magicText}
+        </div>
+      )
+    }
+
+    <MagicLinkForm locale={locale} mode="login" r={safeR} />
+
+    <div class="my-4 flex items-center gap-3 text-gray-500 dark:text-gray-400">
+      <div class="h-px bg-gray-200 dark:bg-white/10 flex-1"></div>
+      <span class="text-xs uppercase tracking-wider"
+        >{t('pages.login.form.or') ?? (locale === 'de' ? 'oder' : 'or')}</span
+      >
+      <div class="h-px bg-gray-200 dark:bg-white/10 flex-1"></div>
+    </div>
+
+    <form method="GET" action="/api/auth/oauth/github/start" class="block">
+      {safeR && <input type="hidden" name="r" value={safeR} />}
+      <Button type="submit" variant="outline" fullWidth>
+        <Icon name="github" className="w-5 h-5 mr-2" />
+        {githubText}
+      </Button>
+    </form>
+    <p class="text-center mt-4 text-sm">
+      {t('pages.login.form.no_account_prompt')}
+      <a href={localizePath(locale, '/register')} class="text-emerald-600 hover:underline"
+        >{t('pages.login.form.register_link') ?? 'Register'}</a
+      >
+    </p>
+  </Card>
+  <AuthStatusNotifier mode="login" client:load />
+</AuthLayout>

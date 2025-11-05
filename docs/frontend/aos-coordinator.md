@@ -1,3 +1,11 @@
+---
+description: 'AOSCoordinator – CDN-AOS Integration, AosWrapper-Komponente und Utilities'
+owner: 'Frontend Team'
+priority: 'medium'
+lastSync: '2025-11-04'
+codeRefs: 'src/components/scripts/AOSCoordinator.astro, src/components/AosWrapper.astro, src/lib/aos.ts, src/layouts/BaseLayout.astro'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # AOS-Animationen (AOSCoordinator)

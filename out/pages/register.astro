@@ -1,0 +1,45 @@
+---
+import AuthLayout from '@/layouts/AuthLayout.astro';
+import AuthStatusNotifier from '@/components/scripts/AuthStatusNotifier';
+import MagicLinkForm from '@/components/auth/MagicLinkForm.astro';
+import { getI18n } from '@/utils/i18n';
+import { getLocale } from '@/lib/i18n';
+import { localizePath } from '@/lib/locale-path';
+import Card from '@/components/ui/Card';
+
+const locale = getLocale(Astro.url.pathname);
+const t = getI18n(locale);
+
+const locals = Astro.locals as any;
+if (locals.user) {
+  return Astro.redirect(localizePath(locale, '/dashboard'));
+}
+
+// Allow safe relative redirect passthrough for Magic Link
+const rParam = Astro.url.searchParams.get('r') ?? '';
+const safeR =
+  typeof rParam === 'string' && rParam.startsWith('/') && !rParam.startsWith('//') ? rParam : '';
+---
+
+<AuthLayout title={t('pages.register.title') ?? 'Create an Account'}>
+  <Card as="div" className="relative p-6 rounded-2xl overflow-hidden shadow-sm">
+    <h1 class="text-2xl font-bold text-center mb-2">
+      {t('pages.register.form.heading') ?? 'Create your Account'}
+    </h1>
+    <p class="text-center text-sm text-gray-600 dark:text-gray-300 mb-6">
+      {
+        t('pages.register.form.subheading') ??
+          'We’ll email you a sign-in link. After submitting, you’ll see a confirmation response.'
+      }
+    </p>
+
+    <MagicLinkForm locale={locale} mode="register" r={safeR} showProfileFields={true} />
+    <p class="text-center mt-4 text-sm">
+      {t('pages.register.form.already_have_account_prompt')}
+      <a href={localizePath(locale, '/login')} class="text-emerald-600 hover:underline"
+        >{t('pages.register.form.login_link') ?? 'Login'}</a
+      >
+    </p>
+    <AuthStatusNotifier mode="register" client:load />
+  </Card>
+</AuthLayout>

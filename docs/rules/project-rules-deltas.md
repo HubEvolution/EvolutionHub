@@ -1,3 +1,11 @@
+---
+description: 'Project Rules Deltas – temporärer Overlay für .windsurf/rules/*'
+owner: 'Platform Team'
+priority: 'medium'
+lastSync: '2025-11-04'
+codeRefs: '.windsurf/rules/api-and-security.md, .windsurf/rules/tooling-and-style.md, .windsurf/rules/project-structure.md, .windsurf/rules/infra.md, .windsurf/rules/testing-and-ci.md, .windsurf/rules/zod-openapi.md, .windsurf/rules/auth.md'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # Project Rules — Deltas to apply in .windsurf/rules/\* (no code changes)

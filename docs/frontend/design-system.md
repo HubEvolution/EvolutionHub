@@ -1,3 +1,11 @@
+---
+description: 'Design-System: Farben, Typografie, Abstände, Dark Mode und Interaktionen'
+owner: 'Frontend Team'
+priority: 'high'
+lastSync: '2025-11-04'
+codeRefs: 'src/styles/tokens/**, tailwind.config.js, docs/frontend/design-system.md'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # Design-System-Dokumentation
@@ -6,14 +14,14 @@ Diese Dokumentation beschreibt das Design-System des Evolution Hub, einschließl
 
 ## Inhaltsverzeichnis
 
-1. [Farbpalette](#farbpalette)
-1. [Typografie](#typografie)
-1. [Abstände und Größen](#abstande-und-groen)
-1. [Schatten und Elevation](#schatten-und-elevation)
-1. [Rundungen](#rundungen)
-1. [Dark Mode](#dark-mode)
-1. [Responsive Design](#responsive-design)
-1. [Animationen und Übergänge](#animationen-und-ubergange)
+- Farbpalette
+- Typografie
+- Abstände und Größen
+- Schatten und Elevation
+- Rundungen
+- Dark Mode
+- Responsive Design
+- Animationen und Übergänge
 
 ---
 

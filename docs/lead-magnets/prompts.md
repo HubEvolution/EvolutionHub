@@ -1,3 +1,11 @@
+---
+description: 'Bild-Prompts für Lead-Magnet Preview Assets (Midjourney, SDXL, DALL·E)'
+owner: 'Marketing Team'
+priority: 'medium'
+lastSync: '2025-11-04'
+codeRefs: 'docs/lead-magnets/prompts.md'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # Lead-Magnet Assets – Prompt-Sammlung

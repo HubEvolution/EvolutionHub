@@ -1,0 +1,380 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { getLocale } from '@/lib/i18n';
+import { localizePath } from '@/lib/locale-path';
+import { getI18n as getT } from '@/utils/i18n';
+
+const locale = getLocale(Astro.url.pathname);
+const t = getT(locale);
+import { blogService } from '@/lib/blog';
+// Ensure these types are correctly imported and available.
+// The previous errors indicated they might not be found, but we've created them.
+import type { ProcessedBlogPost } from '@/content/types';
+import type { CategoryWithCount, TagWithCount } from '@/types/blog';
+import BlogList from '@/components/BlogList.astro';
+import Pagination from '@/components/Pagination.astro';
+import CategoryFilter from '@/components/CategoryFilter.astro';
+import ErrorBoundary from '@/components/ErrorBoundary.astro';
+import AosWrapper from '@/components/AosWrapper.astro';
+import Card from '@/components/ui/Card';
+
+// Pagination und Filter-Parameter aus der URL auslesen
+const url = Astro.url;
+const searchParams = url.searchParams;
+const page = Math.max(1, parseInt(searchParams.get('page') || '1'));
+const category = searchParams.get('kategorie') || undefined;
+const tag = searchParams.get('tag') || undefined;
+const searchQuery = searchParams.get('suche') || undefined;
+const postsPerPage = 9;
+
+// Determine if the featured post should be displayed.
+// This condition is true only when no filters are applied and we are on the first page.
+const shouldShowFeatured = !category && !tag && !searchQuery && page === 1;
+
+// Blog-Daten inklusive Posts, Kategorien, Tags und Paginierungsdetails mit der optimierten Methode abrufen
+let posts: ProcessedBlogPost[] = [];
+let categoriesWithCounts: CategoryWithCount[] = []; // Directly use data from getBlogIndexData
+let popularTags: TagWithCount[] = []; // Directly use data from getBlogIndexData
+let currentPage = 1;
+let totalPages = 1;
+
+try {
+  // Use the optimized method to fetch all necessary data in one go.
+  // This method handles filtering and pagination internally, thus reducing redundant data fetching.
+  const blogIndexData = await blogService.getBlogIndexData(page, postsPerPage, {
+    category,
+    tag,
+    search: searchQuery,
+    includeDrafts: import.meta.env.DEV,
+  });
+
+  posts = blogIndexData.posts;
+  categoriesWithCounts = blogIndexData.categories; // Use the categories with counts directly
+  popularTags = blogIndexData.tags; // Use the tags with counts directly
+  currentPage = blogIndexData.currentPage;
+  totalPages = blogIndexData.totalPages;
+} catch (error) {
+  console.error('Fehler beim Laden der Blog-Index-Daten:', error);
+  // Wir fahren mit leeren Werten fort, die UI zeigt dann eine Fehlermeldung an
+}
+
+// Metadaten für SEO
+const title = category ? `Blog - ${category}` : tag ? `Beiträge mit dem Tag "${tag}"` : 'Blog';
+const description = category
+  ? `Alle Blog-Beiträge in der Kategorie ${category}`
+  : tag
+    ? `Alle Blog-Beiträge mit dem Tag "${tag}"`
+    : 'Aktuelle Artikel, Tutorials und Neuigkeiten aus der Welt der Webentwicklung';
+
+// Kanonische URL für SEO
+const canonicalUrl = new URL('/blog/', Astro.url.origin);
+if (category) canonicalUrl.searchParams.set('kategorie', category);
+if (tag) canonicalUrl.searchParams.set('tag', tag);
+if (searchQuery) canonicalUrl.searchParams.set('suche', searchQuery);
+if (page > 1) canonicalUrl.searchParams.set('page', page.toString());
+
+// Base URL for pagination links, ensuring query params are preserved except for 'page'
+const baseUrlForPagination = new URL(url);
+baseUrlForPagination.searchParams.delete('page');
+// CSP nonce for inline scripts
+const nonce = (Astro.locals as any).cspNonce;
+// Robust i18n fallbacks for placeholders: if translator returns the key, fall back to a human string
+const safeT = (key: string, fallback: string) => {
+  const v = t(key) as unknown as string;
+  if (!v) return fallback;
+  // If the value looks like a raw key (e.g., 'pages.blog.*' or 'en:pages.blog.*'), use fallback
+  return v.includes('pages.') || v.includes('en:') || v.includes('de:') ? fallback : v;
+};
+const blogSearchPlaceholder = safeT('pages.blog.search.placeholder', 'Suchen…');
+const tagsSearchPlaceholder = safeT('pages.blog.search.tags_placeholder', 'Tags durchsuchen…');
+---
+
+<BaseLayout title={title} description={description} canonical={canonicalUrl.toString()}>
+  <div class="bg-white dark:bg-gray-900 py-12 sm:py-16">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+      <div class="mx-auto max-w-2xl lg:mx-0">
+        <AosWrapper
+          tag="h1"
+          class="text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-4xl"
+        >
+          {title}
+        </AosWrapper>
+        <AosWrapper
+          tag="p"
+          delay={100}
+          duration={650}
+          class="mt-2 text-lg leading-8 text-gray-700 dark:text-gray-300"
+        >
+          {description}
+        </AosWrapper>
+      </div>
+
+      <div class="mt-12 grid grid-cols-1 gap-8 lg:grid-cols-4">
+        <!-- Sidebar mit Filtern -->
+        <aside class="lg:col-span-1 space-y-8">
+          <!-- Suchleiste -->
+          <Card
+            as="div"
+            variant="holo"
+            className="p-4 rounded-lg"
+            data-aos="fade-up"
+            data-aos-duration="600"
+          >
+            <h2 class="text-sm font-medium text-gray-900 dark:text-white mb-3">Blog durchsuchen</h2>
+            <form method="get" action={localizePath(locale, '/blog/')} class="relative">
+              <input
+                type="text"
+                name="suche"
+                placeholder={blogSearchPlaceholder}
+                value={searchQuery || ''}
+                class="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500 dark:bg-gray-700 dark:text-white dark:ring-gray-600 dark:placeholder-gray-400 sm:text-sm sm:leading-6"
+              />
+              <button
+                type="submit"
+                class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 min-w-6 min-h-6 p-2 hover:text-gray-500 dark:text-gray-400 dark:hover:text-gray-300"
+                aria-label="Suchen"
+              >
+                <span class="sr-only">Suchen</span>
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+              </button>
+
+              {/* Versteckte Felder, um andere Filter beizubehalten */}
+              {category && <input type="hidden" name="kategorie" value={category} />}
+              {tag && <input type="hidden" name="tag" value={tag} />}
+            </form>
+          </Card>
+
+          <!-- Kategorien-Filter mit Error Boundary -->
+          <div data-aos="fade-up" data-aos-duration="600">
+            <ErrorBoundary>
+              <!-- Directly using data from getBlogIndexData -->
+              <CategoryFilter
+                categories={categoriesWithCounts}
+                selectedCategory={category}
+                baseUrl={localizePath(locale, '/blog')}
+                className="sticky top-4"
+              />
+            </ErrorBoundary>
+          </div>
+
+          {/* Tags mit Error Boundary */}
+          <ErrorBoundary>
+            <Card
+              as="div"
+              variant="holo"
+              className="p-4 rounded-lg"
+              data-aos="fade-up"
+              data-aos-duration="600"
+            >
+              <h2 class="text-sm font-medium text-gray-900 dark:text-white mb-3">Alle Tags</h2>
+              {
+                popularTags.length > 0 ? (
+                  <>
+                    <div class="mb-3">
+                      <input
+                        id="tag-filter"
+                        type="search"
+                        placeholder={tagsSearchPlaceholder}
+                        aria-label="Tags durchsuchen"
+                        aria-controls="tags-list"
+                        class="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500 dark:bg-gray-700 dark:text-white dark:ring-gray-600 dark:placeholder-gray-400 sm:text-sm sm:leading-6"
+                      />
+                      <div id="tags-count" class="sr-only" aria-live="polite" />
+                    </div>
+                    <div id="tags-list" class="flex flex-wrap gap-2">
+                      {popularTags.map(
+                        (
+                          tagData, // Renamed 'tag' to 'tagData' for clarity
+                          idx
+                        ) => (
+                          <a
+                            href={localizePath(locale, `/blog/tag/${tagData.name.toLowerCase()}`)}
+                            class={[
+                              'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
+                              tag === tagData.name
+                                ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400'
+                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600',
+                              idx >= 10 ? 'hidden' : '',
+                            ].join(' ')}
+                          >
+                            {tagData.name}
+                            <span class="ml-1 text-xs text-gray-500 dark:text-gray-400">
+                              {tagData.count}
+                            </span>
+                          </a>
+                        )
+                      )}
+                    </div>
+                    <div class="mt-3">
+                      <button
+                        id="tags-toggle"
+                        type="button"
+                        class="text-xs font-medium text-emerald-600 hover:text-emerald-500 dark:text-emerald-400 dark:hover:text-emerald-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 rounded"
+                        aria-expanded="false"
+                        aria-controls="tags-list"
+                      >
+                        Alle Tags anzeigen
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <p class="text-sm text-gray-500 dark:text-gray-400">Keine Tags verfügbar.</p>
+                )
+              }
+            </Card>
+          </ErrorBoundary>
+        </aside>
+
+        <!-- Hauptinhalt -->
+        <div class="lg:col-span-3">
+          {/* Filter-Info anzeigen, wenn Filter aktiv sind */}
+          {
+            (category || tag || searchQuery) && (
+              <div
+                class="mb-6 rounded-lg bg-emerald-50 p-4 dark:bg-emerald-900/20"
+                data-aos="fade-up"
+                data-aos-duration="600"
+              >
+                <div class="flex items-center justify-between">
+                  <p class="text-sm text-emerald-800 dark:text-emerald-200">
+                    {category && `Gefiltert nach Kategorie: ${category}`}
+                    {tag && `Gefiltered nach Tag: ${tag}`}
+                    {searchQuery && `Suchergebnisse für: "${searchQuery}"`}
+                  </p>
+                  <a
+                    href={localizePath(locale, '/blog/')}
+                    class="text-sm font-medium text-emerald-700 hover:text-emerald-600 dark:text-emerald-400 dark:hover:text-emerald-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 rounded"
+                  >
+                    Filter zurücksetzen
+                  </a>
+                </div>
+              </div>
+            )
+          }
+
+          {/* Blog-Liste mit Error Boundary */}
+          <ErrorBoundary>
+            {
+              posts.length > 0 ? (
+                <BlogList posts={posts} showFeatured={shouldShowFeatured} />
+              ) : (
+                <div class="rounded-lg bg-gray-50 dark:bg-gray-800 p-12 text-center">
+                  <svg
+                    class="mx-auto h-12 w-12 text-gray-400"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="1"
+                      d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                  <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">
+                    Keine Beiträge gefunden
+                  </h3>
+                  <p class="mt-1 text-sm text-gray-500 dark:text-gray-300">
+                    Es wurden keine Blog-Beiträge gefunden, die Ihren Suchkriterien entsprechen.
+                  </p>
+                  <div class="mt-6">
+                    <a
+                      href={localizePath(locale, '/blog/')}
+                      class="inline-flex items-center rounded-md bg-emerald-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600"
+                    >
+                      <span>Alle Beiträge anzeigen</span>
+                    </a>
+                  </div>
+                </div>
+              )
+            }
+          </ErrorBoundary>
+
+          {/* Pagination mit Error Boundary */}
+          {
+            totalPages > 1 && (
+              <ErrorBoundary>
+                <div class="mt-12" data-aos="fade-up" data-aos-duration="600">
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    baseUrl={baseUrlForPagination.pathname + baseUrlForPagination.search}
+                  />
+                </div>
+              </ErrorBoundary>
+            )
+          }
+        </div>
+      </div>
+      <script is:inline nonce={nonce}>
+        (() => {
+          const initTagFilter = () => {
+            const input = document.getElementById('tag-filter');
+            const list = document.getElementById('tags-list');
+            const toggle = document.getElementById('tags-toggle');
+            const live = document.getElementById('tags-count');
+            if (!input || !list) return;
+            const items = Array.from(list.querySelectorAll('a'));
+            const LIMIT = 10;
+            let expanded = false;
+
+            const normalize = (s) =>
+              (s || '')
+                .toLowerCase()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '');
+
+            const applyCollapsed = () => {
+              items.forEach((a, i) => a.classList.toggle('hidden', !expanded && i >= LIMIT));
+              if (toggle) {
+                toggle.textContent = expanded ? 'Tags reduzieren' : 'Alle Tags anzeigen';
+                toggle.setAttribute('aria-label', toggle.textContent);
+                toggle.setAttribute('aria-expanded', String(expanded));
+                toggle.classList.toggle('hidden', items.length <= LIMIT);
+              }
+            };
+
+            const applySearch = () => {
+              const q = normalize(input.value.trim());
+              let visibleCount = 0;
+              items.forEach((a, i) => {
+                const text = normalize(a.textContent);
+                const match = !q || text.includes(q);
+                a.classList.toggle('hidden', !match || (!expanded && !q && i >= LIMIT));
+                if (!a.classList.contains('hidden')) visibleCount++;
+              });
+              if (toggle) toggle.classList.toggle('hidden', !!q || items.length <= LIMIT);
+              if (live) live.textContent = q ? `${visibleCount} Tags gefunden` : '';
+            };
+
+            applyCollapsed();
+            applySearch();
+
+            input.addEventListener('input', () => {
+              // In der Suche alle passenden anzeigen; Toggle ausblenden
+              applySearch();
+            });
+
+            if (toggle) {
+              toggle.addEventListener('click', () => {
+                expanded = !expanded;
+                applyCollapsed();
+                applySearch();
+              });
+            }
+          };
+          if (document.readyState !== 'loading') initTagFilter();
+          else document.addEventListener('DOMContentLoaded', initTagFilter);
+          document.addEventListener('astro:after-swap', initTagFilter);
+        })();
+      </script>
+    </div>
+  </div>
+</BaseLayout>

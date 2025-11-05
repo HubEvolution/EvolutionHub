@@ -1,3 +1,11 @@
+---
+description: 'Teststrategie – Testebenen, Werkzeuge und CI-Prozesse für Evolution Hub'
+owner: 'Testing & CI Team'
+priority: 'high'
+lastSync: '2025-11-04'
+codeRefs: 'docs/testing/testing-strategy.md, tests/**, .github/workflows/**'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # Teststrategie - Evolution Hub
@@ -6,16 +14,16 @@ Diese Dokumentation beschreibt die umfassende Teststrategie für das Evolution H
 
 ## Inhaltsverzeichnis
 
-1. [Testphilosophie](#testphilosophie)
-1. [Testebenen](#testebenen)
-1. [Testwerkzeuge](#testwerkzeuge)
-1. [Testabdeckung](#testabdeckung)
-1. [Testorganisation](#testorganisation)
-1. [Continuous Integration](#continuous-integration)
-1. [Testdaten-Management](#testdaten-management)
-1. [Mocking-Strategien](#mocking-strategien)
-1. [Testdokumentation](#testdokumentation)
-1. [Fehlerbehebung](#fehlerbehebung)
+- Testphilosophie
+- Testebenen
+- Testwerkzeuge
+- Testabdeckung
+- Testorganisation
+- Continuous Integration
+- Testdaten-Management
+- Mocking-Strategien
+- Testdokumentation
+- Fehlerbehebung
 
 ---
 

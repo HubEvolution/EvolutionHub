@@ -1,3 +1,11 @@
+---
+description: 'Prompt Enhancer – Architektur, Quotas und Multimodale Prompt-Optimierung'
+owner: 'Prompt Team'
+priority: 'high'
+lastSync: '2025-11-04'
+codeRefs: 'src/pages/api/prompt-enhance.ts, src/lib/services/prompt-enhancer-service.ts, src/components/tools/prompt-enhancer/**'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # Prompt Enhancer – KI-gestützte Prompt-Optimierung

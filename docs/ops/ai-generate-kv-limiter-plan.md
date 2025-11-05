@@ -1,3 +1,11 @@
+---
+description: 'Plan für KV/Durable Object Limiter von /api/ai-image/generate (deterministische 429)'
+owner: 'Platform Team'
+priority: 'high'
+lastSync: '2025-11-04'
+codeRefs: 'src/lib/rate-limiter.ts, src/pages/api/ai-image/generate.ts, wrangler.toml, workers/edge/do/rate-limiter.ts'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # Plan: KV/Durable Object–backed limiter for /api/ai-image/generate

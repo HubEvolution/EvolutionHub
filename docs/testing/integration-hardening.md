@@ -1,3 +1,11 @@
+---
+description: 'Integration Hardening – Stabilitätsmaßnahmen für APIs & Services'
+owner: 'Testing & CI Team'
+priority: 'medium'
+lastSync: '2025-11-04'
+codeRefs: 'docs/testing/integration-hardening.md, tests/integration/**'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # Integration Test Hardening Guidelines

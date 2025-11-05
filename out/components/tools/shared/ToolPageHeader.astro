@@ -1,0 +1,57 @@
+---
+import { getLocale } from '@/lib/i18n';
+import { getI18n } from '@/utils/i18n';
+import { localizePath } from '@/lib/locale-path';
+import Icon from '@/components/ui/Icon.astro';
+
+export interface Props {
+  icon: string;
+  titleKey: string;
+  descriptionKey?: string;
+  backHref?: string; // non-localized path, will be localized internally
+  class?: string;
+}
+
+const { icon, titleKey, descriptionKey, backHref = '/tools', class: className } = Astro.props;
+const locale = getLocale(Astro.url.pathname);
+const t = getI18n(locale);
+
+const titleRaw = t(titleKey);
+const title = typeof titleRaw === 'string' ? titleRaw : '';
+
+const desc = descriptionKey ? t(descriptionKey) : null;
+
+const backRaw = t('pages.tools.details.back');
+const backLabel =
+  typeof backRaw === 'string' && !/^\[.+_fallback_not_found\]$/.test(backRaw)
+    ? backRaw
+    : locale === 'de'
+      ? 'Zurück zur Übersicht'
+      : 'Back to overview';
+
+const href = localizePath(locale, backHref);
+---
+
+<div class={`flex items-start gap-6 ${className || ''}`}>
+  <div class="flex-shrink-0">
+    <div
+      class="w-16 h-16 rounded-lg flex items-center justify-center text-3xl bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200"
+    >
+      <Icon name={icon} class="w-10 h-10 text-gray-800 dark:text-gray-200" ariaLabel={title} />
+    </div>
+  </div>
+  <div>
+    <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white">
+      {title}
+    </h1>
+    <div class="mt-2">
+      <a
+        href={href}
+        class="text-sm text-gray-500 dark:text-gray-400 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 rounded"
+      >
+        {backLabel}
+      </a>
+    </div>
+    {desc && <p class="mt-4 text-gray-600 dark:text-gray-300">{desc}</p>}
+  </div>
+</div>

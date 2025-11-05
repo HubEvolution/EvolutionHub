@@ -1,3 +1,11 @@
+---
+description: 'Toast Notifications mit Sonner und AuthStatusNotifier (URL-gesteuertes Feedback)'
+owner: 'Frontend Team'
+priority: 'medium'
+lastSync: '2025-11-04'
+codeRefs: 'src/layouts/BaseLayout.astro, src/components/scripts/AuthStatusNotifier.tsx, tests/e2e/specs/auth-url-status.spec.ts'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # Toast Notifications (Sonner) & AuthStatusNotifier

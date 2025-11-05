@@ -1,0 +1,167 @@
+---
+import AuthLayout from '@/layouts/AuthLayout.astro';
+import { getLocale } from '@/lib/i18n';
+import { localizePath } from '@/lib/locale-path';
+import VerifyEmailCoordinator from '@/components/scripts/VerifyEmailCoordinator.astro';
+import Card from '@/components/ui/Card';
+
+// Read URL params
+const url = Astro.url;
+const email = url.searchParams.get('email') || '';
+const locale = getLocale(Astro.url.pathname);
+
+// If user already verified, redirect to dashboard
+const locals = Astro.locals as any;
+if (locals.user && locals.user.email_verified) {
+  return Astro.redirect(localizePath(locale, '/dashboard'));
+}
+
+// Mask email for display
+function maskEmail(email: string): string {
+  if (!email || !email.includes('@')) return '';
+  const [localPart, domain] = email.split('@');
+  if (localPart.length <= 2) return email;
+  const maskedLocal =
+    localPart.charAt(0) + '*'.repeat(Math.max(0, localPart.length - 2)) + localPart.slice(-1);
+  return `${maskedLocal}@${domain}`;
+}
+
+const maskedEmail = maskEmail(email);
+---
+
+<AuthLayout title="Verify your email">
+  <Card as="div" className="relative p-6 rounded-2xl overflow-hidden max-w-md mx-auto">
+    <!-- Success Icon -->
+    <div class="text-center mb-6">
+      <div
+        class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-full mb-4"
+      >
+        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M3 8l7.89 7.89a2 2 0 002.83 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+          ></path>
+        </svg>
+      </div>
+      <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Verify your email</h1>
+      <p class="text-gray-600 dark:text-gray-300 text-sm">
+        We sent you a confirmation link. Please click it to activate your account.
+      </p>
+    </div>
+
+    <!-- Email Info -->
+    <div
+      class="bg-gradient-to-r from-emerald-50 to-cyan-50 dark:from-emerald-900/20 dark:to-cyan-900/20 rounded-lg p-4 mb-6"
+    >
+      {
+        maskedEmail && (
+          <>
+            <p class="text-sm text-gray-700 dark:text-gray-300 mb-2">We sent the email to:</p>
+            <p class="font-mono text-sm bg-white dark:bg-gray-700 px-3 py-2 rounded border font-medium text-gray-900 dark:text-white">
+              {maskedEmail}
+            </p>
+          </>
+        )
+      }
+
+      <div class="mt-4 space-y-2">
+        <p class="text-sm text-gray-600 dark:text-gray-400 flex items-start">
+          <svg
+            class="w-4 h-4 text-emerald-500 mt-0.5 mr-2 flex-shrink-0"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+              clip-rule="evenodd"></path>
+          </svg>
+          Click the link in the email to verify your address.
+        </p>
+        <p class="text-sm text-gray-600 dark:text-gray-400 flex items-start">
+          <svg
+            class="w-4 h-4 text-amber-500 mt-0.5 mr-2 flex-shrink-0"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+              clip-rule="evenodd"></path>
+          </svg>
+          The link is valid for a limited time for security reasons.
+        </p>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="space-y-4">
+      <!-- Resend Email Button -->
+      <form id="resend-form" class="w-full">
+        {email && <input type="hidden" name="email" value={email} />}
+        <button
+          type="button"
+          class="w-full bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-700 hover:to-cyan-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200"
+          id="resend-btn"
+          data-msg-success="Verification email sent again. Please check your inbox."
+          data-msg-error="Sending failed. Please try again later."
+          data-msg-missing-email="Email address missing. Please register again."
+          data-msg-unexpected="Unexpected error. Please try again."
+          data-label-sending="Sending..."
+          data-label-countdown="Resend in {seconds}s"
+        >
+          Resend email
+        </button>
+      </form>
+
+      <div class="text-center">
+        <p class="text-xs text-gray-500 dark:text-gray-400 mb-3">
+          Didn’t receive an email? Check your spam folder or try again.
+        </p>
+
+        <!-- Back to Register -->
+        <a
+          href={localizePath(locale, '/register')}
+          class="text-sm text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 hover:underline"
+        >
+          Back to registration
+        </a>
+      </div>
+    </div>
+
+    <!-- Error Message Container -->
+    <div
+      id="error-message"
+      class="mt-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-300 text-sm hidden"
+      role="alert"
+      aria-live="assertive"
+      aria-atomic="true"
+      tabindex="-1"
+    >
+    </div>
+
+    <!-- Success Message Container -->
+    <div
+      id="success-message"
+      class="mt-4 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg text-green-700 dark:text-green-300 text-sm hidden"
+      role="status"
+      aria-live="polite"
+      aria-atomic="true"
+      tabindex="-1"
+    >
+    </div>
+  </Card>
+
+  <!-- Support Info -->
+  <div class="text-center mt-6">
+    <p class="text-xs text-gray-500 dark:text-gray-400">
+      Problems? Contact us at
+      <a href="mailto:support@hub-evolution.com" class="text-emerald-600 hover:underline">
+        support@hub-evolution.com
+      </a>
+    </p>
+  </div>
+  <VerifyEmailCoordinator />
+</AuthLayout>

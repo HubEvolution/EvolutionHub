@@ -1,3 +1,11 @@
+---
+description: 'UI-Komponenten (Utility-First) für Image- und Prompt-Enhancer'
+owner: 'Frontend Team'
+priority: 'medium'
+lastSync: '2025-11-04'
+codeRefs: 'src/components/ui/**, src/components/tools/prompt-enhancer/**, tailwind.config.js'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # UI-Komponenten (schlank, Utility-First)

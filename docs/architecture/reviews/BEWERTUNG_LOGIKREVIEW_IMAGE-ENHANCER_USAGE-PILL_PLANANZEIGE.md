@@ -1,3 +1,11 @@
+---
+description: 'Review: Image-Enhancer UsagePill & Plan-Anzeige – Bewertung vom 2025-09-19'
+owner: 'Architecture Review Board'
+priority: 'medium'
+lastSync: '2025-11-04'
+codeRefs: 'src/components/tools/ImagEnhancerIsland.tsx, src/components/tools/imag-enhancer/UsagePill.tsx, src/pages/api/ai-image/**, src/config/ai-image/entitlements.ts'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # BEWERTUNG · LOGIK-REVIEW · Image‑Enhancer · UsagePill · Plan‑Anzeige

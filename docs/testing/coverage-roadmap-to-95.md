@@ -1,10 +1,18 @@
+---
+description: 'Coverage-Roadmap zu 95% – Phasenplan für Tests & CI'
+owner: 'Testing & CI Team'
+priority: 'high'
+lastSync: '2025-11-04'
+codeRefs: 'vitest.config.ts, .github/workflows/unit-tests.yml, docs/testing/coverage-roadmap-to-95.md'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # Coverage-Roadmap zu 95% – Strategischer Plan
 
 ## Einleitung
 
-Basierend auf der Baseline-Coverage-Messung (konfiguriert in [`vitest.config.ts`](vitest.config.ts)) liegt die aktuelle Code-Abdeckung bei:
+Basierend auf der Baseline-Coverage-Messung (konfiguriert in [`vitest.config.ts`](../../vitest.config.ts)) liegt die aktuelle Code-Abdeckung bei:
 
 - Statements: 2.71%
 
@@ -14,7 +22,7 @@ Basierend auf der Baseline-Coverage-Messung (konfiguriert in [`vitest.config.ts`
 
 - Lines: 2.71%
 
-Signifikante Lücken existieren in kritischen Bereichen wie AI-Services, UI-Komponenten und Hilfsfunktionen. Das Ziel ist eine umfassende Abdeckung von 95% für alle Metriken, um die Projektregeln (>70%) zu übertreffen und Robustheit zu gewährleisten. Das Projekt nutzt Vitest für Unit- und Integrationstests, Playwright für E2E-Tests sowie CI-Integration via GitHub Actions ([`.github/workflows/e2e-tests.yml`](.github/workflows/e2e-tests.yml)).
+Signifikante Lücken existieren in kritischen Bereichen wie AI-Services, UI-Komponenten und Hilfsfunktionen. Das Ziel ist eine umfassende Abdeckung von 95% für alle Metriken, um die Projektregeln (>70%) zu übertreffen und Robustheit zu gewährleisten. Das Projekt nutzt Vitest für Unit- und Integrationstests, Playwright für E2E-Tests sowie CI-Integration via GitHub Actions ([`../../.github/workflows/e2e-tests.yml`](../../.github/workflows/e2e-tests.yml)).
 
 Dieser Plan priorisiert Lücken nach Risiko, definiert phasierte Schritte, Ressourcen und Metriken. Die Umsetzung erfolgt iterativ, mit regelmäßigen Coverage-Runs zur Fortschrittsmessung.
 

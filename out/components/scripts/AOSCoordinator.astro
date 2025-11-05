@@ -1,0 +1,312 @@
+---
+// AOSCoordinator.astro - Build-Compatible AOS Integration
+// Eliminiert ALLE ES6-Imports durch CDN-basierte Lösung
+---
+
+<script is:inline nonce={Astro.locals.cspNonce} define:vars={{ cspNonce: Astro.locals.cspNonce }}>
+  /**
+   * AOSCoordinator - Build-Compatible AOS (Animate On Scroll) Integration
+   * - Keine ES6-Imports oder dynamic imports (Ursache für leere JS-Chunks)
+   * - CDN-basierte Lösung mit NPM-Fallback
+   * - Cloudflare Pages SSR kompatibel
+   * - Basiert auf funktionierendem HeaderScroll.astro-Pattern
+   */
+
+  // AOS Configuration - Optimized for Evolution Hub
+  const AOS_CONFIG = {
+    duration: 700, // Animation duration (matches current config)
+    once: true, // Animate only once (matches current config)
+    easing: 'ease-out', // Smooth easing
+    delay: 0, // No global delay
+    offset: 0, // Trigger animations as soon as elements enter viewport (fixes above-the-fold invisibility)
+    anchorPlacement: 'top-bottom', // When to trigger animation
+    mirror: false, // Don't animate elements out
+    debounceDelay: 50, // Debounce scroll events for performance
+    throttleDelay: 99, // Throttle scroll events for performance
+    // Disable animations for users who prefer reduced motion (A11y)
+    disable: function () {
+      try {
+        return !!(
+          window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        );
+      } catch (_) {
+        return false;
+      }
+    },
+  };
+
+  // AOS Initialization Function - NO ES6 IMPORTS
+  function initializeAOS() {
+    const __DEV__ =
+      typeof location !== 'undefined' &&
+      (location.hostname === 'localhost' || location.hostname === '127.0.0.1');
+    const dlog = (...args) => {
+      if (__DEV__) console.log(...args);
+    };
+    const derror = (...args) => {
+      if (__DEV__) console.error(...args);
+    };
+    dlog('[AOS] 🚀 Starting build-compatible AOS initialization...');
+
+    try {
+      // Check if AOS is already loaded via CDN or previous initialization
+      if (window.AOS) {
+        dlog('[AOS] ✅ AOS already available, reinitializing...');
+        window.AOS.init(AOS_CONFIG);
+        setupAOSHandlers();
+        // Immediate refresh + safety pass for above-the-fold visibility
+        queueInitialRefreshAndSafetyPass();
+        // Mark AOS as enabled so CSS can apply pre-animate state safely
+        document.documentElement.classList.add('aos-enabled');
+        return Promise.resolve();
+      }
+
+      dlog('[AOS] 📦 Loading AOS library via CDN...');
+
+      // Load AOS via CDN script injection (NO ES6 imports)
+      return new Promise((resolve, reject) => {
+        // Check if script already exists
+        if (document.querySelector('script[data-aos-script]')) {
+          console.log('[AOS] Script already loaded, waiting for AOS...');
+          checkAOSAvailability(() => resolve(), reject, 0);
+          return;
+        }
+
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js';
+        script.setAttribute('data-aos-script', 'true');
+        try {
+          script.setAttribute('nonce', cspNonce);
+        } catch {
+          /* noop */
+        }
+        script.onload = () => {
+          dlog('[AOS] 📦 CDN script loaded successfully');
+          checkAOSAvailability(() => resolve(), reject, 0);
+        };
+        script.onerror = () => {
+          derror('[AOS] ❌ Failed to load AOS via CDN');
+          reject(new Error('Failed to load AOS from CDN'));
+        };
+
+        document.head.appendChild(script);
+      });
+    } catch (error) {
+      derror('[AOS] ❌ Failed to initialize:', error);
+      return Promise.reject(error);
+    }
+  }
+
+  // Check AOS availability with timeout (optimized promise-based approach)
+  function checkAOSAvailability(resolve, reject, attempts) {
+    const __DEV__ =
+      typeof location !== 'undefined' &&
+      (location.hostname === 'localhost' || location.hostname === '127.0.0.1');
+    const dlog = (...args) => {
+      if (__DEV__) console.log(...args);
+    };
+
+    if (window.AOS) {
+      dlog('[AOS] ⚙️  Initializing AOS with config:', AOS_CONFIG);
+      window.AOS.init(AOS_CONFIG);
+      setupAOSHandlers();
+      // Immediate refresh + safety pass for above-the-fold visibility
+      queueInitialRefreshAndSafetyPass();
+      // Mark AOS as enabled so CSS can apply pre-animate state safely
+      document.documentElement.classList.add('aos-enabled');
+      dlog('[AOS] ✅ Animation library initialized successfully');
+      resolve();
+    } else if (attempts < 50) {
+      // 5 second timeout (50 attempts × 100ms)
+      setTimeout(() => checkAOSAvailability(resolve, reject, attempts + 1), 100);
+    } else {
+      if (__DEV__) {
+        console.error('[AOS] ❌ Timeout waiting for AOS to become available');
+      }
+      reject(new Error('AOS initialization timeout'));
+    }
+  }
+
+  // Setup AOS handlers for page transitions and cleanup
+  function setupAOSHandlers() {
+    // Refresh AOS on page transitions (Astro compatibility)
+    const refreshAOS = () => {
+      if (window.AOS && window.AOS.refresh) {
+        const __DEV__ =
+          typeof location !== 'undefined' &&
+          (location.hostname === 'localhost' || location.hostname === '127.0.0.1');
+        if (__DEV__) console.log('[AOS] 🔄 Refreshing animations for page transition...');
+        window.AOS.refresh();
+        // Run safety pass again after refresh to ensure visibility
+        runSafetyPassInView();
+      }
+    };
+
+    // Store refresh function for cleanup
+    window.aosRefresh = refreshAOS;
+  }
+
+  // Schedules an immediate refresh (next frame) and runs a safety pass to mark
+  // elements currently in the viewport as animated to prevent hidden content.
+  function queueInitialRefreshAndSafetyPass() {
+    try {
+      // Next animation frame: perform a hard refresh if available
+      requestAnimationFrame(() => {
+        if (window.AOS) {
+          if (typeof window.AOS.refreshHard === 'function') {
+            window.AOS.refreshHard();
+          } else if (typeof window.AOS.refresh === 'function') {
+            window.AOS.refresh();
+          }
+        }
+        // Safety pass after refresh
+        runSafetyPassInView();
+      });
+
+      // Also run once after load to cover late layout shifts
+      window.addEventListener(
+        'load',
+        () => {
+          runSafetyPassInView();
+        },
+        { once: true }
+      );
+    } catch (e) {
+      const __DEV__ =
+        typeof location !== 'undefined' &&
+        (location.hostname === 'localhost' || location.hostname === '127.0.0.1');
+      if (__DEV__) console.warn('[AOS] ⚠️ Safety pass scheduling failed:', e);
+    }
+  }
+
+  // Safety pass: force-animate elements currently visible in the viewport
+  function runSafetyPassInView() {
+    try {
+      const candidates = Array.from(
+        document.querySelectorAll('[data-aos].aos-init:not(.aos-animate)')
+      );
+      const vh = window.innerHeight || document.documentElement.clientHeight;
+      let forced = 0;
+      for (const el of candidates) {
+        const rect = el.getBoundingClientRect();
+        const inView = rect.top < vh && rect.bottom > 0;
+        if (inView) {
+          el.classList.add('aos-animate');
+          forced++;
+        }
+      }
+      const __DEV__ =
+        typeof location !== 'undefined' &&
+        (location.hostname === 'localhost' || location.hostname === '127.0.0.1');
+      if (__DEV__) {
+        if (forced > 0) {
+          console.log(`[AOS] ✅ Safety pass applied to ${forced} element(s) in view`);
+        } else {
+          console.log('[AOS] ✅ Safety pass completed (no elements needed forcing)');
+        }
+      }
+    } catch (e) {
+      const __DEV__ =
+        typeof location !== 'undefined' &&
+        (location.hostname === 'localhost' || location.hostname === '127.0.0.1');
+      if (__DEV__) console.warn('[AOS] ⚠️ Safety pass failed:', e);
+    }
+  }
+
+  // Settings Module Logic wurde zu src/lib/settings-module.ts migriert
+  // Diese Logik gehört nicht in den AOSCoordinator (Trennung der Verantwortlichkeiten)
+  // settings-module.ts wird über den globalen script-coordinator.ts verwaltet
+
+  // Main Coordinator Function (specialized for AOS-only integration)
+  function initializeCoordinator() {
+    const __DEV__ =
+      typeof location !== 'undefined' &&
+      (location.hostname === 'localhost' || location.hostname === '127.0.0.1');
+    const dlog = (...args) => {
+      if (__DEV__) console.log(...args);
+    };
+    const derror = (...args) => {
+      if (__DEV__) console.error(...args);
+    };
+    dlog('[AOSCoordinator] 🚀 Starting AOS coordinator initialization...');
+
+    try {
+      // Initialize AOS (MEDIUM priority) - Promise-based but non-blocking
+      const kickoff = () =>
+        initializeAOS()
+          .then(() => {
+            dlog('[AOSCoordinator] ✅ AOS module initialized successfully');
+          })
+          .catch((error) => {
+            derror('[AOSCoordinator] ❌ AOS initialization failed:', error);
+            dlog('[AOSCoordinator] ⚠️  Continuing without animations (graceful degradation)');
+          });
+      // Defer if possible
+      try {
+        if (typeof window.requestIdleCallback === 'function') {
+          window.requestIdleCallback(kickoff, { timeout: 2000 });
+        } else {
+          setTimeout(kickoff, 100);
+        }
+      } catch {
+        kickoff();
+      }
+
+      // Note: Settings handlers are now managed by src/lib/settings-module.ts via script-coordinator.ts
+
+      dlog('[AOSCoordinator] ✅ AOS coordinator initialization completed');
+    } catch (error) {
+      derror('[AOSCoordinator] ❌ AOS coordinator initialization failed:', error);
+    }
+  }
+
+  // Cleanup Function (AOS-only)
+  window.aosCoordinatorCleanup = function () {
+    // Cleanup AOS
+    if (window.AOS && window.AOS.refresh) {
+      const __DEV__ =
+        typeof location !== 'undefined' &&
+        (location.hostname === 'localhost' || location.hostname === '127.0.0.1');
+      if (__DEV__) console.log('[AOSCoordinator] 🔄 Refreshing AOS for cleanup');
+      window.AOS.refresh();
+    }
+    // Remove the AOS-enabled marker to restore safety fallback
+    document.documentElement.classList.remove('aos-enabled');
+
+    // Note: Settings cleanup is now handled by src/lib/settings-module.ts via script-coordinator.ts
+
+    const __DEV__ =
+      typeof location !== 'undefined' &&
+      (location.hostname === 'localhost' || location.hostname === '127.0.0.1');
+    if (__DEV__) console.log('[AOSCoordinator] 🧹 AOS coordinator cleaned up');
+  };
+
+  // Initialize when DOM is ready (funktionierendes Pattern aus HeaderScroll.astro)
+  if (document.readyState !== 'loading') {
+    initializeCoordinator();
+  } else {
+    document.addEventListener('DOMContentLoaded', initializeCoordinator);
+  }
+
+  // Astro page transitions support
+  document.addEventListener('astro:page-load', () => {
+    const __DEV__ =
+      typeof location !== 'undefined' &&
+      (location.hostname === 'localhost' || location.hostname === '127.0.0.1');
+    if (__DEV__) console.log('[AOSCoordinator] 🔄 Astro page transition detected');
+    initializeCoordinator();
+  });
+
+  // Note: beforeunload cleanup removed (unreliable, not guaranteed to execute)
+  // AOS cleanup happens automatically via astro:page-load event
+
+  (function () {
+    const __DEV__ =
+      typeof location !== 'undefined' &&
+      (location.hostname === 'localhost' || location.hostname === '127.0.0.1');
+    if (__DEV__) console.log('[AOSCoordinator] 📋 Coordinator module loaded and ready');
+  })();
+</script>
+
+<!-- Dummy HTML node to force Astro script compilation/injection (HeaderScroll-Pattern) -->
+<div style="display: none;" aria-hidden="true"></div>

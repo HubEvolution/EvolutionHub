@@ -1,3 +1,13 @@
+---
+description: 'Admin & Notifications Subsystem – Rollen, APIs, Queue und D1-Schema'
+owner: 'Platform Team'
+priority: 'high'
+lastSync: '2025-11-04'
+codeRefs: 'src/pages/api/admin/**, src/pages/api/notifications/**, src/lib/services/notification-service.ts, scripts/warmup.ts, src/lib/db/schema.ts'
+feature: 'admin-notifications'
+status: 'shipped'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # Admin & Notifications Subsystem

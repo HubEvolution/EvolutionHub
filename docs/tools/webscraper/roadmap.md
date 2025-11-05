@@ -1,3 +1,11 @@
+---
+description: 'Webscraper Tool – 14-wöchige Entwicklungs-Roadmap'
+owner: 'Tools Team'
+priority: 'medium'
+lastSync: '2025-11-04'
+codeRefs: 'docs/tools/webscraper/roadmap.md'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # Webscraper Tool - Detaillierte Entwicklungs-Roadmap

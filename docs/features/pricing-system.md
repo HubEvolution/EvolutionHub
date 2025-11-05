@@ -1,3 +1,13 @@
+---
+description: 'Pricing-System: Stripe-Integration, Architektur und API-Referenz'
+owner: 'Billing Team'
+priority: 'high'
+lastSync: '2025-11-04'
+codeRefs: 'src/pages/api/billing/**, src/components/pricing/**, docs/development/stripe-setup.md'
+feature: 'pricing-system'
+status: 'shipped'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # Pricing System Documentation

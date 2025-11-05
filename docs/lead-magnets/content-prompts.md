@@ -1,3 +1,11 @@
+---
+description: 'LLM-Prompts für die Erstellung der Lead-Magnet Inhalte (PDF/ZIP)'
+owner: 'Marketing Team'
+priority: 'medium'
+lastSync: '2025-11-04'
+codeRefs: 'docs/lead-magnets/content-prompts.md'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # Lead-Magnet Content Prompts (PDF/ZIP)
@@ -66,7 +74,7 @@ Pro Kapitel:
 
 - Mini-Übung/Reflexion (1–2 Aufgaben)
 
-- [GRAFIK: Diagramm/Framework-Bild]
+- GRAFIK: Diagramm/Framework-Bild
 
 Zusatz:
 
@@ -153,9 +161,9 @@ Rahmen:
 
 Module (Beispiele):
 
-1) Fokus & Priorisierung: Eisenhower, Pareto, WIP‑Limits. [GRAFIK: Prioritäten-Quadranten]
-1) Zeitgestaltung: Time‑Boxing, Deep Work, Meeting‑Diät. [TABELLE: Wochenplan‑Raster]
-1) Aufgabenfluss: Kanban für 1–3 Personen, Definition of Done. [GRAFIK: Kanban‑Flow]
+1) Fokus & Priorisierung: Eisenhower, Pareto, WIP‑Limits. Hinweis: Grafik „Prioritäten-Quadranten“ einfügen.
+1) Zeitgestaltung: Time‑Boxing, Deep Work, Meeting‑Diät. Hinweis: Tabelle „Wochenplan-Raster“ einfügen.
+1) Aufgabenfluss: Kanban für 1–3 Personen, Definition of Done. Hinweis: Grafik „Kanban-Flow“ ergänzen.
 1) Digitale Hygiene: Inbox‑Zero, Tool‑Minimalismus, Benachrichtigungen.
 1) Team‑Rituale: Weeklies, Retros, Entscheidungslog.
 1) KPI‑Mini‑Set: Leading vs. Lagging, persönliche KPI‑Liste (max. 5).

@@ -1,3 +1,11 @@
+---
+description: 'Entitlements & UI-Gating für den AI Image Enhancer (Plan-basiert)'
+owner: 'Frontend Team'
+priority: 'high'
+lastSync: '2025-11-04'
+codeRefs: 'src/components/tools/ImagEnhancerIsland.tsx, src/components/tools/imag-enhancer/**, src/pages/api/ai-image/**'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # Entitlements & UI‑Gating (AI Image Enhancer)

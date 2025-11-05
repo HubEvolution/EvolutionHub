@@ -1,0 +1,994 @@
+import React, { useEffect, useState, useCallback, useRef, useMemo } from 'react';
+
+interface LogEntry {
+  timestamp: string;
+  level: string;
+  message: string;
+  source?: string;
+}
+
+const STORAGE_KEY = 'debugPanel.logs';
+const MAX_STORED_LOGS = 500;
+const createLogKey = (log: LogEntry) =>
+  `${log.timestamp}|${log.level}|${log.message}|${log.source ?? ''}`;
+
+const DebugPanel: React.FC = () => {
+  const logKeysRef = useRef<Set<string>>(new Set());
+  const [logs, setLogs] = useState<LogEntry[]>(() => {
+    // Load logs from LocalStorage on mount
+    if (typeof window === 'undefined') return [];
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (!stored) return [];
+      const parsed = JSON.parse(stored);
+      if (!Array.isArray(parsed)) return [];
+      const keys = logKeysRef.current;
+      keys.clear();
+      const valid: LogEntry[] = [];
+      for (const item of parsed) {
+        if (
+          item &&
+          typeof item === 'object' &&
+          typeof item.timestamp === 'string' &&
+          typeof item.level === 'string' &&
+          typeof item.message === 'string'
+        ) {
+          const entry = item as LogEntry;
+          keys.add(createLogKey(entry));
+          valid.push(entry);
+        }
+      }
+      return valid;
+    } catch {
+      return [];
+    }
+  });
+  const [status, setStatus] = useState<'connecting' | 'connected' | 'error'>('connecting');
+  const [autoScroll, setAutoScroll] = useState(true);
+  const [showAll, setShowAll] = useState(false);
+  const [windowSize, setWindowSize] = useState(200);
+  const [paused, setPaused] = useState(false);
+  const pausedRef = useRef(false);
+  useEffect(() => {
+    pausedRef.current = paused;
+  }, [paused]);
+  const pausedBufferRef = useRef<LogEntry[]>([]);
+  const [suppressedCount, setSuppressedCount] = useState(0);
+  const [groupRepeats, setGroupRepeats] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    try {
+      return localStorage.getItem('debugPanel.groupRepeats') === 'true';
+    } catch {
+      return false;
+    }
+  });
+  const [levelFilter, setLevelFilter] = useState<string[]>(() => {
+    if (typeof window === 'undefined') return ['error', 'warn', 'info', 'debug', 'log'];
+    try {
+      const stored = localStorage.getItem('debugPanel.levelFilter');
+      return stored ? JSON.parse(stored) : ['error', 'warn', 'info', 'debug', 'log'];
+    } catch {
+      return ['error', 'warn', 'info', 'debug', 'log'];
+    }
+  });
+  const [sourceFilters, setSourceFilters] = useState<
+    Record<'server' | 'client' | 'console' | 'network', boolean>
+  >(() => {
+    if (typeof window === 'undefined')
+      return { server: true, client: true, console: true, network: true };
+    try {
+      const stored = localStorage.getItem('debugPanel.sourceFilters');
+      return stored
+        ? JSON.parse(stored)
+        : { server: true, client: true, console: true, network: true };
+    } catch {
+      return { server: true, client: true, console: true, network: true };
+    }
+  });
+  const [mutePatterns, setMutePatterns] = useState<string>(() => {
+    if (typeof window === 'undefined') return '';
+    try {
+      return localStorage.getItem('debugPanel.mutePatterns') || '';
+    } catch {
+      return '';
+    }
+  });
+  const [muteIsRegex, setMuteIsRegex] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    try {
+      return localStorage.getItem('debugPanel.muteIsRegex') === 'true';
+    } catch {
+      return false;
+    }
+  });
+  const logsEndRef = useRef<HTMLDivElement>(null);
+  const pollTimerRef = useRef<number | null>(null);
+  type FilterSnapshot = {
+    levelFilter: string[];
+    sourceFilters: Record<'server' | 'client' | 'console' | 'network', boolean>;
+    mutePatterns: string;
+    muteIsRegex: boolean;
+  };
+  const filterHistoryRef = useRef<FilterSnapshot[]>([]);
+  const [historySize, setHistorySize] = useState(0);
+
+  useEffect(() => {
+    const startPolling = () => {
+      if (pollTimerRef.current != null) return;
+      const poll = async () => {
+        try {
+          const res = await fetch('/api/debug/logs-stream', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+          });
+          if (!res.ok) throw new Error('poll failed');
+          const payload: any = await res.json().catch(() => null);
+          const items: unknown[] = payload?.data?.logs || [];
+          const entries: LogEntry[] = [];
+          for (const raw of items) {
+            try {
+              const data = typeof raw === 'string' ? JSON.parse(raw) : raw;
+              if (!data) continue;
+              if (
+                data.type === 'log' &&
+                data.timestamp &&
+                data.level &&
+                typeof data.message === 'string'
+              ) {
+                entries.push({
+                  timestamp: data.timestamp,
+                  level: String(data.level),
+                  message: data.message,
+                  source: data.source,
+                });
+              }
+            } catch {}
+          }
+          if (entries.length) {
+            mergeLogs(entries);
+          }
+          setStatus('connected');
+        } catch {
+          setStatus('error');
+        }
+      };
+      setStatus('connecting');
+      void poll();
+      pollTimerRef.current = window.setInterval(poll, 2000);
+    };
+
+    const eventSource = new EventSource('/api/debug/logs-stream');
+
+    eventSource.onopen = () => {
+      setStatus('connected');
+      addLog({
+        timestamp: new Date().toISOString(),
+        level: 'info',
+        message: 'Connected to log stream',
+      });
+    };
+
+    eventSource.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.type === 'keep-alive' || data.type === 'environment-info') return;
+        if (
+          data.type === 'log' &&
+          data.timestamp &&
+          data.level &&
+          typeof data.message === 'string'
+        ) {
+          const entry: LogEntry = {
+            timestamp: data.timestamp,
+            level: String(data.level),
+            message: data.message,
+            source: data.source,
+          };
+          if (!pausedRef.current) {
+            addLog(entry);
+          } else {
+            // buffer while paused (cap to 500)
+            const buf = pausedBufferRef.current;
+            buf.push(entry);
+            if (buf.length > 500) buf.shift();
+            setSuppressedCount(buf.length);
+          }
+          return;
+        }
+      } catch {
+        // ignore malformed JSON
+      }
+      // Unknown payloads: ignore to keep list clean
+    };
+
+    eventSource.onerror = () => {
+      setStatus('error');
+      addLog({
+        timestamp: new Date().toISOString(),
+        level: 'error',
+        message: 'Connection error - switching to polling...',
+      });
+      try {
+        eventSource.close();
+      } catch {}
+      startPolling();
+    };
+
+    return () => {
+      try {
+        eventSource.close();
+      } catch {}
+      if (pollTimerRef.current != null) {
+        clearInterval(pollTimerRef.current);
+        pollTimerRef.current = null;
+      }
+    };
+  }, []);
+
+  // Persist groupRepeats
+  useEffect(() => {
+    try {
+      localStorage.setItem('debugPanel.groupRepeats', String(groupRepeats));
+    } catch {
+      /* noop */
+    }
+  }, [groupRepeats]);
+
+  // Persist sourceFilters & mutePatterns
+  useEffect(() => {
+    try {
+      localStorage.setItem('debugPanel.sourceFilters', JSON.stringify(sourceFilters));
+    } catch {
+      /* noop */
+    }
+  }, [sourceFilters]);
+  useEffect(() => {
+    try {
+      localStorage.setItem('debugPanel.mutePatterns', mutePatterns);
+    } catch {
+      /* noop */
+    }
+  }, [mutePatterns]);
+  useEffect(() => {
+    try {
+      localStorage.setItem('debugPanel.muteIsRegex', String(muteIsRegex));
+    } catch {
+      /* noop */
+    }
+  }, [muteIsRegex]);
+
+  const mergeLogs = useCallback((incoming: LogEntry[]) => {
+    if (!incoming.length) return;
+    const keys = logKeysRef.current;
+    const seen = new Set<string>();
+    setLogs((prev) => {
+      let next = prev;
+      let mutated = false;
+      for (const log of incoming) {
+        const key = createLogKey(log);
+        if (keys.has(key) || seen.has(key)) continue;
+        seen.add(key);
+        if (!mutated) {
+          next = [...prev];
+          mutated = true;
+        }
+        next.push(log);
+        keys.add(key);
+      }
+      if (!mutated) return prev;
+
+      if (next.length > MAX_STORED_LOGS) {
+        const dropCount = next.length - MAX_STORED_LOGS;
+        const removed = next.splice(0, dropCount);
+        for (const entry of removed) {
+          keys.delete(createLogKey(entry));
+        }
+      }
+
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      } catch (e) {
+        console.warn('Failed to save logs to LocalStorage:', e);
+      }
+      return next;
+    });
+  }, []);
+
+  const addLog = useCallback(
+    (log: LogEntry) => {
+      mergeLogs([log]);
+    },
+    [mergeLogs]
+  );
+
+  const clearLogs = useCallback(() => {
+    setLogs([]);
+    logKeysRef.current.clear();
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch (e) {
+      console.warn('Failed to clear logs from LocalStorage:', e);
+    }
+  }, []);
+
+  // exportLogs is defined after displayLogs to avoid TDZ issues
+
+  const toggleLevelFilter = useCallback((level: string) => {
+    setLevelFilter((prev) =>
+      prev.includes(level) ? prev.filter((l) => l !== level) : [...prev, level]
+    );
+  }, []);
+
+  const addMutePattern = useCallback((pattern: string) => {
+    setMutePatterns((prev) => {
+      const list = prev
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean);
+      const has = list.map((s) => s.toLowerCase()).includes(pattern.toLowerCase());
+      if (has) return prev;
+      if (list.length === 0) return pattern;
+      return `${prev}${prev.trim().endsWith(',') ? '' : ','} ${pattern}`;
+    });
+  }, []);
+  const pushFilterSnapshot = useCallback(() => {
+    const snap: FilterSnapshot = {
+      levelFilter: [...levelFilter],
+      sourceFilters: { ...sourceFilters },
+      mutePatterns,
+      muteIsRegex,
+    };
+    const arr = filterHistoryRef.current;
+    arr.push(snap);
+    if (arr.length > 20) arr.shift();
+    setHistorySize(arr.length);
+  }, [levelFilter, sourceFilters, mutePatterns, muteIsRegex]);
+  const undoLastApply = useCallback(() => {
+    const arr = filterHistoryRef.current;
+    if (!arr.length) return;
+    const snap = arr.pop()!;
+    setLevelFilter(snap.levelFilter);
+    setSourceFilters(snap.sourceFilters);
+    setMutePatterns(snap.mutePatterns);
+    setMuteIsRegex(snap.muteIsRegex);
+    setHistorySize(arr.length);
+  }, []);
+
+  // Persist levelFilter
+  useEffect(() => {
+    try {
+      localStorage.setItem('debugPanel.levelFilter', JSON.stringify(levelFilter));
+    } catch {
+      /* noop */
+    }
+  }, [levelFilter]);
+
+  // Auto-scroll to bottom when new logs arrive
+  useEffect(() => {
+    if (autoScroll && logsEndRef.current) {
+      logsEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [logs, autoScroll]);
+
+  const getLevelColor = (level: string) => {
+    switch (level.toLowerCase()) {
+      case 'error':
+        return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300';
+      case 'warn':
+        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300';
+      case 'info':
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300';
+      case 'debug':
+        return 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300';
+      default:
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
+    }
+  };
+
+  const resolveSource = (log: LogEntry): 'server' | 'client' | 'console' | 'network' => {
+    const msg = log.message || '';
+    if (msg.includes('[NETWORK]')) return 'network';
+    if (msg.includes('[CONSOLE]')) return 'console';
+    if (msg.includes('[CLIENT]')) return 'client';
+    return 'server';
+  };
+
+  const muteList = useMemo(
+    () =>
+      mutePatterns
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean)
+        .map((s) => s.toLowerCase()),
+    [mutePatterns]
+  );
+  const muteRegexes = useMemo(() => {
+    if (!muteIsRegex) return [] as RegExp[];
+    const out: RegExp[] = [];
+    for (const raw of mutePatterns
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean)) {
+      try {
+        out.push(new RegExp(raw, 'i'));
+      } catch {
+        // ignore invalid regex
+      }
+    }
+    return out;
+  }, [mutePatterns, muteIsRegex]);
+
+  const filteredLogs = logs.filter((log) => {
+    if (!levelFilter.includes(log.level.toLowerCase())) return false;
+    const src = resolveSource(log);
+    if (!sourceFilters[src]) return false;
+    if (muteList.length) {
+      const hay = `${log.level} ${log.message}`;
+      const hayLower = hay.toLowerCase();
+      if (muteIsRegex) {
+        if (muteRegexes.length && muteRegexes.some((re) => re.test(hay))) return false;
+      } else {
+        if (muteList.some((needle) => hayLower.includes(needle))) return false;
+      }
+    }
+    return true;
+  });
+
+  type DisplayLog = LogEntry & { count?: number };
+
+  const displayLogs: DisplayLog[] = useMemo(() => {
+    // Render order is newest-first; group on that order
+    const inRenderOrder = filteredLogs.slice().reverse();
+    if (!groupRepeats) return inRenderOrder;
+    const grouped: DisplayLog[] = [];
+    for (const log of inRenderOrder) {
+      const prev = grouped[grouped.length - 1];
+      const key = `${log.level.toLowerCase()}|${log.message}`;
+      const prevKey = prev ? `${prev.level.toLowerCase()}|${prev.message}` : null;
+      if (prev && prevKey === key) {
+        prev.count = (prev.count ?? 1) + 1;
+        // Optionally update timestamp to latest occurrence
+        prev.timestamp = log.timestamp;
+      } else {
+        grouped.push({ ...log, count: 1 });
+      }
+    }
+    return grouped;
+  }, [filteredLogs, groupRepeats]);
+
+  const levelCounts = useMemo(() => {
+    const acc: Record<string, number> = {};
+    for (const l of filteredLogs) {
+      const k = l.level.toLowerCase();
+      acc[k] = (acc[k] || 0) + 1;
+    }
+    return acc;
+  }, [filteredLogs]);
+
+  const sourceCounts = useMemo(() => {
+    const acc: Record<'server' | 'client' | 'console' | 'network', number> = {
+      server: 0,
+      client: 0,
+      console: 0,
+      network: 0,
+    };
+    for (const l of filteredLogs) {
+      acc[resolveSource(l)]++;
+    }
+    return acc;
+  }, [filteredLogs]);
+
+  type Suggestion = { type: 'mute' | 'source' | 'level'; value: string; label: string };
+  const suggestions: Suggestion[] = useMemo(() => {
+    const recent = logs.slice(-300);
+    const total = recent.length || 1;
+    const bySource: Record<'server' | 'client' | 'console' | 'network', number> = {
+      server: 0,
+      client: 0,
+      console: 0,
+      network: 0,
+    };
+    const pathCounts = new Map<string, number>();
+    const msgCounts = new Map<string, number>();
+    const levelCountsAll: Record<string, number> = {};
+
+    const pathRegex = /(\/[^\s\?\"]+)(?:[\?\s]|$)/g;
+
+    for (const l of recent) {
+      // source tally
+      const src = resolveSource(l);
+      bySource[src]++;
+      // level tally
+      const lvl = l.level.toLowerCase();
+      levelCountsAll[lvl] = (levelCountsAll[lvl] || 0) + 1;
+      // paths
+      let m: RegExpExecArray | null;
+      const text = l.message || '';
+      pathRegex.lastIndex = 0;
+      while ((m = pathRegex.exec(text))) {
+        const raw = (m[1] || '').split('?')[0];
+        if (!raw) continue;
+        const base = raw;
+        pathCounts.set(base, (pathCounts.get(base) || 0) + 1);
+      }
+      // message heads (first 80 chars)
+      const head = (text.slice(0, 80) || '').trim();
+      if (head.length >= 10) {
+        msgCounts.set(head, (msgCounts.get(head) || 0) + 1);
+      }
+    }
+
+    const out: Suggestion[] = [];
+    // Suggest muting top paths not already muted
+    const muted = new Set(
+      mutePatterns
+        .split(',')
+        .map((s) => s.trim().toLowerCase())
+        .filter(Boolean)
+    );
+    const topPaths = Array.from(pathCounts.entries())
+      .filter(([p]) => p.length > 3 && !muted.has(p.toLowerCase()))
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3);
+    for (const [p, c] of topPaths) {
+      if (c / total < 0.05) continue; // only if at least 5% of recent logs
+      out.push({ type: 'mute', value: p, label: `Mute ${p} (${c})` });
+    }
+
+    // Suggest muting frequent message heads
+    const topMsgs = Array.from(msgCounts.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 2);
+    for (const [h, c] of topMsgs) {
+      const key = h.toLowerCase();
+      if (muted.has(key)) continue;
+      if (c >= 3) out.push({ type: 'mute', value: h, label: `Mute "${h}" (${c})` });
+    }
+
+    // Suggest hiding overrepresented source
+    (['network', 'console', 'client', 'server'] as const).forEach((s) => {
+      const ratio = bySource[s] / total;
+      if (ratio >= 0.6 && sourceFilters[s]) {
+        out.push({
+          type: 'source',
+          value: s,
+          label: `Hide ${s.toUpperCase()} (${Math.round(ratio * 100)}%)`,
+        });
+      }
+    });
+
+    // Suggest hiding DEBUG if too chatty
+    const dbg = levelCountsAll['debug'] || 0;
+    if (dbg / total >= 0.5 && levelFilter.includes('debug')) {
+      out.push({ type: 'level', value: 'debug', label: 'Hide DEBUG (noisy)' });
+    }
+
+    return out;
+  }, [logs, mutePatterns, sourceFilters, levelFilter]);
+
+  const applySuggestion = useCallback(
+    (s: Suggestion) => {
+      pushFilterSnapshot();
+      if (s.type === 'mute') {
+        addMutePattern(s.value);
+      } else if (s.type === 'source') {
+        setSourceFilters((p) => ({
+          ...p,
+          [s.value as 'server' | 'client' | 'console' | 'network']: false,
+        }));
+      } else if (s.type === 'level') {
+        setLevelFilter((prev) => prev.filter((l) => l !== s.value));
+      }
+    },
+    [addMutePattern, pushFilterSnapshot]
+  );
+
+  const applyAllSuggestions = useCallback(() => {
+    pushFilterSnapshot();
+    const seen = new Set<string>();
+    for (const s of suggestions) {
+      const k = `${s.type}|${s.value.toLowerCase()}`;
+      if (seen.has(k)) continue;
+      seen.add(k);
+      applySuggestion(s);
+    }
+  }, [suggestions, applySuggestion, pushFilterSnapshot]);
+
+  const exportLogs = useCallback(() => {
+    const items = showAll
+      ? displayLogs
+      : displayLogs.slice(-Math.min(windowSize, displayLogs.length));
+    const payload = {
+      exportedAt: new Date().toISOString(),
+      status,
+      filters: {
+        levels: levelFilter,
+        sources: sourceFilters,
+        mutes: mutePatterns,
+      },
+      count: items.length,
+      items,
+    };
+    try {
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `debug-logs-${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      console.error('Export failed', e);
+    }
+  }, [displayLogs, showAll, windowSize, status, levelFilter, sourceFilters, mutePatterns]);
+
+  const exportNdjson = useCallback(() => {
+    const items = showAll
+      ? displayLogs
+      : displayLogs.slice(-Math.min(windowSize, displayLogs.length));
+    try {
+      const nd = items.map((it) => JSON.stringify(it)).join('\n');
+      const blob = new Blob([nd], { type: 'application/x-ndjson' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `debug-logs-${new Date().toISOString().replace(/[:.]/g, '-')}.ndjson`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      console.error('Export NDJSON failed', e);
+    }
+  }, [displayLogs, showAll, windowSize]);
+
+  const copyJson = useCallback(async () => {
+    const items = showAll
+      ? displayLogs
+      : displayLogs.slice(-Math.min(windowSize, displayLogs.length));
+    try {
+      await navigator.clipboard.writeText(JSON.stringify(items, null, 2));
+    } catch (e) {
+      console.error('Copy failed', e);
+    }
+  }, [displayLogs, showAll, windowSize]);
+
+  const catchUp = useCallback(() => {
+    const buf = pausedBufferRef.current;
+    if (!buf.length) return;
+    mergeLogs(buf);
+    pausedBufferRef.current = [];
+    setSuppressedCount(0);
+  }, [mergeLogs]);
+
+  return (
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg flex flex-col h-full overflow-hidden">
+      {/* Header */}
+      <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
+        <div className="flex justify-between items-center flex-wrap gap-2">
+          <h2 className="text-lg font-bold text-gray-900 dark:text-white">Debug Logs</h2>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-gray-600 dark:text-gray-400">
+              {Math.min(
+                filteredLogs.length,
+                showAll ? filteredLogs.length : Math.min(windowSize, filteredLogs.length)
+              )}{' '}
+              of {filteredLogs.length} (total {logs.length})
+            </span>
+            <button
+              onClick={clearLogs}
+              className="px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition-colors"
+              title="Clear all logs"
+            >
+              Clear
+            </button>
+            <button
+              onClick={() => setPaused((p) => !p)}
+              className={`px-2 py-1 text-white text-xs rounded transition-colors ${paused ? 'bg-yellow-600 hover:bg-yellow-700' : 'bg-gray-700 hover:bg-gray-800'}`}
+              aria-pressed={paused}
+              title="Pause/resume capturing new logs"
+            >
+              {paused ? `Resume${suppressedCount ? ` (${suppressedCount})` : ''}` : 'Pause'}
+            </button>
+            {paused && suppressedCount > 0 && (
+              <button
+                onClick={catchUp}
+                className="px-2 py-1 bg-amber-600 text-white text-xs rounded hover:bg-amber-700 transition-colors"
+                title="Append buffered logs and reset counter"
+              >
+                Catch up
+              </button>
+            )}
+            <button
+              onClick={exportLogs}
+              className="px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors"
+              title="Export current view as JSON"
+            >
+              Export JSON
+            </button>
+            <button
+              onClick={exportNdjson}
+              className="px-2 py-1 bg-indigo-600 text-white text-xs rounded hover:bg-indigo-700 transition-colors"
+              title="Export current view as NDJSON"
+            >
+              Export NDJSON
+            </button>
+            <button
+              onClick={copyJson}
+              className="px-2 py-1 bg-gray-500 text-white text-xs rounded hover:bg-gray-600 transition-colors"
+              title="Copy current view as JSON to clipboard"
+            >
+              Copy JSON
+            </button>
+            <button
+              onClick={async () => {
+                try {
+                  console.error('Self-test: console.error');
+                } catch {}
+                try {
+                  await fetch('/__debug-self-test-404');
+                } catch {}
+                try {
+                  const x = new XMLHttpRequest();
+                  x.open('GET', '/__debug-self-test-xhr-404');
+                  x.send();
+                } catch {}
+                try {
+                  if (
+                    typeof navigator !== 'undefined' &&
+                    typeof (navigator as any).sendBeacon === 'function'
+                  ) {
+                    (navigator as any).sendBeacon('/__debug-self-test-beacon', 'x=1');
+                  }
+                } catch {}
+                try {
+                  await fetch('/api/debug/client-log', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-Debug-Log': '1' },
+                    body: JSON.stringify({ level: 'info', message: 'Self-test: client-log' }),
+                  });
+                } catch {}
+              }}
+              className="px-2 py-1 bg-emerald-600 text-white text-xs rounded hover:bg-emerald-700 transition-colors"
+              title="Emit sample console, network, XHR, beacon and client-log events"
+            >
+              Self-test
+            </button>
+            <label className="flex items-center gap-1 text-xs text-gray-700 dark:text-gray-300 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={showAll}
+                onChange={(e) => setShowAll(e.target.checked)}
+                className="rounded"
+              />
+              Show all
+            </label>
+            {!showAll && (
+              <div className="flex items-center gap-1 text-xs text-gray-700 dark:text-gray-300">
+                <span>Window</span>
+                <input
+                  type="number"
+                  min={50}
+                  max={1000}
+                  step={50}
+                  value={windowSize}
+                  onChange={(e) =>
+                    setWindowSize(Math.max(50, Math.min(1000, Number(e.target.value) || 200)))
+                  }
+                  className="w-16 px-1 py-0.5 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100"
+                />
+              </div>
+            )}
+            <label className="flex items-center gap-1 text-xs text-gray-700 dark:text-gray-300 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={autoScroll}
+                onChange={(e) => setAutoScroll(e.target.checked)}
+                className="rounded"
+              />
+              Auto-scroll
+            </label>
+            <label className="flex items-center gap-1 text-xs text-gray-700 dark:text-gray-300 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={groupRepeats}
+                onChange={(e) => setGroupRepeats(e.target.checked)}
+                className="rounded"
+              />
+              Group repeats
+            </label>
+            <span
+              className={`px-2 py-1 rounded text-xs font-semibold ${
+                status === 'connected'
+                  ? 'bg-green-600 text-white'
+                  : status === 'error'
+                    ? 'bg-red-600 text-white'
+                    : 'bg-yellow-600 text-white'
+              }`}
+            >
+              {status.toUpperCase()}
+            </span>
+            {status === 'connected' && (
+              <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+            )}
+            {/* Metrics chips */}
+            <div className="hidden md:flex items-center gap-1 ml-2">
+              <span className="px-1.5 py-0.5 rounded text-[10px] bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300">
+                E:{levelCounts['error'] || 0}
+              </span>
+              <span className="px-1.5 py-0.5 rounded text-[10px] bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">
+                W:{levelCounts['warn'] || 0}
+              </span>
+              <span className="px-1.5 py-0.5 rounded text-[10px] bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                I:{levelCounts['info'] || 0}
+              </span>
+              <span className="px-1.5 py-0.5 rounded text-[10px] bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
+                D:{levelCounts['debug'] || 0}
+              </span>
+              <span className="px-1.5 py-0.5 rounded text-[10px] bg-teal-100 text-teal-800 dark:bg-teal-900/30 dark:text-teal-300">
+                NET:{sourceCounts.network}
+              </span>
+            </div>
+          </div>
+        </div>
+        {/* Filter Buttons */}
+        <div className="flex flex-wrap items-center gap-2 mt-2">
+          {['error', 'warn', 'info', 'debug', 'log'].map((level) => (
+            <button
+              key={level}
+              onClick={() => toggleLevelFilter(level)}
+              aria-pressed={levelFilter.includes(level)}
+              className={`px-2 py-1 rounded text-xs font-semibold transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                levelFilter.includes(level)
+                  ? getLevelColor(level)
+                  : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 opacity-50'
+              }`}
+            >
+              {level.toUpperCase()}
+            </button>
+          ))}
+          {/* Source Filters */}
+          {(
+            [
+              ['server', 'SERVER'],
+              ['client', 'CLIENT'],
+              ['console', 'CONSOLE'],
+              ['network', 'NETWORK'],
+            ] as const
+          ).map(([key, label]) => (
+            <button
+              key={key}
+              onClick={() => setSourceFilters((p) => ({ ...p, [key]: !p[key] }))}
+              aria-pressed={sourceFilters[key]}
+              className={`px-2 py-1 rounded text-xs font-semibold transition-all focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                sourceFilters[key]
+                  ? 'bg-teal-100 text-teal-800 dark:bg-teal-900/30 dark:text-teal-300'
+                  : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 opacity-50'
+              }`}
+              title={`Toggle ${label}`}
+            >
+              {label}
+            </button>
+          ))}
+          {/* Mute patterns input */}
+          <div className="flex items-center gap-1 ml-auto">
+            <input
+              value={mutePatterns}
+              onChange={(e) => setMutePatterns(e.target.value)}
+              placeholder="mute patterns (comma-separated)"
+              className="px-2 py-1 text-xs rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100"
+              style={{ minWidth: 220 }}
+            />
+            {mutePatterns && (
+              <button
+                onClick={() => setMutePatterns('')}
+                className="px-2 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 text-xs rounded"
+                title="Clear mute patterns"
+              >
+                Clear mutes
+              </button>
+            )}
+            <label className="flex items-center gap-1 text-xs text-gray-700 dark:text-gray-300 cursor-pointer ml-2">
+              <input
+                type="checkbox"
+                checked={muteIsRegex}
+                onChange={(e) => setMuteIsRegex(e.target.checked)}
+                className="rounded"
+              />
+              Regex mutes
+            </label>
+          </div>
+        </div>
+      </div>
+      {/* Suggested filters */}
+      {suggestions.length > 0 && (
+        <div className="px-4 py-2 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+              Suggested filters:
+            </span>
+            {suggestions.slice(0, 6).map((s, idx) => (
+              <button
+                key={`${s.type}-${idx}-${s.value}`}
+                onClick={() => applySuggestion(s)}
+                className={
+                  s.type === 'mute'
+                    ? 'px-2 py-0.5 rounded text-[11px] bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600'
+                    : s.type === 'source'
+                      ? 'px-2 py-0.5 rounded text-[11px] bg-teal-100 dark:bg-teal-900/30 text-teal-800 dark:text-teal-300 hover:bg-teal-200 dark:hover:bg-teal-800'
+                      : 'px-2 py-0.5 rounded text-[11px] bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 hover:bg-purple-200 dark:hover:bg-purple-800'
+                }
+                title={`Apply: ${s.label}`}
+              >
+                {s.label}
+              </button>
+            ))}
+            {suggestions.length > 1 && (
+              <button
+                onClick={applyAllSuggestions}
+                className="ml-2 px-2 py-0.5 rounded text-[11px] bg-blue-600 text-white hover:bg-blue-700"
+                title="Apply all suggestions"
+              >
+                Apply all
+              </button>
+            )}
+            <button
+              onClick={undoLastApply}
+              disabled={historySize === 0}
+              className={`px-2 py-0.5 rounded text-[11px] ${
+                historySize === 0
+                  ? 'bg-gray-200 dark:bg-gray-700 text-gray-400 cursor-not-allowed'
+                  : 'bg-gray-600 text-white hover:bg-gray-700'
+              }`}
+              title="Undo last filter change"
+            >
+              Undo
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Logs - windowed rendering for performance */}
+      <div className="flex-1 overflow-y-auto overscroll-contain p-4 space-y-2 bg-gray-50 dark:bg-gray-900 min-h-0">
+        {displayLogs.length === 0 ? (
+          <p className="text-gray-500 dark:text-gray-400 text-sm">
+            {logs.length === 0 ? 'Waiting for logs...' : 'No logs match current filter'}
+          </p>
+        ) : (
+          (showAll
+            ? displayLogs
+            : displayLogs.slice(-Math.min(windowSize, displayLogs.length))
+          ).map((log, idx) => (
+            <div
+              key={idx}
+              className="flex items-start text-sm border-b border-gray-200 dark:border-gray-700 pb-2 last:border-0"
+            >
+              <span className="flex-shrink-0 w-24 text-xs text-gray-500 dark:text-gray-400 mr-3 font-mono">
+                {log.timestamp.split('T')[1]?.split('.')[0] || log.timestamp}
+              </span>
+              <span
+                className={`px-2 py-0.5 rounded text-xs font-semibold mr-2 flex-shrink-0 ${getLevelColor(log.level)}`}
+              >
+                {log.level.toUpperCase()}
+              </span>
+              <div className="flex-1 whitespace-pre-wrap break-words text-gray-900 dark:text-gray-100 font-mono text-xs leading-relaxed">
+                {log.message}
+              </div>
+              {log.count && log.count > 1 && (
+                <span className="ml-2 px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 text-[10px] font-semibold">
+                  × {log.count}
+                </span>
+              )}
+            </div>
+          ))
+        )}
+        {/* Auto-scroll anchor */}
+        <div ref={logsEndRef} />
+      </div>
+    </div>
+  );
+};
+
+export default DebugPanel;

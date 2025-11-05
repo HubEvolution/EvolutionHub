@@ -1,3 +1,11 @@
+---
+description: 'R2-Auslieferungsstrategie für Lead-Magneten (Download-Proxy & Token-Gating)'
+owner: 'Platform Team'
+priority: 'medium'
+lastSync: '2025-11-04'
+codeRefs: 'src/pages/api/lead-magnets/**, wrangler.toml, docs/lead-magnets/r2-optimization-plan.md'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # Lead-Magnet Delivery – R2 Optimization Plan (Variante B)

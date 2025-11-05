@@ -1,3 +1,11 @@
+---
+description: 'Debug Panel – Filter, Vorschläge, Regex-Mutes und Undo-Funktionen'
+owner: 'Platform Team'
+priority: 'medium'
+lastSync: '2025-11-04'
+codeRefs: 'src/components/ui/DebugPanel.tsx, src/pages/api/debug/logs-stream.ts, package.json'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # Debug Panel – Filter, Vorschläge, Regex-Mutes & Undo

@@ -1,0 +1,17 @@
+---
+// src/components/SkipLink.astro
+// Skip link for keyboard navigation
+// This component provides a hidden link that becomes visible on focus,
+// allowing keyboard users to skip directly to the main content.
+
+// Main content ID that the skip link will target
+const mainContentId = 'main-content';
+---
+
+<a
+  href={`#${mainContentId}`}
+  class="fixed z-[60] top-2 left-2 px-4 py-2 bg-white text-black font-bold rounded ring-2 ring-primary-500 ring-offset-2 ring-offset-gray-900 transition-all duration-200 opacity-0 pointer-events-none focus:opacity-100 focus:pointer-events-auto"
+  aria-label="Skip to main content"
+>
+  Skip to main content
+</a>

@@ -1,3 +1,11 @@
+---
+description: 'Webscraper Tool – Entwicklungs-Guidelines für Claude Code'
+owner: 'Tools Team'
+priority: 'medium'
+lastSync: '2025-11-04'
+codeRefs: 'src/components/tools/webscraper/**, src/lib/services/webscraper-service.ts, src/pages/api/webscraper/**'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # Webscraper Tool - Claude Code Entwicklungs-Guidelines

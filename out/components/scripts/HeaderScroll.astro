@@ -1,0 +1,352 @@
+---
+// Separate Client-Script Component für den Header Scroll-Effekt
+// Optimiert für Performance und Robustheit
+---
+
+<script is:inline nonce={Astro.locals.cspNonce}>
+  /**
+   * HeaderScroll - Optimierter Header-Animation für Show/Hide beim Scrollen
+   * - Verbesserte Performance durch RequestAnimationFrame
+   * - Optimierte Scroll-Erkennung mit Schwellenwert und Verzögerung
+   * - Reduzierte DOM-Zugriffe
+   * - Verwendet funktionierendes Pattern ohne script-coordinator
+   */
+
+  // Direkte Ausführung ohne coordinator (funktionierendes Pattern aus Header.astro)
+  function initHeaderScrollEffect() {
+    const __DEV__ =
+      typeof location !== 'undefined' &&
+      (location.hostname === 'localhost' || location.hostname === '127.0.0.1');
+    const getFlag = () => {
+      try {
+        const ls = localStorage.getItem('debug.headerScroll') === '1';
+        const qp = new URLSearchParams(location.search).has('debugHeader');
+        return ls || qp;
+      } catch {
+        return false;
+      }
+    };
+    const VERBOSE = __DEV__ && getFlag();
+    const TRACE =
+      __DEV__ &&
+      (() => {
+        try {
+          return localStorage.getItem('debug.headerScrollTrace') === '1';
+        } catch {
+          return false;
+        }
+      })();
+    const dlog = (...args) => {
+      if (VERBOSE) console.debug(...args);
+    };
+    const dinfo = (...args) => {
+      if (VERBOSE) console.info(...args);
+    };
+    const dtrace = (...args) => {
+      if (TRACE) console.debug(...args);
+    };
+    const dwarn = (...args) => {
+      if (__DEV__) console.warn(...args);
+    };
+    dinfo('[HeaderScroll] 🚀 Starting header scroll effect initialization...');
+
+    // Header-Element mit detailliertem Logging suchen
+    const header = document.getElementById('site-header');
+    const headerByTag = document.querySelector('header');
+    const headerByClass = document.querySelector('.header');
+
+    dlog('[HeaderScroll] 🔍 Header element detection results:', {
+      headerById: !!header,
+      headerByTag: !!headerByTag,
+      headerByClass: !!headerByClass,
+      headerClasses: header?.className || 'not found',
+      headerTagName: header?.tagName || 'not found',
+      allHeaders: Array.from(document.querySelectorAll('header')).map((h) => ({
+        id: h.id,
+        classes: h.className,
+        tagName: h.tagName,
+      })),
+    });
+
+    if (!header) {
+      console.error('[HeaderScroll] ❌ Header element (#site-header) not found in DOM');
+      dlog('[HeaderScroll] 🔍 Available header-related elements:', {
+        headerByTag: !!headerByTag,
+        headerByClass: !!headerByClass,
+        possibleHeaders: Array.from(
+          document.querySelectorAll('[id*="header"], [class*="header"]')
+        ).map((el) => ({
+          id: el.id,
+          classes: el.className,
+          tagName: el.tagName,
+        })),
+      });
+      return;
+    }
+
+    // Variablen für Scroll-Logik
+    let lastScrollY = window.scrollY;
+    let ticking = false;
+    let hideTimeout = null;
+    const scrollThreshold = 80; // Reagiert etwas später
+    const scrollDeltaThreshold = 8; // Mindestens 8px scrollen für Aktion
+    let isVisible = true;
+
+    // Header initial sichtbar machen
+    header.classList.add('header-visible');
+    header.classList.remove('header-hidden');
+
+    // === OPTIMIZATION 1: Intersection Observer für header-solid state ===
+    // Modernere API statt scroll-basierter Background-Update
+    let observer = null;
+    if ('IntersectionObserver' in window) {
+      // Sentinel-Element am Seitenanfang für Background-Toggle
+      const sentinel = document.createElement('div');
+      sentinel.style.position = 'absolute';
+      sentinel.style.top = '10px';
+      sentinel.style.height = '1px';
+      sentinel.style.width = '100%';
+      sentinel.style.pointerEvents = 'none';
+      sentinel.setAttribute('data-header-sentinel', 'true');
+      document.body.prepend(sentinel);
+
+      observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            // Wenn Sentinel nicht sichtbar = User hat gescrollt → header-solid
+            const scrolled = !entry.isIntersecting;
+            if (scrolled) {
+              header.classList.add('header-solid');
+              dtrace('[HeaderScroll] 🔍 Intersection Observer: header-solid applied');
+            } else {
+              header.classList.remove('header-solid');
+              dtrace('[HeaderScroll] 🔍 Intersection Observer: header-solid removed');
+            }
+          });
+        },
+        { threshold: [0], rootMargin: '0px' }
+      );
+      observer.observe(sentinel);
+      dinfo('[HeaderScroll] ✅ Intersection Observer initialized for header-solid state');
+    } else {
+      // Fallback für alte Browser
+      dwarn('[HeaderScroll] ⚠️ IntersectionObserver not supported, using scroll fallback');
+      function applyHeaderBackground(y) {
+        try {
+          const scrolled = (typeof y === 'number' ? y : window.scrollY) > 10;
+          if (scrolled) {
+            header.classList.add('header-solid');
+          } else {
+            header.classList.remove('header-solid');
+          }
+        } catch (e) {
+          dwarn('[HeaderScroll] ⚠️ Failed to apply header background state:', e);
+        }
+      }
+      // Initial ausführen für Fallback
+      applyHeaderBackground();
+    }
+
+    function handleScroll() {
+      const currentScrollY = window.scrollY;
+      const scrollDelta = currentScrollY - lastScrollY;
+      const scrollDirection = scrollDelta > 0 ? 'down' : 'up';
+
+      dtrace('[HeaderScroll] 📜 Scroll event detected:', {
+        currentScrollY,
+        lastScrollY,
+        scrollDelta,
+        scrollDirection,
+        scrollThreshold,
+        scrollDeltaThreshold,
+        isAboveThreshold: currentScrollY <= scrollThreshold,
+        isDeltaSignificant: Math.abs(scrollDelta) >= scrollDeltaThreshold,
+      });
+
+      // Fallback for browsers without IntersectionObserver
+      if (!observer && typeof applyHeaderBackground === 'function') {
+        applyHeaderBackground(currentScrollY);
+      }
+
+      // Oberhalb des Thresholds oder am Seitenanfang - Header immer sichtbar
+      if (currentScrollY <= scrollThreshold) {
+        dtrace('[HeaderScroll] 📜 Above threshold - keeping header visible');
+        showHeader();
+        lastScrollY = currentScrollY;
+        ticking = false;
+        return;
+      }
+
+      // Genug gescrollt für eine Aktion?
+      if (Math.abs(currentScrollY - lastScrollY) < scrollDeltaThreshold) {
+        dtrace('[HeaderScroll] 📜 Scroll delta too small - ignoring');
+        ticking = false;
+        return;
+      }
+
+      // Nach unten scrollen - Header ausblenden mit Verzögerung
+      if (currentScrollY > lastScrollY) {
+        dtrace('[HeaderScroll] 📜 Scrolling down - scheduling header hide');
+
+        // Bestehenden Timer löschen wenn vorhanden
+        if (hideTimeout) {
+          dtrace('[HeaderScroll] 📜 Clearing existing hide timeout');
+          clearTimeout(hideTimeout);
+        }
+
+        // Kurze Verzögerung vor dem Ausblenden für bessere UX
+        hideTimeout = window.setTimeout(() => {
+          dtrace('[HeaderScroll] 📜 Hide timeout executed - hiding header');
+          if (header && isVisible) {
+            header.classList.add('header-hidden');
+            header.classList.remove('header-visible');
+            isVisible = false;
+            dinfo('[HeaderScroll] ✅ Header hidden');
+          }
+          hideTimeout = null;
+        }, 200);
+      }
+      // Nach oben scrollen - Header sofort einblenden
+      else {
+        dtrace('[HeaderScroll] 📜 Scrolling up - showing header immediately');
+
+        if (hideTimeout) {
+          dtrace('[HeaderScroll] 📜 Clearing hide timeout for immediate show');
+          clearTimeout(hideTimeout);
+          hideTimeout = null;
+        }
+        showHeader();
+      }
+
+      lastScrollY = currentScrollY;
+      ticking = false;
+
+      dtrace('[HeaderScroll] 📜 Scroll handling completed:', {
+        newLastScrollY: lastScrollY,
+        tickingReset: !ticking,
+      });
+    }
+
+    function showHeader() {
+      if (header) {
+        if (!isVisible) {
+          header.classList.add('header-visible');
+          header.classList.remove('header-hidden');
+          isVisible = true;
+          // Fallback only if IntersectionObserver not available
+          if (!observer && typeof applyHeaderBackground === 'function') {
+            applyHeaderBackground();
+          }
+          dinfo('[HeaderScroll] ✅ Header shown');
+        } else {
+          // keep classes but avoid logging when already visible
+          header.classList.add('header-visible');
+          header.classList.remove('header-hidden');
+        }
+      } else {
+        console.error('[HeaderScroll] ❌ Cannot show header - header element is null');
+      }
+    }
+
+    // Event-Handler für Cleanup speichern
+    let scrollHandler = null;
+    let resizeHandler = null;
+
+    // Optimiertes Event-Handling mit requestAnimationFrame
+    dtrace('[HeaderScroll] 🔗 Setting up event listeners...');
+
+    scrollHandler = function () {
+      if (!ticking) {
+        dtrace('[HeaderScroll] 📜 Scroll event triggered - scheduling RAF');
+        window.requestAnimationFrame(function () {
+          handleScroll();
+        });
+        ticking = true;
+      } else {
+        dtrace('[HeaderScroll] 📜 Scroll event throttled - already ticking');
+      }
+    };
+    window.addEventListener('scroll', scrollHandler, { passive: true });
+    dtrace('[HeaderScroll] 🔗 Scroll event listener attached');
+
+    // Resize-Event - Header neu positionieren
+    resizeHandler = function () {
+      if (!ticking) {
+        dtrace('[HeaderScroll] 📱 Resize event triggered - scheduling RAF');
+        window.requestAnimationFrame(function () {
+          // Bei Resize immer Header zeigen
+          showHeader();
+          ticking = false;
+        });
+        ticking = true;
+      } else {
+        dtrace('[HeaderScroll] 📱 Resize event throttled - already ticking');
+      }
+    };
+    window.addEventListener('resize', resizeHandler, { passive: true });
+    dtrace('[HeaderScroll] 🔗 Resize event listener attached');
+
+    // Initial auslösen
+    dinfo('[HeaderScroll] 🚀 Triggering initial handleScroll...');
+    handleScroll();
+
+    dinfo('[HeaderScroll] ✅ Scroll effect initialized', {
+      scrollThreshold,
+      scrollDeltaThreshold,
+      hasScrollHandler: !!scrollHandler,
+      hasResizeHandler: !!resizeHandler,
+      initialScrollY: window.scrollY,
+      headerClasses: header.className,
+      dependencies: ['header-mobile-menu'],
+      timestamp: new Date().toISOString(),
+    });
+
+    // Cleanup für Event-Listener und Observer global verfügbar machen
+    window.headerScrollCleanup = function () {
+      if (scrollHandler) {
+        window.removeEventListener('scroll', scrollHandler);
+      }
+      if (resizeHandler) {
+        window.removeEventListener('resize', resizeHandler);
+      }
+      if (hideTimeout) {
+        clearTimeout(hideTimeout);
+      }
+      if (observer) {
+        observer.disconnect();
+        dinfo('[HeaderScroll] Intersection Observer disconnected');
+      }
+      // Remove sentinel element
+      const sentinel = document.querySelector('[data-header-sentinel]');
+      if (sentinel) {
+        sentinel.remove();
+      }
+      dinfo('[HeaderScroll] Scroll effect cleaned up');
+    };
+  }
+
+  // Direkter Aufruf wenn DOM bereit ist (funktionierendes Pattern aus Header.astro)
+  if (document.readyState !== 'loading') {
+    initHeaderScrollEffect();
+  } else {
+    document.addEventListener('DOMContentLoaded', initHeaderScrollEffect);
+  }
+
+  // Re-Init nach Astro View Transitions mit vorherigem Cleanup (doppelte Listener vermeiden)
+  if (!window.__headerScrollAfterSwapBound) {
+    window.__headerScrollAfterSwapBound = true;
+    document.addEventListener('astro:after-swap', () => {
+      try {
+        if (typeof window.headerScrollCleanup === 'function') {
+          window.headerScrollCleanup();
+        }
+      } catch (e) {
+        console.warn('[HeaderScroll] Cleanup error:', e);
+      }
+      initHeaderScrollEffect();
+    });
+  }
+</script>
+
+<!-- Dummy HTML node to force Astro script compilation/injection -->
+<div style="display: none;" aria-hidden="true"></div>

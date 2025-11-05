@@ -1,0 +1,14 @@
+{
+  "common.resetPassword": {
+    "title": "Reset Password",
+    "form": {
+      "heading": "Reset Password",
+      "fields": {
+        "password": {
+          "label": "New Password"
+        }
+      },
+      "submit_button": "Reset Password"
+    }
+  }
+}

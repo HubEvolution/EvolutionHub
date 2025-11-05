@@ -1,3 +1,11 @@
+---
+description: 'Coming Soon Overlay – Konfiguration, Client-Script und QA-Checklisten'
+owner: 'Frontend Team'
+priority: 'high'
+lastSync: '2025-11-04'
+codeRefs: 'src/components/ui/ComingSoon.astro, scripts/coming-soon-client.ts, src/config/coming-soon.ts, src/styles/coming-soon.css'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # Coming Soon Overlay — Spezifikation, Implementierung und Betrieb (aktualisiert)
@@ -47,7 +55,7 @@ Hinweis: Client-Behavior wurde externalisiert. Aktuell eingebundenes Produktions
 
 ## Zentrale Config
 
-Datei: [src/config/coming-soon.ts](src/config/coming-soon.ts)
+Datei: [src/config/coming-soon.ts](../../src/config/coming-soon.ts)
 
 - `COMING_SOON_PATTERNS`: bleibt als Referenz im Code erhalten, wird aktuell nicht zur Aktivierung genutzt.
 

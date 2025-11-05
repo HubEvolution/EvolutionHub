@@ -343,7 +343,6 @@ Redirect-URIs (Stytch Whitelist):
 Stytch Dashboard: TEST-Umgebung für Dev/Testing/Staging; LIVE für Prod.
 
 ## Testing {#testing}
-
 Die Authentifizierung wird durch schrittweise Tests validiert, inkl. Stytch-Wrapper, Endpunkte und Flows. Ziel: >70% Coverage, CI-Integration (Vitest, Playwright gegen Wrangler mit TEST_BASE_URL). ADR-Referenz: Tests decken Übergang von JWT zu Sessions ab (siehe [deprecated/0001-jwt-authentication.md](adrs/deprecated/0001-jwt-authentication.md)).
 
 ### Unit-Tests (Vitest)

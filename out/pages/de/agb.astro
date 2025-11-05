@@ -1,0 +1,117 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { getI18n } from '@/utils/i18n';
+import { getLocale } from '@/lib/i18n';
+const locale = getLocale(Astro.url.pathname);
+const t = getI18n(locale);
+---
+
+<BaseLayout title={t('pages.agb.title')}>
+  <!-- Hero Section -->
+  <section
+    class="py-16 md:py-24 bg-gradient-to-br from-primary/5 to-purple-500/5 dark:from-gray-800 dark:to-gray-900"
+  >
+    <div class="container mx-auto px-4">
+      <div class="max-w-4xl mx-auto text-center">
+        <h1 class="text-4xl md:text-5xl font-bold mb-6 text-gray-900 dark:text-white">
+          {t('pages.agb.header.title')}
+        </h1>
+        <p class="text-xl text-gray-600 dark:text-gray-300">
+          {t('pages.agb.header.effective_date')}
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Content Section -->
+  <section class="py-16 md:py-20 bg-white dark:bg-gray-900">
+    <div class="container mx-auto px-4">
+      <div
+        class="max-w-4xl mx-auto prose prose-lg dark:prose-invert prose-headings:text-gray-900 dark:prose-headings:text-white prose-a:text-emerald-600 dark:prose-a:text-emerald-400 hover:prose-a:text-emerald-500 dark:hover:prose-a:text-emerald-300"
+      >
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 md:p-10">
+          <div class="prose dark:prose-invert max-w-none">
+            <h2>{t('pages.agb.sections.1.title')}</h2>
+            <p>
+              {t('pages.agb.sections.1.content')}
+            </p>
+
+            <h2>{t('pages.agb.sections.2.title')}</h2>
+            <p>
+              {t('pages.agb.sections.2.content')}
+            </p>
+
+            <h2>{t('pages.agb.sections.3.title')}</h2>
+            <p>
+              {t('pages.agb.sections.3.content')}
+            </p>
+
+            <h2>{t('pages.agb.sections.4.title')}</h2>
+            <p>
+              {t('pages.agb.sections.4.content')}
+            </p>
+
+            <h2>{t('pages.agb.sections.5.title')}</h2>
+            <p>
+              {t('pages.agb.sections.5.content')}
+            </p>
+
+            <h2>{t('pages.agb.sections.6.title')}</h2>
+            <p>
+              {t('pages.agb.sections.6.content')}
+            </p>
+
+            <h2>{t('pages.agb.sections.7.title')}</h2>
+            <p>
+              {t('pages.agb.sections.7.content')}
+            </p>
+
+            <h2>{t('pages.agb.sections.8.title')}</h2>
+            <p>
+              {t('pages.agb.sections.8.content')}
+            </p>
+
+            <h2>{t('pages.agb.sections.9.title')}</h2>
+            <p>
+              {t('pages.agb.sections.9.content')}
+            </p>
+
+            <h2>{t('pages.agb.sections.10.title')}</h2>
+            <p>
+              {t('pages.agb.sections.10.content')}
+            </p>
+
+            <h2>{t('pages.agb.sections.11.title')}</h2>
+            <p>
+              {t('pages.agb.sections.11.content')}
+            </p>
+
+            <h2>{t('pages.agb.sections.11_participation.title')}</h2>
+            <p>
+              {t('pages.agb.sections.11_participation.content')}
+            </p>
+
+            <h2>{t('pages.agb.sections.12.title')}</h2>
+            <p>
+              {t('pages.agb.sections.12.content')}
+            </p>
+
+            <div class="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700">
+              <p class="text-sm text-gray-500 dark:text-gray-400">
+                <strong>Evolution Hub GmbH</strong><br />
+                Musterstraße 123<br />
+                10115 Berlin<br />
+                Deutschland
+              </p>
+              <p class="mt-4 text-sm text-gray-500 dark:text-gray-400">
+                Telefon: +49 (0)30 12345678<br />
+                E-Mail: info@evolutionhub.de<br />
+                Internet: www.evolutionhub.de
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,71 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+
+const nextRaw = Astro.url.searchParams.get('next') ?? '/';
+
+// Build a safe canonical URL (same-origin only)
+let canonicalHref: string | null = null;
+try {
+  const nextUrl = new URL(nextRaw, Astro.url.origin);
+  if (nextUrl.origin === Astro.url.origin) {
+    canonicalHref = nextUrl.toString();
+  }
+} catch {
+  canonicalHref = null;
+}
+
+const hrefDe = `/welcome?set_locale=de&next=${encodeURIComponent(nextRaw)}`;
+const hrefEn = `/welcome?set_locale=en&next=${encodeURIComponent(nextRaw)}`;
+const autoDelay = Number(import.meta.env.PUBLIC_WELCOME_AUTO_DELAY_MS ?? '400') || 400;
+---
+
+<BaseLayout
+  title="Welcome / Willkommen"
+  description="Please choose your language / Bitte wähle deine Sprache"
+  canonical={canonicalHref ?? undefined}
+  hideNewsletter={true}
+  hideHeader={true}
+  hideFooter={true}
+  noIndex={true}
+>
+  <section class="min-h-[100svh] px-4 flex flex-col items-center justify-center">
+    <img
+      src="/favicons/favicon-32x32.png"
+      alt="Evolution Hub"
+      class="w-12 h-12 rounded-full ring-1 ring-white/10 p-2"
+    />
+    <div class="mt-4 flex items-center gap-3 text-zinc-300">
+      <a
+        href={hrefDe}
+        data-astro-reload
+        class="inline-flex items-center rounded-md border border-white/10 px-3 py-1.5 text-sm font-medium text-zinc-200 tracking-wide underline-offset-4 hover:underline hover:bg-white/5 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/40"
+      >
+        Deutsch
+      </a>
+      <span aria-hidden="true" class="text-zinc-500">·</span>
+      <a
+        href={hrefEn}
+        data-astro-reload
+        class="inline-flex items-center rounded-md border border-white/10 px-3 py-1.5 text-sm font-medium text-zinc-200 tracking-wide underline-offset-4 hover:underline hover:bg-white/5 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/40"
+      >
+        English
+      </a>
+    </div>
+  </section>
+  <script is:inline nonce={Astro.locals.cspNonce} define:vars={{ hrefDe, hrefEn, autoDelay }}>
+    (function () {
+      try {
+        const params = new URLSearchParams(location.search);
+        if (params.get('noauto') === '1') return;
+        const lang = (navigator.language || '').toLowerCase();
+        const toDe = /(^|,|;|\s)de(\-|$)/.test(lang);
+        const target = toDe ? hrefDe : hrefEn;
+        setTimeout(() => {
+          try {
+            window.location.href = target;
+          } catch {}
+        }, autoDelay);
+      } catch {}
+    })();
+  </script>
+</BaseLayout>

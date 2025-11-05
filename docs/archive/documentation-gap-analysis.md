@@ -1,3 +1,11 @@
+---
+description: 'Dokumentations-Gap-Analyse – Status & Maßnahmen für Evolution Hub'
+owner: 'Documentation Team'
+priority: 'medium'
+lastSync: '2025-11-04'
+codeRefs: 'docs/archive/documentation-gap-analysis.md, docs/architecture/system-overview.md, docs/development/local-development.md'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # Dokumentations-Gap-Analyse - Evolution Hub
@@ -6,11 +14,11 @@ Diese Analyse bietet einen umfassenden Überblick über den aktuellen Stand der 
 
 ## Inhaltsverzeichnis
 
-1. [Überblick](#uberblick)
-1. [Vorhandene Dokumentation](#vorhandene-dokumentation)
-1. [Identifizierte Lücken](#identifizierte-lucken)
-1. [Priorisierte Maßnahmen](#priorisierte-manahmen)
-1. [Best Practices Checkliste](#best-practices-checkliste)
+- Überblick
+- Vorhandene Dokumentation
+- Identifizierte Lücken
+- Priorisierte Maßnahmen
+- Best Practices Checkliste
 
 ---
 

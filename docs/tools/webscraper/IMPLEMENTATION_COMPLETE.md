@@ -1,3 +1,11 @@
+---
+description: 'Webscraper Tool – MVP Implementation Status'
+owner: 'Tools Team'
+priority: 'medium'
+lastSync: '2025-11-04'
+codeRefs: 'src/lib/services/webscraper-service.ts, src/pages/api/webscraper/extract.ts, src/components/tools/webscraper/**'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # Webscraper Tool - Implementation Complete ✅

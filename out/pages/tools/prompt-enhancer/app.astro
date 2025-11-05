@@ -1,0 +1,34 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { getLocale } from '@/lib/i18n';
+import { getI18n } from '@/utils/i18n';
+import EnhancerForm from '@/components/tools/prompt-enhancer/EnhancerForm';
+import Card from '@/components/ui/Card';
+import ToolPageHeader from '@/components/tools/shared/ToolPageHeader.astro';
+
+const locale = getLocale(Astro.url.pathname);
+const t = getI18n(locale);
+---
+
+<BaseLayout
+  title={`${t('pages.tools.items.Prompt-Enhancer.name')} – Evolution Hub`}
+  description={t('pages.tools.items.Prompt-Enhancer.description')}
+>
+  <main class="min-h-screen bg-transparent py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-4xl mx-auto">
+      <ToolPageHeader
+        icon="edit"
+        titleKey="pages.tools.items.Prompt-Enhancer.name"
+        descriptionKey="pages.tools.items.Prompt-Enhancer.description"
+        backHref="/tools"
+      />
+      <div class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+        {t('pages.tools.details.Prompt-Enhancer.privacy.text')}
+      </div>
+
+      <Card as="div" className="mt-8 p-6" variant="holo">
+        <EnhancerForm client:load />
+      </Card>
+    </div>
+  </main>
+</BaseLayout>

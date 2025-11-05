@@ -1,0 +1,339 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+// Assuming a utility function for i18n is available.
+// If Astro's built-in i18n routing is used, this might be different.
+// For now, using a common pattern.
+import { getI18n } from '@/utils/i18n';
+import { getLocale } from '@/lib/i18n';
+import Card from '@/components/ui/Card';
+const locale = getLocale(Astro.url.pathname);
+const t = getI18n(locale);
+// Safe helpers to avoid rendering empty strings
+const hasText = (s: string) => !!(s && s.trim());
+const tx = (key: string) => t(key);
+const pageTitle = hasText(tx('pages.impressum.title')) ? tx('pages.impressum.title') : 'Impressum';
+---
+
+<BaseLayout title={pageTitle}>
+  <!-- Hero Section -->
+  <section
+    class="py-16 md:py-24 bg-gradient-to-br from-primary/5 to-purple-500/5 dark:from-gray-800 dark:to-gray-900"
+  >
+    <div class="container mx-auto px-4">
+      <div class="max-w-4xl mx-auto text-center">
+        <h1 class="text-4xl md:text-5xl font-bold mb-6 text-gray-900 dark:text-white">
+          {pageTitle}
+        </h1>
+        {
+          hasText(tx('pages.impressum.section_intro.heading')) && (
+            <p class="text-xl text-gray-600 dark:text-gray-300">
+              {tx('pages.impressum.section_intro.heading')}
+            </p>
+          )
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Content Section (transparent to show landing background) -->
+  <section class="py-16 md:py-20 bg-transparent">
+    <div class="container mx-auto px-4">
+      <div
+        class="max-w-4xl mx-auto prose prose-lg dark:prose-invert prose-headings:text-gray-900 dark:prose-headings:text-white prose-a:text-emerald-600 dark:prose-a:text-emerald-400 hover:prose-a:text-emerald-500 dark:hover:prose-a:text-emerald-300"
+      >
+        <Card as="div" className="rounded-2xl p-8 md:p-10">
+          {
+            hasText(tx('pages.impressum.sections.provider.headline')) && (
+              <h2>{tx('pages.impressum.sections.provider.headline')}</h2>
+            )
+          }
+          <address class="not-italic">
+            {
+              hasText(tx('pages.impressum.sections.provider.company_name')) && (
+                <>
+                  <>
+                    <strong>{tx('pages.impressum.sections.provider.company_name')}</strong>
+                    <br />
+                  </>
+                </>
+              )
+            }
+            {
+              hasText(tx('pages.impressum.sections.provider.street_address')) && (
+                <>
+                  {tx('pages.impressum.sections.provider.street_address')}
+                  <br />
+                </>
+              )
+            }
+            {
+              hasText(tx('pages.impressum.sections.provider.city_postal_code')) && (
+                <>
+                  {tx('pages.impressum.sections.provider.city_postal_code')}
+                  <br />
+                </>
+              )
+            }
+            {
+              hasText(tx('pages.impressum.sections.provider.country')) && (
+                <>{tx('pages.impressum.sections.provider.country')}</>
+              )
+            }
+          </address>
+
+          {
+            hasText(tx('pages.impressum.sections.contact.headline')) && (
+              <h3>{tx('pages.impressum.sections.contact.headline')}</h3>
+            )
+          }
+          <address class="not-italic">
+            {
+              hasText(tx('pages.impressum.sections.contact.phone')) && (
+                <>
+                  {tx('pages.impressum.sections.contact.phone')}
+                  <br />
+                </>
+              )
+            }
+            {
+              hasText(tx('pages.impressum.sections.contact.fax')) && (
+                <>
+                  {tx('pages.impressum.sections.contact.fax')}
+                  <br />
+                </>
+              )
+            }
+            {
+              hasText(tx('pages.impressum.sections.contact.email')) && (
+                <>
+                  {tx('pages.impressum.sections.contact.email')}
+                  <br />
+                </>
+              )
+            }
+            {
+              hasText(tx('pages.impressum.sections.contact.website')) && (
+                <>{tx('pages.impressum.sections.contact.website')}</>
+              )
+            }
+          </address>
+
+          {
+            hasText(tx('pages.impressum.sections.represented_by.headline')) && (
+              <h3>{tx('pages.impressum.sections.represented_by.headline')}</h3>
+            )
+          }
+          {
+            hasText(tx('pages.impressum.sections.represented_by.managing_directors')) && (
+              <p>{tx('pages.impressum.sections.represented_by.managing_directors')}</p>
+            )
+          }
+
+          {
+            hasText(tx('pages.impressum.sections.registration.headline')) && (
+              <h3>{tx('pages.impressum.sections.registration.headline')}</h3>
+            )
+          }
+          {
+            (hasText(tx('pages.impressum.sections.registration.register_entry')) ||
+              hasText(tx('pages.impressum.sections.registration.register_court')) ||
+              hasText(tx('pages.impressum.sections.registration.register_number'))) && (
+              <p>
+                {hasText(tx('pages.impressum.sections.registration.register_entry')) && (
+                  <>
+                    {tx('pages.impressum.sections.registration.register_entry')}
+                    <br />
+                  </>
+                )}
+                {hasText(tx('pages.impressum.sections.registration.register_court')) && (
+                  <>
+                    {tx('pages.impressum.sections.registration.register_court')}
+                    <br />
+                  </>
+                )}
+                {hasText(tx('pages.impressum.sections.registration.register_number')) && (
+                  <>{tx('pages.impressum.sections.registration.register_number')}</>
+                )}
+              </p>
+            )
+          }
+
+          {
+            hasText(tx('pages.impressum.sections.vat.headline')) && (
+              <h3>{tx('pages.impressum.sections.vat.headline')}</h3>
+            )
+          }
+          {
+            (hasText(tx('pages.impressum.sections.vat.vat_id_label')) ||
+              hasText(tx('pages.impressum.sections.vat.vat_id'))) && (
+              <p>
+                {hasText(tx('pages.impressum.sections.vat.vat_id_label')) && (
+                  <>
+                    {tx('pages.impressum.sections.vat.vat_id_label')}
+                    <br />
+                  </>
+                )}
+                {hasText(tx('pages.impressum.sections.vat.vat_id')) && (
+                  <>{tx('pages.impressum.sections.vat.vat_id')}</>
+                )}
+              </p>
+            )
+          }
+
+          {
+            hasText(tx('pages.impressum.sections.content_responsible.headline')) && (
+              <h3>{tx('pages.impressum.sections.content_responsible.headline')}</h3>
+            )
+          }
+          <address class="not-italic">
+            {
+              hasText(tx('pages.impressum.sections.content_responsible.name')) && (
+                <>
+                  {tx('pages.impressum.sections.content_responsible.name')}
+                  <br />
+                </>
+              )
+            }
+            {
+              hasText(tx('pages.impressum.sections.content_responsible.street')) && (
+                <>
+                  {tx('pages.impressum.sections.content_responsible.street')}
+                  <br />
+                </>
+              )
+            }
+            {
+              hasText(tx('pages.impressum.sections.content_responsible.city_postal_code')) && (
+                <>{tx('pages.impressum.sections.content_responsible.city_postal_code')}</>
+              )
+            }
+          </address>
+
+          {
+            hasText(tx('pages.impressum.sections.dispute_resolution.headline')) && (
+              <h3>{tx('pages.impressum.sections.dispute_resolution.headline')}</h3>
+            )
+          }
+          {
+            (hasText(tx('pages.impressum.sections.dispute_resolution.os_platform_intro')) ||
+              hasText(tx('pages.impressum.sections.dispute_resolution.os_platform_url')) ||
+              hasText(tx('pages.impressum.sections.dispute_resolution.email_note'))) && (
+              <p>
+                {hasText(tx('pages.impressum.sections.dispute_resolution.os_platform_intro')) && (
+                  <>{tx('pages.impressum.sections.dispute_resolution.os_platform_intro')}</>
+                )}
+                {hasText(tx('pages.impressum.sections.dispute_resolution.os_platform_url')) && (
+                  <>
+                    <a
+                      href={tx('pages.impressum.sections.dispute_resolution.os_platform_url')}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {tx('pages.impressum.sections.dispute_resolution.os_platform_url')}
+                    </a>
+                    <br />
+                  </>
+                )}
+                {hasText(tx('pages.impressum.sections.dispute_resolution.email_note')) && (
+                  <>{tx('pages.impressum.sections.dispute_resolution.email_note')}</>
+                )}
+              </p>
+            )
+          }
+          {
+            hasText(tx('pages.impressum.sections.dispute_resolution.participation_statement')) && (
+              <p>{tx('pages.impressum.sections.dispute_resolution.participation_statement')}</p>
+            )
+          }
+
+          {
+            hasText(tx('pages.impressum.sections.disclaimer.headline')) && (
+              <h3>{tx('pages.impressum.sections.disclaimer.headline')}</h3>
+            )
+          }
+          {
+            hasText(tx('pages.impressum.sections.disclaimer.content_liability.headline')) && (
+              <h4>{tx('pages.impressum.sections.disclaimer.content_liability.headline')}</h4>
+            )
+          }
+          {
+            hasText(tx('pages.impressum.sections.disclaimer.content_liability.paragraph1')) && (
+              <p>{tx('pages.impressum.sections.disclaimer.content_liability.paragraph1')}</p>
+            )
+          }
+          {
+            hasText(tx('pages.impressum.sections.disclaimer.content_liability.paragraph2')) && (
+              <p>{tx('pages.impressum.sections.disclaimer.content_liability.paragraph2')}</p>
+            )
+          }
+
+          {
+            hasText(tx('pages.impressum.sections.disclaimer.link_liability.headline')) && (
+              <h4>{tx('pages.impressum.sections.disclaimer.link_liability.headline')}</h4>
+            )
+          }
+          {
+            hasText(tx('pages.impressum.sections.disclaimer.link_liability.paragraph1')) && (
+              <p>{tx('pages.impressum.sections.disclaimer.link_liability.paragraph1')}</p>
+            )
+          }
+          {
+            hasText(tx('pages.impressum.sections.disclaimer.link_liability.paragraph2')) && (
+              <p>{tx('pages.impressum.sections.disclaimer.link_liability.paragraph2')}</p>
+            )
+          }
+
+          {
+            hasText(tx('pages.impressum.sections.disclaimer.copyright.headline')) && (
+              <h4>{tx('pages.impressum.sections.disclaimer.copyright.headline')}</h4>
+            )
+          }
+          {
+            hasText(tx('pages.impressum.sections.disclaimer.copyright.paragraph1')) && (
+              <p>{tx('pages.impressum.sections.disclaimer.copyright.paragraph1')}</p>
+            )
+          }
+          {
+            hasText(tx('pages.impressum.sections.disclaimer.copyright.paragraph2')) && (
+              <p>{tx('pages.impressum.sections.disclaimer.copyright.paragraph2')}</p>
+            )
+          }
+
+          {
+            hasText(tx('pages.impressum.sections.image_credits.headline')) && (
+              <h3>{tx('pages.impressum.sections.image_credits.headline')}</h3>
+            )
+          }
+          {
+            hasText(tx('pages.impressum.sections.image_credits.description')) && (
+              <p>{tx('pages.impressum.sections.image_credits.description')}</p>
+            )
+          }
+
+          {
+            (hasText(tx('pages.impressum.source_label')) ||
+              hasText(tx('pages.impressum.source_name'))) && (
+              <p class="text-sm text-gray-500 dark:text-gray-400 mt-8">
+                {hasText(tx('pages.impressum.source_label')) && (
+                  <>{tx('pages.impressum.source_label')} </>
+                )}
+                {hasText(tx('pages.impressum.source_url')) ? (
+                  <a
+                    href={tx('pages.impressum.source_url')}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="text-emerald-600 dark:text-emerald-400 hover:underline"
+                  >
+                    {tx('pages.impressum.source_name')}
+                  </a>
+                ) : (
+                  <>{tx('pages.impressum.source_name')}</>
+                )}
+              </p>
+            )
+          }
+        </Card>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

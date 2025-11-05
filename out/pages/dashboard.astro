@@ -1,0 +1,517 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { type BillingSummary } from '@/components/dashboard/BillingCard';
+import BillingCard from '@/components/dashboard/BillingCard';
+import UserProfile from '@/components/dashboard/UserProfile.astro';
+import AccountSettingsSection from '@/components/dashboard/AccountSettingsSection.astro';
+import NewsletterPreferencesCard from '@/components/dashboard/NewsletterPreferencesCard';
+import Card from '@/components/ui/Card';
+import { getLocale } from '@/lib/i18n';
+import { getI18n } from '@/utils/i18n';
+// V2 removes shortcuts/recommendations and extra cards
+
+const locals = Astro.locals as any;
+if (!locals.user) {
+  return Astro.redirect('/login');
+}
+
+const user = locals.user;
+const locale = getLocale(Astro.url.pathname);
+const t = getI18n(locale);
+
+const origin = new URL(Astro.request.url).origin;
+const cookieHeader = Astro.request.headers.get('cookie') ?? '';
+
+async function fetchApi<T>(path: string, timeoutMs = 1200): Promise<T | null> {
+  const ac = new AbortController();
+  const t = setTimeout(() => ac.abort('timeout'), timeoutMs);
+  try {
+    const res = await fetch(`${origin}${path}`, {
+      headers: {
+        cookie: cookieHeader,
+      },
+      signal: ac.signal,
+    });
+    if (!res.ok) return null;
+    const json = (await res.json()) as { data?: T } | T | null;
+    if (json && typeof json === 'object' && 'data' in (json as any)) {
+      return (json as { data?: T }).data ?? null;
+    }
+    return (json as unknown as T) ?? null;
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(t);
+  }
+}
+
+type DashboardBillingSummary = BillingSummary & {
+  monthlyLimit: number;
+  monthlyUsed: number;
+  periodEndsAt: number;
+};
+
+const billingSummary = await fetchApi<DashboardBillingSummary>('/api/dashboard/billing-summary');
+
+// shortcuts removed in Dashboard V2
+
+const billingStrings = {
+  title: t('pages.dashboard.billing.title'),
+  currentPlan: t('pages.dashboard.billing.currentPlan'),
+  statusLabel: t('pages.dashboard.billing.statusLabel'),
+  noSubscription: t('pages.dashboard.billing.noSubscription'),
+  renewal: t('pages.dashboard.billing.renewal'),
+  credits: t('pages.dashboard.billing.credits'),
+  actions: {
+    manage: t('pages.dashboard.billing.actions.manage'),
+    cancel: t('pages.dashboard.billing.actions.cancel'),
+    cancelled: t('pages.dashboard.billing.actions.cancelled'),
+  },
+  statusMap: {
+    active: t('pages.dashboard.billing.statusMap.active'),
+    trialing: t('pages.dashboard.billing.statusMap.trialing'),
+    past_due: t('pages.dashboard.billing.statusMap.past_due'),
+    canceled: t('pages.dashboard.billing.statusMap.canceled'),
+    unpaid: t('pages.dashboard.billing.statusMap.unpaid'),
+    incomplete: t('pages.dashboard.billing.statusMap.incomplete'),
+    incomplete_expired: t('pages.dashboard.billing.statusMap.incomplete_expired'),
+    paused: t('pages.dashboard.billing.statusMap.paused'),
+    unknown: t('pages.dashboard.billing.statusMap.unknown'),
+  } as Record<string, string>,
+  planLabels: {
+    free: t('pages.dashboard.profile.planLabels.free'),
+    pro: t('pages.dashboard.profile.planLabels.pro'),
+    premium: t('pages.dashboard.profile.planLabels.premium'),
+    enterprise: t('pages.dashboard.profile.planLabels.enterprise'),
+  } as Record<'free' | 'pro' | 'premium' | 'enterprise', string>,
+};
+
+// tool shortcuts removed in Dashboard V2
+
+const newsletterStrings = {
+  title: t('pages.dashboard.newsletter.title'),
+  subscribed: t('pages.dashboard.newsletter.subscribed'),
+  unsubscribed: t('pages.dashboard.newsletter.unsubscribed'),
+  unsubscribe: t('pages.dashboard.newsletter.unsubscribe'),
+  resubscribe: t('pages.dashboard.newsletter.resubscribe'),
+  processing: t('pages.dashboard.newsletter.processing'),
+  success: t('pages.dashboard.newsletter.success'),
+  error: t('pages.dashboard.newsletter.error'),
+};
+
+// recent comments removed in Dashboard V2
+
+// recommendations removed in Dashboard V2
+
+const initialNewsletterSubscribed = true;
+
+const accountI18nSettings = {
+  upload: {
+    invalid_type: t('common.upload.invalid_type'),
+    too_large: t('common.upload.too_large'),
+  },
+  status: {
+    uploading: t('common.status.uploading'),
+  },
+  actions: {
+    upload: t('common.actions.upload'),
+  },
+  success: {
+    avatar_updated: t('common.success.avatar_updated'),
+  },
+  errors: {
+    upload_failed_prefix: t('common.errors.upload_failed_prefix'),
+  },
+};
+
+const baseDashboardPath =
+  locale === 'de' ? '/de/dashboard' : locale === 'en' ? '/en/dashboard' : '/dashboard';
+const redirectUrl = locale === 'de' ? '/de/login' : locale === 'en' ? '/en/login' : '/login';
+const billingUrl = `${baseDashboardPath}#billing`;
+
+const manageBillingLink = (() => {
+  try {
+    const u = new URL('/api/billing/portal', 'http://x');
+    const cur = Astro.url;
+    const currentPath = `${cur.pathname}${cur.search}`;
+    if (currentPath.startsWith('/')) {
+      u.searchParams.set('return_to', currentPath);
+    }
+    return u.pathname + u.search;
+  } catch {
+    return '/api/billing/portal';
+  }
+})();
+
+// removed buyCreditsLink: direct checkout UI implemented inline
+
+const dangerStrings =
+  locale === 'de'
+    ? {
+        title: 'Konto löschen',
+        description:
+          'Das Entfernen deines Kontos anonymisiert deine Daten und beendet aktive Sitzungen. Diese Aktion kann nicht rückgängig gemacht werden.',
+        button: 'Konto löschen',
+        close: 'Schließen',
+        confirm: {
+          title: 'Löschung bestätigen',
+          description: 'Bist du sicher, dass du dein Konto dauerhaft löschen möchtest?',
+          confirmCta: 'Jetzt löschen',
+          cancelCta: 'Abbrechen',
+        },
+        subscription: {
+          title: 'Aktives Abonnement erkannt',
+          description:
+            'Wir haben aktive Abonnements gefunden. Du kannst zur Abrechnung wechseln oder die Kündigung automatisch zum aktuellen Laufzeitende einplanen.',
+          periodEnd: 'Verlängert sich am {date}',
+          indefinite: 'Verlängert sich automatisch bis zur Kündigung',
+          goToBilling: 'Zur Abrechnung wechseln',
+          deleteAnyway: 'Trotzdem löschen',
+          back: 'Zurück',
+        },
+        messages: {
+          processing: 'Konto wird gelöscht…',
+          success: 'Dein Konto wurde gelöscht. Du wirst abgemeldet.',
+          error: 'Das Konto konnte nicht gelöscht werden. Bitte versuche es erneut.',
+        },
+      }
+    : {
+        title: 'Delete account',
+        description:
+          'Deleting your account anonymises data and logs you out everywhere. This action cannot be undone.',
+        button: 'Delete account',
+        close: 'Close',
+        confirm: {
+          title: 'Confirm deletion',
+          description: 'Are you sure you want to permanently delete your account?',
+          confirmCta: 'Delete now',
+          cancelCta: 'Cancel',
+        },
+        subscription: {
+          title: 'Active subscription detected',
+          description:
+            'We found active subscriptions. You can jump to billing or schedule cancellation at the current period end.',
+          periodEnd: 'Renews on {date}',
+          indefinite: 'Renews automatically until cancelled',
+          goToBilling: 'Go to billing',
+          deleteAnyway: 'Delete anyway',
+          back: 'Back',
+        },
+        messages: {
+          processing: 'Deleting account…',
+          success: 'Your account was deleted successfully. You will be signed out.',
+          error: 'We couldn’t delete your account. Please try again or contact support.',
+        },
+      };
+
+const profileCopy =
+  locale === 'de'
+    ? {
+        title: 'Öffentliches Profil',
+        description:
+          'Aktualisiere, wie du in Evolution Hub erscheinst – für Kommentare, Dashboards und Team-Arbeitsbereiche.',
+        nameLabel: 'Name',
+        usernameLabel: 'Benutzername',
+        emailLabel: 'E-Mail',
+        changeEmailHint: 'E-Mail-Änderungen erfordern eine erneute Verifizierung über den Support.',
+        changeEmailCta: 'E-Mail ändern (bald verfügbar)',
+        saveCta: 'Änderungen speichern',
+        hybridTitle: 'Passwortlos per Design',
+        hybridDescription:
+          'Anmeldung erfolgt über Magic Links und OAuth-Anbieter – keine Passwörter, kein Reset-Stress.',
+        supportTitle: 'Hilfe benötigt?',
+        supportDescription:
+          'Das Auth-Playbook erklärt Sessions, Gerätevertrauen und Recovery-Schritte im Detail.',
+        supportCta: 'Guide öffnen',
+        supportHref: '/docs/architecture/auth-architecture',
+      }
+    : {
+        title: 'Public profile',
+        description:
+          'Control how your identity appears across Evolution Hub workspaces and automations.',
+        nameLabel: 'Name',
+        usernameLabel: 'Username',
+        emailLabel: 'Email',
+        changeEmailHint: 'Email changes require a re-verification workflow handled by support.',
+        changeEmailCta: 'Change email (coming soon)',
+        saveCta: 'Save changes',
+        hybridTitle: 'Passwordless by design',
+        hybridDescription:
+          'Authentication relies on secure magic links and OAuth providers. Nothing to rotate or forget.',
+        supportTitle: 'Need help?',
+        supportDescription:
+          'Review the authentication playbook for session management, recovery, and device trust.',
+        supportCta: 'Open guide',
+        supportHref: '/docs/architecture/auth-architecture',
+      };
+---
+
+<BaseLayout title={t('pages.dashboard.title') ?? 'Dashboard'}>
+  <!-- Transparent background to match Landing look -->
+  <div class="relative min-h-screen overflow-hidden">
+    <div class="hidden"></div>
+    <div class="hidden"></div>
+
+    <div class="container mx-auto p-4 lg:p-6">
+      <!-- Futuristic mosaic grid: free-flow cards with spans -->
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-12 xl:gap-6">
+        <!-- Top row: Profile, Newsletter, Billing -->
+        <div class="xl:col-span-4">
+          <UserProfile user={{ ...user, plan: billingSummary?.plan ?? user.plan }} />
+        </div>
+
+        <div class="xl:col-span-4">
+          <Card as="div" className="group p-4">
+            <div class="flex items-center justify-between gap-3">
+              <div class="flex items-baseline gap-2">
+                <span class="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                  {billingStrings.credits}
+                </span>
+                <span class="text-lg font-bold text-white">
+                  {
+                    typeof billingSummary?.creditsRemaining === 'number'
+                      ? billingSummary.creditsRemaining
+                      : '—'
+                  }
+                </span>
+              </div>
+              <div class="flex items-baseline gap-2">
+                <span class="text-xs font-semibold uppercase tracking-wide text-slate-400"
+                  >Monthly quota remaining</span
+                >
+                <span id="quota-remaining" class="text-lg font-bold text-white">
+                  {
+                    (() => {
+                      const limit = Number(billingSummary?.monthlyLimit || 0);
+                      const used = Number(billingSummary?.monthlyUsed || 0);
+                      const rem = Math.max(0, limit - used);
+                      return rem > 0 ? rem : '—';
+                    })()
+                  }
+                </span>
+                <span id="quota-loading" class="text-[10px] font-semibold text-slate-400"
+                  >Updating…</span
+                >
+              </div>
+              <div class="flex items-center gap-2">
+                <select
+                  id="credits-pack"
+                  class="rounded-md bg-white/10 text-white text-xs px-2 py-1 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                >
+                  <option value="100">100</option>
+                  <option value="500">500</option>
+                  <option value="1500">1500</option>
+                </select>
+                <button
+                  id="buy-credits-btn"
+                  type="button"
+                  data-login-href={redirectUrl}
+                  class="inline-flex items-center rounded-md bg-gradient-to-r from-indigo-500 to-fuchsia-500 px-3 py-1.5 text-xs font-bold text-white shadow-sm shadow-indigo-500/30 transition hover:from-indigo-600 hover:to-fuchsia-600 disabled:opacity-60"
+                >
+                  Buy credits
+                </button>
+              </div>
+            </div>
+            {
+              (() => {
+                const limit = Number(billingSummary?.monthlyLimit || 0);
+                const used = Number(billingSummary?.monthlyUsed || 0);
+                const pct =
+                  limit > 0 ? Math.min(100, Math.max(0, Math.round((used / limit) * 100))) : 0;
+                const pe = Number(billingSummary?.periodEndsAt || 0);
+                const daysLeft =
+                  pe > 0 ? Math.max(0, Math.ceil((pe - Date.now()) / (1000 * 60 * 60 * 24))) : null;
+                return (
+                  <div class="mt-3 space-y-1.5">
+                    <div class="h-2 w-full rounded-full bg-white/10 overflow-hidden">
+                      <div
+                        id="quota-progress"
+                        class="h-2 bg-gradient-to-r from-emerald-500 to-teal-500"
+                        style={`width: ${pct}%`}
+                      />
+                    </div>
+                    <div class="flex items-center justify-between text-xs text-slate-400">
+                      <span>
+                        <span id="quota-used">{used}</span>/<span id="quota-limit">{limit}</span>{' '}
+                        used
+                      </span>
+                      {daysLeft !== null && (
+                        <span>
+                          resets in {daysLeft} day{daysLeft === 1 ? '' : 's'}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })()
+            }
+          </Card>
+        </div>
+
+        <div class="xl:col-span-4">
+          <Card as="div" className="group p-4">
+            <BillingCard
+              client:load
+              summary={billingSummary}
+              strings={billingStrings}
+              manageLink={manageBillingLink}
+            />
+          </Card>
+        </div>
+
+        <!-- Middle row: AccountSettings full width -->
+        <div class="xl:col-span-12">
+          <AccountSettingsSection
+            user={user}
+            planLabels={billingStrings.planLabels}
+            billingUrl={billingUrl}
+            redirectUrl={redirectUrl}
+            dangerStrings={dangerStrings}
+            profileCopy={profileCopy}
+            i18nSettings={accountI18nSettings}
+          />
+        </div>
+
+        <!-- Bottom row: Newsletter full width -->
+        <div class="xl:col-span-12">
+          <NewsletterPreferencesCard
+            client:load
+            email={user.email}
+            initiallySubscribed={initialNewsletterSubscribed}
+            strings={newsletterStrings}
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<script is:inline nonce={Astro.locals.cspNonce}>
+  (function () {
+    try {
+      fetch('/api/dashboard/billing-summary')
+        .then((r) => (r.ok ? r.json() : Promise.reject(r)))
+        .then((json) => {
+          if (!json || typeof json !== 'object' || json === null) return;
+          if (!('data' in json) || !json['data']) return;
+          const data = json['data'];
+          const limit = Number(data.monthlyLimit || 0);
+          const used = Number(data.monthlyUsed || 0);
+          const rem = Math.max(0, limit - used);
+          const progress =
+            limit > 0 ? Math.min(100, Math.max(0, Math.round((used / limit) * 100))) : 0;
+          const elRem = document.getElementById('quota-remaining');
+          if (elRem) elRem.textContent = rem > 0 ? String(rem) : '—';
+          const elUsed = document.getElementById('quota-used');
+          if (elUsed) elUsed.textContent = String(used);
+          const elLimit = document.getElementById('quota-limit');
+          if (elLimit) elLimit.textContent = String(limit);
+          const bar = document.getElementById('quota-progress');
+          if (bar && bar instanceof HTMLElement) bar.style.width = `${progress}%`;
+          const elLoading = document.getElementById('quota-loading');
+          if (elLoading && elLoading instanceof HTMLElement) elLoading.style.display = 'none';
+        })
+        .catch(() => {
+          const elLoading = document.getElementById('quota-loading');
+          if (elLoading && elLoading instanceof HTMLElement) elLoading.style.display = 'none';
+        });
+    } catch {}
+  })();
+</script>
+
+<script is:inline nonce={Astro.locals.cspNonce}>
+  (function () {
+    try {
+      var btn = document.getElementById('buy-credits-btn');
+      var sel = document.getElementById('credits-pack');
+      if (!btn || !sel) return;
+
+      var loginHref = (btn && btn.getAttribute('data-login-href')) || '/login';
+
+      function readCookie(name) {
+        var m = document.cookie.match(
+          new RegExp('(?:^|; )' + name.replace(/[.$?*|{}()\[\]\\/+^]/g, '\\$&') + '=([^;]*)')
+        );
+        return m ? decodeURIComponent(m[1]) : null;
+      }
+      function ensureCsrfToken() {
+        var token = readCookie('csrf_token');
+        if (!token) {
+          try {
+            var buf = new Uint8Array(16);
+            (globalThis.crypto || window.crypto).getRandomValues(buf);
+            token = Array.from(buf)
+              .map(function (b) {
+                return b.toString(16).padStart(2, '0');
+              })
+              .join('');
+            var attrs = ['Path=/', 'SameSite=Lax'];
+            if (typeof location !== 'undefined' && location.protocol === 'https:')
+              attrs.push('Secure');
+            document.cookie = 'csrf_token=' + encodeURIComponent(token) + '; ' + attrs.join('; ');
+          } catch {}
+        }
+        return token || '';
+      }
+      function getWorkspaceId() {
+        try {
+          var url = new URL(window.location.href);
+          var ws = url.searchParams.get('ws');
+          if (ws && ws.trim()) {
+            localStorage.setItem('ws_id', ws);
+            return ws;
+          }
+          var ls = localStorage.getItem('ws_id');
+          if (ls && ls.trim()) return ls;
+        } catch {}
+        return 'default';
+      }
+
+      btn.addEventListener('click', function () {
+        if (btn.disabled) return;
+        (async function () {
+          try {
+            btn.disabled = true;
+            var csrf = ensureCsrfToken();
+            var pack = Number((sel && sel.value) || '100');
+            var res = await fetch('/api/billing/credits', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
+              credentials: 'include',
+              body: JSON.stringify({
+                pack: pack,
+                workspaceId: getWorkspaceId(),
+                returnTo: location.pathname + location.search,
+              }),
+            });
+            if (res.status === 401) {
+              window.location.href = loginHref;
+              return;
+            }
+            if (!res.ok) {
+              var text = await res.text().catch(function () {
+                return '';
+              });
+              alert('Checkout failed: ' + (text || res.status));
+              return;
+            }
+            var data = await res.json().catch(function () {
+              return {};
+            });
+            var nextUrl = (data && (data.url || (data.data && data.data.url))) || '';
+            if (nextUrl) {
+              window.location.href = nextUrl;
+            } else {
+              alert('Checkout failed: Invalid response');
+            }
+          } catch (e) {
+            console.warn('[credits] checkout error', e);
+            alert('Checkout failed');
+          } finally {
+            btn.disabled = false;
+          }
+        })();
+      });
+    } catch {}
+  })();
+</script>

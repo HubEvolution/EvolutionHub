@@ -1,0 +1,308 @@
+---
+// Blog CTA Component - Flexible CTA-System für verschiedene Funnel-Stufen
+import { getLocale } from '@/lib/i18n';
+import type { Locale } from '@/lib/i18n';
+interface Props {
+  type: 'newsletter' | 'leadmagnet' | 'consultation' | 'social';
+  position?: 'top' | 'middle' | 'bottom';
+  title?: string;
+  description?: string;
+  buttonText?: string;
+  leadMagnet?: string;
+  customText?: string;
+  variant?: 'primary' | 'secondary' | 'subtle';
+}
+
+const {
+  type,
+  position = 'middle',
+  title,
+  description,
+  buttonText,
+  leadMagnet,
+  customText,
+  variant = 'primary',
+} = Astro.props as Props;
+
+// Current locale for i18n
+const locale = getLocale(Astro.url.pathname);
+
+// Standard-Texte basierend auf CTA-Typ (zweisprachig)
+type CTAType = Props['type'];
+type CTATexts = { title: string; description: string; buttonText: string };
+const defaultContent: Record<CTAType, Record<Locale, CTATexts>> = {
+  newsletter: {
+    de: {
+      title: 'Bleiben Sie auf dem Laufenden',
+      description:
+        'Erhalten Sie wöchentlich die neuesten Insights zu New Work, KI und Produktivität direkt in Ihr Postfach.',
+      buttonText: 'Newsletter abonnieren',
+    },
+    en: {
+      title: 'Stay up to date',
+      description: 'Get weekly insights on New Work, AI, and productivity delivered to your inbox.',
+      buttonText: 'Subscribe to newsletter',
+    },
+  },
+  leadmagnet: {
+    de: {
+      title: 'Kostenloses Experten-Material',
+      description:
+        'Laden Sie unser praxiserprobtes Material herunter und setzen Sie die Tipps sofort um.',
+      buttonText: 'Jetzt herunterladen',
+    },
+    en: {
+      title: 'Free expert material',
+      description: 'Download our proven material and implement the tips immediately.',
+      buttonText: 'Download now',
+    },
+  },
+  consultation: {
+    de: {
+      title: 'Individuelle Beratung gewünscht?',
+      description:
+        'Lassen Sie uns in einem kostenlosen Gespräch Ihre spezifischen Herausforderungen besprechen.',
+      buttonText: 'Gespräch vereinbaren',
+    },
+    en: {
+      title: 'Want individual consultation?',
+      description: 'Let us discuss your specific challenges in a free consultation call.',
+      buttonText: 'Schedule a call',
+    },
+  },
+  social: {
+    de: {
+      title: 'Teilen Sie diesen Artikel',
+      description: 'Helfen Sie anderen dabei, diese wertvollen Insights zu entdecken.',
+      buttonText: 'Artikel teilen',
+    },
+    en: {
+      title: 'Share this article',
+      description: 'Help others discover these valuable insights.',
+      buttonText: 'Share article',
+    },
+  },
+};
+
+const localeDefaults = defaultContent[type][locale] || defaultContent[type].de;
+
+const content = {
+  title: title || localeDefaults.title,
+  description: description || localeDefaults.description,
+  buttonText: buttonText || localeDefaults.buttonText,
+};
+
+// Styling-Varianten
+const variants: Record<NonNullable<Props['variant']>, string> = {
+  primary: 'bg-gradient-to-r from-emerald-500 to-cyan-500 text-white shadow-lg',
+  secondary:
+    'bg-white dark:bg-gray-800 border-2 border-emerald-500 text-emerald-600 dark:text-emerald-400',
+  subtle:
+    'bg-emerald-50 dark:bg-gray-800 border border-emerald-200 dark:border-gray-700 text-emerald-800 dark:text-emerald-300',
+};
+
+const positionClass: Record<NonNullable<Props['position']>, string> = {
+  top: 'mt-8 mb-6',
+  middle: 'my-8',
+  bottom: 'mt-8 mb-6',
+};
+---
+
+<div
+  class={`blog-cta relative rounded-xl p-6 ${positionClass[position]} ${variants[variant]} transition-all duration-300 hover:shadow-xl group`}
+  data-cta-type={type}
+  data-cta-position={position}
+>
+  <!-- Decorative background pattern -->
+  <div
+    class="absolute inset-0 opacity-5 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPgogICAgPGcgZmlsbD0iIzAwMCIgZmlsbC1vcGFjaXR5PSIwLjEiPgogICAgICA8cGF0aCBkPSJtMzYgMzQgNi0yLTYtMnYtNG02IDIgNi0ydjRsLTYgMiA2IDJ2NGwtNi0yem0tMTMgOGwtNC0yIDQtMnYtNGwtNCAydjRsNCAyLTQgMnY0bDQtMnptMC0xNmwtNC0yIDQtMnYtNGwtNCAydjRsNCAyLTQgMnY0bDQtMnoiLz4KICAgIDwvZz4KICA8L2c+Cjwvc3ZnPg==')] rounded-xl"
+  >
+  </div>
+
+  <div class="relative z-10">
+    <div class="flex items-start space-x-4">
+      <!-- Icon basierend auf CTA-Typ -->
+      <div class="flex-shrink-0">
+        {
+          type === 'newsletter' && (
+            <div class="w-12 h-12 rounded-lg bg-white/20 flex items-center justify-center">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                />
+              </svg>
+            </div>
+          )
+        }
+
+        {
+          type === 'leadmagnet' && (
+            <div class="w-12 h-12 rounded-lg bg-white/20 flex items-center justify-center">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
+              </svg>
+            </div>
+          )
+        }
+
+        {
+          type === 'consultation' && (
+            <div class="w-12 h-12 rounded-lg bg-white/20 flex items-center justify-center">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                />
+              </svg>
+            </div>
+          )
+        }
+
+        {
+          type === 'social' && (
+            <div class="w-12 h-12 rounded-lg bg-white/20 flex items-center justify-center">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"
+                />
+              </svg>
+            </div>
+          )
+        }
+      </div>
+
+      <!-- Content -->
+      <div class="flex-1">
+        <h3
+          class="text-lg font-semibold mb-2 group-hover:scale-105 transition-transform duration-200"
+        >
+          {content.title}
+        </h3>
+        <p class="text-sm opacity-90 mb-4 leading-relaxed">
+          {customText || content.description}
+        </p>
+
+        <!-- CTA Button -->
+        <button
+          class="blog-cta-button inline-flex items-center px-4 py-2 bg-white/20 backdrop-blur-sm rounded-lg font-medium text-sm hover:bg-white/30 transition-all duration-200 group-hover:translate-x-1 focus:outline-none focus:ring-2 focus:ring-white/50"
+          data-leadmagnet={leadMagnet}
+          data-analytics-event="cta_click"
+          data-analytics-type={type}
+        >
+          {content.buttonText}
+          <svg
+            class="w-4 h-4 ml-2 transition-transform duration-200 group-hover:translate-x-1"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Event-Listener für CTA-Tracking
+  document.addEventListener('DOMContentLoaded', () => {
+    const ctaButtons = document.querySelectorAll('.blog-cta-button');
+
+    ctaButtons.forEach((button) => {
+      if (!(button instanceof HTMLElement)) return;
+      button.addEventListener('click', (e: Event) => {
+        const ctaType = button.dataset?.analyticsType;
+        const leadMagnet = button.dataset?.leadmagnet;
+
+        // Analytics-Event senden
+        const gtag = (window as any).gtag;
+        if (typeof gtag === 'function') {
+          gtag('event', 'cta_click', {
+            cta_type: ctaType,
+            lead_magnet: leadMagnet,
+            page_location: window.location.href,
+          });
+        }
+
+        // Console-Log für Development
+        console.log('CTA clicked:', { type: ctaType, leadMagnet, url: window.location.href });
+
+        // Lead-Magnet-Download handling
+        if (ctaType === 'leadmagnet' && leadMagnet) {
+          e.preventDefault();
+          // Trigger Lead-Magnet-Modal oder redirect zur Landing Page
+          window.location.href = `/lead-magnets/${leadMagnet}`;
+        }
+
+        // Newsletter handling
+        if (ctaType === 'newsletter') {
+          e.preventDefault();
+          // Scroll to newsletter form oder trigger modal
+          const newsletterForm = document.querySelector('.newsletter-form, #newsletter-form');
+          if (newsletterForm instanceof HTMLElement) {
+            newsletterForm.scrollIntoView({ behavior: 'smooth' });
+            const emailInput = newsletterForm.querySelector('input[type="email"]');
+            if (emailInput instanceof HTMLElement) {
+              setTimeout(() => (emailInput as any).focus?.(), 500);
+            }
+          }
+        }
+
+        // Social sharing
+        if (ctaType === 'social') {
+          e.preventDefault();
+          // Implement social sharing logic
+          if (navigator.share) {
+            navigator.share({
+              title: document.title,
+              url: window.location.href,
+            });
+          }
+        }
+      });
+    });
+  });
+</script>
+
+<style>
+  .blog-cta {
+    background-image: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.1) 0%,
+      rgba(255, 255, 255, 0.05) 100%
+    );
+    backdrop-filter: blur(10px);
+  }
+
+  .blog-cta:hover {
+    transform: translateY(-2px);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .blog-cta,
+    .blog-cta-button,
+    .group-hover\:translate-x-1,
+    .group-hover\:scale-105 {
+      transform: none !important;
+      transition: none !important;
+    }
+  }
+</style>

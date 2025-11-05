@@ -1,0 +1,104 @@
+---
+import { localizePath } from '@/lib/locale-path';
+import { getLocale } from '@/lib/i18n';
+import { getI18n } from '@/utils/i18n';
+import Card from '@/components/ui/Card';
+
+interface Category {
+  id: string;
+  name: string;
+}
+
+interface Props {
+  categories: Category[];
+  activeCategory: string;
+  searchQuery: string;
+  resultCount: number;
+}
+
+const { categories, activeCategory, searchQuery, resultCount } = Astro.props as Props;
+const locale = getLocale(Astro.url.pathname);
+const t = getI18n(locale);
+
+// Function to update URL with new search parameters
+const updateSearchParams = (params: Record<string, string>) => {
+  const url = new URL(Astro.url);
+  Object.entries(params).forEach(([key, value]) => {
+    if (value) {
+      url.searchParams.set(key, value);
+    } else {
+      url.searchParams.delete(key);
+    }
+  });
+  return url.pathname + url.search;
+};
+---
+
+<Card as="div" variant="holo" className="p-6 mb-8 rounded-xl">
+  <form method="GET" class="space-y-4">
+    {/* Search Input */}
+    <div class="relative">
+      <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+        <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+          <path
+            fill-rule="evenodd"
+            d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+            clip-rule="evenodd"></path>
+        </svg>
+      </div>
+      <input
+        type="text"
+        name="q"
+        value={searchQuery}
+        placeholder={t('pages.tools.filter.search_placeholder')}
+        class="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md leading-5 bg-white dark:bg-gray-700 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"
+        hx-get={localizePath(
+          locale,
+          activeCategory && activeCategory !== 'all'
+            ? `/tools?category=${activeCategory}`
+            : '/tools'
+        )}
+        hx-trigger="keyup changed delay:500ms, search"
+        hx-target="#tools-container"
+        hx-push-url="true"
+        hx-params="q"
+      />
+    </div>
+
+    {/* Category Filter */}
+    <div class="flex flex-wrap gap-2">
+      {
+        categories.map((category) => (
+          <a
+            href={updateSearchParams({
+              category: category.id === 'all' ? '' : category.id,
+              q: searchQuery,
+            })}
+            class={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+              activeCategory === category.id
+                ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400'
+                : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'
+            }`}
+            data-category={category.id}
+            hx-get={localizePath(
+              locale,
+              category.id === 'all' ? '/tools' : `/tools?category=${category.id}`
+            )}
+            hx-target="#tools-container"
+            hx-push-url="true"
+            hx-params="q"
+          >
+            {category.name}
+          </a>
+        ))
+      }
+    </div>
+  </form>
+
+  {/* Results Count */}
+  <div class="mt-4 text-sm text-gray-500 dark:text-gray-400">
+    {resultCount}
+    {resultCount === 1 ? t('pages.tools.results.singular') : t('pages.tools.results.plural')}
+    {t('pages.tools.results.found_suffix')}
+  </div>
+</Card>

@@ -1,0 +1,47 @@
+---
+interface Props {
+  quote: string;
+  author: string;
+  role?: string;
+  featured?: boolean;
+  class?: string;
+}
+
+const { quote, author, role, featured = false, class: className = '' } = Astro.props;
+---
+
+<article
+  class={`relative rounded-2xl t-card t-card-bg overflow-hidden ${
+    featured ? 'p-7 md:p-9' : 'p-6'
+  } bg-white/5 dark:bg-white/3 backdrop-blur-xl border border-white/10 hover:border-white/20 transition-shadow transform-gpu hover:-translate-y-0.5 landing-holo-panel ${className}`}
+>
+  <div class="absolute -top-10 -left-6 text-7xl select-none opacity-[0.12] pointer-events-none">
+    “
+  </div>
+
+  <blockquote
+    class={`text-gray-900 dark:text-gray-100 ${featured ? 'text-lg md:text-xl leading-relaxed' : 'text-base leading-relaxed'}`}
+    style={`display:-webkit-box;-webkit-box-orient:vertical;overflow:hidden;${featured ? '-webkit-line-clamp:6;' : '-webkit-line-clamp:5;'}`}
+  >
+    {quote}
+  </blockquote>
+
+  <div class="mt-6 flex items-center gap-3">
+    <div
+      class="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-400/40 to-fuchsia-500/40 ring-1 ring-white/20"
+    >
+    </div>
+    <div class="min-w-0">
+      <div class="text-sm font-semibold text-white truncate">{author}</div>
+      {role ? <div class="text-xs text-gray-300/80 truncate">{role}</div> : null}
+    </div>
+    <div
+      class="ml-auto px-2 py-1 rounded-full text-[10px] font-medium bg-emerald-400/10 text-emerald-300 ring-1 ring-emerald-300/25"
+    >
+      Verified
+    </div>
+  </div>
+
+  <div class="absolute inset-0 pointer-events-none rounded-2xl gradient-border" aria-hidden="true">
+  </div>
+</article>

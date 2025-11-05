@@ -1,3 +1,11 @@
+---
+description: 'Header Scroll Animation – Show/Hide-Logik und Implementierungsdetails'
+owner: 'Frontend Team'
+priority: 'medium'
+lastSync: '2025-11-04'
+codeRefs: 'src/components/Header.astro, src/components/scripts/HeaderScroll.astro'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # Header Scroll Animation

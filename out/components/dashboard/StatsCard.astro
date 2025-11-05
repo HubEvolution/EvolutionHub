@@ -1,0 +1,62 @@
+---
+// src/components/dashboard/StatsCard.astro
+
+interface Stats {
+  projects: number;
+  tasks: number;
+  teamMembers: number;
+}
+
+interface StatsLabels {
+  projects: string;
+  tasks: string;
+  teamMembers: string;
+}
+
+interface Props {
+  stats: Stats;
+  labels?: StatsLabels;
+}
+
+const { stats, labels } = Astro.props as Props;
+const loading = !stats;
+
+const statsMap = !loading
+  ? [
+      { label: labels?.projects ?? 'Projects', value: stats.projects },
+      { label: labels?.tasks ?? 'Tasks', value: stats.tasks },
+      { label: labels?.teamMembers ?? 'Team Members', value: stats.teamMembers },
+    ]
+  : [];
+---
+
+<div
+  class="relative p-6 rounded-2xl bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-white/10 shadow-sm"
+>
+  {
+    loading ? (
+      <div class="flex justify-center items-center h-24">
+        <div class="lottie-loader w-16 h-16" />
+      </div>
+    ) : (
+      <div class="grid grid-cols-1 md:grid-cols-3">
+        {statsMap.map((stat, index) => (
+          <div
+            class:list={[
+              'p-6 flex items-center',
+              {
+                'md:border-r md:border-gray-200 md:dark:border-white/10':
+                  index < statsMap.length - 1 && index % 3 !== 2,
+              },
+            ]}
+          >
+            <div>
+              <p class="text-gray-500 dark:text-gray-400 text-sm">{stat.label}</p>
+              <span class="text-2xl font-bold text-gray-800 dark:text-white">{stat.value}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    )
+  }
+</div>

@@ -10,8 +10,6 @@ codeRefs: 'src/lib/logging/**, docs/architecture/system-overview.md'
 
 # Hybrid Logging System - Evolution Hub
 
-![Logging Banner](../../public/assets/svg/monitoring.svg)
-
 [![Logging System](https://img.shields.io/badge/Logging-Hybrid_WebSocket%2FSSE-brightgreen)](https://github.com/LucasBonnerue/evolution-hub)
 [![Environment Support](https://img.shields.io/badge/Environment-Astro%2FWrangler-blue)](https://developers.cloudflare.com/)
 
@@ -19,20 +17,20 @@ Das Evolution Hub Hybrid-Logging-System bietet **umfassendes Live-Log-Streaming*
 
 ## Inhaltsverzeichnis
 
-1. [Überblick](#uberblick)
-1. [Architektur](#architektur)
-1. [Komponenten](#komponenten)
-1. [Verwendung](#verwendung)
-1. [Environment-Unterstützung](#environment-unterstutzung)
-1. [API-Integration](#api-integration)
-1. [Debug Panel](#debug-panel)
-1. [Konfiguration](#konfiguration)
-1. [Troubleshooting](#troubleshooting)
-1. [Best Practices](#best-practices)
+- Überblick
+- Architektur
+- Komponenten
+- Verwendung
+- Environment-Unterstützung
+- API-Integration
+- Debug Panel
+- Konfiguration
+- Troubleshooting
+- Best Practices
 
 ---
 
-## Überblick {#uberblick}
+## Überblick {#overview}
 
 Das **Hybrid-Logging-System** von Evolution Hub ist eine **vollständig integrierte Logging-Lösung**, die sich automatisch an die jeweilige Entwicklungsumgebung anpasst und **Live-Log-Streaming** für optimale Developer Experience bietet.
 
@@ -54,7 +52,7 @@ Das **Hybrid-Logging-System** von Evolution Hub ist eine **vollständig integrie
 
 ---
 
-## Architektur
+## Architektur {#architecture}
 
 Das Hybrid-Logging-System basiert auf einer **dreischichtigen Architektur**:
 
@@ -84,7 +82,7 @@ Das Hybrid-Logging-System basiert auf einer **dreischichtigen Architektur**:
 
 ---
 
-## Komponenten
+## Komponenten {#components}
 
 ### Central Logger (`src/server/utils/logger.ts`)
 
@@ -139,13 +137,13 @@ logPermissionDenied('user-789', '/admin/dashboard', { reason: 'Insufficient priv
 
   - 🔵 **SSE**: Blaues Badge für Near real-time Streaming
 
-  - 🟠 **POLLING**: Orange Badge für Fallback-Modus
+  - **POLLING**: Orange Badge für Fallback-Modus
 
 - **Live Status Indicator**: Animierter grüner Punkt für aktive Verbindungen
 
 ---
 
-## Verwendung {#verwendung}
+## Verwendung {#usage}
 
 ### 1. Debug Panel öffnen
 
@@ -215,7 +213,7 @@ if (validCredentials) {
 
 ---
 
-## Environment-Unterstützung {#environment-unterstutzung}
+## Environment-Unterstützung {#environment-support}
 
 ### Astro Development (`npm run dev`)
 
@@ -229,7 +227,7 @@ npm run dev
 
 # Debug Panel: http://localhost:4322/debug
 
-# Connection-Badge: 🟢 WEBSOCKET
+# Connection-Badge: WEBSOCKET
 
 # Latenz: <10ms (Real-time)
 
@@ -237,11 +235,11 @@ npm run dev
 
 **Features:**
 
-- ✅ **Echter Real-time Stream**: WebSocket-basiert, <10ms Latenz
+- **Echter Real-time Stream**: WebSocket-basiert, <10ms Latenz
 
-- ✅ **Hot Module Replacement**: Logs während Code-Changes verfügbar
+- **Hot Module Replacement**: Logs während Code-Changes verfügbar
 
-- ✅ **Bidirektionale Kommunikation**: WebSocket ermöglicht erweiterte Funktionen
+- **Bidirektionale Kommunikation**: WebSocket ermöglicht erweiterte Funktionen
 
 ### Wrangler Development (`npm run dev:wrangler`)
 
@@ -252,21 +250,21 @@ npm run dev
 npm run dev:wrangler
 
 # Debug Panel: http://localhost:8787/debug  
-# Connection-Badge: 🔵 SSE
+# Connection-Badge: SSE
 # Latenz: 100-500ms (Near real-time)
 ```
 
 **Features:**
 
-- ✅ **Cloudflare Edge-kompatibel**: Funktioniert in Workers/Pages Runtime
+- **Cloudflare Edge-kompatibel**: Funktioniert in Workers/Pages Runtime
 
-- ✅ **Automatic Fallback**: Polling-Fallback für Environments ohne SSE
+- **Automatic Fallback**: Polling-Fallback für Environments ohne SSE
 
-- ✅ **Memory-efficient**: Log-Buffer mit Auto-Cleanup für Edge-Constraints
+- **Memory-efficient**: Log-Buffer mit Auto-Cleanup für Edge-Constraints
 
 ---
 
-## API-Integration
+## API-Integration {#api-integration}
 
 ### Automatische API-Route-Integration
 
@@ -286,15 +284,15 @@ logAuthFailure(clientAddress, { reason: 'invalid_password', endpoint: '/api/auth
 
 **Integrierte API-Categories:**
 
-- ✅ **Authentication APIs**: `/api/auth/*` (Login, Register, Password Reset)
+- **Authentication APIs**: `/api/auth/*` (Login, Register, Password Reset)
 
-- ✅ **User Management APIs**: `/api/user/*` (Profile, Settings, Preferences)
+- **User Management APIs**: `/api/user/*` (Profile, Settings, Preferences)
 
-- ✅ **Dashboard APIs**: `/api/dashboard/*` (Stats, Activities, Notifications)
+- **Dashboard APIs**: `/api/dashboard/*` (Stats, Activities, Notifications)
 
-- ✅ **Project APIs**: `/api/projects/*` (CRUD, Members, Settings)
+- **Project APIs**: `/api/projects/*` (CRUD, Members, Settings)
 
-- ✅ **Public APIs**: `/api/public/*` (Comments, Tools, Blog Content)
+- **Public APIs**: `/api/public/*` (Comments, Tools, Blog Content)
 
 ### Live-Activity-Beispiele
 
@@ -310,7 +308,7 @@ Das Debug Panel zeigt **alle Live-Aktivitäten** in Echtzeit:
 
 ---
 
-## Debug Panel
+## Debug Panel {#debug-panel}
 
 ### Benutzeroberfläche
 
@@ -319,7 +317,7 @@ Das Debug Panel bietet eine **intuitive Benutzeroberfläche** für Live-Log-Moni
 #### Connection-Status-Header
 
 ```text
-🎛️ Debugging Panel                           🟢 WEBSOCKET ●
+Debugging Panel                           WEBSOCKET ●
 
 ```text
 
@@ -346,7 +344,7 @@ Das Debug Panel bietet eine **intuitive Benutzeroberfläche** für Live-Log-Moni
 
 ---
 
-## Konfiguration
+## Konfiguration {#configuration}
 
 ### WebSocket-Konfiguration
 
@@ -458,7 +456,7 @@ initializeLogger(wss);  // Muss aufgerufen werden
 
 ---
 
-## Best Practices
+## Best Practices {#best-practices}
 
 ### 1. Structured Logging
 

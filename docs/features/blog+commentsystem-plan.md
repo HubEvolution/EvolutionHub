@@ -1,3 +1,13 @@
+---
+description: 'Production-Readiness für Blog & Comment-System (Plan, Konventionen, Tasks)'
+owner: 'Platform Team'
+priority: 'high'
+lastSync: '2025-11-04'
+codeRefs: 'src/components/BlogPost.astro, src/pages/api/comments/**, src/lib/services/comment-service.ts, docs/features/admin-notifications.md'
+feature: 'blog-comment-system'
+status: 'in_progress'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # Production-Readiness-Plan: Blog & Comment-System

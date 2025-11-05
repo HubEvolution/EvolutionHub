@@ -1,0 +1,534 @@
+{
+  "common": {
+    "greeting": "Willkommen bei Evolution Hub! Ein Projekt für die Zukunft der Softwareentwicklung.",
+    "description": "Entdecken Sie die Leistung von KI-gestützten Tools zur Optimierung Ihres Workflows und zur Steigerung Ihrer Produktivität.",
+    "language_switch_label": "Sprache",
+    "get_started": "Loslegen",
+    "documentation": "Dokumentation",
+    "errors": {
+      "generic": "Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.",
+      "upload_failed_prefix": "Fehler beim Hochladen:"
+    },
+    "upload": {
+      "invalid_type": "Bitte wähle ein Bild im Format JPG, PNG oder GIF",
+      "too_large": "Die Datei ist zu groß. Maximale Größe ist 2MB"
+    },
+    "status": {
+      "uploading": "Wird hochgeladen...",
+      "sending": "Wird gesendet..."
+    },
+    "actions": {
+      "upload": "Hochladen",
+      "subscribe": "Abonnieren"
+    },
+    "success": {
+      "avatar_updated": "Profilbild erfolgreich aktualisiert!",
+      "newsletter_confirmation_sent": "Bestätigungs-E-Mail gesendet!"
+    },
+    "forms": {
+      "email_placeholder": "E-Mail-Adresse"
+    }
+  },
+  "cta": {
+    "headline": "Bereit loszulegen?",
+    "subtitle": "Werden Sie Teil der Tausenden von Entwicklern, die bereits Evolution Hub nutzen, um erstaunliche Anwendungen zu erstellen.",
+    "button_text": "Kostenloses Konto erstellen"
+  },
+  "hero": {
+    "title_part1": "Willkommen bei Evolution Hub",
+    "title_part2": "Die Zukunft der KI-gestützten Entwicklung",
+    "subtitle": "Entdecken Sie die Leistung von KI-gestützten Tools zur Optimierung Ihres Workflows und zur Steigerung Ihrer Produktivität.",
+    "get_started_button": "Jetzt loslegen",
+    "documentation_link": "Dokumentation anzeigen"
+  },
+  "pages": {
+    "home": {
+      "title": "Willkommen bei Evolution Hub",
+      "features": {
+        "heading": "Die Zukunft der KI-gestützten Entwicklung",
+        "subtitle": "Entdecken Sie die Leistung von KI-gestützten Tools zur Optimierung Ihres Workflows und zur Steigerung Ihrer Produktivität.",
+        "feature1": {
+          "icon": "✨",
+          "title": "Code generieren",
+          "description": "Ob Sie Code generieren, Inhalte erstellen oder komplexe Daten analysieren möchten – unsere Plattform unterstützt Sie bei jedem Schritt."
+        },
+        "feature2": {
+          "icon": "🚀",
+          "title": "Automatisierte Tests",
+          "description": "Optimieren Sie Ihren Testprozess mit intelligenten Automatisierungsfähigkeiten."
+        },
+        "feature3": {
+          "icon": "💡",
+          "title": "Intelligente Fehlerbehebung",
+          "description": "Identifizieren und beheben Sie Fehler schneller mit KI-gestützten Debugging-Tools."
+        }
+      },
+      "testimonials": {
+        "heading": "Was unsere Benutzer sagen",
+        "subtitle": "Hören Sie von Entwicklern, die ihren Workflow mit Evolution Hub revolutionieren.",
+        "testimonial1": {
+          "quote": "Evolution Hub hat die Art und Weise, wie ich Code schreibe, revolutioniert. Die KI-Funktionen sparen mir jede Woche Stunden Arbeit!",
+          "author": "Jane Doe",
+          "role": "Lead Developer bei TechCorp"
+        }
+      },
+      "introduction": {
+        "part1": "Evolution Hub bietet eine innovative Sammlung von KI-gestützten Tools, die speziell für Entwickler und Kreative entwickelt wurden. Mit unseren KI-gestützten Tools können Sie Ihren Workflow optimieren, repetitive Aufgaben automatisieren und Ihre Produktivität steigern. Ob Sie Code generieren, Inhalte erstellen oder komplexe Daten analysieren möchten – unsere Plattform unterstützt Sie bei jedem Schritt.",
+        "part2": "Die intelligente Kombination aus künstlicher Intelligenz und benutzerfreundlichem Design ermöglicht es Ihnen, Ihre Kreativität freizusetzen und Projekte schneller zum Leben zu erwecken. Entdecken Sie unsere leistungsstarken Funktionen und erfahren Sie, wie Sie mit Evolution Hub die Zukunft der Softwareentwicklung und Content-Erstellung gestalten können.",
+        "part3_de": "Unsere fortschrittlichen Algorithmen und benutzerfreundlichen Interfaces arbeiten nahtlos zusammen, um Ihnen die bestmögliche Entwicklererfahrung zu bieten. Von der ersten Idee bis zur finalen Umsetzung – Evolution Hub begleitet Sie durch jeden Schritt Ihres kreativen Prozesses.",
+        "part4_de": "Nutzen Sie die Kraft der künstlichen Intelligenz, um komplexe Aufgaben zu vereinfachen, innovative Solutions zu entwickeln und Ihre Projekte auf das nächste Level zu heben. Mit Evolution Hub gestalten Sie die Zukunft der digitalen Entwicklung."
+      }
+    },
+    "impressum": {
+      "title": "Impressum",
+      "section_intro": {
+        "heading": "Angaben gemäß § 5 TMG"
+      },
+      "sections": {
+        "provider": {
+          "headline": "Diensteanbieter",
+          "company_name": "Evolution Hub GmbH",
+          "street_address": "Musterstraße 123",
+          "city_postal_code": "10115 Berlin",
+          "country": "Deutschland"
+        },
+        "contact": {
+          "headline": "Kontakt",
+          "phone": "Telefon: +49 (0)30 12345678",
+          "fax": "Telefax: +49 (0)30 12345679",
+          "email": "E-Mail: info@evolutionhub.de",
+          "website": "Web: www.evolutionhub.de"
+        },
+        "represented_by": {
+          "headline": "Vertreten durch",
+          "managing_directors": "Geschäftsführer: Max Mustermann, Erika Musterfrau"
+        },
+        "registration": {
+          "headline": "Registereintrag",
+          "register_entry": "Eingetragen im Handelsregister",
+          "register_court": "Registergericht: Amtsgericht Berlin-Charlottenburg",
+          "register_number": "Registernummer: HRB 123456"
+        },
+        "vat": {
+          "headline": "Umsatzsteuer-Identifikationsnummer",
+          "vat_id_label": "Umsatzsteuer-Identifikationsnummer gemäß § 27 a Umsatzsteuergesetz:",
+          "vat_id": "DE 123456789"
+        },
+        "content_responsible": {
+          "headline": "Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV",
+          "name": "Max Mustermann",
+          "street": "Musterstraße 123",
+          "city_postal_code": "10115 Berlin"
+        },
+        "dispute_resolution": {
+          "headline": "Streitschlichtung",
+          "os_platform_intro": "Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit: ",
+          "os_platform_url": "https://ec.europa.eu/consumers/odr/",
+          "email_note": "Unsere E-Mail-Adresse finden Sie oben im Impressum.",
+          "participation_statement": "Wir sind nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen."
+        },
+        "disclaimer": {
+          "headline": "Haftungsausschluss",
+          "content_liability": {
+            "headline": "Haftung für Inhalte",
+            "paragraph1": "Als Diensteanbieter sind wir gemäß § 7 Abs.1 TMG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 TMG sind wir als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen zu überwachen oder nach Umständen zu forschen, die auf eine rechtswidrige Tätigkeit hinweisen.",
+            "paragraph2": "Verpflichtungen zur Entfernung oder Sperrung der Nutzung von Informationen nach den allgemeinen Gesetzen bleiben hiervon unberührt. Eine diesbezügliche Haftung ist jedoch erst ab dem Zeitpunkt der Kenntnis einer konkreten Rechtsverletzung möglich. Bei Bekanntwerden von entsprechenden Rechtsverletzungen werden wir diese Inhalte umgehend entfernen."
+          },
+          "link_liability": {
+            "headline": "Haftung für Links",
+            "paragraph1": "Unser Angebot enthält Links zu externen Websites Dritter, auf deren Inhalte wir keinen Einfluss haben. Deshalb können wir für diese fremden Inhalte auch keine Gewähr übernehmen. Für die Inhalte der verlinkten Seiten ist stets der jeweilige Anbieter oder Betreiber der Seiten verantwortlich. Die verlinkten Seiten wurden zum Zeitpunkt der Verlinkung auf mögliche Rechtsverstöße überprüft. Rechtswidrige Inhalte waren zum Zeitpunkt der Verlinkung nicht erkennbar.",
+            "paragraph2": "Eine permanente inhaltliche Kontrolle der verlinkten Seiten ist jedoch ohne konkrete Anhaltspunkte einer Rechtsverletzung nicht zumutbar. Bei Bekanntwerden von Rechtsverletzungen werden wir derartige Links umgehend entfernen."
+          },
+          "copyright": {
+            "headline": "Urheberrecht",
+            "paragraph1": "Die durch die Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten unterliegen dem deutschen Urheberrecht. Die Vervielfältigung, Bearbeitung",
+            "paragraph2": "Soweit die Inhalte auf dieser Seite nicht vom Betreiber erstellt wurden, werden die Urheberrechte Dritter beachtet. Insbesondere werden Inhalte Dritter als solche gekennzeichnet. Sollten Sie trotzdem auf eine Urheberrechtsverletzung aufmerksam werden, bitten wir um einen entsprechenden Hinweis. Bei Bekanntwerden von Rechtsverletzungen werden wir derartige Inhalte umgehend entfernen."
+          }
+        },
+        "image_credits": {
+          "headline": "Bildnachweise",
+          "description": "Die auf dieser Website verwendeten Bilder und Grafiken unterliegen dem Urheberrecht der Evolution Hub GmbH oder sind lizenzfreie Stockfotos von Drittanbietern."
+        }
+      },
+      "source_label": "Quelle:",
+      "source_url": "https://www.e-recht24.de",
+      "source_name": "e-recht24.de",
+      "source_attribution": "e-recht24.de"
+    },
+    "datenschutz": {
+      "title": "Datenschutzerklärung",
+      "header": {
+        "title": "Datenschutzerklärung",
+        "last_updated": "Letzte Aktualisierung: 20. Juli 2025"
+      },
+      "sections": {
+        "1": {
+          "title": "1. Verantwortlicher",
+          "description": "Verantwortlich im Sinne der Datenschutz-Grundverordnung (DSGVO) und anderer nationaler Datenschutzgesetze der Mitgliedsstaaten sowie sonstiger datenschutzrechtlicher Bestimmungen ist:",
+          "provider": {
+            "company_name": "Evolution Hub GmbH",
+            "street_address": "Musterstraße 123",
+            "city_postal_code": "10115 Berlin",
+            "country": "Deutschland",
+            "email_label": "E-Mail:",
+            "email": "datenschutz@evolutionhub.de",
+            "phone_label": "Telefon:",
+            "phone": "+49 30 12345678"
+          }
+        },
+        "2": {
+          "title": "2. Grundlegendes zur Datenverarbeitung",
+          "description": "Wir verarbeiten personenbezogene Daten unserer Nutzer grundsätzlich nur, soweit dies zur Bereitstellung einer funktionsfähigen Website sowie unserer Inhalte und Leistungen erforderlich ist. Die Verarbeitung personenbezogener Daten unserer Nutzer erfolgt regelmäßig nur nach Einwilligung des Nutzers. Eine Ausnahme gilt in solchen Fällen, in denen eine vorherige Einholung einer Einwilligung aus tatsächlichen Gründen nicht möglich ist und die Verarbeitung der Daten durch gesetzliche Vorschriften gestattet ist."
+        },
+        "3": {
+          "title": "3. Bereitstellung der Website und Erstellung von Logfiles",
+          "subtitle": "Beschreibung und Umfang der Datenverarbeitung",
+          "paragraph1": "Bei jedem Aufruf unserer Internetseite erfasst unser System automatisiert Daten und Informationen vom Computersystem des aufrufenden Rechners.",
+          "list_intro": "Folgende Daten werden hierbei erhoben:",
+          "list_items": {
+            "0": "Browsertyp und -version",
+            "1": "Verwendetes Betriebssystem",
+            "2": "Referrer URL",
+            "3": "Hostname des zugreifenden Rechners",
+            "4": "Uhrzeit der Serveranfrage",
+            "5": "IP-Adresse"
+          }
+        },
+        "4": {
+          "title": "4. Cookies",
+          "description": "Unsere Webseite verwendet Cookies. Bei Cookies handelt es sich um Textdateien, die im Internetbrowser bzw. vom Internetbrowser auf dem Computersystem des Nutzers gespeichert werden. Ruft ein Nutzer eine Website auf, so kann ein Cookie auf dem Betriebssystem des Nutzers gespeichert werden. Dieser Cookie enthält eine charakteristische Zeichenfolge, die eine eindeutige Identifizierung des Browsers beim erneuten Aufrufen der Website ermöglicht."
+        },
+        "5": {
+          "title": "5. Kontaktformular und E-Mail-Kontakt",
+          "paragraph1": "Auf unserer Internetseite ist ein Kontaktformular vorhanden, welches für die elektronische Kontaktaufnahme genutzt werden kann. Nimmt ein Nutzer diese Möglichkeit wahr, werden die in der Eingabemaske eingegeben Daten an uns übermittelt und gespeichert.",
+          "paragraph2": "Alternativ ist eine Kontaktaufnahme über die bereitgestellte E-Mail-Adresse möglich. In diesem Fall werden die mit der E-Mail übermittelten personenbezogenen Daten des Nutzers gespeichert."
+        },
+        "6": {
+          "title": "6. Rechte der betroffenen Person",
+          "subtitle": "Sie haben das Recht:",
+          "list_items": {
+            "0": "gemäß Art. 15 DSGVO Auskunft über Ihre von uns verarbeiteten personenbezogenen Daten zu verlangen",
+            "1": "gemäß Art. 16 DSGVO unverzüglich die Berichtigung unrichtiger oder Vervollständigung Ihrer bei uns gespeicherten personenbezogenen Daten zu verlangen",
+            "2": "gemäß Art. 17 DSGVO die Löschung Ihrer bei uns gespeicherten personenbezogenen Daten zu verlangen",
+            "3": "gemäß Art. 18 DSGVO die Einschränkung der Verarbeitung Ihrer personenbezogenen Daten zu verlangen",
+            "4": "gemäß Art. 20 DSGVO Ihre personenbezogenen Daten, die Sie uns bereitgestellt haben, in einem strukturierten, gängigen und maschinenlesbaren Format zu erhalten",
+            "5": "gemäß Art. 7 Abs. 3 DSGVO Ihre einmal erteilte Einwilligung jederzeit gegenüber uns zu widerrufen",
+            "6": "gemäß Art. 77 DSGVO sich bei einer Aufsichtsbehörde zu beschweren"
+          }
+        },
+        "7": {
+          "title": "7. Widerspruchsrecht",
+          "description": "Sie haben das Recht, aus Gründen, die sich aus Ihrer besonderen Situation ergeben, jederzeit gegen die Verarbeitung Sie betreffender personenbezogener Daten, die aufgrund von Art. 6 Abs. 1 lit. e oder f DSGVO erfolgt, Widerspruch einzulelegen."
+        },
+        "8": {
+          "title": "8. Datensicherheit",
+          "description": "Wir verwenden innerhalb des Website-Besuchs das verbreitete SSL-Verfahren (Secure Socket Layer) in Verbindung mit der jeweils höchsten Verschlüsselungsstufe, die von Ihrem Browser unterstützt wird. In der Regel handelt es sich dabei um eine 256-Bit-Verschlüsselung. Falls Ihr Browser keine 256-Bit-Verschlüsselung unterstützt, greifen wir stattdessen auf 128-Bit v3 Technologie zurück."
+        },
+        "9": {
+          "title": "9. Aktualität und Änderung dieser Datenschutzerklärung",
+          "description": "Diese Datenschutzerklärung ist aktuell gültig und hat den Stand Juli 2025. Durch die Weiterentwicklung unserer Website und Angebote darüber oder aufgrund geänderter gesetzlicher beziehungsweise behördlicher Vorgaben kann es notwendig werden, diese Datenschutzerklärung zu ändern."
+        }
+      }
+    },
+    "pricing": {
+      "title": "Preise – Evolution Hub",
+      "description": "Wähle den passenden Plan für deine Bedürfnisse. Kostenlose Testversion verfügbar.",
+      "header": {
+        "title": "Einfache, transparente Preise",
+        "subtitle": "Wähle den Plan, der am besten zu dir passt. Jeder Plan enthält eine 14-tägige kostenlose Testversion."
+      },
+      "faq": {
+        "title": "Häufig gestellte Fragen",
+        "question1": "Kann ich meinen Plan später wechseln?",
+        "answer1": "Ja, du kannst jederzeit zwischen den Plänen wechseln. Die Änderung wird mit deinem nächsten Abrechnungszyklus wirksam.",
+        "question2": "Gibt es eine Mindestvertragslaufzeit?",
+        "answer2": "Nein, alle Pläne sind monatlich kündbar. Es gibt keine vertragliche Bindung.",
+        "question3": "Kann ich die Enterprise-Version testen?",
+        "answer3": "Ja, kontaktiere uns für eine individuelle Demo und Testphase der Enterprise-Features."
+      },
+      "faq_contact_cta_text": "Noch Fragen?",
+      "faq_contact_cta_link_text": "Kontaktiere unser Team"
+    },
+    "kontakt": {
+      "title": "Kontakt",
+      "hero": {
+        "heading": "Kontaktieren Sie uns",
+        "subtitle": "Haben Sie Fragen oder Anregungen? Wir freuen uns, von Ihnen zu hören."
+      },
+      "form": {
+        "heading": "Senden Sie uns eine Nachricht",
+        "fields": {
+          "first_name": {
+            "label": "Vorname"
+          },
+          "last_name": {
+            "label": "Nachname"
+          },
+          "email": {
+            "label": "E-Mail"
+          },
+          "subject": {
+            "label": "Betreff"
+          },
+          "message": {
+            "label": "Ihre Nachricht",
+            "placeholder": "Beschreiben Sie Ihr Anliegen..."
+          }
+        },
+        "privacy_policy": {
+          "link_text": "Datenschutzerklärung"
+        },
+        "submit_button": "Nachricht senden"
+      },
+      "info": {
+        "heading": "Kontaktinformationen",
+        "subtitle": "Unser Support-Team ist für Sie da. Schreiben Sie uns oder rufen Sie uns an.",
+        "email_label": "E-Mail",
+        "email_address": "kontakt@evolutionhub.de",
+        "phone_label": "Telefon",
+        "support_hours": "Mo-Fr, 9-18 Uhr",
+        "phone_number": "+49 123 456789",
+        "address_label": "Adresse",
+        "response_time_label": "Durchschnittliche Antwortzeit:",
+        "response_time": "innerhalb von 24h",
+        "response_time_unit": "an Werktagen."
+      }
+    },
+    "login": {
+      "title": "Anmelden",
+      "form": {
+        "heading": "Melden Sie sich bei Ihrem Konto an",
+        "fields": {
+          "email": {
+            "label": "E-Mail"
+          },
+          "password": {
+            "label": "Passwort"
+          }
+        },
+        "forgot_password_link": "Passwort vergessen?",
+        "submit_button": "Anmelden",
+        "no_account_prompt": "Noch kein Konto?",
+        "register_link": "Registrieren"
+      }
+    },
+    "register": {
+      "title": "Konto erstellen",
+      "form": {
+        "heading": "Erstellen Sie Ihr Konto",
+        "fields": {
+          "name": {
+            "label": "Name"
+          },
+          "username": {
+            "label": "Benutzername"
+          },
+          "email": {
+            "label": "E-Mail"
+          },
+          "password": {
+            "label": "Passwort"
+          }
+        },
+        "submit_button": "Konto erstellen",
+        "already_have_account_prompt": "Sie haben bereits ein Konto?",
+        "login_link": "Anmelden"
+      }
+    },
+    "forgotPassword": {
+      "title": "Passwort vergessen",
+      "form": {
+        "heading": "Passwort vergessen",
+        "fields": {
+          "email": {
+            "label": "E-Mail"
+          }
+        },
+        "submit_button": "Link zum Zurücksetzen senden"
+      }
+    },
+    "resetPassword": {
+      "title": "Passwort zurücksetzen",
+      "form": {
+        "heading": "Passwort zurücksetzen",
+        "fields": {
+          "password": {
+            "label": "Neues Passwort"
+          }
+        },
+        "submit_button": "Passwort zurücksetzen"
+      }
+    },
+    "agb": {
+      "title": "Allgemeine Geschäftsbedingungen – Evolution Hub",
+      "header": {
+        "title": "Allgemeine Geschäftsbedingungen (AGB)",
+        "effective_date": "Gültig ab: 20. Juli 2025"
+      },
+      "sections": {
+        "1": {
+          "title": "Geltungsbereich",
+          "content": "Diese Bedingungen regeln die Nutzung der Dienste von Evolution Hub und gelten für alle mit der Evolution Hub GmbH geschlossenen Verträge."
+        },
+        "2": {
+          "title": "Vertragsschluss",
+          "content": "Ein Vertrag kommt zustande, wenn Sie die Registrierung abschließen oder diese Bedingungen auf andere Weise akzeptieren, z. B. durch Nutzung des Dienstes nach Hinweis auf diese Bedingungen."
+        },
+        "3": {
+          "title": "Leistungen",
+          "content": "Wir stellen eine cloudbasierte Plattform und zugehörige Funktionen bereit. Der Leistungsumfang ergibt sich aus dem gewählten Plan und der zum Zeitpunkt des Vertragsschlusses gültigen Dokumentation."
+        },
+        "4": {
+          "title": "Konten und Sicherheit",
+          "content": "Sie sind für die Vertraulichkeit Ihrer Zugangsdaten und für alle Aktivitäten in Ihrem Konto verantwortlich. Informieren Sie uns umgehend über eine unbefugte Nutzung."
+        },
+        "5": {
+          "title": "Preise und Zahlung",
+          "content": "Gebühren, Abrechnungszyklen und Zahlungsmethoden sind auf der Preisseite angegeben. Alle Preise verstehen sich in EUR, sofern nicht anders angegeben. Gesetzliche Steuern können anfallen."
+        },
+        "6": {
+          "title": "Laufzeit und Kündigung",
+          "content": "Verträge werden auf unbestimmte Zeit geschlossen und können zum Ende des aktuellen Abrechnungszeitraums gekündigt werden. Eine fristlose Kündigung aus wichtigem Grund bleibt vorbehalten."
+        },
+        "7": {
+          "title": "Zulässige Nutzung",
+          "content": "Sie dürfen den Dienst nicht missbrauchen, seinen Betrieb stören oder gegen geltendes Recht verstoßen. Automatisiertes Scraping, Reverse Engineering oder Sicherheitstests ohne Zustimmung sind untersagt."
+        },
+        "8": {
+          "title": "Gewährleistung und Haftung",
+          "content": "Der Dienst wird im Rahmen des gewählten Plans bereitgestellt. Unsere Haftung ist auf Vorsatz und grobe Fahrlässigkeit beschränkt, sofern nicht zwingendes Recht etwas anderes vorschreibt."
+        },
+        "9": {
+          "title": "Geistiges Eigentum",
+          "content": "Alle Rechte am geistigen Eigentum am Dienst verbleiben bei Evolution Hub oder deren Lizenzgebern. Sie erhalten ein einfaches, nicht übertragbares Nutzungsrecht für die Vertragsdauer."
+        },
+        "10": {
+          "title": "Datenschutz",
+          "content": "Wir verarbeiten personenbezogene Daten gemäß unserer Datenschutzerklärung. Einzelheiten zu Zwecken und Rechtsgrundlagen finden Sie unter pages.datenschutz."
+        },
+        "11": {
+          "title": "Anwendbares Recht und Gerichtsstand",
+          "content": "Es gilt deutsches Recht unter Ausschluss des Kollisionsrechts. Gerichtsstand ist, soweit gesetzlich zulässig, Berlin."
+        },
+        "12": {
+          "title": "Änderungen dieser Bedingungen",
+          "content": "Wir können diese Bedingungen anpassen, um Änderungen der Rechtslage oder unserer Leistungen abzubilden. Wesentliche Änderungen werden vorab kommuniziert. Die fortgesetzte Nutzung gilt als Zustimmung."
+        },
+        "11_participation": {
+          "title": "Teilnahme an Streitbeilegung",
+          "content": "Wir sind weder bereit noch verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen."
+        }
+      }
+    },
+    "faq": {
+      "title": "Häufig gestellte Fragen",
+      "hero": {
+        "heading": "Häufig gestellte Fragen",
+        "subtitle": "Finden Sie Antworten auf die am häufigsten gestellten Fragen"
+      },
+      "search_placeholder": "Suchen Sie nach einer Frage oder einem Stichwort...",
+      "categories": {
+        "all": "Alle anzeigen",
+        "allgemein": {
+          "title": "Allgemeine Fragen",
+          "items": [
+            {
+              "question": "Was ist EvolutionHub?",
+              "answer": "EvolutionHub ist eine Plattform für moderne Webentwicklung mit Fokus auf Performance, Benutzerfreundlichkeit und moderne Technologien."
+            },
+            {
+              "question": "Welche Technologien werden verwendet?",
+              "answer": "Wir verwenden Astro für das Frontend, TypeScript für typsichere Entwicklung, und Tailwind CSS für das Styling. Unser Backend basiert auf modernen JavaScript/TypeScript-Technologien."
+            },
+            {
+              "question": "Ist ein Konto erforderlich?",
+              "answer": "Für die meisten Funktionen benötigen Sie ein Konto. Einige Bereiche wie die Dokumentation und Blogbeiträge sind auch ohne Konto einsehbar."
+            },
+            {
+              "question": "Wie wird der Datenschutz gewährleistet?",
+              "answer": "Wir legen großen Wert auf Datenschutz und Sicherheit. Alle Daten werden verschlüsselt übertragen und gemäß der DSGVO verarbeitet."
+            },
+            {
+              "question": "Wann ist der Support erreichbar?",
+              "answer": "Unser Support-Team ist von Montag bis Freitag, 9 bis 18 Uhr, für Sie erreichbar."
+            },
+            {
+              "question": "Ist EvolutionHub auch mobil nutzbar?",
+              "answer": "Ja, unsere Plattform ist für mobile Geräte optimiert und kann auf Smartphones und Tablets genutzt werden."
+            },
+            {
+              "question": "Ist die Plattform barrierefrei?",
+              "answer": "Wir arbeiten kontinuierlich daran, die Barrierefreiheit unserer Plattform zu verbessern, um sie für alle Nutzer zugänglich zu machen."
+            }
+          ]
+        },
+        "konto": {
+          "title": "Konto & Abonnement",
+          "items": [
+            {
+              "question": "Wie erstelle ich ein Konto?",
+              "answer": "Klicken Sie auf \"Registrieren\" in der oberen Navigation und folgen Sie den Anweisungen. Sie benötigen eine gültige E-Mail-Adresse."
+            },
+            {
+              "question": "Wie kann ich mein Passwort zurücksetzen?",
+              "answer": "Auf der Anmeldeseite finden Sie einen Link \"Passwort vergessen\". Geben Sie Ihre E-Mail-Adresse ein und folgen Sie den Anweisungen in der erhaltenen E-Mail."
+            },
+            {
+              "question": "Wie kündige ich mein Abonnement?",
+              "answer": "Gehen Sie zu Ihren Kontoeinstellungen und wählen Sie \"Abonnement verwalten\". Dort können Sie Ihr Abonnement kündigen."
+            },
+            {
+              "question": "Welche Abonnement-Pläne gibt es?",
+              "answer": "Wir bieten verschiedene Pläne an, die auf unterschiedliche Bedürfnisse zugeschnitten sind. Details finden Sie auf unserer Pricing-Seite."
+            },
+            {
+              "question": "Welche Zahlungsmethoden werden akzeptiert?",
+              "answer": "Wir akzeptieren Kreditkarten, PayPal und SEPA-Lastschriftverfahren."
+            },
+            {
+              "question": "Wie kann ich mein Konto wiederherstellen, wenn ich den Zugang verliere?",
+              "answer": "Nutzen Sie die Passwort-zurücksetzen-Funktion oder kontaktieren Sie unseren Support für weitere Hilfe."
+            },
+            {
+              "question": "Wie verwalte ich meine Benachrichtigungseinstellungen?",
+              "answer": "In Ihren Kontoeinstellungen können Sie festlegen, welche Benachrichtigungen Sie erhalten möchten."
+            }
+          ]
+        },
+        "technik": {
+          "title": "Technische Fragen",
+          "items": [
+            {
+              "question": "Welche Browser werden unterstützt?",
+              "answer": "Wir unterstützen die aktuellen Versionen von Chrome, Firefox, Safari, und Edge. Ältere Browser werden möglicherweise nicht vollständig unterstützt."
+            },
+            {
+              "question": "Wie kann ich die API nutzen?",
+              "answer": "Unsere API-Dokumentation finden Sie unter /api-docs. Sie benötigen einen API-Schlüssel, den Sie in Ihren Kontoeinstellungen generieren können."
+            },
+            {
+              "question": "Wie melde ich einen Fehler?",
+              "answer": "Bitte nutzen Sie unser Fehlerformular unter /kontakt oder erstellen Sie ein Issue in unserem GitHub-Repository."
+            },
+            {
+              "question": "Gibt es Nutzungslimits für die API?",
+              "answer": "Ja, unsere API hat Nutzungslimits, um eine faire Verteilung der Ressourcen sicherzustellen. Details finden Sie in der API-Dokumentation."
+            },
+            {
+              "question": "Kann ich EvolutionHub mit Drittanbieter-Tools integrieren?",
+              "answer": "Ja, wir bieten Integrationen und Webhooks für verschiedene Drittanbieter-Services an."
+            },
+            {
+              "question": "Welche Systemanforderungen gibt es?",
+              "answer": "Für die Nutzung empfehlen wir aktuelle Browser und eine stabile Internetverbindung."
+            },
+            {
+              "question": "Gibt es Backup- und Wiederherstellungsoptionen?",
+              "answer": "Ja, Ihre Daten werden regelmäßig gesichert und können bei Bedarf wiederhergestellt werden."
+            }
+          ]
+        }
+      }
+    }
+  }
+}

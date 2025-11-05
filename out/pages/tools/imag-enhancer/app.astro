@@ -1,0 +1,166 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { getLocale } from '@/lib/i18n';
+import { getI18n } from '@/utils/i18n';
+import { localizePath } from '@/lib/locale-path';
+import ImagEnhancerRouter from '@/components/tools/imag-enhancer/mvp/ImagEnhancerRouter';
+import ToolPageHeader from '@/components/tools/shared/ToolPageHeader.astro';
+
+const locale = getLocale(Astro.url.pathname);
+const t = getI18n(locale);
+const keyboardHintKey = 'pages.tools.items.Imag-Enhancer.app.compare.keyboardHint';
+const keyboardHintRaw = t(keyboardHintKey);
+const keyboardHintFallback =
+  'Arrows move; Shift+Arrows faster; Home/End to edges; 0 to center; +/− to zoom; 1 resets zoom; L toggles loupe; hold Space shows 100% Before.';
+const keyboardHint =
+  keyboardHintRaw &&
+  typeof keyboardHintRaw === 'string' &&
+  !/^\[.+_fallback_not_found\]$/.test(keyboardHintRaw)
+    ? keyboardHintRaw
+    : keyboardHintFallback;
+
+const strings = {
+  dropText: t('pages.tools.items.Imag-Enhancer.app.dropText'),
+  enhance: t('pages.tools.items.Imag-Enhancer.app.enhance'),
+  processing: t('pages.tools.items.Imag-Enhancer.app.processing'),
+  model: t('pages.tools.items.Imag-Enhancer.app.model'),
+  usage: t('pages.tools.items.Imag-Enhancer.app.usage'),
+  result: t('pages.tools.items.Imag-Enhancer.app.result'),
+  original: t('pages.tools.items.Imag-Enhancer.app.original'),
+  allowedTypes: t('pages.tools.items.Imag-Enhancer.app.allowedTypes'),
+  max: t('pages.tools.items.Imag-Enhancer.app.max'),
+  download: t('pages.tools.items.Imag-Enhancer.app.download'),
+  loading: t('pages.tools.items.Imag-Enhancer.app.loading'),
+  quotaBanner: t('pages.tools.items.Imag-Enhancer.app.quotaBanner'),
+  toasts: {
+    loadQuotaError: t('pages.tools.items.Imag-Enhancer.app.toasts.loadQuotaError'),
+    loadError: t('pages.tools.items.Imag-Enhancer.app.toasts.loadError'),
+    quotaReached: t('pages.tools.items.Imag-Enhancer.app.toasts.quotaReached'),
+    unsupportedType: t('pages.tools.items.Imag-Enhancer.app.toasts.unsupportedType'),
+    fileTooLargePrefix: t('pages.tools.items.Imag-Enhancer.app.toasts.fileTooLargePrefix'),
+    processingFailed: t('pages.tools.items.Imag-Enhancer.app.toasts.processingFailed'),
+    successEnhanced: t('pages.tools.items.Imag-Enhancer.app.toasts.successEnhanced'),
+  },
+  compare: {
+    sliderLabel: t('pages.tools.items.Imag-Enhancer.app.compare.sliderLabel'),
+    before: t('pages.tools.items.Imag-Enhancer.app.compare.before'),
+    after: t('pages.tools.items.Imag-Enhancer.app.compare.after'),
+    handleAriaLabel: t('pages.tools.items.Imag-Enhancer.app.compare.handleAriaLabel'),
+    keyboardHint,
+    reset: t('pages.tools.items.Imag-Enhancer.app.compare.reset'),
+    loupeLabel: t('pages.tools.items.Imag-Enhancer.app.compare.loupe'),
+  },
+  ui: {
+    fullscreen: t('pages.tools.items.Imag-Enhancer.app.fullscreen'),
+    exitFullscreen: t('pages.tools.items.Imag-Enhancer.app.exitFullscreen'),
+    changeModel: t('pages.tools.items.Imag-Enhancer.app.changeModel'),
+    done: t('pages.tools.items.Imag-Enhancer.app.done'),
+    startOver: t('pages.tools.items.Imag-Enhancer.app.startOver'),
+    faceEnhance: t('pages.tools.items.Imag-Enhancer.app.faceEnhance'),
+    upgrade: t('pages.tools.items.Imag-Enhancer.app.upgrade'),
+    help: {
+      button: t('pages.tools.items.Imag-Enhancer.app.help.button'),
+      title: t('pages.tools.items.Imag-Enhancer.app.help.title'),
+      close: t('pages.tools.items.Imag-Enhancer.app.help.close'),
+      sections: {
+        upload: t('pages.tools.items.Imag-Enhancer.app.help.sections.upload'),
+        models: t('pages.tools.items.Imag-Enhancer.app.help.sections.models'),
+        compare: t('pages.tools.items.Imag-Enhancer.app.help.sections.compare'),
+        quota: t('pages.tools.items.Imag-Enhancer.app.help.sections.quota'),
+      },
+    },
+  },
+};
+
+const tool = {
+  id: 'Imag-Enhancer',
+  icon: 'tool',
+};
+
+// Deterministic labels for guest banner buttons (robust against i18n fallback)
+const loginLabel = locale === 'de' ? 'Anmelden' : 'Sign in';
+const upgradeLabel = 'Upgrade';
+---
+
+<BaseLayout
+  title={`${t('pages.tools.items.Imag-Enhancer.name')} – Evolution Hub`}
+  description={t('pages.tools.items.Imag-Enhancer.description')}
+  comingSoon={false}
+>
+  <main
+    class="min-h-screen bg-transparent py-6 sm:py-10 lg:py-12 px-4 sm:px-6 lg:px-8 overflow-x-hidden overscroll-x-contain touch-pan-y"
+  >
+    <div class="max-w-5xl mx-auto">
+      <ToolPageHeader
+        icon={tool.icon}
+        titleKey="pages.tools.items.Imag-Enhancer.name"
+        descriptionKey="pages.tools.items.Imag-Enhancer.description"
+        backHref="/tools/imag-enhancer"
+      />
+
+      {/* Guest Funnel Banner */}
+      {
+        (() => {
+          try {
+            const user = Astro.locals.user as any | null;
+            if (user) return null;
+          } catch {}
+          const loginHref = localizePath(locale, '/login');
+          const pricingHref = (() => {
+            try {
+              const base = localizePath(locale, '/pricing');
+              const u = new URL(base, 'http://x');
+              const cur = new URL(
+                typeof window !== 'undefined' ? window.location.href : 'http://x'
+              );
+              const currentPath = cur.pathname + cur.search;
+              if (currentPath.startsWith('/')) {
+                u.searchParams.set('return_to', currentPath);
+              }
+              return u.pathname + u.search;
+            } catch {
+              return localizePath(locale, '/pricing');
+            }
+          })();
+          return (
+            <div
+              id="guest-banner"
+              class="mt-6 rounded-md border border-amber-300 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-700 px-4 py-3"
+            >
+              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <p class="text-sm text-amber-900 dark:text-amber-200">{strings.quotaBanner}</p>
+                <div class="flex gap-2">
+                  <a
+                    href={loginHref}
+                    class="inline-flex items-center justify-center rounded-md bg-white dark:bg-transparent border border-amber-300 dark:border-amber-600 px-3 py-1.5 text-sm font-medium text-amber-900 dark:text-amber-100 hover:bg-amber-100 dark:hover:bg-amber-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
+                  >
+                    {loginLabel}
+                  </a>
+                  <a
+                    href={pricingHref}
+                    class="inline-flex items-center justify-center rounded-md bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                  >
+                    {upgradeLabel}
+                  </a>
+                </div>
+              </div>
+            </div>
+          );
+        })()
+      }
+
+      <section class="mt-8 sm:mt-10 bg-transparent rounded-lg shadow-none p-0">
+        <h2 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">
+          {t('pages.tools.items.Imag-Enhancer.name')} App
+        </h2>
+        <div
+          id="imag-enhancer-root"
+          class="mt-6 min-h-[200px] rounded-md p-0"
+          aria-label={`${t('pages.tools.items.Imag-Enhancer.name')} root`}
+        >
+          <ImagEnhancerRouter strings={strings} legacyStrings={strings} client:load />
+        </div>
+      </section>
+    </div>
+  </main>
+</BaseLayout>

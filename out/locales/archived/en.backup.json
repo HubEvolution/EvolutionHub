@@ -1,0 +1,114 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "tools": "Tools",
+    "pricing": "Pricing",
+    "blog": "Blog"
+  },
+  "nav_language": {
+    "de": "Deutsch",
+    "en": "English"
+  },
+  "pages": {
+    "tools": {
+      "items": {
+        "Imag-Enhancer": {
+          "name": "Imag-Enhancer",
+          "description": "Automatically improves image quality: AI denoising, detail sharpening, high‑quality upscaling, and color/contrast optimization — adjustable for single images and batches.",
+          "app": {
+            "dropText": "Drop an image here or click to select",
+            "enhance": "Enhance",
+            "processing": "Processing…",
+            "model": "Model",
+            "usage": "Usage",
+            "result": "Result",
+            "original": "Original",
+            "allowedTypes": "Allowed: JPG, PNG, WEBP",
+            "max": "Max size",
+            "download": "Download",
+            "loading": "Loading…",
+            "quotaBanner": "Free tier usage is limited. Sign in for higher limits.",
+            "toasts": {
+              "loadQuotaError": "Failed to load quota information.",
+              "loadError": "Failed to load. Please try again.",
+              "quotaReached": "You have reached your usage limit.",
+              "unsupportedType": "Unsupported file type.",
+              "fileTooLargePrefix": "File is too large. Max:",
+              "processingFailed": "Processing failed. Please try again.",
+              "successEnhanced": "Image enhanced successfully!"
+            },
+            "compare": {
+              "sliderLabel": "Compare slider",
+              "before": "Before",
+              "after": "After",
+              "handleAriaLabel": "Drag to compare",
+              "keyboardHint": "Arrows move; Shift+Arrows faster; Home/End to edges; 0 centers; +/− zoom; 1 resets zoom; L toggles loupe; hold Space shows 100% Before.",
+              "reset": "Reset",
+              "loupe": "Loupe"
+            },
+            "help": {
+              "button": "Help",
+              "title": "How it works",
+              "close": "Close",
+              "sections": {
+                "upload": "Upload",
+                "models": "Models",
+                "compare": "Compare & Inspect",
+                "quota": "Quota"
+              }
+            },
+            "fullscreen": "Enter Fullscreen",
+            "exitFullscreen": "Exit Fullscreen",
+            "changeModel": "Change model",
+            "done": "Done",
+            "startOver": "Start over",
+            "faceEnhance": "Face enhance",
+            "upgrade": "Upgrade"
+          }
+        }
+      },
+      "details": {
+        "Imag-Enhancer": {
+          "back": "Back to overview",
+          "badge_new": "New",
+          "open": "Open tool",
+          "support": "Support",
+          "features": {
+            "heading": "Key features",
+            "upscaling": {
+              "title": "High‑quality upscaling",
+              "description": "Increase resolution while preserving edges and natural textures."
+            },
+            "denoise_sharpen": {
+              "title": "Denoise + detail",
+              "description": "Reduce noise and bring back fine detail without a waxy look."
+            },
+            "fine_tuning": {
+              "title": "Fine‑tuning presets",
+              "description": "Choose presets or tweak parameters for color, contrast, and sharpness."
+            },
+            "batch": {
+              "title": "Batch processing",
+              "description": "Process multiple images in one go with consistent results."
+            }
+          },
+          "privacy": {
+            "heading": "Privacy & processing",
+            "text": "Imag‑Enhancer can run on our servers or locally (depending on your setup). For sensitive data, prefer local processing — contact us for self‑host options."
+          },
+          "workflow": {
+            "heading": "Example workflow",
+            "steps": [
+              "Upload or drop your image",
+              "Pick a model and options",
+              "Run enhance",
+              "Compare Before/After and download"
+            ]
+          },
+          "try": "Try it now",
+          "longDescription": "Imag‑Enhancer uses modern neural models to automatically optimize photos and graphics. Use presets or fine controls for denoising, sharpening, color correction, and upscaling. Supports single images and batch processing, with privacy‑friendly local options."
+        }
+      }
+    }
+  }
+}

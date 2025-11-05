@@ -1,0 +1,46 @@
+---
+// src/components/ui/Skeleton.astro
+
+interface Props {
+  className?: string;
+  count?: number;
+  width?: string | number;
+  height?: string | number;
+  circle?: boolean;
+}
+
+const { className = '', count = 1, width = '100%', height = '1rem', circle = false } = Astro.props;
+
+const widthStyle = typeof width === 'number' ? `${width}px` : width;
+const heightStyle = typeof height === 'number' ? `${height}px` : height;
+
+const skeletonItems = Array(count).fill(null);
+---
+
+<Fragment>
+  {
+    skeletonItems.map(() => (
+      <div
+        class={`animate-pulse bg-gray-700/50 rounded ${circle ? 'rounded-full' : 'rounded'} ${className}`}
+        style={`width: ${widthStyle}; height: ${heightStyle};`}
+        aria-hidden="true"
+      />
+    ))
+  }
+</Fragment>
+
+<style>
+  @keyframes pulse {
+    0%,
+    100% {
+      opacity: 0.6;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+
+  .animate-pulse {
+    animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+</style>

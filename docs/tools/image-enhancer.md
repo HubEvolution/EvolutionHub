@@ -1,3 +1,11 @@
+---
+description: 'AI Image Enhancer – Architektur, Quoten, Modelle und Workflows'
+owner: 'AI Enhancer Team'
+priority: 'high'
+lastSync: '2025-11-04'
+codeRefs: 'src/pages/api/ai-image/**, src/lib/services/ai-image-service.ts, src/components/tools/imag-enhancer/**, docs/development/stripe-setup.md'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # AI Image Enhancer – KI-gestützte Bildverbesserung

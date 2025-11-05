@@ -1,0 +1,663 @@
+---
+import AosWrapper from '@/components/AosWrapper.astro';
+import { aosDelayForIndex } from '@/lib/aos';
+import { getLocale } from '@/lib/i18n';
+import { getI18n, getI18nArray } from '@/utils/i18n';
+import { localizePath } from '@/lib/locale-path';
+import Card from '@/components/ui/Card';
+
+interface Plan {
+  name: string;
+  price: string;
+  description: string;
+  features: string[];
+  cta: string;
+  featured?: boolean;
+}
+
+const locale = getLocale(Astro.url.pathname);
+const t = getI18n(locale);
+const ta = getI18nArray(locale);
+
+// Read optional Stripe Payment Links from runtime env (Cloudflare Worker)
+// Accept either JSON string or object; default to empty mapping
+const parseLinks = (v: unknown): Record<string, string> => {
+  if (!v) return {};
+  if (typeof v === 'string') {
+    try {
+      const parsed = JSON.parse(v);
+      return typeof parsed === 'object' && parsed ? (parsed as Record<string, string>) : {};
+    } catch {
+      return {};
+    }
+  }
+  if (typeof v === 'object') return v as Record<string, string>;
+  return {};
+};
+const env = (Astro.locals && Astro.locals.runtime && Astro.locals.runtime.env) || undefined;
+const paymentLinksMonthly = parseLinks(env?.PRICING_LINKS);
+const paymentLinksAnnual = parseLinks(env?.PRICING_LINKS_ANNUAL);
+const ctaBuyEnterprise = t('pages.pricing.table.cta_buy_enterprise') || 'Buy Enterprise';
+
+// Simple sanitizer to avoid showing fallback tokens
+const sanitize = (s: string) => {
+  if (!s) return '';
+  const trimmed = s.trim();
+  if (trimmed.startsWith('[') && trimmed.endsWith(']')) return '';
+  if (/fallback_not_found/i.test(trimmed)) return '';
+  return trimmed;
+};
+const perMonthLabel = t('pages.pricing.table.per_month');
+const perYearLabel = sanitize(t('pages.pricing.table.per_year')) || 'per year';
+const annualSavings = sanitize(t('pages.pricing.table.annual_savings')) || 'Pay for 10 months';
+
+const plans: Plan[] = [
+  {
+    name: t('pages.pricing.table.plans.starter.name'),
+    price: t('pages.pricing.table.plans.starter.price'),
+    description: t('pages.pricing.table.plans.starter.description'),
+    features: ta('pages.pricing.table.plans.starter.features'),
+    cta: t('pages.pricing.table.plans.starter.cta'),
+  },
+  {
+    name: t('pages.pricing.table.plans.pro.name'),
+    price: t('pages.pricing.table.plans.pro.price'),
+    description: t('pages.pricing.table.plans.pro.description'),
+    features: ta('pages.pricing.table.plans.pro.features'),
+    cta: t('pages.pricing.table.plans.pro.cta'),
+    featured: true,
+  },
+  {
+    name: t('pages.pricing.table.plans.premium.name'),
+    price: t('pages.pricing.table.plans.premium.price'),
+    description: t('pages.pricing.table.plans.premium.description'),
+    features: ta('pages.pricing.table.plans.premium.features'),
+    cta: t('pages.pricing.table.plans.premium.cta'),
+  },
+  {
+    name: t('pages.pricing.table.plans.enterprise.name'),
+    price: t('pages.pricing.table.plans.enterprise.price'),
+    description: t('pages.pricing.table.plans.enterprise.description'),
+    features: ta('pages.pricing.table.plans.enterprise.features'),
+    cta: t('pages.pricing.table.plans.enterprise.cta'),
+  },
+];
+---
+
+<!-- Interval toggle moved to page header (pricing.astro). Keep IDs the same. -->
+<script is:inline nonce={Astro.locals.cspNonce}>
+  (function () {
+    function readCookie(name) {
+      const m = document.cookie.match(
+        new RegExp('(?:^|; )' + name.replace(/[.$?*|{}()\[\]\\/+^]/g, '\\$&') + '=([^;]*)')
+      );
+      return m ? decodeURIComponent(m[1]) : null;
+    }
+    function ensureCsrfToken() {
+      let token = readCookie('csrf_token');
+      if (!token) {
+        try {
+          const buf = new Uint8Array(16);
+          (globalThis.crypto || window.crypto).getRandomValues(buf);
+          token = Array.from(buf)
+            .map((b) => b.toString(16).padStart(2, '0'))
+            .join('');
+          const attrs = [
+            'Path=/',
+            'SameSite=Lax',
+            typeof location !== 'undefined' && location.protocol === 'https:' ? 'Secure' : '',
+          ]
+            .filter(Boolean)
+            .join('; ');
+          document.cookie = `csrf_token=${encodeURIComponent(token)}; ${attrs}`;
+        } catch {}
+      }
+      const entBtn = document.getElementById('buy-enterprise-cta');
+      if (entBtn) {
+        if (!entBtn.dataset || !entBtn.dataset.wired) {
+          const monthly = entBtn.getAttribute('data-payment-monthly') || '';
+          const annual = entBtn.getAttribute('data-payment-annual') || '';
+          entBtn.addEventListener('click', async () => {
+            try {
+              await createCheckout('enterprise');
+              return;
+            } catch (_e) {
+              try {
+                const link = pricingInterval === 'annual' ? annual : monthly;
+                if (link && /^https?:\/\//.test(link)) {
+                  console.log(
+                    '[pricing] fallback to payment link (enterprise, ' + pricingInterval + ')'
+                  );
+                  window.location.href = link;
+                  return;
+                }
+              } catch {}
+            }
+          });
+          if (entBtn.dataset) entBtn.dataset.wired = '1';
+        }
+        wired = true;
+      }
+      return token || '';
+    }
+    function getWorkspaceId() {
+      try {
+        const url = new URL(window.location.href);
+        const ws = url.searchParams.get('ws');
+        if (ws && ws.trim()) {
+          localStorage.setItem('ws_id', ws);
+          return ws;
+        }
+        const ls = localStorage.getItem('ws_id');
+        if (ls && ls.trim()) return ls;
+      } catch {}
+      return 'default';
+    }
+    async function createCreditsCheckout(pack) {
+      try {
+        const csrf = ensureCsrfToken();
+        const res = await fetch('/api/billing/credits', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
+          credentials: 'include',
+          body: JSON.stringify({
+            pack,
+            workspaceId: getWorkspaceId(),
+            returnTo: location.pathname + location.search,
+          }),
+        });
+        if (res.status === 401) {
+          window.location.href = '/login';
+          return;
+        }
+        if (!res.ok) {
+          const text = await res.text().catch(() => '');
+          alert('Checkout failed: ' + (text || res.status));
+          return;
+        }
+        const data = await res.json().catch(() => ({}));
+        const nextUrl = (data && (data.url || (data.data && data.data.url))) || '';
+        if (nextUrl) {
+          window.location.href = nextUrl;
+        } else {
+          alert('Checkout failed: Invalid response');
+        }
+      } catch (e) {
+        console.warn('[credits] checkout error', e);
+        alert('Checkout failed');
+      }
+    }
+    function wireCredits() {
+      try {
+        var b100 = document.getElementById('buy-credits-100');
+        var b500 = document.getElementById('buy-credits-500');
+        var b1500 = document.getElementById('buy-credits-1500');
+        if (b100 && !b100.dataset.wired) {
+          b100.addEventListener('click', function () {
+            createCreditsCheckout(100);
+          });
+          b100.dataset.wired = '1';
+        }
+        if (b500 && !b500.dataset.wired) {
+          b500.addEventListener('click', function () {
+            createCreditsCheckout(500);
+          });
+          b500.dataset.wired = '1';
+        }
+        if (b1500 && !b1500.dataset.wired) {
+          b1500.addEventListener('click', function () {
+            createCreditsCheckout(1500);
+          });
+          b1500.dataset.wired = '1';
+        }
+      } catch {}
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', wireCredits, { once: true });
+    } else {
+      wireCredits();
+    }
+  })();
+</script>
+
+<script is:inline nonce={Astro.locals.cspNonce}>
+  (function () {
+    var pricingInterval = (function () {
+      try {
+        return localStorage.getItem('pricing_interval') === 'annual' ? 'annual' : 'monthly';
+      } catch {
+        return 'monthly';
+      }
+    })();
+
+    function readCookie(name) {
+      const m = document.cookie.match(
+        new RegExp('(?:^|; )' + name.replace(/[.$?*|{}()\[\]\\/+^]/g, '\\$&') + '=([^;]*)')
+      );
+      return m ? decodeURIComponent(m[1]) : null;
+    }
+    function ensureCsrfToken() {
+      let token = readCookie('csrf_token');
+      if (!token) {
+        try {
+          const buf = new Uint8Array(16);
+          (globalThis.crypto || window.crypto).getRandomValues(buf);
+          token = Array.from(buf)
+            .map((b) => b.toString(16).padStart(2, '0'))
+            .join('');
+          const attrs = [
+            'Path=/',
+            'SameSite=Lax',
+            typeof location !== 'undefined' && location.protocol === 'https:' ? 'Secure' : '',
+          ]
+            .filter(Boolean)
+            .join('; ');
+          document.cookie = `csrf_token=${encodeURIComponent(token)}; ${attrs}`;
+        } catch {}
+      }
+      return token || '';
+    }
+    function getWorkspaceId() {
+      try {
+        const url = new URL(window.location.href);
+        const ws = url.searchParams.get('ws');
+        if (ws && ws.trim()) {
+          localStorage.setItem('ws_id', ws);
+          return ws;
+        }
+        const ls = localStorage.getItem('ws_id');
+        if (ls && ls.trim()) return ls;
+      } catch {}
+      return 'default';
+    }
+    var explicitReturnTo = (function () {
+      try {
+        var u = new URL(window.location.href);
+        var r = u.searchParams.get('return_to') || '';
+        if (
+          r &&
+          r.charAt(0) === '/' &&
+          !/^([a-zA-Z][a-zA-Z0-9+.-]*:|\/\/)/.test(r) &&
+          r.length <= 512 &&
+          !/\\|\r|\n/.test(r)
+        ) {
+          return r;
+        }
+      } catch {}
+      return '';
+    })();
+    async function createCheckout(plan) {
+      const csrf = ensureCsrfToken();
+      const body = {
+        plan,
+        workspaceId: getWorkspaceId(),
+        interval: pricingInterval,
+        returnTo: explicitReturnTo || location.pathname + location.search,
+      };
+      const res = await fetch('/api/billing/session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': csrf,
+        },
+        body: JSON.stringify(body),
+        credentials: 'include',
+      });
+      if (res.status === 401) {
+        window.location.href = '/login';
+        throw new Error('unauthorized');
+      }
+      if (!res.ok) {
+        const text = await res.text().catch(() => '');
+        alert('Checkout failed: ' + (text || res.status));
+        throw new Error('checkout_failed');
+      }
+      const data = await res.json().catch(() => ({}));
+      const nextUrl = (data && (data.url || (data.data && data.data.url))) || '';
+      if (nextUrl) {
+        window.location.href = nextUrl;
+      } else {
+        alert('Checkout failed: Invalid response');
+        throw new Error('invalid_response');
+      }
+    }
+    function setIntervalButtons() {
+      try {
+        var m = document.getElementById('interval-monthly');
+        var a = document.getElementById('interval-annual');
+        if (m && a) {
+          if (pricingInterval === 'annual') {
+            m.setAttribute('data-active', '0');
+            a.setAttribute('data-active', '1');
+            m.setAttribute('aria-pressed', 'false');
+            a.setAttribute('aria-pressed', 'true');
+          } else {
+            m.setAttribute('data-active', '1');
+            a.setAttribute('data-active', '0');
+            m.setAttribute('aria-pressed', 'true');
+            a.setAttribute('aria-pressed', 'false');
+          }
+        }
+      } catch {}
+    }
+
+    async function createCreditsCheckout(pack) {
+      try {
+        const csrf = ensureCsrfToken();
+        const res = await fetch('/api/billing/credits', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
+          credentials: 'include',
+          body: JSON.stringify({
+            pack,
+            workspaceId: getWorkspaceId(),
+            returnTo: explicitReturnTo || location.pathname + location.search,
+          }),
+        });
+        if (res.status === 401) {
+          window.location.href = '/login';
+          return;
+        }
+        if (!res.ok) {
+          const text = await res.text().catch(() => '');
+          alert('Checkout failed: ' + (text || res.status));
+          return;
+        }
+        const data = await res.json().catch(() => ({}));
+        const nextUrl = (data && (data.url || (data.data && data.data.url))) || '';
+        if (nextUrl) {
+          window.location.href = nextUrl;
+        } else {
+          alert('Checkout failed: Invalid response');
+        }
+      } catch (e) {
+        console.warn('[credits] checkout error', e);
+        alert('Checkout failed');
+      }
+    }
+    function wire() {
+      let wired = false;
+      try {
+        var m = document.getElementById('interval-monthly');
+        var a = document.getElementById('interval-annual');
+        if (m && a) {
+          m.addEventListener('click', function () {
+            pricingInterval = 'monthly';
+            try {
+              localStorage.setItem('pricing_interval', 'monthly');
+            } catch {}
+            setIntervalButtons();
+          });
+          a.addEventListener('click', function () {
+            pricingInterval = 'annual';
+            try {
+              localStorage.setItem('pricing_interval', 'annual');
+            } catch {}
+            setIntervalButtons();
+          });
+          setIntervalButtons();
+          var proAmt = document.querySelector('span[data-plan="pro"][data-role="amount"]');
+          var proPer = document.querySelector('span[data-plan="pro"][data-role="period"]');
+          var busAmt = document.querySelector('span[data-plan="premium"][data-role="amount"]');
+          var busPer = document.querySelector('span[data-plan="premium"][data-role="period"]');
+          var entAmt = document.querySelector('span[data-plan="enterprise"][data-role="amount"]');
+          var entPer = document.querySelector('span[data-plan="enterprise"][data-role="period"]');
+          var proBadge = document.querySelector('span[data-plan="pro"][data-role="badge"]');
+          var busBadge = document.querySelector('span[data-plan="premium"][data-role="badge"]');
+          var entBadge = document.querySelector('span[data-plan="enterprise"][data-role="badge"]');
+          function applyPrices() {
+            try {
+              if (proAmt && proPer) {
+                var pm = proAmt.getAttribute('data-monthly');
+                var pa = proAmt.getAttribute('data-annual');
+                var lm = proPer.getAttribute('data-monthly');
+                var la = proPer.getAttribute('data-annual');
+                proAmt.textContent = pricingInterval === 'annual' ? pa || '' : pm || '';
+                proPer.textContent = pricingInterval === 'annual' ? la || '' : lm || '';
+              }
+              if (busAmt && busPer) {
+                var bmm = busAmt.getAttribute('data-monthly');
+                var bma = busAmt.getAttribute('data-annual');
+                var lmm = busPer.getAttribute('data-monthly');
+                var laa = busPer.getAttribute('data-annual');
+                busAmt.textContent = pricingInterval === 'annual' ? bma || '' : bmm || '';
+                busPer.textContent = pricingInterval === 'annual' ? laa || '' : lmm || '';
+              }
+              if (entAmt && entPer) {
+                var emm = entAmt.getAttribute('data-monthly');
+                var ema = entAmt.getAttribute('data-annual');
+                var lem = entPer.getAttribute('data-monthly');
+                var lea = entPer.getAttribute('data-annual');
+                entAmt.textContent = pricingInterval === 'annual' ? ema || '' : emm || '';
+                entPer.textContent = pricingInterval === 'annual' ? lea || '' : lem || '';
+              }
+              var vis = pricingInterval === 'annual' ? '1' : '0';
+              if (proBadge && proBadge.setAttribute) {
+                proBadge.setAttribute('data-visible', vis);
+              }
+              if (busBadge && busBadge.setAttribute) {
+                busBadge.setAttribute('data-visible', vis);
+              }
+              if (entBadge && entBadge.setAttribute) {
+                entBadge.setAttribute('data-visible', vis);
+              }
+            } catch {}
+          }
+          applyPrices();
+          m.addEventListener('click', applyPrices);
+          a.addEventListener('click', applyPrices);
+        }
+      } catch {}
+      const proBtn = document.getElementById('buy-pro-cta');
+      if (proBtn) {
+        if (!proBtn.dataset || !proBtn.dataset.wired) {
+          const monthly = proBtn.getAttribute('data-payment-monthly') || '';
+          const annual = proBtn.getAttribute('data-payment-annual') || '';
+          proBtn.addEventListener('click', () => {
+            (async () => {
+              try {
+                await createCheckout('pro');
+                return;
+              } catch (_e) {
+                try {
+                  const link = pricingInterval === 'annual' ? annual : monthly;
+                  if (link && /^https?:\/\//.test(link)) {
+                    console.log(
+                      '[pricing] fallback to payment link (pro, ' + pricingInterval + ')'
+                    );
+                    window.location.href = link;
+                    return;
+                  }
+                } catch {}
+              }
+            })();
+          });
+          if (proBtn.dataset) proBtn.dataset.wired = '1';
+        }
+        wired = true;
+      }
+      const busBtn = document.getElementById('buy-premium-cta');
+      if (busBtn) {
+        if (!busBtn.dataset || !busBtn.dataset.wired) {
+          const monthly = busBtn.getAttribute('data-payment-monthly') || '';
+          const annual = busBtn.getAttribute('data-payment-annual') || '';
+          busBtn.addEventListener('click', () => {
+            (async () => {
+              try {
+                await createCheckout('premium');
+                return;
+              } catch (_e) {
+                try {
+                  const link = pricingInterval === 'annual' ? annual : monthly;
+                  if (link && /^https?:\/\//.test(link)) {
+                    console.log(
+                      '[pricing] fallback to payment link (premium, ' + pricingInterval + ')'
+                    );
+                    window.location.href = link;
+                    return;
+                  }
+                } catch {}
+              }
+            })();
+          });
+          if (busBtn.dataset) busBtn.dataset.wired = '1';
+        }
+        wired = true;
+      }
+      if (!wired) {
+        try {
+          const proCard = document.querySelector('[data-pro-card="true"]');
+          const proAnchor =
+            proCard && proCard.querySelector ? proCard.querySelector('a[href*="/register"]') : null;
+          if (proAnchor && proAnchor instanceof HTMLAnchorElement) {
+            const already = proAnchor.dataset && proAnchor.dataset.wired;
+            if (!already) {
+              console.log('[pricing] wiring pro checkout via legacy anchor');
+              proAnchor.addEventListener('click', (e) => {
+                e.preventDefault();
+                createCheckout('pro');
+              });
+              if (proAnchor.dataset) proAnchor.dataset.wired = '1';
+            }
+          }
+        } catch (e) {
+          console.warn('[pricing] wiring error', e);
+        }
+      }
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', wire, { once: true });
+    } else {
+      wire();
+    }
+  })();
+</script>
+
+<div class="grid grid-cols-1 md:grid-cols-4 gap-8 mt-6">
+  {
+    plans.map((plan, idx) => (
+      <AosWrapper
+        delay={aosDelayForIndex(idx, { step: 100, max: 300 })}
+        class={`relative flex flex-col rounded-2xl`}
+        data-pro-card={plan.featured ? 'true' : undefined}
+      >
+        {plan.featured && (
+          <div class="absolute top-0 right-0 -mt-3 -mr-3 px-3 py-1 bg-blue-500 text-white text-sm font-semibold rounded-full">
+            {t('pages.pricing.table.featured_badge')}
+          </div>
+        )}
+
+        <Card
+          variant="holo"
+          className={`flex flex-col p-8 rounded-2xl ${plan.featured ? 'ring-2 ring-blue-500' : ''}`}
+        >
+          <h3 class="text-2xl font-bold">{plan.name}</h3>
+          <p class="mt-2 text-gray-600 dark:text-gray-300">{plan.description}</p>
+
+          <div class="mt-6">
+            <span
+              class="text-4xl font-extrabold"
+              data-plan={
+                idx === 1 ? 'pro' : idx === 2 ? 'premium' : idx === 3 ? 'enterprise' : undefined
+              }
+              data-role="amount"
+              data-monthly={idx === 1 ? '€12.00' : idx === 2 ? '€28.00' : idx === 3 ? '€99.00' : ''}
+              data-annual={
+                idx === 1 ? '€120.00' : idx === 2 ? '€280.00' : idx === 3 ? '€990.00' : ''
+              }
+            >
+              {plan.price}
+            </span>
+            {
+              // Always render period span for Pro, Premium (Business), and Enterprise so the toggle can update it
+              idx === 1 || idx === 2 || idx === 3 ? (
+                <span
+                  class="text-gray-500 dark:text-gray-400"
+                  data-plan={idx === 1 ? 'pro' : idx === 2 ? 'premium' : 'enterprise'}
+                  data-role="period"
+                  data-monthly={perMonthLabel}
+                  data-annual={perYearLabel}
+                >
+                  {perMonthLabel}
+                </span>
+              ) : null
+            }
+            {idx === 1 || idx === 2 || idx === 3 ? (
+              <span
+                class="ml-2 inline-flex items-center text-xs font-medium text-emerald-700 bg-emerald-100 dark:bg-emerald-900/30 dark:text-emerald-300 rounded-full px-2 py-0.5 data-[visible='0']:hidden"
+                data-plan={idx === 1 ? 'pro' : idx === 2 ? 'premium' : 'enterprise'}
+                data-role="badge"
+                data-visible="0"
+              >
+                {annualSavings}
+              </span>
+            ) : null}
+          </div>
+
+          <ul class="mt-8 space-y-3">
+            {plan.features.map((feature) => (
+              <li class="flex items-center">
+                <svg
+                  class="w-5 h-5 text-green-500 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+                {feature}
+              </li>
+            ))}
+          </ul>
+
+          {
+            // Render buttons for Pro and Premium (checkout), Starter (register), Enterprise (buy)
+            plan.name === t('pages.pricing.table.plans.pro.name') ? (
+              <button
+                id="buy-pro-cta"
+                type="button"
+                data-payment-monthly={paymentLinksMonthly['pro']}
+                data-payment-annual={paymentLinksAnnual['pro']}
+                class={`mt-8 px-6 py-3 text-center font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2`}
+              >
+                {plan.cta}
+              </button>
+            ) : plan.name === t('pages.pricing.table.plans.premium.name') ? (
+              <button
+                id="buy-premium-cta"
+                type="button"
+                data-payment-monthly={paymentLinksMonthly['premium']}
+                data-payment-annual={paymentLinksAnnual['premium']}
+                class={`mt-8 px-6 py-3 text-center font-medium rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2`}
+              >
+                {plan.cta}
+              </button>
+            ) : plan.name === t('pages.pricing.table.plans.enterprise.name') ? (
+              <button
+                id="buy-enterprise-cta"
+                type="button"
+                data-payment-monthly={paymentLinksMonthly['enterprise']}
+                data-payment-annual={paymentLinksAnnual['enterprise']}
+                class={`mt-8 px-6 py-3 text-center font-medium rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2`}
+              >
+                {ctaBuyEnterprise}
+              </button>
+            ) : (
+              <a
+                href={localizePath(locale, '/register')}
+                class={`mt-8 px-6 py-3 text-center font-medium rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2`}
+              >
+                {plan.cta}
+              </a>
+            )
+          }
+        </Card>
+      </AosWrapper>
+    ))
+  }
+</div>

@@ -1,3 +1,11 @@
+---
+description: 'Datenbank-Schema & Migrationen – Überblick und lokale Setup-Anleitung'
+owner: 'Platform Team'
+priority: 'medium'
+lastSync: '2025-11-04'
+codeRefs: 'docs/db_schema_update.md, migrations/**, scripts/setup-local-dev.ts, scripts/seed-test-data.ts'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # Datenbank-Schema und Migrationen

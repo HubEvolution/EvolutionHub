@@ -1,3 +1,11 @@
+---
+description: 'Webscraper Tool – Testing-Strategie und Qualitätsmetriken'
+owner: 'Tools Team'
+priority: 'medium'
+lastSync: '2025-11-04'
+codeRefs: 'docs/tools/webscraper/testing.md, tests/integration/api/webscraper.test.ts, test-suite-v2/tests/webscraper.spec.ts'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # Webscraper Tool - Testing-Strategie

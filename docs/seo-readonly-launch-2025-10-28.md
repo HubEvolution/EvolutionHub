@@ -1,3 +1,11 @@
+---
+description: 'SEO Read-only Launch – Statusbericht 2025-10-28 und nächste Schritte'
+owner: 'SEO & Ops Team'
+priority: 'medium'
+lastSync: '2025-11-04'
+codeRefs: 'src/layouts/BaseLayout.astro, src/lib/seo.ts, src/pages/sitemap.xml.ts, wrangler.toml'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # SEO Read‑only Launch — Status & Next Steps (2025‑10‑28)

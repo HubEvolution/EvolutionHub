@@ -1,0 +1,147 @@
+---
+export const prerender = false;
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Card from '@/components/ui/Card';
+
+type AdminStatusPayload = {
+  success: boolean;
+  data: {
+    user: { id: string; email: string };
+    plan: 'free' | 'pro' | 'premium' | 'enterprise';
+    credits: number;
+    subscriptions: Array<{
+      id: string;
+      plan: 'free' | 'pro' | 'premium' | 'enterprise';
+      status: string;
+      current_period_end: number | null;
+      cancel_at_period_end: number | null;
+      created_at: string;
+      updated_at: string;
+    }>;
+  };
+};
+
+type FetchStatus = { ok: boolean; status: number; data: AdminStatusPayload | null };
+
+async function fetchStatus() {
+  try {
+    const url = new URL('/api/admin/status', Astro.url).toString();
+    const res = await fetch(url, {
+      headers: {
+        cookie: Astro.request.headers.get('cookie') ?? '',
+      },
+      // Prevent caching of sensitive data
+      cache: 'no-store',
+    });
+    if (!res.ok) {
+      return { ok: false, status: res.status, data: null } as FetchStatus;
+    }
+    const data = (await res.json()) as AdminStatusPayload;
+    return { ok: true, status: res.status, data } as FetchStatus;
+  } catch (e) {
+    return { ok: false, status: 500, data: null } as FetchStatus;
+  }
+}
+
+const status: FetchStatus = await fetchStatus();
+---
+
+<BaseLayout title={`Admin Status`} description={`Read-only Status: Plan, Credits, Subscriptions`}>
+  <main class="min-h-screen bg-transparent py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-4xl mx-auto">
+      <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-6">Admin Status</h1>
+
+      {
+        status.ok && status.data?.success ? (
+          <div class="space-y-8">
+            <Card as="section" className="p-6">
+              <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">User</h2>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                <div>
+                  <div class="text-gray-500 dark:text-gray-400">ID</div>
+                  <div class="text-gray-900 dark:text-white">{status.data.data.user.id}</div>
+                </div>
+                <div>
+                  <div class="text-gray-500 dark:text-gray-400">Email</div>
+                  <div class="text-gray-900 dark:text-white">{status.data.data.user.email}</div>
+                </div>
+              </div>
+            </Card>
+
+            <Card as="section" className="p-6">
+              <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+                Plan & Credits
+              </h2>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+                <div>
+                  <div class="text-gray-500 dark:text-gray-400">Plan</div>
+                  <div class="inline-flex items-center gap-2">
+                    <span class="text-gray-900 dark:text-white capitalize">
+                      {status.data.data.plan}
+                    </span>
+                  </div>
+                </div>
+                <div>
+                  <div class="text-gray-500 dark:text-gray-400">Credits</div>
+                  <div class="text-gray-900 dark:text-white">
+                    {String(status.data.data.credits)}
+                  </div>
+                </div>
+                <div>
+                  <div class="text-gray-500 dark:text-gray-400">Subscriptions</div>
+                  <div class="text-gray-900 dark:text-white">
+                    {status.data.data.subscriptions?.length ?? 0} Einträge
+                  </div>
+                </div>
+              </div>
+            </Card>
+
+            <Card as="section" className="p-6">
+              <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+                Letzte Subscription-Events
+              </h2>
+              {status.data.data.subscriptions?.length ? (
+                <div class="overflow-x-auto">
+                  <table class="min-w-full text-sm">
+                    <thead>
+                      <tr class="text-left text-gray-500 dark:text-gray-400">
+                        <th class="py-2 pr-4">ID</th>
+                        <th class="py-2 pr-4">Plan</th>
+                        <th class="py-2 pr-4">Status</th>
+                        <th class="py-2 pr-4">CurrentPeriodEnd</th>
+                        <th class="py-2 pr-4">Cancel@PeriodEnd</th>
+                        <th class="py-2 pr-4">Updated</th>
+                      </tr>
+                    </thead>
+                    <tbody class="text-gray-900 dark:text-white">
+                      {status.data.data.subscriptions.map((s: any) => (
+                        <tr>
+                          <td class="py-2 pr-4 font-mono text-xs">{s.id}</td>
+                          <td class="py-2 pr-4 capitalize">{s.plan}</td>
+                          <td class="py-2 pr-4">{s.status}</td>
+                          <td class="py-2 pr-4">{s.current_period_end ?? '-'}</td>
+                          <td class="py-2 pr-4">{s.cancel_at_period_end ? 'Ja' : 'Nein'}</td>
+                          <td class="py-2 pr-4">{s.updated_at}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <p class="text-gray-500 dark:text-gray-400">Keine Einträge</p>
+              )}
+            </Card>
+          </div>
+        ) : (
+          <div class="bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-800 rounded-lg p-6">
+            <p class="text-yellow-800 dark:text-yellow-200">
+              {status.status === 401
+                ? 'Bitte zuerst einloggen. Danach diese Seite neu laden.'
+                : 'Status konnte nicht geladen werden.'}
+            </p>
+          </div>
+        )
+      }
+    </div>
+  </main>
+</BaseLayout>

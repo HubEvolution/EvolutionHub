@@ -1,3 +1,11 @@
+---
+description: 'Feature-Roadmap – Priorisierte Entwicklungsziele für Evolution Hub'
+owner: 'Product Team'
+priority: 'high'
+lastSync: '2025-11-04'
+codeRefs: 'docs/feature-roadmap.md, docs/features/**, docs/frontend/ui-ux.md, src/pages/api/**'
+---
+
 <!-- markdownlint-disable MD051 -->
 
 # Evolution Hub - Feature-Roadmap
@@ -104,7 +112,7 @@ Diese Features erweitern die Kernfunktionalität und verbessern das Nutzererlebn
 
 - **Geschätzter Aufwand**: Mittel (4-6 Tage)
 
-- **Status**: ✅ **Implementiert (80% Production-Ready)** - Siehe [docs/features/comment-system.md](./features/comment-system.md)
+- **Status**: ✅ **Implementiert (80% Production-Ready)** - Siehe [docs/features/blog+commentsystem-plan.md](./features/blog+commentsystem-plan.md)
 
   - ✅ CRUD-Operationen (Guest + Auth), Threaded Comments, Moderation, Spam-Detection, XSS-Protection, CSRF, Rate-Limiting, Optimistic UI, Mobile-Optimierung, E2E-Tests (85%)
 

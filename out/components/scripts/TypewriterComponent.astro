@@ -1,0 +1,153 @@
+---
+// TypewriterComponent.astro
+// Eine universelle Komponente für Typewriter-Animationen in mehreren Sprachen
+
+interface TypewriterText {
+  text: string;
+  delay?: number;
+}
+
+interface Props {
+  elementId: string; // ID des DOM-Elements, das den Typewriter-Text anzeigen soll
+  texts: TypewriterText[]; // Array von Texten und ggf. Delays
+  defaultDelay?: number; // Standard-Delay für Animationen (wenn nicht pro Text definiert)
+  loop?: boolean; // Ob die Animation nach dem letzten Text neu beginnt
+  smallScreenDelay?: number;
+  smallScreenMaxWidth?: number;
+}
+
+// Props mit Standardwerten
+const {
+  elementId = 'typewriter',
+  texts = [],
+  defaultDelay = 100,
+  loop = true,
+  smallScreenDelay = undefined,
+  smallScreenMaxWidth = 768,
+} = Astro.props;
+---
+
+<!-- Kein direktes Markup nötig, nur das Client-Script -->
+<script
+  is:inline
+  define:vars={{ elementId, texts, defaultDelay, loop, smallScreenDelay, smallScreenMaxWidth }}
+  nonce={Astro.locals.cspNonce}
+>
+  // Typewriter-Funktion direkt hier definieren
+  const runTypewriter = (targetElementId, textArray, baseDelay = 100, shouldLoop = true) => {
+    const element = document.getElementById(targetElementId);
+    if (!element) {
+      console.error(`Element with ID "${targetElementId}" not found.`);
+      return;
+    }
+
+    // Fallback für leeres Array
+    if (!textArray || textArray.length === 0) {
+      textArray = [{ text: 'No text provided', delay: baseDelay }];
+    }
+
+    // Sicherstellen, dass bei jedem Start frisch begonnen wird
+    element.textContent = '';
+
+    let currentIndex = 0;
+    let charIndex = 0;
+    let typingTimeout;
+
+    // Vor Start: SSR/Fallback-Text leeren, damit nur getypte Zeilen sichtbar sind
+    try {
+      element.textContent = '';
+    } catch {}
+
+    // Text-Zeichen für Zeichen anzeigen
+    const type = () => {
+      if (currentIndex < textArray.length) {
+        const currentText = textArray[currentIndex].text;
+        if (charIndex < currentText.length) {
+          element.textContent += currentText.charAt(charIndex);
+          charIndex++;
+          typingTimeout = setTimeout(type, baseDelay);
+        } else {
+          // Wenn letzter Text erreicht und nicht loopen: hier stoppen (nicht löschen)
+          if (currentIndex === textArray.length - 1 && !shouldLoop) {
+            return;
+          }
+          // Nach dem Tippen eines Textes eine Weile warten, bevor gelöscht wird
+          setTimeout(erase, textArray[currentIndex].delay || baseDelay * 5);
+        }
+      }
+    };
+
+    // Text-Zeichen für Zeichen löschen
+    const erase = () => {
+      if (charIndex > 0) {
+        element.textContent = element.textContent.slice(0, -1);
+        charIndex--;
+        typingTimeout = setTimeout(erase, baseDelay / 2);
+      } else {
+        // Nach dem Löschen zum nächsten Text wechseln
+        currentIndex++;
+        if (currentIndex >= textArray.length) {
+          if (shouldLoop) {
+            currentIndex = 0; // Zurück zum Anfang springen
+          } else {
+            return; // Nicht erneut starten
+          }
+        }
+        const nextDelay = textArray[currentIndex].delay || baseDelay;
+        typingTimeout = setTimeout(type, nextDelay);
+      }
+    };
+
+    // Animation starten
+    type();
+
+    // Aufräumen bei Komponentenentfernung
+    return () => {
+      if (typingTimeout) {
+        clearTimeout(typingTimeout);
+      }
+    };
+  };
+
+  // Animation robust starten und nach Astro-View-Transitions neu binden
+  let cleanup = null;
+  function startTypewriter() {
+    try {
+      if (typeof cleanup === 'function') cleanup();
+    } catch (e) {
+      console.warn('[Typewriter] Cleanup failed or not set:', e);
+    }
+    let effDelay = defaultDelay;
+    try {
+      const w = window.innerWidth || document.documentElement.clientWidth || 0;
+      if (typeof smallScreenDelay === 'number' && w < (smallScreenMaxWidth || 768)) {
+        effDelay = smallScreenDelay;
+      }
+    } catch {}
+    cleanup = runTypewriter(elementId, texts, effDelay, loop);
+  }
+
+  if (document.readyState !== 'loading') {
+    startTypewriter();
+  } else {
+    document.addEventListener('DOMContentLoaded', startTypewriter, { once: true });
+  }
+
+  // Nach Astro View Transitions neu starten (pro Element-ID nur einmal binden)
+  (function bindAfterSwapOnce() {
+    const key = `__tw_after_swap_${elementId}`;
+    if (!window[key]) {
+      window[key] = true;
+      document.addEventListener('astro:after-swap', startTypewriter);
+    }
+  })();
+
+  // Fallback: falls DOMContentLoaded verpasst wurde
+  window.addEventListener(
+    'load',
+    () => {
+      if (!cleanup) startTypewriter();
+    },
+    { once: true }
+  );
+</script>
