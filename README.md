@@ -37,12 +37,8 @@ Live-Tools: [hub-evolution.com/tools](https://hub-evolution.com/tools)
 - Voice Visualizer: [DE](https://hub-evolution.com/tools/voice-visualizer/app) · [EN](https://hub-evolution.com/en/tools/voice-visualizer/app)
 
 > ✨ **Animation:**
->
-> <video src="./docs/media/image-enhancer-preview15sek.mp4" controls playsinline>
->   Dein Browser unterstützt das Video-Tag nicht.
-> </video>
->
-> [Video öffnen](./docs/media/image-enhancer-preview15sek.mp4)
+> ![Animation – Image Enhancer](./docs/media/image-enhancer-preview15sek.gif)
+> [Video öffnen (MP4, ca. 5 MB)](./docs/media/image-enhancer-preview15sek.mp4)
 
 ## 🧱 Architektur & Tech Stack
 

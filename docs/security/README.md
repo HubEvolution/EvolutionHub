@@ -15,55 +15,24 @@ testRefs: 'tests/integration/security, test-suite-v2/src/e2e/security'
 
 ## Primärdokumente
 
-- **[Security Overview](./security-overview.md)** — **Hauptdokument** für umfassende Security-Architektur
+- **[Implementierte Sicherheitsverbesserungen](./improvements.md)** — Überblick über bereits umgesetzte Hardening-Maßnahmen (User-APIs, Logging, Header-Setup)
 
-- **[Rate Limiting](./rate-limiting.md)** — Rate-Limiting-System und Konfiguration
+- **[Rate Limiting](./rate_limiting.md)** — Presets, Implementierungsdetails und zukünftige Verbesserungen
 
-- **[Security Headers](./security-headers.md)** — HTTP-Security-Headers und CSP-Konfiguration
+- **[Security Headers](./security_headers.md)** — Aktive HTTP-Sicherheitsheader inkl. CSP/HSTS/Permissions-Policy
 
-## Sekundär-/Spezialdokumente
+## Sekundär-/Spezialdokumente (geplant)
 
-- **[Authentication Security](./auth-security.md)** — Authentifizierungs- und Session-Security
+Die folgenden Themen sind aktuell noch nicht als eigenständige Dokumente vorhanden. Sie bleiben hier als Roadmap erhalten:
 
-- **[API Security](./api-security.md)** — API-Sicherheit und Middleware-Features
+- **Security Overview** — Gesamtarchitektur (Middleware, Auth, API)
+- **Auth/API Security** — Detailtiefe zu `withAuthApiMiddleware`, CSRF, Origin-Checks
+- **Input Validation & Sanitization** — Zod-/Server-Validierung & Sanitization-Strategien
+- **Audit Logging** — Strukturierte Security-Logs & Incident Response Workflow
+- **CSP/Permissions/HSTS Deep Dive** — Ergänzende Beispiele je Umgebung
+- **Rate-Limiter Presets** — Matrix aller aktiven Limits inkl. Tool-Spezifika
 
-- **[Input Validation](./input-validation.md)** — Validierung und Sanitization
-
-- **[Audit Logging](./audit-logging.md)** — Logging und Monitoring für Security-Events
-
-## Security-Architektur
-
-### Core Security Systems
-
-- **[Middleware Security](./middleware-security.md)** — Globale und API-Middleware-Sicherheit
-
-- **[CSRF Protection](./csrf-protection.md)** — Double-Submit-CSRF-Implementierung
-
-- **[CORS Configuration](./cors-configuration.md)** — Cross-Origin-Request-Policies
-
-### Detailed Documentation
-
-- **[Content Security Policy](./csp.md)** — CSP-Header und Script-Policy-Details
-
-- **[Permissions Policy](./permissions-policy.md)** — Feature-Policy für Browser-APIs
-
-- **[HSTS Configuration](./hsts.md)** — HTTP-Strict-Transport-Security
-
-## Rate Limiting Configuration
-
-- **[Rate Limiter Presets](./rate-limiter-presets.md)** — Vordefinierte Rate-Limiting-Konfigurationen
-
-- **[API Rate Limiting](./api-rate-limiting.md)** — API-spezifische Limits und 429-Responses
-
-- **[Auth Rate Limiting](./auth-rate-limiting.md)** — Login- und Registrierungsschutz
-
-## Security Headers
-
-- **[Standard Headers](./standard-headers.md)** — X-Frame-Options, X-Content-Type-Options, etc.
-
-- **[CSP Headers](./csp-headers.md)** — Content-Security-Policy-Details
-
-- **[HSTS Headers](./hsts-headers.md)** — Strict-Transport-Security-Konfiguration
+TODO: Sobald neue Kapitel erstellt werden, bitte hier verlinken und die Roadmap kürzen.
 
 ## Cross-Referenzen
 
@@ -96,11 +65,11 @@ testRefs: 'tests/integration/security, test-suite-v2/src/e2e/security'
 
 ## Bekannte Lücken
 
-- [TODO] Vollständige Penetration-Test-Dokumentation
+- TODO: Vollständige Penetration-Test-Dokumentation
 
-- [TODO] Security-Incident-Response-Plan
+- TODO: Security-Incident-Response-Plan
 
-- [TODO] Compliance-Framework (GDPR, SOC2) Dokumentation
+- TODO: Compliance-Framework (GDPR, SOC2) Dokumentation
 
 ## Übersicht
 
