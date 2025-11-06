@@ -1,6 +1,7 @@
 ---
 // Cookie-Einstellungen Seite
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import Card from '@/components/ui/Card';
 
 // Die getCookiePreferences Funktion und currentPreferences Variable werden entfernt,
 // da diese Seite rein clientseitig ist und die cookieconsent-API verwendet wird.
@@ -10,7 +11,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
   title="Cookie-Einstellungen"
   description="Verwalten Sie Ihre Cookie-Einstellungen für Evolution Hub"
 >
-  <div class="min-h-screen bg-gray-50 dark:bg-gray-900 py-12">
+  <section class="py-16 md:py-20 bg-transparent">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
       <!-- Header -->
       <div class="text-center mb-12">
@@ -22,12 +23,12 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
       </div>
 
       <!-- Cookie-Einstellungen Formular -->
-      <div
-        class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 sm:p-8 border border-gray-200 dark:border-gray-700"
-      >
+      <Card as="div" className="rounded-2xl p-6 sm:p-8 space-y-8">
         <form id="cookie-preferences-form" class="space-y-8">
           <!-- Notwendige Cookies -->
-          <div class="flex items-start space-x-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+          <div
+            class="flex items-start gap-4 p-4 rounded-lg bg-slate-900/5 dark:bg-white/5 border border-slate-200/60 dark:border-white/10"
+          >
             <div class="flex-shrink-0 mt-1">
               <svg class="w-5 h-5 text-emerald-500" fill="currentColor" viewBox="0 0 20 20">
                 <path
@@ -63,7 +64,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 
           <!-- Analyse Cookies -->
           <div
-            class="flex items-start space-x-4 p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600"
+            class="flex items-start gap-4 p-4 rounded-lg bg-slate-900/5 dark:bg-white/5 border border-slate-200/60 dark:border-white/10"
           >
             <div class="flex-shrink-0 mt-1">
               <svg
@@ -146,9 +147,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
           </div>
 
           <!-- Aktionen -->
-          <div
-            class="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200 dark:border-gray-700"
-          >
+          <div class="flex flex-col sm:flex-row gap-4 pt-6 border-t border-slate-200/60 dark:border-white/10">
             <button
               type="submit"
               class="flex-1 bg-gradient-to-r from-emerald-500 to-cyan-500 text-white px-6 py-3 rounded-lg font-medium hover:from-emerald-600 hover:to-cyan-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all duration-200 transform hover:scale-105"
@@ -178,13 +177,11 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
             </button>
           </div>
         </form>
-      </div>
+      </Card>
 
       <!-- Info Box -->
-      <div
-        class="mt-8 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6"
-      >
-        <div class="flex items-start space-x-3">
+      <Card as="div" className="mt-8 rounded-2xl p-6 bg-slate-900/5 dark:bg-white/5">
+        <div class="flex items-start gap-3">
           <svg class="w-5 h-5 text-blue-500 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
             <path
               fill-rule="evenodd"
@@ -201,9 +198,9 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
             </p>
           </div>
         </div>
-      </div>
+      </Card>
     </div>
-  </div>
+  </section>
 
   <script is:inline type="module" nonce={Astro.locals.cspNonce}>
     const notify = (() => {

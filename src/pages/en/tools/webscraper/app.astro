@@ -23,11 +23,49 @@ const strings = {
     error: 'An error occurred',
   },
 };
+
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  name: 'Webscraper',
+  description:
+    'Automatically extract website data at scale with AI-driven selector detection. Export to CSV, JSON, or API. Includes rate-limit handling & proxy support.',
+  applicationCategory: 'UtilityApplication',
+  operatingSystem: 'Web',
+  url: new URL(Astro.url.pathname, Astro.url.origin).toString(),
+  offers: [
+    {
+      '@type': 'Offer',
+      name: 'Starter Plan',
+      price: '0',
+      priceCurrency: 'EUR',
+      availability: 'https://schema.org/InStock',
+      description: 'Free tier with limited daily usage.',
+    },
+    {
+      '@type': 'Offer',
+      name: 'Pro Plan',
+      price: '12',
+      priceCurrency: 'EUR',
+      availability: 'https://schema.org/InStock',
+      description: 'Monthly subscription with higher quotas.',
+    },
+    {
+      '@type': 'Offer',
+      name: 'Business Plan',
+      price: '28',
+      priceCurrency: 'EUR',
+      availability: 'https://schema.org/InStock',
+      description: 'Advanced limits for teams and businesses.',
+    },
+  ],
+};
 ---
 
 <BaseLayout
   title="Webscraper – Evolution Hub"
   description="Extract content from web pages automatically with our Webscraper tool"
+  structuredData={structuredData}
 >
   <main class="min-h-screen bg-transparent py-12 px-4 sm:px-6 lg:px-8">
     <div class="max-w-4xl mx-auto">

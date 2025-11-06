@@ -13,6 +13,18 @@ testRefs: 'test-suite-v2/, tests/'
 
 **Scope** — Diese Hauptdokumentation bietet den zentralen Einstiegspunkt in alle Aspekte von Evolution Hub. Umfasst Architektur, Entwicklung, Testing, Security und operative Dokumentation. Zielgruppe sind alle Projektbeteiligten: Entwickler, Architekten, QA und Operations. Nicht enthalten: Code-Implementation-Details (→ spezifische Kategorien).
 
+## Inhaltsübersicht
+
+- [Primärdokumente](#primärdokumente)
+- [Sekundär- und Spezialdokumente](#sekundär--und-spezialdokumente)
+- [Dokumentations-Kategorien](#dokumentations-kategorien)
+- [Schnellstart-Guides](#schnellstart-guides)
+- [Cross-Referenzen](#cross-referenzen)
+- [Ownership & Maintenance](#ownership--maintenance)
+- [Standards & Konventionen](#standards--konventionen)
+- [Anker-Slug-Policy](#anker-slug-policy)
+- [Bekannte Lücken](#bekannte-lücken)
+
 ## Primärdokumente
 
 - **[SETUP.md](./SETUP.md)** — **Hauptdokument** für Projekt-Setup und Schnellstart
@@ -21,7 +33,7 @@ testRefs: 'test-suite-v2/, tests/'
 
 - **[Development Guide](./development/README.md)** — Entwicklungs-Workflows und Best Practices
 
-## Sekundär-/Spezialdokumente
+## Sekundär- und Spezialdokumente
 
 - **[Cheat Sheet](./cheat-sheet.md)** — Schnellreferenz für Kommandos und Workflows
 
@@ -29,7 +41,7 @@ testRefs: 'test-suite-v2/, tests/'
 
 - **[i18n Guide](./i18n.md)** — Internationalisierung und Locale-Management
 
-## 📚 Dokumentations-Kategorien
+## Dokumentations-Kategorien
 
 ### Core Documentation
 
@@ -103,9 +115,7 @@ testRefs: 'test-suite-v2/, tests/'
 
 - **[Features](./features/)** — Feature-spezifische Dokumentation
 
-  - [Blog-System](./features/blog-system.md) — Content Collections, BlogService, CTA-Integration (Production-Ready 75%)
-
-  - [Comment-System](./features/comment-system.md) — CRUD, Moderation, Security (Production-Ready 80%)
+  - [Blog & Comment System Plan](./features/blog+commentsystem-plan.md) — Content Collections, BlogService, Moderation (Roadmap)
 
 ### Operational Documentation
 
@@ -121,7 +131,9 @@ testRefs: 'test-suite-v2/, tests/'
 
   - Veraltete Planungsdokumente
 
-## 🚀 Schnellstart-Guides
+## Schnellstart-Guides
+
+🚀
 
 ### Für neue Entwickler
 
@@ -178,7 +190,7 @@ testRefs: 'test-suite-v2/, tests/'
 
 - **Tools:** Markdownlint, Prettier, automatisierte Link-Checks
 
-### Anker‑Slug‑Policy
+### Anker-Slug-Policy
 
 - Kanonische Slugs folgen GitHub‑Stil (MD051): Kleinbuchstaben, Diakritika entfernt, Leerzeichen→Bindestrich, Sonderzeichen entfernt, Duplikate mit -2/-3 …
 
@@ -198,11 +210,11 @@ testRefs: 'test-suite-v2/, tests/'
 
 ## Bekannte Lücken
 
-- [TODO] Vollständige Tool-Dokumentation (Webscraper, Voice Visualizer)
+- TODO: Vollständige Tool-Dokumentation (Webscraper, Voice Visualizer)
 
-- [TODO] Produktions-Readiness-Checklisten
+- TODO: Produktions-Readiness-Checklisten
 
-- [TODO] Multi-Language-Dokumentation (DE/EN)
+- TODO: Multi-Language-Dokumentation (DE/EN)
 
 ## 📖 Wichtige Root-Dokumente
 
@@ -225,10 +237,6 @@ testRefs: 'test-suite-v2/, tests/'
 - **[Content Management](./content.md)** — Content-Guidelines und Best Practices
 
 - **[SEO](./seo.md)** — SEO-Guidelines und Optimierung
-
-### Product
-
-- **[Feature Roadmap](./feature-roadmap.md)** — Produkt-Roadmap und geplante Features
 
 ### Security & Compliance
 

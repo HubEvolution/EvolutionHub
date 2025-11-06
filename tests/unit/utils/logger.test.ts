@@ -413,10 +413,8 @@ describe('TestLogger', () => {
 });
 
 describe('Globale Logger-Funktionen', () => {
-  let consoleSpy: any;
-
   beforeEach(() => {
-    consoleSpy = vi.spyOn(console, 'info').mockImplementation(() => {});
+    vi.spyOn(console, 'info').mockImplementation(() => {});
   });
 
   afterEach(() => {

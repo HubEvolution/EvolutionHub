@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import Card from '@/components/ui/Card';
 import { getI18n } from '@/utils/i18n';
 import { getLocale } from '@/lib/i18n';
 const locale = getLocale(Astro.url.pathname);
@@ -12,9 +13,7 @@ const pageTitle = hasText(tx('pages.impressum.title')) ? tx('pages.impressum.tit
 
 <BaseLayout title={pageTitle}>
   <!-- Hero Section -->
-  <section
-    class="py-16 md:py-24 bg-gradient-to-br from-primary/5 to-purple-500/5 dark:from-gray-800 dark:to-gray-900"
-  >
+  <section class="py-16 md:py-24 bg-transparent">
     <div class="container mx-auto px-4">
       <div class="max-w-4xl mx-auto text-center">
         <h1 class="text-4xl md:text-5xl font-bold mb-6 text-gray-900 dark:text-white">
@@ -34,12 +33,12 @@ const pageTitle = hasText(tx('pages.impressum.title')) ? tx('pages.impressum.tit
   </section>
 
   <!-- Content Section -->
-  <section class="py-16 md:py-20 bg-white dark:bg-gray-900">
+  <section class="py-16 md:py-20 bg-transparent">
     <div class="container mx-auto px-4">
       <div
         class="max-w-4xl mx-auto prose prose-lg dark:prose-invert prose-headings:text-gray-900 dark:prose-headings:text-white prose-a:text-emerald-600 dark:prose-a:text-emerald-400 hover:prose-a:text-emerald-500 dark:hover:prose-a:text-emerald-300"
       >
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 md:p-10">
+        <Card as="div" className="rounded-2xl p-8 md:p-10">
           {/* Provider Section */}
           {
             hasText(tx('pages.impressum.sections.provider.headline')) && (
@@ -334,7 +333,7 @@ const pageTitle = hasText(tx('pages.impressum.title')) ? tx('pages.impressum.tit
               </p>
             )
           }
-        </div>
+        </Card>
       </div>
     </div>
   </section>

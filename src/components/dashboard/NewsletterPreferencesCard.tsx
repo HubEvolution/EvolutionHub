@@ -19,6 +19,42 @@ interface Props {
   strings: Strings;
 }
 
+type ApiSuccess<T> = {
+  success: true;
+  data: T;
+};
+
+type ApiError = {
+  success: false;
+  error: string;
+  message?: string;
+  details?: unknown;
+};
+
+type ApiResult<T> = ApiSuccess<T> | ApiError;
+
+function assertApiResult<T>(value: unknown): asserts value is ApiResult<T> {
+  if (typeof value !== 'object' || value === null || !('success' in value)) {
+    throw new Error('Invalid API response structure');
+  }
+
+  const successFlag = (value as { success?: unknown }).success;
+
+  if (successFlag === true) {
+    return;
+  }
+
+  if (successFlag === false) {
+    const errorPayload = (value as { error?: unknown }).error;
+    if (typeof errorPayload !== 'string' || !errorPayload) {
+      throw new Error('API error response missing error message');
+    }
+    return;
+  }
+
+  throw new Error('API response has invalid success flag');
+}
+
 export default function NewsletterPreferencesCard({ email, initiallySubscribed, strings }: Props) {
   const [subscribed, setSubscribed] = useState(initiallySubscribed);
   const [loading, setLoading] = useState(false);
@@ -32,10 +68,17 @@ export default function NewsletterPreferencesCard({ email, initiallySubscribed, 
       body: JSON.stringify(payload),
     });
 
-    const json = await response.json().catch(() => ({}));
+    const payloadResult = (await response.json().catch(() => null)) as unknown;
 
-    if (!response.ok || json?.success === false) {
-      throw new Error(json?.error ?? 'request_failed');
+    if (!response.ok) {
+      throw new Error('request_failed');
+    }
+
+    if (payloadResult) {
+      assertApiResult<unknown>(payloadResult);
+      if (payloadResult.success === false) {
+        throw new Error(payloadResult.error ?? 'request_failed');
+      }
     }
   };
 

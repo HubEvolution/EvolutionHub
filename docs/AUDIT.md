@@ -2,7 +2,7 @@
 description: 'Komponenten- und Asset-Audit für die futuristische Landingpage'
 owner: 'Frontend Team'
 priority: 'low'
-lastSync: '2025-11-03'
+lastSync: '2025-11-06'
 codeRefs: 'src/components/**, public/assets/**, docs/AUDIT.md'
 ---
 
@@ -96,7 +96,7 @@ codeRefs: 'src/components/**, public/assets/**, docs/AUDIT.md'
 
 - **Theme:**
 
-  - Primary: Indigo (#4F46E5)
+  - Primary: Cyan (#06B6D4)
 
   - Secondary: Emerald (#10B981)
 
@@ -110,9 +110,9 @@ codeRefs: 'src/components/**, public/assets/**, docs/AUDIT.md'
 
   - `.glass-footer` - Blurred footer
 
-  - `.btn`, `.btn-primary`, `.btn-secondary`, `.btn-outline`
-
   - `.card` - Card component
+
+  - `.text-accent-gradient` / `.bg-accent-gradient` - Unified gradient accents basierend auf Monogramm-Farben
 
 ### ✅ Global CSS
 
@@ -144,9 +144,9 @@ codeRefs: 'src/components/**, public/assets/**, docs/AUDIT.md'
 
   - `.text-gradient-future` - Neon gradients
 
-  - `.btn-neon-primary`, `.btn-glass-outline`
-
   - Dark/Light Mode spezifische Tokens
+
+  > Hinweis: Die experimentellen Button-Klassen wurden entfernt; Marketing-Buttons greifen künftig auf die gemeinsamen Button-Komponenten zurück.
 
 ---
 

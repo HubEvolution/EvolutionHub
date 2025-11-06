@@ -1,7 +1,6 @@
 import { defineCollection, z } from 'astro:content';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
-import { remarkDemoteH1 } from '../../scripts/remark/remark-demote-h1';
 
 // Hilfsfunktion zur Validierung von Datumsangaben
 const dateSchema = z.preprocess((arg) => {
@@ -190,7 +189,6 @@ export const blogCollection = defineCollection({
           path: ['imageAlt'],
         }
       ),
-  remarkPlugins: [remarkDemoteH1],
 });
 
 // Exportiere die Collections

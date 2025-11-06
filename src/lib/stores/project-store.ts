@@ -7,12 +7,63 @@ import type {
   ProjectFilters,
 } from '@/types/dashboard';
 
+type ApiErrorPayload = {
+  type: string;
+  message: string;
+  details?: unknown;
+};
+
+type ApiResult<T> =
+  | {
+      success: true;
+      data: T;
+    }
+  | {
+      success: false;
+      error: ApiErrorPayload;
+    };
+
+type ProjectCardWithMeta = ProjectCard & {
+  priority?: 'low' | 'medium' | 'high';
+  dueDate?: string | null;
+  tags?: string[];
+};
+
+function assertApiResult<T>(value: unknown): asserts value is ApiResult<T> {
+  if (typeof value !== 'object' || value === null || !('success' in value)) {
+    throw new Error('Invalid API response structure');
+  }
+
+  const successFlag = (value as { success?: unknown }).success;
+
+  if (successFlag === true) {
+    if (!('data' in value)) {
+      throw new Error('Success response missing data field');
+    }
+    return;
+  }
+
+  if (successFlag === false) {
+    const errorPayload = (value as { error?: unknown }).error;
+    if (
+      !errorPayload ||
+      typeof errorPayload !== 'object' ||
+      typeof (errorPayload as { message?: unknown }).message !== 'string'
+    ) {
+      throw new Error('Error response missing error payload');
+    }
+    return;
+  }
+
+  throw new Error('API response has invalid success flag');
+}
+
 interface ProjectState {
-  projects: ProjectCard[];
+  projects: ProjectCardWithMeta[];
   loading: boolean;
   error: string | null;
   filters: ProjectFilters;
-  selectedProject: ProjectCard | null;
+  selectedProject: ProjectCardWithMeta | null;
 }
 
 interface ProjectActions {
@@ -26,14 +77,14 @@ interface ProjectActions {
   deleteProject: (id: string) => Promise<void>;
 
   // State management
-  setProjects: (projects: ProjectCard[]) => void;
-  setSelectedProject: (project: ProjectCard | null) => void;
+  setProjects: (projects: ProjectCardWithMeta[]) => void;
+  setSelectedProject: (project: ProjectCardWithMeta | null) => void;
   setFilters: (filters: ProjectFilters) => void;
   clearError: () => void;
 
   // Utility functions
-  getFilteredProjects: () => ProjectCard[];
-  getProjectById: (id: string) => ProjectCard | undefined;
+  getFilteredProjects: () => ProjectCardWithMeta[];
+  getProjectById: (id: string) => ProjectCardWithMeta | undefined;
 }
 
 type ProjectStore = ProjectState & ProjectActions;
@@ -54,7 +105,7 @@ export const useProjectStore = create<ProjectStore>()(
       fetchProjects: async () => {
         set({ loading: true, error: null });
         try {
-          const response = await fetch('/api/projects', {
+          const response = await fetch('/api/dashboard/projects', {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json',
@@ -65,12 +116,13 @@ export const useProjectStore = create<ProjectStore>()(
             throw new Error(`HTTP error! status: ${response.status}`);
           }
 
-          const result = await response.json();
+          const json = await response.json();
+          assertApiResult<ProjectCardWithMeta[]>(json);
 
-          if (result.success) {
-            set({ projects: result.data, loading: false });
+          if (json.success) {
+            set({ projects: json.data, loading: false });
           } else {
-            throw new Error(result.error?.message || 'Failed to fetch projects');
+            throw new Error(json.error.message || 'Failed to fetch projects');
           }
         } catch (error) {
           console.error('Error fetching projects:', error);
@@ -84,7 +136,7 @@ export const useProjectStore = create<ProjectStore>()(
       fetchProject: async (id: string) => {
         set({ loading: true, error: null });
         try {
-          const response = await fetch(`/api/projects/${id}`, {
+          const response = await fetch(`/api/dashboard/projects/${id}`, {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json',
@@ -95,16 +147,17 @@ export const useProjectStore = create<ProjectStore>()(
             throw new Error(`HTTP error! status: ${response.status}`);
           }
 
-          const result = await response.json();
+          const json = await response.json();
+          assertApiResult<ProjectCardWithMeta>(json);
 
-          if (result.success) {
+          if (json.success) {
             set((state) => ({
-              selectedProject: result.data,
-              projects: state.projects.map((p) => (p.id === id ? result.data : p)),
+              selectedProject: json.data,
+              projects: state.projects.map((p) => (p.id === id ? json.data : p)),
               loading: false,
             }));
           } else {
-            throw new Error(result.error?.message || 'Failed to fetch project');
+            throw new Error(json.error.message || 'Failed to fetch project');
           }
         } catch (error) {
           console.error('Error fetching project:', error);
@@ -133,15 +186,16 @@ export const useProjectStore = create<ProjectStore>()(
             throw new Error(`HTTP error! status: ${response.status}`);
           }
 
-          const result = await response.json();
+          const json = await response.json();
+          assertApiResult<ProjectCardWithMeta>(json);
 
-          if (result.success) {
+          if (json.success) {
             set((state) => ({
-              projects: [result.data, ...state.projects],
+              projects: [json.data, ...state.projects],
               loading: false,
             }));
           } else {
-            throw new Error(result.error?.message || 'Failed to create project');
+            throw new Error(json.error.message || 'Failed to create project');
           }
         } catch (error) {
           console.error('Error creating project:', error);
@@ -170,17 +224,18 @@ export const useProjectStore = create<ProjectStore>()(
             throw new Error(`HTTP error! status: ${response.status}`);
           }
 
-          const result = await response.json();
+          const json = await response.json();
+          assertApiResult<ProjectCardWithMeta>(json);
 
-          if (result.success) {
+          if (json.success) {
             set((state) => ({
-              projects: state.projects.map((p) => (p.id === data.id ? result.data : p)),
+              projects: state.projects.map((p) => (p.id === data.id ? json.data : p)),
               selectedProject:
-                state.selectedProject?.id === data.id ? result.data : state.selectedProject,
+                state.selectedProject?.id === data.id ? json.data : state.selectedProject,
               loading: false,
             }));
           } else {
-            throw new Error(result.error?.message || 'Failed to update project');
+            throw new Error(json.error.message || 'Failed to update project');
           }
         } catch (error) {
           console.error('Error updating project:', error);
@@ -208,16 +263,17 @@ export const useProjectStore = create<ProjectStore>()(
             throw new Error(`HTTP error! status: ${response.status}`);
           }
 
-          const result = await response.json();
+          const json = await response.json();
+          assertApiResult<{ id: string }>(json);
 
-          if (result.success) {
+          if (json.success) {
             set((state) => ({
               projects: state.projects.filter((p) => p.id !== id),
               selectedProject: state.selectedProject?.id === id ? null : state.selectedProject,
               loading: false,
             }));
           } else {
-            throw new Error(result.error?.message || 'Failed to delete project');
+            throw new Error(json.error.message || 'Failed to delete project');
           }
         } catch (error) {
           console.error('Error deleting project:', error);
@@ -228,11 +284,11 @@ export const useProjectStore = create<ProjectStore>()(
         }
       },
 
-      setProjects: (projects: ProjectCard[]) => {
+      setProjects: (projects: ProjectCardWithMeta[]) => {
         set({ projects });
       },
 
-      setSelectedProject: (project: ProjectCard | null) => {
+      setSelectedProject: (project: ProjectCardWithMeta | null) => {
         set({ selectedProject: project });
       },
 
@@ -252,20 +308,12 @@ export const useProjectStore = create<ProjectStore>()(
           filtered = filtered.filter((p) => p.status === filters.status);
         }
 
-        if (filters.priority) {
-          filtered = filtered.filter((p) => p.priority === filters.priority);
-        }
-
         if (filters.search) {
           const search = filters.search.toLowerCase();
           filtered = filtered.filter(
             (p) =>
               p.title.toLowerCase().includes(search) || p.description.toLowerCase().includes(search)
           );
-        }
-
-        if (filters.tags && filters.tags.length > 0) {
-          filtered = filtered.filter((p) => p.tags?.some((tag) => filters.tags?.includes(tag)));
         }
 
         return filtered;

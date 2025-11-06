@@ -3,93 +3,183 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import { aosDelayForIndex } from '@/lib/aos';
 import Icon from '@/components/ui/Icon.astro';
 import AosWrapper from '@/components/AosWrapper.astro';
+import { getLocale } from '@/lib/i18n';
+import { getI18n, getI18nArray } from '@/utils/i18n';
+import { localizePath } from '@/lib/locale-path';
 
-const sections = [
+const locale = getLocale(Astro.url.pathname);
+const t = getI18n(locale);
+const tList = getI18nArray(locale);
+
+const stepLinkMap = {
+  step1: '/register',
+  step2: '/dashboard',
+  step3: '/tools',
+  step4: '/blog',
+} as const;
+
+const stepKeys = ['step1', 'step2', 'step3', 'step4'] as const;
+
+const steps = stepKeys.map((key) => ({
+  title: t(`pages.docs.steps.${key}.title`),
+  description: t(`pages.docs.steps.${key}.description`),
+  link: localizePath(locale, stepLinkMap[key]),
+  linkLabel: t(`pages.docs.steps.${key}.linkLabel`),
+  checklist: tList(`pages.docs.steps.${key}.checklist`),
+}));
+
+const resources = [
   {
-    title: 'Erste Schritte',
-    description: 'Lernen Sie die Grundlagen kennen und starten Sie mit Evolution Hub durch.',
-    link: '/docs/getting-started',
-    icon: 'rocket',
+    title: t('pages.docs.resources.tools.title'),
+    description: t('pages.docs.resources.tools.description'),
+    link: localizePath(locale, '/tools'),
+    icon: 'sparkles',
   },
   {
-    title: 'Anleitungen',
-    description: 'Detaillierte Anleitungen für alle Funktionen und Features.',
-    link: '/docs/guides',
-    icon: 'book',
+    title: t('pages.docs.resources.faq.title'),
+    description: t('pages.docs.resources.faq.description'),
+    link: localizePath(locale, '/faq'),
+    icon: 'question-mark-circle',
   },
   {
-    title: 'API-Referenz',
-    description: 'Technische Dokumentation unserer API-Endpunkte.',
-    link: '/docs/api',
-    icon: 'plug',
+    title: t('pages.docs.resources.pricing.title'),
+    description: t('pages.docs.resources.pricing.description'),
+    link: localizePath(locale, '/pricing'),
+    icon: 'chart-square-bar',
   },
   {
-    title: 'Häufige Fragen',
-    description: 'Antworten auf häufig gestellte Fragen.',
-    link: '/docs/faq',
-    icon: 'book',
+    title: t('pages.docs.resources.contact.title'),
+    description: t('pages.docs.resources.contact.description'),
+    link: localizePath(locale, '/kontakt'),
+    icon: 'chat',
+  },
+  {
+    title: t('pages.docs.resources.blog.title'),
+    description: t('pages.docs.resources.blog.description'),
+    link: localizePath(locale, '/blog'),
+    icon: 'book-open',
   },
 ];
 ---
 
-<BaseLayout title="Dokumentation">
-  <div class="py-12 bg-white dark:bg-gray-900">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="lg:text-center">
-        <h2
-          class="text-base text-indigo-600 dark:text-indigo-400 font-semibold tracking-wide uppercase"
-        >
-          Dokumentation
-        </h2>
-        <p
-          class="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 dark:text-white sm:text-4xl"
-        >
-          Alles was Sie wissen müssen
-        </p>
-        <p class="mt-4 max-w-2xl text-xl text-gray-700 dark:text-gray-300 lg:mx-auto">
-          Umfassende Anleitungen und Dokumentationen, die Ihnen helfen, das Beste aus Evolution Hub
-          herauszuholen.
-        </p>
-      </div>
+<BaseLayout
+  title={t('pages.docs.meta.title')}
+  description={t('pages.docs.meta.description')}
+>
+  <div class="landing-v2 relative">
+    <section class="py-20 bg-slate-950/80 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
+      <div class="container space-y-20">
+        <header class="max-w-3xl mx-auto text-center space-y-5">
+          <h2
+            class="text-xs sm:text-sm font-semibold tracking-[0.12em] uppercase text-primary-400 dark:text-primary-300"
+          >
+            {t('pages.docs.hero.kicker')}
+          </h2>
+          <p
+            class="text-3xl sm:text-5xl font-extrabold tracking-tight text-white dark:text-white"
+          >
+            {t('pages.docs.hero.title')}
+          </p>
+          <p class="text-base sm:text-lg text-gray-300 dark:text-gray-300 leading-relaxed">
+            {t('pages.docs.hero.subtitle')}
+          </p>
+        </header>
 
-      <div class="mt-10">
-        <div class="space-y-10 md:space-y-0 md:grid md:grid-cols-2 md:gap-x-8 md:gap-y-10">
-          {
-            sections.map((section, idx) => (
-              <AosWrapper
-                tag="a"
-                delay={aosDelayForIndex(idx, { step: 100, max: 300 })}
-                class="group relative bg-white dark:bg-gray-800 p-6 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-500 focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:outline-none rounded-lg border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-shadow duration-200"
-              >
-                <a href={section.link} class="contents">
-                  <div>
-                    <span class="rounded-lg inline-flex p-3 bg-indigo-50 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-200 ring-4 ring-white dark:ring-gray-808">
-                      <Icon name={section.icon} class="w-6 h-6" ariaLabel={section.title} />
-                    </span>
-                  </div>
-                  <div class="mt-8">
-                    <h3 class="text-lg font-medium">
-                      <span class="absolute inset-0" aria-hidden="true" />
-                      {section.title}
-                    </h3>
-                    <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                      {section.description}
-                    </p>
-                  </div>
-                  <span
-                    class="pointer-events-none absolute top-6 right-6 text-gray-300 group-hover:text-indigo-400 dark:text-gray-500 dark:group-hover:text-indigo-400"
-                    aria-hidden="true"
-                  >
-                    <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M20 4h1a1 1 0 00-1-1v1zm-1 12a1 1 0 102 0h-2zM8 3a1 1 0 000 2V3zM3.293 19.293a1 1 0 101.414 1.414L3.293 19.293zM19 4v12h2V4h-2zm1-1H8v2h12V3zm-.707.293l-16 16 1.414 1.414 16-16-1.414-1.414z" />
-                    </svg>
+        <section aria-labelledby="onboarding-steps">
+          <div class="flex flex-col gap-3 text-center">
+            <h3
+              id="onboarding-steps"
+              class="text-xs sm:text-sm font-semibold tracking-[0.12em] uppercase text-primary-400 dark:text-primary-300"
+            >
+              {t('pages.docs.steps.title')}
+            </h3>
+            <p class="text-gray-300 dark:text-gray-300 max-w-2xl mx-auto text-sm sm:text-base leading-relaxed">
+              {t('pages.docs.steps.subtitle')}
+            </p>
+          </div>
+          <ol
+            class="mt-12 grid gap-8 md:gap-10 grid-cols-1 sm:grid-cols-[repeat(auto-fit,minmax(18rem,1fr))] auto-rows-fr max-w-5xl mx-auto"
+            role="list"
+          >
+            {steps.map((step, index) => (
+              <li class="glass p-8 text-left space-y-6 rounded-2xl h-full flex flex-col w-full sm:max-w-sm" role="listitem">
+                <div class="flex items-start gap-5">
+                  <span class="flex h-11 w-11 items-center justify-center rounded-full bg-primary-500/20 text-primary-200 text-lg font-semibold">
+                    {index + 1}
                   </span>
+                  <div class="space-y-4">
+                    <h4 class="text-xl font-semibold text-white">{step.title}</h4>
+                    <p class="text-base text-gray-200 leading-relaxed">
+                      {step.description}
+                    </p>
+                    {step.checklist.length > 0 && (
+                      <ul class="grid gap-2 text-sm text-gray-200 lg:grid-cols-2">
+                        {step.checklist.map((item) => (
+                          <li class="flex items-start gap-2">
+                            <span class="mt-1 h-2.5 w-2.5 rounded-full bg-emerald-400" aria-hidden="true" />
+                            <span class="leading-relaxed">{item}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                </div>
+                <div class="mt-auto pt-4">
+                  <a
+                    href={step.link}
+                    class="inline-flex items-center gap-2 text-sm font-medium px-4 py-1.5 rounded-full bg-primary-500/15 text-primary-100 hover:bg-primary-500/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
+                  >
+                    {step.linkLabel}
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                    </svg>
+                  </a>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        <section aria-labelledby="docs-resources" class="space-y-10">
+          <div class="text-center space-y-3">
+            <h3
+              id="docs-resources"
+              class="text-xs sm:text-sm font-semibold tracking-[0.12em] uppercase text-primary-400 dark:text-primary-300"
+            >
+              {t('pages.docs.resources.title')}
+            </h3>
+            <p class="text-gray-300 dark:text-gray-300 max-w-2xl mx-auto text-sm sm:text-base leading-relaxed">
+              {t('pages.docs.resources.subtitle')}
+            </p>
+          </div>
+          <div class="grid gap-8 grid-cols-1 sm:grid-cols-[repeat(auto-fit,minmax(16rem,1fr))] auto-rows-fr max-w-5xl mx-auto">
+            {resources.map((resource, idx) => (
+              <AosWrapper
+                tag="div"
+                delay={aosDelayForIndex(idx, { step: 120, max: 360 })}
+                class="glass h-full w-full p-8 flex flex-col gap-5 rounded-2xl sm:max-w-sm"
+              >
+                <div class="flex items-center gap-3">
+                  <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-500/15 text-primary-200">
+                    <Icon name={resource.icon} class="w-5 h-5" ariaLabel={resource.title} />
+                  </span>
+                  <h4 class="text-lg font-semibold text-white">{resource.title}</h4>
+                </div>
+                <p class="text-sm text-gray-200 leading-relaxed flex-1">{resource.description}</p>
+                <a
+                  href={resource.link}
+                  class="inline-flex items-center gap-2 text-sm font-medium px-4 py-1.5 rounded-full bg-primary-500/15 text-primary-100 hover:bg-primary-500/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
+                >
+                  {t('pages.docs.resources.action')}
+                  <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                  </svg>
                 </a>
               </AosWrapper>
-            ))
-          }
-        </div>
+            ))}
+          </div>
+        </section>
       </div>
-    </div>
+    </section>
   </div>
 </BaseLayout>

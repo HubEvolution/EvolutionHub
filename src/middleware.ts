@@ -193,7 +193,8 @@ export const onRequest = defineMiddleware(async (context, next) => {
   // -> Splash-/Welcome-Gate überspringen für diese Routen
   function isGuestAccessibleToolRoute(p: string): boolean {
     // Optionales Sprachpräfix /de oder /en unterstützen
-    const TOOL_RE = /^\/(?:(?:de|en)\/)?tools\/imag-enhancer(?:\/app)?(?:\/?$)/;
+    const TOOL_RE =
+      /^\/(?:(?:de|en)\/)?tools\/(imag-enhancer|webscraper|prompt-enhancer|voice-visualizer|video-enhancer)(?:\/app)?(?:\/?$)/;
     return TOOL_RE.test(p);
   }
 

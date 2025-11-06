@@ -2,7 +2,7 @@
 description: 'Komponentenübersicht für Astro & React Frontend (UI, Layout, Dashboard, Blog)'
 owner: 'Frontend Team'
 priority: 'high'
-lastSync: '2025-11-04'
+lastSync: '2025-11-06'
 codeRefs: 'src/components/**, docs/frontend/components.md'
 ---
 
@@ -28,13 +28,13 @@ Die UI-Basiskomponenten bilden die Grundbausteine der Benutzeroberfläche und we
 
 ### Button
 
-**Datei:** `src/components/ui/Button.astro`
+**Dateien:** `src/components/ui/Button.astro`, `src/components/ui/Button.tsx`
 
-Eine flexible Button-Komponente mit verschiedenen Varianten, Größen und Zuständen.
+Zentrale Button-Komponente (Astro + React) mit vollständig synchronisierten Styles. Alle Varianten nutzen seit November 2025 einen Verlauf auf Basis des EH-Monogramms (`primary` Cyan → `secondary` Emerald).
 
 **Props:**
 
-- `variant`: `'primary' | 'secondary' | 'outline' | 'ghost' | 'link'` (Standard: `'primary'`)
+- `variant`: `'primary' | 'secondary' | 'outline' | 'ghost' | 'link' | 'accent'` (Standard: `'primary'`)
 
 - `size`: `'sm' | 'md' | 'lg'` (Standard: `'md'`)
 
@@ -46,14 +46,30 @@ Eine flexible Button-Komponente mit verschiedenen Varianten, Größen und Zustä
 
 - `className`: `string` für zusätzliche CSS-Klassen
 
-**Beispiel:**
+**Style-Quelle:** `src/components/ui/buttonStyles.ts` (liefert `BUTTON_BASE`, `BUTTON_SIZES`, `BUTTON_VARIANTS`). Legacy-Klassen wie `.btn`, `.btn-primary`, `.btn-neon-primary` wurden entfernt; neue Styles müssen über die Komponenten laufen.
+
+**Beispiel (Astro):**
 
 ```astro
-<Button variant="primary" size="lg"> Jetzt starten </Button>
+<Button variant="primary" size="lg">Jetzt starten</Button>
+<Button variant="outline" size="md">Mehr erfahren</Button>
+<Button variant="accent" size="sm">Marketing CTA</Button>
+```
 
-<Button variant="outline" disabled={isLoading}> Abbrechen </Button>
+**Beispiel (React):**
 
-```text
+```tsx
+import Button from '@/components/ui/Button';
+
+export function CtaGroup() {
+  return (
+    <div className="flex gap-4">
+      <Button variant="primary">Free Trial</Button>
+      <Button variant="ghost">Mehr Details</Button>
+    </div>
+  );
+}
+```
 
 ### CardReact
 

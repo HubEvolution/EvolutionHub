@@ -3,6 +3,7 @@ import tailwind from '@astrojs/tailwind';
 import react from "@astrojs/react";
 import cloudflare from "@astrojs/cloudflare";
 import mdx from '@astrojs/mdx';
+import { visit } from 'unist-util-visit';
 
 // Determine build target (Worker vs Node dev) for conditional aliasing
 const IS_WORKER_BUILD = Boolean(
@@ -66,6 +67,17 @@ export { LOGGING_CONFIG };
 // Using custom i18n implementation in src/lib/i18n.js
 // No external i18n package needed
 
+const remarkDemoteH1 = () => (tree, file) => {
+  if (!file?.path?.includes('/content/blog/')) {
+    return;
+  }
+
+  visit(tree, 'heading', (node) => {
+    if (node.depth === 1) {
+      node.depth = 2;
+    }
+  });
+};
 
 // https://astro.build/config
 export default defineConfig({
@@ -141,6 +153,9 @@ export default defineConfig({
     }),
     mdx()
   ],
+  markdown: {
+    remarkPlugins: [remarkDemoteH1],
+  },
   // Custom i18n implementation via file structure:
     // - src/pages/index.astro (default/root)
     // - src/pages/de/index.astro (German)

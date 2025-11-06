@@ -42,6 +42,7 @@ interface Props {
   noIndex?: boolean;
   comingSoon?: boolean;
   disableGlobalBg?: boolean; // optional: globalen Hintergrund deaktivieren
+  titleSuffix?: string;
 }
 
 const props = Astro.props as Props;
@@ -51,6 +52,7 @@ const {
   description: customDescription,
   ogImage: customOgImage,
   hideNewsletter,
+  titleSuffix: customTitleSuffix,
 } = props;
 
 const { enableAOS = true, enableAnalytics = true } = props;
@@ -68,6 +70,8 @@ const seoData = getSEOData(locale);
 const title = customTitle || seoData.title;
 const description = customDescription || seoData.description;
 const ogImage = customOgImage || seoData.ogImage;
+const titleSuffix = customTitleSuffix ?? ' | Evolution Hub';
+const fullTitle = `${title}${titleSuffix}`;
 // Compute whether to show Coming Soon overlay
 const pageFrontmatter = props as unknown as Record<string, unknown>;
 const showComingSoon = isComingSoon(Astro.url.pathname, pageFrontmatter);
@@ -77,6 +81,12 @@ const landingBgVariant = getLandingBgVariant();
 const siteBase: URL = (import.meta.env.PUBLIC_SITE_URL as string)
   ? new URL(import.meta.env.PUBLIC_SITE_URL as string)
   : new URL(Astro.url.origin);
+
+const localeAlternates = getAlternateUrls(Astro.url.pathname);
+const canonicalPath = locale === 'en' ? localeAlternates.en : localeAlternates.de;
+const canonicalUrl = new URL(canonicalPath, siteBase).toString();
+const alternateDeUrl = new URL(localeAlternates.de, siteBase).toString();
+const alternateEnUrl = new URL(localeAlternates.en, siteBase).toString();
 ---
 
 <!doctype html>
@@ -89,49 +99,27 @@ const siteBase: URL = (import.meta.env.PUBLIC_SITE_URL as string)
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
-    <meta
-      property="og:url"
-      content={props.canonical || new URL(Astro.url.pathname, siteBase).toString()}
-    />
-    <meta property="og:title" content={`${title} | Evolution Hub`} />
+    <meta property="og:url" content={props.canonical || canonicalUrl} />
+    <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:image" content={ogImage} />
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content={`${title} | Evolution Hub`} />
+    <meta name="twitter:title" content={fullTitle} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
 
-    <link
-      rel="canonical"
-      href={props.canonical ||
-        new URL(
-          locale === 'en'
-            ? getAlternateUrls(Astro.url.pathname).en
-            : getAlternateUrls(Astro.url.pathname).de,
-          siteBase
-        ).toString()}
-    />
+    <link rel="canonical" href={props.canonical || canonicalUrl} />
 
     <!-- hreflang links for SEO -->
-    <link
-      rel="alternate"
-      hreflang="de"
-      href={new URL(getAlternateUrls(Astro.url.pathname).de, siteBase).toString()}
-    />
-    <link
-      rel="alternate"
-      hreflang="en"
-      href={new URL(getAlternateUrls(Astro.url.pathname).en, siteBase).toString()}
-    />
-    <link
-      rel="alternate"
-      hreflang="x-default"
-      href={new URL(getAlternateUrls(Astro.url.pathname).de, siteBase).toString()}
-    />
+    <link rel="alternate" hreflang="de" href={alternateDeUrl} />
+    <link rel="alternate" hreflang="en" href={alternateEnUrl} />
+    {locale === 'en' && (
+      <link rel="alternate" hreflang="x-default" href={new URL('/en/', siteBase).toString()} />
+    )}
 
-    <title>{title} | Evolution Hub</title>
+    <title>{fullTitle}</title>
 
     <!-- Favicons -->
     <link rel="apple-touch-icon" sizes="180x180" href="/favicons/apple-touch-icon.png" />
@@ -178,8 +166,67 @@ const siteBase: URL = (import.meta.env.PUBLIC_SITE_URL as string)
       set:html={JSON.stringify({
         '@context': 'https://schema.org',
         '@type': 'WebPage',
-        name: `${title} | Evolution Hub`,
+        name: fullTitle,
         inLanguage: locale,
+      })}
+    />
+    {props.structuredData && (
+      <script
+        is:inline
+        type="application/ld+json"
+        nonce={Astro.locals.cspNonce}
+        set:html={JSON.stringify(props.structuredData)}
+      />
+    )}
+    <script
+      is:inline
+      type="application/ld+json"
+      nonce={Astro.locals.cspNonce}
+      set:html={JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'Organization',
+        name: 'Evolution Hub',
+        url: 'https://hub-evolution.com',
+        logo: 'https://hub-evolution.com/favicons/android-chrome-512x512.png',
+        description:
+          'AI tools for developers: web scraping, transcription, image upscaling & video enhancement',
+        sameAs: [
+          'https://twitter.com/evolution_hub',
+          'https://linkedin.com/company/evolution-hub',
+        ],
+        address: {
+          '@type': 'PostalAddress',
+          streetAddress: 'Kaiserin-Augusta-Allee 7',
+          addressLocality: 'Berlin',
+          addressCountry: 'DE',
+          postalCode: '10787',
+        },
+        contactPoint: {
+          '@type': 'ContactPoint',
+          contactType: 'Customer Support',
+          telephone: '+49 (0) 30 XXXXXXX',
+          email: 'support@hub-evolution.com',
+          hoursAvailable: 'Mon-Fri 09:00-18:00',
+        },
+      })}
+    />
+    <script
+      is:inline
+      type="application/ld+json"
+      nonce={Astro.locals.cspNonce}
+      set:html={JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'WebSite',
+        name: 'Evolution Hub',
+        url: 'https://hub-evolution.com',
+        potentialAction: {
+          '@type': 'SearchAction',
+          target: {
+            '@type': 'EntryPoint',
+            urlTemplate: 'https://hub-evolution.com/search?q={search_term_string}',
+          },
+          'query-input': 'required name=search_term_string',
+        },
       })}
     />
 

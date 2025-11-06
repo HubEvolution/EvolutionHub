@@ -5,6 +5,7 @@ import { getLocale } from '@/lib/i18n';
 import { getI18n, getI18nArray } from '@/utils/i18n';
 import { localizePath } from '@/lib/locale-path';
 import Card from '@/components/ui/Card';
+import Button from '@/components/ui/Button';
 
 interface Plan {
   name: string;
@@ -541,15 +542,20 @@ const plans: Plan[] = [
         class={`relative flex flex-col rounded-2xl`}
         data-pro-card={plan.featured ? 'true' : undefined}
       >
+        {plan.featured && <div class="gradient-border z-20"></div>}
         {plan.featured && (
-          <div class="absolute top-0 right-0 -mt-3 -mr-3 px-3 py-1 bg-blue-500 text-white text-sm font-semibold rounded-full">
+          <div class="absolute top-0 right-0 z-30 -mt-3 -mr-3 px-3 py-1 rounded-full bg-blue-500 text-white text-sm font-semibold shadow-[0_10px_25px_-15px_rgba(37,99,235,0.75)]">
             {t('pages.pricing.table.featured_badge')}
           </div>
         )}
 
         <Card
           variant="holo"
-          className={`flex flex-col p-8 rounded-2xl ${plan.featured ? 'ring-2 ring-blue-500' : ''}`}
+          className={`relative z-10 flex flex-col p-8 rounded-2xl ${
+            plan.featured
+              ? 'border-transparent bg-white/12 dark:bg-white/10 shadow-[0_28px_70px_-36px_rgba(6,182,212,0.85)]'
+              : ''
+          }`}
         >
           <h3 class="text-2xl font-bold">{plan.name}</h3>
           <p class="mt-2 text-gray-600 dark:text-gray-300">{plan.description}</p>
@@ -618,41 +624,46 @@ const plans: Plan[] = [
           {
             // Render buttons for Pro and Premium (checkout), Starter (register), Enterprise (buy)
             plan.name === t('pages.pricing.table.plans.pro.name') ? (
-              <button
+              <Button
                 id="buy-pro-cta"
                 type="button"
+                variant="primary"
+                size="md"
+                className="mt-8"
                 data-payment-monthly={paymentLinksMonthly['pro']}
                 data-payment-annual={paymentLinksAnnual['pro']}
-                class={`mt-8 px-6 py-3 text-center font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2`}
               >
                 {plan.cta}
-              </button>
+              </Button>
             ) : plan.name === t('pages.pricing.table.plans.premium.name') ? (
-              <button
+              <Button
                 id="buy-premium-cta"
                 type="button"
+                variant="secondary"
+                size="md"
+                className="mt-8"
                 data-payment-monthly={paymentLinksMonthly['premium']}
                 data-payment-annual={paymentLinksAnnual['premium']}
-                class={`mt-8 px-6 py-3 text-center font-medium rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2`}
               >
                 {plan.cta}
-              </button>
+              </Button>
             ) : plan.name === t('pages.pricing.table.plans.enterprise.name') ? (
-              <button
+              <Button
                 id="buy-enterprise-cta"
                 type="button"
+                variant="accent"
+                size="md"
+                className="mt-8"
                 data-payment-monthly={paymentLinksMonthly['enterprise']}
                 data-payment-annual={paymentLinksAnnual['enterprise']}
-                class={`mt-8 px-6 py-3 text-center font-medium rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2`}
               >
                 {ctaBuyEnterprise}
-              </button>
+              </Button>
             ) : (
-              <a
-                href={localizePath(locale, '/register')}
-                class={`mt-8 px-6 py-3 text-center font-medium rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2`}
-              >
-                {plan.cta}
+              <a href={localizePath(locale, '/register')} class="mt-8 flex">
+                <Button as="span" variant="outline" size="md" className="w-full justify-center">
+                  {plan.cta}
+                </Button>
               </a>
             )
           }

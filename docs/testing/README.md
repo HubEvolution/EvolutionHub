@@ -15,17 +15,15 @@ testRefs: 'tests/unit, tests/integration, test-suite-v2'
 
 ## Primärdokumente
 
-- **[Testing Strategy](./testing-strategy.md)** — **Hauptdokument** für umfassende Teststrategie (Philosophie, Ebenen, Tools)
+- **[Testing Strategy](./testing-strategy.md)** — Leitfaden für Testphilosophie, Ebenen und Toolchain
 
-- **[Coverage Roadmap](./coverage-roadmap-to-95.md)** — Strategischer Plan für 95% Coverage (Baseline, Phasen, Ressourcen)
+- **[Coverage Roadmap zu 95%](./coverage-roadmap-to-95.md)** — Plan zur Erhöhung der Coverage (Phasen, Priorisierung)
 
 ## Sekundär-/Spezialdokumente
 
 - **[Testing Guidelines](../development/testing-guidelines.md)** — Verbindliche Praktiken (AAA-Muster, Namenskonventionen)
 
-- **[Test Setup](./test-setup.md)** — Konfiguration von Vitest, Playwright und Test-Utilities
-
-- **[Mocking Guidelines](./mocking-guidelines.md)** — Mocking-Strategien für Services und APIs
+- TODO: Ergänzende Seite zu Playwright/Vitest Setup (derzeit in `tests/` README notiert)
 
 ## Test-Strategie im Detail
 
@@ -43,7 +41,7 @@ Unit-Tests prüfen einzelne Funktionen, Methoden oder Klassen in Isolation.
 
 - Einzelne Komponenten (ohne externe Abhängigkeiten)
 
-**Ziel-Coverage:** 60% aller Tests
+**Zielverteilung:** ca. 60% Unit-Tests (TDD/Utility, Services)
 
 #### 2. Integrationstests
 
@@ -59,7 +57,7 @@ Integrationstests prüfen die Interaktion zwischen verschiedenen Komponenten ode
 
 - Middleware-Funktionalität
 
-**Ziel-Coverage:** 30% aller Tests
+**Zielverteilung:** ca. 30% Integrationstests (API + DB + Middleware)
 
 #### 3. End-to-End Tests (E2E)
 
@@ -75,46 +73,36 @@ E2E-Tests prüfen das gesamte System aus Benutzerperspektive.
 
 - Visuelle Regression
 
-**Ziel-Coverage:** 10% aller Tests
+**Zielverteilung:** ca. 10% E2E-Tests (kritische Flows)
 
 ### Testwerkzeuge
 
 #### Vitest
 
-Haupttestwerkzeug für Unit- und Integrationstests.
+- Konfiguration: `vitest.config.ts`, `vitest.workspace.ts`
+- Wichtige Skripte:
 
-**Konfiguration:** `vitest.config.ts`, `vitest.workspace.ts`
+  ```bash
+  npm test              # Watch-Modus (workspaces)
+  npm run test:once     # Einzelner Run
+  npm run test:coverage # Mit Coverage-Report (thresholds 70%)
+  ```
 
-**Wichtige Kommandos:**
+#### Playwright (test-suite-v2)
 
-```bash
-npm test                  # Watch-Modus
-npm run test:once         # Einzelner Run
-npm run test:coverage     # Mit Coverage-Report
+- Konfiguration: `test-suite-v2/playwright.config.ts`
+- Skripte:
 
-```bash
+  ```bash
+  npm run test:e2e             # Standard-Suite (lokal gegen Wrangler)
+  npm run test:e2e:chromium    # Nur Chromium Project
+  TEST_BASE_URL=... npm run test:e2e  # Gegen Remote-Env
+  ```
 
-#### Playwright
+#### MSW / Test Utilities
 
-E2E-Testing gegen Cloudflare Wrangler Dev oder Staging.
-
-**Konfiguration:** `tests/e2e/config/playwright.config.ts`
-
-**Wichtige Kommandos:**
-
-```bash
-npm run test:e2e          # Alle E2E-Tests
-npm run test:e2e:ui       # Mit UI-Test-Runner
-export BASE_URL="..." && npm run test:e2e  # Gegen Remote-Server
-```
-
-**BASE_URL:** Steuert Ziel-Environment (`http://127.0.0.1:8787` Standard, oder `https://staging.example.com`)
-
-#### MSW (Mock Service Worker)
-
-API-Mocking für Tests ohne echte Backend-Aufrufe.
-
-**Verwendung:** `test/mocks/handlers.ts` für zentrale Mock-Definitionen
+- API-Mocking über `test/mocks/handlers.ts` und `setup.ts`
+- Für Worker-Bindings stehen Mock-Helper in `tests/` bzw. `test-suite-v2/` zur Verfügung
 
 ## Cross-Referenzen
 
@@ -147,11 +135,11 @@ API-Mocking für Tests ohne echte Backend-Aufrufe.
 
 ## Bekannte Lücken
 
-- [TODO] Visuelle Regressionstests für UI-Komponenten
+- TODO: Visuelle Regressionstests für UI-Komponenten
 
-- [TODO] Performance-Tests für API-Endpunkte
+- TODO: Performance-Tests für API-Endpunkte
 
-- [TODO] Accessibility-Tests (a11y) für Frontend-Komponenten
+- TODO: Accessibility-Tests (a11y) für Frontend-Komponenten
 
 ## Übersicht
 

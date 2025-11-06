@@ -196,6 +196,21 @@ declare module '@/lib/response-helpers' {
   export const createDeprecatedGoneJson: any;
 }
 
+declare module '@/lib/security-headers' {
+  export const secureJsonResponse: any;
+  export const secureErrorResponse: any;
+  export const applySecurityHeaders: any;
+  export const createApiError: any;
+  export const createApiSuccess: any;
+  export const withApiMiddleware: any;
+  export const withAuthApiMiddleware: any;
+}
+
+declare module 'astro:content' {
+  export function __setCollectionData(collectionName: string, entries: any[]): void;
+  export function getCollection(collectionName: string, filter?: (entry: any) => boolean): Promise<any[]>;
+}
+
 declare module './provider-error' {
   export const buildProviderError: any;
 }

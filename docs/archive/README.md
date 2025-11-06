@@ -15,17 +15,11 @@ testRefs: 'N/A'
 
 ## Primärdokumente
 
-- **[Migration Overview](./migration-overview.md)** — **Hauptdokument** für abgeschlossene Migrationen
+- **[migration_pages_zu_worker.md](./migration_pages_zu_worker.md)** — Abschlussbericht zur Migration von Cloudflare Pages zu Workers (Stand: 2025-10-01)
 
-- **[Deprecated Features](./deprecated-features.md)** — Auflistung veralteter Features und APIs
+- **[documentation-gap-analysis.md](./documentation-gap-analysis.md)** — Historische Gap-Analyse, die das aktuelle Docs-Refactoring vorbereitet hat
 
-- **[Historical Decisions](./historical-decisions.md)** — Historische Architekturentscheidungen
-
-## Sekundär-/Spezialdokumente
-
-- **[Legacy Documentation](./legacy-docs.md)** — Weitere veraltete Dokumente
-
-- **[Obsolete Processes](./obsolete-processes.md)** — Frühere Workflows und Prozesse
+- **[status-assessment.md](./status-assessment.md)** — Projektstatus-Snapshot vor dem Docs-Refresh (veraltet)
 
 ## Cross-Referenzen
 
@@ -54,9 +48,9 @@ testRefs: 'N/A'
 
 ## Bekannte Lücken
 
-- [TODO] Vollständige Inventur aller archivierten Dokumente
+- TODO: Vollständige Inventur aller archivierten Dokumente
 
-- [TODO] Automatisches Archivierungs-Script für veraltete Dokumentation
+- TODO: Automatisches Archivierungs-Script für veraltete Dokumentation
 
 ### migration_pages_zu_worker.md
 
@@ -77,16 +71,6 @@ testRefs: 'N/A'
 - **Grund:** Gap-Analyse diente als Planungsgrundlage für das Dokumentations-Refactoring (Phase 1-6). Refactoring ist abgeschlossen. Die identifizierten Lücken wurden durch neue Kategorie-READMEs und strukturelle Verbesserungen adressiert.
 
 - **Referenz:** Siehe aktuelle Dokumentationsstruktur in `/docs`
-
-### security-implementation-plan.md
-
-- **Status:** Veraltet/Ersetzt
-
-- **Archiviert am:** 2025-10-01 (Phase 5)
-
-- **Grund:** Alter Security-Implementation-Plan wurde durch aktualisierte Dokumentation ersetzt. Aktuelle Security-Features und Implementierungen sind in `docs/security/improvements.md` dokumentiert.
-
-- **Referenz:** Siehe [docs/security/improvements.md](../security/improvements.md) für aktuelle Implementierungen
 
 ### status-assessment.md
 

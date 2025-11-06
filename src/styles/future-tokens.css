@@ -134,140 +134,15 @@
 }
 
 /* ============================================
-   Buttons - Neon Primary
-   ============================================ */
-
-.btn-neon-primary {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem 2rem;
-  font-size: 1.125rem;
-  font-weight: 700;
-  color: white;
-  background: linear-gradient(135deg, var(--clr-neon-cyan), var(--clr-neon-emerald));
-  border: none;
-  border-radius: 0.75rem;
-  overflow: hidden;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow:
-    0 4px 6px -1px rgba(6, 182, 212, 0.3),
-    0 2px 4px -1px rgba(6, 182, 212, 0.3),
-    0 0 20px rgba(6, 182, 212, 0.4);
-}
-
-.btn-neon-primary::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, var(--clr-neon-emerald), var(--clr-neon-cyan));
-  opacity: 0;
-  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.btn-neon-primary:hover {
-  transform: translateY(-2px);
-  box-shadow:
-    0 10px 15px -3px rgba(6, 182, 212, 0.5),
-    0 4px 6px -2px rgba(6, 182, 212, 0.5),
-    0 0 30px rgba(6, 182, 212, 0.6);
-}
-
-.btn-neon-primary:hover::before {
-  opacity: 1;
-}
-
-.btn-neon-primary:active {
-  transform: translateY(0);
-}
-
-.btn-neon-primary:focus-visible {
-  outline: 2px solid var(--clr-neon-cyan);
-  outline-offset: 4px;
-}
-
-/* Ensure text is above gradient */
-.btn-neon-primary > * {
-  position: relative;
-  z-index: 1;
-}
-
-/* ============================================
-   Buttons - Glass Outline
-   ============================================ */
-
-.btn-glass-outline {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem 2rem;
-  font-size: 1.125rem;
-  font-weight: 700;
-  color: var(--clr-neon-cyan);
-  background: transparent;
-  border: 2px solid var(--clr-neon-cyan);
-  border-radius: 0.75rem;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-}
-
-.btn-glass-outline::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, var(--clr-neon-cyan), var(--clr-neon-emerald));
-  opacity: 0;
-  border-radius: 0.625rem;
-  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.btn-glass-outline:hover {
-  color: white;
-  border-color: transparent;
-  transform: translateY(-2px);
-  box-shadow:
-    0 4px 6px -1px rgba(6, 182, 212, 0.3),
-    0 0 20px rgba(6, 182, 212, 0.4);
-}
-
-.btn-glass-outline:hover::before {
-  opacity: 1;
-}
-
-.btn-glass-outline:active {
-  transform: translateY(0);
-}
-
-.btn-glass-outline:focus-visible {
-  outline: 2px solid var(--clr-neon-cyan);
-  outline-offset: 4px;
-}
-
-/* Ensure text is above gradient */
-.btn-glass-outline > * {
-  position: relative;
-  z-index: 1;
-}
-
-/* ============================================
    Reduced Motion Support
    ============================================ */
 
 @media (prefers-reduced-motion: reduce) {
-  .btn-neon-primary,
-  .btn-glass-outline,
   .glass-future {
     transition: none;
     animation: none;
   }
 
-  .btn-neon-primary:hover,
-  .btn-glass-outline:hover,
   .glass-future:hover {
     transform: none;
   }
@@ -307,8 +182,7 @@
    ============================================ */
 
 @media (forced-colors: active) {
-  .btn-neon-primary,
-  .btn-glass-outline {
+  .glass-future {
     border: 2px solid ButtonText;
   }
 

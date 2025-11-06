@@ -1,7 +1,7 @@
 import { renderHook, act } from '@testing-library/react';
 import { expect, test } from 'vitest';
 import { useViewportUiMetrics } from '@/components/tools/imag-enhancer/hooks/useViewportUiMetrics';
-import React from 'react';
+import type { MutableRefObject } from 'react';
 
 function createDiv(h: number): HTMLDivElement {
   const el = document.createElement('div');
@@ -13,12 +13,10 @@ function createDiv(h: number): HTMLDivElement {
 }
 
 test('useViewportUiMetrics measures initial values', () => {
-  const actionsRef = React.createRef<HTMLElement | null>();
-  const topReserveRef = React.createRef<HTMLElement | null>();
   const actionsEl = createDiv(48);
   const topEl = createDiv(24);
-  actionsRef.current = actionsEl;
-  topReserveRef.current = topEl;
+  const actionsRef = { current: actionsEl } as MutableRefObject<HTMLElement | null>;
+  const topReserveRef = { current: topEl } as MutableRefObject<HTMLElement | null>;
 
   const { result } = renderHook((p) => useViewportUiMetrics(p!), {
     initialProps: { actionsRef, topReserveRef },

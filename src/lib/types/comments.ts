@@ -25,6 +25,7 @@ export interface Comment {
   replies?: Comment[];
   moderationHistory?: CommentModeration[];
   reportCount?: number;
+  helpfulCount?: number;
 }
 
 export interface CreateCommentRequest {

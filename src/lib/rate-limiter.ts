@@ -199,6 +199,12 @@ export const voiceTranscribeLimiter = createRateLimiter({
   name: 'voiceTranscribe',
 });
 
+export const contactFormLimiter = createRateLimiter({
+  maxRequests: import.meta.env.DEV ? 50 : 5,
+  windowMs: 60 * 1000,
+  name: 'contactForm',
+});
+
 /**
  * Einfache Rate-Limiting-Funktion für Service-Layer
  * Nutzt die bestehende Store-Infrastruktur ohne Request-Kontext

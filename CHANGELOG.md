@@ -35,6 +35,7 @@ und dieser Projekt haftet an [Semantic Versioning](https://semver.org/spec/v2.0.
 - D1: `d1_migrations` aktualisiert; relevante Migrationen als angewendet markiert (0015, 0016, 0019, 0022/0023, 0026). Legacy‑Performance‑Artefakte (0017/0021) bewusst übersprungen, um Schema‑Konflikte zu vermeiden.
 - openapi: Admin‑Comments Endpunkte dokumentiert (List/Details/Moderate/Bulk/Delete) inkl. CSRF‑Headern; Spec validiert.
 - ui/admin: SSR‑Guards für `/admin*.astro` aktiv; Admin‑Comments UI sendet `X‑CSRF‑Token` für Moderation.
+- ui/button: Gradient-Basis (Cyan→Emerald) in `BUTTON_VARIANTS` ausgerollt; `.btn*`-Utilities entfernt und Dokumentation (`docs/AUDIT.md`, `docs/frontend/components.md`) aktualisiert.
 
 ### Deprecated
 

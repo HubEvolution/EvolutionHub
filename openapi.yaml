@@ -1723,6 +1723,62 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiErrorResponse'
+  /api/contact:
+    post:
+      summary: Submit contact request
+      description: |
+        Accepts contact form submissions from the FAQ/Kontakt pages. Requires same-origin, CSRF double-submit token and Turnstile verification when enabled.
+      x-source: src/pages/api/contact/index.ts
+      operationId: postContact
+      parameters:
+        - name: X-CSRF-Token
+          in: header
+          required: true
+          description: Double-submit CSRF token; must match `csrf_token` cookie
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContactRequest'
+      responses:
+        "200":
+          description: Message queued for delivery
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContactSuccessResponse'
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        "403":
+          description: Forbidden (Turnstile failed, CSRF mismatch or disallowed origin)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        "429":
+          description: Rate limit exceeded
+          headers:
+            Retry-After:
+              description: Seconds until submissions are allowed again
+              schema:
+                type: integer
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        "500":
+          description: Server error when forwarding via Resend
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
   /api/projects:
     post:
       summary: Create project
@@ -2788,6 +2844,67 @@ components:
         oneOf:
           - required: [email, plan]
           - required: [userId, plan]
+      ContactRequest:
+        type: object
+        additionalProperties: false
+        properties:
+          firstName:
+            type: string
+            minLength: 1
+            maxLength: 100
+          lastName:
+            type: string
+            minLength: 1
+            maxLength: 100
+          email:
+            type: string
+            format: email
+            maxLength: 320
+          subject:
+            type: string
+            minLength: 1
+            maxLength: 200
+          message:
+            type: string
+            minLength: 10
+            maxLength: 4000
+          consent:
+            type: boolean
+            enum: [true]
+          locale:
+            type: string
+            enum: [de, en]
+          turnstileToken:
+            type: string
+            minLength: 10
+          source:
+            type: string
+            maxLength: 120
+        required:
+          - firstName
+          - lastName
+          - email
+          - subject
+          - message
+          - consent
+          - turnstileToken
+      ContactSuccessResponse:
+        type: object
+        additionalProperties: false
+        properties:
+          success:
+            type: boolean
+            enum: [true]
+          data:
+            type: object
+            additionalProperties: false
+            properties:
+              status:
+                type: string
+                enum: [queued]
+        required:
+          - success
+          - data
       InternalUserSyncRequest:
         type: object
         description: Minimal user payload for internal sync

@@ -8,9 +8,9 @@ codeRefs: 'docs/ops/, src/lib/services/ai-image-service.ts, src/pages/api/ai-ima
 
 <!-- markdownlint-disable MD051 -->
 
-# Image Enhancer — Go-Live Runbook (MVP)
+# AI Image Enhancer — Go-Live Runbook (MVP)
 
-Scope: Production readiness verification and emergency rollback for the Image Enhancer MVP (sync generate + R2 results; provider: Cloudflare Workers AI for Enhance, Replicate for upscale/face on allowed models).
+Scope: Production readiness verification and emergency rollback for the AI Image Enhancer MVP (sync generate + R2 results; provider: Cloudflare Workers AI for Enhance, Replicate for upscale/face on allowed models).
 
 ## Preconditions
 

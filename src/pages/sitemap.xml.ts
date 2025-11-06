@@ -25,8 +25,17 @@ function renderUrl(origin: string, locPath: string): string {
 export const GET: APIRoute = async ({ url }) => {
   const origin = ENV_SITE || `${url.protocol}//${url.host}`;
 
-  // Minimal set aligned with previous static sitemap; can be extended later
-  const paths = ['/', '/en/'];
+  // Minimal set aligned with current SEO requirements; extend as new pages launch
+  const paths = [
+    '/',
+    '/en/',
+    '/tools/webscraper/app',
+    '/en/pricing',
+    '/en/faq',
+    '/en/kontakt',
+    '/kontakt',
+    '/en/impressum',
+  ];
 
   const xml = [
     '<?xml version="1.0" encoding="UTF-8"?>',

@@ -12,39 +12,21 @@ codeRefs: 'src/lib/rate-limiter.ts, src/lib/api-middleware.ts, docs/security/'
 
 ## Überblick
 
-Das Rate-Limiting-System des Evolution Hub schützt die API vor Missbrauch, Brute-Force-Angriffen und Denial-of-Service (DoS)-Angriffen. Es begrenzt die Anzahl der Anfragen, die ein Client in einem bestimmten Zeitraum stellen kann, und sorgt so für eine faire Ressourcenverteilung und erhöhte Sicherheit.
+Das Rate-Limit-System schützt Evolution Hub vor Missbrauch (Brute-Force, DoS, exzessive Nutzung) und sorgt für faire Ressourcennutzung. Alle Limiter liegen in `src/lib/rate-limiter.ts` und werden über `withApiMiddleware` bzw. gezielt in Services eingebunden.
 
-## Implementierung
+## Presets & Einsatzbereiche
 
-Die Rate-Limiting-Funktionalität ist in `src/lib/rate-limiter.ts` implementiert und verwendet einen In-Memory-Store zur Nachverfolgung von Anfragen. Die Implementierung basiert auf einem Token-Bucket-Algorithmus, der eine flexible und effiziente Ratenbegrenzung ermöglicht.
+| Limiter | Fenster | Limit | Haupteinsatz | Beispiele |
+| --- | --- | --- | --- | --- |
+| `standardApiLimiter` | 60 s | 50 | Lese-APIs & Standard-Routen | `/api/dashboard/quick-actions`, `/api/user/me` |
+| `apiRateLimiter` | 60 s | 30 Prod / 1000 Dev | Allgemeine schreibende APIs | `/api/projects`, `/api/comments` |
+| `authLimiter` | 60 s | 10 | Auth-Workflows (Magic Link, OAuth) | `/api/auth/magic/request`, `/api/auth/oauth/*` |
+| `sensitiveActionLimiter` | 1 h | 5 | Security-kritische Aktionen | `/api/user/profile`, `/api/admin/backup/create` |
+| `aiGenerateLimiter` | 60 s | 15 | Synchrone Bild-Generierung | `/api/ai-image/generate` |
+| `aiJobsLimiter` | 60 s | 10 | Asynchrone AI-Jobs | `/api/ai-image/jobs`, `/api/ai-video/generate` |
+| `voiceTranscribeLimiter` | 60 s | 15 | Whisper-Transkription | `/api/voice/transcribe` |
 
-### Konfigurierte Limiter
-
-Das System bietet drei vorkonfigurierte Limiter für verschiedene API-Typen:
-
-1. **standardApiLimiter**
-
-   - **Limit:** 50 Anfragen pro Minute
-
-   - **Verwendung:** Standard-APIs, öffentliche Endpunkte, Lesezugriffe
-
-   - **Anwendungsbereich:** Dashboard-APIs, Projekt-APIs (GET), User-APIs (GET), öffentliche APIs
-
-1. **authLimiter**
-
-   - **Limit:** 10 Anfragen pro Minute
-
-   - **Verwendung:** Authentifizierungs-Endpunkte
-
-   - **Anwendungsbereich:** Login, Registrierung, Passwort vergessen, Passwort zurücksetzen
-
-1. **sensitiveActionLimiter**
-
-   - **Limit:** 5 Anfragen pro Stunde
-
-   - **Verwendung:** Besonders sensible Aktionen
-
-   - **Anwendungsbereich:** Profiländerungen, Passwortänderungen, Projekt-Erstellung/-Löschung
+Zusätzlich existiert eine service-seitige Hilfsfunktion `rateLimit(key, maxRequests, windowSeconds)` für Business-Logik ohne Request-Kontext (z. B. interne Counters).
 
 ## Verwendung im Code
 
@@ -63,6 +45,28 @@ export const POST: APIRoute = async (context) => {
 
 ```text
 
+### Beispiel: Image Enhancer
+
+```typescript
+import { withApiMiddleware } from '@/lib/api-middleware';
+import { aiGenerateLimiter } from '@/lib/rate-limiter';
+
+export const POST = withApiMiddleware(async (context) => {
+  const rateLimitResponse = await aiGenerateLimiter(context);
+  if (rateLimitResponse) return rateLimitResponse;
+
+  // Bildgenerierung …
+});
+```
+
+### Service-Level-Limit
+
+```typescript
+import { rateLimit } from '@/lib/rate-limiter';
+
+await rateLimit(`lead-magnet:${leadMagnetId}`, 5, 60); // max. 5 Downloads / Minute
+```
+
 ## Antwort bei überschrittenem Limit
 
 Wenn ein Client das Rate-Limit überschreitet, erhält er eine strukturierte JSON-Antwort mit HTTP-Status 429:
@@ -73,6 +77,7 @@ Wenn ein Client das Rate-Limit überschreitet, erhält er eine strukturierte JSO
   "retryAfter": 45,
   "success": false
 }
+
 ```
 
 Dazu werden entsprechende HTTP-Header gesetzt:
@@ -86,94 +91,42 @@ Retry-After: 45
 
 ## Konfigurationsoptionen
 
-Die Rate-Limiter können mit verschiedenen Optionen konfiguriert werden:
+Eigene Limiter lassen sich über `createRateLimiter({ maxRequests, windowMs, name })` definieren. Optional kann ein alternativer Key-Generator geschrieben werden, falls z. B. per Token statt IP limitiert werden soll.
+
+### Beispiel: Feature-spezifischer Limiter
 
 ```typescript
-const customLimiter = createRateLimiter({
-  windowMs: 60 * 1000,     // Zeitfenster in Millisekunden (hier: 1 Minute)
-  maxRequests: 100,        // Maximale Anzahl von Anfragen im Zeitfenster
-  message: 'Custom rate limit message',  // Benutzerdefinierte Fehlermeldung
-  statusCode: 429,         // HTTP-Statuscode bei Überschreitung
-  keyGenerator: (context) => {
-    // Benutzerdefinierte Funktion zur Generierung des Schlüssels
-    // Standardmäßig wird die IP-Adresse verwendet
-    return context.clientAddress || 'unknown';
-  }
+const newsletterLimiter = createRateLimiter({
+  name: 'newsletter',
+  maxRequests: 3,
+  windowMs: 60 * 60 * 1000,
 });
+
+const rateLimitResponse = await newsletterLimiter(context);
+if (rateLimitResponse) return rateLimitResponse;
 ```
 
-## Aktuelle Einschränkungen und zukünftige Verbesserungen
+## Aktuelle Einschränkungen & Roadmap
 
-### Einschränkungen
+- In-Memory-Store pro Worker: Reset bei Deployment/Restart, keine Cross-Worker-Persistenz.
+- Keine built-in Berücksichtigung von Proxy-Headern (`cf-connecting-ip` etc.) – sollte bei Bedarf im Key-Generator ergänzt werden.
+- Monitoring/Alerting erfolgt bisher über Logs (`logRateLimitExceeded`). Automatisierte Alerts stehen noch aus.
 
-- Der aktuelle In-Memory-Store wird bei Worker-Neustarts zurückgesetzt
-
-- Keine Persistenz über mehrere Worker-Instanzen hinweg
-
-- Keine Berücksichtigung von IP-Proxies oder Load-Balancern
-
-### Geplante Verbesserungen
-
-1. **Persistente Speicherung**
-
-   - Implementierung eines persistenten Speichers mit Cloudflare KV oder D1
-
-   - Beibehaltung der Rate-Limit-Daten über Worker-Neustarts hinweg
-
-1. **Erweiterte Identifikation**
-
-   - Berücksichtigung von X-Forwarded-For und ähnlichen Headers
-
-   - Optionale Authentifizierungsbasierte Rate-Limits (pro Benutzer statt pro IP)
-
-1. **Dynamische Anpassung**
-
-   - Automatische Anpassung der Limits basierend auf der Serverauslastung
-
-   - Temporäre Erhöhung der Limits für vertrauenswürdige Benutzer
-
-1. **Monitoring und Benachrichtigungen**
-
-   - Echtzeit-Monitoring von Rate-Limit-Überschreitungen
-
-   - Benachrichtigungen bei verdächtigen Mustern oder Angriffsversuchen
+**Geplante Verbesserungen:** Persistente Stores (KV/D1), pro-User-Limits, Limits abhängig vom Plan (z. B. AI-Entitlements) automatisch synchronisieren.
 
 ## Best Practices
 
-1. **Angemessene Limits setzen**
+1. **Limits regelmäßig evaluieren** – Logs prüfen, ob legitime Nutzer geblockt werden.
+1. **Retry-After beibehalten** – Clients sollen sauber reagieren können.
+1. **Dokumentation synchron halten** – Neue Limiter oder veränderte Werte hier ergänzen.
 
-   - Limits sollten hoch genug sein, um normale Nutzung zu erlauben
+## Endpoint-Referenzen (Stand heute)
 
-   - Limits sollten niedrig genug sein, um Missbrauch zu verhindern
-
-   - Unterschiedliche Limits für verschiedene Endpunkttypen verwenden
-
-1. **Benutzerfreundliche Fehlermeldungen**
-
-   - Klare Informationen über das Limit und die Wartezeit
-
-   - Retry-After-Header für automatisierte Clients
-
-1. **Überwachung und Anpassung**
-
-   - Regelmäßige Überprüfung der Rate-Limit-Überschreitungen
-
-   - Anpassung der Limits basierend auf realen Nutzungsmustern
-
-1. **Transparenz**
-
-   - Dokumentation der Rate-Limits in der API-Dokumentation
-
-   - Optionale Header mit verbleibenden Anfragen (X-RateLimit-Remaining)
-
-## Anwendung auf API-Endpunkte
-
-| API-Kategorie | Limiter | Limit | Begründung |
-|---------------|---------|-------|------------|
-| Auth-APIs | authLimiter | 10/min | Schutz vor Brute-Force-Angriffen auf Anmeldedaten |
-| User-APIs (GET) | standardApiLimiter | 50/min | Normale Nutzung des Benutzerprofils |
-| User-APIs (PUT/POST) | sensitiveActionLimiter | 5/min | Schutz sensibler Profiländerungen |
-| Projekt-APIs (GET) | standardApiLimiter | 50/min | Normale Nutzung der Projektdaten |
-| Projekt-APIs (POST/PUT/DELETE) | sensitiveActionLimiter | 5/min | Schutz vor Massenänderungen oder -löschungen |
-| Dashboard-APIs | standardApiLimiter | 50/min | Normale Nutzung des Dashboards |
-| Öffentliche APIs | standardApiLimiter | 50/min | Schutz vor Scraping und Missbrauch |
+| Bereich | Typische Limiter | Beispiel-Routen |
+| --- | --- | --- |
+| Auth (Magic Link / OAuth) | `authLimiter` | `/api/auth/magic/request`, `/api/auth/oauth/:provider/callback` |
+| User/Profile | `standardApiLimiter`, `sensitiveActionLimiter` | `/api/user/me`, `/api/user/profile` |
+| Admin/Backups | `sensitiveActionLimiter`, `apiRateLimiter` | `/api/admin/backup/create`, `/api/admin/status` |
+| AI Image/Video | `aiGenerateLimiter`, `aiJobsLimiter` | `/api/ai-image/generate`, `/api/ai-video/jobs` |
+| Voice | `voiceTranscribeLimiter` | `/api/voice/transcribe` |
+| Lead Magnets | `standardApiLimiter` (öffentlich), Service `rateLimit` | `/api/lead-magnets/download` |

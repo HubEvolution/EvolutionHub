@@ -15,37 +15,22 @@ testRefs: 'test-suite-v2/src/e2e/smoke'
 
 ## Primärdokumente
 
-- **[Deployment Guide](./deployment.md)** — **Hauptdokument** für Production-Deployment und Rollout
+- **[Production Readiness Checklist](./production-readiness-checklist.md)** — Gesamtcheck für Go-Live (Infra, Monitoring, On-Call)
 
-- **[Cloudflare Setup](./cloudflare-setup.md)** — Cloudflare-Worker- und R2-Konfiguration
+- **[Prod Readiness – AI Image Enhancer](./prod-readiness-ai-image-enhancer.md)** — Produktspezifische Go-Live-Prüfliste (AI/Storage/Quotas)
 
-- **[Monitoring Setup](./monitoring.md)** — Logging, Metriken und Alerting
+- **[Runbook: Image Enhancer Go-Live](./runbook-image-enhancer-go-live.md)** — Schritt-für-Schritt-Ablauf für Deployments & Rollbacks
+
+- **[Monitoring & Runbook](./monitoring.md)** — Monitoring-Baseline, Healthchecks und Incident-Prozesse
+- **[Deployment Guide — Cloudflare Workers](./deployment-guide.md)** — Ablauf für Staging-/Production-Deployments inkl. CI-Gates
 
 ## Sekundär-/Spezialdokumente
 
-- **[Stytch Integration](./stytch-integration.md)** — Stytch-Authentifizierung und Custom-Domain-Setup
+- **[Cloudflare Cache Rules (CI/Staging)](./cloudflare-cache-rules.md)** — HTTP Cache Bypass-Regeln & API-Skripte
 
-- **[Third-Party Services](./third-party-services.md)** — Stripe, OpenAI, Replicate-Integration
+- **[AI Generate KV/DO Limiter Plan](./ai-generate-kv-limiter-plan.md)** — Konzept für deterministisches Rate-Limiting über KV/Durable Objects
 
-- **[Backup & Recovery](./backup-recovery.md)** — Daten-Backup und Disaster-Recovery
-
-## Dokumentation
-
-### Stytch Integration
-
-- **[Custom Domains](./stytch-custom-domains.md)** — Stytch-Custom-Domain-Konfiguration
-
-- **[OAuth Setup](./stytch-oauth.md)** — GitHub/Google OAuth-Integration
-
-- **[Magic Link Flow](./stytch-magic-link.md)** — Magic-Link-Authentifizierungsflow
-
-### Service Management
-
-- **[Environment Management](./environment-management.md)** — Umgebungs-Konfiguration (Dev, Testing, Staging, Prod)
-
-- **[Secrets Management](./secrets-management.md)** — Geheime Schlüssel und KV-Bindings
-
-- **[Cron Jobs](./cron-jobs.md)** — Automatisierte Tasks und Worker-Scripts
+> TODO: Ergänzung eines allgemeinen Deployment-Guides (Worker + Pages), sobald feststehender Prozess dokumentiert ist.
 
 ## Cross-Referenzen
 
@@ -78,11 +63,11 @@ testRefs: 'test-suite-v2/src/e2e/smoke'
 
 ## Bekannte Lücken
 
-- [TODO] Vollständige Disaster-Recovery-Dokumentation
+- TODO: Vollständige Disaster-Recovery-Dokumentation (Backups, R2 Restore)
 
-- [TODO] Performance-Monitoring und SLO-Definitionen
+- TODO: Performance-Monitoring und SLO-Definitionen
 
-- [TODO] Cost-Optimization für Cloudflare-Ressourcen
+- TODO: Cost-Optimierung für Cloudflare-Ressourcen (KV/R2/Queue)
 
 ## Übersicht
 
@@ -94,11 +79,11 @@ Operative Dokumentation umfasst:
 
 - Deployment-spezifische Setups
 
-## Dokumentation (2)
+## Ergänzende Hinweise
 
-### Stytch Integration (2)
+- Stytch-/Auth-spezifische Ops-Schritte sind in `docs/development/stytch-oauth-dev-guide.md` und den Security-Dokumenten beschrieben.
 
-- Stytch-Integration und Custom-Domain-Status sind in der konsolidierten Entwicklungsdokumentation beschrieben.
+- Third-Party-Service-Änderungen (Stripe, Replicate, OpenAI) werden in den jeweiligen Feature-Dokumenten gepflegt (z. B. `docs/features/admin-notifications.md`, `docs/tools/image-enhancer.md`).
 
 ## Verwandte Dokumentation
 
