@@ -185,11 +185,9 @@ Location: /login?error=TooManyRequests
 
 ### Session-Management
 
-* Session über HttpOnly-Cookie `__Host-session` (Secure, SameSite=Strict, Path=/)
-
+* Session über HttpOnly-Cookie `__Host-session` (Secure, SameSite=Strict, Path=/) — auf HTTP- (Dev-)Umgebungen wird stattdessen kein Session-Cookie gesetzt
 * Keine clientseitige Speicherung von Tokens im localStorage oder sessionStorage
-
-* Sichere Cookie-Attribute erzwungen; `session_id` wird nicht mehr verwendet
+* Sichere Cookie-Attribute erzwungen; `session_id` ist entfernt
 
 ### Anti-Brute-Force-Maßnahmen
 

@@ -64,7 +64,8 @@ Feature-Flag: `AUTH_PROVIDER=legacy|stytch` für Rollout/Rollback. Domains: prod
 
 ### Logout
 
-- **POST `/api/auth/logout`**: Session invalidieren (Server), Cookie löschen, Redirect auf Startseite/Login.
+- **GET/POST `/api/user/logout`**: Session invalidieren (Server), Cookie löschen, Redirect auf Startseite.
+- **GET/POST `/api/user/logout-v2`**: Service-Layer-Variante mit erweitertem Logging; gleicher Redirect.
 
 ### Social OAuth
 
