@@ -121,36 +121,7 @@ sequenceDiagram
 
 ### Benutzerauthentifizierung
 
-Hinweis (historisch): Das folgende Sequenzdiagramm zeigt den früheren Passwort-/JWT‑Login‑Flow. Der aktuelle Auth‑Flow basiert auf Magic Link (siehe `docs/architecture/auth-migration-stytch.md`).
-
-Der Authentifizierungsdatenfluss umfasst Login, Registrierung und Sitzungsverwaltung:
-
-```mermaid
-sequenceDiagram
-    participant Client
-    participant AuthAPI
-    participant AuthService
-    participant UserRepository
-    participant Database
-    participant JWTService
-
-    %% Login-Flow
-    Client->>AuthAPI: POST /api/auth/login
-    AuthAPI->>AuthAPI: Validiere Anmeldedaten
-    AuthAPI->>AuthService: login(email, password)
-    AuthService->>UserRepository: findUserByEmail(email)
-    UserRepository->>Database: SELECT * FROM users WHERE email = ?
-    Database->>UserRepository: User-Daten
-    UserRepository->>AuthService: User-Objekt
-    AuthService->>AuthService: Überprüfe Passwort-Hash
-    AuthService->>JWTService: generateToken(userId, roles)
-    JWTService->>AuthService: JWT-Token
-    AuthService->>AuthAPI: Session-Informationen
-    AuthAPI->>Client: HTTP Response mit HttpOnly-Cookie
-
-```text
-
-#### Aktueller Magic‑Link (Stytch) — Sequenz
+Der Authentifizierungsdatenfluss umfasst Magic Link und Redirect-basierte Sitzungsverwaltung:
 
 ```mermaid
 sequenceDiagram

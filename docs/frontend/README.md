@@ -15,63 +15,65 @@ testRefs: 'tests/unit/components, test-suite-v2/src/e2e'
 
 ## Primärdokumente
 
-- **[Design System](./design-system.md)** — **Hauptdokument** für Design-Tokens, Farben, Typography und Spacing
+- **[Design System](./design-system.md)** — Zentrale Quelle für Design-Tokens, Farben, Typografie und Spacing
 
-- **[UI Components](./ui-components.md)** — Komponenten-Leitfaden (Buttons, Forms, Cards, Layouts)
+- **[UI Components](./ui-components.md)** — Leitfaden für UI-Bausteine (Buttons, Forms, Layouts, Navigation)
 
-- **[UI/UX Guidelines](./ui-ux.md)** — UX-Prinzipien, Accessibility und Best Practices
+- **[UI/UX Guidelines](./ui-ux.md)** — UX-Prinzipien, Accessibility und Interaction-Patterns
 
 ## Sekundär-/Spezialdokumente
 
-- **[Animation System](./animation-system.md)** — Animations-Framework (AOS, Header-Scroll, Lottie)
+- **[Components Overview](./components.md)** — Überblick über Astro-/React-Komponenten und deren Struktur
 
-- **[Responsive Design](./responsive-design.md)** — Mobile-First-Ansatz und Breakpoints
+- **[Card Components](./card-components.md)** — Detaildoku zu Kartenvarianten und Visual Hierarchy
 
-- **[Accessibility Guidelines](./a11y-guidelines.md)** — WCAG-Konformität und Screen-Reader-Optimierung
+- **[Entitlements UI Gating](./entitlements-ui-gating.md)** — Plan-/Quota-basiertes Gating im Frontend
+
+- **[Coming Soon Pages](./coming-soon.md)** — Patterns für Teaser- und Warteseiten
+
+- **[Toast Notifications](./toast-notifications.md)** — Sonner-basierte Benachrichtigungen inkl. Theming
+
+- **[Image Enhancer UI Upgrade](./imag-enhancer-ui-upgrade.md)** — Glassmorphism, Compare-Tools & Feature-Gating
 
 ## Design System
 
 ### Core Design Documentation
 
-- **[Colors & Typography](./design-system.md#colors)** — Farbpalette und Schriftarten
+- **[Farben](./design-system.md)** — Farbpalette und Anwendungsrichtlinien
 
-- **[Spacing System](./design-system.md#spacing)** — Konsistentes Spacing und Layout-Grids
+- **[Typografie](./design-system.md)** — Schriftfamilien, Größen, Line Heights
 
-- **[Component Tokens](./design-system.md#tokens)** — Design-Token-Definitionen
+- **[Abstände & Größen](./design-system.md)** — Spacing-Scale und Layout-Grids
 
 ### Component Documentation
 
 #### Component Guides
 
-- **[Form Components](./ui-components.md#forms)** — Input-Felder, Buttons, Validation-States
+- **[Form Components](./ui-components.md)** — Input-Felder, Buttons, Validation-States
 
-- **[Layout Components](./ui-components.md#layouts)** — Container, Grid, Flexbox-Patterns
+- **[Layout Components](./ui-components.md)** — Container, Grid, Flexbox-Patterns
 
-- **[Navigation Components](./ui-components.md#navigation)** — Header, Footer, Breadcrumbs
+- **[Navigation Components](./ui-components.md)** — Header, Footer, Breadcrumbs
 
 #### Feature Components
 
-- **[Image Enhancer UI](./imag-enhancer-ui.md)** — Spezifische UI-Komponenten für AI Image Enhancer
+- **[Card Components](./card-components.md)** — Kartenvarianten, Metrics-Badges, Placeholder-States
 
-- **[Auth Components](./auth-components.md)** — Login/Registration-Forms und Flows
+- **[Entitlements UI Gating](./entitlements-ui-gating.md)** — Feature-Toggles nach Plan/Quota
 
-- **[Dashboard Components](./dashboard-components.md)** — User Dashboard und Cards
+- **[Coming Soon Pages](./coming-soon.md)** — Struktur & Animationen für Pre-Launch-Seiten
+
+- **[Toast Notifications](./toast-notifications.md)** — UX-Patterns für Feedback-Komponenten
+
+- **[Image Enhancer UI Upgrade](./imag-enhancer-ui-upgrade.md)** — Split-Slider, Zoom, Lupe & Usage-Pill
 
 ## Animations
 
 ### Animation Systems
 
-- **[AOS Integration](./animation-system.md#aos)** — Animate on Scroll für Content-Animationen
+- **[AOS Coordinator](./aos-coordinator.md)** — Scroll-basierte Animationen & Intersection Observer
 
-- **[Header Scroll](./animation-system.md#header)** — Header-Verhalten bei Scroll
-
-- **[Lottie Icons](./animation-system.md#lottie)** — Animierte Icons und Micro-Interactions
-
-### Feature Upgrades
-
-- **[Image Enhancer UI Upgrade](./imag-enhancer-ui-upgrade.md)** — UI-Verbesserungen und neue Features
-
-- **[Landing Page Animations](./landing-page-animations.md)** — Hero- und Feature-Animationen
+- **[Header Scroll Animation](./header-scroll-animation.md)** — Sticky Header, Shadow & Scale-Verhalten
 
 ## Cross-Referenzen
 
@@ -104,11 +106,11 @@ testRefs: 'tests/unit/components, test-suite-v2/src/e2e'
 
 ## Bekannte Lücken
 
-- [TODO] Vollständige Storybook-Dokumentation für alle Komponenten
+- **TODO:** Vollständige Storybook-Dokumentation für alle Komponenten
 
-- [TODO] Design-System-Token-Automation
+- **TODO:** Design-System-Token-Automation
 
-- [TODO] Performance-Metriken für Frontend-Assets
+- **TODO:** Performance-Metriken für Frontend-Assets
 
 ## Übersicht
 

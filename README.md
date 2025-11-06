@@ -38,11 +38,11 @@ Live-Tools: [hub-evolution.com/tools](https://hub-evolution.com/tools)
 
 > ✨ **Animation:**
 >
-> <video src="./docs/media/image-enhancer-preview15sek.MOV" controls playsinline>
+> <video src="./docs/media/image-enhancer-preview15sek.mp4" controls playsinline>
 >   Dein Browser unterstützt das Video-Tag nicht.
 > </video>
 >
-> [Video öffnen](./docs/media/image-enhancer-preview15sek.MOV)
+> [Video öffnen](./docs/media/image-enhancer-preview15sek.mp4)
 
 ## 🧱 Architektur & Tech Stack
 
