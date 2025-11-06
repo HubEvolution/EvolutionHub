@@ -542,7 +542,7 @@ const plans: Plan[] = [
         class={`relative flex flex-col rounded-2xl`}
         data-pro-card={plan.featured ? 'true' : undefined}
       >
-        {plan.featured && <div class="gradient-border z-20"></div>}
+        {plan.featured && <div class="gradient-border z-20" />}
         {plan.featured && (
           <div class="absolute top-0 right-0 z-30 -mt-3 -mr-3 px-3 py-1 rounded-full bg-blue-500 text-white text-sm font-semibold shadow-[0_10px_25px_-15px_rgba(37,99,235,0.75)]">
             {t('pages.pricing.table.featured_badge')}

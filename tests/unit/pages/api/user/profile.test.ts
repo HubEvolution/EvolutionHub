@@ -57,7 +57,11 @@ const buildContext = (options?: {
   const updateUser = createStatement();
 
   const prepareMock = vi.fn((sql: string) => {
-    if (sql.startsWith('UPDATE users SET name = ?, username = ?, profile_last_updated_at = ? WHERE id = ?')) {
+    if (
+      sql.startsWith(
+        'UPDATE users SET name = ?, username = ?, profile_last_updated_at = ? WHERE id = ?'
+      )
+    ) {
       return updateUser;
     }
     if (sql.startsWith('SELECT role, profile_last_updated_at AS last FROM users WHERE id = ?')) {
@@ -180,10 +184,16 @@ describe('POST /api/user/profile', () => {
 
   it('respects API rate limiter and returns its response', async () => {
     const { context } = buildContext();
-    const limiterResponse = new Response(JSON.stringify({ success: false, error: { type: 'rate_limit', message: 'Too many requests' } }), {
-      status: 429,
-      headers: { 'Retry-After': '30' },
-    });
+    const limiterResponse = new Response(
+      JSON.stringify({
+        success: false,
+        error: { type: 'rate_limit', message: 'Too many requests' },
+      }),
+      {
+        status: 429,
+        headers: { 'Retry-After': '30' },
+      }
+    );
     vi.mocked(rateLimiterModule.apiRateLimiter).mockResolvedValueOnce(limiterResponse);
 
     const response = await POST(context);

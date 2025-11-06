@@ -897,8 +897,33 @@
           },
           "viewDocs": {
             "title": "Dokumentation öffnen",
-            "description": "Lies die Dokumentation"
+            "description": "Sieh dir die Dokumentation an"
           }
+        }
+      },
+      "billing": {
+        "title": "Abonnement & Abrechnung",
+        "currentPlan": "Aktueller Plan",
+        "statusLabel": "Status",
+        "noSubscription": "Kein aktives Abonnement",
+        "renewal": "Verlängert sich am",
+        "credits": "Verbleibende KI-Credits",
+        "empty": "Derzeit keine Empfehlungen verfügbar.",
+        "actions": {
+          "manage": "Abrechnung öffnen",
+          "cancel": "Abonnement kündigen",
+          "cancelled": "Kündigung geplant"
+        },
+        "statusMap": {
+          "active": "Aktiv",
+          "trialing": "Testphase",
+          "past_due": "Überfällig",
+          "canceled": "Gekündigt",
+          "unpaid": "Unbezahlt",
+          "incomplete": "Unvollständig",
+          "incomplete_expired": "Unvollständig (abgelaufen)",
+          "paused": "Pausiert",
+          "unknown": "Unbekannt"
         }
       },
       "projects": {
@@ -982,11 +1007,6 @@
           "limited": "Teilweise",
           "disabled": "Deaktiviert"
         }
-      },
-      "billing": {
-        "title": "Abonnement & Abrechnung",
-        "currentPlan": "Aktueller Plan",
-        "empty": "Derzeit keine Empfehlungen verfügbar."
       }
     },
     "login": {

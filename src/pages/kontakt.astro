@@ -18,7 +18,6 @@ const t = getI18n(locale);
 const pageTitle = t('pages.kontakt.title');
 const heroHeading = t('pages.kontakt.hero.heading');
 const heroSubtitle = t('pages.kontakt.hero.subtitle');
-
 ---
 
 <BaseLayout title={pageTitle}>
@@ -168,16 +167,18 @@ const heroSubtitle = t('pages.kontakt.hero.subtitle');
                   </button>
                 </div>
                 <p class="text-sm" data-contact-feedback hidden></p>
-                {publicTurnstileSiteKey && (
-                  <div class="mt-4">
-                    <div
-                      class="cf-turnstile"
-                      data-sitekey={publicTurnstileSiteKey}
-                      data-theme="auto"
-                      data-retry="auto"
-                    ></div>
-                  </div>
-                )}
+                {
+                  publicTurnstileSiteKey && (
+                    <div class="mt-4">
+                      <div
+                        class="cf-turnstile"
+                        data-sitekey={publicTurnstileSiteKey}
+                        data-theme="auto"
+                        data-retry="auto"
+                      />
+                    </div>
+                  )
+                }
               </form>
             </div>
 
@@ -218,14 +219,16 @@ const heroSubtitle = t('pages.kontakt.hero.subtitle');
                       <p class="text-sm font-medium text-gray-900 dark:text-white">
                         {t('pages.kontakt.info.email_label')}
                       </p>
-                      {contactInfo.email && (
-                        <a
-                          href={`mailto:${contactInfo.email}`}
-                          class="text-sm text-emerald-600 hover:text-emerald-500 dark:text-emerald-400 dark:hover:text-emerald-300"
-                        >
-                          {contactInfo.email}
-                        </a>
-                      )}
+                      {
+                        contactInfo.email && (
+                          <a
+                            href={`mailto:${contactInfo.email}`}
+                            class="text-sm text-emerald-600 hover:text-emerald-500 dark:text-emerald-400 dark:hover:text-emerald-300"
+                          >
+                            {contactInfo.email}
+                          </a>
+                        )
+                      }
                     </div>
                   </div>
 
@@ -254,18 +257,20 @@ const heroSubtitle = t('pages.kontakt.hero.subtitle');
                       <p class="text-sm text-gray-600 dark:text-gray-300">
                         {contactInfo.supportHours || t('pages.kontakt.info.support_hours')}
                       </p>
-                      {contactInfo.phone ? (
-                        <a
-                          href={`tel:${contactInfo.phone}`}
-                          class="text-sm text-emerald-600 hover:text-emerald-500 dark:text-emerald-400 dark:hover:text-emerald-300"
-                        >
-                          {contactInfo.phone}
-                        </a>
-                      ) : (
-                        <span class="text-sm text-gray-400 dark:text-gray-500">
-                          {t('pages.kontakt.info.phone_unavailable')}
-                        </span>
-                      )}
+                      {
+                        contactInfo.phone ? (
+                          <a
+                            href={`tel:${contactInfo.phone}`}
+                            class="text-sm text-emerald-600 hover:text-emerald-500 dark:text-emerald-400 dark:hover:text-emerald-300"
+                          >
+                            {contactInfo.phone}
+                          </a>
+                        ) : (
+                          <span class="text-sm text-gray-400 dark:text-gray-500">
+                            {t('pages.kontakt.info.phone_unavailable')}
+                          </span>
+                        )
+                      }
                     </div>
                   </div>
 
@@ -296,17 +301,19 @@ const heroSubtitle = t('pages.kontakt.hero.subtitle');
                       <p class="text-sm font-medium text-gray-900 dark:text-white">
                         {t('pages.kontakt.info.address_label')}
                       </p>
-                      {contactInfo.address ? (
-                        <address class="not-italic text-sm text-gray-600 dark:text-gray-300">
-                          {contactInfo.address.lines.map((line, idx) => (
-                            <span class={idx === 0 ? '' : 'block'}>{line}</span>
-                          ))}
-                        </address>
-                      ) : (
-                        <p class="text-sm text-gray-400 dark:text-gray-500">
-                          {t('pages.kontakt.info.address_unavailable')}
-                        </p>
-                      )}
+                      {
+                        contactInfo.address ? (
+                          <address class="not-italic text-sm text-gray-600 dark:text-gray-300">
+                            {contactInfo.address.lines.map((line, idx) => (
+                              <span class={idx === 0 ? '' : 'block'}>{line}</span>
+                            ))}
+                          </address>
+                        ) : (
+                          <p class="text-sm text-gray-400 dark:text-gray-500">
+                            {t('pages.kontakt.info.address_unavailable')}
+                          </p>
+                        )
+                      }
                     </div>
                   </div>
                 </div>
@@ -325,7 +332,6 @@ const heroSubtitle = t('pages.kontakt.hero.subtitle');
       </div>
     </div>
   </section>
-
 </BaseLayout>
 
 <script type="module">
@@ -365,7 +371,7 @@ const heroSubtitle = t('pages.kontakt.hero.subtitle');
       }
     };
 
-    const getMessage = (key, fallback = '') => (form.dataset?.[key] ?? fallback);
+    const getMessage = (key, fallback = '') => form.dataset?.[key] ?? fallback;
 
     const setFeedback = (message, isError) => {
       if (!feedback) return;

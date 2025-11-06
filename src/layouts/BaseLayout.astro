@@ -92,6 +92,7 @@ const canonicalPath = locale === 'en' ? localeAlternates.en : localeAlternates.d
 const canonicalUrl = new URL(canonicalPath, siteBase).toString();
 const alternateDeUrl = new URL(localeAlternates.de, siteBase).toString();
 const alternateEnUrl = new URL(localeAlternates.en, siteBase).toString();
+const alternateXDefaultUrl = new URL(localeAlternates.de, siteBase).toString();
 ---
 
 <!doctype html>
@@ -120,9 +121,7 @@ const alternateEnUrl = new URL(localeAlternates.en, siteBase).toString();
     <!-- hreflang links for SEO -->
     <link rel="alternate" hreflang="de" href={alternateDeUrl} />
     <link rel="alternate" hreflang="en" href={alternateEnUrl} />
-    {locale === 'en' && (
-      <link rel="alternate" hreflang="x-default" href={new URL('/en/', siteBase).toString()} />
-    )}
+    <link rel="alternate" hreflang="x-default" href={alternateXDefaultUrl} />
 
     <title>{fullTitle}</title>
 
@@ -175,14 +174,16 @@ const alternateEnUrl = new URL(localeAlternates.en, siteBase).toString();
         inLanguage: locale,
       })}
     />
-    {props.structuredData && (
-      <script
-        is:inline
-        type="application/ld+json"
-        nonce={Astro.locals.cspNonce}
-        set:html={JSON.stringify(props.structuredData)}
-      />
-    )}
+    {
+      props.structuredData && (
+        <script
+          is:inline
+          type="application/ld+json"
+          nonce={Astro.locals.cspNonce}
+          set:html={JSON.stringify(props.structuredData)}
+        />
+      )
+    }
     <script
       is:inline
       type="application/ld+json"
@@ -195,10 +196,7 @@ const alternateEnUrl = new URL(localeAlternates.en, siteBase).toString();
         logo: 'https://hub-evolution.com/favicons/android-chrome-512x512.png',
         description:
           'AI tools for developers: web scraping, transcription, image upscaling & video enhancement',
-        sameAs: [
-          'https://twitter.com/evolution_hub',
-          'https://linkedin.com/company/evolution-hub',
-        ],
+        sameAs: ['https://twitter.com/evolution_hub', 'https://linkedin.com/company/evolution-hub'],
         address: {
           '@type': 'PostalAddress',
           streetAddress: 'Kaiserin-Augusta-Allee 7',
@@ -253,14 +251,16 @@ const alternateEnUrl = new URL(localeAlternates.en, siteBase).toString();
     </style>
     <!-- Landing background boot (plain JS module via URL import) -->
     <script type="module" src={landingBgUrl} defer nonce={Astro.locals.cspNonce}></script>
-    {publicTurnstileSiteKey && (
-      <script
-        src="https://challenges.cloudflare.com/turnstile/v0/api.js"
-        async
-        defer
-        nonce={Astro.locals.cspNonce}
-      ></script>
-    )}
+    {
+      publicTurnstileSiteKey && (
+        <script
+          src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+          async
+          defer
+          nonce={Astro.locals.cspNonce}
+        />
+      )
+    }
     {showComingSoon && <style is:global>@import '@/styles/coming-soon.css';</style>}
 
     <!-- Astro View Transitions for SPA-like navigation -->

@@ -369,6 +369,12 @@ export function withApiMiddleware(
     const method = request.method;
 
     try {
+      // CSRF/Origin-Check für unsichere Methoden
+      const csrfFailure = validateCsrfAndOrigin(context, options);
+      if (csrfFailure) {
+        return applySecurityHeaders(csrfFailure);
+      }
+
       // Rate-Limiting anwenden
       const limiter = options.rateLimiter || apiRateLimiter;
       const rateLimitResult: unknown = await limiter(context);
@@ -386,12 +392,6 @@ export function withApiMiddleware(
       // Wenn der Limiter eine Response liefert, diese direkt (mit Security-Headers) zurückgeben
       if (rateLimitResult instanceof Response) {
         return applySecurityHeaders(rateLimitResult);
-      }
-
-      // CSRF/Origin-Check für unsichere Methoden
-      const csrfFailure = validateCsrfAndOrigin(context, options);
-      if (csrfFailure) {
-        return applySecurityHeaders(csrfFailure);
       }
 
       // API-Zugriff protokollieren (vor Ausführung)

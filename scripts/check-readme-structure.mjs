@@ -59,7 +59,9 @@ async function main() {
     return;
   }
 
-  console.log('[check-readme-structure] Alle README.md Dateien enthalten die erforderlichen Abschnitte.');
+  console.log(
+    '[check-readme-structure] Alle README.md Dateien enthalten die erforderlichen Abschnitte.'
+  );
 }
 
 main().catch((error) => {

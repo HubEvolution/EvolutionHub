@@ -120,13 +120,13 @@ Live-Tools: [hub-evolution.com/tools](https://hub-evolution.com/tools)
 
 ## 🕹️ Capability Matrix
 
-| Tool | Provider / Modelle | Tageslimit (Free → Enterprise) | Zusatzfeatures |
-| --- | --- | --- | --- |
-| Image Enhancer | Workers AI (SD 1.5, SDXL) & Replicate (ESRGAN, GFPGAN, CodeFormer) | 3 → 400 Bilder/24h & 30/100/400 monatlich (Plan) | Compare-Slider, Hybrid Provider Switch, Credits-Fallback |
-| Video Enhancer | Workers AI Video Upscale Presets | 0 → 5000 Credits (Zehntel) | Batch Upscaling, Presets, R2 Persistenz |
-| Prompt Enhancer | OpenAI GPT-4o mini (Text/Vision) | 5 → 20 Prompts (konfigurierbar via `PROMPT_*`) | Modes (creative/pro/concise), Attachments, Rate-Limits |
-| Webscraper | SSRF-gehärtete Worker API | 5 → 1000 Requests/24h | Robots-Handling, JSON/CSV Export, Quoten-API |
-| Voice Visualizer | OpenAI Whisper-1 (Chunks) | 60 → 300 Chunks/24h | SSE/Poll Streams, Statuschips, Usage-API |
+| Tool             | Provider / Modelle                                                 | Tageslimit (Free → Enterprise)                   | Zusatzfeatures                                           |
+| ---------------- | ------------------------------------------------------------------ | ------------------------------------------------ | -------------------------------------------------------- |
+| Image Enhancer   | Workers AI (SD 1.5, SDXL) & Replicate (ESRGAN, GFPGAN, CodeFormer) | 3 → 400 Bilder/24h & 30/100/400 monatlich (Plan) | Compare-Slider, Hybrid Provider Switch, Credits-Fallback |
+| Video Enhancer   | Workers AI Video Upscale Presets                                   | 0 → 5000 Credits (Zehntel)                       | Batch Upscaling, Presets, R2 Persistenz                  |
+| Prompt Enhancer  | OpenAI GPT-4o mini (Text/Vision)                                   | 5 → 20 Prompts (konfigurierbar via `PROMPT_*`)   | Modes (creative/pro/concise), Attachments, Rate-Limits   |
+| Webscraper       | SSRF-gehärtete Worker API                                          | 5 → 1000 Requests/24h                            | Robots-Handling, JSON/CSV Export, Quoten-API             |
+| Voice Visualizer | OpenAI Whisper-1 (Chunks)                                          | 60 → 300 Chunks/24h                              | SSE/Poll Streams, Statuschips, Usage-API                 |
 
 ## 🚢 CI/CD & Deployment
 

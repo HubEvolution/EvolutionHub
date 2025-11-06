@@ -1260,6 +1260,7 @@
         "noSubscription": "No active subscription",
         "renewal": "Renews on",
         "credits": "Remaining AI credits",
+        "empty": "No recommendations available right now.",
         "actions": {
           "manage": "Open billing",
           "cancel": "Cancel subscription",

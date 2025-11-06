@@ -149,7 +149,9 @@ export function createKVNamespaceMock(): KVNamespaceMock {
       const currentKey = String(key);
       const storedValue = await coerceToString(value);
       const normalizedOptions =
-        options && typeof options === 'object' ? ({ ...(options as PutOptionsShape) } as PutOptionsShape) : undefined;
+        options && typeof options === 'object'
+          ? ({ ...(options as PutOptionsShape) } as PutOptionsShape)
+          : undefined;
       const expiration = computeExpiration(normalizedOptions);
       const metadata = normalizedOptions?.metadata;
 
@@ -171,7 +173,10 @@ export function createKVNamespaceMock(): KVNamespaceMock {
     },
 
     async list(options?: unknown): Promise<any> {
-      const prefix = options && typeof options === 'object' ? (options as { prefix?: string | null }).prefix ?? '' : '';
+      const prefix =
+        options && typeof options === 'object'
+          ? ((options as { prefix?: string | null }).prefix ?? '')
+          : '';
       const nowSeconds = Math.ceil(Date.now() / 1000);
 
       const keys = Array.from(store.entries())

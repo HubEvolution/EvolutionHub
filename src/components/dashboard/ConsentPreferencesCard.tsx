@@ -265,9 +265,7 @@ export default function ConsentPreferencesCard({ strings, manageHref }: Props) {
               className="rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-sm text-slate-200"
             >
               <div className="flex items-center justify-between">
-                <span className="font-semibold text-white/90">
-                  {strings.categories[key].label}
-                </span>
+                <span className="font-semibold text-white/90">{strings.categories[key].label}</span>
                 <span
                   className={`text-xs font-semibold ${
                     enabled ? 'text-emerald-300' : 'text-slate-400'

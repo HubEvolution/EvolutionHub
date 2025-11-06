@@ -83,7 +83,9 @@ async function main() {
     return;
   }
 
-  console.log('[validate-frontmatter] Alle geprüften Dokumente erfüllen die Frontmatter-Anforderungen.');
+  console.log(
+    '[validate-frontmatter] Alle geprüften Dokumente erfüllen die Frontmatter-Anforderungen.'
+  );
 }
 
 main().catch((error) => {

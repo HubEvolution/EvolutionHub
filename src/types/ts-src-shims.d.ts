@@ -208,7 +208,10 @@ declare module '@/lib/security-headers' {
 
 declare module 'astro:content' {
   export function __setCollectionData(collectionName: string, entries: any[]): void;
-  export function getCollection(collectionName: string, filter?: (entry: any) => boolean): Promise<any[]>;
+  export function getCollection(
+    collectionName: string,
+    filter?: (entry: any) => boolean
+  ): Promise<any[]>;
 }
 
 declare module './provider-error' {

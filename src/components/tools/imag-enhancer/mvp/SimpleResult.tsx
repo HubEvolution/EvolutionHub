@@ -93,12 +93,7 @@ export function SimpleResult(props: SimpleResultProps): React.ReactElement {
 
       {/* Action Buttons */}
       <div className="flex flex-wrap gap-3 justify-center">
-        <Button
-          type="button"
-          onClick={onDownload}
-          disabled={loading}
-          className="px-6"
-        >
+        <Button type="button" onClick={onDownload} disabled={loading} className="px-6">
           {strings.download}
         </Button>
 

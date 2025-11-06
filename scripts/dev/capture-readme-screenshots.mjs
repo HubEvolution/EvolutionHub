@@ -20,7 +20,10 @@ async function captureScreenshots() {
 
     await page.goto(`file://${resolve('docs/media/lottie-preview.html')}`, { waitUntil: 'load' });
     await page.waitForTimeout(2000);
-    await page.screenshot({ path: resolve(outputDir, 'imag-enhancer-preview.png'), fullPage: true });
+    await page.screenshot({
+      path: resolve(outputDir, 'imag-enhancer-preview.png'),
+      fullPage: true,
+    });
   } finally {
     await browser.close();
   }
