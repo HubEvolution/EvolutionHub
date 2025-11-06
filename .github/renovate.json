@@ -1,0 +1,37 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":semanticCommits",
+    ":semanticCommitTypeAll(chore)",
+    ":semanticCommitScope(deps)"
+  ],
+  "timezone": "Europe/Berlin",
+  "dependencyDashboard": true,
+  "prHourlyLimit": 2,
+  "prConcurrentLimit": 10,
+  "schedule": ["on monday"],
+  "enabledManagers": ["npm"],
+  "packageRules": [
+    {
+      "groupName": "dev dependencies",
+      "groupSlug": "dev-deps",
+      "matchPackagePatterns": ["^@types/", "^eslint", "^prettier", "^vitest"],
+      "matchUpdateTypes": ["minor", "patch"]
+    },
+    {
+      "groupName": "astro tooling",
+      "groupSlug": "astro-tooling",
+      "matchPackagePatterns": ["^@astrojs/", "^astro$", "^hono$", "^wrangler$"]
+    },
+    {
+      "groupName": "pinned major exclusions",
+      "matchPackageNames": ["react", "react-dom", "tailwindcss"],
+      "matchUpdateTypes": ["major"],
+      "enabled": false
+    }
+  ],
+  "packagePatterns": ["*"],
+  "labels": ["dependencies", "npm", "renovate"],
+  "rebaseWhen": "behind-base-branch"
+}
