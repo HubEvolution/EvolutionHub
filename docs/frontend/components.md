@@ -455,6 +455,35 @@ import StatsCard from '@/components/dashboard/StatsCard.astro';
 
 ```text
 
+### ConsentPreferencesCard
+
+**Datei:** `src/components/dashboard/ConsentPreferencesCard.tsx`
+
+Reaktive Island, die den aktuellen Cookie-Consent-Status anzeigt und Schnellaktionen anbietet.
+
+**Features:**
+
+- Liest Präferenzen aus CookieConsent v3 oder dem Fallback (`localStorage.cookieconsent_status`, `cookieconsent_preferences`).
+- Hört auf das Event `cookieconsent:userpreferencesset`, das im `BaseLayout` dispatcht.
+- Stellt Status-Badge (`granted`, `limited`, `disabled`) sowie die Kategorien *Necessary*, *Analytics*, *Marketing* dar.
+- Buttons: "Accept all", "Essential only" (Reject all) und "Manage settings" – Link via `localizePath(locale, manageHref)` zur Cookie-Seite.
+- Locale-Strings unter `pages.dashboard.consent.*` (de/en gepflegt).
+
+**Integration (Auszug):**
+
+```astro
+<ConsentPreferencesCard
+  client:load
+  strings={consentStrings}
+  manageHref={localizePath(locale, consentStrings.manageHref)}
+/>
+```
+
+**Hinweise:**
+
+- Styling nutzt ein eigenes Gradient-Wrapper-`div` (siehe Newsletter-Karte); `CardReact` wird nicht verwendet.
+- Funktioniert nur, wenn das CookieConsent-Skript im `BaseLayout` aktiv ist (siehe `docs/frontend/cookie-consent.md`).
+
 ### UserProfile
 
 **Datei:** `src/components/dashboard/UserProfile.astro`

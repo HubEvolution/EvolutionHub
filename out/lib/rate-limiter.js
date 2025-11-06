@@ -6,7 +6,7 @@
  * um die Anwendung vor Brute-Force-, DoS- und anderen Missbrauchsversuchen zu schützen.
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.voiceTranscribeLimiter = exports.aiGenerateLimiter = exports.aiJobsLimiter = exports.apiRateLimiter = exports.sensitiveActionLimiter = exports.authLimiter = exports.standardApiLimiter = void 0;
+exports.contactFormLimiter = exports.voiceTranscribeLimiter = exports.aiGenerateLimiter = exports.aiJobsLimiter = exports.apiRateLimiter = exports.sensitiveActionLimiter = exports.authLimiter = exports.standardApiLimiter = void 0;
 exports.createRateLimiter = createRateLimiter;
 exports.rateLimit = rateLimit;
 exports.getLimiterState = getLimiterState;
@@ -150,6 +150,11 @@ exports.voiceTranscribeLimiter = createRateLimiter({
     maxRequests: 15,
     windowMs: 60 * 1000, // 1 Minute
     name: 'voiceTranscribe',
+});
+exports.contactFormLimiter = createRateLimiter({
+    maxRequests: import.meta.env.DEV ? 50 : 5,
+    windowMs: 60 * 1000,
+    name: 'contactForm',
 });
 /**
  * Einfache Rate-Limiting-Funktion für Service-Layer

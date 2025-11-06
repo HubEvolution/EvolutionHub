@@ -779,7 +779,13 @@
           "agree_prefix": "Ich stimme der ",
           "agree_suffix": " zu."
         },
-        "submit_button": "Nachricht senden"
+        "submit_button": "Nachricht senden",
+        "feedback": {
+          "success": "Danke! Wir melden uns in Kürze.",
+          "error": "Die Nachricht konnte nicht gesendet werden. Bitte versuche es erneut oder schreibe uns direkt per E-Mail.",
+          "generic_error": "Es ist ein Fehler aufgetreten. Bitte versuche es erneut.",
+          "sending": "Wird gesendet…"
+        }
       },
       "info": {
         "heading": "Kontaktinformationen",
@@ -933,49 +939,53 @@
         },
         "pulse": "Dein Workspace funktioniert vollständig passwortlos – Magic Links kommen direkt in deinem Postfach an und OAuth hält Identitäten verifiziert."
       },
-      "billing": {
-        "title": "Abonnement & Plan",
-        "currentPlan": "Aktueller Plan",
-        "statusLabel": "Status",
-        "noSubscription": "Kein aktives Abonnement",
-        "renewal": "Verlängert sich am",
-        "credits": "Verbleibende AI-Credits",
-        "actions": {
-          "manage": "Abrechnung öffnen",
-          "cancel": "Abo kündigen",
-          "cancelled": "Kündigung vorgemerkt"
-        },
-        "statusMap": {
-          "active": "Aktiv",
-          "trialing": "Testphase",
-          "past_due": "Überfällig",
-          "canceled": "Gekündigt",
-          "unpaid": "Unbezahlt",
-          "incomplete": "Unvollständig",
-          "incomplete_expired": "Abgelaufen",
-          "paused": "Pausiert",
-          "unknown": "Unbekannt"
-        }
-      },
       "toolShortcuts": {
         "title": "Werkzeuge im Schnellzugriff",
         "description": "Greife direkt auf deine wichtigsten Workflows zu.",
         "open": "Tool öffnen"
       },
       "newsletter": {
-        "title": "Newsletter-Einstellungen",
-        "subscribed": "Du erhältst derzeit Produkt-Updates.",
-        "unsubscribed": "Aktuell keine Newsletter abonniert.",
-        "unsubscribe": "Newsletter abbestellen",
+        "title": "Newsletter-Präferenzen",
+        "subscribed": "Du erhältst derzeit Produkt-Updates und Release Notes.",
+        "unsubscribed": "Du erhältst aktuell keine Produkt-Updates.",
+        "unsubscribe": "Abmelden",
         "resubscribe": "Erneut abonnieren",
-        "processing": "Einstellungen werden aktualisiert...",
-        "success": "Einstellungen gespeichert",
-        "error": "Einstellungen konnten nicht aktualisiert werden. Bitte erneut versuchen."
+        "processing": "Aktualisiere…",
+        "success": "Deine Präferenzen wurden aktualisiert.",
+        "error": "Wir konnten deine Präferenzen nicht aktualisieren. Bitte versuche es erneut."
       },
-      "recommendations": {
-        "title": "Empfehlungen für dich",
-        "tools": "Tools",
-        "docs": "Guides",
+      "consent": {
+        "title": "Cookie & Consent",
+        "description": "Diese Einstellungen steuern Analyse- und Marketingfunktionen in Evolution Hub.",
+        "manageHref": "/cookie-einstellungen",
+        "categories": {
+          "necessary": {
+            "label": "Notwendig",
+            "description": "Immer aktiv, damit Sicherheit und Grundfunktionen gewährleistet sind."
+          },
+          "analytics": {
+            "label": "Analyse",
+            "description": "Seiten-Analysen und Telemetrie zur Verbesserung des Produkts."
+          },
+          "marketing": {
+            "label": "Marketing",
+            "description": "Personalisierte Kampagnen und Retargeting über verschiedene Kanäle."
+          }
+        },
+        "actions": {
+          "manage": "Einstellungen öffnen",
+          "acceptAll": "Alle akzeptieren",
+          "rejectAll": "Nur notwendige"
+        },
+        "status": {
+          "granted": "Aktiv",
+          "limited": "Teilweise",
+          "disabled": "Deaktiviert"
+        }
+      },
+      "billing": {
+        "title": "Abonnement & Abrechnung",
+        "currentPlan": "Aktueller Plan",
         "empty": "Derzeit keine Empfehlungen verfügbar."
       }
     },

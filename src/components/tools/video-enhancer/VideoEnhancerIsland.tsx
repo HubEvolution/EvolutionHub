@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import Button from '@/components/ui/Button';
 import { ensureCsrfToken } from '@/lib/security/csrf';
 
 type Tier = '720p' | '1080p';
@@ -320,27 +321,34 @@ export default function VideoEnhancerIsland() {
           </select>
         </div>
         <div className="flex gap-3">
-          <button
+          <Button
+            type="button"
             onClick={upload}
             disabled={!canStart || step === 'uploaded' || step === 'running'}
-            className="px-3 py-1.5 rounded bg-emerald-600 text-white disabled:opacity-60"
+            size="sm"
+            className="px-3"
           >
             Upload
-          </button>
-          <button
+          </Button>
+          <Button
+            type="button"
             onClick={start}
             disabled={step !== 'uploaded' || busy}
-            className="px-3 py-1.5 rounded bg-indigo-600 text-white disabled:opacity-60"
+            size="sm"
+            className="px-3"
           >
             Enhance Video
-          </button>
-          <button
+          </Button>
+          <Button
+            type="button"
             onClick={reset}
             disabled={busy}
-            className="px-3 py-1.5 rounded border border-gray-300 dark:border-gray-600"
+            variant="ghost"
+            size="sm"
+            className="px-3 border border-gray-300 dark:border-gray-600"
           >
             Reset
-          </button>
+          </Button>
         </div>
         {typeof durationMs === 'number' && (
           <p className="text-xs text-gray-500">Duration: {Math.ceil(durationMs / 1000)}s</p>
@@ -378,13 +386,16 @@ export default function VideoEnhancerIsland() {
         <div className="space-y-2">
           <video src={outputUrl} controls className="w-full max-w-2xl rounded" />
           <div>
-            <a
-              href={outputUrl}
-              download
-              className="inline-flex items-center px-3 py-1.5 rounded bg-emerald-600 text-white"
+            <Button
+              asChild
+              variant="secondary"
+              size="sm"
+              className="px-3"
             >
-              Download
-            </a>
+              <a href={outputUrl} download>
+                Download
+              </a>
+            </Button>
           </div>
         </div>
       )}

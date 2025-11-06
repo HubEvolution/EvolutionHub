@@ -3,6 +3,28 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.useProjectStore = void 0;
 const zustand_1 = require("zustand");
 const middleware_1 = require("zustand/middleware");
+function assertApiResult(value) {
+    if (typeof value !== 'object' || value === null || !('success' in value)) {
+        throw new Error('Invalid API response structure');
+    }
+    const successFlag = value.success;
+    if (successFlag === true) {
+        if (!('data' in value)) {
+            throw new Error('Success response missing data field');
+        }
+        return;
+    }
+    if (successFlag === false) {
+        const errorPayload = value.error;
+        if (!errorPayload ||
+            typeof errorPayload !== 'object' ||
+            typeof errorPayload.message !== 'string') {
+            throw new Error('Error response missing error payload');
+        }
+        return;
+    }
+    throw new Error('API response has invalid success flag');
+}
 const initialState = {
     projects: [],
     loading: false,
@@ -15,7 +37,7 @@ exports.useProjectStore = (0, zustand_1.create)()((0, middleware_1.devtools)((se
     fetchProjects: async () => {
         set({ loading: true, error: null });
         try {
-            const response = await fetch('/api/projects', {
+            const response = await fetch('/api/dashboard/projects', {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -24,12 +46,13 @@ exports.useProjectStore = (0, zustand_1.create)()((0, middleware_1.devtools)((se
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            const result = await response.json();
-            if (result.success) {
-                set({ projects: result.data, loading: false });
+            const json = await response.json();
+            assertApiResult(json);
+            if (json.success) {
+                set({ projects: json.data, loading: false });
             }
             else {
-                throw new Error(result.error?.message || 'Failed to fetch projects');
+                throw new Error(json.error.message || 'Failed to fetch projects');
             }
         }
         catch (error) {
@@ -43,7 +66,7 @@ exports.useProjectStore = (0, zustand_1.create)()((0, middleware_1.devtools)((se
     fetchProject: async (id) => {
         set({ loading: true, error: null });
         try {
-            const response = await fetch(`/api/projects/${id}`, {
+            const response = await fetch(`/api/dashboard/projects/${id}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -52,16 +75,17 @@ exports.useProjectStore = (0, zustand_1.create)()((0, middleware_1.devtools)((se
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            const result = await response.json();
-            if (result.success) {
+            const json = await response.json();
+            assertApiResult(json);
+            if (json.success) {
                 set((state) => ({
-                    selectedProject: result.data,
-                    projects: state.projects.map((p) => (p.id === id ? result.data : p)),
+                    selectedProject: json.data,
+                    projects: state.projects.map((p) => (p.id === id ? json.data : p)),
                     loading: false,
                 }));
             }
             else {
-                throw new Error(result.error?.message || 'Failed to fetch project');
+                throw new Error(json.error.message || 'Failed to fetch project');
             }
         }
         catch (error) {
@@ -87,15 +111,16 @@ exports.useProjectStore = (0, zustand_1.create)()((0, middleware_1.devtools)((se
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            const result = await response.json();
-            if (result.success) {
+            const json = await response.json();
+            assertApiResult(json);
+            if (json.success) {
                 set((state) => ({
-                    projects: [result.data, ...state.projects],
+                    projects: [json.data, ...state.projects],
                     loading: false,
                 }));
             }
             else {
-                throw new Error(result.error?.message || 'Failed to create project');
+                throw new Error(json.error.message || 'Failed to create project');
             }
         }
         catch (error) {
@@ -121,16 +146,17 @@ exports.useProjectStore = (0, zustand_1.create)()((0, middleware_1.devtools)((se
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            const result = await response.json();
-            if (result.success) {
+            const json = await response.json();
+            assertApiResult(json);
+            if (json.success) {
                 set((state) => ({
-                    projects: state.projects.map((p) => (p.id === data.id ? result.data : p)),
-                    selectedProject: state.selectedProject?.id === data.id ? result.data : state.selectedProject,
+                    projects: state.projects.map((p) => (p.id === data.id ? json.data : p)),
+                    selectedProject: state.selectedProject?.id === data.id ? json.data : state.selectedProject,
                     loading: false,
                 }));
             }
             else {
-                throw new Error(result.error?.message || 'Failed to update project');
+                throw new Error(json.error.message || 'Failed to update project');
             }
         }
         catch (error) {
@@ -155,8 +181,9 @@ exports.useProjectStore = (0, zustand_1.create)()((0, middleware_1.devtools)((se
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            const result = await response.json();
-            if (result.success) {
+            const json = await response.json();
+            assertApiResult(json);
+            if (json.success) {
                 set((state) => ({
                     projects: state.projects.filter((p) => p.id !== id),
                     selectedProject: state.selectedProject?.id === id ? null : state.selectedProject,
@@ -164,7 +191,7 @@ exports.useProjectStore = (0, zustand_1.create)()((0, middleware_1.devtools)((se
                 }));
             }
             else {
-                throw new Error(result.error?.message || 'Failed to delete project');
+                throw new Error(json.error.message || 'Failed to delete project');
             }
         }
         catch (error) {
@@ -193,15 +220,9 @@ exports.useProjectStore = (0, zustand_1.create)()((0, middleware_1.devtools)((se
         if (filters.status) {
             filtered = filtered.filter((p) => p.status === filters.status);
         }
-        if (filters.priority) {
-            filtered = filtered.filter((p) => p.priority === filters.priority);
-        }
         if (filters.search) {
             const search = filters.search.toLowerCase();
             filtered = filtered.filter((p) => p.title.toLowerCase().includes(search) || p.description.toLowerCase().includes(search));
-        }
-        if (filters.tags && filters.tags.length > 0) {
-            filtered = filtered.filter((p) => p.tags?.some((tag) => filters.tags?.includes(tag)));
         }
         return filtered;
     },

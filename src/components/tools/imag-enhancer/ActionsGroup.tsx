@@ -1,4 +1,5 @@
 import type { MouseEvent } from 'react';
+import Button from '@/components/ui/Button';
 
 /**
  * Props für die ActionsGroup-Komponente im Image Enhancer Tool.
@@ -38,7 +39,7 @@ interface ActionsGroupProps {
 
   onEnhance: () => void;
   onReset: () => void;
-  onDownload: (e: MouseEvent<HTMLAnchorElement>) => void;
+  onDownload: (e: MouseEvent<HTMLButtonElement>) => void;
   // Optional: show a Start Over action in compare phase
   startOverLabel?: string;
   onStartOver?: () => void;
@@ -78,15 +79,12 @@ export function ActionsGroup({
   return (
     <>
       {showEnhance && (
-        <button
+        <Button
           type="button"
           onClick={onEnhance}
           disabled={!canSubmit || quotaExceeded}
-          className={`inline-flex items-center gap-2 px-4 py-2 min-h-[44px] sm:min-h-0 rounded-md text-sm font-medium text-white transition-colors ${
-            !quotaExceeded && canSubmit
-              ? 'bg-gradient-to-r from-cyan-500 to-violet-600 hover:from-cyan-400 hover:to-violet-500'
-              : 'bg-gray-400 cursor-not-allowed opacity-60'
-          }`}
+          size="sm"
+          className="min-h-[44px] sm:min-h-0 gap-2"
         >
           {loading && (
             <svg
@@ -112,40 +110,42 @@ export function ActionsGroup({
             </svg>
           )}
           <span>{loading ? processingLabel : enhanceLabel}</span>
-        </button>
+        </Button>
       )}
 
       {hasResult && (
         <>
-          <button
+          <Button
             type="button"
             onClick={onReset}
             disabled={!canReset}
-            className={`text-xs px-3 py-2 min-h-[44px] sm:px-2 sm:py-1 sm:min-h-0 rounded-md ring-1 transition-colors ${
-              canReset
-                ? 'bg-white/10 dark:bg-slate-900/40 ring-cyan-400/20 text-gray-700 dark:text-gray-200 hover:ring-cyan-400/40'
-                : 'bg-gray-400/30 dark:bg-gray-700/40 ring-gray-400/20 text-gray-500 dark:text-gray-400 cursor-not-allowed'
-            }`}
+            variant="ghost"
+            size="sm"
+            className="min-h-[44px] sm:min-h-0 px-3 sm:px-2"
           >
             {resetLabel}
-          </button>
+          </Button>
           {onStartOver && (
-            <button
+            <Button
               type="button"
               onClick={onStartOver}
-              className="text-xs px-3 py-2 min-h-[44px] sm:px-2 sm:py-1 sm:min-h-0 rounded-md bg-white/10 dark:bg-slate-900/40 ring-1 ring-rose-400/20 text-rose-700 dark:text-rose-200 hover:ring-rose-400/40"
+              variant="ghost"
+              size="sm"
+              className="min-h-[44px] sm:min-h-0 px-3 sm:px-2 text-rose-700 dark:text-rose-200 hover:text-rose-100"
             >
               {startOverLabel || 'Start over'}
-            </button>
+            </Button>
           )}
-          <a
-            href={resultUrl || undefined}
-            download
+          <Button
+            type="button"
             onClick={onDownload}
-            className="text-xs px-3 py-2 min-h-[44px] sm:px-2 sm:py-1 sm:min-h-0 inline-flex items-center rounded-md bg-white/10 dark:bg-slate-900/40 ring-1 ring-cyan-400/10 text-gray-700 dark:text-gray-200 hover:ring-cyan-400/30"
+            disabled={!resultUrl}
+            variant="secondary"
+            size="sm"
+            className="min-h-[44px] sm:min-h-0 px-3 sm:px-2"
           >
             {downloadLabel}
-          </a>
+          </Button>
         </>
       )}
     </>

@@ -33,6 +33,45 @@ interface Props {
   manageLink?: string;
 }
 
+type ApiSuccess<T> = {
+  success: true;
+  data: T;
+};
+
+type ApiError = {
+  success: false;
+  error: string;
+  message?: string;
+  details?: unknown;
+};
+
+type ApiResult<T> = ApiSuccess<T> | ApiError;
+
+function assertApiResult<T>(value: unknown): asserts value is ApiResult<T> {
+  if (typeof value !== 'object' || value === null || !('success' in value)) {
+    throw new Error('Invalid API response structure');
+  }
+
+  const successFlag = (value as { success?: unknown }).success;
+
+  if (successFlag === true) {
+    if (!('data' in value)) {
+      throw new Error('API success response missing data');
+    }
+    return;
+  }
+
+  if (successFlag === false) {
+    const errorPayload = (value as { error?: unknown }).error;
+    if (typeof errorPayload !== 'string' || !errorPayload) {
+      throw new Error('API error response missing error message');
+    }
+    return;
+  }
+
+  throw new Error('API response has invalid success flag');
+}
+
 function formatDate(date: Date | null, locale: string): string | null {
   if (!date) return null;
   return new Intl.DateTimeFormat(locale, {
@@ -66,11 +105,19 @@ export default function BillingCard({ summary, strings, manageLink = '/pricing' 
       try {
         const res = await fetch('/api/dashboard/billing-summary', { method: 'GET' });
         if (!res.ok) return;
-        const json: any = await res.json();
-        if (!cancelled && json && json.success !== false && json.data) {
-          setState(json.data as BillingSummary);
+
+        const payload = (await res.json().catch(() => null)) as unknown;
+        if (!payload) {
+          return;
         }
-      } catch {}
+
+        assertApiResult<BillingSummary>(payload);
+        if (!cancelled && payload.success) {
+          setState(payload.data);
+        }
+      } catch (error) {
+        console.error('Failed to refresh billing summary', error);
+      }
     })();
     return () => {
       cancelled = true;
@@ -88,10 +135,17 @@ export default function BillingCard({ summary, strings, manageLink = '/pricing' 
         },
         body: JSON.stringify({ subscriptionId: state.subscriptionId }),
       });
-      const json = await response.json();
+      const payload = (await response.json().catch(() => null)) as unknown;
 
-      if (!response.ok || json?.success === false) {
-        throw new Error(json?.error ?? 'unknown_error');
+      if (!response.ok) {
+        throw new Error('request_failed');
+      }
+
+      if (payload) {
+        assertApiResult<unknown>(payload);
+        if (payload.success === false) {
+          throw new Error(payload.error ?? 'unknown_error');
+        }
       }
 
       toast.success(strings.actions.cancelled);

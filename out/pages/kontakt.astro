@@ -1,28 +1,18 @@
----
-import BaseLayout from '@/layouts/BaseLayout.astro';
+----
 import { getI18n } from '@/utils/i18n';
 import { getLocale } from '@/lib/i18n';
+import BaseLayout from '@/layouts/BaseLayout.astro';
 import Card from '@/components/ui/Card';
+import { contactInfo } from '@/config/contact';
+
+const contactFormScript = Astro.resolve('@/scripts/contact-form.ts');
+
 const locale = getLocale(Astro.url.pathname);
 const t = getI18n(locale);
-// Safe helpers: treat empty strings as missing
-const hasText = (s: string) => !!(s && s.trim());
-const tx = (key: string) => t(key);
-const pageTitle = hasText(tx('pages.kontakt.title'))
-  ? tx('pages.kontakt.title')
-  : locale === 'en'
-    ? 'Contact'
-    : 'Kontakt';
-const heroHeading = hasText(tx('pages.kontakt.hero.heading'))
-  ? tx('pages.kontakt.hero.heading')
-  : locale === 'en'
-    ? 'Get in touch'
-    : 'Kontaktieren Sie uns';
-const heroSubtitle = hasText(tx('pages.kontakt.hero.subtitle'))
-  ? tx('pages.kontakt.hero.subtitle')
-  : locale === 'en'
-    ? 'Have questions or feedback? We’d love to hear from you.'
-    : 'Haben Sie Fragen oder Anregungen? Wir freuen uns, von Ihnen zu hören.';
+
+const pageTitle = t('pages.kontakt.title');
+const heroHeading = t('pages.kontakt.hero.heading');
+const heroSubtitle = t('pages.kontakt.hero.subtitle');
 ---
 
 <BaseLayout title={pageTitle}>
@@ -53,28 +43,23 @@ const heroSubtitle = hasText(tx('pages.kontakt.hero.subtitle'))
             <!-- Contact Form -->
             <div class="p-8 md:p-10">
               <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-                {
-                  hasText(tx('pages.kontakt.form.heading'))
-                    ? tx('pages.kontakt.form.heading')
-                    : locale === 'en'
-                      ? 'Send us a message'
-                      : 'Senden Sie uns eine Nachricht'
-                }
+                {t('pages.kontakt.form.heading')}
               </h2>
 
-              <form class="space-y-6">
+              <form
+                class="space-y-6"
+                data-contact-form
+                data-success-message={t('pages.kontakt.form.feedback.success')}
+                data-error-message={t('pages.kontakt.form.feedback.error')}
+                data-generic-error={t('pages.kontakt.form.feedback.generic_error')}
+                data-sending-message={t('pages.kontakt.form.feedback.sending')}
+              >
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label
                       for="first-name"
                       class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                      >{
-                        hasText(tx('pages.kontakt.form.fields.first_name.label'))
-                          ? tx('pages.kontakt.form.fields.first_name.label')
-                          : locale === 'en'
-                            ? 'First name'
-                            : 'Vorname'
-                      }</label
+                      >{t('pages.kontakt.form.fields.first_name.label')}</label
                     >
                     <input
                       type="text"
@@ -88,13 +73,7 @@ const heroSubtitle = hasText(tx('pages.kontakt.hero.subtitle'))
                     <label
                       for="last-name"
                       class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                      >{
-                        hasText(tx('pages.kontakt.form.fields.last_name.label'))
-                          ? tx('pages.kontakt.form.fields.last_name.label')
-                          : locale === 'en'
-                            ? 'Last name'
-                            : 'Nachname'
-                      }</label
+                      >{t('pages.kontakt.form.fields.last_name.label')}</label
                     >
                     <input
                       type="text"
@@ -110,13 +89,7 @@ const heroSubtitle = hasText(tx('pages.kontakt.hero.subtitle'))
                   <label
                     for="email"
                     class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                    >{
-                      hasText(tx('pages.kontakt.form.fields.email.label'))
-                        ? tx('pages.kontakt.form.fields.email.label')
-                        : locale === 'en'
-                          ? 'Email'
-                          : 'E-Mail'
-                    }</label
+                    >{t('pages.kontakt.form.fields.email.label')}</label
                   >
                   <input
                     type="email"
@@ -131,13 +104,7 @@ const heroSubtitle = hasText(tx('pages.kontakt.hero.subtitle'))
                   <label
                     for="subject"
                     class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                    >{
-                      hasText(tx('pages.kontakt.form.fields.subject.label'))
-                        ? tx('pages.kontakt.form.fields.subject.label')
-                        : locale === 'en'
-                          ? 'Subject'
-                          : 'Betreff'
-                    }</label
+                    >{t('pages.kontakt.form.fields.subject.label')}</label
                   >
                   <input
                     type="text"
@@ -152,13 +119,7 @@ const heroSubtitle = hasText(tx('pages.kontakt.hero.subtitle'))
                   <label
                     for="message"
                     class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                    >{
-                      hasText(tx('pages.kontakt.form.fields.message.label'))
-                        ? tx('pages.kontakt.form.fields.message.label')
-                        : locale === 'en'
-                          ? 'Your message'
-                          : 'Ihre Nachricht'
-                    }</label
+                    >{t('pages.kontakt.form.fields.message.label')}</label
                   >
                   <textarea
                     id="message"
@@ -166,11 +127,7 @@ const heroSubtitle = hasText(tx('pages.kontakt.hero.subtitle'))
                     rows="4"
                     required
                     class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition duration-200"
-                    placeholder={hasText(tx('pages.kontakt.form.fields.message.placeholder'))
-                      ? tx('pages.kontakt.form.fields.message.placeholder')
-                      : locale === 'en'
-                        ? 'Describe your request...'
-                        : 'Beschreiben Sie Ihr Anliegen...'}></textarea>
+                    placeholder={t('pages.kontakt.form.fields.message.placeholder')}></textarea>
                 </div>
 
                 <div class="flex items-center">
@@ -185,19 +142,13 @@ const heroSubtitle = hasText(tx('pages.kontakt.hero.subtitle'))
                     for="privacy-policy"
                     class="ml-2 block text-sm text-gray-700 dark:text-gray-300"
                   >
-                    {locale === 'en' ? 'I agree to the ' : 'Ich stimme der '}
+                    {t('pages.kontakt.form.privacy_policy.agree_prefix')}
                     <a
                       href={locale === 'en' ? '/en/datenschutz' : '/datenschutz'}
                       class="text-emerald-600 hover:text-emerald-500 dark:text-emerald-400 dark:hover:text-emerald-300"
-                      >{
-                        hasText(tx('pages.kontakt.form.privacy_policy.link_text'))
-                          ? tx('pages.kontakt.form.privacy_policy.link_text')
-                          : locale === 'en'
-                            ? 'Privacy Policy'
-                            : 'Datenschutzerklärung'
-                      }</a
+                      >{t('pages.kontakt.form.privacy_policy.link_text')}</a
                     >
-                    {locale === 'en' ? '.' : ' zu.'}
+                    {t('pages.kontakt.form.privacy_policy.agree_suffix')}
                   </label>
                 </div>
 
@@ -205,16 +156,12 @@ const heroSubtitle = hasText(tx('pages.kontakt.hero.subtitle'))
                   <button
                     type="submit"
                     class="w-full flex justify-center py-3 px-6 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition duration-200"
+                    data-contact-submit
                   >
-                    {
-                      hasText(tx('pages.kontakt.form.submit_button'))
-                        ? tx('pages.kontakt.form.submit_button')
-                        : locale === 'en'
-                          ? 'Send message'
-                          : 'Nachricht senden'
-                    }
+                    {t('pages.kontakt.form.submit_button')}
                   </button>
                 </div>
+                <p class="text-sm" data-contact-feedback hidden></p>
               </form>
             </div>
 
@@ -225,22 +172,10 @@ const heroSubtitle = hasText(tx('pages.kontakt.hero.subtitle'))
               <div class="space-y-6">
                 <div>
                   <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                    {
-                      hasText(tx('pages.kontakt.info.heading'))
-                        ? tx('pages.kontakt.info.heading')
-                        : locale === 'en'
-                          ? 'Contact information'
-                          : 'Kontaktinformationen'
-                    }
+                    {t('pages.kontakt.info.heading')}
                   </h3>
                   <p class="text-gray-600 dark:text-gray-300 text-sm">
-                    {
-                      hasText(tx('pages.kontakt.info.subtitle'))
-                        ? tx('pages.kontakt.info.subtitle')
-                        : locale === 'en'
-                          ? 'Our support team is here for you. Write to us or give us a call.'
-                          : 'Unser Support-Team ist für Sie da. Schreiben Sie uns oder rufen Sie uns an.'
-                    }
+                    {t('pages.kontakt.info.subtitle')}
                   </p>
                 </div>
 
@@ -265,23 +200,16 @@ const heroSubtitle = hasText(tx('pages.kontakt.hero.subtitle'))
                     </div>
                     <div class="ml-4">
                       <p class="text-sm font-medium text-gray-900 dark:text-white">
-                        {
-                          hasText(tx('pages.kontakt.info.email_label'))
-                            ? tx('pages.kontakt.info.email_label')
-                            : locale === 'en'
-                              ? 'Email'
-                              : 'E-Mail'
-                        }
+                        {t('pages.kontakt.info.email_label')}
                       </p>
-                      <a
-                        href="mailto:kontakt@evolutionhub.de"
-                        class="text-sm text-emerald-600 hover:text-emerald-500 dark:text-emerald-400 dark:hover:text-emerald-300"
-                        >{
-                          hasText(tx('pages.kontakt.info.email_address'))
-                            ? tx('pages.kontakt.info.email_address')
-                            : 'kontakt@evolutionhub.de'
-                        }</a
-                      >
+                      {contactInfo.email && (
+                        <a
+                          href={`mailto:${contactInfo.email}`}
+                          class="text-sm text-emerald-600 hover:text-emerald-500 dark:text-emerald-400 dark:hover:text-emerald-300"
+                        >
+                          {contactInfo.email}
+                        </a>
+                      )}
                     </div>
                   </div>
 
@@ -305,32 +233,23 @@ const heroSubtitle = hasText(tx('pages.kontakt.hero.subtitle'))
                     </div>
                     <div class="ml-4">
                       <p class="text-sm font-medium text-gray-900 dark:text-white">
-                        {
-                          hasText(tx('pages.kontakt.info.phone_label'))
-                            ? tx('pages.kontakt.info.phone_label')
-                            : locale === 'en'
-                              ? 'Phone'
-                              : 'Telefon'
-                        }
+                        {t('pages.kontakt.info.phone_label')}
                       </p>
                       <p class="text-sm text-gray-600 dark:text-gray-300">
-                        {
-                          hasText(tx('pages.kontakt.info.support_hours'))
-                            ? tx('pages.kontakt.info.support_hours')
-                            : locale === 'en'
-                              ? 'Mon-Fri, 9am-6pm'
-                              : 'Mo-Fr, 9-18 Uhr'
-                        }
+                        {contactInfo.supportHours || t('pages.kontakt.info.support_hours')}
                       </p>
-                      <a
-                        href="tel:+49123456789"
-                        class="text-sm text-emerald-600 hover:text-emerald-500 dark:text-emerald-400 dark:hover:text-emerald-300"
-                        >{
-                          hasText(tx('pages.kontakt.info.phone_number'))
-                            ? tx('pages.kontakt.info.phone_number')
-                            : '+49 123 456789'
-                        }</a
-                      >
+                      {contactInfo.phone ? (
+                        <a
+                          href={`tel:${contactInfo.phone}`}
+                          class="text-sm text-emerald-600 hover:text-emerald-500 dark:text-emerald-400 dark:hover:text-emerald-300"
+                        >
+                          {contactInfo.phone}
+                        </a>
+                      ) : (
+                        <span class="text-sm text-gray-400 dark:text-gray-500">
+                          {t('pages.kontakt.info.phone_unavailable')}
+                        </span>
+                      )}
                     </div>
                   </div>
 
@@ -359,48 +278,28 @@ const heroSubtitle = hasText(tx('pages.kontakt.hero.subtitle'))
                     </div>
                     <div class="ml-4">
                       <p class="text-sm font-medium text-gray-900 dark:text-white">
-                        {
-                          hasText(tx('pages.kontakt.info.address_label'))
-                            ? tx('pages.kontakt.info.address_label')
-                            : locale === 'en'
-                              ? 'Address'
-                              : 'Adresse'
-                        }
+                        {t('pages.kontakt.info.address_label')}
                       </p>
-                      <p class="text-sm text-gray-600 dark:text-gray-300">
-                        Evolution Hub GmbH<br />
-                        Musterstraße 123<br />
-                        10115 Berlin, Deutschland
-                      </p>
+                      {contactInfo.address ? (
+                        <address class="not-italic text-sm text-gray-600 dark:text-gray-300">
+                          {contactInfo.address.lines.map((line, idx) => (
+                            <span class={idx === 0 ? '' : 'block'}>{line}</span>
+                          ))}
+                        </address>
+                      ) : (
+                        <p class="text-sm text-gray-400 dark:text-gray-500">
+                          {t('pages.kontakt.info.address_unavailable')}
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
 
                 <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
                   <p class="text-xs text-gray-500 dark:text-gray-400">
-                    {
-                      hasText(tx('pages.kontakt.info.response_time_label'))
-                        ? tx('pages.kontakt.info.response_time_label')
-                        : locale === 'en'
-                          ? 'Average response time:'
-                          : 'Durchschnittliche Antwortzeit:'
-                    }
-                    <span class="font-medium"
-                      >{
-                        hasText(tx('pages.kontakt.info.response_time'))
-                          ? tx('pages.kontakt.info.response_time')
-                          : locale === 'en'
-                            ? 'within 24h'
-                            : 'innerhalb von 24h'
-                      }</span
-                    >
-                    {
-                      hasText(tx('pages.kontakt.info.response_time_unit'))
-                        ? tx('pages.kontakt.info.response_time_unit')
-                        : locale === 'en'
-                          ? 'on business days.'
-                          : 'an Werktagen.'
-                    }
+                    {t('pages.kontakt.info.response_time_label')}
+                    <span class="font-medium">{t('pages.kontakt.info.response_time')}</span>
+                    {t('pages.kontakt.info.response_time_unit')}
                   </p>
                 </div>
               </div>
@@ -411,7 +310,6 @@ const heroSubtitle = hasText(tx('pages.kontakt.hero.subtitle'))
     </div>
   </section>
 
-  <script>
-    // TODO: Add i18n for contact page content
-  </script>
 </BaseLayout>
+
+<script type="module" src={contactFormScript}></script>

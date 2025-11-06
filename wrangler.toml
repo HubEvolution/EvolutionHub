@@ -38,7 +38,7 @@ ENVIRONMENT = "development"
 BASE_URL = "http://127.0.0.1:8787"
 APP_ORIGIN = "http://127.0.0.1:8787"
 EMAIL_FROM = "noreply@hub-evolution.com"
-CONTACT_RECIPIENTS = "info@hub-evolution.com"
+CONTACT_RECIPIENTS = "noreply@hub-evolution.com,lucas0507@icloud.com"
 LEADMAGNET_SOURCE = "public"
 AUTH_PROVIDER = "stytch"
 AUTH_REDIRECT = "/dashboard"
@@ -187,7 +187,7 @@ ENVIRONMENT = "development" # Wird für lokale Entwicklung auf 'development' ges
 LEADMAGNET_SOURCE = "public"
 # Resend Email defaults (API key is provided via `wrangler secret put RESEND_API_KEY`)
 EMAIL_FROM = "noreply@hub-evolution.com"
-CONTACT_RECIPIENTS = "info@hub-evolution.com,support@hub-evolution.com"
+CONTACT_RECIPIENTS = "noreply@hub-evolution.com,lucas0507@icloud.com"
 
 # Prompt Enhancer (non-secret defaults for local dev)
 PROMPT_REWRITE_V1 = "true"
@@ -257,7 +257,7 @@ PUBLIC_SITE_URL="https://hub-evolution.com"
 PUBLIC_ENHANCER_MVP_MODE = "1"
 PUBLIC_ENHANCER_LEGACY_MODE = "0"
 EMAIL_FROM = "noreply@hub-evolution.com"
-CONTACT_RECIPIENTS = "noreply@hub-evolution.com"
+CONTACT_RECIPIENTS = "noreply@hub-evolution.com,lucas0507@icloud.com"
 CLOUDFLARE_ZONE_ID = "14c984ebb05270de08cb82d316f1ba36"
 CLOUDFLARE_ACCOUNT_ID = "39434b5635d8beb4bde93e1792b628d7"
 # Produktionsbasis-URL für Stripe-Redirects

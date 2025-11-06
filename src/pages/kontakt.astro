@@ -1,9 +1,16 @@
 ---
-import BaseLayout from '@/layouts/BaseLayout.astro';
 import { getI18n } from '@/utils/i18n';
 import { getLocale } from '@/lib/i18n';
+import BaseLayout from '@/layouts/BaseLayout.astro';
 import Card from '@/components/ui/Card';
 import { contactInfo } from '@/config/contact';
+
+export const prerender = false;
+
+const publicTurnstileSiteKey =
+  (import.meta.env.PUBLIC_TURNSTILE_SITE_KEY as string | undefined) ??
+  ((Astro.locals as unknown as { runtime?: { env?: Record<string, string> } })?.runtime?.env
+    ?.PUBLIC_TURNSTILE_SITE_KEY as string | undefined);
 
 const locale = getLocale(Astro.url.pathname);
 const t = getI18n(locale);
@@ -11,6 +18,7 @@ const t = getI18n(locale);
 const pageTitle = t('pages.kontakt.title');
 const heroHeading = t('pages.kontakt.hero.heading');
 const heroSubtitle = t('pages.kontakt.hero.subtitle');
+
 ---
 
 <BaseLayout title={pageTitle}>
@@ -160,6 +168,16 @@ const heroSubtitle = t('pages.kontakt.hero.subtitle');
                   </button>
                 </div>
                 <p class="text-sm" data-contact-feedback hidden></p>
+                {publicTurnstileSiteKey && (
+                  <div class="mt-4">
+                    <div
+                      class="cf-turnstile"
+                      data-sitekey={publicTurnstileSiteKey}
+                      data-theme="auto"
+                      data-retry="auto"
+                    ></div>
+                  </div>
+                )}
               </form>
             </div>
 
@@ -311,39 +329,72 @@ const heroSubtitle = t('pages.kontakt.hero.subtitle');
 </BaseLayout>
 
 <script type="module">
-  import { ensureCsrfToken } from '@/lib/security/csrf';
+  (() => {
+    const form = document.querySelector('form[data-contact-form]');
+    if (!form) return;
 
-  const form = document.querySelector('form[data-contact-form]');
-  const feedback = document.querySelector('[data-contact-feedback]');
-  const submitButton = form?.querySelector('[data-contact-submit]');
+    const submitButton = form.querySelector('[data-contact-submit]');
+    const feedback = form.querySelector('[data-contact-feedback]');
 
-  const getDatasetValue = (key) => (form?.dataset ? form.dataset[key] ?? '' : '');
-
-  const setFeedback = (message, isError) => {
-    if (!feedback) return;
-    feedback.hidden = false;
-    feedback.textContent = message;
-    feedback.classList.toggle('text-red-600', Boolean(isError));
-    feedback.classList.toggle('text-emerald-600', !isError);
-  };
-
-  const toStringOrEmpty = (value) => (typeof value === 'string' ? value.trim() : '');
-
-  const resetTurnstile = () => {
-    if (typeof window === 'undefined') return;
-    const maybe = window.turnstile;
-    if (maybe && typeof maybe.reset === 'function') {
-      maybe.reset();
+    if (!document.querySelector('.cf-turnstile')) {
+      console.warn('Turnstile widget not rendered – missing site key or script load failed.');
     }
-  };
 
-  if (form) {
+    const ensureCsrfToken = () => {
+      try {
+        const cookie = document.cookie || '';
+        const match = cookie.match(/(?:^|; )csrf_token=([^;]+)/);
+        if (match && match[1]) return decodeURIComponent(match[1]);
+
+        const buffer = new Uint8Array(16);
+        crypto.getRandomValues(buffer);
+        const token = Array.from(buffer)
+          .map((b) => b.toString(16).padStart(2, '0'))
+          .join('');
+        const attributes = [
+          'Path=/',
+          'SameSite=Lax',
+          location.protocol === 'https:' ? 'Secure' : '',
+        ]
+          .filter(Boolean)
+          .join('; ');
+        document.cookie = `csrf_token=${encodeURIComponent(token)}; ${attributes}`;
+        return token;
+      } catch {
+        return '';
+      }
+    };
+
+    const getMessage = (key, fallback = '') => (form.dataset?.[key] ?? fallback);
+
+    const setFeedback = (message, isError) => {
+      if (!feedback) return;
+      feedback.hidden = false;
+      feedback.textContent = message;
+      feedback.classList.toggle('text-red-600', Boolean(isError));
+      feedback.classList.toggle('text-emerald-600', !isError);
+    };
+
+    const resetFeedback = (message) => {
+      if (!feedback) return;
+      feedback.hidden = false;
+      feedback.textContent = message;
+      feedback.classList.remove('text-red-600', 'text-emerald-600');
+    };
+
+    const resetTurnstile = () => {
+      const maybeTurnstile = window.turnstile;
+      if (maybeTurnstile && typeof maybeTurnstile.reset === 'function') {
+        maybeTurnstile.reset();
+      }
+    };
+
     form.addEventListener('submit', async (event) => {
       event.preventDefault();
 
       const csrfToken = ensureCsrfToken();
       if (!csrfToken) {
-        setFeedback(getDatasetValue('genericError') || 'CSRF token missing', true);
+        setFeedback(getMessage('genericError', 'CSRF token missing'), true);
         return;
       }
 
@@ -351,22 +402,19 @@ const heroSubtitle = t('pages.kontakt.hero.subtitle');
         submitButton.setAttribute('disabled', 'true');
         submitButton.classList.add('opacity-70');
       }
-      if (feedback) {
-        feedback.hidden = false;
-        feedback.textContent = getDatasetValue('sendingMessage');
-        feedback.classList.remove('text-red-600', 'text-emerald-600');
-      }
+
+      resetFeedback(getMessage('sendingMessage', ''));
 
       const formData = new FormData(form);
       const payload = {
-        firstName: toStringOrEmpty(formData.get('first-name')),
-        lastName: toStringOrEmpty(formData.get('last-name')),
-        email: toStringOrEmpty(formData.get('email')),
-        subject: toStringOrEmpty(formData.get('subject')),
-        message: toStringOrEmpty(formData.get('message')),
+        firstName: (formData.get('first-name') || '').toString().trim(),
+        lastName: (formData.get('last-name') || '').toString().trim(),
+        email: (formData.get('email') || '').toString().trim(),
+        subject: (formData.get('subject') || '').toString().trim(),
+        message: (formData.get('message') || '').toString().trim(),
         consent: formData.get('privacy-policy') === 'on',
-        locale: toStringOrEmpty(formData.get('locale')) || undefined,
-        turnstileToken: toStringOrEmpty(formData.get('cf-turnstile-response')),
+        locale: (formData.get('locale') || '').toString().trim() || undefined,
+        turnstileToken: (formData.get('cf-turnstile-response') || '').toString().trim(),
         source: 'kontakt-page',
       };
 
@@ -381,21 +429,21 @@ const heroSubtitle = t('pages.kontakt.hero.subtitle');
           body: JSON.stringify(payload),
         });
 
-        const json = await response.json().catch(() => ({}));
-        if (response.ok && json && json.success) {
+        const result = await response.json().catch(() => ({}));
+
+        if (response.ok && result && result.success) {
           form.reset();
-          setFeedback(getDatasetValue('successMessage'), false);
+          setFeedback(getMessage('successMessage', 'Vielen Dank! Wir melden uns bald.'), false);
           resetTurnstile();
         } else {
           const message =
-            (json?.error && json.error.message) ||
-            getDatasetValue('errorMessage') ||
-            getDatasetValue('genericError');
+            (result && result.error && result.error.message) ||
+            getMessage('errorMessage', getMessage('genericError', 'Etwas ist schiefgelaufen.'));
           setFeedback(message, true);
         }
       } catch (error) {
         console.error('contact_form_submit_error', error);
-        setFeedback(getDatasetValue('genericError'), true);
+        setFeedback(getMessage('genericError', 'Etwas ist schiefgelaufen.'), true);
       } finally {
         if (submitButton) {
           submitButton.removeAttribute('disabled');
@@ -403,5 +451,5 @@ const heroSubtitle = t('pages.kontakt.hero.subtitle');
         }
       }
     });
-  }
+  })();
 </script>

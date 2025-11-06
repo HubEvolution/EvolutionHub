@@ -6,7 +6,6 @@ exports.generateSlug = generateSlug;
 const astro_content_1 = require("astro:content");
 const date_fns_1 = require("date-fns");
 const locale_1 = require("date-fns/locale");
-const remark_demote_h1_1 = require("../../scripts/remark/remark-demote-h1");
 // Hilfsfunktion zur Validierung von Datumsangaben
 const dateSchema = astro_content_1.z.preprocess((arg) => {
     if (typeof arg === 'string' || arg instanceof Date)
@@ -169,7 +168,6 @@ exports.blogCollection = (0, astro_content_1.defineCollection)({
         message: 'Bild-Alt-Text ist erforderlich, wenn ein Bild angegeben ist',
         path: ['imageAlt'],
     }),
-    remarkPlugins: [remark_demote_h1_1.remarkDemoteH1],
 });
 // Exportiere die Collections
 // Testimonials collection (PR5)

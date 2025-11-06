@@ -1,5 +1,6 @@
 import React from 'react';
 import { StatusUsagePill } from './StatusUsagePill';
+import Button from '@/components/ui/Button';
 
 interface Props {
   helpLabel: string;
@@ -28,29 +29,38 @@ interface Props {
 export function HeaderBar(props: Props) {
   return (
     <>
-      <button
+      <Button
         type="button"
         ref={props.helpBtnRef}
-        className="px-3 py-2 min-h-[44px] sm:px-2 sm:py-1 text-xs rounded-md ring-1 bg-white/60 dark:bg-slate-800/60 ring-gray-400/30 text-gray-700 dark:text-gray-200 hover:ring-cyan-400/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
+        variant="ghost"
+        size="sm"
+        className="min-h-[44px] sm:min-h-0 px-3 py-2 sm:px-2 sm:py-1 text-xs ring-1 ring-gray-400/30 bg-white/60 dark:bg-slate-800/60 text-gray-700 dark:text-gray-200 hover:ring-cyan-400/40"
         onClick={props.onOpenHelp}
       >
         {props.helpLabel}
-      </button>
-      <button
+      </Button>
+      <Button
         type="button"
-        className={`px-3 py-2 min-h-[44px] sm:px-2 sm:py-1 text-xs rounded-md ring-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 ${props.loupeEnabled ? 'bg-cyan-500/20 ring-cyan-400/50 text-cyan-700 dark:text-cyan-200' : 'bg-white/60 dark:bg-slate-800/60 ring-gray-400/30 text-gray-700 dark:text-gray-200 hover:ring-cyan-400/40'}`}
+        variant="ghost"
+        size="sm"
+        className={`min-h-[44px] sm:min-h-0 px-3 py-2 sm:px-2 sm:py-1 text-xs ring-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 ${
+          props.loupeEnabled
+            ? 'bg-cyan-500/20 ring-cyan-400/50 text-cyan-700 dark:text-cyan-200'
+            : 'bg-white/60 dark:bg-slate-800/60 ring-gray-400/30 text-gray-700 dark:text-gray-200 hover:ring-cyan-400/40'
+        }`}
         onClick={props.onToggleLoupe}
-        aria-pressed={props.loupeEnabled}
       >
         {props.loupeLabel}
-      </button>
-      <button
+      </Button>
+      <Button
         type="button"
-        className="px-3 py-2 min-h-[44px] sm:px-2 sm:py-1 text-xs rounded-md ring-1 bg-white/60 dark:bg-slate-800/60 ring-gray-400/30 text-gray-700 dark:text-gray-200 hover:ring-cyan-400/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
+        variant="ghost"
+        size="sm"
+        className="min-h-[44px] sm:min-h-0 px-3 py-2 sm:px-2 sm:py-1 text-xs ring-1 bg-white/60 dark:bg-slate-800/60 ring-gray-400/30 text-gray-700 dark:text-gray-200 hover:ring-cyan-400/40"
         onClick={props.onToggleFullscreen}
       >
         {props.isFullscreen ? props.exitFullscreenLabel : props.fullscreenLabel}
-      </button>
+      </Button>
       {props.planLabel && (
         <StatusUsagePill
           label={props.usageLabel}

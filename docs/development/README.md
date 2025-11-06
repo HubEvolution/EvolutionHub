@@ -41,6 +41,10 @@ testRefs: 'tests/unit, tests/integration, test-suite-v2'
 
 - **[Bugfix: Session Cookie Fallback](./bugfix-session-cookie-fallback.md)** — Session-Cookie-Implementierung
 
+### Customer-Facing APIs
+
+- **[Contact Form Integration](./contact-form.md)** — Dokumentation des vollständigen Kontaktformular-Flows (Frontend, API, Resend, Turnstile)
+
 ### Dashboard-Updates (2025-09)
 
 - **[Dashboard APIs](./dashboard-apis.md)** — Neue APIs für Billing, Newsletter, Recommendations

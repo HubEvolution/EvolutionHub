@@ -179,7 +179,7 @@ exports.onRequest = (0, astro_middleware_1.defineMiddleware)(async (context, nex
     // -> Splash-/Welcome-Gate überspringen für diese Routen
     function isGuestAccessibleToolRoute(p) {
         // Optionales Sprachpräfix /de oder /en unterstützen
-        const TOOL_RE = /^\/(?:(?:de|en)\/)?tools\/imag-enhancer(?:\/app)?(?:\/?$)/;
+        const TOOL_RE = /^\/(?:(?:de|en)\/)?tools\/(imag-enhancer|webscraper|prompt-enhancer|voice-visualizer|video-enhancer)(?:\/app)?(?:\/?$)/;
         return TOOL_RE.test(p);
     }
     function isBlogRoute(p) {

@@ -54,7 +54,7 @@ interface EnhancerActionsProps {
 
   onEnhance: () => void;
   onReset: () => void;
-  onDownload: (e: MouseEvent<HTMLAnchorElement>) => void;
+  onDownload: (e: MouseEvent<HTMLButtonElement>) => void;
 
   rightSlot?: ReactNode; // e.g. UsagePill
   // Optional: forward Start Over to ActionsGroup in compare phase

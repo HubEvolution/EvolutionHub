@@ -79,17 +79,22 @@ export const CommentThreading: React.FC<CommentThreadingProps> = ({
     }
 
     // Apply date range filter
-    if (activeFilters.dateRange && activeFilters.dateRange !== 'all') {
+    if (activeFilters.dateRange) {
       const now = Date.now() / 1000;
-      const ranges = {
+      const ranges: Record<'today' | 'week' | 'month', number> = {
         today: 24 * 60 * 60,
         week: 7 * 24 * 60 * 60,
         month: 30 * 24 * 60 * 60,
       };
 
-      filtered = filtered.filter(
-        (comment) => now - comment.createdAt <= ranges[activeFilters.dateRange!]
-      );
+      const window =
+        activeFilters.dateRange === 'all'
+          ? null
+          : ranges[activeFilters.dateRange as keyof typeof ranges];
+
+      if (window) {
+        filtered = filtered.filter((comment) => now - comment.createdAt <= window);
+      }
     }
 
     // Apply replies filter
@@ -134,13 +139,6 @@ export const CommentThreading: React.FC<CommentThreadingProps> = ({
   const handleFiltersChange = (filters: CommentFilters) => {
     setActiveFilters(filters);
   };
-
-  const clearFilters = () => {
-    setActiveFilters({});
-    setSearchQuery('');
-  };
-
-  const hasActiveFilters = searchQuery.trim() || Object.keys(activeFilters).length > 0;
 
   return (
     <div className="comment-threading">

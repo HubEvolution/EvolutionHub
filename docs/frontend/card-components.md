@@ -2,7 +2,7 @@
 description: 'Card-Komponenten: Spezial-Varianten in Astro und CardReact für interaktive UIs'
 owner: 'Frontend Team'
 priority: 'medium'
-lastSync: '2025-11-04'
+lastSync: '2025-11-06'
 codeRefs: 'src/components/**/Card*.astro, src/components/ui/CardReact.tsx'
 ---
 
@@ -70,6 +70,19 @@ function MyComponent() {
 - In dynamischen Kontexten (innerhalb von `.map()`, bedingtem Rendering)
 
 - Für interaktive UI-Elemente
+
+### React-Karten mit individuellem Wrapper
+
+Einige React-Islands nutzen bewusst keinen `CardReact`-Wrapper, sondern bauen den Container mit Tailwind-Utilities eigenständig auf – z. B. `ConsentPreferencesCard.tsx` (Dashboard) oder `NewsletterPreferencesCard.tsx`. Gründe:
+
+- **Sonder-Gradients & Hover-Zustände:** Gradient-Verläufe oder animierte Rahmen würden bei einer generischen Card zu viele Varianten erfordern.
+- **Grid-Integration:** Karten, die exakt zu Astro-Gegenstücken passen müssen, verwenden identische Utility-Klassen (`rounded-xl`, `border`, `bg-gradient-to-*`, `hover:*`).
+
+Richtlinie:
+
+1. Prüfe zuerst, ob der Stil durch eine bestehende spezialisierte Astro-Karte oder `CardReact` abgedeckt wird.
+2. Falls nicht, dokumentiere das individuelle Wrapper-Pattern (siehe `docs/frontend/components.md#consentpreferencescard`) und halte Utility-Klassen konsistent mit benachbarten Karten.
+3. Stelle sicher, dass Accessibility-Aspekte (Kontrast, Fokus-Reihenfolge) beibehalten werden.
 
 ## Fehlerbehebung
 

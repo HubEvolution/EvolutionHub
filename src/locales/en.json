@@ -959,7 +959,13 @@
           "agree_prefix": "I agree to the ",
           "agree_suffix": "."
         },
-        "submit_button": "Send message"
+        "submit_button": "Send message",
+        "feedback": {
+          "success": "Thanks! We’ll get back to you shortly.",
+          "error": "We couldn’t send your message. Please try again or email us directly.",
+          "generic_error": "Something went wrong. Please try again.",
+          "sending": "Sending…"
+        }
       },
       "info": {
         "heading": "Contact information",
@@ -1248,7 +1254,7 @@
         "avatarAlt": "User avatar"
       },
       "billing": {
-        "title": "Subscription & Plan",
+        "title": "Subscription & billing",
         "currentPlan": "Current plan",
         "statusLabel": "Status",
         "noSubscription": "No active subscription",
@@ -1278,19 +1284,42 @@
       },
       "newsletter": {
         "title": "Newsletter preferences",
-        "subscribed": "You currently receive product updates.",
-        "unsubscribed": "No newsletters subscribed at the moment.",
+        "subscribed": "You’re currently subscribed to product updates and release notes.",
+        "unsubscribed": "You’re not receiving product updates right now.",
         "unsubscribe": "Unsubscribe",
-        "resubscribe": "Subscribe again",
-        "processing": "Updating preferences…",
-        "success": "Preferences saved",
-        "error": "Could not update preferences. Please try again."
+        "resubscribe": "Resubscribe",
+        "processing": "Updating…",
+        "success": "Your preferences were updated.",
+        "error": "We couldn’t update your preferences. Please try again."
       },
-      "recommendations": {
-        "title": "Recommendations for you",
-        "tools": "Tools",
-        "docs": "Guides",
-        "empty": "No recommendations available right now."
+      "consent": {
+        "title": "Cookie & consent",
+        "description": "These preferences control analytics and marketing features across Evolution Hub.",
+        "manageHref": "/cookie-settings",
+        "categories": {
+          "necessary": {
+            "label": "Necessary",
+            "description": "Always active to keep the platform secure and functioning."
+          },
+          "analytics": {
+            "label": "Analytics",
+            "description": "Page analytics and telemetry to improve the product."
+          },
+          "marketing": {
+            "label": "Marketing",
+            "description": "Personalised campaigns and retargeting across channels."
+          }
+        },
+        "actions": {
+          "manage": "Manage settings",
+          "acceptAll": "Accept all",
+          "rejectAll": "Essential only"
+        },
+        "status": {
+          "granted": "Granted",
+          "limited": "Limited",
+          "disabled": "Disabled"
+        }
       },
       "stats": {
         "projects": "Projects",

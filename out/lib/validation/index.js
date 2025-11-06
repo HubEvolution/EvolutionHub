@@ -14,9 +14,11 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.formatZodError = exports.z = void 0;
+exports.contactMessageSchema = exports.formatZodError = exports.z = void 0;
 var zod_1 = require("zod");
 Object.defineProperty(exports, "z", { enumerable: true, get: function () { return zod_1.z; } });
 var errors_1 = require("./errors");
 Object.defineProperty(exports, "formatZodError", { enumerable: true, get: function () { return errors_1.formatZodError; } });
+var contact_1 = require("./schemas/contact");
+Object.defineProperty(exports, "contactMessageSchema", { enumerable: true, get: function () { return contact_1.contactMessageSchema; } });
 __exportStar(require("./schemas/common"), exports);

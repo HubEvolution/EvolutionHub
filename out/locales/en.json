@@ -18,6 +18,105 @@
     "copyright": "© 2025 Evolution Hub. All rights reserved."
   },
   "pages": {
+    "docs": {
+      "meta": {
+        "title": "Documentation – Evolution Hub",
+        "description": "Overview of guides, API references, and frequently asked questions for Evolution Hub."
+      },
+      "hero": {
+        "kicker": "Documentation",
+        "title": "Everything you need to know",
+        "subtitle": "Comprehensive guides and documentation to help you get the most out of Evolution Hub."
+      },
+      "steps": {
+        "title": "Get started in three steps",
+        "subtitle": "Follow these quick onboarding steps to explore Evolution Hub without missing any essentials.",
+        "step1": {
+          "title": "Create your account",
+          "description": "Sign up for a free account and unlock your personal dashboard.",
+          "linkLabel": "Register now",
+          "checklist": [
+            "Have your invite or workspace link ready (optional)",
+            "Verify your email to ensure login continuity",
+            "Complete your profile details"
+          ]
+        },
+        "step2": {
+          "title": "Pick a plan",
+          "description": "Choose the plan that fits your team – you can change it at any time.",
+          "linkLabel": "Compare pricing",
+          "checklist": [
+            "Review available limits and entitlements",
+            "Prepare a payment method or confirm trial status",
+            "Inform stakeholders about the selected plan"
+          ]
+        },
+        "step3": {
+          "title": "Explore the tools",
+          "description": "Dive into our core tools and follow the step-by-step guides in the documentation.",
+          "linkLabel": "Go to tools overview",
+          "checklist": [
+            "Upload a sample image with Imag-Enhancer",
+            "Test a prompt with Prompt Enhancer",
+            "Run Voice Transcriptor or Webscraper in the sandbox"
+          ]
+        },
+        "step4": {
+          "title": "Deepen your knowledge",
+          "description": "Leverage guides, blog posts, and changelogs to adopt best practices and new features.",
+          "linkLabel": "Read the latest updates",
+          "checklist": [
+            "Review the latest release notes",
+            "Bookmark recommended workflows from the blog",
+            "Update your internal documentation/checklists"
+          ]
+        }
+      },
+      "resources": {
+        "title": "Helpful resources",
+        "subtitle": "Curated destinations to deepen your knowledge and find answers fast.",
+        "action": "See details",
+        "tools": {
+          "title": "Tools overview",
+          "description": "See every available AI tool and what it can do at a glance."
+        },
+        "faq": {
+          "title": "FAQ",
+          "description": "Answers to common questions about sign-up, billing, and usage limits."
+        },
+        "pricing": {
+          "title": "Pricing overview",
+          "description": "Transparent plans, limits, and billing information at a glance."
+        },
+        "blog": {
+          "title": "Blog & guides",
+          "description": "Hands-on articles covering workflows, best practices, and release notes."
+        },
+        "contact": {
+          "title": "Contact support",
+          "description": "Need help from a real person? Our team will get back to you as quickly as possible.",
+          "action": "Open contact form"
+        }
+      },
+      "sections": {
+        "gettingStarted": {
+          "title": "Getting started",
+          "description": "Learn the basics and get up and running with Evolution Hub."
+        },
+        "guides": {
+          "title": "Guides",
+          "description": "Detailed walkthroughs for all features and workflows."
+        },
+        "api": {
+          "title": "API reference",
+          "description": "Technical documentation for our API endpoints."
+        },
+        "faq": {
+          "title": "FAQ",
+          "description": "Answers to the most common questions."
+        }
+      }
+    },
     "login": {
       "title": "Login",
       "form": {
@@ -856,7 +955,9 @@
           }
         },
         "privacy_policy": {
-          "link_text": "Privacy policy"
+          "link_text": "Privacy policy",
+          "agree_prefix": "I agree to the ",
+          "agree_suffix": "."
         },
         "submit_button": "Send message"
       },
@@ -864,83 +965,106 @@
         "heading": "Contact information",
         "subtitle": "Our support team is here for you. Write to us or give us a call.",
         "email_label": "Email",
-        "email_address": "kontakt@evolutionhub.de",
+        "email_address": "contact@hub-evolution.com",
         "phone_label": "Phone",
-        "support_hours": "Mon–Fri, 9am–6pm",
-        "phone_number": "+49 123 456789",
+        "support_hours": "We respond as quickly as possible.",
+        "phone_number": "",
         "address_label": "Address",
+        "phone_unavailable": "Phone support is currently unavailable.",
+        "address_unavailable": "Address information will follow soon.",
+        "social_heading": "Connect with us",
         "response_time_label": "Average response time:",
         "response_time": "within 24h",
         "response_time_unit": "on business days.",
         "provider": {
           "headline": "Provider",
-          "company_name": "Noch anzugeben",
-          "street_address": "Noch anzugeben",
-          "city_postal_code": "Noch anzugeben",
-          "country": "Noch anzugeben"
+          "company_name": "",
+          "street_address": "",
+          "city_postal_code": "",
+          "country": ""
         },
         "contact": {
           "headline": "Contact",
-          "phone": "+00 000 0000000",
-          "fax": "+00 000 0000000",
-          "email": "kontakt@example.com",
-          "website": "https://example.com"
+          "phone": "",
+          "fax": "",
+          "email": "contact@hub-evolution.com",
+          "website": "https://hub-evolution.com"
         },
         "represented_by": {
           "headline": "Represented by",
-          "managing_directors": "Noch anzugeben"
+          "managing_directors": ""
         },
         "registration": {
           "headline": "Commercial register",
-          "register_entry": "Noch anzugeben",
-          "register_court": "Noch anzugeben",
-          "register_number": "Noch anzugeben"
+          "register_entry": "",
+          "register_court": "",
+          "register_number": ""
         },
         "vat": {
           "headline": "VAT",
           "vat_id_label": "VAT ID",
-          "vat_id": "Noch anzugeben"
+          "vat_id": ""
         },
         "content_responsible": {
-          "headline": "Responsible for content",
-          "name": "Noch anzugeben",
-          "street": "Noch anzugeben",
-          "city_postal_code": "Noch anzugeben"
+          "headline": "Content responsibility",
+          "name": "",
+          "street": "",
+          "city_postal_code": ""
         },
         "dispute_resolution": {
           "headline": "Dispute resolution",
-          "os_platform_intro": "To be provided",
-          "os_platform_url": "https://example.com",
-          "email_note": "To be provided",
-          "participation_statement": "To be provided"
+          "os_platform_intro": "",
+          "os_platform_url": "https://hub-evolution.com",
+          "email_note": "",
+          "participation_statement": ""
         },
         "disclaimer": {
           "headline": "Disclaimer",
           "content_liability": {
             "headline": "Liability for content",
-            "paragraph1": "To be provided",
-            "paragraph2": "To be provided"
+            "paragraph1": "",
+            "paragraph2": ""
           },
           "link_liability": {
             "headline": "Liability for links",
-            "paragraph1": "To be provided",
-            "paragraph2": "To be provided"
+            "paragraph1": "",
+            "paragraph2": ""
           },
           "copyright": {
             "headline": "Copyright",
-            "paragraph1": "To be provided",
-            "paragraph2": "To be provided"
+            "paragraph1": "",
+            "paragraph2": ""
           }
         },
         "image_credits": {
           "headline": "Image credits",
-          "description": "The images and graphics used on this website are copyrighted by Evolution Hub GmbH or are royalty‑free stock photos from third‑party providers."
+          "description": "The images and graphics used on this website are copyrighted by Evolution Hub GmbH or are royalty-free stock photos from third-party providers."
         }
       },
       "source_label": "Source:",
       "source_url": "https://www.e-recht24.de",
       "source_name": "e-recht24.de",
       "source_attribution": "e-recht24.de"
+    },
+    "faq": {
+      "title": "Frequently asked questions",
+      "hero": {
+        "heading": "Frequently asked questions",
+        "subtitle": "Find answers to the most common questions"
+      },
+      "search_placeholder": "Search for a question or keyword...",
+      "no_results": {
+        "title": "No results found",
+        "description_before": "No matching questions. Try refining your search or ",
+        "description_link_text": "contact us",
+        "description_after": "."
+      },
+      "contact_teaser": {
+        "heading": "Still need assistance?",
+        "description": "Reach out and our team will get back to you via email. You can also follow our social channels for updates.",
+        "cta": "Open contact form",
+        "social_empty": "Social channels coming soon."
+      }
     },
     "register": {
       "title": "Create account",

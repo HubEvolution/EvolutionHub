@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type DragEvent } from 'react';
 import type React from 'react';
 import { lazy, Suspense } from 'react';
+import Button from '@/components/ui/Button';
 import { toast } from 'sonner';
 import {
   ALLOWED_CONTENT_TYPES,
@@ -699,8 +700,11 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
     modelSupportsFace,
     entitlements,
     gatingEnabled,
-    scale,
-    setScale,
+    scale: scale ?? null,
+    setScale: (next) => {
+      if (next === null) return;
+      setScale(next);
+    },
     faceEnhance,
     setFaceEnhance,
   });
@@ -1017,13 +1021,15 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
               modelControlsSlot={
                 <div className="flex flex-wrap items-center gap-x-2 gap-y-2 sm:gap-x-3 sm:gap-y-2 min-w-0">
                   {resultUrl && !showModelControls ? (
-                    <button
+                    <Button
                       type="button"
                       onClick={() => setShowModelControls(true)}
-                      className="text-sm sm:text-xs px-3 py-2 sm:py-1 min-h-[44px] sm:min-h-0 rounded-full bg-white/10 dark:bg-slate-900/40 ring-1 ring-cyan-400/20 text-gray-700 dark:text-gray-200 hover:ring-cyan-400/40"
+                      variant="ghost"
+                      size="sm"
+                      className="min-h-[44px] sm:min-h-0 px-3 py-2 sm:px-2 sm:py-1 text-sm sm:text-xs rounded-full bg-white/10 dark:bg-slate-900/40 ring-1 ring-cyan-400/20 text-gray-700 dark:text-gray-200 hover:ring-cyan-400/40"
                     >
                       {changeModelLabel}
-                    </button>
+                    </Button>
                   ) : (
                     <>
                       <label
@@ -1069,13 +1075,15 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
                         />
                       )}
                       {resultUrl && (
-                        <button
+                        <Button
                           type="button"
                           onClick={() => setShowModelControls(false)}
-                          className="text-xs px-3 py-2 min-h-[44px] sm:px-2 sm:py-1 rounded-md bg-white/5 dark:bg-slate-900/30 ring-1 ring-gray-400/20 text-gray-600 dark:text-gray-300"
+                          variant="ghost"
+                          size="sm"
+                          className="min-h-[44px] sm:min-h-0 px-3 sm:px-2 py-2 sm:py-1 text-xs rounded-md bg-white/5 dark:bg-slate-900/30 ring-1 ring-gray-400/20 text-gray-600 dark:text-gray-300"
                         >
                           {doneLabel}
-                        </button>
+                        </Button>
                       )}
                     </>
                   )}
