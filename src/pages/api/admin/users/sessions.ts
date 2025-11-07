@@ -17,10 +17,15 @@ function parseExpiresMs(expires: string): number {
   return Number.isFinite(t) ? t : 0;
 }
 
+function getAdminEnv(context: APIContext): AdminBindings {
+  const env = (context.locals?.runtime?.env ?? {}) as Partial<AdminBindings> | undefined;
+  return (env ?? {}) as AdminBindings;
+}
+
 export const GET = withAuthApiMiddleware(
   async (context: APIContext) => {
-    const { locals, request, url } = context;
-    const env = (locals.runtime?.env ?? {}) as AdminBindings;
+    const { request, url } = context;
+    const env = getAdminEnv(context);
 
     if (!env.DB) {
       return createApiError('server_error', 'Infrastructure unavailable');
@@ -32,8 +37,11 @@ export const GET = withAuthApiMiddleware(
       return createApiError('forbidden', 'Insufficient permissions');
     }
 
-    const userId = (url.searchParams.get('userId') || '').trim();
-    if (!userId) return createApiError('validation_error', 'userId is required');
+    const userIdParam = url.searchParams.get('userId');
+    const userId = userIdParam ? userIdParam.trim() : '';
+    if (!userId) {
+      return createApiError('validation_error', 'userId is required');
+    }
 
     const res = await env.DB.prepare(
       `SELECT id, user_id, expires_at FROM sessions WHERE user_id = ?1 ORDER BY expires_at DESC LIMIT 200`

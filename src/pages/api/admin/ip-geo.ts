@@ -8,6 +8,12 @@ import {
 import { apiRateLimiter } from '@/lib/rate-limiter';
 import { requireAdmin } from '@/lib/auth-helpers';
 import type { D1Database } from '@cloudflare/workers-types';
+import type { AdminBindings } from '@/lib/types/admin';
+
+function getAdminEnv(context: APIContext): AdminBindings {
+  const env = (context.locals?.runtime?.env ?? {}) as Partial<AdminBindings> | undefined;
+  return (env ?? {}) as AdminBindings;
+}
 
 function isValidIp(ip: string): boolean {
   const ipv4 = /^(?:\d{1,3}\.){3}\d{1,3}$/;
@@ -17,11 +23,15 @@ function isValidIp(ip: string): boolean {
 
 export const GET = withAuthApiMiddleware(
   async (context: APIContext) => {
-    const { request, url, locals } = context;
+    const { request, url } = context;
+    const env = getAdminEnv(context);
+    const db = env.DB as D1Database | undefined;
+    if (!db) {
+      return createApiError('server_error', 'Database unavailable');
+    }
 
     try {
-      const dbMaybe = ((locals.runtime?.env ?? {}) as { DB?: D1Database }).DB;
-      await requireAdmin({ request, env: { DB: dbMaybe as D1Database } });
+      await requireAdmin({ request, env: { DB: db } });
     } catch {
       return createApiError('forbidden', 'Insufficient permissions');
     }

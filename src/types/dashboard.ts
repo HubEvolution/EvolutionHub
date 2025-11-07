@@ -20,6 +20,9 @@ export interface ProjectCard {
   description: string;
   progress: number;
   status: 'active' | 'completed' | 'on-hold' | 'archived';
+  priority?: 'low' | 'medium' | 'high';
+  dueDate?: string | null;
+  tags?: string[];
   members: string[];
   lastUpdated: string;
 }
@@ -54,7 +57,7 @@ export interface CreateProjectRequest {
   description: string;
   status?: 'active' | 'completed' | 'on-hold' | 'archived';
   priority?: 'low' | 'medium' | 'high';
-  dueDate?: string;
+  dueDate?: string | null;
   tags?: string[];
 }
 

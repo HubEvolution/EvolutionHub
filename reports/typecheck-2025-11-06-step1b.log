@@ -1,0 +1,367 @@
+
+> evolution-hub@0.0.1 typecheck
+> tsc -p tsconfig.json --noEmit --pretty false
+
+src/components/admin/AdminClient.tsx(6,12): error TS2306: File '/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/pages/admin/index.client.ts' is not a module.
+src/components/comments/CommentErrorBoundary.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/components/comments/CommentKeyboardNav.tsx(119,26): error TS2367: This comparison appears to be unintentional because the types 'number | undefined' and 'string | null' have no overlap.
+src/components/comments/CommentKeyboardNav.tsx(124,26): error TS2367: This comparison appears to be unintentional because the types 'number | undefined' and 'string | null' have no overlap.
+src/components/comments/CommentKeyboardNav.tsx(155,48): error TS6133: 'altKey' is declared but its value is never read.
+src/components/comments/CommentKeyboardNav.tsx(280,18): error TS2322: Type '{ children: string; jsx: true; }' is not assignable to type 'DetailedHTMLProps<StyleHTMLAttributes<HTMLStyleElement>, HTMLStyleElement>'.
+  Property 'jsx' does not exist on type 'DetailedHTMLProps<StyleHTMLAttributes<HTMLStyleElement>, HTMLStyleElement>'.
+src/components/comments/CommentKeyboardNav.tsx(424,23): error TS2367: This comparison appears to be unintentional because the types 'number | undefined' and 'string | null' have no overlap.
+src/components/comments/CommentKeyboardNav.tsx(426,19): error TS2367: This comparison appears to be unintentional because the types 'number | undefined' and 'string | null' have no overlap.
+src/components/comments/CommentKeyboardNav.tsx(428,15): error TS2367: This comparison appears to be unintentional because the types 'number | undefined' and 'string | null' have no overlap.
+src/components/comments/CommentKeyboardNav.tsx(494,14): error TS2367: This comparison appears to be unintentional because the types 'number | undefined' and 'string | null' have no overlap.
+src/components/comments/CommentKeyboardNav.tsx(513,10): error TS2367: This comparison appears to be unintentional because the types 'number | undefined' and 'string | null' have no overlap.
+src/components/comments/CommentKeyboardNav.tsx(531,10): error TS18048: 'comment.reportCount' is possibly 'undefined'.
+src/components/comments/CommentThreading.tsx(3,1): error TS6133: 'Button' is declared but its value is never read.
+src/components/comments/CommentThreading.tsx(46,3): error TS6133: 'enableSorting' is declared but its value is never read.
+src/components/comments/CommentThreading.tsx(53,10): error TS6133: 'showFilters' is declared but its value is never read.
+src/components/comments/CommentThreading.tsx(53,23): error TS6133: 'setShowFilters' is declared but its value is never read.
+src/components/comments/CommentThreading.tsx(132,20): error TS2345: Argument of type 'string' is not assignable to parameter of type 'SetStateAction<"newest" | "oldest" | "most-replies" | "most-helpful">'.
+src/components/comments/CommentThreading.tsx(168,11): error TS2322: Type '{ id: number; name: string; email: string; } | null | undefined' is not assignable to type '{ id: string; name: string; email: string; image?: string | undefined; } | null | undefined'.
+  Type '{ id: number; name: string; email: string; }' is not assignable to type '{ id: string; name: string; email: string; image?: string | undefined; }'.
+    Types of property 'id' are incompatible.
+      Type 'number' is not assignable to type 'string'.
+src/components/comments/CommentThreading.tsx(341,3): error TS6133: 'onClose' is declared but its value is never read.
+src/components/comments/CommentThreading.tsx(439,3): error TS6133: 'onUpdateComment' is declared but its value is never read.
+src/components/comments/CommentThreading.tsx(498,18): error TS2367: This comparison appears to be unintentional because the types 'number | undefined' and 'string | null' have no overlap.
+src/components/dashboard/NewsletterPreferencesCard.tsx(2,1): error TS6133: 'CardReact' is declared but its value is never read.
+src/components/dashboard/NewsletterPreferencesCard.tsx(2,23): error TS7016: Could not find a declaration file for module '@/components/ui/CardReact.jsx'. '/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/components/ui/CardReact.jsx' implicitly has an 'any' type.
+src/components/notifications/NotificationCenter.tsx(2,16): error TS6133: 'Check' is declared but its value is never read.
+src/components/notifications/NotificationCenter.tsx(2,35): error TS6133: 'Settings' is declared but its value is never read.
+src/components/notifications/NotificationCenter.tsx(2,54): error TS2307: Cannot find module 'lucide-react' or its corresponding type declarations.
+src/components/notifications/NotificationCenter.tsx(5,3): error TS6196: 'NotificationFilters' is declared but never used.
+src/components/notifications/NotificationCenter.tsx(15,3): error TS6133: 'userId' is declared but its value is never read.
+src/components/notifications/NotificationCenter.tsx(48,11): error TS18046: 'result' is of type 'unknown'.
+src/components/notifications/NotificationCenter.tsx(49,26): error TS18046: 'result' is of type 'unknown'.
+src/components/notifications/NotificationCenter.tsx(50,18): error TS18046: 'result' is of type 'unknown'.
+src/components/notifications/NotificationCenter.tsx(53,27): error TS18046: 'result' is of type 'unknown'.
+src/components/notifications/NotificationCenter.tsx(63,25): error TS18046: 'result' is of type 'unknown'.
+src/components/notifications/NotificationSettings.tsx(2,10): error TS6133: 'Save' is declared but its value is never read.
+src/components/notifications/NotificationSettings.tsx(2,33): error TS2307: Cannot find module 'lucide-react' or its corresponding type declarations.
+src/components/notifications/NotificationSettings.tsx(14,3): error TS6133: 'userId' is declared but its value is never read.
+src/components/notifications/NotificationSettings.tsx(42,11): error TS18046: 'result' is of type 'unknown'.
+src/components/notifications/NotificationSettings.tsx(43,21): error TS18046: 'result' is of type 'unknown'.
+src/components/notifications/NotificationSettings.tsx(45,25): error TS18046: 'result' is of type 'unknown'.
+src/components/notifications/NotificationSettings.tsx(93,11): error TS18046: 'result' is of type 'unknown'.
+src/components/notifications/NotificationSettings.tsx(95,21): error TS2345: Argument of type '(prev: NotificationSetting[]) => { enabled: boolean; frequency: string; updatedAt: number; id: number; userId: string; type: NotificationType | "email_digest"; channel: NotificationChannel; createdAt: number; }[]' is not assignable to parameter of type 'SetStateAction<NotificationSetting[]>'.
+  Type '(prev: NotificationSetting[]) => { enabled: boolean; frequency: string; updatedAt: number; id: number; userId: string; type: NotificationType | "email_digest"; channel: NotificationChannel; createdAt: number; }[]' is not assignable to type '(prevState: NotificationSetting[]) => NotificationSetting[]'.
+    Type '{ enabled: boolean; frequency: string; updatedAt: number; id: number; userId: string; type: NotificationType | "email_digest"; channel: NotificationChannel; createdAt: number; }[]' is not assignable to type 'NotificationSetting[]'.
+      Type '{ enabled: boolean; frequency: string; updatedAt: number; id: number; userId: string; type: NotificationType | "email_digest"; channel: NotificationChannel; createdAt: number; }' is not assignable to type 'NotificationSetting'.
+        Types of property 'frequency' are incompatible.
+          Type 'string' is not assignable to type 'NotificationFrequency'.
+src/components/notifications/NotificationSettings.tsx(104,25): error TS18046: 'result' is of type 'unknown'.
+src/components/notifications/NotificationSettings.tsx(133,11): error TS18046: 'result' is of type 'unknown'.
+src/components/notifications/NotificationSettings.tsx(134,21): error TS18046: 'result' is of type 'unknown'.
+src/components/notifications/NotificationSettings.tsx(137,25): error TS18046: 'result' is of type 'unknown'.
+src/components/projects/ProjectManagement.tsx(90,9): error TS2322: Type '(data: CreateProjectRequest) => Promise<void>' is not assignable to type '(data: CreateProjectRequest | UpdateProjectRequest) => Promise<void>'.
+  Types of parameters 'data' and 'data' are incompatible.
+    Type 'CreateProjectRequest | UpdateProjectRequest' is not assignable to type 'CreateProjectRequest'.
+      Type 'UpdateProjectRequest' is not assignable to type 'CreateProjectRequest'.
+        Types of property 'title' are incompatible.
+          Type 'string | undefined' is not assignable to type 'string'.
+            Type 'undefined' is not assignable to type 'string'.
+src/components/projects/ProjectManagement.tsx(99,9): error TS2322: Type '(data: UpdateProjectRequest) => Promise<void>' is not assignable to type '(data: CreateProjectRequest | UpdateProjectRequest) => Promise<void>'.
+  Types of parameters 'data' and 'data' are incompatible.
+    Type 'CreateProjectRequest | UpdateProjectRequest' is not assignable to type 'UpdateProjectRequest'.
+      Property 'id' is missing in type 'CreateProjectRequest' but required in type 'UpdateProjectRequest'.
+src/components/projects/ProjectModal.tsx(36,9): error TS2322: Type '"active" | "completed" | "on-hold" | "archived"' is not assignable to type '"active"'.
+  Type '"completed"' is not assignable to type '"active"'.
+src/components/projects/ProjectModal.tsx(37,9): error TS2322: Type '"low" | "medium" | "high"' is not assignable to type '"medium"'.
+  Type '"low"' is not assignable to type '"medium"'.
+src/components/tools/imag-enhancer/__tests__/ModelControls.test.tsx(1,1): error TS6133: 'React' is declared but its value is never read.
+src/components/tools/imag-enhancer/__tests__/useCompareInteractions.test.tsx(3,1): error TS6133: 'userEvent' is declared but its value is never read.
+src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx(1,26): error TS6133: 'fireEvent' is declared but its value is never read.
+src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx(4,15): error TS2305: Module '"../types"' has no exported member 'EnhancerActionsMVPProps'.
+src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx(6,1): error TS2593: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx(54,20): error TS2304: Cannot find name 'vi'.
+src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx(57,16): error TS2304: Cannot find name 'vi'.
+src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx(62,3): error TS2304: Cannot find name 'beforeEach'.
+src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx(63,5): error TS2304: Cannot find name 'vi'.
+src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx(66,3): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx(69,5): error TS2304: Cannot find name 'expect'.
+src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx(72,5): error TS2304: Cannot find name 'expect'.
+src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx(73,5): error TS2304: Cannot find name 'expect'.
+src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx(76,5): error TS2304: Cannot find name 'expect'.
+src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx(79,3): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx(86,5): error TS2304: Cannot find name 'expect'.
+src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx(91,3): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx(98,5): error TS2304: Cannot find name 'expect'.
+src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx(101,3): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx(105,5): error TS2304: Cannot find name 'expect'.
+src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx(108,3): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx(113,5): error TS2304: Cannot find name 'expect'.
+src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx(116,3): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx(120,5): error TS2304: Cannot find name 'expect'.
+src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx(121,5): error TS2304: Cannot find name 'expect'.
+src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx(124,3): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx(127,5): error TS2304: Cannot find name 'expect'.
+src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx(128,5): error TS2304: Cannot find name 'expect'.
+src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx(131,3): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx(136,5): error TS2304: Cannot find name 'expect'.
+src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx(139,3): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx(143,5): error TS2304: Cannot find name 'expect'.
+src/components/tools/imag-enhancer/mvp/__tests__/SimpleResult.test.tsx(38,23): error TS2304: Cannot find name 'SimpleResultProps'.
+src/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx(1,27): error TS6133: 'waitFor' is declared but its value is never read.
+src/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx(8,1): error TS2304: Cannot find name 'vi'.
+src/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx(9,1): error TS2304: Cannot find name 'vi'.
+src/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx(11,1): error TS2593: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+src/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx(17,5): error TS2739: Type '{ imageUrl: string; originalUrl: string; }' is missing the following properties from type 'GenerateResponseData': model, usage, limits
+src/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx(23,3): error TS2304: Cannot find name 'beforeEach'.
+src/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx(24,5): error TS2304: Cannot find name 'vi'.
+src/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx(25,5): error TS2304: Cannot find name 'vi'.
+src/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx(28,3): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+src/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx(31,5): error TS2304: Cannot find name 'expect'.
+src/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx(34,3): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+src/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx(37,5): error TS2304: Cannot find name 'vi'.
+src/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx(50,5): error TS2304: Cannot find name 'expect'.
+src/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx(51,5): error TS2304: Cannot find name 'expect'.
+src/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx(54,3): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+src/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx(57,5): error TS2304: Cannot find name 'vi'.
+src/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx(69,5): error TS2304: Cannot find name 'expect'.
+src/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx(70,7): error TS2304: Cannot find name 'expect'.
+src/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx(76,3): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+src/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx(79,5): error TS2304: Cannot find name 'vi'.
+src/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx(88,5): error TS2304: Cannot find name 'expect'.
+src/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx(91,3): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+src/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx(102,5): error TS2304: Cannot find name 'vi'.
+src/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx(111,5): error TS2304: Cannot find name 'expect'.
+src/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx(114,3): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+src/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx(119,5): error TS2304: Cannot find name 'vi'.
+src/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx(128,5): error TS2304: Cannot find name 'expect'.
+src/components/tools/imag-enhancer/mvp/hooks/useEnhanceMVP.ts(2,15): error TS2305: Module '"../../types"' has no exported member 'EnhanceMVPArgs'.
+src/components/tools/imag-enhancer/mvp/ImagEnhancerRouter.tsx(30,32): error TS2322: Type 'ImagEnhancerMVPStrings' is not assignable to type 'ImagEnhancerStrings'.
+  Types of property 'ui' are incompatible.
+    Type '{ changeModel?: string | undefined; done?: string | undefined; startOver?: string | undefined; upgrade?: string | undefined; } | undefined' is not assignable to type '{ fullscreen: string; exitFullscreen: string; changeModel?: string | undefined; done?: string | undefined; startOver?: string | undefined; faceEnhance?: string | undefined; upgrade?: string | undefined; help?: { ...; } | undefined; } | undefined'.
+      Type '{ changeModel?: string | undefined; done?: string | undefined; startOver?: string | undefined; upgrade?: string | undefined; }' is missing the following properties from type '{ fullscreen: string; exitFullscreen: string; changeModel?: string | undefined; done?: string | undefined; startOver?: string | undefined; faceEnhance?: string | undefined; upgrade?: string | undefined; help?: { ...; } | undefined; }': fullscreen, exitFullscreen
+src/components/tools/imag-enhancer/mvp/types.ts(47,18): error TS2430: Interface 'UsageData' incorrectly extends interface 'UsageInfo'.
+  Types of property 'resetAt' are incompatible.
+    Type 'string | null' is not assignable to type 'number | null'.
+      Type 'string' is not assignable to type 'number'.
+src/components/tools/video-enhancer/VideoEnhancerIsland.tsx(389,21): error TS2322: Type '{ children: Element; asChild: true; variant: "secondary"; size: "sm"; className: string; }' is not assignable to type 'IntrinsicAttributes & (ButtonProps & RefAttributes<HTMLButtonElement | HTMLAnchorElement>)'.
+  Property 'asChild' does not exist on type 'IntrinsicAttributes & (ButtonProps & RefAttributes<HTMLButtonElement | HTMLAnchorElement>)'.
+src/components/tools/voice-visualizer/hooks/useTranscribeStream.ts(91,30): error TS2339: Property 'data' does not exist on type '{}'.
+src/lib/blog.ts(169,25): error TS2339: Property 'forEach' does not exist on type '{}'.
+src/lib/db/schema.ts(19,9): error TS2347: Untyped function calls may not accept type arguments.
+src/lib/kv/usage.test.ts(12,39): error TS2307: Cannot find module '../../tests/utils/kv-mock' or its corresponding type declarations.
+src/lib/services/data-export-service.ts(184,47): error TS7006: Parameter 'c' implicitly has an 'any' type.
+src/lib/services/data-export-service.ts(206,57): error TS7006: Parameter 'n' implicitly has an 'any' type.
+src/lib/services/data-export-service.ts(422,22): error TS7006: Parameter 'row' implicitly has an 'any' type.
+src/lib/services/logger-utils.ts(27,5): error TS2322: Type '(context?: LogContext | undefined) => void' is not assignable to type 'SafeLogMethod'.
+  Types of parameters 'context' and 'message' are incompatible.
+    Type 'string' has no properties in common with type 'LogContext'.
+src/lib/services/performance-service.ts(593,11): error TS6133: '_cacheStats' is declared but its value is never read.
+src/lib/services/webscraper-service.ts(163,9): error TS2353: Object literal may only specify known properties, and 'url' does not exist in type 'LogContext'.
+src/lib/services/webscraper-service.ts(418,48): error TS2353: Object literal may only specify known properties, and 'ownerType' does not exist in type 'LogContext'.
+src/lib/services/webscraper-service.ts(430,7): error TS2353: Object literal may only specify known properties, and 'reqId' does not exist in type 'LogContext'.
+src/lib/services/webscraper-service.ts(448,9): error TS2353: Object literal may only specify known properties, and 'reqId' does not exist in type 'LogContext'.
+src/lib/services/webscraper-service.ts(466,9): error TS2353: Object literal may only specify known properties, and 'reqId' does not exist in type 'LogContext'.
+src/lib/services/webscraper-service.ts(481,9): error TS2353: Object literal may only specify known properties, and 'reqId' does not exist in type 'LogContext'.
+src/lib/services/webscraper-service.ts(498,9): error TS2353: Object literal may only specify known properties, and 'reqId' does not exist in type 'LogContext'.
+src/lib/services/webscraper-service.ts(517,9): error TS2353: Object literal may only specify known properties, and 'reqId' does not exist in type 'LogContext'.
+src/lib/services/webscraper-service.ts(530,7): error TS2353: Object literal may only specify known properties, and 'reqId' does not exist in type 'LogContext'.
+src/pages/api/admin/backup.legacy.hono.ts(7,24): error TS2305: Module '"hono"' has no exported member 'Next'.
+src/pages/api/admin/backup.legacy.hono.ts(30,5): error TS2339: Property 'set' does not exist on type 'Context'.
+src/pages/api/admin/backup.legacy.hono.ts(47,22): error TS7006: Parameter 'c' implicitly has an 'any' type.
+src/pages/api/admin/backup.legacy.hono.ts(47,25): error TS7006: Parameter 'next' implicitly has an 'any' type.
+src/pages/api/admin/backup.legacy.hono.ts(73,25): error TS2339: Property 'query' does not exist on type '{ param: (name: string) => string; header: (name: string) => string | undefined; raw: Request<unknown, CfProperties<unknown>>; json: <T = any>() => Promise<T>; }'.
+src/pages/api/admin/backup.legacy.hono.ts(111,20): error TS2339: Property 'get' does not exist on type 'Context'.
+src/pages/api/admin/backup.legacy.hono.ts(114,24): error TS2339: Property 'get' does not exist on type 'Context'.
+src/pages/api/admin/backup.legacy.hono.ts(175,20): error TS2339: Property 'get' does not exist on type 'Context'.
+src/pages/api/admin/backup.legacy.hono.ts(178,24): error TS2339: Property 'get' does not exist on type 'Context'.
+src/pages/api/admin/backup.legacy.hono.ts(226,20): error TS2339: Property 'get' does not exist on type 'Context'.
+src/pages/api/admin/backup.legacy.hono.ts(229,24): error TS2339: Property 'get' does not exist on type 'Context'.
+src/pages/api/admin/backup.legacy.hono.ts(250,5): error TS2339: Property 'post' does not exist on type 'Hono<{ Bindings: { DB: D1Database; JWT_SECRET: string; }; Variables: { userId: string; requestId: string; }; }>'.
+src/pages/api/admin/backup.legacy.hono.ts(252,23): error TS2339: Property 'get' does not exist on type 'Context'.
+src/pages/api/admin/backup.legacy.hono.ts(297,20): error TS2339: Property 'get' does not exist on type 'Context'.
+src/pages/api/admin/backup.legacy.hono.ts(300,24): error TS2339: Property 'get' does not exist on type 'Context'.
+src/pages/api/admin/backup.legacy.hono.ts(320,5): error TS2339: Property 'post' does not exist on type 'Hono<{ Bindings: { DB: D1Database; JWT_SECRET: string; }; Variables: { userId: string; requestId: string; }; }>'.
+src/pages/api/admin/backup.legacy.hono.ts(322,11): error TS6133: '_adminId' is declared but its value is never read.
+src/pages/api/admin/backup.legacy.hono.ts(322,24): error TS2339: Property 'get' does not exist on type 'Context'.
+src/pages/api/admin/backup.legacy.hono.ts(346,49): error TS2345: Argument of type 'string' is not assignable to parameter of type 'BackupJobType'.
+src/pages/api/admin/backup.legacy.hono.ts(356,20): error TS2339: Property 'get' does not exist on type 'Context'.
+src/pages/api/admin/backup.legacy.hono.ts(359,24): error TS2339: Property 'get' does not exist on type 'Context'.
+src/pages/api/admin/backup.legacy.hono.ts(379,5): error TS2339: Property 'post' does not exist on type 'Hono<{ Bindings: { DB: D1Database; JWT_SECRET: string; }; Variables: { userId: string; requestId: string; }; }>'.
+src/pages/api/admin/backup.legacy.hono.ts(381,23): error TS2339: Property 'get' does not exist on type 'Context'.
+src/pages/api/admin/backup.legacy.hono.ts(433,20): error TS2339: Property 'get' does not exist on type 'Context'.
+src/pages/api/admin/backup.legacy.hono.ts(436,24): error TS2339: Property 'get' does not exist on type 'Context'.
+src/pages/api/admin/backup.legacy.hono.ts(458,25): error TS2339: Property 'query' does not exist on type '{ param: (name: string) => string; header: (name: string) => string | undefined; raw: Request<unknown, CfProperties<unknown>>; json: <T = any>() => Promise<T>; }'.
+src/pages/api/admin/backup.legacy.hono.ts(484,20): error TS2339: Property 'get' does not exist on type 'Context'.
+src/pages/api/admin/backup.legacy.hono.ts(487,24): error TS2339: Property 'get' does not exist on type 'Context'.
+src/pages/api/admin/backup.legacy.hono.ts(546,20): error TS2339: Property 'get' does not exist on type 'Context'.
+src/pages/api/admin/backup.legacy.hono.ts(549,24): error TS2339: Property 'get' does not exist on type 'Context'.
+src/pages/api/admin/backup.legacy.hono.ts(570,5): error TS2339: Property 'post' does not exist on type 'Hono<{ Bindings: { DB: D1Database; JWT_SECRET: string; }; Variables: { userId: string; requestId: string; }; }>'.
+src/pages/api/admin/backup.legacy.hono.ts(572,11): error TS6133: '_adminId' is declared but its value is never read.
+src/pages/api/admin/backup.legacy.hono.ts(572,24): error TS2339: Property 'get' does not exist on type 'Context'.
+src/pages/api/admin/backup.legacy.hono.ts(591,20): error TS2339: Property 'get' does not exist on type 'Context'.
+src/pages/api/admin/backup.legacy.hono.ts(594,24): error TS2339: Property 'get' does not exist on type 'Context'.
+src/pages/api/admin/backup.legacy.hono.ts(614,5): error TS2339: Property 'post' does not exist on type 'Hono<{ Bindings: { DB: D1Database; JWT_SECRET: string; }; Variables: { userId: string; requestId: string; }; }>'.
+src/pages/api/admin/backup.legacy.hono.ts(631,20): error TS2339: Property 'get' does not exist on type 'Context'.
+src/pages/api/admin/backup.legacy.hono.ts(634,24): error TS2339: Property 'get' does not exist on type 'Context'.
+src/pages/api/admin/backup.legacy.hono.ts(695,20): error TS2339: Property 'get' does not exist on type 'Context'.
+src/pages/api/admin/backup.legacy.hono.ts(698,24): error TS2339: Property 'get' does not exist on type 'Context'.
+src/pages/api/admin/backup/create.ts(51,11): error TS2322: Type 'string' is not assignable to type 'BackupJobType'.
+src/pages/api/admin/backup/schedule.ts(50,45): error TS2345: Argument of type 'string' is not assignable to parameter of type 'BackupJobType'.
+src/pages/api/ai-image/jobs/[id].ts(14,20): error TS18046: 'context' is of type 'unknown'.
+src/pages/api/ai-image/jobs/[id].ts(18,23): error TS18046: 'context' is of type 'unknown'.
+src/pages/api/ai-image/jobs/[id].ts(19,3): error TS18046: 'context' is of type 'unknown'.
+src/pages/api/ai-image/jobs/[id]/cancel.ts(13,20): error TS18046: 'context' is of type 'unknown'.
+src/pages/api/ai-image/jobs/[id]/cancel.ts(17,23): error TS18046: 'context' is of type 'unknown'.
+src/pages/api/ai-image/jobs/[id]/cancel.ts(18,3): error TS18046: 'context' is of type 'unknown'.
+src/pages/api/comments/moderate.ts(82,14): error TS7006: Parameter 'origin' implicitly has an 'any' type.
+src/pages/api/comments/moderate.ts(96,5): error TS2339: Property 'post' does not exist on type 'Hono<{ Bindings: { DB: D1Database; KV_COMMENTS?: KVNamespace<string> | undefined; }; }>'.
+src/pages/api/comments/moderate.ts(96,22): error TS7006: Parameter 'c' implicitly has an 'any' type.
+src/pages/api/comments/moderate.ts(105,24): error TS2347: Untyped function calls may not accept type arguments.
+src/pages/api/comments/moderate.ts(168,26): error TS7006: Parameter 'c' implicitly has an 'any' type.
+src/pages/api/comments/moderate.ts(199,26): error TS7006: Parameter 'c' implicitly has an 'any' type.
+src/pages/api/comments/moderate.ts(249,7): error TS2345: Argument of type '{ [x: string]: any; }' is not assignable to parameter of type 'ModerateCommentRequest'.
+  Property 'action' is missing in type '{ [x: string]: any; }' but required in type 'ModerateCommentRequest'.
+src/pages/api/comments/performance.ts(27,24): error TS2315: Type 'Context' is not generic.
+src/pages/api/comments/performance.ts(176,22): error TS7006: Parameter 'c' implicitly has an 'any' type.
+src/pages/api/comments/performance.ts(176,25): error TS7006: Parameter 'next' implicitly has an 'any' type.
+src/pages/api/comments/performance.ts(181,27): error TS7006: Parameter 'c' implicitly has an 'any' type.
+src/pages/api/comments/performance.ts(181,30): error TS7006: Parameter 'next' implicitly has an 'any' type.
+src/pages/api/comments/performance.ts(198,28): error TS7006: Parameter 'c' implicitly has an 'any' type.
+src/pages/api/comments/performance.ts(198,31): error TS7006: Parameter 'next' implicitly has an 'any' type.
+src/pages/api/comments/performance.ts(204,38): error TS7006: Parameter 'c' implicitly has an 'any' type.
+src/pages/api/comments/performance.ts(245,27): error TS7006: Parameter 'c' implicitly has an 'any' type.
+src/pages/api/comments/performance.ts(298,5): error TS2339: Property 'post' does not exist on type 'Hono<{ Bindings: CommentsBindings; Variables: CommentsVariables; }>'.
+src/pages/api/comments/performance.ts(298,37): error TS7006: Parameter 'c' implicitly has an 'any' type.
+src/pages/api/comments/performance.ts(341,32): error TS7006: Parameter 'c' implicitly has an 'any' type.
+src/pages/api/comments/performance.ts(376,5): error TS2339: Property 'post' does not exist on type 'Hono<{ Bindings: CommentsBindings; Variables: CommentsVariables; }>'.
+src/pages/api/comments/performance.ts(376,33): error TS7006: Parameter 'c' implicitly has an 'any' type.
+src/pages/api/comments/performance.ts(432,26): error TS7006: Parameter 'c' implicitly has an 'any' type.
+src/pages/api/comments/performance.ts(467,28): error TS7006: Parameter 'c' implicitly has an 'any' type.
+src/pages/api/comments/performance.ts(502,5): error TS2339: Property 'post' does not exist on type 'Hono<{ Bindings: CommentsBindings; Variables: CommentsVariables; }>'.
+src/pages/api/comments/performance.ts(502,30): error TS7006: Parameter 'c' implicitly has an 'any' type.
+src/pages/api/comments/performance.ts(556,34): error TS7006: Parameter 'c' implicitly has an 'any' type.
+src/pages/api/comments/recent.ts(58,9): error TS2322: Type 'number' is not assignable to type 'string'.
+src/pages/api/dashboard/activity.ts(84,15): error TS7006: Parameter 'context' implicitly has an 'any' type.
+src/pages/api/dashboard/activity.ts(84,24): error TS7006: Parameter 'error' implicitly has an 'any' type.
+src/pages/api/dashboard/notifications.ts(40,15): error TS7006: Parameter 'context' implicitly has an 'any' type.
+src/pages/api/dashboard/notifications.ts(40,24): error TS7006: Parameter 'error' implicitly has an 'any' type.
+src/pages/api/dashboard/stats.ts(66,15): error TS7006: Parameter 'context' implicitly has an 'any' type.
+src/pages/api/dashboard/stats.ts(66,24): error TS7006: Parameter 'error' implicitly has an 'any' type.
+src/pages/api/data-export/index.ts(25,22): error TS7006: Parameter 'c' implicitly has an 'any' type.
+src/pages/api/data-export/index.ts(25,25): error TS7006: Parameter 'next' implicitly has an 'any' type.
+src/pages/api/data-export/index.ts(63,25): error TS7006: Parameter 'c' implicitly has an 'any' type.
+src/pages/api/data-export/index.ts(111,29): error TS7006: Parameter 'c' implicitly has an 'any' type.
+src/pages/api/data-export/index.ts(176,38): error TS7006: Parameter 'c' implicitly has an 'any' type.
+src/pages/api/data-export/index.ts(231,5): error TS2339: Property 'post' does not exist on type 'Hono<{ Bindings: { DB: D1Database; JWT_SECRET: string; }; Variables: { requestId: string; }; }>'.
+src/pages/api/data-export/index.ts(231,28): error TS7006: Parameter 'c' implicitly has an 'any' type.
+src/pages/api/data-export/index.ts(235,24): error TS2347: Untyped function calls may not accept type arguments.
+src/pages/api/data-export/index.ts(315,33): error TS7006: Parameter 'c' implicitly has an 'any' type.
+src/pages/api/data-export/index.ts(413,5): error TS2339: Property 'post' does not exist on type 'Hono<{ Bindings: { DB: D1Database; JWT_SECRET: string; }; Variables: { requestId: string; }; }>'.
+src/pages/api/data-export/index.ts(413,36): error TS7006: Parameter 'c' implicitly has an 'any' type.
+src/pages/api/data-export/index.ts(417,24): error TS2347: Untyped function calls may not accept type arguments.
+src/pages/api/data-export/index.ts(454,5): error TS2339: Property 'post' does not exist on type 'Hono<{ Bindings: { DB: D1Database; JWT_SECRET: string; }; Variables: { requestId: string; }; }>'.
+src/pages/api/data-export/index.ts(454,37): error TS7006: Parameter 'c' implicitly has an 'any' type.
+src/pages/api/data-export/index.ts(456,24): error TS2347: Untyped function calls may not accept type arguments.
+src/pages/api/data-export/index.ts(525,24): error TS7006: Parameter 'c' implicitly has an 'any' type.
+src/pages/api/newsletter/confirm.ts(32,48): error TS7031: Binding element '_request' implicitly has an 'any' type.
+src/pages/api/newsletter/confirm.ts(32,58): error TS7031: Binding element 'url' implicitly has an 'any' type.
+src/pages/api/notifications/index.ts(69,14): error TS7006: Parameter 'origin' implicitly has an 'any' type.
+src/pages/api/notifications/index.ts(90,21): error TS7006: Parameter 'c' implicitly has an 'any' type.
+src/pages/api/notifications/index.ts(115,64): error TS2345: Argument of type 'number' is not assignable to parameter of type 'string'.
+src/pages/api/notifications/index.ts(134,5): error TS2339: Property 'post' does not exist on type 'Hono<{ Bindings: { DB: D1Database; JWT_SECRET: string; }; }>'.
+src/pages/api/notifications/index.ts(134,31): error TS7006: Parameter 'c' implicitly has an 'any' type.
+src/pages/api/notifications/index.ts(161,79): error TS2345: Argument of type 'number' is not assignable to parameter of type 'string'.
+src/pages/api/notifications/index.ts(180,5): error TS2339: Property 'post' does not exist on type 'Hono<{ Bindings: { DB: D1Database; JWT_SECRET: string; }; }>'.
+src/pages/api/notifications/index.ts(180,35): error TS7006: Parameter 'c' implicitly has an 'any' type.
+src/pages/api/notifications/index.ts(193,45): error TS2345: Argument of type 'number' is not assignable to parameter of type 'string'.
+src/pages/api/notifications/index.ts(212,27): error TS7006: Parameter 'c' implicitly has an 'any' type.
+src/pages/api/notifications/index.ts(227,66): error TS2345: Argument of type 'number' is not assignable to parameter of type 'string'.
+src/pages/api/notifications/index.ts(246,26): error TS7006: Parameter 'c' implicitly has an 'any' type.
+src/pages/api/notifications/index.ts(259,66): error TS2345: Argument of type 'number' is not assignable to parameter of type 'string'.
+src/pages/api/notifications/settings.ts(17,14): error TS7006: Parameter 'origin' implicitly has an 'any' type.
+src/pages/api/notifications/settings.ts(38,21): error TS7006: Parameter 'c' implicitly has an 'any' type.
+src/pages/api/notifications/settings.ts(69,5): error TS2339: Property 'post' does not exist on type 'Hono<{ Bindings: { DB: D1Database; JWT_SECRET: string; }; }>'.
+src/pages/api/notifications/settings.ts(69,22): error TS7006: Parameter 'c' implicitly has an 'any' type.
+src/pages/api/notifications/settings.ts(174,5): error TS2339: Property 'post' does not exist on type 'Hono<{ Bindings: { DB: D1Database; JWT_SECRET: string; }; }>'.
+src/pages/api/notifications/settings.ts(174,32): error TS7006: Parameter 'c' implicitly has an 'any' type.
+src/pages/api/notifications/settings.ts(207,5): error TS2339: Property 'post' does not exist on type 'Hono<{ Bindings: { DB: D1Database; JWT_SECRET: string; }; }>'.
+src/pages/api/notifications/settings.ts(207,27): error TS7006: Parameter 'c' implicitly has an 'any' type.
+src/pages/api/projects/index.ts(143,15): error TS7006: Parameter 'context' implicitly has an 'any' type.
+src/pages/api/projects/index.ts(143,24): error TS7006: Parameter '_error' implicitly has an 'any' type.
+src/pages/api/templates.ts(27,42): error TS2315: Type 'KVNamespace' is not generic.
+src/pages/api/test/seed-email-token.ts(40,24): error TS2347: Untyped function calls may not accept type arguments.
+src/pages/api/tools.ts(37,15): error TS7006: Parameter 'context' implicitly has an 'any' type.
+src/pages/api/tools.ts(37,24): error TS7006: Parameter 'error' implicitly has an 'any' type.
+src/pages/api/user/account.ts(59,39): error TS2347: Untyped function calls may not accept type arguments.
+src/pages/api/user/account.ts(72,62): error TS7006: Parameter 'subscription' implicitly has an 'any' type.
+src/pages/api/user/account.ts(77,43): error TS7006: Parameter 'subscription' implicitly has an 'any' type.
+src/pages/api/user/account.ts(78,46): error TS7006: Parameter 'subscription' implicitly has an 'any' type.
+src/pages/api/user/account.ts(86,53): error TS7006: Parameter 'subscription' implicitly has an 'any' type.
+src/pages/api/user/account.ts(200,15): error TS7006: Parameter 'context' implicitly has an 'any' type.
+src/pages/api/user/account.ts(200,24): error TS7006: Parameter 'error' implicitly has an 'any' type.
+src/pages/api/user/logout.ts(41,35): error TS2347: Untyped function calls may not accept type arguments.
+src/pages/api/user/me.ts(49,22): error TS7006: Parameter '_context' implicitly has an 'any' type.
+src/pages/api/user/settings.ts(24,15): error TS7006: Parameter '_context' implicitly has an 'any' type.
+src/pages/api/user/settings.ts(24,25): error TS7006: Parameter '_error' implicitly has an 'any' type.
+src/pages/api/voice/transcribe.ts(144,7): error TS2322: Type 'R2Bucket | undefined' is not assignable to type 'string | undefined'.
+  Type 'R2Bucket' is not assignable to type 'string'.
+src/pages/api/voice/transcribe.ts(145,7): error TS2322: Type 'string | number | boolean | undefined' is not assignable to type 'string | undefined'.
+  Type 'number' is not assignable to type 'string'.
+src/pages/api/webscraper/extract.ts(79,39): error TS2559: Type '{ format?: "text" | "json" | "html" | undefined; maxDepth?: number | undefined; selector?: string | undefined; }' has no properties in common with type 'Partial<ScrapingConfig>'.
+src/pages/sitemap.xml.ts(25,39): error TS7031: Binding element 'url' implicitly has an 'any' type.
+src/scripts/neural-mesh.ts(27,11): error TS2564: Property 'canvas' has no initializer and is not definitely assigned in the constructor.
+src/scripts/neural-mesh.ts(28,11): error TS2564: Property 'ctx' has no initializer and is not definitely assigned in the constructor.
+src/server/utils/jwt.ts(13,21): error TS2345: Argument of type 'JwtPayload' is not assignable to parameter of type 'JWTPayload'.
+  Index signature for type 'string' is missing in type 'JwtPayload'.
+src/server/utils/jwt.ts(18,5): error TS2741: Property 'userId' is missing in type 'JWTPayload' but required in type 'JwtPayload'.
+tests/integration/api/webscraper.test.ts(5,32): error TS6133: 'beforeEach' is declared but its value is never read.
+tests/integration/api/webscraper.test.ts(5,44): error TS6133: 'vi' is declared but its value is never read.
+tests/integration/comments-api.test.ts(46,18): error TS6133: 'createRes' is declared but its value is never read.
+tests/integration/comments-api.test.ts(65,18): error TS6133: 'createRes' is declared but its value is never read.
+tests/integration/comments.test.ts(2,10): error TS2305: Module '"../../src/lib/db/helpers"' has no exported member 'getDb'.
+tests/integration/comments.test.ts(3,10): error TS2724: '"../../src/lib/services/comment-service"' has no exported member named 'commentService'. Did you mean 'CommentService'?
+tests/integration/comments.test.ts(516,9): error TS2322: Type '"invalid_type"' is not assignable to type 'CommentEntityType'.
+tests/integration/dashboard-api.test.ts(362,15): error TS6133: 'action' is declared but its value is never read.
+tests/integration/lead-magnet-api.test.ts(49,16): error TS6133: 'fetchPage' is declared but its value is never read.
+tests/integration/verify-email.test.ts(64,12): error TS18046: 'body' is of type 'unknown'.
+tests/integration/verify-email.test.ts(65,12): error TS18046: 'body' is of type 'unknown'.
+tests/integration/verify-email.test.ts(79,12): error TS18046: 'body' is of type 'unknown'.
+tests/integration/verify-email.test.ts(80,12): error TS18046: 'body' is of type 'unknown'.
+tests/performance/rate-limiting-perf.test.ts(19,7): error TS6133: 'RATE_LIMITS' is declared but its value is never read.
+tests/performance/rate-limiting-perf.test.ts(59,9): error TS6133: 'failed' is declared but its value is never read.
+tests/performance/rate-limiting-perf.test.ts(197,16): error TS6133: 'index' is declared but its value is never read.
+tests/performance/rate-limiting-perf.test.ts(292,16): error TS6133: 'index' is declared but its value is never read.
+tests/performance/run-load-tests.ts(3,1): error TS6133: 'execa' is declared but its value is never read.
+tests/performance/run-load-tests.ts(14,7): error TS6133: 'rootDir' is declared but its value is never read.
+tests/performance/run-load-tests.ts(44,3): error TS6133: 'baseUrl' is declared but its value is never read.
+tests/performance/run-load-tests.ts(95,28): error TS18046: 'apiConfig' is of type 'unknown'.
+tests/performance/run-load-tests.ts(102,9): error TS18046: 'apiConfig' is of type 'unknown'.
+tests/performance/run-load-tests.ts(105,15): error TS18046: 'apiConfig' is of type 'unknown'.
+tests/performance/run-load-tests.ts(106,39): error TS18046: 'apiConfig' is of type 'unknown'.
+tests/performance/run-load-tests.ts(111,19): error TS18046: 'apiConfig' is of type 'unknown'.
+tests/performance/run-load-tests.ts(116,39): error TS18046: 'apiConfig' is of type 'unknown'.
+tests/performance/run-load-tests.ts(301,11): error TS6133: 'report' is declared but its value is never read.
+tests/src/legacy/utils/server-helpers.ts(116,15): error TS6133: 'req' is declared but its value is never read.
+tests/src/legacy/utils/server-helpers.ts(131,15): error TS6133: 'req' is declared but its value is never read.
+tests/src/legacy/utils/server-helpers.ts(224,15): error TS6133: 'req' is declared but its value is never read.
+tests/src/legacy/utils/server-helpers.ts(245,15): error TS6133: 'req' is declared but its value is never read.
+tests/src/legacy/utils/server-helpers.ts(276,17): error TS6133: 'req' is declared but its value is never read.
+tests/src/legacy/utils/server-helpers.ts(290,15): error TS6133: 'req' is declared but its value is never read.
+tests/src/legacy/utils/server-helpers.ts(320,17): error TS6133: 'req' is declared but its value is never read.
+tests/src/legacy/utils/server-helpers.ts(397,15): error TS6133: 'req' is declared but its value is never read.
+tests/src/legacy/utils/server-helpers.ts(412,15): error TS6133: 'req' is declared but its value is never read.
+tests/src/legacy/utils/server-helpers.ts(504,21): error TS6133: 'req' is declared but its value is never read.
+tests/src/lib/auth-v2.test.ts(6,8): error TS6133: 'User' is declared but its value is never read.
+tests/src/pages/api/ai-video/generate.test.ts(55,31): error TS6133: 'init' is declared but its value is never read.
+tests/src/pages/api/projects/index._test.ts(30,61): error TS2322: Type '"mock-uuid"' is not assignable to type '`${string}-${string}-${string}-${string}-${string}`'.
+tests/src/pages/api/user/me.test.ts(3,1): error TS6133: 'rateLimiter' is declared but its value is never read.
+tests/unit/pages/api/user/profile.test.ts(119,12): error TS18046: 'body' is of type 'unknown'.
+tests/unit/pages/api/user/profile.test.ts(120,12): error TS18046: 'body' is of type 'unknown'.
+tests/unit/pages/api/user/profile.test.ts(121,12): error TS18046: 'body' is of type 'unknown'.
+tests/unit/pages/api/user/profile.test.ts(129,12): error TS18046: 'body' is of type 'unknown'.
+tests/unit/pages/api/user/profile.test.ts(130,12): error TS18046: 'body' is of type 'unknown'.
+tests/unit/pages/api/user/profile.test.ts(140,12): error TS18046: 'body' is of type 'unknown'.
+tests/unit/pages/api/user/profile.test.ts(141,12): error TS18046: 'body' is of type 'unknown'.
+tests/unit/pages/api/user/profile.test.ts(153,12): error TS18046: 'body' is of type 'unknown'.
+tests/unit/pages/api/user/profile.test.ts(163,12): error TS18046: 'body' is of type 'unknown'.
+tests/unit/pages/api/user/profile.test.ts(164,12): error TS18046: 'body' is of type 'unknown'.
+tests/unit/pages/api/user/profile.test.ts(181,12): error TS18046: 'body' is of type 'unknown'.
+tests/unit/pages/api/user/profile.test.ts(182,12): error TS18046: 'body' is of type 'unknown'.
+tests/unit/pages/api/user/profile.test.ts(202,12): error TS18046: 'body' is of type 'unknown'.

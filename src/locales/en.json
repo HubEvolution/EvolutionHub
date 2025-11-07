@@ -1278,6 +1278,35 @@
           "unknown": "Unknown"
         }
       },
+      "referrals": {
+        "title": "Referral program",
+        "description": "Share your personal link to invite friends and earn usage credits when they join Evolution Hub.",
+        "linkLabel": "Your referral link",
+        "copy": "Copy link",
+        "copied": "Copied!",
+        "loading": "Loading referral data…",
+        "error": "We couldn’t load your referral data. Please try again.",
+        "empty": "No referral activity yet. Share your link to get started.",
+        "statsTitle": "Totals",
+        "stats": {
+          "referred": "Referred",
+          "verified": "Verified",
+          "paid": "Paid",
+          "pending": "Pending",
+          "cancelled": "Cancelled"
+        },
+        "creditsEarned": "Credits earned",
+        "recentTitle": "Recent referrals",
+        "recentEmpty": "No recent referral activity",
+        "status": {
+          "pending": "Pending",
+          "verified": "Verified",
+          "paid": "Paid",
+          "cancelled": "Cancelled"
+        },
+        "updated": "Updated",
+        "retry": "Retry"
+      },
       "toolShortcuts": {
         "title": "Quick access tools",
         "description": "Jump into your key workflows.",
@@ -1502,6 +1531,10 @@
           {
             "question": "Is the platform accessible?",
             "answer": "We continuously improve the accessibility of our platform to make it usable for everyone."
+          },
+          {
+            "question": "How does the referral programme reward me?",
+            "answer": "Share your personal invite link from the dashboard. When someone signs up and verifies their account, you receive bonus credits instantly; if they later upgrade to a paid plan, additional credit rewards are unlocked."
           }
         ]
       },

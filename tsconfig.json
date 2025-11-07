@@ -19,7 +19,13 @@
       "tests-legacy/*": ["./tests/src/legacy/*"],
       "@/config/test-config": ["./tests/src/legacy/config/test-config.ts"]
     },
-    "types": ["node", "astro/client", "@cloudflare/workers-types"],
+    "types": [
+      "node",
+      "astro/client",
+      "@cloudflare/workers-types",
+      "@testing-library/jest-dom",
+      "@testing-library/jest-dom/vitest"
+    ],
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,

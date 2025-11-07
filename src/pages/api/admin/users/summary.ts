@@ -9,6 +9,31 @@ import { requireAdmin } from '@/lib/auth-helpers';
 import { getCreditsBalanceTenths } from '@/lib/kv/usage';
 import type { APIContext } from 'astro';
 import type { AdminBindings } from '@/lib/types/admin';
+import { z, formatZodError } from '@/lib/validation';
+
+function getAdminEnv(context: APIContext): AdminBindings {
+  const env = (context.locals?.runtime?.env ?? {}) as Partial<AdminBindings> | undefined;
+  return (env ?? {}) as AdminBindings;
+}
+
+const querySchema = z
+  .object({
+    email: z
+      .string()
+      .trim()
+      .toLowerCase()
+      .optional()
+      .transform((value) => (value ? value.trim() : '')),
+    id: z
+      .string()
+      .trim()
+      .optional()
+      .transform((value) => (value ? value.trim() : '')),
+  })
+  .refine((val) => !!val.email || !!val.id, {
+    message: 'email or id required',
+    path: ['email'],
+  });
 
 type UserRow = {
   id: string;
@@ -27,26 +52,26 @@ type SubRow = {
 };
 
 export const GET = withAuthApiMiddleware(async (context: APIContext) => {
-  const { locals, request } = context;
-  const env = (locals?.runtime?.env ?? {}) as AdminBindings;
+  const { request } = context;
+  const env = getAdminEnv(context);
   const db = env.DB as D1Database | undefined;
   const kv = env.KV_AI_ENHANCER;
   if (!db) return createApiError('server_error', 'Database unavailable');
 
   try {
-    await requireAdmin({
-      req: { header: (n: string) => context.request.headers.get(n) || undefined },
-      request,
-      env: { DB: db },
-    });
+    await requireAdmin({ request, env: { DB: db } });
   } catch {
     return createApiError('forbidden', 'Insufficient permissions');
   }
 
   const url = new URL(request.url);
-  const email = (url.searchParams.get('email') || '').trim().toLowerCase();
-  const id = (url.searchParams.get('id') || '').trim();
-  if (!email && !id) return createApiError('validation_error', 'email or id required');
+  const parsedQuery = querySchema.safeParse(Object.fromEntries(url.searchParams));
+  if (!parsedQuery.success) {
+    return createApiError('validation_error', 'Invalid query', {
+      details: formatZodError(parsedQuery.error),
+    });
+  }
+  const { email, id } = parsedQuery.data;
 
   let userRow: UserRow | null = null;
   try {
@@ -57,7 +82,7 @@ export const GET = withAuthApiMiddleware(async (context: APIContext) => {
         )
         .bind(email)
         .first<UserRow>();
-    } else {
+    } else if (id) {
       userRow = await db
         .prepare('SELECT id, email, name, plan, created_at FROM users WHERE id = ?1 LIMIT 1')
         .bind(id)

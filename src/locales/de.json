@@ -926,6 +926,34 @@
           "unknown": "Unbekannt"
         }
       },
+      "referrals": {
+        "title": "Referral-Programm",
+        "description": "Teile deinen persönlichen Link, lade Freundinnen und Freunde ein und erhalte Nutzungsguthaben, sobald sie Evolution Hub beitreten.",
+        "linkLabel": "Dein Referral-Link",
+        "copy": "Link kopieren",
+        "copied": "Kopiert!",
+        "loading": "Referral-Daten werden geladen…",
+        "error": "Deine Referral-Daten konnten nicht geladen werden. Bitte versuche es erneut.",
+        "empty": "Noch keine Referral-Aktivitäten. Teile deinen Link, um zu starten.",
+        "statsTitle": "Gesamtübersicht",
+        "stats": {
+          "referred": "Geworben",
+          "verified": "Verifiziert",
+          "paid": "Bezahlt",
+          "pending": "Ausstehend",
+          "cancelled": "Abgebrochen"
+        },
+        "creditsEarned": "Verdiente Credits",
+        "recentTitle": "Neueste Referrals",
+        "recentEmpty": "Keine aktuellen Referral-Aktivitäten",
+        "status": {
+          "pending": "Ausstehend",
+          "verified": "Verifiziert",
+          "paid": "Bezahlt",
+          "cancelled": "Abgebrochen"
+        },
+        "updated": "Aktualisiert"
+      },
       "projects": {
         "title": "Deine Projekte",
         "empty": "Keine Projekte gefunden",
@@ -1502,6 +1530,10 @@
           {
             "question": "Ist die Plattform barrierefrei?",
             "answer": "Wir arbeiten kontinuierlich daran, die Barrierefreiheit unserer Plattform zu verbessern, um sie für alle Nutzer zugänglich zu machen."
+          },
+          {
+            "question": "Wie werde ich für Weiterempfehlungen belohnt?",
+            "answer": "Teile deinen persönlichen Empfehlungslink aus dem Dashboard. Sobald eine Person darüber ein Konto anlegt und ihren Zugang bestätigt, erhältst du Bonus-Credits. Wenn die Empfehlung später auf einen zahlungspflichtigen Plan wechselt, werden zusätzliche Credits gutgeschrieben."
           }
         ]
       },

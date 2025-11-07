@@ -11,11 +11,18 @@ import { drizzle } from 'drizzle-orm/d1';
 import { BackupService } from '@/lib/services/backup-service';
 import type { AdminBindings } from '@/lib/types/admin';
 
+function getAdminEnv(context: APIContext): AdminBindings {
+  const env = (context.locals?.runtime?.env ?? {}) as Partial<AdminBindings> | undefined;
+  return (env ?? {}) as AdminBindings;
+}
+
 export const GET = withAuthApiMiddleware(
   async (context: APIContext) => {
-    const env = (context.locals?.runtime?.env || {}) as AdminBindings;
+    const env = getAdminEnv(context);
     const db = env.DB as D1Database | undefined;
-    if (!db) return createApiError('server_error', 'Database unavailable');
+    if (!db) {
+      return createApiError('server_error', 'Database unavailable');
+    }
 
     try {
       await requireAdmin({
@@ -27,8 +34,12 @@ export const GET = withAuthApiMiddleware(
       return createApiError('forbidden', 'Insufficient permissions');
     }
 
-    const limitRaw = new URL(context.request.url).searchParams.get('limit');
-    const limit = Math.max(1, Math.min(1000, Number(limitRaw || '50')));
+    const limitParam = new URL(context.request.url).searchParams.get('limit');
+    const parsedLimit = limitParam ? Number.parseInt(limitParam, 10) : undefined;
+    const limit =
+      parsedLimit && Number.isFinite(parsedLimit) && parsedLimit > 0
+        ? Math.min(parsedLimit, 1000)
+        : 50;
 
     try {
       const service = new BackupService(drizzle(db));

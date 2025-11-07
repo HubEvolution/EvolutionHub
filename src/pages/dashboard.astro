@@ -2,6 +2,7 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { type BillingSummary } from '@/components/dashboard/BillingCard';
 import BillingCard from '@/components/dashboard/BillingCard';
+import ReferralCard, { type ReferralSummary } from '@/components/dashboard/ReferralCard';
 import UserProfile from '@/components/dashboard/UserProfile.astro';
 import AccountSettingsSection from '@/components/dashboard/AccountSettingsSection.astro';
 import NewsletterPreferencesCard from '@/components/dashboard/NewsletterPreferencesCard';
@@ -52,7 +53,38 @@ type DashboardBillingSummary = BillingSummary & {
   periodEndsAt: number;
 };
 
+const referralStrings = {
+  title: t('pages.dashboard.referrals.title'),
+  description: t('pages.dashboard.referrals.description'),
+  linkLabel: t('pages.dashboard.referrals.linkLabel'),
+  copy: t('pages.dashboard.referrals.copy'),
+  copied: t('pages.dashboard.referrals.copied'),
+  loading: t('pages.dashboard.referrals.loading'),
+  error: t('pages.dashboard.referrals.error'),
+  empty: t('pages.dashboard.referrals.empty'),
+  statsTitle: t('pages.dashboard.referrals.statsTitle'),
+  stats: {
+    referred: t('pages.dashboard.referrals.stats.referred'),
+    verified: t('pages.dashboard.referrals.stats.verified'),
+    paid: t('pages.dashboard.referrals.stats.paid'),
+    pending: t('pages.dashboard.referrals.stats.pending'),
+    cancelled: t('pages.dashboard.referrals.stats.cancelled'),
+  },
+  creditsEarned: t('pages.dashboard.referrals.creditsEarned'),
+  recentTitle: t('pages.dashboard.referrals.recentTitle'),
+  recentEmpty: t('pages.dashboard.referrals.recentEmpty'),
+  status: {
+    pending: t('pages.dashboard.referrals.status.pending'),
+    verified: t('pages.dashboard.referrals.status.verified'),
+    paid: t('pages.dashboard.referrals.status.paid'),
+    cancelled: t('pages.dashboard.referrals.status.cancelled'),
+  },
+  updated: t('pages.dashboard.referrals.updated'),
+  retry: t('pages.dashboard.referrals.retry'),
+};
+
 const billingSummary = await fetchApi<DashboardBillingSummary>('/api/dashboard/billing-summary');
+const referralSummary = await fetchApi<ReferralSummary>('/api/dashboard/referral-summary');
 
 // shortcuts removed in Dashboard V2
 
@@ -393,6 +425,12 @@ const profileCopy =
               strings={billingStrings}
               manageLink={manageBillingLink}
             />
+          </Card>
+        </div>
+
+        <div class="xl:col-span-12">
+          <Card as="div" className="group p-4">
+            <ReferralCard client:load initialSummary={referralSummary} strings={referralStrings} />
           </Card>
         </div>
 

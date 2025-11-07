@@ -16,6 +16,13 @@ status: 'shipped'
 
 Das Pricing-System von Evolution Hub ist eine vollständig implementierte, produktionsreife Lösung mit Stripe-Integration, die bereits echte zahlende Kunden bedient. Dieses Dokument dient als Single Source of Truth für alle Aspekte des Pricing-Systems.
 
+## Customer incentives
+
+- Trial conversions are tracked via Stripe Checkout sessions; upgrade funnels follow the same pricing table to avoid quote drift.
+- Embedded upgrade prompts highlight remaining credits and the next tier's benefits with contextual modals instead of popups.
+- Entitlement service exposes a read-only `GET /api/account/entitlements` endpoint so apps can toggle premium features without bundling price logic.
+- Referral programme: each customer receives a personal invite link (visible in the dashboard). When a referred user signs up and verifies their account, the referrer earns bonus credits that appear in the referral card. Additional rewards unlock once referrals convert to paid plans, encouraging long-term advocacy.
+
 ## Live-Status (Stand: 10. Oktober 2025)
 
 ### 📊 **Aktuelle Kennzahlen**

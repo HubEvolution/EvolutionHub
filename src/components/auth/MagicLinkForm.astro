@@ -20,6 +20,7 @@ interface Props {
   showProfileFields?: boolean;
   action?: string;
   labelKeys?: LabelKeys;
+  referralCode?: string | null;
 }
 
 const {
@@ -29,6 +30,7 @@ const {
   showProfileFields = false,
   action = '/api/auth/magic/request',
   labelKeys = {},
+  referralCode = null,
 } = Astro.props as Props;
 
 const t = getI18n(locale as Locale);
@@ -64,6 +66,7 @@ const publicTurnstileSiteKey =
   class="space-y-4"
   data-cooldown-label={cooldownLabel}
 >
+  {referralCode && <input type="hidden" name="referralCode" value={referralCode} />}
   {
     showProfileFields && (
       <>

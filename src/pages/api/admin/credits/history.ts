@@ -11,6 +11,11 @@ import type { AdminBindings } from '@/lib/types/admin';
 import { listActiveCreditPacksTenths } from '@/lib/kv/usage';
 import { z, formatZodError } from '@/lib/validation';
 
+function getAdminEnv(context: APIContext): AdminBindings {
+  const env = (context.locals?.runtime?.env ?? {}) as Partial<AdminBindings> | undefined;
+  return (env ?? {}) as AdminBindings;
+}
+
 const querySchema = z
   .object({
     userId: z.string().min(1),
@@ -21,8 +26,8 @@ const querySchema = z
 
 export const GET = withAuthApiMiddleware(
   async (context: APIContext) => {
-    const { locals, url } = context;
-    const env = (locals.runtime?.env ?? {}) as AdminBindings;
+    const { url } = context;
+    const env = getAdminEnv(context);
 
     if (!env.DB || !env.KV_AI_ENHANCER) {
       return createApiError('server_error', 'Infrastructure unavailable');

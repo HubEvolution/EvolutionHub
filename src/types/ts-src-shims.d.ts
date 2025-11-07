@@ -1,12 +1,46 @@
 declare module '@/lib/rate-limiter' {
-  export const apiRateLimiter: any;
-  export const standardApiLimiter: any;
-  export function createRateLimiter(config: any): any;
+  export interface RateLimitConfig {
+    maxRequests: number;
+    windowMs: number;
+    name?: string;
+  }
+
+  export interface RateLimiterContext {
+    request: Request;
+    clientAddress?: string;
+    locals?: unknown;
+  }
+
+  export type RateLimiterResult = Response | { success?: boolean } | void;
+
+  export type RateLimiter = (context: RateLimiterContext) => Promise<RateLimiterResult>;
+
+  export function createRateLimiter(config: RateLimitConfig): RateLimiter;
   export function rateLimit(key: string, maxRequests: number, windowSeconds: number): Promise<void>;
+  export function getLimiterState(name?: string): Record<
+    string,
+    {
+      maxRequests: number;
+      windowMs: number;
+      entries: Array<{ key: string; count: number; resetAt: number }>;
+    }
+  >;
+  export function resetLimiterKey(name: string, key: string): boolean;
+
+  export const standardApiLimiter: RateLimiter;
+  export const authLimiter: RateLimiter;
+  export const sensitiveActionLimiter: RateLimiter;
+  export const apiRateLimiter: RateLimiter;
+  export const aiJobsLimiter: RateLimiter;
+  export const aiGenerateLimiter: RateLimiter;
+  export const voiceTranscribeLimiter: RateLimiter;
+  export const contactFormLimiter: RateLimiter;
 }
 
 declare module '@/lib/security/csrf' {
+  export function ensureCsrfToken(): string;
   export const validateCsrfToken: any;
+  export const createCsrfMiddleware: any;
 }
 
 declare module '@/lib/spam-detection' {
@@ -38,6 +72,7 @@ declare module '@/server/utils/logger-factory' {
 
 declare module 'astro' {
   export type APIContext = any;
+  export type APIRoute = any;
 }
 
 declare global {
@@ -85,13 +120,18 @@ declare module 'drizzle-orm/d1' {
   export const drizzle: any;
 }
 
-declare module '@/lib/api-middleware' {
-  export const withApiMiddleware: any;
-  export const withAuthApiMiddleware: any;
-  export const createApiError: any;
-  export const createApiSuccess: any;
-  export const createMethodNotAllowed: any;
-}
+// declare module '@/lib/api-middleware' {
+//   export type ApiHandler = (
+//     context: import('astro').APIContext
+//   ) => Promise<Response> | Response;
+//
+//   export function withApiMiddleware(handler: ApiHandler, options?: any): ApiHandler;
+//   export function withAuthApiMiddleware(handler: ApiHandler, options?: any): ApiHandler;
+//   export function withRedirectMiddleware(handler: ApiHandler, options?: any): ApiHandler;
+//   export function createApiError(type: string, message?: string, details?: Record<string, unknown>): Response;
+//   export function createApiSuccess<T>(data: T, status?: number): Response;
+//   export function createMethodNotAllowed(allow: string, message?: string): Response;
+// }
 
 declare module '@/lib/types/comments' {
   export type Comment = any;
@@ -107,20 +147,12 @@ declare module '@/lib/types/comments' {
   export type ReportCommentRequest = any;
 }
 
-declare module '@/lib/auth-helpers' {
-  export const requireAuth: any;
-  export const requireModerator: any;
-}
-
-declare module '@/lib/security/csrf' {
-  export const validateCsrfToken: any;
-  export const createCsrfMiddleware: any;
-}
-
 declare module '@/lib/db/schema' {
   export const comments: any;
   export const commentReports: any;
   export const commentModeration: any;
+  export const referralProfiles: any;
+  export const referralEvents: any;
 }
 
 declare module 'stripe' {
@@ -167,43 +199,20 @@ declare module 'openai' {
 declare module '@/config/ai-image' {
   export type AllowedModel = any;
   export type OwnerType = any;
+  export type Plan = any;
+  export type PlanLimits = any;
   export const ALLOWED_MODELS: any[];
   export const ALLOWED_CONTENT_TYPES: any;
   export const MAX_UPLOAD_BYTES: any;
   export const AI_R2_PREFIX: any;
   export const FREE_LIMIT_GUEST: any;
   export const FREE_LIMIT_USER: any;
+  export const PLAN_LIMITS: any;
+  export const getAiLimitFor: any;
 }
 
 declare module '@/types/logger' {
   export type ExtendedLogger = any;
-}
-
-declare module '@/lib/kv/usage' {
-  export const addCreditPackTenths: any;
-  export const getCreditsBalanceTenths: any;
-  export const incrementDailyRolling: any;
-  export const getUsage: any;
-  export const rollingDailyKey: any;
-  export const legacyMonthlyKey: any;
-  export const consumeCreditsTenths: any;
-}
-
-declare module '@/lib/response-helpers' {
-  export const createSecureErrorResponse: any;
-  export const createSecureJsonResponse: any;
-  export const createDeprecatedGoneHtml: any;
-  export const createDeprecatedGoneJson: any;
-}
-
-declare module '@/lib/security-headers' {
-  export const secureJsonResponse: any;
-  export const secureErrorResponse: any;
-  export const applySecurityHeaders: any;
-  export const createApiError: any;
-  export const createApiSuccess: any;
-  export const withApiMiddleware: any;
-  export const withAuthApiMiddleware: any;
 }
 
 declare module 'astro:content' {
@@ -247,16 +256,4 @@ declare module '../types/comments' {
   export type CreateCommentRequest = any;
   export type CommentFilters = any;
 }
-declare module '../security/sanitize' {
-  const x: any;
-  export = x;
-}
 
-// Stripe webhook helpers
-declare module '@/lib/rate-limiter' {
-  export const createRateLimiter: any;
-}
-declare module '@/lib/response-helpers' {
-  export const createSecureErrorResponse: any;
-  export const createSecureJsonResponse: any;
-}

@@ -1,0 +1,8 @@
+Grund,Quelle,Validierung,Seiten
+Alternative Seite mit richtigem kanonischen Tag,Website,Nicht gestartet,23
+Seite mit Weiterleitung,Website,Gestartet,162
+Nicht gefunden (404),Website,Gestartet,105
+Duplikat – vom Nutzer nicht als kanonisch festgelegt,Website,Gestartet,29
+Wegen nicht autorisierter Anforderung (401) blockiert,Website,Gestartet,1
+Gecrawlt – zurzeit nicht indexiert,Google-Systeme,Gestartet,29
+Duplikat – Google hat eine andere Seite als der Nutzer als kanonische Seite bestimmt,Google-Systeme,Gestartet,1

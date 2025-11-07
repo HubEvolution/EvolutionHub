@@ -113,7 +113,8 @@ async function registerBaseRoutes(server: TestServer): Promise<void> {
   server.routes.set('GET /health', {
     method: 'GET',
     path: '/health',
-    handler: (req, res) => {
+    handler: (_req, res) => {
+      void _req;
       server.requestCount++;
       res.status(200).json({
         status: 'healthy',
@@ -128,7 +129,7 @@ async function registerBaseRoutes(server: TestServer): Promise<void> {
   server.routes.set('GET /api/status', {
     method: 'GET',
     path: '/api/status',
-    handler: (req, res) => {
+    handler: (_req, res) => {
       server.requestCount++;
       res.status(200).json({
         status: 'ok',
@@ -221,7 +222,8 @@ function registerAuthRoutes(server: TestServer): void {
   server.routes.set('GET /api/auth/logout', {
     method: 'GET',
     path: '/api/auth/logout',
-    handler: (req, res) => {
+    handler: (_req, res) => {
+      void _req;
       server.requestCount++;
       res.setHeader('Content-Type', 'text/html; charset=utf-8');
       res.setHeader('Cache-Control', 'no-store');
@@ -242,7 +244,7 @@ function registerAuthRoutes(server: TestServer): void {
   server.routes.set('POST /api/auth/logout', {
     method: 'POST',
     path: '/api/auth/logout',
-    handler: (req, res) => {
+    handler: (_req, res) => {
       server.requestCount++;
       res.setHeader('Content-Type', 'text/html; charset=utf-8');
       res.setHeader('Cache-Control', 'no-store');
@@ -273,7 +275,8 @@ function registerAuthRoutes(server: TestServer): void {
     server.routes.set(`${method} /api/auth/logout`, {
       method,
       path: '/api/auth/logout',
-      handler: (req, res) => {
+      handler: (_req, res) => {
+        void _req;
         server.requestCount++;
         res.setHeader('Content-Type', 'application/json');
         res.setHeader('Cache-Control', 'no-store');
@@ -287,7 +290,8 @@ function registerAuthRoutes(server: TestServer): void {
   server.routes.set('GET /api/auth/verify-email', {
     method: 'GET',
     path: '/api/auth/verify-email',
-    handler: (req, res) => {
+    handler: (_req, res) => {
+      void _req;
       server.requestCount++;
       res.setHeader('Content-Type', 'text/html; charset=utf-8');
       res.setHeader('Cache-Control', 'no-store');
@@ -317,7 +321,7 @@ function registerAuthRoutes(server: TestServer): void {
     server.routes.set(`${method} /api/auth/verify-email`, {
       method,
       path: '/api/auth/verify-email',
-      handler: (req, res) => {
+      handler: (_req, res) => {
         server.requestCount++;
         res.setHeader('Content-Type', 'application/json');
         res.setHeader('Cache-Control', 'no-store');
@@ -409,7 +413,8 @@ function registerDashboardRoutes(server: TestServer): void {
   server.routes.set('GET /api/dashboard/activity', {
     method: 'GET',
     path: '/api/dashboard/activity',
-    handler: (req, res) => {
+    handler: (_req, res) => {
+      void _req;
       server.requestCount++;
       res.status(200).json([
         {
@@ -501,7 +506,8 @@ export function createMockRoute(
   server.routes.set(routeKey, {
     method,
     path,
-    handler: async (req, res) => {
+    handler: async (_req, res) => {
+      void _req;
       server.requestCount++;
 
       // Verzögerung simulieren falls konfiguriert

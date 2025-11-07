@@ -7,29 +7,39 @@ import {
 import type { APIContext } from 'astro';
 import { requireAdmin } from '@/lib/auth-helpers';
 import type { D1Database } from '@cloudflare/workers-types';
+import type { AdminBindings } from '@/lib/types/admin';
+import { apiRateLimiter } from '@/lib/rate-limiter';
+
+function getAdminEnv(context: APIContext): AdminBindings {
+  const env = (context.locals?.runtime?.env ?? {}) as Partial<AdminBindings> | undefined;
+  return (env ?? {}) as AdminBindings;
+}
+
+function getEnvString(value: unknown): string {
+  return typeof value === 'string' ? value : '';
+}
 
 // Cloudflare GraphQL endpoint
 const CF_GQL_ENDPOINT = 'https://api.cloudflare.com/client/v4/graphql';
 
-export const GET = withAuthApiMiddleware(async (context: APIContext) => {
-  const runtimeEnv = ((context.locals as unknown as { runtime?: { env?: Record<string, unknown> } })
-    ?.runtime?.env || {}) as Record<string, unknown>;
-  const db = (runtimeEnv as { DB?: unknown }).DB as unknown;
-  // Admin guard
-  try {
-    await requireAdmin({
-      req: { header: (n: string) => context.request.headers.get(n) || undefined },
-      request: context.request,
-      env: { DB: db as D1Database },
-    });
-  } catch {
-    return createApiError('forbidden', 'Insufficient permissions');
-  }
+export const GET = withAuthApiMiddleware(
+  async (context: APIContext) => {
+    const envBindings = getAdminEnv(context);
+    const db = envBindings.DB as D1Database | undefined;
+    if (!db) {
+      return createApiError('server_error', 'Database unavailable');
+    }
+    try {
+      await requireAdmin({ request: context.request, env: { DB: db } });
+    } catch {
+      return createApiError('forbidden', 'Insufficient permissions');
+    }
 
-  const env = runtimeEnv as Record<string, string>;
-  const apiToken = env.CLOUDFLARE_API_TOKEN || env.CF_API_TOKEN || '';
-  const zoneId = env.CLOUDFLARE_ZONE_ID || env.CF_ZONE_ID || '';
-  const accountId = env.CLOUDFLARE_ACCOUNT_ID || env.CF_ACCOUNT_ID || '';
+    const runtimeEnv = (context.locals.runtime?.env ?? {}) as Record<string, unknown>;
+    const apiToken = getEnvString(runtimeEnv.CLOUDFLARE_API_TOKEN) || getEnvString(runtimeEnv.CF_API_TOKEN);
+    const zoneId = getEnvString(runtimeEnv.CLOUDFLARE_ZONE_ID) || getEnvString(runtimeEnv.CF_ZONE_ID);
+    const accountId =
+      getEnvString(runtimeEnv.CLOUDFLARE_ACCOUNT_ID) || getEnvString(runtimeEnv.CF_ACCOUNT_ID);
 
   if (!apiToken || (!zoneId && !accountId)) {
     return createApiError('validation_error', 'Missing Cloudflare credentials', {
@@ -46,9 +56,9 @@ export const GET = withAuthApiMiddleware(async (context: APIContext) => {
   const datetimeStart = start.toISOString();
   const datetimeEnd = end.toISOString();
 
-  const url = new URL(context.request.url);
-  const wantSeries =
-    url.searchParams.get('series') === '1' || url.searchParams.get('series') === 'true';
+    const url = new URL(context.request.url);
+    const wantSeries =
+      url.searchParams.get('series') === '1' || url.searchParams.get('series') === 'true';
 
   // Prefer zone-scoped query; fallback to account-scoped if no zoneId
   const queryZone = `
@@ -88,8 +98,8 @@ export const GET = withAuthApiMiddleware(async (context: APIContext) => {
         variables: { accountTag: accountId, start: datetimeStart, end: datetimeEnd },
       };
 
-  try {
-    const resp = await fetch(CF_GQL_ENDPOINT, {
+    try {
+      const resp = await fetch(CF_GQL_ENDPOINT, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -298,12 +308,14 @@ export const GET = withAuthApiMiddleware(async (context: APIContext) => {
       pageViews = series.reduce((a, s) => a + Number(s.pageViews || 0), 0);
       visits = series.reduce((a, s) => a + Number(s.visits || 0), 0);
     }
-    return createApiSuccess({ pageViews, visits, from: datetimeStart, to: datetimeEnd, series });
-  } catch (e) {
-    const msg = e instanceof Error ? e.message : String(e);
-    return createApiError('server_error', msg);
-  }
-});
+      return createApiSuccess({ pageViews, visits, from: datetimeStart, to: datetimeEnd, series });
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      return createApiError('server_error', msg);
+    }
+  },
+  { rateLimiter: apiRateLimiter, logMetadata: { action: 'admin_traffic_24h' } }
+);
 
 const methodNotAllowed = () => createMethodNotAllowed('GET');
 export const POST = methodNotAllowed;

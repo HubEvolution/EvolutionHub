@@ -12,12 +12,19 @@ import { formatZodError } from '@/lib/validation';
 import { adminSetPlanRequestSchema } from '@/lib/validation/schemas/admin';
 import Stripe from 'stripe';
 
+function getAdminEnv(context: APIContext): AdminBindings {
+  const env = (context.locals?.runtime?.env ?? {}) as Partial<AdminBindings> | undefined;
+  return (env ?? {}) as AdminBindings;
+}
+
 export const POST = withAuthApiMiddleware(
   async (context: APIContext) => {
-    const { locals, request } = context;
-    const env = (locals.runtime?.env ?? {}) as AdminBindings;
+    const { request } = context;
+    const env = getAdminEnv(context);
     const db = env.DB;
-    if (!db) return createApiError('server_error', 'Database unavailable');
+    if (!db) {
+      return createApiError('server_error', 'Database unavailable');
+    }
 
     try {
       await requireAdmin({ request, env: { DB: db } });
@@ -68,7 +75,7 @@ export const POST = withAuthApiMiddleware(
     } catch {}
 
     // Orchestrate Stripe subscription changes; webhook will sync users.plan
-    const envRaw = (locals.runtime?.env ?? {}) as Record<string, unknown>;
+    const envRaw = (context.locals.runtime?.env ?? {}) as Record<string, unknown>;
     const stripeSecret =
       typeof envRaw.STRIPE_SECRET === 'string' ? (envRaw.STRIPE_SECRET as string) : '';
 
@@ -241,7 +248,7 @@ export const POST = withAuthApiMiddleware(
         .bind(
           crypto.randomUUID(),
           'ADMIN_ACTION',
-          (locals as { user?: { id?: string } }).user?.id || null,
+          (context.locals as { user?: { id?: string } }).user?.id || null,
           ip,
           'user',
           'set_plan',

@@ -8,6 +8,7 @@
 
 import type { APIContext } from 'astro';
 import { apiRateLimiter } from '@/lib/rate-limiter';
+import type { RateLimiter } from '@/lib/rate-limiter';
 import { loggerFactory } from '@/server/utils/logger-factory';
 
 // Logger-Instanzen erstellen
@@ -54,9 +55,7 @@ export function applySecurityHeaders(response: Response): Response {
 /**
  * Interface für API-Handler-Funktionen
  */
-export interface ApiHandler {
-  (context: APIContext): Promise<Response>;
-}
+export type ApiHandler = (context: APIContext) => Promise<Response> | Response;
 
 /**
  * Hilfsfunktion: Erzeugt eine 405-Response im standardisierten Fehlerformat
@@ -239,7 +238,7 @@ export interface ApiMiddlewareOptions {
   logMetadata?: Record<string, unknown>;
 
   // Optionaler Rate-Limiter (Standard: apiRateLimiter)
-  rateLimiter?: (context: APIContext) => Promise<unknown>;
+  rateLimiter?: RateLimiter;
 
   // Benutzerdefinierte Unauthorized-Antwort
   onUnauthorized?: (context: APIContext) => Response | Promise<Response>;
@@ -377,7 +376,11 @@ export function withApiMiddleware(
 
       // Rate-Limiting anwenden
       const limiter = options.rateLimiter || apiRateLimiter;
-      const rateLimitResult: unknown = await limiter(context);
+      const rateLimitResult: unknown = await limiter({
+        request: context.request,
+        clientAddress: context.clientAddress,
+        locals: context.locals,
+      });
       // Tolerant gegenüber unterschiedlichen Rückgabeformen
       const resultObj = rateLimitResult as { success?: boolean };
       if (

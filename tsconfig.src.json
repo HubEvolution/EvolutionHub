@@ -1,32 +1,8 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "noResolve": true,
     "types": ["@cloudflare/workers-types"]
   },
-  "files": [
-    "src/types/ts-src-shims.d.ts",
-    "src/lib/services/provider-error.d.ts",
-    "src/config/ai-image/entitlements.ts",
-    "src/lib/utils/id-generator.d.ts",
-    "src/lib/rate-limiter.d.ts",
-    "src/lib/security/csrf.d.ts",
-    "src/lib/spam-detection.d.ts",
-    "src/lib/security/sanitize.d.ts",
-    "src/lib/services/ai-image/providers/workers-ai.ts",
-    "src/lib/services/ai-image-service.ts",
-    "src/pages/api/billing/stripe-webhook.ts",
-    "src/lib/services/comment-service.ts",
-    "src/lib/types/notifications.ts",
-    "src/lib/types/comments.ts",
-    "src/pages/api/comments/index.ts",
-    "src/pages/api/comments/count.ts",
-    "src/pages/api/comments/create.ts",
-    "src/pages/api/comments/[id].ts",
-    "src/pages/api/comments/[id]/report.ts",
-    "src/pages/api/admin/comments/index.ts",
-    "src/pages/api/admin/comments/bulk-moderate.ts"
-  ],
-  "include": [],
+  "include": ["src/**/*"],
   "exclude": ["node_modules", "tests", "test-suite-v2"]
 }

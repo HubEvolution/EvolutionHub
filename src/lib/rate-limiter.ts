@@ -5,9 +5,10 @@
  * um die Anwendung vor Brute-Force-, DoS- und anderen Missbrauchsversuchen zu schützen.
  */
 
+import type { APIContext } from 'astro';
 import { logRateLimitExceeded } from '@/lib/security-logger';
 
-interface RateLimitConfig {
+export interface RateLimitConfig {
   // Maximale Anzahl von Anfragen innerhalb des Zeitfensters
   maxRequests: number;
 
@@ -25,6 +26,16 @@ interface RateLimitStore {
   };
 }
 
+export type RateLimiterContext = {
+  request: APIContext['request'];
+  clientAddress?: APIContext['clientAddress'];
+  locals?: APIContext['locals'];
+};
+
+export type RateLimiterResult = Response | { success?: boolean } | void;
+
+export type RateLimiter = (context: RateLimiterContext) => Promise<RateLimiterResult>;
+
 // In-Memory-Store für Rate-Limiting-Daten (in Produktion durch Redis o.ä. ersetzen)
 const limitStores: Record<string, RateLimitStore> = {};
 const limiterConfigs: Record<string, Required<RateLimitConfig>> = {};
@@ -35,13 +46,11 @@ const limiterConfigs: Record<string, Required<RateLimitConfig>> = {};
  * @param context Der Astro-Kontext der Anfrage
  * @returns Ein eindeutiger Schlüssel für Rate-Limiting
  */
-function getRateLimitKey(context: {
-  clientAddress?: string;
-  locals?: { user?: { id?: string } | null };
-}): string {
+function getRateLimitKey(context: RateLimiterContext): string {
   // In einer echten Umgebung würde man die IP-Adresse und optional die User-ID verwenden
   const clientIp = context.clientAddress || '0.0.0.0';
-  const userId = context.locals?.user?.id || 'anonymous';
+  const locals = context.locals as { user?: { id?: string } | null } | undefined;
+  const userId = locals?.user?.id || 'anonymous';
 
   return `${clientIp}:${userId}`;
 }
@@ -52,7 +61,7 @@ function getRateLimitKey(context: {
  * @param config Die Rate-Limiter-Konfiguration
  * @returns Eine Middleware-Funktion für Rate-Limiting
  */
-export function createRateLimiter(config: RateLimitConfig) {
+export function createRateLimiter(config: RateLimitConfig): RateLimiter {
   const limiterName = config.name || 'default';
 
   // Stellt sicher, dass der Store für diesen Limiter existiert
@@ -81,11 +90,7 @@ export function createRateLimiter(config: RateLimitConfig) {
   }, 60000); // Einmal pro Minute aufräumen
 
   // Die eigentliche Rate-Limiting-Middleware
-  return async function rateLimitMiddleware(context: {
-    clientAddress?: string;
-    locals?: { user?: { id?: string } | null };
-    request: Request;
-  }) {
+  const rateLimitMiddleware: RateLimiter = async (context) => {
     const key = getRateLimitKey(context);
     const now = Date.now();
 
@@ -143,7 +148,10 @@ export function createRateLimiter(config: RateLimitConfig) {
 
     // Anfragezähler erhöhen
     entry.count += 1;
+    return undefined;
   };
+
+  return rateLimitMiddleware;
 }
 
 /**

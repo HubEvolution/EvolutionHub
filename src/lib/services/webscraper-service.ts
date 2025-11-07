@@ -8,6 +8,8 @@
 
 import { loggerFactory } from '@/server/utils/logger-factory';
 import type { ExtendedLogger } from '@/types/logger';
+import type { LogContext } from '@/config/logging';
+import { loggerHelpers } from '@/lib/services/logger-utils';
 import type { KVNamespace } from '@cloudflare/workers-types';
 import * as cheerio from 'cheerio';
 import {
@@ -45,28 +47,16 @@ export class WebscraperService {
   }
 
   // Safe logger helpers
-  private logInfo(event: string, data?: unknown) {
-    try {
-      void (this.log?.info ? this.log.info(event, data) : this.log?.log?.(event, data));
-    } catch {
-      // Ignore logging failures
-    }
+  private logInfo(event: string, context?: LogContext) {
+    loggerHelpers.info(this.log, event, context);
   }
 
-  private logWarn(event: string, data?: unknown) {
-    try {
-      void (this.log?.warn ? this.log.warn(event, data) : this.log?.info?.(event, data));
-    } catch {
-      // Ignore logging failures
-    }
+  private logWarn(event: string, context?: LogContext) {
+    loggerHelpers.warn(this.log, event, context);
   }
 
-  private logError(event: string, data?: unknown) {
-    try {
-      void (this.log?.error ? this.log.error(event, data) : this.log?.info?.(event, data));
-    } catch {
-      // Ignore logging failures
-    }
+  private logError(event: string, context?: LogContext) {
+    loggerHelpers.error(this.log, event, context);
   }
 
   /**

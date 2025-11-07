@@ -9,12 +9,17 @@ import { requireAdmin } from '@/lib/auth-helpers';
 import type { AdminBindings } from '@/lib/types/admin';
 import type { APIContext } from 'astro';
 
+function getAdminEnv(context: APIContext): AdminBindings {
+  const env = (context.locals?.runtime?.env ?? {}) as Partial<AdminBindings> | undefined;
+  return (env ?? {}) as AdminBindings;
+}
+
 // Read-only admin status for the logged-in user
 // Response shape (consistent): { success: boolean, data?: T, error?: string }
 export const GET = withAuthApiMiddleware(async (context: APIContext) => {
   const { locals } = context;
   const user = locals.user as { id: string; email?: string } | undefined;
-  const env = (locals?.runtime?.env ?? {}) as AdminBindings;
+  const env = getAdminEnv(context);
 
   if (!user) {
     return createApiError('auth_error', 'Unauthorized');
@@ -22,14 +27,13 @@ export const GET = withAuthApiMiddleware(async (context: APIContext) => {
 
   const db = env.DB;
   const kv = env.KV_AI_ENHANCER;
+  if (!db) {
+    return createApiError('server_error', 'Database unavailable');
+  }
 
   // Enforce admin-only access
   try {
-    await requireAdmin({
-      req: { header: (n: string) => context.request.headers.get(n) || undefined },
-      request: context.request,
-      env: { DB: db },
-    });
+    await requireAdmin({ request: context.request, env: { DB: db } });
   } catch {
     return createApiError('forbidden', 'Insufficient permissions');
   }

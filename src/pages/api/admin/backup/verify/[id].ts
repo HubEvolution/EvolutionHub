@@ -12,11 +12,18 @@ import { requireAdmin } from '@/lib/auth-helpers';
 import type { AdminBindings } from '@/lib/types/admin';
 import { sensitiveActionLimiter } from '@/lib/rate-limiter';
 
+function getAdminEnv(context: APIContext): AdminBindings {
+  const env = (context.locals?.runtime?.env ?? {}) as Partial<AdminBindings> | undefined;
+  return (env ?? {}) as AdminBindings;
+}
+
 export const POST = withAuthApiMiddleware(
   async (context: APIContext) => {
-    const env = (context.locals?.runtime?.env || {}) as AdminBindings;
+    const env = getAdminEnv(context);
     const db = env.DB as D1Database | undefined;
-    if (!db) return createApiError('server_error', 'Database unavailable');
+    if (!db) {
+      return createApiError('server_error', 'Database unavailable');
+    }
 
     try {
       await requireAdmin({
@@ -28,8 +35,11 @@ export const POST = withAuthApiMiddleware(
       return createApiError('forbidden', 'Insufficient permissions');
     }
 
-    const jobId = context.params?.id?.toString().trim();
-    if (!jobId) return createApiError('validation_error', 'Backup ID required');
+    const jobIdParam = context.params?.id;
+    if (typeof jobIdParam !== 'string' || jobIdParam.trim().length === 0) {
+      return createApiError('validation_error', 'Backup ID required');
+    }
+    const jobId = jobIdParam.trim();
 
     try {
       const service = new BackupService(drizzle(db));

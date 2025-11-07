@@ -8,6 +8,7 @@ import {
 import { authLimiter } from '@/lib/rate-limiter';
 import { stytchMagicLinkLoginOrCreate, StytchError } from '@/lib/stytch';
 import { logMetricCounter } from '@/lib/security-logger';
+import { sanitizeReferralCode } from '@/lib/referrals/utils';
 
 async function sha256(input: string): Promise<Uint8Array> {
   const data = new TextEncoder().encode(input);
@@ -36,6 +37,7 @@ const parseBody = async (
   username?: string;
   locale?: string;
   turnstileToken?: string;
+  referralCode?: string;
 }> => {
   const ct = request.headers.get('content-type') || '';
   if (ct.includes('application/json')) {
@@ -55,6 +57,7 @@ const parseBody = async (
               : typeof anyJson.turnstileToken === 'string'
                 ? (anyJson.turnstileToken as string)
                 : undefined,
+          referralCode: typeof anyJson.referralCode === 'string' ? anyJson.referralCode : undefined,
         };
       }
       return {};
@@ -79,6 +82,8 @@ const parseBody = async (
           typeof form.get('cf-turnstile-response') === 'string'
             ? (form.get('cf-turnstile-response') as string)
             : undefined,
+        referralCode:
+          typeof form.get('referralCode') === 'string' ? (form.get('referralCode') as string) : undefined,
       };
     } catch {
       return {};
@@ -110,7 +115,7 @@ function isValidUsername(username: string | undefined): username is string {
 
 const handler: ApiHandler = async (context: APIContext) => {
   const { request } = context;
-  const { email, r, name, username, locale, turnstileToken } = await parseBody(request);
+  const { email, r, name, username, locale, turnstileToken, referralCode } = await parseBody(request);
   if (!email || !isValidEmail(email)) {
     return createApiError('validation_error', 'Ungültige E-Mail-Adresse');
   }
@@ -208,6 +213,22 @@ const handler: ApiHandler = async (context: APIContext) => {
       secure: isHttps,
       maxAge: 10 * 60, // 10 minutes
     });
+  }
+
+  const sanitizedReferral = sanitizeReferralCode(referralCode);
+  if (sanitizedReferral) {
+    try {
+      const isHttps = origin.startsWith('https://');
+      context.cookies.set('post_auth_referral', sanitizedReferral, {
+        path: '/',
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: isHttps,
+        maxAge: 10 * 60,
+      });
+    } catch {
+      // Ignore referral persistence failures
+    }
   }
 
   const devEnv =

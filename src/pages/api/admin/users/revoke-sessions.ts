@@ -9,15 +9,15 @@ import { sensitiveActionLimiter } from '@/lib/rate-limiter';
 import { requireAdmin } from '@/lib/auth-helpers';
 import type { AdminBindings } from '@/lib/types/admin';
 
-interface RevokeBody {
-  userId?: string;
-  sessionId?: string;
+function getAdminEnv(context: APIContext): AdminBindings {
+  const env = (context.locals?.runtime?.env ?? {}) as Partial<AdminBindings> | undefined;
+  return (env ?? {}) as AdminBindings;
 }
 
 export const POST = withAuthApiMiddleware(
   async (context: APIContext) => {
-    const { locals, request } = context;
-    const env = (locals.runtime?.env ?? {}) as AdminBindings;
+    const { request } = context;
+    const env = getAdminEnv(context);
 
     if (!env.DB) {
       return createApiError('server_error', 'Infrastructure unavailable');
@@ -29,15 +29,24 @@ export const POST = withAuthApiMiddleware(
       return createApiError('forbidden', 'Insufficient permissions');
     }
 
-    let body: RevokeBody | null = null;
+    let body: unknown;
     try {
-      body = (await request.json()) as RevokeBody;
+      body = await request.json();
     } catch {
       return createApiError('validation_error', 'Invalid JSON');
     }
 
-    const userId = (body?.userId || '').trim();
-    const sessionId = (body?.sessionId || '').trim();
+    if (!body || typeof body !== 'object') {
+      return createApiError('validation_error', 'Invalid request payload');
+    }
+
+    const { userId: rawUserId, sessionId: rawSessionId } = body as {
+      userId?: unknown;
+      sessionId?: unknown;
+    };
+
+    const userId = typeof rawUserId === 'string' ? rawUserId.trim() : '';
+    const sessionId = typeof rawSessionId === 'string' ? rawSessionId.trim() : '';
 
     if (!userId && !sessionId) {
       return createApiError('validation_error', 'Provide userId or sessionId');

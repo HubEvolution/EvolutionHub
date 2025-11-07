@@ -1,4 +1,4 @@
-import type { APIRoute } from 'astro';
+import type { APIContext } from 'astro';
 import {
   withApiMiddleware,
   createApiError,
@@ -10,7 +10,7 @@ import { AiJobsService } from '@/lib/services/ai-jobs-service';
 import { type OwnerType, type Plan } from '@/config/ai-image';
 import { getEntitlementsFor } from '@/config/ai-image/entitlements';
 
-function ensureGuestIdCookie(context: Parameters<APIRoute>[0]): string {
+function ensureGuestIdCookie(context: APIContext): string {
   const existing = context.cookies.get('guest_id')?.value;
   if (existing) return existing;
 
@@ -27,14 +27,15 @@ function ensureGuestIdCookie(context: Parameters<APIRoute>[0]): string {
 }
 
 export const GET = withApiMiddleware(
-  async (context) => {
+  async (context: APIContext) => {
     const { locals, request, params } = context;
-    const id = params.id as string | undefined;
-    if (!id) return createApiError('validation_error', 'Job ID fehlt');
+    const { id } = params;
+    if (typeof id !== 'string' || !id) {
+      return createApiError('validation_error', 'Job ID fehlt');
+    }
 
     const ownerType: OwnerType = locals.user?.id ? 'user' : 'guest';
-    const ownerId =
-      ownerType === 'user' ? (locals.user as { id: string }).id : ensureGuestIdCookie(context);
+    const ownerId = ownerType === 'user' && locals.user?.id ? locals.user.id : ensureGuestIdCookie(context);
     const plan =
       ownerType === 'user'
         ? (((locals.user as { plan?: Plan } | null)?.plan ?? 'free') as Plan)
@@ -42,7 +43,7 @@ export const GET = withApiMiddleware(
     const ent = getEntitlementsFor(ownerType, plan);
     const effectiveLimit = ent.dailyBurstCap;
 
-    const env = (locals.runtime?.env || {}) as App.Locals['runtime']['env'];
+    const env = (locals.runtime?.env ?? {}) as App.Locals['runtime']['env'];
     const deps = { db: env.DB, isDevelopment: env.ENVIRONMENT !== 'production' };
     const service = new AiJobsService(deps, {
       R2_AI_IMAGES: env.R2_AI_IMAGES,

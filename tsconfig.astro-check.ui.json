@@ -4,6 +4,6 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false
   },
-  "include": ["src/components", "src/lib", "src/content", "src/utils"],
+  "include": ["src/components", "src/lib", "src/content", "src/utils", "src/env.d.ts"],
   "exclude": ["src/pages/api/**", "src/server/**", "src/scripts/**", "src/pages/**"]
 }

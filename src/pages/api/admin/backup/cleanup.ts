@@ -12,15 +12,18 @@ import { requireAdmin } from '@/lib/auth-helpers';
 import type { AdminBindings } from '@/lib/types/admin';
 import { sensitiveActionLimiter } from '@/lib/rate-limiter';
 
-interface CleanupBody {
-  retentionDays?: number;
+function getAdminEnv(context: APIContext): AdminBindings {
+  const env = (context.locals?.runtime?.env ?? {}) as Partial<AdminBindings> | undefined;
+  return (env ?? {}) as AdminBindings;
 }
 
 export const POST = withAuthApiMiddleware(
   async (context: APIContext) => {
-    const env = (context.locals?.runtime?.env || {}) as AdminBindings;
+    const env = getAdminEnv(context);
     const db = env.DB as D1Database | undefined;
-    if (!db) return createApiError('server_error', 'Database unavailable');
+    if (!db) {
+      return createApiError('server_error', 'Database unavailable');
+    }
 
     try {
       await requireAdmin({
@@ -34,11 +37,16 @@ export const POST = withAuthApiMiddleware(
 
     let retentionDays = 30;
     try {
-      const body = (await context.request.json()) as CleanupBody;
-      if (body && typeof body.retentionDays === 'number' && body.retentionDays > 0) {
-        retentionDays = Math.min(365, Math.floor(body.retentionDays));
+      const body = (await context.request.json()) as unknown;
+      if (body && typeof body === 'object' && 'retentionDays' in body) {
+        const { retentionDays: raw } = body as { retentionDays?: unknown };
+        if (typeof raw === 'number' && Number.isFinite(raw) && raw > 0) {
+          retentionDays = Math.min(365, Math.floor(raw));
+        }
       }
-    } catch {}
+    } catch {
+      // ignore JSON parse errors, fallback to default retention
+    }
 
     try {
       const service = new BackupService(drizzle(db));

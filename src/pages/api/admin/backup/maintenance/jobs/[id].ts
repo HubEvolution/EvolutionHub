@@ -11,11 +11,18 @@ import { drizzle } from 'drizzle-orm/d1';
 import { BackupService } from '@/lib/services/backup-service';
 import type { AdminBindings } from '@/lib/types/admin';
 
+function getAdminEnv(context: APIContext): AdminBindings {
+  const env = (context.locals?.runtime?.env ?? {}) as Partial<AdminBindings> | undefined;
+  return (env ?? {}) as AdminBindings;
+}
+
 export const GET = withAuthApiMiddleware(
   async (context: APIContext) => {
-    const env = (context.locals?.runtime?.env || {}) as AdminBindings;
+    const env = getAdminEnv(context);
     const db = env.DB as D1Database | undefined;
-    if (!db) return createApiError('server_error', 'Database unavailable');
+    if (!db) {
+      return createApiError('server_error', 'Database unavailable');
+    }
 
     try {
       await requireAdmin({
@@ -27,8 +34,11 @@ export const GET = withAuthApiMiddleware(
       return createApiError('forbidden', 'Insufficient permissions');
     }
 
-    const jobId = context.params?.id?.toString().trim();
-    if (!jobId) return createApiError('validation_error', 'Maintenance ID required');
+    const jobIdParam = context.params?.id;
+    if (typeof jobIdParam !== 'string' || jobIdParam.trim().length === 0) {
+      return createApiError('validation_error', 'Maintenance ID required');
+    }
+    const jobId = jobIdParam.trim();
 
     try {
       const service = new BackupService(drizzle(db));

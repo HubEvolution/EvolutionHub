@@ -10,15 +10,15 @@ import { addCreditPackTenths, getCreditsBalanceTenths } from '@/lib/kv/usage';
 import { requireAdmin } from '@/lib/auth-helpers';
 import type { AdminBindings } from '@/lib/types/admin';
 
-interface GrantBody {
-  email: string;
-  amount?: number; // credits (not tenths)
+function getAdminEnv(context: APIContext): AdminBindings {
+  const env = (context.locals?.runtime?.env ?? {}) as Partial<AdminBindings> | undefined;
+  return (env ?? {}) as AdminBindings;
 }
 
 export const POST = withAuthApiMiddleware(
   async (context: APIContext) => {
     const { locals } = context;
-    const env = (locals.runtime?.env ?? {}) as AdminBindings;
+    const env = getAdminEnv(context);
 
     if (!(locals as { user?: { id?: string } }).user?.id) {
       return createApiError('auth_error', 'Unauthorized');
@@ -44,15 +44,33 @@ export const POST = withAuthApiMiddleware(
       return createApiError('forbidden', 'Insufficient permissions');
     }
 
-    let body: GrantBody | null = null;
+    let body: unknown;
     try {
-      body = (await context.request.json()) as GrantBody;
+      body = await context.request.json();
     } catch {
       return createApiError('validation_error', 'Invalid JSON');
     }
 
-    const targetEmail = (body?.email || '').trim().toLowerCase();
-    const amount = Math.max(1, Math.min(100000, Math.floor(Number(body?.amount ?? 1000))));
+    if (!body || typeof body !== 'object') {
+      return createApiError('validation_error', 'Invalid request payload');
+    }
+
+    const { email, amount } = body as { email?: unknown; amount?: unknown };
+    const targetEmail = typeof email === 'string' ? email.trim().toLowerCase() : '';
+    if (!targetEmail || !targetEmail.includes('@')) {
+      return createApiError('validation_error', 'Valid recipient email required');
+    }
+
+    const parsedAmount = (() => {
+      if (typeof amount === 'number' && Number.isFinite(amount)) return amount;
+      if (typeof amount === 'string' && amount.trim().length > 0) {
+        const numeric = Number.parseFloat(amount.trim());
+        if (Number.isFinite(numeric)) return numeric;
+      }
+      return 1000;
+    })();
+
+    const normalizedAmount = Math.max(1, Math.min(100000, Math.floor(parsedAmount)));
 
     // Lookup user id by email
     const row = await db
@@ -66,7 +84,7 @@ export const POST = withAuthApiMiddleware(
 
     const userId = row.id;
     const packId = `manual-topup-${Date.now()}`;
-    const unitsTenths = Math.round(amount * 10);
+    const unitsTenths = Math.round(normalizedAmount * 10);
 
     await addCreditPackTenths(kv, userId, packId, unitsTenths);
     const balanceTenths = await getCreditsBalanceTenths(kv, userId);
@@ -84,7 +102,7 @@ export const POST = withAuthApiMiddleware(
           ip,
           'credits',
           'credit_grant',
-          JSON.stringify({ email: targetEmail, userId, amount, packId }),
+          JSON.stringify({ email: targetEmail, userId, amount: normalizedAmount, packId }),
           Date.now()
         )
         .run();
@@ -94,7 +112,7 @@ export const POST = withAuthApiMiddleware(
     return createApiSuccess({
       email: targetEmail,
       userId,
-      granted: amount,
+      granted: normalizedAmount,
       balance,
       packId,
     });

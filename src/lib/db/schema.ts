@@ -257,3 +257,32 @@ export const settings = sqliteTable('settings', {
   createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
   updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull(),
 });
+
+export const referralProfiles = sqliteTable('referral_profiles', {
+  userId: text('user_id')
+    .primaryKey()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  referralCode: text('referral_code').notNull().unique(),
+  defaultCampaign: text('default_campaign').default('default'),
+  createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
+  updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull(),
+});
+
+export const referralEvents = sqliteTable('referral_events', {
+  id: text('id').primaryKey(),
+  ownerUserId: text('owner_user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  referralCode: text('referral_code')
+    .notNull()
+    .references(() => referralProfiles.referralCode, { onDelete: 'cascade' }),
+  referredUserId: text('referred_user_id').references(() => users.id, { onDelete: 'set null' }),
+  status: text('status', {
+    enum: ['pending', 'verified', 'paid', 'cancelled'],
+  }).notNull(),
+  creditsAwarded: integer('credits_awarded').notNull().default(0),
+  metadata: text('metadata'),
+  occurredAt: integer('occurred_at', { mode: 'timestamp' }).notNull(),
+  createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
+  updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull(),
+});

@@ -1,5 +1,4 @@
-/**
- * Admin-API-Endpunkte für Backup und System-Management
+/** * Admin-API-Endpunkte für Backup und System-Management
  * Nur für Administratoren zugänglich
  */
 

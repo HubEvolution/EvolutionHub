@@ -10,6 +10,7 @@ import { localizePath, isLocalizedPath } from '@/lib/locale-path';
 import type { Locale } from '@/lib/i18n';
 import { stytchMagicLinkAuthenticate } from '@/lib/stytch';
 import { createSession } from '@/lib/auth-v2';
+import { recordReferralSignup } from '@/lib/services/referral-event-service';
 
 function isAllowedRelativePath(r: string): boolean {
   return typeof r === 'string' && r.startsWith('/') && !r.startsWith('//');
@@ -164,6 +165,28 @@ const getHandler: ApiHandler = async (context: APIContext) => {
   const _tUpsert = Date.now();
   const upsert = await upsertUser(db, email, desiredName, desiredUsername);
   durUpsert = Date.now() - _tUpsert;
+
+  try {
+    const referralCookie = context.cookies.get('post_auth_referral')?.value || '';
+    if (referralCookie) {
+      await recordReferralSignup(db, {
+        referralCode: referralCookie,
+        referredUserId: upsert.id,
+        occurredAt: Date.now(),
+        status: upsert.isNew ? 'verified' : 'pending',
+      });
+    }
+  } catch (error) {
+    console.error('[auth][magic][callback] referral_record_failed', {
+      message: error instanceof Error ? error.message : String(error),
+    });
+  }
+
+  try {
+    context.cookies.delete('post_auth_referral', { path: '/' });
+  } catch (_err) {
+    // Ignore referral cookie deletion failures
+  }
 
   // Create app session
   const session = await createSession(db, upsert.id);
