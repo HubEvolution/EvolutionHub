@@ -160,7 +160,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
+                $ref: '#/components/schemas/AdminCreditsUsageSuccess'
         "400":
           description: Validation error
         "401":
@@ -225,23 +225,28 @@ paths:
           application/json:
             schema:
               type: object
-              required: [email]
+              required:
+                - email
               properties:
                 email:
                   type: string
+                  format: email
                 amount:
                   type: integer
                   description: Credits to deduct (default 1000)
+                  minimum: 1
+                  maximum: 100000
                 strict:
                   type: boolean
                   description: If true, reject when amount exceeds current balance (default true)
+              additionalProperties: false
       responses:
         "200":
           description: Deduct success
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
+                $ref: '#/components/schemas/AdminCreditsDeductSuccess'
         "401":
           description: Unauthorized
         "403":
@@ -2705,37 +2710,354 @@ paths:
               schema:
                 $ref: '#/components/schemas/ApiErrorResponse'
 components:
-    schemas:
-      NewsletterSubscribeRequest:
-        type: object
-        properties:
-          email:
-            type: string
-            format: email
-          firstName:
-            type: string
-            minLength: 1
-            maxLength: 100
-          consent:
-            type: boolean
-            enum: [true]
-          source:
-            type: string
-            minLength: 1
-            maxLength: 100
-        required:
-          - email
-          - consent
-      BillingCreditsRequest:
-        type: object
-        properties:
-          pack:
-            type: integer
-            enum: [200, 1000]
-          workspaceId:
-            type: string
-            minLength: 1
-            maxLength: 100
+  schemas:
+    GenericResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+      required:
+        - success
+    AdminCreditsGrantSuccess:
+      type: object
+      required:
+        - success
+        - data
+      properties:
+        success:
+          type: boolean
+          const: true
+        data:
+          type: object
+          required:
+            - email
+            - userId
+            - granted
+            - balance
+            - packId
+          properties:
+            email:
+              type: string
+              format: email
+            userId:
+              type: string
+            granted:
+              type: integer
+              description: Granted credits (integer)
+            balance:
+              type: integer
+              description: Current balance in credits after grant
+            packId:
+              type: string
+            tenths:
+              type: integer
+              description: (legacy) remaining tenths of credits (if present)
+    AdminCreditsDeductSuccess:
+      type: object
+      required:
+        - success
+        - data
+      properties:
+        success:
+          type: boolean
+          const: true
+        data:
+          type: object
+          required:
+            - email
+            - userId
+            - requested
+            - deducted
+            - remainingTenths
+            - balance
+            - jobId
+            - breakdown
+            - idempotent
+          properties:
+            email:
+              type: string
+              format: email
+            userId:
+              type: string
+            requested:
+              type: integer
+            deducted:
+              type: integer
+            requestedTenths:
+              type: integer
+            deductedTenths:
+              type: integer
+            remainingTenths:
+              type: integer
+            balance:
+              type: integer
+            breakdown:
+              type: array
+              items:
+                type: object
+                properties:
+                  packId:
+                    type: string
+                  consumedTenths:
+                    type: integer
+                  remainingTenths:
+                    type: integer
+            idempotent:
+              type: boolean
+            jobId:
+              type: string
+    AdminCreditsUsageSuccess:
+      type: object
+      required:
+        - success
+        - data
+      properties:
+        success:
+          type: boolean
+          const: true
+        data:
+          type: object
+          required:
+            - userId
+            - balance
+            - tenths
+          properties:
+            userId:
+              type: string
+            balance:
+              type: integer
+              description: Remaining credits (integer)
+            tenths:
+              type: integer
+              description: Remaining credits in tenths
+    NewsletterSubscribeRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        firstName:
+          type: string
+          minLength: 1
+          maxLength: 100
+        consent:
+          type: boolean
+          enum: [true]
+        source:
+          type: string
+          minLength: 1
+          maxLength: 100
+      required:
+        - email
+        - consent
+    BillingCreditsRequest:
+      type: object
+      properties:
+        pack:
+          type: integer
+          enum: [200, 1000]
+        workspaceId:
+          type: string
+          minLength: 1
+          maxLength: 100
+        returnTo:
+          type: string
+          maxLength: 300
+      required:
+        - pack
+    TemplateSaveRequest:
+      type: object
+      properties:
+        templateId:
+          type: string
+          minLength: 1
+          maxLength: 100
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+          minLength: 1
+          maxLength: 500
+        prompt:
+          type: string
+          minLength: 1
+          maxLength: 5000
+      required:
+        - templateId
+        - name
+        - description
+        - prompt
+    TemplateSaveSuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            message:
+              type: string
+            templateId:
+              type: string
+      required:
+        - success
+        - data
+    DashboardPerformActionRequest:
+      type: object
+      description: Discriminated action for dashboard operations
+      properties:
+        action:
+          type: string
+          enum:
+            - create_project
+            - create_task
+            - invite_member
+            - view_docs
+      required:
+        - action
+      additionalProperties: false
+    NewsletterUnsubscribeRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+      required:
+        - email
+    BillingCancelRequest:
+      type: object
+      properties:
+        subscriptionId:
+          type: string
+          minLength: 1
+      required:
+        - subscriptionId
+    AdminSetPlanRequest:
+      type: object
+      description: Admin override to set a user's plan. Exactly one of email or userId must be provided.
+      additionalProperties: false
+      properties:
+        email:
+          type: string
+          format: email
+        userId:
+          type: string
+          minLength: 1
+        plan:
+          type: string
+          enum: [free, pro, premium, enterprise]
+        reason:
+          type: string
+          maxLength: 500
+        interval:
+          type: string
+          description: Select price table for paid plans
+          enum: [monthly, annual]
+        prorationBehavior:
+          type: string
+          description: Stripe proration behavior when updating an existing subscription
+          enum: [create_prorations, none]
+        cancelAtPeriodEnd:
+          type: boolean
+          description: When downgrading to free, schedule cancel at period end (default behavior)
+        cancelImmediately:
+          type: boolean
+          description: When downgrading to free, cancel immediately instead of scheduling end-of-period
+      oneOf:
+        - required: [email, plan]
+        - required: [userId, plan]
+    ContactRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        firstName:
+          type: string
+          minLength: 1
+          maxLength: 100
+        lastName:
+          type: string
+          minLength: 1
+          maxLength: 100
+        email:
+          type: string
+          format: email
+          maxLength: 320
+        subject:
+          type: string
+          minLength: 1
+          maxLength: 200
+        message:
+          type: string
+          minLength: 10
+          maxLength: 4000
+        consent:
+          type: boolean
+          enum: [true]
+        locale:
+          type: string
+          enum: [de, en]
+        turnstileToken:
+          type: string
+          minLength: 10
+        source:
+          type: string
+          maxLength: 120
+      required:
+        - firstName
+        - lastName
+        - email
+        - subject
+        - message
+        - consent
+        - turnstileToken
+    ContactSuccessResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        success:
+          type: boolean
+          enum: [true]
+        data:
+          type: object
+          additionalProperties: false
+          properties:
+            status:
+              type: string
+              enum: [queued]
+      required:
+        - success
+        - data
+    InternalUserSyncRequest:
+      type: object
+      description: Minimal user payload for internal sync
+      properties:
+        id:
+          type: string
+          minLength: 1
+        email:
+          type: string
+          format: email
+        name:
+          type: string
+          minLength: 1
+        image:
+          type: string
+          minLength: 1
+      required:
+        - id
+        - email
+    WebscraperRequest:
+      type: object
+      description: Request for Webscraper extract. Server performs SSRF-safety checks (http/https only; localhost/private ranges blocked).
+      properties:
+        url:
+          type: string
+          minLength: 1
           returnTo:
             type: string
             maxLength: 300
@@ -2975,20 +3297,6 @@ components:
           outputFormat:
             type: string
             enum: [markdown, json]
-        required:
-          - text
-      GenericResponse:
-        type: object
-        properties:
-          success:
-            type: boolean
-      Tool:
-        type: object
-        properties:
-          id:
-            type: string
-          name:
-            type: string
           description:
             type: string
       Activity:
