@@ -10,6 +10,8 @@ import { localizePath, isLocalizedPath } from '@/lib/locale-path';
 import type { Locale } from '@/lib/i18n';
 import { stytchOAuthAuthenticate } from '@/lib/stytch';
 import { createSession } from '@/lib/auth-v2';
+import { recordReferralSignup } from '@/lib/services/referral-event-service';
+import { logUserEvent } from '@/lib/security-logger';
 
 function isAllowedRelativePath(r: string): boolean {
   return typeof r === 'string' && r.startsWith('/') && !r.startsWith('//');
@@ -155,6 +157,53 @@ const getHandler: ApiHandler = async (context: APIContext) => {
   const _tUpsert = Date.now();
   const upsert = await upsertUser(db, email, desiredName, desiredUsername);
   durUpsert = Date.now() - _tUpsert;
+
+  const referralCookie = context.cookies.get('post_auth_referral')?.value || '';
+  if (referralCookie) {
+    try {
+      const referralResult = await recordReferralSignup(db, {
+        referralCode: referralCookie,
+        referredUserId: upsert.id,
+        occurredAt: Date.now(),
+        status: upsert.isNew ? 'verified' : 'pending',
+        metadata: {
+          source: 'signup_oauth',
+          provider,
+        },
+      });
+
+      if (referralResult.recorded) {
+        logUserEvent(upsert.id, 'referral_signup_recorded', {
+          referralCode: referralCookie,
+          signupStatus: upsert.isNew ? 'verified' : 'pending',
+          provider,
+        });
+      } else {
+        logUserEvent(upsert.id, 'referral_signup_skipped', {
+          referralCode: referralCookie,
+          reason: referralResult.reason ?? 'unknown',
+          provider,
+        });
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error('[auth][oauth][callback] referral_record_failed', {
+        provider,
+        message,
+      });
+      logUserEvent(upsert.id, 'referral_signup_error', {
+        referralCode: referralCookie,
+        provider,
+        message,
+      });
+    }
+  }
+
+  try {
+    context.cookies.delete('post_auth_referral', { path: '/' });
+  } catch {
+    // Ignore referral cookie deletion failures
+  }
 
   // Create session
   const session = await createSession(db, upsert.id);

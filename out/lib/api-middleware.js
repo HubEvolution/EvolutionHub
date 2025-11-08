@@ -275,9 +275,18 @@ function withApiMiddleware(handler, options = {}) {
         const path = new URL(request.url).pathname;
         const method = request.method;
         try {
+            // CSRF/Origin-Check für unsichere Methoden
+            const csrfFailure = validateCsrfAndOrigin(context, options);
+            if (csrfFailure) {
+                return applySecurityHeaders(csrfFailure);
+            }
             // Rate-Limiting anwenden
             const limiter = options.rateLimiter || rate_limiter_1.apiRateLimiter;
-            const rateLimitResult = await limiter(context);
+            const rateLimitResult = await limiter({
+                request: context.request,
+                clientAddress: context.clientAddress,
+                locals: context.locals,
+            });
             // Tolerant gegenüber unterschiedlichen Rückgabeformen
             const resultObj = rateLimitResult;
             if (rateLimitResult &&
@@ -288,11 +297,6 @@ function withApiMiddleware(handler, options = {}) {
             // Wenn der Limiter eine Response liefert, diese direkt (mit Security-Headers) zurückgeben
             if (rateLimitResult instanceof Response) {
                 return applySecurityHeaders(rateLimitResult);
-            }
-            // CSRF/Origin-Check für unsichere Methoden
-            const csrfFailure = validateCsrfAndOrigin(context, options);
-            if (csrfFailure) {
-                return applySecurityHeaders(csrfFailure);
             }
             // API-Zugriff protokollieren (vor Ausführung)
             if (!options.disableAutoLogging) {

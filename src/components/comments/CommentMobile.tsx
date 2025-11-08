@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { CommentForm } from './CommentForm';
 import { Button } from '../ui/Button';
@@ -6,6 +6,7 @@ import type { Comment, ReportReason } from '../../lib/types/comments';
 import { useCommentStore } from '../../stores/comment-store';
 import { getLocale } from '@/lib/i18n';
 import { localizePath } from '@/lib/locale-path';
+import { sanitizeCommentContent } from '@/lib/security/sanitize';
 
 /**
  * Hook to detect if user is on mobile device
@@ -328,16 +329,14 @@ const MobileCommentItem: React.FC<MobileCommentItemProps> = ({
               />
             </div>
           ) : (
-            <div className="mb-3">
-              <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
-                {comment.content}
-              </p>
-              {comment.isEdited && (
-                <span className="text-xs text-gray-500 dark:text-gray-400 block mt-1">
-                  (bearbeitet)
-                </span>
-              )}
+            <div className="mb-3 text-sm text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
+              <div dangerouslySetInnerHTML={{ __html: sanitizedContent }} />
             </div>
+          )}
+          {comment.isEdited && (
+            <span className="text-xs text-gray-500 dark:text-gray-400 block mt-1">
+              (bearbeitet)
+            </span>
           )}
 
           {/* Comment Stats */}
@@ -561,6 +560,7 @@ interface MobileCommentFABProps {
 const MobileCommentFAB: React.FC<MobileCommentFABProps> = ({ onNewComment, currentUser }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const locale = getLocale(typeof window !== 'undefined' ? window.location.pathname : '/');
+  const formattedDate = new Date(comment.createdAt * 1000).toLocaleString(locale);
   const loginUrl =
     localizePath(locale, '/login') +
     (typeof window !== 'undefined'

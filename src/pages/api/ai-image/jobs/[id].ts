@@ -35,7 +35,8 @@ export const GET = withApiMiddleware(
     }
 
     const ownerType: OwnerType = locals.user?.id ? 'user' : 'guest';
-    const ownerId = ownerType === 'user' && locals.user?.id ? locals.user.id : ensureGuestIdCookie(context);
+    const ownerId =
+      ownerType === 'user' && locals.user?.id ? locals.user.id : ensureGuestIdCookie(context);
     const plan =
       ownerType === 'user'
         ? (((locals.user as { plan?: Plan } | null)?.plan ?? 'free') as Plan)

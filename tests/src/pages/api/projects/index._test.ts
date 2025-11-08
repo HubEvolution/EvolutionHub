@@ -27,9 +27,7 @@ describe('Projects API Tests', () => {
     }));
 
     // Korrigiertes Mock für crypto.randomUUID
-    vi.spyOn(crypto, 'randomUUID').mockImplementation(
-      () => '00000000-0000-0000-0000-000000000000'
-    );
+    vi.spyOn(crypto, 'randomUUID').mockImplementation(() => '00000000-0000-0000-0000-000000000000');
   });
 
   afterEach(() => {

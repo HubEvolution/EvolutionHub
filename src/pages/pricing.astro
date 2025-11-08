@@ -2,14 +2,16 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import PricingTable from '@/components/pricing/PricingTable.astro';
 import FeatureComparison from '@/components/pricing/FeatureComparison.astro';
-import { getI18n } from '@/utils/i18n';
+import { getI18n, getI18nArray } from '@/utils/i18n';
 import { getLocale } from '@/lib/i18n';
 import { localizePath } from '@/lib/locale-path';
 import Card from '@/components/ui/Card';
+import Button from '@/components/ui/Button.astro';
 
 // Set page metadata
 const locale = getLocale(Astro.url.pathname);
 const t = getI18n(locale);
+const ta = getI18nArray(locale);
 const title =
   locale === 'en'
     ? 'Plans & pricing: credits, monthly plans & starter packages'
@@ -36,6 +38,63 @@ const billingMessage = (() => {
       return null;
   }
 })();
+
+interface CreditPack {
+  id: number;
+  title: string;
+  price: string;
+  description: string;
+  bullets: string[];
+  cta: string;
+  buttonVariant: 'primary' | 'secondary' | 'outline' | 'ghost' | 'link' | 'accent';
+}
+
+const sanitize = (value: string | null | undefined) => {
+  if (!value) return '';
+  const trimmed = value.trim();
+  if (!trimmed) return '';
+  if (trimmed.startsWith('[') && trimmed.endsWith(']')) return '';
+  if (/fallback_not_found/i.test(trimmed)) return '';
+  return trimmed;
+};
+
+const creditDetailsLabel = sanitize(t('pages.pricing.credits_packs.details.trigger')) || 'Details';
+
+const creditPacks: CreditPack[] = [
+  {
+    id: 100,
+    title: t('pages.pricing.credits_packs.cards.100.title') || '100 credits',
+    price: t('pages.pricing.credits_packs.cards.100.price') || '€6.00',
+    description:
+      t('pages.pricing.credits_packs.cards.100.description') ||
+      'Perfect for quick experiments or occasional enhancements.',
+    bullets: ta('pages.pricing.credits_packs.cards.100.bullets') || [],
+    cta: t('pages.pricing.credits_packs.cards.100.cta') || 'Buy 100 credits',
+    buttonVariant: 'secondary',
+  },
+  {
+    id: 500,
+    title: t('pages.pricing.credits_packs.cards.500.title') || '500 credits',
+    price: t('pages.pricing.credits_packs.cards.500.price') || '€22.00',
+    description:
+      t('pages.pricing.credits_packs.cards.500.description') ||
+      'Great for active creators running weekly jobs.',
+    bullets: ta('pages.pricing.credits_packs.cards.500.bullets') || [],
+    cta: t('pages.pricing.credits_packs.cards.500.cta') || 'Buy 500 credits',
+    buttonVariant: 'primary',
+  },
+  {
+    id: 1500,
+    title: t('pages.pricing.credits_packs.cards.1500.title') || '1500 credits',
+    price: t('pages.pricing.credits_packs.cards.1500.price') || '€55.00',
+    description:
+      t('pages.pricing.credits_packs.cards.1500.description') ||
+      'Best for production-scale batches and agency workloads.',
+    bullets: ta('pages.pricing.credits_packs.cards.1500.bullets') || [],
+    cta: t('pages.pricing.credits_packs.cards.1500.cta') || 'Buy 1500 credits',
+    buttonVariant: 'accent',
+  },
+];
 const retryHref = (() => {
   try {
     const u = new URL('/api/billing/portal', 'http://x');
@@ -88,6 +147,10 @@ const retryHref = (() => {
           >{t('pages.pricing.sections.plans') || 'Plans'}</a
         >
         <span aria-hidden>·</span>
+        <a href="#credit-packs" class="hover:text-gray-900 dark:hover:text-gray-200"
+          >{t('pages.pricing.sections.credits_packs') || 'Credit packs'}</a
+        >
+        <span aria-hidden>·</span>
         <a href="#comparison" class="hover:text-gray-900 dark:hover:text-gray-200"
           >{t('pages.pricing.sections.comparison') || 'Comparison'}</a
         >
@@ -124,54 +187,103 @@ const retryHref = (() => {
         <PricingTable />
       </section>
 
-      <Card as="section" variant="holo" className="mt-8 rounded-2xl p-6">
-        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h2 class="text-lg font-bold text-gray-900 dark:text-white">
-              {t('pages.pricing.credits_packs.title') || 'Buy extra credits'}
-            </h2>
-            <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">
-              {
-                t('pages.pricing.credits_packs.subtitle') ||
-                  'One-time packs to top up your monthly quota.'
-              }
-            </p>
-          </div>
-          <div class="flex flex-wrap gap-2">
-            <button
-              id="buy-credits-100"
-              type="button"
-              class="inline-flex items-center rounded-md px-3 py-1.5 text-xs ring-1 ring-emerald-400/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-200 hover:ring-emerald-400/60"
-            >
-              100 credits
-            </button>
-            <button
-              id="buy-credits-500"
-              type="button"
-              class="inline-flex items-center rounded-md px-3 py-1.5 text-xs ring-1 ring-indigo-400/30 bg-indigo-500/10 text-indigo-700 dark:text-indigo-200 hover:ring-indigo-400/60"
-            >
-              500 credits
-            </button>
-            <button
-              id="buy-credits-1500"
-              type="button"
-              class="inline-flex items-center rounded-md px-3 py-1.5 text-xs ring-1 ring-fuchsia-400/30 bg-fuchsia-500/10 text-fuchsia-700 dark:text-fuchsia-200 hover:ring-fuchsia-400/60"
-            >
-              1500 credits
-            </button>
-          </div>
+      <section id="credit-packs" class="mt-8" aria-labelledby="credit-packs-heading">
+        <div class="mb-6 text-center">
+          <h2
+            id="credit-packs-heading"
+            class="text-2xl font-bold text-gray-900 dark:text-white"
+          >
+            {t('pages.pricing.credits_packs.title') || 'Buy extra credits'}
+          </h2>
+          <p class="mt-2 text-sm text-gray-600 dark:text-gray-300">
+            {
+              t('pages.pricing.credits_packs.subtitle') ||
+                'One-time packs to top up your monthly quota.'
+            }
+          </p>
         </div>
-      </Card>
+
+        <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
+          {creditPacks.map((pack: CreditPack) => (
+            <Card variant="holo" className="relative flex h-full flex-col rounded-2xl p-6">
+              <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
+                {pack.title}
+              </h3>
+              <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">{pack.description}</p>
+
+              <div class="mt-6 flex items-baseline gap-2">
+                <span class="text-3xl font-bold text-gray-900 dark:text-white">{pack.price}</span>
+                <span class="text-sm text-gray-500 dark:text-gray-400">one-time</span>
+              </div>
+
+              {pack.bullets.length > 0 && (
+                <ul class="mt-6 space-y-2 text-sm text-gray-700 dark:text-gray-200">
+                  {pack.bullets.map((bullet: string) => (
+                    <li class="flex items-start gap-2">
+                      <svg
+                        class="mt-0.5 h-4 w-4 flex-none text-emerald-500"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        aria-hidden="true"
+                      >
+                        <path d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span>{bullet}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+
+              <Button
+                id={`buy-credits-${pack.id}`}
+                type="button"
+                variant={pack.buttonVariant}
+                size="md"
+                className="mt-8"
+              >
+                {pack.cta}
+              </Button>
+
+              <button
+                type="button"
+                class="mt-4 inline-flex items-center gap-2 text-sm font-medium text-primary-200 transition hover:text-primary-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-400"
+                data-pricing-detail-trigger
+                data-pricing-detail-kind="credit"
+                data-pricing-detail-id={String(pack.id)}
+                aria-haspopup="dialog"
+              >
+                {creditDetailsLabel}
+                <svg
+                  class="h-4 w-4"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="m9 5 7 7-7 7" />
+                </svg>
+              </button>
+            </Card>
+          ))}
+        </div>
+      </section>
 
       <section class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4" aria-label="Highlights">
         <Card variant="holo" className="p-4 rounded-2xl">
           <h3 class="font-semibold text-gray-900 dark:text-white">
-            {t('pages.pricing.highlights.tools_title') || 'All 4 tools included'}
+            {t('pages.pricing.highlights.tools_title') || 'All 5 tools included'}
           </h3>
           <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">
             {
               t('pages.pricing.highlights.tools_desc') ||
-                'Use Imag‑Enhancer, Prompt Enhancer, Voice Transcriptor, Webscraper'
+                'Use Imag‑Enhancer, Video Enhancer, Prompt Enhancer, Voice Transcriptor, Webscraper'
             }
           </p>
         </Card>

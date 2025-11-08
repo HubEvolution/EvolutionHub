@@ -1,0 +1,12 @@
+version: v1.27.0
+ignore:
+  SNYK-JS-TARFS-9535930:
+    - '*':
+        reason: "tar-fs is pulled in via better-sqlite3's prebuild-install dependency; latest non-breaking releases still resolve to 2.x and there is no patched build that supports our current stack."
+        expires: '2026-04-01T00:00:00.000Z'
+        notes: "Revisit once prebuild-install publishes a release compatible with Node 18/our toolchain that depends on tar-fs >=3.0.9."
+  SNYK-JS-INFLIGHT-6095116:
+    - '*':
+        reason: "inflight@1.0.6 is introduced through transitive glob@7.x dependencies (sqlite3, @redocly/cli); upgrading to glob 9 requires major upstream changes that are not yet available."
+        expires: '2026-04-01T00:00:00.000Z'
+        notes: "Monitor upstream releases of sqlite3/node-gyp and @redocly/cli for a migration path that removes glob@7.x."

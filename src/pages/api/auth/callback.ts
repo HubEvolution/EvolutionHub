@@ -11,6 +11,7 @@ import type { Locale } from '@/lib/i18n';
 import { stytchMagicLinkAuthenticate } from '@/lib/stytch';
 import { createSession } from '@/lib/auth-v2';
 import { recordReferralSignup } from '@/lib/services/referral-event-service';
+import { logUserEvent } from '@/lib/security-logger';
 
 function isAllowedRelativePath(r: string): boolean {
   return typeof r === 'string' && r.startsWith('/') && !r.startsWith('//');
@@ -166,20 +167,37 @@ const getHandler: ApiHandler = async (context: APIContext) => {
   const upsert = await upsertUser(db, email, desiredName, desiredUsername);
   durUpsert = Date.now() - _tUpsert;
 
-  try {
-    const referralCookie = context.cookies.get('post_auth_referral')?.value || '';
-    if (referralCookie) {
-      await recordReferralSignup(db, {
+  const referralCookie = context.cookies.get('post_auth_referral')?.value || '';
+  if (referralCookie) {
+    try {
+      const referralResult = await recordReferralSignup(db, {
         referralCode: referralCookie,
         referredUserId: upsert.id,
         occurredAt: Date.now(),
         status: upsert.isNew ? 'verified' : 'pending',
       });
+
+      if (referralResult.recorded) {
+        logUserEvent(upsert.id, 'referral_signup_recorded', {
+          referralCode: referralCookie,
+          signupStatus: upsert.isNew ? 'verified' : 'pending',
+        });
+      } else {
+        logUserEvent(upsert.id, 'referral_signup_skipped', {
+          referralCode: referralCookie,
+          reason: referralResult.reason ?? 'unknown',
+        });
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error('[auth][magic][callback] referral_record_failed', {
+        message,
+      });
+      logUserEvent(upsert.id, 'referral_signup_error', {
+        referralCode: referralCookie,
+        message,
+      });
     }
-  } catch (error) {
-    console.error('[auth][magic][callback] referral_record_failed', {
-      message: error instanceof Error ? error.message : String(error),
-    });
   }
 
   try {

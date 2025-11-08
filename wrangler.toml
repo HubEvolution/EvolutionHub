@@ -17,6 +17,7 @@ enabled = false
 # Cloudflare Workers AI binding (available to all envs)
 [ai]
 binding = "AI"
+remote = true
 
 # D1 Datenbank-Binding
 [[d1_databases]]

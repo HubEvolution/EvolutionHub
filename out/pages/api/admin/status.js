@@ -4,24 +4,27 @@ exports.HEAD = exports.OPTIONS = exports.DELETE = exports.PATCH = exports.PUT = 
 const api_middleware_1 = require("@/lib/api-middleware");
 const usage_1 = require("@/lib/kv/usage");
 const auth_helpers_1 = require("@/lib/auth-helpers");
+function getAdminEnv(context) {
+    const env = (context.locals?.runtime?.env ?? {});
+    return (env ?? {});
+}
 // Read-only admin status for the logged-in user
 // Response shape (consistent): { success: boolean, data?: T, error?: string }
 exports.GET = (0, api_middleware_1.withAuthApiMiddleware)(async (context) => {
     const { locals } = context;
     const user = locals.user;
-    const env = (locals?.runtime?.env ?? {});
+    const env = getAdminEnv(context);
     if (!user) {
         return (0, api_middleware_1.createApiError)('auth_error', 'Unauthorized');
     }
     const db = env.DB;
     const kv = env.KV_AI_ENHANCER;
+    if (!db) {
+        return (0, api_middleware_1.createApiError)('server_error', 'Database unavailable');
+    }
     // Enforce admin-only access
     try {
-        await (0, auth_helpers_1.requireAdmin)({
-            req: { header: (n) => context.request.headers.get(n) || undefined },
-            request: context.request,
-            env: { DB: db },
-        });
+        await (0, auth_helpers_1.requireAdmin)({ request: context.request, env: { DB: db } });
     }
     catch {
         return (0, api_middleware_1.createApiError)('forbidden', 'Insufficient permissions');

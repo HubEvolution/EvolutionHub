@@ -5,9 +5,13 @@ const api_middleware_1 = require("@/lib/api-middleware");
 const rate_limiter_1 = require("@/lib/rate-limiter");
 const usage_1 = require("@/lib/kv/usage");
 const auth_helpers_1 = require("@/lib/auth-helpers");
+function getAdminEnv(context) {
+    const env = (context.locals?.runtime?.env ?? {});
+    return (env ?? {});
+}
 exports.POST = (0, api_middleware_1.withAuthApiMiddleware)(async (context) => {
     const { locals } = context;
-    const env = (locals.runtime?.env ?? {});
+    const env = getAdminEnv(context);
     if (!locals.user?.id) {
         return (0, api_middleware_1.createApiError)('auth_error', 'Unauthorized');
     }
@@ -29,15 +33,32 @@ exports.POST = (0, api_middleware_1.withAuthApiMiddleware)(async (context) => {
     catch {
         return (0, api_middleware_1.createApiError)('forbidden', 'Insufficient permissions');
     }
-    let body = null;
+    let body;
     try {
-        body = (await context.request.json());
+        body = await context.request.json();
     }
     catch {
         return (0, api_middleware_1.createApiError)('validation_error', 'Invalid JSON');
     }
-    const targetEmail = (body?.email || '').trim().toLowerCase();
-    const amount = Math.max(1, Math.min(100000, Math.floor(Number(body?.amount ?? 1000))));
+    if (!body || typeof body !== 'object') {
+        return (0, api_middleware_1.createApiError)('validation_error', 'Invalid request payload');
+    }
+    const { email, amount } = body;
+    const targetEmail = typeof email === 'string' ? email.trim().toLowerCase() : '';
+    if (!targetEmail || !targetEmail.includes('@')) {
+        return (0, api_middleware_1.createApiError)('validation_error', 'Valid recipient email required');
+    }
+    const parsedAmount = (() => {
+        if (typeof amount === 'number' && Number.isFinite(amount))
+            return amount;
+        if (typeof amount === 'string' && amount.trim().length > 0) {
+            const numeric = Number.parseFloat(amount.trim());
+            if (Number.isFinite(numeric))
+                return numeric;
+        }
+        return 1000;
+    })();
+    const normalizedAmount = Math.max(1, Math.min(100000, Math.floor(parsedAmount)));
     // Lookup user id by email
     const row = await db
         .prepare(`SELECT id FROM users WHERE lower(email) = ?1 LIMIT 1`)
@@ -48,7 +69,7 @@ exports.POST = (0, api_middleware_1.withAuthApiMiddleware)(async (context) => {
     }
     const userId = row.id;
     const packId = `manual-topup-${Date.now()}`;
-    const unitsTenths = Math.round(amount * 10);
+    const unitsTenths = Math.round(normalizedAmount * 10);
     await (0, usage_1.addCreditPackTenths)(kv, userId, packId, unitsTenths);
     const balanceTenths = await (0, usage_1.getCreditsBalanceTenths)(kv, userId);
     const ip = typeof context.clientAddress === 'string' ? context.clientAddress : null;
@@ -56,7 +77,7 @@ exports.POST = (0, api_middleware_1.withAuthApiMiddleware)(async (context) => {
         await db
             .prepare(`INSERT INTO audit_logs (id, event_type, actor_user_id, actor_ip, resource, action, details, created_at)
            VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)`)
-            .bind(crypto.randomUUID(), 'ADMIN_ACTION', locals.user?.id || null, ip, 'credits', 'credit_grant', JSON.stringify({ email: targetEmail, userId, amount, packId }), Date.now())
+            .bind(crypto.randomUUID(), 'ADMIN_ACTION', locals.user?.id || null, ip, 'credits', 'credit_grant', JSON.stringify({ email: targetEmail, userId, amount: normalizedAmount, packId }), Date.now())
             .run();
     }
     catch { }
@@ -64,7 +85,7 @@ exports.POST = (0, api_middleware_1.withAuthApiMiddleware)(async (context) => {
     return (0, api_middleware_1.createApiSuccess)({
         email: targetEmail,
         userId,
-        granted: amount,
+        granted: normalizedAmount,
         balance,
         packId,
     });

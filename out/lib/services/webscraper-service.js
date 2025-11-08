@@ -9,6 +9,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.WebscraperService = void 0;
 const logger_factory_1 = require("@/server/utils/logger-factory");
+const logger_utils_1 = require("@/lib/services/logger-utils");
 const cheerio = require("cheerio");
 const webscraper_1 = require("@/config/webscraper");
 class WebscraperService {
@@ -18,29 +19,14 @@ class WebscraperService {
         this.publicFlag = this.env.PUBLIC_WEBSCRAPER_V1 !== 'false';
     }
     // Safe logger helpers
-    logInfo(event, data) {
-        try {
-            void (this.log?.info ? this.log.info(event, data) : this.log?.log?.(event, data));
-        }
-        catch {
-            // Ignore logging failures
-        }
+    logInfo(event, context) {
+        logger_utils_1.loggerHelpers.info(this.log, event, context);
     }
-    logWarn(event, data) {
-        try {
-            void (this.log?.warn ? this.log.warn(event, data) : this.log?.info?.(event, data));
-        }
-        catch {
-            // Ignore logging failures
-        }
+    logWarn(event, context) {
+        logger_utils_1.loggerHelpers.warn(this.log, event, context);
     }
-    logError(event, data) {
-        try {
-            void (this.log?.error ? this.log.error(event, data) : this.log?.info?.(event, data));
-        }
-        catch {
-            // Ignore logging failures
-        }
+    logError(event, context) {
+        logger_utils_1.loggerHelpers.error(this.log, event, context);
     }
     /**
      * Validate URL format and security

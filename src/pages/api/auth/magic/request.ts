@@ -83,7 +83,9 @@ const parseBody = async (
             ? (form.get('cf-turnstile-response') as string)
             : undefined,
         referralCode:
-          typeof form.get('referralCode') === 'string' ? (form.get('referralCode') as string) : undefined,
+          typeof form.get('referralCode') === 'string'
+            ? (form.get('referralCode') as string)
+            : undefined,
       };
     } catch {
       return {};
@@ -115,7 +117,8 @@ function isValidUsername(username: string | undefined): username is string {
 
 const handler: ApiHandler = async (context: APIContext) => {
   const { request } = context;
-  const { email, r, name, username, locale, turnstileToken, referralCode } = await parseBody(request);
+  const { email, r, name, username, locale, turnstileToken, referralCode } =
+    await parseBody(request);
   if (!email || !isValidEmail(email)) {
     return createApiError('validation_error', 'Ungültige E-Mail-Adresse');
   }

@@ -1,6 +1,19 @@
 import { withAuthApiMiddleware, createApiError } from '@/lib/api-middleware';
 import { logUserEvent } from '@/lib/security-logger';
 import Stripe from 'stripe';
+import type { D1Database } from '@cloudflare/workers-types';
+
+interface AccountDeletionEnv {
+  DB: D1Database;
+  STRIPE_SECRET?: string;
+}
+
+type AccountDeletionRequestBody = {
+  confirm?: unknown;
+  cancelSubscription?: unknown;
+};
+
+type D1Statement = ReturnType<D1Database['prepare']>;
 
 /**
  * DELETE /api/user/account
@@ -17,24 +30,30 @@ import Stripe from 'stripe';
 export const DELETE = withAuthApiMiddleware(
   async (context) => {
     const { locals, clientAddress, request } = context;
-    const { env } = locals.runtime;
+    const runtimeEnv = (locals.runtime?.env ?? {}) as Partial<AccountDeletionEnv>;
     const user = locals.user;
-    const db = env.DB;
+    const db = runtimeEnv.DB;
 
     // Ensure authenticated user before proceeding
     if (!user) {
       return createApiError('auth_error', 'Unauthorized');
     }
 
+    if (!db) {
+      logUserEvent('system', 'account_deletion_missing_db', {
+        ipAddress: clientAddress,
+      });
+      return createApiError('server_error', 'Database not configured');
+    }
+
     // Optional: Bestätigung einfordern und validieren
     let confirmDelete = false;
     let cancelSubscription = false;
     try {
-      const body = (await request.json().catch(() => null)) as unknown;
+      const body = (await request.json().catch(() => null)) as AccountDeletionRequestBody | null;
       if (body && typeof body === 'object') {
-        const requestObj = body as Record<string, unknown>;
-        confirmDelete = Boolean(requestObj.confirm);
-        cancelSubscription = Boolean(requestObj.cancelSubscription);
+        confirmDelete = Boolean(body.confirm);
+        cancelSubscription = Boolean(body.cancelSubscription);
       }
     } catch (_error) {
       // JSON parsing error ignorieren, confirmDelete bleibt false
@@ -56,7 +75,7 @@ export const DELETE = withAuthApiMiddleware(
       cancel_at_period_end: number | null;
     };
 
-    const activeSubscriptions = await db
+    const subscriptionQuery = await db
       .prepare(
         `SELECT id, plan, status, current_period_end, cancel_at_period_end
          FROM subscriptions
@@ -67,6 +86,8 @@ export const DELETE = withAuthApiMiddleware(
       )
       .bind(user.id)
       .all<SubscriptionRow>();
+
+    const activeSubscriptions = subscriptionQuery.results ?? [];
 
     if (activeSubscriptions.length > 0) {
       const activeSubscriptionIds = activeSubscriptions.map((subscription) => subscription.id);
@@ -93,11 +114,12 @@ export const DELETE = withAuthApiMiddleware(
         );
       }
 
-      if (!env.STRIPE_SECRET) {
+      const stripeSecret = runtimeEnv.STRIPE_SECRET;
+      if (!stripeSecret) {
         return createApiError('server_error', 'Stripe not configured');
       }
 
-      const stripe = new Stripe(env.STRIPE_SECRET);
+      const stripe = new Stripe(stripeSecret);
 
       for (const subscription of activeSubscriptions) {
         try {
@@ -135,7 +157,7 @@ export const DELETE = withAuthApiMiddleware(
     try {
       // Transaktion starten für atomare Operationen
       // Hinweis: D1 unterstützt derzeit keine echten Transaktionen, wir verwenden batch als Alternative
-      const statements = [];
+      const statements: D1Statement[] = [];
 
       // 1. Alle Sessions des Benutzers löschen (Abmeldung auf allen Geräten)
       statements.push(db.prepare('DELETE FROM sessions WHERE user_id = ?').bind(user.id));

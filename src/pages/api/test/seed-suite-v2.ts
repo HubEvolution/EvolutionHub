@@ -27,7 +27,9 @@ async function ensureUserSchema(db: D1Database) {
           created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
           password_hash TEXT,
           email_verified INTEGER NOT NULL DEFAULT 0,
-          email_verified_at INTEGER NULL
+          email_verified_at INTEGER NULL,
+          plan TEXT DEFAULT 'free',
+          role TEXT DEFAULT 'user'
         )`
       )
       .run();
@@ -67,6 +69,12 @@ async function ensureUserSchema(db: D1Database) {
     }
     if (!cols.has('email_verified_at')) {
       await db.prepare('ALTER TABLE users ADD COLUMN email_verified_at INTEGER NULL').run();
+    }
+    if (!cols.has('plan')) {
+      await db.prepare("ALTER TABLE users ADD COLUMN plan TEXT DEFAULT 'free'").run();
+    }
+    if (!cols.has('role')) {
+      await db.prepare("ALTER TABLE users ADD COLUMN role TEXT DEFAULT 'user'").run();
     }
   } catch (e) {
     // Best-effort; if ALTER fails because columns exist or PRAGMA unsupported, continue.
@@ -113,8 +121,8 @@ async function seedSuiteV2Users(db: D1Database) {
     const stmt = db.prepare(
       `INSERT INTO users (
         id, name, username, full_name, email, image, created_at,
-        password_hash, email_verified, email_verified_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, ?)
+        password_hash, email_verified, email_verified_at, plan, role
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?)
       ON CONFLICT(email) DO UPDATE SET
         name=excluded.name,
         username=excluded.username,
@@ -123,17 +131,48 @@ async function seedSuiteV2Users(db: D1Database) {
         created_at=excluded.created_at,
         password_hash=excluded.password_hash,
         email_verified=excluded.email_verified,
-        email_verified_at=excluded.email_verified_at`
+        email_verified_at=excluded.email_verified_at,
+        plan=excluded.plan,
+        role=excluded.role`
     );
 
     await stmt
-      .bind(u.id, u.name, u.username, u.full_name, u.email, null, nowIso, passwordHash, nowUnix)
+      .bind(
+        u.id,
+        u.name,
+        u.username,
+        u.full_name,
+        u.email,
+        null,
+        nowIso,
+        passwordHash,
+        nowUnix,
+        'free',
+        u.email === 'admin@test-suite.local' ? 'admin' : 'user'
+      )
       .run();
 
     results.push({ email: u.email, id: u.id });
   }
 
   return results;
+}
+
+const ADMIN_SESSION_ID = 'e2e-admin-session-0001';
+
+async function ensureAdminSession(db: D1Database) {
+  const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+
+  await db
+    .prepare(
+      `INSERT INTO sessions (id, user_id, expires_at)
+       VALUES (?1, ?2, ?3)
+       ON CONFLICT(id) DO UPDATE SET
+         user_id = excluded.user_id,
+         expires_at = excluded.expires_at`
+    )
+    .bind(ADMIN_SESSION_ID, 'e2e-admin-0001', expiresAt)
+    .run();
 }
 
 function isAllowed(context: APIContext): boolean {
@@ -169,6 +208,8 @@ async function handler(context: APIContext) {
     await ensureUserSchema(db);
 
     const seeded = await seedSuiteV2Users(db);
+
+    await ensureAdminSession(db);
 
     return createSecureJsonResponse({ success: true, seeded }, 200);
   } catch (e) {

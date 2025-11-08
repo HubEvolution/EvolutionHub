@@ -2,20 +2,21 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.HEAD = exports.OPTIONS = exports.DELETE = exports.PATCH = exports.PUT = exports.POST = exports.GET = void 0;
 const api_middleware_1 = require("@/lib/api-middleware");
+const rate_limiter_1 = require("@/lib/rate-limiter");
 const auth_helpers_1 = require("@/lib/auth-helpers");
+function getAdminEnv(context) {
+    const env = (context.locals?.runtime?.env ?? {});
+    return (env ?? {});
+}
 exports.GET = (0, api_middleware_1.withAuthApiMiddleware)(async (context) => {
-    const rawEnv = (context.locals
-        ?.runtime?.env || {});
-    const dbMaybe = rawEnv.DB;
-    if (!dbMaybe)
+    const env = getAdminEnv(context);
+    const db = env.DB;
+    if (!db) {
         return (0, api_middleware_1.createApiError)('server_error', 'Database unavailable');
-    const db = dbMaybe;
+    }
+    const database = db;
     try {
-        await (0, auth_helpers_1.requireAdmin)({
-            req: { header: (n) => context.request.headers.get(n) || undefined },
-            request: context.request,
-            env: { DB: db },
-        });
+        await (0, auth_helpers_1.requireAdmin)({ request: context.request, env: { DB: database } });
     }
     catch {
         return (0, api_middleware_1.createApiError)('forbidden', 'Insufficient permissions');
@@ -23,7 +24,7 @@ exports.GET = (0, api_middleware_1.withAuthApiMiddleware)(async (context) => {
     // Helpers to run scalar queries safely
     async function scalar(sql, ...binds) {
         try {
-            const row = await db
+            const row = await database
                 .prepare(sql)
                 .bind(...binds)
                 .first();
@@ -51,7 +52,7 @@ exports.GET = (0, api_middleware_1.withAuthApiMiddleware)(async (context) => {
         usersNew24h,
         ts: Date.now(),
     });
-});
+}, { rateLimiter: rate_limiter_1.apiRateLimiter, logMetadata: { action: 'admin_metrics' } });
 // 405 for unsupported methods
 const methodNotAllowed = () => (0, api_middleware_1.createMethodNotAllowed)('GET');
 exports.POST = methodNotAllowed;

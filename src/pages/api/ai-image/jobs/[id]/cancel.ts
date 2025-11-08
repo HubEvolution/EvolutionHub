@@ -34,7 +34,8 @@ export const POST = withApiMiddleware(
     }
 
     const ownerType: OwnerType = locals.user?.id ? 'user' : 'guest';
-    const ownerId = ownerType === 'user' && locals.user?.id ? locals.user.id : ensureGuestIdCookie(context);
+    const ownerId =
+      ownerType === 'user' && locals.user?.id ? locals.user.id : ensureGuestIdCookie(context);
 
     const env = (locals.runtime?.env ?? {}) as App.Locals['runtime']['env'];
     const deps = { db: env.DB, isDevelopment: env.ENVIRONMENT !== 'production' };

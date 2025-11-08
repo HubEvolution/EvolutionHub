@@ -58,7 +58,7 @@ export const POST = withAuthApiMiddleware(
 
     const jobType: BackupOptions['type'] = type;
     const jobTables = Array.isArray(tables)
-      ? (tables.filter((t): t is string => typeof t === 'string') || undefined)
+      ? tables.filter((t): t is string => typeof t === 'string') || undefined
       : undefined;
 
     try {

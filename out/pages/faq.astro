@@ -378,8 +378,8 @@ const faqCategories = orderedIds.map((id) => ({
     const categoryButtons = Array.from(document.querySelectorAll('#faq-categories button'));
     const searchInput = document.querySelector('#faq-search');
     const faqItems = Array.from(document.querySelectorAll('[data-faq-item]'));
-    const sections = Array.from(document.querySelectorAll('div[data-faq-section]')).filter((section) =>
-      section.querySelector('[data-faq-item]'),
+    const sections = Array.from(document.querySelectorAll('div[data-faq-section]')).filter(
+      (section) => section.querySelector('[data-faq-item]')
     );
     const noResults = document.querySelector('[data-faq-no-results]');
 
@@ -398,7 +398,7 @@ const faqCategories = orderedIds.map((id) => ({
         const expanded = button.getAttribute('aria-expanded') === 'true';
         const controls = button.getAttribute('aria-controls') ?? '';
         const content = document.getElementById(controls);
-        button.setAttribute('aria-expanded', (!expanded).toString());
+        button.setAttribute('aria-expanded', !expanded.toString());
         if (content) {
           content.toggleAttribute('hidden', expanded);
         }

@@ -7,6 +7,7 @@ import { getLocale } from '@/lib/i18n';
 import { getI18n } from '@/utils/i18n';
 import { getAllTools, getToolCategories, type ToolCategory } from '@/lib/tools-data';
 import Card from '@/components/ui/Card';
+import { isToolsFilterEnabled } from '@/utils/feature-flags';
 
 // Get search params for filtering
 const searchParams = Astro.url.searchParams;
@@ -25,20 +26,19 @@ const filteredTools = allTools.filter((tool) => {
   return matchesCategory && matchesSearch;
 });
 
+// Hidden placeholders should not render cards.
+const availableTools = filteredTools.filter((tool) => !tool.comingSoon);
+
 // Get categories for filter (localized)
 const categories: { id: ToolCategory; name: string }[] = getToolCategories(locale);
-// Order: available first (comingSoon=false), then coming soon. Within available, keep
-// deterministic priority: 1) Imag-Enhancer 2) video-enhancer, then others in original order.
+// Keep deterministic priority: 1) Imag-Enhancer 2) video-enhancer, then others in original order.
 const priority: string[] = ['Imag-Enhancer', 'video-enhancer'];
-const available = filteredTools.filter((t) => !t.comingSoon);
-const coming = filteredTools.filter((t) => t.comingSoon);
-const availablePrioritized = [
-  ...available
-    .filter((t) => priority.includes(t.id))
+const displayTools = [
+  ...availableTools
+    .filter((tool) => priority.includes(tool.id))
     .sort((a, b) => priority.indexOf(a.id) - priority.indexOf(b.id)),
-  ...available.filter((t) => !priority.includes(t.id)),
+  ...availableTools.filter((tool) => !priority.includes(tool.id)),
 ];
-const displayTools = [...availablePrioritized, ...coming];
 ---
 
 <style is:global>
@@ -74,17 +74,19 @@ const displayTools = [...availablePrioritized, ...coming];
       </div>
 
       <!-- Search and Filter Section -->
-      <ToolFilter
-        {categories}
-        activeCategory={activeCategory}
-        searchQuery={searchQuery}
-        resultCount={filteredTools.length}
-      />
+      {isToolsFilterEnabled() && (
+        <ToolFilter
+          {categories}
+          activeCategory={activeCategory}
+          searchQuery={searchQuery}
+          resultCount={availableTools.length}
+        />
+      )}
 
       <!-- Tools Grid -->
       <div id="tools-container">
         {
-          filteredTools.length > 0 ? (
+          availableTools.length > 0 ? (
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 items-stretch gap-6 mt-8">
               {displayTools.map((tool) => (
                 <ToolCard

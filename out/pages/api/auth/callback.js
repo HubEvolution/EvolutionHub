@@ -6,6 +6,7 @@ const response_helpers_1 = require("@/lib/response-helpers");
 const locale_path_1 = require("@/lib/locale-path");
 const stytch_1 = require("@/lib/stytch");
 const auth_v2_1 = require("@/lib/auth-v2");
+const referral_event_service_1 = require("@/lib/services/referral-event-service");
 function isAllowedRelativePath(r) {
     return typeof r === 'string' && r.startsWith('/') && !r.startsWith('//');
 }
@@ -150,6 +151,28 @@ const getHandler = async (context) => {
     const _tUpsert = Date.now();
     const upsert = await upsertUser(db, email, desiredName, desiredUsername);
     durUpsert = Date.now() - _tUpsert;
+    try {
+        const referralCookie = context.cookies.get('post_auth_referral')?.value || '';
+        if (referralCookie) {
+            await (0, referral_event_service_1.recordReferralSignup)(db, {
+                referralCode: referralCookie,
+                referredUserId: upsert.id,
+                occurredAt: Date.now(),
+                status: upsert.isNew ? 'verified' : 'pending',
+            });
+        }
+    }
+    catch (error) {
+        console.error('[auth][magic][callback] referral_record_failed', {
+            message: error instanceof Error ? error.message : String(error),
+        });
+    }
+    try {
+        context.cookies.delete('post_auth_referral', { path: '/' });
+    }
+    catch (_err) {
+        // Ignore referral cookie deletion failures
+    }
     // Create app session
     const session = await (0, auth_v2_1.createSession)(db, upsert.id);
     const isHttps = url.protocol === 'https:';

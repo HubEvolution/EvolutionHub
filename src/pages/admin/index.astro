@@ -24,6 +24,43 @@ type AdminStatusPayload = {
   };
 };
 
+type AdminReferralSummaryPayload = {
+  success: boolean;
+  data?: {
+    stats: {
+      totals: {
+        totalEvents: number;
+        totalCredits: number;
+        ownerCount: number;
+        referredCount: number;
+      };
+      breakdown: {
+        pending: number;
+        verified: number;
+        paid: number;
+        cancelled: number;
+      };
+    };
+    recentEvents: Array<{
+      id: string;
+      status: 'pending' | 'verified' | 'paid' | 'cancelled';
+      referralCode: string;
+      creditsAwarded: number;
+      occurredAt: number;
+      owner: { userId: string; email?: string; name?: string };
+      referred: { userId: string; email?: string } | null;
+    }>;
+    topOwners: Array<{
+      userId: string;
+      email?: string;
+      name?: string;
+      eventCount: number;
+      totalCredits: number;
+      lastEventAt: number;
+    }>;
+  };
+};
+
 async function fetchAdminStatus(): Promise<AdminStatusPayload | null> {
   const ac = new AbortController();
   const timer = setTimeout(() => ac.abort('timeout'), 2500);
@@ -42,9 +79,67 @@ async function fetchAdminStatus(): Promise<AdminStatusPayload | null> {
     clearTimeout(timer);
   }
 }
+
+async function fetchAdminReferralSummary(): Promise<AdminReferralSummaryPayload | null> {
+  const ac = new AbortController();
+  const timer = setTimeout(() => ac.abort('timeout'), 2500);
+  try {
+    const url = new URL('/api/admin/referrals/summary', Astro.url).toString();
+    const res = await fetch(url, {
+      headers: { cookie: Astro.request.headers.get('cookie') ?? '' },
+      cache: 'no-store',
+      signal: ac.signal,
+    });
+    if (!res.ok) return null;
+    return (await res.json()) as AdminReferralSummaryPayload;
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+function formatNumber(value: number | null | undefined): string {
+  if (!Number.isFinite(value)) {
+    return '0';
+  }
+  return new Intl.NumberFormat('de-DE').format(Number(value));
+}
+
+function formatDateTime(timestamp: number | null | undefined): string {
+  if (!timestamp) {
+    return '—';
+  }
+
+  const date = new Date(timestamp);
+  if (Number.isNaN(date.getTime())) {
+    return '—';
+  }
+
+  return new Intl.DateTimeFormat('de-DE', {
+    year: 'numeric',
+    month: 'short',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(date);
+}
+
 const adminStatus = await fetchAdminStatus();
 const adminCommentsList: any[] = [];
 const adminCommentsStats = { total: 0, pending: 0, approved: 0, rejected: 0, flagged: 0 };
+const referralSummaryPayload = await fetchAdminReferralSummary();
+const referralSummaryData = referralSummaryPayload?.success ? referralSummaryPayload.data ?? null : null;
+const referralSummaryError = referralSummaryPayload ? !referralSummaryPayload.success : false;
+const referralStats = referralSummaryData?.stats;
+const referralRecentEvents = referralSummaryData?.recentEvents ?? [];
+const referralTopOwners = referralSummaryData?.topOwners ?? [];
+const referralStatusLabels: Record<'pending' | 'verified' | 'paid' | 'cancelled', string> = {
+  pending: 'Ausstehend',
+  verified: 'Bestätigt',
+  paid: 'Ausgezahlt',
+  cancelled: 'Storniert',
+};
 ---
 
 <BaseLayout title={`Admin Dashboard`} description={`Zentrale Admin-Startseite`}>
@@ -372,6 +467,156 @@ const adminCommentsStats = { total: 0, pending: 0, approved: 0, rejected: 0, fla
               )
             }
           </div>
+        </Card>
+
+        <!-- Referral Insights -->
+        <Card as="section" className="p-6">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Referral Insights</h2>
+              <p class="mt-1 text-sm text-white/70">
+                Übersicht über Referral-Aktivitäten, Top-Owner und Auszahlungen.
+              </p>
+            </div>
+          </div>
+
+          {referralSummaryError ? (
+            <div class="mt-4 rounded-md border border-red-400/40 bg-red-500/10 p-4 text-sm text-red-200">
+              Zusammenfassung konnte nicht geladen werden.
+            </div>
+          ) : referralSummaryData ? (
+            <div class="mt-6 space-y-6">
+              <div class="grid grid-cols-2 gap-4 text-sm text-white/80 sm:grid-cols-4">
+                <div class="rounded-md border border-white/10 bg-white/5 p-3">
+                  <div class="text-xs uppercase tracking-wide text-white/50">Events gesamt</div>
+                  <div class="mt-1 text-xl font-semibold text-white">
+                    {formatNumber(referralStats?.totals.totalEvents ?? 0)}
+                  </div>
+                </div>
+                <div class="rounded-md border border-white/10 bg-white/5 p-3">
+                  <div class="text-xs uppercase tracking-wide text-white/50">Credits gesamt</div>
+                  <div class="mt-1 text-xl font-semibold text-emerald-300">
+                    +{formatNumber(referralStats?.totals.totalCredits ?? 0)}
+                  </div>
+                </div>
+                <div class="rounded-md border border-white/10 bg-white/5 p-3">
+                  <div class="text-xs uppercase tracking-wide text-white/50">Owner mit Events</div>
+                  <div class="mt-1 text-xl font-semibold text-white">
+                    {formatNumber(referralStats?.totals.ownerCount ?? 0)}
+                  </div>
+                </div>
+                <div class="rounded-md border border-white/10 bg-white/5 p-3">
+                  <div class="text-xs uppercase tracking-wide text-white/50">Geworbene Nutzer</div>
+                  <div class="mt-1 text-xl font-semibold text-white">
+                    {formatNumber(referralStats?.totals.referredCount ?? 0)}
+                  </div>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                <div class="space-y-3">
+                  <h3 class="text-sm font-semibold uppercase tracking-wide text-white/60">
+                    Status Breakdown
+                  </h3>
+                  <ul class="space-y-2 text-sm text-white/80">
+                    {(['pending', 'verified', 'paid', 'cancelled'] as const).map((statusKey) => (
+                      <li class="flex items-center justify-between rounded-md border border-white/10 bg-white/5 px-3 py-2">
+                        <span class="text-white/60">{referralStatusLabels[statusKey]}</span>
+                        <span class="font-semibold text-white">
+                          {formatNumber(referralStats?.breakdown[statusKey] ?? 0)}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div class="space-y-3">
+                  <h3 class="text-sm font-semibold uppercase tracking-wide text-white/60">
+                    Top Owner nach Credits
+                  </h3>
+                  {referralTopOwners.length > 0 ? (
+                    <ul class="space-y-2 text-sm text-white/80">
+                      {referralTopOwners.map((owner) => (
+                        <li class="rounded-md border border-white/10 bg-white/5 px-3 py-2">
+                          <div class="flex items-center justify-between">
+                            <div>
+                              <div class="font-semibold text-white">{owner.name ?? owner.email ?? owner.userId}</div>
+                              <div class="text-xs text-white/50">Events: {formatNumber(owner.eventCount)}</div>
+                            </div>
+                            <div class="text-right">
+                              <div class="text-sm font-semibold text-emerald-200">
+                                +{formatNumber(owner.totalCredits)} Credits
+                              </div>
+                              <div class="text-xs text-white/50">
+                                Zuletzt: {formatDateTime(owner.lastEventAt)}
+                              </div>
+                            </div>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p class="text-sm text-white/60">Noch keine Owner mit Auszahlungen.</p>
+                  )}
+                </div>
+              </div>
+
+              <div class="space-y-3">
+                <div class="flex items-center justify-between">
+                  <h3 class="text-sm font-semibold uppercase tracking-wide text-white/60">
+                    Neueste Events
+                  </h3>
+                  <span class="text-xs text-white/50">
+                    {referralRecentEvents.length} Einträge
+                  </span>
+                </div>
+                {referralRecentEvents.length > 0 ? (
+                  <div class="overflow-hidden rounded-lg border border-white/10">
+                    <table class="min-w-full divide-y divide-white/10 text-sm text-white/80">
+                      <thead class="bg-white/5 text-xs uppercase tracking-wide text-white/60">
+                        <tr>
+                          <th class="px-3 py-2 text-left">Status</th>
+                          <th class="px-3 py-2 text-left">Referral Code</th>
+                          <th class="px-3 py-2 text-left">Owner</th>
+                          <th class="px-3 py-2 text-left">Referred</th>
+                          <th class="px-3 py-2 text-right">Credits</th>
+                          <th class="px-3 py-2 text-left">Datum</th>
+                        </tr>
+                      </thead>
+                      <tbody class="divide-y divide-white/5 bg-white/5">
+                        {referralRecentEvents.map((event) => (
+                          <tr>
+                            <td class="px-3 py-2 text-xs font-semibold uppercase text-emerald-300">
+                              {referralStatusLabels[event.status]}
+                            </td>
+                            <td class="px-3 py-2 font-mono text-xs text-white/70">{event.referralCode}</td>
+                            <td class="px-3 py-2">
+                              {event.owner.name ?? event.owner.email ?? event.owner.userId}
+                            </td>
+                            <td class="px-3 py-2">
+                              {event.referred ? event.referred.email ?? event.referred.userId : '—'}
+                            </td>
+                            <td class="px-3 py-2 text-right font-semibold text-white">
+                              +{formatNumber(event.creditsAwarded)}
+                            </td>
+                            <td class="px-3 py-2 text-xs text-white/60">
+                              {formatDateTime(event.occurredAt)}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <p class="text-sm text-white/60">Noch keine Referral-Events vorhanden.</p>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div class="mt-4 rounded-md border border-white/10 bg-white/5 p-4 text-sm text-white/70">
+              Keine Referral-Daten verfügbar.
+            </div>
+          )}
         </Card>
 
         <!-- Audit Logs -->

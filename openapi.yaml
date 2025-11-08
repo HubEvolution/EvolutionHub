@@ -2719,6 +2719,126 @@ components:
           type: boolean
         data:
           type: object
+          additionalProperties: true
+      required:
+        - success
+    ApiError:
+      type: object
+      additionalProperties: false
+      properties:
+        type:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+          additionalProperties: true
+      required:
+        - type
+        - message
+    ApiErrorResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        success:
+          type: boolean
+          enum: [false]
+        error:
+          $ref: '#/components/schemas/ApiError'
+      required:
+        - success
+        - error
+    Tool:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+      required:
+        - id
+        - name
+    Activity:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+        user:
+          type: string
+        action:
+          type: string
+        timestamp:
+          type: string
+      required:
+        - id
+        - action
+        - timestamp
+    Notification:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        body:
+          type: string
+      required:
+        - id
+        - title
+    Project:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+      required:
+        - id
+        - title
+    QuickAction:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+      required:
+        - id
+        - title
+    Stats:
+      type: object
+      additionalProperties: false
+      properties:
+        projects:
+          type: integer
+        tasks:
+          type: integer
+        teamMembers:
+          type: integer
+      required:
+        - projects
+        - tasks
+        - teamMembers
+    DebugPollingResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          additionalProperties: true
       required:
         - success
     AdminCreditsGrantSuccess:
@@ -3058,361 +3178,215 @@ components:
         url:
           type: string
           minLength: 1
-          returnTo:
-            type: string
-            maxLength: 300
-        required:
-          - pack
-      TemplateSaveRequest:
-        type: object
-        properties:
-          templateId:
-            type: string
-            minLength: 1
-            maxLength: 100
-          name:
-            type: string
-            minLength: 1
-            maxLength: 200
-          description:
-            type: string
-            minLength: 1
-            maxLength: 500
-          prompt:
-            type: string
-            minLength: 1
-            maxLength: 5000
-        required:
-          - templateId
-          - name
-          - description
-          - prompt
-      TemplateSaveSuccessResponse:
-        type: object
-        properties:
-          success:
-            type: boolean
-          data:
-            type: object
-            properties:
-              message:
+          description: Must be http/https and not local/private.
+        options:
+          type: object
+          additionalProperties: true
+      required:
+        - url
+    VoiceTranscribeRequest:
+      type: object
+      description: Multipart form fields for voice transcription chunk upload.
+      properties:
+        chunk:
+          type: string
+          format: binary
+        sessionId:
+          type: string
+          minLength: 1
+        jobId:
+          type: string
+        lang:
+          type: string
+          maxLength: 10
+        isLastChunk:
+          type: boolean
+      required:
+        - chunk
+        - sessionId
+    PromptEnhanceRequest:
+      type: object
+      description: Normalized request for Prompt Enhancer. Legacy shapes (input.text, mode at top-level) are accepted by the server but this schema represents the canonical form.
+      properties:
+        text:
+          type: string
+          minLength: 1
+          maxLength: 1000
+        mode:
+          type: string
+          enum: [agent, concise]
+        safety:
+          type: boolean
+        includeScores:
+          type: boolean
+        outputFormat:
+          type: string
+          enum: [markdown, json]
+        description:
+          type: string
+    LeadMagnetMetadata:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        fileName:
+          type: string
+        requiresEmail:
+          type: boolean
+    LeadMagnetRequestResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        leadId:
+          type: string
+        downloadUrl:
+          type: string
+    UserSafe:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+        name:
+          type: string
+        username:
+          type: string
+    AiJobStatus:
+      type: string
+      enum: [queued, processing, succeeded, failed, canceled]
+    AiJobInput:
+      type: object
+      nullable: true
+      properties:
+        key:
+          type: string
+        url:
+          type: string
+          nullable: true
+        contentType:
+          type: string
+          nullable: true
+        size:
+          type: integer
+          format: int64
+          nullable: true
+    AiJobOutput:
+      type: object
+      nullable: true
+      properties:
+        key:
+          type: string
+        url:
+          type: string
+          nullable: true
+    UsageInfo:
+      type: object
+      nullable: true
+      properties:
+        used:
+          type: integer
+        limit:
+          type: integer
+        resetAt:
+          type: integer
+          format: int64
+          nullable: true
+    VoicePollSuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          enum: [true]
+        data:
+          type: object
+          properties:
+            status:
+              type: string
+              enum: [active, done, error, not_found]
+            partials:
+              type: array
+              items:
                 type: string
-              templateId:
-                type: string
-        required:
-          - success
-          - data
-      DashboardPerformActionRequest:
-        type: object
-        description: Discriminated action for dashboard operations
-        properties:
-          action:
-            type: string
-            enum:
-              - create_project
-              - create_task
-              - invite_member
-              - view_docs
-        required:
-          - action
-        additionalProperties: false
-      NewsletterUnsubscribeRequest:
-        type: object
-        properties:
-          email:
-            type: string
-            format: email
-        required:
-          - email
-      BillingCancelRequest:
-        type: object
-        properties:
-          subscriptionId:
-            type: string
-            minLength: 1
-        required:
-          - subscriptionId
-      AdminSetPlanRequest:
-        type: object
-        description: Admin override to set a user's plan. Exactly one of email or userId must be provided.
-        additionalProperties: false
-        properties:
-          email:
-            type: string
-            format: email
-          userId:
-            type: string
-            minLength: 1
-          plan:
-            type: string
-            enum: [free, pro, premium, enterprise]
-          reason:
-            type: string
-            maxLength: 500
-          interval:
-            type: string
-            description: Select price table for paid plans
-            enum: [monthly, annual]
-          prorationBehavior:
-            type: string
-            description: Stripe proration behavior when updating an existing subscription
-            enum: [create_prorations, none]
-          cancelAtPeriodEnd:
-            type: boolean
-            description: When downgrading to free, schedule cancel at period end (default behavior)
-          cancelImmediately:
-            type: boolean
-            description: When downgrading to free, cancel immediately instead of scheduling end-of-period
-        oneOf:
-          - required: [email, plan]
-          - required: [userId, plan]
-      ContactRequest:
-        type: object
-        additionalProperties: false
-        properties:
-          firstName:
-            type: string
-            minLength: 1
-            maxLength: 100
-          lastName:
-            type: string
-            minLength: 1
-            maxLength: 100
-          email:
-            type: string
-            format: email
-            maxLength: 320
-          subject:
-            type: string
-            minLength: 1
-            maxLength: 200
-          message:
-            type: string
-            minLength: 10
-            maxLength: 4000
-          consent:
-            type: boolean
-            enum: [true]
-          locale:
-            type: string
-            enum: [de, en]
-          turnstileToken:
-            type: string
-            minLength: 10
-          source:
-            type: string
-            maxLength: 120
-        required:
-          - firstName
-          - lastName
-          - email
-          - subject
-          - message
-          - consent
-          - turnstileToken
-      ContactSuccessResponse:
-        type: object
-        additionalProperties: false
-        properties:
-          success:
-            type: boolean
-            enum: [true]
-          data:
-            type: object
-            additionalProperties: false
-            properties:
-              status:
-                type: string
-                enum: [queued]
-        required:
-          - success
-          - data
-      InternalUserSyncRequest:
-        type: object
-        description: Minimal user payload for internal sync
-        properties:
-          id:
-            type: string
-            minLength: 1
-          email:
-            type: string
-            format: email
-          name:
-            type: string
-            minLength: 1
-          image:
-            type: string
-            minLength: 1
-        required:
-          - id
-          - email
-      WebscraperRequest:
-        type: object
-        description: Request for Webscraper extract. Server performs SSRF-safety checks (http/https only; localhost/private ranges blocked).
-        properties:
-          url:
-            type: string
-            minLength: 1
-            description: Must be http/https and not local/private.
-          options:
-            type: object
-            additionalProperties: true
-        required:
-          - url
-      VoiceTranscribeRequest:
-        type: object
-        description: Multipart form fields for voice transcription chunk upload.
-        properties:
-          chunk:
-            type: string
-            format: binary
-          sessionId:
-            type: string
-            minLength: 1
-          jobId:
-            type: string
-          lang:
-            type: string
-            maxLength: 10
-          isLastChunk:
-            type: boolean
-        required:
-          - chunk
-          - sessionId
-      PromptEnhanceRequest:
-        type: object
-        description: Normalized request for Prompt Enhancer. Legacy shapes (input.text, mode at top-level) are accepted by the server but this schema represents the canonical form.
-        properties:
-          text:
-            type: string
-            minLength: 1
-            maxLength: 1000
-          mode:
-            type: string
-            enum: [agent, concise]
-          safety:
-            type: boolean
-          includeScores:
-            type: boolean
-          outputFormat:
-            type: string
-            enum: [markdown, json]
-          description:
-            type: string
-      Activity:
-        type: object
-        properties:
-          id:
-            type: string
-          user:
-            type: string
-          action:
-            type: string
-          timestamp:
-            type: string
-      Notification:
-        type: object
-        properties:
-          id:
-            type: string
-          title:
-            type: string
-          body:
-            type: string
-      Project:
-        type: object
-        properties:
-          id:
-            type: string
-          title:
-            type: string
-          description:
-            type: string
-      QuickAction:
-        type: object
-        properties:
-          id:
-            type: string
-          title:
-            type: string
-          description:
-            type: string
-      Stats:
-        type: object
-        properties:
-          projects:
-            type: integer
-          tasks:
-            type: integer
-          teamMembers:
-            type: integer
-      DebugPollingResponse:
-        type: object
-        properties:
-          success:
-            type: boolean
-          data:
-            type: object
-      LeadMagnetMetadata:
-        type: object
-        properties:
-          id:
-            type: string
-          title:
-            type: string
-          description:
-            type: string
-          fileName:
-            type: string
-          requiresEmail:
-            type: boolean
-      LeadMagnetRequestResponse:
-        type: object
-        properties:
-          success:
-            type: boolean
-          leadId:
-            type: string
-          downloadUrl:
-            type: string
-      UserSafe:
-        type: object
-        properties:
-          id:
-            type: string
-          email:
-            type: string
-          name:
-            type: string
-          username:
-            type: string
-      ApiError:
-        type: object
-        properties:
-          type:
-            type: string
-          message:
-            type: string
-          details:
-            type: object
-            additionalProperties: true
-      ApiErrorResponse:
-        type: object
-        properties:
-          success:
-            type: boolean
-            enum: [false]
-          error:
-            $ref: '#/components/schemas/ApiError'
-        required:
-          - success
-          - error
-      AiJobStatus:
-        type: string
-        enum: [queued, processing, succeeded, failed, canceled]
-      AiJobInput:
-        type: object
-        nullable: true
+            final:
+              type: string
+              nullable: true
+            usage:
+              $ref: '#/components/schemas/UsageInfo'
+            updatedAt:
+              type: integer
+              format: int64
+    AiJob:
+      type: object
+      properties:
+        id:
+          type: string
+        status:
+          $ref: '#/components/schemas/AiJobStatus'
+        provider:
+          type: string
+          enum: [replicate]
+        model:
+          type: string
+          nullable: true
+        input:
+          $ref: '#/components/schemas/AiJobInput'
+        output:
+          $ref: '#/components/schemas/AiJobOutput'
+        error:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        usage:
+          $ref: '#/components/schemas/UsageInfo'
+    AiJobSuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          enum: [true]
+        data:
+          $ref: '#/components/schemas/AiJob'
+    AiGenerateData:
+      type: object
+      properties:
+        model:
+          type: string
+        originalUrl:
+          type: string
+        imageUrl:
+          type: string
+        charge:
+          type: object
+          nullable: true
+          properties:
+            total:
+              type: number
+            planPortion:
+              type: number
+            creditsPortion:
+              type: number
+        usage:
+          $ref: '#/components/schemas/UsageInfo'
+        limits:
+          type: object
+          properties:
+            user:
+              type: integer
+            guest:
+              type: integer
+        entitlements:
+          $ref: '#/components/schemas/PlanEntitlements'
         properties:
           key:
             type: string
@@ -3471,123 +3445,6 @@ components:
               updatedAt:
                 type: integer
                 format: int64
-      AiJob:
-        type: object
-        properties:
-          id:
-            type: string
-          status:
-            $ref: '#/components/schemas/AiJobStatus'
-          provider:
-            type: string
-            enum: [replicate]
-          model:
-            type: string
-            nullable: true
-          input:
-            $ref: '#/components/schemas/AiJobInput'
-          output:
-            $ref: '#/components/schemas/AiJobOutput'
-          error:
-            type: string
-            nullable: true
-          createdAt:
-            type: string
-            format: date-time
-          updatedAt:
-            type: string
-            format: date-time
-          usage:
-            $ref: '#/components/schemas/UsageInfo'
-      AiJobSuccessResponse:
-        type: object
-        properties:
-          success:
-            type: boolean
-            enum: [true]
-          data:
-            $ref: '#/components/schemas/AiJob'
-      AiGenerateData:
-        type: object
-        properties:
-          model:
-            type: string
-          originalUrl:
-            type: string
-          imageUrl:
-            type: string
-          charge:
-            type: object
-            nullable: true
-            properties:
-              total:
-                type: number
-              planPortion:
-                type: number
-              creditsPortion:
-                type: number
-          usage:
-            $ref: '#/components/schemas/UsageInfo'
-          limits:
-            type: object
-            properties:
-              user:
-                type: integer
-              guest:
-                type: integer
-          entitlements:
-            $ref: '#/components/schemas/PlanEntitlements'
-            
-      PlanEntitlements:
-        type: object
-        additionalProperties: false
-        properties:
-          monthlyImages:
-            type: integer
-            description: Total images allowed per calendar month
-          dailyBurstCap:
-            type: integer
-            description: Max images per rolling 24h window
-          maxUpscale:
-            type: integer
-            enum: [2, 4, 6, 8]
-          faceEnhance:
-            type: boolean
-      AiGenerateSuccessResponse:
-        type: object
-        properties:
-          success:
-            type: boolean
-            enum: [true]
-          data:
-            $ref: '#/components/schemas/AiGenerateData'
-        required:
-          - success
-          - data
-      PromptEnhanceData:
-        type: object
-        properties:
-          enhancedPrompt:
-            type: string
-          safetyReport:
-            type: object
-            nullable: true
-            properties:
-              score:
-                type: number
-              warnings:
-                type: array
-                items:
-                  type: string
-          usage:
-            $ref: '#/components/schemas/UsageInfo'
-          limits:
-            type: object
-            properties:
-              user:
-                type: integer
-              guest:
-                type: integer
       PromptEnhanceSuccessResponse:
         type: object
         properties:

@@ -5,6 +5,7 @@ import { withApiMiddleware } from '@/lib/api-middleware';
 import { createRateLimiter } from '@/lib/rate-limiter';
 import { createSecureErrorResponse, createSecureJsonResponse } from '@/lib/response-helpers';
 import { addCreditPackTenths, getCreditsBalanceTenths } from '@/lib/kv/usage';
+import { verifyReferral } from '@/lib/services/referral-reward-service';
 import type { D1Database, KVNamespace } from '@cloudflare/workers-types';
 
 const stripeWebhookLimiter = createRateLimiter({
@@ -79,6 +80,10 @@ export const POST = withApiMiddleware(
     const kv = (rawEnv as { KV_AI_ENHANCER?: KVNamespace }).KV_AI_ENHANCER as
       | KVNamespace
       | undefined;
+    const rewardFlagRaw = rawEnv['ENABLE_REFERRAL_REWARDS'];
+    const rewardFeatureEnabled =
+      rewardFlagRaw === '1' || rewardFlagRaw === 'true' || rewardFlagRaw === 'on';
+
     if (!dbMaybe) {
       return createSecureErrorResponse('Database unavailable', 500);
     }
@@ -232,7 +237,6 @@ export const POST = withApiMiddleware(
             // Fallback to mapping by default price id from subscription when it arrives in a later event
             plan = 'pro'; // safe default if metadata absent; will be corrected on subscription.updated
           }
-
           await upsertCustomer(resolvedUserId, customerId);
           if (subscriptionId) {
             await upsertSubscription({
@@ -247,6 +251,37 @@ export const POST = withApiMiddleware(
           }
           // Set user plan immediately for better UX
           await setUserPlan(resolvedUserId, plan || 'pro');
+          if (rewardFeatureEnabled && resolvedUserId && subscriptionId) {
+            try {
+              const reward = await verifyReferral({
+                db,
+                kv,
+                featureEnabled: rewardFeatureEnabled,
+                referredUserId: resolvedUserId,
+                rewardTenths: Number(rawEnv['REFERRAL_REWARD_TENTHS'] || 0),
+                subscriptionId,
+              });
+              if (reward.type === 'verified') {
+                console.log('[stripe_webhook] referral_reward_verified', {
+                  userId: resolvedUserId,
+                  referralEventId: reward.eventId,
+                });
+              } else if (reward.type !== 'disabled' && reward.type !== 'no_referral') {
+                console.log('[stripe_webhook] referral_reward_skipped', {
+                  userId: resolvedUserId,
+                  referralOutcome: reward.type,
+                  reason: reward.reason,
+                });
+              }
+            } catch (rewardErr) {
+              console.error('[stripe_webhook] referral_reward_error', {
+                subscriptionId,
+                userId: resolvedUserId,
+                message: rewardErr instanceof Error ? rewardErr.message : String(rewardErr),
+              });
+            }
+          }
+
           console.log('[stripe_webhook] handled checkout.session.completed', {
             userId: resolvedUserId,
             customerId: customerId ? 'set' : 'missing',
@@ -255,7 +290,6 @@ export const POST = withApiMiddleware(
           });
           break;
         }
-
         case 'customer.subscription.updated':
         case 'customer.subscription.created':
         case 'customer.subscription.deleted': {
@@ -308,6 +342,39 @@ export const POST = withApiMiddleware(
           ) {
             await setUserPlan(userId, 'free');
           }
+          if (rewardFeatureEnabled && userId && status === 'active') {
+            try {
+              const reward = await verifyReferral({
+                db,
+                kv,
+                featureEnabled: rewardFeatureEnabled,
+                referredUserId: userId,
+                rewardTenths: Number(rawEnv['REFERRAL_REWARD_TENTHS'] || 0),
+                subscriptionId: sub.id,
+              });
+              if (reward.type === 'verified') {
+                console.log('[stripe_webhook] referral_reward_verified', {
+                  userId,
+                  referralEventId: reward.eventId,
+                  subscriptionId: sub.id,
+                });
+              } else if (reward.type !== 'disabled' && reward.type !== 'no_referral') {
+                console.log('[stripe_webhook] referral_reward_skipped', {
+                  userId,
+                  referralOutcome: reward.type,
+                  reason: reward.reason,
+                  subscriptionId: sub.id,
+                });
+              }
+            } catch (rewardErr) {
+              console.error('[stripe_webhook] referral_reward_error', {
+                subscriptionId: sub.id,
+                userId,
+                message: rewardErr instanceof Error ? rewardErr.message : String(rewardErr),
+              });
+            }
+          }
+
           console.log('[stripe_webhook] handled subscription event', {
             event: event.type,
             userId,

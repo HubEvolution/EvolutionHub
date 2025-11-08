@@ -1,7 +1,6 @@
 import type { APIContext } from 'astro';
-import { getCollection, type CollectionEntry } from 'astro:content';
-
-type BlogEntry = CollectionEntry<'blog'>;
+import { blogService } from '@/lib/blog';
+import type { ProcessedBlogPost } from '@/content/types';
 
 function escapeXml(s: string): string {
   return s
@@ -12,9 +11,14 @@ function escapeXml(s: string): string {
     .replace(/'/g, '&apos;');
 }
 
-function normalizeDate(value: BlogEntry['data']['pubDate']): Date {
+function normalizeDate(value: Date | string | undefined | null): Date {
   if (value instanceof Date) return value;
-  if (typeof value === 'string' && value.length > 0) return new Date(value);
+  if (typeof value === 'string' && value.length > 0) {
+    const parsed = new Date(value);
+    if (!Number.isNaN(parsed.getTime())) {
+      return parsed;
+    }
+  }
   return new Date();
 }
 
@@ -24,14 +28,11 @@ export async function GET(context: APIContext): Promise<Response> {
   const site = `${requestUrl.protocol}//${requestUrl.host}`;
 
   // Load blog posts from content collection
-  const posts: BlogEntry[] = await getCollection('blog');
-
-  // Sort by pubDate desc and filter out drafts
-  const items = posts
-    .filter((entry): entry is BlogEntry => entry.data.draft !== true)
-    .sort(
-      (a, b) => normalizeDate(b.data.pubDate).getTime() - normalizeDate(a.data.pubDate).getTime()
-    );
+  const posts: ProcessedBlogPost[] = await blogService.getPublishedPosts();
+  const items = [...posts].sort((a, b) =>
+    normalizeDate(b.data.updatedDate ?? b.data.pubDate).getTime() -
+    normalizeDate(a.data.updatedDate ?? a.data.pubDate).getTime()
+  );
 
   const channelTitle = 'Evolution Hub – Blog';
   const channelLink = `${site}/blog`;
@@ -42,7 +43,7 @@ export async function GET(context: APIContext): Promise<Response> {
   for (const entry of items) {
     const title = entry.data.title ?? entry.slug;
     const description = entry.data.description ?? '';
-    const pubDate = normalizeDate(entry.data.pubDate).toUTCString();
+    const pubDate = normalizeDate(entry.data.updatedDate ?? entry.data.pubDate).toUTCString();
     const url = `${site}/blog/${entry.slug}`;
 
     const lines: string[] = [

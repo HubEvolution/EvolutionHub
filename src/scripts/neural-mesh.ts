@@ -24,8 +24,8 @@ interface Particle {
 }
 
 class NeuralMesh {
-  private canvas: HTMLCanvasElement;
-  private ctx: CanvasRenderingContext2D;
+  private canvas!: HTMLCanvasElement;
+  private ctx!: CanvasRenderingContext2D;
   private particles: Particle[] = [];
   private animationId: number | null = null;
   private resizeObserver: ResizeObserver | null = null;
@@ -56,8 +56,8 @@ class NeuralMesh {
   };
 
   constructor(canvasId: string) {
-    const canvas = document.getElementById(canvasId) as HTMLCanvasElement;
-    if (!canvas) {
+    const canvas = document.getElementById(canvasId);
+    if (!(canvas instanceof HTMLCanvasElement)) {
       console.warn(`[NeuralMesh] Canvas with id "${canvasId}" not found`);
       return;
     }

@@ -54,7 +54,11 @@ export const POST = withAuthApiMiddleware(
     }
 
     const { type, description } = body as { type?: unknown; description?: unknown };
-    if (!isMaintenanceType(type) || typeof description !== 'string' || description.trim().length === 0) {
+    if (
+      !isMaintenanceType(type) ||
+      typeof description !== 'string' ||
+      description.trim().length === 0
+    ) {
       return createApiError('validation_error', 'Maintenance type and description are required');
     }
 

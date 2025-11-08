@@ -56,6 +56,14 @@ const {
   ctas = [],
 } = post.data;
 
+const hasImage = Boolean(image && typeof (image as any)?.src === 'string');
+const fallbackImage: SafeImage = {
+  src: '/images/blog/default-og.jpg',
+  width: 1200,
+  height: 630,
+};
+const fallbackSrc = fallbackImage.src;
+
 // Normalize category to a safe string for URLs and labels
 const categoryStr: string = typeof category === 'string' ? category : 'Allgemein';
 
@@ -86,8 +94,7 @@ const linkedinShareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${
 const facebookShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${postUrlForSharing}`;
 
 // Ensure image properties are correctly typed and handled.
-const safeImage: SafeImage | null =
-  image && typeof (image as any)?.src === 'string' ? (image as SafeImage) : null;
+const safeImage: SafeImage = hasImage ? (image as SafeImage) : fallbackImage;
 // Use the width and height from the image data if available, otherwise let Astro handle it.
 const imageWidth: number | undefined = safeImage?.width ?? undefined;
 const imageHeight: number | undefined = safeImage?.height ?? undefined;
@@ -318,6 +325,7 @@ const finalBottomCTA =
               loading="lazy"
               width={imageWidth}
               height={imageHeight}
+              onerror={`this.onerror=null;this.src='${fallbackSrc}';`}
             />
           </div>
           {typeof imageAlt === 'string' && (

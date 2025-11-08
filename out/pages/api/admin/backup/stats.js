@@ -5,11 +5,16 @@ const api_middleware_1 = require("@/lib/api-middleware");
 const auth_helpers_1 = require("@/lib/auth-helpers");
 const d1_1 = require("drizzle-orm/d1");
 const backup_service_1 = require("@/lib/services/backup-service");
+function getAdminEnv(context) {
+    const env = (context.locals?.runtime?.env ?? {});
+    return (env ?? {});
+}
 exports.GET = (0, api_middleware_1.withAuthApiMiddleware)(async (context) => {
-    const env = (context.locals?.runtime?.env || {});
+    const env = getAdminEnv(context);
     const db = env.DB;
-    if (!db)
+    if (!db) {
         return (0, api_middleware_1.createApiError)('server_error', 'Database unavailable');
+    }
     try {
         await (0, auth_helpers_1.requireAdmin)({
             req: { header: (n) => context.request.headers.get(n) || undefined },
@@ -23,26 +28,36 @@ exports.GET = (0, api_middleware_1.withAuthApiMiddleware)(async (context) => {
     try {
         const service = new backup_service_1.BackupService((0, d1_1.drizzle)(db));
         const jobs = await service.getBackupJobs(1000);
+        let totalSize = 0;
+        let completedWithSize = 0;
+        let lastBackup = null;
+        const jobsByType = {};
+        for (const job of jobs) {
+            const type = typeof job.type === 'string' ? job.type : String(job.type);
+            jobsByType[type] = (jobsByType[type] || 0) + 1;
+            if (job.fileSize) {
+                totalSize += job.fileSize;
+            }
+            if (job.status === 'completed' && job.fileSize) {
+                completedWithSize += 1;
+            }
+            if (job.completedAt) {
+                const completedAt = Number(job.completedAt);
+                if (Number.isFinite(completedAt)) {
+                    lastBackup = lastBackup === null ? completedAt : Math.max(lastBackup, completedAt);
+                }
+            }
+        }
         const stats = {
             totalJobs: jobs.length,
             completedJobs: jobs.filter((j) => j.status === 'completed').length,
             failedJobs: jobs.filter((j) => j.status === 'failed').length,
             runningJobs: jobs.filter((j) => j.status === 'running').length,
-            totalSize: jobs.filter((j) => j.fileSize).reduce((s, j) => s + (j.fileSize || 0), 0),
-            averageSize: 0,
-            lastBackup: jobs
-                .filter((j) => j.completedAt)
-                .sort((a, b) => (b.completedAt || 0) - (a.completedAt || 0))[0]?.completedAt,
-            jobsByType: {},
+            totalSize,
+            averageSize: completedWithSize > 0 ? Math.round(totalSize / completedWithSize) : 0,
+            lastBackup,
+            jobsByType,
         };
-        const completed = jobs.filter((j) => j.status === 'completed' && j.fileSize);
-        if (completed.length > 0) {
-            stats.averageSize = Math.round(stats.totalSize / completed.length);
-        }
-        for (const j of jobs) {
-            const t = String(j.type);
-            stats.jobsByType[t] = (stats.jobsByType[t] || 0) + 1;
-        }
         return (0, api_middleware_1.createApiSuccess)({ stats });
     }
     catch (e) {

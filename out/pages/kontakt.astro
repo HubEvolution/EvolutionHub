@@ -1,11 +1,16 @@
-----
+---
 import { getI18n } from '@/utils/i18n';
 import { getLocale } from '@/lib/i18n';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Card from '@/components/ui/Card';
 import { contactInfo } from '@/config/contact';
 
-const contactFormScript = Astro.resolve('@/scripts/contact-form.ts');
+export const prerender = false;
+
+const publicTurnstileSiteKey =
+  (import.meta.env.PUBLIC_TURNSTILE_SITE_KEY as string | undefined) ??
+  ((Astro.locals as unknown as { runtime?: { env?: Record<string, string> } })?.runtime?.env
+    ?.PUBLIC_TURNSTILE_SITE_KEY as string | undefined);
 
 const locale = getLocale(Astro.url.pathname);
 const t = getI18n(locale);
@@ -162,6 +167,18 @@ const heroSubtitle = t('pages.kontakt.hero.subtitle');
                   </button>
                 </div>
                 <p class="text-sm" data-contact-feedback hidden></p>
+                {
+                  publicTurnstileSiteKey && (
+                    <div class="mt-4">
+                      <div
+                        class="cf-turnstile"
+                        data-sitekey={publicTurnstileSiteKey}
+                        data-theme="auto"
+                        data-retry="auto"
+                      />
+                    </div>
+                  )
+                }
               </form>
             </div>
 
@@ -202,14 +219,16 @@ const heroSubtitle = t('pages.kontakt.hero.subtitle');
                       <p class="text-sm font-medium text-gray-900 dark:text-white">
                         {t('pages.kontakt.info.email_label')}
                       </p>
-                      {contactInfo.email && (
-                        <a
-                          href={`mailto:${contactInfo.email}`}
-                          class="text-sm text-emerald-600 hover:text-emerald-500 dark:text-emerald-400 dark:hover:text-emerald-300"
-                        >
-                          {contactInfo.email}
-                        </a>
-                      )}
+                      {
+                        contactInfo.email && (
+                          <a
+                            href={`mailto:${contactInfo.email}`}
+                            class="text-sm text-emerald-600 hover:text-emerald-500 dark:text-emerald-400 dark:hover:text-emerald-300"
+                          >
+                            {contactInfo.email}
+                          </a>
+                        )
+                      }
                     </div>
                   </div>
 
@@ -238,18 +257,20 @@ const heroSubtitle = t('pages.kontakt.hero.subtitle');
                       <p class="text-sm text-gray-600 dark:text-gray-300">
                         {contactInfo.supportHours || t('pages.kontakt.info.support_hours')}
                       </p>
-                      {contactInfo.phone ? (
-                        <a
-                          href={`tel:${contactInfo.phone}`}
-                          class="text-sm text-emerald-600 hover:text-emerald-500 dark:text-emerald-400 dark:hover:text-emerald-300"
-                        >
-                          {contactInfo.phone}
-                        </a>
-                      ) : (
-                        <span class="text-sm text-gray-400 dark:text-gray-500">
-                          {t('pages.kontakt.info.phone_unavailable')}
-                        </span>
-                      )}
+                      {
+                        contactInfo.phone ? (
+                          <a
+                            href={`tel:${contactInfo.phone}`}
+                            class="text-sm text-emerald-600 hover:text-emerald-500 dark:text-emerald-400 dark:hover:text-emerald-300"
+                          >
+                            {contactInfo.phone}
+                          </a>
+                        ) : (
+                          <span class="text-sm text-gray-400 dark:text-gray-500">
+                            {t('pages.kontakt.info.phone_unavailable')}
+                          </span>
+                        )
+                      }
                     </div>
                   </div>
 
@@ -280,17 +301,19 @@ const heroSubtitle = t('pages.kontakt.hero.subtitle');
                       <p class="text-sm font-medium text-gray-900 dark:text-white">
                         {t('pages.kontakt.info.address_label')}
                       </p>
-                      {contactInfo.address ? (
-                        <address class="not-italic text-sm text-gray-600 dark:text-gray-300">
-                          {contactInfo.address.lines.map((line, idx) => (
-                            <span class={idx === 0 ? '' : 'block'}>{line}</span>
-                          ))}
-                        </address>
-                      ) : (
-                        <p class="text-sm text-gray-400 dark:text-gray-500">
-                          {t('pages.kontakt.info.address_unavailable')}
-                        </p>
-                      )}
+                      {
+                        contactInfo.address ? (
+                          <address class="not-italic text-sm text-gray-600 dark:text-gray-300">
+                            {contactInfo.address.lines.map((line, idx) => (
+                              <span class={idx === 0 ? '' : 'block'}>{line}</span>
+                            ))}
+                          </address>
+                        ) : (
+                          <p class="text-sm text-gray-400 dark:text-gray-500">
+                            {t('pages.kontakt.info.address_unavailable')}
+                          </p>
+                        )
+                      }
                     </div>
                   </div>
                 </div>
@@ -309,7 +332,130 @@ const heroSubtitle = t('pages.kontakt.hero.subtitle');
       </div>
     </div>
   </section>
-
 </BaseLayout>
 
-<script type="module" src={contactFormScript}></script>
+<script type="module">
+  (() => {
+    const form = document.querySelector('form[data-contact-form]');
+    if (!form) return;
+
+    const submitButton = form.querySelector('[data-contact-submit]');
+    const feedback = form.querySelector('[data-contact-feedback]');
+
+    if (!document.querySelector('.cf-turnstile')) {
+      console.warn('Turnstile widget not rendered – missing site key or script load failed.');
+    }
+
+    const ensureCsrfToken = () => {
+      try {
+        const cookie = document.cookie || '';
+        const match = cookie.match(/(?:^|; )csrf_token=([^;]+)/);
+        if (match && match[1]) return decodeURIComponent(match[1]);
+
+        const buffer = new Uint8Array(16);
+        crypto.getRandomValues(buffer);
+        const token = Array.from(buffer)
+          .map((b) => b.toString(16).padStart(2, '0'))
+          .join('');
+        const attributes = [
+          'Path=/',
+          'SameSite=Lax',
+          location.protocol === 'https:' ? 'Secure' : '',
+        ]
+          .filter(Boolean)
+          .join('; ');
+        document.cookie = `csrf_token=${encodeURIComponent(token)}; ${attributes}`;
+        return token;
+      } catch {
+        return '';
+      }
+    };
+
+    const getMessage = (key, fallback = '') => form.dataset?.[key] ?? fallback;
+
+    const setFeedback = (message, isError) => {
+      if (!feedback) return;
+      feedback.hidden = false;
+      feedback.textContent = message;
+      feedback.classList.toggle('text-red-600', Boolean(isError));
+      feedback.classList.toggle('text-emerald-600', !isError);
+    };
+
+    const resetFeedback = (message) => {
+      if (!feedback) return;
+      feedback.hidden = false;
+      feedback.textContent = message;
+      feedback.classList.remove('text-red-600', 'text-emerald-600');
+    };
+
+    const resetTurnstile = () => {
+      const maybeTurnstile = window.turnstile;
+      if (maybeTurnstile && typeof maybeTurnstile.reset === 'function') {
+        maybeTurnstile.reset();
+      }
+    };
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      const csrfToken = ensureCsrfToken();
+      if (!csrfToken) {
+        setFeedback(getMessage('genericError', 'CSRF token missing'), true);
+        return;
+      }
+
+      if (submitButton) {
+        submitButton.setAttribute('disabled', 'true');
+        submitButton.classList.add('opacity-70');
+      }
+
+      resetFeedback(getMessage('sendingMessage', ''));
+
+      const formData = new FormData(form);
+      const payload = {
+        firstName: (formData.get('first-name') || '').toString().trim(),
+        lastName: (formData.get('last-name') || '').toString().trim(),
+        email: (formData.get('email') || '').toString().trim(),
+        subject: (formData.get('subject') || '').toString().trim(),
+        message: (formData.get('message') || '').toString().trim(),
+        consent: formData.get('privacy-policy') === 'on',
+        locale: (formData.get('locale') || '').toString().trim() || undefined,
+        turnstileToken: (formData.get('cf-turnstile-response') || '').toString().trim(),
+        source: 'kontakt-page',
+      };
+
+      try {
+        const response = await fetch('/api/contact', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+            'X-CSRF-Token': csrfToken,
+          },
+          body: JSON.stringify(payload),
+        });
+
+        const result = await response.json().catch(() => ({}));
+
+        if (response.ok && result && result.success) {
+          form.reset();
+          setFeedback(getMessage('successMessage', 'Vielen Dank! Wir melden uns bald.'), false);
+          resetTurnstile();
+        } else {
+          const message =
+            (result && result.error && result.error.message) ||
+            getMessage('errorMessage', getMessage('genericError', 'Etwas ist schiefgelaufen.'));
+          setFeedback(message, true);
+        }
+      } catch (error) {
+        console.error('contact_form_submit_error', error);
+        setFeedback(getMessage('genericError', 'Etwas ist schiefgelaufen.'), true);
+      } finally {
+        if (submitButton) {
+          submitButton.removeAttribute('disabled');
+          submitButton.classList.remove('opacity-70');
+        }
+      }
+    });
+  })();
+</script>

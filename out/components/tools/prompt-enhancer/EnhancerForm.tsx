@@ -513,32 +513,38 @@ const EnhancerForm: React.FC<EnhancerFormProps> = ({ initialMode = 'creative' })
                         {f.name} · {f.type || 'unknown'} · {formatBytes(f.size)}
                       </span>
                       <div className="flex items-center gap-2">
-                        <button
+                        <Button
                           type="button"
                           onClick={() => moveFileUp(idx)}
                           aria-label={`Move up ${f.name}`}
-                          className="px-2 py-1 rounded-md border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50"
                           disabled={isLoading || idx === 0}
+                          variant="ghost"
+                          size="sm"
+                          className="px-2 py-1 h-auto rounded-md border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
                         >
                           ↑
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                           type="button"
                           onClick={() => moveFileDown(idx)}
                           aria-label={`Move down ${f.name}`}
-                          className="px-2 py-1 rounded-md border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50"
                           disabled={isLoading || idx === files.length - 1}
+                          variant="ghost"
+                          size="sm"
+                          className="px-2 py-1 h-auto rounded-md border opacity-100 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
                         >
                           ↓
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                           type="button"
                           onClick={() => onRemoveFile(idx)}
-                          className="px-2 py-1 rounded-md border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
                           disabled={isLoading}
+                          variant="ghost"
+                          size="sm"
+                          className="px-2 py-1 h-auto rounded-md border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
                         >
                           {t('pages.tools.prompt-enhancer.form.files.remove')}
-                        </button>
+                        </Button>
                       </div>
                     </div>
                     {/* Text preview if available */}
@@ -617,25 +623,29 @@ const EnhancerForm: React.FC<EnhancerFormProps> = ({ initialMode = 'creative' })
               {t('pages.tools.prompt-enhancer.form.outputLabel')}
             </label>
             <div className="flex items-center gap-2">
-              <button
+              <Button
                 type="button"
                 onClick={handleCopy}
-                className="px-3 py-1.5 text-sm rounded-md border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
                 disabled={!outputText}
+                variant="ghost"
+                size="sm"
+                className="px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
                 aria-live="polite"
               >
                 {copied
                   ? t('pages.tools.prompt-enhancer.form.copied')
                   : t('pages.tools.prompt-enhancer.form.copy')}
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
                 onClick={handleClear}
-                className="px-3 py-1.5 text-sm rounded-md border border-transparent text-white bg-gray-700 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
                 disabled={isLoading}
+                variant="secondary"
+                size="sm"
+                className="px-3 py-1.5 text-sm"
               >
                 {t('pages.tools.prompt-enhancer.form.clear')}
-              </button>
+              </Button>
             </div>
           </div>
           <textarea

@@ -256,4 +256,3 @@ declare module '../types/comments' {
   export type CreateCommentRequest = any;
   export type CommentFilters = any;
 }
-

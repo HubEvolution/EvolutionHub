@@ -6,6 +6,10 @@ const rate_limiter_1 = require("@/lib/rate-limiter");
 const auth_helpers_1 = require("@/lib/auth-helpers");
 const usage_1 = require("@/lib/kv/usage");
 const validation_1 = require("@/lib/validation");
+function getAdminEnv(context) {
+    const env = (context.locals?.runtime?.env ?? {});
+    return (env ?? {});
+}
 const querySchema = validation_1.z
     .object({
     userId: validation_1.z.string().min(1),
@@ -14,8 +18,8 @@ const querySchema = validation_1.z
 })
     .strict();
 exports.GET = (0, api_middleware_1.withAuthApiMiddleware)(async (context) => {
-    const { locals, url } = context;
-    const env = (locals.runtime?.env ?? {});
+    const { url } = context;
+    const env = getAdminEnv(context);
     if (!env.DB || !env.KV_AI_ENHANCER) {
         return (0, api_middleware_1.createApiError)('server_error', 'Infrastructure unavailable');
     }

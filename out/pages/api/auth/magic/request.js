@@ -5,6 +5,7 @@ const api_middleware_1 = require("@/lib/api-middleware");
 const rate_limiter_1 = require("@/lib/rate-limiter");
 const stytch_1 = require("@/lib/stytch");
 const security_logger_1 = require("@/lib/security-logger");
+const utils_1 = require("@/lib/referrals/utils");
 async function sha256(input) {
     const data = new TextEncoder().encode(input);
     const hash = await crypto.subtle.digest('SHA-256', data);
@@ -39,6 +40,7 @@ const parseBody = async (request) => {
                         : typeof anyJson.turnstileToken === 'string'
                             ? anyJson.turnstileToken
                             : undefined,
+                    referralCode: typeof anyJson.referralCode === 'string' ? anyJson.referralCode : undefined,
                 };
             }
             return {};
@@ -63,6 +65,7 @@ const parseBody = async (request) => {
                 turnstileToken: typeof form.get('cf-turnstile-response') === 'string'
                     ? form.get('cf-turnstile-response')
                     : undefined,
+                referralCode: typeof form.get('referralCode') === 'string' ? form.get('referralCode') : undefined,
             };
         }
         catch {
@@ -93,7 +96,7 @@ function isValidUsername(username) {
 }
 const handler = async (context) => {
     const { request } = context;
-    const { email, r, name, username, locale, turnstileToken } = await parseBody(request);
+    const { email, r, name, username, locale, turnstileToken, referralCode } = await parseBody(request);
     if (!email || !isValidEmail(email)) {
         return (0, api_middleware_1.createApiError)('validation_error', 'Ungültige E-Mail-Adresse');
     }
@@ -188,6 +191,22 @@ const handler = async (context) => {
             secure: isHttps,
             maxAge: 10 * 60, // 10 minutes
         });
+    }
+    const sanitizedReferral = (0, utils_1.sanitizeReferralCode)(referralCode);
+    if (sanitizedReferral) {
+        try {
+            const isHttps = origin.startsWith('https://');
+            context.cookies.set('post_auth_referral', sanitizedReferral, {
+                path: '/',
+                httpOnly: true,
+                sameSite: 'lax',
+                secure: isHttps,
+                maxAge: 10 * 60,
+            });
+        }
+        catch {
+            // Ignore referral persistence failures
+        }
     }
     const devEnv = ((context.locals?.runtime
         ?.env || {}).ENVIRONMENT || 'development') === 'development';

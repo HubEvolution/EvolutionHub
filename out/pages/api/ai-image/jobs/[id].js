@@ -22,17 +22,18 @@ function ensureGuestIdCookie(context) {
 }
 exports.GET = (0, api_middleware_1.withApiMiddleware)(async (context) => {
     const { locals, request, params } = context;
-    const id = params.id;
-    if (!id)
+    const { id } = params;
+    if (typeof id !== 'string' || !id) {
         return (0, api_middleware_1.createApiError)('validation_error', 'Job ID fehlt');
+    }
     const ownerType = locals.user?.id ? 'user' : 'guest';
-    const ownerId = ownerType === 'user' ? locals.user.id : ensureGuestIdCookie(context);
+    const ownerId = ownerType === 'user' && locals.user?.id ? locals.user.id : ensureGuestIdCookie(context);
     const plan = ownerType === 'user'
         ? (locals.user?.plan ?? 'free')
         : undefined;
     const ent = (0, entitlements_1.getEntitlementsFor)(ownerType, plan);
     const effectiveLimit = ent.dailyBurstCap;
-    const env = (locals.runtime?.env || {});
+    const env = (locals.runtime?.env ?? {});
     const deps = { db: env.DB, isDevelopment: env.ENVIRONMENT !== 'production' };
     const service = new ai_jobs_service_1.AiJobsService(deps, {
         R2_AI_IMAGES: env.R2_AI_IMAGES,

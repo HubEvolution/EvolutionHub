@@ -24,7 +24,7 @@ export const POST = withApiMiddleware(
     const key = `prompt:templates:user:${ownerId}:${templateId}`;
 
     const env = (locals.runtime?.env ?? {}) as Record<string, unknown>;
-    const kv = env.KV_PROMPT_ENHANCER as KVNamespace<string> | undefined;
+    const kv = env.KV_PROMPT_ENHANCER as KVNamespace | undefined;
     if (!kv) return createApiError('server_error', 'KV not available');
 
     await kv.put(key, JSON.stringify({ id: templateId, name, description, prompt }), {

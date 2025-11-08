@@ -4,9 +4,13 @@ exports.HEAD = exports.OPTIONS = exports.DELETE = exports.PATCH = exports.PUT = 
 const api_middleware_1 = require("@/lib/api-middleware");
 const rate_limiter_1 = require("@/lib/rate-limiter");
 const auth_helpers_1 = require("@/lib/auth-helpers");
+function getAdminEnv(context) {
+    const env = (context.locals?.runtime?.env ?? {});
+    return (env ?? {});
+}
 exports.POST = (0, api_middleware_1.withAuthApiMiddleware)(async (context) => {
-    const { locals, request } = context;
-    const env = (locals.runtime?.env ?? {});
+    const { request } = context;
+    const env = getAdminEnv(context);
     if (!env.DB) {
         return (0, api_middleware_1.createApiError)('server_error', 'Infrastructure unavailable');
     }
@@ -16,15 +20,19 @@ exports.POST = (0, api_middleware_1.withAuthApiMiddleware)(async (context) => {
     catch {
         return (0, api_middleware_1.createApiError)('forbidden', 'Insufficient permissions');
     }
-    let body = null;
+    let body;
     try {
-        body = (await request.json());
+        body = await request.json();
     }
     catch {
         return (0, api_middleware_1.createApiError)('validation_error', 'Invalid JSON');
     }
-    const userId = (body?.userId || '').trim();
-    const sessionId = (body?.sessionId || '').trim();
+    if (!body || typeof body !== 'object') {
+        return (0, api_middleware_1.createApiError)('validation_error', 'Invalid request payload');
+    }
+    const { userId: rawUserId, sessionId: rawSessionId } = body;
+    const userId = typeof rawUserId === 'string' ? rawUserId.trim() : '';
+    const sessionId = typeof rawSessionId === 'string' ? rawSessionId.trim() : '';
     if (!userId && !sessionId) {
         return (0, api_middleware_1.createApiError)('validation_error', 'Provide userId or sessionId');
     }

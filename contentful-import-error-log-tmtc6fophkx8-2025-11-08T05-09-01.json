@@ -1,0 +1,1 @@
+{"ts":"2025-11-08T04:09:01.677Z","level":"error","error":{"details":[{"message":"\"value\" must be of type object","path":[],"type":"object.base","context":{"type":"object","label":"value","value":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]}}],"stacktrace":["ValidationError: undefined:1 - Get further details in the error log file"]}}

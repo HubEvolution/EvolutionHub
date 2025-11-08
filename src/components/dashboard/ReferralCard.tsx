@@ -232,11 +232,7 @@ export default function ReferralCard({ initialSummary, strings }: ReferralCardPr
               <StatBlock label={strings.stats.paid} value={stats.paid} />
               <StatBlock label={strings.stats.pending} value={stats.pending} />
               <StatBlock label={strings.stats.cancelled} value={stats.cancelled} />
-              <StatBlock
-                label={strings.creditsEarned}
-                value={stats.totalCredits}
-                highlight
-              />
+              <StatBlock label={strings.creditsEarned} value={stats.totalCredits} highlight />
             </div>
           </div>
 
@@ -261,9 +257,7 @@ export default function ReferralCard({ initialSummary, strings }: ReferralCardPr
                       <span className="text-xs font-semibold uppercase tracking-wide text-emerald-300">
                         {strings.status[event.status]}
                       </span>
-                      <p className="text-xs text-slate-300">
-                        {formatDateTime(event.occurredAt)}
-                      </p>
+                      <p className="text-xs text-slate-300">{formatDateTime(event.occurredAt)}</p>
                     </div>
                     <div className="text-right">
                       <span className="text-sm font-semibold text-white">

@@ -76,7 +76,14 @@ export const POST = withApiMiddleware(
           details: formatZodError(parsed.error),
         });
       }
-      input = { url: parsed.data.url, options: parsed.data.options ?? {} };
+      const normalizedOptions = parsed.data.options
+        ? {
+            selector: parsed.data.options.selector,
+            format: parsed.data.options.format,
+            maxDepth: parsed.data.options.maxDepth,
+          }
+        : undefined;
+      input = { url: parsed.data.url, options: normalizedOptions };
     } catch {
       return createApiError('validation_error', 'Invalid JSON body');
     }

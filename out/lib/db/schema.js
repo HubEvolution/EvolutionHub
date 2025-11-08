@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.settings = exports.systemMaintenance = exports.backupJobs = exports.dataDeletionRequests = exports.dataExportJobs = exports.emailQueue = exports.emailTemplates = exports.notificationSettings = exports.notifications = exports.commentAuditLogs = exports.commentReports = exports.commentModeration = exports.comments = exports.blogPosts = exports.users = void 0;
+exports.referralEvents = exports.referralProfiles = exports.settings = exports.systemMaintenance = exports.backupJobs = exports.dataDeletionRequests = exports.dataExportJobs = exports.emailQueue = exports.emailTemplates = exports.notificationSettings = exports.notifications = exports.commentAuditLogs = exports.commentReports = exports.commentModeration = exports.comments = exports.blogPosts = exports.users = void 0;
 const sqlite_core_1 = require("drizzle-orm/sqlite-core");
 // Base tables
 exports.users = (0, sqlite_core_1.sqliteTable)('users', {
@@ -237,6 +237,33 @@ exports.settings = (0, sqlite_core_1.sqliteTable)('settings', {
         enum: ['general', 'comments', 'notifications', 'security', 'performance'],
     }).default('general'),
     isPublic: (0, sqlite_core_1.integer)('is_public', { mode: 'boolean' }).default(false),
+    createdAt: (0, sqlite_core_1.integer)('created_at', { mode: 'timestamp' }).notNull(),
+    updatedAt: (0, sqlite_core_1.integer)('updated_at', { mode: 'timestamp' }).notNull(),
+});
+exports.referralProfiles = (0, sqlite_core_1.sqliteTable)('referral_profiles', {
+    userId: (0, sqlite_core_1.text)('user_id')
+        .primaryKey()
+        .references(() => exports.users.id, { onDelete: 'cascade' }),
+    referralCode: (0, sqlite_core_1.text)('referral_code').notNull().unique(),
+    defaultCampaign: (0, sqlite_core_1.text)('default_campaign').default('default'),
+    createdAt: (0, sqlite_core_1.integer)('created_at', { mode: 'timestamp' }).notNull(),
+    updatedAt: (0, sqlite_core_1.integer)('updated_at', { mode: 'timestamp' }).notNull(),
+});
+exports.referralEvents = (0, sqlite_core_1.sqliteTable)('referral_events', {
+    id: (0, sqlite_core_1.text)('id').primaryKey(),
+    ownerUserId: (0, sqlite_core_1.text)('owner_user_id')
+        .notNull()
+        .references(() => exports.users.id, { onDelete: 'cascade' }),
+    referralCode: (0, sqlite_core_1.text)('referral_code')
+        .notNull()
+        .references(() => exports.referralProfiles.referralCode, { onDelete: 'cascade' }),
+    referredUserId: (0, sqlite_core_1.text)('referred_user_id').references(() => exports.users.id, { onDelete: 'set null' }),
+    status: (0, sqlite_core_1.text)('status', {
+        enum: ['pending', 'verified', 'paid', 'cancelled'],
+    }).notNull(),
+    creditsAwarded: (0, sqlite_core_1.integer)('credits_awarded').notNull().default(0),
+    metadata: (0, sqlite_core_1.text)('metadata'),
+    occurredAt: (0, sqlite_core_1.integer)('occurred_at', { mode: 'timestamp' }).notNull(),
     createdAt: (0, sqlite_core_1.integer)('created_at', { mode: 'timestamp' }).notNull(),
     updatedAt: (0, sqlite_core_1.integer)('updated_at', { mode: 'timestamp' }).notNull(),
 });

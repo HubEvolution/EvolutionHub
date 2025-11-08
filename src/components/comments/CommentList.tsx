@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { formatDistanceToNow } from 'date-fns';
 import { de } from 'date-fns/locale';
@@ -6,6 +6,7 @@ import { CommentForm } from './CommentForm';
 import type { Comment, ReportReason } from '../../lib/types/comments';
 import { useCommentStore } from '../../stores/comment-store';
 import { getLocale } from '@/lib/i18n';
+import { sanitizeCommentContent } from '@/lib/security/sanitize';
 
 interface CommentListProps {
   comments: Comment[];
@@ -79,6 +80,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
   const isAdmin = currentUser?.email === 'admin@hub-evolution.com';
   const canEditDelete = isAuthor || !!isAdmin;
   const canReply = depth < maxDepth;
+  const sanitizedContent = useMemo(() => sanitizeCommentContent(comment.content), [comment.content]);
   const hasReplies = comment.replies && comment.replies.length > 0;
 
   const formatDate = (timestamp: number) => {
@@ -197,10 +199,8 @@ const CommentItem: React.FC<CommentItemProps> = ({
               />
             </div>
           ) : (
-            <div className="prose prose-sm max-w-none mb-3">
-              <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
-                {comment.content}
-              </p>
+            <div className="prose prose-sm max-w-none mb-3 whitespace-pre-wrap text-gray-700 dark:text-gray-300">
+              <div dangerouslySetInnerHTML={{ __html: sanitizedContent }} />
             </div>
           )}
 

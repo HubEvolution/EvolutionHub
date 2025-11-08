@@ -3,10 +3,10 @@ import AuthLayout from '@/layouts/AuthLayout.astro';
 import AuthStatusNotifier from '@/components/scripts/AuthStatusNotifier';
 import MagicLinkForm from '@/components/auth/MagicLinkForm.astro';
 import { getI18n } from '@/utils/i18n';
-
 import { getLocale } from '@/lib/i18n';
 import { localizePath } from '@/lib/locale-path';
 import Card from '@/components/ui/Card';
+import { sanitizeReferralCode } from '@/lib/referrals/utils';
 const locale = getLocale(Astro.url.pathname);
 const t = getI18n(locale);
 
@@ -19,6 +19,9 @@ if (locals.user) {
 const rParam = Astro.url.searchParams.get('r') ?? '';
 const safeR =
   typeof rParam === 'string' && rParam.startsWith('/') && !rParam.startsWith('//') ? rParam : '';
+
+const referralQuery = Astro.url.searchParams.get('ref');
+const referralCode = sanitizeReferralCode(referralQuery);
 ---
 
 <AuthLayout title={t('pages.register.title') ?? 'Create an Account'}>
@@ -33,7 +36,13 @@ const safeR =
       }
     </p>
 
-    <MagicLinkForm locale={locale} mode="register" r={safeR} showProfileFields={true} />
+    <MagicLinkForm
+      locale={locale}
+      mode="register"
+      r={safeR}
+      showProfileFields={true}
+      referralCode={referralCode}
+    />
     <p class="text-center mt-4 text-sm">
       {t('pages.register.form.already_have_account_prompt')}
       <a href={localizePath(locale, '/login')} class="text-emerald-600 hover:underline"

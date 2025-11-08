@@ -3,6 +3,23 @@ import { eq, desc, count, sql } from 'drizzle-orm';
 import type { D1Database } from '@cloudflare/workers-types';
 import { referralEvents } from '@/lib/db/schema';
 
+function normalizeTimestamp(value: unknown): number {
+  if (typeof value === 'number') {
+    return value;
+  }
+  if (typeof value === 'bigint') {
+    return Number(value);
+  }
+  if (value instanceof Date) {
+    return value.getTime();
+  }
+  if (typeof value === 'string') {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : 0;
+  }
+  return 0;
+}
+
 export type ReferralEventStatus = 'pending' | 'verified' | 'paid' | 'cancelled';
 
 export interface ReferralStatsSummary {
@@ -88,7 +105,7 @@ export async function getRecentReferralEvents(
 ): Promise<ReferralEventListItem[]> {
   const client = drizzle(db);
 
-  const rows = await client
+  const rows = (await client
     .select({
       id: referralEvents.id,
       status: referralEvents.status,
@@ -98,14 +115,21 @@ export async function getRecentReferralEvents(
     .from(referralEvents)
     .where(eq(referralEvents.ownerUserId, userId))
     .orderBy(desc(referralEvents.occurredAt), desc(referralEvents.createdAt))
-    .limit(limit);
+    .limit(limit)) as Array<{
+    id: string;
+    status: ReferralEventStatus;
+    occurredAt: unknown;
+    creditsAwarded: number | null;
+  }>;
 
-  return rows.map((row) => ({
-    id: row.id,
-    status: row.status as ReferralEventStatus,
-    occurredAt: row.occurredAt,
-    creditsAwarded: row.creditsAwarded ?? 0,
-  }));
+  return rows.map(
+    (row): ReferralEventListItem => ({
+      id: row.id,
+      status: row.status,
+      occurredAt: normalizeTimestamp(row.occurredAt),
+      creditsAwarded: row.creditsAwarded ?? 0,
+    })
+  );
 }
 
 export async function getReferralSummary(

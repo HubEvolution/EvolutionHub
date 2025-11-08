@@ -825,10 +825,10 @@
           },
           "max_resolution": {
             "name": "Included tools",
-            "starter": "All 4 tools",
-            "pro": "All 4 tools",
-            "premium": "All 4 tools",
-            "enterprise": "All 4 tools"
+            "starter": "All 5 tools",
+            "pro": "All 5 tools",
+            "premium": "All 5 tools",
+            "enterprise": "All 5 tools"
           },
           "max_upscale": {
             "name": "—",
@@ -892,12 +892,13 @@
       },
       "sections": {
         "plans": "Plans",
+        "credits_packs": "Credit packs",
         "comparison": "Comparison",
         "faq": "FAQ"
       },
       "highlights": {
-        "tools_title": "All 4 tools included",
-        "tools_desc": "Use Imag‑Enhancer, Prompt Enhancer, Voice Transcriptor, Webscraper",
+        "tools_title": "All 5 tools included",
+        "tools_desc": "Use Imag‑Enhancer, Video Enhancer, Prompt Enhancer, Voice Transcriptor, Webscraper",
         "commercial_title": "Commercial use allowed",
         "commercial_desc": "Pro, Business, and Enterprise include commercial usage rights",
         "credits_title": "Monthly credits + daily burst",
@@ -905,13 +906,45 @@
       },
       "credits_packs": {
         "title": "Buy extra credits",
-        "subtitle": "One-time packs to top up your monthly quota."
+        "subtitle": "One-time packs to top up your monthly quota.",
+        "cards": {
+          "100": {
+            "title": "Starter pack",
+            "price": "€6.00",
+            "description": "Perfect when you just need a few more runs.",
+            "bullets": [
+              "100 additional credits added instantly",
+              "Use across all tools without plan changes"
+            ],
+            "cta": "Buy 100 credits"
+          },
+          "500": {
+            "title": "Creator pack",
+            "price": "€22.00",
+            "description": "Ideal for weekly projects and team workloads.",
+            "bullets": [
+              "500 credits for larger batches",
+              "Keeps daily burst limits untouched"
+            ],
+            "cta": "Buy 500 credits"
+          },
+          "1500": {
+            "title": "Pro pack",
+            "price": "€55.00",
+            "description": "Best value for agencies and production pipelines.",
+            "bullets": [
+              "1,500 credits available immediately",
+              "Shareable across your entire workspace"
+            ],
+            "cta": "Buy 1,500 credits"
+          }
+        }
       },
       "credits_explainer": {
         "title": "What are credits?",
         "intro": "Credits are a unified allowance you can use across all tools. Each operation consumes credits; higher tiers include more credits and higher daily burst caps.",
         "bullets": {
-          "0": "Use credits across tools like Imag‑Enhancer, Prompt Enhancer, and Voice Transcriptor.",
+          "0": "Use credits across tools like Imag‑Enhancer, Video Enhancer, Prompt Enhancer, and Voice Transcriptor.",
           "1": "Your monthly credits reset every billing cycle; daily burst limits protect service quality.",
           "2": "Need more? Buy one‑time Credit Packs (100/500/1500) at any time."
         }

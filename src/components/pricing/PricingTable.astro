@@ -6,6 +6,8 @@ import { getI18n, getI18nArray } from '@/utils/i18n';
 import { localizePath } from '@/lib/locale-path';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
+import type { PricingPlanId } from '@/components/pricing/details-config';
+import PricingDetailsBootstrap from '@/components/pricing/PricingDetailsBootstrap';
 
 interface Plan {
   name: string;
@@ -48,6 +50,9 @@ const sanitize = (s: string) => {
   if (/fallback_not_found/i.test(trimmed)) return '';
   return trimmed;
 };
+
+const planIds: PricingPlanId[] = ['starter', 'pro', 'premium', 'enterprise'];
+const planDetailsLabel = sanitize(t('pages.pricing.table.details.trigger')) || 'More details';
 const perMonthLabel = t('pages.pricing.table.per_month');
 const perYearLabel = sanitize(t('pages.pricing.table.per_year')) || 'per year';
 const annualSavings = sanitize(t('pages.pricing.table.annual_savings')) || 'Pay for 10 months';
@@ -536,139 +541,171 @@ const plans: Plan[] = [
 
 <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mt-6">
   {
-    plans.map((plan, idx) => (
-      <AosWrapper
-        delay={aosDelayForIndex(idx, { step: 100, max: 300 })}
-        class={`relative flex flex-col rounded-2xl`}
-        data-pro-card={plan.featured ? 'true' : undefined}
-      >
-        {plan.featured && <div class="gradient-border z-20" />}
-        {plan.featured && (
-          <div class="absolute top-0 right-0 z-30 -mt-3 -mr-3 px-3 py-1 rounded-full bg-blue-500 text-white text-sm font-semibold shadow-[0_10px_25px_-15px_rgba(37,99,235,0.75)]">
-            {t('pages.pricing.table.featured_badge')}
-          </div>
-        )}
-
-        <Card
-          variant="holo"
-          className={`relative z-10 flex flex-col p-8 rounded-2xl ${
-            plan.featured
-              ? 'border-transparent bg-white/12 dark:bg-white/10 shadow-[0_28px_70px_-36px_rgba(6,182,212,0.85)]'
-              : ''
-          }`}
+    plans.map((plan, idx) => {
+      const planId = planIds[idx] ?? 'starter';
+      return (
+        <AosWrapper
+          delay={aosDelayForIndex(idx, { step: 100, max: 300 })}
+          class={`relative flex flex-col rounded-2xl`}
+          data-pro-card={plan.featured ? 'true' : undefined}
         >
-          <h3 class="text-2xl font-bold">{plan.name}</h3>
-          <p class="mt-2 text-gray-600 dark:text-gray-300">{plan.description}</p>
+          {plan.featured && <div class="gradient-border z-20" />}
+          {plan.featured && (
+            <div class="absolute top-0 right-0 z-30 -mt-3 -mr-3 px-3 py-1 rounded-full bg-blue-500 text-white text-sm font-semibold shadow-[0_10px_25px_-15px_rgba(37,99,235,0.75)]">
+              {t('pages.pricing.table.featured_badge')}
+            </div>
+          )}
 
-          <div class="mt-6">
-            <span
-              class="text-4xl font-extrabold"
-              data-plan={
-                idx === 1 ? 'pro' : idx === 2 ? 'premium' : idx === 3 ? 'enterprise' : undefined
-              }
-              data-role="amount"
-              data-monthly={idx === 1 ? '€12.00' : idx === 2 ? '€28.00' : idx === 3 ? '€99.00' : ''}
-              data-annual={
-                idx === 1 ? '€120.00' : idx === 2 ? '€280.00' : idx === 3 ? '€990.00' : ''
-              }
-            >
-              {plan.price}
-            </span>
-            {
-              // Always render period span for Pro, Premium (Business), and Enterprise so the toggle can update it
-              idx === 1 || idx === 2 || idx === 3 ? (
-                <span
-                  class="text-gray-500 dark:text-gray-400"
-                  data-plan={idx === 1 ? 'pro' : idx === 2 ? 'premium' : 'enterprise'}
-                  data-role="period"
-                  data-monthly={perMonthLabel}
-                  data-annual={perYearLabel}
-                >
-                  {perMonthLabel}
-                </span>
-              ) : null
-            }
-            {idx === 1 || idx === 2 || idx === 3 ? (
+          <Card
+            variant="holo"
+            className={`relative z-10 flex flex-col p-8 rounded-2xl ${
+              plan.featured
+                ? 'border-transparent bg-white/12 dark:bg-white/10 shadow-[0_28px_70px_-36px_rgba(6,182,212,0.85)]'
+                : ''
+            }`}
+          >
+            <h3 class="text-2xl font-bold">{plan.name}</h3>
+            <p class="mt-2 text-gray-600 dark:text-gray-300">{plan.description}</p>
+
+            <div class="mt-6">
               <span
-                class="ml-2 inline-flex items-center text-xs font-medium text-emerald-700 bg-emerald-100 dark:bg-emerald-900/30 dark:text-emerald-300 rounded-full px-2 py-0.5 data-[visible='0']:hidden"
-                data-plan={idx === 1 ? 'pro' : idx === 2 ? 'premium' : 'enterprise'}
-                data-role="badge"
-                data-visible="0"
+                class="text-4xl font-extrabold"
+                data-plan={
+                  idx === 1 ? 'pro' : idx === 2 ? 'premium' : idx === 3 ? 'enterprise' : undefined
+                }
+                data-role="amount"
+                data-monthly={idx === 1 ? '€12.00' : idx === 2 ? '€28.00' : idx === 3 ? '€99.00' : ''}
+                data-annual={
+                  idx === 1 ? '€120.00' : idx === 2 ? '€280.00' : idx === 3 ? '€990.00' : ''
+                }
               >
-                {annualSavings}
+                {plan.price}
               </span>
-            ) : null}
-          </div>
-
-          <ul class="mt-8 space-y-3">
-            {plan.features.map((feature) => (
-              <li class="flex items-center">
-                <svg
-                  class="w-5 h-5 text-green-500 mr-2"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+              {
+                // Always render period span for Pro, Premium (Business), and Enterprise so the toggle can update it
+                idx === 1 || idx === 2 || idx === 3 ? (
+                  <span
+                    class="text-gray-500 dark:text-gray-400"
+                    data-plan={idx === 1 ? 'pro' : idx === 2 ? 'premium' : 'enterprise'}
+                    data-role="period"
+                    data-monthly={perMonthLabel}
+                    data-annual={perYearLabel}
+                  >
+                    {perMonthLabel}
+                  </span>
+                ) : null
+              }
+              {idx === 1 || idx === 2 || idx === 3 ? (
+                <span
+                  class="ml-2 inline-flex items-center text-xs font-medium text-emerald-700 bg-emerald-100 dark:bg-emerald-900/30 dark:text-emerald-300 rounded-full px-2 py-0.5 data-[visible='0']:hidden"
+                  data-plan={idx === 1 ? 'pro' : idx === 2 ? 'premium' : 'enterprise'}
+                  data-role="badge"
+                  data-visible="0"
                 >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-                {feature}
-              </li>
-            ))}
-          </ul>
+                  {annualSavings}
+                </span>
+              ) : null}
+            </div>
 
-          {
-            // Render buttons for Pro and Premium (checkout), Starter (register), Enterprise (buy)
-            plan.name === t('pages.pricing.table.plans.pro.name') ? (
-              <Button
-                id="buy-pro-cta"
-                type="button"
-                variant="primary"
-                size="md"
-                className="mt-8"
-                data-payment-monthly={paymentLinksMonthly['pro']}
-                data-payment-annual={paymentLinksAnnual['pro']}
-              >
-                {plan.cta}
-              </Button>
-            ) : plan.name === t('pages.pricing.table.plans.premium.name') ? (
-              <Button
-                id="buy-premium-cta"
-                type="button"
-                variant="secondary"
-                size="md"
-                className="mt-8"
-                data-payment-monthly={paymentLinksMonthly['premium']}
-                data-payment-annual={paymentLinksAnnual['premium']}
-              >
-                {plan.cta}
-              </Button>
-            ) : plan.name === t('pages.pricing.table.plans.enterprise.name') ? (
-              <Button
-                id="buy-enterprise-cta"
-                type="button"
-                variant="accent"
-                size="md"
-                className="mt-8"
-                data-payment-monthly={paymentLinksMonthly['enterprise']}
-                data-payment-annual={paymentLinksAnnual['enterprise']}
-              >
-                {ctaBuyEnterprise}
-              </Button>
-            ) : (
-              <a href={localizePath(locale, '/register')} class="mt-8 flex">
-                <Button as="span" variant="outline" size="md" className="w-full justify-center">
+            <ul class="mt-8 space-y-3">
+              {plan.features.map((feature) => (
+                <li class="flex items-center">
+                  <svg
+                    class="w-5 h-5 text-green-500 mr-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                  {feature}
+                </li>
+              ))}
+            </ul>
+
+            {
+              // Render buttons for Pro and Premium (checkout), Starter (register), Enterprise (buy)
+              plan.name === t('pages.pricing.table.plans.pro.name') ? (
+                <Button
+                  id="buy-pro-cta"
+                  type="button"
+                  variant="primary"
+                  size="md"
+                  className="mt-8"
+                  data-payment-monthly={paymentLinksMonthly['pro']}
+                  data-payment-annual={paymentLinksAnnual['pro']}
+                >
                   {plan.cta}
                 </Button>
-              </a>
-            )
-          }
-        </Card>
-      </AosWrapper>
-    ))
+              ) : plan.name === t('pages.pricing.table.plans.premium.name') ? (
+                <Button
+                  id="buy-premium-cta"
+                  type="button"
+                  variant="secondary"
+                  size="md"
+                  className="mt-8"
+                  data-payment-monthly={paymentLinksMonthly['premium']}
+                  data-payment-annual={paymentLinksAnnual['premium']}
+                >
+                  {plan.cta}
+                </Button>
+              ) : plan.name === t('pages.pricing.table.plans.enterprise.name') ? (
+                <Button
+                  id="buy-enterprise-cta"
+                  type="button"
+                  variant="accent"
+                  size="md"
+                  className="mt-8"
+                  data-payment-monthly={paymentLinksMonthly['enterprise']}
+                  data-payment-annual={paymentLinksAnnual['enterprise']}
+                >
+                  {plan.cta}
+                </Button>
+              ) : (
+                <Button
+                  as="a"
+                  href={localizePath(locale, '/register')}
+                  variant="ghost"
+                  size="md"
+                  className="mt-8"
+                >
+                  {plan.cta}
+                </Button>
+              )
+            }
+
+            <button
+              type="button"
+              class="mt-4 inline-flex items-center gap-2 text-sm font-medium text-primary-200 transition hover:text-primary-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-400"
+              data-pricing-detail-trigger
+              data-pricing-detail-kind="plan"
+              data-pricing-detail-id={planId}
+              aria-haspopup="dialog"
+            >
+              {planDetailsLabel}
+              <svg
+                class="h-4 w-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="m9 5 7 7-7 7" />
+              </svg>
+            </button>
+          </Card>
+        </AosWrapper>
+      );
+    })
   }
 </div>
+
+<PricingDetailsBootstrap client:load locale={locale} />

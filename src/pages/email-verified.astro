@@ -301,7 +301,7 @@ if (error) {
 >
 </div>
 
-<script>
+<script is:inline>
   // Auto-redirect to dashboard after successful verification
   const configEl = document.querySelector('[data-page-state]');
   const pageState = configEl?.getAttribute('data-page-state');
@@ -341,7 +341,7 @@ if (error) {
   }
 </script>
 
-<script>
+<script is:inline>
   (() => {
     try {
       const url = new URL(window.location.href);

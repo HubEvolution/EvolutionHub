@@ -19,3 +19,9 @@ export function getLandingBgVariant(): LandingBgVariant {
   if (v === 'techcells' || v === 'off' || v === 'lattice') return v as LandingBgVariant;
   return 'techcells';
 }
+
+export function isToolsFilterEnabled(): boolean {
+  const raw = import.meta.env.PUBLIC_TOOLS_FILTER ?? 'true';
+  const value = String(raw).toLowerCase().trim();
+  return value === '1' || value === 'true' || value === 'on' || value === 'yes';
+}

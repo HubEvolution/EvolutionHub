@@ -12,13 +12,21 @@ interface RecordReferralSignupOptions {
   occurredAt?: number;
   status?: ReferralEventStatus;
   creditsAwarded?: number;
+  metadata?: Record<string, unknown>;
 }
 
 export async function recordReferralSignup(
   db: D1Database,
   options: RecordReferralSignupOptions
 ): Promise<{ recorded: boolean; reason?: string }> {
-  const { referralCode, referredUserId, occurredAt, status = 'verified', creditsAwarded = 0 } = options;
+  const {
+    referralCode,
+    referredUserId,
+    occurredAt,
+    status = 'verified',
+    creditsAwarded = 0,
+    metadata,
+  } = options;
   const client = drizzle(db);
 
   const safeCode = sanitizeReferralCode(referralCode);
@@ -57,6 +65,7 @@ export async function recordReferralSignup(
   }
 
   const timestamp = occurredAt ?? Date.now();
+  const metadataPayload = metadata ?? { source: 'signup_magic_link' };
 
   await client.insert(referralEvents).values({
     id: crypto.randomUUID(),
@@ -65,7 +74,7 @@ export async function recordReferralSignup(
     referredUserId,
     status,
     creditsAwarded,
-    metadata: JSON.stringify({ source: 'signup_magic_link' }),
+    metadata: JSON.stringify(metadataPayload),
     occurredAt: timestamp,
     createdAt: timestamp,
     updatedAt: timestamp,

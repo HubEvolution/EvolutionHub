@@ -4,16 +4,24 @@ exports.HEAD = exports.OPTIONS = exports.DELETE = exports.PATCH = exports.PUT = 
 const api_middleware_1 = require("@/lib/api-middleware");
 const rate_limiter_1 = require("@/lib/rate-limiter");
 const auth_helpers_1 = require("@/lib/auth-helpers");
+function getAdminEnv(context) {
+    const env = (context.locals?.runtime?.env ?? {});
+    return (env ?? {});
+}
 function isValidIp(ip) {
     const ipv4 = /^(?:\d{1,3}\.){3}\d{1,3}$/;
     const ipv6 = /:/; // simple check; detailed IPv6 regex is verbose
     return ipv4.test(ip) || ipv6.test(ip);
 }
 exports.GET = (0, api_middleware_1.withAuthApiMiddleware)(async (context) => {
-    const { request, url, locals } = context;
+    const { request, url } = context;
+    const env = getAdminEnv(context);
+    const db = env.DB;
+    if (!db) {
+        return (0, api_middleware_1.createApiError)('server_error', 'Database unavailable');
+    }
     try {
-        const dbMaybe = (locals.runtime?.env ?? {}).DB;
-        await (0, auth_helpers_1.requireAdmin)({ request, env: { DB: dbMaybe } });
+        await (0, auth_helpers_1.requireAdmin)({ request, env: { DB: db } });
     }
     catch {
         return (0, api_middleware_1.createApiError)('forbidden', 'Insufficient permissions');

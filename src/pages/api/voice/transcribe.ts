@@ -29,7 +29,7 @@ type VoiceEnv = {
   WHISPER_MODEL?: string;
   ENVIRONMENT?: string;
   R2_VOICE?: import('@cloudflare/workers-types').R2Bucket;
-  VOICE_R2_ARCHIVE?: import('@cloudflare/workers-types').R2Bucket;
+  VOICE_R2_ARCHIVE?: string | number | boolean;
   VOICE_DEV_ECHO?: string | number | boolean;
 };
 
@@ -62,6 +62,19 @@ function ensureGuestIdCookie(context: APIContext): string {
     });
   }
   return guestId;
+}
+
+function normalizeFlag(value: unknown): string | undefined {
+  if (typeof value === 'string') {
+    return value;
+  }
+  if (typeof value === 'number') {
+    return Number.isFinite(value) ? String(value) : undefined;
+  }
+  if (typeof value === 'boolean') {
+    return value ? '1' : '0';
+  }
+  return undefined;
 }
 
 export const POST = withApiMiddleware(
@@ -140,9 +153,12 @@ export const POST = withApiMiddleware(
       OPENAI_API_KEY: openaiKey,
       WHISPER_MODEL: env.WHISPER_MODEL,
       ENVIRONMENT: env.ENVIRONMENT,
-      R2_VOICE: env.R2_VOICE,
-      VOICE_R2_ARCHIVE: env.VOICE_R2_ARCHIVE,
-      VOICE_DEV_ECHO: env.VOICE_DEV_ECHO,
+      R2_VOICE:
+        typeof env.R2_VOICE === 'object' && env.R2_VOICE !== null
+          ? (env.R2_VOICE as import('@cloudflare/workers-types').R2Bucket)
+          : undefined,
+      VOICE_R2_ARCHIVE: normalizeFlag(env.VOICE_R2_ARCHIVE),
+      VOICE_DEV_ECHO: normalizeFlag(env.VOICE_DEV_ECHO),
     });
     const aggregator = new VoiceStreamAggregator(env.KV_VOICE_TRANSCRIBE);
     const jobId = jobIdForm || (crypto.randomUUID?.() ?? Math.random().toString(36).slice(2));

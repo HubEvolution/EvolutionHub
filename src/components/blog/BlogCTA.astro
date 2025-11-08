@@ -221,19 +221,19 @@ const positionClass: Record<NonNullable<Props['position']>, string> = {
   </div>
 </div>
 
-<script>
+<script is:inline>
   // Event-Listener für CTA-Tracking
   document.addEventListener('DOMContentLoaded', () => {
     const ctaButtons = document.querySelectorAll('.blog-cta-button');
 
     ctaButtons.forEach((button) => {
       if (!(button instanceof HTMLElement)) return;
-      button.addEventListener('click', (e: Event) => {
+      button.addEventListener('click', (event) => {
         const ctaType = button.dataset?.analyticsType;
         const leadMagnet = button.dataset?.leadmagnet;
 
         // Analytics-Event senden
-        const gtag = (window as any).gtag;
+        const gtag = window.gtag;
         if (typeof gtag === 'function') {
           gtag('event', 'cta_click', {
             cta_type: ctaType,
@@ -247,28 +247,28 @@ const positionClass: Record<NonNullable<Props['position']>, string> = {
 
         // Lead-Magnet-Download handling
         if (ctaType === 'leadmagnet' && leadMagnet) {
-          e.preventDefault();
+          event.preventDefault();
           // Trigger Lead-Magnet-Modal oder redirect zur Landing Page
           window.location.href = `/lead-magnets/${leadMagnet}`;
         }
 
         // Newsletter handling
         if (ctaType === 'newsletter') {
-          e.preventDefault();
+          event.preventDefault();
           // Scroll to newsletter form oder trigger modal
           const newsletterForm = document.querySelector('.newsletter-form, #newsletter-form');
           if (newsletterForm instanceof HTMLElement) {
             newsletterForm.scrollIntoView({ behavior: 'smooth' });
             const emailInput = newsletterForm.querySelector('input[type="email"]');
-            if (emailInput instanceof HTMLElement) {
-              setTimeout(() => (emailInput as any).focus?.(), 500);
+            if (emailInput instanceof HTMLElement && typeof emailInput.focus === 'function') {
+              setTimeout(() => emailInput.focus(), 500);
             }
           }
         }
 
         // Social sharing
         if (ctaType === 'social') {
-          e.preventDefault();
+          event.preventDefault();
           // Implement social sharing logic
           if (navigator.share) {
             navigator.share({

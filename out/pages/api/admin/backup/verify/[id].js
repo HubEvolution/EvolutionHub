@@ -6,11 +6,16 @@ const d1_1 = require("drizzle-orm/d1");
 const backup_service_1 = require("@/lib/services/backup-service");
 const auth_helpers_1 = require("@/lib/auth-helpers");
 const rate_limiter_1 = require("@/lib/rate-limiter");
+function getAdminEnv(context) {
+    const env = (context.locals?.runtime?.env ?? {});
+    return (env ?? {});
+}
 exports.POST = (0, api_middleware_1.withAuthApiMiddleware)(async (context) => {
-    const env = (context.locals?.runtime?.env || {});
+    const env = getAdminEnv(context);
     const db = env.DB;
-    if (!db)
+    if (!db) {
         return (0, api_middleware_1.createApiError)('server_error', 'Database unavailable');
+    }
     try {
         await (0, auth_helpers_1.requireAdmin)({
             req: { header: (n) => context.request.headers.get(n) || undefined },
@@ -21,9 +26,11 @@ exports.POST = (0, api_middleware_1.withAuthApiMiddleware)(async (context) => {
     catch {
         return (0, api_middleware_1.createApiError)('forbidden', 'Insufficient permissions');
     }
-    const jobId = context.params?.id?.toString().trim();
-    if (!jobId)
+    const jobIdParam = context.params?.id;
+    if (typeof jobIdParam !== 'string' || jobIdParam.trim().length === 0) {
         return (0, api_middleware_1.createApiError)('validation_error', 'Backup ID required');
+    }
+    const jobId = jobIdParam.trim();
     try {
         const service = new backup_service_1.BackupService((0, d1_1.drizzle)(db));
         const isValid = await service.verifyBackupIntegrity(jobId);

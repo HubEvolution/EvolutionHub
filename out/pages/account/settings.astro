@@ -1,11 +1,13 @@
 ---
 import { getLocale } from '@/lib/i18n';
 
-return Astro.redirect(
-  getLocale(Astro.url.pathname) === 'de'
+const locale = getLocale(Astro.url.pathname);
+const target =
+  locale === 'de'
     ? '/de/dashboard#account-settings'
-    : getLocale(Astro.url.pathname) === 'en'
+    : locale === 'en'
       ? '/en/dashboard#account-settings'
-      : '/dashboard#account-settings',
-);
+      : '/dashboard#account-settings';
+
+return Astro.redirect(target);
 ---

@@ -1,4 +1,5 @@
 import type React from 'react';
+import Button from '@/components/ui/Button';
 import type { ImagEnhancerMVPStrings, ModelOption, UsageData } from './types';
 
 export interface EnhancerActionsMVPProps {
@@ -55,14 +56,15 @@ export function EnhancerActionsMVP(props: EnhancerActionsMVPProps): React.ReactE
 
       {/* Enhance Button */}
       <div className="flex justify-center">
-        <button
+        <Button
           type="button"
           onClick={onEnhance}
           disabled={!canSubmit || loading || quotaExceeded}
-          className="px-8 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white rounded-md font-medium transition-colors min-h-[44px]"
+          size="md"
+          className="px-8"
         >
           {loading ? strings.processing : strings.enhance}
-        </button>
+        </Button>
       </div>
 
       {/* Usage Info */}

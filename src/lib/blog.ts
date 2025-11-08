@@ -1,339 +1,256 @@
-/// <reference types="astro/client" />
-import { getCollection, type CollectionEntry } from 'astro:content';
+import type { EntryCollection } from 'contentful';
 
-// ContentService is assumed to be correctly imported and functional.
-import { ContentService } from './content';
-import type { BlogListOptions, ProcessedBlogPost, PaginatedResult } from '../content/types';
-import { formatDate } from '@/content/config'; // Verwende die existierende formatDate-Funktion aus content/config.ts
-import type { CategoryWithCount, TagWithCount } from '../types/blog';
+import {
+  getContentfulClient,
+  mapEntryToBlogPost,
+  type ContentfulBlogEntry,
+  type BlogPostSkeleton,
+} from '@/lib/contentful';
+import type { BlogListOptions, ProcessedBlogPost, PaginatedResult } from '@/content/types';
+import type { CategoryWithCount, TagWithCount } from '@/types/blog';
 
-// Export BlogCollectionEntry type so it can be used elsewhere, assuming it's correctly defined or inferred.
-// Using Astro's built-in `CollectionEntry<'blog'>` to ensure compatibility and correct type inference.
-export type BlogCollectionEntry = CollectionEntry<'blog'>;
+type CachedBlogData = {
+  entries: ContentfulBlogEntry[];
+  processedPosts: ProcessedBlogPost[];
+};
 
-// Define the BlogPostService interface to ensure BlogService implements the required methods for blog-specific operations.
-// Exporting the interface might help TypeScript resolve types more reliably across files.
-export interface BlogPostService {
-  /**
-   * Retrieves a single blog post by its slug, returning the original entry and processed data.
-   * @param slug The unique identifier for the blog post.
-   * @returns A promise that resolves to the blog post data or undefined if not found.
-   */
-  getEntryBySlug(
-    slug: string
-  ): Promise<{ entry: BlogCollectionEntry; processedData: ProcessedBlogPost } | undefined>;
+const DEFAULT_PER_PAGE = 10;
 
-  /**
-   * Retrieves related blog posts based on tags or category.
-   * @param currentPost The blog post for which related posts are sought.
-   * @param options Optional parameters for filtering and limiting related posts.
-   * @returns A promise that resolves to an array of processed blog posts.
-   */
-  getRelatedEntries(
-    currentPost: BlogCollectionEntry,
-    options: BlogListOptions & { limit?: number }
-  ): Promise<ProcessedBlogPost[]>;
+export class BlogService {
+  private readonly defaultOptions: BlogListOptions;
+  private cachedData?: Promise<CachedBlogData>;
 
-  /**
-   * Optimized method to get data needed for the blog index page.
-   * Fetches all posts once and returns paginated/filtered results along with categories and tags.
-   */
-  getBlogIndexData(
-    page: number,
-    perPage: number,
-    options: Omit<BlogListOptions, 'limit' | 'offset'>
-  ): Promise<{
-    posts: ProcessedBlogPost[];
-    categories: CategoryWithCount[];
-    tags: TagWithCount[];
-    total: number;
-    currentPage: number;
-    totalPages: number;
-  }>;
-}
-
-/**
- * Blog-specific content service that extends the base ContentService.
- * Handles fetching, processing, and filtering blog posts.
- * It implements the BlogPostService interface to guarantee certain blog-specific methods are available.
- */
-export class BlogService extends ContentService<BlogCollectionEntry> implements BlogPostService {
   constructor(options: BlogListOptions = {}) {
-    // Use 'blog' as the collection name, which corresponds to the 'src/content/blog' directory
-    // as defined in Astro's content collections configuration.
-    super('blog', options);
-  }
-
-  /**
-   * Calculates reading time for a given text.
-   * @param text The content to calculate reading time for.
-   * @returns An object containing the reading time text, minutes, time in ms, and word count.
-   */
-  calculateReadingTime(text: string): {
-    text: string;
-    minutes: number;
-    time: number;
-    words: number;
-  } {
-    const words = text.split(/\s+/).filter(Boolean);
-    const wordCount = words.length;
-    // Assume an average reading speed of 200 words per minute
-    const minutes = Math.ceil(wordCount / 200);
-    const time = minutes * 60 * 1000; // Time in milliseconds
-
-    let timeText = '';
-    if (minutes === 0) {
-      timeText = 'Less than a minute read';
-    } else if (minutes === 1) {
-      timeText = '1 minute read';
-    } else {
-      timeText = `${minutes} minutes read`;
-    }
-
-    return { text: timeText, minutes, time, words: wordCount };
-  }
-
-  /**
-   * Processes a single blog post entry to include calculated and formatted data.
-   * @param post The raw blog collection entry.
-   * @returns A ProcessedBlogPost object with enriched data.
-   */
-  processPost(post: BlogCollectionEntry): ProcessedBlogPost {
-    const readingTime = this.calculateReadingTime(post.body);
-
-    // Format dates
-    const formattedPubDate = formatDate(post.data.pubDate);
-    const formattedUpdatedDate = post.data.updatedDate
-      ? formatDate(post.data.updatedDate)
-      : undefined;
-
-    return {
-      ...post,
-      readingTime,
-      formattedPubDate,
-      formattedUpdatedDate,
-      url: this.getPostUrl(post),
+    this.defaultOptions = {
+      limit: DEFAULT_PER_PAGE,
+      offset: 0,
+      includeDrafts: import.meta.env.DEV,
+      ...options,
     };
   }
 
-  /**
-   * Fetches all blog posts and returns them along with calculated categories and tags.
-   * This method is optimized to fetch all blog entries only once.
-   * It does NOT apply pagination here, but returns all processed data.
-   */
-  private cachedBlogIndexData?: Promise<{
-    processedPosts: ProcessedBlogPost[];
-    categories: CategoryWithCount[];
-    tags: TagWithCount[];
-  }>;
+  private resolveIncludeDrafts(options?: BlogListOptions): boolean {
+    if (options?.includeDrafts !== undefined) {
+      return options.includeDrafts;
+    }
+    if (this.defaultOptions.includeDrafts !== undefined) {
+      return Boolean(this.defaultOptions.includeDrafts);
+    }
+    return import.meta.env.DEV;
+  }
 
-  private async fetchAllBlogData(): Promise<{
-    processedPosts: ProcessedBlogPost[];
-    categories: CategoryWithCount[];
-    tags: TagWithCount[];
-  }> {
-    // If data is already cached, return it.
-    if (!this.cachedBlogIndexData) {
-      // Fetch all blog entries.
-      // Explicitly typing the result of getCollection to help TypeScript infer types.
-      const allEntries: BlogCollectionEntry[] = await getCollection('blog'); // Direct call without super
+  private async fetchAllBlogData(force = false): Promise<CachedBlogData> {
+    if (!this.cachedData || force) {
+      const client = getContentfulClient();
+      const { lang } = this.defaultOptions;
 
-      // Ensure that `allEntries` is an array before mapping.
-      const processedPosts = Array.isArray(allEntries)
-        ? allEntries.map((post) => this.processPost(post))
-        : [];
+      const query: Record<string, unknown> = {
+        content_type: 'blogPost',
+        include: 2,
+        order: ['-fields.publishDate'],
+      };
+      if (lang) {
+        query['fields.lang'] = lang;
+      }
 
-      // Sort by publication date (newest first) to ensure newest posts appear first on the index
+      const response: EntryCollection<BlogPostSkeleton> = await client.getEntries<BlogPostSkeleton>(query);
+      const entries = response.items ?? [];
+      const processedPosts = entries.map((entry) => mapEntryToBlogPost(entry));
+
       processedPosts.sort((a, b) => {
         const dateA = new Date((a.data.updatedDate ?? a.data.pubDate) as Date | string).getTime();
         const dateB = new Date((b.data.updatedDate ?? b.data.pubDate) as Date | string).getTime();
-        return dateB - dateA; // newest first by updatedDate fallback to pubDate
+        return dateB - dateA;
       });
 
-      // Calculate categories with counts
-      const categoryMap = new Map<string, number>();
-      processedPosts.forEach((post) => {
-        if (post.data.category) {
-          const cat = post.data.category as string;
-          const currentCount = categoryMap.get(cat) || 0;
-          categoryMap.set(cat, currentCount + 1);
-        }
-      });
-      const categoriesWithCounts: CategoryWithCount[] = Array.from(categoryMap.entries())
-        .map(([name, count]) => ({ name, count }))
-        .sort((a, b) => a.name.localeCompare(b.name, 'de')); // Sort by name (German locale)
-
-      // Calculate tags with counts
-      const tagMap = new Map<string, number>();
-      processedPosts.forEach((post) => {
-        post.data.tags?.forEach((tag: string) => {
-          tagMap.set(tag, (tagMap.get(tag) || 0) + 1);
-        });
-      });
-      const tagsWithCounts: TagWithCount[] = Array.from(tagMap.entries())
-        .map(([name, count]) => ({ name, count }))
-        .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
-
-      // Cache the data before returning
-      this.cachedBlogIndexData = Promise.resolve({
-        processedPosts,
-        categories: categoriesWithCounts,
-        tags: tagsWithCounts,
-      });
+      this.cachedData = Promise.resolve({ entries, processedPosts });
     }
-    // Return the cached data
-    return this.cachedBlogIndexData!;
+
+    return this.cachedData;
   }
 
-  /**
-   * Retrieves all category data, including counts, by fetching all blog posts once.
-   * This method leverages the cached data from fetchAllBlogData.
-   * @returns A promise resolving to an array of categories with their counts.
-   */
-  async getAllCategories(): Promise<CategoryWithCount[]> {
-    const { categories } = await this.fetchAllBlogData();
-    return categories;
-  }
+  private filterPosts(posts: ProcessedBlogPost[], options: BlogListOptions = {}): ProcessedBlogPost[] {
+    const includeDrafts = this.resolveIncludeDrafts(options);
+    const searchTerm =
+      typeof options.search === 'string' && options.search.trim().length > 0
+        ? options.search.trim().toLowerCase()
+        : undefined;
+    const tagFilter = options.tag ? options.tag.toLowerCase() : undefined;
 
-  /**
-   * Retrieves all tag data, including counts, by fetching all blog posts once.
-   * This method leverages the cached data from fetchAllBlogData.
-   * @returns A promise resolving to an array of tags with their counts.
-   */
-  async getAllTags(): Promise<TagWithCount[]> {
-    const { tags } = await this.fetchAllBlogData();
-    return tags;
-  }
-
-  /**
-   * Gets the total count of posts matching given options.
-   * This method is optimized to reuse the filtering logic from getBlogIndexData,
-   * thus minimizing redundant computations.
-   * @param options - Filtering options for posts.
-   * @returns The total count of matching posts.
-   */
-  async getTotalCount(options: BlogListOptions): Promise<number> {
-    // Leverage getBlogIndexData which already performs filtering, caching, and calculates total count.
-    // We pass page=1 and a large perPage value (e.g., 99999) to ensure we get the total count for all matching posts
-    // without unintended pagination truncation from getPaginatedPosts.
-    // The options object is passed directly, as it matches the expected type for filtering.
-    const result = await this.getBlogIndexData(1, 99999, options);
-    return result.total;
-  }
-
-  /**
-   * Get a paginated list of blog posts.
-   * This method now leverages the optimized fetch and applies pagination.
-   */
-  async getPaginatedPosts(
-    page: number = 1,
-    perPage: number = 10,
-    options: Omit<BlogListOptions, 'limit' | 'offset'> = {}
-  ): Promise<PaginatedResult<ProcessedBlogPost>> {
-    // Fetch all posts, then apply filters, and then paginate.
-    // This is slightly less efficient than filtering during collection fetching for counts,
-    // but necessary for returning processed posts with proper pagination.
-    const { processedPosts: allPosts } = await this.fetchAllBlogData();
-
-    // Apply filters from options
-    const filteredPosts = allPosts.filter((post) => {
-      let match = true;
+    return posts.filter((post) => {
+      if (!includeDrafts && post.data.draft) {
+        return false;
+      }
       if (options.category && post.data.category !== options.category) {
-        match = false;
+        return false;
       }
-      if (options.tag && !(post.data.tags as string[])?.includes(options.tag)) {
-        match = false;
-      }
-      if (options.search && typeof options.search === 'string' && options.search.trim() !== '') {
-        const searchTerm = options.search.toLowerCase();
-        // Check if search term is in body or title.
-        const title = post.data.title as string;
-        if (
-          !(
-            post.body.toLowerCase().includes(searchTerm) || title.toLowerCase().includes(searchTerm)
-          )
-        ) {
-          match = false;
-        }
+      if (options.lang && post.data.lang !== options.lang) {
+        return false;
       }
       if (options.featured !== undefined && post.data.featured !== options.featured) {
-        match = false;
+        return false;
       }
-      if (options.includeDrafts === false && post.data.draft === true) {
-        match = false;
+      if (tagFilter) {
+        const tags = Array.isArray(post.data.tags)
+          ? (post.data.tags as string[]).map((tag) => tag.toLowerCase())
+          : [];
+        if (!tags.includes(tagFilter)) {
+          return false;
+        }
       }
-      return match;
+      if (searchTerm) {
+        const title = ((post.data.title as string | undefined) ?? '').toLowerCase();
+        const body = (post.body ?? '').toLowerCase();
+        if (!title.includes(searchTerm) && !body.includes(searchTerm)) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+  }
+
+  private computeCategories(posts: ProcessedBlogPost[]): CategoryWithCount[] {
+    const categoryMap = new Map<string, number>();
+    posts.forEach((post) => {
+      const category = post.data.category as string | undefined;
+      if (!category) return;
+      categoryMap.set(category, (categoryMap.get(category) || 0) + 1);
     });
 
-    const total = filteredPosts.length;
-    const totalPages = Math.ceil(total / perPage);
-    const paginatedPosts = filteredPosts.slice((page - 1) * perPage, page * perPage);
+    return Array.from(categoryMap.entries())
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => a.name.localeCompare(b.name, 'de'));
+  }
 
-    // Return correct structure: items, total, page, perPage, totalPages
+  private computeTags(posts: ProcessedBlogPost[]): TagWithCount[] {
+    const tagMap = new Map<string, number>();
+    posts.forEach((post) => {
+      const rawTags = post.data.tags as unknown;
+      const tags: string[] = Array.isArray(rawTags)
+        ? rawTags.filter((tag): tag is string => typeof tag === 'string')
+        : [];
+      tags.forEach((tag) => {
+        tagMap.set(tag, (tagMap.get(tag) || 0) + 1);
+      });
+    });
+
+    return Array.from(tagMap.entries())
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+  }
+
+  async getAllPosts(options: BlogListOptions = {}): Promise<ProcessedBlogPost[]> {
+    const { processedPosts } = await this.fetchAllBlogData();
+    const includeDrafts = this.resolveIncludeDrafts(options);
+    const base = includeDrafts ? processedPosts : processedPosts.filter((post) => !post.data.draft);
+    return this.filterPosts(base, options);
+  }
+
+  async getAllCategories(options: BlogListOptions = {}): Promise<CategoryWithCount[]> {
+    const { processedPosts } = await this.fetchAllBlogData();
+    const includeDrafts = this.resolveIncludeDrafts(options);
+    const base = includeDrafts ? processedPosts : processedPosts.filter((post) => !post.data.draft);
+    return this.computeCategories(base);
+  }
+
+  async getAllTags(options: BlogListOptions = {}): Promise<TagWithCount[]> {
+    const { processedPosts } = await this.fetchAllBlogData();
+    const includeDrafts = this.resolveIncludeDrafts(options);
+    const base = includeDrafts ? processedPosts : processedPosts.filter((post) => !post.data.draft);
+    return this.computeTags(base);
+  }
+
+  async getTotalCount(options: BlogListOptions = {}): Promise<number> {
+    const posts = await this.getAllPosts(options);
+    return posts.length;
+  }
+
+  async getPaginatedPosts(
+    page: number = 1,
+    perPage: number = DEFAULT_PER_PAGE,
+    options: Omit<BlogListOptions, 'limit' | 'offset'> = {}
+  ): Promise<PaginatedResult<ProcessedBlogPost>> {
+    const posts = await this.getAllPosts(options);
+    const total = posts.length;
+    const totalPages = Math.ceil(total / perPage) || 1;
+    const currentPage = Math.max(1, Math.min(page, totalPages));
+    const offset = (currentPage - 1) * perPage;
+    const items = posts.slice(offset, offset + perPage);
+
     return {
-      items: paginatedPosts, // Use 'items' as per PaginatedResult type
-      total: total,
-      page: page,
-      totalPages: totalPages,
+      items,
+      total,
+      page: currentPage,
+      totalPages,
     };
   }
 
-  /**
-   * Get related blog posts
-   */
-  // This method is defined in BlogService to add processing after fetching related entries.
-  public async getRelatedPosts(
-    currentPost: BlogCollectionEntry,
-    options: BlogListOptions & { limit?: number }
+  async getPublishedPosts(): Promise<ProcessedBlogPost[]> {
+    return this.getAllPosts({ includeDrafts: false });
+  }
+
+  async getRelatedPosts(
+    slug: string,
+    options: BlogListOptions & { limit?: number } = {}
   ): Promise<ProcessedBlogPost[]> {
-    // Fetch related entries using the super method.
-    // The super method (from ContentService) is getRelatedEntries.
-    // Explicitly typing the result from super.getRelatedEntries.
-    const relatedEntries: BlogCollectionEntry[] = await super.getRelatedEntries(
-      currentPost,
-      options
-    );
+    const { processedPosts } = await this.fetchAllBlogData();
+    const includeDrafts = this.resolveIncludeDrafts(options);
+    const basePosts = includeDrafts ? processedPosts : processedPosts.filter((post) => !post.data.draft);
 
-    // Process the fetched related entries into the ProcessedBlogPost format.
-    const processedPosts = relatedEntries.map((entry) => this.processPost(entry));
-
-    return processedPosts;
-  }
-
-  /**
-   * Get a single blog post by slug with its original entry and processed data.
-   * This method is defined in BlogService to combine entry fetching with post processing.
-   */
-  public async getPostBySlug(
-    slug: string
-  ): Promise<{ entry: BlogCollectionEntry; processedData: ProcessedBlogPost } | undefined> {
-    // Fetch the original entry using the super method.
-    // The super method (from ContentService) is getEntryBySlug.
-    // Explicitly typing the result from super.getEntryBySlug.
-    const entry: BlogCollectionEntry | undefined = await super.getEntryBySlug(slug); // Assume getEntryBySlug returns the original entry
-    if (entry) {
-      // Process the fetched entry into the desired format.
-      const processedData = this.processPost(entry);
-      return { entry, processedData };
+    const current = processedPosts.find((post) => post.slug === slug);
+    if (!current) {
+      return [];
     }
-    return undefined;
+
+    const currentTags = Array.isArray(current.data.tags) ? (current.data.tags as string[]) : [];
+    const currentCategory = current.data.category as string | undefined;
+
+    const scored = basePosts
+      .filter((post) => post.slug !== slug)
+      .map((post) => {
+        const postTags = Array.isArray(post.data.tags) ? (post.data.tags as string[]) : [];
+        const tagMatches = postTags.filter((tag) => currentTags.includes(tag)).length;
+        const categoryMatch = currentCategory && post.data.category === currentCategory ? 1 : 0;
+        const score = tagMatches * 2 + categoryMatch;
+        return { post, score };
+      })
+      .filter((item) => item.score > 0);
+
+    const limit = options.limit ?? 3;
+
+    return scored
+      .sort((a, b) => {
+        if (b.score !== a.score) {
+          return b.score - a.score;
+        }
+        const dateA = new Date((a.post.data.updatedDate ?? a.post.data.pubDate) as Date | string).getTime();
+        const dateB = new Date((b.post.data.updatedDate ?? b.post.data.pubDate) as Date | string).getTime();
+        return dateB - dateA;
+      })
+      .slice(0, limit)
+      .map((item) => item.post);
   }
 
-  /**
-   * Generate URL for a blog post
-   */
-  private getPostUrl(post: BlogCollectionEntry): string {
-    return `/blog/${post.slug}/`;
+  async getPostBySlug(
+    slug: string
+  ): Promise<{ entry: ContentfulBlogEntry; processedData: ProcessedBlogPost } | undefined> {
+    const { entries, processedPosts } = await this.fetchAllBlogData();
+    const entry = entries.find((item) => item.fields.slug === slug);
+    if (!entry) {
+      return undefined;
+    }
+
+    const processed =
+      processedPosts.find((post) => post.slug === slug) ?? mapEntryToBlogPost(entry as ContentfulBlogEntry);
+
+    return { entry, processedData: processed };
   }
 
-  /**
-   * Optimized method to get data needed for the blog index page.
-   * Fetches all posts once and returns paginated/filtered results along with categories and tags.
-   */
   async getBlogIndexData(
     page: number,
     perPage: number,
-    options: Omit<BlogListOptions, 'limit' | 'offset'>
+    options: Omit<BlogListOptions, 'limit' | 'offset'> = {}
   ): Promise<{
     posts: ProcessedBlogPost[];
     categories: CategoryWithCount[];
@@ -342,46 +259,22 @@ export class BlogService extends ContentService<BlogCollectionEntry> implements 
     currentPage: number;
     totalPages: number;
   }> {
-    // Fetch all necessary data in one go to avoid multiple collection fetches
-    const { processedPosts, categories, tags } = await this.fetchAllBlogData();
+    const { processedPosts } = await this.fetchAllBlogData();
+    const includeDrafts = this.resolveIncludeDrafts(options);
 
-    // Apply filters from options
-    const filteredPosts = processedPosts.filter((post) => {
-      let match = true;
-      if (options.category && post.data.category !== options.category) {
-        match = false;
-      }
-      if (options.tag && !(post.data.tags as string[])?.includes(options.tag)) {
-        match = false;
-      }
-      if (options.search && typeof options.search === 'string' && options.search.trim() !== '') {
-        const searchTerm = options.search.toLowerCase();
-        const title = post.data.title as string;
-        if (
-          !(
-            post.body.toLowerCase().includes(searchTerm) || title.toLowerCase().includes(searchTerm)
-          )
-        ) {
-          match = false;
-        }
-      }
-      if (options.featured !== undefined && post.data.featured !== options.featured) {
-        match = false;
-      }
-      if (options.includeDrafts === false && post.data.draft === true) {
-        match = false;
-      }
-      return match;
-    });
+    const basePosts = includeDrafts ? processedPosts : processedPosts.filter((post) => !post.data.draft);
+    const categories = this.computeCategories(basePosts);
+    const tags = this.computeTags(basePosts);
+    const filtered = this.filterPosts(basePosts, options);
 
-    // Calculate pagination
-    const total = filteredPosts.length;
-    const totalPages = Math.ceil(total / perPage);
-    const currentPage = page;
-    const paginatedPosts = filteredPosts.slice((page - 1) * perPage, page * perPage);
+    const total = filtered.length;
+    const totalPages = Math.ceil(total / perPage) || 1;
+    const currentPage = Math.max(1, Math.min(page, totalPages));
+    const offset = (currentPage - 1) * perPage;
+    const posts = filtered.slice(offset, offset + perPage);
 
     return {
-      posts: paginatedPosts,
+      posts,
       categories,
       tags,
       total,
@@ -391,5 +284,6 @@ export class BlogService extends ContentService<BlogCollectionEntry> implements 
   }
 }
 
-// Default blog service instance. It's explicitly typed as BlogService to help TypeScript.
-export const blogService: BlogService = new BlogService();
+export const blogService = new BlogService();
+
+export type { ContentfulBlogEntry } from '@/lib/contentful';

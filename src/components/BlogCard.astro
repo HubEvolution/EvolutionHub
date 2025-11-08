@@ -1,5 +1,5 @@
 ---
-import type { ProcessedBlogPost } from '@/content/types';
+import type { BlogPostData, ProcessedBlogPost } from '@/content/types';
 import { getLocale } from '@/lib/i18n';
 import { localizePath } from '@/lib/locale-path';
 import ArrowRightCircleIcon from 'astro-heroicons/solid/ArrowRightCircle.astro';
@@ -13,66 +13,95 @@ interface Props {
   aosDelay?: number;
 }
 
-interface BlogFrontmatter {
-  title: string;
-  description?: string;
-  image?: { src: string; width: number; height: number };
-  imageAlt?: string;
-  category?: string;
-}
-
 const { post, featured = false, className = '', aosDelay } = Astro.props as Props;
-const data = post.data as BlogFrontmatter;
-const { title, description, image, imageAlt, category } = data;
+const data = post.data as unknown as BlogPostData;
+const title = data.title;
+const description = post.excerpt ?? data.description;
+const rawImage = data.image;
+const imageAlt = data.imageAlt ?? data.title;
+const category = data.category;
+
+type SafeImage = { src: string; width?: number; height?: number };
+
+const fallbackImage: SafeImage = {
+  src: '/images/blog/default-og.jpg',
+  width: 1200,
+  height: 630,
+};
+const cardImage: SafeImage = rawImage && typeof rawImage === 'object'
+  ? { src: rawImage.src, width: rawImage.width, height: rawImage.height }
+  : fallbackImage;
+const fallbackSrc = fallbackImage.src;
+const getMimeType = (path: string): string | undefined => {
+  const ext = path.split('.').pop()?.toLowerCase();
+  if (!ext) return undefined;
+  switch (ext) {
+    case 'webp':
+      return 'image/webp';
+    case 'png':
+      return 'image/png';
+    case 'jpg':
+    case 'jpeg':
+      return 'image/jpeg';
+    default:
+      return undefined;
+  }
+};
+
+const cardImageMimeType = getMimeType(cardImage.src);
+const cardImageWidth = cardImage.width ?? fallbackImage.width;
+const cardImageHeight = cardImage.height ?? fallbackImage.height;
 
 const { url, formattedPubDate, readingTime } = post;
 const locale = getLocale(Astro.url.pathname);
 const localizedUrl = localizePath(locale, url);
 ---
 
-<Card
-  as="article"
-  variant="holo"
-  className={[
-    'group relative flex flex-col overflow-hidden rounded-lg transition-all duration-300 group-hover:-translate-y-1',
-    featured ? 'md:flex-row ring-1 ring-white/10' : 'flex-col',
-    className,
-  ].join(' ')}
+<article
+  class:list={[className]}
   data-itemscope
   data-itemtype="http://schema.org/BlogPosting"
-  data-aos="fade-up"
-  data-aos-duration="650"
-  {...typeof aosDelay === 'number' ? { 'data-aos-delay': String(aosDelay) } : {}}
 >
-  {
-    image && (
-      <div class={featured ? 'md:w-1/3' : 'w-full'}>
-        <a
-          href={localizedUrl}
-          class:list={[
-            'block aspect-video overflow-hidden',
-            featured
-              ? 'rounded-t-lg md:rounded-l-lg md:rounded-tr-none md:rounded-br-none'
-              : 'rounded-t-lg',
-          ]}
-          aria-label={`Bild für ${title}`}
-          tabindex="-1"
-        >
+  <Card
+    as="section"
+    variant="holo"
+    className={[
+      'group relative flex flex-col overflow-hidden rounded-lg transition-all duration-300 group-hover:-translate-y-1',
+      featured ? 'md:flex-row ring-1 ring-white/10' : 'flex-col',
+    ].join(' ')}
+    data-aos="fade-up"
+    data-aos-duration="650"
+    {...(typeof aosDelay === 'number' ? { 'data-aos-delay': String(aosDelay) } : {})}
+  >
+    <div class={featured ? 'md:w-1/3' : 'w-full'}>
+      <a
+        href={localizedUrl}
+        class:list={[
+          'block aspect-video overflow-hidden',
+          featured
+            ? 'rounded-t-lg md:rounded-l-lg md:rounded-tr-none md:rounded-br-none'
+            : 'rounded-t-lg',
+        ]}
+        aria-label={`Bild für ${title}`}
+        tabindex="-1"
+      >
+        <picture>
+          <source srcset={cardImage.src} type={cardImageMimeType} />
           <img
-            src={(image as any).src || ''}
-            alt={imageAlt ? imageAlt : title}
+            src={fallbackSrc}
+            alt={imageAlt}
             class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
             loading="lazy"
-            width={(image as any).width}
-            height={(image as any).height}
+            width={cardImageWidth}
+            height={cardImageHeight}
+            onerror={`this.onerror=null;this.src='${fallbackSrc}';`}
           />
-        </a>
-      </div>
-    )
-  }
+        </picture>
+      </a>
+    </div>
 
-  <div class:list={['flex flex-col flex-grow', featured && image ? 'p-6 md:w-2/3' : 'p-6']}>
-    <div class="flex-grow">
+    <div class:list={['flex flex-col flex-grow', featured ? 'p-6 md:w-2/3' : 'p-6']}>
+      <div class="flex-grow">
       {
         category && (
           <div class="mb-2">
@@ -102,9 +131,7 @@ const localizedUrl = localizePath(locale, url);
 
       <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-3">
         <time
-          datetime={data.pubDate instanceof Date
-            ? data.pubDate.toISOString()
-            : new Date(data.pubDate as any).toISOString()}
+          datetime={(data.pubDate instanceof Date ? data.pubDate : new Date(String(data.pubDate))).toISOString()}
           class="whitespace-nowrap"
           data-itemprop="datePublished"
         >
@@ -146,11 +173,11 @@ const localizedUrl = localizePath(locale, url);
         )
       }
     </div>
-
     <div class="mt-auto pt-2">
       <a
         href={localizedUrl}
-        class="relative z-10 inline-flex items-center font-semibold text-emerald-600 hover:text-emerald-500 dark:text-emerald-400 dark:hover:text-emerald-300 transition-colors group/readmore"
+        class="group/readmore inline-flex items-center text-emerald-600 hover:text-emerald-500 dark:text-emerald-400 dark:hover:text-emerald-300 transition-colors"
+        data-itemprop="url"
         aria-label={`Weiterlesen: ${title}`}
       >
         Weiterlesen
@@ -159,10 +186,10 @@ const localizedUrl = localizePath(locale, url);
         />
       </a>
     </div>
-  </div>
-</Card>
+  </Card>
+</article>
 
-<script>
+<script is:inline>
   try {
     const nodes = document.querySelectorAll('[id^="cc-"][data-entity-type][data-entity-id]');
     nodes.forEach((el) => {
@@ -172,7 +199,7 @@ const localizedUrl = localizePath(locale, url);
       const endpoint = `/api/comments/count?entityType=${encodeURIComponent(entityType)}&entityId=${encodeURIComponent(entityId)}`;
       fetch(endpoint)
         .then((r) => (r.ok ? r.json() : Promise.reject(new Error('bad response'))))
-        .then((json: any) => {
+        .then((json) => {
           const c = json?.data?.count ?? 0;
           el.textContent = String(c);
         })
@@ -189,7 +216,7 @@ const localizedUrl = localizePath(locale, url);
       const url = `/api/analytics/views?slug=${encodeURIComponent(slug)}`;
       fetch(url)
         .then((r) => (r.ok ? r.json() : Promise.reject(new Error('bad response'))))
-        .then((json: any) => {
+        .then((json) => {
           const c = json?.data?.count ?? 0;
           el.textContent = String(c);
         })

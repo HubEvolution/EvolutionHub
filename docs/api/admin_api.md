@@ -1,7 +1,7 @@
 ---
 description: 'Admin API — Moderation, Status, Users, Plan, Credits (secured)'
 owner: 'API Team'
-lastSync: '2025-10-31'
+lastSync: '2025-11-07'
 codeRefs: 'src/pages/api/admin/**, src/lib/api-middleware.ts'
 ---
 
@@ -15,7 +15,11 @@ codeRefs: 'src/pages/api/admin/**, src/lib/api-middleware.ts'
 
 - Rate limiting: reads use `apiRateLimiter` (30/min), writes use `sensitiveActionLimiter` (5/hour).
 
-- Response format: `createApiSuccess({ data })` on success, `createApiError({ type, message })` on error.
+- Response format: `createApiSuccess({ data })` on success, `createApiError({ type, message, details? })` on error.
+- Feature Flags / Env:
+  - `INTERNAL_CREDIT_GRANT` (`"1"` = erlaubt) schützt Kredit-Anpassungen in Produktion.
+  - `ENVIRONMENT=production` erzwingt zusätzliche Guards (z. B. Kredit-Anpassung nur mit Flag).
+  - Rate-Limiter-Stände abrufbar über `/api/admin/rate-limits/state` (siehe unten).
 
 ## Status
 
@@ -214,15 +218,140 @@ curl -i -X DELETE https://hub-evolution.com/api/admin/comments/COMMENT_ID \
 GET `/api/admin/metrics`
 
 - Returns live metrics (active sessions/users, totals, 24h counters).
-
 - Role: admin
+
+## Referrals — Events List
+
+GET `/api/admin/referrals/list`
+
+- Feature Flag: `ENABLE_REFERRAL_REWARDS` muss aktiv sein (
+  Env `ENABLE_REFERRAL_REWARDS=1`).
+- Role: admin, Middleware: `withAuthApiMiddleware` inkl. `apiRateLimiter` (30/min).
+- Query-Parameter (alle optional):
+  - `status`: `pending|verified|paid|cancelled|all` (Standard: `all`)
+  - `ownerUserId`: Filter auf Referral-Owner
+  - `referralCode`: exakter Referral-Code, sanitized (`sanitizeReferralCode`)
+  - `limit`: 1..100 (Standard 25)
+  - `offset`: klassische Pagination (Fallback, wenn `cursor` nicht genutzt wird)
+  - `cursor`: Opaque Cursor (`nextCursor` aus vorheriger Response)
+- Response (`200`):
+
+```json
+{
+  "success": true,
+  "data": {
+    "events": [
+      {
+        "id": "refevt_...",
+        "status": "verified",
+        "referralCode": "lucas-123",
+        "creditsAwarded": 200,
+        "occurredAt": "2025-11-07T17:21:00.000Z",
+        "owner": {
+          "userId": "usr_admin",
+          "email": "owner@example.com",
+          "name": "Owner Name"
+        },
+        "referred": {
+          "userId": "usr_referred",
+          "email": "friend@example.com"
+        },
+        "metadata": {
+          "stripeCheckoutId": "cs_test_123"
+        }
+      }
+    ],
+    "stats": {
+      "pending": 2,
+      "verified": 5,
+      "paid": 3,
+      "cancelled": 1,
+      "total": 11
+    },
+    "pagination": {
+      "count": 11,
+      "hasMore": false,
+      "nextCursor": null
+    },
+    "filters": {
+      "status": "verified",
+      "ownerUserId": "usr_admin"
+    }
+  }
+}
+```
+
+- Fehlerfälle:
+  - `auth_error` (401) wenn Session fehlt oder kein Admin
+  - `forbidden` (403) wenn Feature Flag deaktiviert
+  - `validation_error` für ungültige Filter (z. B. Status nicht in Allowlist)
+
+## Referrals — Summary
+
+GET `/api/admin/referrals/summary`
+
+- Feature Flag: `ENABLE_REFERRAL_REWARDS=1`
+- Role: admin, Middleware inkl. `apiRateLimiter`
+- Antwort (`200`):
+
+```json
+{
+  "success": true,
+  "data": {
+    "stats": {
+      "totals": {
+        "totalEvents": 42,
+        "totalCredits": 8600,
+        "ownerCount": 18,
+        "referredCount": 27
+      },
+      "breakdown": {
+        "pending": 5,
+        "verified": 21,
+        "paid": 12,
+        "cancelled": 4
+      }
+    },
+    "recentEvents": [
+      {
+        "id": "refevt_123",
+        "status": "paid",
+        "referralCode": "lucas-123",
+        "creditsAwarded": 400,
+        "occurredAt": 1731024000000,
+        "owner": {
+          "userId": "usr_admin",
+          "email": "admin@hub-evolution.com"
+        },
+        "referred": {
+          "userId": "usr_customer",
+          "email": "customer@example.com"
+        }
+      }
+    ],
+    "topOwners": [
+      {
+        "userId": "usr_top",
+        "email": "champ@example.com",
+        "name": "Champion",
+        "eventCount": 6,
+        "totalCredits": 1200,
+        "lastEventAt": 1731024000000
+      }
+    ]
+  }
+}
+```
+
+- Fehlerfälle: Analog zur Liste (`auth_error`, `forbidden`, `server_error`)
+
+Die Summary wird im Admin-Dashboard als „Referral Insights“-Card gerendert.@src/pages/admin/index.astro#472-620
 
 ## Traffic (24h)
 
 GET `/api/admin/traffic-24h`
 
 - Returns Cloudflare traffic for the last 24 hours.
-
 - Payload: `{ pageViews: number, visits: number, from: ISO, to: ISO, series?: Array<{ t: string, pageViews?: number, visits?: number }> }`
 
 - Query: `?series=1` to include a 24‑point series for a sparkline.
@@ -352,17 +481,29 @@ curl -i "https://hub-evolution.com/api/admin/users/summary?email=someone@example
 
 ```bash
 
-## Credits Grant
+## Credits — Grant
 
 POST `/api/admin/credits/grant`
 
-- Body: `{ email: string, amount?: number }` (credits; default 1000)
+- Body (strict Zod-Validierung):
+
+```json
+{
+  "email": "user@example.com",
+  "amount": 1000
+}
+```
+
+- `email`: Pflicht, `includes('@')`
+- `amount`: optional, Standard 1000 Credits; wird auf `1..100000` geclamped (Ganzzahl)
 
 - Headers: `X-CSRF-Token`, `Content-Type: application/json`
 
 - Access: admin; feature‑gated by `INTERNAL_CREDIT_GRANT`
 
-Example:
+- Audit-Log: `ADMIN_ACTION` (`resource=credits`, `action=credit_grant`, Details JSON mit `email`, `userId`, `amount`, `packId`).
+
+- Example:
 
 ```bash
 CSRF=abc123
@@ -373,6 +514,50 @@ curl -i -X POST https://hub-evolution.com/api/admin/credits/grant \
   -H "Cookie: csrf_token=$CSRF; __Host-session=<token>" \
   --data '{"email":"someone@example.com","amount":1000}'
 ```
+
+## Credits — Deduct
+
+POST `/api/admin/credits/deduct`
+
+- Body:
+
+```json
+{
+  "email": "user@example.com",
+  "amount": 500,
+  "idempotencyKey": "manual-case-42",
+  "strict": true
+}
+```
+
+- `amount`: Pflicht, clamp 1..100000 Credits (Ganzzahl).
+- `strict`: Standard `true`; bei `true` wird der aktuelle Kontostand geprüft (`insufficient_credits`).
+- `idempotencyKey`: optional; wird auf 64 Zeichen gekappt, sonst auto-generiert.
+
+- Headers: `X-CSRF-Token`, `Content-Type: application/json`
+- Access: admin; `INTERNAL_CREDIT_GRANT` muss für Prod aktiviert sein.
+- Response: `{ success, data: { requested, deducted, remainingTenths, balance, jobId, breakdown, idempotent } }`
+- Audit-Log: `ADMIN_ACTION` (`action=credit_deduct`, Details inkl. `requested`, `deducted`, `strict`, `jobId`).
+
+## Credits — Usage
+
+GET `/api/admin/credits/usage?userId=<uuid>`
+
+- Query: `userId` (Pflicht, string)
+- Antwort: `{ success, data: { userId, balance, tenths } }`
+- Rolle: admin
+- Rate-Limiter: `apiRateLimiter`
+- Fehler:
+  - `validation_error` (fehlender/leer userId)
+  - `not_found` falls Nutzer nicht existiert
+
+## Credits — History
+
+GET `/api/admin/credits/history?userId=<uuid>&limit=50&cursor=<opaque>`
+
+- Query Validierung via Zod: `userId` Pflicht, `limit` 1..100, `cursor` optional.
+- Antwort: `{ success, data: { items: [{ id, unitsTenths, createdAt, expiresAt }, ...] } }`
+- Rolle: admin; Rate-Limiter `apiRateLimiter`
 
 ## See also
 

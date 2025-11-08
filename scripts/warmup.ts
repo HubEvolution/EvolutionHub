@@ -209,6 +209,13 @@ async function main() {
     '/en/',
     '/tools',
     '/en/tools',
+    '/pricing',
+    '/en/pricing',
+    '/login',
+    '/en/login',
+    '/register',
+    '/en/register',
+    '/admin',
     '/tools/imag-enhancer/app',
     '/en/tools/imag-enhancer/app',
     '/tools/prompt-enhancer/app',
@@ -217,26 +224,43 @@ async function main() {
     '/en/tools/webscraper/app',
     '/tools/voice-visualizer/app',
     '/en/tools/voice-visualizer/app',
+    '/tools/video-enhancer/app',
+    '/en/tools/video-enhancer/app',
     '/blog',
     '/en/blog',
   ];
   await prewarmPaths(baseUrl, 'pages', pagePaths, concurrency);
 
+  const blogPaths = [
+    '/blog/ki-als-kollege',
+    '/blog/ai-ethics-workplace',
+    '/blog/digital-detox-kreativitaet',
+    '/blog/digital-leadership',
+    '/blog/gig-economy-chancen-risiken',
+    '/blog/imposter-syndrom-ueberwinden',
+    '/blog/ki-im-alltag',
+    '/blog/konstruktives-feedback-geben',
+    '/blog/lebenslanges-lernen-karriere',
+    '/blog/mentoring-2-0',
+    '/blog/new-work-ist-eine-haltung',
+    '/blog/pomodoro-technik-home-office',
+    '/blog/sustainable-productivity',
+    '/blog/vom-ziel-zur-gewohnheit',
+    '/blog/wissensmanagement-second-brain',
+    '/blog/zukunft-der-fuehrung',
+  ];
+  await prewarmPaths(baseUrl, 'blog-archive', blogPaths, concurrency);
+
   // APIs (public, lightweight)
   const apiPaths = [
     '/api/tools',
-    '/api/dashboard/quick-actions',
     '/api/ai-image/usage',
+    '/api/ai-video/usage',
     '/api/prompt/usage',
     '/api/voice/usage',
     '/api/webscraper/usage',
-    '/api/lead-magnets/download',
   ];
   await prewarmPaths(baseUrl, 'apis', apiPaths, concurrency);
-
-  // Comments (light)
-  const commentPaths = ['/api/comments/recent'];
-  await prewarmPaths(baseUrl, 'comments', commentPaths, concurrency);
 
   // Optional: warm top blog posts via RSS
   const rssPostPaths = await prewarmRssTopPosts(baseUrl, 3);

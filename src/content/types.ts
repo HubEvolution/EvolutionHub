@@ -57,13 +57,9 @@ export interface BlogPostData {
  * This includes standard Astro content entry properties.
  */
 export interface BlogPost {
-  /** Unique identifier for the content entry. */
   id: string;
-  /** The slug used to identify the blog post in URLs. */
   slug: string;
-  /** The main content of the blog post, usually in Markdown. */
   body: string;
-  /** The metadata associated with the blog post. */
   data: BlogPostData;
 }
 
@@ -97,7 +93,7 @@ interface BlogCollectionEntryBase {
   id: string;
   slug: string;
   body: string;
-  data: Record<string, unknown>; // Placeholder, specific data is defined in BlogPostData
+  data: BlogPostData;
 }
 
 /**
@@ -113,6 +109,10 @@ export interface ProcessedBlogPost extends BlogCollectionEntryBase {
   formattedUpdatedDate?: string;
   /** The URL of the blog post. */
   url: string;
+  /** Optional sanitized HTML representation of the post body (e.g., Contentful Rich Text). */
+  bodyHtml?: string;
+  /** Short excerpt generated from the body, useful for previews. */
+  excerpt?: string;
 }
 
 /**

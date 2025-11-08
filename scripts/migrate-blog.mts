@@ -1,6 +1,7 @@
 // scripts/migrate-blog.ts
 import fs from 'fs/promises';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import matter from 'gray-matter';
 // Angenommen, die Feldtypen sind in "../lib/blog.ts" definiert und exportiert.
 // Falls nicht, müssten diese Typen hier explizit definiert werden.
@@ -81,41 +82,75 @@ function prepareFields(frontmatter: Record<string, any>, markdownContent: string
 }
 
 async function migrateBlogPosts() {
-  const migrationFileDir = path.resolve(__dirname); // Verzeichnis, in dem das Skript liegt
-  const blogSourceDir = path.resolve(migrationFileDir, '../src/content/blog'); // Pfad zu Ihren Markdown-Posts
-  const outputFilePath = path.resolve(migrationFileDir, 'contentful_migration.json'); // Ziel-JSON-Datei
+  const migrationFileDir = path.dirname(fileURLToPath(import.meta.url));
+  const blogSourceDir = path.resolve(migrationFileDir, '../src/content/blog');
+  const outputFilePath = path.resolve(migrationFileDir, 'contentful_migration.json');
+  const assetManifestPath = path.resolve(migrationFileDir, 'contentful_assets.json');
 
   console.log(`Suche nach Markdown-Dateien in: ${blogSourceDir}`);
 
   try {
     const files = await fs.readdir(blogSourceDir);
     const blogPostsForImport: Array<{ sys: { contentType: { sys: { id: string } } }; fields: Partial<ContentfulBlogPostFields> }> = [];
+    const assetEntries: Array<{ source: string; resolvedPath: string; referencedIn: string }> = [];
+    const seenAssets = new Set<string>();
 
     for (const file of files) {
-      if (file.endsWith('.md')) {
-        const filePath = path.join(blogSourceDir, file);
-        const fileContent = await fs.readFile(filePath, 'utf-8');
-        const { data: frontmatter, content } = matter(fileContent);
+      if (!(file.endsWith('.md') || file.endsWith('.mdx'))) continue;
 
-        const preparedFields = prepareFields(frontmatter, content);
+      const filePath = path.join(blogSourceDir, file);
+      const fileContent = await fs.readFile(filePath, 'utf-8');
+      const { data: frontmatter, content } = matter(fileContent);
+      const entryDir = path.dirname(filePath);
 
-        // Struktur für Contentful CLI Import anpassen
-        blogPostsForImport.push({
-          sys: {
-            contentType: {
-              sys: {
-                id: CONTENTFUL_CONTENT_TYPE_ID
-              }
-            }
-          },
-          fields: preparedFields
-        });
+      const preparedFields = prepareFields(frontmatter, content);
+
+      if (typeof frontmatter.image === 'string') {
+        const resolved = path.resolve(entryDir, frontmatter.image.replace(/^\.\//, ''));
+        if (!seenAssets.has(resolved)) {
+          seenAssets.add(resolved);
+          assetEntries.push({
+            source: frontmatter.image,
+            resolvedPath: resolved,
+            referencedIn: preparedFields.slug ?? path.parse(file).name,
+          });
+        }
       }
+
+      const imageRegex = /!\[[^\]]*\]\(([^)]+)\)/g;
+      let match: RegExpExecArray | null;
+      while ((match = imageRegex.exec(content)) !== null) {
+        const assetPath = match[1];
+        if (assetPath.startsWith('http')) continue;
+        const resolved = path.resolve(entryDir, assetPath.replace(/^\.\//, ''));
+        if (!seenAssets.has(resolved)) {
+          seenAssets.add(resolved);
+          assetEntries.push({
+            source: assetPath,
+            resolvedPath: resolved,
+            referencedIn: preparedFields.slug ?? path.parse(file).name,
+          });
+        }
+      }
+
+      blogPostsForImport.push({
+        sys: {
+          contentType: {
+            sys: {
+              id: CONTENTFUL_CONTENT_TYPE_ID,
+            },
+          },
+        },
+        fields: preparedFields,
+      });
     }
 
     await fs.writeFile(outputFilePath, JSON.stringify(blogPostsForImport, null, 2), 'utf-8');
     console.log(`Erfolgreich ${blogPostsForImport.length} Posts für Contentful vorbereitet.`);
     console.log(`Die Migrationsdatei wurde unter ${outputFilePath} gespeichert.`);
+
+    await fs.writeFile(assetManifestPath, JSON.stringify(assetEntries, null, 2), 'utf-8');
+    console.log(`Asset-Manifest mit ${assetEntries.length} Einträgen gespeichert unter ${assetManifestPath}.`);
 
   } catch (error: any) {
     console.error('Fehler während des Migrationsskripts:', error.message);

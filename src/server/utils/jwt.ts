@@ -1,6 +1,7 @@
 import { sign, verify } from 'hono/jwt';
+import type { JWTPayload } from 'hono/utils/jwt/types';
 
-interface JwtPayload {
+export interface JwtPayload extends JWTPayload {
   userId: string;
   exp: number;
 }
@@ -15,7 +16,22 @@ export async function createJwt(userId: string, secret: string): Promise<string>
 
 export async function verifyJwt(token: string, secret: string): Promise<JwtPayload | null> {
   try {
-    return await verify(token, secret);
+    const decoded = (await verify(token, secret)) as JWTPayload | undefined;
+    if (
+      decoded &&
+      typeof decoded === 'object' &&
+      'userId' in decoded &&
+      typeof decoded.userId === 'string' &&
+      'exp' in decoded &&
+      typeof decoded.exp === 'number'
+    ) {
+      return {
+        userId: decoded.userId,
+        exp: decoded.exp,
+        ...decoded,
+      };
+    }
+    return null;
   } catch (_error) {
     return null;
   }

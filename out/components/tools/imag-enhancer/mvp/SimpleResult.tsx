@@ -1,6 +1,7 @@
 import React, { useMemo, useCallback } from 'react';
-import type { ImagEnhancerMVPStrings, UsageData } from './types';
 import { toast } from 'sonner';
+import Button from '@/components/ui/Button';
+import type { ImagEnhancerMVPStrings, UsageData } from './types';
 import { clientLogger } from '@/lib/client-logger';
 
 export interface SimpleResultProps {
@@ -92,23 +93,19 @@ export function SimpleResult(props: SimpleResultProps): React.ReactElement {
 
       {/* Action Buttons */}
       <div className="flex flex-wrap gap-3 justify-center">
-        <button
-          type="button"
-          onClick={onDownload}
-          disabled={loading}
-          className="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-md font-medium transition-colors"
-        >
+        <Button type="button" onClick={onDownload} disabled={loading} className="px-6">
           {strings.download}
-        </button>
+        </Button>
 
-        <button
+        <Button
           type="button"
           onClick={onStartOver}
           disabled={loading}
-          className="px-6 py-2 bg-gray-600 hover:bg-gray-700 disabled:bg-gray-400 text-white rounded-md font-medium transition-colors"
+          variant="secondary"
+          className="px-6"
         >
           {strings.ui?.startOver || 'Start Over'}
-        </button>
+        </Button>
       </div>
 
       {/* Usage Info */}

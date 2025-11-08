@@ -4,28 +4,50 @@ exports.HEAD = exports.OPTIONS = exports.DELETE = exports.PATCH = exports.PUT = 
 const api_middleware_1 = require("@/lib/api-middleware");
 const auth_helpers_1 = require("@/lib/auth-helpers");
 const usage_1 = require("@/lib/kv/usage");
+const validation_1 = require("@/lib/validation");
+function getAdminEnv(context) {
+    const env = (context.locals?.runtime?.env ?? {});
+    return (env ?? {});
+}
+const querySchema = validation_1.z
+    .object({
+    email: validation_1.z
+        .string()
+        .trim()
+        .toLowerCase()
+        .optional()
+        .transform((value) => (value ? value.trim() : '')),
+    id: validation_1.z
+        .string()
+        .trim()
+        .optional()
+        .transform((value) => (value ? value.trim() : '')),
+})
+    .refine((val) => !!val.email || !!val.id, {
+    message: 'email or id required',
+    path: ['email'],
+});
 exports.GET = (0, api_middleware_1.withAuthApiMiddleware)(async (context) => {
-    const { locals, request } = context;
-    const env = (locals?.runtime?.env ?? {});
+    const { request } = context;
+    const env = getAdminEnv(context);
     const db = env.DB;
     const kv = env.KV_AI_ENHANCER;
     if (!db)
         return (0, api_middleware_1.createApiError)('server_error', 'Database unavailable');
     try {
-        await (0, auth_helpers_1.requireAdmin)({
-            req: { header: (n) => context.request.headers.get(n) || undefined },
-            request,
-            env: { DB: db },
-        });
+        await (0, auth_helpers_1.requireAdmin)({ request, env: { DB: db } });
     }
     catch {
         return (0, api_middleware_1.createApiError)('forbidden', 'Insufficient permissions');
     }
     const url = new URL(request.url);
-    const email = (url.searchParams.get('email') || '').trim().toLowerCase();
-    const id = (url.searchParams.get('id') || '').trim();
-    if (!email && !id)
-        return (0, api_middleware_1.createApiError)('validation_error', 'email or id required');
+    const parsedQuery = querySchema.safeParse(Object.fromEntries(url.searchParams));
+    if (!parsedQuery.success) {
+        return (0, api_middleware_1.createApiError)('validation_error', 'Invalid query', {
+            details: (0, validation_1.formatZodError)(parsedQuery.error),
+        });
+    }
+    const { email, id } = parsedQuery.data;
     let userRow = null;
     try {
         if (email) {
@@ -34,7 +56,7 @@ exports.GET = (0, api_middleware_1.withAuthApiMiddleware)(async (context) => {
                 .bind(email)
                 .first();
         }
-        else {
+        else if (id) {
             userRow = await db
                 .prepare('SELECT id, email, name, plan, created_at FROM users WHERE id = ?1 LIMIT 1')
                 .bind(id)

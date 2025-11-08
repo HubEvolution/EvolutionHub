@@ -7,12 +7,17 @@ const auth_helpers_1 = require("@/lib/auth-helpers");
 const validation_1 = require("@/lib/validation");
 const admin_1 = require("@/lib/validation/schemas/admin");
 const stripe_1 = require("stripe");
+function getAdminEnv(context) {
+    const env = (context.locals?.runtime?.env ?? {});
+    return (env ?? {});
+}
 exports.POST = (0, api_middleware_1.withAuthApiMiddleware)(async (context) => {
-    const { locals, request } = context;
-    const env = (locals.runtime?.env ?? {});
+    const { request } = context;
+    const env = getAdminEnv(context);
     const db = env.DB;
-    if (!db)
+    if (!db) {
         return (0, api_middleware_1.createApiError)('server_error', 'Database unavailable');
+    }
     try {
         await (0, auth_helpers_1.requireAdmin)({ request, env: { DB: db } });
     }
@@ -61,7 +66,7 @@ exports.POST = (0, api_middleware_1.withAuthApiMiddleware)(async (context) => {
     }
     catch { }
     // Orchestrate Stripe subscription changes; webhook will sync users.plan
-    const envRaw = (locals.runtime?.env ?? {});
+    const envRaw = (context.locals.runtime?.env ?? {});
     const stripeSecret = typeof envRaw.STRIPE_SECRET === 'string' ? envRaw.STRIPE_SECRET : '';
     const targetPlan = body.plan;
     const interval = body.interval === 'annual' ? 'annual' : 'monthly';
@@ -200,7 +205,7 @@ exports.POST = (0, api_middleware_1.withAuthApiMiddleware)(async (context) => {
         await db
             .prepare(`INSERT INTO audit_logs (id, event_type, actor_user_id, actor_ip, resource, action, details, created_at)
            VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)`)
-            .bind(crypto.randomUUID(), 'ADMIN_ACTION', locals.user?.id || null, ip, 'user', 'set_plan', JSON.stringify({
+            .bind(crypto.randomUUID(), 'ADMIN_ACTION', context.locals.user?.id || null, ip, 'user', 'set_plan', JSON.stringify({
             userId,
             email: targetEmail || undefined,
             from: prevPlan,

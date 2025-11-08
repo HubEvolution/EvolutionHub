@@ -42,6 +42,9 @@ export interface ScrapingConfig {
   timeout?: number;
   maxSizeBytes?: number;
   respectRobotsTxt?: boolean;
+  selector?: string;
+  format?: 'text' | 'html' | 'json';
+  maxDepth?: number;
 }
 
 export interface UsageInfo {

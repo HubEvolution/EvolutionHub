@@ -645,10 +645,10 @@
           },
           "max_resolution": {
             "name": "Enthaltene Tools",
-            "starter": "Alle 4 Tools",
-            "pro": "Alle 4 Tools",
-            "premium": "Alle 4 Tools",
-            "enterprise": "Alle 4 Tools"
+            "starter": "Alle 5 Tools",
+            "pro": "Alle 5 Tools",
+            "premium": "Alle 5 Tools",
+            "enterprise": "Alle 5 Tools"
           },
           "max_upscale": {
             "name": "—",
@@ -712,12 +712,13 @@
       },
       "sections": {
         "plans": "Pläne",
+        "credits_packs": "Credit-Pakete",
         "comparison": "Vergleich",
         "faq": "FAQ"
       },
       "highlights": {
-        "tools_title": "Alle 4 Tools enthalten",
-        "tools_desc": "Imag‑Enhancer, Prompt Enhancer, Voice Transcriptor, Webscraper nutzen",
+        "tools_title": "Alle 5 Tools enthalten",
+        "tools_desc": "Imag‑Enhancer, Video Enhancer, Prompt Enhancer, Voice Transcriptor, Webscraper nutzen",
         "commercial_title": "Kommerzielle Nutzung erlaubt",
         "commercial_desc": "Pro, Business und Enterprise enthalten kommerzielle Nutzungsrechte",
         "credits_title": "Monatliche Credits + Tages‑Burst",
@@ -725,13 +726,45 @@
       },
       "credits_packs": {
         "title": "Zusätzliche Credits kaufen",
-        "subtitle": "Einmalige Pakete zum Auffüllen deines monatlichen Kontingents."
+        "subtitle": "Einmalige Pakete zum Auffüllen deines monatlichen Kontingents.",
+        "cards": {
+          "100": {
+            "title": "Starter-Paket",
+            "price": "6,00 €",
+            "description": "Perfekt, wenn dir nur wenige Runs fehlen.",
+            "bullets": [
+              "100 zusätzliche Credits sofort gutgeschrieben",
+              "Für alle Tools nutzbar – ohne Planwechsel"
+            ],
+            "cta": "100 Credits kaufen"
+          },
+          "500": {
+            "title": "Creator-Paket",
+            "price": "22,00 €",
+            "description": "Ideal für wöchentliche Projekte und Team-Workflows.",
+            "bullets": [
+              "500 Credits für größere Batches",
+              "Schont deine täglichen Burst-Limits"
+            ],
+            "cta": "500 Credits kaufen"
+          },
+          "1500": {
+            "title": "Pro-Paket",
+            "price": "55,00 €",
+            "description": "Bestes Preis-Leistungs-Verhältnis für Agenturen und Produktionsteams.",
+            "bullets": [
+              "1.500 Credits sofort verfügbar",
+              "Im gesamten Workspace teilbar"
+            ],
+            "cta": "1.500 Credits kaufen"
+          }
+        }
       },
       "credits_explainer": {
         "title": "Was sind Credits?",
         "intro": "Credits sind ein einheitliches Kontingent, das du über alle Tools hinweg nutzen kannst. Jede Operation verbraucht Credits; höhere Pläne enthalten mehr Credits und höhere Tages‑Burst‑Limits.",
         "bullets": {
-          "0": "Nutze Credits in Tools wie Imag‑Enhancer, Prompt Enhancer und Voice Transcriptor.",
+          "0": "Nutze Credits in Tools wie Imag‑Enhancer, Video Enhancer, Prompt Enhancer und Voice Transcriptor.",
           "1": "Deine monatlichen Credits werden zu jedem Abrechnungszyklus zurückgesetzt; Tages‑Burst‑Limits sichern die Service‑Qualität.",
           "2": "Mehr Bedarf? Kaufe jederzeit einmalige Credit‑Pakete (100/500/1500)."
         }

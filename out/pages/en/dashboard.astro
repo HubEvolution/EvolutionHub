@@ -2,10 +2,13 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { type BillingSummary } from '@/components/dashboard/BillingCard';
 import BillingCard from '@/components/dashboard/BillingCard';
+import ReferralCard, { type ReferralSummary } from '@/components/dashboard/ReferralCard';
 import UserProfile from '@/components/dashboard/UserProfile.astro';
 import AccountSettingsSection from '@/components/dashboard/AccountSettingsSection.astro';
 import NewsletterPreferencesCard from '@/components/dashboard/NewsletterPreferencesCard';
+import ConsentPreferencesCard from '@/components/dashboard/ConsentPreferencesCard';
 import Card from '@/components/ui/Card';
+import { localizePath } from '@/lib/locale-path';
 import { getI18n } from '@/utils/i18n';
 
 const locals = Astro.locals as any;
@@ -14,7 +17,8 @@ if (!locals.user) {
 }
 
 const user = locals.user;
-const t = getI18n('en');
+const locale = 'en';
+const t = getI18n(locale);
 
 const origin = new URL(Astro.request.url).origin;
 const cookieHeader = Astro.request.headers.get('cookie') ?? '';
@@ -45,7 +49,38 @@ type DashboardBillingSummary = BillingSummary & {
   periodEndsAt: number;
 };
 
+const referralStrings = {
+  title: t('pages.dashboard.referrals.title'),
+  description: t('pages.dashboard.referrals.description'),
+  linkLabel: t('pages.dashboard.referrals.linkLabel'),
+  copy: t('pages.dashboard.referrals.copy'),
+  copied: t('pages.dashboard.referrals.copied'),
+  loading: t('pages.dashboard.referrals.loading'),
+  error: t('pages.dashboard.referrals.error'),
+  empty: t('pages.dashboard.referrals.empty'),
+  statsTitle: t('pages.dashboard.referrals.statsTitle'),
+  stats: {
+    referred: t('pages.dashboard.referrals.stats.referred'),
+    verified: t('pages.dashboard.referrals.stats.verified'),
+    paid: t('pages.dashboard.referrals.stats.paid'),
+    pending: t('pages.dashboard.referrals.stats.pending'),
+    cancelled: t('pages.dashboard.referrals.stats.cancelled'),
+  },
+  creditsEarned: t('pages.dashboard.referrals.creditsEarned'),
+  recentTitle: t('pages.dashboard.referrals.recentTitle'),
+  recentEmpty: t('pages.dashboard.referrals.recentEmpty'),
+  status: {
+    pending: t('pages.dashboard.referrals.status.pending'),
+    verified: t('pages.dashboard.referrals.status.verified'),
+    paid: t('pages.dashboard.referrals.status.paid'),
+    cancelled: t('pages.dashboard.referrals.status.cancelled'),
+  },
+  updated: t('pages.dashboard.referrals.updated'),
+  retry: t('pages.dashboard.referrals.retry'),
+};
+
 const billingSummary = await fetchApi<DashboardBillingSummary>('/api/dashboard/billing-summary');
+const referralSummary = await fetchApi<ReferralSummary>('/api/dashboard/referral-summary');
 
 // shortcuts removed in Dashboard V2
 
@@ -77,6 +112,36 @@ const billingStrings = {
     pro: t('pages.dashboard.profile.planLabels.pro'),
     premium: t('pages.dashboard.profile.planLabels.premium'),
     enterprise: t('pages.dashboard.profile.planLabels.enterprise'),
+  },
+};
+
+const consentStrings = {
+  title: t('pages.dashboard.consent.title'),
+  description: t('pages.dashboard.consent.description'),
+  manageHref: t('pages.dashboard.consent.manageHref'),
+  categories: {
+    necessary: {
+      label: t('pages.dashboard.consent.categories.necessary.label'),
+      description: t('pages.dashboard.consent.categories.necessary.description'),
+    },
+    analytics: {
+      label: t('pages.dashboard.consent.categories.analytics.label'),
+      description: t('pages.dashboard.consent.categories.analytics.description'),
+    },
+    marketing: {
+      label: t('pages.dashboard.consent.categories.marketing.label'),
+      description: t('pages.dashboard.consent.categories.marketing.description'),
+    },
+  },
+  actions: {
+    manage: t('pages.dashboard.consent.actions.manage'),
+    acceptAll: t('pages.dashboard.consent.actions.acceptAll'),
+    rejectAll: t('pages.dashboard.consent.actions.rejectAll'),
+  },
+  status: {
+    granted: t('pages.dashboard.consent.status.granted'),
+    limited: t('pages.dashboard.consent.status.limited'),
+    disabled: t('pages.dashboard.consent.status.disabled'),
   },
 };
 
@@ -159,7 +224,7 @@ const profileCopy = {
   supportDescription:
     'Review the authentication playbook for session management, recovery, and device trust.',
   supportCta: 'Open guide',
-  supportHref: '/docs/architecture/auth-architecture',
+  supportHref: localizePath(locale, '/docs/architecture/auth-architecture'),
 };
 
 const manageBillingLink = (() => {
@@ -196,38 +261,42 @@ const manageBillingLink = (() => {
 
         <div class="xl:col-span-4">
           <Card as="div" className="group p-4">
-            <div class="flex items-center justify-between gap-3">
-              <div class="flex items-baseline gap-2">
-                <span class="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                  {billingStrings.credits}
-                </span>
-                <span class="text-lg font-bold text-white">
-                  {
-                    typeof billingSummary?.creditsRemaining === 'number'
-                      ? billingSummary.creditsRemaining
-                      : '—'
-                  }
-                </span>
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+              <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-6">
+                <div class="flex flex-col gap-1">
+                  <span class="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                    {billingStrings.credits}
+                  </span>
+                  <span class="text-lg font-bold text-white">
+                    {
+                      typeof billingSummary?.creditsRemaining === 'number'
+                        ? billingSummary.creditsRemaining
+                        : '—'
+                    }
+                  </span>
+                </div>
+                <div class="flex flex-col gap-1">
+                  <span class="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                    Monthly quota remaining
+                  </span>
+                  <div class="flex items-baseline gap-2">
+                    <span id="quota-remaining" class="text-lg font-bold text-white">
+                      {
+                        (() => {
+                          const limit = Number(billingSummary?.monthlyLimit || 0);
+                          const used = Number(billingSummary?.monthlyUsed || 0);
+                          const rem = Math.max(0, limit - used);
+                          return rem > 0 ? rem : '—';
+                        })()
+                      }
+                    </span>
+                    <span id="quota-loading" class="text-[10px] font-semibold text-slate-400">
+                      Updating…
+                    </span>
+                  </div>
+                </div>
               </div>
-              <div class="flex items-baseline gap-2">
-                <span class="text-xs font-semibold uppercase tracking-wide text-slate-400"
-                  >Monthly quota remaining</span
-                >
-                <span id="quota-remaining" class="text-lg font-bold text-white">
-                  {
-                    (() => {
-                      const limit = Number(billingSummary?.monthlyLimit || 0);
-                      const used = Number(billingSummary?.monthlyUsed || 0);
-                      const rem = Math.max(0, limit - used);
-                      return rem > 0 ? rem : '—';
-                    })()
-                  }
-                </span>
-                <span id="quota-loading" class="text-[10px] font-semibold text-slate-400"
-                  >Updating…</span
-                >
-              </div>
-              <div class="flex items-center gap-2">
+              <div class="flex items-center gap-2 sm:self-end">
                 <select
                   id="credits-pack"
                   class="rounded-md bg-white/10 text-white text-xs px-2 py-1 focus:outline-none focus:ring-2 focus:ring-emerald-500"
@@ -293,6 +362,12 @@ const manageBillingLink = (() => {
           </Card>
         </div>
 
+        <div class="xl:col-span-12">
+          <Card as="div" className="group p-4">
+            <ReferralCard client:load initialSummary={referralSummary} strings={referralStrings} />
+          </Card>
+        </div>
+
         <!-- Middle row: AccountSettings full width -->
         <div class="xl:col-span-12">
           <AccountSettingsSection
@@ -306,8 +381,13 @@ const manageBillingLink = (() => {
           />
         </div>
 
-        <!-- Bottom row: Newsletter full width -->
-        <div class="xl:col-span-12">
+        <!-- Bottom row: Consent + Newsletter -->
+        <div class="grid gap-6 xl:col-span-12 xl:gap-8">
+          <ConsentPreferencesCard
+            client:load
+            strings={consentStrings}
+            manageHref={localizePath(locale, consentStrings.manageHref)}
+          />
           <NewsletterPreferencesCard
             client:load
             email={user.email}

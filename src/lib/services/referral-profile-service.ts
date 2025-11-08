@@ -61,6 +61,7 @@ export async function getOrCreateReferralProfile(
   userId: string,
   now: number = Date.now()
 ): Promise<ReferralProfileRecord> {
+  const nowDate = new Date(now);
   const client = drizzle(db);
   const existing = await getReferralProfile(db, userId);
   if (existing) {
@@ -76,8 +77,8 @@ export async function getOrCreateReferralProfile(
         userId,
         referralCode: candidate,
         defaultCampaign: 'default',
-        createdAt: now,
-        updatedAt: now,
+        createdAt: nowDate,
+        updatedAt: nowDate,
       });
 
       return {
@@ -87,8 +88,9 @@ export async function getOrCreateReferralProfile(
         createdAt: now,
         updatedAt: now,
       } satisfies ReferralProfileRecord;
-    } catch (error) {
-      if (error instanceof Error) {
+    } catch (_error) {
+      const error = _error instanceof Error ? _error : undefined;
+      if (error) {
         if (error.message.includes('UNIQUE constraint failed: referral_profiles.user_id')) {
           const latest = await getReferralProfile(db, userId);
           if (latest) {
@@ -110,8 +112,8 @@ export async function getOrCreateReferralProfile(
     userId,
     referralCode: fallbackCode,
     defaultCampaign: 'default',
-    createdAt: now,
-    updatedAt: now,
+    createdAt: nowDate,
+    updatedAt: nowDate,
   });
   return {
     userId,
@@ -129,9 +131,10 @@ export async function updateReferralCode(
   timestamp: number = Date.now()
 ) {
   const client = drizzle(db);
+  const timestampDate = new Date(timestamp);
   await client
     .update(referralProfiles)
-    .set({ referralCode: newCode, updatedAt: timestamp })
+    .set({ referralCode: newCode, updatedAt: timestampDate })
     .where(eq(referralProfiles.userId, userId));
 
   await client
@@ -140,13 +143,13 @@ export async function updateReferralCode(
     .where(eq(referralEvents.ownerUserId, userId));
 }
 
-export function buildReferralLink(referralCode: string, origin: string, path = '/signup') {
+export function buildReferralLink(referralCode: string, origin: string, path = '/register') {
   let baseOrigin = origin;
 
   try {
     const originUrl = new URL(origin);
     baseOrigin = originUrl.origin;
-  } catch (error) {
+  } catch (_error) {
     baseOrigin = origin.startsWith('http') ? origin : `https://${origin}`;
   }
 

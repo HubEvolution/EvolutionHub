@@ -6,11 +6,25 @@ const d1_1 = require("drizzle-orm/d1");
 const backup_service_1 = require("@/lib/services/backup-service");
 const auth_helpers_1 = require("@/lib/auth-helpers");
 const rate_limiter_1 = require("@/lib/rate-limiter");
+function getAdminEnv(context) {
+    const env = (context.locals?.runtime?.env ?? {});
+    return (env ?? {});
+}
+function isBackupJobType(value) {
+    return ['full', 'comments', 'users', 'incremental'].includes(value);
+}
+function isCronExpression(value) {
+    if (typeof value !== 'string')
+        return false;
+    const trimmed = value.trim();
+    return trimmed.length > 0;
+}
 exports.POST = (0, api_middleware_1.withAuthApiMiddleware)(async (context) => {
-    const env = (context.locals?.runtime?.env || {});
+    const env = getAdminEnv(context);
     const db = env.DB;
-    if (!db)
+    if (!db) {
         return (0, api_middleware_1.createApiError)('server_error', 'Database unavailable');
+    }
     try {
         await (0, auth_helpers_1.requireAdmin)({
             req: { header: (n) => context.request.headers.get(n) || undefined },
@@ -23,17 +37,23 @@ exports.POST = (0, api_middleware_1.withAuthApiMiddleware)(async (context) => {
     }
     let body;
     try {
-        body = (await context.request.json());
+        body = await context.request.json();
     }
     catch {
         return (0, api_middleware_1.createApiError)('validation_error', 'Invalid JSON body');
     }
-    if (!body?.type || !body?.cronExpression) {
+    if (!body || typeof body !== 'object') {
         return (0, api_middleware_1.createApiError)('validation_error', 'Backup type and cron expression are required');
     }
+    const { type, cronExpression } = body;
+    if (typeof type !== 'string' || !isBackupJobType(type) || !isCronExpression(cronExpression)) {
+        return (0, api_middleware_1.createApiError)('validation_error', 'Invalid backup type or cron expression');
+    }
+    const jobType = type;
+    const cron = cronExpression.trim();
     try {
         const service = new backup_service_1.BackupService((0, d1_1.drizzle)(db));
-        await service.scheduleAutomatedBackup(body.type, body.cronExpression);
+        await service.scheduleAutomatedBackup(jobType, cron);
         return (0, api_middleware_1.createApiSuccess)({ message: 'Automated backup scheduled successfully' });
     }
     catch (e) {

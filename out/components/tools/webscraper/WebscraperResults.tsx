@@ -187,12 +187,16 @@ export function WebscraperResults({ result, strings }: WebscraperResultsProps) {
               </Button>
               {downloadOpen && (
                 <div className="absolute right-0 mt-2 w-44 rounded-md bg-white dark:bg-gray-800 shadow-lg ring-1 ring-black ring-opacity-5 z-10">
-                  <button
+                  <Button
+                    type="button"
                     onClick={downloadJson}
-                    className="w-full text-left px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"
+                    fullWidth
+                    variant="ghost"
+                    size="sm"
+                    className="justify-start text-sm px-3 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"
                   >
                     {strings.downloadJson}
-                  </button>
+                  </Button>
                 </div>
               )}
             </div>
@@ -225,9 +229,13 @@ export function WebscraperResults({ result, strings }: WebscraperResultsProps) {
       {/* Metadata */}
       {result.metadata && Object.values(result.metadata).some((v) => v) && (
         <Card variant="holo" className="p-6">
-          <button
+          <Button
+            type="button"
             onClick={() => toggleSection('metadata')}
-            className="flex items-center justify-between w-full text-left"
+            fullWidth
+            variant="ghost"
+            size="sm"
+            className="justify-between text-left"
           >
             <h4 className="text-lg font-medium text-gray-900 dark:text-white">Metadata</h4>
             <svg
@@ -243,7 +251,7 @@ export function WebscraperResults({ result, strings }: WebscraperResultsProps) {
                 d="M19 9l-7 7-7-7"
               />
             </svg>
-          </button>
+          </Button>
           {expandedSections.metadata && (
             <dl className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
               {result.metadata.publishDate && (
@@ -274,9 +282,12 @@ export function WebscraperResults({ result, strings }: WebscraperResultsProps) {
       {/* Content */}
       <Card className="p-6">
         <div className="flex items-center justify-between mb-4">
-          <button
+          <Button
+            type="button"
             onClick={() => toggleSection('content')}
-            className="flex items-center gap-2 text-left"
+            variant="ghost"
+            size="sm"
+            className="gap-2 text-left justify-start"
           >
             <h4 className="text-lg font-medium text-gray-900 dark:text-white">Content</h4>
             <span className="text-sm text-gray-500 dark:text-gray-400">
@@ -295,7 +306,7 @@ export function WebscraperResults({ result, strings }: WebscraperResultsProps) {
                 d="M19 9l-7 7-7-7"
               />
             </svg>
-          </button>
+          </Button>
           <Button onClick={() => handleCopy(result.text, 'content')} variant="secondary" size="sm">
             {copiedSection === 'content' ? 'Copied!' : 'Copy'}
           </Button>
@@ -312,9 +323,13 @@ export function WebscraperResults({ result, strings }: WebscraperResultsProps) {
       {/* Links */}
       {result.links && result.links.length > 0 && (
         <Card variant="holo" className="p-6">
-          <button
+          <Button
+            type="button"
             onClick={() => toggleSection('links')}
-            className="flex items-center justify-between w-full text-left"
+            fullWidth
+            variant="ghost"
+            size="sm"
+            className="justify-between text-left"
           >
             <div className="flex items-center gap-2">
               <h4 className="text-lg font-medium text-gray-900 dark:text-white">Links</h4>
@@ -335,7 +350,7 @@ export function WebscraperResults({ result, strings }: WebscraperResultsProps) {
                 d="M19 9l-7 7-7-7"
               />
             </svg>
-          </button>
+          </Button>
           {expandedSections.links && (
             <ul className="mt-4 space-y-2 max-h-96 overflow-y-auto">
               {result.links.slice(0, 50).map((link, idx) => (
@@ -379,9 +394,13 @@ export function WebscraperResults({ result, strings }: WebscraperResultsProps) {
       {/* Images */}
       {result.images && result.images.length > 0 && (
         <Card variant="holo" className="p-6">
-          <button
+          <Button
+            type="button"
             onClick={() => toggleSection('images')}
-            className="flex items-center justify-between w-full text-left"
+            fullWidth
+            variant="ghost"
+            size="sm"
+            className="justify-between text-left"
           >
             <div className="flex items-center gap-2">
               <h4 className="text-lg font-medium text-gray-900 dark:text-white">Images</h4>
@@ -402,7 +421,7 @@ export function WebscraperResults({ result, strings }: WebscraperResultsProps) {
                 d="M19 9l-7 7-7-7"
               />
             </svg>
-          </button>
+          </Button>
           {expandedSections.images && (
             <div className="mt-4">
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">

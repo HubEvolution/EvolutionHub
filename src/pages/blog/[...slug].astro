@@ -4,13 +4,9 @@ export const prerender = false;
 export const revalidate = 300; // Sekunden
 // Import BaseLayout using a relative path.
 import BaseLayout from '@/layouts/BaseLayout.astro';
-// Import blogService from its module. We no longer need to import BlogCollectionEntry from here
-// as we are importing CollectionEntry directly from 'astro:content'.
 import { blogService, type BlogCollectionEntry } from '@/lib/blog';
-import { getCollection } from 'astro:content';
 import BlogPostComponent from '@/components/BlogPost.astro';
 import type { ProcessedBlogPost } from '../../content/types';
-// Import CommentSection with a named import
 import { CommentSection } from '@/components/comments/CommentSection';
 import AosWrapper from '@/components/AosWrapper.astro';
 
@@ -60,8 +56,7 @@ if (!postData || !originalEntry) {
   return Astro.redirect('/404');
 }
 
-// Use the render method from the original entry to get the content component.
-const { Content } = await originalEntry.render();
+// Contentful Rich Text wird bereits im BlogService zu bodyHtml verarbeitet (sanitised).
 
 // Load related posts (based on tags and category)
 // Initialize relatedPosts to an empty array to prevent potential errors if fetching fails.
@@ -144,9 +139,8 @@ const structuredData = {
 // Blog-Enhancements werden importfrei inline initialisiert (kein Astro.resolve)
 // Static paths für SSG generieren
 export async function getStaticPaths() {
-  const posts = await getCollection('blog');
-  // For catch-all [...slug], Astro expects a string param; slashes denote segments
-  return posts.map((p: any) => ({ params: { slug: String(p.slug) } }));
+  const { posts } = await blogService.getBlogIndexData(1, 500, {});
+  return posts.map((post) => ({ params: { slug: String(post.slug) } }));
 }
 ---
 
@@ -168,7 +162,13 @@ export async function getStaticPaths() {
       <AosWrapper class="mx-auto max-w-3xl">
         {/* Blog-Post-Komponente mit Kommentarsektion im Slot */}
         <BlogPostComponent post={postData} relatedPosts={relatedPosts}>
-          <Content components={{ h1: 'h2' }} />
+          {postData.bodyHtml ? (
+            <div set:html={postData.bodyHtml} />
+          ) : (
+            <p class="text-gray-600 dark:text-gray-300">
+              Dieser Beitrag steht momentan nicht zur Verfügung.
+            </p>
+          )}
           <CommentSection
             slot="comments"
             entityType="blog_post"

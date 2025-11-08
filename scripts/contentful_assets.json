@@ -1,0 +1,67 @@
+[
+  {
+    "source": "./images/ki-als-kollege-hero.png",
+    "resolvedPath": "/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/content/blog/images/ki-als-kollege-hero.png",
+    "referencedIn": "KI-als-Kollege"
+  },
+  {
+    "source": "./images/digital-detox.jpg",
+    "resolvedPath": "/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/content/blog/images/digital-detox.jpg",
+    "referencedIn": "digital-detox-kreativitaet"
+  },
+  {
+    "source": "./images/gig-economy-chancen-risiken-1.webp.png",
+    "resolvedPath": "/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/content/blog/images/gig-economy-chancen-risiken-1.webp.png",
+    "referencedIn": "gig-economy-chancen-risiken"
+  },
+  {
+    "source": "./images/imposter-syndrom-ueberwinden-1.webp.png",
+    "resolvedPath": "/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/content/blog/images/imposter-syndrom-ueberwinden-1.webp.png",
+    "referencedIn": "imposter-syndrom-ueberwinden"
+  },
+  {
+    "source": "./images/ki-im-alltag-1.webp.png",
+    "resolvedPath": "/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/content/blog/images/ki-im-alltag-1.webp.png",
+    "referencedIn": "ki-im-alltag"
+  },
+  {
+    "source": "./images/konstruktives-feedback-geben-1.webp.png",
+    "resolvedPath": "/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/content/blog/images/konstruktives-feedback-geben-1.webp.png",
+    "referencedIn": "konstruktives-feedback-geben"
+  },
+  {
+    "source": "./images/lebenslanges-lernen-karriere-1.webp.png",
+    "resolvedPath": "/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/content/blog/images/lebenslanges-lernen-karriere-1.webp.png",
+    "referencedIn": "lebenslanges-lernen-karriere"
+  },
+  {
+    "source": "./images/mentoring-2-0-1.webp.png",
+    "resolvedPath": "/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/content/blog/images/mentoring-2-0-1.webp.png",
+    "referencedIn": "mentoring-2-0"
+  },
+  {
+    "source": "./images/new-work-ist-eine-haltung-1.webp.png",
+    "resolvedPath": "/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/content/blog/images/new-work-ist-eine-haltung-1.webp.png",
+    "referencedIn": "new-work-ist-eine-haltung"
+  },
+  {
+    "source": "./images/pomodoro-technik-home-office-1.webp.png",
+    "resolvedPath": "/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/content/blog/images/pomodoro-technik-home-office-1.webp.png",
+    "referencedIn": "pomodoro-technik-home-office"
+  },
+  {
+    "source": "./images/vom-ziel-zur-gewohnheit-1.webp.png",
+    "resolvedPath": "/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/content/blog/images/vom-ziel-zur-gewohnheit-1.webp.png",
+    "referencedIn": "vom-ziel-zur-gewohnheit"
+  },
+  {
+    "source": "./images/wissensmanagement-second-brain-1.webp.png",
+    "resolvedPath": "/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/content/blog/images/wissensmanagement-second-brain-1.webp.png",
+    "referencedIn": "wissensmanagement-second-brain"
+  },
+  {
+    "source": "./images/zukunft-der-fuehrung-1.webp.png",
+    "resolvedPath": "/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/content/blog/images/zukunft-der-fuehrung-1.webp.png",
+    "referencedIn": "zukunft-der-fuehrung"
+  }
+]

@@ -12,9 +12,13 @@ function parseExpiresMs(expires) {
     const t = Date.parse(expires);
     return Number.isFinite(t) ? t : 0;
 }
+function getAdminEnv(context) {
+    const env = (context.locals?.runtime?.env ?? {});
+    return (env ?? {});
+}
 exports.GET = (0, api_middleware_1.withAuthApiMiddleware)(async (context) => {
-    const { locals, request, url } = context;
-    const env = (locals.runtime?.env ?? {});
+    const { request, url } = context;
+    const env = getAdminEnv(context);
     if (!env.DB) {
         return (0, api_middleware_1.createApiError)('server_error', 'Infrastructure unavailable');
     }
@@ -24,9 +28,11 @@ exports.GET = (0, api_middleware_1.withAuthApiMiddleware)(async (context) => {
     catch {
         return (0, api_middleware_1.createApiError)('forbidden', 'Insufficient permissions');
     }
-    const userId = (url.searchParams.get('userId') || '').trim();
-    if (!userId)
+    const userIdParam = url.searchParams.get('userId');
+    const userId = userIdParam ? userIdParam.trim() : '';
+    if (!userId) {
         return (0, api_middleware_1.createApiError)('validation_error', 'userId is required');
+    }
     const res = await env.DB.prepare(`SELECT id, user_id, expires_at FROM sessions WHERE user_id = ?1 ORDER BY expires_at DESC LIMIT 200`)
         .bind(userId)
         .all();

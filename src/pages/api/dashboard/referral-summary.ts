@@ -6,7 +6,10 @@ import {
   createApiSuccess,
   createMethodNotAllowed,
 } from '@/lib/api-middleware';
-import { getOrCreateReferralProfile, buildReferralLink } from '@/lib/services/referral-profile-service';
+import {
+  getOrCreateReferralProfile,
+  buildReferralLink,
+} from '@/lib/services/referral-profile-service';
 import { getReferralSummary } from '@/lib/services/referral-summary-service';
 import { logUserEvent } from '@/lib/security-logger';
 
@@ -74,10 +77,8 @@ export const GET = withAuthApiMiddleware(
     const origin = resolveRequestOrigin(context, env);
 
     try {
-      const [profile, summary] = await Promise.all([
-        getOrCreateReferralProfile(db, user.id, startedAt),
-        getReferralSummary(db, user.id),
-      ]);
+      const profile = await getOrCreateReferralProfile(db, user.id, startedAt);
+      const summary = await getReferralSummary(db, user.id);
 
       const referralLink = buildReferralLink(profile.referralCode, origin);
 
@@ -116,7 +117,6 @@ export const GET = withAuthApiMiddleware(
   }
 );
 
-export const POST = withAuthApiMiddleware(
-  () => createMethodNotAllowed('GET'),
-  { disableAutoLogging: true }
-);
+export const POST = withAuthApiMiddleware(() => createMethodNotAllowed('GET'), {
+  disableAutoLogging: true,
+});

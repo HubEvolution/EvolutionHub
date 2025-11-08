@@ -22,7 +22,7 @@ function renderUrl(origin: string, locPath: string): string {
   ].join('\n');
 }
 
-export const GET: APIRoute = async ({ url }) => {
+export const GET: APIRoute = async ({ url }: { url: URL }) => {
   const origin = ENV_SITE || `${url.protocol}//${url.host}`;
 
   // Minimal set aligned with current SEO requirements; extend as new pages launch

@@ -9,16 +9,33 @@ import { jwt } from 'hono/jwt';
 import { rateLimiter } from 'hono-rate-limiter';
 import { drizzle } from 'drizzle-orm/d1';
 import { eq } from 'drizzle-orm';
+import type { D1Database } from '@cloudflare/workers-types';
 import { DataExportService } from '../../../lib/services/data-export-service';
 import { requireAuth } from '../../../lib/auth-helpers';
 import { dataExportJobs } from '../../../lib/db/schema';
 import type { ExportOptions } from '../../../lib/types/data-management';
 import { log, generateRequestId } from '../../../server/utils/logger';
 
-const app = new Hono<{
-  Bindings: { DB: D1Database; JWT_SECRET: string };
-  Variables: { requestId: string };
-}>();
+type DataExportBindings = { DB: D1Database; JWT_SECRET: string };
+type DataExportVariables = { requestId: string };
+type DataExportEnv = { Bindings: DataExportBindings; Variables: DataExportVariables };
+
+const app = new Hono<DataExportEnv>();
+
+type DataExportContext = Parameters<Parameters<typeof app.get>[1]>[0];
+
+const toAuthContext = (c: DataExportContext) => ({
+  req: { header: (name: string) => c.req.header(name) },
+  request: c.req.raw,
+  env: { DB: c.env.DB },
+});
+
+const ipKey = (c: DataExportContext): string =>
+  c.req.header('CF-Connecting-IP') ||
+  c.req.header('cf-connecting-ip') ||
+  c.req.header('x-forwarded-for') ||
+  c.req.header('x-real-ip') ||
+  'anonymous';
 
 // Middleware
 // Attach requestId for structured logging
@@ -27,32 +44,22 @@ app.use('/*', async (c, next) => {
   await next();
 });
 app.use('/*', cors());
-app.use('/create', jwt({ secret: process.env.JWT_SECRET! }));
+app.use('/create', async (c, next) => jwt({ secret: c.env.JWT_SECRET })(c, next));
 app.use(
   '/create',
   rateLimiter({
     windowMs: 60 * 1000,
     limit: 5,
-    keyGenerator: (c) =>
-      c.req.header('CF-Connecting-IP') ||
-      c.req.header('cf-connecting-ip') ||
-      c.req.header('x-forwarded-for') ||
-      c.req.header('x-real-ip') ||
-      'anonymous',
+    keyGenerator: ipKey,
   })
 ); // 5 pro Minute
-app.use('/delete', jwt({ secret: process.env.JWT_SECRET! }));
+app.use('/delete', async (c, next) => jwt({ secret: c.env.JWT_SECRET })(c, next));
 app.use(
   '/delete',
   rateLimiter({
     windowMs: 60 * 1000,
     limit: 3,
-    keyGenerator: (c) =>
-      c.req.header('CF-Connecting-IP') ||
-      c.req.header('cf-connecting-ip') ||
-      c.req.header('x-forwarded-for') ||
-      c.req.header('x-real-ip') ||
-      'anonymous',
+    keyGenerator: ipKey,
   })
 ); // 3 pro Minute
 
@@ -60,9 +67,9 @@ app.use(
  * GET /api/data-export/jobs
  * Holt alle Export-Jobs für den aktuellen Benutzer
  */
-app.get('/jobs', async (c) => {
+app.get('/jobs', async (c: DataExportContext) => {
   try {
-    const user = await requireAuth(c);
+    const user = await requireAuth(toAuthContext(c));
     const userId = String(user.id);
     const db = drizzle(c.env.DB);
     const exportService = new DataExportService(db);
@@ -108,9 +115,9 @@ app.get('/jobs', async (c) => {
  * GET /api/data-export/jobs/:id
  * Holt Details eines spezifischen Export-Jobs
  */
-app.get('/jobs/:id', async (c) => {
+app.get('/jobs/:id', async (c: DataExportContext) => {
   try {
-    const user = await requireAuth(c);
+    const user = await requireAuth(toAuthContext(c));
     const userId = String(user.id);
     const jobId = c.req.param('id');
     const db = drizzle(c.env.DB);
@@ -173,9 +180,9 @@ app.get('/jobs/:id', async (c) => {
  * GET /api/data-export/jobs/:id/progress
  * Holt Fortschritt eines laufenden Export-Jobs
  */
-app.get('/jobs/:id/progress', async (c) => {
+app.get('/jobs/:id/progress', async (c: DataExportContext) => {
   try {
-    const user = await requireAuth(c);
+    const user = await requireAuth(toAuthContext(c));
     const userId = String(user.id);
     const jobId = c.req.param('id');
     const db = drizzle(c.env.DB);
@@ -228,9 +235,9 @@ app.get('/jobs/:id/progress', async (c) => {
  * POST /api/data-export/create
  * Erstellt einen neuen Daten-Export-Job
  */
-app.post('/create', async (c) => {
+app.post('/create', async (c: DataExportContext) => {
   try {
-    const user = await requireAuth(c);
+    const user = await requireAuth(toAuthContext(c));
     const userId = String(user.id);
     const body = await c.req.json<ExportOptions>();
     const db = drizzle(c.env.DB);
@@ -312,9 +319,9 @@ app.post('/create', async (c) => {
  * GET /api/data-export/download/:id
  * Lädt eine Export-Datei herunter
  */
-app.get('/download/:id', async (c) => {
+app.get('/download/:id', async (c: DataExportContext) => {
   try {
-    const user = await requireAuth(c);
+    const user = await requireAuth(toAuthContext(c));
     const userId = String(user.id);
     const jobId = c.req.param('id');
     const db = drizzle(c.env.DB);
@@ -410,9 +417,9 @@ app.get('/download/:id', async (c) => {
  * POST /api/data-export/delete-request
  * Erstellt eine Datenlösch-Anfrage (GDPR Right to Erasure)
  */
-app.post('/delete-request', async (c) => {
+app.post('/delete-request', async (c: DataExportContext) => {
   try {
-    const user = await requireAuth(c);
+    const user = await requireAuth(toAuthContext(c));
     const userId = String(user.id);
     const body = await c.req.json<{ reason?: string }>();
     const db = drizzle(c.env.DB);
@@ -451,7 +458,7 @@ app.post('/delete-request', async (c) => {
  * POST /api/data-export/verify-deletion
  * Verifiziert und verarbeitet eine Datenlösch-Anfrage
  */
-app.post('/verify-deletion', async (c) => {
+app.post('/verify-deletion', async (c: DataExportContext) => {
   try {
     const body = await c.req.json<{
       requestId: string;
@@ -522,7 +529,7 @@ app.post('/verify-deletion', async (c) => {
  * GET /api/data-export/gdpr-info
  * Holt GDPR-konforme Informationen über Datenverarbeitung
  */
-app.get('/gdpr-info', (c) => {
+app.get('/gdpr-info', (c: DataExportContext) => {
   const gdprInfo = {
     dataCategories: [
       'Account information (email, name)',

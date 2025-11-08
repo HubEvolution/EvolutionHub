@@ -3,27 +3,32 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.HEAD = exports.OPTIONS = exports.DELETE = exports.PATCH = exports.PUT = exports.POST = exports.GET = void 0;
 const api_middleware_1 = require("@/lib/api-middleware");
 const auth_helpers_1 = require("@/lib/auth-helpers");
+const rate_limiter_1 = require("@/lib/rate-limiter");
+function getAdminEnv(context) {
+    const env = (context.locals?.runtime?.env ?? {});
+    return (env ?? {});
+}
+function getEnvString(value) {
+    return typeof value === 'string' ? value : '';
+}
 // Cloudflare GraphQL endpoint
 const CF_GQL_ENDPOINT = 'https://api.cloudflare.com/client/v4/graphql';
 exports.GET = (0, api_middleware_1.withAuthApiMiddleware)(async (context) => {
-    const runtimeEnv = (context.locals
-        ?.runtime?.env || {});
-    const db = runtimeEnv.DB;
-    // Admin guard
+    const envBindings = getAdminEnv(context);
+    const db = envBindings.DB;
+    if (!db) {
+        return (0, api_middleware_1.createApiError)('server_error', 'Database unavailable');
+    }
     try {
-        await (0, auth_helpers_1.requireAdmin)({
-            req: { header: (n) => context.request.headers.get(n) || undefined },
-            request: context.request,
-            env: { DB: db },
-        });
+        await (0, auth_helpers_1.requireAdmin)({ request: context.request, env: { DB: db } });
     }
     catch {
         return (0, api_middleware_1.createApiError)('forbidden', 'Insufficient permissions');
     }
-    const env = runtimeEnv;
-    const apiToken = env.CLOUDFLARE_API_TOKEN || env.CF_API_TOKEN || '';
-    const zoneId = env.CLOUDFLARE_ZONE_ID || env.CF_ZONE_ID || '';
-    const accountId = env.CLOUDFLARE_ACCOUNT_ID || env.CF_ACCOUNT_ID || '';
+    const runtimeEnv = (context.locals.runtime?.env ?? {});
+    const apiToken = getEnvString(runtimeEnv.CLOUDFLARE_API_TOKEN) || getEnvString(runtimeEnv.CF_API_TOKEN);
+    const zoneId = getEnvString(runtimeEnv.CLOUDFLARE_ZONE_ID) || getEnvString(runtimeEnv.CF_ZONE_ID);
+    const accountId = getEnvString(runtimeEnv.CLOUDFLARE_ACCOUNT_ID) || getEnvString(runtimeEnv.CF_ACCOUNT_ID);
     if (!apiToken || (!zoneId && !accountId)) {
         return (0, api_middleware_1.createApiError)('validation_error', 'Missing Cloudflare credentials', {
             missing: {
@@ -257,7 +262,7 @@ exports.GET = (0, api_middleware_1.withAuthApiMiddleware)(async (context) => {
         const msg = e instanceof Error ? e.message : String(e);
         return (0, api_middleware_1.createApiError)('server_error', msg);
     }
-});
+}, { rateLimiter: rate_limiter_1.apiRateLimiter, logMetadata: { action: 'admin_traffic_24h' } });
 const methodNotAllowed = () => (0, api_middleware_1.createMethodNotAllowed)('GET');
 exports.POST = methodNotAllowed;
 exports.PUT = methodNotAllowed;

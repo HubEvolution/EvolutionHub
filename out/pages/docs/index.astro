@@ -62,12 +62,11 @@ const resources = [
 ];
 ---
 
-<BaseLayout
-  title={t('pages.docs.meta.title')}
-  description={t('pages.docs.meta.description')}
->
+<BaseLayout title={t('pages.docs.meta.title')} description={t('pages.docs.meta.description')}>
   <div class="landing-v2 relative">
-    <section class="py-20 bg-slate-950/80 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
+    <section
+      class="py-20 bg-slate-950/80 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950"
+    >
       <div class="container space-y-20">
         <header class="max-w-3xl mx-auto text-center space-y-5">
           <h2
@@ -75,9 +74,7 @@ const resources = [
           >
             {t('pages.docs.hero.kicker')}
           </h2>
-          <p
-            class="text-3xl sm:text-5xl font-extrabold tracking-tight text-white dark:text-white"
-          >
+          <p class="text-3xl sm:text-5xl font-extrabold tracking-tight text-white dark:text-white">
             {t('pages.docs.hero.title')}
           </p>
           <p class="text-base sm:text-lg text-gray-300 dark:text-gray-300 leading-relaxed">
@@ -93,7 +90,9 @@ const resources = [
             >
               {t('pages.docs.steps.title')}
             </h3>
-            <p class="text-gray-300 dark:text-gray-300 max-w-2xl mx-auto text-sm sm:text-base leading-relaxed">
+            <p
+              class="text-gray-300 dark:text-gray-300 max-w-2xl mx-auto text-sm sm:text-base leading-relaxed"
+            >
               {t('pages.docs.steps.subtitle')}
             </p>
           </div>
@@ -101,42 +100,58 @@ const resources = [
             class="mt-12 grid gap-8 md:gap-10 grid-cols-1 sm:grid-cols-[repeat(auto-fit,minmax(18rem,1fr))] auto-rows-fr max-w-5xl mx-auto"
             role="list"
           >
-            {steps.map((step, index) => (
-              <li class="glass p-8 text-left space-y-6 rounded-2xl h-full flex flex-col w-full sm:max-w-sm" role="listitem">
-                <div class="flex items-start gap-5">
-                  <span class="flex h-11 w-11 items-center justify-center rounded-full bg-primary-500/20 text-primary-200 text-lg font-semibold">
-                    {index + 1}
-                  </span>
-                  <div class="space-y-4">
-                    <h4 class="text-xl font-semibold text-white">{step.title}</h4>
-                    <p class="text-base text-gray-200 leading-relaxed">
-                      {step.description}
-                    </p>
-                    {step.checklist.length > 0 && (
-                      <ul class="grid gap-2 text-sm text-gray-200 lg:grid-cols-2">
-                        {step.checklist.map((item) => (
-                          <li class="flex items-start gap-2">
-                            <span class="mt-1 h-2.5 w-2.5 rounded-full bg-emerald-400" aria-hidden="true" />
-                            <span class="leading-relaxed">{item}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
+            {
+              steps.map((step, index) => (
+                <li
+                  class="glass p-8 text-left space-y-6 rounded-2xl h-full flex flex-col w-full sm:max-w-sm"
+                  role="listitem"
+                >
+                  <div class="flex items-start gap-5">
+                    <span class="flex h-11 w-11 items-center justify-center rounded-full bg-primary-500/20 text-primary-200 text-lg font-semibold">
+                      {index + 1}
+                    </span>
+                    <div class="space-y-4">
+                      <h4 class="text-xl font-semibold text-white">{step.title}</h4>
+                      <p class="text-base text-gray-200 leading-relaxed">{step.description}</p>
+                      {step.checklist.length > 0 && (
+                        <ul class="grid gap-2 text-sm text-gray-200 lg:grid-cols-2">
+                          {step.checklist.map((item) => (
+                            <li class="flex items-start gap-2">
+                              <span
+                                class="mt-1 h-2.5 w-2.5 rounded-full bg-emerald-400"
+                                aria-hidden="true"
+                              />
+                              <span class="leading-relaxed">{item}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
                   </div>
-                </div>
-                <div class="mt-auto pt-4">
-                  <a
-                    href={step.link}
-                    class="inline-flex items-center gap-2 text-sm font-medium px-4 py-1.5 rounded-full bg-primary-500/15 text-primary-100 hover:bg-primary-500/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
-                  >
-                    {step.linkLabel}
-                    <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                    </svg>
-                  </a>
-                </div>
-              </li>
-            ))}
+                  <div class="mt-auto pt-4">
+                    <a
+                      href={step.link}
+                      class="inline-flex items-center gap-2 text-sm font-medium px-4 py-1.5 rounded-full bg-primary-500/15 text-primary-100 hover:bg-primary-500/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
+                    >
+                      {step.linkLabel}
+                      <svg
+                        class="h-4 w-4"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M17 8l4 4m0 0l-4 4m4-4H3"
+                        />
+                      </svg>
+                    </a>
+                  </div>
+                </li>
+              ))
+            }
           </ol>
         </section>
 
@@ -148,35 +163,51 @@ const resources = [
             >
               {t('pages.docs.resources.title')}
             </h3>
-            <p class="text-gray-300 dark:text-gray-300 max-w-2xl mx-auto text-sm sm:text-base leading-relaxed">
+            <p
+              class="text-gray-300 dark:text-gray-300 max-w-2xl mx-auto text-sm sm:text-base leading-relaxed"
+            >
               {t('pages.docs.resources.subtitle')}
             </p>
           </div>
-          <div class="grid gap-8 grid-cols-1 sm:grid-cols-[repeat(auto-fit,minmax(16rem,1fr))] auto-rows-fr max-w-5xl mx-auto">
-            {resources.map((resource, idx) => (
-              <AosWrapper
-                tag="div"
-                delay={aosDelayForIndex(idx, { step: 120, max: 360 })}
-                class="glass h-full w-full p-8 flex flex-col gap-5 rounded-2xl sm:max-w-sm"
-              >
-                <div class="flex items-center gap-3">
-                  <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-500/15 text-primary-200">
-                    <Icon name={resource.icon} class="w-5 h-5" ariaLabel={resource.title} />
-                  </span>
-                  <h4 class="text-lg font-semibold text-white">{resource.title}</h4>
-                </div>
-                <p class="text-sm text-gray-200 leading-relaxed flex-1">{resource.description}</p>
-                <a
-                  href={resource.link}
-                  class="inline-flex items-center gap-2 text-sm font-medium px-4 py-1.5 rounded-full bg-primary-500/15 text-primary-100 hover:bg-primary-500/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
+          <div
+            class="grid gap-8 grid-cols-1 sm:grid-cols-[repeat(auto-fit,minmax(16rem,1fr))] auto-rows-fr max-w-5xl mx-auto"
+          >
+            {
+              resources.map((resource, idx) => (
+                <AosWrapper
+                  tag="div"
+                  delay={aosDelayForIndex(idx, { step: 120, max: 360 })}
+                  class="glass h-full w-full p-8 flex flex-col gap-5 rounded-2xl sm:max-w-sm"
                 >
-                  {t('pages.docs.resources.action')}
-                  <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                  </svg>
-                </a>
-              </AosWrapper>
-            ))}
+                  <div class="flex items-center gap-3">
+                    <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-500/15 text-primary-200">
+                      <Icon name={resource.icon} class="w-5 h-5" ariaLabel={resource.title} />
+                    </span>
+                    <h4 class="text-lg font-semibold text-white">{resource.title}</h4>
+                  </div>
+                  <p class="text-sm text-gray-200 leading-relaxed flex-1">{resource.description}</p>
+                  <a
+                    href={resource.link}
+                    class="inline-flex items-center gap-2 text-sm font-medium px-4 py-1.5 rounded-full bg-primary-500/15 text-primary-100 hover:bg-primary-500/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
+                  >
+                    {t('pages.docs.resources.action')}
+                    <svg
+                      class="h-4 w-4"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M17 8l4 4m0 0l-4 4m4-4H3"
+                      />
+                    </svg>
+                  </a>
+                </AosWrapper>
+              ))
+            }
           </div>
         </section>
       </div>

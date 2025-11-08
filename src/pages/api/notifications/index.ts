@@ -1,13 +1,15 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { jwt } from 'hono/jwt';
-import { rateLimit } from '../../../lib/rate-limiter';
-import { NotificationService } from '../../../lib/services/notification-service';
+import type { D1Database } from '@cloudflare/workers-types';
+
+import { rateLimit } from '@/lib/rate-limiter';
+import { NotificationService } from '@/lib/services/notification-service';
 import type {
   NotificationFilters,
   NotificationPriority,
   NotificationType,
-} from '../../../lib/types/notifications';
+} from '@/lib/types/notifications';
 
 const NOTIFICATION_TYPES: readonly NotificationType[] = [
   'comment_reply',
@@ -60,43 +62,78 @@ function ensureNumericUserId(rawId: unknown): number {
   return numericId;
 }
 
-const app = new Hono<{ Bindings: { DB: D1Database; JWT_SECRET: string } }>();
+type NotificationBindings = { DB: D1Database; JWT_SECRET: string };
+type NotificationVariables = { jwtPayload?: { id?: string | number } };
+type NotificationEnv = { Bindings: NotificationBindings; Variables: NotificationVariables };
+
+const app = new Hono<NotificationEnv>();
+
+type NotificationContext = Parameters<Parameters<typeof app.get>[1]>[0];
+
+const getJwtPayload = (
+  c: NotificationContext
+): { id?: string | number } | undefined =>
+  c.get('jwtPayload') as { id?: string | number } | undefined;
+
+const requireUserId = (c: NotificationContext): string => {
+  const numericId = ensureNumericUserId(getJwtPayload(c)?.id);
+  return `${numericId}`;
+};
+
+const enforceRateLimit = async (
+  c: NotificationContext,
+  key: string,
+  maxRequests: number,
+  windowSeconds: number
+): Promise<Response | undefined> => {
+  try {
+    await rateLimit(key, maxRequests, windowSeconds);
+    return undefined;
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : 'Rate limit exceeded. Please try again later.';
+    const retryAfter = message.match(/after (\d+) seconds/i)?.[1];
+    if (retryAfter) {
+      c.header('Retry-After', retryAfter);
+    }
+    return c.json(
+      {
+        success: false,
+        error: { type: 'rate_limit', message },
+      },
+      429
+    );
+  }
+};
 
 // Apply CORS middleware
 app.use(
   '*',
   cors({
-    origin: (origin) => {
-      // Allow requests from the same origin and configured domains
+    origin: (origin: string | undefined) => {
       const allowedOrigins = [
         process.env.BASE_URL || 'http://localhost:3000',
         'https://evolution-hub.pages.dev',
       ];
-      return allowedOrigins.includes(origin) ? origin : null;
+      return origin && allowedOrigins.includes(origin) ? origin : null;
     },
     credentials: true,
   })
 );
 
 // JWT middleware for authentication
-app.use(
-  '/api/notifications/*',
-  jwt({
-    secret: process.env.JWT_SECRET!,
-  })
-);
+app.use('*', async (c, next) => {
+  const secret = c.env.JWT_SECRET;
+  return jwt({ secret })(c, next);
+});
 
 // GET /api/notifications - List user notifications
-app.get('/', async (c) => {
+app.get('/', async (c: NotificationContext) => {
   try {
-    const rawUserId = c.get('jwtPayload')?.id;
-    const userId = ensureNumericUserId(rawUserId);
-    if (!userId) {
-      return c.json({ success: false, error: { type: 'auth', message: 'Unauthorized' } }, 401);
-    }
+    const userId = requireUserId(c);
 
-    // Rate limiting: 30 requests per minute
-    await rateLimit(`notifications:list:${userId}`, 30, 60);
+    const limited = await enforceRateLimit(c, `notifications:list:${userId}`, 30, 60);
+    if (limited) return limited;
 
     const notificationService = new NotificationService(c.env.DB);
 
@@ -131,16 +168,12 @@ app.get('/', async (c) => {
 });
 
 // POST /api/notifications/mark-read - Mark notification as read
-app.post('/mark-read', async (c) => {
+app.post('/mark-read', async (c: NotificationContext) => {
   try {
-    const rawUserId = c.get('jwtPayload')?.id;
-    const userId = ensureNumericUserId(rawUserId);
-    if (!userId) {
-      return c.json({ success: false, error: { type: 'auth', message: 'Unauthorized' } }, 401);
-    }
+    const userId = requireUserId(c);
 
-    // Rate limiting: 20 requests per minute
-    await rateLimit(`notifications:mark-read:${userId}`, 20, 60);
+    const limited = await enforceRateLimit(c, `notifications:mark-read:${userId}`, 20, 60);
+    if (limited) return limited;
 
     const body = (await c.req.json().catch(() => null)) as { notificationId?: unknown } | null;
     const notificationId =
@@ -177,16 +210,12 @@ app.post('/mark-read', async (c) => {
 });
 
 // POST /api/notifications/mark-all-read - Mark all notifications as read
-app.post('/mark-all-read', async (c) => {
+app.post('/mark-all-read', async (c: NotificationContext) => {
   try {
-    const rawUserId = c.get('jwtPayload')?.id;
-    const userId = ensureNumericUserId(rawUserId);
-    if (!userId) {
-      return c.json({ success: false, error: { type: 'auth', message: 'Unauthorized' } }, 401);
-    }
+    const userId = requireUserId(c);
 
-    // Rate limiting: 10 requests per minute
-    await rateLimit(`notifications:mark-all-read:${userId}`, 10, 60);
+    const limited = await enforceRateLimit(c, `notifications:mark-all-read:${userId}`, 10, 60);
+    if (limited) return limited;
 
     const notificationService = new NotificationService(c.env.DB);
 
@@ -209,18 +238,14 @@ app.post('/mark-all-read', async (c) => {
 });
 
 // DELETE /api/notifications/:id - Delete a notification
-app.delete('/:id', async (c) => {
+app.delete('/:id', async (c: NotificationContext) => {
   try {
-    const rawUserId = c.get('jwtPayload')?.id;
-    const userId = ensureNumericUserId(rawUserId);
-    if (!userId) {
-      return c.json({ success: false, error: { type: 'auth', message: 'Unauthorized' } }, 401);
-    }
+    const userId = requireUserId(c);
 
     const notificationId = c.req.param('id');
 
-    // Rate limiting: 10 requests per minute
-    await rateLimit(`notifications:delete:${userId}`, 10, 60);
+    const limited = await enforceRateLimit(c, `notifications:delete:${userId}`, 10, 60);
+    if (limited) return limited;
 
     const notificationService = new NotificationService(c.env.DB);
 
@@ -243,16 +268,12 @@ app.delete('/:id', async (c) => {
 });
 
 // GET /api/notifications/stats - Get notification statistics
-app.get('/stats', async (c) => {
+app.get('/stats', async (c: NotificationContext) => {
   try {
-    const rawUserId = c.get('jwtPayload')?.id;
-    const userId = ensureNumericUserId(rawUserId);
-    if (!userId) {
-      return c.json({ success: false, error: { type: 'auth', message: 'Unauthorized' } }, 401);
-    }
+    const userId = requireUserId(c);
 
-    // Rate limiting: 15 requests per minute
-    await rateLimit(`notifications:stats:${userId}`, 15, 60);
+    const limited = await enforceRateLimit(c, `notifications:stats:${userId}`, 15, 60);
+    if (limited) return limited;
 
     const notificationService = new NotificationService(c.env.DB);
 

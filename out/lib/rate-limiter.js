@@ -24,7 +24,8 @@ const limiterConfigs = {};
 function getRateLimitKey(context) {
     // In einer echten Umgebung würde man die IP-Adresse und optional die User-ID verwenden
     const clientIp = context.clientAddress || '0.0.0.0';
-    const userId = context.locals?.user?.id || 'anonymous';
+    const locals = context.locals;
+    const userId = locals?.user?.id || 'anonymous';
     return `${clientIp}:${userId}`;
 }
 /**
@@ -57,7 +58,7 @@ function createRateLimiter(config) {
         });
     }, 60000); // Einmal pro Minute aufräumen
     // Die eigentliche Rate-Limiting-Middleware
-    return async function rateLimitMiddleware(context) {
+    const rateLimitMiddleware = async (context) => {
         const key = getRateLimitKey(context);
         const now = Date.now();
         // Prüfen, ob es bereits einen Eintrag für diesen Schlüssel gibt
@@ -104,7 +105,9 @@ function createRateLimiter(config) {
         }
         // Anfragezähler erhöhen
         entry.count += 1;
+        return undefined;
     };
+    return rateLimitMiddleware;
 }
 /**
  * Vorkonfigurierte Rate-Limiter für häufig verwendete Szenarien

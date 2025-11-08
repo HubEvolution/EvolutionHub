@@ -10,6 +10,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PromptEnhancerService = void 0;
 const logger_factory_1 = require("@/server/utils/logger-factory");
+const logger_utils_1 = require("@/lib/services/logger-utils");
 const openai_1 = require("openai");
 const provider_error_1 = require("@/lib/services/provider-error");
 const prompt_enhancer_1 = require("@/config/prompt-enhancer");
@@ -24,37 +25,17 @@ class PromptEnhancerService {
         this.rewriteEnabled = this.env.PROMPT_REWRITE_V1 !== 'false';
     }
     // Safe logger helpers (tests may mock logger without full interface)
-    logInfo(event, data) {
-        try {
-            void (this.log?.info ? this.log.info(event, data) : this.log?.log?.(event, data));
-        }
-        catch (_err) {
-            // Ignore logging failures
-        }
+    logInfo(event, context) {
+        logger_utils_1.loggerHelpers.info(this.log, event, context);
     }
-    logWarn(event, data) {
-        try {
-            void (this.log?.warn ? this.log.warn(event, data) : this.log?.info?.(event, data));
-        }
-        catch (_err) {
-            // Ignore logging failures
-        }
+    logWarn(event, context) {
+        logger_utils_1.loggerHelpers.warn(this.log, event, context);
     }
-    logError(event, data) {
-        try {
-            void (this.log?.error ? this.log.error(event, data) : this.log?.info?.(event, data));
-        }
-        catch (_err) {
-            // Ignore logging failures
-        }
+    logError(event, context) {
+        logger_utils_1.loggerHelpers.error(this.log, event, context);
     }
-    logDebug(event, data) {
-        try {
-            void (this.log?.debug ? this.log.debug(event, data) : this.log?.info?.(event, data));
-        }
-        catch (_err) {
-            // Ignore logging failures
-        }
+    logDebug(event, context) {
+        logger_utils_1.loggerHelpers.debug(this.log, event, context);
     }
     detectLanguage(text) {
         try {
@@ -204,17 +185,21 @@ class PromptEnhancerService {
                         intent = parsed.intent;
                         aiUsed = true;
                         this.logDebug('ai_intent_detected', {
-                            inputLength: text.length,
-                            intent,
-                            aiModel: 'gpt-4o-mini',
+                            metadata: {
+                                inputLength: text.length,
+                                intent,
+                                aiModel: 'gpt-4o-mini',
+                            },
                         });
                     }
                 }
             }
             catch (error) {
                 this.logWarn('ai_intent_failed', {
-                    inputLength: text.length,
-                    error: error.message,
+                    metadata: {
+                        inputLength: text.length,
+                        error: error.message,
+                    },
                 });
                 // Fallback to rule-based
             }
@@ -487,8 +472,10 @@ class PromptEnhancerService {
                 (typeof errObj?.code === 'number' ? errObj.code : undefined);
             const mapped = (0, provider_error_1.buildProviderError)(status ?? 500, 'openai', (typeof errObj?.message === 'string' ? errObj.message : '').slice(0, 200));
             this.logError('rewrite_llm_failed', {
-                message: err.message,
-                status: status ?? 'unknown',
+                metadata: {
+                    message: err.message,
+                    status: status ?? 'unknown',
+                },
             });
             throw mapped;
         }
@@ -503,9 +490,11 @@ class PromptEnhancerService {
             const err = new Error('feature_not_enabled');
             err.code = 'feature_disabled';
             this.logWarn('enhance_blocked_by_flag', {
-                reqId: 'init',
-                ownerType,
-                ownerId: ownerId.slice(-4),
+                requestId: 'init',
+                metadata: {
+                    ownerType,
+                    ownerIdSuffix: ownerId.slice(-4),
+                },
             });
             throw err;
         }
@@ -515,12 +504,14 @@ class PromptEnhancerService {
         const guestLimit = parseInt(this.env.PROMPT_GUEST_LIMIT || '5', 10);
         const limit = ownerType === 'user' ? userLimit : guestLimit;
         this.logDebug('enhance_requested', {
-            reqId,
-            inputLength: input.text.length,
-            ownerType,
-            ownerId: ownerId.slice(-4),
-            mode: options.mode,
-            flagEnabled: this.publicFlag,
+            requestId: reqId,
+            metadata: {
+                inputLength: input.text.length,
+                ownerType,
+                ownerIdSuffix: ownerId.slice(-4),
+                mode: options.mode,
+                flagEnabled: this.publicFlag,
+            },
         });
         // Quota check
         const currentUsage = await this.getUsage(ownerType, ownerId, userLimit, guestLimit);
@@ -529,11 +520,13 @@ class PromptEnhancerService {
             err.code = 'quota_exceeded';
             err.details = currentUsage;
             this.logError('enhance_failed', {
-                reqId,
-                errorKind: 'quota_exceeded',
-                inputLength: input.text.length,
-                ownerType,
-                ownerId: ownerId.slice(-4),
+                requestId: reqId,
+                metadata: {
+                    errorKind: 'quota_exceeded',
+                    inputLength: input.text.length,
+                    ownerType,
+                    ownerIdSuffix: ownerId.slice(-4),
+                },
             });
             throw err;
         }
@@ -550,7 +543,9 @@ class PromptEnhancerService {
                 pathType = out.pathType;
             }
             catch (e) {
-                this.logWarn('rewrite_fallback', { reason: e.message });
+                this.logWarn('rewrite_fallback', {
+                    metadata: { reason: e.message },
+                });
             }
         }
         if (enhancedPromptText) {
@@ -571,16 +566,20 @@ class PromptEnhancerService {
             const latency = Date.now() - startTime;
             const finalPathType = pathType || 'llm_text';
             // Lightweight counter log for metrics pipelines
-            this.logInfo('enhance_path_counter', { pathType: finalPathType, inc: 1 });
+            this.logInfo('enhance_path_counter', {
+                metadata: { pathType: finalPathType, inc: 1 },
+            });
             await this.incrementPathMetric(finalPathType);
             this.logInfo('enhance_completed', {
-                reqId,
-                latency,
-                enhancedLength: enhancedPromptText.length,
-                maskedCount: report.masked.length,
-                aiUsed: true,
-                path: 'llm',
-                pathType: finalPathType,
+                requestId: reqId,
+                metadata: {
+                    latency,
+                    enhancedLength: enhancedPromptText.length,
+                    maskedCount: report.masked.length,
+                    aiUsed: true,
+                    path: 'llm',
+                    pathType: finalPathType,
+                },
             });
             return { enhanced: structured, safetyReport: report, scores, usage };
         }
@@ -593,12 +592,14 @@ class PromptEnhancerService {
         const usage = await this.incrementUsage(ownerType, ownerId, limit);
         const latency = Date.now() - startTime;
         this.logInfo('enhance_completed', {
-            reqId,
-            latency,
-            enhancedLength: JSON.stringify(structured).length,
-            maskedCount: report.masked.length,
-            aiUsed: parsed.aiUsed,
-            path: 'deterministic',
+            requestId: reqId,
+            metadata: {
+                latency,
+                enhancedLength: JSON.stringify(structured).length,
+                maskedCount: report.masked.length,
+                aiUsed: parsed.aiUsed,
+                path: 'deterministic',
+            },
         });
         return { enhanced: structured, safetyReport: report, scores, usage };
     }
