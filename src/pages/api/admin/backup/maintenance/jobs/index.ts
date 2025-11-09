@@ -10,6 +10,7 @@ import type { D1Database } from '@cloudflare/workers-types';
 import { drizzle } from 'drizzle-orm/d1';
 import { BackupService } from '@/lib/services/backup-service';
 import type { AdminBindings } from '@/lib/types/admin';
+import { formatZodError, maintenanceJobsQuerySchema } from '@/lib/validation';
 
 function getAdminEnv(context: APIContext): AdminBindings {
   const env = (context.locals?.runtime?.env ?? {}) as Partial<AdminBindings> | undefined;
@@ -34,12 +35,14 @@ export const GET = withAuthApiMiddleware(
       return createApiError('forbidden', 'Insufficient permissions');
     }
 
-    const limitParam = new URL(context.request.url).searchParams.get('limit');
-    const parsedLimit = limitParam ? Number.parseInt(limitParam, 10) : undefined;
-    const limit =
-      parsedLimit && Number.isFinite(parsedLimit) && parsedLimit > 0
-        ? Math.min(parsedLimit, 1000)
-        : 50;
+    const searchParams = new URL(context.request.url).searchParams;
+    const parsedQuery = maintenanceJobsQuerySchema.safeParse({ limit: searchParams.get('limit') });
+    if (!parsedQuery.success) {
+      return createApiError('validation_error', 'Invalid query parameters', {
+        details: formatZodError(parsedQuery.error),
+      });
+    }
+    const limit = parsedQuery.data.limit ?? 50;
 
     try {
       const service = new BackupService(drizzle(db));

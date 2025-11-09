@@ -1,5 +1,6 @@
 import { withAuthApiMiddleware, createApiError, createApiSuccess } from '@/lib/api-middleware';
 import { CommentService } from '@/lib/services/comment-service';
+import { recentCommentsQuerySchema, formatZodError } from '@/lib/validation';
 
 type Env = {
   DB: D1Database;
@@ -45,17 +46,23 @@ export const GET = withAuthApiMiddleware(
     const kv = env.KV_COMMENTS;
 
     const url = new URL(request.url);
-    const limitParam = url.searchParams.get('limit');
-    const limitRaw = limitParam ? parseInt(limitParam, 10) : 5;
-    const limit = Number.isFinite(limitRaw) ? Math.min(Math.max(limitRaw, 1), 10) : 5;
+    const queryObject = Object.fromEntries(url.searchParams.entries());
+    const parsedQuery = recentCommentsQuerySchema.safeParse(queryObject);
+    if (!parsedQuery.success) {
+      return createApiError('validation_error', 'Invalid query parameters', {
+        details: formatZodError(parsedQuery.error),
+      });
+    }
+    const { limit } = parsedQuery.data;
 
     const numericUserId = toNumberId(String(user.id));
+    const authorId = numericUserId !== null ? String(numericUserId) : undefined;
 
-    if (numericUserId !== null) {
+    if (authorId) {
       // Preferred path: use service with authorId
       const svc = new CommentService(db, kv);
       const list = await svc.listComments({
-        authorId: numericUserId,
+        authorId,
         limit,
         offset: 0,
         includeReplies: false,

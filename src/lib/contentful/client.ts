@@ -18,10 +18,7 @@ import { formatDate } from '@/lib/datetime';
 const contentfulEnvSchema = z.object({
   spaceId: z.string().trim().min(1, 'CONTENTFUL_SPACE_ID missing'),
   environment: z.string().trim().min(1, 'CONTENTFUL_ENVIRONMENT missing'),
-  accessToken: z
-    .string()
-    .trim()
-    .min(1, 'CONTENTFUL_DELIVERY_TOKEN or fallback token missing'),
+  accessToken: z.string().trim().min(1, 'CONTENTFUL_DELIVERY_TOKEN or fallback token missing'),
   host: z.string().trim().min(1, 'CONTENTFUL_API_HOST missing'),
 });
 
@@ -115,7 +112,9 @@ export type { BlogPostSkeleton };
 
 export type ContentfulBlogEntry = Entry<BlogPostSkeleton>;
 
-function normalizeAuthor(author: string | { name?: string } | null | undefined): BlogPostData['author'] {
+function normalizeAuthor(
+  author: string | { name?: string } | null | undefined
+): BlogPostData['author'] {
   if (!author) return 'EvolutionHub Team';
   if (typeof author === 'string') return author;
   if (author && typeof author === 'object' && author.name) {
@@ -145,7 +144,8 @@ function buildImageData(asset: Asset | null | undefined): BlogPostData['image'] 
   if (!assetFile || typeof assetFile.url !== 'string') return undefined;
 
   const url = assetFile.url.startsWith('//') ? `https:${assetFile.url}` : assetFile.url;
-  const imageDetails = (assetFile.details?.image as { width?: number; height?: number } | undefined) ?? {};
+  const imageDetails =
+    (assetFile.details?.image as { width?: number; height?: number } | undefined) ?? {};
   const format = assetFile.contentType?.split('/')[1] ?? undefined;
 
   return {
@@ -224,22 +224,30 @@ export function mapEntryToBlogPost(entry: ContentfulBlogEntry): ProcessedBlogPos
     null
   );
   const author = normalizeAuthor(rawAuthor ?? undefined);
-  const category = resolveLocalizedField<string>(fields.category as LocalizedValue<string>, 'Allgemein');
+  const category = resolveLocalizedField<string>(
+    fields.category as LocalizedValue<string>,
+    'Allgemein'
+  );
   const tags = resolveLocalizedField<string[]>(fields.tags as LocalizedValue<string[]>, []);
   const draft = resolveLocalizedField<boolean>(fields.draft as LocalizedValue<boolean>, false);
-  const featured = resolveLocalizedField<boolean>(fields.featured as LocalizedValue<boolean>, false);
+  const featured = resolveLocalizedField<boolean>(
+    fields.featured as LocalizedValue<boolean>,
+    false
+  );
   const langRaw = resolveLocalizedField<string | null>(
     fields.lang as LocalizedValue<string | null>,
     'de'
   );
   const lang = langRaw === 'en' ? 'en' : 'de';
 
-  const imageField = resolveLocalizedField<Asset | null>(fields.image as LocalizedValue<Asset | null>, null);
+  const imageField = resolveLocalizedField<Asset | null>(
+    fields.image as LocalizedValue<Asset | null>,
+    null
+  );
   const image = isAssetLike(imageField) ? buildImageData(imageField) : undefined;
-  const imageAlt = resolveLocalizedField<string | null>(
-    fields.imageAlt as LocalizedValue<string | null>,
-    title
-  ) ?? title;
+  const imageAlt =
+    resolveLocalizedField<string | null>(fields.imageAlt as LocalizedValue<string | null>, title) ??
+    title;
 
   const content = resolveLocalizedField<RichTextDocument>(
     fields.content as LocalizedValue<RichTextDocument>,

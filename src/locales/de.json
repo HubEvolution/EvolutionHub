@@ -577,8 +577,8 @@
             "price": "Kostenlos",
             "description": "Perfekt zum Ausprobieren",
             "features": [
-              "30 Credits/Monat (Burst: 3/Tag)",
-              "Enthalten: Imag‑Enhancer, Prompt Enhancer, Voice Transcriptor, Webscraper",
+              "Credits: 30/Monat (Burst: 3/Tag)",
+              "Alle fünf Tools enthalten",
               "Kommerzielle Nutzung: Nein"
             ],
             "cta": "Jetzt starten"
@@ -588,8 +588,8 @@
             "price": "12,00€",
             "description": "Für Creator und Indie-Teams",
             "features": [
-              "300 Credits/Monat (Burst: 30/Tag)",
-              "Enthalten: Imag‑Enhancer, Prompt Enhancer, Voice Transcriptor, Webscraper",
+              "Credits: 300/Monat (Burst: 30/Tag)",
+              "Alle fünf Tools enthalten",
               "Kommerzielle Nutzung: Ja"
             ],
             "cta": "Pro kaufen"
@@ -599,8 +599,9 @@
             "price": "28,00€",
             "description": "Für Power-User",
             "features": [
-              "1.000 Credits/Monat (Burst: 100/Tag)",
-              "Enthalten: Imag‑Enhancer, Prompt Enhancer, Voice Transcriptor, Webscraper",
+              "Credits: 1.000/Monat (Burst: 100/Tag)",
+              "Alle fünf Tools enthalten",
+              "Priorisierter E-Mail-Support",
               "Kommerzielle Nutzung: Ja"
             ],
             "cta": "Business kaufen"
@@ -610,8 +611,8 @@
             "price": "99,00€",
             "description": "Für Unternehmen",
             "features": [
-              "4.000+ Credits/Monat (Burst: 400/Tag)",
-              "Enthalten: Imag‑Enhancer, Prompt Enhancer, Voice Transcriptor, Webscraper",
+              "Credits: 4.000+/Monat (Burst: 400/Tag)",
+              "Alle fünf Tools enthalten",
               "Individuelle Limits & Abrechnung",
               "Dedizierter Kontakt"
             ],
@@ -718,7 +719,7 @@
       },
       "highlights": {
         "tools_title": "Alle 5 Tools enthalten",
-        "tools_desc": "Imag‑Enhancer, Video Enhancer, Prompt Enhancer, Voice Transcriptor, Webscraper nutzen",
+        "tools_desc": "Imag‑Enhancer, Video Enhancer, Prompt Enhancer, Voice Visualizer, Webscraper nutzen",
         "commercial_title": "Kommerzielle Nutzung erlaubt",
         "commercial_desc": "Pro, Business und Enterprise enthalten kommerzielle Nutzungsrechte",
         "credits_title": "Monatliche Credits + Tages‑Burst",
@@ -726,7 +727,7 @@
       },
       "credits_packs": {
         "title": "Zusätzliche Credits kaufen",
-        "subtitle": "Einmalige Pakete zum Auffüllen deines monatlichen Kontingents.",
+        "subtitle": "Einmalpakete, um dein Monatskontingent aufzustocken.",
         "cards": {
           "100": {
             "title": "Starter-Paket",

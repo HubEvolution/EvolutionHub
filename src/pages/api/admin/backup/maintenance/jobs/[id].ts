@@ -10,6 +10,7 @@ import type { D1Database } from '@cloudflare/workers-types';
 import { drizzle } from 'drizzle-orm/d1';
 import { BackupService } from '@/lib/services/backup-service';
 import type { AdminBindings } from '@/lib/types/admin';
+import { formatZodError, maintenanceJobIdParamSchema } from '@/lib/validation';
 
 function getAdminEnv(context: APIContext): AdminBindings {
   const env = (context.locals?.runtime?.env ?? {}) as Partial<AdminBindings> | undefined;
@@ -34,11 +35,13 @@ export const GET = withAuthApiMiddleware(
       return createApiError('forbidden', 'Insufficient permissions');
     }
 
-    const jobIdParam = context.params?.id;
-    if (typeof jobIdParam !== 'string' || jobIdParam.trim().length === 0) {
-      return createApiError('validation_error', 'Maintenance ID required');
+    const parsedParams = maintenanceJobIdParamSchema.safeParse({ id: context.params?.id });
+    if (!parsedParams.success) {
+      return createApiError('validation_error', 'Maintenance ID required', {
+        details: formatZodError(parsedParams.error),
+      });
     }
-    const jobId = jobIdParam.trim();
+    const jobId = parsedParams.data.id;
 
     try {
       const service = new BackupService(drizzle(db));

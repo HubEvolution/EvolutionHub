@@ -14,55 +14,33 @@ function PricingDetailsEventBridge() {
   const { openPlan, openCredit } = usePricingDetails();
 
   useEffect(() => {
-    const listeners: Array<{ element: HTMLElement; handler: (event: Event) => void }> = [];
+    const handleClick = (event: Event) => {
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+      const trigger = target.closest<HTMLElement>('[data-pricing-detail-trigger]');
+      if (!trigger) return;
 
-    const wireElement = (element: HTMLElement) => {
-      const kind = element.getAttribute('data-pricing-detail-kind');
-      const id = element.getAttribute('data-pricing-detail-id');
+      const kind = trigger.getAttribute('data-pricing-detail-kind');
+      const id = trigger.getAttribute('data-pricing-detail-id');
       if (!kind || !id) return;
 
-      if (kind === 'plan' && !PLAN_IDS.has(id as PricingPlanId)) return;
-      if (kind === 'credit' && !CREDIT_IDS.has(id as CreditPackId)) return;
-
-      const handler = (event: Event) => {
+      if (kind === 'plan') {
+        if (!PLAN_IDS.has(id as PricingPlanId)) return;
         event.preventDefault();
-        if (kind === 'plan') {
-          openPlan(id as PricingPlanId);
-        } else if (kind === 'credit') {
-          openCredit(id as CreditPackId);
-        }
-      };
+        openPlan(id as PricingPlanId);
+        return;
+      }
 
-      element.addEventListener('click', handler);
-      listeners.push({ element, handler });
+      if (kind === 'credit') {
+        if (!CREDIT_IDS.has(id as CreditPackId)) return;
+        event.preventDefault();
+        openCredit(id as CreditPackId);
+      }
     };
 
-    const elements = Array.from(
-      document.querySelectorAll<HTMLElement>('[data-pricing-detail-trigger]'),
-    );
-    elements.forEach(wireElement);
-
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        mutation.addedNodes.forEach((node) => {
-          if (!(node instanceof HTMLElement)) return;
-          if (node.matches('[data-pricing-detail-trigger]')) {
-            wireElement(node);
-          }
-          node
-            .querySelectorAll?.('[data-pricing-detail-trigger]')
-            .forEach((child) => wireElement(child as HTMLElement));
-        });
-      });
-    });
-
-    observer.observe(document.body, { childList: true, subtree: true });
-
+    document.addEventListener('click', handleClick);
     return () => {
-      observer.disconnect();
-      listeners.forEach(({ element, handler }) => {
-        element.removeEventListener('click', handler);
-      });
+      document.removeEventListener('click', handleClick);
     };
   }, [openPlan, openCredit]);
 

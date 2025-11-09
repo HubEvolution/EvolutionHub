@@ -4,7 +4,7 @@ import type { LogContext, LogLevelType } from '@/config/logging';
 type SafeLogMethod = (message: string, context?: LogContext) => void;
 
 type SafeLogger = Record<LogLevelType, SafeLogMethod> & {
-  log?: SafeLogMethod;
+  log?: (level: LogLevelType, message: string, context?: LogContext) => void;
 };
 
 function isExtendedLogger(log: unknown): log is ExtendedLogger {
@@ -21,10 +21,11 @@ function isExtendedLogger(log: unknown): log is ExtendedLogger {
 function safeMethod(logger: SafeLogger | undefined, level: LogLevelType): SafeLogMethod | null {
   if (!logger) return null;
   if (typeof logger[level] === 'function') {
-    return logger[level].bind(logger);
+    const levelMethod = logger[level];
+    return (message: string, context?: LogContext) => levelMethod.call(logger, message, context);
   }
   if (typeof logger.log === 'function') {
-    return logger.log.bind(logger, level);
+    return (message: string, context?: LogContext) => logger.log(level, message, context);
   }
   return null;
 }

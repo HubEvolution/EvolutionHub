@@ -3,14 +3,47 @@ import type { Context } from 'hono';
 import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
 import type { APIContext } from 'astro';
-import { createApiError, createApiSuccess } from '@/lib/api-middleware';
+import {
+  createApiError,
+  createApiSuccess,
+  withApiMiddleware,
+  withAuthApiMiddleware,
+} from '@/lib/api-middleware';
 import { CommentService } from '@/lib/services/comment-service';
 import { requireAuth } from '@/lib/auth-helpers';
-import { createCsrfMiddleware, validateCsrfToken } from '@/lib/security/csrf';
+import { createCsrfMiddleware } from '@/lib/security/csrf';
 import type { UpdateCommentRequest } from '@/lib/types/comments';
 import type { D1Database, KVNamespace } from '@cloudflare/workers-types';
+import { commentIdParamSchema, commentUpdateSchema, formatZodError } from '@/lib/validation';
 
-const app = new Hono();
+type CommentBindings = { DB: D1Database; KV_COMMENTS: KVNamespace };
+type CommentEnv = { Bindings: CommentBindings };
+
+type CommentContext = Context<CommentEnv>;
+
+type AstroCommentEnv = { DB?: unknown; KV_COMMENTS?: KVNamespace };
+
+function resolveAstroCommentEnv(context: APIContext): { db: D1Database; kv?: KVNamespace } {
+  const runtimeEnv = (context.locals?.runtime?.env || {}) as AstroCommentEnv;
+  const legacyEnv = (context as { locals?: { env?: AstroCommentEnv } }).locals?.env;
+  const env = runtimeEnv ?? legacyEnv ?? {};
+  const dbUnknown = env.DB;
+  if (!dbUnknown) {
+    throw createApiError('server_error', 'Database binding missing');
+  }
+  if (typeof (dbUnknown as { prepare?: unknown }).prepare !== 'function') {
+    throw createApiError('server_error', 'Database binding invalid');
+  }
+  return { db: dbUnknown as D1Database, kv: env.KV_COMMENTS };
+}
+
+const app = new Hono<CommentEnv>();
+
+const toAuthContext = (c: CommentContext) => ({
+  req: { header: (name: string) => c.req.header(name) },
+  request: c.req.raw,
+  env: { DB: c.env.DB },
+});
 
 // Middleware
 app.use('*', logger());
@@ -31,8 +64,7 @@ app.use(
 app.use('/:id', createCsrfMiddleware());
 
 // GET /api/comments/[id] - Get a specific comment
-// Note: keep Context non-generic to match installed Hono types
-app.get('/:id', async (c: Context) => {
+app.get('/:id', async (c: CommentContext) => {
   try {
     const commentId = c.req.param('id');
     const commentService = new CommentService(c.env.DB, c.env.KV_COMMENTS);
@@ -58,14 +90,10 @@ app.get('/:id', async (c: Context) => {
 });
 
 // PUT /api/comments/[id] - Update a comment
-app.put('/:id', async (c: Context) => {
+app.put('/:id', async (c: CommentContext) => {
   try {
     const commentId = c.req.param('id');
-    const user = await requireAuth({
-      req: { header: (name: string) => c.req.header(name) },
-      request: c.req.raw,
-      env: { DB: c.env.DB },
-    });
+    const user = await requireAuth(toAuthContext(c));
 
     const body = (await c.req.json()) as UpdateCommentRequest & { csrfToken: string };
     const { csrfToken, ...updateData } = body;
@@ -77,7 +105,7 @@ app.put('/:id', async (c: Context) => {
       );
     }
 
-    const commentService = new CommentService(c.env.DB);
+    const commentService = new CommentService(c.env.DB, c.env.KV_COMMENTS);
 
     const updatedComment = await commentService.updateComment(
       commentId,
@@ -113,14 +141,10 @@ app.put('/:id', async (c: Context) => {
 });
 
 // DELETE /api/comments/[id] - Delete (hide) a comment
-app.delete('/:id', async (c: Context) => {
+app.delete('/:id', async (c: CommentContext) => {
   try {
     const commentId = c.req.param('id');
-    const user = await requireAuth({
-      req: { header: (name: string) => c.req.header(name) },
-      request: c.req.raw,
-      env: { DB: c.env.DB },
-    });
+    const user = await requireAuth(toAuthContext(c));
 
     const body = (await c.req.json()) as { csrfToken: string };
     const { csrfToken } = body;
@@ -132,7 +156,7 @@ app.delete('/:id', async (c: Context) => {
       );
     }
 
-    const commentService = new CommentService(c.env.DB);
+    const commentService = new CommentService(c.env.DB, c.env.KV_COMMENTS);
 
     await commentService.deleteComment(commentId, String(user.id), csrfToken);
 
@@ -164,153 +188,134 @@ app.delete('/:id', async (c: Context) => {
 // Note: no default export; named handlers are used by the router
 
 // Named handlers for file-based router
-export const GET = async (context: APIContext) => {
-  try {
-    const env = (context.locals?.runtime?.env || {}) as
-      | { DB?: unknown; KV_COMMENTS?: unknown }
-      | undefined;
-    const dbUnknown =
-      env?.DB || (context as unknown as { locals?: { env?: { DB?: unknown } } }).locals?.env?.DB;
-    if (!dbUnknown) return createApiError('server_error', 'Database binding missing');
-    const hasPrepare = typeof (dbUnknown as { prepare?: unknown }).prepare === 'function';
-    if (!hasPrepare) return createApiError('server_error', 'Database binding invalid');
-    const db = dbUnknown as D1Database;
+export const GET = withApiMiddleware(
+  async (context: APIContext) => {
+    try {
+      const paramsParse = commentIdParamSchema.safeParse(context.params);
+      if (!paramsParse.success) {
+        return createApiError('validation_error', 'Invalid comment id', {
+          details: formatZodError(paramsParse.error),
+        });
+      }
 
-    const id = context.params.id as string | undefined;
-    if (!id) return createApiError('validation_error', 'Comment ID required');
-
-    const kv =
-      env?.KV_COMMENTS ||
-      (context as unknown as { locals?: { env?: { KV_COMMENTS?: unknown } } }).locals?.env
-        ?.KV_COMMENTS;
-    const service = new CommentService(db, kv as KVNamespace | undefined);
-    const comment = await service.getCommentById(id);
-    return createApiSuccess(comment);
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    if (msg.includes('not found')) return createApiError('not_found', 'Comment not found');
-    return createApiError('server_error', msg);
+      const { db, kv } = resolveAstroCommentEnv(context);
+      const service = new CommentService(db, kv);
+      const comment = await service.getCommentById(paramsParse.data.id);
+      return createApiSuccess(comment);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      if (message.includes('not found')) {
+        return createApiError('not_found', 'Comment not found');
+      }
+      if (error instanceof Response) {
+        return error;
+      }
+      return createApiError('server_error', message);
+    }
+  },
+  {
+    logMetadata: { action: 'comment_get' },
   }
-};
+);
 
-export const PUT = async (context: APIContext) => {
-  try {
-    const env = (context.locals?.runtime?.env || {}) as
-      | { DB?: unknown; KV_COMMENTS?: unknown }
-      | undefined;
-    const dbUnknown =
-      env?.DB || (context as unknown as { locals?: { env?: { DB?: unknown } } }).locals?.env?.DB;
-    if (!dbUnknown) return createApiError('server_error', 'Database binding missing');
-    const hasPrepare = typeof (dbUnknown as { prepare?: unknown }).prepare === 'function';
-    if (!hasPrepare) return createApiError('server_error', 'Database binding invalid');
-    const db = dbUnknown as D1Database;
+export const PUT = withAuthApiMiddleware(
+  async (context: APIContext) => {
+    try {
+      const paramsParse = commentIdParamSchema.safeParse(context.params);
+      if (!paramsParse.success) {
+        return createApiError('validation_error', 'Invalid comment id', {
+          details: formatZodError(paramsParse.error),
+        });
+      }
 
-    const id = context.params.id as string | undefined;
-    if (!id) return createApiError('validation_error', 'Comment ID required');
+      const { db, kv } = resolveAstroCommentEnv(context);
+      const user = await requireAuth({ request: context.request, env: { DB: db } });
 
-    // Auth
-    const user = await requireAuth({
-      request: context.request,
-      env: { DB: db },
-    });
+      const bodyUnknown = await context.request.json().catch(() => undefined);
+      const parsedBody = commentUpdateSchema.safeParse(bodyUnknown);
+      if (!parsedBody.success) {
+        return createApiError('validation_error', 'Invalid request body', {
+          details: formatZodError(parsedBody.error),
+        });
+      }
 
-    // Body + CSRF
-    const body = (await context.request.json()) as UpdateCommentRequest & { csrfToken?: string };
-    const token = body?.csrfToken || context.request.headers.get('x-csrf-token') || '';
-    const cookie = context.request.headers.get('cookie') || undefined;
-    const ok = await validateCsrfToken(token, cookie);
-    if (!ok) {
-      return new Response(
-        JSON.stringify({
-          success: false,
-          error: { type: 'csrf_error', message: 'Invalid CSRF token' },
-        }),
-        {
-          status: 403,
-          headers: { 'Content-Type': 'application/json' },
-        }
+      const csrfToken = context.request.headers.get('x-csrf-token');
+      if (!csrfToken) {
+        return createApiError('forbidden', 'CSRF token required');
+      }
+
+      const service = new CommentService(db, kv);
+      const updated = await service.updateComment(
+        paramsParse.data.id,
+        parsedBody.data,
+        String(user.id),
+        csrfToken
       );
-    }
 
-    const { csrfToken: _csrfToken, ...updateData } = body;
-    const kv =
-      env?.KV_COMMENTS ||
-      (context as unknown as { locals?: { env?: { KV_COMMENTS?: unknown } } }).locals?.env
-        ?.KV_COMMENTS;
-    const service = new CommentService(db, kv as KVNamespace | undefined);
-    const updated = await service.updateComment(id, updateData, String(user.id), token);
-    return createApiSuccess(updated);
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    if (msg.includes('Authentication')) return createApiError('auth_error', msg);
-    if (msg.includes('not found')) return createApiError('not_found', 'Comment not found');
-    if (msg.toLowerCase().includes('csrf')) {
-      return new Response(
-        JSON.stringify({ success: false, error: { type: 'csrf_error', message: msg } }),
-        {
-          status: 403,
-          headers: { 'Content-Type': 'application/json' },
-        }
-      );
+      return createApiSuccess(updated);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      if (message.includes('Authentication')) {
+        return createApiError('auth_error', message);
+      }
+      if (message.includes('not found')) {
+        return createApiError('not_found', 'Comment not found');
+      }
+      if (message.toLowerCase().includes('csrf')) {
+        return createApiError('forbidden', message);
+      }
+      if (error instanceof Response) {
+        return error;
+      }
+      return createApiError('server_error', message);
     }
-    return createApiError('server_error', msg);
+  },
+  {
+    enforceCsrfToken: true,
+    logMetadata: { action: 'comment_update' },
   }
-};
+);
 
-export const DELETE = async (context: APIContext) => {
-  try {
-    const env = (context.locals?.runtime?.env || {}) as
-      | { DB?: unknown; KV_COMMENTS?: unknown }
-      | undefined;
-    const dbUnknown =
-      env?.DB || (context as unknown as { locals?: { env?: { DB?: unknown } } }).locals?.env?.DB;
-    if (!dbUnknown) return createApiError('server_error', 'Database binding missing');
-    const hasPrepare = typeof (dbUnknown as { prepare?: unknown }).prepare === 'function';
-    if (!hasPrepare) return createApiError('server_error', 'Database binding invalid');
-    const db = dbUnknown as D1Database;
+export const DELETE = withAuthApiMiddleware(
+  async (context: APIContext) => {
+    try {
+      const paramsParse = commentIdParamSchema.safeParse(context.params);
+      if (!paramsParse.success) {
+        return createApiError('validation_error', 'Invalid comment id', {
+          details: formatZodError(paramsParse.error),
+        });
+      }
 
-    const id = context.params.id as string | undefined;
-    if (!id) return createApiError('validation_error', 'Comment ID required');
+      const { db, kv } = resolveAstroCommentEnv(context);
+      const user = await requireAuth({ request: context.request, env: { DB: db } });
 
-    const user = await requireAuth({ request: context.request, env: { DB: db } });
+      const csrfToken = context.request.headers.get('x-csrf-token');
+      if (!csrfToken) {
+        return createApiError('forbidden', 'CSRF token required');
+      }
 
-    const body = (await context.request.json().catch(() => ({}))) as { csrfToken?: string };
-    const token = body?.csrfToken || context.request.headers.get('x-csrf-token') || '';
-    const cookie = context.request.headers.get('cookie') || undefined;
-    const ok = await validateCsrfToken(token, cookie);
-    if (!ok) {
-      return new Response(
-        JSON.stringify({
-          success: false,
-          error: { type: 'csrf_error', message: 'Invalid CSRF token' },
-        }),
-        {
-          status: 403,
-          headers: { 'Content-Type': 'application/json' },
-        }
-      );
+      const service = new CommentService(db, kv);
+      await service.deleteComment(paramsParse.data.id, String(user.id), csrfToken);
+      return createApiSuccess({ message: 'Comment deleted successfully' });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      if (message.includes('Authentication')) {
+        return createApiError('auth_error', message);
+      }
+      if (message.includes('not found')) {
+        return createApiError('not_found', 'Comment not found');
+      }
+      if (message.toLowerCase().includes('csrf')) {
+        return createApiError('forbidden', message);
+      }
+      if (error instanceof Response) {
+        return error;
+      }
+      return createApiError('server_error', message);
     }
-
-    const kv =
-      env?.KV_COMMENTS ||
-      (context as unknown as { locals?: { env?: { KV_COMMENTS?: unknown } } }).locals?.env
-        ?.KV_COMMENTS;
-    const service = new CommentService(db, kv as KVNamespace | undefined);
-    await service.deleteComment(id, String(user.id), token);
-    return createApiSuccess({ message: 'Comment deleted successfully' });
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    if (msg.includes('Authentication')) return createApiError('auth_error', msg);
-    if (msg.includes('not found')) return createApiError('not_found', 'Comment not found');
-    if (msg.toLowerCase().includes('csrf')) {
-      return new Response(
-        JSON.stringify({ success: false, error: { type: 'csrf_error', message: msg } }),
-        {
-          status: 403,
-          headers: { 'Content-Type': 'application/json' },
-        }
-      );
-    }
-    return createApiError('server_error', msg);
+  },
+  {
+    enforceCsrfToken: true,
+    logMetadata: { action: 'comment_delete' },
   }
-};
+);

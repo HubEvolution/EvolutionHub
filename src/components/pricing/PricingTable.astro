@@ -40,7 +40,6 @@ const parseLinks = (v: unknown): Record<string, string> => {
 const env = (Astro.locals && Astro.locals.runtime && Astro.locals.runtime.env) || undefined;
 const paymentLinksMonthly = parseLinks(env?.PRICING_LINKS);
 const paymentLinksAnnual = parseLinks(env?.PRICING_LINKS_ANNUAL);
-const ctaBuyEnterprise = t('pages.pricing.table.cta_buy_enterprise') || 'Buy Enterprise';
 
 // Simple sanitizer to avoid showing fallback tokens
 const sanitize = (s: string) => {
@@ -236,6 +235,16 @@ const plans: Plan[] = [
       }
     })();
 
+    function emitIntervalChange() {
+      try {
+        window.dispatchEvent(
+          new CustomEvent('pricing:interval-change', {
+            detail: { interval: pricingInterval },
+          })
+        );
+      } catch {}
+    }
+
     function readCookie(name) {
       const m = document.cookie.match(
         new RegExp('(?:^|; )' + name.replace(/[.$?*|{}()\[\]\\/+^]/g, '\\$&') + '=([^;]*)')
@@ -393,6 +402,7 @@ const plans: Plan[] = [
               localStorage.setItem('pricing_interval', 'monthly');
             } catch {}
             setIntervalButtons();
+            emitIntervalChange();
           });
           a.addEventListener('click', function () {
             pricingInterval = 'annual';
@@ -400,8 +410,10 @@ const plans: Plan[] = [
               localStorage.setItem('pricing_interval', 'annual');
             } catch {}
             setIntervalButtons();
+            emitIntervalChange();
           });
           setIntervalButtons();
+          emitIntervalChange();
           var proAmt = document.querySelector('span[data-plan="pro"][data-role="amount"]');
           var proPer = document.querySelector('span[data-plan="pro"][data-role="period"]');
           var busAmt = document.querySelector('span[data-plan="premium"][data-role="amount"]');

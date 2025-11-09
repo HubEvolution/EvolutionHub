@@ -11,6 +11,7 @@ import { BackupService } from '@/lib/services/backup-service';
 import { requireAdmin } from '@/lib/auth-helpers';
 import type { AdminBindings } from '@/lib/types/admin';
 import { sensitiveActionLimiter } from '@/lib/rate-limiter';
+import { backupCleanupSchema, formatZodError } from '@/lib/validation';
 
 function getAdminEnv(context: APIContext): AdminBindings {
   const env = (context.locals?.runtime?.env ?? {}) as Partial<AdminBindings> | undefined;
@@ -35,18 +36,14 @@ export const POST = withAuthApiMiddleware(
       return createApiError('forbidden', 'Insufficient permissions');
     }
 
-    let retentionDays = 30;
-    try {
-      const body = (await context.request.json()) as unknown;
-      if (body && typeof body === 'object' && 'retentionDays' in body) {
-        const { retentionDays: raw } = body as { retentionDays?: unknown };
-        if (typeof raw === 'number' && Number.isFinite(raw) && raw > 0) {
-          retentionDays = Math.min(365, Math.floor(raw));
-        }
-      }
-    } catch {
-      // ignore JSON parse errors, fallback to default retention
+    const rawBody: unknown = await context.request.json().catch(() => ({}));
+    const parsedBody = backupCleanupSchema.safeParse(rawBody);
+    if (!parsedBody.success) {
+      return createApiError('validation_error', 'Invalid JSON body', {
+        details: formatZodError(parsedBody.error),
+      });
     }
+    const retentionDays = parsedBody.data.retentionDays ?? 30;
 
     try {
       const service = new BackupService(drizzle(db));

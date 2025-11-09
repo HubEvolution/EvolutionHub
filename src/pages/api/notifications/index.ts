@@ -1,58 +1,19 @@
 import { Hono } from 'hono';
+import type { Context, Next } from 'hono';
 import { cors } from 'hono/cors';
 import { jwt } from 'hono/jwt';
 import type { D1Database } from '@cloudflare/workers-types';
 
 import { rateLimit } from '@/lib/rate-limiter';
 import { NotificationService } from '@/lib/services/notification-service';
-import type {
-  NotificationFilters,
-  NotificationPriority,
-  NotificationType,
-} from '@/lib/types/notifications';
-
-const NOTIFICATION_TYPES: readonly NotificationType[] = [
-  'comment_reply',
-  'comment_mention',
-  'comment_approved',
-  'comment_rejected',
-  'system',
-];
-
-const NOTIFICATION_PRIORITIES: readonly NotificationPriority[] = [
-  'low',
-  'normal',
-  'high',
-  'urgent',
-];
-
-function parseNotificationType(value: string | undefined | null): NotificationType | undefined {
-  if (!value) return undefined;
-  return NOTIFICATION_TYPES.includes(value as NotificationType)
-    ? (value as NotificationType)
-    : undefined;
-}
-
-function parseNotificationPriority(
-  value: string | undefined | null
-): NotificationPriority | undefined {
-  if (!value) return undefined;
-  return NOTIFICATION_PRIORITIES.includes(value as NotificationPriority)
-    ? (value as NotificationPriority)
-    : undefined;
-}
-
-function parseBooleanFlag(value: string | undefined | null): boolean | undefined {
-  if (value === 'true') return true;
-  if (value === 'false') return false;
-  return undefined;
-}
-
-function parseInteger(value: string | undefined | null, fallback: number): number {
-  if (!value) return fallback;
-  const parsed = Number.parseInt(value, 10);
-  return Number.isFinite(parsed) ? parsed : fallback;
-}
+import { createApiError, createApiSuccess } from '@/lib/api-middleware';
+import { formatZodError } from '@/lib/validation';
+import {
+  markNotificationReadSchema,
+  notificationIdPathSchema,
+  notificationsEmptyBodySchema,
+  notificationsListQuerySchema,
+} from '@/lib/validation/schemas/notifications';
 
 function ensureNumericUserId(rawId: unknown): number {
   const numericId = typeof rawId === 'string' ? Number.parseInt(rawId, 10) : Number(rawId);
@@ -68,12 +29,12 @@ type NotificationEnv = { Bindings: NotificationBindings; Variables: Notification
 
 const app = new Hono<NotificationEnv>();
 
-type NotificationContext = Parameters<Parameters<typeof app.get>[1]>[0];
+type NotificationJwtPayload = { id?: string | number };
 
-const getJwtPayload = (
-  c: NotificationContext
-): { id?: string | number } | undefined =>
-  c.get('jwtPayload') as { id?: string | number } | undefined;
+type NotificationContext = Context<NotificationEnv>;
+
+const getJwtPayload = (c: NotificationContext): NotificationJwtPayload | undefined =>
+  c.get('jwtPayload') as NotificationJwtPayload | undefined;
 
 const requireUserId = (c: NotificationContext): string => {
   const numericId = ensureNumericUserId(getJwtPayload(c)?.id);
@@ -93,16 +54,12 @@ const enforceRateLimit = async (
     const message =
       error instanceof Error ? error.message : 'Rate limit exceeded. Please try again later.';
     const retryAfter = message.match(/after (\d+) seconds/i)?.[1];
+    const response = createApiError('rate_limit', message);
     if (retryAfter) {
       c.header('Retry-After', retryAfter);
+      response.headers.set('Retry-After', retryAfter);
     }
-    return c.json(
-      {
-        success: false,
-        error: { type: 'rate_limit', message },
-      },
-      429
-    );
+    return response;
   }
 };
 
@@ -122,9 +79,16 @@ app.use(
 );
 
 // JWT middleware for authentication
-app.use('*', async (c, next) => {
-  const secret = c.env.JWT_SECRET;
-  return jwt({ secret })(c, next);
+app.use('*', async (c: NotificationContext, next: Next) => {
+  const middleware = jwt({ secret: c.env.JWT_SECRET });
+  const result = await middleware(c, next);
+  const rawPayload = c.get('jwtPayload') as unknown;
+  if (rawPayload && typeof rawPayload === 'object') {
+    c.set('jwtPayload', rawPayload as NotificationJwtPayload);
+  } else {
+    c.set('jwtPayload', undefined);
+  }
+  return result;
 });
 
 // GET /api/notifications - List user notifications
@@ -135,35 +99,21 @@ app.get('/', async (c: NotificationContext) => {
     const limited = await enforceRateLimit(c, `notifications:list:${userId}`, 30, 60);
     if (limited) return limited;
 
-    const notificationService = new NotificationService(c.env.DB);
-
-    // Parse query parameters
     const query = c.req.query();
-    const filters: NotificationFilters = {
-      type: parseNotificationType(query.type),
-      isRead: parseBooleanFlag(query.isRead),
-      priority: parseNotificationPriority(query.priority),
-      limit: Math.max(1, Math.min(100, parseInteger(query.limit, 20))),
-      offset: Math.max(0, parseInteger(query.offset, 0)),
-      startDate: query.startDate ? parseInteger(query.startDate, NaN) || undefined : undefined,
-      endDate: query.endDate ? parseInteger(query.endDate, NaN) || undefined : undefined,
-    };
+    const parsedQuery = notificationsListQuerySchema.safeParse(query);
+    if (!parsedQuery.success) {
+      return createApiError('validation_error', 'Invalid query parameters', {
+        details: formatZodError(parsedQuery.error),
+      });
+    }
 
-    const result = await notificationService.listNotifications(userId, filters);
+    const notificationService = new NotificationService(c.env.DB);
+    const result = await notificationService.listNotifications(userId, parsedQuery.data);
 
-    return c.json({
-      success: true,
-      data: result,
-    });
+    return createApiSuccess(result);
   } catch (error) {
     console.error('Error fetching notifications:', error);
-    return c.json(
-      {
-        success: false,
-        error: { type: 'server', message: 'Internal server error' },
-      },
-      500
-    );
+    return createApiError('server_error', 'Internal server error');
   }
 });
 
@@ -175,37 +125,24 @@ app.post('/mark-read', async (c: NotificationContext) => {
     const limited = await enforceRateLimit(c, `notifications:mark-read:${userId}`, 20, 60);
     if (limited) return limited;
 
-    const body = (await c.req.json().catch(() => null)) as { notificationId?: unknown } | null;
-    const notificationId =
-      typeof body?.notificationId === 'string' ? body.notificationId : undefined;
-
-    if (!notificationId) {
-      return c.json(
-        {
-          success: false,
-          error: { type: 'validation', message: 'notificationId is required' },
-        },
-        400
-      );
+    const unknownBody: unknown = await c.req.json().catch(() => null);
+    const parsedBody = markNotificationReadSchema.safeParse(unknownBody);
+    if (!parsedBody.success) {
+      return createApiError('validation_error', 'Invalid JSON body', {
+        details: formatZodError(parsedBody.error),
+      });
     }
 
     const notificationService = new NotificationService(c.env.DB);
+    const notification = await notificationService.markAsRead(
+      parsedBody.data.notificationId,
+      userId
+    );
 
-    const notification = await notificationService.markAsRead(notificationId, userId);
-
-    return c.json({
-      success: true,
-      data: notification,
-    });
+    return createApiSuccess(notification);
   } catch (error) {
     console.error('Error marking notification as read:', error);
-    return c.json(
-      {
-        success: false,
-        error: { type: 'server', message: 'Internal server error' },
-      },
-      500
-    );
+    return createApiError('server_error', 'Internal server error');
   }
 });
 
@@ -217,23 +154,22 @@ app.post('/mark-all-read', async (c: NotificationContext) => {
     const limited = await enforceRateLimit(c, `notifications:mark-all-read:${userId}`, 10, 60);
     if (limited) return limited;
 
+    const unknownBody: unknown = await c.req.json().catch(() => ({}));
+    const emptyBody = notificationsEmptyBodySchema.safeParse(unknownBody);
+    if (!emptyBody.success) {
+      return createApiError('validation_error', 'Body must be empty', {
+        details: formatZodError(emptyBody.error),
+      });
+    }
+
     const notificationService = new NotificationService(c.env.DB);
 
     await notificationService.markAllAsRead(userId);
 
-    return c.json({
-      success: true,
-      data: { message: 'All notifications marked as read' },
-    });
+    return createApiSuccess({ message: 'All notifications marked as read' });
   } catch (error) {
     console.error('Error marking all notifications as read:', error);
-    return c.json(
-      {
-        success: false,
-        error: { type: 'server', message: 'Internal server error' },
-      },
-      500
-    );
+    return createApiError('server_error', 'Internal server error');
   }
 });
 
@@ -242,28 +178,24 @@ app.delete('/:id', async (c: NotificationContext) => {
   try {
     const userId = requireUserId(c);
 
-    const notificationId = c.req.param('id');
+    const parsedPath = notificationIdPathSchema.safeParse({ id: c.req.param('id') });
+    if (!parsedPath.success) {
+      return createApiError('validation_error', 'Invalid notification id', {
+        details: formatZodError(parsedPath.error),
+      });
+    }
 
     const limited = await enforceRateLimit(c, `notifications:delete:${userId}`, 10, 60);
     if (limited) return limited;
 
     const notificationService = new NotificationService(c.env.DB);
 
-    await notificationService.deleteNotification(notificationId, userId);
+    await notificationService.deleteNotification(parsedPath.data.id, userId);
 
-    return c.json({
-      success: true,
-      data: { message: 'Notification deleted successfully' },
-    });
+    return createApiSuccess({ message: 'Notification deleted successfully' });
   } catch (error) {
     console.error('Error deleting notification:', error);
-    return c.json(
-      {
-        success: false,
-        error: { type: 'server', message: 'Internal server error' },
-      },
-      500
-    );
+    return createApiError('server_error', 'Internal server error');
   }
 });
 
@@ -275,23 +207,22 @@ app.get('/stats', async (c: NotificationContext) => {
     const limited = await enforceRateLimit(c, `notifications:stats:${userId}`, 15, 60);
     if (limited) return limited;
 
+    const unknownBody: unknown = await c.req.json().catch(() => ({}));
+    const emptyBody = notificationsEmptyBodySchema.safeParse(unknownBody);
+    if (!emptyBody.success) {
+      return createApiError('validation_error', 'Body must be empty', {
+        details: formatZodError(emptyBody.error),
+      });
+    }
+
     const notificationService = new NotificationService(c.env.DB);
 
     const stats = await notificationService.getNotificationStats(userId);
 
-    return c.json({
-      success: true,
-      data: stats,
-    });
+    return createApiSuccess(stats);
   } catch (error) {
     console.error('Error fetching notification stats:', error);
-    return c.json(
-      {
-        success: false,
-        error: { type: 'server', message: 'Internal server error' },
-      },
-      500
-    );
+    return createApiError('server_error', 'Internal server error');
   }
 });
 

@@ -160,26 +160,6 @@ declare module 'stripe' {
   export = Stripe;
 }
 
-declare module 'hono' {
-  export class Hono<T = any> {
-    constructor(...args: any[]);
-    use: (...args: any[]) => any;
-    get: (...args: any[]) => any;
-    put: (...args: any[]) => any;
-    delete: (...args: any[]) => any;
-  }
-  export interface Context {
-    req: {
-      param: (name: string) => string;
-      header: (name: string) => string | undefined;
-      raw: Request;
-      json: <T = any>() => Promise<T>;
-    };
-    env: any;
-    json: (data: any, status?: number) => Response;
-  }
-}
-
 declare module 'hono/cors' {
   export const cors: (...args: any[]) => any;
   export default cors;

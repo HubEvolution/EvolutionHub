@@ -4,6 +4,7 @@
  */
 
 import { Hono } from 'hono';
+import type { Context, Next } from 'hono';
 import { cors } from 'hono/cors';
 import { jwt } from 'hono/jwt';
 import { rateLimiter } from 'hono-rate-limiter';
@@ -22,7 +23,7 @@ type DataExportEnv = { Bindings: DataExportBindings; Variables: DataExportVariab
 
 const app = new Hono<DataExportEnv>();
 
-type DataExportContext = Parameters<Parameters<typeof app.get>[1]>[0];
+type DataExportContext = Context<DataExportEnv>;
 
 const toAuthContext = (c: DataExportContext) => ({
   req: { header: (name: string) => c.req.header(name) },
@@ -39,12 +40,14 @@ const ipKey = (c: DataExportContext): string =>
 
 // Middleware
 // Attach requestId for structured logging
-app.use('/*', async (c, next) => {
+app.use('/*', async (c: DataExportContext, next: Next) => {
   c.set('requestId', generateRequestId());
   await next();
 });
 app.use('/*', cors());
-app.use('/create', async (c, next) => jwt({ secret: c.env.JWT_SECRET })(c, next));
+app.use('/create', async (c: DataExportContext, next: Next) =>
+  jwt({ secret: c.env.JWT_SECRET })(c, next)
+);
 app.use(
   '/create',
   rateLimiter({
@@ -53,7 +56,9 @@ app.use(
     keyGenerator: ipKey,
   })
 ); // 5 pro Minute
-app.use('/delete', async (c, next) => jwt({ secret: c.env.JWT_SECRET })(c, next));
+app.use('/delete', async (c: DataExportContext, next: Next) =>
+  jwt({ secret: c.env.JWT_SECRET })(c, next)
+);
 app.use(
   '/delete',
   rateLimiter({

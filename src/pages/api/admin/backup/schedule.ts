@@ -10,22 +10,12 @@ import { drizzle } from 'drizzle-orm/d1';
 import { BackupService } from '@/lib/services/backup-service';
 import { requireAdmin } from '@/lib/auth-helpers';
 import type { AdminBindings } from '@/lib/types/admin';
-import type { BackupOptions } from '@/lib/types/data-management';
 import { sensitiveActionLimiter } from '@/lib/rate-limiter';
+import { backupScheduleSchema, formatZodError } from '@/lib/validation';
 
 function getAdminEnv(context: APIContext): AdminBindings {
   const env = (context.locals?.runtime?.env ?? {}) as Partial<AdminBindings> | undefined;
   return (env ?? {}) as AdminBindings;
-}
-
-function isBackupJobType(value: string): value is BackupOptions['type'] {
-  return ['full', 'comments', 'users', 'incremental'].includes(value);
-}
-
-function isCronExpression(value: unknown): value is string {
-  if (typeof value !== 'string') return false;
-  const trimmed = value.trim();
-  return trimmed.length > 0;
 }
 
 export const POST = withAuthApiMiddleware(
@@ -46,28 +36,18 @@ export const POST = withAuthApiMiddleware(
       return createApiError('forbidden', 'Insufficient permissions');
     }
 
-    let body: unknown;
-    try {
-      body = await context.request.json();
-    } catch {
-      return createApiError('validation_error', 'Invalid JSON body');
+    const rawBody: unknown = await context.request.json().catch(() => null);
+    const parsedBody = backupScheduleSchema.safeParse(rawBody);
+    if (!parsedBody.success) {
+      return createApiError('validation_error', 'Invalid JSON body', {
+        details: formatZodError(parsedBody.error),
+      });
     }
-
-    if (!body || typeof body !== 'object') {
-      return createApiError('validation_error', 'Backup type and cron expression are required');
-    }
-
-    const { type, cronExpression } = body as { type?: unknown; cronExpression?: unknown };
-    if (typeof type !== 'string' || !isBackupJobType(type) || !isCronExpression(cronExpression)) {
-      return createApiError('validation_error', 'Invalid backup type or cron expression');
-    }
-
-    const jobType: BackupOptions['type'] = type;
-    const cron = cronExpression.trim();
 
     try {
       const service = new BackupService(drizzle(db));
-      await service.scheduleAutomatedBackup(jobType, cron);
+      const { type, cronExpression } = parsedBody.data;
+      await service.scheduleAutomatedBackup(type, cronExpression.trim());
       return createApiSuccess({ message: 'Automated backup scheduled successfully' });
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Failed to schedule backup';

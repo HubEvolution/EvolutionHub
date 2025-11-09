@@ -1,4 +1,11 @@
 /**
+ * Archived duplicate of the canonical rate limiter tests.
+ * Active suite: tests/unit/lib/rate-limiter.test.ts
+ */
+
+export {};
+
+/**
  * Unit-Tests für das Rate-Limiter Modul
  * 
  * Diese Tests decken die Kernfunktionen von src/lib/rate-limiter.ts ab:

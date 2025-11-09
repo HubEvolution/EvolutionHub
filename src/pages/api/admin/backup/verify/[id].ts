@@ -11,6 +11,7 @@ import { BackupService } from '@/lib/services/backup-service';
 import { requireAdmin } from '@/lib/auth-helpers';
 import type { AdminBindings } from '@/lib/types/admin';
 import { sensitiveActionLimiter } from '@/lib/rate-limiter';
+import { backupVerifyParamSchema, formatZodError } from '@/lib/validation';
 
 function getAdminEnv(context: APIContext): AdminBindings {
   const env = (context.locals?.runtime?.env ?? {}) as Partial<AdminBindings> | undefined;
@@ -35,11 +36,13 @@ export const POST = withAuthApiMiddleware(
       return createApiError('forbidden', 'Insufficient permissions');
     }
 
-    const jobIdParam = context.params?.id;
-    if (typeof jobIdParam !== 'string' || jobIdParam.trim().length === 0) {
-      return createApiError('validation_error', 'Backup ID required');
+    const parsedParams = backupVerifyParamSchema.safeParse({ id: context.params?.id });
+    if (!parsedParams.success) {
+      return createApiError('validation_error', 'Backup ID required', {
+        details: formatZodError(parsedParams.error),
+      });
     }
-    const jobId = jobIdParam.trim();
+    const jobId = parsedParams.data.id;
 
     try {
       const service = new BackupService(drizzle(db));

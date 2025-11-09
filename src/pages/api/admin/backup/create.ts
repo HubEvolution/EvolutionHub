@@ -10,16 +10,12 @@ import { drizzle } from 'drizzle-orm/d1';
 import { BackupService } from '@/lib/services/backup-service';
 import { requireAdmin } from '@/lib/auth-helpers';
 import type { AdminBindings } from '@/lib/types/admin';
-import type { BackupOptions } from '@/lib/types/data-management';
 import { sensitiveActionLimiter } from '@/lib/rate-limiter';
+import { backupCreateSchema, formatZodError } from '@/lib/validation';
 
 function getAdminEnv(context: APIContext): AdminBindings {
   const env = (context.locals?.runtime?.env ?? {}) as Partial<AdminBindings> | undefined;
   return (env ?? {}) as AdminBindings;
-}
-
-function isBackupJobType(value: string): value is BackupOptions['type'] {
-  return ['full', 'comments', 'users', 'incremental'].includes(value);
 }
 
 export const POST = withAuthApiMiddleware(
@@ -40,30 +36,17 @@ export const POST = withAuthApiMiddleware(
       return createApiError('forbidden', 'Insufficient permissions');
     }
 
-    let body: unknown;
-    try {
-      body = await context.request.json();
-    } catch {
-      return createApiError('validation_error', 'Invalid JSON body');
+    const rawBody: unknown = await context.request.json().catch(() => null);
+    const parsedBody = backupCreateSchema.safeParse(rawBody);
+    if (!parsedBody.success) {
+      return createApiError('validation_error', 'Invalid JSON body', {
+        details: formatZodError(parsedBody.error),
+      });
     }
-
-    if (!body || typeof body !== 'object' || !('type' in body)) {
-      return createApiError('validation_error', 'Backup type is required');
-    }
-
-    const { type, tables } = body as { type: unknown; tables?: unknown };
-    if (typeof type !== 'string' || !isBackupJobType(type)) {
-      return createApiError('validation_error', 'Invalid backup type');
-    }
-
-    const jobType: BackupOptions['type'] = type;
-    const jobTables = Array.isArray(tables)
-      ? tables.filter((t): t is string => typeof t === 'string') || undefined
-      : undefined;
 
     try {
       const service = new BackupService(drizzle(db));
-      const jobId = await service.createBackupJob({ type: jobType, tables: jobTables }, undefined);
+      const jobId = await service.createBackupJob(parsedBody.data, undefined);
       return createApiSuccess({ jobId, message: 'Backup job created successfully' });
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Failed to create backup job';

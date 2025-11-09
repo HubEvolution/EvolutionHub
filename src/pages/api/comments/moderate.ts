@@ -79,7 +79,7 @@ app.use('*', logger());
 app.use(
   '*',
   cors({
-    origin: (origin) => {
+    origin: (origin: string | undefined) => {
       if (!origin || origin.includes('localhost') || origin.endsWith('.vercel.app')) {
         return origin;
       }
@@ -242,14 +242,15 @@ export const POST = async (context: APIContext) => {
       return createApiError('forbidden', 'Invalid CSRF token');
     }
 
-    const { commentId, csrfToken: _csrf, ...moderationData } = payload;
+    const { commentId, csrfToken: _csrf, action, reason } = payload;
     const service = new CommentService(env.DB, env.KV_COMMENTS);
     const result = await service.moderateComment(
       commentId,
-      moderationData,
+      { action, reason },
       toModeratorId((moderator as { id?: number | string }).id)
     );
 
+    // TODO: notifyUser hook (e.g. email/websocket) can be handled after moderation side-effects
     return createApiSuccess(result);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);

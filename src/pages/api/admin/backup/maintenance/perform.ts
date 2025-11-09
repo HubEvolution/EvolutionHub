@@ -11,17 +11,11 @@ import { BackupService } from '@/lib/services/backup-service';
 import { requireAdmin } from '@/lib/auth-helpers';
 import type { AdminBindings } from '@/lib/types/admin';
 import { sensitiveActionLimiter } from '@/lib/rate-limiter';
-
-const MAINTENANCE_TYPES = ['cleanup', 'optimization', 'migration', 'repair'] as const;
-type MaintenanceType = (typeof MAINTENANCE_TYPES)[number];
+import { formatZodError, maintenancePerformSchema } from '@/lib/validation';
 
 function getAdminEnv(context: APIContext): AdminBindings {
   const env = (context.locals?.runtime?.env ?? {}) as Partial<AdminBindings> | undefined;
   return (env ?? {}) as AdminBindings;
-}
-
-function isMaintenanceType(value: unknown): value is MaintenanceType {
-  return typeof value === 'string' && (MAINTENANCE_TYPES as readonly string[]).includes(value);
 }
 
 export const POST = withAuthApiMiddleware(
@@ -42,28 +36,17 @@ export const POST = withAuthApiMiddleware(
       return createApiError('forbidden', 'Insufficient permissions');
     }
 
-    let body: unknown;
-    try {
-      body = await context.request.json();
-    } catch {
-      return createApiError('validation_error', 'Invalid JSON body');
-    }
-
-    if (!body || typeof body !== 'object') {
-      return createApiError('validation_error', 'Maintenance type and description are required');
-    }
-
-    const { type, description } = body as { type?: unknown; description?: unknown };
-    if (
-      !isMaintenanceType(type) ||
-      typeof description !== 'string' ||
-      description.trim().length === 0
-    ) {
-      return createApiError('validation_error', 'Maintenance type and description are required');
+    const rawBody: unknown = await context.request.json().catch(() => null);
+    const parsedBody = maintenancePerformSchema.safeParse(rawBody);
+    if (!parsedBody.success) {
+      return createApiError('validation_error', 'Invalid JSON body', {
+        details: formatZodError(parsedBody.error),
+      });
     }
 
     try {
       const service = new BackupService(drizzle(db));
+      const { type, description } = parsedBody.data;
       const maintenanceId = await service.performMaintenance(type, description.trim());
       return createApiSuccess({ maintenanceId, message: 'Maintenance job started successfully' });
     } catch (e) {

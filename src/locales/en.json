@@ -488,7 +488,8 @@
           "prompt": "Prompt",
           "voice": "Voice",
           "web": "Webscraper",
-          "video": "Video"
+          "video": "Video",
+          "cta": "Open FAQ"
         }
       }
     },
@@ -757,8 +758,8 @@
             "price": "Free",
             "description": "Perfect to get started",
             "features": [
-              "30 credits/month (burst: 3/day)",
-              "Included: Imag‑Enhancer, Prompt Enhancer, Voice Transcriptor, Webscraper",
+              "Credits: 30/month (burst: 3/day)",
+              "All five tools included",
               "Commercial use: No"
             ],
             "cta": "Get started"
@@ -768,8 +769,8 @@
             "price": "€12.00",
             "description": "For creators and indie teams",
             "features": [
-              "300 credits/month (burst: 30/day)",
-              "Included: all 4 tools",
+              "Credits: 300/month (burst: 30/day)",
+              "All five tools included",
               "Commercial use: Yes"
             ],
             "cta": "Buy Pro"
@@ -779,8 +780,9 @@
             "price": "€28.00",
             "description": "For power users",
             "features": [
-              "1,000 credits/month (burst: 100/day)",
-              "Included: all 4 tools",
+              "Credits: 1,000/month (burst: 100/day)",
+              "All five tools included",
+              "Priority email support",
               "Commercial use: Yes"
             ],
             "cta": "Buy Business"
@@ -790,8 +792,8 @@
             "price": "€99.00",
             "description": "For organizations",
             "features": [
-              "4,000+ credits/month (burst: 400/day)",
-              "Included: all 4 tools",
+              "Credits: 4,000+/month (burst: 400/day)",
+              "All five tools included",
               "Custom limits & billing",
               "Dedicated contact"
             ],

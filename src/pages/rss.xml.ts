@@ -29,9 +29,10 @@ export async function GET(context: APIContext): Promise<Response> {
 
   // Load blog posts from content collection
   const posts: ProcessedBlogPost[] = await blogService.getPublishedPosts();
-  const items = [...posts].sort((a, b) =>
-    normalizeDate(b.data.updatedDate ?? b.data.pubDate).getTime() -
-    normalizeDate(a.data.updatedDate ?? a.data.pubDate).getTime()
+  const items = [...posts].sort(
+    (a, b) =>
+      normalizeDate(b.data.updatedDate ?? b.data.pubDate).getTime() -
+      normalizeDate(a.data.updatedDate ?? a.data.pubDate).getTime()
   );
 
   const channelTitle = 'Evolution Hub – Blog';

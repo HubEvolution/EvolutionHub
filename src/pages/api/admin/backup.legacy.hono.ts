@@ -8,6 +8,7 @@ import { cors } from 'hono/cors';
 import { jwt } from 'hono/jwt';
 import { rateLimiter } from 'hono-rate-limiter';
 import { drizzle } from 'drizzle-orm/d1';
+import type { D1Database } from '@cloudflare/workers-types';
 import { BackupService } from '../../../lib/services/backup-service';
 import { log, generateRequestId } from '../../../server/utils/logger';
 import { requireAdmin } from '../../../lib/auth-helpers';
@@ -17,33 +18,36 @@ import type {
   BackupJobType,
 } from '../../../lib/types/data-management';
 
-const app = new Hono<{
-  Bindings: { DB: D1Database; JWT_SECRET: string };
-  Variables: { userId: string; requestId: string };
-}>();
+type BackupBindings = { DB: D1Database; JWT_SECRET: string };
+type BackupVariables = { userId: string; requestId: string };
+type BackupEnv = { Bindings: BackupBindings; Variables: BackupVariables };
+
+type BackupContext = Context<BackupEnv>;
+
+const app = new Hono<BackupEnv>();
 
 // Middleware
 // Attach a per-request id for structured logging
-app.use('/*', async (c: Context, next: Next) => {
+app.use('/*', async (c: BackupContext, next: Next) => {
   const rid = generateRequestId();
   c.set('requestId', rid);
   await next();
 });
 app.use('/*', cors());
-app.use('/*', jwt({ secret: process.env.JWT_SECRET! }));
+app.use('/*', async (c: BackupContext, next: Next) => jwt({ secret: c.env.JWT_SECRET })(c, next));
 app.use(
   '/*',
   rateLimiter({
     windowMs: 60 * 1000,
     limit: 10,
-    keyGenerator: (c) =>
-      c.req.header('cf-connecting-ip') ||
-      c.req.header('x-forwarded-for') ||
-      c.req.header('x-real-ip') ||
+    keyGenerator: (ctx: BackupContext) =>
+      ctx.req.header('cf-connecting-ip') ||
+      ctx.req.header('x-forwarded-for') ||
+      ctx.req.header('x-real-ip') ||
       'anonymous',
   })
 ); // 10 pro Minute für Admins
-app.use('/*', async (c, next) => {
+app.use('/*', async (c: BackupContext, next: Next) => {
   try {
     const user = await requireAdmin({
       req: { header: (name: string) => c.req.header(name) },
@@ -67,7 +71,7 @@ app.use('/*', async (c, next) => {
  * GET /api/admin/backup/jobs
  * Holt alle Backup-Jobs mit optionaler Filterung
  */
-app.get('/jobs', async (c: Context) => {
+app.get('/jobs', async (c: BackupContext) => {
   try {
     const query = c.req.query();
     const limit = parseInt(query.limit || '50');
@@ -130,7 +134,7 @@ app.get('/jobs', async (c: Context) => {
  * GET /api/admin/backup/jobs/:id
  * Holt Details eines spezifischen Backup-Jobs
  */
-app.get('/jobs/:id', async (c: Context) => {
+app.get('/jobs/:id', async (c: BackupContext) => {
   try {
     const jobId = c.req.param('id');
     const db = drizzle(c.env.DB);
@@ -195,7 +199,7 @@ app.get('/jobs/:id', async (c: Context) => {
  * GET /api/admin/backup/jobs/:id/progress
  * Holt Fortschritt eines laufenden Backup-Jobs
  */
-app.get('/jobs/:id/progress', async (c: Context) => {
+app.get('/jobs/:id/progress', async (c: BackupContext) => {
   try {
     const jobId = c.req.param('id');
     const db = drizzle(c.env.DB);
@@ -246,7 +250,7 @@ app.get('/jobs/:id/progress', async (c: Context) => {
  * POST /api/admin/backup/create
  * Erstellt einen neuen Backup-Job
  */
-app.post('/create', async (c: Context) => {
+app.post('/create', async (c: BackupContext) => {
   try {
     const adminId = c.get('userId') as string;
     const bodyUnknown = await c.req.json();
@@ -316,7 +320,7 @@ app.post('/create', async (c: Context) => {
  * POST /api/admin/backup/schedule
  * Plant einen automatischen Backup
  */
-app.post('/schedule', async (c: Context) => {
+app.post('/schedule', async (c: BackupContext) => {
   try {
     const _adminId = c.get('userId') as string;
     const bodyUnknown = await c.req.json();
@@ -375,7 +379,7 @@ app.post('/schedule', async (c: Context) => {
  * POST /api/admin/maintenance/perform
  * Führt System-Wartung durch
  */
-app.post('/maintenance/perform', async (c: Context) => {
+app.post('/maintenance/perform', async (c: BackupContext) => {
   try {
     const adminId = c.get('userId') as string;
     const bodyUnknown = await c.req.json();

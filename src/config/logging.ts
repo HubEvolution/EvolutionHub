@@ -97,6 +97,7 @@ export interface LogContext {
   action?: string;
   timestamp?: Date;
   metadata?: Record<string, unknown>;
+  [key: string]: unknown;
 }
 
 /**
