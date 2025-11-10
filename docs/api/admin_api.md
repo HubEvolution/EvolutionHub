@@ -1,7 +1,7 @@
 ---
 description: 'Admin API — Moderation, Status, Users, Plan, Credits (secured)'
 owner: 'API Team'
-lastSync: '2025-11-07'
+lastSync: '2025-11-10'
 codeRefs: 'src/pages/api/admin/**, src/lib/api-middleware.ts'
 ---
 
@@ -220,6 +220,28 @@ GET `/api/admin/metrics`
 - Returns live metrics (active sessions/users, totals, 24h counters).
 - Role: admin
 
+## Audit Logs
+
+### List
+
+GET `/api/admin/audit/logs`
+
+- Query params (all optional):
+  - `userId`: filter by actor user id
+  - `eventType`: `API_ACCESS|ADMIN_ACTION|SECURITY_EVENT`
+  - `from` / `to`: Unix ms timestamps for created_at range
+  - `limit`: default 50, clamps 1..200
+  - `cursor`: opaque cursor from previous response
+- Role: admin; Rate limit: `apiRateLimiter`
+- Response: `{ success, data: { items, nextCursor } }`
+
+### Details
+
+GET `/api/admin/audit/logs/{id}`
+
+- Returns a single audit log entry (or 404 if missing).
+- Role: admin; Rate limit: `apiRateLimiter`
+
 ## Referrals — Events List
 
 GET `/api/admin/referrals/list`
@@ -347,6 +369,27 @@ GET `/api/admin/referrals/summary`
 
 Die Summary wird im Admin-Dashboard als „Referral Insights“-Card gerendert.@src/pages/admin/index.astro#472-620
 
+## Referrals — Update Status
+
+POST `/api/admin/referrals/update-status`
+
+- Feature Flag: `ENABLE_REFERRAL_REWARDS=1`
+- Role: admin; Rate limit: sensitive (5/hour); CSRF enforced
+- Body (validated via Zod):
+
+```json
+{
+  "referralEventId": "refevt_...",
+  "action": "mark_paid" | "cancel",
+  "reason": "optional admin note"
+}
+```
+
+- Behaviour:
+  - `mark_paid` → credits awarded, logs admin action; errors: `already_paid`, `not_found`
+  - `cancel` → cancels reward; errors: `already_cancelled`, `not_found`
+- Response: `{ success, data: { status, referralEventId } }`
+
 ## Traffic (24h)
 
 GET `/api/admin/traffic-24h`
@@ -465,6 +508,32 @@ POST `/api/admin/backup/verify/{id}`
 
 - Headers: `X-CSRF-Token`
 
+## Rate Limits
+
+### State
+
+GET `/api/admin/rate-limits/state`
+
+- Optional query param `name` filters a specific limiter.
+- Response shape mirrors `getLimiterState()` result: `{ [limiterName]: { maxRequests, windowMs, entries[] } }`
+- Role: admin; Rate limit: `apiRateLimiter`
+
+### Reset
+
+POST `/api/admin/rate-limits/reset`
+
+- Body:
+
+```json
+{
+  "name": "limiterName",
+  "key": "limiterKey"
+}
+```
+
+- CSRF required, Same-Origin enforced; Rate limit: sensitive (5/hour)
+- Response: `{ success, data: { reset: true } }`
+
 ## Users Summary
 
 GET `/api/admin/users/summary?email=<email>` or `?id=<userId>`
@@ -558,6 +627,30 @@ GET `/api/admin/credits/history?userId=<uuid>&limit=50&cursor=<opaque>`
 - Query Validierung via Zod: `userId` Pflicht, `limit` 1..100, `cursor` optional.
 - Antwort: `{ success, data: { items: [{ id, unitsTenths, createdAt, expiresAt }, ...] } }`
 - Rolle: admin; Rate-Limiter `apiRateLimiter`
+
+## Users — Sessions
+
+GET `/api/admin/users/sessions?userId=<uuid>`
+
+- Returns up to 200 active sessions for a user, ordered by `expiresAt` desc.
+- Role: admin; Rate limit: `apiRateLimiter`
+- Validation: `userId` mandatory; errors: `validation_error`, `server_error`
+
+## Users — Revoke Sessions
+
+POST `/api/admin/users/revoke-sessions`
+
+- Body (JSON): `{ userId?: string, sessionId?: string }` — at least one required
+- CSRF enforced, Same-Origin required; Rate limit: sensitive (5/hour)
+- Deletes matching rows from `sessions`; response `{ success, data: { deleted } }`
+
+## IP Geo Lookup
+
+GET `/api/admin/ip-geo?ip=<ipv4|ipv6>`
+
+- Role: admin; Rate limit: `apiRateLimiter`
+- When `ip` omitted, uses `CF-Connecting-IP`/`X-Forwarded-For`; invalid IP returns empty location but still `success: true`
+- Response: `{ success, data: { city, country, display, ip } }`
 
 ## See also
 

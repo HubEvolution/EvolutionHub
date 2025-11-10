@@ -20,6 +20,13 @@
     "genkit": {
       "command": "npm",
       "args": ["install", "@genkit-ai/mcp"]
+    },
+    "gsc": {
+      "command": "npx",
+      "args": ["-y", "mcp-server-gsc"],
+      "env": {
+        "GOOGLE_APPLICATION_CREDENTIALS": "/absolute/path/to/your-service-account.json"
+      }
     }
   }
 }

@@ -2,7 +2,7 @@
 description: 'Admin & Notifications Subsystem – Rollen, APIs, Queue und D1-Schema'
 owner: 'Platform Team'
 priority: 'high'
-lastSync: '2025-11-04'
+lastSync: '2025-11-10'
 codeRefs: 'src/pages/api/admin/**, src/pages/api/notifications/**, src/lib/services/notification-service.ts, scripts/warmup.ts, src/lib/db/schema.ts'
 feature: 'admin-notifications'
 status: 'shipped'
@@ -70,6 +70,16 @@ See the definitive schema definitions in `src/lib/db/schema.ts` for full column 
 
 - `GET /api/admin/metrics` — High-level platform metrics (active sessions/users, total users, signups in last 24h). Uses defensive SQL for ISO vs epoch timestamps; admin-only.@src/pages/api/admin/metrics.ts#1-66
 
+### Admin Observability & Diagnostics
+
+- `GET /api/admin/audit/logs` / `GET /api/admin/audit/logs/:id` — Paginated audit trail plus per-entry detail view; filters cover actor, event type (`API_ACCESS|ADMIN_ACTION|SECURITY_EVENT`), timestamps, cursor pagination.@src/pages/api/admin/audit/logs/index.ts#1-71@src/pages/api/admin/audit/logs/\[id].ts#1-48
+
+- `GET /api/admin/rate-limits/state` / `POST /api/admin/rate-limits/reset` — Inspect limiter buckets (optionally by name) and clear individual keys. Reset route enforces CSRF + `sensitiveActionLimiter` to avoid abuse.@src/pages/api/admin/rate-limits/state.ts#1-41@src/pages/api/admin/rate-limits/reset.ts#1-60
+
+- `GET /api/admin/users/sessions` / `POST /api/admin/users/revoke-sessions` — Enumerate active sessions for a user and revoke by `sessionId` or `userId`; both routes reuse admin RBAC and log-sensitive actions.@src/pages/api/admin/users/sessions.ts#1-73@src/pages/api/admin/users/revoke-sessions.ts#1-83
+
+- `GET /api/admin/ip-geo` — Lightweight GeoIP lookup sourced from provider bindings; defaults to `CF-Connecting-IP` when no query param supplied and returns gracefully on invalid IPs.@src/pages/api/admin/ip-geo.ts#1-104
+
 ### Backup & Maintenance API (Hono)
 
 The `/api/admin/backup` router manages data exports, scheduled jobs, and maintenance tasks. All routes enforce JWT + rate limit + `requireAdmin`.@src/pages/api/admin/backup.ts#6-59
@@ -89,6 +99,12 @@ Key endpoints include:
 | `DELETE /api/admin/backup/jobs/:id`          | Delete backup metadata (keeps R2 object).                                                |
 
 Refer to the file for additional sub-routes and structured logging (each request is tagged with `requestId`).@src/pages/api/admin/backup.ts
+
+### Referral Management
+
+- `GET /api/admin/referrals/list` / `GET /api/admin/referrals/summary` — Feature-flagged (`ENABLE_REFERRAL_REWARDS`) overview with pagination, filters, and aggregate KPIs powering the Admin Dashboard „Referral Insights“ widgets.@src/pages/api/admin/referrals/list.ts#1-112@src/pages/api/admin/referrals/summary.ts#1-216
+
+- `POST /api/admin/referrals/update-status` — Admin actions to mark referral payouts as paid or cancelled; enforces CSRF + `sensitiveActionLimiter` and writes audit events alongside optional reason payloads.@src/pages/api/admin/referrals/update-status.ts#1-113
 
 ## Notifications & Email Queue
 

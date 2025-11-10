@@ -1,4 +1,5 @@
 import type { APIRoute } from 'astro';
+import { blogService } from '@/lib/blog';
 import { getAlternateUrls } from '@/lib/seo';
 
 // Prefer an explicit site URL in production; fallback to request origin (useful in dev)
@@ -22,20 +23,62 @@ function renderUrl(origin: string, locPath: string): string {
   ].join('\n');
 }
 
+const STATIC_PATHS: readonly string[] = [
+  '/',
+  '/en/',
+  '/pricing',
+  '/en/pricing',
+  '/faq',
+  '/en/faq',
+  '/kontakt',
+  '/en/kontakt',
+  '/impressum',
+  '/en/impressum',
+  '/datenschutz',
+  '/en/datenschutz',
+  '/agb',
+  '/en/agb',
+  '/cookie-einstellungen',
+  '/en/cookie-settings',
+  '/docs',
+  '/en/docs',
+  '/blog/',
+  '/en/blog/',
+  '/tools',
+  '/en/tools',
+  '/tools/imag-enhancer/app',
+  '/en/tools/imag-enhancer/app',
+  '/tools/prompt-enhancer/app',
+  '/en/tools/prompt-enhancer/app',
+  '/tools/video-enhancer/app',
+  '/en/tools/video-enhancer/app',
+  '/tools/webscraper/app',
+  '/en/tools/webscraper/app',
+  '/tools/voice-visualizer/app',
+  '/en/tools/voice-visualizer/app',
+];
+
+function buildBlogPath(slug: string, lang: string | undefined): string {
+  const normalizedSlug = slug.replace(/^\/+|\/+$|\s+/g, '');
+  if (lang === 'en') return `/en/blog/${normalizedSlug}/`;
+  return `/blog/${normalizedSlug}/`;
+}
+
 export const GET: APIRoute = async ({ url }: { url: URL }) => {
   const origin = ENV_SITE || `${url.protocol}//${url.host}`;
 
-  // Minimal set aligned with current SEO requirements; extend as new pages launch
-  const paths = [
-    '/',
-    '/en/',
-    '/tools/webscraper/app',
-    '/en/pricing',
-    '/en/faq',
-    '/en/kontakt',
-    '/kontakt',
-    '/en/impressum',
-  ];
+  const pathSet = new Set<string>(STATIC_PATHS);
+
+  try {
+    const posts = await blogService.getPublishedPosts();
+    posts.forEach((post) => {
+      pathSet.add(buildBlogPath(post.slug, post.data.lang as string | undefined));
+    });
+  } catch (error) {
+    console.error('Failed to fetch blog posts for sitemap:', error);
+  }
+
+  const paths = Array.from(pathSet).sort((a, b) => a.localeCompare(b, 'en'));
 
   const xml = [
     '<?xml version="1.0" encoding="UTF-8"?>',
