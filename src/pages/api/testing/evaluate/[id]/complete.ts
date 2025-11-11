@@ -28,6 +28,15 @@ async function handler(context: APIContext): Promise<Response> {
     return createApiError('server_error', 'Web evaluation storage is not configured');
   }
 
+  // Production gating: executor completion only allowed if explicitly enabled and internal header present
+  const isProd = (env.ENVIRONMENT || '').toLowerCase() === 'production';
+  if (isProd) {
+    const internalExecHeader = (request.headers.get('x-internal-exec') || '').trim();
+    if (env.WEB_EVAL_EXEC_ALLOW_PROD !== '1' || internalExecHeader !== '1') {
+      return createApiError('forbidden', 'disabled_in_production');
+    }
+  }
+
   const providedToken = extractExecutorToken(request);
   const expectedToken = env.WEB_EVAL_EXECUTOR_TOKEN;
   if (!providedToken || !expectedToken || providedToken !== expectedToken) {
