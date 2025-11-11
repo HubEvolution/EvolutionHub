@@ -15,8 +15,6 @@ testRefs: 'N/A'
 
 ## Primärdokumente
 
-- **[migration_pages_zu_worker.md](./migration_pages_zu_worker.md)** — Abschlussbericht zur Migration von Cloudflare Pages zu Workers (Stand: 2025-10-01)
-
 - **[documentation-gap-analysis.md](./documentation-gap-analysis.md)** — Historische Gap-Analyse, die das aktuelle Docs-Refactoring vorbereitet hat
 
 - **[status-assessment.md](./status-assessment.md)** — Projektstatus-Snapshot vor dem Docs-Refresh (veraltet)

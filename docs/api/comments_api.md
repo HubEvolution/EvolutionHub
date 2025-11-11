@@ -4,6 +4,7 @@ owner: 'Community Team'
 priority: 'high'
 lastSync: '2025-11-03'
 codeRefs: 'src/pages/api/comments/**, src/lib/services/comments/**, docs/api/comments_api.md'
+testRefs: 'N/A'
 ---
 
 <!-- markdownlint-disable MD051 -->
@@ -535,7 +536,7 @@ await fetch('/api/comments/create', {
 
 **HTML-Sanitization:**
 
-- Erlaubt: **Bold**, *Italic*, `Code`, [Links](url)
+- Erlaubt: **Bold**, *Italic*, `Code`, Links (http/https)
 
 - Verboten: `<script>`, `<iframe>`, Event-Handler
 

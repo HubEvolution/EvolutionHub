@@ -4,6 +4,7 @@ owner: 'Content Team'
 priority: 'medium'
 lastSync: '2025-11-03'
 codeRefs: 'src/content/**, src/utils/i18n.ts, docs/content.md'
+testRefs: 'N/A'
 ---
 
 <!-- markdownlint-disable MD051 -->
@@ -266,7 +267,7 @@ When adding new interactive elements, ensure they include appropriate ARIA label
 
 ## Weiterführende Ressourcen
 
-- **Blog-System-Dokumentation**: [docs/features/blog-system.md](./features/blog-system.md)
+- **Blog- & Comment-System Plan**: [docs/features/blog+commentsystem-plan.md](./features/blog+commentsystem-plan.md)
 
 - **SEO-Guidelines**: [docs/seo.md](./seo.md)
 

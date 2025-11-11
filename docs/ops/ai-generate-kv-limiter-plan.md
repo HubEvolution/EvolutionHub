@@ -4,6 +4,7 @@ owner: 'Platform Team'
 priority: 'high'
 lastSync: '2025-11-04'
 codeRefs: 'src/lib/rate-limiter.ts, src/pages/api/ai-image/generate.ts, wrangler.toml, workers/edge/do/rate-limiter.ts'
+testRefs: 'N/A'
 ---
 
 <!-- markdownlint-disable MD051 -->

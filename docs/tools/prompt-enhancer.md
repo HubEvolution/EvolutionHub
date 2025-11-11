@@ -4,6 +4,7 @@ owner: 'Prompt Team'
 priority: 'high'
 lastSync: '2025-11-04'
 codeRefs: 'src/pages/api/prompt-enhance.ts, src/lib/services/prompt-enhancer-service.ts, src/components/tools/prompt-enhancer/**'
+testRefs: 'N/A'
 ---
 
 <!-- markdownlint-disable MD051 -->

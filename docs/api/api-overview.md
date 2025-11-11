@@ -41,17 +41,17 @@ testRefs: 'tests/integration/api, test-suite-v2/src/e2e'
 
 #### Prompt-Enhancer API
 
-- **POST** `/api/prompt-enhance` - KI-gestützte Prompt-Optimierung
+- **POST** `/api/prompt-enhance` - KI-gestützte Prompt-Optimierung (siehe [Prompt Enhance API](./prompt-enhance.md))
 
-- **GET** `/api/prompt/usage` - Nutzungsstatistiken und Limits
+- Nutzungs- und Quota-Infos sind direkt im Endpunktdokument beschrieben.
 
 #### AI-Image Enhancer API
 
-- **POST** `/api/ai-image/generate` - Bildverbesserung via Replicate/Workers AI
+- **POST** `/api/ai-image/generate` - Bildverbesserung via Replicate/Workers AI (siehe [AI Image API](./ai-image_api.md))
 
-- **GET** `/api/ai-image/jobs/{id}` - Job-Status und Ergebnisse
+- **GET** `/api/ai-image/jobs/{id}` - Job-Status und Ergebnisse (siehe [AI Image API](./ai-image_api.md))
 
-- **POST** `/api/ai-image/jobs/{id}/cancel` - Job-Abbruch
+- **POST** `/api/ai-image/jobs/{id}/cancel` - Job-Abbruch (siehe [AI Image API](./ai-image_api.md))
 
 ### Authentication & User APIs
 
@@ -264,19 +264,7 @@ npm run test:coverage
 
 #### Test-Beispiele
 
-```bash
-# Prompt-Enhance testen
-curl -X POST \
-  -H "Content-Type: application/json" \
-  -H "X-CSRF-Token: 123" \
-  -H "Cookie: csrf_token=123" \
-  -H "Origin: http://127.0.0.1:8787" \
-  -d '{"input":{"text":"Test prompt"},"options":{"mode":"agent"}}' \
-  http://127.0.0.1:8787/api/prompt-enhance
-
-# Usage abrufen
-curl http://127.0.0.1:8787/api/prompt/usage
-```
+- Beispiele für konkrete Endpunkte sind in den jeweiligen Feature-Dokumenten (z. B. [Prompt Enhance](./prompt-enhance.md), [AI Image](./ai-image_api.md)) enthalten.
 
 ### OpenAPI-Spezifikation
 
@@ -543,13 +531,9 @@ curl -v http://127.0.0.1:8787/api/prompt-enhance 2>&1 | grep -i "request-id"
 
 - **[Rate Limiting](./rate-limiting-api.md)** - Rate-Limiting-Strategien und Header
 
-### Testing (2)
+### Testing
 
-- **[Postman Collection](./postman-collection.json)** - Vollständige API-Test-Suite
-
-- **[Curl Examples](./curl-examples.md)** - Kommandozeilen-API-Tests
-
-- **[Integration Tests](./integration-tests.md)** - Automatisierte API-Tests
+- Beispielskripte und Tests befinden sich im Repository (`tests/integration/api`, `test-suite-v2/src/e2e`).
 
 ### Community
 
@@ -563,13 +547,13 @@ curl -v http://127.0.0.1:8787/api/prompt-enhance 2>&1 | grep -i "request-id"
 
 ## Cross-Referenzen
 
-- **[Architecture](../../architecture/)** - API-Middleware und Security-Architektur
+- **[Architecture](../architecture/README.md)** - API-Middleware und Security-Architektur
 
-- **[Development](../../development/)** - API-Tooling und lokale Entwicklung
+- **[Development](../development/README.md)** - API-Tooling und lokale Entwicklung
 
-- **[Security](../../security/)** - API-Security und Rate-Limiting
+- **[Security](../security/README.md)** - API-Security und Rate-Limiting
 
-- **[Testing](../../testing/)** - API-Tests und Integration-Testing
+- **[Testing](../testing/README.md)** - API-Tests und Integration-Testing
 
 ## Ownership & Maintenance
 

@@ -53,7 +53,8 @@ export class BlogService {
         query['fields.lang'] = lang;
       }
 
-      const response: EntryCollection<BlogPostSkeleton> = await client.getEntries<BlogPostSkeleton>(query);
+      const response: EntryCollection<BlogPostSkeleton> =
+        await client.getEntries<BlogPostSkeleton>(query);
       const entries = response.items ?? [];
       const processedPosts = entries.map((entry) => mapEntryToBlogPost(entry));
 
@@ -69,7 +70,10 @@ export class BlogService {
     return this.cachedData;
   }
 
-  private filterPosts(posts: ProcessedBlogPost[], options: BlogListOptions = {}): ProcessedBlogPost[] {
+  private filterPosts(
+    posts: ProcessedBlogPost[],
+    options: BlogListOptions = {}
+  ): ProcessedBlogPost[] {
     const includeDrafts = this.resolveIncludeDrafts(options);
     const searchTerm =
       typeof options.search === 'string' && options.search.trim().length > 0
@@ -196,7 +200,9 @@ export class BlogService {
   ): Promise<ProcessedBlogPost[]> {
     const { processedPosts } = await this.fetchAllBlogData();
     const includeDrafts = this.resolveIncludeDrafts(options);
-    const basePosts = includeDrafts ? processedPosts : processedPosts.filter((post) => !post.data.draft);
+    const basePosts = includeDrafts
+      ? processedPosts
+      : processedPosts.filter((post) => !post.data.draft);
 
     const current = processedPosts.find((post) => post.slug === slug);
     if (!current) {
@@ -224,8 +230,12 @@ export class BlogService {
         if (b.score !== a.score) {
           return b.score - a.score;
         }
-        const dateA = new Date((a.post.data.updatedDate ?? a.post.data.pubDate) as Date | string).getTime();
-        const dateB = new Date((b.post.data.updatedDate ?? b.post.data.pubDate) as Date | string).getTime();
+        const dateA = new Date(
+          (a.post.data.updatedDate ?? a.post.data.pubDate) as Date | string
+        ).getTime();
+        const dateB = new Date(
+          (b.post.data.updatedDate ?? b.post.data.pubDate) as Date | string
+        ).getTime();
         return dateB - dateA;
       })
       .slice(0, limit)
@@ -242,7 +252,8 @@ export class BlogService {
     }
 
     const processed =
-      processedPosts.find((post) => post.slug === slug) ?? mapEntryToBlogPost(entry as ContentfulBlogEntry);
+      processedPosts.find((post) => post.slug === slug) ??
+      mapEntryToBlogPost(entry as ContentfulBlogEntry);
 
     return { entry, processedData: processed };
   }
@@ -262,7 +273,9 @@ export class BlogService {
     const { processedPosts } = await this.fetchAllBlogData();
     const includeDrafts = this.resolveIncludeDrafts(options);
 
-    const basePosts = includeDrafts ? processedPosts : processedPosts.filter((post) => !post.data.draft);
+    const basePosts = includeDrafts
+      ? processedPosts
+      : processedPosts.filter((post) => !post.data.draft);
     const categories = this.computeCategories(basePosts);
     const tags = this.computeTags(basePosts);
     const filtered = this.filterPosts(basePosts, options);

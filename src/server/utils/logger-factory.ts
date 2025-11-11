@@ -20,7 +20,13 @@ import {
   type EnvironmentDetector,
   type LoggerManager,
 } from '../../types/logger';
-import { log } from '@/server/utils/logger';
+import { log as sseDebugLog } from '@/server/utils/logger';
+import {
+  ConsoleTransport,
+  HttpTransport,
+  AnalyticsTransport,
+  R2Transport,
+} from '@/server/utils/log-transports';
 
 /**
  * Umgebungs-Detektor Implementierung
@@ -54,20 +60,81 @@ class EnvironmentDetectorImpl implements EnvironmentDetector {
 /**
  * Einfacher Konsolen-Logger für Fallback
  */
-class ConsoleLogger implements ExtendedLogger {
+class MultiTransportLogger implements ExtendedLogger {
   private context: Partial<LogContext> = {};
+  private transports: Array<{ name: string; send: (entry: any) => Promise<void> }> = [];
+  private bridgeSSE: boolean;
 
   constructor(context: Partial<LogContext> = {}) {
     this.context = context;
+    this.transports = this.resolveTransports();
+    // Bridge to debug SSE in dev automatically (or if LOG_SSE_BRIDGE=1)
+    const bridgeEnv =
+      (typeof process !== 'undefined' && process.env.LOG_SSE_BRIDGE) ||
+      (typeof import.meta !== 'undefined' && (import.meta as any).env?.LOG_SSE_BRIDGE) ||
+      '';
+    this.bridgeSSE = LOG_CONFIG.environment.isDevelopment() || String(bridgeEnv) === '1';
+  }
+
+  private resolveTransports() {
+    const enabled = LOG_CONFIG.transports.getEnabled();
+    const out: Array<{ name: string; send: (entry: any) => Promise<void> }> = [];
+
+    for (const t of enabled) {
+      if (t === 'console') {
+        out.push(new ConsoleTransport());
+      } else if (t === 'http') {
+        const endpoint =
+          (typeof process !== 'undefined' && process.env.LOG_HTTP_ENDPOINT) ||
+          (typeof import.meta !== 'undefined' && (import.meta as any).env?.LOG_HTTP_ENDPOINT) ||
+          '';
+        const apiKey =
+          (typeof process !== 'undefined' && process.env.LOG_HTTP_API_KEY) ||
+          (typeof import.meta !== 'undefined' && (import.meta as any).env?.LOG_HTTP_API_KEY) ||
+          undefined;
+        if (endpoint) out.push(new HttpTransport({ endpoint, apiKey }));
+      } else if (t === 'analytics') {
+        const bindingName =
+          (typeof process !== 'undefined' && process.env.LOG_ANALYTICS_BINDING) ||
+          (typeof import.meta !== 'undefined' && (import.meta as any).env?.LOG_ANALYTICS_BINDING) ||
+          undefined;
+        out.push(new AnalyticsTransport(bindingName));
+      } else if (t === 'r2' || t === 'logpush') {
+        const bucketBinding =
+          (typeof process !== 'undefined' && process.env.LOG_R2_BINDING) ||
+          (typeof import.meta !== 'undefined' && (import.meta as any).env?.LOG_R2_BINDING) ||
+          undefined;
+        out.push(new R2Transport(bucketBinding));
+      }
+    }
+    return out;
+  }
+
+  private toEntry(level: LogLevelType, message: string, ctx?: LogContext) {
+    const merged = LogUtils.createLogContext({ ...this.context, ...ctx });
+    const sanitized = LogUtils.sanitizeObject(merged) as LogContext;
+    // Prefer worker crypto UUID if available
+    const id = (
+      globalThis.crypto && 'randomUUID' in globalThis.crypto
+        ? (globalThis.crypto as any).randomUUID()
+        : `${Date.now()}-${Math.random().toString(36).slice(2)}`
+    ) as string;
+    return {
+      id,
+      timestamp: new Date(),
+      level,
+      message,
+      context: sanitized,
+      source: String(this.context.resource || this.context.source || 'server'),
+    };
   }
 
   log(level: LogLevelType, message: string, context?: LogContext): void {
     if (!LogUtils.isLogLevelEnabled(level)) return;
+    const entry = this.toEntry(level, message, context);
 
-    const timestamp = new Date().toISOString();
-    const ctx = LogUtils.createLogContext({ ...this.context, ...context });
-    const sanitizedContext = LogUtils.sanitizeObject(ctx);
-
+    // console pretty for local visibility
+    const timestamp = entry.timestamp.toISOString();
     const consoleMethod = level === LOG_LEVELS.LOG ? 'log' : level;
     const method: 'log' | 'debug' | 'info' | 'warn' | 'error' =
       consoleMethod === 'debug' ||
@@ -76,13 +143,27 @@ class ConsoleLogger implements ExtendedLogger {
       consoleMethod === 'error'
         ? consoleMethod
         : 'log';
-    const fn = (
-      console as unknown as Record<
-        'log' | 'debug' | 'info' | 'warn' | 'error',
-        (...args: unknown[]) => void
-      >
-    )[method];
-    fn(`[${timestamp}] [${level.toUpperCase()}] ${message}`, sanitizedContext);
+    const fn = (console as any)[method] as (...args: unknown[]) => void;
+    try {
+      fn(`[${timestamp}] [${level.toUpperCase()}] ${message}`, entry.context);
+    } catch {
+      /* ignore */
+    }
+
+    // Send to transports (fire-and-forget)
+    for (const t of this.transports) {
+      // ConsoleTransport is effectively no-op
+      t.send(entry).catch(() => {});
+    }
+
+    // Bridge to SSE debug stream for dev visibility
+    if (this.bridgeSSE) {
+      try {
+        sseDebugLog(level as any, message, { ...(entry.context || {}), source: entry.source });
+      } catch {
+        /* ignore */
+      }
+    }
   }
 
   debug(message: string, context?: LogContext): void {
@@ -102,11 +183,11 @@ class ConsoleLogger implements ExtendedLogger {
   }
 
   createChildLogger(context: Partial<LogContext>): ExtendedLogger {
-    return new ConsoleLogger({ ...this.context, ...context });
+    return new MultiTransportLogger({ ...this.context, ...context });
   }
 
   setLogLevel(_level: LogLevelType): void {
-    // LogLevel wird nicht verwendet, da LogUtils.isLogLevelEnabled verwendet wird
+    // Not needed; level evaluation via LogUtils
   }
 
   isLogLevelEnabled(level: LogLevelType): boolean {
@@ -114,7 +195,7 @@ class ConsoleLogger implements ExtendedLogger {
   }
 
   async flush(): Promise<void> {
-    // Konsolen-Logger braucht kein Flush
+    return;
   }
 }
 
@@ -125,54 +206,50 @@ class LoggerFactoryImpl implements LoggerFactoryInterface {
   private environmentDetector = new EnvironmentDetectorImpl();
 
   createLogger(name: string, _config?: Partial<LoggerConfig>): ExtendedLogger {
-    // Config wird für spätere Implementierung gespeichert
-    // Für Entwicklung: Konsolen-Logger mit zusätzlichem Context
-    if (this.environmentDetector.isDevelopment()) {
-      return new ConsoleLogger({ resource: name });
-    }
-
-    // Für Produktion: Erweiterter Logger (falls verfügbar)
-    // Hier könnte später der vollständige Logger integriert werden
-    return new ConsoleLogger({ resource: name });
+    return new MultiTransportLogger({ resource: name });
   }
 
   createSecurityLogger(_config?: Partial<LoggerConfig>): SecurityLogger {
-    // Config wird für spätere Implementierung gespeichert
-    // Implementierung über zentrale Log-Pipeline
+    const secLogger = new MultiTransportLogger({ resource: 'security' });
+    const redacted = (d: Record<string, unknown>) => LogUtils.sanitizeObject(d);
+    const base = (extra?: Partial<LogContext>) => ({
+      ...(extra || {}),
+      timestamp: new Date(),
+    });
     return {
       logSecurityEvent: (type, details, context) => {
-        log('info', 'SECURITY_EVENT', { type, details, ...(context || {}), timestamp: Date.now() });
+        secLogger.info('SECURITY_EVENT', {
+          ...base(context),
+          type,
+          details: redacted(details) as any,
+        });
       },
       logAuthSuccess: (details, context) => {
-        log('info', 'AUTH_SUCCESS', {
+        secLogger.info('AUTH_SUCCESS', {
+          ...base(context),
           securityEventType: 'AUTH_SUCCESS',
-          details,
-          ...(context || {}),
-          timestamp: Date.now(),
+          details: redacted(details) as any,
         });
       },
       logAuthFailure: (details, context) => {
-        log('error', 'AUTH_FAILURE', {
+        secLogger.error('AUTH_FAILURE', {
+          ...base(context),
           securityEventType: 'AUTH_FAILURE',
-          details,
-          ...(context || {}),
-          timestamp: Date.now(),
+          details: redacted(details) as any,
         });
       },
       logApiAccess: (details, context) => {
-        log('info', 'API_ACCESS', {
+        secLogger.info('API_ACCESS', {
+          ...base(context),
           securityEventType: 'API_ACCESS',
-          details,
-          ...(context || {}),
-          timestamp: Date.now(),
+          details: redacted(details) as any,
         });
       },
       logApiError: (details, context) => {
-        log('error', 'API_ERROR', {
+        secLogger.error('API_ERROR', {
+          ...base(context),
           securityEventType: 'API_ERROR',
-          details,
-          ...(context || {}),
-          timestamp: Date.now(),
+          details: redacted(details) as any,
         });
       },
     };

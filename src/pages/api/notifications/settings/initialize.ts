@@ -10,7 +10,9 @@ export const POST = withAuthApiMiddleware(
     }
 
     try {
-      await rateLimit(`notifications:settings:init:${userId}`, 5, 3600);
+      await rateLimit(`notifications:settings:init:${userId}`, 5, 3600, {
+        env: (context.locals as any)?.runtime?.env as Record<string, unknown>,
+      });
 
       const notificationService = resolveNotificationService(context);
 

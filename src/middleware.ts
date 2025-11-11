@@ -307,7 +307,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
     headers.set('Location', location);
     headers.set('Content-Language', targetLocale);
     headers.set('Vary', 'Cookie, Accept-Language');
-    return new Response(null, { status: 302, headers });
+    return new Response(null, { status: 301, headers });
   }
 
   // Cookie NUR setzen, wenn Locale explizit in der URL vorhanden ist

@@ -90,11 +90,7 @@ const FALLBACK_PLAN_LABELS: Record<
   starter: {
     title: 'Starter',
     subtitle: 'Perfect to get started',
-    bullets: [
-      'Credits: 30/month (burst: 3/day)',
-      ...TOOL_SUMMARY_BULLETS,
-      'Commercial use: No',
-    ],
+    bullets: ['Credits: 30/month (burst: 3/day)', ...TOOL_SUMMARY_BULLETS, 'Commercial use: No'],
     price: 'Free',
     pricePeriod: 'per month',
     monthlyBadge: 'Monthly billing',
@@ -103,11 +99,7 @@ const FALLBACK_PLAN_LABELS: Record<
   pro: {
     title: 'Pro',
     subtitle: 'For creators and indie teams',
-    bullets: [
-      'Credits: 300/month (burst: 30/day)',
-      ...TOOL_SUMMARY_BULLETS,
-      'Commercial use: Yes',
-    ],
+    bullets: ['Credits: 300/month (burst: 30/day)', ...TOOL_SUMMARY_BULLETS, 'Commercial use: Yes'],
     price: '€12.00',
     pricePeriod: 'per month',
     monthlyBadge: 'Monthly billing',
@@ -149,7 +141,10 @@ const FALLBACK_CREDIT_LABELS: Record<
   100: {
     title: 'Starter pack',
     subtitle: 'Perfect when you just need a few more runs.',
-    bullets: ['100 additional credits added instantly', 'Use across all tools without plan changes'],
+    bullets: [
+      '100 additional credits added instantly',
+      'Use across all tools without plan changes',
+    ],
     price: '€6.00',
     priceQualifier: 'One-time purchase',
   },
@@ -191,13 +186,13 @@ function readPlanSnapshot(id: PricingPlanId) {
   if (!datasetKey) return {};
 
   const amountEl = document.querySelector<HTMLElement>(
-    `span[data-plan="${datasetKey}"][data-role="amount"]`,
+    `span[data-plan="${datasetKey}"][data-role="amount"]`
   );
   const periodEl = document.querySelector<HTMLElement>(
-    `span[data-plan="${datasetKey}"][data-role="period"]`,
+    `span[data-plan="${datasetKey}"][data-role="period"]`
   );
   const badgeEl = document.querySelector<HTMLElement>(
-    `span[data-plan="${datasetKey}"][data-role="badge"]`,
+    `span[data-plan="${datasetKey}"][data-role="badge"]`
   );
 
   const getAttr = (el: HTMLElement | null, attr: string) =>
@@ -253,16 +248,22 @@ export function PricingDetailsProvider({ locale, children }: PricingDetailsProvi
       const contentBullets = bullets.length > 0 ? bullets : fallback.bullets;
 
       const domSnapshot = readPlanSnapshot(id);
-      const priceMonthly = domSnapshot.monthlyAmount ?? sanitize(t(map.price), fallback.price) ?? fallback.price;
+      const priceMonthly =
+        domSnapshot.monthlyAmount ?? sanitize(t(map.price), fallback.price) ?? fallback.price;
       const priceAnnual = domSnapshot.annualAmount ?? priceMonthly;
       const periodMonthly =
-        domSnapshot.monthlyPeriod ?? sanitize(t('pages.pricing.table.per_month'), fallback.pricePeriod) ?? fallback.pricePeriod;
+        domSnapshot.monthlyPeriod ??
+        sanitize(t('pages.pricing.table.per_month'), fallback.pricePeriod) ??
+        fallback.pricePeriod;
       const periodAnnual =
-        domSnapshot.annualPeriod ?? sanitize(t('pages.pricing.table.per_year'), 'per year') ?? 'per year';
-      const annualBadge = sanitize(
-        t('pages.pricing.table.annual_savings'),
-        domSnapshot.annualBadge ?? fallback.annualBadge,
-      ) ?? fallback.annualBadge;
+        domSnapshot.annualPeriod ??
+        sanitize(t('pages.pricing.table.per_year'), 'per year') ??
+        'per year';
+      const annualBadge =
+        sanitize(
+          t('pages.pricing.table.annual_savings'),
+          domSnapshot.annualBadge ?? fallback.annualBadge
+        ) ?? fallback.annualBadge;
       const monthlyBadge = fallback.monthlyBadge;
 
       const footnote = map.footnote ? sanitize(t(map.footnote)) : undefined;
@@ -283,7 +284,7 @@ export function PricingDetailsProvider({ locale, children }: PricingDetailsProvi
         cta,
       };
     },
-    [t, ta],
+    [t, ta]
   );
 
   const getCreditContent = useCallback(
@@ -301,8 +302,10 @@ export function PricingDetailsProvider({ locale, children }: PricingDetailsProvi
       const contentBullets = bullets.length > 0 ? bullets : fallback.bullets;
       const priceBase = sanitize(t(map.price), fallback.price) ?? fallback.price;
       const priceQualifier =
-        sanitize(t('pages.pricing.credits_packs.details.priceQualifier'), fallback.priceQualifier) ??
-        fallback.priceQualifier;
+        sanitize(
+          t('pages.pricing.credits_packs.details.priceQualifier'),
+          fallback.priceQualifier
+        ) ?? fallback.priceQualifier;
       const note = map.note ? sanitize(t(map.note)) : undefined;
 
       return {
@@ -316,21 +319,21 @@ export function PricingDetailsProvider({ locale, children }: PricingDetailsProvi
         note,
       };
     },
-    [t, ta],
+    [t, ta]
   );
 
   const openPlan = useCallback(
     (id: PricingPlanId) => {
       setActiveDetail(getPlanContent(id, pricingInterval));
     },
-    [getPlanContent, pricingInterval],
+    [getPlanContent, pricingInterval]
   );
 
   const openCredit = useCallback(
     (id: CreditPackId) => {
       setActiveDetail(getCreditContent(id));
     },
-    [getCreditContent],
+    [getCreditContent]
   );
 
   const close = useCallback(() => {
@@ -346,17 +349,17 @@ export function PricingDetailsProvider({ locale, children }: PricingDetailsProvi
 
   const labels = useMemo(
     () => ({
-      planTrigger: sanitize(t(PRICING_DETAILS_COPY_KEYS.planTrigger), 'More details') ?? 'More details',
-      creditTrigger:
-        sanitize(t(PRICING_DETAILS_COPY_KEYS.creditTrigger), 'Details') ?? 'Details',
+      planTrigger:
+        sanitize(t(PRICING_DETAILS_COPY_KEYS.planTrigger), 'More details') ?? 'More details',
+      creditTrigger: sanitize(t(PRICING_DETAILS_COPY_KEYS.creditTrigger), 'Details') ?? 'Details',
       close: sanitize(t(PRICING_DETAILS_COPY_KEYS.planClose), 'Close') ?? 'Close',
     }),
-    [t],
+    [t]
   );
 
   const contextValue = useMemo<PricingDetailsContextValue>(
     () => ({ openPlan, openCredit, close, activeDetail, labels }),
-    [openPlan, openCredit, close, activeDetail, labels],
+    [openPlan, openCredit, close, activeDetail, labels]
   );
 
   return (
@@ -404,8 +407,8 @@ function PricingDetailsModal() {
       if (event.key === 'Tab') {
         const focusable = Array.from(
           modalRef.current.querySelectorAll<HTMLElement>(
-            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
-          ),
+            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+          )
         ).filter((el) => !el.hasAttribute('disabled'));
 
         if (focusable.length === 0) {
@@ -544,7 +547,11 @@ function PricingDetailsModal() {
               strokeWidth="1.8"
               viewBox="0 0 24 24"
             >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 6.75 17.25 17.25M6.75 17.25 17.25 6.75" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M6.75 6.75 17.25 17.25M6.75 17.25 17.25 6.75"
+              />
             </svg>
           </button>
 
@@ -580,45 +587,45 @@ function PricingDetailsModal() {
                     {activeDetail.subtitle}
                   </p>
                 )}
-            </div>
-
-            <div className="flex flex-col gap-4 sm:max-w-[18rem] sm:flex-shrink-0">
-              {priceCard}
-              {activeDetail.kind === 'plan' && activeDetail.cta && (
-                <p className="text-sm font-semibold text-primary-100/90">{activeDetail.cta}</p>
-              )}
-              {activeDetail.kind === 'plan' && activeDetail.footnote && (
-                <p className="text-xs text-slate-400/75">{activeDetail.footnote}</p>
-              )}
-              {activeDetail.kind === 'credit' && activeDetail.note && (
-                <p className="text-xs text-slate-400/75">{activeDetail.note}</p>
-              )}
-            </div>
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-7 sm:gap-8">
-          <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.32em] text-primary-200/70">
-            <span className="h-1.5 w-1.5 rounded-full bg-gradient-to-br from-primary-200 via-secondary-200 to-primary-500" />
-            Key highlights
-          </div>
-
-          <div className="grid gap-4 sm:gap-6 md:grid-cols-3">
-            {activeDetail.bullets.map((bullet, index) => (
-              <div
-                key={`${bullet}-${index}`}
-                className="flex items-start gap-3 text-[0.95rem] leading-relaxed text-slate-100"
-              >
-                <span className="mt-1 h-2.5 w-2.5 flex-shrink-0 rounded-full bg-gradient-to-br from-primary-200 via-secondary-200 to-primary-500 shadow-[0_0_12px_rgba(16,185,129,0.5)]" />
-                <span>{bullet}</span>
               </div>
-            ))}
+
+              <div className="flex flex-col gap-4 sm:max-w-[18rem] sm:flex-shrink-0">
+                {priceCard}
+                {activeDetail.kind === 'plan' && activeDetail.cta && (
+                  <p className="text-sm font-semibold text-primary-100/90">{activeDetail.cta}</p>
+                )}
+                {activeDetail.kind === 'plan' && activeDetail.footnote && (
+                  <p className="text-xs text-slate-400/75">{activeDetail.footnote}</p>
+                )}
+                {activeDetail.kind === 'credit' && activeDetail.note && (
+                  <p className="text-xs text-slate-400/75">{activeDetail.note}</p>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-7 sm:gap-8">
+            <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.32em] text-primary-200/70">
+              <span className="h-1.5 w-1.5 rounded-full bg-gradient-to-br from-primary-200 via-secondary-200 to-primary-500" />
+              Key highlights
+            </div>
+
+            <div className="grid gap-4 sm:gap-6 md:grid-cols-3">
+              {activeDetail.bullets.map((bullet, index) => (
+                <div
+                  key={`${bullet}-${index}`}
+                  className="flex items-start gap-3 text-[0.95rem] leading-relaxed text-slate-100"
+                >
+                  <span className="mt-1 h-2.5 w-2.5 flex-shrink-0 rounded-full bg-gradient-to-br from-primary-200 via-secondary-200 to-primary-500 shadow-[0_0_12px_rgba(16,185,129,0.5)]" />
+                  <span>{bullet}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-);
+  );
 
   return createPortal(modalContent, document.body);
 }

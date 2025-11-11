@@ -4,6 +4,7 @@ owner: 'Operations Team'
 priority: 'medium'
 lastSync: '2025-11-03'
 codeRefs: 'docs/ops/, scripts/, cloudflare ruleset config'
+testRefs: 'N/A'
 ---
 
 <!-- markdownlint-disable MD051 -->

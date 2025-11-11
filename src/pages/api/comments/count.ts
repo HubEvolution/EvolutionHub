@@ -76,72 +76,72 @@ export const GET = withApiMiddleware(
         cols.has('createdAt') &&
         !cols.has('entity_type');
 
-    // Single id fast-path
-    if (entityIds.length === 1) {
+      // Single id fast-path
+      if (entityIds.length === 1) {
+        if (!isLegacy) {
+          const res = await db
+            .select({ count: count() })
+            .from(comments)
+            .where(
+              and(
+                eq(comments.entityType, entityType),
+                eq(comments.entityId, entityIds[0]),
+                eq(comments.status, 'approved')
+              )
+            );
+          const c = res[0]?.count || 0;
+          return createApiSuccess({ entityId: entityIds[0], count: c });
+        } else {
+          // Legacy: entityType is ignored (only blog_post supported historically)
+          const stmt = dbBinding
+            .prepare('SELECT COUNT(*) as cnt FROM comments WHERE postId = ? AND approved = 1')
+            .bind(entityIds[0]);
+          const res = await stmt.all();
+          const rrows = Array.isArray(res.results)
+            ? (res.results as Array<Record<string, unknown>>)
+            : [];
+          const cnt = Number((rrows[0] as { cnt?: unknown })?.cnt ?? 0);
+          return createApiSuccess({ entityId: entityIds[0], count: cnt });
+        }
+      }
+
+      // Batch
       if (!isLegacy) {
         const res = await db
-          .select({ count: count() })
+          .select({ entityId: comments.entityId, cnt: count() })
           .from(comments)
           .where(
             and(
               eq(comments.entityType, entityType),
-              eq(comments.entityId, entityIds[0]),
+              inArray(comments.entityId, entityIds),
               eq(comments.status, 'approved')
             )
-          );
-        const c = res[0]?.count || 0;
-        return createApiSuccess({ entityId: entityIds[0], count: c });
+          )
+          .groupBy(comments.entityId);
+        const rows = res as Array<{ entityId: string; cnt: number }>; // drizzle typed projection
+        const map: Record<string, number> = Object.fromEntries(entityIds.map((id) => [id, 0]));
+        for (const row of rows) map[row.entityId] = row.cnt || 0;
+        return createApiSuccess({ counts: map });
       } else {
-        // Legacy: entityType is ignored (only blog_post supported historically)
+        // Legacy batch
+        const placeholders = entityIds.map(() => '?').join(',');
         const stmt = dbBinding
-          .prepare('SELECT COUNT(*) as cnt FROM comments WHERE postId = ? AND approved = 1')
-          .bind(entityIds[0]);
+          .prepare(
+            `SELECT postId as entityId, COUNT(*) as cnt FROM comments WHERE postId IN (${placeholders}) AND approved = 1 GROUP BY postId`
+          )
+          .bind(...entityIds);
         const res = await stmt.all();
-        const rrows = Array.isArray(res.results)
+        const map: Record<string, number> = Object.fromEntries(entityIds.map((id) => [id, 0]));
+        const lrows = Array.isArray(res.results)
           ? (res.results as Array<Record<string, unknown>>)
           : [];
-        const cnt = Number((rrows[0] as { cnt?: unknown })?.cnt ?? 0);
-        return createApiSuccess({ entityId: entityIds[0], count: cnt });
+        for (const row of lrows) {
+          const eid = row.entityId as unknown;
+          const cnt = row.cnt as unknown;
+          map[String(eid ?? '')] = Number(cnt ?? 0);
+        }
+        return createApiSuccess({ counts: map });
       }
-    }
-
-    // Batch
-    if (!isLegacy) {
-      const res = await db
-        .select({ entityId: comments.entityId, cnt: count() })
-        .from(comments)
-        .where(
-          and(
-            eq(comments.entityType, entityType),
-            inArray(comments.entityId, entityIds),
-            eq(comments.status, 'approved')
-          )
-        )
-        .groupBy(comments.entityId);
-      const rows = res as Array<{ entityId: string; cnt: number }>; // drizzle typed projection
-      const map: Record<string, number> = Object.fromEntries(entityIds.map((id) => [id, 0]));
-      for (const row of rows) map[row.entityId] = row.cnt || 0;
-      return createApiSuccess({ counts: map });
-    } else {
-      // Legacy batch
-      const placeholders = entityIds.map(() => '?').join(',');
-      const stmt = dbBinding
-        .prepare(
-          `SELECT postId as entityId, COUNT(*) as cnt FROM comments WHERE postId IN (${placeholders}) AND approved = 1 GROUP BY postId`
-        )
-        .bind(...entityIds);
-      const res = await stmt.all();
-      const map: Record<string, number> = Object.fromEntries(entityIds.map((id) => [id, 0]));
-      const lrows = Array.isArray(res.results)
-        ? (res.results as Array<Record<string, unknown>>)
-        : [];
-      for (const row of lrows) {
-        const eid = row.entityId as unknown;
-        const cnt = row.cnt as unknown;
-        map[String(eid ?? '')] = Number(cnt ?? 0);
-      }
-      return createApiSuccess({ counts: map });
-    }
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       return createApiError('server_error', msg);

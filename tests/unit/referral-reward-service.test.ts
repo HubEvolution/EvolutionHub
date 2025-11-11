@@ -56,7 +56,7 @@ describe('referral-reward-service verifyReferral', () => {
       rewardTenths: 100,
     });
     expect(result.type).toBe('disabled');
-    expect((db.prepare as unknown as ReturnType<typeof vi.fn>)).not.toHaveBeenCalled();
+    expect(db.prepare as unknown as ReturnType<typeof vi.fn>).not.toHaveBeenCalled();
   });
 
   it('returns no_referral when no referral event exists', async () => {
@@ -226,7 +226,7 @@ describe('referral-reward-service verifyReferral', () => {
 
     expect(result.type).toBe('verified');
     expect(updateStmt.bind).toHaveBeenCalled();
-    expect((kv.put as unknown as ReturnType<typeof vi.fn>)).not.toHaveBeenCalled();
+    expect(kv.put as unknown as ReturnType<typeof vi.fn>).not.toHaveBeenCalled();
   });
 });
 

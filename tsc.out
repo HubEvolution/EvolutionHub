@@ -1,0 +1,217 @@
+scripts/docs-auto-fix.ts(84,13): error TS6133: 'blockIdxStart' is declared but its value is never read.
+scripts/generate-wordmark-outlined.ts(3,22): error TS7016: Could not find a declaration file for module 'opentype.js'. '/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/node_modules/opentype.js/dist/opentype.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/opentype.js` if it exists or add a new declaration (.d.ts) file containing `declare module 'opentype.js';`
+scripts/health-check.ts(22,16): error TS2393: Duplicate function implementation.
+scripts/health-check.ts(107,16): error TS2393: Duplicate function implementation.
+scripts/onboarding.ts(79,16): error TS6133: 'createTestUser' is declared but its value is never read.
+scripts/onboarding.ts(275,16): error TS6133: 'setupShellAliases' is declared but its value is never read.
+scripts/onboarding.ts(347,16): error TS6133: 'showDocumentation' is declared but its value is never read.
+scripts/remark/remark-demote-h1.ts(16,16): error TS2339: Property 'depth' does not exist on type 'never'.
+scripts/remark/remark-demote-h1.ts(17,14): error TS2339: Property 'depth' does not exist on type 'never'.
+scripts/setup-local-dev.ts(357,7): error TS6133: 'DB_BINDING' is declared but its value is never read.
+scripts/setup-local-dev.ts(360,7): error TS6133: 'R2_BINDING' is declared but its value is never read.
+scripts/setup-local-dev.ts(363,7): error TS6133: 'KV_BINDING' is declared but its value is never read.
+scripts/warmup.ts(69,16): error TS2393: Duplicate function implementation.
+scripts/warmup.ts(76,51): error TS2339: Property 'status' does not exist on type '{}'.
+scripts/warmup.ts(76,67): error TS2339: Property 'data' does not exist on type '{}'.
+scripts/warmup.ts(191,16): error TS2393: Duplicate function implementation.
+src/components/admin/AdminClient.tsx(6,12): error TS2307: Cannot find module '../../pages/admin/index.client' or its corresponding type declarations.
+src/components/admin/dashboard/hooks/useAdminUserList.ts(76,46): error TS2345: Argument of type 'AdminUserListFilters' is not assignable to parameter of type '{ search: string | undefined; status: "active" | "banned" | "deleted" | undefined; plan: "free" | "pro" | "premium" | "enterprise" | undefined; limit: number; cursor: string | undefined; }'.
+  Type 'AdminUserListFilters' is missing the following properties from type '{ search: string | undefined; status: "active" | "banned" | "deleted" | undefined; plan: "free" | "pro" | "premium" | "enterprise" | undefined; limit: number; cursor: string | undefined; }': limit, cursor
+src/components/admin/dashboard/hooks/useAdminUserList.ts(105,46): error TS2345: Argument of type '{ cursor: string; search?: string; status?: "active" | "banned" | "deleted"; plan?: "free" | "pro" | "premium" | "enterprise"; }' is not assignable to parameter of type '{ search: string | undefined; status: "active" | "banned" | "deleted" | undefined; plan: "free" | "pro" | "premium" | "enterprise" | undefined; limit: number; cursor: string | undefined; }'.
+  Property 'limit' is missing in type '{ cursor: string; search?: string; status?: "active" | "banned" | "deleted"; plan?: "free" | "pro" | "premium" | "enterprise"; }' but required in type '{ search: string | undefined; status: "active" | "banned" | "deleted" | undefined; plan: "free" | "pro" | "premium" | "enterprise" | undefined; limit: number; cursor: string | undefined; }'.
+src/components/comments/CommentErrorBoundary.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/components/comments/CommentKeyboardNav.tsx(119,26): error TS2367: This comparison appears to be unintentional because the types 'number | undefined' and 'string | null' have no overlap.
+src/components/comments/CommentKeyboardNav.tsx(124,26): error TS2367: This comparison appears to be unintentional because the types 'number | undefined' and 'string | null' have no overlap.
+src/components/comments/CommentKeyboardNav.tsx(155,48): error TS6133: 'altKey' is declared but its value is never read.
+src/components/comments/CommentKeyboardNav.tsx(280,18): error TS2322: Type '{ children: string; jsx: true; }' is not assignable to type 'DetailedHTMLProps<StyleHTMLAttributes<HTMLStyleElement>, HTMLStyleElement>'.
+  Property 'jsx' does not exist on type 'DetailedHTMLProps<StyleHTMLAttributes<HTMLStyleElement>, HTMLStyleElement>'.
+src/components/comments/CommentKeyboardNav.tsx(424,23): error TS2367: This comparison appears to be unintentional because the types 'number | undefined' and 'string | null' have no overlap.
+src/components/comments/CommentKeyboardNav.tsx(426,19): error TS2367: This comparison appears to be unintentional because the types 'number | undefined' and 'string | null' have no overlap.
+src/components/comments/CommentKeyboardNav.tsx(428,15): error TS2367: This comparison appears to be unintentional because the types 'number | undefined' and 'string | null' have no overlap.
+src/components/comments/CommentKeyboardNav.tsx(494,14): error TS2367: This comparison appears to be unintentional because the types 'number | undefined' and 'string | null' have no overlap.
+src/components/comments/CommentKeyboardNav.tsx(513,10): error TS2367: This comparison appears to be unintentional because the types 'number | undefined' and 'string | null' have no overlap.
+src/components/comments/CommentKeyboardNav.tsx(531,10): error TS18048: 'comment.reportCount' is possibly 'undefined'.
+src/components/comments/CommentMobile.tsx(1,17): error TS6133: 'useMemo' is declared but its value is never read.
+src/components/comments/CommentMobile.tsx(9,1): error TS6133: 'sanitizeCommentContent' is declared but its value is never read.
+src/components/comments/CommentMobile.tsx(333,55): error TS2304: Cannot find name 'sanitizedContent'.
+src/components/comments/CommentMobile.tsx(563,9): error TS6133: 'formattedDate' is declared but its value is never read.
+src/components/comments/CommentMobile.tsx(563,34): error TS2552: Cannot find name 'comment'. Did you mean 'Comment'?
+src/components/comments/CommentThreading.tsx(3,1): error TS6133: 'Button' is declared but its value is never read.
+src/components/comments/CommentThreading.tsx(46,3): error TS6133: 'enableSorting' is declared but its value is never read.
+src/components/comments/CommentThreading.tsx(53,10): error TS6133: 'showFilters' is declared but its value is never read.
+src/components/comments/CommentThreading.tsx(53,23): error TS6133: 'setShowFilters' is declared but its value is never read.
+src/components/comments/CommentThreading.tsx(132,20): error TS2345: Argument of type 'string' is not assignable to parameter of type 'SetStateAction<"newest" | "oldest" | "most-replies" | "most-helpful">'.
+src/components/comments/CommentThreading.tsx(168,11): error TS2322: Type '{ id: number; name: string; email: string; } | null | undefined' is not assignable to type '{ id: string; name: string; email: string; image?: string | undefined; } | null | undefined'.
+  Type '{ id: number; name: string; email: string; }' is not assignable to type '{ id: string; name: string; email: string; image?: string | undefined; }'.
+    Types of property 'id' are incompatible.
+      Type 'number' is not assignable to type 'string'.
+src/components/comments/CommentThreading.tsx(341,3): error TS6133: 'onClose' is declared but its value is never read.
+src/components/comments/CommentThreading.tsx(439,3): error TS6133: 'onUpdateComment' is declared but its value is never read.
+src/components/comments/CommentThreading.tsx(498,18): error TS2367: This comparison appears to be unintentional because the types 'number | undefined' and 'string | null' have no overlap.
+src/components/dashboard/NewsletterPreferencesCard.tsx(2,1): error TS6133: 'CardReact' is declared but its value is never read.
+src/components/dashboard/NewsletterPreferencesCard.tsx(2,23): error TS7016: Could not find a declaration file for module '@/components/ui/CardReact.jsx'. '/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/components/ui/CardReact.jsx' implicitly has an 'any' type.
+src/components/notifications/NotificationCenter.tsx(2,16): error TS6133: 'Check' is declared but its value is never read.
+src/components/notifications/NotificationCenter.tsx(2,35): error TS6133: 'Settings' is declared but its value is never read.
+src/components/notifications/NotificationCenter.tsx(2,54): error TS2307: Cannot find module 'lucide-react' or its corresponding type declarations.
+src/components/notifications/NotificationCenter.tsx(5,3): error TS6196: 'NotificationFilters' is declared but never used.
+src/components/notifications/NotificationCenter.tsx(15,3): error TS6133: 'userId' is declared but its value is never read.
+src/components/notifications/NotificationCenter.tsx(48,11): error TS18046: 'result' is of type 'unknown'.
+src/components/notifications/NotificationCenter.tsx(49,26): error TS18046: 'result' is of type 'unknown'.
+src/components/notifications/NotificationCenter.tsx(50,18): error TS18046: 'result' is of type 'unknown'.
+src/components/notifications/NotificationCenter.tsx(53,27): error TS18046: 'result' is of type 'unknown'.
+src/components/notifications/NotificationCenter.tsx(63,25): error TS18046: 'result' is of type 'unknown'.
+src/components/notifications/NotificationSettings.tsx(2,10): error TS6133: 'Save' is declared but its value is never read.
+src/components/notifications/NotificationSettings.tsx(2,33): error TS2307: Cannot find module 'lucide-react' or its corresponding type declarations.
+src/components/notifications/NotificationSettings.tsx(14,3): error TS6133: 'userId' is declared but its value is never read.
+src/components/notifications/NotificationSettings.tsx(42,11): error TS18046: 'result' is of type 'unknown'.
+src/components/notifications/NotificationSettings.tsx(43,21): error TS18046: 'result' is of type 'unknown'.
+src/components/notifications/NotificationSettings.tsx(45,25): error TS18046: 'result' is of type 'unknown'.
+src/components/notifications/NotificationSettings.tsx(93,11): error TS18046: 'result' is of type 'unknown'.
+src/components/notifications/NotificationSettings.tsx(95,21): error TS2345: Argument of type '(prev: NotificationSetting[]) => { enabled: boolean; frequency: string; updatedAt: number; id: number; userId: string; type: NotificationType | "email_digest"; channel: NotificationChannel; createdAt: number; }[]' is not assignable to parameter of type 'SetStateAction<NotificationSetting[]>'.
+  Type '(prev: NotificationSetting[]) => { enabled: boolean; frequency: string; updatedAt: number; id: number; userId: string; type: NotificationType | "email_digest"; channel: NotificationChannel; createdAt: number; }[]' is not assignable to type '(prevState: NotificationSetting[]) => NotificationSetting[]'.
+    Type '{ enabled: boolean; frequency: string; updatedAt: number; id: number; userId: string; type: NotificationType | "email_digest"; channel: NotificationChannel; createdAt: number; }[]' is not assignable to type 'NotificationSetting[]'.
+      Type '{ enabled: boolean; frequency: string; updatedAt: number; id: number; userId: string; type: NotificationType | "email_digest"; channel: NotificationChannel; createdAt: number; }' is not assignable to type 'NotificationSetting'.
+        Types of property 'frequency' are incompatible.
+          Type 'string' is not assignable to type 'NotificationFrequency'.
+src/components/notifications/NotificationSettings.tsx(104,25): error TS18046: 'result' is of type 'unknown'.
+src/components/notifications/NotificationSettings.tsx(133,11): error TS18046: 'result' is of type 'unknown'.
+src/components/notifications/NotificationSettings.tsx(134,21): error TS18046: 'result' is of type 'unknown'.
+src/components/notifications/NotificationSettings.tsx(137,25): error TS18046: 'result' is of type 'unknown'.
+src/components/projects/ProjectManagement.tsx(90,9): error TS2322: Type '(data: CreateProjectRequest) => Promise<void>' is not assignable to type '(data: CreateProjectRequest | UpdateProjectRequest) => Promise<void>'.
+  Types of parameters 'data' and 'data' are incompatible.
+    Type 'CreateProjectRequest | UpdateProjectRequest' is not assignable to type 'CreateProjectRequest'.
+      Type 'UpdateProjectRequest' is not assignable to type 'CreateProjectRequest'.
+        Types of property 'title' are incompatible.
+          Type 'string | undefined' is not assignable to type 'string'.
+            Type 'undefined' is not assignable to type 'string'.
+src/components/projects/ProjectManagement.tsx(99,9): error TS2322: Type '(data: UpdateProjectRequest) => Promise<void>' is not assignable to type '(data: CreateProjectRequest | UpdateProjectRequest) => Promise<void>'.
+  Types of parameters 'data' and 'data' are incompatible.
+    Type 'CreateProjectRequest | UpdateProjectRequest' is not assignable to type 'UpdateProjectRequest'.
+      Property 'id' is missing in type 'CreateProjectRequest' but required in type 'UpdateProjectRequest'.
+src/components/projects/ProjectModal.tsx(36,9): error TS2322: Type '"active" | "completed" | "on-hold" | "archived"' is not assignable to type '"active"'.
+  Type '"completed"' is not assignable to type '"active"'.
+src/components/projects/ProjectModal.tsx(37,9): error TS2322: Type '"low" | "medium" | "high"' is not assignable to type '"medium"'.
+  Type '"low"' is not assignable to type '"medium"'.
+src/components/tools/imag-enhancer/__tests__/ModelControls.test.tsx(1,1): error TS6133: 'React' is declared but its value is never read.
+src/components/tools/imag-enhancer/__tests__/useCompareInteractions.test.tsx(3,1): error TS6133: 'userEvent' is declared but its value is never read.
+src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx(1,26): error TS6133: 'fireEvent' is declared but its value is never read.
+src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx(4,15): error TS2305: Module '"../types"' has no exported member 'EnhancerActionsMVPProps'.
+src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx(54,20): error TS2304: Cannot find name 'vi'.
+src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx(57,16): error TS2304: Cannot find name 'vi'.
+src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx(63,5): error TS2304: Cannot find name 'vi'.
+src/components/tools/imag-enhancer/mvp/__tests__/SimpleResult.test.tsx(38,23): error TS2304: Cannot find name 'SimpleResultProps'.
+src/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx(1,27): error TS6133: 'waitFor' is declared but its value is never read.
+src/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx(8,1): error TS2304: Cannot find name 'vi'.
+src/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx(9,1): error TS2304: Cannot find name 'vi'.
+src/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx(17,5): error TS2739: Type '{ imageUrl: string; originalUrl: string; }' is missing the following properties from type 'GenerateResponseData': model, usage, limits
+src/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx(24,5): error TS2304: Cannot find name 'vi'.
+src/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx(25,5): error TS2304: Cannot find name 'vi'.
+src/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx(37,5): error TS2304: Cannot find name 'vi'.
+src/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx(57,5): error TS2304: Cannot find name 'vi'.
+src/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx(79,5): error TS2304: Cannot find name 'vi'.
+src/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx(102,5): error TS2304: Cannot find name 'vi'.
+src/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx(119,5): error TS2304: Cannot find name 'vi'.
+src/components/tools/imag-enhancer/mvp/hooks/useEnhanceMVP.ts(2,15): error TS2305: Module '"../../types"' has no exported member 'EnhanceMVPArgs'.
+src/components/tools/imag-enhancer/mvp/ImagEnhancerRouter.tsx(30,32): error TS2322: Type 'ImagEnhancerMVPStrings' is not assignable to type 'ImagEnhancerStrings'.
+  Types of property 'ui' are incompatible.
+    Type '{ changeModel?: string | undefined; done?: string | undefined; startOver?: string | undefined; upgrade?: string | undefined; } | undefined' is not assignable to type '{ fullscreen: string; exitFullscreen: string; changeModel?: string | undefined; done?: string | undefined; startOver?: string | undefined; faceEnhance?: string | undefined; upgrade?: string | undefined; help?: { ...; } | undefined; } | undefined'.
+      Type '{ changeModel?: string | undefined; done?: string | undefined; startOver?: string | undefined; upgrade?: string | undefined; }' is missing the following properties from type '{ fullscreen: string; exitFullscreen: string; changeModel?: string | undefined; done?: string | undefined; startOver?: string | undefined; faceEnhance?: string | undefined; upgrade?: string | undefined; help?: { ...; } | undefined; }': fullscreen, exitFullscreen
+src/components/tools/imag-enhancer/mvp/types.ts(47,18): error TS2430: Interface 'UsageData' incorrectly extends interface 'UsageInfo'.
+  Types of property 'resetAt' are incompatible.
+    Type 'string | null' is not assignable to type 'number | null'.
+      Type 'string' is not assignable to type 'number'.
+src/components/tools/video-enhancer/VideoEnhancerIsland.tsx(389,21): error TS2322: Type '{ children: Element; asChild: true; variant: "secondary"; size: "sm"; className: string; }' is not assignable to type 'IntrinsicAttributes & (ButtonProps & RefAttributes<HTMLButtonElement | HTMLAnchorElement>)'.
+  Property 'asChild' does not exist on type 'IntrinsicAttributes & (ButtonProps & RefAttributes<HTMLButtonElement | HTMLAnchorElement>)'.
+src/components/tools/voice-visualizer/hooks/useTranscribeStream.ts(91,30): error TS2339: Property 'data' does not exist on type '{}'.
+src/content/config.ts(6,7): error TS6133: 'dateSchema' is declared but its value is never read.
+src/content/config.ts(12,7): error TS6133: 'authorSchema' is declared but its value is never read.
+src/content/config.ts(30,7): error TS6133: 'categories' is declared but its value is never read.
+src/lib/db/schema.ts(19,9): error TS2347: Untyped function calls may not accept type arguments.
+src/lib/kv/usage.test.ts(12,39): error TS2307: Cannot find module '../../tests/utils/kv-mock' or its corresponding type declarations.
+src/lib/services/data-export-service.ts(184,47): error TS7006: Parameter 'c' implicitly has an 'any' type.
+src/lib/services/data-export-service.ts(206,57): error TS7006: Parameter 'n' implicitly has an 'any' type.
+src/lib/services/data-export-service.ts(422,22): error TS7006: Parameter 'row' implicitly has an 'any' type.
+src/lib/services/performance-service.ts(593,11): error TS6133: '_cacheStats' is declared but its value is never read.
+src/lib/services/referral-admin-service.ts(205,34): error TS2345: Argument of type 'string | null' is not assignable to parameter of type '"all" | "pending" | "verified" | "paid" | "cancelled" | null | undefined'.
+  Type 'string' is not assignable to type '"all" | "pending" | "verified" | "paid" | "cancelled" | null | undefined'.
+src/lib/stytch.ts(22,3): error TS6133: 'userId' is declared but its value is never read.
+src/lib/validation/schemas/comments.ts(250,7): error TS1360: Type 'ZodEffects<ZodObject<{ page: ZodOptional<ZodEffects<ZodDefault<ZodNumber>, number, unknown>>; limit: ZodOptional<ZodEffects<ZodDefault<ZodNumber>, number, unknown>>; sortBy: ZodOptional<...>; sortOrder: ZodOptional<...>; includeReplies: ZodOptional<...>; maxDepth: ZodOptional<...>; }, "strict", ZodTypeAny, { ...; },...' does not satisfy the expected type 'ZodType<PaginationOptions, ZodTypeDef, PaginationOptions>'.
+  The types of '_input.page' are incompatible between these types.
+    Type 'unknown' is not assignable to type 'number'.
+src/lib/validation/schemas/comments.ts(306,7): error TS1360: Type 'ZodEffects<ZodObject<{ q: ZodDefault<ZodEffects<ZodString, string, unknown>>; page: ZodOptional<ZodEffects<ZodDefault<ZodNumber>, number, unknown>>; ... 6 more ...; minLikes: ZodOptional<...>; }, "strict", ZodTypeAny, { ...; }, { ...; }>, { ...; }, { ...; }>' does not satisfy the expected type 'ZodType<CommentSearchOptions, ZodTypeDef, CommentSearchOptions>'.
+  Types of property '_input' are incompatible.
+    Property 'query' is missing in type '{ status?: unknown; q?: unknown; limit?: unknown; authorId?: unknown; hasReplies?: unknown; page?: unknown; dateFrom?: unknown; dateTo?: unknown; minLikes?: unknown; }' but required in type 'CommentSearchOptions'.
+src/pages/api/admin/backup.legacy.hono.ts(325,11): error TS6133: '_adminId' is declared but its value is never read.
+src/pages/api/admin/backup.legacy.hono.ts(349,49): error TS2345: Argument of type 'string' is not assignable to parameter of type 'BackupJobType'.
+src/pages/api/admin/backup.legacy.hono.ts(575,11): error TS6133: '_adminId' is declared but its value is never read.
+src/pages/api/admin/rate-limits/reset.ts(43,51): error TS2322: Type 'AdminBindings' is not assignable to type 'Record<string, unknown>'.
+  Index signature for type 'string' is missing in type 'AdminBindings'.
+src/pages/api/admin/rate-limits/state.ts(28,62): error TS2322: Type 'AdminBindings' is not assignable to type 'Record<string, unknown>'.
+  Index signature for type 'string' is missing in type 'AdminBindings'.
+src/pages/api/health.ts(95,5): error TS2322: Type '() => Promise<RateLimiter>' is not assignable to type 'RateLimiter'.
+  Type 'Promise<RateLimiter>' is not assignable to type 'Promise<RateLimiterResult>'.
+    Type 'RateLimiter' is not assignable to type 'RateLimiterResult'.
+src/pages/api/newsletter/confirm.ts(32,48): error TS7031: Binding element '_request' implicitly has an 'any' type.
+src/pages/api/newsletter/confirm.ts(32,58): error TS7031: Binding element 'url' implicitly has an 'any' type.
+src/pages/api/test/seed-email-token.ts(40,24): error TS2347: Untyped function calls may not accept type arguments.
+src/pages/api/testing/evaluate/[id].ts(9,10): error TS2305: Module '"@/lib/rate-limiter"' has no exported member 'webEvalTaskLimiter'.
+src/pages/api/testing/evaluate/[id]/complete.ts(9,10): error TS2305: Module '"@/lib/rate-limiter"' has no exported member 'webEvalTaskLimiter'.
+src/pages/api/testing/evaluate/index.ts(9,10): error TS2305: Module '"@/lib/rate-limiter"' has no exported member 'webEvalTaskLimiter'.
+src/pages/api/testing/evaluate/index.ts(10,33): error TS2459: Module '"@/lib/testing/web-eval/storage"' declares 'WebEvalTaskCreatePayload' locally, but it is not exported.
+src/pages/api/user/logout.ts(41,35): error TS2347: Untyped function calls may not accept type arguments.
+src/server/utils/log-transports.ts(1,15): error TS2305: Module '"@/types/logger"' has no exported member 'LogEntry'.
+src/server/utils/log-transports.ts(1,25): error TS2305: Module '"@/types/logger"' has no exported member 'LogTransport'.
+src/server/utils/logger-factory.ts(192,11): error TS6133: 'environmentDetector' is declared but its value is never read.
+test-suite-v2/fixtures/auth-helpers.ts(251,9): error TS6133: 'currentUrl' is declared but its value is never read.
+tests/integration/api/webscraper.test.ts(5,32): error TS6133: 'beforeEach' is declared but its value is never read.
+tests/integration/api/webscraper.test.ts(5,44): error TS6133: 'vi' is declared but its value is never read.
+tests/integration/comments-api.test.ts(46,18): error TS6133: 'createRes' is declared but its value is never read.
+tests/integration/comments-api.test.ts(65,18): error TS6133: 'createRes' is declared but its value is never read.
+tests/integration/comments.test.ts(2,10): error TS2305: Module '"../../src/lib/db/helpers"' has no exported member 'getDb'.
+tests/integration/comments.test.ts(3,10): error TS2724: '"../../src/lib/services/comment-service"' has no exported member named 'commentService'. Did you mean 'CommentService'?
+tests/integration/comments.test.ts(516,9): error TS2322: Type '"invalid_type"' is not assignable to type 'CommentEntityType'.
+tests/integration/dashboard-api.test.ts(362,15): error TS6133: 'action' is declared but its value is never read.
+tests/integration/lead-magnet-api.test.ts(49,16): error TS6133: 'fetchPage' is declared but its value is never read.
+tests/integration/verify-email.test.ts(64,12): error TS18046: 'body' is of type 'unknown'.
+tests/integration/verify-email.test.ts(65,12): error TS18046: 'body' is of type 'unknown'.
+tests/integration/verify-email.test.ts(79,12): error TS18046: 'body' is of type 'unknown'.
+tests/integration/verify-email.test.ts(80,12): error TS18046: 'body' is of type 'unknown'.
+tests/performance/rate-limiting-perf.test.ts(19,7): error TS6133: 'RATE_LIMITS' is declared but its value is never read.
+tests/performance/rate-limiting-perf.test.ts(59,9): error TS6133: 'failed' is declared but its value is never read.
+tests/performance/rate-limiting-perf.test.ts(197,16): error TS6133: 'index' is declared but its value is never read.
+tests/performance/rate-limiting-perf.test.ts(292,16): error TS6133: 'index' is declared but its value is never read.
+tests/performance/run-load-tests.ts(3,1): error TS6133: 'execa' is declared but its value is never read.
+tests/performance/run-load-tests.ts(14,7): error TS6133: 'rootDir' is declared but its value is never read.
+tests/performance/run-load-tests.ts(44,3): error TS6133: 'baseUrl' is declared but its value is never read.
+tests/performance/run-load-tests.ts(95,28): error TS18046: 'apiConfig' is of type 'unknown'.
+tests/performance/run-load-tests.ts(102,9): error TS18046: 'apiConfig' is of type 'unknown'.
+tests/performance/run-load-tests.ts(105,15): error TS18046: 'apiConfig' is of type 'unknown'.
+tests/performance/run-load-tests.ts(106,39): error TS18046: 'apiConfig' is of type 'unknown'.
+tests/performance/run-load-tests.ts(111,19): error TS18046: 'apiConfig' is of type 'unknown'.
+tests/performance/run-load-tests.ts(116,39): error TS18046: 'apiConfig' is of type 'unknown'.
+tests/performance/run-load-tests.ts(301,11): error TS6133: 'report' is declared but its value is never read.
+tests/src/legacy/utils/server-helpers.ts(401,15): error TS6133: 'req' is declared but its value is never read.
+tests/src/lib/auth-v2.test.ts(6,8): error TS6133: 'User' is declared but its value is never read.
+tests/src/pages/api/ai-video/generate.test.ts(55,31): error TS6133: 'init' is declared but its value is never read.
+tests/unit/lib/ai-image-service.test.ts(35,20): error TS2307: Cannot find module '@/lib/db' or its corresponding type declarations.
+tests/unit/lib/ai-image-service.test.ts(36,10): error TS2305: Module '"@/lib/services/ai-image-service"' has no exported member 'generateImage'.
+tests/unit/lib/ai-image-service.test.ts(36,25): error TS2305: Module '"@/lib/services/ai-image-service"' has no exported member 'uploadToR2'.
+tests/unit/lib/ai-image-service.test.ts(37,27): error TS2307: Cannot find module '@/lib/r2' or its corresponding type declarations.
+tests/unit/lib/ai-image-service.test.ts(38,28): error TS2307: Cannot find module '@/lib/kv' or its corresponding type declarations.
+tests/unit/lib/rate-limiter.test.ts(92,25): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type 'Promise<Record<string, { maxRequests: number; windowMs: number; entries: { key: string; count: number; resetAt: number; }[]; }>>'.
+  No index signature with a parameter of type 'string' was found on type 'Promise<Record<string, { maxRequests: number; windowMs: number; entries: { key: string; count: number; resetAt: number; }[]; }>>'.
+tests/unit/pages/api/user/profile.test.ts(119,12): error TS18046: 'body' is of type 'unknown'.
+tests/unit/pages/api/user/profile.test.ts(120,12): error TS18046: 'body' is of type 'unknown'.
+tests/unit/pages/api/user/profile.test.ts(121,12): error TS18046: 'body' is of type 'unknown'.
+tests/unit/pages/api/user/profile.test.ts(129,12): error TS18046: 'body' is of type 'unknown'.
+tests/unit/pages/api/user/profile.test.ts(130,12): error TS18046: 'body' is of type 'unknown'.
+tests/unit/pages/api/user/profile.test.ts(140,12): error TS18046: 'body' is of type 'unknown'.
+tests/unit/pages/api/user/profile.test.ts(141,12): error TS18046: 'body' is of type 'unknown'.
+tests/unit/pages/api/user/profile.test.ts(153,12): error TS18046: 'body' is of type 'unknown'.
+tests/unit/pages/api/user/profile.test.ts(163,12): error TS18046: 'body' is of type 'unknown'.
+tests/unit/pages/api/user/profile.test.ts(164,12): error TS18046: 'body' is of type 'unknown'.
+tests/unit/pages/api/user/profile.test.ts(181,12): error TS18046: 'body' is of type 'unknown'.
+tests/unit/pages/api/user/profile.test.ts(182,12): error TS18046: 'body' is of type 'unknown'.
+tests/unit/pages/api/user/profile.test.ts(202,12): error TS18046: 'body' is of type 'unknown'.
+tests/unit/utils/server-helpers.test.ts(623,13): error TS6133: 'startTime' is declared but its value is never read.

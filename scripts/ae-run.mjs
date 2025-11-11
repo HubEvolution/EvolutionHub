@@ -5,7 +5,7 @@ import { spawn } from 'node:child_process';
 
 const cwd = process.cwd();
 const configPath = resolve(cwd, process.env.API_EXTRACTOR_CONFIG ?? 'api-extractor.json');
-const tsConfigPath = resolve(cwd, process.env.API_EXTRACTOR_TSCONFIG ?? 'tsconfig.json');
+const tsConfigPath = resolve(cwd, process.env.API_EXTRACTOR_TSCONFIG ?? 'tsconfig.types.json');
 const typesOutDir = resolve(cwd, '.types');
 const docOutputDir = resolve(cwd, 'docs/reference/ts');
 const tempDir = resolve(cwd, 'temp');

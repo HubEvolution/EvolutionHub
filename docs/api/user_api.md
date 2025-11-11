@@ -4,6 +4,7 @@ owner: 'Account Team'
 priority: 'high'
 lastSync: '2025-11-03'
 codeRefs: 'src/pages/api/user/**, docs/api/user_api.md'
+testRefs: 'N/A'
 ---
 
 <!-- markdownlint-disable MD051 -->

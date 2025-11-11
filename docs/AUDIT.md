@@ -4,6 +4,7 @@ owner: 'Frontend Team'
 priority: 'low'
 lastSync: '2025-11-06'
 codeRefs: 'src/components/**, public/assets/**, docs/AUDIT.md'
+testRefs: 'N/A'
 ---
 
 <!-- markdownlint-disable MD051 -->

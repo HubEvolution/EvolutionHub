@@ -17,6 +17,65 @@ export class StytchError extends Error {
   }
 }
 
+async function stytchUserAction(
+  context: APIContext,
+  userId: string,
+  path: string,
+  method: 'POST' | 'DELETE'
+) {
+  const { projectId, secret } = readStytchConfig(context);
+  const base = resolveBaseUrl(projectId);
+  const url = `${base}${path}`;
+  const res = await fetchWithTimeout(
+    url,
+    {
+      method,
+      headers: {
+        Authorization: toBasicAuth(projectId, secret),
+        'Content-Type': 'application/json',
+      },
+    },
+    5000
+  );
+  if (!res.ok) {
+    let requestId: string | undefined;
+    try {
+      const payload = (await res.json()) as {
+        request_id?: string;
+        error_message?: string;
+        error_type?: string;
+      };
+      requestId = typeof payload?.request_id === 'string' ? payload.request_id : undefined;
+      throw new StytchError(
+        res.status,
+        typeof payload?.error_type === 'string' ? payload.error_type : 'unknown_error',
+        payload?.error_message || `Stytch user action failed: ${res.status}`,
+        requestId
+      );
+    } catch (error) {
+      if (error instanceof StytchError) throw error;
+      throw new StytchError(
+        res.status,
+        'unknown_error',
+        `Stytch user action failed: ${res.status}`,
+        requestId
+      );
+    }
+  }
+}
+
+export async function stytchSuppressUser(context: APIContext, userId: string) {
+  await stytchUserAction(context, userId, `/v1/users/${userId}/suppress`, 'POST');
+}
+
+export async function stytchUnsuppressUser(context: APIContext, userId: string) {
+  await stytchUserAction(context, userId, `/v1/users/${userId}/unsuppress`, 'POST');
+}
+
+export async function stytchDeleteUser(context: APIContext, userId: string) {
+  await stytchUserAction(context, userId, `/v1/users/${userId}`, 'DELETE');
+}
+
 interface StytchConfig {
   projectId: string;
   secret: string;

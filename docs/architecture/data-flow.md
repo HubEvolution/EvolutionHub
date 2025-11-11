@@ -4,6 +4,7 @@ owner: 'Platform Team'
 priority: 'medium'
 lastSync: '2025-11-03'
 codeRefs: 'docs/architecture/system-overview.md, docs/architecture/database-schema.md'
+testRefs: 'N/A'
 ---
 
 <!-- markdownlint-disable MD051 -->

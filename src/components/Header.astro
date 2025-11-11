@@ -7,7 +7,7 @@ import { getLocale } from '@/lib/i18n';
 // Import der dedizierten Scroll-Effect Komponente
 import HeaderScroll from './scripts/HeaderScroll.astro';
 import EvolutionHubLogo from 'public/assets/svg/evolutionhub-mark.svg';
-import { localizePath } from '@/lib/locale-path';
+import { localizePath, mapLocaleHref } from '@/lib/locale-path';
 
 // Get current locale for language switching
 // These variables should be defined in Markdown Frontmatter or accessible in the script.
@@ -39,17 +39,7 @@ const currentPath = url.pathname;
 
 // (entfernt) Unbenutzte isActive-Hilfsfunktion, um Lint-Fehler zu vermeiden
 
-// Baue Sprachwechsel-Link mit persistenter Auswahl via set_locale & next
-// - next verweist auf die aktuelle vollständige URL (inkl. Query/Hash), URL-enkodiert
-// - Basis-Link bleibt der aktuelle Pfad; das Middleware-Redirect mappt anhand von `next` auf die Ziel-Locale
-function setLocaleHref(target: 'de' | 'en'): string {
-  const base = Astro.url.pathname;
-  const next = encodeURIComponent(Astro.url.toString());
-  const sep = base.includes('?') ? '&' : '?';
-  // Entferne etwaige Hash-Fragmente aus base, damit wir ein sauberes Query anhängen
-  const cleanBase = base.split('#')[0];
-  return `${cleanBase}${sep}set_locale=${target}&next=${next}`;
-}
+const localeHref = (target: 'de' | 'en') => mapLocaleHref(target, Astro.url);
 ---
 
 <header
@@ -193,7 +183,7 @@ function setLocaleHref(target: 'de' | 'en'): string {
                 <div class="px-4 py-2 text-xs text-gray-500 dark:text-slate-400">Sprache</div>
                 <div class="px-2 pb-2">
                   <a
-                    href={setLocaleHref('de')}
+                    href={localeHref('de')}
                     class={`flex items-center px-3 py-2 text-sm rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 ${
                       currentLocale === 'de'
                         ? 'text-emerald-600 dark:text-emerald-400 font-medium'
@@ -217,7 +207,7 @@ function setLocaleHref(target: 'de' | 'en'): string {
                     )}
                   </a>
                   <a
-                    href={setLocaleHref('en')}
+                    href={localeHref('en')}
                     class={`flex items-center px-3 py-2 text-sm rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 ${
                       currentLocale === 'en'
                         ? 'text-emerald-600 dark:text-emerald-400 font-medium'
@@ -308,7 +298,7 @@ function setLocaleHref(target: 'de' | 'en'): string {
                 <div class="px-4 py-2 text-xs text-gray-500 dark:text-slate-400">Sprache</div>
                 <div class="px-2 pb-2">
                   <a
-                    href={setLocaleHref('de')}
+                    href={localeHref('de')}
                     class={`flex items-center px-3 py-2 text-sm rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 ${
                       currentLocale === 'de'
                         ? 'text-emerald-600 dark:text-emerald-400 font-medium'
@@ -332,7 +322,7 @@ function setLocaleHref(target: 'de' | 'en'): string {
                     )}
                   </a>
                   <a
-                    href={setLocaleHref('en')}
+                    href={localeHref('en')}
                     class={`flex items-center px-3 py-2 text-sm rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 ${
                       currentLocale === 'en'
                         ? 'text-emerald-600 dark:text-emerald-400 font-medium'
@@ -500,7 +490,7 @@ function setLocaleHref(target: 'de' | 'en'): string {
         <div class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Language</div>
         <div class="flex flex-col space-y-1">
           <a
-            href={setLocaleHref('de')}
+            href={localeHref('de')}
             class={`block px-3 py-2 text-base rounded-md ${
               currentLocale === 'de'
                 ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 font-medium'
@@ -511,7 +501,7 @@ function setLocaleHref(target: 'de' | 'en'): string {
             Deutsch
           </a>
           <a
-            href={setLocaleHref('en')}
+            href={localeHref('en')}
             class={`block px-3 py-2 text-base rounded-md ${
               currentLocale === 'en'
                 ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 font-medium'

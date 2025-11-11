@@ -8,3 +8,4 @@ export * from './schemas/common';
 export * from './schemas/notifications';
 export * from './schemas/admin-backup';
 export * from './schemas/comments';
+export * from './schemas/web-eval';

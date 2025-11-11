@@ -28,9 +28,10 @@ const fallbackImage: SafeImage = {
   width: 1200,
   height: 630,
 };
-const cardImage: SafeImage = rawImage && typeof rawImage === 'object'
-  ? { src: rawImage.src, width: rawImage.width, height: rawImage.height }
-  : fallbackImage;
+const cardImage: SafeImage =
+  rawImage && typeof rawImage === 'object'
+    ? { src: rawImage.src, width: rawImage.width, height: rawImage.height }
+    : fallbackImage;
 const fallbackSrc = fallbackImage.src;
 const getMimeType = (path: string): string | undefined => {
   const ext = path.split('.').pop()?.toLowerCase();
@@ -57,11 +58,7 @@ const locale = getLocale(Astro.url.pathname);
 const localizedUrl = localizePath(locale, url);
 ---
 
-<article
-  class:list={[className]}
-  data-itemscope
-  data-itemtype="http://schema.org/BlogPosting"
->
+<article class:list={[className]} data-itemscope data-itemtype="http://schema.org/BlogPosting">
   <Card
     as="section"
     variant="holo"
@@ -71,7 +68,7 @@ const localizedUrl = localizePath(locale, url);
     ].join(' ')}
     data-aos="fade-up"
     data-aos-duration="650"
-    {...(typeof aosDelay === 'number' ? { 'data-aos-delay': String(aosDelay) } : {})}
+    {...typeof aosDelay === 'number' ? { 'data-aos-delay': String(aosDelay) } : {}}
   >
     <div class={featured ? 'md:w-1/3' : 'w-full'}>
       <a
@@ -102,127 +99,133 @@ const localizedUrl = localizePath(locale, url);
 
     <div class:list={['flex flex-col flex-grow', featured ? 'p-6 md:w-2/3' : 'p-6']}>
       <div class="flex-grow">
-      {
-        category && (
-          <div class="mb-2">
-            <a
-              href={localizePath(
-                locale,
-                `/blog/kategorie/${typeof category === 'string' ? category.toLowerCase() : 'allgemein'}`
-              )}
-              class="relative z-10 inline-flex items-center px-3 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400 hover:bg-emerald-200 dark:hover:bg-emerald-800/50 transition-colors"
-              data-itemprop="articleSection"
-            >
-              {category}
-            </a>
-          </div>
-        )
-      }
-
-      <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-2">
-        <a
-          href={localizedUrl}
-          class="relative z-10 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 dark:focus-visible:ring-offset-slate-900"
-        >
-          <span class="absolute inset-0" aria-hidden="true"></span>
-          {title}
-        </a>
-      </h2>
-
-      <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-3">
-        <time
-          datetime={(data.pubDate instanceof Date ? data.pubDate : new Date(String(data.pubDate))).toISOString()}
-          class="whitespace-nowrap"
-          data-itemprop="datePublished"
-        >
-          {formattedPubDate}
-        </time>
         {
-          readingTime && (
-            <>
-              <span class="mx-1">•</span>
-              <span>{readingTime.text}</span>
-            </>
+          category && (
+            <div class="mb-2">
+              <a
+                href={localizePath(
+                  locale,
+                  `/blog/kategorie/${typeof category === 'string' ? category.toLowerCase() : 'allgemein'}`
+                )}
+                class="relative z-10 inline-flex items-center px-3 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400 hover:bg-emerald-200 dark:hover:bg-emerald-800/50 transition-colors"
+                data-itemprop="articleSection"
+              >
+                {category}
+              </a>
+            </div>
           )
         }
-        <span class="mx-1">•</span>
-        <a
-          href={`${localizedUrl}#comments`}
-          class="inline-flex items-center gap-1 text-gray-600 hover:text-emerald-600 dark:text-gray-300 dark:hover:text-emerald-400 transition-colors"
-          aria-label="Kommentare ansehen"
-        >
-          <span aria-hidden="true">💬</span>
-          <span id={`cc-${post.slug}`} data-entity-type="blog_post" data-entity-id={post.slug}
-            >0</span
-          >
-          <span>Kommentare</span>
-        </a>
-        <span class="mx-1">•</span>
-        <span
-          class="inline-flex items-center gap-1 text-gray-600 dark:text-gray-300"
-          aria-label="Aufrufe"
-        >
-          <span aria-hidden="true">👁️</span>
-          <span id={`pv-${post.slug}`} data-pv-slug={post.slug}>0</span>
-        </span>
-      </div>
 
-      {
-        description && (
-          <p class="mb-4 text-gray-600 dark:text-gray-300 line-clamp-3 flex-grow">{description}</p>
-        )
-      }
-    </div>
-    <div class="mt-auto pt-2">
-      <a
-        href={localizedUrl}
-        class="group/readmore inline-flex items-center text-emerald-600 hover:text-emerald-500 dark:text-emerald-400 dark:hover:text-emerald-300 transition-colors"
-        data-itemprop="url"
-        aria-label={`Weiterlesen: ${title}`}
-      >
-        Weiterlesen
-        <ArrowRightCircleIcon
-          class="ml-2 h-5 w-5 transition-transform group-hover/readmore:translate-x-1"
-        />
-      </a>
+        <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-2">
+          <a
+            href={localizedUrl}
+            class="relative z-10 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 dark:focus-visible:ring-offset-slate-900"
+          >
+            <span class="absolute inset-0" aria-hidden="true"></span>
+            {title}
+          </a>
+        </h2>
+
+        <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-3">
+          <time
+            datetime={(data.pubDate instanceof Date
+              ? data.pubDate
+              : new Date(String(data.pubDate))
+            ).toISOString()}
+            class="whitespace-nowrap"
+            data-itemprop="datePublished"
+          >
+            {formattedPubDate}
+          </time>
+          {
+            readingTime && (
+              <>
+                <span class="mx-1">•</span>
+                <span>{readingTime.text}</span>
+              </>
+            )
+          }
+          <span class="mx-1">•</span>
+          <a
+            href={`${localizedUrl}#comments`}
+            class="inline-flex items-center gap-1 text-gray-600 hover:text-emerald-600 dark:text-gray-300 dark:hover:text-emerald-400 transition-colors"
+            aria-label="Kommentare ansehen"
+          >
+            <span aria-hidden="true">💬</span>
+            <span id={`cc-${post.slug}`} data-entity-type="blog_post" data-entity-id={post.slug}
+              >0</span
+            >
+            <span>Kommentare</span>
+          </a>
+          <span class="mx-1">•</span>
+          <span
+            class="inline-flex items-center gap-1 text-gray-600 dark:text-gray-300"
+            aria-label="Aufrufe"
+          >
+            <span aria-hidden="true">👁️</span>
+            <span id={`pv-${post.slug}`} data-pv-slug={post.slug}>0</span>
+          </span>
+        </div>
+
+        {
+          description && (
+            <p class="mb-4 text-gray-600 dark:text-gray-300 line-clamp-3 flex-grow">
+              {description}
+            </p>
+          )
+        }
+      </div>
+      <div class="mt-auto pt-2">
+        <a
+          href={localizedUrl}
+          class="group/readmore inline-flex items-center text-emerald-600 hover:text-emerald-500 dark:text-emerald-400 dark:hover:text-emerald-300 transition-colors"
+          data-itemprop="url"
+          aria-label={`Weiterlesen: ${title}`}
+        >
+          Weiterlesen
+          <ArrowRightCircleIcon
+            class="ml-2 h-5 w-5 transition-transform group-hover/readmore:translate-x-1"
+          />
+        </a>
+      </div>
     </div>
   </Card>
+
+  <script is:inline>
+    try {
+      const nodes = document.querySelectorAll('[id^="cc-"][data-entity-type][data-entity-id]');
+      nodes.forEach((el) => {
+        const entityType = el.getAttribute('data-entity-type') || 'blog_post';
+        const entityId = el.getAttribute('data-entity-id');
+        if (!entityId) return;
+        const endpoint = `/api/comments/count?entityType=${encodeURIComponent(entityType)}&entityId=${encodeURIComponent(entityId)}`;
+        fetch(endpoint)
+          .then((r) => (r.ok ? r.json() : Promise.reject(new Error('bad response'))))
+          .then((json) => {
+            const c = json?.data?.count ?? 0;
+            el.textContent = String(c);
+          })
+          .catch(() => {
+            // keep default on failure
+          });
+      });
+
+      // Fetch page view counts for cards
+      const pvNodes = document.querySelectorAll('[id^="pv-"][data-pv-slug]');
+      pvNodes.forEach((el) => {
+        const slug = el.getAttribute('data-pv-slug');
+        if (!slug) return;
+        const url = `/api/analytics/views?slug=${encodeURIComponent(slug)}`;
+        fetch(url)
+          .then((r) => (r.ok ? r.json() : Promise.reject(new Error('bad response'))))
+          .then((json) => {
+            const c = json?.data?.count ?? 0;
+            el.textContent = String(c);
+          })
+          .catch(() => {
+            // keep default 0 on failure
+          });
+      });
+    } catch {}
+  </script>
 </article>
-
-<script is:inline>
-  try {
-    const nodes = document.querySelectorAll('[id^="cc-"][data-entity-type][data-entity-id]');
-    nodes.forEach((el) => {
-      const entityType = el.getAttribute('data-entity-type') || 'blog_post';
-      const entityId = el.getAttribute('data-entity-id');
-      if (!entityId) return;
-      const endpoint = `/api/comments/count?entityType=${encodeURIComponent(entityType)}&entityId=${encodeURIComponent(entityId)}`;
-      fetch(endpoint)
-        .then((r) => (r.ok ? r.json() : Promise.reject(new Error('bad response'))))
-        .then((json) => {
-          const c = json?.data?.count ?? 0;
-          el.textContent = String(c);
-        })
-        .catch(() => {
-          // keep default on failure
-        });
-    });
-
-    // Fetch page view counts for cards
-    const pvNodes = document.querySelectorAll('[id^="pv-"][data-pv-slug]');
-    pvNodes.forEach((el) => {
-      const slug = el.getAttribute('data-pv-slug');
-      if (!slug) return;
-      const url = `/api/analytics/views?slug=${encodeURIComponent(slug)}`;
-      fetch(url)
-        .then((r) => (r.ok ? r.json() : Promise.reject(new Error('bad response'))))
-        .then((json) => {
-          const c = json?.data?.count ?? 0;
-          el.textContent = String(c);
-        })
-        .catch(() => {
-          // keep default 0 on failure
-        });
-    });
-  } catch {}
-</script>

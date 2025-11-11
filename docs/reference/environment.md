@@ -5,6 +5,7 @@ owner: Platform Team
 priority: medium
 lastSync: 2025-11-03
 codeRefs: .env.example, wrangler.toml, src/config/**
+testRefs: 'N/A'
 ---
 
 <!-- markdownlint-disable MD051 -->

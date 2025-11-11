@@ -4,6 +4,7 @@ owner: 'Platform Team'
 priority: 'low'
 lastSync: '2025-11-03'
 codeRefs: 'package.json, docs/cheat-sheet.md'
+testRefs: 'N/A'
 ---
 
 <!-- markdownlint-disable MD051 -->

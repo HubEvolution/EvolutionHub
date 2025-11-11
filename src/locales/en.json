@@ -145,6 +145,16 @@
         "Imag-Enhancer": {
           "name": "Imag-Enhancer",
           "description": "Automatically improves image quality: AI denoising, detail sharpening, high‑quality upscaling, and color/contrast optimization — adjustable for single images and batches.",
+          "modal": {
+            "headline": "Enhance every pixel",
+            "summary": "AI-powered enhancements for noise reduction, upscale quality, and precise color tuning.",
+            "features": [
+              "Advanced denoising and detail restoration",
+              "Configurable upscale strengths and presets",
+              "Before/after compare with loupe and zoom",
+              "Supports batch uploads with usage tracking"
+            ]
+          },
           "app": {
             "dropText": "Drop an image here or click to select",
             "enhance": "Enhance",
@@ -226,7 +236,17 @@
         },
         "prompt-enhancer": {
           "name": "Prompt Enhancer",
-          "description": "Refine your prompts for clarity and impact. Choose styles like Creative, Professional or Concise and get high‑quality outputs."
+          "description": "Refine your prompts for clarity and impact. Choose styles like Creative, Professional or Concise and get high‑quality outputs.",
+          "modal": {
+            "headline": "Draft better prompts",
+            "summary": "Improve clarity, tone, and structure with guided modes and safety checks.",
+            "features": [
+              "Style presets for creative, professional, or concise outputs",
+              "Optional context files and URL imports",
+              "Safety heuristics and usage overview",
+              "Copy-ready results in a single click"
+            ]
+          }
         },
         "Prompt-Enhancer": {
           "name": "Prompt Enhancer",
@@ -234,15 +254,45 @@
         },
         "voice-visualizer": {
           "name": "Voice Visualizer & Transcriber",
-          "description": "Record audio, see a live waveform, and get instant transcriptions. Designed for speed, clarity and low friction."
+          "description": "Record audio, see a live waveform, and get instant transcriptions. Designed for speed, clarity and low friction.",
+          "modal": {
+            "headline": "Transcribe in real time",
+            "summary": "Record audio, monitor the waveform, and receive instant transcripts with usage controls.",
+            "features": [
+              "Live waveform with recording controls",
+              "Chunked transcription with quotas",
+              "Downloadable transcripts and session history",
+              "Same-origin secured upload with CSP protection"
+            ]
+          }
         },
         "webscraper": {
           "name": "Webscraper",
-          "description": "Extract clean text from web pages safely. SSRF‑hardened, format‑aware, with usage limits and clear error feedback."
+          "description": "Extract clean text from web pages safely. SSRF‑hardened, format‑aware, with usage limits and clear error feedback.",
+          "modal": {
+            "headline": "Scrape safely",
+            "summary": "Retrieve structured content with SSRF protection, quotas, and clean formatting.",
+            "features": [
+              "SSRF-hardened requests with a port allow list",
+              "Markdown and plain-text output options",
+              "Rate limits and daily quotas per plan",
+              "Detailed validation and error reporting"
+            ]
+          }
         },
         "video-enhancer": {
           "name": "Video Enhancer",
-          "description": "Upscale and enhance your videos with AI. Sharper details, reduced noise, better clarity — fast and consistent."
+          "description": "Upscale and enhance your videos with AI. Sharper details, reduced noise, better clarity — fast and consistent.",
+          "modal": {
+            "headline": "Upscale every frame",
+            "summary": "AI-powered video enhancement with upscaling, denoising, and usage tracking.",
+            "features": [
+              "2× and 4× upscaling with crisp sharpening",
+              "Denoising tuned for faces and fine detail",
+              "R2-backed uploads with temporary storage",
+              "Usage quotas aligned with your plan"
+            ]
+          }
         }
       },
       "details": {
@@ -320,7 +370,12 @@
       },
       "card": {
         "more": "Learn more",
-        "more_about_prefix": "More about"
+        "more_about_prefix": "More about",
+        "direct": "Launch tool"
+      },
+      "modal": {
+        "close": "Close",
+        "featuresHeading": "Key features"
       },
       "all": "All tools",
       "categories": {
@@ -422,11 +477,21 @@
         }
       },
       "features_poetic": {
-        "feature1": { "description": "Turn noisy shadows into clear worlds." },
-        "feature2": { "description": "Let words take flight and ideas grow." },
-        "feature3": { "description": "Hear thoughts clearer than ever." },
-        "feature4": { "description": "Teach pages to speak in structure." },
-        "feature5": { "description": "Where frames learn to breathe again." }
+        "feature1": {
+          "description": "Turn noisy shadows into clear worlds."
+        },
+        "feature2": {
+          "description": "Let words take flight and ideas grow."
+        },
+        "feature3": {
+          "description": "Hear thoughts clearer than ever."
+        },
+        "feature4": {
+          "description": "Teach pages to speak in structure."
+        },
+        "feature5": {
+          "description": "Where frames learn to breathe again."
+        }
       },
       "testimonials": {
         "heading": "What our users say about our tools",
@@ -913,29 +978,26 @@
           "100": {
             "title": "Starter pack",
             "price": "€6.00",
-            "description": "Perfect when you just need a few more runs.",
+            "description": "Perfect when you only need a few more runs.",
             "bullets": [
-              "100 additional credits added instantly",
-              "Use across all tools without plan changes"
+              "100 additional credits credited immediately",
+              "Works across every tool without changing plans"
             ],
             "cta": "Buy 100 credits"
           },
           "500": {
             "title": "Creator pack",
             "price": "€22.00",
-            "description": "Ideal for weekly projects and team workloads.",
-            "bullets": [
-              "500 credits for larger batches",
-              "Keeps daily burst limits untouched"
-            ],
+            "description": "Ideal for weekly projects and collaborative workflows.",
+            "bullets": ["500 credits for larger batches", "Preserves your daily burst allowance"],
             "cta": "Buy 500 credits"
           },
           "1500": {
             "title": "Pro pack",
             "price": "€55.00",
-            "description": "Best value for agencies and production pipelines.",
+            "description": "Best value for agencies and production teams.",
             "bullets": [
-              "1,500 credits available immediately",
+              "1,500 credits available instantly",
               "Shareable across your entire workspace"
             ],
             "cta": "Buy 1,500 credits"

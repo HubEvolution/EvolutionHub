@@ -5,7 +5,11 @@ import {
   createApiSuccess,
   createMethodNotAllowed,
 } from '@/lib/api-middleware';
-import { sensitiveActionLimiter, resetLimiterKey } from '@/lib/rate-limiter';
+import {
+  sensitiveActionLimiter,
+  resetLimiterKey,
+  type AnyEnv,
+} from '@/lib/rate-limiter';
 import { requireAdmin } from '@/lib/auth-helpers';
 import type { AdminBindings } from '@/lib/types/admin';
 
@@ -17,14 +21,15 @@ interface ResetBody {
 export const POST = withAuthApiMiddleware(
   async (context: APIContext) => {
     const { locals, request } = context;
-    const env = (locals.runtime?.env ?? {}) as AdminBindings;
+    const runtimeEnv = (locals.runtime?.env ?? {}) as AnyEnv;
+    const adminEnv = runtimeEnv as AdminBindings;
 
-    if (!env.DB) {
+    if (!adminEnv.DB) {
       return createApiError('server_error', 'Infrastructure unavailable');
     }
 
     try {
-      await requireAdmin({ request: context.request, env: { DB: env.DB } });
+      await requireAdmin({ request: context.request, env: { DB: adminEnv.DB } });
     } catch {
       return createApiError('forbidden', 'Insufficient permissions');
     }
@@ -40,7 +45,7 @@ export const POST = withAuthApiMiddleware(
     const key = (body?.key || '').trim();
     if (!name || !key) return createApiError('validation_error', 'name and key are required');
 
-    const ok = resetLimiterKey(name, key);
+    const ok = await resetLimiterKey(name, key, { env: runtimeEnv });
     return createApiSuccess({ ok });
   },
   {

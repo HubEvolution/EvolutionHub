@@ -2,6 +2,12 @@
 status: draft
 date: '2025-11-03'
 supersededBy: ''
+description: 'Template für neue Architecture Decision Records innerhalb von Evolution Hub.'
+owner: 'team:architecture'
+priority: 'low'
+lastSync: '2025-11-11'
+codeRefs: 'docs/architecture/adrs/README.md'
+testRefs: 'N/A'
 ---
 
 <!-- markdownlint-disable MD051 -->

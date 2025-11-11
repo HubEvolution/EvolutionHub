@@ -67,9 +67,7 @@ const performanceSortOrders = ['asc', 'desc'] as const;
 
 export const recentCommentsQuerySchema = z
   .object({
-    limit: z
-      .preprocess(coerceSearchParam, z.coerce.number().int().min(1).max(10))
-      .optional(),
+    limit: z.preprocess(coerceSearchParam, z.coerce.number().int().min(1).max(10)).optional(),
   })
   .transform(({ limit }) => ({ limit: limit ?? 5 }));
 
@@ -121,9 +119,7 @@ export const commentListQuerySchema = z
         return Number.isFinite(n) ? Math.trunc(n) : NaN;
       }, z.number().int().min(0).max(10000).optional())
       .optional(),
-    includeReplies: z
-      .preprocess(coerceBooleanParam, z.boolean().optional())
-      .optional(),
+    includeReplies: z.preprocess(coerceBooleanParam, z.boolean().optional()).optional(),
     debug: z
       .preprocess((value) => {
         const v = coerceSearchParam(value);
@@ -144,13 +140,10 @@ export const commentListQuerySchema = z
 
 export const commentCountQuerySchema = z
   .object({
-    entityType: z.preprocess(
-      (value) => {
-        const v = coerceSearchParam(value);
-        return v === undefined ? undefined : v;
-      },
-      z.enum(commentEntityTypes)
-    ),
+    entityType: z.preprocess((value) => {
+      const v = coerceSearchParam(value);
+      return v === undefined ? undefined : v;
+    }, z.enum(commentEntityTypes)),
     entityId: z
       .preprocess(coerceStringArray, z.array(z.string().min(1)).min(1))
       .transform((value) => value),
@@ -199,7 +192,10 @@ export const commentPerformancePostIdParamSchema = z
 export const commentPerformancePaginationQuerySchema = z
   .object({
     page: z
-      .preprocess((value) => coerceNumberParam(value, { min: 1 }), z.number().int().min(1).default(1))
+      .preprocess(
+        (value) => coerceNumberParam(value, { min: 1 }),
+        z.number().int().min(1).default(1)
+      )
       .optional(),
     limit: z
       .preprocess(
@@ -208,30 +204,22 @@ export const commentPerformancePaginationQuerySchema = z
       )
       .optional(),
     sortBy: z
-      .preprocess(
-        (value) => {
-          const coerced = coerceSearchParam(value);
-          if (coerced === undefined) return undefined;
-          const normalized = String(coerced) as (typeof performanceSortFields)[number];
-          return performanceSortFields.includes(normalized) ? normalized : undefined;
-        },
-        z.enum(performanceSortFields).default('createdAt')
-      )
+      .preprocess((value) => {
+        const coerced = coerceSearchParam(value);
+        if (coerced === undefined) return undefined;
+        const normalized = String(coerced) as (typeof performanceSortFields)[number];
+        return performanceSortFields.includes(normalized) ? normalized : undefined;
+      }, z.enum(performanceSortFields).default('createdAt'))
       .optional(),
     sortOrder: z
-      .preprocess(
-        (value) => {
-          const coerced = coerceSearchParam(value);
-          if (coerced === undefined) return undefined;
-          const normalized = String(coerced) as (typeof performanceSortOrders)[number];
-          return performanceSortOrders.includes(normalized) ? normalized : undefined;
-        },
-        z.enum(performanceSortOrders).default('desc')
-      )
+      .preprocess((value) => {
+        const coerced = coerceSearchParam(value);
+        if (coerced === undefined) return undefined;
+        const normalized = String(coerced) as (typeof performanceSortOrders)[number];
+        return performanceSortOrders.includes(normalized) ? normalized : undefined;
+      }, z.enum(performanceSortOrders).default('desc'))
       .optional(),
-    includeReplies: z
-      .preprocess(coerceBooleanParam, z.boolean().default(false))
-      .optional(),
+    includeReplies: z.preprocess(coerceBooleanParam, z.boolean().default(false)).optional(),
     maxDepth: z
       .preprocess(
         (value) => coerceNumberParam(value, { min: 1, max: 10 }),
@@ -252,15 +240,21 @@ export const commentPerformancePaginationQuerySchema = z
 export const commentPerformanceSearchQuerySchema = z
   .object({
     q: z
-      .preprocess((value) => {
-        const coerced = coerceSearchParam(value);
-        if (coerced === undefined) return undefined;
-        const trimmed = String(coerced).trim();
-        return trimmed.length > 0 ? trimmed : undefined;
-      }, z.string().min(1, 'Search query is required'))
+      .preprocess(
+        (value) => {
+          const coerced = coerceSearchParam(value);
+          if (coerced === undefined) return undefined;
+          const trimmed = String(coerced).trim();
+          return trimmed.length > 0 ? trimmed : undefined;
+        },
+        z.string().min(1, 'Search query is required')
+      )
       .default(''),
     page: z
-      .preprocess((value) => coerceNumberParam(value, { min: 1 }), z.number().int().min(1).default(1))
+      .preprocess(
+        (value) => coerceNumberParam(value, { min: 1 }),
+        z.number().int().min(1).default(1)
+      )
       .optional(),
     limit: z
       .preprocess(
@@ -269,10 +263,16 @@ export const commentPerformanceSearchQuerySchema = z
       )
       .optional(),
     status: z
-      .preprocess((value) => coerceStringArray(value), z.array(z.string()).max(5).default(['approved']))
+      .preprocess(
+        (value) => coerceStringArray(value),
+        z.array(z.string()).max(5).default(['approved'])
+      )
       .optional(),
     authorId: z
-      .preprocess((value) => coerceNumberArray(value), z.array(z.number().int().positive()).max(10).default([]))
+      .preprocess(
+        (value) => coerceNumberArray(value),
+        z.array(z.number().int().positive()).max(10).default([])
+      )
       .optional(),
     dateFrom: z
       .preprocess((value) => coerceNumberParam(value), z.number().int().positive().optional())
@@ -282,7 +282,10 @@ export const commentPerformanceSearchQuerySchema = z
       .optional(),
     hasReplies: z.preprocess(coerceBooleanParam, z.boolean().optional()).optional(),
     minLikes: z
-      .preprocess((value) => coerceNumberParam(value, { min: 0 }), z.number().int().min(0).optional())
+      .preprocess(
+        (value) => coerceNumberParam(value, { min: 0 }),
+        z.number().int().min(0).optional()
+      )
       .optional(),
   })
   .strict()
@@ -308,7 +311,10 @@ export const commentPerformanceSearchQuerySchema = z
 export const commentPerformanceBatchQuerySchema = z
   .object({
     page: z
-      .preprocess((value) => coerceNumberParam(value, { min: 1 }), z.number().int().min(1).default(1))
+      .preprocess(
+        (value) => coerceNumberParam(value, { min: 1 }),
+        z.number().int().min(1).default(1)
+      )
       .optional(),
     limit: z
       .preprocess(
@@ -317,11 +323,12 @@ export const commentPerformanceBatchQuerySchema = z
       )
       .optional(),
     offset: z
-      .preprocess((value) => coerceNumberParam(value, { min: 0 }), z.number().int().min(0).default(0))
+      .preprocess(
+        (value) => coerceNumberParam(value, { min: 0 }),
+        z.number().int().min(0).default(0)
+      )
       .optional(),
-    includeReplies: z
-      .preprocess(coerceBooleanParam, z.boolean().default(false))
-      .optional(),
+    includeReplies: z.preprocess(coerceBooleanParam, z.boolean().default(false)).optional(),
   })
   .strict()
   .transform((value) => ({
@@ -342,6 +349,8 @@ export type CommentUpdatePayload = z.infer<typeof commentUpdateSchema>;
 export type CommentIdParamInput = z.input<typeof commentIdParamSchema>;
 export type CommentIdParam = z.infer<typeof commentIdParamSchema>;
 export type CommentPerformancePostIdParam = z.infer<typeof commentPerformancePostIdParamSchema>;
-export type CommentPerformancePaginationQuery = z.infer<typeof commentPerformancePaginationQuerySchema>;
+export type CommentPerformancePaginationQuery = z.infer<
+  typeof commentPerformancePaginationQuerySchema
+>;
 export type CommentPerformanceSearchQuery = z.infer<typeof commentPerformanceSearchQuerySchema>;
 export type CommentPerformanceBatchQuery = z.infer<typeof commentPerformanceBatchQuerySchema>;

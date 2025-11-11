@@ -4,6 +4,7 @@ owner: 'Frontend Team'
 priority: 'high'
 lastSync: '2025-11-04'
 codeRefs: 'src/styles/tokens/**, tailwind.config.js, docs/frontend/design-system.md'
+testRefs: 'N/A'
 ---
 
 <!-- markdownlint-disable MD051 -->

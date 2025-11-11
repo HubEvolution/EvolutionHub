@@ -1,0 +1,734 @@
+{
+  "brokenLinks": [
+    {
+      "source": "architecture.md",
+      "line": 19,
+      "target": "package.json:56"
+    },
+    {
+      "source": "architecture.md",
+      "line": 21,
+      "target": "package.json:75"
+    },
+    {
+      "source": "architecture.md",
+      "line": 23,
+      "target": "package.json:115"
+    },
+    {
+      "source": "architecture.md",
+      "line": 27,
+      "target": "package.json:74"
+    },
+    {
+      "source": "architecture.md",
+      "line": 29,
+      "target": "package.json:57"
+    },
+    {
+      "source": "architecture.md",
+      "line": 33,
+      "target": "package.json:6"
+    },
+    {
+      "source": "architecture.md",
+      "line": 43,
+      "target": "package.json:72"
+    },
+    {
+      "source": "architecture.md",
+      "line": 49,
+      "target": "package.json:73"
+    },
+    {
+      "source": "architecture.md",
+      "line": 51,
+      "target": "package.json:66"
+    },
+    {
+      "source": "architecture.md",
+      "line": 55,
+      "target": "src/lib/rate-limiter.ts:1"
+    },
+    {
+      "source": "architecture.md",
+      "line": 57,
+      "target": "src/lib/security-headers.ts:1"
+    },
+    {
+      "source": "architecture.md",
+      "line": 59,
+      "target": "src/lib/security-logger.ts:1"
+    },
+    {
+      "source": "architecture.md",
+      "line": 59,
+      "target": "src/server/utils/logger.ts:42"
+    },
+    {
+      "source": "architecture.md",
+      "line": 63,
+      "target": "package.json:120"
+    },
+    {
+      "source": "architecture.md",
+      "line": 65,
+      "target": "package.json:90"
+    },
+    {
+      "source": "architecture.md",
+      "line": 67,
+      "target": "package.json:88, src entries"
+    },
+    {
+      "source": "architecture.md",
+      "line": 71,
+      "target": "package.json:78"
+    },
+    {
+      "source": "architecture.md",
+      "line": 73,
+      "target": "src/lib/notify.ts:1"
+    },
+    {
+      "source": "architecture.md",
+      "line": 77,
+      "target": "package.json:81"
+    },
+    {
+      "source": "architecture.md",
+      "line": 113,
+      "target": "src/lib/api-middleware.ts:1"
+    },
+    {
+      "source": "architecture.md",
+      "line": 113,
+      "target": "src/lib/response-helpers.ts:1"
+    },
+    {
+      "source": "architecture.md",
+      "line": 136,
+      "target": "src/components:1"
+    },
+    {
+      "source": "architecture.md",
+      "line": 140,
+      "target": "src/lib/rate-limiter.ts:1"
+    },
+    {
+      "source": "architecture.md",
+      "line": 142,
+      "target": "src/lib/security-headers.ts:59"
+    },
+    {
+      "source": "architecture.md",
+      "line": 144,
+      "target": "src/server/utils/logger.ts:37"
+    },
+    {
+      "source": "architecture.md",
+      "line": 144,
+      "target": "src/components/ui/DebugPanel.tsx:39"
+    },
+    {
+      "source": "architecture.md",
+      "line": 152,
+      "target": "package.json:11"
+    },
+    {
+      "source": "architecture.md",
+      "line": 154,
+      "target": "package.json:6-13"
+    },
+    {
+      "source": "architecture.md",
+      "line": 156,
+      "target": "package.json:10"
+    },
+    {
+      "source": "architecture.md",
+      "line": 162,
+      "target": "package.json:17"
+    },
+    {
+      "source": "architecture.md",
+      "line": 170,
+      "target": "src/lib/rate-limiter.ts:1"
+    },
+    {
+      "source": "architecture.md",
+      "line": 172,
+      "target": "src/lib/security-headers.ts:1"
+    },
+    {
+      "source": "architecture.md",
+      "line": 174,
+      "target": "src/lib/security-logger.ts:1"
+    },
+    {
+      "source": "architecture.md",
+      "line": 176,
+      "target": "src/server/utils/logger.ts:37"
+    },
+    {
+      "source": "architecture.md",
+      "line": 178,
+      "target": "src/lib/i18n.ts:12"
+    },
+    {
+      "source": "architecture.md",
+      "line": 178,
+      "target": "src/utils/i18n.ts:23"
+    },
+    {
+      "source": "architecture.md",
+      "line": 212,
+      "target": "package.json:1"
+    },
+    {
+      "source": "architecture.md",
+      "line": 214,
+      "target": "package.json:6"
+    },
+    {
+      "source": "animation.md",
+      "line": 19,
+      "target": "src/components/scripts/TypewriterComponent.astro:1"
+    },
+    {
+      "source": "animation.md",
+      "line": 21,
+      "target": "src/lib/typewriter.ts:7"
+    },
+    {
+      "source": "animation.md",
+      "line": 23,
+      "target": "src/lib/typewriter.js:1"
+    },
+    {
+      "source": "animation.md",
+      "line": 42,
+      "target": "src/pages/de/index.astro:29"
+    },
+    {
+      "source": "animation.md",
+      "line": 44,
+      "target": "src/pages/en/index.astro:43"
+    },
+    {
+      "source": "animation.md",
+      "line": 56,
+      "target": "src/lib/typewriter.ts:7"
+    },
+    {
+      "source": "animation.md",
+      "line": 63,
+      "target": "src/lib/typewriter.js:1"
+    },
+    {
+      "source": "animation.md",
+      "line": 73,
+      "target": "src/utils/i18n.ts:1"
+    },
+    {
+      "source": "animation.md",
+      "line": 85,
+      "target": "src/pages/index.astro:6"
+    },
+    {
+      "source": "content.md",
+      "line": 269,
+      "target": "./features/blog-system.md"
+    },
+    {
+      "source": "db_schema_update.md",
+      "line": 213,
+      "target": "migrations:1"
+    },
+    {
+      "source": "db_schema_update.md",
+      "line": 215,
+      "target": "src/lib/services/ai-image-service.ts:1"
+    },
+    {
+      "source": "db_schema_update.md",
+      "line": 217,
+      "target": "src/lib/services/ai-jobs-service.ts:1"
+    },
+    {
+      "source": "tools/image-enhancer.md",
+      "line": 955,
+      "target": "../architecture/api-middleware.md"
+    },
+    {
+      "source": "tools/image-enhancer.md",
+      "line": 957,
+      "target": "../architecture/entitlements.md"
+    },
+    {
+      "source": "tools/image-enhancer.md",
+      "line": 959,
+      "target": "../infrastructure/cloudflare-r2.md"
+    },
+    {
+      "source": "tools/webscraper/README.md",
+      "line": 18,
+      "target": "./webscraper-overview.md"
+    },
+    {
+      "source": "tools/webscraper/README.md",
+      "line": 20,
+      "target": "./api.md"
+    },
+    {
+      "source": "tools/webscraper/README.md",
+      "line": 22,
+      "target": "./configuration.md"
+    },
+    {
+      "source": "tools/webscraper/README.md",
+      "line": 26,
+      "target": "./usage-examples.md"
+    },
+    {
+      "source": "tools/webscraper/README.md",
+      "line": 28,
+      "target": "./rate-limiting.md"
+    },
+    {
+      "source": "tools/webscraper/README.md",
+      "line": 30,
+      "target": "./security.md"
+    },
+    {
+      "source": "tools/webscraper/README.md",
+      "line": 54,
+      "target": "./setup.md"
+    },
+    {
+      "source": "tools/webscraper/README.md",
+      "line": 56,
+      "target": "./dependencies.md"
+    },
+    {
+      "source": "tools/webscraper/README.md",
+      "line": 58,
+      "target": "./auth.md"
+    },
+    {
+      "source": "tools/webscraper/README.md",
+      "line": 62,
+      "target": "./frontend.md"
+    },
+    {
+      "source": "tools/webscraper/README.md",
+      "line": 64,
+      "target": "./backend.md"
+    },
+    {
+      "source": "tools/webscraper/README.md",
+      "line": 70,
+      "target": "../api/"
+    },
+    {
+      "source": "tools/webscraper/README.md",
+      "line": 72,
+      "target": "../security/"
+    },
+    {
+      "source": "tools/webscraper/README.md",
+      "line": 74,
+      "target": "../development/"
+    },
+    {
+      "source": "frontend/coming-soon.md",
+      "line": 116,
+      "target": "public/assets/coming-soon-client.js"
+    },
+    {
+      "source": "development/testing-guidelines.md",
+      "line": 96,
+      "target": "header, message, data|undefined"
+    },
+    {
+      "source": "development/testing-guidelines.md",
+      "line": 98,
+      "target": "header, message, [extra], data|undefined"
+    },
+    {
+      "source": "development/README.md",
+      "line": 40,
+      "target": "./auth-flow-audit-phase1.md"
+    },
+    {
+      "source": "development/README.md",
+      "line": 50,
+      "target": "./dashboard-apis.md"
+    },
+    {
+      "source": "development/README.md",
+      "line": 52,
+      "target": "./dashboard-components.md"
+    },
+    {
+      "source": "development/README.md",
+      "line": 189,
+      "target": "./auth-flow-audit-phase1.md"
+    },
+    {
+      "source": "development/prs/coming-soon-pr-template.md",
+      "line": 72,
+      "target": "../../../tests/e2e/specs/coming-soon.spec.ts"
+    },
+    {
+      "source": "rules-provisional/api-and-security.md",
+      "line": 16,
+      "target": "cci:1://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/lib/api-middleware.ts:348:0-473:1"
+    },
+    {
+      "source": "rules-provisional/api-and-security.md",
+      "line": 16,
+      "target": "cci:1://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/lib/api-middleware.ts:475:0-510:1"
+    },
+    {
+      "source": "rules-provisional/api-and-security.md",
+      "line": 18,
+      "target": "cci:1://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/lib/api-middleware.ts:331:0-346:1"
+    },
+    {
+      "source": "rules-provisional/api-and-security.md",
+      "line": 19,
+      "target": "cci:1://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/lib/api-middleware.ts:303:0-329:1"
+    },
+    {
+      "source": "rules-provisional/api-and-security.md",
+      "line": 20,
+      "target": "cci:1://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/lib/api-middleware.ts:60:0-82:1"
+    },
+    {
+      "source": "rules-provisional/api-and-security.md",
+      "line": 28,
+      "target": "cci:7://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/middleware.ts:0:0-0:0"
+    },
+    {
+      "source": "rules-provisional/api-and-security.md",
+      "line": 47,
+      "target": "cci:1://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/lib/api-middleware.ts:512:0-565:1"
+    },
+    {
+      "source": "features/admin-notifications.md",
+      "line": 177,
+      "target": "../development/comment-system-implementation.md"
+    },
+    {
+      "source": "features/blog+commentsystem-plan.md",
+      "line": 87,
+      "target": "../../src/pages/blog/%5B...slug%5D.astro"
+    },
+    {
+      "source": "architecture/database-schema.md",
+      "line": 60,
+      "target": "../../features/comment-system.md"
+    },
+    {
+      "source": "architecture/database-schema.md",
+      "line": 60,
+      "target": "../../development/comment-system-implementation.md"
+    },
+    {
+      "source": "architecture/database-schema.md",
+      "line": 67,
+      "target": "../../features/blog-system.md"
+    },
+    {
+      "source": "lead-magnets/README.md",
+      "line": 18,
+      "target": "./content-strategy.md"
+    },
+    {
+      "source": "lead-magnets/README.md",
+      "line": 20,
+      "target": "./lead-magnet-creation.md"
+    },
+    {
+      "source": "lead-magnets/README.md",
+      "line": 22,
+      "target": "./blog-guidelines.md"
+    },
+    {
+      "source": "lead-magnets/README.md",
+      "line": 26,
+      "target": "./newsletter-setup.md"
+    },
+    {
+      "source": "lead-magnets/README.md",
+      "line": 28,
+      "target": "./seo-optimization.md"
+    },
+    {
+      "source": "lead-magnets/README.md",
+      "line": 30,
+      "target": "./analytics.md"
+    },
+    {
+      "source": "lead-magnets/README.md",
+      "line": 36,
+      "target": "./blog-categories.md"
+    },
+    {
+      "source": "lead-magnets/README.md",
+      "line": 38,
+      "target": "./writing-guidelines.md"
+    },
+    {
+      "source": "lead-magnets/README.md",
+      "line": 40,
+      "target": "./image-guidelines.md"
+    },
+    {
+      "source": "lead-magnets/README.md",
+      "line": 44,
+      "target": "./ebook-creation.md"
+    },
+    {
+      "source": "lead-magnets/README.md",
+      "line": 46,
+      "target": "./template-library.md"
+    },
+    {
+      "source": "lead-magnets/README.md",
+      "line": 48,
+      "target": "./distribution.md"
+    },
+    {
+      "source": "api/api-overview.md",
+      "line": 548,
+      "target": "./postman-collection.json"
+    },
+    {
+      "source": "api/api-overview.md",
+      "line": 550,
+      "target": "./curl-examples.md"
+    },
+    {
+      "source": "api/api-overview.md",
+      "line": 552,
+      "target": "./integration-tests.md"
+    },
+    {
+      "source": "api/api-overview.md",
+      "line": 566,
+      "target": "../../architecture/"
+    },
+    {
+      "source": "api/api-overview.md",
+      "line": 568,
+      "target": "../../development/"
+    },
+    {
+      "source": "api/api-overview.md",
+      "line": 570,
+      "target": "../../security/"
+    },
+    {
+      "source": "api/api-overview.md",
+      "line": 572,
+      "target": "../../testing/"
+    },
+    {
+      "source": "api/api-guidelines.md",
+      "line": 924,
+      "target": "../../lib/api-middleware.ts"
+    },
+    {
+      "source": "api/api-guidelines.md",
+      "line": 926,
+      "target": "../../lib/rate-limiter.ts"
+    },
+    {
+      "source": "api/api-guidelines.md",
+      "line": 928,
+      "target": "../../utils/validation.ts"
+    },
+    {
+      "source": "api/api-guidelines.md",
+      "line": 932,
+      "target": "../../tests/utils/api-helpers.ts"
+    },
+    {
+      "source": "api/api-guidelines.md",
+      "line": 934,
+      "target": "../../tests/utils/mock-context.ts"
+    },
+    {
+      "source": "api/api-guidelines.md",
+      "line": 940,
+      "target": "../../architecture/"
+    },
+    {
+      "source": "api/api-guidelines.md",
+      "line": 942,
+      "target": "../../development/"
+    },
+    {
+      "source": "api/api-guidelines.md",
+      "line": 944,
+      "target": "../../security/"
+    },
+    {
+      "source": "api/api-guidelines.md",
+      "line": 946,
+      "target": "../../testing/"
+    },
+    {
+      "source": "api/prompt-enhance.md",
+      "line": 1050,
+      "target": "../../lib/services/prompt-enhancer-service.ts"
+    },
+    {
+      "source": "api/prompt-enhance.md",
+      "line": 1052,
+      "target": "../../lib/services/prompt-attachments.ts"
+    },
+    {
+      "source": "api/prompt-enhance.md",
+      "line": 1054,
+      "target": "../../lib/rate-limiter.ts"
+    },
+    {
+      "source": "api/prompt-enhance.md",
+      "line": 1060,
+      "target": "../../../test-suite-v2/src/e2e/prompt-enhancer.spec.ts"
+    },
+    {
+      "source": "api/prompt-enhance.md",
+      "line": 1076,
+      "target": "../../architecture/prompt-enhancer.md"
+    },
+    {
+      "source": "api/prompt-enhance.md",
+      "line": 1078,
+      "target": "../../development/"
+    },
+    {
+      "source": "api/prompt-enhance.md",
+      "line": 1080,
+      "target": "../../security/"
+    },
+    {
+      "source": "api/prompt-enhance.md",
+      "line": 1082,
+      "target": "../../testing/"
+    },
+    {
+      "source": "api/rate-limiting-api.md",
+      "line": 1110,
+      "target": "../../lib/rate-limiter.ts"
+    },
+    {
+      "source": "api/rate-limiting-api.md",
+      "line": 1112,
+      "target": "../../lib/api-middleware.ts"
+    },
+    {
+      "source": "api/rate-limiting-api.md",
+      "line": 1114,
+      "target": "../../tests/utils/rate-limit-helpers.ts"
+    },
+    {
+      "source": "api/rate-limiting-api.md",
+      "line": 1126,
+      "target": "../../architecture/"
+    },
+    {
+      "source": "api/rate-limiting-api.md",
+      "line": 1128,
+      "target": "../../security/"
+    },
+    {
+      "source": "api/rate-limiting-api.md",
+      "line": 1130,
+      "target": "../../testing/"
+    },
+    {
+      "source": "api/README.md",
+      "line": 38,
+      "target": "./prompt-usage.md"
+    },
+    {
+      "source": "api/README.md",
+      "line": 42,
+      "target": "./ai-image-generate.md"
+    },
+    {
+      "source": "api/README.md",
+      "line": 44,
+      "target": "./ai-image-jobs.md"
+    },
+    {
+      "source": "api/README.md",
+      "line": 46,
+      "target": "./ai-image-cancel.md"
+    },
+    {
+      "source": "api/README.md",
+      "line": 76,
+      "target": "./versioning.md"
+    },
+    {
+      "source": "api/README.md",
+      "line": 78,
+      "target": "./webhooks.md"
+    },
+    {
+      "source": "api/README.md",
+      "line": 110,
+      "target": "./postman-collection.json"
+    },
+    {
+      "source": "api/README.md",
+      "line": 112,
+      "target": "./curl-examples.md"
+    },
+    {
+      "source": "api/README.md",
+      "line": 114,
+      "target": "./integration-tests.md"
+    },
+    {
+      "source": "api/error-handling.md",
+      "line": 1431,
+      "target": "../../lib/api-middleware.ts"
+    },
+    {
+      "source": "api/error-handling.md",
+      "line": 1433,
+      "target": "../../lib/types/errors.ts"
+    },
+    {
+      "source": "api/error-handling.md",
+      "line": 1435,
+      "target": "../../utils/validation.ts"
+    },
+    {
+      "source": "api/error-handling.md",
+      "line": 1449,
+      "target": "../../architecture/"
+    },
+    {
+      "source": "api/error-handling.md",
+      "line": 1451,
+      "target": "../../security/"
+    },
+    {
+      "source": "api/error-handling.md",
+      "line": 1453,
+      "target": "../../testing/"
+    },
+    {
+      "source": "api/comments_api.md",
+      "line": 538,
+      "target": "url"
+    }
+  ]
+}

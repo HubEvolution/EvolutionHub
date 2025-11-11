@@ -6,6 +6,7 @@ lastSync: '2025-11-10'
 codeRefs: 'src/pages/api/admin/**, src/pages/api/notifications/**, src/lib/services/notification-service.ts, scripts/warmup.ts, src/lib/db/schema.ts'
 feature: 'admin-notifications'
 status: 'shipped'
+testRefs: 'N/A'
 ---
 
 <!-- markdownlint-disable MD051 -->
@@ -174,7 +175,7 @@ The script exits non-zero if health checks fail, but soft-fails on internal auth
 
 ## See Also
 
-- [Comment System Implementation](../development/comment-system-implementation.md)
+- [Blog & Comment System Plan](../features/blog+commentsystem-plan.md)
 
 - [Dashboard API Reference](../api/dashboard_api.md)
 

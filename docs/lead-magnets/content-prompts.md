@@ -4,6 +4,7 @@ owner: 'Marketing Team'
 priority: 'medium'
 lastSync: '2025-11-04'
 codeRefs: 'docs/lead-magnets/content-prompts.md'
+testRefs: 'N/A'
 ---
 
 <!-- markdownlint-disable MD051 -->

@@ -4,6 +4,7 @@ owner: 'Frontend Team'
 priority: 'high'
 lastSync: '2025-11-04'
 codeRefs: 'src/components/tools/ImagEnhancerIsland.tsx, src/components/tools/imag-enhancer/**, src/pages/tools/imag-enhancer/**, src/pages/api/ai-image/**'
+testRefs: 'N/A'
 ---
 
 <!-- markdownlint-disable MD051 -->

@@ -4,6 +4,7 @@ owner: 'Tools Team'
 priority: 'medium'
 lastSync: '2025-11-04'
 codeRefs: 'src/lib/services/webscraper-service.ts, src/pages/api/webscraper/extract.ts, src/components/tools/webscraper/**'
+testRefs: 'N/A'
 ---
 
 <!-- markdownlint-disable MD051 -->

@@ -4,6 +4,7 @@ owner: 'Frontend Team'
 priority: 'medium'
 lastSync: '2025-11-04'
 codeRefs: 'src/components/ui/**, src/components/tools/prompt-enhancer/**, tailwind.config.js'
+testRefs: 'N/A'
 ---
 
 <!-- markdownlint-disable MD051 -->

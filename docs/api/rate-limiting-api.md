@@ -1107,11 +1107,11 @@ async function getDynamicLimits(userId: string) {
 
 ### Tools & Libraries
 
-- **[Rate Limiter Source](../../lib/rate-limiter.ts)** - Rate-Limiting-Implementierung
+- **[Rate Limiter Source](../../src/lib/rate-limiter.ts)** - Rate-Limiting-Implementierung
 
-- **[API Middleware](../../lib/api-middleware.ts)** - Middleware-Implementierung
+- **[API Middleware](../../src/lib/api-middleware.ts)** - Middleware-Implementierung
 
-- **[Test Utils](../../tests/utils/rate-limit-helpers.ts)** - Test-Hilfsmittel
+- `tests/utils/rate-limit-helpers.ts` — Test-Hilfsmittel (siehe Repository)
 
 ### Standards
 
@@ -1123,11 +1123,11 @@ async function getDynamicLimits(userId: string) {
 
 ## Cross-Referenzen
 
-- **[Architecture](../../architecture/)** - Rate-Limiting in der System-Architektur
+- **[Architecture Documentation](../architecture/README.md)** - Rate-Limiting in der System-Architektur
 
-- **[Security](../../security/)** - Security-Aspekte des Rate-Limiting
+- **[Security Documentation](../security/README.md)** - Security-Aspekte des Rate-Limiting
 
-- **[Testing](../../testing/)** - Rate-Limiting-Tests und Load-Testing
+- **[Testing Documentation](../testing/README.md)** - Rate-Limiting-Tests und Load-Testing
 
 ## Ownership & Maintenance
 

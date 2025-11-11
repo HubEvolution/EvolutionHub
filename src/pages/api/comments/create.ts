@@ -1,9 +1,5 @@
 import type { APIContext } from 'astro';
-import {
-  createApiError,
-  createApiSuccess,
-  withAuthApiMiddleware,
-} from '@/lib/api-middleware';
+import { createApiError, createApiSuccess, withAuthApiMiddleware } from '@/lib/api-middleware';
 import { CommentService } from '@/lib/services/comment-service';
 import { requireAuth } from '@/lib/auth-helpers';
 import { commentCreateSchema, formatZodError } from '@/lib/validation';

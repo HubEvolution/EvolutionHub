@@ -34,7 +34,7 @@ export const LOG_CONFIG = {
 
   // Filter für sensible Daten
   filters: {
-    sensitiveKeys: ['password', 'token', 'secret', 'apiKey', 'privateKey'],
+    sensitiveKeys: ['password', 'token', 'secret', 'apiKey', 'privateKey', 'authorization', 'auth'],
     maxStringLength: 1000,
     maxObjectDepth: 3,
   },
@@ -51,6 +51,32 @@ export const LOG_CONFIG = {
     enableMetrics: true,
     enableStackTraces: true,
     enableMemoryMonitoring: false,
+  },
+
+  // Transport-Auswahl über ENV
+  transports: {
+    // Kommagetrennte Liste, z.B. "console,http,analytics"
+    // Fallback: in Production -> http (wenn Endpoint gesetzt), sonst console
+    getEnabled(): string[] {
+      const raw =
+        (typeof process !== 'undefined' && process.env.LOG_TRANSPORTS) ||
+        (typeof import.meta !== 'undefined' && (import.meta as any).env?.LOG_TRANSPORTS) ||
+        (typeof process !== 'undefined' && process.env.LOG_TRANSPORT) ||
+        '';
+      const list = String(raw)
+        .split(',')
+        .map((s) => s.trim().toLowerCase())
+        .filter(Boolean);
+      if (list.length > 0) return list;
+
+      // Fallback je Umgebung
+      const httpEndpoint =
+        (typeof process !== 'undefined' && process.env.LOG_HTTP_ENDPOINT) ||
+        (typeof import.meta !== 'undefined' && (import.meta as any).env?.LOG_HTTP_ENDPOINT) ||
+        '';
+      if (LOG_CONFIG.environment.isProduction() && httpEndpoint) return ['http'];
+      return ['console'];
+    },
   },
 
   // Umgebungsdetektion
@@ -131,18 +157,42 @@ export const LogUtils = {
    * Filtert sensible Daten aus Objekten
    */
   sanitizeObject(obj: unknown): unknown {
-    if (typeof obj !== 'object' || obj === null) return obj;
+    const seen = new WeakSet<object>();
+    const sensitiveKeys = new Set(
+      (LOG_CONFIG.filters.sensitiveKeys || []).map((k) => String(k).toLowerCase())
+    );
 
-    const sanitized = { ...(obj as Record<string, unknown>) };
-    const sensitiveKeys = LOG_CONFIG.filters.sensitiveKeys;
+    const maxDepth = LOG_CONFIG.filters.maxObjectDepth ?? 3;
+    const maxStr = LOG_CONFIG.filters.maxStringLength ?? 1000;
 
-    for (const key of sensitiveKeys) {
-      if (key in sanitized) {
-        sanitized[key] = '[FILTERED]';
+    function redact(value: unknown, depth: number): unknown {
+      if (value === null || value === undefined) return value;
+      if (typeof value === 'string') {
+        return value.length > maxStr ? value.slice(0, maxStr) + '…' : value;
       }
+      if (typeof value !== 'object') return value;
+
+      if (seen.has(value as object)) return '[Circular]';
+      seen.add(value as object);
+
+      if (depth > maxDepth) return '[Object]';
+
+      if (Array.isArray(value)) {
+        return (value as unknown[]).map((v) => redact(v, depth + 1));
+      }
+
+      const out: Record<string, unknown> = {};
+      for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
+        if (sensitiveKeys.has(k.toLowerCase())) {
+          out[k] = '[FILTERED]';
+          continue;
+        }
+        out[k] = redact(v, depth + 1);
+      }
+      return out;
     }
 
-    return sanitized;
+    return redact(obj, 0);
   },
 
   /**

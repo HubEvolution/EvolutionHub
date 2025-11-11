@@ -2,6 +2,7 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { getLocale } from '@/lib/i18n';
 import { localizePath } from '@/lib/locale-path';
+import { getAlternateUrls } from '@/lib/seo';
 import { getI18n as getT } from '@/utils/i18n';
 
 const locale = getLocale(Astro.url.pathname);
@@ -67,7 +68,9 @@ const description = category
     : 'Aktuelle Artikel, Tutorials und Neuigkeiten aus der Welt der Webentwicklung';
 
 // Kanonische URL für SEO
-const canonicalUrl = new URL('/blog/', Astro.url.origin);
+const canonicalAlternates = getAlternateUrls(Astro.url.pathname);
+const canonicalBasePath = locale === 'en' ? canonicalAlternates.en : canonicalAlternates.de;
+const canonicalUrl = new URL(canonicalBasePath, Astro.url.origin);
 if (category) canonicalUrl.searchParams.set('kategorie', category);
 if (tag) canonicalUrl.searchParams.set('tag', tag);
 if (searchQuery) canonicalUrl.searchParams.set('suche', searchQuery);

@@ -109,7 +109,9 @@ describe('Datenbank-Helper', () => {
     it('sollte bei Fehlern korrekt reagieren', async () => {
       mockConnection.query.mockRejectedValue(new Error('DB Error'));
 
-      await expect(setupTestDatabase(mockConnection)).rejects.toThrow('Fehler beim Datenbank-Setup');
+      await expect(setupTestDatabase(mockConnection)).rejects.toThrow(
+        'Fehler beim Datenbank-Setup'
+      );
 
       expect(mockLogger.database.error).toHaveBeenCalled();
     });
@@ -237,8 +239,8 @@ describe('Datenbank-Helper', () => {
     it('sollte alle erforderlichen Tabellen erstellen', async () => {
       await setupTestDatabase(mockConnection);
 
-      const createTableCalls = mockConnection.query.mock.calls.filter(
-        (call: any) => call[0].includes('CREATE TABLE')
+      const createTableCalls = mockConnection.query.mock.calls.filter((call: any) =>
+        call[0].includes('CREATE TABLE')
       );
 
       expect(createTableCalls.length).toBeGreaterThanOrEqual(4);
@@ -253,8 +255,8 @@ describe('Datenbank-Helper', () => {
     it('sollte korrekte Tabellen-Strukturen definieren', async () => {
       await setupTestDatabase(mockConnection);
 
-      const usersTableQuery = mockConnection.query.mock.calls.find(
-        (call: any) => call[0].includes('CREATE TABLE IF NOT EXISTS users')
+      const usersTableQuery = mockConnection.query.mock.calls.find((call: any) =>
+        call[0].includes('CREATE TABLE IF NOT EXISTS users')
       );
 
       expect(usersTableQuery[0]).toContain('id SERIAL PRIMARY KEY');
@@ -269,13 +271,15 @@ describe('Datenbank-Helper', () => {
     it('sollte Test-Benutzer einfügen', async () => {
       await setupTestDatabase(mockConnection);
 
-      const userInsertCalls = mockConnection.query.mock.calls.filter(
-        (call: any) => call[0].includes('INSERT INTO users')
+      const userInsertCalls = mockConnection.query.mock.calls.filter((call: any) =>
+        call[0].includes('INSERT INTO users')
       );
 
       expect(userInsertCalls.length).toBeGreaterThanOrEqual(3);
 
-      const adminCall = userInsertCalls.find((call: any) => call[1].includes('admin@test-suite.local'));
+      const adminCall = userInsertCalls.find((call: any) =>
+        call[1].includes('admin@test-suite.local')
+      );
       expect(adminCall).toBeDefined();
       expect(adminCall[1][3]).toBe('admin');
       expect(adminCall[1][4]).toBe('Admin');
@@ -286,8 +290,8 @@ describe('Datenbank-Helper', () => {
     it('sollte Newsletter-Abonnements einfügen', async () => {
       await setupTestDatabase(mockConnection);
 
-      const newsletterInsertCalls = mockConnection.query.mock.calls.filter(
-        (call: any) => call[0].includes('INSERT INTO newsletters')
+      const newsletterInsertCalls = mockConnection.query.mock.calls.filter((call: any) =>
+        call[0].includes('INSERT INTO newsletters')
       );
 
       expect(newsletterInsertCalls.length).toBeGreaterThanOrEqual(1);

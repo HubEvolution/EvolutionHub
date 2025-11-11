@@ -4,6 +4,7 @@ owner: 'Auth Team'
 priority: 'high'
 lastSync: '2025-11-03'
 codeRefs: 'src/pages/api/auth/**, src/lib/stytch.ts, src/lib/api-middleware.ts'
+testRefs: 'N/A'
 ---
 
 <!-- markdownlint-disable MD051 -->
@@ -119,15 +120,26 @@ Set-Cookie: __Host-session=...; Path=/; HttpOnly; SameSite=Strict; Secure; Max-A
 
 * Erforderliche Secrets/Variablen (Wrangler, `--env production`):
 
-  * `STYTCH_PROJECT_ID` (Live, beginnt mit `project-live-…`)
-
-  * `STYTCH_SECRET`
-
   * `AUTH_PROVIDER=stytch`
+  * `STYTCH_PROJECT_ID` (Live, beginnt mit `project-live-…`)
+  * `STYTCH_SECRET`
+  * `STYTCH_PUBLIC_TOKEN` (für Public OAuth Start)
+  * `JWT_SECRET` (geschützte Admin/Notifications‑APIs)
+  * optional: `STYTCH_CUSTOM_DOMAIN` (z. B. `login.hub-evolution.com`)
+  * optional: `STYTCH_PKCE` (`"0"|"1"`; Standard Prod: `"0"`)
+  * optional: `PUBLIC_TURNSTILE_SITE_KEY` + `TURNSTILE_SECRET_KEY` (Spam‑Schutz beim Magic‑Request)
 
 * CSRF/Origin: `POST /api/auth/magic/request` verlangt same‑origin `Origin`/`Referer`.
 
   * curl‑Beispiel: `-H 'Origin: https://hub-evolution.com'`
+
+### Staging/Testing
+
+* `AUTH_PROVIDER=stytch`
+* `STYTCH_PUBLIC_TOKEN` Pflicht (OAuth Start)
+* `STYTCH_PKCE="1"` empfohlen (PKCE aktiv)
+* optional: `STYTCH_CUSTOM_DOMAIN` (falls vorhanden)
+* `JWT_SECRET` setzen, wenn Admin/Notifications‑APIs aktiv getestet werden
 
 ---
 
@@ -208,3 +220,7 @@ Location: /login?error=TooManyRequests
 * Verschlüsselte Übertragung (HTTPS)
 
 ```text
+
+## See also
+
+- `docs/reference/auth-envs-and-secrets.md` (mapping domains → Wrangler envs, and which secrets to set per env)

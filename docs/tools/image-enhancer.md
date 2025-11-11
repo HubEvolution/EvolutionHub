@@ -4,6 +4,7 @@ owner: 'AI Enhancer Team'
 priority: 'high'
 lastSync: '2025-11-04'
 codeRefs: 'src/pages/api/ai-image/**, src/lib/services/ai-image-service.ts, src/components/tools/imag-enhancer/**, docs/development/stripe-setup.md'
+testRefs: 'N/A'
 ---
 
 <!-- markdownlint-disable MD051 -->
@@ -952,11 +953,9 @@ cwebp input.webp -o output.png
 
 - **System-Architektur**: [docs/architecture/ai-image-enhancer.md](../architecture/ai-image-enhancer.md)
 
-- **API-Middleware**: [docs/architecture/api-middleware.md](../architecture/api-middleware.md)
+- **API-Middleware**: [docs/architecture/api-middleware-inventory.md](../architecture/api-middleware-inventory.md)
 
-- **Entitlements-System**: [docs/architecture/entitlements.md](../architecture/entitlements.md) _(falls vorhanden)_
-
-- **R2-Storage**: [docs/infrastructure/cloudflare-r2.md](../infrastructure/cloudflare-r2.md) _(falls vorhanden)_
+- **Entitlements-System**: [docs/features/pricing-system.md](../features/pricing-system.md)
 
 - **Rate-Limiting**: [docs/SECURITY.md](../SECURITY.md#1-rate-limiting)
 

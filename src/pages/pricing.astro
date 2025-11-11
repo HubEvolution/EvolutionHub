@@ -189,10 +189,7 @@ const retryHref = (() => {
 
       <section id="credit-packs" class="mt-8" aria-labelledby="credit-packs-heading">
         <div class="mb-6 text-center">
-          <h2
-            id="credit-packs-heading"
-            class="text-2xl font-bold text-gray-900 dark:text-white"
-          >
+          <h2 id="credit-packs-heading" class="text-2xl font-bold text-gray-900 dark:text-white">
             {t('pages.pricing.credits_packs.title') || 'Buy extra credits'}
           </h2>
           <p class="mt-2 text-sm text-gray-600 dark:text-gray-300">
@@ -204,74 +201,74 @@ const retryHref = (() => {
         </div>
 
         <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
-          {creditPacks.map((pack: CreditPack) => (
-            <Card variant="holo" className="relative flex h-full flex-col rounded-2xl p-6">
-              <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
-                {pack.title}
-              </h3>
-              <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">{pack.description}</p>
+          {
+            creditPacks.map((pack: CreditPack) => (
+              <Card variant="holo" className="relative flex h-full flex-col rounded-2xl p-6">
+                <h3 class="text-xl font-semibold text-gray-900 dark:text-white">{pack.title}</h3>
+                <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">{pack.description}</p>
 
-              <div class="mt-6 flex items-baseline gap-2">
-                <span class="text-3xl font-bold text-gray-900 dark:text-white">{pack.price}</span>
-                <span class="text-sm text-gray-500 dark:text-gray-400">one-time</span>
-              </div>
+                <div class="mt-6 flex items-baseline gap-2">
+                  <span class="text-3xl font-bold text-gray-900 dark:text-white">{pack.price}</span>
+                  <span class="text-sm text-gray-500 dark:text-gray-400">one-time</span>
+                </div>
 
-              {pack.bullets.length > 0 && (
-                <ul class="mt-6 space-y-2 text-sm text-gray-700 dark:text-gray-200">
-                  {pack.bullets.map((bullet: string) => (
-                    <li class="flex items-start gap-2">
-                      <svg
-                        class="mt-0.5 h-4 w-4 flex-none text-emerald-500"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        aria-hidden="true"
-                      >
-                        <path d="M5 13l4 4L19 7" />
-                      </svg>
-                      <span>{bullet}</span>
-                    </li>
-                  ))}
-                </ul>
-              )}
+                {pack.bullets.length > 0 && (
+                  <ul class="mt-6 space-y-2 text-sm text-gray-700 dark:text-gray-200">
+                    {pack.bullets.map((bullet: string) => (
+                      <li class="flex items-start gap-2">
+                        <svg
+                          class="mt-0.5 h-4 w-4 flex-none text-emerald-500"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          aria-hidden="true"
+                        >
+                          <path d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span>{bullet}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
 
-              <Button
-                id={`buy-credits-${pack.id}`}
-                type="button"
-                variant={pack.buttonVariant}
-                size="md"
-                className="mt-8"
-              >
-                {pack.cta}
-              </Button>
-
-              <button
-                type="button"
-                class="mt-4 inline-flex items-center gap-2 text-sm font-medium text-primary-200 transition hover:text-primary-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-400"
-                data-pricing-detail-trigger
-                data-pricing-detail-kind="credit"
-                data-pricing-detail-id={String(pack.id)}
-                aria-haspopup="dialog"
-              >
-                {creditDetailsLabel}
-                <svg
-                  class="h-4 w-4"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.8"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  aria-hidden="true"
+                <Button
+                  id={`buy-credits-${pack.id}`}
+                  type="button"
+                  variant={pack.buttonVariant}
+                  size="md"
+                  className="mt-8"
                 >
-                  <path d="m9 5 7 7-7 7" />
-                </svg>
-              </button>
-            </Card>
-          ))}
+                  {pack.cta}
+                </Button>
+
+                <button
+                  type="button"
+                  class="mt-4 inline-flex items-center gap-2 text-sm font-medium text-primary-200 transition hover:text-primary-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-400"
+                  data-pricing-detail-trigger
+                  data-pricing-detail-kind="credit"
+                  data-pricing-detail-id={String(pack.id)}
+                  aria-haspopup="dialog"
+                >
+                  {creditDetailsLabel}
+                  <svg
+                    class="h-4 w-4"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="m9 5 7 7-7 7" />
+                  </svg>
+                </button>
+              </Card>
+            ))
+          }
         </div>
       </section>
 

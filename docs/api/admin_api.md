@@ -1,8 +1,10 @@
 ---
 description: 'Admin API — Moderation, Status, Users, Plan, Credits (secured)'
 owner: 'API Team'
+priority: 'high'
 lastSync: '2025-11-10'
 codeRefs: 'src/pages/api/admin/**, src/lib/api-middleware.ts'
+testRefs: 'N/A'
 ---
 
 <!-- markdownlint-disable MD051 -->

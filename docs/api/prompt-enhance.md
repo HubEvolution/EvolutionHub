@@ -1073,13 +1073,13 @@ export const POST = withApiMiddleware(async (context) => {
 
 ## Cross-Referenzen
 
-- **[Architecture](../../architecture/prompt-enhancer.md)** - Prompt-Enhancer-Architektur
+- **[Architecture > Prompt Enhancer](../architecture/prompt-enhancer.md)**
 
-- **[Development](../../development/)** - Entwicklung mit Prompt-Enhancer
+- **[Development Documentation](../development/README.md)** — Tooling & lokale Workflows
 
-- **[Security](../../security/)** - Security-Aspekte des Prompt-Enhancer
+- **[Security Documentation](../security/README.md)** — CSRF, Rate-Limiting, Safety Controls
 
-- **[Testing](../../testing/)** - Prompt-Enhancer-Tests
+- **[Testing Documentation](../testing/README.md)** — Integration- und E2E-Tests
 
 ## Ownership & Maintenance
 

@@ -4,6 +4,7 @@ owner: 'Platform Team'
 priority: 'medium'
 lastSync: '2025-11-03'
 codeRefs: 'docs/api/known-issues.md, src/pages/api/**'
+testRefs: 'N/A'
 ---
 
 <!-- markdownlint-disable MD051 -->

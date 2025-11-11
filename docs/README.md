@@ -178,6 +178,12 @@ testRefs: 'test-suite-v2/, tests/'
 **Review-Prozess:** Documentation-Review + Cross-Team-Feedback
 **Eskalation:** Bei Dokumentationskonflikten → Tech Lead
 
+## Maintenance Log
+
+| Datum       | Aktivität                                       | Ergebnis                                                                 | Follow-ups                                                |
+|-------------|-------------------------------------------------|--------------------------------------------------------------------------|-----------------------------------------------------------|
+| 2025-11-11  | Dokumentations-Link-Audit (Steps 1-3 abgeschlossen) | `npm run docs:links` → 0 Broken Links; API-, Content-, Development-, Tools- und Archive-Docs aktualisiert | Nächste Aufgabe: Erweiterte Docs-Lint-/Frontmatter-Prüfung priorisieren |
+
 ## Standards & Konventionen
 
 - **Struktur:** Kategorien mit README-Index, Standard-Frontmatter

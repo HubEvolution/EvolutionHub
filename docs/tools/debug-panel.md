@@ -4,6 +4,7 @@ owner: 'Platform Team'
 priority: 'medium'
 lastSync: '2025-11-04'
 codeRefs: 'src/components/ui/DebugPanel.tsx, src/pages/api/debug/logs-stream.ts, package.json'
+testRefs: 'N/A'
 ---
 
 <!-- markdownlint-disable MD051 -->

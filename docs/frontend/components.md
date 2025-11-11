@@ -4,6 +4,7 @@ owner: 'Frontend Team'
 priority: 'high'
 lastSync: '2025-11-06'
 codeRefs: 'src/components/**, docs/frontend/components.md'
+testRefs: 'N/A'
 ---
 
 <!-- markdownlint-disable MD051 -->

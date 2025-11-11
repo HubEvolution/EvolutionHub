@@ -4,6 +4,7 @@ owner: 'Testing & CI Team'
 priority: 'high'
 lastSync: '2025-11-04'
 codeRefs: 'docs/testing/testing-strategy.md, tests/**, .github/workflows/**'
+testRefs: 'N/A'
 ---
 
 <!-- markdownlint-disable MD051 -->

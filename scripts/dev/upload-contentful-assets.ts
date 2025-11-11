@@ -73,7 +73,9 @@ async function uploadAssets() {
     }
   }
 
-  console.log('\nFertig: Assets wurden verarbeitet. Aktualisiere contentful_migration.json mit den Asset-IDs, bevor du den Import startest.');
+  console.log(
+    '\nFertig: Assets wurden verarbeitet. Aktualisiere contentful_migration.json mit den Asset-IDs, bevor du den Import startest.'
+  );
 }
 
 function detectContentType(fileName: string): string {

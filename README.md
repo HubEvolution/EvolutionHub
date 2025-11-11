@@ -117,6 +117,7 @@ Live-Tools: [hub-evolution.com/tools](https://hub-evolution.com/tools)
 - `.env.example` dokumentiert lokale Flags (z. B. Debug Panel, Feature Flags, Provider Tokens).
 - `wrangler.toml` verwaltet Bindings für D1, KV, R2, AI und Environment-spezifische Variablen.
 - Security-Baseline: Allowed Origins, Same-Origin-Checks, Double-Submit-CSRF via Middleware.
+- Auth Environments & Secrets: `docs/reference/auth-envs-and-secrets.md`
 
 ## 🕹️ Capability Matrix
 

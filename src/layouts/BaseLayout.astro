@@ -224,11 +224,8 @@ const alternateXDefaultUrl = new URL(localeAlternates.de, siteBase).toString();
         url: 'https://hub-evolution.com',
         potentialAction: {
           '@type': 'SearchAction',
-          target: {
-            '@type': 'EntryPoint',
-            urlTemplate: 'https://hub-evolution.com/search?q={search_term_string}',
-          },
-          'query-input': 'required name=search_term_string',
+          target: 'https://hub-evolution.com/search',
+          'query-input': 'required name=q',
         },
       })}
     />

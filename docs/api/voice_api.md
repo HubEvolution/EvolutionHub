@@ -4,6 +4,7 @@ owner: 'Voice Team'
 priority: 'high'
 lastSync: '2025-11-03'
 codeRefs: 'src/pages/api/voice/**, src/lib/services/voice-transcribe-service.ts, docs/api/voice_api.md'
+testRefs: 'N/A'
 ---
 
 <!-- markdownlint-disable MD051 -->

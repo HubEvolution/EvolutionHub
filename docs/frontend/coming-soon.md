@@ -4,6 +4,7 @@ owner: 'Frontend Team'
 priority: 'high'
 lastSync: '2025-11-04'
 codeRefs: 'src/components/ui/ComingSoon.astro, scripts/coming-soon-client.ts, src/config/coming-soon.ts, src/styles/coming-soon.css'
+testRefs: 'N/A'
 ---
 
 <!-- markdownlint-disable MD051 -->

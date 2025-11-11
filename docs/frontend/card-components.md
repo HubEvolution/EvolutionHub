@@ -4,6 +4,7 @@ owner: 'Frontend Team'
 priority: 'medium'
 lastSync: '2025-11-06'
 codeRefs: 'src/components/**/Card*.astro, src/components/ui/CardReact.tsx'
+testRefs: 'N/A'
 ---
 
 <!-- markdownlint-disable MD051 -->

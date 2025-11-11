@@ -16,16 +16,35 @@ declare module '@/lib/rate-limiter' {
   export type RateLimiter = (context: RateLimiterContext) => Promise<RateLimiterResult>;
 
   export function createRateLimiter(config: RateLimitConfig): RateLimiter;
-  export function rateLimit(key: string, maxRequests: number, windowSeconds: number): Promise<void>;
-  export function getLimiterState(name?: string): Record<
-    string,
-    {
-      maxRequests: number;
-      windowMs: number;
-      entries: Array<{ key: string; count: number; resetAt: number }>;
+  export function rateLimit(
+    key: string,
+    maxRequests: number,
+    windowSeconds: number,
+    options?: {
+      env?: Record<string, unknown>;
+      kv?: unknown;
+      limiterName?: string;
+      retry?: { attempts?: number; baseDelayMs?: number };
     }
+  ): Promise<void>;
+  export function getLimiterState(
+    name?: string,
+    options?: { env?: Record<string, unknown>; kv?: unknown }
+  ): Promise<
+    Record<
+      string,
+      {
+        maxRequests: number;
+        windowMs: number;
+        entries: Array<{ key: string; count: number; resetAt: number }>;
+      }
+    >
   >;
-  export function resetLimiterKey(name: string, key: string): boolean;
+  export function resetLimiterKey(
+    name: string,
+    key: string,
+    options?: { env?: Record<string, unknown>; kv?: unknown }
+  ): Promise<boolean>;
 
   export const standardApiLimiter: RateLimiter;
   export const authLimiter: RateLimiter;

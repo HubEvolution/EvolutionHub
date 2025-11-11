@@ -1,5 +1,7 @@
 import type { KVNamespace } from '@cloudflare/workers-types';
 
+const MIN_KV_TTL_SECONDS = 60;
+
 export interface UsageCounter {
   count: number;
   resetAt: number;
@@ -18,7 +20,7 @@ function endOfDayTtlSeconds(): number {
   const d = new Date();
   d.setUTCHours(23, 59, 59, 999);
   const ttlMs = d.getTime() - Date.now();
-  return Math.max(1, Math.ceil(ttlMs / 1000));
+  return Math.max(MIN_KV_TTL_SECONDS, Math.ceil(ttlMs / 1000));
 }
 
 function endOfMonthTtlSeconds(): number {
@@ -27,7 +29,7 @@ function endOfMonthTtlSeconds(): number {
   const year = d.getUTCFullYear();
   const endOfMonth = new Date(Date.UTC(year, month + 1, 0, 23, 59, 59, 999));
   const ttlMs = endOfMonth.getTime() - Date.now();
-  return Math.max(1, Math.ceil(ttlMs / 1000));
+  return Math.max(MIN_KV_TTL_SECONDS, Math.ceil(ttlMs / 1000));
 }
 
 export async function getUsage(kv: KVNamespace, key: string): Promise<UsageCounter | null> {
@@ -48,7 +50,9 @@ export async function incrementWithTtl(
   const current = (await getUsage(kv, key)) || { count: 0, resetAt: nowSec() + ttlSeconds };
   const nextCount = current.count + 1;
   const usage: UsageCounter = { count: nextCount, resetAt: current.resetAt };
-  await kv.put(key, JSON.stringify(usage), { expirationTtl: ttlSeconds });
+  await kv.put(key, JSON.stringify(usage), {
+    expirationTtl: Math.max(MIN_KV_TTL_SECONDS, ttlSeconds),
+  });
   return { allowed: nextCount <= limit, usage };
 }
 
@@ -119,11 +123,13 @@ export async function incrementRollingWindow(
   } else {
     resetAt = existing.resetAt;
     nextCount = existing.count + 1;
-    ttl = Math.max(1, resetAt - now);
+    ttl = Math.max(MIN_KV_TTL_SECONDS, resetAt - now);
   }
 
   const usage: UsageCounter = { count: nextCount, resetAt };
-  await kv.put(key, JSON.stringify(usage), { expirationTtl: ttl });
+  await kv.put(key, JSON.stringify(usage), {
+    expirationTtl: Math.max(MIN_KV_TTL_SECONDS, ttl),
+  });
   return { allowed: nextCount <= limit, usage };
 }
 

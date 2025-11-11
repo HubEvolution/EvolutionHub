@@ -4,6 +4,7 @@ owner: 'Auth Team'
 priority: 'high'
 lastSync: '2025-11-03'
 codeRefs: 'src/pages/api/auth/**, src/components/scripts/AuthStatusNotifier.tsx'
+testRefs: 'N/A'
 ---
 
 <!-- markdownlint-disable MD051 -->

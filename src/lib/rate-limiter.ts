@@ -8,6 +8,8 @@
 import type { APIContext } from 'astro';
 import { logRateLimitExceeded } from '@/lib/security-logger';
 
+export const MIN_KV_TTL_SECONDS = 60;
+
 export interface RateLimitConfig {
   // Maximale Anzahl von Anfragen innerhalb des Zeitfensters
   maxRequests: number;
@@ -19,11 +21,13 @@ export interface RateLimitConfig {
   name?: string;
 }
 
-interface RateLimitStore {
-  [key: string]: {
-    count: number;
-    resetAt: number;
-  };
+export interface RateLimitStoreEntry {
+  count: number;
+  resetAt: number;
+}
+
+interface RateLimitStoreMemory {
+  [key: string]: RateLimitStoreEntry;
 }
 
 export type RateLimiterContext = {
@@ -36,8 +40,8 @@ export type RateLimiterResult = Response | { success?: boolean } | void;
 
 export type RateLimiter = (context: RateLimiterContext) => Promise<RateLimiterResult>;
 
-// In-Memory-Store für Rate-Limiting-Daten (in Produktion durch Redis o.ä. ersetzen)
-const limitStores: Record<string, RateLimitStore> = {};
+// In-Memory-Store (Fallback) – für lokale Tests/ohne KV
+const limitStores: Record<string, RateLimitStoreMemory> = {};
 const limiterConfigs: Record<string, Required<RateLimitConfig>> = {};
 
 /**
@@ -53,6 +57,64 @@ function getRateLimitKey(context: RateLimiterContext): string {
   const userId = locals?.user?.id || 'anonymous';
 
   return `${clientIp}:${userId}`;
+}
+
+// Intern: KV-Auflösung und Helpers
+export type AnyEnv = Record<string, unknown>;
+export interface MaybeKV {
+  get: (key: string) => Promise<string | null>;
+  put: (key: string, value: string, opts?: { expirationTtl?: number }) => Promise<void>;
+  delete: (key: string) => Promise<void>;
+  list?: (opts?: { prefix?: string }) => Promise<{ keys: Array<{ name: string }> }>;
+}
+
+function resolveRuntimeEnv(context: RateLimiterContext): AnyEnv | undefined {
+  try {
+    const env = (context.locals as unknown as { runtime?: { env?: AnyEnv } })?.runtime?.env;
+    return env;
+  } catch {
+    return undefined;
+  }
+}
+
+function resolveKvBinding(env?: AnyEnv): MaybeKV | undefined {
+  if (!env) return undefined;
+  // Priorität: expliziter RL-Binding, sonst generische vorhandene KV-Namespaces
+  const candidates = [
+    'KV_RATE_LIMITER',
+    'RATE_LIMIT_KV',
+    'KV_COMMENTS',
+    'KV_WEBSCRAPER',
+    'KV_AI_ENHANCER',
+    'KV_PROMPT_ENHANCER',
+    'SESSION',
+  ];
+  for (const name of candidates) {
+    const ns = env[name] as unknown as MaybeKV | undefined;
+    if (ns && typeof ns.get === 'function' && typeof ns.put === 'function') {
+      return ns;
+    }
+  }
+  return undefined;
+}
+
+async function withRetry<T>(fn: () => Promise<T>, attempts = 3, baseDelayMs = 15): Promise<T> {
+  let lastErr: unknown;
+  for (let i = 0; i < attempts; i++) {
+    try {
+      return await fn();
+    } catch (err) {
+      lastErr = err;
+      if (i === attempts - 1) break;
+      const delay = baseDelayMs * Math.pow(2, i);
+      await new Promise((r) => setTimeout(r, delay));
+    }
+  }
+  throw lastErr instanceof Error ? lastErr : new Error(String(lastErr));
+}
+
+function kvKeyFor(limiterName: string, key: string): string {
+  return `rl:${limiterName}:${key}`;
 }
 
 /**
@@ -76,35 +138,102 @@ export function createRateLimiter(config: RateLimitConfig): RateLimiter {
     windowMs: config.windowMs,
   };
 
-  const store = limitStores[limiterName];
-
-  // Gibt in regelmäßigen Abständen abgelaufene Einträge aus dem Store frei
-  // (In einer Produktionsumgebung würde man einen besseren Mechanismus verwenden)
+  // In-Memory Cleanup-Task (wirkt nur auf den In-Memory-Fallback)
+  const memStore = limitStores[limiterName];
   setInterval(() => {
     const now = Date.now();
-    Object.keys(store).forEach((key) => {
-      if (store[key].resetAt <= now) {
-        delete store[key];
+    Object.keys(memStore).forEach((key) => {
+      if (memStore[key].resetAt <= now) {
+        delete memStore[key];
       }
     });
-  }, 60000); // Einmal pro Minute aufräumen
+  }, 60000);
 
   // Die eigentliche Rate-Limiting-Middleware
   const rateLimitMiddleware: RateLimiter = async (context) => {
     const key = getRateLimitKey(context);
     const now = Date.now();
+    const windowMs = config.windowMs;
+    const windowSeconds = Math.ceil(windowMs / 1000);
 
-    // Prüfen, ob es bereits einen Eintrag für diesen Schlüssel gibt
-    if (!store[key]) {
-      // Neuen Eintrag erstellen
-      store[key] = {
-        count: 1,
-        resetAt: now + config.windowMs,
-      };
-      return; // Erste Anfrage, kein Rate-Limiting
+    // Bevorzugt KV-gestützte Persistenz
+    const env = resolveRuntimeEnv(context);
+    const kv = resolveKvBinding(env);
+
+    if (kv) {
+      const storageKey = kvKeyFor(limiterName, key);
+      // KV get + update mit rudimentärem Retry
+      const raw = await withRetry(() => kv.get(storageKey));
+      if (!raw) {
+        const entry = { count: 1, resetAt: now + windowMs };
+        await withRetry(() =>
+          kv.put(storageKey, JSON.stringify(entry), {
+            expirationTtl: Math.max(MIN_KV_TTL_SECONDS, windowSeconds + 5),
+          })
+        );
+        return;
+      }
+      let entry: { count: number; resetAt: number } | null = null;
+      try {
+        entry = JSON.parse(raw) as { count: number; resetAt: number };
+      } catch {
+        entry = null;
+      }
+      if (!entry) {
+        const fresh = { count: 1, resetAt: now + windowMs };
+        await withRetry(() =>
+          kv.put(storageKey, JSON.stringify(fresh), {
+            expirationTtl: Math.max(MIN_KV_TTL_SECONDS, windowSeconds + 5),
+          })
+        );
+        return;
+      }
+      if (entry.resetAt <= now) {
+        const reset = { count: 1, resetAt: now + windowMs };
+        await withRetry(() =>
+          kv.put(storageKey, JSON.stringify(reset), {
+            expirationTtl: Math.max(MIN_KV_TTL_SECONDS, windowSeconds + 5),
+          })
+        );
+        return;
+      }
+      if (entry.count >= config.maxRequests) {
+        const targetResource = new URL(context.request.url).pathname;
+        const clientIp = context.clientAddress || '0.0.0.0';
+        logRateLimitExceeded(clientIp, targetResource, {
+          limiterName,
+          maxRequests: config.maxRequests,
+          windowMs: config.windowMs,
+          resetAt: entry.resetAt,
+        });
+        const retryAfterSeconds = Math.ceil((entry.resetAt - now) / 1000);
+        return new Response(
+          JSON.stringify({
+            error: 'Rate limit exceeded',
+            retryAfter: retryAfterSeconds,
+          }),
+          {
+            status: 429,
+            headers: {
+              'Content-Type': 'application/json',
+              'Retry-After': String(retryAfterSeconds),
+            },
+          }
+        );
+      }
+      // increment and persist remaining TTL
+      entry.count += 1;
+      const ttlRemaining = Math.max(1, Math.ceil((entry.resetAt - now) / 1000));
+      await withRetry(() =>
+        kv.put(storageKey, JSON.stringify(entry), {
+          expirationTtl: Math.max(MIN_KV_TTL_SECONDS, ttlRemaining + 2),
+        })
+      );
+      return;
     }
 
-    const entry = store[key];
+    // Fallback: In-Memory
+    const entry = memStore[key];
 
     // Prüfen, ob das Zeitfenster abgelaufen ist
     if (entry.resetAt <= now) {
@@ -213,6 +342,12 @@ export const contactFormLimiter = createRateLimiter({
   name: 'contactForm',
 });
 
+export const webEvalTaskLimiter = createRateLimiter({
+  maxRequests: 10,
+  windowMs: 60 * 1000,
+  name: 'webEvalTasks',
+});
+
 /**
  * Einfache Rate-Limiting-Funktion für Service-Layer
  * Nutzt die bestehende Store-Infrastruktur ohne Request-Kontext
@@ -229,89 +364,167 @@ export const contactFormLimiter = createRateLimiter({
 export async function rateLimit(
   key: string,
   maxRequests: number,
-  windowSeconds: number
+  windowSeconds: number,
+  options?: {
+    env?: Record<string, unknown>;
+    kv?: MaybeKV;
+    limiterName?: string;
+    retry?: { attempts?: number; baseDelayMs?: number };
+  }
 ): Promise<void> {
   const limiterName = 'service-limiter';
+  const attempts = options?.retry?.attempts ?? 3;
+  const baseDelayMs = options?.retry?.baseDelayMs ?? 15;
+  const env = options?.env;
+  const kv = options?.kv ?? resolveKvBinding(env);
+  const useLimiterName = options?.limiterName || limiterName;
 
-  // Stelle sicher, dass Store existiert
-  if (!limitStores[limiterName]) {
-    limitStores[limiterName] = {};
-  }
-
-  const store = limitStores[limiterName];
-  const now = Date.now();
-  const windowMs = windowSeconds * 1000;
-
-  // Neuer Eintrag
-  if (!store[key]) {
-    store[key] = {
-      count: 1,
-      resetAt: now + windowMs,
-    };
+  if (kv) {
+    const now = Date.now();
+    const windowMs = windowSeconds * 1000;
+    const storageKey = kvKeyFor(useLimiterName, key);
+    const raw = await withRetry(() => kv.get(storageKey), attempts, baseDelayMs);
+    if (!raw) {
+      const entry = { count: 1, resetAt: now + windowMs };
+      await withRetry(
+        () => kv.put(storageKey, JSON.stringify(entry), { expirationTtl: windowSeconds + 5 }),
+        attempts,
+        baseDelayMs
+      );
+      return;
+    }
+    let entry: { count: number; resetAt: number } | null = null;
+    try {
+      entry = JSON.parse(raw) as { count: number; resetAt: number };
+    } catch {
+      entry = null;
+    }
+    if (!entry || entry.resetAt <= now) {
+      const reset = { count: 1, resetAt: now + windowMs };
+      await withRetry(
+        () => kv.put(storageKey, JSON.stringify(reset), { expirationTtl: windowSeconds + 5 }),
+        attempts,
+        baseDelayMs
+      );
+      return;
+    }
+    if (entry.count >= maxRequests) {
+      const retryAfter = Math.ceil((entry.resetAt - now) / 1000);
+      throw new Error(`Rate limit exceeded. Please retry after ${retryAfter} seconds.`);
+    }
+    entry.count += 1;
+    const ttlRemaining = Math.max(1, Math.ceil((entry.resetAt - now) / 1000));
+    await withRetry(
+      () => kv.put(storageKey, JSON.stringify(entry), { expirationTtl: ttlRemaining + 2 }),
+      attempts,
+      baseDelayMs
+    );
     return;
   }
 
+  // Fallback In-Memory
+  if (!limitStores[limiterName]) {
+    limitStores[limiterName] = {};
+  }
+  const store = limitStores[limiterName];
+  const now = Date.now();
+  const windowMs = windowSeconds * 1000;
+  if (!store[key]) {
+    store[key] = { count: 1, resetAt: now + windowMs };
+    return;
+  }
   const entry = store[key];
-
-  // Zeitfenster abgelaufen - zurücksetzen
   if (entry.resetAt <= now) {
     entry.count = 1;
     entry.resetAt = now + windowMs;
     return;
   }
-
-  // Rate-Limit überschritten
   if (entry.count >= maxRequests) {
     const retryAfter = Math.ceil((entry.resetAt - now) / 1000);
     throw new Error(`Rate limit exceeded. Please retry after ${retryAfter} seconds.`);
   }
-
-  // Zähler erhöhen
   entry.count += 1;
 }
 
 /**
  * Liefert den Zustand aller oder eines spezifischen Limiters.
  */
-export function getLimiterState(name?: string) {
+export async function getLimiterState(
+  name?: string,
+  options?: { env?: Record<string, unknown>; kv?: MaybeKV }
+) {
   const names = name ? [name] : Object.keys(limitStores);
-  const state = names.reduce(
-    (acc, n) => {
-      const cfg = limiterConfigs[n];
-      const store = limitStores[n] || {};
-      acc[n] = {
-        maxRequests: cfg?.maxRequests ?? 0,
-        windowMs: cfg?.windowMs ?? 0,
-        entries: Object.entries(store).map(([key, v]) => ({
-          key,
-          count: v.count,
-          resetAt: v.resetAt,
-        })),
-      };
-      return acc;
-    },
-    {} as Record<
-      string,
-      {
-        maxRequests: number;
-        windowMs: number;
-        entries: Array<{ key: string; count: number; resetAt: number }>;
+  const env = options?.env;
+  const kv = options?.kv ?? resolveKvBinding(env);
+  const result: Record<
+    string,
+    {
+      maxRequests: number;
+      windowMs: number;
+      entries: Array<{ key: string; count: number; resetAt: number }>;
+    }
+  > = {};
+  for (const n of names) {
+    const cfg = limiterConfigs[n];
+    const memEntries = Object.entries(limitStores[n] || {}).map(([key, v]) => ({
+      key,
+      count: v.count,
+      resetAt: v.resetAt,
+    }));
+    let entries = memEntries;
+    if (kv && typeof kv.list === 'function') {
+      try {
+        const list = await kv.list({ prefix: kvKeyFor(n, '') });
+        const kvEntries: Array<{ key: string; count: number; resetAt: number }> = [];
+        for (const k of list.keys) {
+          const raw = await kv.get(k.name);
+          if (!raw) continue;
+          try {
+            const data = JSON.parse(raw) as { count: number; resetAt: number };
+            const logicalKey = k.name.replace(/^rl:[^:]*:/, '');
+            kvEntries.push({ key: logicalKey, count: data.count, resetAt: data.resetAt });
+          } catch {
+            // ignore broken entries
+          }
+        }
+        // KV hat Vorrang, wenn vorhanden
+        if (kvEntries.length > 0) entries = kvEntries;
+      } catch {
+        // ignore KV listing errors
       }
-    >
-  );
-  return state;
+    }
+    result[n] = {
+      maxRequests: cfg?.maxRequests ?? 0,
+      windowMs: cfg?.windowMs ?? 0,
+      entries,
+    };
+  }
+  return result;
 }
 
 /**
  * Setzt einen bestimmten Schlüssel eines Limiters zurück.
  * Gibt true zurück, wenn der Schlüssel existierte und entfernt wurde.
  */
-export function resetLimiterKey(name: string, key: string): boolean {
+export async function resetLimiterKey(
+  name: string,
+  key: string,
+  options?: { env?: Record<string, unknown>; kv?: MaybeKV }
+): Promise<boolean> {
+  let removed = false;
   const store = limitStores[name];
-  if (!store) return false;
-  if (store[key]) {
+  if (store && store[key]) {
     delete store[key];
-    return true;
+    removed = true;
   }
-  return false;
+  const kv = options?.kv ?? resolveKvBinding(options?.env);
+  if (kv) {
+    try {
+      await kv.delete(kvKeyFor(name, key));
+      removed = true;
+    } catch {
+      // ignore
+    }
+  }
+  return removed;
 }

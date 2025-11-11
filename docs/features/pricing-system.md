@@ -2,10 +2,11 @@
 description: 'Pricing-System: Stripe-Integration, Architektur und API-Referenz'
 owner: 'Billing Team'
 priority: 'high'
-lastSync: '2025-11-04'
+lastSync: '2025-11-10'
 codeRefs: 'src/pages/api/billing/**, src/components/pricing/**, docs/development/stripe-setup.md'
 feature: 'pricing-system'
 status: 'shipped'
+testRefs: 'N/A'
 ---
 
 <!-- markdownlint-disable MD051 -->
@@ -117,6 +118,22 @@ graph TB
 
 **Datei**: `src/components/pricing/PricingTable.astro:289`
 **Zeilen**: 372 Gesamt, 289 JavaScript
+
+### PricingDetails Modal (`src/components/pricing/PricingDetailsProvider.tsx`)
+
+#### ✅ **Stärken**
+
+- **Split-Panel Layout**: Logo/plan metadata links, Preis-Karte rechts; Highlights darunter in bis zu drei Spalten → keine Überlappung mehr.
+- **Dynamische Preise**: Monats-/Jahrespreise werden über Provider-Context aktualisiert und auf Karten & Modals gespiegelt.
+- **Event-Bridging**: Delegierter Listener (`PricingDetailsBootstrap`) sorgt dafür, dass alle `[data-pricing-detail-trigger]` Buttons modal-sicher sind.
+- **Internationalisierung**: Texte & Bullets über i18n (`pages.pricing.details.*`) gepflegt; Modal zeigt erweiterte Strings, Karten verkürzte Fassungen.
+
+#### ⚠️ **Verbesserungspotenzial**
+
+- **Screenshot aktualisieren**: Neues Layout (Preisblock rechts) noch nicht im Asset-Ordner dokumentiert.
+- **Tests**: Fehlen Playwright-Smokes für Modal-Layout (Desktop/Mobile) → zukünftiger Task.
+
+**Dateien**: `src/components/pricing/PricingDetailsProvider.tsx`, `src/components/pricing/PricingDetailsBootstrap.tsx`
 
 ### FeatureComparison (`src/components/pricing/FeatureComparison.astro`)
 

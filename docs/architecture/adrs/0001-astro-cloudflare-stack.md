@@ -2,6 +2,12 @@
 status: active
 date: '2025-11-03'
 supersededBy: ''
+description: 'ADR für die Wahl von Astro + Cloudflare Workers als primären Delivery-Stack.'
+owner: 'team:architecture'
+priority: 'medium'
+lastSync: '2025-11-11'
+codeRefs: 'astro.config.mjs, wrangler.toml, package.json'
+testRefs: 'N/A'
 ---
 
 <!-- markdownlint-disable MD051 -->

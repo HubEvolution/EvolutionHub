@@ -4,6 +4,7 @@ owner: 'Architecture Review Board'
 priority: 'medium'
 lastSync: '2025-11-04'
 codeRefs: 'src/components/tools/ImagEnhancerIsland.tsx, src/components/tools/imag-enhancer/UsagePill.tsx, src/pages/api/ai-image/**, src/config/ai-image/entitlements.ts'
+testRefs: 'N/A'
 ---
 
 <!-- markdownlint-disable MD051 -->

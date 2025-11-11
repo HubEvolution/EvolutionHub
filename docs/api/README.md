@@ -29,25 +29,27 @@ testRefs: 'tests/integration/api, test-suite-v2/src/e2e'
 
 - **[Error Handling](./error-handling.md)** — API-Fehlercodes und Response-Formate
 
+- **[AI Image API](./ai-image_api.md)** — Generate/Usage/Jobs Endpunkte
+
+- **[Prompt Enhance API](./prompt-enhance.md)** — Prompt-Optimierung mit JSON/Multipart
+
+- **[Comments API](./comments_api.md)** — Kommentar- und Moderationsendpunkte
+
 ## Core APIs
 
 ### Prompt-Enhancer API
 
 - **[POST /api/prompt-enhance](./prompt-enhance.md)** — KI-gestützte Prompt-Optimierung
 
-- **[GET /api/prompt/usage](./prompt-usage.md)** — Nutzungsstatistiken und Limits
+- Nutzungs- und Quota-Informationen sind direkt im Endpunktdokument beschrieben (separates `prompt-usage.md` ist nicht mehr erforderlich).
 
 ### AI-Image Enhancer API
 
-- **[POST /api/ai-image/generate](./ai-image-generate.md)** — Bildverbesserung via Replicate/Workers AI
-
-- **[GET /api/ai-image/jobs/{id}](./ai-image-jobs.md)** — Job-Status und Ergebnisse
-
-- **[POST /api/ai-image/jobs/{id}/cancel](./ai-image-cancel.md)** — Job-Abbruch
+- **[AI Image API](./ai-image_api.md)** bündelt Generate-, Usage- und Job-Endpunkte inklusive Cancel-Flows.
 
 ### Comments API
 
-- **[Public API - Comments](./public_api.md#comments)** — Öffentliche Kommentar-Funktionen
+- **[Public API - Comments](./public_api.md#1-kommentare-api)** — Öffentliche Kommentar-Funktionen
 
 - **[Admin API - Comments](./admin_api.md#comments)** — Moderations- und Admin-Funktionen
 
@@ -55,27 +57,29 @@ testRefs: 'tests/integration/api, test-suite-v2/src/e2e'
 
 ### Authentication
 
-- **[POST /api/auth/magic/request](./auth_api.md#magic-request)** — Magic Link Request
+- **[POST /api/auth/magic/request](./auth_api.md)** — Magic Link Request
 
-- **[GET /api/auth/callback](./auth_api.md#callback)** — OAuth/Magic Link Callback
+- **[GET /api/auth/callback](./auth_api.md)** — OAuth/Magic Link Callback
 
 - **[GET /api/user/profile](./user_api.md)** — Benutzerprofil
 
-### Billing & Subscription
+### Business APIs
 
-- **[POST /api/billing/session](./billing_api.md)** — Stripe-Checkout-Session
+#### Billing & Subscription
 
-- **[GET /api/billing/sync](./billing_api.md)** — Subscription-Synchronisation
+- **POST** `/api/billing/session` - Stripe-Checkout-Session (siehe [Billing API](./billing_api.md))
 
-- Hinweis: Admin‑Planwechsel werden über **[POST /api/admin/users/set-plan](./admin_api.md#users-%E2%80%94-set-plan-admin-override)** orchestriert (Interval/Proration/Cancel). Der finale `users.plan` wird über den Stripe‑Webhook gesetzt (siehe **[Billing Webhook](./billing_api.md#post-apibillingstripe-webhook)**).
+- **GET** `/api/billing/sync` - Subscription-Synchronisation (siehe [Billing API](./billing_api.md))
+
+- **POST** `/api/billing/credits` - Credit-Paket-Kauf (siehe [Billing API](./billing_api.md))
+
+#### Comments System
+
+- Siehe [Comments API](./comments_api.md) für CRUD, Moderation und Statusmodelle
 
 ## Spezifikationen
 
 - **[OpenAPI Schema](./openapi.yaml)** — Maschinenlesbare API-Spezifikation
-
-- **[API Versioning](./versioning.md)** — Versionierungsstrategie
-
-- **[Webhooks](./webhooks.md)** — Webhook-Endpunkte und Signaturen
 
 ## Standards
 
@@ -107,11 +111,7 @@ testRefs: 'tests/integration/api, test-suite-v2/src/e2e'
 
 ### API-Test-Beispiele
 
-- **[Postman Collection](./postman-collection.json)** — Vollständige API-Test-Suite
-
-- **[Curl Examples](./curl-examples.md)** — Kommandozeilen-API-Tests
-
-- **[Integration Tests](./integration-tests.md)** — Automatisierte API-Tests
+Aktuell keine dedizierten Beispiel-Sammlungen veröffentlicht; siehe Feature-Dokumente und Tests im Repository (`tests/integration/api`, `test-suite-v2/src/e2e`).
 
 ## Cross-Referenzen
 
@@ -144,11 +144,11 @@ testRefs: 'tests/integration/api, test-suite-v2/src/e2e'
 
 ## Bekannte Lücken
 
-- [TODO] Vollständige Webhook-Dokumentation
+- TODO: Vollständige Webhook-Dokumentation
 
-- [TODO] API-Performance-Metriken
+- TODO: API-Performance-Metriken
 
-- [TODO] Client-SDKs für gängige Sprachen
+- TODO: Client-SDKs für gängige Sprachen
 
 ## Grundlegendes
 

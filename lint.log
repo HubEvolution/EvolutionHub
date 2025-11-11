@@ -1,0 +1,159 @@
+
+> evolution-hub@0.0.1 lint
+> eslint 'src/**/*.{ts,astro}' --max-warnings=280
+
+
+/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/components/admin/dashboard/hooks/useAdminAuditLogs.ts
+   2:9   warning  Replace `⏎··fetchAdminAuditLogs,⏎··type·AdminAuditLogsResponse,⏎` with `·fetchAdminAuditLogs,·type·AdminAuditLogsResponse·`  prettier/prettier
+  23:32  warning  Delete `⏎····`                                                                                                               prettier/prettier
+  25:5   warning  Delete `··`                                                                                                                  prettier/prettier
+  26:1   warning  Delete `··`                                                                                                                  prettier/prettier
+  27:1   warning  Replace `········` with `······`                                                                                             prettier/prettier
+  28:1   warning  Delete `··`                                                                                                                  prettier/prettier
+  29:7   warning  Delete `··`                                                                                                                  prettier/prettier
+  30:1   warning  Delete `··`                                                                                                                  prettier/prettier
+  31:1   warning  Delete `··`                                                                                                                  prettier/prettier
+  32:9   warning  Replace `··const·message·=` with `const·message·=⏎·········`                                                                 prettier/prettier
+  33:1   warning  Replace `··········` with `········`                                                                                         prettier/prettier
+  34:7   warning  Delete `··`                                                                                                                  prettier/prettier
+  35:1   warning  Replace `····},⏎····[]⏎··` with `··},·[]`                                                                                    prettier/prettier
+
+/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/components/admin/dashboard/hooks/useAdminCredits.ts
+  36:22  warning  Insert `⏎·······`  prettier/prettier
+  52:22  warning  Insert `⏎·······`  prettier/prettier
+
+/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/components/admin/dashboard/hooks/useAdminUserInsights.ts
+  78:22  warning  Insert `⏎·······`    prettier/prettier
+  92:24  warning  Insert `⏎·········`  prettier/prettier
+
+/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/content/config.ts
+   6:7  warning  'dateSchema' is assigned a value but never used. Allowed unused vars must match /^_/u    @typescript-eslint/no-unused-vars
+  12:7  warning  'authorSchema' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+  30:7  warning  'categories' is assigned a value but never used. Allowed unused vars must match /^_/u    @typescript-eslint/no-unused-vars
+
+/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/lib/admin/api-client.ts
+  121:25  warning  Replace `·?·((await·response.json().catch(()·=>·undefined))·as·AdminApiErrorBody·|·AdminApiSuccess<T>·|·undefined)` with `⏎····?·((await·response.json().catch(()·=>·undefined))·as⏎········|·AdminApiErrorBody⏎········|·AdminApiSuccess<T>⏎········|·undefined)⏎···`  prettier/prettier
+  124:20  warning  Replace `·(payload·as·AdminApiErrorBody·|·undefined)?.error?.message·||·response.statusText·||` with `⏎······(payload·as·AdminApiErrorBody·|·undefined)?.error?.message·||⏎······response.statusText·||⏎·····`                                                          prettier/prettier
+  276:39  warning  Replace `params:·{·email?:·string;·id?:·string·},·signal?:·AbortSignal` with `⏎··params:·{·email?:·string;·id?:·string·},⏎··signal?:·AbortSignal⏎`                                                                                                                      prettier/prettier
+  313:12  warning  Replace `·limit?:·number;·eventType?:·string;·userId?:·string;·from?:·number;·to?:·number;·cursor?:·string` with `⏎····limit?:·number;⏎····eventType?:·string;⏎····userId?:·string;⏎····from?:·number;⏎····to?:·number;⏎····cursor?:·string;⏎·`                         prettier/prettier
+
+/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/lib/blog.ts
+   56:58  warning  Insert `⏎·······`                                                                                                                                                         prettier/prettier
+   72:23  warning  Replace `posts:·ProcessedBlogPost[],·options:·BlogListOptions·=·{}` with `⏎····posts:·ProcessedBlogPost[],⏎····options:·BlogListOptions·=·{}⏎··`                          prettier/prettier
+  199:36  warning  Replace `·?·processedPosts` with `⏎······?·processedPosts⏎·····`                                                                                                          prettier/prettier
+  227:32  warning  Replace `(a.post.data.updatedDate·??·a.post.data.pubDate)·as·Date·|·string` with `⏎··········(a.post.data.updatedDate·??·a.post.data.pubDate)·as·Date·|·string⏎········`  prettier/prettier
+  228:32  warning  Replace `(b.post.data.updatedDate·??·b.post.data.pubDate)·as·Date·|·string` with `⏎··········(b.post.data.updatedDate·??·b.post.data.pubDate)·as·Date·|·string⏎········`  prettier/prettier
+  245:59  warning  Insert `⏎·····`                                                                                                                                                           prettier/prettier
+  265:36  warning  Replace `·?·processedPosts` with `⏎······?·processedPosts⏎·····`                                                                                                          prettier/prettier
+
+/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/lib/validation/schemas/comments.ts
+   70:13  warning  Replace `⏎······.preprocess(coerceSearchParam,·z.coerce.number().int().min(1).max(10))⏎······` with `.preprocess(coerceSearchParam,·z.coerce.number().int().min(1).max(10))`                                                          prettier/prettier
+  124:22  warning  Replace `⏎······.preprocess(coerceBooleanParam,·z.boolean().optional())⏎······` with `.preprocess(coerceBooleanParam,·z.boolean().optional())`                                                                                        prettier/prettier
+  147:30  warning  Delete `⏎······`                                                                                                                                                                                                                      prettier/prettier
+  149:1   warning  Delete `··`                                                                                                                                                                                                                           prettier/prettier
+  150:7   warning  Delete `··`                                                                                                                                                                                                                           prettier/prettier
+  151:5   warning  Replace `··},⏎······z.enum(commentEntityTypes)⏎····` with `},·z.enum(commentEntityTypes)`                                                                                                                                             prettier/prettier
+  202:19  warning  Replace `(value)·=>·coerceNumberParam(value,·{·min:·1·}),·z.number().int().min(1).default(1)` with `⏎········(value)·=>·coerceNumberParam(value,·{·min:·1·}),⏎········z.number().int().min(1).default(1)⏎······`                      prettier/prettier
+  211:19  warning  Delete `⏎········`                                                                                                                                                                                                                    prettier/prettier
+  213:1   warning  Delete `··`                                                                                                                                                                                                                           prettier/prettier
+  214:1   warning  Delete `··`                                                                                                                                                                                                                           prettier/prettier
+  215:9   warning  Delete `··`                                                                                                                                                                                                                           prettier/prettier
+  216:9   warning  Delete `··`                                                                                                                                                                                                                           prettier/prettier
+  217:1   warning  Replace `········},⏎········z.enum(performanceSortFields).default('createdAt')⏎······` with `······},·z.enum(performanceSortFields).default('createdAt')`                                                                             prettier/prettier
+  222:19  warning  Delete `⏎········`                                                                                                                                                                                                                    prettier/prettier
+  224:1   warning  Delete `··`                                                                                                                                                                                                                           prettier/prettier
+  225:1   warning  Replace `··········` with `········`                                                                                                                                                                                                  prettier/prettier
+  226:1   warning  Delete `··`                                                                                                                                                                                                                           prettier/prettier
+  227:9   warning  Delete `··`                                                                                                                                                                                                                           prettier/prettier
+  228:1   warning  Replace `········},⏎········z.enum(performanceSortOrders).default('desc')⏎······` with `······},·z.enum(performanceSortOrders).default('desc')`                                                                                       prettier/prettier
+  232:22  warning  Replace `⏎······.preprocess(coerceBooleanParam,·z.boolean().default(false))⏎······` with `.preprocess(coerceBooleanParam,·z.boolean().default(false))`                                                                                prettier/prettier
+  255:19  warning  Insert `⏎········`                                                                                                                                                                                                                    prettier/prettier
+  256:1   warning  Replace `········` with `··········`                                                                                                                                                                                                  prettier/prettier
+  257:1   warning  Insert `··`                                                                                                                                                                                                                           prettier/prettier
+  258:1   warning  Insert `··`                                                                                                                                                                                                                           prettier/prettier
+  259:9   warning  Insert `··`                                                                                                                                                                                                                           prettier/prettier
+  260:1   warning  Replace `······},·z.string().min(1,·'Search·query·is·required')` with `········},⏎········z.string().min(1,·'Search·query·is·required')⏎······`                                                                                       prettier/prettier
+  263:19  warning  Replace `(value)·=>·coerceNumberParam(value,·{·min:·1·}),·z.number().int().min(1).default(1)` with `⏎········(value)·=>·coerceNumberParam(value,·{·min:·1·}),⏎········z.number().int().min(1).default(1)⏎······`                      prettier/prettier
+  272:19  warning  Replace `(value)·=>·coerceStringArray(value),·z.array(z.string()).max(5).default(['approved'])` with `⏎········(value)·=>·coerceStringArray(value),⏎········z.array(z.string()).max(5).default(['approved'])⏎······`                  prettier/prettier
+  275:19  warning  Replace `(value)·=>·coerceNumberArray(value),·z.array(z.number().int().positive()).max(10).default([])` with `⏎········(value)·=>·coerceNumberArray(value),⏎········z.array(z.number().int().positive()).max(10).default([])⏎······`  prettier/prettier
+  285:19  warning  Replace `(value)·=>·coerceNumberParam(value,·{·min:·0·}),·z.number().int().min(0).optional()` with `⏎········(value)·=>·coerceNumberParam(value,·{·min:·0·}),⏎········z.number().int().min(0).optional()⏎······`                      prettier/prettier
+  311:19  warning  Replace `(value)·=>·coerceNumberParam(value,·{·min:·1·}),·z.number().int().min(1).default(1)` with `⏎········(value)·=>·coerceNumberParam(value,·{·min:·1·}),⏎········z.number().int().min(1).default(1)⏎······`                      prettier/prettier
+  320:19  warning  Replace `(value)·=>·coerceNumberParam(value,·{·min:·0·}),·z.number().int().min(0).default(0)` with `⏎········(value)·=>·coerceNumberParam(value,·{·min:·0·}),⏎········z.number().int().min(0).default(0)⏎······`                      prettier/prettier
+  322:22  warning  Replace `⏎······.preprocess(coerceBooleanParam,·z.boolean().default(false))⏎······` with `.preprocess(coerceBooleanParam,·z.boolean().default(false))`                                                                                prettier/prettier
+  345:57  warning  Replace `typeof·commentPerformancePaginationQuerySchema` with `⏎··typeof·commentPerformancePaginationQuerySchema⏎`                                                                                                                    prettier/prettier
+
+/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/pages/api/admin/telemetry.ts
+  56:15  warning  Insert `⏎·····`  prettier/prettier
+  57:7   warning  Insert `··`      prettier/prettier
+  58:1   warning  Insert `··`      prettier/prettier
+
+/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/pages/api/comments/count.ts
+   79:5   warning  Insert `··`                                       prettier/prettier
+   80:1   warning  Insert `··`                                       prettier/prettier
+   81:1   warning  Replace `······` with `········`                  prettier/prettier
+   82:1   warning  Insert `··`                                       prettier/prettier
+   83:1   warning  Replace `··········` with `············`          prettier/prettier
+   84:11  warning  Insert `··`                                       prettier/prettier
+   85:1   warning  Replace `··········` with `············`          prettier/prettier
+   86:13  warning  Insert `··`                                       prettier/prettier
+   87:1   warning  Replace `··············` with `················`  prettier/prettier
+   88:1   warning  Insert `··`                                       prettier/prettier
+   89:1   warning  Replace `··············` with `················`  prettier/prettier
+   90:13  warning  Insert `··`                                       prettier/prettier
+   91:1   warning  Replace `··········` with `············`          prettier/prettier
+   92:1   warning  Insert `··`                                       prettier/prettier
+   93:1   warning  Insert `··`                                       prettier/prettier
+   94:7   warning  Insert `··`                                       prettier/prettier
+   95:1   warning  Replace `········` with `··········`              prettier/prettier
+   96:9   warning  Insert `··`                                       prettier/prettier
+   97:1   warning  Replace `··········` with `············`          prettier/prettier
+   98:11  warning  Insert `··`                                       prettier/prettier
+   99:1   warning  Replace `········` with `··········`              prettier/prettier
+  100:1   warning  Insert `··`                                       prettier/prettier
+  101:1   warning  Replace `··········` with `············`          prettier/prettier
+  102:11  warning  Insert `··`                                       prettier/prettier
+  103:1   warning  Replace `········` with `··········`              prettier/prettier
+  104:1   warning  Insert `··`                                       prettier/prettier
+  105:1   warning  Replace `······` with `········`                  prettier/prettier
+  106:1   warning  Insert `··`                                       prettier/prettier
+  108:1   warning  Replace `····` with `······`                      prettier/prettier
+  109:1   warning  Insert `··`                                       prettier/prettier
+  110:1   warning  Replace `······` with `········`                  prettier/prettier
+  111:1   warning  Insert `··`                                       prettier/prettier
+  112:1   warning  Replace `········` with `··········`              prettier/prettier
+  113:9   warning  Insert `··`                                       prettier/prettier
+  114:1   warning  Insert `··`                                       prettier/prettier
+  115:13  warning  Insert `··`                                       prettier/prettier
+  116:1   warning  Insert `··`                                       prettier/prettier
+  117:13  warning  Insert `··`                                       prettier/prettier
+  118:11  warning  Insert `··`                                       prettier/prettier
+  119:1   warning  Insert `··`                                       prettier/prettier
+  120:1   warning  Insert `··`                                       prettier/prettier
+  121:7   warning  Insert `··`                                       prettier/prettier
+  122:1   warning  Insert `··`                                       prettier/prettier
+  123:7   warning  Insert `··`                                       prettier/prettier
+  124:1   warning  Insert `··`                                       prettier/prettier
+  125:5   warning  Insert `··`                                       prettier/prettier
+  126:1   warning  Insert `··`                                       prettier/prettier
+  127:1   warning  Insert `··`                                       prettier/prettier
+  128:1   warning  Insert `··`                                       prettier/prettier
+  129:9   warning  Insert `··`                                       prettier/prettier
+  130:1   warning  Insert `··`                                       prettier/prettier
+  131:9   warning  Insert `··`                                       prettier/prettier
+  132:1   warning  Insert `··`                                       prettier/prettier
+  133:7   warning  Insert `··`                                       prettier/prettier
+  134:1   warning  Insert `··`                                       prettier/prettier
+  135:7   warning  Insert `··`                                       prettier/prettier
+  136:1   warning  Insert `··`                                       prettier/prettier
+  137:9   warning  Insert `··`                                       prettier/prettier
+  138:1   warning  Insert `··`                                       prettier/prettier
+  139:9   warning  Insert `··`                                       prettier/prettier
+  140:1   warning  Insert `··`                                       prettier/prettier
+  141:9   warning  Insert `··`                                       prettier/prettier
+  142:1   warning  Insert `··`                                       prettier/prettier
+  143:7   warning  Insert `··`                                       prettier/prettier
+  144:1   warning  Insert `··`                                       prettier/prettier
+
+✖ 133 problems (0 errors, 133 warnings)
+  0 errors and 130 warnings potentially fixable with the `--fix` option.
+

@@ -4,6 +4,7 @@ owner: 'Frontend Team'
 priority: 'medium'
 lastSync: '2025-11-04'
 codeRefs: 'src/components/Header.astro, src/components/scripts/HeaderScroll.astro'
+testRefs: 'N/A'
 ---
 
 <!-- markdownlint-disable MD051 -->

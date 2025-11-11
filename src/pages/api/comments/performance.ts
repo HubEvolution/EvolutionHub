@@ -17,7 +17,14 @@ import {
 
 type CommentPerformanceEnv = { DB?: unknown };
 
-const ALLOWED_MODES = ['status', 'paginated', 'search', 'lazy-config', 'metrics', 'cache-stats'] as const;
+const ALLOWED_MODES = [
+  'status',
+  'paginated',
+  'search',
+  'lazy-config',
+  'metrics',
+  'cache-stats',
+] as const;
 
 type CommentPerformanceMode = (typeof ALLOWED_MODES)[number];
 
@@ -74,7 +81,8 @@ export const GET = withApiMiddleware(
     try {
       const { db } = resolvePerformanceEnv(context);
       const url = new URL(context.request.url);
-      const mode = (url.searchParams.get('mode')?.toLowerCase() ?? 'status') as CommentPerformanceMode;
+      const mode = (url.searchParams.get('mode')?.toLowerCase() ??
+        'status') as CommentPerformanceMode;
 
       if (!ALLOWED_MODES.includes(mode)) {
         return createApiError('validation_error', 'Unsupported mode provided', {

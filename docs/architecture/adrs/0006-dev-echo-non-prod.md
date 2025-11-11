@@ -2,6 +2,12 @@
 status: active
 date: '2025-09-11'
 supersededBy: ''
+description: 'ADR für den deterministischen Dev-Echo-Modus des AI Image Enhancers in Nicht-Production.'
+owner: 'team:architecture'
+priority: 'medium'
+lastSync: '2025-11-11'
+codeRefs: 'src/lib/services/ai-image-service.ts, wrangler.toml'
+testRefs: 'N/A'
 ---
 
 <!-- markdownlint-disable MD051 -->

@@ -222,11 +222,21 @@
         }
       },
       "features_poetic": {
-        "feature1": { "description": "Verwandle verrauschte Schatten in klare Welten." },
-        "feature2": { "description": "Lass Worte fliegen und Ideen wachsen." },
-        "feature3": { "description": "Höre Gedanken klarer denn je." },
-        "feature4": { "description": "Lehre Seiten, in Strukturen zu sprechen." },
-        "feature5": { "description": "Wo Frames wieder atmen lernen." }
+        "feature1": {
+          "description": "Verwandle verrauschte Schatten in klare Welten."
+        },
+        "feature2": {
+          "description": "Lass Worte fliegen und Ideen wachsen."
+        },
+        "feature3": {
+          "description": "Höre Gedanken klarer denn je."
+        },
+        "feature4": {
+          "description": "Lehre Seiten, in Strukturen zu sprechen."
+        },
+        "feature5": {
+          "description": "Wo Frames wieder atmen lernen."
+        }
       },
       "testimonials": {
         "heading": "Was unsere Nutzer über unsere Tools sagen",
@@ -288,7 +298,8 @@
           "prompt": "Prompt",
           "voice": "Stimme",
           "web": "Webscraper",
-          "video": "Video"
+          "video": "Video",
+          "cta": ""
         }
       }
     },
@@ -743,20 +754,14 @@
             "title": "Creator-Paket",
             "price": "22,00 €",
             "description": "Ideal für wöchentliche Projekte und Team-Workflows.",
-            "bullets": [
-              "500 Credits für größere Batches",
-              "Schont deine täglichen Burst-Limits"
-            ],
+            "bullets": ["500 Credits für größere Batches", "Schont deine täglichen Burst-Limits"],
             "cta": "500 Credits kaufen"
           },
           "1500": {
             "title": "Pro-Paket",
             "price": "55,00 €",
             "description": "Bestes Preis-Leistungs-Verhältnis für Agenturen und Produktionsteams.",
-            "bullets": [
-              "1.500 Credits sofort verfügbar",
-              "Im gesamten Workspace teilbar"
-            ],
+            "bullets": ["1.500 Credits sofort verfügbar", "Im gesamten Workspace teilbar"],
             "cta": "1.500 Credits kaufen"
           }
         }
@@ -986,7 +991,8 @@
           "paid": "Bezahlt",
           "cancelled": "Abgebrochen"
         },
-        "updated": "Aktualisiert"
+        "updated": "Aktualisiert",
+        "retry": ""
       },
       "projects": {
         "title": "Deine Projekte",
@@ -1279,7 +1285,12 @@
       },
       "card": {
         "more": "Mehr erfahren",
-        "more_about_prefix": "Mehr über"
+        "more_about_prefix": "Mehr über",
+        "direct": "Tool starten"
+      },
+      "modal": {
+        "close": "Schließen",
+        "featuresHeading": "Funktionen"
       },
       "all": "Alle Tools",
       "categories": {
@@ -1376,6 +1387,16 @@
         "Imag-Enhancer": {
           "name": "Imag-Enhancer",
           "description": "Verbessert automatisch die Bildqualität: KI-basierte Rauschunterdrückung, Detail-Schärfung, hochwertiges Upscaling und Farb-/Kontrastoptimierung — einstellbare Stufen für Einzel- und Batchverarbeitung.",
+          "modal": {
+            "headline": "Jedes Pixel optimieren",
+            "summary": "KI-gestützte Optimierungen für Rauschen, Upscaling und Farbkorrektur.",
+            "features": [
+              "Fortschrittliche Rauschreduzierung und Detailwiederherstellung",
+              "Konfigurierbare Upscaling-Stufen und Presets",
+              "Vorher/Nachher-Vergleich mit Lupe und Zoom",
+              "Unterstützt Batch-Uploads mit Nutzungs-Tracking"
+            ]
+          },
           "app": {
             "dropText": "Bild hierher ziehen oder klicken, um auszuwählen",
             "enhance": "Verbessern",
@@ -1433,7 +1454,17 @@
         },
         "prompt-enhancer": {
           "name": "Prompt-Enhancer",
-          "description": "Prompts für Klarheit und Wirkung verfeinern. Wähle Stile wie Creative, Professional oder Concise und erhalte hochwertige Ergebnisse."
+          "description": "Prompts für Klarheit und Wirkung verfeinern. Wähle Stile wie Creative, Professional oder Concise und erhalte hochwertige Ergebnisse.",
+          "modal": {
+            "headline": "Bessere Prompts verfassen",
+            "summary": "Verbessere Klarheit, Ton und Struktur mit geführten Modi und Safety-Checks.",
+            "features": [
+              "Stil-Presets für kreative, professionelle oder knappe Ergebnisse",
+              "Optionale Kontextdateien und URL-Importe",
+              "Safety-Heuristiken und Nutzungsüberblick",
+              "Kopierfertige Ergebnisse mit einem Klick"
+            ]
+          }
         },
         "Prompt-Enhancer": {
           "name": "Prompt-Enhancer",
@@ -1441,15 +1472,45 @@
         },
         "webscraper": {
           "name": "Webscraper",
-          "description": "Sicher Klartext aus Webseiten extrahieren. SSRF‑gehärtet, formatbewusst, mit Nutzungslimits und klaren Fehlermeldungen."
+          "description": "Sicher Klartext aus Webseiten extrahieren. SSRF‑gehärtet, formatbewusst, mit Nutzungslimits und klaren Fehlermeldungen.",
+          "modal": {
+            "headline": "Sicher scrapen",
+            "summary": "Strukturierten Text mit SSRF-Schutz, Quoten und sauberer Formatierung abrufen.",
+            "features": [
+              "SSRF-gehärtete Requests mit Port-Allowlist",
+              "Markdown- und Plain-Text-Ausgabeoptionen",
+              "Rate-Limits und Tageskontingente pro Plan",
+              "Detaillierte Validierung und Fehlermeldungen"
+            ]
+          }
         },
         "voice-visualizer": {
           "name": "Voice Visualizer & Transkriptor",
-          "description": "Audio aufnehmen, Live‑Wellenform sehen und sofort transkribieren. Auf Tempo, Klarheit und geringe Reibung optimiert."
+          "description": "Audio aufnehmen, Live‑Wellenform sehen und sofort transkribieren. Auf Tempo, Klarheit und geringe Reibung optimiert.",
+          "modal": {
+            "headline": "In Echtzeit transkribieren",
+            "summary": "Audio aufnehmen, Waveform sehen und sofortige Transkripte erhalten – mit Nutzungssteuerung.",
+            "features": [
+              "Live-Wellenform mit Recording-Steuerung",
+              "Gestückelte Transkription mit Quotas",
+              "Downloadbare Transkripte und Sitzungsverlauf",
+              "Same-Origin-geschützter Upload mit CSP-Schutz"
+            ]
+          }
         },
         "video-enhancer": {
           "name": "Video‑Enhancer",
-          "description": "Videos mit KI hochskalieren und verbessern. Mehr Schärfe, weniger Rauschen, klare Details — schnell und konsistent."
+          "description": "Videos mit KI hochskalieren und verbessern. Mehr Schärfe, weniger Rauschen, klare Details — schnell und konsistent.",
+          "modal": {
+            "headline": "Jeden Frame hochskalieren",
+            "summary": "AI-Video-Enhancement mit Upscaling, Rauschreduktion und Quota-Tracking.",
+            "features": [
+              "2× und 4× Upscaling mit AI-Schärfung",
+              "Rauschreduktion und detailtreue Gesichter",
+              "R2-gestützte Uploads mit temporärer Speicherung",
+              "Nutzungsbasierte Kontingente gemäß Plan"
+            ]
+          }
         }
       },
       "details": {

@@ -17,7 +17,10 @@ export function resolveDbBinding(context: APIContext): D1Database {
 
 export function resolveNotificationService(context: APIContext): NotificationService {
   const db = resolveDbBinding(context);
-  return new NotificationService(db);
+  const env = resolveRuntimeEnv(context);
+  const kv =
+    (env.SESSION as KVNamespace | undefined) ?? (env.KV_PROMPT_ENHANCER as KVNamespace | undefined);
+  return new NotificationService(db, kv);
 }
 
 export function resolveUserId(context: APIContext): string | null {

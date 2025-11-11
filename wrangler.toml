@@ -202,6 +202,14 @@ PROMPT_TEMPERATURE = "0.2"
 PROMPT_TOP_P = "0.9"
 PUBLIC_LANDING_BG_VARIANT = "techcells"
 
+# Secrets (nicht im Klartext hier pflegen) – via:
+#   wrangler secret put STYTCH_PROJECT_ID
+#   wrangler secret put STYTCH_SECRET
+#   wrangler secret put STYTCH_PUBLIC_TOKEN
+#   wrangler secret put JWT_SECRET
+#   wrangler secret put RESEND_API_KEY
+# Optional: TURNSTILE_SECRET_KEY
+
 # Ressourcen-Bindings für Staging (nicht von Top-Level geerbt)
 [[env.staging.d1_databases]]
 binding = "DB"

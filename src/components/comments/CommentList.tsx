@@ -80,7 +80,10 @@ const CommentItem: React.FC<CommentItemProps> = ({
   const isAdmin = currentUser?.email === 'admin@hub-evolution.com';
   const canEditDelete = isAuthor || !!isAdmin;
   const canReply = depth < maxDepth;
-  const sanitizedContent = useMemo(() => sanitizeCommentContent(comment.content), [comment.content]);
+  const sanitizedContent = useMemo(
+    () => sanitizeCommentContent(comment.content),
+    [comment.content]
+  );
   const hasReplies = comment.replies && comment.replies.length > 0;
 
   const formatDate = (timestamp: number) => {

@@ -6,6 +6,7 @@ import { getI18n } from '@/utils/i18n';
 import Card from '@/components/ui/Card';
 
 interface Props {
+  id: string;
   name: string;
   description: string;
   iconKey?: string;
@@ -17,6 +18,7 @@ interface Props {
 }
 
 const {
+  id,
   name,
   description,
   iconKey,
@@ -93,7 +95,7 @@ const comingSoonLabel = t('comingSoon.ariaLabel') || t('comingSoon.title') || 'C
           tabindex={comingSoon ? '-1' : undefined}
         >
           <span class="line-clamp-2" aria-hidden={comingSoon ? 'true' : undefined}>{name}</span>
-          <span class="absolute inset-0" aria-hidden="true"></span>
+          <span class="absolute inset-0 pointer-events-none" aria-hidden="true"></span>
         </a>
       </h2>
 
@@ -112,16 +114,28 @@ const comingSoonLabel = t('comingSoon.ariaLabel') || t('comingSoon.title') || 'C
       )
     }
 
-    <div
-      class="mt-auto flex items-center text-sm text-emerald-600 dark:text-emerald-400 font-medium"
-    >
-      {t('pages.tools.card.more')}
-      <svg class="ml-1 w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-        <path
-          fill-rule="evenodd"
-          d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z"
-          clip-rule="evenodd"></path>
-      </svg>
+    <div class="mt-auto flex flex-wrap items-center gap-2">
+      <button
+        type="button"
+        class="inline-flex items-center rounded-lg bg-emerald-500/10 px-3 py-2 text-sm font-medium text-emerald-700 transition hover:bg-emerald-500/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 dark:text-emerald-300 dark:focus-visible:ring-offset-slate-900"
+        data-tool-modal-trigger={id}
+        aria-haspopup="dialog"
+        aria-controls="tool-details-modal"
+      >
+        {t('pages.tools.card.more')}
+        <svg class="ml-2 h-4 w-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+          <path
+            fill-rule="evenodd"
+            d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z"
+            clip-rule="evenodd"></path>
+        </svg>
+      </button>
+      <a
+        href={localizePath(locale, url)}
+        class="inline-flex items-center rounded-lg border border-emerald-500/40 px-3 py-2 text-sm font-medium text-emerald-600 transition hover:border-emerald-500/60 hover:text-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 dark:border-emerald-400/40 dark:text-emerald-300 dark:hover:border-emerald-300 dark:hover:text-emerald-200 dark:focus-visible:ring-offset-slate-900"
+      >
+        {t('pages.tools.card.direct')}
+      </a>
     </div>
   </div>
 

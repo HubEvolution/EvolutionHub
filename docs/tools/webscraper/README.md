@@ -15,19 +15,19 @@ testRefs: 'tests/unit/webscraper, test-suite-v2/src/e2e/tools'
 
 ## Primärdokumente
 
-- **[Webscraper Overview](./webscraper-overview.md)** — **Hauptdokument** für Tool-Architektur und Features
+- **[Specification](./spec.md)** — Technische Beschreibung der aktuellen Funktionen
 
-- **[API Documentation](./api.md)** — REST-API für Content-Extraktion
+- **[Implementation Complete](./IMPLEMENTATION_COMPLETE.md)** — MVP-Status, Deploy-Anleitung und Betriebsnotizen
 
-- **[Configuration](./configuration.md)** — Setup und Konfigurationsoptionen
+- **[Guidelines](./guidelines.md)** — Entwicklungsrichtlinien und Code-Konventionen
+
+- **[Testing Strategy](./testing.md)** — Test-Pyramide, Quality-Metriken und Ausführungshinweise
+
+- **[Roadmap](./roadmap.md)** — Geplante Erweiterungen und Phasen
 
 ## Sekundär-/Spezialdokumente
 
-- **[Usage Examples](./usage-examples.md)** — Praktische Anwendungsbeispiele
-
-- **[Rate Limiting](./rate-limiting.md)** — Limits und Quota-Management
-
-- **[Security Guidelines](./security.md)** — Security-Aspekte und Best Practices
+- Weitere Spezialisierungen werden aktuell direkt in den Primärdokumenten gepflegt. Eigenständige Teilkapitel für Usage, Rate-Limiting oder Security sind noch nicht veröffentlicht.
 
 ## Hauptfeatures
 
@@ -51,27 +51,19 @@ testRefs: 'tests/unit/webscraper, test-suite-v2/src/e2e/tools'
 
 ### Setup & Konfiguration
 
-- **[Environment Setup](./setup.md)** — Umgebungs-Konfiguration
-
-- **[Dependencies](./dependencies.md)** — Erforderliche Services und APIs
-
-- **[Authentication](./auth.md)** — API-Authentifizierung
+Setup-Hinweise werden derzeit im Abschnitt *Deployment & Betrieb* von [Implementation Complete](./IMPLEMENTATION_COMPLETE.md) dokumentiert. Ergänzende Kapitel zu Abhängigkeiten oder Authentifizierung folgen mit dem nächsten Release.
 
 ### Integration
 
-- **[Frontend Integration](./frontend.md)** — UI-Komponenten und Integration
-
-- **[Backend Integration](./backend.md)** — Server-seitige Integration
-
-- **[Testing](./testing.md)** — Unit- und Integration-Tests
+- **Testing:** Siehe [Testing Strategy](./testing.md) für Unit-, Integration- und E2E-Flows
 
 ## Cross-Referenzen
 
-- **[API](../api/)** — Allgemeine API-Dokumentation und Standards
+- **[API Documentation](../../api/README.md)** — Allgemeine API-Standards und Middleware
 
-- **[Security](../security/)** — Webscraper-spezifische Security-Richtlinien
+- **[Security Documentation](../../security/README.md)** — Security-Richtlinien
 
-- **[Development](../development/)** — Tool-Entwicklung und Testing
+- **[Development Documentation](../../development/README.md)** — Tool-Entwicklung und Testing
 
 ## Ownership & Maintenance
 
@@ -94,11 +86,11 @@ testRefs: 'tests/unit/webscraper, test-suite-v2/src/e2e/tools'
 
 ## Bekannte Lücken
 
-- [TODO] Vollständige Frontend-UI-Dokumentation
+- TODO: Vollständige Frontend-UI-Dokumentation
 
-- [TODO] Advanced Scraping-Features (JavaScript-Rendering)
+- TODO: Advanced Scraping-Features (JavaScript-Rendering)
 
-- [TODO] Enterprise-Feature-Dokumentation
+- TODO: Enterprise-Feature-Dokumentation
 
 ## Übersicht
 

@@ -586,7 +586,9 @@ const plans: Plan[] = [
                   idx === 1 ? 'pro' : idx === 2 ? 'premium' : idx === 3 ? 'enterprise' : undefined
                 }
                 data-role="amount"
-                data-monthly={idx === 1 ? '€12.00' : idx === 2 ? '€28.00' : idx === 3 ? '€99.00' : ''}
+                data-monthly={
+                  idx === 1 ? '€12.00' : idx === 2 ? '€28.00' : idx === 3 ? '€99.00' : ''
+                }
                 data-annual={
                   idx === 1 ? '€120.00' : idx === 2 ? '€280.00' : idx === 3 ? '€990.00' : ''
                 }

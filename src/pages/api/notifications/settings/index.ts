@@ -37,7 +37,9 @@ export const GET = withAuthApiMiddleware(async (context) => {
       return createApiError('auth_error', 'Unauthorized');
     }
 
-    await rateLimit(`notifications:settings:${userId}`, 20, 60);
+    await rateLimit(`notifications:settings:${userId}`, 20, 60, {
+      env: (context.locals as any)?.runtime?.env as Record<string, unknown>,
+    });
 
     const notificationService = resolveNotificationService(context);
     const settings = await notificationService.getUserNotificationSettings(userId);
@@ -66,7 +68,9 @@ export const POST = withAuthApiMiddleware(
     const payload: UpdateSettingsInput = parsed.data;
 
     try {
-      await rateLimit(`notifications:settings:update:${userId}`, 10, 60);
+      await rateLimit(`notifications:settings:update:${userId}`, 10, 60, {
+        env: (context.locals as any)?.runtime?.env as Record<string, unknown>,
+      });
 
       const notificationService = resolveNotificationService(context);
       await notificationService.updateNotificationSettings(userId, {

@@ -21,6 +21,11 @@ export interface User {
   image?: string | null;
   password_hash?: string | null; // Hinzugefügt in Migration 0002
   created_at: string;
+  status?: 'active' | 'banned' | 'deleted';
+  banned_at?: number | string | null;
+  deleted_at?: number | string | null;
+  deleted_by?: string | null;
+  stytch_user_id?: string | null;
 }
 
 /**
@@ -34,6 +39,11 @@ export interface SafeUser {
   email: string;
   image?: string | null;
   created_at: string;
+  status?: 'active' | 'banned' | 'deleted';
+  banned_at?: number | string | null;
+  deleted_at?: number | string | null;
+  deleted_by?: string | null;
+  stytch_user_id?: string | null;
 }
 
 /**

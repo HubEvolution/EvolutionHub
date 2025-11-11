@@ -15,37 +15,21 @@ testRefs: 'N/A'
 
 ## Primärdokumente
 
-- **[Content Strategy](./content-strategy.md)** — **Hauptdokument** für Content-Marketing-Strategie
+- **[Prompts](./prompts.md)** — Bild-Generierungs-Prompts und Styleguides für Lead-Magnet-Vorschaubilder
 
-- **[Lead Magnet Creation](./lead-magnet-creation.md)** — Erstellung und Management von Lead Magnets
+- **[Content Prompts](./content-prompts.md)** — Prompt-Vorlagen für Blog- und Newsletter-Inhalte
 
-- **[Blog Guidelines](./blog-guidelines.md)** — Richtlinien für Blog-Content und SEO
+- **[R2 Optimization Plan](./r2-optimization-plan.md)** — Strategien zur Ablage und Optimierung von Marketing-Assets in R2
 
 ## Sekundär-/Spezialdokumente
 
-- **[Newsletter Setup](./newsletter-setup.md)** — Newsletter-Konfiguration und Automation
-
-- **[SEO Optimization](./seo-optimization.md)** — SEO-Best-Practices für Content
-
-- **[Analytics](./analytics.md)** — Content-Performance-Metriken und Tracking
+Weitere Detailguides (z. B. Newsletter-Automation, SEO-Taktiken oder Content-Analytics) sind derzeit in Vorbereitung und werden bei Veröffentlichung hier verlinkt.
 
 ## Content Generation
 
-### Blog System
+### Blog System & Lead Magnets
 
-- **[Blog Categories](./blog-categories.md)** — Kategorien und Content-Planung
-
-- **[Writing Guidelines](./writing-guidelines.md)** — Stil und Format für Blog-Artikel
-
-- **[Image Guidelines](./image-guidelines.md)** — Bilder und Visuals für Blog-Posts
-
-### Lead Magnets
-
-- **[E-Book Creation](./ebook-creation.md)** — Prozess für E-Book-Erstellung
-
-- **[Template Library](./template-library.md)** — Vorlagen für verschiedene Content-Formate
-
-- **[Distribution](./distribution.md)** — Verteilung und Promotion von Content
+- Struktur- und Styleguides für Blog-Artikel, Templates und Distributions-Playbooks befinden sich aktuell im Aufbau. Bis zur Veröffentlichung dienen die bestehenden Prompts-Dokumente als operative Grundlage.
 
 ## Cross-Referenzen
 
@@ -76,11 +60,11 @@ testRefs: 'N/A'
 
 ## Bekannte Lücken
 
-- [TODO] Vollständige Content-Calendar-Dokumentation
+- TODO: Vollständige Content-Calendar-Dokumentation
 
-- [TODO] A/B-Testing-Framework für Content
+- TODO: A/B-Testing-Framework für Content
 
-- [TODO] Multi-Language-Content-Strategie
+- TODO: Multi-Language-Content-Strategie
 
 ## Übersicht
 
@@ -88,21 +72,13 @@ testRefs: 'N/A'
 
 ## Dokumentation
 
-### Content Generation (2)
+### Content Generation
 
-- **[Prompts](./prompts.md)** — Bild-Generierungs-Prompts für Lead-Magnet-Vorschaubilder
+- **[Prompts](./prompts.md)** — Bild-Generierungs-Prompts (Midjourney v6, DALL·E 3, SDXL) inkl. Empfohlene Ausgabeformate
 
-  - Midjourney v6 / DALL·E 3 / SDXL-optimierte Prompts
+- **[Content Prompts](./content-prompts.md)** — Text-Prompts für Blog- und Newsletter-Kampagnen
 
-  - Empfohlene Settings und Ausgabeformate (1600×900 WEBP)
-
-  - New Work Transformations-Guide
-
-  - Weitere Lead-Magnet-Visuals
-
-- **[Content Prompts](./content-prompts.md)** — Content-Planungs-Prompts
-
-- **[R2 Optimization Plan](./r2-optimization-plan.md)** — R2-Storage-Optimierungsplan für Assets
+- **[R2 Optimization Plan](./r2-optimization-plan.md)** — Speicherstrategie, Lifecycle-Regeln und Cleanup des Marketing-Asset-Buckets
 
 ## Hinweise
 

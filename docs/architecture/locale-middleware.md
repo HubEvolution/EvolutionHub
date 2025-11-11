@@ -4,6 +4,7 @@ owner: 'Platform Team'
 priority: 'medium'
 lastSync: '2025-11-03'
 codeRefs: 'src/middleware.ts, docs/architecture/auth-flow.md'
+testRefs: 'N/A'
 ---
 
 <!-- markdownlint-disable MD051 -->

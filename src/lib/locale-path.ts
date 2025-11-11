@@ -2,6 +2,15 @@ import type { Locale } from '@/lib/i18n';
 
 const LOCALE_PREFIX_RE = /^\/(de|en)(\/|$)/;
 
+function toUrl(input: string | URL): URL {
+  if (input instanceof URL) return input;
+  try {
+    return new URL(input);
+  } catch {
+    return new URL(input, 'http://local');
+  }
+}
+
 /**
  * Prüft, ob ein Pfad bereits mit einer Locale versehen ist.
  */
@@ -65,46 +74,30 @@ export function localizePath(locale: Locale, href: string): string {
  *   bis Wrapper-Routen für alle Seiten verfügbar sind.
  */
 export function switchLocalePath(targetLocale: Locale, current: string | URL): string {
-  let url: URL;
-  if (current instanceof URL) {
-    url = current;
-  } else {
-    // Kann ein Pfad oder eine volle URL sein
-    try {
-      url = new URL(current);
-    } catch {
-      url = new URL(current, 'http://local');
-    }
-  }
+  return mapLocaleHref(targetLocale, current);
+}
 
-  const pathname = url.pathname;
-  const isLoc = isLocalizedPath(pathname);
+/**
+ * Mappt eine bestehende URL (oder Pfad) auf die Ziel-Locale und entfernt Steuer-Parameter.
+ */
+export function mapLocaleHref(targetLocale: Locale, input: string | URL): string {
+  const url = toUrl(input);
+  const pathname = url.pathname.replace(LOCALE_PREFIX_RE, '/');
 
-  // Entferne existierende Locale (falls vorhanden)
-  const pathWithoutLocale = pathname.replace(LOCALE_PREFIX_RE, '/');
-
-  // Hilfsfunktion: baue Pfad gemäß Ziel-Locale
   const buildPath = (basePath: string): string => {
     if (targetLocale === 'en') {
       return basePath === '/' ? '/en/' : `/en${basePath}`;
     }
     // de: neutral (kein Prefix)
-    return basePath;
+    return basePath === '' ? '/' : basePath;
   };
 
-  let newPath: string;
-  if (isLoc) {
-    newPath = buildPath(pathWithoutLocale);
-  } else {
-    // Pfad ist neutral
-    if (targetLocale === 'en') {
-      // Fallback: gehe zur englischen Startseite, solange nicht überall Wrapper existieren
-      newPath = '/en/';
-    } else {
-      // de: neutral beibehalten
-      newPath = pathname;
-    }
-  }
+  const targetPath = buildPath(pathname === '' ? '/' : pathname);
+  const searchParams = new URLSearchParams(url.search);
+  searchParams.delete('set_locale');
+  searchParams.delete('next');
+  const search = searchParams.toString();
+  const hash = url.hash ?? '';
 
-  return `${newPath}${url.search}${url.hash}`;
+  return `${targetPath}${search ? `?${search}` : ''}${hash}`;
 }

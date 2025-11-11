@@ -8,6 +8,7 @@ import { getI18n } from '@/utils/i18n';
 import { getAllTools, getToolCategories, type ToolCategory } from '@/lib/tools-data';
 import Card from '@/components/ui/Card';
 import { isToolsFilterEnabled } from '@/utils/feature-flags';
+import ToolsIndexIsland from '@/components/tools/ToolsIndexIsland';
 
 // Get search params for filtering
 const searchParams = Astro.url.searchParams;
@@ -39,6 +40,22 @@ const displayTools = [
     .sort((a, b) => priority.indexOf(a.id) - priority.indexOf(b.id)),
   ...availableTools.filter((tool) => !priority.includes(tool.id)),
 ];
+
+const modalLabels = {
+  close: t('pages.tools.modal.close'),
+  featuresHeading: t('pages.tools.modal.featuresHeading'),
+  direct: t('pages.tools.card.direct'),
+};
+
+const modalTools = displayTools
+  .filter((tool) => !tool.comingSoon)
+  .map((tool) => ({
+    id: tool.id,
+    name: tool.name,
+    description: tool.description,
+    localizedUrl: localizePath(locale, tool.url),
+    modal: tool.modal,
+  }));
 ---
 
 <style is:global>
@@ -74,14 +91,16 @@ const displayTools = [
       </div>
 
       <!-- Search and Filter Section -->
-      {isToolsFilterEnabled() && (
-        <ToolFilter
-          {categories}
-          activeCategory={activeCategory}
-          searchQuery={searchQuery}
-          resultCount={availableTools.length}
-        />
-      )}
+      {
+        isToolsFilterEnabled() && (
+          <ToolFilter
+            {categories}
+            activeCategory={activeCategory}
+            searchQuery={searchQuery}
+            resultCount={availableTools.length}
+          />
+        )
+      }
 
       <!-- Tools Grid -->
       <div id="tools-container">
@@ -90,6 +109,7 @@ const displayTools = [
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 items-stretch gap-6 mt-8">
               {displayTools.map((tool) => (
                 <ToolCard
+                  id={tool.id}
                   name={tool.name}
                   description={tool.description}
                   iconKey={tool.iconKey}
@@ -150,24 +170,5 @@ const displayTools = [
       </div>
     </div>
   </main>
-
-  <!-- Minimal client to open overlay on card clicks. CSP nonce applied. -->
-  <script is:inline nonce={Astro.locals.cspNonce}>
-    (function () {
-      function onClick(e) {
-        var target = e.target;
-        if (!(target instanceof Element)) return;
-        var anchor = target.closest('a[data-tool-link]');
-        if (!anchor) return; // allow navigation for other clicks
-        var card = anchor.closest('article[data-coming-soon="true"]');
-        if (!card) return; // allow navigation for implemented tools
-        // coming soon: do nothing
-        e.preventDefault();
-        e.stopPropagation();
-        return;
-      }
-
-      document.addEventListener('click', onClick);
-    })();
-  </script>
+  <ToolsIndexIsland client:load tools={modalTools} labels={modalLabels} />
 </BaseLayout>

@@ -4,6 +4,7 @@ owner: 'Frontend Team'
 priority: 'medium'
 lastSync: '2025-11-04'
 codeRefs: 'docs/frontend/ui-ux.md, src/components/Header.astro, src/components/ui/**, src/styles/**'
+testRefs: 'N/A'
 ---
 
 <!-- markdownlint-disable MD051 -->

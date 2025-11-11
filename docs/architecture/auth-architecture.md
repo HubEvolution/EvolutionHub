@@ -4,6 +4,7 @@ owner: 'Auth Team'
 priority: 'high'
 lastSync: '2025-11-03'
 codeRefs: 'src/lib/stytch.ts, src/pages/api/auth/**, docs/architecture/auth-migration-stytch.md'
+testRefs: 'N/A'
 ---
 
 <!-- markdownlint-disable MD051 -->

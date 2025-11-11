@@ -4,6 +4,7 @@ owner: 'SEO & Ops Team'
 priority: 'medium'
 lastSync: '2025-11-04'
 codeRefs: 'src/lib/seo.ts, src/layouts/BaseLayout.astro, docs/seo-readonly-launch-2025-10-28.md, tests/e2e/specs/seo.spec.ts'
+testRefs: 'N/A'
 ---
 
 <!-- markdownlint-disable MD051 -->

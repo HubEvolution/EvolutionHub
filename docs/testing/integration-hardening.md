@@ -4,6 +4,7 @@ owner: 'Testing & CI Team'
 priority: 'medium'
 lastSync: '2025-11-04'
 codeRefs: 'docs/testing/integration-hardening.md, tests/integration/**'
+testRefs: 'N/A'
 ---
 
 <!-- markdownlint-disable MD051 -->

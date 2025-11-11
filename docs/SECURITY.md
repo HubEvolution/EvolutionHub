@@ -4,6 +4,7 @@ owner: 'Security Team'
 priority: 'high'
 lastSync: '2025-11-03'
 codeRefs: 'src/lib/api-middleware.ts, src/lib/rate-limiter.ts, docs/SECURITY.md'
+testRefs: 'N/A'
 ---
 
 <!-- markdownlint-disable MD051 -->

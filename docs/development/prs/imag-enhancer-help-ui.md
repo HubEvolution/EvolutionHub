@@ -4,6 +4,7 @@ owner: 'Documentation Team'
 priority: 'low'
 lastSync: '2025-11-04'
 codeRefs: 'src/components/tools/ImagEnhancerIsland.tsx, src/components/tools/imag-enhancer/HelpModal.tsx, tests/unit/imag-enhancer/**, test-suite-v2/src/e2e/imag-enhancer.spec.ts'
+testRefs: 'N/A'
 ---
 
 <!-- markdownlint-disable MD051 -->

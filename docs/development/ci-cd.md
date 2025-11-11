@@ -4,6 +4,7 @@ owner: 'Platform Team'
 priority: 'high'
 lastSync: '2025-11-03'
 codeRefs: '.github/workflows/**, scripts/**, docs/development/ci-cd.md'
+testRefs: 'N/A'
 ---
 
 <!-- markdownlint-disable MD051 -->

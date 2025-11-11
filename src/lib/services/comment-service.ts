@@ -230,8 +230,8 @@ export class CommentService {
       }
     }
 
-    // Rate limiting: 5 comments per minute per IP/user
-    await rateLimit(`comment:${userId || 'guest'}:create`, 5, 60);
+    // Rate limiting: 5 comments per minute per IP/user (KV-backed when available)
+    await rateLimit(`comment:${userId || 'guest'}:create`, 5, 60, { kv: this.kv });
 
     // Validate content
     if (!request.content || request.content.trim().length < 3) {

@@ -4,6 +4,7 @@ owner: 'Billing Team'
 priority: 'high'
 lastSync: '2025-11-03'
 codeRefs: 'src/pages/api/billing/**, src/lib/services/billing/**, docs/api/billing_api.md'
+testRefs: 'N/A'
 ---
 
 <!-- markdownlint-disable MD051 -->

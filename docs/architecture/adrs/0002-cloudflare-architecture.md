@@ -2,6 +2,12 @@
 status: active
 date: '2023-10-20'
 supersededBy: ''
+description: 'ADR zur Cloudflare-zentrierten Infrastruktur (Workers, Pages, D1) für Evolution Hub.'
+owner: 'team:architecture'
+priority: 'medium'
+lastSync: '2025-11-11'
+codeRefs: 'wrangler.toml, src/middleware.ts, package.json'
+testRefs: 'N/A'
 ---
 
 <!-- markdownlint-disable MD051 -->

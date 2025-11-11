@@ -37,19 +37,17 @@ testRefs: 'tests/unit, tests/integration, test-suite-v2'
 
 ### Auth & Security
 
-- **[Auth Flow Audit Phase 1](./auth-flow-audit-phase1.md)** — Audit des Authentifizierungsflows
+- **[Stytch OAuth Dev Guide](./stytch-oauth-dev-guide.md)** — Authentifizierungsflow, PKCE, Sessionverhalten
 
 - **[Bugfix: Session Cookie Fallback](./bugfix-session-cookie-fallback.md)** — Session-Cookie-Implementierung
 
 ### Customer-Facing APIs
 
-- **[Contact Form Integration](./contact-form.md)** — Dokumentation des vollständigen Kontaktformular-Flows (Frontend, API, Resend, Turnstile)
+- **[API Validation Workflow](./api-validation.md)** — Validierung & Tooling für formbasierte APIs
 
 ### Dashboard-Updates (2025-09)
 
-- **[Dashboard APIs](./dashboard-apis.md)** — Neue APIs für Billing, Newsletter, Recommendations
-
-- **[Dashboard Components](./dashboard-components.md)** — UI-Komponenten (BillingCard, ToolShortcutsCard)
+- **[Stripe Setup](./stripe-setup.md)** — Billing/Newsletter-Integration inkl. API-Endpunkte
 
 ## Pull Request Dokumentation
 
@@ -61,7 +59,7 @@ Dokumentierte PRs in [prs/](./prs/):
 
 - **[Architecture](../architecture/)** — Systemarchitektur und Design-Entscheidungen
 
-- **[Testing](../testing/)** — Teststrategie und Coverage-Roadmap
+- **[Testing](../testing/README.md)** — Teststrategie und Coverage-Roadmap
 
 - **[Frontend](../frontend/)** — UI/UX-Entwicklung und Design-System
 
@@ -88,11 +86,11 @@ Dokumentierte PRs in [prs/](./prs/):
 
 ## Bekannte Lücken
 
-- [TODO] Vollständige Docker-Setup-Dokumentation
+- TODO: Vollständige Docker-Setup-Dokumentation
 
-- [TODO] Performance-Optimierung für lokale Entwicklung
+- TODO: Performance-Optimierung für lokale Entwicklung
 
-- [TODO] IDE-Integration (VS Code, Cursor) Guidelines
+- TODO: IDE-Integration (VS Code, Cursor) Guidelines
 
 ## Übersicht
 
@@ -164,29 +162,15 @@ Siehe auch: [../SETUP.md](../SETUP.md) für Schnellstart-Anleitung
 
 - **[Icon Guidelines](./icon-guidelines.md)** — Verwendung von Icons (Heroicons, Lottie)
 
-### Debug Panel: Filter & Header-Debug-Flags
-
-- Standardmäßig sind die Level-Filter `error`, `warn`, `info`, `log` aktiv; `debug` ist per Default deaktiviert und wird in `localStorage.debugPanel.levelFilter` persistiert.
-
-- Quellen-Filter (`server|client|console|network`) sowie Mute-Patterns werden ebenfalls in LocalStorage gespeichert.
-
-- HeaderScroll-Diagnose-Flags (nur in Dev):
-
-  - `localStorage.debug.headerScroll = '1'` oder URL-Query `?debugHeader` aktiviert ausführlichere Logs.
-
-  - `localStorage.debug.headerScrollTrace = '1'` schaltet optionale Trace-Logs (per Scroll) frei.
-
-  - Ohne Flags werden nur Zustandswechsel (sichtbar/hidden, Init/Cleanup) geloggt, um Log-Spam zu vermeiden.
-
 ## Third-Party Integrations
 
 - **[Stripe Setup](./stripe-setup.md)** — Stripe-Integration für Payments und Subscriptions
 
 ## Feature Documentation
 
-### Auth & Security (2)
+### Auth & Security
 
-- **[Auth Flow Audit Phase 1](./auth-flow-audit-phase1.md)** — Audit-Dokumentation des Authentifizierungsflows
+- **[Stytch OAuth Dev Guide](./stytch-oauth-dev-guide.md)** — Authentifizierungsflow, PKCE und Session-Verhalten
 
 - **[Bugfix: Session Cookie Fallback](./bugfix-session-cookie-fallback.md)** — Session-Cookie-Fallback-Implementierung
 

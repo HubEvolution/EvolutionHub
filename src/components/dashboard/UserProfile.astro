@@ -80,28 +80,14 @@ const planClasses =
         {t('pages.dashboard.profile.settings') ?? 'Edit settings'}
       </a>
       {
-        plan === 'free' &&
-          (() => {
-            const base = localizePath(locale, '/pricing');
-            let href = base;
-            try {
-              const u = new URL(base, 'http://x');
-              const cur = new URL(Astro.url?.href || 'http://x');
-              const currentPath = `${cur.pathname}${cur.search}`;
-              if (currentPath.startsWith('/')) {
-                u.searchParams.set('return_to', currentPath);
-                href = u.pathname + u.search;
-              }
-            } catch {}
-            return (
-              <a
-                href={href}
-                class="block w-full rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 px-3 py-2 text-center text-sm font-bold text-white shadow-lg shadow-emerald-500/30 transition hover:from-emerald-600 hover:to-teal-600 hover:shadow-emerald-500/50"
-              >
-                {t('pages.dashboard.profile.upgrade') ?? 'Upgrade'}
-              </a>
-            );
-          })()
+        plan === 'free' && (
+          <a
+            href={localizePath(locale, '/pricing')}
+            class="block w-full rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 px-3 py-2 text-center text-sm font-bold text-white shadow-lg shadow-emerald-500/30 transition hover:from-emerald-600 hover:to-teal-600 hover:shadow-emerald-500/50"
+          >
+            {t('pages.dashboard.profile.upgrade') ?? 'Upgrade'}
+          </a>
+        )
       }
       <a
         href="/api/user/logout"

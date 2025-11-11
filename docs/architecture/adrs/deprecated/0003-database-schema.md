@@ -2,6 +2,12 @@
 status: deprecated
 date: '2023-11-10'
 supersededBy: 'docs/architecture/adrs/0004-database-schema.md'
+description: 'Historische ADR zum ersten Cloudflare D1 Datenbankschema (abgelöst durch ADR 0004).'
+owner: 'team:architecture'
+priority: 'low'
+lastSync: '2025-11-11'
+codeRefs: 'legacy migrations/**, docs/architecture/adrs/0004-database-schema.md'
+testRefs: 'N/A'
 ---
 
 <!-- markdownlint-disable MD051 -->

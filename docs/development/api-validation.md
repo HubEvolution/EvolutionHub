@@ -4,6 +4,7 @@ owner: 'Platform Team'
 priority: 'high'
 lastSync: '2025-11-03'
 codeRefs: 'src/lib/validation/**, src/lib/api-middleware.ts'
+testRefs: 'N/A'
 ---
 
 <!-- markdownlint-disable MD051 -->

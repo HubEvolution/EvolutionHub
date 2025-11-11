@@ -29,9 +29,11 @@ import type {
 
 export class NotificationService {
   private db: ReturnType<typeof drizzle>;
+  private kv?: KVNamespace;
 
-  constructor(db: D1Database) {
+  constructor(db: D1Database, kv?: KVNamespace) {
     this.db = drizzle(db);
+    this.kv = kv;
   }
 
   /**
@@ -49,8 +51,8 @@ export class NotificationService {
       throw new Error('Notifications are disabled for this user and type');
     }
 
-    // Rate limiting: 10 notifications per minute per user
-    await rateLimit(`notification:${request.userId}:create`, 10, 60);
+    // Rate limiting: 10 notifications per minute per user (KV-backed when available)
+    await rateLimit(`notification:${request.userId}:create`, 10, 60, { kv: this.kv });
 
     // Insert notification
     await this.db.insert(notifications).values({

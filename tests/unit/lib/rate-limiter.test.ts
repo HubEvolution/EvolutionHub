@@ -11,6 +11,7 @@ import {
   getLimiterState,
   rateLimit,
   resetLimiterKey,
+  type RateLimiterContext,
   type RateLimiter,
 } from '@/lib/rate-limiter';
 
@@ -26,13 +27,11 @@ const makeLimiter = (overrides: { maxRequests?: number; windowMs?: number } = {}
   return { limiterName, limiter };
 };
 
-const makeContext = (overrides: Partial<Parameters<RateLimiter>[0]> = {}) => {
-  return {
-    clientAddress: overrides.clientAddress ?? '203.0.113.5',
-    locals: overrides.locals ?? { user: { id: 'user-42' } },
-    request: overrides.request ?? new Request('https://example.com/api/test'),
-  } as Parameters<RateLimiter>[0];
-};
+const makeContext = (overrides: Partial<RateLimiterContext> = {}): RateLimiterContext => ({
+  clientAddress: overrides.clientAddress ?? '203.0.113.5',
+  locals: overrides.locals ?? ({ user: { id: 'user-42' } } as RateLimiterContext['locals']),
+  request: overrides.request ?? new Request('https://example.com/api/test'),
+});
 
 beforeEach(() => {
   vi.useFakeTimers();
@@ -49,7 +48,7 @@ describe('createRateLimiter', () => {
     const { limiterName, limiter } = makeLimiter();
     await limiter(makeContext());
 
-    const state = getLimiterState(limiterName);
+    const state = await getLimiterState(limiterName);
     expect(state[limiterName].entries[0]).toMatchObject({
       key: '203.0.113.5:user-42',
       count: 1,
@@ -60,7 +59,7 @@ describe('createRateLimiter', () => {
     const { limiterName, limiter } = makeLimiter();
     await limiter(makeContext({ clientAddress: '198.51.100.10', locals: { user: null } }));
 
-    const entry = getLimiterState(limiterName)[limiterName].entries[0];
+    const entry = (await getLimiterState(limiterName))[limiterName].entries[0];
     expect(entry.key).toBe('198.51.100.10:anonymous');
   });
 
@@ -90,12 +89,12 @@ describe('createRateLimiter', () => {
     const context = makeContext();
 
     await limiter(context);
-    const firstState = getLimiterState(limiterName)[limiterName].entries[0];
+    const firstState = (await getLimiterState(limiterName))[limiterName].entries[0];
     vi.advanceTimersByTime(5_001);
     const response = await limiter(context);
 
     expect(response).toBeUndefined();
-    const secondState = getLimiterState(limiterName)[limiterName].entries[0];
+    const secondState = (await getLimiterState(limiterName))[limiterName].entries[0];
     expect(secondState.count).toBe(1);
     expect(secondState.resetAt).toBeGreaterThan(firstState.resetAt);
   });
@@ -109,7 +108,7 @@ describe('createRateLimiter', () => {
     vi.advanceTimersByTime(60_000);
     vi.runOnlyPendingTimers();
 
-    const state = getLimiterState(limiterName)[limiterName];
+    const state = (await getLimiterState(limiterName))[limiterName];
     expect(state.entries).toHaveLength(0);
   });
 });
@@ -119,8 +118,10 @@ describe('rateLimit helper', () => {
     await rateLimit('helper-key', 2, 1);
     await rateLimit('helper-key', 2, 1);
 
-    await expect(rateLimit('helper-key', 2, 1)).rejects.toThrow('Rate limit exceeded. Please retry after 1 seconds.');
-    resetLimiterKey('service-limiter', 'helper-key');
+    await expect(rateLimit('helper-key', 2, 1)).rejects.toThrow(
+      'Rate limit exceeded. Please retry after 1 seconds.'
+    );
+    await resetLimiterKey('service-limiter', 'helper-key');
   });
 
   it('resets the counter after window expiry', async () => {
@@ -129,6 +130,6 @@ describe('rateLimit helper', () => {
 
     vi.advanceTimersByTime(1_001);
     await expect(rateLimit('helper-reset', 1, 1)).resolves.toBeUndefined();
-    resetLimiterKey('service-limiter', 'helper-reset');
+    await resetLimiterKey('service-limiter', 'helper-reset');
   });
 });

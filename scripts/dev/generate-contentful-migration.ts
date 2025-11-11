@@ -32,7 +32,7 @@ const ASSET_MAP: Record<string, string> = {
   'pomodoro-technik-home-office.webp': 'RAMS8Md92YgsV57yd9JqU',
   'vom-ziel-zur-gewohnheit.webp': '76fHW1v0FvM7jc3nd9fixw',
   'wissensmanagement-second-brain.webp': '5eXtDhEzMHNV84bVYZ8kHS',
-  'zukunft-der-fuehrung.webp': '4fzrzvjL4KGHljc2oBd08'
+  'zukunft-der-fuehrung.webp': '4fzrzvjL4KGHljc2oBd08',
 };
 
 const wrap = <T>(value: T) => ({ 'en-US': value });
@@ -53,7 +53,10 @@ async function toRichText(markdown: string) {
     const doc = await richTextFromMarkdown(markdown);
     return { 'en-US': doc };
   } catch (error) {
-    console.warn('Falling back to plain paragraph for markdown snippet due to conversion error:', error);
+    console.warn(
+      'Falling back to plain paragraph for markdown snippet due to conversion error:',
+      error
+    );
     return {
       'en-US': {
         nodeType: 'document',
@@ -88,9 +91,10 @@ async function generate(): Promise<void> {
     const raw = await fs.readFile(filePath, 'utf-8');
     const { data: frontmatter, content } = matter(raw);
 
-    const slugSource: string = typeof frontmatter.slug === 'string' && frontmatter.slug.length > 0
-      ? frontmatter.slug
-      : path.parse(file).name;
+    const slugSource: string =
+      typeof frontmatter.slug === 'string' && frontmatter.slug.length > 0
+        ? frontmatter.slug
+        : path.parse(file).name;
     const slug = slugify(slugSource) || slugify(path.parse(file).name) || path.parse(file).name;
 
     const publishDate = frontmatter.pubDate ?? frontmatter.publishDate;
@@ -99,10 +103,14 @@ async function generate(): Promise<void> {
     const tags = Array.isArray(frontmatter.tags)
       ? frontmatter.tags
       : typeof frontmatter.tags === 'string'
-        ? frontmatter.tags.split(',').map((tag: string) => tag.trim()).filter(Boolean)
+        ? frontmatter.tags
+            .split(',')
+            .map((tag: string) => tag.trim())
+            .filter(Boolean)
         : undefined;
 
-    const imagePath: string | undefined = typeof frontmatter.image === 'string' ? frontmatter.image : undefined;
+    const imagePath: string | undefined =
+      typeof frontmatter.image === 'string' ? frontmatter.image : undefined;
     const imageFile = imagePath ? path.basename(imagePath).replace(/^\.\//, '') : undefined;
     const assetId = imageFile ? ASSET_MAP[imageFile] : undefined;
 
@@ -135,9 +143,9 @@ async function generate(): Promise<void> {
           sys: {
             type: 'Link',
             linkType: 'Asset',
-            id: assetId
-          }
-        }
+            id: assetId,
+          },
+        },
       };
     }
 
@@ -151,11 +159,11 @@ async function generate(): Promise<void> {
       sys: {
         contentType: {
           sys: {
-            id: 'blogPost'
-          }
-        }
+            id: 'blogPost',
+          },
+        },
       },
-      fields
+      fields,
     });
   }
 
@@ -166,7 +174,7 @@ async function generate(): Promise<void> {
     editorInterfaces: [],
     tags: [],
     webhooks: [],
-    locales: []
+    locales: [],
   };
 
   await fs.writeFile(OUTPUT_PATH, JSON.stringify(output, null, 2), 'utf-8');

@@ -4,6 +4,7 @@ owner: 'Compliance Team'
 priority: 'medium'
 lastSync: '2025-11-03'
 codeRefs: 'docs/ops/prod-readiness-ai-image-enhancer.md, docs/ops/runbook-image-enhancer-go-live.md'
+testRefs: 'N/A'
 ---
 
 <!-- markdownlint-disable MD051 -->

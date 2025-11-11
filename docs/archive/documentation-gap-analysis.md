@@ -4,6 +4,7 @@ owner: 'Documentation Team'
 priority: 'medium'
 lastSync: '2025-11-04'
 codeRefs: 'docs/archive/documentation-gap-analysis.md, docs/architecture/system-overview.md, docs/development/local-development.md'
+testRefs: 'N/A'
 ---
 
 <!-- markdownlint-disable MD051 -->

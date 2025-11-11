@@ -5,7 +5,10 @@ import contentfulManagement from 'contentful-management';
 const DEFAULT_SLUGS = ['digital-detox-kreativitaet', 'digital-leadership'];
 
 function resolveSlugs(): Set<string> {
-  const cliSlugs = process.argv.slice(2).map((slug) => slug.trim()).filter(Boolean);
+  const cliSlugs = process.argv
+    .slice(2)
+    .map((slug) => slug.trim())
+    .filter(Boolean);
   const candidates = cliSlugs.length > 0 ? cliSlugs : DEFAULT_SLUGS;
   if (candidates.length === 0) {
     throw new Error('No slugs provided. Pass them as CLI arguments or configure DEFAULT_SLUGS.');

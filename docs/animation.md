@@ -4,6 +4,7 @@ owner: 'Frontend Team'
 priority: 'low'
 lastSync: '2025-11-03'
 codeRefs: 'src/components/scripts/TypewriterComponent.astro, src/lib/typewriter.ts, src/lib/typewriter.js'
+testRefs: 'N/A'
 ---
 
 <!-- markdownlint-disable MD051 -->

@@ -117,6 +117,207 @@ paths:
           description: Forbidden (not admin)
         "404":
           description: Not found
+  /api/admin/users/list:
+    get:
+      summary: List users with admin insights
+      description: Returns paginated admin user list with status, credits, and session stats. Requires admin.
+      x-source: src/pages/api/admin/users/list.ts
+      operationId: getAdminUsersList
+      parameters:
+        - name: search
+          in: query
+          required: false
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 200
+          description: Filter by email, name, or id (case-insensitive)
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [active, banned, deleted]
+        - name: plan
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [free, pro, premium, enterprise]
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 25
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Opaque cursor for pagination (from previous response nextCursor)
+      responses:
+        "200":
+          description: User list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminUserListSuccess'
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden (not admin)
+        "429":
+          description: Rate limited
+  /api/admin/users/{id}/ban:
+    post:
+      summary: Ban user
+      description: Marks the user as banned, revokes sessions, and suppresses the account in Stytch. Requires admin and CSRF.
+      x-source: src/pages/api/admin/users/[id]/ban.ts
+      operationId: postAdminUserBan
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: X-CSRF-Token
+          in: header
+          required: true
+          schema:
+            type: string
+          description: Double-submit token; must match cookie 'csrf_token'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminUserLifecycleRequest'
+      responses:
+        "200":
+          description: User banned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminUserActionSuccess'
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden (CSRF/Origin or not admin)
+        "404":
+          description: User not found
+        "409":
+          description: Conflict (already banned or deleted)
+        "429":
+          description: Rate limited
+  /api/admin/users/{id}/unban:
+    post:
+      summary: Unban user
+      description: Reactivates a banned user and unsuppresses them in Stytch. Requires admin and CSRF.
+      x-source: src/pages/api/admin/users/[id]/unban.ts
+      operationId: postAdminUserUnban
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: X-CSRF-Token
+          in: header
+          required: true
+          schema:
+            type: string
+          description: Double-submit token; must match cookie 'csrf_token'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminUserLifecycleRequest'
+      responses:
+        "200":
+          description: User unbanned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminUserActionSuccess'
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden (CSRF/Origin or not admin)
+        "404":
+          description: User not found
+        "409":
+          description: Conflict (user not banned)
+        "429":
+          description: Rate limited
+  /api/admin/users/{id}:
+    delete:
+      summary: Soft-delete user
+      description: Marks the user as deleted, revokes sessions, and requests Stytch account deletion. Requires admin and CSRF.
+      x-source: src/pages/api/admin/users/[id].ts
+      operationId: deleteAdminUser
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: X-CSRF-Token
+          in: header
+          required: true
+          schema:
+            type: string
+          description: Double-submit token; must match cookie 'csrf_token'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminUserLifecycleRequest'
+      responses:
+        "200":
+          description: User deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminUserActionSuccess'
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden (CSRF/Origin or not admin)
+        "404":
+          description: User not found
+        "409":
+          description: Conflict (already deleted)
+        "429":
+          description: Rate limited
   /api/admin/credits/history:
     get:
       summary: List active credit packs
@@ -273,7 +474,7 @@ paths:
         - name: X-CSRF-Token
           in: header
           required: true
-          description: Double‑Submit token; must match cookie 'csrf_token'
+          description: Double-submit token; must match cookie 'csrf_token'
           schema:
             type: string
       requestBody:
@@ -466,7 +667,7 @@ paths:
         - name: X-CSRF-Token
           in: header
           required: true
-          description: Double‑Submit token; must match cookie 'csrf_token'
+          description: Double-submit token; must match cookie 'csrf_token'
           schema:
             type: string
       requestBody:
@@ -1015,7 +1216,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ApiErrorResponse'
     delete:
-      summary: Soft‑delete (hide) comment
+      summary: Soft-delete (hide) comment
       description: Hides a comment (soft delete). Requires moderator or admin.
       x-source: src/pages/api/admin/comments/[id]/index.ts
       operationId: deleteAdminCommentById
@@ -1028,7 +1229,7 @@ paths:
         - name: X-CSRF-Token
           in: header
           required: true
-          description: Double‑Submit token; must match cookie 'csrf_token'
+          description: Double-submit token; must match cookie 'csrf_token'
           schema:
             type: string
       requestBody:
@@ -1187,7 +1388,7 @@ paths:
         - name: X-CSRF-Token
           in: header
           required: true
-          description: Double‑Submit token; must match cookie 'csrf_token'
+          description: Double-submit token; must match cookie 'csrf_token'
           schema:
             type: string
       requestBody:
@@ -1222,7 +1423,7 @@ paths:
         - name: X-CSRF-Token
           in: header
           required: true
-          description: Double‑Submit token; must match cookie 'csrf_token'
+          description: Double-submit token; must match cookie 'csrf_token'
           schema:
             type: string
       requestBody:
@@ -1249,7 +1450,7 @@ paths:
         - name: X-CSRF-Token
           in: header
           required: true
-          description: Double‑Submit token; must match cookie 'csrf_token'
+          description: Double-submit token; must match cookie 'csrf_token'
           schema:
             type: string
       requestBody:
@@ -1277,7 +1478,7 @@ paths:
         - name: X-CSRF-Token
           in: header
           required: true
-          description: Double‑Submit token; must match cookie 'csrf_token'
+          description: Double-submit token; must match cookie 'csrf_token'
           schema:
             type: string
       requestBody:
@@ -1307,7 +1508,7 @@ paths:
         - name: X-CSRF-Token
           in: header
           required: true
-          description: Double‑Submit token; must match cookie 'csrf_token'
+          description: Double-submit token; must match cookie 'csrf_token'
           schema:
             type: string
       responses:
@@ -1334,7 +1535,7 @@ paths:
         - name: X-CSRF-Token
           in: header
           required: true
-          description: Double‑Submit token; must match cookie 'csrf_token'
+          description: Double-submit token; must match cookie 'csrf_token'
           schema:
             type: string
       requestBody:
@@ -1382,7 +1583,7 @@ paths:
         - name: X-CSRF-Token
           in: header
           required: true
-          description: Double‑Submit token; must match cookie 'csrf_token'
+          description: Double-submit token; must match cookie 'csrf_token'
           schema:
             type: string
       requestBody:
@@ -1531,7 +1732,7 @@ paths:
         - name: X-CSRF-Token
           in: header
           required: true
-          description: Double‑Submit token; must match cookie 'csrf_token'
+          description: Double-submit token; must match cookie 'csrf_token'
           schema:
             type: string
       requestBody:
@@ -1591,7 +1792,7 @@ paths:
         - name: X-CSRF-Token
           in: header
           required: true
-          description: Double‑Submit token; must match cookie 'csrf_token'
+          description: Double-submit token; must match cookie 'csrf_token'
           schema:
             type: string
       requestBody:
@@ -2123,14 +2324,14 @@ paths:
       summary: Extract webpage content
       description: |
         Extracts structured content from a public webpage with robots.txt compliance and quotas.
-        Secured via Same‑Origin checks and Double‑Submit CSRF on POST. Rate limited (10/min).
+        Secured via Same-Origin checks and Double-Submit CSRF on POST. Rate limited (10/min).
       x-source: src/pages/api/webscraper/extract.ts
       operationId: postWebscraperExtract
       parameters:
         - name: X-CSRF-Token
           in: header
           required: true
-          description: CSRF-Token; must match cookie 'csrf_token' (Double‑Submit)
+          description: CSRF-Token; must match cookie 'csrf_token' (Double-Submit)
           schema:
             type: string
       requestBody:
@@ -2179,7 +2380,7 @@ paths:
     get:
       summary: Webscraper usage/limits
       description: |
-        Returns current 24h usage and effective plan‑based limit for the current owner (user or guest with guest_id cookie).
+        Returns current 24h usage and effective plan-based limit for the current owner (user or guest with guest_id cookie).
         Note: usage.limit is authoritative; static limits are legacy/debug only.
       x-source: src/pages/api/webscraper/usage.ts
       operationId: getWebscraperUsage
@@ -2200,8 +2401,8 @@ paths:
     get:
       summary: Voice transcription stream (SSE)
       description: |
-        Server‑Sent Events Stream für Transkriptions‑Feedback. Liefert u. a. ein
-        `connected`‑Event mit `jobId` sowie ggf. `partial`, `final` und `usage` Events.
+        Server-Sent Events Stream für Transkriptions-Feedback. Liefert u. a. ein
+        `connected`-Event mit `jobId` sowie ggf. `partial`, `final` und `usage` Events.
         Deaktivierbar über Flag `VOICE_STREAM_SSE`.
       x-source: src/pages/api/voice/stream.ts
       operationId: getVoiceStream
@@ -2234,7 +2435,7 @@ paths:
     get:
       summary: Voice job state polling
       description: |
-        Pollt den aktuellen Zustand eines Voice‑Jobs. Deaktivierbar über Flag `VOICE_STREAM_POLL`.
+        Pollt den aktuellen Zustand eines Voice-Jobs. Deaktivierbar über Flag `VOICE_STREAM_POLL`.
       x-source: src/pages/api/voice/poll.ts
       operationId: getVoicePoll
       parameters:
@@ -2654,7 +2855,7 @@ paths:
         - name: X-CSRF-Token
           in: header
           required: true
-          description: CSRF-Token; must match cookie 'csrf_token' (Double‑Submit)
+          description: CSRF-Token; must match cookie 'csrf_token' (Double-Submit)
           schema:
             type: string
       requestBody:

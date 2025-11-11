@@ -24,7 +24,9 @@ function requireEnv(name: string): string {
 async function main(): Promise<void> {
   const [rawSlug, rawNewSlug] = process.argv.slice(2);
   if (!rawSlug) {
-    console.error('Usage: tsx scripts/dev/fix-contentful-slug.ts <current-slug-or-entry-id> [new-slug]');
+    console.error(
+      'Usage: tsx scripts/dev/fix-contentful-slug.ts <current-slug-or-entry-id> [new-slug]'
+    );
     process.exit(1);
   }
 
@@ -49,7 +51,10 @@ async function main(): Promise<void> {
       process.exit(1);
     }
   } else {
-    const response = await environment.getEntries({ content_type: 'blogPost', 'fields.slug': rawSlug });
+    const response = await environment.getEntries({
+      content_type: 'blogPost',
+      'fields.slug': rawSlug,
+    });
     entries = response.items;
   }
 
@@ -62,7 +67,10 @@ async function main(): Promise<void> {
     const title = (entry.fields?.title?.['en-US'] as string | undefined) ?? entry.sys.id;
     console.log(`Updating ${title} (${entry.sys.id}) -> slug ${normalizedNewSlug}`);
     entry.fields = entry.fields ?? {};
-    entry.fields.slug = { ...(entry.fields.slug as Record<string, string> | undefined), 'en-US': normalizedNewSlug } as any;
+    entry.fields.slug = {
+      ...(entry.fields.slug as Record<string, string> | undefined),
+      'en-US': normalizedNewSlug,
+    } as any;
     const updated = await entry.update();
     console.log('   Updated entry version', updated.sys.version);
     if (!updated.isPublished()) {

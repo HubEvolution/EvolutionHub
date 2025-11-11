@@ -2,6 +2,12 @@
 status: deprecated
 date: '2023-10-15'
 supersededBy: 'docs/architecture/auth-migration-stytch.md'
+description: 'Historische ADR zur ursprünglichen JWT-basierten Authentifizierung (abgelöst durch Stytch Magic Link).'
+owner: 'team:architecture'
+priority: 'low'
+lastSync: '2025-11-11'
+codeRefs: 'src/pages/api/auth/** (legacy), docs/architecture/auth-migration-stytch.md'
+testRefs: 'N/A'
 ---
 
 <!-- markdownlint-disable MD051 -->

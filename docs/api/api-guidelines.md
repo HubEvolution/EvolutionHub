@@ -895,13 +895,9 @@ Dokumentiere Breaking Changes:
 
 ```typescript
 /**
-
  * BREAKING CHANGE in v2.0:
-
  * - `mode` parameter is now required
-
  * - Response format changed from { enhanced: string } to { enhanced: { ... } }
-
  * - Rate limits increased from 10/min to 30/min
  */
 
@@ -911,39 +907,39 @@ Dokumentiere Breaking Changes:
 
 ### Weiterführende Dokumentation
 
-- **[API Overview](./api-overview.md)** - Architektur und Standards
+- **[API Overview](./api-overview.md)** — Architektur und Standards
 
-- **[Error Handling](./error-handling.md)** - Detaillierte Fehlerbehandlung
+- **[Error Handling](./error-handling.md)** — Detaillierte Fehlerbehandlung
 
-- **[Rate Limiting](./rate-limiting-api.md)** - Rate-Limiting-Strategien
+- **[Rate Limiting](./rate-limiting-api.md)** — Rate-Limiting-Strategien
 
-- **[OpenAPI Spec](./openapi.yaml)** - Maschinenlesbare Spezifikation
+- **[OpenAPI Spec](./openapi.yaml)** — Maschinenlesbare Spezifikation
 
 ### Tools & Libraries
 
-- **[API Middleware](../../lib/api-middleware.ts)** - Core Middleware-Implementierung
+- **[API Middleware](../../lib/api-middleware.ts)** — Core Middleware-Implementierung
 
-- **[Rate Limiter](../../lib/rate-limiter.ts)** - Rate-Limiting-Implementierung
+- **[Rate Limiter](../../lib/rate-limiter.ts)** — Rate-Limiting-Implementierung
 
-- **[Validation Utils](../../utils/validation.ts)** - Validierungshilfsmittel
+- **[Validation Utils](../../utils/validation.ts)** — Validierungshilfsmittel
 
 ### Testing
 
-- **[API Test Utils](../../tests/utils/api-helpers.ts)** - Test-Hilfsmittel
+- **[API Test Utils](../../tests/utils/api-helpers.ts)** — Test-Hilfsmittel
 
-- **[Mock Context](../../tests/utils/mock-context.ts)** - Mock-Implementierungen
+- **[Mock Context](../../tests/utils/mock-context.ts)** — Mock-Implementierungen
 
 ---
 
 ## Cross-Referenzen
 
-- **[Architecture](../../architecture/)** - API-Middleware und Security-Architektur
+- **[Architecture](../architecture/)** — API-Middleware, Security-Header, CSP
 
-- **[Development](../../development/)** - API-Tooling und lokale Entwicklung
+- **[Development](../development/)** — Lokales Setup, Tooling, Scripts
 
-- **[Security](../../security/)** - API-Security und Rate-Limiting
+- **[Security](../security/)** — Security-Policies, Incident-Response
 
-- **[Testing](../../testing/)** - API-Tests und Integration-Testing
+- **[Testing](../testing/)** — Integrationstests, E2E, Coverage
 
 ## Ownership & Maintenance
 

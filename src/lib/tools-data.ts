@@ -1,5 +1,11 @@
 export type ToolCategory = 'all' | 'ai' | 'development' | 'design' | 'productivity' | 'marketing';
 
+export interface ToolModalContent {
+  headline: string;
+  summary: string;
+  features: string[];
+}
+
 export interface Tool {
   id: string;
   name: string;
@@ -11,12 +17,14 @@ export interface Tool {
   isNew?: boolean;
   isPopular?: boolean;
   comingSoon?: boolean;
+  modal?: ToolModalContent;
 }
-import { getI18n } from '@/utils/i18n';
+import { getI18n, getI18nArray } from '@/utils/i18n';
 import type { Locale } from '@/lib/i18n';
 
 export function getAllTools(locale: Locale): Tool[] {
   const t = getI18n(locale);
+  const tArr = getI18nArray(locale);
   return [
     {
       id: 'code-review',
@@ -93,6 +101,11 @@ export function getAllTools(locale: Locale): Tool[] {
       isNew: true,
       isPopular: false,
       comingSoon: false,
+      modal: {
+        headline: t('pages.tools.items.Imag-Enhancer.modal.headline'),
+        summary: t('pages.tools.items.Imag-Enhancer.modal.summary'),
+        features: tArr('pages.tools.items.Imag-Enhancer.modal.features'),
+      },
     },
     {
       id: 'video-enhancer',
@@ -104,6 +117,11 @@ export function getAllTools(locale: Locale): Tool[] {
       url: '/tools/video-enhancer/app',
       isNew: true,
       comingSoon: false,
+      modal: {
+        headline: t('pages.tools.items.video-enhancer.modal.headline'),
+        summary: t('pages.tools.items.video-enhancer.modal.summary'),
+        features: tArr('pages.tools.items.video-enhancer.modal.features'),
+      },
     },
     {
       id: 'prompt-enhancer',
@@ -115,6 +133,11 @@ export function getAllTools(locale: Locale): Tool[] {
       url: '/tools/prompt-enhancer/app',
       isNew: true,
       comingSoon: false,
+      modal: {
+        headline: t('pages.tools.items.prompt-enhancer.modal.headline'),
+        summary: t('pages.tools.items.prompt-enhancer.modal.summary'),
+        features: tArr('pages.tools.items.prompt-enhancer.modal.features'),
+      },
     },
     {
       id: 'voice-visualizer',
@@ -126,6 +149,11 @@ export function getAllTools(locale: Locale): Tool[] {
       url: '/tools/voice-visualizer/app',
       isNew: true,
       comingSoon: false,
+      modal: {
+        headline: t('pages.tools.items.voice-visualizer.modal.headline'),
+        summary: t('pages.tools.items.voice-visualizer.modal.summary'),
+        features: tArr('pages.tools.items.voice-visualizer.modal.features'),
+      },
     },
     {
       id: 'webscraper',
@@ -137,6 +165,11 @@ export function getAllTools(locale: Locale): Tool[] {
       url: '/tools/webscraper/app',
       isNew: true,
       comingSoon: false,
+      modal: {
+        headline: t('pages.tools.items.webscraper.modal.headline'),
+        summary: t('pages.tools.items.webscraper.modal.summary'),
+        features: tArr('pages.tools.items.webscraper.modal.features'),
+      },
     },
   ];
 }

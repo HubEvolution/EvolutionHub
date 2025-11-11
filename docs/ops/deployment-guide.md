@@ -11,7 +11,7 @@ testRefs: 'test-suite-v2/playwright.config.ts, tests/integration/'
 
 # Deployment Guide — Cloudflare Workers
 
-Dieser Leitfaden beschreibt den standardisierten Ablauf, um Evolution Hub sicher nach **Staging** und **Production** zu deployen. Er ergänzt die Production-Readiness-Checkliste und bündelt die relevanten Skripte, Workflows und Nacharbeiten.
+Dieser Leitfaden beschreibt den standardisierten Ablauf, um Evolution Hub sicher nach **Staging** und **Production** zu deployen. Er bündelt die relevanten Skripte, Workflows und Nacharbeiten.
 
 ## 1. Voraussetzungen & Checks
 
@@ -38,8 +38,6 @@ Stelle sicher, dass alle Secrets und Bindings in `wrangler.toml` und im Cloudfla
 - **Bindings**: `DB` (D1), `R2_AI_IMAGES`, `KV_*` (Session, AI, Voice, Rate Limits)
 - **Origins**: `APP_ORIGIN`, `PUBLIC_APP_ORIGIN`, optional `ALLOWED_ORIGINS`
 - **Pricing**: `PRICING_TABLE`, `PRICING_TABLE_ANNUAL` mit Live-Price-IDs
-
-Details siehe [Production Readiness Checklist](./production-readiness-checklist.md).
 
 ## 2. Automatischer Deployment-Workflow (GitHub Actions)
 
@@ -144,7 +142,6 @@ Unabhängig vom Pfad (CI oder manuell):
 - **Rollback**: Vorheriges Tag via GitHub Release oder `wrangler deploy --env production --branch <tag>`
 - **Stripe Webhooks**: Bei Störungen vorübergehend pausieren, nach Fix wieder aktivieren
 - **Kommunikation**: Incident-Note erstellen, Status Page (falls vorhanden) aktualisieren
-- Siehe auch [Production Readiness Checklist](./production-readiness-checklist.md#operational-runbook-short)
 
 ## 6. Häufige Fehlerquellen
 
@@ -156,9 +153,6 @@ Unabhängig vom Pfad (CI oder manuell):
 | Stripe Plan Mapping | Nutzerplan bleibt `free` | `PRICING_TABLE*` mit Live-IDs aktualisieren, Webhook-Logs prüfen |
 | Rate Limits | Spikes in 429 | Monitor `KV_RATE_LIMIT` (falls KV-Limiter aktiviert) oder Skalenentscheid W1 (Checklist) |
 
-## 7. Referenzen & weiterführende Dokumente
-
-- [Production Readiness Checklist](./production-readiness-checklist.md)
 - [Monitoring & Runbook](./monitoring.md)
 - [Runbook: Image Enhancer Go-Live](./runbook-image-enhancer-go-live.md)
 - [.github/workflows/deploy.yml](../..//.github/workflows/deploy.yml)

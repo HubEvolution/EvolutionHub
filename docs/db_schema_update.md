@@ -4,6 +4,7 @@ owner: 'Platform Team'
 priority: 'medium'
 lastSync: '2025-11-04'
 codeRefs: 'docs/db_schema_update.md, migrations/**, scripts/setup-local-dev.ts, scripts/seed-test-data.ts'
+testRefs: 'N/A'
 ---
 
 <!-- markdownlint-disable MD051 -->

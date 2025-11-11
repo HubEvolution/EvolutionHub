@@ -15,10 +15,6 @@ testRefs: 'test-suite-v2/src/e2e/smoke'
 
 ## Primärdokumente
 
-- **[Production Readiness Checklist](./production-readiness-checklist.md)** — Gesamtcheck für Go-Live (Infra, Monitoring, On-Call)
-
-- **[Prod Readiness – AI Image Enhancer](./prod-readiness-ai-image-enhancer.md)** — Produktspezifische Go-Live-Prüfliste (AI/Storage/Quotas)
-
 - **[Runbook: Image Enhancer Go-Live](./runbook-image-enhancer-go-live.md)** — Schritt-für-Schritt-Ablauf für Deployments & Rollbacks
 
 - **[Monitoring & Runbook](./monitoring.md)** — Monitoring-Baseline, Healthchecks und Incident-Prozesse

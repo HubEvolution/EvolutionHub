@@ -4,6 +4,7 @@ owner: 'Testing & CI Team'
 priority: 'high'
 lastSync: '2025-11-03'
 codeRefs: 'vitest.config.ts, test-suite-v2/**, docs/development/testing-guidelines.md'
+testRefs: 'N/A'
 ---
 
 <!-- markdownlint-disable MD051 -->
@@ -93,9 +94,9 @@ Quellmodul: `test-suite-v2/utils/logger.ts`
 
 ### Signaturen und Erwartungen
 
-- `log(level, message, data?)` ruft `console[level](header, message, data|undefined)`
+- `log(level, message, data?)` ruft `console[level]` mit den Parametern `header`, `message`, `dataOrUndefined`
 
-- `logWithExtra(level, message, extra?, data?)` ruft `console[level](header, message, [extra], data|undefined)`
+- `logWithExtra(level, message, extra?, data?)` ruft `console[level]` mit den Parametern `header`, `message`, `extra`, `dataOrUndefined`
 
 - `header` enthält ISO-Timestamp und Level plus Emojis
 

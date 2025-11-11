@@ -4,6 +4,7 @@ owner: 'Platform Team'
 priority: 'medium'
 lastSync: '2025-11-04'
 codeRefs: 'src/pages/api/lead-magnets/**, wrangler.toml, docs/lead-magnets/r2-optimization-plan.md'
+testRefs: 'N/A'
 ---
 
 <!-- markdownlint-disable MD051 -->

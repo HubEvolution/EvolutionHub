@@ -4,6 +4,7 @@ owner: 'Auth Team'
 priority: 'medium'
 lastSync: '2025-11-03'
 codeRefs: 'src/middleware.ts, docs/architecture/auth-architecture.md'
+testRefs: 'N/A'
 ---
 
 <!-- markdownlint-disable MD051 -->

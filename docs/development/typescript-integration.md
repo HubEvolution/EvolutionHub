@@ -4,6 +4,7 @@ owner: 'Platform Team'
 priority: 'medium'
 lastSync: '2025-11-03'
 codeRefs: 'tsconfig.json, src/**/*.ts, docs/development/typescript-integration.md'
+testRefs: 'N/A'
 ---
 
 <!-- markdownlint-disable MD051 -->

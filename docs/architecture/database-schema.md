@@ -4,6 +4,7 @@ owner: 'Database Team'
 priority: 'high'
 lastSync: '2025-11-03'
 codeRefs: 'migrations/, docs/architecture/adrs/0004-database-schema.md'
+testRefs: 'N/A'
 ---
 
 <!-- markdownlint-disable MD051 -->
@@ -57,14 +58,14 @@ Das Kommentarsystem wurde vollständig implementiert mit folgenden Tabellen:
 
 - `idx_comments_parent_status` (parent_id, status, created_at) WHERE parent_id IS NOT NULL
 
-**Dokumentation**: Siehe [docs/features/comment-system.md](../../features/comment-system.md) und [docs/development/comment-system-implementation.md](../../development/comment-system-implementation.md)
+**Dokumentation**: Siehe [docs/features/blog+commentsystem-plan.md](../features/blog+commentsystem-plan.md)
 
 ### Blog-Content
 
 Blog-Content wird **nicht in D1** gespeichert, sondern als Markdown-Dateien in `src/content/blog/` verwaltet (Astro Content Collections).
 
 **Schema-Validierung**: `src/content/config.ts` (Zod-basiert)
-**Dokumentation**: Siehe [docs/features/blog-system.md](../../features/blog-system.md)
+**Dokumentation**: Siehe [docs/content.md](../content.md) und [docs/features/blog+commentsystem-plan.md](../features/blog+commentsystem-plan.md)
 
 ---
 

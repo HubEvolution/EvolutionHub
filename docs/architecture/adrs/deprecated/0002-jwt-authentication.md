@@ -2,6 +2,12 @@
 status: deprecated
 date: '2023-10-20'
 supersededBy: 'docs/architecture/auth-migration-stytch.md'
+description: 'Historische ADR zur JWT-Auth mit HttpOnly-Cookies (inzwischen durch Stytch ersetzt).'
+owner: 'team:architecture'
+priority: 'low'
+lastSync: '2025-11-11'
+codeRefs: 'legacy: src/pages/api/auth/**, docs/architecture/auth-migration-stytch.md'
+testRefs: 'N/A'
 ---
 
 <!-- markdownlint-disable MD051 -->

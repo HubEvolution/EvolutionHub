@@ -1,10 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import {
-  localizePath,
-  switchLocalePath,
-  isLocalizedPath,
-  getPathLocale,
-} from '@/lib/locale-path';
+import { localizePath, switchLocalePath, isLocalizedPath, getPathLocale } from '@/lib/locale-path';
 
 describe('locale-path helpers', () => {
   describe('localizePath', () => {

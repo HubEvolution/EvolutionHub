@@ -1446,11 +1446,11 @@ function sanitizeErrorDetails(details: Record<string, any>): Record<string, any>
 
 ## Cross-Referenzen
 
-- **[Architecture](../../architecture/)** - Error-Handling in der System-Architektur
+- **[Architecture](../architecture/)** — API-Middleware, Security-Header, CSP
 
-- **[Security](../../security/)** - Security-Aspekte der Error-Handling
+- **[Security](../security/)** — Security-Policies, Incident-Response
 
-- **[Testing](../../testing/)** - Error-Testing und Edge-Case-Tests
+- **[Testing](../testing/)** — Integrationstests, Error-Regressionstests
 
 ## Ownership & Maintenance
 

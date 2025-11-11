@@ -1,11 +1,7 @@
 import 'dotenv/config';
 
 import type { EntryCollection } from 'contentful';
-import {
-  getContentfulClient,
-  mapEntryToBlogPost,
-  type BlogPostSkeleton,
-} from '@/lib/contentful';
+import { getContentfulClient, mapEntryToBlogPost, type BlogPostSkeleton } from '@/lib/contentful';
 
 async function main() {
   const client = getContentfulClient();

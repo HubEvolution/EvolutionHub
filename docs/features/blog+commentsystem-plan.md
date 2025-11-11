@@ -6,6 +6,7 @@ lastSync: '2025-11-04'
 codeRefs: 'src/components/BlogPost.astro, src/pages/api/comments/**, src/lib/services/comment-service.ts, docs/features/admin-notifications.md'
 feature: 'blog-comment-system'
 status: 'in_progress'
+testRefs: 'N/A'
 ---
 
 <!-- markdownlint-disable MD051 -->

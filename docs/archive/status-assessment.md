@@ -4,6 +4,7 @@ owner: 'Documentation Team'
 priority: 'medium'
 lastSync: '2025-11-04'
 codeRefs: 'docs/archive/status-assessment.md, docs/testing/testing-strategy.md, docs/security/headers.md'
+testRefs: 'N/A'
 ---
 
 <!-- markdownlint-disable MD051 -->

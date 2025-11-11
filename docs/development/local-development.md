@@ -4,6 +4,7 @@ owner: 'Platform Team'
 priority: 'medium'
 lastSync: '2025-11-03'
 codeRefs: 'README.md, docs/development/ci-cd.md'
+testRefs: 'N/A'
 ---
 
 <!-- markdownlint-disable MD051 -->

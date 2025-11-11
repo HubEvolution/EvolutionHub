@@ -1,7 +1,13 @@
 ---
 status: active
-date: '2023-11-05'
+date: '2023-11-15'
 supersededBy: ''
+description: 'ADR zur Evolution Hub Datenbank-Architektur auf Cloudflare D1.'
+owner: 'team:architecture'
+priority: 'medium'
+lastSync: '2025-11-11'
+codeRefs: 'migrations/**, src/lib/db, wrangler.toml'
+testRefs: 'N/A'
 ---
 
 <!-- markdownlint-disable MD051 -->

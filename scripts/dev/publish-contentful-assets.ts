@@ -74,7 +74,10 @@ async function main(): Promise<void> {
 
     const fileBuffer = await readFile(entry.resolvedPath);
 
-    const assetId = entry.source.split('/').pop()?.replace(/\.[^.]+$/, '');
+    const assetId = entry.source
+      .split('/')
+      .pop()
+      ?.replace(/\.[^.]+$/, '');
     if (!assetId) {
       console.warn(`Could not derive asset ID for ${entry.source}`);
       continue;

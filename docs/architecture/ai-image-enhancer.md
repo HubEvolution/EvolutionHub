@@ -4,6 +4,7 @@ owner: 'AI Enhancer Team'
 priority: 'high'
 lastSync: '2025-11-03'
 codeRefs: 'src/lib/services/ai-image-service.ts, src/pages/api/ai-image/**'
+testRefs: 'N/A'
 ---
 
 <!-- markdownlint-disable MD051 -->

@@ -2,6 +2,12 @@
 status: active
 date: '2023-10-25'
 supersededBy: ''
+description: 'ADR zur Astro-basierten Frontend-Architektur (Hybrid Rendering, React Islands, Tailwind).'
+owner: 'team:architecture'
+priority: 'medium'
+lastSync: '2025-11-11'
+codeRefs: 'astro.config.mjs, src/layouts/BaseLayout.astro, package.json'
+testRefs: 'N/A'
 ---
 
 <!-- markdownlint-disable MD051 -->

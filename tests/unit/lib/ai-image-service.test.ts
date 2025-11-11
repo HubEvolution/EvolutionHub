@@ -1,17 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import type { KVNamespace } from '@cloudflare/workers-types';
 
-vi.mock('@/lib/db', () => ({
-  db: {
-    insert: vi.fn(),
-    select: vi.fn(),
-    update: vi.fn(),
-  },
-}));
+import { AiImageService } from '@/lib/services/ai-image-service';
+import { getUsage as kvGetUsage } from '@/lib/kv/usage';
+import type { OwnerType } from '@/config/ai-image';
 
 vi.mock('@/lib/kv/usage', () => ({
   getUsage: vi.fn(),
   incrementDailyRolling: vi.fn(),
-  rollingDailyKey: vi.fn(),
+  rollingDailyKey: vi.fn().mockReturnValue('ai:rolling:key'),
   legacyMonthlyKey: vi.fn(),
   getCreditsBalanceTenths: vi.fn(),
   consumeCreditsTenths: vi.fn(),
@@ -28,66 +25,63 @@ vi.mock('@/server/utils/logger-factory', () => ({
   },
 }));
 
-vi.mock('@/lib/utils/mime', () => ({
-  detectImageMimeFromBytes: vi.fn().mockResolvedValue('image/png'),
-}));
+const mockedKvGetUsage = vi.mocked(kvGetUsage);
 
-import { db } from '@/lib/db';
-import { generateImage, uploadToR2 } from '@/lib/services/ai-image-service';
-import { R2_BUCKET } from '@/lib/r2';
-import { SESSION_KV } from '@/lib/kv';
+type RuntimeEnv = ConstructorParameters<typeof AiImageService>[0];
 
-describe('AI Image Service', () => {
+function createService(overrides: Partial<RuntimeEnv> = {}) {
+  const kv = {
+    get: vi.fn(),
+    put: vi.fn(),
+  } as unknown as KVNamespace;
+
+  const env: RuntimeEnv = {
+    KV_AI_ENHANCER: kv,
+    ...overrides,
+  };
+
+  return {
+    service: new AiImageService(env),
+    kv,
+    env,
+  };
+}
+
+describe('AiImageService', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  describe('generateImage', () => {
-    const mockPrompt = 'Test prompt';
-    const mockUserId = 'user123';
+  describe('getUsage', () => {
+    it('returns default usage when KV value is missing', async () => {
+      const { service, kv } = createService();
+      vi.mocked(kv.get).mockResolvedValueOnce(null);
 
-    it('returns success with job info on happy path', async () => {
-      vi.mocked(db.insert).mockResolvedValue({ rowsAffected: 1 } as never);
-      vi.mocked(db.select).mockResolvedValue([{ id: 'job1', prompt: mockPrompt, status: 'completed' }] as never);
+      const result = await service.getUsage('user' as OwnerType, 'user-1', 3);
 
-      const result = await generateImage(mockPrompt, mockUserId);
-
-      expect(result.success).toBe(true);
-      expect(db.insert).toHaveBeenCalled();
-      expect(result.data.jobId).toBe('job1');
+      expect(kv.get).toHaveBeenCalledWith('ai:usage:user:user-1');
+      expect(result).toEqual({ used: 0, limit: 3, resetAt: null });
     });
 
-    it('throws if prompt is empty', async () => {
-      await expect(generateImage('', mockUserId)).rejects.toThrow('Invalid prompt');
+    it('parses KV payload when present', async () => {
+      const { service, kv } = createService();
+      vi.mocked(kv.get).mockResolvedValueOnce(
+        JSON.stringify({ count: 2, resetAt: 1700000000 })
+      );
+
+      const result = await service.getUsage('guest' as OwnerType, 'guest-99', 5);
+
+      expect(result).toEqual({ used: 2, limit: 5, resetAt: 1700000000 });
     });
 
-    it('throws rate limit error when session KV indicates recent usage', async () => {
-      vi.mocked(SESSION_KV.get).mockResolvedValueOnce('recent-use');
+    it('delegates to rolling usage helper when KV v2 is enabled', async () => {
+      mockedKvGetUsage.mockResolvedValueOnce({ count: 4, resetAt: 1700000 });
+      const { service, kv } = createService({ USAGE_KV_V2: 'true' });
 
-      await expect(generateImage(mockPrompt, mockUserId)).rejects.toThrow('Rate limited');
-    });
-  });
+      const result = await service.getUsage('user' as OwnerType, 'abc', 10);
 
-  describe('uploadToR2', () => {
-    const mockBuffer = Buffer.from('test-image');
-    const mockKey = 'test-key.jpg';
-    const mockJobId = 'job-1';
-
-    it('uploads buffer to R2 and updates job status', async () => {
-      vi.mocked(R2_BUCKET.put).mockResolvedValue(undefined as never);
-      vi.mocked(db.update).mockResolvedValue({ rowsAffected: 1 } as never);
-
-      const result = await uploadToR2(mockBuffer, mockKey, mockJobId);
-
-      expect(result).toBe(true);
-      expect(R2_BUCKET.put).toHaveBeenCalledWith(mockKey, expect.objectContaining({ body: mockBuffer }));
-      expect(db.update).toHaveBeenCalled();
-    });
-
-    it('throws when R2 upload fails', async () => {
-      vi.mocked(R2_BUCKET.put).mockRejectedValue(new Error('Upload failed'));
-
-      await expect(uploadToR2(mockBuffer, mockKey, mockJobId)).rejects.toThrow('Upload failed');
+      expect(mockedKvGetUsage).toHaveBeenCalledWith(kv, 'ai:rolling:key');
+      expect(result).toEqual({ used: 4, limit: 10, resetAt: 1700000 * 1000 });
     });
   });
 });

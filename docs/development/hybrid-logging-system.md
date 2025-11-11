@@ -4,6 +4,7 @@ owner: 'Platform Team'
 priority: 'medium'
 lastSync: '2025-11-03'
 codeRefs: 'src/lib/logging/**, docs/architecture/system-overview.md'
+testRefs: 'N/A'
 ---
 
 <!-- markdownlint-disable MD051 -->

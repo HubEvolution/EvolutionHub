@@ -142,7 +142,11 @@ async function ensureContentType() {
     contentType.fields = contentTypeSpec.fields;
     contentType = await contentType.update();
   } catch (error) {
-    if (error.name === 'NotFound' || error?.sys?.id === 'NotFound' || error?.response?.status === 404) {
+    if (
+      error.name === 'NotFound' ||
+      error?.sys?.id === 'NotFound' ||
+      error?.response?.status === 404
+    ) {
       console.log(`Content type "${CONTENT_TYPE_ID}" not found. Creating…`);
       contentType = await environment.createContentTypeWithId(CONTENT_TYPE_ID, contentTypeSpec);
     } else {
@@ -153,7 +157,9 @@ async function ensureContentType() {
   const publishedVersion = contentType.sys.publishedVersion ?? 0;
   if (contentType.sys.version > publishedVersion) {
     contentType = await contentType.publish();
-    console.log(`Content type "${CONTENT_TYPE_ID}" published (v${contentType.sys.publishedVersion}).`);
+    console.log(
+      `Content type "${CONTENT_TYPE_ID}" published (v${contentType.sys.publishedVersion}).`
+    );
   } else {
     console.log(`Content type "${CONTENT_TYPE_ID}" already published.`);
   }

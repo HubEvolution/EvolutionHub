@@ -4,6 +4,7 @@ owner: 'Billing Team'
 priority: 'high'
 lastSync: '2025-11-03'
 codeRefs: 'docs/development/stripe-setup.md, docs/api/billing_api.md, src/pages/api/billing/**'
+testRefs: 'N/A'
 ---
 
 <!-- markdownlint-disable MD051 -->

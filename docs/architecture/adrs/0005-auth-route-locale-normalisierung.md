@@ -2,6 +2,12 @@
 status: active
 date: '2024-03-12'
 supersededBy: ''
+description: 'ADR zur Normalisierung der Locale-abhängigen Auth-Routen in der Middleware.'
+owner: 'team:architecture'
+priority: 'medium'
+lastSync: '2025-11-11'
+codeRefs: 'src/middleware.ts, src/components/auth/AuthStatusNotifier.tsx'
+testRefs: 'N/A'
 ---
 
 <!-- markdownlint-disable MD051 -->

@@ -4,6 +4,7 @@ owner: 'Testing & CI Team'
 priority: 'high'
 lastSync: '2025-11-04'
 codeRefs: 'vitest.config.ts, .github/workflows/unit-tests.yml, docs/testing/coverage-roadmap-to-95.md'
+testRefs: 'N/A'
 ---
 
 <!-- markdownlint-disable MD051 -->

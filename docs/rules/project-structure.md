@@ -4,6 +4,7 @@ owner: 'Platform Team'
 priority: 'medium'
 lastSync: '2025-11-04'
 codeRefs: 'docs/rules/project-structure.md, src/pages/r2/**, src/pages/r2-ai/**, astro.config.mjs, wrangler.toml'
+testRefs: 'N/A'
 ---
 
 <!-- markdownlint-disable MD051 -->
