@@ -13,7 +13,7 @@ import { getVoiceEntitlementsFor } from '@/config/voice/entitlements';
 import type { Plan } from '@/config/ai-image/entitlements';
 import { loggerFactory } from '@/server/utils/logger-factory';
 import { formatZodError } from '@/lib/validation';
-import { voiceTranscribeParamsSchema } from '@/lib/validation/schemas/voice';
+import { voiceTranscribeParamsSchema } from '@/lib/validation';
 
 type FileLike = {
   size: number;

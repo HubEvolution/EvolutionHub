@@ -19,7 +19,7 @@ import { createRateLimiter } from '@/lib/rate-limiter';
 import type { ScrapeInput, ScrapeResult } from '@/types/webscraper';
 import type { Plan } from '@/config/ai-image';
 import { getWebscraperEntitlementsFor } from '@/config/webscraper/entitlements';
-import { webscraperRequestSchema } from '@/lib/validation/schemas/webscraper';
+import { webscraperRequestSchema } from '@/lib/validation';
 import { formatZodError } from '@/lib/validation';
 
 interface WebscraperEnv {

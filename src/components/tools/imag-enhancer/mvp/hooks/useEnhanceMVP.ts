@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import type { EnhanceMVPArgs, ApiSuccess, ApiErrorBody, GenerateResponseData } from '../../types';
+import type { EnhanceMVPArgs, ApiSuccess, ApiErrorBody, GenerateResponseData } from '../types';
 import { postGenerate } from '../../api';
 import { ensureCsrfToken } from '@/lib/security/csrf';
 

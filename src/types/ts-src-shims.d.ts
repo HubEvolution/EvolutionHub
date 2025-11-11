@@ -46,6 +46,8 @@ declare module '@/lib/rate-limiter' {
     options?: { env?: Record<string, unknown>; kv?: unknown }
   ): Promise<boolean>;
 
+  export type AnyEnv = Record<string, unknown>;
+
   export const standardApiLimiter: RateLimiter;
   export const authLimiter: RateLimiter;
   export const sensitiveActionLimiter: RateLimiter;
@@ -79,9 +81,18 @@ declare module '@/lib/utils/mime' {
 }
 
 declare module 'drizzle-orm/sqlite-core' {
-  export const sqliteTable: any;
-  export const text: any;
-  export const integer: any;
+  interface DrizzleColumnBuilder {
+    $type<T>(): DrizzleColumnBuilder;
+    primaryKey(options?: any): DrizzleColumnBuilder;
+    notNull(): DrizzleColumnBuilder;
+    unique(): DrizzleColumnBuilder;
+    default(value: unknown): DrizzleColumnBuilder;
+    references(ref: (...args: any[]) => unknown, options?: any): DrizzleColumnBuilder;
+  }
+
+  export function sqliteTable(name: string, columns: Record<string, unknown>): any;
+  export function text(name: string, config?: any): DrizzleColumnBuilder;
+  export function integer(name: string, config?: any): DrizzleColumnBuilder;
 }
 
 declare module '@/server/utils/logger-factory' {
@@ -138,6 +149,20 @@ declare module 'drizzle-orm' {
 
 declare module 'drizzle-orm/d1' {
   export const drizzle: any;
+}
+
+declare module '../../tests/utils/kv-mock' {
+  import type { KVNamespace } from '@cloudflare/workers-types';
+
+  export interface KVNamespaceMock {
+    namespace: KVNamespace;
+    getLastWrite(): { key: string; value: string; options?: Record<string, unknown> } | null;
+    readRaw(key: string): string | null;
+    readJSON<T>(key: string): T | null;
+    clear(): void;
+  }
+
+  export function createKVNamespaceMock(): KVNamespaceMock;
 }
 
 // declare module '@/lib/api-middleware' {

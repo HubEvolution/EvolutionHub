@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import type { CommentSearchOptions, PaginationOptions } from '@/lib/types/performance';
+import type { CommentFilter, CommentSearchOptions, PaginationOptions } from '@/lib/types/performance';
 
 const commentStatusValues = ['pending', 'approved', 'rejected', 'flagged', 'hidden'] as const;
 const commentEntityTypes = ['blog_post', 'project', 'general'] as const;
@@ -228,14 +228,16 @@ export const commentPerformancePaginationQuerySchema = z
       .optional(),
   })
   .strict()
-  .transform((value) => ({
-    page: value.page ?? 1,
-    limit: value.limit ?? 20,
-    sortBy: (value.sortBy ?? 'createdAt') as PaginationOptions['sortBy'],
-    sortOrder: (value.sortOrder ?? 'desc') as PaginationOptions['sortOrder'],
-    includeReplies: value.includeReplies ?? false,
-    maxDepth: value.maxDepth ?? 5,
-  })) satisfies z.ZodType<PaginationOptions>;
+  .transform(
+    (value): PaginationOptions => ({
+      page: value.page ?? 1,
+      limit: value.limit ?? 20,
+      sortBy: (value.sortBy ?? 'createdAt') as PaginationOptions['sortBy'],
+      sortOrder: (value.sortOrder ?? 'desc') as PaginationOptions['sortOrder'],
+      includeReplies: value.includeReplies ?? false,
+      maxDepth: value.maxDepth ?? 5,
+    })
+  );
 
 export const commentPerformanceSearchQuerySchema = z
   .object({
@@ -289,24 +291,37 @@ export const commentPerformanceSearchQuerySchema = z
       .optional(),
   })
   .strict()
-  .transform((value) => ({
-    query: value.q,
-    pagination: {
-      page: value.page ?? 1,
-      limit: value.limit ?? 20,
-      sortBy: 'createdAt',
-      sortOrder: 'desc',
-    } satisfies PaginationOptions,
-    filters: {
-      status: value.status && value.status.length > 0 ? value.status : ['approved'],
-      authorId: value.authorId && value.authorId.length > 0 ? value.authorId : undefined,
-      dateFrom: value.dateFrom,
-      dateTo: value.dateTo,
-      hasReplies: value.hasReplies,
-      minLikes: value.minLikes,
-    } satisfies CommentSearchOptions['filters'],
-    highlight: true as const,
-  })) satisfies z.ZodType<CommentSearchOptions>;
+  .transform(
+    (value): CommentSearchOptions => {
+      const filters: CommentFilter = {
+        status: value.status && value.status.length > 0 ? value.status : ['approved'],
+        authorId: value.authorId && value.authorId.length > 0 ? value.authorId : undefined,
+        dateFrom: value.dateFrom,
+        dateTo: value.dateTo,
+        hasReplies: value.hasReplies,
+        minLikes: value.minLikes,
+        search: undefined,
+      };
+
+      const normalizedFilters = Object.fromEntries(
+        Object.entries(filters).filter(([, v]) => v !== undefined && v !== null)
+      ) as CommentFilter;
+
+      return {
+        query: value.q,
+        pagination: {
+          page: value.page ?? 1,
+          limit: value.limit ?? 20,
+          sortBy: 'createdAt',
+          sortOrder: 'desc',
+          includeReplies: undefined,
+          maxDepth: undefined,
+        },
+        filters: Object.keys(normalizedFilters).length > 0 ? normalizedFilters : undefined,
+        highlight: true,
+      };
+    }
+  );
 
 export const commentPerformanceBatchQuerySchema = z
   .object({

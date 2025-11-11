@@ -1,4 +1,5 @@
 import type { APIContext } from 'astro';
+import type { D1Database } from '@cloudflare/workers-types';
 import {
   withAuthApiMiddleware,
   createApiError,
@@ -9,7 +10,7 @@ import { sensitiveActionLimiter } from '@/lib/rate-limiter';
 import { requireAdmin } from '@/lib/auth-helpers';
 import type { AdminBindings } from '@/lib/types/admin';
 import { formatZodError } from '@/lib/validation';
-import { adminUserLifecycleRequestSchema } from '@/lib/validation/schemas/admin';
+import { adminUserLifecycleRequestSchema } from '@/lib/validation';
 import { stytchDeleteUser, StytchError } from '@/lib/stytch';
 
 interface UserRow {
@@ -29,7 +30,7 @@ export const DELETE = withAuthApiMiddleware(
   async (context: APIContext) => {
     const { request } = context;
     const env = getAdminEnv(context);
-    const db = env.DB;
+    const db = env.DB as D1Database | undefined;
 
     if (!db) {
       return createApiError('server_error', 'Database unavailable');

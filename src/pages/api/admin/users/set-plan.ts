@@ -1,4 +1,5 @@
 import type { APIContext } from 'astro';
+import type { D1Database } from '@cloudflare/workers-types';
 import {
   withAuthApiMiddleware,
   createApiError,
@@ -9,7 +10,7 @@ import { sensitiveActionLimiter } from '@/lib/rate-limiter';
 import { requireAdmin } from '@/lib/auth-helpers';
 import type { AdminBindings } from '@/lib/types/admin';
 import { formatZodError } from '@/lib/validation';
-import { adminSetPlanRequestSchema } from '@/lib/validation/schemas/admin';
+import { adminSetPlanRequestSchema } from '@/lib/validation';
 import Stripe from 'stripe';
 
 function getAdminEnv(context: APIContext): AdminBindings {
@@ -21,7 +22,7 @@ export const POST = withAuthApiMiddleware(
   async (context: APIContext) => {
     const { request } = context;
     const env = getAdminEnv(context);
-    const db = env.DB;
+    const db = env.DB as unknown as D1Database | undefined;
     if (!db) {
       return createApiError('server_error', 'Database unavailable');
     }

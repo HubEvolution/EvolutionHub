@@ -13,7 +13,7 @@ import {
   notificationIdPathSchema,
   notificationsEmptyBodySchema,
   notificationsListQuerySchema,
-} from '@/lib/validation/schemas/notifications';
+} from '@/lib/validation';
 
 function ensureNumericUserId(rawId: unknown): number {
   const numericId = typeof rawId === 'string' ? Number.parseInt(rawId, 10) : Number(rawId);

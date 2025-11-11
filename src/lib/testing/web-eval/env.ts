@@ -14,6 +14,9 @@ export interface WebEvalEnvBindings {
   WEB_EVAL_TASK_TTL_SECONDS?: string;
   WEB_EVAL_REPORT_TTL_SECONDS?: string;
   WEB_EVAL_EXECUTOR_TOKEN?: string;
+  WEB_EVAL_ENABLE_PROD?: string; // '1' to allow creating tasks in production (default off)
+  WEB_EVAL_EXEC_ALLOW_PROD?: string; // '1' to allow executor routes in production (default off)
+  ENVIRONMENT?: string; // 'development' | 'staging' | 'production' | 'testing'
 }
 
 export function resolveQueueConfig(env: Partial<WebEvalEnvBindings>): WebEvalQueueConfig {

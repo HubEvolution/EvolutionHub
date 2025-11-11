@@ -22,7 +22,7 @@ export const POST = withAuthApiMiddleware(
   async (context: APIContext) => {
     const { locals, request } = context;
     const runtimeEnv = (locals.runtime?.env ?? {}) as AnyEnv;
-    const adminEnv = runtimeEnv as AdminBindings;
+    const adminEnv = (runtimeEnv as unknown) as AdminBindings;
 
     if (!adminEnv.DB) {
       return createApiError('server_error', 'Infrastructure unavailable');

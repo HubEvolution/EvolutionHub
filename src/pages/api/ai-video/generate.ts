@@ -7,7 +7,8 @@ import {
   createMethodNotAllowed,
 } from '@/lib/api-middleware';
 import { aiJobsLimiter } from '@/lib/rate-limiter';
-import { videoGenerateSchema } from '@/lib/validation/schemas/ai-video';
+import { videoGenerateSchema } from '@/lib/validation';
+import { formatZodError } from '@/lib/validation';
 import { TIER_CREDITS } from '@/config/ai-video';
 import {
   getCreditsBalanceTenths,
@@ -45,7 +46,9 @@ export const POST = withApiMiddleware(
     }
     const parsed = videoGenerateSchema.safeParse(payload);
     if (!parsed.success) {
-      return createApiError('validation_error', 'Invalid parameters');
+      return createApiError('validation_error', 'Invalid parameters', {
+        details: formatZodError(parsed.error),
+      });
     }
 
     const { key, tier } = parsed.data;

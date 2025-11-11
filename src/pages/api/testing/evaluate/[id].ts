@@ -5,7 +5,7 @@ import {
   createApiError,
   createMethodNotAllowed,
 } from '@/lib/api-middleware';
-import { webEvalTaskIdParamSchema } from '@/lib/validation';
+import { webEvalTaskIdParamSchema, formatZodError } from '@/lib/validation';
 import { webEvalTaskLimiter } from '@/lib/rate-limiter';
 import { getTask, getReport } from '@/lib/testing/web-eval/storage';
 import type { WebEvalEnvBindings } from '@/lib/testing/web-eval/env';
@@ -44,7 +44,9 @@ async function handler(context: APIContext): Promise<Response> {
 
   const parsedId = webEvalTaskIdParamSchema.safeParse({ id: params?.id ?? '' });
   if (!parsedId.success) {
-    return createApiError('validation_error', 'Invalid task identifier');
+    return createApiError('validation_error', 'Invalid task identifier', {
+      details: formatZodError(parsedId.error),
+    });
   }
 
   const task = await getTask(kv, parsedId.data.id);

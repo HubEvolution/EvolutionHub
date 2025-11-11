@@ -1,7 +1,7 @@
 import type { APIContext } from 'astro';
 import { withAuthApiMiddleware, createApiError, createApiSuccess } from '@/lib/api-middleware';
 import { formatZodError } from '@/lib/validation';
-import { billingCancelRequestSchema } from '@/lib/validation/schemas/billing';
+import { billingCancelRequestSchema } from '@/lib/validation';
 import Stripe from 'stripe';
 import { logUserEvent } from '@/lib/security-logger';
 

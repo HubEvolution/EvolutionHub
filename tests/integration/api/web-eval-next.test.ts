@@ -4,8 +4,8 @@ import { csrfHeaders, hex32, sendJson, TEST_URL } from '../../shared/http';
 
 const ENDPOINT = '/api/testing/evaluate/next';
 const CREATE_ENDPOINT = '/api/testing/evaluate';
-const EXECUTOR_TOKEN =
-  process.env.WEB_EVAL_EXECUTOR_TOKEN || '7d7ff882132cefad6f43602fffb77f2b64a700b6934c71ca80f46e4f5de5e5e2';
+const EXECUTOR_TOKEN = process.env.WEB_EVAL_EXECUTOR_TOKEN;
+const HAS_TOKEN = Boolean(EXECUTOR_TOKEN);
 
 interface ApiSuccess<T> {
   success: true;
@@ -80,12 +80,13 @@ async function createTask(overrides: Record<string, unknown> = {}, cookie?: stri
 }
 
 async function drainPendingTasks() {
+  if (!HAS_TOKEN) return; // No token → nothing to claim/clean up
   // Repeatedly claim tasks until queue is empty to avoid cross-test leakage.
   // Single fetch per iteration keeps potential rate limits low.
   // eslint-disable-next-line no-constant-condition
   while (true) {
     const { res, json } = await callNext({
-      headers: { 'X-Executor-Token': EXECUTOR_TOKEN },
+      headers: { 'x-executor-token': EXECUTOR_TOKEN as string },
     });
     if (res.status !== 200) {
       break;
@@ -117,9 +118,9 @@ describe('/api/testing/evaluate/next', () => {
     expect(json.error.type).toBe('auth_error');
   });
 
-  it('returns null task when no pending entries exist', async () => {
+  (HAS_TOKEN ? it : it.skip)('returns null task when no pending entries exist', async () => {
     const { res, json } = await callNext({
-      headers: { 'X-Executor-Token': EXECUTOR_TOKEN },
+      headers: { 'x-executor-token': EXECUTOR_TOKEN as string },
     });
     expect(res.status).toBe(200);
     if (!json || json.success !== true) {
@@ -128,11 +129,11 @@ describe('/api/testing/evaluate/next', () => {
     expect(json.data.task).toBeNull();
   });
 
-  it('claims the oldest pending task and marks it processing', async () => {
+  (HAS_TOKEN ? it : it.skip)('claims the oldest pending task and marks it processing', async () => {
     const { taskId } = await createTask();
 
     const { res, json } = await callNext({
-      headers: { 'X-Executor-Token': EXECUTOR_TOKEN },
+      headers: { 'x-executor-token': EXECUTOR_TOKEN as string },
     });
 
     expect(res.status).toBe(200);

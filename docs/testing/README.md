@@ -23,6 +23,8 @@ testRefs: 'tests/unit, tests/integration, test-suite-v2'
 
 - **[Testing Guidelines](../development/testing-guidelines.md)** — Verbindliche Praktiken (AAA-Muster, Namenskonventionen)
 
+- **[Web‑Eval Executor – Header/Secret/How‑to‑run](./web-eval-executor.md)** — Kurzleitfaden zur Executor‑Authentifizierung und lokaler/CI‑Ausführung
+
 - TODO: Ergänzende Seite zu Playwright/Vitest Setup (derzeit in `tests/` README notiert)
 
 ## Test-Strategie im Detail
@@ -329,6 +331,8 @@ npm run test:debug
 - **[API Documentation](../api/)** — API-Endpunkte für Integrationstests
 
 ## Schnellreferenzen
+
+- **Web‑Eval Executor**: siehe [./web-eval-executor.md](./web-eval-executor.md)
 
 ### Wichtige Testkommandos
 

@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import { z } from 'zod';
+import { formatZodError } from '@/lib/validation';
 import { loggerFactory } from '@/server/utils/logger-factory';
 
 // Logger-Instanzen erstellen
@@ -49,7 +50,7 @@ export const GET: APIRoute = async ({ request: _request, url }) => {
         JSON.stringify({
           success: false,
           error: 'Invalid confirmation link',
-          details: validation.error.errors,
+          details: formatZodError(validation.error),
         }),
         {
           status: 400,

@@ -8,7 +8,8 @@ import {
   createMethodNotAllowed,
 } from '@/lib/api-middleware';
 import { aiJobsLimiter } from '@/lib/rate-limiter';
-import { videoJobIdSchema } from '@/lib/validation/schemas/ai-video';
+import { videoJobIdSchema } from '@/lib/validation';
+import { formatZodError } from '@/lib/validation';
 
 function ensureGuestIdCookie(context: APIContext): string {
   const existing = context.cookies.get('guest_id')?.value;
@@ -37,7 +38,10 @@ export const GET = withApiMiddleware(
   async (context: APIContext) => {
     const { locals, request, params } = context;
     const parsed = videoJobIdSchema.safeParse({ id: params?.id || '' });
-    if (!parsed.success) return createApiError('validation_error', 'Invalid job id');
+    if (!parsed.success)
+      return createApiError('validation_error', 'Invalid job id', {
+        details: formatZodError(parsed.error),
+      });
     const jobId = parsed.data.id;
 
     const env = (locals.runtime?.env ?? {}) as {

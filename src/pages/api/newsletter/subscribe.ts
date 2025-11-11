@@ -4,7 +4,7 @@ import { createPendingSubscription } from './confirm';
 import { loggerFactory } from '@/server/utils/logger-factory';
 import { createRateLimiter } from '@/lib/rate-limiter';
 import { formatZodError } from '@/lib/validation';
-import { newsletterSubscribeSchema } from '@/lib/validation/schemas/newsletter';
+import { newsletterSubscribeSchema } from '@/lib/validation';
 
 // Tracking von Newsletter-Anmeldungen erfolgt clientseitig via window.evolutionAnalytics
 

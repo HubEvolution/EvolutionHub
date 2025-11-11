@@ -1,7 +1,7 @@
 import type { APIContext } from 'astro';
 import { withAuthApiMiddleware, createApiSuccess, createApiError } from '@/lib/api-middleware';
 import { formatZodError } from '@/lib/validation';
-import { dashboardActionSchema } from '@/lib/validation/schemas/dashboard';
+import { dashboardActionSchema } from '@/lib/validation';
 import { logUserEvent } from '@/lib/security-logger';
 
 /**

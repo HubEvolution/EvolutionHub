@@ -1,4 +1,5 @@
 import type { APIContext } from 'astro';
+import type { D1Database } from '@cloudflare/workers-types';
 import {
   withAuthApiMiddleware,
   createApiError,
@@ -31,7 +32,7 @@ export const POST = withAuthApiMiddleware(
       return createApiError('forbidden', 'Credit grant is disabled');
     }
 
-    const db = env.DB;
+    const db = env.DB as D1Database | undefined;
     const kv = env.KV_AI_ENHANCER;
     if (!db || !kv) {
       return createApiError('server_error', 'Infrastructure unavailable');
@@ -39,7 +40,7 @@ export const POST = withAuthApiMiddleware(
 
     // Require admin role for performing grants
     try {
-      await requireAdmin({ request: context.request, env: { DB: env.DB } });
+      await requireAdmin({ request: context.request, env: { DB: db } });
     } catch {
       return createApiError('forbidden', 'Insufficient permissions');
     }

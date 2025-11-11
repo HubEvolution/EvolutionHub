@@ -52,6 +52,20 @@ export default tseslint.config(
       },
     },
   },
+  // Enforce no-explicit-any as error for TS/TSX in src/** (project standard)
+  {
+    files: ['src/**/*.{ts,tsx}'],
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'error',
+    },
+  },
+  // Keep .astro files on warn to allow gradual tightening without breaking builds
+  {
+    files: ['src/**/*.astro'],
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'warn',
+    },
+  },
   // Ignore noisy rules in compile-time shims/stubs only (do not affect production src files)
   {
     files: [

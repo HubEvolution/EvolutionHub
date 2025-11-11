@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { SimpleResult } from '../SimpleResult';
+import type { SimpleResultProps } from '../SimpleResult';
 import type { UsageData } from '../types';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
@@ -32,7 +33,7 @@ describe('SimpleResult', () => {
   const mockUsage: UsageData = {
     used: 5,
     limit: 20,
-    resetAt: '2025-01-01T00:00:00Z',
+    resetAt: Date.UTC(2025, 0, 1),
   };
 
   const defaultProps: SimpleResultProps = {

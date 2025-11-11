@@ -1,4 +1,5 @@
 import type { APIContext } from 'astro';
+import type { D1Database } from '@cloudflare/workers-types';
 import { invalidateSession } from '@/lib/auth-v2';
 import { standardApiLimiter } from '@/lib/rate-limiter';
 import { logSecurityEvent, logUserEvent } from '@/lib/security-logger';
@@ -37,7 +38,7 @@ const handleLogout = async (context: APIContext) => {
 
     if (sessionId) {
       // Benutzer-ID für Logging abrufen
-      const db = context.locals.runtime.env.DB;
+      const db = context.locals.runtime.env.DB as unknown as D1Database;
       const sessionResult = await db
         .prepare('SELECT user_id FROM sessions WHERE id = ?')
         .bind(sessionId)

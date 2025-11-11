@@ -1,8 +1,9 @@
-import { renderHook, act, waitFor } from '@testing-library/react';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { renderHook, act } from '@testing-library/react';
 import { useEnhanceMVP } from '../hooks/useEnhanceMVP';
 import { postGenerate } from '../../api';
 import { ensureCsrfToken } from '@/lib/security/csrf';
-import type { ApiSuccess, GenerateResponseData } from '../types';
+import type { ApiSuccess, ApiErrorBody, GenerateResponseData } from '../types';
 
 // Mock dependencies
 vi.mock('../../api');
@@ -15,10 +16,15 @@ describe('useEnhanceMVP', () => {
   const mockResponse: ApiSuccess<GenerateResponseData> = {
     success: true,
     data: {
+      model: mockModel,
       imageUrl: 'https://example.com/result.jpg',
       originalUrl: 'https://example.com/original.jpg',
+      usage: { used: 1, limit: 10, resetAt: null },
+      limits: { user: 10, guest: 5 },
     },
   };
+
+  type PostGenerateResult = Awaited<ReturnType<typeof postGenerate>>;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -34,7 +40,7 @@ describe('useEnhanceMVP', () => {
   it('calls postGenerate with correct parameters', async () => {
     const { result } = renderHook(() => useEnhanceMVP());
 
-    vi.mocked(postGenerate).mockResolvedValue(mockResponse);
+    vi.mocked(postGenerate).mockResolvedValue(mockResponse as PostGenerateResult);
 
     const formData = new FormData();
     formData.set('image', mockFile);
@@ -91,7 +97,7 @@ describe('useEnhanceMVP', () => {
   it('handles error responses from postGenerate', async () => {
     const { result } = renderHook(() => useEnhanceMVP());
 
-    const mockErrorResponse = {
+    const mockErrorResponse: ApiErrorBody = {
       success: false,
       error: {
         type: 'validation_error' as const,
@@ -99,7 +105,7 @@ describe('useEnhanceMVP', () => {
       },
     };
 
-    vi.mocked(postGenerate).mockResolvedValue(mockErrorResponse);
+    vi.mocked(postGenerate).mockResolvedValue(mockErrorResponse as PostGenerateResult);
 
     const response = await act(async () => {
       return await result.current.enhance({
@@ -116,7 +122,7 @@ describe('useEnhanceMVP', () => {
 
     const mockRateLimitResponse = new Response('Rate limited', { status: 429 });
 
-    vi.mocked(postGenerate).mockResolvedValue(mockRateLimitResponse);
+    vi.mocked(postGenerate).mockResolvedValue(mockRateLimitResponse as PostGenerateResult);
 
     const response = await act(async () => {
       return await result.current.enhance({

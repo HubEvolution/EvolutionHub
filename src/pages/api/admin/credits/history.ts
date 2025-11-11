@@ -1,4 +1,5 @@
 import type { APIContext } from 'astro';
+import type { D1Database } from '@cloudflare/workers-types';
 import {
   withAuthApiMiddleware,
   createApiError,
@@ -28,13 +29,14 @@ export const GET = withAuthApiMiddleware(
   async (context: APIContext) => {
     const { url } = context;
     const env = getAdminEnv(context);
+    const db = env.DB as D1Database | undefined;
 
-    if (!env.DB || !env.KV_AI_ENHANCER) {
+    if (!db || !env.KV_AI_ENHANCER) {
       return createApiError('server_error', 'Infrastructure unavailable');
     }
 
     try {
-      await requireAdmin({ request: context.request, env: { DB: env.DB } });
+      await requireAdmin({ request: context.request, env: { DB: db } });
     } catch {
       return createApiError('forbidden', 'Insufficient permissions');
     }

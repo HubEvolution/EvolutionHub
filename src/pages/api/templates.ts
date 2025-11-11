@@ -2,7 +2,7 @@ import type { APIContext } from 'astro';
 import type { KVNamespace } from '@cloudflare/workers-types';
 import { withApiMiddleware, createApiError, createApiSuccess } from '@/lib/api-middleware';
 import { formatZodError } from '@/lib/validation';
-import { templateSaveSchema } from '@/lib/validation/schemas/templates';
+import { templateSaveSchema } from '@/lib/validation';
 
 // Add to existing file, append after GET
 export const POST = withApiMiddleware(

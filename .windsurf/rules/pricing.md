@@ -1,6 +1,8 @@
----
 trigger: always_on
----
+scope: feature
+extends:
+  - api-and-security.md
+  - zod-openapi.md
 
 # Pricing & Stripe Rules
 
@@ -65,7 +67,7 @@ Saubere Billing‑Integration mit verifizierten Webhooks, plan→Entitlements‑
 - [src/pages/api/billing/stripe-webhook.ts](cci:7://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/pages/api/billing/stripe-webhook.ts:0:0-0:0)
 - [src/pages/api/admin/users/set-plan.ts](cci:7://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/pages/api/admin/users/set-plan.ts:0:0-0:0)
 - Entitlements: `src/config/ai-image/entitlements.ts`
-- OpenAPI: [openapi.yaml](cci:7://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/docs/api/openapi.yaml:0:0-0:0)
+- OpenAPI: `openapi.yaml`
 
 ## CI/Gates
 

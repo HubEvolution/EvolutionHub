@@ -1,6 +1,9 @@
----
 trigger: always_on
----
+scope: feature
+extends:
+  - api-and-security.md
+  - auth.md
+  - project-structure.md
 
 # Cookies & Consent Rules
 

@@ -2,7 +2,8 @@ import type { APIContext } from 'astro';
 import { withAuthApiMiddleware, createApiError, createApiSuccess } from '@/lib/api-middleware';
 import { sensitiveActionLimiter } from '@/lib/rate-limiter';
 import { logUserEvent } from '@/lib/security-logger';
-import { referralAdminUpdateSchema } from '@/lib/validation/schemas/referral';
+import { referralAdminUpdateSchema } from '@/lib/validation';
+import { formatZodError } from '@/lib/validation';
 import type { D1Database } from '@cloudflare/workers-types';
 import { markReferralPaid, cancelReferral } from '@/lib/services/referral-reward-service';
 
@@ -41,7 +42,7 @@ export const POST = withAuthApiMiddleware(
     const parsed = referralAdminUpdateSchema.safeParse(payload);
     if (!parsed.success) {
       return createApiError('validation_error', 'Invalid request', {
-        details: parsed.error.format(),
+        details: formatZodError(parsed.error),
       });
     }
 

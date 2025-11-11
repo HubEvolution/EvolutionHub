@@ -1,7 +1,8 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { EnhancerActionsMVP } from '../EnhancerActionsMVP';
-import type { EnhancerActionsMVPProps, ModelOption, UsageData } from '../types';
+import type { ModelOption, UsageData } from '../types';
 
 describe('EnhancerActionsMVP', () => {
   const mockStrings = {
@@ -26,6 +27,10 @@ describe('EnhancerActionsMVP', () => {
       processingFailed: 'Processing failed. Please try again.',
       successEnhanced: 'Image enhanced successfully!',
     },
+    ui: {
+      fullscreen: 'Enter fullscreen',
+      exitFullscreen: 'Exit fullscreen',
+    },
   };
 
   const mockModels: readonly ModelOption[] = [
@@ -44,10 +49,10 @@ describe('EnhancerActionsMVP', () => {
   const mockUsage: UsageData = {
     used: 5,
     limit: 20,
-    resetAt: '2025-01-01T00:00:00Z',
+    resetAt: Date.UTC(2025, 0, 1),
   };
 
-  const defaultProps: EnhancerActionsMVPProps = {
+  const defaultProps: Parameters<typeof EnhancerActionsMVP>[0] = {
     strings: mockStrings,
     model: '@cf/runwayml/stable-diffusion-v1-5-img2img',
     models: mockModels,

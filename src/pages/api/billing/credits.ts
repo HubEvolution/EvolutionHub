@@ -1,7 +1,7 @@
 import type { APIContext } from 'astro';
 import { withAuthApiMiddleware } from '@/lib/api-middleware';
 import { formatZodError } from '@/lib/validation';
-import { billingCreditsRequestSchema } from '@/lib/validation/schemas/billing';
+import { billingCreditsRequestSchema } from '@/lib/validation';
 import Stripe from 'stripe';
 import { logUserEvent } from '@/lib/security-logger';
 import { sanitizeReturnTo } from '@/utils/sanitizeReturnTo';

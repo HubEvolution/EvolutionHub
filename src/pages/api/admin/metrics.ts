@@ -181,11 +181,11 @@ async function fetchCloudflareTraffic(
 export const GET = withAuthApiMiddleware(
   async (context: APIContext) => {
     const env = getAdminEnv(context);
-    const db = env.DB;
+    const db = env.DB as D1Database | undefined;
     if (!db) {
       return createApiError('server_error', 'Database unavailable');
     }
-    const database = db as D1Database;
+    const database = db;
 
     try {
       await requireAdmin({ request: context.request, env: { DB: database } });

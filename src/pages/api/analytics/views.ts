@@ -1,6 +1,6 @@
 import type { APIContext } from 'astro';
 import { withApiMiddleware, createApiError, createApiSuccess } from '@/lib/api-middleware';
-import { z } from '@/lib/validation';
+import { z, formatZodError } from '@/lib/validation';
 
 // Table will be created lazily if it doesn't exist
 const ensureTableSql = `
@@ -37,7 +37,9 @@ export const GET = withApiMiddleware(async (context: APIContext) => {
     const url = new URL(context.request.url);
     const parsed = querySchema.safeParse({ slug: url.searchParams.get('slug') || '' });
     if (!parsed.success) {
-      return createApiError('validation_error', 'Invalid request');
+      return createApiError('validation_error', 'Invalid request', {
+        details: formatZodError(parsed.error),
+      });
     }
     const { slug } = parsed.data;
     const now = Date.now();
@@ -62,7 +64,9 @@ export const POST = withApiMiddleware(async (context: APIContext) => {
     const body = await context.request.json().catch(() => ({}));
     const parsed = querySchema.safeParse({ slug: body?.slug || '' });
     if (!parsed.success) {
-      return createApiError('validation_error', 'Invalid request');
+      return createApiError('validation_error', 'Invalid request', {
+        details: formatZodError(parsed.error),
+      });
     }
     const { slug } = parsed.data;
     const now = Date.now();

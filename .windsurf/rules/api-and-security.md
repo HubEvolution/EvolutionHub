@@ -42,6 +42,14 @@ Kurze, durchsetzbare Baseline für API‑Middleware, Sicherheitsheader, CSRF/Ori
 - Eingaben (Body/Query/Params) mit Zod validieren: `const parsed = schema.safeParse(input)`.
 - Bei Fehler: [createApiError('validation_error', 'Invalid request', { details: formatZodError(parsed.error) })](cci:1://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/lib/api-middleware.ts:303:0-329:1).
 - Handler stets mit `APIContext` typisieren; keine impliziten `any`.
+  - Kontextuelle Typisierung über `withApiMiddleware`/`withAuthApiMiddleware` ist zulässig; explizite `APIContext`‑Annotation wird empfohlen.
+
+## Typisierung (Lint‑Durchsetzung)
+
+- `@typescript-eslint/no-explicit-any`:
+  - `src/**/*.{ts,tsx}`: error (verpflichtend gemäß Projektstandard)
+  - `src/**/*.astro` und `tests/**`: warn (schrittweiser Rollout)
+  - `.d.ts`‑Shims/Decls: ausgenommen
 
 ## Observability
 

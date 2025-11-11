@@ -9,7 +9,7 @@ import { apiRateLimiter } from '@/lib/rate-limiter';
 import { requireAdmin } from '@/lib/auth-helpers';
 import type { AdminBindings } from '@/lib/types/admin';
 import { formatZodError } from '@/lib/validation';
-import { adminUserListQuerySchema, type AdminUserListQuery } from '@/lib/validation/schemas/admin';
+import { adminUserListQuerySchema, type AdminUserListQuery } from '@/lib/validation';
 import { getCreditsBalanceTenths } from '@/lib/kv/usage';
 
 interface UserRow {

@@ -7,7 +7,7 @@ import {
 } from '@/lib/api-middleware';
 import { contactFormLimiter } from '@/lib/rate-limiter';
 import { formatZodError } from '@/lib/validation';
-import { contactMessageSchema } from '@/lib/validation/schemas/contact';
+import { contactMessageSchema } from '@/lib/validation';
 import { createEmailService } from '@/lib/services/email-service-impl';
 import { logMetricCounter } from '@/lib/security-logger';
 import { contactInfo } from '@/config/contact';

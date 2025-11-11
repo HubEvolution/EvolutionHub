@@ -11,7 +11,10 @@ Konsistente Tooling‑Konfiguration und Typ‑Strenge für verlässliches Refact
 ## Muss
 
 - TypeScript strict per `tsconfig.json` (ESNext, JSX runtime, Aliase `@/*`).
-- ESLint: `no-explicit-any=error` in `src/**`; in `tests/**` bleibt es Warnung.
+- ESLint: `no-explicit-any`
+  - in `src/**/*.{ts,tsx}`: error (erzwingt präzise Typen)
+  - in `src/**/*.astro` und `tests/**`: warn (schrittweise Härtung, keine Build‑Breaks)
+  - `.d.ts`‑Shims/Provider‑Decls: ausgenommen (Override vorhanden)
 - Prettier: 2 spaces, single quotes, width 100, `semi: true`, Astro‑Plugin.
 - `noUnusedLocals`/`noUnusedParameters` respektieren; Bundler‑Modulauflösung aktiv.
 
@@ -26,6 +29,10 @@ Konsistente Tooling‑Konfiguration und Typ‑Strenge für verlässliches Refact
 - Keine if/else‑Feldprüfung; stattdessen Zod‑Schemas aus `src/lib/validation/schemas/*`.
 - In Routen: `z` und `formatZodError` aus `@/lib/validation` importieren (Aggregator).
 - Keine Generics auf untypisierten DB‑Calls (z. B. nicht `.first<T>()` ohne Typquelle).
+
+## API‑Handler‑Typisierung
+
+- API‑Handler mit `APIContext` typisieren. Kontextuelle Typisierung via `withApiMiddleware`/`withAuthApiMiddleware` ist akzeptiert, explizite Annotation empfohlen.
 
 ## Artefakte
 

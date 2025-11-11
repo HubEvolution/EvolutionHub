@@ -1,7 +1,7 @@
 import type { APIContext } from 'astro';
 import { withApiMiddleware, createApiSuccess, createApiError } from '@/lib/api-middleware';
 import { logSecurityEvent, logUserEvent } from '@/lib/security-logger';
-import { internalUserSyncSchema } from '@/lib/validation/schemas/users';
+import { internalUserSyncSchema } from '@/lib/validation';
 import { formatZodError } from '@/lib/validation';
 
 /**

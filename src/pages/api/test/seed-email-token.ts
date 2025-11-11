@@ -1,4 +1,5 @@
 import type { APIContext } from 'astro';
+import type { D1Database } from '@cloudflare/workers-types';
 import { createSecureJsonResponse } from '@/lib/response-helpers';
 
 interface User {
@@ -35,7 +36,7 @@ export const GET = async (context: APIContext) => {
       return createSecureJsonResponse({ error: 'Missing email' }, 400);
     }
 
-    const db = context.locals.runtime.env.DB;
+    const db = context.locals.runtime.env.DB as unknown as D1Database;
 
     const user = await db
       .prepare('SELECT id, email FROM users WHERE email = ?')

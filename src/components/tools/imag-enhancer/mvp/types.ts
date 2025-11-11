@@ -28,6 +28,8 @@ export interface ImagEnhancerMVPStrings {
     successEnhanced: string;
   };
   ui?: {
+    fullscreen: string;
+    exitFullscreen: string;
     changeModel?: string;
     done?: string;
     startOver?: string;
@@ -44,9 +46,7 @@ export interface EnhanceMVPArgs {
 // Re-export types from main types file for consistency
 export type { ApiSuccess, ApiErrorBody, GenerateResponseData };
 
-export interface UsageData extends UsageInfo {
-  resetAt: string | null;
-}
+export type UsageData = UsageInfo;
 
 export interface ModelOption {
   slug: string;

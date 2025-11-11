@@ -36,6 +36,12 @@ async function handler(context: APIContext): Promise<Response> {
     return createApiError('server_error', 'Web evaluation storage is not configured');
   }
 
+  // Production gating: disable task creation unless explicitly enabled
+  const isProd = (env.ENVIRONMENT || '').toLowerCase() === 'production';
+  if (isProd && env.WEB_EVAL_ENABLE_PROD !== '1') {
+    return createApiError('forbidden', 'disabled_in_production');
+  }
+
   const bodyUnknown: unknown = await request.json().catch(() => null);
   if (!bodyUnknown || typeof bodyUnknown !== 'object') {
     return createApiError('validation_error', 'Invalid JSON body');

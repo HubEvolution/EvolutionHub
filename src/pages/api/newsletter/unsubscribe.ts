@@ -3,7 +3,7 @@ import { withApiMiddleware, createApiError, createApiSuccess } from '@/lib/api-m
 import { loggerFactory } from '@/server/utils/logger-factory';
 import { createRateLimiter } from '@/lib/rate-limiter';
 import { formatZodError } from '@/lib/validation';
-import { newsletterUnsubscribeSchema } from '@/lib/validation/schemas/newsletter';
+import { newsletterUnsubscribeSchema } from '@/lib/validation';
 
 const logger = loggerFactory.createLogger('newsletter-unsubscribe');
 const securityLogger = loggerFactory.createSecurityLogger();

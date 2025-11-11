@@ -1,4 +1,5 @@
 import type { APIContext } from 'astro';
+import type { D1Database } from '@cloudflare/workers-types';
 import { withAuthApiMiddleware, createApiSuccess, createApiError } from '@/lib/api-middleware';
 import { createSecureRedirect } from '@/lib/response-helpers';
 import { logProfileUpdate } from '@/lib/security-logger';
@@ -48,7 +49,7 @@ export const POST = withAuthApiMiddleware(async (context: APIContext) => {
     );
   }
 
-  const db = locals.runtime.env.DB;
+  const db = locals.runtime.env.DB as unknown as D1Database;
 
   // Cooldown config: default 30 days, env override via PROFILE_UPDATE_COOLDOWN_DAYS
   const env: Record<string, string> = ((

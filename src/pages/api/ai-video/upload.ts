@@ -13,7 +13,8 @@ import {
   type VideoTier,
 } from '@/config/ai-video';
 import { MAX_DURATION_SECONDS_TIER, VIDEO_RETENTION_DAYS } from '@/config/ai-video';
-import { videoUploadSchema } from '@/lib/validation/schemas/ai-video';
+import { videoUploadSchema } from '@/lib/validation';
+import { formatZodError } from '@/lib/validation';
 import { aiJobsLimiter } from '@/lib/rate-limiter';
 
 function ensureGuestIdCookie(context: APIContext): string {
@@ -63,7 +64,10 @@ export const POST = withApiMiddleware(
       return createApiError('validation_error', 'Videodatei (field "file") ist erforderlich');
     if (!tier) return createApiError('validation_error', 'Tier (field "tier") ist erforderlich');
     const parsed = videoUploadSchema.safeParse({ tier, durationMs });
-    if (!parsed.success) return createApiError('validation_error', 'Invalid form fields');
+    if (!parsed.success)
+      return createApiError('validation_error', 'Invalid form fields', {
+        details: formatZodError(parsed.error),
+      });
 
     const ct = file.type || '';
     if (!ALLOWED_VIDEO_CONTENT_TYPES.includes(ct as (typeof ALLOWED_VIDEO_CONTENT_TYPES)[number])) {

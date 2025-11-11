@@ -8,6 +8,7 @@ import { getCreditsBalanceTenths } from '@/lib/kv/usage';
 import { requireAdmin } from '@/lib/auth-helpers';
 import type { AdminBindings } from '@/lib/types/admin';
 import type { APIContext } from 'astro';
+import type { D1Database } from '@cloudflare/workers-types';
 
 function getAdminEnv(context: APIContext): AdminBindings {
   const env = (context.locals?.runtime?.env ?? {}) as Partial<AdminBindings> | undefined;
@@ -25,7 +26,7 @@ export const GET = withAuthApiMiddleware(async (context: APIContext) => {
     return createApiError('auth_error', 'Unauthorized');
   }
 
-  const db = env.DB;
+  const db = env.DB as D1Database | undefined;
   const kv = env.KV_AI_ENHANCER;
   if (!db) {
     return createApiError('server_error', 'Database unavailable');

@@ -13,13 +13,7 @@ import { useUploadMVP } from './hooks/useUploadMVP';
 import { useEnhanceMVP } from './hooks/useEnhanceMVP';
 import { useUsage } from '../hooks/useUsage';
 import { ALLOWED_MODELS } from '@/config/ai-image';
-import type {
-  ImagEnhancerMVPProps,
-  ApiSuccess,
-  ApiErrorBody,
-  GenerateResponseData,
-  UsageData,
-} from './types';
+import type { ImagEnhancerMVPProps, ApiSuccess, ApiErrorBody, GenerateResponseData } from './types';
 import { clientLogger } from '@/lib/client-logger';
 
 /**
@@ -108,16 +102,6 @@ export default function ImagEnhancerMVP(props: ImagEnhancerMVPProps): React.Reac
     },
     [openFileDialog]
   );
-
-  // Map usage type to MVP UsageData (resetAt as ISO string)
-  const usageForMVP = useMemo<UsageData | null>(() => {
-    if (!usage) return null;
-    const reset =
-      typeof usage.resetAt === 'number' && usage.resetAt
-        ? new Date(usage.resetAt).toISOString()
-        : (usage.resetAt as null);
-    return { used: usage.used, limit: usage.limit, resetAt: reset };
-  }, [usage]);
 
   // Enhancement handler
   const handleEnhance = useCallback(async () => {
@@ -240,14 +224,18 @@ export default function ImagEnhancerMVP(props: ImagEnhancerMVPProps): React.Reac
   }, [previewUrl]);
 
   // MVP: Show only Replicate Topaz Image Upscale and GFPGAN
-  const availableModels = ALLOWED_MODELS.filter(
-    (m) =>
-      m.slug === 'topazlabs/image-upscale' ||
-      m.slug.startsWith('tencentarc/gfpgan') ||
-      m.slug === '@cf/runwayml/stable-diffusion-v1-5-img2img'
-  ) as typeof ALLOWED_MODELS;
+  const availableModels = useMemo(
+    () =>
+      ALLOWED_MODELS.filter(
+        (m) =>
+          m.slug === 'topazlabs/image-upscale' ||
+          m.slug.startsWith('tencentarc/gfpgan') ||
+          m.slug === '@cf/runwayml/stable-diffusion-v1-5-img2img'
+      ),
+    []
+  );
 
-  const quotaExceeded = Boolean(usageForMVP && usageForMVP.used >= usageForMVP.limit);
+  const quotaExceeded = Boolean(usage && usage.used >= usage.limit);
   const canSubmit = Boolean(file && model && !loading && !quotaExceeded);
 
   return (
@@ -311,7 +299,7 @@ export default function ImagEnhancerMVP(props: ImagEnhancerMVPProps): React.Reac
           canSubmit={canSubmit}
           loading={loading}
           onEnhance={handleEnhance}
-          usage={usageForMVP}
+          usage={usage}
           quotaExceeded={quotaExceeded}
         />
       )}
@@ -322,7 +310,7 @@ export default function ImagEnhancerMVP(props: ImagEnhancerMVPProps): React.Reac
           previewUrl={previewUrl}
           resultUrl={resultUrl}
           strings={strings}
-          usage={usageForMVP}
+          usage={usage}
           onDownload={handleDownload}
           onStartOver={handleStartOver}
           loading={loading}

@@ -11,7 +11,7 @@ import { FREE_LIMIT_GUEST, FREE_LIMIT_USER, type OwnerType, type Plan } from '@/
 import { getEntitlementsFor } from '@/config/ai-image/entitlements';
 import { aiGenerateLimiter } from '@/lib/rate-limiter';
 import { formatZodError } from '@/lib/validation';
-import { aiImageParamsSchema } from '@/lib/validation/schemas/ai-image';
+import { aiImageParamsSchema } from '@/lib/validation';
 
 type AiEnvBindings = {
   R2_AI_IMAGES?: R2Bucket;

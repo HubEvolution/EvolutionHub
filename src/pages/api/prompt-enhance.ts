@@ -23,7 +23,7 @@ import type {
 } from '@/lib/services/prompt-enhancer-service';
 import { validateFiles, buildAttachmentContext } from '@/lib/services/prompt-attachments';
 import { formatZodError } from '@/lib/validation';
-import { promptInputSchema } from '@/lib/validation/schemas/prompt';
+import { promptInputSchema } from '@/lib/validation';
 
 interface PromptEnhancerEnv {
   KV_PROMPT_ENHANCER?: KVNamespace;
