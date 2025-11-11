@@ -33,6 +33,10 @@ testRefs: 'tests/integration, test-suite-v2/src/e2e/auth'
 
 - **[Feature-Architekturen](./ai-image-enhancer.md)** — Architektur spezifischer Features (z. B. AI Image Enhancer)
 
+## Konzeptionelle Architekturen
+
+- **[AI Social Media Automation System](./ai-social-media-automation-system.md)** — Umfassender Blueprint für ein Low-Touch KI-System zur Automatisierung von Social-Media-Management (Planning Phase)
+
 ## Architecture Decision Records (ADRs)
 
 Dokumentierte Architekturentscheidungen in [adrs/](./adrs/):
