@@ -1,0 +1,149 @@
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+
+import { csrfHeaders, hex32, sendJson, TEST_URL } from '../../shared/http';
+
+const ENDPOINT = '/api/testing/evaluate/next';
+const CREATE_ENDPOINT = '/api/testing/evaluate';
+const EXECUTOR_TOKEN =
+  process.env.WEB_EVAL_EXECUTOR_TOKEN || '7d7ff882132cefad6f43602fffb77f2b64a700b6934c71ca80f46e4f5de5e5e2';
+
+interface ApiSuccess<T> {
+  success: true;
+  data: T;
+}
+
+interface ApiError {
+  success: false;
+  error: {
+    type: string;
+    message: string;
+    details?: Record<string, unknown>;
+  };
+}
+
+type ApiResponse<T> = ApiSuccess<T> | ApiError | null;
+
+function isJsonResponse(res: Response): boolean {
+  const contentType = res.headers.get('content-type') || '';
+  return contentType.includes('application/json');
+}
+
+async function callNext(extra: RequestInit = {}) {
+  const { headers: extraHeaders, ...rest } = extra;
+  const headers = new Headers(extraHeaders as HeadersInit | undefined);
+  if (!headers.has('Origin')) {
+    headers.set('Origin', TEST_URL);
+  }
+  const res = await fetch(`${TEST_URL}${ENDPOINT}`, {
+    method: 'POST',
+    redirect: 'manual',
+    headers,
+    ...rest,
+  });
+  let json: ApiResponse<{ task: unknown | null }> = null;
+  if (res.status !== 302 && isJsonResponse(res)) {
+    const text = await res.text();
+    if (text) {
+      try {
+        json = JSON.parse(text) as ApiResponse<{ task: unknown | null }>;
+      } catch {
+        json = null;
+      }
+    }
+  }
+  return { res, json } as const;
+}
+
+async function createTask(overrides: Record<string, unknown> = {}, cookie?: string) {
+  const csrf = hex32();
+  const payload = {
+    url: 'https://example.com/test',
+    task: 'open page and assert content',
+    headless: true,
+    timeoutMs: 15_000,
+    ...overrides,
+  };
+  const { res, json } = await sendJson<ApiResponse<{ taskId: string }>>(CREATE_ENDPOINT, payload, {
+    headers: {
+      ...csrfHeaders(csrf),
+      ...(cookie ? { Cookie: `${cookie}; csrf_token=${csrf}` } : {}),
+    },
+  });
+
+  if (res.status !== 200 || !json || json.success !== true) {
+    throw new Error(`Failed to seed task: ${res.status} ${await res.text()}`);
+  }
+
+  const setCookie = res.headers.get('set-cookie') || '';
+  const guestCookie = setCookie.split(';')[0];
+  return { taskId: json.data.taskId as string, cookie: guestCookie };
+}
+
+async function drainPendingTasks() {
+  // Repeatedly claim tasks until queue is empty to avoid cross-test leakage.
+  // Single fetch per iteration keeps potential rate limits low.
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    const { res, json } = await callNext({
+      headers: { 'X-Executor-Token': EXECUTOR_TOKEN },
+    });
+    if (res.status !== 200) {
+      break;
+    }
+    if (!json || json.success !== true) {
+      break;
+    }
+    if (!json.data.task) {
+      break;
+    }
+  }
+}
+
+describe('/api/testing/evaluate/next', () => {
+  beforeEach(async () => {
+    await drainPendingTasks();
+  });
+
+  afterEach(async () => {
+    await drainPendingTasks();
+  });
+
+  it('rejects requests without executor token', async () => {
+    const { res, json } = await callNext();
+    expect(res.status).toBe(401);
+    if (!json || json.success !== false) {
+      throw new Error('Expected auth_error response');
+    }
+    expect(json.error.type).toBe('auth_error');
+  });
+
+  it('returns null task when no pending entries exist', async () => {
+    const { res, json } = await callNext({
+      headers: { 'X-Executor-Token': EXECUTOR_TOKEN },
+    });
+    expect(res.status).toBe(200);
+    if (!json || json.success !== true) {
+      throw new Error('Expected success response with null task');
+    }
+    expect(json.data.task).toBeNull();
+  });
+
+  it('claims the oldest pending task and marks it processing', async () => {
+    const { taskId } = await createTask();
+
+    const { res, json } = await callNext({
+      headers: { 'X-Executor-Token': EXECUTOR_TOKEN },
+    });
+
+    expect(res.status).toBe(200);
+    if (!json || json.success !== true) {
+      throw new Error('Expected success response with claimed task');
+    }
+
+    const claimed = json.data.task as Record<string, unknown> | null;
+    expect(claimed).not.toBeNull();
+    expect(claimed?.id).toBe(taskId);
+    expect(claimed?.status).toBe('processing');
+    expect(claimed?.attemptCount).toBeTypeOf('number');
+  });
+});

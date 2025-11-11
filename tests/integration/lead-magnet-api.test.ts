@@ -37,9 +37,17 @@ interface FetchResponse {
   cookies: Record<string, string>;
 }
 
-function safeParseJson(text: string): any | null {
+type ApiResponse<T> = {
+  success: boolean;
+  data?: T;
+  error?: { type: string; message: string };
+};
+
+function parseJson<T>(response: FetchResponse): ApiResponse<T> | null {
+  if (!(response.contentType || '').includes('application/json')) return null;
+  if (!response.text) return null;
   try {
-    return JSON.parse(text);
+    return JSON.parse(response.text) as ApiResponse<T>;
   } catch {
     return null;
   }
@@ -172,8 +180,8 @@ describe('Lead-Magnet-API-Integration', () => {
       const response = await submitForm('/api/lead-magnets/download', formData);
 
       expect([200, 429, 500]).toContain(response.status);
-      if (response.status === 200 && (response.contentType || '').includes('application/json')) {
-        const json = safeParseJson(response.text);
+      if (response.status === 200) {
+        const json = parseJson<{ downloadUrl?: string }>(response);
         expect(json?.success).toBe(true);
         expect(json?.data?.downloadUrl).toBeDefined();
         expect(json?.data?.downloadUrl || '').toContain('r2');

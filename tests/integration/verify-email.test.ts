@@ -5,7 +5,16 @@ const ENV_URL = process.env.TEST_BASE_URL || '';
 // Allow self-signed localhost certs (wrangler https)
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
-async function fetchManual(path: string, init: RequestInit = {}) {
+type FetchManualResult = {
+  status: number;
+  redirected: boolean;
+  location: string | null;
+  contentType: string;
+  text: string;
+  json: <T>() => Promise<T | null>;
+};
+
+async function fetchManual(path: string, init: RequestInit = {}): Promise<FetchManualResult> {
   const response = await fetch(`${TEST_URL}${path}`, {
     redirect: 'manual',
     ...init,
@@ -20,9 +29,9 @@ async function fetchManual(path: string, init: RequestInit = {}) {
     location: response.headers.get('location') || null,
     contentType: response.headers.get('content-type') || '',
     text: response.status !== 302 ? await clone.text() : '',
-    json: async () => {
+    json: async <T>() => {
       try {
-        return await response.json();
+        return (await response.json()) as T;
       } catch {
         return null;
       }
@@ -59,10 +68,10 @@ describe('Verify Email API - deprecated 410 behavior', () => {
     });
     expect(res.status).toBe(410);
     expect(res.contentType).toContain('application/json');
-    const body = await res.json();
+    const body = await res.json<{ success: boolean; error?: { type?: string } }>();
     expect(body).toBeTruthy();
-    expect(body.success).toBe(false);
-    expect(body.error?.type).toBe('gone');
+    expect(body?.success).toBe(false);
+    expect(body?.error?.type).toBe('gone');
   });
 
   it('PUT /api/auth/verify-email returns 410 JSON with details.Allow = "GET"', async () => {
@@ -74,9 +83,9 @@ describe('Verify Email API - deprecated 410 behavior', () => {
     });
     expect(res.status).toBe(410);
     expect(res.contentType).toContain('application/json');
-    const body = await res.json();
+    const body = await res.json<{ success: boolean; error?: { type?: string } }>();
     expect(body).toBeTruthy();
-    expect(body.success).toBe(false);
-    expect(body.error?.type).toBe('gone');
+    expect(body?.success).toBe(false);
+    expect(body?.error?.type).toBe('gone');
   });
 });

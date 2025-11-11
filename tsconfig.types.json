@@ -8,5 +8,14 @@
     "outDir": "./.types"
   },
   "include": ["src"],
-  "exclude": ["tests", "test", "node_modules", "scripts"]
+  "exclude": [
+    "tests",
+    "test",
+    "node_modules",
+    "scripts",
+    "src/**/*.test.ts",
+    "src/**/*.test.tsx",
+    "src/**/*.spec.ts",
+    "src/**/*.spec.tsx"
+  ]
 }

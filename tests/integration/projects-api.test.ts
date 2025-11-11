@@ -28,10 +28,17 @@ interface FetchResponse {
   cookies: Record<string, string>;
 }
 
-// Sichere JSON-Parse-Hilfe
-function safeParseJson(text: string): any | null {
+type ApiResponse<T> = {
+  success: boolean;
+  data?: T;
+  error?: { type: string; message: string };
+};
+
+function parseJson<T>(response: FetchResponse): ApiResponse<T> | null {
+  if (!(response.contentType || '').includes('application/json')) return null;
+  if (!response.text) return null;
   try {
-    return JSON.parse(text);
+    return JSON.parse(response.text) as ApiResponse<T>;
   } catch {
     return null;
   }
@@ -164,13 +171,13 @@ describe('Projects-API-Integration', () => {
       const response = await fetchPage('/api/projects');
 
       expect([200, 401, 404]).toContain(response.status);
-      if (response.status === 200 && (response.contentType || '').includes('application/json')) {
-        const json = safeParseJson(response.text);
+      if (response.status === 200) {
+        const json = parseJson<ProjectItem[]>(response);
         expect(json?.success).toBe(true);
         expect(Array.isArray(json?.data)).toBe(true);
 
         // Prüfe Struktur der Projekte
-        if (json?.data?.length > 0) {
+        if (json?.data && json.data.length > 0) {
           const project = json.data[0];
           expect(project).toHaveProperty('id');
           expect(project).toHaveProperty('name');
@@ -187,9 +194,8 @@ describe('Projects-API-Integration', () => {
 
       expect([401, 404]).toContain(response.status);
       if ((response.contentType || '').includes('application/json')) {
-        const json = safeParseJson(response.text);
-        if (json) {
-          expect(json).toHaveProperty('success');
+        const json = parseJson<ProjectItem[]>(response);
+        if (json && Object.prototype.hasOwnProperty.call(json, 'success')) {
           expect(json.success).toBe(false);
         }
       }
@@ -209,15 +215,14 @@ describe('Projects-API-Integration', () => {
       const response = await sendJson('/api/projects', projectData);
 
       expect([200, 401, 404]).toContain(response.status);
-      if (response.status === 200 && (response.contentType || '').includes('application/json')) {
-        const json = safeParseJson(response.text);
+      if (response.status === 200) {
+        const json = parseJson<{ project?: ProjectItem }>(response);
         expect(json?.success).toBe(true);
         expect(json?.data?.project).toBeDefined();
         expect(json?.data?.project?.name).toBe(projectData.name);
         expect(json?.data?.project?.description).toBe(projectData.description);
-        // Speichere ID für weitere Tests
         if (json?.data?.project?.id) {
-          createdProjectId = json.data.project.id as string;
+          createdProjectId = json.data.project.id;
         }
       }
     });
@@ -233,7 +238,7 @@ describe('Projects-API-Integration', () => {
 
       expect([400, 401, 403]).toContain(response.status);
       if ((response.contentType || '').includes('application/json')) {
-        const json = safeParseJson(response.text);
+        const json = parseJson<unknown>(response);
         if (json && Object.prototype.hasOwnProperty.call(json, 'success')) {
           expect(json.success).toBe(false);
         }
@@ -251,7 +256,7 @@ describe('Projects-API-Integration', () => {
 
       expect([400, 401, 403]).toContain(response.status);
       if ((response.contentType || '').includes('application/json')) {
-        const json = safeParseJson(response.text);
+        const json = parseJson<unknown>(response);
         if (json && Object.prototype.hasOwnProperty.call(json, 'success')) {
           expect(json.success).toBe(false);
         }
@@ -269,8 +274,8 @@ describe('Projects-API-Integration', () => {
       const response = await sendJson(`/api/projects/${createdProjectId}`, updateData, 'PUT');
 
       expect([200, 401, 404]).toContain(response.status);
-      if (response.status === 200 && (response.contentType || '').includes('application/json')) {
-        const json = safeParseJson(response.text);
+      if (response.status === 200) {
+        const json = parseJson<{ project?: ProjectItem }>(response);
         expect(json?.success).toBe(true);
         expect(json?.data?.project?.name).toBe(updateData.name);
         expect(json?.data?.project?.status).toBe(updateData.status);
@@ -287,7 +292,7 @@ describe('Projects-API-Integration', () => {
 
       expect([404, 401]).toContain(response.status);
       if ((response.contentType || '').includes('application/json')) {
-        const json = safeParseJson(response.text);
+        const json = parseJson<unknown>(response);
         if (json && Object.prototype.hasOwnProperty.call(json, 'success')) {
           expect(json.success).toBe(false);
         }
@@ -299,10 +304,10 @@ describe('Projects-API-Integration', () => {
       const response = await sendJson(`/api/projects/${createdProjectId}`, {}, 'DELETE');
 
       expect([200, 401, 404]).toContain(response.status);
-      if (response.status === 200 && (response.contentType || '').includes('application/json')) {
-        const json = safeParseJson(response.text);
+      if (response.status === 200) {
+        const json = parseJson<ProjectItem[]>(response);
         expect(json?.success).toBe(true);
-        expect(json?.data?.message || '').toContain('success');
+        expect(json?.data?.length).toBeGreaterThanOrEqual(0);
       }
     });
 

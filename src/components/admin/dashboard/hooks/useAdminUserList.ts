@@ -12,6 +12,8 @@ export type AdminUserListFilters = {
   search?: string;
   status?: 'active' | 'banned' | 'deleted';
   plan?: 'free' | 'pro' | 'premium' | 'enterprise';
+  limit?: number;
+  cursor?: string;
 };
 
 interface UserListState {
@@ -32,7 +34,10 @@ const initialState: UserListState = {
 };
 
 function cleanFilters(filters: AdminUserListFilters): AdminUserListFilters {
-  const cleaned: AdminUserListFilters = {};
+  const cleaned: AdminUserListFilters = {
+    limit: filters.limit ?? 20,
+    cursor: filters.cursor,
+  };
   if (filters.search) cleaned.search = filters.search.trim();
   if (filters.status) cleaned.status = filters.status;
   if (filters.plan) cleaned.plan = filters.plan;
@@ -64,7 +69,14 @@ export function useAdminUserList(initialFilters: AdminUserListFilters = {}) {
   const filtersRef = useRef<AdminUserListFilters>(cleanFilters(initialFilters));
 
   const refresh = useCallback(async (filters?: AdminUserListFilters) => {
-    const applied = cleanFilters(filters ?? filtersRef.current ?? {});
+    const appliedFilters = cleanFilters(filters ?? filtersRef.current ?? {});
+    const applied = {
+      search: appliedFilters.search ?? undefined,
+      status: appliedFilters.status ?? undefined,
+      plan: appliedFilters.plan ?? undefined,
+      limit: 20,
+      cursor: undefined,
+    } satisfies Parameters<typeof fetchAdminUsersList>[0];
     filtersRef.current = applied;
     setState((prev) => ({
       ...prev,
@@ -103,7 +115,14 @@ export function useAdminUserList(initialFilters: AdminUserListFilters = {}) {
       error: undefined,
     }));
     try {
-      const data = await fetchAdminUsersList({ ...filtersRef.current, cursor: state.nextCursor });
+      const current = filtersRef.current ?? cleanFilters({});
+      const data = await fetchAdminUsersList({
+        search: current.search ?? undefined,
+        status: current.status ?? undefined,
+        plan: current.plan ?? undefined,
+        cursor: state.nextCursor,
+        limit: 20,
+      });
       setState((prev) => ({
         ...prev,
         items: [...prev.items, ...(data.items ?? [])],

@@ -1,6 +1,5 @@
 #!/usr/bin/env tsx
 import { loadEnv } from 'vite';
-import { execa } from 'execa';
 import { fileURLToPath } from 'url';
 import { join, dirname } from 'path';
 import { readFileSync } from 'fs';
@@ -11,7 +10,6 @@ loadEnv(process.env.NODE_ENV || 'test', process.cwd(), '');
 // Pfade für Testumgebung
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const rootDir = join(__dirname, '../..');
 
 // Lade Load-Test-Konfiguration
 const configPath = join(__dirname, 'load-test-config.json');
@@ -53,11 +51,12 @@ async function makeParallelRequests(
   const responses = await Promise.allSettled(promises);
   const endTime = Date.now();
 
-  const successful = responses.filter((r) => r.status === 'fulfilled').length;
-  const failed = responses.filter((r) => r.status === 'rejected').length;
-  const rateLimited = responses.filter(
-    (r) => r.status === 'fulfilled' && r.value.status === 429
-  ).length;
+  const fulfilled = responses.filter(
+    (entry): entry is PromiseFulfilledResult<Response> => entry.status === 'fulfilled'
+  );
+  const rateLimited = fulfilled.filter((entry) => entry.value.status === 429).length;
+  const successful = fulfilled.length - rateLimited;
+  const failed = responses.length - fulfilled.length;
 
   // Berechne durchschnittliche Antwortzeit (geschätzt)
   const avgResponseTime = (endTime - startTime) / count;

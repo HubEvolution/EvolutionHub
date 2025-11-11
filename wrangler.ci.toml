@@ -59,6 +59,11 @@ binding = "KV_VOICE_TRANSCRIBE"
 id = "6593f5bc9f174e60a8c09bb16b36672c"
 preview_id = "6593f5bc9f174e60a8c09bb16b36672c"
 
+[[kv_namespaces]]
+binding = "KV_WEB_EVAL"
+id = "447982fa41b248d6a022803e85e5ac3a"
+preview_id = "ddeb57368cbd4c529c0da1f3e4711330"
+
 [vars]
 ENVIRONMENT = "development"
 BASE_URL = "http://127.0.0.1:8787"
@@ -69,3 +74,4 @@ VOICE_STREAM_SSE = "1"
 VOICE_STREAM_POLL = "1"
 VOICE_R2_ARCHIVE = "0"
 VOICE_DEV_ECHO = "1"
+WEB_EVAL_EXECUTOR_TOKEN = "7d7ff882132cefad6f43602fffb77f2b64a700b6934c71ca80f46e4f5de5e5e2"

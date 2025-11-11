@@ -1,31 +1,35 @@
 import React, { useState, useMemo } from 'react';
 import { CommentList } from './CommentList';
-import { Button } from '../ui/Button';
 import type { Comment } from '../../lib/types/comments';
+
+const sortOptions = ['newest', 'oldest', 'most-replies', 'most-helpful'] as const;
+type SortOption = (typeof sortOptions)[number];
+type CommentUser = { id: string; name: string; email: string; image?: string };
 
 interface CommentThreadingProps {
   comments: Comment[];
   onUpdateComment: (commentId: string, content: string) => Promise<void>;
   onDeleteComment: (commentId: string) => Promise<void>;
   onReply: (content: string, parentId?: string) => Promise<void>;
-  currentUser?: { id: number; name: string; email: string } | null;
+  currentUser?: CommentUser | null;
   maxDepth?: number;
   showThreadNavigation?: boolean;
   enableSorting?: boolean;
-  sortBy?: 'newest' | 'oldest' | 'most-replies' | 'most-helpful';
+  sortBy?: SortOption;
 }
 
 interface ThreadNavigationProps {
   comments: Comment[];
   currentView: 'flat' | 'threaded';
   onViewChange: (view: 'flat' | 'threaded') => void;
-  sortBy: string;
-  onSortChange: (sort: string) => void;
+  sortBy: SortOption;
+  onSortChange: (sort: SortOption) => void;
   totalComments: number;
   searchQuery: string;
   onSearchChange: (query: string) => void;
   activeFilters: CommentFilters;
   onFiltersChange: (filters: CommentFilters) => void;
+  enableSorting: boolean;
 }
 
 interface CommentFilters {
@@ -47,10 +51,9 @@ export const CommentThreading: React.FC<CommentThreadingProps> = ({
   sortBy = 'newest',
 }) => {
   const [currentView, setCurrentView] = useState<'flat' | 'threaded'>('threaded');
-  const [currentSort, setCurrentSort] = useState(sortBy);
+  const [currentSort, setCurrentSort] = useState<SortOption>(sortBy);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilters, setActiveFilters] = useState<CommentFilters>({});
-  const [showFilters, setShowFilters] = useState(false);
 
   // Filter and sort comments
   const processedComments = useMemo(() => {
@@ -128,7 +131,7 @@ export const CommentThreading: React.FC<CommentThreadingProps> = ({
     setCurrentView(view);
   };
 
-  const handleSortChange = (sort: string) => {
+  const handleSortChange = (sort: SortOption) => {
     setCurrentSort(sort);
   };
 
@@ -155,6 +158,7 @@ export const CommentThreading: React.FC<CommentThreadingProps> = ({
           onSearchChange={handleSearchChange}
           activeFilters={activeFilters}
           onFiltersChange={handleFiltersChange}
+          enableSorting={enableSorting}
         />
       )}
 
@@ -192,8 +196,12 @@ const ThreadNavigation: React.FC<ThreadNavigationProps> = ({
   onSearchChange,
   activeFilters,
   onFiltersChange,
+  enableSorting,
 }) => {
   const [showFilters, setShowFilters] = useState(false);
+
+  const isSortOption = (value: string): value is SortOption =>
+    sortOptions.includes(value as SortOption);
 
   return (
     <div className="comment-navigation mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
@@ -293,19 +301,35 @@ const ThreadNavigation: React.FC<ThreadNavigationProps> = ({
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         {/* Sort Options */}
         <div className="flex items-center space-x-4">
-          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-            Sortieren nach:
-          </span>
-          <select
-            value={sortBy}
-            onChange={(e) => onSortChange(e.target.value)}
-            className="text-sm border border-gray-300 dark:border-gray-600 rounded px-2 py-1 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-          >
-            <option value="newest">Neueste zuerst</option>
-            <option value="oldest">Älteste zuerst</option>
-            <option value="most-replies">Meiste Antworten</option>
-            <option value="most-helpful">Hilfreichste</option>
-          </select>
+          {enableSorting && (
+            <>
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                Sortieren nach:
+              </span>
+              <select
+                value={sortBy}
+                onChange={(e) => {
+                  const nextValue = e.target.value;
+                  if (isSortOption(nextValue)) {
+                    onSortChange(nextValue);
+                  }
+                }}
+                className="text-sm border border-gray-300 dark:border-gray-600 rounded px-2 py-1 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              >
+                {sortOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {option === 'newest'
+                      ? 'Neueste zuerst'
+                      : option === 'oldest'
+                        ? 'Älteste zuerst'
+                        : option === 'most-replies'
+                          ? 'Meiste Antworten'
+                          : 'Hilfreichste'}
+                  </option>
+                ))}
+              </select>
+            </>
+          )}
         </div>
 
         {/* Stats */}
@@ -349,6 +373,16 @@ const CommentFiltersPanel: React.FC<CommentFiltersPanelProps> = ({
 
   return (
     <div className="mb-4 p-4 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-md">
+      <div className="flex items-start justify-between mb-3">
+        <span className="text-sm font-medium text-gray-900 dark:text-white">Filter</span>
+        <button
+          type="button"
+          onClick={onClose}
+          className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-gray-100"
+        >
+          Schließen
+        </button>
+      </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Status Filter */}
         <div>
@@ -431,7 +465,7 @@ interface FlatCommentViewProps {
   onUpdateComment: (commentId: string, content: string) => Promise<void>;
   onDeleteComment: (commentId: string) => Promise<void>;
   onReply: (content: string, parentId?: string) => Promise<void>;
-  currentUser?: { id: number; name: string; email: string } | null;
+  currentUser?: CommentUser | null;
 }
 
 const FlatCommentView: React.FC<FlatCommentViewProps> = ({
@@ -442,6 +476,16 @@ const FlatCommentView: React.FC<FlatCommentViewProps> = ({
   currentUser,
 }) => {
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
+
+  const handleEdit = async (comment: Comment) => {
+    if (typeof window === 'undefined') return;
+    const nextContent = window.prompt('Kommentar bearbeiten', comment.content);
+    const value = nextContent?.trim();
+    if (!value || value === comment.content) {
+      return;
+    }
+    await onUpdateComment(comment.id, value);
+  };
 
   return (
     <div className="flat-comment-view space-y-4">
@@ -495,12 +539,10 @@ const FlatCommentView: React.FC<FlatCommentViewProps> = ({
                   Antworten
                 </button>
 
-                {currentUser?.id === comment.authorId && (
+                {comment.authorId && currentUser?.id === comment.authorId && (
                   <>
                     <button
-                      onClick={() => {
-                        /* Edit logic */
-                      }}
+                      onClick={() => handleEdit(comment)}
                       className="text-sm text-gray-600 hover:text-gray-800 dark:text-gray-400"
                     >
                       Bearbeiten

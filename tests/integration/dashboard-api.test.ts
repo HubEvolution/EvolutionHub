@@ -28,6 +28,22 @@ interface FetchResponse {
   cookies: Record<string, string>;
 }
 
+type ApiResponse<T> = {
+  success: boolean;
+  data: T;
+  error?: { type: string; message: string };
+};
+
+function parseJson<T>(response: FetchResponse): T | null {
+  if (!(response.contentType || '').includes('application/json')) return null;
+  if (!response.text) return null;
+  try {
+    return JSON.parse(response.text) as T;
+  } catch {
+    return null;
+  }
+}
+
 // Hilfsfunktion zum Abrufen einer Seite
 async function fetchPage(path: string): Promise<FetchResponse> {
   const response = await fetch(`${TEST_URL}${path}`, {
@@ -148,7 +164,9 @@ describe('Dashboard-API-Integration', () => {
       expect([200, 401]).toContain(response.status);
       if (response.status !== 200) return;
       expect(response.contentType).toContain('application/json');
-      const json = JSON.parse(response.text);
+      const json = parseJson<ApiResponse<Record<string, number>>>(response);
+      expect(json).not.toBeNull();
+      if (!json) return;
       expect(json.success).toBe(true);
       expect(json.data).toBeDefined();
 
@@ -165,8 +183,8 @@ describe('Dashboard-API-Integration', () => {
 
       expect([401, 404]).toContain(response.status);
       if ((response.contentType || '').includes('application/json')) {
-        const json = JSON.parse(response.text);
-        if (Object.prototype.hasOwnProperty.call(json, 'success')) {
+        const json = parseJson<Partial<ApiResponse<unknown>>>(response);
+        if (json && Object.prototype.hasOwnProperty.call(json, 'success')) {
           expect(json.success).toBe(false);
         }
       }
@@ -180,7 +198,9 @@ describe('Dashboard-API-Integration', () => {
       expect([200, 401]).toContain(response.status);
       if (response.status !== 200) return;
       expect(response.contentType).toContain('application/json');
-      const json = JSON.parse(response.text);
+      const json = parseJson<ApiResponse<unknown[]>>(response);
+      expect(json).not.toBeNull();
+      if (!json) return;
       expect(json.success).toBe(true);
       expect(Array.isArray(json.data)).toBe(true);
 
@@ -199,8 +219,8 @@ describe('Dashboard-API-Integration', () => {
 
       expect([401, 404]).toContain(response.status);
       if ((response.contentType || '').includes('application/json')) {
-        const json = JSON.parse(response.text);
-        if (Object.prototype.hasOwnProperty.call(json, 'success')) {
+        const json = parseJson<Partial<ApiResponse<unknown[]>>>(response);
+        if (json && Object.prototype.hasOwnProperty.call(json, 'success')) {
           expect(json.success).toBe(false);
         }
       }
@@ -214,7 +234,9 @@ describe('Dashboard-API-Integration', () => {
       expect([200, 401]).toContain(response.status);
       if (response.status !== 200) return;
       expect(response.contentType).toContain('application/json');
-      const json = JSON.parse(response.text);
+      const json = parseJson<ApiResponse<unknown[]>>(response);
+      expect(json).not.toBeNull();
+      if (!json) return;
       expect(json.success).toBe(true);
       expect(Array.isArray(json.data)).toBe(true);
 
@@ -233,8 +255,8 @@ describe('Dashboard-API-Integration', () => {
 
       expect([401, 404]).toContain(response.status);
       if ((response.contentType || '').includes('application/json')) {
-        const json = JSON.parse(response.text);
-        if (Object.prototype.hasOwnProperty.call(json, 'success')) {
+        const json = parseJson<Partial<ApiResponse<unknown[]>>>(response);
+        if (json && Object.prototype.hasOwnProperty.call(json, 'success')) {
           expect(json.success).toBe(false);
         }
       }
@@ -248,7 +270,9 @@ describe('Dashboard-API-Integration', () => {
       expect([200, 401]).toContain(response.status);
       if (response.status !== 200) return;
       expect(response.contentType).toContain('application/json');
-      const json = JSON.parse(response.text);
+      const json = parseJson<ApiResponse<unknown[]>>(response);
+      expect(json).not.toBeNull();
+      if (!json) return;
       expect(json.success).toBe(true);
       expect(Array.isArray(json.data)).toBe(true);
 
@@ -268,8 +292,8 @@ describe('Dashboard-API-Integration', () => {
 
       expect([401, 404]).toContain(response.status);
       if ((response.contentType || '').includes('application/json')) {
-        const json = JSON.parse(response.text);
-        if (Object.prototype.hasOwnProperty.call(json, 'success')) {
+        const json = parseJson<Partial<ApiResponse<unknown[]>>>(response);
+        if (json && Object.prototype.hasOwnProperty.call(json, 'success')) {
           expect(json.success).toBe(false);
         }
       }
@@ -288,7 +312,9 @@ describe('Dashboard-API-Integration', () => {
       expect([200, 401]).toContain(response.status);
       if (response.status !== 200) return;
       expect(response.contentType).toContain('application/json');
-      const json = JSON.parse(response.text);
+      const json = parseJson<ApiResponse<{ message: string }>>(response);
+      expect(json).not.toBeNull();
+      if (!json) return;
       expect(json.success).toBe(true);
       expect(json.data.message).toBeDefined();
     });
@@ -303,8 +329,8 @@ describe('Dashboard-API-Integration', () => {
 
       expect([400, 401, 403]).toContain(response.status);
       if ((response.contentType || '').includes('application/json')) {
-        const json = JSON.parse(response.text);
-        if (Object.prototype.hasOwnProperty.call(json, 'success')) {
+        const json = parseJson<Partial<ApiResponse<unknown>>>(response);
+        if (json && Object.prototype.hasOwnProperty.call(json, 'success')) {
           expect(json.success).toBe(false);
         }
       }
@@ -320,8 +346,8 @@ describe('Dashboard-API-Integration', () => {
 
       expect([400, 401, 403]).toContain(response.status);
       if ((response.contentType || '').includes('application/json')) {
-        const json = JSON.parse(response.text);
-        if (Object.prototype.hasOwnProperty.call(json, 'success')) {
+        const json = parseJson<Partial<ApiResponse<unknown>>>(response);
+        if (json && Object.prototype.hasOwnProperty.call(json, 'success')) {
           expect(json.success).toBe(false);
         }
       }
@@ -336,12 +362,10 @@ describe('Dashboard-API-Integration', () => {
       const response = await sendJson('/api/dashboard/perform-action', requestData);
 
       expect(response.status).toBe(401);
-      try {
-        const json = JSON.parse(response.text);
+      const json = parseJson<ApiResponse<unknown>>(response);
+      if (json) {
         expect(json.success).toBe(false);
-        expect(json.error.type).toBe('UNAUTHORIZED');
-      } catch (error) {
-        // ignore parsing error
+        expect(json.error?.type).toBe('UNAUTHORIZED');
       }
     });
   });
@@ -353,13 +377,18 @@ describe('Dashboard-API-Integration', () => {
       expect([200, 401]).toContain(response.status);
       if (response.status !== 200) return;
       expect(response.contentType).toContain('application/json');
-      const json = JSON.parse(response.text);
+      const json = parseJson<ApiResponse<unknown[]>>(response);
+      expect(json).not.toBeNull();
+      if (!json) return;
       expect(json.success).toBe(true);
       expect(Array.isArray(json.data)).toBe(true);
 
       // Prüfe Struktur der Quick-Actions
       if (json.data.length > 0) {
-        const action = json.data[0];
+        const firstAction = json.data[0] as Record<string, unknown>;
+        expect(firstAction).toHaveProperty('id');
+        expect(firstAction).toHaveProperty('title');
+        expect(firstAction).toHaveProperty('description');
       }
     });
 
@@ -369,13 +398,9 @@ describe('Dashboard-API-Integration', () => {
       expect([200, 401]).toContain(response.status);
       if (response.status === 200) return;
       if ((response.contentType || '').includes('application/json')) {
-        try {
-          const json = JSON.parse(response.text);
-          if (Object.prototype.hasOwnProperty.call(json, 'success')) {
-            expect(json.success).toBe(false);
-          }
-        } catch (error) {
-          // ignore parsing error
+        const json = parseJson<Partial<ApiResponse<unknown[]>>>(response);
+        if (json && Object.prototype.hasOwnProperty.call(json, 'success')) {
+          expect(json.success).toBe(false);
         }
       }
     });
@@ -439,10 +464,12 @@ describe('Dashboard-API-Integration', () => {
         const response = await sendJson(endpoint, requestData);
 
         if (response.status === 400) {
-          const json = JSON.parse(response.text);
-          expect(json.success).toBe(false);
-          expect(json.error.type).toBeDefined();
-          expect(json.error.message).toBeDefined();
+          const json = parseJson<ApiResponse<unknown>>(response);
+          if (json) {
+            expect(json.success).toBe(false);
+            expect(json.error?.type).toBeDefined();
+            expect(json.error?.message).toBeDefined();
+          }
         }
       }
     });
@@ -461,8 +488,8 @@ describe('Dashboard-API-Integration', () => {
 
         expect([405, 404, 401]).toContain(response.status);
         if ((response.contentType || '').includes('application/json')) {
-          const json = JSON.parse(response.text);
-          if (Object.prototype.hasOwnProperty.call(json, 'success')) {
+          const json = parseJson<Partial<ApiResponse<unknown>>>(response);
+          if (json && Object.prototype.hasOwnProperty.call(json, 'success')) {
             expect(json.success).toBe(false);
           }
         }
@@ -491,18 +518,18 @@ describe('Dashboard-API-Integration', () => {
         return; // skip deep consistency checks when unauthenticated
       }
 
-      const stats = JSON.parse(statsResponse.text);
-      const projects = JSON.parse(projectsResponse.text);
-      const activity = JSON.parse(activityResponse.text);
+      const stats = parseJson<ApiResponse<{ totalProjects: number }>>(statsResponse);
+      const projects = parseJson<ApiResponse<{ length: number }[]>>(projectsResponse);
+      const activity = parseJson<ApiResponse<unknown[]>>(activityResponse);
 
-      // Prüfe grundlegende Konsistenz
-      expect(stats.success).toBe(true);
-      expect(projects.success).toBe(true);
-      expect(activity.success).toBe(true);
+      expect(stats?.success).toBe(true);
+      expect(projects?.success).toBe(true);
+      expect(activity?.success).toBe(true);
 
-      // Wenn Projekte vorhanden sind, sollte die Anzahl in Stats übereinstimmen
-      if (projects.data.length > 0) {
-        expect(stats.data.totalProjects).toBeGreaterThanOrEqual(projects.data.length);
+      if (projects && stats && Array.isArray(projects.data)) {
+        if (projects.data.length > 0) {
+          expect(stats.data.totalProjects).toBeGreaterThanOrEqual(projects.data.length);
+        }
       }
     });
   });

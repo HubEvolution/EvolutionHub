@@ -27,15 +27,15 @@ export function csrfHeaders(token: string): Record<string, string> {
   };
 }
 
-export async function getJson(path: string): Promise<{ res: Response; json: any }>;
-export async function getJson(
+export async function getJson<T = unknown>(path: string): Promise<{ res: Response; json: T | null }>;
+export async function getJson<T = unknown>(
   input: RequestInfo,
   init?: RequestInit
-): Promise<{ res: Response; json: any }>;
-export async function getJson(
+): Promise<{ res: Response; json: T | null }>;
+export async function getJson<T = unknown>(
   input: string | RequestInfo,
   init: RequestInit = {}
-): Promise<{ res: Response; json: any }> {
+): Promise<{ res: Response; json: T | null }> {
   const url = typeof input === 'string' ? `${TEST_URL}${input}` : input;
   const res = await fetch(url as RequestInfo, {
     method: 'GET',
@@ -47,7 +47,7 @@ export async function getJson(
     ...init,
   });
   const text = res.status !== 302 ? await res.text() : '';
-  return { res, json: text ? safeParseJson(text) : null } as const;
+  return { res, json: text ? safeParseJson<T>(text) : null };
 }
 
 export interface SendJsonExtra {
@@ -55,11 +55,11 @@ export interface SendJsonExtra {
   headers?: Record<string, string>;
 }
 
-export async function sendJson(
+export async function sendJson<T = unknown>(
   path: string,
   data: unknown,
   extra: SendJsonExtra = {}
-): Promise<{ res: Response; json: any }> {
+): Promise<{ res: Response; json: T | null }> {
   const { method = 'POST', headers = {} } = extra;
   const res = await fetch(`${TEST_URL}${path}`, {
     method,
@@ -72,12 +72,12 @@ export async function sendJson(
     redirect: 'manual',
   });
   const text = res.status !== 302 ? await res.text() : '';
-  return { res, json: text ? safeParseJson(text) : null } as const;
+  return { res, json: text ? safeParseJson<T>(text) : null };
 }
 
-function safeParseJson(text: string): any {
+function safeParseJson<T>(text: string): T | null {
   try {
-    return JSON.parse(text);
+    return JSON.parse(text) as T;
   } catch {
     return null;
   }

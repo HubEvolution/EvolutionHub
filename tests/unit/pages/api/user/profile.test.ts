@@ -1,10 +1,13 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
+import type { APIContext } from 'astro';
+
 import { POST } from '@/pages/api/user/profile';
 import * as rateLimiterModule from '@/lib/rate-limiter';
+import type { RateLimiter } from '@/lib/rate-limiter';
 
 vi.mock('@/lib/rate-limiter', () => ({
-  standardApiLimiter: vi.fn().mockResolvedValue(null),
-  apiRateLimiter: vi.fn().mockResolvedValue(null),
+  standardApiLimiter: vi.fn<RateLimiter>().mockResolvedValue(null),
+  apiRateLimiter: vi.fn<RateLimiter>().mockResolvedValue(null),
 }));
 
 vi.mock('@/lib/security-logger', () => ({
@@ -19,6 +22,27 @@ const defaultUser = {
   name: 'Original Name',
   username: 'original_username',
 };
+
+type ApiErrorResponse = {
+  success: false;
+  error: {
+    type: string;
+    message: string;
+  };
+};
+
+type ApiSuccessResponse = {
+  success: true;
+  data: {
+    user: {
+      username: string;
+    };
+  };
+};
+
+async function readJson<T>(response: Response): Promise<T> {
+  return (await response.json()) as T;
+}
 
 const buildFormData = (entries: Record<string, FormDataEntryValue>) => {
   const form = new FormData();
@@ -35,7 +59,7 @@ const createStatement = () => ({
 });
 
 type ContextBundle = {
-  context: any;
+  context: APIContext;
   statements: {
     selectMeta: ReturnType<typeof createStatement>;
     selectUsername: ReturnType<typeof createStatement>;
@@ -101,7 +125,7 @@ const buildContext = (options?: {
       },
     },
     clientAddress: options?.clientAddress ?? '127.0.0.1',
-  };
+  } as unknown as APIContext;
 
   return { context, statements: { selectMeta, selectUsername, updateUser }, prepareMock };
 };
@@ -115,7 +139,7 @@ describe('POST /api/user/profile', () => {
     const { context } = buildContext({ formEntries: { name: 'A', username: 'valid_user' } });
     const response = await POST(context);
     expect(response.status).toBe(400);
-    const body = await response.json();
+    const body = await readJson<ApiErrorResponse>(response);
     expect(body.success).toBe(false);
     expect(body.error.type).toBe('validation_error');
     expect(body.error.message).toContain('Name must be between');
@@ -125,7 +149,7 @@ describe('POST /api/user/profile', () => {
     const { context } = buildContext({ formEntries: { name: 'Valid', username: 'invalid@user' } });
     const response = await POST(context);
     expect(response.status).toBe(400);
-    const body = await response.json();
+    const body = await readJson<ApiErrorResponse>(response);
     expect(body.error.type).toBe('validation_error');
     expect(body.error.message).toContain('letters, numbers and underscores');
   });
@@ -136,7 +160,7 @@ describe('POST /api/user/profile', () => {
 
     const response = await POST(context);
     expect(response.status).toBe(400);
-    const body = await response.json();
+    const body = await readJson<ApiErrorResponse>(response);
     expect(body.error.type).toBe('validation_error');
     expect(body.error.message).toContain('Username already taken');
   });
@@ -149,7 +173,7 @@ describe('POST /api/user/profile', () => {
     const response = await POST(context);
     expect(response.status).toBe(429);
     expect(response.headers.get('Retry-After')).toBeTruthy();
-    const body = await response.json();
+    const body = await readJson<ApiErrorResponse>(response);
     expect(body.error.type).toBe('rate_limit');
   });
 
@@ -159,7 +183,7 @@ describe('POST /api/user/profile', () => {
 
     const response = await POST(context);
     expect(response.status).toBe(200);
-    const body = await response.json();
+    const body = await readJson<ApiSuccessResponse>(response);
     expect(body.success).toBe(true);
     expect(body.data.user.username).toBe('new_username');
     expect(statements.updateUser.bind).toHaveBeenCalledWith(
@@ -177,7 +201,7 @@ describe('POST /api/user/profile', () => {
 
     const response = await POST(context);
     expect(response.status).toBe(500);
-    const body = await response.json();
+    const body = await readJson<ApiErrorResponse>(response);
     expect(body.error.type).toBe('server_error');
     expect(body.error.message).toBe('Database error during update');
   });
@@ -198,7 +222,7 @@ describe('POST /api/user/profile', () => {
 
     const response = await POST(context);
     expect(response.status).toBe(429);
-    const body = await response.json();
+    const body = await readJson<ApiErrorResponse>(response);
     expect(body.error.type).toBe('rate_limit');
   });
 });

@@ -28,6 +28,22 @@ interface FetchResponse {
   cookies: Record<string, string>;
 }
 
+type ApiResponse<T> = {
+  success: boolean;
+  data?: T;
+  error?: { type: string; message: string };
+};
+
+function parseJson<T>(response: FetchResponse): ApiResponse<T> | null {
+  if (!(response.contentType || '').includes('application/json')) return null;
+  if (!response.text) return null;
+  try {
+    return JSON.parse(response.text) as ApiResponse<T>;
+  } catch {
+    return null;
+  }
+}
+
 // Hilfsfunktion zum Abrufen einer Seite
 async function fetchPage(path: string): Promise<FetchResponse> {
   const response = await fetch(`${TEST_URL}${path}`, {
@@ -154,10 +170,10 @@ describe('Billing-API-Integration', () => {
       expect([200, 401, 404]).toContain(response.status);
       if (response.status !== 200) return;
       expect(response.contentType).toContain('application/json');
-      const json = JSON.parse(response.text);
-      expect(json.success).toBe(true);
-      expect(json.data.sessionId).toBeDefined();
-      expect(json.data.url).toBeDefined();
+      const json = parseJson<{ sessionId: string; url: string }>(response);
+      expect(json?.success).toBe(true);
+      expect(json?.data?.sessionId).toBeDefined();
+      expect(json?.data?.url).toBeDefined();
     });
 
     it('sollte Validierungsfehler für fehlende priceId zurückgeben', async () => {
@@ -171,8 +187,8 @@ describe('Billing-API-Integration', () => {
 
       expect([400, 401, 403, 404]).toContain(response.status);
       if ((response.contentType || '').includes('application/json')) {
-        const json = JSON.parse(response.text);
-        if (Object.prototype.hasOwnProperty.call(json, 'success')) {
+        const json = parseJson<unknown>(response);
+        if (json && Object.prototype.hasOwnProperty.call(json, 'success')) {
           expect(json.success).toBe(false);
         }
       }
@@ -190,10 +206,10 @@ describe('Billing-API-Integration', () => {
       expect([200, 401]).toContain(response.status);
       if (response.status !== 200) return;
       expect(response.contentType).toContain('application/json');
-      const json = JSON.parse(response.text);
-      expect(json.success).toBe(true);
-      expect(json.data.sessionId).toBeDefined();
-      expect(json.data.url).toBeDefined();
+      const json = parseJson<{ sessionId: string; url: string }>(response);
+      expect(json?.success).toBe(true);
+      expect(json?.data?.sessionId).toBeDefined();
+      expect(json?.data?.url).toBeDefined();
     });
   });
 
@@ -204,10 +220,10 @@ describe('Billing-API-Integration', () => {
       expect([200, 401, 404]).toContain(response.status);
       if (response.status !== 200) return;
       expect(response.contentType).toContain('application/json');
-      const json = JSON.parse(response.text);
-      expect(json.success).toBe(true);
-      expect(json.data.credits).toBeDefined();
-      expect(typeof json.data.credits).toBe('number');
+      const json = parseJson<{ credits: number }>(response);
+      expect(json?.success).toBe(true);
+      expect(json?.data?.credits).toBeDefined();
+      expect(typeof json?.data?.credits).toBe('number');
     });
 
     it('sollte 401 für nicht authentifizierte Anfragen zurückgeben', async () => {
@@ -216,10 +232,8 @@ describe('Billing-API-Integration', () => {
       expect([200, 401, 404]).toContain(response.status);
       if (response.status !== 200) return;
       expect(response.contentType).toContain('application/json');
-      const json = JSON.parse(response.text);
-      expect(json.success).toBe(true);
-      expect(json.data.credits).toBeDefined();
-      expect(typeof json.data.credits).toBe('number');
+      const json = parseJson<{ credits: number }>(response);
+      expect(json?.success).toBe(true);
     });
   });
 
@@ -235,9 +249,9 @@ describe('Billing-API-Integration', () => {
       expect([200, 401, 404]).toContain(response.status);
       if (response.status !== 200) return;
       expect(response.contentType).toContain('application/json');
-      const json = JSON.parse(response.text);
-      expect(json.success).toBe(true);
-      expect(json.data.message).toContain('successfully');
+      const json = parseJson<{ message: string }>(response);
+      expect(json?.success).toBe(true);
+      expect(json?.data?.message).toContain('successfully');
     });
 
     it('sollte 401 für nicht authentifizierte Anfragen zurückgeben', async () => {
@@ -269,9 +283,9 @@ describe('Billing-API-Integration', () => {
       expect([200, 401, 404]).toContain(response.status);
       if (response.status !== 200) return;
       expect(response.contentType).toContain('application/json');
-      const json = JSON.parse(response.text);
-      expect(json.success).toBe(true);
-      expect(json.data.paymentLink).toBeDefined();
+      const json = parseJson<{ paymentLink: string }>(response);
+      expect(json?.success).toBe(true);
+      expect(json?.data?.paymentLink).toBeDefined();
     });
 
     it('sollte Validierungsfehler für ungültige E-Mail zurückgeben', async () => {
@@ -284,8 +298,8 @@ describe('Billing-API-Integration', () => {
 
       expect([400, 401, 403, 404]).toContain(response.status);
       if ((response.contentType || '').includes('application/json')) {
-        const json = JSON.parse(response.text);
-        if (Object.prototype.hasOwnProperty.call(json, 'success')) {
+        const json = parseJson<unknown>(response);
+        if (json && Object.prototype.hasOwnProperty.call(json, 'success')) {
           expect(json.success).toBe(false);
         }
       }
@@ -310,8 +324,8 @@ describe('Billing-API-Integration', () => {
       expect([200, 404]).toContain(response.status);
       if (response.status !== 200) return;
       expect(response.contentType).toContain('application/json');
-      const json = JSON.parse(response.text);
-      expect(json.success).toBe(true);
+      const json = parseJson<unknown>(response);
+      expect(json?.success).toBe(true);
     });
 
     it('sollte verschiedene Webhook-Events verarbeiten', async () => {
@@ -338,8 +352,8 @@ describe('Billing-API-Integration', () => {
 
         expect([200, 404]).toContain(response.status);
         if (response.status !== 200) continue;
-        const json = JSON.parse(response.text);
-        expect(json.success).toBe(true);
+        const json = parseJson<unknown>(response);
+        expect(json?.success).toBe(true);
       }
     });
   });
@@ -405,7 +419,7 @@ describe('Billing-API-Integration', () => {
         const response = await sendJson(endpoint, requestData);
 
         if (response.status === 400) {
-          const json = JSON.parse(response.text);
+          const json = parseJson<unknown>(response);
           expect(json.success).toBe(false);
           expect(json.error.type).toBeDefined();
           expect(json.error.message).toBeDefined();
@@ -421,8 +435,8 @@ describe('Billing-API-Integration', () => {
 
         expect([405, 404, 401]).toContain(response.status);
         if ((response.contentType || '').includes('application/json')) {
-          const json = JSON.parse(response.text);
-          if (Object.prototype.hasOwnProperty.call(json, 'success')) {
+          const json = parseJson<unknown>(response);
+          if (json && Object.prototype.hasOwnProperty.call(json, 'success')) {
             expect(json.success).toBe(false);
           }
         }

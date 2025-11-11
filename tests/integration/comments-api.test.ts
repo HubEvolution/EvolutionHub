@@ -1,12 +1,20 @@
 import { describe, it, expect } from 'vitest';
 import { getJson, sendJson, hex32, csrfHeaders } from '../shared/http';
 
+type CommentsResponse<T> = {
+  res: Response;
+  json: T;
+};
+
 describe('Comments API (edge)', () => {
   const entityType = 'blog_post';
   const entityId = 'integration-post-1';
 
   it('GET /api/comments should succeed for entity', async () => {
-    const { res, json } = await getJson(
+    const { res, json }: CommentsResponse<{
+      success: boolean;
+      data: { comments: unknown[]; total: number; hasMore: boolean };
+    }> = await getJson(
       `/api/comments?entityType=${entityType}&entityId=${entityId}&limit=5&offset=0`
     );
     expect(res.status).toBe(200);
@@ -17,7 +25,8 @@ describe('Comments API (edge)', () => {
   });
 
   it('POST /api/comments/create should reject without CSRF (403)', async () => {
-    const { res, json } = await sendJson('/api/comments/create', {
+    const { res, json }: CommentsResponse<{ success: boolean; error: { type: string } }>
+      = await sendJson('/api/comments/create', {
       content: 'Hello without CSRF',
       entityType,
       entityId,
@@ -29,7 +38,8 @@ describe('Comments API (edge)', () => {
 
   it('POST /api/comments/create should create comment with valid CSRF (201)', async () => {
     const token = hex32();
-    const { res, json } = await sendJson(
+    const { res, json }: CommentsResponse<{ success: boolean; data: { id: string; entityId: string } }>
+      = await sendJson(
       '/api/comments/create',
       { content: 'Hello with CSRF', entityType, entityId, csrfToken: token },
       { headers: csrfHeaders(token) }
@@ -43,13 +53,17 @@ describe('Comments API (edge)', () => {
 
   it('PUT /api/comments/:id should require auth (401)', async () => {
     const token = hex32();
-    const { res: createRes, json: created } = await sendJson(
+    const { json: created }: CommentsResponse<{
+      success: boolean;
+      data?: { id?: string };
+    }> = await sendJson(
       '/api/comments/create',
       { content: 'To be updated', entityType, entityId, csrfToken: token },
       { headers: csrfHeaders(token) }
     );
     const cid = created && created.data && created.data.id ? created.data.id : hex32();
-    const { res, json } = await sendJson(
+    const { res, json }: CommentsResponse<{ success: boolean }>
+      = await sendJson(
       `/api/comments/${cid}`,
       { content: 'update try', csrfToken: token },
       { method: 'PUT', headers: csrfHeaders(token) }
@@ -62,13 +76,17 @@ describe('Comments API (edge)', () => {
 
   it('DELETE /api/comments/:id should require auth (401)', async () => {
     const token = hex32();
-    const { res: createRes, json: created } = await sendJson(
+    const { json: created }: CommentsResponse<{
+      success: boolean;
+      data?: { id?: string };
+    }> = await sendJson(
       '/api/comments/create',
       { content: 'To be deleted', entityType, entityId, csrfToken: token },
       { headers: csrfHeaders(token) }
     );
     const cid = created && created.data && created.data.id ? created.data.id : hex32();
-    const { res, json } = await sendJson(
+    const { res, json }: CommentsResponse<{ success: boolean }>
+      = await sendJson(
       `/api/comments/${cid}`,
       { csrfToken: token },
       { method: 'DELETE', headers: csrfHeaders(token) }
@@ -82,7 +100,8 @@ describe('Comments API (edge)', () => {
   it('POST /api/comments/moderate should require moderator (401)', async () => {
     const token = hex32();
     const payload = { action: 'approve', commentId: 'does-not-matter', csrfToken: token };
-    const { res, json } = await sendJson('/api/comments/moderate', payload, {
+    const { res, json }: CommentsResponse<{ success: boolean }>
+      = await sendJson('/api/comments/moderate', payload, {
       headers: csrfHeaders(token),
     });
     expect(res.status).toBe(401);

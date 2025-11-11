@@ -54,6 +54,7 @@ declare module '@/lib/rate-limiter' {
   export const aiGenerateLimiter: RateLimiter;
   export const voiceTranscribeLimiter: RateLimiter;
   export const contactFormLimiter: RateLimiter;
+  export const webEvalTaskLimiter: RateLimiter;
 }
 
 declare module '@/lib/security/csrf' {
@@ -97,9 +98,9 @@ declare module 'astro' {
 declare global {
   interface D1PreparedStatement {
     bind: (...args: any[]) => D1PreparedStatement;
-    first: (...args: any[]) => Promise<any>;
-    run: (...args: any[]) => Promise<any>;
-    all: (...args: any[]) => Promise<any>;
+    first<T = unknown>(): Promise<T | null>;
+    run<T = unknown>(): Promise<T>;
+    all<T = unknown>(): Promise<{ results: T[] }>;
   }
   interface D1Database {
     prepare: (query: string) => D1PreparedStatement;
@@ -208,10 +209,6 @@ declare module '@/config/ai-image' {
   export const FREE_LIMIT_USER: any;
   export const PLAN_LIMITS: any;
   export const getAiLimitFor: any;
-}
-
-declare module '@/types/logger' {
-  export type ExtendedLogger = any;
 }
 
 declare module 'astro:content' {

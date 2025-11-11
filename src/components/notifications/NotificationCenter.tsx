@@ -1,20 +1,32 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Bell, Check, CheckCheck, Settings, X } from 'lucide-react';
-import type {
-  Notification,
-  NotificationFilters,
-  NotificationStats,
-} from '../../lib/types/notifications';
+import { Bell, CheckCheck, Settings, X } from 'lucide-react';
+import type { Notification, NotificationStats } from '../../lib/types/notifications';
+
+interface NotificationsResponse {
+  notifications: Notification[];
+  total: number;
+  hasMore: boolean;
+  unreadCount: number;
+}
+
+interface SuccessEnvelope<T> {
+  success: true;
+  data: T;
+}
+
+interface ErrorEnvelope {
+  success?: false;
+  error?: { message?: string };
+}
 
 interface NotificationCenterProps {
-  userId: number;
   className?: string;
 }
 
-export const NotificationCenter: React.FC<NotificationCenterProps> = ({
-  userId,
-  className = '',
-}) => {
+const isSuccessResponse = <T,>(payload: SuccessEnvelope<T> | ErrorEnvelope | undefined): payload is SuccessEnvelope<T> =>
+  Boolean(payload && 'success' in payload && payload.success === true);
+
+export const NotificationCenter: React.FC<NotificationCenterProps> = ({ className = '' }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [stats, setStats] = useState<NotificationStats | null>(null);
@@ -43,24 +55,25 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
         throw new Error('Failed to fetch notifications');
       }
 
-      const result = await response.json();
+      const result = (await response.json().catch(() => undefined)) as
+        | SuccessEnvelope<NotificationsResponse>
+        | ErrorEnvelope
+        | undefined;
 
-      if (result.success) {
-        setNotifications(result.data.notifications);
-        setStats(result.data);
+      if (!isSuccessResponse(result)) {
+        throw new Error(result?.error?.message || 'Unknown error');
+      }
 
-        // Mark notifications as read if requested
-        if (markAsRead && result.data.unreadCount > 0) {
-          await fetch('/api/notifications/mark-all-read', {
-            method: 'POST',
-            credentials: 'same-origin',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          });
-        }
-      } else {
-        throw new Error(result.error?.message || 'Unknown error');
+      setNotifications(result.data.notifications);
+
+      if (markAsRead && result.data.unreadCount > 0) {
+        await fetch('/api/notifications/mark-all-read', {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error');
@@ -72,14 +85,46 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
   // Fetch stats periodically
   useEffect(() => {
     fetchNotifications();
+    fetchStats();
 
     // Poll for new notifications every 30 seconds
     const interval = setInterval(() => {
       fetchNotifications();
+      fetchStats();
     }, 30000);
 
     return () => clearInterval(interval);
   }, [fetchNotifications]);
+
+  const fetchStats = useCallback(async () => {
+    try {
+      const response = await fetch('/api/notifications/stats', {
+        method: 'GET',
+        credentials: 'same-origin',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch notification stats');
+      }
+
+      const result = (await response.json().catch(() => undefined)) as
+        | SuccessEnvelope<NotificationStats>
+        | ErrorEnvelope
+        | undefined;
+
+      if (!isSuccessResponse(result)) {
+        throw new Error(result?.error?.message || 'Unknown error');
+      }
+
+      setStats(result.data);
+    } catch (err) {
+      // Stats failures should not surface to UI; keep silent but log
+      console.error('Failed to fetch notification stats:', err);
+    }
+  }, []);
 
   // Handle notification click
   const handleNotificationClick = async (notification: Notification) => {

@@ -142,6 +142,10 @@ const MobileCommentItem: React.FC<MobileCommentItemProps> = ({
   const [showToast, setShowToast] = useState(false);
 
   const { reportComment, csrfToken, initializeCsrfToken } = useCommentStore();
+  const sanitizedContent = useMemo(
+    () => sanitizeCommentContent(comment.content),
+    [comment.content]
+  );
   const loc = getLocale(typeof window !== 'undefined' ? window.location.pathname : '/');
   const t = (k: string) => {
     const deT: Record<string, string> = {
@@ -560,7 +564,6 @@ interface MobileCommentFABProps {
 const MobileCommentFAB: React.FC<MobileCommentFABProps> = ({ onNewComment, currentUser }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const locale = getLocale(typeof window !== 'undefined' ? window.location.pathname : '/');
-  const formattedDate = new Date(comment.createdAt * 1000).toLocaleString(locale);
   const loginUrl =
     localizePath(locale, '/login') +
     (typeof window !== 'undefined'

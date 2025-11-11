@@ -1,3 +1,19 @@
+type GenerateSuccess = {
+  success: true;
+  data: {
+    charge: { credits: number; balance?: number; quota?: boolean };
+  };
+};
+
+type GenerateError = {
+  success: false;
+  error: { message: string };
+};
+
+async function readJson<T>(res: Response): Promise<T> {
+  return (await res.json()) as T;
+}
+
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { POST } from '@/pages/api/ai-video/generate';
 
@@ -94,7 +110,7 @@ describe('ai-video generate (quota fallback)', () => {
 
     const res = await POST(ctx);
     expect(res.status).toBe(200);
-    const json = JSON.parse(await res.text());
+    const json = await readJson<GenerateSuccess>(res);
     expect(json.success).toBe(true);
     expect(json.data.charge).toBeTruthy();
     expect(json.data.charge.credits).toBe(5);
@@ -109,7 +125,7 @@ describe('ai-video generate (quota fallback)', () => {
 
     const res = await POST(ctx);
     expect(res.status).toBe(200);
-    const json = JSON.parse(await res.text());
+    const json = await readJson<GenerateSuccess>(res);
     expect(json.success).toBe(true);
     expect(json.data.charge).toEqual({ credits: 0, quota: true });
 
@@ -128,7 +144,7 @@ describe('ai-video generate (quota fallback)', () => {
 
     const res = await POST(ctx);
     expect(res.status).toBeGreaterThanOrEqual(400);
-    const json = JSON.parse(await res.text());
+    const json = await readJson<GenerateError>(res);
     expect(json.success).toBe(false);
     expect(json.error.message).toBe('insufficient_quota');
   });

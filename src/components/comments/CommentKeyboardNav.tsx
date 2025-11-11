@@ -8,7 +8,7 @@ interface CommentKeyboardNavProps {
   onReply?: (commentId: string) => void;
   onEdit?: (commentId: string) => void;
   onDelete?: (commentId: string) => void;
-  currentUser?: { id: number; name: string; email: string } | null;
+  currentUser?: { id: string; name: string; email: string } | null;
   enabled?: boolean;
 }
 
@@ -116,12 +116,12 @@ export const CommentKeyboardNav: React.FC<CommentKeyboardNavProps> = ({
           }
           break;
         case 'edit':
-          if (comment && currentUser?.id === comment.authorId) {
+          if (comment && comment.authorId && currentUser?.id === comment.authorId) {
             onEdit?.(commentId);
           }
           break;
         case 'delete':
-          if (comment && currentUser?.id === comment.authorId) {
+          if (comment && comment.authorId && currentUser?.id === comment.authorId) {
             onDelete?.(commentId);
           }
           break;
@@ -152,7 +152,7 @@ export const CommentKeyboardNav: React.FC<CommentKeyboardNavProps> = ({
         return;
       }
 
-      const { key, ctrlKey, metaKey, shiftKey, altKey } = event;
+      const { key, ctrlKey, metaKey, shiftKey } = event;
 
       switch (key) {
         case 'j':
@@ -277,7 +277,7 @@ export const CommentKeyboardNav: React.FC<CommentKeyboardNavProps> = ({
 
         {/* Focused comment indicator */}
         {navState.focusedCommentId && (
-          <style jsx>{`
+          <style>{`
             [data-comment-id='${navState.focusedCommentId}'] {
               position: relative;
             }
@@ -406,7 +406,7 @@ interface KeyboardCommentItemProps {
   onEdit?: (commentId: string) => void;
   onDelete?: (commentId: string) => void;
   onSelect?: (commentId: string) => void;
-  currentUser?: { id: number; name: string; email: string } | null;
+  currentUser?: { id: string; name: string; email: string } | null;
   depth?: number;
 }
 
@@ -528,9 +528,9 @@ export const KeyboardCommentItem: React.FC<KeyboardCommentItemProps> = ({
         )}
 
         {/* Report count */}
-        {comment.reportCount > 0 && (
+        {(comment.reportCount ?? 0) > 0 && (
           <span className="text-xs text-orange-600 dark:text-orange-400 ml-2">
-            {comment.reportCount} Meldung{comment.reportCount !== 1 ? 'en' : ''}
+            {comment.reportCount ?? 0} Meldung{(comment.reportCount ?? 0) !== 1 ? 'en' : ''}
           </span>
         )}
       </div>
