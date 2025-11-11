@@ -1,0 +1,71 @@
+:root {
+  /* Primary */
+  --color-primary-50: #f5faff;
+  --color-primary-100: #e0f5ff;
+  --color-primary-200: #c2e6ff;
+  --color-primary-300: #8fd4ff;
+  --color-primary-400: #53bcff;
+  --color-primary-500: #149ef7;
+  --color-primary-600: #007fd1;
+  --color-primary-700: #0062a3;
+  --color-primary-800: #004770;
+  --color-primary-900: #002e49;
+
+  /* Secondary */
+  --color-secondary-50: #fdf8ff;
+  --color-secondary-100: #f8ecff;
+  --color-secondary-200: #ead1fb;
+  --color-secondary-300: #d2a9f3;
+  --color-secondary-400: #b979eb;
+  --color-secondary-500: #9f48e2;
+  --color-secondary-600: #7f35bb;
+  --color-secondary-700: #60268d;
+  --color-secondary-800: #43195f;
+  --color-secondary-900: #2a0e3b;
+
+  /* Accent */
+  --color-accent-50: #fff9f0;
+  --color-accent-100: #ffeac2;
+  --color-accent-200: #ffd28a;
+  --color-accent-300: #ffb751;
+  --color-accent-400: #ff9d26;
+  --color-accent-500: #ff8600;
+  --color-accent-600: #d66900;
+  --color-accent-700: #a94d00;
+  --color-accent-800: #7a3400;
+  --color-accent-900: #4d1f00;
+
+  /* Neutral */
+  --color-neutral-0: #ffffff;
+  --color-neutral-50: #f7f9fa;
+  --color-neutral-100: #edf0f2;
+  --color-neutral-200: #d8dee2;
+  --color-neutral-300: #b9c2c8;
+  --color-neutral-400: #94a1aa;
+  --color-neutral-500: #6e7d88;
+  --color-neutral-600: #52606b;
+  --color-neutral-700: #3b4852;
+  --color-neutral-800: #263138;
+  --color-neutral-900: #131b20;
+  --color-neutral-1000: #000000;
+
+  /* Support (single values) */
+  --color-success: #13b887;
+  --color-warning: #f5a300;
+  --color-error: #e54848;
+  --color-info: #2f7ddb;
+
+  /* Semantic aliases */
+  --color-border: var(--color-neutral-200);
+  --color-bg: var(--color-neutral-0);
+  --color-bg-alt: var(--color-neutral-50);
+  --color-text: var(--color-neutral-800);
+  --color-text-muted: var(--color-neutral-500);
+  --color-link: var(--color-primary-600);
+  --color-focus-ring: var(--color-accent-400);
+}
+
+/* Example usage classes (optional) */
+.bg-primary { background-color: var(--color-primary-500); }
+.text-primary { color: var(--color-primary-600); }
+.border-neutral { border-color: var(--color-neutral-200); }
