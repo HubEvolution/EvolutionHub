@@ -4,7 +4,7 @@ Diese Struktur bündelt zentrale Brand-Ressourcen (Farben, Logo, Typografie) an 
 
 ## Struktur
 
-```
+```markdown
 assets/
   brand/
     logo/           # Logos (Dateinamen-Konvention siehe unten)
