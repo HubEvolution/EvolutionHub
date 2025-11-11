@@ -622,6 +622,247 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiErrorResponse'
+  /api/testing/evaluate:
+    post:
+      summary: Create web evaluation task (testing)
+      description: Creates a new web evaluation task. CSRF protected.
+      x-source: src/pages/api/testing/evaluate/index.ts
+      operationId: postTestingEvaluate
+      parameters:
+        - name: X-CSRF-Token
+          in: header
+          required: true
+          schema:
+            type: string
+          description: Double-submit token; must match cookie 'csrf_token'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WebEvalTaskRequest'
+      responses:
+        "200":
+          description: Task created
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  success:
+                    type: boolean
+                    enum: [true]
+                  data:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      taskId:
+                        type: string
+                      status:
+                        type: string
+                        enum: [pending, processing, completed, failed]
+                      createdAt:
+                        type: string
+                        format: date-time
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+  /api/testing/evaluate/next:
+    post:
+      summary: Claim next pending web evaluation task (executor)
+      description: Requires executor token via header x-executor-token. In production, also requires x-internal-exec=1 and environment opt-in.
+      x-source: src/pages/api/testing/evaluate/next.ts
+      operationId: postTestingEvaluateNext
+      parameters:
+        - name: x-executor-token
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: x-internal-exec
+          in: header
+          required: false
+          schema:
+            type: string
+          description: Required in production; must be "1".
+      responses:
+        "200":
+          description: Next task or null
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  success:
+                    type: boolean
+                    enum: [true]
+                  data:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      task:
+                        oneOf:
+                          - type: object
+                            additionalProperties: false
+                            properties:
+                              id: { type: string }
+                              url: { type: string }
+                              task: { type: string }
+                              headless: { type: boolean }
+                              timeoutMs: { type: integer }
+                              status:
+                                type: string
+                                enum: [pending, processing, completed, failed]
+                              attemptCount: { type: integer, minimum: 0 }
+                              ownerType: { type: string, enum: [user, guest] }
+                              ownerId: { type: string }
+                              createdAt: { type: string, format: date-time }
+                              updatedAt: { type: string, format: date-time }
+                              lastError: { type: string, nullable: true }
+                            required: [id, url, task, status, attemptCount, ownerType, ownerId, createdAt, updatedAt]
+                          - type: 'null'
+        "401":
+          description: Executor authentication failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        "403":
+          description: Disabled in production (gating)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+  /api/testing/evaluate/{id}:
+    get:
+      summary: Get web evaluation task status and report
+      description: Returns task summary for the authorized owner and the stored report if available.
+      x-source: src/pages/api/testing/evaluate/[id].ts
+      operationId: getTestingEvaluateById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Task status (and report if stored)
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  success:
+                    type: boolean
+                    enum: [true]
+                  data:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      task:
+                        type: object
+                        additionalProperties: false
+                        properties:
+                          id: { type: string }
+                          url: { type: string }
+                          description: { type: string }
+                          status:
+                            type: string
+                            enum: [pending, processing, completed, failed]
+                          createdAt: { type: string, format: date-time }
+                          updatedAt: { type: string, format: date-time }
+                          attemptCount: { type: integer, minimum: 0 }
+                          lastError: { type: string, nullable: true }
+                      report:
+                        $ref: '#/components/schemas/WebEvalReport'
+                        nullable: true
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        "403":
+          description: Forbidden (not authorized owner)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+  /api/testing/evaluate/{id}/complete:
+    post:
+      summary: Submit web evaluation completion (executor)
+      description: Requires executor token. In production, also requires x-internal-exec=1 and environment opt-in.
+      x-source: src/pages/api/testing/evaluate/[id]/complete.ts
+      operationId: postTestingEvaluateComplete
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: x-executor-token
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: x-internal-exec
+          in: header
+          required: false
+          schema:
+            type: string
+          description: Required in production; must be "1".
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WebEvalCompletion'
+      responses:
+        "200":
+          description: Completion accepted
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  success:
+                    type: boolean
+                    enum: [true]
+                  data:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      taskId: { type: string }
+                      status:
+                        type: string
+                        enum: [completed, failed]
+                      storedAt: { type: string, format: date-time }
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        "401":
+          description: Executor authentication failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        "403":
+          description: Disabled in production (gating)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
   /api/ai-video/upload:
     post:
       summary: Upload source video for enhancement
@@ -2923,6 +3164,62 @@ components:
           additionalProperties: true
       required:
         - success
+    AdminUserLifecycleRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        reason:
+          type: string
+          maxLength: 500
+        sendEmail:
+          type: boolean
+    AdminUserActionSuccess:
+      type: object
+      additionalProperties: false
+      properties:
+        success:
+          type: boolean
+          enum: [true]
+        data:
+          type: object
+          additionalProperties: false
+          properties:
+            userId:
+              type: string
+            status:
+              type: string
+              enum: [active, banned, deleted]
+            bannedAt:
+              type: integer
+              nullable: true
+              description: Epoch milliseconds when user was banned (if applicable)
+            auditLogId:
+              type: string
+              nullable: true
+      required:
+        - success
+        - data
+    WebEvalTaskRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        url:
+          type: string
+          format: uri
+          maxLength: 2048
+        task:
+          type: string
+          minLength: 5
+          maxLength: 500
+        headless:
+          type: boolean
+        timeoutMs:
+          type: integer
+          minimum: 1000
+          maximum: 300000
+      required:
+        - url
+        - task
     ApiError:
       type: object
       additionalProperties: false
@@ -3154,6 +3451,91 @@ components:
             tenths:
               type: integer
               description: Remaining credits in tenths
+    AdminUserListSuccess:
+      type: object
+      required:
+        - success
+        - data
+      properties:
+        success:
+          type: boolean
+          const: true
+        data:
+          type: object
+          additionalProperties: false
+          required:
+            - items
+          properties:
+            items:
+              type: array
+              items:
+                type: object
+                additionalProperties: false
+                required:
+                  - user
+                  - stats
+                properties:
+                  user:
+                    type: object
+                    additionalProperties: false
+                    required:
+                      - id
+                      - email
+                      - plan
+                      - status
+                    properties:
+                      id:
+                        type: string
+                      email:
+                        type: string
+                        format: email
+                      name:
+                        type: string
+                        nullable: true
+                      plan:
+                        type: string
+                        enum: [free, pro, premium, enterprise]
+                      status:
+                        type: string
+                        enum: [active, banned, deleted]
+                      createdAt:
+                        type: integer
+                        nullable: true
+                        description: Epoch milliseconds
+                      stytchUserId:
+                        type: string
+                        nullable: true
+                  stats:
+                    type: object
+                    additionalProperties: false
+                    required:
+                      - activeSessions
+                      - credits
+                    properties:
+                      activeSessions:
+                        type: integer
+                        minimum: 0
+                      credits:
+                        type: integer
+                        minimum: 0
+                  lastSeenAt:
+                    type: integer
+                    nullable: true
+                  lastIp:
+                    type: string
+                    nullable: true
+                  bannedAt:
+                    type: integer
+                    nullable: true
+                  deletedAt:
+                    type: integer
+                    nullable: true
+                  deletedBy:
+                    type: string
+                    nullable: true
+            nextCursor:
+              type: string
+              description: Pagination cursor for next page (omitted when no more results)
     NewsletterSubscribeRequest:
       type: object
       properties:
@@ -3601,188 +3983,105 @@ components:
             type: integer
             format: int64
             nullable: true
-      AiJobOutput:
+      WebEvalTaskRequest:
         type: object
-        nullable: true
+        additionalProperties: false
         properties:
-          key:
-            type: string
           url:
             type: string
-            nullable: true
-      UsageInfo:
-        type: object
-        nullable: true
-        properties:
-          used:
-            type: integer
-          limit:
-            type: integer
-          resetAt:
-            type: integer
-            format: int64
-            nullable: true
-      VoicePollSuccessResponse:
-        type: object
-        properties:
-          success:
+            format: uri
+            maxLength: 2048
+          task:
+            type: string
+            minLength: 5
+            maxLength: 500
+          headless:
             type: boolean
-            enum: [true]
-          data:
-            type: object
-            properties:
-              status:
-                type: string
-                enum: [active, done, error, not_found]
-              partials:
-                type: array
-                items:
+          timeoutMs:
+            type: integer
+            minimum: 1000
+            maximum: 300000
+        required: [url, task]
+      WebEvalReport:
+        type: object
+        additionalProperties: false
+        properties:
+          taskId: { type: string }
+          url: { type: string }
+          taskDescription: { type: string }
+          success: { type: boolean }
+          steps:
+            type: array
+            items:
+              type: object
+              additionalProperties: false
+              properties:
+                action: { type: string }
+                timestamp: { type: string }
+                selectorUsed: { type: string }
+                screenshotKey: { type: string }
+              required: [action, timestamp]
+          consoleLogs:
+            type: array
+            items:
+              type: object
+              additionalProperties: false
+              properties:
+                level:
                   type: string
-              final:
-                type: string
-                nullable: true
-              usage:
-                $ref: '#/components/schemas/UsageInfo'
-              updatedAt:
-                type: integer
-                format: int64
-      PromptEnhanceSuccessResponse:
-        type: object
-        properties:
-          success:
-            type: boolean
-            enum: [true]
-          data:
-            $ref: '#/components/schemas/PromptEnhanceData'
-        required:
-          - success
-          - data
-      WebscraperResult:
-        type: object
-        properties:
-          url:
-            type: string
-          title:
-            type: string
-          description:
-            type: string
-            nullable: true
-          text:
-            type: string
-          metadata:
-            type: object
-            properties:
-              author:
-                type: string
-                nullable: true
-              publishDate:
-                type: string
-                nullable: true
-              language:
-                type: string
-                nullable: true
-              charset:
-                type: string
-                nullable: true
-              ogImage:
-                type: string
-                nullable: true
-              ogTitle:
-                type: string
-                nullable: true
-              ogDescription:
-                type: string
-                nullable: true
-              twitterCard:
-                type: string
-                nullable: true
-              canonical:
-                type: string
-                nullable: true
-          links:
+                  enum: [log, error, warn, info, debug]
+                message: { type: string }
+                timestamp: { type: string }
+              required: [level, message, timestamp]
+          networkRequests:
             type: array
             items:
-              type: string
-          images:
+              type: object
+              additionalProperties: false
+              properties:
+                method:
+                  type: string
+                  enum: [GET, POST, PUT, DELETE, PATCH, HEAD]
+                url: { type: string }
+                status: { type: integer, minimum: 0 }
+                durationMs: { type: integer, minimum: 0 }
+              required: [method, url, status]
+          errors:
             type: array
-            items:
-              type: string
-          scrapedAt:
-            type: string
-            description: ISO timestamp
-          robotsTxtAllowed:
-            type: boolean
-      WebscraperExtractData:
-        type: object
-        properties:
-          result:
-            $ref: '#/components/schemas/WebscraperResult'
-          usage:
-            $ref: '#/components/schemas/UsageInfo'
-      WebscraperExtractSuccessResponse:
-        type: object
-        properties:
-          success:
-            type: boolean
-            enum: [true]
-          data:
-            $ref: '#/components/schemas/WebscraperExtractData'
+            items: { type: string }
+          durationMs: { type: integer, minimum: 0 }
+          startedAt: { type: string }
+          finishedAt: { type: string }
         required:
-          - success
-          - data
-      UsageSuccessResponse:
+          [taskId, url, taskDescription, success, steps, consoleLogs, networkRequests, errors, durationMs, startedAt, finishedAt]
+      WebEvalCompletion:
         type: object
+        additionalProperties: false
         properties:
-          success:
-            type: boolean
-            enum: [true]
-          data:
-            type: object
-            properties:
-              ownerType:
-                type: string
-                enum: [user, guest]
-              usage:
-                $ref: '#/components/schemas/UsageInfo'
-              limits:
-                type: object
-                properties:
-                  user:
-                    type: integer
-                  guest:
-                    type: integer
-              plan:
-                type: string
-                nullable: true
-                description: Optional current plan if ownerType is user (e.g., free, pro, premium)
-              entitlements:
-                $ref: '#/components/schemas/PlanEntitlements'
-        required:
-          - success
-          - data
-      VoiceTranscribeData:
-        type: object
-        properties:
-          sessionId:
+          status:
             type: string
-          text:
+            enum: [completed, failed]
+          report:
+            $ref: '#/components/schemas/WebEvalReport'
+          error:
             type: string
-          isFinal:
-            type: boolean
-          usage:
-            $ref: '#/components/schemas/UsageInfo'
-          limits:
-            type: object
-            properties:
-              user:
-                type: integer
-              guest:
-                type: integer
-      VoiceTranscribeSuccessResponse:
+        required: [status, report]
+      WebEvalTaskClaim:
         type: object
+        additionalProperties: false
         properties:
-          success:
-            type: boolean
-            enum: [true]
-          data:
-            $ref: '#/components/schemas/VoiceTranscribeData'
+          id: { type: string }
+          url: { type: string }
+          task: { type: string }
+          headless: { type: boolean }
+          timeoutMs: { type: integer }
+          status:
+            type: string
+            enum: [pending, processing, completed, failed]
+          attemptCount: { type: integer, minimum: 0 }
+          ownerType: { type: string, enum: [user, guest] }
+          ownerId: { type: string }
+          createdAt: { type: string, format: date-time }
+          updatedAt: { type: string, format: date-time }
+          lastError: { type: string, nullable: true }
+        required: [id, url, task, status, attemptCount, ownerType, ownerId, createdAt, updatedAt]

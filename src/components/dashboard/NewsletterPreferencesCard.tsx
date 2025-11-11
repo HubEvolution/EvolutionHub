@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import CardReact from '@/components/ui/CardReact.jsx';
 import { toast } from 'sonner';
 
 interface Strings {

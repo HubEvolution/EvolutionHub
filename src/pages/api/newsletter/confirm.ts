@@ -1,4 +1,4 @@
-import type { APIRoute } from 'astro';
+import type { APIRoute, APIContext } from 'astro';
 import { z } from 'zod';
 import { formatZodError } from '@/lib/validation';
 import { loggerFactory } from '@/server/utils/logger-factory';
@@ -30,7 +30,8 @@ const pendingSubscriptions = new Map<string, PendingSubscription>();
  * Newsletter subscription confirmation endpoint
  * Handles double opt-in email confirmations
  */
-export const GET: APIRoute = async ({ request: _request, url }) => {
+export const GET: APIRoute = async (ctx: APIContext) => {
+  const url = new URL(ctx.request.url);
   const searchParams = url.searchParams;
   const token = searchParams.get('token');
   const email = searchParams.get('email');

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Bell, CheckCheck, Settings, X } from 'lucide-react';
+import { Bell, CheckCheck, X } from 'lucide-react';
 import type { Notification, NotificationStats } from '../../lib/types/notifications';
 
 interface NotificationsResponse {

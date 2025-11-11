@@ -195,6 +195,17 @@ LEADMAGNET_SOURCE = "public"
 EMAIL_FROM = "noreply@hub-evolution.com"
 CONTACT_RECIPIENTS = "noreply@hub-evolution.com,lucas0507@icloud.com"
 
+# Cloudflare Access (MCP ingress) — set per environment
+# Example: CF_ACCESS_TEAM_DOMAIN = "team.cloudflareaccess.com" (your account's team domain)
+# CF_ACCESS_AUD is the Application Audience tag from Access > Applications > App > Settings
+# CF_ACCESS_JWKS_URL overrides the JWKS discovery URL if needed; normally derived from team domain
+CF_ACCESS_TEAM_DOMAIN = ""
+CF_ACCESS_AUD = ""
+CF_ACCESS_JWKS_URL = ""
+
+# Executor token (fallback for MCP/executor auth in development/testing). Replace in staging/prod secrets.
+WEB_EVAL_EXECUTOR_TOKEN = "dev-exec-token-change-me"
+
 # Prompt Enhancer (non-secret defaults for local dev)
 PROMPT_REWRITE_V1 = "true"
 PROMPT_TEXT_MODEL = "gpt-4o-mini"

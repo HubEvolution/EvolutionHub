@@ -2,48 +2,6 @@ import { defineCollection, z } from 'astro:content';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 
-// Hilfsfunktion zur Validierung von Datumsangaben
-const dateSchema = z.preprocess((arg) => {
-  if (typeof arg === 'string' || arg instanceof Date) return new Date(arg);
-  return undefined;
-}, z.date());
-
-// Autoren-Definition
-const authorSchema = z
-  .union([
-    z.string(),
-    z.object({
-      name: z.string().min(2, 'Name muss mindestens 2 Zeichen lang sein'),
-      avatar: z.string().url('Muss eine gültige URL sein').optional(),
-      bio: z.string().optional(),
-      twitter: z.string().startsWith('@').optional(),
-    }),
-  ])
-  .transform((val) => {
-    if (typeof val === 'string') {
-      return { name: val };
-    }
-    return val;
-  });
-
-// Kategorien für Blog-Posts
-const categories = [
-  'Webentwicklung',
-  'Design',
-  'Performance',
-  'Sicherheit',
-  'Tutorials',
-  'Neuigkeiten',
-  'Allgemein',
-  'Mentale Gesundheit',
-  'Technologie',
-  'Kommunikation',
-  'Produktivität',
-  'Führung',
-  'Persönliche Entwicklung',
-  'New Work',
-  'Karriere',
-] as const;
 
 // Exportiere die Collections
 // Testimonials collection (PR5)

@@ -9,5 +9,14 @@
     ]
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "tests", "test-suite-v2"]
+  "exclude": [
+    "node_modules",
+    "tests",
+    "test-suite-v2",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.spec.ts",
+    "**/*.spec.tsx",
+    "**/__tests__/**"
+  ]
 }

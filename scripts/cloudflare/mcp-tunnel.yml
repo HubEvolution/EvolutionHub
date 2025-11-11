@@ -1,0 +1,24 @@
+# Cloudflare Tunnel config for exposing local Cascade MCP server securely
+#
+# Steps (once):
+#   1) cloudflared tunnel create cascade-mcp
+#   2) cloudflared tunnel route dns cascade-mcp mcp.example.com
+#   3) Edit this file: replace values for `tunnel`, `credentials-file`, `hostname`, and `service`.
+#   4) Run: ./scripts/cloudflare/start-mcp-tunnel.sh
+#
+# Protect the hostname with Cloudflare Access (App policy). Use a Service Token for non-interactive clients.
+# The origin (local MCP) stays private; all traffic passes through TLS and Access at Cloudflare edge.
+
+# Replace with the tunnel name or UUID created in step 1
+# You can find the UUID under ~/.cloudflared/<name>.json after creation
+# tunnel: 00000000-0000-0000-0000-000000000000
+# or
+# tunnel: cascade-mcp
+
+ingress:
+  - hostname: mcp.example.com        # replace with your hostname under your CF zone
+    service: http://127.0.0.1:8711   # replace with your local Cascade MCP server URL
+  - service: http_status:404
+
+# Optional: if you prefer referencing the credentials explicitly
+# credentials-file: ~/.cloudflared/cascade-mcp.json

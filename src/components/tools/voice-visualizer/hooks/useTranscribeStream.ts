@@ -87,13 +87,19 @@ export function useTranscribeStream(initialJobId?: string) {
         if (!j) return;
         try {
           const res = await fetch(`/api/voice/poll?jobId=${encodeURIComponent(j)}`);
-          const json = await res.json();
-          const data = json?.data || {};
+          const json = (await res.json()) as unknown;
+          const data =
+            json && typeof json === 'object' && 'data' in (json as Record<string, unknown>)
+              ? ((json as { data?: unknown }).data as Record<string, unknown>) || {}
+              : {};
           setState((s) => ({
             ...s,
-            partials: Array.isArray(data.partials) ? data.partials : s.partials,
-            final: data.final ?? s.final,
-            usage: data.usage ?? s.usage,
+            partials: Array.isArray((data as { partials?: unknown }).partials)
+              ? ((data as { partials: string[] }).partials)
+              : s.partials,
+            final: (data as { final?: string }).final ?? s.final,
+            usage: (data as { usage?: { used: number; limit: number; resetAt: number | null } })
+              .usage ?? s.usage,
           }));
         } catch {}
       }, intervalMs);

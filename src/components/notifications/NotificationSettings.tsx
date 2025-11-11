@@ -1,19 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Save, RefreshCw } from 'lucide-react';
+import { RefreshCw } from 'lucide-react';
 import type {
   NotificationSetting,
   UpdateNotificationSettingsRequest,
 } from '../../lib/types/notifications';
+import type { NotificationFrequency } from '../../lib/types/notifications';
 
 interface NotificationSettingsProps {
   userId: number;
   className?: string;
 }
 
-export const NotificationSettings: React.FC<NotificationSettingsProps> = ({
-  userId,
-  className = '',
-}) => {
+export const NotificationSettings: React.FC<NotificationSettingsProps> = ({ className = '' }) => {
   const [settings, setSettings] = useState<NotificationSetting[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<string | null>(null);
@@ -37,12 +35,14 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({
         throw new Error('Failed to fetch notification settings');
       }
 
-      const result = await response.json();
+      const result = (await response.json().catch(() => undefined)) as
+        | { success?: boolean; data?: unknown; error?: { message?: string } }
+        | undefined;
 
-      if (result.success) {
-        setSettings(result.data);
+      if (result && result.success) {
+        setSettings((result.data as NotificationSetting[]) ?? []);
       } else {
-        throw new Error(result.error?.message || 'Unknown error');
+        throw new Error(result?.error?.message || 'Unknown error');
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error');
@@ -61,7 +61,7 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({
     type: string,
     channel: string,
     enabled: boolean,
-    frequency: string = 'immediate'
+    frequency: NotificationFrequency = 'immediate'
   ) => {
     try {
       setSaving(`${type}-${channel}`);
@@ -88,20 +88,27 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({
         throw new Error('Failed to update notification setting');
       }
 
-      const result = await response.json();
+      const result = (await response.json().catch(() => undefined)) as
+        | { success?: boolean; data?: unknown; error?: { message?: string } }
+        | undefined;
 
-      if (result.success) {
+      if (result && result.success) {
         // Update local state
-        setSettings((prev) =>
-          prev.map((setting) =>
+        setSettings((prev) => {
+          return prev.map((setting) =>
             setting.type === type && setting.channel === channel
-              ? { ...setting, enabled, frequency, updatedAt: Math.floor(Date.now() / 1000) }
+              ? {
+                  ...setting,
+                  enabled,
+                  frequency: frequency,
+                  updatedAt: Math.floor(Date.now() / 1000),
+                }
               : setting
-          )
-        );
+          );
+        });
         setSuccess('Einstellungen gespeichert');
       } else {
-        throw new Error(result.error?.message || 'Unknown error');
+        throw new Error(result?.error?.message || 'Unknown error');
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error');
@@ -128,13 +135,15 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({
         throw new Error('Failed to reset notification settings');
       }
 
-      const result = await response.json();
+      const result = (await response.json().catch(() => undefined)) as
+        | { success?: boolean; data?: unknown; error?: { message?: string } }
+        | undefined;
 
-      if (result.success) {
-        setSettings(result.data);
+      if (result && result.success) {
+        setSettings((result.data as NotificationSetting[]) ?? []);
         setSuccess('Einstellungen auf Standard zurückgesetzt');
       } else {
-        throw new Error(result.error?.message || 'Unknown error');
+        throw new Error(result?.error?.message || 'Unknown error');
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error');
@@ -275,12 +284,16 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({
                       </div>
                     </div>
                   </div>
-
                   {setting.enabled && (
                     <select
                       value={setting.frequency}
                       onChange={(e) =>
-                        updateSetting(setting.type, setting.channel, true, e.target.value)
+                        updateSetting(
+                          setting.type,
+                          setting.channel,
+                          true,
+                          e.target.value as NotificationFrequency
+                        )
                       }
                       disabled={saving === `${setting.type}-${setting.channel}`}
                       className="text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"

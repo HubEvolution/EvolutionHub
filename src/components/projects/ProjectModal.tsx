@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import type { ProjectCard, CreateProjectRequest, UpdateProjectRequest } from '@/types/dashboard';
+import type {
+  ProjectCard,
+  CreateProjectRequest,
+  UpdateProjectRequest,
+  ProjectFormData,
+} from '@/types/dashboard';
 
 interface ProjectModalProps {
   isOpen: boolean;
@@ -16,13 +21,13 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
   onSave,
   loading = false,
 }) => {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<ProjectFormData>({
     title: '',
     description: '',
-    status: 'active' as const,
-    priority: 'medium' as const,
+    status: 'active',
+    priority: 'medium',
     dueDate: '',
-    tags: [] as string[],
+    tags: [],
   });
   const [tagInput, setTagInput] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -187,7 +192,10 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
                   id="status"
                   value={formData.status}
                   onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, status: e.target.value as any }))
+                    setFormData((prev) => ({
+                      ...prev,
+                      status: e.target.value as ProjectFormData['status'],
+                    }))
                   }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                 >
@@ -209,7 +217,10 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
                   id="priority"
                   value={formData.priority}
                   onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, priority: e.target.value as any }))
+                    setFormData((prev) => ({
+                      ...prev,
+                      priority: e.target.value as ProjectFormData['priority'],
+                    }))
                   }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                 >

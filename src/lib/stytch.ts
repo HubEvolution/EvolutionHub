@@ -19,7 +19,7 @@ export class StytchError extends Error {
 
 async function stytchUserAction(
   context: APIContext,
-  userId: string,
+  _userId: string,
   path: string,
   method: 'POST' | 'DELETE'
 ) {

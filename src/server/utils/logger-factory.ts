@@ -203,7 +203,6 @@ class MultiTransportLogger implements ExtendedLogger {
  * Logger-Factory Implementierung
  */
 class LoggerFactoryImpl implements LoggerFactoryInterface {
-  private environmentDetector = new EnvironmentDetectorImpl();
 
   createLogger(name: string, _config?: Partial<LoggerConfig>): ExtendedLogger {
     return new MultiTransportLogger({ resource: name });

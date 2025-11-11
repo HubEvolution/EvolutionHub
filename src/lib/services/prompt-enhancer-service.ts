@@ -570,7 +570,12 @@ export class PromptEnhancerService {
             ).files,
           },
           attachment as import('@/lib/services/prompt-attachments').PreparedAttachments,
-          this.log
+          {
+            info: (event: string, data?: unknown) => loggerHelpers.info(this.log, event, data as any),
+            warn: (event: string, data?: unknown) => loggerHelpers.warn(this.log, event, data as any),
+            error: (event: string, data?: unknown) =>
+              loggerHelpers.error(this.log, event, data as any),
+          }
         );
 
         const systemParts: string[] = [];

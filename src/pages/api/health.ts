@@ -92,14 +92,16 @@ export const GET = withApiMiddleware(
   },
   {
     // Health check should have minimal rate limiting
-    rateLimiter: async () => {
-      const { createRateLimiter } = await import('@/lib/rate-limiter');
+    rateLimiter: (() => {
+      // Import at runtime-safe path; type is provided via src/types shims for src-only check
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const { createRateLimiter } = require('@/lib/rate-limiter');
       return createRateLimiter({
-        maxRequests: 60, // Higher limit for health checks
+        maxRequests: 60,
         windowMs: 60 * 1000,
         name: 'healthCheck',
       });
-    },
+    })(),
     // Disable CSRF for health checks (monitoring systems may call this)
     enforceCsrfToken: false,
     // Disable auto-logging for health checks to reduce noise

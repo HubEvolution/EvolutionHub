@@ -181,17 +181,25 @@ export class DataExportService {
         .from(comments)
         .where(eq(comments.authorId, userId));
 
-      exportData.comments = commentsData.map((c) => ({
+      exportData.comments = commentsData.map((c: {
+        id: string;
+        content: string;
+        entityId?: string | null;
+        status?: unknown;
+        createdAt: unknown;
+        updatedAt?: unknown | null;
+        parentId?: string | null;
+      }) => ({
         id: c.id,
         content: c.content,
-        postId: c.postId || undefined,
-        status: String(c.status),
+        postId: (c as { postId?: string | null }).postId || c.entityId || undefined,
+        status: String(c.status ?? ''),
         createdAt: (c.createdAt as unknown as Date).getTime?.() ?? Number(c.createdAt),
         updatedAt:
           c.updatedAt != null
             ? ((c.updatedAt as unknown as Date).getTime?.() ?? Number(c.updatedAt))
             : undefined,
-        parentId: c.parentId || undefined,
+        parentId: (c.parentId as string | null) || undefined,
         author: { id: userId, name: exportData.user?.name },
       }));
     }
@@ -203,12 +211,20 @@ export class DataExportService {
         .from(notifications)
         .where(eq(notifications.userId, userId));
 
-      exportData.notifications = notificationsData.map((n) => ({
+      exportData.notifications = notificationsData.map((n: {
+        id: string;
+        type: unknown;
+        title: string;
+        message: string;
+        isRead: unknown;
+        createdAt: unknown;
+        readAt?: unknown | null;
+      }) => ({
         id: n.id,
         type: String(n.type),
         title: n.title,
         message: n.message,
-        isRead: Boolean(n.isRead),
+        isRead: Boolean(n.isRead as unknown),
         createdAt: (n.createdAt as unknown as Date).getTime?.() ?? Number(n.createdAt),
         readAt:
           n.readAt != null
@@ -419,7 +435,21 @@ export class DataExportService {
       .from(dataExportJobs)
       .where(eq(dataExportJobs.userId, userId))
       .orderBy(desc(dataExportJobs.requestedAt));
-    return rows.map((row) => ({
+    return rows.map((row: {
+      id: string;
+      userId: string;
+      type?: unknown;
+      status?: unknown;
+      format?: unknown;
+      filePath?: string | null;
+      fileSize?: number | null;
+      downloadUrl?: string | null;
+      expiresAt?: unknown | null;
+      errorMessage?: string | null;
+      requestedAt: unknown;
+      completedAt?: unknown | null;
+      downloadCount?: number | null;
+    }) => ({
       id: row.id,
       userId: row.userId,
       type: row.type as ExportJobType,

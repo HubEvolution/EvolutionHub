@@ -590,8 +590,6 @@ export class PerformanceService {
    * Holt Performance-Metriken
    */
   async getPerformanceMetrics(): Promise<PerformanceMetrics> {
-    const _cacheStats = this.getCacheStats();
-
     return {
       queryTime: 0, // Wird während Queries gemessen
       cacheHit: false, // Wird während Queries gesetzt

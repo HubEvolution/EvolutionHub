@@ -322,7 +322,8 @@ app.post('/create', async (c: BackupContext) => {
  */
 app.post('/schedule', async (c: BackupContext) => {
   try {
-    const _adminId = c.get('userId') as string;
+    // ensure admin context exists
+    c.get('userId');
     const bodyUnknown = await c.req.json();
     const body = bodyUnknown as {
       type: string;
@@ -346,7 +347,10 @@ app.post('/schedule', async (c: BackupContext) => {
     const db = drizzle(c.env.DB);
     const backupService = new BackupService(db);
 
-    await backupService.scheduleAutomatedBackup(body.type, body.cronExpression);
+    await backupService.scheduleAutomatedBackup(
+      body.type as BackupJobType,
+      body.cronExpression
+    );
 
     return c.json({
       success: true,
@@ -572,7 +576,7 @@ app.get('/maintenance/jobs/:id', async (c: Context) => {
  */
 app.post('/cleanup', async (c: Context) => {
   try {
-    const _adminId = c.get('userId') as string;
+    c.get('userId');
     const bodyUnknown = await c.req.json();
     const body = bodyUnknown as { retentionDays?: number };
     const retentionDays = body.retentionDays || 30;

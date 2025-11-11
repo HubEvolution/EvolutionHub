@@ -205,6 +205,20 @@ declare module 'stripe' {
   export = Stripe;
 }
 
+// Local JSX component without TS types
+// Provides a minimal type so TS can resolve the JSX import in src-only mode
+declare module '@/components/ui/CardReact.jsx' {
+  import type { ReactNode } from 'react';
+  const CardReact: (props: {
+    title?: string;
+    className?: string;
+    id?: string;
+    variant?: 'default' | 'holo';
+    children?: ReactNode;
+  }) => JSX.Element;
+  export default CardReact;
+}
+
 declare module 'hono/cors' {
   export const cors: (...args: any[]) => any;
   export default cors;

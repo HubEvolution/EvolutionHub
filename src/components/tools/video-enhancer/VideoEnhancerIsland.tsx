@@ -386,10 +386,8 @@ export default function VideoEnhancerIsland() {
         <div className="space-y-2">
           <video src={outputUrl} controls className="w-full max-w-2xl rounded" />
           <div>
-            <Button asChild variant="secondary" size="sm" className="px-3">
-              <a href={outputUrl} download>
-                Download
-              </a>
+            <Button as="a" href={outputUrl} download variant="secondary" size="sm" className="px-3">
+              Download
             </Button>
           </div>
         </div>

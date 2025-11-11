@@ -32,6 +32,19 @@ const ProjectManagement: React.FC<ProjectManagementProps> = ({ className = '' })
     }
   };
 
+  // Adapters to satisfy ProjectModal's union onSave type
+  const handleCreateUnion = async (
+    data: CreateProjectRequest | UpdateProjectRequest
+  ): Promise<void> => {
+    return handleCreateProject(data as CreateProjectRequest);
+  };
+
+  const handleUpdateUnion = async (
+    data: CreateProjectRequest | UpdateProjectRequest
+  ): Promise<void> => {
+    return handleUpdateProject(data as UpdateProjectRequest);
+  };
+
   const handleUpdateProject = async (data: UpdateProjectRequest) => {
     setIsUpdating(true);
     try {
@@ -87,7 +100,7 @@ const ProjectManagement: React.FC<ProjectManagementProps> = ({ className = '' })
       <ProjectModal
         isOpen={showCreateModal}
         onClose={() => setShowCreateModal(false)}
-        onSave={handleCreateProject}
+        onSave={handleCreateUnion}
         loading={isCreating}
       />
 
@@ -96,7 +109,7 @@ const ProjectManagement: React.FC<ProjectManagementProps> = ({ className = '' })
         isOpen={!!editingProject}
         onClose={() => setEditingProject(null)}
         project={editingProject}
-        onSave={handleUpdateProject}
+        onSave={handleUpdateUnion}
         loading={isUpdating}
       />
     </div>

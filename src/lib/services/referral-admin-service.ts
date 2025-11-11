@@ -202,7 +202,8 @@ export async function listReferralEventsForAdmin(
   db: D1Database,
   input: ReferralAdminListInput
 ): Promise<ReferralAdminListResult> {
-  const status = normalizeStatus(input.status ?? null);
+  const rawStatus = (input.status as ReferralStatus | 'all' | null | undefined) ?? null;
+  const status = normalizeStatus(rawStatus);
   const ownerUserId = input.ownerUserId?.trim() || undefined;
   const limit = clampLimit(input.limit ?? null);
   const offset = clampOffset(input.offset ?? null);
