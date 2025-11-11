@@ -1,4 +1,5 @@
 /*! @import */
+@import '@/assets/brand/colors/colors.css';
 @import 'tailwindcss/base' layer(base);
 @import 'tailwindcss/components' layer(components);
 @import 'tailwindcss/utilities' layer(utilities);
