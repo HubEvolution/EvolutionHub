@@ -16,8 +16,8 @@
 # tunnel: cascade-mcp
 
 ingress:
-  - hostname: mcp.example.com        # replace with your hostname under your CF zone
-    service: http://127.0.0.1:8711   # replace with your local Cascade MCP server URL
+  - hostname: mcp.hub-evolution.com        # Cloudflare Access-protected MCP endpoint
+    service: http://127.0.0.1:8787         # local Worker dev server
   - service: http_status:404
 
 # Optional: if you prefer referencing the credentials explicitly

@@ -3,7 +3,7 @@
  * Implementiert Pagination, Caching und Performance-Optimierungen
  */
 
-import { eq, and, gte, lte, desc, sql, or } from 'drizzle-orm';
+import { eq, and, gte, lte, desc, sql, or, isNull, type SQL } from 'drizzle-orm';
 import { comments } from '../db/schema';
 import { drizzle } from 'drizzle-orm/d1';
 import type {
@@ -196,6 +196,14 @@ export class PerformanceService {
     const offset = (options.page - 1) * options.limit;
 
     // Optimierte Query mit JOIN für bessere Performance
+    const baseWhereParts: SQL<unknown>[] = [
+      eq(comments.entityId, entityId),
+      eq(comments.status, 'approved'),
+    ];
+    if (!options.includeReplies) {
+      baseWhereParts.push(isNull(comments.parentId));
+    }
+
     const query = this.db
       .select({
         id: comments.id,
@@ -213,13 +221,7 @@ export class PerformanceService {
         updatedAt: comments.updatedAt,
       })
       .from(comments)
-      .where(
-        and(
-          eq(comments.entityId, entityId),
-          eq(comments.status, 'approved'),
-          options.includeReplies ? undefined : eq(comments.parentId, null)
-        )
-      )
+      .where(and(...baseWhereParts))
       .orderBy(
         options.sortBy === 'createdAt'
           ? options.sortOrder === 'desc'
@@ -240,13 +242,7 @@ export class PerformanceService {
     const countQuery = this.db
       .select({ count: sql<number>`count(*)` })
       .from(comments)
-      .where(
-        and(
-          eq(comments.entityId, entityId),
-          eq(comments.status, 'approved'),
-          options.includeReplies ? undefined : eq(comments.parentId, null)
-        )
-      );
+      .where(and(...baseWhereParts));
 
     const totalResult = await countQuery;
     const total = totalResult[0]?.count || 0;
@@ -325,21 +321,31 @@ export class PerformanceService {
     const offset = (pagination.page - 1) * pagination.limit;
 
     // Baue WHERE-Bedingungen
-    const whereConditions: unknown[] = [];
+    const whereConditions: SQL<unknown>[] = [];
 
     // Text-Suche
     whereConditions.push(sql`${comments.content} LIKE ${'%' + query + '%'}` as unknown);
 
     // Status-Filter
+    const STATUS_VALUES = ['hidden', 'pending', 'approved', 'rejected', 'flagged'] as const;
+    type Status = (typeof STATUS_VALUES)[number];
     if (filters?.status?.length) {
-      whereConditions.push(or(...filters.status.map((status) => eq(comments.status, status))));
+      const statusVals = (filters.status as unknown[])
+        .map((s) => String(s))
+        .filter((s): s is Status => (STATUS_VALUES as readonly string[]).includes(s));
+      if (statusVals.length > 0) {
+        whereConditions.push(or(...statusVals.map((s) => eq(comments.status, s))));
+      } else {
+        whereConditions.push(eq(comments.status, 'approved'));
+      }
     } else {
       whereConditions.push(eq(comments.status, 'approved'));
     }
 
     // Autor-Filter
     if (filters?.authorId?.length) {
-      whereConditions.push(or(...filters.authorId.map((id) => eq(comments.authorId, id))));
+      const authorIds = (filters.authorId as unknown[]).map((v) => String(v));
+      whereConditions.push(or(...authorIds.map((id) => eq(comments.authorId, id))));
     }
 
     // Datum-Filter
@@ -372,7 +378,7 @@ export class PerformanceService {
         updatedAt: comments.updatedAt,
       })
       .from(comments)
-      .where(and(...(whereConditions as Parameters<typeof and>[0][])))
+      .where(and(...whereConditions))
       .orderBy(desc(comments.createdAt))
       .limit(pagination.limit)
       .offset(offset);
@@ -383,7 +389,7 @@ export class PerformanceService {
     const countQuery = this.db
       .select({ count: sql<number>`count(*)` })
       .from(comments)
-      .where(and(...(whereConditions as Parameters<typeof and>[0][])));
+      .where(and(...whereConditions));
 
     const totalResult = await countQuery;
     const total = totalResult[0]?.count || 0;

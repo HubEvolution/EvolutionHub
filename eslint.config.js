@@ -4,6 +4,8 @@ import importPlugin from 'eslint-plugin-import';
 import prettierConfig from 'eslint-config-prettier';
 import prettierPlugin from 'eslint-plugin-prettier';
 import reactHooks from 'eslint-plugin-react-hooks';
+import astroPlugin from 'eslint-plugin-astro';
+import astroParser from 'astro-eslint-parser';
 
 export default tseslint.config(
   js.configs.recommended,
@@ -14,6 +16,7 @@ export default tseslint.config(
       import: importPlugin,
       prettier: prettierPlugin,
       'react-hooks': reactHooks,
+      astro: astroPlugin,
     },
     rules: {
       '@typescript-eslint/no-explicit-any': 'warn',
@@ -50,6 +53,31 @@ export default tseslint.config(
           alwaysTryTypes: true,
         },
       },
+    },
+  },
+  // Parse .astro files using the official parser so ESLint understands the format
+  {
+    files: ['**/*.astro'],
+    languageOptions: {
+      parser: astroParser,
+      parserOptions: {
+        // Use TS parser for scripts inside .astro files
+        parser: '@typescript-eslint/parser',
+        extraFileExtensions: ['.astro'],
+      },
+      globals: {
+        URL: 'readonly',
+        fetch: 'readonly',
+        AbortController: 'readonly',
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly',
+        window: 'readonly',
+        console: 'readonly',
+      },
+    },
+    plugins: { astro: astroPlugin },
+    rules: {
+      // Keep Astro-specific rules minimal for now; expand later as needed
     },
   },
   // Enforce no-explicit-any as error for TS/TSX in src/** (project standard)

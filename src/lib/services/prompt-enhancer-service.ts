@@ -666,15 +666,11 @@ export class PromptEnhancerService {
 
       // Default path (no PDFs or images present): chat.completions (with optional images via composeRewriteMessages)
       const params = this.composeRewriteMessages(inputText, mode, attachment);
-      const completion = await client.chat.completions.create(
-        params as unknown as {
-          model: string;
-          messages: unknown;
-          max_tokens: number;
-          temperature: number;
-          top_p: number;
-        }
-      );
+      // Narrow types for OpenAI call without introducing broad any;
+      // accept params shape and call via a lightly erased function signature
+      const chatCreate = client.chat.completions
+        .create as unknown as (args: unknown) => Promise<unknown>;
+      const completion = await chatCreate(params as unknown);
       // Type guard: ChatCompletion vs Stream
       type ChatCompletionLike = { choices?: Array<{ message?: { content?: string } | null }> };
       const isChatCompletion = (v: unknown): v is ChatCompletionLike => {

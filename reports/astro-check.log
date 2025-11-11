@@ -1,0 +1,286 @@
+15:57:44 [@astrojs/cloudflare] Enabling sessions with Cloudflare KV with the "SESSION" KV binding.
+15:57:44 [@astrojs/cloudflare] If you see the error "Invalid binding `SESSION`" in your build output, you need to add the binding to your wrangler config file.
+15:57:44 [WARN] [adapter] Cloudflare does not support sharp at runtime. However, you can configure `imageService: "compile"` to optimize images with sharp on prerendered pages during build time.
+15:57:44 [vite] Re-optimizing dependencies because vite config has changed
+15:57:45 [content] Syncing content
+15:57:45 [content] Content config changed
+15:57:45 [content] Clearing content store
+15:57:45 [content] Synced content
+15:57:45 [types] Generated 1.24s
+15:57:45 [check] Getting diagnostics for Astro files in /Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub...
+[96msrc/components/AosWrapper.astro[0m:[93m83[0m:[93m6[0m - [91merror[0m[90m ts(2322): [0mType '{ children: any; class: string | undefined; }' is not assignable to type 'IntrinsicAttributes'.
+  Property 'class' does not exist on type 'IntrinsicAttributes'.
+
+[7m83[0m <Tag class={className} {...aosAttrs}>
+[7m  [0m [91m     ~~~~~[0m
+
+[96msrc/components/BlogPost.astro[0m:[93m56[0m:[93m3[0m - [91merror[0m[90m ts(2339): [0mProperty 'ctas' does not exist on type 'BlogPostData'.
+
+[7m56[0m   ctas = [],
+[7m  [0m [91m  ~~~~[0m
+
+[96msrc/components/dashboard/RecommendationsCard.astro[0m:[93m51[0m:[93m19[0m - [91merror[0m[90m ts(2322): [0mType '{ children: any[]; key: string; href: string; class: string; }' is not assignable to type 'AnchorHTMLAttributes'.
+  Property 'key' does not exist on type 'AnchorHTMLAttributes'.
+
+[7m51[0m                   key={doc.url}
+[7m  [0m [91m                  ~~~[0m
+[96msrc/components/dashboard/RecommendationsCard.astro[0m:[93m28[0m:[93m19[0m - [91merror[0m[90m ts(2322): [0mType '{ children: any[]; key: string; class: string; }' is not assignable to type 'LiHTMLAttributes'.
+  Property 'key' does not exist on type 'LiHTMLAttributes'.
+
+[7m28[0m                   key={tool.id}
+[7m  [0m [91m                  ~~~[0m
+
+[96msrc/components/pricing/PricingTable.astro[0m:[93m359[0m:[93m20[0m - [93mwarning[0m[90m ts(6133): [0m'createCreditsCheckout' is declared but its value is never read.
+
+[7m359[0m     async function createCreditsCheckout(pack) {
+[7m   [0m [93m                   ~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/components/projects/ProjectModal.tsx[0m:[93m264[0m:[93m19[0m - [93mwarning[0m[90m ts(6385): [0m'onKeyPress' is deprecated.
+
+[7m264[0m                   onKeyPress={handleKeyPress}
+[7m   [0m [93m                  ~~~~~~~~~~[0m
+
+[96msrc/components/tools/ToolCard.astro[0m:[93m38[0m:[93m3[0m - [91merror[0m[90m ts(2322): [0mType '"article"' is not assignable to type '"div" | "section" | undefined'.
+
+[7m38[0m   as="article"
+[7m  [0m [91m  ~~[0m
+
+[96msrc/components/tools/imag-enhancer/__tests__/ModelControls.test.tsx[0m:[93m1[0m:[93m1[0m - [93mwarning[0m[90m ts(6133): [0m'React' is declared but its value is never read.
+
+[7m1[0m import React from 'react';
+[7m [0m [93m~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/components/tools/imag-enhancer/__tests__/useCompareInteractions.test.tsx[0m:[93m3[0m:[93m1[0m - [93mwarning[0m[90m ts(6133): [0m'userEvent' is declared but its value is never read.
+
+[7m3[0m import userEvent from '@testing-library/user-event';
+[7m [0m [93m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/components/tools/webscraper/WebscraperIsland.tsx[0m:[93m97[0m:[93m7[0m - [93mwarning[0m[90m ts(80007): [0m'await' has no effect on the type of this expression.
+
+[7m97[0m       await ensureCsrfToken();
+[7m  [0m [93m      ~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/lib/auth.ts[0m:[93m13[0m:[93m48[0m - [93mwarning[0m[90m ts(6385): [0m'LegacyLucia' is deprecated.
+
+[7m13[0m export function initializeLucia(_D1: unknown): LegacyLucia {
+[7m  [0m [93m                                               ~~~~~~~~~~~[0m
+
+[96msrc/lib/kv/usage.test.ts[0m:[93m12[0m:[93m39[0m - [91merror[0m[90m ts(2307): [0mCannot find module '../../tests/utils/kv-mock' or its corresponding type declarations.
+
+[7m12[0m import { createKVNamespaceMock } from '../../tests/utils/kv-mock';
+[7m  [0m [91m                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/lib/services/ai-image-service.ts[0m:[93m531[0m:[93m77[0m - [91merror[0m[90m ts(2345): [0mArgument of type 'string' is not assignable to parameter of type 'RunRetrieveParams'.
+
+[7m531[0m         const runStatus = await openai.beta.threads.runs.retrieve(threadId, runId);
+[7m   [0m [91m                                                                            ~~~~~[0m
+[96msrc/lib/services/ai-image-service.ts[0m:[93m540[0m:[93m59[0m - [93mwarning[0m[90m ts(6387): [0mThe signature '(threadID: string, query?: MessageListParams | null | undefined, options?: RequestOptions | undefined): PagePromise<MessagesPage, Message>' of 'openai.beta.threads.messages.list' is deprecated.
+
+[7m540[0m       const messages = await openai.beta.threads.messages.list(threadId);
+[7m   [0m [93m                                                          ~~~~[0m
+[96msrc/lib/services/ai-image-service.ts[0m:[93m531[0m:[93m58[0m - [93mwarning[0m[90m ts(6387): [0mThe signature '(runID: string, params: RunRetrieveParams, options?: RequestOptions | undefined): APIPromise<Run>' of 'openai.beta.threads.runs.retrieve' is deprecated.
+
+[7m531[0m         const runStatus = await openai.beta.threads.runs.retrieve(threadId, runId);
+[7m   [0m [93m                                                         ~~~~~~~~[0m
+[96msrc/lib/services/ai-image-service.ts[0m:[93m508[0m:[93m50[0m - [93mwarning[0m[90m ts(6387): [0mThe signature '(threadID: string, params: RunCreateParamsNonStreaming, options?: RequestOptions | undefined): APIPromise<Run>' of 'openai.beta.threads.runs.create' is deprecated.
+
+[7m508[0m       const run = await openai.beta.threads.runs.create(threadId, {
+[7m   [0m [93m                                                 ~~~~~~[0m
+[96msrc/lib/services/ai-image-service.ts[0m:[93m503[0m:[93m42[0m - [93mwarning[0m[90m ts(6387): [0mThe signature '(threadID: string, body: MessageCreateParams, options?: RequestOptions | undefined): APIPromise<Message>' of 'openai.beta.threads.messages.create' is deprecated.
+
+[7m503[0m       await openai.beta.threads.messages.create(threadId, {
+[7m   [0m [93m                                         ~~~~~~[0m
+[96msrc/lib/services/ai-image-service.ts[0m:[93m496[0m:[93m48[0m - [93mwarning[0m[90m ts(6387): [0mThe signature '(body?: ThreadCreateParams | null | undefined, options?: RequestOptions | undefined): APIPromise<Thread>' of 'openai.beta.threads.create' is deprecated.
+
+[7m496[0m       const thread = await openai.beta.threads.create();
+[7m   [0m [93m                                               ~~~~~~[0m
+
+[96msrc/lib/services/comment-service-extended.ts[0m:[93m625[0m:[93m44[0m - [91merror[0m[90m ts(2769): [0mNo overload matches this call.
+  Overload 1 of 2, '(value: { action: "view" | "delete" | SQL<unknown> | "create" | "update" | "moderate" | "report" | Placeholder<string, any>; createdAt: number | SQL<unknown> | Placeholder<string, any>; ... 8 more ...; newValues?: string | ... 3 more ... | undefined; }): SQLiteInsertBase<...>', gave the following error.
+  Overload 2 of 2, '(values: { action: "view" | "delete" | SQL<unknown> | "create" | "update" | "moderate" | "report" | Placeholder<string, any>; createdAt: number | SQL<unknown> | Placeholder<string, any>; ... 8 more ...; newValues?: string | ... 3 more ... | undefined; }[]): SQLiteInsertBase<...>', gave the following error.
+
+[7m625[0m     await this.db.insert(commentAuditLogs).values({
+[7m   [0m [91m                                           ~~~~~~[0m
+[96msrc/lib/services/comment-service-extended.ts[0m:[93m545[0m:[93m7[0m - [91merror[0m[90m ts(2345): [0mArgument of type '(row: { comment: Comment; reports: string | null; latestModeration?: string | null; }) => { comment: Comment; reports: any; latestModeration: any; priority: "medium" | "low" | "high"; }' is not assignable to parameter of type '(value: { comment: { id: string; content: string; authorId: string | null; authorName: string; authorEmail: string; parentId: string | null; entityType: "blog_post" | "project" | "general"; ... 5 more ...; updatedAt: number; }; reports: CommentReport[]; latestModeration: CommentModeration; }, index: number, array: {...'.
+  Types of parameters 'row' and 'value' are incompatible.
+
+[7m545[0m       (row: { comment: Comment; reports: string | null; latestModeration?: string | null }) => ({
+[7m   [0m [91m      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[7m546[0m         comment: row.comment,
+[7m   [0m [91m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[7m...[0m 
+[7m549[0m         priority: this.calculatePriority(row.comment, JSON.parse(row.reports || '[]')),
+[7m   [0m [91m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[7m550[0m       })
+[7m   [0m [91m~~~~~~~~[0m
+[96msrc/lib/services/comment-service-extended.ts[0m:[93m419[0m:[93m8[0m - [91merror[0m[90m ts(2769): [0mNo overload matches this call.
+  Overload 1 of 2, '(value: { reason: "spam" | "harassment" | "inappropriate" | "off_topic" | "other" | SQL<unknown> | Placeholder<string, any>; createdAt: number | SQL<unknown> | Placeholder<string, any>; ... 7 more ...; reviewedBy?: string | ... 3 more ... | undefined; }): SQLiteInsertBase<...>', gave the following error.
+  Overload 2 of 2, '(values: { reason: "spam" | "harassment" | "inappropriate" | "off_topic" | "other" | SQL<unknown> | Placeholder<string, any>; createdAt: number | SQL<unknown> | Placeholder<string, any>; ... 7 more ...; reviewedBy?: string | ... 3 more ... | undefined; }[]): SQLiteInsertBase<...>', gave the following error.
+
+[7m419[0m       .values({
+[7m   [0m [91m       ~~~~~~[0m
+[96msrc/lib/services/comment-service-extended.ts[0m:[93m366[0m:[93m8[0m - [91merror[0m[90m ts(2769): [0mNo overload matches this call.
+  Overload 1 of 2, '(value: { action: "approve" | "reject" | "flag" | "hide" | SQL<unknown> | "unhide" | Placeholder<string, any>; createdAt: number | SQL<unknown> | Placeholder<string, any>; commentId: string | ... 1 more ... | Placeholder<...>; id?: number | ... 2 more ... | undefined; reason?: string | ... 3 more ... | undefined; moderatorId?: string | ... 3 more ... | undefined; }): SQLiteInsertBase<...>', gave the following error.
+  Overload 2 of 2, '(values: { action: "approve" | "reject" | "flag" | "hide" | SQL<unknown> | "unhide" | Placeholder<string, any>; createdAt: number | SQL<unknown> | Placeholder<string, any>; commentId: string | ... 1 more ... | Placeholder<...>; id?: number | ... 2 more ... | undefined; reason?: string | ... 3 more ... | undefined; moderatorId?: string | ... 3 more ... | undefined; }[]): SQLiteInsertBase<...>', gave the following error.
+
+[7m366[0m       .values({
+[7m   [0m [91m       ~~~~~~[0m
+[96msrc/lib/services/comment-service-extended.ts[0m:[93m344[0m:[93m29[0m - [91merror[0m[90m ts(2345): [0mArgument of type '(row: { comment: Comment; reportCount: number | null; }) => { reportCount: number; id: string; content: string; authorId: string | null; authorName: string; authorEmail: string; ... 11 more ...; helpfulCount?: number; }' is not assignable to parameter of type '(value: { comment: { id: string; content: string; authorId: string | null; authorName: string; authorEmail: string; parentId: string | null; entityType: "blog_post" | "project" | "general"; ... 5 more ...; updatedAt: number; }; reportCount: number; }, index: number, array: { ...; }[]) => { ...; }'.
+  Types of parameters 'row' and 'value' are incompatible.
+
+[7m344[0m     return replyResults.map((row: { comment: Comment; reportCount: number | null }) => ({
+[7m   [0m [91m                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[7m345[0m       ...row.comment,
+[7m   [0m [91m~~~~~~~~~~~~~~~~~~~~~[0m
+[7m346[0m       reportCount: row.reportCount || 0,
+[7m   [0m [91m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[7m347[0m     })) as Comment[];
+[7m   [0m [91m~~~~~~[0m
+[96msrc/lib/services/comment-service-extended.ts[0m:[93m306[0m:[93m7[0m - [91merror[0m[90m ts(2345): [0mArgument of type '(row: { comment: Comment; reportCount: number | null; }) => { reportCount: number; id: string; content: string; authorId: string | null; authorName: string; authorEmail: string; ... 11 more ...; helpfulCount?: number; }' is not assignable to parameter of type '(value: { comment: { id: string; content: string; authorId: string | null; authorName: string; authorEmail: string; parentId: string | null; entityType: "blog_post" | "project" | "general"; ... 5 more ...; updatedAt: number; }; reportCount: number; }, index: number, array: { ...; }[]) => { ...; }'.
+  Types of parameters 'row' and 'value' are incompatible.
+
+[7m306[0m       (row: { comment: Comment; reportCount: number | null }) => ({
+[7m   [0m [91m      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[7m307[0m         ...row.comment,
+[7m   [0m [91m~~~~~~~~~~~~~~~~~~~~~~~[0m
+[7m308[0m         reportCount: row.reportCount || 0,
+[7m   [0m [91m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[7m309[0m       })
+[7m   [0m [91m~~~~~~~~[0m
+[96msrc/lib/services/comment-service-extended.ts[0m:[93m199[0m:[93m46[0m - [91merror[0m[90m ts(2769): [0mNo overload matches this call.
+  Overload 1 of 3, '(left: SQLiteColumn<{ name: "author_id"; tableName: "comments"; dataType: "string"; columnType: "SQLiteText"; data: string; driverParam: string; notNull: false; hasDefault: false; isPrimaryKey: false; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, { ...; }>, right: string | SQLWrapper): SQL<...>', gave the following error.
+  Overload 2 of 3, '(left: Aliased<number>, right: number | SQLWrapper): SQL<unknown>', gave the following error.
+  Overload 3 of 3, '(left: never, right: unknown): SQL<unknown>', gave the following error.
+
+[7m199[0m       .where(and(eq(comments.id, commentId), eq(comments.authorId, userId)));
+[7m   [0m [91m                                             ~~[0m
+[96msrc/lib/services/comment-service-extended.ts[0m:[93m157[0m:[93m46[0m - [91merror[0m[90m ts(2769): [0mNo overload matches this call.
+  Overload 1 of 3, '(left: SQLiteColumn<{ name: "author_id"; tableName: "comments"; dataType: "string"; columnType: "SQLiteText"; data: string; driverParam: string; notNull: false; hasDefault: false; isPrimaryKey: false; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, { ...; }>, right: string | SQLWrapper): SQL<...>', gave the following error.
+  Overload 2 of 3, '(left: Aliased<number>, right: number | SQLWrapper): SQL<unknown>', gave the following error.
+  Overload 3 of 3, '(left: never, right: unknown): SQL<unknown>', gave the following error.
+
+[7m157[0m       .where(and(eq(comments.id, commentId), eq(comments.authorId, userId)));
+[7m   [0m [91m                                             ~~[0m
+[96msrc/lib/services/comment-service-extended.ts[0m:[93m88[0m:[93m36[0m - [91merror[0m[90m ts(2769): [0mNo overload matches this call.
+  Overload 1 of 2, '(value: { id: string | SQL<unknown> | Placeholder<string, any>; content: string | SQL<unknown> | Placeholder<string, any>; entityType: "blog_post" | "project" | "general" | SQL<...> | Placeholder<...>; ... 9 more ...; editedAt?: number | ... 3 more ... | undefined; }): SQLiteInsertBase<...>', gave the following error.
+  Overload 2 of 2, '(values: { id: string | SQL<unknown> | Placeholder<string, any>; content: string | SQL<unknown> | Placeholder<string, any>; entityType: "blog_post" | "project" | "general" | SQL<...> | Placeholder<...>; ... 9 more ...; editedAt?: number | ... 3 more ... | undefined; }[]): SQLiteInsertBase<...>', gave the following error.
+
+[7m88[0m     await this.db.insert(comments).values({
+[7m  [0m [91m                                   ~~~~~~[0m
+[96msrc/lib/services/comment-service-extended.ts[0m:[93m78[0m:[93m16[0m - [91merror[0m[90m ts(2769): [0mNo overload matches this call.
+  Overload 1 of 3, '(left: SQLiteColumn<{ name: "id"; tableName: "users"; dataType: "string"; columnType: "SQLiteText"; data: string; driverParam: string; notNull: true; hasDefault: false; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, { ...; }>, right: string | SQLWrapper): SQL<...>', gave the following error.
+  Overload 2 of 3, '(left: Aliased<number>, right: number | SQLWrapper): SQL<unknown>', gave the following error.
+  Overload 3 of 3, '(left: never, right: unknown): SQL<unknown>', gave the following error.
+
+[7m78[0m         .where(eq(users.id, userId))
+[7m  [0m [91m               ~~[0m
+
+[96msrc/lib/services/comment-service.ts[0m:[93m641[0m:[93m9[0m - [91merror[0m[90m ts(2345): [0mArgument of type '(row: { comment: Comment; reportCount: number; authorImage: string | null; }) => void' is not assignable to parameter of type '(value: { comment: { id: string; content: string; authorId: string | null; authorName: string; authorEmail: string; parentId: string | null; entityType: "blog_post" | "project" | "general"; ... 5 more ...; updatedAt: number; }; reportCount: number; authorImage: string; }, index: number, array: { ...; }[]) => void'.
+  Types of parameters 'row' and 'value' are incompatible.
+
+[7m641[0m         (row: { comment: Comment; reportCount: number; authorImage: string | null }) => {
+[7m   [0m [91m        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/lib/services/comment-service.ts[0m:[93m602[0m:[93m7[0m - [91merror[0m[90m ts(2345): [0mArgument of type '(row: { comment: Comment; reportCount: number; authorImage: string | null; }) => Comment' is not assignable to parameter of type '(value: { comment: { id: string; content: string; authorId: string | null; authorName: string; authorEmail: string; parentId: string | null; entityType: "blog_post" | "project" | "general"; ... 5 more ...; updatedAt: number; }; reportCount: number; authorImage: string; }, index: number, array: { ...; }[]) => Comment'.
+  Types of parameters 'row' and 'value' are incompatible.
+
+[7m602[0m       (row: { comment: Comment; reportCount: number; authorImage: string | null }) => {
+[7m   [0m [91m      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/lib/services/notification-service.ts[0m:[93m719[0m:[93m7[0m - [91merror[0m[90m ts(2740): [0mType 'Omit<SQLiteSelectBase<"notifications", "async", D1Response & { results: unknown[]; }, { type: SQLiteColumn<{ name: "type"; tableName: "notifications"; dataType: "string"; columnType: "SQLiteText"; data: "comment_reply" | "comment_mention" | "comment_approved" | "comment_rejected" | "system"; ... 9 more ...; generate...' is missing the following properties from type 'SQLiteSelectBase<"notifications", "async", D1Result<unknown>, { type: SQLiteColumn<{ name: "type"; tableName: "notifications"; dataType: "string"; columnType: "SQLiteText"; data: "comment_reply" | "comment_mention" | "comment_approved" | "comment_rejected" | "system"; ... 9 more ...; generated: undefined; }, {}, { ....': joinsNotNullableMap, tableName, isPartialSelect, session, and 5 more.
+
+[7m719[0m       statsQuery = statsQuery.where(baseWhere);
+[7m   [0m [91m      ~~~~~~~~~~[0m
+[96msrc/lib/services/notification-service.ts[0m:[93m653[0m:[93m5[0m - [91merror[0m[90m ts(2322): [0mType '{ id: string; to: string; templateId: string; variables: string; status: "pending" | "cancelled" | "failed" | "sending" | "sent" | null; priority: number; scheduledFor: number; attempts: number; maxAttempts: number; lastError: string | undefined; sentAt: number | undefined; createdAt: number; }[]' is not assignable to type 'EmailQueueItem[]'.
+  Type '{ id: string; to: string; templateId: string; variables: string; status: "pending" | "cancelled" | "failed" | "sending" | "sent" | null; priority: number; scheduledFor: number; attempts: number; maxAttempts: number; lastError: string | undefined; sentAt: number | undefined; createdAt: number; }' is not assignable to type 'EmailQueueItem'.
+
+[7m653[0m     return results.map((e: typeof emailQueue.$inferSelect) => ({
+[7m   [0m [91m    ~~~~~~[0m
+[96msrc/lib/services/notification-service.ts[0m:[93m201[0m:[93m7[0m - [91merror[0m[90m ts(2345): [0mArgument of type 'SQL<unknown> | undefined' is not assignable to parameter of type 'SQL<unknown>'.
+  Type 'undefined' is not assignable to type 'SQL<unknown>'.
+
+[7m201[0m       or(sql`${notifications.expiresAt} IS NULL`, gte(notifications.expiresAt, now))
+[7m   [0m [91m      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/lib/services/performance-service.ts[0m:[93m342[0m:[93m63[0m - [91merror[0m[90m ts(2769): [0mNo overload matches this call.
+  Overload 1 of 3, '(left: SQLiteColumn<{ name: "author_id"; tableName: "comments"; dataType: "string"; columnType: "SQLiteText"; data: string; driverParam: string; notNull: false; hasDefault: false; isPrimaryKey: false; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, { ...; }>, right: string | SQLWrapper): SQL<...>', gave the following error.
+  Overload 2 of 3, '(left: Aliased<number>, right: number | SQLWrapper): SQL<unknown>', gave the following error.
+  Overload 3 of 3, '(left: never, right: unknown): SQL<unknown>', gave the following error.
+
+[7m342[0m       whereConditions.push(or(...filters.authorId.map((id) => eq(comments.authorId, id))));
+[7m   [0m [91m                                                              ~~[0m
+[96msrc/lib/services/performance-service.ts[0m:[93m335[0m:[93m65[0m - [91merror[0m[90m ts(2769): [0mNo overload matches this call.
+  Overload 1 of 3, '(left: SQLiteColumn<{ name: "status"; tableName: "comments"; dataType: "string"; columnType: "SQLiteText"; data: "hidden" | "pending" | "approved" | "rejected" | "flagged"; driverParam: string; notNull: true; ... 7 more ...; generated: undefined; }, {}, { ...; }>, right: "hidden" | ... 4 more ... | SQLWrapper): SQL<...>', gave the following error.
+  Overload 2 of 3, '(left: Aliased<string>, right: string | SQLWrapper): SQL<unknown>', gave the following error.
+  Overload 3 of 3, '(left: never, right: unknown): SQL<unknown>', gave the following error.
+
+[7m335[0m       whereConditions.push(or(...filters.status.map((status) => eq(comments.status, status))));
+[7m   [0m [91m                                                                ~~[0m
+[96msrc/lib/services/performance-service.ts[0m:[93m247[0m:[93m48[0m - [91merror[0m[90m ts(2769): [0mNo overload matches this call.
+  Overload 1 of 3, '(left: SQLiteColumn<{ name: "parent_id"; tableName: "comments"; dataType: "string"; columnType: "SQLiteText"; data: string; driverParam: string; notNull: false; hasDefault: false; isPrimaryKey: false; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, { ...; }>, right: string | SQLWrapper): SQL<...>', gave the following error.
+  Overload 2 of 3, '(left: Aliased<null>, right: SQLWrapper | null): SQL<unknown>', gave the following error.
+  Overload 3 of 3, '(left: never, right: unknown): SQL<unknown>', gave the following error.
+
+[7m247[0m           options.includeReplies ? undefined : eq(comments.parentId, null)
+[7m   [0m [91m                                               ~~[0m
+[96msrc/lib/services/performance-service.ts[0m:[93m220[0m:[93m48[0m - [91merror[0m[90m ts(2769): [0mNo overload matches this call.
+  Overload 1 of 3, '(left: SQLiteColumn<{ name: "parent_id"; tableName: "comments"; dataType: "string"; columnType: "SQLiteText"; data: string; driverParam: string; notNull: false; hasDefault: false; isPrimaryKey: false; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, { ...; }>, right: string | SQLWrapper): SQL<...>', gave the following error.
+  Overload 2 of 3, '(left: Aliased<null>, right: SQLWrapper | null): SQL<unknown>', gave the following error.
+  Overload 3 of 3, '(left: never, right: unknown): SQL<unknown>', gave the following error.
+
+[7m220[0m           options.includeReplies ? undefined : eq(comments.parentId, null)
+[7m   [0m [91m                                               ~~[0m
+
+[96msrc/lib/services/prompt-enhancer-service.ts[0m:[93m670[0m:[93m9[0m - [91merror[0m[90m ts(2769): [0mNo overload matches this call.
+  Overload 1 of 3, '(body: ChatCompletionCreateParamsNonStreaming, options?: RequestOptions | undefined): APIPromise<ChatCompletion>', gave the following error.
+  Overload 2 of 3, '(body: ChatCompletionCreateParamsStreaming, options?: RequestOptions | undefined): APIPromise<Stream<ChatCompletionChunk>>', gave the following error.
+  Overload 3 of 3, '(body: ChatCompletionCreateParamsBase, options?: RequestOptions | undefined): APIPromise<ChatCompletion | Stream<...>>', gave the following error.
+
+[7m670[0m         params as unknown as {
+[7m   [0m [91m        ~~~~~~~~~~~~~~~~~~~~~~[0m
+[7m671[0m           model: string;
+[7m   [0m [91m~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[7m...[0m 
+[7m675[0m           top_p: number;
+[7m   [0m [91m~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[7m676[0m         }
+[7m   [0m [91m~~~~~~~~~[0m
+
+[96msrc/lib/services/referral-event-service.ts[0m:[93m71[0m:[93m5[0m - [91merror[0m[90m ts(2769): [0mNo overload matches this call.
+  Overload 2 of 2, '(values: { id: string | SQL<unknown> | Placeholder<string, any>; status: "pending" | "verified" | "paid" | "cancelled" | SQL<unknown> | Placeholder<string, any>; ... 7 more ...; creditsAwarded?: number | ... 2 more ... | undefined; }[]): SQLiteInsertBase<...>', gave the following error.
+
+[7m71[0m     id: crypto.randomUUID(),
+[7m  [0m [91m    ~~[0m
+
+[96msrc/lib/services/referral-profile-service.ts[0m:[93m123[0m:[93m5[0m - [91merror[0m[90m ts(2322): [0mType 'number' is not assignable to type 'Date'.
+
+[7m123[0m     updatedAt: now,
+[7m   [0m [91m    ~~~~~~~~~[0m
+[96msrc/lib/services/referral-profile-service.ts[0m:[93m122[0m:[93m5[0m - [91merror[0m[90m ts(2322): [0mType 'number' is not assignable to type 'Date'.
+
+[7m122[0m     createdAt: now,
+[7m   [0m [91m    ~~~~~~~~~[0m
+[96msrc/lib/services/referral-profile-service.ts[0m:[93m89[0m:[93m9[0m - [91merror[0m[90m ts(2322): [0mType 'number' is not assignable to type 'Date'.
+
+[7m89[0m         updatedAt: now,
+[7m  [0m [91m        ~~~~~~~~~[0m
+[96msrc/lib/services/referral-profile-service.ts[0m:[93m88[0m:[93m9[0m - [91merror[0m[90m ts(2322): [0mType 'number' is not assignable to type 'Date'.
+
+[7m88[0m         createdAt: now,
+[7m  [0m [91m        ~~~~~~~~~[0m
+
+[96msrc/lib/services/referral-reward-service.ts[0m:[93m80[0m:[93m58[0m - [91merror[0m[90m ts(2345): [0mArgument of type 'KVNamespace<string>' is not assignable to parameter of type 'import("/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/node_modules/@cloudflare/workers-types/index").KVNamespace<string>'.
+  Types of property 'get' are incompatible.
+
+[7m80[0m     creditsBalanceTenths = await getCreditsBalanceTenths(kv, event.ownerUserId, now);
+[7m  [0m [91m                                                         ~~[0m
+[96msrc/lib/services/referral-reward-service.ts[0m:[93m79[0m:[93m31[0m - [91merror[0m[90m ts(2345): [0mArgument of type 'KVNamespace<string>' is not assignable to parameter of type 'import("/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/node_modules/@cloudflare/workers-types/index").KVNamespace<string>'.
+  Types of property 'get' are incompatible.
+
+[7m79[0m     await addCreditPackTenths(kv, event.ownerUserId, packId, safeRewardTenths, now);
+[7m  [0m [91m                              ~~[0m
+
+Result (301 files): 
+- 34 errors
+- 0 warnings
+- 11 hints
+

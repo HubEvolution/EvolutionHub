@@ -3220,6 +3220,82 @@ components:
       required:
         - url
         - task
+    WebEvalReport:
+      type: object
+      additionalProperties: false
+      properties:
+        taskId: { type: string }
+        url: { type: string }
+        taskDescription: { type: string }
+        success: { type: boolean }
+        steps:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            properties:
+              action: { type: string }
+              timestamp: { type: string }
+              selectorUsed: { type: string }
+              screenshotKey: { type: string }
+            required: [action, timestamp]
+        consoleLogs:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            properties:
+              level:
+                type: string
+                enum: [log, error, warn, info, debug]
+              message: { type: string }
+              timestamp: { type: string }
+            required: [level, message, timestamp]
+        networkRequests:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            properties:
+              method:
+                type: string
+                enum: [GET, POST, PUT, DELETE, PATCH, HEAD]
+              url: { type: string }
+              status: { type: integer, minimum: 0 }
+              durationMs: { type: integer, minimum: 0 }
+            required: [method, url, status]
+        errors:
+          type: array
+          items: { type: string }
+        durationMs: { type: integer, minimum: 0 }
+        startedAt: { type: string }
+        finishedAt: { type: string }
+      required:
+        - taskId
+        - url
+        - taskDescription
+        - success
+        - steps
+        - consoleLogs
+        - networkRequests
+        - errors
+        - durationMs
+        - startedAt
+        - finishedAt
+    WebEvalCompletion:
+      type: object
+      additionalProperties: false
+      properties:
+        status:
+          type: string
+          enum: [completed, failed]
+        report:
+          $ref: '#/components/schemas/WebEvalReport'
+        error:
+          type: string
+      required:
+        - status
+        - report
     ApiError:
       type: object
       additionalProperties: false
@@ -3868,6 +3944,22 @@ components:
         url:
           type: string
           nullable: true
+    PlanEntitlements:
+      type: object
+      additionalProperties: false
+      properties:
+        monthlyImages:
+          type: integer
+          minimum: 0
+        dailyBurstCap:
+          type: integer
+          minimum: 0
+        maxUpscale:
+          type: integer
+          enum: [2, 4, 6, 8]
+        faceEnhance:
+          type: boolean
+      required: [monthlyImages, dailyBurstCap, maxUpscale, faceEnhance]
     UsageInfo:
       type: object
       nullable: true
@@ -3876,10 +3968,73 @@ components:
           type: integer
         limit:
           type: integer
-        resetAt:
+        updatedAt:
           type: integer
           format: int64
-          nullable: true
+    VoiceTranscribeSuccessResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        success:
+          type: boolean
+          enum: [true]
+        data:
+          type: object
+          additionalProperties: false
+          properties:
+            sessionId:
+              type: string
+            jobId:
+              type: string
+            text:
+              type: string
+              nullable: true
+            isFinal:
+              type: boolean
+            usage:
+              $ref: '#/components/schemas/UsageInfo'
+            limits:
+              type: object
+              additionalProperties: false
+              properties:
+                user: { type: integer }
+                guest: { type: integer }
+              required: [user, guest]
+      required: [success, data]
+    UsageSuccessResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        success:
+          type: boolean
+          enum: [true]
+        data:
+          type: object
+          additionalProperties: false
+          properties:
+            usage:
+              $ref: '#/components/schemas/UsageInfo'
+            entitlements:
+              type: object
+              additionalProperties: true
+      required: [success, data]
+    WebscraperExtractSuccessResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        success:
+          type: boolean
+          enum: [true]
+        data:
+          type: object
+          additionalProperties: false
+          properties:
+            content:
+              type: object
+              additionalProperties: true
+            usage:
+              $ref: '#/components/schemas/UsageInfo'
+      required: [success, data]
     VoicePollSuccessResponse:
       type: object
       properties:
@@ -3983,6 +4138,16 @@ components:
             type: integer
             format: int64
             nullable: true
+    AiGenerateSuccessResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        success:
+          type: boolean
+          enum: [true]
+        data:
+          $ref: '#/components/schemas/AiGenerateData'
+      required: [success, data]
       WebEvalTaskRequest:
         type: object
         additionalProperties: false

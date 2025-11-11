@@ -85,8 +85,8 @@ export async function getOrCreateReferralProfile(
         userId,
         referralCode: candidate,
         defaultCampaign: 'default',
-        createdAt: now,
-        updatedAt: now,
+        createdAt: nowDate,
+        updatedAt: nowDate,
       } satisfies ReferralProfileRecord;
     } catch (_error) {
       const error = _error instanceof Error ? _error : undefined;
@@ -119,8 +119,8 @@ export async function getOrCreateReferralProfile(
     userId,
     referralCode: fallbackCode,
     defaultCampaign: 'default',
-    createdAt: now,
-    updatedAt: now,
+    createdAt: nowDate,
+    updatedAt: nowDate,
   } satisfies ReferralProfileRecord;
 }
 
