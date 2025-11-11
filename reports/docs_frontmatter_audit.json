@@ -1,0 +1,818 @@
+{
+  "totalMarkdown": 128,
+  "withFrontmatter": 128,
+  "missingFrontmatter": [],
+  "missingFields": [
+    {
+      "path": "i18n.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "architecture.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "cheat-sheet.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "animation.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "content.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "SETUP.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "AUDIT.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "seo.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "db_schema_update.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "SECURITY.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "tools/prompt-enhancer.en.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "tools/debug-panel.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "tools/image-enhancer.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "tools/prompt-enhancer.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "tools/webscraper/IMPLEMENTATION_COMPLETE.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "tools/webscraper/guidelines.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "tools/webscraper/testing.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "tools/webscraper/roadmap.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "tools/webscraper/spec.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "frontend/card-components.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "frontend/coming-soon.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "frontend/aos-coordinator.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "frontend/components.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "frontend/ui-components.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "frontend/entitlements-ui-gating.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "frontend/header-scroll-animation.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "frontend/design-system.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "frontend/ui-ux.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "frontend/toast-notifications.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "frontend/imag-enhancer-ui-upgrade.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "archive/documentation-gap-analysis.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "archive/status-assessment.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "security/rate_limiting.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "security/improvements.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "security/security_headers.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "development/testing-guidelines.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "development/icon-guidelines.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "development/debug-panel-usage.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "development/docs-style-guide.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "development/api-validation.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "development/hybrid-logging-system.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "development/stripe-setup.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "development/typescript-integration.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "development/local-development.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "development/stytch-oauth-dev-guide.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "development/bugfix-session-cookie-fallback.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "development/ci-cd.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "development/inline-ts-refactor.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "development/prs/coming-soon-pr-template.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "development/prs/imag-enhancer-help-ui.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "rules-provisional/pricing.md",
+      "missing": [
+        "description",
+        "owner",
+        "lastSync",
+        "codeRefs",
+        "testRefs"
+      ]
+    },
+    {
+      "path": "rules-provisional/cookies-and-consent.md",
+      "missing": [
+        "description",
+        "owner",
+        "lastSync",
+        "codeRefs",
+        "testRefs"
+      ]
+    },
+    {
+      "path": "rules-provisional/infra.md",
+      "missing": [
+        "description",
+        "owner",
+        "lastSync",
+        "codeRefs",
+        "testRefs"
+      ]
+    },
+    {
+      "path": "rules-provisional/api-and-security.md",
+      "missing": [
+        "description",
+        "owner",
+        "lastSync",
+        "codeRefs",
+        "testRefs"
+      ]
+    },
+    {
+      "path": "rules-provisional/auth.md",
+      "missing": [
+        "description",
+        "owner",
+        "lastSync",
+        "codeRefs",
+        "testRefs"
+      ]
+    },
+    {
+      "path": "features/admin-notifications.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "features/pricing-system.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "features/blog+commentsystem-plan.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "compliance/ai-enhancer-licensing.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "testing/integration-hardening.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "testing/coverage-roadmap-to-95.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "testing/testing-strategy.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "architecture/ai-image-enhancer.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "architecture/api-middleware-inventory.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "architecture/database-schema.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "architecture/locale-middleware.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "architecture/voice-visualizer-transcriptor.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "architecture/auth-architecture.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "architecture/prompt-enhancer.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "architecture/data-flow.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "architecture/system-overview.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "architecture/auth-flow.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "architecture/adrs/0002-cloudflare-architecture.md",
+      "missing": [
+        "description",
+        "owner",
+        "priority",
+        "lastSync",
+        "codeRefs",
+        "testRefs"
+      ]
+    },
+    {
+      "path": "architecture/adrs/0000-adr-template.md",
+      "missing": [
+        "description",
+        "owner",
+        "priority",
+        "lastSync",
+        "codeRefs",
+        "testRefs"
+      ]
+    },
+    {
+      "path": "architecture/adrs/0001-astro-cloudflare-stack.md",
+      "missing": [
+        "description",
+        "owner",
+        "priority",
+        "lastSync",
+        "codeRefs",
+        "testRefs"
+      ]
+    },
+    {
+      "path": "architecture/adrs/0006-dev-echo-non-prod.md",
+      "missing": [
+        "description",
+        "owner",
+        "priority",
+        "lastSync",
+        "codeRefs",
+        "testRefs"
+      ]
+    },
+    {
+      "path": "architecture/adrs/0004-database-schema.md",
+      "missing": [
+        "description",
+        "owner",
+        "priority",
+        "lastSync",
+        "codeRefs",
+        "testRefs"
+      ]
+    },
+    {
+      "path": "architecture/adrs/0005-auth-route-locale-normalisierung.md",
+      "missing": [
+        "description",
+        "owner",
+        "priority",
+        "lastSync",
+        "codeRefs",
+        "testRefs"
+      ]
+    },
+    {
+      "path": "architecture/adrs/0003-astro-frontend-architecture.md",
+      "missing": [
+        "description",
+        "owner",
+        "priority",
+        "lastSync",
+        "codeRefs",
+        "testRefs"
+      ]
+    },
+    {
+      "path": "architecture/adrs/deprecated/0002-jwt-authentication.md",
+      "missing": [
+        "description",
+        "owner",
+        "priority",
+        "lastSync",
+        "codeRefs",
+        "testRefs"
+      ]
+    },
+    {
+      "path": "architecture/adrs/deprecated/0001-jwt-authentication.md",
+      "missing": [
+        "description",
+        "owner",
+        "priority",
+        "lastSync",
+        "codeRefs",
+        "testRefs"
+      ]
+    },
+    {
+      "path": "architecture/adrs/deprecated/0003-database-schema.md",
+      "missing": [
+        "description",
+        "owner",
+        "priority",
+        "lastSync",
+        "codeRefs",
+        "testRefs"
+      ]
+    },
+    {
+      "path": "architecture/reviews/BEWERTUNG_LOGIKREVIEW_IMAGE-ENHANCER_USAGE-PILL_PLANANZEIGE.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "deployment/image-enhancer-mvp.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "lead-magnets/content-prompts.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "lead-magnets/r2-optimization-plan.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "lead-magnets/prompts.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "rules/project-rules-deltas.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "rules/project-structure.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "api/dashboard_api.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "api/voice_api.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "api/projects_api.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "api/billing_api.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "api/auth_api.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "api/known-issues.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "api/user_api.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "api/public_api.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "api/admin_api.md",
+      "missing": [
+        "priority",
+        "testRefs"
+      ]
+    },
+    {
+      "path": "api/comments_api.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "api/webscraper_api.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "api/ai-image_api.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "ops/prod-readiness-ai-image-enhancer.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "ops/production-readiness-checklist.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "ops/runbook-image-enhancer-go-live.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "ops/monitoring.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "ops/cloudflare-cache-rules.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "ops/ai-generate-kv-limiter-plan.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "reference/environment.md",
+      "missing": [
+        "testRefs"
+      ]
+    },
+    {
+      "path": "reference/api/overview.md",
+      "missing": [
+        "owner",
+        "priority",
+        "lastSync",
+        "codeRefs",
+        "testRefs"
+      ]
+    }
+  ],
+  "invalid": [
+    {
+      "path": "archive/migration_pages_zu_worker.md",
+      "error": "Unsupported line:   Includes a compatibility matrix for comparing the features of Cloudflare"
+    }
+  ],
+  "priorityCounts": {
+    "medium": 43,
+    "low": 9,
+    "high": 59,
+    "95": 2,
+    "90": 1,
+    "85": 1,
+    "100": 1,
+    "unknown": 12
+  },
+  "stale": [
+    {
+      "path": "rules-provisional/pricing.md",
+      "ageDays": null
+    },
+    {
+      "path": "rules-provisional/cookies-and-consent.md",
+      "ageDays": null
+    },
+    {
+      "path": "rules-provisional/infra.md",
+      "ageDays": null
+    },
+    {
+      "path": "rules-provisional/api-and-security.md",
+      "ageDays": null
+    },
+    {
+      "path": "rules-provisional/auth.md",
+      "ageDays": null
+    },
+    {
+      "path": "architecture/adrs/0002-cloudflare-architecture.md",
+      "ageDays": null
+    },
+    {
+      "path": "architecture/adrs/0000-adr-template.md",
+      "ageDays": null
+    },
+    {
+      "path": "architecture/adrs/0001-astro-cloudflare-stack.md",
+      "ageDays": null
+    },
+    {
+      "path": "architecture/adrs/0006-dev-echo-non-prod.md",
+      "ageDays": null
+    },
+    {
+      "path": "architecture/adrs/0004-database-schema.md",
+      "ageDays": null
+    },
+    {
+      "path": "architecture/adrs/0005-auth-route-locale-normalisierung.md",
+      "ageDays": null
+    },
+    {
+      "path": "architecture/adrs/0003-astro-frontend-architecture.md",
+      "ageDays": null
+    },
+    {
+      "path": "architecture/adrs/deprecated/0002-jwt-authentication.md",
+      "ageDays": null
+    },
+    {
+      "path": "architecture/adrs/deprecated/0001-jwt-authentication.md",
+      "ageDays": null
+    },
+    {
+      "path": "architecture/adrs/deprecated/0003-database-schema.md",
+      "ageDays": null
+    },
+    {
+      "path": "reference/api/overview.md",
+      "ageDays": null
+    }
+  ]
+}
